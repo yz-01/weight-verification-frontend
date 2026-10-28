@@ -5,7 +5,7 @@
  *
  * Tab moves right, Enter moves down, Shift goes back; pasting a block copied
  * from Excel or WhatsApp fills the rows from the box it lands in. A row with a
- * problem is red and says why in the last column; a passport photo that was
+ * problem is red and says why on a line under it; a passport photo that was
  * not read with every check digit right is yellow, with the photo beside it
  * and 「对着照片补打」.
  */
@@ -13,10 +13,11 @@
 import { FileText, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { useEffect, useRef } from "react";
+import { Fragment, useEffect, useRef, type ChangeEvent, type ClipboardEvent, type KeyboardEvent } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Table,
   TableBody,
@@ -49,15 +50,23 @@ const FIELD_LABEL: Record<BulkField, string> = {
   company_text: "field.company",
 };
 
-const FIELD_WIDTH: Record<BulkField, string> = {
-  name: "min-w-48",
-  phone: "min-w-32",
-  passport_no: "min-w-32",
-  nationality: "min-w-20",
-  date_of_birth: "min-w-28",
-  passport_expiry: "min-w-28",
-  cidb_no: "min-w-28",
-  company_text: "min-w-40",
+/**
+ * Each box's least width (10-28: at 1440 px with the menu open the names were
+ * cut off). On the box, not the header: a fitted table (`data-fit`) lets a
+ * header shrink to nothing, but never a cell's content. 姓名 and 护照号码 come
+ * first: the name wraps onto a second line instead of being cut, the passport
+ * number is always whole; the rest are as narrow as what they hold. The table
+ * scrolls sideways only when even these do not fit.
+ */
+export const FIELD_WIDTH: Record<BulkField, string> = {
+  name: "min-w-40",
+  phone: "min-w-28",
+  passport_no: "min-w-28",
+  nationality: "min-w-16",
+  date_of_birth: "min-w-22",
+  passport_expiry: "min-w-22",
+  cidb_no: "min-w-20",
+  company_text: "min-w-28",
 };
 
 export interface CellFocus {
@@ -103,7 +112,7 @@ export function BulkTable({
 
   useEffect(() => {
     if (!focus) return;
-    const cell = body.current?.querySelector<HTMLInputElement>(
+    const cell = body.current?.querySelector<HTMLInputElement | HTMLTextAreaElement>(
       `[data-cell="${focus.row}-${focus.column}"]`,
     );
     if (cell) {
@@ -119,7 +128,7 @@ export function BulkTable({
       onNeedMoreRows({ row: index, column: key === "Tab" ? 0 : column });
       return;
     }
-    const input = body.current?.querySelector<HTMLInputElement>(`[data-cell="${target.row}-${target.column}"]`);
+    const input = body.current?.querySelector<HTMLInputElement | HTMLTextAreaElement>(`[data-cell="${target.row}-${target.column}"]`);
     if (input) {
       input.focus();
       input.select();
@@ -135,11 +144,8 @@ export function BulkTable({
           <TableHead className="w-12">{bulk("column.number")}</TableHead>
           <TableHead className="w-20">{bulk("column.photo")}</TableHead>
           {BULK_FIELDS.map((field) => (
-            <TableHead key={field} className={FIELD_WIDTH[field]}>
-              {t(FIELD_LABEL[field])}
-            </TableHead>
+            <TableHead key={field}>{t(FIELD_LABEL[field])}</TableHead>
           ))}
-          <TableHead className="min-w-56">{bulk("column.problems")}</TableHead>
           <TableHead className="w-12">
             <span className="sr-only">{bulk("removeRow")}</span>
           </TableHead>
@@ -150,11 +156,10 @@ export function BulkTable({
           const row = rows[index];
           const found = row.id ? (problems[row.id] ?? []) : [];
           const red = found.some((problem) => problem.code !== "check_photo");
+          const tone = red ? "bg-destructive/5" : row.needsCheck ? "bg-warning/10" : undefined;
           return (
-            <TableRow
-              key={row.key}
-              className={cn(red ? "bg-destructive/5" : row.needsCheck ? "bg-warning/10" : undefined)}
-            >
+            <Fragment key={row.key}>
+            <TableRow className={cn(tone, found.length > 0 && "border-b-0")}>
               <TableCell className="tabular text-muted-foreground">{index + 1}</TableCell>
               <TableCell>
                 <RowPhoto row={row} label={bulk("column.photo")} onOpen={() => onCheck(index)} />
@@ -170,53 +175,52 @@ export function BulkTable({
                   </Button>
                 )}
               </TableCell>
-              {BULK_FIELDS.map((field, column) => (
-                <TableCell key={field} className="p-1">
-                  <Input
-                    data-cell={`${index}-${column}`}
-                    aria-label={`${t(FIELD_LABEL[field])} ${index + 1}`}
-                    value={row.values[field]}
-                    placeholder={
-                      field === "company_text"
-                        ? companyPlaceholder
-                        : field === "date_of_birth" || field === "passport_expiry"
-                          ? bulk("datePlaceholder")
-                          : undefined
-                    }
-                    className="h-8 px-2"
-                    onChange={(event) => {
-                      const next = rows.slice();
-                      next[index] = editRow(row, field, event.target.value);
-                      onRows(next);
-                    }}
-                    onKeyDown={(event) => {
-                      if (event.key !== "Tab" && event.key !== "Enter") return;
-                      event.preventDefault();
-                      move(index, column, event.key, event.shiftKey);
-                    }}
-                    onPaste={(event) => {
-                      const text = event.clipboardData.getData("text/plain");
-                      if (!isGridPaste(text)) return;
-                      event.preventDefault();
-                      onRows(applyPaste(rows, index, field, parsePaste(text)));
-                    }}
-                  />
-                </TableCell>
-              ))}
-              <TableCell className="text-xs">
-                {found.length > 0 && (
-                  <ul className="space-y-0.5">
-                    {found.map((problem) => (
-                      <li
-                        key={problem.code}
-                        className={problem.code === "check_photo" ? "text-warning" : "text-destructive"}
-                      >
-                        {bulk(`problem.${problem.code}`, problem.values)}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </TableCell>
+              {BULK_FIELDS.map((field, column) => {
+                const box = {
+                  "data-cell": `${index}-${column}`,
+                  "aria-label": `${t(FIELD_LABEL[field])} ${index + 1}`,
+                  // The whole value on hover, however narrow the box.
+                  title: row.values[field] || undefined,
+                  value: row.values[field],
+                  placeholder:
+                    field === "company_text"
+                      ? companyPlaceholder
+                      : field === "date_of_birth" || field === "passport_expiry"
+                        ? bulk("datePlaceholder")
+                        : undefined,
+                  onChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+                    const next = rows.slice();
+                    next[index] = editRow(row, field, event.target.value);
+                    onRows(next);
+                  },
+                  onKeyDown: (event: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+                    if (event.key !== "Tab" && event.key !== "Enter") return;
+                    event.preventDefault();
+                    move(index, column, event.key, event.shiftKey);
+                  },
+                  onPaste: (event: ClipboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+                    const text = event.clipboardData.getData("text/plain");
+                    if (!isGridPaste(text)) return;
+                    event.preventDefault();
+                    onRows(applyPaste(rows, index, field, parsePaste(text)));
+                  },
+                };
+                return (
+                  <TableCell key={field} className="p-1 align-top">
+                    {field === "name" ? (
+                      // A long name wraps onto a second line rather than being
+                      // cut off; Enter still moves down, it never breaks a line.
+                      <Textarea
+                        {...box}
+                        rows={1}
+                        className={cn("min-h-8 resize-none px-2 py-1.5 leading-5 break-words", FIELD_WIDTH[field])}
+                      />
+                    ) : (
+                      <Input {...box} className={cn("h-8 px-2", FIELD_WIDTH[field])} />
+                    )}
+                  </TableCell>
+                );
+              })}
               <TableCell>
                 <Button
                   type="button"
@@ -230,6 +234,30 @@ export function BulkTable({
                 </Button>
               </TableCell>
             </TableRow>
+            {found.length > 0 && (
+              // Why the row is red or yellow, on a line of its own under it
+              // (10-28): a narrow last column squeezed the names.
+              <TableRow className={tone}>
+                <TableCell />
+                <TableCell colSpan={BULK_FIELDS.length + 2} className="pb-2 pt-0 text-sm">
+                  <span className="mr-2 font-medium text-muted-foreground">{bulk("column.problems")}</span>
+                  <ul className="inline">
+                    {found.map((problem) => (
+                      <li
+                        key={problem.code}
+                        className={cn(
+                          "inline after:mx-1.5 after:text-muted-foreground after:content-['·'] last:after:content-none",
+                          problem.code === "check_photo" ? "text-warning" : "text-destructive",
+                        )}
+                      >
+                        {bulk(`problem.${problem.code}`, problem.values)}
+                      </li>
+                    ))}
+                  </ul>
+                </TableCell>
+              </TableRow>
+            )}
+            </Fragment>
           );
         })}
       </TableBody>

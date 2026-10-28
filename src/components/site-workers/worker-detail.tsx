@@ -201,8 +201,13 @@ export function WorkerDetailDialog({
                   <StatusBadge label={t(`status.${worker.status}`)} tone={workerStatusTone(worker.status)} />
                   {!worker.is_active && <StatusBadge label={t("filter.inactive")} tone="neutral" />}
                   <span className="text-sm text-muted-foreground">
+                    {/* Outside the fence nothing of where is kept (J25): the
+                        time here is then the last one on site, and says so,
+                        so it does not argue with 「在工地外 · 12:25」 below. */}
                     {worker.last_position_at
-                      ? t("detail.lastAt", { at: df.dateTime(worker.last_position_at) })
+                      ? t(last?.geofence_result === "OUTSIDE" ? "detail.lastInsideAt" : "detail.lastAt", {
+                          at: df.dateTime(worker.last_position_at),
+                        })
                       : t("status.NOT_STARTED")}
                   </span>
                 </div>

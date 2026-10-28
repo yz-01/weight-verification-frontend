@@ -63,8 +63,11 @@ import type {
 import { useListQuery } from "@/hooks/use-list-query";
 import { useDateFormat } from "@/lib/dates";
 import { isRouteAllowed } from "@/lib/navigation";
+import { useUnitExportValues } from "@/hooks/use-material-units";
 import {
   REPORT_REFERENCE_COLUMNS,
+  messageCodes,
+  reportColumnValues,
   reportRowReference,
   reportRowRoute,
   reportRowTarget,
@@ -97,7 +100,7 @@ function displayValue(value: string | number | boolean | null): string {
 
 /** The preview's photograph column, before the report's own columns. */
 
-const REPORT_DATE_TIME_COLUMNS = new Set([
+export const REPORT_DATE_TIME_COLUMNS: ReadonlySet<string> = new Set([
   "generated_at",
   "updated_at",
   "captured_at",
@@ -112,6 +115,8 @@ const REPORT_DATE_TIME_COLUMNS = new Set([
   // J29: the day a return left, a delivery's own day.
   "returned_at",
   "business_at",
+  // 文件资料报表's 上传时间 (10-28: it printed the raw ISO time).
+  "created_at",
 ]);
 
 const REPORT_DATE_ONLY_COLUMNS = new Set([
@@ -173,6 +178,7 @@ export function ContractorReportWorkspace({
   const common = useTranslations("common");
   const locale = useLocale();
   const df = useDateFormat();
+  const units = useUnitExportValues();
   const queryClient = useQueryClient();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -283,6 +289,14 @@ export function ContractorReportWorkspace({
         column_labels: Object.fromEntries(
           (report.data?.columns ?? []).map((key) => [key, t(`column.${key}`)]),
         ),
+        // The file words its codes as the preview does (10-28: 「ENTRY」).
+        column_values: reportColumnValues(
+          reportType,
+          report.data?.columns ?? [],
+          (key) => (tRoot.has(key) ? tRoot(key) : null),
+          (namespace) => messageCodes(tRoot, namespace),
+          units,
+        ),
         // 日报告 and 项目进度摘要 print each document whole, in these words.
         lang: locale,
         // A report made in the background (JB48) comes back here for 「重新导出」.
@@ -301,6 +315,7 @@ export function ContractorReportWorkspace({
     const message = reportValueKey(reportType, key, value, row);
     if (message && tRoot.has(message)) return tRoot(message);
     if (value === null || value === "") return "-";
+    if (key === "unit" && units[String(value)]) return units[String(value)];
     if (REPORT_DATE_TIME_COLUMNS.has(key)) {
       return df.precise(String(value)) || displayValue(value);
     }

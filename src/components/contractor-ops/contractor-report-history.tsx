@@ -62,6 +62,8 @@ import type {
 } from "@/interfaces/contractor-report";
 import { FILE_ACTION_TYPES, type FileActionRecord, type FileActionType } from "@/interfaces/file-action";
 import { useDateFormat } from "@/lib/dates";
+import { messageCodes, reportColumnValues } from "@/lib/report-preview";
+import { useUnitExportValues } from "@/hooks/use-material-units";
 import { isSignOffCancelled } from "@/lib/sign-off";
 import { captureDownload } from "@/services/api-client";
 import {
@@ -357,6 +359,8 @@ function RegenerateButton({ row, reportName }: { row: ContractorReportExportReco
   const t = useTranslations("contractorReports");
   const h = useTranslations("contractorReports.history");
   const archiveT = useTranslations("reportArchive");
+  const tRoot = useTranslations();
+  const units = useUnitExportValues();
   const locale = useLocale();
   const df = useDateFormat();
   const queryClient = useQueryClient();
@@ -388,6 +392,13 @@ function RegenerateButton({ row, reportName }: { row: ContractorReportExportReco
             h("regeneratedOnFile", { when: df.dateTime(row.created_at) }),
           ].join(" · "),
           column_labels: Object.fromEntries(columns.map((key) => [key, t(`column.${key}`)])),
+          column_values: reportColumnValues(
+            row.report_type as ContractorReportType,
+            columns,
+            (key) => (tRoot.has(key) ? tRoot(key) : null),
+            (namespace) => messageCodes(tRoot, namespace),
+            units,
+          ),
           lang: locale,
           regenerated_from: row.id,
         }),

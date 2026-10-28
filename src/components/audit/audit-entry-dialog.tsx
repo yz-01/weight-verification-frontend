@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowRight, X } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import type { AuditLogEntry } from "@/interfaces/audit";
+import { auditObjectTypeLabel, auditOperationLabel } from "@/lib/audit-labels";
 import { useDateFormat } from "@/lib/dates";
 
 /**
@@ -31,7 +32,9 @@ export function AuditEntryDialog({
   onClose: () => void;
 }) {
   const t = useTranslations();
+  const locale = useLocale();
   const df = useDateFormat();
+  const objectType = auditObjectTypeLabel(entry.object_type, t, locale);
   const changes = Object.entries(entry.changes ?? {});
   const context = Object.entries(entry.context ?? {});
 
@@ -39,9 +42,11 @@ export function AuditEntryDialog({
     <Dialog open onOpenChange={(next) => !next && onClose()}>
       <DialogContent className="max-h-[90vh] overflow-hidden sm:max-w-170 [&>button]:hidden">
         <DialogHeader>
-          <DialogTitle>{t(`audit.action.${entry.action}`)}</DialogTitle>
+          <DialogTitle>
+            {auditOperationLabel(entry.context?.operation, t, locale) ?? t(`audit.action.${entry.action}`)}
+          </DialogTitle>
           <DialogDescription>
-            {entry.object_repr || entry.object_type || t("common.emptyValue")}
+            {entry.object_repr || objectType || t("common.emptyValue")}
           </DialogDescription>
         </DialogHeader>
 
@@ -61,7 +66,7 @@ export function AuditEntryDialog({
             />
             <Detail
               label={t("audit.field.objectType")}
-              value={entry.object_type}
+              value={objectType}
             />
             <Detail
               label={t("audit.field.ipAddress")}
