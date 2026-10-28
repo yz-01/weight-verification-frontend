@@ -29,7 +29,7 @@ describe("where an assistant refusal is shown", () => {
   });
 
   it("a field error the server names wins", () => {
-    const failure = new ApiError("Fill in.", 400, { owner_pin: ["Required."] }, "validation_failed");
+    const failure = new ApiError("Fill in.", 400, { owner_pin: "Required." }, "validation_failed");
     expect(assistantErrorField(failure)).toBe("owner_pin");
   });
 
