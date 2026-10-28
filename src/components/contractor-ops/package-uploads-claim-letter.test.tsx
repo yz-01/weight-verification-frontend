@@ -133,38 +133,48 @@ describe("「上传资料」 on a package", () => {
   });
 });
 
-describe("the 书信 slot", () => {
-  it("is marked required and says so while empty", () => {
+describe("the 书信 slot (optional since JB50, 客户 10-28)", () => {
+  it("is not marked required while empty", () => {
     const html = render(
-      <RecordAttachmentsPanel kind="CLAIM_LETTER" recordId="c1" title={zh.claims.letter.title} addLabel={zh.claims.letter.add} required />,
+      <RecordAttachmentsPanel kind="CLAIM_LETTER" recordId="c1" title={zh.claims.letter.title} addLabel={zh.claims.letter.add} />,
       (client) => client.setQueryData(recordAttachmentsKey("CLAIM_LETTER", "c1"), { ...slot(0), kind: "CLAIM_LETTER" }),
     );
     expect(html).toContain(zh.claims.letter.title);
-    expect(html).toContain(zh.claims.letter.add);
-    expect(html).toContain("text-destructive");
-    expect(html).toContain("border-destructive");
+    expect(html).not.toContain("border-destructive/60");
+    expect(html).not.toContain('<span class="ml-0.5 text-destructive">*</span>');
   });
 
-  it("is needed by the two kinds that raise a package, not by a 一般 Claim", () => {
+  it("is still offered to the two kinds that raise a package", () => {
     expect(claimNeedsLetter("MATERIAL_ON_SITE")).toBe(true);
     expect(claimNeedsLetter("PROGRESS")).toBe(true);
     expect(claimNeedsLetter("GENERAL")).toBe(false);
   });
 
-  it("holds 「确认本期」 back until a letter is there, nothing-ticked first", () => {
+  it("no longer holds 「确认本期」 back; only an empty claim does", () => {
     expect(claimConfirmBlocker({ kind: "PROGRESS", itemCount: 0, letterCount: 0 })).toBe("nothingSelected");
-    expect(claimConfirmBlocker({ kind: "PROGRESS", itemCount: 2, letterCount: 0 })).toBe("letterMissing");
-    expect(claimConfirmBlocker({ kind: "PROGRESS", itemCount: 2, letterCount: undefined })).toBe("letterMissing");
-    expect(claimConfirmBlocker({ kind: "MATERIAL_ON_SITE", itemCount: 1, letterCount: 1 })).toBeNull();
+    expect(claimConfirmBlocker({ kind: "PROGRESS", itemCount: 2, letterCount: 0 })).toBeNull();
+    expect(claimConfirmBlocker({ kind: "PROGRESS", itemCount: 2, letterCount: undefined })).toBeNull();
     expect(claimConfirmBlocker({ kind: "GENERAL", itemCount: 0, letterCount: 0 })).toBeNull();
   });
 
-  it("says 「请先上传书信」, in every language, with the server's code translated", () => {
-    expect(zh.claims.letter.missing).toBe("请先上传书信");
+  it("a Progress Claim package has its own 「书信（可选）」 slot, no star", () => {
+    const html = render(<PackageSheet id="pk1" onClose={() => undefined} />, (client) => {
+      client.setQueryData(["evidence-packages", "detail", "pk1"], {
+        ...pkg,
+        package_type: "PROGRESS_CLAIM",
+        claim_info: {
+          claim_id: null, claim_no: "", period: null, kind: "", category: null,
+          category_name: null, subcontractor: null, subcontractor_name: null,
+        },
+      });
+      client.setQueryData(recordAttachmentsKey("EVIDENCE_PACKAGE", "pk1"), slot(0));
+      client.setQueryData(recordAttachmentsKey("PACKAGE_LETTER", "pk1"), { ...slot(0), kind: "PACKAGE_LETTER" });
+    });
+    expect(html).toContain('data-kind="PACKAGE_LETTER"');
+    expect(html).toContain(zh.multiEngine.letter.title);
+    expect(html).toContain(zh.multiEngine.letter.hint);
     for (const messages of [zh, zhTW, en, ms]) {
-      expect(messages.claims.letter.missing).toBeTruthy();
-      expect(messages.multiEngine.uploads.add).toBeTruthy();
-      expect(messages.errors.api.claim_letter_required).toBeTruthy();
+      expect(messages.multiEngine.letter.title).toBeTruthy();
     }
   });
 });

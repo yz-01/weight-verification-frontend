@@ -330,10 +330,16 @@ export function FileActionButtons({
   label,
   labelHint,
   blockedReason,
+  omit,
 }: {
   source: FileSource;
   /** False where the person may look at the file but not export it. */
   allowSave?: boolean;
+  /**
+   * Actions drawn by the caller instead: an evidence package's 「发送」 is its
+   * own 「对外分享（WhatsApp / 电邮）」, which writes the share down (JB51).
+   */
+  omit?: readonly FileAction[];
   /**
    * JB25 (客户 10-26 事项 1): 「确认归档前，不能对外转发、导出、打印或生成分享
    * 链接」 - set, print / export / send are off with this reason; preview stays.
@@ -365,7 +371,7 @@ export function FileActionButtons({
             {label}
           </span>
         ) : null}
-        {fileActionsFor("pdf", allowSave).map((action) => {
+        {fileActionsFor("pdf", allowSave).filter((action) => !omit?.includes(action)).map((action) => {
           const Icon = FILE_ACTION_ICONS[action];
           return (
             <Button

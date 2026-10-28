@@ -1523,8 +1523,53 @@ export interface PackageItem extends PackageRecordParts {
   answers?: PackageAnswer[];
 }
 
+/**
+ * A Progress Claim package's 期数 / Claim 类型 / 分类 / 分包商 (JB52): its own
+ * (made in 「新建资料包」), or an old CLM- claim's with its number. No amount.
+ */
+export interface PackageClaimInfo {
+  claim_id: string | null;
+  /** `CLM-…` for an old claim; empty for one made in 「新建资料包」. */
+  claim_no: string;
+  /** The month's first day, `YYYY-MM-01`. */
+  period: string | null;
+  kind: "" | "MATERIAL_ON_SITE" | "PROGRESS";
+  category: string | null;
+  category_name: string | null;
+  subcontractor: string | null;
+  subcontractor_name: string | null;
+}
+
+/** How far a package went out (JB51): in the system, and by hand. */
+export interface PackageSendStatus {
+  internal: boolean;
+  external: "NONE" | "STARTED" | "SENT";
+}
+
+export type PackageShareChannel = "WHATSAPP" | "EMAIL" | "DOWNLOAD";
+
+/** One 「对外分享」 in 「发送记录」 (JB51). */
+export interface PackageShare {
+  id: string;
+  channel: PackageShareChannel;
+  /** The number or address; empty is 「未指定」. */
+  target: string;
+  status: "STARTED" | "CONFIRMED";
+  created_at: string;
+  created_by_name: string;
+  confirmed_at: string | null;
+  confirmed_by_name: string;
+}
+
 export interface EvidencePackageRow {
   id: string;
+  claim_period?: string | null;
+  claim_kind?: string;
+  claim_category?: string | null;
+  claim_other_name?: string;
+  claim_subcontractor?: string | null;
+  claim_info?: PackageClaimInfo | null;
+  send_status?: PackageSendStatus;
   /** 资料包编号, `PKG-<project>-<YYMMDD>-<NNN>` (2026-10-10). */
   package_no?: string;
   name: string;
@@ -1573,6 +1618,8 @@ export interface EvidencePackageDetail extends EvidencePackageRow {
   returned_item_ids?: string[];
   can_resubmit?: boolean;
   claim?: PackageClaimFacet | null;
+  /** 发送记录's hand-made shares (JB51); the in-system sends are `recipients`. */
+  shares?: PackageShare[];
   /* The consultant's view: their own recipient row (H17 五 2). */
   recipient?: PackageRecipient;
   can_sign?: boolean;

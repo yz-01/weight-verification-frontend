@@ -10835,7 +10835,7 @@
     "startAndAdd": "新建並加入",
     "state": {
       "DRAFT": "草稿",
-      "CONFIRMED": "已確認"
+      "CONFIRMED": "已確認（已鎖定）"
     },
     "subtitle": "從同一個項目的不同分類挑選資料，合併成一份 PDF。",
     "title": "Multi Engine 資料包",
@@ -10909,7 +10909,7 @@
     },
     "type": {
       "label": "資料包類型",
-      "help": "Progress Claim 按期數建立，在「Progress Claim」分頁裡做。",
+      "help": "Progress Claim 也在這裡建：選 Progress Claim 後，可以填期數、Claim 類型、分類和分包商（都可以不填）。",
       "all": "全部類型",
       "PROGRESS_CLAIM": "Progress Claim",
       "SUNDRY_CLAIM": "Sundry Claim（雜費報銷）",
@@ -10937,8 +10937,8 @@
         "timeline": "時間線",
         "rounds": "輪次"
       },
-      "send": "發送給…",
-      "noRecipients": "還沒有發給任何收件方。",
+      "send": "系統內發送（總部、顧問等）",
+      "noRecipients": "還沒有系統內發送。用 WhatsApp / 電郵發出的，請看「發送記錄」。",
       "kind": {
         "CONSULTANT": "顧問",
         "OWNER": "業主",
@@ -10973,7 +10973,7 @@
       "whatsapp": "用 WhatsApp 發送",
       "linkDone": "好了",
       "linkOnce": "完整連結只在這裡顯示一次。關掉以後，只能按「重新產生連結」拿新的（舊的馬上作廢）。",
-      "sendTitle": "發送資料包",
+      "sendTitle": "系統內發送",
       "field": {
         "kind": "發給誰",
         "personName": "對方姓名",
@@ -11078,6 +11078,96 @@
       "add": "上傳資料",
       "title": "上傳的資料",
       "hint": "電腦裡的 PDF、圖片或其他檔案。確認並合併時，放在資料後面一起進 PDF。上傳後不能修改或刪除。"
+    },
+    "openRecord": "開啟完整記錄",
+    "monthOnly": "只看 {month} 的記錄",
+    "claimInfo": {
+      "title": "Progress Claim 資料",
+      "claimNo": "原 Claim 編號",
+      "period": "期數（月份）",
+      "kind": "Claim 類型",
+      "category": "Claim 分類",
+      "subcontractor": "分包商",
+      "none": "未選",
+      "noKind": "不選",
+      "optional": "以下都可以不填。",
+      "edit": "修改",
+      "editTitle": "修改 Progress Claim 資料",
+      "save": "儲存"
+    },
+    "filter": {
+      "period": "期數",
+      "category": "分類",
+      "allCategories": "全部分類",
+      "subcontractor": "分包商",
+      "allSubcontractors": "全部分包商",
+      "clear": "清除篩選",
+      "pickProject": "先在頁面上方選項目，才能按分類篩選。"
+    },
+    "claimCategories": {
+      "button": "新增 Claim 分類",
+      "title": "Claim 分類",
+      "hint": "這裡只管分類（例如 Progress Claim、Manpower Claim）。要做 Claim，請按「新建資料包」，類型選 Progress Claim。",
+      "add": "新增 Claim 分類",
+      "rename": "改名",
+      "disable": "停用",
+      "enable": "重新啟用",
+      "off": "已停用",
+      "empty": "這個項目還沒有 Claim 分類。按「新增 Claim 分類」加一個。",
+      "project": "項目"
+    },
+    "letter": {
+      "title": "書信（可選）",
+      "hint": "有書信就上傳，確認時放在 PDF 最前面。沒有書信也可以確認。",
+      "add": "上傳書信"
+    },
+    "sendStatus": {
+      "NOT_SENT": "未發送",
+      "INTERNAL": "已發送系統內",
+      "STARTED": "已發起分享",
+      "SENT": "已對外發送"
+    },
+    "share": {
+      "button": "對外分享（WhatsApp / 電郵）",
+      "title": "對外分享（WhatsApp / 電郵）",
+      "channel": "怎麼發出去",
+      "WHATSAPP": "WhatsApp",
+      "EMAIL": "電郵",
+      "DOWNLOAD": "只下載",
+      "target": "發給誰（號碼或電郵）",
+      "targetHint": "可以不填。不填會記成「未指定」。",
+      "go": "下載檔案，記下這次分享",
+      "ready": "檔案已下載，已記下：已發起分享。",
+      "afterSent": "真的發出去以後，請在「發送記錄」按「標記為已發送」。",
+      "done": "好了",
+      "message": "請查收資料包：{name}",
+      "notLogged": "檔案已下載，但這次分享沒有記下來。請關掉再按一次「對外分享」。",
+      "markSent": "標記為已發送",
+      "markedToast": "已標記為已發送。",
+      "next": {
+        "WHATSAPP": "下一步：按「開啟 WhatsApp」，把剛下載的檔案附上，發出去。",
+        "EMAIL": "下一步：按「開啟電郵」，把剛下載的檔案附上，發出去。",
+        "DOWNLOAD": "檔案在電腦的「下載」資料夾裡。"
+      },
+      "open": {
+        "WHATSAPP": "開啟 WhatsApp",
+        "EMAIL": "開啟電郵"
+      }
+    },
+    "sendLog": {
+      "title": "發送記錄",
+      "empty": "還沒有發送過。",
+      "internal": "系統內發送",
+      "external": "對外分享",
+      "by": "{name} · {when}",
+      "to": "對象：{target}",
+      "unspecified": "未指定",
+      "opened": "已開啟（{when}）",
+      "notOpened": "還沒開啟",
+      "revoked": "已撤銷",
+      "STARTED": "已發起分享",
+      "CONFIRMED": "已確認發送",
+      "confirmedBy": "{name} 於 {when} 標記為已發送"
     }
   },
   "mySubmissions": {
