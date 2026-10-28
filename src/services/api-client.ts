@@ -551,6 +551,13 @@ export async function download(
   const capture = captureSlot;
   captureSlot = null;
   const response = await fetchFile(path, options);
+  if (response.status === 202) {
+    // Too big for one download (JB48): the server is making it in the
+    // background and will ring the bell. Said once, plainly; the export
+    // ends without a file, quietly (an ApiError with no message).
+    toast.success(t("fileActions.reportQueued"), { duration: 10_000 });
+    throw new ApiError("", 202, {}, REPORT_QUEUED);
+  }
   const blob = await response.blob();
   if (capture) {
     capture(
@@ -584,6 +591,9 @@ export async function download(
   // why this waits a tick rather than running on the next line.
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
+
+/** The code of an export the server is making in the background (JB48). */
+export const REPORT_QUEUED = "report_queued";
 
 let captureSlot: ((file: File) => void) | null = null;
 let captureQueue: Promise<unknown> = Promise.resolve();

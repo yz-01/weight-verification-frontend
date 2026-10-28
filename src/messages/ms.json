@@ -6829,6 +6829,20 @@
       }
     },
     "records": "{count} rekod",
+    "evidencePdfHelp": "Eksport PDF: halaman pertama menyenaraikan setiap rekod dan halamannya; halaman bukti penuh setiap rekod menyusul. Lebih daripada 20 rekod disediakan di latar belakang, dan anda dimaklumkan apabila siap.",
+    "jobs": {
+      "title": "Laporan sedang disediakan",
+      "what": "laporan sedang disediakan",
+      "records": "{count} rekod",
+      "preparing": "Sedang disediakan",
+      "preparingHint": "Laporan sedang disediakan. Anda akan dimaklumkan apabila siap.",
+      "failed": "Tidak dapat dibuat",
+      "again": "Eksport semula",
+      "failure": {
+        "failed": "Ada masalah semasa membuat laporan. Tekan Eksport semula; jika masih gagal, pilih tempoh lebih pendek.",
+        "interrupted": "Pembuatan laporan terganggu. Tekan Eksport semula untuk cuba sekali lagi."
+      }
+    },
     "targetReport": {
       "filterHelp": "Julat tarikh merangkumi sasaran yang tempoh sasarannya bertindih dengan tarikh yang dipilih.",
       "title": "Laporan pencapaian dan eksport"
@@ -6843,7 +6857,8 @@
       "safety": "Laporan pembetulan bahaya / EHS",
       "schedule": "Laporan dirancang berbanding sebenar",
       "target": "Laporan sasaran dan pencapaian",
-      "documents": "Laporan rekod projek",
+      "documents": "Laporan rekod dokumen",
+      "material_report": "Laporan bahan",
       "material_returns": "Pemulangan bahan (RN)",
       "material_rejections": "Bahan ditolak",
       "sundry_claims": "Laporan tuntutan pelbagai",
@@ -6864,34 +6879,6 @@
       "show": "Papar",
       "choose": "Pilih hari pertama dan hari terakhir dahulu.",
       "backwards": "Hari pertama tidak boleh selepas hari terakhir."
-    },
-    "photoGroups": {
-      "loadError": "Laporan foto tidak dapat dimuatkan.",
-      "empty": "Tiada foto dalam tempoh ini.",
-      "count": "{count} rekod dengan foto",
-      "truncated": "yang terbaru dipaparkan; sempitkan tempoh untuk selebihnya",
-      "previous": "Sebelumnya",
-      "next": "Seterusnya",
-      "first": "Ini halaman pertama.",
-      "last": "Ini halaman terakhir.",
-      "noRecord": "Foto tanpa rekod",
-      "kind": {
-        "ATTENDANCE": "Daftar masuk",
-        "OTHER": "Rekod"
-      },
-      "photos": "{count} foto",
-      "hasGps": "Ada GPS",
-      "openPhoto": "Buka foto {index} bagi {reference}",
-      "openRecord": "Buka rekod",
-      "column": {
-        "reference": "No.",
-        "kind": "Modul",
-        "project": "Projek",
-        "date": "Tarikh",
-        "uploaded_by": "Diambil oleh",
-        "photo_count": "Foto",
-        "has_gps": "GPS"
-      }
     },
     "photoCategory": {
       "MATERIAL_RECEIPT": "Bahan masuk",
@@ -8055,6 +8042,7 @@
       "export_no_columns": "Pilih sekurang-kurangnya satu lajur untuk dieksport.",
       "export_too_large": "Pilihan ini terlalu besar untuk dieksport. Tapiskan dahulu dan cuba lagi.",
       "export_too_many_with_photos": "Eksport ini mempunyai {count} rekod bergambar; paling banyak {limit} boleh dieksport sekali gus. Kecilkan tapisan (tarikh, projek atau pembekal) dan eksport semula.",
+      "report_too_many_records": "Laporan ini ada {count} rekod; satu PDF dengan halaman bukti setiap rekod memuatkan paling banyak {limit}. Pilih tempoh yang lebih pendek, atau eksport dalam beberapa bahagian.",
       "export_unavailable": "Eksport PDF tidak tersedia buat masa ini. Cuba format hamparan.",
       "feedback_not_found": "Maklum balas pelanggan itu tidak dijumpai.",
       "field_device_already_bound": "Akaun kakitangan tapak ini sudah mempunyai satu peranti terikat. Minta pentadbir menetapkan semula peranti sebelum menukarnya.",
@@ -11614,6 +11602,7 @@
       "platformJobs": "Kerja berjadual",
       "progressRecords": "Kemajuan projek",
       "projectRecords": "Rekod projek",
+      "documentRecords": "Rekod dokumen",
       "qrActivity": "Aktiviti QR",
       "qrAnomalies": "Anomali QR",
       "qrLifecycle": "Kitar hayat QR",
@@ -18353,6 +18342,7 @@
     "openInViewer": "Buka dalam pemapar telefon"
   },
   "fileActions": {
+    "reportQueued": "Laporan sedang disediakan. Anda akan dimaklumkan apabila siap; kemudian muat turun dari Sejarah eksport laporan.",
     "originalVersion": "Asal (sebelum diubah)",
     "originalVersionHint": "Rekod ini seperti mula-mula difailkan (versi 1), nombor yang sama; tidak dikira dalam mana-mana jumlah.",
     "originalVersionTitle": "{reference} · asal",

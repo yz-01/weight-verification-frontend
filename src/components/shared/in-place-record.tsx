@@ -32,7 +32,7 @@ const IN_PLACE_KINDS = new Set([
   "SUNDRY_CLAIM",
   "CONSULTANT_APPLICATION",
   "FIELD_TASK",
-  // 项目资料报表 → a document, closed back onto the report (客户 10-26 事项 4).
+  // 文件资料报表 → a document, closed back onto the report (客户 10-26 事项 4).
   "DOCUMENT",
 ]);
 

@@ -6829,6 +6829,20 @@
       }
     },
     "records": "共 {count} 条记录",
+    "evidencePdfHelp": "导出 PDF：第一页是目录（每笔记录在第几页），后面每笔记录接它的完整证据页。超过 20 笔会在后台准备，好了会通知您。",
+    "jobs": {
+      "title": "正在准备的报表",
+      "what": "正在准备的报表",
+      "records": "{count} 笔",
+      "preparing": "准备中",
+      "preparingHint": "报表正在准备，好了会通知您。",
+      "failed": "没有做成",
+      "again": "重新导出",
+      "failure": {
+        "failed": "做报表时出了问题。请按「重新导出」再试；还是不行，请把日期范围改短。",
+        "interrupted": "做报表时被中断了。请按「重新导出」再试一次。"
+      }
+    },
     "targetReport": {
       "filterHelp": "所选日期会包含目标期间与该日期范围有重叠的目标。",
       "title": "达成报表与导出"
@@ -6843,7 +6857,8 @@
       "safety": "整改 / EHS 报表",
       "schedule": "计划与实际对比报表",
       "target": "目标与达成报表",
-      "documents": "项目资料报表",
+      "documents": "文件资料报表",
+      "material_report": "材料报表",
       "material_returns": "材料退货记录（RN）",
       "material_rejections": "材料不合格记录",
       "sundry_claims": "杂费报销报表",
@@ -6864,34 +6879,6 @@
       "show": "查看",
       "choose": "请先选开始和结束日期。",
       "backwards": "开始日期不能晚于结束日期。"
-    },
-    "photoGroups": {
-      "loadError": "照片报表载入失败。",
-      "empty": "这段时间没有照片。",
-      "count": "{count} 条有照片的记录",
-      "truncated": "显示最新的；缩短日期范围看其余的",
-      "previous": "上一页",
-      "next": "下一页",
-      "first": "已经是第一页。",
-      "last": "已经是最后一页。",
-      "noRecord": "没有所属记录的照片",
-      "kind": {
-        "ATTENDANCE": "打卡",
-        "OTHER": "记录"
-      },
-      "photos": "{count} 张照片",
-      "hasGps": "有 GPS",
-      "openPhoto": "打开 {reference} 的第 {index} 张照片",
-      "openRecord": "打开原记录",
-      "column": {
-        "reference": "编号",
-        "kind": "模块",
-        "project": "项目",
-        "date": "日期",
-        "uploaded_by": "上传人",
-        "photo_count": "照片张数",
-        "has_gps": "GPS"
-      }
     },
     "photoCategory": {
       "MATERIAL_RECEIPT": "材料进场",
@@ -8055,6 +8042,7 @@
       "export_no_columns": "请至少选择一列再导出。",
       "export_too_large": "这次选择的数据量太大，无法导出。请先用筛选缩小范围。",
       "export_too_many_with_photos": "这次导出有 {count} 笔带照片的记录，一次最多 {limit} 笔。请用日期、项目或供应商缩小筛选范围后再导出。",
+      "report_too_many_records": "这份报表有 {count} 笔记录，一份 PDF（每笔带完整证据页）最多 {limit} 笔。请把日期范围改短，或分几次导出。",
       "export_unavailable": "PDF 导出暂时不可用，请改用表格格式。",
       "feedback_not_found": "找不到该客户反馈。",
       "field_device_already_bound": "此现场人员账号已绑定一台设备。如需换机，请先让管理员重置设备。",
@@ -11614,6 +11602,7 @@
       "platformJobs": "定时任务",
       "progressRecords": "工程进度",
       "projectRecords": "项目资料",
+      "documentRecords": "文件资料",
       "qrActivity": "二维码操作记录",
       "qrAnomalies": "二维码异常",
       "qrLifecycle": "二维码状态管理",
@@ -18353,6 +18342,7 @@
     "openInViewer": "用手机的阅读器打开"
   },
   "fileActions": {
+    "reportQueued": "报表正在准备，好了会通知您。准备好后可在「报表导出历史」下载。",
     "originalVersion": "修改前原单",
     "originalVersionHint": "这笔记录第一次提交时的样子（版本 1），同一个编号；不计入任何累计。",
     "originalVersionTitle": "{reference} · 修改前原单",

@@ -16,7 +16,7 @@ import type {
  * | 顾问申请           | 申请类型 (Q2)      |         |
  * | 设备进退场         | 设备大类           | 小类     |
  * | 废料订单           | 环保材料出场分类    |         |
- * | 项目资料           | 文档大分类          | 子分类   |
+ * | 文件资料           | 文档大分类          | 子分类   |
  * | 材料出场 / 进度 Claim | 分类              | 子分类   |
  *
  * I11 (ID27): a module whose project made a 分类组 of its own shows the groups

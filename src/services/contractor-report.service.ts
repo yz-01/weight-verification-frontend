@@ -4,7 +4,7 @@ import type {
   ContractorReportExportRecord,
   ContractorReportFilterOptions,
   ContractorReportFilters,
-  PhotoGroupPage,
+  ContractorReportJob,
   ContractorReportOptions,
   ContractorReportType,
   ReportLevelRow,
@@ -48,29 +48,12 @@ export function getContractorReport(
   );
 }
 
-/** 照片报表 (J8): one row per record, its photographs side by side. */
-export function getPhotoGroups(
-  filters: ContractorReportFilters & { page?: number; page_size?: number },
-): Promise<PhotoGroupPage> {
-  return api.get("/api/contractor-reports/get_photo_groups/", filters as unknown as ListQuery);
-}
-
-/**
- * The photo report as a file (J8-5): ``evidence`` is each record's complete
- * evidence report in one PDF; ``xlsx`` / ``pdf`` one record per row.
- */
-export function exportPhotoGroups(
-  input: ContractorReportFilters & {
-    format: "evidence" | "xlsx" | "pdf";
-    title: string;
-    columns?: Array<{ key: string; label: string; values?: Record<string, string> }>;
-  },
-): Promise<void> {
-  return download("/api/contractor-reports/export_photo_groups/", {
-    method: "POST",
-    body: input,
-    fallbackFilename: input.format === "xlsx" ? "photo-report.xlsx" : "photo-report.pdf",
-  });
+/** The reports being made in the background, and those not made (JB48). */
+export async function getContractorReportJobs(): Promise<ContractorReportJob[]> {
+  const data = await api.get<{ results: ContractorReportJob[] }>(
+    "/api/contractor-reports/get_export_jobs/",
+  );
+  return data.results;
 }
 
 export function getContractorReportHistory(
@@ -100,6 +83,8 @@ export function exportContractorReport(
     lang?: string;
     /** A history row without a file, generated again from its conditions (JB27). */
     regenerated_from?: string;
+    /** The report page, for a background report's 「重新导出」 (JB48). */
+    return_to?: string;
   },
 ): Promise<void> {
   return download("/api/contractor-reports/export_report/", {

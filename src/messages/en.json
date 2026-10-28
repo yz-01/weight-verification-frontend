@@ -6829,6 +6829,20 @@
       }
     },
     "records": "{count} records",
+    "evidencePdfHelp": "PDF export: the first page lists every record and the page it is on; each record's full evidence pages follow. More than 20 records are prepared in the background, and you are notified when ready.",
+    "jobs": {
+      "title": "Reports being prepared",
+      "what": "reports being prepared",
+      "records": "{count} records",
+      "preparing": "Preparing",
+      "preparingHint": "The report is being prepared. We will notify you when it is ready.",
+      "failed": "Not made",
+      "again": "Export again",
+      "failure": {
+        "failed": "Something went wrong while making the report. Press Export again; if it still fails, choose fewer days.",
+        "interrupted": "Making the report was interrupted. Press Export again to try once more."
+      }
+    },
     "targetReport": {
       "filterHelp": "The date range includes targets whose target period overlaps the selected dates.",
       "title": "Achievement report and export"
@@ -6843,7 +6857,8 @@
       "safety": "Hazard rectification / EHS report",
       "schedule": "Planned versus actual report",
       "target": "Target and achievement report",
-      "documents": "Project records report",
+      "documents": "Document records report",
+      "material_report": "Material report",
       "material_returns": "Material returns (RN)",
       "material_rejections": "Rejected material",
       "sundry_claims": "Sundry claims report",
@@ -6864,34 +6879,6 @@
       "show": "Show",
       "choose": "Choose the first and the last day first.",
       "backwards": "The first day cannot be after the last day."
-    },
-    "photoGroups": {
-      "loadError": "The photo report could not be loaded.",
-      "empty": "No photographs in this period.",
-      "count": "{count} records with photographs",
-      "truncated": "the newest are shown; narrow the period for the rest",
-      "previous": "Previous",
-      "next": "Next",
-      "first": "This is the first page.",
-      "last": "This is the last page.",
-      "noRecord": "Photographs without a record",
-      "kind": {
-        "ATTENDANCE": "Clock-in",
-        "OTHER": "Record"
-      },
-      "photos": "{count} photos",
-      "hasGps": "Has GPS",
-      "openPhoto": "Open photo {index} of {reference}",
-      "openRecord": "Open the record",
-      "column": {
-        "reference": "No.",
-        "kind": "Module",
-        "project": "Project",
-        "date": "Date",
-        "uploaded_by": "Taken by",
-        "photo_count": "Photos",
-        "has_gps": "GPS"
-      }
     },
     "photoCategory": {
       "MATERIAL_RECEIPT": "Material receiving",
@@ -8055,6 +8042,7 @@
       "export_no_columns": "Choose at least one column to export.",
       "export_too_large": "This selection is too large to export. Narrow it with a filter and try again.",
       "export_too_many_with_photos": "This export has {count} records with photos; at most {limit} can be exported at once. Narrow the filter (dates, project or supplier) and export again.",
+      "report_too_many_records": "This report has {count} records; one PDF with every record's evidence pages holds at most {limit}. Choose fewer days, or export it in parts.",
       "export_unavailable": "PDF export is not available right now. Try the spreadsheet instead.",
       "feedback_not_found": "That customer feedback could not be found.",
       "field_device_already_bound": "This field account already has a bound device. Ask an administrator to reset it before changing devices.",
@@ -11614,6 +11602,7 @@
       "platformJobs": "Scheduled jobs",
       "progressRecords": "Project progress",
       "projectRecords": "Project records",
+      "documentRecords": "Document records",
       "qrActivity": "QR activity",
       "qrAnomalies": "QR anomalies",
       "qrLifecycle": "QR lifecycle",
@@ -18353,6 +18342,7 @@
     "openInViewer": "Open in the phone's viewer"
   },
   "fileActions": {
+    "reportQueued": "The report is being prepared. We will notify you when it is ready; then download it from Report export history.",
     "originalVersion": "Original (before changes)",
     "originalVersionHint": "This record as first filed (version 1), under the same number; it counts in no total.",
     "originalVersionTitle": "{reference} · original",
