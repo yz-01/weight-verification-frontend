@@ -7,7 +7,7 @@
  * foreign link, and a fix that does not get through is the next one's job.
  */
 
-import type { WorkerLinkState } from "@/interfaces/site-workers";
+import type { CaptureResult, CaptureState, WorkerLinkState } from "@/interfaces/site-workers";
 import { api } from "@/services/api-client";
 
 const base = (token: string) => `/api/worker-location-link/${encodeURIComponent(token)}`;
@@ -33,6 +33,29 @@ export function recordWorkerPosition(
   return api.post<{ received_at: string; outside_fence?: boolean }>(
     `${base(token)}/record_position/`,
     { device, ...fix },
+    { auth: false, silent: true },
+  );
+}
+
+// --- A phone's passport-capture link (JB61-1) --------------------------------
+
+const capture = (token: string) => `/api/passport-capture/${encodeURIComponent(token)}`;
+
+export function getCapture(token: string): Promise<CaptureState> {
+  return api.get<CaptureState>(`${capture(token)}/get_capture/`, undefined, { auth: false, silent: true });
+}
+
+export function uploadCapturePhoto(token: string, file: File): Promise<CaptureResult> {
+  const body = new FormData();
+  body.append("file", file);
+  return api.post<CaptureResult>(`${capture(token)}/upload_photo/`, body, { auth: false, silent: true });
+}
+
+/** 「重拍」: take back the photo this phone just sent. */
+export function discardCaptureRow(token: string, row: string): Promise<{ discarded: boolean; phone_count: number }> {
+  return api.post<{ discarded: boolean; phone_count: number }>(
+    `${capture(token)}/discard_row/`,
+    { row },
     { auth: false, silent: true },
   );
 }

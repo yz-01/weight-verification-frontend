@@ -268,6 +268,7 @@ export const LIST_FITS = {
     columns: {
       name: "name",
       phone: "short",
+      passport_no: "short",
       cidb_no: "short",
       company_name: "text",
       project_name: "text",

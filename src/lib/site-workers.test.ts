@@ -4,6 +4,8 @@ import {
   cleanDocuments,
   clockTime,
   incompleteDocument,
+  nationalityLabel,
+  passportExpired,
   reportIntervalMs,
   workerLinkOutcome,
   workerLinkToken,
@@ -72,5 +74,21 @@ describe("the worker's page", () => {
     expect(reportIntervalMs(7200)).toBe(7_200_000);
     expect(reportIntervalMs(9000)).toBe(7_200_000);
     expect(reportIntervalMs(undefined)).toBe(60_000);
+  });
+});
+
+describe("passport (JB61-2)", () => {
+  it("names the country from the passport's code", () => {
+    expect(nationalityLabel("BGD", "en")).toBe("BGD · Bangladesh");
+    expect(nationalityLabel("bgd", "zh")).toMatch(/^BGD · /);
+    expect(nationalityLabel("Bangladeshi", "en")).toBe("Bangladeshi");
+    expect(nationalityLabel("", "en")).toBe("");
+  });
+
+  it("an expiry before today is expired; today is not", () => {
+    const today = new Date(2026, 9, 28);
+    expect(passportExpired("2026-10-27", today)).toBe(true);
+    expect(passportExpired("2026-10-28", today)).toBe(false);
+    expect(passportExpired(null, today)).toBe(false);
   });
 });

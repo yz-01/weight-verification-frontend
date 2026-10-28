@@ -8327,7 +8327,18 @@
       "session_replaced": "这个账号已在另一台电脑登录，这台电脑已经退出。要在这台电脑继续用，请重新登录。",
       "sign_off_assistant_limit": "已经有两位助理。要换人，请先删除一位。",
       "sign_off_assistant_pin_taken": "这个密码已经有人用了，请换一个六位数。",
-      "sign_off_assistant_not_found": "找不到这位助理，请刷新页面再试。"
+      "sign_off_assistant_not_found": "找不到这位助理，请刷新页面再试。",
+      "site_worker_no_phone": "先补电话号码才能发定位链接。请按「修改资料」填电话号码。",
+      "site_worker_passport_taken": "这本护照已经在名单里（{name}，{project}）。同一个人不能加两次；要换项目，先把旧的移出名单。",
+      "worker_batch_not_found": "找不到这一批。请回到人员名单，再按「批量新增人员」。",
+      "worker_batch_closed": "这一批已经结束了。要再加人，请开一批新的。",
+      "worker_batch_too_many_rows": "一批最多 {limit} 行。请先按「全部保存」，再开一批新的。",
+      "passport_file_invalid": "这个文件不是照片或 PDF。请上传 JPG、PNG 照片或 PDF。",
+      "passport_file_too_large": "文件太大（最多 {limit_mb} MB）。请拍小一点或用 PDF 压缩后再上传。",
+      "worker_excel_invalid": "打不开这个 Excel。请按「下载 Excel 样板」，在样板里填好再上传。",
+      "worker_excel_no_header": "这个 Excel 找不到「姓名」这一栏。请用样板，第一行不要改。",
+      "worker_excel_empty": "这个 Excel 里没有人。请从第 2 行开始，一行填一个人。",
+      "passport_capture_link_invalid": "这个拍照链接已经失效。请在电脑的「批量新增人员」页面重新扫二维码。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -8360,7 +8371,10 @@
       "material_linked": "这条记录用项目的材料资料：请选材料和规格，不能直接打名称",
       "spec_mismatch": "请选这个材料的规格",
       "spec_not_other": "要自己打规格，请先选「其他」",
-      "unit_follows_spec": "单位跟着规格，不能改"
+      "unit_follows_spec": "单位跟着规格，不能改",
+      "invalid_passport_no": "护照号码只能有英文字母和数字，5 到 20 个",
+      "invalid_birth_date": "出生日期要在今天以前",
+      "site_worker_passport_taken": "这本护照已经在名单里"
     },
     "forbidden": "你没有访问权限。",
     "forbiddenBody": "如果确实需要，请联系管理员。",
@@ -19329,7 +19343,12 @@
       "documents": "其他证件",
       "enteredAt": "进场时间",
       "exitedAt": "离场时间",
-      "exitState": "状态"
+      "exitState": "状态",
+      "passportNo": "护照号码",
+      "nationality": "国籍",
+      "dateOfBirth": "出生日期",
+      "passportExpiry": "护照到期日",
+      "passportPhoto": "护照照片"
     },
     "status": {
       "ON_SITE": "在场",
@@ -19358,7 +19377,8 @@
       "add": "新增人员",
       "edit": "修改资料",
       "deactivate": "移出名单",
-      "reactivate": "重新加入名单"
+      "reactivate": "重新加入名单",
+      "bulkAdd": "批量新增人员"
     },
     "what": {
       "companies": "公司名单",
@@ -19373,7 +19393,7 @@
     "form": {
       "addTitle": "新增人员",
       "editTitle": "修改资料",
-      "phoneHint": "例如 012-345 6789。定位链接只会绑定这个号码的手机。",
+      "phoneHint": "可以不填。例如 012-345 6789。没有电话就不能发定位链接；定位链接只会绑定这个号码的手机。",
       "noCompany": "不选（名单里没有）",
       "pickCompany": "从公司名单选择",
       "searchCompany": "搜索公司",
@@ -19383,7 +19403,11 @@
       "documentNumber": "证件号码",
       "removeDocument": "删除这张证件",
       "addDocument": "加一张证件",
-      "documentIncomplete": "每张证件都要填名称和号码"
+      "documentIncomplete": "每张证件都要填名称和号码",
+      "nationalityPlaceholder": "例如 BGD、IDN、NPL",
+      "passportPhotoHint": "护照有照片的那一页，照片或 PDF 都可以。只有能看人员名单的人看得到。",
+      "addPassportPhoto": "上传护照照片",
+      "replacePassportPhoto": "换一张护照照片"
     },
     "detail": {
       "title": "人员资料",
@@ -19402,7 +19426,9 @@
       "allVisits": "查看全部",
       "noVisits": "还没有进出场记录",
       "deactivateHelp": "打开开关才能移出名单。移出后定位链接马上失效；之前的进出场和定位记录都保留。",
-      "armFirst": "先打开左边的开关"
+      "armFirst": "先打开左边的开关",
+      "passportExpired": "护照已过期",
+      "openPassportPhoto": "打开看大图"
     },
     "link": {
       "status": {
@@ -19421,7 +19447,102 @@
       "sentBody": "系统不发短信。用 WhatsApp 发给人员，或复制后自己发送。这个链接只显示这一次。",
       "otherBrowser": "如果人员换了浏览器或 App 打开链接（例如先在 WhatsApp 里打开，后来又用 Safari 打开），系统会当成另一部手机，办公室要重新发链接。",
       "whatsapp": "用 WhatsApp 发送",
-      "copy": "复制链接"
+      "copy": "复制链接",
+      "needPhone": "先补电话号码才能发定位链接"
+    },
+    "bulk": {
+      "title": "批量新增人员",
+      "back": "返回人员名单",
+      "startIntro": "一次放很多人进人员名单。先选项目和公司，再用手机拍护照、上传护照照片、Excel 或直接打字，最后按「全部保存」。",
+      "step1": "第一步：选项目和公司",
+      "companyHint": "这一批的人都用这家公司。表里某一个人不同，可以在那一行的「所属公司」打别的公司。",
+      "start": "开始填写",
+      "continueTitle": "上次没做完的",
+      "noOpenBatches": "没有没做完的。",
+      "openBatchLine": "开始于 {at} · 表里还有 {rows} 人 · 已保存 {saved} 人",
+      "continue": "继续",
+      "what": {
+        "batches": "没做完的批次",
+        "batch": "这一批的表"
+      },
+      "changeCompany": "改公司",
+      "counts": "表里 {rows} 人 · 已保存 {saved} 人",
+      "draftSaving": "正在存草稿…",
+      "draftSaved": "草稿已自动存好",
+      "draftFailed": "草稿没存上，请检查网络，再打一个字会再试",
+      "closedNote": "这一批已经结束了。要再加人，请回到人员名单按「批量新增人员」开一批新的。",
+      "howTo": "三种方法都放进同一张表：① 按「用手机拍护照」，用手机扫二维码拍；② 按「上传护照照片 / PDF」；③ 用 Excel 样板，或直接在表里打字、从 Excel / WhatsApp 复制贴上（Tab、Enter 跳格）。只有姓名一定要填。最后按最下面的「全部保存」。",
+      "usePhones": "用手机拍护照",
+      "hidePhones": "收起二维码",
+      "uploadPhotos": "上传护照照片 / PDF",
+      "uploadBusy": "还在读上一批护照，读完再上传",
+      "uploadFailed": "没上传成功，请再试一次",
+      "downloadTemplate": "下载 Excel 样板",
+      "uploadExcel": "上传 Excel",
+      "addRows": "再加 20 行",
+      "reading": "正在读护照 {done} / {total}…",
+      "readDone": "{total} 个文件读完了，{failed} 个没放进表里：",
+      "result": "成功 {saved} 人，要处理 {problems} 人",
+      "resultProblems": "要处理的还在表里，红色的写了原因。改好后再按「全部保存」。",
+      "filterAll": "全部（{count}）",
+      "filterProblems": "只看要处理的（{count}）",
+      "noProblems": "没有要处理的。",
+      "prevPage": "上一页",
+      "nextPage": "下一页",
+      "firstPage": "已经是第一页",
+      "lastPage": "已经是最后一页",
+      "page": "第 {page} / {pages} 页",
+      "saveAll": "全部保存",
+      "savingProgress": "正在保存… 已保存 {saved} 人",
+      "saveHint": "没问题的人加进人员名单；有问题的留在表里。",
+      "nothingToSave": "表里还没有人，先填几行",
+      "finish": "这一批做完了",
+      "finishTitle": "这一批做完了吗？",
+      "finishBody": "结束后手机的拍照二维码马上失效。",
+      "finishBodyLeft": "表里还有 {count} 人没保存，结束后他们不会加入人员名单。手机的拍照二维码也马上失效。",
+      "removeRow": "删除这一行",
+      "typeFromPhoto": "对着照片补打",
+      "datePlaceholder": "日/月/年",
+      "column": {
+        "number": "行",
+        "photo": "护照",
+        "problems": "要处理"
+      },
+      "problem": {
+        "missing_name": "没有姓名：请填姓名",
+        "name_has_digits": "姓名里有数字：请对着护照改",
+        "check_photo": "护照没读清楚：请对着照片核对或补打，再按「核对好了」",
+        "passport_invalid": "护照号码不对：只能有英文字母和数字",
+        "phone_invalid": "电话号码不对：例如 012-345 6789，没有可以空着",
+        "dob_invalid": "出生日期不对：写 日/月/年，例如 31/12/1990",
+        "expiry_invalid": "护照到期日不对：写 日/月/年，例如 31/12/2030",
+        "passport_expired": "护照已过期（{date}）：请拿新护照，改护照号码和到期日",
+        "passport_twice": "这一批里护照号码重复：删掉多的那一行",
+        "phone_twice": "这一批里电话号码重复：改掉或删掉多的那一行",
+        "passport_on_roster": "这个人已经在名单里（{name}，{project}）：不用再加，删掉这一行",
+        "phone_on_roster": "这个电话已经在名单里（{name}）：同一个人就删掉这一行，不是就改电话"
+      },
+      "capture": {
+        "title": "用手机拍护照",
+        "step1": "用手机相机扫这个二维码。",
+        "step2": "把护照有照片的那一页放进框里，按「拍照」。",
+        "step3": "拍好的会自动出现在下面的表里。几支手机可以同时拍。",
+        "validUntil": "二维码到 {at} 前有效。",
+        "phoneCount": "表里手机拍的：{count} 本",
+        "what": "拍照二维码",
+        "stop": "停止手机拍照",
+        "stopHint": "按了之后，已经扫过的手机也不能再拍。"
+      },
+      "check": {
+        "title": "第 {number} 行：对着护照照片核对",
+        "yellowBody": "这本护照没读清楚。请看着照片把资料打对，再按「核对好了」。",
+        "body": "看着照片核对姓名和号码，改了会自动存。",
+        "openPdf": "打开 PDF 看",
+        "noPhoto": "这一行没有护照照片。",
+        "zoomHint": "点照片可以在新窗口放大看。",
+        "confirm": "核对好了"
+      },
+      "saveBlocked": "表里改的还没存到服务器，所以还没保存。请检查网络，再按一次「全部保存」。"
     }
   },
   "workerLocation": {
@@ -19842,5 +19963,29 @@
       "body": "通知被关掉了，有新消息不会响。请到手机「设置」→「通知」，允许本 App 的通知。"
     },
     "dismiss": "知道了"
+  },
+  "passportCapture": {
+    "title": "拍护照",
+    "count": "这一批手机已拍 {count} 本",
+    "endedTitle": "这个拍照链接已经失效",
+    "endedBody": "请在电脑的「批量新增人员」页面，按「用手机拍护照」，重新扫二维码。",
+    "failedTitle": "打不开",
+    "failedBody": "请检查手机网络，再按「再试一次」。",
+    "tryAgain": "再试一次",
+    "aimHint": "把护照有照片的那一页放进框里，底下两行字要在虚线框里、要清楚。",
+    "shoot": "拍照",
+    "openCamera": "再开一次相机",
+    "cameraStarting": "相机还在打开，请等一下",
+    "noLiveCamera": "这个手机的浏览器没有打开相机。请允许使用相机（浏览器问的时候按「允许」），再按下面的按钮；还是不行就换一支手机扫二维码。",
+    "photoAlt": "刚拍的护照",
+    "reading": "正在读护照，请等几秒…",
+    "readOk": "读到了",
+    "passportNo": "护照号码 {number}",
+    "unclear": "看不清楚，请重拍",
+    "unclearBody": "放平、不要反光、靠近一点，底下两行字要清楚。实在拍不清楚，可以按「就用这张」，电脑上会对着照片补打。",
+    "retake": "重拍",
+    "keepThis": "就用这张，电脑上补打",
+    "next": "拍下一本",
+    "sendFailed": "没送出去，请检查网络再拍一次"
   }
 }

@@ -1887,6 +1887,8 @@ interface PermissionRouteRule {
  */
 const PERMISSION_ROUTE_RULES: readonly PermissionRouteRule[] = [
   { pattern: "/companies/create", permission: "company.create" },
+  // 批量新增人员 (JB61-1): only who may add people to the roster.
+  { pattern: "/site-workers/bulk", permission: "site_worker.manage" },
   { pattern: "/companies/:id/edit", permission: "company.update" },
   { pattern: "/projects/create", permission: "project.create" },
   { pattern: "/projects/:id/edit", permission: "project.update" },

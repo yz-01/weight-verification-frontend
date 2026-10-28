@@ -82,3 +82,34 @@ export function reportIntervalMs(seconds: number | null | undefined): number {
   // Up to two hours: a location link reports every two hours while open (J24-2).
   return Math.min(7200, Math.max(30, value)) * 1000;
 }
+
+/**
+ * The passport's three-letter country code (BGD, IDN) as the reader's
+ * language names it - 「BGD · 孟加拉」. Anything else is shown as typed.
+ * The countries Malaysia's foreign workers come from, and a few more.
+ */
+const ALPHA3_TO_ALPHA2: Record<string, string> = {
+  BGD: "BD", IDN: "ID", NPL: "NP", MMR: "MM", IND: "IN", PAK: "PK", VNM: "VN",
+  PHL: "PH", LKA: "LK", KHM: "KH", THA: "TH", CHN: "CN", MYS: "MY", LAO: "LA",
+  UZB: "UZ", KAZ: "KZ", TKM: "TM", SGP: "SG", BRN: "BN", TWN: "TW", HKG: "HK",
+  GBR: "GB", USA: "US", AUS: "AU", JPN: "JP", KOR: "KR",
+};
+
+export function nationalityLabel(value: string | null | undefined, locale: string): string {
+  const code = (value ?? "").trim().toUpperCase();
+  const region = ALPHA3_TO_ALPHA2[code];
+  if (!region) return value ?? "";
+  try {
+    const name = new Intl.DisplayNames([locale], { type: "region" }).of(region);
+    return name && name !== region ? `${code} · ${name}` : code;
+  } catch {
+    return code;
+  }
+}
+
+/** The passport's expiry is before today (a date as YYYY-MM-DD). */
+export function passportExpired(expiry: string | null | undefined, today = new Date()): boolean {
+  if (!expiry || !/^\d{4}-\d{2}-\d{2}$/.test(expiry)) return false;
+  const local = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+  return expiry < local;
+}

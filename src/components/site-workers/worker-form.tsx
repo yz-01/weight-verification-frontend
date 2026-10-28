@@ -4,12 +4,17 @@
  * 新增人员 / 修改资料 (I20): 姓名、电话号码、CIDB 卡号、所属公司 / 分包商、
  * 其他证件（名称及号码）. The company comes from the company list; one that is
  * not on it yet is typed (「名单里没有的先打字」).
+ *
+ * JB61 (10-28): the phone is optional (no phone, no location link), and the
+ * passport is on the form - number, nationality, birth date, expiry and a
+ * photo or PDF of the data page, sent after the worker is saved.
  */
 
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Plus, Trash2 } from "lucide-react";
+import { FileText, Loader2, Plus, Trash2, Upload } from "lucide-react";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { OptionCombobox } from "@/components/material-requests/option-combobox";
 import { FieldWrapper, QueryFailedNote } from "@/components/shared/page-primitives";
@@ -31,12 +36,17 @@ import {
   createSiteWorker,
   getWorkerCompanyOptions,
   updateSiteWorker,
+  uploadPassportPhoto,
 } from "@/services/site-workers.service";
 
 interface Draft {
   project: string;
   name: string;
   phone: string;
+  passport_no: string;
+  nationality: string;
+  date_of_birth: string;
+  passport_expiry: string;
   cidb_no: string;
   supplier: string;
   supplierName: string;
@@ -49,6 +59,10 @@ function draftOf(worker: SiteWorker | null | undefined, project?: string): Draft
     project: worker?.project ?? project ?? "",
     name: worker?.name ?? "",
     phone: worker?.phone ?? "",
+    passport_no: worker?.passport_no ?? "",
+    nationality: worker?.nationality ?? "",
+    date_of_birth: worker?.date_of_birth ?? "",
+    passport_expiry: worker?.passport_expiry ?? "",
     cidb_no: worker?.cidb_no ?? "",
     supplier: worker?.supplier ?? "",
     supplierName: worker?.supplier_name ?? "",
@@ -84,6 +98,21 @@ function WorkerFormBody({ worker, defaultProject, onClose, onSaved }: FormProps)
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [term, setTerm] = useState("");
   const search = useDebounce(term.trim(), 300);
+  const [photo, setPhotoState] = useState<File | null>(null);
+  const [createdId, setCreatedId] = useState<string | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const photoInput = useRef<HTMLInputElement>(null);
+  const setPhoto = (file: File | null) => {
+    setPhotoState(file);
+    // The old preview is let go by the effect below.
+    setPhotoPreview(file && file.type !== "application/pdf" ? URL.createObjectURL(file) : null);
+  };
+  useEffect(
+    () => () => {
+      if (photoPreview) URL.revokeObjectURL(photoPreview);
+    },
+    [photoPreview],
+  );
 
   const companies = useQuery({
     queryKey: ["site-workers", "company-options", "list", search],
@@ -93,18 +122,29 @@ function WorkerFormBody({ worker, defaultProject, onClose, onSaved }: FormProps)
   });
 
   const save = useMutation({
-    mutationFn: () => {
+    mutationFn: async () => {
       const payload = {
         name: draft.name,
         phone: draft.phone,
+        passport_no: draft.passport_no,
+        nationality: draft.nationality,
+        date_of_birth: draft.date_of_birth || null,
+        passport_expiry: draft.passport_expiry || null,
         cidb_no: draft.cidb_no,
         supplier: draft.supplier || null,
         company_note: draft.supplier ? "" : draft.company_note,
         documents: cleanDocuments(draft.documents),
       };
-      return worker
-        ? updateSiteWorker(worker.id, payload)
-        : createSiteWorker({ ...payload, project: draft.project });
+      // A worker created on an earlier press whose photo was refused is
+      // updated now, never created twice.
+      const existing = worker?.id ?? createdId;
+      const saved = existing
+        ? await updateSiteWorker(existing, payload)
+        : await createSiteWorker({ ...payload, project: draft.project });
+      setCreatedId(saved.id);
+      // The photo goes once the worker exists; a refused photo leaves the
+      // worker saved and says why under the photo box.
+      return photo ? uploadPassportPhoto(saved.id, photo) : saved;
     },
     onSuccess: (saved) => {
       void queryClient.invalidateQueries({ queryKey: ["site-workers"] });
@@ -114,6 +154,12 @@ function WorkerFormBody({ worker, defaultProject, onClose, onSaved }: FormProps)
       if (error instanceof ApiError) {
         const next = { ...error.errors };
         if (error.code === "site_worker_phone_taken") next.phone = error.message;
+        if (error.code === "site_worker_passport_taken") next.passport_no = error.message;
+        if (error.code === "passport_file_invalid" || error.code === "passport_file_too_large") {
+          next.passport_photo = error.message;
+          // The worker itself was saved: show it in the list behind.
+          void queryClient.invalidateQueries({ queryKey: ["site-workers"] });
+        }
         setErrors(next);
       }
     },
@@ -153,13 +199,88 @@ function WorkerFormBody({ worker, defaultProject, onClose, onSaved }: FormProps)
           <FieldWrapper label={t("field.name")} required error={errors.name}>
             <Input value={draft.name} onChange={(event) => set("name", event.target.value)} />
           </FieldWrapper>
-          <FieldWrapper label={t("field.phone")} required error={errors.phone} hint={t("form.phoneHint")}>
+          <FieldWrapper
+            label={t("field.phone")}
+            optional={common("optional")}
+            error={errors.phone}
+            hint={t("form.phoneHint")}
+          >
             <Input
               type="tel"
               inputMode="tel"
               value={draft.phone}
               onChange={(event) => set("phone", event.target.value)}
             />
+          </FieldWrapper>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <FieldWrapper label={t("field.passportNo")} optional={common("optional")} error={errors.passport_no}>
+              <Input
+                value={draft.passport_no}
+                autoCapitalize="characters"
+                onChange={(event) => set("passport_no", event.target.value.toUpperCase())}
+              />
+            </FieldWrapper>
+            <FieldWrapper label={t("field.nationality")} optional={common("optional")} error={errors.nationality}>
+              <Input
+                value={draft.nationality}
+                placeholder={t("form.nationalityPlaceholder")}
+                onChange={(event) => set("nationality", event.target.value)}
+              />
+            </FieldWrapper>
+            <FieldWrapper label={t("field.dateOfBirth")} optional={common("optional")} error={errors.date_of_birth}>
+              <Input
+                type="date"
+                value={draft.date_of_birth}
+                onChange={(event) => set("date_of_birth", event.target.value)}
+              />
+            </FieldWrapper>
+            <FieldWrapper label={t("field.passportExpiry")} optional={common("optional")} error={errors.passport_expiry}>
+              <Input
+                type="date"
+                value={draft.passport_expiry}
+                onChange={(event) => set("passport_expiry", event.target.value)}
+              />
+            </FieldWrapper>
+          </div>
+          <FieldWrapper
+            label={t("field.passportPhoto")}
+            optional={common("optional")}
+            error={errors.passport_photo}
+            hint={t("form.passportPhotoHint")}
+          >
+            <div className="flex items-center gap-3">
+              {photoPreview || (!photo && worker?.passport_photo_url && !worker.passport_photo_is_pdf) ? (
+                <span className="relative block size-16 shrink-0 overflow-hidden rounded-md border bg-muted">
+                  <Image
+                    src={photoPreview ?? worker?.passport_photo_url ?? ""}
+                    alt={t("field.passportPhoto")}
+                    fill
+                    sizes="64px"
+                    className="object-cover"
+                    unoptimized
+                  />
+                </span>
+              ) : photo || worker?.passport_photo_url ? (
+                <span className="flex size-16 shrink-0 items-center justify-center rounded-md border bg-muted">
+                  <FileText className="h-6 w-6 text-muted-foreground" />
+                </span>
+              ) : null}
+              <input
+                ref={photoInput}
+                type="file"
+                accept="image/jpeg,image/png,image/webp,application/pdf"
+                className="hidden"
+                onChange={(event) => {
+                  setErrors((current) => ({ ...current, passport_photo: "" }));
+                  setPhoto(event.target.files?.[0] ?? null);
+                  event.target.value = "";
+                }}
+              />
+              <Button type="button" variant="outline" size="sm" onClick={() => photoInput.current?.click()}>
+                <Upload className="h-4 w-4" />
+                {photo || worker?.passport_photo_url ? t("form.replacePassportPhoto") : t("form.addPassportPhoto")}
+              </Button>
+            </div>
           </FieldWrapper>
           <FieldWrapper label={t("field.cidb")} optional={common("optional")} error={errors.cidb_no}>
             <Input value={draft.cidb_no} onChange={(event) => set("cidb_no", event.target.value)} />
@@ -259,7 +380,6 @@ function WorkerFormBody({ worker, defaultProject, onClose, onSaved }: FormProps)
             requires={[
               [worker ? worker.project : draft.project, t("field.project")],
               [draft.name.trim(), t("field.name")],
-              [draft.phone.trim(), t("field.phone")],
             ]}
           >
             {save.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
