@@ -11088,7 +11088,8 @@
       "records": "Rekod",
       "consultant": "Perunding",
       "consultantPlaceholder": "Pilih perunding",
-      "returnReason": "Sebab pemulangan"
+      "returnReason": "Sebab pemulangan",
+      "contents": "Kandungan pakej (PDF ikut susunan ini)"
     },
     "firstPage": "Ini halaman pertama.",
     "group": {
@@ -11399,7 +11400,7 @@
     "uploads": {
       "add": "Muat naik fail",
       "title": "Fail dimuat naik",
-      "hint": "PDF, gambar atau fail lain dari komputer. Ia dimasukkan ke dalam PDF gabungan selepas rekod apabila disahkan. Selepas dimuat naik, ia tidak boleh diubah atau dibuang."
+      "hint": "PDF, Word, surat rasmi atau fail lain dari komputer. Selepas dimuat naik ia muncul dalam senarai di atas dan boleh dipindah dengan anak panah; boleh dipadam sebelum disahkan."
     },
     "openRecord": "Buka rekod penuh",
     "monthOnly": "Hanya rekod {month}",
@@ -11440,7 +11441,7 @@
     },
     "letter": {
       "title": "Surat (pilihan)",
-      "hint": "Muat naik surat jika ada; ia diletakkan paling depan dalam PDF. Anda boleh sahkan tanpa surat.",
+      "hint": "Muat naik surat jika ada. Ia di depan sekali dalam PDF kecuali dipindah dalam senarai di atas. Pakej boleh disahkan tanpa surat.",
       "add": "Muat naik surat"
     },
     "sendStatus": {
@@ -11456,24 +11457,28 @@
       "WHATSAPP": "WhatsApp",
       "EMAIL": "E-mel",
       "DOWNLOAD": "Muat turun sahaja",
-      "target": "Kepada siapa (nombor atau e-mel)",
+      "target": "Kepada siapa (nama, nombor atau e-mel)",
       "targetHint": "Pilihan. Jika kosong, dicatat sebagai 'Tidak dinyatakan'.",
-      "go": "Muat turun fail dan catat perkongsian ini",
-      "ready": "Fail dimuat turun. Dicatat: perkongsian dimulakan.",
-      "afterSent": "Selepas benar-benar dihantar, tekan 'Tanda sudah dihantar' di 'Rekod penghantaran'.",
+      "afterSent": "Sistem tidak dapat melihat sama ada ia sampai. Selepas pihak sana menerimanya, tekan 'Tanda sudah dihantar' di 'Rekod penghantaran'.",
       "done": "Selesai",
       "message": "Sila terima pakej yang dilampirkan: {name}",
-      "notLogged": "Fail dimuat turun, tetapi perkongsian ini tidak dicatat. Tutup dan tekan 'Kongsi ke luar' sekali lagi.",
+      "notLogged": "Fail telah dihantar, tetapi penghantaran ini tidak dicatat. Tutup dan hantar sekali lagi.",
       "markSent": "Tanda sudah dihantar",
       "markedToast": "Ditanda sudah dihantar.",
-      "next": {
-        "WHATSAPP": "Seterusnya: tekan 'Buka WhatsApp', lampirkan fail yang baru dimuat turun dan hantar.",
-        "EMAIL": "Seterusnya: tekan 'Buka e-mel', lampirkan fail yang baru dimuat turun dan hantar.",
-        "DOWNLOAD": "Fail ada dalam folder Muat Turun komputer."
+      "sendTitle": "Hantar",
+      "go": {
+        "WHATSAPP": "Hantar ke WhatsApp",
+        "EMAIL": "Hantar melalui e-mel",
+        "DOWNLOAD": "Muat turun fail"
       },
-      "open": {
-        "WHATSAPP": "Buka WhatsApp",
-        "EMAIL": "Buka e-mel"
+      "how": {
+        "WHATSAPP": "Selepas 'Hantar ke WhatsApp', komputer membuka tetingkap kongsi: pilih WhatsApp, kemudian kenalan, dan fail PDF itu sendiri dihantar.",
+        "EMAIL": "Selepas 'Hantar melalui e-mel', komputer membuka tetingkap kongsi: pilih e-mel (cth. Outlook) dan PDF dilampirkan."
+      },
+      "handed": {
+        "WHATSAPP": "Fail telah diserahkan kepada WhatsApp. Dicatat: perkongsian dimulakan.",
+        "EMAIL": "Fail telah diserahkan kepada e-mel. Dicatat: perkongsian dimulakan.",
+        "DOWNLOAD": "Fail ada dalam folder Muat Turun komputer. Dicatat."
       }
     },
     "sendLog": {
@@ -11490,7 +11495,14 @@
       "STARTED": "Perkongsian dimulakan",
       "CONFIRMED": "Disahkan dihantar",
       "confirmedBy": "Ditanda sudah dihantar oleh {name} pada {when}"
-    }
+    },
+    "orderHint": "Rekod sistem dan fail yang dimuat naik dari komputer semuanya di sini. Guna anak panah untuk letak di atas, tengah atau bawah; PDF dibuat dari atas ke bawah.",
+    "moveFirst": "Pindah ke atas sekali",
+    "moveLast": "Pindah ke bawah sekali",
+    "layoutUpload": "Dimuat naik dari komputer",
+    "layoutLetter": "Surat",
+    "previewDraft": "Pratonton seluruh pakej",
+    "draftPreviewOnly": "Ini pratonton sebelum disahkan. Cetak, eksport dan hantar dibuka selepas disahkan."
   },
   "mySubmissions": {
     "title": "Apa yang saya hantar",

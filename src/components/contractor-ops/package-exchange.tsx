@@ -10,12 +10,14 @@ import {
   MessageCircle,
   RefreshCw,
   Send,
+  Share2,
   Users,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 
+import { PackageShareDialog, type PackageShareWhat } from "@/components/contractor-ops/package-claim-parts";
 import { Shell } from "@/components/contractor-ops/package-shell";
 import { LoadedFileThumb } from "@/components/shared/file-thumbs";
 import { OptionCombobox } from "@/components/material-requests/option-combobox";
@@ -139,7 +141,7 @@ export function ExchangePanel({
           <TimelineBlock pkg={data} />
         </TabsContent>
         <TabsContent value="rounds">
-          <RoundsBlock pkg={data} />
+          <RoundsBlock pkg={data} onChanged={onChanged} />
         </TabsContent>
       </Tabs>
       {resubmitting && (
@@ -808,11 +810,29 @@ function TimelineBlock({ pkg }: { pkg: EvidencePackageDetail }) {
 
 /* -- 轮次 ----------------------------------------------------------------- */
 
-function RoundsBlock({ pkg }: { pkg: EvidencePackageDetail }) {
+function RoundsBlock({ pkg, onChanged }: { pkg: EvidencePackageDetail; onChanged: () => void }) {
   const t = useTranslations("multiEngine");
+  const fileWords = useTranslations("fileActions");
   const formatter = useDateFormat();
   const queryClient = useQueryClient();
   const rounds = [...(pkg.rounds ?? [])].reverse();
+  // JB63 (客户 10-28: 「从「轮次」点击发送…系统内部没有留下发送成功的记录」):
+  // a round's 「发送」 and the 往来记录's go through the package's own send,
+  // which writes 发送记录 - the same share window as before.
+  const [sending, setSending] = useState<PackageShareWhat | null>(null);
+  const sendButton = (what: PackageShareWhat) => (
+    <Button
+      type="button"
+      size="sm"
+      variant="outline"
+      data-package-send
+      title={fileWords("shareHint")}
+      onClick={() => setSending(what)}
+    >
+      <Share2 className="size-3.5" />
+      {fileWords("share")}
+    </Button>
+  );
   return (
     <div className="space-y-3">
       <ul className="space-y-2">
@@ -837,12 +857,14 @@ function RoundsBlock({ pkg }: { pkg: EvidencePackageDetail }) {
             </details>
             <div className="flex flex-wrap gap-2">
               <FileActionButtons
+                omit={["share"]}
                 source={{
                   load: () => previewEvidencePackage(pkg.id, `${pkg.name}-${round.number}`, round.number),
                   loadToSend: () => evidencePackageFile(pkg.id, `${pkg.name}-${round.number}`, round.number),
                   title: `${pkg.package_no || pkg.name} · ${t("exchange.round", { n: round.number })}`,
                 }}
               />
+              {sendButton({ round: round.number })}
             </div>
           </li>
         ))}
@@ -853,6 +875,7 @@ function RoundsBlock({ pkg }: { pkg: EvidencePackageDetail }) {
         <p className="text-xs text-muted-foreground">{t("exchange.reportHelp")}</p>
         <div className="flex flex-wrap gap-2">
           <FileActionButtons
+            omit={["share"]}
             source={{
               load: async () => {
                 const file = await correspondenceReportFile(pkg.id, pkg.package_no || pkg.name, true);
@@ -862,8 +885,12 @@ function RoundsBlock({ pkg }: { pkg: EvidencePackageDetail }) {
               title: `${pkg.package_no || pkg.name} · ${t("exchange.report")}`,
             }}
           />
+          {sendButton({ transcript: true })}
         </div>
       </div>
+      {sending && (
+        <PackageShareDialog pkg={pkg} what={sending} onClose={() => setSending(null)} onLogged={onChanged} />
+      )}
     </div>
   );
 }

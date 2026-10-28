@@ -11088,7 +11088,8 @@
       "records": "資料",
       "consultant": "顧問",
       "consultantPlaceholder": "選擇顧問",
-      "returnReason": "退回原因"
+      "returnReason": "退回原因",
+      "contents": "資料包內容（PDF 按這個順序）"
     },
     "firstPage": "已經是第一頁了。",
     "group": {
@@ -11399,7 +11400,7 @@
     "uploads": {
       "add": "上傳資料",
       "title": "上傳的資料",
-      "hint": "電腦裡的 PDF、圖片或其他檔案。確認並合併時，放在資料後面一起進 PDF。上傳後不能修改或刪除。"
+      "hint": "電腦裡的 PDF、Word、正式信件或其他檔案。上傳後會出現在上面的清單裡，可以用箭頭調整位置；確認前可以刪除。"
     },
     "openRecord": "開啟完整記錄",
     "monthOnly": "只看 {month} 的記錄",
@@ -11440,7 +11441,7 @@
     },
     "letter": {
       "title": "書信（可選）",
-      "hint": "有書信就上傳，確認時放在 PDF 最前面。沒有書信也可以確認。",
+      "hint": "有書信就上傳，預設放在 PDF 最前面，也可以在上面的清單裡移動。沒有書信也可以確認。",
       "add": "上傳書信"
     },
     "sendStatus": {
@@ -11456,24 +11457,28 @@
       "WHATSAPP": "WhatsApp",
       "EMAIL": "電郵",
       "DOWNLOAD": "只下載",
-      "target": "發給誰（號碼或電郵）",
+      "target": "發給誰（名字、號碼或電郵）",
       "targetHint": "可以不填。不填會記成「未指定」。",
-      "go": "下載檔案，記下這次分享",
-      "ready": "檔案已下載，已記下：已發起分享。",
-      "afterSent": "真的發出去以後，請在「發送記錄」按「標記為已發送」。",
+      "afterSent": "系統看不到對方有沒有收到。確認對方收到後，請在「發送記錄」按「標記為已發送」。",
       "done": "好了",
       "message": "請查收資料包：{name}",
-      "notLogged": "檔案已下載，但這次分享沒有記下來。請關掉再按一次「對外分享」。",
+      "notLogged": "檔案已經發出，但這次發送沒有記下來。請關掉再發一次。",
       "markSent": "標記為已發送",
       "markedToast": "已標記為已發送。",
-      "next": {
-        "WHATSAPP": "下一步：按「開啟 WhatsApp」，把剛下載的檔案附上，發出去。",
-        "EMAIL": "下一步：按「開啟電郵」，把剛下載的檔案附上，發出去。",
-        "DOWNLOAD": "檔案在電腦的「下載」資料夾裡。"
+      "sendTitle": "發送",
+      "go": {
+        "WHATSAPP": "發送到 WhatsApp",
+        "EMAIL": "用電郵發送",
+        "DOWNLOAD": "下載檔案"
       },
-      "open": {
-        "WHATSAPP": "開啟 WhatsApp",
-        "EMAIL": "開啟電郵"
+      "how": {
+        "WHATSAPP": "按「發送到 WhatsApp」後，電腦會開啟分享視窗：選 WhatsApp，再選聯絡人，PDF 檔案會直接發過去。",
+        "EMAIL": "按「用電郵發送」後，電腦會開啟分享視窗：選電郵（例如 Outlook），PDF 檔案會自動附上。"
+      },
+      "handed": {
+        "WHATSAPP": "檔案已交給 WhatsApp，已記下：已發起分享。",
+        "EMAIL": "檔案已交給電郵，已記下：已發起分享。",
+        "DOWNLOAD": "檔案已下載到電腦的「下載」資料夾，已記下。"
       }
     },
     "sendLog": {
@@ -11490,7 +11495,14 @@
       "STARTED": "已發起分享",
       "CONFIRMED": "已確認發送",
       "confirmedBy": "{name} 於 {when} 標記為已發送"
-    }
+    },
+    "orderHint": "系統記錄和電腦上傳的檔案都在這裡，用箭頭調到最前、中間或最後，PDF 就按從上到下的順序生成。",
+    "moveFirst": "移到最前",
+    "moveLast": "移到最後",
+    "layoutUpload": "電腦上傳的檔案",
+    "layoutLetter": "書信",
+    "previewDraft": "預覽完整資料",
+    "draftPreviewOnly": "這是確認前的預覽。確認後才能列印、匯出和發送。"
   },
   "mySubmissions": {
     "title": "我提交過的",

@@ -1555,11 +1555,30 @@ export interface PackageShare {
   /** The number or address; empty is 「未指定」. */
   target: string;
   status: "STARTED" | "CONFIRMED";
+  /** JB63: which file went - a round's PDF, the 往来记录 PDF, or (both empty) the latest. */
+  round_no?: number | null;
+  document?: "" | "TRANSCRIPT";
   created_at: string;
   created_by_name: string;
   confirmed_at: string | null;
   confirmed_by_name: string;
 }
+
+/**
+ * One line of the package's PDF order (JB63): a record (by its member id)
+ * or a file uploaded into the package.
+ */
+export type PackageLayoutRow =
+  | { kind: "item"; id: string }
+  | {
+      kind: "file";
+      id: string;
+      name: string;
+      /** A Progress Claim's letter, rather than a plain upload. */
+      letter: boolean;
+      uploaded_by_name: string;
+      uploaded_at: string;
+    };
 
 export interface EvidencePackageRow {
   id: string;
@@ -1608,6 +1627,8 @@ export interface EvidencePackageRow {
 
 export interface EvidencePackageDetail extends EvidencePackageRow {
   items: PackageItem[];
+  /** JB63: records and uploaded files in the order of the PDF. */
+  layout?: PackageLayoutRow[];
   /** Records the last add call would not take, and why. */
   refused?: { id: string; reason: string }[];
   /** Which round `items` are (the latest unless one was asked for). */
