@@ -42,7 +42,7 @@ const PAGES: Record<string, (id: string) => string> = {
   // The general attachment slot's own kinds (I3), as the archive names them.
   APPROVAL: (id) => `/approvals?approval=${id}`,
   GATE_PASS: (id) => `/site-access?pass=${id}`,
-  // A document (项目资料): its detail on 文件档案.
+  // A document (文件资料): its detail on 文件档案.
   DOCUMENT: (id) => `/documents?document=${id}`,
 };
 

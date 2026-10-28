@@ -82,7 +82,6 @@ import {
   getLatestReportDay,
 } from "@/services/contractor-report.service";
 import { NOT_LIVE } from "@/lib/live-refresh";
-import { photoMeta } from "@/lib/photo-meta";
 
 function dateValue(date: Date): string {
   const year = date.getFullYear();

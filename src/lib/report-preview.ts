@@ -34,7 +34,7 @@ type ReportRow = Record<string, string | number | boolean | null>;
  *   dashboard's 今日进出打卡 does;
  * - an equipment movement opens in 设备进退场, where the office accepts it
  *   (`?movement=`), rather than in the read-only sheet;
- * - a document opens its detail in 项目资料 (`?document=`).
+ * - a document opens its detail in 文件资料 (`?document=`).
  */
 export function reportRowTarget(
   entry: ContractorReportRecord | null | undefined,

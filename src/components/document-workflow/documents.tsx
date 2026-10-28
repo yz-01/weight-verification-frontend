@@ -152,7 +152,7 @@ export function Documents() {
     "date_to",
     "uploaded_by",
   ]);
-  // A row of the report centre's 项目资料 preview links to `?document=<id>`.
+  // A row of the report centre's 文件资料 preview links to `?document=<id>`.
   const [viewingId, setViewingId] = useUrlSelection("document");
   const [editing, setEditing] = useState<DocumentRecord | null>(null);
   // Uploading is for everybody who reads the archive and is on the project
@@ -1697,7 +1697,7 @@ function openDocumentSource(
 
 /**
  * A document's detail opened over another page - the report centre's
- * 项目资料报表 - so closing it leaves the reader there, search, filters and
+ * 文件资料报表 - so closing it leaves the reader there, search, filters and
  * scroll as they were (客户 10-26 事项 4: 「从哪个页面进入详情，关闭后就返回
  * 哪个页面」). It used to open on 文件档案, and closing stayed there.
  */

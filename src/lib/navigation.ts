@@ -1283,16 +1283,17 @@ export const PORTAL_NAVIGATION = {
           ),
           menuHidden: true,
         },
-        // 项目资料 is the document archive, by 文档大分类 → 子分类 (D6). The
+        // 文件资料 (JB60, was 项目资料) is the document archive, by 文档大分类
+        // → 子分类 (D6). The
         // archive's own read permission still applies.
         child(
           "13.2.11",
-          "nav.submodule.projectRecords",
+          "nav.submodule.documentRecords",
           "/reports/contractor/documents",
           "report_center",
           "document.view",
         ),
-        // Targets and their achievement, which 项目资料 used to open.
+        // Targets and their achievement, which 文件资料 used to open.
         child(
           "13.2.11A",
           "nav.submodule.targetReport",

@@ -87,9 +87,9 @@ describe("the report menu's levels (D6 table)", () => {
     });
   });
 
-  it("opens 项目资料 at the document archive, only for its readers", () => {
+  it("opens 文件资料 (JB60) at the document archive, only for its readers", () => {
     const withArchive = reportLeaves(["report.view", "document.view"]);
-    const project = withArchive.find((leaf) => leaf.labelKey === "nav.submodule.projectRecords");
+    const project = withArchive.find((leaf) => leaf.labelKey === "nav.submodule.documentRecords");
     expect(project?.href).toBe("/reports/contractor/documents");
     expect(withArchive.map((leaf) => leaf.href)).toContain("/reports/contractor/target");
 
