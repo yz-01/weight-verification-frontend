@@ -14,7 +14,8 @@
 
 import { useQuery } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Eye, UserPlus } from "lucide-react";
+import { Eye, UserPlus, Users } from "lucide-react";
+import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
@@ -177,7 +178,13 @@ function WorkerRoster({ onView }: { onView: (id: string) => void }) {
         accessorKey: "phone",
         meta: { label: t("field.phone") },
         header: () => t("field.phone"),
-        cell: ({ row }) => <span className="tabular">{row.original.phone}</span>,
+        cell: ({ row }) => <span className="tabular">{row.original.phone || "—"}</span>,
+      },
+      {
+        accessorKey: "passport_no",
+        meta: { label: t("field.passportNo") },
+        header: () => t("field.passportNo"),
+        cell: ({ row }) => <span className="tabular">{row.original.passport_no || "—"}</span>,
       },
       {
         accessorKey: "cidb_no",
@@ -270,6 +277,10 @@ function WorkerRoster({ onView }: { onView: (id: string) => void }) {
                   columns: [
                     { key: "name", label: t("field.name") },
                     { key: "phone", label: t("field.phone") },
+                    { key: "passport_no", label: t("field.passportNo") },
+                    { key: "nationality", label: t("field.nationality") },
+                    { key: "date_of_birth", label: t("field.dateOfBirth") },
+                    { key: "passport_expiry", label: t("field.passportExpiry") },
                     { key: "cidb_no", label: t("field.cidb") },
                     { key: "company_name", label: t("field.company") },
                     { key: "status", label: t("field.status"), values: statusValues },
@@ -284,6 +295,21 @@ function WorkerRoster({ onView }: { onView: (id: string) => void }) {
               <Button onClick={() => setCreating(true)}>
                 <UserPlus className="h-4 w-4" />
                 {t("action.add")}
+              </Button>
+            )}
+            {/* JB61-1: ten, twenty, two thousand at a time - a whole page. */}
+            {can("site_worker.manage") && (
+              <Button asChild variant="outline">
+                <Link
+                  href={
+                    list.filters.project
+                      ? `/site-workers/bulk?project=${encodeURIComponent(list.filters.project)}`
+                      : "/site-workers/bulk"
+                  }
+                >
+                  <Users className="h-4 w-4" />
+                  {t("action.bulkAdd")}
+                </Link>
               </Button>
             )}
           </div>
@@ -380,7 +406,7 @@ function WorkerVisits({ onView }: { onView: (id: string) => void }) {
         accessorKey: "phone",
         meta: { label: t("field.phone") },
         header: () => t("field.phone"),
-        cell: ({ row }) => <span className="tabular">{row.original.phone}</span>,
+        cell: ({ row }) => <span className="tabular">{row.original.phone || "—"}</span>,
       },
       {
         accessorKey: "cidb_no",

@@ -8329,7 +8329,18 @@
       "record_in_use": "Rekod rasmi menggunakannya, jadi ia tidak boleh dipadam: {used_by}",
       "consultant_application_not_confirmed": "Sahkan dan arkibkan permohonan sebelum menghantarnya kepada perunding.",
       "claim_letter_required": "Muat naik surat dahulu. Progress Claim mesti ada surat; ia diletakkan di hadapan PDF.",
-      "report_export_not_regenerable": "Baris sejarah ini tidak boleh dijana semula: ia sudah ada failnya, milik laporan lain, atau tiada dalam sejarah anda."
+      "report_export_not_regenerable": "Baris sejarah ini tidak boleh dijana semula: ia sudah ada failnya, milik laporan lain, atau tiada dalam sejarah anda.",
+      "site_worker_no_phone": "Tambah nombor telefon dahulu untuk menghantar pautan lokasi. Tekan \"Ubah butiran\" dan isi nombor telefon.",
+      "site_worker_passport_taken": "Pasport ini sudah ada dalam senarai ({name}, {project}). Seorang tidak boleh ditambah dua kali; untuk pindah, keluarkan rekod lama dahulu.",
+      "worker_batch_not_found": "Kumpulan ini tidak dijumpai. Kembali ke senarai dan tekan \"Tambah ramai pekerja\".",
+      "worker_batch_closed": "Kumpulan ini sudah selesai. Mulakan kumpulan baharu untuk tambah orang.",
+      "worker_batch_too_many_rows": "Satu kumpulan maksimum {limit} baris. Tekan \"Simpan semua\" dahulu, kemudian mulakan kumpulan baharu.",
+      "passport_file_invalid": "Fail ini bukan foto atau PDF. Muat naik foto JPG atau PNG, atau PDF.",
+      "passport_file_too_large": "Fail terlalu besar (maksimum {limit_mb} MB). Ambil gambar lebih kecil atau mampatkan PDF dan muat naik semula.",
+      "worker_excel_invalid": "Fail Excel ini tidak dapat dibuka. Tekan \"Muat turun templat Excel\", isi dan muat naik.",
+      "worker_excel_no_header": "Fail Excel ini tiada lajur \"Nama\". Guna templat dan kekalkan baris pertamanya.",
+      "worker_excel_empty": "Tiada sesiapa dalam fail Excel ini. Isi seorang setiap baris mulai baris 2.",
+      "passport_capture_link_invalid": "Pautan gambar ini sudah tamat. Imbas kod QR semula di halaman \"Tambah ramai pekerja\" pada komputer."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -8362,7 +8373,10 @@
       "material_linked": "Rekod ini menggunakan data bahan projek: pilih bahan dan spesifikasi, bukan menaip nama",
       "spec_mismatch": "Pilih spesifikasi bahan ini",
       "spec_not_other": "Pilih 「其他」 untuk menaip spesifikasi",
-      "unit_follows_spec": "Unit mengikut spesifikasi"
+      "unit_follows_spec": "Unit mengikut spesifikasi",
+      "invalid_passport_no": "No. pasport: 5 hingga 20 huruf dan nombor",
+      "invalid_birth_date": "Tarikh lahir mesti sebelum hari ini",
+      "site_worker_passport_taken": "Pasport ini sudah ada dalam senarai"
     },
     "forbidden": "Anda tiada akses kepada ini.",
     "forbiddenBody": "Tanya pentadbir anda jika anda memerlukannya.",
@@ -19239,7 +19253,12 @@
       "documents": "Dokumen lain",
       "enteredAt": "Masa masuk",
       "exitedAt": "Masa keluar",
-      "exitState": "Status"
+      "exitState": "Status",
+      "passportNo": "No. pasport",
+      "nationality": "Warganegara",
+      "dateOfBirth": "Tarikh lahir",
+      "passportExpiry": "Tarikh luput pasport",
+      "passportPhoto": "Gambar pasport"
     },
     "status": {
       "ON_SITE": "Di tapak",
@@ -19268,7 +19287,8 @@
       "add": "Tambah pekerja",
       "edit": "Ubah butiran",
       "deactivate": "Keluarkan dari senarai",
-      "reactivate": "Masukkan semula"
+      "reactivate": "Masukkan semula",
+      "bulkAdd": "Tambah ramai pekerja"
     },
     "what": {
       "companies": "senarai syarikat",
@@ -19283,7 +19303,7 @@
     "form": {
       "addTitle": "Tambah pekerja",
       "editTitle": "Ubah butiran",
-      "phoneHint": "Contoh 012-345 6789. Pautan lokasi hanya untuk telefon dengan nombor ini.",
+      "phoneHint": "Pilihan. Cth. 012-345 6789. Tanpa telefon, pautan lokasi tidak boleh dihantar; pautan hanya terikat pada telefon dengan nombor ini.",
       "noCompany": "Tiada (tiada dalam senarai)",
       "pickCompany": "Pilih dari senarai syarikat",
       "searchCompany": "Cari syarikat",
@@ -19293,7 +19313,11 @@
       "documentNumber": "Nombor dokumen",
       "removeDocument": "Buang dokumen ini",
       "addDocument": "Tambah dokumen",
-      "documentIncomplete": "Setiap dokumen perlukan nama dan nombor"
+      "documentIncomplete": "Setiap dokumen perlukan nama dan nombor",
+      "nationalityPlaceholder": "cth. BGD, IDN, NPL",
+      "passportPhotoHint": "Halaman yang ada gambar, sebagai foto atau PDF. Hanya orang yang boleh melihat senarai boleh melihatnya.",
+      "addPassportPhoto": "Muat naik gambar pasport",
+      "replacePassportPhoto": "Tukar gambar pasport"
     },
     "detail": {
       "title": "Pekerja",
@@ -19312,7 +19336,9 @@
       "allVisits": "Lihat semua",
       "noVisits": "Belum ada rekod",
       "deactivateHelp": "Hidupkan suis untuk keluarkan. Pautan lokasi berhenti serta-merta; rekod lama disimpan.",
-      "armFirst": "Hidupkan suis dahulu"
+      "armFirst": "Hidupkan suis dahulu",
+      "passportExpired": "Pasport sudah tamat tempoh",
+      "openPassportPhoto": "Buka saiz penuh"
     },
     "link": {
       "status": {
@@ -19331,7 +19357,101 @@
       "sentBody": "Sistem tidak menghantar SMS. Hantar melalui WhatsApp, atau salin dan hantar sendiri. Pautan dipaparkan sekali sahaja.",
       "otherBrowser": "Jika pekerja membuka pautan dalam pelayar atau aplikasi lain (contohnya mula-mula dalam WhatsApp, kemudian dalam Safari), sistem menganggapnya telefon lain, dan pejabat perlu menghantar pautan semula.",
       "whatsapp": "Hantar melalui WhatsApp",
-      "copy": "Salin pautan"
+      "copy": "Salin pautan",
+      "needPhone": "Tambah nombor telefon dahulu untuk menghantar pautan lokasi"
+    },
+    "bulk": {
+      "title": "Tambah ramai pekerja",
+      "back": "Kembali ke senarai pekerja",
+      "startIntro": "Masukkan ramai orang ke senarai sekali gus. Pilih projek dan syarikat dahulu, kemudian ambil gambar pasport dengan telefon, muat naik gambar pasport, guna Excel atau taip, dan tekan \"Simpan semua\".",
+      "step1": "Langkah 1: pilih projek dan syarikat",
+      "companyHint": "Semua orang dalam kumpulan ini guna syarikat ini. Jika seseorang berbeza, taip syarikat lain dalam barisnya.",
+      "start": "Mula",
+      "continueTitle": "Belum selesai kali lepas",
+      "noOpenBatches": "Tiada yang belum selesai.",
+      "openBatchLine": "Dimulakan {at} · {rows} masih dalam jadual · {saved} disimpan",
+      "continue": "Teruskan",
+      "what": {
+        "batches": "kumpulan belum selesai",
+        "batch": "jadual kumpulan ini"
+      },
+      "changeCompany": "Tukar syarikat",
+      "counts": "{rows} dalam jadual · {saved} disimpan",
+      "draftSaving": "Menyimpan draf…",
+      "draftSaved": "Draf disimpan secara automatik",
+      "draftFailed": "Draf tidak disimpan. Semak internet; menaip semula akan cuba lagi",
+      "closedNote": "Kumpulan ini sudah selesai. Untuk tambah orang lagi, kembali ke senarai dan tekan \"Tambah ramai pekerja\" untuk kumpulan baharu.",
+      "howTo": "Tiga cara, satu jadual: (1) tekan \"Ambil gambar pasport dengan telefon\" dan imbas kod QR; (2) tekan \"Muat naik gambar pasport / PDF\"; (3) guna templat Excel, atau taip dalam jadual atau tampal dari Excel / WhatsApp (Tab dan Enter beralih kotak). Hanya nama wajib. Kemudian tekan \"Simpan semua\" di bawah.",
+      "usePhones": "Ambil gambar pasport dengan telefon",
+      "hidePhones": "Sembunyikan kod QR",
+      "uploadPhotos": "Muat naik gambar pasport / PDF",
+      "uploadBusy": "Masih membaca pasport tadi; muat naik lagi selepas selesai",
+      "uploadFailed": "Muat naik gagal. Sila cuba lagi",
+      "downloadTemplate": "Muat turun templat Excel",
+      "uploadExcel": "Muat naik Excel",
+      "addRows": "Tambah 20 baris lagi",
+      "reading": "Membaca pasport {done} / {total}…",
+      "readDone": "{total} fail dibaca; {failed} tidak masuk ke jadual:",
+      "result": "{saved} disimpan, {problems} perlu dibetulkan",
+      "resultProblems": "Yang perlu dibetulkan masih dalam jadual, dengan sebab berwarna merah. Betulkan dan tekan \"Simpan semua\" lagi.",
+      "filterAll": "Semua ({count})",
+      "filterProblems": "Hanya yang perlu dibetulkan ({count})",
+      "noProblems": "Tiada yang perlu dibetulkan.",
+      "prevPage": "Sebelum",
+      "nextPage": "Seterusnya",
+      "firstPage": "Ini halaman pertama",
+      "lastPage": "Ini halaman terakhir",
+      "page": "Halaman {page} / {pages}",
+      "saveAll": "Simpan semua",
+      "savingProgress": "Menyimpan… {saved} disimpan",
+      "saveHint": "Orang tanpa masalah masuk ke senarai; yang lain kekal dalam jadual.",
+      "nothingToSave": "Jadual kosong. Isi beberapa baris dahulu",
+      "finish": "Kumpulan ini selesai",
+      "finishTitle": "Adakah kumpulan ini selesai?",
+      "finishBody": "Apabila tamat, kod QR telefon terus tidak berfungsi.",
+      "finishBodyLeft": "{count} orang dalam jadual belum disimpan; mereka tidak akan masuk ke senarai. Kod QR telefon juga terus tidak berfungsi.",
+      "removeRow": "Padam baris ini",
+      "typeFromPhoto": "Taip dari gambar",
+      "datePlaceholder": "hh/bb/tttt",
+      "column": {
+        "number": "Baris",
+        "photo": "Pasport",
+        "problems": "Perlu dibetulkan"
+      },
+      "problem": {
+        "missing_name": "Tiada nama: isi nama",
+        "name_has_digits": "Nama ada nombor: betulkan ikut pasport",
+        "check_photo": "Pasport tidak jelas dibaca: semak atau taip dari gambar, kemudian tekan \"Sudah disemak\"",
+        "passport_invalid": "No. pasport tidak sah: huruf dan nombor sahaja",
+        "phone_invalid": "Nombor telefon tidak sah: cth. 012-345 6789, atau biarkan kosong",
+        "dob_invalid": "Tarikh lahir tidak sah: tulis hh/bb/tttt, cth. 31/12/1990",
+        "expiry_invalid": "Tarikh luput tidak sah: tulis hh/bb/tttt, cth. 31/12/2030",
+        "passport_expired": "Pasport tamat tempoh ({date}): guna pasport baharu dan kemas kini nombor serta tarikh luput",
+        "passport_twice": "No. pasport sama dua kali dalam kumpulan ini: padam baris lebihan",
+        "phone_twice": "Nombor telefon sama dua kali dalam kumpulan ini: ubah atau padam baris lebihan",
+        "passport_on_roster": "Sudah ada dalam senarai ({name}, {project}): tidak perlu tambah, padam baris ini",
+        "phone_on_roster": "Telefon ini sudah ada dalam senarai ({name}): jika orang yang sama padam baris ini, jika tidak ubah telefon"
+      },
+      "capture": {
+        "title": "Ambil gambar pasport dengan telefon",
+        "step1": "Imbas kod QR ini dengan kamera telefon.",
+        "step2": "Letakkan halaman bergambar pasport dalam bingkai dan tekan \"Ambil gambar\".",
+        "step3": "Setiap satu muncul dalam jadual di bawah dengan sendiri. Beberapa telefon boleh mengambil gambar serentak.",
+        "validUntil": "Kod QR sah sehingga {at}.",
+        "phoneCount": "Diambil oleh telefon, dalam jadual: {count}",
+        "what": "kod QR ambil gambar",
+        "stop": "Henti gambar telefon",
+        "stopHint": "Selepas ini, telefon yang sudah imbas tidak boleh ambil lagi."
+      },
+      "check": {
+        "title": "Baris {number}: semak dengan gambar pasport",
+        "yellowBody": "Pasport ini tidak jelas dibaca. Taip butiran dari gambar, kemudian tekan \"Sudah disemak\".",
+        "body": "Semak nama dan nombor dengan gambar; perubahan disimpan sendiri.",
+        "openPdf": "Buka PDF",
+        "noPhoto": "Baris ini tiada gambar pasport.",
+        "zoomHint": "Klik gambar untuk buka lebih besar di tab baharu.",
+        "confirm": "Sudah disemak"
+      }
     }
   },
   "workerLocation": {
@@ -19702,5 +19822,29 @@
       "body": "Pemberitahuan dimatikan, jadi mesej baharu tidak akan berbunyi. Benarkan untuk aplikasi ini di Tetapan → Pemberitahuan telefon."
     },
     "dismiss": "Faham"
+  },
+  "passportCapture": {
+    "title": "Ambil gambar pasport",
+    "count": "Telefon sudah ambil {count} untuk kumpulan ini",
+    "endedTitle": "Pautan gambar ini sudah tamat",
+    "endedBody": "Di halaman \"Tambah ramai pekerja\" pada komputer, tekan \"Ambil gambar pasport dengan telefon\" dan imbas kod QR semula.",
+    "failedTitle": "Tidak dapat dibuka",
+    "failedBody": "Semak internet telefon, kemudian tekan \"Cuba lagi\".",
+    "tryAgain": "Cuba lagi",
+    "aimHint": "Letakkan halaman bergambar pasport dalam bingkai, dua baris di bawah dalam kotak bertitik dan jelas.",
+    "shoot": "Ambil gambar",
+    "openCamera": "Buka kamera semula",
+    "cameraStarting": "Kamera masih dibuka, sila tunggu",
+    "noLiveCamera": "Pelayar tidak membuka kamera. Benarkan kamera (tekan \"Benarkan\" apabila pelayar bertanya), kemudian tekan butang di bawah; jika masih gagal, imbas kod QR dengan telefon lain.",
+    "photoAlt": "Pasport yang baru diambil",
+    "reading": "Membaca pasport, beberapa saat…",
+    "readOk": "Berjaya dibaca",
+    "passportNo": "No. pasport {number}",
+    "unclear": "Tidak jelas, sila ambil semula",
+    "unclearBody": "Letak rata, elak silau, dekatkan sedikit; dua baris bawah mesti jelas. Jika tetap tidak jelas, tekan \"Guna yang ini\" dan pejabat akan menaip dari gambar.",
+    "retake": "Ambil semula",
+    "keepThis": "Guna yang ini, pejabat menaip",
+    "next": "Pasport seterusnya",
+    "sendFailed": "Tidak dihantar. Semak internet dan ambil semula"
   }
 }

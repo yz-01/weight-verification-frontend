@@ -8329,7 +8329,18 @@
       "record_in_use": "A formal record uses it, so it cannot be deleted: {used_by}",
       "consultant_application_not_confirmed": "Confirm and archive the application before sending it to the consultant.",
       "claim_letter_required": "Upload the letter first. A Progress Claim must have its letter; it goes at the front of the PDF.",
-      "report_export_not_regenerable": "This history row cannot be generated again: it already has its file, belongs to another report, or is not in your history."
+      "report_export_not_regenerable": "This history row cannot be generated again: it already has its file, belongs to another report, or is not in your history.",
+      "site_worker_no_phone": "Add a phone number first to send the location link. Press \"Edit details\" and fill in the phone number.",
+      "site_worker_passport_taken": "This passport is already on the roster ({name}, {project}). One person cannot be added twice; to move them, take the old entry off the roster first.",
+      "worker_batch_not_found": "This batch was not found. Go back to the roster and press \"Add many workers\".",
+      "worker_batch_closed": "This batch is finished. Start a new batch to add more people.",
+      "worker_batch_too_many_rows": "A batch holds at most {limit} rows. Press \"Save all\" first, then start a new batch.",
+      "passport_file_invalid": "This file is not a photo or PDF. Upload a JPG or PNG photo, or a PDF.",
+      "passport_file_too_large": "The file is too large (max {limit_mb} MB). Take a smaller photo or compress the PDF and upload again.",
+      "worker_excel_invalid": "This Excel file could not be opened. Press \"Download Excel template\", fill it in and upload it.",
+      "worker_excel_no_header": "This Excel file has no \"Name\" column. Use the template and keep its first row.",
+      "worker_excel_empty": "There is nobody in this Excel file. Fill one person per row from row 2.",
+      "passport_capture_link_invalid": "This photo link has ended. Scan the QR code again on the computer's \"Add many workers\" page."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -8362,7 +8373,10 @@
       "material_linked": "This record uses the project's materials: choose the material and specification instead of typing a name",
       "spec_mismatch": "Choose a specification of this material",
       "spec_not_other": "Choose 「其他」 to type a specification",
-      "unit_follows_spec": "The unit follows the specification"
+      "unit_follows_spec": "The unit follows the specification",
+      "invalid_passport_no": "Passport number: 5 to 20 letters and digits",
+      "invalid_birth_date": "The date of birth must be before today",
+      "site_worker_passport_taken": "This passport is already on the roster"
     },
     "forbidden": "You do not have access to this.",
     "forbiddenBody": "Ask your administrator if you need it.",
@@ -19239,7 +19253,12 @@
       "documents": "Other documents",
       "enteredAt": "Entry time",
       "exitedAt": "Exit time",
-      "exitState": "Status"
+      "exitState": "Status",
+      "passportNo": "Passport no.",
+      "nationality": "Nationality",
+      "dateOfBirth": "Date of birth",
+      "passportExpiry": "Passport expiry",
+      "passportPhoto": "Passport photo"
     },
     "status": {
       "ON_SITE": "On site",
@@ -19268,7 +19287,8 @@
       "add": "Add worker",
       "edit": "Edit details",
       "deactivate": "Remove from roster",
-      "reactivate": "Back on the roster"
+      "reactivate": "Back on the roster",
+      "bulkAdd": "Add many workers"
     },
     "what": {
       "companies": "the company list",
@@ -19283,7 +19303,7 @@
     "form": {
       "addTitle": "Add worker",
       "editTitle": "Edit details",
-      "phoneHint": "For example 012-345 6789. The location link binds only to the phone with this number.",
+      "phoneHint": "Optional. E.g. 012-345 6789. Without a phone no location link can be sent; the link only binds to the phone with this number.",
       "noCompany": "None (not on the list)",
       "pickCompany": "Choose from the company list",
       "searchCompany": "Search companies",
@@ -19293,7 +19313,11 @@
       "documentNumber": "Document number",
       "removeDocument": "Remove this document",
       "addDocument": "Add a document",
-      "documentIncomplete": "Each document needs both a name and a number"
+      "documentIncomplete": "Each document needs both a name and a number",
+      "nationalityPlaceholder": "e.g. BGD, IDN, NPL",
+      "passportPhotoHint": "The page with the photo, as a photo or PDF. Only people who can see the roster can see it.",
+      "addPassportPhoto": "Upload passport photo",
+      "replacePassportPhoto": "Replace passport photo"
     },
     "detail": {
       "title": "Worker",
@@ -19312,7 +19336,9 @@
       "allVisits": "See all",
       "noVisits": "No entries yet",
       "deactivateHelp": "Turn the switch on to remove. The location link stops working at once; past entries and locations are kept.",
-      "armFirst": "Turn the switch on first"
+      "armFirst": "Turn the switch on first",
+      "passportExpired": "Passport expired",
+      "openPassportPhoto": "Open full size"
     },
     "link": {
       "status": {
@@ -19331,7 +19357,101 @@
       "sentBody": "The system sends no SMS. Send it by WhatsApp, or copy it and send it yourself. The link is shown this once only.",
       "otherBrowser": "If the worker opens the link in another browser or app (for example first in WhatsApp, then in Safari), the system treats it as another phone, and the office must send the link again.",
       "whatsapp": "Send by WhatsApp",
-      "copy": "Copy link"
+      "copy": "Copy link",
+      "needPhone": "Add a phone number first to send the location link"
+    },
+    "bulk": {
+      "title": "Add many workers",
+      "back": "Back to the roster",
+      "startIntro": "Put many people on the roster at once. Choose the project and company first, then photograph passports with a phone, upload passport photos, use Excel or type, and press \"Save all\".",
+      "step1": "Step 1: choose the project and company",
+      "companyHint": "Everyone in this batch gets this company. For someone different, type another company in their row.",
+      "start": "Start",
+      "continueTitle": "Not finished last time",
+      "noOpenBatches": "Nothing left unfinished.",
+      "openBatchLine": "Started {at} · {rows} still in the table · {saved} saved",
+      "continue": "Continue",
+      "what": {
+        "batches": "unfinished batches",
+        "batch": "this batch's table"
+      },
+      "changeCompany": "Change company",
+      "counts": "{rows} in the table · {saved} saved",
+      "draftSaving": "Saving draft…",
+      "draftSaved": "Draft saved automatically",
+      "draftFailed": "Draft not saved. Check the internet; typing again will retry",
+      "closedNote": "This batch is finished. To add more people, go back to the roster and press \"Add many workers\" for a new batch.",
+      "howTo": "Three ways, one table: (1) press \"Photograph passports with a phone\" and scan the QR code; (2) press \"Upload passport photos / PDF\"; (3) use the Excel template, or type in the table or paste from Excel / WhatsApp (Tab and Enter move between boxes). Only the name is required. Then press \"Save all\" at the bottom.",
+      "usePhones": "Photograph passports with a phone",
+      "hidePhones": "Hide the QR code",
+      "uploadPhotos": "Upload passport photos / PDF",
+      "uploadBusy": "Still reading the last passports; upload more when done",
+      "uploadFailed": "Upload failed. Please try again",
+      "downloadTemplate": "Download Excel template",
+      "uploadExcel": "Upload Excel",
+      "addRows": "Add 20 more rows",
+      "reading": "Reading passports {done} / {total}…",
+      "readDone": "{total} files read; {failed} did not go into the table:",
+      "result": "{saved} saved, {problems} to fix",
+      "resultProblems": "The ones to fix are still in the table, with the reason in red. Fix them and press \"Save all\" again.",
+      "filterAll": "All ({count})",
+      "filterProblems": "Only those to fix ({count})",
+      "noProblems": "Nothing to fix.",
+      "prevPage": "Previous",
+      "nextPage": "Next",
+      "firstPage": "This is the first page",
+      "lastPage": "This is the last page",
+      "page": "Page {page} of {pages}",
+      "saveAll": "Save all",
+      "savingProgress": "Saving… {saved} saved",
+      "saveHint": "People with no problem go onto the roster; the others stay in the table.",
+      "nothingToSave": "The table is empty. Fill in some rows first",
+      "finish": "This batch is done",
+      "finishTitle": "Is this batch done?",
+      "finishBody": "When it ends, the phones' QR code stops working at once.",
+      "finishBodyLeft": "{count} people in the table are not saved; they will not join the roster. The phones' QR code also stops working at once.",
+      "removeRow": "Delete this row",
+      "typeFromPhoto": "Type from the photo",
+      "datePlaceholder": "dd/mm/yyyy",
+      "column": {
+        "number": "Row",
+        "photo": "Passport",
+        "problems": "To fix"
+      },
+      "problem": {
+        "missing_name": "No name: enter the name",
+        "name_has_digits": "The name has a digit: correct it from the passport",
+        "check_photo": "Passport not read clearly: check or type it from the photo, then press \"Checked\"",
+        "passport_invalid": "Passport number not valid: letters and digits only",
+        "phone_invalid": "Phone number not valid: e.g. 012-345 6789, or leave it empty",
+        "dob_invalid": "Date of birth not valid: write dd/mm/yyyy, e.g. 31/12/1990",
+        "expiry_invalid": "Passport expiry not valid: write dd/mm/yyyy, e.g. 31/12/2030",
+        "passport_expired": "Passport expired ({date}): use the new passport and update its number and expiry",
+        "passport_twice": "Same passport number twice in this batch: delete the extra row",
+        "phone_twice": "Same phone number twice in this batch: change or delete the extra row",
+        "passport_on_roster": "Already on the roster ({name}, {project}): no need to add, delete this row",
+        "phone_on_roster": "This phone is already on the roster ({name}): if it is the same person delete this row, otherwise change the phone"
+      },
+      "capture": {
+        "title": "Photograph passports with a phone",
+        "step1": "Scan this QR code with the phone's camera.",
+        "step2": "Put the passport's photo page inside the frame and press \"Take photo\".",
+        "step3": "Each one appears in the table below by itself. Several phones can take photos at the same time.",
+        "validUntil": "The QR code works until {at}.",
+        "phoneCount": "Taken by phones, in the table: {count}",
+        "what": "the capture QR code",
+        "stop": "Stop phone photos",
+        "stopHint": "After this, phones that already scanned cannot take more."
+      },
+      "check": {
+        "title": "Row {number}: check against the passport photo",
+        "yellowBody": "This passport was not read clearly. Type the details from the photo, then press \"Checked\".",
+        "body": "Check the name and numbers against the photo; changes save by themselves.",
+        "openPdf": "Open the PDF",
+        "noPhoto": "This row has no passport photo.",
+        "zoomHint": "Click the photo to open it larger in a new tab.",
+        "confirm": "Checked"
+      }
     }
   },
   "workerLocation": {
@@ -19702,5 +19822,29 @@
       "body": "Notifications are off, so new messages will not ring. Allow them for this app in the phone's Settings → Notifications."
     },
     "dismiss": "Got it"
+  },
+  "passportCapture": {
+    "title": "Photograph passports",
+    "count": "Phones have taken {count} for this batch",
+    "endedTitle": "This photo link has ended",
+    "endedBody": "On the computer's \"Add many workers\" page, press \"Photograph passports with a phone\" and scan the QR code again.",
+    "failedTitle": "Could not open",
+    "failedBody": "Check the phone's internet, then press \"Try again\".",
+    "tryAgain": "Try again",
+    "aimHint": "Put the passport's photo page inside the frame, with the two lines at the bottom inside the dashed box and sharp.",
+    "shoot": "Take photo",
+    "openCamera": "Open the camera again",
+    "cameraStarting": "The camera is still opening, please wait",
+    "noLiveCamera": "The browser did not open the camera. Allow the camera (press \"Allow\" when the browser asks), then press the button below; if it still fails, scan the QR code with another phone.",
+    "photoAlt": "The passport just taken",
+    "reading": "Reading the passport, a few seconds…",
+    "readOk": "Read",
+    "passportNo": "Passport no. {number}",
+    "unclear": "Not clear, please take it again",
+    "unclearBody": "Lay it flat, avoid glare, come a little closer; the two bottom lines must be sharp. If it will not come out clear, press \"Use this one\" and the office will type it from the photo.",
+    "retake": "Take again",
+    "keepThis": "Use this one, the office types it",
+    "next": "Next passport",
+    "sendFailed": "Not sent. Check the internet and take it again"
   }
 }

@@ -35,6 +35,8 @@ const PUBLIC_PREFIXES = [
   "/driver-task",
   // A worker's location link (I20): no account, the token is the credential.
   "/worker-location",
+  // A phone's passport-capture link for one batch (JB61-1): the token is the credential.
+  "/passport-capture",
   // A driver's own clock-in link (J26): no account, the token is the credential.
   "/equipment-clock",
   // A package's link for an owner, a supplier or anybody else (H17 五 3).
