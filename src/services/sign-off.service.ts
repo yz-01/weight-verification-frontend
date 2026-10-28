@@ -86,3 +86,83 @@ export async function resetUserSignOffPin(userId: string) {
   toastSuccess("signOff.toast.reset");
   return user;
 }
+
+/** An assistant's own PIN on my account (JB56). Their PIN is never sent back. */
+export interface SignOffAssistant {
+  id: string;
+  name: string;
+  phone: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SignOffAssistants {
+  assistants: SignOffAssistant[];
+  /** At most this many (2). */
+  max: number;
+  /** My own PIN is set: needed before an assistant can be added. */
+  has_pin: boolean;
+}
+
+export const getSignOffAssistants = () =>
+  api.get<SignOffAssistants>(`${BASE}/list_sign_off_assistants/`);
+
+/**
+ * 「新增助理」: the owner's own PIN, then the assistant's name, phone and PIN.
+ * Silent: the form shows a refusal under its field.
+ */
+export async function addSignOffAssistant(payload: {
+  ownerPin: string;
+  name: string;
+  phone: string;
+  pin: string;
+}) {
+  const result = await api.post<SignOffAssistants>(
+    `${BASE}/add_sign_off_assistant/`,
+    { owner_pin: payload.ownerPin, name: payload.name, phone: payload.phone, pin: payload.pin },
+    { silent: true, noSignOffPrompt: true },
+  );
+  toastSuccess("signOff.assistants.toast.added", { name: payload.name });
+  return result;
+}
+
+export type AssistantChange =
+  | { kind: "pin"; pin: string }
+  | { kind: "active"; active: boolean }
+  | { kind: "remove" };
+
+/** 更换副密码 / 停用 / 启用 / 删除 - each with the owner's own PIN. */
+export async function changeSignOffAssistant(
+  assistant: SignOffAssistant,
+  ownerPin: string,
+  change: AssistantChange,
+) {
+  const options = { silent: true, noSignOffPrompt: true } as const;
+  let result: SignOffAssistants;
+  if (change.kind === "remove") {
+    result = await api.post<SignOffAssistants>(
+      `${BASE}/remove_sign_off_assistant/`,
+      { owner_pin: ownerPin, assistant: assistant.id },
+      options,
+    );
+    toastSuccess("signOff.assistants.toast.removed", { name: assistant.name });
+    return result;
+  }
+  result = await api.post<SignOffAssistants>(
+    `${BASE}/update_sign_off_assistant/`,
+    change.kind === "pin"
+      ? { owner_pin: ownerPin, assistant: assistant.id, pin: change.pin }
+      : { owner_pin: ownerPin, assistant: assistant.id, is_active: change.active },
+    options,
+  );
+  toastSuccess(
+    change.kind === "pin"
+      ? "signOff.assistants.toast.pinChanged"
+      : change.active
+        ? "signOff.assistants.toast.started"
+        : "signOff.assistants.toast.stopped",
+    { name: assistant.name },
+  );
+  return result;
+}
