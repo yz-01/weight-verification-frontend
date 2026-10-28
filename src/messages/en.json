@@ -6829,7 +6829,20 @@
       }
     },
     "records": "{count} records",
-    "evidencePdfHelp": "PDF export: the first page lists every record and the page it is on; each record's full evidence pages follow. Up to 20 records per file - choose fewer days if there are more.",
+    "evidencePdfHelp": "PDF export: the first page lists every record and the page it is on; each record's full evidence pages follow. More than 20 records are prepared in the background, and you are notified when ready.",
+    "jobs": {
+      "title": "Reports being prepared",
+      "what": "reports being prepared",
+      "records": "{count} records",
+      "preparing": "Preparing",
+      "preparingHint": "The report is being prepared. We will notify you when it is ready.",
+      "failed": "Not made",
+      "again": "Export again",
+      "failure": {
+        "failed": "Something went wrong while making the report. Press Export again; if it still fails, choose fewer days.",
+        "interrupted": "Making the report was interrupted. Press Export again to try once more."
+      }
+    },
     "targetReport": {
       "filterHelp": "The date range includes targets whose target period overlaps the selected dates.",
       "title": "Achievement report and export"
@@ -6845,6 +6858,7 @@
       "schedule": "Planned versus actual report",
       "target": "Target and achievement report",
       "documents": "Document records report",
+      "material_report": "Material report",
       "material_returns": "Material returns (RN)",
       "material_rejections": "Rejected material",
       "sundry_claims": "Sundry claims report",
@@ -18235,6 +18249,7 @@
     "openInViewer": "Open in the phone's viewer"
   },
   "fileActions": {
+    "reportQueued": "The report is being prepared. We will notify you when it is ready; then download it from Report export history.",
     "originalVersion": "Original (before changes)",
     "originalVersionHint": "This record as first filed (version 1), under the same number; it counts in no total.",
     "originalVersionTitle": "{reference} · original",

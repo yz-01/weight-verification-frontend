@@ -6829,7 +6829,20 @@
       }
     },
     "records": "共 {count} 條記錄",
-    "evidencePdfHelp": "匯出 PDF：第一頁是目錄（每筆記錄在第幾頁），後面每筆記錄接它的完整證據頁。一份最多 20 筆，太多請改短日期。",
+    "evidencePdfHelp": "導出 PDF：第一頁是目錄（每筆記錄在第幾頁），後面每筆記錄接它的完整證據頁。超過 20 筆會在後台準備，好了會通知您。",
+    "jobs": {
+      "title": "正在準備的報表",
+      "what": "正在準備的報表",
+      "records": "{count} 筆",
+      "preparing": "準備中",
+      "preparingHint": "報表正在準備，好了會通知您。",
+      "failed": "沒有做成",
+      "again": "重新導出",
+      "failure": {
+        "failed": "做報表時出了問題。請按「重新導出」再試；還是不行，請把日期範圍改短。",
+        "interrupted": "做報表時被中斷了。請按「重新導出」再試一次。"
+      }
+    },
     "targetReport": {
       "filterHelp": "所選日期會包含目標期間與該日期範圍有重疊的目標。",
       "title": "達成報表與導出"
@@ -6845,6 +6858,7 @@
       "schedule": "計劃與實際對比報表",
       "target": "目標與達成報表",
       "documents": "文件資料報表",
+      "material_report": "材料報表",
       "material_returns": "材料退貨記錄（RN）",
       "material_rejections": "材料不合格記錄",
       "sundry_claims": "雜費報銷報表",
@@ -18235,6 +18249,7 @@
     "openInViewer": "用手機的閱讀器打開"
   },
   "fileActions": {
+    "reportQueued": "報表正在準備，好了會通知您。準備好後可在「報表導出歷史」下載。",
     "originalVersion": "修改前原單",
     "originalVersionHint": "這筆記錄第一次提交時的樣子（版本 1），同一個編號；不計入任何累計。",
     "originalVersionTitle": "{reference} · 修改前原單",

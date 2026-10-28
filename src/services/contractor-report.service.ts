@@ -4,6 +4,7 @@ import type {
   ContractorReportExportRecord,
   ContractorReportFilterOptions,
   ContractorReportFilters,
+  ContractorReportJob,
   ContractorReportOptions,
   ContractorReportType,
   ReportLevelRow,
@@ -47,6 +48,14 @@ export function getContractorReport(
   );
 }
 
+/** The reports being made in the background, and those not made (JB48). */
+export async function getContractorReportJobs(): Promise<ContractorReportJob[]> {
+  const data = await api.get<{ results: ContractorReportJob[] }>(
+    "/api/contractor-reports/get_export_jobs/",
+  );
+  return data.results;
+}
+
 export function getContractorReportHistory(
   query: ListQuery = {},
 ): Promise<Paginated<ContractorReportExportRecord>> {
@@ -74,6 +83,8 @@ export function exportContractorReport(
     lang?: string;
     /** A history row without a file, generated again from its conditions (JB27). */
     regenerated_from?: string;
+    /** The report page, for a background report's 「重新导出」 (JB48). */
+    return_to?: string;
   },
 ): Promise<void> {
   return download("/api/contractor-reports/export_report/", {

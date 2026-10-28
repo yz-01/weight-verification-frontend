@@ -158,6 +158,11 @@ export const EVIDENCE_PDF_REPORTS: ReadonlySet<ContractorReportType> = new Set([
   "material_outgoing", "sundry_claims", "material_returns", "material_rejections",
 ]);
 
+/** This page's address, for a background report's 「重新导出」 (JB48). */
+function currentPage(): string {
+  return typeof window === "undefined" ? "" : `${window.location.pathname}${window.location.search}`;
+}
+
 export function ContractorReportWorkspace({
   reportType,
 }: {
@@ -280,6 +285,8 @@ export function ContractorReportWorkspace({
         ),
         // 日报告 and 项目进度摘要 print each document whole, in these words.
         lang: locale,
+        // A report made in the background (JB48) comes back here for 「重新导出」.
+        return_to: currentPage(),
       }),
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: ["contractor-reports", "history"] }),

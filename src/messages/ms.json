@@ -6829,7 +6829,20 @@
       }
     },
     "records": "{count} rekod",
-    "evidencePdfHelp": "Eksport PDF: halaman pertama menyenaraikan setiap rekod dan halamannya; halaman bukti penuh setiap rekod menyusul. Paling banyak 20 rekod satu fail - pilih tempoh lebih pendek jika lebih.",
+    "evidencePdfHelp": "Eksport PDF: halaman pertama menyenaraikan setiap rekod dan halamannya; halaman bukti penuh setiap rekod menyusul. Lebih daripada 20 rekod disediakan di latar belakang, dan anda dimaklumkan apabila siap.",
+    "jobs": {
+      "title": "Laporan sedang disediakan",
+      "what": "laporan sedang disediakan",
+      "records": "{count} rekod",
+      "preparing": "Sedang disediakan",
+      "preparingHint": "Laporan sedang disediakan. Anda akan dimaklumkan apabila siap.",
+      "failed": "Tidak dapat dibuat",
+      "again": "Eksport semula",
+      "failure": {
+        "failed": "Ada masalah semasa membuat laporan. Tekan Eksport semula; jika masih gagal, pilih tempoh lebih pendek.",
+        "interrupted": "Pembuatan laporan terganggu. Tekan Eksport semula untuk cuba sekali lagi."
+      }
+    },
     "targetReport": {
       "filterHelp": "Julat tarikh merangkumi sasaran yang tempoh sasarannya bertindih dengan tarikh yang dipilih.",
       "title": "Laporan pencapaian dan eksport"
@@ -6845,6 +6858,7 @@
       "schedule": "Laporan dirancang berbanding sebenar",
       "target": "Laporan sasaran dan pencapaian",
       "documents": "Laporan rekod dokumen",
+      "material_report": "Laporan bahan",
       "material_returns": "Pemulangan bahan (RN)",
       "material_rejections": "Bahan ditolak",
       "sundry_claims": "Laporan tuntutan pelbagai",
@@ -18235,6 +18249,7 @@
     "openInViewer": "Buka dalam pemapar telefon"
   },
   "fileActions": {
+    "reportQueued": "Laporan sedang disediakan. Anda akan dimaklumkan apabila siap; kemudian muat turun dari Sejarah eksport laporan.",
     "originalVersion": "Asal (sebelum diubah)",
     "originalVersionHint": "Rekod ini seperti mula-mula difailkan (versi 1), nombor yang sama; tidak dikira dalam mana-mana jumlah.",
     "originalVersionTitle": "{reference} · asal",

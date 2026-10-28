@@ -24,6 +24,25 @@ export type ContractorReportType =
   | "material_returns"
   | "material_rejections";
 
+/**
+ * A report being made in the background, or one that was not made (JB48):
+ * the top lines of 「报表导出历史」. A finished one is an ordinary history row.
+ */
+export interface ContractorReportJob {
+  id: string;
+  report_type: string;
+  title: string;
+  date_from: string | null;
+  date_to: string | null;
+  record_count: number;
+  status: "PREPARING" | "FAILED";
+  /** Why it was not made: `failed`, or `interrupted` (the server restarted). */
+  failure: "" | "failed" | "interrupted";
+  /** The report page it was exported from, for 「重新导出」. */
+  return_to: string;
+  created_at: string;
+}
+
 export interface ContractorReportFilters {
   report_type: ContractorReportType;
   date_from?: string;

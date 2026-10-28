@@ -99,6 +99,11 @@ const hintKey: Record<MaterialReportView, string> = {
   returns: "returnsHint",
 };
 
+/** This page's address, for a background report's 「重新导出」 (JB48). */
+function currentPage(): string {
+  return typeof window === "undefined" ? "" : `${window.location.pathname}${window.location.search}`;
+}
+
 export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
   const t = useTranslations();
   const { can } = useAuth();
@@ -204,6 +209,7 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
         query: filters,
         // The PDF carries each return's complete evidence pages (JB48).
         completeEvidence: true,
+        returnTo: currentPage(),
         summary: cumulativeSummary,
         columns: [
               { key: "return_note_no", label: t("materialReports.records.returnNo") },
@@ -234,6 +240,7 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
       query: filters,
       // The PDF carries each delivery's complete evidence pages (JB48).
       completeEvidence: true,
+      returnTo: currentPage(),
       // The file ends with each material's 累计总数量 (E5, Q24): one
       // quantity beside 收货次数, as on the screen (Lucas 2026-10-10).
       summary: mode === "quantity" ? cumulativeSummary : undefined,

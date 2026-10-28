@@ -96,6 +96,8 @@ export interface ExportRequest {
    * record's complete evidence pages follow it. Ignored for a spreadsheet.
    */
   completeEvidence?: boolean;
+  /** The report page, for a background report's 「重新导出」 (JB48). */
+  returnTo?: string;
 }
 
 /**
@@ -116,6 +118,7 @@ export function exportBody(request: ExportRequest) {
     empty_label: request.emptyLabel ?? "",
     columns: request.columns,
     ...(request.completeEvidence ? { complete_evidence: true } : {}),
+    ...(request.returnTo ? { return_to: request.returnTo } : {}),
     ...(request.summary
       ? {
           summary: {
