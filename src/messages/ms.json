@@ -7676,6 +7676,8 @@
       "expiryTitle": "Laporan pemeriksaan akan tamat ({count})",
       "openArchive": "Buka arkib dokumen",
       "severalHint": "Boleh pilih beberapa; setiap satu menerima keputusan yang sama. {count} dipilih.",
+      "machinesHint": "Hanya mesin yang berada di tapak sekarang disenaraikan. Tandakan setiap mesin dan pilih Lulus atau Gagal di sebelahnya; satu hantaran menyimpan keputusan bagi setiap mesin. {count} dipilih.",
+      "noMachinesOnSite": "Tiada mesin projek ini berada di tapak sekarang.",
       "addItem": "Tambah",
       "removeItem": "Buang"
     }
@@ -8212,6 +8214,7 @@
       "return_note_required": "Isi Return Note sebelum meluluskan.",
       "return_note_locked": "Pemulangan ini sudah diputuskan, jadi Return Note tidak boleh diubah lagi. Keadaan terkini kini dipaparkan.",
       "equipment_hours_equipment_unavailable": "Mesin ini tidak boleh dipilih (tidak aktif atau telah dilupuskan). Pilih mesin yang digunakan di tapak.",
+      "inspection_equipment_not_on_site": "Satu mesin yang anda tandakan telah keluar dari tapak. Nyahtanda mesin itu dan tekan Hantar semula.",
       "equipment_hours_day_not_found": "Catatan jam ini tidak ditemui. Muat semula dan cuba lagi.",
       "equipment_hours_end_before_start": "Masa tamat mesti selepas masa mula.",
       "equipment_hours_end_too_late": "Masa ini bertindih dengan foto sebelum atau selepas mesin ini, atau pada masa hadapan.",

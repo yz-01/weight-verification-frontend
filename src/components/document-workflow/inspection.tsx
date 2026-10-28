@@ -12,6 +12,11 @@
  * One report can cover several machines, or several materials: they are all
  * chosen here and each gets its own result with the same report details
  * (Lucas 2026-10-24: 「做成多选」; Q12-5 「不需要重复填写」).
+ *
+ * Machines (JB54, client 10-28): the list is the 设备清单's machines on site
+ * now (``presence=on``), and every machine ticked gets its own 合格 / 不合格,
+ * chosen beside it; one submit files one result per machine. Materials keep
+ * the one result for everything chosen.
  */
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -37,6 +42,17 @@ import type { InspectionInfo, InspectionPayload } from "@/interfaces/document-wo
 import { useDateFormat } from "@/lib/dates";
 import { getProjectCategories, getSiteEquipment } from "@/services/contractor-ops.service";
 import { addInspection } from "@/services/document-workflow.service";
+
+type Verdict = "PASS" | "FAIL";
+
+/** The machines ticked, in the order ticked, each with its own result (JB54). */
+export type ChosenMachines = { equipment: string; result: Verdict | "" }[];
+
+/** What 「提交」 sends for the machines, or null while one still has no result. */
+export function machineInspectionItems(chosen: ChosenMachines): { equipment: string; result: Verdict }[] | null {
+  if (chosen.length === 0 || chosen.some((row) => !row.result)) return null;
+  return chosen.map((row) => ({ equipment: row.equipment, result: row.result as Verdict }));
+}
 
 /** 「合格 · 2026-10-05」 / 「不合格 · …」, with the expiry when near; nothing for none. */
 export function InspectionBadge({ inspection }: { inspection: InspectionInfo | null | undefined }) {
@@ -107,7 +123,7 @@ export function InspectionDialog({
   const t = useTranslations("documents.inspection");
   const queryClient = useQueryClient();
   const [target, setTarget] = useState<"EQUIPMENT" | "MATERIAL">("EQUIPMENT");
-  const [machinesChosen, setMachinesChosen] = useState<string[]>([]);
+  const [machinesChosen, setMachinesChosen] = useState<ChosenMachines>([]);
   // The material and specification being picked; 「加入」 adds the pair.
   const [material, setMaterial] = useState("");
   const [spec, setSpec] = useState("");
@@ -115,14 +131,15 @@ export function InspectionDialog({
   const [number, setNumber] = useState("");
   const [inspectedOn, setInspectedOn] = useState("");
   const [inspector, setInspector] = useState("");
-  const [result, setResult] = useState<"PASS" | "FAIL" | "">("");
+  const [result, setResult] = useState<Verdict | "">("");
   const [reportDate, setReportDate] = useState("");
   const [validUntil, setValidUntil] = useState("");
   const [confirming, setConfirming] = useState(false);
   const [error, setError] = useState("");
   const machines = useQuery({
     queryKey: ["site-equipment", "inspection", project ?? ""],
-    queryFn: () => getSiteEquipment({ ...(project ? { project } : {}), page_size: 200 }),
+    // Only machines on site now, by the 设备清单's own 在场 rule (JB54).
+    queryFn: () => getSiteEquipment({ ...(project ? { project } : {}), presence: "on", page_size: 200 }),
     enabled: target === "EQUIPMENT",
   });
   const materials = useQuery({
@@ -147,18 +164,21 @@ export function InspectionDialog({
     setSpec("");
   };
   const chosenCount = target === "EQUIPMENT" ? machinesChosen.length : materialsChosen.length;
+  const machineItems = machineInspectionItems(machinesChosen);
+  const setMachineResult = (equipment: string, verdict: Verdict) =>
+    setMachinesChosen((current) => current.map((row) => (row.equipment === equipment ? { ...row, result: verdict } : row)));
   const save = useMutation({
     mutationFn: () => {
       const payload: InspectionPayload = {
         target,
         items:
           target === "EQUIPMENT"
-            ? machinesChosen.map((equipment) => ({ equipment }))
+            ? (machineItems ?? [])
             : materialsChosen.map((item) => ({ material: item.material, ...(item.spec ? { spec: item.spec } : {}) })),
         inspection_no: number.trim(),
         inspected_on: inspectedOn,
         inspector: inspector.trim(),
-        result: result as "PASS" | "FAIL",
+        ...(target === "MATERIAL" ? { result: result as Verdict } : {}),
         ...(reportDate ? { report_date: reportDate } : {}),
         ...(validUntil ? { valid_until: validUntil } : {}),
       };
@@ -180,8 +200,9 @@ export function InspectionDialog({
     [number.trim(), t("number")],
     [inspectedOn, t("inspectedOn")],
     [inspector.trim(), t("inspector")],
-    [result, t("result.label")],
+    [target === "EQUIPMENT" ? machineItems : result, t("result.label")],
   ];
+  const machineRows = machines.data?.results ?? [];
   return (
     <Dialog open onOpenChange={(open) => !open && !save.isPending && onClose()}>
       <DialogContent className="max-h-[92dvh] overflow-y-auto sm:max-w-xl">
@@ -205,30 +226,59 @@ export function InspectionDialog({
             <FieldWrapper
               label={t("equipment")}
               required
-              hint={t("severalHint", { count: machinesChosen.length })}
+              hint={t("machinesHint", { count: machinesChosen.length })}
               className="sm:col-span-2"
             >
               <div
                 role="group"
                 aria-label={t("equipment")}
-                className="max-h-56 overflow-y-auto rounded-md border bg-card"
+                className="max-h-72 overflow-y-auto rounded-md border bg-card"
               >
-                {(machines.data?.results ?? []).map((row) => (
-                  <label
-                    key={row.id}
-                    className="flex min-h-10 cursor-pointer items-center gap-2 border-b px-3 py-2 text-sm last:border-b-0"
-                  >
-                    <Checkbox
-                      checked={machinesChosen.includes(row.id)}
-                      onCheckedChange={(checked) =>
-                        setMachinesChosen((current) =>
-                          checked === true ? [...current, row.id] : current.filter((id) => id !== row.id),
-                        )
-                      }
-                    />
-                    <span>{[row.site_no, row.name, row.registration_no].filter(Boolean).join(" · ")}</span>
-                  </label>
-                ))}
+                {machines.isSuccess && machineRows.length === 0 && (
+                  <p className="px-3 py-2 text-sm text-muted-foreground">{t("noMachinesOnSite")}</p>
+                )}
+                {machineRows.map((row) => {
+                  const chosen = machinesChosen.find((item) => item.equipment === row.id);
+                  const name = [row.site_no, row.name, row.registration_no].filter(Boolean).join(" · ");
+                  return (
+                    <div
+                      key={row.id}
+                      className="flex min-h-11 flex-wrap items-center gap-2 border-b px-3 py-2 text-sm last:border-b-0"
+                    >
+                      <label className="flex min-w-0 flex-1 cursor-pointer items-center gap-2">
+                        <Checkbox
+                          checked={Boolean(chosen)}
+                          onCheckedChange={(checked) =>
+                            setMachinesChosen((current) =>
+                              checked === true
+                                ? [...current, { equipment: row.id, result: "" }]
+                                : current.filter((item) => item.equipment !== row.id),
+                            )
+                          }
+                        />
+                        <span className="min-w-0 break-words">{name}</span>
+                      </label>
+                      {chosen && (
+                        // Each machine its own 合格 / 不合格 (JB54), never red (Q11-4).
+                        <div role="radiogroup" aria-label={`${name} ${t("result.label")}`} className="flex gap-1.5">
+                          {(["PASS", "FAIL"] as const).map((verdict) => (
+                            <Button
+                              key={verdict}
+                              type="button"
+                              size="sm"
+                              role="radio"
+                              aria-checked={chosen.result === verdict}
+                              variant={chosen.result === verdict ? "default" : "outline"}
+                              onClick={() => setMachineResult(row.id, verdict)}
+                            >
+                              {t(`result.${verdict}`)}
+                            </Button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
               <QueryFailedNote query={machines} what={t("equipment")} />
             </FieldWrapper>
@@ -309,17 +359,19 @@ export function InspectionDialog({
           <FieldWrapper label={t("inspector")} required>
             <Input value={inspector} maxLength={200} onChange={(event) => setInspector(event.target.value)} />
           </FieldWrapper>
-          <FieldWrapper label={t("result.label")} required>
-            <Select value={result} onValueChange={(value) => setResult(value as "PASS" | "FAIL")}>
-              <SelectTrigger className="w-full bg-card" aria-label={t("result.label")}>
-                <SelectValue placeholder={t("choose")} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="PASS">{t("result.PASS")}</SelectItem>
-                <SelectItem value="FAIL">{t("result.FAIL")}</SelectItem>
-              </SelectContent>
-            </Select>
-          </FieldWrapper>
+          {target === "MATERIAL" && (
+            <FieldWrapper label={t("result.label")} required>
+              <Select value={result} onValueChange={(value) => setResult(value as Verdict)}>
+                <SelectTrigger className="w-full bg-card" aria-label={t("result.label")}>
+                  <SelectValue placeholder={t("choose")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="PASS">{t("result.PASS")}</SelectItem>
+                  <SelectItem value="FAIL">{t("result.FAIL")}</SelectItem>
+                </SelectContent>
+              </Select>
+            </FieldWrapper>
+          )}
           <FieldWrapper label={t("reportDate")}>
             <Input type="date" value={reportDate} onChange={(event) => setReportDate(event.target.value)} />
           </FieldWrapper>

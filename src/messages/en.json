@@ -7676,6 +7676,8 @@
       "expiryTitle": "Inspection reports running out ({count})",
       "openArchive": "Open the document archive",
       "severalHint": "You can choose several; each gets the same result. {count} chosen.",
+      "machinesHint": "Only machines on site now are listed. Tick each machine and choose Pass or Fail beside it; one submit saves a result for each. {count} chosen.",
+      "noMachinesOnSite": "No machine of this project is on site now.",
       "addItem": "Add",
       "removeItem": "Remove"
     }
@@ -8212,6 +8214,7 @@
       "return_note_required": "Fill in the Return Note before approving.",
       "return_note_locked": "This return has already been decided, so its Return Note can no longer be changed. The latest state is now shown.",
       "equipment_hours_equipment_unavailable": "This machine cannot be chosen (inactive or retired). Choose a machine in use on the site.",
+      "inspection_equipment_not_on_site": "A machine you ticked has left the site. Untick it and press Submit again.",
       "equipment_hours_day_not_found": "This hours entry could not be found. Refresh and try again.",
       "equipment_hours_end_before_start": "The end time must be after the start time.",
       "equipment_hours_end_too_late": "This time overlaps the machine's previous or next photo, or lies in the future.",

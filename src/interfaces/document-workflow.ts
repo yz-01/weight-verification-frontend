@@ -223,7 +223,8 @@ export interface InspectionInfo {
   inspection_no: string;
   inspected_on: string;
   inspector: string;
-  result: "PASS" | "FAIL";
+  /** Materials: the one result. Machines carry theirs on each item (JB54). */
+  result?: "PASS" | "FAIL";
   report_date: string | null;
   valid_until: string | null;
   /** The report running out within 30 days, or out (Q11-3). */
@@ -234,15 +235,17 @@ export interface InspectionInfo {
 
 export interface InspectionPayload {
   target: "EQUIPMENT" | "MATERIAL";
-  /** Several machines, or several materials: one result each, same report. */
-  items?: Array<{ equipment?: string; material?: string; spec?: string; receipt?: string }>;
+  /** Several machines, or several materials: one result each, same report.
+   *  A machine carries its own 合格 / 不合格 (JB54). */
+  items?: Array<{ equipment?: string; material?: string; spec?: string; receipt?: string; result?: "PASS" | "FAIL" }>;
   equipment?: string;
   material?: string;
   spec?: string;
   inspection_no: string;
   inspected_on: string;
   inspector: string;
-  result: "PASS" | "FAIL";
+  /** Materials: the one result. Machines carry theirs on each item (JB54). */
+  result?: "PASS" | "FAIL";
   report_date?: string;
   valid_until?: string;
 }

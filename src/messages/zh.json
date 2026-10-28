@@ -7676,6 +7676,8 @@
       "expiryTitle": "检验报告到期（{count}）",
       "openArchive": "打开文件档案",
       "severalHint": "可以选多项；每项各存一笔一样的检验结果。已选 {count} 项。",
+      "machinesHint": "只列现在在场的设备。每台勾选后，在旁边选「合格」或「不合格」；一起提交，每台各存一笔。已选 {count} 台。",
+      "noMachinesOnSite": "这个项目现在没有在场的设备。",
       "addItem": "加入",
       "removeItem": "移除"
     }
@@ -8212,6 +8214,7 @@
       "return_note_required": "请先填写 Return Note 再批准。",
       "return_note_locked": "这笔退场已经审批过，Return Note 不能再修改。已刷新为最新状态。",
       "equipment_hours_equipment_unavailable": "这台设备现在不能选（已停用或已报废），请选工地上在用的设备。",
+      "inspection_equipment_not_on_site": "勾选的设备里有一台已经退场。请取消勾选它，再按「提交」。",
       "equipment_hours_day_not_found": "找不到这一笔工时记录，请刷新后再试。",
       "equipment_hours_end_before_start": "结束时间要在开始时间之后。",
       "equipment_hours_end_too_late": "这个时间和这台设备的上一张或下一张照片重叠了，或者晚于现在。",

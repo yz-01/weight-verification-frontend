@@ -187,13 +187,16 @@ function ShellThumbnail({ photo, onOpen }: { photo: ShellPhoto; onOpen: () => vo
  * reader checks first, with what it is and when it was taken over its corner.
  * The rest stay small beside it.
  *
- * A wide 16:9 frame across the whole panel, on a computer and a phone (JB34,
- * 客户 10-26 事项 10: 「图3图4图5这些是之前的照片，这样的照片就好看，为什么要
- * 改呢？改回去」) - the look before J34-1 made it the photo's own shape and
- * J44 a square. The frame is filled (cut to fit, from the bottom so the
- * stamped strip stays - J45); the whole photograph is one press away in the
- * viewer. It is drawn from the large photograph, never the 400 px thumbnail
- * stretched over it (J44).
+ * One fixed 4:3 frame across the whole panel, on a computer and a phone
+ * (JB46, 客户 10-28: 「要横的按横、竖的按竖，不能裁切或拉伸，水印要完整；照片框和
+ * 右边资料要整齐，换照片不能跑位」). The photograph is never cut: it sits whole
+ * in the frame (`object-contain`) - a landscape one fills the width, a
+ * portrait one the height with the panel's colour either side - so the
+ * burnt-in watermark strip is always whole, and pressing another photo never
+ * moves the page. Never taller than 36rem or 70 % of the window, so on a
+ * wide screen it stays beside the facts. This replaces JB34's filled 16:9 frame, which cut tall
+ * photos. The viewer is unchanged. It is drawn from the large photograph,
+ * never the 400 px thumbnail stretched over it (J44).
  *
  * `fromThumbnail`: the phone field app (client 2026-10-09 二.4, 五.3) names
  * the thumbnail first and offers the large photo beside it (`srcset`), so a
@@ -208,18 +211,11 @@ export function heroSources(photo: ShellPhoto, fromThumbnail: boolean): { src: s
 }
 
 /**
- * How the 16:9 hero fits its photo so the burnt-in watermark strip (the
- * bottom band, left-aligned text) is never cut (J45, Lucas 10-22, k13):
- *
- * * up to 16:9 wide - square, 4:3, tall, and before it has loaded - fills
- *   the frame, cut from the top: the strip at the foot stays whole;
- * * wider than 16:9 (a panorama) - shown whole (`contain`): filling would
- *   cut its sides, and with them the strip's lines.
+ * How the hero fits its photo (JB46): always whole, whatever its shape and
+ * before it has loaded - never cut, never stretched, so the watermark strip
+ * (J45) is whole too.
  */
-export function heroFit(natural: Size | null): string {
-  if (natural && natural.width > natural.height * (16 / 9) * 1.02) return "object-contain";
-  return "object-cover object-bottom";
-}
+export const HERO_FIT = "object-contain";
 
 function ShellHeroPhoto({
   photo,
@@ -232,14 +228,13 @@ function ShellHeroPhoto({
 }) {
   const df = useDateFormat();
   const { src, srcSet } = heroSources(photo, fromThumbnail);
-  const [natural, setNatural] = useState<Size | null>(null);
   return (
     <button
       type="button"
       title={photo.label}
       onClick={onOpen}
       data-shell-hero
-      className="relative block aspect-video w-full overflow-hidden rounded-xl bg-muted ring-1 ring-panel-border transition hover:shadow-glow-sm hover:ring-primary/60 focus-visible:ring-2 focus-visible:ring-ring"
+      className="relative block aspect-4/3 max-h-[min(36rem,70dvh)] w-full overflow-hidden rounded-xl bg-muted ring-1 ring-panel-border transition hover:shadow-glow-sm hover:ring-primary/60 focus-visible:ring-2 focus-visible:ring-ring"
     >
       {/* eslint-disable-next-line @next/next/no-img-element -- a srcset of two stored renditions, not a resized one */}
       <img
@@ -248,11 +243,7 @@ function ShellHeroPhoto({
         sizes="(min-width: 1024px) 50vw, 100vw"
         alt={photo.label}
         decoding="async"
-        onLoad={(event) => {
-          const image = event.currentTarget;
-          setNatural({ width: image.naturalWidth, height: image.naturalHeight });
-        }}
-        className={`absolute inset-0 size-full ${heroFit(natural)}`}
+        className={`absolute inset-0 size-full ${HERO_FIT}`}
       />
       {/* At the top: at the foot it covered the photo's watermark strip. */}
       <span className="absolute left-2 top-2 max-w-[calc(100%-1rem)] truncate rounded-md bg-overlay px-2 py-1 text-xs text-overlay-foreground">
