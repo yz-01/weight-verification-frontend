@@ -6829,7 +6829,7 @@
       }
     },
     "records": "{count} rekod",
-    "evidencePdfHelp": "Eksport PDF: halaman pertama menyenaraikan setiap rekod dan halamannya; halaman bukti penuh setiap rekod menyusul. Paling banyak 30 rekod satu fail - pilih tempoh lebih pendek jika lebih.",
+    "evidencePdfHelp": "Eksport PDF: halaman pertama menyenaraikan setiap rekod dan halamannya; halaman bukti penuh setiap rekod menyusul. Paling banyak 20 rekod satu fail - pilih tempoh lebih pendek jika lebih.",
     "targetReport": {
       "filterHelp": "Julat tarikh merangkumi sasaran yang tempoh sasarannya bertindih dengan tarikh yang dipilih.",
       "title": "Laporan pencapaian dan eksport"

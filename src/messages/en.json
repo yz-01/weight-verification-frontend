@@ -6829,7 +6829,7 @@
       }
     },
     "records": "{count} records",
-    "evidencePdfHelp": "PDF export: the first page lists every record and the page it is on; each record's full evidence pages follow. Up to 30 records per file - choose fewer days if there are more.",
+    "evidencePdfHelp": "PDF export: the first page lists every record and the page it is on; each record's full evidence pages follow. Up to 20 records per file - choose fewer days if there are more.",
     "targetReport": {
       "filterHelp": "The date range includes targets whose target period overlaps the selected dates.",
       "title": "Achievement report and export"
