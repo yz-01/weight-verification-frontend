@@ -3494,7 +3494,10 @@
       "user_updated": "修改用戶資料",
       "version_changelog_added": "新增版本說明",
       "version_created": "建立系統版本",
-      "version_updated": "修改系統版本"
+      "version_updated": "修改系統版本",
+      "assistant_added": "新增助理副密碼",
+      "assistant_changed": "更改助理副密碼",
+      "assistant_removed": "刪除助理副密碼"
     },
     "result": {
       "FAILED": "失敗",
@@ -8329,7 +8332,11 @@
       "record_in_use": "已被正式記錄引用，不能刪除：{used_by}",
       "consultant_application_not_confirmed": "請先確認歸檔，才能發送給顧問。",
       "claim_letter_required": "請先上傳書信。Progress Claim 必須有書信，確認時放在 PDF 最前面。",
-      "report_export_not_regenerable": "這一行不能重新生成：它已經有存檔文件、屬於另一份報表，或不在你的歷史裡。"
+      "report_export_not_regenerable": "這一行不能重新生成：它已經有存檔文件、屬於另一份報表，或不在你的歷史裡。",
+      "session_replaced": "這個帳號已在另一台電腦登入，這台電腦已經登出。要在這台電腦繼續用，請重新登入。",
+      "sign_off_assistant_limit": "已經有兩位助理。要換人，請先刪除一位。",
+      "sign_off_assistant_pin_taken": "這個密碼已經有人用了，請換一個六位數。",
+      "sign_off_assistant_not_found": "找不到這位助理，請重新整理頁面再試。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -19466,7 +19473,7 @@
   },
   "signOff": {
     "title": "簽核密碼",
-    "enterHelp": "輸入你的六位數簽核密碼，系統會記錄是你本人操作。",
+    "enterHelp": "輸入六位數簽核密碼。助理請輸入自己的副密碼，系統會記下是誰操作。",
     "pin": "簽核密碼（六位數）",
     "confirm": "確認",
     "checking": "核對中…",
@@ -19557,11 +19564,61 @@
       "material_target_append": "追加材料目標",
       "file_print": "列印文件",
       "file_download": "下載 / 匯出文件",
-      "file_send": "發送 / 分享文件"
+      "file_send": "發送 / 分享文件",
+      "archive_confirm": "確認歸檔",
+      "assistant_manage": "新增或更改助理副密碼"
     },
     "firstTitle": "第一次設定簽核密碼",
     "firstBanner": "這是你第一次使用簽核密碼",
-    "firstHelp": "請先設一個只有你知道的六位數密碼，再輸入一次確認，最後填登入系統用的密碼。設好後會直接繼續剛才的操作；以後重要的後台操作都用這個密碼確認。"
+    "firstHelp": "請先設一個只有你知道的六位數密碼，再輸入一次確認，最後填登入系統用的密碼。設好後會直接繼續剛才的操作；以後重要的後台操作都用這個密碼確認。",
+    "assistants": {
+      "title": "助理副密碼",
+      "help": "負責人不在時，助理用自己的六位數副密碼繼續用這個帳號工作。最多兩位。列印、下載、發送、刪除、修改的記錄裡會寫助理的名字。",
+      "add": "新增助理",
+      "addTitle": "新增助理",
+      "addHelp": "先由負責人輸入自己的簽核密碼，再由助理在這台電腦上填寫自己的資料。",
+      "full": "已經有兩位助理。要換人，請先刪除一位。",
+      "needOwnPin": "請先在上面設定您自己的簽核密碼，才能新增助理。",
+      "empty": "還沒有助理。",
+      "step1": "第 1 步：負責人輸入自己的簽核密碼",
+      "step2": "第 2 步：助理填寫自己的資料",
+      "ownerPin": "負責人的簽核密碼",
+      "ownerPinHint": "確認是負責人本人同意",
+      "name": "助理姓名",
+      "phone": "助理電話",
+      "phoneLine": "電話 {phone}",
+      "pin": "助理的六位數副密碼",
+      "newPin": "新的六位數副密碼",
+      "pinHint": "助理自己設定，不能和負責人或另一位助理的密碼一樣",
+      "confirmPin": "再輸入一次副密碼",
+      "pinMismatch": "兩次輸入的副密碼不一樣",
+      "active": "使用中",
+      "stopped": "已停用",
+      "changePin": "更換副密碼",
+      "changePinTitle": "更換 {name} 的副密碼",
+      "changePinHelp": "負責人輸入自己的簽核密碼後，由 {name} 設定新的六位數副密碼。舊的副密碼馬上不能用。",
+      "stop": "停用",
+      "stopTitle": "停用 {name}？",
+      "stopHelp": "停用後，{name} 的副密碼馬上不能用。以後可以再啟用。",
+      "start": "啟用",
+      "startTitle": "重新啟用 {name}？",
+      "startHelp": "啟用後，{name} 可以再用自己的副密碼。",
+      "remove": "刪除",
+      "removeTitle": "刪除助理 {name}？",
+      "removeHelp": "刪除後，{name} 的副密碼馬上不能用。以前的記錄仍然寫著 {name} 的名字。",
+      "saveAdd": "儲存助理",
+      "saveChange": "儲存新副密碼",
+      "confirmStop": "確認停用",
+      "confirmStart": "確認啟用",
+      "confirmRemove": "確認刪除",
+      "toast": {
+        "added": "已新增助理 {name}。",
+        "pinChanged": "已更換 {name} 的副密碼。",
+        "stopped": "已停用 {name}。",
+        "started": "已啟用 {name}。",
+        "removed": "已刪除助理 {name}。"
+      }
+    }
   },
   "specFilter": {
     "label": "規格",

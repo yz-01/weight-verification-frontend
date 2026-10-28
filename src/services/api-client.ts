@@ -21,8 +21,10 @@ import {
 } from "@/interfaces/api";
 import {
   FIELD_EXPLAINED_SIGN_OUTS,
+  SESSION_REPLACED,
   clearTokens,
   rememberFieldSignOutReason,
+  rememberSignOutReason,
   getAccessToken,
   getRefreshToken,
   getSessionPortal,
@@ -228,7 +230,10 @@ function endSession(): void {
         ? resolveMessage(reason, "")
         : "";
     if (officeReason) rememberFieldSignOutReason(officeReason);
-    toast.error(officeReason || t("auth.sessionExpired"));
+    // JB56: signed in on another computer - said here and on the sign-in page.
+    const replacedReason = reason === SESSION_REPLACED ? resolveMessage(reason, "") : "";
+    if (replacedReason) rememberSignOutReason(replacedReason);
+    toast.error(officeReason || replacedReason || t("auth.sessionExpired"));
     window.location.href = loginPath;
   }
 }
