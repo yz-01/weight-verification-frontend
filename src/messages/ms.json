@@ -19451,7 +19451,8 @@
         "noPhoto": "Baris ini tiada gambar pasport.",
         "zoomHint": "Klik gambar untuk buka lebih besar di tab baharu.",
         "confirm": "Sudah disemak"
-      }
+      },
+      "saveBlocked": "Perubahan jadual belum sampai ke pelayan, jadi tiada yang disimpan. Semak internet dan tekan \"Simpan semua\" sekali lagi."
     }
   },
   "workerLocation": {

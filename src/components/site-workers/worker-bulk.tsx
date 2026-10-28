@@ -316,6 +316,7 @@ function BatchEditor({ initial }: { initial: BatchDetail }) {
   const [uploads, setUploads] = useState<UploadProgress | null>(null);
   const [saving, setSaving] = useState<number | null>(null);
   const [result, setResult] = useState<{ saved: number; problems: number } | null>(null);
+  const [saveBlocked, setSaveBlocked] = useState(false);
   const [filter, setFilter] = useState<Filter>("all");
   const [page, setPage] = useState(0);
   const [focus, setFocus] = useState<CellFocus | null>(null);
@@ -339,8 +340,9 @@ function BatchEditor({ initial }: { initial: BatchDetail }) {
   );
 
   /** Send what changed, one sync at a time, until nothing is left. */
-  const runSync = useCallback(async () => {
-    if (syncingRef.current) return;
+  /** False when the server could not be reached or refused. */
+  const runSync = useCallback(async (): Promise<boolean> => {
+    if (syncingRef.current) return true;
     syncingRef.current = true;
     try {
       for (let round = 0; round < 20; round += 1) {
@@ -362,10 +364,11 @@ function BatchEditor({ initial }: { initial: BatchDetail }) {
           deletedRef.current.unshift(...deleted);
           setSyncState("failed");
           if (error instanceof ApiError && error.code === "worker_batch_closed") setClosed(true);
-          return;
+          return false;
         }
       }
       setSyncState("saved");
+      return true;
     } finally {
       syncingRef.current = false;
     }
@@ -376,10 +379,6 @@ function BatchEditor({ initial }: { initial: BatchDetail }) {
     timerRef.current = setTimeout(() => void runSync(), 800);
   }, [runSync]);
 
-  const syncStateRef = useRef(syncState);
-  useEffect(() => {
-    syncStateRef.current = syncState;
-  }, [syncState]);
 
   /** Everything typed is on the server (before 「全部保存」). */
   const flush = useCallback(async () => {
@@ -387,9 +386,8 @@ function BatchEditor({ initial }: { initial: BatchDetail }) {
     for (let round = 0; round < 40; round += 1) {
       if (!syncingRef.current && !hasUnsynced(rowsRef.current, deletedRef.current)) return true;
       if (!syncingRef.current) {
-        await runSync();
+        if (!(await runSync())) return false;
         if (!hasUnsynced(rowsRef.current, deletedRef.current)) return true;
-        if (syncStateRef.current === "failed") return false;
       } else {
         await new Promise((resolve) => setTimeout(resolve, 250));
       }
@@ -524,9 +522,13 @@ function BatchEditor({ initial }: { initial: BatchDetail }) {
   // --- 全部保存 -----------------------------------------------------------------
   const saveAll = async () => {
     setResult(null);
+    setSaveBlocked(false);
     setSaving(0);
     try {
-      if (!(await flush())) return;
+      if (!(await flush())) {
+        setSaveBlocked(true);
+        return;
+      }
       let after = 0;
       let saved = 0;
       let problemCount = 0;
@@ -589,11 +591,11 @@ function BatchEditor({ initial }: { initial: BatchDetail }) {
         </div>
         <p className="text-sm">
           {bulk("counts", { rows: filled, saved: savedCount })}
-          <span className="ml-2 text-xs text-muted-foreground">
-            {syncState === "saving" || unsaved
-              ? bulk("draftSaving")
-              : syncState === "failed"
-                ? bulk("draftFailed")
+          <span className={syncState === "failed" ? "ml-2 text-xs text-destructive" : "ml-2 text-xs text-muted-foreground"}>
+            {syncState === "failed"
+              ? bulk("draftFailed")
+              : syncState === "saving" || unsaved
+                ? bulk("draftSaving")
                 : bulk("draftSaved")}
           </span>
         </p>
@@ -774,7 +776,11 @@ function BatchEditor({ initial }: { initial: BatchDetail }) {
             {saving !== null ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             {saving !== null ? bulk("savingProgress", { saved: saving }) : bulk("saveAll")}
           </Button>
-          <span className="text-sm text-muted-foreground">{bulk("saveHint")}</span>
+          {saveBlocked ? (
+            <span className="text-sm text-destructive">{bulk("saveBlocked")}</span>
+          ) : (
+            <span className="text-sm text-muted-foreground">{bulk("saveHint")}</span>
+          )}
           <Button variant="ghost" className="ml-auto" onClick={() => setConfirmClose(true)}>
             <Square className="h-4 w-4" />
             {bulk("finish")}
