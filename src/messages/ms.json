@@ -19302,6 +19302,7 @@
       "lastPosition": "Lokasi GPS terakhir",
       "noPosition": "Belum ada lokasi. Hantar pautan lokasi; ia bermula apabila pekerja membuka dan bersetuju.",
       "outside": "Di luar tapak, kira-kira {km} km dari pagar · {at}",
+      "outsideNoDistance": "Di luar tapak · {at} (lokasi tidak direkodkan selepas keluar dari tapak)",
       "noFenceAt": "Projek tiada pagar, lokasi tidak dapat ditentukan · {at}",
       "inside": "Di tapak · {at}",
       "mapLabel": "Peta lokasi terakhir",

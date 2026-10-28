@@ -192,7 +192,9 @@ export function WorkerDetailDialog({
                     <p className="text-sm text-muted-foreground">{t("detail.noPosition")}</p>
                   ) : last.geofence_result === "OUTSIDE" ? (
                     <p className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-sm text-warning">
-                      {t("detail.outside", { km: last.fence_distance_km ?? "", at: df.dateTime(last.received_at) })}
+                      {last.fence_distance_km
+                        ? t("detail.outside", { km: last.fence_distance_km, at: df.dateTime(last.received_at) })
+                        : t("detail.outsideNoDistance", { at: df.dateTime(last.received_at) })}
                     </p>
                   ) : last.geofence_result === "NOT_EVALUATED" ? (
                     <p className="text-sm text-muted-foreground">

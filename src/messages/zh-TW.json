@@ -19302,6 +19302,7 @@
       "lastPosition": "最後一次 GPS 位置",
       "noPosition": "還沒收到定位。發送定位連結，人員打開並同意後就會開始。",
       "outside": "在工地外，距離圍欄約 {km} 公里 · {at}",
+      "outsideNoDistance": "在工地外 · {at}（離開工地後不記錄位置）",
       "noFenceAt": "項目沒設圍欄，無法判斷位置 · {at}",
       "inside": "在工地內 · {at}",
       "mapLabel": "最後位置地圖",

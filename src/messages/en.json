@@ -19302,6 +19302,7 @@
       "lastPosition": "Last GPS location",
       "noPosition": "No location yet. Send the location link; it starts once the worker opens it and agrees.",
       "outside": "Off site, about {km} km from the fence · {at}",
+      "outsideNoDistance": "Off site · {at} (location is not recorded once they leave the site)",
       "noFenceAt": "The project has no fence, so the location cannot be judged · {at}",
       "inside": "On site · {at}",
       "mapLabel": "Map of the last location",
