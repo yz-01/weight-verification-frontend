@@ -4,7 +4,6 @@ import type {
   ContractorReportExportRecord,
   ContractorReportFilterOptions,
   ContractorReportFilters,
-  PhotoGroupPage,
   ContractorReportOptions,
   ContractorReportType,
   ReportLevelRow,
@@ -46,31 +45,6 @@ export function getContractorReport(
     "/api/contractor-reports/get_report/",
     filters as unknown as ListQuery,
   );
-}
-
-/** 照片报表 (J8): one row per record, its photographs side by side. */
-export function getPhotoGroups(
-  filters: ContractorReportFilters & { page?: number; page_size?: number },
-): Promise<PhotoGroupPage> {
-  return api.get("/api/contractor-reports/get_photo_groups/", filters as unknown as ListQuery);
-}
-
-/**
- * The photo report as a file (J8-5): ``evidence`` is each record's complete
- * evidence report in one PDF; ``xlsx`` / ``pdf`` one record per row.
- */
-export function exportPhotoGroups(
-  input: ContractorReportFilters & {
-    format: "evidence" | "xlsx" | "pdf";
-    title: string;
-    columns?: Array<{ key: string; label: string; values?: Record<string, string> }>;
-  },
-): Promise<void> {
-  return download("/api/contractor-reports/export_photo_groups/", {
-    method: "POST",
-    body: input,
-    fallbackFilename: input.format === "xlsx" ? "photo-report.xlsx" : "photo-report.pdf",
-  });
 }
 
 export function getContractorReportHistory(

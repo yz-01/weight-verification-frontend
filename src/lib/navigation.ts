@@ -1153,12 +1153,18 @@ export const PORTAL_NAVIGATION = {
             "material_cost_report",
           ),
         ]),
-        child(
-          "13.2.3",
-          "nav.submodule.photoReport",
-          "/reports/contractor/photos",
-          "report_center",
-        ),
+        // 「现场照片报表」 left the menu (JB47, 客户 10-28: each module's own
+        // records already carry their photographs). The address stays so an
+        // old link opens the report center (the page redirects).
+        {
+          ...child(
+            "13.2.3",
+            "nav.submodule.photoReport",
+            "/reports/contractor/photos",
+            "report_center",
+          ),
+          menuHidden: true,
+        },
         // The old page of report cards (A03). Out of the menu; the address
         // stays, and opens the first report.
         {

@@ -194,9 +194,8 @@ describe("【选择报表】 (D6, B9)", () => {
   it.each([
     // [row, which occurrence, where it leads]
     ["材料数量报表", 0, `/reports/material-quantity?${DATES}`],
-    ["照片报表", 0, `/reports/contractor/photos?${DATES}`],
-    // The first 工程进度 is the photo report's source of that name.
-    ["工程进度", 1, `/reports/contractor/progress?${DATES}`],
+    // 「现场照片报表」 is out of the menu (JB47).
+    ["工程进度", 0, `/reports/contractor/progress?${DATES}`],
     ["设备进退场", 0, `/reports/contractor/equipment?${DATES}`],
     ["项目资料", 0, `/reports/contractor/documents?${DATES}`],
     ["人员进场记录", 0, `/reports/contractor/attendance?${DATES}`],
@@ -311,24 +310,12 @@ describe("【选择报表】 (D6, B9)", () => {
     }
   });
 
-  it("names the application types and photo sources in the reader's words", () => {
+  it("names the application types in the reader's words, and offers no photo report (JB47)", () => {
     render();
     expect(find("材料申请").kind).toBe("item");
     expect(find("材料证书提交").kind).toBe("item");
-    // 业务分类 in our words (JB29): one row for progress, its key in the address.
-    expect(rows.some((row) => row.text === "其他照片")).toBe(true);
-    expect(rows.some((row) => /Recordattachment|recordattachment/.test(row.text ?? ""))).toBe(false);
-    const progressPhotos = rows.filter(
-      (row) => row.text === "工程进度" && row.kind === "item",
-    );
-    expect(progressPhotos).toHaveLength(1);
-    const { navigate } = render();
-    rows
-      .filter((row) => row.text === "工程进度" && row.kind === "item")[0]
-      .onSelect?.(new Event("select"));
-    expect(navigate).toHaveBeenCalledWith(
-      `/reports/contractor/photos?${DATES}&category=PROGRESS`,
-    );
+    expect(rows.some((row) => row.text === "照片报表" || row.text === "现场照片报表")).toBe(false);
+    expect(rows.some((row) => row.text === "其他照片")).toBe(false);
   });
 
   it("chooses with Enter, and leaves a finger's first tap to open the level", () => {

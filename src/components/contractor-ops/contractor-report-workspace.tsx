@@ -14,7 +14,6 @@ import {
   useReportLevelName,
 } from "@/components/reports/report-selector";
 import { ExportButton } from "@/components/shared/export-button";
-import { PhotoGroupsReport } from "@/components/reports/photo-groups-report";
 import {
   FieldWrapper,
   FilterField,
@@ -71,7 +70,6 @@ import {
   reportRowTarget,
   reportValueKey,
 } from "@/lib/report-preview";
-import { photoCategoryValue } from "@/lib/report-menu";
 import {
   ALL_REPORT_FILTERS,
   PROJECT_BOUND_FILTERS,
@@ -79,7 +77,6 @@ import {
 } from "@/lib/report-filters";
 import {
   exportContractorReport,
-  exportPhotoGroups,
   getContractorReport,
   getContractorReportOptions,
   getLatestReportDay,
@@ -152,8 +149,15 @@ function reportCellClass(key: string): string {
   return "line-clamp-2 break-words [overflow-wrap:anywhere]";
 }
 
-/** The photo report's spreadsheet: one record a row (J8 要做 4). */
-const PHOTO_GROUP_COLUMNS = ["reference", "kind", "project", "date", "uploaded_by", "photo_count", "has_gps"] as const;
+/**
+ * The reports on business records whose PDF is a contents page followed by
+ * each record's complete evidence pages (JB48) - the server's
+ * ``EVIDENCE_REPORTS``.
+ */
+export const EVIDENCE_PDF_REPORTS: ReadonlySet<ContractorReportType> = new Set([
+  "progress", "safety", "consultant", "equipment", "recycling", "field_tasks",
+  "material_outgoing", "sundry_claims", "material_returns", "material_rejections",
+]);
 
 export function ContractorReportWorkspace({
   reportType,
@@ -187,11 +191,7 @@ export function ContractorReportWorkspace({
     list.filters.date_from ?? dateValue(new Date(now.getFullYear(), now.getMonth(), 1));
   const dateTo = list.filters.date_to ?? dateValue(now);
   const project = list.filters.project ?? "all";
-  // An address that named photo tables is read as their categories (JB29).
-  const category =
-    reportType === "photos" && list.filters.category
-      ? photoCategoryValue(list.filters.category)
-      : (list.filters.category ?? "");
+  const category = list.filters.category ?? "";
   const subcategory = list.filters.subcategory ?? "";
   const setDateFrom = (value: string) => list.setFilter("date_from", value || undefined);
   const setDateTo = (value: string) => list.setFilter("date_to", value || undefined);
@@ -253,26 +253,14 @@ export function ContractorReportWorkspace({
     }),
     [category, dateFrom, dateTo, list.filters, project, reportType, subcategory],
   );
-  const photoReport = reportType === "photos";
-  const recordKinds = useTranslations("headquarters.recordKind");
-  const photoKindLabels = Object.fromEntries(
-    ["MATERIAL_RECEIPT", "DELIVERY_NOTE", "MATERIAL_OUTGOING", "EQUIPMENT_MOVEMENT", "EQUIPMENT", "SITE_PROGRESS",
-      "SAFETY_INCIDENT", "FIELD_TASK", "DISPOSAL", "WASTE_DISPATCH", "WASTE_OUTGOING", "GATE_INCIDENT"].map((kind) => [
-      kind,
-      recordKinds(kind),
-    ]),
-  );
-  photoKindLabels.ATTENDANCE = t("photoGroups.kind.ATTENDANCE");
-  photoKindLabels.PERSON = t("photoGroups.noRecord");
   const report = useQuery({
     queryKey: ["contractor-reports", "report", filters],
     queryFn: () => getContractorReport(filters),
     // An aggregation: refreshed by the person, not by the realtime layer (S1).
     meta: NOT_LIVE,
-    // Not before the days 「日报告」 / 「往日报告」 are about to set. The photo
-    // report reads its own rows, grouped by record (J8).
+    // Not before the days 「日报告」 / 「往日报告」 are about to set.
     enabled:
-      Boolean(dateFrom && dateTo && dateFrom <= dateTo) && !wantsLatest && !asksDays && !photoReport,
+      Boolean(dateFrom && dateTo && dateFrom <= dateTo) && !wantsLatest && !asksDays,
   });
   const bookIds = useMemo(
     () => (report.data?.records ?? []).map((entry) => entry.id ?? ""),
@@ -402,40 +390,21 @@ export function ContractorReportWorkspace({
         <ReportClearButton active={list.hasFilters} onClear={list.clearFilters} />
         <div className="flex flex-wrap items-end gap-2 max-sm:[&>*]:flex-1">
           {/* 预览 · 打印 · 导出 · 发送 (PDF 统一操作规则). */}
-          {photoReport ? (
-            // J8-5: the PDF is each record's complete evidence report; the
-            // spreadsheet one record per row.
-            <ExportButton
-              onExport={(format) =>
-                exportPhotoGroups({
-                  ...filters,
-                  format: format === "pdf" ? "evidence" : "xlsx",
-                  title: t(`type.${reportType}`),
-                  columns: PHOTO_GROUP_COLUMNS.map((key) => ({
-                    key,
-                    label: t(`photoGroups.column.${key}`),
-                    ...(key === "has_gps"
-                      ? { values: { true: t("value.yes"), false: t("value.no") } }
-                      : key === "kind"
-                        ? { values: photoKindLabels }
-                        : {}),
-                  })),
-                })
-              }
-              title={t(`type.${reportType}`)}
-            />
-          ) : (
-            <ExportButton
-              onExport={(format) => exportMutation.mutateAsync(format === "pdf" ? "PDF" : "EXCEL")}
-              disabled={!report.data}
-              disabledReason={common("noReportYet")}
-              title={t(`type.${reportType}`)}
-            />
-          )}
+          <ExportButton
+            onExport={(format) => exportMutation.mutateAsync(format === "pdf" ? "PDF" : "EXCEL")}
+            disabled={!report.data}
+            disabledReason={common("noReportYet")}
+            title={t(`type.${reportType}`)}
+          />
         </div>
         {reportType === "target" && (
           <p className="w-full text-xs leading-5 text-muted-foreground">
             {t("targetReport.filterHelp")}
+          </p>
+        )}
+        {EVIDENCE_PDF_REPORTS.has(reportType) && (
+          <p className="w-full text-xs leading-5 text-muted-foreground" data-slot="evidence-pdf-help">
+            {t("evidencePdfHelp")}
           </p>
         )}
         <QueryFailedNote query={options} what={t("what.projects")} className="w-full" />
@@ -454,9 +423,7 @@ export function ContractorReportWorkspace({
             <StatusBadge label={t("previewLimited")} tone="warning" />
           )}
         </div>
-        {photoReport ? (
-          <PhotoGroupsReport filters={filters} />
-        ) : report.isLoading ? (
+        {report.isLoading ? (
           <div className="space-y-3 p-4">
             {Array.from({ length: 5 }).map((_, index) => <Skeleton key={index} className="h-9 w-full" />)}
           </div>

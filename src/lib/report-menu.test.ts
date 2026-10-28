@@ -55,7 +55,6 @@ describe("the report menu's levels (D6 table)", () => {
     expect(levels).toEqual({
       "/reports/material-quantity": "material",
       "/reports/material-cost": "material",
-      "/reports/contractor/photos": ["reportSelector.level.photos", null],
       "/reports/contractor/progress": ["reportSelector.level.progress", null],
       "/reports/contractor/safety": ["reportSelector.level.safety", null],
       "/reports/contractor/consultant": ["reportSelector.level.consultant", null],
