@@ -193,6 +193,15 @@ export function InspectionDialog({
     onError: (reason) => {
       setConfirming(false);
       setError(reason instanceof ApiError ? reason.message : t("failed"));
+      // A machine left the site while the dialog was open (JB54): fetch the
+      // list again and take it off, so 「提交」 again is all that is left.
+      if (reason instanceof ApiError && reason.code === "inspection_equipment_not_on_site") {
+        void machines.refetch().then(({ data }) => {
+          if (!data) return;
+          const onSite = new Set(data.results.map((row) => row.id));
+          setMachinesChosen((current) => current.filter((row) => onSite.has(row.equipment)));
+        });
+      }
     },
   });
   const requires: [unknown, string][] = [
