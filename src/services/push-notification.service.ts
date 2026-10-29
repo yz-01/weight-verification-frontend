@@ -87,3 +87,29 @@ export async function disablePushNotifications(): Promise<boolean> {
   await subscription.unsubscribe();
   return true;
 }
+
+/**
+ * JB80 (客户 10-29 晚: 「不同公司、不同项目、不同用户的通知不会混乱」): signing
+ * out stops this phone hearing that account's notices. The phone keeps its
+ * permission and subscription, so the next account to sign in here is joined
+ * to it again (`syncPushSubscription` on every sign-in) - without this, the
+ * one who signed out went on ringing on a phone somebody else now used.
+ * Best-effort and bounded: signing out never waits on it for long.
+ */
+export async function detachPushFromAccount(timeoutMs = 3000): Promise<void> {
+  if (!isPushSupported()) return;
+  const detach = (async () => {
+    const registration = await navigator.serviceWorker.getRegistration();
+    const subscription = await registration?.pushManager.getSubscription();
+    if (!subscription) return;
+    await api.post(
+      "/api/notifications/unsubscribe_push/",
+      { endpoint: subscription.endpoint },
+      { silent: true },
+    );
+  })().catch(() => undefined);
+  await Promise.race([
+    detach,
+    new Promise<void>((resolve) => setTimeout(resolve, timeoutMs)),
+  ]);
+}

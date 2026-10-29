@@ -181,6 +181,13 @@ export function takeFieldSignOutReason(): string {
  */
 export const SESSION_REPLACED = "session_replaced";
 
+/**
+ * JB78 (客户 10-29 晚 事项 6): the person pressed 退出登录 themselves. Kept as
+ * this code, not words, and said on the sign-in page as 「你已退出登录」 so the
+ * page does not look like it is asking them to sign in for no reason.
+ */
+export const SIGNED_OUT = "signed_out";
+
 const SIGN_OUT_REASON_KEY = "mse_sign_out_reason";
 
 /** Kept for the desktop sign-in page the session ends on (one page load). */

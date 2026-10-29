@@ -22,6 +22,7 @@ import { useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { FieldWrapper, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
+import { useRecordArchived } from "@/components/shared/record-closure";
 import { ShellPanel } from "@/components/shared/record-detail-shell";
 import { Button } from "@/components/ui/button";
 import {
@@ -42,6 +43,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { ApiError } from "@/interfaces/api";
+import type { ArchiveRecordKind } from "@/interfaces/contractor-ops";
 import type {
   CorrectableKind,
   CorrectionField,
@@ -147,8 +149,24 @@ export function CorrectedTag({
 export const CORRECTED_ROW_CLASS = "outline outline-2 -outline-offset-2 outline-gold/70";
 
 /**
+ * The kinds 确认归档 locks against 改正 (`record_corrections.blocked`). 材料出场
+ * stays correctable after archiving (`after_archive`), and 现场任务 / 门禁事件
+ * are never archived, so they are not here.
+ */
+const LOCKED_WHEN_ARCHIVED: Partial<Record<CorrectableKind, ArchiveRecordKind>> = {
+  EQUIPMENT_MOVEMENT: "EQUIPMENT_MOVEMENT",
+  WASTE_OUTGOING: "WASTE_OUTGOING",
+  PROGRESS: "PROGRESS",
+  HAZARD: "HAZARD",
+  SUNDRY_CLAIM: "SUNDRY_CLAIM",
+};
+
+/**
  * 【改正】 for one record: shown only to whoever holds the module's 「管理」
  * permission. `onCorrected` refreshes the module's own detail and list.
+ *
+ * Gone once the record is confirmed and archived (JB77, 客户 10-29 晚 事项 5):
+ * it used to stay, and only the dialog said 「已确认归档，不能再改正」.
  */
 export function RecordCorrectionButton({
   kind,
@@ -161,8 +179,10 @@ export function RecordCorrectionButton({
 }) {
   const t = useTranslations("recordCorrection");
   const allowed = useCanCorrect(kind);
+  const archiveKind = LOCKED_WHEN_ARCHIVED[kind];
+  const archived = useRecordArchived(archiveKind ?? "PROGRESS", archiveKind ? recordId : undefined);
   const [open, setOpen] = useState(false);
-  if (!allowed) return null;
+  if (!allowed || archived) return null;
   return (
     <>
       <Button

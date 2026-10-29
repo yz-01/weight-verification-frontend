@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { QRCodeCanvas } from "qrcode.react";
 import {
+  ArrowLeft,
   Camera,
   Clock3,
   Grid2X2,
@@ -11,6 +12,7 @@ import {
   LogIn,
   LogOut,
   MapPinned,
+  RefreshCw,
   ShieldAlert,
   Smartphone,
 } from "lucide-react";
@@ -42,6 +44,7 @@ import { FieldHazardsPanel } from "@/components/site-operations/field-hazards";
 import { FieldCamera } from "@/components/shared/field-camera";
 import { LocationField } from "@/components/field-staff/location-field";
 import { activeFieldNav } from "@/lib/field-nav";
+import { taskRecordMode } from "@/lib/field-task-mode";
 import { FIELD_OPEN_EVENT } from "@/lib/field-notification";
 import {
   asFix,
@@ -156,7 +159,9 @@ function FieldStaffWorkspaceContent({
   >(null);
   const requestedIncident = useQuery({
     queryKey: ["field-staff", "incident", requestedIncidentId],
-    queryFn: () => getSafetyIncident(requestedIncidentId),
+    // Silent: the card below says why it did not open, once (JB75) - not a
+    // toast and two red lines as well.
+    queryFn: () => getSafetyIncident(requestedIncidentId, { silent: true }),
     enabled: Boolean(requestedIncidentId),
   });
   // Derived, not copied into state from an effect: the linked hazard is shown
@@ -224,6 +229,9 @@ function FieldStaffWorkspaceContent({
     url.searchParams.delete("task");
     url.searchParams.delete("record");
     url.searchParams.delete("supplier_token");
+    // The hazard a link named is left behind too, or the report form read it
+    // again and said 「无法载入链接中的事故」 (JB75).
+    url.searchParams.delete("incident");
     if (nextTab === "home") url.searchParams.delete("tab");
     else url.searchParams.set("tab", nextTab);
     if (nextRecord) url.searchParams.set("record", nextRecord);
@@ -305,7 +313,15 @@ function FieldStaffWorkspaceContent({
    * the `thread` in that link is an `IncidentReportThread` id and this room is
    * keyed by `SafetyIncident`. Resolving one to the other is T-217's job.
    */
-  const hazardTabWithoutRoom = tab === "incidents" && !shownHazard;
+  /*
+   * JB75 (客户 10-29 晚 事项 3、7-2、7-5): a link names one hazard, so until
+   * it opens - or if it cannot - the screen is about that hazard only. It used
+   * to fall through to the reporting form below, with this phone's draft and
+   * a second 「无法载入链接中的事故」, as if the link meant 「上报工地事故」.
+   */
+  const linkedHazardOpening =
+    tab === "incidents" && !shownHazard && Boolean(requestedIncidentId) && !linkedHazardClosed;
+  const hazardTabWithoutRoom = tab === "incidents" && !shownHazard && !linkedHazardOpening;
   const shownTab: MobileTab = hazardTabWithoutRoom ? "records" : tab;
   const shownRecordMode = hazardTabWithoutRoom ? "safety" : recordMode;
   /*
@@ -356,7 +372,6 @@ function FieldStaffWorkspaceContent({
           </p>
         )}
       </section>
-      <FieldLoadNote query={requestedIncident} what={t("what.linkedHazard")} />
       <FieldLoadNote query={requestedTask} what={t("what.linkedTask")} />
 
       {shownTab === "home" && (
@@ -425,6 +440,15 @@ function FieldStaffWorkspaceContent({
         reaching it with no hazard falls through to the reporting form, handled
         by the effect above.
       */}
+      {linkedHazardOpening && (
+        <LinkedHazardCard
+          query={requestedIncident}
+          onBack={() => {
+            setLinkedHazardClosed(true);
+            openTab("home");
+          }}
+        />
+      )}
       {tab === "incidents" && shownHazard && (
         <FieldHazardsPanel
           hazard={shownHazard}
@@ -597,20 +621,46 @@ function MobileNavButton({ active, icon: Icon, label, onClick, count = 0 }: { ac
   return <button type="button" onClick={onClick} aria-current={active ? "page" : undefined} className={`relative z-10 flex min-h-12 min-w-0 touch-manipulation select-none flex-col items-center justify-center gap-1 rounded-md px-1 text-xs font-medium transition-colors ${active ? "bg-primary/12 text-tone-cyan-fg" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}><span className="relative"><Icon className="size-5" />{count > 0 ? <span className="absolute -right-2.5 -top-1.5 min-w-4 rounded-full bg-destructive px-1 text-center text-2xs font-semibold leading-4 text-destructive-foreground tabular-nums" data-nav-count>{count > 99 ? "99+" : count}</span> : null}</span><span className="max-w-full truncate">{label}</span></button>;
 }
 
-function taskRecordMode(task: FieldTask): FieldRecordMode | null {
-  if (task.task_type === "MATERIAL") return "material";
-  if (task.task_type === "EQUIPMENT") return "equipment";
-  if (task.task_type === "PROGRESS") return "progress";
-  if (task.task_type === "SAFETY") return "safety";
-  if (task.task_type === "CONSULTANT") return "consultant";
-  if (task.task_type === "WASTE") {
-    const category = task.submission_category.toUpperCase();
-    return category.includes("OUTGOING") || category.includes("RECYCLE")
-      ? "waste"
-      : "disposal";
+/**
+ * The hazard a link named, while it opens or when it cannot (JB75): the
+ * reason and 重试 / 返回 - nothing else, no form and no draft.
+ */
+function LinkedHazardCard({
+  query,
+  onBack,
+}: {
+  query: { isError: boolean; error: unknown; refetch: () => unknown };
+  onBack: () => void;
+}) {
+  const t = useTranslations("fieldStaffPwa.linkedHazard");
+  if (!query.isError) {
+    return (
+      <section role="status" className="flex items-center gap-2 rounded-lg border border-panel-border bg-card p-4 text-sm text-muted-foreground">
+        <Loader2 className="size-4 animate-spin" />
+        {t("opening")}
+      </section>
+    );
   }
-  return null;
+  return (
+    <section role="alert" data-testid="linked-hazard-failed" className="space-y-3 rounded-lg border border-destructive/30 bg-destructive/5 p-4">
+      <h2 className="text-base font-semibold">{t("failedTitle")}</h2>
+      <p className="text-sm text-destructive">
+        {query.error instanceof ApiError ? query.error.message : t("failedHelp")}
+      </p>
+      <div className="flex flex-wrap gap-2">
+        <Button type="button" size="sm" variant="outline" onClick={() => query.refetch()}>
+          <RefreshCw />
+          {t("retry")}
+        </Button>
+        <Button type="button" size="sm" variant="ghost" onClick={onBack}>
+          <ArrowLeft />
+          {t("back")}
+        </Button>
+      </div>
+    </section>
+  );
 }
+
 
 function FieldAttendancePanel() {
   const t = useTranslations("fieldStaffPwa");

@@ -32,6 +32,7 @@ vi.mock("@/components/shared/record-export-button", () => ({
   RecordExportButton: ({ kind }: { kind: string }) => <div data-stub="export" data-kind={kind} />,
 }));
 vi.mock("@/components/shared/record-closure", () => ({
+  useRecordArchived: () => false,
   RecordClosurePanel: () => <div data-stub="closure" />,
 }));
 

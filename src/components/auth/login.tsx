@@ -21,7 +21,7 @@ import {
   portalPaths,
   redirectWithFallback,
 } from "@/lib/portal";
-import { takeSignOutReason } from "@/lib/auth-token";
+import { SIGNED_OUT, takeSignOutReason } from "@/lib/auth-token";
 import { cn } from "@/lib/utils";
 import {
   firstAllowedDashboardPath,
@@ -36,7 +36,7 @@ export function Login({ portal, nextPath }: { portal: Portal; nextPath?: string 
   const { setUser } = useAuth();
   const [formError, setFormError] = useState<string | null>(null);
   // JB56: why this computer was signed out - the same account signed in on
-  // another computer. Read once, after the first paint (sessionStorage).
+  // another computer, or (JB78) the person pressed 退出登录. Read once, after the first paint (sessionStorage).
   const [signedOutReason, setSignedOutReason] = useState("");
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => setSignedOutReason(takeSignOutReason()));
@@ -198,7 +198,7 @@ export function Login({ portal, nextPath }: { portal: Portal; nextPath?: string 
                   data-testid="signed-out-reason"
                   className="rounded-lg border border-warning/40 bg-warning/5 px-3 py-2.5 text-sm font-medium text-foreground"
                 >
-                  {signedOutReason}
+                  {signedOutReason === SIGNED_OUT ? t("auth.login.signedOut") : signedOutReason}
                 </div>
               )}
 

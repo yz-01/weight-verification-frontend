@@ -32,9 +32,27 @@ describe("the phone opens the hazard a notification names (T-302)", () => {
   });
 
   it("fetches that hazard and opens its room", () => {
-    expect(code).toContain("getSafetyIncident(requestedIncidentId)");
+    expect(code).toContain("getSafetyIncident(requestedIncidentId, { silent: true })");
     // Derived rather than copied into state, and it is what the room renders.
     expect(code).toContain("const shownHazard = openedHazard ?? linkedHazard;");
     expect(code).toContain("hazard={shownHazard}");
+  });
+});
+
+describe("a link that cannot open stays about that hazard (JB75, 客户 10-29 晚 事项 3)", () => {
+  it("does not fall through to the report form while the linked hazard opens or fails", () => {
+    expect(code).toContain(
+      "tab === \"incidents\" && !shownHazard && Boolean(requestedIncidentId) && !linkedHazardClosed",
+    );
+    expect(code).toContain(
+      "const hazardTabWithoutRoom = tab === \"incidents\" && !shownHazard && !linkedHazardOpening;",
+    );
+  });
+
+  it("says why on one card with 重试 / 返回, and leaves the link behind on the way out", () => {
+    expect(code).toContain("<LinkedHazardCard");
+    expect(code).toContain('url.searchParams.delete("incident");');
+    // No second red line above the card.
+    expect(code).not.toContain('what={t("what.linkedHazard")}');
   });
 });

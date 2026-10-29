@@ -79,4 +79,11 @@ describe("field alerts advice (JB36)", () => {
     const sw = readFileSync(path.join(process.cwd(), "public/sw.js"), "utf8");
     expect(sw).toMatch(/payload\.tag \? \{ tag: String\(payload\.tag\), renotify: true \}/);
   });
+
+  it("sets the icon's number before the worker may stop (JB79)", () => {
+    // Left floating, iPhone stopped the worker first and the icon lagged.
+    const sw = readFileSync(path.join(process.cwd(), "public/sw.js"), "utf8");
+    expect(sw).toContain("badgeSet = self.navigator.setAppBadge(payload.badge)");
+    expect(sw).toMatch(/event\.waitUntil\(Promise\.all\(\[\s*Promise\.resolve\(badgeSet\)/);
+  });
 });
