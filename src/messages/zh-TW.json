@@ -3846,6 +3846,7 @@
       "invalid": "郵箱或密碼不正確",
       "password": "密碼",
       "passwordPlaceholder": "請輸入密碼",
+      "signedOut": "你已退出登入。要再用，輸入電子郵箱和密碼登入。",
       "submit": "登錄",
       "subtitle": "進入你的 MSE Trace 工作臺",
       "throttled": "嘗試次數過多，請稍候再試。",
@@ -9045,6 +9046,13 @@
     "photoMissing": "填寫的內容已恢復，但有 {count} 項的照片讀不回來，請重新拍一次。"
   },
   "fieldStaffPwa": {
+    "linkedHazard": {
+      "opening": "正在打開這條整改……",
+      "failedTitle": "打不開這條整改",
+      "failedHelp": "這條整改現在讀不到，請檢查網絡後按「重試」。",
+      "retry": "重試",
+      "back": "返回首頁"
+    },
     "handoff": {
       "failed": "QR 碼產生失敗",
       "once": "只能用一次，用過要重新產生。",
@@ -14636,6 +14644,15 @@
     }
   },
   "safety": {
+    "officeCreate": {
+      "title": "建立整改事項",
+      "description": "選擇整改分類，寫清楚要整改什麼，附上照片，並可指定負責人。",
+      "confirm": "建立整改事項",
+      "photoPlace": "1. 要整改的位置",
+      "photoDetail": "2. 問題細節",
+      "photoScope": "3. 相關設備或範圍",
+      "photoOther": "4. 其他補充"
+    },
     "action": {
       "updateStatus": "更新狀態"
     },
@@ -14668,7 +14685,7 @@
       "detail": "2. 問題或損壞細節",
       "overview": "1. 事故區域全景",
       "progress": "已拍攝 {current} 張。前 {required} 張必拍照片缺一不可，也可以繼續新增其他照片。",
-      "progressOffice": "已拍攝 {current} 張。上報一張就夠，上面 {required} 個提示有就拍，也可以繼續新增。",
+      "progressOffice": "已附上 {current} 張。至少附一張，上面的提示有就附，也可以繼續新增。",
       "risk": "3. 涉及的設備、人員或通道",
       "surroundings": "4. 工地周邊狀況"
     },

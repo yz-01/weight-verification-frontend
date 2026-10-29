@@ -23,7 +23,7 @@
  * risks a customer's evidence for no visible gain.
  */
 
-import { Mic, Send, Square, X } from "lucide-react";
+import { Mic, Paperclip, Send, Square, X } from "lucide-react";
 import { FileThumbs } from "@/components/shared/file-thumbs";
 import { useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
@@ -741,11 +741,28 @@ export function ConversationComposer({
           />
         )}
 
+        {/* The browser's own file box said 「Choose File / No file chosen」 in
+            English on every phone and computer (客户 10-29 晚 图 5): a button
+            in our words opens it, and the chosen file's name shows beside. */}
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          disabled={busy}
+          onClick={() => fileInput.current?.click()}
+        >
+          <Paperclip />
+          {t("hazard.attach")}
+        </Button>
+        {file && !(fieldMode && isPhoto) ? (
+          <span className="max-w-[12rem] truncate text-xs text-muted-foreground">{file.name}</span>
+        ) : null}
         <Input
           ref={fileInput}
           type="file"
           accept={fileAccept}
-          className="h-8 max-w-xs text-xs"
+          className="hidden"
+          tabIndex={-1}
           aria-label={t("hazard.attach")}
           onChange={(event) => {
             const picked = event.target.files?.[0] ?? null;

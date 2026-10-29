@@ -3846,6 +3846,7 @@
       "invalid": "E-mel atau kata laluan salah",
       "password": "Kata laluan",
       "passwordPlaceholder": "Kata laluan anda",
+      "signedOut": "Anda telah log keluar. Untuk guna semula, masukkan e-mel dan kata laluan anda.",
       "submit": "Log masuk",
       "subtitle": "Masuk ke ruang kerja MSE Trace anda",
       "throttled": "Terlalu banyak percubaan. Tunggu sebentar dan cuba lagi.",
@@ -9045,6 +9046,13 @@
     "photoMissing": "Apa yang ditaip masih ada, tetapi foto untuk {count} medan tidak dapat dibuka semula. Sila ambil semula foto itu."
   },
   "fieldStaffPwa": {
+    "linkedHazard": {
+      "opening": "Membuka pembetulan ini…",
+      "failedTitle": "Pembetulan ini tidak dapat dibuka",
+      "failedHelp": "Ia tidak dapat dibaca sekarang. Semak sambungan dan tekan Cuba semula.",
+      "retry": "Cuba semula",
+      "back": "Kembali ke laman utama"
+    },
     "handoff": {
       "failed": "Kod tidak dapat dijana",
       "once": "Ia berfungsi sekali sahaja. Selepas itu, jana yang baharu.",
@@ -14636,6 +14644,15 @@
     }
   },
   "safety": {
+    "officeCreate": {
+      "title": "Cipta item pembetulan",
+      "description": "Pilih kategori pembetulan, nyatakan apa yang perlu dibetulkan, lampirkan foto, dan namakan orang yang bertanggungjawab jika ada.",
+      "confirm": "Cipta item pembetulan",
+      "photoPlace": "1. Lokasi yang perlu dibetulkan",
+      "photoDetail": "2. Butiran masalah",
+      "photoScope": "3. Peralatan atau kawasan terlibat",
+      "photoOther": "4. Lain-lain"
+    },
     "action": {
       "updateStatus": "Kemas kini status"
     },
@@ -14668,7 +14685,7 @@
       "detail": "2. Butiran bahaya atau kerosakan",
       "overview": "1. Gambaran kawasan insiden",
       "progress": "{current} foto telah diambil. Semua {required} foto wajib pertama mesti lengkap; foto tambahan boleh ditambah.",
-      "progressOffice": "{current} gambar diambil. Satu sudah memadai untuk melapor; {required} panduan di atas jika ada, dan boleh tambah lagi.",
+      "progressOffice": "{current} dilampirkan. Satu sudah cukup; tambah yang lain di atas jika ada, atau lebih.",
       "risk": "3. Peralatan, orang atau laluan terjejas",
       "surroundings": "4. Keadaan sekeliling tapak"
     },

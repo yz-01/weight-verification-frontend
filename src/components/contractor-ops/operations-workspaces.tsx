@@ -166,7 +166,6 @@ import {
   updateProjectCategory,
   updateSiteEquipment,
 } from "@/services/contractor-ops.service";
-import { getApplicationOptions } from "@/services/consultant-workflow.service";
 import { consultantTaskTitle } from "@/lib/consultant-task-title";
 import {
   getProjectAssignments,
@@ -1166,15 +1165,6 @@ export function FieldTasksWorkspace({
                     columns: [
                       { key: "record_no", label: tRoot("recordNo.column") },
                       { key: "title", label: t("field.title") },
-                      {
-                        key: "task_type",
-                        label: t("field.taskType"),
-                        values: Object.fromEntries(
-                          (["PHOTO", "MATERIAL", "EQUIPMENT", "PROGRESS", "SAFETY", "WASTE", "CONSULTANT", "OTHER"] as const).map(
-                            (code) => [code, t(`taskType.${code}`)],
-                          ),
-                        ),
-                      },
                       { key: "project_name", label: t("field.project") },
                       { key: "assigned_to_name", label: t("field.assignee") },
                       { key: "due_at", label: t("field.dueAt") },
@@ -1587,21 +1577,16 @@ export function FieldTasksWorkspace({
  * assignee list on this form is drawn from the project - so the two would
  * disagree without anything on screen saying why.
  */
-/**
- * Which category a task of each type files under, or none (D-285).
- *
- * 「拍照」 and 「其他」 are the task itself - no business module's categories.
- * Progress, clearance and consultant tasks name none either since 2026-10
- * (B1, X5): their modules no longer have categories.
- */
-export const TASK_CATEGORY_KIND: Partial<
-  Record<FieldTaskPayload["task_type"], ProjectCategoryKind>
-> = {
-  MATERIAL: "MATERIAL",
-  EQUIPMENT: "EQUIPMENT",
-  SAFETY: "EHS",
-};
 
+/**
+ * 派发 / 编辑现场任务.
+ *
+ * No 任务类型 and no 分类 since JB73 (客户 10-29 晚 事项 1): 「现场任务是项目
+ * 经理向员工分配工作、检查事项及拍照反馈的功能」. Choosing 材料, 设备 or 工程进度
+ * sent the worker's phone into those modules' own forms, mixing two kinds of
+ * work. A new task is a plain one (`PHOTO`, no category); editing one sent
+ * before leaves its stored type alone.
+ */
 function TaskDialog({
   project,
   task,
@@ -1627,30 +1612,10 @@ function TaskDialog({
     evidence_required: task?.evidence_required ?? 1,
     submission_category: task?.submission_category ?? "",
   });
-  // A consultant task names the application type the RFI form opens with.
-  const applicationTypes = useQuery({
-    queryKey: ["consultant-options", form.project, "APPLICATION_TYPE"],
-    queryFn: () => getApplicationOptions(form.project, "APPLICATION_TYPE"),
-    enabled: Boolean(form.project) && form.task_type === "CONSULTANT",
-  });
   const team = useQuery({
     queryKey: ["project-assignments", form.project],
     queryFn: () => getProjectAssignments(form.project),
     enabled: Boolean(form.project),
-  });
-  // A photo or "other" task files under no category (D-285): they used to
-  // need a 现场资料分类, which the customer never defined and which is gone.
-  const categoryKind = TASK_CATEGORY_KIND[form.task_type];
-  const categories = useQuery({
-    queryKey: ["project-categories", form.project, "task-options", form.task_type],
-    queryFn: () =>
-      getProjectCategories({
-        project: form.project,
-        page_size: 200,
-        kind: categoryKind,
-        is_active: true,
-      }),
-    enabled: Boolean(form.project) && Boolean(categoryKind),
   });
   const set = <K extends keyof FieldTaskPayload>(
     key: K,
@@ -1660,15 +1625,12 @@ function TaskDialog({
     mutationFn: () => task
       ? updateFieldTask(task.id, {
           title: form.title,
-          task_type: form.task_type,
           instructions: form.instructions,
           work_location: form.work_location,
           assigned_to: form.assigned_to,
-          category: form.category,
           priority: form.priority,
           due_at: form.due_at,
           evidence_required: form.evidence_required,
-          submission_category: form.submission_category,
         })
       : createFieldTask(form),
     onSuccess: onSaved,
@@ -1737,106 +1699,6 @@ function TaskDialog({
             </Select>
             <QueryFailedNote query={team} what={t("what.projectPeople")} />
           </FieldWrapper>
-          <FieldWrapper label={t("field.taskType")} required>
-            <Select
-              value={form.task_type}
-              onValueChange={(v) => {
-                set("task_type", v as FieldTaskPayload["task_type"]);
-                set("category", null);
-                // Where the phone takes a waste task: 工地清运 unless told otherwise.
-                set("submission_category", v === "WASTE" ? "SITE_DISPOSAL" : "");
-              }}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {[
-                  "PHOTO",
-                  "MATERIAL",
-                  "EQUIPMENT",
-                  "PROGRESS",
-                  "SAFETY",
-                  "WASTE",
-                  "CONSULTANT",
-                  "OTHER",
-                ].map((value) => (
-                  <SelectItem key={value} value={value}>
-                    {t(`taskType.${value}`)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </FieldWrapper>
-          {categoryKind && (
-          <FieldWrapper label={t("field.category")} required>
-            <Select
-              value={form.category || undefined}
-              onValueChange={(v) => set("category", v)}
-              disabled={!form.project}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {(categories.data?.results ?? [])
-                  .filter((x) => x.is_active)
-                  .map((item) => (
-                    <SelectItem key={item.id} value={item.id}>
-                      {item.name}
-                    </SelectItem>
-                  ))}
-              </SelectContent>
-            </Select>
-            <QueryFailedNote query={categories} what={t("what.columns")} />
-          </FieldWrapper>
-          )}
-          {form.task_type === "WASTE" && (
-            // The phone opens 环保材料出场申请 or 工地清运 by this value
-            // (`taskRecordMode` in field-staff-workspace.tsx); without it every
-            // office-issued waste task opened 工地清运 (T-382).
-            <FieldWrapper label={t("tasks.route.label")} hint={t("tasks.route.hint")} className="sm:col-span-2">
-              <Select
-                value={form.submission_category || "SITE_DISPOSAL"}
-                onValueChange={(v) => set("submission_category", v)}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {["SITE_DISPOSAL", "WASTE_OUTGOING"].map((value) => (
-                    <SelectItem key={value} value={value}>
-                      {t(`tasks.route.${value}`)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </FieldWrapper>
-          )}
-          {form.task_type === "CONSULTANT" && (
-            <FieldWrapper label={t("tasks.applicationType.label")} hint={t("tasks.applicationType.hint")} className="sm:col-span-2">
-              <Select
-                value={form.submission_category || "__none"}
-                onValueChange={(v) => set("submission_category", v === "__none" ? "" : v)}
-                disabled={!form.project}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="__none">{t("tasks.applicationType.none")}</SelectItem>
-                  {(applicationTypes.data?.results ?? [])
-                    .filter((row) => row.category === "APPLICATION_TYPE" && row.is_active)
-                    .map((row) => (
-                      <SelectItem key={row.id} value={row.code}>
-                        {row.label}
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
-              <QueryFailedNote query={applicationTypes} what={t("tasks.applicationType.what")} />
-            </FieldWrapper>
-          )}
           <FieldWrapper label={t("field.priority")}>
             <Select
               value={form.priority}
@@ -1944,7 +1806,6 @@ function TaskDialog({
             requires={[
               [form.project, t("field.project")],
               [form.title, t("field.title")],
-              [!categoryKind || form.category, t("field.category")],
               [form.assigned_to, t("field.assignee")],
             ]}
             disabled={save.isPending}

@@ -25,6 +25,8 @@ import {
   isDriverStandaloneApp,
   isFieldStandaloneApp,
   isFieldSessionPath,
+  rememberSignOutReason,
+  SIGNED_OUT,
 } from "@/lib/auth-token";
 import {
   cacheBranding,
@@ -38,6 +40,8 @@ import {
 import { isDriverOnlyAccount } from "@/lib/navigation";
 import { portalLoginPath } from "@/lib/portal";
 import * as authService from "@/services/auth.service";
+import { detachPushFromAccount } from "@/services/push-notification.service";
+import { setAppBadgeCount } from "@/lib/app-badge";
 
 export const CURRENT_USER_KEY = ["auth", "me"] as const;
 
@@ -246,6 +250,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = useCallback(async () => {
     const portal = getSessionPortal();
+    // JB80: while still signed in - the server only lets an account detach
+    // its own phone.
+    await detachPushFromAccount();
     try {
       await authService.logout();
     } catch {
@@ -267,6 +274,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Every sign-out, not only the field app's (H12): the account must not
       // outlive the session on a shared device.
       forgetFieldUser();
+      // JB80: the icon's number was the signed-out account's.
+      setAppBadgeCount(0);
+      // JB78: the desktop sign-in page says 「你已退出登录」 (one page load).
+      if (!fieldSession && !driverSession) rememberSignOutReason(SIGNED_OUT);
       // Keep the last portal marker. The signed-out shell also observes the
       // user becoming null; retaining this value makes every redirect converge
       // on the same branded login instead of racing back to generic `/login`.

@@ -329,16 +329,20 @@ self.addEventListener("push", (event) => {
   // than sliding away unseen in a pocket.
   const urgent = Boolean(payload.data && payload.data.alert_sound);
   // J4: the icon's number is the bell's, sent with the push; skipped where
-  // the phone has no Badging API.
+  // the phone has no Badging API. JB79: awaited with the notice below - left
+  // floating, iPhone stopped the worker before it was set, so the icon showed
+  // 1 when three were waiting, until the app was opened.
+  let badgeSet = Promise.resolve();
   if (typeof payload.badge === "number" && self.navigator) {
     try {
-      if (payload.badge > 0 && self.navigator.setAppBadge) self.navigator.setAppBadge(payload.badge).catch(() => {});
-      else if (payload.badge <= 0 && self.navigator.clearAppBadge) self.navigator.clearAppBadge().catch(() => {});
+      if (payload.badge > 0 && self.navigator.setAppBadge) badgeSet = self.navigator.setAppBadge(payload.badge);
+      else if (payload.badge <= 0 && self.navigator.clearAppBadge) badgeSet = self.navigator.clearAppBadge();
     } catch {
       // Not supported here.
     }
   }
-  event.waitUntil(
+  event.waitUntil(Promise.all([
+    Promise.resolve(badgeSet).catch(() => {}),
     self.registration.showNotification(payload.title || "MSE Trace", {
       body: payload.message || "New notification",
       icon: "/mse-icon-192.png",
@@ -352,7 +356,7 @@ self.addEventListener("push", (event) => {
       ...(payload.tag ? { tag: String(payload.tag), renotify: true } : {}),
       ...(urgent ? { requireInteraction: true } : {}),
     }),
-  );
+  ]));
 });
 
 self.addEventListener("notificationclick", (event) => {

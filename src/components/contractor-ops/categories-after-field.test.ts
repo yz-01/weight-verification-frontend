@@ -13,8 +13,6 @@ import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { TASK_CATEGORY_KIND } from "@/components/contractor-ops/operations-workspaces";
-
 const read = (file: string) => readFileSync(path.join(process.cwd(), file), "utf8").replace(/\r\n/g, "\n");
 const MANAGEMENT = "src/components/contractor-ops/category-management.tsx";
 
@@ -55,18 +53,12 @@ describe("现场资料分类 is gone (D-285)", () => {
     expect(existsSync(path.join(process.cwd(), "src/components/field-staff/category-evidence-capture.tsx"))).toBe(false);
   });
 
-  it("asks an office photo or other task for no category", () => {
-    expect(TASK_CATEGORY_KIND.PHOTO).toBeUndefined();
-    expect(TASK_CATEGORY_KIND.OTHER).toBeUndefined();
-    expect(TASK_CATEGORY_KIND.MATERIAL).toBe("MATERIAL");
-    expect(TASK_CATEGORY_KIND.SAFETY).toBe("EHS");
-    // 2026-10 B1 (X5): progress, clearance and consultant have no categories.
-    expect(TASK_CATEGORY_KIND.PROGRESS).toBeUndefined();
-    expect(TASK_CATEGORY_KIND.WASTE).toBeUndefined();
-    expect(TASK_CATEGORY_KIND.CONSULTANT).toBeUndefined();
+  it("asks an office task for no type and no category (JB73, 客户 10-29 晚 事项 1)", () => {
     const workspaces = read("src/components/contractor-ops/operations-workspaces.tsx");
-    expect(workspaces).toMatch(/\[!categoryKind \|\| form\.category, t\("field\.category"\)\]/);
-    expect(workspaces).not.toMatch(/PHOTO: "FIELD"/);
+    expect(workspaces).not.toMatch(/TASK_CATEGORY_KIND/);
+    expect(workspaces).not.toMatch(/label=\{t\("field\.taskType"\)\}/);
+    expect(workspaces).not.toMatch(/t\("field\.category"\)\]/);
+    expect(workspaces).toMatch(/task_type: task\?\.task_type \?\? "PHOTO"/);
   });
 
   it("still delivers a photo already waiting in a phone's offline queue", () => {

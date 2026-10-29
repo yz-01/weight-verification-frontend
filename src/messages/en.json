@@ -3846,6 +3846,7 @@
       "invalid": "Incorrect email or password",
       "password": "Password",
       "passwordPlaceholder": "Your password",
+      "signedOut": "You have signed out. To use it again, enter your email and password.",
       "submit": "Sign in",
       "subtitle": "Access your MSE Trace workspace",
       "throttled": "Too many attempts. Wait a moment and try again.",
@@ -9045,6 +9046,13 @@
     "photoMissing": "What you typed was kept, but the photos for {count} field(s) could not be reopened. Please take them again."
   },
   "fieldStaffPwa": {
+    "linkedHazard": {
+      "opening": "Opening this rectification…",
+      "failedTitle": "This rectification could not be opened",
+      "failedHelp": "It cannot be read right now. Check the connection and tap Retry.",
+      "retry": "Retry",
+      "back": "Back to home"
+    },
     "handoff": {
       "failed": "The code could not be made",
       "once": "It works once. After that, make a new one.",
@@ -14636,6 +14644,15 @@
     }
   },
   "safety": {
+    "officeCreate": {
+      "title": "Create a rectification item",
+      "description": "Choose the rectification category, say what needs fixing, attach photos, and name who is responsible if you know.",
+      "confirm": "Create rectification item",
+      "photoPlace": "1. Where it needs fixing",
+      "photoDetail": "2. Close-up of the problem",
+      "photoScope": "3. Equipment or area involved",
+      "photoOther": "4. Anything else"
+    },
     "action": {
       "updateStatus": "Update status"
     },
@@ -14668,7 +14685,7 @@
       "detail": "2. Hazard or damage detail",
       "overview": "1. Incident area overview",
       "progress": "Completed {current} photo(s). The first {required} required photos must all be taken; more photos may be added.",
-      "progressOffice": "{current} photograph(s) taken. One is enough to report; the four prompts above are there if you have them, and more can be added.",
+      "progressOffice": "{current} attached. One is enough; add the others above if you have them, or more.",
       "risk": "3. Affected equipment, person or access",
       "surroundings": "4. Surrounding site condition"
     },

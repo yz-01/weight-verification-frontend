@@ -1435,12 +1435,21 @@ function SafetyCreateDialog({
   const photosReady = !fieldMode
     ? completedPhotos.length >= requiredPhotos
     : completedPhotos.length >= FIELD_EVIDENCE_PHOTO_COUNT && hasRequiredFieldEvidence(draft.photos);
-  const fieldEvidenceLabels = [
-    t("safety.fieldEvidence.overview"),
-    t("safety.fieldEvidence.detail"),
-    t("safety.fieldEvidence.risk"),
-    t("safety.fieldEvidence.surroundings"),
-  ];
+  // JB76 (客户 10-29 晚 事项 4): 「我是后台办公室里怎么可能会去上报隐患」 - the
+  // office 建立整改事项; the accident wording is the phone's.
+  const fieldEvidenceLabels = fieldMode
+    ? [
+        t("safety.fieldEvidence.overview"),
+        t("safety.fieldEvidence.detail"),
+        t("safety.fieldEvidence.risk"),
+        t("safety.fieldEvidence.surroundings"),
+      ]
+    : [
+        t("safety.officeCreate.photoPlace"),
+        t("safety.officeCreate.photoDetail"),
+        t("safety.officeCreate.photoScope"),
+        t("safety.officeCreate.photoOther"),
+      ];
 
   function toggleRecipient(userId: string, checked: boolean) {
     setDraft((value) => ({
@@ -1555,8 +1564,10 @@ function SafetyCreateDialog({
     <Dialog open onOpenChange={(next) => !next && onClose()}>
       <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-xl">
         <DialogHeader>
-          <DialogTitle>{t("safety.createTitle")}</DialogTitle>
-          <DialogDescription>{t("safety.form.description")}</DialogDescription>
+          <DialogTitle>{t(fieldMode ? "safety.createTitle" : "safety.officeCreate.title")}</DialogTitle>
+          <DialogDescription>
+            {t(fieldMode ? "safety.form.description" : "safety.officeCreate.description")}
+          </DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-4 sm:grid-cols-2">
@@ -1841,7 +1852,7 @@ function SafetyCreateDialog({
             ) : (
               <ShieldAlert className="h-4 w-4" />
             )}
-            {t("safety.form.confirm")}
+            {t(fieldMode ? "safety.form.confirm" : "safety.officeCreate.confirm")}
           </Button>
         </DialogFooter>
       </DialogContent>
