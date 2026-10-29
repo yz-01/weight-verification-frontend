@@ -17336,6 +17336,8 @@
       "applyRoleHint": "Turns on what the role holds and off the rest; change anything before saving.",
       "save": "Save permissions",
       "failed": "Could not save. Please try again.",
+      "unsaved": "Permissions changed. Press “Save” below for them to take effect.",
+      "partSaved": "The user's details are saved; the permissions are not saved yet.",
       "notSwitchable": "Field staff and consultant accounts keep their role: their permissions are not switches."
     }
   },

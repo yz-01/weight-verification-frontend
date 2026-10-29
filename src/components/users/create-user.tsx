@@ -26,6 +26,7 @@ import { LOCALES, LOCALE_LABELS } from "@/i18n/config";
 import { roleName } from "@/lib/role-labels";
 import { ApiError } from "@/interfaces/api";
 import type { Role, UserDetail, UserPayload } from "@/interfaces/auth";
+import { toastSuccess } from "@/services/api-client";
 import { createUser, getRoles, updateUser } from "@/services/users.service";
 
 /**
@@ -47,7 +48,40 @@ function isDriverRole(role: Role): boolean {
   return permissions.has("task.submit") && !permissions.has("task.view_all");
 }
 
-export function CreateUser({ user }: { user?: UserDetail }) {
+/**
+ * The dialog's one 「保存」: the user's fields first, then whatever the panel
+ * below them holds (the 权限开关), then close. ``false`` - and the dialog
+ * stays open - when the second part did not save; the first part did.
+ */
+export async function saveUserThenAfter({
+  saveUser,
+  saveAfter,
+  finish,
+}: {
+  saveUser: () => Promise<unknown>;
+  saveAfter?: () => Promise<boolean>;
+  finish: () => void;
+}): Promise<boolean> {
+  await saveUser();
+  if (saveAfter && !(await saveAfter())) return false;
+  finish();
+  return true;
+}
+
+export function CreateUser({
+  user,
+  after,
+  saveAfter,
+}: {
+  user?: UserDetail;
+  /** Shown after the fields, inside the same dialog (the 权限开关 when editing). */
+  after?: React.ReactNode;
+  /**
+   * Saves the ``after`` panel once the fields have saved (the 权限开关's
+   * changes). ``false`` keeps the dialog open; the panel says why.
+   */
+  saveAfter?: () => Promise<boolean>;
+}) {
   const t = useTranslations();
   const finish = useFinishForm();
   const searchParams = useSearchParams();
@@ -86,7 +120,7 @@ export function CreateUser({ user }: { user?: UserDetail }) {
   const mutation = useMutation({
     mutationFn: (values: UserPayload) =>
       isEdit
-        ? updateUser(user.id, values)
+        ? updateUser(user.id, values, { quiet: Boolean(saveAfter) })
         : createUser(
             { ...values, ...(companyId ? { company: companyId } : {}) },
             {
@@ -96,9 +130,9 @@ export function CreateUser({ user }: { user?: UserDetail }) {
           ),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["users"] });
-      finish(companyReturnHref ?? userListHref);
     },
   });
+  const [savingAfter, setSavingAfter] = useState(false);
 
   const form = useForm({
     defaultValues: {
@@ -114,11 +148,32 @@ export function CreateUser({ user }: { user?: UserDetail }) {
     },
     onSubmit: async ({ value }) => {
       setFormError(null);
+      // The fields go every time, changed or not: the PATCH of unchanged
+      // values is harmless, and a dialog where only the switches changed
+      // must still save them.
       try {
-        await mutation.mutateAsync({
-          ...value,
-          role: value.role || null,
-        } as UserPayload);
+        await saveUserThenAfter({
+          saveUser: () =>
+            mutation.mutateAsync({
+              ...value,
+              role: value.role || null,
+            } as UserPayload),
+          saveAfter: saveAfter
+            ? async () => {
+                setSavingAfter(true);
+                try {
+                  return await saveAfter();
+                } finally {
+                  setSavingAfter(false);
+                }
+              }
+            : undefined,
+          finish: () => {
+            // The one toast for the fields and the switches together.
+            if (isEdit && saveAfter) toastSuccess("users.toast.updated");
+            finish(companyReturnHref ?? userListHref);
+          },
+        });
       } catch (error) {
         if (error instanceof ApiError && error.isValidation) {
           const leftover = applyServerErrors(
@@ -155,10 +210,11 @@ export function CreateUser({ user }: { user?: UserDetail }) {
         companyReturnHref ? t("companies.viewTitle") : t("users.title")
       }
       title={isEdit ? t("users.editTitle") : t("users.createTitle")}
-      isSubmitting={mutation.isPending}
+      isSubmitting={mutation.isPending || savingAfter}
       submitLabel={isEdit ? t("common.save") : t("users.new")}
       submitIcon={isEdit ? Save : UserPlus}
       onSubmit={() => void form.handleSubmit()}
+      after={after}
     >
       <FormSection title={t("users.section.identity")}>
         <form.Field

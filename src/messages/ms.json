@@ -17336,6 +17336,8 @@
       "applyRoleHint": "Menghidupkan apa yang dipegang peranan itu dan mematikan selebihnya; boleh diubah sebelum simpan.",
       "save": "Simpan kebenaran",
       "failed": "Tidak dapat disimpan. Sila cuba lagi.",
+      "unsaved": "Kebenaran telah diubah. Tekan “Simpan” di bawah supaya ia berkuat kuasa.",
+      "partSaved": "Butiran pengguna telah disimpan; kebenaran belum disimpan lagi.",
       "notSwitchable": "Akaun pekerja tapak dan perunding kekal dengan peranan mereka: kebenaran mereka bukan suis."
     }
   },

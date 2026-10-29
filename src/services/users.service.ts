@@ -46,12 +46,15 @@ export async function createUser(
 export async function updateUser(
   id: string,
   payload: Partial<UserPayload>,
+  options: { quiet?: boolean } = {},
 ): Promise<UserDetail> {
   const user = await api.patch<UserDetail>(
     `/api/users/${id}/update_user/`,
     payload,
   );
-  toastSuccess("users.toast.updated");
+  // Quiet when the edit dialog saves the 权限开关 next: one toast at the end,
+  // not 「用户已更新」 while the PIN for the switches is still being asked.
+  if (!options.quiet) toastSuccess("users.toast.updated");
   return user;
 }
 
@@ -64,12 +67,13 @@ export function getPermissionSwitches(id: string): Promise<PermissionSwitchState
 export async function setPermissionSwitches(
   id: string,
   payload: PermissionSwitchPayload,
+  options: { quiet?: boolean } = {},
 ): Promise<PermissionSwitchState> {
   const state = await api.post<PermissionSwitchState>(
     `/api/users/${id}/set_permission_switches/`,
     payload,
   );
-  toastSuccess("users.toast.switchesSaved");
+  if (!options.quiet) toastSuccess("users.toast.switchesSaved");
   return state;
 }
 
