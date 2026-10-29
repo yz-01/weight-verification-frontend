@@ -167,9 +167,10 @@ const ARCHIVED_BY_STATUS: ReadonlySet<CorrectableKind> = new Set(["HAZARD"]);
  * 【改正】 for one record: shown only to whoever holds the module's 「管理」
  * permission. `onCorrected` refreshes the module's own detail and list.
  *
- * Once confirmed and archived (Lucas 10-30: 「空白的需要补进去的归档后都可以
- * 继续补充，改正就不能」) it reads 【补充】 and offers only the blank fields;
- * with nothing blank left it is gone (JB77, 客户 10-29 晚 事项 5).
+ * Archived records are corrected like any other (Lucas 10-30 evening:
+ * 「全部事项归档后都可以修改……只是不能聊天而已」). Should the server's archive
+ * lock come back (`archived` on the form), it reads 【补充】 and offers only
+ * the blank fields, and is gone with nothing blank left.
  */
 export function RecordCorrectionButton({
   kind,
@@ -194,7 +195,10 @@ export function RecordCorrectionButton({
     queryFn: () => getCorrectionForm(kind, recordId, { silent: true }),
     enabled: allowed && (closed || byStatus),
   });
-  const archived = closed || Boolean(byStatus && fillable.data?.archived);
+  // The server says whether the archive locks anything (Lucas 10-30 evening:
+  // 「归档后的事项都可以修改，只是不能聊天而已」 - it does not, so an archived
+  // record reads 【改正】 like any other).
+  const archived = Boolean(fillable.data?.archived);
   const [open, setOpen] = useState(false);
   if (!allowed) return null;
   if (archived && (!fillable.data || fillable.data.blocked)) return null;

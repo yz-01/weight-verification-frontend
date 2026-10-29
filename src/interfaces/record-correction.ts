@@ -20,7 +20,13 @@ export type CorrectionHistoryKind =
   | "DISPOSAL_REQUEST"
   | "MATERIAL_RECEIPT"
   | "DAILY_REPORT"
-  | "EQUIPMENT_HOURS";
+  | "EQUIPMENT_HOURS"
+  // Changed after 确认归档, with the PIN (Lucas 10-30 evening: 「全部事项归档后
+  // 都可以修改可是需要6位PIN，然后每次修改会保留记录」).
+  | "MATERIAL_REQUEST"
+  | "CONSULTANT_APPLICATION"
+  | "DOCUMENT"
+  | "PROGRESS_SUMMARY";
 
 export type CorrectionFieldType = "text" | "textarea" | "decimal" | "choice" | "datetime";
 

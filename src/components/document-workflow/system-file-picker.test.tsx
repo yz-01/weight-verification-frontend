@@ -149,7 +149,7 @@ describe("the documents screen (E4)", () => {
 
   it("offers the same add-files button on every row, a system file's too (2026-10-10 图3)", () => {
     expect(source).not.toContain("!record.system_file &&");
-    expect(source).toContain("{active && canUpload && (");
+    expect(source).toContain("{changeable && canUpload && (");
     // Greyed with its reason, never silently missing.
     expect(source).toContain('t("documents.upload.companyWideManagerOnly")');
   });

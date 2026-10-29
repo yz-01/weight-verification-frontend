@@ -36,6 +36,7 @@ import {
 } from "@/components/consultant-workflow/application-draft-edit";
 import { AttachmentDialog, RequiredAttachmentTile } from "@/components/consultant-workflow/attachment-slots";
 import { AttachmentPicker } from "@/components/shared/attachment-picker";
+import { RecordCorrectionHistory } from "@/components/shared/record-correction";
 import {
   ApplicationFormCard,
   printPdf,
@@ -95,6 +96,7 @@ import type {
 } from "@/interfaces/consultant-workflow";
 import { ApiError } from "@/interfaces/api";
 import { builtinCategoryKey, groupModules, MODULE_LABEL_PATH, subcategoriesOf } from "@/lib/evidence-filters";
+import { ARCHIVE_LOCKS_CHANGES } from "@/lib/archive-policy";
 import { useDebounce } from "@/hooks/use-debounce";
 import { recordConversationKey } from "@/lib/record-chat";
 import { signsWithCredential } from "@/lib/sign-off";
@@ -234,11 +236,15 @@ export function ConsultantApplicationDetail({
   const currentStep = application.review_steps.find((step) => step.status === "CURRENT");
   // A draft is a draft (E6): whoever may fill it in may correct what was
   // added. Submitted, the controls go and each block says why.
-  const draftEditable = !application.is_locked && can("consultant.submit");
+  // Confirmed is its archive (JB25): a confirmed draft not yet sent is still
+  // changed (Lucas 10-30 evening); once sent, it is the consultant's.
+  const openDraft =
+    !application.is_locked || (application.status === "DRAFT" && !ARCHIVE_LOCKS_CHANGES);
+  const draftEditable = openDraft && can("consultant.submit");
   // JB25: confirmed (or sent) - only then printed, exported and sent.
   const confirmed = application.is_confirmed ?? application.status !== "DRAFT";
-  const draftOpen = application.status === "DRAFT" && !application.is_locked && can("consultant.submit") && !user?.is_field_staff;
-  const showLocked = application.is_locked && can("consultant.submit");
+  const draftOpen = application.status === "DRAFT" && openDraft && can("consultant.submit") && !user?.is_field_staff;
+  const showLocked = !openDraft && can("consultant.submit");
   const removableRecords = application.related_record_groups.some((group) =>
     group.records.some((record) => record.removable && record.evidence_link_ids.length),
   );
@@ -566,9 +572,13 @@ export function ConsultantApplicationDetail({
         }
         // 版本记录 under the evidence, where every record keeps its 更正记录.
         corrections={
-          <Section title={t("detail.section.revisions")}>
-            <RevisionTimeline application={application} />
-          </Section>
+          <div className="space-y-4">
+            <Section title={t("detail.section.revisions")}>
+              <RevisionTimeline application={application} />
+            </Section>
+            {/* 修改记录: every change after 确认归档, as on the site records (Lucas 10-30 evening). */}
+            <RecordCorrectionHistory kind="CONSULTANT_APPLICATION" recordId={application.id} />
+          </div>
         }
         // 下一步: what is owed now, and the reviewer's decision buttons.
         actions={

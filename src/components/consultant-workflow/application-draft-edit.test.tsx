@@ -192,8 +192,10 @@ describe("the detail page wires it in (E6)", () => {
   );
 
   it("decides editability once, from the lock and the right to fill in the draft", () => {
-    expect(detail).toContain('const draftEditable = !application.is_locked && can("consultant.submit");');
-    expect(detail).toContain('const showLocked = application.is_locked && can("consultant.submit");');
+    // Lucas 10-30 evening: a confirmed draft not yet sent is still changed.
+    expect(detail).toContain('!application.is_locked || (application.status === "DRAFT" && !ARCHIVE_LOCKS_CHANGES)');
+    expect(detail).toContain('const draftEditable = openDraft && can("consultant.submit");');
+    expect(detail).toContain('const showLocked = !openDraft && can("consultant.submit");');
   });
 
   it("puts the locked note on all three blocks", () => {

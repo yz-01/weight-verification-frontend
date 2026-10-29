@@ -40,6 +40,7 @@ import {
   reviewReceipt,
 } from "@/services/contractor.service";
 import { useDateFormat } from "@/lib/dates";
+import { ARCHIVE_LOCKS_CHANGES } from "@/lib/archive-policy";
 import { needsSupplier, supplierShown } from "@/lib/receipt-supplier";
 import { useRecordArchived } from "@/components/shared/record-closure";
 import { RecordCorrectionHistory } from "@/components/shared/record-correction";
@@ -566,7 +567,7 @@ export function ViewReceipt({
           longitude: photo.longitude,
         }))}
         photoActions={
-          can("receipt.create") && !data.superseded_by && !archived ? (
+          can("receipt.create") && !data.superseded_by && !(archived && ARCHIVE_LOCKS_CHANGES) ? (
             <AddPhoto
               receipt={data}
               onAdded={() =>
@@ -582,7 +583,7 @@ export function ViewReceipt({
             <DeliveryOrderPanel receipt={data} />
             <ReceiptLinesPanel
               receipt={data}
-              canEdit={can("receipt.update") && !data.superseded_by && !archived}
+              canEdit={can("receipt.update") && !data.superseded_by && !(archived && ARCHIVE_LOCKS_CHANGES)}
               onEdit={setEditingLines}
             />
           </div>

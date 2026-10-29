@@ -47,6 +47,7 @@ import { PhotoFileInput } from "@/components/shared/photo-file-input";
 import { useFileActions } from "@/components/shared/file-actions";
 import { Checkbox } from "@/components/ui/checkbox";
 import { movementStatusKey } from "@/lib/equipment-exit";
+import { ARCHIVE_LOCKS_CHANGES } from "@/lib/archive-policy";
 import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 
@@ -1827,8 +1828,9 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
   const shown = viewing
     ? (rows.data?.results.find((row) => row.id === viewing.id) ?? viewing)
     : null;
-  // A06: an archived progress record takes no more photographs.
-  const shownArchived = useRecordArchived("PROGRESS", shown?.id);
+  // A06: an archived progress record took no more photographs - until
+  // Lucas 10-30 evening (`ARCHIVE_LOCKS_CHANGES`).
+  const shownArchived = useRecordArchived("PROGRESS", shown?.id) && ARCHIVE_LOCKS_CHANGES;
   const total = rows.data?.count ?? 0;
   const title = tRoot("nav.submodule.progressRecords");
   const noPhases =

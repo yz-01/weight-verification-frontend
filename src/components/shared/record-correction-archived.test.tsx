@@ -1,8 +1,8 @@
 /**
- * 【改正】 after 确认归档 (Lucas 10-30: 「空白的需要补进去的归档后都可以继续
- * 补充，改正就不能」). Before the archive it reads 【改正】. Archived, it reads
- * 【补充】 while something is still blank, and is gone once nothing is
- * (JB77, 客户 10-29 晚 事项 5: no button that only says no).
+ * 【改正】 around 确认归档. Lucas 10-30 evening: 「全部事项归档后都可以修改」 -
+ * the server locks nothing and the button reads 【改正】. Should the lock come
+ * back (`archived` on the form), it reads 【补充】 while something is blank
+ * and is gone once nothing is (JB77: no button that only says no).
  */
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { NextIntlClientProvider } from "next-intl";
@@ -58,6 +58,13 @@ describe("改正 / 补充 around 确认归档", () => {
     expect(html).not.toContain("补充");
   });
 
+  it("reads 改正 on an archived record when the server locks nothing (Lucas 10-30 evening)", () => {
+    archived.mockReturnValue(true);
+    const html = show("PROGRESS", { ...blankLeft, archived: false });
+    expect(html).toContain("改正");
+    expect(html).not.toContain("补充");
+  });
+
   it("reads 补充 on an archived record that still has a blank", () => {
     archived.mockReturnValue(true);
     const html = show("PROGRESS", blankLeft);
@@ -65,10 +72,9 @@ describe("改正 / 补充 around 确认归档", () => {
     expect(html).not.toContain(">改正<");
   });
 
-  it("is gone from an archived record with nothing blank, and while it asks", () => {
+  it("is gone from a locked archived record with nothing blank", () => {
     archived.mockReturnValue(true);
     expect(show("PROGRESS", nothingLeft)).toBe("");
-    expect(show("PROGRESS")).toBe("");
   });
 
   it("treats 材料出场 like every other kind (JB41 withdrawn)", () => {
