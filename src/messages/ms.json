@@ -6683,6 +6683,8 @@
       "collapse": "Sembunyikan butiran {task}",
       "dueShort": "Tamat {value}",
       "noDue": "Tiada tarikh akhir",
+      "lastConfirmed": "Terakhir disahkan {value}",
+      "lastConfirmedColumn": "Terakhir disahkan",
       "confirmDone": "Sahkan selesai",
       "confirmedBy": "Disahkan oleh {name} · {value}",
       "returnedBy": "Dikembalikan oleh {name} · {value}",
@@ -10082,6 +10084,26 @@
     }
   },
   "integrations": {
+    "deviceOverview": {
+      "title": "Integrasi Peranti",
+      "subtitle": "Setiap jenis peranti luar: yang sudah disambung dan yang boleh disambung.",
+      "openSettings": "Buka tetapan integrasi sistem",
+      "settingsHint": "Daftar peranti baharu atau ubah tetapan dalam Integrasi sistem.",
+      "state": {
+        "CONNECTED": "Disambung",
+        "AVAILABLE": "Boleh disambung",
+        "WAITING": "Menunggu diaktifkan"
+      },
+      "kind": {
+        "WEIGHBRIDGE": "Jambatan timbang",
+        "OTHER": "Peranti lain"
+      },
+      "lastSeen": "Kali terakhir dilihat {value}",
+      "neverSeen": "Belum pernah dilihat",
+      "available": "Boleh disambung: daftar peranti dalam Integrasi sistem untuk menggunakannya.",
+      "droneWaiting": "Apabila syarikat anda bersedia, beritahu kami jenama dron dan platform pengurusannya, dan kami akan menyambungkannya.",
+      "mediaNote": "Foto dan video daripada peranti yang disambung masih dilihat di tempat yang sama seperti dahulu."
+    },
     "console": {
       "state": {
         "CLOSED_MANUALLY": "Ditutup secara manual",
@@ -11909,6 +11931,7 @@
       "immutableAudit": "Rekod kekal",
       "incidentReports": "Laporan insiden",
       "integrationSettings": "Integrasi sistem",
+      "deviceIntegration": "Integrasi Peranti",
       "invoiceSearch": "Pengurusan dan carian invois",
       "livePlatform": "Pemantauan platform dan servis",
       "loginAudit": "Rekod log masuk",
@@ -18869,6 +18892,7 @@
       "viewWall": "Foto",
       "viewRecords": "Kemas kini kemajuan",
       "allPhases": "Semua kategori pembinaan",
+      "search": "Cari nombor, catatan, kategori, perekod",
       "selected": "{count} dipilih",
       "select": "Pilih foto ini",
       "unselect": "Nyahpilih foto ini",
