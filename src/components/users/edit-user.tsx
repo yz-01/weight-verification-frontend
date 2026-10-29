@@ -21,14 +21,12 @@ export function EditUser({ id }: { id: string }) {
     return <LoadErrorCard backHref="/users" backLabel={t("users.title")} />;
   }
   return (
-    <div className="space-y-8">
-      <CreateUser user={data} />
-      {/* 用户管理 → 编辑用户 → 权限 (J17): a contractor's back-office person. */}
-      {data.permission_switches?.switchable ? (
-        <div className="surface-panel mx-auto max-w-5xl rounded-xl p-4 sm:p-6">
-          <PermissionSwitches userId={data.id} />
-        </div>
-      ) : null}
-    </div>
+    <CreateUser
+      user={data}
+      // 用户管理 → 编辑用户 → 权限 (J17): a contractor's back-office person.
+      after={
+        data.permission_switches?.switchable ? <PermissionSwitches userId={data.id} /> : undefined
+      }
+    />
   );
 }

@@ -47,7 +47,14 @@ function isDriverRole(role: Role): boolean {
   return permissions.has("task.submit") && !permissions.has("task.view_all");
 }
 
-export function CreateUser({ user }: { user?: UserDetail }) {
+export function CreateUser({
+  user,
+  after,
+}: {
+  user?: UserDetail;
+  /** Shown after the fields, inside the same dialog (the 权限开关 when editing). */
+  after?: React.ReactNode;
+}) {
   const t = useTranslations();
   const finish = useFinishForm();
   const searchParams = useSearchParams();
@@ -159,6 +166,7 @@ export function CreateUser({ user }: { user?: UserDetail }) {
       submitLabel={isEdit ? t("common.save") : t("users.new")}
       submitIcon={isEdit ? Save : UserPlus}
       onSubmit={() => void form.handleSubmit()}
+      after={after}
     >
       <FormSection title={t("users.section.identity")}>
         <form.Field

@@ -46,6 +46,7 @@ export function FormShell({
   submitIcon: SubmitIcon = Save,
   onSubmit,
   children,
+  after,
 }: {
   backHref: string;
   backLabel: string;
@@ -56,6 +57,12 @@ export function FormShell({
   submitIcon?: LucideIcon;
   onSubmit: () => void;
   children: React.ReactNode;
+  /**
+   * A panel with its own save (e.g. the user's 权限开关), shown after the
+   * form's fields. In a dialog it scrolls with them, above the buttons;
+   * before, a sibling drawn after the dialog's buttons ran out of the dialog.
+   */
+  after?: React.ReactNode;
 }) {
   const t = useTranslations();
   const surface = useFormSurface();
@@ -83,16 +90,19 @@ export function FormShell({
          * still run the full width of the dialog, and `overflow-y-auto` so it
          * is the fields that scroll, not the buttons away from the fields.
          */}
-        <form
-          id="mse-form"
-          className="-mx-4 divide-y overflow-y-auto border-y"
-          onSubmit={(event) => {
-            event.preventDefault();
-            onSubmit();
-          }}
-        >
-          {children}
-        </form>
+        <div className="-mx-4 divide-y overflow-y-auto border-y">
+          <form
+            id="mse-form"
+            className="divide-y"
+            onSubmit={(event) => {
+              event.preventDefault();
+              onSubmit();
+            }}
+          >
+            {children}
+          </form>
+          {after ? <div className="px-4 py-4">{after}</div> : null}
+        </div>
 
         <DialogFooter>
           <Button
@@ -172,6 +182,7 @@ export function FormShell({
           {children}
         </form>
       </div>
+      {after ? <div className="surface-panel rounded-xl p-4 sm:p-6">{after}</div> : null}
     </div>
   );
 }
