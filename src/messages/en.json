@@ -18718,7 +18718,7 @@
     "completeEvidenceTitle": "Complete evidence · {reference}",
     "send": {
       "title": "Who is it for?",
-      "intro": "WhatsApp does not tell the system who it went to. Fill this in first, then type your PIN.",
+      "intro": "The system cannot see who the file goes to. Fill in who it is for first, then type your PIN.",
       "method": "How",
       "WHATSAPP": "WhatsApp",
       "EMAIL": "Email",

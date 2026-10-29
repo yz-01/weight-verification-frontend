@@ -40,6 +40,15 @@ export function packageSharePart(what: PackageShareWhat): string {
   return "";
 }
 
+/**
+ * What every file of the package names in its 操作记录 row: the package, its
+ * project, and which of its files (JB65 fix - a row without its project never
+ * shows under that project).
+ */
+export function packageRecord(pkg: Pick<EvidencePackageDetail, "id" | "project">, part = "") {
+  return { recordKind: "EVIDENCE_PACKAGE", recordId: pkg.id, project: pkg.project, part };
+}
+
 /** The file to send and its words, for `what`. */
 export function packageShareSource(
   pkg: EvidencePackageDetail,
@@ -48,12 +57,7 @@ export function packageShareSource(
   reportWord: string,
 ): FileSource {
   const label = pkg.package_no || pkg.name;
-  const named = {
-    recordKind: "EVIDENCE_PACKAGE",
-    recordId: pkg.id,
-    part: packageSharePart(what),
-    project: pkg.project,
-  };
+  const named = packageRecord(pkg, packageSharePart(what));
   if (what.transcript) {
     const title = `${label} · ${reportWord}`;
     return {

@@ -31,6 +31,7 @@ import {
   EMPTY_CLAIM_INFO,
   SendLog,
   usePackageSend,
+  packageRecord,
   claimInfoPayload,
   periodLabel,
   sendStatusKeys,
@@ -1164,6 +1165,7 @@ export function PackageSheet({ id, onClose }: { id: string; onClose: () => void 
                 load: () => previewEvidencePackage(data.id, data.name),
                 loadToSend: () => evidencePackageFile(data.id, data.name),
                 title: data.name,
+                ...packageRecord(data),
               }}
             />
             {/* JB51: 「系统内发送」 is in 收件方 below; this one leaves the
@@ -1199,7 +1201,7 @@ export function PackageSheet({ id, onClose }: { id: string; onClose: () => void 
               onClick={() =>
                 void draftFile.run(
                   "preview",
-                  { load: () => previewDraftPackage(data.id, data.name), title: data.name },
+                  { load: () => previewDraftPackage(data.id, data.name), title: data.name, ...packageRecord(data) },
                   { blockedReason: t("draftPreviewOnly") },
                 )
               }

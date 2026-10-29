@@ -307,3 +307,63 @@ describe("10-29 fixes", () => {
     expect(history).toMatch(/projectBoxShown \? \(\s+<FilterField label=\{t\("history\.project"\)\}>\{projectPicker\}<\/FilterField>/);
   });
 });
+
+describe("10-29 tutorial fixes", () => {
+  it("every file the back office prints, saves or sends names its record, so its row is filed under its project", async () => {
+    const { readdirSync, statSync } = await import("node:fs");
+    const { join } = await import("node:path");
+    const files: string[] = [];
+    const walk = (dir: string) => {
+      for (const name of readdirSync(dir)) {
+        const full = join(dir, name);
+        if (statSync(full).isDirectory()) walk(full);
+        else if (full.endsWith(".tsx") && !full.endsWith(".test.tsx")) files.push(full);
+      }
+    };
+    walk(resolve(process.cwd(), "src/components"));
+    // Not one record: a list's or report's export (its 报表导出历史 row names
+    // the project), a QR sticker sheet of many machines, the public package
+    // link (no back-office account), and the shared helpers themselves.
+    const notARecord = [
+      "shared/export-button.tsx",
+      "shared/file-actions.tsx",
+      "contractor-ops/office-module-lists.tsx",
+      "package-link/package-link.tsx",
+      "reports/report-archive.tsx",
+    ];
+    const missing: string[] = [];
+    for (const file of files) {
+      const rel = file.replace(/\\/g, "/").split("src/components/")[1];
+      if (notARecord.includes(rel)) continue;
+      const text = readFileSync(file, "utf8");
+      const pattern = /<FileActionButtons|<FileActionMenu|\brun\("(?:share|print|save|preview)"/g;
+      for (const match of text.matchAll(pattern)) {
+        const near = text.slice(match.index, match.index + 1200);
+        if (!/recordKind|packageRecord\(|\.\.\.record|\.\.\.source|\.\.\.target|\.\.\.named/.test(near)) missing.push(`${rel}@${match.index}`);
+      }
+    }
+    expect(missing).toEqual([]);
+  });
+
+  it("the progress summary names its project and record, and lists its 发送记录", () => {
+    const summary = source("src/components/progress/progress-summary.tsx");
+    expect(summary).toContain("project: shown.project");
+    expect(summary).toContain('recordKind: "PROGRESS_SUMMARY"');
+    expect(summary).toContain('<RecordSendLog recordKind="PROGRESS_SUMMARY" recordId={shown.id} />');
+    for (const [file, kind] of [
+      ["src/components/progress/daily-reports.tsx", "DAILY_REPORT"],
+      ["src/components/material-requests/material-requests-office.tsx", "MATERIAL_REQUEST"],
+      ["src/components/contractor-ops/claim-engine.tsx", "EVIDENCE_PACKAGE"],
+      ["src/components/billing/invoice-list.tsx", "INVOICE"],
+    ] as const) {
+      expect(source(file), file).toContain(`<RecordSendLog recordKind="${kind}"`);
+    }
+  });
+
+  it("the 发给谁 help line does not name WhatsApp whatever the method", () => {
+    for (const messages of [zh, zhTW, en, ms]) {
+      expect(messages.fileActions.send.intro).not.toMatch(/WhatsApp/);
+      expect(messages.fileActions.send.intro).toBeTruthy();
+    }
+  });
+});

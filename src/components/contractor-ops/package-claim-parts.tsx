@@ -372,7 +372,7 @@ export function sendStatusKeys(row: Pick<EvidencePackageRow, "send_status" | "re
 
 /* -- 对外分享: `package-share.tsx` (JB63, JB64) ------------------------------- */
 
-export { usePackageSend, type PackageShareWhat } from "@/components/contractor-ops/package-share";
+export { packageRecord, usePackageSend, type PackageShareWhat } from "@/components/contractor-ops/package-share";
 
 /* -- 发送记录 -------------------------------------------------------------- */
 

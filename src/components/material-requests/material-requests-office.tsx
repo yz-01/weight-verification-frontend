@@ -82,6 +82,7 @@ import {
 } from "@/components/shared/page-primitives";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RecordDetailDialog, RecordDetailShell, RecordRecorder } from "@/components/shared/record-detail-shell";
+import { RecordSendLog } from "@/components/shared/record-send-log";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -914,6 +915,9 @@ export function MaterialRequestDetail({
                 source={{
                   load: () => materialRequestFormFile(row.id, locale, row.request_no),
                   title: t("preview.title", { reference: row.request_no }),
+                  project: row.project,
+                  recordKind: "MATERIAL_REQUEST",
+                  recordId: row.id,
                 }}
               />
             </div>
@@ -1034,6 +1038,8 @@ export function MaterialRequestDetail({
         }
         conversation={{ kind: "MATERIAL_REQUEST", recordId: row.id }}
       />
+      {/* 发送记录 (JB65): every send of this record, to whom and whether it went. */}
+      <RecordSendLog recordKind="MATERIAL_REQUEST" recordId={row.id} />
     </RecordDetailDialog>
   );
 }

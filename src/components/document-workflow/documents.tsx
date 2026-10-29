@@ -2152,6 +2152,9 @@ function DocumentDetailBody({
               source={{
                 load: () => documentRecordsPdf(document.id, document.document_no),
                 title: t("documents.recordLinks.allPdf"),
+                project: document.project ?? undefined,
+                recordKind: "DOCUMENT",
+                recordId: document.id,
               }}
             />
           </div>

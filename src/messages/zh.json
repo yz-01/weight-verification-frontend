@@ -18718,7 +18718,7 @@
     "completeEvidenceTitle": "完整证据 · {reference}",
     "send": {
       "title": "发给谁？",
-      "intro": "WhatsApp 不会告诉系统发给了谁，请先填好，再输入密码。",
+      "intro": "系统看不到文件发给了谁，请先填好对方资料，再输入密码。",
       "method": "怎么发",
       "WHATSAPP": "WhatsApp",
       "EMAIL": "Email",

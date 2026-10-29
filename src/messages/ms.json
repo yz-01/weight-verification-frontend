@@ -18718,7 +18718,7 @@
     "completeEvidenceTitle": "Bukti lengkap · {reference}",
     "send": {
       "title": "Hantar kepada siapa?",
-      "intro": "WhatsApp tidak memberitahu sistem kepada siapa ia dihantar. Isi ini dahulu, kemudian masukkan PIN anda.",
+      "intro": "Sistem tidak dapat melihat kepada siapa fail dihantar. Isi maklumat penerima dahulu, kemudian masukkan PIN anda.",
       "method": "Cara",
       "WHATSAPP": "WhatsApp",
       "EMAIL": "E-mel",

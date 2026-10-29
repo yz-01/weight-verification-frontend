@@ -109,6 +109,9 @@ export function EquipmentQrDialog({
               source={{
                 load: () => equipmentQrStickers([machine.id]),
                 title: t("equipmentQr.stickerTitle", { number: stickerNumber(machine) }),
+                project: machine.project,
+                recordKind: "SITE_EQUIPMENT",
+                recordId: machine.id,
               }}
             />
           </div>

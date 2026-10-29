@@ -99,6 +99,7 @@ import {
 import { signOffBeforeEditing } from "@/services/sign-off.service";
 import { CORRECTED_ROW_CLASS, CorrectedTag } from "@/components/shared/record-correction";
 import { PhotoStrip } from "@/components/shared/photo-thumb";
+import { RecordSendLog } from "@/components/shared/record-send-log";
 
 const PAGE = 20;
 
@@ -700,6 +701,7 @@ export function DailyReportView({
               exportedOnServer: true,
               recordKind: "DAILY_REPORT",
               recordId: report.id,
+              project: report.project,
             }}
           />
         </div>
@@ -717,6 +719,8 @@ export function DailyReportView({
           </p>
           <EntryList entries={report.entries} />
         </section>
+        {/* 发送记录 (JB65): every send of this record, to whom and whether it went. */}
+        <RecordSendLog recordKind="DAILY_REPORT" recordId={report.id} />
         </div>
         {can("progress.manage") && (
           <DialogFooter>
