@@ -9046,13 +9046,6 @@
     "photoMissing": "填寫的內容已恢復，但有 {count} 項的照片讀不回來，請重新拍一次。"
   },
   "fieldStaffPwa": {
-    "linkedHazard": {
-      "opening": "正在打開這條整改……",
-      "failedTitle": "打不開這條整改",
-      "failedHelp": "這條整改現在讀不到，請檢查網絡後按「重試」。",
-      "retry": "重試",
-      "back": "返回首頁"
-    },
     "handoff": {
       "failed": "QR 碼產生失敗",
       "once": "只能用一次，用過要重新產生。",
@@ -13345,7 +13338,8 @@
       "save": "上傳",
       "discard": "取消",
       "failed": "上傳失敗，請重試。",
-      "tooBig": "這張照片有 {actual} MB，超過了 {limit} MB 的上限。請換一張小一點的。"
+      "tooBig": "這張照片有 {actual} MB，超過了 {limit} MB 的上限。請換一張小一點的。",
+      "choose": "選擇照片"
     }
   },
   "progress": {
@@ -17977,7 +17971,7 @@
     "help": "按下去就視為這件事已經完成並歸檔，所有人都看得到，現場記錄中心裡會寫上你的名字和時間。系統不做任何前置判斷 —— 判斷由你負責。記錄不會搬走，還在原來的模組和分類裡；之後只能查看，不能再修改。以後有新問題請新建一條記錄。",
     "notePlaceholder": "備註（可選）",
     "closedTitle": "已歸檔",
-    "closedBy": "由 {name} 於 {when} 確認。本記錄已不能再修改。",
+    "closedBy": "由 {name} 於 {when} 確認。有內容的不能再改，空白的可以補充。",
     "loading": "正在查詢…",
     "what": {
       "state": "這條記錄是否已歸檔"
@@ -18019,7 +18013,8 @@
       "claim_decided": "這筆雜費報銷已經審批，不能再改正。"
     },
     "toast": {
-      "saved": "已改正"
+      "saved": "已改正",
+      "filled": "已補充"
     },
     "field": {
       "equipment_name": "設備名稱",
@@ -18061,7 +18056,13 @@
       "unit_price": "單價",
       "spec_category": "規格"
     },
-    "followsSpec": "單位跟著規格，不能改"
+    "followsSpec": "單位跟著規格，不能改",
+    "fillButton": "補充",
+    "fillTitle": "補充紀錄內容",
+    "fillSave": "儲存",
+    "archivedHint": "已確認歸檔：有內容的不能再改，空白的可以補上。",
+    "archivedField": "已歸檔，不能改",
+    "fillNote": "儲存後，列表、匯出、報表和 PDF 都會用補上的內容。"
   },
   "recordConversation": {
     "open": "溝通",

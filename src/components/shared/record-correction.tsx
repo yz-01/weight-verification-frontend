@@ -149,24 +149,27 @@ export function CorrectedTag({
 export const CORRECTED_ROW_CLASS = "outline outline-2 -outline-offset-2 outline-gold/70";
 
 /**
- * The kinds 确认归档 locks against 改正 (`record_corrections.blocked`). 材料出场
- * stays correctable after archiving (`after_archive`), and 现场任务 / 门禁事件
- * are never archived, so they are not here.
+ * The kinds 【确认归档】 closes. 现场任务 and 门禁事件 are never archived; a
+ * 整改 is archived by its own 验证并关闭, which only its form tells - the
+ * closure address knows no 整改 and answered every one 「不在你这个账号的
+ * 范围内」 (10-30).
  */
-const LOCKED_WHEN_ARCHIVED: Partial<Record<CorrectableKind, ArchiveRecordKind>> = {
+const ARCHIVED_AS: Partial<Record<CorrectableKind, ArchiveRecordKind>> = {
   EQUIPMENT_MOVEMENT: "EQUIPMENT_MOVEMENT",
+  MATERIAL_OUTGOING: "MATERIAL_OUTGOING",
   WASTE_OUTGOING: "WASTE_OUTGOING",
   PROGRESS: "PROGRESS",
-  HAZARD: "HAZARD",
   SUNDRY_CLAIM: "SUNDRY_CLAIM",
 };
+const ARCHIVED_BY_STATUS: ReadonlySet<CorrectableKind> = new Set(["HAZARD"]);
 
 /**
  * 【改正】 for one record: shown only to whoever holds the module's 「管理」
  * permission. `onCorrected` refreshes the module's own detail and list.
  *
- * Gone once the record is confirmed and archived (JB77, 客户 10-29 晚 事项 5):
- * it used to stay, and only the dialog said 「已确认归档，不能再改正」.
+ * Once confirmed and archived (Lucas 10-30: 「空白的需要补进去的归档后都可以
+ * 继续补充，改正就不能」) it reads 【补充】 and offers only the blank fields;
+ * with nothing blank left it is gone (JB77, 客户 10-29 晚 事项 5).
  */
 export function RecordCorrectionButton({
   kind,
@@ -179,10 +182,22 @@ export function RecordCorrectionButton({
 }) {
   const t = useTranslations("recordCorrection");
   const allowed = useCanCorrect(kind);
-  const archiveKind = LOCKED_WHEN_ARCHIVED[kind];
-  const archived = useRecordArchived(archiveKind ?? "PROGRESS", archiveKind ? recordId : undefined);
+  const archiveKind = ARCHIVED_AS[kind];
+  const closed = useRecordArchived(
+    archiveKind ?? "PROGRESS",
+    allowed && archiveKind ? recordId : undefined,
+  );
+  const byStatus = ARCHIVED_BY_STATUS.has(kind);
+  // query-failure: decides only whether the button shows; the dialog says why.
+  const fillable = useQuery({
+    queryKey: ["record-correction-fillable", kind, recordId],
+    queryFn: () => getCorrectionForm(kind, recordId, { silent: true }),
+    enabled: allowed && (closed || byStatus),
+  });
+  const archived = closed || Boolean(byStatus && fillable.data?.archived);
   const [open, setOpen] = useState(false);
-  if (!allowed || archived) return null;
+  if (!allowed) return null;
+  if (archived && (!fillable.data || fillable.data.blocked)) return null;
   return (
     <>
       <Button
@@ -193,14 +208,17 @@ export function RecordCorrectionButton({
         onClick={() => setOpen(true)}
       >
         <PencilLine />
-        {t("button")}
+        {archived ? t("fillButton") : t("button")}
       </Button>
       {open && (
         <RecordCorrectionDialog
           kind={kind}
           recordId={recordId}
           onClose={() => setOpen(false)}
-          onCorrected={onCorrected}
+          onCorrected={() => {
+            void fillable.refetch();
+            onCorrected?.();
+          }}
         />
       )}
     </>
@@ -219,12 +237,20 @@ function CorrectionInput({
   onChange: (value: string) => void;
   /** What a choice offers now (a specification only under its material). */
   options?: CorrectionField["options"];
-  /** The unit a chosen specification brings: shown, not chosen (ID46). */
+  /** The unit a chosen specification brings (ID46), or a field the archive
+   * keeps (Lucas 10-30): shown, not changed. */
   locked?: boolean;
 }) {
   const t = useTranslations("recordCorrection");
   if (field.type === "textarea") {
-    return <Textarea rows={2} value={value} onChange={(event) => onChange(event.target.value)} />;
+    return (
+      <Textarea
+        rows={2}
+        value={value}
+        disabled={locked}
+        onChange={(event) => onChange(event.target.value)}
+      />
+    );
   }
   if (field.type === "choice") {
     const options = offered ?? field.options ?? [];
@@ -256,6 +282,7 @@ function CorrectionInput({
         min="0"
         step="any"
         value={value}
+        disabled={locked}
         onChange={(event) => onChange(event.target.value)}
       />
     );
@@ -265,6 +292,7 @@ function CorrectionInput({
       <Input
         type="datetime-local"
         value={value}
+        disabled={locked}
         onChange={(event) => onChange(event.target.value)}
       />
     );
@@ -273,6 +301,7 @@ function CorrectionInput({
     <Input
       value={value}
       maxLength={field.max_length ?? undefined}
+      disabled={locked}
       onChange={(event) => onChange(event.target.value)}
     />
   );
@@ -309,6 +338,12 @@ export function RecordCorrectionDialog({
   const unchanged = Object.keys(changes).length === 0;
   const missing = missingRequired(fields, values);
   const number = badNumber(fields, values);
+  // Filling a blank is no correction and asks no reason (Lucas 10-30:
+  // 「后台需要补进去的东西都不算改正」); changing what was there does.
+  const correcting = Object.keys(changes).some(
+    (name) => (fields.find((field) => field.name === name)?.value ?? "") !== "",
+  );
+  const archived = Boolean(form.data?.archived);
 
   const save = useMutation({
     mutationFn: () => correctRecord(kind, recordId, changes, expected, reason.trim()),
@@ -339,10 +374,10 @@ export function RecordCorrectionDialog({
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{t("title")}</DialogTitle>
+          <DialogTitle>{archived ? t("fillTitle") : t("title")}</DialogTitle>
           <DialogDescription>
             {form.data?.reference ? `${form.data.reference} · ` : ""}
-            {t("hint")}
+            {archived ? t("archivedHint") : t("hint")}
           </DialogDescription>
         </DialogHeader>
         {form.isLoading ? (
@@ -366,15 +401,20 @@ export function RecordCorrectionDialog({
             {fields
               .filter((field) => isShown(fields, field, values))
               .map((field) => {
-                const locked = lockedValue(fields, field, values) !== null;
+                const follows = lockedValue(fields, field, values) !== null;
+                const locked = follows || Boolean(field.locked);
                 return (
                   <FieldWrapper
                     key={field.name}
                     label={fieldLabel(field.name)}
-                    required={field.required}
+                    required={field.required && !field.locked}
                     hint={[
-                      field.display ? t("was", { value: field.display }) : t("wasEmpty"),
-                      locked ? t("followsSpec") : "",
+                      field.locked
+                        ? t("archivedField")
+                        : field.display
+                          ? t("was", { value: field.display })
+                          : t("wasEmpty"),
+                      follows ? t("followsSpec") : "",
                     ]
                       .filter(Boolean)
                       .join(" · ")}
@@ -390,19 +430,21 @@ export function RecordCorrectionDialog({
                   </FieldWrapper>
                 );
               })}
-            <FieldWrapper
-              label={t("reason")}
-              required
-              error={failure?.fieldError("reason") ?? undefined}
-            >
-              <Textarea
-                rows={2}
-                value={reason}
-                placeholder={t("reasonPlaceholder")}
-                onChange={(event) => setReason(event.target.value)}
-              />
-            </FieldWrapper>
-            <p className="text-xs text-muted-foreground">{t("evidenceNote")}</p>
+            {correcting && (
+              <FieldWrapper
+                label={t("reason")}
+                required
+                error={failure?.fieldError("reason") ?? undefined}
+              >
+                <Textarea
+                  rows={2}
+                  value={reason}
+                  placeholder={t("reasonPlaceholder")}
+                  onChange={(event) => setReason(event.target.value)}
+                />
+              </FieldWrapper>
+            )}
+            <p className="text-xs text-muted-foreground">{correcting || unchanged ? t("evidenceNote") : t("fillNote")}</p>
           </div>
         )}
         <DialogFooter>
@@ -412,13 +454,13 @@ export function RecordCorrectionDialog({
           {form.data && !form.data.blocked && (
             <Button
               type="button"
-              requires={[[reason.trim(), t("reason")]]}
+              requires={correcting ? [[reason.trim(), t("reason")]] : []}
               disabledReason={disabledReason}
               disabled={save.isPending || Boolean(disabledReason)}
               onClick={() => save.mutate()}
             >
               {save.isPending ? <Loader2 className="animate-spin" /> : <PencilLine />}
-              {t("save")}
+              {correcting ? t("save") : t("fillSave")}
             </Button>
           )}
         </DialogFooter>

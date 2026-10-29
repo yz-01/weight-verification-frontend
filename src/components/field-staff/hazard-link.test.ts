@@ -39,20 +39,16 @@ describe("the phone opens the hazard a notification names (T-302)", () => {
   });
 });
 
-describe("a link that cannot open stays about that hazard (JB75, 客户 10-29 晚 事项 3)", () => {
-  it("does not fall through to the report form while the linked hazard opens or fails", () => {
-    expect(code).toContain(
-      "tab === \"incidents\" && !shownHazard && Boolean(requestedIncidentId) && !linkedHazardClosed",
-    );
-    expect(code).toContain(
-      "const hazardTabWithoutRoom = tab === \"incidents\" && !shownHazard && !linkedHazardOpening;",
-    );
+describe("a link that cannot open is not shown (JB75, Lucas 10-30)", () => {
+  it("does not fall through to the report form while the linked hazard opens", () => {
+    expect(code).toContain("const hazardTabWithoutRoom =");
+    expect(code).toContain("!linkedHazardOpening && !linkedHazardRefused");
   });
 
-  it("says why on one card with 重试 / 返回, and leaves the link behind on the way out", () => {
-    expect(code).toContain("<LinkedHazardCard");
-    expect(code).toContain('url.searchParams.delete("incident");');
-    // No second red line above the card.
+  it("puts the worker on the home screen, with no card and no reason, when it cannot open", () => {
+    expect(code).toContain('const shownTab: MobileTab = linkedHazardRefused ? "home"');
+    expect(code).not.toContain("LinkedHazardCard");
+    expect(code).not.toContain("linked-hazard-failed");
     expect(code).not.toContain('what={t("what.linkedHazard")}');
   });
 });

@@ -51,6 +51,8 @@ export interface CorrectionField {
   follows?: string;
   /** Shown only while this field's chosen option is 「其他」. */
   only_for_other?: string;
+  /** Archived and already filled: shown, not changed (Lucas 10-30). */
+  locked?: boolean;
 }
 
 export interface CorrectionForm {
@@ -59,6 +61,8 @@ export interface CorrectionForm {
   reference: string;
   /** Why it cannot be corrected now - archived, project closed, decided. */
   blocked: { reason: string; message: string } | null;
+  /** Confirmed and archived: only a blank field may be filled in (Lucas 10-30). */
+  archived?: boolean;
   fields: CorrectionField[];
 }
 

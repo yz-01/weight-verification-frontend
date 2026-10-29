@@ -9046,13 +9046,6 @@
     "photoMissing": "What you typed was kept, but the photos for {count} field(s) could not be reopened. Please take them again."
   },
   "fieldStaffPwa": {
-    "linkedHazard": {
-      "opening": "Opening this rectification…",
-      "failedTitle": "This rectification could not be opened",
-      "failedHelp": "It cannot be read right now. Check the connection and tap Retry.",
-      "retry": "Retry",
-      "back": "Back to home"
-    },
     "handoff": {
       "failed": "The code could not be made",
       "once": "It works once. After that, make a new one.",
@@ -13345,7 +13338,8 @@
       "save": "Upload",
       "discard": "Cancel",
       "failed": "The upload failed. Please try again.",
-      "tooBig": "That photo is {actual} MB, over the {limit} MB limit. Please choose a smaller one."
+      "tooBig": "That photo is {actual} MB, over the {limit} MB limit. Please choose a smaller one.",
+      "choose": "Choose a photo"
     }
   },
   "progress": {
@@ -17977,7 +17971,7 @@
     "help": "Pressing this marks the matter finished and archives it for everyone - the list shows your name and the time. Nothing is checked first; the decision is yours. The record stays where it is, in its own module and category; it can be read but no longer changed. Raise a new record for anything further.",
     "notePlaceholder": "Note (optional)",
     "closedTitle": "Archived",
-    "closedBy": "Confirmed by {name} on {when}. This record can no longer be changed.",
+    "closedBy": "Confirmed by {name} on {when}. What is filled in can no longer change; blank fields can still be filled in.",
     "loading": "Checking…",
     "what": {
       "state": "Whether this record is already archived"
@@ -18019,7 +18013,8 @@
       "claim_decided": "This sundry claim has already been decided; it can no longer be corrected."
     },
     "toast": {
-      "saved": "Record corrected"
+      "saved": "Record corrected",
+      "filled": "Filled in"
     },
     "field": {
       "equipment_name": "Equipment name",
@@ -18061,7 +18056,13 @@
       "unit_price": "Unit price",
       "spec_category": "Specification"
     },
-    "followsSpec": "The unit follows the specification"
+    "followsSpec": "The unit follows the specification",
+    "fillButton": "Fill in",
+    "fillTitle": "Fill in the record",
+    "fillSave": "Save",
+    "archivedHint": "Confirmed and archived: what is filled in can no longer change; blank fields can still be filled.",
+    "archivedField": "Archived - cannot be changed",
+    "fillNote": "Once saved, lists, exports, reports and the PDF show what was filled in."
   },
   "recordConversation": {
     "open": "Communicate",
