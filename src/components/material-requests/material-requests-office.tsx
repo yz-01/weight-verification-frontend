@@ -23,6 +23,7 @@
 
 import { MaterialLinesChip, MaterialLinesTable } from "@/components/shared/material-lines";
 import { requestShownLines } from "@/lib/material-lines";
+import { ARCHIVE_LOCKS_CHANGES } from "@/lib/archive-policy";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
@@ -82,6 +83,7 @@ import {
 } from "@/components/shared/page-primitives";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RecordDetailDialog, RecordDetailShell, RecordRecorder } from "@/components/shared/record-detail-shell";
+import { RecordCorrectionHistory } from "@/components/shared/record-correction";
 import { RecordSendLog } from "@/components/shared/record-send-log";
 import { Button } from "@/components/ui/button";
 import {
@@ -724,6 +726,9 @@ export function MaterialRequestDetail({
     : null;
   const changeable =
     !decided && !user?.is_field_staff && reviewView !== "waiting";
+  // Decided is its archive (JB25); it is still changed, not deleted (Lucas
+  // 10-30 evening: 「归档后的事项都可以修改」).
+  const editable = changeable || (decided && !ARCHIVE_LOCKS_CHANGES && !user?.is_field_staff);
   const takeOvers = row.decisions.filter((entry) => entry.decision === "REASSIGNED");
   // 「转呈总部」 (I12, ID29): the project manager sent it on.
   const forwards = row.decisions.filter((entry) => entry.decision === "FORWARDED");
@@ -923,20 +928,20 @@ export function MaterialRequestDetail({
             </div>
             {/* JB25 (客户 10-26 事项 1): before its decision the applicant or an
                 approver changes it in place, or deletes it with the PIN. */}
-            {changeable && (
+            {editable && (
               <div className="flex flex-wrap gap-1.5" data-slot="material-request-draft-actions">
                 <Button size="sm" variant="outline" onClick={() => setEditingRequest(true)}>
                   <Pencil />
                   {draft("edit")}
                 </Button>
-                <DeleteRecordButton
+                {changeable && <DeleteRecordButton
                   what={row.request_no}
                   onDelete={() => deleteMaterialRequest(row.id)}
                   onDeleted={() => {
                     void qc.invalidateQueries({ queryKey: ["material-requests"] });
                     onClose();
                   }}
-                />
+                />}
               </div>
             )}
             {editingRequest && <MaterialRequestEditDialog row={row} onClose={() => setEditingRequest(false)} />}
@@ -1039,6 +1044,8 @@ export function MaterialRequestDetail({
         conversation={{ kind: "MATERIAL_REQUEST", recordId: row.id }}
       />
       {/* 发送记录 (JB65): every send of this record, to whom and whether it went. */}
+      {/* 修改记录: every change after 确认归档, as on the site records (Lucas 10-30 evening). */}
+      <RecordCorrectionHistory kind="MATERIAL_REQUEST" recordId={row.id} />
       <RecordSendLog recordKind="MATERIAL_REQUEST" recordId={row.id} />
     </RecordDetailDialog>
   );

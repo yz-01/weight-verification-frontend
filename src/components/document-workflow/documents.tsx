@@ -79,13 +79,14 @@ import { useListQuery } from "@/hooks/use-list-query";
 import { useUrlSelection } from "@/hooks/use-url-selection";
 import { ApiError } from "@/interfaces/api";
 import type { Requirement } from "@/lib/missing-fields";
+import { ARCHIVE_LOCKS_CHANGES } from "@/lib/archive-policy";
 import type { Project } from "@/interfaces/contractor";
 import type { LinkableRecord } from "@/interfaces/document-workflow";
 import { RecordLinkPicker } from "@/components/document-workflow/record-link-picker";
 import { InspectionDialog, InspectionList } from "@/components/document-workflow/inspection";
 import { FileActionButtons } from "@/components/shared/file-actions";
 import { DeleteRecordButton, useNotArchivedReason } from "@/components/shared/delete-record-button";
-import { CorrectedTag } from "@/components/shared/record-correction";
+import { CorrectedTag, RecordCorrectionHistory } from "@/components/shared/record-correction";
 import { RecordSendLog } from "@/components/shared/record-send-log";
 import type { CorrectionHistoryKind } from "@/interfaces/record-correction";
 import type { RecordPdfKind } from "@/services/contractor-ops.service";
@@ -414,6 +415,8 @@ export function Documents() {
         cell: ({ row }) => {
           const record = row.original;
           const active = record.status === "ACTIVE";
+          // Archived is still changed (Lucas 10-30 evening), not archived twice.
+          const changeable = active || (record.status === "ARCHIVED" && !ARCHIVE_LOCKS_CHANGES);
           return (
             <div className="flex items-center justify-end gap-0.5">
               <Button
@@ -430,7 +433,7 @@ export function Documents() {
                   Anybody on the project; a company-wide document only from
                   the manager (the server says the same), so it is greyed
                   with the reason rather than missing. */}
-              {active && canUpload && (
+              {changeable && canUpload && (
                 <Button
                   variant="ghost"
                   size="icon"
@@ -447,7 +450,7 @@ export function Documents() {
                   <Upload className="h-4 w-4" />
                 </Button>
               )}
-              {manages && active && (
+              {manages && changeable && (
                 <Button
                   variant="ghost"
                   size="icon"
@@ -1885,6 +1888,8 @@ function DocumentDetailDialog({
         )}
 
         {/* 发送记录 (JB65): every send of this record, to whom and whether it went. */}
+        {/* 修改记录: every change after 确认归档, as on the site records (Lucas 10-30 evening). */}
+        {detail.data?.id ? <RecordCorrectionHistory kind="DOCUMENT" recordId={detail.data.id} /> : null}
         <RecordSendLog recordKind="DOCUMENT" recordId={detail.data?.id} />
         <DialogFooter>
           <Button

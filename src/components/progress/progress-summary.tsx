@@ -56,8 +56,10 @@ import { FileActionButtons } from "@/components/shared/file-actions";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ProjectListFilter } from "@/components/shared/module-records-table";
 import { FieldWrapper, FilterBar, QueryFailedNote } from "@/components/shared/page-primitives";
+import { RecordCorrectionHistory } from "@/components/shared/record-correction";
 import { RecordSendLog } from "@/components/shared/record-send-log";
 import { absoluteUrl } from "@/lib/share";
+import { ARCHIVE_LOCKS_CHANGES } from "@/lib/archive-policy";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
 import {
@@ -244,12 +246,14 @@ export function ProgressSummaryTab() {
                       link: absoluteUrl(`/progress?tab=summary&summary=${shown.id}`),
                     }}
                   />
+                  {canWrite && !user?.is_field_staff && (!shown.archived_at || !ARCHIVE_LOCKS_CHANGES) && (
+                    <Button variant="outline" onClick={() => setEditing(shown)}>
+                      <Pencil />
+                      {t("edit")}
+                    </Button>
+                  )}
                   {canWrite && !shown.archived_at && !user?.is_field_staff && (
                     <>
-                      <Button variant="outline" onClick={() => setEditing(shown)}>
-                        <Pencil />
-                        {t("edit")}
-                      </Button>
                       <DeleteRecordButton
                         what={shown.title}
                         onDelete={() => deleteProgressSummary(shown.id)}
@@ -273,6 +277,8 @@ export function ProgressSummaryTab() {
               </p>
               <SummaryBlocksView summary={shown} />
               {/* 发送记录 (JB65): every send of this record, to whom and whether it went. */}
+              {/* 修改记录: every change after 确认归档, as on the site records (Lucas 10-30 evening). */}
+              <RecordCorrectionHistory kind="PROGRESS_SUMMARY" recordId={shown.id} />
               <RecordSendLog recordKind="PROGRESS_SUMMARY" recordId={shown.id} />
             </article>
           )}
