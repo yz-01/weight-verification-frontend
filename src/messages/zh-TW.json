@@ -6683,6 +6683,8 @@
       "collapse": "收起「{task}」",
       "dueShort": "期限 {value}",
       "noDue": "無期限",
+      "lastConfirmed": "最後確認時間 {value}",
+      "lastConfirmedColumn": "最後確認時間",
       "confirmDone": "確認完成",
       "confirmedBy": "{name} 已確認 · {value}",
       "returnedBy": "{name} 已退回 · {value}",
@@ -9567,6 +9569,7 @@
   },
   "globalSearch": {
     "noResults": "找不到相符的模塊或功能",
+    "settings": "設定",
     "open": "打開功能搜索",
     "placeholder": "搜索模塊和功能"
   },
@@ -10086,6 +10089,26 @@
     }
   },
   "integrations": {
+    "deviceOverview": {
+      "title": "外部設備接入",
+      "subtitle": "每種外部設備：已經接入了哪些，還可以接入哪些。",
+      "openSettings": "打開系統集成設定",
+      "settingsHint": "登記新設備、改設定，都在「系統集成」裡做。",
+      "state": {
+        "CONNECTED": "已接入",
+        "AVAILABLE": "可以接入",
+        "WAITING": "等啟用"
+      },
+      "kind": {
+        "WEIGHBRIDGE": "地磅",
+        "OTHER": "其他設備"
+      },
+      "lastSeen": "最後上線 {value}",
+      "neverSeen": "還沒有上線過",
+      "available": "可以接入：在「系統集成」登記設備後就能用。",
+      "droneWaiting": "等貴司啟用時，告訴我們無人機品牌和管理平台，我們再接入",
+      "mediaNote": "已接入設備送來的照片、影片，照舊在原來的地方查看。"
+    },
     "console": {
       "state": {
         "CLOSED_MANUALLY": "人工關閉",
@@ -11880,6 +11903,7 @@
       "immutableAudit": "永久記錄",
       "incidentReports": "事故上報",
       "integrationSettings": "系統集成",
+      "deviceIntegration": "外部設備接入",
       "invoiceSearch": "賬單管理與查詢",
       "livePlatform": "平臺與服務監控",
       "loginAudit": "登錄記錄",
@@ -18880,6 +18904,7 @@
       "viewWall": "照片",
       "viewRecords": "進度記錄",
       "allPhases": "全部施工分類",
+      "search": "搜尋編號、備註、施工分類、記錄人",
       "selected": "已選 {count} 張",
       "select": "選這張",
       "unselect": "不選這張",

@@ -135,7 +135,7 @@ export function Profile() {
             void profileForm.handleSubmit();
           }}
         >
-          <FormSection title={t("profile.section.identity")}>
+          <FormSection id="profile-identity" title={t("profile.section.identity")}>
             <AvatarUpload className="pb-2" />
             <profileForm.Field
               name="full_name"
@@ -176,7 +176,7 @@ export function Profile() {
             )}
           </FormSection>
 
-          <FormSection title={t("profile.section.preferences")}>
+          <FormSection id="profile-preferences" title={t("profile.section.preferences")}>
             <profileForm.Field name="language">
               {(field) => (
                 <SelectField
@@ -243,7 +243,7 @@ export function Profile() {
               void passwordForm.handleSubmit();
             }}
           >
-            <FormSection title={t("profile.section.security")}>
+            <FormSection id="profile-security" title={t("profile.section.security")}>
             <passwordForm.Field
               name="current_password"
               validators={{ onSubmit: required(t("validation.required")) }}

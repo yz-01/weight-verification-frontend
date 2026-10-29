@@ -3,6 +3,7 @@ import {
   Bell,
   Box,
   Building2,
+  Cable,
   ChartNoAxesCombined,
   ClipboardCheck,
   ClipboardList,
@@ -1504,6 +1505,10 @@ export const PORTAL_NAVIGATION = {
         ),
       ],
     ),
+    // 外部设备接入 (JB69, client 10-29: 「把它写进菜单里」): every device kind
+    // and how far the company is with each; its settings stay on 系统集成,
+    // under the same feature and permission.
+    entry("integrations", "submodule.deviceIntegration", "/device-integration", Cable, "system"),
   ],
   MSE_SCRAP: [
     item("dashboard", "/dashboard", LayoutDashboard, "overview"),
@@ -1563,6 +1568,8 @@ export const PORTAL_NAVIGATION = {
     item("users", "/users", Users, "system"),
     item("roles", "/roles", KeyRound, "system"),
     item("integrations", "/integrations", SlidersHorizontal, "system"),
+    // 外部设备接入 (JB69).
+    entry("integrations", "submodule.deviceIntegration", "/device-integration", Cable, "system"),
     item("company_settings", "/company-settings", Settings, "system"),
     item("user_logs", "/login-records", FileClock, "system"),
     item("activity_logs", "/audit-logs", History, "system"),

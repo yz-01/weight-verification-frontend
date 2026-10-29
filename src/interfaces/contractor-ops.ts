@@ -343,6 +343,8 @@ export interface FieldTask extends RecordedBy {
   category_name: string | null;
   priority: "LOW" | "NORMAL" | "HIGH" | "URGENT";
   due_at: string | null;
+  /** 最后确认时间 (JB63): confirmed done, or set if not done yet; the list's order. */
+  last_confirmed_at?: string;
   status: FieldTaskStatus;
   evidence_required: number;
   started_at: string | null;

@@ -6683,6 +6683,8 @@
       "collapse": "收起「{task}」",
       "dueShort": "期限 {value}",
       "noDue": "无期限",
+      "lastConfirmed": "最后确认时间 {value}",
+      "lastConfirmedColumn": "最后确认时间",
       "confirmDone": "确认完成",
       "confirmedBy": "{name} 已确认 · {value}",
       "returnedBy": "{name} 已退回 · {value}",
@@ -9567,6 +9569,7 @@
   },
   "globalSearch": {
     "noResults": "找不到相符的模块或功能",
+    "settings": "设定",
     "open": "打开功能搜索",
     "placeholder": "搜索模块和功能"
   },
@@ -10086,6 +10089,26 @@
     }
   },
   "integrations": {
+    "deviceOverview": {
+      "title": "外部设备接入",
+      "subtitle": "每种外部设备：已经接入了哪些，还可以接入哪些。",
+      "openSettings": "打开系统集成设定",
+      "settingsHint": "登记新设备、改设定，都在「系统集成」里做。",
+      "state": {
+        "CONNECTED": "已接入",
+        "AVAILABLE": "可以接入",
+        "WAITING": "等启用"
+      },
+      "kind": {
+        "WEIGHBRIDGE": "地磅",
+        "OTHER": "其他设备"
+      },
+      "lastSeen": "最后上线 {value}",
+      "neverSeen": "还没有上线过",
+      "available": "可以接入：在「系统集成」登记设备后就能用。",
+      "droneWaiting": "等贵司启用时，告诉我们无人机品牌和管理平台，我们再接入",
+      "mediaNote": "已接入设备送来的照片、视频，照旧在原来的地方查看。"
+    },
     "console": {
       "state": {
         "CLOSED_MANUALLY": "人工关闭",
@@ -11880,6 +11903,7 @@
       "immutableAudit": "永久记录",
       "incidentReports": "事故上报",
       "integrationSettings": "系统集成",
+      "deviceIntegration": "外部设备接入",
       "invoiceSearch": "账单管理与查询",
       "livePlatform": "平台与服务监控",
       "loginAudit": "登录记录",
@@ -18880,6 +18904,7 @@
       "viewWall": "照片",
       "viewRecords": "进度记录",
       "allPhases": "全部施工分类",
+      "search": "搜索编号、备注、施工分类、记录人",
       "selected": "已选 {count} 张",
       "select": "选这张",
       "unselect": "不选这张",

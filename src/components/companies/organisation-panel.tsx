@@ -45,7 +45,7 @@ export function OrganisationPanel() {
   const t = useTranslations("organisation");
 
   return (
-    <section className="surface-panel overflow-hidden rounded-xl">
+    <section id="company-organisation" className="surface-panel scroll-mt-20 overflow-hidden rounded-xl">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b px-4 py-4 sm:px-6">
         <p className="panel-title">{t("title")}</p>
         <p className="text-xs text-muted-foreground">{t("help")}</p>

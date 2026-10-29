@@ -3,6 +3,7 @@ import type {
   DeviceCommand,
   DeviceCommandPayload,
   DeviceMedia,
+  DeviceOverviewKind,
   DeviceTelemetry,
   IntegrationConfig,
   IntegrationDelivery,
@@ -12,6 +13,15 @@ import type {
   ThirdPartyAccessEvent,
 } from "@/interfaces/integration";
 import { api, toastSuccess } from "@/services/api-client";
+
+/** 外部设备接入 (JB69): every device kind, 已接入 / 可以接入 / 等启用. */
+export async function getDeviceOverview(company?: string): Promise<DeviceOverviewKind[]> {
+  const data = await api.get<{ kinds: DeviceOverviewKind[] }>(
+    "/api/integrations/get_device_overview/",
+    company ? { company } : undefined,
+  );
+  return data.kinds;
+}
 
 export function getIntegrations(
   query: ListQuery = {},

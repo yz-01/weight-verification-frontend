@@ -47,7 +47,7 @@ export function VisitorPrivacySection({
   const [reviewing, setReviewing] = useState(false);
   const notice = form.visitor_pdpa_notice ?? {};
   return (
-    <section className="space-y-4" data-visitor-privacy>
+    <section id="company-visitor-privacy" className="scroll-mt-20 space-y-4 rounded-xl" data-visitor-privacy>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-start gap-2">
           <ShieldCheck className="mt-0.5 size-5 text-primary" aria-hidden />

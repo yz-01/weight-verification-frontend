@@ -41,7 +41,7 @@ export function TechnicalManagement() {
     <div className="space-y-6">
       <ListHeader title={t("title")} subtitle={t("subtitle")} />
       <ServerOriginals />
-      <section className="space-y-3">
+      <section id="technical-device" className="scroll-mt-20 space-y-3 rounded-xl">
         <h2 className="panel-title">{t("device.title")}</h2>
         <DeviceUploadTools />
       </section>
@@ -63,7 +63,7 @@ function ServerOriginals() {
   const people = overview.data?.people ?? [];
 
   return (
-    <section className="surface-panel space-y-3 rounded-xl p-4" data-server-originals>
+    <section id="technical-server-originals" className="surface-panel scroll-mt-20 space-y-3 rounded-xl p-4" data-server-originals>
       <div>
         <h2 className="panel-title">{t("title")}</h2>
         <p className="mt-1 text-sm text-muted-foreground">{t("help")}</p>

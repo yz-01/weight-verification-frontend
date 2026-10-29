@@ -6683,6 +6683,8 @@
       "collapse": "Hide details of {task}",
       "dueShort": "Due {value}",
       "noDue": "No deadline",
+      "lastConfirmed": "Last confirmed {value}",
+      "lastConfirmedColumn": "Last confirmed",
       "confirmDone": "Confirm completed",
       "confirmedBy": "Confirmed by {name} · {value}",
       "returnedBy": "Returned by {name} · {value}",
@@ -9567,6 +9569,7 @@
   },
   "globalSearch": {
     "noResults": "No matching module or function",
+    "settings": "Settings",
     "open": "Open module search",
     "placeholder": "Search modules and functions"
   },
@@ -10086,6 +10089,26 @@
     }
   },
   "integrations": {
+    "deviceOverview": {
+      "title": "Device Integration",
+      "subtitle": "Every kind of external device: which are connected, which can be connected.",
+      "openSettings": "Open system integration settings",
+      "settingsHint": "Register a new device or change settings in System integrations.",
+      "state": {
+        "CONNECTED": "Connected",
+        "AVAILABLE": "Can connect",
+        "WAITING": "Waiting to enable"
+      },
+      "kind": {
+        "WEIGHBRIDGE": "Weighbridge",
+        "OTHER": "Other devices"
+      },
+      "lastSeen": "Last seen {value}",
+      "neverSeen": "Not seen yet",
+      "available": "Can connect: register the device in System integrations to use it.",
+      "droneWaiting": "When your company is ready, tell us the drone brand and management platform and we will connect it.",
+      "mediaNote": "Photos and videos from connected devices are still viewed in the same places as before."
+    },
     "console": {
       "state": {
         "CLOSED_MANUALLY": "Closed by hand",
@@ -11880,6 +11903,7 @@
       "immutableAudit": "Permanent records",
       "incidentReports": "Incident reports",
       "integrationSettings": "System integrations",
+      "deviceIntegration": "Device Integration",
       "invoiceSearch": "Invoice management and search",
       "livePlatform": "Platform and service monitoring",
       "loginAudit": "Sign-in records",
@@ -18880,6 +18904,7 @@
       "viewWall": "Photos",
       "viewRecords": "Progress updates",
       "allPhases": "All construction categories",
+      "search": "Search number, remark, category, recorder",
       "selected": "{count} selected",
       "select": "Select this photo",
       "unselect": "Unselect this photo",
