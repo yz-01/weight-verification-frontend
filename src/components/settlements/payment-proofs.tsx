@@ -42,6 +42,7 @@ import { useDateFormat } from "@/lib/dates";
 import { isRouteAllowed } from "@/lib/navigation";
 import { exportTransactions, getSettlements } from "@/services/recycler.service";
 import { FileThumbs, pictureByName } from "@/components/shared/file-thumbs";
+import { RecordSendLog } from "@/components/shared/record-send-log";
 
 export function PaymentProofs() {
   const t = useTranslations();
@@ -405,6 +406,8 @@ function PaymentProofDialog({
           </div>
         )}
 
+        {/* 发送记录 (JB65): every send of this record, to whom and whether it went. */}
+        <RecordSendLog recordKind="SETTLEMENT" recordId={settlement.id} />
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
             {t("common.close")}

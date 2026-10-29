@@ -544,6 +544,9 @@ function RowPdfButton({ row }: { row: GateIncident }) {
             load: () => recordPdfFile("GATE_INCIDENT", row.id, row.incident_no),
             title: tFile("completeEvidenceTitle", { reference: row.incident_no }),
             link: absoluteUrl(`/gate-records?gate_incident=${row.id}`),
+            project: row.project,
+            recordKind: "GATE_INCIDENT",
+            recordId: row.id,
           })
         }
       >

@@ -67,6 +67,7 @@ import {
   setClaimPayment,
 } from "@/services/contractor-ops.service";
 import { clickOpensRow } from "@/components/shared/inside-row-control";
+import { RecordSendLog } from "@/components/shared/record-send-log";
 
 /**
  * Claim Engine - this period's claim, what is already claimed, and the money
@@ -815,6 +816,8 @@ function ClaimSheet({ id, onClose }: { id: string; onClose: () => void }) {
               )}
             </section>
             )}
+            {/* 发送记录 (JB65): the claim's file is its package's. */}
+            {data.package ? <RecordSendLog recordKind="EVIDENCE_PACKAGE" recordId={data.package} /> : null}
           </div>
         )}
       </div>
@@ -856,6 +859,10 @@ function ClaimSheet({ id, onClose }: { id: string; onClose: () => void }) {
                 load: () => previewEvidencePackage(data.package as string, data.claim_no),
                 loadToSend: () => evidencePackageFile(data.package as string, data.claim_no),
                 title: data.claim_no,
+                // JB65 fix: the claim's file is its package's.
+                project: data.project,
+                recordKind: "EVIDENCE_PACKAGE",
+                recordId: data.package as string,
               }}
             />
           )}

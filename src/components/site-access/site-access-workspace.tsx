@@ -97,6 +97,7 @@ import { signFileAction } from "@/services/file-action.service";
 import { FileThumbs } from "@/components/shared/file-thumbs";
 import { VisitorConsent, useVisitorNotice } from "@/components/site-access/visitor-consent";
 import { clickOpensRow } from "@/components/shared/inside-row-control";
+import { RecordSendLog } from "@/components/shared/record-send-log";
 
 /** The status filter's "approved, running out within the week" choice. */
 const EXPIRING = "expiring";
@@ -1228,6 +1229,8 @@ export function PassDetail({
             ))}
           </div>
         )}
+        {/* 发送记录 (JB65): every send of this record, to whom and whether it went. */}
+        <RecordSendLog recordKind="ACCESS_PASS" recordId={row.id} />
         <DialogFooter>
           <Button onClick={onClose}>{t("action.close")}</Button>
         </DialogFooter>

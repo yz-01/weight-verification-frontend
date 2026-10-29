@@ -17,7 +17,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 
-import { PackageShareDialog, type PackageShareWhat } from "@/components/contractor-ops/package-share";
+import { packageRecord, usePackageSend, type PackageShareWhat } from "@/components/contractor-ops/package-share";
 import { Shell } from "@/components/contractor-ops/package-shell";
 import { LoadedFileThumb } from "@/components/shared/file-thumbs";
 import { OptionCombobox } from "@/components/material-requests/option-combobox";
@@ -599,6 +599,7 @@ function OfficeChat({ pkg, recipients }: { pkg: EvidencePackageDetail; recipient
           <LoadFailed what={t("exchange.tab.chat")} onRetry={() => void thread.refetch()} />
         ) : (
           <ThreadView
+            record={packageRecord(pkg)}
             messages={thread.data ?? []}
             loading={thread.isLoading}
             items={pkg.items.map((item) => ({ id: item.id, label: item.reference || t(`kind.${item.record_kind}`) }))}
@@ -630,6 +631,7 @@ export function ThreadView({
   canWrite,
   onSend,
   openAttachment,
+  record,
 }: {
   messages: PackageMessage[];
   loading?: boolean;
@@ -639,6 +641,8 @@ export function ThreadView({
   canWrite: boolean;
   onSend: (payload: { body: string; item?: string; attachment?: File | null }) => Promise<unknown>;
   openAttachment: (message: PackageMessage) => Promise<File>;
+  /** The package an attachment's 打印 / 导出 / 发送 row is filed under (JB65 fix). */
+  record?: { recordKind: string; recordId: string; project?: string };
 }) {
   const t = useTranslations("multiEngine");
   const formatter = useDateFormat();
@@ -703,6 +707,7 @@ export function ThreadView({
                         void files.run("preview", {
                           load: () => openAttachment(message),
                           title: message.attachment_name,
+                          ...record,
                         })
                       }
                     />
@@ -819,7 +824,7 @@ function RoundsBlock({ pkg, onChanged }: { pkg: EvidencePackageDetail; onChanged
   // JB63 (客户 10-28: 「从「轮次」点击发送…系统内部没有留下发送成功的记录」):
   // a round's 「发送」 and the 往来记录's go through the package's own send,
   // which writes 发送记录 - the same share window as before.
-  const [sending, setSending] = useState<PackageShareWhat | null>(null);
+  const packageSend = usePackageSend(pkg, onChanged);
   const sendButton = (what: PackageShareWhat) => (
     <Button
       type="button"
@@ -827,7 +832,8 @@ function RoundsBlock({ pkg, onChanged }: { pkg: EvidencePackageDetail; onChanged
       variant="outline"
       data-package-send
       title={fileWords("shareHint")}
-      onClick={() => setSending(what)}
+      disabled={Boolean(packageSend.busy)}
+      onClick={() => packageSend.send(what)}
     >
       <Share2 className="size-3.5" />
       {fileWords("share")}
@@ -862,6 +868,7 @@ function RoundsBlock({ pkg, onChanged }: { pkg: EvidencePackageDetail; onChanged
                   load: () => previewEvidencePackage(pkg.id, `${pkg.name}-${round.number}`, round.number),
                   loadToSend: () => evidencePackageFile(pkg.id, `${pkg.name}-${round.number}`, round.number),
                   title: `${pkg.package_no || pkg.name} · ${t("exchange.round", { n: round.number })}`,
+                  ...packageRecord(pkg, `R${round.number}`),
                 }}
               />
               {sendButton({ round: round.number })}
@@ -883,14 +890,13 @@ function RoundsBlock({ pkg, onChanged }: { pkg: EvidencePackageDetail; onChanged
                 return file;
               },
               title: `${pkg.package_no || pkg.name} · ${t("exchange.report")}`,
+              ...packageRecord(pkg, "TRANSCRIPT"),
             }}
           />
           {sendButton({ transcript: true })}
         </div>
       </div>
-      {sending && (
-        <PackageShareDialog pkg={pkg} what={sending} onClose={() => setSending(null)} onLogged={onChanged} />
-      )}
+      {packageSend.element}
     </div>
   );
 }

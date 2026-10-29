@@ -45,8 +45,6 @@ import type {
   ClaimState,
   EvidencePackageDetail,
   EvidencePackageRow,
-  PackageShare,
-  PackageShareChannel,
   PackageLinkResult,
   PackStatus,
   RecordPackageRow,
@@ -1516,28 +1514,6 @@ export async function updateEvidencePackage(
     payload,
   );
   toastSuccess("multiEngine.toast.saved");
-  return row;
-}
-
-/**
- * 「对外分享」 written down (JB51): 已发起分享. Sent once the file is in the
- * person's hands; the toast is the screen's own.
- */
-export const logPackageShare = (
-  id: string,
-  payload: {
-    channel: PackageShareChannel;
-    target: string;
-    /** JB63: a round's 「发送」 names its round; the 往来记录 PDF says TRANSCRIPT. */
-    round?: number;
-    document?: "TRANSCRIPT";
-  },
-) => api.post<PackageShare>(`/api/evidence-packages/${id}/log_share/`, payload);
-
-/** 「标记为已发送」 (JB51): 已发起分享 → 已确认发送. */
-export async function confirmPackageShare(id: string, share: string) {
-  const row = await api.post<PackageShare>(`/api/evidence-packages/${id}/confirm_share/`, { share });
-  toastSuccess("multiEngine.share.markedToast");
   return row;
 }
 

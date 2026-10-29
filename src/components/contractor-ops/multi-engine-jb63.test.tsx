@@ -22,9 +22,6 @@ import { describe, expect, it, vi } from "vitest";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import type { EvidencePackageDetail } from "@/interfaces/contractor-ops";
 import { recordAttachmentsKey } from "@/components/shared/record-attachments";
-import en from "@/messages/en.json";
-import ms from "@/messages/ms.json";
-import zhTW from "@/messages/zh-TW.json";
 import zh from "@/messages/zh.json";
 
 vi.mock("next/navigation", () => ({
@@ -185,27 +182,18 @@ describe("JB63 一: records and uploaded files in one order", () => {
 describe("JB63 二: 对外分享 sends the file itself", () => {
   const dialog = source("src/components/contractor-ops/package-share.tsx");
 
-  it("goes through the share window like 轮次 did, not a text-only WhatsApp link", () => {
+  it("goes through the system's one 发送 (JB64), not a text-only WhatsApp link", () => {
     expect(dialog).toContain('run("share"');
-    expect(dialog).toContain("onShared");
+    expect(dialog).toContain("onLogged");
     expect(dialog).not.toContain("whatsappHref");
     expect(dialog).not.toContain("wa.me");
   });
 
   it("the shared file actions tell the caller only when an app took the file", () => {
     const actions = source("src/components/shared/file-actions.tsx");
-    expect(actions).toMatch(/outcome === "shared"\) \{\s+toast\.success\(t\("shared"\)\);\s+held\.source\.onShared\?\.\(\);/);
+    // JB64 fix: no 「已发送」 toast where 「发出去了吗？」 follows.
+    expect(actions).toMatch(/if \(!held\.share\) toast\.success\(t\("shared"\)\);\s+held\.source\.onShared\?\.\(\);/);
     expect(actions).not.toMatch(/cancelled[^\n]*onShared/);
-  });
-
-  it("says what happens next in every language", () => {
-    for (const messages of [zh, zhTW, en, ms]) {
-      for (const channel of ["WHATSAPP", "EMAIL", "DOWNLOAD"] as const) {
-        expect(messages.multiEngine.share.go[channel]).toBeTruthy();
-        expect(messages.multiEngine.share.handed[channel]).toBeTruthy();
-      }
-      expect(messages.multiEngine.share.how.WHATSAPP).toBeTruthy();
-    }
   });
 });
 
@@ -215,7 +203,7 @@ describe("JB63 三: every send is written down, with which file", () => {
     expect(exchange).toContain("sendButton({ round: round.number })");
     expect(exchange).toContain("sendButton({ transcript: true })");
     expect(exchange.match(/omit=\{\["share"\]\}/g)).toHaveLength(2);
-    expect(exchange).toContain("<PackageShareDialog");
+    expect(exchange).toContain("usePackageSend(pkg, onChanged)");
   });
 
   it("发送记录 names the round or the 往来记录", () => {
@@ -226,25 +214,35 @@ describe("JB63 三: every send is written down, with which file", () => {
       shares: [
         {
           id: "s1",
-          channel: "WHATSAPP",
-          target: "boss ku",
-          status: "STARTED",
-          round_no: 1,
-          document: "",
+          method: "WHATSAPP",
+          recipient_name: "boss ku",
+          recipient_company: "",
+          recipient_contact: "0123456789",
+          status: "OPENED",
+          part: "R1",
+          subject: "",
+          file_name: "",
+          record_kind: "EVIDENCE_PACKAGE",
+          record_id: "pk1",
           created_at: "2026-10-28T12:26:00Z",
-          created_by_name: "test",
+          sent_by_name: "test",
           confirmed_at: null,
           confirmed_by_name: "",
         },
         {
           id: "s2",
-          channel: "EMAIL",
-          target: "",
-          status: "STARTED",
-          round_no: null,
-          document: "TRANSCRIPT",
+          method: "EMAIL",
+          recipient_name: "QS",
+          recipient_company: "",
+          recipient_contact: "qs@owner.test",
+          status: "OPENED",
+          part: "TRANSCRIPT",
+          subject: "",
+          file_name: "",
+          record_kind: "EVIDENCE_PACKAGE",
+          record_id: "pk1",
           created_at: "2026-10-28T12:30:00Z",
-          created_by_name: "test",
+          sent_by_name: "test",
           confirmed_at: null,
           confirmed_by_name: "",
         },
@@ -254,6 +252,6 @@ describe("JB63 三: every send is written down, with which file", () => {
     expect(html).toContain("第 1 轮");
     expect(html).toContain(zh.multiEngine.exchange.report);
     expect(html).toContain("boss ku");
-    expect(html).toContain(zh.multiEngine.sendLog.STARTED);
+    expect(html).toContain(zh.fileActions.send.status.OPENED);
   });
 });

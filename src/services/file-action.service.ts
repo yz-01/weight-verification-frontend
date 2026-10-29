@@ -12,7 +12,13 @@
  * API client opens on `sign_off_pin_required` (`lib/sign-off`).
  */
 import type { ListQuery, Paginated } from "@/interfaces/api";
-import type { FileActionRecord, FileActionType } from "@/interfaces/file-action";
+import type {
+  FileActionRecord,
+  FileActionType,
+  FileShare,
+  SendMethod,
+  SendRecipient,
+} from "@/interfaces/file-action";
 import { isDriverSessionContext, isFieldSessionContext } from "@/lib/auth-token";
 import { api } from "@/services/api-client";
 
@@ -29,6 +35,8 @@ export interface FileActionDetails {
   /** Where it opens in the back office; an address on this site is kept as its path. */
   link?: string;
   channel?: string;
+  /** JB64: which of the record's files went (a package's `R2` / `TRANSCRIPT`). */
+  part?: string;
 }
 
 /**
@@ -70,24 +78,26 @@ export async function authorizeFileAction(action: FileActionType): Promise<strin
 
 /**
  * Write the log row - with the grant `authorizeFileAction` gave, or, without
- * one, asking for the PIN itself. True when it was written: only then may
- * the file be printed, saved or sent.
+ * one, asking for the PIN itself. The row when it was written: only then may
+ * the file be printed, saved or sent. A send names its recipient (JB64), and
+ * its row carries the share (已打开分享窗口) the person confirms afterwards.
  */
 export async function recordFileAction(
   action: FileActionType,
   details: FileActionDetails,
   grant?: string | null,
-): Promise<boolean> {
+  recipient?: SendRecipient | null,
+): Promise<FileActionRecord | null> {
   try {
-    await api.post("/api/file-actions/record/", {
+    return await api.post<FileActionRecord>("/api/file-actions/record/", {
       ...details,
       link: linkPath(details.link),
       action,
+      ...(recipient ?? {}),
       ...(grant ? { grant } : {}),
     });
-    return true;
   } catch {
-    return false;
+    return null;
   }
 }
 
@@ -98,10 +108,28 @@ export async function recordFileAction(
  */
 export function signFileAction(action: FileActionType, details: FileActionDetails): Promise<boolean> {
   if (!signsFileActions()) return Promise.resolve(true);
-  return recordFileAction(action, details);
+  return recordFileAction(action, details).then(Boolean);
 }
 
 /** 「操作记录」: the prints, downloads and sends this person may read. */
 export function getFileActionRecords(query: ListQuery = {}): Promise<Paginated<FileActionRecord>> {
   return api.list("/api/file-actions/get_records/", query);
+}
+
+/** 「发送记录」 of one record (JB65): every send, newest first. */
+export function getRecordShares(recordKind: string, recordId: string): Promise<FileShare[]> {
+  return api.get<FileShare[]>("/api/file-actions/get_shares/", {
+    record_kind: recordKind,
+    record_id: recordId,
+  });
+}
+
+/** 「已发送」 / 「标记为已发送」 (JB64): 已打开分享窗口 → 已确认发送. */
+export function confirmFileShare(share: string): Promise<FileShare> {
+  return api.post<FileShare>("/api/file-actions/confirm_share/", { share });
+}
+
+/** The people this company sent to lately (JB64), newest first. */
+export function getRecentRecipients(method?: SendMethod): Promise<SendRecipient[]> {
+  return api.get<SendRecipient[]>("/api/file-actions/get_recent_recipients/", method ? { method } : {});
 }

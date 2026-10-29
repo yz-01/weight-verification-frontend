@@ -8,6 +8,7 @@ import { useState } from "react";
 import { RecordExportButton } from "@/components/shared/record-export-button";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
+import { RecordSendLog } from "@/components/shared/record-send-log";
 import {
   FormSection,
   FormSkeleton,
@@ -301,6 +302,8 @@ export function ViewSettlement({ id }: { id: string }) {
           onClose={() => setPaying(false)}
         />
       )}
+      {/* 发送记录 (JB65): every send of this record, to whom and whether it went. */}
+      <RecordSendLog recordKind="SETTLEMENT" recordId={data.id} />
     </div>
   );
 }

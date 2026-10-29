@@ -228,6 +228,9 @@ function ReviewSheet({ id, onClose }: { id: string; onClose: () => void }) {
                   load: () => reviewPackageFile(id, data.package_no || data.name, true),
                   loadToSend: () => reviewPackageFile(id, data.package_no || data.name),
                   title: data.package_no || data.name,
+                  project: data.project,
+                  recordKind: "EVIDENCE_PACKAGE",
+                  recordId: id,
                 }}
               />
             </div>
@@ -271,6 +274,9 @@ function ReviewSheet({ id, onClose }: { id: string; onClose: () => void }) {
                         source={{
                           load: () => reviewPackageItemFile(id, item.id, item.reference, true),
                           title: item.reference || t(`kind.${item.record_kind}`),
+                          project: data.project,
+                          recordKind: item.record_kind,
+                          recordId: item.record_id,
                         }}
                       />
                     </div>
@@ -363,6 +369,7 @@ function ReviewSheet({ id, onClose }: { id: string; onClose: () => void }) {
                 <LoadFailed what={t("exchange.tab.chat")} onRetry={() => void thread.refetch()} />
               ) : (
                 <ThreadView
+                  record={{ recordKind: "EVIDENCE_PACKAGE", recordId: id, project: data.project }}
                   messages={thread.data ?? []}
                   loading={thread.isLoading}
                   items={data.items.map((item) => ({ id: item.id, label: item.reference || t(`kind.${item.record_kind}`) }))}

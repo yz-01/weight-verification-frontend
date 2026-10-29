@@ -171,11 +171,18 @@ const base = {
   shares: [
     {
       id: "s1",
-      channel: "WHATSAPP",
-      target: "",
-      status: "STARTED",
       created_at: "2026-10-04T02:00:00Z",
-      created_by_name: "Tan",
+      sent_by_name: "Tan",
+      method: "WHATSAPP",
+      recipient_name: "Ah Kow",
+      recipient_company: "Owner Sdn Bhd",
+      recipient_contact: "012-345 6789",
+      subject: "PKG-1",
+      file_name: "pkg-1.pdf",
+      record_kind: "EVIDENCE_PACKAGE",
+      record_id: "pk1",
+      part: "",
+      status: "OPENED",
       confirmed_at: null,
       confirmed_by_name: "",
     },
@@ -220,16 +227,19 @@ describe("JB51: two ways out, and what happened", () => {
     expect(zh.multiEngine.exchange.send).toContain("系统内发送");
   });
 
-  it("lists both sends in 「发送记录」, newest first, with 未指定 and 标记为已发送", () => {
+  it("lists both sends in 「发送记录」, newest first, with the recipient and 标记为已发送", () => {
     const html = sheet();
     expect(html).toContain("data-send-log");
     const log = html.slice(html.indexOf("data-send-log"));
     expect(log.indexOf(zh.multiEngine.sendLog.external)).toBeLessThan(log.indexOf(zh.multiEngine.sendLog.internal));
-    expect(log).toContain(zh.multiEngine.sendLog.unspecified);
-    expect(log).toContain(zh.multiEngine.share.markSent);
+    // JB64: to whom, which company, which number - and 已打开分享窗口.
+    expect(log).toContain("Ah Kow");
+    expect(log).toContain("Owner Sdn Bhd");
+    expect(log).toContain("012-345 6789");
+    expect(log).toContain(zh.fileActions.send.log.markSent);
     expect(log).toContain("data-mark-sent");
     expect(log).toContain(zh.multiEngine.sendLog.notOpened);
-    expect(log).toContain(zh.multiEngine.sendLog.STARTED);
+    expect(log).toContain(zh.fileActions.send.status.OPENED);
   });
 
   it("a confirmed share says who marked it and offers no second press", () => {
@@ -238,7 +248,7 @@ describe("JB51: two ways out, and what happened", () => {
       shares: [{ ...base.shares![0], status: "CONFIRMED", confirmed_at: "2026-10-05T02:00:00Z", confirmed_by_name: "Lim" }],
     });
     const log = html.slice(html.indexOf("data-send-log"));
-    expect(log).toContain(zh.multiEngine.sendLog.CONFIRMED);
+    expect(log).toContain(zh.fileActions.send.status.CONFIRMED);
     expect(log).toContain("Lim");
     expect(log).not.toContain("data-mark-sent");
   });
@@ -255,7 +265,8 @@ describe("JB51: two ways out, and what happened", () => {
         expect(messages.multiEngine.sendStatus[key]).toBeTruthy();
       }
     }
-    expect(zh.multiEngine.sendStatus.STARTED).toBe("已发起分享");
+    // JB64: 「必须区分「已打开分享窗口」与「已确认发送」」.
+    expect(zh.multiEngine.sendStatus.STARTED).toBe("已打开分享窗口");
     expect(zh.multiEngine.sendStatus.SENT).toBe("已对外发送");
   });
 });

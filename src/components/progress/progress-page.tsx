@@ -18,10 +18,10 @@
  */
 
 import { useQuery } from "@tanstack/react-query";
-import { Loader2, PenLine } from "lucide-react";
+import { Loader2, PenLine, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { SiteProgressOffice } from "@/components/contractor-ops/office-module-lists";
 import { DailyReportDialog, DailyReportView, DailyReportsTab } from "@/components/progress/daily-reports";
@@ -40,8 +40,10 @@ import { NewPhaseDialog } from "@/components/progress/new-phase-dialog";
 import { FilterBar, ListHeader, QueryFailedNote } from "@/components/shared/page-primitives";
 import { SchedulePlanningWorkspace } from "@/components/schedule-planning/schedule-planning-workspace";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ExportButton } from "@/components/shared/export-button";
+import { useDebounce } from "@/hooks/use-debounce";
 import { useListQuery } from "@/hooks/use-list-query";
 import type { DailyReport } from "@/interfaces/progress-reports";
 import { cn } from "@/lib/utils";
@@ -165,7 +167,8 @@ function PhotoViewSwitch() {
     const query = new URLSearchParams();
     query.set("tab", "photos");
     if (next === "records") query.set("view", "records");
-    for (const key of ["project", "phase", "date_from", "date_to"]) {
+    // The 搜索 too (JB68): both views read the same `search`.
+    for (const key of ["project", "phase", "date_from", "date_to", "search"]) {
       const value = params.get(key);
       if (value) query.set(key, value);
     }
@@ -194,6 +197,44 @@ function PhotoViewSwitch() {
 const WALL_PAGE = 48;
 
 /**
+ * 搜索 on the photo wall (JB68, Lucas 10-29: 「10,000张照片怎么处理」): type a
+ * record number (PG-015), a remark, a 施工分类 or who recorded it; it works
+ * with the 施工分类 and date filters. Applied a moment after typing stops, as
+ * the 进度记录 list's search box is.
+ */
+export function PhotoSearch({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  const t = useTranslations("progressPage.photos");
+  const [draft, setDraft] = useState(value);
+  const typed = useDebounce(draft.trim(), 300);
+  useEffect(() => {
+    if (typed !== value) onChange(typed);
+    // Only the typed words push a change; reacting to `value` here would
+    // fight the address when the back button restores it.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [typed]);
+  return (
+    <div className="relative w-full min-w-0 sm:w-64">
+      <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+      <Input
+        type="search"
+        value={draft}
+        onChange={(event) => setDraft(event.target.value)}
+        aria-label={t("search")}
+        placeholder={t("search")}
+        className="bg-card pl-9"
+        data-testid="progress-photo-search"
+      />
+    </div>
+  );
+}
+
+/**
  * 现场照片: every progress photograph, newest first, found by day and
  * 施工分类. 「填写日报告」 writes the report of the days shown - every record
  * and photograph of them, nothing ticked (H15, HD12).
@@ -204,10 +245,12 @@ export function SitePhotosTab() {
   const { can } = useAuth();
   const list = useListQuery(["project", "phase", "date_from", "date_to"]);
   const project = list.filters.project ?? "";
+  // 搜索 (JB68): the record's number, remark, 施工分类 and recorder.
+  const search = list.search || undefined;
   const photos = useQuery({
-    queryKey: ["progress-photos", "wall", list.filters, list.page],
+    queryKey: ["progress-photos", "wall", list.filters, search, list.page],
     queryFn: () =>
-      getProgressPhotos({ ...list.filters, page: list.page, page_size: WALL_PAGE }),
+      getProgressPhotos({ ...list.filters, search, page: list.page, page_size: WALL_PAGE }),
   });
   const phases = useQuery({
     queryKey: ["construction-phases", project],
@@ -226,6 +269,7 @@ export function SitePhotosTab() {
     <div className="space-y-4">
       <FilterBar>
         <PhotoViewSwitch />
+        <PhotoSearch value={list.search} onChange={list.setSearch} />
         <ProjectListFilter list={list} />
         <FilterSelect
           list={list}
@@ -255,7 +299,7 @@ export function SitePhotosTab() {
             exportProgressPhotos({
               format,
               title: t("tabs.photos"),
-              query: list.filters,
+              query: { ...list.filters, search },
               columns: [
                 { key: "captured_at", label: tOps("progress.capturedAt") },
                 { key: "project_name", label: tOps("field.project") },

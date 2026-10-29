@@ -81,6 +81,7 @@ import {
   RecordCorrectionButton,
   RecordCorrectionHistory,
 } from "@/components/shared/record-correction";
+import { compactStamp } from "@/lib/compact-stamp";
 import { useDateFormat } from "@/lib/dates";
 import { isSignOffCancelled } from "@/lib/sign-off";
 import { parseRecordNo } from "@/lib/record-no";
@@ -1001,6 +1002,9 @@ export function FieldTasksWorkspace({
       askFor.has(`askOption.${code}`) ? askFor(`askOption.${code}` as never) : null,
     );
   const { can, user } = useAuth();
+  const df = useDateFormat();
+  const companyTimeZone =
+    user?.company_preferences?.timezone || user?.timezone || "Asia/Kuala_Lumpur";
   const flow = useTranslations("taskFlow");
   const stageLabel = (status: FieldTask["status"]) => {
     const key = fieldTaskStageKey(status);
@@ -1060,6 +1064,9 @@ export function FieldTasksWorkspace({
     queryFn: () =>
       getFieldTasks({
         page_size: 200,
+        // 「根据最后确认时间的排序」 (JB63, client 10-29): newest on top.
+        sort_by: "last_confirmed_at",
+        sort_order: "desc",
         project: project || undefined,
         task_type: taskType,
         ...filters,
@@ -1191,6 +1198,7 @@ export function FieldTasksWorkspace({
                       { key: "result_note", label: t("field.notes") },
                       { key: "reviewed_by_name", label: flow("fieldTasks.confirmedBy") },
                       { key: "reviewed_at", label: flow("fieldTasks.confirmedAt") },
+                      { key: "last_confirmed_at", label: t("tasks.lastConfirmedColumn") },
                     ],
                   })
                 }
@@ -1387,6 +1395,19 @@ export function FieldTasksWorkspace({
                           )}
                           {row.project_name}
                         </span>
+                        {/* 最后确认时间 (JB63): the date the list is ordered by. */}
+                        {row.last_confirmed_at ? (
+                          <span
+                            className="tabular block whitespace-nowrap text-xs text-muted-foreground"
+                            data-testid="field-task-last-confirmed"
+                            title={df.dateTime(row.last_confirmed_at)}
+                          >
+                            {/* 「28/10 14:35」, never cut short (JB71 fix round). */}
+                            {t("tasks.lastConfirmed", {
+                              value: compactStamp(row.last_confirmed_at, companyTimeZone, df.time(row.last_confirmed_at)),
+                            })}
+                          </span>
+                        ) : null}
                       </span>
                       <span className="truncate text-sm">{row.assigned_to_name}</span>
                       <span className="tabular truncate text-sm text-muted-foreground">

@@ -6683,6 +6683,8 @@
       "collapse": "收起「{task}」",
       "dueShort": "期限 {value}",
       "noDue": "無期限",
+      "lastConfirmed": "最後確認時間 {value}",
+      "lastConfirmedColumn": "最後確認時間",
       "confirmDone": "確認完成",
       "confirmedBy": "{name} 已確認 · {value}",
       "returnedBy": "{name} 已退回 · {value}",
@@ -7090,7 +7092,9 @@
         "anyAction": "全部操作",
         "name": "報表 / 資料名稱",
         "nameHint": "報表或文件名稱",
-        "clear": "清除篩選"
+        "clear": "清除篩選",
+        "recipient": "接收方",
+        "recipientHint": "姓名、公司、電話或 Email"
       },
       "action": {
         "PRINT": "列印",
@@ -7123,7 +7127,9 @@
         "action": "操作類型",
         "subject": "業務事項 / 報表 / 文件",
         "openReport": "打開報表",
-        "openRecord": "打開記錄"
+        "openRecord": "打開記錄",
+        "recipient": "發給誰",
+        "status": "發送狀態"
       },
       "count": "共 {count} 筆 · 第 {page} / {pages} 頁",
       "regenerating": "正在重新生成…",
@@ -9563,6 +9569,7 @@
   },
   "globalSearch": {
     "noResults": "找不到相符的模塊或功能",
+    "settings": "設定",
     "open": "打開功能搜索",
     "placeholder": "搜索模塊和功能"
   },
@@ -10082,6 +10089,26 @@
     }
   },
   "integrations": {
+    "deviceOverview": {
+      "title": "外部設備接入",
+      "subtitle": "每種外部設備：已經接入了哪些，還可以接入哪些。",
+      "openSettings": "打開系統集成設定",
+      "settingsHint": "登記新設備、改設定，都在「系統集成」裡做。",
+      "state": {
+        "CONNECTED": "已接入",
+        "AVAILABLE": "可以接入",
+        "WAITING": "等啟用"
+      },
+      "kind": {
+        "WEIGHBRIDGE": "地磅",
+        "OTHER": "其他設備"
+      },
+      "lastSeen": "最後上線 {value}",
+      "neverSeen": "還沒有上線過",
+      "available": "可以接入：在「系統集成」登記設備後就能用。",
+      "droneWaiting": "等貴司啟用時，告訴我們無人機品牌和管理平台，我們再接入",
+      "mediaNote": "已接入設備送來的照片、影片，照舊在原來的地方查看。"
+    },
     "console": {
       "state": {
         "CLOSED_MANUALLY": "人工關閉",
@@ -11447,39 +11474,11 @@
     "sendStatus": {
       "NOT_SENT": "未發送",
       "INTERNAL": "已發送系統內",
-      "STARTED": "已發起分享",
+      "STARTED": "已打開分享視窗",
       "SENT": "已對外發送"
     },
     "share": {
-      "button": "對外分享（WhatsApp / 電郵）",
-      "title": "對外分享（WhatsApp / 電郵）",
-      "channel": "怎麼發出去",
-      "WHATSAPP": "WhatsApp",
-      "EMAIL": "電郵",
-      "DOWNLOAD": "只下載",
-      "target": "發給誰（名字、號碼或電郵）",
-      "targetHint": "可以不填。不填會記成「未指定」。",
-      "afterSent": "系統看不到對方有沒有收到。確認對方收到後，請在「發送記錄」按「標記為已發送」。",
-      "done": "好了",
-      "message": "請查收資料包：{name}",
-      "notLogged": "檔案已經發出，但這次發送沒有記下來。請關掉再發一次。",
-      "markSent": "標記為已發送",
-      "markedToast": "已標記為已發送。",
-      "sendTitle": "發送",
-      "go": {
-        "WHATSAPP": "發送到 WhatsApp",
-        "EMAIL": "用電郵發送",
-        "DOWNLOAD": "下載檔案"
-      },
-      "how": {
-        "WHATSAPP": "按「發送到 WhatsApp」後，電腦會開啟分享視窗：選 WhatsApp，再選聯絡人，PDF 檔案會直接發過去。",
-        "EMAIL": "按「用電郵發送」後，電腦會開啟分享視窗：選電郵（例如 Outlook），PDF 檔案會自動附上。"
-      },
-      "handed": {
-        "WHATSAPP": "檔案已交給 WhatsApp，已記下：已發起分享。",
-        "EMAIL": "檔案已交給電郵，已記下：已發起分享。",
-        "DOWNLOAD": "檔案已下載到電腦的「下載」資料夾，已記下。"
-      }
+      "button": "對外分享（WhatsApp / 電郵）"
     },
     "sendLog": {
       "title": "發送記錄",
@@ -11487,14 +11486,9 @@
       "internal": "系統內發送",
       "external": "對外分享",
       "by": "{name} · {when}",
-      "to": "對象：{target}",
-      "unspecified": "未指定",
       "opened": "已開啟（{when}）",
       "notOpened": "還沒開啟",
-      "revoked": "已撤銷",
-      "STARTED": "已發起分享",
-      "CONFIRMED": "已確認發送",
-      "confirmedBy": "{name} 於 {when} 標記為已發送"
+      "revoked": "已撤銷"
     },
     "orderHint": "系統記錄和電腦上傳的檔案都在這裡，用箭頭調到最前、中間或最後，PDF 就按從上到下的順序生成。",
     "moveFirst": "移到最前",
@@ -11909,6 +11903,7 @@
       "immutableAudit": "永久記錄",
       "incidentReports": "事故上報",
       "integrationSettings": "系統集成",
+      "deviceIntegration": "外部設備接入",
       "invoiceSearch": "賬單管理與查詢",
       "livePlatform": "平臺與服務監控",
       "loginAudit": "登錄記錄",
@@ -18697,7 +18692,7 @@
     "save": "匯出",
     "share": "發送",
     "shareHint": "「發送」只是把檔案分享出去，不是系統內的審批或簽收確認。",
-    "shared": "檔案已發送。發送檔案不等於審批或簽收確認。",
+    "shared": "檔案已交給所選的應用程式。發送檔案不等於審批或簽收確認。",
     "failed": "檔案沒有準備好，請再試一次。",
     "preparing": "檔案準備中",
     "openNewTab": "新分頁開啟",
@@ -18720,7 +18715,47 @@
     "printInViewer": "檔案已用手機的閱讀器開啟，請選「分享」→「列印」。",
     "completeEvidence": "完整證據 PDF",
     "completeEvidenceHint": "主表、照片、附件內容（Word、Excel、PDF 轉為可列印頁面）、審批記錄及簽名、溝通記錄合成一份 PDF；原始檔案保持不變。",
-    "completeEvidenceTitle": "完整證據 · {reference}"
+    "completeEvidenceTitle": "完整證據 · {reference}",
+    "send": {
+      "title": "發給誰？",
+      "intro": "系統看不到檔案發給了誰，請先填好對方資料，再輸入密碼。",
+      "method": "怎麼發",
+      "WHATSAPP": "WhatsApp",
+      "EMAIL": "Email",
+      "OTHER": "其他",
+      "DOWNLOAD": "下載",
+      "name": "對方姓名",
+      "company": "對方公司",
+      "optional": "可不填",
+      "phone": "對方電話",
+      "email": "對方 Email",
+      "contact": "電話或 Email",
+      "phoneHint": "例如 012-345 6789",
+      "phoneBad": "電話號碼不對，請再看一下。",
+      "emailBad": "Email 不對，請再看一下（要有 @）。",
+      "recent": "最近發過的人，點一下就填好：",
+      "next": "下一步：輸入密碼",
+      "askTitle": "發出去了嗎？",
+      "askBody": "發給 {name}：{file}",
+      "yes": "已發送",
+      "no": "沒有發",
+      "confirmed": "已記下：已確認發送。",
+      "keptOpened": "好的，記錄是「已打開分享視窗」。以後發了，可以在「發送記錄」按「標記為已發送」。",
+      "confirmFailed": "沒有記下來。請在這筆記錄的「發送記錄」按「標記為已發送」。",
+      "status": {
+        "OPENED": "已打開分享視窗",
+        "CONFIRMED": "已確認發送"
+      },
+      "log": {
+        "title": "發送記錄",
+        "empty": "還沒有發送過。",
+        "what": "發送記錄",
+        "by": "{name} 發送 · {when}",
+        "confirmedBy": "{name} 於 {when} 確認已發送",
+        "markSent": "標記為已發送",
+        "noContact": "沒有填電話或 Email"
+      }
+    }
   },
   "recordAttachments": {
     "title": "附件",
@@ -18869,6 +18904,7 @@
       "viewWall": "照片",
       "viewRecords": "進度記錄",
       "allPhases": "全部施工分類",
+      "search": "搜尋編號、備註、施工分類、記錄人",
       "selected": "已選 {count} 張",
       "select": "選這張",
       "unselect": "不選這張",

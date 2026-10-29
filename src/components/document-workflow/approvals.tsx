@@ -80,6 +80,7 @@ import type {
 import { useDateFormat } from "@/lib/dates";
 import { ExportButton } from "@/components/shared/export-button";
 import { RecordExportButton } from "@/components/shared/record-export-button";
+import { RecordSendLog } from "@/components/shared/record-send-log";
 import { getProjects } from "@/services/contractor.service";
 import {
   actOnApproval,
@@ -933,6 +934,8 @@ function ApprovalDetailDialog({
           />
         )}
 
+        {/* 发送记录 (JB65): every send of this record, to whom and whether it went. */}
+        <RecordSendLog recordKind="APPROVAL" recordId={record?.id} />
         <DialogFooter className="flex-wrap gap-2 sm:gap-2">
           <Button
             variant="outline"

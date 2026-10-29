@@ -54,7 +54,7 @@ export function SignOffPinSettings() {
   const state = current ? pinStatusKey(current) : null;
 
   return (
-    <div className="surface-panel rounded-xl" id="sign-off-pin">
+    <div className="surface-panel scroll-mt-20 rounded-xl" id="sign-off-pin">
       <div className="flex flex-wrap items-center gap-3 p-4 sm:px-6 sm:py-5">
         <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
           <ShieldCheck className="size-5" />

@@ -56,6 +56,8 @@ import { FileActionButtons } from "@/components/shared/file-actions";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ProjectListFilter } from "@/components/shared/module-records-table";
 import { FieldWrapper, FilterBar, QueryFailedNote } from "@/components/shared/page-primitives";
+import { RecordSendLog } from "@/components/shared/record-send-log";
+import { absoluteUrl } from "@/lib/share";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
 import {
@@ -234,6 +236,12 @@ export function ProgressSummaryTab() {
                     source={{
                       load: () => progressSummaryPdfFile(shown.id, locale, shown.title),
                       title: shown.title,
+                      // JB65 fix: the 操作记录 row is filed under its project
+                      // and opens this summary again; 发送记录 below lists it.
+                      project: shown.project,
+                      recordKind: "PROGRESS_SUMMARY",
+                      recordId: shown.id,
+                      link: absoluteUrl(`/progress?tab=summary&summary=${shown.id}`),
                     }}
                   />
                   {canWrite && !shown.archived_at && !user?.is_field_staff && (
@@ -264,6 +272,8 @@ export function ProgressSummaryTab() {
                   : draft("draftHint")}
               </p>
               <SummaryBlocksView summary={shown} />
+              {/* 发送记录 (JB65): every send of this record, to whom and whether it went. */}
+              <RecordSendLog recordKind="PROGRESS_SUMMARY" recordId={shown.id} />
             </article>
           )}
         </div>

@@ -18,7 +18,7 @@ import { useTranslations } from "next-intl";
 import { Loader2, Pencil } from "lucide-react";
 import { useState } from "react";
 
-import { FieldWrapper, StatusBadge } from "@/components/shared/page-primitives";
+import { FieldWrapper } from "@/components/shared/page-primitives";
 import { ShellPanel } from "@/components/shared/record-detail-shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -48,17 +48,6 @@ export function percentProblem(
     return "unchanged";
   }
   return null;
-}
-
-/** Whether the record's figure was ever corrected - the list's small hint. */
-export function wasCorrected(record: Pick<SiteProgressRecord, "corrections">): boolean {
-  return (record.corrections?.length ?? 0) > 0;
-}
-
-/** The small 「已修改」 tag beside a corrected figure. */
-export function EditedTag() {
-  const t = useTranslations("contractorOps.progress.correction");
-  return <StatusBadge label={t("edited")} tone="info" />;
 }
 
 /**
@@ -97,8 +86,10 @@ export function ProgressPercentFact({
   if (!editing) {
     return (
       <span className="inline-flex flex-wrap items-center gap-1.5">
+        {/* No 「已修改」 (JB67, client 10-29): the office filling in the
+            figure is its filing work, not a correction; the operation log
+            keeps who changed it from what to what. */}
         <span className="tabular">{percent(record.percent_complete)}</span>
-        {wasCorrected(record) && <EditedTag />}
         {canEdit && (
           <Button
             type="button"

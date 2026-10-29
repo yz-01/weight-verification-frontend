@@ -254,3 +254,22 @@ export interface DeviceCommandPayload {
   payload?: Record<string, unknown>;
   timeout_seconds?: number;
 }
+
+/** 外部设备接入 (JB69): one device kind and how far the company is with it. */
+export type DeviceKindState = "CONNECTED" | "AVAILABLE" | "WAITING";
+
+export interface DeviceOverviewDevice {
+  id: string;
+  device_id: string;
+  last_seen_at: string | null;
+  is_active: boolean;
+  /** The project, weighbridge or yard it is at; "" when not bound. */
+  where: string;
+}
+
+export interface DeviceOverviewKind {
+  /** An `IntegrationKind`, or WEIGHBRIDGE / OTHER. */
+  kind: string;
+  state: DeviceKindState;
+  devices: DeviceOverviewDevice[];
+}

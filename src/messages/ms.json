@@ -6683,6 +6683,8 @@
       "collapse": "Sembunyikan butiran {task}",
       "dueShort": "Tamat {value}",
       "noDue": "Tiada tarikh akhir",
+      "lastConfirmed": "Terakhir disahkan {value}",
+      "lastConfirmedColumn": "Terakhir disahkan",
       "confirmDone": "Sahkan selesai",
       "confirmedBy": "Disahkan oleh {name} · {value}",
       "returnedBy": "Dikembalikan oleh {name} · {value}",
@@ -7090,7 +7092,9 @@
         "anyAction": "Semua tindakan",
         "name": "Nama laporan / fail",
         "nameHint": "Nama laporan atau fail",
-        "clear": "Kosongkan penapis"
+        "clear": "Kosongkan penapis",
+        "recipient": "Penerima",
+        "recipientHint": "Nama, syarikat, telefon atau e-mel"
       },
       "action": {
         "PRINT": "Cetak",
@@ -7123,7 +7127,9 @@
         "action": "Tindakan",
         "subject": "Perkara / laporan / fail",
         "openReport": "Buka laporan",
-        "openRecord": "Buka rekod"
+        "openRecord": "Buka rekod",
+        "recipient": "Dihantar kepada",
+        "status": "Status penghantaran"
       },
       "count": "{count} kesemuanya · halaman {page} daripada {pages}",
       "regenerating": "Sedang dijana semula…",
@@ -9563,6 +9569,7 @@
   },
   "globalSearch": {
     "noResults": "Tiada modul atau fungsi yang sepadan",
+    "settings": "Tetapan",
     "open": "Buka carian fungsi",
     "placeholder": "Cari modul dan fungsi"
   },
@@ -10082,6 +10089,26 @@
     }
   },
   "integrations": {
+    "deviceOverview": {
+      "title": "Integrasi Peranti",
+      "subtitle": "Setiap jenis peranti luar: yang sudah disambung dan yang boleh disambung.",
+      "openSettings": "Buka tetapan integrasi sistem",
+      "settingsHint": "Daftar peranti baharu atau ubah tetapan dalam Integrasi sistem.",
+      "state": {
+        "CONNECTED": "Disambung",
+        "AVAILABLE": "Boleh disambung",
+        "WAITING": "Menunggu diaktifkan"
+      },
+      "kind": {
+        "WEIGHBRIDGE": "Jambatan timbang",
+        "OTHER": "Peranti lain"
+      },
+      "lastSeen": "Kali terakhir dilihat {value}",
+      "neverSeen": "Belum pernah dilihat",
+      "available": "Boleh disambung: daftar peranti dalam Integrasi sistem untuk menggunakannya.",
+      "droneWaiting": "Apabila syarikat anda bersedia, beritahu kami jenama dron dan platform pengurusannya, dan kami akan menyambungkannya.",
+      "mediaNote": "Foto dan video daripada peranti yang disambung masih dilihat di tempat yang sama seperti dahulu."
+    },
     "console": {
       "state": {
         "CLOSED_MANUALLY": "Ditutup secara manual",
@@ -11447,39 +11474,11 @@
     "sendStatus": {
       "NOT_SENT": "Belum dihantar",
       "INTERNAL": "Dihantar dalam sistem",
-      "STARTED": "Perkongsian dimulakan",
+      "STARTED": "Tetingkap kongsi dibuka",
       "SENT": "Dihantar ke luar"
     },
     "share": {
-      "button": "Kongsi ke luar (WhatsApp / e-mel)",
-      "title": "Kongsi ke luar (WhatsApp / e-mel)",
-      "channel": "Cara menghantar",
-      "WHATSAPP": "WhatsApp",
-      "EMAIL": "E-mel",
-      "DOWNLOAD": "Muat turun sahaja",
-      "target": "Kepada siapa (nama, nombor atau e-mel)",
-      "targetHint": "Pilihan. Jika kosong, dicatat sebagai 'Tidak dinyatakan'.",
-      "afterSent": "Sistem tidak dapat melihat sama ada ia sampai. Selepas pihak sana menerimanya, tekan 'Tanda sudah dihantar' di 'Rekod penghantaran'.",
-      "done": "Selesai",
-      "message": "Sila terima pakej yang dilampirkan: {name}",
-      "notLogged": "Fail telah dihantar, tetapi penghantaran ini tidak dicatat. Tutup dan hantar sekali lagi.",
-      "markSent": "Tanda sudah dihantar",
-      "markedToast": "Ditanda sudah dihantar.",
-      "sendTitle": "Hantar",
-      "go": {
-        "WHATSAPP": "Hantar ke WhatsApp",
-        "EMAIL": "Hantar melalui e-mel",
-        "DOWNLOAD": "Muat turun fail"
-      },
-      "how": {
-        "WHATSAPP": "Selepas 'Hantar ke WhatsApp', komputer membuka tetingkap kongsi: pilih WhatsApp, kemudian kenalan, dan fail PDF itu sendiri dihantar.",
-        "EMAIL": "Selepas 'Hantar melalui e-mel', komputer membuka tetingkap kongsi: pilih e-mel (cth. Outlook) dan PDF dilampirkan."
-      },
-      "handed": {
-        "WHATSAPP": "Fail telah diserahkan kepada WhatsApp. Dicatat: perkongsian dimulakan.",
-        "EMAIL": "Fail telah diserahkan kepada e-mel. Dicatat: perkongsian dimulakan.",
-        "DOWNLOAD": "Fail ada dalam folder Muat Turun komputer. Dicatat."
-      }
+      "button": "Kongsi ke luar (WhatsApp / e-mel)"
     },
     "sendLog": {
       "title": "Rekod penghantaran",
@@ -11487,14 +11486,9 @@
       "internal": "Dihantar dalam sistem",
       "external": "Dikongsi ke luar",
       "by": "{name} · {when}",
-      "to": "Kepada: {target}",
-      "unspecified": "Tidak dinyatakan",
       "opened": "Dibuka ({when})",
       "notOpened": "Belum dibuka",
-      "revoked": "Dibatalkan",
-      "STARTED": "Perkongsian dimulakan",
-      "CONFIRMED": "Disahkan dihantar",
-      "confirmedBy": "Ditanda sudah dihantar oleh {name} pada {when}"
+      "revoked": "Dibatalkan"
     },
     "orderHint": "Rekod sistem dan fail yang dimuat naik dari komputer semuanya di sini. Guna anak panah untuk letak di atas, tengah atau bawah; PDF dibuat dari atas ke bawah.",
     "moveFirst": "Pindah ke atas sekali",
@@ -11909,6 +11903,7 @@
       "immutableAudit": "Rekod kekal",
       "incidentReports": "Laporan insiden",
       "integrationSettings": "Integrasi sistem",
+      "deviceIntegration": "Integrasi Peranti",
       "invoiceSearch": "Pengurusan dan carian invois",
       "livePlatform": "Pemantauan platform dan servis",
       "loginAudit": "Rekod log masuk",
@@ -18697,7 +18692,7 @@
     "save": "Eksport",
     "share": "Hantar",
     "shareHint": "\"Hantar\" hanya berkongsi salinan fail. Ia bukan kelulusan atau pengesahan penerimaan dalam sistem.",
-    "shared": "Fail dihantar. Menghantar fail bukan kelulusan atau pengesahan penerimaan.",
+    "shared": "Fail telah diberikan kepada aplikasi yang dipilih. Menghantar fail bukan kelulusan atau pengesahan penerimaan.",
     "failed": "Fail tidak dapat disediakan. Sila cuba lagi.",
     "preparing": "Menyediakan fail",
     "openNewTab": "Buka di tab baharu",
@@ -18720,7 +18715,47 @@
     "printInViewer": "Fail dibuka dalam pemapar telefon. Pilih Kongsi, kemudian Cetak.",
     "completeEvidence": "PDF bukti lengkap",
     "completeEvidenceHint": "Borang, foto, kandungan setiap lampiran (Word, Excel dan PDF ditukar menjadi halaman boleh cetak), sejarah kelulusan dengan tandatangan dan perbualan, dalam satu PDF. Fail asal kekal tidak berubah.",
-    "completeEvidenceTitle": "Bukti lengkap · {reference}"
+    "completeEvidenceTitle": "Bukti lengkap · {reference}",
+    "send": {
+      "title": "Hantar kepada siapa?",
+      "intro": "Sistem tidak dapat melihat kepada siapa fail dihantar. Isi maklumat penerima dahulu, kemudian masukkan PIN anda.",
+      "method": "Cara",
+      "WHATSAPP": "WhatsApp",
+      "EMAIL": "E-mel",
+      "OTHER": "Lain-lain",
+      "DOWNLOAD": "Muat turun",
+      "name": "Nama penerima",
+      "company": "Syarikat penerima",
+      "optional": "pilihan",
+      "phone": "Telefon penerima",
+      "email": "E-mel penerima",
+      "contact": "Telefon atau e-mel",
+      "phoneHint": "Contoh 012-345 6789",
+      "phoneBad": "Nombor telefon itu tidak betul. Sila semak.",
+      "emailBad": "E-mel itu tidak betul (perlu ada @). Sila semak.",
+      "recent": "Pernah dihantar baru-baru ini - tekan satu untuk isi:",
+      "next": "Seterusnya: masukkan PIN",
+      "askTitle": "Sudah dihantar?",
+      "askBody": "Kepada {name}: {file}",
+      "yes": "Sudah dihantar",
+      "no": "Belum dihantar",
+      "confirmed": "Dicatat: disahkan dihantar.",
+      "keptOpened": "Baik, rekod kekal \"tetingkap kongsi dibuka\". Bila sudah dihantar nanti, tekan \"Tanda sudah dihantar\" dalam Rekod penghantaran.",
+      "confirmFailed": "Tidak dicatat. Tekan \"Tanda sudah dihantar\" dalam Rekod penghantaran rekod ini.",
+      "status": {
+        "OPENED": "Tetingkap kongsi dibuka",
+        "CONFIRMED": "Disahkan dihantar"
+      },
+      "log": {
+        "title": "Rekod penghantaran",
+        "empty": "Belum dihantar kepada sesiapa.",
+        "what": "rekod penghantaran",
+        "by": "Dihantar oleh {name} · {when}",
+        "confirmedBy": "{name} mengesahkan ia dihantar pada {when}",
+        "markSent": "Tanda sudah dihantar",
+        "noContact": "Tiada telefon atau e-mel"
+      }
+    }
   },
   "recordAttachments": {
     "title": "Lampiran",
@@ -18869,6 +18904,7 @@
       "viewWall": "Foto",
       "viewRecords": "Kemas kini kemajuan",
       "allPhases": "Semua kategori pembinaan",
+      "search": "Cari nombor, catatan, kategori, perekod",
       "selected": "{count} dipilih",
       "select": "Pilih foto ini",
       "unselect": "Nyahpilih foto ini",

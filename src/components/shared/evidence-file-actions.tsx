@@ -26,6 +26,7 @@ import { Download, ExternalLink, Loader2, Printer, Share2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { useFileActions } from "@/components/shared/file-actions";
+import { useRecordSendTarget } from "@/components/shared/record-send-log";
 import { Button } from "@/components/ui/button";
 import { printImage } from "@/lib/file-actions";
 import { signFileAction } from "@/services/file-action.service";
@@ -98,6 +99,7 @@ export function EvidenceFileActions({
 }) {
   const t = useTranslations("evidenceFile");
   const files = useTranslations("fileActions");
+  const target = useRecordSendTarget();
   const { busy, run, element } = useFileActions();
   return (
     <div className={className ?? "flex flex-wrap items-center gap-2"} data-slot="evidence-file-actions">
@@ -140,7 +142,10 @@ export function EvidenceFileActions({
           data-slot="evidence-file-share"
           disabled={Boolean(busy)}
           disabledReason={busy ? files("preparing") : undefined}
-          onClick={() => void run("share", { load: () => evidenceFile(url, filename), title })}
+          onClick={() =>
+            // JB65: sent from a record's detail, it is in that record's 发送记录.
+            void run("share", { load: () => evidenceFile(url, filename), title, ...target })
+          }
         >
           {busy ? <Loader2 className="animate-spin" /> : <Share2 />}
           {files("share")}

@@ -52,9 +52,7 @@ import { useMemo, useState } from "react";
 
 import { AddToPackageButton } from "@/components/contractor-ops/add-to-package";
 import {
-  EditedTag,
   ProgressPercentFact,
-  wasCorrected,
 } from "@/components/contractor-ops/progress-percent-editor";
 import {
   EquipmentDialog,
@@ -1928,8 +1926,6 @@ export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) 
                 {percent(row.original.percent_complete)}
               </span>
             )}
-            {/* Corrected by the office (2026-10-09); the detail has the history. */}
-            {wasCorrected(row.original) && <EditedTag />}
           </div>
         ),
       },
