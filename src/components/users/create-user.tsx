@@ -26,6 +26,7 @@ import { LOCALES, LOCALE_LABELS } from "@/i18n/config";
 import { roleName } from "@/lib/role-labels";
 import { ApiError } from "@/interfaces/api";
 import type { Role, UserDetail, UserPayload } from "@/interfaces/auth";
+import { toastSuccess } from "@/services/api-client";
 import { createUser, getRoles, updateUser } from "@/services/users.service";
 
 /**
@@ -119,7 +120,7 @@ export function CreateUser({
   const mutation = useMutation({
     mutationFn: (values: UserPayload) =>
       isEdit
-        ? updateUser(user.id, values)
+        ? updateUser(user.id, values, { quiet: Boolean(saveAfter) })
         : createUser(
             { ...values, ...(companyId ? { company: companyId } : {}) },
             {
@@ -167,7 +168,11 @@ export function CreateUser({
                 }
               }
             : undefined,
-          finish: () => finish(companyReturnHref ?? userListHref),
+          finish: () => {
+            // The one toast for the fields and the switches together.
+            if (isEdit && saveAfter) toastSuccess("users.toast.updated");
+            finish(companyReturnHref ?? userListHref);
+          },
         });
       } catch (error) {
         if (error instanceof ApiError && error.isValidation) {

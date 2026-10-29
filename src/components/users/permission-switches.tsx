@@ -98,13 +98,17 @@ export async function saveSwitchesIfDirty(
 export function UnsavedSwitchesNote() {
   const t = useTranslations("users.switches");
   return (
-    <p
-      role="status"
-      data-switches-unsaved
-      className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-sm font-medium text-foreground"
-    >
-      {t("unsaved")}
-    </p>
+    // Sticky on an opaque backing: it stays in view down among the switches
+    // the person just changed, and the switches don't show through it.
+    <div className="sticky top-0 z-10 rounded-lg bg-background">
+      <p
+        role="status"
+        data-switches-unsaved
+        className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-sm font-medium text-foreground shadow-sm"
+      >
+        {t("unsaved")}
+      </p>
+    </div>
   );
 }
 
@@ -241,10 +245,15 @@ function SwitchForm({
 
   const save = useMutation({
     mutationFn: () =>
-      setPermissionSwitches(userId, {
-        off: [...off].filter((code) => code !== SCOPE_CODE).sort(),
-        projects: allProjects ? { all: true } : { all: false, chosen: [...chosen] },
-      }),
+      setPermissionSwitches(
+        userId,
+        {
+          off: [...off].filter((code) => code !== SCOPE_CODE).sort(),
+          projects: allProjects ? { all: true } : { all: false, chosen: [...chosen] },
+        },
+        // Inside the edit dialog its 「保存」 says it once, for both.
+        { quiet: embedded },
+      ),
     onSuccess: (next) => {
       setError("");
       onSaved(next);
