@@ -81,6 +81,7 @@ import {
   RecordCorrectionButton,
   RecordCorrectionHistory,
 } from "@/components/shared/record-correction";
+import { compactStamp } from "@/lib/compact-stamp";
 import { useDateFormat } from "@/lib/dates";
 import { isSignOffCancelled } from "@/lib/sign-off";
 import { parseRecordNo } from "@/lib/record-no";
@@ -1002,6 +1003,8 @@ export function FieldTasksWorkspace({
     );
   const { can, user } = useAuth();
   const df = useDateFormat();
+  const companyTimeZone =
+    user?.company_preferences?.timezone || user?.timezone || "Asia/Kuala_Lumpur";
   const flow = useTranslations("taskFlow");
   const stageLabel = (status: FieldTask["status"]) => {
     const key = fieldTaskStageKey(status);
@@ -1395,10 +1398,14 @@ export function FieldTasksWorkspace({
                         {/* 最后确认时间 (JB63): the date the list is ordered by. */}
                         {row.last_confirmed_at ? (
                           <span
-                            className="tabular block truncate text-xs text-muted-foreground"
+                            className="tabular block whitespace-nowrap text-xs text-muted-foreground"
                             data-testid="field-task-last-confirmed"
+                            title={df.dateTime(row.last_confirmed_at)}
                           >
-                            {t("tasks.lastConfirmed", { value: df.dateTime(row.last_confirmed_at) })}
+                            {/* 「28/10 14:35」, never cut short (JB71 fix round). */}
+                            {t("tasks.lastConfirmed", {
+                              value: compactStamp(row.last_confirmed_at, companyTimeZone, df.time(row.last_confirmed_at)),
+                            })}
                           </span>
                         ) : null}
                       </span>
