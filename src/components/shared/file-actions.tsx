@@ -60,7 +60,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
-import { SendRecipientDialog, SentQuestion, SentQuestionDialog } from "@/components/shared/send-recipient";
+import {
+  SendRecipientDialog,
+  SentQuestion,
+  SentQuestionDialog,
+  watchReturn,
+} from "@/components/shared/send-recipient";
 import { ApiError } from "@/interfaces/api";
 import type { FileActionType, FileShare, SendRecipient } from "@/interfaces/file-action";
 import {
@@ -154,6 +159,12 @@ interface Held {
   blockedReason?: string;
   /** JB64: the share this send was written as (已打开分享窗口), to ask about. */
   share?: FileShare | null;
+  /**
+   * JB64, no share window on this computer: the send is not written yet. The
+   * first of 下载文件 / WhatsApp / 电邮 writes it (已打开分享窗口) and hands
+   * back its share; null when the server refused, and nothing happens.
+   */
+  writeLog?: () => Promise<FileShare | null>;
 }
 
 const LEAVES: readonly FileAction[] = ["save", "share"];
@@ -233,7 +244,10 @@ export function useFileActions() {
       } else {
         const outcome = await shareFile(held.file, held.title);
         if (outcome === "shared") {
-          toast.success(t("shared"));
+          // JB64: nothing says 已发送 until the person says so - on the
+          // desktop 「发出去了吗？」 follows; the phone is only told the app
+          // has the file.
+          if (!held.share) toast.success(t("shared"));
           held.source.onShared?.();
         } else if (outcome !== "cancelled") {
           setSending(held);
@@ -282,10 +296,23 @@ export function useFileActions() {
         if (!file) return;
       }
       const title = source.title || file.name.replace(/\.[^.]+$/, "");
+      const details = fileActionDetails(source, file, title);
+      if (signs && action === "share" && !canShareFile(file)) {
+        // JB64: no share window - the send is written when 下载文件 /
+        // WhatsApp / 电邮 is pressed, not now; pressing nothing writes nothing.
+        const writeLog = async () => {
+          const written = await recordFileAction(type, details, grant, recipient);
+          if (!written) return null;
+          if (written.share) source.onLogged?.();
+          return written.share;
+        };
+        setSending({ file, title, link: source.link, allowSave: options.allowSave, source, writeLog });
+        return;
+      }
       let share: FileShare | null = null;
       if (signs) {
         setBusy(options.key);
-        const written = await recordFileAction(type, fileActionDetails(source, file, title), grant, recipient);
+        const written = await recordFileAction(type, details, grant, recipient);
         setBusy(null);
         if (!written) return;
         share = written.share;
@@ -772,13 +799,33 @@ function ShareFileDialog({ held, onClose }: { held: Held; onClose: () => void })
   const t = useTranslations("fileActions");
   // A second tap on a phone; download and attach on a computer.
   const [canShare, setCanShare] = useState(() => canShareFile(held.file));
-  // Downloaded and attached by hand: noted once, however many of the two
-  // buttons are pressed (JB63).
+  // The share this send was written as: already, or at the first press (JB64).
+  const [share, setShare] = useState<FileShare | null>(held.share ?? null);
+  // Handed over by hand: noted once, however many of the buttons are pressed (JB63).
   const [handed, setHanded] = useState(false);
-  const handOver = () => {
-    if (handed) return;
+  // 「发出去了吗？」 once the person is back on this page (JB64).
+  const [back, setBack] = useState(false);
+  const [writing, setWriting] = useState(false);
+  useEffect(() => {
+    if (!handed || back || typeof window === "undefined") return;
+    return watchReturn(window, document, () => setBack(true));
+  }, [handed, back]);
+  /**
+   * The first press writes the send down (JB64) - only then does the file
+   * go - and tells the caller. False when the server refused: nothing goes.
+   */
+  const handOver = async (): Promise<boolean> => {
+    if (handed) return true;
+    if (held.writeLog) {
+      setWriting(true);
+      const written = await held.writeLog();
+      setWriting(false);
+      if (!written) return false;
+      setShare(written);
+    }
     setHanded(true);
     held.source.onShared?.();
+    return true;
   };
   const common = useTranslations("common");
   const message = [t("shareMessage", { name: held.file.name }), held.link].filter(Boolean).join("\n");
@@ -790,18 +837,29 @@ function ShareFileDialog({ held, onClose }: { held: Held; onClose: () => void })
       toast.error(common("shareFailed"));
     }
   };
-  const share = async () => {
+  const download = async () => {
+    if (await handOver()) saveFile(held.file);
+  };
+  const email = async () => {
+    if (await handOver()) window.location.href = mailtoLink(held.title, message);
+  };
+  const whatsapp = async () => {
+    if (await handOver()) window.open(whatsappLink(`${held.title}\n${message}`), "_blank", "noopener,noreferrer");
+  };
+  const shareNow = async () => {
     const outcome = await shareFile(held.file, held.title);
     if (outcome === "shared") {
-      toast.success(t("shared"));
+      if (!share) toast.success(t("shared"));
       held.source.onShared?.();
     } else if (outcome === "failed" || outcome === "unsupported") {
       setCanShare(false);
       return;
     }
     // Back from the share window: 「发出去了吗？」 here (JB64), or done.
-    if (held.share) setHanded(true);
-    else if (outcome === "shared") onClose();
+    if (share) {
+      setHanded(true);
+      setBack(true);
+    } else if (outcome === "shared") onClose();
   };
   const answered = () => {
     held.source.onLogged?.();
@@ -817,7 +875,7 @@ function ShareFileDialog({ held, onClose }: { held: Held; onClose: () => void })
         {canShare ? (
           <div className="space-y-3">
             <p className="text-sm">{t("shareReady")}</p>
-            <Button className="w-full" onClick={() => void share()}>
+            <Button className="w-full" onClick={() => void shareNow()}>
               <Share2 className="size-4" />
               {t("share")}
             </Button>
@@ -825,27 +883,36 @@ function ShareFileDialog({ held, onClose }: { held: Held; onClose: () => void })
         ) : (
           <div className="space-y-3">
             <p className="text-sm">{t("shareDesktop")}</p>
-            <Button className="w-full" onClick={() => saveFile(held.file)}>
+            <Button
+              className="w-full"
+              disabled={writing}
+              disabledReason={common("saving")}
+              onClick={() => void download()}
+              data-slot="file-share-download"
+            >
               <Download className="size-4" />
               {t("shareDownload")}
             </Button>
             <div className="grid grid-cols-2 gap-2">
-              <Button variant="outline" asChild>
-                <a href={mailtoLink(held.title, message)} onClick={handOver}>
-                  <Mail className="size-4" />
-                  {t("shareEmail")}
-                </a>
+              <Button
+                variant="outline"
+                disabled={writing}
+                disabledReason={common("saving")}
+                onClick={() => void email()}
+                data-slot="file-share-email"
+              >
+                <Mail className="size-4" />
+                {t("shareEmail")}
               </Button>
-              <Button variant="outline" asChild>
-                <a
-                  href={whatsappLink(`${held.title}\n${message}`)}
-                  target="_blank"
-                  rel="noreferrer"
-                  onClick={handOver}
-                >
-                  <MessageCircle className="size-4" />
-                  {t("shareWhatsapp")}
-                </a>
+              <Button
+                variant="outline"
+                disabled={writing}
+                disabledReason={common("saving")}
+                onClick={() => void whatsapp()}
+                data-slot="file-share-whatsapp"
+              >
+                <MessageCircle className="size-4" />
+                {t("shareWhatsapp")}
               </Button>
             </div>
             {held.link ? (
@@ -856,7 +923,7 @@ function ShareFileDialog({ held, onClose }: { held: Held; onClose: () => void })
             ) : null}
           </div>
         )}
-        {handed && held.share ? <SentQuestion share={held.share} onAnswered={answered} inline /> : null}
+        {back && share ? <SentQuestion share={share} onAnswered={answered} inline /> : null}
         <p className="rounded-md bg-muted/50 p-2 text-xs text-muted-foreground">{t("shareHint")}</p>
       </DialogContent>
     </Dialog>

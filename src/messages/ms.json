@@ -18692,7 +18692,7 @@
     "save": "Eksport",
     "share": "Hantar",
     "shareHint": "\"Hantar\" hanya berkongsi salinan fail. Ia bukan kelulusan atau pengesahan penerimaan dalam sistem.",
-    "shared": "Fail dihantar. Menghantar fail bukan kelulusan atau pengesahan penerimaan.",
+    "shared": "Fail telah diberikan kepada aplikasi yang dipilih. Menghantar fail bukan kelulusan atau pengesahan penerimaan.",
     "failed": "Fail tidak dapat disediakan. Sila cuba lagi.",
     "preparing": "Menyediakan fail",
     "openNewTab": "Buka di tab baharu",

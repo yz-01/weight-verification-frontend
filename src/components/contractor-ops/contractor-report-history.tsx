@@ -41,6 +41,7 @@ import { ReportJobs } from "@/components/reports/report-jobs";
 import { ReportSelector } from "@/components/reports/report-selector";
 import { clickOpensRow } from "@/components/shared/inside-row-control";
 import { FilterBar, FilterField, ListHeader, StatusBadge } from "@/components/shared/page-primitives";
+import { useProjectBoxShown } from "@/components/providers/current-project-provider";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
 import {
@@ -121,6 +122,17 @@ export function ContractorReportHistoryWorkspace() {
     setLogPage(1);
   };
   const filtering = JSON.stringify(filters) !== JSON.stringify(NO_FILTERS);
+  const projectBoxShown = useProjectBoxShown("filter");
+  const projectPicker = (
+    <ProjectPicker
+      value={filters.project}
+      onValueChange={(value) => set({ project: value })}
+      placeholder={t("filter.allProjects")}
+      allowAll
+      allLabel={t("filter.allProjects")}
+      className="sm:w-56"
+    />
+  );
 
   return (
     <div className="flex flex-col gap-4">
@@ -186,17 +198,14 @@ export function ContractorReportHistoryWorkspace() {
               />
             </FilterField>
           ) : null}
+          {/* The top bar's project covers it: no empty 「项目」 label (JB65 fix). */}
           {tab === "log" ? (
-            <FilterField label={t("history.project")}>
-              <ProjectPicker
-                value={filters.project}
-                onValueChange={(value) => set({ project: value })}
-                placeholder={t("filter.allProjects")}
-                allowAll
-                allLabel={t("filter.allProjects")}
-                className="sm:w-56"
-              />
-            </FilterField>
+            projectBoxShown ? (
+              <FilterField label={t("history.project")}>{projectPicker}</FilterField>
+            ) : (
+              // Following the top bar's project: kept for its sync, with no label.
+              projectPicker
+            )
           ) : null}
           {filtering ? (
             <Button variant="ghost" onClick={() => set(NO_FILTERS)}>{h("filter.clear")}</Button>

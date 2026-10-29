@@ -36,7 +36,9 @@ vi.mock("@/components/providers/auth-provider", () => ({
   CURRENT_USER_KEY: ["auth", "me"],
 }));
 
-const { contactOk, phoneOk, contactKey, recipientLine } = await import("@/components/shared/send-recipient");
+const { contactOk, phoneOk, contactKey, recipientLine, offeredRecipients, watchReturn } = await import(
+  "@/components/shared/send-recipient"
+);
 const { RecordSendLog, recordSharesKey, newestFirst } = await import("@/components/shared/record-send-log");
 const { SentToCell } = await import("@/components/contractor-ops/contractor-report-history");
 const { packageSharePart } = await import("@/components/contractor-ops/package-share");
@@ -105,7 +107,7 @@ describe("JB64: 发给谁 - the recipient form's rules match the server's", () =
   it("back from the share window it asks 发出去了吗, and never writes 已确认发送 by itself", () => {
     const actions = source("src/components/shared/file-actions.tsx");
     expect(actions).toContain("setQuestion(held)");
-    expect(actions).toContain("<SentQuestion share={held.share}");
+    expect(actions).toContain("<SentQuestion share={share}");
     const question = source("src/components/shared/send-recipient.tsx");
     // Only 「已发送」 confirms.
     expect(question.match(/confirmFileShare\(/g)).toHaveLength(1);
@@ -232,5 +234,76 @@ describe("JB65: the operation log shows the recipient", () => {
     expect(history).toContain("recipient: recipient || undefined");
     // Print, download and export rows stay as they were.
     expect(history).toMatch(/row\.share \? \(\s+<SentToCell share=\{row\.share\} \/>\s+\) : row\.channel \?/);
+  });
+});
+
+describe("10-29 fixes", () => {
+  const actions = source("src/components/shared/file-actions.tsx");
+  const dialog = actions.slice(actions.indexOf("function ShareFileDialog"), actions.indexOf("export function ShareHint"));
+
+  it("1: with no share window the send is written only when 下载文件 / WhatsApp / 电邮 is pressed", () => {
+    const leave = actions.slice(actions.indexOf("const leave = useCallback"), actions.indexOf("const act = useCallback"));
+    const noWindow = leave.slice(leave.indexOf("!canShareFile(file)"), leave.indexOf("let share: FileShare | null"));
+    // Not written here: handed to the dialog to write on the first press.
+    expect(noWindow).toContain("const writeLog = async");
+    expect(noWindow).toContain("setSending({");
+    expect(noWindow.indexOf("return;")).toBeGreaterThan(noWindow.indexOf("setSending({"));
+    expect(leave.indexOf("!canShareFile(file)")).toBeLessThan(leave.indexOf("let share: FileShare | null"));
+    // Each of the three writes first, and goes only if it was written.
+    for (const press of ["const download", "const email", "const whatsapp"]) {
+      const body = dialog.slice(dialog.indexOf(press), dialog.indexOf("};", dialog.indexOf(press)));
+      expect(body, press).toMatch(/if \(await handOver\(\)\)/);
+    }
+    expect(dialog).toMatch(/const written = await held\.writeLog\(\);\s+setWriting\(false\);\s+if \(!written\) return false;/);
+    // No link that leaves before the send is written.
+    expect(dialog).not.toContain("<a href={mailtoLink");
+  });
+
+  it("1: 发出去了吗 is asked once they come back to the page", () => {
+    expect(dialog).toContain("watchReturn(window, document, () => setBack(true))");
+    expect(dialog).toContain("{back && share ? <SentQuestion");
+    const win = new EventTarget();
+    const doc = Object.assign(new EventTarget(), { visibilityState: "visible" });
+    let back = 0;
+    const stop = watchReturn(win, doc, () => (back += 1));
+    win.dispatchEvent(new Event("focus"));
+    expect(back).toBe(0); // never left
+    win.dispatchEvent(new Event("blur"));
+    win.dispatchEvent(new Event("focus"));
+    expect(back).toBe(1);
+    doc.visibilityState = "hidden";
+    doc.dispatchEvent(new Event("visibilitychange"));
+    doc.visibilityState = "visible";
+    doc.dispatchEvent(new Event("visibilitychange"));
+    expect(back).toBe(2);
+    stop();
+    win.dispatchEvent(new Event("blur"));
+    win.dispatchEvent(new Event("focus"));
+    expect(back).toBe(2);
+  });
+
+  it("2: nothing says 已发送 before the person does", () => {
+    expect(actions).toMatch(/if \(!held\.share\) toast\.success\(t\("shared"\)\);/);
+    expect(dialog).toMatch(/if \(!share\) toast\.success\(t\("shared"\)\);/);
+    expect(actions).not.toMatch(/^\s+toast\.success\(t\("shared"\)\);/m);
+    for (const messages of [zh, zhTW]) {
+      expect(messages.fileActions.shared).not.toMatch(/已发送|已發送/);
+    }
+    expect(en.fileActions.shared).not.toMatch(/sent\./i);
+  });
+
+  it("3: a recent person without a name is not offered", () => {
+    const people = offeredRecipients([
+      { method: "WHATSAPP", recipient_name: "", recipient_company: "", recipient_contact: "+60 12-338 4410" },
+      { method: "WHATSAPP", recipient_name: "  ", recipient_company: "", recipient_contact: "0123" },
+      { method: "EMAIL", recipient_name: "QS Lim", recipient_company: "", recipient_contact: "qs@owner.test" },
+    ]);
+    expect(people.map((person) => person.recipient_name)).toEqual(["QS Lim"]);
+  });
+
+  it("4: the 项目 filter keeps no empty label beside 接收方", () => {
+    const history = source("src/components/contractor-ops/contractor-report-history.tsx");
+    expect(history).toContain('useProjectBoxShown("filter")');
+    expect(history).toMatch(/projectBoxShown \? \(\s+<FilterField label=\{t\("history\.project"\)\}>\{projectPicker\}<\/FilterField>/);
   });
 });

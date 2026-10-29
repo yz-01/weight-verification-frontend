@@ -69,6 +69,40 @@ export function contactKey(method: SendMethod): "phone" | "email" | "contact" {
   return method === "WHATSAPP" ? "phone" : method === "EMAIL" ? "email" : "contact";
 }
 
+/**
+ * Call `onBack` once the person has left this page (WhatsApp, the email, the
+ * Downloads folder) and come back to it - when 「发出去了吗？」 is asked after
+ * a send without a share window (JB64). Returns the clean-up.
+ */
+export function watchReturn(win: EventTarget, doc: EventTarget & { visibilityState?: string }, onBack: () => void) {
+  let away = false;
+  const leave = () => {
+    away = true;
+  };
+  const come = () => {
+    if (!away) return;
+    away = false;
+    onBack();
+  };
+  const visibility = () => (doc.visibilityState === "hidden" ? leave() : come());
+  win.addEventListener("blur", leave);
+  win.addEventListener("focus", come);
+  doc.addEventListener("visibilitychange", visibility);
+  return () => {
+    win.removeEventListener("blur", leave);
+    win.removeEventListener("focus", come);
+    doc.removeEventListener("visibilitychange", visibility);
+  };
+}
+
+/**
+ * The recent people offered as one-tap choices: only those with a name, so
+ * a chip never reads as a bare number (JB64 fix, 10-29).
+ */
+export function offeredRecipients(people: readonly SendRecipient[]): SendRecipient[] {
+  return people.filter((person) => person.recipient_name.trim() !== "");
+}
+
 /** One recent recipient, as a short line. */
 export function recipientLine(person: Pick<SendRecipient, "recipient_name" | "recipient_company" | "recipient_contact">) {
   return [person.recipient_name, person.recipient_company, person.recipient_contact].filter(Boolean).join(" · ");
@@ -97,7 +131,7 @@ export function SendRecipientDialog({
     queryFn: () => getRecentRecipients(),
     staleTime: 60_000,
   });
-  const people = recent.data ?? [];
+  const people = offeredRecipients(recent.data ?? []);
   const contactLabel = t(contactKey(method));
   const typedBad = contact.trim() !== "" && !contactOk(method, contact);
   const go = () =>

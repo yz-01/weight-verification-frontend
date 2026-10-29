@@ -18692,7 +18692,7 @@
     "save": "Export",
     "share": "Send",
     "shareHint": "\"Send\" only shares a copy of the file. It is not an approval or a receipt confirmation in the system.",
-    "shared": "File sent. Sending a file is not an approval or a receipt confirmation.",
+    "shared": "The file was handed to the app you chose. Sending a file is not an approval or a receipt confirmation.",
     "failed": "The file could not be prepared. Please try again.",
     "preparing": "Preparing the file",
     "openNewTab": "Open in new tab",

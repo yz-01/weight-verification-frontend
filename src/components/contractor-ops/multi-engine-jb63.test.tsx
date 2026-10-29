@@ -191,7 +191,8 @@ describe("JB63 二: 对外分享 sends the file itself", () => {
 
   it("the shared file actions tell the caller only when an app took the file", () => {
     const actions = source("src/components/shared/file-actions.tsx");
-    expect(actions).toMatch(/outcome === "shared"\) \{\s+toast\.success\(t\("shared"\)\);\s+held\.source\.onShared\?\.\(\);/);
+    // JB64 fix: no 「已发送」 toast where 「发出去了吗？」 follows.
+    expect(actions).toMatch(/if \(!held\.share\) toast\.success\(t\("shared"\)\);\s+held\.source\.onShared\?\.\(\);/);
     expect(actions).not.toMatch(/cancelled[^\n]*onShared/);
   });
 });
