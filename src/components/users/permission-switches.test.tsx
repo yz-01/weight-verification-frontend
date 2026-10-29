@@ -7,13 +7,29 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { NextIntlClientProvider } from "next-intl";
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { TooltipProvider } from "@/components/ui/tooltip";
 import type { PermissionEntry, PermissionSwitchState } from "@/interfaces/auth";
+import en from "@/messages/en.json";
+import ms from "@/messages/ms.json";
+import zhTW from "@/messages/zh-TW.json";
 import messages from "@/messages/zh.json";
 
-const { PermissionSwitches } = await import("@/components/users/permission-switches");
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
+  usePathname: () => "/users",
+}));
+
+const {
+  PermissionSwitches,
+  UnsavedSwitchesNote,
+  SwitchesNotSavedNote,
+  isSwitchesDirty,
+  saveSwitchesIfDirty,
+} = await import("@/components/users/permission-switches");
+const { saveUserThenAfter } = await import("@/components/users/create-user");
 const { PermissionMatrix } = await import("@/components/roles/permission-matrix");
 
 const entry = (
@@ -118,5 +134,114 @@ describe("the role editor (J17)", () => {
     const html = render(<PermissionMatrix selected={[]} onChange={() => {}} />, state());
     expect(html.match(/role="checkbox"/g)).toHaveLength(CATALOGUE.length - 1);
     expect(html).not.toContain("金额查看");
+  });
+});
+
+/**
+ * Lucas, 10-29: 「我已经更改权限了为什么还是不会变」 - the switches had their own
+ * 保存 at the bottom of a long list, and the dialog's 保存 left them unsaved.
+ * Now the dialog's one 「保存」 saves the user, then the switches.
+ */
+describe("one 保存 in the edit-user dialog (10-29)", () => {
+  function dialogSave(dirty: boolean, switches: () => Promise<unknown>) {
+    const order: string[] = [];
+    const saveUser = vi.fn(async () => {
+      order.push("user");
+    });
+    const saveSwitches = vi.fn(async () => {
+      order.push("switches");
+      return switches();
+    });
+    const finish = vi.fn(() => {
+      order.push("close");
+    });
+    const result = saveUserThenAfter({
+      saveUser,
+      saveAfter: () => saveSwitchesIfDirty(dirty, saveSwitches),
+      finish,
+    });
+    return { result, order, saveUser, saveSwitches, finish };
+  }
+
+  it("saves the switches after the user when they changed, then closes", async () => {
+    const run = dialogSave(true, async () => state());
+    await expect(run.result).resolves.toBe(true);
+    expect(run.saveSwitches).toHaveBeenCalledTimes(1);
+    expect(run.order).toEqual(["user", "switches", "close"]);
+  });
+
+  it("does not save the switches when they did not change", async () => {
+    const run = dialogSave(false, async () => state());
+    await expect(run.result).resolves.toBe(true);
+    expect(run.saveSwitches).not.toHaveBeenCalled();
+    expect(run.order).toEqual(["user", "close"]);
+  });
+
+  it("keeps the dialog open when the switches fail or the PIN is cancelled", async () => {
+    const run = dialogSave(true, async () => {
+      throw new Error("sign-off cancelled");
+    });
+    await expect(run.result).resolves.toBe(false);
+    expect(run.saveUser).toHaveBeenCalledTimes(1);
+    expect(run.finish).not.toHaveBeenCalled();
+  });
+
+  it("does not touch the switches when the user's fields fail", async () => {
+    const saveSwitches = vi.fn(async () => true);
+    const finish = vi.fn();
+    await expect(
+      saveUserThenAfter({
+        saveUser: async () => {
+          throw new Error("400");
+        },
+        saveAfter: saveSwitches,
+        finish,
+      }),
+    ).rejects.toThrow("400");
+    expect(saveSwitches).not.toHaveBeenCalled();
+    expect(finish).not.toHaveBeenCalled();
+  });
+
+  it("says plainly that the details saved and the permissions did not", () => {
+    const html = render(<SwitchesNotSavedNote error="签核密码不对" />, state());
+    expect(html).toContain("基本资料已保存，权限还没保存");
+    expect(html).toContain("签核密码不对");
+    expect(html).toContain('role="alert"');
+  });
+
+  it("tells the switches apart from what the server holds", () => {
+    const held = state({ off: ["receipt.update", "project.view_all"], projects: { all: false, chosen: ["p1"] } });
+    const same = () => new Set(["project.view_all", "receipt.update"]);
+    expect(isSwitchesDirty(held, same(), false, new Set(["p1"]))).toBe(false);
+    // The scope code is the project choice, not a switch.
+    expect(isSwitchesDirty(held, new Set(["receipt.update"]), false, new Set(["p1"]))).toBe(false);
+    expect(isSwitchesDirty(held, new Set(["project.view_all"]), false, new Set(["p1"]))).toBe(true);
+    expect(isSwitchesDirty(held, same(), true, new Set(["p1"]))).toBe(true);
+    expect(isSwitchesDirty(held, same(), false, new Set())).toBe(true);
+    // All projects: which ones were ticked before no longer matters.
+    expect(isSwitchesDirty(state(), new Set(), true, new Set(["p1"]))).toBe(false);
+  });
+
+  it("shows the unsaved line while the switches have changes, in every language", () => {
+    expect(render(<UnsavedSwitchesNote />, state())).toContain("权限已改，按下面的「保存」才会生效");
+    for (const book of [messages, zhTW, en, ms]) {
+      expect(book.users.switches.unsaved).toBeTruthy();
+      expect(book.users.switches.partSaved).toBeTruthy();
+      // The line names the dialog's own button.
+      expect(book.users.switches.unsaved).toContain(book.common.save);
+    }
+    // Nothing changed yet: no line.
+    expect(render(<PermissionSwitches userId="u1" />, state())).not.toContain("data-switches-unsaved");
+  });
+
+  it("has no save button of its own inside the dialog", () => {
+    const html = render(<PermissionSwitches userId="u1" handleRef={{ current: null }} />, state());
+    expect(html).toContain("data-permission-switches");
+    expect(html).not.toContain("保存权限");
+  });
+
+  it("keeps its own 保存权限 when used on its own", () => {
+    const html = render(<PermissionSwitches userId="u1" />, state());
+    expect(html).toContain("保存权限");
   });
 });

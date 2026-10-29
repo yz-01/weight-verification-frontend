@@ -58,8 +58,8 @@ export function FormShell({
   onSubmit: () => void;
   children: React.ReactNode;
   /**
-   * A panel with its own save (e.g. the user's 权限开关), shown after the
-   * form's fields. In a dialog it scrolls with them, above the buttons;
+   * A panel shown after the form's fields (e.g. the user's 权限开关, which
+   * the form's own 「保存」 saves too). In a dialog it scrolls with them, above the buttons;
    * before, a sibling drawn after the dialog's buttons ran out of the dialog.
    */
   after?: React.ReactNode;

@@ -16,7 +16,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Loader2, Save, ShieldCheck } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
+import { useImperativeHandle, useMemo, useState } from "react";
 
 import { LoadFailed, QueryFailedNote } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
@@ -56,7 +56,84 @@ function groups(entries: PermissionEntry[]): Group[] {
   return list;
 }
 
-export function PermissionSwitches({ userId }: { userId: string }) {
+/**
+ * What the edit-user dialog holds of an embedded panel: its single 「保存」
+ * saves the switches too (Lucas, 10-29: 「我已经更改权限了为什么还是不会变」).
+ */
+export interface PermissionSwitchesHandle {
+  /** Saves the switches when they changed. ``true`` when clean or saved. */
+  saveIfDirty: () => Promise<boolean>;
+}
+
+/** Whether the draft differs from what the server holds. */
+export function isSwitchesDirty(
+  state: PermissionSwitchState,
+  off: Set<string>,
+  allProjects: boolean,
+  chosen: Set<string>,
+): boolean {
+  const key = (codes: Iterable<string>) =>
+    [...codes].filter((code) => code !== SCOPE_CODE).sort().join(",");
+  if (key(off) !== key(state.off)) return true;
+  if (allProjects !== state.projects.all) return true;
+  if (allProjects) return false;
+  return [...chosen].sort().join(",") !== [...state.projects.chosen].sort().join(",");
+}
+
+/** Runs ``save`` only when there is something to save; ``false`` when it failed. */
+export async function saveSwitchesIfDirty(
+  dirty: boolean,
+  save: () => Promise<unknown>,
+): Promise<boolean> {
+  if (!dirty) return true;
+  try {
+    await save();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** The line at the top while the switches have unsaved changes. */
+export function UnsavedSwitchesNote() {
+  const t = useTranslations("users.switches");
+  return (
+    <p
+      role="status"
+      data-switches-unsaved
+      className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-sm font-medium text-foreground"
+    >
+      {t("unsaved")}
+    </p>
+  );
+}
+
+/**
+ * The switches did not save from the dialog's 「保存」: the user's own fields
+ * did, so the dialog stays open and says so plainly.
+ */
+export function SwitchesNotSavedNote({ error }: { error: string }) {
+  const t = useTranslations("users.switches");
+  return (
+    <div role="alert" data-switches-not-saved className="space-y-1 text-sm text-destructive">
+      <p className="font-medium">{t("partSaved")}</p>
+      {error ? <p>{error}</p> : null}
+    </div>
+  );
+}
+
+export function PermissionSwitches({
+  userId,
+  handleRef,
+}: {
+  userId: string;
+  /**
+   * Inside the edit-user dialog: no save button of its own - the dialog's
+   * 「保存」 saves the switches through this handle. Without it the panel
+   * keeps its own 「保存权限」.
+   */
+  handleRef?: React.Ref<PermissionSwitchesHandle>;
+}) {
   const t = useTranslations("users.switches");
   const tRoot = useTranslations();
   const queryClient = useQueryClient();
@@ -97,6 +174,7 @@ export function PermissionSwitches({ userId }: { userId: string }) {
       // A fresh form for what the server holds now (after a save, too).
       key={JSON.stringify([state.data.off, state.data.projects])}
       userId={userId}
+      handleRef={handleRef}
       catalogue={catalogue.data}
       state={state.data}
       onSaved={(next) => {
@@ -111,6 +189,7 @@ export function PermissionSwitches({ userId }: { userId: string }) {
 
 function SwitchForm({
   userId,
+  handleRef,
   catalogue,
   state,
   onSaved,
@@ -118,6 +197,7 @@ function SwitchForm({
   tRoot,
 }: {
   userId: string;
+  handleRef?: React.Ref<PermissionSwitchesHandle>;
   catalogue: PermissionEntry[];
   state: PermissionSwitchState;
   onSaved: (next: PermissionSwitchState) => void;
@@ -128,6 +208,9 @@ function SwitchForm({
   const [allProjects, setAllProjects] = useState(state.projects.all);
   const [chosen, setChosen] = useState<Set<string>>(() => new Set(state.projects.chosen));
   const [error, setError] = useState("");
+  // Embedded: the dialog's 「保存」 saved the user but not these.
+  const [notSaved, setNotSaved] = useState(false);
+  const embedded = handleRef !== undefined;
   const roles = useQuery({
     queryKey: ["roles", "switch-presets"],
     queryFn: () => getRoles({ page_size: 100 }),
@@ -167,7 +250,10 @@ function SwitchForm({
       onSaved(next);
     },
     onError: (reason) => {
-      if (isSignOffCancelled(reason)) return;
+      if (isSignOffCancelled(reason)) {
+        setError("");
+        return;
+      }
       setError(reason instanceof ApiError && reason.message ? reason.message : t("failed"));
     },
   });
@@ -182,9 +268,29 @@ function SwitchForm({
   const total = entries.length;
   const onCount = entries.filter((entry) => isOn(entry.code)).length;
   const needsProject = !allProjects && chosen.size === 0;
+  const dirty = isSwitchesDirty(state, off, allProjects, chosen);
+
+  useImperativeHandle(
+    handleRef,
+    () => ({
+      saveIfDirty: async () => {
+        if (!dirty) return true;
+        if (needsProject) {
+          setError(t("needOneProject"));
+          setNotSaved(true);
+          return false;
+        }
+        const saved = await saveSwitchesIfDirty(dirty, () => save.mutateAsync());
+        setNotSaved(!saved);
+        return saved;
+      },
+    }),
+    [dirty, needsProject, save, t],
+  );
 
   return (
     <div className="space-y-6" data-permission-switches>
+      {dirty ? <UnsavedSwitchesNote /> : null}
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0 space-y-1">
           <h3 className="flex items-center gap-2 text-base font-semibold">
@@ -318,17 +424,25 @@ function SwitchForm({
         </div>
       </section>
 
-      {error ? <p className="text-sm text-destructive">{error}</p> : null}
-      <div className="flex justify-end">
-        <Button
-          onClick={() => save.mutate()}
-          disabled={save.isPending || needsProject}
-          disabledReason={needsProject ? t("needOneProject") : undefined}
-        >
-          {save.isPending ? <Loader2 className="animate-spin" /> : <Save />}
-          {t("save")}
-        </Button>
-      </div>
+      {embedded ? (
+        notSaved ? (
+          <SwitchesNotSavedNote error={error} />
+        ) : null
+      ) : (
+        <>
+          {error ? <p className="text-sm text-destructive">{error}</p> : null}
+          <div className="flex justify-end">
+            <Button
+              onClick={() => save.mutate()}
+              disabled={save.isPending || needsProject}
+              disabledReason={needsProject ? t("needOneProject") : undefined}
+            >
+              {save.isPending ? <Loader2 className="animate-spin" /> : <Save />}
+              {t("save")}
+            </Button>
+          </div>
+        </>
+      )}
     </div>
   );
 }
