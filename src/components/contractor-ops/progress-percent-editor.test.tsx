@@ -3,7 +3,8 @@
  *
  * Lucas: 「弄成可以修改百分比的吧，不然很乱不会用」. A pencil beside the figure
  * in the detail opens the form in place; a reason is required; every change is
- * listed (old → new, who, when, why); the list shows a small 「已修改」.
+ * listed (old → new, who, when, why). The figure carries no 「已修改」 - the
+ * office filling it in is not a correction (JB67, client 10-29).
  *
  * The runner has no DOM, so screens are rendered to static markup.
  */
@@ -33,11 +34,9 @@ vi.mock("@/services/api-client", () => ({
 }));
 
 const {
-  EditedTag,
   ProgressCorrectionHistory,
   ProgressPercentFact,
   percentProblem,
-  wasCorrected,
 } = await import("@/components/contractor-ops/progress-percent-editor");
 const { correctProgressPercent } = await import("@/services/contractor-ops.service");
 
@@ -155,12 +154,10 @@ describe("the figure in the detail", () => {
     expect(html).toContain(zh.contractorOps.progress.correction.archivedNote);
   });
 
-  it("a corrected figure carries the 已修改 tag", () => {
-    expect(wasCorrected(corrected)).toBe(true);
-    expect(wasCorrected(record())).toBe(false);
+  it("a changed figure carries no 已修改 tag (JB67: filing, not a correction)", () => {
     const html = fact({ record: corrected });
-    expect(html).toContain(zh.contractorOps.progress.correction.edited);
-    expect(render(<EditedTag />)).toContain("已修改");
+    expect(html).toContain("55.00%");
+    expect(html).not.toContain(zh.contractorOps.progress.correction.edited);
   });
 });
 
