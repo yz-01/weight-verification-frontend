@@ -43,6 +43,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { useDismissDialog } from "@/components/shared/dialog-navigation";
 import { EvidenceFileActions } from "@/components/shared/evidence-file-actions";
+import { RecordSendLog, RecordSendTargetProvider } from "@/components/shared/record-send-log";
 import { LocationMap } from "@/components/shared/location-map";
 import { RecordAttachmentsPanel } from "@/components/shared/record-attachments";
 import { RecordClosurePanel } from "@/components/shared/record-closure";
@@ -1128,6 +1129,28 @@ function RecordDetailHeading({
 }
 
 /**
+ * 「发送记录」 under every record that can be sent (JB65, 客户 10-29 事项 3 第
+ * 4 点): the record's own PDF kind and id, as its 「发送」 names them.
+ */
+function RecordSendLogFor({ exportRecord }: Pick<RecordDetailHeaderProps, "exportRecord">) {
+  if (!exportRecord?.recordId) return null;
+  return <RecordSendLog recordKind={exportRecord.kind} recordId={exportRecord.recordId} />;
+}
+
+/** A photograph sent from inside the detail is this record's send too. */
+function RecordSendTargetFor({
+  exportRecord,
+  children,
+}: Pick<RecordDetailHeaderProps, "exportRecord"> & { children: React.ReactNode }) {
+  if (!exportRecord?.recordId) return <>{children}</>;
+  return (
+    <RecordSendTargetProvider value={{ recordKind: exportRecord.kind, recordId: exportRecord.recordId }}>
+      {children}
+    </RecordSendTargetProvider>
+  );
+}
+
+/**
  * The shell in a dialog, for the modules whose office list opens a record in
  * place rather than on a page of its own (T-369). Wide, because the shell has
  * two columns; scrolls inside itself, so the page behind never moves.
@@ -1150,7 +1173,8 @@ export function RecordDetailDialog({
         className="max-h-[92dvh] overflow-y-auto sm:max-w-5xl xl:max-w-6xl"
       >
         <RecordDetailHeading {...header} inDialog />
-        {children}
+        <RecordSendTargetFor exportRecord={header.exportRecord}>{children}</RecordSendTargetFor>
+        <RecordSendLogFor exportRecord={header.exportRecord} />
       </DialogContent>
     </Dialog>
   );
@@ -1182,7 +1206,8 @@ export function RecordDetailPage({
         {backLabel}
       </Link>
       <RecordDetailHeading {...header} inDialog={false} />
-      {children}
+      <RecordSendTargetFor exportRecord={header.exportRecord}>{children}</RecordSendTargetFor>
+      <RecordSendLogFor exportRecord={header.exportRecord} />
     </div>
   );
 }

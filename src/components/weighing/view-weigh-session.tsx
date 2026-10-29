@@ -60,6 +60,7 @@ import {
   verifySessionChain,
 } from "@/services/weighing.service";
 import { FileThumbs } from "@/components/shared/file-thumbs";
+import { RecordSendLog } from "@/components/shared/record-send-log";
 
 const VERDICT_TONE: Record<SessionVerdict, "positive" | "danger" | "warning"> = {
   VALID: "positive",
@@ -626,6 +627,8 @@ export function ViewWeighSession({ id }: { id: string }) {
         reasonLabel={t("weighing.confirmDialog.reasonLabel")}
         onConfirm={() => voidMutation.mutate()}
       />
+      {/* 发送记录 (JB65): every send of this record, to whom and whether it went. */}
+      <RecordSendLog recordKind="WEIGH_SESSION" recordId={record.id} />
     </div>
   );
 }

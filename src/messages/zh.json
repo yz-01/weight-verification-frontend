@@ -7090,7 +7090,9 @@
         "anyAction": "全部操作",
         "name": "报表 / 资料名称",
         "nameHint": "报表或文件名称",
-        "clear": "清除筛选"
+        "clear": "清除筛选",
+        "recipient": "接收方",
+        "recipientHint": "姓名、公司、电话或 Email"
       },
       "action": {
         "PRINT": "打印",
@@ -7123,7 +7125,9 @@
         "action": "操作类型",
         "subject": "业务事项 / 报表 / 文件",
         "openReport": "打开报表",
-        "openRecord": "打开记录"
+        "openRecord": "打开记录",
+        "recipient": "发给谁",
+        "status": "发送状态"
       },
       "count": "共 {count} 笔 · 第 {page} / {pages} 页",
       "regenerating": "正在重新生成…",
@@ -11447,39 +11451,11 @@
     "sendStatus": {
       "NOT_SENT": "未发送",
       "INTERNAL": "已发送系统内",
-      "STARTED": "已发起分享",
+      "STARTED": "已打开分享窗口",
       "SENT": "已对外发送"
     },
     "share": {
-      "button": "对外分享（WhatsApp / 电邮）",
-      "title": "对外分享（WhatsApp / 电邮）",
-      "channel": "怎么发出去",
-      "WHATSAPP": "WhatsApp",
-      "EMAIL": "电邮",
-      "DOWNLOAD": "只下载",
-      "target": "发给谁（名字、号码或电邮）",
-      "targetHint": "可以不填。不填会记成「未指定」。",
-      "afterSent": "系统看不到对方有没有收到。确认对方收到后，请在「发送记录」按「标记为已发送」。",
-      "done": "好了",
-      "message": "请查收资料包：{name}",
-      "notLogged": "文件已经发出，但这次发送没有记下来。请关掉再发一次。",
-      "markSent": "标记为已发送",
-      "markedToast": "已标记为已发送。",
-      "sendTitle": "发送",
-      "go": {
-        "WHATSAPP": "发送到 WhatsApp",
-        "EMAIL": "用电邮发送",
-        "DOWNLOAD": "下载文件"
-      },
-      "how": {
-        "WHATSAPP": "按「发送到 WhatsApp」后，电脑会打开分享窗口：选 WhatsApp，再选联系人，PDF 文件会直接发过去。",
-        "EMAIL": "按「用电邮发送」后，电脑会打开分享窗口：选电邮（例如 Outlook），PDF 文件会自动附上。"
-      },
-      "handed": {
-        "WHATSAPP": "文件已交给 WhatsApp，已记下：已发起分享。",
-        "EMAIL": "文件已交给电邮，已记下：已发起分享。",
-        "DOWNLOAD": "文件已下载到电脑的「下载」文件夹，已记下。"
-      }
+      "button": "对外分享（WhatsApp / 电邮）"
     },
     "sendLog": {
       "title": "发送记录",
@@ -11487,14 +11463,9 @@
       "internal": "系统内发送",
       "external": "对外分享",
       "by": "{name} · {when}",
-      "to": "对象：{target}",
-      "unspecified": "未指定",
       "opened": "已打开（{when}）",
       "notOpened": "还没打开",
-      "revoked": "已撤销",
-      "STARTED": "已发起分享",
-      "CONFIRMED": "已确认发送",
-      "confirmedBy": "{name} 于 {when} 标记为已发送"
+      "revoked": "已撤销"
     },
     "orderHint": "系统记录和电脑上传的文件都在这里，用箭头调到最前、中间或最后，PDF 就按从上到下的顺序生成。",
     "moveFirst": "移到最前",
@@ -18720,7 +18691,47 @@
     "printInViewer": "文件已用手机的阅读器打开，请选「分享」→「打印」。",
     "completeEvidence": "完整证据 PDF",
     "completeEvidenceHint": "主表、照片、附件内容（Word、Excel、PDF 转为可打印页面）、审批记录及签名、沟通记录合成一份 PDF；原始文件保持不变。",
-    "completeEvidenceTitle": "完整证据 · {reference}"
+    "completeEvidenceTitle": "完整证据 · {reference}",
+    "send": {
+      "title": "发给谁？",
+      "intro": "WhatsApp 不会告诉系统发给了谁，请先填好，再输入密码。",
+      "method": "怎么发",
+      "WHATSAPP": "WhatsApp",
+      "EMAIL": "Email",
+      "OTHER": "其他",
+      "DOWNLOAD": "下载",
+      "name": "对方姓名",
+      "company": "对方公司",
+      "optional": "可不填",
+      "phone": "对方电话",
+      "email": "对方 Email",
+      "contact": "电话或 Email",
+      "phoneHint": "例如 012-345 6789",
+      "phoneBad": "电话号码不对，请再看一下。",
+      "emailBad": "Email 不对，请再看一下（要有 @）。",
+      "recent": "最近发过的人，点一下就填好：",
+      "next": "下一步：输入密码",
+      "askTitle": "发出去了吗？",
+      "askBody": "发给 {name}：{file}",
+      "yes": "已发送",
+      "no": "没有发",
+      "confirmed": "已记下：已确认发送。",
+      "keptOpened": "好的，记录是「已打开分享窗口」。以后发了，可以在「发送记录」按「标记为已发送」。",
+      "confirmFailed": "没有记下来。请在这笔记录的「发送记录」按「标记为已发送」。",
+      "status": {
+        "OPENED": "已打开分享窗口",
+        "CONFIRMED": "已确认发送"
+      },
+      "log": {
+        "title": "发送记录",
+        "empty": "还没有发送过。",
+        "what": "发送记录",
+        "by": "{name} 发送 · {when}",
+        "confirmedBy": "{name} 于 {when} 确认已发送",
+        "markSent": "标记为已发送",
+        "noContact": "没有填电话或 Email"
+      }
+    }
   },
   "recordAttachments": {
     "title": "附件",

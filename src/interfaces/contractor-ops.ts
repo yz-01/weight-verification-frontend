@@ -1,3 +1,4 @@
+import type { FileShare } from "@/interfaces/file-action";
 import type { InspectionInfo } from "@/interfaces/document-workflow";
 import type { RecordedBy } from "@/interfaces/recorder";
 
@@ -1546,24 +1547,6 @@ export interface PackageSendStatus {
   external: "NONE" | "STARTED" | "SENT";
 }
 
-export type PackageShareChannel = "WHATSAPP" | "EMAIL" | "DOWNLOAD";
-
-/** One 「对外分享」 in 「发送记录」 (JB51). */
-export interface PackageShare {
-  id: string;
-  channel: PackageShareChannel;
-  /** The number or address; empty is 「未指定」. */
-  target: string;
-  status: "STARTED" | "CONFIRMED";
-  /** JB63: which file went - a round's PDF, the 往来记录 PDF, or (both empty) the latest. */
-  round_no?: number | null;
-  document?: "" | "TRANSCRIPT";
-  created_at: string;
-  created_by_name: string;
-  confirmed_at: string | null;
-  confirmed_by_name: string;
-}
-
 /**
  * One line of the package's PDF order (JB63): a record (by its member id)
  * or a file uploaded into the package.
@@ -1639,8 +1622,8 @@ export interface EvidencePackageDetail extends EvidencePackageRow {
   returned_item_ids?: string[];
   can_resubmit?: boolean;
   claim?: PackageClaimFacet | null;
-  /** 发送记录's hand-made shares (JB51); the in-system sends are `recipients`. */
-  shares?: PackageShare[];
+  /** 发送记录's sends to people outside (JB51, JB64: the one share log); the in-system sends are `recipients`. */
+  shares?: FileShare[];
   /* The consultant's view: their own recipient row (H17 五 2). */
   recipient?: PackageRecipient;
   can_sign?: boolean;

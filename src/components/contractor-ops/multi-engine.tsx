@@ -29,8 +29,8 @@ import {
   ClaimInfoBlock,
   ClaimInfoFields,
   EMPTY_CLAIM_INFO,
-  PackageShareDialog,
   SendLog,
+  usePackageSend,
   claimInfoPayload,
   periodLabel,
   sendStatusKeys,
@@ -691,8 +691,6 @@ export function PackageSheet({ id, onClose }: { id: string; onClose: () => void 
   const [ticking, setTicking] = useState<PackageItem | null>(null);
   // 「上传资料」 (JB30): the upload form under the two buttons.
   const [uploading, setUploading] = useState(false);
-  // 「对外分享（WhatsApp / 电邮）」 (JB51).
-  const [sharing, setSharing] = useState(false);
   // JB49: each record opens in full over the package.
   const opener = usePackageRecordOpener();
   const [remarks, setRemarks] = useState("");
@@ -712,6 +710,9 @@ export function PackageSheet({ id, onClose }: { id: string; onClose: () => void 
   const refresh = () => {
     queryClient.invalidateQueries({ queryKey: ["evidence-packages"] });
   };
+  // 「对外分享」 (JB51), the system's one 发送 since JB64: 「发给谁？」, the
+  // PIN, the share window, 「发出去了吗？」.
+  const packageSend = usePackageSend(data, refresh);
 
   const remove = useMutation({
     mutationFn: (item: string) => removePackageItem(id, item),
@@ -1167,7 +1168,12 @@ export function PackageSheet({ id, onClose }: { id: string; onClose: () => void 
             />
             {/* JB51: 「系统内发送」 is in 收件方 below; this one leaves the
                 system and is written down in 发送记录. */}
-            <Button size="sm" onClick={() => setSharing(true)} data-package-share-button>
+            <Button
+              size="sm"
+              disabled={Boolean(packageSend.busy)}
+              onClick={() => packageSend.send()}
+              data-package-share-button
+            >
               <Share2 className="size-3.5" />
               {t("share.button")}
             </Button>
@@ -1238,9 +1244,7 @@ export function PackageSheet({ id, onClose }: { id: string; onClose: () => void 
           }}
         />
       )}
-      {sharing && data && (
-        <PackageShareDialog pkg={data} onClose={() => setSharing(false)} onLogged={refresh} />
-      )}
+      {packageSend.element}
       {draftFile.element}
       {opener.element}
       {ticking && data && (

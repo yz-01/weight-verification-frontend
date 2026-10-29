@@ -68,6 +68,32 @@ describe("the PIN and the log, before the file leaves", () => {
     });
   });
 
+  it("a send carries its recipient and hands back the row with its share (JB64)", async () => {
+    const row = { id: "f1", share: { id: "s1", status: "OPENED" } };
+    post.mockResolvedValueOnce(row);
+    const written = await recordFileAction(
+      "SEND",
+      { file_name: "a.pdf", record_kind: "MATERIAL_RECEIPT", record_id: "r1" },
+      "g3",
+      { method: "WHATSAPP", recipient_name: "Ah Kow", recipient_company: "", recipient_contact: "0123456789" },
+    );
+    expect(written).toBe(row);
+    expect(post).toHaveBeenCalledWith("/api/file-actions/record/", {
+      file_name: "a.pdf",
+      record_kind: "MATERIAL_RECEIPT",
+      record_id: "r1",
+      link: undefined,
+      action: "SEND",
+      method: "WHATSAPP",
+      recipient_name: "Ah Kow",
+      recipient_company: "",
+      recipient_contact: "0123456789",
+      grant: "g3",
+    });
+    post.mockRejectedValueOnce(new Error("refused"));
+    expect(await recordFileAction("SEND", {}, "g4")).toBeNull();
+  });
+
   it("keeps only links inside the back office", () => {
     expect(linkPath("/receipts/1?tab=a")).toBe("/receipts/1?tab=a");
     expect(linkPath("//evil.example/x")).toBeUndefined();

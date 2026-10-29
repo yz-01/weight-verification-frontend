@@ -40,7 +40,7 @@ import {
 import { ReportJobs } from "@/components/reports/report-jobs";
 import { ReportSelector } from "@/components/reports/report-selector";
 import { clickOpensRow } from "@/components/shared/inside-row-control";
-import { FilterBar, FilterField, ListHeader } from "@/components/shared/page-primitives";
+import { FilterBar, FilterField, ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
 import {
@@ -60,7 +60,12 @@ import type {
   ContractorReportFilters,
   ContractorReportType,
 } from "@/interfaces/contractor-report";
-import { FILE_ACTION_TYPES, type FileActionRecord, type FileActionType } from "@/interfaces/file-action";
+import {
+  FILE_ACTION_TYPES,
+  type FileActionRecord,
+  type FileActionType,
+  type FileShare,
+} from "@/interfaces/file-action";
 import { useDateFormat } from "@/lib/dates";
 import { messageCodes, reportColumnValues } from "@/lib/report-preview";
 import { useUnitExportValues } from "@/hooks/use-material-units";
@@ -96,9 +101,11 @@ interface Filters {
   action: "" | FileActionType;
   name: string;
   project: string;
+  /** JB65: 「可以按接收方搜索」 - the operation log only. */
+  recipient: string;
 }
 
-const NO_FILTERS: Filters = { date: "", operator: "", action: "", name: "", project: "all" };
+const NO_FILTERS: Filters = { date: "", operator: "", action: "", name: "", project: "all", recipient: "" };
 
 export function ContractorReportHistoryWorkspace() {
   const t = useTranslations("contractorReports");
@@ -168,6 +175,17 @@ export function ContractorReportHistoryWorkspace() {
               data-slot="history-filter-name"
             />
           </FilterField>
+          {tab === "log" ? (
+            <FilterField label={h("filter.recipient")}>
+              <Input
+                className="sm:w-56"
+                value={filters.recipient}
+                placeholder={h("filter.recipientHint")}
+                onChange={(event) => set({ recipient: event.target.value })}
+                data-slot="history-filter-recipient"
+              />
+            </FilterField>
+          ) : null}
           {tab === "log" ? (
             <FilterField label={t("history.project")}>
               <ProjectPicker
@@ -469,6 +487,7 @@ function ReportActionsDialog({
 function ActionLog({ filters, page, onPage }: { filters: Filters; page: number; onPage: (page: number) => void }) {
   const operator = useDeferredValue(filters.operator.trim());
   const name = useDeferredValue(filters.name.trim());
+  const recipient = useDeferredValue(filters.recipient.trim());
   const query: ListQuery = {
     page,
     page_size: PAGE_SIZE,
@@ -477,6 +496,7 @@ function ActionLog({ filters, page, onPage }: { filters: Filters; page: number; 
     action: filters.action || undefined,
     name: name || undefined,
     project: filters.project === "all" ? undefined : filters.project,
+    recipient: recipient || undefined,
   };
   // query-failure: `ActionTable` says the read failed (records.isError), never "no records"
   const records = useQuery({
@@ -533,9 +553,13 @@ function ActionTable({
                 <p>{row.actor_name || "-"}</p>
                 <p className="break-all text-xs text-muted-foreground">{row.actor_account}</p>
               </TableCell>
-              <TableCell>
+              <TableCell className="whitespace-normal">
                 <p>{h(`action.${row.action}`)}</p>
-                {row.channel ? <p className="text-xs text-muted-foreground">{h(`channel.${row.channel}`)}</p> : null}
+                {row.share ? (
+                  <SentToCell share={row.share} />
+                ) : row.channel ? (
+                  <p className="text-xs text-muted-foreground">{h(`channel.${row.channel}`)}</p>
+                ) : null}
               </TableCell>
               {compact ? null : <TableCell>{row.project_name || "-"}</TableCell>}
               <TableCell className="whitespace-normal">
@@ -547,6 +571,31 @@ function ActionTable({
       </Table>
       {archive.element}
     </>
+  );
+}
+
+/**
+ * A send's recipient, under 「发送 / 分享」 (JB65, 客户 10-29 事项 3 第 2 点):
+ * 接收方姓名、公司、电话或 Email、发送方式, and 已打开分享窗口 / 已确认发送.
+ * Print, download and export rows carry none and stay as they were.
+ */
+export function SentToCell({ share }: { share: FileShare }) {
+  const s = useTranslations("fileActions.send");
+  return (
+    <div className="mt-1 space-y-0.5 text-xs" data-slot="history-send-details">
+      <p className="font-medium text-foreground">
+        {share.recipient_name || "-"}
+        {share.recipient_company ? ` · ${share.recipient_company}` : ""}
+      </p>
+      <p className="break-all text-muted-foreground">
+        {s(share.method)}
+        {share.recipient_contact ? ` · ${share.recipient_contact}` : ""}
+      </p>
+      <StatusBadge
+        label={s(`status.${share.status}`)}
+        tone={share.status === "CONFIRMED" ? "positive" : "warning"}
+      />
+    </div>
   );
 }
 

@@ -43,6 +43,7 @@ import { useDateFormat } from "@/lib/dates";
 import { submitAttendanceOfflineAware } from "@/services/offline-sync.service";
 import { exportAttendance, getAttendance } from "@/services/site-operations.service";
 import { FileThumbs } from "@/components/shared/file-thumbs";
+import { RecordSendLog } from "@/components/shared/record-send-log";
 
 interface ClockDraft {
   project: string;
@@ -583,6 +584,8 @@ export function Attendance() {
               )}
             </div>
           )}
+          {/* 发送记录 (JB65): every send of this record, to whom and whether it went. */}
+          <RecordSendLog recordKind="ATTENDANCE" recordId={selectedRecord?.id} />
           <DialogFooter>
             <Button variant="outline" onClick={() => setSelectedRecord(null)}>
               {t("common.close")}

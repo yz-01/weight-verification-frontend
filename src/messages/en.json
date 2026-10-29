@@ -7090,7 +7090,9 @@
         "anyAction": "All actions",
         "name": "Report / file name",
         "nameHint": "Report or file name",
-        "clear": "Clear filters"
+        "clear": "Clear filters",
+        "recipient": "Recipient",
+        "recipientHint": "Name, company, phone or email"
       },
       "action": {
         "PRINT": "Print",
@@ -7123,7 +7125,9 @@
         "action": "Action",
         "subject": "Item / report / file",
         "openReport": "Open the report",
-        "openRecord": "Open the record"
+        "openRecord": "Open the record",
+        "recipient": "Sent to",
+        "status": "Send status"
       },
       "count": "{count} in total · page {page} of {pages}",
       "regenerating": "Generating it again…",
@@ -11447,39 +11451,11 @@
     "sendStatus": {
       "NOT_SENT": "Not sent",
       "INTERNAL": "Sent in the system",
-      "STARTED": "Share started",
+      "STARTED": "Share window opened",
       "SENT": "Sent outside"
     },
     "share": {
-      "button": "Share outside (WhatsApp / email)",
-      "title": "Share outside (WhatsApp / email)",
-      "channel": "How to send it",
-      "WHATSAPP": "WhatsApp",
-      "EMAIL": "Email",
-      "DOWNLOAD": "Download only",
-      "target": "To whom (name, number or email)",
-      "targetHint": "Optional. Left empty, it is noted as 'Not specified'.",
-      "afterSent": "The system cannot see whether it arrived. Once the other side has it, press 'Mark as sent' under 'Send history'.",
-      "done": "Done",
-      "message": "Please find the package attached: {name}",
-      "notLogged": "The file went out, but this send was not noted. Close this and send again.",
-      "markSent": "Mark as sent",
-      "markedToast": "Marked as sent.",
-      "sendTitle": "Send",
-      "go": {
-        "WHATSAPP": "Send to WhatsApp",
-        "EMAIL": "Send by email",
-        "DOWNLOAD": "Download the file"
-      },
-      "how": {
-        "WHATSAPP": "After 'Send to WhatsApp' the computer opens its share window: pick WhatsApp, then the contact, and the PDF itself is sent.",
-        "EMAIL": "After 'Send by email' the computer opens its share window: pick your email (e.g. Outlook) and the PDF is attached."
-      },
-      "handed": {
-        "WHATSAPP": "The file was handed to WhatsApp. Noted: share started.",
-        "EMAIL": "The file was handed to the email. Noted: share started.",
-        "DOWNLOAD": "The file is in the computer's Downloads folder. Noted."
-      }
+      "button": "Share outside (WhatsApp / email)"
     },
     "sendLog": {
       "title": "Send history",
@@ -11487,14 +11463,9 @@
       "internal": "Sent in the system",
       "external": "Shared outside",
       "by": "{name} · {when}",
-      "to": "To: {target}",
-      "unspecified": "Not specified",
       "opened": "Opened ({when})",
       "notOpened": "Not opened yet",
-      "revoked": "Revoked",
-      "STARTED": "Share started",
-      "CONFIRMED": "Confirmed sent",
-      "confirmedBy": "Marked as sent by {name} on {when}"
+      "revoked": "Revoked"
     },
     "orderHint": "Records from the system and files uploaded from the computer are all here. Use the arrows to put each first, in the middle or last; the PDF is made from top to bottom.",
     "moveFirst": "Move to top",
@@ -18720,7 +18691,47 @@
     "printInViewer": "The file is open in the phone's viewer. Use Share, then Print.",
     "completeEvidence": "Complete evidence PDF",
     "completeEvidenceHint": "The form, photos, every attachment's content (Word, Excel and PDF turned into printable pages), the approval history with signatures and the conversation, as one PDF. The original files stay unchanged.",
-    "completeEvidenceTitle": "Complete evidence · {reference}"
+    "completeEvidenceTitle": "Complete evidence · {reference}",
+    "send": {
+      "title": "Who is it for?",
+      "intro": "WhatsApp does not tell the system who it went to. Fill this in first, then type your PIN.",
+      "method": "How",
+      "WHATSAPP": "WhatsApp",
+      "EMAIL": "Email",
+      "OTHER": "Other",
+      "DOWNLOAD": "Download",
+      "name": "Their name",
+      "company": "Their company",
+      "optional": "optional",
+      "phone": "Their phone",
+      "email": "Their email",
+      "contact": "Phone or email",
+      "phoneHint": "For example 012-345 6789",
+      "phoneBad": "That phone number does not look right. Please check it.",
+      "emailBad": "That email does not look right (it needs an @). Please check it.",
+      "recent": "Sent to lately - tap one to fill it in:",
+      "next": "Next: type your PIN",
+      "askTitle": "Did it go out?",
+      "askBody": "To {name}: {file}",
+      "yes": "Sent",
+      "no": "Not sent",
+      "confirmed": "Noted: confirmed sent.",
+      "keptOpened": "OK, it stays as \"share window opened\". When you send it later, press \"Mark as sent\" in Send history.",
+      "confirmFailed": "It was not noted. Press \"Mark as sent\" in this record's Send history.",
+      "status": {
+        "OPENED": "Share window opened",
+        "CONFIRMED": "Confirmed sent"
+      },
+      "log": {
+        "title": "Send history",
+        "empty": "Not sent to anyone yet.",
+        "what": "the send history",
+        "by": "Sent by {name} · {when}",
+        "confirmedBy": "{name} confirmed it was sent on {when}",
+        "markSent": "Mark as sent",
+        "noContact": "No phone or email given"
+      }
+    }
   },
   "recordAttachments": {
     "title": "Attachments",

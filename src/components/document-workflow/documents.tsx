@@ -86,6 +86,7 @@ import { InspectionDialog, InspectionList } from "@/components/document-workflow
 import { FileActionButtons } from "@/components/shared/file-actions";
 import { DeleteRecordButton, useNotArchivedReason } from "@/components/shared/delete-record-button";
 import { CorrectedTag } from "@/components/shared/record-correction";
+import { RecordSendLog } from "@/components/shared/record-send-log";
 import type { CorrectionHistoryKind } from "@/interfaces/record-correction";
 import type { RecordPdfKind } from "@/services/contractor-ops.service";
 import type {
@@ -1883,6 +1884,8 @@ function DocumentDetailDialog({
           </div>
         )}
 
+        {/* 发送记录 (JB65): every send of this record, to whom and whether it went. */}
+        <RecordSendLog recordKind="DOCUMENT" recordId={detail.data?.id} />
         <DialogFooter>
           <Button
             variant="outline"

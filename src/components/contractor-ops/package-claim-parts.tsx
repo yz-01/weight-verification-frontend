@@ -8,8 +8,9 @@
  *   (`ClaimInfoFields`, `ClaimInfoBlock`); the Progress Claim tab only filters,
  *   and its one button manages the Claim categories (`ClaimCategoriesDialog`,
  *   客户: 「这个应该是新增claim 分类，不是新增claim」);
- * - 「对外分享（WhatsApp / 电邮）」 is written down - who, when, how, to whom -
- *   as 已发起分享, and a person marks it 已确认发送 (`PackageShareDialog`);
+ * - 「对外分享（WhatsApp / 电邮）」 is the system's one 发送 (JB64,
+ *   `usePackageSend`): to whom, written as 已打开分享窗口, and a person marks
+ *   it 已确认发送;
  * - 「发送记录」 lists the in-system sends and the shares by time (`SendLog`).
  */
 
@@ -28,6 +29,7 @@ import {
 import { CategoryDialog } from "@/components/contractor-ops/operations-workspaces";
 import { Shell } from "@/components/contractor-ops/package-shell";
 import { FieldWrapper, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
+import { ShareLine, useMarkSent } from "@/components/shared/record-send-log";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -38,7 +40,6 @@ import type {
 } from "@/interfaces/contractor-ops";
 import { useDateFormat } from "@/lib/dates";
 import {
-  confirmPackageShare,
   updateEvidencePackage,
   updateProjectCategory,
   type PackageClaimFieldsPayload,
@@ -369,9 +370,9 @@ export function sendStatusKeys(row: Pick<EvidencePackageRow, "send_status" | "re
   return keys.length ? keys : (["NOT_SENT"] as const);
 }
 
-/* -- 对外分享: `package-share.tsx` (JB63) ------------------------------------- */
+/* -- 对外分享: `package-share.tsx` (JB63, JB64) ------------------------------- */
 
-export { PackageShareDialog, type PackageShareWhat } from "@/components/contractor-ops/package-share";
+export { usePackageSend, type PackageShareWhat } from "@/components/contractor-ops/package-share";
 
 /* -- 发送记录 -------------------------------------------------------------- */
 
@@ -384,16 +385,13 @@ interface LogEntry {
 /**
  * 「发送记录」 (JB51 第 3 点): every send, newest first - in the system (head
  * office, a consultant, a link: opened or not) and by hand (WhatsApp, email,
- * download: 已发起分享 / 已确认发送, with 「标记为已发送」).
+ * other: 已打开分享窗口 / 已确认发送, with 「标记为已发送」 - JB64).
  */
 export function SendLog({ pkg, onChanged }: { pkg: EvidencePackageDetail; onChanged: () => void }) {
   const t = useTranslations("multiEngine");
-  const common = useTranslations("common");
   const formatter = useDateFormat();
-  const mark = useMutation({
-    mutationFn: (share: string) => confirmPackageShare(pkg.id, share),
-    onSuccess: onChanged,
-  });
+  // 「标记为已发送」 (JB64): the one share log's, then the package again.
+  const mark = useMarkSent(onChanged);
 
   const entries: LogEntry[] = [
     ...(pkg.recipients ?? []).map((row) => ({
@@ -421,50 +419,25 @@ export function SendLog({ pkg, onChanged }: { pkg: EvidencePackageDetail; onChan
         </>
       ),
     })),
+    // 对外分享 (JB51, JB64): the one share log's rows for this package.
     ...(pkg.shares ?? []).map((row) => ({
       key: `s:${row.id}`,
       at: row.created_at,
       node: (
         <>
-          <div className="flex flex-wrap items-center gap-2">
-            <StatusBadge label={t("sendLog.external")} tone="neutral" />
-            <span className="text-sm font-medium">{t(`share.${row.channel}`)}</span>
-            {/* JB63: which file went. */}
-            {(row.round_no || row.document === "TRANSCRIPT") && (
-              <span className="text-xs text-muted-foreground">
-                {row.document === "TRANSCRIPT" ? t("exchange.report") : t("exchange.round", { n: row.round_no ?? 1 })}
-              </span>
-            )}
-            <StatusBadge
-              label={t(`sendLog.${row.status}`)}
-              tone={row.status === "CONFIRMED" ? "positive" : "warning"}
-            />
-          </div>
-          <p className="text-xs text-muted-foreground">
-            {t("sendLog.by", { name: row.created_by_name || "—", when: formatter.dateTime(row.created_at) })}
-            {" · "}
-            {t("sendLog.to", { target: row.target || t("sendLog.unspecified") })}
-          </p>
-          {row.status === "CONFIRMED" ? (
-            <p className="text-xs text-primary">
-              {t("sendLog.confirmedBy", {
-                name: row.confirmed_by_name || "—",
-                when: formatter.dateTime(row.confirmed_at),
-              })}
-            </p>
-          ) : (
-            <Button
-              size="sm"
-              variant="outline"
-              className="mt-1"
-              data-mark-sent
-              disabled={mark.isPending}
-              disabledReason={common("saving")}
-              onClick={() => mark.mutate(row.id)}
-            >
-              {t("share.markSent")}
-            </Button>
-          )}
+          <StatusBadge label={t("sendLog.external")} tone="neutral" />
+          <ShareLine
+            share={row}
+            onMark={(share) => mark.mutate(share)}
+            marking={mark.isPending}
+            extra={
+              row.part === "TRANSCRIPT"
+                ? t("exchange.report")
+                : row.part.startsWith("R")
+                  ? t("exchange.round", { n: Number(row.part.slice(1)) || 1 })
+                  : undefined
+            }
+          />
         </>
       ),
     })),

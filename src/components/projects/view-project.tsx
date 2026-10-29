@@ -30,6 +30,7 @@ import { ProjectDockets } from "@/components/projects/project-dockets";
 import { ProjectQrPanel } from "@/components/projects/project-qr-panel";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
+import { RecordSendLog } from "@/components/shared/record-send-log";
 import {
   FormSection,
   FormSkeleton,
@@ -289,6 +290,8 @@ export function ViewProject({ id }: { id: string }) {
         isPending={archiveMutation.isPending}
         onConfirm={() => archiveMutation.mutate()}
       />
+      {/* 发送记录 (JB65): every send of this record, to whom and whether it went. */}
+      <RecordSendLog recordKind="PROJECT" recordId={data.id} />
     </div>
   );
 }

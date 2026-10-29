@@ -17,7 +17,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 
-import { PackageShareDialog, type PackageShareWhat } from "@/components/contractor-ops/package-share";
+import { usePackageSend, type PackageShareWhat } from "@/components/contractor-ops/package-share";
 import { Shell } from "@/components/contractor-ops/package-shell";
 import { LoadedFileThumb } from "@/components/shared/file-thumbs";
 import { OptionCombobox } from "@/components/material-requests/option-combobox";
@@ -819,7 +819,7 @@ function RoundsBlock({ pkg, onChanged }: { pkg: EvidencePackageDetail; onChanged
   // JB63 (客户 10-28: 「从「轮次」点击发送…系统内部没有留下发送成功的记录」):
   // a round's 「发送」 and the 往来记录's go through the package's own send,
   // which writes 发送记录 - the same share window as before.
-  const [sending, setSending] = useState<PackageShareWhat | null>(null);
+  const packageSend = usePackageSend(pkg, onChanged);
   const sendButton = (what: PackageShareWhat) => (
     <Button
       type="button"
@@ -827,7 +827,8 @@ function RoundsBlock({ pkg, onChanged }: { pkg: EvidencePackageDetail; onChanged
       variant="outline"
       data-package-send
       title={fileWords("shareHint")}
-      onClick={() => setSending(what)}
+      disabled={Boolean(packageSend.busy)}
+      onClick={() => packageSend.send(what)}
     >
       <Share2 className="size-3.5" />
       {fileWords("share")}
@@ -888,9 +889,7 @@ function RoundsBlock({ pkg, onChanged }: { pkg: EvidencePackageDetail; onChanged
           {sendButton({ transcript: true })}
         </div>
       </div>
-      {sending && (
-        <PackageShareDialog pkg={pkg} what={sending} onClose={() => setSending(null)} onLogged={onChanged} />
-      )}
+      {packageSend.element}
     </div>
   );
 }
