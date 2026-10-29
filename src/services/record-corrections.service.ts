@@ -8,8 +8,12 @@ import type {
 import { api, toastSuccess } from "@/services/api-client";
 
 /** The fields this record may have corrected, filled with what it holds (I30). */
-export function getCorrectionForm(kind: CorrectableKind, record: string): Promise<CorrectionForm> {
-  return api.get<CorrectionForm>("/api/record-corrections/get_form/", { kind, record });
+export function getCorrectionForm(
+  kind: CorrectableKind,
+  record: string,
+  options: { silent?: boolean } = {},
+): Promise<CorrectionForm> {
+  return api.get<CorrectionForm>("/api/record-corrections/get_form/", { kind, record }, options);
 }
 
 /** Every correction of one record, oldest first (「改正记录」). */
@@ -44,6 +48,10 @@ export async function correctRecord(
     expected,
     reason,
   });
-  toastSuccess("recordCorrection.toast.saved");
+  // A blank filled in is no correction (Lucas 10-30): no history row, and the
+  // toast says what happened.
+  toastSuccess(
+    result.corrections.length ? "recordCorrection.toast.saved" : "recordCorrection.toast.filled",
+  );
   return result;
 }

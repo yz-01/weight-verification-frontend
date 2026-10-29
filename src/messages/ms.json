@@ -9046,13 +9046,6 @@
     "photoMissing": "Apa yang ditaip masih ada, tetapi foto untuk {count} medan tidak dapat dibuka semula. Sila ambil semula foto itu."
   },
   "fieldStaffPwa": {
-    "linkedHazard": {
-      "opening": "Membuka pembetulan ini…",
-      "failedTitle": "Pembetulan ini tidak dapat dibuka",
-      "failedHelp": "Ia tidak dapat dibaca sekarang. Semak sambungan dan tekan Cuba semula.",
-      "retry": "Cuba semula",
-      "back": "Kembali ke laman utama"
-    },
     "handoff": {
       "failed": "Kod tidak dapat dijana",
       "once": "Ia berfungsi sekali sahaja. Selepas itu, jana yang baharu.",
@@ -13345,7 +13338,8 @@
       "save": "Muat naik",
       "discard": "Batal",
       "failed": "Muat naik gagal. Sila cuba lagi.",
-      "tooBig": "Foto itu {actual} MB, melebihi had {limit} MB. Sila pilih yang lebih kecil."
+      "tooBig": "Foto itu {actual} MB, melebihi had {limit} MB. Sila pilih yang lebih kecil.",
+      "choose": "Pilih foto"
     }
   },
   "progress": {
@@ -17977,7 +17971,7 @@
     "help": "Menekan ini menandakan perkara selesai dan mengarkibkannya untuk semua orang - senarai menunjukkan nama anda dan masanya. Tiada semakan dibuat dahulu; keputusan anda. Rekod kekal di tempatnya, dalam modul dan ruangannya sendiri; boleh dibaca tetapi tidak boleh diubah lagi. Buat rekod baharu untuk isu seterusnya.",
     "notePlaceholder": "Nota (pilihan)",
     "closedTitle": "Sudah diarkibkan",
-    "closedBy": "Disahkan oleh {name} pada {when}. Rekod ini tidak boleh diubah lagi.",
+    "closedBy": "Disahkan oleh {name} pada {when}. Yang sudah diisi tidak boleh diubah; ruang kosong masih boleh dilengkapkan.",
     "loading": "Menyemak…",
     "what": {
       "state": "Sama ada rekod ini sudah diarkibkan"
@@ -18019,7 +18013,8 @@
       "claim_decided": "Tuntutan pelbagai ini telah diputuskan; ia tidak boleh dibetulkan lagi."
     },
     "toast": {
-      "saved": "Rekod dibetulkan"
+      "saved": "Rekod dibetulkan",
+      "filled": "Dilengkapkan"
     },
     "field": {
       "equipment_name": "Nama peralatan",
@@ -18061,7 +18056,13 @@
       "unit_price": "Harga seunit",
       "spec_category": "Spesifikasi"
     },
-    "followsSpec": "Unit mengikut spesifikasi"
+    "followsSpec": "Unit mengikut spesifikasi",
+    "fillButton": "Lengkapkan",
+    "fillTitle": "Lengkapkan rekod",
+    "fillSave": "Simpan",
+    "archivedHint": "Telah disahkan dan diarkibkan: yang sudah diisi tidak boleh diubah; ruang kosong masih boleh diisi.",
+    "archivedField": "Diarkibkan - tidak boleh diubah",
+    "fillNote": "Selepas disimpan, senarai, eksport, laporan dan PDF menunjukkan maklumat yang dilengkapkan."
   },
   "recordConversation": {
     "open": "Komunikasi",

@@ -1,14 +1,13 @@
 "use client";
 
 import { useMutation } from "@tanstack/react-query";
-import { Loader2, Upload } from "lucide-react";
+import { ImagePlus, Loader2, Upload } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { ApiError } from "@/interfaces/api";
 import { updateProfile } from "@/services/auth.service";
 
@@ -45,6 +44,7 @@ export function avatarInitials(name: string): string {
 export function AvatarUpload({ className }: { className?: string }) {
   const t = useTranslations("profile.avatar");
   const { user, refresh } = useAuth();
+  const picker = useRef<HTMLInputElement>(null);
   // The preview URL is made when the file is chosen and held beside it,
   // rather than derived in an effect. Building it in an effect meant calling
   // setState from inside one, which cascades a render and which the React
@@ -117,13 +117,28 @@ export function AvatarUpload({ className }: { className?: string }) {
         <p className="text-xs text-muted-foreground">
           {t("hint", { limit: MAX_AVATAR_MB })}
         </p>
-        <Input
+        {/* A button in the reader's language, not the browser's English
+            「Choose File / no file selected」 (Lucas 10-30). */}
+        <input
+          ref={picker}
           type="file"
           accept={ACCEPTED}
-          className="h-11"
+          className="hidden"
           aria-label={t("title")}
-          onChange={(event) => choose(event.target.files?.[0] ?? null)}
+          onChange={(event) => {
+            choose(event.target.files?.[0] ?? null);
+            event.target.value = "";
+          }}
         />
+        <Button
+          type="button"
+          variant="outline"
+          className="h-11"
+          onClick={() => picker.current?.click()}
+        >
+          <ImagePlus />
+          {t("choose")}
+        </Button>
         {chosen !== null ? (
           <div className="flex flex-wrap gap-2">
             <Button

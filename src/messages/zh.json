@@ -9046,13 +9046,6 @@
     "photoMissing": "填写的内容已恢复，但有 {count} 项的照片读不回来，请重新拍一次。"
   },
   "fieldStaffPwa": {
-    "linkedHazard": {
-      "opening": "正在打开这条整改……",
-      "failedTitle": "打不开这条整改",
-      "failedHelp": "这条整改现在读不到，请检查网络后按「重试」。",
-      "retry": "重试",
-      "back": "返回首页"
-    },
     "handoff": {
       "failed": "二维码生成失败",
       "once": "只能用一次，用过要重新生成。",
@@ -13345,7 +13338,8 @@
       "save": "上传",
       "discard": "取消",
       "failed": "上传失败，请重试。",
-      "tooBig": "这张照片有 {actual} MB，超过了 {limit} MB 的上限。请换一张小一点的。"
+      "tooBig": "这张照片有 {actual} MB，超过了 {limit} MB 的上限。请换一张小一点的。",
+      "choose": "选择照片"
     }
   },
   "progress": {
@@ -17977,7 +17971,7 @@
     "help": "按下去就视为这件事已经完成并归档，所有人都看得到，现场记录中心里会写上你的名字和时间。系统不做任何前置判断 —— 判断由你负责。记录不会搬走，还在原来的模块和分类里；之后只能查看，不能再修改。以后有新问题请新建一条记录。",
     "notePlaceholder": "备注（可选）",
     "closedTitle": "已归档",
-    "closedBy": "由 {name} 于 {when} 确认。本记录已不能再修改。",
+    "closedBy": "由 {name} 于 {when} 确认。有内容的不能再改，空白的可以补充。",
     "loading": "正在查询…",
     "what": {
       "state": "这条记录是否已归档"
@@ -18019,7 +18013,8 @@
       "claim_decided": "这笔杂费报销已经审批，不能再改正。"
     },
     "toast": {
-      "saved": "已改正"
+      "saved": "已改正",
+      "filled": "已补充"
     },
     "field": {
       "equipment_name": "设备名称",
@@ -18061,7 +18056,13 @@
       "unit_price": "单价",
       "spec_category": "规格"
     },
-    "followsSpec": "单位跟着规格，不能改"
+    "followsSpec": "单位跟着规格，不能改",
+    "fillButton": "补充",
+    "fillTitle": "补充记录内容",
+    "fillSave": "保存",
+    "archivedHint": "已确认归档：有内容的不能再改，空白的可以补上。",
+    "archivedField": "已归档，不能改",
+    "fillNote": "保存后，列表、导出、报表和 PDF 都会用补上的内容。"
   },
   "recordConversation": {
     "open": "沟通",

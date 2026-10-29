@@ -99,7 +99,10 @@ export function RecordExportButton({
       }}
     />
   );
-  if (!corrected) return latest;
+  // On a phone: the file's name on its own line, its four buttons one even
+  // row under it; wider, one row as before (Lucas 10-30: 「发送」 was cut off).
+  const grid = "grid w-full grid-cols-4 items-center gap-2 sm:flex sm:w-auto sm:flex-wrap";
+  if (!corrected) return layout === "menu" ? latest : <div className={grid}>{latest}</div>;
   const original = (
     <Actions
       label={t("originalVersion")}
@@ -127,7 +130,7 @@ export function RecordExportButton({
     );
   }
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div className={grid}>
       {latest}
       {original}
     </div>
