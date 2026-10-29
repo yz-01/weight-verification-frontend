@@ -181,10 +181,13 @@ export function FormSection({
   title,
   children,
   className,
+  id,
 }: {
   title: string;
   children: React.ReactNode;
   className?: string;
+  /** A stable anchor, so the top search can open the page here (JB70). */
+  id?: string;
 }) {
   const surface = useFormSurface();
   // Compact on purpose (T-371, C-020 第 4 条): 「表单还是太大了，尽量缩小至一个
@@ -192,7 +195,7 @@ export function FormSection({
   // rather than form by form - tighter padding everywhere, and a third column
   // on a wide screen so a long form spreads across instead of down.
   return (
-    <section className={cn(surface === "dialog" ? "px-4 py-3" : "px-4 py-3 sm:px-6")}>
+    <section id={id} className={cn("scroll-mt-20 rounded-lg", surface === "dialog" ? "px-4 py-3" : "px-4 py-3 sm:px-6")}>
       <h3 className="panel-title mb-2">
         {title}
       </h3>

@@ -9565,6 +9565,7 @@
   },
   "globalSearch": {
     "noResults": "找不到相符的模块或功能",
+    "settings": "设定",
     "open": "打开功能搜索",
     "placeholder": "搜索模块和功能"
   },

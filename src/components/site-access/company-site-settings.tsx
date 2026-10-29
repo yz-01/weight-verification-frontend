@@ -130,7 +130,7 @@ export function CompanySiteSettingsWorkspace() {
       <strong>{t("settings.realRulesTitle")}</strong> {t("settings.realRulesHelp")}
     </div>
 
-    <section className="space-y-4">
+    <section id="company-profile" className="scroll-mt-20 space-y-4 rounded-xl">
       <SectionTitle icon={Building2} title={t("profile.title")} description={t("profile.subtitle")} action={canManage ? <Button disabled={saveProfile.isPending} onClick={() => saveProfile.mutate()}><Save />{t("action.saveProfile")}</Button> : undefined} />
       {saveProfile.isError && <ErrorBanner text={t("settings.saveError")} />}
       <div className="surface-panel grid gap-6 rounded-xl p-4 sm:p-6 lg:grid-cols-[11.25rem_minmax(0,1fr)]">
@@ -164,7 +164,7 @@ export function CompanySiteSettingsWorkspace() {
       </div>
     </section>
 
-    <section className="space-y-4">
+    <section id="company-project-defaults" className="scroll-mt-20 space-y-4 rounded-xl">
       <SectionTitle icon={Settings2} title={t("projectDefaults.title")} description={t("projectDefaults.subtitle")} action={canManage ? <Button disabled={save.isPending} onClick={() => save.mutate(form)}><Save />{t("action.saveSettings")}</Button> : undefined} />
       {save.isError && <ErrorBanner text={t("settings.saveError")} />}
       <div className="grid gap-4 surface-panel rounded-xl p-4 sm:p-6 sm:grid-cols-2 xl:grid-cols-4">
@@ -173,7 +173,7 @@ export function CompanySiteSettingsWorkspace() {
         <NumberField label={t("field.targetReminder")} value={form.target_reminder_percent} min={1} max={100} disabled={!canManage} onChange={(value) => setForm({ ...form, target_reminder_percent: value })} />
       </div>
       <div className="surface-panel overflow-hidden rounded-xl">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b px-4 py-3 sm:px-6"><div className="min-w-0"><h3 className="panel-title">{t("categories.title")}</h3><p className="text-sm text-muted-foreground">{t("categories.subtitle")}</p></div>{canManage && <Button variant="outline" onClick={() => setForm({ ...form, default_project_categories: [...categories, { code: "", name: "", description: "", is_visible_in_pwa: true }] })}><Plus />{t("categories.add")}</Button>}</div>
+        <div id="company-default-categories" className="flex scroll-mt-20 flex-wrap items-center justify-between gap-3 border-b px-4 py-3 sm:px-6"><div className="min-w-0"><h3 className="panel-title">{t("categories.title")}</h3><p className="text-sm text-muted-foreground">{t("categories.subtitle")}</p></div>{canManage && <Button variant="outline" onClick={() => setForm({ ...form, default_project_categories: [...categories, { code: "", name: "", description: "", is_visible_in_pwa: true }] })}><Plus />{t("categories.add")}</Button>}</div>
         {!categories.length ? <p className="px-4 py-8 text-center text-sm text-muted-foreground sm:px-6">{t("categories.empty")}</p> : <div className="divide-y">{categories.map((row, index) => <div key={`${row.code}-${index}`} className="grid gap-3 p-4 sm:px-6 md:grid-cols-[9.375rem_minmax(11.25rem,1fr)_auto_auto] md:items-end"><FieldWrapper label={t("field.code")}><Input disabled={!canManage} value={row.code} onChange={(event) => updateCategory(index, { code: event.target.value.toUpperCase() })} /></FieldWrapper><FieldWrapper label={t("field.name")}><Input disabled={!canManage} value={row.name} onChange={(event) => updateCategory(index, { name: event.target.value })} /></FieldWrapper><Toggle compact label={t("categories.fieldVisible")} description={t("categories.fieldVisibleHelp")} checked={row.is_visible_in_pwa} disabled={!canManage} onChange={(checked) => updateCategory(index, { is_visible_in_pwa: checked })} />{canManage && <Button size="icon" variant="ghost" className="text-destructive" title={t("action.remove")} onClick={() => setForm({ ...form, default_project_categories: categories.filter((_, rowIndex) => rowIndex !== index) })}><Trash2 /></Button>}</div>)}</div>}
       </div>
       <div className="grid gap-3 md:grid-cols-2">
@@ -182,7 +182,7 @@ export function CompanySiteSettingsWorkspace() {
       </div>
     </section>
 
-    <section className="space-y-4">
+    <section id="company-preferences" className="scroll-mt-20 space-y-4 rounded-xl">
       <SectionTitle icon={Globe2} title={t("preferences.title")} description={t("preferences.subtitle")} />
       <div className="grid gap-4 surface-panel rounded-xl p-4 sm:p-6 sm:grid-cols-2 xl:grid-cols-3">
         <ChoiceField label={t("field.dateFormat")} value={form.date_format} disabled={!canManage} options={["DD/MM/YYYY", "MM/DD/YYYY", "YYYY-MM-DD"]} onChange={(value) => setForm({ ...form, date_format: value as ContractorSiteSettings["date_format"] })} />
@@ -197,17 +197,17 @@ export function CompanySiteSettingsWorkspace() {
       </div>
     </section>
 
-    <section className="space-y-4">
+    <section id="company-permission-defaults" className="scroll-mt-20 space-y-4 rounded-xl">
       <SectionTitle icon={Settings2} title={t("permissionDefaults.title")} description={t("permissionDefaults.subtitle")} action={can("role.view") ? <Button asChild variant="outline"><Link href="/roles">{t("permissionDefaults.manageRoles")}</Link></Button> : undefined} />
       <div className="grid gap-4 surface-panel rounded-xl p-4 sm:p-6 sm:grid-cols-2">
         <ChoiceField label={t("field.defaultUserRole")} value={form.default_user_role_code} disabled={!canManage} options={roleOptions} optionLabel={roleLabel} onChange={(value) => setForm({ ...form, default_user_role_code: value })} />
         <ChoiceField label={t("field.defaultApprovalRole")} value={form.default_approval_role_code} disabled={!canManage} options={roleOptions} optionLabel={roleLabel} onChange={(value) => setForm({ ...form, default_approval_role_code: value })} />
         <QueryFailedNote className="sm:col-span-2" query={roles} what={t("what.roles")} />
       </div>
-      <div className="surface-panel rounded-xl p-4 sm:p-6"><h3 className="panel-title">{t("permissionDefaults.consultant")}</h3><p className="mt-1 text-sm text-muted-foreground">{t("permissionDefaults.consultantHelp")}</p><div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">{CONSULTANT_PERMISSIONS.map((code) => <Toggle key={code} compact label={t(`permissionDefaults.permission.${code.replaceAll(".", "_")}`)} description={code} checked={form.default_consultant_permissions.includes(code)} disabled={!canManage} onChange={(checked) => setForm({ ...form, default_consultant_permissions: checked ? [...form.default_consultant_permissions, code] : form.default_consultant_permissions.filter((item) => item !== code) })} />)}</div></div>
+      <div id="company-consultant-permissions" className="surface-panel scroll-mt-20 rounded-xl p-4 sm:p-6"><h3 className="panel-title">{t("permissionDefaults.consultant")}</h3><p className="mt-1 text-sm text-muted-foreground">{t("permissionDefaults.consultantHelp")}</p><div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">{CONSULTANT_PERMISSIONS.map((code) => <Toggle key={code} compact label={t(`permissionDefaults.permission.${code.replaceAll(".", "_")}`)} description={code} checked={form.default_consultant_permissions.includes(code)} disabled={!canManage} onChange={(checked) => setForm({ ...form, default_consultant_permissions: checked ? [...form.default_consultant_permissions, code] : form.default_consultant_permissions.filter((item) => item !== code) })} />)}</div></div>
     </section>
 
-    <section className="space-y-4">
+    <section id="company-qr" className="scroll-mt-20 space-y-4 rounded-xl">
       <SectionTitle icon={QrCode} title={t("qrSettings.title")} description={t("qrSettings.subtitle")} />
       <div className="grid gap-4 surface-panel rounded-xl p-4 sm:p-6 sm:grid-cols-2 lg:grid-cols-3">
         <FieldWrapper label={t("field.qrPrefix")}><Input disabled={!canManage} value={form.qr_prefix} maxLength={20} onChange={(event) => setForm({ ...form, qr_prefix: event.target.value.toUpperCase() })} /></FieldWrapper>
@@ -218,7 +218,7 @@ export function CompanySiteSettingsWorkspace() {
       </div>
     </section>
 
-    <section className="space-y-4">
+    <section id="company-notifications" className="scroll-mt-20 space-y-4 rounded-xl">
       <SectionTitle icon={BellRing} title={t("notificationSettings.title")} description={t("notificationSettings.subtitle")} />
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         <Toggle label={t("notificationSettings.system")} description={t("notificationSettings.systemHelp")} checked={form.system_notifications} disabled={!canManage} onChange={(checked) => setForm({ ...form, system_notifications: checked })} />
@@ -229,7 +229,7 @@ export function CompanySiteSettingsWorkspace() {
       </div>
     </section>
 
-    <section className="space-y-4">
+    <section id="company-site-rules" className="scroll-mt-20 space-y-4 rounded-xl">
       <SectionTitle icon={FileArchive} title={t("settings.siteRules")} description={t("settings.siteRulesHelp")} />
       <div className="grid gap-4 surface-panel rounded-xl p-4 sm:p-6 sm:grid-cols-2 xl:grid-cols-4">
         <NumberField label={t("field.locationInterval")} value={form.location_update_interval_seconds} min={30} max={7200} disabled={!canManage} onChange={(value) => setForm({ ...form, location_update_interval_seconds: value })} />
@@ -246,7 +246,7 @@ export function CompanySiteSettingsWorkspace() {
     {/* 访客资料 (J33-2, J33-4, J33-5): saved with the settings above. */}
     <VisitorPrivacySection form={form} canManage={canManage} onChange={(next) => setForm({ ...form, ...next })} />
 
-    <section className="space-y-4"><div className="flex flex-wrap items-center justify-between gap-3"><SectionTitle icon={Building2} title={t("branches.title")} description={t("branches.subtitle")} />{canManage && <Button variant="outline" onClick={() => setEditingBranch("new")}><Plus />{t("branches.new")}</Button>}</div>
+    <section id="company-branches" className="scroll-mt-20 space-y-4 rounded-xl"><div className="flex flex-wrap items-center justify-between gap-3"><SectionTitle icon={Building2} title={t("branches.title")} description={t("branches.subtitle")} />{canManage && <Button variant="outline" onClick={() => setEditingBranch("new")}><Plus />{t("branches.new")}</Button>}</div>
       {!branches.data?.count ? <State text={t("branches.empty")} /> : <div className="grid gap-3 lg:grid-cols-2">{branches.data.results.map((row) => <article key={row.id} className="surface-panel rounded-xl p-4"><div className="flex items-start justify-between gap-3"><div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><h3 className="font-semibold">{row.code} - {row.name}</h3>{row.is_headquarters && <StatusBadge label={t("branches.headquarters")} tone="info" />}<StatusBadge label={t(row.is_active ? "status.active" : "status.inactive")} tone={row.is_active ? "positive" : "neutral"} /></div><p className="mt-2 text-sm text-muted-foreground">{[row.address_line_1, row.city, row.state, row.postcode].filter(Boolean).join(", ")}</p></div>{canManage && <div className="flex"><Button size="icon-sm" variant="ghost" title={t("action.edit")} onClick={() => setEditingBranch(row)}><Pencil /></Button><Button size="icon-sm" variant="ghost" title={t("action.remove")} className="text-destructive" onClick={() => setRemoving(row)}><Trash2 /></Button></div>}</div><div className="mt-4 flex flex-wrap gap-x-6 gap-y-1 border-t pt-3 text-xs text-muted-foreground"><span>{row.phone || "-"}</span><span>{row.email || "-"}</span>{row.latitude && <span>{row.latitude}, {row.longitude}</span>}</div></article>)}</div>}
     </section>
     {editingBranch && <BranchDialog row={editingBranch === "new" ? null : editingBranch} onClose={() => setEditingBranch(null)} onSaved={async () => { setEditingBranch(null); await qc.invalidateQueries({ queryKey: ["company-branches"] }); }} />}

@@ -150,7 +150,7 @@ export function RecyclerCompanySettingsWorkspace() {
     <div className="space-y-4 pb-8">
       <ListHeader title={t("title")} subtitle={t("subtitle")} />
 
-      <section className="space-y-3">
+      <section id="recycler-profile" className="scroll-mt-20 space-y-3 rounded-xl">
         <SectionHeading icon={Building2} title={t("profile.title")} description={t("profile.help")} />
         <div className="surface-panel grid gap-6 rounded-xl p-4 sm:p-6 lg:grid-cols-[9.375rem_minmax(0,1fr)]">
           <div className="space-y-3">
@@ -192,7 +192,7 @@ export function RecyclerCompanySettingsWorkspace() {
         </div>
       </section>
 
-      <section className="space-y-3">
+      <section id="recycler-bank" className="scroll-mt-20 space-y-3 rounded-xl">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <SectionHeading icon={Banknote} title={t("bank.title")} description={t("bank.help")} />
           {canManage && <Button onClick={() => setBankEditing(null)}><Plus />{t("bank.add")}</Button>}
@@ -224,7 +224,7 @@ export function RecyclerCompanySettingsWorkspace() {
         </div>
       </section>
 
-      <section className="space-y-3">
+      <section id="recycler-notifications" className="scroll-mt-20 space-y-3 rounded-xl">
         <SectionHeading icon={BellRing} title={t("notifications.title")} description={t("notifications.help")} />
         <div className="grid gap-3 md:grid-cols-3">
           <Toggle label={t("notifications.system")} help={t("notifications.systemHelp")} checked={settings.system_notifications} disabled={!canManage} onChange={(value) => setSetting("system_notifications", value)} />
@@ -233,7 +233,7 @@ export function RecyclerCompanySettingsWorkspace() {
         </div>
       </section>
 
-      <section className="space-y-3">
+      <section id="recycler-business" className="scroll-mt-20 space-y-3 rounded-xl">
         <SectionHeading icon={ShieldCheck} title={t("business.title")} description={t("business.help")} />
         <div className="surface-panel grid grid-cols-1 gap-4 rounded-xl p-4 sm:p-6 lg:grid-cols-3">
           <FieldWrapper label={t("business.deduction")}>
@@ -247,7 +247,7 @@ export function RecyclerCompanySettingsWorkspace() {
 
       {/* 「后台可以设置」: the company default for driver sign-in links. The
           office can still pick the other rule for one link when sending it. */}
-      <section className="space-y-3">
+      <section id="recycler-driver-link" className="scroll-mt-20 space-y-3 rounded-xl">
         <SectionHeading icon={Link2} title={t("driverLink.title")} description={t("driverLink.help")} />
         <div className="surface-panel grid grid-cols-1 gap-4 rounded-xl p-4 sm:grid-cols-2 sm:p-6">
           <FieldWrapper label={t("driverLink.rule")}>
@@ -266,7 +266,7 @@ export function RecyclerCompanySettingsWorkspace() {
         </div>
       </section>
 
-      <section className="space-y-3">
+      <section id="recycler-commission" className="scroll-mt-20 space-y-3 rounded-xl">
         <SectionHeading icon={Scale} title={t("commission.title")} description={t("commission.help")} />
         <div className="surface-panel grid grid-cols-1 gap-4 rounded-xl p-4 sm:grid-cols-2 sm:p-6 lg:grid-cols-4">
           {settings.commission ? (
@@ -288,7 +288,7 @@ export function RecyclerCompanySettingsWorkspace() {
         </div>
       )}
 
-      <section className="space-y-3">
+      <section id="recycler-links" className="scroll-mt-20 space-y-3 rounded-xl">
         <SectionHeading icon={ShieldCheck} title={t("links.title")} description={t("links.help")} />
         <div className="surface-panel grid overflow-hidden rounded-xl sm:grid-cols-2 xl:grid-cols-3">
           {links.map(({ href, icon: Icon, label, help }) => (

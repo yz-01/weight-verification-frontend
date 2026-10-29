@@ -9565,6 +9565,7 @@
   },
   "globalSearch": {
     "noResults": "No matching module or function",
+    "settings": "Settings",
     "open": "Open module search",
     "placeholder": "Search modules and functions"
   },

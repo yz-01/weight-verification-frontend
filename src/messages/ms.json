@@ -9565,6 +9565,7 @@
   },
   "globalSearch": {
     "noResults": "Tiada modul atau fungsi yang sepadan",
+    "settings": "Tetapan",
     "open": "Buka carian fungsi",
     "placeholder": "Cari modul dan fungsi"
   },

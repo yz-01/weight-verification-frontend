@@ -589,7 +589,7 @@ export function Integrations() {
       )}
 
       {selectedCompany && can("integration.manage") && (
-        <section className="space-y-4 surface-panel rounded-xl p-4 sm:p-6">
+        <section id="integrations-new" className="scroll-mt-20 space-y-4 surface-panel rounded-xl p-4 sm:p-6">
           <h2 className="panel-title">
             {t("integrations.newTitle")}
           </h2>
@@ -702,7 +702,7 @@ export function Integrations() {
         </section>
       )}
 
-      <section className="space-y-3">
+      <section id="integrations-connections" className="scroll-mt-20 space-y-3 rounded-xl">
         <h2 className="panel-title">
           {t("integrations.connections")}
         </h2>
@@ -845,7 +845,7 @@ export function Integrations() {
       </section>
 
       {selectedCompany && (
-        <section className="space-y-4 surface-panel rounded-xl p-4 sm:p-6">
+        <section id="integrations-devices" className="scroll-mt-20 space-y-4 surface-panel rounded-xl p-4 sm:p-6">
           <h2 className="panel-title">{t("integrations.devices")}</h2>
           {canManageHardware && (
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
