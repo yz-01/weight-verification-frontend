@@ -17,6 +17,8 @@ import { detectInstallEnvironment } from "@/lib/field-install";
 import {
   enablePushNotifications,
   getPushConfig,
+  PushEnableError,
+  type PushStep,
   getPushSubscriptionStatus,
   isPushSupported,
 } from "@/services/push-notification.service";
@@ -42,6 +44,8 @@ export function FieldAlertsHint() {
   const t = useTranslations("fieldAlerts");
   const [advice, setAdvice] = useState<FieldAlertsAdvice[]>([]);
   const [pending, setPending] = useState(false);
+  // The step 「打开通知」 stopped at, named instead of spinning (Lucas 10-30).
+  const [failed, setFailed] = useState<PushStep | null>(null);
   const [version, setVersion] = useState(0);
   const pushSupported = typeof window !== "undefined" && isPushSupported();
   // query-failure: an unread push setting is "not configured" - the hint then names the install / permission steps only
@@ -90,11 +94,12 @@ export function FieldAlertsHint() {
 
   const turnOn = async () => {
     setPending(true);
+    setFailed(null);
     try {
       // Inside the tap: iPhone asks for permission only from a gesture.
       await enablePushNotifications();
-    } catch {
-      // The request already said what went wrong.
+    } catch (error) {
+      setFailed(error instanceof PushEnableError ? error.step : "server");
     } finally {
       setPending(false);
       setVersion((value) => value + 1);
@@ -110,7 +115,14 @@ export function FieldAlertsHint() {
           className="flex items-start gap-3 rounded-xl border border-primary/30 bg-primary/10 px-3 py-2.5 text-sm"
         >
           <BellRing className="mt-0.5 size-5 shrink-0 text-primary" />
-          <p className="min-w-0 flex-1 leading-5">{t(`${item}.body`)}</p>
+          <div className="min-w-0 flex-1 leading-5">
+            <p>{t(`${item}.body`)}</p>
+            {item === "turn-on" && failed && (
+              <p role="alert" className="mt-1 text-destructive">
+                {t(`failed.${failed}`)}
+              </p>
+            )}
+          </div>
           {item === "turn-on" ? (
             <Button size="sm" disabled={pending} onClick={() => void turnOn()}>
               {pending ? <Loader2 className="animate-spin" /> : null}
