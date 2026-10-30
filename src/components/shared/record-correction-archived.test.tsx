@@ -83,11 +83,10 @@ describe("改正 / 补充 around 确认归档", () => {
     expect(archived).toHaveBeenCalledWith("MATERIAL_OUTGOING", "r1");
   });
 
-  it("never asks the closure address about a 整改: its form says (the 「不在范围」 toast, 10-30)", () => {
-    archived.mockReturnValue(false);
-    expect(show("HAZARD", { ...blankLeft, kind: "HAZARD", archived: false })).toContain("改正");
+  it("treats a 整改 like every other kind: archived by its 【确认归档】 (JB90)", () => {
+    archived.mockReturnValue(true);
     expect(show("HAZARD", { ...blankLeft, kind: "HAZARD" })).toContain("补充");
     expect(show("HAZARD", { ...nothingLeft, kind: "HAZARD" })).toBe("");
-    for (const call of archived.mock.calls) expect(call[1]).toBeUndefined();
+    expect(archived).toHaveBeenCalledWith("HAZARD", "r1");
   });
 });

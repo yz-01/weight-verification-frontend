@@ -3108,11 +3108,6 @@
     "openPhoto": "Buka gambar",
     "noPhoto": "Tiada gambar",
     "goToReceipt": "Pergi ke Bahan masuk untuk mengendalikannya",
-    "hazardClosure": {
-      "closed": "Ditutup",
-      "open": "Belum ditutup",
-      "openHelp": "Ia ditutup apabila orang yang membangkitkannya mengesahkan pembaikan di halaman bahaya."
-    },
     "waiting": {
       "only": "Hanya rekod yang menunggu pengesahan anda - sama seperti “Menunggu anda” di papan pemuka. Buka satu untuk mengesahkannya di halamannya sendiri.",
       "showAll": "Tunjuk semua rekod",
@@ -8383,7 +8378,7 @@
       "gateway_not_found": "Gateway itu tidak dijumpai.",
       "gateway_revoked": "Gateway timbang ini telah dibatalkan.",
       "hazard_audio_too_long": "Nota suara itu {seconds} saat. Satu nota paling lama {limit} saat — rakam yang lebih pendek, atau hantar dua.",
-      "hazard_closed": "{incident_no} telah disahkan dan diarkibkan. Rekodnya kekal boleh dibaca, tetapi tidak menerima mesej baharu.",
+      "hazard_closed": "{incident_no} telah diarkibkan. Rekodnya kekal boleh dibaca, tetapi tidak menerima mesej baharu.",
       "hazard_message_empty": "Taip sesuatu, atau lampirkan foto, nota suara atau fail, sebelum menghantar.",
       "hazard_not_a_participant": "{incident_no} tidak dilaporkan kepada anda. Minta pelapor atau penyelia keselamatan menambah anda.",
       "not_awaiting_confirmation": "{reference} tidak sedang menunggu semakan, jadi tidak boleh dikembalikan. Matikan “Perlu kerja lanjut” dan hantar semula.",
@@ -9586,7 +9581,7 @@
     "attach": "Lampirkan fail",
     "takePhoto": "Ambil foto",
     "photo": "Foto",
-    "closed": "Bahaya ini telah disahkan dan diarkibkan. Rekodnya kekal boleh dibaca, tetapi tidak menerima mesej baharu.",
+    "closed": "Bahaya ini telah diarkibkan. Rekodnya kekal boleh dibaca, tetapi tidak menerima mesej baharu.",
     "participants": "Dalam perbualan ini",
     "reporter": "Melaporkannya",
     "responsible": "Bertanggungjawab",

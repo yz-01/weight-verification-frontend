@@ -150,18 +150,16 @@ export const CORRECTED_ROW_CLASS = "outline outline-2 -outline-offset-2 outline-
 
 /**
  * The kinds 【确认归档】 closes. 现场任务 and 门禁事件 are never archived; a
- * 整改 is archived by its own 验证并关闭, which only its form tells - the
- * closure address knows no 整改 and answered every one 「不在你这个账号的
- * 范围内」 (10-30).
+ * 整改 is, by its own 【确认归档】 since JB90.
  */
 const ARCHIVED_AS: Partial<Record<CorrectableKind, ArchiveRecordKind>> = {
+  HAZARD: "HAZARD",
   EQUIPMENT_MOVEMENT: "EQUIPMENT_MOVEMENT",
   MATERIAL_OUTGOING: "MATERIAL_OUTGOING",
   WASTE_OUTGOING: "WASTE_OUTGOING",
   PROGRESS: "PROGRESS",
   SUNDRY_CLAIM: "SUNDRY_CLAIM",
 };
-const ARCHIVED_BY_STATUS: ReadonlySet<CorrectableKind> = new Set(["HAZARD"]);
 
 /**
  * 【改正】 for one record: shown only to whoever holds the module's 「管理」
@@ -188,12 +186,11 @@ export function RecordCorrectionButton({
     archiveKind ?? "PROGRESS",
     allowed && archiveKind ? recordId : undefined,
   );
-  const byStatus = ARCHIVED_BY_STATUS.has(kind);
   // query-failure: decides only whether the button shows; the dialog says why.
   const fillable = useQuery({
     queryKey: ["record-correction-fillable", kind, recordId],
     queryFn: () => getCorrectionForm(kind, recordId, { silent: true }),
-    enabled: allowed && (closed || byStatus),
+    enabled: allowed && closed,
   });
   // The server says whether the archive locks anything (Lucas 10-30 evening:
   // 「归档后的事项都可以修改，只是不能聊天而已」 - it does not, so an archived

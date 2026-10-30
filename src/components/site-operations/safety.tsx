@@ -915,6 +915,10 @@ export function Safety({
             setAssigning(opened);
             setOpened(null);
           }}
+          onSubmit={() => {
+            setSubmitting(opened);
+            setOpened(null);
+          }}
         />
       )}
       {talking && (
@@ -952,9 +956,16 @@ export function HazardRecordDetail({
   onReview,
   onAssign,
   onReassign,
+  onSubmit,
   onCorrected,
 }: {
   incident: SafetyIncident;
+  /**
+   * The rectifier's 【提交整改】 (JB90): whoever was named to fix it, in the
+   * office too - a phone may name an office account, and that person had only
+   * the conversation here.
+   */
+  onSubmit?: () => void;
   /** After 【改正】 (I30): re-read the incident. */
   onCorrected?: () => void;
   /** `Safety`'s assignment rule, for this incident. */
@@ -969,6 +980,13 @@ export function HazardRecordDetail({
   const t = useTranslations();
   const te = useTranslations("ehs");
   const df = useDateFormat();
+  const qc = useQueryClient();
+  const { user } = useAuth();
+  const maySubmit =
+    Boolean(onSubmit) &&
+    incident.responsible_person === user?.id &&
+    !isPermit(incident) &&
+    ["ASSIGNED", "RETURNED"].includes(incident.status);
   // 【改正】 (I30): a hazard's category, title and description; a permit is
   // its own form and is not corrected here.
   const mayCorrect = useCanCorrect("HAZARD");
@@ -1053,8 +1071,14 @@ export function HazardRecordDetail({
         }))}
         emptyGroupLabel={te("photos.none")}
         actions={
-          incident.can_confirm || mayAssign || mayFile || correction ? (
+          incident.can_confirm || mayAssign || mayFile || correction || maySubmit ? (
             <div className="grid gap-2">
+              {maySubmit && (
+                <Button className="min-h-11" onClick={onSubmit}>
+                  <Camera />
+                  {t("safetyRectification.action.submit")}
+                </Button>
+              )}
               {correction}
               {incident.can_confirm && (
                 <Button
@@ -1095,6 +1119,19 @@ export function HazardRecordDetail({
             <RecordCorrectionHistory kind="HAZARD" recordId={incident.id} />
           )
         }
+        // 【确认归档】 like every other record (JB90, Lucas 10-30: 「弄成可以
+        // 手动归档，还没有按归档之前属于未归档」): offered once 验收 is done,
+        // and the conversation closes with it. A permit is archived by its
+        // approval, so its box only says who.
+        closure={{
+          kind: "HAZARD",
+          recordId: incident.id,
+          onConfirmed: () => {
+            void qc.invalidateQueries({ queryKey: ["safety"] });
+            void qc.invalidateQueries({ queryKey: ["safety-incident", incident.id] });
+            void qc.invalidateQueries({ queryKey: ["hazard-conversation", incident.id] });
+          },
+        }}
         chat={<HazardConversationPanel incidentId={incident.id} />}
       />
     </RecordDetailDialog>
@@ -1117,7 +1154,7 @@ export function HazardInPlace({ id, onClose }: { id: string; onClose: () => void
   const qc = useQueryClient();
   const { mayAssign, mayFile } = useHazardRules();
   const detail = useQuery({ queryKey: ["safety-incident", id], queryFn: () => getSafetyIncident(id) });
-  const [step, setStep] = useState<"review" | "assign" | "reassign" | null>(null);
+  const [step, setStep] = useState<"review" | "assign" | "reassign" | "submit" | null>(null);
   // The list's key, and this record's own.
   const refresh = () => {
     void qc.invalidateQueries({ queryKey: ["safety"] });
@@ -1145,6 +1182,7 @@ export function HazardInPlace({ id, onClose }: { id: string; onClose: () => void
   if (step === "review") return <SafetyReviewDialog incident={incident} onClose={back} />;
   if (step === "assign") return <SafetyAssignDialog incident={incident} onClose={back} />;
   if (step === "reassign") return <SafetyReassignDialog incident={incident} onClose={back} />;
+  if (step === "submit") return <SafetySubmitDialog incident={incident} onClose={back} />;
   return (
     <HazardRecordDetail
       incident={incident}
@@ -1156,6 +1194,7 @@ export function HazardInPlace({ id, onClose }: { id: string; onClose: () => void
       onReview={() => setStep("review")}
       onAssign={() => setStep("assign")}
       onReassign={() => setStep("reassign")}
+      onSubmit={() => setStep("submit")}
     />
   );
 }

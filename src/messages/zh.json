@@ -3108,11 +3108,6 @@
     "openPhoto": "放大查看照片",
     "noPhoto": "无照片",
     "goToReceipt": "去材料进场处理",
-    "hazardClosure": {
-      "closed": "已闭环",
-      "open": "未闭环",
-      "openHelp": "发起人在整改里确认完成后就闭环。"
-    },
     "waiting": {
       "only": "只显示等你确认的记录，和仪表板「等你处理」是同一批。点「打开」到它的业务页面确认。",
       "showAll": "显示全部记录",
@@ -8383,7 +8378,7 @@
       "gateway_not_found": "找不到这台网关。",
       "gateway_revoked": "该称重网关已经撤销。",
       "hazard_audio_too_long": "这条语音 {seconds} 秒，单条最长 {limit} 秒。请重录短一点，或者分两条发。",
-      "hazard_closed": "{incident_no} 已验收并闭环归档。记录仍然可以查看，但不能再发新消息。",
+      "hazard_closed": "{incident_no} 已归档。记录仍然可以查看，但不能再发新消息。",
       "hazard_message_empty": "发送前请输入文字，或附上照片、语音或文件。",
       "hazard_not_a_participant": "{incident_no} 没有上报给你。请让上报人或安全主管把你加进来。",
       "not_awaiting_confirmation": "{reference} 现在不是待验收，不能退回整改。请关掉「需要继续整改」再发送。",
@@ -9586,7 +9581,7 @@
     "attach": "发送文件",
     "takePhoto": "拍照",
     "photo": "照片",
-    "closed": "这条整改已验收并闭环归档。记录仍可查看，但不能再发新消息。",
+    "closed": "这条整改已归档。记录仍可查看，但不能再发新消息。",
     "participants": "本次参与的人",
     "reporter": "上报人",
     "responsible": "责任人",
