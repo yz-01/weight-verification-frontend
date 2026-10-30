@@ -76,10 +76,21 @@ describe("a record opens over the page it was pressed on", () => {
   });
 
   it("leaves the kinds whose popup lives inside their list to their module's screen", () => {
-    for (const kind of ["WASTE_OUTGOING", "DISPOSAL_REQUEST", "HAZARD", "WASTE_DISPATCH", "GATE_INCIDENT", "", null]) {
+    for (const kind of ["WASTE_DISPATCH", "GATE_INCIDENT", "", null]) {
       expect(opensInPlace(kind), String(kind)).toBe(false);
     }
-    expect(renderToStaticMarkup(<InPlaceRecord kind="HAZARD" id="h-1" onClose={() => {}} />)).toBe("");
+    expect(renderToStaticMarkup(<InPlaceRecord kind="GATE_INCIDENT" id="g-1" onClose={() => {}} />)).toBe("");
+  });
+
+  it("opens 整改, 废料, 清运, Progress Claim, 设备进出场 and 工程进度 on the page too", () => {
+    // Lucas 10-30: 「我的原记录是指可以归档验收那些…不要跳转页面」.
+    for (const kind of [
+      "HAZARD", "SAFETY_INCIDENT", "WASTE_OUTGOING", "DISPOSAL_REQUEST", "DISPOSAL",
+      "CLAIM", "EQUIPMENT_MOVEMENT", "PROGRESS", "SITE_PROGRESS",
+    ]) {
+      expect(opensInPlace(kind), kind).toBe(true);
+      expect(recordTarget(kind, "x"), kind).not.toBeNull();
+    }
   });
 
   it("covers only kinds the shared record route already opens", () => {
@@ -94,7 +105,7 @@ describe("the callers open in place instead of leaving the page", () => {
   it("the shared opener (dashboard cards, 等你处理, photos, documents, the timeline) asks first", () => {
     const opener = read("components/shared/record-opener.tsx");
     expect(opener).toMatch(
-      /if \(id && opensInPlace\(kind\)\) \{\s+setInPlace\(\{ kind, id \}\);\s+return true;\s+\}\s+router\.push\(target\.href\);/,
+      /if \(id && opensInPlace\(kind\)\) \{\s+setInPlace\(\{ kind, id \}\);\s+return true;\s+\}\s+const target = recordTarget\(kind, id\);/,
     );
     expect(opener).toMatch(/<InPlaceRecord kind=\{inPlace\.kind\} id=\{inPlace\.id\} onClose=\{closeInPlace\} \/>/);
   });

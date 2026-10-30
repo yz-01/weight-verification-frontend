@@ -40,9 +40,9 @@ function componentBody(code: string, name: string) {
 const BUSINESS_DETAILS: Array<[string, string, boolean]> = [
   ["src/components/receipts/view-receipt.tsx", "ViewReceipt", true],
   ["src/components/contractor-ops/operations-workspaces.tsx", "OutgoingDetailDialog", true],
-  ["src/components/contractor-ops/office-module-lists.tsx", "SiteEquipmentOffice", true],
-  ["src/components/contractor-ops/office-module-lists.tsx", "SiteProgressOffice", true],
-  ["src/components/contractor-ops/waste-outgoing-workspace.tsx", "WasteOutgoingWorkspace", true],
+  ["src/components/contractor-ops/office-module-lists.tsx", "MovementRecordDialog", true],
+  ["src/components/contractor-ops/office-module-lists.tsx", "ProgressRecordDialog", true],
+  ["src/components/contractor-ops/waste-outgoing-workspace.tsx", "WasteOutgoingRecordWindow", true],
   ["src/components/contractor-ops/site-disposal-workspaces.tsx", "DisposalDetailDialog", true],
   ["src/components/sundry-claims/sundry-claims-office.tsx", "SundryClaimDetail", true],
   ["src/components/material-requests/material-requests-office.tsx", "MaterialRequestDetail", true],

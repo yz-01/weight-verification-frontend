@@ -181,62 +181,68 @@ export function RequestTypesEditor({ project }: { project: string }) {
                 />
                 {t("types.activeLabel")}
               </label>
-              {editing === row.id ? (
-                <>
+              {/* Fixed slots, so every row's buttons stand in the same columns
+                  whether or not it has the remove switch (Lucas 10-30: 「不要歪歪的」). */}
+              <div className="flex w-[4.5rem] shrink-0 items-center gap-1">
+                {editing === row.id ? (
+                  <>
+                    <Button
+                      size="icon-sm"
+                      title={t("types.save")}
+                      disabledReason={draftName.trim() ? undefined : t("types.nameRequired")}
+                      disabled={!draftName.trim() || update.isPending}
+                      onClick={() => update.mutate({ id: row.id, payload: { name: draftName.trim() } })}
+                    >
+                      {update.isPending ? <Loader2 className="animate-spin" /> : <Save />}
+                    </Button>
+                    <Button size="icon-sm" variant="ghost" title={t("types.cancel")} onClick={() => setEditing(null)}>
+                      <X />
+                    </Button>
+                  </>
+                ) : (
                   <Button
                     size="icon-sm"
-                    title={t("types.save")}
-                    disabledReason={draftName.trim() ? undefined : t("types.nameRequired")}
-                    disabled={!draftName.trim() || update.isPending}
-                    onClick={() => update.mutate({ id: row.id, payload: { name: draftName.trim() } })}
+                    variant="ghost"
+                    title={t("types.rename")}
+                    onClick={() => {
+                      setEditing(row.id);
+                      setDraftName(row.name);
+                    }}
                   >
-                    {update.isPending ? <Loader2 className="animate-spin" /> : <Save />}
+                    <Pencil />
                   </Button>
-                  <Button size="icon-sm" variant="ghost" title={t("types.cancel")} onClick={() => setEditing(null)}>
-                    <X />
-                  </Button>
-                </>
-              ) : (
+                )}
+              </div>
+              <div className="flex w-24 shrink-0 items-center justify-end gap-2">
+                {/* Removing is armed by the switch, then the bin acts (rule 8).
+                    The two fixed types offer no switch; the bin says why. */}
+                {!row.is_fixed && row.request_count === 0 && (
+                  <Switch
+                    checked={armed === row.id}
+                    onCheckedChange={(next) => setArmed(next ? row.id : null)}
+                    aria-label={t("types.armRemove", { name: row.name })}
+                  />
+                )}
                 <Button
                   size="icon-sm"
                   variant="ghost"
-                  title={t("types.rename")}
-                  onClick={() => {
-                    setEditing(row.id);
-                    setDraftName(row.name);
-                  }}
+                  className="text-destructive"
+                  title={t("types.remove")}
+                  disabledReason={
+                    row.is_fixed
+                      ? t("types.fixedHelp")
+                      : row.request_count > 0
+                        ? t("types.hasRecordsHelp", { count: row.request_count })
+                        : armed !== row.id
+                          ? t("types.armFirst")
+                          : undefined
+                  }
+                  disabled={row.is_fixed || row.request_count > 0 || armed !== row.id || removal.isPending}
+                  onClick={() => removal.mutate(row.id)}
                 >
-                  <Pencil />
+                  {removal.isPending && armed === row.id ? <Loader2 className="animate-spin" /> : <Trash2 />}
                 </Button>
-              )}
-              {/* Removing is armed by the switch, then the bin acts (rule 8).
-                  The two fixed types offer no switch; the bin says why. */}
-              {!row.is_fixed && row.request_count === 0 && (
-                <Switch
-                  checked={armed === row.id}
-                  onCheckedChange={(next) => setArmed(next ? row.id : null)}
-                  aria-label={t("types.armRemove", { name: row.name })}
-                />
-              )}
-              <Button
-                size="icon-sm"
-                variant="ghost"
-                className="text-destructive"
-                title={t("types.remove")}
-                disabledReason={
-                  row.is_fixed
-                    ? t("types.fixedHelp")
-                    : row.request_count > 0
-                      ? t("types.hasRecordsHelp", { count: row.request_count })
-                      : armed !== row.id
-                        ? t("types.armFirst")
-                        : undefined
-                }
-                disabled={row.is_fixed || row.request_count > 0 || armed !== row.id || removal.isPending}
-                onClick={() => removal.mutate(row.id)}
-              >
-                {removal.isPending && armed === row.id ? <Loader2 className="animate-spin" /> : <Trash2 />}
-              </Button>
+              </div>
             </li>
           ))}
         </ul>

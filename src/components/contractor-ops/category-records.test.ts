@@ -174,13 +174,13 @@ describe("clicking a record opens the queue's own detail, fed from the column", 
 
   it("opens RecordSheet with getCategoryRecord, not the archive queue's door", () => {
     expect(dialog).toMatch(/onClick=\{\(\) => openRow\(row\)\}/);
-    // Every kind but a machine profile opens the record sheet (2026-10 B2:
-    // a machine opens its own profile to edit).
-    // A machine profile opens in its own editable dialog only for whoever may
-    // edit machines; everybody else reads it here (Fable B4 #5).
-    expect(dialog).toMatch(
-      /if \(!isEquipment \|\| row\.kind !== "SITE_EQUIPMENT" \|\| !can\("equipment\.manage"\)\) \{\s+setOpen\(row\);/,
-    );
+    // A record with its module's own window opens that, on this page (Lucas
+    // 10-30: 「我的原记录是指可以归档验收那些」); a machine opens the
+    // register's machine window (编辑 → its profile); the rest, the sheet.
+    expect(dialog).toMatch(/if \(opensInPlace\(row\.kind\)\) \{\s+setInPlace\(/);
+    expect(dialog).toMatch(/<InPlaceRecord/);
+    expect(dialog).toMatch(/if \(!isEquipment \|\| row\.kind !== "SITE_EQUIPMENT"\) \{\s+setOpen\(row\);/);
+    expect(dialog).toMatch(/<MachineRecordDialog/);
     expect(dialog).toMatch(/<EquipmentDialog/);
     expect(dialog).toMatch(/<RecordSheet\s+row=\{open\}\s+fetchRecord=\{getCategoryRecord\}/);
     // The shared record popup (E8), no longer a hand-built overlay.

@@ -17975,7 +17975,8 @@
     "loading": "Menyemak…",
     "what": {
       "state": "Sama ada rekod ini sudah diarkibkan"
-    }
+    },
+    "closedByFinal": "Disahkan oleh {name} pada {when}. Tuntutan yang telah diputuskan tidak boleh diubah lagi; perbualan ditutup."
   },
   "recordCorrection": {
     "openHistory": "Buka sejarah pengubahan",

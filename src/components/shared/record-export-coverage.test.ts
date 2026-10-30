@@ -40,11 +40,11 @@ function passesExport(body: string, kind: string) {
 const DETAILS: Array<[string, string, string]> = [
   ["src/components/receipts/view-receipt.tsx", "ViewReceipt", "MATERIAL_RECEIPT"],
   ["src/components/contractor-ops/operations-workspaces.tsx", "OutgoingDetailDialog", "MATERIAL_OUTGOING"],
-  ["src/components/contractor-ops/office-module-lists.tsx", "SiteEquipmentOffice", "EQUIPMENT_MOVEMENT"],
+  ["src/components/contractor-ops/office-module-lists.tsx", "MovementRecordDialog", "EQUIPMENT_MOVEMENT"],
   ["src/components/site-operations/safety.tsx", "HazardRecordDetail", "HAZARD"],
-  ["src/components/contractor-ops/waste-outgoing-workspace.tsx", "WasteOutgoingWorkspace", "WASTE_OUTGOING"],
+  ["src/components/contractor-ops/waste-outgoing-workspace.tsx", "WasteOutgoingRecordWindow", "WASTE_OUTGOING"],
   ["src/components/contractor-ops/site-disposal-workspaces.tsx", "DisposalDetailDialog", "DISPOSAL_REQUEST"],
-  ["src/components/contractor-ops/office-module-lists.tsx", "SiteProgressOffice", "PROGRESS"],
+  ["src/components/contractor-ops/office-module-lists.tsx", "ProgressRecordDialog", "PROGRESS"],
   ["src/components/consultant-workflow/application-detail.tsx", "ConsultantApplicationDetail", "CONSULTANT_APPLICATION"],
   ["src/components/sundry-claims/sundry-claims-office.tsx", "SundryClaimDetail", "SUNDRY_CLAIM"],
   // 施工准证 is a HAZARD row (record_type PERMIT); its own detail exports the
@@ -78,13 +78,13 @@ describe("every record detail can export that one record (T-386)", () => {
   }
 
   it("the equipment register's machine has its own PDF too (H16: HD13 overrides T-386)", () => {
-    const body = componentBody(
-      read("src/components/contractor-ops/office-module-lists.tsx"),
-      "SiteEquipmentOffice",
+    // A movement's and, since HD13 「每一个事项都要」, the machine's - each in
+    // its own window, which 分类管理 opens in place too (Lucas 10-30).
+    const code = read("src/components/contractor-ops/office-module-lists.tsx");
+    expect(passesExport(componentBody(code, "MovementRecordDialog"), "EQUIPMENT_MOVEMENT")).toBe(true);
+    expect(componentBody(code, "MachineRecordDialog")).toMatch(
+      /kind: "SITE_EQUIPMENT",\s*recordId: machine\.id/,
     );
-    // A movement's and, since HD13 「每一个事项都要」, the machine's.
-    expect(body.match(/exportRecord=/g) ?? []).toHaveLength(2);
-    expect(body).toMatch(/kind: "SITE_EQUIPMENT",\s*recordId: shownMachine\.id/);
   });
 
   it("the archive queue's sheet exports every kind that has a PDF", () => {

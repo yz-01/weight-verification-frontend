@@ -24,6 +24,11 @@ import { ConsultantApplicationDetail } from "@/components/consultant-workflow/ap
 import { MaterialRequestDetail } from "@/components/material-requests/material-requests-office";
 import { ViewReceipt } from "@/components/receipts/view-receipt";
 import { SundryClaimDetail } from "@/components/sundry-claims/sundry-claims-office";
+import { HazardInPlace } from "@/components/site-operations/safety";
+import { WasteOutgoingInPlace } from "@/components/contractor-ops/waste-outgoing-workspace";
+import { DisposalInPlace } from "@/components/contractor-ops/site-disposal-workspaces";
+import { ClaimInPlace } from "@/components/contractor-ops/claim-engine";
+import { EquipmentMovementInPlace, ProgressInPlace } from "@/components/contractor-ops/office-module-lists";
 
 const IN_PLACE_KINDS = new Set([
   "MATERIAL_RECEIPT",
@@ -34,6 +39,18 @@ const IN_PLACE_KINDS = new Set([
   "FIELD_TASK",
   // 文件资料报表 → a document, closed back onto the report (客户 10-26 事项 4).
   "DOCUMENT",
+  // 分类管理 → 查看记录 opens each record's own window - 验收, 确认归档, 更正,
+  // 沟通 - on the page (Lucas 10-30: 「我的原记录是指可以归档验收那些…不要
+  // 跳转页面」). Under every name the server uses for them.
+  "HAZARD",
+  "SAFETY_INCIDENT",
+  "WASTE_OUTGOING",
+  "DISPOSAL_REQUEST",
+  "DISPOSAL",
+  "CLAIM",
+  "EQUIPMENT_MOVEMENT",
+  "PROGRESS",
+  "SITE_PROGRESS",
 ]);
 
 /** Whether a record of this kind opens in a popup over the current page. */
@@ -73,6 +90,21 @@ export function InPlaceRecord({
       return <FieldTaskSheet id={id} onClose={onClose} />;
     case "DOCUMENT":
       return <DocumentInPlace id={id} onClose={onClose} />;
+    case "HAZARD":
+    case "SAFETY_INCIDENT":
+      return <HazardInPlace id={id} onClose={onClose} />;
+    case "WASTE_OUTGOING":
+      return <WasteOutgoingInPlace id={id} onClose={onClose} />;
+    case "DISPOSAL_REQUEST":
+    case "DISPOSAL":
+      return <DisposalInPlace id={id} onClose={onClose} />;
+    case "CLAIM":
+      return <ClaimInPlace id={id} onClose={onClose} />;
+    case "EQUIPMENT_MOVEMENT":
+      return <EquipmentMovementInPlace id={id} onClose={onClose} />;
+    case "PROGRESS":
+    case "SITE_PROGRESS":
+      return <ProgressInPlace id={id} onClose={onClose} />;
     default:
       return null;
   }

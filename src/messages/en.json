@@ -17975,7 +17975,8 @@
     "loading": "Checking…",
     "what": {
       "state": "Whether this record is already archived"
-    }
+    },
+    "closedByFinal": "Confirmed by {name} on {when}. A decided claim can no longer be changed; the conversation is closed."
   },
   "recordCorrection": {
     "openHistory": "Open the modification history",

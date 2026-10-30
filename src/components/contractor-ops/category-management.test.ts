@@ -80,7 +80,8 @@ describe("every module is managed on this one page (D-264)", () => {
     expect(source).toMatch(/row\.column\?\.kind === "EHS" && row\.code === PERMIT_COLUMN_CODE/);
     // I35: a preset with no records can be deleted; only the permit column,
     // a fixed 「其他」 and a category holding records offer no switch.
-    expect(source).toMatch(/removeBlock\(row\) \? null : \(\s*<Switch/);
+    // No switch where removing is blocked; a spacer keeps the bin in line (Lucas 10-30).
+    expect(source).toMatch(/removeBlock\(row\) \? \(\s*\/\/[^\n]*\n\s*<span aria-hidden className="w-11 shrink-0" \/>\s*\) : \(\s*<Switch/);
     expect(source).not.toMatch(/row\.waste\?\.is_system \|\|/);
     const block = functionBody(source, "const removeBlock");
     expect(block).toMatch(/return "permit"/);
