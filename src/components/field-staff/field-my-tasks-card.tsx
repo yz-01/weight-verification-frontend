@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { ClipboardList } from "lucide-react";
+import { ChevronRight, ClipboardList } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
@@ -98,12 +98,14 @@ export function FieldMyTasksCard() {
       </div>
 
       {rows.length > 0 && (
-        <ul className="mt-3 divide-y border-t">
+        // Each waiting matter its own small card, apart from the next (Lucas
+        // 10-30: the rows ran into each other - 「不整齐」).
+        <ul className="mt-3 space-y-2">
           {rows.map((row) => {
             const rawHref = row.data.href ?? row.data.url;
             const href = fieldNotificationHref(rawHref, row.data);
             const body = (
-              <span className="min-w-0 flex-1">
+              <span className="block min-w-0 flex-1 leading-5">
                 <span className="block truncate text-sm font-medium">
                   {row.title}
                 </span>
@@ -135,15 +137,16 @@ export function FieldMyTasksCard() {
             return (
               <li key={row.id}>
                 {href ? (
-                  <Button
-                    variant="ghost"
-                    className="h-auto w-full justify-start whitespace-normal px-0 py-3 text-left"
+                  <button
+                    type="button"
+                    className="flex w-full items-center gap-2 rounded-lg border px-3 py-2.5 text-left transition-colors hover:bg-muted/40"
                     onClick={() => openFieldHref(href, router.push)}
                   >
                     {body}
-                  </Button>
+                    <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
+                  </button>
                 ) : (
-                  <div className="flex px-0 py-3">{body}</div>
+                  <div className="flex rounded-lg border px-3 py-2.5">{body}</div>
                 )}
               </li>
             );
