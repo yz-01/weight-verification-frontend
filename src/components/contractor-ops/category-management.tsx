@@ -888,13 +888,16 @@ export function CategoryManagement() {
                             >
                               <Pencil />
                             </Button>
-                            <div className="flex w-[5.5rem] items-center justify-end gap-1">
+                            <div className="flex items-center gap-1">
                             {/* Removing is armed by the row's switch, then
                                 the bin acts at once (rule 8, HD4). Any category
                                 with no records can go, a preset too (I35); one
                                 with records, the fixed 「其他」 and 施工准证申请
                                 offer no switch and the bin says why (F-129). */}
-                            {removeBlock(row) ? null : (
+                            {removeBlock(row) ? (
+                              // Holds the switch's place, so the bin stays in line.
+                              <span aria-hidden className="w-11 shrink-0" />
+                            ) : (
                               <Switch
                                 checked={armed === row.id}
                                 onCheckedChange={(next) => {
