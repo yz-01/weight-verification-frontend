@@ -41,6 +41,11 @@ export interface SiteWorker {
   supplier_name: string;
   company_note: string;
   company_name: string;
+  /** 「施工工种」 (JB91); null is 「未填工种」. */
+  trade: string | null;
+  /** A built-in trade's code, translated on screen; empty for one the company added. */
+  trade_code: string;
+  trade_name: string;
   documents: SiteWorkerDocument[];
   documents_text: string;
   is_active: boolean;
@@ -109,7 +114,36 @@ export interface SiteWorkerPayload {
   cidb_no: string;
   supplier: string | null;
   company_note: string;
+  trade?: string | null;
   documents: SiteWorkerDocument[];
+}
+
+/** One 「施工工种」 on the company's list (JB91). */
+export interface SiteWorkerTrade {
+  id: string;
+  /** REBAR, FORMWORK, CONCRETE, ELECTRICIAN, GENERAL - or empty for one the company added. */
+  code: string;
+  name: string;
+  sort_order: number;
+  is_active: boolean;
+  built_in: boolean;
+}
+
+export interface TradeCount {
+  /** The `trade` filter's value: the trade's id, or "none" for 「未填工种」. */
+  value: string;
+  registered: number;
+  on_site: number;
+}
+
+/** 「按工种汇总」 (JB91): 登记 and 在场 per trade. */
+export interface TradeSummary {
+  results: Array<SiteWorkerTrade & TradeCount>;
+  no_trade: TradeCount;
+  registered: number;
+  on_site: number;
+  /** The moment the numbers were counted (「最后更新」). */
+  updated_at: string;
 }
 
 export interface CompanyOption {
@@ -165,6 +199,7 @@ export interface BatchRowData {
   passport_expiry: string;
   cidb_no: string;
   company_text: string;
+  trade_text: string;
   source: BatchRowSource;
   read_status: PassportReadStatus;
   needs_check: boolean;
@@ -179,6 +214,8 @@ export interface BatchRowProblem {
 
 export interface BatchState {
   problems: Record<string, BatchRowProblem[]>;
+  /** JB91: rows that only give a worker already on the roster a trade, and whose. */
+  fills?: Record<string, { name: string }>;
   row_count: number;
   saved_count: number;
 }
@@ -207,6 +244,7 @@ export interface BatchSyncRow {
   passport_expiry?: string;
   cidb_no?: string;
   company_text?: string;
+  trade_text?: string;
   checked?: boolean;
 }
 
@@ -227,6 +265,9 @@ export interface BatchExcelResult extends BatchState {
 export interface BatchSaveResult extends BatchState {
   saved: number;
   saved_ids: string[];
+  /** JB91: rows that gave a worker already on the roster a trade. */
+  filled?: number;
+  filled_ids?: string[];
   problem_count: number;
   last: number;
   done: boolean;

@@ -20,6 +20,8 @@ export const BULK_FIELDS = [
   "passport_expiry",
   "cidb_no",
   "company_text",
+  // JB91: 「施工工种」, last, as in the Excel template.
+  "trade_text",
 ] as const;
 export type BulkField = (typeof BULK_FIELDS)[number];
 export type BulkValues = Record<BulkField, string>;
@@ -67,6 +69,7 @@ export function emptyValues(): BulkValues {
     passport_expiry: "",
     cidb_no: "",
     company_text: "",
+    trade_text: "",
   };
 }
 
