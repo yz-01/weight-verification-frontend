@@ -53,27 +53,87 @@ export async function syncPushSubscription(): Promise<boolean> {
   return true;
 }
 
+/** The step 「打开通知」 stopped at, for the screen to name (Lucas 10-30: it
+ * spun for ever on an iPhone). */
+export type PushStep = "permission" | "config" | "worker" | "subscribe" | "server";
+
+export class PushEnableError extends Error {
+  constructor(readonly step: PushStep) {
+    super(`push: ${step}`);
+  }
+}
+
+/** ``promise``, or a ``PushEnableError`` at ``step`` after ``ms``. */
+function within<T>(promise: Promise<T>, ms: number, step: PushStep): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => reject(new PushEnableError(step)), ms);
+    promise.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      () => {
+        clearTimeout(timer);
+        reject(new PushEnableError(step));
+      },
+    );
+  });
+}
+
+/**
+ * The service worker that receives pushes, registered again if the page
+ * has none - `serviceWorker.ready` alone waits for ever when the first
+ * registration failed.
+ */
+async function pushWorker(): Promise<ServiceWorkerRegistration> {
+  const existing = await navigator.serviceWorker.getRegistration("/");
+  if (!existing) {
+    await navigator.serviceWorker.register("/sw.js", { scope: "/", updateViaCache: "none" });
+  }
+  return navigator.serviceWorker.ready;
+}
+
+/**
+ * Turn this phone's notifications on. Throws a `PushEnableError` naming the
+ * step that failed or took too long; resolves false when the person said no.
+ */
 export async function enablePushNotifications(): Promise<boolean> {
   if (!isPushSupported()) return false;
-  const config = await getPushConfig();
-  if (!config.configured || !config.public_key) return false;
-  const permission = await Notification.requestPermission();
+  // The setting is asked for alongside, not first: an iPhone shows the
+  // permission question only straight from the tap, and a network wait in
+  // between left it unanswered - the button spun for ever.
+  const config = getPushConfig();
+  config.catch(() => undefined);
+  const permission =
+    Notification.permission === "default"
+      ? await within(Notification.requestPermission(), 60_000, "permission")
+      : Notification.permission;
   if (permission !== "granted") return false;
-  const registration = await navigator.serviceWorker.ready;
+  const { configured, public_key: publicKey } = await within(config, 15_000, "config");
+  if (!configured || !publicKey) throw new PushEnableError("config");
+  const registration = await within(pushWorker(), 15_000, "worker");
   const existing = await registration.pushManager.getSubscription();
   const subscription =
     existing ??
-    (await registration.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: decodeVapidKey(config.public_key) as BufferSource,
-    }));
+    (await within(
+      registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: decodeVapidKey(publicKey) as BufferSource,
+      }),
+      20_000,
+      "subscribe",
+    ));
   const json = subscription.toJSON();
-  if (!json.endpoint || !json.keys?.p256dh || !json.keys.auth) return false;
-  await api.post("/api/notifications/subscribe_push/", {
-    endpoint: json.endpoint,
-    keys: json.keys,
-    device_label: navigator.platform,
-  });
+  if (!json.endpoint || !json.keys?.p256dh || !json.keys.auth) throw new PushEnableError("subscribe");
+  await within(
+    api.post("/api/notifications/subscribe_push/", {
+      endpoint: json.endpoint,
+      keys: json.keys,
+      device_label: navigator.platform,
+    }),
+    15_000,
+    "server",
+  );
   return true;
 }
 

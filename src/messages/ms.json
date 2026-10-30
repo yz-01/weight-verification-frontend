@@ -20371,7 +20371,14 @@
     "denied": {
       "body": "Pemberitahuan dimatikan, jadi mesej baharu tidak akan berbunyi. Benarkan untuk aplikasi ini di Tetapan → Pemberitahuan telefon."
     },
-    "dismiss": "Faham"
+    "dismiss": "Faham",
+    "failed": {
+      "permission": "Telefon tidak menjawab kebenaran pemberitahuan. Benarkan pemberitahuan untuk aplikasi ini di Tetapan → Pemberitahuan, kemudian tekan sekali lagi.",
+      "config": "Tidak dapat menghubungi pelayan untuk tetapan pemberitahuan. Semak sambungan dan tekan sekali lagi.",
+      "worker": "Perkhidmatan latar telefon belum sedia. Tutup aplikasi sepenuhnya, buka semula dan tekan sekali lagi.",
+      "subscribe": "Telefon tidak selesai mendaftar untuk pemberitahuan (Apple / Google tidak menjawab). Semak sambungan, buka semula aplikasi dan tekan sekali lagi.",
+      "server": "Pemberitahuan dihidupkan di telefon tetapi tidak disimpan di pelayan. Semak sambungan dan tekan sekali lagi."
+    }
   },
   "passportCapture": {
     "title": "Ambil gambar pasport",

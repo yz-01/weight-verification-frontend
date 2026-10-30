@@ -20371,7 +20371,14 @@
     "denied": {
       "body": "Notifications are off, so new messages will not ring. Allow them for this app in the phone's Settings → Notifications."
     },
-    "dismiss": "Got it"
+    "dismiss": "Got it",
+    "failed": {
+      "permission": "The phone did not answer the notification permission. Allow notifications for this app in Settings → Notifications, then tap again.",
+      "config": "Could not reach the server for the notification settings. Check the connection and tap again.",
+      "worker": "The phone's background service is not ready. Close the app completely, open it again and tap again.",
+      "subscribe": "The phone did not finish signing up for notifications (Apple / Google did not answer). Check the connection, reopen the app and tap again.",
+      "server": "Notifications are on in the phone but were not saved on the server. Check the connection and tap again."
+    }
   },
   "passportCapture": {
     "title": "Photograph passports",

@@ -41,6 +41,8 @@ import {
 } from "@/services/platform-ops.service";
 import {
   enablePushNotifications,
+  PushEnableError,
+  type PushStep,
   getPushConfig,
   isPushSupported,
 } from "@/services/push-notification.service";
@@ -66,6 +68,8 @@ export function NotificationButton() {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [pushEnabled, setPushEnabled] = useState(false);
   const [pushPending, setPushPending] = useState(false);
+  // The step 「打开通知」 stopped at (Lucas 10-30: it spun for ever).
+  const [pushFailed, setPushFailed] = useState<PushStep | null>(null);
   const enabled =
     user?.features.some(
       (feature) =>
@@ -354,8 +358,11 @@ export function NotificationButton() {
               disabled={pushPending}
               onClick={async () => {
                 setPushPending(true);
+                setPushFailed(null);
                 try {
                   setPushEnabled(await enablePushNotifications());
+                } catch (error) {
+                  setPushFailed(error instanceof PushEnableError ? error.step : "server");
                 } finally {
                   setPushPending(false);
                 }
@@ -367,6 +374,11 @@ export function NotificationButton() {
           )}
           </div>
         </div>
+        {pushFailed && (
+          <p role="alert" className="border-b px-4 py-2 text-xs text-destructive">
+            {t(`fieldAlerts.failed.${pushFailed}`)}
+          </p>
+        )}
         {!pushEnabled && (
           // Without the push settings the "turn on phone alerts" offer cannot be shown.
           <QueryFailedNote query={pushConfig} what={t("notifications.what.pushConfig")} className="border-b px-4 py-2" />
