@@ -158,7 +158,22 @@ export function GateRecordsPanel({
   // hazard, and a gate record's id there would open the wrong thing.
   const [openId, setOpenId] = useState<string | null>(() => search.get("gate_incident"));
   // Opened to talk (「沟通」): the dialog scrolls to the conversation.
-  const [openToTalk, setOpenToTalk] = useState(false);
+  const [openToTalk, setOpenToTalk] = useState(() => search.get("talk") === "1");
+  // Every notice tapped opens its issue, not only the first: the phone
+  // writes the address in place (`openFieldHref`), so this page may already
+  // be showing - or read the address a moment before it changed - and the
+  // capture screen came up with nothing open (客户 10-30: 「他就飘到门岗的页面」).
+  // A message's notice (`&talk=1`) opens it at the conversation.
+  const linked = `${search.get("gate_incident") ?? ""}|${search.get("talk") ?? ""}`;
+  const [followed, setFollowed] = useState(linked);
+  if (linked !== followed) {
+    setFollowed(linked);
+    const id = search.get("gate_incident");
+    if (id) {
+      setOpenId(id);
+      setOpenToTalk(search.get("talk") === "1");
+    }
+  }
   const [talkingAbout, setTalkingAbout] = useState<GateIncident | null>(null);
   const [project, setProject] = useState(initialProject);
   // A visit opened from its notice (I26: 「访客已确认，可以放行」) opens the scan on it.
@@ -929,7 +944,8 @@ export function GateIncidentDetailDialog({
 
   return (
     <RecordDetailDialog
-      title={row?.incident_no ?? t("title")}
+      title={row?.incident_no ?? t("title")}
+
       description={row?.is_issue ? t("issueHelp") : t("detailHelp")}
       onClose={onClose}
       // 预览 · 打印 · 导出 · 发送 on this one record (H16, HD13).
