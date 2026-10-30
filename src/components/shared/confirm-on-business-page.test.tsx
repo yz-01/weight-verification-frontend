@@ -12,7 +12,7 @@
  * * every business detail hands its record to that panel, with its own kind;
  * * the record sheet has no button that changes a record, unless a 「等你处理」
  *   row whose module has no detail page yet asked it to `confirm`;
- * * a hazard says 已闭环 / 未闭环 and offers nothing.
+ * * a hazard is one of them since JB90: archived by 【确认归档】, not its 验收.
  */
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { NextIntlClientProvider } from "next-intl";
@@ -240,18 +240,10 @@ describe("the record sheet only reads", () => {
     expect(html).not.toContain(CONFIRM);
   });
 
-  it("says 已闭环 / 未闭环 for a hazard and offers no button", () => {
-    const closed = row("HAZARD", { archived: { by: "Lim", at: "2026-10-07T03:00:00Z" } });
-    const closedHtml = render(<RecordSheet row={closed} onClose={() => {}} />, seed(closed));
-    expect(closedHtml).toContain('data-hazard-closure="closed"');
-    expect(closedHtml).toContain("已闭环");
-    expect(closedHtml).toContain("Lim");
-
-    const open = row("HAZARD");
-    const openHtml = render(<RecordSheet row={open} onClose={() => {}} />, seed(open));
-    expect(openHtml).toContain('data-hazard-closure="open"');
-    expect(openHtml).toContain("未闭环");
-    expect(openHtml).not.toContain(CONFIRM);
+  it("offers a verified hazard's 【确认归档】 only on a 「等你处理」 row, like the rest (JB90)", () => {
+    const r = row("HAZARD");
+    expect(render(<RecordSheet row={r} confirm onClose={() => {}} />, seed(r))).toContain(CONFIRM);
+    expect(render(<RecordSheet row={r} onClose={() => {}} />, seed(r))).not.toContain(CONFIRM);
   });
 
   it("is opened read-only by every caller except 「等你处理」", () => {

@@ -29,8 +29,8 @@ describe("archiving and seeing read as two things", () => {
     for (const key of ["archive", "alreadyArchived", "notInQueue", "archiveHelp", "toast"]) {
       expect(m.archiveQueue, key).not.toHaveProperty(key);
     }
-    expect(typeof m.archiveQueue.hazardClosure.closed).toBe("string");
-    expect(typeof m.archiveQueue.hazardClosure.open).toBe("string");
+    // A hazard is archived by the same 【确认归档】 now (JB90): no line of its own.
+    expect(m.archiveQueue).not.toHaveProperty("hazardClosure");
   });
 
   it("calls only the confirm step 归档 in Chinese", () => {
@@ -43,6 +43,5 @@ describe("archiving and seeing read as two things", () => {
       }
     }
     expect(messages("zh").recordClosure.action).toBe("确认归档");
-    expect(messages("zh").archiveQueue.hazardClosure).toMatchObject({ closed: "已闭环", open: "未闭环" });
   });
 });

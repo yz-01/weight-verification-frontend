@@ -557,16 +557,12 @@ export function RecordSheet<K extends RecordSheetKind = ArchiveRecordKind>({
   // A delivery waiting for acceptance is accepted on its own page (B4).
   const pendingReceipt =
     row.kind === "MATERIAL_RECEIPT" && row.status === "PENDING";
-  // A hazard closes by its raiser's 确认完成 (X10), so it is said, not offered.
-  const hazardClosure =
-    row.kind === "HAZARD" ? (row.archived ?? detail.data?.archived ?? null) : undefined;
+  // A hazard too since JB90: archived by its 【确认归档】, not its 验收.
+  const offersConfirm = confirm && canConfirmClosure(row.kind);
   // The record's own parts are drawn once it has loaded, as before; the
   // caller's buttons and the way to the receipt are there from the start.
   const loaded = !detail.isLoading && !detail.isError && Boolean(detail.data);
-  const offersConfirm = confirm && canConfirmClosure(row.kind);
-  const hasActions = Boolean(
-    actions || pendingReceipt || (loaded && (hazardClosure !== undefined || offersConfirm)),
-  );
+  const hasActions = Boolean(actions || pendingReceipt || (loaded && offersConfirm));
   // The status in the words the list uses (T-391); a sheet opened from
   // elsewhere without one reads it from the record once loaded.
   const statusLabel = recordStatusLabel(t, detail.data ?? row);
@@ -672,9 +668,6 @@ export function RecordSheet<K extends RecordSheetKind = ArchiveRecordKind>({
                   </Link>
                 </Button>
               )}
-              {loaded && hazardClosure !== undefined && (
-                <HazardClosureLine closure={hazardClosure} />
-              )}
               {/* The one action that ends a record (D-234) is on its module's
                   page (C4). Here only for a 「等你处理」 row whose module has
                   no detail page yet, so the reader is not sent somewhere
@@ -699,41 +692,5 @@ export function RecordSheet<K extends RecordSheetKind = ArchiveRecordKind>({
         }
       />
     </RecordDetailDialog>
-  );
-}
-
-/**
- * 已闭环 / 未闭环 for a hazard (2026-10 C4, X10). A hazard is closed by its
- * raiser's 确认完成 (VERIFIED) on the hazard page, so the sheet says which it
- * is and who closed it, with no button.
- */
-export function HazardClosureLine({
-  closure,
-}: {
-  closure: { by: string; at: string | null } | null;
-}) {
-  const t = useTranslations("archiveQueue.hazardClosure");
-  const formatter = useDateFormat();
-  return closure ? (
-    <p
-      className="rounded-lg border border-success/30 bg-success/5 p-3 text-sm"
-      data-hazard-closure="closed"
-    >
-      <span className="font-semibold text-success">{t("closed")}</span>
-      {closure.by && (
-        <span className="ml-2 text-muted-foreground">
-          {closure.by}
-          {closure.at ? ` · ${formatter.dateTime(closure.at)}` : ""}
-        </span>
-      )}
-    </p>
-  ) : (
-    <p
-      className="rounded-lg border border-warning/30 bg-warning/5 p-3 text-sm"
-      data-hazard-closure="open"
-    >
-      <span className="font-semibold text-warning">{t("open")}</span>
-      <span className="ml-2 text-muted-foreground">{t("openHelp")}</span>
-    </p>
   );
 }

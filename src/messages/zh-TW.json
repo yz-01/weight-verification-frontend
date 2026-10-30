@@ -3108,11 +3108,6 @@
     "openPhoto": "放大查看照片",
     "noPhoto": "無照片",
     "goToReceipt": "去材料進場處理",
-    "hazardClosure": {
-      "closed": "已閉環",
-      "open": "未閉環",
-      "openHelp": "發起人在整改裡確認完成後就閉環。"
-    },
     "waiting": {
       "only": "只顯示等你確認的記錄，和儀表板「等你處理」是同一批。點「打開」到它的業務頁面確認。",
       "showAll": "顯示全部記錄",
@@ -8383,7 +8378,7 @@
       "gateway_not_found": "找不到這臺網關。",
       "gateway_revoked": "該稱重網關已經撤銷。",
       "hazard_audio_too_long": "這則語音 {seconds} 秒，單則最長 {limit} 秒。請重錄短一點，或者分兩則傳送。",
-      "hazard_closed": "{incident_no} 已驗收並閉環歸檔。記錄仍然可以查看，但不能再傳新訊息。",
+      "hazard_closed": "{incident_no} 已歸檔。記錄仍然可以查看，但不能再傳新訊息。",
       "hazard_message_empty": "傳送前請輸入文字，或附上照片、語音或檔案。",
       "hazard_not_a_participant": "{incident_no} 沒有上報給你。請讓上報人或安全主管把你加進來。",
       "not_awaiting_confirmation": "{reference} 現在不是待驗收，不能退回整改。請關掉「需要繼續整改」再發送。",
@@ -9586,7 +9581,7 @@
     "attach": "傳送檔案",
     "takePhoto": "拍照",
     "photo": "照片",
-    "closed": "這條整改已驗收並閉環歸檔。記錄仍可查看，但不能再傳新訊息。",
+    "closed": "這條整改已歸檔。記錄仍可查看，但不能再傳新訊息。",
     "participants": "本次參與的人",
     "reporter": "上報人",
     "responsible": "責任人",

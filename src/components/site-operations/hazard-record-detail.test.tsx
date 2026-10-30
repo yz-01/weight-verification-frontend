@@ -17,10 +17,10 @@ vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams(),
 }));
 // Every permission but the one 【改正】 needs, unless a test grants it (I30).
-const granted = vi.hoisted(() => ({ correct: false }));
+const granted = vi.hoisted(() => ({ correct: false, user: null as { id: string } | null }));
 vi.mock("@/components/providers/auth-provider", () => ({
   useAuth: () => ({
-    user: null,
+    user: granted.user,
     can: (code: string) => code !== "safety.manage" || granted.correct,
   }),
 }));
@@ -124,8 +124,38 @@ describe("the hazard detail (E8)", () => {
     const assigner = render({ can_confirm: false, status: "OPEN", responsible_person: null }, true);
     expect(assigner).toContain("指派整改");
 
+    // A reader gets no button; the box beside them is the 【确认归档】 one
+    // every record has (JB90), which says whether it is archived.
     const reader = render({ can_confirm: false });
-    expect(reader).not.toContain("data-shell-actions");
+    expect(reader).not.toContain("验收整改");
+    expect(reader).not.toContain("指派整改");
+    expect(reader).not.toContain("提交整改");
+  });
+
+  // JB90 (客户 10-30): a phone named an office account to fix it, and that
+  // person had only the conversation in the office's window.
+  it("offers 提交整改 to whoever was named to fix it, in the office too", () => {
+    granted.user = { id: "u-fixer" };
+    try {
+      const fixer = (status: SafetyIncident["status"]) =>
+        renderDetail(
+          <HazardRecordDetail
+            incident={{ ...incident, can_confirm: false, status, responsible_person: "u-fixer" }}
+            mayAssign={false}
+            onClose={noop}
+            onReview={noop}
+            onAssign={noop}
+            onSubmit={noop}
+          />,
+        );
+      expect(fixer("ASSIGNED")).toContain("提交整改");
+      expect(fixer("RETURNED")).toContain("提交整改");
+      expect(fixer("RECTIFICATION_SUBMITTED")).not.toContain("提交整改");
+      granted.user = { id: "someone-else" };
+      expect(fixer("ASSIGNED")).not.toContain("提交整改");
+    } finally {
+      granted.user = null;
+    }
   });
 
   it("offers 【改正】 on a hazard to whoever manages safety, never on a permit (I30)", () => {
