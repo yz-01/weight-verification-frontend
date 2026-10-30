@@ -22,6 +22,7 @@ import {
   type LocationMapZone,
 } from "@/components/shared/location-map";
 import { ArmRow, QueryBoundary, StatusBadge } from "@/components/shared/page-primitives";
+import { useTradeLabel } from "@/components/site-workers/trade-select";
 import { VisitExit } from "@/components/site-workers/visit-exit";
 import { WorkerFormDialog } from "@/components/site-workers/worker-form";
 import { Button } from "@/components/ui/button";
@@ -117,6 +118,7 @@ export function WorkerDetailDialog({
   onAllVisits: (workerId: string) => void;
 }) {
   const t = useTranslations("siteWorkers");
+  const tradeLabel = useTradeLabel();
   const common = useTranslations("common");
   const df = useDateFormat();
   const locale = useLocale();
@@ -244,6 +246,14 @@ export function WorkerDetailDialog({
                     />
                     <Value label={t("field.cidb")} value={worker.cidb_no} />
                     <Value label={t("field.company")} value={worker.company_name} />
+                    <Value
+                      label={t("field.trade")}
+                      value={
+                        worker.trade
+                          ? tradeLabel({ code: worker.trade_code, name: worker.trade_name })
+                          : t("trade.none")
+                      }
+                    />
                     <Value label={t("field.project")} value={worker.project_name} />
                     <Value
                       label={t("field.documents")}

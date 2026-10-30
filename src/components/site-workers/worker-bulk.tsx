@@ -309,13 +309,14 @@ function BatchEditor({ initial }: { initial: BatchDetail }) {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const sinceRef = useRef(pollSince(initial.now));
   const [problems, setProblems] = useState<Record<string, BatchRowProblem[]>>(initial.problems);
+  const [fills, setFills] = useState<Record<string, { name: string }>>(initial.fills ?? {});
   const [savedCount, setSavedCount] = useState(initial.saved_count);
   const [syncState, setSyncState] = useState<"saved" | "saving" | "failed">("saved");
   const [closed, setClosed] = useState(initial.batch.status === "DONE");
   const [captureOpen, setCaptureOpen] = useState(false);
   const [uploads, setUploads] = useState<UploadProgress | null>(null);
   const [saving, setSaving] = useState<number | null>(null);
-  const [result, setResult] = useState<{ saved: number; problems: number } | null>(null);
+  const [result, setResult] = useState<{ saved: number; problems: number; filled: number } | null>(null);
   const [saveBlocked, setSaveBlocked] = useState(false);
   const [filter, setFilter] = useState<Filter>("all");
   const [page, setPage] = useState(0);
@@ -332,8 +333,13 @@ function BatchEditor({ initial }: { initial: BatchDetail }) {
   }, []);
 
   const applyState = useCallback(
-    (state: { problems: Record<string, BatchRowProblem[]>; saved_count: number }) => {
+    (state: {
+      problems: Record<string, BatchRowProblem[]>;
+      fills?: Record<string, { name: string }>;
+      saved_count: number;
+    }) => {
       setProblems(state.problems);
+      setFills(state.fills ?? {});
       setSavedCount(state.saved_count);
     },
     [],
@@ -531,19 +537,21 @@ function BatchEditor({ initial }: { initial: BatchDetail }) {
       }
       let after = 0;
       let saved = 0;
+      let filled = 0;
       let problemCount = 0;
       for (let round = 0; round < 100; round += 1) {
         const answer = await saveBatchChunk(batchId, after);
         saved += answer.saved;
+        filled += answer.filled ?? 0;
         problemCount += answer.problem_count;
-        const done = new Set(answer.saved_ids);
+        const done = new Set([...answer.saved_ids, ...(answer.filled_ids ?? [])]);
         commit(withBlankTail(rowsRef.current.filter((row) => !row.id || !done.has(row.id))));
         applyState(answer);
         setSaving(saved);
         after = answer.last;
         if (answer.done) break;
       }
-      setResult({ saved, problems: problemCount });
+      setResult({ saved, problems: problemCount, filled });
       setFilter(problemCount > 0 ? "problems" : "all");
       setPage(0);
       void queryClient.invalidateQueries({ queryKey: ["site-workers", "list"] });
@@ -712,6 +720,7 @@ function BatchEditor({ initial }: { initial: BatchDetail }) {
             <CheckCircle2 className="h-5 w-5" />
             {bulk("result", { saved: result.saved, problems: result.problems })}
           </p>
+          {result.filled > 0 && <p className="text-sm">{bulk("resultFilled", { count: result.filled })}</p>}
           {result.problems > 0 && <p className="text-sm">{bulk("resultProblems")}</p>}
         </div>
       )}
@@ -751,6 +760,7 @@ function BatchEditor({ initial }: { initial: BatchDetail }) {
           rows={rows}
           shown={shown}
           problems={problems}
+          fills={fills}
           companyPlaceholder={batch.company_name || t("form.noCompany")}
           focus={focus}
           onRows={edit}

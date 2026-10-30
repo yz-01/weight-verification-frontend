@@ -19739,6 +19739,7 @@
       "cidb": "CIDB 卡号",
       "company": "所属公司",
       "companyNote": "公司名称（名单里没有）",
+      "trade": "施工工种",
       "project": "项目",
       "status": "在场状态",
       "lastPositionAt": "最后定位时间",
@@ -19785,7 +19786,8 @@
     },
     "what": {
       "companies": "公司名单",
-      "worker": "人员资料"
+      "worker": "人员资料",
+      "trades": "工种名单"
     },
     "toast": {
       "created": "已加入名单",
@@ -19946,7 +19948,36 @@
         "zoomHint": "点照片可以在新窗口放大看。",
         "confirm": "核对好了"
       },
-      "saveBlocked": "表里改的还没存到服务器，所以还没保存。请检查网络，再按一次「全部保存」。"
+      "saveBlocked": "表里改的还没存到服务器，所以还没保存。请检查网络，再按一次「全部保存」。",
+      "fillsTrade": "已经在名单里（{name}）：保存时只补施工工种，其他资料不变",
+      "resultFilled": "另外补了 {count} 人的施工工种"
+    },
+    "trade": {
+      "none": "未填工种",
+      "add": "新增工种",
+      "addConfirm": "加入",
+      "addCancel": "不加了",
+      "newName": "新工种名称",
+      "newNamePlaceholder": "例如 焊工",
+      "addFailed": "没加成功，请再试一次",
+      "builtIn": {
+        "REBAR": "钢筋工",
+        "FORMWORK": "模板工",
+        "CONCRETE": "混凝土工",
+        "ELECTRICIAN": "电工",
+        "GENERAL": "普工"
+      }
+    },
+    "tradeSummary": {
+      "title": "按工种汇总",
+      "what": "按工种汇总",
+      "headline": "登记 {registered} 人 · 在场 {onSite} 人",
+      "registered": "登记 {count} 人",
+      "onSite": "在场 {count} 人",
+      "foldHint": "点这里收起",
+      "unfoldHint": "点这里展开",
+      "pickHint": "点一个工种，下面的人员名单就只显示这个工种；再点一次取消。在场人数按电子围栏定位自动更新，作为现场参考。",
+      "updatedAt": "最后更新：{at}"
     }
   },
   "workerLocation": {

@@ -19,7 +19,9 @@ import type {
   SiteWorkerList,
   SiteWorkerPayload,
   SiteWorkerBatch,
+  SiteWorkerTrade,
   SiteWorkerVisit,
+  TradeSummary,
 } from "@/interfaces/site-workers";
 import { exportBody, exportQuery, type ExportRequest } from "@/services/contractor.service";
 import { api, download, toastSuccess } from "@/services/api-client";
@@ -39,6 +41,28 @@ export async function getWorkerCompanyOptions(query: ListQuery): Promise<Company
     query,
   );
   return data.results;
+}
+
+/** 「施工工种」 (JB91): the company's trades, the five built-in first. */
+export async function getWorkerTrades(project?: string): Promise<SiteWorkerTrade[]> {
+  const data = await api.get<{ results: SiteWorkerTrade[] }>(
+    "/api/site-workers/get_trades/",
+    project ? { project } : {},
+  );
+  return data.results;
+}
+
+/** 「新增工种」: a name already on the list comes back as that trade. */
+export function createWorkerTrade(name: string, project?: string): Promise<SiteWorkerTrade> {
+  return api.post<SiteWorkerTrade>("/api/site-workers/create_trade/", {
+    name,
+    ...(project ? { project } : {}),
+  });
+}
+
+/** 「按工种汇总」: 登记 and 在场 per trade, scoped like the roster. */
+export function getTradeSummary(query: ListQuery): Promise<TradeSummary> {
+  return api.get<TradeSummary>("/api/site-workers/get_trade_summary/", query);
 }
 
 export async function createSiteWorker(payload: SiteWorkerPayload): Promise<SiteWorker> {

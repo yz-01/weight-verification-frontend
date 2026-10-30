@@ -19739,6 +19739,7 @@
       "cidb": "No. kad CIDB",
       "company": "Syarikat",
       "companyNote": "Nama syarikat (tiada dalam senarai)",
+      "trade": "Jenis kerja",
       "project": "Projek",
       "status": "Status di tapak",
       "lastPositionAt": "Masa lokasi terakhir",
@@ -19785,7 +19786,8 @@
     },
     "what": {
       "companies": "senarai syarikat",
-      "worker": "butiran pekerja"
+      "worker": "butiran pekerja",
+      "trades": "senarai jenis kerja"
     },
     "toast": {
       "created": "Pekerja ditambah",
@@ -19946,7 +19948,36 @@
         "zoomHint": "Klik gambar untuk buka lebih besar di tab baharu.",
         "confirm": "Sudah disemak"
       },
-      "saveBlocked": "Perubahan jadual belum sampai ke pelayan, jadi tiada yang disimpan. Semak internet dan tekan \"Simpan semua\" sekali lagi."
+      "saveBlocked": "Perubahan jadual belum sampai ke pelayan, jadi tiada yang disimpan. Semak internet dan tekan \"Simpan semua\" sekali lagi.",
+      "fillsTrade": "Sudah dalam senarai ({name}): simpan hanya menambah jenis kerja; maklumat lain tidak berubah",
+      "resultFilled": "Jenis kerja ditambah bagi {count} orang yang sudah dalam senarai"
+    },
+    "trade": {
+      "none": "Tiada jenis kerja",
+      "add": "Tambah jenis kerja",
+      "addConfirm": "Tambah",
+      "addCancel": "Batal",
+      "newName": "Nama jenis kerja baharu",
+      "newNamePlaceholder": "cth. Tukang kimpal",
+      "addFailed": "Tidak berjaya ditambah. Sila cuba lagi.",
+      "builtIn": {
+        "REBAR": "Tukang besi",
+        "FORMWORK": "Tukang acuan",
+        "CONCRETE": "Tukang konkrit",
+        "ELECTRICIAN": "Juruelektrik",
+        "GENERAL": "Pekerja am"
+      }
+    },
+    "tradeSummary": {
+      "title": "Ikut jenis kerja",
+      "what": "kiraan ikut jenis kerja",
+      "headline": "{registered} berdaftar · {onSite} di tapak",
+      "registered": "{count} berdaftar",
+      "onSite": "{count} di tapak",
+      "foldHint": "Klik untuk lipat",
+      "unfoldHint": "Klik untuk buka",
+      "pickHint": "Klik satu jenis kerja untuk tunjuk orangnya sahaja dalam senarai di bawah; klik lagi untuk batal. Kiraan di tapak dikemas kini sendiri ikut pagar geo, sebagai rujukan.",
+      "updatedAt": "Kemas kini terakhir: {at}"
     }
   },
   "workerLocation": {

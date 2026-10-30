@@ -81,6 +81,9 @@ function worker(overrides: Partial<SiteWorkerDetail> = {}): SiteWorkerDetail {
     supplier_name: "",
     company_note: "Kuat",
     company_name: "Kuat",
+    trade: null,
+    trade_code: "",
+    trade_name: "",
     documents: [],
     documents_text: "",
     is_active: true,
@@ -219,9 +222,14 @@ describe("批量新增人员 table (10-28, retake at 1440 px)", () => {
     expect(px("date_of_birth")).toBeGreaterThanOrEqual(84);
     expect(px("cidb_no")).toBeGreaterThanOrEqual(116);
     expect(px("passport_no")).toBeGreaterThanOrEqual(102);
-    // Together they fit the page at 1440 px with the menu open (~1130 px).
+    // Without 「施工工种」 they fit the page at 1440 px with the menu open
+    // (~1130 px). JB91 (10-31) adds that column at the end: the table then
+    // runs ~80 px past with the menu open - it scrolls sideways in its box,
+    // name kept left - and fits with the menu folded (~1370 px).
     const cells = BULK_FIELDS.reduce((sum, field) => sum + px(field) + 12, 0);
-    expect(cells + 32 + 52 + 60).toBeLessThanOrEqual(1130);
+    const withoutTrade = cells - px("trade_text") - 12;
+    expect(withoutTrade + 32 + 52 + 60).toBeLessThanOrEqual(1130);
+    expect(cells + 32 + 52 + 60).toBeLessThanOrEqual(1370);
   });
 
   it("the name, the country and the company wrap; the rest stay whole on one line", () => {
@@ -259,7 +267,8 @@ describe("批量新增人员 table (10-28, retake at 1440 px)", () => {
     const under = rows.find((row) => row.includes(bulkWords.problem.check_photo))!;
     expect(main).not.toContain(bulkWords.typeFromPhoto);
     expect(under).toContain(bulkWords.typeFromPhoto);
-    expect(under).toMatch(/colSpan="10"|colspan="10"/);
+    // Every box, the photo and the bin (JB91 added 「施工工种」).
+    expect(under).toMatch(new RegExp(`colSpan="${BULK_FIELDS.length + 2}"|colspan="${BULK_FIELDS.length + 2}"`));
   });
 
   it("no 「要处理」 column squeezing the others", () => {
