@@ -69,13 +69,13 @@ export function canDiscuss(kind: string): kind is ChatRecordKind {
 /**
  * The kinds the final 【确认】 (D-234) can be asked about.
  *
- * The same eight: `record_closure.py` finds its record through the chat's
- * `resolve_subject`, so any other kind - a hazard, which closes through its
- * own verification, a day of attendance, or one of a column's non-queue
- * kinds - is "not found", and the panel would only ever show its failure.
+ * The same eight, and a hazard since JB90 (Lucas 10-30: 「弄成可以手动归档」 -
+ * `record_closure.py` reads it itself). A day of attendance or one of a
+ * column's non-queue kinds is "not found", and the panel would only ever
+ * show its failure.
  */
 export function canConfirmClosure(kind: string): kind is ArchiveRecordKind {
-  return (ARCHIVE_CHAT_KINDS as readonly string[]).includes(kind);
+  return kind === "HAZARD" || (ARCHIVE_CHAT_KINDS as readonly string[]).includes(kind);
 }
 
 /**

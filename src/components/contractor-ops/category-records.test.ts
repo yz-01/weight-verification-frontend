@@ -225,9 +225,9 @@ describe("clicking a record opens the queue's own detail, fed from the column", 
       expect(canConfirmClosure(kind), kind).toBe(false);
       expect(isQueueKind(kind), kind).toBe(false);
     }
-    // The closure endpoint finds its record the way the chat does: a hazard
-    // closes through its own verification and is "not found" there.
-    expect(canConfirmClosure("HAZARD")).toBe(false);
+    // A hazard is archived by 【确认归档】 too since JB90; a day of attendance
+    // has nothing to archive.
+    expect(canConfirmClosure("HAZARD")).toBe(true);
     expect(canConfirmClosure("ATTENDANCE_DAY")).toBe(false);
     expect(isQueueKind("HAZARD")).toBe(true);
   });

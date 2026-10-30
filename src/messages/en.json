@@ -3108,11 +3108,6 @@
     "openPhoto": "Open the photo",
     "noPhoto": "No photo",
     "goToReceipt": "Go to Material receipts to handle it",
-    "hazardClosure": {
-      "closed": "Closed",
-      "open": "Not closed",
-      "openHelp": "It closes when the person who raised it confirms the fix on the hazard page."
-    },
     "waiting": {
       "only": "Only the records waiting for your confirmation - the same ones as the dashboard's “Waiting for you”. Open one to confirm it on its own page.",
       "showAll": "Show all records",
@@ -8383,7 +8378,7 @@
       "gateway_not_found": "That gateway could not be found.",
       "gateway_revoked": "This weighing gateway has already been revoked.",
       "hazard_audio_too_long": "That voice note is {seconds} seconds long. One note can be at most {limit} seconds — record a shorter one, or send two.",
-      "hazard_closed": "{incident_no} has been verified and archived. Its record stays readable, but it takes no new messages.",
+      "hazard_closed": "{incident_no} has been archived. Its record stays readable, but it takes no new messages.",
       "hazard_message_empty": "Say something, or attach a photo, voice note or file, before sending.",
       "hazard_not_a_participant": "{incident_no} was not raised with you. Ask the person who reported it, or a safety supervisor, to add you.",
       "not_awaiting_confirmation": "{reference} is not waiting for its check, so it cannot be sent back. Switch “Needs more work” off and send again.",
@@ -9586,7 +9581,7 @@
     "attach": "Attach a file",
     "takePhoto": "Take a photo",
     "photo": "Photo",
-    "closed": "This hazard has been verified and archived. The record stays readable, but it takes no new messages.",
+    "closed": "This hazard has been archived. The record stays readable, but it takes no new messages.",
     "participants": "In this conversation",
     "reporter": "Reported it",
     "responsible": "Responsible",
