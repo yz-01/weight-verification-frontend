@@ -578,6 +578,17 @@ function NewClaimDialog({
   );
 }
 
+/**
+ * A claim opened where the reader is (Lucas 10-30: 分类管理 → 查看记录): the
+ * same claim window this screen opens - its letter, files, conversation,
+ * 确认本期, amount, vouchers, payment and 预览 · 打印 · 导出 · 发送 - over the
+ * current page, closed back onto it. Nothing in it navigates away, and a
+ * change inside refreshes the same `claims` / `claim-candidates` queries.
+ */
+export function ClaimInPlace({ id, onClose }: { id: string; onClose: () => void }) {
+  return <ClaimSheet id={id} onClose={onClose} />;
+}
+
 function ClaimSheet({ id, onClose }: { id: string; onClose: () => void }) {
   const t = useTranslations("claims");
   const common = useTranslations("common");

@@ -17975,7 +17975,8 @@
     "loading": "正在查询…",
     "what": {
       "state": "这条记录是否已归档"
-    }
+    },
+    "closedByFinal": "由 {name} 于 {when} 确认。已审批的报销不能再修改，沟通已关闭。"
   },
   "recordCorrection": {
     "openHistory": "看修改记录",

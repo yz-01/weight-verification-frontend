@@ -76,6 +76,13 @@ export function recordClosureKey(kind: ArchiveRecordKind, recordId: string) {
  * record that is not ready shows nothing here; one already confirmed says who
  * confirmed it and when.
  */
+/**
+ * Kinds that stay as decided even though archived records are changed (Lucas
+ * 10-30: 杂费报销 「照旧不能改」 once decided), so their archive box does not
+ * say 「仍可改正」.
+ */
+const FINAL_ONCE_DECIDED = new Set<string>(["SUNDRY_CLAIM"]);
+
 export function RecordClosurePanel({
   kind,
   recordId,
@@ -156,7 +163,7 @@ export function RecordClosurePanel({
         {/* Named, because the system no longer judges - the record has to say
             who did. */}
         <p className="mt-1 text-sm text-muted-foreground">
-          {t("closedBy", {
+          {t(FINAL_ONCE_DECIDED.has(kind) ? "closedByFinal" : "closedBy", {
             name: confirmed_by_name,
             when: formatter.dateTime(confirmed_at),
           })}

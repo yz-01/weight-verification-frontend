@@ -104,12 +104,15 @@ describe("#4: the 待审批 card opens an equipment movement on its own page", (
   });
 });
 
-describe("#5: category management opens the editable machine dialog only for managers", () => {
-  it("falls back to the read-only sheet without equipment.manage", () => {
+describe("#5: category management opens a machine's own record, editable only for managers", () => {
+  it("opens the register's machine window on the page; 编辑 there needs equipment.manage", () => {
+    // Lucas 10-30: 「打开每个事项的原记录，可是不要跳转页面」.
     const code = source("src/components/contractor-ops/category-management.tsx");
-    expect(code).toMatch(
-      /if \(!isEquipment \|\| row\.kind !== "SITE_EQUIPMENT" \|\| !can\("equipment\.manage"\)\) \{\s*setOpen\(row\);/,
-    );
+    expect(code).toMatch(/if \(!isEquipment \|\| row\.kind !== "SITE_EQUIPMENT"\) \{\s*setOpen\(row\);/);
+    expect(code).toMatch(/<MachineRecordDialog/);
+    const lists = source("src/components/contractor-ops/office-module-lists.tsx");
+    const machine = lists.slice(lists.indexOf("export function MachineRecordDialog("));
+    expect(machine).toMatch(/\{can\("equipment\.manage"\) && \(\s*<Button[\s\S]*?onClick=\{\(\) => onEdit\(machine\)\}/);
   });
 });
 

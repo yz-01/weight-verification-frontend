@@ -31,6 +31,8 @@ import { MaterialUnitsDialog } from "@/components/contractor-ops/material-units-
 import { RequestTypesDialog } from "@/components/material-requests/request-types-dialog";
 import { ManufacturerCell } from "@/components/shared/manufacturer-picker";
 import { RecordSheet } from "@/components/contractor-ops/archive-queue";
+import { MachineRecordDialog } from "@/components/contractor-ops/office-module-lists";
+import { InPlaceRecord, opensInPlace } from "@/components/shared/in-place-record";
 import { Shell } from "@/components/contractor-ops/package-shell";
 import { useAuth } from "@/components/providers/auth-provider";
 import { RecordNo } from "@/components/shared/record-no";
@@ -803,18 +805,43 @@ export function CategoryManagement() {
                         >
                           {t("viewRecords")}
                         </Button>
-                        {/* 登记设备 needs equipment.manage, not category.manage (I38). */}
-                        {active.key === "equipment" && registerMachineCategory(row) && can("equipment.manage") && (
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            disabled={!row.isActive}
-                            disabledReason={row.isActive ? undefined : t("equipment.offClass")}
-                            onClick={() => setRegistering({ category: registerMachineCategory(row) })}
-                          >
-                            <Plus />
-                            {ops("equipment.createTitle")}
-                          </Button>
+                        {/* Fixed slots, so every row's buttons stand in the same
+                            columns (Lucas 10-30: 「不要歪歪的」): one add
+                            button - 登记设备 on a class, + 子分类 on a group -
+                            then the arrows, 编辑, and the switch with the bin. */}
+                        {(active.key === "equipment" || (canManage && active.subCategories)) && (
+                        <div className="flex w-28 shrink-0 items-center">
+                          {/* 登记设备 needs equipment.manage, not category.manage (I38). */}
+                          {active.key === "equipment" && registerMachineCategory(row) && can("equipment.manage") && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              disabled={!row.isActive}
+                              disabledReason={row.isActive ? undefined : t("equipment.offClass")}
+                              onClick={() => setRegistering({ category: registerMachineCategory(row) })}
+                            >
+                              <Plus />
+                              {ops("equipment.createTitle")}
+                            </Button>
+                          )}
+                          {/* 「+ 子分类」 (I11, ID3): one level down, never two. */}
+                          {canManage && active.subCategories && !row.depth && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              title={t("subCategory.add")}
+                              disabled={!row.isActive}
+                              disabledReason={row.isActive ? undefined : t("subCategory.offParent")}
+                              onClick={() => {
+                                setRefusal(null);
+                                setEditing({ parent: row });
+                              }}
+                            >
+                              <Plus />
+                              {t("subCategory.short")}
+                            </Button>
+                          )}
+                        </div>
                         )}
                         {canManage && (
                           <div className="flex items-center gap-1">
@@ -850,23 +877,6 @@ export function CategoryManagement() {
                                 </Button>
                               </>
                             )}
-                            {/* 「+ 子分类」 (I11, ID3): one level down, never two. */}
-                            {active.subCategories && !row.depth && (
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                title={t("subCategory.add")}
-                                disabled={!row.isActive}
-                                disabledReason={row.isActive ? undefined : t("subCategory.offParent")}
-                                onClick={() => {
-                                  setRefusal(null);
-                                  setEditing({ parent: row });
-                                }}
-                              >
-                                <Plus />
-                                {t("subCategory.short")}
-                              </Button>
-                            )}
                             <Button
                               size="icon-sm"
                               variant="ghost"
@@ -878,6 +888,7 @@ export function CategoryManagement() {
                             >
                               <Pencil />
                             </Button>
+                            <div className="flex w-[5.5rem] items-center justify-end gap-1">
                             {/* Removing is armed by the row's switch, then
                                 the bin acts at once (rule 8, HD4). Any category
                                 with no records can go, a preset too (I35); one
@@ -919,6 +930,7 @@ export function CategoryManagement() {
                                 <Trash2 />
                               )}
                             </Button>
+                            </div>
                           </div>
                         )}
                         </div>
@@ -1304,20 +1316,33 @@ function ColumnRecordsDialog({
   const [open, setOpen] = useState<ArchiveQueueRow<CategoryRecordKind> | null>(
     null,
   );
-  // An equipment class lists machine profiles (2026-10 B2); one opens in its
-  // own profile dialog to edit - for whoever may edit machines. Anybody else
-  // reads it in the record sheet (Fable B4 #5: saving would be refused).
-  const { can } = useAuth();
+  // An equipment class lists machine profiles (2026-10 B2). One opens its
+  // original record - the register's own window - on this page (Lucas 10-30:
+  // 「打开每个事项的原记录，可是不要跳转页面」); 编辑 there opens its profile,
+  // for whoever may edit machines.
   const [machine, setMachine] = useState<SiteEquipment | null>(null);
+  const [editingMachine, setEditingMachine] = useState<SiteEquipment | null>(null);
   const [machineError, setMachineError] = useState("");
   const isEquipment = moduleKey === "equipment";
+  // Every other record opens its module's own window - 验收, 确认归档, 更正,
+  // 沟通 - on this page (Lucas 10-30: 「我的原记录是指可以归档验收那些」);
+  // a kind with no such window yet, the record sheet.
+  const [inPlace, setInPlace] = useState<{ kind: string; id: string } | null>(null);
   const openRow = (row: ArchiveQueueRow<CategoryRecordKind>) => {
-    if (!isEquipment || row.kind !== "SITE_EQUIPMENT" || !can("equipment.manage")) {
+    if (opensInPlace(row.kind)) {
+      setInPlace({ kind: row.kind, id: row.id });
+      return;
+    }
+    if (!isEquipment || row.kind !== "SITE_EQUIPMENT") {
       setOpen(row);
       return;
     }
     setMachineError("");
     getSiteEquipmentItem(row.id).then(setMachine, () => setMachineError(queue("failed")));
+  };
+  const machineChanged = () => {
+    void qc.invalidateQueries({ queryKey: ["category-records"] });
+    void qc.invalidateQueries({ queryKey: ["category-management"] });
   };
   // Supplier, dates and a search box (2026-10 B3, B16): 「点『钢筋』→ 选供应商
   // + 日期 → 只剩对应记录」. Any change goes back to the first page.
@@ -1476,7 +1501,14 @@ function ColumnRecordsDialog({
                   </TableHeader>
                   <TableBody>
                     {rows.map((row, index) => (
-                      <TableRow key={`${row.kind}:${row.id}`} data-column-record={row.reference}>
+                      <TableRow
+                        key={`${row.kind}:${row.id}`}
+                        data-column-record={row.reference}
+                        className="cursor-pointer"
+                        onClick={(event) => {
+                          if (clickOpensRow(event)) openRow(row);
+                        }}
+                      >
                         <TableCell className="tabular-nums text-muted-foreground">
                           {(page - 1) * RECORDS_PAGE_SIZE + index + 1}
                         </TableCell>
@@ -1564,15 +1596,37 @@ function ColumnRecordsDialog({
           {machineError}
         </p>
       )}
-      {machine && (
-        <EquipmentDialog
-          project={machine.project}
-          equipment={machine}
+      {machine && !editingMachine && (
+        <MachineRecordDialog
+          machine={machine}
           onClose={() => setMachine(null)}
+          onEdit={setEditingMachine}
+          onChanged={(fresh) => {
+            setMachine(fresh);
+            machineChanged();
+          }}
+        />
+      )}
+      {editingMachine && (
+        <EquipmentDialog
+          project={editingMachine.project}
+          equipment={editingMachine}
+          onClose={() => setEditingMachine(null)}
           onSaved={() => {
-            setMachine(null);
+            setEditingMachine(null);
+            machineChanged();
+            // Back to its record, as it now reads.
+            getSiteEquipmentItem(editingMachine.id).then(setMachine, () => setMachine(null));
+          }}
+        />
+      )}
+      {inPlace && (
+        <InPlaceRecord
+          kind={inPlace.kind}
+          id={inPlace.id}
+          onClose={() => {
+            setInPlace(null);
             void qc.invalidateQueries({ queryKey: ["category-records"] });
-            void qc.invalidateQueries({ queryKey: ["category-management"] });
           }}
         />
       )}

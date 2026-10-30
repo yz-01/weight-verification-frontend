@@ -39,13 +39,15 @@ export function useRecordOpener({ confirm = false }: { confirm?: boolean } = {})
   const [row, setRow] = useState<ArchiveQueueRow<CategoryRecordKind> | null>(null);
   const [inPlace, setInPlace] = useState<{ kind: string; id: string } | null>(null);
   const open = (kind: string, id: string | null | undefined, heading: OpenedRecordHeading) => {
+    // Its module's own window over this page first, whether or not the
+    // module also has a page for it (Lucas 10-30: 「不要跳转页面」).
+    if (id && opensInPlace(kind)) {
+      setInPlace({ kind, id });
+      return true;
+    }
     const target = recordTarget(kind, id);
     if (!target) return false;
     if ("href" in target) {
-      if (id && opensInPlace(kind)) {
-        setInPlace({ kind, id });
-        return true;
-      }
       router.push(target.href);
       return true;
     }

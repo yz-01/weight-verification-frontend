@@ -1171,6 +1171,37 @@ function DisposalStepDialogs({
 }
 
 /**
+ * One disposal request opened over another page - 分类管理's 查看记录 (Lucas
+ * 10-30) - so closing it leaves the reader there. The office list's own
+ * popup (`DisposalDetailDialog`, its steps and their dialogs), fetched by id,
+ * so the two cannot drift; a step taken here refreshes the same
+ * `site-disposals` queries the list does, this record's among them.
+ */
+export function DisposalInPlace({ id, onClose }: { id: string; onClose: () => void }) {
+  const t = useTranslations("siteDisposal");
+  const qc = useQueryClient();
+  const record = useQuery({ queryKey: ["site-disposals", "record", id], queryFn: () => getDisposalRequest(id) });
+  const [step, setStep] = useState<DisposalStep | null>(null);
+  const refresh = () => void qc.invalidateQueries({ queryKey: ["site-disposals"] });
+  const row = record.data;
+  if (!row) {
+    return (
+      <RecordDetailDialog title={t("title")} onClose={onClose}>
+        <div className="grid min-h-32 place-items-center">
+          {record.isError ? <p className="text-sm text-destructive">{t("error.load")}</p> : <Loader2 className="size-7 animate-spin text-primary" />}
+        </div>
+      </RecordDetailDialog>
+    );
+  }
+  return (
+    <>
+      <DisposalDetailDialog row={row} onClose={onClose} actions={<DisposalActions row={row} onStep={setStep} />} />
+      <DisposalStepDialogs step={step} row={row} onClose={() => setStep(null)} onChanged={refresh} />
+    </>
+  );
+}
+
+/**
  * The office list of disposal requests, in the receipt list's layout (图 4,
  * T-370); each request opens on the shared shell (T-369). The phone keeps
  * `SiteDisposalWorkspace`'s cards.

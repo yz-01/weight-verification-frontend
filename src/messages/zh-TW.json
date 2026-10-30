@@ -17975,7 +17975,8 @@
     "loading": "正在查詢…",
     "what": {
       "state": "這條記錄是否已歸檔"
-    }
+    },
+    "closedByFinal": "由 {name} 於 {when} 確認。已審批的報銷不能再修改，溝通已關閉。"
   },
   "recordCorrection": {
     "openHistory": "看修改記錄",

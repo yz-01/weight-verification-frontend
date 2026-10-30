@@ -229,6 +229,37 @@ const EMPTY_DRAFT: SafetyDraft = {
   rectifierDueAt: "",
 };
 
+/**
+ * Who may assign a hazard, and who may change its category and the person on
+ * it (I2) - the rules the office list and `HazardInPlace` both open the
+ * record popup with, so the two cannot offer different buttons.
+ */
+function useHazardRules() {
+  const { can, user } = useAuth();
+  const userId = user?.id;
+  const fieldStaff = Boolean(user?.is_field_staff);
+  // 顾问发起 (B21, B22): a consultant assigns the ones they raised, without
+  // holding safety.manage.
+  const mayAssign = useCallback(
+    (incident: SafetyIncident) =>
+      !isPermit(incident) &&
+      !incident.responsible_person &&
+      ["OPEN", "RETURNED"].includes(incident.status) &&
+      (can("safety.manage") ||
+        (incident.origin === "CONSULTANT" && incident.created_by === userId)),
+    [can, userId],
+  );
+  const mayFile = useCallback(
+    (incident: SafetyIncident) =>
+      can("safety.manage") &&
+      !fieldStaff &&
+      !isPermit(incident) &&
+      hazardStage(incident.status) !== "DONE",
+    [can, fieldStaff],
+  );
+  return { mayAssign, mayFile };
+}
+
 export function Safety({
   mode = "incidents",
   fieldMode = false,
@@ -251,16 +282,7 @@ export function Safety({
   // ones they raised, without holding safety.manage.
   const isConsultant = user?.account_type === "CONSULTANT";
   const mayRaise = can("safety.manage") || isConsultant;
-  const userId = user?.id;
-  const mayAssign = useCallback(
-    (incident: SafetyIncident) =>
-      !isPermit(incident) &&
-      !incident.responsible_person &&
-      ["OPEN", "RETURNED"].includes(incident.status) &&
-      (can("safety.manage") ||
-        (incident.origin === "CONSULTANT" && incident.created_by === userId)),
-    [can, userId],
-  );
+  const { mayAssign, mayFile } = useHazardRules();
   const list = useListQuery([
     "project",
     "category",
@@ -301,11 +323,6 @@ export function Safety({
   const [reviewing, setReviewing] = useState<SafetyIncident | null>(null);
   // 调整负责人 (I2): while it is 待处理 with somebody on it.
   const [reassigning, setReassigning] = useState<SafetyIncident | null>(null);
-  const mayFile = (incident: SafetyIncident) =>
-    can("safety.manage") &&
-    !user?.is_field_staff &&
-    !isPermit(incident) &&
-    hazardStage(incident.status) !== "DONE";
   // 「建筑商后台也是需要改」: the console takes part in the same conversation
   // the field app uses, rather than reading a summary of it.
   const [talking, setTalking] = useState<SafetyIncident | null>(null);
@@ -582,7 +599,7 @@ export function Safety({
         ),
       },
     ],
-    [t, te, df, can, mayAssign, user?.id],
+    [t, te, df, mayAssign, user?.id],
   );
 
   const total = data?.count ?? 0;
@@ -1081,6 +1098,65 @@ export function HazardRecordDetail({
         chat={<HazardConversationPanel incidentId={incident.id} />}
       />
     </RecordDetailDialog>
+  );
+}
+
+/**
+ * One hazard opened over the page the reader is on (Lucas 2026-10-30:
+ * 分类管理 → 查看记录 opens the record itself, without leaving the page).
+ *
+ * The same `HazardRecordDetail` the office list opens, with the same rules
+ * (`useHazardRules`), read by id. 验收确认 / 指派 / 调整负责人 open their own
+ * dialog in its place and come back to the record, re-read, when it closes -
+ * the list closes the record instead, because the list itself is what shows
+ * the change there. A permit is shown here too rather than sent to 施工准证:
+ * this popup never navigates.
+ */
+export function HazardInPlace({ id, onClose }: { id: string; onClose: () => void }) {
+  const t = useTranslations();
+  const qc = useQueryClient();
+  const { mayAssign, mayFile } = useHazardRules();
+  const detail = useQuery({ queryKey: ["safety-incident", id], queryFn: () => getSafetyIncident(id) });
+  const [step, setStep] = useState<"review" | "assign" | "reassign" | null>(null);
+  // The list's key, and this record's own.
+  const refresh = () => {
+    void qc.invalidateQueries({ queryKey: ["safety"] });
+    void qc.invalidateQueries({ queryKey: ["safety-incident", id] });
+  };
+  const back = () => {
+    setStep(null);
+    refresh();
+  };
+
+  const incident = detail.data;
+  if (!incident) {
+    return (
+      <RecordDetailDialog title={t("safetyRectification.title")} onClose={onClose}>
+        <div className="grid min-h-32 place-items-center">
+          {detail.isError ? (
+            <p className="text-sm text-destructive">{t("safety.fieldReport.loadError")}</p>
+          ) : (
+            <Loader2 className="size-7 animate-spin text-primary" />
+          )}
+        </div>
+      </RecordDetailDialog>
+    );
+  }
+  if (step === "review") return <SafetyReviewDialog incident={incident} onClose={back} />;
+  if (step === "assign") return <SafetyAssignDialog incident={incident} onClose={back} />;
+  if (step === "reassign") return <SafetyReassignDialog incident={incident} onClose={back} />;
+  return (
+    <HazardRecordDetail
+      incident={incident}
+      mayAssign={mayAssign(incident)}
+      mayFile={mayFile(incident)}
+      onClose={onClose}
+      // After 【改正】 (I30): the record re-read, and the list behind it.
+      onCorrected={refresh}
+      onReview={() => setStep("review")}
+      onAssign={() => setStep("assign")}
+      onReassign={() => setStep("reassign")}
+    />
   );
 }
 

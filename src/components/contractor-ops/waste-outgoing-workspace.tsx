@@ -147,7 +147,7 @@ export function WasteOutgoingWorkspace() {
   // The cumulative-totals labels are shared across every module that has a
   // quantity, so they live at the root rather than in one module's namespace.
   const tRoot = useTranslations();
-  const { can, user } = useAuth();
+  const { can } = useAuth();
   const df = useDateFormat();
   const qc = useQueryClient();
 
@@ -159,39 +159,7 @@ export function WasteOutgoingWorkspace() {
   const [viewingId, setViewingId] = useUrlSelection("record");
   const searchParams = useSearchParams();
   const [creating, setCreating] = useState(searchParams.get("create") === "1");
-  const [assigning, setAssigning] = useState<WasteOutgoingRecord | null>(null);
-  const [reassigning, setReassigning] = useState<WasteOutgoingRecord | null>(
-    null,
-  );
-  const [reviewing, setReviewing] = useState<WasteOutgoingRecord | null>(null);
-  const [handingOver, setHandingOver] = useState<WasteOutgoingRecord | null>(
-    null,
-  );
-  // Head office decides everything by default and keeps that authority over
-  // what it has handed on; everybody else decides exactly what was handed to
-  // them. The API enforces this — showing the button to somebody who would be
-  // refused is the part this line prevents.
-  const mayDecide = (row: WasteOutgoingRecord) =>
-    can("waste_outgoing.delegate") || row.delegated_to === user?.id;
-  const [tracking, setTracking] = useState<WasteOutgoingRecord | null>(null);
-  const [confirming, setConfirming] = useState<WasteOutgoingRecord | null>(null);
-  const [cancelling, setCancelling] = useState<WasteOutgoingRecord | null>(null);
-  const [addingPhotos, setAddingPhotos] = useState<WasteOutgoingRecord | null>(
-    null,
-  );
   const [managingCategories, setManagingCategories] = useState(false);
-
-  /*
-    Raising the collection request. 8.2.2 makes this the moment the office is
-    told there is waste to collect - until now the record could be filed and
-    then sat there, because nothing on any screen called this (F-101).
-  */
-  const submitRequest = useMutation({
-    mutationFn: (id: string) => submitWasteCollectionRequest(id),
-    onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: ["waste-outgoing"] });
-    },
-  });
 
   const options = useQuery({
     queryKey: ["waste-outgoing", "options"],
@@ -269,106 +237,6 @@ export function WasteOutgoingWorkspace() {
     (row) => row.is_active,
   );
 
-  /*
-    The buttons for one application, in the detail's right column (C-020:
-    「那些按钮放在图 2 的圈起来的位置」). They used to sit on each card of the
-    list; the list is a table now (图 4, T-370) and the record opens on the
-    shared shell, so this is where they moved - not a second copy.
-  */
-  const renderActions = (row: WasteOutgoingRecord) => (
-    <div className="flex flex-wrap gap-2">
-      {row.status === "PENDING_APPROVAL" &&
-        can("waste_outgoing.approve") &&
-        mayDecide(row) && (
-          <Button size="sm" variant="outline" onClick={() => setReviewing(row)}>
-            <CheckCircle2 />
-            {t("action.review")}
-          </Button>
-        )}
-      {row.status === "PENDING_APPROVAL" && can("waste_outgoing.delegate") && (
-        <Button size="sm" variant="outline" onClick={() => setHandingOver(row)}>
-          <UserRoundCheck />
-          {row.delegated_to_name ? t("action.handOverAgain") : t("action.handOver")}
-        </Button>
-      )}
-      {row.status === "APPROVED" && can("waste_outgoing.order") && (
-        <Button size="sm" onClick={() => setAssigning(row)}>
-          <Truck />
-          {t("action.sendOrder")}
-        </Button>
-      )}
-      {/*
-        Hand the load to somebody else without killing the application
-        (T-319). The server refuses once collection is under way, so the
-        button is offered on an ordered record and the refusal is the
-        authority - restating the state rules here would give two answers to
-        drift apart.
-      */}
-      {row.status === "ORDERED" && can("waste_outgoing.order") && (
-        <Button size="sm" variant="outline" onClick={() => setReassigning(row)}>
-          <Repeat />
-          {t("action.reassign")}
-        </Button>
-      )}
-      {row.dispatch_no && (
-        <Button size="sm" variant="outline" onClick={() => setTracking(row)}>
-          <Scale />
-          {t("action.track")}
-        </Button>
-      )}
-      {row.dispatch &&
-        row.dispatch_state === "ACCEPTED" &&
-        row.proposed_collection_at &&
-        !row.confirmed_collection_at &&
-        can("waste_outgoing.order") && (
-          <Button size="sm" onClick={() => setConfirming(row)}>
-            <CalendarCheck2 />
-            {t("action.confirmSchedule")}
-          </Button>
-        )}
-      {["DRAFT", "RETURNED"].includes(row.status) && can("waste_outgoing.submit") && (
-        <>
-          <Button size="sm" variant="outline" onClick={() => setAddingPhotos(row)}>
-            <ImagePlus />
-            {t("action.upload")}
-          </Button>
-          {/*
-            Disabled with nothing attached rather than left to fail: 8.2.1
-            makes the photograph the substance of the record, so the backend
-            refuses a submission without them. How many it wants depends on
-            the company, so the exact number comes back in its message.
-          */}
-          {/* Photos are optional on one the office raised (2026-10-09). */}
-          <Button
-            size="sm"
-            disabledReason={
-              row.photos.length === 0 && !row.raised_by_office ? t("submit.needPhotos") : undefined
-            }
-            disabled={(row.photos.length === 0 && !row.raised_by_office) || submitRequest.isPending}
-            onClick={() => submitRequest.mutate(row.id)}
-          >
-            <SendHorizonal />
-            {t("action.submit")}
-          </Button>
-        </>
-      )}
-      {["DRAFT", "PENDING_APPROVAL", "RETURNED", "APPROVED"].includes(row.status) &&
-        can("waste_outgoing.submit") && (
-          <Button size="sm" variant="ghost" onClick={() => setCancelling(row)}>
-            <XCircle />
-            {t("action.cancel")}
-          </Button>
-        )}
-      {/* 【改正】 (I30): kind of waste, quantity, unit, remarks. */}
-      <RecordCorrectionButton kind="WASTE_OUTGOING" recordId={row.id} onCorrected={refresh} />
-      <AddToPackageButton
-        kind="WASTE_OUTGOING"
-        recordId={row.id}
-        projectId={row.project}
-        reference={row.reference_no}
-      />
-    </div>
-  );
 
   const columns: ColumnDef<WasteOutgoingRecord, unknown>[] = [
     {
@@ -554,143 +422,7 @@ export function WasteOutgoingWorkspace() {
         onOpen={(row) => setViewingId(row.id)}
       />
 
-      {shown && (
-        <RecordDetailDialog
-          title={shown.reference_no}
-          description={`${shown.project_name} · ${shown.category_name}`}
-          exportRecord={{
-            kind: "WASTE_OUTGOING",
-            recordId: shown.id,
-            reference: shown.reference_no,
-          }}
-          onClose={() => setViewingId(null)}
-        >
-          <RecordDetailShell
-            reference={shown.reference_no}
-            // 记录人 (E8): who recorded it, with a number to call.
-            recorder={<RecordRecorder record={shown} />}
-            notices={
-              shown.review_note ||
-              shown.status === "PENDING_APPROVAL" ||
-              shown.status === "APPROVED" ||
-              shown.raised_by_office ? (
-                <div className="space-y-2">
-                  {shown.review_note ? (
-                    <p
-                      className={`rounded-md border px-3 py-2 text-xs ${shown.status === "RETURNED" ? "border-destructive/30 bg-destructive/5 text-destructive" : "bg-muted/30 text-muted-foreground"}`}
-                    >
-                      {t("review.noteLabel")}: {shown.review_note}
-                    </p>
-                  ) : null}
-                  {/* 安排回收商 appears only once approved; say so before then. */}
-                  {shown.status === "PENDING_APPROVAL" ? (
-                    <p data-hint="approve-first" className="rounded-md border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
-                      {t("hint.approveFirst")}
-                    </p>
-                  ) : null}
-                  {shown.status === "APPROVED" ? (
-                    <p data-hint="awaiting-recycler" className="rounded-md border border-warning/30 bg-warning/5 px-3 py-2 text-xs font-medium text-warning">
-                      {t("hint.awaitingRecycler")}
-                    </p>
-                  ) : null}
-                  {shown.raised_by_office ? (
-                    <p className="rounded-md border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
-                      {t("office.raisedNote")}
-                    </p>
-                  ) : null}
-                </div>
-              ) : null
-            }
-            facts={[
-              {
-                label: t("export.status"),
-                value: <StatusBadge label={t(`status.${shown.status}`)} tone={STATUS_TONE[shown.status]} />,
-              },
-              { label: t("field.project"), value: shown.project_name },
-              { label: t("field.category"), value: shown.category_name },
-              {
-                label: t("field.quantity"),
-                value: shown.quantity ? `${shown.quantity} ${t(`unit.${shown.unit}`)}` : "—",
-              },
-              {
-                label: t("export.capturedAt"),
-                value: shown.captured_at ? df.dateTime(shown.captured_at) : "—",
-              },
-              { label: t("export.recordedBy"), value: shown.recorded_by_name },
-              ...(shown.pickup_address
-                ? [
-                    {
-                      label: tRoot("moduleTable.pickupAddress"),
-                      value:
-                        shown.pickup_address_source === "MANUAL"
-                          ? `${shown.pickup_address} · ${t("field.pickupAddressTyped")}`
-                          : shown.pickup_address,
-                      wide: true,
-                    },
-                  ]
-                : []),
-              ...(shown.delegated_to_name
-                ? [
-                    {
-                      label: tRoot("moduleTable.handover"),
-                      value: t("handover.trail", {
-                        from: shown.delegated_by_name ?? "",
-                        to: shown.delegated_to_name,
-                        when: df.dateTime(shown.delegated_at),
-                      }),
-                      wide: true,
-                    },
-                  ]
-                : []),
-              ...(shown.note ? [{ label: tRoot("moduleTable.note"), value: shown.note, wide: true }] : []),
-            ]}
-            photos={shown.photos.map((photo, index) => ({
-              id: photo.id,
-              // The stamped copy: 8.2.6 wants the stamp wherever it is shown.
-              url: photo.watermarked || photo.image,
-              label: photo.caption || `${tRoot("moduleTable.photos")} ${index + 1}`,
-              takenAt: photo.captured_at,
-              latitude: photo.latitude,
-              longitude: photo.longitude,
-            }))}
-            panel={
-              <section className="rounded-lg border bg-card p-3">
-                <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  {tRoot("moduleTable.collectionPanel")}
-                </h3>
-                <dl className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs">
-                  <dt className="text-muted-foreground">{t("field.recycler")}</dt>
-                  <dd className="break-words font-medium">{shown.recycler_name || "—"}</dd>
-                  <dt className="text-muted-foreground">{t("export.dispatchNo")}</dt>
-                  <dd className="font-medium">{shown.dispatch_no || "—"}</dd>
-                  {/* D-222: what the recycler has done so far, on the record. */}
-                  <dt className="text-muted-foreground">{tRoot("moduleTable.orderState")}</dt>
-                  <dd className="font-medium">
-                    {shown.dispatch_state && tRoot.has(`dispatches.state.${shown.dispatch_state}`)
-                      ? tRoot(`dispatches.state.${shown.dispatch_state}`)
-                      : "—"}
-                  </dd>
-                  <dt className="text-muted-foreground">{tRoot("moduleTable.driver")}</dt>
-                  <dd className="font-medium">{shown.driver_name || "—"}</dd>
-                  <dt className="text-muted-foreground">{tRoot("moduleTable.proposedCollection")}</dt>
-                  <dd className="font-medium">
-                    {shown.proposed_collection_at ? df.dateTime(shown.proposed_collection_at) : "—"}
-                  </dd>
-                  <dt className="text-muted-foreground">{tRoot("moduleTable.confirmedCollection")}</dt>
-                  <dd className="font-medium">
-                    {shown.confirmed_collection_at ? df.dateTime(shown.confirmed_collection_at) : "—"}
-                  </dd>
-                </dl>
-              </section>
-            }
-            actions={renderActions(shown)}
-            corrections={<RecordCorrectionHistory kind="WASTE_OUTGOING" recordId={shown.id} />}
-            conversation={{ kind: "WASTE_OUTGOING", recordId: shown.id }}
-            // 【确认归档】 once the dispatch is completed (C4).
-            closure={{ kind: "WASTE_OUTGOING", recordId: shown.id }}
-          />
-        </RecordDetailDialog>
-      )}
+      {shown && <WasteOutgoingRecordWindow record={shown} onClose={() => setViewingId(null)} />}
 
       {creating && (
         <RecordDialog
@@ -703,6 +435,317 @@ export function WasteOutgoingWorkspace() {
           }}
         />
       )}
+      {managingCategories && (
+        <WasteCategoryDialog
+          categories={options.data?.categories ?? []}
+          categoriesState={{ isError: options.isError, refetch: options.refetch }}
+          dispatchTypes={options.data?.dispatch_types ?? []}
+          onClose={() => setManagingCategories(false)}
+          onChanged={() =>
+            void qc.invalidateQueries({
+              queryKey: ["waste-outgoing", "options"],
+            })
+          }
+        />
+      )}
+    </>
+  );
+}
+
+/**
+ * One load's full record window: photographs, 确认归档, 改正 and its history,
+ * attachments, 沟通, 预览/打印/导出/发送, and every step the office takes on
+ * it (审批, 安排回收商, 改派, 追踪, 确认时间, 取消). The list opens it, and
+ * so does any other page through `WasteOutgoingInPlace` (分类管理 → 查看记录,
+ * Lucas 10-30) - one window, so the two cannot drift apart.
+ */
+function WasteOutgoingRecordWindow({
+  record: shown,
+  onClose,
+}: {
+  record: WasteOutgoingRecord;
+  onClose: () => void;
+}) {
+  const t = useTranslations("wasteOutgoing");
+  const tRoot = useTranslations();
+  const { can, user } = useAuth();
+  const df = useDateFormat();
+  const qc = useQueryClient();
+  const [assigning, setAssigning] = useState<WasteOutgoingRecord | null>(null);
+  const [reassigning, setReassigning] = useState<WasteOutgoingRecord | null>(
+    null,
+  );
+  const [reviewing, setReviewing] = useState<WasteOutgoingRecord | null>(null);
+  const [handingOver, setHandingOver] = useState<WasteOutgoingRecord | null>(
+    null,
+  );
+  // Head office decides everything by default and keeps that authority over
+  // what it has handed on; everybody else decides exactly what was handed to
+  // them. The API enforces this — showing the button to somebody who would be
+  // refused is the part this line prevents.
+  const mayDecide = (row: WasteOutgoingRecord) =>
+    can("waste_outgoing.delegate") || row.delegated_to === user?.id;
+  const [tracking, setTracking] = useState<WasteOutgoingRecord | null>(null);
+  const [confirming, setConfirming] = useState<WasteOutgoingRecord | null>(null);
+  const [cancelling, setCancelling] = useState<WasteOutgoingRecord | null>(null);
+  const [addingPhotos, setAddingPhotos] = useState<WasteOutgoingRecord | null>(
+    null,
+  );
+
+  /*
+    Raising the collection request. 8.2.2 makes this the moment the office is
+    told there is waste to collect - until now the record could be filed and
+    then sat there, because nothing on any screen called this (F-101).
+  */
+  const submitRequest = useMutation({
+    mutationFn: (id: string) => submitWasteCollectionRequest(id),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ["waste-outgoing"] });
+    },
+  });
+
+  const refresh = () => {
+    void qc.invalidateQueries({ queryKey: ["waste-outgoing"] });
+  };
+
+  /*
+    The buttons for one application, in the detail's right column (C-020:
+    「那些按钮放在图 2 的圈起来的位置」). They used to sit on each card of the
+    list; the list is a table now (图 4, T-370) and the record opens on the
+    shared shell, so this is where they moved - not a second copy.
+  */
+  const renderActions = (row: WasteOutgoingRecord) => (
+    <div className="flex flex-wrap gap-2">
+      {row.status === "PENDING_APPROVAL" &&
+        can("waste_outgoing.approve") &&
+        mayDecide(row) && (
+          <Button size="sm" variant="outline" onClick={() => setReviewing(row)}>
+            <CheckCircle2 />
+            {t("action.review")}
+          </Button>
+        )}
+      {row.status === "PENDING_APPROVAL" && can("waste_outgoing.delegate") && (
+        <Button size="sm" variant="outline" onClick={() => setHandingOver(row)}>
+          <UserRoundCheck />
+          {row.delegated_to_name ? t("action.handOverAgain") : t("action.handOver")}
+        </Button>
+      )}
+      {row.status === "APPROVED" && can("waste_outgoing.order") && (
+        <Button size="sm" onClick={() => setAssigning(row)}>
+          <Truck />
+          {t("action.sendOrder")}
+        </Button>
+      )}
+      {/*
+        Hand the load to somebody else without killing the application
+        (T-319). The server refuses once collection is under way, so the
+        button is offered on an ordered record and the refusal is the
+        authority - restating the state rules here would give two answers to
+        drift apart.
+      */}
+      {row.status === "ORDERED" && can("waste_outgoing.order") && (
+        <Button size="sm" variant="outline" onClick={() => setReassigning(row)}>
+          <Repeat />
+          {t("action.reassign")}
+        </Button>
+      )}
+      {row.dispatch_no && (
+        <Button size="sm" variant="outline" onClick={() => setTracking(row)}>
+          <Scale />
+          {t("action.track")}
+        </Button>
+      )}
+      {row.dispatch &&
+        row.dispatch_state === "ACCEPTED" &&
+        row.proposed_collection_at &&
+        !row.confirmed_collection_at &&
+        can("waste_outgoing.order") && (
+          <Button size="sm" onClick={() => setConfirming(row)}>
+            <CalendarCheck2 />
+            {t("action.confirmSchedule")}
+          </Button>
+        )}
+      {["DRAFT", "RETURNED"].includes(row.status) && can("waste_outgoing.submit") && (
+        <>
+          <Button size="sm" variant="outline" onClick={() => setAddingPhotos(row)}>
+            <ImagePlus />
+            {t("action.upload")}
+          </Button>
+          {/*
+            Disabled with nothing attached rather than left to fail: 8.2.1
+            makes the photograph the substance of the record, so the backend
+            refuses a submission without them. How many it wants depends on
+            the company, so the exact number comes back in its message.
+          */}
+          {/* Photos are optional on one the office raised (2026-10-09). */}
+          <Button
+            size="sm"
+            disabledReason={
+              row.photos.length === 0 && !row.raised_by_office ? t("submit.needPhotos") : undefined
+            }
+            disabled={(row.photos.length === 0 && !row.raised_by_office) || submitRequest.isPending}
+            onClick={() => submitRequest.mutate(row.id)}
+          >
+            <SendHorizonal />
+            {t("action.submit")}
+          </Button>
+        </>
+      )}
+      {["DRAFT", "PENDING_APPROVAL", "RETURNED", "APPROVED"].includes(row.status) &&
+        can("waste_outgoing.submit") && (
+          <Button size="sm" variant="ghost" onClick={() => setCancelling(row)}>
+            <XCircle />
+            {t("action.cancel")}
+          </Button>
+        )}
+      {/* 【改正】 (I30): kind of waste, quantity, unit, remarks. */}
+      <RecordCorrectionButton kind="WASTE_OUTGOING" recordId={row.id} onCorrected={refresh} />
+      <AddToPackageButton
+        kind="WASTE_OUTGOING"
+        recordId={row.id}
+        projectId={row.project}
+        reference={row.reference_no}
+      />
+    </div>
+  );
+
+  return (
+    <>
+      <RecordDetailDialog
+        title={shown.reference_no}
+        description={`${shown.project_name} · ${shown.category_name}`}
+        exportRecord={{
+          kind: "WASTE_OUTGOING",
+          recordId: shown.id,
+          reference: shown.reference_no,
+        }}
+        onClose={onClose}
+      >
+        <RecordDetailShell
+          reference={shown.reference_no}
+          // 记录人 (E8): who recorded it, with a number to call.
+          recorder={<RecordRecorder record={shown} />}
+          notices={
+            shown.review_note ||
+            shown.status === "PENDING_APPROVAL" ||
+            shown.status === "APPROVED" ||
+            shown.raised_by_office ? (
+              <div className="space-y-2">
+                {shown.review_note ? (
+                  <p
+                    className={`rounded-md border px-3 py-2 text-xs ${shown.status === "RETURNED" ? "border-destructive/30 bg-destructive/5 text-destructive" : "bg-muted/30 text-muted-foreground"}`}
+                  >
+                    {t("review.noteLabel")}: {shown.review_note}
+                  </p>
+                ) : null}
+                {/* 安排回收商 appears only once approved; say so before then. */}
+                {shown.status === "PENDING_APPROVAL" ? (
+                  <p data-hint="approve-first" className="rounded-md border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
+                    {t("hint.approveFirst")}
+                  </p>
+                ) : null}
+                {shown.status === "APPROVED" ? (
+                  <p data-hint="awaiting-recycler" className="rounded-md border border-warning/30 bg-warning/5 px-3 py-2 text-xs font-medium text-warning">
+                    {t("hint.awaitingRecycler")}
+                  </p>
+                ) : null}
+                {shown.raised_by_office ? (
+                  <p className="rounded-md border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
+                    {t("office.raisedNote")}
+                  </p>
+                ) : null}
+              </div>
+            ) : null
+          }
+          facts={[
+            {
+              label: t("export.status"),
+              value: <StatusBadge label={t(`status.${shown.status}`)} tone={STATUS_TONE[shown.status]} />,
+            },
+            { label: t("field.project"), value: shown.project_name },
+            { label: t("field.category"), value: shown.category_name },
+            {
+              label: t("field.quantity"),
+              value: shown.quantity ? `${shown.quantity} ${t(`unit.${shown.unit}`)}` : "—",
+            },
+            {
+              label: t("export.capturedAt"),
+              value: shown.captured_at ? df.dateTime(shown.captured_at) : "—",
+            },
+            { label: t("export.recordedBy"), value: shown.recorded_by_name },
+            ...(shown.pickup_address
+              ? [
+                  {
+                    label: tRoot("moduleTable.pickupAddress"),
+                    value:
+                      shown.pickup_address_source === "MANUAL"
+                        ? `${shown.pickup_address} · ${t("field.pickupAddressTyped")}`
+                        : shown.pickup_address,
+                    wide: true,
+                  },
+                ]
+              : []),
+            ...(shown.delegated_to_name
+              ? [
+                  {
+                    label: tRoot("moduleTable.handover"),
+                    value: t("handover.trail", {
+                      from: shown.delegated_by_name ?? "",
+                      to: shown.delegated_to_name,
+                      when: df.dateTime(shown.delegated_at),
+                    }),
+                    wide: true,
+                  },
+                ]
+              : []),
+            ...(shown.note ? [{ label: tRoot("moduleTable.note"), value: shown.note, wide: true }] : []),
+          ]}
+          photos={shown.photos.map((photo, index) => ({
+            id: photo.id,
+            // The stamped copy: 8.2.6 wants the stamp wherever it is shown.
+            url: photo.watermarked || photo.image,
+            label: photo.caption || `${tRoot("moduleTable.photos")} ${index + 1}`,
+            takenAt: photo.captured_at,
+            latitude: photo.latitude,
+            longitude: photo.longitude,
+          }))}
+          panel={
+            <section className="rounded-lg border bg-card p-3">
+              <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                {tRoot("moduleTable.collectionPanel")}
+              </h3>
+              <dl className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs">
+                <dt className="text-muted-foreground">{t("field.recycler")}</dt>
+                <dd className="break-words font-medium">{shown.recycler_name || "—"}</dd>
+                <dt className="text-muted-foreground">{t("export.dispatchNo")}</dt>
+                <dd className="font-medium">{shown.dispatch_no || "—"}</dd>
+                {/* D-222: what the recycler has done so far, on the record. */}
+                <dt className="text-muted-foreground">{tRoot("moduleTable.orderState")}</dt>
+                <dd className="font-medium">
+                  {shown.dispatch_state && tRoot.has(`dispatches.state.${shown.dispatch_state}`)
+                    ? tRoot(`dispatches.state.${shown.dispatch_state}`)
+                    : "—"}
+                </dd>
+                <dt className="text-muted-foreground">{tRoot("moduleTable.driver")}</dt>
+                <dd className="font-medium">{shown.driver_name || "—"}</dd>
+                <dt className="text-muted-foreground">{tRoot("moduleTable.proposedCollection")}</dt>
+                <dd className="font-medium">
+                  {shown.proposed_collection_at ? df.dateTime(shown.proposed_collection_at) : "—"}
+                </dd>
+                <dt className="text-muted-foreground">{tRoot("moduleTable.confirmedCollection")}</dt>
+                <dd className="font-medium">
+                  {shown.confirmed_collection_at ? df.dateTime(shown.confirmed_collection_at) : "—"}
+                </dd>
+              </dl>
+            </section>
+          }
+          actions={renderActions(shown)}
+          corrections={<RecordCorrectionHistory kind="WASTE_OUTGOING" recordId={shown.id} />}
+          conversation={{ kind: "WASTE_OUTGOING", recordId: shown.id }}
+          // 【确认归档】 once the dispatch is completed (C4).
+          closure={{ kind: "WASTE_OUTGOING", recordId: shown.id }}
+        />
+      </RecordDetailDialog>
       {assigning && (
         <AssignDialog
           record={assigning}
@@ -759,19 +802,6 @@ export function WasteOutgoingWorkspace() {
           }}
         />
       )}
-      {managingCategories && (
-        <WasteCategoryDialog
-          categories={options.data?.categories ?? []}
-          categoriesState={{ isError: options.isError, refetch: options.refetch }}
-          dispatchTypes={options.data?.dispatch_types ?? []}
-          onClose={() => setManagingCategories(false)}
-          onChanged={() =>
-            void qc.invalidateQueries({
-              queryKey: ["waste-outgoing", "options"],
-            })
-          }
-        />
-      )}
 
       {addingPhotos && (
         <AddPhotosDialog
@@ -796,6 +826,33 @@ export function WasteOutgoingWorkspace() {
       )}
     </>
   );
+}
+
+/**
+ * The record window on its own, for a page that only has the id (分类管理 →
+ * 查看记录): it fetches the load and opens the same window the list opens,
+ * on top of the page, and closing it leaves the reader where they were.
+ */
+export function WasteOutgoingInPlace({ id, onClose }: { id: string; onClose: () => void }) {
+  const tRoot = useTranslations();
+  const detail = useQuery({
+    queryKey: ["waste-outgoing", "record", id],
+    queryFn: () => getWasteOutgoingRecord(id),
+  });
+  if (!detail.data) {
+    return (
+      <RecordDetailDialog title={tRoot("nav.submodule.wasteOutgoing")} onClose={onClose}>
+        <div className="grid min-h-32 place-items-center">
+          {detail.isError ? (
+            <LoadFailed onRetry={detail.refetch} />
+          ) : (
+            <Loader2 className="size-7 animate-spin text-primary" />
+          )}
+        </div>
+      </RecordDetailDialog>
+    );
+  }
+  return <WasteOutgoingRecordWindow record={detail.data} onClose={onClose} />;
 }
 
 function localDateTimeInput(value: string) {
