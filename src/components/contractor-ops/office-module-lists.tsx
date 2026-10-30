@@ -1858,6 +1858,7 @@ function MachineMovements({ machine }: { machine: SiteEquipment }) {
   const t = useTranslations("contractorOps");
   const df = useDateFormat();
   const [opened, setOpened] = useState<string | null>(null);
+  // query-failure: the machine's own record still shows; only this list is left out.
   const movements = useQuery({
     queryKey: ["equipment-movements", "machine", machine.id],
     queryFn: () => getEquipmentMovements({ equipment: machine.id, page_size: 50 }),
