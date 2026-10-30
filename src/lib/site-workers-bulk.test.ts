@@ -34,6 +34,7 @@ function serverRow(id: string, position: number, extra: Partial<BatchRowData> = 
     passport_expiry: "",
     cidb_no: "",
     company_text: "",
+    trade_text: "",
     source: "PHONE",
     read_status: "READ",
     needs_check: false,

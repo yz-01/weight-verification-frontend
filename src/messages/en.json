@@ -19739,6 +19739,7 @@
       "cidb": "CIDB card no.",
       "company": "Company",
       "companyNote": "Company name (not on the list)",
+      "trade": "Trade",
       "project": "Project",
       "status": "On-site status",
       "lastPositionAt": "Last location time",
@@ -19785,7 +19786,8 @@
     },
     "what": {
       "companies": "the company list",
-      "worker": "the worker's details"
+      "worker": "the worker's details",
+      "trades": "the trade list"
     },
     "toast": {
       "created": "Worker added to the roster",
@@ -19946,7 +19948,36 @@
         "zoomHint": "Click the photo to open it larger in a new tab.",
         "confirm": "Checked"
       },
-      "saveBlocked": "The table's changes have not reached the server yet, so nothing was saved. Check the internet and press \"Save all\" again."
+      "saveBlocked": "The table's changes have not reached the server yet, so nothing was saved. Check the internet and press \"Save all\" again.",
+      "fillsTrade": "Already on the roster ({name}): saving only adds the trade; nothing else changes",
+      "resultFilled": "Trade added for {count} people already on the roster"
+    },
+    "trade": {
+      "none": "No trade",
+      "add": "Add trade",
+      "addConfirm": "Add",
+      "addCancel": "Cancel",
+      "newName": "New trade name",
+      "newNamePlaceholder": "e.g. Welder",
+      "addFailed": "Could not add it. Please try again.",
+      "builtIn": {
+        "REBAR": "Rebar worker",
+        "FORMWORK": "Formwork carpenter",
+        "CONCRETE": "Concreter",
+        "ELECTRICIAN": "Electrician",
+        "GENERAL": "General worker"
+      }
+    },
+    "tradeSummary": {
+      "title": "By trade",
+      "what": "the counts by trade",
+      "headline": "{registered} registered · {onSite} on site",
+      "registered": "{count} registered",
+      "onSite": "{count} on site",
+      "foldHint": "Click to fold",
+      "unfoldHint": "Click to unfold",
+      "pickHint": "Click a trade to show only its people in the list below; click again to clear. On-site counts follow the geofence by themselves, as a guide.",
+      "updatedAt": "Last updated: {at}"
     }
   },
   "workerLocation": {

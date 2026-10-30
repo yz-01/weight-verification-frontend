@@ -113,3 +113,57 @@ export function passportExpired(expiry: string | null | undefined, today = new D
   const local = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
   return expiry < local;
 }
+
+// --- 施工工种 (JB91) ----------------------------------------------------------
+
+/** The five trades every company starts with; the screens translate them. */
+export const BUILT_IN_TRADE_CODES = ["REBAR", "FORMWORK", "CONCRETE", "ELECTRICIAN", "GENERAL"] as const;
+
+/** The name a built-in trade is stored under (the server's ``BUILT_IN_TRADES``), as an export carries it. */
+export const BUILT_IN_TRADE_NAMES: Record<(typeof BUILT_IN_TRADE_CODES)[number], string> = {
+  REBAR: "钢筋工",
+  FORMWORK: "模板工",
+  CONCRETE: "混凝土工",
+  ELECTRICIAN: "电工",
+  GENERAL: "普工",
+};
+
+/** The `trade` filter's value for 「未填工种」. */
+export const NO_TRADE = "none";
+
+/**
+ * A trade as the reader says it: a built-in one in their language
+ * (`builtIn(code)`), one the company added by its own name.
+ */
+export function tradeLabel(
+  trade: { code?: string | null; name?: string | null },
+  builtIn: (code: string) => string,
+): string {
+  const code = trade.code ?? "";
+  if ((BUILT_IN_TRADE_CODES as readonly string[]).includes(code)) return builtIn(code);
+  return trade.name ?? "";
+}
+
+/** What the 「按工种汇总」 numbers follow: the roster's filters, not the trade or 在场状态 chosen, nor the page. */
+const NOT_COUNTED = ["page", "page_size", "sort_by", "sort_order", "trade", "status", "active", "needs_action"];
+
+export function tradeSummaryQuery<T extends Record<string, unknown>>(query: T): Partial<T> {
+  return Object.fromEntries(Object.entries(query).filter(([key]) => !NOT_COUNTED.includes(key))) as Partial<T>;
+}
+
+/** A card pressed: its trade chosen, or - pressed again - none. */
+export function nextTradeFilter(current: string | undefined, pressed: string): string | undefined {
+  return current === pressed ? undefined : pressed;
+}
+
+/** 「最后更新」's time on a 24-hour clock whatever the company's setting (spec JB91-4: 「最后更新：日期时间（24 小时制）」). */
+export function clock24(value: string, timeZone: string): string {
+  const when = new Date(value);
+  if (Number.isNaN(when.getTime())) return "";
+  const parts = Object.fromEntries(
+    new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZone })
+      .formatToParts(when)
+      .map((part) => [part.type, part.value]),
+  );
+  return `${parts.hour}:${parts.minute}`;
+}

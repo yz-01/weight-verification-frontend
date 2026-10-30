@@ -10,6 +10,11 @@
  * profile, documents, the location link, the last position and their stays.
  *
  * Nothing here can change a location record - there is no such endpoint.
+ *
+ * JB91 (10-31): each person's 「施工工种」, and above the roster 「按工种汇总」 -
+ * per trade 登记 and 在场, a card pressed filters the roster by its trade.
+ * The roster and the cards ask again every minute, so 在场 follows the
+ * fence without a reload (「在场人数根据现有电子围栏定位状态自动更新」).
  */
 
 import { useQuery } from "@tanstack/react-query";
@@ -25,6 +30,8 @@ import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import { ExportButton } from "@/components/shared/export-button";
 import { ListHeader, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
+import { useTradeLabel } from "@/components/site-workers/trade-select";
+import { ROSTER_REFRESH_MS, TradeSummaryPanel } from "@/components/site-workers/trade-summary";
 import { VisitExit } from "@/components/site-workers/visit-exit";
 import { WorkerDetailDialog } from "@/components/site-workers/worker-detail";
 import { WorkerFormDialog } from "@/components/site-workers/worker-form";
@@ -41,7 +48,12 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useListQuery } from "@/hooks/use-list-query";
 import type { SiteWorker, SiteWorkerVisit } from "@/interfaces/site-workers";
 import { useDateFormat } from "@/lib/dates";
-import { WORKER_STATUSES, workerStatusTone } from "@/lib/site-workers";
+import {
+  BUILT_IN_TRADE_CODES,
+  BUILT_IN_TRADE_NAMES,
+  WORKER_STATUSES,
+  workerStatusTone,
+} from "@/lib/site-workers";
 import {
   exportSiteWorkerVisits,
   exportSiteWorkers,
@@ -148,13 +160,15 @@ function WorkerRoster({ onView }: { onView: (id: string) => void }) {
   const common = useTranslations("common");
   const df = useDateFormat();
   const { can } = useAuth();
-  const list = useListQuery(["project", "company", "status", "active"]);
+  const tradeLabel = useTradeLabel();
+  const list = useListQuery(["project", "company", "status", "active", "trade"]);
   const [creating, setCreating] = useState(false);
   const inactive = list.filters.active === "0";
   const query = useMemo(() => ({ ...list.query, active: inactive ? "0" : "1" }), [list.query, inactive]);
   const workers = useQuery({
     queryKey: ["site-workers", "list", query],
     queryFn: () => getSiteWorkers(query),
+    refetchInterval: ROSTER_REFRESH_MS,
   });
   const total = workers.data?.count ?? 0;
   const counts = workers.data?.status_counts;
@@ -197,6 +211,18 @@ function WorkerRoster({ onView }: { onView: (id: string) => void }) {
         meta: { label: t("field.company") },
         header: () => t("field.company"),
         cell: ({ row }) => row.original.company_name || "—",
+      },
+      {
+        id: "trade",
+        accessorKey: "trade_name",
+        meta: { label: t("field.trade") },
+        header: () => t("field.trade"),
+        cell: ({ row }) =>
+          row.original.trade ? (
+            tradeLabel({ code: row.original.trade_code, name: row.original.trade_name })
+          ) : (
+            <span className="text-muted-foreground">{t("trade.none")}</span>
+          ),
       },
     ];
     if (allProjects) {
@@ -243,9 +269,13 @@ function WorkerRoster({ onView }: { onView: (id: string) => void }) {
       },
     );
     return rows;
-  }, [allProjects, df, onView, t]);
+  }, [allProjects, df, onView, t, tradeLabel]);
 
   const statusValues = Object.fromEntries(WORKER_STATUSES.map((status) => [status, t(`status.${status}`)]));
+  // The file carries a built-in trade's stored name; say it in the reader's language.
+  const tradeValues = Object.fromEntries(
+    BUILT_IN_TRADE_CODES.map((code) => [BUILT_IN_TRADE_NAMES[code], t(`trade.builtIn.${code}`)]),
+  );
   const title = inactive ? `${t("title")} · ${t("filter.inactive")}` : t("title");
 
   return (
@@ -283,6 +313,7 @@ function WorkerRoster({ onView }: { onView: (id: string) => void }) {
                     { key: "passport_expiry", label: t("field.passportExpiry") },
                     { key: "cidb_no", label: t("field.cidb") },
                     { key: "company_name", label: t("field.company") },
+                    { key: "trade_name", label: t("field.trade"), values: tradeValues },
                     { key: "status", label: t("field.status"), values: statusValues },
                     { key: "last_position_at", label: t("field.lastPositionAt") },
                     { key: "documents_text", label: t("field.documents") },
@@ -320,6 +351,7 @@ function WorkerRoster({ onView }: { onView: (id: string) => void }) {
           {t("noFence")}
         </p>
       )}
+      <TradeSummaryPanel list={list} />
       <p className="text-xs text-muted-foreground">{t("searchHint")}</p>
       <DataTable
         columns={columns}

@@ -271,6 +271,7 @@ export const LIST_FITS = {
       passport_no: "short",
       cidb_no: "short",
       company_name: "text",
+      trade: "short",
       project_name: "text",
       status: "status",
       last_position_at: "datetime",

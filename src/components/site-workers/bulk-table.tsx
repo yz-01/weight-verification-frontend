@@ -48,6 +48,7 @@ const FIELD_LABEL: Record<BulkField, string> = {
   passport_expiry: "field.passportExpiry",
   cidb_no: "field.cidb",
   company_text: "field.company",
+  trade_text: "field.trade",
 };
 
 /**
@@ -70,10 +71,12 @@ export const FIELD_WIDTH: Record<BulkField, string> = {
   passport_expiry: "min-w-22",
   cidb_no: "min-w-30",
   company_text: "min-w-28",
+  // 「混凝土工」 whole; a longer trade wraps.
+  trade_text: "min-w-20",
 };
 
 /** Boxes that wrap their words onto a second line instead of being cut. */
-export const WRAPS: ReadonlySet<BulkField> = new Set(["name", "nationality", "company_text"]);
+export const WRAPS: ReadonlySet<BulkField> = new Set(["name", "nationality", "company_text", "trade_text"]);
 
 /** Kept at the left while the row scrolls sideways (opaque, above the rest). */
 const STICKY_LEFT = "sticky left-0 z-[2] bg-card shadow-[inset_-1px_0_0_var(--panel-border)]";
@@ -87,6 +90,7 @@ export function BulkTable({
   rows,
   shown,
   problems,
+  fills = {},
   companyPlaceholder,
   focus,
   onRows,
@@ -101,6 +105,8 @@ export function BulkTable({
   /** The indexes into `rows` this page shows. */
   shown: number[];
   problems: Record<string, BatchRowProblem[]>;
+  /** JB91: rows that only give a worker already on the roster a trade, and whose. */
+  fills?: Record<string, { name: string }>;
   /** The batch's company, shown in an empty 公司 box. */
   companyPlaceholder: string;
   /** A cell to put the cursor in once it is drawn. */
@@ -176,7 +182,8 @@ export function BulkTable({
             : row.needsCheck
               ? "bg-[color-mix(in_oklab,var(--warning)_10%,var(--card))]"
               : undefined;
-          const explained = found.length > 0 || row.needsCheck;
+          const fill = row.id && found.length === 0 ? fills[row.id] : undefined;
+          const explained = found.length > 0 || row.needsCheck || Boolean(fill);
           return (
             <Fragment key={row.key}>
             <TableRow className={cn(tone, explained && "border-b-0")}>
@@ -270,6 +277,7 @@ export function BulkTable({
               <TableRow className={tone}>
                 <TableCell colSpan={BULK_FIELDS.length + 2} className="pb-2 pt-0 text-sm">
                   <span className="flex flex-wrap items-center gap-x-2 gap-y-1 pl-8">
+                    {fill && <span className="text-primary">{bulk("fillsTrade", { name: fill.name })}</span>}
                     {found.length > 0 && (
                       <span className="font-medium text-muted-foreground">{bulk("column.problems")}</span>
                     )}

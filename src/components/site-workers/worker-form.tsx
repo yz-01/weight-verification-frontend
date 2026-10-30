@@ -8,6 +8,9 @@
  * JB61 (10-28): the phone is optional (no phone, no location link), and the
  * passport is on the form - number, nationality, birth date, expiry and a
  * photo or PDF of the data page, sent after the worker is saved.
+ *
+ * JB91 (10-31): 「施工工种」, a dropdown of the company's trades with
+ * 「新增工种」 beside it. Optional - a worker from before has none until filled.
  */
 
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -19,6 +22,7 @@ import { useEffect, useRef, useState } from "react";
 import { OptionCombobox } from "@/components/material-requests/option-combobox";
 import { FieldWrapper, QueryFailedNote } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
+import { TradeSelect } from "@/components/site-workers/trade-select";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -51,6 +55,8 @@ interface Draft {
   supplier: string;
   supplierName: string;
   company_note: string;
+  /** 「施工工种」 (JB91): a trade's id, or "" for 「未填工种」. */
+  trade: string;
   documents: SiteWorkerDocument[];
 }
 
@@ -67,6 +73,7 @@ function draftOf(worker: SiteWorker | null | undefined, project?: string): Draft
     supplier: worker?.supplier ?? "",
     supplierName: worker?.supplier_name ?? "",
     company_note: worker?.company_note ?? "",
+    trade: worker?.trade ?? "",
     documents: worker?.documents.map((row) => ({ name: row.name, number: row.number })) ?? [],
   };
 }
@@ -133,6 +140,7 @@ function WorkerFormBody({ worker, defaultProject, onClose, onSaved }: FormProps)
         cidb_no: draft.cidb_no,
         supplier: draft.supplier || null,
         company_note: draft.supplier ? "" : draft.company_note,
+        trade: draft.trade || null,
         documents: cleanDocuments(draft.documents),
       };
       // A worker created on an earlier press whose photo was refused is
@@ -210,6 +218,19 @@ function WorkerFormBody({ worker, defaultProject, onClose, onSaved }: FormProps)
               inputMode="tel"
               value={draft.phone}
               onChange={(event) => set("phone", event.target.value)}
+            />
+          </FieldWrapper>
+          <FieldWrapper label={t("field.trade")} optional={common("optional")} error={errors.trade}>
+            <TradeSelect
+              project={worker ? worker.project : draft.project}
+              value={draft.trade}
+              current={
+                worker?.trade
+                  ? { id: worker.trade, code: worker.trade_code, name: worker.trade_name }
+                  : null
+              }
+              canAdd
+              onChange={(trade) => set("trade", trade)}
             />
           </FieldWrapper>
           <div className="grid gap-4 sm:grid-cols-2">
