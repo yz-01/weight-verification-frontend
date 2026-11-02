@@ -133,7 +133,7 @@ export function PhaseTab() {
           <TableBody>
             {phases.isLoading ? (
               <TableRow>
-                <TableCell colSpan={7}>
+                <TableCell colSpan={7} className="text-center">
                   <Loader2 className="size-4 animate-spin text-muted-foreground" />
                 </TableCell>
               </TableRow>

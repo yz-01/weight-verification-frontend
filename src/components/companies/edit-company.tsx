@@ -20,12 +20,8 @@ export function EditCompany({ id }: { id: string }) {
   if (isLoadingError || !data) {
     return <LoadErrorCard backHref="/companies" backLabel={t("companies.title")} />;
   }
-  return (
-    <div className="space-y-4">
-      <CreateCompany company={data} />
-      <div className="surface-panel overflow-hidden rounded-xl">
-        <CompanyOnboarding company={data} />
-      </div>
-    </div>
-  );
+  // 入驻资料 rides in the form's `after`: in the edit dialog it scrolls with
+  // the fields. Drawn beside the form, it made the dialog one block too tall
+  // to scroll (Lucas 11-02: 「编辑公司我下滑不了」).
+  return <CreateCompany company={data} after={<CompanyOnboarding company={data} />} />;
 }
