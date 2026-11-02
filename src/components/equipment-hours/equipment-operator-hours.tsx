@@ -661,13 +661,13 @@ export function EquipmentOperatorHours() {
             <TableBody>
               {days.isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={17} className="h-20 text-muted-foreground">
+                  <TableCell colSpan={17} className="h-20 text-center text-muted-foreground">
                     <Loader2 className="size-4 animate-spin" />
                   </TableCell>
                 </TableRow>
               ) : rows.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={17} className="h-20 text-muted-foreground">
+                  <TableCell colSpan={17} className="h-20 text-center text-muted-foreground">
                     {t("day.empty")}
                   </TableCell>
                 </TableRow>
@@ -849,13 +849,13 @@ export function EquipmentOperatorHours() {
             <TableBody>
               {monthly.isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={11} className="h-20 text-muted-foreground">
+                  <TableCell colSpan={11} className="h-20 text-center text-muted-foreground">
                     <Loader2 className="size-4 animate-spin" />
                   </TableCell>
                 </TableRow>
               ) : monthRows.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={11} className="h-20 text-muted-foreground">
+                  <TableCell colSpan={11} className="h-20 text-center text-muted-foreground">
                     {t("month.empty")}
                   </TableCell>
                 </TableRow>

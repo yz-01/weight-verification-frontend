@@ -68,9 +68,12 @@ const TIMEZONES = [
 export function CreateCompany({
   company,
   defaultType,
+  after,
 }: {
   company?: CompanyDetail;
   defaultType?: CompanyType;
+  /** Shown after the fields: on edit, the company's 入驻资料. */
+  after?: React.ReactNode;
 }) {
   const t = useTranslations();
   const router = useRouter();
@@ -347,6 +350,7 @@ export function CreateCompany({
       submitLabel={isEdit ? t("common.save") : t("common.create")}
       submitIcon={isEdit ? Save : Plus}
       onSubmit={() => void form.handleSubmit()}
+      after={after}
     >
       <FormSection title={t("companies.section.identity")}>
         <form.Field
@@ -433,7 +437,6 @@ export function CreateCompany({
               field={field as unknown as BoundField}
               label={t("companies.field.ssmRegisteredName")}
               optional
-              className="md:col-span-2"
             />
           )}
         </form.Field>
@@ -487,7 +490,6 @@ export function CreateCompany({
               label={t("companies.field.taxId")}
               optional
               hint={t("companies.taxIdHint")}
-              className="md:col-span-2"
             />
           )}
         </form.Field>

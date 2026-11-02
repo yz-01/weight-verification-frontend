@@ -201,7 +201,7 @@ export function DailyReportsTab() {
           <TableBody>
             {rows.isLoading ? (
               <TableRow>
-                <TableCell colSpan={4}>
+                <TableCell colSpan={4} className="text-center">
                   <Loader2 className="size-4 animate-spin text-muted-foreground" />
                 </TableCell>
               </TableRow>

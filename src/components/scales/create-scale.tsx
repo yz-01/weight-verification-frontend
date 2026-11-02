@@ -119,167 +119,166 @@ export function CreateScale({ scale }: { scale?: Scale }) {
     })) ?? [];
 
   return (
-    <div className="space-y-4">
-      <FormShell
-        backHref={listHref}
-        backLabel={t("scales.title")}
-        title={isEdit ? t("scales.editTitle") : t("scales.createTitle")}
-        isSubmitting={mutation.isPending}
-        submitLabel={isEdit ? t("common.save") : t("common.create")}
-        submitIcon={isEdit ? Save : Plus}
-        onSubmit={() => void form.handleSubmit()}
-      >
-        <FormSection title={t("scales.section.identity")}>
-          <form.Field
-            name="code"
-            validators={{ onSubmit: required(t("validation.required")) }}
-          >
-            {(field) => (
-              <TextField
-                field={field as unknown as BoundField}
-                label={t("scales.field.code")}
-                required
-              />
-            )}
-          </form.Field>
-
-          <form.Field
-            name="name"
-            validators={{ onSubmit: required(t("validation.required")) }}
-          >
-            {(field) => (
-              <TextField
-                field={field as unknown as BoundField}
-                label={t("scales.field.name")}
-                required
-              />
-            )}
-          </form.Field>
-
-          <form.Field
-            name="site"
-            validators={{ onSubmit: required(t("validation.required")) }}
-          >
-            {(field) => (
-              <SelectField
-                field={field as unknown as BoundField}
-                label={t("scales.field.site")}
-                required
-                options={siteOptions}
-                className="md:col-span-2"
-              />
-            )}
-          </form.Field>
-          <QueryFailedNote query={siteQuery} what={t("scales.what.sites")} className="md:col-span-2" />
-        </FormSection>
-
-        <FormSection title={t("scales.section.instrument")}>
-          <form.Field name="protocol">
-            {(field) => (
-              <SelectField
-                field={field as unknown as BoundField}
-                label={t("scales.field.protocol")}
-                required
-                options={PROTOCOLS.map((entry) => ({
-                  value: entry.value,
-                  label: t(`scales.protocolLabel.${entry.value}`),
-                  disabled: !entry.implemented,
-                }))}
-                className="md:col-span-2"
-              />
-            )}
-          </form.Field>
-
-          <form.Field name="manufacturer">
-            {(field) => (
-              <TextField
-                field={field as unknown as BoundField}
-                label={t("scales.field.manufacturer")}
-                optional
-              />
-            )}
-          </form.Field>
-          <form.Field name="model_number">
-            {(field) => (
-              <TextField
-                field={field as unknown as BoundField}
-                label={t("scales.field.modelNumber")}
-                optional
-              />
-            )}
-          </form.Field>
-          <form.Field name="serial_number">
-            {(field) => (
-              <TextField
-                field={field as unknown as BoundField}
-                label={t("scales.field.serialNumber")}
-                optional
-              />
-            )}
-          </form.Field>
-          <form.Field name="capacity_kg">
-            {(field) => (
-              <TextField
-                field={field as unknown as BoundField}
-                label={t("scales.field.capacityKg")}
-                optional
-                type="number"
-              />
-            )}
-          </form.Field>
-          <form.Field name="division_kg">
-            {(field) => (
-              <TextField
-                field={field as unknown as BoundField}
-                label={t("scales.field.divisionKg")}
-                optional
-                type="number"
-                // The stability tolerance is judged against this, so an
-                // installer setting one needs to know about the other.
-                hint={t("scales.divisionHint")}
-              />
-            )}
-          </form.Field>
-        </FormSection>
-
-        <FormSection title={t("scales.section.calibration")}>
-          <form.Field name="calibration_certificate_no">
-            {(field) => (
-              <TextField
-                field={field as unknown as BoundField}
-                label={t("scales.field.calibrationCertificateNo")}
-                optional
-              />
-            )}
-          </form.Field>
-          <form.Field name="calibration_expiry">
-            {(field) => (
-              <TextField
-                field={field as unknown as BoundField}
-                label={t("scales.field.calibrationExpiry")}
-                optional
-                type="date"
-                hint={t("scales.calibrationHint")}
-              />
-            )}
-          </form.Field>
-
-          {formError && (
-            <p className="text-sm font-medium text-destructive md:col-span-2">
-              {formError}
-            </p>
+    <FormShell
+      backHref={listHref}
+      backLabel={t("scales.title")}
+      title={isEdit ? t("scales.editTitle") : t("scales.createTitle")}
+      isSubmitting={mutation.isPending}
+      submitLabel={isEdit ? t("common.save") : t("common.create")}
+      submitIcon={isEdit ? Save : Plus}
+      onSubmit={() => void form.handleSubmit()}
+      // Only on edit: a gateway is registered against a scale that exists,
+      // and the secret it returns has to be shown immediately. In `after` it
+      // scrolls with the fields in the edit dialog, which a panel drawn
+      // beside the form stopped from scrolling at all.
+      after={isEdit ? <GatewayPanel scaleId={scale.id} /> : undefined}
+    >
+      <FormSection title={t("scales.section.identity")}>
+        <form.Field
+          name="code"
+          validators={{ onSubmit: required(t("validation.required")) }}
+        >
+          {(field) => (
+            <TextField
+              field={field as unknown as BoundField}
+              label={t("scales.field.code")}
+              required
+            />
           )}
-        </FormSection>
-      </FormShell>
+        </form.Field>
 
-      {/* Only on edit: a gateway is registered against a scale that exists, and
-          the secret it returns has to be shown immediately. */}
-      {isEdit && (
-        <div className="surface-panel rounded-xl">
-          <GatewayPanel scaleId={scale.id} />
-        </div>
-      )}
-    </div>
+        <form.Field
+          name="name"
+          validators={{ onSubmit: required(t("validation.required")) }}
+        >
+          {(field) => (
+            <TextField
+              field={field as unknown as BoundField}
+              label={t("scales.field.name")}
+              required
+            />
+          )}
+        </form.Field>
+
+        <form.Field
+          name="site"
+          validators={{ onSubmit: required(t("validation.required")) }}
+        >
+          {(field) => (
+            <SelectField
+              field={field as unknown as BoundField}
+              label={t("scales.field.site")}
+              required
+              options={siteOptions}
+              className="md:col-span-2"
+            />
+          )}
+        </form.Field>
+        <QueryFailedNote
+          query={siteQuery}
+          what={t("scales.what.sites")}
+          className="md:col-span-2"
+        />
+      </FormSection>
+
+      <FormSection title={t("scales.section.instrument")}>
+        <form.Field name="protocol">
+          {(field) => (
+            <SelectField
+              field={field as unknown as BoundField}
+              label={t("scales.field.protocol")}
+              required
+              options={PROTOCOLS.map((entry) => ({
+                value: entry.value,
+                label: t(`scales.protocolLabel.${entry.value}`),
+                disabled: !entry.implemented,
+              }))}
+              className="md:col-span-2"
+            />
+          )}
+        </form.Field>
+
+        <form.Field name="manufacturer">
+          {(field) => (
+            <TextField
+              field={field as unknown as BoundField}
+              label={t("scales.field.manufacturer")}
+              optional
+            />
+          )}
+        </form.Field>
+        <form.Field name="model_number">
+          {(field) => (
+            <TextField
+              field={field as unknown as BoundField}
+              label={t("scales.field.modelNumber")}
+              optional
+            />
+          )}
+        </form.Field>
+        <form.Field name="serial_number">
+          {(field) => (
+            <TextField
+              field={field as unknown as BoundField}
+              label={t("scales.field.serialNumber")}
+              optional
+            />
+          )}
+        </form.Field>
+        <form.Field name="capacity_kg">
+          {(field) => (
+            <TextField
+              field={field as unknown as BoundField}
+              label={t("scales.field.capacityKg")}
+              optional
+              type="number"
+            />
+          )}
+        </form.Field>
+        <form.Field name="division_kg">
+          {(field) => (
+            <TextField
+              field={field as unknown as BoundField}
+              label={t("scales.field.divisionKg")}
+              optional
+              type="number"
+              // The stability tolerance is judged against this, so an
+              // installer setting one needs to know about the other.
+              hint={t("scales.divisionHint")}
+            />
+          )}
+        </form.Field>
+      </FormSection>
+
+      <FormSection title={t("scales.section.calibration")}>
+        <form.Field name="calibration_certificate_no">
+          {(field) => (
+            <TextField
+              field={field as unknown as BoundField}
+              label={t("scales.field.calibrationCertificateNo")}
+              optional
+            />
+          )}
+        </form.Field>
+        <form.Field name="calibration_expiry">
+          {(field) => (
+            <TextField
+              field={field as unknown as BoundField}
+              label={t("scales.field.calibrationExpiry")}
+              optional
+              type="date"
+              hint={t("scales.calibrationHint")}
+            />
+          )}
+        </form.Field>
+
+        {formError && (
+          <p className="text-sm font-medium text-destructive md:col-span-2">
+            {formError}
+          </p>
+        )}
+      </FormSection>
+    </FormShell>
   );
 }
 
