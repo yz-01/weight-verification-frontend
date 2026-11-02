@@ -242,11 +242,11 @@ export function NetTotalsView({
           <TableBody>
             {totals.isLoading ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-muted-foreground">{t("common.loading")}</TableCell>
+                <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">{t("common.loading")}</TableCell>
               </TableRow>
             ) : rows.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-muted-foreground">
+                <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
                   {material || specification
                     ? t("receipts.net.searchEmpty", { term: [material, specification].filter(Boolean).join(" · ") })
                     : t("table.noResults")}

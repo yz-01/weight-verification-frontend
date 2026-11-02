@@ -160,7 +160,10 @@ function TableCell({
       {...props}
     >
       {colSpan ? (
-        <div className="sticky left-0 flex w-[100cqw] max-w-[100cqw] sm:w-full sm:max-w-full items-center whitespace-normal">
+        // What it holds fills the row, so an 「暂无记录」 box or a centred
+        // line sits in the middle of the table instead of shrinking to its
+        // own width at the left (Lucas 11-02 图2). An icon keeps its size.
+        <div className="sticky left-0 flex w-[100cqw] max-w-[100cqw] sm:w-full sm:max-w-full items-center whitespace-normal [.text-center>&]:justify-center [&>*:not(svg)]:min-w-0 [&>*:not(svg)]:flex-1">
           {children}
         </div>
       ) : children}
