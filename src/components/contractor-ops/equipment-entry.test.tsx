@@ -216,15 +216,28 @@ describe("the office registers the machine first (A8, X4)", () => {
     expect(html).not.toContain(`>${messages.contractorOps.field.registrationNo}<`);
   });
 
-  it("lets the office make a class inline when filing a machine (2026-10-07)", () => {
+  it("names a machine from the company's list and shows the next number (JB96)", () => {
+    // 客户 11-03 第 1–5 点: 设备名称 from the list (or a new one), no 大类 /
+    // 小类, no number typed - the project's next one shown, confirmed on save.
+    const html = render(<EquipmentDialog project="p-1" onClose={() => {}} onSaved={() => {}} />, [
+      [["equipment-names", "p-1"], [{ id: "n-1", name: "挖土机", is_active: true }]],
+      [["equipment-next-no", "p-1"], "EQ0007"],
+    ]);
+    expect(html).toContain(messages.contractorOps.equipmentName.label);
+    expect(html).toContain(messages.contractorOps.equipmentName.add);
+    expect(html).toContain("EQ0007（保存时确认）");
+    expect(html).toContain(messages.contractorOps.equipment.numberHelp);
+    expect(html).not.toContain(messages.contractorOps.field.equipmentSubClass);
+    expect(html).not.toContain(messages.contractorOps.equipment.systemNo);
+    expect(html).not.toContain(messages.contractorOps.equipment.addClass);
+  });
+
+  it("shows a machine's own number when correcting it, never as a box", () => {
     const html = render(
-      <EquipmentDialog project="p-1" equipment={machine({ needs_profile: true, category: null })} onClose={() => {}} onSaved={() => {}} />,
-      [[["project-categories", "equipment", "p-1"], page([])]],
+      <EquipmentDialog project="p-1" equipment={machine({ site_no: "EQ0003", code: "EQ0003" })} onClose={() => {}} onSaved={() => {}} />,
     );
-    expect(html).toContain(messages.contractorOps.field.noEquipmentSubClassYet);
-    expect(html).toContain(messages.contractorOps.equipment.addClass);
-    // No trip to Category Management.
-    expect(html).not.toContain("/category-management");
+    expect(html).toMatch(/data-testid="equipment-site-no"[^>]*>EQ0003</);
+    expect(html).not.toContain('value="EQ0003"');
   });
 
   it("links a machine's profile to its entries and exits (B2)", () => {

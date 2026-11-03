@@ -26,6 +26,7 @@ import type {
   EquipmentMovement,
   EquipmentSummary,
   EquipmentSupplierCounts,
+  EquipmentName,
   EquipmentPayload,
   FieldTask,
   FieldTaskPayload,
@@ -280,11 +281,40 @@ export const getSiteEquipment = (query: ListQuery = {}) =>
 /** One machine's profile - for the office completing a 「新设备」 (C8). */
 export const getSiteEquipmentItem = (id: string) =>
   api.get<SiteEquipment>(`/api/site-equipment/${id}/get_equipment_item/`);
+/**
+ * 登记设备. The number is the system's (JB96, 客户 11-03 第 5 点 「正式保存时确认
+ * 编号」): the toast says the one the machine was saved under, which is the
+ * one the form showed unless somebody registered a machine meanwhile.
+ */
 export const createSiteEquipment = async (payload: EquipmentPayload) => {
   const row = await api.post<SiteEquipment>("/api/site-equipment/create_equipment/", payload);
-  toastSuccess("contractorOps.toast.saved");
+  toastSuccess("contractorOps.toast.equipmentRegistered", { no: row.site_no || row.code });
   return row;
 };
+
+/** 「设备名称」 (JB96): the company's list, shared by all its projects. */
+export async function getEquipmentNames(project?: string): Promise<EquipmentName[]> {
+  const data = await api.get<{ results: EquipmentName[] }>(
+    "/api/site-equipment/get_equipment_names/",
+    project ? { project } : {},
+  );
+  return data.results;
+}
+
+/** 「新增设备名称」: a name already on the list comes back as that name. */
+export function createEquipmentName(name: string, project?: string): Promise<EquipmentName> {
+  return api.post<EquipmentName>(
+    "/api/site-equipment/create_equipment_name/",
+    { name, ...(project ? { project } : {}) },
+    { silent: true },
+  );
+}
+
+/** The number 登记设备 shows when it opens (JB96, 客户 11-03 第 5 点); only shown. */
+export async function getNextEquipmentNo(project: string): Promise<string> {
+  const data = await api.get<{ number: string }>("/api/site-equipment/next_equipment_no/", { project });
+  return data.number;
+}
 /**
  * Correct an equipment record.
  *

@@ -6199,7 +6199,7 @@
       "editTitle": "编辑这台设备",
       "entryTitle": "记录 {name} 进场",
       "exitTitle": "记录 {name} 退场",
-      "formHelp": "系统编号、车牌号码和小类。设备号码在保存时由系统自动生成。可以先建好，也可以等现场报来新设备时在验收时补齐。",
+      "formHelp": "选设备名称（名单里没有就新增），填车牌号码。设备号码由系统在保存时给，不能人工修改。可以先登记好，也可以等现场报了新设备、验收时再补。",
       "movementHelp": "请拍摄当前照片并获取位置；该记录会成为不可修改的现场证据。",
       "occurredAt": "进退场时间",
       "ocrManual": "无法读取 Delivery Order，请手动填写资料。",
@@ -6234,7 +6234,7 @@
       "newMachine": "新设备",
       "newMachineEntry": "新设备进场",
       "newMachineName": "新设备名称",
-      "newMachineHelp": "填名称就可以；其他资料由后台验收时补齐。",
+      "newMachineHelp": "选设备名称就可以（名单里没有就新增）；其他资料由后台以后补齐。",
       "entryHelp": "拍照、DO、扫供应商二维码、双方签名，提交后由后台验收。",
       "entrySubmit": "提交进场",
       "exitHelp": "拍照、DO、扫供应商二维码、双方签名，提交后由后台验收；验收通过前设备仍算在场。",
@@ -6249,7 +6249,7 @@
       "scanFailed": "扫码没有成功，可以再扫一次，或先不填供应商。",
       "movementsLink": "查看这台设备的进退场记录",
       "needsProfile": "待补档",
-      "needsProfileHelp": "这台设备还没有小类。选好小类（没有合适的可以在下面新增）就能验收它的进场；到期日可以以后再补。",
+      "needsProfileHelp": "这台设备还没有设备名称。选一个设备名称（名单里没有就新增），就可以验收进场；到期日可以以后再补。",
       "directHandover": "直接交接",
       "directHandoverHelp": "这是改流程前的申请，不用再批准：直接交接（拍照、双方签名），之后由后台验收。",
       "acceptance": {
@@ -6269,7 +6269,8 @@
         "missing": {
           "registration_no": "车牌号码",
           "category": "小类",
-          "expiry": "到期日"
+          "expiry": "到期日",
+          "name": "设备名称"
         },
         "headOffice": "这台设备的分类设为「提交总部审批」：由总部验收。"
       },
@@ -6310,7 +6311,11 @@
       "locationHint": "打开时自动获取定位。",
       "siteNo": "设备号码",
       "systemNo": "系统编号",
-      "siteNoAuto": "{no}（系统自动生成）"
+      "siteNoAuto": "{no}（系统自动生成）",
+      "number": "设备号码",
+      "numberNext": "{no}（保存时确认）",
+      "numberOnSave": "保存时由系统给",
+      "numberHelp": "由系统自动给，不用填，也不能改。"
     },
     "equipmentEvidence": {
       "condition": "4. 设备状况细节",
@@ -6709,7 +6714,8 @@
       "exitSubmitted": "设备已退场，等待后台确认",
       "entryReviewed": "验收结果已记录",
       "exitApplied": "设备退场申请已提交，等待后台批准",
-      "exitApplicationReviewed": "退场申请的审批结果已记录"
+      "exitApplicationReviewed": "退场申请的审批结果已记录",
+      "equipmentRegistered": "设备已登记，设备号码 {no}。"
     },
     "what": {
       "roles": "角色列表",
@@ -6877,6 +6883,18 @@
     },
     "equipmentInspection": {
       "column": "检验"
+    },
+    "equipmentName": {
+      "label": "设备名称",
+      "placeholder": "选择设备名称",
+      "add": "新增设备名称",
+      "newName": "新的设备名称",
+      "newNamePlaceholder": "例如 挖土机",
+      "addConfirm": "新增",
+      "addCancel": "取消新增",
+      "addFailed": "设备名称没有加上，请再试一次。",
+      "what": "设备名称",
+      "all": "全部设备名称"
     }
   },
   "contractorPartners": {
@@ -8653,7 +8671,8 @@
       "worker_excel_invalid": "打不开这个 Excel。请按「下载 Excel 样板」，在样板里填好再上传。",
       "worker_excel_no_header": "这个 Excel 找不到「姓名」这一栏。请用样板，第一行不要改。",
       "worker_excel_empty": "这个 Excel 里没有人。请从第 2 行开始，一行填一个人。",
-      "passport_capture_link_invalid": "这个拍照链接已经失效。请在电脑的「批量新增人员」页面重新扫二维码。"
+      "passport_capture_link_invalid": "这个拍照链接已经失效。请在电脑的「批量新增人员」页面重新扫二维码。",
+      "equipment_number_by_system": "设备编号由系统自动给，不能人工修改。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -18348,7 +18367,7 @@
       "progress": "施工分类",
       "safety": "整改分类",
       "consultant": "申请类型",
-      "equipment": "设备大类",
+      "equipment": "设备名称",
       "equipmentClass": "小类",
       "recycling": "环保材料出场分类",
       "documents": "文档大分类",
@@ -19221,8 +19240,6 @@
     "toast": {
       "endSaved": "结束时间已保存",
       "startSaved": "开始时间已保存",
-      "siteNoSaved": "设备号码已保存",
-      "siteNoCleared": "设备号码已清除",
       "operatorSaved": "操作人员已保存",
       "moved": "工时已移到另一台设备",
       "normalSaved": "正常工时已保存"
@@ -19276,19 +19293,14 @@
       "sentQueued": "已存在手机，有网络会自动上传：{number} 号 {kind} {time}"
     },
     "siteNo": {
-      "open": "设备号码管理",
-      "title": "设备号码管理",
-      "help": "每台设备登记时由系统自动给一个设备号码（例如 12），和二维码一一对应，永不重复。这里只用来更正（要签核密码）；号码不能清空，也不能用本项目其他设备用过的号码。",
+      "open": "设备号码一览",
+      "title": "设备号码一览",
+      "help": "每台设备登记时由系统自动给号码（新设备是 EQ0001、EQ0002……每个项目各自从 EQ0001 开始），和二维码一一对应，不会重复，也不能人工修改。这里只是查号码。",
       "search": "找设备",
       "searchPlaceholder": "名称、车牌、供应商或编号",
       "empty": "这个项目还没有在用的设备。",
       "noMatch": "没有符合的设备。",
-      "inputLabel": "{machine} 的设备号码",
-      "placeholder": "例如 12",
-      "save": "保存",
-      "failed": "保存失败，请再试一次。",
-      "close": "关闭",
-      "keep": "设备号码不能清空，请输入正确的号码。"
+      "close": "关闭"
     },
     "operator": {
       "title": "操作人员",

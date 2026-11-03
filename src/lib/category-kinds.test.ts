@@ -84,6 +84,9 @@ describe("the column schemes", () => {
     "CONSTRUCTION_WASTE",
     "CONSULTANT",
     "SUNDRY",
+    // JB96 (客户 11-03 第 1 点): 「取消目前的『设备大类』和『设备小类』」 - old
+    // classes stay on old machines, none is made any more.
+    "EQUIPMENT",
   ];
   // Listed on Category Management but read-only there (2026-10 B1): no
   // column is created as, or moved onto, a hazard category from the form.
@@ -103,7 +106,8 @@ describe("the column schemes", () => {
     expect(start, "the kind picker exists").toBeGreaterThan(-1);
     const dialog = source.slice(start, source.indexOf("</Select>", start));
     for (const kind of RETIRED) {
-      if (kind === "BOTH") continue; // Shown only on a row that already carries it.
+      // Shown only on a row that already carries it.
+      if (kind === "BOTH" || kind === "EQUIPMENT") continue;
       expect(dialog.includes(`<SelectItem value="${kind}">`), `${kind} is not offered`).toBe(false);
     }
     expect(dialog).toContain('{isEhs && <SelectItem value="EHS">');
@@ -150,9 +154,10 @@ describe("the column schemes", () => {
     expect(management).toMatch(/const canManage = can\(active\.manage\);/);
   });
 
-  it("keeps the equipment row on the equipment scheme", () => {
-    // The row the customer asked about, pinned by name so a future edit that
-    // points it elsewhere fails here rather than in a screenshot.
-    expect(read(MANAGEMENT)).toContain('columnModule("equipment", "EQUIPMENT")');
+  it("no longer offers equipment classes (JB96, 客户 11-03 第 1 点)", () => {
+    // 「取消目前的『设备大类』和『设备小类』，统一只保留『设备名称』」: no module
+    // row to make one, and the kind is only kept on a column that already is one.
+    expect(read(MANAGEMENT)).not.toContain('columnModule("equipment", "EQUIPMENT")');
+    expect(read(WORKSPACES)).toMatch(/\{row\?\.kind === "EQUIPMENT" && \(\s*<SelectItem value="EQUIPMENT">/);
   });
 });
