@@ -36,6 +36,20 @@ export function getNotifications(
   );
 }
 
+/**
+ * One notice by its id, settled or not (JB97): what `?notice=<id>` opens - a
+ * push about something with no screen of its own, on the phone and in the
+ * office. `null` when it is not this reader's or no longer there.
+ */
+export async function getNotification(id: string): Promise<NotificationRow | null> {
+  const page = await api.list<NotificationRow>(
+    "/api/notifications/get_notifications/",
+    { id, state: "ALL", page_size: 1 },
+    { silent: true },
+  );
+  return page.results[0] ?? null;
+}
+
 /** Read every matching notification page without imposing a client-side cap. */
 export async function getAllNotifications(
   query: ListQuery,

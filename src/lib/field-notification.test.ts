@@ -69,3 +69,63 @@ describe("fieldNotificationHref (T-217)", () => {
     expect(fieldNotificationHref(undefined, { entity: "driver_task", id: "t1" })).toBeNull();
   });
 });
+
+/**
+ * JB97 (Lucas 11-03: 「铃铛那里按进去确保是可以看到事项的详情，不是首页，手机端和
+ * 后台都一样」): a notice names one item, and the phone opens that item - also
+ * for notices filed before the server wrote phone links itself.
+ */
+describe("fieldNotificationHref opens the item a notice names (JB97)", () => {
+  it("turns a whole tab into the one submission the notice is about", () => {
+    // The lock-screen notice Lucas sent: a progress record corrected.
+    expect(
+      fieldNotificationHref("/field-staff?tab=submissions", {
+        record_kind: "PROGRESS",
+        record_id: "pg-4",
+      }),
+    ).toBe("/field-staff?tab=home&submission=PROGRESS%3Apg-4");
+  });
+
+  it("turns an office link into the phone's own record", () => {
+    expect(
+      fieldNotificationHref("/material-requests?record=mr-1", { record_id: "mr-1" }, {
+        kind: "MATERIAL_REQUEST",
+        id: "mr-1",
+      }),
+    ).toBe("/field-staff?tab=home&submission=MATERIAL_REQUEST%3Amr-1");
+    expect(
+      fieldNotificationHref("/hazard-rectifications?incident=h1", {}, { kind: "HAZARD", id: "h1" }),
+    ).toBe("/field-staff?tab=records&record=safety&incident=h1");
+    expect(fieldNotificationHref("/field-tasks?task=t1", { task_id: "t1" })).toBe(
+      "/field-staff?tab=tasks&task=t1",
+    );
+  });
+
+  it("keeps a field link that already opens one item", () => {
+    expect(
+      fieldNotificationHref("/field-staff?tab=home&movement=m1", {
+        record_kind: "EQUIPMENT_MOVEMENT",
+        record_id: "m1",
+      }),
+    ).toBe("/field-staff?tab=home&movement=m1");
+    expect(
+      fieldNotificationHref("/field-staff?tab=records&record=permit&permit=p1", {
+        record_kind: "HAZARD",
+        record_id: "p1",
+      }),
+    ).toBe("/field-staff?tab=records&record=permit&permit=p1");
+  });
+
+  it("reads a notice row the way the server sends it", async () => {
+    const { fieldNoticeHref } = await import("@/lib/field-notification");
+    expect(
+      fieldNoticeHref({
+        data: { href: "/field-staff?tab=submissions" },
+        subject_kind: "SUNDRY_CLAIM",
+        subject_id: "s9",
+      }),
+    ).toBe("/field-staff?tab=home&submission=SUNDRY_CLAIM%3As9");
+    // Nothing named and no phone page: no destination - the bell opens it in place.
+    expect(fieldNoticeHref({ data: { href: "/site-access?pass=x" }, subject_kind: "", subject_id: null })).toBeNull();
+  });
+});

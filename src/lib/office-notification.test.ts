@@ -52,3 +52,14 @@ describe("officeNotificationHref", () => {
     expect(officeNotificationHref({ href: "https://example.com" })).toBeNull();
   });
 });
+
+describe("officeNoticeHref (JB97)", () => {
+  it("opens the record a notice is about when its data names none", async () => {
+    const { officeNoticeHref } = await import("@/lib/office-notification");
+    expect(
+      officeNoticeHref({ data: {}, subject_kind: "SUNDRY_CLAIM", subject_id: "s1" }),
+    ).toBe(officeNotificationHref({ record_kind: "SUNDRY_CLAIM", record_id: "s1" }));
+    expect(officeNoticeHref({ data: {}, subject_kind: "SUNDRY_CLAIM", subject_id: "s1" })).not.toBeNull();
+    expect(officeNoticeHref({ data: {}, subject_kind: "", subject_id: null })).toBeNull();
+  });
+});

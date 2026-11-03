@@ -31,8 +31,8 @@ import {
 import type { NotificationRow } from "@/interfaces/platform-ops";
 import { fieldBellCount } from "@/lib/conversation-notices";
 import { useDateFormat } from "@/lib/dates";
-import { fieldNotificationHref, openFieldHref } from "@/lib/field-notification";
-import { officeNotificationHref } from "@/lib/office-notification";
+import { fieldNoticeHref, openFieldHref } from "@/lib/field-notification";
+import { officeNoticeHref } from "@/lib/office-notification";
 import {
   confirmNotificationDone,
   fieldTodoCountQuery,
@@ -220,8 +220,8 @@ export function NotificationButton() {
   /** Where a notice leads: the phone's own screen, or the office path it names. */
   const destination = (notification: NotificationRow) => {
     return user?.is_field_staff
-      ? fieldNotificationHref(notification.data.href ?? notification.data.url, notification.data)
-      : officeNotificationHref(notification.data);
+      ? fieldNoticeHref(notification)
+      : officeNoticeHref(notification);
   };
 
   return (

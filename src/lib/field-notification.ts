@@ -25,9 +25,74 @@
  * link's shape is the field app's own. See T-211 and F-317 for what it can and
  * cannot currently open.
  */
+/**
+ * The record kinds 「我提交过的」 opens one by one (`?submission=KIND:id`),
+ * as the backend's `notification_links.SUBMISSION_KINDS` names them.
+ */
+const SUBMISSION_KINDS = new Set([
+  "MATERIAL_RECEIPT",
+  "SITE_RECORD",
+  "WASTE_OUTGOING",
+  "PROGRESS",
+  "MATERIAL_OUTGOING",
+  "EQUIPMENT_MOVEMENT",
+  "DISPOSAL_REQUEST",
+  "SUNDRY_CLAIM",
+  "MATERIAL_REQUEST",
+]);
+
+/** The parameters with which a phone link opens one item, not a whole tab. */
+const ITEM_PARAMS = [
+  "task",
+  "incident",
+  "movement",
+  "outgoing",
+  "disposal",
+  "chat",
+  "announcement",
+  "visitor_arrival",
+  "gate_arrival",
+  "gate_incident",
+  "permit",
+  "submission",
+  "notice",
+];
+
+/**
+ * JB97 (Lucas 11-03: 「铃铛那里按进去确保是可以看到事项的详情，不是首页」): the
+ * one item a notice names, on the phone - for notices filed before the server
+ * wrote phone links itself, whose link was an office page or a whole tab
+ * (`?tab=submissions`).
+ */
+function itemHref(
+  data: Record<string, unknown> | undefined,
+  subject?: { kind?: string | null; id?: string | null },
+): string | null {
+  const text = (value: unknown) => (typeof value === "string" && value ? value : null);
+  const kind = text(data?.record_kind) ?? text(subject?.kind);
+  const id = text(data?.record_id) ?? text(subject?.id);
+  if (kind && id) {
+    if (kind === "HAZARD") {
+      return `/field-staff?tab=records&record=safety&incident=${encodeURIComponent(id)}`;
+    }
+    if (SUBMISSION_KINDS.has(kind)) {
+      return `/field-staff?tab=home&submission=${encodeURIComponent(`${kind}:${id}`)}`;
+    }
+    if (kind === "GATE_INCIDENT") {
+      return `/field-staff?tab=records&record=gate&gate_incident=${encodeURIComponent(id)}`;
+    }
+  }
+  const task = text(data?.task_id);
+  if (task && !text(data?.driver_id)) {
+    return `/field-staff?tab=tasks&task=${encodeURIComponent(task)}`;
+  }
+  return null;
+}
+
 export function fieldNotificationHref(
   href: unknown,
   data?: Record<string, unknown>,
+  subject?: { kind?: string | null; id?: string | null },
 ): string | null {
   // A safety-incident broadcast sent before it carried an href names the
   // incident but no page; the field app's own safety record opens it.
@@ -39,19 +104,40 @@ export function fieldNotificationHref(
   ) {
     return `/field-staff?tab=records&record=safety&incident=${encodeURIComponent(data.id)}`;
   }
-  if (typeof href !== "string" || !href.startsWith("/")) return null;
+  const parsed =
+    typeof href === "string" && href.startsWith("/")
+      ? new URL(href, "https://field.mse-trace.local")
+      : null;
+  const local = parsed?.origin === "https://field.mse-trace.local" ? parsed : null;
+  const field = local?.pathname === "/field-staff" ? local : null;
 
-  const parsed = new URL(href, "https://field.mse-trace.local");
-  const thread = parsed.searchParams.get("thread");
+  // A field link that already opens one item stays as it is.
+  if (field && ITEM_PARAMS.some((name) => field.searchParams.get(name))) {
+    return `${field.pathname}${field.search}`;
+  }
+  const thread = local?.searchParams.get("thread");
   if (thread) {
     return `/field-staff?tab=incidents&thread=${encodeURIComponent(thread)}`;
   }
+  // An office link or a whole tab: the item the notice names, when it names one.
+  const item = itemHref(data, subject);
+  if (item) return item;
 
   // Field paths pass through with their query intact; everything else has no
   // destination here. Returning the home screen was the bug.
-  return parsed.pathname === "/field-staff"
-    ? `${parsed.pathname}${parsed.search}`
-    : null;
+  return field ? `${field.pathname}${field.search}` : null;
+}
+
+/** ``fieldNotificationHref`` for a notice row as the server sends it. */
+export function fieldNoticeHref(notice: {
+  data: Record<string, unknown>;
+  subject_kind?: string | null;
+  subject_id?: string | null;
+}): string | null {
+  return fieldNotificationHref(notice.data.href ?? notice.data.url, notice.data, {
+    kind: notice.subject_kind,
+    id: notice.subject_id,
+  });
 }
 
 /** The field workspace's own way in: see `openFieldHref`. */

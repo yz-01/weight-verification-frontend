@@ -12198,6 +12198,9 @@
       "enable": "Turn on sound",
       "mute": "Mute the alert sound",
       "unmute": "Turn the alert sound back on"
+    },
+    "notice": {
+      "missing": "This notification is no longer here."
     }
   },
   "offline": {

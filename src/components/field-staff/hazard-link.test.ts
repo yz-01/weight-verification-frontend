@@ -26,9 +26,10 @@ describe("the phone opens the hazard a notification names (T-302)", () => {
   });
 
   it("lets the named hazard win over the report form the link also names", () => {
-    // An equipment movement's link (Fable B4 #15) wins the same way.
-    expect(code).toContain("requestedRecord={requestedIncidentId || requestedMovement ? null : requestedRecord}");
-    expect(code).toContain('requestedTab={requestedIncidentId ? "incidents" : requestedMovement ? "home" : requestedTab}');
+    // An equipment movement's link (Fable B4 #15) wins the same way, and
+    // so does a notice's own submission (JB97).
+    expect(code).toContain("requestedIncidentId || requestedMovement || requestedSubmission ? null : requestedRecord");
+    expect(code).toContain('requestedIncidentId ? "incidents" : requestedMovement || requestedSubmission ? "home" : requestedTab');
   });
 
   it("fetches that hazard and opens its room", () => {

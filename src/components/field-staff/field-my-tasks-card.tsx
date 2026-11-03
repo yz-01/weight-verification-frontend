@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import { FieldLoadNote } from "@/components/field-staff/field-load-note";
 import { Button } from "@/components/ui/button";
 import { useDateFormat } from "@/lib/dates";
-import { fieldNotificationHref, openFieldHref } from "@/lib/field-notification";
+import { fieldNoticeHref, openFieldHref } from "@/lib/field-notification";
 import {
   fieldTodoCountQuery,
   getAllNotifications,
@@ -102,8 +102,7 @@ export function FieldMyTasksCard() {
         // 10-30: the rows ran into each other - 「不整齐」).
         <ul className="mt-3 space-y-2">
           {rows.map((row) => {
-            const rawHref = row.data.href ?? row.data.url;
-            const href = fieldNotificationHref(rawHref, row.data);
+            const href = fieldNoticeHref(row);
             const body = (
               <span className="block min-w-0 flex-1 leading-5">
                 <span className="block truncate text-sm font-medium">
