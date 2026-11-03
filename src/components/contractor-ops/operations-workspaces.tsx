@@ -67,10 +67,9 @@ import { ExportButton } from "@/components/shared/export-button";
 import { FieldCamera } from "@/components/shared/field-camera";
 import { FieldSignaturePad } from "@/components/field-staff/field-signature-pad";
 import {
-  EquipmentClassSelect,
-  InlineClassCreator,
   useEquipmentClasses,
 } from "@/components/contractor-ops/equipment-classes";
+import { EquipmentNameSelect } from "@/components/contractor-ops/equipment-name-select";
 import { SupplierQrScanner } from "@/components/field-staff/supplier-qr-scanner";
 import { OpenExitOfficeFiles } from "@/components/field-staff/office-sent-files";
 import { RecordConversationButton } from "@/components/shared/record-conversation-button";
@@ -165,6 +164,7 @@ import {
   deleteFieldTask,
   updateProjectCategory,
   updateSiteEquipment,
+  getNextEquipmentNo,
 } from "@/services/contractor-ops.service";
 import { consultantTaskTitle } from "@/lib/consultant-task-title";
 import {
@@ -635,9 +635,13 @@ export function CategoryDialog({
                 <SelectItem value="MATERIAL">
                   {modules("module.material")}
                 </SelectItem>
-                <SelectItem value="EQUIPMENT">
-                  {modules("module.equipment")}
-                </SelectItem>
+                {/* Equipment only on a column that already is one: no new
+                    equipment classes since JB96 (客户 11-03 第 1 点). */}
+                {row?.kind === "EQUIPMENT" && (
+                  <SelectItem value="EQUIPMENT">
+                    {modules("module.equipment")}
+                  </SelectItem>
+                )}
                 {/* EHS only for an EHS category (H18): it is made from its
                     own group and stays there. Progress, clearance, consultant
                     and sundry have no categories at all (X5). */}
@@ -2209,9 +2213,11 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
  *
  * Optional ahead of time: nobody knows which machine will arrive (Lucas
  * 2026-10-07), so this is also where a 「新设备」 reported from site is
- * completed at acceptance - its sub class picked, or made inline. The project
- * is chosen here on a new machine, and the sub classes offered are that
- * project's - grouped under their major class (X1). The plate is the 「车牌号码」;
+ * completed. Since JB96 (客户 11-03) there is no 大类 / 小类: the machine is
+ * named from the company's 「设备名称」 list (or a new name), and its number is
+ * the system's - the project's next EQ number shown when registering,
+ * confirmed on save, never typed or changed. The project is chosen here on a
+ * new machine. The plate is the 「车牌号码」;
  * the serial number is no longer asked (its data stays). The movements
  * already logged against a machine are untouched, which is also why the site
  * is not offered when correcting.
@@ -2219,14 +2225,11 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
 export function EquipmentDialog({
   project,
   equipment,
-  defaultCategory = null,
   onClose,
   onSaved,
 }: {
   project: string;
   equipment?: SiteEquipment;
-  /** 登记设备 from a sub class row (I38): the class a new machine starts in. */
-  defaultCategory?: string | null;
   onClose: () => void;
   onSaved: (row: SiteEquipment) => void;
 }) {
@@ -2235,14 +2238,11 @@ export function EquipmentDialog({
     queryKey: ["suppliers", "equipment-options"],
     queryFn: () => getSuppliers({ page_size: 200, sort_by: "name" }),
   });
-  const [createdClassName, setCreatedClassName] = useState<string | null>(null);
   const [form, setForm] = useState<EquipmentPayload>({
     project: equipment?.project ?? project,
-    code: equipment?.code ?? "",
     name: equipment?.name ?? "",
     registration_no: equipment?.registration_no ?? "",
     supplier: equipment?.supplier ?? null,
-    category: equipment?.category ?? defaultCategory,
     description: equipment?.description ?? "",
     certificate_expires_on: equipment?.certificate_expires_on ?? null,
     insurance_expires_on: equipment?.insurance_expires_on ?? null,
@@ -2256,22 +2256,24 @@ export function EquipmentDialog({
     value: EquipmentPayload[K],
   ) => setForm((old) => ({ ...old, [key]: value }));
   /*
-   * This project's equipment classes (T-242, X1). Filed here rather than
-   * picked from a platform-wide list: the machines on a site belong to the
-   * project, and so does the vocabulary that files them (F-369).
+   * The project's next number, shown when 登记设备 opens (JB96, 客户 11-03 第 5
+   * 点 「打开『登记设备』页面时，系统自动显示该项目下一个可用编号。正式保存时确认
+   * 编号」). Only shown: the save gives the real one, which the toast says.
    */
-  const classes = useEquipmentClasses(form.project);
-  // Whether this project has a sub class to file a machine in at all (D-169).
-  const hasSubClasses = classes.tree.allSubClasses.length > 0;
+  // query-failure: the number line says 「保存时由系统给」 when it cannot be read
+  const nextNumber = useQuery({
+    queryKey: ["equipment-next-no", form.project],
+    queryFn: () => getNextEquipmentNo(form.project),
+    enabled: !equipment && Boolean(form.project),
+    staleTime: 0,
+  });
   const [error, setError] = useState("");
   const save = useMutation({
     mutationFn: () => equipment
       ? updateSiteEquipment(equipment.id, {
-          code: form.code,
           name: form.name,
           registration_no: form.registration_no,
           supplier: form.supplier,
-          category: form.category,
           description: form.description,
           certificate_expires_on: form.certificate_expires_on,
           insurance_expires_on: form.insurance_expires_on,
@@ -2331,8 +2333,6 @@ export function EquipmentDialog({
                 setForm((old) => ({
                   ...old,
                   project: next === "all" ? "" : next,
-                  // A class belongs to one project.
-                  category: null,
                 }))
               }
               placeholder={t("field.selectProject")}
@@ -2340,25 +2340,30 @@ export function EquipmentDialog({
               disabled={Boolean(equipment)}
             />
           </FieldWrapper>
-          {/* 设备号码 (J21-1, J21-2): given by the system with the QR code -
-              shown, never typed here. */}
-          {equipment ? (
-            <FieldWrapper label={t("equipment.siteNo")} className="sm:col-span-2">
-              <p className="text-sm font-semibold" data-testid="equipment-site-no">
-                {equipment.site_no ? t("equipment.siteNoAuto", { no: equipment.site_no }) : "—"}
-              </p>
-            </FieldWrapper>
-          ) : null}
-          <FieldWrapper label={t("equipment.systemNo")} required>
-            <Input
-              value={form.code}
-              onChange={(e) => set("code", e.target.value.toUpperCase())}
-            />
+          {/* 设备编号 (JB96, 客户 11-03 第 3–5 点): the system's, shown and
+              never typed - the next one when registering (confirmed on save),
+              the machine's own when correcting. */}
+          <FieldWrapper label={t("equipment.number")} className="sm:col-span-2">
+            <p className="text-sm font-semibold tabular" data-testid="equipment-site-no">
+              {equipment
+                ? equipment.site_no || equipment.code || "—"
+                : !form.project
+                  ? t("field.chooseProjectFirst")
+                  : nextNumber.data
+                    ? t("equipment.numberNext", { no: nextNumber.data })
+                    : nextNumber.isError
+                      ? t("equipment.numberOnSave")
+                      : "…"}
+            </p>
+            <p className="text-xs text-muted-foreground">{t("equipment.numberHelp")}</p>
           </FieldWrapper>
-          <FieldWrapper label={t("field.name")} required>
-            <Input
+          {/* 设备名称 from the company's list, or a new one (JB96 第 1、2 点);
+              no 大类 / 小类 any more. */}
+          <FieldWrapper label={t("equipmentName.label")} required className="sm:col-span-2">
+            <EquipmentNameSelect
+              project={form.project || undefined}
               value={form.name}
-              onChange={(e) => set("name", e.target.value)}
+              onChange={(name) => set("name", name)}
             />
           </FieldWrapper>
           <FieldWrapper label={t("field.plateNo")}>
@@ -2367,48 +2372,6 @@ export function EquipmentDialog({
               value={form.registration_no}
               onChange={(e) => set("registration_no", e.target.value.toUpperCase())}
             />
-          </FieldWrapper>
-          <FieldWrapper label={t("field.equipmentSubClass")} required>
-            {!form.project ? (
-              <p className="rounded-lg border border-dashed px-3 py-2 text-sm text-muted-foreground">
-                {t("field.chooseProjectFirst")}
-              </p>
-            ) : (
-              <>
-                {/*
-                  Required since D-169; a sub class since X1. When the project
-                  has none, this does not present an empty dropdown to be stared
-                  at - it says so and points at where classes are made.
-                */}
-                <EquipmentClassSelect
-                  tree={classes.tree}
-                  value={form.category ?? null}
-                  currentName={createdClassName ?? equipment?.category_name}
-                  disabled={!hasSubClasses && !form.category}
-                  onChange={(value) => set("category", value)}
-                />
-                <QueryFailedNote query={classes.query} what={t("what.columns")} className="mt-2" />
-                {!classes.query.isLoading && !classes.query.isError && !hasSubClasses && (
-                  <p className="mt-2 text-xs text-muted-foreground">
-                    {t("field.noEquipmentSubClassYet")}
-                  </p>
-                )}
-                {/* Made here when none fits (2026-10-07): the office files a
-                    machine when it arrives, without leaving this dialog. */}
-                {!classes.query.isLoading && !classes.query.isError && (
-                  <InlineClassCreator
-                    project={form.project}
-                    tree={classes.tree}
-                    onCreated={(subClass) => {
-                      // Its name at once, not its id, until the list refetches
-                      // (Fable B4 #22).
-                      setCreatedClassName(subClass.name);
-                      set("category", subClass.id);
-                    }}
-                  />
-                )}
-              </>
-            )}
           </FieldWrapper>
           <FieldWrapper label={t("field.supplier")}>
             <Select
@@ -2490,9 +2453,7 @@ export function EquipmentDialog({
           <Button
             requires={[
               [form.project, t("field.project")],
-              [form.code, t("equipment.systemNo")],
-              [form.name, t("field.name")],
-              [form.category, t("field.equipmentSubClass")],
+              [form.name, t("equipmentName.label")],
             ]}
             disabled={save.isPending}
             onClick={() => save.mutate()}
@@ -2579,7 +2540,7 @@ export function EquipmentEntryDialog({
 }) {
   const t = useTranslations("contractorOps");
   const field = useTranslations("fieldStaffPwa");
-  const { user } = useAuth();
+  const { user, can } = useAuth();
   const isFieldStaff = Boolean(user?.is_field_staff);
   const key = machine?.id ?? "new";
   const [newName, setNewName] = useDraftState(`entryName:${key}`, "");
@@ -2715,7 +2676,15 @@ export function EquipmentEntryDialog({
               error={fieldErrors.equipment}
               className="sm:col-span-2"
             >
-              <Input value={newName} onChange={(e) => setNewName(e.target.value)} />
+              {/* From the company's 「设备名称」, or a new one (JB96, 客户 11-03
+                  第 2 点); the number is given when it is saved. */}
+              <EquipmentNameSelect
+                project={project || undefined}
+                value={newName}
+                canAdd={can("equipment.capture") || can("equipment.manage")}
+                onChange={setNewName}
+                triggerClassName="h-12 w-full"
+              />
             </FieldWrapper>
           )}
           {!machine && (

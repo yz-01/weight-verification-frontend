@@ -60,6 +60,7 @@ import { AddToPackageButton } from "@/components/contractor-ops/add-to-package";
 import {
   ProgressPercentFact,
 } from "@/components/contractor-ops/progress-percent-editor";
+import { EquipmentNameFilter } from "@/components/contractor-ops/equipment-name-select";
 import {
   EquipmentDialog,
   MovementDialog,
@@ -565,6 +566,8 @@ export function SiteEquipmentOffice() {
     "direction",
     "category",
     "uncategorised",
+    // 设备名称 (JB96): what the lists filter by since the classes went.
+    "equipment_name",
     "expiring",
     // One machine's entries and exits, from its profile (2026-10 B2).
     "equipment",
@@ -900,12 +903,19 @@ export function SiteEquipmentOffice() {
       }),
       {
         accessorKey: "name",
-        meta: { label: t("field.name") },
-        header: sortable(t("field.name")),
+        meta: { label: t("equipmentName.label") },
+        header: sortable(t("equipmentName.label")),
+        // 设备名称 is all a machine is filed by since JB96 (no 大类 › 小类); a
+        // 「新设备」 from the phone still says the office has not seen it (C8).
         cell: ({ row }) => (
-          <span className="font-medium text-foreground">
-            {row.original.name}
-          </span>
+          <div className="min-w-0">
+            <span className="font-medium text-foreground">
+              {row.original.name}
+            </span>
+            {row.original.needs_profile && (
+              <StatusBadge label={t("equipment.needsProfile")} tone="warning" />
+            )}
+          </div>
         ),
       },
       {
@@ -935,26 +945,6 @@ export function SiteEquipmentOffice() {
                 label={t(`equipmentExit.status.${row.original.open_exit.status}`)}
                 tone="info"
               />
-            )}
-          </div>
-        ),
-      },
-      {
-        accessorKey: "category_name",
-        meta: { label: t("field.equipmentColumn") },
-        header: () => <PlainHeader label={t("field.equipmentColumn")} />,
-        // 大类 › 小类 (X1); a 「新设备」 waits for the office to file it (C8).
-        cell: ({ row }) => (
-          <div className="min-w-0">
-            {row.original.category_parent_name ? (
-              <span className="text-foreground">
-                {row.original.category_parent_name} › {row.original.category_name}
-              </span>
-            ) : (
-              <Unfiled name={row.original.category_name} />
-            )}
-            {row.original.needs_profile && (
-              <StatusBadge label={t("equipment.needsProfile")} tone="warning" />
             )}
           </div>
         ),
@@ -1126,6 +1116,7 @@ export function SiteEquipmentOffice() {
                   direction: undefined,
                   category: undefined,
                   uncategorised: undefined,
+                  equipment_name: undefined,
                   expiring: undefined,
                   equipment: undefined,
                   supplier: undefined,
@@ -1189,7 +1180,8 @@ export function SiteEquipmentOffice() {
           toolbar={
             <>
               <ProjectListFilter list={list} />
-              <ColumnFilter list={list} kind="EQUIPMENT" />
+              {/* 设备名称, not 大类 / 小类 (JB96). */}
+              <EquipmentNameFilter list={list} />
               {/* A sheet of QR stickers for the ticked machines (I24, ID59). */}
               <Button
                 variant="outline"
@@ -1234,7 +1226,6 @@ export function SiteEquipmentOffice() {
                           ]),
                         ),
                       },
-                      { key: "category_name", label: t("field.equipmentColumn") },
                       { key: "supplier_name", label: t("field.supplier") },
                       { key: "quantity_on_site", label: t("field.quantity") },
                       { key: "project_name", label: t("field.project") },
@@ -1274,7 +1265,8 @@ export function SiteEquipmentOffice() {
           toolbar={
             <>
               <ProjectListFilter list={list} />
-              <ColumnFilter list={list} kind="EQUIPMENT" />
+              {/* 设备名称, not 大类 / 小类 (JB96). */}
+              <EquipmentNameFilter list={list} />
               <FilterSelect
                 list={list}
                 param="direction"
@@ -1446,7 +1438,7 @@ export function MachineRecordDialog({
             label: t("field.plateNo"),
             value: machine.registration_no || "—",
           },
-          { label: t("field.code"), value: machine.code },
+          { label: t("equipment.number"), value: machine.site_no || machine.code },
           {
             label: t("field.supplier"),
             value: machine.supplier_name,
@@ -1454,14 +1446,6 @@ export function MachineRecordDialog({
           {
             label: t("field.quantity"),
             value: machine.quantity_on_site,
-          },
-          {
-            label: t("field.equipmentSubClass"),
-            value: machine.category_parent_name ? (
-              `${machine.category_parent_name} › ${machine.category_name}`
-            ) : (
-              <Unfiled name={machine.category_name} />
-            ),
           },
           {
             label: t("field.roadTaxExpiresOn"),

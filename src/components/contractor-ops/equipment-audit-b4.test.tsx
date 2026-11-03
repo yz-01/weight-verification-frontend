@@ -156,12 +156,10 @@ describe("#15: the office's decision opens the movement on the phone", () => {
   });
 });
 
-describe("#22: a class made inline shows its name, and the movements link closes the dialog", () => {
-  it("hands the new class's name back with its id", () => {
-    const classes = source("src/components/contractor-ops/equipment-classes.tsx");
-    expect(classes).toMatch(/onCreated\(\{ id: row\.id, name: row\.name \}\)/);
+describe("#22: the movements link closes the dialog", () => {
+  // The class made inline is gone with the classes (JB96, 客户 11-03 第 1 点).
+  it("closes the dialog when it opens the machine's movements", () => {
     const workspaces = source("src/components/contractor-ops/operations-workspaces.tsx");
-    expect(workspaces).toMatch(/currentName=\{createdClassName \?\? equipment\?\.category_name\}/);
     expect(workspaces).toMatch(
       /href=\{`\/site-equipment\?equipment=\$\{equipment\.id\}`\}\s*\/\/[^\n]*\n[^\n]*\n\s*onClick=\{onClose\}/,
     );

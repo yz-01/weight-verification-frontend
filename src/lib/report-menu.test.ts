@@ -59,10 +59,8 @@ describe("the report menu's levels (D6 table)", () => {
       "/reports/contractor/safety": ["reportSelector.level.safety", null],
       "/reports/contractor/consultant": ["reportSelector.level.consultant", null],
       "/reports/contractor/attendance": "none",
-      "/reports/contractor/equipment": [
-        "reportSelector.level.equipment",
-        "reportSelector.level.equipmentClass",
-      ],
+      // 设备名称, one level (JB96, 客户 11-03 第 1 点).
+      "/reports/contractor/equipment": ["reportSelector.level.equipment", null],
       "/reports/contractor/recycling": ["reportSelector.level.recycling", null],
       // I11 (ID27): the four new reports; two open at their categories.
       "/reports/contractor/field_tasks": "none",

@@ -6199,7 +6199,7 @@
       "editTitle": "編輯這台設備",
       "entryTitle": "記錄 {name} 進場",
       "exitTitle": "記錄 {name} 退場",
-      "formHelp": "系統編號、車牌號碼和小類。設備號碼在保存時由系統自動生成。可以先建好，也可以等現場報來新設備時在驗收時補齊。",
+      "formHelp": "選設備名稱（名單裡沒有就新增），填車牌號碼。設備號碼由系統在儲存時給，不能人工修改。可以先登記好，也可以等現場報了新設備、驗收時再補。",
       "movementHelp": "請拍攝當前照片並獲取位置；該記錄會成為不可修改的現場證據。",
       "occurredAt": "進退場時間",
       "ocrManual": "無法讀取 Delivery Order，請手動填寫資料。",
@@ -6234,7 +6234,7 @@
       "newMachine": "新設備",
       "newMachineEntry": "新設備進場",
       "newMachineName": "新設備名稱",
-      "newMachineHelp": "填名稱就可以；其他資料由後台驗收時補齊。",
+      "newMachineHelp": "選設備名稱就可以（名單裡沒有就新增）；其他資料由後台以後補齊。",
       "entryHelp": "拍照、DO、掃供應商二維碼、雙方簽名，提交後由後台驗收。",
       "entrySubmit": "提交進場",
       "exitHelp": "拍照、DO、掃供應商二維碼、雙方簽名，提交後由後台驗收；驗收通過前設備仍算在場。",
@@ -6249,7 +6249,7 @@
       "scanFailed": "掃碼沒有成功，可以再掃一次，或先不填供應商。",
       "movementsLink": "查看這台設備的進退場記錄",
       "needsProfile": "待補檔",
-      "needsProfileHelp": "這台設備還沒有小類。選好小類（沒有合適的可以在下面新增）就能驗收它的進場；到期日可以以後再補。",
+      "needsProfileHelp": "這台設備還沒有設備名稱。選一個設備名稱（名單裡沒有就新增），就可以驗收進場；到期日可以以後再補。",
       "directHandover": "直接交接",
       "directHandoverHelp": "這是改流程前的申請，不用再批准：直接交接（拍照、雙方簽名），之後由後台驗收。",
       "acceptance": {
@@ -6269,7 +6269,8 @@
         "missing": {
           "registration_no": "車牌號碼",
           "category": "小類",
-          "expiry": "到期日"
+          "expiry": "到期日",
+          "name": "設備名稱"
         },
         "headOffice": "這台設備的分類設為「提交總部審批」：由總部驗收。"
       },
@@ -6310,7 +6311,11 @@
       "locationHint": "打開時自動獲取定位。",
       "siteNo": "設備號碼",
       "systemNo": "系統編號",
-      "siteNoAuto": "{no}（系統自動生成）"
+      "siteNoAuto": "{no}（系統自動生成）",
+      "number": "設備號碼",
+      "numberNext": "{no}（儲存時確認）",
+      "numberOnSave": "儲存時由系統給",
+      "numberHelp": "由系統自動給，不用填，也不能改。"
     },
     "equipmentEvidence": {
       "condition": "4. 設備狀況細節",
@@ -6709,7 +6714,8 @@
       "exitSubmitted": "設備已退場，等待後台確認",
       "entryReviewed": "驗收結果已記錄",
       "exitApplied": "設備退場申請已提交，等待後台批准",
-      "exitApplicationReviewed": "退場申請的審批結果已記錄"
+      "exitApplicationReviewed": "退場申請的審批結果已記錄",
+      "equipmentRegistered": "設備已登記，設備號碼 {no}。"
     },
     "what": {
       "roles": "角色列表",
@@ -6877,6 +6883,18 @@
     },
     "equipmentInspection": {
       "column": "檢驗"
+    },
+    "equipmentName": {
+      "label": "設備名稱",
+      "placeholder": "選擇設備名稱",
+      "add": "新增設備名稱",
+      "newName": "新的設備名稱",
+      "newNamePlaceholder": "例如 挖土機",
+      "addConfirm": "新增",
+      "addCancel": "取消新增",
+      "addFailed": "設備名稱沒有加上，請再試一次。",
+      "what": "設備名稱",
+      "all": "全部設備名稱"
     }
   },
   "contractorPartners": {
@@ -8653,7 +8671,8 @@
       "worker_excel_invalid": "打不開這個 Excel。請按「下載 Excel 樣板」，在樣板裡填好再上傳。",
       "worker_excel_no_header": "這個 Excel 找不到「姓名」這一欄。請用樣板，第一行不要改。",
       "worker_excel_empty": "這個 Excel 裡沒有人。請從第 2 行開始，一行填一個人。",
-      "passport_capture_link_invalid": "這個拍照連結已經失效。請在電腦的「批量新增人員」頁面重新掃二維碼。"
+      "passport_capture_link_invalid": "這個拍照連結已經失效。請在電腦的「批量新增人員」頁面重新掃二維碼。",
+      "equipment_number_by_system": "設備編號由系統自動給，不能人工修改。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -18348,7 +18367,7 @@
       "progress": "施工分類",
       "safety": "整改分類",
       "consultant": "申請類型",
-      "equipment": "設備大類",
+      "equipment": "設備名稱",
       "equipmentClass": "小類",
       "recycling": "環保材料出場分類",
       "documents": "文檔大分類",
@@ -19221,8 +19240,6 @@
     "toast": {
       "endSaved": "結束時間已保存",
       "startSaved": "開始時間已保存",
-      "siteNoSaved": "設備號碼已保存",
-      "siteNoCleared": "設備號碼已清除",
       "operatorSaved": "操作人員已儲存",
       "moved": "工時已移到另一台設備",
       "normalSaved": "正常工時已保存"
@@ -19276,19 +19293,14 @@
       "sentQueued": "已存在手機，有網路會自動上傳：{number} 號 {kind} {time}"
     },
     "siteNo": {
-      "open": "設備號碼管理",
-      "title": "設備號碼管理",
-      "help": "每台設備登記時由系統自動給一個設備號碼（例如 12），和二維碼一一對應，永不重複。這裡只用來更正（要簽核密碼）；號碼不能清空，也不能用本項目其他設備用過的號碼。",
+      "open": "設備號碼一覽",
+      "title": "設備號碼一覽",
+      "help": "每台設備登記時由系統自動給號碼（新設備是 EQ0001、EQ0002……每個項目各自從 EQ0001 開始），和二維碼一一對應，不會重複，也不能人工修改。這裡只是查號碼。",
       "search": "找設備",
       "searchPlaceholder": "名稱、車牌、供應商或編號",
       "empty": "這個項目還沒有在用的設備。",
       "noMatch": "沒有符合的設備。",
-      "inputLabel": "{machine} 的設備號碼",
-      "placeholder": "例如 12",
-      "save": "保存",
-      "failed": "保存失敗，請再試一次。",
-      "close": "關閉",
-      "keep": "設備號碼不能清空，請輸入正確的號碼。"
+      "close": "關閉"
     },
     "operator": {
       "title": "操作人員",
