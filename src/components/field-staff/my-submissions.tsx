@@ -180,6 +180,12 @@ export function MySubmissions({
   // a record that is not in their list opens as the conversation alone.
   const [linkedChat, setLinkedChat] = useUrlSelection("chat");
   const chatTarget = parseChatParam(linkedChat);
+  // JB97 (Lucas 11-03: 「铃铛那里按进去确保是可以看到事项的详情，不是首页」):
+  // a notice about one of this worker's submissions links to
+  // `?submission=<KIND>:<id>` and that submission opens here - from the list
+  // when it is on the page shown, else read by itself.
+  const [linkedSubmission, setLinkedSubmission] = useUrlSelection("submission");
+  const submissionTarget = parseSubmissionParam(linkedSubmission);
   const [openQueued, setOpenQueued] = useState<string | null>(null);
 
   // The newest page (client 2026-10-09 五.1/五.2): opening the app reads
@@ -261,7 +267,10 @@ export function MySubmissions({
   const chatRow = chatTarget
     ? rows.find((row) => row.kind === chatTarget.kind && row.id === chatTarget.recordId) ?? null
     : null;
-  const shownRow = openRow ?? linkedRow ?? chatRow;
+  const submissionRow = submissionTarget
+    ? rows.find((row) => row.kind === submissionTarget.kind && row.id === submissionTarget.id) ?? null
+    : null;
+  const shownRow = openRow ?? linkedRow ?? chatRow ?? submissionRow;
   const waiting = (queued.data ?? []).filter(
     (entry) => entry.kind in QUEUED_KINDS,
   );
@@ -520,7 +529,15 @@ export function MySubmissions({
             setOpenRow(null);
             setLinkedMovement(null);
             setLinkedChat(null);
+            setLinkedSubmission(null);
           }}
+        />
+      )}
+      {!shownRow && submissionTarget && !stored.isLoading && (
+        <LinkedSubmission
+          kind={submissionTarget.kind}
+          id={submissionTarget.id}
+          onClose={() => setLinkedSubmission(null)}
         />
       )}
       {!shownRow && chatTarget && !stored.isLoading && (
@@ -587,6 +604,70 @@ const OFFICE_SENT_KINDS: readonly OfficeSentKind[] = ["MATERIAL_OUTGOING", "EQUI
 /** The Return Note's own rows (`return_note_pairs`), shown in that box. */
 function isReturnNoteField(key: string) {
   return key.startsWith("return_note_") || key === "approver_name";
+}
+
+/** The kinds 「我提交过的」 opens (the backend's `DETAIL_SOURCES`). */
+const SUBMISSION_KINDS = new Set<MySubmissionRow["kind"]>([
+  "MATERIAL_RECEIPT",
+  "SITE_RECORD",
+  "WASTE_OUTGOING",
+  "HAZARD",
+  "PROGRESS",
+  "DRIVER_TRIP",
+  "MATERIAL_OUTGOING",
+  "EQUIPMENT_MOVEMENT",
+  "DISPOSAL_REQUEST",
+  "SUNDRY_CLAIM",
+  "MATERIAL_REQUEST",
+]);
+
+/** `<KIND>:<id>` from a notice's link, or `null` when it is not one (JB97). */
+export function parseSubmissionParam(
+  value: string | null | undefined,
+): { kind: MySubmissionRow["kind"]; id: string } | null {
+  if (!value) return null;
+  const at = value.indexOf(":");
+  if (at <= 0) return null;
+  const kind = value.slice(0, at) as MySubmissionRow["kind"];
+  const id = value.slice(at + 1);
+  if (!id || !SUBMISSION_KINDS.has(kind)) return null;
+  return { kind, id };
+}
+
+/**
+ * A submission a notice names that is not on the page of the list shown -
+ * it opens in `StoredDetailSheet`, the record shell, once read -
+ * older than the newest twenty (JB97). Read by itself; the detail carries
+ * everything the sheet's header needs.
+ */
+function LinkedSubmission({
+  kind,
+  id,
+  onClose,
+}: {
+  kind: MySubmissionRow["kind"];
+  id: string;
+  onClose: () => void;
+}) {
+  const t = useTranslations();
+  const detail = useQuery({
+    queryKey: ["my-submissions", "detail", kind, id],
+    queryFn: () => getSubmissionDetail(kind, id),
+    retry: false,
+  });
+  if (detail.isLoading) return null;
+  if (detail.data && !detail.isError) return <StoredDetailSheet row={detail.data} onClose={onClose} />;
+  // Failed, or not this worker's: said so, in place of the sheet.
+  return (
+    <Dialog open onOpenChange={(next) => !next && onClose()}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>{t("mySubmissions.title")}</DialogTitle>
+          <DialogDescription>{t("mySubmissions.loadFailed")}</DialogDescription>
+        </DialogHeader>
+      </DialogContent>
+    </Dialog>
+  );
 }
 
 const RETURNED_STATUSES = new Set([

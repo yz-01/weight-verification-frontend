@@ -18,7 +18,7 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 
 import { APP_VERSION } from "@/lib/app-version";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { AnnouncementDialog } from "@/components/announcements/announcement-dialog";
 import { VisitorArrivalDialog } from "@/components/site-access/visitor-arrival";
@@ -43,7 +43,8 @@ import { FieldCamera } from "@/components/shared/field-camera";
 import { LocationField } from "@/components/field-staff/location-field";
 import { activeFieldNav } from "@/lib/field-nav";
 import { taskRecordMode } from "@/lib/field-task-mode";
-import { FIELD_OPEN_EVENT } from "@/lib/field-notification";
+import { FIELD_OPEN_EVENT, fieldNoticeHref } from "@/lib/field-notification";
+import { NoticeOpener } from "@/components/notifications/notice-opener";
 import {
   asFix,
   type LocationFix,
@@ -94,6 +95,16 @@ export function FieldStaffWorkspace() {
   // 访客进场确认 (I26): the host's to-do opens 「确认接待」 over home.
   const visitorArrival = searchParams.get("visitor_arrival");
   const clearVisitorArrival = useClearSearchParam("visitor_arrival");
+  // JB97: one of the worker's own submissions a notice names - a record
+  // corrected, a request decided, a claim paid - opens under 我提交过的 on
+  // home (`my-submissions.tsx`), not the capture form, not the bare home.
+  const requestedSubmission = searchParams.get("submission");
+  // JB97: a push about something with no phone screen of its own names the
+  // notice itself; it goes on to its item as the bell does, or opens whole.
+  const notice = searchParams.get("notice");
+  const clearNotice = useClearSearchParam("notice");
+  const router = useRouter();
+  const openNoticeHref = useCallback((href: string) => router.replace(href), [router]);
 
   return (
     <>
@@ -103,12 +114,24 @@ export function FieldStaffWorkspace() {
     {visitorArrival && (
       <VisitorArrivalDialog id={visitorArrival} onClose={clearVisitorArrival} />
     )}
+    {notice && (
+      <NoticeOpener
+        id={notice}
+        resolve={fieldNoticeHref}
+        navigate={openNoticeHref}
+        onClose={clearNotice}
+      />
+    )}
     <FieldStaffWorkspaceContent
       requestedTaskId={requestedTaskId}
-      requestedTab={requestedIncidentId ? "incidents" : requestedMovement ? "home" : requestedTab}
+      requestedTab={
+        requestedIncidentId ? "incidents" : requestedMovement || requestedSubmission ? "home" : requestedTab
+      }
       // A link to a particular hazard means that hazard, not the report form
       // the same link also names as its `record`; the same for a movement.
-      requestedRecord={requestedIncidentId || requestedMovement ? null : requestedRecord}
+      requestedRecord={
+        requestedIncidentId || requestedMovement || requestedSubmission ? null : requestedRecord
+      }
       requestedIncidentId={requestedIncidentId}
       supplierToken={supplierToken}
     />
@@ -271,7 +294,7 @@ function FieldStaffWorkspaceContent({
       window.history.pushState(null, "", href);
       const params = new URL(href, window.location.origin).searchParams;
       const incident = params.get("incident");
-      const movement = params.get("movement");
+      const movement = params.get("movement") || params.get("submission");
       const record = incident || movement ? null : (params.get("record") as FieldRecordMode | null);
       const taskId = params.get("task") ?? "";
       const named = incident ? "incidents" : movement ? "home" : (params.get("tab") as MobileTab | null);

@@ -31,7 +31,10 @@ function recordPage(kind: string, id: string): string | null {
   return target && "href" in target ? target.href : null;
 }
 
-export function officeNotificationHref(data: Record<string, unknown>): string | null {
+export function officeNotificationHref(
+  data: Record<string, unknown>,
+  subject?: { kind?: string | null; id?: string | null },
+): string | null {
   const text = (value: unknown) => (typeof value === "string" && value ? value : null);
   const raw = text(data.href) ?? text(data.url);
 
@@ -76,8 +79,9 @@ export function officeNotificationHref(data: Record<string, unknown>): string | 
   }
 
   // A message on a record (2026-10-09): its kind and id say which page.
-  const recordKind = text(data.record_kind);
-  const recordId = text(data.record_id);
+  // JB97: or the record the notice is about (`subject_kind` / `subject_id`).
+  const recordKind = text(data.record_kind) ?? text(subject?.kind);
+  const recordId = text(data.record_id) ?? text(subject?.id);
   if (recordKind && recordId) {
     const page = recordPage(recordKind, recordId);
     if (page) return page;
@@ -91,4 +95,13 @@ export function officeNotificationHref(data: Record<string, unknown>): string | 
   if (incident) return `/hazard-rectifications?incident=${encodeURIComponent(incident)}`;
 
   return null;
+}
+
+/** ``officeNotificationHref`` for a notice row as the server sends it (JB97). */
+export function officeNoticeHref(notice: {
+  data: Record<string, unknown>;
+  subject_kind?: string | null;
+  subject_id?: string | null;
+}): string | null {
+  return officeNotificationHref(notice.data, { kind: notice.subject_kind, id: notice.subject_id });
 }

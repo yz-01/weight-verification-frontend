@@ -9,6 +9,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 import { AnnouncementDialog } from "@/components/announcements/announcement-dialog";
 import { VisitorArrivalDialog } from "@/components/site-access/visitor-arrival";
+import { NoticeOpener } from "@/components/notifications/notice-opener";
 import { useClearSearchParam } from "@/hooks/use-url-selection";
 import { useMemo, useState } from "react";
 
@@ -45,7 +46,7 @@ import { useListQuery } from "@/hooks/use-list-query";
 import { ApiError } from "@/interfaces/api";
 import type { NotificationRow } from "@/interfaces/platform-ops";
 import { useDateFormat } from "@/lib/dates";
-import { officeNotificationHref } from "@/lib/office-notification";
+import { officeNoticeHref } from "@/lib/office-notification";
 import { useRoleLabel } from "@/lib/role-labels";
 import {
   getProjectAssignments,
@@ -88,6 +89,13 @@ export function Notifications({
   // 访客进场确认 (I26): a host's notice opens 「确认接待」 here.
   const visitorArrival = searchParams.get("visitor_arrival");
   const clearVisitorArrival = useClearSearchParam("visitor_arrival");
+  // JB97: one notice, by its id - what an office push opens, and a row with
+  // no page of its own. It goes on to its record as the bell does, or opens
+  // here, whole.
+  const linkedNotice = searchParams.get("notice");
+  const clearNotice = useClearSearchParam("notice");
+  const [chosenNotice, setChosenNotice] = useState<string | null>(null);
+  const shownNotice = linkedNotice ?? chosenNotice;
   const { can } = useAuth();
   const list = useListQuery(["category", "today"]);
   const [composeOpen, setComposeOpen] = useState(
@@ -191,7 +199,7 @@ export function Notifications({
         cell: ({ row }) => {
           // The same destination the pop-up card opens, so this list is not a
           // dead end for the cards that fall back to it.
-          const href = officeNotificationHref(row.original.data);
+          const href = officeNoticeHref(row.original);
           return (
             <div className="flex items-center justify-end gap-0.5">
               {href && (
@@ -245,6 +253,20 @@ export function Notifications({
       {visitorArrival && (
         <VisitorArrivalDialog id={visitorArrival} onClose={clearVisitorArrival} />
       )}
+      {shownNotice && (
+        <NoticeOpener
+          id={shownNotice}
+          resolve={officeNoticeHref}
+          navigate={(href) => {
+            setChosenNotice(null);
+            router.push(href);
+          }}
+          onClose={() => {
+            setChosenNotice(null);
+            clearNotice();
+          }}
+        />
+      )}
       {announcement && (
         <AnnouncementDialog id={announcement} onClose={clearAnnouncement} />
       )}
@@ -296,8 +318,10 @@ export function Notifications({
       />
       <DataTable
         onRowClick={(row) => {
-          const href = officeNotificationHref(row.data);
+          const href = officeNoticeHref(row);
+          // No page of its own: the notice opens whole, not nothing (JB97).
           if (href) router.push(href);
+          else setChosenNotice(row.id);
         }}
         columns={columns}
         rows={query.data?.results ?? []}

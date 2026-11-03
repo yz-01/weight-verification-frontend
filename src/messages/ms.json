@@ -12198,6 +12198,9 @@
       "enable": "Hidupkan bunyi",
       "mute": "Senyapkan bunyi amaran",
       "unmute": "Hidupkan semula bunyi amaran"
+    },
+    "notice": {
+      "missing": "Pemberitahuan ini sudah tiada."
     }
   },
   "offline": {
