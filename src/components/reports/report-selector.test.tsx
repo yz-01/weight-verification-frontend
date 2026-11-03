@@ -127,8 +127,8 @@ function client() {
     level("RFI", "RFI"),
     level("OTHER", "Other"),
   ]);
-  levels("equipment", [level("vehicles", "车类", true), level("crane", "吊车")]);
-  levels("equipment", [level("lorry", "罗里")], "vehicles");
+  // 设备名称, one level (JB96, 客户 11-03 第 1 点).
+  levels("equipment", [level("lorry", "罗里"), level("crane", "吊车")]);
   levels("recycling", [level("iron", "废铁")]);
   levels("documents", [level("drawings", "图纸", true), level("contracts", "合同")]);
   levels("documents", [level("structural", "结构图")], "drawings");
@@ -256,12 +256,7 @@ describe("【选择报表】 (D6, B9)", () => {
       ["棚架", 0, `/reports/contractor/safety?${DATES}&category=scaffold`],
       ["RFI", 0, `/reports/contractor/consultant?${DATES}&category=RFI`],
       ["其他", 0, `/reports/contractor/consultant?${DATES}&category=OTHER`],
-      ["车类", 0, `/reports/contractor/equipment?${DATES}&category=vehicles`],
-      [
-        "罗里",
-        0,
-        `/reports/contractor/equipment?${DATES}&category=vehicles&subcategory=lorry`,
-      ],
+      ["罗里", 0, `/reports/contractor/equipment?${DATES}&category=lorry`],
       ["吊车", 0, `/reports/contractor/equipment?${DATES}&category=crane`],
       ["废铁", 0, `/reports/contractor/recycling?${DATES}&category=iron`],
       ["图纸", 0, `/reports/contractor/documents?${DATES}&category=drawings`],
@@ -321,18 +316,18 @@ describe("【选择报表】 (D6, B9)", () => {
   it("chooses with Enter, and leaves a finger's first tap to open the level", () => {
     const keyboard = render();
     const enter = vi.fn();
-    find("车类").onKeyDown?.({ key: "Enter", preventDefault: enter });
+    find("图纸").onKeyDown?.({ key: "Enter", preventDefault: enter });
     expect(enter).toHaveBeenCalled();
     expect(keyboard.navigate).toHaveBeenCalledWith(
-      `/reports/contractor/equipment?${DATES}&category=vehicles`,
+      `/reports/contractor/documents?${DATES}&category=drawings`,
     );
 
     const arrow = render();
-    find("车类").onKeyDown?.({ key: "ArrowRight", preventDefault: vi.fn() });
+    find("图纸").onKeyDown?.({ key: "ArrowRight", preventDefault: vi.fn() });
     expect(arrow.navigate).not.toHaveBeenCalled();
 
     const finger = render();
-    const row = find("车类");
+    const row = find("图纸");
     row.onPointerDown?.({ pointerType: "touch" });
     const preventDefault = vi.fn();
     row.onClick?.({ preventDefault });
