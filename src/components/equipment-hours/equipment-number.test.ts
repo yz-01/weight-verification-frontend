@@ -16,17 +16,17 @@ const read = (file: string) => readFileSync(path.join(process.cwd(), file), "utf
 
 describe("one name for each number (J21-3, JB8)", () => {
   it("the hours detail no longer has two lines both called 设备编号", () => {
-    expect(zh.equipmentHours.field.machineNo).toBe("设备号码");
+    expect(zh.equipmentHours.field.machineNo).toBe("设备编号");
     expect(zh.equipmentHours.field.code).toBe("系统编号");
-    expect(zhTW.equipmentHours.field.machineNo).toBe("設備號碼");
+    expect(zhTW.equipmentHours.field.machineNo).toBe("設備編號");
     expect(en.equipmentHours.field.code).toBe("System no.");
   });
 
-  it("the list, the sticker, the number list and the phone say 设备号码", () => {
-    expect(zh.contractorOps.equipmentQr.siteNo).toBe("设备号码");
-    expect(zh.contractorOps.equipment.number).toBe("设备号码");
-    expect(zh.equipmentHours.siteNo.title).toBe("设备号码一览");
-    expect(zh.equipmentHours.phone.machine).toBe("设备号码");
+  it("the list, the sticker, the number list and the phone say 设备编号", () => {
+    expect(zh.contractorOps.equipmentQr.siteNo).toBe("设备编号");
+    expect(zh.contractorOps.equipment.number).toBe("设备编号");
+    expect(zh.equipmentHours.siteNo.title).toBe("设备编号一览");
+    expect(zh.equipmentHours.phone.machine).toBe("设备编号");
     expect(JSON.stringify(zh.equipmentHours)).not.toContain("现场编号");
   });
 });

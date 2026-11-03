@@ -62,6 +62,6 @@ describe("the name list", () => {
     expect(zhTW.contractorOps.equipmentName.add).toBe("新增設備名稱");
     expect(en.contractorOps.equipmentName.add).toBe("Add equipment name");
     expect(ms.contractorOps.equipmentName.label).toBe("Nama peralatan");
-    expect(zh.contractorOps.toast.equipmentRegistered.replace("{no}", "EQ0001")).toBe("设备已登记，设备号码 EQ0001。");
+    expect(zh.contractorOps.toast.equipmentRegistered.replace("{no}", "EQ0001")).toBe("设备已登记，设备编号 EQ0001。");
   });
 });
