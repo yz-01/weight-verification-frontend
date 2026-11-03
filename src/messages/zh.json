@@ -3583,7 +3583,7 @@
       "equipment_qr_printed": "打印设备二维码",
       "equipment_reported_new_on_site": "回报工地新设备",
       "equipment_return_note_filled": "填写设备退场单",
-      "equipment_site_no_set": "修改设备号码",
+      "equipment_site_no_set": "修改设备编号",
       "equipment_updated": "修改设备资料",
       "exit_submitted": "提交退场",
       "external_evidence": "外部人员补充证据",
@@ -6199,7 +6199,7 @@
       "editTitle": "编辑这台设备",
       "entryTitle": "记录 {name} 进场",
       "exitTitle": "记录 {name} 退场",
-      "formHelp": "系统编号、车牌号码和小类。设备号码在保存时由系统自动生成。可以先建好，也可以等现场报来新设备时在验收时补齐。",
+      "formHelp": "选设备名称（名单里没有就新增），填车牌号码。设备编号由系统在保存时给，不能人工修改。可以先登记好，也可以等现场报了新设备、验收时再补。",
       "movementHelp": "请拍摄当前照片并获取位置；该记录会成为不可修改的现场证据。",
       "occurredAt": "进退场时间",
       "ocrManual": "无法读取 Delivery Order，请手动填写资料。",
@@ -6234,7 +6234,7 @@
       "newMachine": "新设备",
       "newMachineEntry": "新设备进场",
       "newMachineName": "新设备名称",
-      "newMachineHelp": "填名称就可以；其他资料由后台验收时补齐。",
+      "newMachineHelp": "选设备名称就可以（名单里没有就新增）；其他资料由后台以后补齐。",
       "entryHelp": "拍照、DO、扫供应商二维码、双方签名，提交后由后台验收。",
       "entrySubmit": "提交进场",
       "exitHelp": "拍照、DO、扫供应商二维码、双方签名，提交后由后台验收；验收通过前设备仍算在场。",
@@ -6249,7 +6249,7 @@
       "scanFailed": "扫码没有成功，可以再扫一次，或先不填供应商。",
       "movementsLink": "查看这台设备的进退场记录",
       "needsProfile": "待补档",
-      "needsProfileHelp": "这台设备还没有小类。选好小类（没有合适的可以在下面新增）就能验收它的进场；到期日可以以后再补。",
+      "needsProfileHelp": "这台设备还没有设备名称。选一个设备名称（名单里没有就新增），就可以验收进场；到期日可以以后再补。",
       "directHandover": "直接交接",
       "directHandoverHelp": "这是改流程前的申请，不用再批准：直接交接（拍照、双方签名），之后由后台验收。",
       "acceptance": {
@@ -6269,7 +6269,8 @@
         "missing": {
           "registration_no": "车牌号码",
           "category": "小类",
-          "expiry": "到期日"
+          "expiry": "到期日",
+          "name": "设备名称"
         },
         "headOffice": "这台设备的分类设为「提交总部审批」：由总部验收。"
       },
@@ -6308,9 +6309,13 @@
       "deliveryNoteHint": "填 DO 号码（拍了 DO 会自动读出）。",
       "signatureHint": "交接时由本人签名。",
       "locationHint": "打开时自动获取定位。",
-      "siteNo": "设备号码",
+      "siteNo": "设备编号",
       "systemNo": "系统编号",
-      "siteNoAuto": "{no}（系统自动生成）"
+      "siteNoAuto": "{no}（系统自动生成）",
+      "number": "设备编号",
+      "numberNext": "{no}（保存时确认）",
+      "numberOnSave": "保存时由系统给",
+      "numberHelp": "由系统自动给，不用填，也不能改。"
     },
     "equipmentEvidence": {
       "condition": "4. 设备状况细节",
@@ -6709,7 +6714,8 @@
       "exitSubmitted": "设备已退场，等待后台确认",
       "entryReviewed": "验收结果已记录",
       "exitApplied": "设备退场申请已提交，等待后台批准",
-      "exitApplicationReviewed": "退场申请的审批结果已记录"
+      "exitApplicationReviewed": "退场申请的审批结果已记录",
+      "equipmentRegistered": "设备已登记，设备编号 {no}。"
     },
     "what": {
       "roles": "角色列表",
@@ -6789,12 +6795,12 @@
       "scanMatched": "已确认：{name}",
       "typedMatched": "已输入编号：{name}",
       "brokenQr": "二维码坏了 / 还没有贴？输入编号",
-      "typeNumber": "设备号码 / 系统编号 / 车牌",
+      "typeNumber": "设备编号 / 系统编号 / 车牌",
       "useNumber": "确定",
       "vehiclePlate": "运输车辆车牌",
       "vehiclePlateHint": "运走这台设备的车的车牌（很多大型设备本身没有车牌）。",
       "typedWrongMachine": "这个编号不是批准退场的设备（{name}），请再看一次。",
-      "typedNotScanned": "现场没有扫二维码，设备号码是手动输入的。",
+      "typedNotScanned": "现场没有扫二维码，设备编号是手动输入的。",
       "scanAgain": "重扫",
       "scanWrongMachine": "扫到的不是批准退场的设备（{name}），请扫这台设备的二维码。",
       "photosHint": "至少 {min} 张。",
@@ -6824,7 +6830,7 @@
         "return": "退回申请",
         "failed": "没有保存成功，请再试一次。"
       },
-      "machineNumber": "设备号码",
+      "machineNumber": "设备编号",
       "machineNumberHint": "填设备上的号码，也可以填车牌或系统编号；或者扫设备上的二维码。",
       "findMachine": "查找",
       "numberUnknown": "找不到号码「{number}」的设备，请再看一次号码。",
@@ -6839,8 +6845,8 @@
       "help": "扫这个二维码就能选到这台设备。可以打印贴纸交给供应商贴在设备上。",
       "imageAlt": "{name} 的二维码",
       "what": "二维码",
-      "siteNo": "设备号码",
-      "siteNoHint": "贴纸上的大字是设备号码，登记设备时由系统自动生成。",
+      "siteNo": "设备编号",
+      "siteNoHint": "贴纸上的大字是设备编号，登记设备时由系统自动生成。",
       "sticker": "A4 贴纸",
       "stickerTitle": "设备二维码 {number}",
       "download": "下载二维码图片",
@@ -6877,6 +6883,18 @@
     },
     "equipmentInspection": {
       "column": "检验"
+    },
+    "equipmentName": {
+      "label": "设备名称",
+      "placeholder": "选择设备名称",
+      "add": "新增设备名称",
+      "newName": "新的设备名称",
+      "newNamePlaceholder": "例如 挖土机",
+      "addConfirm": "新增",
+      "addCancel": "取消新增",
+      "addFailed": "设备名称没有加上，请再试一次。",
+      "what": "设备名称",
+      "all": "全部设备名称"
     }
   },
   "contractorPartners": {
@@ -7048,7 +7066,7 @@
         "safety": "编号、标题或负责人",
         "consultant": "申请编号、类型或顾问",
         "attendance": "人员名字",
-        "equipment": "设备号码、车牌、DO 或操作员",
+        "equipment": "设备编号、车牌、DO 或操作员",
         "recycling": "单号、车牌、DO 或外部公司",
         "schedule": "WBS 编号或任务名称",
         "target": "目标名称",
@@ -8653,7 +8671,8 @@
       "worker_excel_invalid": "打不开这个 Excel。请按「下载 Excel 样板」，在样板里填好再上传。",
       "worker_excel_no_header": "这个 Excel 找不到「姓名」这一栏。请用样板，第一行不要改。",
       "worker_excel_empty": "这个 Excel 里没有人。请从第 2 行开始，一行填一个人。",
-      "passport_capture_link_invalid": "这个拍照链接已经失效。请在电脑的「批量新增人员」页面重新扫二维码。"
+      "passport_capture_link_invalid": "这个拍照链接已经失效。请在电脑的「批量新增人员」页面重新扫二维码。",
+      "equipment_number_by_system": "设备编号由系统自动给，不能人工修改。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -11630,7 +11649,7 @@
       "site_phone": "工地电话",
       "team": "负责人",
       "code": "编号",
-      "site_no": "设备号码",
+      "site_no": "设备编号",
       "serial_no": "序列号",
       "road_tax_expires_on": "路税到期",
       "insurance_expires_on": "保险到期日",
@@ -16840,16 +16859,18 @@
     },
     "placeholder": {
       "industry": "例如：钢铁、混凝土、五金建材",
-      "mainProducts": "例如：钢筋、BRC 钢网、扎丝"
+      "mainProducts": "例如：钢筋、BRC 钢网、扎丝",
+      "code": "留空由系统自动生成"
     },
     "hint": {
-      "profileMissing": "这家供应商是旧资料，还没有行业和主要产品，保存前请补上。"
+      "profileMissing": "这家供应商是旧资料，还没有行业和主要产品，保存前请补上。",
+      "codeAuto": "不填就由系统自动编号（SUP-0001、SUP-0002…）；也可以自己填，但不能和别的供应商重复。"
     },
     "quickAdd": {
       "open": "新增供应商",
       "title": "新增供应商",
       "description": "加入供应商名单后在这里直接选上。其他资料之后可以在「供应商」页面补。",
-      "codeHint": "不能和别的供应商重复，例如 CLR-001",
+      "codeHint": "选填：不填由系统自动编号；自己填的不能和别的供应商重复，例如 CLR-001",
       "save": "新增并选上"
     },
     "companyTypes": {
@@ -18346,7 +18367,7 @@
       "progress": "施工分类",
       "safety": "整改分类",
       "consultant": "申请类型",
-      "equipment": "设备大类",
+      "equipment": "设备名称",
       "equipmentClass": "小类",
       "recycling": "环保材料出场分类",
       "documents": "文档大分类",
@@ -19118,7 +19139,7 @@
       "equipment": "设备",
       "allEquipment": "全部设备",
       "search": "车牌 / 编号",
-      "searchPlaceholder": "车牌、设备号码或系统编号",
+      "searchPlaceholder": "车牌、设备编号或系统编号",
       "scan": "扫码找设备",
       "scanTitle": "扫设备二维码",
       "scanHelp": "把设备二维码贴纸对准摄像头。",
@@ -19146,8 +19167,8 @@
       "incomplete": "缺开工 / 收工",
       "adjustedCount": "后台修改次数",
       "actions": "操作",
-      "siteNo": "设备号码",
-      "machineNo": "设备号码",
+      "siteNo": "设备编号",
+      "machineNo": "设备编号",
       "equipmentName": "设备名称",
       "operator": "操作人员",
       "cidb": "CIDB 卡号",
@@ -19219,8 +19240,6 @@
     "toast": {
       "endSaved": "结束时间已保存",
       "startSaved": "开始时间已保存",
-      "siteNoSaved": "设备号码已保存",
-      "siteNoCleared": "设备号码已清除",
       "operatorSaved": "操作人员已保存",
       "moved": "工时已移到另一台设备",
       "normalSaved": "正常工时已保存"
@@ -19232,7 +19251,7 @@
       "allSuppliers": "全部供应商",
       "noSupplier": "未填供应商",
       "suppliedBy": "供应商：{supplier}",
-      "machine": "设备号码",
+      "machine": "设备编号",
       "pickMachine": "选择设备",
       "machines": "设备名单",
       "noMachines": "这个项目还没有可以选的设备，请后台先建档。",
@@ -19274,19 +19293,14 @@
       "sentQueued": "已存在手机，有网络会自动上传：{number} 号 {kind} {time}"
     },
     "siteNo": {
-      "open": "设备号码管理",
-      "title": "设备号码管理",
-      "help": "每台设备登记时由系统自动给一个设备号码（例如 12），和二维码一一对应，永不重复。这里只用来更正（要签核密码）；号码不能清空，也不能用本项目其他设备用过的号码。",
+      "open": "设备编号一览",
+      "title": "设备编号一览",
+      "help": "每台设备登记时由系统自动给号码（新设备是 EQ0001、EQ0002……每个项目各自从 EQ0001 开始），和二维码一一对应，不会重复，也不能人工修改。这里只是查号码。",
       "search": "找设备",
       "searchPlaceholder": "名称、车牌、供应商或编号",
       "empty": "这个项目还没有在用的设备。",
       "noMatch": "没有符合的设备。",
-      "inputLabel": "{machine} 的设备号码",
-      "placeholder": "例如 12",
-      "save": "保存",
-      "failed": "保存失败，请再试一次。",
-      "close": "关闭",
-      "keep": "设备号码不能清空，请输入正确的号码。"
+      "close": "关闭"
     },
     "operator": {
       "title": "操作人员",
@@ -20188,7 +20202,7 @@
       "receipt_review": "验收合格 / 不合格",
       "receipt_add_photo": "给进场单补照片",
       "equipment_hours_set_operator": "填写操作人员和 CIDB",
-      "equipment_set_site_no": "修改设备号码",
+      "equipment_set_site_no": "修改设备编号",
       "equipment_hours_move": "设备工时改设备归属",
       "user_change_permissions": "修改用户的权限开关",
       "consultant_submit": "提交顾问申请",

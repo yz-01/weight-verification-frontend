@@ -59,10 +59,8 @@ const CATEGORY_LEVELS: Partial<
   progress: { label: "reportSelector.level.progress" },
   safety: { label: "reportSelector.level.safety" },
   consultant: { label: "reportSelector.level.consultant" },
-  equipment: {
-    label: "reportSelector.level.equipment",
-    childLabel: "reportSelector.level.equipmentClass",
-  },
+  // 设备名称, one level (JB96, 客户 11-03 第 1 点): no 大类 → 小类 any more.
+  equipment: { label: "reportSelector.level.equipment" },
   recycling: { label: "reportSelector.level.recycling" },
   // 分类组 → 分类 → 子分类 (I11, ID27).
   material_outgoing: {

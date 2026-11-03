@@ -6199,7 +6199,7 @@
       "editTitle": "Sunting peralatan ini",
       "entryTitle": "Rekod {name} masuk tapak",
       "exitTitle": "Rekod {name} keluar tapak",
-      "formHelp": "No. sistem, plat dan subkelas. Nombor peralatan diberi oleh sistem semasa mesin disimpan. Daftar sekarang, atau lengkapkan apabila tapak melaporkan mesin baharu dan anda menerima kemasukannya.",
+      "formHelp": "Pilih nama peralatan (atau tambah yang baharu) dan isi no. plat. Nombor peralatan diberi oleh sistem semasa simpan dan tidak boleh diubah. Daftar sekarang, atau lengkapkan apabila tapak melaporkan mesin baharu.",
       "movementHelp": "Ambil foto dan lokasi semasa. Pergerakan ini menjadi bukti tapak kekal.",
       "occurredAt": "Masa pergerakan",
       "ocrManual": "Nota penghantaran tidak dapat dibaca. Masukkan maklumat secara manual.",
@@ -6234,7 +6234,7 @@
       "newMachine": "Mesin baharu",
       "newMachineEntry": "Mesin baharu masuk",
       "newMachineName": "Nama mesin baharu",
-      "newMachineHelp": "Nama sudah cukup - pejabat melengkapkan yang lain semasa menerima kemasukan.",
+      "newMachineHelp": "Pilih nama sudah cukup (tambah jika tiada dalam senarai) - pejabat melengkapkan selebihnya kemudian.",
       "entryHelp": "Foto, DO, kod QR pembekal dan kedua-dua tandatangan. Pejabat menerimanya selepas anda hantar.",
       "entrySubmit": "Hantar kemasukan",
       "exitHelp": "Foto, DO, kod QR pembekal dan kedua-dua tandatangan. Pejabat menerimanya selepas anda hantar; sehingga itu mesin masih dikira di tapak.",
@@ -6249,7 +6249,7 @@
       "scanFailed": "Imbasan tidak berjaya. Imbas semula, atau biarkan pembekal kosong.",
       "movementsLink": "Lihat kemasukan dan keluar mesin ini",
       "needsProfile": "Profil belum lengkap",
-      "needsProfileHelp": "Mesin ini belum ada subkelas. Pilih satu (atau tambah di bawah) dan kemasukannya boleh diterima; tarikh tamat boleh diisi kemudian.",
+      "needsProfileHelp": "Mesin ini belum ada nama peralatan. Pilih satu (atau tambah yang baharu) dan kemasukannya boleh diterima; tarikh luput boleh diisi kemudian.",
       "directHandover": "Serah terus",
       "directHandoverHelp": "Permohonan sebelum perubahan: tiada kelulusan diperlukan. Serah terus (foto, kedua-dua tandatangan); pejabat kemudian menerimanya.",
       "acceptance": {
@@ -6269,7 +6269,8 @@
         "missing": {
           "registration_no": "nombor plat",
           "category": "subkelas",
-          "expiry": "tarikh tamat"
+          "expiry": "tarikh tamat",
+          "name": "nama peralatan"
         },
         "headOffice": "Kelas mesin ini ditetapkan kepada kelulusan ibu pejabat: ibu pejabat menerimanya."
       },
@@ -6310,7 +6311,11 @@
       "locationHint": "Diambil secara automatik apabila borang dibuka.",
       "siteNo": "No. peralatan",
       "systemNo": "No. sistem",
-      "siteNoAuto": "{no} (diberi oleh sistem)"
+      "siteNoAuto": "{no} (diberi oleh sistem)",
+      "number": "No. peralatan",
+      "numberNext": "{no} (disahkan semasa simpan)",
+      "numberOnSave": "Diberi oleh sistem semasa simpan",
+      "numberHelp": "Diberi oleh sistem - tidak boleh ditaip atau diubah."
     },
     "equipmentEvidence": {
       "condition": "4. Butiran keadaan peralatan",
@@ -6709,7 +6714,8 @@
       "exitSubmitted": "Keluar direkodkan - menunggu pengesahan pejabat",
       "entryReviewed": "Keputusan direkodkan",
       "exitApplied": "Permohonan keluar dihantar - menunggu kelulusan pejabat",
-      "exitApplicationReviewed": "Keputusan permohonan keluar direkodkan"
+      "exitApplicationReviewed": "Keputusan permohonan keluar direkodkan",
+      "equipmentRegistered": "Mesin didaftarkan sebagai {no}."
     },
     "what": {
       "roles": "Senarai peranan",
@@ -6877,6 +6883,18 @@
     },
     "equipmentInspection": {
       "column": "Pemeriksaan"
+    },
+    "equipmentName": {
+      "label": "Nama peralatan",
+      "placeholder": "Pilih nama",
+      "add": "Tambah nama peralatan",
+      "newName": "Nama peralatan baharu",
+      "newNamePlaceholder": "cth. Jengkaut",
+      "addConfirm": "Tambah",
+      "addCancel": "Batal tambah nama",
+      "addFailed": "Nama tidak dapat ditambah.",
+      "what": "nama peralatan",
+      "all": "Semua nama peralatan"
     }
   },
   "contractorPartners": {
@@ -8653,7 +8671,8 @@
       "worker_excel_invalid": "Fail Excel ini tidak dapat dibuka. Tekan \"Muat turun templat Excel\", isi dan muat naik.",
       "worker_excel_no_header": "Fail Excel ini tiada lajur \"Nama\". Guna templat dan kekalkan baris pertamanya.",
       "worker_excel_empty": "Tiada sesiapa dalam fail Excel ini. Isi seorang setiap baris mulai baris 2.",
-      "passport_capture_link_invalid": "Pautan gambar ini sudah tamat. Imbas kod QR semula di halaman \"Tambah ramai pekerja\" pada komputer."
+      "passport_capture_link_invalid": "Pautan gambar ini sudah tamat. Imbas kod QR semula di halaman \"Tambah ramai pekerja\" pada komputer.",
+      "equipment_number_by_system": "Nombor peralatan diberi oleh sistem dan tidak boleh diubah."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -16840,16 +16859,18 @@
     },
     "placeholder": {
       "industry": "cth. Keluli, konkrit, perkakasan",
-      "mainProducts": "cth. Bar keluli, jaring BRC, dawai pengikat"
+      "mainProducts": "cth. Bar keluli, jaring BRC, dawai pengikat",
+      "code": "Biarkan kosong untuk nombor automatik"
     },
     "hint": {
-      "profileMissing": "Pembekal ini ditambah sebelum industri dan produk utama direkodkan. Isikan untuk menyimpan."
+      "profileMissing": "Pembekal ini ditambah sebelum industri dan produk utama direkodkan. Isikan untuk menyimpan.",
+      "codeAuto": "Biarkan kosong dan sistem akan menomborkannya (SUP-0001, SUP-0002…). Anda boleh taip sendiri; ia tidak boleh digunakan oleh pembekal lain."
     },
     "quickAdd": {
       "open": "Tambah pembekal",
       "title": "Tambah pembekal",
       "description": "Ia ditambah ke senarai pembekal dan dipilih di sini. Lengkapkan butiran lain di halaman Pembekal kemudian.",
-      "codeHint": "Tidak digunakan oleh pembekal lain, cth. CLR-001",
+      "codeHint": "Pilihan: biarkan kosong dan sistem akan menomborkannya. Kod yang ditaip tidak boleh digunakan oleh pembekal lain, cth. CLR-001",
       "save": "Tambah dan pilih"
     },
     "companyTypes": {
@@ -18346,7 +18367,7 @@
       "progress": "Kategori pembinaan",
       "safety": "Kategori pembetulan bahaya",
       "consultant": "Jenis permohonan",
-      "equipment": "Kelas peralatan",
+      "equipment": "Nama peralatan",
       "equipmentClass": "Jenis",
       "recycling": "Kategori bahan alam sekitar keluar",
       "documents": "Kategori dokumen",
@@ -19219,8 +19240,6 @@
     "toast": {
       "endSaved": "Masa tamat disimpan",
       "startSaved": "Masa mula disimpan",
-      "siteNoSaved": "Nombor peralatan disimpan",
-      "siteNoCleared": "Nombor peralatan dikosongkan",
       "operatorSaved": "Pengendali disimpan",
       "moved": "Jam dipindahkan ke mesin lain",
       "normalSaved": "Jam biasa disimpan"
@@ -19274,19 +19293,14 @@
       "sentQueued": "Disimpan dalam telefon, dihantar bila ada talian: no. {number} {kind} {time}"
     },
     "siteNo": {
-      "open": "Nombor peralatan",
-      "title": "Nombor peralatan",
-      "help": "Setiap mesin mendapat nombor peralatan (contohnya 12) daripada sistem semasa didaftarkan, sepadan dengan kod QR, tidak digunakan dua kali. Ubah di sini hanya untuk membetulkan (PIN pengesahan); nombor tidak boleh dikosongkan atau sama dengan nombor mesin lain dalam projek.",
+      "open": "Senarai nombor peralatan",
+      "title": "Senarai nombor peralatan",
+      "help": "Setiap mesin mendapat nombor daripada sistem semasa didaftarkan (mesin baharu EQ0001, EQ0002… setiap projek bermula EQ0001), sepadan dengan kod QR, tidak digunakan dua kali dan tidak boleh diubah secara manual. Senarai ini untuk mencari nombor.",
       "search": "Cari mesin",
       "searchPlaceholder": "Nama, no. plat, pembekal atau nombor",
       "empty": "Projek ini belum ada mesin yang digunakan.",
       "noMatch": "Tiada mesin yang sepadan.",
-      "inputLabel": "No. peralatan {machine}",
-      "placeholder": "cth. 12",
-      "save": "Simpan",
-      "failed": "Tidak dapat disimpan. Sila cuba lagi.",
-      "close": "Tutup",
-      "keep": "Mesin sentiasa ada nombor peralatan. Taip nombor yang betul."
+      "close": "Tutup"
     },
     "operator": {
       "title": "Pengendali",

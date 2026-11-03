@@ -5,8 +5,8 @@
  * supplier list without leaving the form that needed it.
  *
  * The same create call, the same permission (`supplier.create`) and the same
- * required fields as the supplier page - code, name, industry and main
- * products - so a company added here is a full supplier, findable and
+ * required fields as the supplier page - name, industry and main products,
+ * the code numbered by the server when left blank (JB95) - so a company added here is a full supplier, findable and
  * editable on 供应商 like any other. The rest of its profile is filled there.
  */
 
@@ -110,8 +110,13 @@ function QuickAddSupplierDialog({
           <FieldWrapper label={t("suppliers.field.name")} required className="sm:col-span-2">
             <Input value={name} onChange={(event) => setName(event.target.value)} autoFocus />
           </FieldWrapper>
-          <FieldWrapper label={t("suppliers.field.code")} required hint={t("suppliers.quickAdd.codeHint")}>
-            <Input value={code} onChange={(event) => setCode(event.target.value)} />
+          {/* Blank is numbered by the server, SUP-0001 on (JB95). */}
+          <FieldWrapper label={t("suppliers.field.code")} optional={t("common.optional")} hint={t("suppliers.quickAdd.codeHint")}>
+            <Input
+              value={code}
+              placeholder={t("suppliers.placeholder.code")}
+              onChange={(event) => setCode(event.target.value)}
+            />
           </FieldWrapper>
           <FieldWrapper label={t("suppliers.field.industry")} required>
             <Input value={industry} onChange={(event) => setIndustry(event.target.value)} />
@@ -133,7 +138,6 @@ function QuickAddSupplierDialog({
           <Button
             requires={[
               [name.trim(), t("suppliers.field.name")],
-              [code.trim(), t("suppliers.field.code")],
               [industry.trim(), t("suppliers.field.industry")],
               [products.trim(), t("suppliers.field.mainProducts")],
             ]}

@@ -191,21 +191,6 @@ export function getEquipmentSiteNumbers(project?: string): Promise<EquipmentHour
   );
 }
 
-/** Give a machine its 现场编号, change it, or clear it (blank). */
-export async function setEquipmentSiteNo(
-  equipment: string,
-  siteNo: string,
-): Promise<EquipmentHoursMachine> {
-  const machine = await api.post<EquipmentHoursMachine>(
-    "/api/equipment-hours/set_site_no/",
-    { equipment, site_no: siteNo },
-  );
-  toastSuccess(
-    machine.site_no ? "equipmentHours.toast.siteNoSaved" : "equipmentHours.toast.siteNoCleared",
-  );
-  return machine;
-}
-
 export interface EquipmentHoursSummaryLabels {
   title: string;
   equipment_label: string;

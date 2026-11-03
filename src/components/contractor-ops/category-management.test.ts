@@ -52,7 +52,9 @@ describe("every module is managed on this one page (D-264)", () => {
       ...[...block.matchAll(/columnModule\("([a-z]+)"/g)].map((m) => m[1]),
       ...[...block.matchAll(/\bkey: "([a-z]+)"/g)].map((m) => m[1]),
     ];
-    expect(keys.sort()).toEqual([...CATEGORY_MODULE_KEYS].sort());
+    // Equipment is still a module key (old classes keep their module) but no
+    // longer listed: no equipment classes since JB96 (客户 11-03 第 1 点).
+    expect(keys.sort()).toEqual(CATEGORY_MODULE_KEYS.filter((key) => key !== "equipment").sort());
     // 材料、设备、隐患整改、环保材料出场 (Q5, X5) and, since I10 (ID6),
     // Progress Claim. The groups on the left are the project's (I11).
     expect([...CATEGORY_MODULE_KEYS].sort()).toEqual([

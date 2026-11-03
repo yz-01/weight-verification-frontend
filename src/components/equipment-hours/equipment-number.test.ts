@@ -16,30 +16,38 @@ const read = (file: string) => readFileSync(path.join(process.cwd(), file), "utf
 
 describe("one name for each number (J21-3, JB8)", () => {
   it("the hours detail no longer has two lines both called 设备编号", () => {
-    expect(zh.equipmentHours.field.machineNo).toBe("设备号码");
+    expect(zh.equipmentHours.field.machineNo).toBe("设备编号");
     expect(zh.equipmentHours.field.code).toBe("系统编号");
-    expect(zhTW.equipmentHours.field.machineNo).toBe("設備號碼");
+    expect(zhTW.equipmentHours.field.machineNo).toBe("設備編號");
     expect(en.equipmentHours.field.code).toBe("System no.");
   });
 
-  it("the list, the sticker, the manager and the phone say 设备号码", () => {
-    expect(zh.contractorOps.equipmentQr.siteNo).toBe("设备号码");
-    expect(zh.equipmentHours.siteNo.title).toBe("设备号码管理");
-    expect(zh.equipmentHours.phone.machine).toBe("设备号码");
+  it("the list, the sticker, the number list and the phone say 设备编号", () => {
+    expect(zh.contractorOps.equipmentQr.siteNo).toBe("设备编号");
+    expect(zh.contractorOps.equipment.number).toBe("设备编号");
+    expect(zh.equipmentHours.siteNo.title).toBe("设备编号一览");
+    expect(zh.equipmentHours.phone.machine).toBe("设备编号");
     expect(JSON.stringify(zh.equipmentHours)).not.toContain("现场编号");
   });
 });
 
-describe("the register form (J21-1, J21-2)", () => {
-  it("shows the number the system gave, and has no box for it", () => {
+describe("the register form (J21-1, J21-2; JB96)", () => {
+  it("shows the system's number and has no box for it", () => {
+    // 客户 11-03 第 3、5 点: 「不需要人工填写，也不允许人工修改」「打开『登记设备』
+    // 页面时，系统自动显示该项目下一个可用编号。正式保存时确认编号」.
     const form = read("src/components/contractor-ops/operations-workspaces.tsx");
-    expect(form).toContain('t("equipment.siteNoAuto", { no: equipment.site_no })');
+    expect(form).toContain('t("equipment.numberNext", { no: nextNumber.data })');
+    expect(form).toContain("equipment.site_no || equipment.code");
     expect(form).not.toMatch(/set\("site_no"/);
-    expect(zh.contractorOps.equipment.siteNoAuto.replace("{no}", "12")).toBe("12（系统自动生成）");
+    expect(form).not.toMatch(/set\("code"/);
+    expect(form).not.toContain('t("equipment.systemNo")');
+    expect(zh.contractorOps.equipment.numberNext.replace("{no}", "EQ0007")).toBe("EQ0007（保存时确认）");
   });
 
-  it("a number is put right in the manager, never cleared", () => {
+  it("the number list only shows numbers; nobody changes one by hand", () => {
     const manager = read("src/components/equipment-hours/equipment-site-numbers.tsx");
-    expect(manager).toContain('setError(t("siteNo.keep"))');
+    expect(manager).not.toContain("useMutation");
+    expect(manager).not.toContain("setEquipmentSiteNo");
+    expect(read("src/services/equipment-hours.service.ts")).not.toContain("set_site_no");
   });
 });

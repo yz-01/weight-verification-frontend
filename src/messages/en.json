@@ -6199,7 +6199,7 @@
       "editTitle": "Edit this equipment",
       "entryTitle": "Record {name} entering site",
       "exitTitle": "Record {name} leaving site",
-      "formHelp": "System no., plate and sub class. The equipment number is given by the system when the machine is saved. Register it now, or complete it when the site reports a new machine and you accept its entry.",
+      "formHelp": "Choose the equipment name (or add a new one) and enter the plate. The equipment number is given by the system when saved and cannot be changed by hand. Register it now, or complete it when the site reports a new machine.",
       "movementHelp": "Take current photos and location. This movement becomes permanent site evidence.",
       "occurredAt": "Movement time",
       "ocrManual": "The delivery note could not be read. Enter the details manually.",
@@ -6234,7 +6234,7 @@
       "newMachine": "New machine",
       "newMachineEntry": "New machine coming in",
       "newMachineName": "New machine's name",
-      "newMachineHelp": "The name is enough - the office completes the rest when it accepts the entry.",
+      "newMachineHelp": "Choosing the name is enough (add it if it is not on the list) - the office completes the rest later.",
       "entryHelp": "Photos, the DO, the supplier's QR and both signatures. The office accepts it after you submit.",
       "entrySubmit": "Submit entry",
       "exitHelp": "Photos, the DO, the supplier's QR and both signatures. The office accepts it after you submit; until then the machine still counts as on site.",
@@ -6249,7 +6249,7 @@
       "scanFailed": "The scan did not work. Scan again, or leave the supplier blank.",
       "movementsLink": "See this machine's entries and exits",
       "needsProfile": "Profile to complete",
-      "needsProfileHelp": "This machine has no sub class yet. Choose one (or add one below) and its entry can be accepted; the expiry dates can be filled in later.",
+      "needsProfileHelp": "This machine has no equipment name yet. Choose one (or add a new one) and its entry can be accepted; the expiry dates can be filled in later.",
       "directHandover": "Hand over directly",
       "directHandoverHelp": "An application made before the change: no approval needed. Hand it over directly (photos, both signatures); the office then accepts it.",
       "acceptance": {
@@ -6269,7 +6269,8 @@
         "missing": {
           "registration_no": "plate number",
           "category": "sub class",
-          "expiry": "an expiry date"
+          "expiry": "an expiry date",
+          "name": "equipment name"
         },
         "headOffice": "This machine's class is set to head office approval: head office accepts it."
       },
@@ -6310,7 +6311,11 @@
       "locationHint": "Taken automatically when the form opens.",
       "siteNo": "Equipment no.",
       "systemNo": "System no.",
-      "siteNoAuto": "{no} (given by the system)"
+      "siteNoAuto": "{no} (given by the system)",
+      "number": "Equipment no.",
+      "numberNext": "{no} (confirmed when saved)",
+      "numberOnSave": "Given by the system when saved",
+      "numberHelp": "Given by the system - it cannot be typed or changed."
     },
     "equipmentEvidence": {
       "condition": "4. Equipment condition detail",
@@ -6709,7 +6714,8 @@
       "exitSubmitted": "Exit recorded - waiting for the office to confirm it",
       "entryReviewed": "Decision recorded",
       "exitApplied": "Exit application submitted - waiting for the office to approve it",
-      "exitApplicationReviewed": "Decision on the exit application recorded"
+      "exitApplicationReviewed": "Decision on the exit application recorded",
+      "equipmentRegistered": "Machine registered as {no}."
     },
     "what": {
       "roles": "The role list",
@@ -6877,6 +6883,18 @@
     },
     "equipmentInspection": {
       "column": "Inspection"
+    },
+    "equipmentName": {
+      "label": "Equipment name",
+      "placeholder": "Choose a name",
+      "add": "Add equipment name",
+      "newName": "New equipment name",
+      "newNamePlaceholder": "e.g. Excavator",
+      "addConfirm": "Add",
+      "addCancel": "Cancel adding a name",
+      "addFailed": "The name could not be added.",
+      "what": "equipment names",
+      "all": "All equipment names"
     }
   },
   "contractorPartners": {
@@ -8653,7 +8671,8 @@
       "worker_excel_invalid": "This Excel file could not be opened. Press \"Download Excel template\", fill it in and upload it.",
       "worker_excel_no_header": "This Excel file has no \"Name\" column. Use the template and keep its first row.",
       "worker_excel_empty": "There is nobody in this Excel file. Fill one person per row from row 2.",
-      "passport_capture_link_invalid": "This photo link has ended. Scan the QR code again on the computer's \"Add many workers\" page."
+      "passport_capture_link_invalid": "This photo link has ended. Scan the QR code again on the computer's \"Add many workers\" page.",
+      "equipment_number_by_system": "Equipment numbers are given by the system and cannot be changed."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -16840,16 +16859,18 @@
     },
     "placeholder": {
       "industry": "e.g. Steel, concrete, hardware",
-      "mainProducts": "e.g. Rebar, BRC mesh, binding wire"
+      "mainProducts": "e.g. Rebar, BRC mesh, binding wire",
+      "code": "Leave blank to number automatically"
     },
     "hint": {
-      "profileMissing": "This supplier was added before industry and main products were recorded. Fill them in to save."
+      "profileMissing": "This supplier was added before industry and main products were recorded. Fill them in to save.",
+      "codeAuto": "Leave blank and the system numbers it (SUP-0001, SUP-0002…). You can type your own; it must not be used by another supplier."
     },
     "quickAdd": {
       "open": "Add supplier",
       "title": "Add a supplier",
       "description": "It joins the supplier list and is chosen here. Fill in the rest on the Suppliers page later.",
-      "codeHint": "Not used by another supplier, e.g. CLR-001",
+      "codeHint": "Optional: leave blank and the system numbers it. A code you type must not be used by another supplier, e.g. CLR-001",
       "save": "Add and choose"
     },
     "companyTypes": {
@@ -18346,7 +18367,7 @@
       "progress": "Construction category",
       "safety": "Hazard rectification category",
       "consultant": "Application type",
-      "equipment": "Equipment class",
+      "equipment": "Equipment name",
       "equipmentClass": "Type",
       "recycling": "Environmental material outgoing category",
       "documents": "Document category",
@@ -19219,8 +19240,6 @@
     "toast": {
       "endSaved": "End time saved",
       "startSaved": "Start time saved",
-      "siteNoSaved": "Equipment number saved",
-      "siteNoCleared": "Equipment number cleared",
       "operatorSaved": "Operator saved",
       "moved": "Hours moved to the other machine",
       "normalSaved": "Normal hours saved"
@@ -19274,19 +19293,14 @@
       "sentQueued": "Saved on the phone, sends when online: no. {number} {kind} {time}"
     },
     "siteNo": {
-      "open": "Equipment numbers",
-      "title": "Equipment numbers",
-      "help": "Every machine gets its equipment number (for example 12) from the system when it is registered, one to one with its QR code, never used twice. Change one here only to put it right (sign-off PIN); a number cannot be cleared, nor be one another machine of the project has had.",
+      "open": "Equipment number list",
+      "title": "Equipment number list",
+      "help": "Every machine gets its number from the system when it is registered (new machines EQ0001, EQ0002… each project from EQ0001), one to one with its QR code, never used twice and never changed by hand. This list is for looking a number up.",
       "search": "Find a machine",
       "searchPlaceholder": "Name, plate, supplier or number",
       "empty": "This project has no machines in use yet.",
       "noMatch": "No machine matches.",
-      "inputLabel": "Equipment no. of {machine}",
-      "placeholder": "e.g. 12",
-      "save": "Save",
-      "failed": "Could not save. Please try again.",
-      "close": "Close",
-      "keep": "A machine always keeps an equipment number. Type the right one."
+      "close": "Close"
     },
     "operator": {
       "title": "Operator",

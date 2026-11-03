@@ -132,14 +132,14 @@ export const LIST_FITS = {
       cover_photo: "strip",
       name: "name",
       status: "status",
-      category_name: "text",
       quantity_on_site: "number",
       project_name: "text",
       qr: "button",
       actions: "actions",
     },
     hidden: ["project_name", "code"],
-    phoneCard: { title: ["site_no", "name", "status"], detail: ["category_name", "quantity_on_site", "project_name"], photo: "cover_photo" },
+    // No 设备分类 since JB96: the name is the machine's only filing.
+    phoneCard: { title: ["site_no", "name", "status"], detail: ["quantity_on_site", "project_name"], photo: "cover_photo" },
   },
   /** 施工进度 */
   siteProgress: {

@@ -259,9 +259,11 @@ const MODULES: Module[] = [
   // create and no delete at all (F-465). They are an ordinary column module
   // now, with their money shown in the table and edited in the dialog.
   columnModule("material", "MATERIAL"),
-  // The machines a contractor registers on a site, filed under this project's
-  // own columns (T-242) - not MSE's own hardware register (F-369).
-  columnModule("equipment", "EQUIPMENT"),
+  // No equipment classes since JB96 (客户 11-03 第 1 点 「取消目前的『设备大类』
+  // 和『设备小类』，统一只保留『设备名称』」): machines are named from the
+  // company's 「设备名称」 list on the register itself. The classes already
+  // made stay in the database - old machines and reports keep them - but none
+  // is offered here to be made or filed under.
   // Added, renamed, switched off and removed here since H18 (HD4, over
   // B1's read-only); the server makes the code and keeps 施工准证申请.
   columnModule("ehs", "EHS"),
@@ -950,7 +952,6 @@ export function CategoryManagement() {
       {registering && (
         <EquipmentDialog
           project={project}
-          defaultCategory={registering.category}
           onClose={() => setRegistering(null)}
           onSaved={() => {
             setRegistering(null);
@@ -1076,10 +1077,11 @@ function GroupDialog({
   const [isActive, setIsActive] = useState(row?.is_active ?? true);
   const [armed, setArmed] = useState(false);
   const [error, setError] = useState("");
-  // ID4: material, equipment, EHS and claims by category.manage; the
-  // recyclable module by waste_outgoing.config.
+  // ID4: material, EHS and claims by category.manage; the recyclable module
+  // by waste_outgoing.config. No equipment since JB96 (客户 11-03 第 1 点): a
+  // group already made keeps its module when renamed.
   const modules: CategoryGroupModule[] = [
-    ...(can("category.manage") ? (["MATERIAL", "EQUIPMENT", "EHS", "CLAIM"] as const) : []),
+    ...(can("category.manage") ? (["MATERIAL", "EHS", "CLAIM"] as const) : []),
     ...(can("waste_outgoing.config") ? (["RECYCLE"] as const) : []),
   ];
   const fail = (reason: unknown) =>

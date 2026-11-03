@@ -537,9 +537,17 @@ export interface SiteEquipment {
   updated_at: string;
 }
 
+/** One 「设备名称」 on the company's list (JB96). */
+export interface EquipmentName {
+  id: string;
+  name: string;
+  is_active: boolean;
+}
+
 export interface EquipmentPayload {
   project: string;
-  code: string;
+  /** Given by the system since JB96 - never sent; kept for old callers' types. */
+  code?: string;
   name: string;
   serial_no?: string;
   registration_no?: string;
@@ -599,7 +607,7 @@ export interface EquipmentMovement extends RecordedBy {
   equipment_registration_no?: string;
   /** A 「新设备」 whose profile the office has still to complete (C8). */
   equipment_needs_profile?: boolean;
-  equipment_profile_missing?: Array<"registration_no" | "category" | "expiry">;
+  equipment_profile_missing?: Array<"registration_no" | "category" | "expiry" | "name">;
   direction: "ENTRY" | "EXIT";
   /** Movements recorded before 10-02 are all COMPLETED. */
   status?: EquipmentMovementStatus;

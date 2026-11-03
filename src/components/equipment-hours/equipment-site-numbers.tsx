@@ -1,7 +1,7 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Check, Loader2, Search } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { Loader2, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
@@ -16,9 +16,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { ApiError } from "@/interfaces/api";
 import type { EquipmentHoursMachine } from "@/interfaces/equipment-hours";
-import { getEquipmentSiteNumbers, setEquipmentSiteNo } from "@/services/equipment-hours.service";
+import { getEquipmentSiteNumbers } from "@/services/equipment-hours.service";
 
 /** Whether a machine answers the dialog's search box. */
 export function machineMatchesSearch(machine: EquipmentHoursMachine, text: string): boolean {
@@ -35,13 +34,14 @@ export function machineMatchesSearch(machine: EquipmentHoursMachine, text: strin
 }
 
 /**
- * 「设备编号管理」 (2026-10-10): the office gives each machine on the site a
- * short 现场编号 - 「后台人员给设备起一个名字号码 {12}，现场设备会有很多的」 -
- * painted or stuck on the machine, so the operator can type it on the phone.
+ * The machines' numbers, one line each (2026-10-10; read-only since JB96).
  *
- * One line per machine in use: supplier, name, plate and the number, edited
- * where it stands. A number already on another machine of the project is
- * refused by the server and said under the line; a blank number clears it.
+ * It used to be 「设备编号管理」, where the office typed each machine's number.
+ * Since JB96 (客户 11-03 第 3 点 「设备编号由系统自动生成，不需要人工填写，也
+ * 不允许人工修改」) the system gives every machine its project's next EQ
+ * number when it is registered, and the server refuses a change
+ * (`set_site_no`). The list stays as the place to look a number up: supplier,
+ * name, plate and the number.
  */
 export function EquipmentSiteNumbersDialog({
   project,
@@ -104,7 +104,7 @@ export function EquipmentSiteNumbersDialog({
   );
 }
 
-/** One machine and its number, saved on its own. */
+/** One machine and its number - shown, not edited (JB96). */
 function SiteNumberLine({
   machine,
   showProject,
@@ -112,74 +112,24 @@ function SiteNumberLine({
   machine: EquipmentHoursMachine;
   showProject: boolean;
 }) {
-  const t = useTranslations("equipmentHours");
-  const queryClient = useQueryClient();
-  // What the server holds, as of this line's last save.
-  const [stored, setStored] = useState(machine.site_no ?? "");
-  const [value, setValue] = useState(stored);
-  const [error, setError] = useState("");
-  const changed = value.trim() !== stored;
-
-  const save = useMutation({
-    mutationFn: () => setEquipmentSiteNo(machine.id, value.trim()),
-    onSuccess: (row) => {
-      setStored(row.site_no ?? "");
-      setValue(row.site_no ?? "");
-      setError("");
-      // The table, the filters, this list and the phone's machine list.
-      void queryClient.invalidateQueries({ queryKey: ["equipment-hours"] });
-    },
-    onError: (reason) =>
-      setError(reason instanceof ApiError ? reason.message : t("siteNo.failed")),
-  });
-
   const details = [
-    machine.code,
+    machine.code && machine.code !== machine.site_no ? machine.code : "",
     machine.plate,
     machine.supplier_name,
     showProject ? machine.project_name : "",
   ].filter(Boolean);
 
   return (
-    <li className="flex flex-col gap-2 p-3 sm:flex-row sm:items-center">
+    <li className="flex items-center gap-3 p-3">
       <div className="min-w-0 flex-1">
         <p className="truncate font-medium">{machine.name}</p>
         {details.length > 0 && (
           <p className="truncate text-xs text-muted-foreground">{details.join(" · ")}</p>
         )}
-        {error && <p className="text-xs font-medium text-destructive">{error}</p>}
       </div>
-      <form
-        className="flex items-center gap-2"
-        onSubmit={(event) => {
-          event.preventDefault();
-          // A machine keeps a number (J21-3): put right, never cleared.
-          if (!value.trim()) {
-            setError(t("siteNo.keep"));
-            return;
-          }
-          if (changed && !save.isPending) save.mutate();
-        }}
-      >
-        <Input
-          className="w-full sm:w-28"
-          value={value}
-          maxLength={20}
-          autoComplete="off"
-          aria-label={t("siteNo.inputLabel", { machine: machine.name })}
-          placeholder={t("siteNo.placeholder")}
-          onChange={(event) => {
-            setValue(event.target.value);
-            setError("");
-          }}
-        />
-        {changed && (
-          <Button type="submit" size="sm" disabled={save.isPending}>
-            {save.isPending ? <Loader2 className="animate-spin" /> : <Check />}
-            {t("siteNo.save")}
-          </Button>
-        )}
-      </form>
+      <span className="tabular shrink-0 font-semibold" data-testid="site-number">
+        {machine.site_no || "—"}
+      </span>
     </li>
   );
 }
