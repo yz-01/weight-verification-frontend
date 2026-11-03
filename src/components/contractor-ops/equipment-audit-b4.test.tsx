@@ -151,8 +151,8 @@ describe("#15: the office's decision opens the movement on the phone", () => {
 
   it("a movement link lands on home, not on the capture form", () => {
     const code = source("src/components/field-staff/field-staff-workspace.tsx");
-    expect(code).toMatch(/requestedMovement \? "home" : requestedTab/);
-    expect(code).toMatch(/requestedIncidentId \|\| requestedMovement \? null : requestedRecord/);
+    expect(code).toMatch(/requestedMovement(?: \|\| requestedSubmission)? \? "home" : requestedTab/);
+    expect(code).toMatch(/requestedIncidentId \|\| requestedMovement(?: \|\| requestedSubmission)? \? null : requestedRecord/);
   });
 });
 
