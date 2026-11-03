@@ -16840,16 +16840,18 @@
     },
     "placeholder": {
       "industry": "e.g. Steel, concrete, hardware",
-      "mainProducts": "e.g. Rebar, BRC mesh, binding wire"
+      "mainProducts": "e.g. Rebar, BRC mesh, binding wire",
+      "code": "Leave blank to number automatically"
     },
     "hint": {
-      "profileMissing": "This supplier was added before industry and main products were recorded. Fill them in to save."
+      "profileMissing": "This supplier was added before industry and main products were recorded. Fill them in to save.",
+      "codeAuto": "Leave blank and the system numbers it (SUP-0001, SUP-0002…). You can type your own; it must not be used by another supplier."
     },
     "quickAdd": {
       "open": "Add supplier",
       "title": "Add a supplier",
       "description": "It joins the supplier list and is chosen here. Fill in the rest on the Suppliers page later.",
-      "codeHint": "Not used by another supplier, e.g. CLR-001",
+      "codeHint": "Optional: leave blank and the system numbers it. A code you type must not be used by another supplier, e.g. CLR-001",
       "save": "Add and choose"
     },
     "companyTypes": {

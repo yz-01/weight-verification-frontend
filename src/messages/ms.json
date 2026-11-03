@@ -16840,16 +16840,18 @@
     },
     "placeholder": {
       "industry": "cth. Keluli, konkrit, perkakasan",
-      "mainProducts": "cth. Bar keluli, jaring BRC, dawai pengikat"
+      "mainProducts": "cth. Bar keluli, jaring BRC, dawai pengikat",
+      "code": "Biarkan kosong untuk nombor automatik"
     },
     "hint": {
-      "profileMissing": "Pembekal ini ditambah sebelum industri dan produk utama direkodkan. Isikan untuk menyimpan."
+      "profileMissing": "Pembekal ini ditambah sebelum industri dan produk utama direkodkan. Isikan untuk menyimpan.",
+      "codeAuto": "Biarkan kosong dan sistem akan menomborkannya (SUP-0001, SUP-0002…). Anda boleh taip sendiri; ia tidak boleh digunakan oleh pembekal lain."
     },
     "quickAdd": {
       "open": "Tambah pembekal",
       "title": "Tambah pembekal",
       "description": "Ia ditambah ke senarai pembekal dan dipilih di sini. Lengkapkan butiran lain di halaman Pembekal kemudian.",
-      "codeHint": "Tidak digunakan oleh pembekal lain, cth. CLR-001",
+      "codeHint": "Pilihan: biarkan kosong dan sistem akan menomborkannya. Kod yang ditaip tidak boleh digunakan oleh pembekal lain, cth. CLR-001",
       "save": "Tambah dan pilih"
     },
     "companyTypes": {

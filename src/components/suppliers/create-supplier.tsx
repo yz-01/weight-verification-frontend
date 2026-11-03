@@ -96,15 +96,19 @@ export function CreateSupplier({ supplier }: { supplier?: Supplier }) {
       onSubmit={() => void form.handleSubmit()}
     >
       <FormSection title={t("suppliers.section.identity")}>
+        {/* A new supplier left without a code is numbered by the server,
+            SUP-0001 on (JB95, 客户 11-03); an existing one keeps a code. */}
         <form.Field
           name="code"
-          validators={{ onSubmit: required(t("validation.required")) }}
+          validators={isEdit ? { onSubmit: required(t("validation.required")) } : undefined}
         >
           {(field) => (
             <TextField
               field={field as unknown as BoundField}
               label={t("suppliers.field.code")}
-              required
+              placeholder={isEdit ? undefined : t("suppliers.placeholder.code")}
+              hint={isEdit ? undefined : t("suppliers.hint.codeAuto")}
+              required={isEdit}
             />
           )}
         </form.Field>

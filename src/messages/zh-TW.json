@@ -16840,16 +16840,18 @@
     },
     "placeholder": {
       "industry": "例如：鋼鐵、混凝土、五金建材",
-      "mainProducts": "例如：鋼筋、BRC 鋼網、紮絲"
+      "mainProducts": "例如：鋼筋、BRC 鋼網、紮絲",
+      "code": "留空由系統自動產生"
     },
     "hint": {
-      "profileMissing": "這家供應商是舊資料，還沒有行業和主要產品，儲存前請補上。"
+      "profileMissing": "這家供應商是舊資料，還沒有行業和主要產品，儲存前請補上。",
+      "codeAuto": "不填就由系統自動編號（SUP-0001、SUP-0002…）；也可以自己填，但不能和別的供應商重複。"
     },
     "quickAdd": {
       "open": "新增供應商",
       "title": "新增供應商",
       "description": "加入供應商名單後在這裡直接選上。其他資料之後可以在「供應商」頁面補。",
-      "codeHint": "不能和別的供應商重複，例如 CLR-001",
+      "codeHint": "選填：不填由系統自動編號；自己填的不能和別的供應商重複，例如 CLR-001",
       "save": "新增並選上"
     },
     "companyTypes": {

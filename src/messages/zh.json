@@ -16840,16 +16840,18 @@
     },
     "placeholder": {
       "industry": "例如：钢铁、混凝土、五金建材",
-      "mainProducts": "例如：钢筋、BRC 钢网、扎丝"
+      "mainProducts": "例如：钢筋、BRC 钢网、扎丝",
+      "code": "留空由系统自动生成"
     },
     "hint": {
-      "profileMissing": "这家供应商是旧资料，还没有行业和主要产品，保存前请补上。"
+      "profileMissing": "这家供应商是旧资料，还没有行业和主要产品，保存前请补上。",
+      "codeAuto": "不填就由系统自动编号（SUP-0001、SUP-0002…）；也可以自己填，但不能和别的供应商重复。"
     },
     "quickAdd": {
       "open": "新增供应商",
       "title": "新增供应商",
       "description": "加入供应商名单后在这里直接选上。其他资料之后可以在「供应商」页面补。",
-      "codeHint": "不能和别的供应商重复，例如 CLR-001",
+      "codeHint": "选填：不填由系统自动编号；自己填的不能和别的供应商重复，例如 CLR-001",
       "save": "新增并选上"
     },
     "companyTypes": {
