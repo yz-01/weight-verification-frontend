@@ -239,6 +239,7 @@ export function WaitingRecordsView({
               variant="outline"
               className="w-full"
               disabled={busy !== null || entry.state === "syncing"}
+              disabledReason={t("offline.waiting.uploading")}
               onClick={() => onUpload(entry)}
               data-waiting-upload
             >
