@@ -138,8 +138,10 @@ function FieldAccessManagementContent({
           }),
         ),
       );
+      // A deleted account is gone from here: its number may be someone else's.
       const results = pages
         .flatMap((page) => page.results)
+        .filter((person) => person.status !== "REMOVED")
         .sort((a, b) => a.full_name.localeCompare(b.full_name));
       return { count: results.length, results };
     },
