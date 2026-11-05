@@ -134,6 +134,21 @@ export const linesOf = (rows: CompanyCategory[]): Line[] =>
     })),
   ]);
 
+/** The server's largest page (`core/pagination.py`). */
+const WASTE_PAGE_SIZE = 100;
+
+/** Every recyclable category, however many pages they fill. */
+export async function allWasteCategories(
+  fetchPage: typeof getWasteCategories = getWasteCategories,
+): Promise<WasteCategory[]> {
+  const rows: WasteCategory[] = [];
+  for (let page = 1; ; page += 1) {
+    const answer = await fetchPage({ page, page_size: WASTE_PAGE_SIZE });
+    rows.push(...answer.results);
+    if (page >= (answer.total_pages || 1) || !answer.results.length) return rows;
+  }
+}
+
 async function fetchLines(module: CompanyModule): Promise<Line[]> {
   if (module.kind) return linesOf((await getCompanyCategories(module.kind)).results);
   if (module.key === "equipmentName") {
@@ -146,9 +161,10 @@ async function fetchLines(module: CompanyModule): Promise<Line[]> {
       equipment: row,
     }));
   }
-  // The recyclable company list: every row, switched-off ones included.
-  const page = await getWasteCategories({ page_size: 200 });
-  return page.results
+  // The recyclable company list: every row, switched-off ones included -
+  // page by page, as the server gives at most 100 at a time.
+  const rows = await allWasteCategories();
+  return rows
     .filter((row) => !row.group)
     .map((row) => ({
       id: row.id,

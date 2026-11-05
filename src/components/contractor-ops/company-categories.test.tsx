@@ -25,7 +25,7 @@ vi.mock("@/components/providers/auth-provider", () => ({
   useAuth: () => ({ can: (code: string) => permissions.includes(code) }),
 }));
 
-const { CompanyCategories, COMPANY_MODULES, linesOf } = await import(
+const { CompanyCategories, COMPANY_MODULES, linesOf, allWasteCategories } = await import(
   "@/components/contractor-ops/company-categories"
 );
 
@@ -156,5 +156,23 @@ describe("the words", () => {
     expect(zh.categoryManagement.tabs.company).toBe("公司通用分类");
     expect(zh.categoryManagement.tabs.project).toBe("项目专属分类");
     expect(zh.categoryManagement.company.addToProjects).toBe("加到现有项目");
+  });
+});
+
+describe("the recyclable list is read whole (review F4)", () => {
+  it("pages through at the server's 100, never asking for more", async () => {
+    const asked: number[] = [];
+    const fetchPage = async ({ page = 1, page_size = 0 }: { page?: number; page_size?: number }) => {
+      asked.push(page_size);
+      const total = 230;
+      const start = (page - 1) * page_size;
+      const results = Array.from({ length: Math.max(0, Math.min(page_size, total - start)) }, (_, index) => ({
+        id: `w-${start + index}`,
+      }));
+      return { count: total, page, page_size, total_pages: Math.ceil(total / page_size), results };
+    };
+    const rows = await allWasteCategories(fetchPage as never);
+    expect(rows).toHaveLength(230);
+    expect(asked).toEqual([100, 100, 100]);
   });
 });
