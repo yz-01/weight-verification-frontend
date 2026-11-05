@@ -65,6 +65,11 @@ export function OfflineStatus() {
         : isSyncing
           ? t("offline.status.syncing")
           : t("offline.status.offlineNothing");
+  // The number on the sign follows the same split (JB98): what waits, or -
+  // when nothing waits - what failed, in red. A refused record is no longer
+  // counted as waiting.
+  const badge = waiting > 0 ? waiting : failedCount;
+  const badgeFailed = waiting === 0 && failedCount > 0;
   const Icon = !isOnline ? CloudOff : isSyncing ? RefreshCw : CloudUpload;
 
   return (
@@ -79,16 +84,25 @@ export function OfflineStatus() {
           data-upload-indicator
         >
           <Icon className={`h-4 w-4 ${isSyncing ? "animate-spin" : ""}`} />
-          {pendingCount > 0 && (
+          {badge > 0 && (
             <span
               className={`absolute right-0.5 top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-2xs font-semibold leading-none ${
-                failedCount > 0
+                badgeFailed
                   ? "bg-destructive text-destructive-foreground"
                   : "bg-warning text-warning-foreground"
               }`}
+              data-upload-badge={badgeFailed ? "failed" : "waiting"}
             >
-              {pendingCount > 99 ? "99+" : pendingCount}
+              {badge > 99 ? "99+" : badge}
             </span>
+          )}
+          {/* Waiting and refused at once: the number is what waits, a red dot
+              says something also failed. */}
+          {waiting > 0 && failedCount > 0 && (
+            <span
+              className="absolute bottom-1 right-1 size-2 rounded-full bg-destructive"
+              data-upload-failed-dot
+            />
           )}
         </Button>
       </PopoverTrigger>

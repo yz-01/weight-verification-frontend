@@ -78,6 +78,22 @@ describe("the 「已暂存」 sign with a refused record", () => {
     expect(html).toContain("已暂存 2 条，等待上传");
   });
 
+  it("shows on the sign the failed count in red when nothing waits", () => {
+    const html = render(<OfflineStatus />);
+    expect(html).toMatch(/data-upload-badge="failed"[^>]*>1</);
+    expect(html).toContain("bg-destructive");
+    expect(html).not.toContain("data-upload-failed-dot");
+  });
+
+  it("shows on the sign only what waits, with a red dot for what failed", () => {
+    sync.pendingCount = 3;
+    const html = render(<OfflineStatus />);
+    sync.pendingCount = 1;
+    // 3 on the phone, 1 refused: the number is 2, not 3.
+    expect(html).toMatch(/data-upload-badge="waiting"[^>]*>2</);
+    expect(html).toContain("data-upload-failed-dot");
+  });
+
   it("lists the record with its reason in Chinese - never 「Validation failed.」", () => {
     const html = render(view());
     expect(html).toContain(zh.offline.kind.GATE_PHOTO);
