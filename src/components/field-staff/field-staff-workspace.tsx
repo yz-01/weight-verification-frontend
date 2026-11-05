@@ -425,6 +425,7 @@ function FieldStaffWorkspaceContent({
   const bellCount = useQuery({ ...fieldTodoCountQuery });
   const homeCount = fieldBellCount(bellCount.data)?.total ?? 0;
   // 沟通's own number: what is unread across my conversations (JB104).
+  // query-failure: only the button's number; 沟通 itself says when its list fails.
   const talk = useQuery({ ...fieldTalkUnreadQuery });
   const talkCount = talk.data?.unread ?? 0;
   const navCounts: Partial<Record<FieldNavKey, number>> = { home: homeCount, talk: talkCount };
