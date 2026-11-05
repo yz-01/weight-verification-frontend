@@ -12415,7 +12415,18 @@
     },
     "reason": {
       "network": "Tiada sambungan",
-      "timeout": "Muat naik tamat masa (isyarat lemah)"
+      "timeout": "Muat naik tamat masa (isyarat lemah)",
+      "stalled": "Muat naik tersekat dan dihentikan; ia akan cuba lagi sendiri",
+      "signedOut": "Log masuk anda telah tamat. Log keluar dan log masuk semula; ia dimuat naik selepas itu",
+      "server": "Pelayan menghadapi masalah ({status}); ia akan cuba lagi sendiri",
+      "unknown": "Muat naik tidak berjaya; ia akan cuba lagi sendiri"
+    },
+    "waiting": {
+      "title": "Rekod menunggu dimuat naik",
+      "notTried": "Belum dicuba",
+      "lastFailed": "Cubaan terakhir tidak berjaya: {reason} (dicuba {count} kali)",
+      "uploadNow": "Muat naik sekarang",
+      "uploading": "Sedang dimuat naik…"
     },
     "submitted": "Berjaya dihantar",
     "fieldLine": "Tiada rangkaian sekarang. Foto dan rekod disimpan di telefon ini dan dimuat naik sendiri apabila sambungan pulih."

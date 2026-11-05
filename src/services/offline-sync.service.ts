@@ -1779,12 +1779,38 @@ export interface OfflineQueueEntry {
  */
 export const QUEUE_ERROR_NETWORK = "network";
 export const QUEUE_ERROR_TIMEOUT = "timeout";
+/** The upload hung and was stopped by the watchdog (JB106). */
+export const QUEUE_ERROR_STALLED = "stalled";
+/** The session ran out: nothing goes until the worker signs in again (JB106). */
+export const QUEUE_ERROR_SIGNED_OUT = "signed_out";
+/** The server answered with its own fault, ``server:<status>`` (JB106). */
+export const QUEUE_ERROR_SERVER = "server";
 
 /** The message key for a stored no-answer reason, or null for the server's own words. */
 export function queueErrorKey(lastError: string): string | null {
   if (lastError === QUEUE_ERROR_NETWORK) return "offline.reason.network";
   if (lastError === QUEUE_ERROR_TIMEOUT) return "offline.reason.timeout";
+  if (lastError === QUEUE_ERROR_STALLED) return "offline.reason.stalled";
+  if (lastError === QUEUE_ERROR_SIGNED_OUT) return "offline.reason.signedOut";
+  if (lastError.startsWith(`${QUEUE_ERROR_SERVER}:`)) return "offline.reason.server";
   return null;
+}
+
+/**
+ * Why a record that still goes by itself has not gone yet, in the worker's
+ * words (JB106, 客户 11-05: 「上传失败必须显示原因，并提供重试功能」), or ""
+ * when it has not been tried. The server's status rides with a server fault.
+ */
+export function waitingReason(
+  lastError: string,
+  translate: (key: string, values?: Record<string, string | number>) => string,
+): string {
+  if (!lastError) return "";
+  const key = queueErrorKey(lastError);
+  if (key === "offline.reason.server") {
+    return translate(key, { status: lastError.slice(QUEUE_ERROR_SERVER.length + 1) });
+  }
+  return key ? translate(key) : translate("offline.reason.unknown");
 }
 
 /**
@@ -2109,10 +2135,18 @@ export function flushOfflineJobs(
   options: { includeRefused?: boolean; only?: string } = {},
 ): Promise<FlushResult> {
   if (flushInFlight) return flushInFlight;
-  flushInFlight = runFlush(ownerId, options.includeRefused ?? false, options.only).finally(() => {
-    flushInFlight = null;
+  // A pass that never ends must not hold the lock for good (JB106): past
+  // `PASS_STALL_MS` the next trigger starts afresh. The record it was on
+  // keeps its turn; the server knows a record sent twice by its event id.
+  const pass = withinTime(
+    runFlush(ownerId, options.includeRefused ?? false, options.only),
+    PASS_STALL_MS,
+  );
+  const current = pass.finally(() => {
+    if (flushInFlight === current) flushInFlight = null;
   });
-  return flushInFlight;
+  flushInFlight = current;
+  return current;
 }
 
 /**
@@ -2121,13 +2155,48 @@ export function flushOfflineJobs(
  * sends that record alone - the rest keep their own turn.
  */
 export async function retryOfflineJob(ownerId: string, id: string): Promise<FlushResult> {
-  if (flushInFlight) await flushInFlight.catch(() => undefined);
+  const running = flushInFlight;
+  if (running) {
+    // The worker pressed 「立即上传」 / 「重试」: a pass that has hung is not
+    // waited out (JB106). The server knows a record sent twice by its event id.
+    await Promise.race([
+      running.catch(() => undefined),
+      new Promise((resolve) => setTimeout(resolve, MANUAL_WAIT_MS)),
+    ]);
+    if (flushInFlight === running) flushInFlight = null;
+  }
   return flushOfflineJobs(ownerId, { includeRefused: true, only: id });
 }
 
 /** A kept photo or file this phone can no longer read (JB98). */
 class StoredFileLost extends Error {
   readonly code = PHOTO_LOST;
+}
+
+/**
+ * How long one record may take to go before the pass gives up on it for now
+ * (JB106, 客户 11-05: 「之前暂存的1条记录仍然无法自动上传」). A photo read
+ * from IndexedDB or an upload that never answers used to hold the pass - and
+ * with it the lock - for good: every later pass joined the hung one, so the
+ * record said 「等待上传」 forever while new photos, sent directly, went.
+ */
+export const JOB_STALL_MS = 4 * 60_000;
+/** How long a whole pass may hold the lock before the next one may start. */
+export const PASS_STALL_MS = 10 * 60_000;
+/** How long a worker's own press waits for a pass already running. */
+export const MANUAL_WAIT_MS = 15_000;
+
+class UploadStalled extends Error {
+  readonly code = QUEUE_ERROR_STALLED;
+}
+
+/** ``work``, or an ``UploadStalled`` once ``ms`` have gone by without it. */
+export function withinTime<T>(work: Promise<T>, ms: number): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const stalled = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new UploadStalled("The upload did not finish.")), ms);
+  });
+  return Promise.race([work, stalled]).finally(() => clearTimeout(timer));
 }
 
 /**
@@ -2259,8 +2328,15 @@ async function runFlush(
       } else {
         // Quiet: the pass says what it sent, and what was refused, in one
         // line each at the end.
-        const ready = await withFilesInMemory(job);
-        await withoutErrorToasts(() => withoutSuccessToasts(() => uploadJob(ready)));
+        // Read and sent within `JOB_STALL_MS`, or set aside for the next
+        // pass with 「上传卡住」 (JB106).
+        await withinTime(
+          (async () => {
+            const ready = await withFilesInMemory(job);
+            await withoutErrorToasts(() => withoutSuccessToasts(() => uploadJob(ready)));
+          })(),
+          JOB_STALL_MS,
+        );
         await deleteOfflineJob(job.id);
         recordSynced(job);
         synced += 1;
@@ -2269,6 +2345,8 @@ async function runFlush(
       // The session ran out: nothing will go through until the worker signs
       // in again, and that is not this job's fault.
       if (error instanceof ApiError && error.isUnauthorized) {
+        // Said on the record, so 「等待上传」 tells the worker why (JB106).
+        await putOfflineJob({ ...job, lastError: QUEUE_ERROR_SIGNED_OUT });
         setSyncing(null);
         break;
       }
@@ -2276,19 +2354,26 @@ async function runFlush(
       // Every failure is counted and kept with its reason (A9). A network
       // error used to stop the pass without either, so the record said
       // 「等待上传」 forever and everything queued behind it waited too.
+      const stalled = error instanceof UploadStalled;
       const noAnswer = isNetworkFailure(error);
-      const needsAttention = !noAnswer && isRefusal(error);
+      const needsAttention = !noAnswer && !stalled && isRefusal(error);
       const reason = needsAttention ? refusalFrom(error) : undefined;
       // A refusal is kept as a sentence in the worker's language, never the
       // server's 「Validation failed.」 (JB98): every screen that shows
       // `lastError` - 我提交过的, the slot chips, the technical page - reads it.
       let lastError: string;
-      if (noAnswer) {
+      if (stalled) {
+        lastError = QUEUE_ERROR_STALLED;
+      } else if (noAnswer) {
         lastError =
           (error as ApiError).code === QUEUE_ERROR_TIMEOUT ? QUEUE_ERROR_TIMEOUT : QUEUE_ERROR_NETWORK;
       } else if (reason) {
         lastError = wordRefusal(reason, t);
         refused += 1;
+      } else if (error instanceof ApiError) {
+        // The server's own fault (5xx), or asked to wait (408 / 429): it goes
+        // again by itself, and says so with the status (JB106).
+        lastError = `${QUEUE_ERROR_SERVER}:${error.status}`;
       } else {
         lastError = error instanceof Error ? error.message : String(error);
       }

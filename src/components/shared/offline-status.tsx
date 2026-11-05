@@ -27,6 +27,7 @@ import {
   OFFLINE_QUEUE_CHANGED,
   type OfflineQueueEntry,
   retryOfflineJob,
+  waitingReason,
 } from "@/services/offline-sync.service";
 
 /**
@@ -126,6 +127,7 @@ export function OfflineStatus() {
             )}
           </p>
         )}
+        {waiting > 0 && <WaitingRecords count={waiting} />}
         {failedCount > 0 && (
           <RefusedRecords
             count={failedCount}
@@ -135,6 +137,118 @@ export function OfflineStatus() {
         )}
       </PopoverContent>
     </Popover>
+  );
+}
+
+/**
+ * The records still going by themselves, each with why it has not gone yet
+ * and 「立即上传」 (JB106, 客户 11-05: 「上传失败必须显示原因，并提供重试功能」).
+ * No delete here: a waiting record is kept until it goes (「必须保留原来的
+ * 照片及记录，不可直接删除」).
+ */
+export function WaitingRecords({ count }: { count: number }) {
+  const { user } = useAuth();
+  const { refreshCount } = useOfflineSync();
+  const [entries, setEntries] = useState<OfflineQueueEntry[]>([]);
+  const [busy, setBusy] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    if (!user) return;
+    try {
+      const rows = await getOfflineQueueEntries(user.id);
+      setEntries(rows.filter((row) => row.state !== "failed"));
+    } catch {
+      setEntries([]);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    const reload = () => void load();
+    reload();
+    window.addEventListener(OFFLINE_QUEUE_CHANGED, reload);
+    return () => window.removeEventListener(OFFLINE_QUEUE_CHANGED, reload);
+  }, [load, count]);
+
+  const upload = async (entry: OfflineQueueEntry) => {
+    if (!user) return;
+    setBusy(entry.id);
+    try {
+      await retryOfflineJob(user.id, entry.id);
+    } catch {
+      // Said on the record itself once the pass has kept why.
+    } finally {
+      setBusy(null);
+      await refreshCount();
+      await load();
+    }
+  };
+
+  return (
+    <WaitingRecordsView
+      entries={entries}
+      busy={busy}
+      onUpload={(entry) => void upload(entry)}
+    />
+  );
+}
+
+/** What the popover shows of the waiting records, apart from the loading. */
+export function WaitingRecordsView({
+  entries,
+  busy,
+  onUpload,
+}: {
+  entries: OfflineQueueEntry[];
+  busy: string | null;
+  onUpload: (entry: OfflineQueueEntry) => void;
+}) {
+  const t = useTranslations();
+  const df = useDateFormat();
+  if (entries.length === 0) return null;
+  return (
+    <ul className="max-h-72 space-y-2 overflow-y-auto pt-1" data-waiting-records>
+      {entries.map((entry) => {
+        const reason = waitingReason(entry.lastError, t);
+        const uploading = busy === entry.id || entry.state === "syncing";
+        return (
+          <li
+            key={entry.id}
+            className="space-y-1.5 rounded-md border border-warning/30 bg-warning/5 p-2"
+            data-waiting-record={entry.id}
+          >
+            <p className="flex items-center gap-1.5 text-sm font-medium">
+              <CloudUpload className="size-4 shrink-0 text-warning" />
+              <span className="min-w-0 flex-1 truncate">
+                {t(`offline.kind.${entry.kind}`)}
+                {entry.reference ? ` · ${entry.reference}` : ""}
+              </span>
+              <span className="shrink-0 text-xs font-normal text-muted-foreground">
+                {df.dateTime(entry.queuedAt)}
+              </span>
+            </p>
+            <p className="text-xs leading-5 text-muted-foreground" data-waiting-reason>
+              {uploading
+                ? t("offline.waiting.uploading")
+                : reason
+                  ? t("offline.waiting.lastFailed", { reason, count: entry.attempts })
+                  : t("offline.waiting.notTried")}
+            </p>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              className="w-full"
+              disabled={busy !== null || entry.state === "syncing"}
+              onClick={() => onUpload(entry)}
+              data-waiting-upload
+            >
+              <RefreshCw className={`size-4 ${uploading ? "animate-spin" : ""}`} />
+              {t("offline.waiting.uploadNow")}
+            </Button>
+          </li>
+        );
+      })}
+    </ul>
   );
 }
 

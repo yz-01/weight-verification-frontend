@@ -12415,7 +12415,18 @@
     },
     "reason": {
       "network": "网络不通",
-      "timeout": "上传超时（信号太弱）"
+      "timeout": "上传超时（信号太弱）",
+      "stalled": "上传卡住了，已停下，会自动再试",
+      "signedOut": "登录已过期，请退出后重新登录，登录后会自动上传",
+      "server": "服务器暂时出错（{status}），会自动再试",
+      "unknown": "上传没有成功，会自动再试"
+    },
+    "waiting": {
+      "title": "等待上传的记录",
+      "notTried": "还没开始上传",
+      "lastFailed": "上次没有上传成功：{reason}（已试 {count} 次）",
+      "uploadNow": "立即上传",
+      "uploading": "正在上传…"
     },
     "submitted": "提交成功",
     "fieldLine": "现在没有网络。照片和记录会先存在手机，有网络时自动上传。"
