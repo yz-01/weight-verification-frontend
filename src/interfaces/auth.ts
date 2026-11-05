@@ -3,7 +3,8 @@
 import type { Locale } from "@/i18n/config";
 import type { CompanyType } from "@/interfaces/company";
 
-export type UserStatus = "INVITED" | "ACTIVE" | "SUSPENDED";
+/** REMOVED: a phone account deleted from its project; its number is free (JB109). */
+export type UserStatus = "INVITED" | "ACTIVE" | "SUSPENDED" | "REMOVED";
 export type AccountType = "PLATFORM" | "TENANT" | "CONSULTANT";
 
 /**

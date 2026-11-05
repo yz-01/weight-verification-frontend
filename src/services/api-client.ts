@@ -860,6 +860,9 @@ const CATALOGUE_WINS = new Set([
   "does_not_exist",
   // A machine switched off, removed or moved since the phone loaded its list.
   "equipment_not_found",
+  // The number is held by another phone account: the catalogue says how to
+  // free it - delete, not suspend (JB109, 客户 11-06 事项 3).
+  "phone_in_use",
   // A write to a record the office confirmed and archived: the server's
   // sentence names a model and an id, the catalogue says what to do.
   "record_archived",

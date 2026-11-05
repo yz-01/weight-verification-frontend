@@ -55,6 +55,7 @@ const STATUS_TONE: Record<UserStatus, "positive" | "warning" | "danger"> = {
   ACTIVE: "positive",
   INVITED: "warning",
   SUSPENDED: "danger",
+  REMOVED: "danger",
 };
 
 type PendingAction =
@@ -298,6 +299,9 @@ export function Users({
           // are looking at. Their own row keeps view and edit only.
           const isSelf = target.id === me?.id;
           const suspended = target.status === "SUSPENDED";
+          // Deleted (JB109): its number may be someone else's now, so it is
+          // never turned back on - it stays listed for its records only.
+          const removed = target.status === "REMOVED";
           return (
             <div className="flex items-center justify-end gap-0.5">
               <Button
@@ -326,7 +330,7 @@ export function Users({
                 </Button>
               )}
 
-              {can("user.update") && !isSelf && target.is_field_staff && (
+              {can("user.update") && !isSelf && !removed && target.is_field_staff && (
                 <Button
                   variant="ghost"
                   size="icon"
@@ -390,6 +394,7 @@ export function Users({
 
               {can("user.suspend") &&
                 !isSelf &&
+                !removed &&
                 (suspended ? (
                   <Button
                     variant="ghost"
@@ -416,9 +421,15 @@ export function Users({
                   </Button>
                 ))}
 
+              {/*
+                A phone account is deleted even after use (JB109, 客户 11-06
+                事项 3): its number is freed for the next project and what it
+                recorded stays. An office account still only when never used.
+              */}
               {can("user.suspend") &&
                 !isSelf &&
-                !target.last_login_at && (
+                !removed &&
+                (target.is_field_staff || !target.last_login_at) && (
                 <Button
                   variant="ghost"
                   size="icon"
@@ -696,8 +707,15 @@ export function Users({
         <ConfirmDialog
           open
           onOpenChange={closeDialog}
-          title={t("users.remove.title", { name: pending.user.full_name })}
-          description={t("users.remove.description")}
+          title={t(
+            pending.user.is_field_staff ? "users.remove.fieldTitle" : "users.remove.title",
+            { name: pending.user.full_name },
+          )}
+          description={t(
+            pending.user.is_field_staff
+              ? "users.remove.fieldDescription"
+              : "users.remove.description",
+          )}
           confirmLabel={t("users.remove.confirm")}
           confirmIcon={Trash2}
           isPending={isPending}

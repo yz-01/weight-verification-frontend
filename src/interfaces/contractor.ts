@@ -33,6 +33,8 @@ export interface Project {
   end_date: string | null;
   site_manager: string;
   site_phone?: string;
+  /** The primary 项目经理's account (JB109), when one was chosen. */
+  manager?: string | null;
   assigned_user_count?: number;
   created_at: string;
 }
@@ -59,6 +61,20 @@ export interface ProjectPayload {
   end_date?: string | null;
   site_manager?: string;
   site_phone?: string;
+  /**
+   * 「总部建立项目后，直接指定项目经理」 (JB109): the account put on the team
+   * and made the primary 项目经理. Left out, nothing changes.
+   */
+  manager?: string;
+}
+
+/** Who 「项目经理」 offers (JB109). */
+export interface ProjectManagerChoice {
+  id: string;
+  full_name: string;
+  email: string;
+  role_name: string;
+  status: string;
 }
 
 export interface ProjectQuota {

@@ -8753,7 +8753,8 @@
       "category_group_single": "This module has one category group per project. Rename that one instead.",
       "company_category_fixed": "Every project needs this category: it can be renamed, not switched off or removed.",
       "phone_page_not_yours": "This page is not on your phone.",
-      "chat_people_invalid": "Choose people from the list."
+      "chat_people_invalid": "Choose people from the list.",
+      "user_removed": "This account was deleted and cannot be turned back on. Create a new account instead."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -8770,7 +8771,7 @@
       "max_length": "This is too long",
       "min_length": "This is too short",
       "null": "This field is required",
-      "phone_in_use": "This mobile number is already used by another field staff account",
+      "phone_in_use": "This mobile number already belongs to a field staff account. To move them to a new project, first delete the person on their old project (suspending does not free the number), then come back and create the link.",
       "required": "This field is required",
       "unique": "This value is already taken",
       "percent_range": "Enter a percentage from 0 to 100",
@@ -13741,7 +13742,13 @@
     },
     "viewTitle": "Project",
     "codeAuto": "The project number is given by the system (PRJ-0001 onwards).",
-    "geofenceDefaultHint": "System default {metres} m. Change it to fit the site."
+    "geofenceDefaultHint": "System default {metres} m. Change it to fit the site.",
+    "manager": {
+      "placeholder": "Choose the project manager",
+      "hint": "They join the project and become its project manager (main person in charge) - no need to add them again.",
+      "none": "Your company has no back-office people to choose yet. Add the project manager in User Management first, then come back.",
+      "loadError": "The list of people could not be loaded. Please try again later."
+    }
   },
   "qrCodes": {
     "result": {
@@ -17469,7 +17476,9 @@
     "remove": {
       "confirm": "Remove",
       "description": "They will not be able to sign in again. Everything they recorded stays exactly as it is.",
-      "title": "Remove {name}?"
+      "title": "Remove {name}?",
+      "fieldTitle": "Delete {name}?",
+      "fieldDescription": "They can no longer sign in, and their mobile number is freed so it can be registered on another project. Everything they recorded is kept. (Suspending does not free the number.)"
     },
     "resetPassword": {
       "action": "Send reset link",
@@ -17484,7 +17493,8 @@
     "status": {
       "ACTIVE": "Active",
       "INVITED": "Invited",
-      "SUSPENDED": "Suspended"
+      "SUSPENDED": "Suspended",
+      "REMOVED": "Deleted"
     },
     "summary": {
       "contractor": "Contractor users",

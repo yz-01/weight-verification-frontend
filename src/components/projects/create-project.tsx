@@ -33,6 +33,7 @@ import { MALAYSIA_STATES } from "@/lib/malaysia";
 import {
   createProject,
   getProject,
+  getProjectManagerChoices,
   getProjectQuota,
   updateProject,
 } from "@/services/contractor.service";
@@ -81,6 +82,7 @@ export function newProjectPayload(value: ProjectFormValues): ProjectPayload {
     postcode: value.postcode,
     site_manager: value.site_manager,
     site_phone: value.site_phone,
+    ...(value.manager ? { manager: value.manager } : {}),
     latitude: value.latitude || null,
     longitude: value.longitude || null,
     ...(located && radius ? { geofence_radius_m: Number(radius) } : {}),
@@ -109,6 +111,8 @@ export interface ProjectFormValues {
   end_date: string;
   site_manager: string;
   site_phone: string;
+  /** 项目经理 (JB109): the account the project is handed to. */
+  manager: string;
 }
 
 /**
@@ -136,6 +140,12 @@ export function CreateProject({ project }: { project?: Project }) {
     queryKey: ["projects", "quota"],
     queryFn: getProjectQuota,
     enabled: !isEdit,
+  });
+  // 「总部建立项目后，直接指定项目经理」 (JB109): the company's office people.
+  // query-failure: unread, the box offers nobody and says so in its hint.
+  const managers = useQuery({
+    queryKey: ["projects", "manager-choices"],
+    queryFn: getProjectManagerChoices,
   });
   const defaultRadius = String(quota.data?.default_geofence_radius_m ?? SYSTEM_DEFAULT_RADIUS_M);
 
@@ -171,6 +181,7 @@ export function CreateProject({ project }: { project?: Project }) {
       end_date: project?.end_date ?? "",
       site_manager: project?.site_manager ?? "",
       site_phone: project?.site_phone ?? "",
+      manager: project?.manager ?? "",
     } satisfies ProjectFormValues,
     onSubmit: async ({ value }) => {
       setFormError(null);
@@ -179,6 +190,7 @@ export function CreateProject({ project }: { project?: Project }) {
           isEdit
             ? {
                 ...value,
+                manager: value.manager || undefined,
                 latitude: value.latitude || null,
                 longitude: value.longitude || null,
                 geofence_radius_m: value.geofence_radius_m
@@ -292,8 +304,35 @@ export function CreateProject({ project }: { project?: Project }) {
           )}
         </form.Field>
 
-        {/* 项目负责人 (事项 3 第 2 点). */}
-        {text("site_manager", t("projects.field.projectLead"))}
+        {/*
+          项目负责人 (客户 11-05 事项 3 第 2 点) is an account now (JB109,
+          11-06 事项 4 第 1 点: 「总部建立项目后，直接指定项目经理，系统自动将
+          项目分配给该项目经理，不需要重复添加人员」): choosing one puts them on
+          the team as the project's 项目经理, and their name on the project.
+        */}
+        <form.Field name="manager">
+          {(field) => (
+            <SelectField
+              field={field as unknown as BoundField}
+              label={t("projects.field.projectLead")}
+              optional
+              placeholder={t("projects.manager.placeholder")}
+              hint={
+                managers.isError
+                  ? t("projects.manager.loadError")
+                  : managers.data && managers.data.length === 0
+                    ? t("projects.manager.none")
+                    : t("projects.manager.hint")
+              }
+              options={(managers.data ?? []).map((person) => ({
+                value: person.id,
+                label: person.role_name
+                  ? `${person.full_name} · ${person.role_name}`
+                  : person.full_name,
+              }))}
+            />
+          )}
+        </form.Field>
 
         {isEdit && (
           <>
