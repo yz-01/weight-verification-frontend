@@ -12415,7 +12415,18 @@
     },
     "reason": {
       "network": "網絡不通",
-      "timeout": "上傳超時（信號太弱）"
+      "timeout": "上傳超時（信號太弱）",
+      "stalled": "上傳卡住了，已停下，會自動再試",
+      "signedOut": "登入已過期，請登出後重新登入，登入後會自動上傳",
+      "server": "伺服器暫時出錯（{status}），會自動再試",
+      "unknown": "上傳沒有成功，會自動再試"
+    },
+    "waiting": {
+      "title": "等待上傳的記錄",
+      "notTried": "還沒開始上傳",
+      "lastFailed": "上次沒有上傳成功：{reason}（已試 {count} 次）",
+      "uploadNow": "立即上傳",
+      "uploading": "正在上傳…"
     },
     "submitted": "提交成功",
     "fieldLine": "現在沒有網路。照片和記錄會先存在手機，有網路時自動上傳。"
