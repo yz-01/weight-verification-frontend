@@ -24,6 +24,7 @@ import { VisitorPrivacySection } from "@/components/site-access/visitor-privacy-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { CompanyLockedSettings, ContractorSiteSettings } from "@/interfaces/site-access";
+import { roleName } from "@/lib/role-labels";
 import { getCompanySiteSettings, updateCompanySiteSettings } from "@/services/companies.service";
 
 // Mirrors CONSULTANT_PERMISSION_CODES on the backend, which is authoritative.
@@ -33,6 +34,7 @@ export function CompanyLockedSettingsPanel({ companyId }: { companyId: string })
   const t = useTranslations("siteControl");
   const tLocked = useTranslations("companies.lockedSettings");
   const tHq = useTranslations("headquarters.reference");
+  const tAll = useTranslations();
   const { can } = useAuth();
   const qc = useQueryClient();
   const canManage = can("company.update");
@@ -53,7 +55,8 @@ export function CompanyLockedSettingsPanel({ companyId }: { companyId: string })
   const form: CompanyLockedSettings = { ...settings.data, ...draft };
   const set = (next: Partial<ContractorSiteSettings>) => setDraft((current) => ({ ...current, ...next }));
   const roleOptions = Array.from(new Set([...form.role_options.map((role) => role.code), form.default_user_role_code, form.default_approval_role_code]));
-  const roleLabel = (code: string) => form.role_options.find((role) => role.code === code)?.name ?? code;
+  // Seeded roles are stored with an English name; roleName reads the catalogue.
+  const roleLabel = (code: string) => roleName({ code, name: form.role_options.find((role) => role.code === code)?.name ?? code }, tAll);
   const rule = (field: "default_archive_rules" | "default_notification_rules", key: string, value: boolean) =>
     set({ [field]: { ...(form[field] ?? {}), [key]: value } });
   const off = !canManage;
@@ -69,7 +72,7 @@ export function CompanyLockedSettingsPanel({ companyId }: { companyId: string })
         <ChoiceField label={t("field.defaultApprovalRole")} value={form.default_approval_role_code} disabled={off} options={roleOptions} optionLabel={roleLabel} onChange={(value) => set({ default_approval_role_code: value })} />
       </div>
       <p className="text-sm font-medium">{t("permissionDefaults.consultant")}</p>
-      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">{CONSULTANT_PERMISSIONS.map((code) => <Toggle key={code} compact label={t(`permissionDefaults.permission.${code.replaceAll(".", "_")}`)} description={code} checked={form.default_consultant_permissions.includes(code)} disabled={off} onChange={(checked) => set({ default_consultant_permissions: checked ? [...form.default_consultant_permissions, code] : form.default_consultant_permissions.filter((item) => item !== code) })} />)}</div>
+      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">{CONSULTANT_PERMISSIONS.map((code) => <Toggle key={code} compact label={t(`permissionDefaults.permission.${code.replaceAll(".", "_")}`)} checked={form.default_consultant_permissions.includes(code)} disabled={off} onChange={(checked) => set({ default_consultant_permissions: checked ? [...form.default_consultant_permissions, code] : form.default_consultant_permissions.filter((item) => item !== code) })} />)}</div>
     </div>
 
     <div className="space-y-3" data-locked="qr">

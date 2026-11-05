@@ -69,6 +69,23 @@ describe("锁定设定 (JB99)", () => {
     expect(html).toContain(zh.siteControl.visitorPrivacy.expired.open);
   });
 
+  it("names seeded roles in the reader's language and shows no permission codes (11-05 screen check)", () => {
+    const stored = { ...SETTINGS, role_options: [{ code: "site_staff", name: "Site Staff" }, { code: "project_manager", name: "Project Manager" }] };
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    client.setQueryData(["companies", "site-settings", "c1"], stored);
+    const html = renderToStaticMarkup(
+      <QueryClientProvider client={client}>
+        <NextIntlClientProvider locale="zh" messages={zh} timeZone="Asia/Kuala_Lumpur">
+          <CompanyLockedSettingsPanel companyId="c1" />
+        </NextIntlClientProvider>
+      </QueryClientProvider>,
+    );
+    expect(html).not.toContain("Site Staff");
+    expect(html).not.toContain("Project Manager");
+    expect(html).toContain(zh.roles.system_.site_staff);
+    expect(html).not.toContain("project.view");
+  });
+
   it("is read-only for platform staff who may not update companies", () => {
     reader.updates = false;
     try {
