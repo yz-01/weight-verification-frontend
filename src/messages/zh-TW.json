@@ -8625,6 +8625,10 @@
       "worker_link_not_confirmed": "請先確認電話號碼並同意定位。",
       "gate_pass_host_not_confirmed": "接待人還沒確認，不能放行。",
       "visitor_arrival_already_open": "這位訪客已經在門口等待確認。",
+      "gate_photo_required": "沒有照片，請先拍照。",
+      "gate_photo_unreadable": "照片無法讀取（可能是空的或已損壞）。請刪除後重新拍一次。",
+      "gate_photo_too_large": "照片太大，無法上傳。請重新拍一次。",
+      "gate_photo_one_per_record": "「發送」每條記錄只放一張照片。",
       "visitor_arrival_answered": "這位訪客已經處理過了。",
       "visitor_arrival_not_host": "只有接待人或門禁管理人員可以確認。",
       "review_by_head_office": "這個分類設為「提交總部審批」，由總部驗收。",
@@ -12244,6 +12248,24 @@
       "armFirst": "先打開上面的開關"
     },
     "queued": "已暫存，等待上傳",
+    "refused": {
+      "retry": "重試",
+      "delete": "刪除這一條",
+      "deleteTitle": "刪除這一條？",
+      "deleteHelp": "這條記錄會從這台手機刪掉，不會再上傳，刪除後不能恢復。需要的話請重新拍照或填寫一次。",
+      "photoLost": "這張照片在手機上已經讀不到了。請刪除這一條，再重新拍一次。",
+      "incomplete": "資料不完整，無法上傳（{field}）。",
+      "incompleteNoField": "資料不完整，無法上傳。可以重試；還是不行請刪除這一條，再重新做一次。",
+      "generic": "伺服器沒有接收這一條。可以重試；還是不行請刪除這一條，再重新做一次。",
+      "field": {
+        "photos": "照片無法讀取（可能是空的或已損壞）。請刪除這一條，再重新拍一次。",
+        "photoDetails": "照片的時間或位置資料不對，無法上傳。",
+        "location": "GPS 位置資料不對，無法上傳。",
+        "members": "選的溝通人員已經不在這個項目，無法上傳。",
+        "project": "這個項目已經沒有了，或你已經不在這個項目。",
+        "time": "時間資料不對，無法上傳。"
+      }
+    },
     "status": {
       "failed": "{count} 條動作需要處理",
       "syncing": "正在上傳暫存的記錄",
@@ -12251,7 +12273,9 @@
       "offlineNothing": "現在沒有網路",
       "autoHelp": "有網路時會自動上傳，不用另外操作。",
       "offlineHelp": "現在沒有網路。記錄已存在這台手機上，網路恢復後會自動上傳，不用另外操作。",
-      "refusedHelp": "其中 {count} 條伺服器沒有接收，可以在「我提交過的」看原因，請聯絡管理員處理。"
+      "refusedHelp": "伺服器沒有接收下面的記錄，它們不會再自動上傳。看原因後可以「重試」，或「刪除這一條」。",
+      "uploadFailed": "上傳失敗 {count} 條",
+      "refusedToast": "上傳失敗 {count} 條。點上方的上傳圖示看原因，可以重試或刪除。"
     },
     "synced": "已上傳 {count} 條暫存的記錄",
     "filesFollow": "已送到辦公室。{count} 個附件正在後台上傳。",
