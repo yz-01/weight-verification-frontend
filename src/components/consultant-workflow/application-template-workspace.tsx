@@ -217,7 +217,6 @@ function TemplateDialog({ project, onClose, onSaved }: { project: string; onClos
     queryKey: ["consultant-options", project, "ATTACHMENT_TYPE"],
     queryFn: () => getApplicationOptions(project, "ATTACHMENT_TYPE"),
   });
-  const [code, setCode] = useState("");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [type, setType] = useState<string | null>(null);
@@ -228,7 +227,8 @@ function TemplateDialog({ project, onClose, onSaved }: { project: string; onClos
   const save = useMutation({
     mutationFn: () => createApplicationTemplate({
       project,
-      code: code.trim().toUpperCase(),
+      // Left to the system: TPL-0001 on (JB100).
+      code: "",
       name: name.trim(),
       description: description.trim(),
       application_type: type,
