@@ -2,11 +2,12 @@
 
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChevronDown, LocateFixed, Loader2, Plus, Save } from "lucide-react";
+import { ChevronDown, Eraser, LocateFixed, Loader2, Plus, Save, Undo2 } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 
+import { useAuth } from "@/components/providers/auth-provider";
 import { useFinishForm } from "@/components/shared/dialog-navigation";
 import {
   SelectField,
@@ -69,6 +70,7 @@ const GeofenceMapEditor = dynamic(
 export function newProjectPayload(value: ProjectFormValues): ProjectPayload {
   const radius = value.geofence_radius_m;
   const located = Boolean(value.latitude && value.longitude);
+  const drawn = value.boundary.length >= 3;
   return {
     name: value.name,
     client_name: value.client_name,
@@ -85,7 +87,8 @@ export function newProjectPayload(value: ProjectFormValues): ProjectPayload {
     ...(value.manager ? { manager: value.manager } : {}),
     latitude: value.latitude || null,
     longitude: value.longitude || null,
-    ...(located && radius ? { geofence_radius_m: Number(radius) } : {}),
+    // The drawn site is the fence (JB110); the default circle only without one.
+    ...(drawn ? { boundary: value.boundary } : located && radius ? { geofence_radius_m: Number(radius) } : {}),
     start_date: value.start_date || null,
     end_date: value.end_date || null,
   };
@@ -113,6 +116,8 @@ export interface ProjectFormValues {
   site_phone: string;
   /** 项目经理 (JB109): the account the project is handed to. */
   manager: string;
+  /** The site boundary drawn point by point (JB110), `[lat, lng]` each. */
+  boundary: [number, number][];
 }
 
 /**
@@ -130,6 +135,9 @@ export function CreateProject({ project }: { project?: Project }) {
   const finish = useFinishForm();
   const queryClient = useQueryClient();
   const isEdit = project !== undefined;
+  // Choosing the 项目经理 hands the project out: head office's (JB110).
+  const { can } = useAuth();
+  const mayHandOver = can("project.assign");
   const [formError, setFormError] = useState<string | null>(null);
   const [isLocating, setIsLocating] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
@@ -146,6 +154,7 @@ export function CreateProject({ project }: { project?: Project }) {
   const managers = useQuery({
     queryKey: ["projects", "manager-choices"],
     queryFn: getProjectManagerChoices,
+    enabled: mayHandOver,
   });
   const defaultRadius = String(quota.data?.default_geofence_radius_m ?? SYSTEM_DEFAULT_RADIUS_M);
 
@@ -182,6 +191,7 @@ export function CreateProject({ project }: { project?: Project }) {
       site_manager: project?.site_manager ?? "",
       site_phone: project?.site_phone ?? "",
       manager: project?.manager ?? "",
+      boundary: (project?.boundary ?? []) as [number, number][],
     } satisfies ProjectFormValues,
     onSubmit: async ({ value }) => {
       setFormError(null);
@@ -191,6 +201,7 @@ export function CreateProject({ project }: { project?: Project }) {
             ? {
                 ...value,
                 manager: value.manager || undefined,
+                boundary: value.boundary.length >= 3 ? value.boundary : undefined,
                 latitude: value.latitude || null,
                 longitude: value.longitude || null,
                 geofence_radius_m: value.geofence_radius_m
@@ -229,7 +240,10 @@ export function CreateProject({ project }: { project?: Project }) {
     },
     [form],
   );
-  const ignorePoints = useCallback(() => {}, []);
+  const setBoundary = useCallback(
+    (points: [number, number][]) => form.setFieldValue("boundary", points),
+    [form],
+  );
 
   function captureProjectLocation() {
     setLocationError(null);
@@ -316,9 +330,12 @@ export function CreateProject({ project }: { project?: Project }) {
               field={field as unknown as BoundField}
               label={t("projects.field.projectLead")}
               optional
+              disabled={!mayHandOver}
               placeholder={t("projects.manager.placeholder")}
               hint={
-                managers.isError
+                !mayHandOver
+                  ? t("projects.manager.headOfficeOnly")
+                  : managers.isError
                   ? t("projects.manager.loadError")
                   : managers.data && managers.data.length === 0
                     ? t("projects.manager.none")
@@ -417,22 +434,72 @@ export function CreateProject({ project }: { project?: Project }) {
             </p>
           )}
         </div>
+        {/*
+          The site boundary, drawn point by point (JB110, 客户 11-06 事项 1:
+          「电子围栏必须支持在地图上按照工地实际边界，手动逐点画出整个项目范围……
+          人员进出电子围栏的判断，必须以实际划定的工地范围为准，而不是圆形半径」).
+          Each click adds a point; the numbered points drag. 纬度、经度 stay as
+          the project's place.
+        */}
         <form.Subscribe
-          selector={(state) => [state.values.latitude, state.values.longitude, state.values.geofence_radius_m] as const}
+          selector={(state) => [state.values.latitude, state.values.longitude, state.values.boundary] as const}
         >
-          {([latitude, longitude, radius]) => (
-            <div className="h-64 overflow-hidden rounded-lg border md:col-span-2 xl:col-span-3" data-testid="project-map">
-              <GeofenceMapEditor
-                shape="CIRCLE"
-                center={latitude && longitude ? [Number(latitude), Number(longitude)] : undefined}
-                radiusM={Number(radius) || Number(defaultRadius)}
-                points={[]}
-                editing
-                fitSignal={fitSignal}
-                backLabel={t("projects.location.backToPlace")}
-                onCenter={setCentre}
-                onPoints={ignorePoints}
-              />
+          {([latitude, longitude, boundary]) => (
+            <div className="space-y-2 md:col-span-2 xl:col-span-3">
+              <div className="rounded-lg border border-panel-border bg-muted/40 p-3 text-sm" data-testid="boundary-help">
+                <p className="font-semibold">
+                  {boundary.length >= 3
+                    ? t("projects.boundary.done", { count: boundary.length })
+                    : t("projects.boundary.title")}
+                </p>
+                <p className="mt-1 text-muted-foreground">{t("projects.boundary.help")}</p>
+              </div>
+              <div className="h-80 overflow-hidden rounded-lg border" data-testid="project-map">
+                <GeofenceMapEditor
+                  shape="POLYGON"
+                  center={latitude && longitude ? [Number(latitude), Number(longitude)] : undefined}
+                  radiusM={Number(defaultRadius)}
+                  points={boundary}
+                  drawingEnabled
+                  editing
+                  fitSignal={fitSignal}
+                  backLabel={t("projects.location.backToPlace")}
+                  onCenter={setCentre}
+                  onPoints={setBoundary}
+                />
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={boundary.length === 0}
+                  disabledReason={t("projects.boundary.nothingYet")}
+                  onClick={() => setBoundary(boundary.slice(0, -1))}
+                >
+                  <Undo2 className="size-4" />
+                  {t("projects.boundary.undo")}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={boundary.length === 0}
+                  disabledReason={t("projects.boundary.nothingYet")}
+                  onClick={() => setBoundary([])}
+                >
+                  <Eraser className="size-4" />
+                  {t("projects.boundary.clear")}
+                </Button>
+                {boundary.length > 0 && boundary.length < 3 && (
+                  <p className="text-sm text-warning">{t("projects.boundary.needThree")}</p>
+                )}
+                {boundary.length === 0 && (
+                  <p className="text-xs text-muted-foreground">
+                    {t("projects.boundary.noneYet", { metres: defaultRadius })}
+                  </p>
+                )}
+              </div>
             </div>
           )}
         </form.Subscribe>
@@ -458,20 +525,6 @@ export function CreateProject({ project }: { project?: Project }) {
               min={-180}
               max={180}
               step="0.0000001"
-              optional
-            />
-          )}
-        </form.Field>
-        {/* 「电子围栏半径（米）」 (事项 3 第 4 点): filled with the default, changeable. */}
-        <form.Field name="geofence_radius_m">
-          {(field) => (
-            <TextField
-              field={field as unknown as BoundField}
-              label={t("projects.field.geofenceRadiusM")}
-              hint={t("projects.geofenceDefaultHint", { metres: defaultRadius })}
-              type="number"
-              min={1}
-              step={1}
               optional
             />
           )}

@@ -89,9 +89,10 @@ export async function updateUserStatus(
   return user;
 }
 
-export async function deleteUser(id: string): Promise<void> {
+export async function deleteUser(id: string, phone = false): Promise<void> {
   await api.delete(`/api/users/${id}/delete_user/`);
-  toastSuccess("users.toast.removed");
+  // A phone account is deleted, its number freed (JB109).
+  toastSuccess(phone ? "users.toast.fieldDeleted" : "users.toast.removed");
 }
 
 export async function sendPasswordReset(

@@ -35,6 +35,8 @@ export interface Project {
   site_phone?: string;
   /** The primary 项目经理's account (JB109), when one was chosen. */
   manager?: string | null;
+  /** The drawn site boundary (JB110), `[lat, lng]` each; empty when none. */
+  boundary?: [number, number][];
   assigned_user_count?: number;
   created_at: string;
 }
@@ -66,6 +68,8 @@ export interface ProjectPayload {
    * and made the primary 项目经理. Left out, nothing changes.
    */
   manager?: string;
+  /** The site boundary drawn point by point (JB110): the project's fence. */
+  boundary?: [number, number][];
 }
 
 /** Who 「项目经理」 offers (JB109). */
