@@ -3769,7 +3769,17 @@
       "REJECT": "拒绝",
       "RETURN": "退回",
       "APPROVE_WITH_REMEDIAL": "批准（需整改）",
-      "REVISE_RESUBMIT": "修改后重新提交"
+      "REVISE_RESUBMIT": "修改后重新提交",
+      "bulk_fill_trade": "批量填写工种",
+      "create_trade": "新增工种",
+      "company_categories_added_to_projects": "公司通用分类加到现有项目",
+      "company_category_created": "新增公司通用分类",
+      "company_category_updated": "修改公司通用分类",
+      "company_category_deleted": "删除公司通用分类",
+      "direct_conversation_started": "开始沟通对话",
+      "equipment_name_created": "新增设备名称",
+      "equipment_name_updated": "修改设备名称",
+      "settings_update_by_platform": "MSE 修改公司设定"
     },
     "objectType": {
       "SignOffAssistant": "助理副密码",

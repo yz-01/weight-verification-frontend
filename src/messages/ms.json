@@ -3769,7 +3769,17 @@
       "REJECT": "Ditolak",
       "RETURN": "Dikembalikan",
       "APPROVE_WITH_REMEDIAL": "Diluluskan dengan kerja pemulihan",
-      "REVISE_RESUBMIT": "Semak dan hantar semula"
+      "REVISE_RESUBMIT": "Semak dan hantar semula",
+      "bulk_fill_trade": "Pertukangan diisi untuk beberapa pekerja",
+      "create_trade": "Pertukangan ditambah",
+      "company_categories_added_to_projects": "Kategori syarikat ditambah ke projek sedia ada",
+      "company_category_created": "Kategori syarikat ditambah",
+      "company_category_updated": "Kategori syarikat diubah",
+      "company_category_deleted": "Kategori syarikat dipadam",
+      "direct_conversation_started": "Perbualan dimulakan",
+      "equipment_name_created": "Nama peralatan ditambah",
+      "equipment_name_updated": "Nama peralatan diubah",
+      "settings_update_by_platform": "Tetapan syarikat diubah oleh MSE"
     },
     "objectType": {
       "SignOffAssistant": "PIN pembantu",

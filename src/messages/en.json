@@ -3769,7 +3769,17 @@
       "REJECT": "Rejected",
       "RETURN": "Returned",
       "APPROVE_WITH_REMEDIAL": "Approved with remedial works",
-      "REVISE_RESUBMIT": "Revise and resubmit"
+      "REVISE_RESUBMIT": "Revise and resubmit",
+      "bulk_fill_trade": "Trade filled in for several workers",
+      "create_trade": "Trade added",
+      "company_categories_added_to_projects": "Company categories added to existing projects",
+      "company_category_created": "Company category added",
+      "company_category_updated": "Company category changed",
+      "company_category_deleted": "Company category deleted",
+      "direct_conversation_started": "Conversation started",
+      "equipment_name_created": "Equipment name added",
+      "equipment_name_updated": "Equipment name changed",
+      "settings_update_by_platform": "Company settings changed by MSE"
     },
     "objectType": {
       "SignOffAssistant": "Assistant PIN",
