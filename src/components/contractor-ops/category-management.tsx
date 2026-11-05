@@ -53,7 +53,6 @@ import {
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { useCurrentProject, usePageProject } from "@/components/providers/current-project-provider";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -80,7 +79,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Textarea } from "@/components/ui/textarea";
 import { ApiError } from "@/interfaces/api";
 import { WASTE_TYPES } from "@/interfaces/contractor";
 import type {
