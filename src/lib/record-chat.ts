@@ -47,7 +47,11 @@ export type ChatRecordKind =
   | "MATERIAL_REQUEST"
   | "GATE_INCIDENT"
   | "FIELD_TASK"
-  | "CLAIM";
+  | "CLAIM"
+  // 找人沟通 (JB104): a conversation between phone people with no record
+  // behind it. Talks through the same door, so it is a kind here; it is not
+  // in `DISCUSSABLE_KINDS`, because no record screen offers it.
+  | "DIRECT";
 
 /** The chat kinds that are also archive-queue kinds. */
 const ARCHIVE_CHAT_KINDS = DISCUSSABLE_KINDS.filter(

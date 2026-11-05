@@ -8672,7 +8672,9 @@
       "worker_excel_no_header": "This Excel file has no \"Name\" column. Use the template and keep its first row.",
       "worker_excel_empty": "There is nobody in this Excel file. Fill one person per row from row 2.",
       "passport_capture_link_invalid": "This photo link has ended. Scan the QR code again on the computer's \"Add many workers\" page.",
-      "equipment_number_by_system": "Equipment numbers are given by the system and cannot be changed."
+      "equipment_number_by_system": "Equipment numbers are given by the system and cannot be changed.",
+      "phone_page_not_yours": "This page is not on your phone.",
+      "chat_people_invalid": "Choose people from the list."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -9035,7 +9037,7 @@
       "accessInfo": "This person's current projects"
     },
     "role": "Role",
-    "roleHint": "A gate guard scans passes and takes gate photo records. Both sign in on the phone with this link.",
+    "roleHint": "A gate guard scans passes and takes gate photo records. An equipment operator clocks machines on and off. All sign in on the phone with this link.",
     "places": {
       "title": "Signed in now: {count} of {limit}",
       "none": "Not signed in anywhere yet.",
@@ -9319,7 +9321,10 @@
       "location": "Location",
       "records": "Site record capture",
       "tasks": "Tasks",
-      "hazards": "Hazard rectification / EHS"
+      "hazards": "Hazard rectification / EHS",
+      "talk": "Messages",
+      "operate": "Machines",
+      "gatePhoto": "Photos"
     },
     "notifications": {
       "empty": "No new alerts",
@@ -9448,6 +9453,40 @@
       "download": "Download",
       "loading": "Reading the files from the office…",
       "loadFailed": "The files from the office could not be read. Please try again later."
+    },
+    "talk": {
+      "title": "Messages",
+      "subtitle": "Every conversation you are in, the newest first.",
+      "find": "Message someone",
+      "findHint": "Site staff, equipment operators and gate guards of your company.",
+      "what": "your conversations",
+      "whatPeople": "the people",
+      "empty": "No conversations yet. Tap 「Message someone」 to start one.",
+      "kind": {
+        "direct": "Conversation",
+        "record": "Record conversation",
+        "hazard": "Hazard conversation"
+      },
+      "preview": {
+        "none": "No messages yet",
+        "photo": "[Photo]",
+        "voice": "[Voice]",
+        "file": "[File]"
+      },
+      "roomTitle": "With {people}",
+      "roomEmpty": "Nothing said yet. Say hello.",
+      "search": "Search by name",
+      "noPeople": "Nobody found.",
+      "sameProject": "On your projects",
+      "otherProjects": "Other projects",
+      "groupTitle": "Group name (optional)",
+      "choose": "the people to message",
+      "start": "{count, plural, =0 {Start} one {Start with 1 person} other {Start with # people}}",
+      "startFailed": "The conversation could not be started. Try again."
+    },
+    "operate": {
+      "title": "Machine operation",
+      "subtitle": "Choose the machine, then clock on or off. Your hours go to the office as before."
     }
   },
   "fieldStaffWorkspace": {
@@ -13086,7 +13125,8 @@
       "equipment": {
         "view": "View equipment and operating hours",
         "manage": "Manage equipment, accept entry and exit, adjust hours",
-        "capture": "Record equipment entry, exit and hours on site"
+        "capture": "Record equipment entry, exit and hours on site",
+        "operate": "Clock machines on and off as their operator, from the phone"
       },
       "field_task": {
         "view": "View site tasks",
@@ -14606,7 +14646,8 @@
       "storekeeper": "Records and corrects material deliveries, requests material outgoing and raises material requests on their projects.",
       "equipment_manager": "Runs equipment entry and exit, the equipment list, QR stickers and operating hours on every project.",
       "site_supervisor": "Assigns and accepts site tasks and hazard rectification, records progress and handles gate issues on their projects.",
-      "document_controller": "Keeps the document archive, submits consultant applications and back-office approvals, and maintains the RFI forms."
+      "document_controller": "Keeps the document archive, submits consultant applications and back-office approvals, and maintains the RFI forms.",
+      "equipment_operator": "Clocks the site's machines on and off from the phone."
     },
     "systemHint": "Built-in roles cannot be removed, so a company always keeps a way to manage its own people.",
     "system_": {
@@ -14628,7 +14669,8 @@
       "storekeeper": "Storekeeper",
       "equipment_manager": "Equipment Manager",
       "site_supervisor": "Site Supervisor",
-      "document_controller": "Document Controller"
+      "document_controller": "Document Controller",
+      "equipment_operator": "Equipment Operator"
     },
     "title": "Roles",
     "toast": {
@@ -19356,7 +19398,9 @@
       "start": "Start",
       "end": "Stop",
       "running": "Not stopped yet",
-      "empty": "No records yet."
+      "empty": "No records yet.",
+      "todayTitle": "Today's hours",
+      "todayTotals": "Today's total"
     }
   },
   "theme": {

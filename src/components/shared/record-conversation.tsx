@@ -39,18 +39,28 @@ import {
   postRecordMessage,
 } from "@/services/contractor-ops.service";
 
+/** Words for a conversation that is not about a record (找人沟通, JB104). */
+export interface ConversationLabels {
+  /** The heading, in place of 「事项沟通 · <reference>」. */
+  title?: string;
+  /** Said while nobody has written, in place of the record's sentence. */
+  empty?: string;
+}
+
 export function RecordConversationPanel({
   kind,
   recordId,
+  labels,
 }: {
   kind: ChatRecordKind;
   recordId: string;
+  labels?: ConversationLabels;
 }) {
   return (
     // The draft scope is per record, so a half-typed question on one delivery
     // is not offered back on the next one.
     <FieldDraft scope={`record-conversation:${kind}:${recordId}`}>
-      <RecordConversationContent kind={kind} recordId={recordId} />
+      <RecordConversationContent kind={kind} recordId={recordId} labels={labels} />
     </FieldDraft>
   );
 }
@@ -58,9 +68,11 @@ export function RecordConversationPanel({
 function RecordConversationContent({
   kind,
   recordId,
+  labels,
 }: {
   kind: ChatRecordKind;
   recordId: string;
+  labels?: ConversationLabels;
 }) {
   const t = useTranslations();
   const queryClient = useQueryClient();
@@ -138,12 +150,12 @@ function RecordConversationContent({
   return (
     <div className="space-y-3">
       <h3 className="text-sm font-semibold">
-        {t("recordChat.title", { reference: data.reference })}
+        {labels?.title ?? t("recordChat.title", { reference: data.reference })}
       </h3>
 
       <ConversationMessageList
         messages={data.messages}
-        emptyLabel={t("recordChat.empty")}
+        emptyLabel={labels?.empty ?? t("recordChat.empty")}
         reference={data.reference}
       />
 
