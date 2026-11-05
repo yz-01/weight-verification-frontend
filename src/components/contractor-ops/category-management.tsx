@@ -80,7 +80,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ApiError } from "@/interfaces/api";
-import { WASTE_TYPES } from "@/interfaces/contractor";
 import type {
   CategoryGroup,
   CategoryGroupModule,
@@ -114,12 +113,7 @@ import {
   getSiteEquipmentItem,
   reorderProjectCategories,
 } from "@/services/contractor-ops.service";
-import {
-  createWasteCategory,
-  deleteWasteCategory,
-  getWasteCategories,
-  updateWasteCategory,
-} from "@/services/waste-outgoing.service";
+import { deleteWasteCategory, getWasteCategories } from "@/services/waste-outgoing.service";
 import { clickOpensRow } from "@/components/shared/inside-row-control";
 
 /**
