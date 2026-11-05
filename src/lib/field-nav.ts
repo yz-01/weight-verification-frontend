@@ -60,12 +60,17 @@ export const FIELD_NAV: Readonly<Record<PhoneRole, readonly FieldNavKey[]>> = {
   site_staff: ["home", "attendance", "records", "hazards", "talk"],
   equipment_operator: ["operate", "talk"],
   gate_guard: ["records", "talk"],
+  // MSE's test phones (JB108, 客户 11-05: 「不受…三种角色的页面限制」): every
+  // page of the three, 设备操作 beside the site staff's.
+  all_pages: ["home", "attendance", "records", "hazards", "operate", "talk"],
 };
 
 /** Which phone an account gets: the full one unless the server says otherwise. */
 export function phoneRoleOf(user: { phone_role?: PhoneRole | null } | null | undefined): PhoneRole {
   const role = user?.phone_role;
-  return role === "equipment_operator" || role === "gate_guard" ? role : "site_staff";
+  return role === "equipment_operator" || role === "gate_guard" || role === "all_pages"
+    ? role
+    : "site_staff";
 }
 
 export function fieldNavFor(role: PhoneRole): readonly FieldNavKey[] {
@@ -80,6 +85,7 @@ export function fieldNavFor(role: PhoneRole): readonly FieldNavKey[] {
 export function fieldTabsFor(role: PhoneRole): readonly string[] {
   if (role === "equipment_operator") return ["operate", "talk"];
   if (role === "gate_guard") return ["records", "talk"];
+  if (role === "all_pages") return ["home", "tasks", "attendance", "records", "incidents", "operate", "talk"];
   return ["home", "tasks", "attendance", "records", "incidents", "talk"];
 }
 

@@ -78,7 +78,10 @@ export function recordCorrectionsKey(kind: CorrectionHistoryKind, recordId: stri
 
 /** Whether this account may correct this kind of record. */
 export function useCanCorrect(kind: CorrectableKind): boolean {
-  const { can } = useAuth();
+  const { can, user } = useAuth();
+  // 「改正」 is the office's (ID77): the server refuses a phone, so the phone
+  // is not offered it (Lucas 11-05, 图2).
+  if (user?.is_field_staff) return false;
   return can(CORRECTION_PERMISSION[kind]);
 }
 
