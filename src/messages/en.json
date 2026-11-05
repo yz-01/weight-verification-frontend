@@ -3769,7 +3769,17 @@
       "REJECT": "Rejected",
       "RETURN": "Returned",
       "APPROVE_WITH_REMEDIAL": "Approved with remedial works",
-      "REVISE_RESUBMIT": "Revise and resubmit"
+      "REVISE_RESUBMIT": "Revise and resubmit",
+      "bulk_fill_trade": "Trade filled in for several workers",
+      "create_trade": "Trade added",
+      "company_categories_added_to_projects": "Company categories added to existing projects",
+      "company_category_created": "Company category added",
+      "company_category_updated": "Company category changed",
+      "company_category_deleted": "Company category deleted",
+      "direct_conversation_started": "Conversation started",
+      "equipment_name_created": "Equipment name added",
+      "equipment_name_updated": "Equipment name changed",
+      "settings_update_by_platform": "Company settings changed by MSE"
     },
     "objectType": {
       "SignOffAssistant": "Assistant PIN",
@@ -4558,6 +4568,55 @@
       "parent": "Parent category",
       "parentHint": "None: a category. Chosen: its sub-category. Two levels only.",
       "isTop": "(a category)"
+    },
+    "tabs": {
+      "label": "Which categories",
+      "company": "Company categories",
+      "project": "Project categories",
+      "projectIntro": "Project categories affect the chosen project only. A new project already starts with the company categories; add what this project needs here, without changing other projects."
+    },
+    "company": {
+      "intro": "Company categories need no project: set them up before any project starts. Every new project gets all the active ones automatically. Changing them here does not change existing projects.",
+      "modules": "Company category lists",
+      "module": {
+        "material": "Materials and specifications",
+        "requestType": "Request types",
+        "ehs": "Rectification / EHS categories",
+        "claim": "Progress Claim categories",
+        "equipmentName": "Equipment names",
+        "recycle": "Recyclable material outgoing categories"
+      },
+      "moduleHelp": {
+        "material": "Materials and the specifications under them. A new project gets them together.",
+        "requestType": "Material Request and Other Request are the system's: they can be renamed, not switched off or removed.",
+        "ehs": "Rectification / EHS categories. The work permit category is the system's.",
+        "claim": "Progress Claim categories.",
+        "equipmentName": "Equipment names are shared by the whole company: every project picks from this list when registering equipment.",
+        "recycle": "Recyclable material outgoing categories have always been shared by the whole company."
+      },
+      "create": "Add category",
+      "createTitle": "Add · {module}",
+      "editTitle": "Edit · {name}",
+      "addSpec": "Specification",
+      "addSpecTitle": "Add a specification · {name}",
+      "name": "Name",
+      "description": "Description",
+      "descriptionHint": "For example the English name: Rebar",
+      "unit": "Unit",
+      "noUnit": "No unit",
+      "codeAuto": "The number is made by the system.",
+      "fixedHelp": "Every project needs this one: it can be renamed, not switched off or removed.",
+      "activeHint": "Switched off: new projects no longer get it. Existing projects are not affected.",
+      "equipmentActiveHint": "Switched off: no longer offered when registering. Machines already named keep their name.",
+      "armRemove": "Allow removing \"{name}\"",
+      "remove": "Remove from company categories",
+      "removeHint": "Only removed from the company categories; the categories already in projects stay.",
+      "empty": "No categories here yet.",
+      "addToProjects": "Add to existing projects",
+      "addToProjectsBody": "Adds the company categories each project does not have yet, by name. A project that already has the same name does not get a second one; nothing in a project is removed, renamed or overwritten. Closed projects are not changed.",
+      "addToProjectsGo": "Add now",
+      "addedNone": "Every project already has these categories. Nothing to add.",
+      "addedSome": "Added {count} categories to {projects} projects."
     }
   },
   "cloudServices": {
@@ -5021,6 +5080,19 @@
       "summary": "The company summary",
       "plans": "The plan list",
       "ownerAccount": "The owner account"
+    },
+    "lockedSettings": {
+      "title": "Settings managed by MSE",
+      "subtitle": "The contractor cannot see or change these. A new company uses the system defaults.",
+      "permissionsHelp": "The role a new user starts with, who approves, and what a consultant may see.",
+      "gps": "GPS",
+      "gpsHelp": "How often phones report, and how long a position counts as live.",
+      "security": "Security",
+      "securityHelp": "How long an activation link works, and when a phone asks for its PIN again.",
+      "records": "Records and photos",
+      "recordsHelp": "Locking after archive, and when a photo must be taken.",
+      "defaults": "System defaults",
+      "defaultsHelp": "What new projects, visitor passes and the dashboard start with."
     }
   },
   "consultantAccess": {
@@ -8625,6 +8697,10 @@
       "worker_link_not_confirmed": "Confirm your phone number and agree first.",
       "gate_pass_host_not_confirmed": "The visitor's host has not confirmed yet. Do not let them in.",
       "visitor_arrival_already_open": "This visitor is already waiting at the gate.",
+      "gate_photo_required": "There is no photo. Take a photo first.",
+      "gate_photo_unreadable": "The photo cannot be read (empty or damaged). Delete it and take it again.",
+      "gate_photo_too_large": "The photo is too large to upload. Take it again.",
+      "gate_photo_one_per_record": "Send holds one photo per record.",
       "visitor_arrival_answered": "This visitor has already been answered.",
       "visitor_arrival_not_host": "Only the visitor's host or a site access manager can answer.",
       "review_by_head_office": "This category is set to head office approval: head office accepts it.",
@@ -8655,6 +8731,7 @@
       "record_archived_locked": "This is confirmed and archived. It is locked and can no longer be changed or deleted.",
       "record_in_use": "A formal record uses it, so it cannot be deleted: {used_by}",
       "consultant_application_not_confirmed": "Confirm and archive the application before sending it to the consultant.",
+      "company_setting_locked": "MSE manages this setting. Ask MSE to change it.",
       "claim_letter_required": "Upload the letter first. A Progress Claim must have its letter; it goes at the front of the PDF.",
       "report_export_not_regenerable": "This history row cannot be generated again: it already has its file, belongs to another report, or is not in your history.",
       "session_replaced": "This account has signed in on another computer, so this computer has been signed out. To keep working here, sign in again.",
@@ -8672,7 +8749,11 @@
       "worker_excel_no_header": "This Excel file has no \"Name\" column. Use the template and keep its first row.",
       "worker_excel_empty": "There is nobody in this Excel file. Fill one person per row from row 2.",
       "passport_capture_link_invalid": "This photo link has ended. Scan the QR code again on the computer's \"Add many workers\" page.",
-      "equipment_number_by_system": "Equipment numbers are given by the system and cannot be changed."
+      "equipment_number_by_system": "Equipment numbers are given by the system and cannot be changed.",
+      "category_group_single": "This module has one category group per project. Rename that one instead.",
+      "company_category_fixed": "Every project needs this category: it can be renamed, not switched off or removed.",
+      "phone_page_not_yours": "This page is not on your phone.",
+      "chat_people_invalid": "Choose people from the list."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -9035,7 +9116,7 @@
       "accessInfo": "This person's current projects"
     },
     "role": "Role",
-    "roleHint": "A gate guard scans passes and takes gate photo records. Both sign in on the phone with this link.",
+    "roleHint": "A gate guard scans passes and takes gate photo records. An equipment operator clocks machines on and off. All sign in on the phone with this link.",
     "places": {
       "title": "Signed in now: {count} of {limit}",
       "none": "Not signed in anywhere yet.",
@@ -9319,7 +9400,10 @@
       "location": "Location",
       "records": "Site record capture",
       "tasks": "Tasks",
-      "hazards": "Hazard rectification / EHS"
+      "hazards": "Hazard rectification / EHS",
+      "talk": "Messages",
+      "operate": "Machines",
+      "gatePhoto": "Photos"
     },
     "notifications": {
       "empty": "No new alerts",
@@ -9448,6 +9532,40 @@
       "download": "Download",
       "loading": "Reading the files from the office…",
       "loadFailed": "The files from the office could not be read. Please try again later."
+    },
+    "talk": {
+      "title": "Messages",
+      "subtitle": "Every conversation you are in, the newest first.",
+      "find": "Message someone",
+      "findHint": "Site staff, equipment operators and gate guards of your company.",
+      "what": "your conversations",
+      "whatPeople": "the people",
+      "empty": "No conversations yet. Tap 「Message someone」 to start one.",
+      "kind": {
+        "direct": "Conversation",
+        "record": "Record conversation",
+        "hazard": "Hazard conversation"
+      },
+      "preview": {
+        "none": "No messages yet",
+        "photo": "[Photo]",
+        "voice": "[Voice]",
+        "file": "[File]"
+      },
+      "roomTitle": "With {people}",
+      "roomEmpty": "Nothing said yet. Say hello.",
+      "search": "Search by name",
+      "noPeople": "Nobody found.",
+      "sameProject": "On your projects",
+      "otherProjects": "Other projects",
+      "groupTitle": "Group name (optional)",
+      "choose": "the people to message",
+      "start": "{count, plural, =0 {Start a chat} one {Start with 1 person} other {Start with # people}}",
+      "startFailed": "The conversation could not be started. Try again."
+    },
+    "operate": {
+      "title": "Machine operation",
+      "subtitle": "Choose the machine, then clock on or off. Your hours go to the office as before."
     }
   },
   "fieldStaffWorkspace": {
@@ -10122,7 +10240,9 @@
       "neverSeen": "Not seen yet",
       "available": "Can connect: register the device in System integrations to use it.",
       "droneWaiting": "When your company is ready, tell us the drone brand and management platform and we will connect it.",
-      "mediaNote": "Photos and videos from connected devices are still viewed in the same places as before."
+      "mediaNote": "Photos and videos from connected devices are still viewed in the same places as before.",
+      "managedByMse": "Devices are connected and set up by MSE. Contact MSE to connect one.",
+      "availableByMse": "Can be connected: contact MSE and we will connect it for you."
     },
     "console": {
       "state": {
@@ -12052,7 +12172,8 @@
       "progressSummary": "Progress summary",
       "siteWorkers": "Worker roster",
       "materialTargets": "Material targets",
-      "materialRequests": "MR / Other Request"
+      "materialRequests": "MR / Other Request",
+      "departmentsTrades": "Departments and trades"
     },
     "subscription_management": "Subscriptions",
     "suppliers": "Suppliers",
@@ -12244,6 +12365,24 @@
       "armFirst": "Turn on the switch above first"
     },
     "queued": "Saved on this phone, waiting to upload",
+    "refused": {
+      "retry": "Retry",
+      "delete": "Delete this one",
+      "deleteTitle": "Delete this one?",
+      "deleteHelp": "This record is removed from this phone and will not upload. It cannot be undone. Take the photo or fill it in again if you still need it.",
+      "photoLost": "This photo can no longer be read on this phone. Delete this one and take the photo again.",
+      "incomplete": "Some details are missing or wrong, so it cannot upload ({field}).",
+      "incompleteNoField": "Some details are missing or wrong, so it cannot upload. Retry; if it still fails, delete this one and do it again.",
+      "generic": "The server did not accept this one. Retry; if it still fails, delete this one and do it again.",
+      "field": {
+        "photos": "The photo cannot be read (empty or damaged). Delete this one and take the photo again.",
+        "photoDetails": "The photo's time or location details are wrong, so it cannot upload.",
+        "location": "The GPS position is wrong, so it cannot upload.",
+        "members": "A person you chose to talk to is no longer on this project, so it cannot upload.",
+        "project": "This project no longer exists, or you are no longer on it.",
+        "time": "The time is wrong, so it cannot upload."
+      }
+    },
     "status": {
       "failed": "{count, plural, one {# action needs attention} other {# actions need attention}}",
       "syncing": "Uploading saved records",
@@ -12251,7 +12390,9 @@
       "offlineNothing": "No connection right now",
       "autoHelp": "They upload by themselves when there is a connection. Nothing to do.",
       "offlineHelp": "No connection right now. Your records are saved on this phone and upload by themselves when the connection is back. Nothing to do.",
-      "refusedHelp": "{count, plural, one {# of them was not accepted by the server} other {# of them were not accepted by the server}}. See why under \"My submissions\" and ask your administrator to sort it out."
+      "refusedHelp": "The server did not accept the records below, and they will not upload by themselves. Read why, then press Retry or Delete this one.",
+      "uploadFailed": "{count, plural, one {# record failed to upload} other {# records failed to upload}}",
+      "refusedToast": "{count, plural, one {# record failed to upload} other {# records failed to upload}}. Tap the upload sign at the top to see why, retry or delete."
     },
     "synced": "Uploaded {count, plural, one {# saved record} other {# saved records}}",
     "filesFollow": "Sent to the office. {count, plural, one {# file is} other {# files are}} still uploading in the background.",
@@ -12290,7 +12431,9 @@
     "field": {
       "active": "Active",
       "code": "Code",
-      "name": "Name"
+      "name": "Name",
+      "codeAuto": "Leave empty and the system numbers it.",
+      "codeAutoPlaceholder": "Automatic"
     },
     "help": "Your own departments and trades. Both are used to break down the on-site headcount.",
     "inactive": "Inactive",
@@ -12307,7 +12450,8 @@
       "empty": "No trade yet. Add one before the headcount can be broken down by trade.",
       "help": "What people do on site — steel fixer, scaffolder, electrician. Kept as a list so the headcount by trade adds up.",
       "title": "Trades"
-    }
+    },
+    "pageTitle": "Departments and trades"
   },
   "pageGuide": {
     "section": {
@@ -13086,7 +13230,8 @@
       "equipment": {
         "view": "View equipment and operating hours",
         "manage": "Manage equipment, accept entry and exit, adjust hours",
-        "capture": "Record equipment entry, exit and hours on site"
+        "capture": "Record equipment entry, exit and hours on site",
+        "operate": "Clock machines on and off as their operator, from the phone"
       },
       "field_task": {
         "view": "View site tasks",
@@ -13425,7 +13570,9 @@
       "sitePhone": "Site phone",
       "startDate": "Start date",
       "state": "State",
-      "status": "Status"
+      "status": "Status",
+      "projectLead": "Project lead",
+      "geofenceRadiusM": "Geofence radius (m)"
     },
     "filter": {
       "all": "All",
@@ -13445,7 +13592,9 @@
       "permissionDenied": "Location permission was denied. Allow location access in the browser and try again.",
       "timeout": "Location took too long to respond. Try again where the GPS signal is clearer.",
       "unavailable": "The current location could not be determined. Check the device location service and try again.",
-      "unsupported": "This browser does not support GPS location. Enter the coordinates manually."
+      "unsupported": "This browser does not support GPS location. Enter the coordinates manually.",
+      "captureOrMap": "Use this device's GPS, or click the site on the map.",
+      "backToPlace": "Back to the site"
     },
     "new": "New project",
     "qr": {
@@ -13521,7 +13670,8 @@
       "identity": "Identity",
       "location": "Site location and geofence",
       "schedule": "Schedule",
-      "team": "Site team"
+      "team": "Site team",
+      "more": "More details (optional)"
     },
     "statistics": {
       "description": "Real records for this project, grouped by the selected period.",
@@ -13578,7 +13728,9 @@
       "unassigned": "Removed from the project",
       "updated": "Project updated"
     },
-    "viewTitle": "Project"
+    "viewTitle": "Project",
+    "codeAuto": "The project number is given by the system (PRJ-0001 onwards).",
+    "geofenceDefaultHint": "System default {metres} m. Change it to fit the site."
   },
   "qrCodes": {
     "result": {
@@ -14606,7 +14758,8 @@
       "storekeeper": "Records and corrects material deliveries, requests material outgoing and raises material requests on their projects.",
       "equipment_manager": "Runs equipment entry and exit, the equipment list, QR stickers and operating hours on every project.",
       "site_supervisor": "Assigns and accepts site tasks and hazard rectification, records progress and handles gate issues on their projects.",
-      "document_controller": "Keeps the document archive, submits consultant applications and back-office approvals, and maintains the RFI forms."
+      "document_controller": "Keeps the document archive, submits consultant applications and back-office approvals, and maintains the RFI forms.",
+      "equipment_operator": "Clocks the site's machines on and off from the phone."
     },
     "systemHint": "Built-in roles cannot be removed, so a company always keeps a way to manage its own people.",
     "system_": {
@@ -14628,7 +14781,8 @@
       "storekeeper": "Storekeeper",
       "equipment_manager": "Equipment Manager",
       "site_supervisor": "Site Supervisor",
-      "document_controller": "Document Controller"
+      "document_controller": "Document Controller",
+      "equipment_operator": "Equipment Operator"
     },
     "title": "Roles",
     "toast": {
@@ -15493,7 +15647,10 @@
       "visitorHours": "Default visitor pass (hours)",
       "website": "Website",
       "worker": "Site worker",
-      "expiringSoon": "Expiring within 7 days"
+      "expiringSoon": "Expiring within 7 days",
+      "ssmRegistrationNo": "SSM registration no.",
+      "codeAuto": "Leave empty and the system numbers it.",
+      "codeAutoPlaceholder": "Automatic"
     },
     "gate": {
       "cameraError": "The camera could not start. Allow camera access and try again, or upload a QR image.",
@@ -15615,8 +15772,8 @@
       "title": "Default permissions"
     },
     "preferences": {
-      "subtitle": "Choose the language, time display and first page used by company users.",
-      "title": "Company preferences"
+      "subtitle": "Language, date format, time format and timezone.",
+      "title": "Display preferences"
     },
     "profile": {
       "chooseLogo": "Choose company logo",
@@ -15625,7 +15782,9 @@
       "logo": "Logo",
       "background": "Background image",
       "chooseBackground": "Choose background image",
-      "imageHint": "PNG, JPG or WebP, up to 8 MB. Only your company sees and uses these. Your company name and logo head every PDF, print and export of your records."
+      "imageHint": "PNG, JPG or WebP, up to 8 MB. Only your company sees and uses these. Your company name and logo head every PDF, print and export of your records.",
+      "simpleSubtitle": "Shown on your reports, QR records and project documents.",
+      "emergencyHint": "For the gate. You can leave it empty."
     },
     "projectDefaults": {
       "archiveLock": "Lock records after archive",
@@ -15663,7 +15822,9 @@
       "siteRules": "Field operation defaults",
       "siteRulesHelp": "Projects may have their own boundaries; these values control timing and evidence rules.",
       "subtitle": "Maintain the contractor profile and the defaults used by every new project.",
-      "title": "Company settings"
+      "title": "Company settings",
+      "simpleSubtitle": "Your company's details, display preferences and branches.",
+      "managedByMse": "System settings (permissions, QR rules, notifications, GPS, security and record keeping) are managed by MSE. You do not need to fill them in."
     },
     "shape": {
       "CIRCLE": "Circular boundary",
@@ -19356,7 +19517,9 @@
       "start": "Start",
       "end": "Stop",
       "running": "Not stopped yet",
-      "empty": "No records yet."
+      "empty": "No records yet.",
+      "todayTitle": "Today's hours",
+      "todayTotals": "Today's total"
     }
   },
   "theme": {

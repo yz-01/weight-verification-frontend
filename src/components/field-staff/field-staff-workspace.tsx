@@ -11,8 +11,10 @@ import {
   LogIn,
   LogOut,
   MapPinned,
+  MessagesSquare,
   ShieldAlert,
   Smartphone,
+  Timer,
 } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
@@ -41,7 +43,16 @@ import { FieldDraft, useClearDraft, useDraftState } from "@/components/field-sta
 import { FieldHazardsPanel } from "@/components/site-operations/field-hazards";
 import { FieldCamera } from "@/components/shared/field-camera";
 import { LocationField } from "@/components/field-staff/location-field";
-import { activeFieldNav } from "@/lib/field-nav";
+import {
+  activeFieldNav,
+  fieldNavFor,
+  fieldStartTab,
+  fieldTabsFor,
+  phoneRoleOf,
+  type FieldNavKey,
+} from "@/lib/field-nav";
+import { EquipmentOperatePanel } from "@/components/field-staff/equipment-operate-panel";
+import { FieldTalkPanel, fieldTalkUnreadQuery } from "@/components/field-staff/field-talk-panel";
 import { taskRecordMode } from "@/lib/field-task-mode";
 import { FIELD_OPEN_EVENT, fieldNoticeHref } from "@/lib/field-notification";
 import { NoticeOpener } from "@/components/notifications/notice-opener";
@@ -73,7 +84,34 @@ import { fieldTodoCountQuery } from "@/services/platform-ops.service";
 // useful to the office, and the customer asked for four entries at the bottom.
 // Reporting itself is untouched - D-226 keeps automatic positioning, the
 // geofence check, arrival time and the position on every record.
-type MobileTab = "home" | "tasks" | "attendance" | "records" | "incidents";
+// 「沟通」 and 「设备操作」 since JB104 (客户 11-05 事项 9).
+type MobileTab = "home" | "tasks" | "attendance" | "records" | "incidents" | "talk" | "operate";
+
+/**
+ * JB104: the record screens each phone may open from a link. The guard's
+ * 「拍照」 is the gate's own (「门岗…只保留「拍照」和「沟通」」); the operator
+ * has none. Site staff keep every one, as before.
+ */
+function recordAllowed(role: ReturnType<typeof phoneRoleOf>, mode: FieldRecordMode | null): boolean {
+  if (!mode) return true;
+  if (role === "gate_guard") return mode === "gate" || mode === "visitor";
+  return role === "site_staff";
+}
+
+const NAV_ICONS: Record<FieldNavKey, typeof Camera> = {
+  home: House,
+  attendance: Clock3,
+  records: Grid2X2,
+  hazards: ShieldAlert,
+  talk: MessagesSquare,
+  operate: Timer,
+};
+
+/** Tailwind needs the whole class in the source: one per phone's button count. */
+const NAV_COLUMNS: Record<number, string> = {
+  2: "grid-cols-2",
+  5: "grid-cols-5",
+};
 export function FieldStaffWorkspace() {
   const searchParams = useSearchParams();
   const requestedTaskId = searchParams.get("task") ?? "";
@@ -140,10 +178,10 @@ export function FieldStaffWorkspace() {
 }
 
 function FieldStaffWorkspaceContent({
-  requestedTaskId,
+  requestedTaskId: linkedTaskId,
   requestedTab,
-  requestedRecord,
-  requestedIncidentId,
+  requestedRecord: linkedRecord,
+  requestedIncidentId: linkedIncidentId,
   supplierToken,
 }: {
   requestedTaskId: string;
@@ -155,21 +193,33 @@ function FieldStaffWorkspaceContent({
   const t = useTranslations("fieldStaffPwa");
   const roleOf = useRoleLabel();
   const { user } = useAuth();
+  // JB104: which phone this is, and so which tabs a link or a tap may open.
+  const phoneRole = phoneRoleOf(user);
+  const tabs = fieldTabsFor(phoneRole);
+  const startTab = fieldStartTab(phoneRole) as MobileTab;
+  const allowedTab = (next: string | null | undefined): next is MobileTab =>
+    Boolean(next) && tabs.includes(next as string);
+  // The guard's 「拍照」 is the gate's capture itself (JB104).
+  const guardRecord: FieldRecordMode | null = phoneRole === "gate_guard" ? "gate" : null;
+  // What a link asked for, narrowed to what this phone has.
+  const requestedRecord = recordAllowed(phoneRole, linkedRecord) ? linkedRecord : null;
+  const requestedTaskId = allowedTab("tasks") ? linkedTaskId : "";
+  const requestedIncidentId = allowedTab("incidents") ? linkedIncidentId : "";
   const [tab, setTab] = useState<MobileTab>(
-    requestedTab && ["home", "tasks", "attendance", "records", "incidents"].includes(requestedTab)
+    allowedTab(requestedTab)
       ? requestedTab
-      : requestedRecord
+      : requestedRecord && allowedTab("records")
         ? "records"
         : requestedTaskId
         ? "tasks"
-        : "home",
+        : startTab,
   );
   // Back from a hazard opened from My Tasks goes back to My Tasks.
   const [hazardFromTasks, setHazardFromTasks] = useState(false);
   const [focusedTaskId, setFocusedTaskId] = useState(requestedTaskId);
   const [activeTask, setActiveTask] = useState<FieldTask | null>(null);
   const [recordMode, setRecordMode] = useState<FieldRecordMode | null>(
-    requestedRecord,
+    requestedRecord ?? guardRecord,
   );
   // Set two ways: by reporting one (F-277), and by tapping a hazard in
   // 「我提交过的」 (T-210). The second only ever has a history row, which is
@@ -229,16 +279,12 @@ function FieldStaffWorkspaceContent({
         setTab("tasks");
         return;
       }
-      if (
-        requestedTab &&
-        ["home", "tasks", "attendance", "records", "incidents"].includes(
-          requestedTab,
-        )
-      ) {
+      if (allowedTab(requestedTab)) {
         setTab(requestedTab);
       }
     }, 0);
     return () => window.clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `allowedTab` reads `tabs`, which follows the account
   }, [requestedRecord, requestedTab, requestedTaskId]);
 
   const replaceFieldUrl = (
@@ -253,7 +299,9 @@ function FieldStaffWorkspaceContent({
     // The hazard a link named is left behind too, or the report form read it
     // again and said 「无法载入链接中的事故」 (JB75).
     url.searchParams.delete("incident");
-    if (nextTab === "home") url.searchParams.delete("tab");
+    // A conversation a link opened is left behind with its tab (JB104).
+    url.searchParams.delete("chat");
+    if (nextTab === startTab) url.searchParams.delete("tab");
     else url.searchParams.set("tab", nextTab);
     if (nextRecord) url.searchParams.set("record", nextRecord);
     if (nextTaskId) url.searchParams.set("task", nextTaskId);
@@ -301,20 +349,23 @@ function FieldStaffWorkspaceContent({
         setActiveTask(null);
       setOpenedHazard(null);
       if (incident) setLinkedHazardClosed(false);
-      setFocusedTaskId(taskId);
-      setRecordMode(record);
+      // JB104: a link to a page this phone does not have opens its first page.
+      const allowedRecord = recordAllowed(phoneRole, record) ? record : null;
+      setFocusedTaskId(allowedTab("tasks") ? taskId : "");
+      setRecordMode(allowedRecord ?? guardRecord);
       setTab(
-        record
+        allowedRecord && allowedTab("records")
           ? "records"
-          : taskId
+          : taskId && allowedTab("tasks")
             ? "tasks"
-            : named && ["home", "tasks", "attendance", "records", "incidents"].includes(named)
+            : allowedTab(named)
               ? named
-              : "home",
+              : startTab,
       );
     };
     window.addEventListener(FIELD_OPEN_EVENT, follow);
     return () => window.removeEventListener(FIELD_OPEN_EVENT, follow);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- the phone's role does not change while it is open
   }, []);
   /*
    * `?tab=incidents` with no hazard to show means somebody arrived from a
@@ -364,11 +415,25 @@ function FieldStaffWorkspaceContent({
    * form above, and the navigation has to follow it there.
    */
   const activeNav = activeFieldNav(shownTab, shownRecordMode);
+  const navKeys = fieldNavFor(phoneRole);
+  // The guard's 拍照 is the gate: the client's own word for it (JB104).
+  const navLabel = (key: FieldNavKey) =>
+    key === "records" && phoneRole === "gate_guard" ? "nav.gatePhoto" : (`nav.${key}` as const);
   // J4: the bell's number beside 首页 - the same query, under the same key,
   // as the bell's red dot, so they are one answer.
   // query-failure: the bell says when its count fails; the menu then shows no number.
   const bellCount = useQuery({ ...fieldTodoCountQuery });
   const homeCount = fieldBellCount(bellCount.data)?.total ?? 0;
+  // 沟通's own number: what is unread across my conversations (JB104).
+  // query-failure: only the button's number; 沟通 itself says when its list fails.
+  const talk = useQuery({ ...fieldTalkUnreadQuery });
+  const talkCount = talk.data?.unread ?? 0;
+  const navCounts: Partial<Record<FieldNavKey, number>> = { home: homeCount, talk: talkCount };
+  const openNav = (key: FieldNavKey) => {
+    if (key === "hazards") openRecord("safety");
+    else if (key === "records" && guardRecord) openRecord(guardRecord);
+    else openTab(key);
+  };
 
   const projects = useQuery({
     queryKey: ["projects", "options"],
@@ -445,6 +510,9 @@ function FieldStaffWorkspaceContent({
         />
       )}
       {shownTab === "attendance" && <FieldDraft scope="attendance"><FieldAttendancePanel /></FieldDraft>}
+      {/* 「沟通」 on every phone, 「设备操作」 on the operator's (JB104). */}
+      {shownTab === "talk" && <FieldTalkPanel />}
+      {shownTab === "operate" && <EquipmentOperatePanel />}
       {shownTab === "records" && (
         <FieldRecordsPanel
           initialMode={shownRecordMode}
@@ -486,21 +554,20 @@ function FieldStaffWorkspaceContent({
       )}
 
       <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-sidebar-border bg-background/95 pb-[max(env(safe-area-inset-bottom),0.5rem)] pt-2 shadow-panel backdrop-blur">
-        {/* Four buttons since 「位置」 was removed (T-321). The column count has
-            to match or the icons bunch to the left of an empty cell. */}
-        <div className="mx-auto grid max-w-2xl grid-cols-4 gap-1 px-3">
-          {/* J4: the bell's number on 首页, where the to-dos and notices are. */}
-          <MobileNavButton active={activeNav === "home"} icon={House} label={t("nav.home")} count={homeCount} onClick={() => openTab("home")} />
-          <MobileNavButton active={activeNav === "attendance"} icon={Clock3} label={t("nav.attendance")} onClick={() => openTab("attendance")} />
-          <MobileNavButton active={activeNav === "records"} icon={Grid2X2} label={t("nav.records")} onClick={() => openTab("records")} />
-          {/*
-            One tap to the reporting form (T-211). This used to open a list
-            page whose only action was a 上报隐患 button - the customer's
-            「不需要跳两个页面」. The form it opens lives inside the 拍照 tab,
-            which is why `activeFieldNav` exists: for one tap here, both
-            buttons used to light (F-374).
-          */}
-          <MobileNavButton active={activeNav === "hazards"} icon={ShieldAlert} label={t("nav.hazards")} onClick={() => openRecord("safety")} />
+        {/*
+          Each phone its own buttons (JB104, 客户 11-05 事项 9): site staff the
+          four they had and 沟通; the operator 设备操作 and 沟通; the guard 拍照
+          and 沟通. The column count has to match or the icons bunch to the
+          left of an empty cell (T-321).
+
+          隐患 is one tap to the reporting form (T-211), which lives inside the
+          拍照 tab - which is why every button is lit by `activeFieldNav`
+          alone: for one tap here, both buttons used to light (F-374).
+        */}
+        <div className={`mx-auto grid max-w-2xl ${NAV_COLUMNS[navKeys.length] ?? "grid-cols-5"} gap-1 px-3`}>
+          {navKeys.map((key) => (
+            <MobileNavButton key={key} active={activeNav === key} icon={NAV_ICONS[key]} label={t(navLabel(key))} count={navCounts[key] ?? 0} onClick={() => openNav(key)} />
+          ))}
         </div>
       </nav>
       {shownTab === "home" && (

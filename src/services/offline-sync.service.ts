@@ -15,11 +15,20 @@ import {
   storeFile,
 } from "@/lib/offline-db";
 import { compressPhoto } from "@/lib/photo-compression";
+import { t } from "@/lib/i18n-runtime";
+import {
+  PHOTO_LOST,
+  refusalReason,
+  type RefusalReason,
+  wordRefusal,
+} from "@/lib/queue-refusal";
 import {
   api,
   toastOutcome,
+  toastRefusal,
   toastSuccess,
   withOfflineProvenance,
+  withoutErrorToasts,
   withoutSuccessToasts,
 } from "@/services/api-client";
 import { SUBMIT_OUTCOME_KEY } from "@/lib/upload-schedule";
@@ -1755,6 +1764,11 @@ export interface OfflineQueueEntry {
   state: OfflineQueueState;
   /** A message key saying, in plain words, what the refusal means. */
   hint: string | null;
+  /**
+   * Why the server refused it, in the worker's words (JB98) - for a refused
+   * entry only. Worked out when shown, so it follows the phone's language.
+   */
+  reason: RefusalReason | null;
 }
 
 /**
@@ -1909,6 +1923,7 @@ export async function getOfflineQueueEntries(
         state === "failed" || state === "retrying"
           ? conflictHint(job.lastErrorStatus, job.lastErrorCode)
           : null,
+      reason: job.needsAttention ? refusalOf(job) : null,
     };
     // Worked out oldest first (a chain holds what follows it), shown newest
     // on top like every list (Lucas 2026-10-23).
@@ -2091,18 +2106,116 @@ export function offlineFlushInFlight(): Promise<FlushResult> | null {
  */
 export function flushOfflineJobs(
   ownerId: string,
-  options: { includeRefused?: boolean } = {},
+  options: { includeRefused?: boolean; only?: string } = {},
 ): Promise<FlushResult> {
   if (flushInFlight) return flushInFlight;
-  flushInFlight = runFlush(ownerId, options.includeRefused ?? false).finally(() => {
+  flushInFlight = runFlush(ownerId, options.includeRefused ?? false, options.only).finally(() => {
     flushInFlight = null;
   });
   return flushInFlight;
 }
 
-async function runFlush(ownerId: string, includeRefused: boolean): Promise<FlushResult> {
+/**
+ * 「重试」 on one refused record, pressed by the worker in the 「已暂存」
+ * popover (JB98, 客户 11-05 事项 1). Waits for a pass already running, then
+ * sends that record alone - the rest keep their own turn.
+ */
+export async function retryOfflineJob(ownerId: string, id: string): Promise<FlushResult> {
+  if (flushInFlight) await flushInFlight.catch(() => undefined);
+  return flushOfflineJobs(ownerId, { includeRefused: true, only: id });
+}
+
+/** A kept photo or file this phone can no longer read (JB98). */
+class StoredFileLost extends Error {
+  readonly code = PHOTO_LOST;
+}
+
+/**
+ * The job with every kept file read into memory before it is sent (JB98).
+ *
+ * A photo kept in IndexedDB is a reference to bytes the browser holds on
+ * disk. After the phone has closed the app - the morning's photo, sent that
+ * evening - iOS Safari can hand back a reference whose bytes are gone, and
+ * the upload then carries an empty file the server refuses (「Validation
+ * failed.」, 客户 11-05 事项 1). Reading the bytes first sends what is really
+ * there, and a photo that is truly gone is said as such - delete it and take
+ * it again - instead of as a refusal nobody can act on.
+ */
+export async function withFilesInMemory<T>(value: T, depth = 0): Promise<T> {
+  if (isStoredFile(value)) {
+    let bytes: ArrayBuffer;
+    try {
+      bytes = await value.blob.arrayBuffer();
+    } catch {
+      throw new StoredFileLost(PHOTO_LOST);
+    }
+    if (bytes.byteLength === 0) throw new StoredFileLost(PHOTO_LOST);
+    return { ...value, blob: new Blob([bytes], { type: value.type }) };
+  }
+  if (depth > 3 || typeof value !== "object" || value === null || value instanceof Blob) {
+    return value;
+  }
+  if (Array.isArray(value)) {
+    return (await Promise.all(value.map((item) => withFilesInMemory(item, depth + 1)))) as T;
+  }
+  const entries = await Promise.all(
+    Object.entries(value).map(
+      async ([key, item]) => [key, await withFilesInMemory(item, depth + 1)] as const,
+    ),
+  );
+  return Object.fromEntries(entries) as T;
+}
+
+/** Why a refused job was refused: as kept, or read from its status and code. */
+function refusalOf(job: OfflineJob): RefusalReason {
+  return (
+    job.lastErrorReason ??
+    refusalReason({ status: job.lastErrorStatus, code: job.lastErrorCode }, inCatalogue)
+  );
+}
+
+function inCatalogue(key: string): boolean {
+  return t(key) !== key;
+}
+
+/**
+ * The reason a refusal is kept with (JB98).
+ *
+ * The catalogue's wording for its code, or for the fields it named; the
+ * server's own sentence only when it said something specific - never the
+ * bare 「Validation failed.」 or 「请检查标红的字段」, which on a record sent from
+ * the queue has no red field to point at.
+ */
+function refusalFrom(error: unknown): RefusalReason {
+  const fields = error instanceof ApiError ? Object.keys(error.errors ?? {}) : [];
+  const reason = refusalReason(
+    {
+      status: error instanceof ApiError ? error.status : undefined,
+      code:
+        error instanceof ApiError || error instanceof StoredFileLost ? error.code : undefined,
+      fields,
+    },
+    inCatalogue,
+  );
+  const specific =
+    error instanceof ApiError &&
+    fields.length === 0 &&
+    !reason.key.startsWith("errors.api.") &&
+    error.message !== "" &&
+    error.message !== "Validation failed." &&
+    error.message !== t("errors.api.validation_failed") &&
+    error.message !== t("errors.generic");
+  return specific ? { ...reason, text: error.message } : reason;
+}
+
+async function runFlush(
+  ownerId: string,
+  includeRefused: boolean,
+  only?: string,
+): Promise<FlushResult> {
   const jobs = await getOfflineJobs(ownerId);
   let synced = 0;
+  let refused = 0;
   // Chains whose earlier step did not go through in this pass. Their later
   // steps wait: collecting a load whose acceptance failed, or rostering a
   // trip for it, would act on an order in a state nobody on the yard has
@@ -2111,6 +2224,7 @@ async function runFlush(ownerId: string, includeRefused: boolean): Promise<Flush
 
   for (let index = 0; index < jobs.length; index += 1) {
     const job = jobs[index];
+    if (only !== undefined && job.id !== only) continue;
     const chain = chainOf(job);
     if (chain && heldChains.has(chain)) continue;
     if (job.needsAttention && !includeRefused) {
@@ -2143,8 +2257,10 @@ async function runFlush(ownerId: string, includeRefused: boolean): Promise<Flush
         );
         synced += positions.length;
       } else {
-        // Quiet: the pass says what it sent in one line at the end.
-        await withoutSuccessToasts(() => uploadJob(job));
+        // Quiet: the pass says what it sent, and what was refused, in one
+        // line each at the end.
+        const ready = await withFilesInMemory(job);
+        await withoutErrorToasts(() => withoutSuccessToasts(() => uploadJob(ready)));
         await deleteOfflineJob(job.id);
         recordSynced(job);
         synced += 1;
@@ -2161,13 +2277,21 @@ async function runFlush(ownerId: string, includeRefused: boolean): Promise<Flush
       // error used to stop the pass without either, so the record said
       // 「等待上传」 forever and everything queued behind it waited too.
       const noAnswer = isNetworkFailure(error);
-      const lastError = noAnswer
-        ? (error as ApiError).code === QUEUE_ERROR_TIMEOUT
-          ? QUEUE_ERROR_TIMEOUT
-          : QUEUE_ERROR_NETWORK
-        : error instanceof Error
-          ? error.message
-          : String(error);
+      const needsAttention = !noAnswer && isRefusal(error);
+      const reason = needsAttention ? refusalFrom(error) : undefined;
+      // A refusal is kept as a sentence in the worker's language, never the
+      // server's 「Validation failed.」 (JB98): every screen that shows
+      // `lastError` - 我提交过的, the slot chips, the technical page - reads it.
+      let lastError: string;
+      if (noAnswer) {
+        lastError =
+          (error as ApiError).code === QUEUE_ERROR_TIMEOUT ? QUEUE_ERROR_TIMEOUT : QUEUE_ERROR_NETWORK;
+      } else if (reason) {
+        lastError = wordRefusal(reason, t);
+        refused += 1;
+      } else {
+        lastError = error instanceof Error ? error.message : String(error);
+      }
       const failedJobs: OfflineJob[] = positions.length > 0 ? positions : [job];
       await Promise.all(
         failedJobs.map((failedJob) =>
@@ -2176,8 +2300,10 @@ async function runFlush(ownerId: string, includeRefused: boolean): Promise<Flush
             attempts: failedJob.attempts + 1,
             lastError,
             lastErrorStatus: error instanceof ApiError ? error.status : undefined,
-            lastErrorCode: error instanceof ApiError ? error.code : undefined,
-            needsAttention: !noAnswer && isRefusal(error),
+            lastErrorCode:
+              error instanceof ApiError || error instanceof StoredFileLost ? error.code : undefined,
+            lastErrorReason: reason,
+            needsAttention,
           }),
         ),
       );
@@ -2190,11 +2316,16 @@ async function runFlush(ownerId: string, includeRefused: boolean): Promise<Flush
   await cleanupSettledDriverSnapshots(ownerId).catch(() => undefined);
   notifyQueueChanged();
   if (synced > 0) toastOutcome("offline.synced", { count: synced });
+  // One line for what was refused, pointing at where it can be read and
+  // retried or deleted - not the server's sentence per record (JB98).
+  if (refused > 0) toastRefusal("offline.status.refusedToast", { count: refused });
   return { synced, remaining };
 }
 
 export async function getOfflineQueueSummary(ownerId: string): Promise<{
+  /** Every record still on this phone, refused ones included. */
   pending: number;
+  /** Refused by the server: 「上传失败」, waiting for the worker (JB98). */
   failed: number;
 }> {
   const jobs = await getOfflineJobs(ownerId);

@@ -35,7 +35,8 @@ describe("the driver's page", () => {
     const capture = read("src/components/equipment-hours/equipment-hours-capture.tsx");
     expect(capture).toContain("driver ? loadDriverMachines(driver.token, driver.device)");
     expect(capture).toContain("...(driver ? { driverLink: driver } : {})");
-    expect(capture).toContain('...(driver ? ([[fix, t("phone.location")]] as [unknown, string][]) : [])');
+    // The 设备操作人员 phone needs a location too (JB104, 客户 11-05 事项 9).
+    expect(capture).toContain('...(driver || operator ? ([[fix, t("phone.location")]] as [unknown, string][]) : [])');
     expect(driverQueueOwner("abc")).toBe("driver-link:abc");
     expect(read("src/components/equipment-hours/driver-clock-link.tsx")).toContain(
       'window.addEventListener("online", flush)',

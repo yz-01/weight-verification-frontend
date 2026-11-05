@@ -66,6 +66,7 @@ export const SEEDED_ROLE_CODE_BY_NAME: Record<string, string> = {
   "Project Manager": "project_manager",
   Headquarters: "headquarters",
   "Gate Guard": "gate_guard",
+  "Equipment Operator": "equipment_operator",
   Viewer: "viewer",
   "Safety Manager": "safety_manager",
   "Quantity Surveyor (QS)": "quantity_surveyor",

@@ -56,6 +56,9 @@ export interface TokenPair {
   refresh: string;
 }
 
+/** The three phones (JB104, 客户 11-05 事项 9). */
+export type PhoneRole = "site_staff" | "equipment_operator" | "gate_guard";
+
 /**
  * The signed-in user.
  *
@@ -74,6 +77,12 @@ export interface CurrentUser {
   account_type: AccountType;
   mobile_access_only: boolean;
   is_field_staff: boolean;
+  /**
+   * Which phone this account gets (JB104): the full one, the operator's
+   * 设备操作 + 沟通, or the guard's 拍照 + 沟通. `null` off the phone;
+   * absent from a server before JB104, which is the full phone.
+   */
+  phone_role?: PhoneRole | null;
   is_platform_staff: boolean;
   is_superuser: boolean;
   role: string | null;

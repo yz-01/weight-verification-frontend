@@ -19,10 +19,12 @@
 
 import { useQuery } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
+import { ImageOff } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 
+import { useAuth } from "@/components/providers/auth-provider";
 import { ExportButton } from "@/components/shared/export-button";
 import {
   FilterSelect,
@@ -35,6 +37,8 @@ import { DATE_TIME_RANGE_KEYS, DateTimeRangeFilter } from "@/components/shared/d
 import { StatusBadge } from "@/components/shared/page-primitives";
 import { RecordNo } from "@/components/shared/record-no";
 import { VisitorArrivalDialog } from "@/components/site-access/visitor-arrival";
+import { ExpiredVisitorPhotosDialog } from "@/components/site-access/visitor-privacy-settings";
+import { Button } from "@/components/ui/button";
 import { useListQuery } from "@/hooks/use-list-query";
 import type { VisitorRecord } from "@/interfaces/site-access";
 import { useDateFormat } from "@/lib/dates";
@@ -49,6 +53,11 @@ export function VisitorRecords() {
   const ta = useTranslations("siteControl.visitorArrival");
   const df = useDateFormat();
   const [openVisit, setOpenVisit] = useState<string | null>(null);
+  // 「到期访客照片」 (J33-5): the company's own routine, here beside its visitor
+  // records since 公司设置 was simplified (JB99); how long photos are kept is
+  // MSE's. The same permission as before.
+  const { can } = useAuth();
+  const [reviewingExpired, setReviewingExpired] = useState(false);
   const router = useRouter();
   const list = useListQuery(["project", "direction", "subject_type", ...DATE_TIME_RANGE_KEYS]);
   const rows = useQuery({
@@ -305,6 +314,12 @@ export function VisitorRecords() {
           />
           <DateTimeRangeFilter list={list} />
           <ExportButton onExport={runExport} disabled={total === 0} title={title} />
+          {can("company_settings.manage") && (
+            <Button variant="outline" onClick={() => setReviewingExpired(true)} data-testid="expired-visitor-photos">
+              <ImageOff />
+              {tSite("visitorPrivacy.expired.open")}
+            </Button>
+          )}
         </>
       }
       onOpen={(row) =>
@@ -314,6 +329,7 @@ export function VisitorRecords() {
       }
     />
     {openVisit && <VisitorArrivalDialog id={openVisit} onClose={() => setOpenVisit(null)} />}
+    {reviewingExpired && <ExpiredVisitorPhotosDialog onClose={() => setReviewingExpired(false)} />}
     </>
   );
 }

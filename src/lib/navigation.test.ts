@@ -665,3 +665,43 @@ describe("工地门禁 holds the guard's five pages (I25)", () => {
     expect(navTabOf("/site-access", new URLSearchParams("tab=gate"))).toBe("gate");
   });
 });
+
+/**
+ * 建筑商后台全面简化 (JB99, 客户 11-05 事项 4 第 5、9、10 点): 系统集成、外部访问
+ * 链接、技术管理 leave the contractor's menu, and typing their address does not
+ * open them - even for an account that somehow still holds the old codes.
+ * 外部设备接入 stays; 部门与工种 is new under 用户. The recycler is unchanged.
+ */
+describe("the contractor's technical pages (JB99)", () => {
+  const features = ["company_settings", "integrations", "users", "roles"];
+  const everything = [
+    "company_settings.manage",
+    "integration.view",
+    "integration.manage",
+    "external_access.view",
+    "external_access.manage",
+    "department.view",
+    "work_trade.view",
+  ];
+
+  it("refuses 系统集成、外部访问链接、技术管理 by address", () => {
+    for (const path of ["/integrations", "/external-access", "/technical"]) {
+      expect(isRouteAllowed("MSE_TRACE", features, path, everything)).toBe(false);
+    }
+    expect(isRouteAllowed("MSE_TRACE", features, "/device-integration", ["integration.view"])).toBe(true);
+    expect(isRouteAllowed("MSE_TRACE", features, "/company-settings", everything)).toBe(true);
+  });
+
+  it("keeps 系统集成 for a recycler", () => {
+    expect(isRouteAllowed("MSE_SCRAP", features, "/integrations", ["integration.view"])).toBe(true);
+  });
+
+  it("puts 部门与工种 under 用户, for whoever reads either list", () => {
+    const users = PORTAL_NAVIGATION.MSE_TRACE.find((entry) => entry.href === "/modules/users");
+    expect(navLeaves(users?.children).map((child) => child.href)).toContain("/departments-trades");
+    expect(isRouteAllowed("MSE_TRACE", ["users"], "/departments-trades", ["work_trade.view"])).toBe(true);
+    expect(isRouteAllowed("MSE_TRACE", ["users"], "/departments-trades", ["user.view"])).toBe(false);
+    const company = PORTAL_NAVIGATION.MSE_TRACE.find((entry) => entry.feature === "company_settings");
+    expect(navLeaves(company?.children).map((child) => child.href)).toEqual(["/company-settings"]);
+  });
+});

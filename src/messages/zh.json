@@ -3769,7 +3769,17 @@
       "REJECT": "拒绝",
       "RETURN": "退回",
       "APPROVE_WITH_REMEDIAL": "批准（需整改）",
-      "REVISE_RESUBMIT": "修改后重新提交"
+      "REVISE_RESUBMIT": "修改后重新提交",
+      "bulk_fill_trade": "批量填写工种",
+      "create_trade": "新增工种",
+      "company_categories_added_to_projects": "公司通用分类加到现有项目",
+      "company_category_created": "新增公司通用分类",
+      "company_category_updated": "修改公司通用分类",
+      "company_category_deleted": "删除公司通用分类",
+      "direct_conversation_started": "开始沟通对话",
+      "equipment_name_created": "新增设备名称",
+      "equipment_name_updated": "修改设备名称",
+      "settings_update_by_platform": "MSE 修改公司设定"
     },
     "objectType": {
       "SignOffAssistant": "助理副密码",
@@ -4558,6 +4568,55 @@
       "parent": "上级分类",
       "parentHint": "不选就是分类；选了就是它的子分类。只有两层。",
       "isTop": "（这是分类）"
+    },
+    "tabs": {
+      "label": "分类范围",
+      "company": "公司通用分类",
+      "project": "项目专属分类",
+      "projectIntro": "项目专属分类只影响选中的项目。新项目建立时已经带入公司通用分类；这个项目另外需要的，在这里加，不影响其他项目。"
+    },
+    "company": {
+      "intro": "公司通用分类不用选项目，项目还没开工就可以先建好。建立新项目时，系统自动带入这里启用中的全部分类。在这里修改不会改动已有项目。",
+      "modules": "公司通用分类的业务栏目",
+      "module": {
+        "material": "材料分类（含规格）",
+        "requestType": "申请类型",
+        "ehs": "整改 / EHS 分类",
+        "claim": "Progress Claim 分类",
+        "equipmentName": "设备名称",
+        "recycle": "环保材料出场分类"
+      },
+      "moduleHelp": {
+        "material": "材料和它下面的规格。建立新项目时一起带入。",
+        "requestType": "材料申请和其他申请是系统的：可以改名，不能停用或删除。",
+        "ehs": "整改 / EHS 的分类。施工准证申请是系统的。",
+        "claim": "Progress Claim 的分类。",
+        "equipmentName": "设备名称全公司共用，所有项目登记设备时都从这里选。",
+        "recycle": "环保材料出场分类本来就是全公司共用。"
+      },
+      "create": "新增分类",
+      "createTitle": "新增 · {module}",
+      "editTitle": "编辑 · {name}",
+      "addSpec": "规格",
+      "addSpecTitle": "新增规格 · {name}",
+      "name": "名称",
+      "description": "说明",
+      "descriptionHint": "例如英文名称：Rebar",
+      "unit": "单位",
+      "noUnit": "不设单位",
+      "codeAuto": "编号由系统自动生成。",
+      "fixedHelp": "每个项目都要用：可以改名，不能停用或删除。",
+      "activeHint": "停用后，新项目不再带入；已有项目不受影响。",
+      "equipmentActiveHint": "停用后，登记设备时不再提供；已登记的设备名称不变。",
+      "armRemove": "允许删除「{name}」",
+      "remove": "从公司通用分类删除",
+      "removeHint": "只从公司通用分类删除，已有项目里的分类不受影响。",
+      "empty": "这里还没有分类。",
+      "addToProjects": "加到现有项目",
+      "addToProjectsBody": "把公司通用分类里各项目还没有的分类，按名称加进去。已经有同名的不会重复加；项目里原有的分类不删除、不改名、不覆盖。已结束的项目不变。",
+      "addToProjectsGo": "开始加入",
+      "addedNone": "所有项目都已经有这些分类，没有需要加的。",
+      "addedSome": "已加到 {projects} 个项目，共 {count} 个分类。"
     }
   },
   "cloudServices": {
@@ -5021,6 +5080,19 @@
       "summary": "公司汇总",
       "plans": "套餐列表",
       "ownerAccount": "老板账号"
+    },
+    "lockedSettings": {
+      "title": "由 MSE 管理的设定",
+      "subtitle": "建筑商看不到、也改不了这些设定。新公司用系统默认值。",
+      "permissionsHelp": "新用户默认角色、默认审批角色、顾问默认权限。",
+      "gps": "GPS 技术参数",
+      "gpsHelp": "手机多久上传一次位置，实时位置多久有效。",
+      "security": "系统安全参数",
+      "securityHelp": "激活链接有效天数，手机多久要重新输入 PIN。",
+      "records": "归档与照片规则",
+      "recordsHelp": "归档后锁定记录，什么时候必须拍照。",
+      "defaults": "系统默认值",
+      "defaultsHelp": "新项目、访客证和总部 Dashboard 一开始用的值。"
     }
   },
   "consultantAccess": {
@@ -8625,6 +8697,10 @@
       "worker_link_not_confirmed": "请先确认电话号码并同意定位。",
       "gate_pass_host_not_confirmed": "接待人还没确认，不能放行。",
       "visitor_arrival_already_open": "这位访客已经在门口等待确认。",
+      "gate_photo_required": "没有照片，请先拍照。",
+      "gate_photo_unreadable": "照片无法读取（可能是空的或已损坏）。请删除后重新拍一次。",
+      "gate_photo_too_large": "照片太大，无法上传。请重新拍一次。",
+      "gate_photo_one_per_record": "「发送」每条记录只放一张照片。",
       "visitor_arrival_answered": "这位访客已经处理过了。",
       "visitor_arrival_not_host": "只有接待人或门禁管理人员可以确认。",
       "review_by_head_office": "这个分类设为「提交总部审批」，由总部验收。",
@@ -8655,6 +8731,7 @@
       "record_archived_locked": "这份资料已确认归档，已经锁定，不能修改或删除。",
       "record_in_use": "已被正式记录引用，不能删除：{used_by}",
       "consultant_application_not_confirmed": "请先确认归档，才能发送给顾问。",
+      "company_setting_locked": "这项设定由 MSE 统一管理，请联系 MSE 修改。",
       "claim_letter_required": "请先上传书信。Progress Claim 必须有书信，确认时放在 PDF 最前面。",
       "report_export_not_regenerable": "这一行不能重新生成：它已经有存档文件、属于另一份报表，或不在你的历史里。",
       "session_replaced": "这个账号已在另一台电脑登录，这台电脑已经退出。要在这台电脑继续用，请重新登录。",
@@ -8672,7 +8749,11 @@
       "worker_excel_no_header": "这个 Excel 找不到「姓名」这一栏。请用样板，第一行不要改。",
       "worker_excel_empty": "这个 Excel 里没有人。请从第 2 行开始，一行填一个人。",
       "passport_capture_link_invalid": "这个拍照链接已经失效。请在电脑的「批量新增人员」页面重新扫二维码。",
-      "equipment_number_by_system": "设备编号由系统自动给，不能人工修改。"
+      "equipment_number_by_system": "设备编号由系统自动给，不能人工修改。",
+      "category_group_single": "这个模块每个项目只有一个分类组，请直接改它的名称。",
+      "company_category_fixed": "每个项目都要用这个分类：可以改名，不能停用或删除。",
+      "phone_page_not_yours": "你的手机没有这个页面。",
+      "chat_people_invalid": "请从名单里选人。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -9035,7 +9116,7 @@
       "accessInfo": "此人目前的项目"
     },
     "role": "角色",
-    "roleHint": "门岗保安可扫通行证、拍门岗照片记录。两种角色都用这个链接在手机登入。",
+    "roleHint": "门岗保安可扫通行证、拍门岗照片记录；设备操作人员给设备开工、收工打卡。三种角色都用这个链接在手机登入。",
     "places": {
       "title": "目前登录中：{count} / {limit}",
       "none": "还没有在任何地方登录。",
@@ -9319,7 +9400,10 @@
       "location": "位置",
       "records": "现场记录",
       "tasks": "任务",
-      "hazards": "整改 / EHS"
+      "hazards": "整改 / EHS",
+      "talk": "沟通",
+      "operate": "设备操作",
+      "gatePhoto": "拍照"
     },
     "notifications": {
       "empty": "目前没有新通知",
@@ -9448,6 +9532,40 @@
       "download": "下载",
       "loading": "正在读取后台发来的文件…",
       "loadFailed": "后台发来的文件读取失败，请稍后再试。"
+    },
+    "talk": {
+      "title": "沟通",
+      "subtitle": "你参与的全部对话，最新的在上面。",
+      "find": "找人沟通",
+      "findHint": "同一公司的现场工作人员、设备操作人员和门岗。",
+      "what": "沟通列表",
+      "whatPeople": "人员名单",
+      "empty": "还没有对话。按「找人沟通」开始。",
+      "kind": {
+        "direct": "沟通",
+        "record": "事项沟通",
+        "hazard": "整改沟通"
+      },
+      "preview": {
+        "none": "还没有信息",
+        "photo": "[照片]",
+        "voice": "[语音]",
+        "file": "[文件]"
+      },
+      "roomTitle": "和 {people} 沟通",
+      "roomEmpty": "还没有人说话。",
+      "search": "搜索名字",
+      "noPeople": "找不到人。",
+      "sameProject": "同一项目",
+      "otherProjects": "其他项目",
+      "groupTitle": "群组名称（可不填）",
+      "choose": "要沟通的人",
+      "start": "{count, plural, =0 {开始沟通} other {和 # 个人开始沟通}}",
+      "startFailed": "无法开始对话，请再试一次。"
+    },
+    "operate": {
+      "title": "设备操作",
+      "subtitle": "选设备，开工或收工打卡。工时照旧交给后台审核。"
     }
   },
   "fieldStaffWorkspace": {
@@ -10122,7 +10240,9 @@
       "neverSeen": "还没有上线过",
       "available": "可以接入：在「系统集成」登记设备后就能用。",
       "droneWaiting": "等贵司启用时，告诉我们无人机品牌和管理平台，我们再接入",
-      "mediaNote": "已接入设备送来的照片、视频，照旧在原来的地方查看。"
+      "mediaNote": "已接入设备送来的照片、视频，照旧在原来的地方查看。",
+      "managedByMse": "设备由 MSE 统一接入和设定。需要接入请联系 MSE。",
+      "availableByMse": "可以接入：请联系 MSE，由 MSE 帮你接入。"
     },
     "console": {
       "state": {
@@ -12052,7 +12172,8 @@
       "progressSummary": "项目进度摘要",
       "siteWorkers": "人员名单",
       "materialTargets": "材料目标",
-      "materialRequests": "MR / 其他申请"
+      "materialRequests": "MR / 其他申请",
+      "departmentsTrades": "部门与工种"
     },
     "subscription_management": "订阅管理",
     "suppliers": "供应商",
@@ -12244,6 +12365,24 @@
       "armFirst": "先打开上面的开关"
     },
     "queued": "已暂存，等待上传",
+    "refused": {
+      "retry": "重试",
+      "delete": "删除这一条",
+      "deleteTitle": "删除这一条？",
+      "deleteHelp": "这条记录会从这台手机删掉，不会再上传，删除后不能恢复。需要的话请重新拍照或填写一次。",
+      "photoLost": "这张照片在手机上已经读不到了。请删除这一条，再重新拍一次。",
+      "incomplete": "资料不完整，无法上传（{field}）。",
+      "incompleteNoField": "资料不完整，无法上传。可以重试；还是不行请删除这一条，再重新做一次。",
+      "generic": "服务器没有接收这一条。可以重试；还是不行请删除这一条，再重新做一次。",
+      "field": {
+        "photos": "照片无法读取（可能是空的或已损坏）。请删除这一条，再重新拍一次。",
+        "photoDetails": "照片的时间或位置资料不对，无法上传。",
+        "location": "GPS 位置资料不对，无法上传。",
+        "members": "选的沟通人员已经不在这个项目，无法上传。",
+        "project": "这个项目已经没有了，或你已经不在这个项目。",
+        "time": "时间资料不对，无法上传。"
+      }
+    },
     "status": {
       "failed": "{count} 条动作需要处理",
       "syncing": "正在上传暂存的记录",
@@ -12251,7 +12390,9 @@
       "offlineNothing": "现在没有网络",
       "autoHelp": "有网络时会自动上传，不用另外操作。",
       "offlineHelp": "现在没有网络。记录已存在这台手机上，网络恢复后会自动上传，不用另外操作。",
-      "refusedHelp": "其中 {count} 条服务器没有接收，可以在「我提交过的」看原因，请联系管理员处理。"
+      "refusedHelp": "服务器没有接收下面的记录，它们不会再自动上传。看原因后可以「重试」，或「删除这一条」。",
+      "uploadFailed": "上传失败 {count} 条",
+      "refusedToast": "上传失败 {count} 条。点上方的上传图标看原因，可以重试或删除。"
     },
     "synced": "已上传 {count} 条暂存的记录",
     "filesFollow": "已送到办公室。{count} 个附件正在后台上传。",
@@ -12290,7 +12431,9 @@
     "field": {
       "active": "启用",
       "code": "编号",
-      "name": "名称"
+      "name": "名称",
+      "codeAuto": "留空，系统自动编号。",
+      "codeAutoPlaceholder": "自动生成"
     },
     "help": "你自己的部门和工种。现场在场人数按这两项拆分。",
     "inactive": "已停用",
@@ -12307,7 +12450,8 @@
       "empty": "还没有工种。要按工种统计人数，先建一个。",
       "help": "工人在现场做什么 —— 钢筋工、架子工、电工。做成一张表而不是随手填，人数才加得起来。",
       "title": "工种"
-    }
+    },
+    "pageTitle": "部门与工种"
   },
   "pageGuide": {
     "section": {
@@ -13086,7 +13230,8 @@
       "equipment": {
         "view": "查看设备与设备工时",
         "manage": "管理设备、验收进退场、调整工时",
-        "capture": "现场登记设备进退场与工时"
+        "capture": "现场登记设备进退场与工时",
+        "operate": "以操作人员身份用手机给设备开工、收工打卡"
       },
       "field_task": {
         "view": "查看现场任务",
@@ -13425,7 +13570,9 @@
       "sitePhone": "工地电话",
       "startDate": "开工日期",
       "state": "州属",
-      "status": "状态"
+      "status": "状态",
+      "projectLead": "项目负责人",
+      "geofenceRadiusM": "电子围栏半径（米）"
     },
     "filter": {
       "all": "全部",
@@ -13445,7 +13592,9 @@
       "permissionDenied": "定位权限已被拒绝。请在浏览器设置中允许定位后重试。",
       "timeout": "定位响应超时。请在 GPS 信号较好的位置重试。",
       "unavailable": "无法取得当前位置。请检查设备定位服务后重试。",
-      "unsupported": "此浏览器不支持 GPS 定位，请手动输入经纬度。"
+      "unsupported": "此浏览器不支持 GPS 定位，请手动输入经纬度。",
+      "captureOrMap": "用这台设备的 GPS 定位，或在地图上点工地位置。",
+      "backToPlace": "回到工地位置"
     },
     "new": "新建项目",
     "qr": {
@@ -13521,7 +13670,8 @@
       "identity": "基本信息",
       "location": "工地位置与电子围栏",
       "schedule": "工期",
-      "team": "工地人员"
+      "team": "工地人员",
+      "more": "更多资料（可选）"
     },
     "statistics": {
       "description": "按所选时间范围统计此项目的真实业务记录。",
@@ -13578,7 +13728,9 @@
       "unassigned": "已移出项目",
       "updated": "项目已更新"
     },
-    "viewTitle": "项目"
+    "viewTitle": "项目",
+    "codeAuto": "项目编号由系统自动生成（PRJ-0001 起）。",
+    "geofenceDefaultHint": "系统默认 {metres} 米，可以按工地实际范围修改。"
   },
   "qrCodes": {
     "result": {
@@ -14606,7 +14758,8 @@
       "storekeeper": "在所在项目登记及更正材料进场，申请材料出场，提交 MR。",
       "equipment_manager": "管理全部项目的设备进退场、设备清单、二维码贴纸和设备工时。",
       "site_supervisor": "在所在项目指派及验收现场任务与整改 / EHS，记录工程进度，处理门岗事项。",
-      "document_controller": "管理文件档案，提交顾问申请和后台审批，维护 RFI 表格。"
+      "document_controller": "管理文件档案，提交顾问申请和后台审批，维护 RFI 表格。",
+      "equipment_operator": "用手机给设备开工、收工打卡。"
     },
     "systemHint": "内置角色不可移除，确保公司始终有办法管理自己的人员。",
     "system_": {
@@ -14628,7 +14781,8 @@
       "storekeeper": "仓管 / 材料员",
       "equipment_manager": "设备管理员",
       "site_supervisor": "工地主管",
-      "document_controller": "文控"
+      "document_controller": "文控",
+      "equipment_operator": "设备操作人员"
     },
     "title": "角色权限",
     "toast": {
@@ -15493,7 +15647,10 @@
       "visitorHours": "访客证默认时长（小时）",
       "website": "公司网站",
       "worker": "工地人员",
-      "expiringSoon": "7 天内到期"
+      "expiringSoon": "7 天内到期",
+      "ssmRegistrationNo": "SSM 注册号码",
+      "codeAuto": "留空，系统自动编号。",
+      "codeAutoPlaceholder": "自动生成"
     },
     "gate": {
       "cameraError": "无法启动相机。请允许相机权限后重试，或上传二维码图片。",
@@ -15615,8 +15772,8 @@
       "title": "默认权限"
     },
     "preferences": {
-      "subtitle": "设置公司用户使用的语言、时间显示和登录首页。",
-      "title": "公司偏好"
+      "subtitle": "语言、日期格式、时间格式、时区。",
+      "title": "显示偏好"
     },
     "profile": {
       "chooseLogo": "选择公司 Logo",
@@ -15625,7 +15782,9 @@
       "logo": "Logo",
       "background": "背景图",
       "chooseBackground": "选择背景图",
-      "imageHint": "PNG、JPG 或 WebP，最大 8 MB。只有贵公司看到和使用；贵公司所有 PDF、打印件和导出文件的表头都印上贵公司的名称和 Logo。"
+      "imageHint": "PNG、JPG 或 WebP，最大 8 MB。只有贵公司看到和使用；贵公司所有 PDF、打印件和导出文件的表头都印上贵公司的名称和 Logo。",
+      "simpleSubtitle": "显示在报表、二维码记录和项目文件上。",
+      "emergencyHint": "给门岗用，可以留空。"
     },
     "projectDefaults": {
       "archiveLock": "归档后锁定记录",
@@ -15663,7 +15822,9 @@
       "siteRules": "现场作业默认规则",
       "siteRulesHelp": "每个项目可有独立围栏；这里控制时间与证据要求。",
       "subtitle": "维护建筑商公司资料，以及每个新项目自动套用的默认规则。",
-      "title": "公司设置"
+      "title": "公司设置",
+      "simpleSubtitle": "公司资料、显示偏好和分公司。",
+      "managedByMse": "系统设定（权限、二维码、通知、GPS、安全、资料保存）由 MSE 统一管理，你不需要填写。"
     },
     "shape": {
       "CIRCLE": "圆形范围",
@@ -19356,7 +19517,9 @@
       "start": "开工",
       "end": "收工",
       "running": "未收工",
-      "empty": "还没有记录。"
+      "empty": "还没有记录。",
+      "todayTitle": "当天工时",
+      "todayTotals": "今天合计"
     }
   },
   "theme": {

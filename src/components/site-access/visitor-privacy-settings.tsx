@@ -30,6 +30,7 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import type { ContractorSiteSettings } from "@/interfaces/site-access";
 import { useDateFormat } from "@/lib/dates";
+import { getCompanyExpiredVisitorPhotos, purgeCompanyVisitorPhotos } from "@/services/companies.service";
 import { getExpiredVisitorPhotos, purgeVisitorPhotos } from "@/services/site-access.service";
 
 const LANGUAGES = ["zh", "en", "zh-TW", "ms"] as const;
@@ -38,10 +39,13 @@ export function VisitorPrivacySection({
   form,
   onChange,
   canManage,
+  companyId,
 }: {
   form: ContractorSiteSettings;
   onChange: (next: Partial<ContractorSiteSettings>) => void;
   canManage: boolean;
+  /** On MSE's company page: the company whose photos 「到期访客照片」 opens (JB99). */
+  companyId?: string;
 }) {
   const t = useTranslations("siteControl.visitorPrivacy");
   const [reviewing, setReviewing] = useState(false);
@@ -103,21 +107,26 @@ export function VisitorPrivacySection({
           </FieldWrapper>
         ))}
       </div>
-      {reviewing && <ExpiredVisitorPhotosDialog onClose={() => setReviewing(false)} />}
+      {reviewing && <ExpiredVisitorPhotosDialog companyId={companyId} onClose={() => setReviewing(false)} />}
     </section>
   );
 }
 
 /** 「到期访客照片」: listed, then removed with the administrator's PIN (J33-5). */
-export function ExpiredVisitorPhotosDialog({ onClose }: { onClose: () => void }) {
+export function ExpiredVisitorPhotosDialog({ onClose, companyId }: { onClose: () => void; companyId?: string }) {
   const t = useTranslations("siteControl.visitorPrivacy.expired");
   const df = useDateFormat();
   const qc = useQueryClient();
-  const expired = useQuery({ queryKey: ["visitor-photos", "expired"], queryFn: getExpiredVisitorPhotos });
+  // The reader's own company, or the one MSE has open (JB99).
+  const queryKey = ["visitor-photos", "expired", companyId ?? "own"];
+  const expired = useQuery({
+    queryKey,
+    queryFn: () => (companyId ? getCompanyExpiredVisitorPhotos(companyId) : getExpiredVisitorPhotos()),
+  });
   const purge = useMutation({
     // The server asks for the sign-off PIN; the shared dialog collects it.
-    mutationFn: purgeVisitorPhotos,
-    onSuccess: () => void qc.invalidateQueries({ queryKey: ["visitor-photos", "expired"] }),
+    mutationFn: () => (companyId ? purgeCompanyVisitorPhotos(companyId) : purgeVisitorPhotos()),
+    onSuccess: () => void qc.invalidateQueries({ queryKey }),
   });
   const data = expired.data;
   return (

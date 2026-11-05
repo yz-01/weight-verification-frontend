@@ -53,6 +53,17 @@ export function getEquipmentPhoneRecords(project: string): Promise<EquipmentPhon
   return api.get<EquipmentPhoneRecords>("/api/equipment-hours/phone_records/", { project });
 }
 
+/** 「当天工时」 on the operator's phone (JB104): what this operator clocked today. */
+export interface OperatorToday {
+  date: string;
+  rows: EquipmentPhoneRecord[];
+  totals: EquipmentPhoneTotals;
+}
+
+export function getOperatorToday(): Promise<OperatorToday> {
+  return api.get<OperatorToday>("/api/equipment-hours/operator_today/");
+}
+
 export function getEquipmentHoursMachines(project?: string): Promise<EquipmentHoursMachine[]> {
   return api.get<EquipmentHoursMachine[]>(
     "/api/equipment-hours/equipment_options/",

@@ -5,7 +5,7 @@ import { CheckCircle2, CloudOff, Keyboard, Loader2, Play, ScanLine, Send, Square
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
-import { FieldStaffRecords } from "@/components/equipment-hours/equipment-phone-records";
+import { FieldStaffRecords, OperatorTodayRecords } from "@/components/equipment-hours/equipment-phone-records";
 import { useAuth } from "@/components/providers/auth-provider";
 import { FieldLoadNote } from "@/components/field-staff/field-load-note";
 import { FieldSignaturePad } from "@/components/field-staff/field-signature-pad";
@@ -218,8 +218,16 @@ export interface LastSent {
 export function EquipmentHoursCapture({
   initialProject = "",
   driver,
+  operator = false,
 }: {
   initialProject?: string;
+  /**
+   * 设备操作 on the operator's own phone (JB104): the account's machines and
+   * queue, checked on the server as a driver's link is - so a location is
+   * required - and under it the operator's own 「当天工时」, not the
+   * project's records.
+   */
+  operator?: boolean;
   /**
    * A driver's own clock-in link (J26): no account and no project to pick -
    * the link's machines, the link's endpoint, its own offline queue, and a
@@ -468,6 +476,7 @@ export function EquipmentHoursCapture({
           <LocationField
             label={t("phone.location")}
             readyLabel={t("phone.locationReady")}
+            required={Boolean(driver || operator)}
             value={fix}
             onChange={(next) => setFix(asFix(next))}
           />
@@ -479,8 +488,9 @@ export function EquipmentHoursCapture({
             requires={[
               [shot, t("phone.photo")],
               [signature, t("phone.signature")],
-              // On a driver's link the server judges the fence (item 125-4).
-              ...(driver ? ([[fix, t("phone.location")]] as [unknown, string][]) : []),
+              // On a driver's link the server judges the fence (item 125-4),
+              // and on the operator's phone too (JB104).
+              ...(driver || operator ? ([[fix, t("phone.location")]] as [unknown, string][]) : []),
             ]}
             disabled={send.isPending}
             onClick={() => send.mutate()}
@@ -512,7 +522,11 @@ export function EquipmentHoursCapture({
       />
 
       {/* J37-2: the project's recent records with 正常 / 超时 / 总工时. */}
-      {!driver && !machine && project ? <FieldStaffRecords project={project} /> : null}
+      {operator ? (
+        !machine ? <OperatorTodayRecords /> : null
+      ) : !driver && !machine && project ? (
+        <FieldStaffRecords project={project} />
+      ) : null}
     </div>
   );
 }

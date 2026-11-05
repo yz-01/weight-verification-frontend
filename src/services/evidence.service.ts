@@ -9,8 +9,12 @@ import type {
 import { api, download, toastSuccess } from "@/services/api-client";
 
 /** The technical page: what each person's phone still owes of originals. */
-export function getOriginalBackupOverview(): Promise<OriginalBackupOverview> {
-  return api.get<OriginalBackupOverview>("/api/evidence-originals/get_backup_overview/");
+/** 技术管理's server half; MSE names the company (JB99: MSE's page now). */
+export function getOriginalBackupOverview(company?: string): Promise<OriginalBackupOverview> {
+  return api.get<OriginalBackupOverview>(
+    "/api/evidence-originals/get_backup_overview/",
+    company ? { company } : undefined,
+  );
 }
 
 export function getEvidenceAssets(

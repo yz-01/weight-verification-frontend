@@ -3769,7 +3769,17 @@
       "REJECT": "Ditolak",
       "RETURN": "Dikembalikan",
       "APPROVE_WITH_REMEDIAL": "Diluluskan dengan kerja pemulihan",
-      "REVISE_RESUBMIT": "Semak dan hantar semula"
+      "REVISE_RESUBMIT": "Semak dan hantar semula",
+      "bulk_fill_trade": "Pertukangan diisi untuk beberapa pekerja",
+      "create_trade": "Pertukangan ditambah",
+      "company_categories_added_to_projects": "Kategori syarikat ditambah ke projek sedia ada",
+      "company_category_created": "Kategori syarikat ditambah",
+      "company_category_updated": "Kategori syarikat diubah",
+      "company_category_deleted": "Kategori syarikat dipadam",
+      "direct_conversation_started": "Perbualan dimulakan",
+      "equipment_name_created": "Nama peralatan ditambah",
+      "equipment_name_updated": "Nama peralatan diubah",
+      "settings_update_by_platform": "Tetapan syarikat diubah oleh MSE"
     },
     "objectType": {
       "SignOffAssistant": "PIN pembantu",
@@ -4558,6 +4568,55 @@
       "parent": "Kategori induk",
       "parentHint": "Tiada: kategori. Dipilih: subkategorinya. Dua aras sahaja.",
       "isTop": "(kategori)"
+    },
+    "tabs": {
+      "label": "Kategori yang mana",
+      "company": "Kategori syarikat",
+      "project": "Kategori projek",
+      "projectIntro": "Kategori projek hanya untuk projek yang dipilih. Projek baharu sudah bermula dengan kategori syarikat; tambah di sini apa yang projek ini perlukan, tanpa mengubah projek lain."
+    },
+    "company": {
+      "intro": "Kategori syarikat tidak perlukan projek: sediakan sebelum projek bermula. Setiap projek baharu mendapat semua yang aktif secara automatik. Perubahan di sini tidak mengubah projek sedia ada.",
+      "modules": "Senarai kategori syarikat",
+      "module": {
+        "material": "Bahan dan spesifikasi",
+        "requestType": "Jenis permohonan",
+        "ehs": "Kategori pembetulan / EHS",
+        "claim": "Kategori Progress Claim",
+        "equipmentName": "Nama peralatan",
+        "recycle": "Kategori bahan kitar semula keluar"
+      },
+      "moduleHelp": {
+        "material": "Bahan dan spesifikasinya. Projek baharu mendapat kedua-duanya.",
+        "requestType": "Permohonan Bahan dan Permohonan Lain milik sistem: boleh dinamakan semula, tidak boleh dimatikan atau dibuang.",
+        "ehs": "Kategori pembetulan / EHS. Kategori permit kerja milik sistem.",
+        "claim": "Kategori Progress Claim.",
+        "equipmentName": "Nama peralatan dikongsi seluruh syarikat: setiap projek memilih dari senarai ini semasa mendaftar peralatan.",
+        "recycle": "Kategori bahan kitar semula keluar sentiasa dikongsi seluruh syarikat."
+      },
+      "create": "Tambah kategori",
+      "createTitle": "Tambah · {module}",
+      "editTitle": "Sunting · {name}",
+      "addSpec": "Spesifikasi",
+      "addSpecTitle": "Tambah spesifikasi · {name}",
+      "name": "Nama",
+      "description": "Keterangan",
+      "descriptionHint": "Contohnya nama Inggeris: Rebar",
+      "unit": "Unit",
+      "noUnit": "Tiada unit",
+      "codeAuto": "Nombor dijana oleh sistem.",
+      "fixedHelp": "Setiap projek memerlukannya: boleh dinamakan semula, tidak boleh dimatikan atau dibuang.",
+      "activeHint": "Dimatikan: projek baharu tidak lagi mendapatnya. Projek sedia ada tidak terjejas.",
+      "equipmentActiveHint": "Dimatikan: tidak lagi ditawarkan semasa mendaftar. Mesin sedia ada kekal namanya.",
+      "armRemove": "Benarkan buang \"{name}\"",
+      "remove": "Buang daripada kategori syarikat",
+      "removeHint": "Hanya dibuang daripada kategori syarikat; kategori dalam projek kekal.",
+      "empty": "Belum ada kategori di sini.",
+      "addToProjects": "Tambah ke projek sedia ada",
+      "addToProjectsBody": "Menambah kategori syarikat yang belum ada dalam setiap projek, mengikut nama. Projek yang sudah ada nama yang sama tidak mendapat salinan kedua; tiada apa dalam projek dibuang, dinamakan semula atau ditimpa. Projek yang ditutup tidak diubah.",
+      "addToProjectsGo": "Tambah sekarang",
+      "addedNone": "Semua projek sudah ada kategori ini. Tiada yang perlu ditambah.",
+      "addedSome": "{count} kategori ditambah ke {projects} projek."
     }
   },
   "cloudServices": {
@@ -5021,6 +5080,19 @@
       "summary": "Ringkasan syarikat",
       "plans": "Senarai pelan",
       "ownerAccount": "Akaun pemilik"
+    },
+    "lockedSettings": {
+      "title": "Tetapan yang diurus oleh MSE",
+      "subtitle": "Kontraktor tidak dapat melihat atau mengubahnya. Syarikat baharu menggunakan nilai lalai sistem.",
+      "permissionsHelp": "Peranan pengguna baharu, siapa meluluskan, dan apa yang boleh dilihat perunding.",
+      "gps": "Parameter GPS",
+      "gpsHelp": "Kekerapan telefon melapor, dan berapa lama kedudukan dikira semasa.",
+      "security": "Keselamatan",
+      "securityHelp": "Tempoh pautan pengaktifan sah, dan bila telefon meminta PIN semula.",
+      "records": "Rekod dan foto",
+      "recordsHelp": "Kunci selepas arkib, dan bila foto mesti diambil.",
+      "defaults": "Nilai lalai sistem",
+      "defaultsHelp": "Nilai permulaan untuk projek baharu, pas pelawat dan papan pemuka."
     }
   },
   "consultantAccess": {
@@ -8625,6 +8697,10 @@
       "worker_link_not_confirmed": "Sahkan nombor telefon dan bersetuju dahulu.",
       "gate_pass_host_not_confirmed": "Tuan rumah pelawat belum mengesahkan. Jangan benarkan masuk.",
       "visitor_arrival_already_open": "Pelawat ini sudah menunggu di pintu masuk.",
+      "gate_photo_required": "Tiada gambar. Ambil gambar dahulu.",
+      "gate_photo_unreadable": "Gambar tidak boleh dibaca (kosong atau rosak). Padam dan ambil semula.",
+      "gate_photo_too_large": "Gambar terlalu besar untuk dimuat naik. Ambil semula.",
+      "gate_photo_one_per_record": "Hantar memuatkan satu gambar bagi setiap rekod.",
       "visitor_arrival_answered": "Pelawat ini sudah dijawab.",
       "visitor_arrival_not_host": "Hanya tuan rumah atau pengurus akses tapak boleh menjawab.",
       "review_by_head_office": "Kategori ini ditetapkan kepada kelulusan ibu pejabat: ibu pejabat menerimanya.",
@@ -8655,6 +8731,7 @@
       "record_archived_locked": "Ini telah disahkan dan diarkibkan. Ia dikunci dan tidak boleh diubah atau dipadam lagi.",
       "record_in_use": "Rekod rasmi menggunakannya, jadi ia tidak boleh dipadam: {used_by}",
       "consultant_application_not_confirmed": "Sahkan dan arkibkan permohonan sebelum menghantarnya kepada perunding.",
+      "company_setting_locked": "Tetapan ini diurus oleh MSE. Minta MSE untuk mengubahnya.",
       "claim_letter_required": "Muat naik surat dahulu. Progress Claim mesti ada surat; ia diletakkan di hadapan PDF.",
       "report_export_not_regenerable": "Baris sejarah ini tidak boleh dijana semula: ia sudah ada failnya, milik laporan lain, atau tiada dalam sejarah anda.",
       "session_replaced": "Akaun ini telah log masuk di komputer lain, jadi komputer ini telah dilog keluar. Untuk terus bekerja di sini, log masuk semula.",
@@ -8672,7 +8749,11 @@
       "worker_excel_no_header": "Fail Excel ini tiada lajur \"Nama\". Guna templat dan kekalkan baris pertamanya.",
       "worker_excel_empty": "Tiada sesiapa dalam fail Excel ini. Isi seorang setiap baris mulai baris 2.",
       "passport_capture_link_invalid": "Pautan gambar ini sudah tamat. Imbas kod QR semula di halaman \"Tambah ramai pekerja\" pada komputer.",
-      "equipment_number_by_system": "Nombor peralatan diberi oleh sistem dan tidak boleh diubah."
+      "equipment_number_by_system": "Nombor peralatan diberi oleh sistem dan tidak boleh diubah.",
+      "category_group_single": "Modul ini ada satu kumpulan kategori bagi setiap projek. Namakan semula kumpulan itu.",
+      "company_category_fixed": "Setiap projek memerlukan kategori ini: boleh dinamakan semula, tidak boleh dimatikan atau dibuang.",
+      "phone_page_not_yours": "Halaman ini tiada pada telefon anda.",
+      "chat_people_invalid": "Pilih orang daripada senarai."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -9035,7 +9116,7 @@
       "accessInfo": "Projek semasa orang ini"
     },
     "role": "Peranan",
-    "roleHint": "Pengawal pintu mengimbas pas dan mengambil rekod foto pintu. Kedua-duanya log masuk di telefon dengan pautan ini.",
+    "roleHint": "Pengawal pintu mengimbas pas dan mengambil rekod foto pintu. Operator jentera merekod mula dan tamat kerja jentera. Semua log masuk di telefon dengan pautan ini.",
     "places": {
       "title": "Sedang log masuk: {count} daripada {limit}",
       "none": "Belum log masuk di mana-mana.",
@@ -9319,7 +9400,10 @@
       "location": "Lokasi",
       "records": "Rakam rekod tapak",
       "tasks": "Tugas",
-      "hazards": "Pembetulan bahaya / EHS"
+      "hazards": "Pembetulan bahaya / EHS",
+      "talk": "Mesej",
+      "operate": "Jentera",
+      "gatePhoto": "Foto"
     },
     "notifications": {
       "empty": "Tiada makluman baharu",
@@ -9448,6 +9532,40 @@
       "download": "Muat turun",
       "loading": "Membaca fail dari pejabat…",
       "loadFailed": "Fail dari pejabat tidak dapat dibaca. Sila cuba lagi nanti."
+    },
+    "talk": {
+      "title": "Mesej",
+      "subtitle": "Semua perbualan anda, yang terbaru di atas.",
+      "find": "Mesej seseorang",
+      "findHint": "Kakitangan tapak, operator jentera dan pengawal pintu syarikat anda.",
+      "what": "perbualan anda",
+      "whatPeople": "senarai orang",
+      "empty": "Belum ada perbualan. Tekan 「Mesej seseorang」 untuk mula.",
+      "kind": {
+        "direct": "Perbualan",
+        "record": "Perbualan rekod",
+        "hazard": "Perbualan bahaya"
+      },
+      "preview": {
+        "none": "Belum ada mesej",
+        "photo": "[Foto]",
+        "voice": "[Suara]",
+        "file": "[Fail]"
+      },
+      "roomTitle": "Dengan {people}",
+      "roomEmpty": "Belum ada mesej.",
+      "search": "Cari nama",
+      "noPeople": "Tiada sesiapa dijumpai.",
+      "sameProject": "Dalam projek anda",
+      "otherProjects": "Projek lain",
+      "groupTitle": "Nama kumpulan (pilihan)",
+      "choose": "orang untuk dimesej",
+      "start": "{count, plural, =0 {Mula} one {Mula dengan 1 orang} other {Mula dengan # orang}}",
+      "startFailed": "Perbualan tidak dapat dimulakan. Cuba lagi."
+    },
+    "operate": {
+      "title": "Operasi jentera",
+      "subtitle": "Pilih jentera, kemudian mula atau tamat kerja. Jam anda ke pejabat seperti biasa."
     }
   },
   "fieldStaffWorkspace": {
@@ -10122,7 +10240,9 @@
       "neverSeen": "Belum pernah dilihat",
       "available": "Boleh disambung: daftar peranti dalam Integrasi sistem untuk menggunakannya.",
       "droneWaiting": "Apabila syarikat anda bersedia, beritahu kami jenama dron dan platform pengurusannya, dan kami akan menyambungkannya.",
-      "mediaNote": "Foto dan video daripada peranti yang disambung masih dilihat di tempat yang sama seperti dahulu."
+      "mediaNote": "Foto dan video daripada peranti yang disambung masih dilihat di tempat yang sama seperti dahulu.",
+      "managedByMse": "Peranti disambung dan ditetapkan oleh MSE. Hubungi MSE untuk menyambungkannya.",
+      "availableByMse": "Boleh disambung: hubungi MSE dan kami akan menyambungkannya."
     },
     "console": {
       "state": {
@@ -12052,7 +12172,8 @@
       "progressSummary": "Ringkasan kemajuan",
       "siteWorkers": "Senarai pekerja",
       "materialTargets": "Sasaran bahan",
-      "materialRequests": "MR / Permohonan Lain"
+      "materialRequests": "MR / Permohonan Lain",
+      "departmentsTrades": "Jabatan dan tred"
     },
     "subscription_management": "Pengurusan Langganan",
     "suppliers": "Pembekal",
@@ -12244,6 +12365,24 @@
       "armFirst": "Hidupkan suis di atas dahulu"
     },
     "queued": "Disimpan dalam telefon, menunggu dimuat naik",
+    "refused": {
+      "retry": "Cuba lagi",
+      "delete": "Padam yang ini",
+      "deleteTitle": "Padam yang ini?",
+      "deleteHelp": "Rekod ini dibuang dari telefon ini dan tidak akan dimuat naik. Ia tidak boleh dikembalikan. Ambil gambar atau isi semula jika masih perlu.",
+      "photoLost": "Gambar ini tidak boleh dibaca lagi dalam telefon ini. Padam yang ini dan ambil gambar semula.",
+      "incomplete": "Maklumat tidak lengkap atau salah, jadi tidak boleh dimuat naik ({field}).",
+      "incompleteNoField": "Maklumat tidak lengkap atau salah, jadi tidak boleh dimuat naik. Cuba lagi; jika masih gagal, padam yang ini dan buat semula.",
+      "generic": "Pelayan tidak menerima yang ini. Cuba lagi; jika masih gagal, padam yang ini dan buat semula.",
+      "field": {
+        "photos": "Gambar tidak boleh dibaca (kosong atau rosak). Padam yang ini dan ambil gambar semula.",
+        "photoDetails": "Masa atau lokasi gambar salah, jadi tidak boleh dimuat naik.",
+        "location": "Kedudukan GPS salah, jadi tidak boleh dimuat naik.",
+        "members": "Orang yang anda pilih untuk berbincang tiada lagi dalam projek ini, jadi tidak boleh dimuat naik.",
+        "project": "Projek ini sudah tiada, atau anda tiada lagi dalam projek ini.",
+        "time": "Masa salah, jadi tidak boleh dimuat naik."
+      }
+    },
     "status": {
       "failed": "{count} tindakan perlu diuruskan",
       "syncing": "Memuat naik rekod yang disimpan",
@@ -12251,7 +12390,9 @@
       "offlineNothing": "Tiada sambungan sekarang",
       "autoHelp": "Ia dimuat naik sendiri apabila ada sambungan. Tiada apa perlu dibuat.",
       "offlineHelp": "Tiada sambungan sekarang. Rekod anda disimpan dalam telefon ini dan dimuat naik sendiri apabila sambungan kembali. Tiada apa perlu dibuat.",
-      "refusedHelp": "{count} daripadanya tidak diterima oleh pelayan. Lihat sebabnya di \"Hantaran saya\" dan minta pentadbir anda menguruskannya."
+      "refusedHelp": "Pelayan tidak menerima rekod di bawah, dan ia tidak akan dimuat naik sendiri. Baca sebabnya, kemudian tekan Cuba lagi atau Padam yang ini.",
+      "uploadFailed": "{count} rekod gagal dimuat naik",
+      "refusedToast": "{count} rekod gagal dimuat naik. Tekan tanda muat naik di atas untuk lihat sebabnya, cuba lagi atau padam."
     },
     "synced": "{count} rekod yang disimpan telah dimuat naik",
     "filesFollow": "Dihantar ke pejabat. {count} fail masih dimuat naik di latar belakang.",
@@ -12290,7 +12431,9 @@
     "field": {
       "active": "Aktif",
       "code": "Kod",
-      "name": "Nama"
+      "name": "Nama",
+      "codeAuto": "Biarkan kosong, sistem akan menomborkannya.",
+      "codeAutoPlaceholder": "Automatik"
     },
     "help": "Jabatan dan bidang kerja anda sendiri. Kedua-duanya digunakan untuk memecahkan kiraan pekerja di tapak.",
     "inactive": "Tidak aktif",
@@ -12307,7 +12450,8 @@
       "empty": "Belum ada bidang kerja. Tambah satu sebelum kiraan boleh dipecahkan mengikutnya.",
       "help": "Apa yang orang buat di tapak — tukang besi, tukang perancah, juruelektrik. Disimpan sebagai senarai supaya kiraan mengikut bidang kerja betul.",
       "title": "Bidang kerja"
-    }
+    },
+    "pageTitle": "Jabatan dan tred"
   },
   "pageGuide": {
     "section": {
@@ -13086,7 +13230,8 @@
       "equipment": {
         "view": "Lihat peralatan dan jam operasi",
         "manage": "Urus peralatan, terima masuk dan keluar, laras jam",
-        "capture": "Rekod peralatan masuk, keluar dan jam di tapak"
+        "capture": "Rekod peralatan masuk, keluar dan jam di tapak",
+        "operate": "Merekod mula dan tamat kerja jentera sebagai operatornya, dari telefon"
       },
       "field_task": {
         "view": "Lihat tugas tapak",
@@ -13425,7 +13570,9 @@
       "sitePhone": "Telefon tapak",
       "startDate": "Tarikh mula",
       "state": "Negeri",
-      "status": "Status"
+      "status": "Status",
+      "projectLead": "Ketua projek",
+      "geofenceRadiusM": "Jejari pagar geo (m)"
     },
     "filter": {
       "all": "Semua",
@@ -13445,7 +13592,9 @@
       "permissionDenied": "Kebenaran lokasi ditolak. Benarkan akses lokasi dalam pelayar dan cuba lagi.",
       "timeout": "Lokasi mengambil masa terlalu lama. Cuba lagi di tempat dengan isyarat GPS yang lebih jelas.",
       "unavailable": "Lokasi semasa tidak dapat ditentukan. Semak perkhidmatan lokasi peranti dan cuba lagi.",
-      "unsupported": "Pelayar ini tidak menyokong lokasi GPS. Masukkan koordinat secara manual."
+      "unsupported": "Pelayar ini tidak menyokong lokasi GPS. Masukkan koordinat secara manual.",
+      "captureOrMap": "Guna GPS peranti ini, atau klik tapak pada peta.",
+      "backToPlace": "Kembali ke tapak"
     },
     "new": "Projek baharu",
     "qr": {
@@ -13521,7 +13670,8 @@
       "identity": "Maklumat asas",
       "location": "Lokasi tapak dan geofence",
       "schedule": "Jadual",
-      "team": "Pasukan tapak"
+      "team": "Pasukan tapak",
+      "more": "Butiran lanjut (pilihan)"
     },
     "statistics": {
       "description": "Rekod sebenar projek ini mengikut tempoh yang dipilih.",
@@ -13578,7 +13728,9 @@
       "unassigned": "Dikeluarkan dari projek",
       "updated": "Projek dikemas kini"
     },
-    "viewTitle": "Projek"
+    "viewTitle": "Projek",
+    "codeAuto": "Nombor projek diberi oleh sistem (bermula PRJ-0001).",
+    "geofenceDefaultHint": "Lalai sistem {metres} m. Ubah mengikut tapak."
   },
   "qrCodes": {
     "result": {
@@ -14606,7 +14758,8 @@
       "storekeeper": "Merekod dan membetulkan terimaan bahan, memohon bahan keluar dan menghantar MR di projek mereka.",
       "equipment_manager": "Mengurus peralatan masuk dan keluar, senarai peralatan, pelekat QR dan jam operasi di semua projek.",
       "site_supervisor": "Menugaskan dan menerima tugas tapak serta pembetulan bahaya, merekod kemajuan dan mengendalikan isu pintu di projek mereka.",
-      "document_controller": "Menjaga arkib dokumen, menghantar permohonan perunding dan kelulusan pejabat, serta menyelenggara borang RFI."
+      "document_controller": "Menjaga arkib dokumen, menghantar permohonan perunding dan kelulusan pejabat, serta menyelenggara borang RFI.",
+      "equipment_operator": "Merekod mula dan tamat kerja jentera tapak dari telefon."
     },
     "systemHint": "Peranan terbina dalam tidak boleh dibuang, supaya syarikat sentiasa ada cara untuk menguruskan orangnya sendiri.",
     "system_": {
@@ -14628,7 +14781,8 @@
       "storekeeper": "Penjaga Stor",
       "equipment_manager": "Pengurus Peralatan",
       "site_supervisor": "Penyelia Tapak",
-      "document_controller": "Pengawal Dokumen"
+      "document_controller": "Pengawal Dokumen",
+      "equipment_operator": "Operator Jentera"
     },
     "title": "Peranan",
     "toast": {
@@ -15493,7 +15647,10 @@
       "visitorHours": "Tempoh pas pelawat (jam)",
       "website": "Laman web",
       "worker": "Pekerja tapak",
-      "expiringSoon": "Tamat dalam 7 hari"
+      "expiringSoon": "Tamat dalam 7 hari",
+      "ssmRegistrationNo": "No. pendaftaran SSM",
+      "codeAuto": "Biarkan kosong, sistem akan menomborkannya.",
+      "codeAutoPlaceholder": "Automatik"
     },
     "gate": {
       "cameraError": "Kamera tidak dapat dimulakan. Benarkan akses kamera dan cuba lagi, atau muat naik imej QR.",
@@ -15615,8 +15772,8 @@
       "title": "Kebenaran lalai"
     },
     "preferences": {
-      "subtitle": "Pilih bahasa, paparan masa dan halaman pertama untuk pengguna syarikat.",
-      "title": "Keutamaan syarikat"
+      "subtitle": "Bahasa, format tarikh, format masa dan zon waktu.",
+      "title": "Pilihan paparan"
     },
     "profile": {
       "chooseLogo": "Pilih logo syarikat",
@@ -15625,7 +15782,9 @@
       "logo": "Logo",
       "background": "Imej latar",
       "chooseBackground": "Pilih imej latar",
-      "imageHint": "PNG, JPG atau WebP, sehingga 8 MB. Hanya syarikat anda melihat dan menggunakannya. Nama dan logo syarikat anda menjadi kepala setiap PDF, cetakan dan eksport rekod anda."
+      "imageHint": "PNG, JPG atau WebP, sehingga 8 MB. Hanya syarikat anda melihat dan menggunakannya. Nama dan logo syarikat anda menjadi kepala setiap PDF, cetakan dan eksport rekod anda.",
+      "simpleSubtitle": "Dipaparkan pada laporan, rekod QR dan dokumen projek anda.",
+      "emergencyHint": "Untuk pondok pengawal. Boleh dibiarkan kosong."
     },
     "projectDefaults": {
       "archiveLock": "Kunci rekod selepas arkib",
@@ -15663,7 +15822,9 @@
       "siteRules": "Lalai operasi tapak",
       "siteRulesHelp": "Setiap projek boleh mempunyai sempadan sendiri; nilai ini mengawal masa dan bukti.",
       "subtitle": "Urus profil kontraktor dan peraturan lalai untuk setiap projek baharu.",
-      "title": "Tetapan syarikat"
+      "title": "Tetapan syarikat",
+      "simpleSubtitle": "Butiran syarikat, pilihan paparan dan cawangan anda.",
+      "managedByMse": "Tetapan sistem (kebenaran, peraturan QR, pemberitahuan, GPS, keselamatan dan penyimpanan rekod) diurus oleh MSE. Anda tidak perlu mengisinya."
     },
     "shape": {
       "CIRCLE": "Sempadan bulat",
@@ -19356,7 +19517,9 @@
       "start": "Mula",
       "end": "Tamat",
       "running": "Belum tamat",
-      "empty": "Belum ada rekod."
+      "empty": "Belum ada rekod.",
+      "todayTitle": "Jam hari ini",
+      "todayTotals": "Jumlah hari ini"
     }
   },
   "theme": {

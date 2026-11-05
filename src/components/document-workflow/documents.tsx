@@ -2627,19 +2627,18 @@ export function CategoryForm({
       title={t(category ? "documents.categories.edit" : "documents.categories.create")}
       isPending={mutation.isPending}
       requires={[
-        [code, t("documents.field.code")],
+        // 编号 is the system's on a new one: DOC-0001 on (JB100).
+        ...(category ? [[code, t("documents.field.code")] as const] : []),
         [name, t("documents.field.name")],
       ]}
       onCancel={onCancel}
       onSubmit={() => mutation.mutate()}
     >
-      <FieldWrapper label={t("documents.field.code")} required error={errors.code}>
-        <Input
-          value={code}
-          disabled={category !== null}
-          onChange={(event) => setCode(event.target.value)}
-        />
-      </FieldWrapper>
+      {category !== null && (
+        <FieldWrapper label={t("documents.field.code")} required error={errors.code}>
+          <Input value={code} disabled onChange={(event) => setCode(event.target.value)} />
+        </FieldWrapper>
+      )}
       <FieldWrapper label={t("documents.field.name")} required error={errors.name}>
         <Input value={name} onChange={(event) => setName(event.target.value)} />
       </FieldWrapper>
@@ -2760,7 +2759,8 @@ function SubcategoryForm({
       isPending={mutation.isPending}
       requires={[
         [category, t("documents.field.category")],
-        [code, t("documents.field.code")],
+        // 编号 is the system's on a new one: SUB-0001 on in its category (JB100).
+        ...(subcategory ? [[code, t("documents.field.code")] as const] : []),
         [name, t("documents.field.name")],
       ]}
       onCancel={onCancel}
@@ -2790,9 +2790,11 @@ function SubcategoryForm({
           </SelectContent>
         </Select>
       </FieldWrapper>
-      <FieldWrapper label={t("documents.field.code")} required error={errors.code}>
-        <Input value={code} onChange={(event) => setCode(event.target.value)} />
-      </FieldWrapper>
+      {subcategory !== null && (
+        <FieldWrapper label={t("documents.field.code")} required error={errors.code}>
+          <Input value={code} disabled onChange={(event) => setCode(event.target.value)} />
+        </FieldWrapper>
+      )}
       <FieldWrapper label={t("documents.field.name")} required error={errors.name}>
         <Input value={name} onChange={(event) => setName(event.target.value)} />
       </FieldWrapper>

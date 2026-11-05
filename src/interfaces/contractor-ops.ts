@@ -544,6 +544,38 @@ export interface EquipmentName {
   is_active: boolean;
 }
 
+/** The kinds on 「公司通用分类」's own list (JB103). */
+export type CompanyCategoryKind = "MATERIAL" | "REQUEST_TYPE" | "EHS" | "CLAIM";
+
+/**
+ * One 「公司通用分类」 (JB103, 客户 11-05 事项 8): kept with no project, copied
+ * into every new project, and into existing ones by 「加到现有项目」.
+ */
+export interface CompanyCategory {
+  id: string;
+  kind: CompanyCategoryKind;
+  /** Made by the server, never typed (客户 11-05 事项 7). */
+  code: string;
+  name: string;
+  description: string;
+  sort_order: number;
+  is_active: boolean;
+  /** 材料申请, 其他申请, 施工准证申请: renamed, never switched off or removed. */
+  is_fixed: boolean;
+  default_unit: string;
+  form_style: "" | "MATERIAL" | "GENERAL";
+  parent: string | null;
+  /** A material's specifications. */
+  specs?: CompanyCategory[];
+}
+
+/** What 「加到现有项目」 added, project by project. */
+export interface CompanyCategoriesAdded {
+  projects: { project: string; project_name: string; added: string[] }[];
+  project_count: number;
+  added_count: number;
+}
+
 export interface EquipmentPayload {
   project: string;
   /** Given by the system since JB96 - never sent; kept for old callers' types. */

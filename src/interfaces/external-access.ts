@@ -26,6 +26,8 @@ export type ExternalAccessField =
   | "evidence";
 
 export interface ExternalAccessGrantInput {
+  /** MSE names the contractor the link is for (JB99); a tenant never sends it. */
+  company?: string;
   name: string;
   project: string | null;
   allowed_fields: ExternalAccessField[];

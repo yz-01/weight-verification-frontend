@@ -479,7 +479,7 @@ export async function request<T>(
         !isCredentialExchange(path)
       ) {
         endSession();
-      } else if (!attempt.silent) {
+      } else if (!attempt.silent && quietErrors === 0) {
         toast.error(message);
       }
       throw failure;
@@ -804,6 +804,9 @@ function filenameFromDisposition(header: string | null): string | undefined {
  * readable, and better than showing a raw identifier. That gap is what the
  * backend's error-code test exists to prevent.
  */
+/** The server's generic refusal sentence (`core.viewsets.validation_error`). */
+const GENERIC_VALIDATION_SENTENCE = "Validation failed.";
+
 function resolveMessage(
   code: string,
   serverMessage: string,
@@ -819,6 +822,12 @@ function resolveMessage(
       // through to the server's own sentence keeps the reason on screen
       // instead of printing the key path at the reader.
     }
+  }
+  // A refusal the server sent without a code still says 「Validation
+  // failed.」 in English and names nothing (客户 11-05 事项 1, 图 2): it reads
+  // as the coded one does.
+  if (serverMessage === GENERIC_VALIDATION_SENTENCE) {
+    return t("errors.api.validation_failed");
   }
   return serverMessage || t("errors.generic");
 }
@@ -1008,6 +1017,25 @@ export async function withoutSuccessToasts<T>(run: () => Promise<T>): Promise<T>
   }
 }
 
+/**
+ * While above zero, a refusal is not toasted either (JB98).
+ *
+ * The upload queue sends in the background, often while the worker is on
+ * another screen: a refusal toasted there named a record they could not see
+ * (客户 11-05 事项 1, 图 2). The queue keeps the reason on the record and says
+ * 「上传失败」 once, pointing at the 「已暂存」 sign where it can be read.
+ */
+let quietErrors = 0;
+
+export async function withoutErrorToasts<T>(run: () => Promise<T>): Promise<T> {
+  quietErrors += 1;
+  try {
+    return await run();
+  } finally {
+    quietErrors -= 1;
+  }
+}
+
 export const SUCCESS_TOAST_MS = 4000;
 const SUCCESS_TOAST_FAILSAFE_MS = 3000;
 
@@ -1034,4 +1062,9 @@ export function toastSuccess(messageKey: string, values?: Record<string, unknown
 /** The outcome of a phone submit or an upload pass: always said. */
 export function toastOutcome(messageKey: string, values?: Record<string, unknown>): void {
   showSuccessToast(t(messageKey, values));
+}
+
+/** What an upload pass could not send (JB98): one worded line, always said. */
+export function toastRefusal(messageKey: string, values?: Record<string, unknown>): void {
+  toast.error(t(messageKey, values));
 }

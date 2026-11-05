@@ -15,6 +15,7 @@ import type {
   CompanySummary,
   SubscriptionPlan,
 } from "@/interfaces/company";
+import type { CompanyLockedSettings, ExpiredVisitorPhotos } from "@/interfaces/site-access";
 import { api, toastSuccess } from "@/services/api-client";
 
 function companyBody(payload: Partial<CompanyPayload>): Partial<CompanyPayload> | FormData {
@@ -33,6 +34,32 @@ export function getCompanies(query: ListQuery): Promise<Paginated<CompanyRow>> {
 
 export function getCompany(id: string): Promise<CompanyDetail> {
   return api.get<CompanyDetail>(`/api/companies/${id}/get_company/`);
+}
+
+/** A contractor's settings, the ones MSE manages included (JB99). */
+export function getCompanySiteSettings(id: string): Promise<CompanyLockedSettings> {
+  return api.get<CompanyLockedSettings>(`/api/companies/${id}/get_site_settings/`);
+}
+
+export async function updateCompanySiteSettings(
+  id: string,
+  payload: Partial<CompanyLockedSettings>,
+): Promise<CompanyLockedSettings> {
+  const row = await api.patch<CompanyLockedSettings>(`/api/companies/${id}/update_site_settings/`, payload);
+  toastSuccess("siteControl.toast.settingsSaved");
+  return row;
+}
+
+/** A contractor's 到期访客照片, read from MSE's company page (JB99). */
+export function getCompanyExpiredVisitorPhotos(id: string): Promise<ExpiredVisitorPhotos> {
+  return api.get<ExpiredVisitorPhotos>(`/api/companies/${id}/get_expired_visitor_photos/`);
+}
+
+/** Remove them for the company - the server asks for MSE's sign-off PIN. */
+export async function purgeCompanyVisitorPhotos(id: string) {
+  const row = await api.post<{ purged: number; id?: string }>(`/api/companies/${id}/purge_visitor_photos/`, {});
+  toastSuccess("siteControl.toast.visitorPhotosRemoved");
+  return row;
 }
 
 export async function createCompany(

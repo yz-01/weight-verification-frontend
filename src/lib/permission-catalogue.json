@@ -545,6 +545,11 @@
       "label": "Record equipment entry, exit and hours on site"
     },
     {
+      "code": "equipment.operate",
+      "group": "equipment",
+      "label": "Clock machines on and off as their operator, from the phone"
+    },
+    {
       "code": "field_task.view",
       "group": "field_task",
       "label": "View site tasks"
@@ -1253,6 +1258,12 @@
       "code": "gate_guard",
       "name": "Gate Guard",
       "description": "Scans passes at the gate and photographs what happens there."
+    },
+    {
+      "audience": "CONTRACTOR",
+      "code": "equipment_operator",
+      "name": "Equipment Operator",
+      "description": "Clocks the site's machines on and off from the phone."
     },
     {
       "audience": "CONTRACTOR",

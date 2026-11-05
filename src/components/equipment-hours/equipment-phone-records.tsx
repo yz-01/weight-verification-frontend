@@ -22,7 +22,7 @@ import { QueryFailedNote } from "@/components/shared/page-primitives";
 import type { EquipmentPhoneRecord, EquipmentPhoneTotals } from "@/interfaces/equipment-hours";
 import { cn } from "@/lib/utils";
 import { getDriverMyRecords } from "@/services/driver-clock.service";
-import { getEquipmentPhoneRecords } from "@/services/equipment-hours.service";
+import { getEquipmentPhoneRecords, getOperatorToday } from "@/services/equipment-hours.service";
 
 const clockFormat = new Intl.DateTimeFormat("en-GB", {
   timeZone: "Asia/Kuala_Lumpur",
@@ -157,6 +157,32 @@ export function FieldStaffRecords({ project }: { project: string }) {
         <Loader2 className="mx-auto size-6 animate-spin text-primary" />
       ) : (
         <PhoneRecordsList rows={query.data.rows} totals={query.data.totals} totalsTitle={t("recentTotals")} />
+      )}
+    </section>
+  );
+}
+
+/**
+ * 「当天工时」 under the operator's 设备操作 (JB104): the machines this
+ * operator clocked today - a night shift still running from yesterday too -
+ * and today's totals, as the office has them. Read only.
+ */
+export function OperatorTodayRecords() {
+  const t = useTranslations("equipmentHours.records");
+  const query = useQuery({
+    // Under `phone-records`, so a clock-in refreshes it (`EquipmentHoursCapture`).
+    queryKey: ["equipment-hours", "phone-records", "operator-today"],
+    queryFn: getOperatorToday,
+  });
+  return (
+    <section className="space-y-3 border-t pt-4" data-testid="operator-today">
+      <h2 className="text-base font-semibold">{t("todayTitle")}</h2>
+      {query.isError ? (
+        <QueryFailedNote query={query} what={t("what")} />
+      ) : !query.data ? (
+        <Loader2 className="mx-auto size-6 animate-spin text-primary" />
+      ) : (
+        <PhoneRecordsList rows={query.data.rows} totals={query.data.totals} totalsTitle={t("todayTotals")} />
       )}
     </section>
   );

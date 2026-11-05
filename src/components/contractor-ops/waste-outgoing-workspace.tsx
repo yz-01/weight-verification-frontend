@@ -1828,19 +1828,17 @@ function WasteCategoryDialog({
   onChanged: () => void;
 }) {
   const t = useTranslations("wasteOutgoing");
-  const [code, setCode] = useState("");
   const [name, setName] = useState("");
   const [dispatchType, setDispatchType] = useState(dispatchTypes[0] ?? "");
 
   const create = useMutation({
     mutationFn: () =>
+      // The server numbers it (JB102, 客户 11-05 「分类编号全部自动生成」).
       createWasteCategory({
-        code: code.trim().toUpperCase(),
         name: name.trim(),
         dispatch_type: dispatchType,
       }),
     onSuccess: () => {
-      setCode("");
       setName("");
       onChanged();
     },
@@ -1912,13 +1910,7 @@ function WasteCategoryDialog({
           ))}
         </ul>
 
-        <div className="grid gap-4 sm:grid-cols-4">
-          <FieldWrapper label={t("category.code")} required>
-            <Input
-              value={code}
-              onChange={(event) => setCode(event.target.value.toUpperCase())}
-            />
-          </FieldWrapper>
+        <div className="grid gap-4 sm:grid-cols-3">
           <FieldWrapper label={t("category.name")} required className="sm:col-span-2">
             <Input
               value={name}
@@ -1945,10 +1937,7 @@ function WasteCategoryDialog({
             {t("action.close")}
           </Button>
           <Button
-            requires={[
-              [code, t("category.code")],
-              [name, t("category.name")],
-            ]}
+            requires={[[name, t("category.name")]]}
             disabled={create.isPending}
             onClick={() => create.mutate()}
           >

@@ -1408,6 +1408,15 @@ export const PORTAL_NAVIGATION = {
         "/user-handovers",
         "users",
       ),
+      // 部门与工种 (JB99, 客户 11-05 事项 3 第 6 点): out of 公司设置, into the
+      // menu where the people are.
+      child(
+        "16.2.9",
+        "nav.submodule.departmentsTrades",
+        "/departments-trades",
+        "users",
+        "department.view|work_trade.view",
+      ),
       child(
         "16.2.4",
         "nav.submodule.userActivity",
@@ -1477,37 +1486,17 @@ export const PORTAL_NAVIGATION = {
           "/company-settings",
           "company_settings",
         ),
-        child(
-          "18.2.2",
-          "nav.submodule.integrationSettings",
-          "/integrations",
-          "integrations",
-        ),
-        // External Access Portal is one of the six application ends in the
-        // architecture document (七、应用层架构). It has no numbered clause in
-        // the role documents, hence the "A" prefix the repo uses elsewhere.
-        child(
-          "A7",
-          "nav.submodule.externalAccess",
-          "/external-access",
-          "company_settings",
-          "external_access.manage",
-        ),
-        // 技术管理 (Lucas, 2026-10-09: 「原图同步、重试及储存管理放在技术管理
-        // 页面，不显示给现场人员」): photo uploads and original backups. Site
-        // staff hold no company_settings.manage, so they never see it.
-        child(
-          "A8",
-          "nav.submodule.technical",
-          "/technical",
-          "company_settings",
-          "company_settings.manage",
-        ),
+        // 系统集成 (18.2.2), 外部访问链接 (A7) and 技术管理 (A8) are not the
+        // contractor's any more (JB99, 客户 11-05 事项 4: 「系统集成、外部访问
+        // 链接、技术管理，全部从建筑商后台移除」). Out of this menu, so their
+        // addresses are not this portal's either and refuse; the backend
+        // withdrew the permissions too. The pages stay for the portals that
+        // still use them; 技术管理's phone tools moved to the phone (JB98).
       ],
     ),
     // 外部设备接入 (JB69, client 10-29: 「把它写进菜单里」): every device kind
-    // and how far the company is with each; its settings stay on 系统集成,
-    // under the same feature and permission.
+    // and how far the company is with each. Read only for a contractor since
+    // JB99 (客户 11-05 事项 4 第 10 点): connecting one is MSE's.
     entry("integrations", "submodule.deviceIntegration", "/device-integration", Cable, "system"),
   ],
   MSE_SCRAP: [
@@ -1934,6 +1923,7 @@ const PERMISSION_ROUTE_RULES: readonly PermissionRouteRule[] = [
   { pattern: "/consultant-field-inbox", permission: "consultant.submit" },
   { pattern: "/external-access", permission: "external_access.manage" },
   { pattern: "/technical", permission: "company_settings.manage" },
+  { pattern: "/departments-trades", permission: "department.view|work_trade.view" },
 ];
 
 function matchesPattern(pathname: string, pattern: string): boolean {

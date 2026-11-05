@@ -43,6 +43,14 @@ const OFFICE: SettingsReader = {
   company_type: "CONTRACTOR",
 };
 
+/** A recycler's office: its back office keeps 系统集成 (「回收商后台不动」). */
+const YARD: SettingsReader = {
+  ...OFFICE,
+  portal: "MSE_SCRAP",
+  features: ["company_settings", "integrations", "users", "roles"],
+  company_type: "RECYCLER",
+};
+
 function found(query: string, user: SettingsReader = OFFICE, messages: Messages = zh as Messages) {
   return searchSettings(query, settingsResults(user, translator(messages)));
 }
@@ -80,14 +88,33 @@ describe("who sees what", () => {
     expect(hrefs).not.toContain("/integrations");
     expect(hrefs).not.toContain("/device-integration");
     expect(found("集成", noIntegrations)).toEqual([]);
-    // With it, they are there.
-    expect(visibleSettings(OFFICE).map((row) => row.href)).toContain("/integrations");
+    // With it, they are there - on a recycler's back office; a contractor's
+    // has no 系统集成 since JB99.
+    expect(visibleSettings(YARD).map((row) => row.href)).toContain("/integrations");
   });
 
   it("keeps a section that needs its own permission for who holds it", () => {
-    const viewOnly = { ...OFFICE, permissions: ["integration.view"] };
+    const viewOnly = { ...YARD, permissions: ["integration.view"] };
     expect(visibleSettings(viewOnly).map((row) => row.anchor)).not.toContain("integrations-new");
-    expect(visibleSettings(OFFICE).map((row) => row.anchor)).toContain("integrations-new");
+    expect(visibleSettings(YARD).map((row) => row.anchor)).toContain("integrations-new");
+  });
+
+  it("finds no technical setting for a contractor (JB99)", () => {
+    // Even holding every code it once held: 系统集成、外部访问链接、技术管理
+    // are out of the contractor's menu, and so out of its search.
+    const rows = visibleSettings(OFFICE);
+    const hrefs = rows.map((row) => row.href);
+    expect(hrefs).not.toContain("/integrations");
+    expect(hrefs).not.toContain("/external-access");
+    expect(hrefs).not.toContain("/technical");
+    expect(hrefs).toContain("/device-integration");
+    // 公司设置 is its three blocks; nothing MSE manages is offered.
+    const company = rows.filter((row) => row.href === "/company-settings").map((row) => row.anchor);
+    expect(company).toEqual(["company-profile", "company-preferences", "company-branches"]);
+    expect(found("二维码")).toEqual([]);
+    // 部门与工种 is found on its own page under 用户.
+    const people = { ...OFFICE, permissions: [...(OFFICE.permissions ?? []), "department.view"] };
+    expect(found("工种", people).map((row) => row.href)).toEqual(["/departments-trades"]);
   });
 
   it("gives everybody their profile, the PIN sections to office accounts only", () => {

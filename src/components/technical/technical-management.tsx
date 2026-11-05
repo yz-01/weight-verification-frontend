@@ -51,13 +51,19 @@ export function TechnicalManagement() {
 
 const COLUMNS = ["person", "pending", "failed", "backedUp", "owed", "oldest", "lastError"] as const;
 
-/** The company's originals, per person, as the server holds them. */
-function ServerOriginals() {
+/**
+ * The company's originals, per person, as the server holds them.
+ *
+ * Since JB99 (客户 11-05 事项 4: 技术管理 「从建筑商后台移除……统一由MSE Admin
+ * 管理」) this half is MSE's: shown on the platform's company page for that
+ * company (`companyId`). The device half moved to the phone (JB98).
+ */
+export function ServerOriginals({ companyId }: { companyId?: string } = {}) {
   const t = useTranslations("technical.server");
   const df = useDateFormat();
   const overview = useQuery({
-    queryKey: ["evidence-originals", "overview"],
-    queryFn: getOriginalBackupOverview,
+    queryKey: ["evidence-originals", "overview", companyId ?? "own"],
+    queryFn: () => getOriginalBackupOverview(companyId),
   });
   const totals = overview.data?.totals;
   const people = overview.data?.people ?? [];
