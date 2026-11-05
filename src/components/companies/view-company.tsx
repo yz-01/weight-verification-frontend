@@ -8,6 +8,8 @@ import Link from "next/link";
 import { useAuth } from "@/components/providers/auth-provider";
 import { CompanyLockedSettingsPanel } from "@/components/companies/company-locked-settings";
 import { CompanyOnboarding } from "@/components/companies/company-onboarding";
+import { ExternalAccessManagement } from "@/components/external-access/external-access-management";
+import { ServerOriginals } from "@/components/technical/technical-management";
 import { FormSection, FormSkeleton, LoadErrorCard } from "@/components/shared/form-shell";
 import {
   DetailHeader,
@@ -263,6 +265,18 @@ export function ViewCompany({ id }: { id: string }) {
         </div>
         {/* 锁起来的设定 (JB99): the contractor's own page no longer has them. */}
         {data.type === "CONTRACTOR" && <CompanyLockedSettingsPanel companyId={data.id} />}
+        {/* 外部访问链接 and 技术管理 left the contractor's back office; MSE runs
+            them here, for this company (JB99, 客户 11-05 事项 4 第 5、8 点). */}
+        {data.type === "CONTRACTOR" && can("external_access.manage") && (
+          <section id="company-external-access" className="scroll-mt-20 border-t p-4 sm:p-6">
+            <ExternalAccessManagement companyId={data.id} />
+          </section>
+        )}
+        {data.type === "CONTRACTOR" && can("platform.monitor") && (
+          <section id="company-technical" className="scroll-mt-20 border-t p-4 sm:p-6">
+            <ServerOriginals companyId={data.id} />
+          </section>
+        )}
         <CompanyOnboarding company={data} />
       </div>
     </div>

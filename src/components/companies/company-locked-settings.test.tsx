@@ -18,9 +18,9 @@ const reader = vi.hoisted(() => ({ updates: true }));
 vi.mock("@/components/providers/auth-provider", () => ({
   useAuth: () => ({ user: null, can: (code: string) => code !== "company.update" || reader.updates }),
 }));
-const api = vi.hoisted(() => ({ get: vi.fn(), patch: vi.fn() }));
+const api = vi.hoisted(() => ({ get: vi.fn(), patch: vi.fn(), post: vi.fn() }));
 vi.mock("@/services/api-client", () => ({
-  api: { ...api, post: vi.fn(), list: vi.fn(), delete: vi.fn(), put: vi.fn() },
+  api: { ...api, list: vi.fn(), delete: vi.fn(), put: vi.fn() },
   toastSuccess: vi.fn(),
   download: vi.fn(),
 }));
@@ -65,8 +65,8 @@ describe("锁定设定 (JB99)", () => {
       expect(html).toContain(words);
     }
     expect(html).toContain('value="GP"');
-    // 「到期访客照片」 works on the reader's own company: not offered here.
-    expect(html).not.toContain(zh.siteControl.visitorPrivacy.expired.open);
+    // 「到期访客照片」 for this company, from MSE's side too (JB99 review F2).
+    expect(html).toContain(zh.siteControl.visitorPrivacy.expired.open);
   });
 
   it("is read-only for platform staff who may not update companies", () => {
@@ -87,6 +87,19 @@ describe("锁定设定 (JB99)", () => {
     api.patch.mockResolvedValueOnce(SETTINGS);
     await updateCompanySiteSettings("c1", { qr_prefix: "NEW" });
     expect(api.patch).toHaveBeenCalledWith("/api/companies/c1/update_site_settings/", { qr_prefix: "NEW" });
+  });
+
+  it("reads and removes the company's expired visitor photos, and its backups", async () => {
+    const { getCompanyExpiredVisitorPhotos, purgeCompanyVisitorPhotos } = await import("@/services/companies.service");
+    const { getOriginalBackupOverview } = await import("@/services/evidence.service");
+    api.get.mockResolvedValue({});
+    await getCompanyExpiredVisitorPhotos("c1");
+    expect(api.get).toHaveBeenCalledWith("/api/companies/c1/get_expired_visitor_photos/");
+    await getOriginalBackupOverview("c1");
+    expect(api.get).toHaveBeenCalledWith("/api/evidence-originals/get_backup_overview/", { company: "c1" });
+    api.post.mockResolvedValueOnce({ purged: 0 });
+    await purgeCompanyVisitorPhotos("c1");
+    expect(api.post).toHaveBeenCalledWith("/api/companies/c1/purge_visitor_photos/", {});
   });
 
   it("is worded in all four languages", () => {

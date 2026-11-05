@@ -121,7 +121,7 @@ export function CompanyLockedSettingsPanel({ companyId }: { companyId: string })
         <Toggle label={t("field.gatePhoto")} description={t("settings.gatePhotoHelp")} checked={form.require_gate_photo} disabled={off} onChange={(checked) => set({ require_gate_photo: checked })} />
       </div>
     </div>
-    <VisitorPrivacySection form={form} canManage={canManage} showExpired={false} onChange={set} />
+    <VisitorPrivacySection form={form} canManage={canManage} companyId={companyId} onChange={set} />
 
     <div className="space-y-3" data-locked="defaults">
       <SectionTitle icon={Settings2} title={tLocked("defaults")} description={tLocked("defaultsHelp")} />
