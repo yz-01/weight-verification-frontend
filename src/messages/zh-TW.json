@@ -14759,7 +14759,7 @@
       "equipment_manager": "管理全部項目的設備進退場、設備清單、二維碼貼紙和設備工時。",
       "site_supervisor": "在所在項目指派及驗收現場任務與整改 / EHS，記錄工程進度，處理門崗事項。",
       "document_controller": "管理文件檔案，提交顧問申請和後台審批，維護 RFI 表格。",
-      "equipment_operator": "用手機給工地設備開工、收工打卡。"
+      "equipment_operator": "用手機給設備開工、收工打卡。"
     },
     "systemHint": "內置角色不可移除，確保公司始終有辦法管理自己的人員。",
     "system_": {

@@ -14759,7 +14759,7 @@
       "equipment_manager": "管理全部项目的设备进退场、设备清单、二维码贴纸和设备工时。",
       "site_supervisor": "在所在项目指派及验收现场任务与整改 / EHS，记录工程进度，处理门岗事项。",
       "document_controller": "管理文件档案，提交顾问申请和后台审批，维护 RFI 表格。",
-      "equipment_operator": "用手机给工地设备开工、收工打卡。"
+      "equipment_operator": "用手机给设备开工、收工打卡。"
     },
     "systemHint": "内置角色不可移除，确保公司始终有办法管理自己的人员。",
     "system_": {

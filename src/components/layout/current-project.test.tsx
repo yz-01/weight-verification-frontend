@@ -247,7 +247,10 @@ describe("全部项目", () => {
   });
 
   it("a page about one project asks for it once, and says the top bar follows", () => {
+    // 分类管理 opens on 公司通用分类 (no project) since JB103; its 项目专属分类
+    // tab - reached here by naming a module - is the page about one project.
     nav.pathname = "/category-management";
+    nav.search = "module=material";
     const { html } = render(<CategoryManagement />, { state: topBar("") });
     expect(html).toContain(`${PAGE_PICKER}="page"`);
     expect(html).toContain(messages.currentProject.pageHint);

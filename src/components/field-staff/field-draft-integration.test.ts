@@ -3,6 +3,8 @@ import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 
+import { FIELD_NAV } from "@/lib/field-nav";
+
 function source(file: string): string {
   return readFileSync(path.join(process.cwd(), file), "utf8");
 }
@@ -39,9 +41,12 @@ describe("field form draft integration", () => {
     // the column count and the button count must agree, or the icons bunch to
     // one side of an empty cell.
     const code = source("src/components/field-staff/field-staff-workspace.tsx");
-    const buttons = (code.match(/<MobileNavButton\b/g) ?? []).length;
-    expect(buttons).toBeGreaterThan(0);
-    expect(code).toContain(`grid-cols-${buttons}`);
+    // Since JB104 (客户 11-05 事项 9) each phone role has its own buttons, so
+    // every role's count needs its own column class in the workspace.
+    for (const keys of Object.values(FIELD_NAV)) {
+      expect(keys.length).toBeGreaterThan(0);
+      expect(code).toContain(`${keys.length}: "grid-cols-${keys.length}"`);
+    }
   });
 
   it("keeps a task id in the URL so a refreshed workflow uses the same draft", () => {

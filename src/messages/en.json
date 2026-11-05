@@ -9560,7 +9560,7 @@
       "otherProjects": "Other projects",
       "groupTitle": "Group name (optional)",
       "choose": "the people to message",
-      "start": "{count, plural, =0 {Start} one {Start with 1 person} other {Start with # people}}",
+      "start": "{count, plural, =0 {Start a chat} one {Start with 1 person} other {Start with # people}}",
       "startFailed": "The conversation could not be started. Try again."
     },
     "operate": {

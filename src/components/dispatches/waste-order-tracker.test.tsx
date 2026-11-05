@@ -328,7 +328,10 @@ describe("system categories are shown as the server names them", () => {
   it("marks an old preset in 分类管理 and keeps it off", () => {
     const management = source("components/contractor-ops/category-management.tsx");
     expect(management).toContain('waste("category.retired")');
-    expect(management).toContain("disabled={category.is_retired}");
+    // The recyclable dialog moved out of 分类管理 with 公司通用分类 (JB103).
+    expect(source("components/contractor-ops/waste-category-dialog.tsx")).toContain(
+      "disabled={category.is_retired}",
+    );
     expect(messages.wasteOutgoing.category.retired).toBe("旧分类");
   });
 });
