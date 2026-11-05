@@ -7,7 +7,11 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { NextIntlClientProvider } from "next-intl";
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("@/components/providers/auth-provider", () => ({
+  useAuth: () => ({ user: { id: "u-office", is_field_staff: false }, can: () => true }),
+}));
 
 import { RecordExportButton } from "@/components/shared/record-export-button";
 import { TooltipProvider } from "@/components/ui/tooltip";

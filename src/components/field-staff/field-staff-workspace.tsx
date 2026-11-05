@@ -95,7 +95,7 @@ type MobileTab = "home" | "tasks" | "attendance" | "records" | "incidents" | "ta
 function recordAllowed(role: ReturnType<typeof phoneRoleOf>, mode: FieldRecordMode | null): boolean {
   if (!mode) return true;
   if (role === "gate_guard") return mode === "gate" || mode === "visitor";
-  return role === "site_staff";
+  return role === "site_staff" || role === "all_pages";
 }
 
 const NAV_ICONS: Record<FieldNavKey, typeof Camera> = {
@@ -111,6 +111,7 @@ const NAV_ICONS: Record<FieldNavKey, typeof Camera> = {
 const NAV_COLUMNS: Record<number, string> = {
   2: "grid-cols-2",
   5: "grid-cols-5",
+  6: "grid-cols-6",
 };
 export function FieldStaffWorkspace() {
   const searchParams = useSearchParams();

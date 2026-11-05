@@ -3,6 +3,7 @@
 import { Download, FileSpreadsheet, FileText, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { useAuth } from "@/components/providers/auth-provider";
 import {
   FILE_ACTION_ICONS,
   fileActionsFor,
@@ -78,6 +79,7 @@ export function ExportButton({
 }) {
   const t = useTranslations();
   const { busy, run, element } = useFileActions();
+  const { user } = useAuth();
 
   const start = (format: ExportFormat, action: FileAction) =>
     void run(
@@ -93,6 +95,8 @@ export function ExportButton({
       { key: `${format}-${action}`, allowSave },
     );
 
+  // Files are the office's (Lucas 11-05): never offered on the phone.
+  if (user?.is_field_staff) return null;
   return (
     <>
       <DropdownMenu>

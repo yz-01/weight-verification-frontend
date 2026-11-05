@@ -41,6 +41,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
+import { useAuth } from "@/components/providers/auth-provider";
 import { useDismissDialog } from "@/components/shared/dialog-navigation";
 import { EvidenceFileActions } from "@/components/shared/evidence-file-actions";
 import { RecordSendLog, RecordSendTargetProvider } from "@/components/shared/record-send-log";
@@ -422,6 +423,11 @@ export function RecordDetailShell({
   heroFromThumbnail?: boolean;
 }) {
   const t = useTranslations("recordShell");
+  const { user } = useAuth();
+  // 【确认归档】 is the office's: the phone is never offered it, and its
+  // status read is the office's too - on the phone it said 「无法载入这条
+  // 记录是否已归档」 (Lucas 11-05, 图2).
+  if (user?.is_field_staff) closure = null;
   const [open, setOpen] = useState<number | null>(null);
   const hasAside = Boolean(
     actions || closure || aside || signatures.length > 0 || conversation || chat,
@@ -1135,7 +1141,9 @@ function RecordDetailHeading({
  * 4 点): the record's own PDF kind and id, as its 「发送」 names them.
  */
 function RecordSendLogFor({ exportRecord }: Pick<RecordDetailHeaderProps, "exportRecord">) {
-  if (!exportRecord?.recordId) return null;
+  const { user } = useAuth();
+  // The phone sends nothing, so it has no 发送记录 to read (Lucas 11-05).
+  if (!exportRecord?.recordId || user?.is_field_staff) return null;
   return <RecordSendLog recordKind={exportRecord.kind} recordId={exportRecord.recordId} />;
 }
 

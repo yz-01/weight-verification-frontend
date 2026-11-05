@@ -57,7 +57,8 @@ export interface TokenPair {
 }
 
 /** The three phones (JB104, 客户 11-05 事项 9). */
-export type PhoneRole = "site_staff" | "equipment_operator" | "gate_guard";
+/** `all_pages`: MSE Trace's own test phones, every page of all three (JB108). */
+export type PhoneRole = "site_staff" | "equipment_operator" | "gate_guard" | "all_pages";
 
 /**
  * The signed-in user.
