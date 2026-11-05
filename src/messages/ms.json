@@ -5021,6 +5021,19 @@
       "summary": "Ringkasan syarikat",
       "plans": "Senarai pelan",
       "ownerAccount": "Akaun pemilik"
+    },
+    "lockedSettings": {
+      "title": "Tetapan yang diurus oleh MSE",
+      "subtitle": "Kontraktor tidak dapat melihat atau mengubahnya. Syarikat baharu menggunakan nilai lalai sistem.",
+      "permissionsHelp": "Peranan pengguna baharu, siapa meluluskan, dan apa yang boleh dilihat perunding.",
+      "gps": "Parameter GPS",
+      "gpsHelp": "Kekerapan telefon melapor, dan berapa lama kedudukan dikira semasa.",
+      "security": "Keselamatan",
+      "securityHelp": "Tempoh pautan pengaktifan sah, dan bila telefon meminta PIN semula.",
+      "records": "Rekod dan foto",
+      "recordsHelp": "Kunci selepas arkib, dan bila foto mesti diambil.",
+      "defaults": "Nilai lalai sistem",
+      "defaultsHelp": "Nilai permulaan untuk projek baharu, pas pelawat dan papan pemuka."
     }
   },
   "consultantAccess": {
@@ -8655,6 +8668,7 @@
       "record_archived_locked": "Ini telah disahkan dan diarkibkan. Ia dikunci dan tidak boleh diubah atau dipadam lagi.",
       "record_in_use": "Rekod rasmi menggunakannya, jadi ia tidak boleh dipadam: {used_by}",
       "consultant_application_not_confirmed": "Sahkan dan arkibkan permohonan sebelum menghantarnya kepada perunding.",
+      "company_setting_locked": "Tetapan ini diurus oleh MSE. Minta MSE untuk mengubahnya.",
       "claim_letter_required": "Muat naik surat dahulu. Progress Claim mesti ada surat; ia diletakkan di hadapan PDF.",
       "report_export_not_regenerable": "Baris sejarah ini tidak boleh dijana semula: ia sudah ada failnya, milik laporan lain, atau tiada dalam sejarah anda.",
       "session_replaced": "Akaun ini telah log masuk di komputer lain, jadi komputer ini telah dilog keluar. Untuk terus bekerja di sini, log masuk semula.",
@@ -10122,7 +10136,9 @@
       "neverSeen": "Belum pernah dilihat",
       "available": "Boleh disambung: daftar peranti dalam Integrasi sistem untuk menggunakannya.",
       "droneWaiting": "Apabila syarikat anda bersedia, beritahu kami jenama dron dan platform pengurusannya, dan kami akan menyambungkannya.",
-      "mediaNote": "Foto dan video daripada peranti yang disambung masih dilihat di tempat yang sama seperti dahulu."
+      "mediaNote": "Foto dan video daripada peranti yang disambung masih dilihat di tempat yang sama seperti dahulu.",
+      "managedByMse": "Peranti disambung dan ditetapkan oleh MSE. Hubungi MSE untuk menyambungkannya.",
+      "availableByMse": "Boleh disambung: hubungi MSE dan kami akan menyambungkannya."
     },
     "console": {
       "state": {
@@ -12052,7 +12068,8 @@
       "progressSummary": "Ringkasan kemajuan",
       "siteWorkers": "Senarai pekerja",
       "materialTargets": "Sasaran bahan",
-      "materialRequests": "MR / Permohonan Lain"
+      "materialRequests": "MR / Permohonan Lain",
+      "departmentsTrades": "Jabatan dan tred"
     },
     "subscription_management": "Pengurusan Langganan",
     "suppliers": "Pembekal",
@@ -12290,7 +12307,9 @@
     "field": {
       "active": "Aktif",
       "code": "Kod",
-      "name": "Nama"
+      "name": "Nama",
+      "codeAuto": "Biarkan kosong, sistem akan menomborkannya.",
+      "codeAutoPlaceholder": "Automatik"
     },
     "help": "Jabatan dan bidang kerja anda sendiri. Kedua-duanya digunakan untuk memecahkan kiraan pekerja di tapak.",
     "inactive": "Tidak aktif",
@@ -12307,7 +12326,8 @@
       "empty": "Belum ada bidang kerja. Tambah satu sebelum kiraan boleh dipecahkan mengikutnya.",
       "help": "Apa yang orang buat di tapak — tukang besi, tukang perancah, juruelektrik. Disimpan sebagai senarai supaya kiraan mengikut bidang kerja betul.",
       "title": "Bidang kerja"
-    }
+    },
+    "pageTitle": "Jabatan dan tred"
   },
   "pageGuide": {
     "section": {
@@ -13425,7 +13445,9 @@
       "sitePhone": "Telefon tapak",
       "startDate": "Tarikh mula",
       "state": "Negeri",
-      "status": "Status"
+      "status": "Status",
+      "projectLead": "Ketua projek",
+      "geofenceRadiusM": "Jejari pagar geo (m)"
     },
     "filter": {
       "all": "Semua",
@@ -13445,7 +13467,9 @@
       "permissionDenied": "Kebenaran lokasi ditolak. Benarkan akses lokasi dalam pelayar dan cuba lagi.",
       "timeout": "Lokasi mengambil masa terlalu lama. Cuba lagi di tempat dengan isyarat GPS yang lebih jelas.",
       "unavailable": "Lokasi semasa tidak dapat ditentukan. Semak perkhidmatan lokasi peranti dan cuba lagi.",
-      "unsupported": "Pelayar ini tidak menyokong lokasi GPS. Masukkan koordinat secara manual."
+      "unsupported": "Pelayar ini tidak menyokong lokasi GPS. Masukkan koordinat secara manual.",
+      "captureOrMap": "Guna GPS peranti ini, atau klik tapak pada peta.",
+      "backToPlace": "Kembali ke tapak"
     },
     "new": "Projek baharu",
     "qr": {
@@ -13521,7 +13545,8 @@
       "identity": "Maklumat asas",
       "location": "Lokasi tapak dan geofence",
       "schedule": "Jadual",
-      "team": "Pasukan tapak"
+      "team": "Pasukan tapak",
+      "more": "Butiran lanjut (pilihan)"
     },
     "statistics": {
       "description": "Rekod sebenar projek ini mengikut tempoh yang dipilih.",
@@ -13578,7 +13603,9 @@
       "unassigned": "Dikeluarkan dari projek",
       "updated": "Projek dikemas kini"
     },
-    "viewTitle": "Projek"
+    "viewTitle": "Projek",
+    "codeAuto": "Nombor projek diberi oleh sistem (bermula PRJ-0001).",
+    "geofenceDefaultHint": "Lalai sistem {metres} m. Ubah mengikut tapak."
   },
   "qrCodes": {
     "result": {
@@ -15493,7 +15520,10 @@
       "visitorHours": "Tempoh pas pelawat (jam)",
       "website": "Laman web",
       "worker": "Pekerja tapak",
-      "expiringSoon": "Tamat dalam 7 hari"
+      "expiringSoon": "Tamat dalam 7 hari",
+      "ssmRegistrationNo": "No. pendaftaran SSM",
+      "codeAuto": "Biarkan kosong, sistem akan menomborkannya.",
+      "codeAutoPlaceholder": "Automatik"
     },
     "gate": {
       "cameraError": "Kamera tidak dapat dimulakan. Benarkan akses kamera dan cuba lagi, atau muat naik imej QR.",
@@ -15615,8 +15645,8 @@
       "title": "Kebenaran lalai"
     },
     "preferences": {
-      "subtitle": "Pilih bahasa, paparan masa dan halaman pertama untuk pengguna syarikat.",
-      "title": "Keutamaan syarikat"
+      "subtitle": "Bahasa, format tarikh, format masa dan zon waktu.",
+      "title": "Pilihan paparan"
     },
     "profile": {
       "chooseLogo": "Pilih logo syarikat",
@@ -15625,7 +15655,9 @@
       "logo": "Logo",
       "background": "Imej latar",
       "chooseBackground": "Pilih imej latar",
-      "imageHint": "PNG, JPG atau WebP, sehingga 8 MB. Hanya syarikat anda melihat dan menggunakannya. Nama dan logo syarikat anda menjadi kepala setiap PDF, cetakan dan eksport rekod anda."
+      "imageHint": "PNG, JPG atau WebP, sehingga 8 MB. Hanya syarikat anda melihat dan menggunakannya. Nama dan logo syarikat anda menjadi kepala setiap PDF, cetakan dan eksport rekod anda.",
+      "simpleSubtitle": "Dipaparkan pada laporan, rekod QR dan dokumen projek anda.",
+      "emergencyHint": "Untuk pondok pengawal. Boleh dibiarkan kosong."
     },
     "projectDefaults": {
       "archiveLock": "Kunci rekod selepas arkib",
@@ -15663,7 +15695,9 @@
       "siteRules": "Lalai operasi tapak",
       "siteRulesHelp": "Setiap projek boleh mempunyai sempadan sendiri; nilai ini mengawal masa dan bukti.",
       "subtitle": "Urus profil kontraktor dan peraturan lalai untuk setiap projek baharu.",
-      "title": "Tetapan syarikat"
+      "title": "Tetapan syarikat",
+      "simpleSubtitle": "Butiran syarikat, pilihan paparan dan cawangan anda.",
+      "managedByMse": "Tetapan sistem (kebenaran, peraturan QR, pemberitahuan, GPS, keselamatan dan penyimpanan rekod) diurus oleh MSE. Anda tidak perlu mengisinya."
     },
     "shape": {
       "CIRCLE": "Sempadan bulat",

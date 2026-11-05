@@ -105,6 +105,12 @@ export interface ContractorSiteSettings {
   updated_at: string;
 }
 
+/** The settings as MSE reads them on the platform company page (JB99). */
+export interface CompanyLockedSettings extends ContractorSiteSettings {
+  /** The company's own roles, for 新用户默认角色 and 默认审批角色. */
+  role_options: Array<{ code: string; name: string }>;
+}
+
 export interface ContractorCompanyProfile {
   id: string;
   code: string;

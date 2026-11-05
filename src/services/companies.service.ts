@@ -15,6 +15,7 @@ import type {
   CompanySummary,
   SubscriptionPlan,
 } from "@/interfaces/company";
+import type { CompanyLockedSettings } from "@/interfaces/site-access";
 import { api, toastSuccess } from "@/services/api-client";
 
 function companyBody(payload: Partial<CompanyPayload>): Partial<CompanyPayload> | FormData {
@@ -33,6 +34,20 @@ export function getCompanies(query: ListQuery): Promise<Paginated<CompanyRow>> {
 
 export function getCompany(id: string): Promise<CompanyDetail> {
   return api.get<CompanyDetail>(`/api/companies/${id}/get_company/`);
+}
+
+/** A contractor's settings, the ones MSE manages included (JB99). */
+export function getCompanySiteSettings(id: string): Promise<CompanyLockedSettings> {
+  return api.get<CompanyLockedSettings>(`/api/companies/${id}/get_site_settings/`);
+}
+
+export async function updateCompanySiteSettings(
+  id: string,
+  payload: Partial<CompanyLockedSettings>,
+): Promise<CompanyLockedSettings> {
+  const row = await api.patch<CompanyLockedSettings>(`/api/companies/${id}/update_site_settings/`, payload);
+  toastSuccess("siteControl.toast.settingsSaved");
+  return row;
 }
 
 export async function createCompany(

@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { CompanyLockedSettingsPanel } from "@/components/companies/company-locked-settings";
 import { CompanyOnboarding } from "@/components/companies/company-onboarding";
 import { FormSection, FormSkeleton, LoadErrorCard } from "@/components/shared/form-shell";
 import {
@@ -260,6 +261,8 @@ export function ViewCompany({ id }: { id: string }) {
             />
           </FormSection>
         </div>
+        {/* 锁起来的设定 (JB99): the contractor's own page no longer has them. */}
+        {data.type === "CONTRACTOR" && <CompanyLockedSettingsPanel companyId={data.id} />}
         <CompanyOnboarding company={data} />
       </div>
     </div>

@@ -38,10 +38,13 @@ export function VisitorPrivacySection({
   form,
   onChange,
   canManage,
+  showExpired = true,
 }: {
   form: ContractorSiteSettings;
   onChange: (next: Partial<ContractorSiteSettings>) => void;
   canManage: boolean;
+  /** 「到期访客照片」 works on the reader's own company: not on MSE's page (JB99). */
+  showExpired?: boolean;
 }) {
   const t = useTranslations("siteControl.visitorPrivacy");
   const [reviewing, setReviewing] = useState(false);
@@ -56,7 +59,7 @@ export function VisitorPrivacySection({
             <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
           </div>
         </div>
-        {canManage && (
+        {canManage && showExpired && (
           <Button variant="outline" onClick={() => setReviewing(true)}>
             <ImageOff />
             {t("expired.open")}

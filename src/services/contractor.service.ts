@@ -20,6 +20,7 @@ import type {
   Project,
   ProjectAssignment,
   ProjectPayload,
+  ProjectQuota,
   ProjectStatistics,
   ProjectStatisticsPeriod,
   ReceiptPhoto,
@@ -175,6 +176,11 @@ export function getProjectStatistics(
   return api.get<ProjectStatistics>(`/api/projects/${id}/get_statistics/`, {
     period,
   });
+}
+
+/** The plan's project allowance, and the radius a new project starts at (JB100). */
+export function getProjectQuota(): Promise<ProjectQuota> {
+  return api.get<ProjectQuota>("/api/projects/get_project_quota/");
 }
 
 export async function createProject(payload: ProjectPayload): Promise<Project> {

@@ -5021,6 +5021,19 @@
       "summary": "公司汇总",
       "plans": "套餐列表",
       "ownerAccount": "老板账号"
+    },
+    "lockedSettings": {
+      "title": "由 MSE 管理的设定",
+      "subtitle": "建筑商看不到、也改不了这些设定。新公司用系统默认值。",
+      "permissionsHelp": "新用户默认角色、默认审批角色、顾问默认权限。",
+      "gps": "GPS 技术参数",
+      "gpsHelp": "手机多久上传一次位置，实时位置多久有效。",
+      "security": "系统安全参数",
+      "securityHelp": "激活链接有效天数，手机多久要重新输入 PIN。",
+      "records": "归档与照片规则",
+      "recordsHelp": "归档后锁定记录，什么时候必须拍照。",
+      "defaults": "系统默认值",
+      "defaultsHelp": "新项目、访客证和总部 Dashboard 一开始用的值。"
     }
   },
   "consultantAccess": {
@@ -8655,6 +8668,7 @@
       "record_archived_locked": "这份资料已确认归档，已经锁定，不能修改或删除。",
       "record_in_use": "已被正式记录引用，不能删除：{used_by}",
       "consultant_application_not_confirmed": "请先确认归档，才能发送给顾问。",
+      "company_setting_locked": "这项设定由 MSE 统一管理，请联系 MSE 修改。",
       "claim_letter_required": "请先上传书信。Progress Claim 必须有书信，确认时放在 PDF 最前面。",
       "report_export_not_regenerable": "这一行不能重新生成：它已经有存档文件、属于另一份报表，或不在你的历史里。",
       "session_replaced": "这个账号已在另一台电脑登录，这台电脑已经退出。要在这台电脑继续用，请重新登录。",
@@ -10122,7 +10136,9 @@
       "neverSeen": "还没有上线过",
       "available": "可以接入：在「系统集成」登记设备后就能用。",
       "droneWaiting": "等贵司启用时，告诉我们无人机品牌和管理平台，我们再接入",
-      "mediaNote": "已接入设备送来的照片、视频，照旧在原来的地方查看。"
+      "mediaNote": "已接入设备送来的照片、视频，照旧在原来的地方查看。",
+      "managedByMse": "设备由 MSE 统一接入和设定。需要接入请联系 MSE。",
+      "availableByMse": "可以接入：请联系 MSE，由 MSE 帮你接入。"
     },
     "console": {
       "state": {
@@ -12052,7 +12068,8 @@
       "progressSummary": "项目进度摘要",
       "siteWorkers": "人员名单",
       "materialTargets": "材料目标",
-      "materialRequests": "MR / 其他申请"
+      "materialRequests": "MR / 其他申请",
+      "departmentsTrades": "部门与工种"
     },
     "subscription_management": "订阅管理",
     "suppliers": "供应商",
@@ -12290,7 +12307,9 @@
     "field": {
       "active": "启用",
       "code": "编号",
-      "name": "名称"
+      "name": "名称",
+      "codeAuto": "留空，系统自动编号。",
+      "codeAutoPlaceholder": "自动生成"
     },
     "help": "你自己的部门和工种。现场在场人数按这两项拆分。",
     "inactive": "已停用",
@@ -12307,7 +12326,8 @@
       "empty": "还没有工种。要按工种统计人数，先建一个。",
       "help": "工人在现场做什么 —— 钢筋工、架子工、电工。做成一张表而不是随手填，人数才加得起来。",
       "title": "工种"
-    }
+    },
+    "pageTitle": "部门与工种"
   },
   "pageGuide": {
     "section": {
@@ -13425,7 +13445,9 @@
       "sitePhone": "工地电话",
       "startDate": "开工日期",
       "state": "州属",
-      "status": "状态"
+      "status": "状态",
+      "projectLead": "项目负责人",
+      "geofenceRadiusM": "电子围栏半径（米）"
     },
     "filter": {
       "all": "全部",
@@ -13445,7 +13467,9 @@
       "permissionDenied": "定位权限已被拒绝。请在浏览器设置中允许定位后重试。",
       "timeout": "定位响应超时。请在 GPS 信号较好的位置重试。",
       "unavailable": "无法取得当前位置。请检查设备定位服务后重试。",
-      "unsupported": "此浏览器不支持 GPS 定位，请手动输入经纬度。"
+      "unsupported": "此浏览器不支持 GPS 定位，请手动输入经纬度。",
+      "captureOrMap": "用这台设备的 GPS 定位，或在地图上点工地位置。",
+      "backToPlace": "回到工地位置"
     },
     "new": "新建项目",
     "qr": {
@@ -13521,7 +13545,8 @@
       "identity": "基本信息",
       "location": "工地位置与电子围栏",
       "schedule": "工期",
-      "team": "工地人员"
+      "team": "工地人员",
+      "more": "更多资料（可选）"
     },
     "statistics": {
       "description": "按所选时间范围统计此项目的真实业务记录。",
@@ -13578,7 +13603,9 @@
       "unassigned": "已移出项目",
       "updated": "项目已更新"
     },
-    "viewTitle": "项目"
+    "viewTitle": "项目",
+    "codeAuto": "项目编号由系统自动生成（PRJ-0001 起）。",
+    "geofenceDefaultHint": "系统默认 {metres} 米，可以按工地实际范围修改。"
   },
   "qrCodes": {
     "result": {
@@ -15493,7 +15520,10 @@
       "visitorHours": "访客证默认时长（小时）",
       "website": "公司网站",
       "worker": "工地人员",
-      "expiringSoon": "7 天内到期"
+      "expiringSoon": "7 天内到期",
+      "ssmRegistrationNo": "SSM 注册号码",
+      "codeAuto": "留空，系统自动编号。",
+      "codeAutoPlaceholder": "自动生成"
     },
     "gate": {
       "cameraError": "无法启动相机。请允许相机权限后重试，或上传二维码图片。",
@@ -15615,8 +15645,8 @@
       "title": "默认权限"
     },
     "preferences": {
-      "subtitle": "设置公司用户使用的语言、时间显示和登录首页。",
-      "title": "公司偏好"
+      "subtitle": "语言、日期格式、时间格式、时区。",
+      "title": "显示偏好"
     },
     "profile": {
       "chooseLogo": "选择公司 Logo",
@@ -15625,7 +15655,9 @@
       "logo": "Logo",
       "background": "背景图",
       "chooseBackground": "选择背景图",
-      "imageHint": "PNG、JPG 或 WebP，最大 8 MB。只有贵公司看到和使用；贵公司所有 PDF、打印件和导出文件的表头都印上贵公司的名称和 Logo。"
+      "imageHint": "PNG、JPG 或 WebP，最大 8 MB。只有贵公司看到和使用；贵公司所有 PDF、打印件和导出文件的表头都印上贵公司的名称和 Logo。",
+      "simpleSubtitle": "显示在报表、二维码记录和项目文件上。",
+      "emergencyHint": "给门岗用，可以留空。"
     },
     "projectDefaults": {
       "archiveLock": "归档后锁定记录",
@@ -15663,7 +15695,9 @@
       "siteRules": "现场作业默认规则",
       "siteRulesHelp": "每个项目可有独立围栏；这里控制时间与证据要求。",
       "subtitle": "维护建筑商公司资料，以及每个新项目自动套用的默认规则。",
-      "title": "公司设置"
+      "title": "公司设置",
+      "simpleSubtitle": "公司资料、显示偏好和分公司。",
+      "managedByMse": "系统设定（权限、二维码、通知、GPS、安全、资料保存）由 MSE 统一管理，你不需要填写。"
     },
     "shape": {
       "CIRCLE": "圆形范围",
