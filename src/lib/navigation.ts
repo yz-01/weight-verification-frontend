@@ -1401,6 +1401,9 @@ export const PORTAL_NAVIGATION = {
         "nav.submodule.loginHistory",
         "/login-records",
         "user_logs",
+        // 用户管理 is head office's (JB110, 客户 11-06 追加): reading the
+        // evidence trail on a project does not open this menu.
+        "user.view",
       ),
       child(
         "16.2.8",
@@ -1422,6 +1425,7 @@ export const PORTAL_NAVIGATION = {
         "nav.submodule.userActivity",
         "/audit-logs",
         "activity_logs",
+        "user.view",
       ),
     ]),
     item(

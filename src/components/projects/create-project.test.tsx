@@ -23,12 +23,17 @@ vi.mock("@/components/shared/dialog-navigation", async (original) => ({
   ...(await original<typeof import("@/components/shared/dialog-navigation")>()),
   useFinishForm: () => vi.fn(),
 }));
+vi.mock("@/components/providers/auth-provider", () => ({
+  useAuth: () => ({ user: { id: "hq" }, can: () => true }),
+}));
 vi.mock("@/components/site-access/geofence-map-editor", () => ({ GeofenceMapEditor: () => null }));
 vi.mock("@/services/api-client", () => ({
   api: { get: vi.fn(), post: vi.fn(), list: vi.fn(), delete: vi.fn(), patch: vi.fn(), put: vi.fn() },
   toastSuccess: vi.fn(),
   download: vi.fn(),
 }));
+
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 const { CreateProject, SYSTEM_DEFAULT_RADIUS_M, newProjectPayload } = await import(
   "@/components/projects/create-project"
@@ -38,7 +43,7 @@ const EMPTY = {
   code: "", name: "Tower", status: "ACTIVE" as const, client_name: "", main_contractor: "", consultant: "",
   description: "", address_line_1: "1 Jalan", address_line_2: "", city: "", state: "", postcode: "",
   latitude: "", longitude: "", geofence_radius_m: "150", start_date: "", end_date: "",
-  site_manager: "Ali", site_phone: "", manager: "",
+  site_manager: "Ali", site_phone: "", manager: "", boundary: [] as [number, number][],
 };
 
 function render(project?: Project, defaultRadius?: number) {
@@ -49,7 +54,9 @@ function render(project?: Project, defaultRadius?: number) {
   return renderToStaticMarkup(
     <QueryClientProvider client={client}>
       <NextIntlClientProvider locale="zh" messages={zh} timeZone="Asia/Kuala_Lumpur">
-        <CreateProject project={project} />
+        <TooltipProvider>
+          <CreateProject project={project} />
+        </TooltipProvider>
       </NextIntlClientProvider>
     </QueryClientProvider>,
   );
@@ -62,19 +69,28 @@ describe("新增项目 (JB100)", () => {
     expect(html).toContain("项目负责人");
     expect(html).toContain("工地地址");
     expect(html).toContain("获取当前 GPS");
-    expect(html).toContain("在地图上点工地位置");
+    expect(html).toContain("在下面的地图上画出工地范围");
     expect(html).not.toContain("项目编号</");
     expect(html).toContain("项目编号由系统自动生成（PRJ-0001 起）");
     expect(html).not.toContain("状态");
   });
 
-  it("names 「电子围栏半径（米）」 and fills it with the default", () => {
+  it("draws the site point by point instead of a radius (JB110)", () => {
     const html = render();
-    expect(html).toContain("电子围栏半径（米）");
-    expect(html).toContain(`value="${SYSTEM_DEFAULT_RADIUS_M}"`);
-    expect(html).toContain(`系统默认 ${SYSTEM_DEFAULT_RADIUS_M} 米`);
+    expect(html).not.toContain("电子围栏半径（米）");
+    expect(html).toContain("在地图上画出工地范围");
+    expect(html).toContain("撤销上一个点");
+    expect(html).toContain(`暂时用 ${SYSTEM_DEFAULT_RADIUS_M} 米圆形范围`);
     // The company's own default, once read, is what the hint says.
-    expect(render(undefined, 220)).toContain("系统默认 220 米");
+    expect(render(undefined, 220)).toContain("暂时用 220 米圆形范围");
+  });
+
+  it("sends the drawn boundary, not a radius", () => {
+    const site: [number, number][] = [[3.14, 101.685], [3.14, 101.6886], [3.1405, 101.6886]];
+    const sent = newProjectPayload({ ...EMPTY, latitude: "3.1", longitude: "101.7", boundary: site });
+    expect(sent).toMatchObject({ boundary: site });
+    expect(sent).not.toHaveProperty("geofence_radius_m");
+    expect(newProjectPayload({ ...EMPTY, boundary: site.slice(0, 2) })).not.toHaveProperty("boundary");
   });
 
   it("keeps the rest under 「更多资料（可选）」, closed", () => {
