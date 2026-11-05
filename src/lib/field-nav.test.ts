@@ -88,6 +88,18 @@ describe("each phone its own buttons (JB104, 客户 11-05 事项 9)", () => {
     expect(fieldStartTab("gate_guard")).toBe("records");
   });
 
+  it("gives MSE's test phones every page of the three (JB108)", () => {
+    // 客户 11-05: 「三个账号必须完整保留手机端所有原有功能及新增功能……不受现场工作
+    // 人员、设备操作人员、门岗三种角色的页面限制」.
+    expect(phoneRoleOf({ phone_role: "all_pages" })).toBe("all_pages");
+    const buttons = fieldNavFor("all_pages");
+    for (const role of ["site_staff", "equipment_operator", "gate_guard"] as const) {
+      for (const key of fieldNavFor(role)) expect(buttons).toContain(key);
+      for (const tab of fieldTabsFor(role)) expect(fieldTabsFor("all_pages")).toContain(tab);
+    }
+    expect(fieldStartTab("all_pages")).toBe("home");
+  });
+
   it("treats an account the server says nothing about as the full phone", () => {
     // A server from before JB104, and every pilot account: nobody loses a page.
     expect(phoneRoleOf({})).toBe("site_staff");

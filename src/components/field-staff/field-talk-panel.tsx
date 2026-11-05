@@ -355,7 +355,9 @@ function FindPeople({ onBack, onStarted }: { onBack: () => void; onStarted: (id:
         />
       ) : null}
       {start.isError ? <p role="alert" className="text-sm text-destructive">{t("startFailed")}</p> : null}
-      <div className="sticky bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-20">
+      {/* A card of its own, so the list scrolls behind it and its 「还差这些
+          没填」 never sits on a name (Lucas 11-05, 图1). */}
+      <div className="sticky bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-20 rounded-xl border border-panel-border bg-card p-3 shadow-panel">
         <Button
           className="h-12 w-full"
           disabled={start.isPending}

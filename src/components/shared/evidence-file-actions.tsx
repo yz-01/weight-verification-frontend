@@ -25,6 +25,7 @@
 import { Download, ExternalLink, Loader2, Printer, Share2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { useAuth } from "@/components/providers/auth-provider";
 import { useFileActions } from "@/components/shared/file-actions";
 import { useRecordSendTarget } from "@/components/shared/record-send-log";
 import { Button } from "@/components/ui/button";
@@ -101,6 +102,9 @@ export function EvidenceFileActions({
   const files = useTranslations("fileActions");
   const target = useRecordSendTarget();
   const { busy, run, element } = useFileActions();
+  const { user } = useAuth();
+  // 预览、打印、下载、发送 are the office's (Lucas 11-05): the phone only looks.
+  if (user?.is_field_staff) return null;
   return (
     <div className={className ?? "flex flex-wrap items-center gap-2"} data-slot="evidence-file-actions">
       <Button size="sm" variant="outline" asChild>

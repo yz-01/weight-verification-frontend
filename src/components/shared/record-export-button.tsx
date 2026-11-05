@@ -3,6 +3,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 
+import { useAuth } from "@/components/providers/auth-provider";
+
 import { FileActionButtons, FileActionMenu } from "@/components/shared/file-actions";
 import type { CorrectionHistoryKind } from "@/interfaces/record-correction";
 import { recordTarget } from "@/lib/record-routes";
@@ -42,7 +44,18 @@ const VERSIONED: ReadonlySet<string> = new Set<CorrectionHistoryKind>([
  * decides who can see the record, and a refusal is toasted by the service.
  * Nothing is drawn for a record that has no id yet.
  */
-export function RecordExportButton({
+/**
+ * 预览 / 打印 / 导出 / 发送 are the office's (Lucas 11-05: 「手机端不需要可以预览
+ * 导出pdf的，这些都只是属于后台而已」): a phone account is offered none of them,
+ * wherever a record window or the photo viewer puts them.
+ */
+export function RecordExportButton(props: Parameters<typeof RecordExportButtons>[0]) {
+  const { user } = useAuth();
+  if (user?.is_field_staff) return null;
+  return <RecordExportButtons {...props} />;
+}
+
+function RecordExportButtons({
   kind,
   recordId,
   reference,

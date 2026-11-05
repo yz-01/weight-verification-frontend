@@ -32,9 +32,10 @@ const drafts: Record<string, unknown> = {};
 let permissions = new Set<string>();
 let search = new URLSearchParams();
 
+let onPhone = true;
 vi.mock("@/components/providers/auth-provider", () => ({
   useAuth: () => ({
-    user: { id: "u-site", full_name: "Ah Seng", is_field_staff: true },
+    user: { id: "u-site", full_name: "Ah Seng", is_field_staff: onPhone },
     can: (code: string) => permissions.has(code),
   }),
 }));
@@ -168,6 +169,8 @@ describe("the returns it opens", () => {
     });
 
   it("offers the export only with report.export", () => {
+    // The supplier's returns are an office list; the phone exports nothing (JB107).
+    onPhone = false;
     permissions = new Set(["material_outgoing.view"]);
     const without = render(<SupplierReturnsDialog supplier={SUPPLIER} onClose={() => {}} />, seedReturns(false));
     expect(without).toContain("MO-SITE-261008-001");
@@ -176,6 +179,7 @@ describe("the returns it opens", () => {
     permissions = new Set(["material_outgoing.view", "report.export"]);
     const withExport = render(<SupplierReturnsDialog supplier={SUPPLIER} onClose={() => {}} />, seedReturns(false));
     expect(withExport).toContain("导出");
+    onPhone = true;
   });
 
   it("says when the list was cut, and how to narrow it", () => {
