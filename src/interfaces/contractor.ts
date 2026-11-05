@@ -38,9 +38,11 @@ export interface Project {
 }
 
 export interface ProjectPayload {
-  code: string;
+  /** Left out on a new project: the system numbers it PRJ-0001 on (JB100). */
+  code?: string;
   name: string;
-  status: ProjectStatus;
+  /** Left out on a new project: 「进行中」 (JB100). */
+  status?: ProjectStatus;
   description?: string;
   client_name?: string;
   main_contractor?: string;
@@ -57,6 +59,14 @@ export interface ProjectPayload {
   end_date?: string | null;
   site_manager?: string;
   site_phone?: string;
+}
+
+export interface ProjectQuota {
+  limit: number | null;
+  used: number;
+  remaining: number | null;
+  /** 「电子围栏半径（米）」 on 新增项目 starts here (JB100). */
+  default_geofence_radius_m: number;
 }
 
 export type ProjectStatisticsPeriod = "day" | "month" | "year" | "all";

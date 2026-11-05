@@ -9,6 +9,11 @@
  * devices and when each was last seen), 可以接入, or 等启用 (the drone, until
  * the company names a brand and platform). Read only: registering a device
  * or changing a setting stays on 系统集成, one click away - not a second copy.
+ *
+ * A contractor sees the introduction and nothing to press (JB99, 客户 11-05
+ * 事项 4 第 10 点: 「建筑商只能查看设备接入介绍，不能自行设置或修改。所有设备
+ * 连接统一由 MSE Admin 或授权技术人员处理」): the way to 系统集成 shows only to
+ * whoever may change it (`integration.manage` - MSE, a recycler).
  */
 
 import { useQuery } from "@tanstack/react-query";
@@ -16,6 +21,7 @@ import { Settings2 } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 
+import { useAuth } from "@/components/providers/auth-provider";
 import { ListHeader, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import type { DeviceKindState, DeviceOverviewKind } from "@/interfaces/integration";
@@ -29,16 +35,22 @@ const STATE_TONE: Record<DeviceKindState, StatusTone> = {
   WAITING: "neutral",
 };
 
-/** The words under a kind with no device yet. */
-export function kindNoteKey(row: DeviceOverviewKind): "droneWaiting" | "available" | null {
+/** The words under a kind with no device yet; MSE connects it for a reader who cannot. */
+export function kindNoteKey(
+  row: DeviceOverviewKind,
+  canManage = true,
+): "droneWaiting" | "available" | "availableByMse" | null {
   if (row.devices.length) return null;
-  return row.state === "WAITING" ? "droneWaiting" : "available";
+  if (row.state === "WAITING") return "droneWaiting";
+  return canManage ? "available" : "availableByMse";
 }
 
 export function DeviceIntegration() {
   const t = useTranslations("integrations.deviceOverview");
   const kinds = useTranslations("integrations.kind");
   const df = useDateFormat();
+  const { can } = useAuth();
+  const canManage = can("integration.manage");
   const overview = useQuery({
     queryKey: ["device-overview"],
     queryFn: () => getDeviceOverview(),
@@ -56,21 +68,23 @@ export function DeviceIntegration() {
         title={t("title")}
         subtitle={t("subtitle")}
         action={
-          <Button asChild variant="outline">
-            <Link href="/integrations" data-testid="device-integration-settings">
-              <Settings2 />
-              {t("openSettings")}
-            </Link>
-          </Button>
+          canManage ? (
+            <Button asChild variant="outline">
+              <Link href="/integrations" data-testid="device-integration-settings">
+                <Settings2 />
+                {t("openSettings")}
+              </Link>
+            </Button>
+          ) : undefined
         }
       />
-      <p className="text-sm text-muted-foreground">
-        {t("settingsHint")} {t("mediaNote")}
+      <p className="text-sm text-muted-foreground" data-testid="device-integration-hint">
+        {canManage ? t("settingsHint") : t("managedByMse")} {t("mediaNote")}
       </p>
       <QueryFailedNote query={overview} what={t("title")} />
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3" data-testid="device-kinds">
         {(overview.data ?? []).map((row) => {
-          const note = kindNoteKey(row);
+          const note = kindNoteKey(row, canManage);
           return (
             <section
               key={row.kind}

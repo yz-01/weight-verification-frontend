@@ -55,19 +55,13 @@ export const SETTINGS_SECTIONS: readonly SettingsSection[] = [
   { href: "/profile", anchor: "sign-off-pin", pageKey: "profile.title", sectionKey: "signOff.profileTitle", keywords: PIN_WORDS, officeOnly: true },
   { href: "/profile", anchor: "sign-off-assistants", pageKey: "profile.title", sectionKey: "signOff.assistants.title", keywords: ASSISTANT_WORDS, officeOnly: true },
 
-  // 公司设置 - a contractor's.
+  // 公司设置 - a contractor's: three blocks since JB99 (客户 11-05 事项 3、4);
+  // what MSE manages is not on the page, so not here. 部门与工种 has its own
+  // page under 用户.
   { href: "/company-settings", anchor: "company-profile", pageKey: "siteControl.settings.title", sectionKey: "siteControl.profile.title", keywords: [...COMPANY_WORDS, "紧急联络", "emergency"], companyType: "OTHER" },
-  { href: "/company-settings", anchor: "company-project-defaults", pageKey: "siteControl.settings.title", sectionKey: "siteControl.projectDefaults.title", keywords: ["项目", "項目", "project", "projek", "默认", "default"], companyType: "OTHER" },
-  { href: "/company-settings", anchor: "company-default-categories", pageKey: "siteControl.settings.title", sectionKey: "siteControl.categories.title", keywords: ["分类", "分類", "category", "kategori", "材料", "material"], companyType: "OTHER" },
   { href: "/company-settings", anchor: "company-preferences", pageKey: "siteControl.settings.title", sectionKey: "siteControl.preferences.title", keywords: LANGUAGE_WORDS, companyType: "OTHER" },
-  { href: "/company-settings", anchor: "company-permission-defaults", pageKey: "siteControl.settings.title", sectionKey: "siteControl.permissionDefaults.title", keywords: ["权限", "權限", "permission", "kebenaran", "角色", "role"], companyType: "OTHER" },
-  { href: "/company-settings", anchor: "company-consultant-permissions", pageKey: "siteControl.settings.title", sectionKey: "siteControl.permissionDefaults.consultant", keywords: ["顾问", "顧問", "consultant", "perunding", "权限", "permission"], companyType: "OTHER" },
-  { href: "/company-settings", anchor: "company-qr", pageKey: "siteControl.settings.title", sectionKey: "siteControl.qrSettings.title", keywords: ["QR", "二维码", "二維碼", "扫码", "kod QR"], companyType: "OTHER" },
-  { href: "/company-settings", anchor: "company-notifications", pageKey: "siteControl.settings.title", sectionKey: "siteControl.notificationSettings.title", keywords: NOTIFY_WORDS, companyType: "OTHER" },
-  { href: "/company-settings", anchor: "company-site-rules", pageKey: "siteControl.settings.title", sectionKey: "siteControl.settings.siteRules", keywords: ["规则", "規則", "rule", "peraturan", "打卡", "attendance", "照片", "photo"], companyType: "OTHER" },
-  { href: "/company-settings", anchor: "company-visitor-privacy", pageKey: "siteControl.settings.title", sectionKey: "siteControl.visitorPrivacy.title", keywords: ["访客", "訪客", "visitor", "pelawat", "PDPA", "隐私", "privacy"], companyType: "OTHER" },
   { href: "/company-settings", anchor: "company-branches", pageKey: "siteControl.settings.title", sectionKey: "siteControl.branches.title", keywords: ["分公司", "branch", "cawangan", "地址", "address"], companyType: "OTHER" },
-  { href: "/company-settings", anchor: "company-organisation", pageKey: "siteControl.settings.title", sectionKey: "organisation.title", keywords: ["部门", "部門", "工种", "工種", "department", "trade", "jabatan"], companyType: "OTHER" },
+  { href: "/departments-trades", pageKey: "organisation.pageTitle", keywords: ["部门", "部門", "工种", "工種", "department", "trade", "jabatan"] },
 
   // 公司设置 - a recycler's.
   { href: "/company-settings", anchor: "recycler-profile", pageKey: "recyclerCompanySettings.title", sectionKey: "recyclerCompanySettings.profile.title", keywords: COMPANY_WORDS, companyType: "RECYCLER" },

@@ -5070,6 +5070,19 @@
       "summary": "公司匯總",
       "plans": "套餐列表",
       "ownerAccount": "老闆帳號"
+    },
+    "lockedSettings": {
+      "title": "由 MSE 管理的設定",
+      "subtitle": "建築商看不到、也改不了這些設定。新公司用系統預設值。",
+      "permissionsHelp": "新用戶預設角色、預設審批角色、顧問預設權限。",
+      "gps": "GPS 技術參數",
+      "gpsHelp": "手機多久上傳一次位置，即時位置多久有效。",
+      "security": "系統安全參數",
+      "securityHelp": "啟用連結有效天數，手機多久要重新輸入 PIN。",
+      "records": "歸檔與照片規則",
+      "recordsHelp": "歸檔後鎖定記錄，什麼時候必須拍照。",
+      "defaults": "系統預設值",
+      "defaultsHelp": "新項目、訪客證和總部 Dashboard 一開始用的值。"
     }
   },
   "consultantAccess": {
@@ -8708,6 +8721,7 @@
       "record_archived_locked": "這份資料已確認歸檔，已經鎖定，不能修改或刪除。",
       "record_in_use": "已被正式記錄引用，不能刪除：{used_by}",
       "consultant_application_not_confirmed": "請先確認歸檔，才能發送給顧問。",
+      "company_setting_locked": "這項設定由 MSE 統一管理，請聯絡 MSE 修改。",
       "claim_letter_required": "請先上傳書信。Progress Claim 必須有書信，確認時放在 PDF 最前面。",
       "report_export_not_regenerable": "這一行不能重新生成：它已經有存檔文件、屬於另一份報表，或不在你的歷史裡。",
       "session_replaced": "這個帳號已在另一台電腦登入，這台電腦已經登出。要在這台電腦繼續用，請重新登入。",
@@ -10216,7 +10230,9 @@
       "neverSeen": "還沒有上線過",
       "available": "可以接入：在「系統集成」登記設備後就能用。",
       "droneWaiting": "等貴司啟用時，告訴我們無人機品牌和管理平台，我們再接入",
-      "mediaNote": "已接入設備送來的照片、影片，照舊在原來的地方查看。"
+      "mediaNote": "已接入設備送來的照片、影片，照舊在原來的地方查看。",
+      "managedByMse": "設備由 MSE 統一接入和設定。需要接入請聯絡 MSE。",
+      "availableByMse": "可以接入：請聯絡 MSE，由 MSE 幫你接入。"
     },
     "console": {
       "state": {
@@ -12146,7 +12162,8 @@
       "progressSummary": "項目進度摘要",
       "siteWorkers": "人員名單",
       "materialTargets": "材料目標",
-      "materialRequests": "MR / 其他申請"
+      "materialRequests": "MR / 其他申請",
+      "departmentsTrades": "部門與工種"
     },
     "subscription_management": "訂閱管理",
     "suppliers": "供應商",
@@ -12404,7 +12421,9 @@
     "field": {
       "active": "啟用",
       "code": "編號",
-      "name": "名稱"
+      "name": "名稱",
+      "codeAuto": "留空，系統自動編號。",
+      "codeAutoPlaceholder": "自動生成"
     },
     "help": "你自己的部門和工種。現場在場人數按這兩項拆分。",
     "inactive": "已停用",
@@ -12421,7 +12440,8 @@
       "empty": "還沒有工種。要按工種統計人數，先建一個。",
       "help": "工人在現場做什麼 —— 鋼筋工、架子工、電工。做成一張表而不是隨手填，人數才加得起來。",
       "title": "工種"
-    }
+    },
+    "pageTitle": "部門與工種"
   },
   "pageGuide": {
     "section": {
@@ -13540,7 +13560,9 @@
       "sitePhone": "工地電話",
       "startDate": "開工日期",
       "state": "州屬",
-      "status": "狀態"
+      "status": "狀態",
+      "projectLead": "項目負責人",
+      "geofenceRadiusM": "電子圍欄半徑（米）"
     },
     "filter": {
       "all": "全部",
@@ -13560,7 +13582,9 @@
       "permissionDenied": "定位權限已被拒絕。請在瀏覽器設置中允許定位後重試。",
       "timeout": "定位響應超時。請在 GPS 信號較好的位置重試。",
       "unavailable": "無法取得當前位置。請檢查設備定位服務後重試。",
-      "unsupported": "此瀏覽器不支持 GPS 定位，請手動輸入經緯度。"
+      "unsupported": "此瀏覽器不支持 GPS 定位，請手動輸入經緯度。",
+      "captureOrMap": "用這台設備的 GPS 定位，或在地圖上點工地位置。",
+      "backToPlace": "回到工地位置"
     },
     "new": "新建項目",
     "qr": {
@@ -13636,7 +13660,8 @@
       "identity": "基本信息",
       "location": "工地位置與電子圍欄",
       "schedule": "工期",
-      "team": "工地人員"
+      "team": "工地人員",
+      "more": "更多資料（可選）"
     },
     "statistics": {
       "description": "按所選時間範圍統計此項目的真實業務記錄。",
@@ -13693,7 +13718,9 @@
       "unassigned": "已移出項目",
       "updated": "項目已更新"
     },
-    "viewTitle": "項目"
+    "viewTitle": "項目",
+    "codeAuto": "項目編號由系統自動生成（PRJ-0001 起）。",
+    "geofenceDefaultHint": "系統預設 {metres} 米，可以按工地實際範圍修改。"
   },
   "qrCodes": {
     "result": {
@@ -15610,7 +15637,10 @@
       "visitorHours": "訪客證默認時長（小時）",
       "website": "公司網站",
       "worker": "工地人員",
-      "expiringSoon": "7 天內到期"
+      "expiringSoon": "7 天內到期",
+      "ssmRegistrationNo": "SSM 註冊號碼",
+      "codeAuto": "留空，系統自動編號。",
+      "codeAutoPlaceholder": "自動生成"
     },
     "gate": {
       "cameraError": "無法啟動相機。請允許相機權限後重試，或上傳二維碼圖片。",
@@ -15732,8 +15762,8 @@
       "title": "默認權限"
     },
     "preferences": {
-      "subtitle": "設置公司用戶使用的語言、時間顯示和登錄首頁。",
-      "title": "公司偏好"
+      "subtitle": "語言、日期格式、時間格式、時區。",
+      "title": "顯示偏好"
     },
     "profile": {
       "chooseLogo": "選擇公司 Logo",
@@ -15742,7 +15772,9 @@
       "logo": "Logo",
       "background": "背景圖",
       "chooseBackground": "選擇背景圖",
-      "imageHint": "PNG、JPG 或 WebP，最大 8 MB。只有貴公司看到和使用；貴公司所有 PDF、列印件和匯出檔案的表頭都印上貴公司的名稱和 Logo。"
+      "imageHint": "PNG、JPG 或 WebP，最大 8 MB。只有貴公司看到和使用；貴公司所有 PDF、列印件和匯出檔案的表頭都印上貴公司的名稱和 Logo。",
+      "simpleSubtitle": "顯示在報表、二維碼記錄和項目文件上。",
+      "emergencyHint": "給門崗用，可以留空。"
     },
     "projectDefaults": {
       "archiveLock": "歸檔後鎖定記錄",
@@ -15780,7 +15812,9 @@
       "siteRules": "現場作業默認規則",
       "siteRulesHelp": "每個項目可有獨立圍欄；這裡控制時間與證據要求。",
       "subtitle": "維護建築商公司資料，以及每個新項目自動套用的默認規則。",
-      "title": "公司設置"
+      "title": "公司設置",
+      "simpleSubtitle": "公司資料、顯示偏好和分公司。",
+      "managedByMse": "系統設定（權限、二維碼、通知、GPS、安全、資料保存）由 MSE 統一管理，你不需要填寫。"
     },
     "shape": {
       "CIRCLE": "圓形範圍",

@@ -5070,6 +5070,19 @@
       "summary": "The company summary",
       "plans": "The plan list",
       "ownerAccount": "The owner account"
+    },
+    "lockedSettings": {
+      "title": "Settings managed by MSE",
+      "subtitle": "The contractor cannot see or change these. A new company uses the system defaults.",
+      "permissionsHelp": "The role a new user starts with, who approves, and what a consultant may see.",
+      "gps": "GPS",
+      "gpsHelp": "How often phones report, and how long a position counts as live.",
+      "security": "Security",
+      "securityHelp": "How long an activation link works, and when a phone asks for its PIN again.",
+      "records": "Records and photos",
+      "recordsHelp": "Locking after archive, and when a photo must be taken.",
+      "defaults": "System defaults",
+      "defaultsHelp": "What new projects, visitor passes and the dashboard start with."
     }
   },
   "consultantAccess": {
@@ -8708,6 +8721,7 @@
       "record_archived_locked": "This is confirmed and archived. It is locked and can no longer be changed or deleted.",
       "record_in_use": "A formal record uses it, so it cannot be deleted: {used_by}",
       "consultant_application_not_confirmed": "Confirm and archive the application before sending it to the consultant.",
+      "company_setting_locked": "MSE manages this setting. Ask MSE to change it.",
       "claim_letter_required": "Upload the letter first. A Progress Claim must have its letter; it goes at the front of the PDF.",
       "report_export_not_regenerable": "This history row cannot be generated again: it already has its file, belongs to another report, or is not in your history.",
       "session_replaced": "This account has signed in on another computer, so this computer has been signed out. To keep working here, sign in again.",
@@ -10216,7 +10230,9 @@
       "neverSeen": "Not seen yet",
       "available": "Can connect: register the device in System integrations to use it.",
       "droneWaiting": "When your company is ready, tell us the drone brand and management platform and we will connect it.",
-      "mediaNote": "Photos and videos from connected devices are still viewed in the same places as before."
+      "mediaNote": "Photos and videos from connected devices are still viewed in the same places as before.",
+      "managedByMse": "Devices are connected and set up by MSE. Contact MSE to connect one.",
+      "availableByMse": "Can be connected: contact MSE and we will connect it for you."
     },
     "console": {
       "state": {
@@ -12146,7 +12162,8 @@
       "progressSummary": "Progress summary",
       "siteWorkers": "Worker roster",
       "materialTargets": "Material targets",
-      "materialRequests": "MR / Other Request"
+      "materialRequests": "MR / Other Request",
+      "departmentsTrades": "Departments and trades"
     },
     "subscription_management": "Subscriptions",
     "suppliers": "Suppliers",
@@ -12404,7 +12421,9 @@
     "field": {
       "active": "Active",
       "code": "Code",
-      "name": "Name"
+      "name": "Name",
+      "codeAuto": "Leave empty and the system numbers it.",
+      "codeAutoPlaceholder": "Automatic"
     },
     "help": "Your own departments and trades. Both are used to break down the on-site headcount.",
     "inactive": "Inactive",
@@ -12421,7 +12440,8 @@
       "empty": "No trade yet. Add one before the headcount can be broken down by trade.",
       "help": "What people do on site — steel fixer, scaffolder, electrician. Kept as a list so the headcount by trade adds up.",
       "title": "Trades"
-    }
+    },
+    "pageTitle": "Departments and trades"
   },
   "pageGuide": {
     "section": {
@@ -13540,7 +13560,9 @@
       "sitePhone": "Site phone",
       "startDate": "Start date",
       "state": "State",
-      "status": "Status"
+      "status": "Status",
+      "projectLead": "Project lead",
+      "geofenceRadiusM": "Geofence radius (m)"
     },
     "filter": {
       "all": "All",
@@ -13560,7 +13582,9 @@
       "permissionDenied": "Location permission was denied. Allow location access in the browser and try again.",
       "timeout": "Location took too long to respond. Try again where the GPS signal is clearer.",
       "unavailable": "The current location could not be determined. Check the device location service and try again.",
-      "unsupported": "This browser does not support GPS location. Enter the coordinates manually."
+      "unsupported": "This browser does not support GPS location. Enter the coordinates manually.",
+      "captureOrMap": "Use this device's GPS, or click the site on the map.",
+      "backToPlace": "Back to the site"
     },
     "new": "New project",
     "qr": {
@@ -13636,7 +13660,8 @@
       "identity": "Identity",
       "location": "Site location and geofence",
       "schedule": "Schedule",
-      "team": "Site team"
+      "team": "Site team",
+      "more": "More details (optional)"
     },
     "statistics": {
       "description": "Real records for this project, grouped by the selected period.",
@@ -13693,7 +13718,9 @@
       "unassigned": "Removed from the project",
       "updated": "Project updated"
     },
-    "viewTitle": "Project"
+    "viewTitle": "Project",
+    "codeAuto": "The project number is given by the system (PRJ-0001 onwards).",
+    "geofenceDefaultHint": "System default {metres} m. Change it to fit the site."
   },
   "qrCodes": {
     "result": {
@@ -15610,7 +15637,10 @@
       "visitorHours": "Default visitor pass (hours)",
       "website": "Website",
       "worker": "Site worker",
-      "expiringSoon": "Expiring within 7 days"
+      "expiringSoon": "Expiring within 7 days",
+      "ssmRegistrationNo": "SSM registration no.",
+      "codeAuto": "Leave empty and the system numbers it.",
+      "codeAutoPlaceholder": "Automatic"
     },
     "gate": {
       "cameraError": "The camera could not start. Allow camera access and try again, or upload a QR image.",
@@ -15732,8 +15762,8 @@
       "title": "Default permissions"
     },
     "preferences": {
-      "subtitle": "Choose the language, time display and first page used by company users.",
-      "title": "Company preferences"
+      "subtitle": "Language, date format, time format and timezone.",
+      "title": "Display preferences"
     },
     "profile": {
       "chooseLogo": "Choose company logo",
@@ -15742,7 +15772,9 @@
       "logo": "Logo",
       "background": "Background image",
       "chooseBackground": "Choose background image",
-      "imageHint": "PNG, JPG or WebP, up to 8 MB. Only your company sees and uses these. Your company name and logo head every PDF, print and export of your records."
+      "imageHint": "PNG, JPG or WebP, up to 8 MB. Only your company sees and uses these. Your company name and logo head every PDF, print and export of your records.",
+      "simpleSubtitle": "Shown on your reports, QR records and project documents.",
+      "emergencyHint": "For the gate. You can leave it empty."
     },
     "projectDefaults": {
       "archiveLock": "Lock records after archive",
@@ -15780,7 +15812,9 @@
       "siteRules": "Field operation defaults",
       "siteRulesHelp": "Projects may have their own boundaries; these values control timing and evidence rules.",
       "subtitle": "Maintain the contractor profile and the defaults used by every new project.",
-      "title": "Company settings"
+      "title": "Company settings",
+      "simpleSubtitle": "Your company's details, display preferences and branches.",
+      "managedByMse": "System settings (permissions, QR rules, notifications, GPS, security and record keeping) are managed by MSE. You do not need to fill them in."
     },
     "shape": {
       "CIRCLE": "Circular boundary",

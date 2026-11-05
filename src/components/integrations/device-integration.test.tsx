@@ -17,8 +17,11 @@ import ms from "@/messages/ms.json";
 import zhTW from "@/messages/zh-TW.json";
 import zh from "@/messages/zh.json";
 
+// Who reads the page: MSE or a recycler holds integration.manage; a
+// contractor no longer does (JB99).
+const reader = vi.hoisted(() => ({ manages: true }));
 vi.mock("@/components/providers/auth-provider", () => ({
-  useAuth: () => ({ user: null, can: () => true }),
+  useAuth: () => ({ user: null, can: (code: string) => code !== "integration.manage" || reader.manages }),
 }));
 vi.mock("next/navigation", () => ({
   usePathname: () => "/device-integration",
@@ -80,6 +83,25 @@ describe("the page", () => {
     expect(render()).toMatch(/href="\/integrations"[^>]*>.*打开系统集成设定/);
   });
 
+  it("is an introduction only for a contractor (JB99, 客户 11-05 事项 4 第 10 点)", () => {
+    reader.manages = false;
+    try {
+      const html = render();
+      // The kinds are still there to read...
+      expect(html).toContain("已接入");
+      expect(html).toContain("GW-1");
+      // ...with nothing to set up or change, and MSE named as who connects.
+      expect(html).not.toContain('href="/integrations"');
+      expect(html).not.toContain("打开系统集成设定");
+      expect(html).not.toContain("<button");
+      expect(html).toContain("设备由 MSE 统一接入和设定");
+      expect(html).toContain("可以接入：请联系 MSE，由 MSE 帮你接入。");
+      expect(kindNoteKey(ROWS[1], false)).toBe("availableByMse");
+    } finally {
+      reader.manages = true;
+    }
+  });
+
   it("notes only a kind without devices", () => {
     expect(kindNoteKey(ROWS[0])).toBeNull();
     expect(kindNoteKey(ROWS[1])).toBe("available");
@@ -96,6 +118,21 @@ describe("the request", () => {
 });
 
 describe("the menu", () => {
+  it("is the only one of the technical pages left in a contractor's menu (JB99)", () => {
+    const every = ["company_settings", "integrations", "users", "roles"];
+    const held = ["company_settings.manage", "integration.view", "integration.manage", "external_access.manage", "department.view"];
+    const hrefs = visibleNavigation("MSE_TRACE", every, held)
+      .flatMap((group) => group.items)
+      .flatMap((item) => [item.href, ...(item.children ?? []).map((child) => child.href)]);
+    expect(hrefs).toContain("/device-integration");
+    expect(hrefs).toContain("/company-settings");
+    expect(hrefs).toContain("/departments-trades");
+    for (const gone of ["/integrations", "/external-access", "/technical"]) expect(hrefs).not.toContain(gone);
+    // 回收商后台不动.
+    const yard = visibleNavigation("MSE_SCRAP", every, held).flatMap((group) => group.items).map((item) => item.href);
+    expect(yard).toContain("/integrations");
+  });
+
   it("is in 系统 for whoever has 系统集成, in both company portals", () => {
     for (const portal of ["MSE_TRACE", "MSE_SCRAP"] as const) {
       const system = visibleNavigation(portal, ["integrations"]).find((group) => group.key === "system");

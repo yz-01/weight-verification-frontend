@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
-import { FieldWrapper, StatusBadge } from "@/components/shared/page-primitives";
+import { FieldWrapper, ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -32,6 +32,21 @@ import {
 
 /** The two lists behave identically; only the endpoints and labels differ. */
 type Row = { id: string; code: string; name: string; is_active: boolean };
+
+/**
+ * 部门与工种, its own page under 用户 (JB99, 客户 11-05 事项 3 第 6 点: 「部门、
+ * 工种、员工权限及审批人员，应放在相应的管理页面，不要全部堆在公司设置里面」).
+ * The same two lists that sat at the foot of 公司设置, side by side.
+ */
+export function DepartmentsTradesPage() {
+  const t = useTranslations("organisation");
+  return (
+    <div className="flex flex-col gap-4">
+      <ListHeader title={t("pageTitle")} subtitle={t("help")} />
+      <OrganisationPanel />
+    </div>
+  );
+}
 
 /**
  * The company's own departments and trades.
@@ -214,10 +229,12 @@ function RowDialog({
           <DialogTitle>{t(`${kind}.${row ? "edit" : "add"}`)}</DialogTitle>
           <DialogDescription>{t(`${kind}.help`)}</DialogDescription>
         </DialogHeader>
-        <FieldWrapper label={t("field.code")} required>
+        {/* 编号 left blank on a new one: DEP-0001 / TRD-0001 on (JB100). */}
+        <FieldWrapper label={t("field.code")} required={row !== null} hint={row ? undefined : t("field.codeAuto")}>
           <Input
             aria-label={t("field.code")}
             value={code}
+            placeholder={row ? undefined : t("field.codeAutoPlaceholder")}
             onChange={(event) => setCode(event.target.value)}
           />
         </FieldWrapper>
@@ -237,7 +254,7 @@ function RowDialog({
             {common("cancel")}
           </Button>
           <Button
-            requires={[[code, t("field.code")], [name, t("field.name")]]}
+            requires={[...(row ? [[code, t("field.code")] as const] : []), [name, t("field.name")]]}
             disabled={save.isPending}
             onClick={() => save.mutate()}
           >

@@ -36,6 +36,7 @@ import type {
   IssuedExternalAccessGrant,
 } from "@/interfaces/external-access";
 import { useDateFormat } from "@/lib/dates";
+import { getProjects } from "@/services/contractor.service";
 import {
   createExternalAccessGrant,
   getExternalAccessGrants,
@@ -65,7 +66,7 @@ function localInput(at: Date): string {
  * it, so the whole end was unreachable. A link is read-only, scoped to one
  * project, limited to the sections chosen here, expires, and can be revoked.
  */
-export function ExternalAccessManagement() {
+export function ExternalAccessManagement({ companyId }: { companyId?: string } = {}) {
   const t = useTranslations("externalAccess");
   const common = useTranslations("common");
   const df = useDateFormat();
@@ -75,9 +76,11 @@ export function ExternalAccessManagement() {
   const [revoking, setRevoking] = useState<ExternalAccessGrant | null>(null);
   const [reason, setReason] = useState("");
 
+  // On MSE's company page the links are that company's (JB99, 客户 11-05 事项 4:
+  // 外部访问链接 「统一由MSE Admin……管理」).
   const grants = useQuery({
-    queryKey: ["external-access-grants"],
-    queryFn: () => getExternalAccessGrants({ page_size: 100 }),
+    queryKey: ["external-access-grants", companyId ?? "own"],
+    queryFn: () => getExternalAccessGrants({ page_size: 100, ...(companyId ? { company: companyId } : {}) }),
   });
 
   const refresh = () =>
@@ -220,6 +223,7 @@ export function ExternalAccessManagement() {
 
       {creating && (
         <GrantDialog
+          companyId={companyId}
           onClose={() => setCreating(false)}
           onIssued={async (grant) => {
             setCreating(false);
@@ -252,9 +256,11 @@ export function ExternalAccessManagement() {
 }
 
 function GrantDialog({
+  companyId,
   onClose,
   onIssued,
 }: {
+  companyId?: string;
   onClose: () => void;
   onIssued: (grant: IssuedExternalAccessGrant) => void | Promise<void>;
 }) {
@@ -280,9 +286,16 @@ function GrantDialog({
         : [...current, field],
     );
 
+  // MSE picks among the company's projects, not its own.
+  const companyProjects = useQuery({
+    queryKey: ["projects", "external-access", companyId],
+    queryFn: () => getProjects({ company: companyId, page_size: 100 }),
+    enabled: Boolean(companyId),
+  });
   const save = useMutation({
     mutationFn: () =>
       createExternalAccessGrant({
+        ...(companyId ? { company: companyId } : {}),
         name: name.trim(),
         project: project || null,
         allowed_fields: fields,
@@ -310,6 +323,13 @@ function GrantDialog({
             placeholder={t("wholeCompany")}
             // Empty is 「整个公司」, a real answer; the top bar does not make it.
             scope="own"
+            {...(companyId
+              ? {
+                  projects: companyProjects.data?.results ?? [],
+                  projectsLoading: companyProjects.isLoading,
+                  projectsError: companyProjects.isError,
+                }
+              : {})}
           />
         </FieldWrapper>
 
