@@ -8727,7 +8727,9 @@
       "passport_capture_link_invalid": "这个拍照链接已经失效。请在电脑的「批量新增人员」页面重新扫二维码。",
       "equipment_number_by_system": "设备编号由系统自动给，不能人工修改。",
       "category_group_single": "这个模块每个项目只有一个分类组，请直接改它的名称。",
-      "company_category_fixed": "每个项目都要用这个分类：可以改名，不能停用或删除。"
+      "company_category_fixed": "每个项目都要用这个分类：可以改名，不能停用或删除。",
+      "phone_page_not_yours": "你的手机没有这个页面。",
+      "chat_people_invalid": "请从名单里选人。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -9090,7 +9092,7 @@
       "accessInfo": "此人目前的项目"
     },
     "role": "角色",
-    "roleHint": "门岗保安可扫通行证、拍门岗照片记录。两种角色都用这个链接在手机登入。",
+    "roleHint": "门岗保安可扫通行证、拍门岗照片记录；设备操作人员给设备开工、收工打卡。三种角色都用这个链接在手机登入。",
     "places": {
       "title": "目前登录中：{count} / {limit}",
       "none": "还没有在任何地方登录。",
@@ -9374,7 +9376,10 @@
       "location": "位置",
       "records": "现场记录",
       "tasks": "任务",
-      "hazards": "整改 / EHS"
+      "hazards": "整改 / EHS",
+      "talk": "沟通",
+      "operate": "设备操作",
+      "gatePhoto": "拍照"
     },
     "notifications": {
       "empty": "目前没有新通知",
@@ -9503,6 +9508,40 @@
       "download": "下载",
       "loading": "正在读取后台发来的文件…",
       "loadFailed": "后台发来的文件读取失败，请稍后再试。"
+    },
+    "talk": {
+      "title": "沟通",
+      "subtitle": "你参与的全部对话，最新的在上面。",
+      "find": "找人沟通",
+      "findHint": "同一公司的现场工作人员、设备操作人员和门岗。",
+      "what": "沟通列表",
+      "whatPeople": "人员名单",
+      "empty": "还没有对话。按「找人沟通」开始。",
+      "kind": {
+        "direct": "沟通",
+        "record": "事项沟通",
+        "hazard": "整改沟通"
+      },
+      "preview": {
+        "none": "还没有信息",
+        "photo": "[照片]",
+        "voice": "[语音]",
+        "file": "[文件]"
+      },
+      "roomTitle": "和 {people} 沟通",
+      "roomEmpty": "还没有人说话。",
+      "search": "搜索名字",
+      "noPeople": "找不到人。",
+      "sameProject": "同一项目",
+      "otherProjects": "其他项目",
+      "groupTitle": "群组名称（可不填）",
+      "choose": "要沟通的人",
+      "start": "{count, plural, =0 {开始沟通} other {和 # 个人开始沟通}}",
+      "startFailed": "无法开始对话，请再试一次。"
+    },
+    "operate": {
+      "title": "设备操作",
+      "subtitle": "选设备，开工或收工打卡。工时照旧交给后台审核。"
     }
   },
   "fieldStaffWorkspace": {
@@ -13161,7 +13200,8 @@
       "equipment": {
         "view": "查看设备与设备工时",
         "manage": "管理设备、验收进退场、调整工时",
-        "capture": "现场登记设备进退场与工时"
+        "capture": "现场登记设备进退场与工时",
+        "operate": "以操作人员身份用手机给设备开工、收工打卡"
       },
       "field_task": {
         "view": "查看现场任务",
@@ -14681,7 +14721,8 @@
       "storekeeper": "在所在项目登记及更正材料进场，申请材料出场，提交 MR。",
       "equipment_manager": "管理全部项目的设备进退场、设备清单、二维码贴纸和设备工时。",
       "site_supervisor": "在所在项目指派及验收现场任务与整改 / EHS，记录工程进度，处理门岗事项。",
-      "document_controller": "管理文件档案，提交顾问申请和后台审批，维护 RFI 表格。"
+      "document_controller": "管理文件档案，提交顾问申请和后台审批，维护 RFI 表格。",
+      "equipment_operator": "用手机给工地设备开工、收工打卡。"
     },
     "systemHint": "内置角色不可移除，确保公司始终有办法管理自己的人员。",
     "system_": {
@@ -14703,7 +14744,8 @@
       "storekeeper": "仓管 / 材料员",
       "equipment_manager": "设备管理员",
       "site_supervisor": "工地主管",
-      "document_controller": "文控"
+      "document_controller": "文控",
+      "equipment_operator": "设备操作人员"
     },
     "title": "角色权限",
     "toast": {
@@ -19431,7 +19473,9 @@
       "start": "开工",
       "end": "收工",
       "running": "未收工",
-      "empty": "还没有记录。"
+      "empty": "还没有记录。",
+      "todayTitle": "当天工时",
+      "todayTotals": "今天合计"
     }
   },
   "theme": {

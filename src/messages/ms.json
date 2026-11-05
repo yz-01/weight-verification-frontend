@@ -8727,7 +8727,9 @@
       "passport_capture_link_invalid": "Pautan gambar ini sudah tamat. Imbas kod QR semula di halaman \"Tambah ramai pekerja\" pada komputer.",
       "equipment_number_by_system": "Nombor peralatan diberi oleh sistem dan tidak boleh diubah.",
       "category_group_single": "Modul ini ada satu kumpulan kategori bagi setiap projek. Namakan semula kumpulan itu.",
-      "company_category_fixed": "Setiap projek memerlukan kategori ini: boleh dinamakan semula, tidak boleh dimatikan atau dibuang."
+      "company_category_fixed": "Setiap projek memerlukan kategori ini: boleh dinamakan semula, tidak boleh dimatikan atau dibuang.",
+      "phone_page_not_yours": "Halaman ini tiada pada telefon anda.",
+      "chat_people_invalid": "Pilih orang daripada senarai."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -9090,7 +9092,7 @@
       "accessInfo": "Projek semasa orang ini"
     },
     "role": "Peranan",
-    "roleHint": "Pengawal pintu mengimbas pas dan mengambil rekod foto pintu. Kedua-duanya log masuk di telefon dengan pautan ini.",
+    "roleHint": "Pengawal pintu mengimbas pas dan mengambil rekod foto pintu. Operator jentera merekod mula dan tamat kerja jentera. Semua log masuk di telefon dengan pautan ini.",
     "places": {
       "title": "Sedang log masuk: {count} daripada {limit}",
       "none": "Belum log masuk di mana-mana.",
@@ -9374,7 +9376,10 @@
       "location": "Lokasi",
       "records": "Rakam rekod tapak",
       "tasks": "Tugas",
-      "hazards": "Pembetulan bahaya / EHS"
+      "hazards": "Pembetulan bahaya / EHS",
+      "talk": "Mesej",
+      "operate": "Jentera",
+      "gatePhoto": "Foto"
     },
     "notifications": {
       "empty": "Tiada makluman baharu",
@@ -9503,6 +9508,40 @@
       "download": "Muat turun",
       "loading": "Membaca fail dari pejabat…",
       "loadFailed": "Fail dari pejabat tidak dapat dibaca. Sila cuba lagi nanti."
+    },
+    "talk": {
+      "title": "Mesej",
+      "subtitle": "Semua perbualan anda, yang terbaru di atas.",
+      "find": "Mesej seseorang",
+      "findHint": "Kakitangan tapak, operator jentera dan pengawal pintu syarikat anda.",
+      "what": "perbualan anda",
+      "whatPeople": "senarai orang",
+      "empty": "Belum ada perbualan. Tekan 「Mesej seseorang」 untuk mula.",
+      "kind": {
+        "direct": "Perbualan",
+        "record": "Perbualan rekod",
+        "hazard": "Perbualan bahaya"
+      },
+      "preview": {
+        "none": "Belum ada mesej",
+        "photo": "[Foto]",
+        "voice": "[Suara]",
+        "file": "[Fail]"
+      },
+      "roomTitle": "Dengan {people}",
+      "roomEmpty": "Belum ada mesej.",
+      "search": "Cari nama",
+      "noPeople": "Tiada sesiapa dijumpai.",
+      "sameProject": "Dalam projek anda",
+      "otherProjects": "Projek lain",
+      "groupTitle": "Nama kumpulan (pilihan)",
+      "choose": "orang untuk dimesej",
+      "start": "{count, plural, =0 {Mula} one {Mula dengan 1 orang} other {Mula dengan # orang}}",
+      "startFailed": "Perbualan tidak dapat dimulakan. Cuba lagi."
+    },
+    "operate": {
+      "title": "Operasi jentera",
+      "subtitle": "Pilih jentera, kemudian mula atau tamat kerja. Jam anda ke pejabat seperti biasa."
     }
   },
   "fieldStaffWorkspace": {
@@ -13161,7 +13200,8 @@
       "equipment": {
         "view": "Lihat peralatan dan jam operasi",
         "manage": "Urus peralatan, terima masuk dan keluar, laras jam",
-        "capture": "Rekod peralatan masuk, keluar dan jam di tapak"
+        "capture": "Rekod peralatan masuk, keluar dan jam di tapak",
+        "operate": "Merekod mula dan tamat kerja jentera sebagai operatornya, dari telefon"
       },
       "field_task": {
         "view": "Lihat tugas tapak",
@@ -14681,7 +14721,8 @@
       "storekeeper": "Merekod dan membetulkan terimaan bahan, memohon bahan keluar dan menghantar MR di projek mereka.",
       "equipment_manager": "Mengurus peralatan masuk dan keluar, senarai peralatan, pelekat QR dan jam operasi di semua projek.",
       "site_supervisor": "Menugaskan dan menerima tugas tapak serta pembetulan bahaya, merekod kemajuan dan mengendalikan isu pintu di projek mereka.",
-      "document_controller": "Menjaga arkib dokumen, menghantar permohonan perunding dan kelulusan pejabat, serta menyelenggara borang RFI."
+      "document_controller": "Menjaga arkib dokumen, menghantar permohonan perunding dan kelulusan pejabat, serta menyelenggara borang RFI.",
+      "equipment_operator": "Merekod mula dan tamat kerja jentera tapak dari telefon."
     },
     "systemHint": "Peranan terbina dalam tidak boleh dibuang, supaya syarikat sentiasa ada cara untuk menguruskan orangnya sendiri.",
     "system_": {
@@ -14703,7 +14744,8 @@
       "storekeeper": "Penjaga Stor",
       "equipment_manager": "Pengurus Peralatan",
       "site_supervisor": "Penyelia Tapak",
-      "document_controller": "Pengawal Dokumen"
+      "document_controller": "Pengawal Dokumen",
+      "equipment_operator": "Operator Jentera"
     },
     "title": "Peranan",
     "toast": {
@@ -19431,7 +19473,9 @@
       "start": "Mula",
       "end": "Tamat",
       "running": "Belum tamat",
-      "empty": "Belum ada rekod."
+      "empty": "Belum ada rekod.",
+      "todayTitle": "Jam hari ini",
+      "todayTotals": "Jumlah hari ini"
     }
   },
   "theme": {

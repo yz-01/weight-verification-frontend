@@ -17,7 +17,14 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
-import { activeFieldNav, type FieldNavKey } from "@/lib/field-nav";
+import {
+  activeFieldNav,
+  fieldNavFor,
+  fieldStartTab,
+  fieldTabsFor,
+  phoneRoleOf,
+  type FieldNavKey,
+} from "@/lib/field-nav";
 
 const WORKSPACE = "src/components/field-staff/field-staff-workspace.tsx";
 
@@ -54,25 +61,72 @@ describe("activeFieldNav", () => {
   });
 });
 
+describe("each phone its own buttons (JB104, 客户 11-05 事项 9)", () => {
+  it("keeps site staff's four and adds 沟通", () => {
+    // 「现场工作人员手机端 保留原有现场工作功能，包括门岗页面及沟通功能」.
+    expect(fieldNavFor("site_staff")).toEqual(["home", "attendance", "records", "hazards", "talk"]);
+    expect(fieldNavFor("site_staff")).not.toContain("operate");
+  });
+
+  it("gives the operator 设备操作 and 沟通 only", () => {
+    expect(fieldNavFor("equipment_operator")).toEqual(["operate", "talk"]);
+  });
+
+  it("gives the guard 拍照 and 沟通 only", () => {
+    expect(fieldNavFor("gate_guard")).toEqual(["records", "talk"]);
+  });
+
+  it("lets a link open only the tabs that phone has", () => {
+    expect(fieldTabsFor("equipment_operator")).toEqual(["operate", "talk"]);
+    expect(fieldTabsFor("gate_guard")).toEqual(["records", "talk"]);
+    expect(fieldTabsFor("site_staff")).toEqual(
+      expect.arrayContaining(["home", "tasks", "attendance", "records", "incidents", "talk"]),
+    );
+    expect(fieldTabsFor("site_staff")).not.toContain("operate");
+    expect(fieldStartTab("site_staff")).toBe("home");
+    expect(fieldStartTab("equipment_operator")).toBe("operate");
+    expect(fieldStartTab("gate_guard")).toBe("records");
+  });
+
+  it("treats an account the server says nothing about as the full phone", () => {
+    // A server from before JB104, and every pilot account: nobody loses a page.
+    expect(phoneRoleOf({})).toBe("site_staff");
+    expect(phoneRoleOf(null)).toBe("site_staff");
+    expect(phoneRoleOf({ phone_role: null })).toBe("site_staff");
+    expect(phoneRoleOf({ phone_role: "gate_guard" })).toBe("gate_guard");
+    expect(phoneRoleOf({ phone_role: "equipment_operator" })).toBe("equipment_operator");
+  });
+
+  it("lights 沟通 and 设备操作 for their own tabs", () => {
+    expect(activeFieldNav("talk", null)).toBe("talk");
+    expect(activeFieldNav("operate", null)).toBe("operate");
+    // The guard's 拍照 is the gate form inside the records tab.
+    expect(activeFieldNav("records", "gate")).toBe("records");
+  });
+});
+
 describe("the bottom navigation reads one answer", () => {
   const source = readFileSync(WORKSPACE, "utf8");
 
-  it("renders four buttons and no more", () => {
+  it("renders the buttons of the phone's own list and no other", () => {
     const buttons = source.match(/<MobileNavButton\b/g) ?? [];
-    // Four since 「位置」 was removed (T-321, customer item 43). Pinned here
-    // because the grid column count has to match it.
-    expect(buttons).toHaveLength(4);
+    // One button, drawn once per key of `fieldNavFor` (JB104). A second,
+    // hand-placed button would be a page some phone should not have.
+    expect(buttons).toHaveLength(1);
+    expect(source).toMatch(/navKeys\.map\(\(key\) => \(\s*<MobileNavButton/);
+    expect(source).toMatch(/const navKeys = fieldNavFor\(phoneRole\)/);
+  });
+
+  it("matches the grid to the number of buttons", () => {
+    for (const role of ["site_staff", "equipment_operator", "gate_guard"] as const) {
+      expect(source).toContain(`${fieldNavFor(role).length}: "grid-cols-${fieldNavFor(role).length}"`);
+    }
   });
 
   it("gives every button its state from activeFieldNav", () => {
-    const predicates = [...source.matchAll(/<MobileNavButton\s+active=\{([^}]*)\}/g)]
+    const predicates = [...source.matchAll(/<MobileNavButton\s+key=\{key\}\s+active=\{([^}]*)\}/g)]
       .map((match) => match[1].trim());
-    expect(predicates).toHaveLength(4);
-    for (const predicate of predicates) {
-      // `activeNav === "records"` and nothing else. A predicate that mentions
-      // `tab` or `recordMode` is a button deciding for itself again.
-      expect(predicate, predicate).toMatch(/^activeNav === "[a-z]+"$/);
-    }
+    expect(predicates).toEqual(["activeNav === key"]);
   });
 
   it("no longer offers 位置", () => {

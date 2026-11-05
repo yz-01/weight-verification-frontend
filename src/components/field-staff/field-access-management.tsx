@@ -50,7 +50,9 @@ import {
 import { getRoles, getUsers } from "@/services/users.service";
 import { FieldDraft, useClearDraft, useDraftState } from "@/components/field-staff/field-draft";
 
-type FieldRoleCode = "site_staff" | "gate_guard";
+// 设备操作人员 since JB104 (客户 11-05 事项 9: 「设备操作人员属于独立角色」).
+type FieldRoleCode = "site_staff" | "gate_guard" | "equipment_operator";
+const FIELD_ROLE_CODES: readonly FieldRoleCode[] = ["site_staff", "equipment_operator", "gate_guard"];
 type AccessMode = "new" | "existing";
 
 function toMobileSubscriberDigits(value: string): string {
@@ -89,7 +91,8 @@ function FieldAccessManagementContent({
     toMobileSubscriberDigits(initialUser?.phone ?? ""),
   );
   const [email, setEmail] = useDraftState("email", "");
-  // 现场人员 or 门岗保安 (C22). Both sign in on the phone with this link.
+  // 现场人员, 设备操作人员 (JB104) or 门岗保安 (C22). All three sign in on the
+  // phone with this link and a PIN.
   const [fieldRole, setFieldRole] = useDraftState<FieldRoleCode>("fieldRole", "site_staff");
   const roleName = useTranslations("roles.system_");
   const [projectIds, setProjectIds] = useDraftState<string[] | null>("projectIds", null);
@@ -116,7 +119,10 @@ function FieldAccessManagementContent({
   const gateGuardRole = roles.data?.results.find(
     (role) => role.code === "gate_guard",
   );
-  const fieldRoleIds = [siteStaffRole?.id, gateGuardRole?.id].filter(
+  const operatorRole = roles.data?.results.find(
+    (role) => role.code === "equipment_operator",
+  );
+  const fieldRoleIds = [siteStaffRole?.id, gateGuardRole?.id, operatorRole?.id].filter(
     (id): id is string => Boolean(id),
   );
   const fieldUsers = useQuery({
@@ -161,7 +167,9 @@ function FieldAccessManagementContent({
               ...(email.trim() ? { email: email.trim() } : {}),
               ...(fieldRole === "gate_guard" && gateGuardRole
                 ? { role: gateGuardRole.id }
-                : {}),
+                : fieldRole === "equipment_operator" && operatorRole
+                  ? { role: operatorRole.id }
+                  : {}),
               project_ids: selectedProjectIds,
             }),
     onSuccess: (invitation) => {
@@ -433,14 +441,20 @@ function FieldAccessManagementContent({
                 />
               </FieldWrapper>
             )}
-            {mode === "new" && gateGuardRole && (
+            {mode === "new" && (gateGuardRole || operatorRole) && (
               <FieldWrapper label={t("role")} hint={t("roleHint")} className="sm:col-span-2">
-                <div className="grid grid-cols-2 gap-2">
-                  {(["site_staff", "gate_guard"] as const).map((code) => (
+                <div className="grid grid-cols-3 gap-2">
+                  {FIELD_ROLE_CODES.filter(
+                    (code) =>
+                      code === "site_staff" ||
+                      (code === "gate_guard" && gateGuardRole) ||
+                      (code === "equipment_operator" && operatorRole),
+                  ).map((code) => (
                     <Button
                       key={code}
                       type="button"
                       variant={fieldRole === code ? "default" : "outline"}
+                      className="h-auto min-h-10 whitespace-normal px-2 leading-tight"
                       onClick={() => setFieldRole(code)}
                     >
                       {roleName(code)}

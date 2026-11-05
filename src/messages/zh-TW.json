@@ -8727,7 +8727,9 @@
       "passport_capture_link_invalid": "這個拍照連結已經失效。請在電腦的「批量新增人員」頁面重新掃二維碼。",
       "equipment_number_by_system": "設備編號由系統自動給，不能人工修改。",
       "category_group_single": "這個模組每個項目只有一個分類組，請直接改它的名稱。",
-      "company_category_fixed": "每個項目都要用這個分類：可以改名，不能停用或刪除。"
+      "company_category_fixed": "每個項目都要用這個分類：可以改名，不能停用或刪除。",
+      "phone_page_not_yours": "你的手機沒有這個頁面。",
+      "chat_people_invalid": "請從名單裡選人。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -9090,7 +9092,7 @@
       "accessInfo": "此人目前的項目"
     },
     "role": "角色",
-    "roleHint": "門崗保安可掃通行證、拍門崗照片記錄。兩種角色都用這個連結在手機登入。",
+    "roleHint": "門崗保安可掃通行證、拍門崗照片記錄；設備操作人員給設備開工、收工打卡。三種角色都用這個連結在手機登入。",
     "places": {
       "title": "目前登入中：{count} / {limit}",
       "none": "還沒有在任何地方登入。",
@@ -9374,7 +9376,10 @@
       "location": "位置",
       "records": "現場記錄",
       "tasks": "任務",
-      "hazards": "整改 / EHS"
+      "hazards": "整改 / EHS",
+      "talk": "溝通",
+      "operate": "設備操作",
+      "gatePhoto": "拍照"
     },
     "notifications": {
       "empty": "目前沒有新通知",
@@ -9503,6 +9508,40 @@
       "download": "下載",
       "loading": "正在讀取後台發來的文件…",
       "loadFailed": "後台發來的文件讀取失敗，請稍後再試。"
+    },
+    "talk": {
+      "title": "溝通",
+      "subtitle": "你參與的全部對話，最新的在上面。",
+      "find": "找人溝通",
+      "findHint": "同一公司的現場工作人員、設備操作人員和門崗。",
+      "what": "溝通列表",
+      "whatPeople": "人員名單",
+      "empty": "還沒有對話。按「找人溝通」開始。",
+      "kind": {
+        "direct": "溝通",
+        "record": "事項溝通",
+        "hazard": "整改溝通"
+      },
+      "preview": {
+        "none": "還沒有訊息",
+        "photo": "[照片]",
+        "voice": "[語音]",
+        "file": "[檔案]"
+      },
+      "roomTitle": "和 {people} 溝通",
+      "roomEmpty": "還沒有人說話。",
+      "search": "搜尋名字",
+      "noPeople": "找不到人。",
+      "sameProject": "同一項目",
+      "otherProjects": "其他項目",
+      "groupTitle": "群組名稱（可不填）",
+      "choose": "要溝通的人",
+      "start": "{count, plural, =0 {開始溝通} other {和 # 個人開始溝通}}",
+      "startFailed": "無法開始對話，請再試一次。"
+    },
+    "operate": {
+      "title": "設備操作",
+      "subtitle": "選設備，開工或收工打卡。工時照舊交給後台審核。"
     }
   },
   "fieldStaffWorkspace": {
@@ -13161,7 +13200,8 @@
       "equipment": {
         "view": "查看設備與設備工時",
         "manage": "管理設備、驗收進退場、調整工時",
-        "capture": "現場登記設備進退場與工時"
+        "capture": "現場登記設備進退場與工時",
+        "operate": "以操作人員身份用手機給設備開工、收工打卡"
       },
       "field_task": {
         "view": "查看現場任務",
@@ -14681,7 +14721,8 @@
       "storekeeper": "在所在項目登記及更正材料進場，申請材料出場，提交 MR。",
       "equipment_manager": "管理全部項目的設備進退場、設備清單、二維碼貼紙和設備工時。",
       "site_supervisor": "在所在項目指派及驗收現場任務與整改 / EHS，記錄工程進度，處理門崗事項。",
-      "document_controller": "管理文件檔案，提交顧問申請和後台審批，維護 RFI 表格。"
+      "document_controller": "管理文件檔案，提交顧問申請和後台審批，維護 RFI 表格。",
+      "equipment_operator": "用手機給工地設備開工、收工打卡。"
     },
     "systemHint": "內置角色不可移除，確保公司始終有辦法管理自己的人員。",
     "system_": {
@@ -14703,7 +14744,8 @@
       "storekeeper": "倉管 / 材料員",
       "equipment_manager": "設備管理員",
       "site_supervisor": "工地主管",
-      "document_controller": "文控"
+      "document_controller": "文控",
+      "equipment_operator": "設備操作人員"
     },
     "title": "角色權限",
     "toast": {
@@ -19431,7 +19473,9 @@
       "start": "開工",
       "end": "收工",
       "running": "未收工",
-      "empty": "還沒有記錄。"
+      "empty": "還沒有記錄。",
+      "todayTitle": "當天工時",
+      "todayTotals": "今天合計"
     }
   },
   "theme": {
