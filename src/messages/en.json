@@ -13605,7 +13605,7 @@
       "timeout": "Location took too long to respond. Try again where the GPS signal is clearer.",
       "unavailable": "The current location could not be determined. Check the device location service and try again.",
       "unsupported": "This browser does not support GPS location. Enter the coordinates manually.",
-      "captureOrMap": "Use this device's GPS, or click the site on the map.",
+      "captureOrMap": "Use this device's GPS to find the site, then draw the site on the map below.",
       "backToPlace": "Back to the site"
     },
     "new": "New project",
@@ -13747,7 +13747,21 @@
       "placeholder": "Choose the project manager",
       "hint": "They join the project and become its project manager (main person in charge) - no need to add them again.",
       "none": "Your company has no back-office people to choose yet. Add the project manager in User Management first, then come back.",
-      "loadError": "The list of people could not be loaded. Please try again later."
+      "loadError": "The list of people could not be loaded. Please try again later.",
+      "headOfficeOnly": "Head office chooses the project manager."
+    },
+    "boundary": {
+      "title": "Draw the site on the map",
+      "done": "Site drawn ({count} points)",
+      "help": "Click point by point along the site's real boundary - at least 3 points; drag a point to adjust it. Who is on site is judged by the area you draw. Latitude and longitude only mark where the project is.",
+      "undo": "Undo last point",
+      "clear": "Clear and redraw",
+      "needThree": "At least 3 points make an area.",
+      "nothingYet": "No points drawn yet.",
+      "noneYet": "Until the site is drawn, a {metres} m circle is used; once drawn, the drawn area counts.",
+      "fieldLabel": "Geofence (site area)",
+      "drawn": "Site drawn ({count} points)",
+      "circleOnly": "Site not drawn yet - a {metres} m circle is used"
     }
   },
   "qrCodes": {
@@ -17478,7 +17492,8 @@
       "description": "They will not be able to sign in again. Everything they recorded stays exactly as it is.",
       "title": "Remove {name}?",
       "fieldTitle": "Delete {name}?",
-      "fieldDescription": "They can no longer sign in, and their mobile number is freed so it can be registered on another project. Everything they recorded is kept. (Suspending does not free the number.)"
+      "fieldDescription": "They can no longer sign in, and their mobile number is freed so it can be registered on another project. Everything they recorded is kept. (Suspending does not free the number.)",
+      "fieldConfirm": "Delete"
     },
     "resetPassword": {
       "action": "Send reset link",
@@ -17516,7 +17531,8 @@
       "removed": "User removed",
       "statusUpdated": "User status updated",
       "updated": "User updated",
-      "switchesSaved": "Permissions updated"
+      "switchesSaved": "Permissions updated",
+      "fieldDeleted": "Deleted - the mobile number is free again"
     },
     "viewTitle": "User",
     "what": {
@@ -20382,7 +20398,7 @@
       "role_update": "Change a role's permissions",
       "role_delete": "Remove a role",
       "user_change_role": "Change a user's role",
-      "user_change_status": "Suspend or reinstate an account",
+      "user_change_status": "Suspend, reinstate or delete an account",
       "consultant_review": "Sign a consultant decision",
       "consultant_link_document": "Add archive files to a consultant application",
       "receipt_refile": "File a delivery under another material",

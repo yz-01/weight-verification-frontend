@@ -13605,7 +13605,7 @@
       "timeout": "定位響應超時。請在 GPS 信號較好的位置重試。",
       "unavailable": "無法取得當前位置。請檢查設備定位服務後重試。",
       "unsupported": "此瀏覽器不支持 GPS 定位，請手動輸入經緯度。",
-      "captureOrMap": "用這台設備的 GPS 定位，或在地圖上點工地位置。",
+      "captureOrMap": "用這台設備的 GPS 定位工地，再在下面的地圖上畫出工地範圍。",
       "backToPlace": "回到工地位置"
     },
     "new": "新建項目",
@@ -13747,7 +13747,21 @@
       "placeholder": "選擇項目經理",
       "hint": "選好後，此人自動加入項目，並成為項目經理（主要負責人），不需要再添加人員。",
       "none": "公司還沒有可選的後台人員。先到「用戶管理」添加項目經理，再回來選擇。",
-      "loadError": "人員名單無法載入，請稍後再試。"
+      "loadError": "人員名單無法載入，請稍後再試。",
+      "headOfficeOnly": "項目經理由總部指定。"
+    },
+    "boundary": {
+      "title": "在地圖上畫出工地範圍",
+      "done": "已畫好工地範圍（{count} 個點）",
+      "help": "沿著工地實際邊界，在地圖上逐點點擊，至少 3 個點；點可以拖動調整。人員進出就按畫出的範圍判斷。緯度、經度只作為項目定位。",
+      "undo": "撤銷上一個點",
+      "clear": "清除重畫",
+      "needThree": "至少要 3 個點才成為一個範圍。",
+      "nothingYet": "還沒有畫任何點。",
+      "noneYet": "還沒畫範圍時，暫時用 {metres} 米圓形範圍；畫好後以畫出的範圍為準。",
+      "fieldLabel": "電子圍欄（工地範圍）",
+      "drawn": "已畫工地範圍（{count} 個點）",
+      "circleOnly": "還沒畫工地範圍，暫用 {metres} 米圓形範圍"
     }
   },
   "qrCodes": {
@@ -17478,7 +17492,8 @@
       "description": "此人將無法再登錄。他們記錄過的所有數據原樣保留。",
       "title": "移除 {name}？",
       "fieldTitle": "刪除 {name}？",
-      "fieldDescription": "刪除後，此人無法再登入，手機號碼會釋放，可以在其他項目重新註冊。他記錄過的資料全部保留。（停用不會釋放號碼。）"
+      "fieldDescription": "刪除後，此人無法再登入，手機號碼會釋放，可以在其他項目重新註冊。他記錄過的資料全部保留。（停用不會釋放號碼。）",
+      "fieldConfirm": "刪除"
     },
     "resetPassword": {
       "action": "發送重設鏈接",
@@ -17516,7 +17531,8 @@
       "removed": "用戶已移除",
       "statusUpdated": "用戶狀態已更新",
       "updated": "用戶已更新",
-      "switchesSaved": "權限已更新"
+      "switchesSaved": "權限已更新",
+      "fieldDeleted": "已刪除，手機號碼已釋放"
     },
     "viewTitle": "用戶詳情",
     "what": {
@@ -20382,7 +20398,7 @@
       "role_update": "修改角色權限",
       "role_delete": "刪除角色",
       "user_change_role": "修改用戶角色",
-      "user_change_status": "停用或恢復帳號",
+      "user_change_status": "停用、恢復或刪除帳號",
       "consultant_review": "顧問審批簽核",
       "consultant_link_document": "把文件管理的檔案加進顧問申請",
       "receipt_refile": "把進場單歸入另一種材料",

@@ -222,14 +222,15 @@ export function ViewProject({ id }: { id: string }) {
               label={t("projects.field.longitude")}
               value={data.longitude}
             />
+            {/* The drawn site is the fence (JB110); a radius only without one. */}
             <ReadField
-              label={t("projects.field.geofenceRadius")}
+              label={t("projects.boundary.fieldLabel")}
               value={
-                data.geofence_radius_m
-                  ? t("projects.geofenceRadiusValue", {
-                      count: data.geofence_radius_m,
-                    })
-                  : null
+                (data.boundary?.length ?? 0) >= 3
+                  ? t("projects.boundary.drawn", { count: data.boundary?.length ?? 0 })
+                  : data.geofence_radius_m
+                    ? t("projects.boundary.circleOnly", { metres: data.geofence_radius_m })
+                    : null
               }
               className="md:col-span-2"
             />

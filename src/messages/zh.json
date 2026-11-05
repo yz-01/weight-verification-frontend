@@ -13605,7 +13605,7 @@
       "timeout": "定位响应超时。请在 GPS 信号较好的位置重试。",
       "unavailable": "无法取得当前位置。请检查设备定位服务后重试。",
       "unsupported": "此浏览器不支持 GPS 定位，请手动输入经纬度。",
-      "captureOrMap": "用这台设备的 GPS 定位，或在地图上点工地位置。",
+      "captureOrMap": "用这台设备的 GPS 定位工地，再在下面的地图上画出工地范围。",
       "backToPlace": "回到工地位置"
     },
     "new": "新建项目",
@@ -13747,7 +13747,21 @@
       "placeholder": "选择项目经理",
       "hint": "选好后，此人自动加入项目，并成为项目经理（主要负责人），不需要再添加人员。",
       "none": "公司还没有可选的后台人员。先到「用户管理」添加项目经理，再回来选择。",
-      "loadError": "人员名单无法载入，请稍后再试。"
+      "loadError": "人员名单无法载入，请稍后再试。",
+      "headOfficeOnly": "项目经理由总部指定。"
+    },
+    "boundary": {
+      "title": "在地图上画出工地范围",
+      "done": "已画好工地范围（{count} 个点）",
+      "help": "沿着工地实际边界，在地图上逐点点击，至少 3 个点；点可以拖动调整。人员进出就按画出的范围判断。纬度、经度只作为项目定位。",
+      "undo": "撤销上一个点",
+      "clear": "清除重画",
+      "needThree": "至少要 3 个点才成为一个范围。",
+      "nothingYet": "还没有画任何点。",
+      "noneYet": "还没画范围时，暂时用 {metres} 米圆形范围；画好后以画出的范围为准。",
+      "fieldLabel": "电子围栏（工地范围）",
+      "drawn": "已画工地范围（{count} 个点）",
+      "circleOnly": "还没画工地范围，暂用 {metres} 米圆形范围"
     }
   },
   "qrCodes": {
@@ -17478,7 +17492,8 @@
       "description": "此人将无法再登录。他们记录过的所有数据原样保留。",
       "title": "移除 {name}？",
       "fieldTitle": "删除 {name}？",
-      "fieldDescription": "删除后，此人无法再登录，手机号码会释放，可以在其他项目重新注册。他记录过的资料全部保留。（停用不会释放号码。）"
+      "fieldDescription": "删除后，此人无法再登录，手机号码会释放，可以在其他项目重新注册。他记录过的资料全部保留。（停用不会释放号码。）",
+      "fieldConfirm": "删除"
     },
     "resetPassword": {
       "action": "发送重设链接",
@@ -17516,7 +17531,8 @@
       "removed": "用户已移除",
       "statusUpdated": "用户状态已更新",
       "updated": "用户已更新",
-      "switchesSaved": "权限已更新"
+      "switchesSaved": "权限已更新",
+      "fieldDeleted": "已删除，手机号码已释放"
     },
     "viewTitle": "用户详情",
     "what": {
@@ -20382,7 +20398,7 @@
       "role_update": "修改角色权限",
       "role_delete": "删除角色",
       "user_change_role": "修改用户角色",
-      "user_change_status": "停用或恢复账号",
+      "user_change_status": "停用、恢复或删除账号",
       "consultant_review": "顾问审批签核",
       "consultant_link_document": "把文件管理的文件加进顾问申请",
       "receipt_refile": "把进场单归入另一种材料",

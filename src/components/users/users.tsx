@@ -125,7 +125,8 @@ export function Users({
   };
 
   const removal = useMutation({
-    mutationFn: (id: string) => deleteUser(id),
+    mutationFn: (target: { id: string; phone: boolean }) =>
+      deleteUser(target.id, target.phone),
     onSuccess: invalidate,
   });
 
@@ -716,10 +717,14 @@ export function Users({
               ? "users.remove.fieldDescription"
               : "users.remove.description",
           )}
-          confirmLabel={t("users.remove.confirm")}
+          confirmLabel={t(
+            pending.user.is_field_staff ? "users.remove.fieldConfirm" : "users.remove.confirm",
+          )}
           confirmIcon={Trash2}
           isPending={isPending}
-          onConfirm={() => removal.mutate(pending.user.id)}
+          onConfirm={() =>
+            removal.mutate({ id: pending.user.id, phone: Boolean(pending.user.is_field_staff) })
+          }
         />
       )}
 
