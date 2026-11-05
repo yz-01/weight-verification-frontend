@@ -8674,6 +8674,10 @@
       "worker_link_not_confirmed": "Confirm your phone number and agree first.",
       "gate_pass_host_not_confirmed": "The visitor's host has not confirmed yet. Do not let them in.",
       "visitor_arrival_already_open": "This visitor is already waiting at the gate.",
+      "gate_photo_required": "There is no photo. Take a photo first.",
+      "gate_photo_unreadable": "The photo cannot be read (empty or damaged). Delete it and take it again.",
+      "gate_photo_too_large": "The photo is too large to upload. Take it again.",
+      "gate_photo_one_per_record": "Send holds one photo per record.",
       "visitor_arrival_answered": "This visitor has already been answered.",
       "visitor_arrival_not_host": "Only the visitor's host or a site access manager can answer.",
       "review_by_head_office": "This category is set to head office approval: head office accepts it.",
@@ -12295,6 +12299,24 @@
       "armFirst": "Turn on the switch above first"
     },
     "queued": "Saved on this phone, waiting to upload",
+    "refused": {
+      "retry": "Retry",
+      "delete": "Delete this one",
+      "deleteTitle": "Delete this one?",
+      "deleteHelp": "This record is removed from this phone and will not upload. It cannot be undone. Take the photo or fill it in again if you still need it.",
+      "photoLost": "This photo can no longer be read on this phone. Delete this one and take the photo again.",
+      "incomplete": "Some details are missing or wrong, so it cannot upload ({field}).",
+      "incompleteNoField": "Some details are missing or wrong, so it cannot upload. Retry; if it still fails, delete this one and do it again.",
+      "generic": "The server did not accept this one. Retry; if it still fails, delete this one and do it again.",
+      "field": {
+        "photos": "The photo cannot be read (empty or damaged). Delete this one and take the photo again.",
+        "photoDetails": "The photo's time or location details are wrong, so it cannot upload.",
+        "location": "The GPS position is wrong, so it cannot upload.",
+        "members": "A person you chose to talk to is no longer on this project, so it cannot upload.",
+        "project": "This project no longer exists, or you are no longer on it.",
+        "time": "The time is wrong, so it cannot upload."
+      }
+    },
     "status": {
       "failed": "{count, plural, one {# action needs attention} other {# actions need attention}}",
       "syncing": "Uploading saved records",
@@ -12302,7 +12324,9 @@
       "offlineNothing": "No connection right now",
       "autoHelp": "They upload by themselves when there is a connection. Nothing to do.",
       "offlineHelp": "No connection right now. Your records are saved on this phone and upload by themselves when the connection is back. Nothing to do.",
-      "refusedHelp": "{count, plural, one {# of them was not accepted by the server} other {# of them were not accepted by the server}}. See why under \"My submissions\" and ask your administrator to sort it out."
+      "refusedHelp": "The server did not accept the records below, and they will not upload by themselves. Read why, then press Retry or Delete this one.",
+      "uploadFailed": "{count, plural, one {# record failed to upload} other {# records failed to upload}}",
+      "refusedToast": "{count, plural, one {# record failed to upload} other {# records failed to upload}}. Tap the upload sign at the top to see why, retry or delete."
     },
     "synced": "Uploaded {count, plural, one {# saved record} other {# saved records}}",
     "filesFollow": "Sent to the office. {count, plural, one {# file is} other {# files are}} still uploading in the background.",

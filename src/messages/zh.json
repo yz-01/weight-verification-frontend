@@ -8674,6 +8674,10 @@
       "worker_link_not_confirmed": "请先确认电话号码并同意定位。",
       "gate_pass_host_not_confirmed": "接待人还没确认，不能放行。",
       "visitor_arrival_already_open": "这位访客已经在门口等待确认。",
+      "gate_photo_required": "没有照片，请先拍照。",
+      "gate_photo_unreadable": "照片无法读取（可能是空的或已损坏）。请删除后重新拍一次。",
+      "gate_photo_too_large": "照片太大，无法上传。请重新拍一次。",
+      "gate_photo_one_per_record": "「发送」每条记录只放一张照片。",
       "visitor_arrival_answered": "这位访客已经处理过了。",
       "visitor_arrival_not_host": "只有接待人或门禁管理人员可以确认。",
       "review_by_head_office": "这个分类设为「提交总部审批」，由总部验收。",
@@ -12295,6 +12299,24 @@
       "armFirst": "先打开上面的开关"
     },
     "queued": "已暂存，等待上传",
+    "refused": {
+      "retry": "重试",
+      "delete": "删除这一条",
+      "deleteTitle": "删除这一条？",
+      "deleteHelp": "这条记录会从这台手机删掉，不会再上传，删除后不能恢复。需要的话请重新拍照或填写一次。",
+      "photoLost": "这张照片在手机上已经读不到了。请删除这一条，再重新拍一次。",
+      "incomplete": "资料不完整，无法上传（{field}）。",
+      "incompleteNoField": "资料不完整，无法上传。可以重试；还是不行请删除这一条，再重新做一次。",
+      "generic": "服务器没有接收这一条。可以重试；还是不行请删除这一条，再重新做一次。",
+      "field": {
+        "photos": "照片无法读取（可能是空的或已损坏）。请删除这一条，再重新拍一次。",
+        "photoDetails": "照片的时间或位置资料不对，无法上传。",
+        "location": "GPS 位置资料不对，无法上传。",
+        "members": "选的沟通人员已经不在这个项目，无法上传。",
+        "project": "这个项目已经没有了，或你已经不在这个项目。",
+        "time": "时间资料不对，无法上传。"
+      }
+    },
     "status": {
       "failed": "{count} 条动作需要处理",
       "syncing": "正在上传暂存的记录",
@@ -12302,7 +12324,9 @@
       "offlineNothing": "现在没有网络",
       "autoHelp": "有网络时会自动上传，不用另外操作。",
       "offlineHelp": "现在没有网络。记录已存在这台手机上，网络恢复后会自动上传，不用另外操作。",
-      "refusedHelp": "其中 {count} 条服务器没有接收，可以在「我提交过的」看原因，请联系管理员处理。"
+      "refusedHelp": "服务器没有接收下面的记录，它们不会再自动上传。看原因后可以「重试」，或「删除这一条」。",
+      "uploadFailed": "上传失败 {count} 条",
+      "refusedToast": "上传失败 {count} 条。点上方的上传图标看原因，可以重试或删除。"
     },
     "synced": "已上传 {count} 条暂存的记录",
     "filesFollow": "已送到办公室。{count} 个附件正在后台上传。",

@@ -1,3 +1,5 @@
+import type { RefusalReason } from "@/lib/queue-refusal";
+
 export type OfflineJobKind =
   | "ATTENDANCE"
   | "TASK_TRANSITION"
@@ -42,6 +44,12 @@ interface OfflineJobBase {
   lastErrorStatus?: number;
   /** The server's code for the last refusal, e.g. `task_already_running`. */
   lastErrorCode?: string;
+  /**
+   * Why it was refused, as the 「已暂存」 popover says it (JB98): a message
+   * key, worded in whatever language the phone is in when it is shown, or
+   * the server's own specific sentence - never 「Validation failed.」.
+   */
+  lastErrorReason?: RefusalReason;
   /**
    * The server refused it (a 4xx), so sending the same thing again cannot
    * succeed: the automatic passes leave it alone and it shows 「需要处理」

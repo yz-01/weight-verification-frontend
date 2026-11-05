@@ -8674,6 +8674,10 @@
       "worker_link_not_confirmed": "Sahkan nombor telefon dan bersetuju dahulu.",
       "gate_pass_host_not_confirmed": "Tuan rumah pelawat belum mengesahkan. Jangan benarkan masuk.",
       "visitor_arrival_already_open": "Pelawat ini sudah menunggu di pintu masuk.",
+      "gate_photo_required": "Tiada gambar. Ambil gambar dahulu.",
+      "gate_photo_unreadable": "Gambar tidak boleh dibaca (kosong atau rosak). Padam dan ambil semula.",
+      "gate_photo_too_large": "Gambar terlalu besar untuk dimuat naik. Ambil semula.",
+      "gate_photo_one_per_record": "Hantar memuatkan satu gambar bagi setiap rekod.",
       "visitor_arrival_answered": "Pelawat ini sudah dijawab.",
       "visitor_arrival_not_host": "Hanya tuan rumah atau pengurus akses tapak boleh menjawab.",
       "review_by_head_office": "Kategori ini ditetapkan kepada kelulusan ibu pejabat: ibu pejabat menerimanya.",
@@ -12295,6 +12299,24 @@
       "armFirst": "Hidupkan suis di atas dahulu"
     },
     "queued": "Disimpan dalam telefon, menunggu dimuat naik",
+    "refused": {
+      "retry": "Cuba lagi",
+      "delete": "Padam yang ini",
+      "deleteTitle": "Padam yang ini?",
+      "deleteHelp": "Rekod ini dibuang dari telefon ini dan tidak akan dimuat naik. Ia tidak boleh dikembalikan. Ambil gambar atau isi semula jika masih perlu.",
+      "photoLost": "Gambar ini tidak boleh dibaca lagi dalam telefon ini. Padam yang ini dan ambil gambar semula.",
+      "incomplete": "Maklumat tidak lengkap atau salah, jadi tidak boleh dimuat naik ({field}).",
+      "incompleteNoField": "Maklumat tidak lengkap atau salah, jadi tidak boleh dimuat naik. Cuba lagi; jika masih gagal, padam yang ini dan buat semula.",
+      "generic": "Pelayan tidak menerima yang ini. Cuba lagi; jika masih gagal, padam yang ini dan buat semula.",
+      "field": {
+        "photos": "Gambar tidak boleh dibaca (kosong atau rosak). Padam yang ini dan ambil gambar semula.",
+        "photoDetails": "Masa atau lokasi gambar salah, jadi tidak boleh dimuat naik.",
+        "location": "Kedudukan GPS salah, jadi tidak boleh dimuat naik.",
+        "members": "Orang yang anda pilih untuk berbincang tiada lagi dalam projek ini, jadi tidak boleh dimuat naik.",
+        "project": "Projek ini sudah tiada, atau anda tiada lagi dalam projek ini.",
+        "time": "Masa salah, jadi tidak boleh dimuat naik."
+      }
+    },
     "status": {
       "failed": "{count} tindakan perlu diuruskan",
       "syncing": "Memuat naik rekod yang disimpan",
@@ -12302,7 +12324,9 @@
       "offlineNothing": "Tiada sambungan sekarang",
       "autoHelp": "Ia dimuat naik sendiri apabila ada sambungan. Tiada apa perlu dibuat.",
       "offlineHelp": "Tiada sambungan sekarang. Rekod anda disimpan dalam telefon ini dan dimuat naik sendiri apabila sambungan kembali. Tiada apa perlu dibuat.",
-      "refusedHelp": "{count} daripadanya tidak diterima oleh pelayan. Lihat sebabnya di \"Hantaran saya\" dan minta pentadbir anda menguruskannya."
+      "refusedHelp": "Pelayan tidak menerima rekod di bawah, dan ia tidak akan dimuat naik sendiri. Baca sebabnya, kemudian tekan Cuba lagi atau Padam yang ini.",
+      "uploadFailed": "{count} rekod gagal dimuat naik",
+      "refusedToast": "{count} rekod gagal dimuat naik. Tekan tanda muat naik di atas untuk lihat sebabnya, cuba lagi atau padam."
     },
     "synced": "{count} rekod yang disimpan telah dimuat naik",
     "filesFollow": "Dihantar ke pejabat. {count} fail masih dimuat naik di latar belakang.",
