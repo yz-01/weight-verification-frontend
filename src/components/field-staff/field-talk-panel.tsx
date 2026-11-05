@@ -29,6 +29,7 @@ import { useMemo, useState } from "react";
 
 import { FieldLoadNote } from "@/components/field-staff/field-load-note";
 import { HazardConversationPanel } from "@/components/site-operations/hazard-conversation";
+import { FieldWrapper } from "@/components/shared/page-primitives";
 import { RecordConversationPanel } from "@/components/shared/record-conversation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -328,18 +329,21 @@ function FindPeople({ onBack, onStarted }: { onBack: () => void; onStarted: (id:
           aria-label={t("search")}
         />
       </div>
-      {people.isError ? (
-        <FieldLoadNote query={people} what={t("whatPeople")} />
-      ) : !people.data ? (
-        <Loader2 className="mx-auto size-6 animate-spin text-primary" />
-      ) : shown.length === 0 ? (
-        <p className="text-sm text-muted-foreground">{t("noPeople")}</p>
-      ) : (
-        <div className="space-y-4">
-          {group(t("sameProject"), together)}
-          {group(t("otherProjects"), elsewhere)}
-        </div>
-      )}
+      {/* The start button needs at least one person: say so on the list. */}
+      <FieldWrapper label={t("choose")} required>
+        {people.isError ? (
+          <FieldLoadNote query={people} what={t("whatPeople")} />
+        ) : !people.data ? (
+          <Loader2 className="mx-auto size-6 animate-spin text-primary" />
+        ) : shown.length === 0 ? (
+          <p className="text-sm text-muted-foreground">{t("noPeople")}</p>
+        ) : (
+          <div className="space-y-4">
+            {group(t("sameProject"), together)}
+            {group(t("otherProjects"), elsewhere)}
+          </div>
+        )}
+      </FieldWrapper>
       {chosen.length > 1 ? (
         <Input
           className="h-11"

@@ -476,6 +476,7 @@ export function EquipmentHoursCapture({
           <LocationField
             label={t("phone.location")}
             readyLabel={t("phone.locationReady")}
+            required={Boolean(driver || operator)}
             value={fix}
             onChange={(next) => setFix(asFix(next))}
           />
