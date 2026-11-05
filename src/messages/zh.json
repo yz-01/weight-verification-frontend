@@ -4558,6 +4558,55 @@
       "parent": "上级分类",
       "parentHint": "不选就是分类；选了就是它的子分类。只有两层。",
       "isTop": "（这是分类）"
+    },
+    "tabs": {
+      "label": "分类范围",
+      "company": "公司通用分类",
+      "project": "项目专属分类",
+      "projectIntro": "项目专属分类只影响选中的项目。新项目建立时已经带入公司通用分类；这个项目另外需要的，在这里加，不影响其他项目。"
+    },
+    "company": {
+      "intro": "公司通用分类不用选项目，项目还没开工就可以先建好。建立新项目时，系统自动带入这里启用中的全部分类。在这里修改不会改动已有项目。",
+      "modules": "公司通用分类的业务栏目",
+      "module": {
+        "material": "材料分类（含规格）",
+        "requestType": "申请类型",
+        "ehs": "整改 / EHS 分类",
+        "claim": "Progress Claim 分类",
+        "equipmentName": "设备名称",
+        "recycle": "环保材料出场分类"
+      },
+      "moduleHelp": {
+        "material": "材料和它下面的规格。建立新项目时一起带入。",
+        "requestType": "材料申请和其他申请是系统的：可以改名，不能停用或删除。",
+        "ehs": "整改 / EHS 的分类。施工准证申请是系统的。",
+        "claim": "Progress Claim 的分类。",
+        "equipmentName": "设备名称全公司共用，所有项目登记设备时都从这里选。",
+        "recycle": "环保材料出场分类本来就是全公司共用。"
+      },
+      "create": "新增分类",
+      "createTitle": "新增 · {module}",
+      "editTitle": "编辑 · {name}",
+      "addSpec": "规格",
+      "addSpecTitle": "新增规格 · {name}",
+      "name": "名称",
+      "description": "说明",
+      "descriptionHint": "例如英文名称：Rebar",
+      "unit": "单位",
+      "noUnit": "不设单位",
+      "codeAuto": "编号由系统自动生成。",
+      "fixedHelp": "每个项目都要用：可以改名，不能停用或删除。",
+      "activeHint": "停用后，新项目不再带入；已有项目不受影响。",
+      "equipmentActiveHint": "停用后，登记设备时不再提供；已登记的设备名称不变。",
+      "armRemove": "允许删除「{name}」",
+      "remove": "从公司通用分类删除",
+      "removeHint": "只从公司通用分类删除，已有项目里的分类不受影响。",
+      "empty": "这里还没有分类。",
+      "addToProjects": "加到现有项目",
+      "addToProjectsBody": "把公司通用分类里各项目还没有的分类，按名称加进去。已经有同名的不会重复加；项目里原有的分类不删除、不改名、不覆盖。已结束的项目不变。",
+      "addToProjectsGo": "开始加入",
+      "addedNone": "所有项目都已经有这些分类，没有需要加的。",
+      "addedSome": "已加到 {projects} 个项目，共 {count} 个分类。"
     }
   },
   "cloudServices": {
@@ -8672,7 +8721,9 @@
       "worker_excel_no_header": "这个 Excel 找不到「姓名」这一栏。请用样板，第一行不要改。",
       "worker_excel_empty": "这个 Excel 里没有人。请从第 2 行开始，一行填一个人。",
       "passport_capture_link_invalid": "这个拍照链接已经失效。请在电脑的「批量新增人员」页面重新扫二维码。",
-      "equipment_number_by_system": "设备编号由系统自动给，不能人工修改。"
+      "equipment_number_by_system": "设备编号由系统自动给，不能人工修改。",
+      "category_group_single": "这个模块每个项目只有一个分类组，请直接改它的名称。",
+      "company_category_fixed": "每个项目都要用这个分类：可以改名，不能停用或删除。"
     },
     "backToDashboard": "返回仪表板",
     "field": {

@@ -11,6 +11,9 @@ import type {
   ArchiveQueuePage,
   ArchiveQueueRow,
   CategoryGroup,
+  CompanyCategoriesAdded,
+  CompanyCategory,
+  CompanyCategoryKind,
   ArchiveRecordKind,
   CategoryRecordKind,
   CategoryRecordPage,
@@ -101,6 +104,46 @@ export const deleteCategoryGroup = async (id: string) => {
   await api.delete(`/api/category-groups/${id}/delete_group/`);
   toastSuccess("contractorOps.toast.removed");
 };
+
+/** 「公司通用分类」 (JB103): the company's own list - no project asked for. */
+export const getCompanyCategories = (kind: CompanyCategoryKind) =>
+  api.get<{ results: CompanyCategory[]; count: number }>("/api/company-categories/get_categories/", {
+    kind,
+  });
+export const createCompanyCategory = async (payload: {
+  kind: CompanyCategoryKind;
+  name: string;
+  description?: string;
+  default_unit?: string;
+  form_style?: CompanyCategory["form_style"];
+  /** A material, for a specification under it. */
+  parent?: string;
+}) => {
+  const row = await api.post<CompanyCategory>("/api/company-categories/create_category/", payload);
+  toastSuccess("contractorOps.toast.saved");
+  return row;
+};
+export const updateCompanyCategory = async (
+  id: string,
+  payload: Partial<
+    Pick<CompanyCategory, "name" | "description" | "default_unit" | "form_style" | "is_active" | "sort_order">
+  >,
+  { quiet = false }: { quiet?: boolean } = {},
+) => {
+  const row = await api.post<CompanyCategory>(`/api/company-categories/${id}/update_category/`, payload);
+  if (!quiet) toastSuccess("contractorOps.toast.saved");
+  return row;
+};
+export const deleteCompanyCategory = async (id: string) => {
+  await api.delete(`/api/company-categories/${id}/delete_category/`);
+  toastSuccess("contractorOps.toast.removed");
+};
+/** 「加到现有项目」: only what each project is missing, by name. */
+export const addCompanyCategoriesToProjects = (project?: string) =>
+  api.post<CompanyCategoriesAdded>(
+    "/api/company-categories/add_to_projects/",
+    project ? { project } : {},
+  );
 
 export const deleteProjectCategory = async (id: string) => {
   await api.delete(`/api/project-categories/${id}/delete_category/`);
@@ -293,13 +336,30 @@ export const createSiteEquipment = async (payload: EquipmentPayload) => {
 };
 
 /** 「设备名称」 (JB96): the company's list, shared by all its projects. */
-export async function getEquipmentNames(project?: string): Promise<EquipmentName[]> {
+export async function getEquipmentNames(
+  project?: string,
+  { includeInactive = false }: { includeInactive?: boolean } = {},
+): Promise<EquipmentName[]> {
   const data = await api.get<{ results: EquipmentName[] }>(
     "/api/site-equipment/get_equipment_names/",
-    project ? { project } : {},
+    {
+      ...(project ? { project } : {}),
+      // 「公司通用分类」 lists the switched-off names too, to switch back on.
+      ...(includeInactive ? { include_inactive: "true" } : {}),
+    },
   );
   return data.results;
 }
+
+/** Rename a 「设备名称」 or switch it off (JB103, 「公司通用分类」). */
+export const updateEquipmentName = async (
+  id: string,
+  payload: Partial<Pick<EquipmentName, "name" | "is_active">>,
+) => {
+  const row = await api.post<EquipmentName>("/api/site-equipment/update_equipment_name/", { id, ...payload });
+  toastSuccess("contractorOps.toast.saved");
+  return row;
+};
 
 /** 「新增设备名称」: a name already on the list comes back as that name. */
 export function createEquipmentName(name: string, project?: string): Promise<EquipmentName> {

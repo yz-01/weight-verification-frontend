@@ -4558,6 +4558,55 @@
       "parent": "Kategori induk",
       "parentHint": "Tiada: kategori. Dipilih: subkategorinya. Dua aras sahaja.",
       "isTop": "(kategori)"
+    },
+    "tabs": {
+      "label": "Kategori yang mana",
+      "company": "Kategori syarikat",
+      "project": "Kategori projek",
+      "projectIntro": "Kategori projek hanya untuk projek yang dipilih. Projek baharu sudah bermula dengan kategori syarikat; tambah di sini apa yang projek ini perlukan, tanpa mengubah projek lain."
+    },
+    "company": {
+      "intro": "Kategori syarikat tidak perlukan projek: sediakan sebelum projek bermula. Setiap projek baharu mendapat semua yang aktif secara automatik. Perubahan di sini tidak mengubah projek sedia ada.",
+      "modules": "Senarai kategori syarikat",
+      "module": {
+        "material": "Bahan dan spesifikasi",
+        "requestType": "Jenis permohonan",
+        "ehs": "Kategori pembetulan / EHS",
+        "claim": "Kategori Progress Claim",
+        "equipmentName": "Nama peralatan",
+        "recycle": "Kategori bahan kitar semula keluar"
+      },
+      "moduleHelp": {
+        "material": "Bahan dan spesifikasinya. Projek baharu mendapat kedua-duanya.",
+        "requestType": "Permohonan Bahan dan Permohonan Lain milik sistem: boleh dinamakan semula, tidak boleh dimatikan atau dibuang.",
+        "ehs": "Kategori pembetulan / EHS. Kategori permit kerja milik sistem.",
+        "claim": "Kategori Progress Claim.",
+        "equipmentName": "Nama peralatan dikongsi seluruh syarikat: setiap projek memilih dari senarai ini semasa mendaftar peralatan.",
+        "recycle": "Kategori bahan kitar semula keluar sentiasa dikongsi seluruh syarikat."
+      },
+      "create": "Tambah kategori",
+      "createTitle": "Tambah · {module}",
+      "editTitle": "Sunting · {name}",
+      "addSpec": "Spesifikasi",
+      "addSpecTitle": "Tambah spesifikasi · {name}",
+      "name": "Nama",
+      "description": "Keterangan",
+      "descriptionHint": "Contohnya nama Inggeris: Rebar",
+      "unit": "Unit",
+      "noUnit": "Tiada unit",
+      "codeAuto": "Nombor dijana oleh sistem.",
+      "fixedHelp": "Setiap projek memerlukannya: boleh dinamakan semula, tidak boleh dimatikan atau dibuang.",
+      "activeHint": "Dimatikan: projek baharu tidak lagi mendapatnya. Projek sedia ada tidak terjejas.",
+      "equipmentActiveHint": "Dimatikan: tidak lagi ditawarkan semasa mendaftar. Mesin sedia ada kekal namanya.",
+      "armRemove": "Benarkan buang \"{name}\"",
+      "remove": "Buang daripada kategori syarikat",
+      "removeHint": "Hanya dibuang daripada kategori syarikat; kategori dalam projek kekal.",
+      "empty": "Belum ada kategori di sini.",
+      "addToProjects": "Tambah ke projek sedia ada",
+      "addToProjectsBody": "Menambah kategori syarikat yang belum ada dalam setiap projek, mengikut nama. Projek yang sudah ada nama yang sama tidak mendapat salinan kedua; tiada apa dalam projek dibuang, dinamakan semula atau ditimpa. Projek yang ditutup tidak diubah.",
+      "addToProjectsGo": "Tambah sekarang",
+      "addedNone": "Semua projek sudah ada kategori ini. Tiada yang perlu ditambah.",
+      "addedSome": "{count} kategori ditambah ke {projects} projek."
     }
   },
   "cloudServices": {
@@ -8672,7 +8721,9 @@
       "worker_excel_no_header": "Fail Excel ini tiada lajur \"Nama\". Guna templat dan kekalkan baris pertamanya.",
       "worker_excel_empty": "Tiada sesiapa dalam fail Excel ini. Isi seorang setiap baris mulai baris 2.",
       "passport_capture_link_invalid": "Pautan gambar ini sudah tamat. Imbas kod QR semula di halaman \"Tambah ramai pekerja\" pada komputer.",
-      "equipment_number_by_system": "Nombor peralatan diberi oleh sistem dan tidak boleh diubah."
+      "equipment_number_by_system": "Nombor peralatan diberi oleh sistem dan tidak boleh diubah.",
+      "category_group_single": "Modul ini ada satu kumpulan kategori bagi setiap projek. Namakan semula kumpulan itu.",
+      "company_category_fixed": "Setiap projek memerlukan kategori ini: boleh dinamakan semula, tidak boleh dimatikan atau dibuang."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {

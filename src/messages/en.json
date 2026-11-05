@@ -4558,6 +4558,55 @@
       "parent": "Parent category",
       "parentHint": "None: a category. Chosen: its sub-category. Two levels only.",
       "isTop": "(a category)"
+    },
+    "tabs": {
+      "label": "Which categories",
+      "company": "Company categories",
+      "project": "Project categories",
+      "projectIntro": "Project categories affect the chosen project only. A new project already starts with the company categories; add what this project needs here, without changing other projects."
+    },
+    "company": {
+      "intro": "Company categories need no project: set them up before any project starts. Every new project gets all the active ones automatically. Changing them here does not change existing projects.",
+      "modules": "Company category lists",
+      "module": {
+        "material": "Materials and specifications",
+        "requestType": "Request types",
+        "ehs": "Rectification / EHS categories",
+        "claim": "Progress Claim categories",
+        "equipmentName": "Equipment names",
+        "recycle": "Recyclable material outgoing categories"
+      },
+      "moduleHelp": {
+        "material": "Materials and the specifications under them. A new project gets them together.",
+        "requestType": "Material Request and Other Request are the system's: they can be renamed, not switched off or removed.",
+        "ehs": "Rectification / EHS categories. The work permit category is the system's.",
+        "claim": "Progress Claim categories.",
+        "equipmentName": "Equipment names are shared by the whole company: every project picks from this list when registering equipment.",
+        "recycle": "Recyclable material outgoing categories have always been shared by the whole company."
+      },
+      "create": "Add category",
+      "createTitle": "Add · {module}",
+      "editTitle": "Edit · {name}",
+      "addSpec": "Specification",
+      "addSpecTitle": "Add a specification · {name}",
+      "name": "Name",
+      "description": "Description",
+      "descriptionHint": "For example the English name: Rebar",
+      "unit": "Unit",
+      "noUnit": "No unit",
+      "codeAuto": "The number is made by the system.",
+      "fixedHelp": "Every project needs this one: it can be renamed, not switched off or removed.",
+      "activeHint": "Switched off: new projects no longer get it. Existing projects are not affected.",
+      "equipmentActiveHint": "Switched off: no longer offered when registering. Machines already named keep their name.",
+      "armRemove": "Allow removing \"{name}\"",
+      "remove": "Remove from company categories",
+      "removeHint": "Only removed from the company categories; the categories already in projects stay.",
+      "empty": "No categories here yet.",
+      "addToProjects": "Add to existing projects",
+      "addToProjectsBody": "Adds the company categories each project does not have yet, by name. A project that already has the same name does not get a second one; nothing in a project is removed, renamed or overwritten. Closed projects are not changed.",
+      "addToProjectsGo": "Add now",
+      "addedNone": "Every project already has these categories. Nothing to add.",
+      "addedSome": "Added {count} categories to {projects} projects."
     }
   },
   "cloudServices": {
@@ -8672,7 +8721,9 @@
       "worker_excel_no_header": "This Excel file has no \"Name\" column. Use the template and keep its first row.",
       "worker_excel_empty": "There is nobody in this Excel file. Fill one person per row from row 2.",
       "passport_capture_link_invalid": "This photo link has ended. Scan the QR code again on the computer's \"Add many workers\" page.",
-      "equipment_number_by_system": "Equipment numbers are given by the system and cannot be changed."
+      "equipment_number_by_system": "Equipment numbers are given by the system and cannot be changed.",
+      "category_group_single": "This module has one category group per project. Rename that one instead.",
+      "company_category_fixed": "Every project needs this category: it can be renamed, not switched off or removed."
     },
     "backToDashboard": "Back to dashboard",
     "field": {

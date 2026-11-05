@@ -24,7 +24,8 @@ export const getWasteOutgoingOptions = (project?: string) =>
   api.get<WasteOutgoingOptions>("/api/waste-categories/get_options/", project ? { project } : {});
 
 export const createWasteCategory = async (payload: {
-  code: string;
+  /** Left out: the server numbers it (JB102, 「分类编号全部自动生成」). */
+  code?: string;
   name: string;
   dispatch_type: string;
   description?: string;

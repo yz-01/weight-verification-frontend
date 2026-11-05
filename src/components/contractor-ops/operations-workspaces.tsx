@@ -607,11 +607,14 @@ export function CategoryDialog({
             </>
           )}
           {more(<>
-          {/* Shown, never typed (J28): 「保存后自动生成」 on a new one, and
-              read-only once made - MR's 材料编号 and old records point at it. */}
-          <FieldWrapper label={t("field.code")} hint={modules("codeAuto")}>
-            <Input value={row?.code ?? ""} placeholder={modules("codeAutoPlaceholder")} disabled />
-          </FieldWrapper>
+          {/* Never typed (J28), and not even shown on a new one (JB103 第 4 点,
+              客户 11-05 「所有分类编号由系统自动生成」); read-only once made -
+              MR's 材料编号 and old records point at it. */}
+          {row && (
+            <FieldWrapper label={t("field.code")} hint={modules("codeAuto")}>
+              <Input value={row.code} disabled />
+            </FieldWrapper>
+          )}
           {!simpleNew && nameField}
           <FieldWrapper label={t("categories.kind")} required>
             <Select

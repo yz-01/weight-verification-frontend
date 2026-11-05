@@ -156,11 +156,13 @@ describe("the column form (D-265, D-266; X1 for equipment)", () => {
     expect(dialog).toMatch(/\{ \.\.\.form, parent: undefined \}/);
   });
 
-  it("numbers every new category on the server and shows the code read-only (J28)", () => {
-    // No code to type: 「保存后自动生成」 on a new one, read-only once made.
+  it("numbers every new category on the server and shows the code read-only (J28, JB103)", () => {
+    // No code to type, and since JB103 第 4 点 no code field at all on a new
+    // one; read-only once made.
     expect(dialog).toMatch(/const simpleNew = !row;/);
     expect(dialog).toMatch(/if \(!row\) payload\.code = "";/);
-    expect(dialog).toMatch(/placeholder=\{modules\("codeAutoPlaceholder"\)\} disabled/);
+    expect(dialog).toMatch(/\{row && \(\s*<FieldWrapper label=\{t\("field\.code"\)\}[^]*?<Input value=\{row\.code\} disabled \/>/);
+    expect(dialog).not.toMatch(/codeAutoPlaceholder/);
     expect(dialog).not.toMatch(/set\("code"/);
     expect(dialog).not.toMatch(/\[autoCode \|\| form\.code/);
   });

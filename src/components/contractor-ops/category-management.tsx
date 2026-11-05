@@ -31,6 +31,8 @@ import { MaterialUnitsDialog } from "@/components/contractor-ops/material-units-
 import { RequestTypesDialog } from "@/components/material-requests/request-types-dialog";
 import { ManufacturerCell } from "@/components/shared/manufacturer-picker";
 import { RecordSheet } from "@/components/contractor-ops/archive-queue";
+import { CompanyCategories } from "@/components/contractor-ops/company-categories";
+import { WasteCategoryDialog } from "@/components/contractor-ops/waste-category-dialog";
 import { MachineRecordDialog } from "@/components/contractor-ops/office-module-lists";
 import { InPlaceRecord, opensInPlace } from "@/components/shared/in-place-record";
 import { Shell } from "@/components/contractor-ops/package-shell";
@@ -337,6 +339,14 @@ export function CategoryManagement() {
    * land (D-263).
    */
   const requestedModule = searchParams.get("module")?.trim() ?? "";
+  // 「公司通用分类」 first (JB103): the office sets the company's list up before
+  // any project exists. An address that names a project or a module - the
+  // old column pages, the dashboard's 「新增栏目」 - is about one project.
+  const [tab, setTab] = useState<"company" | "project">(
+    searchParams.get("project") || searchParams.get("module") || searchParams.get("create")
+      ? "project"
+      : "company",
+  );
   const initialModule =
     MODULES.find((module) => module.key === requestedModule) ?? MODULES[0];
   const initialProject = searchParams.get("project")?.trim() ?? "";
@@ -388,10 +398,12 @@ export function CategoryManagement() {
   const canManage = can(active.manage);
   const canManageGroups = can("category.manage") || can("waste_outgoing.config");
   const isMaterial = active.key === "material";
-  const groupLabel = (row: CategoryGroup) => {
-    const owner = moduleOfGroup(row);
-    return row.name || (owner ? t(`module.${owner.key}`) : t("requestTypes"));
-  };
+  // A nameless group is called by its own module - never by 「申请类型」 unless
+  // it is that one: the equipment group used to borrow the word, and 图 9
+  // showed two 「申请类型」 (JB102, 客户 11-05 事项 7).
+  const moduleName = (module: CategoryGroupModule) =>
+    module === "REQUEST_TYPE" ? t("requestTypes") : t(`module.${GROUP_MODULE[module]}`);
+  const groupLabel = (row: CategoryGroup) => row.name || moduleName(row.module);
   const scope: Scope = active.key === "recycle" && (group?.is_system ?? true) ? "company" : "project";
 
   const rows = useQuery({
@@ -513,6 +525,33 @@ export function CategoryManagement() {
   return (
     <div className="flex flex-col gap-4">
       <ListHeader title={t("title")} subtitle={t("subtitle")} />
+      {/* 「分类管理分为『公司通用分类』及『项目专属分类』」 (JB103, 客户 11-05 事项 8
+          第 2 点): the company's list needs no project at all (第 1 点). */}
+      <div role="tablist" aria-label={t("tabs.label")} className="flex gap-1 overflow-x-auto border-b">
+        {(["company", "project"] as const).map((key) => (
+          <button
+            key={key}
+            type="button"
+            role="tab"
+            aria-selected={tab === key}
+            onClick={() => setTab(key)}
+            className={`-mb-px shrink-0 border-b-2 px-3 py-2 text-sm transition ${
+              tab === key
+                ? "border-primary font-semibold text-primary"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {t(`tabs.${key}`)}
+          </button>
+        ))}
+      </div>
+      {tab === "company" ? (
+        <CompanyCategories />
+      ) : (
+      <>
+      {/* 第 4 点: 「项目负责人可以根据实际需要，为自己的项目继续增加专属分类，
+          不影响其他项目」. */}
+      <p className="text-sm text-muted-foreground">{t("tabs.projectIntro")}</p>
       {/* The project filter, and for a project-scoped module the project a new
           column is created in - so it wears the star the create button asks for. */}
       {/* With the top bar's project in force there is no second box: on one
@@ -556,8 +595,10 @@ export function CategoryManagement() {
           {groups
             // 申请类型 opens its dialog, for whoever may keep the types (I16).
             .filter((row) => row.module !== "REQUEST_TYPE" || canRequestTypes)
+            // No equipment groups since JB102: the server lists none, and an
+            // older answer must not bring one back.
+            .filter((row) => row.module !== "EQUIPMENT")
             .map((row) => {
-            const owner = moduleOfGroup(row);
             const current = row.id === group?.id;
             return (
               <button
@@ -577,7 +618,7 @@ export function CategoryManagement() {
                   {/* A group the project made says which module it belongs to. */}
                   {!row.is_system && (
                     <span className="block truncate text-xs font-normal text-muted-foreground">
-                      {owner ? t(`module.${owner.key}`) : t("requestTypes")}
+                      {moduleName(row.module)}
                     </span>
                   )}
                 </span>
@@ -948,6 +989,8 @@ export function CategoryManagement() {
           )}
         </section>
       </div>
+      </>
+      )}
 
       {registering && (
         <EquipmentDialog
@@ -1843,149 +1886,5 @@ function SpendCell({ column }: { column: ProjectCategory }) {
         </p>
       )}
     </div>
-  );
-}
-
-/**
- * Create or change one recyclable waste category.
- *
- * The old dialog on the waste screen could only switch a category off, and a
- * switched-off one disappeared from it for good (F-465). This one renames,
- * changes the dispatch type and the description, and switches it back on.
- * The code is fixed once made, because records cite it.
- */
-function WasteCategoryDialog({
-  category,
-  group = null,
-  parent = null,
-  onClose,
-  onSaved,
-}: {
-  category: WasteCategory | null;
-  /** A project's own 分类组 (I11); null - the company-wide list. */
-  group?: string | null;
-  /** 「+ 子分类」 (I11): the category the new one goes under. */
-  parent?: WasteCategory | null;
-  onClose: () => void;
-  onSaved: () => void;
-}) {
-  const t = useTranslations("categoryManagement");
-  const w = useTranslations("wasteOutgoing");
-  const ops = useTranslations("contractorOps");
-  const types = useTranslations("dispatches");
-  const [code, setCode] = useState(category?.code ?? "");
-  const [name, setName] = useState(category?.name ?? "");
-  const [description, setDescription] = useState(category?.description ?? "");
-  const [dispatchType, setDispatchType] = useState(
-    category?.dispatch_type ?? "",
-  );
-  const [isActive, setIsActive] = useState(category?.is_active ?? true);
-  const [error, setError] = useState("");
-  const save = useMutation({
-    mutationFn: () =>
-      category
-        ? updateWasteCategory(category.id, {
-            name: name.trim(),
-            description: description.trim(),
-            dispatch_type: dispatchType,
-            is_active: isActive,
-          })
-        : createWasteCategory({
-            code: code.trim().toUpperCase(),
-            name: name.trim(),
-            dispatch_type: dispatchType,
-            description: description.trim(),
-            ...(group ? { group } : {}),
-            ...(parent ? { parent: parent.id } : {}),
-          }),
-    onSuccess: onSaved,
-    onError: (reason) =>
-      setError(reason instanceof ApiError ? reason.message : t("saveFailed")),
-  });
-  return (
-    <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle>
-            {t(category ? "dialogEdit" : "dialogCreate", {
-              module: t("module.recycle"),
-            })}
-          </DialogTitle>
-          <DialogDescription>
-            {parent ? t("subCategory.under", { name: parent.label }) : t("moduleHelp.recycle")}
-          </DialogDescription>
-        </DialogHeader>
-        <div className="grid gap-4">
-          <FieldWrapper label={w("category.code")} required>
-            <Input
-              value={code}
-              disabled={category !== null}
-              onChange={(event) => setCode(event.target.value.toUpperCase())}
-            />
-          </FieldWrapper>
-          <FieldWrapper label={w("category.name")} required>
-            <Input value={name} onChange={(event) => setName(event.target.value)} />
-          </FieldWrapper>
-          <FieldWrapper label={w("category.dispatchType")} required>
-            <Select value={dispatchType || undefined} onValueChange={setDispatchType}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder={w("category.dispatchType")} />
-              </SelectTrigger>
-              <SelectContent>
-                {WASTE_TYPES.map((type) => (
-                  <SelectItem key={type} value={type}>
-                    {types(`wasteType.${type}`)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </FieldWrapper>
-          <FieldWrapper label={ops("field.description")}>
-            <Textarea
-              value={description}
-              onChange={(event) => setDescription(event.target.value)}
-            />
-          </FieldWrapper>
-          {category && (
-            <div className="space-y-1">
-              <label className="flex items-center gap-2 text-sm">
-                {/* A retired preset stays off: the server refuses it too. */}
-                <Checkbox
-                  checked={isActive}
-                  disabled={category.is_retired}
-                  onCheckedChange={(checked) => setIsActive(checked === true)}
-                />
-                {t("active")}
-              </label>
-              {category.is_retired && (
-                <p className="text-xs text-muted-foreground">{w("category.retiredHelp")}</p>
-              )}
-            </div>
-          )}
-          {error && (
-            <p role="alert" className="text-sm text-destructive">
-              {error}
-            </p>
-          )}
-        </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
-            {ops("action.cancel")}
-          </Button>
-          <Button
-            requires={[
-              [code, w("category.code")],
-              [name, w("category.name")],
-              [dispatchType, w("category.dispatchType")],
-            ]}
-            disabled={save.isPending}
-            onClick={() => save.mutate()}
-          >
-            {save.isPending ? <Loader2 className="animate-spin" /> : <Save />}
-            {ops("action.save")}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
   );
 }

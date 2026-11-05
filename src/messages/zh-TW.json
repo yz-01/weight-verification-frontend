@@ -4558,6 +4558,55 @@
       "parent": "上級分類",
       "parentHint": "不選就是分類；選了就是它的子分類。只有兩層。",
       "isTop": "（這是分類）"
+    },
+    "tabs": {
+      "label": "分類範圍",
+      "company": "公司通用分類",
+      "project": "項目專屬分類",
+      "projectIntro": "項目專屬分類只影響選中的項目。新項目建立時已經帶入公司通用分類；這個項目另外需要的，在這裡加，不影響其他項目。"
+    },
+    "company": {
+      "intro": "公司通用分類不用選項目，項目還沒開工就可以先建好。建立新項目時，系統自動帶入這裡啟用中的全部分類。在這裡修改不會改動已有項目。",
+      "modules": "公司通用分類的業務欄目",
+      "module": {
+        "material": "材料分類（含規格）",
+        "requestType": "申請類型",
+        "ehs": "整改 / EHS 分類",
+        "claim": "Progress Claim 分類",
+        "equipmentName": "設備名稱",
+        "recycle": "環保材料出場分類"
+      },
+      "moduleHelp": {
+        "material": "材料和它下面的規格。建立新項目時一起帶入。",
+        "requestType": "材料申請和其他申請是系統的：可以改名，不能停用或刪除。",
+        "ehs": "整改 / EHS 的分類。施工准證申請是系統的。",
+        "claim": "Progress Claim 的分類。",
+        "equipmentName": "設備名稱全公司共用，所有項目登記設備時都從這裡選。",
+        "recycle": "環保材料出場分類本來就是全公司共用。"
+      },
+      "create": "新增分類",
+      "createTitle": "新增 · {module}",
+      "editTitle": "編輯 · {name}",
+      "addSpec": "規格",
+      "addSpecTitle": "新增規格 · {name}",
+      "name": "名稱",
+      "description": "說明",
+      "descriptionHint": "例如英文名稱：Rebar",
+      "unit": "單位",
+      "noUnit": "不設單位",
+      "codeAuto": "編號由系統自動生成。",
+      "fixedHelp": "每個項目都要用：可以改名，不能停用或刪除。",
+      "activeHint": "停用後，新項目不再帶入；已有項目不受影響。",
+      "equipmentActiveHint": "停用後，登記設備時不再提供；已登記的設備名稱不變。",
+      "armRemove": "允許刪除「{name}」",
+      "remove": "從公司通用分類刪除",
+      "removeHint": "只從公司通用分類刪除，已有項目裡的分類不受影響。",
+      "empty": "這裡還沒有分類。",
+      "addToProjects": "加到現有項目",
+      "addToProjectsBody": "把公司通用分類裡各項目還沒有的分類，按名稱加進去。已經有同名的不會重複加；項目裡原有的分類不刪除、不改名、不覆蓋。已結束的項目不變。",
+      "addToProjectsGo": "開始加入",
+      "addedNone": "所有項目都已經有這些分類，沒有需要加的。",
+      "addedSome": "已加到 {projects} 個項目，共 {count} 個分類。"
     }
   },
   "cloudServices": {
@@ -8672,7 +8721,9 @@
       "worker_excel_no_header": "這個 Excel 找不到「姓名」這一欄。請用樣板，第一行不要改。",
       "worker_excel_empty": "這個 Excel 裡沒有人。請從第 2 行開始，一行填一個人。",
       "passport_capture_link_invalid": "這個拍照連結已經失效。請在電腦的「批量新增人員」頁面重新掃二維碼。",
-      "equipment_number_by_system": "設備編號由系統自動給，不能人工修改。"
+      "equipment_number_by_system": "設備編號由系統自動給，不能人工修改。",
+      "category_group_single": "這個模組每個項目只有一個分類組，請直接改它的名稱。",
+      "company_category_fixed": "每個項目都要用這個分類：可以改名，不能停用或刪除。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
