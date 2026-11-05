@@ -31,6 +31,7 @@ const STATUS_TONE: Record<UserStatus, "positive" | "warning" | "danger"> = {
   ACTIVE: "positive",
   INVITED: "warning",
   SUSPENDED: "danger",
+  REMOVED: "danger",
 };
 
 export function ViewUser({ id }: { id: string }) {

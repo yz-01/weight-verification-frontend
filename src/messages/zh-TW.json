@@ -8753,7 +8753,8 @@
       "category_group_single": "這個模組每個項目只有一個分類組，請直接改它的名稱。",
       "company_category_fixed": "每個項目都要用這個分類：可以改名，不能停用或刪除。",
       "phone_page_not_yours": "你的手機沒有這個頁面。",
-      "chat_people_invalid": "請從名單裡選人。"
+      "chat_people_invalid": "請從名單裡選人。",
+      "user_removed": "這個賬號已經刪除，不能再啟用。請重新建立一個新賬號。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -8770,7 +8771,7 @@
       "max_length": "內容過長",
       "min_length": "內容過短",
       "null": "此項為必填",
-      "phone_in_use": "該手機號碼已被其他現場人員賬號使用",
+      "phone_in_use": "這個手機號碼已經有現場人員賬號在用。要換到新項目，請先在原項目把這個人「刪除」（停用不會釋放號碼），再回來生成鏈接。",
       "required": "此項為必填",
       "unique": "此值已被佔用",
       "percent_range": "請輸入 0 到 100 之間的百分比",
@@ -13741,7 +13742,13 @@
     },
     "viewTitle": "項目",
     "codeAuto": "項目編號由系統自動生成（PRJ-0001 起）。",
-    "geofenceDefaultHint": "系統預設 {metres} 米，可以按工地實際範圍修改。"
+    "geofenceDefaultHint": "系統預設 {metres} 米，可以按工地實際範圍修改。",
+    "manager": {
+      "placeholder": "選擇項目經理",
+      "hint": "選好後，此人自動加入項目，並成為項目經理（主要負責人），不需要再添加人員。",
+      "none": "公司還沒有可選的後台人員。先到「用戶管理」添加項目經理，再回來選擇。",
+      "loadError": "人員名單無法載入，請稍後再試。"
+    }
   },
   "qrCodes": {
     "result": {
@@ -17469,7 +17476,9 @@
     "remove": {
       "confirm": "移除",
       "description": "此人將無法再登錄。他們記錄過的所有數據原樣保留。",
-      "title": "移除 {name}？"
+      "title": "移除 {name}？",
+      "fieldTitle": "刪除 {name}？",
+      "fieldDescription": "刪除後，此人無法再登入，手機號碼會釋放，可以在其他項目重新註冊。他記錄過的資料全部保留。（停用不會釋放號碼。）"
     },
     "resetPassword": {
       "action": "發送重設鏈接",
@@ -17484,7 +17493,8 @@
     "status": {
       "ACTIVE": "正常",
       "INVITED": "待激活",
-      "SUSPENDED": "已停用"
+      "SUSPENDED": "已停用",
+      "REMOVED": "已刪除"
     },
     "summary": {
       "contractor": "建築商用戶",

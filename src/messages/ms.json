@@ -8753,7 +8753,8 @@
       "category_group_single": "Modul ini ada satu kumpulan kategori bagi setiap projek. Namakan semula kumpulan itu.",
       "company_category_fixed": "Setiap projek memerlukan kategori ini: boleh dinamakan semula, tidak boleh dimatikan atau dibuang.",
       "phone_page_not_yours": "Halaman ini tiada pada telefon anda.",
-      "chat_people_invalid": "Pilih orang daripada senarai."
+      "chat_people_invalid": "Pilih orang daripada senarai.",
+      "user_removed": "Akaun ini telah dipadam dan tidak boleh diaktifkan semula. Sila cipta akaun baharu."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -8770,7 +8771,7 @@
       "max_length": "Ini terlalu panjang",
       "min_length": "Ini terlalu pendek",
       "null": "Ruangan ini wajib diisi",
-      "phone_in_use": "Nombor ini telah digunakan oleh akaun staf tapak lain",
+      "phone_in_use": "Nombor telefon ini sudah digunakan oleh akaun kakitangan tapak. Untuk berpindah ke projek baharu, padam orang itu di projek lama dahulu (menggantung tidak melepaskan nombor), kemudian kembali untuk cipta pautan.",
       "required": "Ruangan ini wajib diisi",
       "unique": "Nilai ini telah digunakan",
       "percent_range": "Masukkan peratusan dari 0 hingga 100",
@@ -13741,7 +13742,13 @@
     },
     "viewTitle": "Projek",
     "codeAuto": "Nombor projek diberi oleh sistem (bermula PRJ-0001).",
-    "geofenceDefaultHint": "Lalai sistem {metres} m. Ubah mengikut tapak."
+    "geofenceDefaultHint": "Lalai sistem {metres} m. Ubah mengikut tapak.",
+    "manager": {
+      "placeholder": "Pilih pengurus projek",
+      "hint": "Orang ini akan menyertai projek dan menjadi pengurus projek (penanggungjawab utama) - tidak perlu ditambah lagi.",
+      "none": "Syarikat anda belum ada kakitangan pejabat untuk dipilih. Tambah pengurus projek di Pengurusan Pengguna dahulu, kemudian kembali.",
+      "loadError": "Senarai kakitangan tidak dapat dimuatkan. Sila cuba lagi nanti."
+    }
   },
   "qrCodes": {
     "result": {
@@ -17469,7 +17476,9 @@
     "remove": {
       "confirm": "Buang",
       "description": "Mereka tidak akan dapat log masuk lagi. Semua yang mereka rekodkan kekal seperti sedia ada.",
-      "title": "Buang {name}?"
+      "title": "Buang {name}?",
+      "fieldTitle": "Padam {name}?",
+      "fieldDescription": "Mereka tidak boleh log masuk lagi, dan nombor telefon dilepaskan supaya boleh didaftarkan di projek lain. Semua rekod mereka disimpan. (Menggantung tidak melepaskan nombor.)"
     },
     "resetPassword": {
       "action": "Hantar pautan tetapan semula",
@@ -17484,7 +17493,8 @@
     "status": {
       "ACTIVE": "Aktif",
       "INVITED": "Dijemput",
-      "SUSPENDED": "Digantung"
+      "SUSPENDED": "Digantung",
+      "REMOVED": "Dipadam"
     },
     "summary": {
       "contractor": "Pengguna kontraktor",

@@ -38,7 +38,7 @@ const EMPTY = {
   code: "", name: "Tower", status: "ACTIVE" as const, client_name: "", main_contractor: "", consultant: "",
   description: "", address_line_1: "1 Jalan", address_line_2: "", city: "", state: "", postcode: "",
   latitude: "", longitude: "", geofence_radius_m: "150", start_date: "", end_date: "",
-  site_manager: "Ali", site_phone: "",
+  site_manager: "Ali", site_phone: "", manager: "",
 };
 
 function render(project?: Project, defaultRadius?: number) {
@@ -95,6 +95,14 @@ describe("新增项目 (JB100)", () => {
     expect(placed).toMatchObject({ latitude: "3.1", longitude: "101.7", geofence_radius_m: 300 });
     // Emptied by the reader: left out, so the company's default applies.
     expect(newProjectPayload({ ...EMPTY, latitude: "3.1", longitude: "101.7", geofence_radius_m: "" })).not.toHaveProperty("geofence_radius_m");
+  });
+
+  it("hands the project to the chosen 项目经理 (JB109)", () => {
+    expect(newProjectPayload(EMPTY)).not.toHaveProperty("manager");
+    expect(newProjectPayload({ ...EMPTY, manager: "u-pm" })).toMatchObject({ manager: "u-pm" });
+    const html = render();
+    expect(html).toContain("选择项目经理");
+    expect(html).toContain("此人自动加入项目");
   });
 
   it("still shows code, status and every detail when editing", () => {

@@ -19,6 +19,7 @@ import type {
   PhotoKind,
   Project,
   ProjectAssignment,
+  ProjectManagerChoice,
   ProjectPayload,
   ProjectQuota,
   ProjectStatistics,
@@ -263,6 +264,11 @@ export function exportProjects(request: ExportRequest): Promise<void> {
     query: exportQuery(request),
     fallbackFilename: `projects.${request.format}`,
   });
+}
+
+/** The company's office people 「项目经理」 offers (JB109). */
+export function getProjectManagerChoices(): Promise<ProjectManagerChoice[]> {
+  return api.get<ProjectManagerChoice[]>("/api/projects/get_manager_choices/");
 }
 
 export function getAssignableProjectUsers(

@@ -8753,7 +8753,8 @@
       "category_group_single": "这个模块每个项目只有一个分类组，请直接改它的名称。",
       "company_category_fixed": "每个项目都要用这个分类：可以改名，不能停用或删除。",
       "phone_page_not_yours": "你的手机没有这个页面。",
-      "chat_people_invalid": "请从名单里选人。"
+      "chat_people_invalid": "请从名单里选人。",
+      "user_removed": "这个账号已经删除，不能再启用。请重新建立一个新账号。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -8770,7 +8771,7 @@
       "max_length": "内容过长",
       "min_length": "内容过短",
       "null": "此项为必填",
-      "phone_in_use": "该手机号码已被其他现场人员账号使用",
+      "phone_in_use": "这个手机号码已经有现场人员账号在用。要换到新项目，请先在原项目把这个人「删除」（停用不会释放号码），再回来生成链接。",
       "required": "此项为必填",
       "unique": "此值已被占用",
       "percent_range": "请输入 0 到 100 之间的百分比",
@@ -13741,7 +13742,13 @@
     },
     "viewTitle": "项目",
     "codeAuto": "项目编号由系统自动生成（PRJ-0001 起）。",
-    "geofenceDefaultHint": "系统默认 {metres} 米，可以按工地实际范围修改。"
+    "geofenceDefaultHint": "系统默认 {metres} 米，可以按工地实际范围修改。",
+    "manager": {
+      "placeholder": "选择项目经理",
+      "hint": "选好后，此人自动加入项目，并成为项目经理（主要负责人），不需要再添加人员。",
+      "none": "公司还没有可选的后台人员。先到「用户管理」添加项目经理，再回来选择。",
+      "loadError": "人员名单无法载入，请稍后再试。"
+    }
   },
   "qrCodes": {
     "result": {
@@ -17469,7 +17476,9 @@
     "remove": {
       "confirm": "移除",
       "description": "此人将无法再登录。他们记录过的所有数据原样保留。",
-      "title": "移除 {name}？"
+      "title": "移除 {name}？",
+      "fieldTitle": "删除 {name}？",
+      "fieldDescription": "删除后，此人无法再登录，手机号码会释放，可以在其他项目重新注册。他记录过的资料全部保留。（停用不会释放号码。）"
     },
     "resetPassword": {
       "action": "发送重设链接",
@@ -17484,7 +17493,8 @@
     "status": {
       "ACTIVE": "正常",
       "INVITED": "待激活",
-      "SUSPENDED": "已停用"
+      "SUSPENDED": "已停用",
+      "REMOVED": "已删除"
     },
     "summary": {
       "contractor": "建筑商用户",
