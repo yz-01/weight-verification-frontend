@@ -99,22 +99,21 @@ export function CreateRole({ role }: { role?: Role }) {
           )}
         </form.Field>
 
-        <form.Field
-          name="code"
-          validators={{ onSubmit: required(t("validation.required")) }}
-        >
-          {(field) => (
-            <TextField
-              field={field as unknown as BoundField}
-              label={t("roles.field.code")}
-              required
-              // A code is what permissions are keyed to in exports and in the
-              // audit trail. Changing it on a built-in role would orphan both.
-              disabled={role?.is_system}
-              hint={role?.is_system ? t("roles.systemHint") : undefined}
-            />
-          )}
-        </form.Field>
+        {/* 角色编号 is the system's: ROLE-0001 on for a new role (JB100, 客户 11-05
+            事项 4 第 3 点), shown but not changed afterwards - permissions are
+            keyed to it in exports and the audit trail. */}
+        {isEdit && (
+          <form.Field name="code">
+            {(field) => (
+              <TextField
+                field={field as unknown as BoundField}
+                label={t("roles.field.code")}
+                disabled
+                hint={role?.is_system ? t("roles.systemHint") : undefined}
+              />
+            )}
+          </form.Field>
+        )}
 
         <form.Field name="description">
           {(field) => (

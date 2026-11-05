@@ -251,7 +251,7 @@ function TemplateDialog({ project, onClose, onSaved }: { project: string; onClos
           <DialogDescription>{t("createHelp")}</DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 sm:grid-cols-2">
-          <FieldWrapper label={t("code")} required><Input value={code} onChange={(event) => setCode(event.target.value)} /></FieldWrapper>
+          {/* 模板编号: the system gives it, TPL-0001 on per project (JB100, 客户 11-05 事项 4 第 3 点). */}
           <FieldWrapper label={t("name")} required><Input value={name} onChange={(event) => setName(event.target.value)} /></FieldWrapper>
           <FieldWrapper label={t("applicationType")}><Select value={type || "ALL"} onValueChange={(value) => setType(value === "ALL" ? null : value)}><SelectTrigger className="w-full"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="ALL">{t("allTypes")}</SelectItem>{(options.data?.results ?? []).map((row) => <SelectItem key={row.id} value={row.id}>{row.label}</SelectItem>)}</SelectContent></Select><QueryFailedNote query={options} what={t("what.applicationTypes")} /></FieldWrapper>
           <div className="rounded-lg border border-info/25 bg-info/5 p-3 sm:col-span-2">
@@ -273,7 +273,7 @@ function TemplateDialog({ project, onClose, onSaved }: { project: string; onClos
         {error ? <p role="alert" className="text-sm text-destructive">{error}</p> : null}
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>{t("cancel")}</Button>
-          <Button requires={[[code, t("code")], [name, t("name")], [pattern.includes("{sequence}"), t("numbering")], [note, t("changeNote")]]} disabledReason={pattern.trim() && !pattern.includes("{sequence}") ? t("numberingNeedsSequence") : undefined} disabled={save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <Save />}{t("save")}</Button>
+          <Button requires={[[name, t("name")], [pattern.includes("{sequence}"), t("numbering")], [note, t("changeNote")]]} disabledReason={pattern.trim() && !pattern.includes("{sequence}") ? t("numberingNeedsSequence") : undefined} disabled={save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <Save />}{t("save")}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
