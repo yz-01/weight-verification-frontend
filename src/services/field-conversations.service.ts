@@ -57,6 +57,16 @@ export function getFieldConversations(): Promise<FieldConversations> {
   return api.get<FieldConversations>("/api/field-conversations/list_conversations/");
 }
 
+/**
+ * The number on 沟通's button: asked by every phone every minute, so the
+ * server answers it in two queries instead of building the list (review F3).
+ */
+export const FIELD_TALK_UNREAD_KEY = ["record-conversation", "field-unread"] as const;
+
+export function getFieldTalkUnread(): Promise<{ unread: number }> {
+  return api.get<{ unread: number }>("/api/field-conversations/unread_count/");
+}
+
 export function getChatPeople(search?: string): Promise<ChatPerson[]> {
   return api.get<ChatPerson[]>(
     "/api/field-conversations/people/",

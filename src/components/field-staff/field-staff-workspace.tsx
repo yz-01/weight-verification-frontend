@@ -52,7 +52,7 @@ import {
   type FieldNavKey,
 } from "@/lib/field-nav";
 import { EquipmentOperatePanel } from "@/components/field-staff/equipment-operate-panel";
-import { FieldTalkPanel, fieldConversationsQuery } from "@/components/field-staff/field-talk-panel";
+import { FieldTalkPanel, fieldTalkUnreadQuery } from "@/components/field-staff/field-talk-panel";
 import { taskRecordMode } from "@/lib/field-task-mode";
 import { FIELD_OPEN_EVENT, fieldNoticeHref } from "@/lib/field-notification";
 import { NoticeOpener } from "@/components/notifications/notice-opener";
@@ -425,7 +425,7 @@ function FieldStaffWorkspaceContent({
   const bellCount = useQuery({ ...fieldTodoCountQuery });
   const homeCount = fieldBellCount(bellCount.data)?.total ?? 0;
   // 沟通's own number: what is unread across my conversations (JB104).
-  const talk = useQuery({ ...fieldConversationsQuery });
+  const talk = useQuery({ ...fieldTalkUnreadQuery });
   const talkCount = talk.data?.unread ?? 0;
   const navCounts: Partial<Record<FieldNavKey, number>> = { home: homeCount, talk: talkCount };
   const openNav = (key: FieldNavKey) => {

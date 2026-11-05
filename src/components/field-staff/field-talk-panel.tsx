@@ -38,20 +38,30 @@ import { parseTalkParam, previewKey, talkParam, type TalkTarget } from "@/lib/fi
 import { cn } from "@/lib/utils";
 import {
   FIELD_CONVERSATIONS_KEY,
+  FIELD_TALK_UNREAD_KEY,
   getChatPeople,
   getFieldConversations,
+  getFieldTalkUnread,
   startConversation,
   type ChatPerson,
   type FieldConversationRow,
   type FieldConversations,
 } from "@/services/field-conversations.service";
 
-/** The 沟通 list, read by the page and by the number on its button. */
+/** The 沟通 list: read only while the page is open (review F3). */
 export const fieldConversationsQuery = {
   queryKey: FIELD_CONVERSATIONS_KEY,
   queryFn: getFieldConversations,
-  // A message on a record moves it on the live stream; this is the net
-  // under it when the stream is down.
+} as const;
+
+/**
+ * The number on 沟通's button, on every phone all the time: the cheap count,
+ * never the list. A message moves it on the live stream (the record chat's
+ * key family); the minute's poll is the net when the stream is down.
+ */
+export const fieldTalkUnreadQuery = {
+  queryKey: FIELD_TALK_UNREAD_KEY,
+  queryFn: getFieldTalkUnread,
   refetchInterval: 60_000,
 } as const;
 
@@ -60,12 +70,24 @@ export function FieldTalkPanel() {
   const [finding, setFinding] = useState(false);
   const target = parseTalkParam(chat);
   const conversations = useQuery(fieldConversationsQuery);
+  const queryClient = useQueryClient();
 
   if (target) {
     const row = conversations.data?.results.find(
       (item) => item.kind === target.kind && item.id === target.id,
     );
-    return <TalkRoom target={target} title={row?.title} onBack={() => setChat(null)} />;
+    return (
+      <TalkRoom
+        target={target}
+        title={row?.title}
+        onBack={() => {
+          setChat(null);
+          // Read now: the list's and the button's numbers drop.
+          void queryClient.invalidateQueries({ queryKey: FIELD_CONVERSATIONS_KEY });
+          void queryClient.invalidateQueries({ queryKey: FIELD_TALK_UNREAD_KEY });
+        }}
+      />
+    );
   }
   if (finding) {
     return (
