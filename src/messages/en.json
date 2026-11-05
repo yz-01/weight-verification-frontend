@@ -12415,7 +12415,18 @@
     },
     "reason": {
       "network": "No connection",
-      "timeout": "Upload timed out (weak signal)"
+      "timeout": "Upload timed out (weak signal)",
+      "stalled": "The upload got stuck and was stopped; it will try again by itself",
+      "signedOut": "Your sign-in has expired. Sign out and sign in again; it uploads after that",
+      "server": "The server had a problem ({status}); it will try again by itself",
+      "unknown": "The upload did not go through; it will try again by itself"
+    },
+    "waiting": {
+      "title": "Records waiting to upload",
+      "notTried": "Not tried yet",
+      "lastFailed": "Last try did not go through: {reason} (tried {count} times)",
+      "uploadNow": "Upload now",
+      "uploading": "Uploading…"
     },
     "submitted": "Submitted",
     "fieldLine": "No network right now. Photos and records are saved on this phone and upload by themselves when the connection is back."

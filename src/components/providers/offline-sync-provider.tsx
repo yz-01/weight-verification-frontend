@@ -124,6 +124,11 @@ export function OfflineSyncProvider({ children }: { children: React.ReactNode })
         if (retryTimer.current) clearTimeout(retryTimer.current);
         retryTimer.current = null;
       }
+    } catch {
+      // A pass stopped for hanging (JB106): what it held goes on the next try.
+      failures.current += 1;
+      await refreshCount().catch(() => undefined);
+      scheduleRetry(retryDelayMs(failures.current));
     } finally {
       setIsSyncing(false);
     }
