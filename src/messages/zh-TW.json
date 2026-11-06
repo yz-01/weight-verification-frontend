@@ -17598,6 +17598,7 @@
       "allOff": "全關",
       "countOn": "已打開 {on} / {total}",
       "applyRole": "按角色套用",
+      "followedRole": "已經換成「{role}」的權限，按「保存」生效。",
       "applyRoleHint": "照這個角色的權限打開開關，其餘關掉；保存前可以再改。",
       "save": "保存權限",
       "failed": "保存沒有成功，請再試一次。",

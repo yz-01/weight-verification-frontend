@@ -17598,6 +17598,7 @@
       "allOff": "All off",
       "countOn": "{on} of {total} on",
       "applyRole": "Start from a role",
+      "followedRole": "Switched to the {role} role's permissions. Press Save to keep them.",
       "applyRoleHint": "Turns on what the role holds and off the rest; change anything before saving.",
       "save": "Save permissions",
       "failed": "Could not save. Please try again.",

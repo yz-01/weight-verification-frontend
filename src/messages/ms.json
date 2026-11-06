@@ -17598,6 +17598,7 @@
       "allOff": "Matikan semua",
       "countOn": "{on} daripada {total} hidup",
       "applyRole": "Mula daripada peranan",
+      "followedRole": "Ditukar kepada kebenaran peranan {role}. Tekan Simpan untuk mengekalkannya.",
       "applyRoleHint": "Menghidupkan apa yang dipegang peranan itu dan mematikan selebihnya; boleh diubah sebelum simpan.",
       "save": "Simpan kebenaran",
       "failed": "Tidak dapat disimpan. Sila cuba lagi.",

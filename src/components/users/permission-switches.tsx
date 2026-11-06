@@ -128,9 +128,16 @@ export function SwitchesNotSavedNote({ error }: { error: string }) {
 
 export function PermissionSwitches({
   userId,
+  roleId,
   handleRef,
 }: {
   userId: string;
+  /**
+   * The 角色 chosen on the edit form (JB126). When it changes, the switches
+   * become that role's, as 「按角色套用」 would - before 保存, so what is seen
+   * is what is saved.
+   */
+  roleId?: string;
   /**
    * Inside the edit-user dialog: no save button of its own - the dialog's
    * 「保存」 saves the switches through this handle. Without it the panel
@@ -178,6 +185,7 @@ export function PermissionSwitches({
       // A fresh form for what the server holds now (after a save, too).
       key={JSON.stringify([state.data.off, state.data.projects])}
       userId={userId}
+      roleId={roleId}
       handleRef={handleRef}
       catalogue={catalogue.data}
       state={state.data}
@@ -193,6 +201,7 @@ export function PermissionSwitches({
 
 function SwitchForm({
   userId,
+  roleId,
   handleRef,
   catalogue,
   state,
@@ -201,6 +210,7 @@ function SwitchForm({
   tRoot,
 }: {
   userId: string;
+  roleId?: string;
   handleRef?: React.Ref<PermissionSwitchesHandle>;
   catalogue: PermissionEntry[];
   state: PermissionSwitchState;
@@ -274,6 +284,20 @@ function SwitchForm({
     setAllProjects(granted.has(SCOPE_CODE));
   };
 
+  // JB126 (Lucas 11-07: 「我已经选总部了……不是应该自动会选择角色的权限吗」):
+  // a different 角色 chosen on the form turns the switches into that role's.
+  // The role the form opened with is the starting point and changes nothing.
+  const [followedRole, setFollowedRole] = useState(roleId);
+  const [followedName, setFollowedName] = useState("");
+  if (roleId && roleId !== followedRole && roles.data) {
+    const role = roles.data.results.find((row) => row.id === roleId);
+    setFollowedRole(roleId);
+    if (role) {
+      applyRole(role);
+      setFollowedName(roleName(role, tRoot));
+    }
+  }
+
   const total = entries.length;
   const onCount = entries.filter((entry) => isOn(entry.code)).length;
   const needsProject = !allProjects && chosen.size === 0;
@@ -307,6 +331,11 @@ function SwitchForm({
             {t("title")}
           </h3>
           <p className="text-sm text-muted-foreground">{t("intro")}</p>
+          {followedName ? (
+            <p className="text-sm font-medium text-primary" role="status" data-switches-followed-role>
+              {t("followedRole", { role: followedName })}
+            </p>
+          ) : null}
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-xs text-muted-foreground tabular-nums">{t("countOn", { on: onCount, total })}</span>

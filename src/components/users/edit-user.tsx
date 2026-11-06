@@ -31,7 +31,12 @@ export function EditUser({ id }: { id: string }) {
       user={data}
       // 用户管理 → 编辑用户 → 权限 (J17): a contractor's back-office person.
       // One 「保存」 for both: the panel has no button of its own here.
-      after={switchable ? <PermissionSwitches userId={data.id} handleRef={switches} /> : undefined}
+      // JB126: the switches follow the 角色 chosen above, no 「按角色套用」 needed.
+      after={
+        switchable
+          ? (role: string) => <PermissionSwitches userId={data.id} roleId={role} handleRef={switches} />
+          : undefined
+      }
       saveAfter={
         switchable ? async () => (switches.current ? switches.current.saveIfDirty() : true) : undefined
       }
