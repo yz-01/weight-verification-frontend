@@ -11658,7 +11658,19 @@
       "EQUIPMENT_MOVEMENT": "设备进退场",
       "DISPOSAL_REQUEST": "工地清运",
       "SUNDRY_CLAIM": "杂费报销",
-      "MATERIAL_REQUEST": "MR / 其他申请"
+      "MATERIAL_REQUEST": "MR / 其他申请",
+      "GATE_INCIDENT": "门岗照片",
+      "GATE_ISSUE": "门岗事项",
+      "VISITOR_ARRIVAL": "访客到访",
+      "EQUIPMENT_HOURS": "设备开工 / 收工",
+      "ATTENDANCE": "人员进场",
+      "PERMIT": "施工准证",
+      "CONSULTANT": "顾问申请"
+    },
+    "gateStatus": {
+      "RECORDED": "已记录",
+      "OPEN": "处理中",
+      "CLOSED": "已完成"
     },
     "field": {
       "application_no": "申请编号",

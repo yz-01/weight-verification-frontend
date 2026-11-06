@@ -11658,7 +11658,19 @@
       "EQUIPMENT_MOVEMENT": "Equipment movement",
       "DISPOSAL_REQUEST": "Site disposal",
       "SUNDRY_CLAIM": "Sundry claims",
-      "MATERIAL_REQUEST": "MR / Other Request"
+      "MATERIAL_REQUEST": "MR / Other Request",
+      "GATE_INCIDENT": "Gate photo",
+      "GATE_ISSUE": "Gate issue",
+      "VISITOR_ARRIVAL": "Visitor arrival",
+      "EQUIPMENT_HOURS": "Machine start / stop",
+      "ATTENDANCE": "Site entry",
+      "PERMIT": "Permit to work",
+      "CONSULTANT": "Consultant request"
+    },
+    "gateStatus": {
+      "RECORDED": "Recorded",
+      "OPEN": "In progress",
+      "CLOSED": "Completed"
     },
     "field": {
       "application_no": "Application no.",
