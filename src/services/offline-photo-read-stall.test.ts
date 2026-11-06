@@ -22,17 +22,42 @@ afterEach(() => {
 });
 
 describe("reading a kept photo", () => {
-  it("says the photo is gone when the read never answers", async () => {
+  it("says the photo is gone only when no way of reading it answers", async () => {
     vi.useFakeTimers();
     const hung = new Blob(["x"], { type: "image/jpeg" });
     hung.arrayBuffer = () => new Promise<ArrayBuffer>(() => {});
+    // A FileReader that never answers either; no screen to redraw on here.
+    vi.stubGlobal("FileReader", class {
+      readAsArrayBuffer() {}
+    });
     const result = withFilesInMemory({ photos: [kept(hung)] }).catch((error: { code?: string }) => error.code);
-    await vi.advanceTimersByTimeAsync(READ_STALL_MS);
+    await vi.advanceTimersByTimeAsync(READ_STALL_MS * 3);
     await expect(result).resolves.toBe(PHOTO_LOST);
+    vi.unstubAllGlobals();
   });
 
-  it("allows far longer than a real read takes", () => {
-    expect(READ_STALL_MS).toBeGreaterThanOrEqual(30_000);
+  it("still sends the old one when another way of reading answers (「让旧的也可以上传」)", async () => {
+    vi.useFakeTimers();
+    const hung = new Blob(["jpeg-bytes"], { type: "image/jpeg" });
+    hung.arrayBuffer = () => new Promise<ArrayBuffer>(() => {});
+    vi.stubGlobal("FileReader", class {
+      result: ArrayBuffer | null = null;
+      onload: (() => void) | null = null;
+      readAsArrayBuffer() {
+        this.result = new TextEncoder().encode("jpeg-bytes").buffer as ArrayBuffer;
+        queueMicrotask(() => this.onload?.());
+      }
+    });
+    const result = withFilesInMemory({ photos: [kept(hung)] });
+    await vi.advanceTimersByTimeAsync(READ_STALL_MS);
+    const ready = await result;
+    vi.useRealTimers();
+    expect(await ready.photos[0].blob.text()).toBe("jpeg-bytes");
+    vi.unstubAllGlobals();
+  });
+
+  it("gives each way far longer than a real read takes", () => {
+    expect(READ_STALL_MS).toBeGreaterThanOrEqual(10_000);
   });
 
   it("still sends a photo that is there", async () => {

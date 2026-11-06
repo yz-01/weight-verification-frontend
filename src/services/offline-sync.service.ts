@@ -2181,8 +2181,77 @@ class StoredFileLost extends Error {
  * record said 「等待上传」 forever while new photos, sent directly, went.
  */
 export const JOB_STALL_MS = 4 * 60_000;
-/** How long reading one kept photo from the phone may take (see `withFilesInMemory`). */
-export const READ_STALL_MS = 30_000;
+/**
+ * How long one way of reading a kept photo may take (see `readKeptBytes`).
+ * Three ways are tried, so a photo that is truly gone is said after 30 s.
+ */
+export const READ_STALL_MS = 10_000;
+
+function readWithFileReader(blob: Blob): Promise<ArrayBuffer> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () =>
+      reader.result instanceof ArrayBuffer ? resolve(reader.result) : reject(new Error("unreadable"));
+    reader.onerror = () => reject(reader.error ?? new Error("unreadable"));
+    reader.readAsArrayBuffer(blob);
+  });
+}
+
+/** The photo as the phone can still show it, drawn again into a new JPEG. */
+async function redrawPhoto(blob: Blob): Promise<ArrayBuffer> {
+  if (typeof document === "undefined" || typeof URL === "undefined" || !URL.createObjectURL) {
+    throw new Error("no screen to draw on");
+  }
+  const url = URL.createObjectURL(blob);
+  try {
+    const image = new Image();
+    await new Promise<void>((resolve, reject) => {
+      image.onload = () => resolve();
+      image.onerror = () => reject(new Error("unreadable"));
+      image.src = url;
+    });
+    const canvas = document.createElement("canvas");
+    canvas.width = image.naturalWidth;
+    canvas.height = image.naturalHeight;
+    const context = canvas.getContext("2d");
+    if (!context || !canvas.width || !canvas.height) throw new Error("unreadable");
+    context.drawImage(image, 0, 0);
+    const drawn = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.92));
+    if (!drawn) throw new Error("unreadable");
+    return await drawn.arrayBuffer();
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
+/**
+ * A kept photo's bytes, by whichever way the phone still answers (客户 11-06:
+ * 「有什么方法让旧的也可以上传吗？」).
+ *
+ * After iOS has been at its storage, one way of reading a kept photo may hang
+ * while another still works, and a photo the phone can still show can always
+ * be drawn again. So: the plain read, then a FileReader, then the picture
+ * redrawn - each given `READ_STALL_MS`. Only when none of them answers is the
+ * photo gone (``StoredFileLost``): 上传失败, delete it and take it again.
+ */
+export async function readKeptBytes(blob: Blob): Promise<{ bytes: ArrayBuffer; type?: string }> {
+  const ways: Array<[() => Promise<ArrayBuffer>, string | undefined]> = [
+    [() => blob.arrayBuffer(), undefined],
+    [() => readWithFileReader(blob), undefined],
+    ...(blob.type.startsWith("image/") || blob.type === ""
+      ? ([[() => redrawPhoto(blob), "image/jpeg"]] as Array<[() => Promise<ArrayBuffer>, string]>)
+      : []),
+  ];
+  for (const [read, type] of ways) {
+    try {
+      const bytes = await withinTime(read(), READ_STALL_MS);
+      if (bytes.byteLength > 0) return { bytes, type };
+    } catch {
+      // the next way
+    }
+  }
+  throw new StoredFileLost(PHOTO_LOST);
+}
 /** How long a whole pass may hold the lock before the next one may start. */
 export const PASS_STALL_MS = 10 * 60_000;
 /** How long a worker's own press waits for a pass already running. */
@@ -2214,20 +2283,13 @@ export function withinTime<T>(work: Promise<T>, ms: number): Promise<T> {
  */
 export async function withFilesInMemory<T>(value: T, depth = 0): Promise<T> {
   if (isStoredFile(value)) {
-    let bytes: ArrayBuffer;
-    try {
-      // A photo whose bytes iOS has cleared may never answer the read at all
-      // rather than fail it (客户 11-06: 「我手上手机断断网缓存到现在还上传
-      // 不了」, a gate photo queued 11-04 stuck at 「正在上传…」). Reading a
-      // kept photo takes milliseconds; one that has not come back in
-      // `READ_STALL_MS` is not there, and is said as such - 上传失败, delete it
-      // and take it again - instead of stalling the record every pass, for good.
-      bytes = await withinTime(value.blob.arrayBuffer(), READ_STALL_MS);
-    } catch {
-      throw new StoredFileLost(PHOTO_LOST);
-    }
-    if (bytes.byteLength === 0) throw new StoredFileLost(PHOTO_LOST);
-    return { ...value, blob: new Blob([bytes], { type: value.type }) };
+    // A photo whose bytes iOS has cleared may never answer a read at all
+    // rather than fail it (客户 11-06: 「我手上手机断断网缓存到现在还上传不了」,
+    // a gate photo queued 11-04 stuck at 「正在上传…」, every pass, for good).
+    // Every way the phone may still answer is tried; a photo none of them
+    // reads is said as gone - 上传失败, delete it and take it again.
+    const { bytes, type } = await readKeptBytes(value.blob);
+    return { ...value, ...(type ? { type } : {}), blob: new Blob([bytes], { type: type ?? value.type }) };
   }
   if (depth > 3 || typeof value !== "object" || value === null || value instanceof Blob) {
     return value;
