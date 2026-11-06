@@ -209,7 +209,8 @@ function IssueDeliveryNoteDialog({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const suppliers = useQuery({
     queryKey: ["suppliers", "delivery-note-options", projectId],
-    queryFn: () => getSuppliers({ page_size: 200 }),
+    // The project's own 「可用供应商」 (JB115).
+    queryFn: () => getSuppliers({ page_size: 200, project: projectId }),
   });
   const categories = useQuery({
     queryKey: ["project-categories", "delivery-note-options", projectId],

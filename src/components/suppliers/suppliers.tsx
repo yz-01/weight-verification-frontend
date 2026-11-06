@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Pencil, Plus, QrCode, Trash2 } from "lucide-react";
+import { ListPlus, Pencil, Plus, QrCode, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -23,6 +23,7 @@ import { FormSurfaceProvider } from "@/components/shared/form-surface";
 import { SupplierQrPanel } from "@/components/suppliers/supplier-qr-panel";
 import { SupplierReturnBadge } from "@/components/suppliers/supplier-return-badge";
 import { useListQuery } from "@/hooks/use-list-query";
+import { AddFromHeadOfficeDialog } from "@/components/projects/project-suppliers";
 import type { Supplier } from "@/interfaces/contractor";
 import {
   deleteSupplier,
@@ -40,6 +41,9 @@ export function Suppliers() {
   const queryClient = useQueryClient();
   const list = useListQuery();
   const [removing, setRemoving] = useState<Supplier | null>(null);
+  // 「从总部名单选」 (JB115): the project manager puts head office's suppliers
+  // on their own projects instead of creating new ones.
+  const [pickingFromHq, setPickingFromHq] = useState(false);
   const [qrPreviewId, setQrPreviewId] = useState<string | null>(null);
   const qrPreview = useQuery({
     queryKey: ["suppliers", "qr-preview", qrPreviewId],
@@ -274,17 +278,28 @@ export function Suppliers() {
         action={
           <>
             <ExportButton onExport={runExport} disabled={totalCount === 0} />
-            {can("supplier.create") && (
+            {can("supplier.create") ? (
               <Button asChild>
                 <Link href="/suppliers/create">
                   <Plus className="size-4" />
                   {t("suppliers.new")}
                 </Link>
               </Button>
-            )}
+            ) : can("project_supplier.manage") ? (
+              <Button onClick={() => setPickingFromHq(true)} data-testid="pick-from-hq">
+                <ListPlus className="size-4" />
+                {t("projectSuppliers.add")}
+              </Button>
+            ) : null}
           </>
         }
       />
+      {!can("supplier.create") && (
+        <p className="rounded-lg border border-panel-border bg-muted/40 px-4 py-3 text-sm text-muted-foreground" data-testid="suppliers-hq-note">
+          {t("projectSuppliers.hqListNote")}
+        </p>
+      )}
+      {pickingFromHq && <AddFromHeadOfficeDialog onClose={() => setPickingFromHq(false)} />}
 
       <DataTable
         columns={columns}

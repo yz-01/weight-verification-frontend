@@ -3779,7 +3779,9 @@
       "direct_conversation_started": "Conversation started",
       "equipment_name_created": "Equipment name added",
       "equipment_name_updated": "Equipment name changed",
-      "settings_update_by_platform": "Company settings changed by MSE"
+      "settings_update_by_platform": "Company settings changed by MSE",
+      "project_supplier_added": "Supplier added to a project",
+      "project_supplier_removed": "Supplier taken off a project"
     },
     "objectType": {
       "SignOffAssistant": "Assistant PIN",
@@ -8754,7 +8756,8 @@
       "company_category_fixed": "Every project needs this category: it can be renamed, not switched off or removed.",
       "phone_page_not_yours": "This page is not on your phone.",
       "chat_people_invalid": "Choose people from the list.",
-      "user_removed": "This account was deleted and cannot be turned back on. Create a new account instead."
+      "user_removed": "This account was deleted and cannot be turned back on. Create a new account instead.",
+      "supplier_not_on_project": "This supplier is not on this project's supplier list. Ask head office or the project manager to add it to the project first."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -8790,7 +8793,8 @@
       "unit_follows_spec": "The unit follows the specification",
       "invalid_passport_no": "Passport number: 5 to 20 letters and digits",
       "invalid_birth_date": "The date of birth must be before today",
-      "site_worker_passport_taken": "This passport is already on the roster"
+      "site_worker_passport_taken": "This passport is already on the roster",
+      "supplier_not_on_project": "This supplier is not on this project's supplier list. Ask head office or the project manager to add it to the project first."
     },
     "forbidden": "You do not have access to this.",
     "forbiddenBody": "Ask your administrator if you need it.",
@@ -13426,6 +13430,9 @@
       },
       "field_staff": {
         "manage": "Issue and manage phone links for field staff on one's own projects"
+      },
+      "project_supplier": {
+        "manage": "Put suppliers from head office's list on one's own projects, or take them off"
       }
     },
     "group": {
@@ -13498,7 +13505,8 @@
       "material_target": "Material targets",
       "inspection": "Inspection",
       "finance": "Amounts",
-      "field_staff": "Field staff"
+      "field_staff": "Field staff",
+      "project_supplier": "Project suppliers"
     }
   },
   "photos": {
@@ -17050,7 +17058,8 @@
       "noSites": "There are no sites to issue a code for.",
       "revokedOn": "Revoked {date}",
       "scanHelp": "Print this for the gate house. Scanning it opens a material receipt with the site and the supplier already filled in.",
-      "title": "Site codes"
+      "title": "Site codes",
+      "onNoProject": "This supplier is not on any project yet. Add it to a project's \"Project suppliers\" first."
     },
     "title": "Suppliers",
     "toast": {
@@ -20679,5 +20688,32 @@
     "remove": "Delete",
     "removeTitle": "Delete this field staff member?",
     "removeConfirm": "After deleting, {name} can no longer sign in and the mobile number can be used on another project. Their earlier records are kept."
+  },
+  "projectSuppliers": {
+    "title": "Project suppliers",
+    "description": "The suppliers this project may receive from. Deliveries, delivery notes, site codes and scans accept only these suppliers.",
+    "add": "Choose from head office's list",
+    "loading": "Loading…",
+    "what": "project suppliers",
+    "empty": "This project has no suppliers yet. Press \"Choose from head office's list\" to add some.",
+    "addedBy": "added by {name}",
+    "remove": "Remove",
+    "removeTitle": "Take \"{name}\" off this project?",
+    "removeDescription": "This project will no longer receive from this supplier. Earlier deliveries are kept, and it can be added back later.",
+    "addTitle": "Choose suppliers from head office's list",
+    "addDescription": "Only suppliers on head office's list. For a new supplier, ask head office to create it.",
+    "project": "Project",
+    "suppliers": "Suppliers",
+    "search": "Search supplier name or code",
+    "allOn": "Every supplier on head office's list is already on this project.",
+    "cancel": "Cancel",
+    "chooseProjectFirst": "Choose a project first.",
+    "chooseSupplierFirst": "Tick at least one supplier.",
+    "addCount": "Add {count}",
+    "hqListNote": "Head office manages the supplier list. Press \"Choose from head office's list\" to put the suppliers you need on your projects.",
+    "toast": {
+      "added": "Added to the project.",
+      "removed": "Taken off the project."
+    }
   }
 }

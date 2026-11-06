@@ -3779,7 +3779,9 @@
       "direct_conversation_started": "开始沟通对话",
       "equipment_name_created": "新增设备名称",
       "equipment_name_updated": "修改设备名称",
-      "settings_update_by_platform": "MSE 修改公司设定"
+      "settings_update_by_platform": "MSE 修改公司设定",
+      "project_supplier_added": "把供应商加进项目",
+      "project_supplier_removed": "把供应商移出项目"
     },
     "objectType": {
       "SignOffAssistant": "助理副密码",
@@ -8754,7 +8756,8 @@
       "company_category_fixed": "每个项目都要用这个分类：可以改名，不能停用或删除。",
       "phone_page_not_yours": "你的手机没有这个页面。",
       "chat_people_invalid": "请从名单里选人。",
-      "user_removed": "这个账号已经删除，不能再启用。请重新建立一个新账号。"
+      "user_removed": "这个账号已经删除，不能再启用。请重新建立一个新账号。",
+      "supplier_not_on_project": "这个供应商不在这个项目的「可用供应商」里。请总部或项目经理先在项目里加入。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -8790,7 +8793,8 @@
       "unit_follows_spec": "单位跟着规格，不能改",
       "invalid_passport_no": "护照号码只能有英文字母和数字，5 到 20 个",
       "invalid_birth_date": "出生日期要在今天以前",
-      "site_worker_passport_taken": "这本护照已经在名单里"
+      "site_worker_passport_taken": "这本护照已经在名单里",
+      "supplier_not_on_project": "这个供应商不在这个项目的「可用供应商」里。请总部或项目经理先在项目里加入。"
     },
     "forbidden": "你没有访问权限。",
     "forbiddenBody": "如果确实需要，请联系管理员。",
@@ -13426,6 +13430,9 @@
       },
       "field_staff": {
         "manage": "为自己负责的项目生成和管理现场人员手机链接"
+      },
+      "project_supplier": {
+        "manage": "把总部名单的供应商加到自己负责的项目，或移出"
       }
     },
     "group": {
@@ -13498,7 +13505,8 @@
       "material_target": "材料目标",
       "inspection": "检验",
       "finance": "金额",
-      "field_staff": "现场人员"
+      "field_staff": "现场人员",
+      "project_supplier": "项目可用供应商"
     }
   },
   "photos": {
@@ -17050,7 +17058,8 @@
       "noSites": "还没有可以签发的工地。",
       "revokedOn": "{date} 作废",
       "scanHelp": "打印出来贴在门岗。扫一下就打开材料进场记录，工地和供应商都已经填好。",
-      "title": "工地专用码"
+      "title": "工地专用码",
+      "onNoProject": "这个供应商还没有加到任何项目。请先在项目的「可用供应商」里把它加进去。"
     },
     "title": "供应商",
     "toast": {
@@ -20679,5 +20688,32 @@
     "remove": "删除",
     "removeTitle": "删除这个现场人员？",
     "removeConfirm": "删除后 {name} 不能再登录，手机号码可以在别的项目重新使用。他之前的记录全部保留。"
+  },
+  "projectSuppliers": {
+    "title": "可用供应商",
+    "description": "这个项目可以收货的供应商。材料进场、送货单、工地专用码和扫码，都只接受这里的供应商。",
+    "add": "从总部名单选",
+    "loading": "正在读取…",
+    "what": "可用供应商",
+    "empty": "这个项目还没有可用供应商。按「从总部名单选」把总部名单里的供应商加进来。",
+    "addedBy": "{name} 加入",
+    "remove": "移出",
+    "removeTitle": "把「{name}」移出这个项目？",
+    "removeDescription": "移出后，这个项目不能再收这家供应商的货。以前的收货记录全部保留，以后需要可以再加回来。",
+    "addTitle": "从总部名单选供应商",
+    "addDescription": "只能从总部的供应商名单里选。要新的供应商，请总部先建立。",
+    "project": "项目",
+    "suppliers": "供应商",
+    "search": "搜索供应商名称或编号",
+    "allOn": "总部名单里的供应商都已经在这个项目了。",
+    "cancel": "取消",
+    "chooseProjectFirst": "请先选项目。",
+    "chooseSupplierFirst": "请至少勾选一家供应商。",
+    "addCount": "加入 {count} 家",
+    "hqListNote": "供应商名单由总部管理。你可以按「从总部名单选」，把需要的供应商加到你负责的项目。",
+    "toast": {
+      "added": "已经加入项目。",
+      "removed": "已经移出项目。"
+    }
   }
 }

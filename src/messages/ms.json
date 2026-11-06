@@ -3779,7 +3779,9 @@
       "direct_conversation_started": "Perbualan dimulakan",
       "equipment_name_created": "Nama peralatan ditambah",
       "equipment_name_updated": "Nama peralatan diubah",
-      "settings_update_by_platform": "Tetapan syarikat diubah oleh MSE"
+      "settings_update_by_platform": "Tetapan syarikat diubah oleh MSE",
+      "project_supplier_added": "Pembekal ditambah ke projek",
+      "project_supplier_removed": "Pembekal dikeluarkan dari projek"
     },
     "objectType": {
       "SignOffAssistant": "PIN pembantu",
@@ -8754,7 +8756,8 @@
       "company_category_fixed": "Setiap projek memerlukan kategori ini: boleh dinamakan semula, tidak boleh dimatikan atau dibuang.",
       "phone_page_not_yours": "Halaman ini tiada pada telefon anda.",
       "chat_people_invalid": "Pilih orang daripada senarai.",
-      "user_removed": "Akaun ini telah dipadam dan tidak boleh diaktifkan semula. Sila cipta akaun baharu."
+      "user_removed": "Akaun ini telah dipadam dan tidak boleh diaktifkan semula. Sila cipta akaun baharu.",
+      "supplier_not_on_project": "Pembekal ini tiada dalam senarai pembekal projek ini. Minta ibu pejabat atau pengurus projek menambahnya dahulu."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -8790,7 +8793,8 @@
       "unit_follows_spec": "Unit mengikut spesifikasi",
       "invalid_passport_no": "No. pasport: 5 hingga 20 huruf dan nombor",
       "invalid_birth_date": "Tarikh lahir mesti sebelum hari ini",
-      "site_worker_passport_taken": "Pasport ini sudah ada dalam senarai"
+      "site_worker_passport_taken": "Pasport ini sudah ada dalam senarai",
+      "supplier_not_on_project": "Pembekal ini tiada dalam senarai pembekal projek ini. Minta ibu pejabat atau pengurus projek menambahnya dahulu."
     },
     "forbidden": "Anda tiada akses kepada ini.",
     "forbiddenBody": "Tanya pentadbir anda jika anda memerlukannya.",
@@ -13426,6 +13430,9 @@
       },
       "field_staff": {
         "manage": "Keluarkan dan urus pautan telefon kakitangan tapak bagi projek sendiri"
+      },
+      "project_supplier": {
+        "manage": "Letak pembekal daripada senarai ibu pejabat pada projek sendiri, atau keluarkan"
       }
     },
     "group": {
@@ -13498,7 +13505,8 @@
       "material_target": "Sasaran bahan",
       "inspection": "Pemeriksaan",
       "finance": "Jumlah wang",
-      "field_staff": "Kakitangan tapak"
+      "field_staff": "Kakitangan tapak",
+      "project_supplier": "Pembekal projek"
     }
   },
   "photos": {
@@ -17050,7 +17058,8 @@
       "noSites": "Tiada tapak untuk dikeluarkan kod.",
       "revokedOn": "Dibatalkan {date}",
       "scanHelp": "Cetak untuk pondok pengawal. Mengimbasnya membuka rekod bahan masuk dengan tapak dan pembekal sudah terisi.",
-      "title": "Kod tapak"
+      "title": "Kod tapak",
+      "onNoProject": "Pembekal ini belum ada dalam mana-mana projek. Tambahkannya dalam \"Pembekal projek\" dahulu."
     },
     "title": "Pembekal",
     "toast": {
@@ -20679,5 +20688,32 @@
     "remove": "Padam",
     "removeTitle": "Padam kakitangan tapak ini?",
     "removeConfirm": "Selepas dipadam, {name} tidak boleh log masuk lagi dan nombor telefon boleh digunakan di projek lain. Rekod lamanya disimpan."
+  },
+  "projectSuppliers": {
+    "title": "Pembekal projek",
+    "description": "Pembekal yang boleh menghantar ke projek ini. Penerimaan, nota hantaran, kod tapak dan imbasan hanya menerima pembekal ini.",
+    "add": "Pilih daripada senarai ibu pejabat",
+    "loading": "Memuatkan…",
+    "what": "pembekal projek",
+    "empty": "Projek ini belum ada pembekal. Tekan \"Pilih daripada senarai ibu pejabat\" untuk menambah.",
+    "addedBy": "ditambah oleh {name}",
+    "remove": "Keluarkan",
+    "removeTitle": "Keluarkan \"{name}\" dari projek ini?",
+    "removeDescription": "Projek ini tidak lagi menerima daripada pembekal ini. Rekod lama disimpan, dan boleh ditambah semula kemudian.",
+    "addTitle": "Pilih pembekal daripada senarai ibu pejabat",
+    "addDescription": "Hanya pembekal dalam senarai ibu pejabat. Untuk pembekal baharu, minta ibu pejabat menciptanya.",
+    "project": "Projek",
+    "suppliers": "Pembekal",
+    "search": "Cari nama atau kod pembekal",
+    "allOn": "Semua pembekal dalam senarai ibu pejabat sudah ada dalam projek ini.",
+    "cancel": "Batal",
+    "chooseProjectFirst": "Pilih projek dahulu.",
+    "chooseSupplierFirst": "Tandakan sekurang-kurangnya satu pembekal.",
+    "addCount": "Tambah {count}",
+    "hqListNote": "Ibu pejabat mengurus senarai pembekal. Tekan \"Pilih daripada senarai ibu pejabat\" untuk meletakkan pembekal yang diperlukan pada projek anda.",
+    "toast": {
+      "added": "Ditambah ke projek.",
+      "removed": "Dikeluarkan dari projek."
+    }
   }
 }

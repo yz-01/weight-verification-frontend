@@ -27,6 +27,7 @@ import { useState } from "react";
 
 import { RecordExportButton } from "@/components/shared/record-export-button";
 import { ProjectDockets } from "@/components/projects/project-dockets";
+import { ProjectSuppliersPanel } from "@/components/projects/project-suppliers";
 import { ProjectQrPanel } from "@/components/projects/project-qr-panel";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
@@ -279,6 +280,8 @@ export function ViewProject({ id }: { id: string }) {
       )}
       <ProjectTeam projectId={id} />
       <ProjectResponsibilities projectId={id} />
+      {/* 可用供应商 (JB115): who this project may receive from. */}
+      <ProjectSuppliersPanel projectId={id} />
       <ProjectDockets projectId={id} />
 
       <ConfirmDialog

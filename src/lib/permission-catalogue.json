@@ -70,6 +70,10 @@
       "label": "Suppliers"
     },
     {
+      "key": "project_supplier",
+      "label": "Project suppliers"
+    },
+    {
       "key": "category",
       "label": "Categories"
     },
@@ -507,6 +511,11 @@
       "code": "supplier.delete",
       "group": "supplier",
       "label": "Remove suppliers"
+    },
+    {
+      "code": "project_supplier.manage",
+      "group": "project_supplier",
+      "label": "Put suppliers from head office's list on one's own projects, or take them off"
     },
     {
       "code": "category.view",

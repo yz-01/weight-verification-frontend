@@ -3779,7 +3779,9 @@
       "direct_conversation_started": "開始溝通對話",
       "equipment_name_created": "新增設備名稱",
       "equipment_name_updated": "修改設備名稱",
-      "settings_update_by_platform": "MSE 修改公司設定"
+      "settings_update_by_platform": "MSE 修改公司設定",
+      "project_supplier_added": "把供應商加進項目",
+      "project_supplier_removed": "把供應商移出項目"
     },
     "objectType": {
       "SignOffAssistant": "助理副密碼",
@@ -8754,7 +8756,8 @@
       "company_category_fixed": "每個項目都要用這個分類：可以改名，不能停用或刪除。",
       "phone_page_not_yours": "你的手機沒有這個頁面。",
       "chat_people_invalid": "請從名單裡選人。",
-      "user_removed": "這個賬號已經刪除，不能再啟用。請重新建立一個新賬號。"
+      "user_removed": "這個賬號已經刪除，不能再啟用。請重新建立一個新賬號。",
+      "supplier_not_on_project": "這個供應商不在這個項目的「可用供應商」裡。請總部或項目經理先在項目裡加入。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -8790,7 +8793,8 @@
       "unit_follows_spec": "單位跟著規格，不能改",
       "invalid_passport_no": "護照號碼只能有英文字母和數字，5 到 20 個",
       "invalid_birth_date": "出生日期要在今天以前",
-      "site_worker_passport_taken": "這本護照已經在名單裡"
+      "site_worker_passport_taken": "這本護照已經在名單裡",
+      "supplier_not_on_project": "這個供應商不在這個項目的「可用供應商」裡。請總部或項目經理先在項目裡加入。"
     },
     "forbidden": "你沒有訪問權限。",
     "forbiddenBody": "如果確實需要，請聯繫管理員。",
@@ -13426,6 +13430,9 @@
       },
       "field_staff": {
         "manage": "為自己負責的項目生成和管理現場人員手機連結"
+      },
+      "project_supplier": {
+        "manage": "把總部名單的供應商加到自己負責的項目，或移出"
       }
     },
     "group": {
@@ -13498,7 +13505,8 @@
       "material_target": "材料目標",
       "inspection": "檢驗",
       "finance": "金額",
-      "field_staff": "現場人員"
+      "field_staff": "現場人員",
+      "project_supplier": "項目可用供應商"
     }
   },
   "photos": {
@@ -17050,7 +17058,8 @@
       "noSites": "還沒有可以簽發的工地。",
       "revokedOn": "{date} 作廢",
       "scanHelp": "列印出來貼在門崗。掃一下就打開材料進場記錄，工地和供應商都已經填好。",
-      "title": "工地專用碼"
+      "title": "工地專用碼",
+      "onNoProject": "這個供應商還沒有加到任何項目。請先在項目的「可用供應商」裡把它加進去。"
     },
     "title": "供應商",
     "toast": {
@@ -20679,5 +20688,32 @@
     "remove": "刪除",
     "removeTitle": "刪除這個現場人員？",
     "removeConfirm": "刪除後 {name} 不能再登入，手機號碼可以在別的項目重新使用。他之前的記錄全部保留。"
+  },
+  "projectSuppliers": {
+    "title": "可用供應商",
+    "description": "這個項目可以收貨的供應商。材料進場、送貨單、工地專用碼和掃碼，都只接受這裡的供應商。",
+    "add": "從總部名單選",
+    "loading": "正在讀取…",
+    "what": "可用供應商",
+    "empty": "這個項目還沒有可用供應商。按「從總部名單選」把總部名單裡的供應商加進來。",
+    "addedBy": "{name} 加入",
+    "remove": "移出",
+    "removeTitle": "把「{name}」移出這個項目？",
+    "removeDescription": "移出後，這個項目不能再收這家供應商的貨。以前的收貨記錄全部保留，以後需要可以再加回來。",
+    "addTitle": "從總部名單選供應商",
+    "addDescription": "只能從總部的供應商名單裡選。要新的供應商，請總部先建立。",
+    "project": "項目",
+    "suppliers": "供應商",
+    "search": "搜尋供應商名稱或編號",
+    "allOn": "總部名單裡的供應商都已經在這個項目了。",
+    "cancel": "取消",
+    "chooseProjectFirst": "請先選項目。",
+    "chooseSupplierFirst": "請至少勾選一家供應商。",
+    "addCount": "加入 {count} 家",
+    "hqListNote": "供應商名單由總部管理。你可以按「從總部名單選」，把需要的供應商加到你負責的項目。",
+    "toast": {
+      "added": "已經加入項目。",
+      "removed": "已經移出項目。"
+    }
   }
 }
