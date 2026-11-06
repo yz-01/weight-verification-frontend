@@ -31,6 +31,7 @@ import type {
   ProjectStatus,
 } from "@/interfaces/contractor";
 import { MALAYSIA_STATES } from "@/lib/malaysia";
+import { roleLabel } from "@/lib/role-labels";
 import {
   createProject,
   getProject,
@@ -344,7 +345,7 @@ export function CreateProject({ project }: { project?: Project }) {
               options={(managers.data ?? []).map((person) => ({
                 value: person.id,
                 label: person.role_name
-                  ? `${person.full_name} · ${person.role_name}`
+                  ? `${person.full_name} · ${roleLabel(null, person.role_name, t)}`
                   : person.full_name,
               }))}
             />

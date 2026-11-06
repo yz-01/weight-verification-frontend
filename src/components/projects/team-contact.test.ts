@@ -45,3 +45,17 @@ describe("the delivery-note 作废 / 取消 dialog has its words", () => {
     }
   });
 });
+
+describe("the 项目负责人 choices name a preset role in the reader's language", () => {
+  // Found by the 11-06 round-4 screenshots: 「示范 项目经理 · Project Manager」 on the zh page.
+  it.each([
+    ["Project Manager", "项目经理"],
+    ["Headquarters", "总部"],
+    ["Quantity Surveyor (QS)", "工料测量师（QS）"],
+  ])("%s", async (stored, shown) => {
+    const { createTranslator } = await import("next-intl");
+    const { roleLabel } = await import("@/lib/role-labels");
+    const t = createTranslator({ locale: "zh", messages: zh });
+    expect(roleLabel(null, stored, t as never)).toBe(shown);
+  });
+});

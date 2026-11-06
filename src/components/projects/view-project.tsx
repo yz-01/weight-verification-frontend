@@ -872,7 +872,8 @@ function AssignUserDialog({
               ) : (
                 options.map((user) => (
                   <SelectItem key={user.id} value={user.id}>
-                    {user.full_name} ({roleLabel(user.role_code, user.role_name, t) || "-"}) — {user.email}
+                    {user.full_name} ({roleLabel(user.role_code, user.role_name, t) || "-"}) —{" "}
+                    {contactOf({ is_field_staff: user.is_field_staff, user_phone: user.phone, user_email: user.email })}
                   </SelectItem>
                 ))
               )}
