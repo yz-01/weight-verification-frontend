@@ -82,6 +82,10 @@
       "label": "Equipment"
     },
     {
+      "key": "field_staff",
+      "label": "Field staff"
+    },
+    {
       "key": "field_task",
       "label": "Site tasks"
     },
@@ -548,6 +552,11 @@
       "code": "equipment.operate",
       "group": "equipment",
       "label": "Clock machines on and off as their operator, from the phone"
+    },
+    {
+      "code": "field_staff.manage",
+      "group": "field_staff",
+      "label": "Issue and manage phone links for field staff on one's own projects"
     },
     {
       "code": "field_task.view",

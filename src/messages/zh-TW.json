@@ -12174,7 +12174,8 @@
       "siteWorkers": "人員名單",
       "materialTargets": "材料目標",
       "materialRequests": "MR / 其他申請",
-      "departmentsTrades": "部門與工種"
+      "departmentsTrades": "部門與工種",
+      "fieldStaffManagement": "現場人員管理"
     },
     "subscription_management": "訂閱管理",
     "suppliers": "供應商",
@@ -12967,6 +12968,12 @@
       "who": "持 site_worker.view 可以看；持 site_worker.manage 可以登記人員和發送連結。",
       "then": "人員打開連結、輸入電話號碼並同意後，頁面開著時會定時上傳位置；進圍欄記進場，離開圍欄滿 5 分鐘記離場。",
       "trouble": "顯示「定位未更新」：人員關了頁面或鎖屏，不代表已離場。打不開連結：請「重新發連結」。"
+    },
+    "field_staff": {
+      "what": "為你負責的項目生成現場人員的手機登入連結：工地人員、設備操作人員、門崗保安。這裡只管理手機連結，不管理公司後台帳號。",
+      "who": "項目經理，只看到自己負責項目的現場人員。總部也可以用。",
+      "then": "把連結和 6 位數 PIN 發給那個人；他用手機打開連結、輸入 PIN，就能用手機工作。",
+      "trouble": "看不到某個項目：請總部把你加到那個項目。手機號碼說已經被使用：請先在原來的項目把那個人「刪除」。"
     }
   },
   "partners": {
@@ -13416,6 +13423,9 @@
       },
       "finance": {
         "view_amounts": "金額查看（單價、成本、預算、Claim）"
+      },
+      "field_staff": {
+        "manage": "為自己負責的項目生成和管理現場人員手機連結"
       }
     },
     "group": {
@@ -13487,7 +13497,8 @@
       "site_worker": "人員名單",
       "material_target": "材料目標",
       "inspection": "檢驗",
-      "finance": "金額"
+      "finance": "金額",
+      "field_staff": "現場人員"
     }
   },
   "photos": {
@@ -20646,5 +20657,27 @@
     "keepThis": "就用這張，電腦上補打",
     "next": "拍下一本",
     "sendFailed": "沒送出去，請檢查網路再拍一次"
+  },
+  "fieldStaffManagement": {
+    "title": "現場人員管理",
+    "subtitle": "為你負責的項目生成、查看和管理現場人員的手機登入連結：工地人員、設備操作人員、門崗保安。",
+    "new": "生成現場人員連結",
+    "howTitle": "怎麼用",
+    "how1": "按「生成現場人員連結」，填名字、手機號碼，選角色和項目。",
+    "how2": "把連結和 6 位數 PIN 發給這個人，他用手機打開連結、輸入 PIN 就能登入。",
+    "how3": "要再發一次連結、換手機或看二維碼，按那個人的「連結 / 二維碼」。不再用的人按「刪除」，手機號碼可以再用。",
+    "project": "項目",
+    "allProjects": "我負責的全部項目",
+    "search": "搜尋",
+    "searchPlaceholder": "名字或手機號碼",
+    "emptyTitle": "還沒有現場人員",
+    "emptyHelp": "按「生成現場人員連結」為這個項目的工地人員、設備操作人員或門崗保安建立手機登入。",
+    "signedIn": "已登入",
+    "notYet": "還沒登入",
+    "off": "已停用",
+    "link": "連結 / 二維碼",
+    "remove": "刪除",
+    "removeTitle": "刪除這個現場人員？",
+    "removeConfirm": "刪除後 {name} 不能再登入，手機號碼可以在別的項目重新使用。他之前的記錄全部保留。"
   }
 }

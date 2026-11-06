@@ -34,6 +34,7 @@ import {
   Workflow,
   HardHat,
   ListTree,
+  Smartphone,
 } from "lucide-react";
 
 import type { Portal } from "@/interfaces/auth";
@@ -91,6 +92,7 @@ export type PortalFeatureKey =
   | "site_access"
   | "emergency_list"
   | "site_workers"
+  | "field_staff"
   | "company_settings"
   | "integrations"
   | "company_management"
@@ -1393,6 +1395,11 @@ export const PORTAL_NAVIGATION = {
     entry("project_categories", "submodule.categoryManagement", "/category-management", ListTree, "system", {
       routePrefixes: ["/modules/categories", "/material-columns", "/project-categories"],
     }),
+    // 现场人员管理 (JB114, 客户 11-06 第二轮事项 4): the project manager's own
+    // field staff phone links, 「与总部的用户管理分开」.
+    entry("field_staff", "submodule.fieldStaffManagement", "/field-staff-management", Smartphone, "system", {
+      requiredPermission: "field_staff.manage",
+    }),
     item("users", "/modules/users", Users, "system", undefined, false, [
       child("16.2.1", "nav.submodule.userManagement", "/users", "users"),
       child("16.2.2", "nav.submodule.roles", "/roles", "roles"),
@@ -1928,6 +1935,7 @@ const PERMISSION_ROUTE_RULES: readonly PermissionRouteRule[] = [
   { pattern: "/external-access", permission: "external_access.manage" },
   { pattern: "/technical", permission: "company_settings.manage" },
   { pattern: "/departments-trades", permission: "department.view|work_trade.view" },
+  { pattern: "/field-staff-management", permission: "field_staff.manage" },
 ];
 
 function matchesPattern(pathname: string, pattern: string): boolean {

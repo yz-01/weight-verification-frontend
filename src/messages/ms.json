@@ -12174,7 +12174,8 @@
       "siteWorkers": "Senarai pekerja",
       "materialTargets": "Sasaran bahan",
       "materialRequests": "MR / Permohonan Lain",
-      "departmentsTrades": "Jabatan dan tred"
+      "departmentsTrades": "Jabatan dan tred",
+      "fieldStaffManagement": "Kakitangan tapak"
     },
     "subscription_management": "Pengurusan Langganan",
     "suppliers": "Pembekal",
@@ -12967,6 +12968,12 @@
       "who": "site_worker.view untuk melihat; site_worker.manage untuk mendaftar dan menghantar pautan.",
       "then": "Selepas pekerja membuka pautan, masukkan nombor dan bersetuju, halaman yang terbuka menghantar lokasi; dalam pagar dicatat masuk, 5 minit di luar dicatat keluar.",
       "trouble": "\"Lokasi tidak dikemas kini\": pekerja menutup halaman atau mengunci skrin; bukan bermakna keluar. Pautan tidak dibuka: hantar pautan baharu."
+    },
+    "field_staff": {
+      "what": "Keluarkan pautan log masuk telefon untuk kakitangan tapak projek anda: kakitangan tapak, operator jentera dan pengawal pintu. Hanya pautan telefon diurus di sini, bukan akaun pejabat.",
+      "who": "Pengurus projek, yang hanya melihat kakitangan tapak projek mereka sendiri. Ibu pejabat juga boleh menggunakannya.",
+      "then": "Hantar pautan dan PIN 6 digit kepada orang itu; dia membuka pautan di telefon, memasukkan PIN dan boleh mula bekerja.",
+      "trouble": "Projek tidak kelihatan: minta ibu pejabat meletakkan anda dalam projek itu. \"Nombor telefon sudah digunakan\": padam orang itu di projek lamanya dahulu."
     }
   },
   "partners": {
@@ -13416,6 +13423,9 @@
       },
       "finance": {
         "view_amounts": "Lihat jumlah wang (harga, kos, bajet, tuntutan)"
+      },
+      "field_staff": {
+        "manage": "Keluarkan dan urus pautan telefon kakitangan tapak bagi projek sendiri"
       }
     },
     "group": {
@@ -13487,7 +13497,8 @@
       "site_worker": "Senarai pekerja",
       "material_target": "Sasaran bahan",
       "inspection": "Pemeriksaan",
-      "finance": "Jumlah wang"
+      "finance": "Jumlah wang",
+      "field_staff": "Kakitangan tapak"
     }
   },
   "photos": {
@@ -20646,5 +20657,27 @@
     "keepThis": "Guna yang ini, pejabat menaip",
     "next": "Pasport seterusnya",
     "sendFailed": "Tidak dihantar. Semak internet dan ambil semula"
+  },
+  "fieldStaffManagement": {
+    "title": "Kakitangan tapak",
+    "subtitle": "Keluarkan, lihat dan urus pautan log masuk telefon kakitangan tapak bagi projek anda: kakitangan tapak, operator jentera dan pengawal pintu.",
+    "new": "Pautan kakitangan tapak baharu",
+    "howTitle": "Cara guna",
+    "how1": "Tekan \"Pautan kakitangan tapak baharu\", isi nama dan nombor telefon, pilih peranan dan projek.",
+    "how2": "Hantar pautan dan PIN 6 digit kepada orang itu. Dia membuka pautan di telefon dan memasukkan PIN untuk log masuk.",
+    "how3": "Untuk menghantar pautan semula, menukar telefon atau melihat kod QR, tekan \"Pautan / kod QR\" pada orang itu. Tekan \"Padam\" bagi yang sudah tidak bekerja; nombornya boleh digunakan semula.",
+    "project": "Projek",
+    "allProjects": "Semua projek saya",
+    "search": "Cari",
+    "searchPlaceholder": "Nama atau nombor telefon",
+    "emptyTitle": "Belum ada kakitangan tapak",
+    "emptyHelp": "Tekan \"Pautan kakitangan tapak baharu\" untuk memberi kakitangan tapak, operator jentera atau pengawal pintu projek ini log masuk telefon.",
+    "signedIn": "Sudah log masuk",
+    "notYet": "Belum log masuk",
+    "off": "Digantung",
+    "link": "Pautan / kod QR",
+    "remove": "Padam",
+    "removeTitle": "Padam kakitangan tapak ini?",
+    "removeConfirm": "Selepas dipadam, {name} tidak boleh log masuk lagi dan nombor telefon boleh digunakan di projek lain. Rekod lamanya disimpan."
   }
 }

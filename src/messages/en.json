@@ -12174,7 +12174,8 @@
       "siteWorkers": "Worker roster",
       "materialTargets": "Material targets",
       "materialRequests": "MR / Other Request",
-      "departmentsTrades": "Departments and trades"
+      "departmentsTrades": "Departments and trades",
+      "fieldStaffManagement": "Field staff"
     },
     "subscription_management": "Subscriptions",
     "suppliers": "Suppliers",
@@ -12967,6 +12968,12 @@
       "who": "site_worker.view reads it; site_worker.manage registers workers and sends links.",
       "then": "Once the worker opens the link, enters their number and agrees, the open page reports their location; inside the fence records entry, five minutes outside records exit.",
       "trouble": "\"Location not updated\": the worker closed the page or locked the screen; it does not mean they left. Link will not open: send a new link."
+    },
+    "field_staff": {
+      "what": "Issue phone sign-in links for field staff on your projects: site staff, equipment operators and gate guards. Only phone links are managed here, not office accounts.",
+      "who": "Project managers, who see only the field staff on their own projects. Head office can use it too.",
+      "then": "Send the link and the 6-digit PIN to the person; they open the link on their phone, enter the PIN and can start working.",
+      "trouble": "A project is missing: ask head office to put you on it. \"Mobile number already in use\": delete the person on their old project first."
     }
   },
   "partners": {
@@ -13416,6 +13423,9 @@
       },
       "finance": {
         "view_amounts": "See amounts (prices, costs, budgets, claims)"
+      },
+      "field_staff": {
+        "manage": "Issue and manage phone links for field staff on one's own projects"
       }
     },
     "group": {
@@ -13487,7 +13497,8 @@
       "site_worker": "Worker roster",
       "material_target": "Material targets",
       "inspection": "Inspection",
-      "finance": "Amounts"
+      "finance": "Amounts",
+      "field_staff": "Field staff"
     }
   },
   "photos": {
@@ -20646,5 +20657,27 @@
     "keepThis": "Use this one, the office types it",
     "next": "Next passport",
     "sendFailed": "Not sent. Check the internet and take it again"
+  },
+  "fieldStaffManagement": {
+    "title": "Field staff",
+    "subtitle": "Issue, view and manage phone sign-in links for field staff on your projects: site staff, equipment operators and gate guards.",
+    "new": "New field staff link",
+    "howTitle": "How it works",
+    "how1": "Press \"New field staff link\", enter the name and mobile number, and choose the role and project.",
+    "how2": "Send the link and the 6-digit PIN to the person. They open the link on their phone and enter the PIN to sign in.",
+    "how3": "To send the link again, change phones or show the QR code, press \"Link / QR code\" on that person. Press \"Delete\" for someone who has left; their number can be used again.",
+    "project": "Project",
+    "allProjects": "All my projects",
+    "search": "Search",
+    "searchPlaceholder": "Name or mobile number",
+    "emptyTitle": "No field staff yet",
+    "emptyHelp": "Press \"New field staff link\" to give site staff, equipment operators or gate guards on this project a phone sign-in.",
+    "signedIn": "Signed in",
+    "notYet": "Not signed in yet",
+    "off": "Suspended",
+    "link": "Link / QR code",
+    "remove": "Delete",
+    "removeTitle": "Delete this field staff member?",
+    "removeConfirm": "After deleting, {name} can no longer sign in and the mobile number can be used on another project. Their earlier records are kept."
   }
 }

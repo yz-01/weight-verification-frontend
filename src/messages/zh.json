@@ -12174,7 +12174,8 @@
       "siteWorkers": "人员名单",
       "materialTargets": "材料目标",
       "materialRequests": "MR / 其他申请",
-      "departmentsTrades": "部门与工种"
+      "departmentsTrades": "部门与工种",
+      "fieldStaffManagement": "现场人员管理"
     },
     "subscription_management": "订阅管理",
     "suppliers": "供应商",
@@ -12967,6 +12968,12 @@
       "who": "持 site_worker.view 可以看；持 site_worker.manage 可以登记人员和发送链接。",
       "then": "人员打开链接、输入电话号码并同意后，页面开着时会定时上传位置；进围栏记进场，离开围栏满 5 分钟记离场。",
       "trouble": "显示「定位未更新」：人员关了页面或锁屏，不代表已离场。打不开链接：请「重新发链接」。"
+    },
+    "field_staff": {
+      "what": "为你负责的项目生成现场人员的手机登录链接：工地人员、设备操作人员、门岗保安。这里只管理手机链接，不管理公司后台账号。",
+      "who": "项目经理，只看到自己负责项目的现场人员。总部也可以用。",
+      "then": "把链接和 6 位数 PIN 发给那个人；他用手机打开链接、输入 PIN，就能用手机工作。",
+      "trouble": "看不到某个项目：请总部把你加到那个项目。手机号码说已经被使用：请先在原来的项目把那个人「删除」。"
     }
   },
   "partners": {
@@ -13416,6 +13423,9 @@
       },
       "finance": {
         "view_amounts": "金额查看（单价、成本、预算、Claim）"
+      },
+      "field_staff": {
+        "manage": "为自己负责的项目生成和管理现场人员手机链接"
       }
     },
     "group": {
@@ -13487,7 +13497,8 @@
       "site_worker": "人员名单",
       "material_target": "材料目标",
       "inspection": "检验",
-      "finance": "金额"
+      "finance": "金额",
+      "field_staff": "现场人员"
     }
   },
   "photos": {
@@ -20646,5 +20657,27 @@
     "keepThis": "就用这张，电脑上补打",
     "next": "拍下一本",
     "sendFailed": "没送出去，请检查网络再拍一次"
+  },
+  "fieldStaffManagement": {
+    "title": "现场人员管理",
+    "subtitle": "为你负责的项目生成、查看和管理现场人员的手机登录链接：工地人员、设备操作人员、门岗保安。",
+    "new": "生成现场人员链接",
+    "howTitle": "怎么用",
+    "how1": "按「生成现场人员链接」，填名字、手机号码，选角色和项目。",
+    "how2": "把链接和 6 位数 PIN 发给这个人，他用手机打开链接、输入 PIN 就能登录。",
+    "how3": "要再发一次链接、换手机或看二维码，按那个人的「链接 / 二维码」。不再用的人按「删除」，手机号码可以再用。",
+    "project": "项目",
+    "allProjects": "我负责的全部项目",
+    "search": "搜索",
+    "searchPlaceholder": "名字或手机号码",
+    "emptyTitle": "还没有现场人员",
+    "emptyHelp": "按「生成现场人员链接」为这个项目的工地人员、设备操作人员或门岗保安建立手机登录。",
+    "signedIn": "已登录",
+    "notYet": "还没登录",
+    "off": "已停用",
+    "link": "链接 / 二维码",
+    "remove": "删除",
+    "removeTitle": "删除这个现场人员？",
+    "removeConfirm": "删除后 {name} 不能再登录，手机号码可以在别的项目重新使用。他之前的记录全部保留。"
   }
 }
