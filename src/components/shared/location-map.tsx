@@ -13,6 +13,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 
 import { MapFrame } from "@/components/shared/map-frame";
 import { MAP_PRIMARY } from "@/lib/map-palette";
+import { lockMapToBox, siteViewBox } from "@/lib/site-view";
 
 import {
   MAP_TILE_OPTIONS,
@@ -80,6 +81,14 @@ interface LocationMapProps {
    * map is re-centred after it first opens.
    */
   fitLabel?: string;
+  /**
+   * A map about one site (JB111, 客户 11-06: 「地图只服务于当前工地，不是让用户
+   * 浏览世界地图」): it opens on the whole fence and cannot be dragged off it
+   * or zoomed out past it. Kept to the fences only - a marker or track
+   * outside them is not a reason to show another town. Overview maps (head
+   * office, a driver's route) leave it off.
+   */
+  lockToSite?: boolean;
 }
 
 const DEFAULT_CENTER: [number, number] = [3.139, 101.6869];
@@ -98,6 +107,7 @@ export function LocationMap({
   onMarkerClick,
   singlePointZoom = 16,
   fitLabel,
+  lockToSite = false,
 }: LocationMapProps) {
   // The map's node, inside the frame that can fill the screen (I7). Held as
   // state so the map is made once the node exists.
@@ -110,6 +120,8 @@ export function LocationMap({
   const fittedKeyRef = useRef<string | number | undefined>(undefined);
   const hasFittedRef = useRef(false);
   const [ready, setReady] = useState(false);
+  // The site's box, kept for the resize below (JB111).
+  const lockRef = useRef<() => void>(() => {});
   // Read through a ref so a new callback each render does not redraw markers.
   const onMarkerClickRef = useRef(onMarkerClick);
   useEffect(() => {
@@ -141,7 +153,10 @@ export function LocationMap({
       // Full screen and back, or a panel resized: the tiles follow the box,
       // the view stays where it was.
       if (typeof ResizeObserver !== "undefined") {
-        observer = new ResizeObserver(() => map.invalidateSize({ animate: false }));
+        observer = new ResizeObserver(() => {
+          map.invalidateSize({ animate: false });
+          lockRef.current();
+        });
         observer.observe(container);
       }
       setReady(true);
@@ -150,6 +165,7 @@ export function LocationMap({
     return () => {
       disposed = true;
       observer?.disconnect();
+      lockRef.current = () => {};
       layerGroupRef.current = null;
       leafletRef.current = null;
       mapRef.current?.stop();
@@ -240,7 +256,27 @@ export function LocationMap({
         bounds.extend(point.getLatLng());
       });
 
+      // A site's map: its room first, since Leaflet will not show a place
+      // outside the old one (JB111).
+      const siteBox = lockToSite
+        ? siteViewBox(visibleZones.map((zone) => ({ points: zone.points, center: zone.center, radiusM: zone.radiusM })))
+        : null;
+      lockRef.current = lockToSite ? () => lockMapToBox(map, L, siteBox) : () => {};
+      lockRef.current();
+
       const fit = () => {
+        if (siteBox) {
+          // The whole fence, and only the fence (「整个图框必须完整显示已设定的工地电子围栏范围」).
+          const fence = L.latLngBounds([]);
+          visibleZones.forEach((zone) => {
+            if (zone.points && zone.points.length >= 3) zone.points.forEach((point) => fence.extend(point));
+            else if (zone.center && zone.radiusM) fence.extend(L.latLng(zone.center).toBounds(zone.radiusM * 2));
+          });
+          if (fence.isValid()) {
+            map.fitBounds(fence, { maxZoom: 17, animate: false, padding: [24, 24] });
+            return;
+          }
+        }
         if (!bounds.isValid()) return;
         const southWest = bounds.getSouthWest();
         const northEast = bounds.getNorthEast();
@@ -270,6 +306,7 @@ export function LocationMap({
   }, [
     center,
     fitBoundsKey,
+    lockToSite,
     markers,
     paths,
     preserveViewOnDataUpdate,

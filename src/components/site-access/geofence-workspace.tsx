@@ -97,8 +97,8 @@ export function GeofenceWorkspace() {
       <div className="flex h-10 items-center rounded-lg bg-muted/40 px-4 text-sm"><span className="text-muted-foreground">{t("geofence.activeZones")}</span><strong className="ml-2 tabular">{zones.length}</strong></div>
     </FilterBar>
     {/* I7: a refetch never moves the map; it fits on opening, on another
-        project, and on 「回到围栏」. */}
-    <LocationMap center={center} markers={[]} zones={zones} className="rounded-xl" preserveViewOnDataUpdate fitBoundsKey={project} fitLabel={t("geofence.backToFence")} />
+        project, and on 「回到围栏」. JB111: one project's map stays on its site. */}
+    <LocationMap center={center} markers={[]} zones={zones} className="rounded-xl" preserveViewOnDataUpdate fitBoundsKey={project} fitLabel={t("geofence.backToFence")} lockToSite={Boolean(project) && project !== "all"} />
     {rows.isLoading ? <State text={t("state.loading")} /> : rows.isError ? <State text={t("state.loadError")} danger /> : !hasDisplayedRows ? <State text={t("geofence.empty")} /> : <div className="grid gap-3 lg:grid-cols-2">
       {rows.data?.results.map((row) => <article key={row.id} className="surface-panel rounded-xl p-4">
         <div className="flex items-start justify-between gap-3"><div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><h3 className="font-semibold">{row.name}</h3>{row.is_primary && <StatusBadge label={t("geofence.primary")} tone="info" />}<StatusBadge label={t(row.is_active ? "status.active" : "status.inactive")} tone={row.is_active ? "positive" : "neutral"} /></div><p className="mt-1 text-sm text-muted-foreground">{row.project_name} · {t(`shape.${row.shape}`)}</p></div>{can("geofence.manage") && <div className="flex shrink-0"><Button size="icon-sm" variant="ghost" title={t("action.edit")} onClick={() => setEditing(row)}><Pencil /></Button><Button size="icon-sm" variant="ghost" title={t("action.remove")} className="text-destructive" onClick={() => setRemoving(row)}><Trash2 /></Button></div>}</div>
