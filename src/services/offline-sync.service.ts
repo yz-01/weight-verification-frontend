@@ -2181,6 +2181,8 @@ class StoredFileLost extends Error {
  * record said 「等待上传」 forever while new photos, sent directly, went.
  */
 export const JOB_STALL_MS = 4 * 60_000;
+/** How long reading one kept photo from the phone may take (see `withFilesInMemory`). */
+export const READ_STALL_MS = 30_000;
 /** How long a whole pass may hold the lock before the next one may start. */
 export const PASS_STALL_MS = 10 * 60_000;
 /** How long a worker's own press waits for a pass already running. */
@@ -2214,7 +2216,13 @@ export async function withFilesInMemory<T>(value: T, depth = 0): Promise<T> {
   if (isStoredFile(value)) {
     let bytes: ArrayBuffer;
     try {
-      bytes = await value.blob.arrayBuffer();
+      // A photo whose bytes iOS has cleared may never answer the read at all
+      // rather than fail it (客户 11-06: 「我手上手机断断网缓存到现在还上传
+      // 不了」, a gate photo queued 11-04 stuck at 「正在上传…」). Reading a
+      // kept photo takes milliseconds; one that has not come back in
+      // `READ_STALL_MS` is not there, and is said as such - 上传失败, delete it
+      // and take it again - instead of stalling the record every pass, for good.
+      bytes = await withinTime(value.blob.arrayBuffer(), READ_STALL_MS);
     } catch {
       throw new StoredFileLost(PHOTO_LOST);
     }
