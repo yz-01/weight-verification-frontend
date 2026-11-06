@@ -318,6 +318,7 @@ export function NewProjectSupplierPicker({
           variant="outline"
           size="sm"
           disabled={options.length === 0}
+          disabledReason={t("noneOnList")}
           onClick={() =>
             onChange(
               allTicked
