@@ -13756,7 +13756,7 @@
       "removeConfirm": "Remove",
       "removeDescription": "They will stop seeing this project's deliveries and outgoing loads. Their account and everything they recorded stay as they are.",
       "removeTitle": "Remove {name} from this project?",
-      "title": "Who can see this project",
+      "title": "Project staff list",
       "person": "Person to add",
       "whatMembers": "The project member list"
     },
@@ -17535,7 +17535,8 @@
       "access": "Access",
       "activity": "Activity",
       "identity": "Identity",
-      "preferences": "Preferences"
+      "preferences": "Preferences",
+      "projects": "Projects"
     },
     "status": {
       "ACTIVE": "Active",
@@ -17599,6 +17600,11 @@
       "unsaved": "Permissions changed. Press “Save” below for them to take effect.",
       "partSaved": "The user's details are saved; the permissions are not saved yet.",
       "notSwitchable": "Field staff and consultant accounts keep their role: their permissions are not switches."
+    },
+    "projectsView": {
+      "projectsAll": "Can see every company project",
+      "projectsNone": "Not on any project yet",
+      "projectsHint": "The same as each project's “Project staff list”: add or remove this person on a project and this follows."
     }
   },
   "validation": {
@@ -19816,7 +19822,7 @@
     "noApproverSteps": {
       "role": "Roles: give the approver's role “Safety verification” and “View projects” (the preset “Safety Manager” has both).",
       "user": "Users: set the approver's account to that role. A new account becomes active once its owner sets a password from the email.",
-      "team": "Project team: add them under “Who can see this project” on this project (not needed if the role has “See every project in the company”)."
+      "team": "Project team: add them under “Project staff list” on this project (not needed if the role has “See every project in the company”)."
     }
   },
   "gateCard": {

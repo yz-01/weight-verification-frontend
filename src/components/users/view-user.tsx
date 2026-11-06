@@ -103,6 +103,8 @@ export function ViewUser({ id }: { id: string }) {
             />
           </FormSection>
 
+          {data.projects && <UserProjectsSection projects={data.projects} />}
+
           {data.sign_off_pin && !data.sign_off_pin.exempt && (
             <SignOffPinSection user={data} canReset={can("user.update")} />
           )}
@@ -128,6 +130,42 @@ export function ViewUser({ id }: { id: string }) {
         </div>
       </div>
     </div>
+  );
+}
+
+/**
+ * 所属项目 (JB119, 客户 11-06 第三轮事项 1): 「进入「用户管理」查看她的账号资料时，
+ * 没有显示所属项目」. The same rows as each project's 「项目人员名单」; a person
+ * who sees every project says so.
+ */
+export function UserProjectsSection({ projects }: { projects: NonNullable<UserDetail["projects"]> }) {
+  const t = useTranslations("users");
+  return (
+    <FormSection title={t("section.projects")}>
+      <div className="space-y-2 md:col-span-2" data-testid="user-projects">
+        {projects.all && (
+          <p className="text-sm font-medium text-foreground">{t("projectsView.projectsAll")}</p>
+        )}
+        {projects.assigned.length === 0 ? (
+          !projects.all && <p className="text-sm text-muted-foreground">{t("projectsView.projectsNone")}</p>
+        ) : (
+          <ul className="flex flex-wrap gap-2">
+            {projects.assigned.map((project) => (
+              <li key={project.id}>
+                <Link
+                  href={`/projects/${project.id}`}
+                  className="inline-flex items-center gap-1.5 rounded-full border bg-card px-3 py-1 text-sm hover:bg-muted"
+                >
+                  <span className="font-medium">{project.name}</span>
+                  <span className="text-xs text-muted-foreground">{project.code}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+        <p className="text-xs text-muted-foreground">{t("projectsView.projectsHint")}</p>
+      </div>
+    </FormSection>
   );
 }
 

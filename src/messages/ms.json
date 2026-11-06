@@ -13756,7 +13756,7 @@
       "removeConfirm": "Keluarkan",
       "removeDescription": "Mereka tidak lagi melihat penerimaan dan muatan keluar projek ini. Akaun dan rekod mereka kekal seperti sedia ada.",
       "removeTitle": "Keluarkan {name} dari projek ini?",
-      "title": "Siapa boleh melihat projek ini",
+      "title": "Senarai kakitangan projek",
       "person": "Orang yang hendak ditambah",
       "whatMembers": "Senarai ahli projek"
     },
@@ -17535,7 +17535,8 @@
       "access": "Akses",
       "activity": "Aktiviti",
       "identity": "Maklumat asas",
-      "preferences": "Keutamaan"
+      "preferences": "Keutamaan",
+      "projects": "Projek"
     },
     "status": {
       "ACTIVE": "Aktif",
@@ -17599,6 +17600,11 @@
       "unsaved": "Kebenaran telah diubah. Tekan “Simpan” di bawah supaya ia berkuat kuasa.",
       "partSaved": "Butiran pengguna telah disimpan; kebenaran belum disimpan lagi.",
       "notSwitchable": "Akaun pekerja tapak dan perunding kekal dengan peranan mereka: kebenaran mereka bukan suis."
+    },
+    "projectsView": {
+      "projectsAll": "Boleh melihat semua projek syarikat",
+      "projectsNone": "Belum menyertai mana-mana projek",
+      "projectsHint": "Sama seperti “Senarai kakitangan projek” setiap projek: tambah atau keluarkan orang ini dalam projek dan ini ikut berubah."
     }
   },
   "validation": {
@@ -19816,7 +19822,7 @@
     "noApproverSteps": {
       "role": "Peranan: beri peranan pelulus “Pengesahan keselamatan” dan “Lihat projek” (pratetap “Pengurus Keselamatan” ada kedua-duanya).",
       "user": "Pengguna: tetapkan akaun pelulus kepada peranan itu. Akaun baharu aktif selepas pemiliknya menetapkan kata laluan daripada e-mel.",
-      "team": "Pasukan projek: tambah mereka di bawah “Siapa boleh melihat projek ini” pada projek ini (tidak perlu jika peranan mempunyai “Lihat setiap projek dalam syarikat”)."
+      "team": "Pasukan projek: tambah mereka di bawah “Senarai kakitangan projek” pada projek ini (tidak perlu jika peranan mempunyai “Lihat setiap projek dalam syarikat”)."
     }
   },
   "gateCard": {
