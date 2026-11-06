@@ -13863,6 +13863,14 @@
       "notes": "The delivery dockets",
       "suppliers": "The supplier list",
       "categories": "The categories"
+    },
+    "voidDialog": {
+      "description": "The receiving workflow will stop and the QR code will no longer be usable. Enter the reason.",
+      "title": "Void this arrived delivery?"
+    },
+    "cancelDialog": {
+      "description": "The QR code will stop working immediately. Enter the reason for cancellation.",
+      "title": "Cancel this delivery docket?"
     }
   },
   "qrScan": {
@@ -15377,10 +15385,6 @@
     "unreachableTitle": "Cannot reach the server"
   },
   "settlements": {
-    "cancelDialog": {
-      "description": "The QR code will stop working immediately. Enter the reason for cancellation.",
-      "title": "Cancel this delivery docket?"
-    },
     "count": "{count, plural, =0 {No settlements} one {# settlement} other {# settlements}}",
     "field": {
       "amountPaid": "Paid",
@@ -15486,10 +15490,6 @@
       "paymentRecorded": "Payment recorded"
     },
     "viewTitle": "Settlement",
-    "voidDialog": {
-      "description": "The receiving workflow will stop and the QR code will no longer be usable. Enter the reason.",
-      "title": "Void this arrived delivery?"
-    },
     "what": {
       "weighedLoads": "The list of weighed loads",
       "quote": "The settlement working"

@@ -87,6 +87,15 @@ import {
 import { useDateFormat } from "@/lib/dates";
 import { roleLabel } from "@/lib/role-labels";
 
+/**
+ * How a person on the team is reached: a phone account by its number - its
+ * email is an internal placeholder (field+…@mse.invalid) - anyone else by email.
+ */
+export function contactOf(assignment: { is_field_staff: boolean; user_phone?: string; user_email: string }) {
+  if (assignment.is_field_staff) return assignment.user_phone || "";
+  return assignment.user_email;
+}
+
 export function ViewProject({ id }: { id: string }) {
   const t = useTranslations();
   const df = useDateFormat();
@@ -616,7 +625,7 @@ function ResponsibilityDialog({
               <SelectContent>
                 {(assignments.data?.results ?? []).map((assignment) => (
                   <SelectItem key={assignment.user} value={assignment.user}>
-                    {assignment.user_name} - {assignment.user_email}
+                    {assignment.user_name} - {contactOf(assignment)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -761,7 +770,7 @@ function ProjectTeam({ projectId }: { projectId: string }) {
                   {assignment.user_name}
                 </p>
                 <p className="truncate text-xs text-muted-foreground">
-                  {assignment.user_email}
+                  {contactOf(assignment)}
                 </p>
               </div>
               {can("project.assign") && (

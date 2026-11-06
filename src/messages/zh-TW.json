@@ -13863,6 +13863,14 @@
       "notes": "送貨單二維碼",
       "suppliers": "供應商列表",
       "categories": "分類"
+    },
+    "voidDialog": {
+      "description": "現場簽收流程會停止，二維碼也不能再使用。請填寫原因。",
+      "title": "作廢這張已到場送貨單？"
+    },
+    "cancelDialog": {
+      "description": "二維碼會立即失效。請填寫取消原因。",
+      "title": "取消這張送貨單？"
     }
   },
   "qrScan": {
@@ -15377,10 +15385,6 @@
     "unreachableTitle": "連不上伺服器"
   },
   "settlements": {
-    "cancelDialog": {
-      "description": "二維碼會立即失效。請填寫取消原因。",
-      "title": "取消這張送貨單？"
-    },
     "count": "{count, plural, =0 {暫無結算單} other {# 張}}",
     "field": {
       "amountPaid": "已付",
@@ -15486,10 +15490,6 @@
       "paymentRecorded": "付款已記錄"
     },
     "viewTitle": "結算單",
-    "voidDialog": {
-      "description": "現場簽收流程會停止，二維碼也不能再使用。請填寫原因。",
-      "title": "作廢這張已到場送貨單？"
-    },
     "what": {
       "weighedLoads": "已稱重貨物列表",
       "quote": "結算計算"

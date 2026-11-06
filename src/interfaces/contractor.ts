@@ -117,6 +117,8 @@ export interface ProjectAssignment {
   user: string;
   user_name: string;
   user_email: string;
+  /** A phone account's number, shown instead of its placeholder email. */
+  user_phone?: string;
   role_code: string;
   role_name: string;
   is_field_staff: boolean;

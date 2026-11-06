@@ -13863,6 +13863,14 @@
       "notes": "送货单二维码",
       "suppliers": "供应商列表",
       "categories": "分类"
+    },
+    "voidDialog": {
+      "description": "现场签收流程会停止，二维码也不能再使用。请填写原因。",
+      "title": "作废这张已到场送货单？"
+    },
+    "cancelDialog": {
+      "description": "二维码会立即失效。请填写取消原因。",
+      "title": "取消这张送货单？"
     }
   },
   "qrScan": {
@@ -15377,10 +15385,6 @@
     "unreachableTitle": "连不上服务器"
   },
   "settlements": {
-    "cancelDialog": {
-      "description": "二维码会立即失效。请填写取消原因。",
-      "title": "取消这张送货单？"
-    },
     "count": "{count, plural, =0 {暂无结算单} other {# 张}}",
     "field": {
       "amountPaid": "已付",
@@ -15486,10 +15490,6 @@
       "paymentRecorded": "付款已记录"
     },
     "viewTitle": "结算单",
-    "voidDialog": {
-      "description": "现场签收流程会停止，二维码也不能再使用。请填写原因。",
-      "title": "作废这张已到场送货单？"
-    },
     "what": {
       "weighedLoads": "已称重货物列表",
       "quote": "结算计算"

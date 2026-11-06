@@ -13863,6 +13863,14 @@
       "notes": "Nota hantar",
       "suppliers": "Senarai pembekal",
       "categories": "Ruangan"
+    },
+    "voidDialog": {
+      "description": "Aliran penerimaan akan berhenti dan kod QR tidak boleh digunakan lagi. Masukkan sebab.",
+      "title": "Tidak sahkan penghantaran yang telah tiba?"
+    },
+    "cancelDialog": {
+      "description": "Kod QR akan berhenti berfungsi serta-merta. Masukkan sebab pembatalan.",
+      "title": "Batalkan nota hantar ini?"
     }
   },
   "qrScan": {
@@ -15377,10 +15385,6 @@
     "unreachableTitle": "Tidak dapat menghubungi pelayan"
   },
   "settlements": {
-    "cancelDialog": {
-      "description": "Kod QR akan berhenti berfungsi serta-merta. Masukkan sebab pembatalan.",
-      "title": "Batalkan nota hantar ini?"
-    },
     "count": "{count, plural, =0 {Tiada penyelesaian} other {# penyelesaian}}",
     "field": {
       "amountPaid": "Dibayar",
@@ -15486,10 +15490,6 @@
       "paymentRecorded": "Pembayaran direkod"
     },
     "viewTitle": "Penyelesaian",
-    "voidDialog": {
-      "description": "Aliran penerimaan akan berhenti dan kod QR tidak boleh digunakan lagi. Masukkan sebab.",
-      "title": "Tidak sahkan penghantaran yang telah tiba?"
-    },
     "what": {
       "weighedLoads": "Senarai muatan yang telah ditimbang",
       "quote": "Kiraan penyelesaian"
