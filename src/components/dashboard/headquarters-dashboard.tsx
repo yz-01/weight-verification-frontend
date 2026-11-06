@@ -1,6 +1,8 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { LayoutDashboard } from "lucide-react";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
@@ -30,6 +32,7 @@ import {
   HeadquartersSiteActivity,
 } from "@/components/dashboard/headquarters-reference";
 import { LoadFailed } from "@/components/shared/page-primitives";
+import { buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { legacyDashboardTarget } from "@/lib/dashboard-scopes";
 import { getHeadquarters } from "@/services/contractor-dashboard.service";
@@ -88,12 +91,29 @@ export function HeadquartersDashboard() {
         <Skeleton className="h-48 w-full" />
       ) : (
         <>
-          <HeadquartersHero date={data.date} action={<WallButton />} />
+          <HeadquartersHero date={data.date} action={<WallButton />} allProjects={data.all_projects} />
           <section aria-label={t("figures.title")} className="space-y-2" data-dashboard-priority>
             <HeadquartersKpis data={data} />
-            {!data.all_projects && (
-              <p className="text-xs text-muted-foreground">{t("figures.someProjects")}</p>
-            )}
+            {/*
+              客户 11-06 第四轮 事项3: switching the top bar's project did not change these
+              figures, and the page never said why. They are the total of every project the
+              reader can see (a project manager: the ones assigned to him); one project's
+              figures are on the 项目仪表板, which follows the top bar.
+            */}
+            <div
+              data-figures-scope
+              className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-dashed px-3 py-2"
+            >
+              <p className="text-sm text-muted-foreground">
+                {t(data.all_projects ? "figures.scopeAll" : "figures.scopeMine", {
+                  count: data.projects.length,
+                })}
+              </p>
+              <Link href="/dashboard/project" className={buttonVariants({ variant: "outline", size: "sm" })}>
+                <LayoutDashboard className="size-4" aria-hidden />
+                {t("figures.projectDashboard")}
+              </Link>
+            </div>
           </section>
           <div data-dashboard-overview>
             <HeadquartersSiteActivity

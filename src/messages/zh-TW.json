@@ -9763,7 +9763,9 @@
     },
     "figures": {
       "title": "全公司數字",
-      "someProjects": "這些數字只包含你被指派的項目。",
+      "scopeAll": "這一頁是公司總覽：上面的數字是你可以看的全部 {count} 個項目的合計，切換右上角的項目不會改變這一頁。要看單個項目的數字，按「項目儀表板」。",
+      "scopeMine": "這一頁是你負責的 {count} 個項目的總覽：上面的數字是這些項目的合計，切換右上角的項目不會改變這一頁。要看單個項目的數字，按「項目儀表板」。",
+      "projectDashboard": "項目儀表板",
       "projects": "項目總數",
       "activeProjects": "活躍 {count}",
       "onSiteSplit": "App 人員 {app} ＋ 門崗通行 {gate}",
@@ -10011,6 +10013,7 @@
       "title": "讓老闆從看報表變成看現場",
       "subtitle": "匯總全公司所有項目的現場數據，連接人、物、機、料、進度與安全，讓管理更簡單、更透明、更高效。",
       "companyView": "總公司視圖",
+      "companyViewMine": "我負責的項目總覽",
       "same": "持平",
       "vsYesterday": "較昨日",
       "kpi": {
@@ -10023,6 +10026,7 @@
       },
       "activity": "今日現場動態（各項目）",
       "activityHint": "來自全公司各項目的最新現場記錄",
+      "activityHintMine": "來自你負責的各項目的最新現場記錄",
       "view": {
         "photos": "照片",
         "map": "地圖"

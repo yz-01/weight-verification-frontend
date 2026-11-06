@@ -9763,7 +9763,9 @@
     },
     "figures": {
       "title": "Angka syarikat",
-      "someProjects": "Angka ini hanya meliputi projek yang ditugaskan kepada anda.",
+      "scopeAll": "Halaman ini ialah gambaran syarikat: angka di atas ialah jumlah kesemua {count} projek yang anda boleh lihat, dan menukar projek di penjuru kanan atas tidak mengubahnya. Untuk angka satu projek, buka 「Papan pemuka projek」.",
+      "scopeMine": "Halaman ini ialah gambaran {count} projek yang ditugaskan kepada anda: angka di atas ialah jumlahnya, dan menukar projek di penjuru kanan atas tidak mengubahnya. Untuk angka satu projek, buka 「Papan pemuka projek」.",
+      "projectDashboard": "Papan pemuka projek",
       "projects": "Projek",
       "activeProjects": "{count} aktif",
       "onSiteSplit": "App {app} + pintu {gate}",
@@ -10011,6 +10013,7 @@
       "title": "Daripada membaca laporan kepada melihat tapak",
       "subtitle": "Data tapak semua projek di satu tempat - orang, bahan, mesin, kemajuan dan keselamatan - pengurusan lebih mudah, jelas dan cekap.",
       "companyView": "Paparan ibu pejabat",
+      "companyViewMine": "Projek saya",
       "same": "Sama",
       "vsYesterday": "berbanding semalam",
       "kpi": {
@@ -10023,6 +10026,7 @@
       },
       "activity": "Hari ini di tapak (ikut projek)",
       "activityHint": "Rekod tapak terkini setiap projek",
+      "activityHintMine": "Rekod tapak terkini daripada setiap projek yang ditugaskan kepada anda",
       "view": {
         "photos": "Foto",
         "map": "Peta"

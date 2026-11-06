@@ -9763,7 +9763,9 @@
     },
     "figures": {
       "title": "Company figures",
-      "someProjects": "These figures cover only the projects you are assigned to.",
+      "scopeAll": "This page is the company overview: the figures above add up all {count} projects you can see, and switching the project at the top right does not change them. For one project's figures, open 「Project dashboard」.",
+      "scopeMine": "This page is the overview of the {count} projects you are assigned to: the figures above add them up, and switching the project at the top right does not change them. For one project's figures, open 「Project dashboard」.",
+      "projectDashboard": "Project dashboard",
       "projects": "Projects",
       "activeProjects": "{count} active",
       "onSiteSplit": "App {app} + gate {gate}",
@@ -10011,6 +10013,7 @@
       "title": "From reading reports to seeing the site",
       "subtitle": "Every project's site data in one place - people, materials, machines, progress and safety - so managing is simpler, clearer and faster.",
       "companyView": "Head office view",
+      "companyViewMine": "My projects",
       "same": "Same",
       "vsYesterday": "vs yesterday",
       "kpi": {
@@ -10023,6 +10026,7 @@
       },
       "activity": "Today on site (by project)",
       "activityHint": "Each project's latest site record",
+      "activityHintMine": "The latest site record from each project you are assigned to",
       "view": {
         "photos": "Photos",
         "map": "Map"

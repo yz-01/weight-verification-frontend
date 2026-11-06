@@ -39,32 +39,26 @@ describe("activeFieldNav", () => {
       // 「位置」 is gone (T-321). An unknown tab must fall back to 首页 rather
       // than light nothing, which is what a stale deep link now produces.
       ["location", null, "home"],
-      ["incidents", null, "hazards"],
+      ["incidents", null, "records"],
     ];
     for (const [tab, mode, expected] of screens) {
       expect(activeFieldNav(tab, mode), `${tab}/${mode}`).toBe(expected);
     }
   });
 
-  it("gives the hazard form to 隐患, not to 拍照", () => {
-    // This is the customer's tap: `openRecord("safety")` sets the tab to
-    // "records" and the mode to "safety" in the same breath.
-    expect(activeFieldNav("records", "safety")).toBe("hazards");
-    expect(activeFieldNav("records", "safety")).not.toBe("records");
-  });
-
-  it("keeps the conversation on 隐患 as well", () => {
-    // Reading a hazard after reporting it is still 隐患 - the tab the worker
-    // is in should not change under them when the room opens.
-    expect(activeFieldNav("incidents", null)).toBe("hazards");
-    expect(activeFieldNav("incidents", "safety")).toBe("hazards");
+  it("lights 现场记录 for the hazard form and its conversation (客户 11-06 第四轮 事项1)", () => {
+    // The 整改 / EHS button is gone; the form opens from 现场记录's 整改 / EHS card.
+    expect(activeFieldNav("records", "safety")).toBe("records");
+    expect(activeFieldNav("incidents", null)).toBe("records");
+    expect(activeFieldNav("incidents", "safety")).toBe("records");
   });
 });
 
 describe("each phone its own buttons (JB104, 客户 11-05 事项 9)", () => {
-  it("keeps site staff's four and adds 沟通", () => {
-    // 「现场工作人员手机端 保留原有现场工作功能，包括门岗页面及沟通功能」.
-    expect(fieldNavFor("site_staff")).toEqual(["home", "attendance", "records", "hazards", "talk"]);
+  it("gives site staff four buttons: 整改 / EHS is off the bar (客户 11-06 第四轮 事项1)", () => {
+    // 「把整改/EHS小图标拿掉…四个小图标保留」: it sat under a Samsung's own keys.
+    expect(fieldNavFor("site_staff")).toEqual(["home", "attendance", "records", "talk"]);
+    expect(fieldNavFor("site_staff")).not.toContain("hazards");
     expect(fieldNavFor("site_staff")).not.toContain("operate");
   });
 
