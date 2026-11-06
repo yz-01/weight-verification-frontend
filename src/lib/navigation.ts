@@ -2058,8 +2058,18 @@ export function firstAllowedDashboardPath(
  * Permission checks remain appropriate here because both administrators and
  * drivers receive the same `driver_tasks` feature.
  */
-export function landingPathFor(can: (code: string) => boolean): string {
-  if (can("field_position.submit") && !can("project.view_all")) {
+export function landingPathFor(
+  can: (code: string) => boolean,
+  /**
+   * The sign-in's ``is_field_staff``. An office account is never sent to the
+   * phone: a project manager on the switch page holds the phone's
+   * ``field_position.submit`` without ``project.view_all`` and used to land
+   * on 现场人员登录 (JB114 check, 11-06). ``undefined`` (an older server)
+   * decides from the permissions alone, as before.
+   */
+  isFieldStaff?: boolean,
+): string {
+  if (isFieldStaff !== false && can("field_position.submit") && !can("project.view_all")) {
     return "/field-staff";
   }
   if (

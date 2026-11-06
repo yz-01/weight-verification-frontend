@@ -55,8 +55,9 @@ export function Login({ portal, nextPath }: { portal: Portal; nextPath?: string 
         // permissions the sign-in already returned rather than from a role
         // name, so a tenant that renames its roles does not break it.
         const permissions = new Set(result.user.permissions ?? []);
-        const defaultLanding = landingPathFor((code) =>
-          Boolean(result.user.is_superuser) || permissions.has(code),
+        const defaultLanding = landingPathFor(
+          (code) => Boolean(result.user.is_superuser) || permissions.has(code),
+          result.user.is_field_staff,
         );
         const preferredHome = result.user.company_preferences?.home_page;
         const consoleHome =
