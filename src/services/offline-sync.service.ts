@@ -10,6 +10,7 @@ import {
   getOfflineJobs,
   type OfflineJob,
   putOfflineJob,
+  keptBlob,
   restoreFile,
   type StoredFile,
   storeFile,
@@ -990,8 +991,8 @@ export async function submitMaterialReceiptOfflineAware(
     lastError: "",
     payload: {
       receipt: draft.receipt,
-      signature: draft.signature ? storeFile(draft.signature) : undefined,
-      supplierSignature: draft.supplierSignature ? storeFile(draft.supplierSignature) : undefined,
+      signature: draft.signature ? await storeFile(draft.signature) : undefined,
+      supplierSignature: draft.supplierSignature ? await storeFile(draft.supplierSignature) : undefined,
       deliveryNotePhoto: draft.deliveryNotePhoto
         ? await storePhoto(draft.deliveryNotePhoto)
         : undefined,
@@ -1066,10 +1067,10 @@ export async function submitEquipmentMovementOfflineAware(
         ? await storePhoto(draft.delivery_note_photo)
         : undefined,
       receiver_signature: draft.receiver_signature
-        ? storeFile(draft.receiver_signature)
+        ? await storeFile(draft.receiver_signature)
         : undefined,
       supplier_signature: draft.supplier_signature
-        ? storeFile(draft.supplier_signature)
+        ? await storeFile(draft.supplier_signature)
         : undefined,
     },
   });
@@ -1155,8 +1156,8 @@ export async function submitMaterialOutgoingExitOfflineAware(
       ...draft,
       photos: await storePhotos(draft.photos),
       // Signatures are stored as drawn, not compressed like photographs.
-      site_signature: storeFile(draft.site_signature),
-      supplier_signature: storeFile(draft.supplier_signature),
+      site_signature: await storeFile(draft.site_signature),
+      supplier_signature: await storeFile(draft.supplier_signature),
     },
   });
 }
@@ -1515,7 +1516,7 @@ export async function submitEquipmentHoursPhotoOfflineAware(
       // Compressed on the way in, like every capture screen (A5, A9).
       photo: await storePhoto(draft.photo),
       // A pad's small PNG: kept as drawn.
-      signature: storeFile(draft.signature),
+      signature: await storeFile(draft.signature),
       signatureRequired: true,
       ...(draft.driverLink ? { driverLink: draft.driverLink } : {}),
     },
@@ -2002,12 +2003,10 @@ export interface QueuedSubmissionDetail {
 }
 
 function isStoredFile(value: unknown): value is StoredFile {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    "blob" in value &&
-    (value as { blob: unknown }).blob instanceof Blob
-  );
+  if (typeof value !== "object" || value === null) return false;
+  const kept = value as { blob?: unknown; bytes?: unknown };
+  // As bytes since 客户 11-06; a Blob before that.
+  return kept.bytes instanceof ArrayBuffer || kept.blob instanceof Blob;
 }
 
 /**
@@ -2034,9 +2033,9 @@ export function summariseQueuedPayload(payload: unknown): {
   const visit = (node: Record<string, unknown>, depth: number) => {
     for (const [key, value] of Object.entries(node)) {
       if (isStoredFile(value)) {
-        photos.push(value.blob);
+        photos.push(keptBlob(value));
       } else if (Array.isArray(value)) {
-        for (const item of value) if (isStoredFile(item)) photos.push(item.blob);
+        for (const item of value) if (isStoredFile(item)) photos.push(keptBlob(item));
       } else if (typeof value === "object" && value !== null && depth < 2) {
         visit(value as Record<string, unknown>, depth + 1);
       } else if (key === "unit" && typeof value === "string" && value) {
@@ -2288,8 +2287,13 @@ export async function withFilesInMemory<T>(value: T, depth = 0): Promise<T> {
     // a gate photo queued 11-04 stuck at 「正在上传…」, every pass, for good).
     // Every way the phone may still answer is tried; a photo none of them
     // reads is said as gone - 上传失败, delete it and take it again.
-    const { bytes, type } = await readKeptBytes(value.blob);
-    return { ...value, ...(type ? { type } : {}), blob: new Blob([bytes], { type: type ?? value.type }) };
+    // Kept as bytes (since 11-06): nothing to read from disk.
+    if (value.bytes) {
+      if (value.bytes.byteLength === 0) throw new StoredFileLost(PHOTO_LOST);
+      return value;
+    }
+    const { bytes, type } = await readKeptBytes(value.blob ?? new Blob([]));
+    return { ...value, ...(type ? { type } : {}), blob: undefined, bytes };
   }
   if (depth > 3 || typeof value !== "object" || value === null || value instanceof Blob) {
     return value;

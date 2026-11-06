@@ -26,8 +26,20 @@ export type OfflineJobKind =
   | "DISPATCH_COLLECT"
   | "TRIP_ASSIGN";
 
+/**
+ * A photo, signature or file kept on the phone until it can be sent.
+ *
+ * Kept as its bytes (``bytes``) since 客户 11-06 (「为什么照片会被清除呢？」):
+ * a ``Blob`` / ``File`` put into IndexedDB is, on iOS Safari, a reference to a
+ * file the browser keeps beside the database, and after the app has been
+ * closed and reopened that file can be gone or unreadable - the queued photo
+ * then hangs at 「正在上传…」. Bytes are kept inside the record itself.
+ * Records kept before that still carry ``blob`` and are read as they are.
+ */
 export interface StoredFile {
-  blob: Blob;
+  bytes?: ArrayBuffer;
+  /** Records kept before 11-06 only. */
+  blob?: Blob;
   name: string;
   type: string;
   lastModified: number;
@@ -916,17 +928,24 @@ export async function clearRecyclerSnapshots(ownerId: string): Promise<void> {
   }
 }
 
-export function storeFile(file: File): StoredFile {
+/** Keep ``file`` as its bytes, read now while the phone certainly has them. */
+export async function storeFile(file: File): Promise<StoredFile> {
   return {
-    blob: file,
+    bytes: await file.arrayBuffer(),
     name: file.name,
     type: file.type,
     lastModified: file.lastModified,
   };
 }
 
+/** A kept file as a ``Blob``, whichever way it was kept. */
+export function keptBlob(file: StoredFile): Blob {
+  if (file.bytes) return new Blob([file.bytes], { type: file.type });
+  return file.blob ?? new Blob([], { type: file.type });
+}
+
 export function restoreFile(file: StoredFile): File {
-  return new File([file.blob], file.name, {
+  return new File([keptBlob(file)], file.name, {
     type: file.type,
     lastModified: file.lastModified,
   });

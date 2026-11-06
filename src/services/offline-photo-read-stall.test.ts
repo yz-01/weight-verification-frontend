@@ -11,17 +11,31 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { PHOTO_LOST } from "@/lib/queue-refusal";
+import { keptBlob } from "@/lib/offline-db";
 import { READ_STALL_MS, withFilesInMemory } from "@/services/offline-sync.service";
 
 function kept(blob: Blob) {
-  return { blob, name: "gate.jpg", type: "image/jpeg" };
+  return { blob, name: "gate.jpg", type: "image/jpeg", lastModified: 0 };
 }
 
 afterEach(() => {
   vi.useRealTimers();
 });
 
-describe("reading a kept photo", () => {
+describe("a photo kept as its bytes (since 11-06)", () => {
+  it("needs nothing read from disk", async () => {
+    const bytes = new TextEncoder().encode("jpeg-bytes").buffer as ArrayBuffer;
+    const ready = await withFilesInMemory({ photos: [{ bytes, name: "gate.jpg", type: "image/jpeg", lastModified: 0 }] });
+    expect(await keptBlob(ready.photos[0]).text()).toBe("jpeg-bytes");
+  });
+
+  it("is said as gone when it holds nothing", async () => {
+    const empty = { bytes: new ArrayBuffer(0), name: "gate.jpg", type: "image/jpeg", lastModified: 0 };
+    await expect(withFilesInMemory({ photos: [empty] })).rejects.toMatchObject({ code: PHOTO_LOST });
+  });
+});
+
+describe("reading a kept photo (records kept before 11-06)", () => {
   it("says the photo is gone only when no way of reading it answers", async () => {
     vi.useFakeTimers();
     const hung = new Blob(["x"], { type: "image/jpeg" });
@@ -52,7 +66,7 @@ describe("reading a kept photo", () => {
     await vi.advanceTimersByTimeAsync(READ_STALL_MS);
     const ready = await result;
     vi.useRealTimers();
-    expect(await ready.photos[0].blob.text()).toBe("jpeg-bytes");
+    expect(await keptBlob(ready.photos[0]).text()).toBe("jpeg-bytes");
     vi.unstubAllGlobals();
   });
 
@@ -63,7 +77,7 @@ describe("reading a kept photo", () => {
   it("still sends a photo that is there", async () => {
     const photo = new Blob(["jpeg-bytes"], { type: "image/jpeg" });
     const ready = await withFilesInMemory({ photos: [kept(photo)] });
-    expect(ready.photos[0].blob.size).toBe(photo.size);
-    expect(await ready.photos[0].blob.text()).toBe("jpeg-bytes");
+    expect(keptBlob(ready.photos[0]).size).toBe(photo.size);
+    expect(await keptBlob(ready.photos[0]).text()).toBe("jpeg-bytes");
   });
 });
