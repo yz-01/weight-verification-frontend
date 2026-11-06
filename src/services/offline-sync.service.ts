@@ -17,6 +17,7 @@ import {
 } from "@/lib/offline-db";
 import { compressPhoto } from "@/lib/photo-compression";
 import { t } from "@/lib/i18n-runtime";
+import { requestPersistentStorage } from "@/lib/original-photos";
 import {
   PHOTO_LOST,
   refusalReason,
@@ -217,6 +218,11 @@ function isNetworkFailure(error: unknown): boolean {
  * are not photos and are stored as drawn.
  */
 async function storePhoto(file: File): Promise<StoredFile> {
+  // Ask the phone to keep this app's storage when space runs low, so a photo
+  // waiting for the network is not cleared under it (客户 11-06). Asked
+  // silently; iOS may still decline, which the bytes-in-the-record keeping
+  // and the three-way read are for.
+  void requestPersistentStorage();
   return storeFile(await compressPhoto(file));
 }
 
