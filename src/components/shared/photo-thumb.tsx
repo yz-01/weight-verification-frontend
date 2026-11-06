@@ -23,7 +23,9 @@ import {
   ChartNoAxesCombined,
   ClipboardCheck,
   ClipboardList,
+  DoorOpen,
   FilePlus2,
+  FileSignature,
   FileText,
   HardHat,
   Image as ImageIcon,
@@ -33,7 +35,9 @@ import {
   ReceiptText,
   Recycle,
   ShieldAlert,
+  Timer,
   Trash2,
+  UserCheck,
   type LucideIcon,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -592,6 +596,12 @@ const KIND_ICON: Record<string, LucideIcon> = {
   ATTENDANCE_DAY: MapPin,
   GEOFENCE_FAILURE: MapPin,
   DOCUMENT: FileText,
+  // What else the phone's 「我提交过的」 lists (JB116).
+  GATE_INCIDENT: DoorOpen,
+  VISITOR_ARRIVAL: UserCheck,
+  EQUIPMENT_HOURS: Timer,
+  ATTENDANCE: MapPin,
+  PERMIT: FileSignature,
 };
 
 export function recordKindIcon(kind: string | null | undefined): LucideIcon {

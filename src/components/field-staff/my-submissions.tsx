@@ -43,12 +43,12 @@ import { useTranslations } from "next-intl";
 
 import { recordStatusLabel } from "@/lib/record-status";
 import { movementStatusKey, offersEquipmentExit } from "@/lib/equipment-exit";
-
-/**
- * The phone names a site record's status the way its own task list does
- * (已完成, 需要重拍), not the office's words - one thing, one name, on one phone.
- */
-const PHONE_STATUS = { SITE_RECORD: "fieldStaffPwa.status" };
+import {
+  PHONE_STATUS_NAMESPACE as PHONE_STATUS,
+  QUEUED_SUBMISSION_KINDS as QUEUED_KINDS,
+  rowTalksAsGateIssue,
+  submissionKindKey,
+} from "@/lib/submission-kinds";
 
 /**
  * A row's status as the phone says it. An equipment movement says its way and
@@ -120,16 +120,6 @@ import {
   withoutHidden,
 } from "@/lib/hidden-submissions";
 
-/** Queue kinds that are a submission somebody is waiting on, and their label. */
-const QUEUED_KINDS: Record<string, string> = {
-  MATERIAL_RECEIPT: "MATERIAL_RECEIPT",
-  CATEGORY_EVIDENCE: "SITE_RECORD",
-  SAFETY_INCIDENT: "HAZARD",
-  SITE_PROGRESS: "PROGRESS",
-  WASTE_OUTGOING: "WASTE_OUTGOING",
-  // 现场实际退场 sent with no signal (Q29.3): waiting under its return's number.
-  MATERIAL_OUTGOING_EXIT: "MATERIAL_OUTGOING",
-};
 
 /** The three fields the hazard chat room's header needs. */
 export interface HazardHandle {
@@ -396,7 +386,7 @@ export function MySubmissions({
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium">{row.reference}</p>
                   <p className="truncate text-xs text-muted-foreground">
-                    {t(`mySubmissions.kind.${row.kind}`)}
+                    {t(submissionKindKey(row))}
                     {row.detail ? ` · ${row.detail}` : ""}
                     {row.project_name ? ` · ${row.project_name}` : ""}
                   </p>
@@ -619,6 +609,12 @@ const SUBMISSION_KINDS = new Set<MySubmissionRow["kind"]>([
   "DISPOSAL_REQUEST",
   "SUNDRY_CLAIM",
   "MATERIAL_REQUEST",
+  // JB116: everything else the phone sends.
+  "GATE_INCIDENT",
+  "VISITOR_ARRIVAL",
+  "EQUIPMENT_HOURS",
+  "ATTENDANCE",
+  "PERMIT",
 ]);
 
 /** `<KIND>:<id>` from a notice's link, or `null` when it is not one (JB97). */
@@ -707,7 +703,7 @@ function StoredDetailSheet({
   return (
     <RecordDetailDialog
       title={row.reference}
-      description={`${t(`mySubmissions.kind.${row.kind}`)} · ${formatter.dateTime(row.submitted_at)}`}
+      description={`${t(submissionKindKey(row))} · ${formatter.dateTime(row.submitted_at)}`}
       status={<StatusBadge label={submissionStatusText(t, row)} tone="neutral" />}
       onClose={onClose}
     >
@@ -828,9 +824,10 @@ function StoredDetailSheet({
                 }
               />
             ) :
-            row.kind === "MATERIAL_REQUEST" && (detail.data.files ?? []).length > 0 ? (
+            (row.kind === "MATERIAL_REQUEST" || row.kind === "PERMIT") && (detail.data.files ?? []).length > 0 ? (
               // Every file the request was sent with (I16-14, ID49) - the PDF
               // and the Excel, not only the pictures: opened to preview, or saved.
+              // A 施工准证's Word and PDF pages the same way (JB116).
               <ShellPanel title={t("mySubmissions.files")}>
                 <ul className="space-y-1.5">
                   {(detail.data.files ?? []).map((file) => (
@@ -884,7 +881,8 @@ function StoredDetailSheet({
           // sheet always had it; an exit's attachments are read in
           // 「后台发来的文件」 above (JB33).
           chat={
-            CONVERSATION_KINDS.has(row.kind) && (
+            // A 门岗事项 is talked about on the gate record itself (C22, JB116).
+            (CONVERSATION_KINDS.has(row.kind) || rowTalksAsGateIssue(row)) && (
               <RecordConversationPanel kind={row.kind as ChatRecordKind} recordId={row.id} />
             )
           }

@@ -11654,7 +11654,19 @@
       "EQUIPMENT_MOVEMENT": "Pergerakan peralatan",
       "DISPOSAL_REQUEST": "Pelupusan tapak",
       "SUNDRY_CLAIM": "Tuntutan pelbagai",
-      "MATERIAL_REQUEST": "MR / Permohonan Lain"
+      "MATERIAL_REQUEST": "MR / Permohonan Lain",
+      "GATE_INCIDENT": "Foto pintu",
+      "GATE_ISSUE": "Isu pintu",
+      "VISITOR_ARRIVAL": "Ketibaan pelawat",
+      "EQUIPMENT_HOURS": "Mula / henti jentera",
+      "ATTENDANCE": "Kemasukan tapak",
+      "PERMIT": "Permit kerja",
+      "CONSULTANT": "Permohonan perunding"
+    },
+    "gateStatus": {
+      "RECORDED": "Direkodkan",
+      "OPEN": "Dalam tindakan",
+      "CLOSED": "Selesai"
     },
     "field": {
       "application_no": "No. permohonan",
