@@ -17576,7 +17576,7 @@
     "switches": {
       "what": "permission switches",
       "title": "Permissions",
-      "intro": "Each permission is its own ON / OFF switch; a new user starts with all of them on. An approval switched on still asks for the approver's own sign-off PIN.",
+      "intro": "Each permission is its own ON / OFF switch; a new user, or a change of role, starts with the role's permissions on. An approval switched on still asks for the approver's own sign-off PIN.",
       "hq": "Head office",
       "hqHint": "Company settings, users, roles, billing, projects, suppliers. User management is only here.",
       "project": "Project back office",
