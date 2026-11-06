@@ -8,6 +8,7 @@ import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { NewProjectSupplierPicker } from "@/components/projects/project-suppliers";
 import { useFinishForm } from "@/components/shared/dialog-navigation";
 import {
   SelectField,
@@ -86,6 +87,8 @@ export function newProjectPayload(value: ProjectFormValues): ProjectPayload {
     site_manager: value.site_manager,
     site_phone: value.site_phone,
     ...(value.manager ? { manager: value.manager } : {}),
+    // 可用供应商 ticked on the form (JB125); none ticked leaves it out.
+    ...(value.suppliers.length > 0 ? { suppliers: value.suppliers } : {}),
     latitude: value.latitude || null,
     longitude: value.longitude || null,
     // The drawn site is the fence (JB110); the default circle only without one.
@@ -119,6 +122,8 @@ export interface ProjectFormValues {
   manager: string;
   /** The site boundary drawn point by point (JB110), `[lat, lng]` each. */
   boundary: [number, number][];
+  /** 新建项目's 「可用供应商」 (JB125), supplier ids. */
+  suppliers: string[];
 }
 
 /**
@@ -139,6 +144,8 @@ export function CreateProject({ project }: { project?: Project }) {
   // Choosing the 项目经理 hands the project out: head office's (JB110).
   const { can } = useAuth();
   const mayHandOver = can("project.assign");
+  // 「新建项目的时候……可以直接添加供应商」 (JB125).
+  const mayPickSuppliers = !isEdit && can("project_supplier.manage");
   const [formError, setFormError] = useState<string | null>(null);
   const [isLocating, setIsLocating] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
@@ -193,6 +200,7 @@ export function CreateProject({ project }: { project?: Project }) {
       site_phone: project?.site_phone ?? "",
       manager: project?.manager ?? "",
       boundary: (project?.boundary ?? []) as [number, number][],
+      suppliers: [] as string[],
     } satisfies ProjectFormValues,
     onSubmit: async ({ value }) => {
       setFormError(null);
@@ -201,6 +209,7 @@ export function CreateProject({ project }: { project?: Project }) {
           isEdit
             ? {
                 ...value,
+                suppliers: undefined,
                 manager: value.manager || undefined,
                 boundary: value.boundary.length >= 3 ? value.boundary : undefined,
                 latitude: value.latitude || null,
@@ -531,6 +540,16 @@ export function CreateProject({ project }: { project?: Project }) {
           )}
         </form.Field>
       </FormSection>
+
+      {mayPickSuppliers && (
+        <FormSection title={t("projectSuppliers.title")}>
+          <form.Field name="suppliers">
+            {(field) => (
+              <NewProjectSupplierPicker value={field.state.value} onChange={field.handleChange} />
+            )}
+          </form.Field>
+        </FormSection>
+      )}
 
       <div className="px-4 sm:px-6">
         <Button

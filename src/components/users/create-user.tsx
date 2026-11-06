@@ -74,8 +74,12 @@ export function CreateUser({
   saveAfter,
 }: {
   user?: UserDetail;
-  /** Shown after the fields, inside the same dialog (the 权限开关 when editing). */
-  after?: React.ReactNode;
+  /**
+   * Shown after the fields, inside the same dialog (the 权限开关 when editing).
+   * A function is given the 角色 chosen on the form, so the panel can follow it
+   * before 保存 (JB126).
+   */
+  after?: React.ReactNode | ((role: string) => React.ReactNode);
   /**
    * Saves the ``after`` panel once the fields have saved (the 权限开关's
    * changes). ``false`` keeps the dialog open; the panel says why.
@@ -214,7 +218,15 @@ export function CreateUser({
       submitLabel={isEdit ? t("common.save") : t("users.new")}
       submitIcon={isEdit ? Save : UserPlus}
       onSubmit={() => void form.handleSubmit()}
-      after={after}
+      after={
+        typeof after === "function" ? (
+          <form.Subscribe selector={(state) => state.values.role}>
+            {(role) => after(role)}
+          </form.Subscribe>
+        ) : (
+          after
+        )
+      }
     >
       <FormSection title={t("users.section.identity")}>
         <form.Field

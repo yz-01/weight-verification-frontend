@@ -42,6 +42,8 @@ export interface Project {
 }
 
 export interface ProjectPayload {
+  /** 新建项目 only: its 「可用供应商」 from head office's list (JB125). */
+  suppliers?: string[];
   /** Left out on a new project: the system numbers it PRJ-0001 on (JB100). */
   code?: string;
   name: string;

@@ -2,12 +2,13 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { ListPlus, Pencil, Plus, QrCode, Trash2 } from "lucide-react";
+import { FolderPlus, ListPlus, Pencil, Plus, QrCode, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { useCurrentProject } from "@/components/providers/current-project-provider";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import { ExportButton } from "@/components/shared/export-button";
@@ -38,6 +39,7 @@ export function Suppliers() {
   const t = useTranslations();
   const df = useDateFormat();
   const { can } = useAuth();
+  const currentProject = useCurrentProject();
   const queryClient = useQueryClient();
   const list = useListQuery();
   const [removing, setRemoving] = useState<Supplier | null>(null);
@@ -278,6 +280,14 @@ export function Suppliers() {
         action={
           <>
             <ExportButton onExport={runExport} disabled={totalCount === 0} />
+            {can("supplier.create") && can("project_supplier.manage") && (
+              // JB124: head office puts suppliers on a project from here,
+              // without opening the project and scrolling to its bottom.
+              <Button variant="outline" onClick={() => setPickingFromHq(true)} data-testid="add-to-project">
+                <FolderPlus className="size-4" />
+                {t("projectSuppliers.toProject")}
+              </Button>
+            )}
             {can("supplier.create") ? (
               <Button asChild>
                 <Link href="/suppliers/create">
@@ -299,7 +309,13 @@ export function Suppliers() {
           {t("projectSuppliers.hqListNote")}
         </p>
       )}
-      {pickingFromHq && <AddFromHeadOfficeDialog onClose={() => setPickingFromHq(false)} />}
+      {pickingFromHq && (
+        <AddFromHeadOfficeDialog
+          headOffice={can("supplier.create")}
+          startProject={currentProject.active ? currentProject.projectId : ""}
+          onClose={() => setPickingFromHq(false)}
+        />
+      )}
 
       <DataTable
         columns={columns}

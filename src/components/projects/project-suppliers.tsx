@@ -141,14 +141,20 @@ export function ProjectSuppliersPanel({ projectId }: { projectId: string }) {
  */
 export function AddFromHeadOfficeDialog({
   projectId,
+  startProject,
+  headOffice = false,
   onClose,
 }: {
   projectId?: string;
+  /** The project the choice starts on (the top bar's), still changeable. */
+  startProject?: string;
+  /** Opened by head office from its supplier page: 「加到项目」 wording (JB124). */
+  headOffice?: boolean;
   onClose: () => void;
 }) {
   const t = useTranslations("projectSuppliers");
   const queryClient = useQueryClient();
-  const [project, setProject] = useState(projectId ?? "");
+  const [project, setProject] = useState(projectId ?? startProject ?? "");
   const [picked, setPicked] = useState<string[]>([]);
   const [search, setSearch] = useState("");
   const projects = useQuery({
@@ -184,8 +190,8 @@ export function AddFromHeadOfficeDialog({
     <Dialog open onOpenChange={(next) => !next && onClose()}>
       <DialogContent className="sm:max-w-130" showCloseButton={false}>
         <DialogHeader>
-          <DialogTitle>{t("addTitle")}</DialogTitle>
-          <DialogDescription>{t("addDescription")}</DialogDescription>
+          <DialogTitle>{t(headOffice ? "toProjectTitle" : "addTitle")}</DialogTitle>
+          <DialogDescription>{t(headOffice ? "toProjectDescription" : "addDescription")}</DialogDescription>
         </DialogHeader>
         {!projectId && (
           <FieldWrapper label={t("project")} required>
@@ -262,5 +268,96 @@ export function AddFromHeadOfficeDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+/**
+ * 新建项目's 「可用供应商」 (JB125, Lucas 11-07: 「新建项目的时候弄成可以直接添加
+ * 供应商」): head office's active suppliers, ticked before the project exists,
+ * saved with it. Nothing ticked starts the project empty, as before.
+ */
+export function NewProjectSupplierPicker({
+  value,
+  onChange,
+}: {
+  value: string[];
+  onChange: (next: string[]) => void;
+}) {
+  const t = useTranslations("projectSuppliers");
+  const [search, setSearch] = useState("");
+  const choices = useQuery({
+    queryKey: ["suppliers", "new-project", search.trim()],
+    queryFn: () =>
+      getSuppliers({
+        page_size: 200,
+        sort_by: "name",
+        is_active: true,
+        ...(search.trim() ? { search: search.trim() } : {}),
+      }),
+  });
+  const options = choices.data?.results ?? [];
+  const toggle = (id: string, on: boolean) =>
+    onChange(on ? [...value, id] : value.filter((current) => current !== id));
+  const allTicked = options.length > 0 && options.every((supplier) => value.includes(supplier.id));
+
+  return (
+    <div className="md:col-span-2 xl:col-span-3" data-testid="new-project-suppliers">
+      <p className="mb-2 text-sm text-muted-foreground">{t("newProjectHint")}</p>
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="relative min-w-56 flex-1">
+          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder={t("search")}
+            className="pl-9"
+          />
+        </div>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          disabled={options.length === 0}
+          disabledReason={t("noneOnList")}
+          onClick={() =>
+            onChange(
+              allTicked
+                ? value.filter((id) => !options.some((supplier) => supplier.id === id))
+                : [...new Set([...value, ...options.map((supplier) => supplier.id)])],
+            )
+          }
+        >
+          {t(allTicked ? "untickAll" : "tickAll")}
+        </Button>
+        <span className="text-sm text-muted-foreground" data-testid="new-project-suppliers-count">
+          {t("tickedCount", { count: value.length })}
+        </span>
+      </div>
+      <div className="mt-2 max-h-64 overflow-y-auto rounded-lg border">
+        {choices.isLoading ? (
+          <p className="px-3 py-6 text-center text-sm text-muted-foreground">{t("loading")}</p>
+        ) : choices.isError ? (
+          <LoadFailed className="m-3" what={t("what")} onRetry={() => void choices.refetch()} />
+        ) : options.length === 0 ? (
+          <p className="px-3 py-6 text-center text-sm text-muted-foreground">{t("noneOnList")}</p>
+        ) : (
+          options.map((supplier) => (
+            <label
+              key={supplier.id}
+              className="flex cursor-pointer items-center gap-3 border-b px-3 py-2.5 last:border-b-0"
+            >
+              <Checkbox
+                checked={value.includes(supplier.id)}
+                onCheckedChange={(checked) => toggle(supplier.id, checked === true)}
+              />
+              <span className="min-w-0">
+                <span className="block truncate text-sm font-medium">{supplier.name}</span>
+                <span className="block truncate text-xs text-muted-foreground">{supplier.code}</span>
+              </span>
+            </label>
+          ))
+        )}
+      </div>
+    </div>
   );
 }
