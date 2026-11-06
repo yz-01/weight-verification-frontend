@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { MapFrame } from "@/components/shared/map-frame";
 import { MAP_PRIMARY } from "@/lib/map-palette";
 import { fitsOnResize, geofenceClick, pointsDraggable } from "@/lib/map-view";
+import { lockMapToBox, MALAYSIA_BOX, siteViewBox } from "@/lib/site-view";
 
 import {
   MAP_TILE_OPTIONS,
@@ -26,6 +27,10 @@ type Shape = "CIRCLE" | "POLYGON";
  *   location or the phone's GPS was just put in). Clicks, typing, drawing and
  *   resizing leave the view where the reader put it.
  * - 「全屏」 fills the screen with it (`MapFrame`).
+ * - It stays on the site (JB111, 客户 11-06): it cannot be dragged off the
+ *   fence or zoomed out past it, drawing included - the room around the fence
+ *   follows the points as they are placed (`siteViewBox`). A new project with
+ *   no place yet is kept to Malaysia, never the world.
  */
 export function GeofenceMapEditor({
   shape,
@@ -66,6 +71,8 @@ export function GeofenceMapEditor({
   const fitSignalRef = useRef(fitSignal);
   /** Shows the whole fence: the polygon, the circle, or the centre alone. */
   const fitFenceRef = useRef<() => void>(() => {});
+  /** Keeps the map on the site as it is drawn now (JB111). */
+  const lockRef = useRef<() => void>(() => {});
   const [mapReady, setMapReady] = useState(false);
 
   const propsRef = useRef({ shape, center, radiusM, points, drawingEnabled, editing, onCenter, onPoints });
@@ -120,6 +127,14 @@ export function GeofenceMapEditor({
           map.setView(fence.center, map.getZoom(), { animate: false });
         }
       };
+      lockRef.current = () => {
+        const fence = propsRef.current;
+        const box =
+          fence.shape === "POLYGON" && fence.points.length > 0
+            ? siteViewBox([{ points: fence.points }])
+            : siteViewBox([{ center: fence.center, radiusM: fence.shape === "CIRCLE" ? fence.radiusM : 0 }]);
+        lockMapToBox(map, L, box ?? MALAYSIA_BOX);
+      };
       map.on("click", (event: import("leaflet").LeafletMouseEvent) => {
         const now = propsRef.current;
         const point: Point = [event.latlng.lat, event.latlng.lng];
@@ -142,6 +157,8 @@ export function GeofenceMapEditor({
         cancelAnimationFrame(resizeFrame);
         resizeFrame = requestAnimationFrame(() => {
           map.invalidateSize({ animate: false });
+          // How far out "the whole site" is depends on the map's size.
+          lockRef.current();
           // While the dialog it opens in is still settling its size, keep
           // the fence in view; never once the reader has moved the map.
           if (fittedRef.current && fitsOnResize(touchedRef.current, Date.now() - opened)) {
@@ -176,6 +193,7 @@ export function GeofenceMapEditor({
       layersRef.current = null;
       leafletRef.current = null;
       fittedRef.current = false;
+      lockRef.current = () => {};
       setMapReady(false);
     };
   }, [container]);
@@ -228,6 +246,8 @@ export function GeofenceMapEditor({
       });
     }
 
+    // The site's room first: Leaflet will not show a place outside the old one.
+    lockRef.current();
     // The fence is shown once, when there first is one to show. After that
     // the view is the reader's: clicks, typing and drawing do not move it.
     if (!fittedRef.current && (center || points.length > 0)) {

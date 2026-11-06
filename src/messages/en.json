@@ -3779,7 +3779,9 @@
       "direct_conversation_started": "Conversation started",
       "equipment_name_created": "Equipment name added",
       "equipment_name_updated": "Equipment name changed",
-      "settings_update_by_platform": "Company settings changed by MSE"
+      "settings_update_by_platform": "Company settings changed by MSE",
+      "project_supplier_added": "Supplier added to a project",
+      "project_supplier_removed": "Supplier taken off a project"
     },
     "objectType": {
       "SignOffAssistant": "Assistant PIN",
@@ -8754,7 +8756,8 @@
       "company_category_fixed": "Every project needs this category: it can be renamed, not switched off or removed.",
       "phone_page_not_yours": "This page is not on your phone.",
       "chat_people_invalid": "Choose people from the list.",
-      "user_removed": "This account was deleted and cannot be turned back on. Create a new account instead."
+      "user_removed": "This account was deleted and cannot be turned back on. Create a new account instead.",
+      "supplier_not_on_project": "This supplier is not on this project's supplier list. Ask head office or the project manager to add it to the project first."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -8790,7 +8793,8 @@
       "unit_follows_spec": "The unit follows the specification",
       "invalid_passport_no": "Passport number: 5 to 20 letters and digits",
       "invalid_birth_date": "The date of birth must be before today",
-      "site_worker_passport_taken": "This passport is already on the roster"
+      "site_worker_passport_taken": "This passport is already on the roster",
+      "supplier_not_on_project": "This supplier is not on this project's supplier list. Ask head office or the project manager to add it to the project first."
     },
     "forbidden": "You do not have access to this.",
     "forbiddenBody": "Ask your administrator if you need it.",
@@ -11654,7 +11658,19 @@
       "EQUIPMENT_MOVEMENT": "Equipment movement",
       "DISPOSAL_REQUEST": "Site disposal",
       "SUNDRY_CLAIM": "Sundry claims",
-      "MATERIAL_REQUEST": "MR / Other Request"
+      "MATERIAL_REQUEST": "MR / Other Request",
+      "GATE_INCIDENT": "Gate photo",
+      "GATE_ISSUE": "Gate issue",
+      "VISITOR_ARRIVAL": "Visitor arrival",
+      "EQUIPMENT_HOURS": "Machine start / stop",
+      "ATTENDANCE": "Site entry",
+      "PERMIT": "Permit to work",
+      "CONSULTANT": "Consultant request"
+    },
+    "gateStatus": {
+      "RECORDED": "Recorded",
+      "OPEN": "In progress",
+      "CLOSED": "Completed"
     },
     "field": {
       "application_no": "Application no.",
@@ -12174,7 +12190,8 @@
       "siteWorkers": "Worker roster",
       "materialTargets": "Material targets",
       "materialRequests": "MR / Other Request",
-      "departmentsTrades": "Departments and trades"
+      "departmentsTrades": "Departments and trades",
+      "fieldStaffManagement": "Field staff"
     },
     "subscription_management": "Subscriptions",
     "suppliers": "Suppliers",
@@ -12967,6 +12984,12 @@
       "who": "site_worker.view reads it; site_worker.manage registers workers and sends links.",
       "then": "Once the worker opens the link, enters their number and agrees, the open page reports their location; inside the fence records entry, five minutes outside records exit.",
       "trouble": "\"Location not updated\": the worker closed the page or locked the screen; it does not mean they left. Link will not open: send a new link."
+    },
+    "field_staff": {
+      "what": "Issue phone sign-in links for field staff on your projects: site staff, equipment operators and gate guards. Only phone links are managed here, not office accounts.",
+      "who": "Project managers, who see only the field staff on their own projects. Head office can use it too.",
+      "then": "Send the link and the 6-digit PIN to the person; they open the link on their phone, enter the PIN and can start working.",
+      "trouble": "A project is missing: ask head office to put you on it. \"Mobile number already in use\": delete the person on their old project first."
     }
   },
   "partners": {
@@ -13416,6 +13439,12 @@
       },
       "finance": {
         "view_amounts": "See amounts (prices, costs, budgets, claims)"
+      },
+      "field_staff": {
+        "manage": "Issue and manage phone links for field staff on one's own projects"
+      },
+      "project_supplier": {
+        "manage": "Put suppliers from head office's list on one's own projects, or take them off"
       }
     },
     "group": {
@@ -13487,7 +13516,9 @@
       "site_worker": "Worker roster",
       "material_target": "Material targets",
       "inspection": "Inspection",
-      "finance": "Amounts"
+      "finance": "Amounts",
+      "field_staff": "Field staff",
+      "project_supplier": "Project suppliers"
     }
   },
   "photos": {
@@ -13725,7 +13756,7 @@
       "removeConfirm": "Remove",
       "removeDescription": "They will stop seeing this project's deliveries and outgoing loads. Their account and everything they recorded stay as they are.",
       "removeTitle": "Remove {name} from this project?",
-      "title": "Who can see this project",
+      "title": "Project staff list",
       "person": "Person to add",
       "whatMembers": "The project member list"
     },
@@ -13832,6 +13863,14 @@
       "notes": "The delivery dockets",
       "suppliers": "The supplier list",
       "categories": "The categories"
+    },
+    "voidDialog": {
+      "description": "The receiving workflow will stop and the QR code will no longer be usable. Enter the reason.",
+      "title": "Void this arrived delivery?"
+    },
+    "cancelDialog": {
+      "description": "The QR code will stop working immediately. Enter the reason for cancellation.",
+      "title": "Cancel this delivery docket?"
     }
   },
   "qrScan": {
@@ -15346,10 +15385,6 @@
     "unreachableTitle": "Cannot reach the server"
   },
   "settlements": {
-    "cancelDialog": {
-      "description": "The QR code will stop working immediately. Enter the reason for cancellation.",
-      "title": "Cancel this delivery docket?"
-    },
     "count": "{count, plural, =0 {No settlements} one {# settlement} other {# settlements}}",
     "field": {
       "amountPaid": "Paid",
@@ -15455,10 +15490,6 @@
       "paymentRecorded": "Payment recorded"
     },
     "viewTitle": "Settlement",
-    "voidDialog": {
-      "description": "The receiving workflow will stop and the QR code will no longer be usable. Enter the reason.",
-      "title": "Void this arrived delivery?"
-    },
     "what": {
       "weighedLoads": "The list of weighed loads",
       "quote": "The settlement working"
@@ -17039,7 +17070,8 @@
       "noSites": "There are no sites to issue a code for.",
       "revokedOn": "Revoked {date}",
       "scanHelp": "Print this for the gate house. Scanning it opens a material receipt with the site and the supplier already filled in.",
-      "title": "Site codes"
+      "title": "Site codes",
+      "onNoProject": "This supplier is not on any project yet. Add it to a project's \"Project suppliers\" first."
     },
     "title": "Suppliers",
     "toast": {
@@ -17503,7 +17535,8 @@
       "access": "Access",
       "activity": "Activity",
       "identity": "Identity",
-      "preferences": "Preferences"
+      "preferences": "Preferences",
+      "projects": "Projects"
     },
     "status": {
       "ACTIVE": "Active",
@@ -17567,6 +17600,11 @@
       "unsaved": "Permissions changed. Press “Save” below for them to take effect.",
       "partSaved": "The user's details are saved; the permissions are not saved yet.",
       "notSwitchable": "Field staff and consultant accounts keep their role: their permissions are not switches."
+    },
+    "projectsView": {
+      "projectsAll": "Can see every company project",
+      "projectsNone": "Not on any project yet",
+      "projectsHint": "The same as each project's “Project staff list”: add or remove this person on a project and this follows."
     }
   },
   "validation": {
@@ -19784,7 +19822,7 @@
     "noApproverSteps": {
       "role": "Roles: give the approver's role “Safety verification” and “View projects” (the preset “Safety Manager” has both).",
       "user": "Users: set the approver's account to that role. A new account becomes active once its owner sets a password from the email.",
-      "team": "Project team: add them under “Who can see this project” on this project (not needed if the role has “See every project in the company”)."
+      "team": "Project team: add them under “Project staff list” on this project (not needed if the role has “See every project in the company”)."
     }
   },
   "gateCard": {
@@ -20646,5 +20684,54 @@
     "keepThis": "Use this one, the office types it",
     "next": "Next passport",
     "sendFailed": "Not sent. Check the internet and take it again"
+  },
+  "fieldStaffManagement": {
+    "title": "Field staff",
+    "subtitle": "Issue, view and manage phone sign-in links for field staff on your projects: site staff, equipment operators and gate guards.",
+    "new": "New field staff link",
+    "howTitle": "How it works",
+    "how1": "Press \"New field staff link\", enter the name and mobile number, and choose the role and project.",
+    "how2": "Send the link and the 6-digit PIN to the person. They open the link on their phone and enter the PIN to sign in.",
+    "how3": "To send the link again, change phones or show the QR code, press \"Link / QR code\" on that person. Press \"Delete\" for someone who has left; their number can be used again.",
+    "project": "Project",
+    "allProjects": "All my projects",
+    "search": "Search",
+    "searchPlaceholder": "Name or mobile number",
+    "emptyTitle": "No field staff yet",
+    "emptyHelp": "Press \"New field staff link\" to give site staff, equipment operators or gate guards on this project a phone sign-in.",
+    "signedIn": "Signed in",
+    "notYet": "Not signed in yet",
+    "off": "Suspended",
+    "link": "Link / QR code",
+    "remove": "Delete",
+    "removeTitle": "Delete this field staff member?",
+    "removeConfirm": "After deleting, {name} can no longer sign in and the mobile number can be used on another project. Their earlier records are kept."
+  },
+  "projectSuppliers": {
+    "title": "Project suppliers",
+    "description": "The suppliers this project may receive from. Deliveries, delivery notes, site codes and scans accept only these suppliers.",
+    "add": "Choose from head office's list",
+    "loading": "Loading…",
+    "what": "project suppliers",
+    "empty": "This project has no suppliers yet. Press \"Choose from head office's list\" to add some.",
+    "addedBy": "added by {name}",
+    "remove": "Remove",
+    "removeTitle": "Take \"{name}\" off this project?",
+    "removeDescription": "This project will no longer receive from this supplier. Earlier deliveries are kept, and it can be added back later.",
+    "addTitle": "Choose suppliers from head office's list",
+    "addDescription": "Only suppliers on head office's list. For a new supplier, ask head office to create it.",
+    "project": "Project",
+    "suppliers": "Suppliers",
+    "search": "Search supplier name or code",
+    "allOn": "Every supplier on head office's list is already on this project.",
+    "cancel": "Cancel",
+    "chooseProjectFirst": "Choose a project first.",
+    "chooseSupplierFirst": "Tick at least one supplier.",
+    "addCount": "Add {count}",
+    "hqListNote": "Head office manages the supplier list. Press \"Choose from head office's list\" to put the suppliers you need on your projects.",
+    "toast": {
+      "added": "Added to the project.",
+      "removed": "Taken off the project."
+    }
   }
 }

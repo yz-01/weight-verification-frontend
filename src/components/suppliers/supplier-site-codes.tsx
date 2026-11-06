@@ -29,6 +29,7 @@ import { useDateFormat } from "@/lib/dates";
 import {
   createQRCode,
   getProjects,
+  getProjectSuppliers,
   getQRCodes,
   revokeQRCode,
 } from "@/services/contractor.service";
@@ -67,6 +68,11 @@ export function SupplierSiteCodes({ supplier }: { supplier: Supplier }) {
     queryFn: () => getProjects({ page_size: 100, sort_by: "name" }),
     staleTime: 60_000,
   });
+  // A site code only for a project this supplier is on (JB115, 「可用供应商」).
+  const onProjects = useQuery({
+    queryKey: ["project-suppliers", "by-supplier", supplier.id],
+    queryFn: () => getProjectSuppliers({ supplier: supplier.id }),
+  });
 
   const refresh = () => {
     void queryClient.invalidateQueries({
@@ -98,8 +104,9 @@ export function SupplierSiteCodes({ supplier }: { supplier: Supplier }) {
   const live = new Set(
     rows.filter((row) => row.is_active).map((row) => row.project),
   );
+  const supplierProjects = new Set((onProjects.data?.results ?? []).map((row) => row.project));
   const available = (projects.data?.results ?? []).filter(
-    (project) => !live.has(project.id),
+    (project) => !live.has(project.id) && supplierProjects.has(project.id),
   );
   const mayIssue = can("supplier.update");
 
@@ -183,16 +190,21 @@ export function SupplierSiteCodes({ supplier }: { supplier: Supplier }) {
       )}
 
       {mayIssue &&
-        (projects.isError ? (
+        (projects.isError || onProjects.isError ? (
           <LoadFailed
             what={t("suppliers.what.sites")}
-            onRetry={() => void projects.refetch()}
+            onRetry={() => {
+              void projects.refetch();
+              void onProjects.refetch();
+            }}
           />
         ) : available.length === 0 ? (
           <p className="text-xs text-muted-foreground">
-            {projects.data?.results?.length
-              ? t("suppliers.siteCodes.allSitesCovered")
-              : t("suppliers.siteCodes.noSites")}
+            {!projects.data?.results?.length
+              ? t("suppliers.siteCodes.noSites")
+              : onProjects.isSuccess && supplierProjects.size === 0
+                ? t("suppliers.siteCodes.onNoProject")
+                : t("suppliers.siteCodes.allSitesCovered")}
           </p>
         ) : (
           <div className="flex flex-wrap items-end gap-2">

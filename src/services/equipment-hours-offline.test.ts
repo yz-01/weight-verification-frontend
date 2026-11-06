@@ -78,9 +78,11 @@ describe("an equipment-hours photo taken offline", () => {
     expect(job.payload.capturedAt).toBe("2026-10-06T23:58:00.000Z");
     expect(job.payload.equipmentLabel).toBe("EQ-001 · Excavator · WXY 1234");
     expect(job.payload.kind).toBe("START");
-    expect(job.payload.photo.blob).toBeInstanceOf(Blob);
+    // Kept as its bytes, not a file reference iOS may lose (客户 11-06).
+    expect(job.payload.photo?.bytes).toBeInstanceOf(ArrayBuffer);
     // 司机签名 waits with the photo (2026-10 I4, ID20).
-    expect(job.payload.signature?.blob).toBeInstanceOf(Blob);
+    // Kept as its bytes, not a file reference iOS may lose (客户 11-06).
+    expect(job.payload.signature?.bytes).toBeInstanceOf(ArrayBuffer);
 
     // The phone finds signal at lunchtime: the start is still 07:58.
     vi.setSystemTime(new Date("2026-10-07T12:30:00+08:00"));

@@ -177,6 +177,11 @@ export interface UserDetail extends UserRow {
   };
   /** 权限开关 (J17). */
   permission_switches?: { switchable: boolean; uses_switches: boolean };
+  /**
+   * 所属项目 (JB119): the projects the person is on - each project's
+   * 「项目人员名单」 - and whether they see every project anyway.
+   */
+  projects?: { all: boolean; assigned: { id: string; code: string; name: string }[] };
 }
 
 export interface UserStats {

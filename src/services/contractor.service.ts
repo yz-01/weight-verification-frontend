@@ -457,12 +457,48 @@ export function scanQRCode(token: string): Promise<SupplierQRCode> {
  * first and answered "not recognised" to the second, which reads as a broken
  * code rather than the wrong lookup (F-101).
  */
-export function scanSupplierQr(token: string): Promise<Supplier> {
+export function scanSupplierQr(token: string, project?: string): Promise<Supplier> {
+  // With the project the scan is on: a supplier not on its 「可用供应商」 is
+  // refused there and then (JB115).
   return api.post<Supplier>(
     "/api/suppliers/scan_supplier_qr/",
-    { token },
+    project ? { token, project } : { token },
     { silent: true },
   );
+}
+
+// -- 每个项目的「可用供应商」 (JB115, 客户 11-06 第二轮事项 2 第 2 点) ------------
+
+export interface ProjectSupplierRow {
+  id: string;
+  project: string;
+  project_code: string;
+  project_name: string;
+  supplier: string;
+  supplier_code: string;
+  supplier_name: string;
+  company_types: string[];
+  is_active: boolean;
+  added_at: string;
+  added_by_name: string;
+}
+
+/** A project's suppliers, or (``supplier``) the projects a supplier is on. */
+export function getProjectSuppliers(
+  query: { project: string } | { supplier: string },
+): Promise<{ results: ProjectSupplierRow[]; count: number }> {
+  return api.get("/api/project-suppliers/get_project_suppliers/", query);
+}
+
+/** 从总部名单选: put suppliers from head office's list on a project. */
+export async function addProjectSuppliers(project: string, suppliers: string[]): Promise<void> {
+  await api.post("/api/project-suppliers/add_suppliers/", { project, suppliers });
+  toastSuccess("projectSuppliers.toast.added");
+}
+
+export async function removeProjectSupplier(id: string): Promise<void> {
+  await api.post(`/api/project-suppliers/${id}/remove_supplier/`, {});
+  toastSuccess("projectSuppliers.toast.removed");
 }
 
 export function getReceipts(

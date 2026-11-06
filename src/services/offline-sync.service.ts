@@ -10,12 +10,14 @@ import {
   getOfflineJobs,
   type OfflineJob,
   putOfflineJob,
+  keptBlob,
   restoreFile,
   type StoredFile,
   storeFile,
 } from "@/lib/offline-db";
 import { compressPhoto } from "@/lib/photo-compression";
 import { t } from "@/lib/i18n-runtime";
+import { requestPersistentStorage } from "@/lib/original-photos";
 import {
   PHOTO_LOST,
   refusalReason,
@@ -216,6 +218,11 @@ function isNetworkFailure(error: unknown): boolean {
  * are not photos and are stored as drawn.
  */
 async function storePhoto(file: File): Promise<StoredFile> {
+  // Ask the phone to keep this app's storage when space runs low, so a photo
+  // waiting for the network is not cleared under it (客户 11-06). Asked
+  // silently; iOS may still decline, which the bytes-in-the-record keeping
+  // and the three-way read are for.
+  void requestPersistentStorage();
   return storeFile(await compressPhoto(file));
 }
 
@@ -990,8 +997,8 @@ export async function submitMaterialReceiptOfflineAware(
     lastError: "",
     payload: {
       receipt: draft.receipt,
-      signature: draft.signature ? storeFile(draft.signature) : undefined,
-      supplierSignature: draft.supplierSignature ? storeFile(draft.supplierSignature) : undefined,
+      signature: draft.signature ? await storeFile(draft.signature) : undefined,
+      supplierSignature: draft.supplierSignature ? await storeFile(draft.supplierSignature) : undefined,
       deliveryNotePhoto: draft.deliveryNotePhoto
         ? await storePhoto(draft.deliveryNotePhoto)
         : undefined,
@@ -1066,10 +1073,10 @@ export async function submitEquipmentMovementOfflineAware(
         ? await storePhoto(draft.delivery_note_photo)
         : undefined,
       receiver_signature: draft.receiver_signature
-        ? storeFile(draft.receiver_signature)
+        ? await storeFile(draft.receiver_signature)
         : undefined,
       supplier_signature: draft.supplier_signature
-        ? storeFile(draft.supplier_signature)
+        ? await storeFile(draft.supplier_signature)
         : undefined,
     },
   });
@@ -1155,8 +1162,8 @@ export async function submitMaterialOutgoingExitOfflineAware(
       ...draft,
       photos: await storePhotos(draft.photos),
       // Signatures are stored as drawn, not compressed like photographs.
-      site_signature: storeFile(draft.site_signature),
-      supplier_signature: storeFile(draft.supplier_signature),
+      site_signature: await storeFile(draft.site_signature),
+      supplier_signature: await storeFile(draft.supplier_signature),
     },
   });
 }
@@ -1515,7 +1522,7 @@ export async function submitEquipmentHoursPhotoOfflineAware(
       // Compressed on the way in, like every capture screen (A5, A9).
       photo: await storePhoto(draft.photo),
       // A pad's small PNG: kept as drawn.
-      signature: storeFile(draft.signature),
+      signature: await storeFile(draft.signature),
       signatureRequired: true,
       ...(draft.driverLink ? { driverLink: draft.driverLink } : {}),
     },
@@ -2002,12 +2009,10 @@ export interface QueuedSubmissionDetail {
 }
 
 function isStoredFile(value: unknown): value is StoredFile {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    "blob" in value &&
-    (value as { blob: unknown }).blob instanceof Blob
-  );
+  if (typeof value !== "object" || value === null) return false;
+  const kept = value as { blob?: unknown; bytes?: unknown };
+  // As bytes since 客户 11-06; a Blob before that.
+  return kept.bytes instanceof ArrayBuffer || kept.blob instanceof Blob;
 }
 
 /**
@@ -2034,9 +2039,9 @@ export function summariseQueuedPayload(payload: unknown): {
   const visit = (node: Record<string, unknown>, depth: number) => {
     for (const [key, value] of Object.entries(node)) {
       if (isStoredFile(value)) {
-        photos.push(value.blob);
+        photos.push(keptBlob(value));
       } else if (Array.isArray(value)) {
-        for (const item of value) if (isStoredFile(item)) photos.push(item.blob);
+        for (const item of value) if (isStoredFile(item)) photos.push(keptBlob(item));
       } else if (typeof value === "object" && value !== null && depth < 2) {
         visit(value as Record<string, unknown>, depth + 1);
       } else if (key === "unit" && typeof value === "string" && value) {
@@ -2181,6 +2186,77 @@ class StoredFileLost extends Error {
  * record said 「等待上传」 forever while new photos, sent directly, went.
  */
 export const JOB_STALL_MS = 4 * 60_000;
+/**
+ * How long one way of reading a kept photo may take (see `readKeptBytes`).
+ * Three ways are tried, so a photo that is truly gone is said after 30 s.
+ */
+export const READ_STALL_MS = 10_000;
+
+function readWithFileReader(blob: Blob): Promise<ArrayBuffer> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () =>
+      reader.result instanceof ArrayBuffer ? resolve(reader.result) : reject(new Error("unreadable"));
+    reader.onerror = () => reject(reader.error ?? new Error("unreadable"));
+    reader.readAsArrayBuffer(blob);
+  });
+}
+
+/** The photo as the phone can still show it, drawn again into a new JPEG. */
+async function redrawPhoto(blob: Blob): Promise<ArrayBuffer> {
+  if (typeof document === "undefined" || typeof URL === "undefined" || !URL.createObjectURL) {
+    throw new Error("no screen to draw on");
+  }
+  const url = URL.createObjectURL(blob);
+  try {
+    const image = new Image();
+    await new Promise<void>((resolve, reject) => {
+      image.onload = () => resolve();
+      image.onerror = () => reject(new Error("unreadable"));
+      image.src = url;
+    });
+    const canvas = document.createElement("canvas");
+    canvas.width = image.naturalWidth;
+    canvas.height = image.naturalHeight;
+    const context = canvas.getContext("2d");
+    if (!context || !canvas.width || !canvas.height) throw new Error("unreadable");
+    context.drawImage(image, 0, 0);
+    const drawn = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.92));
+    if (!drawn) throw new Error("unreadable");
+    return await drawn.arrayBuffer();
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
+/**
+ * A kept photo's bytes, by whichever way the phone still answers (客户 11-06:
+ * 「有什么方法让旧的也可以上传吗？」).
+ *
+ * After iOS has been at its storage, one way of reading a kept photo may hang
+ * while another still works, and a photo the phone can still show can always
+ * be drawn again. So: the plain read, then a FileReader, then the picture
+ * redrawn - each given `READ_STALL_MS`. Only when none of them answers is the
+ * photo gone (``StoredFileLost``): 上传失败, delete it and take it again.
+ */
+export async function readKeptBytes(blob: Blob): Promise<{ bytes: ArrayBuffer; type?: string }> {
+  const ways: Array<[() => Promise<ArrayBuffer>, string | undefined]> = [
+    [() => blob.arrayBuffer(), undefined],
+    [() => readWithFileReader(blob), undefined],
+    ...(blob.type.startsWith("image/") || blob.type === ""
+      ? ([[() => redrawPhoto(blob), "image/jpeg"]] as Array<[() => Promise<ArrayBuffer>, string]>)
+      : []),
+  ];
+  for (const [read, type] of ways) {
+    try {
+      const bytes = await withinTime(read(), READ_STALL_MS);
+      if (bytes.byteLength > 0) return { bytes, type };
+    } catch {
+      // the next way
+    }
+  }
+  throw new StoredFileLost(PHOTO_LOST);
+}
 /** How long a whole pass may hold the lock before the next one may start. */
 export const PASS_STALL_MS = 10 * 60_000;
 /** How long a worker's own press waits for a pass already running. */
@@ -2212,14 +2288,18 @@ export function withinTime<T>(work: Promise<T>, ms: number): Promise<T> {
  */
 export async function withFilesInMemory<T>(value: T, depth = 0): Promise<T> {
   if (isStoredFile(value)) {
-    let bytes: ArrayBuffer;
-    try {
-      bytes = await value.blob.arrayBuffer();
-    } catch {
-      throw new StoredFileLost(PHOTO_LOST);
+    // A photo whose bytes iOS has cleared may never answer a read at all
+    // rather than fail it (客户 11-06: 「我手上手机断断网缓存到现在还上传不了」,
+    // a gate photo queued 11-04 stuck at 「正在上传…」, every pass, for good).
+    // Every way the phone may still answer is tried; a photo none of them
+    // reads is said as gone - 上传失败, delete it and take it again.
+    // Kept as bytes (since 11-06): nothing to read from disk.
+    if (value.bytes) {
+      if (value.bytes.byteLength === 0) throw new StoredFileLost(PHOTO_LOST);
+      return value;
     }
-    if (bytes.byteLength === 0) throw new StoredFileLost(PHOTO_LOST);
-    return { ...value, blob: new Blob([bytes], { type: value.type }) };
+    const { bytes, type } = await readKeptBytes(value.blob ?? new Blob([]));
+    return { ...value, ...(type ? { type } : {}), blob: undefined, bytes };
   }
   if (depth > 3 || typeof value !== "object" || value === null || value instanceof Blob) {
     return value;

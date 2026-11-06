@@ -287,6 +287,8 @@ export function WorkerDetailDialog({
                       markers={markers}
                       zones={zones}
                       fitBoundsKey={`worker:${worker.id}`}
+                      // JB111: the worker's site, not the town around it.
+                      lockToSite
                       ariaLabel={t("detail.mapLabel")}
                       className="h-64 min-h-64 rounded-md"
                     />

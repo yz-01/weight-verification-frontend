@@ -401,9 +401,12 @@ export function MaterialCapturePanel({
     t("materialEvidence.deliveryOrder"),
   ];
 
+  // Only this project's 「可用供应商」 (JB115): 「现场人员负责扫码核实供应商身份
+  // 及材料收货」 for the suppliers head office gave the project.
   const suppliers = useQuery({
-    queryKey: ["suppliers", "field-material"],
-    queryFn: () => getSuppliers({ page_size: 200, sort_by: "name" }),
+    queryKey: ["suppliers", "field-material", draft.project],
+    queryFn: () =>
+      getSuppliers({ page_size: 200, sort_by: "name", ...(draft.project ? { project: draft.project } : {}) }),
   });
   const dockets = useQuery({
     queryKey: ["qr-codes", "field-material"],
@@ -553,7 +556,7 @@ export function MaterialCapturePanel({
         return { kind: "DOCKET" as const, code };
       } catch (reason) {
         if (!(reason instanceof ApiError) || reason.status !== 404) throw reason;
-        return { kind: "SUPPLIER" as const, supplier: await scanSupplierQr(token) };
+        return { kind: "SUPPLIER" as const, supplier: await scanSupplierQr(token, draft.project || undefined) };
       }
     },
     onSuccess: (result) => {

@@ -180,6 +180,8 @@ export function OnSiteMap({
                 zones={zones}
                 preserveViewOnDataUpdate
                 fitBoundsKey={`on-site:${project || "all"}`}
+                // JB111: one project's map stays on its site.
+                lockToSite={Boolean(project)}
                 ariaLabel={t("mapLabel")}
                 className="h-[16rem] min-h-[16rem] rounded-md sm:h-[20rem] sm:min-h-[20rem]"
               />

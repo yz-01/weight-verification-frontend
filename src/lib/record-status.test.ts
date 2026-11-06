@@ -47,7 +47,9 @@ describe("a record's status in its module's words (T-391)", () => {
 describe("the phone and the consultant columns use their own words", () => {
   it("names a site record's status on the phone the way the phone's task list does", () => {
     const source = readFileSync(path.join(process.cwd(), "src/components/field-staff/my-submissions.tsx"), "utf8");
-    expect(source).toMatch(/SITE_RECORD: "fieldStaffPwa\.status"/);
+    // The kinds\' words moved to one place with JB116 (every submission listed).
+    const kinds = readFileSync(path.join(process.cwd(), "src/lib/submission-kinds.ts"), "utf8");
+    expect(kinds).toMatch(/SITE_RECORD: "fieldStaffPwa\.status"/);
     expect(source).toMatch(/recordStatusLabel\(t, row, PHONE_STATUS\)/);
     for (const locale of ["en", "zh", "zh-TW", "ms"]) {
       const tree = messages(locale);

@@ -74,7 +74,8 @@ describe("a gate photo taken offline", () => {
     const [job] = [...store.values()];
     expect(job.kind).toBe("GATE_PHOTO");
     if (job.kind !== "GATE_PHOTO") throw new Error("wrong kind");
-    expect(job.payload.photos[0].blob).toBeInstanceOf(Blob);
+    // Kept as its bytes, not a file reference iOS may lose (客户 11-06).
+    expect(job.payload.photos[0]?.bytes).toBeInstanceOf(ArrayBuffer);
     expect(job.payload.photo_meta[0]).toMatchObject({
       captured_at: "2026-10-13T01:00:00.000Z",
       client_event_id: "gate-a",

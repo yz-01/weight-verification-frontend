@@ -70,6 +70,10 @@
       "label": "Suppliers"
     },
     {
+      "key": "project_supplier",
+      "label": "Project suppliers"
+    },
+    {
       "key": "category",
       "label": "Categories"
     },
@@ -80,6 +84,10 @@
     {
       "key": "equipment",
       "label": "Equipment"
+    },
+    {
+      "key": "field_staff",
+      "label": "Field staff"
     },
     {
       "key": "field_task",
@@ -505,6 +513,11 @@
       "label": "Remove suppliers"
     },
     {
+      "code": "project_supplier.manage",
+      "group": "project_supplier",
+      "label": "Put suppliers from head office's list on one's own projects, or take them off"
+    },
+    {
       "code": "category.view",
       "group": "category",
       "label": "View categories"
@@ -548,6 +561,11 @@
       "code": "equipment.operate",
       "group": "equipment",
       "label": "Clock machines on and off as their operator, from the phone"
+    },
+    {
+      "code": "field_staff.manage",
+      "group": "field_staff",
+      "label": "Issue and manage phone links for field staff on one's own projects"
     },
     {
       "code": "field_task.view",

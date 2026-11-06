@@ -519,6 +519,8 @@ export function FieldStaffGps({
               paths={historyPaths}
               zones={historyZones}
               preserveViewOnDataUpdate
+              // JB111: one project's map stays on its site.
+              lockToSite={Boolean(historyProjectId)}
               fitBoundsKey={`history:${historyProjectId || "all"}:${
                 selectedLastPosition?.user ?? "all"
               }`}

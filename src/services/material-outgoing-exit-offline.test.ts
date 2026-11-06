@@ -76,8 +76,10 @@ describe("an exit recorded with no signal", () => {
     expect(job.kind).toBe("MATERIAL_OUTGOING_EXIT");
     if (job.kind !== "MATERIAL_OUTGOING_EXIT") throw new Error("wrong kind");
     expect(job.payload.photos).toHaveLength(4);
-    expect(job.payload.site_signature.blob).toBeInstanceOf(Blob);
-    expect(job.payload.supplier_signature.blob).toBeInstanceOf(Blob);
+    // Kept as its bytes, not a file reference iOS may lose (客户 11-06).
+    expect(job.payload.site_signature?.bytes).toBeInstanceOf(ArrayBuffer);
+    // Kept as its bytes, not a file reference iOS may lose (客户 11-06).
+    expect(job.payload.supplier_signature?.bytes).toBeInstanceOf(ArrayBuffer);
     expect(job.payload.client_event_id).toBe("outgoing-exit-abc");
 
     // The queue names it by the application's number.

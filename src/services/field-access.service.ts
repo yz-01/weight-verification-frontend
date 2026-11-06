@@ -1,11 +1,11 @@
-import type { Branding, LoginResponse } from "@/interfaces/auth";
+import type { Branding, LoginResponse, UserRow } from "@/interfaces/auth";
 import { clearActiveProjectId } from "@/lib/project-context";
 import {
   markFieldAppContext,
   setFieldTokens,
   setLocaleCookie,
 } from "@/lib/auth-token";
-import { api } from "@/services/api-client";
+import { api, toastSuccess } from "@/services/api-client";
 
 export interface FieldInvitationInfo {
   user_id: string;
@@ -259,4 +259,36 @@ export function getOrCreateFieldDeviceId(): string {
  */
 export function fieldDeviceIdIsPersistent(): boolean {
   return deviceIdIsPersistent;
+}
+
+// -- 现场人员管理 (JB114, 客户 11-06 第二轮事项 4) ------------------------------
+// 「项目经理后台需要增加「现场人员管理」，与总部的用户管理分开」: the project
+// manager's own list of 工地人员 / 设备操作人员 / 门岗保安 on their projects. The
+// server narrows each call to the caller's projects; head office sees all.
+
+export interface FieldStaffRow extends UserRow {
+  /** Only the projects the caller runs. */
+  projects: { id: string; code: string; name: string }[];
+}
+
+export interface FieldRoleOption {
+  id: string;
+  code: "site_staff" | "equipment_operator" | "gate_guard";
+  name: string;
+}
+
+export function getFieldStaff(params: { project?: string; search?: string } = {}): Promise<{
+  results: FieldStaffRow[];
+  count: number;
+}> {
+  return api.get("/api/field-access/get_field_staff/", params);
+}
+
+export function getFieldRoles(): Promise<FieldRoleOption[]> {
+  return api.get<FieldRoleOption[]>("/api/field-access/get_field_roles/");
+}
+
+export async function removeFieldStaff(userId: string): Promise<void> {
+  await api.delete(`/api/field-access/${userId}/remove_field_staff/`);
+  toastSuccess("users.toast.fieldDeleted");
 }

@@ -42,12 +42,13 @@ import { getProjects } from "@/services/contractor.service";
 import {
   createFieldInvitation,
   getFieldAccessInfo,
+  getFieldRoles,
+  getFieldStaff,
   resetFieldDevice,
   reissueFieldInvitation,
   type FieldInvitationResult,
   type FieldPlace,
 } from "@/services/field-access.service";
-import { getRoles, getUsers } from "@/services/users.service";
 import { FieldDraft, useClearDraft, useDraftState } from "@/components/field-staff/field-draft";
 
 // 设备操作人员 since JB104 (客户 11-05 事项 9: 「设备操作人员属于独立角色」).
@@ -109,43 +110,21 @@ function FieldAccessManagementContent({
       getProjects({ page_size: 500, sort_by: "name", sort_order: "asc" }),
   });
 
+  // The three phones and the people on them come from 现场人员管理's own
+  // calls (JB114, 客户 11-06 第二轮事项 4), not 用户管理's: a project manager
+  // has no 用户管理, and the server keeps them to their own projects.
   const roles = useQuery({
-    queryKey: ["roles", "field-access-options"],
-    queryFn: () => getRoles({ page_size: 100, sort_by: "name" }),
+    queryKey: ["field-access", "roles"],
+    queryFn: getFieldRoles,
   });
-  const siteStaffRole = roles.data?.results.find(
-    (role) => role.code === "site_staff",
-  );
-  const gateGuardRole = roles.data?.results.find(
-    (role) => role.code === "gate_guard",
-  );
-  const operatorRole = roles.data?.results.find(
-    (role) => role.code === "equipment_operator",
-  );
-  const fieldRoleIds = [siteStaffRole?.id, gateGuardRole?.id, operatorRole?.id].filter(
-    (id): id is string => Boolean(id),
-  );
+  const siteStaffRole = roles.data?.find((role) => role.code === "site_staff");
+  const gateGuardRole = roles.data?.find((role) => role.code === "gate_guard");
+  const operatorRole = roles.data?.find((role) => role.code === "equipment_operator");
   const fieldUsers = useQuery({
-    queryKey: ["users", "field-access-options", ...fieldRoleIds],
-    queryFn: async () => {
-      const pages = await Promise.all(
-        fieldRoleIds.map((role) =>
-          getUsers({
-            page_size: 500,
-            role,
-            sort_by: "full_name",
-            sort_order: "asc",
-          }),
-        ),
-      );
-      // A deleted account is gone from here: its number may be someone else's.
-      const results = pages
-        .flatMap((page) => page.results)
-        .filter((person) => person.status !== "REMOVED")
-        .sort((a, b) => a.full_name.localeCompare(b.full_name));
-      return { count: results.length, results };
-    },
-    enabled: mode === "existing" && Boolean(siteStaffRole?.id),
+    queryKey: ["field-access", "staff", "options"],
+    // A deleted account is gone from here: its number may be someone else's.
+    queryFn: () => getFieldStaff(),
+    enabled: mode === "existing",
   });
   const accessInfo = useQuery({
     queryKey: ["field-access", "info", existingUserId],
@@ -178,6 +157,7 @@ function FieldAccessManagementContent({
       setResult(invitation);
       clearDraft();
       void queryClient.invalidateQueries({ queryKey: ["users"] });
+      void queryClient.invalidateQueries({ queryKey: ["field-access", "staff"] });
     },
   });
 

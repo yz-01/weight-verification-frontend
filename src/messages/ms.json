@@ -3779,7 +3779,9 @@
       "direct_conversation_started": "Perbualan dimulakan",
       "equipment_name_created": "Nama peralatan ditambah",
       "equipment_name_updated": "Nama peralatan diubah",
-      "settings_update_by_platform": "Tetapan syarikat diubah oleh MSE"
+      "settings_update_by_platform": "Tetapan syarikat diubah oleh MSE",
+      "project_supplier_added": "Pembekal ditambah ke projek",
+      "project_supplier_removed": "Pembekal dikeluarkan dari projek"
     },
     "objectType": {
       "SignOffAssistant": "PIN pembantu",
@@ -8754,7 +8756,8 @@
       "company_category_fixed": "Setiap projek memerlukan kategori ini: boleh dinamakan semula, tidak boleh dimatikan atau dibuang.",
       "phone_page_not_yours": "Halaman ini tiada pada telefon anda.",
       "chat_people_invalid": "Pilih orang daripada senarai.",
-      "user_removed": "Akaun ini telah dipadam dan tidak boleh diaktifkan semula. Sila cipta akaun baharu."
+      "user_removed": "Akaun ini telah dipadam dan tidak boleh diaktifkan semula. Sila cipta akaun baharu.",
+      "supplier_not_on_project": "Pembekal ini tiada dalam senarai pembekal projek ini. Minta ibu pejabat atau pengurus projek menambahnya dahulu."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -8790,7 +8793,8 @@
       "unit_follows_spec": "Unit mengikut spesifikasi",
       "invalid_passport_no": "No. pasport: 5 hingga 20 huruf dan nombor",
       "invalid_birth_date": "Tarikh lahir mesti sebelum hari ini",
-      "site_worker_passport_taken": "Pasport ini sudah ada dalam senarai"
+      "site_worker_passport_taken": "Pasport ini sudah ada dalam senarai",
+      "supplier_not_on_project": "Pembekal ini tiada dalam senarai pembekal projek ini. Minta ibu pejabat atau pengurus projek menambahnya dahulu."
     },
     "forbidden": "Anda tiada akses kepada ini.",
     "forbiddenBody": "Tanya pentadbir anda jika anda memerlukannya.",
@@ -11654,7 +11658,19 @@
       "EQUIPMENT_MOVEMENT": "Pergerakan peralatan",
       "DISPOSAL_REQUEST": "Pelupusan tapak",
       "SUNDRY_CLAIM": "Tuntutan pelbagai",
-      "MATERIAL_REQUEST": "MR / Permohonan Lain"
+      "MATERIAL_REQUEST": "MR / Permohonan Lain",
+      "GATE_INCIDENT": "Foto pintu",
+      "GATE_ISSUE": "Isu pintu",
+      "VISITOR_ARRIVAL": "Ketibaan pelawat",
+      "EQUIPMENT_HOURS": "Mula / henti jentera",
+      "ATTENDANCE": "Kemasukan tapak",
+      "PERMIT": "Permit kerja",
+      "CONSULTANT": "Permohonan perunding"
+    },
+    "gateStatus": {
+      "RECORDED": "Direkodkan",
+      "OPEN": "Dalam tindakan",
+      "CLOSED": "Selesai"
     },
     "field": {
       "application_no": "No. permohonan",
@@ -12174,7 +12190,8 @@
       "siteWorkers": "Senarai pekerja",
       "materialTargets": "Sasaran bahan",
       "materialRequests": "MR / Permohonan Lain",
-      "departmentsTrades": "Jabatan dan tred"
+      "departmentsTrades": "Jabatan dan tred",
+      "fieldStaffManagement": "Kakitangan tapak"
     },
     "subscription_management": "Pengurusan Langganan",
     "suppliers": "Pembekal",
@@ -12967,6 +12984,12 @@
       "who": "site_worker.view untuk melihat; site_worker.manage untuk mendaftar dan menghantar pautan.",
       "then": "Selepas pekerja membuka pautan, masukkan nombor dan bersetuju, halaman yang terbuka menghantar lokasi; dalam pagar dicatat masuk, 5 minit di luar dicatat keluar.",
       "trouble": "\"Lokasi tidak dikemas kini\": pekerja menutup halaman atau mengunci skrin; bukan bermakna keluar. Pautan tidak dibuka: hantar pautan baharu."
+    },
+    "field_staff": {
+      "what": "Keluarkan pautan log masuk telefon untuk kakitangan tapak projek anda: kakitangan tapak, operator jentera dan pengawal pintu. Hanya pautan telefon diurus di sini, bukan akaun pejabat.",
+      "who": "Pengurus projek, yang hanya melihat kakitangan tapak projek mereka sendiri. Ibu pejabat juga boleh menggunakannya.",
+      "then": "Hantar pautan dan PIN 6 digit kepada orang itu; dia membuka pautan di telefon, memasukkan PIN dan boleh mula bekerja.",
+      "trouble": "Projek tidak kelihatan: minta ibu pejabat meletakkan anda dalam projek itu. \"Nombor telefon sudah digunakan\": padam orang itu di projek lamanya dahulu."
     }
   },
   "partners": {
@@ -13416,6 +13439,12 @@
       },
       "finance": {
         "view_amounts": "Lihat jumlah wang (harga, kos, bajet, tuntutan)"
+      },
+      "field_staff": {
+        "manage": "Keluarkan dan urus pautan telefon kakitangan tapak bagi projek sendiri"
+      },
+      "project_supplier": {
+        "manage": "Letak pembekal daripada senarai ibu pejabat pada projek sendiri, atau keluarkan"
       }
     },
     "group": {
@@ -13487,7 +13516,9 @@
       "site_worker": "Senarai pekerja",
       "material_target": "Sasaran bahan",
       "inspection": "Pemeriksaan",
-      "finance": "Jumlah wang"
+      "finance": "Jumlah wang",
+      "field_staff": "Kakitangan tapak",
+      "project_supplier": "Pembekal projek"
     }
   },
   "photos": {
@@ -13725,7 +13756,7 @@
       "removeConfirm": "Keluarkan",
       "removeDescription": "Mereka tidak lagi melihat penerimaan dan muatan keluar projek ini. Akaun dan rekod mereka kekal seperti sedia ada.",
       "removeTitle": "Keluarkan {name} dari projek ini?",
-      "title": "Siapa boleh melihat projek ini",
+      "title": "Senarai kakitangan projek",
       "person": "Orang yang hendak ditambah",
       "whatMembers": "Senarai ahli projek"
     },
@@ -13832,6 +13863,14 @@
       "notes": "Nota hantar",
       "suppliers": "Senarai pembekal",
       "categories": "Ruangan"
+    },
+    "voidDialog": {
+      "description": "Aliran penerimaan akan berhenti dan kod QR tidak boleh digunakan lagi. Masukkan sebab.",
+      "title": "Tidak sahkan penghantaran yang telah tiba?"
+    },
+    "cancelDialog": {
+      "description": "Kod QR akan berhenti berfungsi serta-merta. Masukkan sebab pembatalan.",
+      "title": "Batalkan nota hantar ini?"
     }
   },
   "qrScan": {
@@ -15346,10 +15385,6 @@
     "unreachableTitle": "Tidak dapat menghubungi pelayan"
   },
   "settlements": {
-    "cancelDialog": {
-      "description": "Kod QR akan berhenti berfungsi serta-merta. Masukkan sebab pembatalan.",
-      "title": "Batalkan nota hantar ini?"
-    },
     "count": "{count, plural, =0 {Tiada penyelesaian} other {# penyelesaian}}",
     "field": {
       "amountPaid": "Dibayar",
@@ -15455,10 +15490,6 @@
       "paymentRecorded": "Pembayaran direkod"
     },
     "viewTitle": "Penyelesaian",
-    "voidDialog": {
-      "description": "Aliran penerimaan akan berhenti dan kod QR tidak boleh digunakan lagi. Masukkan sebab.",
-      "title": "Tidak sahkan penghantaran yang telah tiba?"
-    },
     "what": {
       "weighedLoads": "Senarai muatan yang telah ditimbang",
       "quote": "Kiraan penyelesaian"
@@ -17039,7 +17070,8 @@
       "noSites": "Tiada tapak untuk dikeluarkan kod.",
       "revokedOn": "Dibatalkan {date}",
       "scanHelp": "Cetak untuk pondok pengawal. Mengimbasnya membuka rekod bahan masuk dengan tapak dan pembekal sudah terisi.",
-      "title": "Kod tapak"
+      "title": "Kod tapak",
+      "onNoProject": "Pembekal ini belum ada dalam mana-mana projek. Tambahkannya dalam \"Pembekal projek\" dahulu."
     },
     "title": "Pembekal",
     "toast": {
@@ -17503,7 +17535,8 @@
       "access": "Akses",
       "activity": "Aktiviti",
       "identity": "Maklumat asas",
-      "preferences": "Keutamaan"
+      "preferences": "Keutamaan",
+      "projects": "Projek"
     },
     "status": {
       "ACTIVE": "Aktif",
@@ -17567,6 +17600,11 @@
       "unsaved": "Kebenaran telah diubah. Tekan “Simpan” di bawah supaya ia berkuat kuasa.",
       "partSaved": "Butiran pengguna telah disimpan; kebenaran belum disimpan lagi.",
       "notSwitchable": "Akaun pekerja tapak dan perunding kekal dengan peranan mereka: kebenaran mereka bukan suis."
+    },
+    "projectsView": {
+      "projectsAll": "Boleh melihat semua projek syarikat",
+      "projectsNone": "Belum menyertai mana-mana projek",
+      "projectsHint": "Sama seperti “Senarai kakitangan projek” setiap projek: tambah atau keluarkan orang ini dalam projek dan ini ikut berubah."
     }
   },
   "validation": {
@@ -19784,7 +19822,7 @@
     "noApproverSteps": {
       "role": "Peranan: beri peranan pelulus “Pengesahan keselamatan” dan “Lihat projek” (pratetap “Pengurus Keselamatan” ada kedua-duanya).",
       "user": "Pengguna: tetapkan akaun pelulus kepada peranan itu. Akaun baharu aktif selepas pemiliknya menetapkan kata laluan daripada e-mel.",
-      "team": "Pasukan projek: tambah mereka di bawah “Siapa boleh melihat projek ini” pada projek ini (tidak perlu jika peranan mempunyai “Lihat setiap projek dalam syarikat”)."
+      "team": "Pasukan projek: tambah mereka di bawah “Senarai kakitangan projek” pada projek ini (tidak perlu jika peranan mempunyai “Lihat setiap projek dalam syarikat”)."
     }
   },
   "gateCard": {
@@ -20646,5 +20684,54 @@
     "keepThis": "Guna yang ini, pejabat menaip",
     "next": "Pasport seterusnya",
     "sendFailed": "Tidak dihantar. Semak internet dan ambil semula"
+  },
+  "fieldStaffManagement": {
+    "title": "Kakitangan tapak",
+    "subtitle": "Keluarkan, lihat dan urus pautan log masuk telefon kakitangan tapak bagi projek anda: kakitangan tapak, operator jentera dan pengawal pintu.",
+    "new": "Pautan kakitangan tapak baharu",
+    "howTitle": "Cara guna",
+    "how1": "Tekan \"Pautan kakitangan tapak baharu\", isi nama dan nombor telefon, pilih peranan dan projek.",
+    "how2": "Hantar pautan dan PIN 6 digit kepada orang itu. Dia membuka pautan di telefon dan memasukkan PIN untuk log masuk.",
+    "how3": "Untuk menghantar pautan semula, menukar telefon atau melihat kod QR, tekan \"Pautan / kod QR\" pada orang itu. Tekan \"Padam\" bagi yang sudah tidak bekerja; nombornya boleh digunakan semula.",
+    "project": "Projek",
+    "allProjects": "Semua projek saya",
+    "search": "Cari",
+    "searchPlaceholder": "Nama atau nombor telefon",
+    "emptyTitle": "Belum ada kakitangan tapak",
+    "emptyHelp": "Tekan \"Pautan kakitangan tapak baharu\" untuk memberi kakitangan tapak, operator jentera atau pengawal pintu projek ini log masuk telefon.",
+    "signedIn": "Sudah log masuk",
+    "notYet": "Belum log masuk",
+    "off": "Digantung",
+    "link": "Pautan / kod QR",
+    "remove": "Padam",
+    "removeTitle": "Padam kakitangan tapak ini?",
+    "removeConfirm": "Selepas dipadam, {name} tidak boleh log masuk lagi dan nombor telefon boleh digunakan di projek lain. Rekod lamanya disimpan."
+  },
+  "projectSuppliers": {
+    "title": "Pembekal projek",
+    "description": "Pembekal yang boleh menghantar ke projek ini. Penerimaan, nota hantaran, kod tapak dan imbasan hanya menerima pembekal ini.",
+    "add": "Pilih daripada senarai ibu pejabat",
+    "loading": "Memuatkan…",
+    "what": "pembekal projek",
+    "empty": "Projek ini belum ada pembekal. Tekan \"Pilih daripada senarai ibu pejabat\" untuk menambah.",
+    "addedBy": "ditambah oleh {name}",
+    "remove": "Keluarkan",
+    "removeTitle": "Keluarkan \"{name}\" dari projek ini?",
+    "removeDescription": "Projek ini tidak lagi menerima daripada pembekal ini. Rekod lama disimpan, dan boleh ditambah semula kemudian.",
+    "addTitle": "Pilih pembekal daripada senarai ibu pejabat",
+    "addDescription": "Hanya pembekal dalam senarai ibu pejabat. Untuk pembekal baharu, minta ibu pejabat menciptanya.",
+    "project": "Projek",
+    "suppliers": "Pembekal",
+    "search": "Cari nama atau kod pembekal",
+    "allOn": "Semua pembekal dalam senarai ibu pejabat sudah ada dalam projek ini.",
+    "cancel": "Batal",
+    "chooseProjectFirst": "Pilih projek dahulu.",
+    "chooseSupplierFirst": "Tandakan sekurang-kurangnya satu pembekal.",
+    "addCount": "Tambah {count}",
+    "hqListNote": "Ibu pejabat mengurus senarai pembekal. Tekan \"Pilih daripada senarai ibu pejabat\" untuk meletakkan pembekal yang diperlukan pada projek anda.",
+    "toast": {
+      "added": "Ditambah ke projek.",
+      "removed": "Dikeluarkan dari projek."
+    }
   }
 }

@@ -117,6 +117,8 @@ export interface ProjectAssignment {
   user: string;
   user_name: string;
   user_email: string;
+  /** A phone account's number, shown instead of its placeholder email. */
+  user_phone?: string;
   role_code: string;
   role_name: string;
   is_field_staff: boolean;
@@ -547,7 +549,21 @@ export interface MySubmissionRow {
     // 杂费报销 stays here until paid (D-232).
     | "SUNDRY_CLAIM"
     // MR / Other Request (C07): the site follows its own requests here.
-    | "MATERIAL_REQUEST";
+    | "MATERIAL_REQUEST"
+    // JB116 (Lucas 11-06: 「应该是会显示所有不管什么的提交记录」): the gate
+    // guard's photos and visitor arrivals, 开工 / 收工 photos, a manual
+    // clock-in and a 施工准证.
+    | "GATE_INCIDENT"
+    | "VISITOR_ARRIVAL"
+    | "EQUIPMENT_HOURS"
+    | "ATTENDANCE"
+    | "PERMIT";
+  /** A site record's task type: `CONSULTANT` is a 顾问申请 sent from the phone (JB116). */
+  task_type?: string;
+  /** A gate record that is a 门岗事项 rather than a plain photo (JB116). */
+  gate_issue?: boolean;
+  /** A hazard or permit row's record type (`PERMIT` on a 施工准证). */
+  record_type?: string;
   reference: string;
   detail: string;
   project_id: string | null;
