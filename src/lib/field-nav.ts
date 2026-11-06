@@ -37,9 +37,11 @@ export function activeFieldNav(
   recordMode: string | null | undefined,
 ): FieldNavKey {
   // The hazard conversation, and the reporting form that borrows the 拍照
-  // tab to render itself. Both belong to 隐患, and only to 隐患.
-  if (tab === "incidents") return "hazards";
-  if (recordMode === "safety") return "hazards";
+  // tab to render itself. The 整改 / EHS button is gone from the bar (客户
+  // 11-06 第四轮 事项1); both are reached from 现场记录's 整改 / EHS card, so
+  // that is the button that stays lit.
+  if (tab === "incidents") return "records";
+  if (recordMode === "safety") return "records";
   if (tab === "attendance" || tab === "records" || tab === "talk" || tab === "operate") {
     return tab;
   }
@@ -57,12 +59,15 @@ export function activeFieldNav(
  * is the screen's half of the same rule.
  */
 export const FIELD_NAV: Readonly<Record<PhoneRole, readonly FieldNavKey[]>> = {
-  site_staff: ["home", "attendance", "records", "hazards", "talk"],
+  // 客户 11-06 第四轮 事项1: 「把整改/EHS小图标拿掉…四个小图标保留」 - on a Samsung the
+  // fifth button sat under the phone's own navigation keys. 整改 / EHS is
+  // still in 现场记录 (its 整改 / EHS card).
+  site_staff: ["home", "attendance", "records", "talk"],
   equipment_operator: ["operate", "talk"],
   gate_guard: ["records", "talk"],
   // MSE's test phones (JB108, 客户 11-05: 「不受…三种角色的页面限制」): every
   // page of the three, 设备操作 beside the site staff's.
-  all_pages: ["home", "attendance", "records", "hazards", "operate", "talk"],
+  all_pages: ["home", "attendance", "records", "operate", "talk"],
 };
 
 /** Which phone an account gets: the full one unless the server says otherwise. */

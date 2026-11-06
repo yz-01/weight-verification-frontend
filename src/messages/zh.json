@@ -9763,7 +9763,9 @@
     },
     "figures": {
       "title": "全公司数字",
-      "someProjects": "这些数字只包含你被指派的项目。",
+      "scopeAll": "这一页是公司总览：上面的数字是你可以看的全部 {count} 个项目的合计，切换右上角的项目不会改变这一页。要看单个项目的数字，按「项目仪表板」。",
+      "scopeMine": "这一页是你负责的 {count} 个项目的总览：上面的数字是这些项目的合计，切换右上角的项目不会改变这一页。要看单个项目的数字，按「项目仪表板」。",
+      "projectDashboard": "项目仪表板",
       "projects": "项目总数",
       "activeProjects": "活跃 {count}",
       "onSiteSplit": "App 人员 {app} ＋ 门岗通行 {gate}",
@@ -10011,6 +10013,7 @@
       "title": "让老板从看报表变成看现场",
       "subtitle": "汇总全公司所有项目的现场数据，连接人、物、机、料、进度与安全，让管理更简单、更透明、更高效。",
       "companyView": "总公司视图",
+      "companyViewMine": "我负责的项目总览",
       "same": "持平",
       "vsYesterday": "较昨日",
       "kpi": {
@@ -10023,6 +10026,7 @@
       },
       "activity": "今日现场动态（各项目）",
       "activityHint": "来自全公司各项目的最新现场记录",
+      "activityHintMine": "来自你负责的各项目的最新现场记录",
       "view": {
         "photos": "照片",
         "map": "地图"

@@ -110,6 +110,8 @@ const NAV_ICONS: Record<FieldNavKey, typeof Camera> = {
 /** Tailwind needs the whole class in the source: one per phone's button count. */
 const NAV_COLUMNS: Record<number, string> = {
   2: "grid-cols-2",
+  // Site staff since 客户 11-06 第四轮 事项1 (整改 / EHS off the bar).
+  4: "grid-cols-4",
   5: "grid-cols-5",
   6: "grid-cols-6",
 };

@@ -72,7 +72,16 @@ function weatherLook(code: number): { key: string; icon: LucideIcon } {
 }
 
 /** 大标题、副标题、「总公司视图」、日期和星期、天气 (要做 1). */
-export function HeadquartersHero({ date, action }: { date: string; action?: React.ReactNode }) {
+export function HeadquartersHero({
+  date,
+  action,
+  allProjects = true,
+}: {
+  date: string;
+  action?: React.ReactNode;
+  /** False for a reader who sees only their assigned projects (客户 11-06 第四轮 事项3). */
+  allProjects?: boolean;
+}) {
   const t = useTranslations("headquarters.reference");
   const format = useFormatter();
   const { user } = useAuth();
@@ -105,7 +114,7 @@ export function HeadquartersHero({ date, action }: { date: string; action?: Reac
           <div className="flex flex-wrap items-center gap-3">
             <h1 className="text-2xl font-bold leading-tight sm:text-3xl">{title}</h1>
             <span className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">
-              {t("companyView")}
+              {t(allProjects ? "companyView" : "companyViewMine")}
             </span>
           </div>
           <p className="text-sm text-muted-foreground">{subtitle}</p>
@@ -208,7 +217,7 @@ export function HeadquartersSiteActivity({
         <div className="flex items-center gap-2">
           <Camera className="size-5 text-primary" aria-hidden />
           <h2 className="text-base font-semibold">{t("activity")}</h2>
-          <span className="text-xs text-muted-foreground">{t("activityHint")}</span>
+          <span className="text-xs text-muted-foreground">{t(data.all_projects ? "activityHint" : "activityHintMine")}</span>
         </div>
         <div className="flex rounded-full border p-0.5" role="tablist" aria-label={t("activity")}>
           {(["photos", "map"] as const).map((key) => (
@@ -250,7 +259,8 @@ export function HeadquartersSiteActivity({
                 >
                   <span className="relative block aspect-[4/3] bg-muted">
                     {photo?.image ? (
-                      <Image src={photo.image} alt="" fill sizes="256px" className="object-cover" unoptimized />
+                      // The whole photo, never cropped: one 4:3 frame for every card, the photo fitted inside it (客户 11-06 第四轮 事项2-4).
+                      <Image src={photo.image} alt="" fill sizes="256px" className="object-contain" unoptimized />
                     ) : (
                       <span className="absolute inset-0 flex items-center justify-center text-muted-foreground">
                         <ImageIcon className="size-8" aria-hidden />
@@ -264,7 +274,7 @@ export function HeadquartersSiteActivity({
                   </span>
                   <span className="block space-y-0.5 p-3">
                     <span className="block truncate text-sm font-semibold">{project.name}</span>
-                    <span className="block truncate text-sm">
+                    <span className="block min-h-5 truncate text-sm">
                       {headline
                         ? [
                             headline.title,
@@ -279,11 +289,14 @@ export function HeadquartersSiteActivity({
                           : t("noPhoto")}
                     </span>
                     {photo ? (
-                      <span className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
+                      <span className="flex min-h-4 items-center justify-between gap-2 text-xs text-muted-foreground">
                         <span className="tabular-nums">{today ? df.time(photo.captured_at) : df.dateTime(photo.captured_at)}</span>
                         <span className="truncate">{photo.photographer}</span>
                       </span>
-                    ) : null}
+                    ) : (
+                      // The same three lines on every card, so the row lines up.
+                      <span className="block min-h-4" aria-hidden />
+                    )}
                   </span>
                 </button>
               </li>
