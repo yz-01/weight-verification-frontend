@@ -43,7 +43,7 @@ const EMPTY = {
   code: "", name: "Tower", status: "ACTIVE" as const, client_name: "", main_contractor: "", consultant: "",
   description: "", address_line_1: "1 Jalan", address_line_2: "", city: "", state: "", postcode: "",
   latitude: "", longitude: "", geofence_radius_m: "150", start_date: "", end_date: "",
-  site_manager: "Ali", site_phone: "", manager: "", boundary: [] as [number, number][],
+  site_manager: "Ali", site_phone: "", manager: "", boundary: [] as [number, number][], suppliers: [] as string[],
 };
 
 function render(project?: Project, defaultRadius?: number) {
@@ -111,6 +111,15 @@ describe("新增项目 (JB100)", () => {
     expect(placed).toMatchObject({ latitude: "3.1", longitude: "101.7", geofence_radius_m: 300 });
     // Emptied by the reader: left out, so the company's default applies.
     expect(newProjectPayload({ ...EMPTY, latitude: "3.1", longitude: "101.7", geofence_radius_m: "" })).not.toHaveProperty("geofence_radius_m");
+  });
+
+  it("puts the ticked 可用供应商 on the new project (JB125)", () => {
+    expect(newProjectPayload(EMPTY)).not.toHaveProperty("suppliers");
+    expect(newProjectPayload({ ...EMPTY, suppliers: ["s-1", "s-2"] })).toMatchObject({ suppliers: ["s-1", "s-2"] });
+    const html = render();
+    expect(html).toContain("可用供应商");
+    expect(html).toContain("勾选这个项目可以收货的供应商");
+    expect(html).toContain("已选 0 家");
   });
 
   it("hands the project to the chosen 项目经理 (JB109)", () => {
