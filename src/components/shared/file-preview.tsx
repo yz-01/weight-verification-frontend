@@ -20,6 +20,7 @@ import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 
 import { DocView } from "@/components/shared/doc-view";
+import { ZoomablePhoto } from "@/components/shared/photo-zoom";
 import { SheetView } from "@/components/shared/file-actions";
 import { canShowPdfInPage, printImage } from "@/lib/file-actions";
 import { Button } from "@/components/ui/button";
@@ -220,8 +221,9 @@ export function FilePreview({
             <Loader2 className="size-7 animate-spin text-primary" />
           </div>
         ) : kind === "image" ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={url} alt={filename} className="absolute inset-0 size-full object-contain" />
+          // Whole, with 放大 / 缩小 / 整张显示 under it, as every photo
+          // opened large (`photo-zoom`).
+          <ZoomablePhoto src={url} alt={filename} fill className="absolute inset-0 p-2" />
         ) : kind === "video" ? (
           <video src={url} controls className="absolute inset-0 size-full bg-black" />
         ) : kind === "sheet" ? (

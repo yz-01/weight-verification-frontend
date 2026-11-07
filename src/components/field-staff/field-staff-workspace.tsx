@@ -23,6 +23,7 @@ import { APP_VERSION } from "@/lib/app-version";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { AnnouncementDialog } from "@/components/announcements/announcement-dialog";
+import { PhotoLink } from "@/components/shared/photo-link";
 import { VisitorArrivalDialog } from "@/components/site-access/visitor-arrival";
 import { useClearSearchParam } from "@/hooks/use-url-selection";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -796,9 +797,9 @@ function FieldAttendancePanel() {
             <article key={row.id} className="surface-panel rounded-xl p-4">
               <div className="flex items-start gap-3">
                 {photoUrl ? (
-                  <a href={photoUrl} target="_blank" rel="noreferrer" title={t("attendance.openPhoto")}>
+                  <PhotoLink href={photoUrl} image label={row.project_name || t("attendance.openPhoto")} title={t("attendance.openPhoto")}>
                     <Image src={photoUrl} alt="" width={160} height={160} unoptimized className="size-16 rounded-lg object-cover" />
-                  </a>
+                  </PhotoLink>
                 ) : <span className="photo-hatch grid size-16 place-items-center rounded-lg"><Camera className="size-6 text-muted-foreground" /></span>}
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap gap-2">

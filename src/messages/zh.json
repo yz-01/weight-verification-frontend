@@ -19112,17 +19112,18 @@
         "markSent": "标记为已发送",
         "noContact": "没有填电话或 Email",
         "opened": "对方已打开 · {when}",
-        "openedCount": "（{count} 次）"
+        "openedCount": "（{count} 次）",
+        "confirmedByOpen": "对方于 {when} 打开链接，自动确认已发送"
       },
-      "askBodyLink": "发给 {name}：{file}。在 WhatsApp 里按了发送，才按「已发送」。对方打开链接时，发送记录会显示「对方已打开」。",
-      "askBodyLinkEmail": "发给 {name}：{file}。在电邮里按了发送，才按「已发送」。对方打开链接时，发送记录会显示「对方已打开」。"
+      "askBodyLink": "发给 {name}：{file}。在 WhatsApp 里按了发送就可以。对方打开链接时，系统会自动确认已发送；你也可以现在按「已发送」。",
+      "askBodyLinkEmail": "发给 {name}：{file}。在电邮里按了发送就可以。对方打开链接时，系统会自动确认已发送；你也可以现在按「已发送」。"
     },
     "link": {
       "whatsappButton": "打开 {name} 的 WhatsApp 对话",
       "whatsappHelp": "会打开和 {name} 的 WhatsApp 对话，消息里已经带好{what}链接，你在 WhatsApp 里按发送就可以。对方点链接就能打开{what}。",
       "emailButton": "打开电邮发给 {name}",
       "emailHelp": "会打开电邮，发给 {name}，内容里已经带好{what}链接，你在电邮里按发送就可以。对方点链接就能打开{what}。",
-      "messageLine": "{what}：{link}（{days} 天内有效）",
+      "messageLine": "{what}（{days} 天内有效）：{link}",
       "linkLabel": "{what}链接（{days} 天内有效）",
       "copyLink": "复制链接",
       "copyFailed": "没有复制到，请自己选中链接复制。",
@@ -19142,7 +19143,9 @@
       "emailFrom": "{company} 发给你的文件：{file}",
       "emailFromNoCompany": "发给你的文件：{file}",
       "gmailButton": "用 Gmail 网页版发送",
-      "checkThenSend": "打开后检查一下，按发送就可以。"
+      "checkThenSend": "打开后检查一下，按发送就可以。",
+      "whatsappIntro": "请点下面的链接查看：{name}",
+      "noMailApp": "没有打开邮件？代表这台电脑没有设定邮件软件（例如 Outlook）。请按「用 Gmail 网页版发送」，或复制下面的链接自己发。"
     }
   },
   "recordAttachments": {
@@ -20286,7 +20289,7 @@
         "body": "看着照片核对姓名和号码，改了会自动存。",
         "openPdf": "打开 PDF 看",
         "noPhoto": "这一行没有护照照片。",
-        "zoomHint": "点照片可以在新窗口放大看。",
+        "zoomHint": "用照片下面的放大、缩小看清楚再补打。",
         "confirm": "核对好了"
       },
       "saveBlocked": "表里改的还没存到服务器，所以还没保存。请检查网络，再按一次「全部保存」。",

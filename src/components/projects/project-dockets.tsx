@@ -8,10 +8,11 @@ import { QRCodeCanvas } from "qrcode.react";
 import { useRef, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { PhotoLink } from "@/components/shared/photo-link";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { FieldWrapper, LoadFailed, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { SupplierReturnBadge } from "@/components/suppliers/supplier-return-badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -381,21 +382,33 @@ function DeliveryNoteResultDialog({ note, onClose }: { note: DeliveryNote; onClo
           <div>
             <h3 className="mb-3 font-semibold">{t("qrCodes.result.evidence")}</h3>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              {note.evidence.map((item) => (
-                <a key={item.id} href={item.watermarked ?? item.image} target="_blank" rel="noreferrer" className="group block">
+              {note.evidence.map((item, index, all) => (
+                <PhotoLink
+                  key={item.id}
+                  href={item.watermarked ?? item.image}
+                  image
+                  label={t(`deliveryNotePublic.evidence.${item.kind}`)}
+                  photos={all.map((one) => ({ id: one.id, url: one.watermarked ?? one.image, label: t(`deliveryNotePublic.evidence.${one.kind}`) }))}
+                  index={index}
+                  className="group block"
+                >
                   <div className="relative aspect-4/3 overflow-hidden rounded-md border bg-muted">
                     <Image src={item.watermarked ?? item.image} alt={t(`deliveryNotePublic.evidence.${item.kind}`)} fill unoptimized className="object-cover object-bottom transition-transform group-hover:scale-105" />
                   </div>
                   <p className="mt-1 text-xs text-muted-foreground">{t(`deliveryNotePublic.evidence.${item.kind}`)}</p>
-                </a>
+                </PhotoLink>
               ))}
             </div>
           </div>
         )}
         {note.receiver_signature && (
-          <Button variant="outline" asChild>
-            <a href={note.receiver_signature} target="_blank" rel="noreferrer">{t("qrCodes.result.signature")}</a>
-          </Button>
+          <PhotoLink
+            href={note.receiver_signature}
+            label={t("qrCodes.result.signature")}
+            className={buttonVariants({ variant: "outline" })}
+          >
+            {t("qrCodes.result.signature")}
+          </PhotoLink>
         )}
         <DialogFooter><Button onClick={onClose}>{t("common.close")}</Button></DialogFooter>
       </DialogContent>

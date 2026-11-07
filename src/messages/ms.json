@@ -19112,17 +19112,18 @@
         "markSent": "Tanda sudah dihantar",
         "noContact": "Tiada telefon atau e-mel",
         "opened": "Dibuka oleh penerima · {when}",
-        "openedCount": " ({count} kali)"
+        "openedCount": " ({count} kali)",
+        "confirmedByOpen": "Penerima membuka pautan pada {when}, jadi ia disahkan dihantar"
       },
-      "askBodyLink": "Kepada {name}: {file}. Tekan 'Sudah dihantar' hanya selepas anda menekan hantar dalam WhatsApp. Apabila {name} membuka pautan, rekod penghantaran menunjukkan 'Dibuka oleh penerima'.",
-      "askBodyLinkEmail": "Kepada {name}: {file}. Tekan 'Sudah dihantar' hanya selepas anda menekan hantar dalam e-mel. Apabila {name} membuka pautan, rekod penghantaran menunjukkan 'Dibuka oleh penerima'."
+      "askBodyLink": "Kepada {name}: {file}. Tekan hantar dalam WhatsApp. Apabila penerima membuka pautan, sistem mengesahkan ia dihantar dengan sendiri; anda juga boleh tekan Dihantar sekarang.",
+      "askBodyLinkEmail": "Kepada {name}: {file}. Tekan hantar dalam e-mel anda. Apabila penerima membuka pautan, sistem mengesahkan ia dihantar dengan sendiri; anda juga boleh tekan Dihantar sekarang."
     },
     "link": {
       "whatsappButton": "Buka perbualan WhatsApp dengan {name}",
       "whatsappHelp": "Ini membuka perbualan WhatsApp anda dengan {name}. Mesej sudah ada pautan {what} - tekan hantar sahaja dalam WhatsApp. {name} tekan pautan untuk membuka {what}.",
       "emailButton": "Buka e-mel kepada {name}",
       "emailHelp": "Ini membuka e-mel kepada {name}. Pautan {what} sudah ada di dalamnya - tekan hantar sahaja. {name} klik pautan untuk membuka {what}.",
-      "messageLine": "{what}: {link} (sah selama {days} hari)",
+      "messageLine": "{what} (sah selama {days} hari): {link}",
       "linkLabel": "Pautan {what} (sah selama {days} hari)",
       "copyLink": "Salin pautan",
       "copyFailed": "Tidak dapat disalin. Pilih pautan dan salin sendiri.",
@@ -19142,7 +19143,9 @@
       "emailFrom": "Fail daripada {company}: {file}",
       "emailFromNoCompany": "Fail untuk anda: {file}",
       "gmailButton": "Hantar dengan Gmail dalam pelayar",
-      "checkThenSend": "Semak selepas dibuka, kemudian tekan hantar."
+      "checkThenSend": "Semak selepas dibuka, kemudian tekan hantar.",
+      "whatsappIntro": "Sila buka pautan di bawah untuk melihat {name}",
+      "noMailApp": "Tiada e-mel dibuka? Komputer ini tiada apl mel yang disediakan (seperti Outlook). Tekan Hantar dengan Gmail, atau salin pautan di bawah dan hantar sendiri."
     }
   },
   "recordAttachments": {
@@ -20286,7 +20289,7 @@
         "body": "Semak nama dan nombor dengan gambar; perubahan disimpan sendiri.",
         "openPdf": "Buka PDF",
         "noPhoto": "Baris ini tiada gambar pasport.",
-        "zoomHint": "Klik gambar untuk buka lebih besar di tab baharu.",
+        "zoomHint": "Guna zum masuk / zum keluar di bawah gambar untuk baca dengan jelas.",
         "confirm": "Sudah disemak"
       },
       "saveBlocked": "Perubahan jadual belum sampai ke pelayan, jadi tiada yang disimpan. Semak internet dan tekan \"Simpan semua\" sekali lagi.",

@@ -31,21 +31,25 @@ import {
   ChevronLeft,
   ChevronRight,
   Phone,
-  Shrink,
   X,
-  ZoomIn,
-  ZoomOut,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { useDismissDialog } from "@/components/shared/dialog-navigation";
 import { EvidenceFileActions } from "@/components/shared/evidence-file-actions";
 import { RecordSendLog, RecordSendTargetProvider } from "@/components/shared/record-send-log";
 import { LocationMap } from "@/components/shared/location-map";
+import {
+  fitSize,
+  PhotoZoomBar,
+  usePhotoZoom,
+  zoomFrameClass,
+  type Size,
+} from "@/components/shared/photo-zoom";
 import { RecordAttachmentsPanel } from "@/components/shared/record-attachments";
 import { RecordClosurePanel } from "@/components/shared/record-closure";
 import { RecordConversationPanel } from "@/components/shared/record-conversation";
@@ -113,27 +117,9 @@ export interface ShellSignature {
   url: string;
 }
 
-/** 100% is the whole photo fitted in the frame (I21, ID44); 400% the most. */
-const MIN_ZOOM = 1;
-const MAX_ZOOM = 4;
-
-interface Size {
-  width: number;
-  height: number;
-}
-
-/**
- * The size a photo is drawn at to show all of it in the frame (I21, ID44):
- * its shape kept, neither side over the frame, never blown up past its own
- * pixels. The viewer's 100%; zooming multiplies this.
- */
-export function fitSize(photo: Size, frame: Size): Size {
-  if (photo.width <= 0 || photo.height <= 0 || frame.width <= 0 || frame.height <= 0) {
-    return { width: 0, height: 0 };
-  }
-  const scale = Math.min(frame.width / photo.width, frame.height / photo.height, 1);
-  return { width: photo.width * scale, height: photo.height * scale };
-}
+// The zoom itself - 100% to 400%, the fitted size, the bar - is shared with
+// every other viewer (`photo-zoom`), so every photo zooms the same way.
+export { fitSize };
 
 /** The shape a frame takes before its photo has loaded: a phone's 4:3. */
 const LOADING_SHAPE: Size = { width: 4, height: 3 };
@@ -683,18 +669,28 @@ export function PhotoViewer({
   const t = useTranslations("recordShell");
   const common = useTranslations("common");
   const df = useDateFormat();
-  const [zoom, setZoom] = useState(MIN_ZOOM);
   const photo = photos[index];
-  const frameRef = useRef<HTMLDivElement>(null);
-  const [frame, setFrame] = useState<Size | null>(null);
-  // The photo's own pixels, kept with the address they belong to so the
-  // next photo is never sized by the last one's shape.
-  const [natural, setNatural] = useState<(Size & { url: string }) | null>(null);
+  // The last photo's shape while the next one loads, so the phone's frame
+  // does not jump to 4:3 and back between two portrait photos.
+  const [lastShape, setLastShape] = useState<Size>(LOADING_SHAPE);
+  // 100% to 400%, shared with every other viewer (`photo-zoom`); a new
+  // photo goes back to the whole one.
+  const {
+    zoom,
+    whole,
+    frameRef,
+    natural: loaded,
+    enlarged,
+    step,
+    reset,
+    onLoad,
+    pinchStart,
+    pinchMove,
+    pinchEnd,
+  } = usePhotoZoom(photo.url, { onNatural: setLastShape });
   const many = photos.length > 1;
-  const step = (by: number) =>
-    setZoom((current) => Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, current + by)));
   const go = (by: number) => {
-    setZoom(MIN_ZOOM);
+    reset();
     onIndex((index + by + photos.length) % photos.length);
   };
   // ← and → turn the photographs too (I9: over a daily report they are the photo's, not the report's).
@@ -702,36 +698,10 @@ export function PhotoViewer({
   // On a phone a sideways swipe turns them (J34-1 point 5), while it is whole.
   const swipe = useRef<number | null>(null);
 
-  useEffect(() => {
-    const node = frameRef.current;
-    if (!node || typeof ResizeObserver === "undefined") return;
-    const watcher = new ResizeObserver(([entry]) => {
-      if (entry) setFrame({ width: entry.contentRect.width, height: entry.contentRect.height });
-    });
-    watcher.observe(node);
-    return () => watcher.disconnect();
-  }, []);
-
-  const whole = zoom <= MIN_ZOOM;
-  const loaded = natural && natural.url === photo.url ? natural : null;
-  const fitted = frame && loaded ? fitSize(loaded, frame) : null;
-  // The last photo's shape while the next one loads, so the phone's frame
-  // does not jump to 4:3 and back between two portrait photos.
-  const [lastShape, setLastShape] = useState<Size>(LOADING_SHAPE);
   const shape = loaded ?? lastShape;
   // The phone's frame is the photograph's own shape (J34-1, Lucas 10-20:
   // 「框刚好包住照片」); the computer's is the whole left-hand area.
   const frameWidth = photoFrameWidth(shape, VIEWER_HEIGHT);
-  // Enlarged: the fitted size times the zoom, so 200% is twice the whole
-  // photo. Until the frame has been measured, the frame's width stands in.
-  const enlarged: React.CSSProperties = fitted
-    ? {
-        width: `${fitted.width * zoom}px`,
-        height: `${fitted.height * zoom}px`,
-        maxWidth: "none",
-        maxHeight: "none",
-      }
-    : { width: `${zoom * 100}%`, height: "auto", maxWidth: "none", maxHeight: "none" };
   const when = photo.takenAt ? df.dateTime(photo.takenAt) : t("noTime");
   const where =
     photo.latitude && photo.longitude ? `GPS ${photo.latitude}, ${photo.longitude}` : t("noLocation");
@@ -811,15 +781,21 @@ export function PhotoViewer({
                 ref={frameRef}
                 data-photo-frame={whole ? "whole" : "zoomed"}
                 className={cn(
-                  "flex max-w-full rounded-xl bg-muted ring-1 ring-panel-border transition-[width] duration-200",
+                  "flex max-w-full touch-pan-x touch-pan-y rounded-xl bg-muted ring-1 ring-panel-border transition-[width] duration-200",
                   "max-sm:mx-auto max-sm:aspect-(--photo-shape) max-sm:w-(--photo-frame-width)",
                   "sm:absolute sm:inset-x-14 sm:inset-y-2 sm:rounded-lg sm:ring-0",
-                  whole ? "items-center justify-center overflow-hidden" : "overflow-auto",
+                  zoomFrameClass(whole),
                 )}
                 onTouchStart={(event) => {
+                  pinchStart(event);
                   swipe.current = whole && event.touches.length === 1 ? event.touches[0].clientX : null;
                 }}
+                onTouchMove={(event) => {
+                  pinchMove(event);
+                  if (event.touches.length > 1) swipe.current = null;
+                }}
                 onTouchEnd={(event) => {
+                  pinchEnd(event);
                   const from = swipe.current;
                   swipe.current = null;
                   const to = event.changedTouches[0]?.clientX;
@@ -839,14 +815,7 @@ export function PhotoViewer({
                   src={photo.url}
                   alt={photo.label}
                   data-photo-zoom={Math.round(zoom * 100)}
-                  onLoad={(event) => {
-                    const size = {
-                      width: event.currentTarget.naturalWidth,
-                      height: event.currentTarget.naturalHeight,
-                    };
-                    setNatural({ url: photo.url, ...size });
-                    if (size.width > 0 && size.height > 0) setLastShape(size);
-                  }}
+                  onLoad={onLoad}
                   style={whole ? undefined : enlarged}
                   className={cn(
                     "block",
@@ -885,41 +854,7 @@ export function PhotoViewer({
             </div>
             {/* The zoom, at the foot of the photo's side - under the photo,
                 so it never covers the stamped strip along its bottom. */}
-            <div data-photo-zoom-bar className="flex shrink-0 items-center justify-center gap-1">
-              <Button
-                size="sm"
-                variant="outline"
-                title={t("zoomOut")}
-                disabled={zoom <= MIN_ZOOM}
-                disabledReason={t("zoomOut")}
-                onClick={() => step(-0.5)}
-              >
-                <ZoomOut />
-              </Button>
-              <span className="w-12 text-center text-xs tabular-nums">
-                {Math.round(zoom * 100)}%
-              </span>
-              <Button
-                size="sm"
-                variant="outline"
-                title={t("zoomIn")}
-                disabled={zoom >= MAX_ZOOM}
-                disabledReason={t("zoomIn")}
-                onClick={() => step(0.5)}
-              >
-                <ZoomIn />
-              </Button>
-              <Button
-                size="sm"
-                variant="ghost"
-                title={t("fitWhole")}
-                data-photo-fit-whole
-                onClick={() => setZoom(MIN_ZOOM)}
-              >
-                <Shrink />
-                {t("fitWhole")}
-              </Button>
-            </div>
+            <PhotoZoomBar zoom={zoom} onStep={step} onFit={reset} />
           </div>
           {/* The record, on the right; only this scrolls (「资料过长时，仅右侧
               资料区域独立滚动」). Turning the photo turns it too. */}

@@ -6,11 +6,11 @@
 
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { CheckCircle2, FileText, Loader2, Square } from "lucide-react";
-import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { QRCodeSVG } from "qrcode.react";
 
 import { FieldWrapper, QueryFailedNote } from "@/components/shared/page-primitives";
+import { ZoomablePhoto } from "@/components/shared/photo-zoom";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -121,18 +121,12 @@ export function RowCheckDialog({
           <div className="grid gap-4 md:grid-cols-5">
             <div className="md:col-span-3">
               {row.photoUrl && !row.photoIsPdf ? (
-                <a href={row.photoUrl} target="_blank" rel="noreferrer" className="block">
-                  <span className="relative block aspect-[4/3] w-full overflow-hidden rounded-md border bg-muted">
-                    <Image
-                      src={row.photoUrl}
-                      alt={bulk("column.photo")}
-                      fill
-                      sizes="(min-width: 768px) 60vw, 100vw"
-                      className="object-contain"
-                      unoptimized
-                    />
-                  </span>
-                </a>
+                // Zoomed in place, beside the boxes being typed (`photo-zoom`).
+                <ZoomablePhoto
+                  src={row.photoUrl}
+                  alt={bulk("column.photo")}
+                  frameClassName="aspect-[4/3] w-full rounded-md border bg-muted"
+                />
               ) : row.photoUrl ? (
                 <a
                   href={row.photoUrl}

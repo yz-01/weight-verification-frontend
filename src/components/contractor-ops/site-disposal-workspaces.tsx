@@ -26,6 +26,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { useSearchParams } from "next/navigation";
 
 import { LocationField } from "@/components/field-staff/location-field";
+import { PhotoLink } from "@/components/shared/photo-link";
 import type { LocationValue } from "@/lib/field-location";
 import { AddToPackageButton } from "@/components/contractor-ops/add-to-package";
 import { useAuth } from "@/components/providers/auth-provider";
@@ -902,11 +903,19 @@ export function DisposalTripsPanel({
             )}
             {trip.evidence.length > 0 && (
               <div className="mt-2 flex flex-wrap gap-1.5">
-                {trip.evidence.map((item) => (
-                  <a key={item.id} href={item.watermarked || item.image} target="_blank" rel="noreferrer" title={t(`evidenceKind.${item.kind}`)}>
+                {trip.evidence.map((item, index, all) => (
+                  <PhotoLink
+                    key={item.id}
+                    href={item.watermarked || item.image}
+                    image
+                    label={t(`evidenceKind.${item.kind}`)}
+                    photos={all.map((one) => ({ id: one.id, url: one.watermarked || one.image, label: t(`evidenceKind.${one.kind}`) }))}
+                    index={index}
+                    title={t(`evidenceKind.${item.kind}`)}
+                  >
                     {/* eslint-disable-next-line @next/next/no-img-element -- a signed, watermarked evidence URL, not a static asset */}
                     <img loading="lazy" decoding="async" src={item.watermarked || item.image} alt={t(`evidenceKind.${item.kind}`)} className="size-12 rounded object-cover" />
-                  </a>
+                  </PhotoLink>
                 ))}
               </div>
             )}

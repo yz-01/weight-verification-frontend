@@ -45,6 +45,7 @@ import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react
 import { toast } from "sonner";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { ZoomablePhoto } from "@/components/shared/photo-zoom";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -611,8 +612,9 @@ function FileViewerDialog({
           ) : format === "sheet" ? (
             <SheetView file={held.file} />
           ) : format === "image" ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={url} alt={held.file.name} className="absolute inset-0 size-full object-contain" />
+            // Whole, with 放大 / 缩小 / 整张显示 under it, as every photo
+            // opened large (`photo-zoom`).
+            <ZoomablePhoto src={url} alt={held.file.name} fill className="absolute inset-0 p-2" />
           ) : (
             <Unsupported />
           )}
@@ -998,6 +1000,9 @@ function LinkSend({
   const { user } = useAuth();
   const [working, setWorking] = useState(false);
   const [made, setMade] = useState<ShareLink | null>(null);
+  // 「我点了打开电邮没有反应」 (Lucas 11-08): a computer with no mail app set up
+  // ignores mailto, and a page cannot tell. Once tried, say so and point at Gmail.
+  const [triedMail, setTriedMail] = useState(false);
   const whatsapp = recipient.method === "WHATSAPP";
   const name = recipient.recipient_name;
   const kind = linkKind(held.file);
@@ -1005,7 +1010,7 @@ function LinkSend({
     t("link.messageLine", { what: t(`link.kindTitle.${kind}`), link: url, days });
   const text = (url: string, days: number) => {
     if (whatsapp) {
-      return [held.title, t("shareMessage", { name: held.file.name }), linkLine(url, days)].join("\n");
+      return [held.title, t("link.whatsappIntro", { name: held.file.name }), linkLine(url, days)].join("\n");
     }
     const company = user?.company_name ?? "";
     return [
@@ -1036,6 +1041,7 @@ function LinkSend({
         return;
       }
       setMade(result.made);
+      if (via === "mailto") setTriedMail(true);
       onShare(result.made.share);
       onSent();
     } finally {
@@ -1084,6 +1090,11 @@ function LinkSend({
         </Button>
       )}
       <p className="text-xs text-muted-foreground">{t("link.checkThenSend")}</p>
+      {triedMail ? (
+        <p className="rounded-md border border-tone-amber/40 bg-tone-amber/10 p-2 text-xs" role="status" data-slot="file-share-link-no-mail">
+          {t("link.noMailApp")}
+        </p>
+      ) : null}
       {made ? (
         <div className="space-y-2 rounded-md border p-2" data-slot="file-share-link-url">
           <p className="flex items-center gap-1 text-xs text-muted-foreground">

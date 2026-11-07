@@ -29,15 +29,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { ZoomablePhoto } from "@/components/shared/photo-zoom";
 import type { HeadquartersPhoto } from "@/interfaces/headquarters";
 import { useDateFormat } from "@/lib/dates";
 import { normalizeClock } from "@/lib/gate-time-range";
 import { wallStep } from "@/lib/gate-photo-wall";
 import { photoTarget } from "@/lib/headquarters-links";
 import { createClickSorter, type PhotoWallFilters } from "@/lib/photo-wall";
-
-/** How far a finger has to travel for a swipe to turn the photo. */
-const SWIPE_PX = 48;
 
 /** The pages a wall reads, as `useInfiniteQuery` hands them over. */
 export interface PhotoWallPages {
@@ -169,7 +167,6 @@ export function PhotoWallViewer({
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
-  const touchX = useRef<number | null>(null);
   const photographer = photo.photographer || t("unknownPhotographer");
 
   return (
@@ -186,37 +183,25 @@ export function PhotoWallViewer({
         </DialogHeader>
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
           <div className="min-w-0 space-y-3">
-            <div
-              className="photo-hatch flex h-[50dvh] items-center justify-center overflow-hidden rounded-xl border border-panel-border lg:h-[68dvh]"
-              onTouchStart={(event) => {
-                touchX.current = event.touches[0]?.clientX ?? null;
-              }}
-              onTouchEnd={(event) => {
-                const start = touchX.current;
-                touchX.current = null;
-                const end = event.changedTouches[0]?.clientX;
-                if (start === null || end === undefined) return;
-                if (end - start <= -SWIPE_PX) onStep(1);
-                else if (end - start >= SWIPE_PX) onStep(-1);
-              }}
-            >
-              {photo.image ? (
-                // The stamped photo as the record holds it, whole and fitted.
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  key={photo.id}
-                  src={photo.image}
-                  alt={t("alt", { kind, project: photo.project })}
-                  className="max-h-full max-w-full object-contain"
-                  data-wall-photo
-                />
-              ) : (
+            {photo.image ? (
+              // The stamped photo as the record holds it, whole and fitted;
+              // 放大 / 缩小 / 整张显示 under it, as in every viewer
+              // (`photo-zoom`). A swipe turns it while it is whole.
+              <ZoomablePhoto
+                src={photo.image}
+                alt={t("alt", { kind, project: photo.project })}
+                frameClassName="photo-hatch h-[50dvh] rounded-xl border border-panel-border lg:h-[68dvh]"
+                imgProps={{ "data-wall-photo": true }}
+                onSwipe={onStep}
+              />
+            ) : (
+              <div className="photo-hatch flex h-[50dvh] items-center justify-center rounded-xl border border-panel-border lg:h-[68dvh]">
                 <span className="flex flex-col items-center gap-2 text-sm text-muted-foreground">
                   <ImageOff className="size-6" aria-hidden />
                   {t("noPhoto")}
                 </span>
-              )}
-            </div>
+              </div>
+            )}
             <div className="flex items-center justify-between gap-2">
               <Button
                 variant="outline"

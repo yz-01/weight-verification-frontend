@@ -65,6 +65,7 @@ function submissionStatusText(
 }
 
 import { SundryWithdraw } from "@/components/sundry-claims/sundry-withdraw";
+import { PhotoLink } from "@/components/shared/photo-link";
 import { PhotoThumb, recordKindIcon } from "@/components/shared/photo-thumb";
 import { FileThumbs } from "@/components/shared/file-thumbs";
 import { ReturnProcessingDialog } from "@/components/contractor-ops/operations-workspaces";
@@ -836,9 +837,15 @@ function StoredDetailSheet({
                       <FileThumbs
                         files={[{ id: file.id, name: file.name, thumbnail_url: file.is_image ? file.url : null, href: file.url }]}
                       />
-                      <a href={file.url} target="_blank" rel="noreferrer" className="min-w-0 flex-1 truncate text-primary underline-offset-4 hover:underline">
+                      <PhotoLink
+                        href={file.url}
+                        name={file.name}
+                        image={file.is_image || undefined}
+                        label={file.name}
+                        className="min-w-0 flex-1 truncate text-primary underline-offset-4 hover:underline"
+                      >
                         {file.name}
-                      </a>
+                      </PhotoLink>
                       <a href={file.url} download={file.name} className="shrink-0 text-xs text-muted-foreground underline-offset-4 hover:underline">
                         {t("mySubmissions.download")}
                       </a>
@@ -855,8 +862,18 @@ function StoredDetailSheet({
                   </p>
                 ) : (
                   <div className="grid grid-cols-2 gap-2">
-                    {(detail.data.payment_proofs ?? []).map((proof) => (
-                      <a key={proof.id} href={proof.url} target="_blank" rel="noreferrer" className="block">
+                    {(detail.data.payment_proofs ?? []).map((proof, _index, all) => (
+                      <PhotoLink
+                        key={proof.id}
+                        href={proof.url}
+                        image={!/\.pdf$/i.test(proof.name ?? "")}
+                        label={t("mySubmissions.paymentProofs")}
+                        photos={all
+                          .filter((one) => !/\.pdf$/i.test(one.name ?? ""))
+                          .map((one) => ({ id: one.id, url: one.url, label: t("mySubmissions.paymentProofs") }))}
+                        index={all.filter((one) => !/\.pdf$/i.test(one.name ?? "")).findIndex((one) => one.id === proof.id)}
+                        className="block"
+                      >
                         {/\.pdf$/i.test(proof.name ?? "") ? (
                           // The bank's PDF (D11): a file to open, not a photo.
                           <span className="flex aspect-4/3 w-full flex-col items-center justify-center gap-1 rounded-md border p-2 text-center text-2xs">
@@ -868,7 +885,7 @@ function StoredDetailSheet({
                           <img src={proof.url} alt={t("mySubmissions.paymentProofs")} className="aspect-4/3 w-full rounded-md border object-cover object-bottom" />
                         )}
                         {proof.amount ? <span className="mt-1 block text-xs tabular-nums">RM {proof.amount}</span> : null}
-                      </a>
+                      </PhotoLink>
                     ))}
                   </div>
                 )}

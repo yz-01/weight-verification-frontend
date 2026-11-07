@@ -16,6 +16,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { PhotoLink } from "@/components/shared/photo-link";
 import {
   LocationMap,
   type LocationMapMarker,
@@ -83,10 +84,10 @@ function PassportPhoto({ url, isPdf, label, openLabel }: {
     <div className="min-w-0 rounded-md border bg-muted/20 p-2">
       <div className="text-xs text-muted-foreground">{label}</div>
       {url ? (
-        <a
+        <PhotoLink
           href={url}
-          target="_blank"
-          rel="noreferrer"
+          image={!isPdf}
+          label={label}
           className="mt-1 inline-flex items-center gap-2 text-sm font-medium text-primary"
           aria-label={openLabel}
         >
@@ -100,7 +101,7 @@ function PassportPhoto({ url, isPdf, label, openLabel }: {
             </span>
           )}
           {openLabel}
-        </a>
+        </PhotoLink>
       ) : (
         <div className="mt-1 font-medium text-foreground">—</div>
       )}

@@ -83,6 +83,21 @@ export function linkTarget(via: LinkVia, contact: string, subject: string, text:
  *
  * Any failure closes the blank window and opens nothing.
  */
+/**
+ * The token out of whatever the chat app made the link (Lucas 11-08): WhatsApp
+ * ran 「（30 天内有效）」 into the link, so the address ended in 「（30」. A
+ * token is only letters, digits, - and _; the rest is not part of it.
+ */
+export function cleanShareToken(raw: string): string {
+  let text = raw;
+  try {
+    text = decodeURIComponent(raw);
+  } catch {
+    // A broken % sequence: keep what came.
+  }
+  return /^[A-Za-z0-9_-]*/.exec(text)?.[0] ?? "";
+}
+
 export async function sendByLink(
   recipient: SendRecipient,
   file: File,

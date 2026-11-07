@@ -1,6 +1,7 @@
 "use client";
 
 import { CloseTaskButton } from "@/components/contractor-ops/close-task-button";
+import { PhotoLink, referencePhotos } from "@/components/shared/photo-link";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Check, Loader2, MapPin, Send } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -228,7 +229,14 @@ export function FieldTaskSheet({ id, onClose }: { id: string; onClose: () => voi
                 <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
                   {row.references.map((reference) =>
                     reference.kind === "PHOTO" ? (
-                      <a key={reference.id} href={reference.file} target="_blank" rel="noreferrer">
+                      <PhotoLink
+                        key={reference.id}
+                        href={reference.file}
+                        image
+                        label={reference.label || reference.original_filename}
+                        photos={referencePhotos(row.references)}
+                        index={referencePhotos(row.references).findIndex((one) => one.id === reference.id)}
+                      >
                         <Image
                           src={reference.file}
                           alt={reference.label || reference.original_filename}
@@ -237,7 +245,7 @@ export function FieldTaskSheet({ id, onClose }: { id: string; onClose: () => voi
                           unoptimized
                           className="aspect-4/3 w-full rounded-lg object-cover object-bottom"
                         />
-                      </a>
+                      </PhotoLink>
                     ) : (
                       <a
                         key={reference.id}

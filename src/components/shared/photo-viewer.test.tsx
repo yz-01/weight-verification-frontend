@@ -310,3 +310,20 @@ describe("the large first photo", () => {
     expect(hero).not.toMatch(/absolute bottom-2/);
   });
 });
+
+describe("zooming really enlarges (Lucas 11-08: 400% stopped at about 150%)", () => {
+  // The zoom is shared with every viewer since 11-08 (`photo-zoom`).
+  const source = readFileSync(path.resolve("src/components/shared/photo-zoom.tsx"), "utf8");
+  it("the enlarged photo does not shrink back inside the flex frame", () => {
+    const enlarged = source.slice(source.indexOf("export function enlargedStyle"), source.indexOf("export function zoomFrameClass"));
+    expect(enlarged.match(/flexShrink: 0/g)).toHaveLength(2);
+    const shell = readFileSync(path.resolve("src/components/shared/record-detail-shell.tsx"), "utf8");
+    expect(shell).toContain("style={whole ? undefined : enlarged}");
+  });
+
+  it("no striped bands beside a photo anywhere (Lucas 11-08)", () => {
+    const css = readFileSync(path.resolve("src/app/globals.css"), "utf8");
+    const hatch = css.slice(css.indexOf(".photo-hatch {"), css.indexOf("}", css.indexOf(".photo-hatch {")));
+    expect(hatch).not.toMatch(/repeating-linear-gradient/);
+  });
+});

@@ -17,7 +17,6 @@ import {
   Video,
   XCircle,
 } from "lucide-react";
-import Image from "next/image";
 import { useFormatter, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
@@ -26,6 +25,7 @@ import { useCurrentProject } from "@/components/providers/current-project-provid
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import { AdvancedTechnicalSettings } from "@/components/shared/advanced-technical-settings";
 import { OriginalStatusText } from "@/components/shared/original-backup";
+import { ZoomablePhoto } from "@/components/shared/photo-zoom";
 import {
   FieldWrapper,
   FilterBar,
@@ -468,16 +468,12 @@ function EvidenceDialog({
 
         <div className="-mx-1 max-h-[70dvh] space-y-6 overflow-y-auto px-1">
           {asset.kind === "PHOTO" && (asset.watermarked_file || asset.file) && (
-            <div className="relative aspect-[16/7] overflow-hidden rounded-md border bg-muted/40">
-              <Image
-                src={asset.watermarked_file || asset.file}
-                alt={asset.original_filename}
-                fill
-                sizes="(max-width: 768px) 100vw, 800px"
-                className="object-contain"
-                unoptimized
-              />
-            </div>
+            // 放大 / 缩小 / 整张显示, as every photo opened large (`photo-zoom`).
+            <ZoomablePhoto
+              src={asset.watermarked_file || asset.file}
+              alt={asset.original_filename}
+              frameClassName="aspect-[16/7] w-full rounded-md border bg-muted/40"
+            />
           )}
 
           <DetailSection title={t("evidence.section.record")}>

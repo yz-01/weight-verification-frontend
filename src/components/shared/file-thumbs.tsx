@@ -19,6 +19,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { DocumentFileIcon } from "@/components/document-workflow/document-archive-parts";
+import { isImageFile, PhotoLink, type LinkPhoto } from "@/components/shared/photo-link";
 import { cn } from "@/lib/utils";
 
 export interface ThumbFile {
@@ -47,10 +48,14 @@ export function FileThumbs({
   if (files.length === 0) return <span className="text-muted-foreground">—</span>;
   const shown = all || files.length <= SQUARES ? files : files.slice(0, SQUARES - 1);
   const more = files.length - shown.length;
+  // The photos among them open in the app's viewer, one after another (11-08).
+  const gallery = files
+    .filter((file) => file.href && isImageFile(file.name || file.href))
+    .map((file) => ({ id: file.id, url: file.href as string, label: file.name }));
   return (
     <span className={cn("inline-flex gap-1", all ? "flex-wrap" : "shrink-0", className)} data-file-thumbs>
       {shown.map((file) => (
-        <FileSquare key={file.id} file={file} />
+        <FileSquare key={file.id} file={file} gallery={gallery} />
       ))}
       {more > 0 ? (
         <span
@@ -65,11 +70,27 @@ export function FileThumbs({
   );
 }
 
-function FileSquare({ file }: { file: ThumbFile }) {
+function FileSquare({ file, gallery }: { file: ThumbFile; gallery: LinkPhoto[] }) {
   const [failed, setFailed] = useState(false);
   const picture = file.thumbnail_url && !failed ? file.thumbnail_url : null;
   const square = <Square file={file} picture={picture} onFailed={() => setFailed(true)} />;
   const ring = "rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+  if (file.href && isImageFile(file.name || file.href)) {
+    // A photo opens in the app's viewer with its zoom; other files as before.
+    return (
+      <PhotoLink
+        href={file.href}
+        image
+        label={file.name}
+        photos={gallery}
+        index={gallery.findIndex((one) => one.id === file.id)}
+        className={ring}
+        data-file-open
+      >
+        {square}
+      </PhotoLink>
+    );
+  }
   if (file.href) {
     return (
       <a href={file.href} target="_blank" rel="noopener noreferrer" className={ring} data-file-open>

@@ -19112,17 +19112,18 @@
         "markSent": "Mark as sent",
         "noContact": "No phone or email given",
         "opened": "Opened by recipient · {when}",
-        "openedCount": " ({count} times)"
+        "openedCount": " ({count} times)",
+        "confirmedByOpen": "The recipient opened the link at {when}, so it is confirmed sent"
       },
-      "askBodyLink": "To {name}: {file}. Press 'Sent' only after you pressed send in WhatsApp. When {name} opens the link, the send log shows 'Opened by recipient'.",
-      "askBodyLinkEmail": "To {name}: {file}. Press 'Sent' only after you pressed send in the email. When {name} opens the link, the send log shows 'Opened by recipient'."
+      "askBodyLink": "To {name}: {file}. Press send in WhatsApp. When the recipient opens the link, the system confirms it sent by itself; you can also press Sent now.",
+      "askBodyLinkEmail": "To {name}: {file}. Press send in your email. When the recipient opens the link, the system confirms it sent by itself; you can also press Sent now."
     },
     "link": {
       "whatsappButton": "Open the WhatsApp chat with {name}",
       "whatsappHelp": "This opens your WhatsApp chat with {name}. The message already has the {what} link in it - just press send in WhatsApp. {name} taps the link to open the {what}.",
       "emailButton": "Open an email to {name}",
       "emailHelp": "This opens an email to {name}. The {what} link is already in it - just press send. {name} clicks the link to open the {what}.",
-      "messageLine": "{what}: {link} (valid for {days} days)",
+      "messageLine": "{what} (valid for {days} days): {link}",
       "linkLabel": "{what} link (valid for {days} days)",
       "copyLink": "Copy link",
       "copyFailed": "Could not copy. Select the link and copy it yourself.",
@@ -19142,7 +19143,9 @@
       "emailFrom": "A file from {company}: {file}",
       "emailFromNoCompany": "A file for you: {file}",
       "gmailButton": "Send with Gmail in the browser",
-      "checkThenSend": "Check it once it opens, then press send."
+      "checkThenSend": "Check it once it opens, then press send.",
+      "whatsappIntro": "Please open the link below to view {name}",
+      "noMailApp": "No email opened? This computer has no mail app set up (such as Outlook). Press Send with Gmail, or copy the link below and send it yourself."
     }
   },
   "recordAttachments": {
@@ -20286,7 +20289,7 @@
         "body": "Check the name and numbers against the photo; changes save by themselves.",
         "openPdf": "Open the PDF",
         "noPhoto": "This row has no passport photo.",
-        "zoomHint": "Click the photo to open it larger in a new tab.",
+        "zoomHint": "Use zoom in / zoom out under the photo to read it clearly.",
         "confirm": "Checked"
       },
       "saveBlocked": "The table's changes have not reached the server yet, so nothing was saved. Check the internet and press \"Save all\" again.",
