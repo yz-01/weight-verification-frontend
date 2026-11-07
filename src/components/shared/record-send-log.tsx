@@ -74,6 +74,7 @@ export function ShareLine({
         <span className="text-sm font-semibold">{share.recipient_name || "—"}</span>
         {share.recipient_company ? <span className="text-sm">{share.recipient_company}</span> : null}
         <StatusBadge label={t(`status.${share.status}`)} tone={confirmed ? "positive" : "warning"} />
+        {share.opened_at ? <OpenedBadge openedAt={share.opened_at} count={share.open_count ?? 1} /> : null}
       </div>
       <p className="text-sm">
         {t(share.method)}
@@ -106,6 +107,22 @@ export function ShareLine({
         </Button>
       ) : null}
     </div>
+  );
+}
+
+/**
+ * 「对方已打开 · {time}」 (客户 11-08): the recipient opened the file's private
+ * link. Beside the status, never instead of it - only a person's 「已发送」 makes
+ * 已确认发送.
+ */
+export function OpenedBadge({ openedAt, count }: { openedAt: string; count: number }) {
+  const t = useTranslations("fileActions.send");
+  const formatter = useDateFormat();
+  const label = `${t("log.opened", { when: formatter.dateTime(openedAt) })}${count > 1 ? t("log.openedCount", { count }) : ""}`;
+  return (
+    <span data-share-opened className="inline-flex">
+      <StatusBadge label={label} tone="info" />
+    </span>
   );
 }
 

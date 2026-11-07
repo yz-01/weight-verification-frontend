@@ -112,6 +112,7 @@ export function CompanyLockedSettingsPanel({ companyId }: { companyId: string })
         <div className="grid gap-4 sm:grid-cols-2">
           <NumberField label={t("field.fieldInviteValid")} value={form.field_invite_valid_days} min={1} max={90} disabled={off} onChange={(value) => set({ field_invite_valid_days: value })} />
           <NumberField label={t("field.fieldPinExpiry")} value={form.field_pin_expiry_days} min={1} max={365} disabled={off} onChange={(value) => set({ field_pin_expiry_days: value })} />
+          <NumberField label={t("field.pdfLinkValid")} value={form.pdf_link_valid_days ?? 30} min={1} max={365} disabled={off} onChange={(value) => set({ pdf_link_valid_days: value })} />
         </div>
       </div>
     </div>

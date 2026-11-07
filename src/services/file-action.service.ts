@@ -11,13 +11,15 @@
  * closing it does nothing. The PIN itself is asked by the shared dialog the
  * API client opens on `sign_off_pin_required` (`lib/sign-off`).
  */
-import type { ListQuery, Paginated } from "@/interfaces/api";
+import { ApiError, type ListQuery, type Paginated } from "@/interfaces/api";
 import type {
   FileActionRecord,
   FileActionType,
   FileShare,
   SendMethod,
   SendRecipient,
+  ShareLink,
+  SharedFileInfo,
 } from "@/interfaces/file-action";
 import { isDriverSessionContext, isFieldSessionContext } from "@/lib/auth-token";
 import { api } from "@/services/api-client";
@@ -132,4 +134,55 @@ export function confirmFileShare(share: string): Promise<FileShare> {
 /** The people this company sent to lately (JB64), newest first. */
 export function getRecentRecipients(method?: SendMethod): Promise<SendRecipient[]> {
   return api.get<SendRecipient[]>("/api/file-actions/get_recent_recipients/", method ? { method } : {});
+}
+
+/**
+ * The PDF of a WhatsApp / email send, kept for the private link the message
+ * carries (客户 11-08: a website cannot put a file into a WhatsApp chat). Only
+ * the person who wrote the send, once: a second call answers the same link.
+ */
+export function attachShareFile(share: string, file: File): Promise<ShareLink> {
+  const body = new FormData();
+  body.append("share", share);
+  body.append("file", file, file.name);
+  return api.post<ShareLink>("/api/file-actions/attach_file/", body);
+}
+
+/** The recipient's page for a link token, on this site. */
+export function shareLinkUrl(token: string, origin = typeof window === "undefined" ? "" : window.location.origin): string {
+  return `${origin}/s/${encodeURIComponent(token)}`;
+}
+
+const API_BASE_URL = (process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000").replace(/\/$/, "");
+
+/** The PDF itself: a download, counted as 「对方已打开」. Only ever followed by a tap. */
+export function sharedFileDownloadUrl(token: string): string {
+  return `${API_BASE_URL}/api/file-shares/public/${encodeURIComponent(token)}/download/`;
+}
+
+/**
+ * What `/s/<token>` shows. No session: never the office's cookies or token,
+ * whatever this browser holds - the token in the address is the credential.
+ * Does not count as opened.
+ */
+export async function getSharedFileInfo(token: string): Promise<SharedFileInfo> {
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}/api/file-shares/public/${encodeURIComponent(token)}/`, {
+      credentials: "omit",
+      cache: "no-store",
+    });
+  } catch {
+    throw new ApiError("network", 0, {}, "network_error");
+  }
+  let envelope: { success?: boolean; data?: SharedFileInfo; message?: string; code?: string };
+  try {
+    envelope = await response.json();
+  } catch {
+    envelope = {};
+  }
+  if (!response.ok || !envelope.success || !envelope.data) {
+    throw new ApiError(envelope.message || "not_found", response.status, {}, envelope.code ?? "");
+  }
+  return envelope.data;
 }

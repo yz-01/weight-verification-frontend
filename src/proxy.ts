@@ -41,6 +41,8 @@ const PUBLIC_PREFIXES = [
   "/equipment-clock",
   // A package's link for an owner, a supplier or anybody else (H17 五 3).
   "/package",
+  // A file's private link in a WhatsApp / email send (客户 11-08): the token is the credential.
+  "/s",
   "/delivery-note",
   "/field-staff",
   "/scan",
@@ -60,7 +62,7 @@ const PACKAGE_LINK_HEADERS = {
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  if (pathname.startsWith("/package/")) {
+  if (pathname.startsWith("/package/") || pathname.startsWith("/s/")) {
     const response = NextResponse.next();
     for (const [name, value] of Object.entries(PACKAGE_LINK_HEADERS)) {
       response.headers.set(name, value);

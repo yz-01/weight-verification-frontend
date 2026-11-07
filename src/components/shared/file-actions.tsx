@@ -39,11 +39,12 @@
  * here, so every one asks the same way.
  */
 
-import { ChevronDown, Copy, Download, ExternalLink, Eye, FileText, FileWarning, Loader2, Mail, MessageCircle, Printer, Share2 } from "lucide-react";
+import { ChevronDown, Copy, Download, ExternalLink, Eye, FileText, FileWarning, Link2, Loader2, Mail, MessageCircle, Printer, Share2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { toast } from "sonner";
 
+import { useAuth } from "@/components/providers/auth-provider";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -67,7 +68,7 @@ import {
   watchReturn,
 } from "@/components/shared/send-recipient";
 import { ApiError } from "@/interfaces/api";
-import type { FileActionType, FileShare, SendRecipient } from "@/interfaces/file-action";
+import type { FileActionType, FileShare, SendRecipient, ShareLink } from "@/interfaces/file-action";
 import {
   canShareFile,
   canShowPdfInPage,
@@ -78,12 +79,15 @@ import {
   shareFile,
   whatsappLink,
 } from "@/lib/file-actions";
+import { sendByLink, sendsByLink, sendsThroughDialog, type LinkVia } from "@/lib/share-link";
 import { cn } from "@/lib/utils";
 import { readWorkbook, type SheetPreview } from "@/lib/xlsx-preview";
 import { fileMeta, withFileFetch } from "@/services/api-client";
 import {
+  attachShareFile,
   authorizeFileAction,
   recordFileAction,
+  shareLinkUrl,
   signsFileActions,
   type FileActionDetails,
 } from "@/services/file-action.service";
@@ -165,6 +169,17 @@ interface Held {
    * back its share; null when the server refused, and nothing happens.
    */
   writeLog?: () => Promise<FileShare | null>;
+  /**
+   * Who 「发给谁？」 named (JB64). WhatsApp and Email send the file as a
+   * private link in the message (客户 11-08), never the download trio.
+   */
+  recipient?: SendRecipient | null;
+}
+
+/** How the message and the recipient's page name the file: a PDF, a photo, or a file. */
+export function linkKind(file: Pick<File, "name" | "type">): "pdf" | "image" | "file" {
+  const format = fileFormat(file);
+  return format === "pdf" ? "pdf" : format === "image" ? "image" : "file";
 }
 
 const LEAVES: readonly FileAction[] = ["save", "share"];
@@ -297,16 +312,18 @@ export function useFileActions() {
       }
       const title = source.title || file.name.replace(/\.[^.]+$/, "");
       const details = fileActionDetails(source, file, title);
-      if (signs && action === "share" && !canShareFile(file)) {
+      if (sendsThroughDialog({ signs, action, recipient, canShare: canShareFile(file) })) {
         // JB64: no share window - the send is written when 下载文件 /
         // WhatsApp / 电邮 is pressed, not now; pressing nothing writes nothing.
+        // WhatsApp and Email always come here, share window or not: their
+        // message carries the file's private link (客户 11-08).
         const writeLog = async () => {
           const written = await recordFileAction(type, details, grant, recipient);
           if (!written) return null;
           if (written.share) source.onLogged?.();
           return written.share;
         };
-        setSending({ file, title, link: source.link, allowSave: options.allowSave, source, writeLog });
+        setSending({ file, title, link: source.link, allowSave: options.allowSave, source, writeLog, recipient });
         return;
       }
       let share: FileShare | null = null;
@@ -870,6 +887,8 @@ function ShareFileDialog({ held, onClose }: { held: Held; onClose: () => void })
     held.source.onLogged?.();
     onClose();
   };
+  // WhatsApp / Email: the file goes as a private link in the message (客户 11-08).
+  const byLink = held.recipient && sendsByLink(held.recipient) ? held.recipient : null;
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-md" data-slot="file-share">
@@ -877,7 +896,22 @@ function ShareFileDialog({ held, onClose }: { held: Held; onClose: () => void })
           <DialogTitle>{t("shareTitle")}</DialogTitle>
           <DialogDescription className="break-all">{held.file.name}</DialogDescription>
         </DialogHeader>
-        {canShare ? (
+        {byLink ? (
+          <LinkSend
+            held={held}
+            recipient={byLink}
+            share={share}
+            onShare={setShare}
+            onSent={() => {
+              // Noted once, whichever of the email's two buttons is pressed (JB63).
+              if (!handed) held.source.onShared?.();
+              setHanded(true);
+              // Asked at once, beside the link: the person comes back to this
+              // dialog from WhatsApp or the email (JB64).
+              setBack(true);
+            }}
+          />
+        ) : canShare ? (
           <div className="space-y-3">
             <p className="text-sm">{t("shareReady")}</p>
             <Button className="w-full" onClick={() => void shareNow()}>
@@ -932,6 +966,138 @@ function ShareFileDialog({ held, onClose }: { held: Held; onClose: () => void })
         <p className="rounded-md bg-muted/50 p-2 text-xs text-muted-foreground">{t("shareHint")}</p>
       </DialogContent>
     </Dialog>
+  );
+}
+
+/**
+ * WhatsApp / Email with the file as a private link (客户 11-08).
+ *
+ * WhatsApp: one button. Email: the computer's mail app, or Gmail in the
+ * browser for someone with no mail app. Each writes the send once
+ * (已打开分享窗口, never 已确认发送), keeps the file on the server once for
+ * `/s/<token>`, and opens the chat of the number typed in 「发给谁？」 - or the
+ * email addressed to them - with the text and the link filled in. The person
+ * presses send there; the recipient taps the link. Any failure opens nothing
+ * (`sendByLink`).
+ */
+function LinkSend({
+  held,
+  recipient,
+  share,
+  onShare,
+  onSent,
+}: {
+  held: Held;
+  recipient: SendRecipient;
+  share: FileShare | null;
+  onShare: (share: FileShare) => void;
+  onSent: () => void;
+}) {
+  const t = useTranslations("fileActions");
+  const common = useTranslations("common");
+  const { user } = useAuth();
+  const [working, setWorking] = useState(false);
+  const [made, setMade] = useState<ShareLink | null>(null);
+  const whatsapp = recipient.method === "WHATSAPP";
+  const name = recipient.recipient_name;
+  const kind = linkKind(held.file);
+  const linkLine = (url: string, days: number) =>
+    t("link.messageLine", { what: t(`link.kindTitle.${kind}`), link: url, days });
+  const text = (url: string, days: number) => {
+    if (whatsapp) {
+      return [held.title, t("shareMessage", { name: held.file.name }), linkLine(url, days)].join("\n");
+    }
+    const company = user?.company_name ?? "";
+    return [
+      t("link.emailGreeting"),
+      "",
+      company
+        ? t("link.emailFrom", { company, file: held.file.name })
+        : t("link.emailFromNoCompany", { file: held.file.name }),
+      linkLine(url, days),
+    ].join("\n");
+  };
+  const go = async (via: LinkVia) => {
+    setWorking(true);
+    try {
+      const result = await sendByLink(recipient, held.file, via, {
+        win: window,
+        share,
+        writeLog: held.writeLog,
+        existing: made,
+        attach: attachShareFile,
+        linkUrl: (token) => shareLinkUrl(token),
+        text,
+        subject: held.title,
+      });
+      if (!result.ok) {
+        if (result.share) onShare(result.share);
+        toast.error(t("link.failed"));
+        return;
+      }
+      setMade(result.made);
+      onShare(result.made.share);
+      onSent();
+    } finally {
+      setWorking(false);
+    }
+  };
+  const url = made ? shareLinkUrl(made.token) : "";
+  const copy = async () => {
+    if (!url) return;
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success(common("linkCopied"));
+    } catch {
+      toast.error(t("link.copyFailed"));
+    }
+  };
+  const busyIcon = <Loader2 className="size-4 animate-spin" />;
+  return (
+    <div className="space-y-3" data-slot="file-share-link">
+      <p className="text-sm">
+        {t(whatsapp ? "link.whatsappHelp" : "link.emailHelp", { name, what: t(`link.kind.${kind}`) })}
+      </p>
+      <Button
+        size="lg"
+        className="h-auto min-h-11 w-full whitespace-normal"
+        disabled={working}
+        disabledReason={t("link.preparing")}
+        onClick={() => void go(whatsapp ? "whatsapp" : "mailto")}
+        data-slot={whatsapp ? "file-share-link-whatsapp" : "file-share-link-email"}
+      >
+        {working ? busyIcon : whatsapp ? <MessageCircle className="size-4" /> : <Mail className="size-4" />}
+        {t(whatsapp ? "link.whatsappButton" : "link.emailButton", { name })}
+      </Button>
+      {whatsapp ? null : (
+        <Button
+          size="lg"
+          variant="outline"
+          className="h-auto min-h-11 w-full whitespace-normal"
+          disabled={working}
+          disabledReason={t("link.preparing")}
+          onClick={() => void go("gmail")}
+          data-slot="file-share-link-gmail"
+        >
+          {working ? busyIcon : <ExternalLink className="size-4" />}
+          {t("link.gmailButton")}
+        </Button>
+      )}
+      <p className="text-xs text-muted-foreground">{t("link.checkThenSend")}</p>
+      {made ? (
+        <div className="space-y-2 rounded-md border p-2" data-slot="file-share-link-url">
+          <p className="flex items-center gap-1 text-xs text-muted-foreground">
+            <Link2 className="size-3.5" aria-hidden />
+            {t("link.linkLabel", { what: t(`link.kindTitle.${kind}`), days: made.days })}
+          </p>
+          <p className="select-all break-all text-sm">{url}</p>
+          <Button variant="outline" size="sm" className="w-full" onClick={() => void copy()} data-slot="file-share-link-copy">
+            <Copy className="size-4" />
+            {t("link.copyLink")}
+          </Button>
+        </div>
+      ) : null}
+    </div>
   );
 }
 

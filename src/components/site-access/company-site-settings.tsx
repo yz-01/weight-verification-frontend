@@ -60,7 +60,9 @@ const TIMEZONES = ["Asia/Kuala_Lumpur", "Asia/Singapore", "UTC"];
 
 /** The settings fields this page writes - the only ones a contractor may (JB99). */
 export const PROFILE_SETTINGS = ["emergency_contact_name", "emergency_contact_phone"] as const;
-export const PREFERENCE_SETTINGS = ["language", "date_format", "time_format", "timezone"] as const;
+// 「PDF 链接有效天数」 (客户 11-08, Lucas: 「那个失效链接弄成可以自行设置的」):
+// how long the file link in a WhatsApp / email send works.
+export const PREFERENCE_SETTINGS = ["language", "date_format", "time_format", "timezone", "pdf_link_valid_days"] as const;
 
 /** Only the named fields of the draft: never send what this page does not show. */
 export function pickSettings<K extends keyof ContractorSiteSettings>(
@@ -173,6 +175,17 @@ export function CompanySiteSettingsWorkspace() {
         <ChoiceField label={t("field.dateFormat")} value={form.date_format} disabled={!canManage} options={["DD/MM/YYYY", "MM/DD/YYYY", "YYYY-MM-DD"]} onChange={(value) => setForm({ ...form, date_format: value as ContractorSiteSettings["date_format"] })} />
         <ChoiceField label={t("field.timeFormat")} value={form.time_format} disabled={!canManage} options={["12H", "24H"]} onChange={(value) => setForm({ ...form, time_format: value as ContractorSiteSettings["time_format"] })} />
         <ChoiceField label={t("field.timezone")} value={form.timezone} disabled={!canManage} options={TIMEZONES} onChange={(value) => setForm({ ...form, timezone: value })} />
+        <FieldWrapper label={t("field.pdfLinkValid")} hint={t("preferences.pdfLinkHint")}>
+          <Input
+            type="number"
+            inputMode="numeric"
+            min={1}
+            max={365}
+            disabled={!canManage}
+            value={form.pdf_link_valid_days ?? 30}
+            onChange={(event) => setForm({ ...form, pdf_link_valid_days: Math.round(Number(event.target.value)) || 1 })}
+          />
+        </FieldWrapper>
       </div>
     </section>
 

@@ -294,7 +294,10 @@ export function SentQuestion({
   const common = useTranslations("common");
   const queryClient = useQueryClient();
   const [busy, setBusy] = useState(false);
-  const body = t("askBody", { name: share.recipient_name, file: share.file_name || share.subject });
+  // The file went as a private link (客户 11-08): press 「已发送」 only after
+  // pressing send in WhatsApp / the email; the recipient's open shows by itself.
+  const bodyKey = share.has_link ? (share.method === "EMAIL" ? "askBodyLinkEmail" : "askBodyLink") : "askBody";
+  const body = t(bodyKey, { name: share.recipient_name, file: share.file_name || share.subject });
   const done = () => {
     void queryClient.invalidateQueries({ queryKey: FILE_SHARES_KEY });
     void queryClient.invalidateQueries({ queryKey: ["file-actions"] });

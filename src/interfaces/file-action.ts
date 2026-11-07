@@ -62,4 +62,33 @@ export interface FileShare {
   status: FileShareStatus;
   confirmed_at: string | null;
   confirmed_by_name: string;
+  /** The PDF went as a private link in the message (客户 11-08). */
+  has_link?: boolean;
+  link_expires_at?: string | null;
+  /**
+   * 「对方已打开」: the recipient's first download through the link. A badge
+   * only - the status stays the person's own answer.
+   */
+  opened_at?: string | null;
+  open_count?: number;
+}
+
+/** `attach_file`'s answer: the private link's token, until when, and for how many days. */
+export interface ShareLink {
+  share: FileShare;
+  token: string;
+  expires_at: string;
+  days: number;
+}
+
+/** What the recipient's page (`/s/<token>`) shows - nothing else about the send. */
+export interface SharedFileInfo {
+  /** The wording: 「打开 PDF」 / 「查看照片」 / 「下载文件」. */
+  kind: "pdf" | "image" | "file";
+  content_type: string;
+  file_name: string;
+  company_name: string;
+  sender_name: string;
+  expires_at: string | null;
+  expired: boolean;
 }

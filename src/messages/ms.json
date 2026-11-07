@@ -8769,7 +8769,10 @@
       "phone_page_not_yours": "Halaman ini tiada pada telefon anda.",
       "chat_people_invalid": "Pilih orang daripada senarai.",
       "user_removed": "Akaun ini telah dipadam dan tidak boleh diaktifkan semula. Sila cipta akaun baharu.",
-      "supplier_not_on_project": "Pembekal ini tiada dalam senarai pembekal projek ini. Minta ibu pejabat atau pengurus projek menambahnya dahulu."
+      "supplier_not_on_project": "Pembekal ini tiada dalam senarai pembekal projek ini. Minta ibu pejabat atau pengurus projek menambahnya dahulu.",
+      "file_share_link_not_found": "Pautan fail ini tidak dijumpai.",
+      "file_share_link_expired": "Pautan ini sudah tamat tempoh. Minta pautan baharu daripada penghantar.",
+      "file_share_file_too_large": "Fail melebihi {max_mb} MB dan tidak boleh dihantar sebagai pautan."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -15759,7 +15762,8 @@
       "expiringSoon": "Tamat dalam 7 hari",
       "ssmRegistrationNo": "No. pendaftaran SSM",
       "codeAuto": "Biarkan kosong, sistem akan menomborkannya.",
-      "codeAutoPlaceholder": "Automatik"
+      "codeAutoPlaceholder": "Automatik",
+      "pdfLinkValid": "Hari pautan PDF sah"
     },
     "gate": {
       "cameraError": "Kamera tidak dapat dimulakan. Benarkan akses kamera dan cuba lagi, atau muat naik imej QR.",
@@ -15881,8 +15885,9 @@
       "title": "Kebenaran lalai"
     },
     "preferences": {
-      "subtitle": "Bahasa, format tarikh, format masa dan zon waktu.",
-      "title": "Pilihan paparan"
+      "subtitle": "Bahasa, format tarikh, format masa, zon waktu, dan berapa lama pautan fail yang dihantar berfungsi.",
+      "title": "Pilihan paparan",
+      "pdfLinkHint": "Berapa hari pautan fail dalam penghantaran WhatsApp / e-mel berfungsi (1–365)."
     },
     "profile": {
       "chooseLogo": "Pilih logo syarikat",
@@ -19105,8 +19110,39 @@
         "by": "Dihantar oleh {name} · {when}",
         "confirmedBy": "{name} mengesahkan ia dihantar pada {when}",
         "markSent": "Tanda sudah dihantar",
-        "noContact": "Tiada telefon atau e-mel"
-      }
+        "noContact": "Tiada telefon atau e-mel",
+        "opened": "Dibuka oleh penerima · {when}",
+        "openedCount": " ({count} kali)"
+      },
+      "askBodyLink": "Kepada {name}: {file}. Tekan 'Sudah dihantar' hanya selepas anda menekan hantar dalam WhatsApp. Apabila {name} membuka pautan, rekod penghantaran menunjukkan 'Dibuka oleh penerima'.",
+      "askBodyLinkEmail": "Kepada {name}: {file}. Tekan 'Sudah dihantar' hanya selepas anda menekan hantar dalam e-mel. Apabila {name} membuka pautan, rekod penghantaran menunjukkan 'Dibuka oleh penerima'."
+    },
+    "link": {
+      "whatsappButton": "Buka perbualan WhatsApp dengan {name}",
+      "whatsappHelp": "Ini membuka perbualan WhatsApp anda dengan {name}. Mesej sudah ada pautan {what} - tekan hantar sahaja dalam WhatsApp. {name} tekan pautan untuk membuka {what}.",
+      "emailButton": "Buka e-mel kepada {name}",
+      "emailHelp": "Ini membuka e-mel kepada {name}. Pautan {what} sudah ada di dalamnya - tekan hantar sahaja. {name} klik pautan untuk membuka {what}.",
+      "messageLine": "{what}: {link} (sah selama {days} hari)",
+      "linkLabel": "Pautan {what} (sah selama {days} hari)",
+      "copyLink": "Salin pautan",
+      "copyFailed": "Tidak dapat disalin. Pilih pautan dan salin sendiri.",
+      "preparing": "Menyediakan pautan",
+      "failed": "Pautan tidak dapat dibuat, jadi tiada apa yang dibuka. Sila cuba lagi.",
+      "kind": {
+        "pdf": "PDF",
+        "image": "foto",
+        "file": "fail"
+      },
+      "kindTitle": {
+        "pdf": "PDF",
+        "image": "Foto",
+        "file": "Fail"
+      },
+      "emailGreeting": "Salam,",
+      "emailFrom": "Fail daripada {company}: {file}",
+      "emailFromNoCompany": "Fail untuk anda: {file}",
+      "gmailButton": "Hantar dengan Gmail dalam pelayar",
+      "checkThenSend": "Semak selepas dibuka, kemudian tekan hantar."
     }
   },
   "recordAttachments": {
@@ -20854,5 +20890,23 @@
       "noDate": "Tiada tarikh"
     },
     "positionOpen": "Foto {number}"
+  },
+  "sharedFile": {
+    "brand": "MSE Trace",
+    "loading": "Sedang dibuka…",
+    "from": "Fail dihantar kepada anda oleh {sender} dari {company}",
+    "fromCompany": "Fail dihantar kepada anda oleh {company}",
+    "validUntil": "Pautan ini sah sehingga {date}",
+    "notFound": "Fail tidak dijumpai",
+    "notFoundHelp": "Pautan salah atau fail sudah tiada. Minta pautan baharu daripada penghantar.",
+    "expired": "Pautan ini sudah tamat tempoh",
+    "expiredHelp": "Pautan ini sudah melepasi tarikhnya. Minta pautan baharu daripada penghantar.",
+    "offline": "Tiada sambungan",
+    "offlineHelp": "Semak sambungan internet dan cuba lagi.",
+    "retry": "Cuba lagi",
+    "download": "Muat turun",
+    "openPdf": "Buka PDF",
+    "openImage": "Lihat foto",
+    "openFile": "Muat turun fail"
   }
 }
