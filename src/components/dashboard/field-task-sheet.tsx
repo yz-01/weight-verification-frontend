@@ -1,5 +1,6 @@
 "use client";
 
+import { CloseTaskButton } from "@/components/contractor-ops/close-task-button";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Check, Loader2, MapPin, Send } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -266,7 +267,7 @@ export function FieldTaskSheet({ id, onClose }: { id: string; onClose: () => voi
           }
           recorder={<RecordRecorder record={row} />}
           actions={
-            maySubmit || mayDecide || mayCorrect ? (
+            maySubmit || mayDecide || mayCorrect || row.can_close ? (
               <>
                 <RecordCorrectionButton kind="FIELD_TASK" recordId={row.id} onCorrected={refresh} />
                 {maySubmit && (
@@ -295,6 +296,19 @@ export function FieldTaskSheet({ id, onClose }: { id: string; onClose: () => voi
                         {t("submit")}
                       </Button>
                     </div>
+                  </div>
+                )}
+                {/* 「确认完成」 after talking it through (JB129). */}
+                {row.can_close && (
+                  <div className="flex justify-end" data-task-close>
+                    <CloseTaskButton
+                      task={row}
+                      size="default"
+                      onDone={() => {
+                        refresh();
+                        void queryClient.invalidateQueries({ queryKey: ["my-tasks"] });
+                      }}
+                    />
                   </div>
                 )}
                 {mayDecide && (

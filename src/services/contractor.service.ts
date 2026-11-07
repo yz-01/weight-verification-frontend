@@ -1048,3 +1048,31 @@ export function exportReceiptNetBreakdown(
     fallbackFilename: `net-breakdown.${request.format}`,
   });
 }
+
+/** A project's 「项目权限」 page (JB131). */
+export interface ProjectPermissionsState {
+  project_codes: string[];
+  grantable: string[];
+  granted: string[];
+  options: string[];
+  can_grant: boolean;
+  can_edit: boolean;
+  members: { id: string; full_name: string; role_name: string; editable: boolean; on: string[] }[];
+}
+
+export function getProjectPermissions(id: string): Promise<ProjectPermissionsState> {
+  return api.get<ProjectPermissionsState>(`/api/projects/${id}/get_project_permissions/`);
+}
+
+/** Head office opens 总部权限 B (`grants`); the manager ticks one person (`member` + `on`). */
+export async function setProjectPermissions(
+  id: string,
+  body: { grants?: string[]; member?: string; on?: string[] },
+): Promise<ProjectPermissionsState> {
+  const state = await api.post<ProjectPermissionsState>(
+    `/api/projects/${id}/set_project_permissions/`,
+    body,
+  );
+  toastSuccess("projects.permissions.saved");
+  return state;
+}

@@ -16,7 +16,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import {
   ConversationComposer,
@@ -51,16 +51,22 @@ export function RecordConversationPanel({
   kind,
   recordId,
   labels,
+  chat = false,
 }: {
   kind: ChatRecordKind;
   recordId: string;
   labels?: ConversationLabels;
+  /**
+   * The whole height, like a chat app (JB127, 客户 11-07 事项 7: 「把他的页面
+   * 扩大好像微信上聊天」): bubbles that scroll, the box fixed at the bottom.
+   */
+  chat?: boolean;
 }) {
   return (
     // The draft scope is per record, so a half-typed question on one delivery
     // is not offered back on the next one.
     <FieldDraft scope={`record-conversation:${kind}:${recordId}`}>
-      <RecordConversationContent kind={kind} recordId={recordId} labels={labels} />
+      <RecordConversationContent kind={kind} recordId={recordId} labels={labels} chat={chat} />
     </FieldDraft>
   );
 }
@@ -69,10 +75,12 @@ function RecordConversationContent({
   kind,
   recordId,
   labels,
+  chat,
 }: {
   kind: ChatRecordKind;
   recordId: string;
   labels?: ConversationLabels;
+  chat: boolean;
 }) {
   const t = useTranslations();
   const queryClient = useQueryClient();
@@ -147,6 +155,38 @@ function RecordConversationContent({
 
   const closedLine = conversationClosedLine(data.closed);
 
+  if (chat) {
+    return (
+      <div className="flex h-full min-h-0 flex-col" data-chat-room>
+        <ChatScroll count={data.messages.length}>
+          <ConversationMessageList
+            messages={data.messages}
+            emptyLabel={labels?.empty ?? t("recordChat.empty")}
+            reference={data.reference}
+            mineId={user?.id}
+          />
+        </ChatScroll>
+        <div className="shrink-0 border-t bg-background p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
+          {closedLine ? (
+            <p className="rounded-md border border-dashed p-3 text-xs text-muted-foreground">
+              {t(closedLine)}
+            </p>
+          ) : (
+            <ConversationComposer
+              body={body}
+              setBody={setBody}
+              file={file}
+              setFile={setFile}
+              limit={limit}
+              sending={send.isPending}
+              onSend={(payload) => send.mutate({ payload, sendBack: false })}
+            />
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-3">
       <h3 className="text-sm font-semibold">
@@ -187,6 +227,20 @@ function RecordConversationContent({
           }
         />
       )}
+    </div>
+  );
+}
+
+/** The messages' own scroll, kept at the newest one as they arrive (JB127). */
+function ChatScroll({ count, children }: { count: number; children: React.ReactNode }) {
+  const box = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const node = box.current;
+    if (node) node.scrollTop = node.scrollHeight;
+  }, [count]);
+  return (
+    <div ref={box} className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-muted/30 p-3">
+      {children}
     </div>
   );
 }

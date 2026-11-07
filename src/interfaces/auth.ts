@@ -274,6 +274,11 @@ export interface PermissionEntry {
   kind?: "scope" | "amounts" | "operate" | "approve";
   /** Only a switch: the role editor does not offer it (金额查看). */
   switch_only?: boolean;
+  /**
+   * 总部权限 A (总部保留), B (可授权给项目) or 项目权限 (JB131, 客户 11-07
+   * 事项 6). Missing from an older backend: treated as 项目权限.
+   */
+  page?: "hq_reserved" | "hq_grantable" | "project";
 }
 
 /** One back-office person's permission switches (J17). */

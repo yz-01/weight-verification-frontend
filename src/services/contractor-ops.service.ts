@@ -188,6 +188,16 @@ export const deleteProjectResponsibility = (id: string) =>
 
 export const getFieldTasks = (query: ListQuery = {}) =>
   api.list<FieldTask>("/api/field-tasks/get_tasks/", query);
+/** One person 派发现场任务 offers (JB130): the project's, or head office. */
+export interface TaskPerson {
+  id: string;
+  full_name: string;
+  head_office: boolean;
+  is_field_staff: boolean;
+}
+/** 「现场人员」 on 派发现场任务: the project's people, then head office (JB130). */
+export const getTaskPeople = (project: string) =>
+  api.get<TaskPerson[]>("/api/field-tasks/task_people/", { project });
 export const getFieldTask = (id: string) =>
   api.get<FieldTask>(`/api/field-tasks/${id}/get_task/`);
 export const createFieldTask = async (payload: FieldTaskPayload) => {

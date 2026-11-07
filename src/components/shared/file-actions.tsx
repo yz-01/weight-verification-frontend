@@ -814,18 +814,19 @@ function ShareFileDialog({ held, onClose }: { held: Held; onClose: () => void })
    * The first press writes the send down (JB64) - only then does the file
    * go - and tells the caller. False when the server refused: nothing goes.
    */
-  const handOver = async (): Promise<boolean> => {
-    if (handed) return true;
+  const handOver = async (): Promise<FileShare | null | false> => {
+    if (handed) return share;
+    let written = share;
     if (held.writeLog) {
       setWriting(true);
-      const written = await held.writeLog();
+      written = await held.writeLog();
       setWriting(false);
       if (!written) return false;
       setShare(written);
     }
     setHanded(true);
     held.source.onShared?.();
-    return true;
+    return written;
   };
   const common = useTranslations("common");
   const message = [t("shareMessage", { name: held.file.name }), held.link].filter(Boolean).join("\n");
@@ -838,13 +839,17 @@ function ShareFileDialog({ held, onClose }: { held: Held; onClose: () => void })
     }
   };
   const download = async () => {
-    if (await handOver()) saveFile(held.file);
+    if ((await handOver()) !== false) saveFile(held.file);
   };
   const email = async () => {
-    if (await handOver()) window.location.href = mailtoLink(held.title, message);
+    if ((await handOver()) !== false) window.location.href = mailtoLink(held.title, message);
   };
   const whatsapp = async () => {
-    if (await handOver()) window.open(whatsappLink(`${held.title}\n${message}`), "_blank", "noopener,noreferrer");
+    const sent = await handOver();
+    if (sent === false) return;
+    // Straight to the chat of the number in 「发给谁？」 (JB132, 客户 11-07 事项 8).
+    const phone = sent?.method === "WHATSAPP" ? sent.recipient_contact : "";
+    window.open(whatsappLink(`${held.title}\n${message}`, phone), "_blank", "noopener,noreferrer");
   };
   const shareNow = async () => {
     const outcome = await shareFile(held.file, held.title);

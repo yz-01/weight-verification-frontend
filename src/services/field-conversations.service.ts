@@ -42,7 +42,8 @@ export interface FieldConversations {
 export interface ChatPerson {
   id: string;
   full_name: string;
-  phone_role: PhoneRole;
+  /** `office`: one of the project's office people (JB127). */
+  phone_role: PhoneRole | "office";
   same_project: boolean;
   avatar: string | null;
 }
@@ -67,19 +68,54 @@ export function getFieldTalkUnread(): Promise<{ unread: number }> {
   return api.get<{ unread: number }>("/api/field-conversations/unread_count/");
 }
 
-export function getChatPeople(search?: string): Promise<ChatPerson[]> {
-  return api.get<ChatPerson[]>(
-    "/api/field-conversations/people/",
-    search ? { search } : undefined,
-  );
+/** One of my open projects: 找人沟通 starts with it (JB127). */
+export interface ChatProject {
+  id: string;
+  code: string;
+  name: string;
+}
+
+export function getChatProjects(): Promise<ChatProject[]> {
+  return api.get<ChatProject[]>("/api/field-conversations/projects/");
+}
+
+/** The people of one of my projects - its phone and office people (JB127). */
+export function getChatPeople(project: string, search?: string): Promise<ChatPerson[]> {
+  return api.get<ChatPerson[]>("/api/field-conversations/people/", {
+    project,
+    ...(search ? { search } : {}),
+  });
 }
 
 export function startConversation(
   people: string[],
-  title?: string,
+  title: string | undefined,
+  project: string,
 ): Promise<{ kind: "DIRECT"; id: string; created: boolean }> {
   return api.post("/api/field-conversations/start_conversation/", {
     people,
+    project,
     ...(title ? { title } : {}),
   });
+}
+
+/** One phone conversation on 后台「手机沟通记录」 (JB127). */
+export interface OfficeFieldChat {
+  id: string;
+  title: string;
+  project: string;
+  project_name: string;
+  people: { id: string; name: string; phone_role: string }[];
+  /** Whether this office reader is one of its people (and may answer). */
+  member: boolean;
+  message_count: number;
+  last: FieldConversationPreview | null;
+  last_at: string;
+  unread: number;
+}
+
+export function getOfficeFieldChats(
+  project?: string,
+): Promise<{ results: OfficeFieldChat[]; count: number }> {
+  return api.get("/api/field-chats/list_conversations/", project ? { project } : undefined);
 }

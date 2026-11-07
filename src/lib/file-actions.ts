@@ -17,6 +17,8 @@
  * confirmation inside the system - the screens say so beside the button.
  */
 
+import { whatsappShareUrl } from "@/lib/driver-link";
+
 export type FileFormat = "pdf" | "sheet" | "image" | "other";
 
 /** What kind of file this is, from its type, falling back to its name. */
@@ -231,7 +233,12 @@ export function mailtoLink(subject: string, body: string): string {
   return `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 
-/** A WhatsApp message, opened in the app or WhatsApp Web. */
-export function whatsappLink(text: string): string {
-  return `https://wa.me/?text=${encodeURIComponent(text)}`;
+/**
+ * A WhatsApp message, opened in the app or WhatsApp Web - straight to the
+ * chat of the number typed in 「发给谁？」 when there is one (JB132, 客户 11-07
+ * 事项 8: 「系统说what app已经发出去了，没有收到」). Nothing is sent by the
+ * system: the person still attaches the saved file and presses send.
+ */
+export function whatsappLink(text: string, phone = ""): string {
+  return whatsappShareUrl(phone, text);
 }

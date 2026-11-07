@@ -162,7 +162,16 @@ export function CreateRole({ role }: { role?: Role }) {
           </div>
         )}
 
-        <PermissionMatrix selected={permissions} onChange={setPermissions} />
+        <form.Subscribe selector={(state) => state.values.code}>
+          {(code) => (
+            <PermissionMatrix
+              selected={permissions}
+              onChange={setPermissions}
+              // 总部权限 A only on a head-office role (JB131).
+              headOffice={["company_admin", "headquarters"].includes(String(code ?? "").trim())}
+            />
+          )}
+        </form.Subscribe>
 
         {formError && (
           <p className="mt-4 text-sm font-medium text-destructive">{formError}</p>

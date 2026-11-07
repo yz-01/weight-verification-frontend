@@ -81,7 +81,8 @@ describe("the progress page's tabs", () => {
     search.value = "";
     expect(tabLabels(render(<page.ProgressTabStrip />))).toEqual([
       "施工分类",
-      "现场照片",
+      // JB136 (客户 11-07 事项 11): 「现场照片」 renamed.
+      "工程时间轴",
       "日报告",
       "施工计划",
       "项目进度摘要",
@@ -91,12 +92,12 @@ describe("the progress page's tabs", () => {
   it("open on 现场照片, where /progress always opened", () => {
     search.value = "";
     const html = render(<page.ProgressTabStrip />);
-    expect(html).toMatch(/aria-selected="true"[^>]*>现场照片</);
+    expect(html).toMatch(/aria-selected="true"[^>]*>工程时间轴</);
     search.value = "tab=summary";
     expect(render(<page.ProgressTabStrip />)).toMatch(/aria-selected="true"[^>]*>项目进度摘要</);
     // An address naming no tab this reader has falls back, not blank.
     search.value = "tab=nonsense";
-    expect(render(<page.ProgressTabStrip />)).toMatch(/aria-selected="true"[^>]*>现场照片</);
+    expect(render(<page.ProgressTabStrip />)).toMatch(/aria-selected="true"[^>]*>工程时间轴</);
   });
 
   it("show 施工计划 only to somebody with the schedule", () => {

@@ -87,6 +87,15 @@ const NO_VARIANT_AVAILABLE = new Map([
     "src/components/dashboard/headquarters-wall.tsx",
     "HeadquartersPhoto.image is already the watermarked derivative, not the original (the big screen reads the same photos as headquarters-photos)",
   ],
+  // 照片墙 (JB134 / JB135): the same head-office photo rows, enlarged and on the timeline.
+  [
+    "src/components/shared/photo-wall-viewer.tsx",
+    "HeadquartersPhoto.image is already the watermarked derivative, not the original (照片墙 viewer)",
+  ],
+  [
+    "src/components/dashboard/photo-timeline.tsx",
+    "HeadquartersPhoto.image is already the watermarked derivative, not the original (MSE Timeline 工程照片墙)",
+  ],
 ]);
 
 /** An image source that reads a record's photo field. */

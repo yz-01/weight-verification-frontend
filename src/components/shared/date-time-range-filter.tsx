@@ -211,7 +211,7 @@ export function DateTimeRangeFilter({ list }: { list: ReturnType<typeof useListQ
  * or Enter is pressed - not on every key, which would search for 「1」 on the
  * way to 「14:00」.
  */
-function ClockInput({
+export function ClockInput({
   label,
   placeholder,
   value,

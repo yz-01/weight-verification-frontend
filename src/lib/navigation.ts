@@ -16,7 +16,9 @@ import {
   Handshake,
   HeadphonesIcon,
   History,
+  Images,
   Inbox,
+  MessagesSquare,
   KeyRound,
   LayoutDashboard,
   MapPinned,
@@ -748,6 +750,15 @@ export const PORTAL_NAVIGATION = {
   ],
   MSE_TRACE: [
     item("dashboard", "/dashboard", LayoutDashboard, "overview"),
+    // MSE Timeline 工程照片墙 (JB135, 客户 11-07 事项 10): every photo the
+    // records already hold, project by project, from the first day to the
+    // last. Whoever reads the head-office dashboard (`dashboard.view`) reads
+    // this; no feature of its own, so it rides on 「dashboard」. Its own
+    // count would be the dashboard's, so it shows none.
+    entry("dashboard", "submodule.photoTimeline", "/photo-timeline", Images, "overview", {
+      requiredPermission: "dashboard.view",
+      badge: [],
+    }),
     item(
       "projects",
       "/modules/projects",
@@ -1382,6 +1393,9 @@ export const PORTAL_NAVIGATION = {
     // is not folded into Category Management; Multi Engine bundles records
     // from several entries into one PDF.
     entry("project_categories", "submodule.archiveQueue", "/archive-queue", Inbox, "tools"),
+    // 手机沟通记录 (JB127, 客户 11-07 事项 1): every phone conversation of the
+    // projects the reader can see. No waiting count of its own.
+    entry("projects", "submodule.fieldChats", "/field-chats", MessagesSquare, "tools", { badge: [] }),
     entry("project_categories", "submodule.multiEngine", "/evidence-packages", Package, "tools", {
       // Head office reads claims without reading packages: it sees the
       // Progress Claim tab only.
@@ -1898,6 +1912,7 @@ const PERMISSION_ROUTE_RULES: readonly PermissionRouteRule[] = [
   { pattern: "/site-workers/bulk", permission: "site_worker.manage" },
   { pattern: "/companies/:id/edit", permission: "company.update" },
   { pattern: "/projects/create", permission: "project.create" },
+  { pattern: "/photo-timeline", permission: "dashboard.view" },
   { pattern: "/projects/:id/edit", permission: "project.update" },
   { pattern: "/suppliers/create", permission: "supplier.create" },
   { pattern: "/suppliers/:id/edit", permission: "supplier.update" },

@@ -46,6 +46,7 @@ import {
 import { useRef, useState } from "react";
 
 import { AddToPackageButton } from "@/components/contractor-ops/add-to-package";
+import { CloseTaskButton } from "@/components/contractor-ops/close-task-button";
 import { useAuth } from "@/components/providers/auth-provider";
 import {
   useCurrentProject,
@@ -144,6 +145,7 @@ import {
   updateConstructionPhase,
   addFieldTaskReferences,
   createFieldTask,
+  getTaskPeople,
   createProjectCategory,
   createSiteEquipment,
   getConstructionPhases,
@@ -1455,7 +1457,7 @@ export function FieldTasksWorkspace({
                   <span className="contents lg:flex lg:min-w-0">
                     <NeedsActionMarker show={row.needs_action} />
                   </span>
-                  {(canEdit || canReview || canPrepareApplication || headOffice) && (
+                  {(canEdit || canReview || canPrepareApplication || headOffice || row.can_close) && (
                     <div className="flex flex-wrap justify-end gap-1.5">
                       {headOffice ? (
                         <Button size="sm" onClick={() => setOpenedTask(row.id)}>
@@ -1491,6 +1493,11 @@ export function FieldTasksWorkspace({
                           ) : null}
                         </>
                       ) : null}
+                      {/* 「确认完成」 after talking it through (JB129). */}
+                      <CloseTaskButton
+                        task={row}
+                        onDone={() => void qc.invalidateQueries({ queryKey: ["field-tasks"] })}
+                      />
                       {canReview ? (
                         <Button
                           size="sm"
@@ -1619,9 +1626,11 @@ function TaskDialog({
     evidence_required: task?.evidence_required ?? 1,
     submission_category: task?.submission_category ?? "",
   });
+  // The project's people and head office (JB130, 客户 11-07 事项 5: 「除了
+  // 本项目人员，还必须显示有权限接收任务的总部人员」).
   const team = useQuery({
-    queryKey: ["project-assignments", form.project],
-    queryFn: () => getProjectAssignments(form.project),
+    queryKey: ["field-task-people", form.project],
+    queryFn: () => getTaskPeople(form.project),
     enabled: Boolean(form.project),
   });
   const set = <K extends keyof FieldTaskPayload>(
@@ -1697,9 +1706,11 @@ function TaskDialog({
                 <SelectValue placeholder={t("field.selectStaff")} />
               </SelectTrigger>
               <SelectContent>
-                {(team.data?.results ?? []).map((item) => (
-                  <SelectItem key={item.user} value={item.user}>
-                    {item.user_name}
+                {(team.data ?? []).map((item) => (
+                  <SelectItem key={item.id} value={item.id}>
+                    {item.head_office
+                      ? t("tasks.headOfficePerson", { name: item.full_name })
+                      : item.full_name}
                   </SelectItem>
                 ))}
               </SelectContent>

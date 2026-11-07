@@ -129,7 +129,17 @@ export function parseChatParam(
 }
 
 /** Why a finished record's conversation takes no more messages (D-278). */
-export type ConversationClosed = "" | "archived" | "paid" | "decided" | "rejected" | "cancelled";
+/** `readonly`: the office reading a phone conversation it is not in; `moved`: its
+ * people are no longer all on its project (JB127). */
+export type ConversationClosed =
+  | ""
+  | "archived"
+  | "paid"
+  | "decided"
+  | "rejected"
+  | "cancelled"
+  | "readonly"
+  | "moved";
 
 /** The sentence said in place of the composer, one per reason. */
 export type ConversationClosedLine =
@@ -137,7 +147,9 @@ export type ConversationClosedLine =
   | "recordChat.closedPaid"
   | "recordChat.closedDecided"
   | "recordChat.closedRejected"
-  | "recordChat.closedCancelled";
+  | "recordChat.closedCancelled"
+  | "recordChat.closedReadonly"
+  | "recordChat.closedMoved";
 
 /**
  * The line shown instead of the composer, or `null` while it is open.
@@ -158,5 +170,8 @@ export function conversationClosedLine(
   // 为什么还可以聊天的？」): judged 不合格, rejected, not accepted.
   if (closed === "rejected") return "recordChat.closedRejected";
   if (closed === "cancelled") return "recordChat.closedCancelled";
+  // A phone conversation (JB127): read by the office, or left by its project.
+  if (closed === "readonly") return "recordChat.closedReadonly";
+  if (closed === "moved") return "recordChat.closedMoved";
   return "recordChat.closedArchived";
 }

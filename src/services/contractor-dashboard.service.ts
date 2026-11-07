@@ -132,11 +132,25 @@ export function getHeadquartersPhotos(input: {
   page?: number;
   page_size?: number;
   project?: string;
+  /** `YYYY-MM-DD`, either end optional (照片墙, JB134 / JB135). */
+  date_from?: string;
+  date_to?: string;
+  /** `HH:mm`, the time of day on the company's clock, either end optional. */
+  time_from?: string;
+  time_to?: string;
+  /** Every photo ever, newest first, when no date is given (MSE Timeline). */
+  timeline?: boolean;
 } = {}): Promise<Paginated<HeadquartersPhoto>> {
+  // With no date, no range and no `timeline`, the server answers today.
   const query: ListQuery = {};
   if (input.page) query.page = input.page;
   if (input.page_size) query.page_size = input.page_size;
   if (input.project) query.project = input.project;
+  if (input.date_from) query.date_from = input.date_from;
+  if (input.date_to) query.date_to = input.date_to;
+  if (input.time_from) query.time_from = input.time_from;
+  if (input.time_to) query.time_to = input.time_to;
+  if (input.timeline) query.timeline = "1";
   return api.get<Paginated<HeadquartersPhoto>>(
     "/api/contractor-dashboard/get_headquarters_photos/",
     query,

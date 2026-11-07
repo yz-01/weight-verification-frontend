@@ -399,6 +399,8 @@ export interface FieldTask extends RecordedBy {
    * 「需要继续整改」 switch (ID11).
    */
   can_confirm?: boolean;
+  /** 「确认完成」 on the desk while it is still with its assignee (JB129). */
+  can_close?: boolean;
   created_at: string;
   updated_at: string;
 }
