@@ -210,8 +210,7 @@ export function CreateProject({ project }: { project?: Project }) {
             ? {
                 ...value,
                 suppliers: undefined,
-                // Changed on the project's 「项目负责人」 section, not here (Lucas 11-08).
-                manager: undefined,
+                manager: value.manager || undefined,
                 boundary: value.boundary.length >= 3 ? value.boundary : undefined,
                 latitude: value.latitude || null,
                 longitude: value.longitude || null,
@@ -335,10 +334,6 @@ export function CreateProject({ project }: { project?: Project }) {
           项目分配给该项目经理，不需要重复添加人员」): choosing one puts them on
           the team as the project's 项目经理, and their name on the project.
         */}
-        {/* Only when making the project (Lucas 11-08: 「按眼睛进去有项目负责人，
-            可是按铅笔也有项目负责人，很矛盾啊，保留一个就好」): afterwards it is
-            the 「项目负责人」 section on the project's page. */}
-        {!isEdit && (
         <form.Field name="manager">
           {(field) => (
             <SelectField
@@ -365,7 +360,6 @@ export function CreateProject({ project }: { project?: Project }) {
             />
           )}
         </form.Field>
-        )}
 
         {isEdit && (
           <>
