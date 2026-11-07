@@ -34,6 +34,7 @@ export function ProjectPermissions({ projectId }: { projectId: string }) {
   const queryClient = useQueryClient();
   const key = ["projects", "permissions", projectId] as const;
   const state = useQuery({ queryKey: key, queryFn: () => getProjectPermissions(projectId) });
+  // query-failure: unread, every box still shows - named by its code until it loads.
   const catalogue = useQuery({
     queryKey: ["permissions", "catalogue"],
     queryFn: getPermissionCatalogue,

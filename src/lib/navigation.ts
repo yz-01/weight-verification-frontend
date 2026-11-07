@@ -18,6 +18,7 @@ import {
   History,
   Images,
   Inbox,
+  MessagesSquare,
   KeyRound,
   LayoutDashboard,
   MapPinned,
@@ -1392,6 +1393,9 @@ export const PORTAL_NAVIGATION = {
     // is not folded into Category Management; Multi Engine bundles records
     // from several entries into one PDF.
     entry("project_categories", "submodule.archiveQueue", "/archive-queue", Inbox, "tools"),
+    // 手机沟通记录 (JB127, 客户 11-07 事项 1): every phone conversation of the
+    // projects the reader can see. No waiting count of its own.
+    entry("projects", "submodule.fieldChats", "/field-chats", MessagesSquare, "tools", { badge: [] }),
     entry("project_categories", "submodule.multiEngine", "/evidence-packages", Package, "tools", {
       // Head office reads claims without reading packages: it sees the
       // Progress Claim tab only.
@@ -1490,14 +1494,6 @@ export const PORTAL_NAVIGATION = {
           "nav.submodule.visitorRecords",
           "/visitor-records",
           "site_access",
-        ),
-        // 手机沟通记录 (JB127, 客户 11-07 事项 1): every phone conversation of
-        // the projects the reader can see.
-        child(
-          "17.2.6",
-          "nav.submodule.fieldChats",
-          "/field-chats",
-          "projects",
         ),
       ],
     ),
