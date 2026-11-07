@@ -12212,7 +12212,8 @@
       "materialRequests": "MR / 其他申請",
       "departmentsTrades": "部門與工種",
       "fieldStaffManagement": "現場人員管理",
-      "fieldChats": "手機溝通記錄"
+      "fieldChats": "手機溝通記錄",
+      "photoTimeline": "工程照片牆"
     },
     "subscription_management": "訂閱管理",
     "suppliers": "供應商",
@@ -20801,5 +20802,54 @@
     "people": "成員：{names}",
     "noMessages": "還沒有消息。",
     "attachment": "[照片 / 語音 / 文件]"
+  },
+  "photoWall": {
+    "hint": "單擊照片放大，可以左右翻看；雙擊照片打開完整記錄。",
+    "alt": "{kind}照片，{project}",
+    "unknownPhotographer": "未記錄拍攝人",
+    "noPhoto": "這張照片還沒準備好。",
+    "previous": "上一張",
+    "next": "下一張",
+    "first": "已經是第一張。",
+    "last": "已經是最後一張。",
+    "position": "第 {number} / {loaded} 張",
+    "loading": "載入中…",
+    "loadMore": "載入更多",
+    "openRecord": "打開完整記錄",
+    "noRecord": "找不到這張照片的記錄。",
+    "emptyFiltered": "這個日期和時間沒有照片。",
+    "field": {
+      "project": "項目",
+      "kind": "記錄類型",
+      "content": "內容",
+      "photographer": "拍攝人",
+      "date": "日期",
+      "time": "時間"
+    },
+    "filter": {
+      "project": "項目",
+      "chooseProject": "選擇項目",
+      "allProjects": "全部項目",
+      "date": "日期",
+      "dateFrom": "開始日期",
+      "dateTo": "結束日期",
+      "time": "時間（24 小時制）",
+      "timeFrom": "從幾點（24 小時制）",
+      "timeTo": "到幾點（24 小時制）",
+      "to": "至",
+      "timePlaceholder": "時:分",
+      "badTime": "時間請用 24 小時制，例如 08:00 或 1200。",
+      "clear": "清除篩選",
+      "backToToday": "回到今天"
+    },
+    "timeline": {
+      "title": "MSE Timeline 工程照片牆",
+      "subtitle": "系統裡所有記錄的照片，按拍攝時間排好，從開工到竣工都在這裡。不用另外上傳。",
+      "shown": "顯示 {shown} / 共 {total} 張",
+      "empty": "還沒有照片。",
+      "end": "已經到最早的照片了。",
+      "dayCount": "{count} 張",
+      "noDate": "沒有日期"
+    }
   }
 }

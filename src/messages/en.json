@@ -12212,7 +12212,8 @@
       "materialRequests": "MR / Other Request",
       "departmentsTrades": "Departments and trades",
       "fieldStaffManagement": "Field staff",
-      "fieldChats": "Phone conversations"
+      "fieldChats": "Phone conversations",
+      "photoTimeline": "Project photo timeline"
     },
     "subscription_management": "Subscriptions",
     "suppliers": "Suppliers",
@@ -20801,5 +20802,54 @@
     "people": "People: {names}",
     "noMessages": "No messages yet.",
     "attachment": "[photo / voice / file]"
+  },
+  "photoWall": {
+    "hint": "Click a photo to enlarge it and page left or right; double-click it to open its full record.",
+    "alt": "{kind} photo, {project}",
+    "unknownPhotographer": "Photographer not recorded",
+    "noPhoto": "This photo is not ready yet.",
+    "previous": "Previous",
+    "next": "Next",
+    "first": "This is the first photo.",
+    "last": "This is the last photo.",
+    "position": "Photo {number} of {loaded}",
+    "loading": "Loading…",
+    "loadMore": "Load more",
+    "openRecord": "Open full record",
+    "noRecord": "The record of this photo cannot be found.",
+    "emptyFiltered": "No photos for this date and time.",
+    "field": {
+      "project": "Project",
+      "kind": "Record type",
+      "content": "Details",
+      "photographer": "Taken by",
+      "date": "Date",
+      "time": "Time"
+    },
+    "filter": {
+      "project": "Project",
+      "chooseProject": "Choose a project",
+      "allProjects": "All projects",
+      "date": "Date",
+      "dateFrom": "From date",
+      "dateTo": "To date",
+      "time": "Time (24-hour)",
+      "timeFrom": "From time (24-hour)",
+      "timeTo": "To time (24-hour)",
+      "to": "to",
+      "timePlaceholder": "hh:mm",
+      "badTime": "Type the time on a 24-hour clock, e.g. 08:00 or 1200.",
+      "clear": "Clear filters",
+      "backToToday": "Back to today"
+    },
+    "timeline": {
+      "title": "MSE Timeline project photo wall",
+      "subtitle": "Every photo already in the system's records, in the order taken, from the first day of work to completion. Nothing extra to upload.",
+      "shown": "Showing {shown} of {total}",
+      "empty": "No photos yet.",
+      "end": "You have reached the earliest photo.",
+      "dayCount": "{count} photos",
+      "noDate": "No date"
+    }
   }
 }
