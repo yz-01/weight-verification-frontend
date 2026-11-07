@@ -58,7 +58,7 @@ describe("the link", () => {
   it("marks a photo for the in-app viewer and keeps its address for a middle click", () => {
     const html = renderToStaticMarkup(
       <PhotoLink href="https://cdn.example/do.jpg" label="DO">
-        <span>photo</span>
+        <span>{"photo"}</span>
       </PhotoLink>,
     );
     expect(html).toContain("data-photo-link");
@@ -68,7 +68,7 @@ describe("the link", () => {
   it("opens anything else in a new tab as before", () => {
     const html = renderToStaticMarkup(
       <PhotoLink href="https://cdn.example/bank.pdf" label="Bank">
-        <span>pdf</span>
+        <span>{"pdf"}</span>
       </PhotoLink>,
     );
     expect(html).not.toContain("data-photo-link");
@@ -76,8 +76,8 @@ describe("the link", () => {
   });
 
   it("takes the caller's word that it is a photo, or that it is not", () => {
-    expect(renderToStaticMarkup(<PhotoLink href="/files/9" label="x" image>x</PhotoLink>)).toContain("data-photo-link");
-    expect(renderToStaticMarkup(<PhotoLink href="/a.jpg" label="x" image={false}>x</PhotoLink>)).not.toContain(
+    expect(renderToStaticMarkup(<PhotoLink href="/files/9" label="x" image>{"x"}</PhotoLink>)).toContain("data-photo-link");
+    expect(renderToStaticMarkup(<PhotoLink href="/a.jpg" label="x" image={false}>{"x"}</PhotoLink>)).not.toContain(
       "data-photo-link",
     );
   });
