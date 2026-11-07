@@ -10,7 +10,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { FileShare, SendRecipient, ShareLink } from "@/interfaces/file-action";
 import { gmailComposeLink, mailtoLink } from "@/lib/file-actions";
-import { linkTarget, sendByLink, sendsByLink, sendsThroughDialog, type LinkSendDeps } from "@/lib/share-link";
+import { cleanShareToken, linkTarget, sendByLink, sendsByLink, sendsThroughDialog, type LinkSendDeps } from "@/lib/share-link";
 
 const share = (overrides: Partial<FileShare> = {}): FileShare => ({
   id: "s1",
@@ -176,3 +176,22 @@ describe("Email: the mail app or Gmail, addressed and filled in", () => {
     expect(linkTarget("whatsapp", "0123456789", "s", "hi")).toBe("https://wa.me/60123456789?text=hi");
   });
 });
+
+describe("a link the chat app ran text into still opens (Lucas 11-08)", () => {
+  const token = "FFVXtJFquDGwVqQ_PKSmKDhjgVdhgisRbV8DGBYxkRE";
+  it("drops what WhatsApp glued onto the token", () => {
+    expect(cleanShareToken(`${token}${encodeURIComponent("（30")}`)).toBe(token);
+    expect(cleanShareToken(`${token}（30`)).toBe(token);
+    expect(cleanShareToken(`${token})`)).toBe(token);
+    expect(cleanShareToken(token)).toBe(token);
+    expect(cleanShareToken("%E0%A4%A")).toBe("");
+  });
+
+  it("the message line ends with the link, so nothing can run into it", () => {
+    for (const locale of ["zh", "zh-TW", "en", "ms"]) {
+      const catalogue = JSON.parse(readFileSync(resolve(`src/messages/${locale}.json`), "utf8"));
+      expect(catalogue.fileActions.link.messageLine.endsWith("{link}")).toBe(true);
+    }
+  });
+});
+

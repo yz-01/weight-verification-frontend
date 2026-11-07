@@ -19112,17 +19112,18 @@
         "markSent": "標記為已發送",
         "noContact": "沒有填電話或 Email",
         "opened": "對方已打開 · {when}",
-        "openedCount": "（{count} 次）"
+        "openedCount": "（{count} 次）",
+        "confirmedByOpen": "對方於 {when} 打開鏈接，自動確認已發送"
       },
-      "askBodyLink": "發給 {name}：{file}。在 WhatsApp 裡按了傳送，才按「已發送」。對方打開連結時，發送記錄會顯示「對方已打開」。",
-      "askBodyLinkEmail": "發給 {name}：{file}。在電郵裡按了傳送，才按「已發送」。對方打開連結時，發送記錄會顯示「對方已打開」。"
+      "askBodyLink": "發給 {name}：{file}。在 WhatsApp 裡按了發送就可以。對方打開鏈接時，系統會自動確認已發送；你也可以現在按「已發送」。",
+      "askBodyLinkEmail": "發給 {name}：{file}。在電郵裡按了發送就可以。對方打開鏈接時，系統會自動確認已發送；你也可以現在按「已發送」。"
     },
     "link": {
       "whatsappButton": "打開 {name} 的 WhatsApp 對話",
       "whatsappHelp": "會打開和 {name} 的 WhatsApp 對話，訊息裡已經帶好{what}連結，你在 WhatsApp 裡按傳送就可以。對方點連結就能打開{what}。",
       "emailButton": "打開電郵發給 {name}",
       "emailHelp": "會打開電郵，發給 {name}，內容裡已經帶好{what}連結，你在電郵裡按傳送就可以。對方點連結就能打開{what}。",
-      "messageLine": "{what}：{link}（{days} 天內有效）",
+      "messageLine": "{what}（{days} 天內有效）：{link}",
       "linkLabel": "{what}連結（{days} 天內有效）",
       "copyLink": "複製連結",
       "copyFailed": "沒有複製到，請自己選取連結複製。",
@@ -19143,7 +19144,8 @@
       "emailFromNoCompany": "發給你的文件：{file}",
       "gmailButton": "用 Gmail 網頁版傳送",
       "checkThenSend": "打開後檢查一下，按傳送就可以。",
-      "whatsappIntro": "請點下面的鏈接查看：{name}"
+      "whatsappIntro": "請點下面的鏈接查看：{name}",
+      "noMailApp": "沒有打開郵件？代表這台電腦沒有設定郵件軟件（例如 Outlook）。請按「用 Gmail 網頁版發送」，或複製下面的鏈接自己發。"
     }
   },
   "recordAttachments": {

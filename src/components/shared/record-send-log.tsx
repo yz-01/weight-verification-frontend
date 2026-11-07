@@ -88,10 +88,14 @@ export function ShareLine({
       </p>
       {confirmed ? (
         <p className="text-xs text-primary">
-          {t("log.confirmedBy", {
-            name: share.confirmed_by_name || "—",
-            when: formatter.dateTime(share.confirmed_at),
-          })}
+          {/* No confirmer: the recipient opened the link, which confirmed it
+              (Lucas 11-08: 「对方打开链接的时候弄成自动标记已发送」). */}
+          {!share.confirmed_by_name && share.opened_at
+            ? t("log.confirmedByOpen", { when: formatter.dateTime(share.confirmed_at) })
+            : t("log.confirmedBy", {
+                name: share.confirmed_by_name || "—",
+                when: formatter.dateTime(share.confirmed_at),
+              })}
         </p>
       ) : onMark ? (
         <Button

@@ -310,3 +310,17 @@ describe("the large first photo", () => {
     expect(hero).not.toMatch(/absolute bottom-2/);
   });
 });
+
+describe("zooming really enlarges (Lucas 11-08: 400% stopped at about 150%)", () => {
+  const source = readFileSync(path.resolve("src/components/shared/record-detail-shell.tsx"), "utf8");
+  it("the enlarged photo does not shrink back inside the flex frame", () => {
+    const enlarged = source.slice(source.indexOf("const enlarged"), source.indexOf("const when ="));
+    expect(enlarged.match(/flexShrink: 0/g)).toHaveLength(2);
+  });
+
+  it("no striped bands beside a photo anywhere (Lucas 11-08)", () => {
+    const css = readFileSync(path.resolve("src/app/globals.css"), "utf8");
+    const hatch = css.slice(css.indexOf(".photo-hatch {"), css.indexOf("}", css.indexOf(".photo-hatch {")));
+    expect(hatch).not.toMatch(/repeating-linear-gradient/);
+  });
+});

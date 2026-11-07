@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { SharedFileView } from "@/components/share-link/shared-file";
+import { cleanShareToken } from "@/lib/share-link";
 
 export const metadata: Metadata = {
   title: "MSE Trace",
@@ -16,5 +17,5 @@ export const metadata: Metadata = {
  */
 export default async function SharedFilePage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
-  return <SharedFileView token={token} />;
+  return <SharedFileView token={cleanShareToken(token)} />;
 }

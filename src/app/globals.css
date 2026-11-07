@@ -693,15 +693,12 @@
     text-shadow: 0 0 var(--num-glow) color-mix(in srgb, currentColor 50%, transparent);
   }
 
-  /* Photo placeholder: a quiet hatch while a picture loads or when a record
-   * has none. */
+  /* Photo placeholder: a plain panel while a picture loads, when a record has
+   * none, and in the bands beside a photo of another shape. No stripes (Lucas
+   * 11-08: 「图1的边边修复一下，弄成好像图2这样」 - the gate photo's plain dark
+   * panel). */
   .photo-hatch {
     background-color: var(--photo-bg);
-    background-image: repeating-linear-gradient(
-      135deg,
-      var(--photo-hatch) 0 8px,
-      transparent 8px 16px
-    );
   }
 
   /* A tone's soft surface: `tone-surface` plus `[--tone:var(--tone-amber)]`.

@@ -724,14 +724,18 @@ export function PhotoViewer({
   const frameWidth = photoFrameWidth(shape, VIEWER_HEIGHT);
   // Enlarged: the fitted size times the zoom, so 200% is twice the whole
   // photo. Until the frame has been measured, the frame's width stands in.
+  // `flexShrink: 0`: the frame is a flex row, and a flex item shrinks back to
+  // its own pixels - so 400% stopped at about 150% (Lucas 11-08: 「照片为什么
+  // 只能放大150%，我增加去400%都没有变化」).
   const enlarged: React.CSSProperties = fitted
     ? {
         width: `${fitted.width * zoom}px`,
         height: `${fitted.height * zoom}px`,
         maxWidth: "none",
         maxHeight: "none",
+        flexShrink: 0,
       }
-    : { width: `${zoom * 100}%`, height: "auto", maxWidth: "none", maxHeight: "none" };
+    : { width: `${zoom * 100}%`, height: "auto", maxWidth: "none", maxHeight: "none", flexShrink: 0 };
   const when = photo.takenAt ? df.dateTime(photo.takenAt) : t("noTime");
   const where =
     photo.latitude && photo.longitude ? `GPS ${photo.latitude}, ${photo.longitude}` : t("noLocation");
