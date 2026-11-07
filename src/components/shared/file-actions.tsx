@@ -1005,7 +1005,7 @@ function LinkSend({
     t("link.messageLine", { what: t(`link.kindTitle.${kind}`), link: url, days });
   const text = (url: string, days: number) => {
     if (whatsapp) {
-      return [held.title, t("shareMessage", { name: held.file.name }), linkLine(url, days)].join("\n");
+      return [held.title, t("link.whatsappIntro", { name: held.file.name }), linkLine(url, days)].join("\n");
     }
     const company = user?.company_name ?? "";
     return [

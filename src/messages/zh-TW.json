@@ -19142,7 +19142,8 @@
       "emailFrom": "{company} 發給你的文件：{file}",
       "emailFromNoCompany": "發給你的文件：{file}",
       "gmailButton": "用 Gmail 網頁版傳送",
-      "checkThenSend": "打開後檢查一下，按傳送就可以。"
+      "checkThenSend": "打開後檢查一下，按傳送就可以。",
+      "whatsappIntro": "請點下面的鏈接查看：{name}"
     }
   },
   "recordAttachments": {

@@ -19142,7 +19142,8 @@
       "emailFrom": "A file from {company}: {file}",
       "emailFromNoCompany": "A file for you: {file}",
       "gmailButton": "Send with Gmail in the browser",
-      "checkThenSend": "Check it once it opens, then press send."
+      "checkThenSend": "Check it once it opens, then press send.",
+      "whatsappIntro": "Please open the link below to view {name}"
     }
   },
   "recordAttachments": {

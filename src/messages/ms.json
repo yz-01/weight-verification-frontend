@@ -19142,7 +19142,8 @@
       "emailFrom": "Fail daripada {company}: {file}",
       "emailFromNoCompany": "Fail untuk anda: {file}",
       "gmailButton": "Hantar dengan Gmail dalam pelayar",
-      "checkThenSend": "Semak selepas dibuka, kemudian tekan hantar."
+      "checkThenSend": "Semak selepas dibuka, kemudian tekan hantar.",
+      "whatsappIntro": "Sila buka pautan di bawah untuk melihat {name}"
     }
   },
   "recordAttachments": {
