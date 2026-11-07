@@ -45,6 +45,7 @@ import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react
 import { toast } from "sonner";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { ZoomablePhoto } from "@/components/shared/photo-zoom";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -611,8 +612,9 @@ function FileViewerDialog({
           ) : format === "sheet" ? (
             <SheetView file={held.file} />
           ) : format === "image" ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={url} alt={held.file.name} className="absolute inset-0 size-full object-contain" />
+            // Whole, with 放大 / 缩小 / 整张显示 under it, as every photo
+            // opened large (`photo-zoom`).
+            <ZoomablePhoto src={url} alt={held.file.name} fill className="absolute inset-0 p-2" />
           ) : (
             <Unsupported />
           )}

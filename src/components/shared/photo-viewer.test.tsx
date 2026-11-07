@@ -312,10 +312,13 @@ describe("the large first photo", () => {
 });
 
 describe("zooming really enlarges (Lucas 11-08: 400% stopped at about 150%)", () => {
-  const source = readFileSync(path.resolve("src/components/shared/record-detail-shell.tsx"), "utf8");
+  // The zoom is shared with every viewer since 11-08 (`photo-zoom`).
+  const source = readFileSync(path.resolve("src/components/shared/photo-zoom.tsx"), "utf8");
   it("the enlarged photo does not shrink back inside the flex frame", () => {
-    const enlarged = source.slice(source.indexOf("const enlarged"), source.indexOf("const when ="));
+    const enlarged = source.slice(source.indexOf("export function enlargedStyle"), source.indexOf("export function zoomFrameClass"));
     expect(enlarged.match(/flexShrink: 0/g)).toHaveLength(2);
+    const shell = readFileSync(path.resolve("src/components/shared/record-detail-shell.tsx"), "utf8");
+    expect(shell).toContain("style={whole ? undefined : enlarged}");
   });
 
   it("no striped bands beside a photo anywhere (Lucas 11-08)", () => {

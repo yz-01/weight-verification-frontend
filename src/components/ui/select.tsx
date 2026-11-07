@@ -91,8 +91,11 @@ function SelectTrigger({
 function SelectContent({
   className,
   children,
-  position = "item-aligned",
-  align = "center",
+  // Always under the box (Lucas 11-08: 「没有可选项」 opened in the screen's
+  // top-left corner). "item-aligned" lines the list up with the chosen item;
+  // an empty list, or a load-error line, has none, and Radix put it at 0,0.
+  position = "popper",
+  align = "start",
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.Content>) {
   return (

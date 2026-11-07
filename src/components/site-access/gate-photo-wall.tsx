@@ -25,6 +25,7 @@ import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { LocationMap } from "@/components/shared/location-map";
+import { ZoomablePhoto } from "@/components/shared/photo-zoom";
 import { QueryFailedNote } from "@/components/shared/page-primitives";
 import { RecordExportButton } from "@/components/shared/record-export-button";
 import { GateIssueStatusBadge } from "@/components/site-access/gate-records";
@@ -43,9 +44,6 @@ import { getGateWall } from "@/services/site-access.service";
 
 /** Rows per page of the wall: a few screens of tiles, one request. */
 const WALL_PAGE_SIZE = 40;
-
-/** How far a finger has to travel for a swipe to turn the photo. */
-const SWIPE_PX = 48;
 
 /**
  * The wall's pages for this list query (the table's filters and search; its
@@ -249,7 +247,6 @@ export function WallViewer({
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
-  const touchX = useRef<number | null>(null);
 
   const latitude = photo.latitude ?? record.latitude;
   const longitude = photo.longitude ?? record.longitude;
@@ -284,30 +281,16 @@ export function WallViewer({
         </DialogHeader>
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
           <div className="min-w-0 space-y-3">
-            <div
-              className="photo-hatch flex h-[50dvh] items-center justify-center overflow-hidden rounded-xl border border-panel-border lg:h-[68dvh]"
-              onTouchStart={(event) => {
-                touchX.current = event.touches[0]?.clientX ?? null;
-              }}
-              onTouchEnd={(event) => {
-                const start = touchX.current;
-                touchX.current = null;
-                const end = event.changedTouches[0]?.clientX;
-                if (start === null || end === undefined) return;
-                if (end - start <= -SWIPE_PX) onStep(1);
-                else if (end - start >= SWIPE_PX) onStep(-1);
-              }}
-            >
-              {/* The whole photo, fitted (I21): the stamped copy, the evidence. */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                key={photo.id}
-                src={photo.watermarked_image}
-                alt={t("wall.photoAlt", { reference: record.incident_no })}
-                className="max-h-full max-w-full object-contain"
-                data-wall-photo
-              />
-            </div>
+            {/* The whole photo, fitted (I21): the stamped copy, the evidence;
+                放大 / 缩小 / 整张显示 under it, as in every viewer
+                (`photo-zoom`). A swipe turns it while it is whole. */}
+            <ZoomablePhoto
+              src={photo.watermarked_image}
+              alt={t("wall.photoAlt", { reference: record.incident_no })}
+              frameClassName="photo-hatch h-[50dvh] rounded-xl border border-panel-border lg:h-[68dvh]"
+              imgProps={{ "data-wall-photo": true }}
+              onSwipe={onStep}
+            />
             <div className="flex items-center justify-between gap-2">
               <Button
                 variant="outline"

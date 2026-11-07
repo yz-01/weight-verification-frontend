@@ -20289,7 +20289,7 @@
         "body": "Check the name and numbers against the photo; changes save by themselves.",
         "openPdf": "Open the PDF",
         "noPhoto": "This row has no passport photo.",
-        "zoomHint": "Click the photo to open it larger in a new tab.",
+        "zoomHint": "Use zoom in / zoom out under the photo to read it clearly.",
         "confirm": "Checked"
       },
       "saveBlocked": "The table's changes have not reached the server yet, so nothing was saved. Check the internet and press \"Save all\" again.",

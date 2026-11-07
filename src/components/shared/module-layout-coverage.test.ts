@@ -26,17 +26,21 @@ describe("the detail shell does what the customer asked (T-368)", () => {
     expect(shell).toMatch(/sizes="96px"/);
   });
 
+  // The zoom itself is shared with every viewer since 11-08 (`photo-zoom`).
+  const zoom = read("src/components/shared/photo-zoom.tsx");
+
   it("zooms in and out once a photograph is opened", () => {
-    expect(shell).toMatch(/MAX_ZOOM = 4/);
-    expect(shell).toMatch(/t\("zoomIn"\)/);
-    expect(shell).toMatch(/t\("zoomOut"\)/);
+    expect(shell).toMatch(/<PhotoZoomBar/);
+    expect(zoom).toMatch(/MAX_ZOOM = 4/);
+    expect(zoom).toMatch(/t\("zoomIn"\)/);
+    expect(zoom).toMatch(/t\("zoomOut"\)/);
     // I21 (ID44): zooming is relative to the whole photo fitted in the frame.
-    expect(shell).toMatch(/width: `\$\{fitted\.width \* zoom\}px`/);
+    expect(zoom).toMatch(/width: `\$\{fitted\.width \* zoom\}px`/);
   });
 
   it("opens a photograph whole, with 「整张显示」 in place of 「回到 100%」 (I21)", () => {
     expect(shell).toMatch(/max-h-full max-w-full object-contain/);
-    expect(shell).toMatch(/t\("fitWhole"\)/);
+    expect(zoom).toMatch(/t\("fitWhole"\)/);
     // The old button looked like 「旋转」 and was not one.
     expect(shell).not.toMatch(/RotateCcw/);
     expect(shell).not.toMatch(/zoomReset/);

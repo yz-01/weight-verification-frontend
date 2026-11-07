@@ -16,6 +16,7 @@ import { useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { PhotoFileInput } from "@/components/shared/photo-file-input";
+import { ZoomablePhoto } from "@/components/shared/photo-zoom";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import { RecordNo } from "@/components/shared/record-no";
 import { FieldWrapper, ListHeader, StatusBadge } from "@/components/shared/page-primitives";
@@ -539,13 +540,12 @@ export function Attendance() {
           {selectedRecord && (
             <div className="space-y-4">
               {selectedRecord.photo ? (
-                <div className="overflow-hidden rounded-lg border bg-muted/20">
-                  <img
-                    src={selectedRecord.watermarked_photo || selectedRecord.photo}
-                    alt={t("attendance.evidence.photoAlt")}
-                    className="max-h-[26rem] w-full object-contain"
-                  />
-                </div>
+                // 放大 / 缩小 / 整张显示, as every photo opened large (`photo-zoom`).
+                <ZoomablePhoto
+                  src={selectedRecord.watermarked_photo || selectedRecord.photo}
+                  alt={t("attendance.evidence.photoAlt")}
+                  frameClassName="h-[min(26rem,55dvh)] w-full rounded-lg border bg-muted/20"
+                />
               ) : (
                 <div className="flex min-h-32 items-center justify-center rounded-lg border border-dashed text-sm text-muted-foreground">
                   {t(noPhotoKey(selectedRecord))}
