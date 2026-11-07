@@ -228,9 +228,23 @@ export async function shareFile(
   }
 }
 
-/** An email with the file's name in it, for attaching the saved file to. */
-export function mailtoLink(subject: string, body: string): string {
-  return `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+/**
+ * An email with the file's name in it, for attaching the saved file to - or,
+ * with the PDF link in `body`, addressed straight to `to` (客户 11-08).
+ */
+export function mailtoLink(subject: string, body: string, to = ""): string {
+  // The address encoded, but its @ kept: some mail apps do not read %40.
+  const address = encodeURIComponent(to.trim()).replace(/%40/g, "@");
+  return `mailto:${address}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
+
+/**
+ * The same email in Gmail's web compose window, for someone who uses Gmail in
+ * the browser and has no mail app set up (客户 11-08).
+ */
+export function gmailComposeLink(to: string, subject: string, body: string): string {
+  const query = new URLSearchParams({ view: "cm", fs: "1", to: to.trim(), su: subject, body });
+  return `https://mail.google.com/mail/?${query.toString()}`;
 }
 
 /**

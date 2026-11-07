@@ -117,7 +117,7 @@ describe("公司设置 (JB99)", () => {
   });
 
   it("sends only the fields a block shows", () => {
-    expect(Object.keys(pickSettings(SETTINGS, PREFERENCE_SETTINGS)).sort()).toEqual(["date_format", "language", "time_format", "timezone"]);
+    expect(Object.keys(pickSettings(SETTINGS, PREFERENCE_SETTINGS)).sort()).toEqual(["date_format", "language", "pdf_link_valid_days", "time_format", "timezone"]);
     expect(pickSettings(SETTINGS, PROFILE_SETTINGS)).toEqual({ emergency_contact_name: "Guard house", emergency_contact_phone: "+60123" });
   });
 });

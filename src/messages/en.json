@@ -8769,7 +8769,10 @@
       "phone_page_not_yours": "This page is not on your phone.",
       "chat_people_invalid": "Choose people from the list.",
       "user_removed": "This account was deleted and cannot be turned back on. Create a new account instead.",
-      "supplier_not_on_project": "This supplier is not on this project's supplier list. Ask head office or the project manager to add it to the project first."
+      "supplier_not_on_project": "This supplier is not on this project's supplier list. Ask head office or the project manager to add it to the project first.",
+      "file_share_link_not_found": "This file link was not found.",
+      "file_share_link_expired": "This link has expired. Ask the person who sent it for a new one.",
+      "file_share_file_too_large": "The file is larger than {max_mb} MB and cannot be sent as a link."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -15759,7 +15762,8 @@
       "expiringSoon": "Expiring within 7 days",
       "ssmRegistrationNo": "SSM registration no.",
       "codeAuto": "Leave empty and the system numbers it.",
-      "codeAutoPlaceholder": "Automatic"
+      "codeAutoPlaceholder": "Automatic",
+      "pdfLinkValid": "Days a PDF link stays valid"
     },
     "gate": {
       "cameraError": "The camera could not start. Allow camera access and try again, or upload a QR image.",
@@ -15881,8 +15885,9 @@
       "title": "Default permissions"
     },
     "preferences": {
-      "subtitle": "Language, date format, time format and timezone.",
-      "title": "Display preferences"
+      "subtitle": "Language, date format, time format, time zone, and how long a sent file's link works.",
+      "title": "Display preferences",
+      "pdfLinkHint": "How many days the file link in a WhatsApp / email send works (1–365)."
     },
     "profile": {
       "chooseLogo": "Choose company logo",
@@ -19105,8 +19110,39 @@
         "by": "Sent by {name} · {when}",
         "confirmedBy": "{name} confirmed it was sent on {when}",
         "markSent": "Mark as sent",
-        "noContact": "No phone or email given"
-      }
+        "noContact": "No phone or email given",
+        "opened": "Opened by recipient · {when}",
+        "openedCount": " ({count} times)"
+      },
+      "askBodyLink": "To {name}: {file}. Press 'Sent' only after you pressed send in WhatsApp. When {name} opens the link, the send log shows 'Opened by recipient'.",
+      "askBodyLinkEmail": "To {name}: {file}. Press 'Sent' only after you pressed send in the email. When {name} opens the link, the send log shows 'Opened by recipient'."
+    },
+    "link": {
+      "whatsappButton": "Open the WhatsApp chat with {name}",
+      "whatsappHelp": "This opens your WhatsApp chat with {name}. The message already has the {what} link in it - just press send in WhatsApp. {name} taps the link to open the {what}.",
+      "emailButton": "Open an email to {name}",
+      "emailHelp": "This opens an email to {name}. The {what} link is already in it - just press send. {name} clicks the link to open the {what}.",
+      "messageLine": "{what}: {link} (valid for {days} days)",
+      "linkLabel": "{what} link (valid for {days} days)",
+      "copyLink": "Copy link",
+      "copyFailed": "Could not copy. Select the link and copy it yourself.",
+      "preparing": "Preparing the link",
+      "failed": "The link could not be made, so nothing was opened. Please try again.",
+      "kind": {
+        "pdf": "PDF",
+        "image": "photo",
+        "file": "file"
+      },
+      "kindTitle": {
+        "pdf": "PDF",
+        "image": "Photo",
+        "file": "File"
+      },
+      "emailGreeting": "Hello,",
+      "emailFrom": "A file from {company}: {file}",
+      "emailFromNoCompany": "A file for you: {file}",
+      "gmailButton": "Send with Gmail in the browser",
+      "checkThenSend": "Check it once it opens, then press send."
     }
   },
   "recordAttachments": {
@@ -20854,5 +20890,23 @@
       "noDate": "No date"
     },
     "positionOpen": "Photo {number}"
+  },
+  "sharedFile": {
+    "brand": "MSE Trace",
+    "loading": "Opening…",
+    "from": "A file sent to you by {sender} of {company}",
+    "fromCompany": "A file sent to you by {company}",
+    "validUntil": "This link works until {date}",
+    "notFound": "File not found",
+    "notFoundHelp": "The link is wrong or the file is no longer here. Ask the person who sent it for a new one.",
+    "expired": "This link has expired",
+    "expiredHelp": "This link is past its date. Ask the person who sent it for a new one.",
+    "offline": "No connection",
+    "offlineHelp": "Check your internet connection and try again.",
+    "retry": "Try again",
+    "download": "Download",
+    "openPdf": "Open PDF",
+    "openImage": "View photo",
+    "openFile": "Download file"
   }
 }

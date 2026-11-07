@@ -8769,7 +8769,10 @@
       "phone_page_not_yours": "你的手机没有这个页面。",
       "chat_people_invalid": "请从名单里选人。",
       "user_removed": "这个账号已经删除，不能再启用。请重新建立一个新账号。",
-      "supplier_not_on_project": "这个供应商不在这个项目的「可用供应商」里。请总部或项目经理先在项目里加入。"
+      "supplier_not_on_project": "这个供应商不在这个项目的「可用供应商」里。请总部或项目经理先在项目里加入。",
+      "file_share_link_not_found": "找不到这个文件链接。",
+      "file_share_link_expired": "这个链接已经过期。请向发给你的人再要一次。",
+      "file_share_file_too_large": "文件超过 {max_mb} MB，不能做成链接。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -15759,7 +15762,8 @@
       "expiringSoon": "7 天内到期",
       "ssmRegistrationNo": "SSM 注册号码",
       "codeAuto": "留空，系统自动编号。",
-      "codeAutoPlaceholder": "自动生成"
+      "codeAutoPlaceholder": "自动生成",
+      "pdfLinkValid": "PDF 链接有效天数"
     },
     "gate": {
       "cameraError": "无法启动相机。请允许相机权限后重试，或上传二维码图片。",
@@ -15881,8 +15885,9 @@
       "title": "默认权限"
     },
     "preferences": {
-      "subtitle": "语言、日期格式、时间格式、时区。",
-      "title": "显示偏好"
+      "subtitle": "语言、日期格式、时间格式、时区，和发送文件链接的有效天数。",
+      "title": "显示偏好",
+      "pdfLinkHint": "WhatsApp / Email 发送文件时，消息里的链接几天后失效（1–365 天）。"
     },
     "profile": {
       "chooseLogo": "选择公司 Logo",
@@ -19105,8 +19110,39 @@
         "by": "{name} 发送 · {when}",
         "confirmedBy": "{name} 于 {when} 确认已发送",
         "markSent": "标记为已发送",
-        "noContact": "没有填电话或 Email"
-      }
+        "noContact": "没有填电话或 Email",
+        "opened": "对方已打开 · {when}",
+        "openedCount": "（{count} 次）"
+      },
+      "askBodyLink": "发给 {name}：{file}。在 WhatsApp 里按了发送，才按「已发送」。对方打开链接时，发送记录会显示「对方已打开」。",
+      "askBodyLinkEmail": "发给 {name}：{file}。在电邮里按了发送，才按「已发送」。对方打开链接时，发送记录会显示「对方已打开」。"
+    },
+    "link": {
+      "whatsappButton": "打开 {name} 的 WhatsApp 对话",
+      "whatsappHelp": "会打开和 {name} 的 WhatsApp 对话，消息里已经带好{what}链接，你在 WhatsApp 里按发送就可以。对方点链接就能打开{what}。",
+      "emailButton": "打开电邮发给 {name}",
+      "emailHelp": "会打开电邮，发给 {name}，内容里已经带好{what}链接，你在电邮里按发送就可以。对方点链接就能打开{what}。",
+      "messageLine": "{what}：{link}（{days} 天内有效）",
+      "linkLabel": "{what}链接（{days} 天内有效）",
+      "copyLink": "复制链接",
+      "copyFailed": "没有复制到，请自己选中链接复制。",
+      "preparing": "正在准备链接",
+      "failed": "链接没有做好，什么都没有打开。请再试一次。",
+      "kind": {
+        "pdf": "PDF",
+        "image": "照片",
+        "file": "文件"
+      },
+      "kindTitle": {
+        "pdf": "PDF",
+        "image": "照片",
+        "file": "文件"
+      },
+      "emailGreeting": "你好，",
+      "emailFrom": "{company} 发给你的文件：{file}",
+      "emailFromNoCompany": "发给你的文件：{file}",
+      "gmailButton": "用 Gmail 网页版发送",
+      "checkThenSend": "打开后检查一下，按发送就可以。"
     }
   },
   "recordAttachments": {
@@ -20854,5 +20890,23 @@
       "noDate": "没有日期"
     },
     "positionOpen": "第 {number} 张"
+  },
+  "sharedFile": {
+    "brand": "MSE Trace",
+    "loading": "正在打开…",
+    "from": "{company} 的 {sender} 发给你的文件",
+    "fromCompany": "{company} 发给你的文件",
+    "validUntil": "链接有效到 {date}",
+    "notFound": "找不到这个文件",
+    "notFoundHelp": "链接不对，或者文件已经不在了。请向发给你的人再要一次。",
+    "expired": "链接已过期",
+    "expiredHelp": "这个链接已经过了有效期。请向发给你的人再要一次。",
+    "offline": "网络连不上",
+    "offlineHelp": "请检查网络，再试一次。",
+    "retry": "再试一次",
+    "download": "下载",
+    "openPdf": "打开 PDF",
+    "openImage": "查看照片",
+    "openFile": "下载文件"
   }
 }

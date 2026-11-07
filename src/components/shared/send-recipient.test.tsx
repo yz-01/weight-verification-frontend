@@ -243,12 +243,12 @@ describe("10-29 fixes", () => {
 
   it("1: with no share window the send is written only when 下载文件 / WhatsApp / 电邮 is pressed", () => {
     const leave = actions.slice(actions.indexOf("const leave = useCallback"), actions.indexOf("const act = useCallback"));
-    const noWindow = leave.slice(leave.indexOf("!canShareFile(file)"), leave.indexOf("let share: FileShare | null"));
+    const noWindow = leave.slice(leave.indexOf("sendsThroughDialog("), leave.indexOf("let share: FileShare | null"));
     // Not written here: handed to the dialog to write on the first press.
     expect(noWindow).toContain("const writeLog = async");
     expect(noWindow).toContain("setSending({");
     expect(noWindow.indexOf("return;")).toBeGreaterThan(noWindow.indexOf("setSending({"));
-    expect(leave.indexOf("!canShareFile(file)")).toBeLessThan(leave.indexOf("let share: FileShare | null"));
+    expect(leave.indexOf("sendsThroughDialog(")).toBeLessThan(leave.indexOf("let share: FileShare | null"));
     // Each of the three writes first, and goes only if it was written.
     for (const press of ["const download", "const email", "const whatsapp"]) {
       const body = dialog.slice(dialog.indexOf(press), dialog.indexOf("};", dialog.indexOf(press)));
