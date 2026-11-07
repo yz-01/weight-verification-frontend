@@ -140,5 +140,7 @@ describe("新增项目 (JB100)", () => {
     expect(html).toContain("状态");
     expect(html).toContain("开工日期");
     expect(html).toContain('aria-expanded="true"');
+    // 项目负责人 is changed on the project's page only (Lucas 11-08: 保留一个就好).
+    expect(html).not.toContain("选择项目经理");
   });
 });
