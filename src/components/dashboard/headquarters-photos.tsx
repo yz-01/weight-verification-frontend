@@ -3,14 +3,24 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { Camera, Loader2, UserRound } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useMemo, useState } from "react";
 
+import { useCompanyTimeZone } from "@/components/shared/date-time-range-filter";
+import {
+  PhotoWallFilterFields,
+  PhotoWallViewer,
+  usePhotoTileClicks,
+  usePhotoWallViewer,
+} from "@/components/shared/photo-wall-viewer";
 import { useRecordOpener } from "@/components/shared/record-opener";
 import { LoadFailed } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { HeadquartersPhoto } from "@/interfaces/headquarters";
 import { useDateFormat } from "@/lib/dates";
+import { wallClock } from "@/lib/gate-time-range";
 import { photoTarget } from "@/lib/headquarters-links";
+import { photoWallQuery, wallPhotos, type PhotoWallFilters } from "@/lib/photo-wall";
 import { getHeadquartersPhotos } from "@/services/contractor-dashboard.service";
 
 const PAGE_SIZE = 12;
@@ -40,27 +50,59 @@ export function usePhotoOpener() {
 /**
  * 今日现场照片 (C14): what every project actually photographed today, newest
  * first, a page at a time with 【载入更多】 - never a fixed handful. Each
- * names its project, the kind of record, the time and who took it, and opens
- * the record it belongs to. A day without photos says so; nothing is made up.
+ * names its project, the kind of record, the time and who took it. A day
+ * without photos says so; nothing is made up.
+ *
+ * JB134 (客户 11-07 事项 9): 「参考现有门岗照片墙功能。单击照片：放大照片，可以
+ * 左右连续翻看。双击照片：进入该照片对应的完整业务记录。支持日期及时间筛选。保留
+ * 原有功能，不需要重新设计。」 The look and 【载入更多】 stay; a click opens
+ * the shared viewer (`shared/photo-wall-viewer`), a double click the record,
+ * and a small row above picks the day (today unless changed) and a time of
+ * day.
  */
 export function HeadquartersPhotos({
   onOpen,
+  suspended = false,
 }: {
   onOpen: (photo: HeadquartersPhoto) => void;
+  /** A record opened from the viewer is on screen: the viewer waits behind it. */
+  suspended?: boolean;
 }) {
   const t = useTranslations("headquarters.photos");
+  const tw = useTranslations("photoWall");
   const kinds = useTranslations("headquarters.recordKind");
   const df = useDateFormat();
+  const timeZone = useCompanyTimeZone();
+  const today = wallClock(new Date(), timeZone).date;
+  const [filters, setFilters] = useState<PhotoWallFilters>({});
+  const request = photoWallQuery(filters);
   const query = useInfiniteQuery({
-    queryKey: ["contractor-dashboard", "headquarters-photos"],
+    queryKey: ["contractor-dashboard", "headquarters-photos", request],
     queryFn: ({ pageParam }) =>
-      getHeadquartersPhotos({ page: pageParam, page_size: PAGE_SIZE }),
+      getHeadquartersPhotos({ ...request, page: pageParam, page_size: PAGE_SIZE }),
     initialPageParam: 1,
     getNextPageParam: (lastPage) =>
       lastPage.page < lastPage.total_pages ? lastPage.page + 1 : undefined,
   });
-  const rows = query.data?.pages.flatMap((page) => page.results) ?? [];
+  const rows = useMemo(() => wallPhotos(query.data?.pages ?? []), [query.data]);
   const total = query.data?.pages[0]?.count ?? 0;
+  const filtered = Boolean(
+    filters.date_from || filters.date_to || filters.time_from || filters.time_to,
+  );
+  const viewer = usePhotoWallViewer(rows.length, {
+    hasNextPage: Boolean(query.hasNextPage),
+    isFetchingNextPage: query.isFetchingNextPage,
+    fetchNextPage: query.fetchNextPage,
+  });
+  const openRecord = (photo: HeadquartersPhoto) => {
+    if (photoTarget(photo) !== null) onOpen(photo);
+  };
+  const tileClick = usePhotoTileClicks(viewer.open, (index) => {
+    const photo = rows[index];
+    if (photo && photoTarget(photo) !== null) onOpen(photo);
+    else viewer.open(index);
+  });
+  const shownPhoto = viewer.index !== null ? rows[viewer.index] : undefined;
 
   return (
     <section
@@ -79,6 +121,7 @@ export function HeadquartersPhotos({
           </span>
         )}
       </div>
+      <PhotoWallFilterFields value={filters} onChange={setFilters} mode="day" today={today} />
       {query.isError ? (
         <LoadFailed onRetry={() => void query.refetch()} />
       ) : query.isLoading ? (
@@ -88,13 +131,15 @@ export function HeadquartersPhotos({
           ))}
         </div>
       ) : rows.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-panel-border py-8 text-center text-sm text-muted-foreground">{t("empty")}</p>
+        <p className="rounded-xl border border-dashed border-panel-border py-8 text-center text-sm text-muted-foreground">
+          {filtered ? tw("emptyFiltered") : t("empty")}
+        </p>
       ) : (
         <>
+          <p className="text-xs text-muted-foreground">{tw("hint")}</p>
           {/* 照片说话 (E1, E3): a photo wall, the newest one large. */}
           <ul className="grid grid-flow-row-dense grid-cols-2 gap-3 sm:grid-cols-4 xl:grid-cols-6">
             {rows.map((photo, index) => {
-              const opens = photoTarget(photo) !== null;
               const card = (
                 <>
                   <span className="photo-hatch relative block aspect-[4/3]">
@@ -127,18 +172,15 @@ export function HeadquartersPhotos({
               const hero = index === 0 ? "sm:col-span-2 sm:row-span-2" : "";
               return (
                 <li key={photo.id} className={`min-w-0 ${hero}`}>
-                  {opens ? (
-                    <button
-                      type="button"
-                      onClick={() => onOpen(photo)}
-                      className="group block w-full overflow-hidden rounded-xl border border-panel-border text-left transition hover:border-primary/60 hover:shadow-glow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                    >
-                      {card}
-                    </button>
-                  ) : (
-                    // A photo whose record could not be found: shown, not linked.
-                    <div className="block overflow-hidden rounded-xl border border-panel-border">{card}</div>
-                  )}
+                  {/* Every photo opens large; one without a record opens no record. */}
+                  <button
+                    type="button"
+                    data-photo-tile
+                    onClick={(event) => tileClick(index, event)}
+                    className="group block w-full overflow-hidden rounded-xl border border-panel-border text-left transition hover:border-primary/60 hover:shadow-glow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    {card}
+                  </button>
                 </li>
               );
             })}
@@ -159,6 +201,18 @@ export function HeadquartersPhotos({
           )}
         </>
       )}
+      {shownPhoto && viewer.index !== null && !suspended ? (
+        <PhotoWallViewer
+          photo={shownPhoto}
+          position={viewer.index}
+          loaded={rows.length}
+          more={Boolean(query.hasNextPage)}
+          loadingNext={viewer.loadingNext}
+          onStep={viewer.step}
+          onClose={viewer.close}
+          onOpenRecord={openRecord}
+        />
+      ) : null}
     </section>
   );
 }

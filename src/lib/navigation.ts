@@ -16,6 +16,7 @@ import {
   Handshake,
   HeadphonesIcon,
   History,
+  Images,
   Inbox,
   KeyRound,
   LayoutDashboard,
@@ -748,6 +749,15 @@ export const PORTAL_NAVIGATION = {
   ],
   MSE_TRACE: [
     item("dashboard", "/dashboard", LayoutDashboard, "overview"),
+    // MSE Timeline 工程照片墙 (JB135, 客户 11-07 事项 10): every photo the
+    // records already hold, project by project, from the first day to the
+    // last. Whoever reads the head-office dashboard (`dashboard.view`) reads
+    // this; no feature of its own, so it rides on 「dashboard」. Its own
+    // count would be the dashboard's, so it shows none.
+    entry("dashboard", "submodule.photoTimeline", "/photo-timeline", Images, "overview", {
+      requiredPermission: "dashboard.view",
+      badge: [],
+    }),
     item(
       "projects",
       "/modules/projects",
@@ -1898,6 +1908,7 @@ const PERMISSION_ROUTE_RULES: readonly PermissionRouteRule[] = [
   { pattern: "/site-workers/bulk", permission: "site_worker.manage" },
   { pattern: "/companies/:id/edit", permission: "company.update" },
   { pattern: "/projects/create", permission: "project.create" },
+  { pattern: "/photo-timeline", permission: "dashboard.view" },
   { pattern: "/projects/:id/edit", permission: "project.update" },
   { pattern: "/suppliers/create", permission: "supplier.create" },
   { pattern: "/suppliers/:id/edit", permission: "supplier.update" },

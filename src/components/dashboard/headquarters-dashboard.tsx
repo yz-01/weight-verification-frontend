@@ -151,7 +151,7 @@ export function HeadquartersDashboard() {
           <HeadquartersPresence data={data} />
           {/* 材料目标 (I18, ID42): each project's targets over, at and near. */}
           <HeadquartersMaterialTargets data={data} />
-          <HeadquartersPhotos onOpen={photos.open} />
+          <HeadquartersPhotos onOpen={photos.open} suspended={photos.sheet !== null} />
         </>
       )}
       {photos.sheet}

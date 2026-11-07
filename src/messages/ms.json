@@ -12195,7 +12195,8 @@
       "materialTargets": "Sasaran bahan",
       "materialRequests": "MR / Permohonan Lain",
       "departmentsTrades": "Jabatan dan tred",
-      "fieldStaffManagement": "Kakitangan tapak"
+      "fieldStaffManagement": "Kakitangan tapak",
+      "photoTimeline": "Garis masa foto projek"
     },
     "subscription_management": "Pengurusan Langganan",
     "suppliers": "Pembekal",
@@ -20745,6 +20746,55 @@
     "toast": {
       "added": "Ditambah ke projek.",
       "removed": "Dikeluarkan dari projek."
+    }
+  },
+  "photoWall": {
+    "hint": "Klik foto untuk membesarkannya dan selak ke kiri atau kanan; klik dua kali untuk membuka rekod penuhnya.",
+    "alt": "Foto {kind}, {project}",
+    "unknownPhotographer": "Jurugambar tidak direkodkan",
+    "noPhoto": "Foto ini belum sedia.",
+    "previous": "Sebelumnya",
+    "next": "Seterusnya",
+    "first": "Ini foto pertama.",
+    "last": "Ini foto terakhir.",
+    "position": "Foto {number} daripada {loaded}",
+    "loading": "Memuatkan…",
+    "loadMore": "Muat lagi",
+    "openRecord": "Buka rekod penuh",
+    "noRecord": "Rekod foto ini tidak dijumpai.",
+    "emptyFiltered": "Tiada foto untuk tarikh dan masa ini.",
+    "field": {
+      "project": "Projek",
+      "kind": "Jenis rekod",
+      "content": "Butiran",
+      "photographer": "Diambil oleh",
+      "date": "Tarikh",
+      "time": "Masa"
+    },
+    "filter": {
+      "project": "Projek",
+      "chooseProject": "Pilih projek",
+      "allProjects": "Semua projek",
+      "date": "Tarikh",
+      "dateFrom": "Dari tarikh",
+      "dateTo": "Hingga tarikh",
+      "time": "Masa (24 jam)",
+      "timeFrom": "Dari pukul (24 jam)",
+      "timeTo": "Hingga pukul (24 jam)",
+      "to": "hingga",
+      "timePlaceholder": "jj:mm",
+      "badTime": "Taip masa dalam format 24 jam, cth. 08:00 atau 1200.",
+      "clear": "Kosongkan penapis",
+      "backToToday": "Kembali ke hari ini"
+    },
+    "timeline": {
+      "title": "MSE Timeline dinding foto projek",
+      "subtitle": "Semua foto yang sudah ada dalam rekod sistem, mengikut masa diambil, dari hari pertama kerja hingga siap. Tiada apa-apa untuk dimuat naik.",
+      "shown": "Menunjukkan {shown} daripada {total}",
+      "empty": "Belum ada foto.",
+      "end": "Anda sudah sampai ke foto yang paling awal.",
+      "dayCount": "{count} foto",
+      "noDate": "Tiada tarikh"
     }
   }
 }
