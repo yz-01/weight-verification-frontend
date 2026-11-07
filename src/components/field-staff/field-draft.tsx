@@ -12,13 +12,18 @@ const DraftContext = createContext<FormDraftStore | null>(null);
 const noDraft = () => {};
 
 /** Scope includes the workflow and task/record; identity comes from the real session. */
-export function FieldDraft({ scope, children }: { scope: string; children: React.ReactNode }) {
+/**
+ * `fill`: a full-height chat (JB127). The status line only shows when
+ * something is wrong, and the content takes the rest of the height so the
+ * message box stays on screen.
+ */
+export function FieldDraft({ scope, children, fill = false }: { scope: string; children: React.ReactNode; fill?: boolean }) {
   const { user } = useAuth();
   if (!user) return null;
-  return <DraftBoundary key={formDraftKey(user.company, user.id, scope)} id={formDraftKey(user.company, user.id, scope)}>{children}</DraftBoundary>;
+  return <DraftBoundary key={formDraftKey(user.company, user.id, scope)} id={formDraftKey(user.company, user.id, scope)} fill={fill}>{children}</DraftBoundary>;
 }
 
-function DraftBoundary({ id, children }: { id: string; children: React.ReactNode }) {
+function DraftBoundary({ id, children, fill }: { id: string; children: React.ReactNode; fill: boolean }) {
   const t = useTranslations("fieldDraft");
   const store = useMemo(() => getFormDraftStore(id), [id]);
   const snapshot = useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot);
@@ -35,8 +40,9 @@ function DraftBoundary({ id, children }: { id: string; children: React.ReactNode
     window.addEventListener("beforeunload", warn);
     return () => window.removeEventListener("beforeunload", warn);
   }, [store]);
-  return <DraftContext.Provider value={store}>
-    <div className="mb-3 rounded-lg border bg-muted/30 px-3 py-2 text-xs" data-draft-status={snapshot.status}>
+  const troubled = snapshot.status === "error" || snapshot.missingAttachments.length > 0;
+  const box = (!fill || troubled) && (
+    <div className={fill ? "m-3 mb-0 shrink-0 rounded-lg border bg-muted/30 px-3 py-2 text-xs" : "mb-3 rounded-lg border bg-muted/30 px-3 py-2 text-xs"} data-draft-status={snapshot.status}>
       <p role={snapshot.status === "error" ? "alert" : "status"}>{t(snapshot.status)}</p>
       {snapshot.status === "error" && <Button type="button" variant="outline" size="sm" className="mt-2" onClick={store.retry}>{t("retry")}</Button>}
       {/* The typing came back but a photo did not. Name the count so the worker
@@ -49,6 +55,17 @@ function DraftBoundary({ id, children }: { id: string; children: React.ReactNode
           : <Button type="button" variant="ghost" size="sm" className="mt-1" onClick={() => setConfirmDiscard(true)}>{t("discard")}</Button>
       )}
     </div>
+  );
+  if (fill) {
+    return <DraftContext.Provider value={store}>
+      <div className="flex h-full min-h-0 flex-col">
+        {box}
+        <div className="min-h-0 flex-1">{snapshot.ready && children}</div>
+      </div>
+    </DraftContext.Provider>;
+  }
+  return <DraftContext.Provider value={store}>
+    {box}
     {snapshot.ready && children}
   </DraftContext.Provider>;
 }

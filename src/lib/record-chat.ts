@@ -146,6 +146,7 @@ export type ConversationClosedLine =
   | "recordChat.closedArchived"
   | "recordChat.closedPaid"
   | "recordChat.closedDecided"
+  | "recordChat.closedTaskDone"
   | "recordChat.closedRejected"
   | "recordChat.closedCancelled"
   | "recordChat.closedReadonly"
@@ -161,9 +162,12 @@ export type ConversationClosedLine =
  */
 export function conversationClosedLine(
   closed: string | null | undefined,
+  kind?: string,
 ): ConversationClosedLine | null {
   if (!closed) return null;
   if (closed === "paid") return "recordChat.closedPaid";
+  // A field task is finished, not "approved or returned" (JB129: 确认完成).
+  if (closed === "decided" && kind === "FIELD_TASK") return "recordChat.closedTaskDone";
   // A material request, once approved or returned (C05).
   if (closed === "decided") return "recordChat.closedDecided";
   // Ended outright by its module (2026-10-10, Lucas: 「我材料进场直接判不合格

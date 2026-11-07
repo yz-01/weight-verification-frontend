@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import type { PermissionEntry } from "@/interfaces/auth";
 import { permissionGroupLabel, permissionLabel } from "@/lib/permission-labels";
+import { roleName } from "@/lib/role-labels";
 import { cn } from "@/lib/utils";
 import { getPermissionCatalogue } from "@/services/auth.service";
 import {
@@ -186,7 +187,7 @@ function MemberRow({
         <span className="min-w-0">
           <span className="block truncate text-sm font-semibold">{member.full_name}</span>
           <span className="block truncate text-xs text-muted-foreground">
-            {member.role_name} · {t("count", { count: member.on.length })}
+            {roleName({ code: member.role_code ?? "", name: member.role_name }, all)} · {t("count", { count: member.on.length })}
           </span>
         </span>
         <ChevronDown className={cn("size-4 shrink-0 transition-transform", open && "rotate-180")} />

@@ -228,8 +228,8 @@ export function PhotoWallViewer({
                 {t("previous")}
               </Button>
               <span className="text-xs tabular-nums text-muted-foreground">
-                {t("position", { number: position + 1, loaded })}
-                {more ? "+" : ""}
+                {/* More still to load: the count so far would mislead, so only the place. */}
+                {more ? t("positionOpen", { number: position + 1 }) : t("position", { number: position + 1, loaded })}
               </span>
               <Button
                 variant="outline"

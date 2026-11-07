@@ -17,7 +17,7 @@ import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
-import { usePageProject } from "@/components/providers/current-project-provider";
+import { useCurrentProject, usePageProject } from "@/components/providers/current-project-provider";
 import { FieldWrapper, ListHeader, QueryFailedNote } from "@/components/shared/page-primitives";
 import { RecordConversationPanel } from "@/components/shared/record-conversation";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
@@ -30,6 +30,9 @@ export function FieldChatsOffice() {
   const df = useDateFormat();
   const params = useSearchParams();
   const [project, setProject] = usePageProject("", { all: "all" });
+  // The top bar's project picker rules when it is on; then this one hides
+  // itself, and so does its label.
+  const topBar = useCurrentProject().active;
   const [picked, setPicked] = useState<string | null>(params.get("chat"));
   const chats = useQuery({
     queryKey: ["record-conversation", "office-field-chats", project || "all"],
@@ -41,15 +44,17 @@ export function FieldChatsOffice() {
   return (
     <div className="space-y-4">
       <ListHeader title={t("title")} subtitle={t("subtitle")} />
-      <FieldWrapper label={t("project")} className="max-w-md">
-        <ProjectPicker
-          value={project}
-          onValueChange={setProject}
-          placeholder={t("project")}
-          allowAll
-          allLabel={t("allProjects")}
-        />
-      </FieldWrapper>
+      {!topBar && (
+        <FieldWrapper label={t("project")} className="max-w-md">
+          <ProjectPicker
+            value={project}
+            onValueChange={setProject}
+            placeholder={t("project")}
+            allowAll
+            allLabel={t("allProjects")}
+          />
+        </FieldWrapper>
+      )}
       <QueryFailedNote query={chats} what={t("title")} />
       <div className="grid gap-4 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]">
         <ul className="space-y-2" data-field-chats>

@@ -32,6 +32,9 @@ describe("which line replaces the composer", () => {
   it("names the reason the server gave", () => {
     expect(conversationClosedLine("archived")).toBe("recordChat.closedArchived");
     expect(conversationClosedLine("paid")).toBe("recordChat.closedPaid");
+    // A field task is finished (JB129 确认完成), not "approved or returned".
+    expect(conversationClosedLine("decided", "FIELD_TASK")).toBe("recordChat.closedTaskDone");
+    expect(conversationClosedLine("decided", "MATERIAL_REQUEST")).toBe("recordChat.closedDecided");
   });
 
   it("closes a record its module ended outright (2026-10-10)", () => {
@@ -55,7 +58,7 @@ describe("the panel", () => {
   const panel = read("src/components/shared/record-conversation.tsx");
 
   it("keeps the history and swaps the whole composer for the reason", () => {
-    expect(panel).toMatch(/const closedLine = conversationClosedLine\(data\.closed\)/);
+    expect(panel).toMatch(/const closedLine = conversationClosedLine\(data\.closed, kind\)/);
     // The messages are rendered unconditionally, before the closed branch.
     expect(panel.indexOf("messages={data.messages}")).toBeGreaterThan(-1);
     expect(panel.indexOf("messages={data.messages}")).toBeLessThan(panel.indexOf("{closedLine ? ("));

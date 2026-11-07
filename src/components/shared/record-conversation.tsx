@@ -65,7 +65,7 @@ export function RecordConversationPanel({
   return (
     // The draft scope is per record, so a half-typed question on one delivery
     // is not offered back on the next one.
-    <FieldDraft scope={`record-conversation:${kind}:${recordId}`}>
+    <FieldDraft scope={`record-conversation:${kind}:${recordId}`} fill={chat}>
       <RecordConversationContent kind={kind} recordId={recordId} labels={labels} chat={chat} />
     </FieldDraft>
   );
@@ -153,7 +153,7 @@ function RecordConversationContent({
     );
   }
 
-  const closedLine = conversationClosedLine(data.closed);
+  const closedLine = conversationClosedLine(data.closed, kind);
 
   if (chat) {
     return (

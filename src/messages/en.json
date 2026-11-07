@@ -6684,7 +6684,7 @@
       "pwaVisible": "Shown in field app"
     },
     "taskStatus": {
-      "ACCEPTED": "Accepted",
+      "ACCEPTED": "Completed",
       "CANCELLED": "Cancelled",
       "IN_PROGRESS": "In progress",
       "OPEN": "Open",
@@ -9138,7 +9138,7 @@
       "title": "Signed in now: {count} of {limit}",
       "none": "Not signed in anywhere yet.",
       "lastSeen": "last used {time}",
-      "help": "Each browser or Home Screen app counts once. Past {limit}, the one used longest ago is signed out.",
+      "help": "Each browser or Home Screen app counts as one, up to {limit}. Past that, the browser used longest ago is signed out; a browser never signs out the Home Screen app used last.",
       "app": "Home Screen app",
       "inApp": "Chat app browser",
       "computer": "Computer browser",
@@ -18261,7 +18261,8 @@
     "closedRejected": "Rejected or judged unacceptable; the conversation is closed. The record can still be viewed.",
     "closedCancelled": "Cancelled; the conversation is closed. The record can still be viewed.",
     "closedReadonly": "You can read this conversation but you are not in it, so you cannot send.",
-    "closedMoved": "Someone in it is no longer on this project, so it can only be read now. Start a new conversation."
+    "closedMoved": "Someone in it is no longer on this project, so it can only be read now. Start a new conversation.",
+    "closedTaskDone": "This task is finished (or cancelled), so the chat is closed. The messages can still be read."
   },
   "exportTotals": {
     "title": "Cumulative totals, per unit",
@@ -20510,7 +20511,8 @@
       "file_download": "Download / export a file",
       "file_send": "Send / share a file",
       "archive_confirm": "Confirm and archive",
-      "assistant_manage": "Add or change an assistant's PIN"
+      "assistant_manage": "Add or change an assistant's PIN",
+      "project_change_permissions": "Change a project's permissions"
     },
     "firstTitle": "Set your sign-off PIN for the first time",
     "firstBanner": "This is your first time using a sign-off PIN",
@@ -20850,6 +20852,7 @@
       "end": "You have reached the earliest photo.",
       "dayCount": "{count} photos",
       "noDate": "No date"
-    }
+    },
+    "positionOpen": "Photo {number}"
   }
 }
