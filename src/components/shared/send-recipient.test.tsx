@@ -252,9 +252,10 @@ describe("10-29 fixes", () => {
     // Each of the three writes first, and goes only if it was written.
     for (const press of ["const download", "const email", "const whatsapp"]) {
       const body = dialog.slice(dialog.indexOf(press), dialog.indexOf("};", dialog.indexOf(press)));
-      expect(body, press).toMatch(/if \(await handOver\(\)\)/);
+      // JB132: handOver gives back the written send (false when refused).
+      expect(body, press).toMatch(/\(await handOver\(\)\) !== false|sent === false\) return;/);
     }
-    expect(dialog).toMatch(/const written = await held\.writeLog\(\);\s+setWriting\(false\);\s+if \(!written\) return false;/);
+    expect(dialog).toMatch(/written = await held\.writeLog\(\);\s+setWriting\(false\);\s+if \(!written\) return false;/);
     // No link that leaves before the send is written.
     expect(dialog).not.toContain("<a href={mailtoLink");
   });

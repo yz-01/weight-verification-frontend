@@ -6766,7 +6766,19 @@
       "returnReasonShown": "退回原因：{reason}",
       "onlyOpen": "只显示未完成的任务（还没确认完成或取消）。",
       "onlyOverdue": "只显示逾期任务（过了截止时间、还没确认完成或取消）。",
-      "openHeadOffice": "总部任务详情"
+      "openHeadOffice": "总部任务详情",
+      "close": {
+        "action": "确认完成",
+        "title": "确认完成「{task}」？",
+        "body": "事项已经沟通处理好了，就在这里结束它。状态会变成「已完成」，沟通记录、处理人员和确认人员都会保留。",
+        "placeholder": "例如：已沟通，明天安排处理",
+        "noteLabel": "怎样处理好的",
+        "cancel": "取消",
+        "confirm": "确认完成",
+        "saving": "正在保存…",
+        "needNote": "先写一句怎样处理好的。"
+      },
+      "headOfficePerson": "{name}（总部）"
     },
     "toast": {
       "movementSaved": "设备进退场已记录",
@@ -9542,7 +9554,7 @@
       "title": "沟通",
       "subtitle": "你参与的全部对话，最新的在上面。",
       "find": "找人沟通",
-      "findHint": "同一公司的现场工作人员、设备操作人员和门岗。",
+      "findHint": "只能找同一个项目的人：现场人员和项目后台人员。沟通记录会保存在系统里，后台可以查看。",
       "what": "沟通列表",
       "whatPeople": "人员名单",
       "empty": "还没有对话。按「找人沟通」开始。",
@@ -9566,7 +9578,11 @@
       "groupTitle": "群组名称（可不填）",
       "choose": "要沟通的人",
       "start": "{count, plural, =0 {开始沟通} other {和 # 个人开始沟通}}",
-      "startFailed": "无法开始对话，请再试一次。"
+      "startFailed": "无法开始对话，请再试一次。",
+      "project": "选项目",
+      "officePerson": "项目后台人员",
+      "projectOffice": "这个项目的后台人员",
+      "noProject": "你还没有被分配到项目，所以没有可以沟通的人。"
     },
     "operate": {
       "title": "设备操作",
@@ -12195,7 +12211,8 @@
       "materialTargets": "材料目标",
       "materialRequests": "MR / 其他申请",
       "departmentsTrades": "部门与工种",
-      "fieldStaffManagement": "现场人员管理"
+      "fieldStaffManagement": "现场人员管理",
+      "fieldChats": "手机沟通记录"
     },
     "subscription_management": "订阅管理",
     "suppliers": "供应商",
@@ -13797,6 +13814,20 @@
       "fieldLabel": "电子围栏（工地范围）",
       "drawn": "已画工地范围（{count} 个点）",
       "circleOnly": "还没画工地范围，暂用 {metres} 米圆形范围"
+    },
+    "permissions": {
+      "title": "项目权限",
+      "help": "这个项目里每个后台人员可以做的事。项目经理按人勾选；总部决定开放哪些总部管理的权限给这个项目。每次保存要输入六位数密码。",
+      "grantsTitle": "总部开放给这个项目的权限（B 组）",
+      "grantsHelp": "只有总部可以改。勾选后，项目经理才可以把这些权限给项目里的人。",
+      "saveGrants": "保存开放的权限",
+      "noPeople": "这个项目还没有后台人员。先在「项目人员名单」添加。",
+      "count": "{count} 项权限",
+      "roleOnly": "这个账号按角色给权限，不能在这里单独勾选。",
+      "save": "保存这个人的权限",
+      "saving": "正在保存…",
+      "nothingChanged": "还没有改动。",
+      "saved": "项目权限已保存"
     }
   },
   "qrCodes": {
@@ -14881,6 +14912,16 @@
     "permitHint": {
       "text": "要审批施工准证，还需要勾「查看项目」，并把人加进项目团队（或给「查看公司全部项目」）。",
       "add": "一键补勾「查看项目」"
+    },
+    "pages": {
+      "label": "权限页面",
+      "hq": "总部权限",
+      "project": "项目权限",
+      "hqHelp": "A 组只有总部才有；B 组默认总部管理，勾选后这个角色也可以使用。",
+      "hqHelpProjectRole": "这是项目角色：A 组是总部保留的，不能勾选；B 组由总部决定要不要授权给这个角色。",
+      "projectHelp": "项目里做事用的权限。新建项目时自动带出，项目经理可以在项目的「项目权限」按人勾选。",
+      "sectionA": "A 组 · 总部保留（不带入项目）",
+      "sectionB": "B 组 · 总部管理，可授权给项目"
     }
   },
   "safety": {
@@ -18217,7 +18258,9 @@
     "closedPaid": "已确认付款，聊天室已关闭。记录仍可查看。",
     "closedDecided": "已批准或已退回，聊天室已关闭。记录仍可查看。",
     "closedRejected": "已判不合格或已驳回，聊天室已关闭。记录仍可查看。",
-    "closedCancelled": "已取消，聊天室已关闭。记录仍可查看。"
+    "closedCancelled": "已取消，聊天室已关闭。记录仍可查看。",
+    "closedReadonly": "你只能查看这个沟通，没有在里面，不能发送。",
+    "closedMoved": "里面有人已经不在这个项目了，这个沟通只能查看，不能再发送。请重新找人沟通。"
   },
   "exportTotals": {
     "title": "累计数量（按单位分别统计）",
@@ -19043,7 +19086,7 @@
       "recent": "最近发过的人，点一下就填好：",
       "next": "下一步：输入密码",
       "askTitle": "发出去了吗？",
-      "askBody": "发给 {name}：{file}",
+      "askBody": "发给 {name}：{file}。系统不会自己发送：请在 WhatsApp / Email 里附上刚下载的文件，按发送之后，再按「已发送」。",
       "yes": "已发送",
       "no": "没有发",
       "confirmed": "已记下：已确认发送。",
@@ -19175,7 +19218,7 @@
     "tabs": {
       "label": "工程进度",
       "phases": "施工分类",
-      "photos": "现场照片",
+      "photos": "工程时间轴",
       "reports": "日报告",
       "schedule": "施工计划",
       "summary": "项目进度摘要"
@@ -20746,5 +20789,17 @@
       "added": "已经加入项目。",
       "removed": "已经移出项目。"
     }
+  },
+  "fieldChats": {
+    "title": "手机沟通记录",
+    "subtitle": "现场人员、门岗、设备操作人员在手机「沟通」里的所有对话，按项目保存。你在里面的对话可以直接回复。",
+    "project": "项目",
+    "allProjects": "全部项目",
+    "loading": "正在载入…",
+    "empty": "这个项目还没有手机沟通。",
+    "pick": "在左边选一个沟通查看。",
+    "people": "成员：{names}",
+    "noMessages": "还没有消息。",
+    "attachment": "[照片 / 语音 / 文件]"
   }
 }

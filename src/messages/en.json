@@ -6766,7 +6766,19 @@
       "returnReasonShown": "Reason: {reason}",
       "onlyOpen": "Showing unfinished tasks only (not yet confirmed or cancelled).",
       "onlyOverdue": "Showing overdue tasks only (past the due time, not yet confirmed or cancelled).",
-      "openHeadOffice": "Head-office task details"
+      "openHeadOffice": "Head-office task details",
+      "close": {
+        "action": "Confirm done",
+        "title": "Confirm \"{task}\" is done?",
+        "body": "The matter was talked through and settled: close it here. It becomes Done; the conversation, who handled it and who confirmed it are all kept.",
+        "placeholder": "e.g. Talked it through, arranged for tomorrow",
+        "noteLabel": "How it was settled",
+        "cancel": "Cancel",
+        "confirm": "Confirm done",
+        "saving": "Saving…",
+        "needNote": "Write a line on how it was settled first."
+      },
+      "headOfficePerson": "{name} (head office)"
     },
     "toast": {
       "movementSaved": "Equipment movement recorded",
@@ -9542,7 +9554,7 @@
       "title": "Messages",
       "subtitle": "Every conversation you are in, the newest first.",
       "find": "Message someone",
-      "findHint": "Site staff, equipment operators and gate guards of your company.",
+      "findHint": "Only people on the same project: site staff and the project office. Messages are kept in the system and the office can read them.",
       "what": "your conversations",
       "whatPeople": "the people",
       "empty": "No conversations yet. Tap 「Message someone」 to start one.",
@@ -9566,7 +9578,11 @@
       "groupTitle": "Group name (optional)",
       "choose": "the people to message",
       "start": "{count, plural, =0 {Start a chat} one {Start with 1 person} other {Start with # people}}",
-      "startFailed": "The conversation could not be started. Try again."
+      "startFailed": "The conversation could not be started. Try again.",
+      "project": "Project",
+      "officePerson": "Project office",
+      "projectOffice": "This project's office",
+      "noProject": "You are not on a project yet, so there is nobody to talk to."
     },
     "operate": {
       "title": "Machine operation",
@@ -12195,7 +12211,8 @@
       "materialTargets": "Material targets",
       "materialRequests": "MR / Other Request",
       "departmentsTrades": "Departments and trades",
-      "fieldStaffManagement": "Field staff"
+      "fieldStaffManagement": "Field staff",
+      "fieldChats": "Phone conversations"
     },
     "subscription_management": "Subscriptions",
     "suppliers": "Suppliers",
@@ -13797,6 +13814,20 @@
       "fieldLabel": "Geofence (site area)",
       "drawn": "Site drawn ({count} points)",
       "circleOnly": "Site not drawn yet - a {metres} m circle is used"
+    },
+    "permissions": {
+      "title": "Project permissions",
+      "help": "What each office person can do on this project. The project manager ticks them per person; head office decides which head-office permissions to open to this project. Each save asks for the six-digit PIN.",
+      "grantsTitle": "Head-office permissions opened to this project (group B)",
+      "grantsHelp": "Head office only. Once ticked, the project manager may give them to people on the project.",
+      "saveGrants": "Save opened permissions",
+      "noPeople": "No office people on this project yet. Add them on the project's people list first.",
+      "count": "{count} permissions",
+      "roleOnly": "This account takes its permissions from its role and cannot be ticked here.",
+      "save": "Save this person's permissions",
+      "saving": "Saving…",
+      "nothingChanged": "Nothing changed yet.",
+      "saved": "Project permissions saved"
     }
   },
   "qrCodes": {
@@ -14881,6 +14912,16 @@
     "permitHint": {
       "text": "To approve permits to work, this role also needs “View projects”, and the person must be added to the project team (or the role given “See every project in the company”).",
       "add": "Tick “View projects”"
+    },
+    "pages": {
+      "label": "Permission pages",
+      "hq": "Head office",
+      "project": "Project",
+      "hqHelp": "Group A is head office's only; group B is managed by head office and this role may use it once ticked.",
+      "hqHelpProjectRole": "This is a project role: group A stays with head office and cannot be ticked; head office decides whether to give it group B.",
+      "projectHelp": "What people do inside projects. Every new project brings these; the project manager ticks them per person on the project's Project permissions.",
+      "sectionA": "Group A · head office only (not for projects)",
+      "sectionB": "Group B · head office, may be given to projects"
     }
   },
   "safety": {
@@ -18217,7 +18258,9 @@
     "closedPaid": "Payment confirmed; the conversation is closed. The record can still be viewed.",
     "closedDecided": "Approved or returned; the conversation is closed. The record can still be viewed.",
     "closedRejected": "Rejected or judged unacceptable; the conversation is closed. The record can still be viewed.",
-    "closedCancelled": "Cancelled; the conversation is closed. The record can still be viewed."
+    "closedCancelled": "Cancelled; the conversation is closed. The record can still be viewed.",
+    "closedReadonly": "You can read this conversation but you are not in it, so you cannot send.",
+    "closedMoved": "Someone in it is no longer on this project, so it can only be read now. Start a new conversation."
   },
   "exportTotals": {
     "title": "Cumulative totals, per unit",
@@ -19043,7 +19086,7 @@
       "recent": "Sent to lately - tap one to fill it in:",
       "next": "Next: type your PIN",
       "askTitle": "Did it go out?",
-      "askBody": "To {name}: {file}",
+      "askBody": "To {name}: {file}. The system does not send it for you: attach the file you just saved in WhatsApp / email, press send there, then press 'Sent'.",
       "yes": "Sent",
       "no": "Not sent",
       "confirmed": "Noted: confirmed sent.",
@@ -19175,7 +19218,7 @@
     "tabs": {
       "label": "Project progress",
       "phases": "Construction categories",
-      "photos": "Site photos",
+      "photos": "Timeline",
       "reports": "Daily reports",
       "schedule": "Construction schedule",
       "summary": "Progress summary"
@@ -20746,5 +20789,17 @@
       "added": "Added to the project.",
       "removed": "Taken off the project."
     }
+  },
+  "fieldChats": {
+    "title": "Phone conversations",
+    "subtitle": "Every conversation site staff, guards and equipment operators have in the phone's Talk, kept by project. You can answer the ones you are in.",
+    "project": "Project",
+    "allProjects": "All projects",
+    "loading": "Loading…",
+    "empty": "No phone conversations on this project yet.",
+    "pick": "Choose a conversation on the left.",
+    "people": "People: {names}",
+    "noMessages": "No messages yet.",
+    "attachment": "[photo / voice / file]"
   }
 }

@@ -337,11 +337,17 @@ export function ConversationMessageList({
   messages,
   emptyLabel,
   reference,
+  mineId,
 }: {
   messages: ConversationMessage[];
   emptyLabel: string;
   /** The record's number, used to name a downloaded photo. */
   reference: string;
+  /**
+   * Chat bubbles (JB127, 客户 11-07 事项 7: 「好像微信上聊天」): the reader's
+   * own messages on the right, everybody else's on the left.
+   */
+  mineId?: string;
 }) {
   const rows = useMemo(() => groupConversationMessages(messages), [messages]);
   const photos = useMemo(() => rows.flatMap((row) => row.photos), [rows]);
@@ -349,7 +355,7 @@ export function ConversationMessageList({
 
   return (
     <>
-      <ul className="space-y-2">
+      <ul className={mineId ? "flex flex-col gap-2" : "space-y-2"}>
         {messages.length === 0 && (
           <li className="rounded-md border border-dashed p-4 text-sm text-muted-foreground">
             {emptyLabel}
@@ -361,6 +367,7 @@ export function ConversationMessageList({
             message={row.lead}
             photos={row.photos}
             onOpenPhoto={openPhoto}
+            bubble={mineId === undefined ? undefined : row.lead.author === mineId ? "mine" : "theirs"}
           />
         ))}
       </ul>
@@ -373,17 +380,29 @@ export function ConversationMessageRow({
   message,
   photos,
   onOpenPhoto,
+  bubble,
 }: {
   message: ConversationMessage;
   /** The row's photographs: the message's own, plus any grouped after it. */
   photos: ConversationPhoto[];
   onOpenPhoto: (id: string) => void;
+  /** A chat bubble (JB127): mine on the right, theirs on the left. */
+  bubble?: "mine" | "theirs";
 }) {
   const t = useTranslations();
   const formatter = useDateFormat();
 
   return (
-    <li className="rounded-md border p-2.5 text-sm sm:p-3">
+    <li
+      className={
+        bubble === "mine"
+          ? "ml-auto w-fit max-w-[85%] rounded-2xl rounded-br-sm bg-primary/15 px-3 py-2 text-sm"
+          : bubble === "theirs"
+            ? "mr-auto w-fit max-w-[85%] rounded-2xl rounded-bl-sm border bg-card px-3 py-2 text-sm"
+            : "rounded-md border p-2.5 text-sm sm:p-3"
+      }
+      data-bubble={bubble}
+    >
       <div className="flex items-baseline justify-between gap-2">
         <span className="font-medium">{message.author_name}</span>
         <span className="text-xs text-muted-foreground">

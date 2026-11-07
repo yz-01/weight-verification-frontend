@@ -76,5 +76,7 @@ describe("the desktop fallback's links", () => {
       `mailto:?subject=MO-1&body=${encodeURIComponent("请查收附件：MO-1.pdf")}`,
     );
     expect(whatsappLink("MO-1 & co")).toBe("https://wa.me/?text=MO-1%20%26%20co");
+    // JB132: straight to the number typed in 「发给谁？」.
+    expect(whatsappLink("hi", "019-246 9666")).toBe("https://wa.me/60192469666?text=hi");
   });
 });

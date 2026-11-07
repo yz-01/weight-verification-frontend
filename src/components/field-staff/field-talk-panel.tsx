@@ -41,6 +41,7 @@ import {
   FIELD_CONVERSATIONS_KEY,
   FIELD_TALK_UNREAD_KEY,
   getChatPeople,
+  getChatProjects,
   getFieldConversations,
   getFieldTalkUnread,
   startConversation,
@@ -213,6 +214,28 @@ function TalkRoom({
 }) {
   const t = useTranslations("fieldStaffPwa.talk");
   const back = useTranslations("fieldStaffPwa.action");
+  if (target.kind === "DIRECT") {
+    // The whole screen, like a chat app (JB127, 客户 11-07 事项 7: 「把他的页面
+    // 扩大好像微信上聊天」): bubbles above, the box at the bottom.
+    return (
+      <section className="fixed inset-0 z-50 flex flex-col bg-background" data-talk-room>
+        <div className="flex min-w-0 shrink-0 items-center gap-3 border-b px-3 pb-3 pt-[calc(0.75rem+env(safe-area-inset-top))]">
+          <Button size="icon" variant="outline" title={back("back")} onClick={onBack}>
+            <ArrowLeft />
+          </Button>
+          <h2 className="min-w-0 truncate text-lg font-bold leading-tight">{title ?? t("title")}</h2>
+        </div>
+        <div className="min-h-0 flex-1">
+          <RecordConversationPanel
+            kind="DIRECT"
+            recordId={target.id}
+            chat
+            labels={{ title: t("roomTitle", { people: title ?? "" }), empty: t("roomEmpty") }}
+          />
+        </div>
+      </section>
+    );
+  }
   return (
     <section className="space-y-4">
       <div className="flex min-w-0 items-center gap-3 border-b pb-3">
@@ -224,15 +247,7 @@ function TalkRoom({
       {target.kind === "HAZARD" ? (
         <HazardConversationPanel incidentId={target.id} />
       ) : (
-        <RecordConversationPanel
-          kind={target.kind}
-          recordId={target.id}
-          labels={
-            target.kind === "DIRECT"
-              ? { title: t("roomTitle", { people: title ?? "" }), empty: t("roomEmpty") }
-              : undefined
-          }
-        />
+        <RecordConversationPanel kind={target.kind} recordId={target.id} />
       )}
     </section>
   );
@@ -246,9 +261,19 @@ function FindPeople({ onBack, onStarted }: { onBack: () => void; onStarted: (id:
   const [search, setSearch] = useState("");
   const [chosen, setChosen] = useState<string[]>([]);
   const [title, setTitle] = useState("");
+  // One project at a time (JB127, 客户 11-07 事项 1: 「不同项目之间的数据及
+  // 权限完全隔离」): its phone people and its office people only.
+  const projects = useQuery({
+    queryKey: ["field-conversations", "projects"],
+    queryFn: getChatProjects,
+    staleTime: 60_000,
+  });
+  const [pickedProject, setPickedProject] = useState("");
+  const project = pickedProject || projects.data?.[0]?.id || "";
   const people = useQuery({
-    queryKey: ["field-conversations", "people"],
-    queryFn: () => getChatPeople(),
+    queryKey: ["field-conversations", "people", project],
+    queryFn: () => getChatPeople(project),
+    enabled: Boolean(project),
     staleTime: 60_000,
   });
   const shown = useMemo(() => {
@@ -256,7 +281,7 @@ function FindPeople({ onBack, onStarted }: { onBack: () => void; onStarted: (id:
     return (people.data ?? []).filter((person) => !words || person.full_name.toLowerCase().includes(words));
   }, [people.data, search]);
   const start = useMutation({
-    mutationFn: () => startConversation(chosen, chosen.length > 1 ? title.trim() : undefined),
+    mutationFn: () => startConversation(chosen, chosen.length > 1 ? title.trim() : undefined, project),
     onSuccess: (result) => {
       void queryClient.invalidateQueries({ queryKey: FIELD_CONVERSATIONS_KEY });
       onStarted(result.id);
@@ -266,8 +291,8 @@ function FindPeople({ onBack, onStarted }: { onBack: () => void; onStarted: (id:
     setChosen((current) =>
       current.includes(person.id) ? current.filter((id) => id !== person.id) : [...current, person.id],
     );
-  const together = shown.filter((person) => person.same_project);
-  const elsewhere = shown.filter((person) => !person.same_project);
+  const office = shown.filter((person) => person.phone_role === "office");
+  const phones = shown.filter((person) => person.phone_role !== "office");
 
   const group = (label: string, rows: ChatPerson[]) =>
     rows.length ? (
@@ -290,7 +315,9 @@ function FindPeople({ onBack, onStarted }: { onBack: () => void; onStarted: (id:
                 >
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-sm font-semibold">{person.full_name}</span>
-                    <span className="block truncate text-xs text-muted-foreground">{roleName(person.phone_role)}</span>
+                    <span className="block truncate text-xs text-muted-foreground">
+                      {person.phone_role === "office" ? t("officePerson") : roleName(person.phone_role)}
+                    </span>
                   </span>
                   <span
                     className={cn(
@@ -319,6 +346,27 @@ function FindPeople({ onBack, onStarted }: { onBack: () => void; onStarted: (id:
           <p className="text-xs text-muted-foreground">{t("findHint")}</p>
         </div>
       </div>
+      {(projects.data?.length ?? 0) > 1 ? (
+        <FieldWrapper label={t("project")}>
+          <div className="flex flex-wrap gap-2" role="group" aria-label={t("project")}>
+            {(projects.data ?? []).map((row) => (
+              <Button
+                key={row.id}
+                type="button"
+                size="sm"
+                variant={row.id === project ? "default" : "outline"}
+                aria-pressed={row.id === project}
+                onClick={() => {
+                  setPickedProject(row.id);
+                  setChosen([]);
+                }}
+              >
+                {row.name}
+              </Button>
+            ))}
+          </div>
+        </FieldWrapper>
+      ) : null}
       <div className="relative">
         <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
         <Input
@@ -331,7 +379,11 @@ function FindPeople({ onBack, onStarted }: { onBack: () => void; onStarted: (id:
       </div>
       {/* The start button needs at least one person: say so on the list. */}
       <FieldWrapper label={t("choose")} required>
-        {people.isError ? (
+        {projects.isError ? (
+          <FieldLoadNote query={projects} what={t("whatPeople")} />
+        ) : projects.data && projects.data.length === 0 ? (
+          <p className="text-sm text-muted-foreground">{t("noProject")}</p>
+        ) : people.isError ? (
           <FieldLoadNote query={people} what={t("whatPeople")} />
         ) : !people.data ? (
           <Loader2 className="mx-auto size-6 animate-spin text-primary" />
@@ -339,8 +391,8 @@ function FindPeople({ onBack, onStarted }: { onBack: () => void; onStarted: (id:
           <p className="text-sm text-muted-foreground">{t("noPeople")}</p>
         ) : (
           <div className="space-y-4">
-            {group(t("sameProject"), together)}
-            {group(t("otherProjects"), elsewhere)}
+            {group(t("projectOffice"), office)}
+            {group(t("sameProject"), phones)}
           </div>
         )}
       </FieldWrapper>

@@ -1481,6 +1481,14 @@ export const PORTAL_NAVIGATION = {
           "/visitor-records",
           "site_access",
         ),
+        // 手机沟通记录 (JB127, 客户 11-07 事项 1): every phone conversation of
+        // the projects the reader can see.
+        child(
+          "17.2.6",
+          "nav.submodule.fieldChats",
+          "/field-chats",
+          "projects",
+        ),
       ],
     ),
     item(

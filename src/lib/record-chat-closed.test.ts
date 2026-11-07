@@ -60,7 +60,9 @@ describe("the panel", () => {
     expect(panel.indexOf("messages={data.messages}")).toBeGreaterThan(-1);
     expect(panel.indexOf("messages={data.messages}")).toBeLessThan(panel.indexOf("{closedLine ? ("));
     expect(panel).toMatch(/\{closedLine \? \([\s\S]{0,200}\{t\(closedLine\)\}[\s\S]{0,40}\) : \([\s\S]{0,40}<ConversationComposer/);
-    expect(panel.match(/<ConversationComposer/g)).toHaveLength(1);
+    // The chat layout (JB127, the phone's 沟通) is the second: the same rule.
+    expect(panel.match(/<ConversationComposer/g)).toHaveLength(2);
+    expect(panel.match(/\{closedLine \? \(/g)).toHaveLength(2);
   });
 
   it("refetches when a send is refused because somebody else closed it", () => {

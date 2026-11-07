@@ -6766,7 +6766,19 @@
       "returnReasonShown": "Sebab: {reason}",
       "onlyOpen": "Menunjukkan tugasan belum selesai sahaja (belum disahkan atau dibatalkan).",
       "onlyOverdue": "Menunjukkan tugasan lewat sahaja (melepasi masa tamat, belum disahkan atau dibatalkan).",
-      "openHeadOffice": "Butiran tugasan ibu pejabat"
+      "openHeadOffice": "Butiran tugasan ibu pejabat",
+      "close": {
+        "action": "Sahkan selesai",
+        "title": "Sahkan \"{task}\" selesai?",
+        "body": "Perkara ini sudah dibincang dan diselesaikan: tutup di sini. Status menjadi Selesai; perbualan, pengendali dan pengesah semuanya disimpan.",
+        "placeholder": "cth. Sudah dibincang, diatur untuk esok",
+        "noteLabel": "Bagaimana diselesaikan",
+        "cancel": "Batal",
+        "confirm": "Sahkan selesai",
+        "saving": "Sedang menyimpan…",
+        "needNote": "Tulis satu ayat bagaimana ia diselesaikan dahulu."
+      },
+      "headOfficePerson": "{name} (ibu pejabat)"
     },
     "toast": {
       "movementSaved": "Pergerakan peralatan direkodkan",
@@ -9542,7 +9554,7 @@
       "title": "Mesej",
       "subtitle": "Semua perbualan anda, yang terbaru di atas.",
       "find": "Mesej seseorang",
-      "findHint": "Kakitangan tapak, operator jentera dan pengawal pintu syarikat anda.",
+      "findHint": "Hanya orang dalam projek yang sama: kakitangan tapak dan pejabat projek. Mesej disimpan dalam sistem dan pejabat boleh membacanya.",
       "what": "perbualan anda",
       "whatPeople": "senarai orang",
       "empty": "Belum ada perbualan. Tekan 「Mesej seseorang」 untuk mula.",
@@ -9566,7 +9578,11 @@
       "groupTitle": "Nama kumpulan (pilihan)",
       "choose": "orang untuk dimesej",
       "start": "{count, plural, =0 {Mula} one {Mula dengan 1 orang} other {Mula dengan # orang}}",
-      "startFailed": "Perbualan tidak dapat dimulakan. Cuba lagi."
+      "startFailed": "Perbualan tidak dapat dimulakan. Cuba lagi.",
+      "project": "Projek",
+      "officePerson": "Pejabat projek",
+      "projectOffice": "Pejabat projek ini",
+      "noProject": "Anda belum ditugaskan ke projek, jadi tiada sesiapa untuk dihubungi."
     },
     "operate": {
       "title": "Operasi jentera",
@@ -12195,7 +12211,8 @@
       "materialTargets": "Sasaran bahan",
       "materialRequests": "MR / Permohonan Lain",
       "departmentsTrades": "Jabatan dan tred",
-      "fieldStaffManagement": "Kakitangan tapak"
+      "fieldStaffManagement": "Kakitangan tapak",
+      "fieldChats": "Perbualan telefon"
     },
     "subscription_management": "Pengurusan Langganan",
     "suppliers": "Pembekal",
@@ -13797,6 +13814,20 @@
       "fieldLabel": "Pagar geo (kawasan tapak)",
       "drawn": "Tapak dilukis ({count} titik)",
       "circleOnly": "Tapak belum dilukis - bulatan {metres} m digunakan"
+    },
+    "permissions": {
+      "title": "Kebenaran projek",
+      "help": "Apa yang setiap kakitangan pejabat boleh buat dalam projek ini. Pengurus projek menandanya bagi setiap orang; ibu pejabat menentukan kebenaran ibu pejabat yang dibuka kepada projek ini. Setiap simpanan meminta PIN enam digit.",
+      "grantsTitle": "Kebenaran ibu pejabat yang dibuka kepada projek ini (kumpulan B)",
+      "grantsHelp": "Ibu pejabat sahaja. Selepas ditanda, pengurus projek boleh memberikannya kepada orang dalam projek.",
+      "saveGrants": "Simpan kebenaran yang dibuka",
+      "noPeople": "Belum ada kakitangan pejabat dalam projek ini. Tambah dalam senarai orang projek dahulu.",
+      "count": "{count} kebenaran",
+      "roleOnly": "Akaun ini mengikut peranannya dan tidak boleh ditanda di sini.",
+      "save": "Simpan kebenaran orang ini",
+      "saving": "Sedang menyimpan…",
+      "nothingChanged": "Belum ada perubahan.",
+      "saved": "Kebenaran projek disimpan"
     }
   },
   "qrCodes": {
@@ -14881,6 +14912,16 @@
     "permitHint": {
       "text": "Untuk meluluskan permit kerja, peranan ini juga memerlukan “Lihat projek”, dan orang itu mesti ditambah ke pasukan projek (atau beri peranan “Lihat setiap projek dalam syarikat”).",
       "add": "Tandakan “Lihat projek”"
+    },
+    "pages": {
+      "label": "Halaman kebenaran",
+      "hq": "Ibu pejabat",
+      "project": "Projek",
+      "hqHelp": "Kumpulan A hanya untuk ibu pejabat; kumpulan B diurus ibu pejabat dan peranan ini boleh menggunakannya jika ditandakan.",
+      "hqHelpProjectRole": "Ini peranan projek: kumpulan A kekal dengan ibu pejabat dan tidak boleh ditanda; ibu pejabat menentukan sama ada memberi kumpulan B.",
+      "projectHelp": "Kebenaran kerja dalam projek. Setiap projek baharu membawanya; pengurus projek menandanya bagi setiap orang di Kebenaran projek.",
+      "sectionA": "Kumpulan A · ibu pejabat sahaja (bukan untuk projek)",
+      "sectionB": "Kumpulan B · ibu pejabat, boleh diberi kepada projek"
     }
   },
   "safety": {
@@ -18217,7 +18258,9 @@
     "closedPaid": "Bayaran telah disahkan; perbualan ditutup. Rekod masih boleh dilihat.",
     "closedDecided": "Diluluskan atau dikembalikan; perbualan ditutup. Rekod masih boleh dilihat.",
     "closedRejected": "Ditolak atau tidak diterima; perbualan ditutup. Rekod masih boleh dilihat.",
-    "closedCancelled": "Dibatalkan; perbualan ditutup. Rekod masih boleh dilihat."
+    "closedCancelled": "Dibatalkan; perbualan ditutup. Rekod masih boleh dilihat.",
+    "closedReadonly": "Anda boleh membaca perbualan ini tetapi bukan ahlinya, jadi tidak boleh menghantar.",
+    "closedMoved": "Seseorang di dalamnya sudah tiada dalam projek ini, jadi ia hanya boleh dibaca. Mulakan perbualan baharu."
   },
   "exportTotals": {
     "title": "Jumlah terkumpul, mengikut unit",
@@ -19043,7 +19086,7 @@
       "recent": "Pernah dihantar baru-baru ini - tekan satu untuk isi:",
       "next": "Seterusnya: masukkan PIN",
       "askTitle": "Sudah dihantar?",
-      "askBody": "Kepada {name}: {file}",
+      "askBody": "Kepada {name}: {file}. Sistem tidak menghantarnya sendiri: lampirkan fail yang baru dimuat turun dalam WhatsApp / e-mel, tekan hantar di sana, kemudian tekan 'Sudah dihantar'.",
       "yes": "Sudah dihantar",
       "no": "Belum dihantar",
       "confirmed": "Dicatat: disahkan dihantar.",
@@ -19175,7 +19218,7 @@
     "tabs": {
       "label": "Kemajuan projek",
       "phases": "Kategori pembinaan",
-      "photos": "Foto tapak",
+      "photos": "Timeline",
       "reports": "Laporan harian",
       "schedule": "Jadual pembinaan",
       "summary": "Ringkasan kemajuan"
@@ -20746,5 +20789,17 @@
       "added": "Ditambah ke projek.",
       "removed": "Dikeluarkan dari projek."
     }
+  },
+  "fieldChats": {
+    "title": "Perbualan telefon",
+    "subtitle": "Semua perbualan kakitangan tapak, pengawal dan pengendali peralatan dalam Bual telefon, disimpan mengikut projek. Anda boleh membalas perbualan yang anda sertai.",
+    "project": "Projek",
+    "allProjects": "Semua projek",
+    "loading": "Memuatkan…",
+    "empty": "Belum ada perbualan telefon dalam projek ini.",
+    "pick": "Pilih satu perbualan di sebelah kiri.",
+    "people": "Ahli: {names}",
+    "noMessages": "Belum ada mesej.",
+    "attachment": "[foto / suara / fail]"
   }
 }

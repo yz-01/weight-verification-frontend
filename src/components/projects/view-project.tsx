@@ -1,5 +1,6 @@
 "use client";
 
+import { ProjectPermissions } from "@/components/projects/project-permissions";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Archive,
@@ -289,6 +290,8 @@ export function ViewProject({ id }: { id: string }) {
       )}
       <ProjectTeam projectId={id} />
       <ProjectResponsibilities projectId={id} />
+      {/* 「项目权限」 (JB131, 客户 11-07 事项 6). */}
+      <ProjectPermissions projectId={id} />
       <ProjectDockets projectId={id} />
       {/* 可用供应商 (JB115): who this project may receive from. Last on the
           page (JB124): the guide says 「要拉到最下面」. */}

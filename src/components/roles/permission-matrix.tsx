@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { CheckCheck, Square, SquareCheck } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 import { LoadFailed } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
@@ -28,12 +28,20 @@ export function PermissionMatrix({
   selected,
   onChange,
   readOnly = false,
+  headOffice = true,
 }: {
   selected: string[];
   onChange?: (codes: string[]) => void;
   readOnly?: boolean;
+  /**
+   * The role is head office's (公司管理员, 总部). Otherwise 总部权限 A cannot be
+   * ticked (JB131: 「总部保留，不需要带入项目」) - the server drops it too.
+   */
+  headOffice?: boolean;
 }) {
   const t = useTranslations();
+  // 「请将现有权限分成两个独立页面：总部权限、项目权限」 (JB131).
+  const [page, setPage] = useState<"hq" | "project">("project");
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["permissions", "catalogue"],
@@ -45,7 +53,18 @@ export function PermissionMatrix({
 
   // A switch-only code (金额查看, J17) means nothing on a role.
   const entries = useMemo(() => (data ?? []).filter((entry) => !entry.switch_only), [data]);
-  const groups = useMemo(() => groupByDomain(entries), [entries]);
+  const pageOf = (entry: PermissionEntry) => entry.page ?? "project";
+  const shownEntries = useMemo(
+    () =>
+      readOnly
+        ? entries
+        : entries.filter((entry) =>
+            page === "project" ? pageOf(entry) === "project" : pageOf(entry) !== "project",
+          ),
+    [entries, page, readOnly],
+  );
+  const groups = useMemo(() => groupByDomain(shownEntries), [shownEntries]);
+  const locked = (entry: PermissionEntry) => !headOffice && pageOf(entry) === "hq_reserved";
   const chosen = useMemo(() => new Set(selected), [selected]);
 
   if (isLoading) {
@@ -89,16 +108,44 @@ export function PermissionMatrix({
     onChange([...updated].sort());
   }
 
-  const allCodes = entries.map((entry) => entry.code);
+  // 全选 / 全部取消 work on the page shown, never on what is locked.
+  const allCodes = shownEntries.filter((entry) => !locked(entry)).map((entry) => entry.code);
+  const pageCodes = new Set(shownEntries.map((entry) => entry.code));
 
   return (
     <div className="space-y-4">
+      {!readOnly && (
+        <div className="space-y-2" data-permission-pages>
+          <div className="inline-flex rounded-lg border p-1" role="tablist" aria-label={t("roles.pages.label")}>
+            {(["hq", "project"] as const).map((key) => (
+              <button
+                key={key}
+                type="button"
+                role="tab"
+                aria-selected={page === key}
+                onClick={() => setPage(key)}
+                className={cn(
+                  "rounded-md px-4 py-1.5 text-sm font-medium transition-colors",
+                  page === key ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted",
+                )}
+              >
+                {t(`roles.pages.${key}`)}
+              </button>
+            ))}
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {page === "hq"
+              ? t(headOffice ? "roles.pages.hqHelp" : "roles.pages.hqHelpProjectRole")
+              : t("roles.pages.projectHelp")}
+          </p>
+        </div>
+      )}
       {!readOnly && (
         <div className="flex flex-wrap items-center gap-2">
           <Button
             type="button"
             variant="outline"
-            onClick={() => onChange?.(allCodes.slice().sort())}
+            onClick={() => onChange?.([...new Set([...selected, ...allCodes])].sort())}
           >
             <CheckCheck className="size-4" />
             {t("roles.selectAll")}
@@ -106,7 +153,7 @@ export function PermissionMatrix({
           <Button
             type="button"
             variant="outline"
-            onClick={() => onChange?.([])}
+            onClick={() => onChange?.(selected.filter((code) => !pageCodes.has(code)))}
           >
             <Square className="size-4" />
             {t("roles.clearAll")}
@@ -117,8 +164,10 @@ export function PermissionMatrix({
         </div>
       )}
 
-      {groups.map((group) => {
-        const codes = group.entries.map((entry) => entry.code);
+      {groups.map((group, index) => {
+        const codes = group.entries.filter((entry) => !locked(entry)).map((entry) => entry.code);
+        const section = sectionOf(group.entries[0]);
+        const previous = index > 0 ? sectionOf(groups[index - 1].entries[0]) : null;
         const allOn = codes.every((code) => chosen.has(code));
         const someOn = !allOn && codes.some((code) => chosen.has(code));
 
@@ -127,12 +176,18 @@ export function PermissionMatrix({
         if (readOnly && !allOn && !someOn) return null;
 
         return (
-          <div key={group.key}>
+          <div key={`${section}:${group.key}`}>
+            {/* 总部保留 (A) / 可授权给项目 (B) headings on the head-office page. */}
+            {!readOnly && page === "hq" && section !== previous ? (
+              <p className="mb-2 mt-4 text-sm font-semibold text-primary" data-permission-section={section}>
+                {t(section === "hq_reserved" ? "roles.pages.sectionA" : "roles.pages.sectionB")}
+              </p>
+            ) : null}
             <div className="mb-2 flex flex-wrap items-center gap-2">
               <h4 className="panel-title">
                 {permissionGroupLabel(group.key, group.label, t)}
               </h4>
-              {!readOnly && (
+              {!readOnly && codes.length > 0 && (
                 <button
                   type="button"
                   onClick={() => toggleGroup(codes, !allOn)}
@@ -167,7 +222,8 @@ export function PermissionMatrix({
                   >
                     {!readOnly && (
                       <Checkbox
-                        checked={isOn}
+                        checked={isOn && !locked(entry)}
+                        disabled={locked(entry)}
                         onCheckedChange={(value) =>
                           toggle(entry.code, value === true)
                         }
@@ -190,6 +246,8 @@ export function PermissionMatrix({
   );
 }
 
+const SECTION_ORDER = ["hq_reserved", "hq_grantable", "project"] as const;
+
 interface PermissionGroup {
   key: string;
   /** The backend's English name, for when the catalogue has none. */
@@ -197,15 +255,26 @@ interface PermissionGroup {
   entries: PermissionEntry[];
 }
 
+/** Which part of 总部权限 a group sits in (JB131), by its first code. */
+function sectionOf(entry: PermissionEntry | undefined): "hq_reserved" | "hq_grantable" | "project" {
+  return entry?.page ?? "project";
+}
+
 /** Preserve the registry's declared order so rows do not shuffle. */
 function groupByDomain(entries: PermissionEntry[]): PermissionGroup[] {
   const groups: PermissionGroup[] = [];
   const index = new Map<string, PermissionGroup>();
-  for (const entry of entries) {
-    let group = index.get(entry.group);
+  // A domain whose codes sit on two pages (e.g. 项目: view on 项目权限, create
+  // on 总部保留) is one group per page, so each heading is on its own page.
+  const ordered = [...entries].sort(
+    (a, b) => SECTION_ORDER.indexOf(a.page ?? "project") - SECTION_ORDER.indexOf(b.page ?? "project"),
+  );
+  for (const entry of ordered) {
+    const key = `${entry.page ?? "project"}:${entry.group}`;
+    let group = index.get(key);
     if (!group) {
       group = { key: entry.group, label: entry.group_label, entries: [] };
-      index.set(entry.group, group);
+      index.set(key, group);
       groups.push(group);
     }
     group.entries.push(entry);
