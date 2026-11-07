@@ -6684,7 +6684,7 @@
       "pwaVisible": "現場人員可見"
     },
     "taskStatus": {
-      "ACCEPTED": "已接收",
+      "ACCEPTED": "已完成",
       "CANCELLED": "已取消",
       "IN_PROGRESS": "進行中",
       "OPEN": "待開始",
@@ -9138,7 +9138,7 @@
       "title": "目前登入中：{count} / {limit}",
       "none": "還沒有在任何地方登入。",
       "lastSeen": "最後使用 {time}",
-      "help": "每個瀏覽器或主畫面 App 算一個。超過 {limit} 個時，最久沒用的那個會自動登出。",
+      "help": "每個瀏覽器或主屏幕 App 算一個，最多 {limit} 個。超過時，最久沒用的瀏覽器會自動登出；最近用過的主屏幕 App 不會被瀏覽器擠掉。",
       "app": "主畫面 App",
       "inApp": "聊天軟體裡的瀏覽器",
       "computer": "電腦瀏覽器",
@@ -18261,7 +18261,8 @@
     "closedRejected": "已判不合格或已駁回，聊天室已關閉。記錄仍可查看。",
     "closedCancelled": "已取消，聊天室已關閉。記錄仍可查看。",
     "closedReadonly": "你只能查看這個溝通，沒有在裡面，不能發送。",
-    "closedMoved": "裡面有人已經不在這個項目了，這個溝通只能查看，不能再發送。請重新找人溝通。"
+    "closedMoved": "裡面有人已經不在這個項目了，這個溝通只能查看，不能再發送。請重新找人溝通。",
+    "closedTaskDone": "事項已完成（或已取消），聊天室已關閉。記錄仍可查看。"
   },
   "exportTotals": {
     "title": "累計數量（按單位分別統計）",
@@ -20510,7 +20511,8 @@
       "file_download": "下載 / 匯出文件",
       "file_send": "發送 / 分享文件",
       "archive_confirm": "確認歸檔",
-      "assistant_manage": "新增或更改助理副密碼"
+      "assistant_manage": "新增或更改助理副密碼",
+      "project_change_permissions": "修改項目權限"
     },
     "firstTitle": "第一次設定簽核密碼",
     "firstBanner": "這是你第一次使用簽核密碼",
@@ -20850,6 +20852,7 @@
       "end": "已經到最早的照片了。",
       "dayCount": "{count} 張",
       "noDate": "沒有日期"
-    }
+    },
+    "positionOpen": "第 {number} 張"
   }
 }

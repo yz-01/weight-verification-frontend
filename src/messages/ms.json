@@ -6684,7 +6684,7 @@
       "pwaVisible": "Dipapar dalam aplikasi tapak"
     },
     "taskStatus": {
-      "ACCEPTED": "Diterima",
+      "ACCEPTED": "Selesai",
       "CANCELLED": "Dibatalkan",
       "IN_PROGRESS": "Sedang dijalankan",
       "OPEN": "Belum mula",
@@ -9138,7 +9138,7 @@
       "title": "Sedang log masuk: {count} daripada {limit}",
       "none": "Belum log masuk di mana-mana.",
       "lastSeen": "terakhir digunakan {time}",
-      "help": "Setiap pelayar atau apl Skrin Utama dikira sekali. Lebih daripada {limit}, yang paling lama tidak digunakan akan dilog keluar.",
+      "help": "Setiap pelayar atau apl Skrin Utama dikira satu, sehingga {limit}. Selepas itu, pelayar yang paling lama tidak digunakan dilog keluar; pelayar tidak akan melog keluar apl Skrin Utama yang terakhir digunakan.",
       "app": "Apl Skrin Utama",
       "inApp": "Pelayar apl sembang",
       "computer": "Pelayar komputer",
@@ -18261,7 +18261,8 @@
     "closedRejected": "Ditolak atau tidak diterima; perbualan ditutup. Rekod masih boleh dilihat.",
     "closedCancelled": "Dibatalkan; perbualan ditutup. Rekod masih boleh dilihat.",
     "closedReadonly": "Anda boleh membaca perbualan ini tetapi bukan ahlinya, jadi tidak boleh menghantar.",
-    "closedMoved": "Seseorang di dalamnya sudah tiada dalam projek ini, jadi ia hanya boleh dibaca. Mulakan perbualan baharu."
+    "closedMoved": "Seseorang di dalamnya sudah tiada dalam projek ini, jadi ia hanya boleh dibaca. Mulakan perbualan baharu.",
+    "closedTaskDone": "Tugasan ini telah selesai (atau dibatalkan), jadi sembang ditutup. Mesej masih boleh dibaca."
   },
   "exportTotals": {
     "title": "Jumlah terkumpul, mengikut unit",
@@ -20510,7 +20511,8 @@
       "file_download": "Muat turun / eksport fail",
       "file_send": "Hantar / kongsi fail",
       "archive_confirm": "Sahkan dan arkibkan",
-      "assistant_manage": "Tambah atau tukar PIN pembantu"
+      "assistant_manage": "Tambah atau tukar PIN pembantu",
+      "project_change_permissions": "Tukar kebenaran projek"
     },
     "firstTitle": "Tetapkan PIN pengesahan buat kali pertama",
     "firstBanner": "Ini kali pertama anda menggunakan PIN pengesahan",
@@ -20850,6 +20852,7 @@
       "end": "Anda sudah sampai ke foto yang paling awal.",
       "dayCount": "{count} foto",
       "noDate": "Tiada tarikh"
-    }
+    },
+    "positionOpen": "Foto {number}"
   }
 }

@@ -6684,7 +6684,7 @@
       "pwaVisible": "现场人员可见"
     },
     "taskStatus": {
-      "ACCEPTED": "已接收",
+      "ACCEPTED": "已完成",
       "CANCELLED": "已取消",
       "IN_PROGRESS": "进行中",
       "OPEN": "待开始",
@@ -9138,7 +9138,7 @@
       "title": "目前登录中：{count} / {limit}",
       "none": "还没有在任何地方登录。",
       "lastSeen": "最后使用 {time}",
-      "help": "每个浏览器或主屏幕 App 算一个。超过 {limit} 个时，最久没用的那个会自动登出。",
+      "help": "每个浏览器或主屏幕 App 算一个，最多 {limit} 个。超过时，最久没用的浏览器会自动登出；最近用过的主屏幕 App 不会被浏览器挤掉。",
       "app": "主屏幕 App",
       "inApp": "聊天软件里的浏览器",
       "computer": "电脑浏览器",
@@ -18261,7 +18261,8 @@
     "closedRejected": "已判不合格或已驳回，聊天室已关闭。记录仍可查看。",
     "closedCancelled": "已取消，聊天室已关闭。记录仍可查看。",
     "closedReadonly": "你只能查看这个沟通，没有在里面，不能发送。",
-    "closedMoved": "里面有人已经不在这个项目了，这个沟通只能查看，不能再发送。请重新找人沟通。"
+    "closedMoved": "里面有人已经不在这个项目了，这个沟通只能查看，不能再发送。请重新找人沟通。",
+    "closedTaskDone": "事项已完成（或已取消），聊天室已关闭。记录仍可查看。"
   },
   "exportTotals": {
     "title": "累计数量（按单位分别统计）",
@@ -20510,7 +20511,8 @@
       "file_download": "下载 / 导出文件",
       "file_send": "发送 / 分享文件",
       "archive_confirm": "确认归档",
-      "assistant_manage": "新增或更改助理副密码"
+      "assistant_manage": "新增或更改助理副密码",
+      "project_change_permissions": "修改项目权限"
     },
     "firstTitle": "第一次设定签核密码",
     "firstBanner": "这是你第一次使用签核密码",
@@ -20850,6 +20852,7 @@
       "end": "已经到最早的照片了。",
       "dayCount": "{count} 张",
       "noDate": "没有日期"
-    }
+    },
+    "positionOpen": "第 {number} 张"
   }
 }

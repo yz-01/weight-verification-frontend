@@ -1057,7 +1057,7 @@ export interface ProjectPermissionsState {
   options: string[];
   can_grant: boolean;
   can_edit: boolean;
-  members: { id: string; full_name: string; role_name: string; editable: boolean; on: string[] }[];
+  members: { id: string; full_name: string; role_name: string; role_code?: string; editable: boolean; on: string[] }[];
 }
 
 export function getProjectPermissions(id: string): Promise<ProjectPermissionsState> {
