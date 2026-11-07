@@ -12,6 +12,7 @@ import {
   moreGroups,
 } from "@/components/consultant-workflow/application-type-layout";
 import { ConsultantFormSourceField } from "@/components/consultant-workflow/consultant-own-form";
+import { PhotoLink } from "@/components/shared/photo-link";
 import { ConsultantProjectPicker } from "@/components/consultant-workflow/project-scope-picker";
 import { useAuth } from "@/components/providers/auth-provider";
 import { useDismissDialog, useFinishForm } from "@/components/shared/dialog-navigation";
@@ -531,10 +532,17 @@ function ConsultantApplicationEditor({
             </div>
           </div>
           <div className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-5">
-            {sourcePhotos.map((photo) => (
-              <a key={photo.id} href={photo.watermarked || photo.image} target="_blank" rel="noreferrer">
+            {sourcePhotos.map((photo, index, all) => (
+              <PhotoLink
+                key={photo.id}
+                href={photo.watermarked || photo.image}
+                image
+                label={t("form.sourceTitle")}
+                photos={all.map((one) => ({ id: one.id, url: one.watermarked || one.image, label: t("form.sourceTitle") }))}
+                index={index}
+              >
                 <Image src={photo.watermarked || photo.image} alt="" width={240} height={240} unoptimized className="aspect-4/3 w-full rounded-lg object-cover object-bottom" />
-              </a>
+              </PhotoLink>
             ))}
           </div>
           <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">

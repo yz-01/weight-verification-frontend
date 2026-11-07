@@ -26,6 +26,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 
 import { AddToPackageButton } from "@/components/contractor-ops/add-to-package";
+import { PhotoLink } from "@/components/shared/photo-link";
 import { useAuth } from "@/components/providers/auth-provider";
 import { PhotoFileInput } from "@/components/shared/photo-file-input";
 import {
@@ -1710,11 +1711,20 @@ function TrackingDialog({
                   <div key={task.id} className="space-y-2">
                     <p className="text-xs text-muted-foreground">{task.task_no} · {task.driver_name} · {task.vehicle_plate}</p>
                     <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                      {task.photos.map((photo) => (
-                        <a key={photo.id} href={photo.watermarked || photo.image} target="_blank" rel="noreferrer" className="overflow-hidden rounded-lg border bg-muted/30">
+                      {task.photos.map((photo, index, all) => (
+                        <PhotoLink
+                          key={photo.id}
+                          href={photo.watermarked || photo.image}
+                          image
+                          label={photo.caption || photo.kind}
+                          reference={task.task_no}
+                          photos={all.map((one) => ({ id: one.id, url: one.watermarked || one.image, label: one.caption || one.kind }))}
+                          index={index}
+                          className="overflow-hidden rounded-lg border bg-muted/30"
+                        >
                           <Image src={photo.watermarked || photo.image} alt={photo.caption || photo.kind} width={360} height={270} unoptimized className="aspect-[4/3] w-full object-cover object-bottom" />
                           <p className="truncate px-2 py-1.5 text-xs">{photo.caption || photo.kind}</p>
-                        </a>
+                        </PhotoLink>
                       ))}
                     </div>
                   </div>

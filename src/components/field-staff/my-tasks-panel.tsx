@@ -38,6 +38,7 @@ import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 import { FieldLoadNote } from "@/components/field-staff/field-load-note";
+import { PhotoLink, referencePhotos } from "@/components/shared/photo-link";
 import { useAuth } from "@/components/providers/auth-provider";
 import { FieldCamera } from "@/components/shared/field-camera";
 import { FieldWrapper, StatusBadge } from "@/components/shared/page-primitives";
@@ -361,7 +362,14 @@ function FieldTaskWork({
           <div className="grid grid-cols-2 gap-2">
             {row.references.map((reference) =>
               reference.kind === "PHOTO" ? (
-                <a key={reference.id} href={reference.file} target="_blank" rel="noreferrer">
+                <PhotoLink
+                  key={reference.id}
+                  href={reference.file}
+                  image
+                  label={reference.label || reference.original_filename}
+                  photos={referencePhotos(row.references)}
+                  index={referencePhotos(row.references).findIndex((one) => one.id === reference.id)}
+                >
                   <Image
                     src={reference.file}
                     alt={reference.label || reference.original_filename}
@@ -370,7 +378,7 @@ function FieldTaskWork({
                     unoptimized
                     className="aspect-[4/3] w-full rounded-lg object-cover object-bottom"
                   />
-                </a>
+                </PhotoLink>
               ) : (
                 <a
                   key={reference.id}
@@ -405,12 +413,14 @@ function FieldTaskWork({
           >
             {row.photos.length > 0 && (
               <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:thin]">
-                {row.photos.map((item) => (
-                  <a
+                {row.photos.map((item, index, all) => (
+                  <PhotoLink
                     key={item.id}
                     href={item.watermarked || item.image}
-                    target="_blank"
-                    rel="noreferrer"
+                    image
+                    label={t("photos")}
+                    photos={all.map((one) => ({ id: one.id, url: one.watermarked || one.image, label: t("photos") }))}
+                    index={index}
                     className="w-20 shrink-0"
                   >
                     <Image
@@ -421,7 +431,7 @@ function FieldTaskWork({
                       unoptimized
                       className="aspect-4/3 w-full rounded-lg border object-cover object-bottom"
                     />
-                  </a>
+                  </PhotoLink>
                 ))}
               </div>
             )}

@@ -22,6 +22,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { LocationField } from "@/components/field-staff/location-field";
+import { PhotoLink } from "@/components/shared/photo-link";
 import { useAuth } from "@/components/providers/auth-provider";
 import { useClearDraft, useDraftState } from "@/components/field-staff/field-draft";
 import {
@@ -1448,11 +1449,13 @@ function HazardPhotoGroups({ incident }: { incident: SafetyIncident }) {
             ) : (
               <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:thin]">
                 {photos.map((item, index) => (
-                  <a
+                  <PhotoLink
                     key={item.id}
                     href={item.watermarked || item.image}
-                    target="_blank"
-                    rel="noreferrer"
+                    image
+                    label={`${te(`photos.${key}`)} ${index + 1}`}
+                    photos={photos.map((one, at) => ({ id: one.id, url: one.watermarked || one.image, label: `${te(`photos.${key}`)} ${at + 1}` }))}
+                    index={index}
                     className="shrink-0 overflow-hidden rounded-lg border"
                     title={item.submitted_by_name ?? undefined}
                   >
@@ -1464,7 +1467,7 @@ function HazardPhotoGroups({ incident }: { incident: SafetyIncident }) {
                       unoptimized
                       className="size-20 object-cover"
                     />
-                  </a>
+                  </PhotoLink>
                 ))}
               </div>
             )}

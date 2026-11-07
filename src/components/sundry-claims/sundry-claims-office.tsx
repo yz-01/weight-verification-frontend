@@ -30,6 +30,7 @@ import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { PhotoLink } from "@/components/shared/photo-link";
 import { ExportButton } from "@/components/shared/export-button";
 import { photoColumn, rowPhotos } from "@/components/shared/photo-thumb";
 import { RecordNo } from "@/components/shared/record-no";
@@ -399,10 +400,11 @@ export function SundryClaimDetail({ id, onClose }: { id: string; onClose: () => 
               <ul className="space-y-1.5">
                 {claim.payment_proofs.map((proof) => (
                   <li key={proof.id} className="flex items-center gap-2 text-xs">
-                    <a
+                    <PhotoLink
                       href={proof.file}
-                      target="_blank"
-                      rel="noreferrer"
+                      image={proof.preview_type !== "application/pdf"}
+                      label={t("proofs.title")}
+                      reference={proof.name || t("proofs.title")}
                       title={proof.name}
                       className="grid size-10 shrink-0 place-items-center overflow-hidden rounded border"
                     >
@@ -413,7 +415,7 @@ export function SundryClaimDetail({ id, onClose }: { id: string; onClose: () => 
                         // eslint-disable-next-line @next/next/no-img-element
                         <img loading="lazy" decoding="async" src={proof.file} alt={t("proofs.title")} className="size-full object-cover" />
                       )}
-                    </a>
+                    </PhotoLink>
                     <span className="min-w-0">
                       <span className="block font-medium">{proof.amount ? `RM ${proof.amount}` : t("proofs.noAmount")}</span>
                       <span className="block text-muted-foreground">

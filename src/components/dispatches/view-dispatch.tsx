@@ -7,6 +7,7 @@ import Image from "next/image";
 import { useState } from "react";
 
 import { DISPATCH_STATE_TONE } from "@/components/dispatches/dispatches";
+import { PhotoLink } from "@/components/shared/photo-link";
 import { useAuth } from "@/components/providers/auth-provider";
 import { PhotoFileInput } from "@/components/shared/photo-file-input";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
@@ -365,10 +366,19 @@ export function ViewDispatch({
                   <div className="mt-4">
                     <p className="mb-2 text-xs font-medium text-muted-foreground">{t("dispatches.section.applicationPhotos")}</p>
                     <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                      {data.source_record.photos.map((photo) => (
-                        <a key={photo.id} href={photo.watermarked || photo.image} target="_blank" rel="noreferrer" className="overflow-hidden rounded-md border bg-muted/20">
+                      {data.source_record.photos.map((photo, index, all) => (
+                        <PhotoLink
+                          key={photo.id}
+                          href={photo.watermarked || photo.image}
+                          image
+                          label={photo.caption || data.source_record!.reference_no}
+                          reference={data.source_record!.reference_no}
+                          photos={all.map((one) => ({ id: one.id, url: one.watermarked || one.image, label: one.caption || data.source_record!.reference_no }))}
+                          index={index}
+                          className="overflow-hidden rounded-md border bg-muted/20"
+                        >
                           <Image src={photo.watermarked || photo.image} alt={photo.caption || data.source_record!.reference_no} width={360} height={270} unoptimized className="aspect-[4/3] w-full object-cover object-bottom" />
-                        </a>
+                        </PhotoLink>
                       ))}
                     </div>
                   </div>
@@ -418,11 +428,19 @@ export function ViewDispatch({
                         <div>
                           <p className="mb-2 flex items-center gap-2 text-xs font-medium text-muted-foreground"><Camera className="size-4" />{t("dispatches.section.executionPhotos")}</p>
                           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                            {(execution.tasks ?? []).flatMap((task) => task.photos).map((photo) => (
-                              <a key={photo.id} href={photo.watermarked || photo.image} target="_blank" rel="noreferrer" className="overflow-hidden rounded-md border bg-muted/20">
+                            {(execution.tasks ?? []).flatMap((task) => task.photos).map((photo, index, all) => (
+                              <PhotoLink
+                                key={photo.id}
+                                href={photo.watermarked || photo.image}
+                                image
+                                label={photo.caption || photo.kind}
+                                photos={all.map((one) => ({ id: one.id, url: one.watermarked || one.image, label: one.caption || one.kind }))}
+                                index={index}
+                                className="overflow-hidden rounded-md border bg-muted/20"
+                              >
                                 <Image src={photo.watermarked || photo.image} alt={photo.caption || photo.kind} width={360} height={270} unoptimized className="aspect-[4/3] w-full object-cover object-bottom" />
                                 <p className="truncate px-2 py-1 text-xs">{photo.caption || photo.kind}</p>
-                              </a>
+                              </PhotoLink>
                             ))}
                           </div>
                         </div>
