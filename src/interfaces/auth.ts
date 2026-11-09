@@ -247,6 +247,12 @@ export interface Role {
   name: string;
   description: string;
   permissions: string[];
+  /**
+   * JB139: head office's role (公司管理员, 总部), a phone role, or a builder's
+   * project role - whose project permissions are on by default for its
+   * people. Missing from an older backend.
+   */
+  kind?: "head_office" | "phone" | "project";
   is_system: boolean;
   user_count?: number;
   created_at: string;
@@ -275,8 +281,8 @@ export interface PermissionEntry {
   /** Only a switch: the role editor does not offer it (金额查看). */
   switch_only?: boolean;
   /**
-   * 总部权限 A (总部保留), B (可授权给项目) or 项目权限 (JB131, 客户 11-07
-   * 事项 6). Missing from an older backend: treated as 项目权限.
+   * 总部权限 A (总部专属), B (总部可选择授权) or 项目权限 (JB131, JB139 客户
+   * 11-09 事项 3). Missing from an older backend: treated as 项目权限.
    */
   page?: "hq_reserved" | "hq_grantable" | "project";
 }
@@ -287,6 +293,12 @@ export interface PermissionSwitchState {
   switchable: boolean;
   /** Whether the switches (rather than the role) decide. */
   uses_switches: boolean;
+  /**
+   * JB139: a builder's project user - A never theirs, B for head office to
+   * switch on, project permissions on unless switched off, chosen projects
+   * only. Missing from an older backend.
+   */
+  project_user?: boolean;
   on: string[];
   off: string[];
   projects: { all: boolean; chosen: string[] };

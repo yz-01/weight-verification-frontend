@@ -1335,7 +1335,7 @@ export function SafetySubmitDialog({ incident, onClose }: { incident: SafetyInci
           value={location}
           onChange={setLocation}
           required
-          allowMissingOffline
+          allowMissing
         />
         {/* Required on the phone too. 「提交整改」 without a word of
             explanation leaves the verifier a photograph and nothing to read

@@ -93,6 +93,15 @@ import {
   revokeSiteAccessPass,
   updateSiteAccessPass, exportDeviceEvents } from "@/services/site-access.service";
 import { getUsers } from "@/services/users.service";
+import { getProjectAssignments } from "@/services/contractor.service";
+
+/** A person a worker pass can be for. */
+interface WorkerOption {
+  id: string;
+  full_name: string;
+  email: string;
+  phone: string;
+}
 import { signFileAction } from "@/services/file-action.service";
 import { FileThumbs } from "@/components/shared/file-thumbs";
 import { VisitorConsent, useVisitorNotice } from "@/components/site-access/visitor-consent";
@@ -654,9 +663,36 @@ function PassDialog({
     valid_from: row ? localInput(new Date(row.valid_from)) : localInput(now),
     valid_until: row ? localInput(new Date(row.valid_until)) : localInput(later),
   });
+  // 工人通行证's person: head office picks from the company's users; anybody
+  // else from the project's people - the user list is head office's only
+  // (user.view, 总部专属; JB139/JB140 「前端、后端或API权限验证不一致」).
+  const { can } = useAuth();
+  const companyWide = can("user.view");
   const users = useQuery({
-    queryKey: ["users", "access-worker"],
-    queryFn: () => getUsers({ page_size: 200, status: "ACTIVE" }),
+    queryKey: ["users", "access-worker", companyWide ? "company" : form.project],
+    queryFn: async (): Promise<{ results: WorkerOption[] }> => {
+      if (companyWide) {
+        const page = await getUsers({ page_size: 200, status: "ACTIVE" });
+        return {
+          results: page.results.map((user) => ({
+            id: user.id,
+            full_name: user.full_name,
+            email: user.email,
+            phone: user.phone ?? "",
+          })),
+        };
+      }
+      const team = await getProjectAssignments(form.project);
+      return {
+        results: team.results.map((row) => ({
+          id: row.user,
+          full_name: row.user_name,
+          email: row.user_phone || row.user_email,
+          phone: row.user_phone ?? "",
+        })),
+      };
+    },
+    enabled: companyWide || Boolean(form.project),
   });
   const save = useMutation({
     mutationFn: () => {

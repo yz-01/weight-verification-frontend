@@ -105,7 +105,6 @@ import type {
 import { useDateFormat } from "@/lib/dates";
 import { toastSuccess } from "@/services/api-client";
 import { getProjects } from "@/services/contractor.service";
-import { getUsers } from "@/services/users.service";
 import {
   addDocumentRecords,
   addSystemFiles,
@@ -124,6 +123,7 @@ import {
   getDocumentCategories,
   exportDocuments,
   getDocuments,
+  getDocumentUploaders,
   getDocumentSubcategories,
   systemFileObjectUrl,
   updateDocument,
@@ -222,9 +222,12 @@ export function Documents() {
     queryFn: () => getProjects({ page_size: 100, sort_by: "name" }),
     enabled: can("project.view"),
   });
+  // JB140 (客户 11-09 事项 5): the uploaders of documents this reader can see.
+  // It read the company's user list (user.view, head office's only), so a
+  // project user got 「无法载入上传人列表」 and 「你没有权限做这件事」.
   const users = useQuery({
-    queryKey: ["users", "document-archive-options"],
-    queryFn: () => getUsers({ page_size: 500, status: "ACTIVE", sort_by: "full_name", sort_order: "asc" }),
+    queryKey: ["documents", "uploaders"],
+    queryFn: getDocumentUploaders,
     enabled: can("document.view"),
   });
 
@@ -587,7 +590,7 @@ export function Documents() {
             />
             <Select value={list.filters.uploaded_by ?? "all"} onValueChange={(value) => list.setFilter("uploaded_by", value === "all" ? undefined : value)}>
               <SelectTrigger className="w-full bg-card sm:w-45" aria-label={t("documents.field.uploadedBy")}><SelectValue placeholder={t("documents.field.uploadedBy")} /></SelectTrigger>
-              <SelectContent><SelectItem value="all">{t("documents.allUploaders")}</SelectItem>{(users.data?.results ?? []).map((user) => <SelectItem key={user.id} value={user.id}>{user.full_name}</SelectItem>)}</SelectContent>
+              <SelectContent><SelectItem value="all">{t("documents.allUploaders")}</SelectItem>{(users.data ?? []).map((user) => <SelectItem key={user.id} value={user.id}>{user.full_name}</SelectItem>)}</SelectContent>
             </Select>
             <Input type="date" className="w-full bg-card sm:w-40" aria-label={t("documents.field.dateFrom")} value={list.filters.date_from ?? ""} max={list.filters.date_to} onChange={(event) => list.setFilter("date_from", event.target.value || undefined)} />
             <Input type="date" className="w-full bg-card sm:w-40" aria-label={t("documents.field.dateTo")} value={list.filters.date_to ?? ""} min={list.filters.date_from} onChange={(event) => list.setFilter("date_to", event.target.value || undefined)} />

@@ -111,6 +111,14 @@ export function getDocuments(
   return api.list<DocumentRecord>("/api/documents/get_documents/", query);
 }
 
+/**
+ * 「上传人」 filter (JB140): who uploaded the documents the reader can see -
+ * not the company's user list, which only head office may open.
+ */
+export function getDocumentUploaders(): Promise<{ id: string; full_name: string }[]> {
+  return api.get<{ id: string; full_name: string }[]>("/api/documents/get_uploaders/");
+}
+
 export function getDocument(id: string): Promise<DocumentDetail> {
   return api.get<DocumentDetail>(`/api/documents/${id}/get_document/`);
 }

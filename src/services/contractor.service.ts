@@ -1051,9 +1051,11 @@ export function exportReceiptNetBreakdown(
 
 /** A project's 「项目权限」 page (JB131). */
 export interface ProjectPermissionsState {
+  /** 项目权限: on for everybody unless switched off for one person (JB139). */
   project_codes: string[];
+  /** 总部 B: head office switches them on for one person. */
   grantable: string[];
-  granted: string[];
+  /** What the reader may switch: project permissions, and B for head office. */
   options: string[];
   can_grant: boolean;
   can_edit: boolean;
@@ -1064,10 +1066,10 @@ export function getProjectPermissions(id: string): Promise<ProjectPermissionsSta
   return api.get<ProjectPermissionsState>(`/api/projects/${id}/get_project_permissions/`);
 }
 
-/** Head office opens 总部权限 B (`grants`); the manager ticks one person (`member` + `on`). */
+/** Switches one person's permissions on the project's page (`member` + `on`, JB139). */
 export async function setProjectPermissions(
   id: string,
-  body: { grants?: string[]; member?: string; on?: string[] },
+  body: { member: string; on: string[] },
 ): Promise<ProjectPermissionsState> {
   const state = await api.post<ProjectPermissionsState>(
     `/api/projects/${id}/set_project_permissions/`,

@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 
 import { useAuth } from "@/components/providers/auth-provider";
-import { PermissionMatrix } from "@/components/roles/permission-matrix";
+import { PermissionMatrix, roleKindOf } from "@/components/roles/permission-matrix";
 import {
   FormSection,
   FormSkeleton,
@@ -94,7 +94,7 @@ export function ViewRole({ id }: { id: string }) {
                 {t("roles.permissionCount", { count: 0 })}
               </p>
             ) : (
-              <PermissionMatrix selected={data.permissions} readOnly />
+              <PermissionMatrix selected={data.permissions} readOnly kind={roleKindOf(data)} />
             )}
           </section>
         </div>

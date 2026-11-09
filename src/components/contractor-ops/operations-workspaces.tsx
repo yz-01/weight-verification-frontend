@@ -2838,7 +2838,7 @@ export function EquipmentEntryDialog({
             value={location}
             onChange={setLocation}
             required="quiet"
-            allowMissingOffline
+            allowMissing
             hint={t("equipment.locationHint")}
             error={fieldErrors.latitude || fieldErrors.longitude || fieldErrors.accuracy_m}
           />
@@ -3144,7 +3144,7 @@ export function MovementDialog({
             value={location}
             onChange={setLocation}
             required
-            allowMissingOffline
+            allowMissing
             error={fieldErrors.latitude || fieldErrors.longitude || fieldErrors.accuracy_m}
           />
           <FieldWrapper label={t("field.notes")} className="sm:col-span-2">
@@ -3555,7 +3555,7 @@ export function ProgressDialog({
           value={location}
           onChange={setLocation}
           required
-          allowMissingOffline
+          allowMissing
         />
         {/* 备注, the client's word for it (H14, HD2). */}
         <FieldWrapper label={t("progress.note")}>
@@ -4282,7 +4282,7 @@ export function OutgoingDialog({
             value={location}
             onChange={setLocation}
             required={isFieldStaff}
-            allowMissingOffline
+            allowMissing
           />
           <FieldWrapper
             label={t("field.reason")}
@@ -4621,7 +4621,7 @@ function ExitForm({
         readyLabel={t("outgoing.processingLocationReady")}
         value={location}
         onChange={setLocation}
-        allowMissingOffline
+        allowMissing
       />
       {error && (
         <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">

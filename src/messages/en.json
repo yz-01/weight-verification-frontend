@@ -8772,7 +8772,8 @@
       "supplier_not_on_project": "This supplier is not on this project's supplier list. Ask head office or the project manager to add it to the project first.",
       "file_share_link_not_found": "This file link was not found.",
       "file_share_link_expired": "This link has expired. Ask the person who sent it for a new one.",
-      "file_share_file_too_large": "The file is larger than {max_mb} MB and cannot be sent as a link."
+      "file_share_file_too_large": "The file is larger than {max_mb} MB and cannot be sent as a link.",
+      "permission_switches_projects_required": "A project user sees only chosen projects. Choose at least one project."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -9526,9 +9527,10 @@
       "timeout": "Getting a location took too long. Try again.",
       "unsupported": "This browser cannot read a location. Open this link in Safari or Chrome on the phone.",
       "locating": "Getting your location…",
-      "missingOffline": {
-        "title": "No location - saved without GPS",
-        "body": "There is no network and the phone could not get a GPS fix in time. You can still submit: this record is marked \"GPS unavailable\" and the office sees that."
+      "locatingCanSave": "Still locating. You do not have to wait: if there is no fix when you submit, this record is marked \"No location\".",
+      "missing": {
+        "title": "No location - you can still save",
+        "body": "The phone did not get a GPS fix this time. You can still take photos and submit: this record is marked \"No location\" and uploads by itself once there is network. A position found later is never added to it."
       }
     },
     "what": {
@@ -13821,17 +13823,18 @@
     },
     "permissions": {
       "title": "Project permissions",
-      "help": "What each office person can do on this project. The project manager ticks them per person; head office decides which head-office permissions to open to this project. Each save asks for the six-digit PIN.",
-      "grantsTitle": "Head-office permissions opened to this project (group B)",
-      "grantsHelp": "Head office only. Once ticked, the project manager may give them to people on the project.",
-      "saveGrants": "Save opened permissions",
+      "help": "What each office person can do on this project. Project permissions are all on by default; the project manager or head office can switch one off for a person, and back on later. Each save asks for the six-digit PIN.",
+      "grantsTitle": "Group B · head office may give",
+      "grantsHelp": "Only head office sees and changes these. Off by default; this person can use one only once it is switched on.",
       "noPeople": "No office people on this project yet. Add them on the project's people list first.",
-      "count": "{count} permissions",
-      "roleOnly": "This account takes its permissions from its role and cannot be ticked here.",
       "save": "Save this person's permissions",
       "saving": "Saving…",
       "nothingChanged": "Nothing changed yet.",
-      "saved": "Project permissions saved"
+      "saved": "Project permissions saved",
+      "projectNote": "Project permissions: all on by default. One switched off is off for this person on every project they work on.",
+      "allOn": "All project permissions on",
+      "someOff": "{count} switched off",
+      "grantedCount": "{count} group B permissions from head office"
     }
   },
   "qrCodes": {
@@ -14921,11 +14924,13 @@
       "label": "Permission pages",
       "hq": "Head office",
       "project": "Project",
-      "hqHelp": "Group A is head office's only; group B is managed by head office and this role may use it once ticked.",
-      "hqHelpProjectRole": "This is a project role: group A stays with head office and cannot be ticked; head office decides whether to give it group B.",
-      "projectHelp": "What people do inside projects. Every new project brings these; the project manager ticks them per person on the project's Project permissions.",
-      "sectionA": "Group A · head office only (not for projects)",
-      "sectionB": "Group B · head office, may be given to projects"
+      "hqHelp": "Group A is head office's only; head office decides which project users get group B.",
+      "hqHelpProjectRole": "This is a project role: group A is head office's only and cannot be ticked; group B is off by default, and ticked here the role's people get it. Head office can also switch it on for one person in Edit user.",
+      "projectHelp": "What people do inside projects.",
+      "sectionA": "Group A · head office only (never project users)",
+      "sectionB": "Group B · head office may give to project users",
+      "projectDefaultOn": "Project permissions: all on by default for this role's people, nothing to tick. Later one can be switched off for a person in Edit user or on the project's Project permissions.",
+      "defaultOn": "On by default"
     }
   },
   "safety": {
@@ -17651,7 +17656,11 @@
       "failed": "Could not save. Please try again.",
       "unsaved": "Permissions changed. Press “Save” below for them to take effect.",
       "partSaved": "The user's details are saved; the permissions are not saved yet.",
-      "notSwitchable": "Field staff and consultant accounts keep their role: their permissions are not switches."
+      "notSwitchable": "Field staff and consultant accounts keep their role: their permissions are not switches.",
+      "hqHintProjectUser": "Group B · head office may give: off by default; this person can use one once head office switches it on.",
+      "reservedNote": "Group A head-office permissions (users and roles, audit log, approval templates, departments, project management, dashboard management, company settings, billing, subscription, integrations) are for head-office accounts only and cannot be switched on for a project user.",
+      "scopeProjectUser": "A project user sees only the projects chosen here.",
+      "projectDefaultOn": "Project permissions are all on by default; you can switch one off for this person, and back on later."
     },
     "projectsView": {
       "projectsAll": "Can see every company project",

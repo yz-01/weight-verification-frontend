@@ -8772,7 +8772,8 @@
       "supplier_not_on_project": "Pembekal ini tiada dalam senarai pembekal projek ini. Minta ibu pejabat atau pengurus projek menambahnya dahulu.",
       "file_share_link_not_found": "Pautan fail ini tidak dijumpai.",
       "file_share_link_expired": "Pautan ini sudah tamat tempoh. Minta pautan baharu daripada penghantar.",
-      "file_share_file_too_large": "Fail melebihi {max_mb} MB dan tidak boleh dihantar sebagai pautan."
+      "file_share_file_too_large": "Fail melebihi {max_mb} MB dan tidak boleh dihantar sebagai pautan.",
+      "permission_switches_projects_required": "Pengguna projek hanya melihat projek yang dipilih. Pilih sekurang-kurangnya satu projek."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -9526,9 +9527,10 @@
       "timeout": "Mendapatkan lokasi mengambil masa terlalu lama. Cuba lagi.",
       "unsupported": "Pelayar ini tidak boleh membaca lokasi. Buka pautan ini dalam Safari atau Chrome pada telefon.",
       "locating": "Sedang mendapatkan lokasi anda…",
-      "missingOffline": {
-        "title": "Tiada lokasi - disimpan tanpa GPS",
-        "body": "Tiada rangkaian dan telefon tidak dapat GPS tepat pada masanya. Anda masih boleh hantar: rekod ini ditanda \"GPS tidak tersedia\" dan pejabat dapat melihatnya."
+      "locatingCanSave": "Masih mengesan lokasi. Tidak perlu tunggu: jika belum ada lokasi semasa anda hantar, rekod ini ditanda \"Tiada lokasi\".",
+      "missing": {
+        "title": "Tiada lokasi - anda masih boleh simpan",
+        "body": "Telefon tidak mendapat GPS kali ini. Anda masih boleh ambil gambar dan hantar: rekod ini ditanda \"Tiada lokasi\" dan dimuat naik sendiri apabila ada rangkaian. Lokasi yang didapati kemudian tidak akan ditambah padanya."
       }
     },
     "what": {
@@ -13821,17 +13823,18 @@
     },
     "permissions": {
       "title": "Kebenaran projek",
-      "help": "Apa yang setiap kakitangan pejabat boleh buat dalam projek ini. Pengurus projek menandanya bagi setiap orang; ibu pejabat menentukan kebenaran ibu pejabat yang dibuka kepada projek ini. Setiap simpanan meminta PIN enam digit.",
-      "grantsTitle": "Kebenaran ibu pejabat yang dibuka kepada projek ini (kumpulan B)",
-      "grantsHelp": "Ibu pejabat sahaja. Selepas ditanda, pengurus projek boleh memberikannya kepada orang dalam projek.",
-      "saveGrants": "Simpan kebenaran yang dibuka",
+      "help": "Apa yang setiap kakitangan pejabat boleh buat dalam projek ini. Kebenaran projek semuanya hidup secara lalai; pengurus projek atau ibu pejabat boleh mematikan satu untuk seseorang, dan menghidupkannya semula kemudian. Setiap simpanan meminta PIN enam digit.",
+      "grantsTitle": "Kumpulan B · ibu pejabat boleh beri",
+      "grantsHelp": "Hanya ibu pejabat yang melihat dan mengubahnya. Mati secara lalai; orang ini hanya boleh menggunakannya selepas dihidupkan.",
       "noPeople": "Belum ada kakitangan pejabat dalam projek ini. Tambah dalam senarai orang projek dahulu.",
-      "count": "{count} kebenaran",
-      "roleOnly": "Akaun ini mengikut peranannya dan tidak boleh ditanda di sini.",
       "save": "Simpan kebenaran orang ini",
       "saving": "Sedang menyimpan…",
       "nothingChanged": "Belum ada perubahan.",
-      "saved": "Kebenaran projek disimpan"
+      "saved": "Kebenaran projek disimpan",
+      "projectNote": "Kebenaran projek: semuanya hidup secara lalai. Yang dimatikan tidak boleh digunakan oleh orang ini dalam semua projeknya.",
+      "allOn": "Semua kebenaran projek hidup",
+      "someOff": "{count} dimatikan",
+      "grantedCount": "{count} kebenaran kumpulan B daripada ibu pejabat"
     }
   },
   "qrCodes": {
@@ -14921,11 +14924,13 @@
       "label": "Halaman kebenaran",
       "hq": "Ibu pejabat",
       "project": "Projek",
-      "hqHelp": "Kumpulan A hanya untuk ibu pejabat; kumpulan B diurus ibu pejabat dan peranan ini boleh menggunakannya jika ditandakan.",
-      "hqHelpProjectRole": "Ini peranan projek: kumpulan A kekal dengan ibu pejabat dan tidak boleh ditanda; ibu pejabat menentukan sama ada memberi kumpulan B.",
-      "projectHelp": "Kebenaran kerja dalam projek. Setiap projek baharu membawanya; pengurus projek menandanya bagi setiap orang di Kebenaran projek.",
-      "sectionA": "Kumpulan A · ibu pejabat sahaja (bukan untuk projek)",
-      "sectionB": "Kumpulan B · ibu pejabat, boleh diberi kepada projek"
+      "hqHelp": "Kumpulan A hanya untuk ibu pejabat; ibu pejabat menentukan pengguna projek mana yang mendapat kumpulan B.",
+      "hqHelpProjectRole": "Ini peranan projek: kumpulan A hanya untuk ibu pejabat dan tidak boleh ditanda; kumpulan B mati secara lalai, dan jika ditanda di sini orang dalam peranan ini mendapatnya. Ibu pejabat juga boleh menghidupkannya untuk seseorang dalam Edit pengguna.",
+      "projectHelp": "Apa yang orang buat dalam projek.",
+      "sectionA": "Kumpulan A · ibu pejabat sahaja (bukan pengguna projek)",
+      "sectionB": "Kumpulan B · ibu pejabat boleh beri kepada pengguna projek",
+      "projectDefaultOn": "Kebenaran projek: semuanya hidup secara lalai untuk orang dalam peranan ini, tiada apa untuk ditanda. Kemudian satu boleh dimatikan untuk seseorang dalam Edit pengguna atau Kebenaran projek di projek itu.",
+      "defaultOn": "Hidup secara lalai"
     }
   },
   "safety": {
@@ -17651,7 +17656,11 @@
       "failed": "Tidak dapat disimpan. Sila cuba lagi.",
       "unsaved": "Kebenaran telah diubah. Tekan “Simpan” di bawah supaya ia berkuat kuasa.",
       "partSaved": "Butiran pengguna telah disimpan; kebenaran belum disimpan lagi.",
-      "notSwitchable": "Akaun pekerja tapak dan perunding kekal dengan peranan mereka: kebenaran mereka bukan suis."
+      "notSwitchable": "Akaun pekerja tapak dan perunding kekal dengan peranan mereka: kebenaran mereka bukan suis.",
+      "hqHintProjectUser": "Kumpulan B · ibu pejabat boleh beri: mati secara lalai; orang ini boleh menggunakannya selepas ibu pejabat menghidupkannya.",
+      "reservedNote": "Kebenaran kumpulan A ibu pejabat (pengguna dan peranan, log audit, templat kelulusan, jabatan, pengurusan projek, pengurusan papan pemuka, tetapan syarikat, bil, langganan, integrasi) hanya untuk akaun ibu pejabat dan tidak boleh dihidupkan untuk pengguna projek.",
+      "scopeProjectUser": "Pengguna projek hanya melihat projek yang dipilih di sini.",
+      "projectDefaultOn": "Kebenaran projek semuanya hidup secara lalai; anda boleh mematikan satu untuk orang ini, dan menghidupkannya semula kemudian."
     },
     "projectsView": {
       "projectsAll": "Boleh melihat semua projek syarikat",
