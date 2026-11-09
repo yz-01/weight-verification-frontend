@@ -34,9 +34,12 @@ export interface LocationFix {
 }
 
 /**
- * No position, accepted: the phone had no network and GPS gave none in time
- * (Lucas 2026-10-23, choice A). The record is saved without coordinates and
- * the office sees 「没有定位」. Only a form that allows it ever receives this.
+ * No position, accepted: GPS gave none by the time the record was saved
+ * (Lucas 2026-10-23 choice A, offline only; widened by the client 2026-11-09
+ * item 6 to every photo record, online too). The record is saved without
+ * coordinates and the office sees 「没有定位」. A position found later is
+ * never attached to it: the saved or queued record holds its own copy.
+ * Only a form that allows it ever receives this.
  */
 export interface NoLocation {
   missing: true;

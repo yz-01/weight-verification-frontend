@@ -131,9 +131,13 @@ export function BusinessTargetManagement() {
     queryFn: () => getProjectCategories({ page_size: 500, project: draft.project ?? undefined }),
     enabled: Boolean(draft.project),
   });
+  // Only the edit form lists people to notify, and only head office edits
+  // (company_settings.manage); the user list is head office's too, so a
+  // project user reading the targets must not ask for it (JB140 sweep).
   const users = useQuery({
     queryKey: ["users", "business-target-options"],
     queryFn: () => getUsers({ page_size: 500, sort_by: "full_name", sort_order: "asc" }),
+    enabled: canManage && can("user.view"),
   });
 
   const invalidate = () => {

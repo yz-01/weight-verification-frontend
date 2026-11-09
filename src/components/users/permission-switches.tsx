@@ -11,6 +11,11 @@
  * approver's own sign-off PIN when used. Saving asks for the editor's PIN
  * (the API client's dialog). Field staff and consultants have no switches:
  * their role decides, as before (Q17-6).
+ *
+ * A project user (JB139, 客户 11-09 事项 3): 总部专属 A is not shown - it is
+ * never theirs; 总部 B is off until head office switches it on; every 项目权限
+ * is on by default and may be switched off for this person (Lucas 11-09:
+ * 「默认是全部打开，后续可以自行开关和修改」); they see chosen projects only.
  */
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -34,6 +39,9 @@ import { getPermissionCatalogue } from "@/services/auth.service";
 import { getPermissionSwitches, getRoles, setPermissionSwitches } from "@/services/users.service";
 
 const SCOPE_CODE = "project.view_all";
+
+/** 总部专属 A, 总部 B or 项目权限 (JB139); an older backend: 项目权限. */
+const pageOf = (entry: PermissionEntry) => entry.page ?? "project";
 
 interface Group {
   key: string;
@@ -230,17 +238,31 @@ function SwitchForm({
     queryFn: () => getRoles({ page_size: 100 }),
   });
 
+  // JB139 (客户 11-09 事项 3): a project user - 总部专属 A is never theirs,
+  // 总部 B is off until head office switches it on here, and every 项目权限
+  // is on unless switched off (Lucas: 「默认是全部打开，后续可以自行开关」).
+  const projectUser = state.project_user === true;
   const entries = useMemo(() => catalogue.filter((entry) => entry.code !== SCOPE_CODE), [catalogue]);
-  const hq = useMemo(() => groups(entries.filter((entry) => entry.area === "hq")), [entries]);
-  const operate = useMemo(
-    () => groups(entries.filter((entry) => entry.area !== "hq" && entry.kind === "operate")),
-    [entries],
+  const reserved = useMemo(
+    () => (projectUser ? entries.filter((entry) => pageOf(entry) === "hq_reserved").map((entry) => entry.code) : []),
+    [entries, projectUser],
   );
-  const approve = useMemo(
-    () => entries.filter((entry) => entry.area !== "hq" && entry.kind === "approve"),
-    [entries],
+  // What this page switches: for a project user, everything but A.
+  const switchable = useMemo(
+    () => (projectUser ? entries.filter((entry) => pageOf(entry) !== "hq_reserved") : entries),
+    [entries, projectUser],
   );
-  const amounts = entries.find((entry) => entry.kind === "amounts");
+  const { hq, operate, approve, amounts } = useMemo(() => {
+    const inHq = (entry: PermissionEntry) =>
+      projectUser ? pageOf(entry) === "hq_grantable" : entry.area === "hq";
+    const rest = switchable.filter((entry) => !inHq(entry));
+    return {
+      hq: groups(switchable.filter(inHq)),
+      operate: groups(rest.filter((entry) => entry.kind === "operate")),
+      approve: rest.filter((entry) => entry.kind === "approve"),
+      amounts: rest.find((entry) => entry.kind === "amounts"),
+    };
+  }, [switchable, projectUser]);
 
   const isOn = (code: string) => !off.has(code);
   const turn = (codes: string[], on: boolean) =>
@@ -277,9 +299,24 @@ function SwitchForm({
     },
   });
 
-  // 按角色套用: the role's codes ON, the rest OFF - a starting point.
+  // 按角色套用: the role's codes ON, the rest OFF - a starting point. For a
+  // project user the role decides 总部 B only: A stays off, and a 项目权限
+  // switched off for this person stays off (JB139, as the server does when
+  // the role changes).
   const applyRole = (role: Role) => {
     const granted = new Set(role.permissions);
+    if (projectUser) {
+      setOff((current) => {
+        const next = new Set(reserved);
+        for (const entry of entries) {
+          const page = pageOf(entry);
+          if (page === "hq_grantable" && !granted.has(entry.code)) next.add(entry.code);
+          if (page === "project" && current.has(entry.code)) next.add(entry.code);
+        }
+        return next;
+      });
+      return;
+    }
     setOff(new Set(entries.map((entry) => entry.code).filter((code) => !granted.has(code))));
     setAllProjects(granted.has(SCOPE_CODE));
   };
@@ -298,8 +335,8 @@ function SwitchForm({
     }
   }
 
-  const total = entries.length;
-  const onCount = entries.filter((entry) => isOn(entry.code)).length;
+  const total = switchable.length;
+  const onCount = switchable.filter((entry) => isOn(entry.code)).length;
   const needsProject = !allProjects && chosen.size === 0;
   const dirty = isSwitchesDirty(state, off, allProjects, chosen);
 
@@ -366,8 +403,13 @@ function SwitchForm({
       <section className="space-y-4 rounded-xl border p-4" data-switch-area="hq">
         <header>
           <h4 className="panel-title">{t("hq")}</h4>
-          <p className="text-xs text-muted-foreground">{t("hqHint")}</p>
+          <p className="text-xs text-muted-foreground">{t(projectUser ? "hqHintProjectUser" : "hqHint")}</p>
         </header>
+        {projectUser ? (
+          <p className="rounded-lg border border-dashed px-3 py-2 text-xs text-muted-foreground" data-switch-reserved>
+            {t("reservedNote")}
+          </p>
+        ) : null}
         {hq.map((group) => (
           <SwitchGroup key={group.key} group={group} isOn={isOn} turn={turn} t={t} tRoot={tRoot} />
         ))}
@@ -376,12 +418,18 @@ function SwitchForm({
       <section className="space-y-5 rounded-xl border p-4" data-switch-area="project">
         <header>
           <h4 className="panel-title">{t("project")}</h4>
+          {projectUser ? (
+            <p className="text-xs text-muted-foreground" data-switch-default-on>
+              {t("projectDefaultOn")}
+            </p>
+          ) : null}
         </header>
 
         <div className="space-y-2" data-switch-part="scope">
           <p className="text-sm font-medium">{t("scope")}</p>
+          {projectUser ? <p className="text-xs text-muted-foreground">{t("scopeProjectUser")}</p> : null}
           <div className="flex flex-wrap gap-2" role="radiogroup" aria-label={t("scope")}>
-            {[true, false].map((all) => (
+            {(projectUser ? [false] : [true, false]).map((all) => (
               <button
                 key={String(all)}
                 type="button"

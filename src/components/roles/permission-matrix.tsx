@@ -28,20 +28,31 @@ export function PermissionMatrix({
   selected,
   onChange,
   readOnly = false,
-  headOffice = true,
+  kind = "head_office",
+  initialPage,
 }: {
   selected: string[];
   onChange?: (codes: string[]) => void;
   readOnly?: boolean;
   /**
-   * The role is head office's (公司管理员, 总部). Otherwise 总部权限 A cannot be
-   * ticked (JB131: 「总部保留，不需要带入项目」) - the server drops it too.
+   * Whose role it is (JB139, 客户 11-09 事项 3). ``head_office`` (公司管理员,
+   * 总部): every box. ``project``: 总部专属 A cannot be ticked (the server
+   * drops it too), B is head office's choice, and the 项目权限 are on by
+   * default for the role's people - shown, not ticked. ``phone``: A locked,
+   * the rest ticked as before (the phone keeps its own set).
    */
-  headOffice?: boolean;
+  kind?: RoleKind;
+  /** The page shown first; a project role opens on 总部权限, others on 项目权限. */
+  initialPage?: "hq" | "project";
 }) {
   const t = useTranslations();
+  const headOffice = kind === "head_office";
+  // 项目权限 on by default for a project role's people: not ticked here.
+  const projectDefaultOn = kind === "project";
   // 「请将现有权限分成两个独立页面：总部权限、项目权限」 (JB131).
-  const [page, setPage] = useState<"hq" | "project">("project");
+  const [page, setPage] = useState<"hq" | "project">(
+    initialPage ?? (projectDefaultOn ? "hq" : "project"),
+  );
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["permissions", "catalogue"],
@@ -57,14 +68,19 @@ export function PermissionMatrix({
   const shownEntries = useMemo(
     () =>
       readOnly
-        ? entries
+        ? // A project role's 项目权限 are on for its people whatever it ticks
+          // (the note says so), and it never holds A: only B is its own.
+          projectDefaultOn
+          ? entries.filter((entry) => pageOf(entry) === "hq_grantable")
+          : entries
         : entries.filter((entry) =>
             page === "project" ? pageOf(entry) === "project" : pageOf(entry) !== "project",
           ),
-    [entries, page, readOnly],
+    [entries, page, readOnly, projectDefaultOn],
   );
   const groups = useMemo(() => groupByDomain(shownEntries), [shownEntries]);
-  const locked = (entry: PermissionEntry) => !headOffice && pageOf(entry) === "hq_reserved";
+  const locked = (entry: PermissionEntry) =>
+    (!headOffice && pageOf(entry) === "hq_reserved") || (projectDefaultOn && pageOf(entry) === "project");
   const chosen = useMemo(() => new Set(selected), [selected]);
 
   if (isLoading) {
@@ -111,6 +127,7 @@ export function PermissionMatrix({
   // 全选 / 全部取消 work on the page shown, never on what is locked.
   const allCodes = shownEntries.filter((entry) => !locked(entry)).map((entry) => entry.code);
   const pageCodes = new Set(shownEntries.map((entry) => entry.code));
+  const lockedCodes = new Set(shownEntries.filter(locked).map((entry) => entry.code));
 
   return (
     <div className="space-y-4">
@@ -136,11 +153,16 @@ export function PermissionMatrix({
           <p className="text-xs text-muted-foreground">
             {page === "hq"
               ? t(headOffice ? "roles.pages.hqHelp" : "roles.pages.hqHelpProjectRole")
-              : t("roles.pages.projectHelp")}
+              : t(projectDefaultOn ? "roles.pages.projectDefaultOn" : "roles.pages.projectHelp")}
           </p>
         </div>
       )}
-      {!readOnly && (
+      {readOnly && projectDefaultOn && (
+        <p className="rounded-lg border border-primary/30 bg-primary/8 px-3 py-2 text-sm" data-project-default-on>
+          {t("roles.pages.projectDefaultOn")}
+        </p>
+      )}
+      {!readOnly && !(projectDefaultOn && page === "project") && (
         <div className="flex flex-wrap items-center gap-2">
           <Button
             type="button"
@@ -153,7 +175,9 @@ export function PermissionMatrix({
           <Button
             type="button"
             variant="outline"
-            onClick={() => onChange?.(selected.filter((code) => !pageCodes.has(code)))}
+            onClick={() =>
+              onChange?.(selected.filter((code) => !pageCodes.has(code) || lockedCodes.has(code)))
+            }
           >
             <Square className="size-4" />
             {t("roles.clearAll")}
@@ -208,6 +232,21 @@ export function PermissionMatrix({
               {group.entries.map((entry) => {
                 const isOn = chosen.has(entry.code);
                 if (readOnly && !isOn) return null;
+                if (projectDefaultOn && pageOf(entry) === "project") {
+                  // On by default for the role's people (JB139): shown, not ticked.
+                  return (
+                    <div
+                      key={entry.code}
+                      data-default-on={entry.code}
+                      className="flex min-w-0 items-center justify-between gap-2 rounded-lg border border-primary/30 bg-primary/8 px-3 py-2 text-sm"
+                    >
+                      <span className="min-w-0 leading-snug break-words">{permissionLabel(entry, t)}</span>
+                      <span className="shrink-0 rounded-full bg-primary/15 px-2 py-0.5 text-2xs font-medium text-primary">
+                        {t("roles.pages.defaultOn")}
+                      </span>
+                    </div>
+                  );
+                }
                 return (
                   <label
                     key={entry.code}
@@ -247,6 +286,21 @@ export function PermissionMatrix({
 }
 
 const SECTION_ORDER = ["hq_reserved", "hq_grantable", "project"] as const;
+
+/** Whose role a matrix edits (JB139): head office's, the phone's, or a project's. */
+export type RoleKind = "head_office" | "phone" | "project";
+
+const HEAD_OFFICE_ROLE_CODES = ["company_admin", "headquarters"];
+const PHONE_ROLE_CODES = ["site_staff", "equipment_operator", "gate_guard", "all_pages"];
+
+/** The kind of a role: the server's when it says, else read from its code. */
+export function roleKindOf(role: { code?: string | null; kind?: RoleKind } | undefined | null): RoleKind {
+  if (role?.kind) return role.kind;
+  const code = String(role?.code ?? "").trim();
+  if (HEAD_OFFICE_ROLE_CODES.includes(code)) return "head_office";
+  if (PHONE_ROLE_CODES.includes(code)) return "phone";
+  return "project";
+}
 
 interface PermissionGroup {
   key: string;

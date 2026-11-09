@@ -222,7 +222,7 @@ export function EquipmentExitApplyDialog({
             hint={t("equipmentExit.applyLocationHint")}
             value={location}
             onChange={setLocation}
-            allowMissingOffline
+            allowMissing
           />
         </div>
         {error && (
@@ -609,7 +609,7 @@ export function EquipmentExitHandoverForm({
           hint={t("equipmentExit.locationHint")}
           value={location}
           onChange={setLocation}
-          allowMissingOffline
+          allowMissing
         />
       </div>
       {error && (

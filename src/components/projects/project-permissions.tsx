@@ -1,14 +1,17 @@
 "use client";
 
 /**
- * A project's 「项目权限」 (JB131, 客户 11-07 事项 6: 「除总部专属权限外，其余现有
- * 业务权限全部放入项目权限页面。创建项目时，自动带入项目业务权限选项，由项目经理
- * 自行勾选。总部授权开放的管理权限，才会额外出现在对应项目」).
+ * A project's 「项目权限」 (JB131, JB139).
  *
- * Every project has it from the day it is made. Head office ticks which 总部
- * 权限 B it opens to this project; the project manager (or head office) ticks,
- * person by person, the project permissions of the project's office people.
- * Each save asks for the six-digit PIN like any permission change.
+ * 客户 11-09 事项 3: 「所有项目日常管理及操作权限全部自动开通，无须逐项勾选」「B组由
+ * 总部自行勾选，选择开放给指定项目用户」. Lucas 11-09: 「默认是全部打开，后续可以
+ * 自行开关和修改」.
+ *
+ * The project's office people, each with their project permissions - all on
+ * by default. The project manager (or head office) may switch one off for one
+ * person, and back on. Head office also sees the 总部 B permissions here and
+ * may switch them on for one person. Each save asks for the six-digit PIN
+ * like any permission change.
  */
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -18,7 +21,7 @@ import { useMemo, useState } from "react";
 
 import { LoadFailed } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
 import type { PermissionEntry } from "@/interfaces/auth";
 import { permissionGroupLabel, permissionLabel } from "@/lib/permission-labels";
 import { roleName } from "@/lib/role-labels";
@@ -35,7 +38,7 @@ export function ProjectPermissions({ projectId }: { projectId: string }) {
   const queryClient = useQueryClient();
   const key = ["projects", "permissions", projectId] as const;
   const state = useQuery({ queryKey: key, queryFn: () => getProjectPermissions(projectId) });
-  // query-failure: unread, every box still shows - named by its code until it loads.
+  // query-failure: unread, every switch still shows - named by its code until it loads.
   const catalogue = useQuery({
     queryKey: ["permissions", "catalogue"],
     queryFn: getPermissionCatalogue,
@@ -46,8 +49,7 @@ export function ProjectPermissions({ projectId }: { projectId: string }) {
     [catalogue.data],
   );
   const save = useMutation({
-    mutationFn: (body: { grants?: string[]; member?: string; on?: string[] }) =>
-      setProjectPermissions(projectId, body),
+    mutationFn: (body: { member: string; on: string[] }) => setProjectPermissions(projectId, body),
     onSuccess: (data) => queryClient.setQueryData(key, data),
   });
 
@@ -65,119 +67,58 @@ export function ProjectPermissions({ projectId }: { projectId: string }) {
       </div>
       {!data ? (
         <Loader2 className="size-5 animate-spin text-primary" />
+      ) : data.members.length === 0 ? (
+        <p className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground">{t("noPeople")}</p>
       ) : (
-        <>
-          {data.can_grant && (
-            <Grants
+        <ul className="space-y-2">
+          {data.members.map((member) => (
+            <MemberRow
+              key={`${member.id}:${member.on.join(",")}`}
+              member={member}
               data={data}
               entries={entries}
               saving={save.isPending}
-              onSave={(grants) => save.mutate({ grants })}
+              onSave={(on) => save.mutate({ member: member.id, on })}
             />
-          )}
-          {data.members.length === 0 ? (
-            <p className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground">{t("noPeople")}</p>
-          ) : (
-            <ul className="space-y-2">
-              {data.members.map((member) => (
-                <MemberRow
-                  key={member.id}
-                  member={member}
-                  options={data.options}
-                  entries={entries}
-                  canEdit={data.can_edit}
-                  saving={save.isPending}
-                  onSave={(on) => save.mutate({ member: member.id, on })}
-                />
-              ))}
-            </ul>
-          )}
-        </>
+          ))}
+        </ul>
       )}
     </section>
   );
 }
 
-function Grants({
+function MemberRow({
+  member,
   data,
   entries,
   saving,
   onSave,
 }: {
+  member: ProjectPermissionsState["members"][number];
   data: ProjectPermissionsState;
   entries: Map<string, PermissionEntry>;
-  saving: boolean;
-  onSave: (grants: string[]) => void;
-}) {
-  const t = useTranslations("projects.permissions");
-  const all = useTranslations();
-  const [picked, setPicked] = useState<string[]>(data.granted);
-  const changed = picked.slice().sort().join() !== data.granted.slice().sort().join();
-  return (
-    <div className="space-y-2 rounded-lg border p-3" data-project-grants>
-      <p className="text-sm font-semibold">{t("grantsTitle")}</p>
-      <p className="text-xs text-muted-foreground">{t("grantsHelp")}</p>
-      <div className="grid gap-1.5 sm:grid-cols-2">
-        {data.grantable.map((code) => (
-          <label key={code} className="flex items-center gap-2 rounded-md border px-3 py-2 text-sm">
-            <Checkbox
-              checked={picked.includes(code)}
-              onCheckedChange={(value) =>
-                setPicked((current) =>
-                  value === true ? [...current, code] : current.filter((item) => item !== code),
-                )
-              }
-            />
-            <span>{label(code, entries, all)}</span>
-          </label>
-        ))}
-      </div>
-      <div className="flex justify-end">
-        <Button
-          size="sm"
-          disabled={!changed || saving}
-          disabledReason={saving ? t("saving") : t("nothingChanged")}
-          onClick={() => onSave(picked)}
-        >
-          {saving ? <Loader2 className="animate-spin" /> : <Save />}
-          {t("saveGrants")}
-        </Button>
-      </div>
-    </div>
-  );
-}
-
-function MemberRow({
-  member,
-  options,
-  entries,
-  canEdit,
-  saving,
-  onSave,
-}: {
-  member: ProjectPermissionsState["members"][number];
-  options: string[];
-  entries: Map<string, PermissionEntry>;
-  canEdit: boolean;
   saving: boolean;
   onSave: (on: string[]) => void;
 }) {
   const t = useTranslations("projects.permissions");
   const all = useTranslations();
   const [open, setOpen] = useState(false);
-  const [on, setOn] = useState<string[]>(member.on);
-  const editable = canEdit && member.editable;
-  const changed = on.slice().sort().join() !== member.on.slice().sort().join();
-  const groups = useMemo(() => {
-    const map = new Map<string, string[]>();
-    for (const code of options) {
-      const group = entries.get(code)?.group ?? code.split(".")[0];
-      map.set(group, [...(map.get(group) ?? []), code]);
-    }
-    return [...map.entries()];
-  }, [entries, options]);
+  // Only what the reader may switch is sent; the rest is left as it is.
+  const initial = useMemo(() => {
+    const options = new Set(data.options);
+    return member.on.filter((code) => options.has(code));
+  }, [member.on, data.options]);
+  const [on, setOn] = useState<string[]>(initial);
+  const editable = data.can_edit && member.editable;
+  const changed = on.slice().sort().join() !== initial.slice().sort().join();
+  const projectOff = data.project_codes.filter((code) => !member.on.includes(code)).length;
+  const grantedB = data.grantable.filter((code) => member.on.includes(code)).length;
+  const daily = useMemo(() => grouped(data.project_codes, entries), [data.project_codes, entries]);
+  const grantable = useMemo(() => grouped(data.grantable, entries), [data.grantable, entries]);
+  const toggle = (code: string, value: boolean) =>
+    setOn((current) => (value ? [...current, code] : current.filter((item) => item !== code)));
   return (
-    <li className="rounded-lg border">
+    <li className="rounded-lg border" data-project-member={member.id}>
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
@@ -187,37 +128,47 @@ function MemberRow({
         <span className="min-w-0">
           <span className="block truncate text-sm font-semibold">{member.full_name}</span>
           <span className="block truncate text-xs text-muted-foreground">
-            {roleName({ code: member.role_code ?? "", name: member.role_name }, all)} · {t("count", { count: member.on.length })}
+            {roleName({ code: member.role_code ?? "", name: member.role_name }, all)}
+            {" · "}
+            {projectOff === 0 ? t("allOn") : t("someOff", { count: projectOff })}
+            {grantedB > 0 ? ` · ${t("grantedCount", { count: grantedB })}` : ""}
           </span>
         </span>
         <ChevronDown className={cn("size-4 shrink-0 transition-transform", open && "rotate-180")} />
       </button>
       {open && (
-        <div className="space-y-3 border-t p-3">
-          {!member.editable && <p className="text-xs text-muted-foreground">{t("roleOnly")}</p>}
-          {groups.map(([group, codes]) => (
-            <div key={group}>
-              <p className="mb-1 text-xs font-semibold text-muted-foreground">
-                {permissionGroupLabel(group, entries.get(codes[0])?.group_label, all)}
-              </p>
-              <div className="grid gap-1.5 sm:grid-cols-2 lg:grid-cols-3">
-                {codes.map((code) => (
-                  <label key={code} className="flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm">
-                    <Checkbox
-                      checked={on.includes(code)}
-                      disabled={!editable}
-                      onCheckedChange={(value) =>
-                        setOn((current) =>
-                          value === true ? [...current, code] : current.filter((item) => item !== code),
-                        )
-                      }
-                    />
-                    <span>{label(code, entries, all)}</span>
-                  </label>
-                ))}
-              </div>
+        <div className="space-y-4 border-t p-3">
+          <div className="space-y-3" data-member-part="project">
+            <p className="text-xs text-muted-foreground">{t("projectNote")}</p>
+            {daily.map(([group, codes]) => (
+              <SwitchGroup
+                key={group}
+                group={group}
+                codes={codes}
+                entries={entries}
+                isOn={(code) => on.includes(code)}
+                onToggle={toggle}
+                disabled={!editable}
+              />
+            ))}
+          </div>
+          {data.can_grant && (
+            <div className="space-y-3 rounded-lg border p-3" data-member-part="grantable">
+              <p className="text-sm font-semibold">{t("grantsTitle")}</p>
+              <p className="text-xs text-muted-foreground">{t("grantsHelp")}</p>
+              {grantable.map(([group, codes]) => (
+                <SwitchGroup
+                  key={group}
+                  group={group}
+                  codes={codes}
+                  entries={entries}
+                  isOn={(code) => on.includes(code)}
+                  onToggle={toggle}
+                  disabled={!editable}
+                />
+              ))}
             </div>
-          ))}
+          )}
           {editable && (
             <div className="flex justify-end">
               <Button
@@ -235,6 +186,60 @@ function MemberRow({
       )}
     </li>
   );
+}
+
+function SwitchGroup({
+  group,
+  codes,
+  entries,
+  isOn,
+  onToggle,
+  disabled,
+}: {
+  group: string;
+  codes: string[];
+  entries: Map<string, PermissionEntry>;
+  isOn: (code: string) => boolean;
+  onToggle: (code: string, value: boolean) => void;
+  disabled: boolean;
+}) {
+  const t = useTranslations();
+  return (
+    <div>
+      <p className="mb-1 text-xs font-semibold text-muted-foreground">
+        {permissionGroupLabel(group, entries.get(codes[0])?.group_label, t)}
+      </p>
+      <div className="grid gap-1.5 sm:grid-cols-2 lg:grid-cols-3">
+        {codes.map((code) => {
+          const text = label(code, entries, t);
+          return (
+            <label
+              key={code}
+              data-project-switch={code}
+              className="flex items-center justify-between gap-2 rounded-md border px-3 py-1.5 text-sm"
+            >
+              <span className="min-w-0 break-words">{text}</span>
+              <Switch
+                checked={isOn(code)}
+                disabled={disabled}
+                aria-label={text}
+                onCheckedChange={(value) => onToggle(code, value)}
+              />
+            </label>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function grouped(codes: string[], entries: Map<string, PermissionEntry>): [string, string[]][] {
+  const map = new Map<string, string[]>();
+  for (const code of codes) {
+    const group = entries.get(code)?.group ?? code.split(".")[0];
+    map.set(group, [...(map.get(group) ?? []), code]);
+  }
+  return [...map.entries()];
 }
 
 function label(code: string, entries: Map<string, PermissionEntry>, t: ReturnType<typeof useTranslations>) {

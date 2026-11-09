@@ -76,29 +76,39 @@ describe("location is taken automatically (T-355, D-246)", () => {
 });
 
 /**
- * Offline with no GPS fix (Lucas 2026-10-23, choice A): wait longer, then let
- * the record go without a position, marked 「没有定位」. Only forms that opt in,
- * only offline, and never past a refusal.
+ * No GPS fix never blocks a photo record (client 2026-11-09 item 6, widening
+ * Lucas 2026-10-23 choice A from offline-only to always): 「GPS 定位失败不阻止
+ * 拍照和保存」. A failure, a time-out or a refusal leaves the record
+ * 「没有定位」 at once, online or offline, and it can be saved while the phone
+ * is still locating. Clock-in and equipment hours still need a real fix.
  */
-describe("offline with no fix, a record may go without a position", () => {
-  it("waits longer for a fix without network", () => {
+describe("a photo record never waits on GPS", () => {
+  it("waits longer for a fix without network, in the background", () => {
     const body = componentBody();
     expect(body).toContain("const offline = isOffline();");
     expect(body).toMatch(/offline\s*\?\s*\{ enableHighAccuracy: true, timeout: OFFLINE_LOCATION_TIMEOUT_MS/);
   });
 
-  it("accepts no position only when allowed, offline, and not refused", () => {
+  it("is savable as 「没有定位」 from the moment locating starts", () => {
     const body = componentBody();
-    expect(body).toMatch(
-      /allowMissingOffline &&\s*problem !== "denied" &&\s*\(offline \|\| \(await serverUnreachable\(\)\)\)/,
-    );
-    expect(code).toContain("allowMissingOffline = false,");
+    const ask = body.slice(body.indexOf("const ask = useCallback"), body.indexOf("await requestLocation("));
+    expect(ask).toContain("if (allowMissing) onChange(NO_LOCATION);");
+    expect(body).toContain('t("locatingCanSave")');
+    expect(code).toContain("allowMissing = false,");
+  });
+
+  it("any failure, online or offline, gives 「没有定位」 at once - no server check, no extra wait", () => {
+    const body = componentBody();
+    const failure = body.slice(body.indexOf("} catch (error) {"), body.indexOf("} finally {"));
+    expect(failure).toMatch(/if \(allowMissing\) \{\s*onChange\(NO_LOCATION\);/);
+    expect(failure).not.toContain("offline");
+    expect(code).not.toContain("serverUnreachable");
   });
 
   it("never shows coordinates or 'GPS captured' for a missing position", () => {
     const body = componentBody();
     expect(body).toContain("{value && !missing && !problem ? (");
-    expect(body).toContain('t("missingOffline.title")');
+    expect(body).toContain('t("missing.title")');
   });
 
   it("clock-in and equipment hours still need a real fix", () => {
@@ -108,12 +118,12 @@ describe("offline with no fix, a record may go without a position", () => {
     ]) {
       const source = readFileSync(path.join(process.cwd(), "src", "components", ...file), "utf8");
       expect(source).toContain("onChange={(next) => setFix(asFix(next))}");
-      expect(source).not.toContain("allowMissingOffline");
+      expect(source).not.toMatch(/\ballowMissing\b/);
     }
   });
 });
 
-describe("every photo-record form lets a record go without a position offline", () => {
+describe("every photo-record form lets a record go without a position", () => {
   const forms = [
     ["contractor-ops", "equipment-exit.tsx"],
     ["contractor-ops", "operations-workspaces.tsx"],
@@ -122,10 +132,10 @@ describe("every photo-record form lets a record go without a position offline", 
     ["field-staff", "sundry-claim-capture.tsx"],
     ["site-operations", "safety.tsx"],
   ];
-  it.each(forms)("%s/%s: one allowMissingOffline per LocationField", (folder, file) => {
+  it.each(forms)("%s/%s: one allowMissing per LocationField", (folder, file) => {
     const source = readFileSync(path.join(process.cwd(), "src", "components", folder, file), "utf8");
     const fields = source.match(/<LocationField\b/g)?.length ?? 0;
     expect(fields).toBeGreaterThan(0);
-    expect(source.match(/\ballowMissingOffline\b/g)?.length ?? 0).toBe(fields);
+    expect(source.match(/\ballowMissing\b/g)?.length ?? 0).toBe(fields);
   });
 });

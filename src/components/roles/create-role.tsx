@@ -6,7 +6,7 @@ import { AlertTriangle, Lock, Plus, Save } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
-import { PermissionMatrix } from "@/components/roles/permission-matrix";
+import { PermissionMatrix, roleKindOf } from "@/components/roles/permission-matrix";
 import { CURRENT_USER_KEY } from "@/components/providers/auth-provider";
 import { useFinishForm } from "@/components/shared/dialog-navigation";
 import {
@@ -167,8 +167,9 @@ export function CreateRole({ role }: { role?: Role }) {
             <PermissionMatrix
               selected={permissions}
               onChange={setPermissions}
-              // 总部权限 A only on a head-office role (JB131).
-              headOffice={["company_admin", "headquarters"].includes(String(code ?? "").trim())}
+              // 总部权限 A only on a head-office role; a project role's 项目权限
+              // are on by default for its people (JB131, JB139).
+              kind={roleKindOf({ code, kind: role?.code === code ? role?.kind : undefined })}
             />
           )}
         </form.Subscribe>

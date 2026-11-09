@@ -158,7 +158,7 @@ export function SundryClaimCapture({
         value={location}
         onChange={setLocation}
         required
-        allowMissingOffline
+        allowMissing
       />
       {error && (
         <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">

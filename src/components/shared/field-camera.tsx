@@ -15,6 +15,7 @@ import {
 } from "@/lib/camera-lens";
 
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { canvasJpeg, encodeWithinTarget, markAtUploadSize } from "@/lib/photo-compression";
 import {
   Dialog,
@@ -44,6 +45,33 @@ export const SQUARE_SOURCE = {
   height: { ideal: 1440 },
   aspectRatio: { ideal: 4 / 3 },
 } as const;
+
+/**
+ * Where the kept square sits in a viewfinder that shows the video with
+ * `object-cover`, as fractions (0-1] of the viewfinder's width and height,
+ * centred.
+ *
+ * The photo is always the centre square of the whole camera frame (J45,
+ * `centreSquare`) - never just the part the screen happens to show. On the
+ * desktop the viewfinder is itself that square, so this is the whole box. On
+ * a phone the viewfinder is the whole screen (client 2026-11-09 item 7:
+ * 「直接改成手机全屏取景」): an upright screen is taller than the frame, so
+ * the frame's sides run off the screen and the square becomes a band across
+ * it. Outside the band is dimmed - that part is on screen but not kept.
+ */
+export function keptSquareInView(
+  videoWidth: number,
+  videoHeight: number,
+  boxWidth: number,
+  boxHeight: number,
+): { width: number; height: number } {
+  if (videoWidth <= 0 || videoHeight <= 0 || boxWidth <= 0 || boxHeight <= 0) {
+    return { width: 1, height: 1 };
+  }
+  const scale = Math.max(boxWidth / videoWidth, boxHeight / videoHeight);
+  const side = Math.min(videoWidth, videoHeight) * scale;
+  return { width: Math.min(side / boxWidth, 1), height: Math.min(side / boxHeight, 1) };
+}
 
 interface FieldCameraProps {
   label: string;
@@ -109,12 +137,16 @@ export function FieldCamera({
   onClear,
 }: FieldCameraProps) {
   const t = useTranslations("fieldStaffPwa.camera");
+  const commonT = useTranslations("common");
   const [open, setOpen] = useState(false);
   const [facing, setFacing] = useState<FacingMode>(facingMode);
   const [starting, setStarting] = useState(false);
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
   const videoRef = useRef<HTMLVideoElement>(null);
+  const viewfinderRef = useRef<HTMLDivElement>(null);
+  // The kept square's share of the viewfinder (`keptSquareInView`).
+  const [kept, setKept] = useState({ width: 1, height: 1 });
   const streamRef = useRef<MediaStream | null>(null);
   // 「广角」 (J45): off unless the worker turned it on on this phone; the
   // switch shows only when the phone has a wide lens (`lib/camera-lens`).
@@ -239,6 +271,33 @@ export function FieldCamera({
       stopCamera();
     };
   }, [facing, open, stopCamera, t, wideDeviceId]);
+
+  // Measured again whenever the frame or the screen changes shape (a phone
+  // turned, the address bar sliding away).
+  useEffect(() => {
+    if (!open || !ready) return;
+    const video = videoRef.current;
+    const box = viewfinderRef.current;
+    if (!video || !box) return;
+    const measure = () =>
+      setKept(keptSquareInView(video.videoWidth, video.videoHeight, box.clientWidth, box.clientHeight));
+    measure();
+    video.addEventListener("resize", measure);
+    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(measure);
+    observer?.observe(box);
+    window.addEventListener("resize", measure);
+    return () => {
+      video.removeEventListener("resize", measure);
+      observer?.disconnect();
+      window.removeEventListener("resize", measure);
+    };
+  }, [open, ready]);
+
+  function closeCamera() {
+    stopCamera();
+    setReady(false);
+    setOpen(false);
+  }
 
   function toggleWide() {
     const next = !wide;
@@ -372,18 +431,38 @@ export function FieldCamera({
           setOpen(next);
         }}
       >
-        <DialogContent className="max-h-[96dvh] overflow-y-auto p-4 sm:max-w-xl sm:p-6">
-          <DialogHeader>
+        {/* Full screen on a phone (client 2026-11-09 item 7): the camera fills
+            the screen, the title over its top and the buttons over its
+            bottom, clear of the notch and the home bar. A sized dialog with
+            a square viewfinder on a desktop, as before. */}
+        <DialogContent
+          showCloseButton={false}
+          className="max-h-[96dvh] overflow-y-auto p-4 sm:max-w-xl sm:p-6 max-sm:inset-0 max-sm:top-0 max-sm:bottom-0 max-sm:h-dvh max-sm:max-h-none max-sm:overflow-hidden max-sm:rounded-none max-sm:p-0 max-sm:pb-0 max-sm:ring-0"
+        >
+          <DialogHeader className="relative pr-12 max-sm:absolute max-sm:inset-x-0 max-sm:top-0 max-sm:z-10 max-sm:bg-overlay max-sm:pb-3 max-sm:pl-4 max-sm:pt-[max(0.75rem,env(safe-area-inset-top))] max-sm:text-overlay-foreground">
             <DialogTitle>{label}</DialogTitle>
-            <DialogDescription>{t("help")}</DialogDescription>
+            <DialogDescription className="max-sm:text-overlay-foreground/80">{t("help")}</DialogDescription>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              className="absolute right-0 top-0 max-sm:right-3 max-sm:top-[max(0.75rem,env(safe-area-inset-top))] max-sm:text-overlay-foreground"
+              onClick={closeCamera}
+            >
+              <X />
+              <span className="sr-only">{commonT("close")}</span>
+            </Button>
           </DialogHeader>
-          {/* Square (J45): the centre of the video, which is exactly the
-              photo taken (`centreSquare`). Capped by width, not height - a
-              max-height on an aspect box squashes it into a rectangle that
-              shows more than the photo keeps. */}
+          {/* The video with object-cover. The photo is the centre square of
+              the whole frame (J45, centreSquare) whatever the screen shows:
+              on a desktop the box is that square; on a phone the box is the
+              screen and the part outside the square is dimmed. Capped by
+              width on a desktop - a max-height on an aspect box squashes it
+              into a rectangle that shows more than the photo keeps. */}
           <div
+            ref={viewfinderRef}
             data-testid="field-camera-viewfinder"
-            className="relative mx-auto aspect-square w-full max-w-[60dvh] overflow-hidden rounded-lg bg-black"
+            className="relative mx-auto aspect-square w-full max-w-[60dvh] overflow-hidden rounded-lg bg-black max-sm:absolute max-sm:inset-0 max-sm:aspect-auto max-sm:max-w-none max-sm:rounded-none"
           >
             <video
               ref={videoRef}
@@ -392,13 +471,32 @@ export function FieldCamera({
               playsInline
               className={`h-full w-full object-cover ${facing === "user" ? "-scale-x-100" : ""}`}
             />
+            {ready && !error && (kept.width < 1 || kept.height < 1) ? (
+              <div
+                data-testid="field-camera-kept"
+                aria-hidden
+                className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 border-2 border-overlay-foreground/70"
+                style={{
+                  width: `${kept.width * 100}%`,
+                  height: `${kept.height * 100}%`,
+                  // The theme's overlay, thinned: the part not kept stays visible.
+                  boxShadow: "0 0 0 100vmax color-mix(in srgb, var(--overlay) 60%, transparent)",
+                }}
+              />
+            ) : null}
             {starting ? (
               <div className="absolute inset-0 grid place-items-center bg-overlay text-overlay-foreground">
                 <Loader2 className="size-8 animate-spin" />
               </div>
             ) : null}
             {ready && !error ? (
-              <WideLensSwitch lens={lens} wide={wide} label={t("wide")} onToggle={toggleWide} />
+              <WideLensSwitch
+                lens={lens}
+                wide={wide}
+                label={t("wide")}
+                onToggle={toggleWide}
+                className="max-sm:top-auto max-sm:right-4 max-sm:bottom-[calc(env(safe-area-inset-bottom)+9rem)]"
+              />
             ) : null}
             {error ? (
               <div className="absolute inset-0 grid place-items-center bg-overlay p-6 text-center text-sm text-overlay-foreground">
@@ -409,12 +507,13 @@ export function FieldCamera({
               </div>
             ) : null}
           </div>
-          <p className="-mt-1 text-center text-xs text-muted-foreground">{t("stepBack")}</p>
-          <DialogFooter className="grid grid-cols-[auto_1fr] gap-2 sm:grid-cols-[auto_1fr]">
+          <DialogFooter className="grid grid-cols-[auto_1fr] gap-2 sm:grid-cols-[auto_1fr] max-sm:absolute max-sm:inset-x-0 max-sm:bottom-0 max-sm:z-10 max-sm:m-0 max-sm:border-0 max-sm:bg-overlay max-sm:pb-[max(1rem,env(safe-area-inset-bottom))]">
+            <p className="col-span-2 text-center text-xs text-muted-foreground max-sm:text-overlay-foreground/80">{t("stepBack")}</p>
             <Button
               type="button"
               variant="outline"
               size="icon"
+              className="max-sm:size-12"
               title={t("switch")}
               disabled={starting}
               onClick={() => setFacing((value) => (value === "user" ? "environment" : "user"))}
@@ -442,11 +541,14 @@ export function WideLensSwitch({
   wide,
   label,
   onToggle,
+  className,
 }: {
   lens: WideLens | null;
   wide: boolean;
   label: string;
   onToggle: () => void;
+  /** Placement over the viewfinder, merged onto the corner default. */
+  className?: string;
 }) {
   if (!lens) return null;
   return (
@@ -455,9 +557,11 @@ export function WideLensSwitch({
       data-testid="field-camera-wide"
       aria-pressed={wide}
       onClick={onToggle}
-      className={`absolute right-2 top-2 rounded-full px-3 py-1 text-xs font-semibold backdrop-blur transition ${
-        wide ? "bg-primary text-primary-foreground" : "bg-overlay text-overlay-foreground"
-      }`}
+      className={cn(
+        "absolute right-2 top-2 rounded-full px-3 py-1 text-xs font-semibold backdrop-blur transition",
+        wide ? "bg-primary text-primary-foreground" : "bg-overlay text-overlay-foreground",
+        className,
+      )}
     >
       {label}
     </button>

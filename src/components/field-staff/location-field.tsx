@@ -15,7 +15,6 @@ import {
   OFFLINE_LOCATION_TIMEOUT_MS,
   problemOf,
   requestLocation,
-  serverUnreachable,
 } from "@/lib/field-location";
 
 /**
@@ -52,7 +51,7 @@ export function LocationField({
   className = "",
   error,
   hint,
-  allowMissingOffline = false,
+  allowMissing = false,
 }: {
   label: string;
   /** The words on the button once one has. */
@@ -66,11 +65,13 @@ export function LocationField({
   error?: string;
   hint?: string;
   /**
-   * With no network and no fix after a longer wait, accept the record without
-   * a position, marked 「没有定位」 (Lucas 2026-10-23). Not for records whose
-   * point is the position itself (clock-in, equipment hours).
+   * A photo record: no fix never blocks it (client 2026-11-09 item 6, which
+   * widens Lucas 2026-10-23 choice A from offline-only to always). It can be
+   * saved while the phone is still locating, and a failure, a time-out or a
+   * refusal leaves it 「没有定位」 at once, online or offline. Not for records
+   * whose point is the position itself (clock-in, equipment hours).
    */
-  allowMissingOffline?: boolean;
+  allowMissing?: boolean;
 }) {
   const t = useTranslations("fieldStaffPwa.locationAccess");
   const [locating, setLocating] = useState(false);
@@ -83,6 +84,13 @@ export function LocationField({
     attempted.current = true;
     setProblem(null);
     setLocating(true);
+    // A photo record can be saved from the first moment: until a fix
+    // arrives the value is 「没有定位」, so pressing 提交 now saves it without
+    // a position - the position known at the moment of saving, which is
+    // none. A fix arriving later only reaches this form; a record already
+    // saved (or queued offline) holds its own copy and is never given it
+    // (client 2026-11-09: 「GPS 定位失败不能事后用新的位置冒充拍摄时的位置」).
+    if (allowMissing) onChange(NO_LOCATION);
     // Without network the phone has GPS alone, which can need far longer for
     // a first fix than the usual 15 seconds.
     const offline = isOffline();
@@ -96,16 +104,13 @@ export function LocationField({
       );
     } catch (error) {
       const problem = problemOf(error);
-      // A refusal is still a refusal: only "no fix in time" is let through,
-      // and only with no network - checked against the server, since a phone
-      // with data on but no signal still says it is online.
-      if (
-        allowMissingOffline &&
-        problem !== "denied" &&
-        (offline || (await serverUnreachable()))
-      ) {
+      // A photo record goes without a position at once, whatever the reason
+      // and with or without network: the client's 「定位等太久了」 left 提交
+      // locked with a photograph already taken (2026-11-09 图6). A refusal
+      // still shows where the switch is, but no longer blocks the record.
+      if (allowMissing) {
         onChange(NO_LOCATION);
-        setProblem(null);
+        setProblem(problem === "denied" ? problem : null);
       } else {
         onChange(null);
         setProblem(problem);
@@ -113,7 +118,7 @@ export function LocationField({
     } finally {
       setLocating(false);
     }
-  }, [allowMissingOffline, onChange]);
+  }, [allowMissing, onChange]);
 
   /*
    * Automatic, not a button (T-355, D-226／D-237／D-246).
@@ -143,21 +148,27 @@ export function LocationField({
   return (
     <FieldWrapper className={className} label={label} required={required} error={error} hint={hint}>
       {locating ? (
-        <p className="flex min-h-12 items-center gap-2 rounded-lg border bg-muted/30 px-3 text-sm text-muted-foreground">
-          <Loader2 className="size-4 animate-spin" />
-          {t("locating")}
-        </p>
+        <div className="rounded-lg border bg-muted/30 px-3 py-2 text-sm text-muted-foreground">
+          <p className="flex min-h-8 items-center gap-2">
+            <Loader2 className="size-4 animate-spin" />
+            {t("locating")}
+          </p>
+          {allowMissing ? <p className="mt-1 text-xs">{t("locatingCanSave")}</p> : null}
+        </div>
       ) : missing ? (
         <div className="rounded-lg border border-warning/40 bg-warning/10 p-3 text-sm">
-          <p className="font-medium">{t("missingOffline.title")}</p>
-          <p className="mt-1 text-xs text-muted-foreground">{t("missingOffline.body")}</p>
-          <Button
-            className="mt-2 h-10 w-full"
-            variant="outline"
-            onClick={() => void ask()}
-          >
-            {t("retry")}
-          </Button>
+          <p className="font-medium">{t("missing.title")}</p>
+          <p className="mt-1 text-xs text-muted-foreground">{t("missing.body")}</p>
+          {/* A refusal's steps below carry their own 【重试】. */}
+          {problem !== "denied" ? (
+            <Button
+              className="mt-2 h-10 w-full"
+              variant="outline"
+              onClick={() => void ask()}
+            >
+              {t("retry")}
+            </Button>
+          ) : null}
         </div>
       ) : value && !problem ? (
         <p className="flex min-h-12 items-center gap-2 rounded-lg border border-success/30 bg-success/5 px-3 text-sm">

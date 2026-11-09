@@ -1079,7 +1079,7 @@ export function MaterialCapturePanel({
         readyLabel={t("attendance.locationReady")}
         value={location ?? null}
         onChange={(fix) => setLocation(fix ?? undefined)}
-        allowMissingOffline
+        allowMissing
         required
       />
       <Textarea value={draft.notes} onChange={(event) => setDraft((old) => ({ ...old, notes: event.target.value }))} placeholder={t("material.notes")} />
@@ -1264,7 +1264,7 @@ function ConsultantCapturePanel({ initialProject = "", fieldTaskId, onSaved }: {
         readyLabel={t("attendance.locationReady")}
         value={location ?? null}
         onChange={(fix) => setLocation(fix ?? undefined)}
-        allowMissingOffline
+        allowMissing
         required
       />
       <FieldWrapper label={t("consultantCapture.description")} optional={t("consultantCapture.optional")}>
@@ -1459,7 +1459,7 @@ function WasteOutgoingCapturePanel({
         readyLabel={t("field.locationReady")}
         value={location ?? null}
         onChange={(fix) => setLocation(fix ?? undefined)}
-        allowMissingOffline
+        allowMissing
         required
       />
       {error && <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">{error}</p>}
