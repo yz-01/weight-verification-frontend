@@ -72,6 +72,15 @@ export interface NotificationSummary {
   conversations?: number;
   /** Of `conversations`, how many moved today. */
   conversations_today?: number;
+  /**
+   * Waiting notices that are news - a 项目通知 from the office, an approval,
+   * an announcement - whatever `card` asked for (JB153). The phone's red dot
+   * adds them too; each goes when its 「确认完成」 is pressed. Optional: an
+   * older server omits them.
+   */
+  notices?: number;
+  /** Of `notices`, how many arrived today. */
+  notices_today?: number;
 }
 
 export type HealthStatus =
