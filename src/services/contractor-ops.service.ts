@@ -23,6 +23,7 @@ import type {
   DisposalEvidence,
   DisposalEvidenceKind,
   DisposalRequest,
+  DisposalAnomalyKind,
   DisposalSiteEvidenceKind,
   DisposalTotals,
   ExternalDisposalTask,
@@ -1334,6 +1335,39 @@ export async function addDisposalSiteEvidence(
   data.append("captured_at", new Date().toISOString());
   const row = await api.post<DisposalRequest>(`/api/site-disposals/${id}/add_site_evidence/`, data);
   toastSuccess("siteDisposal.toast.siteEvidence");
+  return row;
+}
+
+/**
+ * Report a problem on a running disposal job, with its photographs (JB149).
+ *
+ * 客户 11-10 事项 6: 「如果是车辆异常，必须注明第几车…每笔异常最少上传2张照片」.
+ * A vehicle problem names its lorry (`trip`); the plate is optional - the
+ * server keeps the lorry's (or the job's) when none is typed.
+ */
+export async function reportDisposalAnomaly(
+  id: string,
+  payload: {
+    kind: DisposalAnomalyKind;
+    trip?: string;
+    vehicle_plate?: string;
+    reason: string;
+    photos: File[];
+    latitude?: string;
+    longitude?: string;
+    accuracy_m?: string;
+    client_event_id: string;
+  },
+) {
+  const data = new FormData();
+  for (const file of payload.photos) data.append("photos", file);
+  for (const key of ["kind", "trip", "vehicle_plate", "reason", "latitude", "longitude", "accuracy_m", "client_event_id"] as const) {
+    const value = payload[key];
+    if (value) data.append(key, value);
+  }
+  data.append("captured_at", new Date().toISOString());
+  const row = await api.post<DisposalRequest>(`/api/site-disposals/${id}/report_anomaly/`, data);
+  toastSuccess("siteDisposal.toast.anomalyReported");
   return row;
 }
 

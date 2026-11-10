@@ -19,7 +19,8 @@ export type ClearanceKind = "all" | "disposal" | "dispatch";
  * then that company's for that period - what is settled with it.
  */
 const OWN_FILTERS: Record<"disposal" | "dispatch", readonly string[]> = {
-  disposal: ["status", "supplier", "date_from", "date_to"],
+  // 「异常记录」 (JB149): the header counts the abnormal jobs it lists.
+  disposal: ["status", "supplier", "date_from", "date_to", "abnormal"],
   dispatch: ["state", "waste_type"],
 };
 
@@ -49,4 +50,24 @@ export function clearanceFigureFilters(
       ...(kind === "dispatch" ? OWN_FILTERS.dispatch : []),
     ]),
   };
+}
+
+/** The page's tabs: the three kinds, and 工地清运's 「异常记录」 view (JB149). */
+export type ClearanceTab = ClearanceKind | "abnormal";
+
+/**
+ * Where each tab goes (JB149, 补充 第 1 点). 「异常记录」 is the 工地清运 list
+ * with `abnormal=1` - as 材料管理's 「Reject 不合格」 is the receipts list with
+ * `acceptance=REJECTED` - and between those two the project, clearance
+ * company and dates the reader chose go along, as `MaterialTabs` carries them.
+ */
+export function clearanceTabHref(tab: ClearanceTab, params: URLSearchParams): string {
+  if (tab === "all" || tab === "dispatch") return `/waste-clearance?kind=${tab}`;
+  const next = new URLSearchParams({ kind: "disposal" });
+  if (tab === "abnormal") next.set("abnormal", "1");
+  for (const key of ["project", "supplier", "date_from", "date_to"]) {
+    const value = params.get(key);
+    if (value) next.set(key, value);
+  }
+  return `/waste-clearance?${next.toString()}`;
 }

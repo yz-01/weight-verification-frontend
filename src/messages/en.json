@@ -8796,7 +8796,11 @@
       "file_share_link_expired": "This link has expired. Ask the person who sent it for a new one.",
       "file_share_file_too_large": "The file is larger than {max_mb} MB and cannot be sent as a link.",
       "permission_switches_projects_required": "A project user sees only chosen projects. Choose at least one project.",
-      "project_member_not_switchable": "This person's permissions are not switched on Project permissions; head office sets them in User management."
+      "project_member_not_switchable": "This person's permissions are not switched on Project permissions; head office sets them in User management.",
+      "disposal_anomaly_not_running": "This clearance is not approved yet or has ended, so no exception can be reported on it.",
+      "disposal_anomaly_trip_required": "A vehicle exception must say which load it was: choose a load of this clearance that was not cancelled.",
+      "disposal_anomaly_photos_required": "Each exception needs at least {minimum} photos.",
+      "disposal_anomaly_reason_required": "Write the reason for the exception."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -11869,7 +11873,8 @@
       "exit_at": "Exit time",
       "request_kind": "Request type",
       "pdpa_consent": "Personal data notice",
-      "material_lines": "Materials"
+      "material_lines": "Materials",
+      "anomaly": "Exception"
     },
     "detailTitle": "What I sent",
     "photos": "Photographs",
@@ -16409,7 +16414,8 @@
       "recordNumbers": "Record numbers",
       "siteEvidence": "Photograph vehicle exit / Gate Pass",
       "setSupplier": "Name the supplier",
-      "changeSupplier": "Change supplier"
+      "changeSupplier": "Change supplier",
+      "reportAnomaly": "Report exception"
     },
     "assign": {
       "copyNow": "Copy and send this link to the external contractor. No sign-in is required. If it is lost, generate a new link from the disposal list; the old link will stop working.",
@@ -16445,7 +16451,8 @@
       "UNLOADING": "Unloading",
       "DISPOSAL_PROOF": "Final disposal proof",
       "VEHICLE_EXIT": "Vehicle exit",
-      "GATE_PASS": "Gate Pass"
+      "GATE_PASS": "Gate Pass",
+      "ANOMALY": "Exception photo"
     },
     "external": {
       "action": {
@@ -16531,7 +16538,9 @@
       "supplier": "Supplier",
       "vehiclePlates": "Lorry plates",
       "vehiclePlate": "Lorry plate",
-      "createdAt": "Raised on"
+      "createdAt": "Raised on",
+      "isAbnormal": "Exception",
+      "anomalyText": "Exception details"
     },
     "fieldEvidence": {
       "access": "3. Collection access or vehicle route",
@@ -16636,7 +16645,8 @@
       "TRIP_ADDED": "Office added a load",
       "ENDED_EARLY": "Office ended the job early; loads not sent were dropped",
       "TRIP_CORRECTED": "Office corrected a load's weight / DO / plate",
-      "SUPPLIER_SET": "Office named / changed the clearance company"
+      "SUPPLIER_SET": "Office named / changed the clearance company",
+      "ANOMALY_REPORTED": "Exception reported"
     },
     "title": "Site disposal",
     "toast": {
@@ -16652,7 +16662,8 @@
       "tripAdded": "Load added",
       "endedEarly": "Job ended early",
       "tripCorrected": "Load corrected",
-      "supplierSet": "Clearance company saved"
+      "supplierSet": "Clearance company saved",
+      "anomalyReported": "Exception sent to the office"
     },
     "overdue": {
       "badge": "Exception",
@@ -16667,7 +16678,8 @@
       "SITE_EXIT": "Loading and leaving site",
       "FINAL_PROOF": "Final disposal proof",
       "OFFICE_CHECK": "Office check photos (earlier rule)",
-      "empty": "None yet"
+      "empty": "None yet",
+      "ANOMALY": "Exception photos"
     },
     "recordNumbers": {
       "title": "Record weight / trips / DO",
@@ -16737,6 +16749,30 @@
       "reason": "Reason for the change",
       "unchanged": "Choose a different supplier first",
       "save": "Save"
+    },
+    "anomaly": {
+      "title": "Report an exception",
+      "description": "{reference}: for a vehicle exception choose which load; write the reason and take at least {minimum} photos.",
+      "kind": "Exception type",
+      "kindVEHICLE": "Vehicle exception",
+      "kindOTHER": "Other exception",
+      "kindOVERDUE": "Overdue",
+      "trip": "Which load",
+      "chooseTrip": "Choose the load",
+      "noTrips": "This clearance has no loads yet, so a vehicle exception cannot be reported. Use “Other exception”.",
+      "plate": "Vehicle plate",
+      "plateHint": "Filled in from the load when it has one; change it if it is wrong.",
+      "reason": "Reason",
+      "photos": "Exception photos",
+      "progress": "{count} taken, at least {minimum}",
+      "submit": "Send the exception",
+      "panelTitle": "Exceptions",
+      "reportedBy": "{name} · {at}",
+      "supplier": "Clearance company",
+      "reporter": "Reported by",
+      "at": "Reported at",
+      "listTitle": "Exception records",
+      "empty": "No exception records"
     }
   },
   "onSiteMap": {
@@ -18736,7 +18772,8 @@
     "tab": {
       "all": "All",
       "disposal": "Site clearance",
-      "dispatch": "Waste orders"
+      "dispatch": "Waste orders",
+      "abnormal": "Exception records"
     },
     "kind": {
       "disposal": "Site clearance",
@@ -18750,7 +18787,9 @@
       "project": "Project",
       "content": "Waste",
       "at": "Raised",
-      "open": "View"
+      "open": "View",
+      "abnormal": "Exception",
+      "anomalyText": "Exception details"
     },
     "pageOf": "Page {page} of {pages} - up to 10 of each type per page",
     "lastPage": "This is the last page.",

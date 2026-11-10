@@ -33,12 +33,14 @@ import {
 } from "@/components/ui/table";
 import { useDateFormat } from "@/lib/dates";
 import { cn } from "@/lib/utils";
-import { clearanceFigureFilters } from "@/lib/waste-clearance-figures";
+import { clearanceFigureFilters, clearanceTabHref, type ClearanceTab } from "@/lib/waste-clearance-figures";
 import { getDispatchSummary, getDispatches } from "@/services/contractor.service";
 import { getDisposalRequests, getDisposalTotals, exportWasteClearance } from "@/services/contractor-ops.service";
 import { clickOpensRow } from "@/components/shared/inside-row-control";
 
 type Kind = "all" | "disposal" | "dispatch";
+/** The tabs: the three kinds, and 工地清运's 「异常记录」 view (JB149). */
+type Tab = ClearanceTab;
 
 const PER_KIND = 10;
 
@@ -117,6 +119,10 @@ export function WasteClearance() {
   });
   const dispatchFigures = dispatchTotals.data?.clearance_totals;
 
+  // 「异常记录」 sits beside 工地清运 wherever that is offered (JB149).
+  const tabs: Tab[] = [...kinds, ...(hasDisposals ? (["abnormal"] as const) : [])];
+  const tab: Tab = kind === "disposal" && searchParams.get("abnormal") === "1" ? "abnormal" : kind;
+
   if (kinds.length === 0) return null;
 
   return (
@@ -187,16 +193,17 @@ export function WasteClearance() {
         </section>
       )}
 
-      {kinds.length > 1 && (
+      {tabs.length > 1 && (
         <nav aria-label={t("title")} className="surface-panel flex w-fit max-w-full flex-wrap gap-1 rounded-xl p-1">
-          {kinds.map((option) => (
+          {tabs.map((option) => (
             <Link
               key={option}
-              href={`/waste-clearance?kind=${option}`}
-              aria-current={option === kind ? "page" : undefined}
+              href={clearanceTabHref(option, searchParams)}
+              aria-current={option === tab ? "page" : undefined}
               className={cn(
                 "inline-flex h-9 items-center rounded-lg px-3 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground pointer-coarse:h-10",
-                option === kind && "bg-primary/10 text-primary",
+                option === tab && "bg-primary/10 text-primary",
+                option === "abnormal" && option !== tab && "text-destructive",
               )}
             >
               {t(`tab.${option}`)}
@@ -324,6 +331,9 @@ function MergedList() {
                 { key: "project_name", label: t("column.project") },
                 { key: "content", label: t("column.content") },
                 { key: "created_at", label: t("column.at") },
+                // JB149: a 工地清运 job's 「异常」 and what it was.
+                { key: "is_abnormal", label: t("column.abnormal"), values: { true: t("column.abnormal"), false: "" } },
+                { key: "anomaly_text", label: t("column.anomalyText") },
               ],
             })
           }
