@@ -8560,6 +8560,13 @@
       "project_has_records": "這個項目下還有記錄。請改為標記完成，而不是移除。",
       "project_limit_reached": "當前套餐的項目數量已達到上限。",
       "project_not_found": "找不到這個項目。",
+      "push_endpoint_gone": "蘋果 / 谷歌說這支手機的通知登記已經失效。",
+      "push_not_configured": "伺服器現在不發手機通知（沒有設定或已關閉），測試通知發不出。請聯絡管理員。",
+      "push_off_for_company": "公司設定了通知只在 App 裡顯示、不發到手機，所以手機不會響。請聯絡公司管理員。",
+      "push_provider_refused": "蘋果 / 谷歌拒收了這條通知。",
+      "push_provider_unreachable": "蘋果 / 谷歌沒有回應，可能是網路問題。",
+      "push_subscription_not_found": "伺服器上沒有這支手機的通知登記（可能已失效，或換了帳號登入）。",
+      "push_test_too_soon": "測試通知剛發過，請等 {seconds} 秒再發。",
       "qr_code_not_found": "無法識別這個二維碼。",
       "quota_exceeded": "已超過設定的雲服務額度。",
       "receipt_immutable": "已上傳的材料進場記錄不能修改或刪除，請建立一條更正記錄。",
@@ -20832,6 +20839,9 @@
       "body": "開啟通知，手機待機時有新訊息才會響，桌面圖示才會顯示數字。",
       "action": "開啟通知"
     },
+    "enabled": {
+      "body": "通知已開啟。可以發一條測試通知，看這支手機會不會響。"
+    },
     "denied": {
       "body": "通知被關掉了，有新訊息不會響。請到手機「設定」→「通知」，允許本 App 的通知。"
     },
@@ -20842,6 +20852,17 @@
       "worker": "手機的背景服務還沒準備好。請把 App 完全關掉再打開，再按一次。",
       "subscribe": "手機沒有完成通知登記（蘋果 / 谷歌沒有回應）。請檢查網路，把 App 關掉再打開，再按一次。",
       "server": "通知已在手機打開，但沒有存到伺服器。請檢查網路，再按一次。"
+    }
+  },
+  "pushTest": {
+    "action": "發一條測試通知",
+    "sending": "正在發送測試通知…",
+    "sent": "已發出。幾秒內這支手機應該響一聲，螢幕上出現通知。",
+    "notSent": "沒有發出：{reason}",
+    "advice": {
+      "ios": "請按「{button}」再試一次；還是不行，刪掉手機上的 MSE Trace 圖示，從 Safari 重新加到主畫面。",
+      "android": "請按「{button}」再試一次；還是不行，刪掉手機上的 MSE Trace 圖示，用 Chrome 開啟網站，點 ⋮ →「安裝應用程式」重新安裝。",
+      "other": "請按「{button}」再試一次；還是不行，請在瀏覽器設定裡允許本網站的通知。"
     }
   },
   "passportCapture": {

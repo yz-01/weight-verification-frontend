@@ -8560,6 +8560,13 @@
       "project_has_records": "这个项目下还有记录。请改为标记完成，而不是移除。",
       "project_limit_reached": "当前套餐的项目数量已达到上限。",
       "project_not_found": "找不到这个项目。",
+      "push_endpoint_gone": "苹果 / 谷歌说这支手机的通知登记已经失效。",
+      "push_not_configured": "服务器现在不发手机通知（没有设定或已关闭），测试通知发不出。请联系管理员。",
+      "push_off_for_company": "公司设定了通知只在 App 里显示、不发到手机，所以手机不会响。请联系公司管理员。",
+      "push_provider_refused": "苹果 / 谷歌拒收了这条通知。",
+      "push_provider_unreachable": "苹果 / 谷歌没有回应，可能是网络问题。",
+      "push_subscription_not_found": "服务器上没有这支手机的通知登记（可能已失效，或换了账号登录）。",
+      "push_test_too_soon": "测试通知刚发过，请等 {seconds} 秒再发。",
       "qr_code_not_found": "无法识别这个二维码。",
       "quota_exceeded": "已超过设定的云服务额度。",
       "receipt_immutable": "已上传的材料进场记录不能修改或删除，请建立一条更正记录。",
@@ -20832,6 +20839,9 @@
       "body": "打开通知，手机待机时有新消息才会响，桌面图标才会显示数字。",
       "action": "打开通知"
     },
+    "enabled": {
+      "body": "通知已打开。可以发一条测试通知，看这支手机会不会响。"
+    },
     "denied": {
       "body": "通知被关掉了，有新消息不会响。请到手机「设置」→「通知」，允许本 App 的通知。"
     },
@@ -20842,6 +20852,17 @@
       "worker": "手机的后台服务还没准备好。请把 App 完全关掉再打开，再按一次。",
       "subscribe": "手机没有完成通知登记（苹果 / 谷歌没有回应）。请检查网络，把 App 关掉再打开，再按一次。",
       "server": "通知已在手机打开，但没有存到服务器。请检查网络，再按一次。"
+    }
+  },
+  "pushTest": {
+    "action": "发一条测试通知",
+    "sending": "正在发送测试通知…",
+    "sent": "已发出。几秒内这支手机应该响一声，屏幕上出现通知。",
+    "notSent": "没有发出：{reason}",
+    "advice": {
+      "ios": "请按「{button}」再试一次；还是不行，删掉手机上的 MSE Trace 图标，从 Safari 重新加到主屏幕。",
+      "android": "请按「{button}」再试一次；还是不行，删掉手机上的 MSE Trace 图标，用 Chrome 打开网站，点 ⋮ →「安装应用」重新安装。",
+      "other": "请按「{button}」再试一次；还是不行，请在浏览器设置里允许本网站的通知。"
     }
   },
   "passportCapture": {
