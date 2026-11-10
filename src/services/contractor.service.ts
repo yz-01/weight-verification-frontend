@@ -1059,7 +1059,22 @@ export interface ProjectPermissionsState {
   options: string[];
   can_grant: boolean;
   can_edit: boolean;
-  members: { id: string; full_name: string; role_name: string; role_code?: string; editable: boolean; on: string[] }[];
+  /**
+   * Everyone on the project's back-office team (JB147, 客户 11-10 事项 3) -
+   * the same people as 「项目人员名单」 but the phone. `kind`: a project user
+   * switched here, or a head-office (总部) account whose permissions are set in
+   * 「用户管理」 and only shown here. `editable`: switched on this page.
+   */
+  members: {
+    id: string;
+    full_name: string;
+    role_name: string;
+    role_code?: string;
+    kind: "project" | "head_office";
+    status: "ACTIVE" | "INVITED" | "SUSPENDED";
+    editable: boolean;
+    on: string[];
+  }[];
 }
 
 export function getProjectPermissions(id: string): Promise<ProjectPermissionsState> {

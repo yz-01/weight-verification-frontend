@@ -420,6 +420,9 @@ function ProjectResponsibilities({ projectId }: { projectId: string }) {
       void queryClient.invalidateQueries({
         queryKey: ["project-responsibilities", projectId],
       });
+      // JB147 (客户 11-10 事项 3): 「项目权限」 said nobody was on a project its 主要负责人
+      // ran - read it again after a 负责人 change rather than show an old list.
+      void queryClient.invalidateQueries({ queryKey: ["projects", "permissions", projectId] });
       setRemoving(null);
     },
   });
@@ -601,6 +604,9 @@ function ResponsibilityDialog({
       void queryClient.invalidateQueries({
         queryKey: ["project-responsibilities", projectId],
       });
+      // JB147 (客户 11-10 事项 3): 「项目权限」 said nobody was on a project its 主要负责人
+      // ran - read it again after a 负责人 change rather than show an old list.
+      void queryClient.invalidateQueries({ queryKey: ["projects", "permissions", projectId] });
       onClose();
     },
   });
@@ -723,6 +729,8 @@ function ProjectTeam({ projectId }: { projectId: string }) {
       void queryClient.invalidateQueries({
         queryKey: ["projects", "assignments", projectId],
       });
+      // JB147 (客户 11-10 事项 3): 「项目权限」 lists this team; refresh it with the team.
+      void queryClient.invalidateQueries({ queryKey: ["projects", "permissions", projectId] });
       setRemoving(null);
     },
   });
@@ -841,6 +849,8 @@ function AssignUserDialog({
       void queryClient.invalidateQueries({
         queryKey: ["projects", "assignments", projectId],
       });
+      // JB147 (客户 11-10 事项 3): 「项目权限」 lists this team; refresh it with the team.
+      void queryClient.invalidateQueries({ queryKey: ["projects", "permissions", projectId] });
       onClose();
     },
   });
