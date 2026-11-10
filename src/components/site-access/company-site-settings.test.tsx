@@ -90,8 +90,8 @@ function render() {
 const sectionIds = (html: string) => [...html.matchAll(/<section id="([^"]+)"/g)].map((match) => match[1]);
 
 describe("公司设置 (JB99)", () => {
-  it("is three blocks: 公司资料, 显示偏好, 分公司与总部", () => {
-    expect(sectionIds(render())).toEqual(["company-profile", "company-preferences", "company-branches"]);
+  it("is three blocks: 公司资料, 显示偏好, 分公司与总部 - and 公司资料's 正式文件样板预览 (JB162)", () => {
+    expect(sectionIds(render())).toEqual(["company-profile", "letterhead-preview", "company-preferences", "company-branches"]);
   });
 
   it("shows the company's own details, the emergency contact and the four preferences", () => {

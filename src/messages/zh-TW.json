@@ -16413,6 +16413,24 @@
         "close": "關閉",
         "confirm": "確認刪除（需簽核密碼）"
       }
+    },
+    "letterhead": {
+      "title": "正式文件樣板預覽",
+      "subtitle": "貴公司所有正式文件及 PDF 報表的抬頭：Logo 在左上角（寬 3–4 cm、高不超過 2 cm），右邊是公司正式名稱，名稱下方是地址、SSM 註冊號碼及聯絡方式。修改 Logo 或公司資料並按「保存公司資料」後，預覽會自動更新。",
+      "openPdf": "打開 PDF",
+      "detailsTitle": "公司正式資料",
+      "detailsWhat": "公司正式資料",
+      "detailsHint": "這些資料印在所有正式文件及 PDF 報表的抬頭，在上面的「公司資料」修改。未填寫的不會印出。",
+      "officialName": "公司正式名稱",
+      "ssm": "SSM 註冊號碼",
+      "address": "公司地址",
+      "phone": "聯絡電話",
+      "email": "Email",
+      "notFilled": "未填寫",
+      "previewAlt": "正式文件樣板（A4）第 1 頁",
+      "loading": "正在生成樣板……",
+      "caption": "A4 樣板：抬頭和實際匯出的 PDF 完全一樣，下面的內容只是示例。",
+      "pdfWhat": "樣板 PDF"
     }
   },
   "siteDisposal": {
