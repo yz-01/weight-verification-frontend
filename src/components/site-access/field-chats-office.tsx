@@ -108,8 +108,11 @@ export function FieldChatsOffice() {
         </ul>
         <div className="surface-panel min-h-64 rounded-xl p-4">
           {finding ? (
+            // The top bar's project, as the list beside it (JB159 K); a new
+            // project there starts the finder afresh.
             <OfficeFindPeople
-              defaultProject={project && project !== "all" ? project : undefined}
+              key={project || "all"}
+              project={project}
               onBack={() => setFinding(false)}
               onStarted={(id) => {
                 setFinding(false);

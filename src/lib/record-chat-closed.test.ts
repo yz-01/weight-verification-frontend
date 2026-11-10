@@ -44,6 +44,18 @@ describe("which line replaces the composer", () => {
     expect(zh.recordChat.closedRejected).toBe("已判不合格或已驳回，聊天室已关闭。记录仍可查看。");
   });
 
+  it("head office in a phone conversation has its own reason (JB159)", () => {
+    // Shot c02: head office IS a member, yet the note said 「没有在里面」.
+    expect(conversationClosedLine("head_office")).toBe("recordChat.closedHeadOffice");
+    expect(zh.recordChat.closedHeadOffice).toBe("总部只能查看有手机人员在里面的沟通，不能在这里发送。");
+    // Somebody who is not in it keeps the old sentence.
+    expect(conversationClosedLine("readonly")).toBe("recordChat.closedReadonly");
+    for (const catalogue of [en, zhTW, ms]) {
+      expect(catalogue.recordChat.closedHeadOffice).toBeTruthy();
+      expect(catalogue.recordChat.closedHeadOffice).not.toBe(catalogue.recordChat.closedReadonly);
+    }
+  });
+
   it("still closes for a reason this screen does not know yet", () => {
     expect(conversationClosedLine("something-new")).toBe("recordChat.closedArchived");
   });
@@ -66,6 +78,14 @@ describe("the panel", () => {
     // The chat layout (JB127, the phone's 沟通) is the second: the same rule.
     expect(panel.match(/<ConversationComposer/g)).toHaveLength(2);
     expect(panel.match(/\{closedLine \? \(/g)).toHaveLength(2);
+  });
+
+  it("says nothing about a draft where nothing can be typed (JB159)", () => {
+    // 「你填写的内容会保存在这台设备上。」 stood above a read-only conversation.
+    expect(panel).toMatch(/const noComposer = Boolean\(conversationClosedLine\(conversation\.data\?\.closed, kind\)\)/);
+    expect(panel).toMatch(/<FieldDraft scope=\{`record-conversation:\$\{kind\}:\$\{recordId\}`\} fill=\{chat\} quiet=\{noComposer\}>/);
+    const draft = read("src/components/field-staff/field-draft.tsx");
+    expect(draft).toContain("const box = !quiet && (!fill || troubled) && (");
   });
 
   it("refetches when a send is refused because somebody else closed it", () => {

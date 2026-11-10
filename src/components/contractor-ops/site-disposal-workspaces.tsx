@@ -42,7 +42,7 @@ import { ExportButton } from "@/components/shared/export-button";
 import { SupplierPicker } from "@/components/shared/supplier-picker";
 import { SupplierDateFilter } from "@/components/shared/supplier-date-filter";
 import { QuickAddSupplierButton } from "@/components/suppliers/quick-add-supplier";
-import { photoColumn, rowPhotos } from "@/components/shared/photo-thumb";
+import { photoColumn, rowPhotos, type CoveredRow } from "@/components/shared/photo-thumb";
 import { RecordNo } from "@/components/shared/record-no";
 import { FieldCamera } from "@/components/shared/field-camera";
 import {
@@ -158,6 +158,20 @@ function statusTone(status: DisposalRequestStatus): "neutral" | "positive" | "wa
   return "neutral";
 }
 
+/**
+ * What the phone files as a disposal's 工地位置: it takes the GPS fix, not a
+ * typed place. Stored as these words on every job filed from a phone, old and
+ * new, so they are worded where they are shown - 「GPS captured site location」
+ * stood on Chinese screens and in both PDFs (JB159; the server words its own
+ * PDFs, ``contractor_ops/pdf_words.site_location``).
+ */
+export const GPS_SITE_LOCATION = "GPS captured site location";
+
+/** A disposal's 工地位置 as the reader reads it. */
+export function siteLocationText(value: string, gpsWords: string): string {
+  return value === GPS_SITE_LOCATION ? gpsWords : value;
+}
+
 export function SiteDisposalWorkspace({ initialProject = "", fieldTaskId, onRecordSaved }: { initialProject?: string; fieldTaskId?: string; onRecordSaved?: () => void } = {}) {
   const t = useTranslations("siteDisposal");
   const { can } = useAuth();
@@ -244,7 +258,7 @@ export function SiteDisposalWorkspace({ initialProject = "", fieldTaskId, onReco
                     </p>
                   ))}
                   <h3 className="mt-1 truncate font-semibold">{row.waste_description}</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">{row.project_name} / {row.location_description}</p>
+                  <p className="mt-1 text-sm text-muted-foreground">{row.project_name} / {siteLocationText(row.location_description, t("gpsSiteLocation"))}</p>
                 </div>
               </div>
               <div className="mt-4 grid grid-cols-2 gap-3 border-y border-panel-border py-3 text-sm">
@@ -319,7 +333,7 @@ function CreateDisposalDialog({ initialProject = "", fieldTaskId, onClose, onSav
       return submitDisposalRequestOfflineAware(user.id, {
         project,
         waste_description: description,
-        location_description: isFieldStaff ? "GPS captured site location" : locationDescription,
+        location_description: isFieldStaff ? GPS_SITE_LOCATION : locationDescription,
         estimated_volume_m3: isFieldStaff ? "" : volume,
         estimated_weight_kg: isFieldStaff ? "" : weight,
         preferred_at: !isFieldStaff && preferred ? new Date(preferred).toISOString() : undefined,
@@ -698,6 +712,7 @@ function SiteEvidenceDialog({ row, onClose, onSaved }: { row: DisposalRequest; o
                 label={t(kind === "VEHICLE_EXIT" ? "siteEvidence.vehicleExit" : "siteEvidence.gatePass")}
                 fileCount={taken.length}
                 file={taken[taken.length - 1]?.file}
+                adds
                 disabled={full}
                 onCapture={(file) => setShots((current) => (current.length >= DISPOSAL_PHOTO_MAX ? current : [...current, { file, kind }]))}
                 onClear={() => setShots((current) => current.filter((shot) => shot.kind !== kind))}
@@ -827,6 +842,7 @@ function AnomalyDialog({ row, onClose, onSaved }: { row: DisposalRequest; onClos
               label={t("anomaly.photos")}
               fileCount={photos.length}
               file={photos[photos.length - 1]}
+              adds
               onCapture={(file) => setPhotos((current) => [...current, file])}
               onClear={() => setPhotos([])}
             />
@@ -1274,7 +1290,7 @@ function DisposalDetailDialog({
         facts={[
           { label: t("field.status"), value: <StatusBadge label={t(`status.${row.status}`)} tone={statusTone(row.status)} /> },
           { label: t("field.project"), value: row.project_name },
-          { label: t("field.siteLocation"), value: row.location_description },
+          { label: t("field.siteLocation"), value: siteLocationText(row.location_description, t("gpsSiteLocation")) },
           { label: t("field.preferredAt"), value: row.preferred_at ? df.dateTime(row.preferred_at) : "—" },
           { label: t("field.requestedBy"), value: row.requested_by_name || "—" },
           // 「执行人」 became 「供应商」, with the lorries beside it (I27).
@@ -1554,7 +1570,9 @@ export function SiteDisposalOffice() {
         accessorKey: "location_description",
         meta: { label: t("field.siteLocation") },
         header: () => <PlainHeader label={t("field.siteLocation")} />,
-        cell: ({ row }) => <span className="block max-w-45 truncate">{row.original.location_description}</span>,
+        cell: ({ row }) => (
+          <span className="block max-w-45 truncate">{siteLocationText(row.original.location_description, t("gpsSiteLocation"))}</span>
+        ),
       },
       {
         accessorKey: "preferred_at",
@@ -1674,7 +1692,11 @@ export function SiteDisposalOffice() {
                         values: Object.fromEntries(DISPOSAL_STATES.map((state) => [state, t(`status.${state}`)])),
                       },
                       { key: "waste_description", label: t("field.waste") },
-                      { key: "location_description", label: t("field.siteLocation") },
+                      {
+                        key: "location_description",
+                        label: t("field.siteLocation"),
+                        values: { [GPS_SITE_LOCATION]: t("gpsSiteLocation") },
+                      },
                       { key: "preferred_at", label: t("field.preferredAt") },
                       { key: "requested_by_name", label: t("field.requestedBy") },
                       { key: "created_at", label: t("field.createdAt") },
@@ -1791,8 +1813,30 @@ function abnormalViewColumns(
         const reported = (row.anomalies ?? []).flatMap((anomaly) => anomaly.evidence);
         return rowPhotos(reported.length ? reported : row.evidence, row.reference_no);
       },
+      cover: anomalyPhotoStrip,
     }),
   ];
+}
+
+/**
+ * The strip the 「异常记录」 photo cell draws: the reports' own photographs.
+ * It drew the job's strip - all five of a job's photographs for a report of
+ * two (JB159, shot a02; JB149 「异常记录保留……」). A job that is only late
+ * keeps its own.
+ */
+export function anomalyPhotoStrip(
+  row: Pick<DisposalRequest, "anomalies"> & CoveredRow,
+): CoveredRow {
+  const reports = row.anomalies ?? [];
+  const count = reports.reduce((sum, anomaly) => sum + anomaly.evidence.length, 0);
+  if (!count) return row;
+  // The server's small thumbnails; from an older server, the stamped copies.
+  const thumbs = reports.flatMap((anomaly) =>
+    anomaly.photo_thumbs?.length
+      ? anomaly.photo_thumbs
+      : anomaly.evidence.map((photo) => photo.watermarked || photo.image).filter((url): url is string => Boolean(url)),
+  );
+  return { photo_thumbs: thumbs, cover_photo_url: thumbs[0] ?? null, photo_count: count };
 }
 
 /** The 「异常记录」 file's columns: the view's, one row per report (JB149). */
@@ -1912,6 +1956,7 @@ function useLinkErrorText() {
 
 export function ExternalDisposalWorkspace({ token }: { token: string }) {
   const t = useTranslations("siteDisposal.external");
+  const site = useTranslations("siteDisposal");
   const tTrips = useTranslations("siteDisposal.trips");
   const reasonText = useLinkErrorText();
   const qc = useQueryClient();
@@ -1992,7 +2037,7 @@ export function ExternalDisposalWorkspace({ token }: { token: string }) {
           <div className="min-w-0">
             <h2 className="break-words font-semibold">{current.waste_description}</h2>
             <p className="mt-1 text-sm text-muted-foreground">{current.project_name}</p>
-            <p className="text-sm text-muted-foreground">{current.location_description}</p>
+            <p className="text-sm text-muted-foreground">{siteLocationText(current.location_description, site("gpsSiteLocation"))}</p>
           </div>
         </div>
         <div className="mt-4 flex flex-wrap items-center gap-2">
@@ -2067,6 +2112,7 @@ export function ExternalDisposalWorkspace({ token }: { token: string }) {
 
 export function InternalDisposalWorkspace({ disposalId, onSubmitted }: { disposalId: string; onSubmitted: () => void }) {
   const t = useTranslations("siteDisposal.internal");
+  const site = useTranslations("siteDisposal");
   const tTrips = useTranslations("siteDisposal.trips");
   const qc = useQueryClient();
   const [error, setError] = useState("");
@@ -2155,7 +2201,7 @@ export function InternalDisposalWorkspace({ disposalId, onSubmitted }: { disposa
 
   return <div className="flex flex-col gap-4">
     <section className="surface-panel rounded-xl p-4">
-      <div className="flex items-start gap-3"><span className="grid size-12 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary"><Truck /></span><div className="min-w-0"><p className="font-mono text-xs text-muted-foreground">{current.reference_no}</p><h2 className="mt-1 text-lg font-semibold">{current.waste_description}</h2><p className="mt-1 text-sm text-muted-foreground">{current.project_name} / {current.location_description}</p></div></div>
+      <div className="flex items-start gap-3"><span className="grid size-12 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary"><Truck /></span><div className="min-w-0"><p className="font-mono text-xs text-muted-foreground">{current.reference_no}</p><h2 className="mt-1 text-lg font-semibold">{current.waste_description}</h2><p className="mt-1 text-sm text-muted-foreground">{current.project_name} / {siteLocationText(current.location_description, site("gpsSiteLocation"))}</p></div></div>
       <div className="mt-4 flex flex-wrap items-center gap-2"><StatusBadge label={t(`status.${current.status}`)} tone={statusTone(current.status)} />{load.total > 0 && <span className="text-sm text-muted-foreground">{tTrips("sentProgress", { sent: load.sent, total: load.total })}</span>}</div>
     </section>
     {error && <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">{error}</div>}

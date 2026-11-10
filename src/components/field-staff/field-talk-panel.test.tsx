@@ -3,6 +3,7 @@
  * am in, newest first, with what is unread; 「找人沟通」; a notice's
  * `?chat=DIRECT:<id>` opens that conversation in the chat every record uses.
  */
+import { readFileSync } from "node:fs";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 const nav = vi.hoisted(() => ({ search: "tab=talk" }));
@@ -27,7 +28,7 @@ vi.mock("@/components/site-operations/hazard-conversation", () => ({
 }));
 
 const { renderDetail } = await import("@/components/shared/record-detail-test-kit");
-const { FieldTalkPanel } = await import("@/components/field-staff/field-talk-panel");
+const { FieldTalkPanel, FindPeople } = await import("@/components/field-staff/field-talk-panel");
 const { parseTalkParam, previewKey } = await import("@/lib/field-talk");
 const { FIELD_CONVERSATIONS_KEY } = await import("@/services/field-conversations.service");
 const zh = (await import("@/messages/zh.json")).default;
@@ -134,6 +135,33 @@ describe("沟通 (JB104)", () => {
     expect(previewKey(preview({ photo: true }))).toBe("photo");
     expect(previewKey(preview({ audio: true }))).toBe("voice");
     expect(previewKey(preview({ attachment: true }))).toBe("file");
+  });
+
+  it("找人沟通 on a project with nobody to reach says why and who can fix it (JB159 J)", () => {
+    // 客户 11-10 (PUTRA_MAS): the team held only the phone person and head
+    // office, which the phone never lists (JB157) - the screen said only
+    // 「找不到人。」 beside a grey 开始沟通.
+    const seedPeople = (people: unknown[]) => (client: import("@tanstack/react-query").QueryClient) => {
+      client.setQueryData(["field-conversations", "projects"], [{ id: "p-1", code: "PM", name: "PUTRA_MAS" }]);
+      client.setQueryData(["field-conversations", "people", "p-1"], people);
+    };
+    const empty = renderDetail(<FindPeople onBack={() => {}} onStarted={() => {}} />, seedPeople([]));
+    expect(empty).toContain(zh.fieldStaffPwa.talk.noPeopleOnProject);
+    expect(zh.fieldStaffPwa.talk.noPeopleOnProject).toBe(
+      "这个项目还没有别的人可以找：项目人员名单里还没有项目后台人员。请办公室在这个项目的「项目人员名单」加项目经理或项目后台人员。",
+    );
+    expect(empty).not.toContain(zh.fieldStaffPwa.talk.noPeople);
+    // With people there, the list shows them; 「找不到人。」 stays for a search
+    // that found nobody.
+    const listed = renderDetail(
+      <FindPeople onBack={() => {}} onStarted={() => {}} />,
+      seedPeople([{ id: "u-pm", full_name: "项目经理", phone_role: "office", same_project: true, avatar: null }]),
+    );
+    expect(listed).toContain("项目经理");
+    expect(listed).not.toContain(zh.fieldStaffPwa.talk.noPeopleOnProject);
+    expect(zh.fieldStaffPwa.talk.noPeople).toBe("找不到人。");
+    const panel = readFileSync(new URL("./field-talk-panel.tsx", import.meta.url), "utf8");
+    expect(panel).toMatch(/\{search\.trim\(\) \? t\("noPeople"\) : t\("noPeopleOnProject"\)\}/);
   });
 
   it("has its words in all four languages", () => {

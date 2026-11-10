@@ -24,7 +24,7 @@ vi.mock("@/components/providers/auth-provider", () => ({
   useAuth: () => ({ user: null, can: () => true }),
 }));
 
-const { ANOMALY_PHOTO_MIN, DisposalAnomaliesPanel, anomalyEntries, anomalyReady, anomalyTrips, disposalPhotoGroups } =
+const { ANOMALY_PHOTO_MIN, DisposalAnomaliesPanel, anomalyEntries, anomalyPhotoStrip, anomalyReady, anomalyTrips, disposalPhotoGroups } =
   await import("@/components/contractor-ops/site-disposal-workspaces");
 const { clearanceTabHref } = await import("@/lib/waste-clearance-figures");
 
@@ -182,6 +182,29 @@ describe("「异常记录」 (补充 第 1 点)", () => {
     expect(entries.map((entry) => entry.kind)).toEqual(["VEHICLE", "OTHER", "OVERDUE"]);
   });
 
+  it("shows each report's own photographs in the photo cell, not the job's (JB159, shot a02)", () => {
+    // The job holds five photographs - the report's two among them - and its
+    // strip is the job's; the cell drew that strip (3 squares and 「+2」).
+    const job = {
+      photo_count: 5,
+      photo_thumbs: ["job-1", "job-2", "job-3", "job-4"],
+      cover_photo_url: "job-1",
+    };
+    const reported = anomalyPhotoStrip(
+      row({ ...job, anomalies: [{ ...vehicle, photo_thumbs: ["thumb-p1", "thumb-p2"] }] }),
+    );
+    expect(reported).toEqual({ photo_thumbs: ["thumb-p1", "thumb-p2"], cover_photo_url: "thumb-p1", photo_count: 2 });
+    // From a server without the reports' thumbnails: their stamped copies.
+    expect(anomalyPhotoStrip(row({ ...job, anomalies: [vehicle] })).photo_thumbs).toEqual([
+      "https://files.test/p1-wm.jpg",
+      "https://files.test/p2-wm.jpg",
+    ]);
+    // A job that is only late keeps its own strip.
+    expect(anomalyPhotoStrip(row({ ...job, disposal_evidence_is_overdue: true }))).toMatchObject(job);
+    const source = readFileSync(path.join(process.cwd(), "src/components/contractor-ops/site-disposal-workspaces.tsx"), "utf8");
+    expect(source).toContain("cover: anomalyPhotoStrip,");
+  });
+
   it("filters the list and the file on the server, and words both", () => {
     const source = readFileSync(path.join(process.cwd(), "src/components/contractor-ops/site-disposal-workspaces.tsx"), "utf8");
     expect(source).toContain('useListQuery(["project", "status", "counted", "abnormal"');
@@ -194,6 +217,14 @@ describe("「异常记录」 (补充 第 1 点)", () => {
     expect(source).toMatch(/key: "is_abnormal", label: t\("field\.isAbnormal"\), values: \{ true: t\("overdue\.badge"\)/);
     expect(source).toContain('key: "anomaly_text"');
     expect(source).toContain("rowClassName={(row) => (row.is_abnormal");
+  });
+});
+
+describe("the photo tile (JB159)", () => {
+  it("says a tap adds a photo, since it does - for the report and the site photos", () => {
+    const source = readFileSync(path.join(process.cwd(), "src/components/contractor-ops/site-disposal-workspaces.tsx"), "utf8");
+    expect(source).toMatch(/file=\{photos\[photos\.length - 1\]\}\s*adds\s*onCapture=\{\(file\) => setPhotos\(\(current\) => \[\.\.\.current, file\]\)\}/);
+    expect(source).toMatch(/file=\{taken\[taken\.length - 1\]\?\.file\}\s*adds\s/);
   });
 });
 

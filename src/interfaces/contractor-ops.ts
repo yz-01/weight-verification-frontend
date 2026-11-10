@@ -976,6 +976,8 @@ export interface DisposalAnomaly {
   latitude: string | null;
   longitude: string | null;
   evidence: DisposalEvidence[];
+  /** The report's photographs as list thumbnails (JB159), for the 「异常记录」 strip. */
+  photo_thumbs?: string[];
 }
 
 /** 原工地清运's own figures (D06). */
@@ -1059,6 +1061,8 @@ export interface DisposalRequest extends RecordedBy {
   needs_action?: boolean;
   /** The first photograph's watermarked thumbnail, or null (E3). */
   cover_photo_url?: string | null;
+  /** J34-2: the first photographs' thumbnails, cover first. */
+  photo_thumbs?: string[] | null;
   /** How many photographs the record has (E3). */
   photo_count?: number;
   id: string;
