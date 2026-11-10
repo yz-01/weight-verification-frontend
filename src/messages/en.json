@@ -6580,7 +6580,8 @@
       "chooseSpec": "Choose the specification",
       "specOptionalHint": "Not sure of the specification? Leave it - the office will fill it in.",
       "specName": "Specification name",
-      "materialName": "Material name"
+      "materialName": "Material name",
+      "materialNameHint": "Not sure? Leave it - the office will fill it in."
     },
     "outgoingStatus": {
       "APPROVED": "Approved / waiting to leave site",
@@ -9280,7 +9281,8 @@
       "submit": "Submit",
       "takePhoto": "Take photo",
       "workLocation": "Work area / grid line",
-      "workLocationPlaceholder": "Example: Block A, Grid C1-D1"
+      "workLocationPlaceholder": "Example: Block A, Grid C1-D1",
+      "askForHint": "Not sure which? Leave it - the office will decide."
     },
     "consultantTasks": {
       "title": "Consultant photo submissions"
@@ -9438,7 +9440,7 @@
       "specOptionalHint": "Not sure of the specification? Leave it - the office will fill it in.",
       "autoFilledFromSpec": "From the specification",
       "otherName": "Material name",
-      "otherNameHint": "Not on the list? Choose 「其他材料」 and type the name here; the office adds it to the list."
+      "otherNameHint": "Not on the list? Choose 「其他材料」 and type the name here. Not sure? Leave it - the office will fill it in."
     },
     "materialEvidence": {
       "arrival": "1. Arriving vehicle",
@@ -16572,7 +16574,8 @@
         "note": "Work note",
         "weight": "Actual weight (kg)",
         "vehiclePlate": "Lorry plate",
-        "vehiclePlateHint": "Optional: the plate of the lorry taking this load"
+        "vehiclePlateHint": "Optional: the plate of the lorry taking this load",
+        "doNoHint": "Not sure? Leave it - the office will fill it in."
       },
       "invalid": "This disposal task could not be opened. Refresh My Tasks and try again.",
       "photosBody": "Photograph each load at the licensed disposal place. Up to 4 photos per load, any kind; at least 1 to send. The office then checks the load.",
@@ -17959,7 +17962,8 @@
       "vehiclePlate": "Vehicle plate",
       "collectionAt": "Wanted collection time",
       "collectionAtHint": "When you want the lorry to come. The recycler can propose a different time, which you then confirm.",
-      "otherName": "What it is"
+      "otherName": "What it is",
+      "otherNameHint": "Not sure? Leave it - the office will fill it in."
     },
     "filter": {
       "allCategories": "All categories",
@@ -18672,7 +18676,8 @@
       "submitToOption": {
         "PROJECT": "Project manager",
         "HQ": "Head office"
-      }
+      },
+      "descriptionHint": "You may leave it - the office will fill it in from the receipt."
     },
     "submitTo": {
       "PROJECT": "Project manager",
@@ -18980,16 +18985,16 @@
       "goToCategories": "Go to Category Management",
       "askToSetUp": "Ask someone in the office who manages categories to set it up.",
       "materialData": "Material data",
-      "otherSpecHint": "「Other」 chosen: type the specification and choose its unit.",
+      "otherSpecHint": "「Other」 chosen: type the specification if you know it (otherwise the office fills it in), and choose its unit.",
       "unitFromSpec": "The unit comes with the specification and cannot be changed.",
       "unitAfterSpec": "Filled in once a specification is chosen",
-      "subjectHint": "What is asked for, in a line - for example: two cranes, one site office.",
+      "subjectHint": "What is asked for, in a line - for example: two cranes, one site office. Left blank, the request type's name is used; the office can change it.",
       "contentOrFile": "Write the details or attach a file - at least one of the two.",
       "contentPlaceholder": "What is needed, how many, when",
       "attachmentKindsHint": "Photos, PDF, Word, Excel, PowerPoint, CSV, TXT, DWG or ZIP. Up to {count} files, each under {limit} MB.",
       "fileKindRefused": "{name} cannot be attached. Attach photos, PDF, Word, Excel, PowerPoint, CSV, TXT, DWG or ZIP.",
       "assignedReviewerManagerHint": "A site request goes to the project manager first, who sends it on to head office.",
-      "otherMaterialHint": "「其他材料」: type what the material is."
+      "otherMaterialHint": "「其他材料」: type what the material is if you know it. Not sure? Leave it - the office will fill it in."
     },
     "toast": {
       "submitted": "Request submitted.",
