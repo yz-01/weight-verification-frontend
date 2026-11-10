@@ -28,7 +28,7 @@ import type {
 } from "@/interfaces/site-access";
 import type { CompanyBankAccount, CompanyBankAccountPayload } from "@/interfaces/company";
 import type { GateUpload, WallRecord } from "@/lib/gate-photo-wall";
-import { api, download, toastSuccess } from "@/services/api-client";
+import { api, download, fetchObjectUrl, toastSuccess } from "@/services/api-client";
 import {
   exportBody,
   exportQuery,
@@ -82,6 +82,18 @@ export const getContractorCompanyProfile = () =>
   api.get<ContractorCompanyProfile>(
     "/api/contractor-site-settings/get_company_profile/",
   );
+
+/**
+ * 「正式文件样板预览」 (JB162, 客户 11-10 第十一批 第 6 点): an A4 sample headed by
+ * the company's own letterhead, drawn by the same code as every exported PDF.
+ * `png` is page 1 as a picture for the settings page, `pdf` the file itself.
+ * Only ever the caller's own company. The caller revokes the URL.
+ */
+export const letterheadPreviewObjectUrl = (output: "png" | "pdf", language: string) =>
+  fetchObjectUrl("/api/contractor-site-settings/get_letterhead_preview/", {
+    query: { output, language },
+    silent: true,
+  });
 
 export const getSiteLocationPolicy = () =>
   api.get<SiteLocationPolicy>("/api/contractor-site-settings/get_location_policy/");

@@ -16419,6 +16419,24 @@
         "close": "Close",
         "confirm": "Remove (sign-off PIN)"
       }
+    },
+    "letterhead": {
+      "title": "Formal document preview",
+      "subtitle": "The header of every formal document and PDF report of your company: your logo top left (3–4 cm wide, at most 2 cm high), your official company name to its right, and your address, SSM number and contact under the name. After you change the logo or the details and press \"Save company profile\", the preview updates by itself.",
+      "openPdf": "Open PDF",
+      "detailsTitle": "Official company details",
+      "detailsWhat": "The official company details",
+      "detailsHint": "These details are printed in the header of every formal document and PDF report. Change them under \"Company profile\" above. A detail left empty is not printed.",
+      "officialName": "Official company name",
+      "ssm": "SSM registration no.",
+      "address": "Company address",
+      "phone": "Contact phone",
+      "email": "Email",
+      "notFilled": "Not filled in",
+      "previewAlt": "Formal document sample (A4), page 1",
+      "loading": "Preparing the sample…",
+      "caption": "A4 sample: the header is exactly as on your exported PDFs; the content under it is only an example.",
+      "pdfWhat": "The sample PDF"
     }
   },
   "siteDisposal": {

@@ -16419,6 +16419,24 @@
         "close": "Tutup",
         "confirm": "Buang (PIN pengesahan)"
       }
+    },
+    "letterhead": {
+      "title": "Pratonton dokumen rasmi",
+      "subtitle": "Kepala setiap dokumen rasmi dan laporan PDF syarikat anda: logo di kiri atas (lebar 3–4 cm, tinggi tidak melebihi 2 cm), nama rasmi syarikat di sebelah kanannya, dan alamat, nombor SSM serta maklumat hubungan di bawah nama. Selepas anda menukar logo atau maklumat dan menekan \"Simpan profil syarikat\", pratonton dikemas kini sendiri.",
+      "openPdf": "Buka PDF",
+      "detailsTitle": "Maklumat rasmi syarikat",
+      "detailsWhat": "Maklumat rasmi syarikat",
+      "detailsHint": "Maklumat ini dicetak pada kepala setiap dokumen rasmi dan laporan PDF. Tukar di \"Profil syarikat\" di atas. Maklumat yang kosong tidak dicetak.",
+      "officialName": "Nama rasmi syarikat",
+      "ssm": "No. pendaftaran SSM",
+      "address": "Alamat syarikat",
+      "phone": "Telefon hubungan",
+      "email": "E-mel",
+      "notFilled": "Belum diisi",
+      "previewAlt": "Contoh dokumen rasmi (A4), halaman 1",
+      "loading": "Menyediakan contoh…",
+      "caption": "Contoh A4: kepala sama seperti PDF yang dieksport; kandungan di bawahnya hanya contoh.",
+      "pdfWhat": "PDF contoh"
     }
   },
   "siteDisposal": {

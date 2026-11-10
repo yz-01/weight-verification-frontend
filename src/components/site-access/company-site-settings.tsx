@@ -13,6 +13,10 @@
  * - 显示偏好: language, date and time format, timezone - four drop-downs;
  * - 分公司与总部: 「属于建筑商自己的资料，应该保留」.
  *
+ * Between 公司资料 and 显示偏好, 「正式文件样板预览」 (JB162, its own file
+ * `letterhead-preview.tsx`): the official details and an A4 sample of the
+ * header every formal document prints, updated by 公司资料's save.
+ *
  * Everything else that lived here is MSE's now (默认权限、二维码规则、通知规则、
  * GPS、系统安全、归档、照片及记录保存) and is set on the platform's company page
  * (`CompanyLockedSettingsPanel`); the backend refuses a contractor's write of one.
@@ -28,6 +32,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { FieldWrapper, ListHeader, StatusBadge } from "@/components/shared/page-primitives";
+import { LetterheadPreviewSection } from "@/components/site-access/letterhead-preview";
 import { ChoiceField, ErrorBanner, SectionTitle, State, Toggle } from "@/components/site-access/settings-fields";
 import { Button } from "@/components/ui/button";
 import {
@@ -218,6 +223,9 @@ export function CompanySiteSettingsWorkspace() {
         </div>
       </div>
     </section>
+
+    {/* 「正式文件样板预览」 (JB162): the details and the A4 sample, refreshed by the save above. */}
+    <LetterheadPreviewSection />
 
     <section id="company-preferences" className="scroll-mt-20 space-y-4 rounded-xl">
       <SectionTitle icon={Globe2} title={t("preferences.title")} description={t("preferences.subtitle")} action={canManage ? <Button disabled={savePreferences.isPending} onClick={() => savePreferences.mutate(pickSettings(form, PREFERENCE_SETTINGS))}><Save />{t("action.saveSettings")}</Button> : undefined} />
