@@ -48,6 +48,7 @@ import type { NotificationRow } from "@/interfaces/platform-ops";
 import { useDateFormat } from "@/lib/dates";
 import { officeNoticeHref } from "@/lib/office-notification";
 import { useRoleLabel } from "@/lib/role-labels";
+import { contactOf } from "@/lib/team-contact";
 import {
   getProjectAssignments,
   getProjects,
@@ -646,7 +647,11 @@ export function ProjectNotificationDialog({
                     />
                     <span className="min-w-0">
                       <span className="block truncate text-sm font-medium">{row.user_name}</span>
-                      <span className="block truncate text-xs text-muted-foreground">{row.user_email}</span>
+                      {/* A phone account by its number, never its placeholder
+                          field+…@mse.invalid (JB159). */}
+                      {contactOf(row) ? (
+                        <span className="block truncate text-xs text-muted-foreground">{contactOf(row)}</span>
+                      ) : null}
                       <span className="block truncate text-xs text-muted-foreground">{roleOf(null, row.role_name)}</span>
                     </span>
                   </label>

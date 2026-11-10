@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { ApiError } from "@/interfaces/api";
 import {
   FIELD_ACCOUNT_REMOVED,
+  bootstrapRefusalKeepsIcon,
   getFieldBootstrapToken,
   hasFieldSession,
   isStandaloneApp,
@@ -55,7 +56,8 @@ export function FieldPwaBootstrap({
   const [error, setError] = useState(() =>
     token ? "" : t("desktopExpired"),
   );
-  // Why: "no-token", or "refused:" + the server's code (shown and logged).
+  // Why: "no-token", or "refused:" + the server's code (a data attribute and
+  // the server log, never the words - JB159).
   const [failure, setFailure] = useState<string | null>(() =>
     token ? null : "no-token",
   );
@@ -132,14 +134,21 @@ export function FieldPwaBootstrap({
   // A deleted account's icon (JB154): the PIN screen behind 「登录」 cannot
   // bring it back - the message says to use the new link and a new icon.
   const accountRemoved = failure === `refused:${FIELD_ACCOUNT_REMOVED}`;
+  // JB159: 停用, or a spent link - the icon itself is fine, so no 「这个主屏幕
+  // 图标还没绑定」 box telling the worker to delete it. The code stays on the
+  // page as a data attribute, never in the words.
+  const iconIsFine = bootstrapRefusalKeepsIcon(failure);
 
   return (
-    <main className="flex min-h-dvh flex-col items-center justify-center gap-4 px-4 text-center">
+    <main
+      className="flex min-h-dvh flex-col items-center justify-center gap-4 px-4 text-center"
+      data-refusal={failure ?? undefined}
+    >
       <Smartphone className="size-12 text-destructive" />
       <h1 className="text-xl font-bold leading-tight">{t("desktopExpiredTitle")}</h1>
       <p className="max-w-sm text-sm text-muted-foreground">{error}</p>
       <div className="w-full max-w-sm text-left">
-        {reason && (
+        {reason && !iconIsFine && (
           <FieldUnboundHelp
             reason={reason}
             code={failure ?? undefined}

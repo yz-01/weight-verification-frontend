@@ -16,14 +16,18 @@ const noDraft = () => {};
  * `fill`: a full-height chat (JB127). The status line only shows when
  * something is wrong, and the content takes the rest of the height so the
  * message box stays on screen.
+ *
+ * `quiet`: nothing here can be typed (a read-only conversation, JB159), so the
+ * line 「你填写的内容会保存在这台设备上。」 and the rest of the draft box are not
+ * shown.
  */
-export function FieldDraft({ scope, children, fill = false }: { scope: string; children: React.ReactNode; fill?: boolean }) {
+export function FieldDraft({ scope, children, fill = false, quiet = false }: { scope: string; children: React.ReactNode; fill?: boolean; quiet?: boolean }) {
   const { user } = useAuth();
   if (!user) return null;
-  return <DraftBoundary key={formDraftKey(user.company, user.id, scope)} id={formDraftKey(user.company, user.id, scope)} fill={fill}>{children}</DraftBoundary>;
+  return <DraftBoundary key={formDraftKey(user.company, user.id, scope)} id={formDraftKey(user.company, user.id, scope)} fill={fill} quiet={quiet}>{children}</DraftBoundary>;
 }
 
-function DraftBoundary({ id, children, fill }: { id: string; children: React.ReactNode; fill: boolean }) {
+function DraftBoundary({ id, children, fill, quiet }: { id: string; children: React.ReactNode; fill: boolean; quiet: boolean }) {
   const t = useTranslations("fieldDraft");
   const store = useMemo(() => getFormDraftStore(id), [id]);
   const snapshot = useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot);
@@ -41,7 +45,7 @@ function DraftBoundary({ id, children, fill }: { id: string; children: React.Rea
     return () => window.removeEventListener("beforeunload", warn);
   }, [store]);
   const troubled = snapshot.status === "error" || snapshot.missingAttachments.length > 0;
-  const box = (!fill || troubled) && (
+  const box = !quiet && (!fill || troubled) && (
     <div className={fill ? "m-3 mb-0 shrink-0 rounded-lg border bg-muted/30 px-3 py-2 text-xs" : "mb-3 rounded-lg border bg-muted/30 px-3 py-2 text-xs"} data-draft-status={snapshot.status}>
       <p role={snapshot.status === "error" ? "alert" : "status"}>{t(snapshot.status)}</p>
       {snapshot.status === "error" && <Button type="button" variant="outline" size="sm" className="mt-2" onClick={store.retry}>{t("retry")}</Button>}

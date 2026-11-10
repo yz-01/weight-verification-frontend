@@ -62,10 +62,19 @@ export function RecordConversationPanel({
    */
   chat?: boolean;
 }) {
+  // JB159: with no message box (read only, closed) there is nothing to keep,
+  // so the draft's 「你填写的内容会保存在这台设备上。」 is not said. The same
+  // query the conversation below reads; it says when that failed.
+  // query-failure: the conversation below answers for it; this only hides the draft line
+  const conversation = useQuery({
+    queryKey: recordConversationKey(kind, recordId),
+    queryFn: () => getRecordConversation(kind, recordId),
+  });
+  const noComposer = Boolean(conversationClosedLine(conversation.data?.closed, kind));
   return (
     // The draft scope is per record, so a half-typed question on one delivery
     // is not offered back on the next one.
-    <FieldDraft scope={`record-conversation:${kind}:${recordId}`} fill={chat}>
+    <FieldDraft scope={`record-conversation:${kind}:${recordId}`} fill={chat} quiet={noComposer}>
       <RecordConversationContent kind={kind} recordId={recordId} labels={labels} chat={chat} />
     </FieldDraft>
   );

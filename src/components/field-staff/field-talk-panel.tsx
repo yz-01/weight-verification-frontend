@@ -253,7 +253,7 @@ function TalkRoom({
   );
 }
 
-function FindPeople({ onBack, onStarted }: { onBack: () => void; onStarted: (id: string) => void }) {
+export function FindPeople({ onBack, onStarted }: { onBack: () => void; onStarted: (id: string) => void }) {
   const t = useTranslations("fieldStaffPwa.talk");
   const back = useTranslations("fieldStaffPwa.action");
   const roleName = useTranslations("roles.system_");
@@ -388,7 +388,13 @@ function FindPeople({ onBack, onStarted }: { onBack: () => void; onStarted: (id:
         ) : !people.data ? (
           <Loader2 className="mx-auto size-6 animate-spin text-primary" />
         ) : shown.length === 0 ? (
-          <p className="text-sm text-muted-foreground">{t("noPeople")}</p>
+          // A project whose team holds nobody this phone may reach (since
+          // JB157 never head office) said only 「找不到人。」 by a grey
+          // 开始沟通 (客户 11-10, PUTRA_MAS): say why and who can fix it
+          // (JB159 J). 「找不到人。」 stays for a search that found nobody.
+          <p className="text-sm text-muted-foreground" data-empty={search.trim() ? "search" : "project"}>
+            {search.trim() ? t("noPeople") : t("noPeopleOnProject")}
+          </p>
         ) : (
           <div className="space-y-4">
             {group(t("projectOffice"), office)}

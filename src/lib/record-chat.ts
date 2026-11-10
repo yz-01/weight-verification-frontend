@@ -130,7 +130,8 @@ export function parseChatParam(
 
 /** Why a finished record's conversation takes no more messages (D-278). */
 /** `readonly`: the office reading a phone conversation it is not in; `moved`: its
- * people are no longer all on its project (JB127). */
+ * people are no longer all on its project (JB127); `head_office`: head office
+ * in a conversation a phone person is in, which it only reads (JB157, JB159). */
 export type ConversationClosed =
   | ""
   | "archived"
@@ -139,6 +140,7 @@ export type ConversationClosed =
   | "rejected"
   | "cancelled"
   | "readonly"
+  | "head_office"
   | "moved";
 
 /** The sentence said in place of the composer, one per reason. */
@@ -150,6 +152,7 @@ export type ConversationClosedLine =
   | "recordChat.closedRejected"
   | "recordChat.closedCancelled"
   | "recordChat.closedReadonly"
+  | "recordChat.closedHeadOffice"
   | "recordChat.closedMoved";
 
 /**
@@ -176,6 +179,8 @@ export function conversationClosedLine(
   if (closed === "cancelled") return "recordChat.closedCancelled";
   // A phone conversation (JB127): read by the office, or left by its project.
   if (closed === "readonly") return "recordChat.closedReadonly";
+  // Head office IS in it - 「没有在里面」 would be untrue (JB159).
+  if (closed === "head_office") return "recordChat.closedHeadOffice";
   if (closed === "moved") return "recordChat.closedMoved";
   return "recordChat.closedArchived";
 }

@@ -12,6 +12,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 const nav = vi.hoisted(() => ({ search: "" }));
+const topBar = vi.hoisted(() => ({ projects: undefined as unknown[] | undefined }));
 const reader = vi.hoisted(() => ({
   user: { company_type: "CONTRACTOR", is_field_staff: false } as Record<string, unknown> | null,
 }));
@@ -26,7 +27,7 @@ vi.mock("@/components/providers/auth-provider", () => ({
 vi.mock("@/components/providers/current-project-provider", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/components/providers/current-project-provider")>()),
   usePageProject: () => ["all", () => {}],
-  useCurrentProject: () => ({ active: true }),
+  useCurrentProject: () => ({ active: true, projects: topBar.projects }),
 }));
 vi.mock("@/components/shared/record-conversation", () => ({
   RecordConversationPanel: ({ kind, recordId, labels }: { kind: string; recordId: string; labels?: { title?: string } }) => (
@@ -41,12 +42,14 @@ vi.mock("@/services/api-client", async (importOriginal) => ({
 
 const { renderDetail } = await import("@/components/shared/record-detail-test-kit");
 const { FieldChatsOffice } = await import("@/components/site-access/field-chats-office");
-const { OfficeFindPeople, mixBlock, personGroup, OFFICE_FIELD_CHATS_KEY } = await import(
+const { OfficeFindPeople, OfficePersonGroup, findProjectBlock, mixBlock, personGroup, OFFICE_FIELD_CHATS_KEY } = await import(
   "@/components/site-access/field-chats-find"
 );
 const { OFFICE_CHAT_PROJECTS_KEY, getOfficeChatPeople, getOfficeChatProjects, startOfficeConversation } =
   await import("@/services/field-conversations.service");
 const zh = (await import("@/messages/zh.json")).default;
+const { readFileSync } = await import("node:fs");
+const read = (file: string) => readFileSync(new URL(`./${file}`, import.meta.url), "utf8");
 const en = (await import("@/messages/en.json")).default;
 const ms = (await import("@/messages/ms.json")).default;
 const zhTW = (await import("@/messages/zh-TW.json")).default;
@@ -72,12 +75,13 @@ function seeded(people: Record<string, unknown[]>, projects = PROJECTS) {
   };
 }
 
-const find = () => <OfficeFindPeople onBack={() => {}} onStarted={() => {}} />;
+const find = (project = "p-bridge") => <OfficeFindPeople project={project} onBack={() => {}} onStarted={() => {}} />;
 
 describe("沟通记录 · 找人沟通 for the office (JB158)", () => {
   afterEach(() => {
     nav.search = "";
     reader.user = { company_type: "CONTRACTOR", is_field_staff: false };
+    topBar.projects = undefined;
     api.get.mockReset();
     api.post.mockReset();
   });
@@ -86,28 +90,94 @@ describe("沟通记录 · 找人沟通 for the office (JB158)", () => {
     const html = renderDetail(find(), seeded({ "p-bridge": TOWER_PEOPLE }));
     const kinds = [...html.matchAll(/data-kind="([^"]+)"/g)].map((m) => m[1]);
     expect(kinds).toEqual(["gate_guard", "equipment_operator", "site_staff", "office", "head_office"]);
-    for (const word of ["现场人员", "门岗", "设备操作", "项目后台", "总部"]) {
+    // The phone's own words for its people (JB159: the office said 门岗 /
+    // 设备操作 where the phone's finder says 门岗保安 / 设备操作人员).
+    for (const word of ["工地人员", "门岗保安", "设备操作人员", "项目后台", "总部"]) {
       expect(html).toContain(word);
     }
+    expect(zh.roles.system_.gate_guard).toBe("门岗保安");
+    expect(zh.roles.system_.equipment_operator).toBe("设备操作人员");
     const groups = [...html.matchAll(/data-person-group="([^"]+)"/g)].map((m) => m[1]);
     expect(groups).toEqual(["phone", "office", "head_office"]);
     expect(html).toContain(zh.fieldChats.find.title);
     expect(html).toContain(zh.fieldChats.find.hint);
   });
 
-  it("chooses from every project it is given - head office's whole company - starting with the page's", () => {
+  it("follows the top bar's project, with no project chips of its own (JB159 K)", () => {
+    // 客户 11-10: 「项目可以和其他项目沟通？」 - a project office on three teams,
+    // top bar on OIL & GAS, chose project 1A's chip and was offered its office.
     const html = renderDetail(
-      <OfficeFindPeople defaultProject="p-tower" onBack={() => {}} onStarted={() => {}} />,
-      seeded({ "p-tower": [TOWER_PEOPLE[3]] }),
+      find("p-tower"),
+      seeded({ "p-tower": [TOWER_PEOPLE[3]], "p-bridge": [TOWER_PEOPLE[4]] }),
     );
-    const projects = [...html.matchAll(/aria-pressed="(true|false)"[^>]*>(Bridge|Tower)</g)].map((m) => [m[2], m[1]]);
-    expect(projects).toEqual([
-      ["Bridge", "false"],
-      ["Tower", "true"],
-    ]);
-    // The people of the project chosen, not the first one's.
+    expect(html).not.toMatch(/aria-pressed="(true|false)"[^>]*>(Bridge|Tower)</);
     expect(html).toContain("项目经理");
     expect(html).not.toContain("测试建筑商1");
+  });
+
+  it("on 全部项目 asks for a project at the top first, and lists nobody (JB159 K)", () => {
+    for (const project of ["all", ""]) {
+      const html = renderDetail(find(project), seeded({ "p-bridge": TOWER_PEOPLE }));
+      expect(html).toContain('data-find-block="pickProject"');
+      expect(html).toContain(zh.fieldChats.find.pickProject);
+      expect(zh.fieldChats.find.pickProject).toBe("请先在最上面选一个项目，再找人沟通。");
+      expect(html).not.toContain('data-testid="office-talk-person"');
+    }
+  });
+
+  it("on a project it is not on says so, and lists nobody (JB159 K)", () => {
+    const html = renderDetail(find("p-oil-gas"), seeded({ "p-oil-gas": TOWER_PEOPLE }));
+    expect(html).toContain(zh.fieldChats.find.notOnTeam);
+    expect(zh.fieldChats.find.notOnTeam).toBe("你不在这个项目的团队里，不能在这里开始沟通。");
+    expect(html).not.toContain('data-testid="office-talk-person"');
+    // A project that has ended is said as such, team or not.
+    topBar.projects = [{ id: "p-oil-gas", status: "COMPLETED" }];
+    expect(renderDetail(find("p-oil-gas"), seeded({}))).toContain(zh.fieldChats.find.projectClosed);
+    expect(findProjectBlock({ project: "p-tower", mine: PROJECTS })).toBe("");
+    expect(findProjectBlock({ project: "p-tower", mine: undefined })).toBe("");
+    expect(findProjectBlock({ project: "p-x", mine: [] })).toBe("noProject");
+    expect(findProjectBlock({ project: "p-x", mine: PROJECTS, status: "ACTIVE" })).toBe("notOnTeam");
+  });
+
+  it("the page hands it the top bar's project", () => {
+    const office = read("field-chats-office.tsx");
+    expect(office).toMatch(/<OfficeFindPeople\s+key=\{project \|\| "all"\}\s+project=\{project\}/);
+    expect(office).not.toContain("defaultProject");
+  });
+
+  it("a project with nobody on it says so and what to do; a search that finds nobody says 找不到人 (JB159 J)", () => {
+    const html = renderDetail(find(), seeded({ "p-bridge": [] }));
+    expect(html).toContain(zh.fieldChats.find.noPeopleOnProject);
+    expect(zh.fieldChats.find.noPeopleOnProject).toBe("这个项目还没有可以找的人：请先在「项目人员名单」加人。");
+    expect(html).not.toContain(zh.fieldChats.find.noPeople);
+    expect(zh.fieldChats.find.noPeople).toBe("找不到人。");
+    const finder = read("field-chats-find.tsx");
+    expect(finder).toMatch(/\{search\.trim\(\) \? t\("noPeople"\) : t\("noPeopleOnProject"\)\}/);
+  });
+
+  it("writes why a group is grey under its heading, where it can be read (JB159, shot c03)", () => {
+    const [guard, , , pm, hq] = TOWER_PEOPLE as unknown as import("@/services/field-conversations.service").OfficeChatPerson[];
+    // A phone person chosen: head office greys out and says why.
+    const greyed = renderDetail(
+      <OfficePersonGroup name="head_office" rows={[hq]} chosen={[guard.id]} chosenPeople={[guard]} onToggle={() => {}} />,
+    );
+    expect(greyed).toContain('data-mix-reason="phoneChosen"');
+    expect(greyed).toContain(zh.fieldChats.find.mix.phoneChosen);
+    expect(zh.fieldChats.find.mix.phoneChosen).toBe("已选了手机端人员，总部不能加入同一个对话。");
+    // Head office chosen: the phone greys out and says why.
+    const phones = renderDetail(
+      <OfficePersonGroup name="phone" rows={[guard]} chosen={[hq.id]} chosenPeople={[hq]} onToggle={() => {}} />,
+    );
+    expect(phones).toContain(zh.fieldChats.find.mix.headOfficeChosen);
+    // Nothing to say when nothing blocks it.
+    const open = renderDetail(
+      <OfficePersonGroup name="office" rows={[pm]} chosen={[guard.id]} chosenPeople={[guard]} onToggle={() => {}} />,
+    );
+    expect(open).not.toContain("data-mix-reason");
+    const none = renderDetail(
+      <OfficePersonGroup name="head_office" rows={[hq]} chosen={[]} chosenPeople={[]} onToggle={() => {}} />,
+    );
+    expect(none).not.toContain("data-mix-reason");
   });
 
   it("says so when there is no project to talk on", () => {

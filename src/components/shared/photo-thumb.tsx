@@ -506,7 +506,7 @@ export function rowPhotos(
   );
 }
 
-interface CoveredRow {
+export interface CoveredRow {
   cover_photo_url?: string | null;
   /** J34-2: the first photographs' thumbnails, cover first. */
   photo_thumbs?: string[] | null;
@@ -526,11 +526,17 @@ export function photoColumn<T extends CoveredRow>({
   photos,
   strip = true,
   squares,
+  cover,
 }: {
   label: string;
   icon: LucideIcon;
   reference: (row: T) => string;
   photos?: (row: T) => PhotoThumbPhotos | undefined;
+  /**
+   * The strip to draw, when it is not the row's own: the 「异常记录」 view
+   * shows each report's photographs, not the job's (JB159).
+   */
+  cover?: (row: T) => CoveredRow;
   /**
    * Four photographs a row (J34-2); ``false`` for the single picture of
    * before. A list needs room for 268 px (`lib/list-fits`, kind `strip`).
@@ -548,12 +554,13 @@ export function photoColumn<T extends CoveredRow>({
         {label}
       </span>
     ),
-    cell: ({ row }) =>
-      strip ? (
+    cell: ({ row }) => {
+      const shown = cover ? cover(row.original) : row.original;
+      return strip ? (
         <PhotoStrip
-          thumbs={row.original.photo_thumbs}
-          coverUrl={row.original.cover_photo_url}
-          count={row.original.photo_count}
+          thumbs={shown.photo_thumbs}
+          coverUrl={shown.cover_photo_url}
+          count={shown.photo_count}
           icon={icon}
           reference={reference(row.original)}
           photos={photos?.(row.original)}
@@ -561,13 +568,14 @@ export function photoColumn<T extends CoveredRow>({
         />
       ) : (
         <PhotoThumb
-          coverUrl={row.original.cover_photo_url}
-          count={row.original.photo_count}
+          coverUrl={shown.cover_photo_url}
+          count={shown.photo_count}
           icon={icon}
           reference={reference(row.original)}
           photos={photos?.(row.original)}
         />
-      ),
+      );
+    },
   };
 }
 
