@@ -9099,7 +9099,7 @@
     "unboundInAppBody": "你現在是在聊天軟體裡面開啟的，這裡綁定不了。請點右上角 <more></more> 選「在 Safari 中開啟」，或複製連結貼到 Safari。",
     "unboundBrowserTitle": "這台手機還沒綁定",
     "unboundBrowserBody": "請重新開啟管理員發的啟用連結（或掃 QR 碼），在那裡輸入 PIN。連結過期了就請管理員重新產生。",
-    "installBannerBody": "從主畫面圖示開啟更穩定，不用再輸入 PIN。",
+    "installBannerBody": "iPhone 要從主畫面圖示開啟，才收得到通知和聲音，也不用再輸入 PIN。",
     "installBannerAction": "加入主畫面",
     "iconShare": "分享",
     "iconPageMenu": "頁面選單",

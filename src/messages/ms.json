@@ -9099,7 +9099,7 @@
     "unboundInAppBody": "Halaman ini dibuka dalam aplikasi sembang, yang tidak boleh dipautkan. Tekan <more></more> di kanan atas dan pilih Buka dalam Safari, atau salin pautan ke Safari.",
     "unboundBrowserTitle": "Telefon ini belum dipautkan",
     "unboundBrowserBody": "Buka semula pautan pengaktifan daripada pentadbir (atau imbas kod QR) dan masukkan PIN di sana. Jika pautan telah tamat tempoh, minta pautan baharu.",
-    "installBannerBody": "Membuka dari ikon Skrin Utama lebih stabil dan tidak perlu PIN.",
+    "installBannerBody": "Di iPhone, pemberitahuan dan bunyi hanya diterima dalam aplikasi yang dibuka dari ikon Skrin Utama - dan tidak perlu PIN.",
     "installBannerAction": "Tambah ke Skrin Utama",
     "iconShare": "Kongsi",
     "iconPageMenu": "Menu halaman",
