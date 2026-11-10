@@ -21,7 +21,7 @@ vi.mock("@/services/api-client", () => ({
   download: vi.fn(),
 }));
 
-const { CompanySiteSettingsWorkspace, MAX_COMPANY_IMAGE_MB, PREFERENCE_SETTINGS, PROFILE_SETTINGS, oversizeMb, pickSettings } = await import(
+const { CompanySiteSettingsWorkspace, MAX_COMPANY_IMAGE_MB, PREFERENCE_SETTINGS, PROFILE_SETTINGS, oversizeMb, pickSettings, preferencesToSave, settingsBase } = await import(
   "@/components/site-access/company-site-settings"
 );
 
@@ -120,6 +120,26 @@ describe("公司设置 (JB99)", () => {
   it("sends only the fields a block shows", () => {
     expect(Object.keys(pickSettings(SETTINGS, PREFERENCE_SETTINGS)).sort()).toEqual(["date_format", "language", "pdf_link_valid_days", "time_format", "timezone"]);
     expect(pickSettings(SETTINGS, PROFILE_SETTINGS)).toEqual({ emergency_contact_name: "Guard house", emergency_contact_phone: "+60123" });
+  });
+
+  it("shows and saves the company's own language, not the settings row's untouched 「en」 (JB164)", () => {
+    // A row made before anyone saved 显示偏好 holds its model default.
+    const untouched = { ...SETTINGS, language: "en" as const };
+    expect(settingsBase(untouched, { default_language: "zh" }).language).toBe("zh");
+    expect(pickSettings(settingsBase(untouched, { default_language: "zh" }), PREFERENCE_SETTINGS).language).toBe("zh");
+    expect(settingsBase(untouched, { default_language: "zh-TW" }).language).toBe("zh-TW");
+    // Nothing else changes, and without the company the row is kept.
+    expect({ ...settingsBase(untouched, { default_language: "ms" }), language: "en" }).toEqual(untouched);
+    expect(settingsBase(untouched, null)).toBe(untouched);
+  });
+
+  it("sends the language only when it was changed here (JB164)", () => {
+    const shown = settingsBase({ ...SETTINGS, language: "en" }, { default_language: "zh-TW" });
+    // A date-format change leaves the company's language alone.
+    const dateOnly = preferencesToSave({ ...shown, date_format: "YYYY-MM-DD" }, shown);
+    expect(dateOnly).not.toHaveProperty("language");
+    expect(dateOnly.date_format).toBe("YYYY-MM-DD");
+    expect(preferencesToSave({ ...shown, language: "ms" }, shown).language).toBe("ms");
   });
 });
 

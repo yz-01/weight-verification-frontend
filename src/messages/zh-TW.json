@@ -14191,9 +14191,9 @@
     },
     "tabs": {
       "label": "材料管理",
-      "in": "Material In 進場",
-      "out": "Material Out 退場",
-      "reject": "Reject 不合格",
+      "in": "材料進場",
+      "out": "材料退場",
+      "reject": "驗收不合格",
       "totals": "按供應商看總數",
       "legacyReturns": "10-02 前用進場單登記的退場記錄",
       "choose": "選擇查看",
@@ -21086,5 +21086,16 @@
     "openPdf": "打開 PDF",
     "openImage": "查看照片",
     "openFile": "下載文件"
+  },
+  "recordedWords": {
+    "arrivingVehicle": "車輛到場",
+    "unloadingProcess": "材料卸貨",
+    "emptyVehicle": "卸貨後的空車",
+    "otherSitePhoto": "其他現場照片",
+    "deliveryOrder": "送貨單 DO"
+  },
+  "fieldManifest": {
+    "name": "{company} 現場",
+    "description": "MSE Trace 現場工作台"
   }
 }

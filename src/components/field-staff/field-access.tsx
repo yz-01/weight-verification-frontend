@@ -29,6 +29,7 @@ import {
   contextReason,
   detectInstallEnvironment,
   fieldAccessView,
+  fieldPinUseful,
   fieldSignInDestination,
   unboundCode,
   unboundReason,
@@ -343,12 +344,16 @@ export function FieldAccess() {
   // Storage that has never held a device id has never been linked: the
   // server has never seen this "phone", so a PIN cannot work. Only the way in
   // is shown there. Nor for a deleted account (JB154): the PIN box with
-  // 「这个账号已被停用。」 under it is what the client photographed (图 18).
-  const pinUseful = accountRemoved
-    ? false
-    : token
-      ? true
-      : !unbound || deviceRefused || Boolean(context?.hasDeviceId);
+  // 「这个账号已被停用。」 under it is what the client photographed (图 18);
+  // nor for a stopped one (JB164): only the office's message.
+  const pinUseful = fieldPinUseful({
+    accountRemoved,
+    accountStopped,
+    hasInvitation: Boolean(token),
+    unbound: Boolean(unbound),
+    deviceRefused,
+    hasDeviceId: Boolean(context?.hasDeviceId),
+  });
 
   return (
     <main className="flex min-h-dvh items-center justify-center px-4 py-10">
@@ -358,8 +363,8 @@ export function FieldAccess() {
             <Camera className="size-7" />
           </span>
           <h1 className="text-xl font-bold leading-tight">{token ? t("activateTitle") : t("loginTitle")}</h1>
-          {/* 「请输入你的 6 位 PIN」 is not said where no PIN can help (JB154). */}
-          {!accountRemoved && (
+          {/* 「请输入你的 6 位 PIN」 is not said where no PIN can help (JB154, JB164). */}
+          {!accountRemoved && !accountStopped && (
             <p className="mt-1 text-sm text-muted-foreground">
               {token ? invitation.data?.full_name : joinLink ? t("joinBody") : t("loginBody")}
             </p>

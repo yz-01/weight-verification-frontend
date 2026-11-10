@@ -197,6 +197,29 @@ export function fieldAccessView(input: {
 }
 
 /**
+ * Whether the PIN screen offers the PIN box and 登录.
+ *
+ * Not for an account the office deleted (JB154: the message says to use the
+ * new link) nor for one it stopped (JB164, screens 11-10 s05 variant: the
+ * installed app opened on 「这个账号已被办公室停用，请联系办公室。」 under an
+ * empty PIN box and 登录 - a PIN cannot sign a stopped account in; after 恢复
+ * the icon opens again). Storage that has never held a device id has never
+ * been linked, so a PIN cannot work there either: only the way in is shown.
+ */
+export function fieldPinUseful(input: {
+  accountRemoved: boolean;
+  accountStopped: boolean;
+  hasInvitation: boolean;
+  unbound: boolean;
+  deviceRefused: boolean;
+  hasDeviceId: boolean;
+}): boolean {
+  if (input.accountRemoved || input.accountStopped) return false;
+  if (input.hasInvitation) return true;
+  return !input.unbound || input.deviceRefused || input.hasDeviceId;
+}
+
+/**
  * Whether opening the activation link again may skip the PIN because this
  * browser is already signed in through it.
  *

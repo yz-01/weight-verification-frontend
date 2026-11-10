@@ -42,7 +42,9 @@ describe("the phone's GPS site location", () => {
   it("is never shown raw: list card, detail, list column, driver's and worker's pages, the list file", () => {
     // Every place that shows a job's location goes through the wording.
     expect(source.match(/\{(?:row|current|row\.original)\.location_description\}/g)).toBeNull();
-    expect(source.match(/siteLocationText\(/g)?.length).toBeGreaterThanOrEqual(6);
+    // The five places that show it (the words themselves live in
+    // `@/lib/recorded-words` since JB164).
+    expect(source.match(/siteLocationText\((?:row|current)/g)?.length).toBeGreaterThanOrEqual(5);
     expect(source).toContain("values: { [GPS_SITE_LOCATION]: t(\"gpsSiteLocation\") },");
     // The phone still files the same words, so old and new rows agree.
     expect(source).toContain("location_description: isFieldStaff ? GPS_SITE_LOCATION : locationDescription,");

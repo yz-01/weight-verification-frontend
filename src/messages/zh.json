@@ -14191,9 +14191,9 @@
     },
     "tabs": {
       "label": "材料管理",
-      "in": "Material In 进场",
-      "out": "Material Out 退场",
-      "reject": "Reject 不合格",
+      "in": "材料进场",
+      "out": "材料退场",
+      "reject": "验收不合格",
       "totals": "按供应商看总数",
       "legacyReturns": "10-02 前用进场单登记的退场记录",
       "choose": "选择查看",
@@ -21086,5 +21086,16 @@
     "openPdf": "打开 PDF",
     "openImage": "查看照片",
     "openFile": "下载文件"
+  },
+  "recordedWords": {
+    "arrivingVehicle": "车辆到场",
+    "unloadingProcess": "材料卸货",
+    "emptyVehicle": "卸货后的空车",
+    "otherSitePhoto": "其他现场照片",
+    "deliveryOrder": "送货单 DO"
+  },
+  "fieldManifest": {
+    "name": "{company} 现场",
+    "description": "MSE Trace 现场工作台"
   }
 }

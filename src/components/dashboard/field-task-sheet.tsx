@@ -31,6 +31,7 @@ import { Textarea } from "@/components/ui/textarea";
 import type { FieldTask } from "@/interfaces/contractor-ops";
 import { consultantTaskTitle } from "@/lib/consultant-task-title";
 import { useDateFormat } from "@/lib/dates";
+import { photoCaptionText, siteLocationText } from "@/lib/recorded-words";
 import {
   addFieldTaskPhoto,
   getFieldTask,
@@ -67,6 +68,11 @@ export function FieldTaskSheet({ id, onClose }: { id: string; onClose: () => voi
   const df = useDateFormat();
   const { user } = useAuth();
   const flow = useTranslations("taskFlow");
+  // Words the app stores in English, said in the reader's language (JB164):
+  // the phone's 「GPS captured site location」 a disposal hands its task as
+  // the work location, and a linked receipt's photo captions.
+  const site = useTranslations("siteDisposal");
+  const recorded = useTranslations("recordedWords");
   const notArchived = useNotArchivedReason();
   const queryClient = useQueryClient();
   const task = useQuery({ queryKey: ["field-tasks", "detail", id], queryFn: () => getFieldTask(id) });
@@ -175,7 +181,7 @@ export function FieldTaskSheet({ id, onClose }: { id: string; onClose: () => voi
             { label: t("due"), value: row.due_at ? df.dateTime(row.due_at) : "—" },
             ...(category ? [{ label: askFor("askFor"), value: category }] : []),
             ...(row.work_location
-              ? [{ label: askFor("workLocation"), value: row.work_location }]
+              ? [{ label: askFor("workLocation"), value: siteLocationText(row.work_location, site("gpsSiteLocation")) }]
               : []),
             {
               label: t("content"),
@@ -187,7 +193,7 @@ export function FieldTaskSheet({ id, onClose }: { id: string; onClose: () => voi
             ...row.photos.map((photo) => ({
               id: photo.id,
               url: photo.watermarked || photo.image,
-              label: photo.caption || row.title,
+              label: photoCaptionText(photo.caption, recorded) || row.title,
               takenAt: photo.captured_at,
               latitude: photo.latitude,
               longitude: photo.longitude,
@@ -196,7 +202,7 @@ export function FieldTaskSheet({ id, onClose }: { id: string; onClose: () => voi
               id: `linked:${photo.id}`,
               url: photo.url,
               thumbnailUrl: photo.thumbnail_url ?? undefined,
-              label: photo.caption || row.linked_record_reference || row.title,
+              label: photoCaptionText(photo.caption, recorded) || row.linked_record_reference || row.title,
               takenAt: photo.captured_at,
               latitude: photo.latitude,
               longitude: photo.longitude,

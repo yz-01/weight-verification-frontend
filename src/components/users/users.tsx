@@ -34,6 +34,7 @@ import { useListQuery } from "@/hooks/use-list-query";
 import type { UserRow, UserStatus } from "@/interfaces/auth";
 import { useDateFormat } from "@/lib/dates";
 import { roleLabel } from "@/lib/role-labels";
+import { isPlaceholderEmail } from "@/lib/team-contact";
 import {
   deleteUser,
   forceLogoutUser,
@@ -176,9 +177,13 @@ export function Users({
             >
               {row.original.full_name}
             </p>
-            <p className="max-w-55 truncate text-xs text-muted-foreground">
-              {row.original.email}
-            </p>
+            {/* A phone account's email is an internal placeholder
+                (field+…@mse.invalid, JB164): its number is in 电话. */}
+            {!isPlaceholderEmail(row.original.email) && (
+              <p className="max-w-55 truncate text-xs text-muted-foreground">
+                {row.original.email}
+              </p>
+            )}
           </div>
         ),
       },
@@ -317,7 +322,9 @@ export function Users({
                 </Link>
               </Button>
 
-              {can("user.update") && (
+              {/* A deleted account is kept for its records only: 查看, not
+                  编辑 (JB164, screens 11-10 r10-s08). */}
+              {can("user.update") && !removed && (
                 <Button
                   asChild
                   variant="ghost"
