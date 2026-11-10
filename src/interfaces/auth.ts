@@ -85,6 +85,12 @@ export interface CurrentUser {
    * absent from a server before JB104, which is the full phone.
    */
   phone_role?: PhoneRole | null;
+  /**
+   * JB151: this phone person's app is on the Home Screen (signed in there and
+   * used in the last 30 days), so a browser tab stops offering 「加到主屏幕」.
+   * Absent from a server before JB151.
+   */
+  has_home_screen_app?: boolean;
   is_platform_staff: boolean;
   is_superuser: boolean;
   role: string | null;

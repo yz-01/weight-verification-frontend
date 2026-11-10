@@ -4,6 +4,7 @@ import { Loader2, Share } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
+import { useAuth } from "@/components/providers/auth-provider";
 import { Button } from "@/components/ui/button";
 import {
   isStandaloneApp,
@@ -13,7 +14,7 @@ import {
 import {
   detectInstallEnvironment,
   fieldReadyPath,
-  showIosInstallGuide,
+  showInstallBanner,
 } from "@/lib/field-install";
 import { createFieldPwaBootstrap } from "@/services/field-access.service";
 
@@ -26,23 +27,29 @@ import { createFieldPwaBootstrap } from "@/services/field-access.service";
  * page's address carries no hand-off. The button makes a fresh hand-off and
  * opens the ready page, whose own address carries it - that is the page to
  * add from.
+ *
+ * Gone once the app is on the Home Screen (JB151): the server knows from the
+ * app's own sign-in, which a browser tab cannot see.
  */
 export function FieldInstallBanner() {
   const t = useTranslations("fieldAccess");
+  const { user } = useAuth();
+  const hasHomeScreenApp = user?.has_home_screen_app === true;
   const [visible, setVisible] = useState(false);
   const [pending, setPending] = useState(false);
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() =>
       setVisible(
-        showIosInstallGuide({
+        showInstallBanner({
           environment: detectInstallEnvironment(),
           standalone: isStandaloneApp(),
+          hasHomeScreenApp,
         }),
       ),
     );
     return () => window.cancelAnimationFrame(frame);
-  }, []);
+  }, [hasHomeScreenApp]);
 
   if (!visible) return null;
 

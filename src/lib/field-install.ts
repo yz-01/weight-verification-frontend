@@ -238,6 +238,23 @@ export function showIosInstallGuide(input: {
 }
 
 /**
+ * Whether the field shell's 「加到主屏幕」 banner shows (JB151, 客户 11-10 事项 7:
+ * 「上面这个每一次点了都还存在……他不会消失」; Lucas: 「如果没有加进主屏幕才会显示」).
+ *
+ * The iPhone browser tab still gets it - but not once the app is already on
+ * the Home Screen. A tab cannot see that itself, so the server says it from
+ * the app's own sign-in (`has_home_screen_app`); every extra tap used to make
+ * one more icon.
+ */
+export function showInstallBanner(input: {
+  environment: InstallEnvironment;
+  standalone: boolean;
+  hasHomeScreenApp: boolean;
+}): boolean {
+  return !input.hasHomeScreenApp && showIosInstallGuide(input);
+}
+
+/**
  * Which install help the ready page shows below its buttons.
  *
  * - `ios-steps`: iPhone Safari. iOS has no install prompt, so the numbered
