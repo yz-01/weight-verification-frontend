@@ -6577,7 +6577,8 @@
       "chooseSpec": "選擇規格",
       "specOptionalHint": "不知道規格可以不選，後台會補上。",
       "specName": "規格名稱",
-      "materialName": "材料名稱"
+      "materialName": "材料名稱",
+      "materialNameHint": "不知道可以不填，後台會補上。"
     },
     "outgoingStatus": {
       "APPROVED": "已批准 / 等待退場",
@@ -9277,7 +9278,8 @@
       "submit": "提交",
       "takePhoto": "拍照",
       "workLocation": "現場位置 / 軸線",
-      "workLocationPlaceholder": "例如：A座，C1-D1軸線"
+      "workLocationPlaceholder": "例如：A座，C1-D1軸線",
+      "askForHint": "不知道選哪個可以不選，後台會補上。"
     },
     "consultantTasks": {
       "title": "顧問現場照片提交"
@@ -9435,7 +9437,7 @@
       "specOptionalHint": "不知道規格可以不選，後台會補上。",
       "autoFilledFromSpec": "隨規格帶出",
       "otherName": "材料名稱",
-      "otherNameHint": "名單裡沒有的材料，選「其他材料」在這裡填寫；辦公室會在分類管理加進名單。"
+      "otherNameHint": "名單裡沒有的材料，選「其他材料」在這裡填寫名稱；不知道可以不填，後台會補上。"
     },
     "materialEvidence": {
       "arrival": "1. 車輛到場",
@@ -16569,7 +16571,8 @@
         "note": "工作備註",
         "weight": "實際重量（kg）",
         "vehiclePlate": "車牌",
-        "vehiclePlateHint": "選填：這一車的車牌"
+        "vehiclePlateHint": "選填：這一車的車牌",
+        "doNoHint": "不知道可以不填，後台會補上。"
       },
       "invalid": "無法打開這項清運任務，請刷新任務列表後重試。",
       "photosBody": "每一車送到合法處理地點後拍照。每車最多 4 張，不限類別；至少 1 張才能送出。送出後由後台驗收這一車。",
@@ -17956,7 +17959,8 @@
       "vehiclePlate": "車牌",
       "collectionAt": "希望收運時間",
       "collectionAtHint": "你希望車什麼時候來。回收商可以另提一個時間，之後由你確認。",
-      "otherName": "名稱"
+      "otherName": "名稱",
+      "otherNameHint": "不知道可以不填，後台會補上。"
     },
     "filter": {
       "allCategories": "全部類別",
@@ -18669,7 +18673,8 @@
       "submitToOption": {
         "PROJECT": "交給專案經理",
         "HQ": "交給總部"
-      }
+      },
+      "descriptionHint": "可以不填，後台會按收據補上。"
     },
     "submitTo": {
       "PROJECT": "專案經理",
@@ -18977,16 +18982,16 @@
       "goToCategories": "前往分類管理",
       "askToSetUp": "請聯絡有權限的後台人員在分類管理設定。",
       "materialData": "材料資料",
-      "otherSpecHint": "選了「其他」：請填寫規格，並選擇單位。",
+      "otherSpecHint": "選了「其他」：知道就填寫規格，不知道可以不填，後台會補上；單位要選。",
       "unitFromSpec": "單位隨規格帶出，不能修改。",
       "unitAfterSpec": "選好規格後自動帶出",
-      "subjectHint": "一句話說明要申請什麼，例如：兩台吊車、一個現場辦公室。",
+      "subjectHint": "一句話說明要申請什麼，例如：兩台吊車、一個現場辦公室。不填就用申請類型的名稱，後台可以改。",
       "contentOrFile": "申請內容和上傳資料至少要有一樣。",
       "contentPlaceholder": "說明申請的內容、數量、時間等",
       "attachmentKindsHint": "照片、PDF、Word、Excel、PowerPoint、CSV、TXT、DWG、ZIP。最多 {count} 份，每份不超過 {limit} MB。",
       "fileKindRefused": "{name} 不能上傳。請上傳照片、PDF、Word、Excel、PowerPoint、CSV、TXT、DWG 或 ZIP。",
       "assignedReviewerManagerHint": "現場人員的申請先交專案經理，專案經理確認後再轉給總部。",
-      "otherMaterialHint": "選了「其他材料」：請填寫材料名稱。"
+      "otherMaterialHint": "選了「其他材料」：知道就填寫材料名稱；不知道可以不填，後台會補上。"
     },
     "toast": {
       "submitted": "申請已提交。",

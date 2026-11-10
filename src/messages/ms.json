@@ -6577,7 +6577,8 @@
       "chooseSpec": "Pilih spesifikasi",
       "specOptionalHint": "Tidak pasti spesifikasinya? Biarkan - pejabat akan mengisinya.",
       "specName": "Nama spesifikasi",
-      "materialName": "Nama bahan"
+      "materialName": "Nama bahan",
+      "materialNameHint": "Tidak pasti? Biarkan - pejabat akan mengisinya."
     },
     "outgoingStatus": {
       "APPROVED": "Diluluskan / menunggu keluar tapak",
@@ -9277,7 +9278,8 @@
       "submit": "Hantar",
       "takePhoto": "Ambil foto",
       "workLocation": "Kawasan kerja / garisan grid",
-      "workLocationPlaceholder": "Contoh: Blok A, Grid C1-D1"
+      "workLocationPlaceholder": "Contoh: Blok A, Grid C1-D1",
+      "askForHint": "Tidak pasti yang mana? Biarkan - pejabat akan memutuskannya."
     },
     "consultantTasks": {
       "title": "Penyerahan foto perunding"
@@ -9435,7 +9437,7 @@
       "specOptionalHint": "Tidak pasti spesifikasinya? Biarkan - pejabat akan mengisinya.",
       "autoFilledFromSpec": "Dari spesifikasi",
       "otherName": "Nama bahan",
-      "otherNameHint": "Tiada dalam senarai? Pilih 「其他材料」 dan taip namanya di sini; pejabat akan menambahnya ke senarai."
+      "otherNameHint": "Tiada dalam senarai? Pilih 「其他材料」 dan taip namanya di sini. Tidak pasti? Biarkan - pejabat akan mengisinya."
     },
     "materialEvidence": {
       "arrival": "1. Kenderaan tiba",
@@ -16569,7 +16571,8 @@
         "note": "Catatan kerja",
         "weight": "Berat sebenar (kg)",
         "vehiclePlate": "Nombor plat lori",
-        "vehiclePlateHint": "Pilihan: nombor plat lori untuk muatan ini"
+        "vehiclePlateHint": "Pilihan: nombor plat lori untuk muatan ini",
+        "doNoHint": "Tidak pasti? Biarkan - pejabat akan mengisinya."
       },
       "invalid": "Tugas pelupusan ini tidak dapat dibuka. Muat semula Tugas Saya dan cuba lagi.",
       "photosBody": "Ambil foto setiap muatan di tempat pelupusan berlesen. Sehingga 4 foto bagi setiap muatan, apa-apa jenis; sekurang-kurangnya 1 untuk dihantar. Pejabat kemudian menyemak muatan itu.",
@@ -17956,7 +17959,8 @@
       "vehiclePlate": "Nombor plat",
       "collectionAt": "Masa pungutan dikehendaki",
       "collectionAtHint": "Bila anda mahu lori datang. Pengitar boleh cadangkan masa lain, kemudian anda sahkan.",
-      "otherName": "Apakah ia"
+      "otherName": "Apakah ia",
+      "otherNameHint": "Tidak pasti? Biarkan - pejabat akan mengisinya."
     },
     "filter": {
       "allCategories": "Semua kategori",
@@ -18669,7 +18673,8 @@
       "submitToOption": {
         "PROJECT": "Pengurus projek",
         "HQ": "Ibu pejabat"
-      }
+      },
+      "descriptionHint": "Boleh dibiarkan - pejabat akan mengisinya berdasarkan resit."
     },
     "submitTo": {
       "PROJECT": "Pengurus projek",
@@ -18977,16 +18982,16 @@
       "goToCategories": "Pergi ke Pengurusan Kategori",
       "askToSetUp": "Minta pegawai pejabat yang mengurus kategori untuk menyediakannya.",
       "materialData": "Data bahan",
-      "otherSpecHint": "「Lain-lain」 dipilih: taip spesifikasi dan pilih unitnya.",
+      "otherSpecHint": "「Lain-lain」 dipilih: taip spesifikasi jika tahu (jika tidak, pejabat akan mengisinya), dan pilih unitnya.",
       "unitFromSpec": "Unit datang bersama spesifikasi dan tidak boleh diubah.",
       "unitAfterSpec": "Diisi selepas spesifikasi dipilih",
-      "subjectHint": "Apa yang dipohon, dalam satu baris - contohnya: dua kren, satu pejabat tapak.",
+      "subjectHint": "Apa yang dipohon, dalam satu baris - contohnya: dua kren, satu pejabat tapak. Jika dibiarkan, nama jenis permohonan digunakan; pejabat boleh mengubahnya.",
       "contentOrFile": "Tulis butiran atau lampirkan fail - sekurang-kurangnya satu.",
       "contentPlaceholder": "Apa yang diperlukan, berapa, bila",
       "attachmentKindsHint": "Foto, PDF, Word, Excel, PowerPoint, CSV, TXT, DWG atau ZIP. Sehingga {count} fail, setiap satu bawah {limit} MB.",
       "fileKindRefused": "{name} tidak boleh dilampirkan. Lampirkan foto, PDF, Word, Excel, PowerPoint, CSV, TXT, DWG atau ZIP.",
       "assignedReviewerManagerHint": "Permohonan tapak dihantar kepada pengurus projek dahulu, yang menghantarnya ke ibu pejabat.",
-      "otherMaterialHint": "「其他材料」: taip bahan apakah itu."
+      "otherMaterialHint": "「其他材料」: taip nama bahan jika tahu. Tidak pasti? Biarkan - pejabat akan mengisinya."
     },
     "toast": {
       "submitted": "Permohonan dihantar.",
