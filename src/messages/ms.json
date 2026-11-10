@@ -8558,6 +8558,13 @@
       "project_has_records": "Projek ini masih ada rekod. Tandakan ia selesai dan bukannya membuangnya.",
       "project_limit_reached": "Pelan semasa anda telah mencapai had projek.",
       "project_not_found": "Projek itu tidak dijumpai.",
+      "push_endpoint_gone": "Apple / Google menyatakan pendaftaran pemberitahuan telefon ini tidak lagi sah.",
+      "push_not_configured": "Pelayan ini tidak menghantar pemberitahuan telefon (belum disediakan, atau dimatikan), jadi ujian tidak dapat dihantar. Hubungi pentadbir anda.",
+      "push_off_for_company": "Syarikat anda menyimpan pemberitahuan dalam aplikasi sahaja, jadi telefon tidak berbunyi. Hubungi pentadbir syarikat anda.",
+      "push_provider_refused": "Apple / Google menolak pemberitahuan ini.",
+      "push_provider_unreachable": "Apple / Google tidak menjawab - mungkin masalah rangkaian.",
+      "push_subscription_not_found": "Pelayan tiada pendaftaran pemberitahuan untuk telefon ini (mungkin telah tamat, atau akaun lain log masuk di sini).",
+      "push_test_too_soon": "Ujian baru sahaja dihantar. Tunggu {seconds} saat dan hantar lagi.",
       "qr_code_not_found": "Kod QR ini tidak dikenali.",
       "quota_exceeded": "Kuota awan yang ditetapkan telah dilebihi.",
       "receipt_immutable": "Resit yang telah dimuat naik tidak boleh diubah atau dibuang. Buat pembetulan baharu.",
@@ -20824,6 +20831,9 @@
       "body": "Hidupkan pemberitahuan supaya mesej baharu berbunyi semasa telefon menunggu, dan ikon aplikasi menunjukkan nombor.",
       "action": "Hidupkan"
     },
+    "enabled": {
+      "body": "Pemberitahuan dihidupkan. Hantar pemberitahuan ujian untuk memastikan telefon ini berbunyi."
+    },
     "denied": {
       "body": "Pemberitahuan dimatikan, jadi mesej baharu tidak akan berbunyi. Benarkan untuk aplikasi ini di Tetapan → Pemberitahuan telefon."
     },
@@ -20834,6 +20844,17 @@
       "worker": "Perkhidmatan latar telefon belum sedia. Tutup aplikasi sepenuhnya, buka semula dan tekan sekali lagi.",
       "subscribe": "Telefon tidak selesai mendaftar untuk pemberitahuan (Apple / Google tidak menjawab). Semak sambungan, buka semula aplikasi dan tekan sekali lagi.",
       "server": "Pemberitahuan dihidupkan di telefon tetapi tidak disimpan di pelayan. Semak sambungan dan tekan sekali lagi."
+    }
+  },
+  "pushTest": {
+    "action": "Hantar pemberitahuan ujian",
+    "sending": "Menghantar pemberitahuan ujian…",
+    "sent": "Dihantar. Dalam beberapa saat telefon ini sepatutnya berbunyi dan menunjukkan pemberitahuan.",
+    "notSent": "Tidak dihantar: {reason}",
+    "advice": {
+      "ios": "Tekan \"{button}\" dan cuba lagi. Jika masih tidak berfungsi, padam ikon MSE Trace dari telefon dan tambah semula ke Skrin Utama dari Safari.",
+      "android": "Tekan \"{button}\" dan cuba lagi. Jika masih tidak berfungsi, padam ikon MSE Trace dari telefon, buka laman di Chrome dan tekan ⋮ → \"Pasang aplikasi\" sekali lagi.",
+      "other": "Tekan \"{button}\" dan cuba lagi. Jika masih tidak berfungsi, benarkan pemberitahuan untuk laman ini dalam tetapan pelayar."
     }
   },
   "passportCapture": {

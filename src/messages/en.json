@@ -8558,6 +8558,13 @@
       "project_has_records": "This project still has records against it. Mark it completed instead of removing it.",
       "project_limit_reached": "Your current plan has reached its project limit.",
       "project_not_found": "That project could not be found.",
+      "push_endpoint_gone": "Apple / Google say this phone's notification registration is no longer valid.",
+      "push_not_configured": "This server is not sending phone notifications (not set up, or switched off), so the test cannot go. Contact your administrator.",
+      "push_off_for_company": "Your company keeps notifications in the app only, so phones do not ring. Contact your company administrator.",
+      "push_provider_refused": "Apple / Google refused the notification.",
+      "push_provider_unreachable": "Apple / Google did not answer - possibly a network problem.",
+      "push_subscription_not_found": "The server has no notification registration for this phone (it may have expired, or another account signed in here).",
+      "push_test_too_soon": "A test was just sent. Wait {seconds} seconds and send again.",
       "qr_code_not_found": "This QR code is not recognised.",
       "quota_exceeded": "The configured cloud quota has been exceeded.",
       "receipt_immutable": "Uploaded receipts cannot be changed or removed. Create a correction instead.",
@@ -20824,6 +20831,9 @@
       "body": "Turn on notifications so new messages ring while the phone waits, and the app icon shows the number.",
       "action": "Turn on"
     },
+    "enabled": {
+      "body": "Notifications are on. Send a test notification to check that this phone rings."
+    },
     "denied": {
       "body": "Notifications are off, so new messages will not ring. Allow them for this app in the phone's Settings → Notifications."
     },
@@ -20834,6 +20844,17 @@
       "worker": "The phone's background service is not ready. Close the app completely, open it again and tap again.",
       "subscribe": "The phone did not finish signing up for notifications (Apple / Google did not answer). Check the connection, reopen the app and tap again.",
       "server": "Notifications are on in the phone but were not saved on the server. Check the connection and tap again."
+    }
+  },
+  "pushTest": {
+    "action": "Send a test notification",
+    "sending": "Sending the test notification…",
+    "sent": "Sent. Within a few seconds this phone should ring and show the notification.",
+    "notSent": "Not sent: {reason}",
+    "advice": {
+      "ios": "Tap \"{button}\" and try again. If it still does not work, delete the MSE Trace icon from the phone and add it to the Home Screen again from Safari.",
+      "android": "Tap \"{button}\" and try again. If it still does not work, delete the MSE Trace icon from the phone, open the site in Chrome and tap ⋮ → \"Install app\" again.",
+      "other": "Tap \"{button}\" and try again. If it still does not work, allow notifications for this site in the browser's settings."
     }
   },
   "passportCapture": {

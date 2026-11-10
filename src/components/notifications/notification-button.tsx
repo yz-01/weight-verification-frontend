@@ -25,6 +25,11 @@ import {
 } from "@/lib/alert-sound";
 import { ActionCardStack } from "@/components/notifications/action-card-stack";
 import {
+  PushTestButton,
+  PushTestResult,
+  usePushTest,
+} from "@/components/notifications/push-test";
+import {
   countSignature,
   useRefetchWhenChanged,
 } from "@/components/notifications/bell-list-refresh";
@@ -41,9 +46,11 @@ import {
 } from "@/services/platform-ops.service";
 import {
   enablePushNotifications,
+  PUSH_REGISTRATION_CHANGED,
   PushEnableError,
   type PushStep,
   getPushConfig,
+  getPushSubscriptionStatus,
   isPushSupported,
 } from "@/services/push-notification.service";
 import { setAppBadgeCount } from "@/lib/app-badge";
@@ -70,6 +77,8 @@ export function NotificationButton() {
   const [pushPending, setPushPending] = useState(false);
   // The step 「打开通知」 stopped at (Lucas 10-30: it spun for ever).
   const [pushFailed, setPushFailed] = useState<PushStep | null>(null);
+  // 「发一条测试通知」 (JB156, 客户 11-10 第四批).
+  const pushTest = usePushTest();
   const enabled =
     user?.features.some(
       (feature) =>
@@ -130,10 +139,25 @@ export function NotificationButton() {
   });
   useEffect(() => {
     if (!enabled || !isPushSupported()) return;
-    void navigator.serviceWorker.ready
-      .then((registration) => registration.pushManager.getSubscription())
-      .then((subscription) => setPushEnabled(Boolean(subscription)))
-      .catch(() => setPushEnabled(false));
+    let live = true;
+    const read = () => {
+      void navigator.serviceWorker.ready
+        .then(() => getPushSubscriptionStatus())
+        .then((subscribed) => {
+          if (live) setPushEnabled(subscribed);
+        })
+        .catch(() => {
+          if (live) setPushEnabled(false);
+        });
+    };
+    read();
+    // Read again when opening the app registered this phone afresh, or could
+    // not - then the switch is offered again (JB156).
+    window.addEventListener(PUSH_REGISTRATION_CHANGED, read);
+    return () => {
+      live = false;
+      window.removeEventListener(PUSH_REGISTRATION_CHANGED, read);
+    };
   }, [enabled]);
   // The tone (2026-10-09; batch H HD11). Every new notice rings, in the
   // office and on the phone alike - 「手机端请实现红点提醒，声音提醒，像后台
@@ -351,7 +375,9 @@ export function NotificationButton() {
               {t("notifications.viewAll")}
             </Link>
           </Button>
-          {pushConfig.data?.configured && !pushEnabled && (
+          {/* Offered again after a test that did not go: pressed then, it
+              registers this phone afresh (JB156). */}
+          {pushConfig.data?.configured && (!pushEnabled || pushTest.failed) && (
             <Button
               size="sm"
               variant="outline"
@@ -360,7 +386,9 @@ export function NotificationButton() {
                 setPushPending(true);
                 setPushFailed(null);
                 try {
-                  setPushEnabled(await enablePushNotifications());
+                  const on = await enablePushNotifications({ renew: pushTest.failed });
+                  setPushEnabled(on);
+                  if (on) pushTest.reset();
                 } catch (error) {
                   setPushFailed(error instanceof PushEnableError ? error.step : "server");
                 } finally {
@@ -372,6 +400,9 @@ export function NotificationButton() {
               {t("notifications.push.enable")}
             </Button>
           )}
+          {pushConfig.data?.configured && pushEnabled && (
+            <PushTestButton state={pushTest.state} onSend={() => void pushTest.send()} />
+          )}
           </div>
         </div>
         {pushFailed && (
@@ -379,6 +410,11 @@ export function NotificationButton() {
             {t(`fieldAlerts.failed.${pushFailed}`)}
           </p>
         )}
+        <PushTestResult
+          state={pushTest.state}
+          button={t("notifications.push.enable")}
+          className="border-b px-4 py-2 text-xs"
+        />
         {!pushEnabled && (
           // Without the push settings the "turn on phone alerts" offer cannot be shown.
           <QueryFailedNote query={pushConfig} what={t("notifications.what.pushConfig")} className="border-b px-4 py-2" />

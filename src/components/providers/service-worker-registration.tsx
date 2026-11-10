@@ -4,7 +4,7 @@ import { useEffect } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { prunePhotoCache, rememberedHistoryWindowDays } from "@/lib/photo-cache";
-import { syncPushSubscription } from "@/services/push-notification.service";
+import { refreshPushRegistration } from "@/services/push-notification.service";
 
 export const OFFLINE_SYNC_REQUESTED = "mse:offline-sync-requested";
 
@@ -55,10 +55,13 @@ export function ServiceWorkerRegistration() {
     };
   }, []);
 
+  // Every app open and every sign-in: this phone's push registration posted,
+  // and made again when the phone or Apple / Google lost it (JB156, 客户
+  // 11-10 第四批: 「苹果手机重启了之后，声音红点都没有」).
   useEffect(() => {
     if (!user || !("serviceWorker" in navigator)) return;
     void navigator.serviceWorker.ready
-      .then(() => syncPushSubscription())
+      .then(() => refreshPushRegistration())
       .catch(() => undefined);
   }, [user]);
 
