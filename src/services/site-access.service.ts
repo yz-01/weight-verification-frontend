@@ -97,6 +97,11 @@ export async function updateContractorCompanyProfile(
   logo?: File | null,
   /** The company's own background (C12), shown behind its pages. */
   backgroundImage?: File | null,
+  /**
+   * 【移除背景图】 (JB161): the background sent empty, which the backend
+   * stores as none and audits. Ignored when a new picture is sent.
+   */
+  options: { removeBackground?: boolean } = {},
 ) {
   const body = new FormData();
   Object.entries(payload).forEach(([key, value]) => {
@@ -105,6 +110,7 @@ export async function updateContractorCompanyProfile(
   });
   if (logo) body.append("logo", logo);
   if (backgroundImage) body.append("background_image", backgroundImage);
+  else if (options.removeBackground) body.append("background_image", "");
   const row = await api.patch<ContractorCompanyProfile>(
     "/api/contractor-site-settings/update_company_profile/",
     body,

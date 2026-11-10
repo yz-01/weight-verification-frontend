@@ -78,7 +78,12 @@ function allFeatures(): string[] {
   return [...keys];
 }
 
-function render(features: string[], permissions: string[], superuser: boolean) {
+function render(
+  features: string[],
+  permissions: string[],
+  superuser: boolean,
+  overrides: Record<string, unknown> = {},
+) {
   auth.user = {
     id: "u1",
     full_name: "Reader",
@@ -88,6 +93,7 @@ function render(features: string[], permissions: string[], superuser: boolean) {
     is_superuser: superuser,
     company_name: "Company",
     branding: null,
+    ...overrides,
   };
   return renderToStaticMarkup(
     <NextIntlClientProvider locale="zh" messages={messages} timeZone="Asia/Kuala_Lumpur">
@@ -331,5 +337,74 @@ describe("the menu under an entry shows where its number is (Lucas 2026-10-09)",
 
   it("caps a row at 99+, as the entry is", () => {
     expect(rowBadges(menu("equipment", { equipment: 250 }))).toEqual({ "6.2.1": "99+" });
+  });
+});
+
+describe("the sidebar's top is the company's own (JB161, 客户 11-10 第十批)", () => {
+  // 「logo设置的位置太小了，mse trace那个字母可以不要」 (图28).
+  const LOGO = "https://cdn.example/company/logo/builder.png";
+  const branding = (logo: string | null) => ({
+    name: "测试建筑商 1",
+    short_name: "测试建筑商 1",
+    company_id: "c1",
+    company_name: "测试建筑商 1",
+    company_logo_url: logo,
+    company_background_url: null,
+    platform_icon_url: null,
+    icon_url: logo,
+    revision: null,
+    uses_platform_default: !logo,
+  });
+  /** The header alone, so a menu label can never answer for it. */
+  const header = (markup: string) =>
+    markup.match(/<div data-slot="sidebar-header"[\s\S]*?<div data-slot="sidebar-content"/)?.[0] ?? "";
+
+  it("shows a company's logo large, at its own shape, over its name, with no 「MSE Trace」", () => {
+    const top = header(
+      render(["dashboard"], [], false, {
+        company: "c1",
+        company_name: "测试建筑商 1",
+        branding: branding(LOGO),
+      }),
+    );
+    expect(top).toContain('data-sidebar-brand="logo"');
+    // The upload itself, not the square favicon made from it.
+    const logo = top.match(/<img [^>]*src="([^"]+)"[^>]*>/);
+    expect(logo?.[1]).toBe(LOGO);
+    // 第十一批: 「建议显示区域 180 × 100px」「保持 Logo 原始比例，不拉伸、不变形」 -
+    // a 180 × 100 box (the old square drew it at 30 × 30), fitted whole and
+    // centred; the whole plate when the sidebar is collapsed.
+    expect(logo?.[0]).toMatch(/class="[^"]*\bh-25 w-45 max-w-full object-contain\b/);
+    expect(top).toMatch(/data-sidebar-brand="logo"[^>]*class="flex flex-col items-center\b/);
+    expect(logo?.[0]).toContain("group-data-[collapsible=icon]:size-full");
+    expect(top).toContain("测试建筑商 1");
+    expect(top).not.toContain("MSE Trace");
+  });
+
+  it("keeps the MSE icon beside the name for a company with no logo yet - still no 「MSE Trace」", () => {
+    const top = header(
+      render(["dashboard"], [], false, {
+        company: "c1",
+        company_name: "测试建筑商 1",
+        branding: branding(null),
+      }),
+    );
+    expect(top).toContain('data-sidebar-brand="company"');
+    expect(top).toContain('src="/mse-icon-192.png"');
+    expect(top).toContain("测试建筑商 1");
+    expect(top).not.toContain("MSE Trace");
+  });
+
+  it("keeps the portal's name for an account with no company of its own", () => {
+    for (const [portal, words] of [
+      ["MSE_ADMIN", "MSE Admin"],
+      ["MSE_TRACE", "MSE Trace"],
+    ] as const) {
+      const top = header(
+        render(["dashboard"], [], false, { portal, company: null, company_name: null }),
+      );
+      expect(top, portal).toContain('data-sidebar-brand="portal"');
+      expect(top, portal).toContain(words);
+    }
   });
 });

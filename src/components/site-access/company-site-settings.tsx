@@ -7,8 +7,9 @@
  * with the two things 事项 2 第三类 also leaves to the company: so three
  * blocks and nothing else -
  *
- * - 公司资料: name, SSM number, address, phone, email, logo, and the gate's
- *   emergency contact (「门岗、访客的日常业务资料」, may stay empty);
+ * - 公司资料: name, SSM number, address, phone, email, logo, background
+ *   picture (back since JB161), and the gate's emergency contact
+ *   (「门岗、访客的日常业务资料」, may stay empty);
  * - 显示偏好: language, date and time format, timezone - four drop-downs;
  * - 分公司与总部: 「属于建筑商自己的资料，应该保留」.
  *
@@ -20,7 +21,7 @@
  */
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Building2, Globe2, ImageUp, MapPin, Pencil, Plus, Save, ShieldCheck, Trash2 } from "lucide-react";
+import { Building2, Globe2, ImageIcon, ImageUp, MapPin, Pencil, Plus, Save, ShieldCheck, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
 
@@ -57,6 +58,14 @@ import {
 
 const STATES = ["Johor", "Kedah", "Kelantan", "Melaka", "Negeri Sembilan", "Pahang", "Perak", "Perlis", "Pulau Pinang", "Sabah", "Sarawak", "Selangor", "Terengganu", "W.P. Kuala Lumpur", "W.P. Labuan", "W.P. Putrajaya"];
 const TIMEZONES = ["Asia/Kuala_Lumpur", "Asia/Singapore", "UTC"];
+/** The largest logo or background the backend takes (`MAX_COMPANY_IMAGE_BYTES`, C12). */
+export const MAX_COMPANY_IMAGE_MB = 8;
+
+/** A picture's size in MB (one decimal) when it is over the limit, else null. */
+export function oversizeMb(file: Pick<File, "size">): number | null {
+  const mb = file.size / (1024 * 1024);
+  return mb > MAX_COMPANY_IMAGE_MB ? Math.ceil(mb * 10) / 10 : null;
+}
 
 /** The settings fields this page writes - the only ones a contractor may (JB99). */
 export const PROFILE_SETTINGS = ["emergency_contact_name", "emergency_contact_phone"] as const;
@@ -84,6 +93,12 @@ export function CompanySiteSettingsWorkspace() {
   const [profileDraft, setProfileDraft] = useState<Partial<ContractorCompanyProfile>>({});
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const logoPreview = useObjectUrl(logoFile);
+  // The background (JB161): a new picture, or the saved one taken away -
+  // either goes with 【保存公司资料】, like every other change in the block.
+  const [backgroundFile, setBackgroundFile] = useState<File | null>(null);
+  const backgroundPreview = useObjectUrl(backgroundFile);
+  const [clearBackground, setClearBackground] = useState(false);
+  const [backgroundTooBig, setBackgroundTooBig] = useState<number | null>(null);
   const [editingBranch, setEditingBranch] = useState<CompanyBranch | "new" | null>(null);
   const [removing, setRemoving] = useState<CompanyBranch | null>(null);
   const form = settings.data ? { ...settings.data, ...draft } : null;
@@ -102,7 +117,9 @@ export function CompanySiteSettingsWorkspace() {
   });
   const saveProfile = useMutation({
     mutationFn: async () => {
-      const saved = await updateContractorCompanyProfile(profileForm ?? {}, logoFile, null);
+      const saved = await updateContractorCompanyProfile(profileForm ?? {}, logoFile, backgroundFile, {
+        removeBackground: clearBackground,
+      });
       // The emergency contact is a setting, saved with the block it sits in.
       if (form && settings.data && PROFILE_SETTINGS.some((field) => form[field] !== settings.data[field])) {
         await updateContractorSiteSettings(pickSettings(form, PROFILE_SETTINGS));
@@ -112,6 +129,8 @@ export function CompanySiteSettingsWorkspace() {
     onSuccess: async (savedProfile) => {
       setProfileDraft({});
       setLogoFile(null);
+      setBackgroundFile(null);
+      setClearBackground(false);
       qc.setQueryData(["contractor-company-profile"], savedProfile);
       await Promise.all([
         qc.invalidateQueries({ queryKey: ["contractor-company-profile"] }),
@@ -131,6 +150,21 @@ export function CompanySiteSettingsWorkspace() {
     </FieldWrapper>
   );
 
+  const shownBackground = backgroundPreview || (clearBackground ? "" : profileForm.background_image || "");
+  // The backend's own limit, said before the upload rather than after it fails.
+  const pickBackground = (file: File | null) => {
+    const tooBig = file ? oversizeMb(file) : null;
+    setBackgroundTooBig(tooBig);
+    if (!file || tooBig !== null) return;
+    setBackgroundFile(file);
+    setClearBackground(false);
+  };
+  const removeBackground = () => {
+    setBackgroundFile(null);
+    setBackgroundTooBig(null);
+    setClearBackground(Boolean(profileForm.background_image));
+  };
+
   return <div className="flex flex-col gap-4">
     <ListHeader title={t("settings.title")} subtitle={t("settings.simpleSubtitle")} />
     <div className="flex items-start gap-2 rounded-lg border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-foreground" data-testid="managed-by-mse">
@@ -149,6 +183,24 @@ export function CompanySiteSettingsWorkspace() {
           </div>
           {canManage && <label className="flex cursor-pointer items-center justify-center gap-2 rounded-md border px-3 py-2 text-sm font-medium hover:bg-muted"><ImageUp className="size-4" /><span className="truncate">{logoFile?.name || t("profile.chooseLogo")}</span><input className="sr-only" type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => setLogoFile(event.target.files?.[0] ?? null)} /></label>}
           <p className="text-2xs text-muted-foreground">{t("profile.imageHint")}</p>
+          {/* JB161 (客户 11-10 第十批 「背景图设置呢？」, 第十一批 「在「公司设置」增加
+              「仪表盘背景图」上传功能。建议上传尺寸 1920 × 400px。每家建筑公司可自行
+              上传、更换」): hidden in the J batch (「背景图片：不在页面上显示」), never
+              deleted, and set here again. It is the picture behind the dashboards'
+              top card; the preview has that card's 1920 × 400 shape. */}
+          <div className="space-y-3 pt-3" data-company-background>
+            <p className="text-xs font-medium text-muted-foreground">{t("profile.dashboardBackground")}</p>
+            <div className="grid aspect-[24/5] place-items-center overflow-hidden rounded-lg border bg-muted/40">
+              {shownBackground ? <img src={shownBackground} alt={t("profile.dashboardBackground")} className="h-full w-full object-cover" /> : <ImageIcon className="size-6 text-muted-foreground" aria-hidden />}
+            </div>
+            {canManage && <div className="flex gap-2">
+              <label className="flex min-w-0 flex-1 cursor-pointer items-center justify-center gap-2 rounded-md border px-3 py-2 text-sm font-medium hover:bg-muted"><ImageUp className="size-4 shrink-0" /><span className="truncate">{backgroundFile?.name || (shownBackground ? t("profile.replaceBackground") : t("profile.chooseBackground"))}</span><input className="sr-only" type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => { pickBackground(event.target.files?.[0] ?? null); event.target.value = ""; }} /></label>
+              {shownBackground && <Button type="button" variant="outline" size="icon" className="shrink-0 text-destructive" title={t("profile.removeBackground")} aria-label={t("profile.removeBackground")} onClick={removeBackground}><Trash2 /></Button>}
+            </div>}
+            {backgroundTooBig !== null && <p role="alert" className="text-xs text-destructive">{t("profile.backgroundTooBig", { actual: backgroundTooBig, limit: MAX_COMPANY_IMAGE_MB })}</p>}
+            {clearBackground && !backgroundFile && <p className="text-xs text-muted-foreground">{t("profile.backgroundRemovePending")}</p>}
+            <p className="text-2xs text-muted-foreground">{t("profile.backgroundHint")}</p>
+          </div>
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           {text(t("field.companyName"), profileForm.name, (value) => setCompany({ ...profileForm, name: value }), { required: true })}
