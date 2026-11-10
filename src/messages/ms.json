@@ -8773,7 +8773,8 @@
       "file_share_link_not_found": "Pautan fail ini tidak dijumpai.",
       "file_share_link_expired": "Pautan ini sudah tamat tempoh. Minta pautan baharu daripada penghantar.",
       "file_share_file_too_large": "Fail melebihi {max_mb} MB dan tidak boleh dihantar sebagai pautan.",
-      "permission_switches_projects_required": "Pengguna projek hanya melihat projek yang dipilih. Pilih sekurang-kurangnya satu projek."
+      "permission_switches_projects_required": "Pengguna projek hanya melihat projek yang dipilih. Pilih sekurang-kurangnya satu projek.",
+      "project_member_not_switchable": "Kebenaran orang ini tidak ditukar dalam Kebenaran projek; ibu pejabat menetapkannya dalam Pengurusan pengguna."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -13834,7 +13835,12 @@
       "projectNote": "Kebenaran projek: semuanya hidup secara lalai. Yang dimatikan tidak boleh digunakan oleh orang ini dalam semua projeknya.",
       "allOn": "Semua kebenaran projek hidup",
       "someOff": "{count} dimatikan",
-      "grantedCount": "{count} kebenaran kumpulan B daripada ibu pejabat"
+      "grantedCount": "{count} kebenaran kumpulan B daripada ibu pejabat",
+      "invited": "Belum diaktifkan",
+      "suspended": "Digantung",
+      "headOffice": "Akaun ibu pejabat: kebenarannya ditetapkan oleh ibu pejabat dalam Pengurusan pengguna dan hanya dipaparkan di sini.",
+      "setInUsers": "Kebenaran orang ini ditetapkan oleh ibu pejabat dalam Pengurusan pengguna dan hanya dipaparkan di sini.",
+      "openUser": "Buka halaman pengguna"
     }
   },
   "qrCodes": {

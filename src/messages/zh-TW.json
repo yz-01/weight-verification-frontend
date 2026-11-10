@@ -8773,7 +8773,8 @@
       "file_share_link_not_found": "找不到這個文件連結。",
       "file_share_link_expired": "這個連結已經過期。請向發給你的人再要一次。",
       "file_share_file_too_large": "文件超過 {max_mb} MB，不能做成連結。",
-      "permission_switches_projects_required": "項目用戶只能看指定的項目，請選至少一個項目。"
+      "permission_switches_projects_required": "項目用戶只能看指定的項目，請選至少一個項目。",
+      "project_member_not_switchable": "這個人的權限不在「項目權限」裡改，由總部在「用戶管理」設置。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -13834,7 +13835,12 @@
       "projectNote": "項目權限：默認全部打開。關掉的那一項，這個人在他所有的項目都不能用。",
       "allOn": "項目權限全部打開",
       "someOff": "關掉了 {count} 項",
-      "grantedCount": "總部開了 {count} 項 B 組權限"
+      "grantedCount": "總部開了 {count} 項 B 組權限",
+      "invited": "還沒激活",
+      "suspended": "已停用",
+      "headOffice": "總部賬號：權限由總部在「用戶管理」設置，這裡只能查看。",
+      "setInUsers": "這個人的權限由總部在「用戶管理」設置，這裡只能查看。",
+      "openUser": "打開用戶頁"
     }
   },
   "qrCodes": {

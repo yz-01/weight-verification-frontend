@@ -8773,7 +8773,8 @@
       "file_share_link_not_found": "This file link was not found.",
       "file_share_link_expired": "This link has expired. Ask the person who sent it for a new one.",
       "file_share_file_too_large": "The file is larger than {max_mb} MB and cannot be sent as a link.",
-      "permission_switches_projects_required": "A project user sees only chosen projects. Choose at least one project."
+      "permission_switches_projects_required": "A project user sees only chosen projects. Choose at least one project.",
+      "project_member_not_switchable": "This person's permissions are not switched on Project permissions; head office sets them in User management."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -13834,7 +13835,12 @@
       "projectNote": "Project permissions: all on by default. One switched off is off for this person on every project they work on.",
       "allOn": "All project permissions on",
       "someOff": "{count} switched off",
-      "grantedCount": "{count} group B permissions from head office"
+      "grantedCount": "{count} group B permissions from head office",
+      "invited": "Not activated yet",
+      "suspended": "Suspended",
+      "headOffice": "Head-office account: its permissions are set by head office in User management and only shown here.",
+      "setInUsers": "This person's permissions are set by head office in User management and only shown here.",
+      "openUser": "Open user page"
     }
   },
   "qrCodes": {

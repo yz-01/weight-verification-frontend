@@ -8773,7 +8773,8 @@
       "file_share_link_not_found": "找不到这个文件链接。",
       "file_share_link_expired": "这个链接已经过期。请向发给你的人再要一次。",
       "file_share_file_too_large": "文件超过 {max_mb} MB，不能做成链接。",
-      "permission_switches_projects_required": "项目用户只能看指定的项目，请选至少一个项目。"
+      "permission_switches_projects_required": "项目用户只能看指定的项目，请选至少一个项目。",
+      "project_member_not_switchable": "这个人的权限不在「项目权限」里改，由总部在「用户管理」设置。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -13834,7 +13835,12 @@
       "projectNote": "项目权限：默认全部打开。关掉的那一项，这个人在他所有的项目都不能用。",
       "allOn": "项目权限全部打开",
       "someOff": "关掉了 {count} 项",
-      "grantedCount": "总部开了 {count} 项 B 组权限"
+      "grantedCount": "总部开了 {count} 项 B 组权限",
+      "invited": "还没激活",
+      "suspended": "已停用",
+      "headOffice": "总部账号：权限由总部在「用户管理」设置，这里只能查看。",
+      "setInUsers": "这个人的权限由总部在「用户管理」设置，这里只能查看。",
+      "openUser": "打开用户页"
     }
   },
   "qrCodes": {
