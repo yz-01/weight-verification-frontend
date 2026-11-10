@@ -15960,6 +15960,7 @@
       "chooseBackground": "Pilih imej latar",
       "replaceBackground": "Tukar imej latar",
       "removeBackground": "Buang imej latar",
+      "removeLogo": "Buang logo",
       "backgroundRemovePending": "Dibuang apabila anda tekan “Simpan profil syarikat”.",
       "backgroundTooBig": "Imej itu {actual} MB, melebihi had {limit} MB. Sila pilih yang lebih kecil.",
       "backgroundHint": "Saiz dicadangkan 1920 × 400 px (foto mendatar)",

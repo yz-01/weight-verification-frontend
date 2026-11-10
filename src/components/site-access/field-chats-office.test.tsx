@@ -164,6 +164,13 @@ describe("沟通记录 · 找人沟通 for the office (JB158)", () => {
     expect(greyed).toContain('data-mix-reason="phoneChosen"');
     expect(greyed).toContain(zh.fieldChats.find.mix.phoneChosen);
     expect(zh.fieldChats.find.mix.phoneChosen).toBe("已选了手机端人员，总部不能加入同一个对话。");
+    // JB164: the greyed row's own tooltip sits on a real, focusable box at
+    // the row (it was a box-less contents span: no hover, drawn top-left).
+    const tip = greyed.match(/<span[^>]*data-slot="reason-tip"[^>]*>/)?.[0] ?? "";
+    expect(tip).toContain("inline-grid");
+    expect(tip).toContain("w-full");
+    expect(tip).toContain('tabindex="0"');
+    expect(tip).toContain(`title="${zh.fieldChats.find.mix.phoneChosen}"`);
     // Head office chosen: the phone greys out and says why.
     const phones = renderDetail(
       <OfficePersonGroup name="phone" rows={[guard]} chosen={[hq.id]} chosenPeople={[hq]} onToggle={() => {}} />,

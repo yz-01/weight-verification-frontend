@@ -10,7 +10,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
-import { Button } from "@/components/ui/button";
+import { Button, reasonLayout } from "@/components/ui/button";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import messages from "@/messages/zh.json";
 
@@ -50,5 +50,65 @@ describe("Button with missing fields (J13-1)", () => {
     expect(render(<Button requires={[["x", "退场原因"]]}>提交</Button>)).not.toContain("button-reason");
     expect(render(<Button disabled disabledReason="已经是第一页">上一页</Button>)).not.toContain("button-reason");
     expect(render(<Button disabled disabledReason="先拍照" showReason>提交</Button>)).toContain("button-reason");
+  });
+});
+
+/**
+ * JB164 (screens-1110 c03): the reason of a greyed button was never seen. Its
+ * tooltip trigger was a `display: contents` span - no box, so a hover never
+ * reached it (a disabled button takes no pointer events) and, forced open, the
+ * tooltip sat at the window's top-left. The trigger is now a real box at the
+ * button that a mouse, the keyboard and a tap all reach.
+ */
+describe("the reason's tooltip sits on a real box at the button (JB164)", () => {
+  const trigger = (html: string) => html.match(/<span[^>]*data-slot="reason-tip"[^>]*>/)?.[0] ?? "";
+
+  it("is a focusable inline box carrying the reason, not a box-less contents span", () => {
+    const html = render(<Button disabled disabledReason="先选一个项目">开始沟通</Button>);
+    const tag = trigger(html);
+    expect(tag).not.toBe("");
+    expect(tag).not.toMatch(/class="contents/);
+    expect(tag).toContain("inline-grid");
+    expect(tag).toContain('tabindex="0"');
+    expect(tag).toContain('title="先选一个项目"');
+    // Radix's trigger props are on it, so the tooltip anchors to this box.
+    expect(tag).toContain('data-state="closed"');
+    // The button names the reason for a screen reader.
+    expect(html).toMatch(/<button[^>]*aria-describedby="[^"]+"[^>]*disabled/);
+  });
+
+  it("keeps the button's place: margins move to the box, widths and flex go on both", () => {
+    expect(reasonLayout("mt-2 ml-auto w-full sm:w-auto flex-1 h-12 justify-start bg-success")).toEqual({
+      wrapper: "mt-2 ml-auto w-full sm:w-auto flex-1",
+      button: "w-full sm:w-auto flex-1 h-12 justify-start bg-success",
+    });
+    expect(reasonLayout("hidden sm:inline-flex xl:mt-auto")).toEqual({
+      wrapper: "hidden sm:inline-grid xl:mt-auto",
+      button: "hidden sm:inline-flex",
+    });
+    const html = render(
+      <Button disabled disabledReason="x" className="mt-2 w-full">
+        提交
+      </Button>,
+    );
+    expect(trigger(html)).toMatch(/class="[^"]*\bmt-2\b[^"]*\bw-full\b/);
+    const button = html.match(/<button[^>]*>/)?.[0] ?? "";
+    expect(button).toContain("w-full");
+    expect(button).not.toMatch(/\bmt-2\b/);
+  });
+
+  it("leaves a button with nothing to explain exactly as it was", () => {
+    const html = render(<Button className="mt-2 w-full">提交</Button>);
+    expect(html).not.toContain("reason-tip");
+    expect(html.match(/<button[^>]*>/)?.[0]).toMatch(/\bmt-2\b/);
+  });
+
+  it("on a touch screen a full-width button's reason column is full width too", () => {
+    const html = render(
+      <Button className="h-12 w-full" requires={[["", "退场原因"]]}>
+        提交退场
+      </Button>,
+    );
+    expect(html).toContain("pointer-coarse:w-full");
   });
 });

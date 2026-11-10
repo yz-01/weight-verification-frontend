@@ -98,6 +98,8 @@ export function CompanySiteSettingsWorkspace() {
   const [profileDraft, setProfileDraft] = useState<Partial<ContractorCompanyProfile>>({});
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const logoPreview = useObjectUrl(logoFile);
+  // JB164: the saved logo taken away, sent with 【保存公司资料】 like the background.
+  const [clearLogo, setClearLogo] = useState(false);
   // The background (JB161): a new picture, or the saved one taken away -
   // either goes with 【保存公司资料】, like every other change in the block.
   const [backgroundFile, setBackgroundFile] = useState<File | null>(null);
@@ -124,6 +126,7 @@ export function CompanySiteSettingsWorkspace() {
     mutationFn: async () => {
       const saved = await updateContractorCompanyProfile(profileForm ?? {}, logoFile, backgroundFile, {
         removeBackground: clearBackground,
+        removeLogo: clearLogo,
       });
       // The emergency contact is a setting, saved with the block it sits in.
       if (form && settings.data && PROFILE_SETTINGS.some((field) => form[field] !== settings.data[field])) {
@@ -134,6 +137,7 @@ export function CompanySiteSettingsWorkspace() {
     onSuccess: async (savedProfile) => {
       setProfileDraft({});
       setLogoFile(null);
+      setClearLogo(false);
       setBackgroundFile(null);
       setClearBackground(false);
       qc.setQueryData(["contractor-company-profile"], savedProfile);
@@ -155,6 +159,11 @@ export function CompanySiteSettingsWorkspace() {
     </FieldWrapper>
   );
 
+  const shownLogo = logoPreview || (clearLogo ? "" : profileForm.logo || "");
+  const removeLogo = () => {
+    setLogoFile(null);
+    setClearLogo(Boolean(profileForm.logo));
+  };
   const shownBackground = backgroundPreview || (clearBackground ? "" : profileForm.background_image || "");
   // The backend's own limit, said before the upload rather than after it fails.
   const pickBackground = (file: File | null) => {
@@ -184,9 +193,15 @@ export function CompanySiteSettingsWorkspace() {
         <div className="space-y-3">
           <p className="text-xs font-medium text-muted-foreground">{t("profile.logo")}</p>
           <div className="grid aspect-square place-items-center overflow-hidden rounded-lg border bg-muted/40">
-            {logoPreview || profileForm.logo ? <img src={logoPreview || profileForm.logo || ""} alt={profileForm.name} className="h-full w-full object-contain" /> : <Building2 className="size-12 text-muted-foreground" />}
+            {shownLogo ? <img src={shownLogo} alt={profileForm.name} className="h-full w-full object-contain" /> : <Building2 className="size-12 text-muted-foreground" />}
           </div>
-          {canManage && <label className="flex cursor-pointer items-center justify-center gap-2 rounded-md border px-3 py-2 text-sm font-medium hover:bg-muted"><ImageUp className="size-4" /><span className="truncate">{logoFile?.name || t("profile.chooseLogo")}</span><input className="sr-only" type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => setLogoFile(event.target.files?.[0] ?? null)} /></label>}
+          {/* JB164: a logo can be taken away as well as replaced (like the
+              background below); the removal goes with 【保存公司资料】. */}
+          {canManage && <div className="flex gap-2" data-company-logo-actions>
+            <label className="flex min-w-0 flex-1 cursor-pointer items-center justify-center gap-2 rounded-md border px-3 py-2 text-sm font-medium hover:bg-muted"><ImageUp className="size-4 shrink-0" /><span className="truncate">{logoFile?.name || t("profile.chooseLogo")}</span><input className="sr-only" type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => { const file = event.target.files?.[0] ?? null; setLogoFile(file); if (file) setClearLogo(false); event.target.value = ""; }} /></label>
+            {shownLogo && <Button type="button" variant="outline" size="icon" className="shrink-0 text-destructive" title={t("profile.removeLogo")} aria-label={t("profile.removeLogo")} onClick={removeLogo}><Trash2 /></Button>}
+          </div>}
+          {clearLogo && !logoFile && <p className="text-xs text-muted-foreground">{t("profile.backgroundRemovePending")}</p>}
           <p className="text-2xs text-muted-foreground">{t("profile.imageHint")}</p>
           {/* JB161 (客户 11-10 第十批 「背景图设置呢？」, 第十一批 「在「公司设置」增加
               「仪表盘背景图」上传功能。建议上传尺寸 1920 × 400px。每家建筑公司可自行

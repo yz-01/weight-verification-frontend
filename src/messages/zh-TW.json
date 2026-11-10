@@ -462,7 +462,7 @@
       },
       "login": {
         "subtitle": "時間、IP、設備和成功或失敗的訪問記錄。",
-        "title": "登錄記錄"
+        "title": "登入記錄"
       },
       "search": {
         "subtitle": "按業務類別、用戶、公司、類型、日期、模塊、記錄或 IP 篩選及導出全部操作記錄。",
@@ -477,7 +477,7 @@
         "title": "訂閱記錄"
       },
       "users": {
-        "subtitle": "登錄、退出、賬號、權限、密碼和狀態變更。",
+        "subtitle": "登入、退出、賬號、權限、密碼和狀態變更。",
         "title": "用戶記錄"
       }
     },
@@ -3231,10 +3231,10 @@
       "CREATE": "創建",
       "DELETE": "移除",
       "EXPORT": "導出",
-      "IMPERSONATE": "模擬登錄客戶",
+      "IMPERSONATE": "模擬登入客戶",
       "LOCK": "鎖定",
-      "LOGIN": "登錄",
-      "LOGIN_FAILED": "登錄失敗",
+      "LOGIN": "登入",
+      "LOGIN_FAILED": "登入失敗",
       "LOGOUT": "退出",
       "MAINTENANCE": "系統維護",
       "PASSWORD_CHANGE": "修改密碼",
@@ -3261,7 +3261,7 @@
       "SETTINGS": "系統設置",
       "SUBSCRIPTION": "訂閱",
       "TECHNICAL_SUPPORT": "技術支持",
-      "USER": "用戶與登錄"
+      "USER": "用戶與登入"
     },
     "companyFilter": "按公司篩選",
     "count": "{count, plural, =0 {暫無記錄} other {# 條記錄}}",
@@ -3446,7 +3446,7 @@
       "qr_setting_updated": "修改二維碼設置",
       "qr_status_change": "二維碼狀態變更",
       "record_event_resolution": "更新異常處理狀態",
-      "reset_link_sent": "重新發送專屬登錄鏈接",
+      "reset_link_sent": "重新發送專屬登入鏈接",
       "return": "歸還資產",
       "revoke_external_access": "撤銷外部訪問權限",
       "run_automatic_billing_now": "執行自動賬單任務",
@@ -3842,7 +3842,7 @@
       "title": "修改密碼"
     },
     "forgot": {
-      "backToLogin": "返回登錄",
+      "backToLogin": "返回登入",
       "sent": "如果該郵箱已註冊，重設鏈接稍後會送達。",
       "submit": "發送重設鏈接",
       "subtitle": "我們會發送一封郵件，讓你設置新密碼",
@@ -3857,24 +3857,24 @@
       "password": "密碼",
       "passwordPlaceholder": "請輸入密碼",
       "signedOut": "你已退出登入。要再用，輸入電子郵箱和密碼登入。",
-      "submit": "登錄",
+      "submit": "登入",
       "subtitle": "進入你的 MSE Trace 工作臺",
       "throttled": "嘗試次數過多，請稍候再試。",
-      "title": "登錄",
+      "title": "登入",
       "userSuspended": "此賬號已停用，請聯繫管理員。"
     },
-    "portalNavigation": "MSE 登錄入口",
+    "portalNavigation": "MSE 登入入口",
     "reset": {
       "confirmPassword": "確認密碼",
       "invalidToken": "此重設鏈接無效或已過期，請重新申請。",
       "newPassword": "新密碼",
       "submit": "設置密碼",
       "subtitle": "請使用一個你沒用過的密碼",
-      "success": "密碼已更新，現在可以登錄了。",
+      "success": "密碼已更新，現在可以登入了。",
       "title": "設置新密碼"
     },
-    "sessionExpired": "登錄已過期，請重新登錄。",
-    "signedOut": "已退出登錄"
+    "sessionExpired": "登入已過期，請重新登入。",
+    "signedOut": "已退出登入"
   },
   "billing": {
     "action": {
@@ -4715,7 +4715,7 @@
     "selectPlaceholder": "請選擇",
     "settings": "設置",
     "sidebar": "側欄",
-    "signOut": "退出登錄",
+    "signOut": "退出登入",
     "signatureMissing": "請先在這裡簽名",
     "theme": "主題",
     "themeDark": "深色",
@@ -4894,7 +4894,7 @@
       "confirm": {
         "approve-company": {
           "confirm": "審核通過",
-          "description": "該公司的用戶之後可以登錄並開始使用系統。",
+          "description": "該公司的用戶之後可以登入並開始使用系統。",
           "title": "審核通過此公司？"
         },
         "primary-bank": {
@@ -4909,7 +4909,7 @@
         },
         "reject-company": {
           "confirm": "駁回",
-          "description": "資料更正並重新審核通過前，該公司的用戶無法登錄。",
+          "description": "資料更正並重新審核通過前，該公司的用戶無法登入。",
           "title": "駁回此公司？"
         },
         "reject-document": {
@@ -5009,11 +5009,11 @@
     },
     "reinstate": {
       "confirm": "恢復",
-      "description": "這家公司的所有人將可以重新登錄。",
+      "description": "這家公司的所有人將可以重新登入。",
       "title": "恢復 {name}？"
     },
     "remove": {
-      "blockedByUsers": "這家公司還有可以登錄的人員。請改為停用，或先停用這些人員。",
+      "blockedByUsers": "這家公司還有可以登入的人員。請改為停用，或先停用這些人員。",
       "confirm": "移除",
       "description": "這家公司將不再出現在 MSE Trace 的任何地方。已有的記錄會保留，之後可以恢復。",
       "title": "移除 {name}？"
@@ -5053,7 +5053,7 @@
     },
     "suspend": {
       "confirm": "停用",
-      "description": "在恢復之前，這家公司的任何人都無法登錄。已記錄的業務數據不受影響。",
+      "description": "在恢復之前，這家公司的任何人都無法登入。已記錄的業務數據不受影響。",
       "reasonRequired": "請填寫原因，以便日後追查。",
       "title": "停用 {name}？"
     },
@@ -5200,7 +5200,7 @@
     },
     "step": {
       "consultant": "2. 顧問賬號",
-      "consultantHelp": "顧問只需一個賬號，可長期使用同一個登錄。",
+      "consultantHelp": "顧問只需一個賬號，可長期使用同一個登入。",
       "grant": "3. 項目授權",
       "grantHelp": "選擇項目、權限和到期時間。",
       "organization": "1. 顧問單位",
@@ -5393,7 +5393,7 @@
       "emptyValue": "—"
     },
     "credential": {
-      "currentPassword": "當前登錄密碼",
+      "currentPassword": "當前登入密碼",
       "identityHelp": "每次審批都會保存不可修改的副本，日後更換不會影響舊報告。",
       "identityTitle": "簽名與顧問印章",
       "passwordHelp": "修改簽署憑證前需驗證當前密碼。",
@@ -8399,7 +8399,7 @@
   },
   "email": {
     "invite": {
-      "body": "你已被邀請加入 MSE Trace。請使用下方鏈接設置密碼並登錄。鏈接將很快失效。",
+      "body": "你已被邀請加入 MSE Trace。請使用下方鏈接設置密碼並登入。鏈接將很快失效。",
       "subject": "邀請你加入 MSE Trace"
     },
     "reset": {
@@ -8441,7 +8441,7 @@
       "company_already_referred": "該公司已經歸屬其他合作伙伴。",
       "company_bank_account_not_found": "找不到該銀行賬號。",
       "company_document_not_found": "找不到該公司文件。",
-      "company_has_active_users": "這家公司還有可以登錄的人員。請改為停用，或先停用這些人員。",
+      "company_has_active_users": "這家公司還有可以登入的人員。請改為停用，或先停用這些人員。",
       "company_not_found": "找不到這家公司。",
       "company_not_recycler": "請選擇回收商公司。",
       "company_onboarding_incomplete": "該公司的入駐資料未齊全，無法通過審核。",
@@ -8495,9 +8495,9 @@
       "field_device_already_bound": "此現場人員賬號已綁定一臺設備。如需換機，請先讓管理員重置設備。",
       "field_device_invalid": "這個瀏覽器還沒有綁定你的帳號。如果你已經把工作台加到主畫面，請從主畫面的圖示打開；否則請打開辦公室最新發給你的連結。",
       "field_invitation_invalid": "此現場人員鏈接無效或已過期。",
-      "field_pin_expired": "此現場賬號已連續超過設定期限未使用。請聯繫項目管理員重新生成登錄鏈接。",
+      "field_pin_expired": "此現場賬號已連續超過設定期限未使用。請聯繫項目管理員重新生成登入鏈接。",
       "field_pin_invalid": "PIN 不正確。",
-      "field_pwa_bootstrap_invalid": "這個登入連結已經不能再用了。請按「登錄」，輸入你的 PIN；如果 PIN 不能用，請向辦公室要新的連結。",
+      "field_pwa_bootstrap_invalid": "這個登入連結已經不能再用了。請按「登入」，輸入你的 PIN；如果 PIN 不能用，請向辦公室要新的連結。",
       "field_link_replaced": "辦公室已重新發出連結，請用新連結重新綁定。",
       "field_office_signed_out": "辦公室讓這台手機登出了。請輸入你的 PIN 繼續；如果 PIN 不能用，請向辦公室要新的連結。",
       "field_account_stopped": "這個帳號已被辦公室停用，請聯絡辦公室。",
@@ -8554,7 +8554,7 @@
       "payout_already_exists": "該期間已經建立付款。",
       "payout_not_draft": "只有草稿狀態的付款可以這樣修改。",
       "permission_denied": "你沒有權限做這件事。",
-      "portal_mismatch": "此賬號屬於另一個後臺，請使用對應的登錄入口。",
+      "portal_mismatch": "此賬號屬於另一個後臺，請使用對應的登入入口。",
       "pricing_rule_not_found": "找不到該雲服務收費規則。",
       "progress_update_not_found": "找不到這條工程進度。",
       "project_already_bound": "此項目已綁定到該合作關係。",
@@ -8576,7 +8576,7 @@
       "receipt_rejection_needs_reason": "請填寫退回這批材料的原因。沒有原因的退回，現場無從處理。",
       "receipt_superseded": "這張材料進場單已經更正過，這張不能再驗收、退回、歸類或更正。請打開最新那張（{receipt}）來處理。",
       "record_not_found": "這條記錄不在你這個帳號的範圍內。",
-      "refresh_token_required": "登錄狀態無法續期，請重新登錄。",
+      "refresh_token_required": "登入狀態無法續期，請重新登入。",
       "report_export_file_altered": "這份存檔文件和生成時記錄的指紋（SHA-256）不一致，系統不會把它當作原件打開。請聯繫管理員。",
       "report_export_file_missing": "這份是本功能上線前生成的，當時沒有保存文件。",
       "reset_link_invalid": "此重設鏈接無效或已過期，請重新申請。",
@@ -8591,7 +8591,7 @@
       "scheduled_job_not_found": "找不到這個計劃任務。",
       "server_error": "服務器暫時無法完成此請求，請稍後重試。",
       "service_record_not_found": "找不到該客戶服務記錄。",
-      "session_expired": "登錄已過期，請重新登錄。",
+      "session_expired": "登入已過期，請重新登入。",
       "session_not_found": "找不到這次稱重。",
       "session_record_not_found": "找不到該技術支持會話。",
       "settlement_deductions_open": "還有扣雜在等產廢方回應。",
@@ -9052,12 +9052,12 @@
     "androidBody": "按上方“安裝現場人員 App”會直接打開 Android 系統安裝提示。如果沒有彈出，請打開 Chrome、Edge 或當前瀏覽器菜單，選擇“安裝應用”或“添加到主屏幕”。",
     "androidTitle": "安裝到 Android 桌面",
     "bind": "綁定這臺手機",
-    "browserBody": "請打開瀏覽器菜單，選擇“安裝應用”或“添加到主屏幕”。以後從新圖標打開，不需要再次登錄。",
+    "browserBody": "請打開瀏覽器菜單，選擇“安裝應用”或“添加到主屏幕”。以後從新圖標打開，不需要再次登入。",
     "browserTitle": "把現場 App 加到桌面",
     "desktopBody": "按上方“安裝現場人員 App”。也可以按地址欄中的安裝圖標，或從瀏覽器菜單選擇“安裝應用”。",
-    "desktopExpired": "此安裝目前無法自動恢復登錄。如果管理員已重新生成鏈接，請從最新鏈接輸入 PIN，再重新加入主畫面。",
-    "desktopExpiredTitle": "應用自動登錄不可用",
-    "desktopSigningIn": "正在恢復現場人員登錄……",
+    "desktopExpired": "此安裝目前無法自動恢復登入。如果管理員已重新生成鏈接，請從最新鏈接輸入 PIN，再重新加入主畫面。",
+    "desktopExpiredTitle": "應用自動登入不可用",
+    "desktopSigningIn": "正在恢復現場人員登入……",
     "desktopTitle": "使用 Chrome 或 Edge 安裝",
     "driverInstallBody": "把司機工作頁面加入主畫面，下次可以直接開啟。",
     "driverInstallBrowserGuide": "開啟瀏覽器選單，選擇安裝應用程式或加入主畫面。",
@@ -9072,7 +9072,7 @@
     "installUnavailable": "系統安裝提示尚未準備好。請確認沒有使用無痕模式，再打開瀏覽器菜單選擇“安裝應用”或“添加到主屏幕”；也可以稍後再按一次安裝按鈕。",
     "invalidBody": "此現場人員鏈接無效或已過期，請向項目管理員索取新鏈接。",
     "invalidTitle": "鏈接不可用",
-    "iosBody": "請在這個頁面從 Safari 點分享，再選擇“加入主畫面”。之後從桌面圖標打開會自動登錄。",
+    "iosBody": "請在這個頁面從 Safari 點分享，再選擇“加入主畫面”。之後從桌面圖標打開會自動登入。",
     "iosChromeBody": "按地址欄旁邊的“分享”圖標，選擇“添加到主屏幕”，再按“添加”。如果沒有這個選項，請把同一個鏈接改用 Safari 打開。",
     "iosChromeTitle": "使用 iPhone Chrome 安裝",
     "iosOtherBody": "打開瀏覽器的“分享”菜單並選擇“添加到主屏幕”。如果沒有這個選項，請用 Safari 打開同一個鏈接，再按“分享”和“加入主畫面”。",
@@ -9081,13 +9081,13 @@
     "iosSafariTitle": "使用 iPhone Safari 安裝",
     "iosTitle": "加入 iPhone 桌面",
     "loginBody": "請輸入你的 6 位 PIN。如果是新手機或新瀏覽器，請直接點辦公室發的連結。",
-    "loginTitle": "現場人員登錄",
+    "loginTitle": "現場人員登入",
     "openWorkspace": "打開拍照工作臺",
     "phone": "手機號碼",
     "pin": "6 位 PIN",
     "readyBody": "已經登入。請加入主畫面，以後點圖示就能直接進入。也可以先用網頁版，下次點同一個連結就能回來。",
     "readyTitle": "手機已準備好",
-    "signIn": "登錄",
+    "signIn": "登入",
     "thisPhone": "這臺手機",
     "storageBlocked": "這個瀏覽器沒有保存網站資料，所以這台手機沒辦法保持關聯。請用一般視窗（不要無痕視窗）開啟邀請連結，並允許這個網址保存網站資料。",
     "copyLink": "複製連結",
@@ -9137,7 +9137,7 @@
       "help": "手機遺失或換人使用時用這個。這個人所有手機和瀏覽器都會被登出，之後再點一次連結就能重新進來。",
       "title": "全部登出"
     },
-    "action": "現場人員登錄鏈接",
+    "action": "現場人員登入鏈接",
     "activationLink": "激活鏈接",
     "cancel": "取消",
     "close": "關閉",
@@ -9149,8 +9149,8 @@
     "createError": "無法生成鏈接，請檢查手機號、項目和賬號權限後重試。",
     "description": "建立現場人員手機賬號，並選擇該人員可以進入的項目。",
     "email": "電子郵箱",
-    "emailHint": "選填。不填寫時，系統會自動生成內部登錄郵箱。",
-    "existingHelp": "手機號碼不可修改。重新生成鏈接會立即解綁原有設備並註銷所有舊登錄；第一個打開新鏈接並正確輸入 PIN 的設備將成為唯一綁定設備。你也可以把他換到另一個項目。",
+    "emailHint": "選填。不填寫時，系統會自動生成內部登入郵箱。",
+    "existingHelp": "手機號碼不可修改。重新生成鏈接會立即解綁原有設備並註銷所有舊登入；第一個打開新鏈接並正確輸入 PIN 的設備將成為唯一綁定設備。你也可以把他換到另一個項目。",
     "existingStaff": "選擇現場人員",
     "expiryHelp": "啟用連結只用來第一次綁定手機。綁定後打開就會自動登入，不用每次輸入 PIN；只有連續很多天沒打開（天數在公司設定裡改），或者辦公室重新產生連結、停用帳號，才需要重新綁定。",
     "fullName": "姓名",
@@ -9168,7 +9168,7 @@
     "pinExpiresAt": "綁定後",
     "projects": "可進入的項目",
     "qrTitle": "現場人員激活二維碼",
-    "reissue": "重新生成登錄鏈接",
+    "reissue": "重新生成登入鏈接",
     "resultDescription": "請把激活鏈接和 6 位 PIN 交給現場人員。鏈接只能在有效期內用於綁定手機。",
     "resultTitle": "現場人員鏈接已生成",
     "selectStaff": "請選擇現場人員",
@@ -10675,11 +10675,11 @@
     "outcome": {
       "BAD_CREDENTIALS": "憑據錯誤",
       "COMPANY_SUSPENDED": "公司已停用",
-      "PORTAL_MISMATCH": "登錄入口錯誤",
-      "SUCCESS": "登錄成功",
+      "PORTAL_MISMATCH": "登入入口錯誤",
+      "SUCCESS": "登入成功",
       "USER_SUSPENDED": "賬號已停用"
     },
-    "title": "登錄記錄"
+    "title": "登入記錄"
   },
   "materialAcceptance": {
     "PENDING": "待驗收",
@@ -11973,7 +11973,7 @@
     "incoming": "待收貨",
     "integrations": "系統集成",
     "inventory_management": "庫存管理",
-    "loginRecords": "登錄記錄",
+    "loginRecords": "登入記錄",
     "material_cost_report": "材料成本報表",
     "material_outgoing": "材料出場",
     "material_quantity_report": "材料數量報表",
@@ -12132,8 +12132,8 @@
       "deviceIntegration": "外部設備接入",
       "invoiceSearch": "賬單管理與查詢",
       "livePlatform": "平臺與服務監控",
-      "loginAudit": "登錄記錄",
-      "loginHistory": "登錄記錄",
+      "loginAudit": "登入記錄",
+      "loginHistory": "登入記錄",
       "maintenanceSettings": "維護設置",
       "fieldSettings": "現場端設定",
       "materialCostReport": "材料成本報表",
@@ -12233,7 +12233,7 @@
       "userAudit": "用戶記錄",
       "userCategories": "用戶類別",
       "userHandovers": "人員交接記錄",
-      "userLoginManagement": "登錄管理",
+      "userLoginManagement": "登入管理",
       "userManagement": "用戶管理",
       "userProfiles": "用戶資料與查詢",
       "userStatistics": "用戶統計",
@@ -13937,7 +13937,7 @@
       "unit": "單位",
       "vehicle": "車輛號碼"
     },
-    "formHelp": "請先填寫完整送貨資料。二維碼打開後無需重新登錄。",
+    "formHelp": "請先填寫完整送貨資料。二維碼打開後無需重新登入。",
     "new": "簽發送貨單",
     "revoke": {
       "confirm": "作廢",
@@ -13983,13 +13983,13 @@
     "locationReady": "GPS 已獲取",
     "locationTitle": "掃碼位置",
     "locationUnavailable": "此手機瀏覽器不支持定位。",
-    "loginDescription": "請選擇你的賬號所屬後臺，登錄成功後會自動返回此掃碼頁面。",
-    "loginRequired": "確認掃碼前請先登錄",
+    "loginDescription": "請選擇你的賬號所屬後臺，登入成功後會自動返回此掃碼頁面。",
+    "loginRequired": "確認掃碼前請先登入",
     "mobileLocation": "手機二維碼掃碼",
     "refused": "掃碼被拒絕",
     "scanAgain": "再次掃描此二維碼",
     "scanError": "無法保存掃碼記錄，請重試。",
-    "signedInAs": "當前登錄賬號",
+    "signedInAs": "當前登入賬號",
     "subtitle": "確認二維碼，並把這次掃碼保存到永久審計記錄。",
     "title": "掃描 MSE Trace 二維碼"
   },
@@ -15620,7 +15620,7 @@
       "newPass": "新增通行證",
       "noEvents": "這個通行證尚未在門崗使用。",
       "passes": "通行證",
-      "qrHelp": "下載併發送此二維碼。掃碼後會打開已登錄的門崗頁面並自動帶入通行證。",
+      "qrHelp": "下載併發送此二維碼。掃碼後會打開已登入的門崗頁面並自動帶入通行證。",
       "qrTitle": "工地門禁二維碼",
       "rejectBody": "申請人需要重新申請才可進入工地。",
       "rejectTitle": "拒絕這個通行證？",
@@ -15785,7 +15785,7 @@
       "fieldInviteValid": "啟用連結有效天數",
       "gateName": "門崗名稱",
       "gatePhoto": "門禁設備必須拍照",
-      "homePage": "登錄後首頁",
+      "homePage": "登入後首頁",
       "hostName": "工地接待人",
       "identityNo": "身份證／護照號碼",
       "language": "語言",
@@ -15960,6 +15960,7 @@
       "chooseBackground": "選擇背景圖",
       "replaceBackground": "更換背景圖",
       "removeBackground": "移除背景圖",
+      "removeLogo": "移除 Logo",
       "backgroundRemovePending": "按【保存公司資料】後移除。",
       "backgroundTooBig": "這張圖片有 {actual} MB，超過了 {limit} MB 的上限。請換一張小一點的。",
       "backgroundHint": "建議尺寸 1920 × 400 px（橫向照片）",
@@ -16447,7 +16448,7 @@
       "cancelDisposal": "取消清運",
       "close": "關閉",
       "copyLink": "複製任務鏈接",
-      "createLink": "生成免登錄鏈接",
+      "createLink": "生成免登入鏈接",
       "getLocation": "獲取當前 GPS",
       "locationReady": "已獲取 GPS",
       "new": "新增申請",
@@ -16465,8 +16466,8 @@
       "reportAnomaly": "報告異常"
     },
     "assign": {
-      "copyNow": "複製後發送給外部清運商。鏈接不需要登錄；如遺失，可在清運列表重新生成，舊鏈接會立即失效。",
-      "description": "內部工作人員會在自己的現場任務中收到工作，不生成鏈接；外部清運商使用只限本任務的免登錄鏈接。",
+      "copyNow": "複製後發送給外部清運商。鏈接不需要登入；如遺失，可在清運列表重新生成，舊鏈接會立即失效。",
+      "description": "內部工作人員會在自己的現場任務中收到工作，不生成鏈接；外部清運商使用只限本任務的免登入鏈接。",
       "noFieldStaff": "此項目沒有可指派的現場工作人員，請先在項目成員中加入工作人員。",
       "title": "選擇清運執行人"
     },
@@ -16665,7 +16666,7 @@
       "REQUESTED": "等待審批",
       "RETURNED": "已退回更正（舊流程）"
     },
-    "subtitle": "普通工地雜物、泥土和非回收廢棄物的清理任務。可直接指派現場工作人員，或發送免登錄鏈接給外部清運商。",
+    "subtitle": "普通工地雜物、泥土和非回收廢棄物的清理任務。可直接指派現場工作人員，或發送免登入鏈接給外部清運商。",
     "timeline": "任務時間軸",
     "timelineEvent": {
       "APPROVED": "申請已批准",
@@ -17078,7 +17079,7 @@
       "partnerServiceFee": "合作版只在首次開通收取此服務費，之後只運行佣金制度，月費與年費保持為零。",
       "planDefault": "使用套餐額度",
       "seatOverride": "留空則使用套餐設定的賬號額度。",
-      "terminate": "此操作會立即令訂閱到期、禁止公司使用系統並撤銷現有登錄。"
+      "terminate": "此操作會立即令訂閱到期、禁止公司使用系統並撤銷現有登入。"
     },
     "metric": {
       "active": "使用中",
@@ -17214,7 +17215,7 @@
       "regenerateConfirm": "重新生成",
       "regenerateDescription": "舊二維碼的打印副本會立即失效，已經建立的材料進場記錄不會改變。",
       "regenerateTitle": "重新生成這個供應商二維碼？",
-      "scanHelp": "手機相機會打開現場人員的材料進場記錄。已經登錄的工地人員會直接進入並自動帶出該供應商。",
+      "scanHelp": "手機相機會打開現場人員的材料進場記錄。已經登入的工地人員會直接進入並自動帶出該供應商。",
       "share": "分享",
       "shareText": "{supplier} 的供應商二維碼",
       "title": "供應商二維碼"
@@ -17632,7 +17633,7 @@
       "email": "電子郵箱",
       "fullName": "姓名",
       "language": "語言",
-      "lastLoginAt": "最近登錄",
+      "lastLoginAt": "最近登入",
       "lastLoginIp": "最近 IP",
       "phone": "電話",
       "role": "角色",
@@ -17650,7 +17651,7 @@
     "forceLogout": {
       "action": "強制登出",
       "confirm": "強制登出",
-      "description": "所有有效會話都會撤銷。若賬號未停用，用戶仍可重新登錄。",
+      "description": "所有有效會話都會撤銷。若賬號未停用，用戶仍可重新登入。",
       "done": "用戶已強制登出",
       "title": "強制 {name} 從所有設備登出？"
     },
@@ -17660,7 +17661,7 @@
     },
     "module": {
       "activity": {
-        "subtitle": "永久保存用戶建立、修改、狀態、登錄及安全鏈接操作記錄",
+        "subtitle": "永久保存用戶建立、修改、狀態、登入及安全鏈接操作記錄",
         "title": "用戶操作記錄"
       },
       "categories": {
@@ -17668,11 +17669,11 @@
         "title": "用戶類別"
       },
       "login": {
-        "subtitle": "共 {count} 個賬號，可啟停登錄、強制登出及重發安全鏈接",
-        "title": "登錄管理"
+        "subtitle": "共 {count} 個賬號，可啟停登入、強制登出及重發安全鏈接",
+        "title": "登入管理"
       },
       "management": {
-        "subtitle": "共 {count} 個賬號，可統一查看資料、類別、角色、登錄狀態、統計及執行賬號管理",
+        "subtitle": "共 {count} 個賬號，可統一查看資料、類別、角色、登入狀態、統計及執行賬號管理",
         "title": "用戶管理"
       },
       "profiles": {
@@ -17686,11 +17687,11 @@
     },
     "new": "新增用戶",
     "reinstate": {
-      "description": "此人將可以立即重新登錄。"
+      "description": "此人將可以立即重新登入。"
     },
     "remove": {
       "confirm": "移除",
-      "description": "此人將無法再登錄。他們記錄過的所有數據原樣保留。",
+      "description": "此人將無法再登入。他們記錄過的所有數據原樣保留。",
       "title": "移除 {name}？",
       "fieldTitle": "刪除 {name}？",
       "fieldDescription": "刪除後，此人無法再登入，手機號碼會釋放，可以在其他項目重新註冊。他記錄過的資料全部保留。（停用不會釋放號碼。）",
@@ -17723,7 +17724,7 @@
     },
     "suspend": {
       "confirm": "停用",
-      "description": "在恢復之前，此人無法登錄。",
+      "description": "在恢復之前，此人無法登入。",
       "title": "停用 {name}？"
     },
     "title": "用戶",

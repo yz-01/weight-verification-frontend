@@ -92,7 +92,10 @@ export function HeadquartersHero({
     staleTime: 30 * 60_000,
   });
   const preferences = user?.company_preferences;
-  const title = preferences?.dashboard_title || t("title");
+  // The slogan stays, always (JB164, 客户 11-10 第十一批 第 3 点 「永久保留」):
+  // MSE's old 「大标题」 (`dashboard_title`) no longer replaces it. A stored
+  // one is kept in the data, only not shown.
+  const title = t("title");
   const subtitle = preferences?.dashboard_subtitle || t("subtitle");
   const background = user?.branding?.company_background_url;
   // Words on the picture: light, shadowed, over a dark wash (below).
@@ -122,7 +125,9 @@ export function HeadquartersHero({
           alt=""
           aria-hidden
           data-hero-background
-          className="absolute inset-0 h-full w-full object-cover"
+          // JB164: a narrow screen crops the 1920 × 400 picture's sides
+          // evenly, keeping its middle.
+          className="absolute inset-0 h-full w-full object-cover object-center"
         />
       ) : null}
       <div

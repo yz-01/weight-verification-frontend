@@ -69,6 +69,13 @@ describe("锁定设定 (JB99)", () => {
     expect(html).toContain(zh.siteControl.visitorPrivacy.expired.open);
   });
 
+  it("has no 大标题 any more - the slogan stays (JB164, 客户 11-10 第十一批 第 3 点 「永久保留」)", () => {
+    const html = render();
+    expect(html).not.toContain(zh.headquarters.reference.settingsTitle);
+    // The subtitle under the slogan is still MSE's to set.
+    expect(html).toContain(zh.headquarters.reference.settingsSubtitle);
+  });
+
   it("names seeded roles in the reader's language and shows no permission codes (11-05 screen check)", () => {
     const stored = { ...SETTINGS, role_options: [{ code: "site_staff", name: "Site Staff" }, { code: "project_manager", name: "Project Manager" }] };
     const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
