@@ -154,3 +154,25 @@ describe("where the kept square sits on screen", () => {
     expect(wide.width).toBeCloseTo((1080 * (844 / 1920)) / 844, 2);
   });
 });
+
+describe("the tile under a photo says what a tap does (JB159)", () => {
+  // 报告异常: the tile said 「点一下重拍」 but a tap added a photo beside it.
+  const tile = (adds: boolean) =>
+    renderToStaticMarkup(
+      <NextIntlClientProvider locale="zh" messages={messages}>
+        <TooltipProvider>
+          <FieldCamera label="异常照片" previewUrl="https://files.test/p1.jpg" adds={adds} onCapture={() => undefined} />
+        </TooltipProvider>
+      </NextIntlClientProvider>,
+    );
+
+  it("「点一下再拍一张」 where each tap adds one", () => {
+    expect(messages.fieldStaffPwa.camera.addAnother).toBe("点一下再拍一张");
+    expect(tile(true)).toContain("点一下再拍一张");
+    expect(tile(true)).not.toContain(messages.fieldStaffPwa.camera.retake);
+  });
+
+  it("「点一下重拍」 where a tap replaces it", () => {
+    expect(tile(false)).toContain("点一下重拍");
+  });
+});

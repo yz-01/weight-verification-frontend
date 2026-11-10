@@ -8497,8 +8497,9 @@
       "field_invitation_invalid": "This field access link is invalid or has expired.",
       "field_pin_expired": "This field account exceeded its configured inactivity period. Ask a project administrator to generate a new login link.",
       "field_pin_invalid": "The PIN is incorrect.",
-      "field_pwa_bootstrap_invalid": "This sign-in link no longer works - the office may have sent a new one. Open the newest link the office sent you.",
+      "field_pwa_bootstrap_invalid": "This sign-in link no longer works. Tap \"Sign in\" and enter your PIN. If the PIN is not accepted, ask the office for a new link.",
       "field_link_replaced": "The office sent a new link for your account. Open the new link to link this phone again.",
+      "field_office_signed_out": "The office signed this phone out. Enter your PIN to continue. If the PIN is not accepted, ask the office for a new link.",
       "field_account_stopped": "The office has stopped this account. Please contact the office.",
       "field_account_removed": "This phone icon belongs to an old account that has been deleted. Delete this icon, sign in again with the new link the office sent you, then add it to the Home Screen again.",
       "field_bootstrap_app_only": "Use the activation link from the office to link this phone, or open the app from its Home Screen icon.",
@@ -9120,7 +9121,6 @@
     "iconMore": "More",
     "iconMenu": "Menu",
     "iosArrowHint": "The button is at the bottom of Safari",
-    "unboundReason": "Reason: {code}",
     "androidStepsTitle": "Install on Android",
     "androidStep1": "Tap the <menu></menu> menu at the top right of Chrome",
     "androidStep2": "Tap Install app or Add to Home screen",
@@ -9265,6 +9265,7 @@
       "switch": "Switch camera",
       "unsupported": "This browser cannot open the camera. Use an HTTPS site and a current mobile browser.",
       "retake": "Tap to retake",
+      "addAnother": "Tap to take another",
       "preview": "Photo taken",
       "stepBack": "Can't fit it all? Step back a little",
       "wide": "Wide"
@@ -9624,6 +9625,7 @@
       "roomEmpty": "Nothing said yet. Say hello.",
       "search": "Search by name",
       "noPeople": "Nobody found.",
+      "noPeopleOnProject": "There is nobody else on this project to message yet: its project staff list has no project office people. Ask the office to add the project manager or project office people on this project's \"Project staff list\".",
       "sameProject": "On your projects",
       "otherProjects": "Other projects",
       "groupTitle": "Group name (optional)",
@@ -16458,6 +16460,7 @@
       "title": "New disposal request"
     },
     "empty": "No disposal requests match this project.",
+    "gpsSiteLocation": "Site location from GPS",
     "error": {
       "load": "Disposal requests could not be loaded. Check the connection and try again.",
       "location": "Current GPS is required. Enable precise location and try again."
@@ -18362,6 +18365,7 @@
     "closedRejected": "Rejected or judged unacceptable; the conversation is closed. The record can still be viewed.",
     "closedCancelled": "Cancelled; the conversation is closed. The record can still be viewed.",
     "closedReadonly": "You can read this conversation but you are not in it, so you cannot send.",
+    "closedHeadOffice": "Head office can only read conversations that have phone staff in them, so you cannot send here.",
     "closedMoved": "Someone in it is no longer on this project, so it can only be read now. Start a new conversation.",
     "closedTaskDone": "This task is finished (or cancelled), so the chat is closed. The messages can still be read."
   },
@@ -20963,7 +20967,6 @@
       "title": "Message someone",
       "hint": "Only the people you may contact: a project office reaches its project's phone people, its own office and head office; head office reaches every project's office. Phone people and head office are never in the same conversation.",
       "back": "Back",
-      "project": "Project",
       "search": "Search by name",
       "choose": "the people to message",
       "group": {
@@ -20972,10 +20975,6 @@
         "head_office": "Head office"
       },
       "kind": {
-        "site_staff": "Site staff",
-        "all_pages": "Site staff",
-        "gate_guard": "Gate guard",
-        "equipment_operator": "Equipment operator",
         "office": "Project office",
         "head_office": "Head office"
       },
@@ -20987,7 +20986,11 @@
       "start": "{count, plural, =0 {Start a chat} one {Start with 1 person} other {Start with # people}}",
       "startFailed": "The conversation could not be started. Try again.",
       "noProject": "You have no open project to talk on yet.",
+      "projectClosed": "This project has ended, so no new conversation can start here.",
+      "notOnTeam": "You are not on this project's team, so you cannot start a conversation here.",
+      "pickProject": "Choose a project at the top first, then find someone to message.",
       "noPeople": "Nobody found.",
+      "noPeopleOnProject": "Nobody on this project can be messaged yet: add people on its \"Project staff list\" first.",
       "whatProjects": "the projects",
       "whatPeople": "the people"
     }

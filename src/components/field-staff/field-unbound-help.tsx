@@ -19,9 +19,11 @@ import type { UnboundReason } from "@/lib/field-install";
  * - chat app: linking inside WeChat / Facebook / … links only that app.
  * - browser: this browser has not been linked, or lost it.
  *
- * `code` (from `unboundCode`) is shown small as 「原因：…」 and sent once to
- * the server log as an "unbound" report - not a crash, but the next time a
- * phone lands here we can see why (Lucas 2026-10-23).
+ * `code` (from `unboundCode`) is sent once to the server log as an "unbound"
+ * report - not a crash, but the next time a phone lands here we can see why
+ * (Lucas 2026-10-23). It sits on the box as `data-unbound-code`, never in the
+ * words: 「原因：refused:field_account_stopped」 is not something a worker can
+ * read (JB159).
  */
 export function FieldUnboundHelp({
   reason,
@@ -78,6 +80,7 @@ export function FieldUnboundHelp({
     <div
       className="rounded-lg border border-warning/40 bg-warning/15 p-3 text-sm"
       data-unbound-reason={reason}
+      data-unbound-code={code}
     >
       <p className="flex items-center gap-2 font-semibold">
         <Smartphone className="size-4 shrink-0" />
@@ -112,14 +115,6 @@ export function FieldUnboundHelp({
           <Copy />
           {copied ? t("copied") : t("copyLink")}
         </Button>
-      )}
-      {code && (
-        <p
-          className="mt-2 font-mono text-xs text-muted-foreground"
-          data-testid="unbound-code"
-        >
-          {t("unboundReason", { code })}
-        </p>
       )}
     </div>
   );

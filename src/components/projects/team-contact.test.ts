@@ -3,6 +3,8 @@
  * placeholder emails (field+…@mse.invalid), and the delivery-note 作废 / 取消
  * dialog asked for titles that sat under the wrong key.
  */
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { describe, expect, it, vi } from "vitest";
 
 import en from "@/messages/en.json";
@@ -28,6 +30,22 @@ describe("a person on the project's team", () => {
 
   it("an office account shows its email", () => {
     expect(contactOf({ is_field_staff: false, user_phone: "", user_email: "pm@example.com" })).toBe("pm@example.com");
+  });
+});
+
+describe("发送项目通知's recipient list (JB159)", () => {
+  // It listed phone accounts as field+…@mse.invalid.
+  it("shows a phone account's number, or nothing, never the placeholder", () => {
+    const source = readFileSync(path.join(process.cwd(), "src/components/notifications/notifications.tsx"), "utf8");
+    expect(source).not.toContain("{row.user_email}");
+    expect(source).toContain("{contactOf(row)}");
+    // Whatever the account says it is, a placeholder address is never shown.
+    expect(contactOf({ is_field_staff: false, user_phone: "+60129990077", user_email: "field+e65d@mse.invalid" })).toBe(
+      "+60129990077",
+    );
+    expect(contactOf({ is_field_staff: false, user_email: "field+e65d@mse.invalid" })).toBe("");
+    // A real address at that domain (the demo office accounts) stays.
+    expect(contactOf({ is_field_staff: false, user_email: "shifan.admin@mse.invalid" })).toBe("shifan.admin@mse.invalid");
   });
 });
 

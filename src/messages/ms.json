@@ -8497,8 +8497,9 @@
       "field_invitation_invalid": "Pautan kakitangan tapak ini tidak sah atau telah tamat.",
       "field_pin_expired": "Akaun tapak ini melebihi tempoh tidak aktif yang ditetapkan. Minta pentadbir projek menjana pautan log masuk baharu.",
       "field_pin_invalid": "PIN salah.",
-      "field_pwa_bootstrap_invalid": "Pautan log masuk ini tidak lagi berfungsi - pejabat mungkin telah menghantar pautan baharu. Buka pautan terbaru yang dihantar oleh pejabat.",
+      "field_pwa_bootstrap_invalid": "Pautan log masuk ini tidak lagi berfungsi. Tekan \"Log masuk\" dan masukkan PIN anda. Jika PIN tidak diterima, minta pautan baharu daripada pejabat.",
       "field_link_replaced": "Pejabat telah menghantar pautan baharu untuk akaun anda. Buka pautan baharu untuk memautkan telefon ini semula.",
+      "field_office_signed_out": "Pejabat telah melog keluar telefon ini. Masukkan PIN anda untuk teruskan. Jika PIN tidak diterima, minta pautan baharu daripada pejabat.",
       "field_account_stopped": "Akaun ini telah dihentikan oleh pejabat. Sila hubungi pejabat.",
       "field_account_removed": "Ikon telefon ini milik akaun lama yang telah dipadam. Padam ikon ini, log masuk semula dengan pautan baharu yang dihantar oleh pejabat, kemudian tambahkannya ke Skrin Utama sekali lagi.",
       "field_bootstrap_app_only": "Gunakan pautan pengaktifan daripada pejabat untuk memautkan telefon ini, atau buka aplikasi dari ikon Skrin Utama.",
@@ -9120,7 +9121,6 @@
     "iconMore": "Lagi",
     "iconMenu": "Menu",
     "iosArrowHint": "Butang ada di bawah sekali dalam Safari",
-    "unboundReason": "Sebab: {code}",
     "androidStepsTitle": "Pasang di Android",
     "androidStep1": "Tekan menu <menu></menu> di kanan atas Chrome",
     "androidStep2": "Tekan Pasang apl atau Tambah ke Skrin Utama",
@@ -9265,6 +9265,7 @@
       "switch": "Tukar kamera",
       "unsupported": "Pelayar ini tidak boleh membuka kamera. Gunakan laman HTTPS dan pelayar mudah alih terkini.",
       "retake": "Ketik untuk ambil semula",
+      "addAnother": "Ketik untuk ambil satu lagi",
       "preview": "Gambar diambil",
       "stepBack": "Tidak muat? Undur sedikit",
       "wide": "Sudut lebar"
@@ -9624,6 +9625,7 @@
       "roomEmpty": "Belum ada mesej.",
       "search": "Cari nama",
       "noPeople": "Tiada sesiapa dijumpai.",
+      "noPeopleOnProject": "Belum ada orang lain dalam projek ini untuk dihubungi: senarai kakitangan projek belum ada kakitangan pejabat projek. Minta pejabat menambah pengurus projek atau kakitangan pejabat projek dalam \"Senarai kakitangan projek\" projek ini.",
       "sameProject": "Dalam projek anda",
       "otherProjects": "Projek lain",
       "groupTitle": "Nama kumpulan (pilihan)",
@@ -16458,6 +16460,7 @@
       "title": "Permohonan pelupusan baharu"
     },
     "empty": "Tiada permohonan pelupusan untuk projek ini.",
+    "gpsSiteLocation": "Lokasi tapak daripada GPS",
     "error": {
       "load": "Permohonan pelupusan tidak dapat dimuatkan. Semak sambungan dan cuba lagi.",
       "location": "GPS semasa diperlukan. Aktifkan lokasi tepat dan cuba lagi."
@@ -18362,6 +18365,7 @@
     "closedRejected": "Ditolak atau tidak diterima; perbualan ditutup. Rekod masih boleh dilihat.",
     "closedCancelled": "Dibatalkan; perbualan ditutup. Rekod masih boleh dilihat.",
     "closedReadonly": "Anda boleh membaca perbualan ini tetapi bukan ahlinya, jadi tidak boleh menghantar.",
+    "closedHeadOffice": "Ibu pejabat hanya boleh membaca perbualan yang ada kakitangan telefon di dalamnya, jadi anda tidak boleh menghantar di sini.",
     "closedMoved": "Seseorang di dalamnya sudah tiada dalam projek ini, jadi ia hanya boleh dibaca. Mulakan perbualan baharu.",
     "closedTaskDone": "Tugasan ini telah selesai (atau dibatalkan), jadi sembang ditutup. Mesej masih boleh dibaca."
   },
@@ -20963,7 +20967,6 @@
       "title": "Mesej seseorang",
       "hint": "Hanya orang yang boleh anda hubungi: pejabat projek boleh menghubungi orang telefon projeknya, pejabatnya sendiri dan ibu pejabat; ibu pejabat boleh menghubungi pejabat setiap projek. Orang telefon dan ibu pejabat tidak berada dalam perbualan yang sama.",
       "back": "Kembali",
-      "project": "Projek",
       "search": "Cari nama",
       "choose": "orang untuk dimesej",
       "group": {
@@ -20972,10 +20975,6 @@
         "head_office": "Ibu pejabat"
       },
       "kind": {
-        "site_staff": "Kakitangan tapak",
-        "all_pages": "Kakitangan tapak",
-        "gate_guard": "Pengawal pintu",
-        "equipment_operator": "Pengendali peralatan",
         "office": "Pejabat projek",
         "head_office": "Ibu pejabat"
       },
@@ -20987,7 +20986,11 @@
       "start": "{count, plural, =0 {Mula} one {Mula dengan 1 orang} other {Mula dengan # orang}}",
       "startFailed": "Perbualan tidak dapat dimulakan. Cuba lagi.",
       "noProject": "Anda belum ada projek terbuka untuk berbual.",
+      "projectClosed": "Projek ini sudah tamat, jadi perbualan baharu tidak boleh dimulakan di sini.",
+      "notOnTeam": "Anda bukan dalam pasukan projek ini, jadi anda tidak boleh memulakan perbualan di sini.",
+      "pickProject": "Pilih satu projek di bahagian atas dahulu, kemudian cari orang untuk dihubungi.",
       "noPeople": "Tiada sesiapa dijumpai.",
+      "noPeopleOnProject": "Belum ada sesiapa dalam projek ini yang boleh dihubungi: tambah orang dalam \"Senarai kakitangan projek\" dahulu.",
       "whatProjects": "senarai projek",
       "whatPeople": "senarai orang"
     }

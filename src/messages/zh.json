@@ -8497,8 +8497,9 @@
       "field_invitation_invalid": "此现场人员链接无效或已过期。",
       "field_pin_expired": "此现场账号已连续超过设定期限未使用。请联系项目管理员重新生成登录链接。",
       "field_pin_invalid": "PIN 不正确。",
-      "field_pwa_bootstrap_invalid": "这个登录链接已经不能用了（办公室可能已经重新发了链接）。请打开办公室最新发给你的链接。",
+      "field_pwa_bootstrap_invalid": "这个登录链接已经不能再用了。请按「登录」，输入你的 PIN；如果 PIN 不能用，请向办公室要新的链接。",
       "field_link_replaced": "办公室已重新发出链接，请用新链接重新绑定。",
+      "field_office_signed_out": "办公室让这台手机退出了登录。请输入你的 PIN 继续；如果 PIN 不能用，请向办公室要新的链接。",
       "field_account_stopped": "这个账号已被办公室停用，请联系办公室。",
       "field_account_removed": "这个手机图标是已经删除的旧账号。请删掉这个图标，用办公室发给你的新链接重新登录，再加到主屏幕。",
       "field_bootstrap_app_only": "请用办公室发给你的激活链接绑定这台手机，或者从主屏幕的图标打开。",
@@ -9120,7 +9121,6 @@
     "iconMore": "更多",
     "iconMenu": "菜单",
     "iosArrowHint": "按钮在 Safari 最下面",
-    "unboundReason": "原因：{code}",
     "androidStepsTitle": "在 Android 上安装",
     "androidStep1": "点 Chrome 右上角的 <menu></menu> 菜单",
     "androidStep2": "点「安装应用」或「添加到主屏幕」",
@@ -9265,6 +9265,7 @@
       "switch": "切换镜头",
       "unsupported": "此浏览器无法打开相机，请使用 HTTPS 网站和较新的手机浏览器。",
       "retake": "点一下重拍",
+      "addAnother": "点一下再拍一张",
       "preview": "已拍摄",
       "stepBack": "拍不全请退后一点",
       "wide": "广角"
@@ -9624,6 +9625,7 @@
       "roomEmpty": "还没有人说话。",
       "search": "搜索名字",
       "noPeople": "找不到人。",
+      "noPeopleOnProject": "这个项目还没有别的人可以找：项目人员名单里还没有项目后台人员。请办公室在这个项目的「项目人员名单」加项目经理或项目后台人员。",
       "sameProject": "同一项目",
       "otherProjects": "其他项目",
       "groupTitle": "群组名称（可不填）",
@@ -16458,6 +16460,7 @@
       "title": "新增清运申请"
     },
     "empty": "该项目目前没有清运申请。",
+    "gpsSiteLocation": "GPS 定位的工地位置",
     "error": {
       "load": "无法读取清运申请，请检查网络后重试。",
       "location": "必须获取当前 GPS，请开启精确定位后重试。"
@@ -18362,6 +18365,7 @@
     "closedRejected": "已判不合格或已驳回，聊天室已关闭。记录仍可查看。",
     "closedCancelled": "已取消，聊天室已关闭。记录仍可查看。",
     "closedReadonly": "你只能查看这个沟通，没有在里面，不能发送。",
+    "closedHeadOffice": "总部只能查看有手机人员在里面的沟通，不能在这里发送。",
     "closedMoved": "里面有人已经不在这个项目了，这个沟通只能查看，不能再发送。请重新找人沟通。",
     "closedTaskDone": "事项已完成（或已取消），聊天室已关闭。记录仍可查看。"
   },
@@ -20963,7 +20967,6 @@
       "title": "找人沟通",
       "hint": "只列出你可以联系的人：项目后台可以联系本项目的手机端人员、本项目后台和总部；总部可以联系各项目后台。手机端人员和总部不会在同一个对话里。",
       "back": "返回",
-      "project": "选项目",
       "search": "搜索名字",
       "choose": "要沟通的人",
       "group": {
@@ -20972,10 +20975,6 @@
         "head_office": "总部"
       },
       "kind": {
-        "site_staff": "现场人员",
-        "all_pages": "现场人员",
-        "gate_guard": "门岗",
-        "equipment_operator": "设备操作",
         "office": "项目后台",
         "head_office": "总部"
       },
@@ -20987,7 +20986,11 @@
       "start": "{count, plural, =0 {开始沟通} other {和 # 个人开始沟通}}",
       "startFailed": "无法开始对话，请再试一次。",
       "noProject": "你还没有可以沟通的项目。",
+      "projectClosed": "这个项目已经结束，不能在这里开始新的沟通。",
+      "notOnTeam": "你不在这个项目的团队里，不能在这里开始沟通。",
+      "pickProject": "请先在最上面选一个项目，再找人沟通。",
       "noPeople": "找不到人。",
+      "noPeopleOnProject": "这个项目还没有可以找的人：请先在「项目人员名单」加人。",
       "whatProjects": "项目名单",
       "whatPeople": "人员名单"
     }

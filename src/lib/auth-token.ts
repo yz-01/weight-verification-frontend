@@ -148,11 +148,43 @@ export function getFieldBootstrapToken(): string | null {
  */
 export const FIELD_ACCOUNT_REMOVED = "field_account_removed";
 
-/** What signs a field phone out on the office's word: a new link, 停用, 删除. */
+/** The office stopped the account (停用); 恢复 makes the same icon work again. */
+export const FIELD_ACCOUNT_STOPPED = "field_account_stopped";
+
+/**
+ * The link a home-screen icon holds was spent - e.g. opened while 停用 - and
+ * the account is fine: 「登录」 and the PIN once put it right (JB159).
+ */
+export const FIELD_LINK_SPENT = "field_pwa_bootstrap_invalid";
+
+/**
+ * Whether the home-screen icon's start screen refused for a reason that
+ * leaves the icon itself fine (JB159), so the 「这个主屏幕图标还没绑定」 box
+ * with its "delete the icon" steps would be wrong advice:
+ * - 停用: the message says the office stopped it; after 恢复 the same icon
+ *   works again (backend test_suspend_reenable_home_screen).
+ * - its link was spent (opened while 停用): 「登录」 and the PIN once put it
+ *   right, as the message says. If the PIN cannot, the PIN screen shows the
+ *   box itself.
+ * `failure` is the start screen's "refused:<code>" / "no-token".
+ */
+export function bootstrapRefusalKeepsIcon(failure: string | null): boolean {
+  return (
+    failure === `refused:${FIELD_ACCOUNT_STOPPED}` ||
+    failure === `refused:${FIELD_LINK_SPENT}`
+  );
+}
+
+/**
+ * What signs a field phone out on the office's word: a new link, 停用, 删除,
+ * and a sign-out that kept the phone's place (停用 then 恢复, 强制登出 - JB159),
+ * which the PIN puts right.
+ */
 export const FIELD_OFFICE_SIGN_OUTS = [
   "field_link_replaced",
-  "field_account_stopped",
+  FIELD_ACCOUNT_STOPPED,
   FIELD_ACCOUNT_REMOVED,
+  "field_office_signed_out",
 ];
 
 /**

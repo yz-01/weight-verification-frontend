@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { ApiError } from "@/interfaces/api";
 import {
   FIELD_ACCOUNT_REMOVED,
+  FIELD_ACCOUNT_STOPPED,
   FIELD_OFFICE_SIGN_OUTS,
   fieldSessionIssuedAt,
   getFieldBootstrapToken,
@@ -112,8 +113,12 @@ export function FieldAccess() {
   // The phone holds an account the office deleted (JB154): the message says
   // to use the new link and a new icon, and no PIN box offers otherwise.
   const [accountRemoved, setAccountRemoved] = useState(false);
-  // The server's code when the stored hand-off was refused (shown as the
-  // reason under the "not linked" help, and logged).
+  // 停用 (JB159): the message says the office stopped it, and nothing more -
+  // the phone is still linked and works again after 恢复, so no 「还没绑定」
+  // box with steps to delete the icon.
+  const [accountStopped, setAccountStopped] = useState(false);
+  // The server's code when the stored hand-off was refused (kept on the
+  // "not linked" help as a data attribute, and logged).
   const [refusedCode, setRefusedCode] = useState<string | null>(null);
   // Browser facts, read after hydration so the server and the first client
   // render agree.
@@ -136,6 +141,7 @@ export function FieldAccess() {
       if (officeReason && !joinLink && !token) {
         setError((current) => current || officeReason);
         if (officeCode === FIELD_ACCOUNT_REMOVED) setAccountRemoved(true);
+        if (officeCode === FIELD_ACCOUNT_STOPPED) setAccountStopped(true);
       }
       setContext({
         standalone: isStandaloneApp(),
@@ -216,6 +222,7 @@ export function FieldAccess() {
         ) {
           setError(cause.message);
           setAccountRemoved(cause.code === FIELD_ACCOUNT_REMOVED);
+          setAccountStopped(cause.code === FIELD_ACCOUNT_STOPPED);
         } else if (cause instanceof ApiError && cause.code) {
           setRefusedCode(cause.code);
         }
@@ -272,6 +279,9 @@ export function FieldAccess() {
       setDeviceRefused(
         cause instanceof ApiError && cause.code === "field_device_invalid",
       );
+      setAccountStopped(
+        cause instanceof ApiError && cause.code === FIELD_ACCOUNT_STOPPED,
+      );
       setPending(false);
     }
   };
@@ -320,7 +330,7 @@ export function FieldAccess() {
   }
 
   const unbound =
-    !token && context
+    !token && context && !accountStopped
       ? deviceRefused || (refusedCode && context.standalone && !context.linked)
         ? contextReason(context)
         : unboundReason({

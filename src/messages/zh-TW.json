@@ -8497,8 +8497,9 @@
       "field_invitation_invalid": "此現場人員鏈接無效或已過期。",
       "field_pin_expired": "此現場賬號已連續超過設定期限未使用。請聯繫項目管理員重新生成登錄鏈接。",
       "field_pin_invalid": "PIN 不正確。",
-      "field_pwa_bootstrap_invalid": "這個登入連結已經不能用了（辦公室可能已經重新發了連結）。請打開辦公室最新發給你的連結。",
+      "field_pwa_bootstrap_invalid": "這個登入連結已經不能再用了。請按「登錄」，輸入你的 PIN；如果 PIN 不能用，請向辦公室要新的連結。",
       "field_link_replaced": "辦公室已重新發出連結，請用新連結重新綁定。",
+      "field_office_signed_out": "辦公室讓這台手機登出了。請輸入你的 PIN 繼續；如果 PIN 不能用，請向辦公室要新的連結。",
       "field_account_stopped": "這個帳號已被辦公室停用，請聯絡辦公室。",
       "field_account_removed": "這個手機圖示是已經刪除的舊帳號。請刪掉這個圖示，用辦公室發給你的新連結重新登入，再加到主畫面。",
       "field_bootstrap_app_only": "請用辦公室發給你的啟用連結綁定這台手機，或者從主畫面的圖示打開。",
@@ -9120,7 +9121,6 @@
     "iconMore": "更多",
     "iconMenu": "選單",
     "iosArrowHint": "按鈕在 Safari 最下面",
-    "unboundReason": "原因：{code}",
     "androidStepsTitle": "在 Android 上安裝",
     "androidStep1": "點 Chrome 右上角的 <menu></menu> 選單",
     "androidStep2": "點「安裝應用程式」或「加到主畫面」",
@@ -9265,6 +9265,7 @@
       "switch": "切換鏡頭",
       "unsupported": "此瀏覽器無法打開相機，請使用 HTTPS 網站和較新的手機瀏覽器。",
       "retake": "點一下重拍",
+      "addAnother": "點一下再拍一張",
       "preview": "已拍攝",
       "stepBack": "拍不全請退後一點",
       "wide": "廣角"
@@ -9624,6 +9625,7 @@
       "roomEmpty": "還沒有人說話。",
       "search": "搜尋名字",
       "noPeople": "找不到人。",
+      "noPeopleOnProject": "這個項目還沒有別的人可以找：項目人員名單裡還沒有項目後台人員。請辦公室在這個項目的「項目人員名單」加項目經理或項目後台人員。",
       "sameProject": "同一項目",
       "otherProjects": "其他項目",
       "groupTitle": "群組名稱（可不填）",
@@ -16458,6 +16460,7 @@
       "title": "新增清運申請"
     },
     "empty": "該項目目前沒有清運申請。",
+    "gpsSiteLocation": "GPS 定位的工地位置",
     "error": {
       "load": "無法讀取清運申請，請檢查網絡後重試。",
       "location": "必須獲取當前 GPS，請開啟精確定位後重試。"
@@ -18362,6 +18365,7 @@
     "closedRejected": "已判不合格或已駁回，聊天室已關閉。記錄仍可查看。",
     "closedCancelled": "已取消，聊天室已關閉。記錄仍可查看。",
     "closedReadonly": "你只能查看這個溝通，沒有在裡面，不能發送。",
+    "closedHeadOffice": "總部只能查看有手機人員在裡面的溝通，不能在這裡發送。",
     "closedMoved": "裡面有人已經不在這個項目了，這個溝通只能查看，不能再發送。請重新找人溝通。",
     "closedTaskDone": "事項已完成（或已取消），聊天室已關閉。記錄仍可查看。"
   },
@@ -20963,7 +20967,6 @@
       "title": "找人溝通",
       "hint": "只列出你可以聯繫的人：項目後台可以聯繫本項目的手機端人員、本項目後台和總部；總部可以聯繫各項目後台。手機端人員和總部不會在同一個對話裡。",
       "back": "返回",
-      "project": "選項目",
       "search": "搜尋名字",
       "choose": "要溝通的人",
       "group": {
@@ -20972,10 +20975,6 @@
         "head_office": "總部"
       },
       "kind": {
-        "site_staff": "現場人員",
-        "all_pages": "現場人員",
-        "gate_guard": "門崗",
-        "equipment_operator": "設備操作",
         "office": "項目後台",
         "head_office": "總部"
       },
@@ -20987,7 +20986,11 @@
       "start": "{count, plural, =0 {開始溝通} other {和 # 個人開始溝通}}",
       "startFailed": "無法開始對話，請再試一次。",
       "noProject": "你還沒有可以溝通的項目。",
+      "projectClosed": "這個項目已經結束，不能在這裡開始新的溝通。",
+      "notOnTeam": "你不在這個項目的團隊裡，不能在這裡開始溝通。",
+      "pickProject": "請先在最上面選一個項目，再找人溝通。",
       "noPeople": "找不到人。",
+      "noPeopleOnProject": "這個項目還沒有可以找的人：請先在「項目人員名單」加人。",
       "whatProjects": "項目名單",
       "whatPeople": "人員名單"
     }

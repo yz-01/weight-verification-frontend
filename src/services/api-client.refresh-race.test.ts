@@ -166,6 +166,16 @@ describe("the office signs a phone out (重新生成链接 / 停用 / 删除)", 
     expect(clearTokens).toHaveBeenCalled();
   });
 
+  it("a sign-out that kept the phone's place says to type the PIN, not that a link was sent (JB159)", async () => {
+    // 停用 then 恢复, or 强制登出: 「办公室已重新发出链接」 was untrue there.
+    const { reason, code, assigned } = await refusedWith("field_office_signed_out");
+    expect(reason).toBe(
+      "办公室让这台手机退出了登录。请输入你的 PIN 继续；如果 PIN 不能用，请向办公室要新的链接。",
+    );
+    expect(code).toBe("field_office_signed_out");
+    expect(assigned).toEqual(["/trace/field-login"]);
+  });
+
   it("a stopped account says it was stopped", async () => {
     const { reason, code } = await refusedWith("field_account_stopped");
     expect(reason).toBe("这个账号已被办公室停用，请联系办公室。");

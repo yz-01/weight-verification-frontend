@@ -118,6 +118,13 @@ interface FieldCameraProps {
   size?: "default" | "sm" | "lg";
   disabled?: boolean;
   className?: string;
+  /**
+   * Each tap adds a photograph beside the ones taken (the caller appends
+   * `onCapture`'s file), so the tile under the latest one says 「点一下再拍
+   * 一张」, not 「点一下重拍」 - a report's photos looked replaced when they
+   * were added (JB159).
+   */
+  adds?: boolean;
   onCapture: (file: File) => void;
   onClear?: () => void;
 }
@@ -133,6 +140,7 @@ export function FieldCamera({
   size,
   disabled = false,
   className = "",
+  adds = false,
   onCapture: handOver,
   onClear,
 }: FieldCameraProps) {
@@ -392,7 +400,7 @@ export function FieldCamera({
                   {label}
                 </span>
                 <span className="block text-xs text-muted-foreground">
-                  {t("retake")}
+                  {adds ? t("addAnother") : t("retake")}
                 </span>
               </span>
             </span>

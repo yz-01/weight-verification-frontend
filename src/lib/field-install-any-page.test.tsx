@@ -237,14 +237,19 @@ describe("why the phone is not linked", () => {
     expect(unboundCode({ standalone: false, environment: "ios-in-app" })).toBe("in-app");
   });
 
-  it("the help shows 「原因：…」 and real icons, never □↑ or ⋯", async () => {
+  it("the help keeps the reason off the screen and draws real icons, never □↑ or ⋯", async () => {
+    // JB159: 「原因：refused:field_account_stopped」 was printed for the worker
+    // to read. The reason stays on the box as a data attribute (and the log).
     const { FieldUnboundHelp } = await import("@/components/field-staff/field-unbound-help");
     const html = renderToStaticMarkup(
       <NextIntlClientProvider locale="zh" messages={zh} timeZone="Asia/Kuala_Lumpur">
-        <FieldUnboundHelp reason="installed-app" code="no-token" standalone />
+        <FieldUnboundHelp reason="installed-app" code="refused:field_link_replaced" standalone />
       </NextIntlClientProvider>,
     );
-    expect(html).toContain("原因：no-token");
+    expect(html).toContain('data-unbound-code="refused:field_link_replaced"');
+    const words = html.replace(/<[^>]*>/g, "");
+    expect(words).not.toContain("refused:");
+    expect(words).not.toContain("原因");
     expect(html).toContain('aria-label="更多"');
     expect(html).not.toMatch(/□|↑|⋯|<more>/);
   });
