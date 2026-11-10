@@ -7913,7 +7913,28 @@
       "activeHint": "Entri aktif boleh dipilih untuk dokumen baharu.",
       "description": "Urus struktur kategori dan subkategori yang digunakan oleh arkib.",
       "inactive": "Tidak aktif",
-      "title": "Kategori dokumen"
+      "title": "Kategori dokumen",
+      "scope": {
+        "label": "Digunakan pada",
+        "choice": {
+          "ALL": "Ibu pejabat · semua projek",
+          "CHOSEN": "Ibu pejabat · projek terpilih",
+          "PROJECT": "Satu projek sahaja"
+        },
+        "chosenLabel": "Projek yang menggunakannya",
+        "projectLabel": "Projek",
+        "owner": "Milik {project}: digunakan pada projek itu sahaja, tidak dilihat oleh projek lain.",
+        "badge": {
+          "all": "Ibu pejabat · semua projek",
+          "chosen": "Ibu pejabat · {count} projek",
+          "here": "Projek ini",
+          "project": "Projek: {project}"
+        },
+        "headOfficeHint": "Kategori dan subkategori yang dicipta oleh ibu pejabat boleh diberikan kepada semua projek atau projek terpilih; yang ditambah oleh sesuatu projek hanya milik projek itu dan tidak dilihat oleh projek lain.",
+        "projectHint": "Kategori dan subkategori yang anda tambah hanya milik projek anda; projek lain tidak melihatnya. Yang bertanda Ibu pejabat disediakan oleh ibu pejabat dan boleh digunakan di sini tetapi tidak boleh diubah.",
+        "showing": "Memaparkan kategori yang digunakan pada {project}.",
+        "categoryHint": "Hanya kategori yang boleh digunakan oleh skop ini disenaraikan."
+      }
     },
     "title": "Arkib dokumen",
     "toast": {
@@ -8594,6 +8615,7 @@
       "weigh_sequence_invalid": "Penimbangan dua kali mesti mengikut turutan: berat kasar dahulu, berat tara kemudian.",
       "rejection_needs_conversation": "Terangkan masalah dalam komunikasi rekod ini dahulu supaya tapak nampak sebabnya dan boleh membalas. Kemudian tolaknya.",
       "column_not_empty": "Masih ada rekod dalam ruangan ini: {records}. Pindahkan dahulu, kemudian buang ruangan itu.",
+      "document_category_still_used": "Projek yang dikeluarkan masih menggunakan kategori ini: {records}. Pindahkan dahulu, atau kekalkan projek tersebut.",
       "category_has_records": "Kategori ini ada {count} rekod ({records}), jadi hanya boleh dimatikan, tidak boleh dibuang.",
       "category_has_children": "Kategori ini masih ada subkategori: {records}. Buang atau pindahkan dahulu.",
       "category_fixed_other": "“Lain-lain” tetap tidak boleh dibuang. Anda boleh menamakannya semula.",

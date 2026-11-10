@@ -1,18 +1,36 @@
 /** Shared document archive and approval workflow contracts. */
 
-export interface DocumentCategory {
+/**
+ * Where a document category or sub-category is in use (JB146, 客户 11-10
+ * 事项 4): one project's own (`project` set), or head office's - on every
+ * project (`all_projects`) or on `assigned_projects`.
+ */
+export interface DocumentTaxonomyScope {
+  /** The project it belongs to; null for head office's. */
+  project: string | null;
+  project_name: string | null;
+  /** Head office's, on every project. */
+  all_projects: boolean;
+  /** Head office's, on these projects (the reader's own among them). */
+  assigned_projects: string[];
+  assigned_project_names: string[];
+  /** Whether the reader may change it: head office's is head office's. */
+  can_edit: boolean;
+}
+
+export interface DocumentCategory extends DocumentTaxonomyScope {
   id: string;
   code: string;
   name: string;
   description: string;
   is_active: boolean;
-  /** Documents filed under this category, company-wide (D-125, D-126). */
+  /** Documents filed under this category that the reader can see (D-125). */
   record_count: number;
   created_at: string;
   updated_at: string;
 }
 
-export interface DocumentSubcategory {
+export interface DocumentSubcategory extends DocumentTaxonomyScope {
   id: string;
   category: string;
   category_name: string;
@@ -191,14 +209,21 @@ export interface LinkableRecord {
   status_label: string;
 }
 
-export interface DocumentCategoryPayload {
+/** Where a new or changed row is in use (JB146); only what may be set is sent. */
+export interface DocumentTaxonomyScopePayload {
+  project?: string | null;
+  all_projects?: boolean;
+  assigned_projects?: string[];
+}
+
+export interface DocumentCategoryPayload extends DocumentTaxonomyScopePayload {
   code: string;
   name: string;
   description?: string;
   is_active?: boolean;
 }
 
-export interface DocumentSubcategoryPayload {
+export interface DocumentSubcategoryPayload extends DocumentTaxonomyScopePayload {
   category: string;
   code: string;
   name: string;
