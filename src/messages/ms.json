@@ -12264,7 +12264,7 @@
       "materialRequests": "MR / Permohonan Lain",
       "departmentsTrades": "Jabatan dan tred",
       "fieldStaffManagement": "Kakitangan tapak",
-      "fieldChats": "Perbualan telefon",
+      "fieldChats": "Rekod perbualan",
       "photoTimeline": "Garis masa foto projek"
     },
     "subscription_management": "Pengurusan Langganan",
@@ -20948,16 +20948,49 @@
     }
   },
   "fieldChats": {
-    "title": "Perbualan telefon",
-    "subtitle": "Semua perbualan kakitangan tapak, pengawal dan pengendali peralatan dalam Bual telefon, disimpan mengikut projek. Anda boleh membalas perbualan yang anda sertai.",
+    "title": "Rekod perbualan",
+    "subtitle": "Semua perbualan di telefon (kakitangan tapak, pengawal, pengendali peralatan) dan di pejabat (pejabat projek, ibu pejabat), disimpan mengikut projek. Anda boleh membalas perbualan yang anda sertai; Mesej seseorang memulakan perbualan baharu.",
     "project": "Projek",
     "allProjects": "Semua projek",
     "loading": "Memuatkan…",
-    "empty": "Belum ada perbualan telefon dalam projek ini.",
+    "empty": "Belum ada perbualan dalam projek ini.",
     "pick": "Pilih satu perbualan di sebelah kiri.",
     "people": "Ahli: {names}",
     "noMessages": "Belum ada mesej.",
-    "attachment": "[foto / suara / fail]"
+    "attachment": "[foto / suara / fail]",
+    "conversation": "Perbualan",
+    "find": {
+      "title": "Mesej seseorang",
+      "hint": "Hanya orang yang boleh anda hubungi: pejabat projek boleh menghubungi orang telefon projeknya, pejabatnya sendiri dan ibu pejabat; ibu pejabat boleh menghubungi pejabat setiap projek. Orang telefon dan ibu pejabat tidak berada dalam perbualan yang sama.",
+      "back": "Kembali",
+      "project": "Projek",
+      "search": "Cari nama",
+      "choose": "orang untuk dimesej",
+      "group": {
+        "phone": "Orang telefon",
+        "office": "Pejabat projek",
+        "head_office": "Ibu pejabat"
+      },
+      "kind": {
+        "site_staff": "Kakitangan tapak",
+        "all_pages": "Kakitangan tapak",
+        "gate_guard": "Pengawal pintu",
+        "equipment_operator": "Pengendali peralatan",
+        "office": "Pejabat projek",
+        "head_office": "Ibu pejabat"
+      },
+      "mix": {
+        "phoneChosen": "Orang telefon telah dipilih, jadi ibu pejabat tidak boleh menyertai perbualan ini.",
+        "headOfficeChosen": "Ibu pejabat telah dipilih, jadi orang telefon tidak boleh menyertai perbualan ini."
+      },
+      "groupTitle": "Nama kumpulan (pilihan)",
+      "start": "{count, plural, =0 {Mula} one {Mula dengan 1 orang} other {Mula dengan # orang}}",
+      "startFailed": "Perbualan tidak dapat dimulakan. Cuba lagi.",
+      "noProject": "Anda belum ada projek terbuka untuk berbual.",
+      "noPeople": "Tiada sesiapa dijumpai.",
+      "whatProjects": "senarai projek",
+      "whatPeople": "senarai orang"
+    }
   },
   "photoWall": {
     "hint": "Klik foto untuk membesarkannya dan selak ke kiri atau kanan; klik dua kali untuk membuka rekod penuhnya.",

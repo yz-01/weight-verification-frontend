@@ -12264,7 +12264,7 @@
       "materialRequests": "MR / Other Request",
       "departmentsTrades": "Departments and trades",
       "fieldStaffManagement": "Field staff",
-      "fieldChats": "Phone conversations",
+      "fieldChats": "Conversations",
       "photoTimeline": "Project photo timeline"
     },
     "subscription_management": "Subscriptions",
@@ -20948,16 +20948,49 @@
     }
   },
   "fieldChats": {
-    "title": "Phone conversations",
-    "subtitle": "Every conversation site staff, guards and equipment operators have in the phone's Talk, kept by project. You can answer the ones you are in.",
+    "title": "Conversations",
+    "subtitle": "Every conversation on the phone (site staff, guards, equipment operators) and in the back office (project office, head office), kept by project. You can answer the ones you are in; Message someone starts a new one.",
     "project": "Project",
     "allProjects": "All projects",
     "loading": "Loading…",
-    "empty": "No phone conversations on this project yet.",
+    "empty": "No conversations on this project yet.",
     "pick": "Choose a conversation on the left.",
     "people": "People: {names}",
     "noMessages": "No messages yet.",
-    "attachment": "[photo / voice / file]"
+    "attachment": "[photo / voice / file]",
+    "conversation": "Conversation",
+    "find": {
+      "title": "Message someone",
+      "hint": "Only the people you may contact: a project office reaches its project's phone people, its own office and head office; head office reaches every project's office. Phone people and head office are never in the same conversation.",
+      "back": "Back",
+      "project": "Project",
+      "search": "Search by name",
+      "choose": "the people to message",
+      "group": {
+        "phone": "Phone people",
+        "office": "Project office",
+        "head_office": "Head office"
+      },
+      "kind": {
+        "site_staff": "Site staff",
+        "all_pages": "Site staff",
+        "gate_guard": "Gate guard",
+        "equipment_operator": "Equipment operator",
+        "office": "Project office",
+        "head_office": "Head office"
+      },
+      "mix": {
+        "phoneChosen": "A phone person is chosen, so head office cannot join this conversation.",
+        "headOfficeChosen": "Head office is chosen, so phone people cannot join this conversation."
+      },
+      "groupTitle": "Group name (optional)",
+      "start": "{count, plural, =0 {Start a chat} one {Start with 1 person} other {Start with # people}}",
+      "startFailed": "The conversation could not be started. Try again.",
+      "noProject": "You have no open project to talk on yet.",
+      "noPeople": "Nobody found.",
+      "whatProjects": "the projects",
+      "whatPeople": "the people"
+    }
   },
   "photoWall": {
     "hint": "Click a photo to enlarge it and page left or right; double-click it to open its full record.",

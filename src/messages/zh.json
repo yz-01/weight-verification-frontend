@@ -12264,7 +12264,7 @@
       "materialRequests": "MR / 其他申请",
       "departmentsTrades": "部门与工种",
       "fieldStaffManagement": "现场人员管理",
-      "fieldChats": "手机沟通记录",
+      "fieldChats": "沟通记录",
       "photoTimeline": "工程照片墙"
     },
     "subscription_management": "订阅管理",
@@ -20948,16 +20948,49 @@
     }
   },
   "fieldChats": {
-    "title": "手机沟通记录",
-    "subtitle": "现场人员、门岗、设备操作人员在手机「沟通」里的所有对话，按项目保存。你在里面的对话可以直接回复。",
+    "title": "沟通记录",
+    "subtitle": "手机端（现场人员、门岗、设备操作人员）和后台（项目后台、总部）的所有对话，按项目保存。你在里面的对话可以直接回复；用「找人沟通」开始新的对话。",
     "project": "项目",
     "allProjects": "全部项目",
     "loading": "正在载入…",
-    "empty": "这个项目还没有手机沟通。",
+    "empty": "这个项目还没有沟通记录。",
     "pick": "在左边选一个沟通查看。",
     "people": "成员：{names}",
     "noMessages": "还没有消息。",
-    "attachment": "[照片 / 语音 / 文件]"
+    "attachment": "[照片 / 语音 / 文件]",
+    "conversation": "沟通",
+    "find": {
+      "title": "找人沟通",
+      "hint": "只列出你可以联系的人：项目后台可以联系本项目的手机端人员、本项目后台和总部；总部可以联系各项目后台。手机端人员和总部不会在同一个对话里。",
+      "back": "返回",
+      "project": "选项目",
+      "search": "搜索名字",
+      "choose": "要沟通的人",
+      "group": {
+        "phone": "手机端人员",
+        "office": "项目后台",
+        "head_office": "总部"
+      },
+      "kind": {
+        "site_staff": "现场人员",
+        "all_pages": "现场人员",
+        "gate_guard": "门岗",
+        "equipment_operator": "设备操作",
+        "office": "项目后台",
+        "head_office": "总部"
+      },
+      "mix": {
+        "phoneChosen": "已选了手机端人员，总部不能加入同一个对话。",
+        "headOfficeChosen": "已选了总部，手机端人员不能加入同一个对话。"
+      },
+      "groupTitle": "群组名称（可不填）",
+      "start": "{count, plural, =0 {开始沟通} other {和 # 个人开始沟通}}",
+      "startFailed": "无法开始对话，请再试一次。",
+      "noProject": "你还没有可以沟通的项目。",
+      "noPeople": "找不到人。",
+      "whatProjects": "项目名单",
+      "whatPeople": "人员名单"
+    }
   },
   "photoWall": {
     "hint": "单击照片放大，可以左右翻看；双击照片打开完整记录。",

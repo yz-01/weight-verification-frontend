@@ -12264,7 +12264,7 @@
       "materialRequests": "MR / 其他申請",
       "departmentsTrades": "部門與工種",
       "fieldStaffManagement": "現場人員管理",
-      "fieldChats": "手機溝通記錄",
+      "fieldChats": "溝通記錄",
       "photoTimeline": "工程照片牆"
     },
     "subscription_management": "訂閱管理",
@@ -20948,16 +20948,49 @@
     }
   },
   "fieldChats": {
-    "title": "手機溝通記錄",
-    "subtitle": "現場人員、門崗、設備操作人員在手機「溝通」裡的所有對話，按項目保存。你在裡面的對話可以直接回覆。",
+    "title": "溝通記錄",
+    "subtitle": "手機端（現場人員、門崗、設備操作人員）和後台（項目後台、總部）的所有對話，按項目保存。你在裡面的對話可以直接回覆；用「找人溝通」開始新的對話。",
     "project": "項目",
     "allProjects": "全部項目",
     "loading": "正在載入…",
-    "empty": "這個項目還沒有手機溝通。",
+    "empty": "這個項目還沒有溝通記錄。",
     "pick": "在左邊選一個溝通查看。",
     "people": "成員：{names}",
     "noMessages": "還沒有消息。",
-    "attachment": "[照片 / 語音 / 文件]"
+    "attachment": "[照片 / 語音 / 文件]",
+    "conversation": "溝通",
+    "find": {
+      "title": "找人溝通",
+      "hint": "只列出你可以聯繫的人：項目後台可以聯繫本項目的手機端人員、本項目後台和總部；總部可以聯繫各項目後台。手機端人員和總部不會在同一個對話裡。",
+      "back": "返回",
+      "project": "選項目",
+      "search": "搜尋名字",
+      "choose": "要溝通的人",
+      "group": {
+        "phone": "手機端人員",
+        "office": "項目後台",
+        "head_office": "總部"
+      },
+      "kind": {
+        "site_staff": "現場人員",
+        "all_pages": "現場人員",
+        "gate_guard": "門崗",
+        "equipment_operator": "設備操作",
+        "office": "項目後台",
+        "head_office": "總部"
+      },
+      "mix": {
+        "phoneChosen": "已選了手機端人員，總部不能加入同一個對話。",
+        "headOfficeChosen": "已選了總部，手機端人員不能加入同一個對話。"
+      },
+      "groupTitle": "群組名稱（可不填）",
+      "start": "{count, plural, =0 {開始溝通} other {和 # 個人開始溝通}}",
+      "startFailed": "無法開始對話，請再試一次。",
+      "noProject": "你還沒有可以溝通的項目。",
+      "noPeople": "找不到人。",
+      "whatProjects": "項目名單",
+      "whatPeople": "人員名單"
+    }
   },
   "photoWall": {
     "hint": "單擊照片放大，可以左右翻看；雙擊照片打開完整記錄。",
