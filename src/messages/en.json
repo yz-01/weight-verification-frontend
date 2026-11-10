@@ -8800,7 +8800,8 @@
       "disposal_anomaly_not_running": "This clearance is not approved yet or has ended, so no exception can be reported on it.",
       "disposal_anomaly_trip_required": "A vehicle exception must say which load it was: choose a load of this clearance that was not cancelled.",
       "disposal_anomaly_photos_required": "Each exception needs at least {minimum} photos.",
-      "disposal_anomaly_reason_required": "Write the reason for the exception."
+      "disposal_anomaly_reason_required": "Write the reason for the exception.",
+      "field_one_project": "{name} is on another project now{project, select, none {} other { ({project})}}. A phone account can be on one project at a time: on the old project, first use \"Remove from project\" or \"Delete\", then link them here."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -8817,7 +8818,7 @@
       "max_length": "This is too long",
       "min_length": "This is too short",
       "null": "This field is required",
-      "phone_in_use": "This mobile number already belongs to a field staff account. To move them to a new project, first delete the person on their old project (suspending does not free the number), then come back and create the link.",
+      "phone_in_use": "This mobile number already belongs to a field staff account. To move them to a new project, first use \"Remove from project\" or \"Delete\" on their old project (suspending does not free the number), then come back and create the link. For someone already on this project, press their \"Link / QR code\" to send a new link.",
       "required": "This field is required",
       "unique": "This value is already taken",
       "percent_range": "Enter a percentage from 0 to 100",
@@ -8837,7 +8838,8 @@
       "invalid_passport_no": "Passport number: 5 to 20 letters and digits",
       "invalid_birth_date": "The date of birth must be before today",
       "site_worker_passport_taken": "This passport is already on the roster",
-      "supplier_not_on_project": "This supplier is not on this project's supplier list. Ask head office or the project manager to add it to the project first."
+      "supplier_not_on_project": "This supplier is not on this project's supplier list. Ask head office or the project manager to add it to the project first.",
+      "field_one_project": "A phone account can be on one project at a time. Choose one project."
     },
     "forbidden": "You do not have access to this.",
     "forbiddenBody": "Ask your administrator if you need it.",
@@ -9131,10 +9133,10 @@
     "copyPin": "Copy PIN",
     "create": "Create link",
     "createError": "The link could not be created. Check the mobile number, projects and account permission, then try again.",
-    "description": "Create a mobile field account and choose the projects this person can access.",
+    "description": "Create a mobile field account and choose the project this person works on.",
     "email": "Email",
     "emailHint": "Optional. If left blank, the system creates an internal login email automatically.",
-    "existingHelp": "The mobile number stays locked. Reissuing the link immediately unbinds the current device and signs out every old session. The first device to open the new link and enter the correct PIN becomes the only bound device. You may also change project access.",
+    "existingHelp": "The mobile number stays locked. Reissuing the link immediately unbinds the current device and signs out every old session. The first device to open the new link and enter the correct PIN becomes the only bound device. You may also move them to another project.",
     "existingStaff": "Choose field staff",
     "expiryHelp": "The activation link is only for binding the phone the first time. After that the app signs in by itself, no PIN each time. The phone needs binding again only after many days unused (set in company settings), or when the office generates a new link or stops the account.",
     "fullName": "Full name",
@@ -9150,7 +9152,7 @@
     "phoneHint": "Local example: (0123456789). Since +60 is preset, enter 123456789.",
     "pin": "Six-digit PIN",
     "pinExpiresAt": "After binding",
-    "projects": "Accessible projects",
+    "projects": "Project",
     "qrTitle": "Field staff activation QR code",
     "reissue": "Reissue login link",
     "resultDescription": "Give the activation link and six-digit PIN to the field worker. The link can bind a phone only before it expires.",
@@ -9174,7 +9176,9 @@
       "inApp": "Chat app browser",
       "computer": "Computer browser",
       "browser": "Browser"
-    }
+    },
+    "oneProjectHint": "A phone account is on one project at a time; choosing another project moves them there.",
+    "onTwoProjects": "On {count} projects at once. Choose just one."
   },
   "fieldDraft": {
     "loading": "Loading saved draft...",
@@ -13813,7 +13817,9 @@
       "removeTitle": "Remove {name} from this project?",
       "title": "Project staff list",
       "person": "Person to add",
-      "whatMembers": "The project member list"
+      "whatMembers": "The project member list",
+      "onOtherProject": "On another project now: remove them there first (\"Remove from project\" or \"Delete\")",
+      "removePhoneDescription": "{name}'s phone stops at once: every phone and browser is signed out. The account, the mobile number and everything recorded stay; a link made with the same number on another project binds the same phone again."
     },
     "title": "Projects",
     "toast": {
@@ -20871,7 +20877,8 @@
     "link": "Link / QR code",
     "remove": "Delete",
     "removeTitle": "Delete this field staff member?",
-    "removeConfirm": "After deleting, {name} can no longer sign in and the mobile number can be used on another project. Their earlier records are kept."
+    "removeConfirm": "After deleting, {name} can no longer sign in and the mobile number can be used on another project. Their earlier records are kept.",
+    "onTwoProjects": "On {count} projects"
   },
   "projectSuppliers": {
     "title": "Project suppliers",

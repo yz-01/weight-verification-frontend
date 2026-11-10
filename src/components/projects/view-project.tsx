@@ -814,7 +814,13 @@ function ProjectTeam({ projectId }: { projectId: string }) {
           open
           onOpenChange={() => setRemoving(null)}
           title={t("projects.team.removeTitle", { name: removing.user_name })}
-          description={t("projects.team.removeDescription")}
+          description={
+            // A phone account's phone stops at once and its number is free
+            // for the next project (JB148, 客户 11-10 事项 5 第 2、4 点).
+            removing.is_field_staff
+              ? t("projects.team.removePhoneDescription", { name: removing.user_name })
+              : t("projects.team.removeDescription")
+          }
           confirmLabel={t("projects.team.removeConfirm")}
           confirmIcon={UserMinus}
           isPending={removal.isPending}
@@ -885,9 +891,16 @@ function AssignUserDialog({
                 </div>
               ) : (
                 options.map((user) => (
-                  <SelectItem key={user.id} value={user.id}>
+                  // A phone account still on another open project is shown,
+                  // greyed out with the reason (JB148: one project at a time).
+                  <SelectItem key={user.id} value={user.id} disabled={user.on_other_project === true}>
                     {user.full_name} ({roleLabel(user.role_code, user.role_name, t) || "-"}) —{" "}
                     {contactOf({ is_field_staff: user.is_field_staff, user_phone: user.phone, user_email: user.email })}
+                    {user.on_other_project === true && (
+                      <span className="block text-xs text-muted-foreground" data-on-other-project>
+                        {t("projects.team.onOtherProject")}
+                      </span>
+                    )}
                   </SelectItem>
                 ))
               )}

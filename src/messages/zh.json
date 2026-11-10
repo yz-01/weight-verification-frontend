@@ -8800,7 +8800,8 @@
       "disposal_anomaly_not_running": "这项清运还没批准或已经结束，不能报告异常。",
       "disposal_anomaly_trip_required": "车辆异常必须注明第几车：请选这项清运未取消的车次。",
       "disposal_anomaly_photos_required": "每笔异常最少上传 {minimum} 张照片。",
-      "disposal_anomaly_reason_required": "请写明异常原因。"
+      "disposal_anomaly_reason_required": "请写明异常原因。",
+      "field_one_project": "{name} 现在在另一个项目{project, select, none {} other {（{project}）}}。手机账号同一时间只能在一个项目：请原项目先「移出项目」或「删除」，再在这里绑定。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -8817,7 +8818,7 @@
       "max_length": "内容过长",
       "min_length": "内容过短",
       "null": "此项为必填",
-      "phone_in_use": "这个手机号码已经有现场人员账号在用。要换到新项目，请先在原项目把这个人「删除」（停用不会释放号码），再回来生成链接。",
+      "phone_in_use": "这个手机号码已经有现场人员账号在用。要换到新项目，请原项目先把这个人「移出项目」或「删除」（停用不会释放号码），再回来生成链接；已经在这个项目的人，请按他的「链接 / 二维码」重新发链接。",
       "required": "此项为必填",
       "unique": "此值已被占用",
       "percent_range": "请输入 0 到 100 之间的百分比",
@@ -8837,7 +8838,8 @@
       "invalid_passport_no": "护照号码只能有英文字母和数字，5 到 20 个",
       "invalid_birth_date": "出生日期要在今天以前",
       "site_worker_passport_taken": "这本护照已经在名单里",
-      "supplier_not_on_project": "这个供应商不在这个项目的「可用供应商」里。请总部或项目经理先在项目里加入。"
+      "supplier_not_on_project": "这个供应商不在这个项目的「可用供应商」里。请总部或项目经理先在项目里加入。",
+      "field_one_project": "手机账号同一时间只能在一个项目，请只选一个项目。"
     },
     "forbidden": "你没有访问权限。",
     "forbiddenBody": "如果确实需要，请联系管理员。",
@@ -9134,7 +9136,7 @@
     "description": "建立现场人员手机账号，并选择该人员可以进入的项目。",
     "email": "电子邮箱",
     "emailHint": "选填。不填写时，系统会自动生成内部登录邮箱。",
-    "existingHelp": "手机号码不可修改。重新生成链接会立即解绑原有设备并注销所有旧登录；第一个打开新链接并正确输入 PIN 的设备将成为唯一绑定设备。你也可以同时调整可进入的项目。",
+    "existingHelp": "手机号码不可修改。重新生成链接会立即解绑原有设备并注销所有旧登录；第一个打开新链接并正确输入 PIN 的设备将成为唯一绑定设备。你也可以把他换到另一个项目。",
     "existingStaff": "选择现场人员",
     "expiryHelp": "激活链接只用来第一次绑定手机。绑定后打开就会自动登录，不用每次输入 PIN；只有连续很多天没打开（天数在公司设置里改），或者办公室重新生成链接、停用账号，才需要重新绑定。",
     "fullName": "姓名",
@@ -9174,7 +9176,9 @@
       "inApp": "聊天软件里的浏览器",
       "computer": "电脑浏览器",
       "browser": "浏览器"
-    }
+    },
+    "oneProjectHint": "一个手机账号同一时间只能在一个项目；选另一个项目就是把他换过去。",
+    "onTwoProjects": "同时在 {count} 个项目，请只选一个"
   },
   "fieldDraft": {
     "loading": "正在载入已保存草稿…",
@@ -13813,7 +13817,9 @@
       "removeTitle": "将 {name} 移出此项目？",
       "title": "项目人员名单",
       "person": "要加入的人",
-      "whatMembers": "项目成员列表"
+      "whatMembers": "项目成员列表",
+      "onOtherProject": "现在在另一个项目：请原项目先「移出项目」或「删除」",
+      "removePhoneDescription": "{name} 的手机会立刻停用，所有手机和浏览器马上登出。账号、手机号码和已记录的数据都保留；之后在别的项目用同一个号码生成链接，同一部手机就能重新绑定。"
     },
     "title": "项目",
     "toast": {
@@ -20871,7 +20877,8 @@
     "link": "链接 / 二维码",
     "remove": "删除",
     "removeTitle": "删除这个现场人员？",
-    "removeConfirm": "删除后 {name} 不能再登录，手机号码可以在别的项目重新使用。他之前的记录全部保留。"
+    "removeConfirm": "删除后 {name} 不能再登录，手机号码可以在别的项目重新使用。他之前的记录全部保留。",
+    "onTwoProjects": "同时在 {count} 个项目"
   },
   "projectSuppliers": {
     "title": "可用供应商",
