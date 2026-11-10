@@ -9113,7 +9113,7 @@
     "unboundInAppBody": "This page is open inside a chat app, which cannot be linked. Tap <more></more> at the top right and choose Open in Safari, or copy the link into Safari.",
     "unboundBrowserTitle": "This phone is not linked yet",
     "unboundBrowserBody": "Open the activation link from your administrator again (or scan the QR code) and enter the PIN there. If the link has expired, ask for a new one.",
-    "installBannerBody": "Opening from a Home Screen icon is more reliable and needs no PIN.",
+    "installBannerBody": "On an iPhone, notifications and sounds only arrive in the app opened from its Home Screen icon - and it needs no PIN.",
     "installBannerAction": "Add to Home Screen",
     "iconShare": "Share",
     "iconPageMenu": "Page menu",

@@ -28,6 +28,10 @@ import { createFieldPwaBootstrap } from "@/services/field-access.service";
  * opens the ready page, whose own address carries it - that is the page to
  * add from.
  *
+ * Its words say why it matters (JB153, 客户 11-10 第二批事项 2: in Safari
+ * 「什么通知都没有」): an iPhone sends notifications, sounds and the icon's
+ * number only to the app opened from its Home Screen icon, never to a tab.
+ *
  * Gone once the app is on the Home Screen (JB151): the server knows from the
  * app's own sign-in, which a browser tab cannot see.
  */

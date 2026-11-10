@@ -9113,7 +9113,7 @@
     "unboundInAppBody": "你现在是在聊天软件里面打开的，这里绑定不了。请点右上角 <more></more> 选「在 Safari 中打开」，或复制链接贴到 Safari。",
     "unboundBrowserTitle": "这台手机还没绑定",
     "unboundBrowserBody": "请重新打开管理员发的激活链接（或扫二维码），在那里输入 PIN。链接过期了就请管理员重新生成。",
-    "installBannerBody": "从主屏幕图标打开更稳定，不用再输入 PIN。",
+    "installBannerBody": "iPhone 要从主屏幕图标打开，才收得到通知和声音，也不用再输入 PIN。",
     "installBannerAction": "加到主屏幕",
     "iconShare": "分享",
     "iconPageMenu": "页面菜单",

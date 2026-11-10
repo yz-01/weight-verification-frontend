@@ -36,6 +36,14 @@ describe("fieldBellCount", () => {
     expect(fieldBellCount(summary({ total: 2, today: 2 }))).toEqual({ total: 2, today: 2, earlier: 0 });
   });
 
+  it("lights the dot for a notice the office sent, too (JB153)", () => {
+    // 客户 11-10: 「什么通知都没有」 - the notice was listed, the dot was not lit.
+    expect(fieldBellCount(summary({ notices: 1, notices_today: 1 }))).toEqual({ total: 1, today: 1, earlier: 0 });
+    expect(
+      fieldBellCount(summary({ total: 2, today: 1, earlier: 1, conversations: 1, conversations_today: 1, notices: 2, notices_today: 0 })),
+    ).toEqual({ total: 5, today: 2, earlier: 3 });
+  });
+
   it("lights the dot for a message alone, with no to-do card at all", () => {
     expect(fieldBellCount(summary({ conversations: 1, conversations_today: 1 }))?.total).toBe(1);
   });
