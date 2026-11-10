@@ -122,17 +122,22 @@ interface SubscribeAnswer {
   expired?: boolean;
 }
 
+/**
+ * This phone's registration, posted. `silent` when the app opens: a failure
+ * there is never toasted - the hint offering 「打开通知」 says it. From the
+ * tap, a refusal is toasted as before.
+ */
 async function postSubscription(
   subscription: PushSubscription,
-  options: { silent?: boolean } = {},
+  silent = false,
 ): Promise<{ expired: boolean }> {
   const json = subscription.toJSON();
   if (!json.endpoint || !json.keys?.p256dh || !json.keys.auth) throw new PushEnableError("subscribe");
-  const answer = await api.post<SubscribeAnswer | undefined>(
-    "/api/notifications/subscribe_push/",
-    { endpoint: json.endpoint, keys: json.keys, device_label: navigator.platform },
-    options,
-  );
+  const path = "/api/notifications/subscribe_push/";
+  const body = { endpoint: json.endpoint, keys: json.keys, device_label: navigator.platform };
+  const answer = await (silent
+    ? api.post<SubscribeAnswer | undefined>(path, body, { silent: true })
+    : api.post<SubscribeAnswer | undefined>(path, body));
   return { expired: Boolean(answer?.expired) };
 }
 
@@ -212,7 +217,7 @@ async function refreshOnce(): Promise<PushRefreshOutcome> {
   if (current) {
     let answer: { expired: boolean };
     try {
-      answer = await within(postSubscription(current, { silent: true }), 15_000, "server");
+      answer = await within(postSubscription(current, true), 15_000, "server");
     } catch {
       return "unreached";
     }
@@ -233,7 +238,7 @@ async function refreshOnce(): Promise<PushRefreshOutcome> {
   );
   if (!configured || !publicKey) return "not-configured";
   const fresh = await subscribeWith(registration, publicKey);
-  const answer = await within(postSubscription(fresh, { silent: true }), 15_000, "server");
+  const answer = await within(postSubscription(fresh, true), 15_000, "server");
   return answer.expired ? "failed" : "renewed";
 }
 
