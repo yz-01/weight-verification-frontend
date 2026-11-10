@@ -7913,7 +7913,28 @@
       "activeHint": "Active entries can be selected for new documents.",
       "description": "Maintain the category and subcategory structure used by the archive.",
       "inactive": "Inactive",
-      "title": "Document categories"
+      "title": "Document categories",
+      "scope": {
+        "label": "Used on",
+        "choice": {
+          "ALL": "Head office · all projects",
+          "CHOSEN": "Head office · chosen projects",
+          "PROJECT": "One project only"
+        },
+        "chosenLabel": "Projects using it",
+        "projectLabel": "Project",
+        "owner": "Belongs to {project}: used on that project only, not seen by other projects.",
+        "badge": {
+          "all": "Head office · all projects",
+          "chosen": "Head office · {count} projects",
+          "here": "This project",
+          "project": "Project: {project}"
+        },
+        "headOfficeHint": "Categories and subcategories head office creates can be given to every project or to chosen ones; those a project adds belong to that project alone and other projects do not see them.",
+        "projectHint": "Categories and subcategories you add belong to your project alone; other projects do not see them. Those marked Head office were set up by head office and can be used here but not changed.",
+        "showing": "Showing the categories used on {project}.",
+        "categoryHint": "Only the categories this scope can use are listed."
+      }
     },
     "title": "Document archive",
     "toast": {
@@ -8594,6 +8615,7 @@
       "weigh_sequence_invalid": "Two-pass weighing must run in order: gross first, tare second.",
       "rejection_needs_conversation": "Explain the problem in this record's conversation first, so the site can see why and reply. Then reject it.",
       "column_not_empty": "Something is still filed under this category: {records}. Move it first, then remove the category.",
+      "document_category_still_used": "The projects being taken off still use this category: {records}. Move them first, or keep those projects.",
       "category_has_records": "This category has {count, plural, one {# record} other {# records}} ({records}), so it can only be switched off, not removed.",
       "category_has_children": "This category still has sub-categories: {records}. Remove or move them first.",
       "category_fixed_other": "The fixed “Other” cannot be removed. You can rename it.",

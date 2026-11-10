@@ -7913,7 +7913,28 @@
       "activeHint": "啟用的項目可用於新文檔。",
       "description": "維護檔案使用的分類和子分類結構。",
       "inactive": "停用",
-      "title": "文檔分類"
+      "title": "文檔分類",
+      "scope": {
+        "label": "適用範圍",
+        "choice": {
+          "ALL": "總部 · 全部項目",
+          "CHOSEN": "總部 · 指定項目",
+          "PROJECT": "只屬於一個項目"
+        },
+        "chosenLabel": "使用的項目",
+        "projectLabel": "所屬項目",
+        "owner": "屬於「{project}」，只在這個項目使用，其他項目看不到。",
+        "badge": {
+          "all": "總部 · 全部項目",
+          "chosen": "總部 · {count} 個項目",
+          "here": "本項目",
+          "project": "項目：{project}"
+        },
+        "headOfficeHint": "總部建立的分類和子分類可以給全部項目或指定項目使用；各項目自行新增的只屬於該項目，其他項目看不到。",
+        "projectHint": "你新增的分類和子分類只屬於你的項目，其他項目看不到。標著「總部」的由總部建立，這裡只能使用，不能修改。",
+        "showing": "現在顯示「{project}」使用的分類。",
+        "categoryHint": "只列出這個範圍能用的分類。"
+      }
     },
     "title": "文檔檔案",
     "toast": {
@@ -8594,6 +8615,7 @@
       "weigh_sequence_invalid": "兩次過磅必須按順序進行：第一次毛重，第二次皮重。",
       "rejection_needs_conversation": "請先在這條記錄的【溝通】裡說明問題，讓現場看得到原因並能回覆，然後才能退回。",
       "column_not_empty": "這個分類下還有記錄：{records}。請先移走，再刪除分類。",
+      "document_category_still_used": "要移除的項目裡還有內容在用這個分類：{records}。請先移走，或保留這些項目。",
       "category_has_records": "這個分類已有 {count} 條記錄（{records}），只能停用，不能刪除。",
       "category_has_children": "這個分類下面還有子分類：{records}，請先刪除或移走子分類。",
       "category_fixed_other": "固定的「其他」不能刪除，可以改名。",

@@ -7913,7 +7913,28 @@
       "activeHint": "启用的项目可用于新文档。",
       "description": "维护档案使用的分类和子分类结构。",
       "inactive": "停用",
-      "title": "文档分类"
+      "title": "文档分类",
+      "scope": {
+        "label": "适用范围",
+        "choice": {
+          "ALL": "总部 · 全部项目",
+          "CHOSEN": "总部 · 指定项目",
+          "PROJECT": "只属于一个项目"
+        },
+        "chosenLabel": "使用的项目",
+        "projectLabel": "所属项目",
+        "owner": "属于「{project}」，只在这个项目使用，其他项目看不到。",
+        "badge": {
+          "all": "总部 · 全部项目",
+          "chosen": "总部 · {count} 个项目",
+          "here": "本项目",
+          "project": "项目：{project}"
+        },
+        "headOfficeHint": "总部建立的分类和子分类可以给全部项目或指定项目使用；各项目自行新增的只属于该项目，其他项目看不到。",
+        "projectHint": "你新增的分类和子分类只属于你的项目，其他项目看不到。标着「总部」的由总部建立，这里只能使用，不能修改。",
+        "showing": "现在显示「{project}」使用的分类。",
+        "categoryHint": "只列出这个范围能用的分类。"
+      }
     },
     "title": "文档档案",
     "toast": {
@@ -8594,6 +8615,7 @@
       "weigh_sequence_invalid": "两次过磅必须按顺序进行：第一次毛重，第二次皮重。",
       "rejection_needs_conversation": "请先在这条记录的【沟通】里说明问题，让现场看得到原因并能回复，然后才能退回。",
       "column_not_empty": "这个分类下还有记录：{records}。请先移走，再删除分类。",
+      "document_category_still_used": "要移除的项目里还有内容在用这个分类：{records}。请先移走，或保留这些项目。",
       "category_has_records": "这个分类已有 {count} 条记录（{records}），只能停用，不能删除。",
       "category_has_children": "这个分类下面还有子分类：{records}，请先删除或移走子分类。",
       "category_fixed_other": "固定的「其他」不能删除，可以改名。",
