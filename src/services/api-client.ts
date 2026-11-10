@@ -861,8 +861,10 @@ const CATALOGUE_WINS = new Set([
   // A machine switched off, removed or moved since the phone loaded its list.
   "equipment_not_found",
   // The number is held by another phone account: the catalogue says how to
-  // free it - delete, not suspend (JB109, 客户 11-06 事项 3).
+  // free it - 移出项目 or delete, not suspend (JB109, JB148).
   "phone_in_use",
+  // A phone link names one project (JB148, 客户 11-10 事项 5 第 3 点).
+  "field_one_project",
   // Not on the project's 可用供应商: the catalogue says who adds it (JB115).
   "supplier_not_on_project",
   // A write to a record the office confirmed and archived: the server's

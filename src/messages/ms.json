@@ -8773,7 +8773,8 @@
       "file_share_link_not_found": "Pautan fail ini tidak dijumpai.",
       "file_share_link_expired": "Pautan ini sudah tamat tempoh. Minta pautan baharu daripada penghantar.",
       "file_share_file_too_large": "Fail melebihi {max_mb} MB dan tidak boleh dihantar sebagai pautan.",
-      "permission_switches_projects_required": "Pengguna projek hanya melihat projek yang dipilih. Pilih sekurang-kurangnya satu projek."
+      "permission_switches_projects_required": "Pengguna projek hanya melihat projek yang dipilih. Pilih sekurang-kurangnya satu projek.",
+      "field_one_project": "{name} kini berada di projek lain{project, select, none {} other { ({project})}}. Akaun telefon hanya boleh berada di satu projek pada satu masa: di projek lama, tekan \"Keluarkan dari projek\" atau \"Padam\" dahulu, kemudian ikat di sini."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -8790,7 +8791,7 @@
       "max_length": "Ini terlalu panjang",
       "min_length": "Ini terlalu pendek",
       "null": "Ruangan ini wajib diisi",
-      "phone_in_use": "Nombor telefon ini sudah digunakan oleh akaun kakitangan tapak. Untuk berpindah ke projek baharu, padam orang itu di projek lama dahulu (menggantung tidak melepaskan nombor), kemudian kembali untuk cipta pautan.",
+      "phone_in_use": "Nombor telefon ini sudah digunakan oleh akaun kakitangan tapak. Untuk berpindah ke projek baharu, tekan \"Keluarkan dari projek\" atau \"Padam\" di projek lama dahulu (menggantung tidak melepaskan nombor), kemudian kembali untuk cipta pautan. Bagi orang yang sudah di projek ini, tekan \"Pautan / kod QR\" mereka untuk menghantar pautan baharu.",
       "required": "Ruangan ini wajib diisi",
       "unique": "Nilai ini telah digunakan",
       "percent_range": "Masukkan peratusan dari 0 hingga 100",
@@ -8810,7 +8811,8 @@
       "invalid_passport_no": "No. pasport: 5 hingga 20 huruf dan nombor",
       "invalid_birth_date": "Tarikh lahir mesti sebelum hari ini",
       "site_worker_passport_taken": "Pasport ini sudah ada dalam senarai",
-      "supplier_not_on_project": "Pembekal ini tiada dalam senarai pembekal projek ini. Minta ibu pejabat atau pengurus projek menambahnya dahulu."
+      "supplier_not_on_project": "Pembekal ini tiada dalam senarai pembekal projek ini. Minta ibu pejabat atau pengurus projek menambahnya dahulu.",
+      "field_one_project": "Akaun telefon hanya boleh berada di satu projek pada satu masa. Pilih satu projek."
     },
     "forbidden": "Anda tiada akses kepada ini.",
     "forbiddenBody": "Tanya pentadbir anda jika anda memerlukannya.",
@@ -9107,7 +9109,7 @@
     "description": "Cipta akaun mudah alih staf tapak dan pilih projek yang boleh diakses.",
     "email": "E-mel",
     "emailHint": "Pilihan. Jika kosong, sistem akan menjana e-mel log masuk dalaman secara automatik.",
-    "existingHelp": "Nombor telefon kekal dikunci. Menjana semula pautan akan segera memutuskan peranti semasa dan menamatkan semua sesi lama. Peranti pertama yang membuka pautan baharu dan memasukkan PIN yang betul menjadi satu-satunya peranti terikat. Akses projek juga boleh diubah.",
+    "existingHelp": "Nombor telefon kekal dikunci. Menjana semula pautan akan segera memutuskan peranti semasa dan menamatkan semua sesi lama. Peranti pertama yang membuka pautan baharu dan memasukkan PIN yang betul menjadi satu-satunya peranti terikat. Anda juga boleh memindahkannya ke projek lain.",
     "existingStaff": "Pilih staf tapak",
     "expiryHelp": "Pautan pengaktifan hanya untuk memautkan telefon kali pertama. Selepas itu aplikasi log masuk sendiri, tanpa PIN setiap kali. Telefon perlu dipautkan semula hanya selepas lama tidak digunakan (ditetapkan dalam tetapan syarikat), atau apabila pejabat menjana pautan baharu atau menghentikan akaun.",
     "fullName": "Nama penuh",
@@ -9123,7 +9125,7 @@
     "phoneHint": "Contoh tempatan: (0123456789). Oleh sebab +60 telah ditetapkan, masukkan 123456789.",
     "pin": "PIN enam digit",
     "pinExpiresAt": "Selepas dipautkan",
-    "projects": "Projek yang boleh diakses",
+    "projects": "Projek",
     "qrTitle": "Kod QR pengaktifan staf tapak",
     "reissue": "Jana semula pautan log masuk",
     "resultDescription": "Berikan pautan pengaktifan dan PIN enam digit kepada staf tapak. Pautan hanya boleh mengikat telefon sebelum tamat tempoh.",
@@ -9147,7 +9149,9 @@
       "inApp": "Pelayar apl sembang",
       "computer": "Pelayar komputer",
       "browser": "Pelayar"
-    }
+    },
+    "oneProjectHint": "Akaun telefon berada di satu projek pada satu masa; memilih projek lain memindahkannya ke sana.",
+    "onTwoProjects": "Berada di {count} projek serentak. Pilih satu sahaja."
   },
   "fieldDraft": {
     "loading": "Memuatkan draf yang disimpan...",
@@ -13785,7 +13789,9 @@
       "removeTitle": "Keluarkan {name} dari projek ini?",
       "title": "Senarai kakitangan projek",
       "person": "Orang yang hendak ditambah",
-      "whatMembers": "Senarai ahli projek"
+      "whatMembers": "Senarai ahli projek",
+      "onOtherProject": "Kini di projek lain: keluarkan di sana dahulu (\"Keluarkan dari projek\" atau \"Padam\")",
+      "removePhoneDescription": "Telefon {name} berhenti serta-merta: semua telefon dan pelayar dilog keluar. Akaun, nombor telefon dan semua rekod kekal; pautan dengan nombor yang sama di projek lain akan mengikat telefon yang sama semula."
     },
     "title": "Projek",
     "toast": {
@@ -20804,7 +20810,8 @@
     "link": "Pautan / kod QR",
     "remove": "Padam",
     "removeTitle": "Padam kakitangan tapak ini?",
-    "removeConfirm": "Selepas dipadam, {name} tidak boleh log masuk lagi dan nombor telefon boleh digunakan di projek lain. Rekod lamanya disimpan."
+    "removeConfirm": "Selepas dipadam, {name} tidak boleh log masuk lagi dan nombor telefon boleh digunakan di projek lain. Rekod lamanya disimpan.",
+    "onTwoProjects": "Di {count} projek"
   },
   "projectSuppliers": {
     "title": "Pembekal projek",

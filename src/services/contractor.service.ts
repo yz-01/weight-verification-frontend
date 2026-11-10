@@ -271,10 +271,19 @@ export function getProjectManagerChoices(): Promise<ProjectManagerChoice[]> {
   return api.get<ProjectManagerChoice[]>("/api/projects/get_manager_choices/");
 }
 
+/**
+ * A person 添加人员 offers. `on_other_project`: a phone account still on
+ * another open project - shown, but it cannot be added until the old project
+ * lets it go (JB148, one project at a time).
+ */
+export interface AssignableUser extends UserRow {
+  on_other_project?: boolean;
+}
+
 export function getAssignableProjectUsers(
   id: string,
-): Promise<Paginated<UserRow>> {
-  return api.list<UserRow>(
+): Promise<Paginated<AssignableUser>> {
+  return api.list<AssignableUser>(
     `/api/projects/${id}/get_assignable_users/`,
     { page_size: 100, sort_by: "full_name" },
   );

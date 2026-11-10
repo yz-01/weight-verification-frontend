@@ -37,9 +37,9 @@ const PERSON = {
   projects: [{ id: "p1", code: "PRJ-0001", name: "project 1A" }],
 };
 
-function renderPage() {
+function renderPage(people: unknown[] = [PERSON]) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  client.setQueryData(["field-access", "staff", "", ""], { results: [PERSON], count: 1 });
+  client.setQueryData(["field-access", "staff", "", ""], { results: people, count: people.length });
   client.setQueryData(["projects", "field-staff-management"], { results: [], count: 0 });
   return renderToStaticMarkup(
     <QueryClientProvider client={client}>
@@ -62,6 +62,14 @@ describe("现场人员管理 page", () => {
     expect(html).toContain(zh.fieldStaffManagement.remove);
     // 怎么用, in three steps, for whoever opens it the first time.
     expect(html).toContain(zh.fieldStaffManagement.how1);
+  });
+});
+
+describe("one project at a time (JB148, 客户 11-10 事项 5 第 3 点)", () => {
+  it("tags a person still on two open projects, without naming the other", () => {
+    const html = renderPage([{ ...PERSON, open_project_count: 2 }]);
+    expect(html).toContain("同时在 2 个项目");
+    expect(renderPage([{ ...PERSON, open_project_count: 1 }])).not.toContain("同时在");
   });
 });
 

@@ -16,7 +16,6 @@ import { QRCodeCanvas } from "qrcode.react";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { FieldWrapper, QueryFailedNote } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { ApiError } from "@/interfaces/api";
 import type { UserRow } from "@/interfaces/auth";
 import {
@@ -132,11 +131,23 @@ function FieldAccessManagementContent({
     enabled: mode === "existing" && Boolean(existingUserId),
   });
 
+  // One project per phone account (JB148, 客户 11-10 事项 5 第 3 点: 「普通工地员工
+  // 同一时间只能绑定一个项目，不允许同时挂在两个项目」): the choice is one project.
+  // A person still on two open projects (from before) starts with none chosen
+  // and is told so; choosing one moves them there.
+  const projectOptions = projects.data?.results ?? [];
+  const isOpenProject = (id: string) => {
+    const project = projectOptions.find((row) => row.id === id);
+    return !project || project.status === "PLANNING" || project.status === "ACTIVE";
+  };
+  const currentProjectIds = accessInfo.data?.projects.map((project) => project.id) ?? [];
+  const currentOpen = currentProjectIds.filter(isOpenProject);
+  const onSeveral = mode === "existing" && currentOpen.length > 1;
+  const current = currentOpen.length > 0 ? currentOpen : currentProjectIds;
+  // A draft kept from before JB148 may hold two: that is no choice at all.
+  const chosen = projectIds?.length === 1 ? projectIds : null;
   const selectedProjectIds =
-    projectIds ??
-    (mode === "existing"
-      ? (accessInfo.data?.projects.map((project) => project.id) ?? [])
-      : []);
+    chosen ?? (mode === "existing" && current.length === 1 ? current : []);
 
   const create = useMutation({
     mutationFn: () =>
@@ -203,15 +214,9 @@ function FieldAccessManagementContent({
     create.reset();
   }
 
-  function toggleProject(id: string, checked: boolean) {
+  function chooseProject(id: string) {
     clearCreateError();
-    setProjectIds(
-      checked
-        ? selectedProjectIds.includes(id)
-          ? selectedProjectIds
-          : [...selectedProjectIds, id]
-        : selectedProjectIds.filter((value) => value !== id),
-    );
+    setProjectIds([id]);
   }
 
   async function copy(value: string, kind: "link" | "pin" | "all") {
@@ -475,26 +480,40 @@ function FieldAccessManagementContent({
                 label={t("projects")}
                 required
                 error={fieldErrors?.fieldError("project_ids")}
+                hint={t("oneProjectHint")}
                 className="sm:col-span-2"
               >
+                {onSeveral && chosen === null && (
+                  <p
+                    role="alert"
+                    className="mb-2 rounded-lg border border-warning/40 bg-warning/5 px-3 py-2 text-sm font-medium text-foreground"
+                    data-testid="field-access-on-several"
+                  >
+                    {t("onTwoProjects", { count: currentOpen.length })}
+                  </p>
+                )}
                 <div
+                  role="radiogroup"
+                  aria-label={t("projects")}
                   className={cn(
                     "max-h-56 overflow-y-auto rounded-lg border",
                     fieldErrors?.fieldError("project_ids") &&
                       "border-destructive",
                   )}
                 >
-                  {(projects.data?.results ?? []).map((project) => (
+                  {projectOptions.map((project) => (
                     <label
                       key={project.id}
                       className="flex min-h-11 cursor-pointer items-center gap-3 border-b px-3 py-2 last:border-b-0 hover:bg-muted/40"
                     >
-                      <Checkbox
+                      <input
+                        type="radio"
+                        name="field-access-project"
+                        className="size-4 shrink-0"
+                        value={project.id}
                         checked={selectedProjectIds.includes(project.id)}
                         disabled={accessInfo.isLoading || accessInfo.isError}
-                        onCheckedChange={(checked) =>
-                          toggleProject(project.id, checked === true)
-                        }
+                        onChange={() => chooseProject(project.id)}
                       />
                       <span className="min-w-0 flex-1">
                         <span className="block truncate text-sm font-medium">

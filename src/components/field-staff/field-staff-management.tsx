@@ -150,6 +150,14 @@ export function FieldStaffManagementPage() {
                 {person.projects.map((place) => (
                   <TypeBadge key={place.id} label={`${place.code} · ${place.name}`} />
                 ))}
+                {/* 「不允许同时挂在两个项目」 (JB148, 客户 11-10 事项 5 第 3 点): a
+                    double from before shows, so its 链接 can pick one. */}
+                {(person.open_project_count ?? 0) > 1 && (
+                  <StatusBadge
+                    label={t("onTwoProjects", { count: person.open_project_count ?? 0 })}
+                    tone="warning"
+                  />
+                )}
               </div>
               <div className="flex flex-wrap gap-2">
                 <Button size="sm" variant="outline" onClick={() => setDialogFor(person)}>

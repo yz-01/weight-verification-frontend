@@ -269,6 +269,11 @@ export function fieldDeviceIdIsPersistent(): boolean {
 export interface FieldStaffRow extends UserRow {
   /** Only the projects the caller runs. */
   projects: { id: string; code: string; name: string }[];
+  /**
+   * How many open projects the person is on, whoever runs them - a count,
+   * never the names. More than one is tagged (JB148: one at a time).
+   */
+  open_project_count?: number;
 }
 
 export interface FieldRoleOption {
