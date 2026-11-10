@@ -95,6 +95,8 @@ export function HeadquartersHero({
   const title = preferences?.dashboard_title || t("title");
   const subtitle = preferences?.dashboard_subtitle || t("subtitle");
   const background = user?.branding?.company_background_url;
+  // Words on the picture: light, shadowed, over a dark wash (below).
+  const quiet = background ? "text-overlay-foreground/85" : "text-muted-foreground";
   const day = new Date(`${date}T00:00:00`);
   const now = weather.data;
   const look = now ? weatherLook(now.weather_code) : null;
@@ -105,10 +107,15 @@ export function HeadquartersHero({
       aria-label={title}
     >
       {background ? (
-        // The company's own picture (公司设置 → 公司资料 → 背景图, JB161 客户
-        // 11-10 第十批 「背景图设置呢？」), across the whole card behind the
-        // words, under a wash of the page colour - white in light, navy in
-        // dark - that is thickest where the title is.
+        // The company's own 仪表盘背景图 (公司设置 → 公司资料; JB161, 客户
+        // 11-10 第十、十一批), across the whole card. 「宣传语永久保留在背景图上」
+        // 「日期、星期及天气同样浮在背景图上」「自动根据背景调整文字可读性」: the
+        // photo is unknown - bright sky or night site - so the words do not
+        // guess at it. A dark photo-caption wash (the theme's `overlay`, near
+        // black in light and dark alike) lies over all of it, heaviest under
+        // the title and never under 58 % (white text on a white photo still
+        // reads at 4.5 : 1), and the words are the light caption colour with
+        // a dark shadow: readable on any picture, in either theme.
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={background}
@@ -122,7 +129,7 @@ export function HeadquartersHero({
         className={cn(
           "relative flex flex-wrap items-start justify-between gap-4 bg-gradient-to-r p-5 sm:p-6",
           background
-            ? "from-background/95 via-background/75 to-background/45"
+            ? "from-overlay via-overlay/80 to-overlay/75 text-overlay-foreground [text-shadow:0_1px_2px_var(--overlay),0_0_12px_var(--overlay)]"
             : "from-background via-background/90 to-background/30",
         )}
       >
@@ -133,26 +140,19 @@ export function HeadquartersHero({
               {t(allProjects ? "companyView" : "companyViewMine")}
             </span>
           </div>
-          <p className="text-sm text-muted-foreground">{subtitle}</p>
+          <p className={cn("text-sm", quiet)}>{subtitle}</p>
         </div>
-        <div
-          className={cn(
-            "flex flex-col items-start gap-2 sm:items-end sm:text-right",
-            // Where the picture shows most, the date and weather sit on a
-            // pane of their own so a busy photo cannot swallow them.
-            background && "rounded-xl bg-background/75 px-3 py-2 backdrop-blur-sm",
-          )}
-        >
+        <div className="flex flex-col items-start gap-2 sm:items-end sm:text-right">
           <p className="text-sm font-medium tabular-nums">
             {format.dateTime(day, { year: "numeric", month: "long", day: "numeric" })}{" "}
-            <span className="text-muted-foreground">{format.dateTime(day, { weekday: "long" })}</span>
+            <span className={quiet}>{format.dateTime(day, { weekday: "long" })}</span>
           </p>
           {now && look ? (
             <p className="flex items-center gap-2 text-sm" data-weather>
-              <look.icon className="size-6 text-tone-amber-fg" aria-hidden />
+              <look.icon className={cn("size-6", background ? "text-overlay-foreground" : "text-tone-amber-fg")} aria-hidden />
               <span className="font-medium">{now.place}</span>
               <span className="text-lg font-semibold tabular-nums">{t("temperature", { value: now.temperature })}</span>
-              <span className="text-muted-foreground">{t(`weather.${look.key}`)}</span>
+              <span className={quiet}>{t(`weather.${look.key}`)}</span>
             </p>
           ) : null}
           {action}

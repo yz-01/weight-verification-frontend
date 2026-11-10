@@ -96,8 +96,9 @@ describe("the head-office dashboard (J32)", () => {
     expect(html).toContain("多云");
   });
 
-  it("puts the company's background picture behind the words when one is set (JB161)", () => {
-    // 客户 11-10 第十批 「背景图设置呢？」: set in 公司设置 → 公司资料.
+  it("floats the slogan, date, weekday and weather on the company's 仪表盘背景图 (JB161)", () => {
+    // 客户 11-10 第十、十一批: 「宣传语永久保留在仪表盘顶部背景图上」「日期、星期及
+    // 天气同样浮在背景图上」「自动根据背景调整文字可读性」.
     const picture = "https://cdn.example/company/background/site.jpg";
     branding.value = { company_background_url: picture };
     try {
@@ -106,21 +107,30 @@ describe("the head-office dashboard (J32)", () => {
       expect(img).toContain(`src="${picture}"`);
       // The whole card, not a strip beside the title.
       expect(img).toContain("absolute inset-0 h-full w-full object-cover");
-      // A wash of the page colour over it, so the words read in light and dark,
-      // and the date and weather on a pane of their own.
-      expect(html).toContain("from-background/95 via-background/75 to-background/45");
-      expect(html).toMatch(/class="[^"]*bg-background\/75[^"]*"[^>]*>[\s\S]*data-weather/);
-      expect(html).toContain("让老板从看报表变成看现场");
+      // One layer over the picture holds every word: a dark caption wash
+      // (never under 75 % of the theme's overlay), light words with a shadow.
+      const layer = html.slice(html.indexOf("data-hero-background"));
+      expect(layer).toMatch(
+        /class="[^"]*from-overlay via-overlay\/80 to-overlay\/75 text-overlay-foreground \[text-shadow:[^"]*"/,
+      );
+      for (const words of ["让老板从看报表变成看现场", "2026年10月21日", "星期三", "Shah Alam", "32°C", "多云"]) {
+        expect(layer, words).toContain(words);
+      }
+      // No muted page-grey and no separate pane on the picture.
+      expect(layer).not.toContain("text-muted-foreground");
+      expect(layer).not.toContain("backdrop-blur");
     } finally {
       branding.value = {};
     }
   });
 
   it("is unchanged without a background picture", () => {
-    const html = render(<HeadquartersHero date="2026-10-21" />);
+    const html = render(<HeadquartersHero date="2026-10-21" />, { temperature: 32, weather_code: 2, place: "Shah Alam" });
     expect(html).not.toContain("<img");
     expect(html).toContain("from-background via-background/90 to-background/30");
-    expect(html).not.toContain("backdrop-blur-sm");
+    expect(html).toContain('<p class="text-sm text-muted-foreground">');
+    expect(html).toContain("size-6 text-tone-amber-fg");
+    expect(html).not.toContain("overlay");
   });
 
   it("gives 较昨日 only where yesterday is counted", () => {

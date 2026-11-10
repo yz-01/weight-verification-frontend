@@ -176,23 +176,22 @@ export function CompanySiteSettingsWorkspace() {
       <SectionTitle icon={Building2} title={t("profile.title")} description={t("profile.simpleSubtitle")} action={canManage ? <Button disabled={saveProfile.isPending} onClick={() => saveProfile.mutate()}><Save />{t("action.saveProfile")}</Button> : undefined} />
       {saveProfile.isError && <ErrorBanner text={t("settings.saveError")} />}
       <div className="surface-panel grid gap-6 rounded-xl p-4 sm:p-6 lg:grid-cols-[11.25rem_minmax(0,1fr)]">
-        {/* Side by side between a phone and a wide screen, so neither picture
-            is drawn the width of the page. */}
-        <div className="grid content-start gap-5 sm:grid-cols-2 lg:grid-cols-1">
-          <div className="space-y-3">
-            <p className="text-xs font-medium text-muted-foreground">{t("profile.logo")}</p>
-            <div className="grid aspect-square place-items-center overflow-hidden rounded-lg border bg-muted/40">
-              {logoPreview || profileForm.logo ? <img src={logoPreview || profileForm.logo || ""} alt={profileForm.name} className="h-full w-full object-contain" /> : <Building2 className="size-12 text-muted-foreground" />}
-            </div>
-            {canManage && <label className="flex cursor-pointer items-center justify-center gap-2 rounded-md border px-3 py-2 text-sm font-medium hover:bg-muted"><ImageUp className="size-4" /><span className="truncate">{logoFile?.name || t("profile.chooseLogo")}</span><input className="sr-only" type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => setLogoFile(event.target.files?.[0] ?? null)} /></label>}
+        <div className="space-y-3">
+          <p className="text-xs font-medium text-muted-foreground">{t("profile.logo")}</p>
+          <div className="grid aspect-square place-items-center overflow-hidden rounded-lg border bg-muted/40">
+            {logoPreview || profileForm.logo ? <img src={logoPreview || profileForm.logo || ""} alt={profileForm.name} className="h-full w-full object-contain" /> : <Building2 className="size-12 text-muted-foreground" />}
           </div>
-          {/* JB161 (客户 11-10 第十批 「背景图设置呢？」): the background is set
-              here again - hidden in the J batch (「背景图片：不在页面上显示」),
-              never deleted. It shows behind the dashboards' top banner. */}
-          <div className="space-y-3" data-company-background>
-            <p className="text-xs font-medium text-muted-foreground">{t("profile.background")}</p>
-            <div className="grid aspect-video place-items-center overflow-hidden rounded-lg border bg-muted/40">
-              {shownBackground ? <img src={shownBackground} alt={t("profile.background")} className="h-full w-full object-cover" /> : <ImageIcon className="size-10 text-muted-foreground" aria-hidden />}
+          {canManage && <label className="flex cursor-pointer items-center justify-center gap-2 rounded-md border px-3 py-2 text-sm font-medium hover:bg-muted"><ImageUp className="size-4" /><span className="truncate">{logoFile?.name || t("profile.chooseLogo")}</span><input className="sr-only" type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => setLogoFile(event.target.files?.[0] ?? null)} /></label>}
+          <p className="text-2xs text-muted-foreground">{t("profile.imageHint")}</p>
+          {/* JB161 (客户 11-10 第十批 「背景图设置呢？」, 第十一批 「在「公司设置」增加
+              「仪表盘背景图」上传功能。建议上传尺寸 1920 × 400px。每家建筑公司可自行
+              上传、更换」): hidden in the J batch (「背景图片：不在页面上显示」), never
+              deleted, and set here again. It is the picture behind the dashboards'
+              top card; the preview has that card's 1920 × 400 shape. */}
+          <div className="space-y-3 pt-3" data-company-background>
+            <p className="text-xs font-medium text-muted-foreground">{t("profile.dashboardBackground")}</p>
+            <div className="grid aspect-[24/5] place-items-center overflow-hidden rounded-lg border bg-muted/40">
+              {shownBackground ? <img src={shownBackground} alt={t("profile.dashboardBackground")} className="h-full w-full object-cover" /> : <ImageIcon className="size-6 text-muted-foreground" aria-hidden />}
             </div>
             {canManage && <div className="flex gap-2">
               <label className="flex min-w-0 flex-1 cursor-pointer items-center justify-center gap-2 rounded-md border px-3 py-2 text-sm font-medium hover:bg-muted"><ImageUp className="size-4 shrink-0" /><span className="truncate">{backgroundFile?.name || (shownBackground ? t("profile.replaceBackground") : t("profile.chooseBackground"))}</span><input className="sr-only" type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => { pickBackground(event.target.files?.[0] ?? null); event.target.value = ""; }} /></label>
@@ -202,7 +201,6 @@ export function CompanySiteSettingsWorkspace() {
             {clearBackground && !backgroundFile && <p className="text-xs text-muted-foreground">{t("profile.backgroundRemovePending")}</p>}
             <p className="text-2xs text-muted-foreground">{t("profile.backgroundHint")}</p>
           </div>
-          <p className="text-2xs text-muted-foreground sm:col-span-2 lg:col-span-1">{t("profile.imageHint")}</p>
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           {text(t("field.companyName"), profileForm.name, (value) => setCompany({ ...profileForm, name: value }), { required: true })}

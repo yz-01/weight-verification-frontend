@@ -371,9 +371,11 @@ describe("the sidebar's top is the company's own (JB161, 客户 11-10 第十批)
     // The upload itself, not the square favicon made from it.
     const logo = top.match(/<img [^>]*src="([^"]+)"[^>]*>/);
     expect(logo?.[1]).toBe(LOGO);
-    // 56 px high (the old square drew it at 30), as wide as its shape asks,
-    // never cropped; the whole plate when the sidebar is collapsed.
-    expect(logo?.[0]).toMatch(/class="[^"]*\bh-14 w-auto max-w-full object-contain\b/);
+    // 第十一批: 「建议显示区域 180 × 100px」「保持 Logo 原始比例，不拉伸、不变形」 -
+    // a 180 × 100 box (the old square drew it at 30 × 30), fitted whole and
+    // centred; the whole plate when the sidebar is collapsed.
+    expect(logo?.[0]).toMatch(/class="[^"]*\bh-25 w-45 max-w-full object-contain\b/);
+    expect(top).toMatch(/data-sidebar-brand="logo"[^>]*class="flex flex-col items-center\b/);
     expect(logo?.[0]).toContain("group-data-[collapsible=icon]:size-full");
     expect(top).toContain("测试建筑商 1");
     expect(top).not.toContain("MSE Trace");

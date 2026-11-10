@@ -123,17 +123,20 @@ describe("公司设置 (JB99)", () => {
   });
 });
 
-describe("公司资料's 背景图 (JB161, 客户 11-10 第十批 「背景图设置呢？」)", () => {
+describe("公司资料's 仪表盘背景图 (JB161, 客户 11-10 第十批 「背景图设置呢？」, 第十一批)", () => {
   /** The background's own block in 公司资料. */
   const block = (html: string) =>
-    html.match(/<div class="space-y-3" data-company-background="true">[\s\S]*?<\/p><\/div>/)?.[0] ?? "";
+    html.match(/<div class="space-y-3 pt-3" data-company-background="true">[\s\S]*?<\/p><\/div>/)?.[0] ?? "";
 
-  it("sits in 公司资料 beside the logo, says where it shows, and offers an upload", () => {
+  it("sits in 公司资料 under the logo, with the size the client asked for, and offers an upload", () => {
     const html = render();
     const profile = html.slice(html.indexOf('id="company-profile"'), html.indexOf('id="company-preferences"'));
     const background = block(profile);
-    expect(background).toContain("背景图");
-    expect(background).toContain("显示在仪表板和报表中心最上面的横幅后面；建议用横向照片。");
+    // 「在「公司设置」增加「仪表盘背景图」上传功能。建议上传尺寸 1920 × 400px。」
+    expect(background).toContain("仪表盘背景图");
+    expect(background).toContain("建议尺寸 1920 × 400 px（横向照片）");
+    // The preview has the banner's shape.
+    expect(background).toContain("aspect-[24/5]");
     expect(background).toContain("选择背景图");
     expect(background).toMatch(/<input class="sr-only" type="file" accept="image\/png,image\/jpeg,image\/webp"/);
     // Nothing to remove before there is a picture.
