@@ -54,6 +54,24 @@ describe("letterheadHtml", () => {
     expect(html).not.toContain("<script>");
   });
 
+  it("prints the company's own lines under its name, logo top left, as the PDFs do (JB162)", () => {
+    const html = letterheadHtml(
+      { ...head, company_lines: ["No. 1, Jalan Satu, 47100 Puchong, Selangor", "SSM: 202601000001", "+603-8061 2345 · a@mu.my"] },
+      "Emergency site list",
+    );
+    const header = html.slice(html.indexOf('<header class="letterhead">'));
+    const at = (words: string) => header.indexOf(words);
+
+    expect(at("<img")).toBeLessThan(at("Mu Construction Sdn Bhd"));
+    expect(at("Mu Construction Sdn Bhd")).toBeLessThan(at('<p class="line">No. 1, Jalan Satu'));
+    expect(at("No. 1, Jalan Satu")).toBeLessThan(at('<p class="line">SSM: 202601000001'));
+    expect(at("SSM: 202601000001")).toBeLessThan(at('<p class="line">+603-8061 2345 · a@mu.my'));
+    expect(at("a@mu.my")).toBeLessThan(at("P-NORTH - North Tower"));
+    expect(LETTERHEAD_PRINT_CSS).toContain(".letterhead .party img{display:block;flex:none;max-height:20mm;max-width:40mm");
+    // No lines sent (an older payload): none printed.
+    expect(letterheadHtml(head, "List")).not.toContain('class="line"');
+  });
+
   it("still prints the tag and title when the list has no company", () => {
     const html = letterheadHtml(undefined, "List");
 

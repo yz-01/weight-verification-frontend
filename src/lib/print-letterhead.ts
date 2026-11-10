@@ -17,6 +17,8 @@ export const PLATFORM_TAG = "Evidence Chain by MSE Trace";
 
 export interface PrintLetterhead {
   company_name: string;
+  /** Address, SSM number, phone · email under the name - each only when filled (JB162). */
+  company_lines?: string[];
   company_logo_url: string | null;
   project_code: string;
   project_name: string;
@@ -38,28 +40,36 @@ function safeImageUrl(value: string | null | undefined) {
   }
 }
 
-/** The print page's styles for the header block and the corner tag. */
+/**
+ * The print page's styles for the header block and the corner tag. The
+ * company's block is the PDFs' (JB162, 客户 11-10 第十一批 第 5 点): the logo
+ * top left in at most 40 x 20 mm, its proportions kept; the name 12 pt bold
+ * to its right; its own lines 8 pt under the name.
+ */
 export const LETTERHEAD_PRINT_CSS =
   ".letterhead{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;border-bottom:1.5px solid #0f5f6b;padding-bottom:6px;margin:0 0 10px}" +
-  ".letterhead .party{display:flex;align-items:center;gap:10px;min-width:0}" +
-  ".letterhead .party img{display:block;max-height:40px;max-width:120px;object-fit:contain}" +
-  ".letterhead .company{font-size:16px;font-weight:700;margin:0;color:#111}" +
-  ".letterhead .project{font-size:11px;color:#555;margin:2px 0 0}" +
+  ".letterhead .party{display:flex;align-items:flex-start;gap:3mm;min-width:0}" +
+  ".letterhead .party img{display:block;flex:none;max-height:20mm;max-width:40mm;object-fit:contain}" +
+  ".letterhead .company{font-size:12pt;font-weight:700;margin:0;color:#111}" +
+  ".letterhead .line{font-size:8pt;margin:0;line-height:1.2}" +
+  ".letterhead .project{font-size:10pt;margin:2px 0 0}" +
+  ".letterhead .line,.letterhead .project{color:#555}" +
   ".letterhead .what{text-align:right}" +
   ".letterhead .what h1{font-size:18px;margin:0}" +
   ".platform-tag{position:fixed;top:4px;right:8px;font-size:8px;color:#9ca3af;margin:0}";
 
 /**
- * The header block: the company's logo, name and project left, what the page
- * is right; and the platform's small tag, which repeats in the top right
- * corner of every printed sheet.
+ * The header block: the company's logo, name, own lines and project left,
+ * what the page is right; and the platform's small tag, which repeats in the
+ * top right corner of every printed sheet.
  */
 export function letterheadHtml(head: PrintLetterhead | null | undefined, title: string) {
   const projectLine = [head?.project_code, head?.project_name].filter(Boolean).join(" - ");
   const logo = safeImageUrl(head?.company_logo_url);
+  const lines = head?.company_name ? (head.company_lines ?? []).filter(Boolean) : [];
   const party = [
     logo ? `<img src="${escapePrintHtml(logo)}" alt="">` : "",
-    `<div>${head?.company_name ? `<p class="company">${escapePrintHtml(head.company_name)}</p>` : ""}${projectLine ? `<p class="project">${escapePrintHtml(projectLine)}</p>` : ""}</div>`,
+    `<div>${head?.company_name ? `<p class="company">${escapePrintHtml(head.company_name)}</p>` : ""}${lines.map((line) => `<p class="line">${escapePrintHtml(line)}</p>`).join("")}${projectLine ? `<p class="project">${escapePrintHtml(projectLine)}</p>` : ""}</div>`,
   ].join("");
   return (
     `<p class="platform-tag">${escapePrintHtml(head?.platform_tag || PLATFORM_TAG)}</p>` +
