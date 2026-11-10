@@ -224,12 +224,12 @@ function endSession(): void {
       ? "/scrap/login"
       : portalLoginPath(portal);
   if (typeof window !== "undefined" && window.location.pathname !== loginPath) {
-    // The office's new link or 停用 is said as such on the phone.
+    // The office's new link, 停用 or 删除 (JB154) is said as such on the phone.
     const officeReason =
       isFieldSessionContext() && FIELD_EXPLAINED_SIGN_OUTS.includes(reason)
         ? resolveMessage(reason, "")
         : "";
-    if (officeReason) rememberFieldSignOutReason(officeReason);
+    if (officeReason) rememberFieldSignOutReason(officeReason, reason);
     // JB56: signed in on another computer - said here and on the sign-in page.
     const replacedReason = reason === SESSION_REPLACED ? resolveMessage(reason, "") : "";
     if (replacedReason) rememberSignOutReason(replacedReason);

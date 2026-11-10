@@ -55,14 +55,20 @@ export function FieldUnboundHelp({
           t("unboundAppStep4"),
         ]
       : [];
-  const title =
-    reason === "installed-app"
+  // JB154 (客户 11-10 第三批): the icon of an account the office deleted is
+  // not "not linked yet" - it is the old account's; the same steps swap it
+  // for the new account's icon.
+  const removed = Boolean(code?.includes("field_account_removed"));
+  const title = removed
+    ? t("unboundRemovedTitle")
+    : reason === "installed-app"
       ? t("unboundAppTitle")
       : reason === "in-app"
         ? t("unboundInAppTitle")
         : t("unboundBrowserTitle");
-  const body =
-    reason === "installed-app"
+  const body = removed
+    ? t("unboundRemovedBody")
+    : reason === "installed-app"
       ? t("unboundAppBody")
       : reason === "in-app"
         ? t.rich("unboundInAppBody", icons)

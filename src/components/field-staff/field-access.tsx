@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ApiError } from "@/interfaces/api";
 import {
+  FIELD_ACCOUNT_REMOVED,
   FIELD_OFFICE_SIGN_OUTS,
   fieldSessionIssuedAt,
   getFieldBootstrapToken,
@@ -20,7 +21,7 @@ import {
   isStandaloneApp,
   markFieldInstallHelp,
   setFieldBootstrapToken,
-  takeFieldSignOutReason,
+  takeFieldSignOut,
 } from "@/lib/auth-token";
 import {
   activationLinkSignedIn,
@@ -108,6 +109,9 @@ export function FieldAccess() {
   const [signedIn, setSignedIn] = useState(false);
   // The server said this browser is not the linked phone.
   const [deviceRefused, setDeviceRefused] = useState(false);
+  // The phone holds an account the office deleted (JB154): the message says
+  // to use the new link and a new icon, and no PIN box offers otherwise.
+  const [accountRemoved, setAccountRemoved] = useState(false);
   // The server's code when the stored hand-off was refused (shown as the
   // reason under the "not linked" help, and logged).
   const [refusedCode, setRefusedCode] = useState<string | null>(null);
@@ -128,8 +132,11 @@ export function FieldAccess() {
       // sign-out this browser saw earlier, under an older link, is not news
       // here (Lucas 2026-10-23: scanned the QR, 「在 Safari 打开」, and read
       // 「办公室已重新发出链接」 about a test link from days before).
-      const officeReason = takeFieldSignOutReason();
-      if (officeReason && !joinLink && !token) setError((current) => current || officeReason);
+      const { message: officeReason, code: officeCode } = takeFieldSignOut();
+      if (officeReason && !joinLink && !token) {
+        setError((current) => current || officeReason);
+        if (officeCode === FIELD_ACCOUNT_REMOVED) setAccountRemoved(true);
+      }
       setContext({
         standalone: isStandaloneApp(),
         environment: detectInstallEnvironment(),
@@ -208,6 +215,7 @@ export function FieldAccess() {
           FIELD_OFFICE_SIGN_OUTS.includes(cause.code ?? "")
         ) {
           setError(cause.message);
+          setAccountRemoved(cause.code === FIELD_ACCOUNT_REMOVED);
         } else if (cause instanceof ApiError && cause.code) {
           setRefusedCode(cause.code);
         }
@@ -324,10 +332,13 @@ export function FieldAccess() {
       : null;
   // Storage that has never held a device id has never been linked: the
   // server has never seen this "phone", so a PIN cannot work. Only the way in
-  // is shown there.
-  const pinUseful = token
-    ? true
-    : !unbound || deviceRefused || Boolean(context?.hasDeviceId);
+  // is shown there. Nor for a deleted account (JB154): the PIN box with
+  // 「这个账号已被停用。」 under it is what the client photographed (图 18).
+  const pinUseful = accountRemoved
+    ? false
+    : token
+      ? true
+      : !unbound || deviceRefused || Boolean(context?.hasDeviceId);
 
   return (
     <main className="flex min-h-dvh items-center justify-center px-4 py-10">
@@ -337,9 +348,12 @@ export function FieldAccess() {
             <Camera className="size-7" />
           </span>
           <h1 className="text-xl font-bold leading-tight">{token ? t("activateTitle") : t("loginTitle")}</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {token ? invitation.data?.full_name : joinLink ? t("joinBody") : t("loginBody")}
-          </p>
+          {/* 「请输入你的 6 位 PIN」 is not said where no PIN can help (JB154). */}
+          {!accountRemoved && (
+            <p className="mt-1 text-sm text-muted-foreground">
+              {token ? invitation.data?.full_name : joinLink ? t("joinBody") : t("loginBody")}
+            </p>
+          )}
         </div>
         <div className="space-y-4 p-4 sm:p-6">
           {token && invitation.data && (

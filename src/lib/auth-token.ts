@@ -140,38 +140,62 @@ export function getFieldBootstrapToken(): string | null {
   return window.localStorage.getItem(FIELD_BOOTSTRAP_KEY);
 }
 
-/** The two things that sign a field phone out on the office's word. */
-export const FIELD_OFFICE_SIGN_OUTS = ["field_link_replaced", "field_account_stopped"];
+/**
+ * The phone holds an account the office deleted (删除) - an icon added before
+ * the number moved to a new account on another project (JB154, 客户 11-10
+ * 「一开机就显示这个账号已被停用。但是我查了在项目没有停用这个账号」). No PIN
+ * brings it back: the office's new link and a new icon do, as the message says.
+ */
+export const FIELD_ACCOUNT_REMOVED = "field_account_removed";
+
+/** What signs a field phone out on the office's word: a new link, 停用, 删除. */
+export const FIELD_OFFICE_SIGN_OUTS = [
+  "field_link_replaced",
+  "field_account_stopped",
+  FIELD_ACCOUNT_REMOVED,
+];
 
 /**
- * Every sign-out the phone says in words on its PIN screen: the office's two,
+ * Every sign-out the phone says in words on its PIN screen: the office's,
  * and this browser having been signed out because the person signed in
  * elsewhere (Lucas 2026-10-23) - which the PIN alone puts right.
  */
 export const FIELD_EXPLAINED_SIGN_OUTS = [...FIELD_OFFICE_SIGN_OUTS, "field_place_signed_out"];
 
 const FIELD_SIGN_OUT_REASON_KEY = "mse_field_sign_out_reason";
+const FIELD_SIGN_OUT_CODE_KEY = "mse_field_sign_out_code";
 
-/** Kept for the sign-in screen the session ends on (one page load). */
-export function rememberFieldSignOutReason(message: string): void {
+/**
+ * Kept for the sign-in screen the session ends on (one page load). The code
+ * goes with it so that screen knows when a PIN cannot help (JB154).
+ */
+export function rememberFieldSignOutReason(message: string, code = ""): void {
   if (!isBrowser() || !message) return;
   try {
     window.sessionStorage.setItem(FIELD_SIGN_OUT_REASON_KEY, message);
+    window.sessionStorage.setItem(FIELD_SIGN_OUT_CODE_KEY, code);
   } catch {
     // Storage blocked: the toast still said it.
   }
 }
 
-/** Read once: the reason is shown on the next sign-in screen only. */
-export function takeFieldSignOutReason(): string {
-  if (!isBrowser()) return "";
+/** Read once: the reason (and its code) is shown on the next sign-in screen only. */
+export function takeFieldSignOut(): { message: string; code: string } {
+  if (!isBrowser()) return { message: "", code: "" };
   try {
     const message = window.sessionStorage.getItem(FIELD_SIGN_OUT_REASON_KEY) ?? "";
+    const code = window.sessionStorage.getItem(FIELD_SIGN_OUT_CODE_KEY) ?? "";
     window.sessionStorage.removeItem(FIELD_SIGN_OUT_REASON_KEY);
-    return message;
+    window.sessionStorage.removeItem(FIELD_SIGN_OUT_CODE_KEY);
+    return { message, code };
   } catch {
-    return "";
+    return { message: "", code: "" };
   }
+}
+
+/** Read once: the reason alone. */
+export function takeFieldSignOutReason(): string {
+  return takeFieldSignOut().message;
 }
 
 /**

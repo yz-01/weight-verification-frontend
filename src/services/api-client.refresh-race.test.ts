@@ -129,7 +129,7 @@ describe("renewing after the phone wakes", () => {
   });
 });
 
-describe("the office signs a phone out (重新生成链接 / 停用)", () => {
+describe("the office signs a phone out (重新生成链接 / 停用 / 删除)", () => {
   async function refusedWith(code: string) {
     const session = new Map<string, string>();
     const assigned: string[] = [];
@@ -153,10 +153,10 @@ describe("the office signs a phone out (重新生成链接 / 停用)", () => {
     publishTranslator("zh", zh as never);
     server(() => json(401, { success: false, code, message: "", errors: {} }));
     await api.get("/api/auth/get_me/", { silent: true }).catch(() => undefined);
-    const { takeFieldSignOutReason } = await import("@/lib/auth-token");
-    const reason = takeFieldSignOutReason();
+    const { takeFieldSignOut } = await import("@/lib/auth-token");
+    const { message: reason, code: kept } = takeFieldSignOut();
     vi.unstubAllGlobals();
-    return { reason, assigned };
+    return { reason, code: kept, assigned };
   }
 
   it("a new link signs the phone out at once and says so in plain words", async () => {
@@ -167,8 +167,19 @@ describe("the office signs a phone out (重新生成链接 / 停用)", () => {
   });
 
   it("a stopped account says it was stopped", async () => {
-    const { reason } = await refusedWith("field_account_stopped");
-    expect(reason).toBe("这个账号已被停用。");
+    const { reason, code } = await refusedWith("field_account_stopped");
+    expect(reason).toBe("这个账号已被办公室停用，请联系办公室。");
+    expect(code).toBe("field_account_stopped");
+  });
+
+  it("a deleted account says it is the old one, and the PIN screen is told so (JB154)", async () => {
+    // 客户 11-10: 「一开机就显示这个账号已被停用。但是我查了在项目没有停用这个账号。」
+    const { reason, code, assigned } = await refusedWith("field_account_removed");
+    expect(reason).toBe(
+      "这个手机图标是已经删除的旧账号。请删掉这个图标，用办公室发给你的新链接重新登录，再加到主屏幕。",
+    );
+    expect(code).toBe("field_account_removed");
+    expect(assigned).toEqual(["/trace/field-login"]);
   });
 
   it("an ordinary expiry is not dressed up as the office's doing", async () => {
