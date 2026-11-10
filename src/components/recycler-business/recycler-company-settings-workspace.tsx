@@ -71,6 +71,8 @@ import {
 export function RecyclerCompanySettingsWorkspace() {
   const t = useTranslations("recyclerCompanySettings");
   const common = useTranslations("common");
+  // The background's words are the builder's 公司资料 ones (JB164), one text.
+  const profileWords = useTranslations("siteControl.profile");
   const { can, refresh } = useAuth();
   const queryClient = useQueryClient();
   const canManage = can("company_settings.manage");
@@ -86,6 +88,9 @@ export function RecyclerCompanySettingsWorkspace() {
   const [profileDraft, setProfileDraft] = useState<Partial<ContractorCompanyProfile>>({});
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [backgroundFile, setBackgroundFile] = useState<File | null>(null);
+  // JB164: the saved background taken away, sent with 【保存公司资料】 (as on
+  // the builder's 公司资料, JB161).
+  const [clearBackground, setClearBackground] = useState(false);
   const [bankEditing, setBankEditing] = useState<CompanyBankAccount | null | undefined>();
   const [bankRemoving, setBankRemoving] = useState<CompanyBankAccount | null>(null);
   const settings = settingsQuery.data
@@ -108,11 +113,15 @@ export function RecyclerCompanySettingsWorkspace() {
     },
   });
   const saveProfile = useMutation({
-    mutationFn: () => updateContractorCompanyProfile(profileDraft, logoFile, backgroundFile),
+    mutationFn: () =>
+      updateContractorCompanyProfile(profileDraft, logoFile, backgroundFile, {
+        removeBackground: clearBackground,
+      }),
     onSuccess: async (saved) => {
       setProfileDraft({});
       setLogoFile(null);
       setBackgroundFile(null);
+      setClearBackground(false);
       queryClient.setQueryData(["recycler-company-profile"], saved);
       await refresh();
     },
@@ -133,6 +142,7 @@ export function RecyclerCompanySettingsWorkspace() {
   if (settingsQuery.isError || profileQuery.isError) {
     return <PageState text={t("state.error")} danger />;
   }
+  const shownBackground = clearBackground ? "" : profile.background_image || "";
 
   const links = [
     { href: "/users", icon: Users, permission: "user.view", label: t("links.users"), help: t("links.usersHelp") },
@@ -164,17 +174,28 @@ export function RecyclerCompanySettingsWorkspace() {
                 <input className="sr-only" type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => setLogoFile(event.target.files?.[0] ?? null)} />
               </label>
             )}
-            {/* C12: every company sets its own background, recyclers too. */}
-            <div className="grid aspect-video place-items-center overflow-hidden rounded-lg border bg-muted/30">
-              {profile.background_image ? <img src={profile.background_image} alt={t("profile.background")} className="h-full w-full object-cover" /> : <ImageUp className="size-7 text-muted-foreground" />}
+            {/* C12: every company sets its own background, recyclers too.
+                JB164: named and sized like the builder's (JB161, 客户 11-10
+                第十一批 「仪表盘背景图 … 建议上传尺寸 1920 × 400px」), and it can
+                be taken away. */}
+            <div className="space-y-3" data-company-background>
+              <p className="text-xs font-medium text-muted-foreground">{profileWords("dashboardBackground")}</p>
+              <div className="grid aspect-[24/5] place-items-center overflow-hidden rounded-lg border bg-muted/30">
+                {shownBackground ? <img src={shownBackground} alt={profileWords("dashboardBackground")} className="h-full w-full object-cover" /> : <ImageUp className="size-7 text-muted-foreground" />}
+              </div>
+              {canManage && (
+                <div className="flex gap-2">
+                  <label className="flex min-h-10 min-w-0 flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg border bg-card px-3 py-2 text-sm font-medium hover:bg-muted">
+                    <ImageUp className="size-4 shrink-0" />
+                    <span className="truncate">{backgroundFile?.name || t("profile.background")}</span>
+                    <input className="sr-only" type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => { const file = event.target.files?.[0] ?? null; setBackgroundFile(file); if (file) setClearBackground(false); event.target.value = ""; }} />
+                  </label>
+                  {shownBackground && <Button type="button" variant="outline" size="icon" className="shrink-0 text-destructive" title={profileWords("removeBackground")} aria-label={profileWords("removeBackground")} onClick={() => { setBackgroundFile(null); setClearBackground(Boolean(profile.background_image)); }}><Trash2 /></Button>}
+                </div>
+              )}
+              {clearBackground && !backgroundFile && <p className="text-xs text-muted-foreground">{profileWords("backgroundRemovePending")}</p>}
+              <p className="text-2xs text-muted-foreground">{profileWords("backgroundHint")}</p>
             </div>
-            {canManage && (
-              <label className="flex min-h-10 cursor-pointer items-center justify-center gap-2 rounded-lg border bg-card px-3 py-2 text-sm font-medium hover:bg-muted">
-                <ImageUp className="size-4" />
-                <span className="truncate">{backgroundFile?.name || t("profile.background")}</span>
-                <input className="sr-only" type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => setBackgroundFile(event.target.files?.[0] ?? null)} />
-              </label>
-            )}
           </div>
           <div className="grid min-w-0 grid-cols-1 gap-x-3 gap-y-2 sm:grid-cols-2">
             <FieldWrapper label={t("profile.name")} required><Input disabled={!canManage} value={profile.name} onChange={(event) => setProfileDraft((current) => ({ ...current, name: event.target.value }))} /></FieldWrapper>
@@ -187,7 +208,7 @@ export function RecyclerCompanySettingsWorkspace() {
             <FieldWrapper label={t("profile.phone")}><Input disabled={!canManage} value={profile.contact_phone} onChange={(event) => setProfileDraft((current) => ({ ...current, contact_phone: event.target.value }))} /></FieldWrapper>
             <FieldWrapper label={t("profile.email")}><Input disabled={!canManage} type="email" value={profile.contact_email} onChange={(event) => setProfileDraft((current) => ({ ...current, contact_email: event.target.value }))} /></FieldWrapper>
             <FieldWrapper label={t("profile.billingEmail")}><Input disabled={!canManage} type="email" value={profile.billing_email} onChange={(event) => setProfileDraft((current) => ({ ...current, billing_email: event.target.value }))} /></FieldWrapper>
-            {canManage && <div className="sm:col-span-2"><Button disabledReason={!Object.keys(profileDraft).length && !logoFile && !backgroundFile ? common("noChanges") : undefined} disabled={saveProfile.isPending || (!Object.keys(profileDraft).length && !logoFile && !backgroundFile)} onClick={() => saveProfile.mutate()}><Save />{t("action.saveProfile")}</Button></div>}
+            {canManage && <div className="sm:col-span-2"><Button disabledReason={!Object.keys(profileDraft).length && !logoFile && !backgroundFile && !clearBackground ? common("noChanges") : undefined} disabled={saveProfile.isPending || (!Object.keys(profileDraft).length && !logoFile && !backgroundFile && !clearBackground)} onClick={() => saveProfile.mutate()}><Save />{t("action.saveProfile")}</Button></div>}
           </div>
         </div>
       </section>

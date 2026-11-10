@@ -15960,6 +15960,7 @@
       "chooseBackground": "选择背景图",
       "replaceBackground": "更换背景图",
       "removeBackground": "移除背景图",
+      "removeLogo": "移除 Logo",
       "backgroundRemovePending": "按【保存公司资料】后移除。",
       "backgroundTooBig": "这张图片有 {actual} MB，超过了 {limit} MB 的上限。请换一张小一点的。",
       "backgroundHint": "建议尺寸 1920 × 400 px（横向照片）",

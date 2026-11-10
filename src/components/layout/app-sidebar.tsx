@@ -378,10 +378,17 @@ export function AppSidebar() {
  * 180 × 100px。保持 Logo 原始比例，不拉伸、不变形」. A company account shows its
  * own logo in a 180 × 100 box at the top of the menu, right above 总览 /
  * 仪表板 - fitted whole and centred, never stretched or cropped - over the
- * company's name, and no 「MSE Trace」. The plate is white in both themes, as
- * the dashboard banner's logo tile is: a logo is drawn for white paper (the
- * PDF letterhead prints it there) and a dark one would vanish on the dark
- * sidebar. Collapsed, the logo alone fills the rail's width.
+ * company's name, and no 「MSE Trace」. Collapsed, the logo alone fits the
+ * rail's 44 px square.
+ *
+ * JB164 (Lucas 11-11: 「把白色的边边去掉，留Logo就好，弄成会适配所有logo的」): no
+ * plate - no white box, border, padding, rounded frame or glow - only the
+ * picture: 100 px high at its own ratio, never wider than 180 px (a wider
+ * one is fitted whole inside 180 × 100), so a square logo shows square, a
+ * wide one wide, a tall one tall. A transparent PNG sits straight on the
+ * sidebar; in the dark theme a 1 px faint light halo follows its own shape
+ * so a dark logo does not vanish. The block's padding is trimmed to the
+ * logo (JB164 item 6).
  *
  * A company with no logo yet (or one that fails to load) keeps the MSE icon,
  * beside its name. An account with no company of its own - MSE Admin, the
@@ -409,19 +416,18 @@ function SidebarBrand({
       <div
         data-sidebar-brand="logo"
         title={company}
-        className="flex flex-col items-center gap-2 px-1 py-2 group-data-[collapsible=icon]:px-0"
+        className="flex flex-col items-center gap-1.5 px-1 py-0.5 group-data-[collapsible=icon]:px-0"
       >
-        <span className="flex max-w-full items-center justify-center overflow-hidden rounded-xl border border-panel-border bg-switch-thumb p-1.5 shadow-glow-sm group-data-[collapsible=icon]:size-11 group-data-[collapsible=icon]:p-0.5">
-          {/* The company's own upload, public like every branding URL. */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={logo}
-            alt=""
-            draggable={false}
-            onError={() => setFailedLogo(logo)}
-            className="h-25 w-45 max-w-full object-contain group-data-[collapsible=icon]:size-full"
-          />
-        </span>
+        {/* The company's own upload, public like every branding URL. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={logo}
+          alt=""
+          draggable={false}
+          onError={() => setFailedLogo(logo)}
+          data-sidebar-logo
+          className="block h-25 w-auto max-w-[min(100%,11.25rem)] object-contain dark:drop-shadow-[0_0_1px_color-mix(in_oklch,var(--foreground)_40%,transparent)] group-data-[collapsible=icon]:h-11 group-data-[collapsible=icon]:max-w-11"
+        />
         <p className="line-clamp-2 w-full text-center text-sm font-semibold leading-snug break-words group-data-[collapsible=icon]:sr-only">
           {company}
         </p>

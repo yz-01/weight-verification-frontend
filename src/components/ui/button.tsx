@@ -60,9 +60,11 @@ const buttonVariants = cva(
  * A disabled button gets no pointer events, so the reason is carried by a
  * wrapper around it: that wrapper takes the hover for the tooltip, holds a
  * native `title` for anyone who never sees the tooltip, and is what assistive
- * technology reads through `aria-describedby`. The wrapper is `contents`, so
- * it adds nothing to the layout and a button inside a flex row or a dialog
- * footer keeps its place.
+ * technology reads through `aria-describedby`. The wrapper is a real box the
+ * size of the button (JB164: it used to be `contents`, which has no box - the
+ * hover never reached it and the tooltip, forced open, sat at the window's
+ * top-left). It is focusable, so a keyboard reaches the reason, and a tap
+ * opens it. See `ReasonTip` for how it keeps the button's place in a layout.
  *
  * Passing a reason for a button that is *not* disabled does nothing, so a
  * caller may compute one unconditionally.
@@ -87,6 +89,83 @@ const buttonVariants = cva(
  */
 /** A plain `bg-…` fill in a caller's classes (not `hover:bg-…`, not a clip). */
 const OWN_FILL = /(^|\s)bg-(?!clip-|none\b|\(image)[a-z]/
+
+/**
+ * The classes in a caller's `className` that place the button in its parent
+ * (JB164). With the reason wrapper around it, the wrapper is what the parent
+ * lays out, so it takes these: margins move to it (on both they would add up),
+ * width / flex / grid-placement / display classes are copied (the button fills
+ * the wrapper the same way). Everything else stays on the button.
+ */
+const MOVED = /^-?m[trblxyse]?-/
+const COPIED =
+  /^(w-|min-w-|max-w-|flex-1$|flex-auto$|flex-initial$|flex-none$|grow|shrink|basis-|self-|justify-self-|place-self-|order-|col-|row-|hidden$)/
+/** A display class (`sm:inline-flex` after `hidden`) shows the wrapper as a grid. */
+const DISPLAY = /^(block|inline-block|flex|inline-flex)$/
+
+function reasonLayout(className: string | undefined) {
+  const wrapper: string[] = []
+  const button: string[] = []
+  for (const token of (className ?? "").split(/\s+/).filter(Boolean)) {
+    const base = token.replace(/^([^:]*:)+/, "").replace(/^!/, "")
+    if (MOVED.test(base)) {
+      wrapper.push(token)
+    } else {
+      if (DISPLAY.test(base)) {
+        wrapper.push(token.slice(0, token.length - base.length) + (base.startsWith("inline") ? "inline-grid" : "grid"))
+      }
+      if (COPIED.test(base)) wrapper.push(token)
+      button.push(token)
+    }
+  }
+  return { wrapper: wrapper.join(" "), button: button.join(" ") }
+}
+
+/**
+ * The reason's tooltip around a disabled button (JB164, screens-1110: the
+ * reason was never seen). The trigger is an `inline-grid` box: in a row it is
+ * as wide as the button; where the parent stretches its children (a grid
+ * cell, a column) it stretches and the button stretches with it, unless the
+ * button has its own width - the same as the button did on its own. Hover,
+ * keyboard focus and a tap (a phone has no hover) all open it, and it is
+ * placed at this box, so at the button.
+ */
+function ReasonTip({
+  reason,
+  reasonId,
+  className,
+  children,
+}: {
+  reason: string
+  reasonId: string
+  className?: string
+  children: React.ReactNode
+}) {
+  const [open, setOpen] = React.useState(false)
+  return (
+    <Tooltip open={open} onOpenChange={setOpen}>
+      <TooltipTrigger asChild>
+        <span
+          data-slot="reason-tip"
+          title={reason}
+          tabIndex={0}
+          // Radix closes a tooltip on click; here a tap is how a phone asks.
+          onClick={(event) => {
+            event.preventDefault()
+            setOpen(true)
+          }}
+          className={cn(
+            "inline-grid rounded-lg outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
+            reasonLayout(className).wrapper,
+          )}
+        >
+          {children}
+        </span>
+      </TooltipTrigger>
+      <TooltipContent id={reasonId}>{reason}</TooltipContent>
+    </Tooltip>
+  )
+}
 
 function Button({
   className,
@@ -131,7 +210,7 @@ function Button({
         // A caller that paints its own fill (a green "confirm", a red
         // "reject") gets that flat colour, not the primary gradient on top.
         variant === "default" && className && OWN_FILL.test(className) && "bg-none",
-        className,
+        explained ? reasonLayout(className).button : className,
       )}
       {...props}
       disabled={disabled}
@@ -141,14 +220,9 @@ function Button({
   if (!explained) return button
 
   const tipped = (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <span className="contents" title={reason}>
-          {button}
-        </span>
-      </TooltipTrigger>
-      <TooltipContent id={reasonId}>{reason}</TooltipContent>
-    </Tooltip>
+    <ReasonTip reason={reason!} reasonId={reasonId} className={className}>
+      {button}
+    </ReasonTip>
   )
   if (!inline) return tipped
 
@@ -159,7 +233,7 @@ function Button({
       data-slot="button-reason"
       className={cn(
         "contents pointer-coarse:inline-flex pointer-coarse:flex-col pointer-coarse:items-stretch pointer-coarse:gap-1",
-        /(^|s)w-full(s|$)/.test(className ?? "") && "pointer-coarse:w-full",
+        /(^|\s)w-full(\s|$)/.test(className ?? "") && "pointer-coarse:w-full",
       )}
     >
       <span
@@ -173,4 +247,4 @@ function Button({
   )
 }
 
-export { Button, buttonVariants }
+export { Button, buttonVariants, reasonLayout }

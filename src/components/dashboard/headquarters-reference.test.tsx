@@ -14,9 +14,10 @@ import messages from "@/messages/zh.json";
 
 const can = vi.fn((code: string) => code !== "report.view");
 const branding = vi.hoisted(() => ({ value: {} as Record<string, unknown> }));
+const preferences = vi.hoisted(() => ({ value: { dashboard_title: "", dashboard_subtitle: "" } }));
 vi.mock("@/components/providers/auth-provider", () => ({
   useAuth: () => ({
-    user: { company_preferences: { dashboard_title: "", dashboard_subtitle: "" }, branding: branding.value },
+    user: { company_preferences: preferences.value, branding: branding.value },
     can,
   }),
 }));
@@ -89,6 +90,17 @@ describe("the head-office dashboard (J32)", () => {
     expect(html).not.toContain("data-weather");
   });
 
+  it("keeps the slogan whatever 大标题 MSE once saved (JB164, 客户 11-10 第十一批 第 3 点 「永久保留」)", () => {
+    preferences.value = { dashboard_title: "旧的大标题", dashboard_subtitle: "" };
+    try {
+      const html = render(<HeadquartersHero date="2026-10-21" />);
+      expect(html).toContain("让老板从看报表变成看现场");
+      expect(html).not.toContain("旧的大标题");
+    } finally {
+      preferences.value = { dashboard_title: "", dashboard_subtitle: "" };
+    }
+  });
+
   it("shows the weather it read", () => {
     const html = render(<HeadquartersHero date="2026-10-21" />, { temperature: 32, weather_code: 2, place: "Shah Alam" });
     expect(html).toContain("data-weather");
@@ -107,6 +119,8 @@ describe("the head-office dashboard (J32)", () => {
       expect(img).toContain(`src="${picture}"`);
       // The whole card, not a strip beside the title.
       expect(img).toContain("absolute inset-0 h-full w-full object-cover");
+      // JB164: on a narrow screen the sides go evenly, the middle stays.
+      expect(img).toContain("object-center");
       // One layer over the picture holds every word: a dark caption wash
       // (never under 75 % of the theme's overlay), light words with a shadow.
       const layer = html.slice(html.indexOf("data-hero-background"));

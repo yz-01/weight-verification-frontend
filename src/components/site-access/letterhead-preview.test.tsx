@@ -20,7 +20,7 @@ vi.mock("@/services/api-client", () => ({
   fetchObjectUrl,
 }));
 
-const { LetterheadPreviewSection, letterheadAddress } = await import("@/components/site-access/letterhead-preview");
+const { LetterheadPreviewSection, emailBreaks, letterheadAddress } = await import("@/components/site-access/letterhead-preview");
 const { letterheadPreviewObjectUrl } = await import("@/services/site-access.service");
 
 const PROFILE = {
@@ -120,5 +120,16 @@ describe("正式文件样板预览 (JB162)", () => {
   it("prints the address the way the letterhead does", () => {
     expect(letterheadAddress(PROFILE)).toBe("No. 1, Jalan Satu, 47100 Puchong, Selangor");
     expect(letterheadAddress({ address_line_1: "", address_line_2: "Lot 2", postcode: "", city: "Ipoh", state: "" })).toBe("Lot 2, Ipoh");
+  });
+
+  it("lets an email wrap after the @ and before a dot, not inside a word (JB164, shot r11-l04)", () => {
+    const html = render({ profile: { ...PROFILE, contact_email: "office@shifan.mse.invalid" } });
+    const email = html.slice(html.lastIndexOf("<dd", html.indexOf("invalid")), html.indexOf("</dd>", html.indexOf("invalid")));
+    expect(email).toContain("office@<wbr/>shifan<wbr/>.mse<wbr/>.invalid");
+    // Read as one address: the text itself is unchanged.
+    expect(email.replace(/<[^>]+>/g, "")).toBe("office@shifan.mse.invalid");
+    expect(emailBreaks("no-at-sign")).toBe("no-at-sign");
+    // Other details keep their own spaces as the places to wrap.
+    expect(html).toContain("No. 1, Jalan Satu, 47100 Puchong, Selangor</dd>");
   });
 });

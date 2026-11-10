@@ -112,8 +112,10 @@ export async function updateContractorCompanyProfile(
   /**
    * 【移除背景图】 (JB161): the background sent empty, which the backend
    * stores as none and audits. Ignored when a new picture is sent.
+   * `removeLogo` is the same for the logo (JB164: a logo could only be
+   * replaced, never taken away).
    */
-  options: { removeBackground?: boolean } = {},
+  options: { removeBackground?: boolean; removeLogo?: boolean } = {},
 ) {
   const body = new FormData();
   Object.entries(payload).forEach(([key, value]) => {
@@ -121,6 +123,7 @@ export async function updateContractorCompanyProfile(
     body.append(key, String(value));
   });
   if (logo) body.append("logo", logo);
+  else if (options.removeLogo) body.append("logo", "");
   if (backgroundImage) body.append("background_image", backgroundImage);
   else if (options.removeBackground) body.append("background_image", "");
   const row = await api.patch<ContractorCompanyProfile>(

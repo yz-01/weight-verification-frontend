@@ -391,6 +391,10 @@ describe("the actual exit scans this machine (I13 step 3, ID60)", () => {
     // J13-1: on a phone the same list is written above the button, not only
     // in a tooltip the phone never shows.
     expect(html).toContain('data-slot="button-reason"');
+    // JB164: on a desk the reason's tooltip hangs on a real box at the button.
+    const tip = html.match(/<span[^>]*data-slot="reason-tip"[^>]*>/)?.[0] ?? "";
+    expect(tip).toContain('tabindex="0"');
+    expect(tip).not.toMatch(/class="contents/);
   });
 
   it("brings the machine's own supplier, read-only, with nothing to scan (J38-4)", () => {

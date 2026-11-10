@@ -15960,6 +15960,7 @@
       "chooseBackground": "Choose background image",
       "replaceBackground": "Replace background image",
       "removeBackground": "Remove background image",
+      "removeLogo": "Remove logo",
       "backgroundRemovePending": "Removed when you press “Save company profile”.",
       "backgroundTooBig": "That image is {actual} MB, over the {limit} MB limit. Please choose a smaller one.",
       "backgroundHint": "Suggested size 1920 × 400 px (a landscape photo)",
