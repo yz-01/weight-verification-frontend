@@ -3781,7 +3781,10 @@
       "equipment_name_updated": "修改設備名稱",
       "settings_update_by_platform": "MSE 修改公司設定",
       "project_supplier_added": "把供應商加進項目",
-      "project_supplier_removed": "把供應商移出項目"
+      "project_supplier_removed": "把供應商移出項目",
+      "field_account_moved": "手機賬號換到新項目",
+      "project_permissions_changed": "修改項目權限",
+      "report_anomaly": "清運報告異常"
     },
     "objectType": {
       "SignOffAssistant": "助理副密碼",

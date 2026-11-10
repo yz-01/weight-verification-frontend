@@ -3781,7 +3781,10 @@
       "equipment_name_updated": "Nama peralatan diubah",
       "settings_update_by_platform": "Tetapan syarikat diubah oleh MSE",
       "project_supplier_added": "Pembekal ditambah ke projek",
-      "project_supplier_removed": "Pembekal dikeluarkan dari projek"
+      "project_supplier_removed": "Pembekal dikeluarkan dari projek",
+      "field_account_moved": "Akaun telefon dipindahkan ke projek baharu",
+      "project_permissions_changed": "Kebenaran projek diubah",
+      "report_anomaly": "Anomali pelupusan dilaporkan"
     },
     "objectType": {
       "SignOffAssistant": "PIN pembantu",

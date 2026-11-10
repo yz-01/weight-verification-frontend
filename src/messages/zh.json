@@ -3781,7 +3781,10 @@
       "equipment_name_updated": "修改设备名称",
       "settings_update_by_platform": "MSE 修改公司设定",
       "project_supplier_added": "把供应商加进项目",
-      "project_supplier_removed": "把供应商移出项目"
+      "project_supplier_removed": "把供应商移出项目",
+      "field_account_moved": "手机账号换到新项目",
+      "project_permissions_changed": "修改项目权限",
+      "report_anomaly": "清运报告异常"
     },
     "objectType": {
       "SignOffAssistant": "助理副密码",

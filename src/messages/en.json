@@ -3781,7 +3781,10 @@
       "equipment_name_updated": "Equipment name changed",
       "settings_update_by_platform": "Company settings changed by MSE",
       "project_supplier_added": "Supplier added to a project",
-      "project_supplier_removed": "Supplier taken off a project"
+      "project_supplier_removed": "Supplier taken off a project",
+      "field_account_moved": "Phone account moved to a new project",
+      "project_permissions_changed": "Project permissions changed",
+      "report_anomaly": "Disposal anomaly reported"
     },
     "objectType": {
       "SignOffAssistant": "Assistant PIN",
