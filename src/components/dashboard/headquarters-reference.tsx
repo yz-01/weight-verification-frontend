@@ -105,11 +105,27 @@ export function HeadquartersHero({
       aria-label={title}
     >
       {background ? (
-        // The company's own picture (公司资料), faded under the words.
+        // The company's own picture (公司设置 → 公司资料 → 背景图, JB161 客户
+        // 11-10 第十批 「背景图设置呢？」), across the whole card behind the
+        // words, under a wash of the page colour - white in light, navy in
+        // dark - that is thickest where the title is.
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={background} alt="" aria-hidden className="absolute inset-y-0 right-0 h-full w-2/3 object-cover" />
+        <img
+          src={background}
+          alt=""
+          aria-hidden
+          data-hero-background
+          className="absolute inset-0 h-full w-full object-cover"
+        />
       ) : null}
-      <div className="relative flex flex-wrap items-start justify-between gap-4 bg-gradient-to-r from-background via-background/90 to-background/30 p-5 sm:p-6">
+      <div
+        className={cn(
+          "relative flex flex-wrap items-start justify-between gap-4 bg-gradient-to-r p-5 sm:p-6",
+          background
+            ? "from-background/95 via-background/75 to-background/45"
+            : "from-background via-background/90 to-background/30",
+        )}
+      >
         <div className="min-w-0 max-w-3xl space-y-2">
           <div className="flex flex-wrap items-center gap-3">
             <h1 className="text-2xl font-bold leading-tight sm:text-3xl">{title}</h1>
@@ -119,7 +135,14 @@ export function HeadquartersHero({
           </div>
           <p className="text-sm text-muted-foreground">{subtitle}</p>
         </div>
-        <div className="flex flex-col items-start gap-2 sm:items-end sm:text-right">
+        <div
+          className={cn(
+            "flex flex-col items-start gap-2 sm:items-end sm:text-right",
+            // Where the picture shows most, the date and weather sit on a
+            // pane of their own so a busy photo cannot swallow them.
+            background && "rounded-xl bg-background/75 px-3 py-2 backdrop-blur-sm",
+          )}
+        >
           <p className="text-sm font-medium tabular-nums">
             {format.dateTime(day, { year: "numeric", month: "long", day: "numeric" })}{" "}
             <span className="text-muted-foreground">{format.dateTime(day, { weekday: "long" })}</span>

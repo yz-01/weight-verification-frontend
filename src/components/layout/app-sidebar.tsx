@@ -18,6 +18,7 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { badgeFor, menuWaiting, useUnreadBadges } from "@/hooks/use-unread-badges";
 import { OfflineStatus } from "@/components/shared/offline-status";
 import { BrandIcon } from "@/components/shared/brand-icon";
+import type { CurrentUser } from "@/interfaces/auth";
 import {
   Sidebar,
   SidebarContent,
@@ -191,24 +192,7 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b border-sidebar-border">
-        <div className="flex items-center gap-3 px-1 py-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
-          <span className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-panel-border bg-card p-1 shadow-glow-sm">
-            <BrandIcon
-              branding={user?.branding}
-              alt={user?.branding?.company_name ?? user?.branding?.name ?? ""}
-            />
-          </span>
-          <div className="min-w-0 group-data-[collapsible=icon]:hidden">
-            <p className="truncate text-base font-semibold leading-tight">
-              {user ? PORTAL_LABELS[user.portal] : t("app.name")}
-            </p>
-            {user?.company_name && (
-              <p className="truncate text-xs text-muted-foreground">
-                {user.company_name}
-              </p>
-            )}
-          </div>
-        </div>
+        <SidebarBrand user={user} appName={t("app.name")} />
       </SidebarHeader>
 
       <SidebarContent>
@@ -383,6 +367,94 @@ export function AppSidebar() {
         </div>
       </SidebarFooter>
     </Sidebar>
+  );
+}
+
+/**
+ * The top of the sidebar: whose system this is.
+ *
+ * JB161 (客户 11-10 第十批, 图28): 「logo设置的位置太小了，mse trace那个字母可以不要」.
+ * A company account shows its own logo large and at its own shape - logos
+ * are often wide, so a wide plate rather than the old small square - over the
+ * company's name, and no 「MSE Trace」. The plate is white in both themes, as
+ * the dashboard banner's logo tile is: a logo is drawn for white paper (the
+ * PDF letterhead prints it there) and a dark one would vanish on the dark
+ * sidebar. Collapsed, the logo alone fills the rail's width.
+ *
+ * A company with no logo yet (or one that fails to load) keeps the MSE icon,
+ * beside its name. An account with no company of its own - MSE Admin, the
+ * platform, a consultant - keeps the portal's name as before.
+ */
+function SidebarBrand({
+  user,
+  appName,
+}: {
+  user: CurrentUser | null;
+  appName: string;
+}) {
+  const branding = user?.branding;
+  const company = user?.company
+    ? branding?.company_name || user.company_name || ""
+    : "";
+  const [failedLogo, setFailedLogo] = useState<string | null>(null);
+  const logo =
+    company && branding?.company_logo_url !== failedLogo
+      ? branding?.company_logo_url
+      : null;
+
+  if (company && logo) {
+    return (
+      <div
+        data-sidebar-brand="logo"
+        title={company}
+        className="flex flex-col gap-1.5 px-1 py-2 group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:px-0"
+      >
+        <span className="inline-flex w-fit max-w-full items-center justify-center overflow-hidden rounded-xl border border-panel-border bg-switch-thumb p-1.5 shadow-glow-sm group-data-[collapsible=icon]:size-11 group-data-[collapsible=icon]:p-0.5">
+          {/* The company's own upload, public like every branding URL. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={logo}
+            alt=""
+            draggable={false}
+            onError={() => setFailedLogo(logo)}
+            className="h-14 w-auto max-w-full object-contain group-data-[collapsible=icon]:size-full"
+          />
+        </span>
+        <p className="line-clamp-2 text-sm font-semibold leading-snug break-words group-data-[collapsible=icon]:sr-only">
+          {company}
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      data-sidebar-brand={company ? "company" : "portal"}
+      className="flex items-center gap-3 px-1 py-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0"
+    >
+      <span className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-panel-border bg-card p-1 shadow-glow-sm">
+        <BrandIcon
+          branding={branding}
+          alt={company ? "" : (branding?.company_name ?? branding?.name ?? "")}
+        />
+      </span>
+      {company ? (
+        <p className="line-clamp-2 min-w-0 text-base font-semibold leading-tight break-words group-data-[collapsible=icon]:sr-only">
+          {company}
+        </p>
+      ) : (
+        <div className="min-w-0 group-data-[collapsible=icon]:hidden">
+          <p className="truncate text-base font-semibold leading-tight">
+            {user ? PORTAL_LABELS[user.portal] : appName}
+          </p>
+          {user?.company_name && (
+            <p className="truncate text-xs text-muted-foreground">
+              {user.company_name}
+            </p>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
 

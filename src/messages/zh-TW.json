@@ -15957,6 +15957,11 @@
       "logo": "Logo",
       "background": "背景圖",
       "chooseBackground": "選擇背景圖",
+      "replaceBackground": "更換背景圖",
+      "removeBackground": "移除背景圖",
+      "backgroundRemovePending": "按【保存公司資料】後移除。",
+      "backgroundTooBig": "這張圖片有 {actual} MB，超過了 {limit} MB 的上限。請換一張小一點的。",
+      "backgroundHint": "顯示在儀表板和報表中心最上面的橫幅後面；建議用橫向照片。",
       "imageHint": "PNG、JPG 或 WebP，最大 8 MB。只有貴公司看到和使用；貴公司所有 PDF、列印件和匯出檔案的表頭都印上貴公司的名稱和 Logo。",
       "simpleSubtitle": "顯示在報表、二維碼記錄和項目文件上。",
       "emergencyHint": "給門崗用，可以留空。"

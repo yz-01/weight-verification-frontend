@@ -21,7 +21,7 @@ vi.mock("@/services/api-client", () => ({
   download: vi.fn(),
 }));
 
-const { CompanySiteSettingsWorkspace, PREFERENCE_SETTINGS, PROFILE_SETTINGS, pickSettings } = await import(
+const { CompanySiteSettingsWorkspace, MAX_COMPANY_IMAGE_MB, PREFERENCE_SETTINGS, PROFILE_SETTINGS, oversizeMb, pickSettings } = await import(
   "@/components/site-access/company-site-settings"
 );
 
@@ -73,10 +73,10 @@ const PROFILE = {
   updated_at: "2026-11-05T00:00:00Z",
 } as unknown as ContractorCompanyProfile;
 
-function render() {
+function render(profile: Partial<ContractorCompanyProfile> = {}) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   client.setQueryData(["contractor-site-settings"], SETTINGS);
-  client.setQueryData(["contractor-company-profile"], PROFILE);
+  client.setQueryData(["contractor-company-profile"], { ...PROFILE, ...profile });
   client.setQueryData(["company-branches"], { count: 0, results: [] });
   return renderToStaticMarkup(
     <QueryClientProvider client={client}>
@@ -108,7 +108,8 @@ describe("公司设置 (JB99)", () => {
     for (const words of [
       "通行证编号前缀", "二维码打印大小", "新用户默认角色", "默认审批角色", "GPS 上传间隔", "实时位置有效时间",
       "激活链接有效天数", "重新输入 PIN", "打卡必须拍照", "访客证默认时长", "登录后首页", "默认通知方式",
-      "新项目默认状态", "默认半径", "目标提醒比例", "公司简介", "公司网站", "背景图", "组织架构",
+      // 背景图 is back since JB161 (below); 公司简介 and 公司网站 stay hidden.
+      "新项目默认状态", "默认半径", "目标提醒比例", "公司简介", "公司网站", "组织架构",
     ]) {
       expect(html).not.toContain(words);
     }
@@ -119,5 +120,62 @@ describe("公司设置 (JB99)", () => {
   it("sends only the fields a block shows", () => {
     expect(Object.keys(pickSettings(SETTINGS, PREFERENCE_SETTINGS)).sort()).toEqual(["date_format", "language", "pdf_link_valid_days", "time_format", "timezone"]);
     expect(pickSettings(SETTINGS, PROFILE_SETTINGS)).toEqual({ emergency_contact_name: "Guard house", emergency_contact_phone: "+60123" });
+  });
+});
+
+describe("公司资料's 背景图 (JB161, 客户 11-10 第十批 「背景图设置呢？」)", () => {
+  /** The background's own block in 公司资料. */
+  const block = (html: string) =>
+    html.match(/<div class="space-y-3" data-company-background="true">[\s\S]*?<\/p><\/div>/)?.[0] ?? "";
+
+  it("sits in 公司资料 beside the logo, says where it shows, and offers an upload", () => {
+    const html = render();
+    const profile = html.slice(html.indexOf('id="company-profile"'), html.indexOf('id="company-preferences"'));
+    const background = block(profile);
+    expect(background).toContain("背景图");
+    expect(background).toContain("显示在仪表板和报表中心最上面的横幅后面；建议用横向照片。");
+    expect(background).toContain("选择背景图");
+    expect(background).toMatch(/<input class="sr-only" type="file" accept="image\/png,image\/jpeg,image\/webp"/);
+    // Nothing to remove before there is a picture.
+    expect(background).not.toContain("移除背景图");
+    expect(profile.indexOf("Logo")).toBeLessThan(profile.indexOf("data-company-background"));
+  });
+
+  it("previews the saved picture, with 更换 and 移除", () => {
+    const picture = "https://cdn.example/company/background/site.jpg";
+    const background = block(render({ background_image: picture }));
+    expect(background).toContain(`src="${picture}"`);
+    expect(background).toContain("更换背景图");
+    expect(background).toContain('aria-label="移除背景图"');
+  });
+
+  it("sends a new picture as background_image, and a removal as an empty one", async () => {
+    const { api } = await import("@/services/api-client");
+    const { updateContractorCompanyProfile } = await import("@/services/site-access.service");
+    const patch = vi.mocked(api.patch);
+    const sent = () => patch.mock.calls.at(-1)?.[1] as FormData;
+
+    const picture = new File(["png"], "site.png", { type: "image/png" });
+    await updateContractorCompanyProfile({ ...PROFILE, background_image: "https://old" }, null, picture);
+    expect(patch.mock.calls.at(-1)?.[0]).toBe("/api/contractor-site-settings/update_company_profile/");
+    expect(sent().getAll("background_image")).toEqual([picture]);
+
+    await updateContractorCompanyProfile(PROFILE, null, null, { removeBackground: true });
+    expect(sent().getAll("background_image")).toEqual([""]);
+
+    // A new picture wins over a removal; neither leaves the saved one alone.
+    await updateContractorCompanyProfile(PROFILE, null, picture, { removeBackground: true });
+    expect(sent().getAll("background_image")).toEqual([picture]);
+    await updateContractorCompanyProfile({ ...PROFILE, background_image: "https://old" }, null, null);
+    expect(sent().has("background_image")).toBe(false);
+  });
+
+  it("refuses a picture over the backend's 8 MB before it is sent", () => {
+    const mb = 1024 * 1024;
+    expect(MAX_COMPANY_IMAGE_MB).toBe(8);
+    expect(oversizeMb({ size: 8 * mb })).toBeNull();
+    expect(oversizeMb({ size: 2 * mb })).toBeNull();
+    expect(oversizeMb({ size: 8 * mb + 1 })).toBe(8.1);
+    expect(oversizeMb({ size: 12.34 * mb })).toBe(12.4);
   });
 });

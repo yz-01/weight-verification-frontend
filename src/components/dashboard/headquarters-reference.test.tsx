@@ -13,9 +13,10 @@ import type { HeadquartersOverview } from "@/interfaces/headquarters";
 import messages from "@/messages/zh.json";
 
 const can = vi.fn((code: string) => code !== "report.view");
+const branding = vi.hoisted(() => ({ value: {} as Record<string, unknown> }));
 vi.mock("@/components/providers/auth-provider", () => ({
   useAuth: () => ({
-    user: { company_preferences: { dashboard_title: "", dashboard_subtitle: "" }, branding: {} },
+    user: { company_preferences: { dashboard_title: "", dashboard_subtitle: "" }, branding: branding.value },
     can,
   }),
 }));
@@ -93,6 +94,33 @@ describe("the head-office dashboard (J32)", () => {
     expect(html).toContain("data-weather");
     expect(html).toContain("32°C");
     expect(html).toContain("多云");
+  });
+
+  it("puts the company's background picture behind the words when one is set (JB161)", () => {
+    // 客户 11-10 第十批 「背景图设置呢？」: set in 公司设置 → 公司资料.
+    const picture = "https://cdn.example/company/background/site.jpg";
+    branding.value = { company_background_url: picture };
+    try {
+      const html = render(<HeadquartersHero date="2026-10-21" />, { temperature: 32, weather_code: 2, place: "Shah Alam" });
+      const img = html.match(/<img [^>]*data-hero-background[^>]*>/)?.[0] ?? "";
+      expect(img).toContain(`src="${picture}"`);
+      // The whole card, not a strip beside the title.
+      expect(img).toContain("absolute inset-0 h-full w-full object-cover");
+      // A wash of the page colour over it, so the words read in light and dark,
+      // and the date and weather on a pane of their own.
+      expect(html).toContain("from-background/95 via-background/75 to-background/45");
+      expect(html).toMatch(/class="[^"]*bg-background\/75[^"]*"[^>]*>[\s\S]*data-weather/);
+      expect(html).toContain("让老板从看报表变成看现场");
+    } finally {
+      branding.value = {};
+    }
+  });
+
+  it("is unchanged without a background picture", () => {
+    const html = render(<HeadquartersHero date="2026-10-21" />);
+    expect(html).not.toContain("<img");
+    expect(html).toContain("from-background via-background/90 to-background/30");
+    expect(html).not.toContain("backdrop-blur-sm");
   });
 
   it("gives 较昨日 only where yesterday is counted", () => {
