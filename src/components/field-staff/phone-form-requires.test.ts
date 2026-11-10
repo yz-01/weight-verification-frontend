@@ -180,10 +180,14 @@ describe("JB152: what each phone form still demands", () => {
   });
 
   it("the hazard report asks for its photo, project and GPS, and a deadline only with a rectifier", () => {
-    const keys = demanded(SAFETY, "SafetyCreateDialog");
-    for (const key of ["safety.field.photo", "safety.field.project", "safety.field.location", "safetyRectification.field.dueAt"]) {
-      expect(keys).toContain(key);
-    }
+    // Its list is `...(fieldMode ? [phone pairs] : [office pairs])`, which
+    // keysOf reads as one pair per branch - so read the phone branch itself.
+    const body = componentBody(SAFETY, "SafetyCreateDialog");
+    const at = body.indexOf("...(fieldMode");
+    expect(at).toBeGreaterThan(-1);
+    const phone = balanced(body, body.indexOf("[", at));
+    expect(keysOf(phone)).toEqual(["safety.field.photo", "safety.field.project", "safety.field.location"]);
+    expect(demanded(SAFETY, "SafetyCreateDialog")).toContain("safetyRectification.field.dueAt");
   });
 
   it("the MR asks for the material, its specification, quantity, unit and approver - not the typed words", () => {
