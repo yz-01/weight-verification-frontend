@@ -8773,7 +8773,11 @@
       "file_share_link_not_found": "找不到這個文件連結。",
       "file_share_link_expired": "這個連結已經過期。請向發給你的人再要一次。",
       "file_share_file_too_large": "文件超過 {max_mb} MB，不能做成連結。",
-      "permission_switches_projects_required": "項目用戶只能看指定的項目，請選至少一個項目。"
+      "permission_switches_projects_required": "項目用戶只能看指定的項目，請選至少一個項目。",
+      "disposal_anomaly_not_running": "這項清運還沒批准或已經結束，不能報告異常。",
+      "disposal_anomaly_trip_required": "車輛異常必須註明第幾車：請選這項清運未取消的車次。",
+      "disposal_anomaly_photos_required": "每筆異常最少上傳 {minimum} 張照片。",
+      "disposal_anomaly_reason_required": "請寫明異常原因。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -11846,7 +11850,8 @@
       "exit_at": "退場時間",
       "request_kind": "申請類型",
       "pdpa_consent": "個人資料告知",
-      "material_lines": "材料明細"
+      "material_lines": "材料明細",
+      "anomaly": "異常"
     },
     "detailTitle": "我提交過的",
     "photos": "照片",
@@ -16381,7 +16386,8 @@
       "recordNumbers": "補錄數字",
       "siteEvidence": "拍車輛出場 / Gate Pass",
       "setSupplier": "填寫供應商",
-      "changeSupplier": "更改供應商"
+      "changeSupplier": "更改供應商",
+      "reportAnomaly": "報告異常"
     },
     "assign": {
       "copyNow": "複製後發送給外部清運商。鏈接不需要登錄；如遺失，可在清運列表重新生成，舊鏈接會立即失效。",
@@ -16417,7 +16423,8 @@
       "UNLOADING": "卸貨",
       "DISPOSAL_PROOF": "最終處理證明",
       "VEHICLE_EXIT": "車輛出場",
-      "GATE_PASS": "Gate Pass"
+      "GATE_PASS": "Gate Pass",
+      "ANOMALY": "異常照片"
     },
     "external": {
       "action": {
@@ -16503,7 +16510,9 @@
       "supplier": "供應商",
       "vehiclePlates": "清運車牌",
       "vehiclePlate": "車牌",
-      "createdAt": "建立時間"
+      "createdAt": "建立時間",
+      "isAbnormal": "異常",
+      "anomalyText": "異常說明"
     },
     "fieldEvidence": {
       "access": "3. 清運入口或車輛路線",
@@ -16608,7 +16617,8 @@
       "TRIP_ADDED": "後台加了一車",
       "ENDED_EARLY": "後台提前結束，未送的車次已取消",
       "TRIP_CORRECTED": "後台更正了一車的重量 / DO / 車牌",
-      "SUPPLIER_SET": "後台填寫 / 更改了供應商"
+      "SUPPLIER_SET": "後台填寫 / 更改了供應商",
+      "ANOMALY_REPORTED": "報告異常"
     },
     "title": "工地清運",
     "toast": {
@@ -16624,7 +16634,8 @@
       "tripAdded": "已加一車",
       "endedEarly": "清運已提前結束",
       "tripCorrected": "這一車已更正",
-      "supplierSet": "供應商已保存"
+      "supplierSet": "供應商已保存",
+      "anomalyReported": "異常已提交後台"
     },
     "overdue": {
       "badge": "異常",
@@ -16639,7 +16650,8 @@
       "SITE_EXIT": "裝車與工地出場證據",
       "FINAL_PROOF": "最終處理證明",
       "OFFICE_CHECK": "後台驗收照片（舊流程）",
-      "empty": "暫無"
+      "empty": "暫無",
+      "ANOMALY": "異常照片"
     },
     "recordNumbers": {
       "title": "補錄重量 / 車次 / DO",
@@ -16709,6 +16721,30 @@
       "reason": "更改原因",
       "unchanged": "先選另一家供應商",
       "save": "保存"
+    },
+    "anomaly": {
+      "title": "報告異常",
+      "description": "{reference}：車輛異常要選第幾車；寫明原因，最少拍 {minimum} 張照片。",
+      "kind": "異常類型",
+      "kindVEHICLE": "車輛異常",
+      "kindOTHER": "其他異常",
+      "kindOVERDUE": "超時",
+      "trip": "第幾車",
+      "chooseTrip": "選擇第幾車",
+      "noTrips": "這項清運還沒有車次，不能報告車輛異常，請選「其他異常」。",
+      "plate": "車牌",
+      "plateHint": "有車牌時自動帶出這一車的車牌，不對可以改。",
+      "reason": "異常原因",
+      "photos": "異常照片",
+      "progress": "已拍 {count} 張，最少 {minimum} 張",
+      "submit": "提交異常",
+      "panelTitle": "異常記錄",
+      "reportedBy": "{name} · {at}",
+      "supplier": "清運公司",
+      "reporter": "報告人",
+      "at": "時間",
+      "listTitle": "異常記錄",
+      "empty": "沒有異常記錄"
     }
   },
   "onSiteMap": {
@@ -18708,7 +18744,8 @@
     "tab": {
       "all": "全部",
       "disposal": "工地清運",
-      "dispatch": "廢料訂單"
+      "dispatch": "廢料訂單",
+      "abnormal": "異常記錄"
     },
     "kind": {
       "disposal": "工地清運",
@@ -18722,7 +18759,9 @@
       "project": "項目",
       "content": "廢料內容",
       "at": "建立時間",
-      "open": "查看"
+      "open": "查看",
+      "abnormal": "異常",
+      "anomalyText": "異常說明"
     },
     "pageOf": "第 {page} / {pages} 頁（每頁每種最多 10 筆）",
     "lastPage": "已經是最後一頁。",

@@ -8773,7 +8773,11 @@
       "file_share_link_not_found": "找不到这个文件链接。",
       "file_share_link_expired": "这个链接已经过期。请向发给你的人再要一次。",
       "file_share_file_too_large": "文件超过 {max_mb} MB，不能做成链接。",
-      "permission_switches_projects_required": "项目用户只能看指定的项目，请选至少一个项目。"
+      "permission_switches_projects_required": "项目用户只能看指定的项目，请选至少一个项目。",
+      "disposal_anomaly_not_running": "这项清运还没批准或已经结束，不能报告异常。",
+      "disposal_anomaly_trip_required": "车辆异常必须注明第几车：请选这项清运未取消的车次。",
+      "disposal_anomaly_photos_required": "每笔异常最少上传 {minimum} 张照片。",
+      "disposal_anomaly_reason_required": "请写明异常原因。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -11846,7 +11850,8 @@
       "exit_at": "退场时间",
       "request_kind": "申请类型",
       "pdpa_consent": "个人资料告知",
-      "material_lines": "材料明细"
+      "material_lines": "材料明细",
+      "anomaly": "异常"
     },
     "detailTitle": "我提交过的",
     "photos": "照片",
@@ -16381,7 +16386,8 @@
       "recordNumbers": "补录数字",
       "siteEvidence": "拍车辆出场 / Gate Pass",
       "setSupplier": "填写供应商",
-      "changeSupplier": "更改供应商"
+      "changeSupplier": "更改供应商",
+      "reportAnomaly": "报告异常"
     },
     "assign": {
       "copyNow": "复制后发送给外部清运商。链接不需要登录；如遗失，可在清运列表重新生成，旧链接会立即失效。",
@@ -16417,7 +16423,8 @@
       "UNLOADING": "卸货",
       "DISPOSAL_PROOF": "最终处理证明",
       "VEHICLE_EXIT": "车辆出场",
-      "GATE_PASS": "Gate Pass"
+      "GATE_PASS": "Gate Pass",
+      "ANOMALY": "异常照片"
     },
     "external": {
       "action": {
@@ -16503,7 +16510,9 @@
       "supplier": "供应商",
       "vehiclePlates": "清运车牌",
       "vehiclePlate": "车牌",
-      "createdAt": "建立时间"
+      "createdAt": "建立时间",
+      "isAbnormal": "异常",
+      "anomalyText": "异常说明"
     },
     "fieldEvidence": {
       "access": "3. 清运入口或车辆路线",
@@ -16608,7 +16617,8 @@
       "TRIP_ADDED": "后台加了一车",
       "ENDED_EARLY": "后台提前结束，未送的车次已取消",
       "TRIP_CORRECTED": "后台更正了一车的重量 / DO / 车牌",
-      "SUPPLIER_SET": "后台填写 / 更改了供应商"
+      "SUPPLIER_SET": "后台填写 / 更改了供应商",
+      "ANOMALY_REPORTED": "报告异常"
     },
     "title": "工地清运",
     "toast": {
@@ -16624,7 +16634,8 @@
       "tripAdded": "已加一车",
       "endedEarly": "清运已提前结束",
       "tripCorrected": "这一车已更正",
-      "supplierSet": "供应商已保存"
+      "supplierSet": "供应商已保存",
+      "anomalyReported": "异常已提交后台"
     },
     "overdue": {
       "badge": "异常",
@@ -16639,7 +16650,8 @@
       "SITE_EXIT": "装车与工地出场证据",
       "FINAL_PROOF": "最终处理证明",
       "OFFICE_CHECK": "后台验收照片（旧流程）",
-      "empty": "暂无"
+      "empty": "暂无",
+      "ANOMALY": "异常照片"
     },
     "recordNumbers": {
       "title": "补录重量 / 车次 / DO",
@@ -16709,6 +16721,30 @@
       "reason": "更改原因",
       "unchanged": "先选另一家供应商",
       "save": "保存"
+    },
+    "anomaly": {
+      "title": "报告异常",
+      "description": "{reference}：车辆异常要选第几车；写明原因，最少拍 {minimum} 张照片。",
+      "kind": "异常类型",
+      "kindVEHICLE": "车辆异常",
+      "kindOTHER": "其他异常",
+      "kindOVERDUE": "超时",
+      "trip": "第几车",
+      "chooseTrip": "选择第几车",
+      "noTrips": "这项清运还没有车次，不能报告车辆异常，请选「其他异常」。",
+      "plate": "车牌",
+      "plateHint": "有车牌时自动带出这一车的车牌，不对可以改。",
+      "reason": "异常原因",
+      "photos": "异常照片",
+      "progress": "已拍 {count} 张，最少 {minimum} 张",
+      "submit": "提交异常",
+      "panelTitle": "异常记录",
+      "reportedBy": "{name} · {at}",
+      "supplier": "清运公司",
+      "reporter": "报告人",
+      "at": "时间",
+      "listTitle": "异常记录",
+      "empty": "没有异常记录"
     }
   },
   "onSiteMap": {
@@ -18708,7 +18744,8 @@
     "tab": {
       "all": "全部",
       "disposal": "工地清运",
-      "dispatch": "废料订单"
+      "dispatch": "废料订单",
+      "abnormal": "异常记录"
     },
     "kind": {
       "disposal": "工地清运",
@@ -18722,7 +18759,9 @@
       "project": "项目",
       "content": "废料内容",
       "at": "建立时间",
-      "open": "查看"
+      "open": "查看",
+      "abnormal": "异常",
+      "anomalyText": "异常说明"
     },
     "pageOf": "第 {page} / {pages} 页（每页每种最多 10 笔）",
     "lastPage": "已经是最后一页。",

@@ -8773,7 +8773,11 @@
       "file_share_link_not_found": "Pautan fail ini tidak dijumpai.",
       "file_share_link_expired": "Pautan ini sudah tamat tempoh. Minta pautan baharu daripada penghantar.",
       "file_share_file_too_large": "Fail melebihi {max_mb} MB dan tidak boleh dihantar sebagai pautan.",
-      "permission_switches_projects_required": "Pengguna projek hanya melihat projek yang dipilih. Pilih sekurang-kurangnya satu projek."
+      "permission_switches_projects_required": "Pengguna projek hanya melihat projek yang dipilih. Pilih sekurang-kurangnya satu projek.",
+      "disposal_anomaly_not_running": "Pembersihan ini belum diluluskan atau sudah tamat, jadi pengecualian tidak boleh dilaporkan.",
+      "disposal_anomaly_trip_required": "Pengecualian kenderaan mesti menyatakan muatan yang mana: pilih muatan pembersihan ini yang tidak dibatalkan.",
+      "disposal_anomaly_photos_required": "Setiap pengecualian memerlukan sekurang-kurangnya {minimum} foto.",
+      "disposal_anomaly_reason_required": "Tulis sebab pengecualian."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -11846,7 +11850,8 @@
       "exit_at": "Masa keluar",
       "request_kind": "Jenis permohonan",
       "pdpa_consent": "Notis data peribadi",
-      "material_lines": "Senarai bahan"
+      "material_lines": "Senarai bahan",
+      "anomaly": "Pengecualian"
     },
     "detailTitle": "Apa yang saya hantar",
     "photos": "Gambar",
@@ -16381,7 +16386,8 @@
       "recordNumbers": "Rekod angka",
       "siteEvidence": "Foto kenderaan keluar / Gate Pass",
       "setSupplier": "Nyatakan pembekal",
-      "changeSupplier": "Tukar pembekal"
+      "changeSupplier": "Tukar pembekal",
+      "reportAnomaly": "Lapor pengecualian"
     },
     "assign": {
       "copyNow": "Salin dan hantar pautan ini kepada kontraktor luar. Log masuk tidak diperlukan. Jika hilang, jana pautan baharu; pautan lama akan berhenti berfungsi.",
@@ -16417,7 +16423,8 @@
       "UNLOADING": "Pemunggahan",
       "DISPOSAL_PROOF": "Bukti pelupusan akhir",
       "VEHICLE_EXIT": "Kenderaan keluar",
-      "GATE_PASS": "Gate Pass"
+      "GATE_PASS": "Gate Pass",
+      "ANOMALY": "Foto pengecualian"
     },
     "external": {
       "action": {
@@ -16503,7 +16510,9 @@
       "supplier": "Pembekal",
       "vehiclePlates": "Nombor plat lori",
       "vehiclePlate": "Nombor plat lori",
-      "createdAt": "Dibuat pada"
+      "createdAt": "Dibuat pada",
+      "isAbnormal": "Pengecualian",
+      "anomalyText": "Butiran pengecualian"
     },
     "fieldEvidence": {
       "access": "3. Laluan kutipan atau kenderaan",
@@ -16608,7 +16617,8 @@
       "TRIP_ADDED": "Pejabat menambah satu muatan",
       "ENDED_EARLY": "Pejabat menamatkan kerja awal; muatan belum dihantar dibatalkan",
       "TRIP_CORRECTED": "Pejabat membetulkan berat / DO / plat satu muatan",
-      "SUPPLIER_SET": "Pejabat menamakan / menukar syarikat pembersihan"
+      "SUPPLIER_SET": "Pejabat menamakan / menukar syarikat pembersihan",
+      "ANOMALY_REPORTED": "Pengecualian dilaporkan"
     },
     "title": "Pelupusan tapak",
     "toast": {
@@ -16624,7 +16634,8 @@
       "tripAdded": "Muatan ditambah",
       "endedEarly": "Kerja ditamatkan awal",
       "tripCorrected": "Muatan dibetulkan",
-      "supplierSet": "Syarikat pembersihan disimpan"
+      "supplierSet": "Syarikat pembersihan disimpan",
+      "anomalyReported": "Pengecualian dihantar ke pejabat"
     },
     "overdue": {
       "badge": "Pengecualian",
@@ -16639,7 +16650,8 @@
       "SITE_EXIT": "Muat dan keluar tapak",
       "FINAL_PROOF": "Bukti pelupusan akhir",
       "OFFICE_CHECK": "Foto semakan pejabat (peraturan lama)",
-      "empty": "Belum ada"
+      "empty": "Belum ada",
+      "ANOMALY": "Foto pengecualian"
     },
     "recordNumbers": {
       "title": "Rekod berat / trip / DO",
@@ -16709,6 +16721,30 @@
       "reason": "Sebab perubahan",
       "unchanged": "Pilih pembekal lain dahulu",
       "save": "Simpan"
+    },
+    "anomaly": {
+      "title": "Lapor pengecualian",
+      "description": "{reference}: untuk pengecualian kenderaan pilih muatan; tulis sebab dan ambil sekurang-kurangnya {minimum} foto.",
+      "kind": "Jenis pengecualian",
+      "kindVEHICLE": "Pengecualian kenderaan",
+      "kindOTHER": "Pengecualian lain",
+      "kindOVERDUE": "Lewat",
+      "trip": "Muatan ke berapa",
+      "chooseTrip": "Pilih muatan",
+      "noTrips": "Pembersihan ini belum ada muatan, jadi pengecualian kenderaan tidak boleh dilaporkan. Pilih “Pengecualian lain”.",
+      "plate": "Nombor plat",
+      "plateHint": "Diisi daripada muatan jika ada; tukar jika salah.",
+      "reason": "Sebab",
+      "photos": "Foto pengecualian",
+      "progress": "{count} diambil, sekurang-kurangnya {minimum}",
+      "submit": "Hantar pengecualian",
+      "panelTitle": "Rekod pengecualian",
+      "reportedBy": "{name} · {at}",
+      "supplier": "Syarikat pembersihan",
+      "reporter": "Dilaporkan oleh",
+      "at": "Masa",
+      "listTitle": "Rekod pengecualian",
+      "empty": "Tiada rekod pengecualian"
     }
   },
   "onSiteMap": {
@@ -18708,7 +18744,8 @@
     "tab": {
       "all": "Semua",
       "disposal": "Pembersihan tapak",
-      "dispatch": "Pesanan sisa"
+      "dispatch": "Pesanan sisa",
+      "abnormal": "Rekod pengecualian"
     },
     "kind": {
       "disposal": "Pembersihan tapak",
@@ -18722,7 +18759,9 @@
       "project": "Projek",
       "content": "Sisa",
       "at": "Dibuat",
-      "open": "Lihat"
+      "open": "Lihat",
+      "abnormal": "Pengecualian",
+      "anomalyText": "Butiran pengecualian"
     },
     "pageOf": "Halaman {page} daripada {pages} - sehingga 10 setiap jenis",
     "lastPage": "Ini halaman terakhir.",
