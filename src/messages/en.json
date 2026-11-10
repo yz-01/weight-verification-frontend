@@ -9092,6 +9092,8 @@
     "iosInAppBody": "A chat app cannot add to the Home Screen. Copy this page's link, open it in Safari, then follow the steps.",
     "unboundAppTitle": "This Home Screen icon is not linked yet",
     "unboundAppBody": "On iPhone, a Home Screen app is kept apart from Safari. Nothing is signed in here, so a PIN cannot work. Do this once:",
+    "unboundRemovedTitle": "This icon belongs to a deleted account",
+    "unboundRemovedBody": "The office deleted this old account, so this icon no longer works. Do this once to replace it with the new account's icon:",
     "unboundAppStep1": "Press and hold this icon and delete it",
     "unboundAppStep2": "Open the activation link from your administrator (or scan the QR code) in Safari and enter the PIN. If the link has expired, ask for a new one",
     "unboundAppStep3": "In Safari (the \"Phone ready\" page or any workspace page), tap <more></more> → Share → Add to Home Screen",

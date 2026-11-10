@@ -9092,6 +9092,8 @@
     "iosInAppBody": "聊天软件里面不能加到主屏幕。请复制这一页的链接，贴到 Safari 打开，再照步骤添加。",
     "unboundAppTitle": "这个主屏幕图标还没绑定",
     "unboundAppBody": "iPhone 主屏幕上的 App 和 Safari 是分开的，这里还没有登录资料，所以输入 PIN 也进不去。请照下面做一次：",
+    "unboundRemovedTitle": "这是已经删除的旧账号的图标",
+    "unboundRemovedBody": "办公室已经删除了这个旧账号，这个图标不能再用。请照下面做一次，换成新账号的图标：",
     "unboundAppStep1": "长按这个图标，删除它",
     "unboundAppStep2": "用 Safari 打开管理员发的激活链接（或扫二维码），输入 PIN。链接过期了就请管理员重新生成",
     "unboundAppStep3": "在 Safari 里（「手机已准备好」那一页或工作台任何一页都可以），点 <more></more> →「共享」→「添加到主屏幕」",

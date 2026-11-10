@@ -9092,6 +9092,8 @@
     "iosInAppBody": "聊天軟體裡面不能加入主畫面。請複製這一頁的連結，貼到 Safari 開啟，再照步驟加入。",
     "unboundAppTitle": "這個主畫面圖示還沒綁定",
     "unboundAppBody": "iPhone 主畫面上的 App 和 Safari 是分開的，這裡還沒有登入資料，所以輸入 PIN 也進不去。請照下面做一次：",
+    "unboundRemovedTitle": "這是已經刪除的舊賬號的圖示",
+    "unboundRemovedBody": "辦公室已經刪除了這個舊賬號，這個圖示不能再用。請照下面做一次，換成新賬號的圖示：",
     "unboundAppStep1": "長按這個圖示，刪除它",
     "unboundAppStep2": "用 Safari 開啟管理員發的啟用連結（或掃 QR 碼），輸入 PIN。連結過期了就請管理員重新產生",
     "unboundAppStep3": "在 Safari 裡（「手機已準備好」那一頁或工作台任何一頁都可以），點 <more></more> →「分享」→「加入主畫面」",

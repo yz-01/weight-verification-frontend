@@ -9092,6 +9092,8 @@
     "iosInAppBody": "Aplikasi sembang tidak boleh menambah ke Skrin Utama. Salin pautan halaman ini, buka dalam Safari, kemudian ikut langkah-langkahnya.",
     "unboundAppTitle": "Ikon Skrin Utama ini belum dipautkan",
     "unboundAppBody": "Di iPhone, apl Skrin Utama berasingan daripada Safari. Belum ada log masuk di sini, jadi PIN tidak boleh digunakan. Buat sekali sahaja:",
+    "unboundRemovedTitle": "Ikon ini milik akaun yang telah dipadam",
+    "unboundRemovedBody": "Pejabat telah memadam akaun lama ini, jadi ikon ini tidak lagi berfungsi. Lakukan sekali untuk menggantikannya dengan ikon akaun baharu:",
     "unboundAppStep1": "Tekan lama ikon ini dan padamkannya",
     "unboundAppStep2": "Buka pautan pengaktifan daripada pentadbir (atau imbas kod QR) dalam Safari dan masukkan PIN. Jika pautan telah tamat tempoh, minta pautan baharu",
     "unboundAppStep3": "Dalam Safari (halaman \"Telefon sedia\" atau mana-mana halaman ruang kerja), tekan <more></more> → Kongsi → Tambah ke Skrin Utama",

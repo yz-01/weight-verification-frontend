@@ -101,3 +101,17 @@ describe("no PIN is offered for a deleted account", () => {
     );
   });
 });
+
+describe("the help box names the old account's icon", () => {
+  it("is titled for a deleted account, not 「还没绑定」", () => {
+    const help = read("field-unbound-help.tsx");
+    expect(help).toMatch(/code\?\.includes\("field_account_removed"\)/);
+    expect(help).toContain('t("unboundRemovedTitle")');
+    expect(help).toContain('t("unboundRemovedBody")');
+    for (const messages of [zh, zhTW, en, ms]) {
+      expect(messages.fieldAccess.unboundRemovedTitle).toBeTruthy();
+      expect(messages.fieldAccess.unboundRemovedBody).toBeTruthy();
+    }
+    expect(zh.fieldAccess.unboundRemovedTitle).toBe("这是已经删除的旧账号的图标");
+  });
+});
