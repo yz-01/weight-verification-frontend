@@ -21086,5 +21086,16 @@
     "openPdf": "Open PDF",
     "openImage": "View photo",
     "openFile": "Download file"
+  },
+  "recordedWords": {
+    "arrivingVehicle": "Arriving vehicle",
+    "unloadingProcess": "Unloading process",
+    "emptyVehicle": "Empty vehicle after unloading",
+    "otherSitePhoto": "Other site photo",
+    "deliveryOrder": "Delivery Order"
+  },
+  "fieldManifest": {
+    "name": "{company} Field Staff",
+    "description": "MSE Trace field staff workspace"
   }
 }

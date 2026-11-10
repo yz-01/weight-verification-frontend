@@ -48,6 +48,15 @@ function valuesFor(messages: Messages, reportType: Parameters<typeof reportColum
   );
 }
 
+
+/**
+ * JB164: this test imports a large module inside it (the whole workspace or
+ * config), which under a full parallel run on the 7.5 GB machine took longer
+ * than the default 20 s (logs/final-fe-ci2.log). The assertions are unchanged;
+ * only the wait is longer.
+ */
+const SLOW_IMPORT = 60_000;
+
 describe("report files word their codes (10-28)", () => {
   it("equipment: 进场 / 退场, yes / no - never ENTRY or True", () => {
     const values = valuesFor(zh, "equipment", ["direction", "occurred_at"]);
@@ -139,7 +148,7 @@ describe("dates (10-28)", () => {
 });
 
 describe("文件资料报表's 上传时间 (10-28)", () => {
-  it("is read as a date and time, not the raw ISO text", async () => {
+  it("is read as a date and time, not the raw ISO text", { timeout: SLOW_IMPORT }, async () => {
     const { REPORT_DATE_TIME_COLUMNS } = await import(
       "@/components/contractor-ops/contractor-report-workspace"
     );

@@ -26,6 +26,7 @@ import { resetUserSignOffPin } from "@/services/sign-off.service";
 import { getUser } from "@/services/users.service";
 import { useDateFormat } from "@/lib/dates";
 import { useRoleLabel } from "@/lib/role-labels";
+import { isPlaceholderEmail } from "@/lib/team-contact";
 
 const STATUS_TONE: Record<UserStatus, "positive" | "warning" | "danger"> = {
   ACTIVE: "positive",
@@ -56,7 +57,8 @@ export function ViewUser({ id }: { id: string }) {
         backHref="/users"
         backLabel={t("users.title")}
         action={
-          can("user.update") ? (
+          // A deleted account is kept for its records only (JB164).
+          can("user.update") && data.status !== "REMOVED" ? (
             <Button asChild size="sm" className="rounded-full px-4 shadow-sm">
               <Link href={`/users/${data.id}/edit`}>
                 <Pencil className="h-4 w-4" />
@@ -81,7 +83,8 @@ export function ViewUser({ id }: { id: string }) {
 
         <div className="divide-y border-t">
           <FormSection title={t("users.section.identity")}>
-            <ReadField label={t("users.field.email")} value={data.email} />
+            {/* A phone account's email is an internal placeholder (JB164). */}
+            {!isPlaceholderEmail(data.email) && <ReadField label={t("users.field.email")} value={data.email} />}
             <ReadField label={t("users.field.phone")} value={data.phone} />
             {data.company_name && (
               <ReadField

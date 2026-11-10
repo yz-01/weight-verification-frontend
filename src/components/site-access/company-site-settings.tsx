@@ -78,6 +78,30 @@ export const PROFILE_SETTINGS = ["emergency_contact_name", "emergency_contact_ph
 // how long the file link in a WhatsApp / email send works.
 export const PREFERENCE_SETTINGS = ["language", "date_format", "time_format", "timezone", "pdf_link_valid_days"] as const;
 
+/**
+ * The settings the page starts from. JB164 (screens 11-10 round 2: 显示偏好 → 语言
+ * showed 「英文」 for a Chinese company): the company's language is
+ * `Company.default_language` - what new accounts and the PDFs use. The settings
+ * row only keeps a copy written by a save here, and a row made before any save
+ * holds its model default 「en」. So the drop-down shows, and a save keeps, the
+ * company's own language.
+ */
+export function settingsBase(settings: ContractorSiteSettings, profile?: Pick<ContractorCompanyProfile, "default_language"> | null): ContractorSiteSettings {
+  return profile?.default_language ? { ...settings, language: profile.default_language } : settings;
+}
+
+/**
+ * 显示偏好's save. The language goes only when it was changed here (JB164): an
+ * untouched drop-down never rewrites the company's language - and the
+ * settings row does not take 「zh-TW」, so sending it with a date-format change
+ * would refuse the whole save for a 繁體中文 company.
+ */
+export function preferencesToSave(form: ContractorSiteSettings, shown: ContractorSiteSettings): Partial<ContractorSiteSettings> {
+  const payload: Partial<ContractorSiteSettings> = pickSettings(form, PREFERENCE_SETTINGS);
+  if (payload.language === shown.language) delete payload.language;
+  return payload;
+}
+
 /** Only the named fields of the draft: never send what this page does not show. */
 export function pickSettings<K extends keyof ContractorSiteSettings>(
   form: ContractorSiteSettings,
@@ -106,18 +130,23 @@ export function CompanySiteSettingsWorkspace() {
   const [backgroundTooBig, setBackgroundTooBig] = useState<number | null>(null);
   const [editingBranch, setEditingBranch] = useState<CompanyBranch | "new" | null>(null);
   const [removing, setRemoving] = useState<CompanyBranch | null>(null);
-  const form = settings.data ? { ...settings.data, ...draft } : null;
+  const shownSettings = settings.data ? settingsBase(settings.data, profile.data) : null;
+  const form = shownSettings ? { ...shownSettings, ...draft } : null;
   const profileForm = profile.data ? { ...profile.data, ...profileDraft } : null;
   const setForm = (next: ContractorSiteSettings) => setDraft(next);
   const setCompany = (next: ContractorCompanyProfile) => setProfileDraft(next);
   const savePreferences = useMutation({
     mutationFn: (payload: Partial<ContractorSiteSettings>) => updateContractorSiteSettings(payload),
     onSuccess: async () => {
-      setDraft({});
+      // The language is read from the company (``settingsBase``), which the
+      // backend updates with the save: refetch it before the draft goes, so
+      // the drop-down never flashes the old one (JB164).
       await Promise.all([
         qc.invalidateQueries({ queryKey: ["contractor-site-settings"] }),
+        qc.invalidateQueries({ queryKey: ["contractor-company-profile"] }),
         qc.invalidateQueries({ queryKey: ["auth", "me"] }),
       ]);
+      setDraft({});
     },
   });
   const saveProfile = useMutation({
@@ -228,7 +257,7 @@ export function CompanySiteSettingsWorkspace() {
     <LetterheadPreviewSection />
 
     <section id="company-preferences" className="scroll-mt-20 space-y-4 rounded-xl">
-      <SectionTitle icon={Globe2} title={t("preferences.title")} description={t("preferences.subtitle")} action={canManage ? <Button disabled={savePreferences.isPending} onClick={() => savePreferences.mutate(pickSettings(form, PREFERENCE_SETTINGS))}><Save />{t("action.saveSettings")}</Button> : undefined} />
+      <SectionTitle icon={Globe2} title={t("preferences.title")} description={t("preferences.subtitle")} action={canManage ? <Button disabled={savePreferences.isPending} onClick={() => savePreferences.mutate(preferencesToSave(form, shownSettings ?? form))}><Save />{t("action.saveSettings")}</Button> : undefined} />
       {savePreferences.isError && <ErrorBanner text={t("settings.saveError")} />}
       <div className="grid gap-4 surface-panel rounded-xl p-4 sm:p-6 sm:grid-cols-2 xl:grid-cols-4">
         <ChoiceField label={t("field.language")} value={form.language} disabled={!canManage} options={["en", "zh", "zh-TW", "ms"]} optionLabel={(value) => t(`language.${value}`)} onChange={(value) => setForm({ ...form, language: value as ContractorSiteSettings["language"] })} />

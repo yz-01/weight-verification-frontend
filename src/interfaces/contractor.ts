@@ -1,3 +1,4 @@
+import type { UserStatus } from "@/interfaces/auth";
 import type { InspectionInfo } from "@/interfaces/document-workflow";
 import type { OriginalBackupSummary, OriginalStatus } from "@/interfaces/evidence";
 
@@ -121,6 +122,12 @@ export interface ProjectAssignment {
   user_email: string;
   /** A phone account's number, shown instead of its placeholder email. */
   user_phone?: string;
+  /**
+   * The account's status, when the server sends it (JB164): an invited
+   * account (not yet activated) cannot read a notice, so 发送项目通知 leaves
+   * it out.
+   */
+  user_status?: UserStatus;
   role_code: string;
   role_name: string;
   is_field_staff: boolean;

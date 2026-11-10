@@ -2,6 +2,8 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { iconPath } from "@/lib/branding";
 import { getPublicBranding } from "@/lib/branding-server";
+import { LOCALE_COOKIE } from "@/i18n/config";
+import { fieldManifestLocale, fieldManifestWords } from "@/lib/field-manifest-words";
 import {
   FIELD_BOOTSTRAP_COOKIE,
   fieldManifestStartUrl,
@@ -25,14 +27,24 @@ export async function GET(request: NextRequest) {
     token ? { bootstrap: token } : { invitation },
   );
   const startUrl = fieldManifestStartUrl(search, cookieToken);
+  // The install name in the company's language (JB164): 「示范建筑有限公司 现场」,
+  // not 「示范建筑有限公司 Field Staff」 on a Chinese company's phones.
+  const words = await fieldManifestWords(
+    branding.name,
+    fieldManifestLocale({
+      companyLanguage: (branding as { language?: string | null }).language,
+      cookie: request.cookies.get(LOCALE_COOKIE)?.value,
+      acceptLanguage: request.headers.get("accept-language"),
+    }),
+  );
   return NextResponse.json(
     {
-      name: `${branding.name} Field Staff`,
+      name: words.name,
       short_name: branding.short_name,
       id: branding.company_id
         ? `/field-staff/${branding.company_id}`
         : "/field-staff",
-      description: "MSE Trace field staff workspace",
+      description: words.description,
       start_url: startUrl,
       scope: "/",
       display: "standalone",

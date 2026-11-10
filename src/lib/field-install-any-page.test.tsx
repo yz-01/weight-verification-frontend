@@ -53,6 +53,15 @@ vi.mock("@/lib/branding-server", () => ({
 
 beforeEach(() => cookieJar.clear());
 
+
+/**
+ * JB164: this test imports a large module inside it (the whole workspace or
+ * config), which under a full parallel run on the 7.5 GB machine took longer
+ * than the default 20 s (logs/final-fe-ci2.log). The assertions are unchanged;
+ * only the wait is longer.
+ */
+const SLOW_IMPORT = 60_000;
+
 describe("the server renders the manifest link with the hand-off", () => {
   it("fieldManifestHref carries a valid token and nothing else", () => {
     expect(fieldManifestHref(TOKEN)).toBe(`/field-manifest.webmanifest?bootstrap=${TOKEN}`);
@@ -119,6 +128,30 @@ describe("the manifest route", () => {
     expect(start.origin).toBe("https://app.example");
     expect(start.pathname.startsWith(scope.pathname)).toBe(true);
     expect(fieldManifestStartUrl(new URLSearchParams(), TOKEN)).toBe(body.start_url);
+  });
+
+  it("names the app in the company's language, not 「… Field Staff」 (JB164)", { timeout: SLOW_IMPORT }, async () => {
+    const { NextRequest } = await import("next/server");
+    const { GET } = await import("@/app/field-manifest.webmanifest/route");
+    const named = async (headers: Record<string, string>) =>
+      (await (await GET(new NextRequest("https://app.example/field-manifest.webmanifest", { headers }))).json()) as {
+        name: string;
+        description: string;
+      };
+    expect((await named({ cookie: "mse_locale=zh" })).name).toBe("MSE Trace 现场");
+    expect((await named({ cookie: "mse_locale=zh-TW" })).name).toBe("MSE Trace 現場");
+    expect((await named({ "accept-language": "zh-CN,zh;q=0.9,en;q=0.8" })).description).toBe("MSE Trace 现场工作台");
+    expect((await named({ cookie: "mse_locale=en", "accept-language": "zh-CN" })).name).toBe("MSE Trace Field Staff");
+    expect((await named({})).name).toBe("MSE Trace Field Staff");
+  });
+
+  it("takes the company's language first, then the account's cookie, then the phone's", async () => {
+    const { fieldManifestLocale } = await import("@/lib/field-manifest-words");
+    expect(fieldManifestLocale({ companyLanguage: "zh", cookie: "en", acceptLanguage: "ms" })).toBe("zh");
+    expect(fieldManifestLocale({ cookie: "ms", acceptLanguage: "zh" })).toBe("ms");
+    expect(fieldManifestLocale({ cookie: "xx", acceptLanguage: "zh-Hant-TW,zh;q=0.8" })).toBe("zh-TW");
+    expect(fieldManifestLocale({ acceptLanguage: "ms-MY" })).toBe("ms");
+    expect(fieldManifestLocale({ acceptLanguage: "fr-FR" })).toBe("en");
   });
 });
 
@@ -326,7 +359,7 @@ describe("which install help the ready page shows", () => {
 });
 
 describe("iPhones get metadata in <head>", () => {
-  it("the config sends blocking metadata to iPhone Safari, keeps Next's crawlers", async () => {
+  it("the config sends blocking metadata to iPhone Safari, keeps Next's crawlers", { timeout: 2 * SLOW_IMPORT }, async () => {
     const config = (await import("../../next.config")).default as { htmlLimitedBots?: RegExp };
     const bots = config.htmlLimitedBots as RegExp;
     expect(

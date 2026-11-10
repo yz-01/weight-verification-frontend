@@ -49,6 +49,7 @@ import { ApiError } from "@/interfaces/api";
 import type { FieldTask, MyTaskRow } from "@/interfaces/contractor-ops";
 import type { SafetyIncident } from "@/interfaces/site-operations";
 import { useDateFormat } from "@/lib/dates";
+import { siteLocationText } from "@/lib/recorded-words";
 import { LocationRefused, requestLocation as locate } from "@/lib/field-location";
 import { getOfflineJobs } from "@/lib/offline-db";
 import { queuedTaskPhotoCount } from "@/lib/queued-task-photos";
@@ -214,6 +215,8 @@ function FieldTaskWork({
   workflow: TaskWorkflow;
 }) {
   const t = useTranslations("taskFlow.work");
+  // A disposal's 「GPS captured site location」 in the worker's words (JB164).
+  const site = useTranslations("siteDisposal");
   const df = useDateFormat();
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -345,7 +348,7 @@ function FieldTaskWork({
         <div className="grid gap-1 text-sm text-muted-foreground">
           <p>{t("assignedBy", { name: row.created_by_name || "—" })}</p>
           {row.due_at && <p>{t("due", { value: df.dateTime(row.due_at) })}</p>}
-          {row.work_location && <p>{t("where", { value: row.work_location })}</p>}
+          {row.work_location && <p>{t("where", { value: siteLocationText(row.work_location, site("gpsSiteLocation")) })}</p>}
         </div>
         {row.instructions && (
           <p className="whitespace-pre-wrap rounded-lg bg-muted/50 p-3 text-sm leading-6">
