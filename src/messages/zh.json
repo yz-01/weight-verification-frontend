@@ -3781,7 +3781,10 @@
       "equipment_name_updated": "修改设备名称",
       "settings_update_by_platform": "MSE 修改公司设定",
       "project_supplier_added": "把供应商加进项目",
-      "project_supplier_removed": "把供应商移出项目"
+      "project_supplier_removed": "把供应商移出项目",
+      "field_account_moved": "手机账号换到新项目",
+      "project_permissions_changed": "修改项目权限",
+      "report_anomaly": "清运报告异常"
     },
     "objectType": {
       "SignOffAssistant": "助理副密码",
@@ -6577,7 +6580,8 @@
       "chooseSpec": "选择规格",
       "specOptionalHint": "不知道规格可以不选，后台会补上。",
       "specName": "规格名称",
-      "materialName": "材料名称"
+      "materialName": "材料名称",
+      "materialNameHint": "不知道可以不填，后台会补上。"
     },
     "outgoingStatus": {
       "APPROVED": "已批准 / 等待退场",
@@ -7913,7 +7917,28 @@
       "activeHint": "启用的项目可用于新文档。",
       "description": "维护档案使用的分类和子分类结构。",
       "inactive": "停用",
-      "title": "文档分类"
+      "title": "文档分类",
+      "scope": {
+        "label": "适用范围",
+        "choice": {
+          "ALL": "总部 · 全部项目",
+          "CHOSEN": "总部 · 指定项目",
+          "PROJECT": "只属于一个项目"
+        },
+        "chosenLabel": "使用的项目",
+        "projectLabel": "所属项目",
+        "owner": "属于「{project}」，只在这个项目使用，其他项目看不到。",
+        "badge": {
+          "all": "总部 · 全部项目",
+          "chosen": "总部 · {count} 个项目",
+          "here": "本项目",
+          "project": "项目：{project}"
+        },
+        "headOfficeHint": "总部建立的分类和子分类可以给全部项目或指定项目使用；各项目自行新增的只属于该项目，其他项目看不到。",
+        "projectHint": "你新增的分类和子分类只属于你的项目，其他项目看不到。标着「总部」的由总部建立，这里只能使用，不能修改。",
+        "showing": "现在显示「{project}」使用的分类。",
+        "categoryHint": "只列出这个范围能用的分类。"
+      }
     },
     "title": "文档档案",
     "toast": {
@@ -8474,7 +8499,8 @@
       "field_pin_invalid": "PIN 不正确。",
       "field_pwa_bootstrap_invalid": "这个登录链接已经不能用了（办公室可能已经重新发了链接）。请打开办公室最新发给你的链接。",
       "field_link_replaced": "办公室已重新发出链接，请用新链接重新绑定。",
-      "field_account_stopped": "这个账号已被停用。",
+      "field_account_stopped": "这个账号已被办公室停用，请联系办公室。",
+      "field_account_removed": "这个手机图标是已经删除的旧账号。请删掉这个图标，用办公室发给你的新链接重新登录，再加到主屏幕。",
       "field_bootstrap_app_only": "请用办公室发给你的激活链接绑定这台手机，或者从主屏幕的图标打开。",
       "field_companion_pin_required": "请输入 PIN 完成这个 App 的绑定。",
       "flag_not_found": "找不到该功能开关。",
@@ -8534,6 +8560,13 @@
       "project_has_records": "这个项目下还有记录。请改为标记完成，而不是移除。",
       "project_limit_reached": "当前套餐的项目数量已达到上限。",
       "project_not_found": "找不到这个项目。",
+      "push_endpoint_gone": "苹果 / 谷歌说这支手机的通知登记已经失效。",
+      "push_not_configured": "服务器现在不发手机通知（没有设定或已关闭），测试通知发不出。请联系管理员。",
+      "push_off_for_company": "公司设定了通知只在 App 里显示、不发到手机，所以手机不会响。请联系公司管理员。",
+      "push_provider_refused": "苹果 / 谷歌拒收了这条通知。",
+      "push_provider_unreachable": "苹果 / 谷歌没有回应，可能是网络问题。",
+      "push_subscription_not_found": "服务器上没有这支手机的通知登记（可能已失效，或换了账号登录）。",
+      "push_test_too_soon": "测试通知刚发过，请等 {seconds} 秒再发。",
       "qr_code_not_found": "无法识别这个二维码。",
       "quota_exceeded": "已超过设定的云服务额度。",
       "receipt_immutable": "已上传的材料进场记录不能修改或删除，请建立一条更正记录。",
@@ -8594,6 +8627,7 @@
       "weigh_sequence_invalid": "两次过磅必须按顺序进行：第一次毛重，第二次皮重。",
       "rejection_needs_conversation": "请先在这条记录的【沟通】里说明问题，让现场看得到原因并能回复，然后才能退回。",
       "column_not_empty": "这个分类下还有记录：{records}。请先移走，再删除分类。",
+      "document_category_still_used": "要移除的项目里还有内容在用这个分类：{records}。请先移走，或保留这些项目。",
       "category_has_records": "这个分类已有 {count} 条记录（{records}），只能停用，不能删除。",
       "category_has_children": "这个分类下面还有子分类：{records}，请先删除或移走子分类。",
       "category_fixed_other": "固定的「其他」不能删除，可以改名。",
@@ -8773,7 +8807,13 @@
       "file_share_link_not_found": "找不到这个文件链接。",
       "file_share_link_expired": "这个链接已经过期。请向发给你的人再要一次。",
       "file_share_file_too_large": "文件超过 {max_mb} MB，不能做成链接。",
-      "permission_switches_projects_required": "项目用户只能看指定的项目，请选至少一个项目。"
+      "permission_switches_projects_required": "项目用户只能看指定的项目，请选至少一个项目。",
+      "project_member_not_switchable": "这个人的权限不在「项目权限」里改，由总部在「用户管理」设置。",
+      "disposal_anomaly_not_running": "这项清运还没批准或已经结束，不能报告异常。",
+      "disposal_anomaly_trip_required": "车辆异常必须注明第几车：请选这项清运未取消的车次。",
+      "disposal_anomaly_photos_required": "每笔异常最少上传 {minimum} 张照片。",
+      "disposal_anomaly_reason_required": "请写明异常原因。",
+      "field_one_project": "{name} 现在在另一个项目{project, select, none {} other {（{project}）}}。手机账号同一时间只能在一个项目：请原项目先「移出项目」或「删除」，再在这里绑定。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -8790,7 +8830,7 @@
       "max_length": "内容过长",
       "min_length": "内容过短",
       "null": "此项为必填",
-      "phone_in_use": "这个手机号码已经有现场人员账号在用。要换到新项目，请先在原项目把这个人「删除」（停用不会释放号码），再回来生成链接。",
+      "phone_in_use": "这个手机号码已经有现场人员账号在用。要换到新项目，请原项目先把这个人「移出项目」或「删除」（停用不会释放号码），再回来生成链接；已经在这个项目的人，请按他的「链接 / 二维码」重新发链接。",
       "required": "此项为必填",
       "unique": "此值已被占用",
       "percent_range": "请输入 0 到 100 之间的百分比",
@@ -8810,7 +8850,8 @@
       "invalid_passport_no": "护照号码只能有英文字母和数字，5 到 20 个",
       "invalid_birth_date": "出生日期要在今天以前",
       "site_worker_passport_taken": "这本护照已经在名单里",
-      "supplier_not_on_project": "这个供应商不在这个项目的「可用供应商」里。请总部或项目经理先在项目里加入。"
+      "supplier_not_on_project": "这个供应商不在这个项目的「可用供应商」里。请总部或项目经理先在项目里加入。",
+      "field_one_project": "手机账号同一时间只能在一个项目，请只选一个项目。"
     },
     "forbidden": "你没有访问权限。",
     "forbiddenBody": "如果确实需要，请联系管理员。",
@@ -9062,6 +9103,8 @@
     "iosInAppBody": "聊天软件里面不能加到主屏幕。请复制这一页的链接，贴到 Safari 打开，再照步骤添加。",
     "unboundAppTitle": "这个主屏幕图标还没绑定",
     "unboundAppBody": "iPhone 主屏幕上的 App 和 Safari 是分开的，这里还没有登录资料，所以输入 PIN 也进不去。请照下面做一次：",
+    "unboundRemovedTitle": "这是已经删除的旧账号的图标",
+    "unboundRemovedBody": "办公室已经删除了这个旧账号，这个图标不能再用。请照下面做一次，换成新账号的图标：",
     "unboundAppStep1": "长按这个图标，删除它",
     "unboundAppStep2": "用 Safari 打开管理员发的激活链接（或扫二维码），输入 PIN。链接过期了就请管理员重新生成",
     "unboundAppStep3": "在 Safari 里（「手机已准备好」那一页或工作台任何一页都可以），点 <more></more> →「共享」→「添加到主屏幕」",
@@ -9070,7 +9113,7 @@
     "unboundInAppBody": "你现在是在聊天软件里面打开的，这里绑定不了。请点右上角 <more></more> 选「在 Safari 中打开」，或复制链接贴到 Safari。",
     "unboundBrowserTitle": "这台手机还没绑定",
     "unboundBrowserBody": "请重新打开管理员发的激活链接（或扫二维码），在那里输入 PIN。链接过期了就请管理员重新生成。",
-    "installBannerBody": "从主屏幕图标打开更稳定，不用再输入 PIN。",
+    "installBannerBody": "iPhone 要从主屏幕图标打开，才收得到通知和声音，也不用再输入 PIN。",
     "installBannerAction": "加到主屏幕",
     "iconShare": "分享",
     "iconPageMenu": "页面菜单",
@@ -9107,7 +9150,7 @@
     "description": "建立现场人员手机账号，并选择该人员可以进入的项目。",
     "email": "电子邮箱",
     "emailHint": "选填。不填写时，系统会自动生成内部登录邮箱。",
-    "existingHelp": "手机号码不可修改。重新生成链接会立即解绑原有设备并注销所有旧登录；第一个打开新链接并正确输入 PIN 的设备将成为唯一绑定设备。你也可以同时调整可进入的项目。",
+    "existingHelp": "手机号码不可修改。重新生成链接会立即解绑原有设备并注销所有旧登录；第一个打开新链接并正确输入 PIN 的设备将成为唯一绑定设备。你也可以把他换到另一个项目。",
     "existingStaff": "选择现场人员",
     "expiryHelp": "激活链接只用来第一次绑定手机。绑定后打开就会自动登录，不用每次输入 PIN；只有连续很多天没打开（天数在公司设置里改），或者办公室重新生成链接、停用账号，才需要重新绑定。",
     "fullName": "姓名",
@@ -9147,7 +9190,9 @@
       "inApp": "聊天软件里的浏览器",
       "computer": "电脑浏览器",
       "browser": "浏览器"
-    }
+    },
+    "oneProjectHint": "一个手机账号同一时间只能在一个项目；选另一个项目就是把他换过去。",
+    "onTwoProjects": "同时在 {count} 个项目，请只选一个"
   },
   "fieldDraft": {
     "loading": "正在载入已保存草稿…",
@@ -9246,7 +9291,8 @@
       "submit": "提交",
       "takePhoto": "拍照",
       "workLocation": "现场位置 / 轴线",
-      "workLocationPlaceholder": "例如：A座，C1-D1轴线"
+      "workLocationPlaceholder": "例如：A座，C1-D1轴线",
+      "askForHint": "不知道选哪个可以不选，后台会补上。"
     },
     "consultantTasks": {
       "title": "顾问现场照片提交"
@@ -9404,7 +9450,7 @@
       "specOptionalHint": "不知道规格可以不选，后台会补上。",
       "autoFilledFromSpec": "随规格带出",
       "otherName": "材料名称",
-      "otherNameHint": "名单里没有的材料，选「其他材料」在这里填写；办公室会在分类管理加进名单。"
+      "otherNameHint": "名单里没有的材料，选「其他材料」在这里填写名称；不知道可以不填，后台会补上。"
     },
     "materialEvidence": {
       "arrival": "1. 车辆到场",
@@ -11846,7 +11892,8 @@
       "exit_at": "退场时间",
       "request_kind": "申请类型",
       "pdpa_consent": "个人资料告知",
-      "material_lines": "材料明细"
+      "material_lines": "材料明细",
+      "anomaly": "异常"
     },
     "detailTitle": "我提交过的",
     "photos": "照片",
@@ -12217,7 +12264,7 @@
       "materialRequests": "MR / 其他申请",
       "departmentsTrades": "部门与工种",
       "fieldStaffManagement": "现场人员管理",
-      "fieldChats": "手机沟通记录",
+      "fieldChats": "沟通记录",
       "photoTimeline": "工程照片墙"
     },
     "subscription_management": "订阅管理",
@@ -13785,7 +13832,9 @@
       "removeTitle": "将 {name} 移出此项目？",
       "title": "项目人员名单",
       "person": "要加入的人",
-      "whatMembers": "项目成员列表"
+      "whatMembers": "项目成员列表",
+      "onOtherProject": "现在在另一个项目：请原项目先「移出项目」或「删除」",
+      "removePhoneDescription": "{name} 的手机会立刻停用，所有手机和浏览器马上登出。账号、手机号码和已记录的数据都保留；之后在别的项目用同一个号码生成链接，同一部手机就能重新绑定。"
     },
     "title": "项目",
     "toast": {
@@ -13834,7 +13883,12 @@
       "projectNote": "项目权限：默认全部打开。关掉的那一项，这个人在他所有的项目都不能用。",
       "allOn": "项目权限全部打开",
       "someOff": "关掉了 {count} 项",
-      "grantedCount": "总部开了 {count} 项 B 组权限"
+      "grantedCount": "总部开了 {count} 项 B 组权限",
+      "invited": "还没激活",
+      "suspended": "已停用",
+      "headOffice": "总部账号：权限由总部在「用户管理」设置，这里只能查看。",
+      "setInUsers": "这个人的权限由总部在「用户管理」设置，这里只能查看。",
+      "openUser": "打开用户页"
     }
   },
   "qrCodes": {
@@ -16381,7 +16435,8 @@
       "recordNumbers": "补录数字",
       "siteEvidence": "拍车辆出场 / Gate Pass",
       "setSupplier": "填写供应商",
-      "changeSupplier": "更改供应商"
+      "changeSupplier": "更改供应商",
+      "reportAnomaly": "报告异常"
     },
     "assign": {
       "copyNow": "复制后发送给外部清运商。链接不需要登录；如遗失，可在清运列表重新生成，旧链接会立即失效。",
@@ -16417,7 +16472,8 @@
       "UNLOADING": "卸货",
       "DISPOSAL_PROOF": "最终处理证明",
       "VEHICLE_EXIT": "车辆出场",
-      "GATE_PASS": "Gate Pass"
+      "GATE_PASS": "Gate Pass",
+      "ANOMALY": "异常照片"
     },
     "external": {
       "action": {
@@ -16503,7 +16559,9 @@
       "supplier": "供应商",
       "vehiclePlates": "清运车牌",
       "vehiclePlate": "车牌",
-      "createdAt": "建立时间"
+      "createdAt": "建立时间",
+      "isAbnormal": "异常",
+      "anomalyText": "异常说明"
     },
     "fieldEvidence": {
       "access": "3. 清运入口或车辆路线",
@@ -16526,7 +16584,8 @@
         "note": "工作备注",
         "weight": "实际重量（kg）",
         "vehiclePlate": "车牌",
-        "vehiclePlateHint": "选填：这一车的车牌"
+        "vehiclePlateHint": "选填：这一车的车牌",
+        "doNoHint": "不知道可以不填，后台会补上。"
       },
       "invalid": "无法打开这项清运任务，请刷新任务列表后重试。",
       "photosBody": "每一车送到合法处理地点后拍照。每车最多 4 张，不限类别；至少 1 张才能送出。送出后由后台验收这一车。",
@@ -16608,7 +16667,8 @@
       "TRIP_ADDED": "后台加了一车",
       "ENDED_EARLY": "后台提前结束，未送的车次已取消",
       "TRIP_CORRECTED": "后台更正了一车的重量 / DO / 车牌",
-      "SUPPLIER_SET": "后台填写 / 更改了供应商"
+      "SUPPLIER_SET": "后台填写 / 更改了供应商",
+      "ANOMALY_REPORTED": "报告异常"
     },
     "title": "工地清运",
     "toast": {
@@ -16624,7 +16684,8 @@
       "tripAdded": "已加一车",
       "endedEarly": "清运已提前结束",
       "tripCorrected": "这一车已更正",
-      "supplierSet": "供应商已保存"
+      "supplierSet": "供应商已保存",
+      "anomalyReported": "异常已提交后台"
     },
     "overdue": {
       "badge": "异常",
@@ -16639,7 +16700,8 @@
       "SITE_EXIT": "装车与工地出场证据",
       "FINAL_PROOF": "最终处理证明",
       "OFFICE_CHECK": "后台验收照片（旧流程）",
-      "empty": "暂无"
+      "empty": "暂无",
+      "ANOMALY": "异常照片"
     },
     "recordNumbers": {
       "title": "补录重量 / 车次 / DO",
@@ -16709,6 +16771,30 @@
       "reason": "更改原因",
       "unchanged": "先选另一家供应商",
       "save": "保存"
+    },
+    "anomaly": {
+      "title": "报告异常",
+      "description": "{reference}：车辆异常要选第几车；写明原因，最少拍 {minimum} 张照片。",
+      "kind": "异常类型",
+      "kindVEHICLE": "车辆异常",
+      "kindOTHER": "其他异常",
+      "kindOVERDUE": "超时",
+      "trip": "第几车",
+      "chooseTrip": "选择第几车",
+      "noTrips": "这项清运还没有车次，不能报告车辆异常，请选「其他异常」。",
+      "plate": "车牌",
+      "plateHint": "有车牌时自动带出这一车的车牌，不对可以改。",
+      "reason": "异常原因",
+      "photos": "异常照片",
+      "progress": "已拍 {count} 张，最少 {minimum} 张",
+      "submit": "提交异常",
+      "panelTitle": "异常记录",
+      "reportedBy": "{name} · {at}",
+      "supplier": "清运公司",
+      "reporter": "报告人",
+      "at": "时间",
+      "listTitle": "异常记录",
+      "empty": "没有异常记录"
     }
   },
   "onSiteMap": {
@@ -17886,7 +17972,8 @@
       "vehiclePlate": "车牌",
       "collectionAt": "希望收运时间",
       "collectionAtHint": "你希望车什么时候来。回收商可以另提一个时间，之后由你确认。",
-      "otherName": "名称"
+      "otherName": "名称",
+      "otherNameHint": "不知道可以不填，后台会补上。"
     },
     "filter": {
       "allCategories": "全部类别",
@@ -18599,7 +18686,8 @@
       "submitToOption": {
         "PROJECT": "交给项目经理",
         "HQ": "交给总部"
-      }
+      },
+      "descriptionHint": "可以不填，后台会按收据补上。"
     },
     "submitTo": {
       "PROJECT": "项目经理",
@@ -18708,7 +18796,8 @@
     "tab": {
       "all": "全部",
       "disposal": "工地清运",
-      "dispatch": "废料订单"
+      "dispatch": "废料订单",
+      "abnormal": "异常记录"
     },
     "kind": {
       "disposal": "工地清运",
@@ -18722,7 +18811,9 @@
       "project": "项目",
       "content": "废料内容",
       "at": "建立时间",
-      "open": "查看"
+      "open": "查看",
+      "abnormal": "异常",
+      "anomalyText": "异常说明"
     },
     "pageOf": "第 {page} / {pages} 页（每页每种最多 10 笔）",
     "lastPage": "已经是最后一页。",
@@ -18904,16 +18995,16 @@
       "goToCategories": "前往分类管理",
       "askToSetUp": "请联系有权限的后台人员在分类管理设置。",
       "materialData": "材料资料",
-      "otherSpecHint": "选了「其他」：请填写规格，并选择单位。",
+      "otherSpecHint": "选了「其他」：知道就填写规格，不知道可以不填，后台会补上；单位要选。",
       "unitFromSpec": "单位随规格带出，不能修改。",
       "unitAfterSpec": "选好规格后自动带出",
-      "subjectHint": "一句话说明要申请什么，例如：两台吊车、一个现场办公室。",
+      "subjectHint": "一句话说明要申请什么，例如：两台吊车、一个现场办公室。不填就用申请类型的名称，后台可以改。",
       "contentOrFile": "申请内容和上传资料至少要有一样。",
       "contentPlaceholder": "说明申请的内容、数量、时间等",
       "attachmentKindsHint": "照片、PDF、Word、Excel、PowerPoint、CSV、TXT、DWG、ZIP。最多 {count} 份，每份不超过 {limit} MB。",
       "fileKindRefused": "{name} 不能上传。请上传照片、PDF、Word、Excel、PowerPoint、CSV、TXT、DWG 或 ZIP。",
       "assignedReviewerManagerHint": "现场人员的申请先交项目经理，项目经理确认后再转给总部。",
-      "otherMaterialHint": "选了「其他材料」：请填写材料名称。"
+      "otherMaterialHint": "选了「其他材料」：知道就填写材料名称；不知道可以不填，后台会补上。"
     },
     "toast": {
       "submitted": "申请已提交。",
@@ -20748,6 +20839,9 @@
       "body": "打开通知，手机待机时有新消息才会响，桌面图标才会显示数字。",
       "action": "打开通知"
     },
+    "enabled": {
+      "body": "通知已打开。可以发一条测试通知，看这支手机会不会响。"
+    },
     "denied": {
       "body": "通知被关掉了，有新消息不会响。请到手机「设置」→「通知」，允许本 App 的通知。"
     },
@@ -20758,6 +20852,17 @@
       "worker": "手机的后台服务还没准备好。请把 App 完全关掉再打开，再按一次。",
       "subscribe": "手机没有完成通知登记（苹果 / 谷歌没有回应）。请检查网络，把 App 关掉再打开，再按一次。",
       "server": "通知已在手机打开，但没有存到服务器。请检查网络，再按一次。"
+    }
+  },
+  "pushTest": {
+    "action": "发一条测试通知",
+    "sending": "正在发送测试通知…",
+    "sent": "已发出。几秒内这支手机应该响一声，屏幕上出现通知。",
+    "notSent": "没有发出：{reason}",
+    "advice": {
+      "ios": "请按「{button}」再试一次；还是不行，删掉手机上的 MSE Trace 图标，从 Safari 重新加到主屏幕。",
+      "android": "请按「{button}」再试一次；还是不行，删掉手机上的 MSE Trace 图标，用 Chrome 打开网站，点 ⋮ →「安装应用」重新安装。",
+      "other": "请按「{button}」再试一次；还是不行，请在浏览器设置里允许本网站的通知。"
     }
   },
   "passportCapture": {
@@ -20804,7 +20909,8 @@
     "link": "链接 / 二维码",
     "remove": "删除",
     "removeTitle": "删除这个现场人员？",
-    "removeConfirm": "删除后 {name} 不能再登录，手机号码可以在别的项目重新使用。他之前的记录全部保留。"
+    "removeConfirm": "删除后 {name} 不能再登录，手机号码可以在别的项目重新使用。他之前的记录全部保留。",
+    "onTwoProjects": "同时在 {count} 个项目"
   },
   "projectSuppliers": {
     "title": "可用供应商",
@@ -20842,16 +20948,49 @@
     }
   },
   "fieldChats": {
-    "title": "手机沟通记录",
-    "subtitle": "现场人员、门岗、设备操作人员在手机「沟通」里的所有对话，按项目保存。你在里面的对话可以直接回复。",
+    "title": "沟通记录",
+    "subtitle": "手机端（现场人员、门岗、设备操作人员）和后台（项目后台、总部）的所有对话，按项目保存。你在里面的对话可以直接回复；用「找人沟通」开始新的对话。",
     "project": "项目",
     "allProjects": "全部项目",
     "loading": "正在载入…",
-    "empty": "这个项目还没有手机沟通。",
+    "empty": "这个项目还没有沟通记录。",
     "pick": "在左边选一个沟通查看。",
     "people": "成员：{names}",
     "noMessages": "还没有消息。",
-    "attachment": "[照片 / 语音 / 文件]"
+    "attachment": "[照片 / 语音 / 文件]",
+    "conversation": "沟通",
+    "find": {
+      "title": "找人沟通",
+      "hint": "只列出你可以联系的人：项目后台可以联系本项目的手机端人员、本项目后台和总部；总部可以联系各项目后台。手机端人员和总部不会在同一个对话里。",
+      "back": "返回",
+      "project": "选项目",
+      "search": "搜索名字",
+      "choose": "要沟通的人",
+      "group": {
+        "phone": "手机端人员",
+        "office": "项目后台",
+        "head_office": "总部"
+      },
+      "kind": {
+        "site_staff": "现场人员",
+        "all_pages": "现场人员",
+        "gate_guard": "门岗",
+        "equipment_operator": "设备操作",
+        "office": "项目后台",
+        "head_office": "总部"
+      },
+      "mix": {
+        "phoneChosen": "已选了手机端人员，总部不能加入同一个对话。",
+        "headOfficeChosen": "已选了总部，手机端人员不能加入同一个对话。"
+      },
+      "groupTitle": "群组名称（可不填）",
+      "start": "{count, plural, =0 {开始沟通} other {和 # 个人开始沟通}}",
+      "startFailed": "无法开始对话，请再试一次。",
+      "noProject": "你还没有可以沟通的项目。",
+      "noPeople": "找不到人。",
+      "whatProjects": "项目名单",
+      "whatPeople": "人员名单"
+    }
   },
   "photoWall": {
     "hint": "单击照片放大，可以左右翻看；双击照片打开完整记录。",

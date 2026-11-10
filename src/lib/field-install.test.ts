@@ -19,6 +19,7 @@ import {
   fieldManifestStartUrl,
   fieldReadyPath,
   fieldSignInDestination,
+  showInstallBanner,
   showIosInstallGuide,
   unboundReason,
 } from "@/lib/field-install";
@@ -67,6 +68,14 @@ describe("iOS detection", () => {
     expect(showIosInstallGuide({ environment: "ios-in-app", standalone: false })).toBe(true);
     expect(showIosInstallGuide({ environment: "ios-safari", standalone: true })).toBe(false);
     expect(showIosInstallGuide({ environment: "android", standalone: false })).toBe(false);
+  });
+
+  it("hides the 加到主屏幕 banner once the app is on the Home Screen (JB151)", () => {
+    // 客户 11-10 事项 7: 「每一次点了都还存在……他不会消失」.
+    expect(showInstallBanner({ environment: "ios-safari", standalone: false, hasHomeScreenApp: false })).toBe(true);
+    expect(showInstallBanner({ environment: "ios-safari", standalone: false, hasHomeScreenApp: true })).toBe(false);
+    expect(showInstallBanner({ environment: "ios-in-app", standalone: false, hasHomeScreenApp: true })).toBe(false);
+    expect(showInstallBanner({ environment: "ios-safari", standalone: true, hasHomeScreenApp: false })).toBe(false);
   });
 });
 

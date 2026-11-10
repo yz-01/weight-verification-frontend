@@ -4,6 +4,7 @@ import { Loader2, Share } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
+import { useAuth } from "@/components/providers/auth-provider";
 import { Button } from "@/components/ui/button";
 import {
   isStandaloneApp,
@@ -13,7 +14,7 @@ import {
 import {
   detectInstallEnvironment,
   fieldReadyPath,
-  showIosInstallGuide,
+  showInstallBanner,
 } from "@/lib/field-install";
 import { createFieldPwaBootstrap } from "@/services/field-access.service";
 
@@ -26,23 +27,33 @@ import { createFieldPwaBootstrap } from "@/services/field-access.service";
  * page's address carries no hand-off. The button makes a fresh hand-off and
  * opens the ready page, whose own address carries it - that is the page to
  * add from.
+ *
+ * Its words say why it matters (JB153, 客户 11-10 第二批事项 2: in Safari
+ * 「什么通知都没有」): an iPhone sends notifications, sounds and the icon's
+ * number only to the app opened from its Home Screen icon, never to a tab.
+ *
+ * Gone once the app is on the Home Screen (JB151): the server knows from the
+ * app's own sign-in, which a browser tab cannot see.
  */
 export function FieldInstallBanner() {
   const t = useTranslations("fieldAccess");
+  const { user } = useAuth();
+  const hasHomeScreenApp = user?.has_home_screen_app === true;
   const [visible, setVisible] = useState(false);
   const [pending, setPending] = useState(false);
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() =>
       setVisible(
-        showIosInstallGuide({
+        showInstallBanner({
           environment: detectInstallEnvironment(),
           standalone: isStandaloneApp(),
+          hasHomeScreenApp,
         }),
       ),
     );
     return () => window.cancelAnimationFrame(frame);
-  }, []);
+  }, [hasHomeScreenApp]);
 
   if (!visible) return null;
 

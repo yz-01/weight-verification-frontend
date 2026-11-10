@@ -1393,8 +1393,9 @@ export const PORTAL_NAVIGATION = {
     // is not folded into Category Management; Multi Engine bundles records
     // from several entries into one PDF.
     entry("project_categories", "submodule.archiveQueue", "/archive-queue", Inbox, "tools"),
-    // 手机沟通记录 (JB127, 客户 11-07 事项 1): every phone conversation of the
-    // projects the reader can see. No waiting count of its own.
+    // 沟通记录 (JB127, 客户 11-07 事项 1; renamed by JB158, 客户 11-10 第七批):
+    // every phone and back-office conversation of the projects the reader can
+    // see, and the office's 找人沟通. No waiting count of its own.
     entry("projects", "submodule.fieldChats", "/field-chats", MessagesSquare, "tools", { badge: [] }),
     entry("project_categories", "submodule.multiEngine", "/evidence-packages", Package, "tools", {
       // Head office reads claims without reading packages: it sees the

@@ -938,7 +938,9 @@ export type DisposalEvidenceKind =
   | "DISPOSAL_DO"
   | "OTHER"
   | "DISPOSAL_PROOF"
-  | "CONFIRMATION";
+  | "CONFIRMATION"
+  /** A photograph of a reported problem (JB149): at least two per report. */
+  | "ANOMALY";
 
 /** What the site photographs as the load leaves (C08). */
 export type DisposalSiteEvidenceKind = "VEHICLE_EXIT" | "GATE_PASS";
@@ -947,7 +949,34 @@ export type DisposalSiteEvidenceKind = "VEHICLE_EXIT" | "GATE_PASS";
  * Where a photograph belongs in the job (B23): the request, the load leaving
  * site, the final disposal proof, or an office check from before E04.
  */
-export type DisposalEvidenceStage = "REQUEST" | "SITE_EXIT" | "FINAL_PROOF" | "OFFICE_CHECK";
+export type DisposalEvidenceStage = "REQUEST" | "SITE_EXIT" | "FINAL_PROOF" | "OFFICE_CHECK" | "ANOMALY";
+
+/** 车辆异常 names its lorry; 其他异常 need not (JB149, 客户 11-10 事项 6). */
+export type DisposalAnomalyKind = "VEHICLE" | "OTHER";
+
+/**
+ * A problem reported on a running disposal job (JB149), with its photographs.
+ *
+ * 「异常记录保留公司名称及相关清运资料。如果是车辆异常，注明第几车」: the lorry
+ * (`trip_seq`), its plate and the clearance company are as they were when it
+ * was reported, so a later rename or correction does not rewrite it.
+ */
+export interface DisposalAnomaly {
+  id: string;
+  kind: DisposalAnomalyKind;
+  trip: string | null;
+  trip_seq: number | null;
+  /** The clearance company - or, when `internal_clearance`, the staff member. */
+  supplier_name: string;
+  internal_clearance: boolean;
+  vehicle_plate: string;
+  reason: string;
+  reported_by_name: string;
+  reported_at: string;
+  latitude: string | null;
+  longitude: string | null;
+  evidence: DisposalEvidence[];
+}
 
 /** 原工地清运's own figures (D06). */
 export interface DisposalTotals {
@@ -975,6 +1004,8 @@ export interface DisposalEvidence {
   submitted_by_name: string | null;
   /** Which lorry load this photograph belongs to (X11); empty for the rest. */
   trip?: string | null;
+  /** The reported problem it shows (JB149); empty for the rest. */
+  anomaly?: string | null;
 }
 
 /**
@@ -1080,6 +1111,12 @@ export interface DisposalRequest extends RecordedBy {
    * "normal".
    */
   disposal_evidence_is_overdue: boolean;
+  /** Problems reported from the phone, oldest first (JB149). */
+  anomalies: DisposalAnomaly[];
+  /** 「异常」: a problem reported, or late (`disposal_evidence_is_overdue`). */
+  is_abnormal: boolean;
+  /** 「异常说明」: every report and the lateness, in the reader's language. */
+  anomaly_text: string;
   /** What the site asked for; approval makes this many trips (X11). */
   planned_trips: number;
   /** Each lorry and its check; empty on a job from before C5. */

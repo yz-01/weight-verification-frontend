@@ -32,6 +32,12 @@ const drawings: DocumentCategory = {
   description: "",
   is_active: true,
   record_count: 0,
+  project: null,
+  project_name: null,
+  all_projects: true,
+  assigned_projects: [],
+  assigned_project_names: [],
+  can_edit: true,
   created_at: "",
   updated_at: "",
 };

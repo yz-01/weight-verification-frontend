@@ -104,7 +104,11 @@ export function SundryClaimCapture({
           onChange={(event) => setAmount(event.target.value)}
         />
       </FieldWrapper>
-      <FieldWrapper label={t("description")} required>
+      {/* 说明 when the worker has words for it; never required (JB152, 客户
+          11-10 第二批事项 1: 「不填也能上传，必须能上传，因为后台可以改正」) - the
+          receipt photographed says what was bought, and the office fills it in
+          with 修改. */}
+      <FieldWrapper label={t("description")} hint={t("descriptionHint")}>
         <Textarea
           value={description}
           onChange={(event) => setDescription(event.target.value)}
@@ -170,7 +174,6 @@ export function SundryClaimCapture({
         requires={[
           [project, t("project")],
           [validAmount, t("amount")],
-          [description.trim(), t("description")],
           [attachments.length > 0, t("attachments")],
           [location, t("location")],
         ]}

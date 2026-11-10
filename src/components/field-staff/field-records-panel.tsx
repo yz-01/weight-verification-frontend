@@ -778,9 +778,12 @@ export function MaterialCapturePanel({
         <FieldLoadNote query={columns} what={t("what.columns")} />
         {draft.project && columns.isSuccess && !columnRows.length && <p className="text-sm text-muted-foreground">{t("material.noColumnsYet")}</p>}
       </FieldWrapper>
-      {/* 「其他材料」 (J14-3): the one material whose name is typed. */}
+      {/* 「其他材料」 (J14-3): the one material whose name is typed - when the
+          worker knows it. Never required (JB152, 客户 11-10 第二批事项 1: 「不填
+          也能上传，必须能上传，因为后台可以改正」): blank, the delivery carries
+          the material chosen and the office types the name with 修改. */}
       {isOtherMaterial(selectedColumn) && (
-        <FieldWrapper label={t("material.otherName")} required hint={t("material.otherNameHint")}>
+        <FieldWrapper label={t("material.otherName")} hint={t("material.otherNameHint")}>
           <Input
             className="h-12"
             value={draft.materialName}
@@ -1110,7 +1113,7 @@ export function MaterialCapturePanel({
         )}
       </div>
       {error && <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">{error}</p>}
-      <Button className="h-12 w-full text-sm" variant={rejecting ? "destructive" : "default"} requires={[[draft.project, t("material.project")], [draft.category, t("material.column")], [!isOtherMaterial(selectedColumn) || draft.materialName.trim(), t("material.otherName")], [Number(draft.quantity) > 0, t("material.quantity")], [!rejecting || (draft.rejectionReason ?? "").trim(), t("material.reject.reason")], [!missingEntry.includes("vehiclePlate"), t("material.vehicle")], [!missingEntry.includes("deliveryNoteNo"), t("material.doNo")], [!missingEntry.includes("receiverSignature"), t("material.receiverSignature")], [!missingEntry.includes("supplierSignature"), t("material.supplierSignature")], [hasRequiredFieldEvidence(materialEvidence), t("materialEvidence.title")], [location, t("material.location")]]} disabled={save.isPending} onClick={() => save.mutate()}>
+      <Button className="h-12 w-full text-sm" variant={rejecting ? "destructive" : "default"} requires={[[draft.project, t("material.project")], [draft.category, t("material.column")], [Number(draft.quantity) > 0, t("material.quantity")], [!rejecting || (draft.rejectionReason ?? "").trim(), t("material.reject.reason")], [!missingEntry.includes("vehiclePlate"), t("material.vehicle")], [!missingEntry.includes("deliveryNoteNo"), t("material.doNo")], [!missingEntry.includes("receiverSignature"), t("material.receiverSignature")], [!missingEntry.includes("supplierSignature"), t("material.supplierSignature")], [hasRequiredFieldEvidence(materialEvidence), t("materialEvidence.title")], [location, t("material.location")]]} disabled={save.isPending} onClick={() => save.mutate()}>
         {save.isPending ? <Loader2 className="animate-spin" /> : <PackageOpen />}
         {rejecting ? t("material.reject.submit") : t("material.submit")}
       </Button>
@@ -1182,11 +1185,13 @@ function ConsultantCapturePanel({ initialProject = "", fieldTaskId, onSaved }: {
 
   const save = useMutation({
     mutationFn: () => {
-      if (!user || !location || !chosen) throw new Error("missing_evidence");
+      if (!user || !location) throw new Error("missing_evidence");
       return submitConsultantSubmissionOfflineAware(user.id, {
         project,
         note: note.trim(),
-        application_category: chosen,
+        // Not answered: 「其他」, which the office's 「整理成顾问申请」 decides
+        // (JB152; I1: 「不需要选择部门或详细分类，由后台处理」).
+        application_category: chosen || "OTHER",
         description: note.trim(),
         captured_at: new Date().toISOString(),
         latitude: location.latitude,
@@ -1221,7 +1226,10 @@ function ConsultantCapturePanel({ initialProject = "", fieldTaskId, onSaved }: {
           disabled={Boolean(initialProject)}
         />
       </FieldWrapper>
-      <FieldWrapper label={t("consultantCapture.askFor")} required>
+      {/* Asked, not required (JB152, 客户 11-10 第二批事项 1: 「不填也能上传…因为
+          后台可以改正」): the office settles the type when it organises the
+          submission into a consultant application. */}
+      <FieldWrapper label={t("consultantCapture.askFor")} hint={t("consultantCapture.askForHint")}>
         <div role="radiogroup" aria-label={t("consultantCapture.askFor")} className="grid grid-cols-2 gap-2">
           {CONSULTANT_ASK_FOR.map((value) => (
             <Button
@@ -1283,7 +1291,6 @@ function ConsultantCapturePanel({ initialProject = "", fieldTaskId, onSaved }: {
         className="h-12 w-full text-sm"
         requires={[
           [project, t("consultantCapture.project")],
-          [chosen, t("consultantCapture.askFor")],
           [photos.length >= 1, t("consultantCapture.photos")],
           [location, t("consultantCapture.location")],
         ]}
@@ -1406,8 +1413,11 @@ function WasteOutgoingCapturePanel({
         </Select>
         <FieldLoadNote query={options} what={t("what.categories")} />
       </FieldWrapper>
+      {/* 「其他」: what it is, when known (ID43: 「其他分类（可填写事项名称）」).
+          Not required since JB152 (客户 11-10 第二批事项 1): blank, it reads
+          「其他」 and the office puts it right. */}
       {chosenCategory?.is_other && (
-        <FieldWrapper label={t("field.otherName")} required>
+        <FieldWrapper label={t("field.otherName")} hint={t("field.otherNameHint")}>
           <Input className="h-12" value={otherName} onChange={(event) => setOtherName(event.target.value)} />
         </FieldWrapper>
       )}
@@ -1463,7 +1473,7 @@ function WasteOutgoingCapturePanel({
         required
       />
       {error && <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">{error}</p>}
-      <Button className="h-12 w-full text-sm" requires={[[project, t("field.project")], [category, t("field.category")], ...(chosenCategory?.is_other ? ([[otherName.trim(), t("field.otherName")]] as [string, string][]) : []), [!quantityIncomplete, t("field.unit")], [hasRequiredFieldEvidence(evidence), t("evidence.title")], [location, t("field.location")]]} disabled={save.isPending} onClick={() => save.mutate()}>
+      <Button className="h-12 w-full text-sm" requires={[[project, t("field.project")], [category, t("field.category")], [!quantityIncomplete, t("field.unit")], [hasRequiredFieldEvidence(evidence), t("evidence.title")], [location, t("field.location")]]} disabled={save.isPending} onClick={() => save.mutate()}>
         {save.isPending ? <Loader2 className="animate-spin" /> : <Recycle />}
         {t("action.submit")}
       </Button>

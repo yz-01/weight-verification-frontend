@@ -3781,7 +3781,10 @@
       "equipment_name_updated": "Nama peralatan diubah",
       "settings_update_by_platform": "Tetapan syarikat diubah oleh MSE",
       "project_supplier_added": "Pembekal ditambah ke projek",
-      "project_supplier_removed": "Pembekal dikeluarkan dari projek"
+      "project_supplier_removed": "Pembekal dikeluarkan dari projek",
+      "field_account_moved": "Akaun telefon dipindahkan ke projek baharu",
+      "project_permissions_changed": "Kebenaran projek diubah",
+      "report_anomaly": "Anomali pelupusan dilaporkan"
     },
     "objectType": {
       "SignOffAssistant": "PIN pembantu",
@@ -6577,7 +6580,8 @@
       "chooseSpec": "Pilih spesifikasi",
       "specOptionalHint": "Tidak pasti spesifikasinya? Biarkan - pejabat akan mengisinya.",
       "specName": "Nama spesifikasi",
-      "materialName": "Nama bahan"
+      "materialName": "Nama bahan",
+      "materialNameHint": "Tidak pasti? Biarkan - pejabat akan mengisinya."
     },
     "outgoingStatus": {
       "APPROVED": "Diluluskan / menunggu keluar tapak",
@@ -7913,7 +7917,28 @@
       "activeHint": "Entri aktif boleh dipilih untuk dokumen baharu.",
       "description": "Urus struktur kategori dan subkategori yang digunakan oleh arkib.",
       "inactive": "Tidak aktif",
-      "title": "Kategori dokumen"
+      "title": "Kategori dokumen",
+      "scope": {
+        "label": "Digunakan pada",
+        "choice": {
+          "ALL": "Ibu pejabat · semua projek",
+          "CHOSEN": "Ibu pejabat · projek terpilih",
+          "PROJECT": "Satu projek sahaja"
+        },
+        "chosenLabel": "Projek yang menggunakannya",
+        "projectLabel": "Projek",
+        "owner": "Milik {project}: digunakan pada projek itu sahaja, tidak dilihat oleh projek lain.",
+        "badge": {
+          "all": "Ibu pejabat · semua projek",
+          "chosen": "Ibu pejabat · {count} projek",
+          "here": "Projek ini",
+          "project": "Projek: {project}"
+        },
+        "headOfficeHint": "Kategori dan subkategori yang dicipta oleh ibu pejabat boleh diberikan kepada semua projek atau projek terpilih; yang ditambah oleh sesuatu projek hanya milik projek itu dan tidak dilihat oleh projek lain.",
+        "projectHint": "Kategori dan subkategori yang anda tambah hanya milik projek anda; projek lain tidak melihatnya. Yang bertanda Ibu pejabat disediakan oleh ibu pejabat dan boleh digunakan di sini tetapi tidak boleh diubah.",
+        "showing": "Memaparkan kategori yang digunakan pada {project}.",
+        "categoryHint": "Hanya kategori yang boleh digunakan oleh skop ini disenaraikan."
+      }
     },
     "title": "Arkib dokumen",
     "toast": {
@@ -8474,7 +8499,8 @@
       "field_pin_invalid": "PIN salah.",
       "field_pwa_bootstrap_invalid": "Pautan log masuk ini tidak lagi berfungsi - pejabat mungkin telah menghantar pautan baharu. Buka pautan terbaru yang dihantar oleh pejabat.",
       "field_link_replaced": "Pejabat telah menghantar pautan baharu untuk akaun anda. Buka pautan baharu untuk memautkan telefon ini semula.",
-      "field_account_stopped": "Akaun ini telah dihentikan oleh pejabat.",
+      "field_account_stopped": "Akaun ini telah dihentikan oleh pejabat. Sila hubungi pejabat.",
+      "field_account_removed": "Ikon telefon ini milik akaun lama yang telah dipadam. Padam ikon ini, log masuk semula dengan pautan baharu yang dihantar oleh pejabat, kemudian tambahkannya ke Skrin Utama sekali lagi.",
       "field_bootstrap_app_only": "Gunakan pautan pengaktifan daripada pejabat untuk memautkan telefon ini, atau buka aplikasi dari ikon Skrin Utama.",
       "field_companion_pin_required": "Masukkan PIN untuk melengkapkan pemautan aplikasi ini.",
       "flag_not_found": "Bendera ciri itu tidak dijumpai.",
@@ -8534,6 +8560,13 @@
       "project_has_records": "Projek ini masih ada rekod. Tandakan ia selesai dan bukannya membuangnya.",
       "project_limit_reached": "Pelan semasa anda telah mencapai had projek.",
       "project_not_found": "Projek itu tidak dijumpai.",
+      "push_endpoint_gone": "Apple / Google menyatakan pendaftaran pemberitahuan telefon ini tidak lagi sah.",
+      "push_not_configured": "Pelayan ini tidak menghantar pemberitahuan telefon (belum disediakan, atau dimatikan), jadi ujian tidak dapat dihantar. Hubungi pentadbir anda.",
+      "push_off_for_company": "Syarikat anda menyimpan pemberitahuan dalam aplikasi sahaja, jadi telefon tidak berbunyi. Hubungi pentadbir syarikat anda.",
+      "push_provider_refused": "Apple / Google menolak pemberitahuan ini.",
+      "push_provider_unreachable": "Apple / Google tidak menjawab - mungkin masalah rangkaian.",
+      "push_subscription_not_found": "Pelayan tiada pendaftaran pemberitahuan untuk telefon ini (mungkin telah tamat, atau akaun lain log masuk di sini).",
+      "push_test_too_soon": "Ujian baru sahaja dihantar. Tunggu {seconds} saat dan hantar lagi.",
       "qr_code_not_found": "Kod QR ini tidak dikenali.",
       "quota_exceeded": "Kuota awan yang ditetapkan telah dilebihi.",
       "receipt_immutable": "Resit yang telah dimuat naik tidak boleh diubah atau dibuang. Buat pembetulan baharu.",
@@ -8594,6 +8627,7 @@
       "weigh_sequence_invalid": "Penimbangan dua kali mesti mengikut turutan: berat kasar dahulu, berat tara kemudian.",
       "rejection_needs_conversation": "Terangkan masalah dalam komunikasi rekod ini dahulu supaya tapak nampak sebabnya dan boleh membalas. Kemudian tolaknya.",
       "column_not_empty": "Masih ada rekod dalam ruangan ini: {records}. Pindahkan dahulu, kemudian buang ruangan itu.",
+      "document_category_still_used": "Projek yang dikeluarkan masih menggunakan kategori ini: {records}. Pindahkan dahulu, atau kekalkan projek tersebut.",
       "category_has_records": "Kategori ini ada {count} rekod ({records}), jadi hanya boleh dimatikan, tidak boleh dibuang.",
       "category_has_children": "Kategori ini masih ada subkategori: {records}. Buang atau pindahkan dahulu.",
       "category_fixed_other": "“Lain-lain” tetap tidak boleh dibuang. Anda boleh menamakannya semula.",
@@ -8773,7 +8807,13 @@
       "file_share_link_not_found": "Pautan fail ini tidak dijumpai.",
       "file_share_link_expired": "Pautan ini sudah tamat tempoh. Minta pautan baharu daripada penghantar.",
       "file_share_file_too_large": "Fail melebihi {max_mb} MB dan tidak boleh dihantar sebagai pautan.",
-      "permission_switches_projects_required": "Pengguna projek hanya melihat projek yang dipilih. Pilih sekurang-kurangnya satu projek."
+      "permission_switches_projects_required": "Pengguna projek hanya melihat projek yang dipilih. Pilih sekurang-kurangnya satu projek.",
+      "project_member_not_switchable": "Kebenaran orang ini tidak ditukar dalam Kebenaran projek; ibu pejabat menetapkannya dalam Pengurusan pengguna.",
+      "disposal_anomaly_not_running": "Pembersihan ini belum diluluskan atau sudah tamat, jadi pengecualian tidak boleh dilaporkan.",
+      "disposal_anomaly_trip_required": "Pengecualian kenderaan mesti menyatakan muatan yang mana: pilih muatan pembersihan ini yang tidak dibatalkan.",
+      "disposal_anomaly_photos_required": "Setiap pengecualian memerlukan sekurang-kurangnya {minimum} foto.",
+      "disposal_anomaly_reason_required": "Tulis sebab pengecualian.",
+      "field_one_project": "{name} kini berada di projek lain{project, select, none {} other { ({project})}}. Akaun telefon hanya boleh berada di satu projek pada satu masa: di projek lama, tekan \"Keluarkan dari projek\" atau \"Padam\" dahulu, kemudian ikat di sini."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -8790,7 +8830,7 @@
       "max_length": "Ini terlalu panjang",
       "min_length": "Ini terlalu pendek",
       "null": "Ruangan ini wajib diisi",
-      "phone_in_use": "Nombor telefon ini sudah digunakan oleh akaun kakitangan tapak. Untuk berpindah ke projek baharu, padam orang itu di projek lama dahulu (menggantung tidak melepaskan nombor), kemudian kembali untuk cipta pautan.",
+      "phone_in_use": "Nombor telefon ini sudah digunakan oleh akaun kakitangan tapak. Untuk berpindah ke projek baharu, tekan \"Keluarkan dari projek\" atau \"Padam\" di projek lama dahulu (menggantung tidak melepaskan nombor), kemudian kembali untuk cipta pautan. Bagi orang yang sudah di projek ini, tekan \"Pautan / kod QR\" mereka untuk menghantar pautan baharu.",
       "required": "Ruangan ini wajib diisi",
       "unique": "Nilai ini telah digunakan",
       "percent_range": "Masukkan peratusan dari 0 hingga 100",
@@ -8810,7 +8850,8 @@
       "invalid_passport_no": "No. pasport: 5 hingga 20 huruf dan nombor",
       "invalid_birth_date": "Tarikh lahir mesti sebelum hari ini",
       "site_worker_passport_taken": "Pasport ini sudah ada dalam senarai",
-      "supplier_not_on_project": "Pembekal ini tiada dalam senarai pembekal projek ini. Minta ibu pejabat atau pengurus projek menambahnya dahulu."
+      "supplier_not_on_project": "Pembekal ini tiada dalam senarai pembekal projek ini. Minta ibu pejabat atau pengurus projek menambahnya dahulu.",
+      "field_one_project": "Akaun telefon hanya boleh berada di satu projek pada satu masa. Pilih satu projek."
     },
     "forbidden": "Anda tiada akses kepada ini.",
     "forbiddenBody": "Tanya pentadbir anda jika anda memerlukannya.",
@@ -9062,6 +9103,8 @@
     "iosInAppBody": "Aplikasi sembang tidak boleh menambah ke Skrin Utama. Salin pautan halaman ini, buka dalam Safari, kemudian ikut langkah-langkahnya.",
     "unboundAppTitle": "Ikon Skrin Utama ini belum dipautkan",
     "unboundAppBody": "Di iPhone, apl Skrin Utama berasingan daripada Safari. Belum ada log masuk di sini, jadi PIN tidak boleh digunakan. Buat sekali sahaja:",
+    "unboundRemovedTitle": "Ikon ini milik akaun yang telah dipadam",
+    "unboundRemovedBody": "Pejabat telah memadam akaun lama ini, jadi ikon ini tidak lagi berfungsi. Lakukan sekali untuk menggantikannya dengan ikon akaun baharu:",
     "unboundAppStep1": "Tekan lama ikon ini dan padamkannya",
     "unboundAppStep2": "Buka pautan pengaktifan daripada pentadbir (atau imbas kod QR) dalam Safari dan masukkan PIN. Jika pautan telah tamat tempoh, minta pautan baharu",
     "unboundAppStep3": "Dalam Safari (halaman \"Telefon sedia\" atau mana-mana halaman ruang kerja), tekan <more></more> → Kongsi → Tambah ke Skrin Utama",
@@ -9070,7 +9113,7 @@
     "unboundInAppBody": "Halaman ini dibuka dalam aplikasi sembang, yang tidak boleh dipautkan. Tekan <more></more> di kanan atas dan pilih Buka dalam Safari, atau salin pautan ke Safari.",
     "unboundBrowserTitle": "Telefon ini belum dipautkan",
     "unboundBrowserBody": "Buka semula pautan pengaktifan daripada pentadbir (atau imbas kod QR) dan masukkan PIN di sana. Jika pautan telah tamat tempoh, minta pautan baharu.",
-    "installBannerBody": "Membuka dari ikon Skrin Utama lebih stabil dan tidak perlu PIN.",
+    "installBannerBody": "Di iPhone, pemberitahuan dan bunyi hanya diterima dalam aplikasi yang dibuka dari ikon Skrin Utama - dan tidak perlu PIN.",
     "installBannerAction": "Tambah ke Skrin Utama",
     "iconShare": "Kongsi",
     "iconPageMenu": "Menu halaman",
@@ -9107,7 +9150,7 @@
     "description": "Cipta akaun mudah alih staf tapak dan pilih projek yang boleh diakses.",
     "email": "E-mel",
     "emailHint": "Pilihan. Jika kosong, sistem akan menjana e-mel log masuk dalaman secara automatik.",
-    "existingHelp": "Nombor telefon kekal dikunci. Menjana semula pautan akan segera memutuskan peranti semasa dan menamatkan semua sesi lama. Peranti pertama yang membuka pautan baharu dan memasukkan PIN yang betul menjadi satu-satunya peranti terikat. Akses projek juga boleh diubah.",
+    "existingHelp": "Nombor telefon kekal dikunci. Menjana semula pautan akan segera memutuskan peranti semasa dan menamatkan semua sesi lama. Peranti pertama yang membuka pautan baharu dan memasukkan PIN yang betul menjadi satu-satunya peranti terikat. Anda juga boleh memindahkannya ke projek lain.",
     "existingStaff": "Pilih staf tapak",
     "expiryHelp": "Pautan pengaktifan hanya untuk memautkan telefon kali pertama. Selepas itu aplikasi log masuk sendiri, tanpa PIN setiap kali. Telefon perlu dipautkan semula hanya selepas lama tidak digunakan (ditetapkan dalam tetapan syarikat), atau apabila pejabat menjana pautan baharu atau menghentikan akaun.",
     "fullName": "Nama penuh",
@@ -9123,7 +9166,7 @@
     "phoneHint": "Contoh tempatan: (0123456789). Oleh sebab +60 telah ditetapkan, masukkan 123456789.",
     "pin": "PIN enam digit",
     "pinExpiresAt": "Selepas dipautkan",
-    "projects": "Projek yang boleh diakses",
+    "projects": "Projek",
     "qrTitle": "Kod QR pengaktifan staf tapak",
     "reissue": "Jana semula pautan log masuk",
     "resultDescription": "Berikan pautan pengaktifan dan PIN enam digit kepada staf tapak. Pautan hanya boleh mengikat telefon sebelum tamat tempoh.",
@@ -9147,7 +9190,9 @@
       "inApp": "Pelayar apl sembang",
       "computer": "Pelayar komputer",
       "browser": "Pelayar"
-    }
+    },
+    "oneProjectHint": "Akaun telefon berada di satu projek pada satu masa; memilih projek lain memindahkannya ke sana.",
+    "onTwoProjects": "Berada di {count} projek serentak. Pilih satu sahaja."
   },
   "fieldDraft": {
     "loading": "Memuatkan draf yang disimpan...",
@@ -9246,7 +9291,8 @@
       "submit": "Hantar",
       "takePhoto": "Ambil foto",
       "workLocation": "Kawasan kerja / garisan grid",
-      "workLocationPlaceholder": "Contoh: Blok A, Grid C1-D1"
+      "workLocationPlaceholder": "Contoh: Blok A, Grid C1-D1",
+      "askForHint": "Tidak pasti yang mana? Biarkan - pejabat akan memutuskannya."
     },
     "consultantTasks": {
       "title": "Penyerahan foto perunding"
@@ -9404,7 +9450,7 @@
       "specOptionalHint": "Tidak pasti spesifikasinya? Biarkan - pejabat akan mengisinya.",
       "autoFilledFromSpec": "Dari spesifikasi",
       "otherName": "Nama bahan",
-      "otherNameHint": "Tiada dalam senarai? Pilih 「其他材料」 dan taip namanya di sini; pejabat akan menambahnya ke senarai."
+      "otherNameHint": "Tiada dalam senarai? Pilih 「其他材料」 dan taip namanya di sini. Tidak pasti? Biarkan - pejabat akan mengisinya."
     },
     "materialEvidence": {
       "arrival": "1. Kenderaan tiba",
@@ -11846,7 +11892,8 @@
       "exit_at": "Masa keluar",
       "request_kind": "Jenis permohonan",
       "pdpa_consent": "Notis data peribadi",
-      "material_lines": "Senarai bahan"
+      "material_lines": "Senarai bahan",
+      "anomaly": "Pengecualian"
     },
     "detailTitle": "Apa yang saya hantar",
     "photos": "Gambar",
@@ -12217,7 +12264,7 @@
       "materialRequests": "MR / Permohonan Lain",
       "departmentsTrades": "Jabatan dan tred",
       "fieldStaffManagement": "Kakitangan tapak",
-      "fieldChats": "Perbualan telefon",
+      "fieldChats": "Rekod perbualan",
       "photoTimeline": "Garis masa foto projek"
     },
     "subscription_management": "Pengurusan Langganan",
@@ -13785,7 +13832,9 @@
       "removeTitle": "Keluarkan {name} dari projek ini?",
       "title": "Senarai kakitangan projek",
       "person": "Orang yang hendak ditambah",
-      "whatMembers": "Senarai ahli projek"
+      "whatMembers": "Senarai ahli projek",
+      "onOtherProject": "Kini di projek lain: keluarkan di sana dahulu (\"Keluarkan dari projek\" atau \"Padam\")",
+      "removePhoneDescription": "Telefon {name} berhenti serta-merta: semua telefon dan pelayar dilog keluar. Akaun, nombor telefon dan semua rekod kekal; pautan dengan nombor yang sama di projek lain akan mengikat telefon yang sama semula."
     },
     "title": "Projek",
     "toast": {
@@ -13834,7 +13883,12 @@
       "projectNote": "Kebenaran projek: semuanya hidup secara lalai. Yang dimatikan tidak boleh digunakan oleh orang ini dalam semua projeknya.",
       "allOn": "Semua kebenaran projek hidup",
       "someOff": "{count} dimatikan",
-      "grantedCount": "{count} kebenaran kumpulan B daripada ibu pejabat"
+      "grantedCount": "{count} kebenaran kumpulan B daripada ibu pejabat",
+      "invited": "Belum diaktifkan",
+      "suspended": "Digantung",
+      "headOffice": "Akaun ibu pejabat: kebenarannya ditetapkan oleh ibu pejabat dalam Pengurusan pengguna dan hanya dipaparkan di sini.",
+      "setInUsers": "Kebenaran orang ini ditetapkan oleh ibu pejabat dalam Pengurusan pengguna dan hanya dipaparkan di sini.",
+      "openUser": "Buka halaman pengguna"
     }
   },
   "qrCodes": {
@@ -16381,7 +16435,8 @@
       "recordNumbers": "Rekod angka",
       "siteEvidence": "Foto kenderaan keluar / Gate Pass",
       "setSupplier": "Nyatakan pembekal",
-      "changeSupplier": "Tukar pembekal"
+      "changeSupplier": "Tukar pembekal",
+      "reportAnomaly": "Lapor pengecualian"
     },
     "assign": {
       "copyNow": "Salin dan hantar pautan ini kepada kontraktor luar. Log masuk tidak diperlukan. Jika hilang, jana pautan baharu; pautan lama akan berhenti berfungsi.",
@@ -16417,7 +16472,8 @@
       "UNLOADING": "Pemunggahan",
       "DISPOSAL_PROOF": "Bukti pelupusan akhir",
       "VEHICLE_EXIT": "Kenderaan keluar",
-      "GATE_PASS": "Gate Pass"
+      "GATE_PASS": "Gate Pass",
+      "ANOMALY": "Foto pengecualian"
     },
     "external": {
       "action": {
@@ -16503,7 +16559,9 @@
       "supplier": "Pembekal",
       "vehiclePlates": "Nombor plat lori",
       "vehiclePlate": "Nombor plat lori",
-      "createdAt": "Dibuat pada"
+      "createdAt": "Dibuat pada",
+      "isAbnormal": "Pengecualian",
+      "anomalyText": "Butiran pengecualian"
     },
     "fieldEvidence": {
       "access": "3. Laluan kutipan atau kenderaan",
@@ -16526,7 +16584,8 @@
         "note": "Catatan kerja",
         "weight": "Berat sebenar (kg)",
         "vehiclePlate": "Nombor plat lori",
-        "vehiclePlateHint": "Pilihan: nombor plat lori untuk muatan ini"
+        "vehiclePlateHint": "Pilihan: nombor plat lori untuk muatan ini",
+        "doNoHint": "Tidak pasti? Biarkan - pejabat akan mengisinya."
       },
       "invalid": "Tugas pelupusan ini tidak dapat dibuka. Muat semula Tugas Saya dan cuba lagi.",
       "photosBody": "Ambil foto setiap muatan di tempat pelupusan berlesen. Sehingga 4 foto bagi setiap muatan, apa-apa jenis; sekurang-kurangnya 1 untuk dihantar. Pejabat kemudian menyemak muatan itu.",
@@ -16608,7 +16667,8 @@
       "TRIP_ADDED": "Pejabat menambah satu muatan",
       "ENDED_EARLY": "Pejabat menamatkan kerja awal; muatan belum dihantar dibatalkan",
       "TRIP_CORRECTED": "Pejabat membetulkan berat / DO / plat satu muatan",
-      "SUPPLIER_SET": "Pejabat menamakan / menukar syarikat pembersihan"
+      "SUPPLIER_SET": "Pejabat menamakan / menukar syarikat pembersihan",
+      "ANOMALY_REPORTED": "Pengecualian dilaporkan"
     },
     "title": "Pelupusan tapak",
     "toast": {
@@ -16624,7 +16684,8 @@
       "tripAdded": "Muatan ditambah",
       "endedEarly": "Kerja ditamatkan awal",
       "tripCorrected": "Muatan dibetulkan",
-      "supplierSet": "Syarikat pembersihan disimpan"
+      "supplierSet": "Syarikat pembersihan disimpan",
+      "anomalyReported": "Pengecualian dihantar ke pejabat"
     },
     "overdue": {
       "badge": "Pengecualian",
@@ -16639,7 +16700,8 @@
       "SITE_EXIT": "Muat dan keluar tapak",
       "FINAL_PROOF": "Bukti pelupusan akhir",
       "OFFICE_CHECK": "Foto semakan pejabat (peraturan lama)",
-      "empty": "Belum ada"
+      "empty": "Belum ada",
+      "ANOMALY": "Foto pengecualian"
     },
     "recordNumbers": {
       "title": "Rekod berat / trip / DO",
@@ -16709,6 +16771,30 @@
       "reason": "Sebab perubahan",
       "unchanged": "Pilih pembekal lain dahulu",
       "save": "Simpan"
+    },
+    "anomaly": {
+      "title": "Lapor pengecualian",
+      "description": "{reference}: untuk pengecualian kenderaan pilih muatan; tulis sebab dan ambil sekurang-kurangnya {minimum} foto.",
+      "kind": "Jenis pengecualian",
+      "kindVEHICLE": "Pengecualian kenderaan",
+      "kindOTHER": "Pengecualian lain",
+      "kindOVERDUE": "Lewat",
+      "trip": "Muatan ke berapa",
+      "chooseTrip": "Pilih muatan",
+      "noTrips": "Pembersihan ini belum ada muatan, jadi pengecualian kenderaan tidak boleh dilaporkan. Pilih “Pengecualian lain”.",
+      "plate": "Nombor plat",
+      "plateHint": "Diisi daripada muatan jika ada; tukar jika salah.",
+      "reason": "Sebab",
+      "photos": "Foto pengecualian",
+      "progress": "{count} diambil, sekurang-kurangnya {minimum}",
+      "submit": "Hantar pengecualian",
+      "panelTitle": "Rekod pengecualian",
+      "reportedBy": "{name} · {at}",
+      "supplier": "Syarikat pembersihan",
+      "reporter": "Dilaporkan oleh",
+      "at": "Masa",
+      "listTitle": "Rekod pengecualian",
+      "empty": "Tiada rekod pengecualian"
     }
   },
   "onSiteMap": {
@@ -17886,7 +17972,8 @@
       "vehiclePlate": "Nombor plat",
       "collectionAt": "Masa pungutan dikehendaki",
       "collectionAtHint": "Bila anda mahu lori datang. Pengitar boleh cadangkan masa lain, kemudian anda sahkan.",
-      "otherName": "Apakah ia"
+      "otherName": "Apakah ia",
+      "otherNameHint": "Tidak pasti? Biarkan - pejabat akan mengisinya."
     },
     "filter": {
       "allCategories": "Semua kategori",
@@ -18599,7 +18686,8 @@
       "submitToOption": {
         "PROJECT": "Pengurus projek",
         "HQ": "Ibu pejabat"
-      }
+      },
+      "descriptionHint": "Boleh dibiarkan - pejabat akan mengisinya berdasarkan resit."
     },
     "submitTo": {
       "PROJECT": "Pengurus projek",
@@ -18708,7 +18796,8 @@
     "tab": {
       "all": "Semua",
       "disposal": "Pembersihan tapak",
-      "dispatch": "Pesanan sisa"
+      "dispatch": "Pesanan sisa",
+      "abnormal": "Rekod pengecualian"
     },
     "kind": {
       "disposal": "Pembersihan tapak",
@@ -18722,7 +18811,9 @@
       "project": "Projek",
       "content": "Sisa",
       "at": "Dibuat",
-      "open": "Lihat"
+      "open": "Lihat",
+      "abnormal": "Pengecualian",
+      "anomalyText": "Butiran pengecualian"
     },
     "pageOf": "Halaman {page} daripada {pages} - sehingga 10 setiap jenis",
     "lastPage": "Ini halaman terakhir.",
@@ -18904,16 +18995,16 @@
       "goToCategories": "Pergi ke Pengurusan Kategori",
       "askToSetUp": "Minta pegawai pejabat yang mengurus kategori untuk menyediakannya.",
       "materialData": "Data bahan",
-      "otherSpecHint": "「Lain-lain」 dipilih: taip spesifikasi dan pilih unitnya.",
+      "otherSpecHint": "「Lain-lain」 dipilih: taip spesifikasi jika tahu (jika tidak, pejabat akan mengisinya), dan pilih unitnya.",
       "unitFromSpec": "Unit datang bersama spesifikasi dan tidak boleh diubah.",
       "unitAfterSpec": "Diisi selepas spesifikasi dipilih",
-      "subjectHint": "Apa yang dipohon, dalam satu baris - contohnya: dua kren, satu pejabat tapak.",
+      "subjectHint": "Apa yang dipohon, dalam satu baris - contohnya: dua kren, satu pejabat tapak. Jika dibiarkan, nama jenis permohonan digunakan; pejabat boleh mengubahnya.",
       "contentOrFile": "Tulis butiran atau lampirkan fail - sekurang-kurangnya satu.",
       "contentPlaceholder": "Apa yang diperlukan, berapa, bila",
       "attachmentKindsHint": "Foto, PDF, Word, Excel, PowerPoint, CSV, TXT, DWG atau ZIP. Sehingga {count} fail, setiap satu bawah {limit} MB.",
       "fileKindRefused": "{name} tidak boleh dilampirkan. Lampirkan foto, PDF, Word, Excel, PowerPoint, CSV, TXT, DWG atau ZIP.",
       "assignedReviewerManagerHint": "Permohonan tapak dihantar kepada pengurus projek dahulu, yang menghantarnya ke ibu pejabat.",
-      "otherMaterialHint": "「其他材料」: taip bahan apakah itu."
+      "otherMaterialHint": "「其他材料」: taip nama bahan jika tahu. Tidak pasti? Biarkan - pejabat akan mengisinya."
     },
     "toast": {
       "submitted": "Permohonan dihantar.",
@@ -20748,6 +20839,9 @@
       "body": "Hidupkan pemberitahuan supaya mesej baharu berbunyi semasa telefon menunggu, dan ikon aplikasi menunjukkan nombor.",
       "action": "Hidupkan"
     },
+    "enabled": {
+      "body": "Pemberitahuan dihidupkan. Hantar pemberitahuan ujian untuk memastikan telefon ini berbunyi."
+    },
     "denied": {
       "body": "Pemberitahuan dimatikan, jadi mesej baharu tidak akan berbunyi. Benarkan untuk aplikasi ini di Tetapan → Pemberitahuan telefon."
     },
@@ -20758,6 +20852,17 @@
       "worker": "Perkhidmatan latar telefon belum sedia. Tutup aplikasi sepenuhnya, buka semula dan tekan sekali lagi.",
       "subscribe": "Telefon tidak selesai mendaftar untuk pemberitahuan (Apple / Google tidak menjawab). Semak sambungan, buka semula aplikasi dan tekan sekali lagi.",
       "server": "Pemberitahuan dihidupkan di telefon tetapi tidak disimpan di pelayan. Semak sambungan dan tekan sekali lagi."
+    }
+  },
+  "pushTest": {
+    "action": "Hantar pemberitahuan ujian",
+    "sending": "Menghantar pemberitahuan ujian…",
+    "sent": "Dihantar. Dalam beberapa saat telefon ini sepatutnya berbunyi dan menunjukkan pemberitahuan.",
+    "notSent": "Tidak dihantar: {reason}",
+    "advice": {
+      "ios": "Tekan \"{button}\" dan cuba lagi. Jika masih tidak berfungsi, padam ikon MSE Trace dari telefon dan tambah semula ke Skrin Utama dari Safari.",
+      "android": "Tekan \"{button}\" dan cuba lagi. Jika masih tidak berfungsi, padam ikon MSE Trace dari telefon, buka laman di Chrome dan tekan ⋮ → \"Pasang aplikasi\" sekali lagi.",
+      "other": "Tekan \"{button}\" dan cuba lagi. Jika masih tidak berfungsi, benarkan pemberitahuan untuk laman ini dalam tetapan pelayar."
     }
   },
   "passportCapture": {
@@ -20804,7 +20909,8 @@
     "link": "Pautan / kod QR",
     "remove": "Padam",
     "removeTitle": "Padam kakitangan tapak ini?",
-    "removeConfirm": "Selepas dipadam, {name} tidak boleh log masuk lagi dan nombor telefon boleh digunakan di projek lain. Rekod lamanya disimpan."
+    "removeConfirm": "Selepas dipadam, {name} tidak boleh log masuk lagi dan nombor telefon boleh digunakan di projek lain. Rekod lamanya disimpan.",
+    "onTwoProjects": "Di {count} projek"
   },
   "projectSuppliers": {
     "title": "Pembekal projek",
@@ -20842,16 +20948,49 @@
     }
   },
   "fieldChats": {
-    "title": "Perbualan telefon",
-    "subtitle": "Semua perbualan kakitangan tapak, pengawal dan pengendali peralatan dalam Bual telefon, disimpan mengikut projek. Anda boleh membalas perbualan yang anda sertai.",
+    "title": "Rekod perbualan",
+    "subtitle": "Semua perbualan di telefon (kakitangan tapak, pengawal, pengendali peralatan) dan di pejabat (pejabat projek, ibu pejabat), disimpan mengikut projek. Anda boleh membalas perbualan yang anda sertai; Mesej seseorang memulakan perbualan baharu.",
     "project": "Projek",
     "allProjects": "Semua projek",
     "loading": "Memuatkan…",
-    "empty": "Belum ada perbualan telefon dalam projek ini.",
+    "empty": "Belum ada perbualan dalam projek ini.",
     "pick": "Pilih satu perbualan di sebelah kiri.",
     "people": "Ahli: {names}",
     "noMessages": "Belum ada mesej.",
-    "attachment": "[foto / suara / fail]"
+    "attachment": "[foto / suara / fail]",
+    "conversation": "Perbualan",
+    "find": {
+      "title": "Mesej seseorang",
+      "hint": "Hanya orang yang boleh anda hubungi: pejabat projek boleh menghubungi orang telefon projeknya, pejabatnya sendiri dan ibu pejabat; ibu pejabat boleh menghubungi pejabat setiap projek. Orang telefon dan ibu pejabat tidak berada dalam perbualan yang sama.",
+      "back": "Kembali",
+      "project": "Projek",
+      "search": "Cari nama",
+      "choose": "orang untuk dimesej",
+      "group": {
+        "phone": "Orang telefon",
+        "office": "Pejabat projek",
+        "head_office": "Ibu pejabat"
+      },
+      "kind": {
+        "site_staff": "Kakitangan tapak",
+        "all_pages": "Kakitangan tapak",
+        "gate_guard": "Pengawal pintu",
+        "equipment_operator": "Pengendali peralatan",
+        "office": "Pejabat projek",
+        "head_office": "Ibu pejabat"
+      },
+      "mix": {
+        "phoneChosen": "Orang telefon telah dipilih, jadi ibu pejabat tidak boleh menyertai perbualan ini.",
+        "headOfficeChosen": "Ibu pejabat telah dipilih, jadi orang telefon tidak boleh menyertai perbualan ini."
+      },
+      "groupTitle": "Nama kumpulan (pilihan)",
+      "start": "{count, plural, =0 {Mula} one {Mula dengan 1 orang} other {Mula dengan # orang}}",
+      "startFailed": "Perbualan tidak dapat dimulakan. Cuba lagi.",
+      "noProject": "Anda belum ada projek terbuka untuk berbual.",
+      "noPeople": "Tiada sesiapa dijumpai.",
+      "whatProjects": "senarai projek",
+      "whatPeople": "senarai orang"
+    }
   },
   "photoWall": {
     "hint": "Klik foto untuk membesarkannya dan selak ke kiri atau kanan; klik dua kali untuk membuka rekod penuhnya.",

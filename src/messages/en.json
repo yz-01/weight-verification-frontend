@@ -3781,7 +3781,10 @@
       "equipment_name_updated": "Equipment name changed",
       "settings_update_by_platform": "Company settings changed by MSE",
       "project_supplier_added": "Supplier added to a project",
-      "project_supplier_removed": "Supplier taken off a project"
+      "project_supplier_removed": "Supplier taken off a project",
+      "field_account_moved": "Phone account moved to a new project",
+      "project_permissions_changed": "Project permissions changed",
+      "report_anomaly": "Disposal anomaly reported"
     },
     "objectType": {
       "SignOffAssistant": "Assistant PIN",
@@ -6577,7 +6580,8 @@
       "chooseSpec": "Choose the specification",
       "specOptionalHint": "Not sure of the specification? Leave it - the office will fill it in.",
       "specName": "Specification name",
-      "materialName": "Material name"
+      "materialName": "Material name",
+      "materialNameHint": "Not sure? Leave it - the office will fill it in."
     },
     "outgoingStatus": {
       "APPROVED": "Approved / waiting to leave site",
@@ -7913,7 +7917,28 @@
       "activeHint": "Active entries can be selected for new documents.",
       "description": "Maintain the category and subcategory structure used by the archive.",
       "inactive": "Inactive",
-      "title": "Document categories"
+      "title": "Document categories",
+      "scope": {
+        "label": "Used on",
+        "choice": {
+          "ALL": "Head office · all projects",
+          "CHOSEN": "Head office · chosen projects",
+          "PROJECT": "One project only"
+        },
+        "chosenLabel": "Projects using it",
+        "projectLabel": "Project",
+        "owner": "Belongs to {project}: used on that project only, not seen by other projects.",
+        "badge": {
+          "all": "Head office · all projects",
+          "chosen": "Head office · {count} projects",
+          "here": "This project",
+          "project": "Project: {project}"
+        },
+        "headOfficeHint": "Categories and subcategories head office creates can be given to every project or to chosen ones; those a project adds belong to that project alone and other projects do not see them.",
+        "projectHint": "Categories and subcategories you add belong to your project alone; other projects do not see them. Those marked Head office were set up by head office and can be used here but not changed.",
+        "showing": "Showing the categories used on {project}.",
+        "categoryHint": "Only the categories this scope can use are listed."
+      }
     },
     "title": "Document archive",
     "toast": {
@@ -8474,7 +8499,8 @@
       "field_pin_invalid": "The PIN is incorrect.",
       "field_pwa_bootstrap_invalid": "This sign-in link no longer works - the office may have sent a new one. Open the newest link the office sent you.",
       "field_link_replaced": "The office sent a new link for your account. Open the new link to link this phone again.",
-      "field_account_stopped": "This account has been stopped by the office.",
+      "field_account_stopped": "The office has stopped this account. Please contact the office.",
+      "field_account_removed": "This phone icon belongs to an old account that has been deleted. Delete this icon, sign in again with the new link the office sent you, then add it to the Home Screen again.",
       "field_bootstrap_app_only": "Use the activation link from the office to link this phone, or open the app from its Home Screen icon.",
       "field_companion_pin_required": "Type the PIN to finish linking this app.",
       "flag_not_found": "That feature flag could not be found.",
@@ -8534,6 +8560,13 @@
       "project_has_records": "This project still has records against it. Mark it completed instead of removing it.",
       "project_limit_reached": "Your current plan has reached its project limit.",
       "project_not_found": "That project could not be found.",
+      "push_endpoint_gone": "Apple / Google say this phone's notification registration is no longer valid.",
+      "push_not_configured": "This server is not sending phone notifications (not set up, or switched off), so the test cannot go. Contact your administrator.",
+      "push_off_for_company": "Your company keeps notifications in the app only, so phones do not ring. Contact your company administrator.",
+      "push_provider_refused": "Apple / Google refused the notification.",
+      "push_provider_unreachable": "Apple / Google did not answer - possibly a network problem.",
+      "push_subscription_not_found": "The server has no notification registration for this phone (it may have expired, or another account signed in here).",
+      "push_test_too_soon": "A test was just sent. Wait {seconds} seconds and send again.",
       "qr_code_not_found": "This QR code is not recognised.",
       "quota_exceeded": "The configured cloud quota has been exceeded.",
       "receipt_immutable": "Uploaded receipts cannot be changed or removed. Create a correction instead.",
@@ -8594,6 +8627,7 @@
       "weigh_sequence_invalid": "Two-pass weighing must run in order: gross first, tare second.",
       "rejection_needs_conversation": "Explain the problem in this record's conversation first, so the site can see why and reply. Then reject it.",
       "column_not_empty": "Something is still filed under this category: {records}. Move it first, then remove the category.",
+      "document_category_still_used": "The projects being taken off still use this category: {records}. Move them first, or keep those projects.",
       "category_has_records": "This category has {count, plural, one {# record} other {# records}} ({records}), so it can only be switched off, not removed.",
       "category_has_children": "This category still has sub-categories: {records}. Remove or move them first.",
       "category_fixed_other": "The fixed “Other” cannot be removed. You can rename it.",
@@ -8773,7 +8807,13 @@
       "file_share_link_not_found": "This file link was not found.",
       "file_share_link_expired": "This link has expired. Ask the person who sent it for a new one.",
       "file_share_file_too_large": "The file is larger than {max_mb} MB and cannot be sent as a link.",
-      "permission_switches_projects_required": "A project user sees only chosen projects. Choose at least one project."
+      "permission_switches_projects_required": "A project user sees only chosen projects. Choose at least one project.",
+      "project_member_not_switchable": "This person's permissions are not switched on Project permissions; head office sets them in User management.",
+      "disposal_anomaly_not_running": "This clearance is not approved yet or has ended, so no exception can be reported on it.",
+      "disposal_anomaly_trip_required": "A vehicle exception must say which load it was: choose a load of this clearance that was not cancelled.",
+      "disposal_anomaly_photos_required": "Each exception needs at least {minimum} photos.",
+      "disposal_anomaly_reason_required": "Write the reason for the exception.",
+      "field_one_project": "{name} is on another project now{project, select, none {} other { ({project})}}. A phone account can be on one project at a time: on the old project, first use \"Remove from project\" or \"Delete\", then link them here."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -8790,7 +8830,7 @@
       "max_length": "This is too long",
       "min_length": "This is too short",
       "null": "This field is required",
-      "phone_in_use": "This mobile number already belongs to a field staff account. To move them to a new project, first delete the person on their old project (suspending does not free the number), then come back and create the link.",
+      "phone_in_use": "This mobile number already belongs to a field staff account. To move them to a new project, first use \"Remove from project\" or \"Delete\" on their old project (suspending does not free the number), then come back and create the link. For someone already on this project, press their \"Link / QR code\" to send a new link.",
       "required": "This field is required",
       "unique": "This value is already taken",
       "percent_range": "Enter a percentage from 0 to 100",
@@ -8810,7 +8850,8 @@
       "invalid_passport_no": "Passport number: 5 to 20 letters and digits",
       "invalid_birth_date": "The date of birth must be before today",
       "site_worker_passport_taken": "This passport is already on the roster",
-      "supplier_not_on_project": "This supplier is not on this project's supplier list. Ask head office or the project manager to add it to the project first."
+      "supplier_not_on_project": "This supplier is not on this project's supplier list. Ask head office or the project manager to add it to the project first.",
+      "field_one_project": "A phone account can be on one project at a time. Choose one project."
     },
     "forbidden": "You do not have access to this.",
     "forbiddenBody": "Ask your administrator if you need it.",
@@ -9062,6 +9103,8 @@
     "iosInAppBody": "A chat app cannot add to the Home Screen. Copy this page's link, open it in Safari, then follow the steps.",
     "unboundAppTitle": "This Home Screen icon is not linked yet",
     "unboundAppBody": "On iPhone, a Home Screen app is kept apart from Safari. Nothing is signed in here, so a PIN cannot work. Do this once:",
+    "unboundRemovedTitle": "This icon belongs to a deleted account",
+    "unboundRemovedBody": "The office deleted this old account, so this icon no longer works. Do this once to replace it with the new account's icon:",
     "unboundAppStep1": "Press and hold this icon and delete it",
     "unboundAppStep2": "Open the activation link from your administrator (or scan the QR code) in Safari and enter the PIN. If the link has expired, ask for a new one",
     "unboundAppStep3": "In Safari (the \"Phone ready\" page or any workspace page), tap <more></more> → Share → Add to Home Screen",
@@ -9070,7 +9113,7 @@
     "unboundInAppBody": "This page is open inside a chat app, which cannot be linked. Tap <more></more> at the top right and choose Open in Safari, or copy the link into Safari.",
     "unboundBrowserTitle": "This phone is not linked yet",
     "unboundBrowserBody": "Open the activation link from your administrator again (or scan the QR code) and enter the PIN there. If the link has expired, ask for a new one.",
-    "installBannerBody": "Opening from a Home Screen icon is more reliable and needs no PIN.",
+    "installBannerBody": "On an iPhone, notifications and sounds only arrive in the app opened from its Home Screen icon - and it needs no PIN.",
     "installBannerAction": "Add to Home Screen",
     "iconShare": "Share",
     "iconPageMenu": "Page menu",
@@ -9104,10 +9147,10 @@
     "copyPin": "Copy PIN",
     "create": "Create link",
     "createError": "The link could not be created. Check the mobile number, projects and account permission, then try again.",
-    "description": "Create a mobile field account and choose the projects this person can access.",
+    "description": "Create a mobile field account and choose the project this person works on.",
     "email": "Email",
     "emailHint": "Optional. If left blank, the system creates an internal login email automatically.",
-    "existingHelp": "The mobile number stays locked. Reissuing the link immediately unbinds the current device and signs out every old session. The first device to open the new link and enter the correct PIN becomes the only bound device. You may also change project access.",
+    "existingHelp": "The mobile number stays locked. Reissuing the link immediately unbinds the current device and signs out every old session. The first device to open the new link and enter the correct PIN becomes the only bound device. You may also move them to another project.",
     "existingStaff": "Choose field staff",
     "expiryHelp": "The activation link is only for binding the phone the first time. After that the app signs in by itself, no PIN each time. The phone needs binding again only after many days unused (set in company settings), or when the office generates a new link or stops the account.",
     "fullName": "Full name",
@@ -9123,7 +9166,7 @@
     "phoneHint": "Local example: (0123456789). Since +60 is preset, enter 123456789.",
     "pin": "Six-digit PIN",
     "pinExpiresAt": "After binding",
-    "projects": "Accessible projects",
+    "projects": "Project",
     "qrTitle": "Field staff activation QR code",
     "reissue": "Reissue login link",
     "resultDescription": "Give the activation link and six-digit PIN to the field worker. The link can bind a phone only before it expires.",
@@ -9147,7 +9190,9 @@
       "inApp": "Chat app browser",
       "computer": "Computer browser",
       "browser": "Browser"
-    }
+    },
+    "oneProjectHint": "A phone account is on one project at a time; choosing another project moves them there.",
+    "onTwoProjects": "On {count} projects at once. Choose just one."
   },
   "fieldDraft": {
     "loading": "Loading saved draft...",
@@ -9246,7 +9291,8 @@
       "submit": "Submit",
       "takePhoto": "Take photo",
       "workLocation": "Work area / grid line",
-      "workLocationPlaceholder": "Example: Block A, Grid C1-D1"
+      "workLocationPlaceholder": "Example: Block A, Grid C1-D1",
+      "askForHint": "Not sure which? Leave it - the office will decide."
     },
     "consultantTasks": {
       "title": "Consultant photo submissions"
@@ -9404,7 +9450,7 @@
       "specOptionalHint": "Not sure of the specification? Leave it - the office will fill it in.",
       "autoFilledFromSpec": "From the specification",
       "otherName": "Material name",
-      "otherNameHint": "Not on the list? Choose 「其他材料」 and type the name here; the office adds it to the list."
+      "otherNameHint": "Not on the list? Choose 「其他材料」 and type the name here. Not sure? Leave it - the office will fill it in."
     },
     "materialEvidence": {
       "arrival": "1. Arriving vehicle",
@@ -11846,7 +11892,8 @@
       "exit_at": "Exit time",
       "request_kind": "Request type",
       "pdpa_consent": "Personal data notice",
-      "material_lines": "Materials"
+      "material_lines": "Materials",
+      "anomaly": "Exception"
     },
     "detailTitle": "What I sent",
     "photos": "Photographs",
@@ -12217,7 +12264,7 @@
       "materialRequests": "MR / Other Request",
       "departmentsTrades": "Departments and trades",
       "fieldStaffManagement": "Field staff",
-      "fieldChats": "Phone conversations",
+      "fieldChats": "Conversations",
       "photoTimeline": "Project photo timeline"
     },
     "subscription_management": "Subscriptions",
@@ -13785,7 +13832,9 @@
       "removeTitle": "Remove {name} from this project?",
       "title": "Project staff list",
       "person": "Person to add",
-      "whatMembers": "The project member list"
+      "whatMembers": "The project member list",
+      "onOtherProject": "On another project now: remove them there first (\"Remove from project\" or \"Delete\")",
+      "removePhoneDescription": "{name}'s phone stops at once: every phone and browser is signed out. The account, the mobile number and everything recorded stay; a link made with the same number on another project binds the same phone again."
     },
     "title": "Projects",
     "toast": {
@@ -13834,7 +13883,12 @@
       "projectNote": "Project permissions: all on by default. One switched off is off for this person on every project they work on.",
       "allOn": "All project permissions on",
       "someOff": "{count} switched off",
-      "grantedCount": "{count} group B permissions from head office"
+      "grantedCount": "{count} group B permissions from head office",
+      "invited": "Not activated yet",
+      "suspended": "Suspended",
+      "headOffice": "Head-office account: its permissions are set by head office in User management and only shown here.",
+      "setInUsers": "This person's permissions are set by head office in User management and only shown here.",
+      "openUser": "Open user page"
     }
   },
   "qrCodes": {
@@ -16381,7 +16435,8 @@
       "recordNumbers": "Record numbers",
       "siteEvidence": "Photograph vehicle exit / Gate Pass",
       "setSupplier": "Name the supplier",
-      "changeSupplier": "Change supplier"
+      "changeSupplier": "Change supplier",
+      "reportAnomaly": "Report exception"
     },
     "assign": {
       "copyNow": "Copy and send this link to the external contractor. No sign-in is required. If it is lost, generate a new link from the disposal list; the old link will stop working.",
@@ -16417,7 +16472,8 @@
       "UNLOADING": "Unloading",
       "DISPOSAL_PROOF": "Final disposal proof",
       "VEHICLE_EXIT": "Vehicle exit",
-      "GATE_PASS": "Gate Pass"
+      "GATE_PASS": "Gate Pass",
+      "ANOMALY": "Exception photo"
     },
     "external": {
       "action": {
@@ -16503,7 +16559,9 @@
       "supplier": "Supplier",
       "vehiclePlates": "Lorry plates",
       "vehiclePlate": "Lorry plate",
-      "createdAt": "Raised on"
+      "createdAt": "Raised on",
+      "isAbnormal": "Exception",
+      "anomalyText": "Exception details"
     },
     "fieldEvidence": {
       "access": "3. Collection access or vehicle route",
@@ -16526,7 +16584,8 @@
         "note": "Work note",
         "weight": "Actual weight (kg)",
         "vehiclePlate": "Lorry plate",
-        "vehiclePlateHint": "Optional: the plate of the lorry taking this load"
+        "vehiclePlateHint": "Optional: the plate of the lorry taking this load",
+        "doNoHint": "Not sure? Leave it - the office will fill it in."
       },
       "invalid": "This disposal task could not be opened. Refresh My Tasks and try again.",
       "photosBody": "Photograph each load at the licensed disposal place. Up to 4 photos per load, any kind; at least 1 to send. The office then checks the load.",
@@ -16608,7 +16667,8 @@
       "TRIP_ADDED": "Office added a load",
       "ENDED_EARLY": "Office ended the job early; loads not sent were dropped",
       "TRIP_CORRECTED": "Office corrected a load's weight / DO / plate",
-      "SUPPLIER_SET": "Office named / changed the clearance company"
+      "SUPPLIER_SET": "Office named / changed the clearance company",
+      "ANOMALY_REPORTED": "Exception reported"
     },
     "title": "Site disposal",
     "toast": {
@@ -16624,7 +16684,8 @@
       "tripAdded": "Load added",
       "endedEarly": "Job ended early",
       "tripCorrected": "Load corrected",
-      "supplierSet": "Clearance company saved"
+      "supplierSet": "Clearance company saved",
+      "anomalyReported": "Exception sent to the office"
     },
     "overdue": {
       "badge": "Exception",
@@ -16639,7 +16700,8 @@
       "SITE_EXIT": "Loading and leaving site",
       "FINAL_PROOF": "Final disposal proof",
       "OFFICE_CHECK": "Office check photos (earlier rule)",
-      "empty": "None yet"
+      "empty": "None yet",
+      "ANOMALY": "Exception photos"
     },
     "recordNumbers": {
       "title": "Record weight / trips / DO",
@@ -16709,6 +16771,30 @@
       "reason": "Reason for the change",
       "unchanged": "Choose a different supplier first",
       "save": "Save"
+    },
+    "anomaly": {
+      "title": "Report an exception",
+      "description": "{reference}: for a vehicle exception choose which load; write the reason and take at least {minimum} photos.",
+      "kind": "Exception type",
+      "kindVEHICLE": "Vehicle exception",
+      "kindOTHER": "Other exception",
+      "kindOVERDUE": "Overdue",
+      "trip": "Which load",
+      "chooseTrip": "Choose the load",
+      "noTrips": "This clearance has no loads yet, so a vehicle exception cannot be reported. Use “Other exception”.",
+      "plate": "Vehicle plate",
+      "plateHint": "Filled in from the load when it has one; change it if it is wrong.",
+      "reason": "Reason",
+      "photos": "Exception photos",
+      "progress": "{count} taken, at least {minimum}",
+      "submit": "Send the exception",
+      "panelTitle": "Exceptions",
+      "reportedBy": "{name} · {at}",
+      "supplier": "Clearance company",
+      "reporter": "Reported by",
+      "at": "Reported at",
+      "listTitle": "Exception records",
+      "empty": "No exception records"
     }
   },
   "onSiteMap": {
@@ -17886,7 +17972,8 @@
       "vehiclePlate": "Vehicle plate",
       "collectionAt": "Wanted collection time",
       "collectionAtHint": "When you want the lorry to come. The recycler can propose a different time, which you then confirm.",
-      "otherName": "What it is"
+      "otherName": "What it is",
+      "otherNameHint": "Not sure? Leave it - the office will fill it in."
     },
     "filter": {
       "allCategories": "All categories",
@@ -18599,7 +18686,8 @@
       "submitToOption": {
         "PROJECT": "Project manager",
         "HQ": "Head office"
-      }
+      },
+      "descriptionHint": "You may leave it - the office will fill it in from the receipt."
     },
     "submitTo": {
       "PROJECT": "Project manager",
@@ -18708,7 +18796,8 @@
     "tab": {
       "all": "All",
       "disposal": "Site clearance",
-      "dispatch": "Waste orders"
+      "dispatch": "Waste orders",
+      "abnormal": "Exception records"
     },
     "kind": {
       "disposal": "Site clearance",
@@ -18722,7 +18811,9 @@
       "project": "Project",
       "content": "Waste",
       "at": "Raised",
-      "open": "View"
+      "open": "View",
+      "abnormal": "Exception",
+      "anomalyText": "Exception details"
     },
     "pageOf": "Page {page} of {pages} - up to 10 of each type per page",
     "lastPage": "This is the last page.",
@@ -18904,16 +18995,16 @@
       "goToCategories": "Go to Category Management",
       "askToSetUp": "Ask someone in the office who manages categories to set it up.",
       "materialData": "Material data",
-      "otherSpecHint": "「Other」 chosen: type the specification and choose its unit.",
+      "otherSpecHint": "「Other」 chosen: type the specification if you know it (otherwise the office fills it in), and choose its unit.",
       "unitFromSpec": "The unit comes with the specification and cannot be changed.",
       "unitAfterSpec": "Filled in once a specification is chosen",
-      "subjectHint": "What is asked for, in a line - for example: two cranes, one site office.",
+      "subjectHint": "What is asked for, in a line - for example: two cranes, one site office. Left blank, the request type's name is used; the office can change it.",
       "contentOrFile": "Write the details or attach a file - at least one of the two.",
       "contentPlaceholder": "What is needed, how many, when",
       "attachmentKindsHint": "Photos, PDF, Word, Excel, PowerPoint, CSV, TXT, DWG or ZIP. Up to {count} files, each under {limit} MB.",
       "fileKindRefused": "{name} cannot be attached. Attach photos, PDF, Word, Excel, PowerPoint, CSV, TXT, DWG or ZIP.",
       "assignedReviewerManagerHint": "A site request goes to the project manager first, who sends it on to head office.",
-      "otherMaterialHint": "「其他材料」: type what the material is."
+      "otherMaterialHint": "「其他材料」: type what the material is if you know it. Not sure? Leave it - the office will fill it in."
     },
     "toast": {
       "submitted": "Request submitted.",
@@ -20748,6 +20839,9 @@
       "body": "Turn on notifications so new messages ring while the phone waits, and the app icon shows the number.",
       "action": "Turn on"
     },
+    "enabled": {
+      "body": "Notifications are on. Send a test notification to check that this phone rings."
+    },
     "denied": {
       "body": "Notifications are off, so new messages will not ring. Allow them for this app in the phone's Settings → Notifications."
     },
@@ -20758,6 +20852,17 @@
       "worker": "The phone's background service is not ready. Close the app completely, open it again and tap again.",
       "subscribe": "The phone did not finish signing up for notifications (Apple / Google did not answer). Check the connection, reopen the app and tap again.",
       "server": "Notifications are on in the phone but were not saved on the server. Check the connection and tap again."
+    }
+  },
+  "pushTest": {
+    "action": "Send a test notification",
+    "sending": "Sending the test notification…",
+    "sent": "Sent. Within a few seconds this phone should ring and show the notification.",
+    "notSent": "Not sent: {reason}",
+    "advice": {
+      "ios": "Tap \"{button}\" and try again. If it still does not work, delete the MSE Trace icon from the phone and add it to the Home Screen again from Safari.",
+      "android": "Tap \"{button}\" and try again. If it still does not work, delete the MSE Trace icon from the phone, open the site in Chrome and tap ⋮ → \"Install app\" again.",
+      "other": "Tap \"{button}\" and try again. If it still does not work, allow notifications for this site in the browser's settings."
     }
   },
   "passportCapture": {
@@ -20804,7 +20909,8 @@
     "link": "Link / QR code",
     "remove": "Delete",
     "removeTitle": "Delete this field staff member?",
-    "removeConfirm": "After deleting, {name} can no longer sign in and the mobile number can be used on another project. Their earlier records are kept."
+    "removeConfirm": "After deleting, {name} can no longer sign in and the mobile number can be used on another project. Their earlier records are kept.",
+    "onTwoProjects": "On {count} projects"
   },
   "projectSuppliers": {
     "title": "Project suppliers",
@@ -20842,16 +20948,49 @@
     }
   },
   "fieldChats": {
-    "title": "Phone conversations",
-    "subtitle": "Every conversation site staff, guards and equipment operators have in the phone's Talk, kept by project. You can answer the ones you are in.",
+    "title": "Conversations",
+    "subtitle": "Every conversation on the phone (site staff, guards, equipment operators) and in the back office (project office, head office), kept by project. You can answer the ones you are in; Message someone starts a new one.",
     "project": "Project",
     "allProjects": "All projects",
     "loading": "Loading…",
-    "empty": "No phone conversations on this project yet.",
+    "empty": "No conversations on this project yet.",
     "pick": "Choose a conversation on the left.",
     "people": "People: {names}",
     "noMessages": "No messages yet.",
-    "attachment": "[photo / voice / file]"
+    "attachment": "[photo / voice / file]",
+    "conversation": "Conversation",
+    "find": {
+      "title": "Message someone",
+      "hint": "Only the people you may contact: a project office reaches its project's phone people, its own office and head office; head office reaches every project's office. Phone people and head office are never in the same conversation.",
+      "back": "Back",
+      "project": "Project",
+      "search": "Search by name",
+      "choose": "the people to message",
+      "group": {
+        "phone": "Phone people",
+        "office": "Project office",
+        "head_office": "Head office"
+      },
+      "kind": {
+        "site_staff": "Site staff",
+        "all_pages": "Site staff",
+        "gate_guard": "Gate guard",
+        "equipment_operator": "Equipment operator",
+        "office": "Project office",
+        "head_office": "Head office"
+      },
+      "mix": {
+        "phoneChosen": "A phone person is chosen, so head office cannot join this conversation.",
+        "headOfficeChosen": "Head office is chosen, so phone people cannot join this conversation."
+      },
+      "groupTitle": "Group name (optional)",
+      "start": "{count, plural, =0 {Start a chat} one {Start with 1 person} other {Start with # people}}",
+      "startFailed": "The conversation could not be started. Try again.",
+      "noProject": "You have no open project to talk on yet.",
+      "noPeople": "Nobody found.",
+      "whatProjects": "the projects",
+      "whatPeople": "the people"
+    }
   },
   "photoWall": {
     "hint": "Click a photo to enlarge it and page left or right; double-click it to open its full record.",

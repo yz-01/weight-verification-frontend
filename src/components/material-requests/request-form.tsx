@@ -267,9 +267,7 @@ export function MaterialRequestForm({
         [project, t("field.project")],
         [requestKind, t("field.requestType")],
         [category, t("field.material")],
-        ...(isOtherMaterial(material) ? ([[typedMaterial.trim(), t("field.materialName")]] as [unknown, string][]) : []),
         [spec, t("field.specification")],
-        ...(choice.typed ? ([[typedSpec.trim(), t("field.specificationName")]] as [unknown, string][]) : []),
         [quantityOk, t("field.quantity")],
         [unit, t("field.unit")],
         [reviewer, t("field.assignedReviewer")],
@@ -277,7 +275,6 @@ export function MaterialRequestForm({
     : [
         [project, t("field.project")],
         [requestKind, t("field.requestType")],
-        [subject.trim(), t("field.subject")],
         [attachments.length > 0 || content.trim(), t("field.content")],
         [reviewer, t("field.assignedReviewer")],
       ];
@@ -437,13 +434,18 @@ export function MaterialRequestForm({
               {notSetUp}
             </div>
           )}
+          {/* The typed words beside a chosen 「其他材料」 / 「其他」 are asked, not
+              required (JB152, 客户 11-10 第二批事项 1: 「下拉材料名称已有了，还要
+              填写才能上传不合里，不填也能上传」; J39 for the specification): left
+              blank, the request carries what was chosen, and the office edits
+              it. The unit of 「其他」 is still asked - a quantity needs one. */}
           {isOtherMaterial(material) && (
-            <FieldWrapper label={t("field.materialName")} required hint={t("form.otherMaterialHint")}>
+            <FieldWrapper label={t("field.materialName")} hint={t("form.otherMaterialHint")}>
               <Input value={typedMaterial} maxLength={150} onChange={(event) => setTypedMaterial(event.target.value)} />
             </FieldWrapper>
           )}
           {choice.typed && (
-            <FieldWrapper label={t("field.specificationName")} required hint={t("form.otherSpecHint")}>
+            <FieldWrapper label={t("field.specificationName")} hint={t("form.otherSpecHint")}>
               <Input value={typedSpec} maxLength={150} onChange={(event) => setTypedSpec(event.target.value)} />
             </FieldWrapper>
           )}
@@ -505,7 +507,10 @@ export function MaterialRequestForm({
 
       {chosenType && !isMaterial && (
         <>
-          <FieldWrapper label={t("field.subject")} required hint={t("form.subjectHint")}>
+          {/* 申请事项 when the site has a word for it (JB152): left blank, the
+              request is titled with the type chosen, which the office can
+              change. 申请内容 or a file is what the request is. */}
+          <FieldWrapper label={t("field.subject")} hint={t("form.subjectHint")}>
             <Input value={subject} maxLength={200} onChange={(event) => setSubject(event.target.value)} />
           </FieldWrapper>
           <FieldWrapper

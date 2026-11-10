@@ -107,6 +107,9 @@ function job(trips: DisposalTrip[], extra: Partial<DisposalRequest> = {}): Dispo
     external_last_used_at: null,
     external_link_is_valid: true,
     disposal_evidence_is_overdue: false,
+    anomalies: [],
+    is_abnormal: false,
+    anomaly_text: "",
     planned_trips: trips.length,
     trips,
     trips_accepted: 0,
@@ -274,7 +277,8 @@ describe("filtering by company and by date (I27-3, I27-5)", () => {
 
   it("holds the company and the dates in the address, so collecting for a package keeps them", () => {
     expect(DISPOSAL_SUPPLIER_FILTERS).toEqual(["supplier", "date_from", "date_to"]);
-    expect(source).toMatch(/useListQuery\(\["project", "status", "counted", \.\.\.DISPOSAL_SUPPLIER_FILTERS\]\)/);
+    // 「异常记录」 (JB149) is the same list with `abnormal=1`.
+    expect(source).toMatch(/useListQuery\(\["project", "status", "counted", "abnormal", \.\.\.DISPOSAL_SUPPLIER_FILTERS\]\)/);
     expect(source).toMatch(/pack="DISPOSAL_REQUEST"/);
     expect(source).toMatch(/noneLabel=\{t\("supplier\.none"\)\}/);
   });
@@ -290,7 +294,7 @@ describe("filtering by company and by date (I27-3, I27-5)", () => {
   });
 
   it("exports with the list's query, with the company and the lorries", () => {
-    const exported = source.slice(source.indexOf("exportDisposalRequests({"), source.indexOf("rowClassName={(row) => (row.disposal_evidence_is_overdue"));
+    const exported = source.slice(source.indexOf("exportDisposalRequests({"), source.indexOf("rowClassName={(row) => (row.is_abnormal"));
     expect(exported).toMatch(/query: list\.query/);
     expect(exported).toMatch(/key: "supplier_label", label: t\("field\.supplier"\)/);
     expect(exported).toMatch(/key: "vehicle_plates_text", label: t\("field\.vehiclePlates"\)/);

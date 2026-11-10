@@ -93,6 +93,7 @@ import type { RecordPdfKind } from "@/services/contractor-ops.service";
 import type {
   DocumentCategory,
   DocumentCategoryPayload,
+  DocumentTaxonomyScope,
   DocumentDetail,
   DocumentPayload,
   DocumentRecord,
@@ -136,7 +137,18 @@ import {
   DOCUMENT_FILE_ACCEPT,
   DocumentCategoryPicker,
   DocumentThumb,
+  asksForProject,
+  inUseOn,
+  initialTaxonomyScope,
   nextUploadBatch,
+  parentCategoryOptions,
+  scopeBadge,
+  subcategoryInUseOn,
+  taxonomyScopeChoices,
+  taxonomyScopePayload,
+  type TaxonomyScopeChoice,
+  type TaxonomyScopeContext,
+  type TaxonomyScopeState,
 } from "@/components/document-workflow/document-archive-parts";
 import { cn } from "@/lib/utils";
 
@@ -203,18 +215,28 @@ export function Documents() {
         { key: "created_at", label: t("documents.field.createdAt") },
       ],
     });
+  // JB146 (客户 11-10 事项 4): on the top bar's project, the categories in
+  // use there - its own and head office's given to it; on 全部项目 every one
+  // the reader can see. Another project's own never shows.
+  const categoryProject = topBar.active ? topBar.projectId : "";
   const categories = useQuery({
-    queryKey: ["documents", "categories"],
+    queryKey: ["documents", "categories", categoryProject],
     queryFn: () =>
-      getDocumentCategories({ page_size: 100, sort_by: "name", sort_order: "asc" }),
+      getDocumentCategories({
+        page_size: 100,
+        sort_by: "name",
+        sort_order: "asc",
+        project: categoryProject || undefined,
+      }),
   });
   const subcategories = useQuery({
-    queryKey: ["documents", "subcategories"],
+    queryKey: ["documents", "subcategories", categoryProject],
     queryFn: () =>
       getDocumentSubcategories({
         page_size: 100,
         sort_by: "name",
         sort_order: "asc",
+        project: categoryProject || undefined,
       }),
   });
   const projects = useQuery({
@@ -655,6 +677,11 @@ export function Documents() {
         <TaxonomyDialog
           categories={categoryRows}
           subcategories={subcategoryRows}
+          scope={{
+            headOffice: can("project.view_all"),
+            currentProjectId: categoryProject,
+            projects: topBar.active ? topBar.projects : (projects.data?.results ?? []),
+          }}
           isLoading={categories.isLoading || subcategories.isLoading}
           loadError={
             <>
@@ -797,16 +824,15 @@ function UploadDocumentDialog({
   onDone: () => void;
 }) {
   const t = useTranslations();
-  const active = categories.filter((item) => item.is_active);
   const [files, setFiles] = useState<File[]>([]);
   const [title, setTitle] = useState("");
   const [referenceNo, setReferenceNo] = useState("");
   const [keywords, setKeywords] = useState("");
   const [note, setNote] = useState("");
-  const [category, setCategory] = useState(
-    active.find((item) => item.id === initialCategory)?.id ?? active[0]?.id ?? "",
+  const [chosenCategory, setCategory] = useState(
+    categories.find((item) => item.id === initialCategory && item.is_active)?.id ?? "",
   );
-  const [subcategory, setSubcategory] = useState(
+  const [chosenSubcategory, setSubcategory] = useState(
     subcategories.find((item) => item.id === initialSubcategory && item.is_active)?.id ?? "none",
   );
   const [project, setProject] = useState(
@@ -826,9 +852,38 @@ function UploadDocumentDialog({
   const pickedIds = Object.keys(picked);
   // A document belongs to one project, so the picked files must share one.
   const mixedProjects = new Set(Object.values(picked).map((file) => file.project ?? "")).size > 1;
-  const availableSubcategories = subcategories.filter(
-    (item) => item.category === category && item.is_active,
+  // JB146 (客户 11-10 事项 4): only the categories in use on the document's
+  // project - the one chosen, or the picked files' or records' own - and for
+  // a company-wide document head office's. Not known yet: all of them; the
+  // server refuses another project's.
+  const pickedProjects =
+    origin === "records"
+      ? recordList.map((record) => record.project_id ?? null)
+      : Object.values(picked).map((file) => file.project ?? null);
+  const filingProject: string | null | undefined =
+    origin === "computer"
+      ? project === "none"
+        ? null
+        : project || undefined
+      : pickedProjects.length > 0 && new Set(pickedProjects).size === 1
+        ? pickedProjects[0]
+        : undefined;
+  const active = categories.filter(
+    (item) => item.is_active && (filingProject === undefined || inUseOn(item, filingProject)),
   );
+  // A choice the project no longer offers falls back to the first one there.
+  const category = active.some((item) => item.id === chosenCategory)
+    ? chosenCategory
+    : (active[0]?.id ?? "");
+  const availableSubcategories = subcategories.filter(
+    (item) =>
+      item.category === category &&
+      item.is_active &&
+      (filingProject === undefined || subcategoryInUseOn(item, categories, filingProject)),
+  );
+  const subcategory = availableSubcategories.some((item) => item.id === chosenSubcategory)
+    ? chosenSubcategory
+    : "none";
   const categoryName = categories.find((item) => item.id === category)?.name ?? "";
   const subcategoryName = availableSubcategories.find((item) => item.id === subcategory)?.name;
   const formatGroup = (values: { name: string; count: number }) =>
@@ -1292,8 +1347,18 @@ function DocumentEditorDialog({
     },
   });
 
+  // JB146: the categories in use on the document's own project (head
+  // office's for a company-wide one), and always the one it already has -
+  // keeping it is not a new choice, whichever project's it is.
+  const categoryOptions = categories.filter(
+    (item) =>
+      item.id === document.category || (item.is_active && inUseOn(item, document.project)),
+  );
   const availableSubcategories = subcategories.filter(
-    (item) => item.category === category && (item.is_active || item.id === document.subcategory),
+    (item) =>
+      item.category === category &&
+      (item.id === document.subcategory ||
+        (item.is_active && subcategoryInUseOn(item, categories, document.project))),
   );
 
   return (
@@ -1361,13 +1426,15 @@ function DocumentEditorDialog({
                 <SelectValue placeholder={t("common.selectPlaceholder")} />
               </SelectTrigger>
               <SelectContent>
-                {categories
-                  .filter((item) => item.is_active || item.id === document.category)
-                  .map((item) => (
-                    <SelectItem key={item.id} value={item.id}>
-                      {item.name} ({item.code})
-                    </SelectItem>
-                  ))}
+                {categoryOptions.map((item) => (
+                  <SelectItem key={item.id} value={item.id}>
+                    {item.name} ({item.code})
+                  </SelectItem>
+                ))}
+                {/* Its own, when the list on screen is another project's. */}
+                {!categoryOptions.some((item) => item.id === document.category) && (
+                  <SelectItem value={document.category}>{document.category_name}</SelectItem>
+                )}
               </SelectContent>
             </Select>
           </FieldWrapper>
@@ -1387,6 +1454,13 @@ function DocumentEditorDialog({
                     {item.name} ({item.code})
                   </SelectItem>
                 ))}
+                {document.subcategory &&
+                  category === document.category &&
+                  !availableSubcategories.some((item) => item.id === document.subcategory) && (
+                    <SelectItem value={document.subcategory}>
+                      {document.subcategory_name ?? document.subcategory}
+                    </SelectItem>
+                  )}
               </SelectContent>
             </Select>
           </FieldWrapper>
@@ -2386,15 +2460,26 @@ function DocumentDetailBody({
   );
 }
 
+/** Who manages the list when the dialog is opened without saying (a test). */
+const NO_SCOPE: TaxonomyScopeContext = { headOffice: false, currentProjectId: "", projects: [] };
+
+/**
+ * 文档分类 (图6). JB146 (客户 11-10 事项 4): a project's own categories and
+ * sub-categories belong to it alone, head office's are given to every
+ * project or the chosen ones. Each row says which; a row the reader may only
+ * use (head office's, for a project account) has no pencil.
+ */
 function TaxonomyDialog({
   categories,
   subcategories,
+  scope,
   isLoading,
   loadError,
   onClose,
 }: {
   categories: DocumentCategory[];
   subcategories: DocumentSubcategory[];
+  scope: TaxonomyScopeContext;
   isLoading: boolean;
   /** Says which list failed, so an empty list is not read as "none set up". */
   loadError: React.ReactNode;
@@ -2406,10 +2491,15 @@ function TaxonomyDialog({
   const [subcategoryForm, setSubcategoryForm] = useState<
     DocumentSubcategory | "new" | null
   >(null);
+  const currentProject = scope.projects.find((item) => item.id === scope.currentProjectId);
 
   const refresh = () => {
     void queryClient.invalidateQueries({ queryKey: ["documents", "categories"] });
     void queryClient.invalidateQueries({ queryKey: ["documents", "subcategories"] });
+  };
+  const badge = (row: DocumentTaxonomyScope) => {
+    const { key, values } = scopeBadge(row, scope.currentProjectId);
+    return t(`documents.taxonomy.scope.badge.${key}`, values);
   };
 
   return (
@@ -2419,11 +2509,28 @@ function TaxonomyDialog({
           <DialogTitle>{t("documents.taxonomy.title")}</DialogTitle>
           <DialogDescription>{t("documents.taxonomy.description")}</DialogDescription>
         </DialogHeader>
+        {/* Whose list this is, said before anything is added to it. */}
+        <p
+          className="rounded-lg border bg-muted/30 px-3 py-2 text-xs text-muted-foreground"
+          data-slot="taxonomy-scope"
+        >
+          {t(
+            scope.headOffice
+              ? "documents.taxonomy.scope.headOfficeHint"
+              : "documents.taxonomy.scope.projectHint",
+          )}
+          {currentProject && (
+            <span className="mt-1 block font-medium text-foreground">
+              {t("documents.taxonomy.scope.showing", { project: currentProject.name })}
+            </span>
+          )}
+        </p>
         {loadError}
 
         {categoryForm ? (
           <CategoryForm
             category={categoryForm === "new" ? null : categoryForm}
+            scope={scope}
             onCancel={() => setCategoryForm(null)}
             onDone={() => {
               refresh();
@@ -2434,6 +2541,7 @@ function TaxonomyDialog({
           <SubcategoryForm
             subcategory={subcategoryForm === "new" ? null : subcategoryForm}
             categories={categories}
+            scope={scope}
             onCancel={() => setSubcategoryForm(null)}
             onDone={() => {
               refresh();
@@ -2452,7 +2560,8 @@ function TaxonomyDialog({
                 name: category.name,
                 description: category.description,
                 active: category.is_active,
-                onEdit: () => setCategoryForm(category),
+                scope: badge(category),
+                onEdit: category.can_edit ? () => setCategoryForm(category) : undefined,
               }))}
               onAdd={() => setCategoryForm("new")}
             />
@@ -2466,7 +2575,8 @@ function TaxonomyDialog({
                 name: subcategory.name,
                 description: subcategory.description,
                 active: subcategory.is_active,
-                onEdit: () => setSubcategoryForm(subcategory),
+                scope: badge(subcategory),
+                onEdit: subcategory.can_edit ? () => setSubcategoryForm(subcategory) : undefined,
               }))}
               onAdd={() => setSubcategoryForm("new")}
             />
@@ -2493,10 +2603,13 @@ interface TaxonomyListRow {
   name: string;
   description: string;
   active: boolean;
-  onEdit: () => void;
+  /** 总部·全部项目 / 总部·N 个项目 / 本项目 (JB146). */
+  scope: string;
+  /** Absent: the reader may use the row but not change it. */
+  onEdit?: () => void;
 }
 
-function TaxonomyList({
+export function TaxonomyList({
   title,
   addLabel,
   isLoading,
@@ -2536,7 +2649,7 @@ function TaxonomyList({
             {rows.map((row) => (
               <div key={row.id} className="flex items-center justify-between gap-3 p-3">
                 <div className="min-w-0">
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <p className="truncate text-sm font-medium text-foreground">
                       {row.name}
                     </p>
@@ -2548,6 +2661,7 @@ function TaxonomyList({
                       )}
                       tone={row.active ? "positive" : "neutral"}
                     />
+                    <TypeBadge label={row.scope} />
                   </div>
                   <p className="truncate text-xs text-muted-foreground">{row.code}</p>
                   {row.description && (
@@ -2556,15 +2670,17 @@ function TaxonomyList({
                     </p>
                   )}
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 shrink-0"
-                  title={t("common.edit")}
-                  onClick={row.onEdit}
-                >
-                  <Pencil className="h-4 w-4" />
-                </Button>
+                {row.onEdit && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 shrink-0"
+                    title={t("common.edit")}
+                    onClick={row.onEdit}
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                )}
               </div>
             ))}
           </div>
@@ -2572,6 +2688,126 @@ function TaxonomyList({
       </div>
     </section>
   );
+}
+
+/** 全部项目 / 指定项目 / 一个项目, as round buttons (the announcement's 适用范围). */
+function ScopeChoiceButtons({
+  choices,
+  value,
+  onChange,
+}: {
+  choices: TaxonomyScopeChoice[];
+  value: TaxonomyScopeChoice;
+  onChange: (choice: TaxonomyScopeChoice) => void;
+}) {
+  const t = useTranslations();
+  return (
+    <div
+      role="radiogroup"
+      aria-label={t("documents.taxonomy.scope.label")}
+      className="flex flex-wrap gap-1.5"
+    >
+      {choices.map((key) => (
+        <button
+          key={key}
+          type="button"
+          role="radio"
+          aria-checked={value === key}
+          onClick={() => onChange(key)}
+          className={cn(
+            "rounded-full border px-3 py-1 text-xs",
+            value === key ? "border-primary bg-primary/10 text-primary" : "bg-card",
+          )}
+        >
+          {t(`documents.taxonomy.scope.choice.${key}`)}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/** The projects ticked for 指定项目. */
+function ScopeProjectChecklist({
+  projects,
+  chosen,
+  onChange,
+}: {
+  projects: TaxonomyScopeContext["projects"];
+  chosen: string[];
+  onChange: (chosen: string[]) => void;
+}) {
+  return (
+    <ul className="max-h-48 space-y-1 overflow-y-auto rounded-md border p-2 text-sm">
+      {projects.map((project) => (
+        <li key={project.id}>
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={chosen.includes(project.id)}
+              onChange={(event) =>
+                onChange(
+                  event.target.checked
+                    ? [...chosen, project.id]
+                    : chosen.filter((value) => value !== project.id),
+                )
+              }
+            />
+            {project.code} · {project.name}
+          </label>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/** Which project's own a new row is. */
+function ScopeProjectSelect({
+  projects,
+  value,
+  onChange,
+}: {
+  projects: TaxonomyScopeContext["projects"];
+  value: string;
+  onChange: (project: string) => void;
+}) {
+  const t = useTranslations();
+  return (
+    <Select value={value} onValueChange={onChange}>
+      <SelectTrigger className="w-full bg-card">
+        <SelectValue placeholder={t("common.selectPlaceholder")} />
+      </SelectTrigger>
+      <SelectContent>
+        {projects.map((item) => (
+          <SelectItem key={item.id} value={item.id}>
+            {item.name} ({item.code})
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+}
+
+/**
+ * A refused save's field errors. Taking projects off a row they still use
+ * (JB146) is said under 使用的项目, where the choice was made.
+ */
+function scopeErrors(error: unknown): Record<string, string> {
+  if (!(error instanceof ApiError)) return {};
+  if (error.code === "document_category_still_used") {
+    return { ...error.errors, assigned_projects: error.message };
+  }
+  return error.errors;
+}
+
+/** 「属于「…」」: a row whose project is settled, said instead of asked. */
+function scopeOwnerName(
+  row: DocumentTaxonomyScope | null,
+  scope: TaxonomyScopeContext,
+  where: TaxonomyScopeState,
+): string | null {
+  if (where.choice !== "PROJECT") return null;
+  if (row) return row.project_name ?? "";
+  return scope.projects.find((item) => item.id === where.project)?.name ?? null;
 }
 
 /**
@@ -2583,13 +2819,18 @@ function TaxonomyList({
  * 分类管理 (Q5). Armed by a switch, never a confirm dialog (spec rule 8). A
  * category documents or subcategories still use is refused by the server,
  * which names them; that sentence is shown here, beside the switch.
+ *
+ * JB146: where it is used - head office chooses 全部项目 / 指定项目 / one
+ * project's own; a project account's goes to its project.
  */
 export function CategoryForm({
   category,
+  scope = NO_SCOPE,
   onCancel,
   onDone,
 }: {
   category: DocumentCategory | null;
+  scope?: TaxonomyScopeContext;
   onCancel: () => void;
   onDone: () => void;
 }) {
@@ -2598,6 +2839,10 @@ export function CategoryForm({
   const [name, setName] = useState(category?.name ?? "");
   const [description, setDescription] = useState(category?.description ?? "");
   const [active, setActive] = useState(category?.is_active ?? true);
+  const [where, setWhere] = useState(() => initialTaxonomyScope(category, scope));
+  const choices = taxonomyScopeChoices(category, scope);
+  const asksProject = asksForProject(category, scope, where);
+  const owner = asksProject ? null : scopeOwnerName(category, scope, where);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [removeArmed, setRemoveArmed] = useState(false);
   const [removeRefusal, setRemoveRefusal] = useState("");
@@ -2616,13 +2861,14 @@ export function CategoryForm({
         name: name.trim(),
         description: description.trim(),
         is_active: active,
+        ...taxonomyScopePayload(category, scope, where),
       };
       return category
         ? updateDocumentCategory(category.id, payload)
         : createDocumentCategory(payload);
     },
     onSuccess: onDone,
-    onError: (error) => setErrors(error instanceof ApiError ? error.errors : {}),
+    onError: (error) => setErrors(scopeErrors(error)),
   });
 
   return (
@@ -2633,6 +2879,8 @@ export function CategoryForm({
         // 编号 is the system's on a new one: DOC-0001 on (JB100).
         ...(category ? [[code, t("documents.field.code")] as const] : []),
         [name, t("documents.field.name")],
+        [!asksProject || where.project, t("documents.taxonomy.scope.projectLabel")],
+        [where.choice !== "CHOSEN" || where.chosen.length > 0, t("documents.taxonomy.scope.chosenLabel")],
       ]}
       onCancel={onCancel}
       onSubmit={() => mutation.mutate()}
@@ -2645,6 +2893,57 @@ export function CategoryForm({
       <FieldWrapper label={t("documents.field.name")} required error={errors.name}>
         <Input value={name} onChange={(event) => setName(event.target.value)} />
       </FieldWrapper>
+      {choices.length > 0 && (
+        <FieldWrapper
+          label={t("documents.taxonomy.scope.label")}
+          required
+          error={errors.all_projects}
+          className="sm:col-span-2"
+        >
+          <ScopeChoiceButtons
+            choices={choices}
+            value={where.choice}
+            onChange={(choice) => setWhere((current) => ({ ...current, choice }))}
+          />
+        </FieldWrapper>
+      )}
+      {where.choice === "CHOSEN" && (
+        <FieldWrapper
+          label={t("documents.taxonomy.scope.chosenLabel")}
+          required
+          error={errors.assigned_projects}
+          className="sm:col-span-2"
+        >
+          <ScopeProjectChecklist
+            projects={scope.projects}
+            chosen={where.chosen}
+            onChange={(chosen) => setWhere((current) => ({ ...current, chosen }))}
+          />
+        </FieldWrapper>
+      )}
+      {asksProject && (
+        <FieldWrapper
+          label={t("documents.taxonomy.scope.projectLabel")}
+          required
+          error={errors.project}
+        >
+          <ScopeProjectSelect
+            projects={scope.projects}
+            value={where.project}
+            onChange={(project) => setWhere((current) => ({ ...current, project }))}
+          />
+        </FieldWrapper>
+      )}
+      {owner !== null && (
+        <p className="text-xs text-muted-foreground sm:col-span-2" data-slot="taxonomy-owner">
+          {t("documents.taxonomy.scope.owner", { project: owner })}
+        </p>
+      )}
+      {!asksProject && errors.project && (
+        <p role="alert" className="text-sm text-destructive sm:col-span-2">
+          {errors.project}
+        </p>
+      )}
       <FieldWrapper
         label={t("documents.field.description")}
         optional={t("common.optional")}
@@ -2712,21 +3011,34 @@ export function CategoryForm({
   );
 }
 
-function SubcategoryForm({
+export function SubcategoryForm({
   subcategory,
   categories,
+  scope = NO_SCOPE,
   onCancel,
   onDone,
 }: {
   subcategory: DocumentSubcategory | null;
   categories: DocumentCategory[];
+  scope?: TaxonomyScopeContext;
   onCancel: () => void;
   onDone: () => void;
 }) {
   const t = useTranslations();
-  const [category, setCategory] = useState(
-    subcategory?.category ?? categories.find((item) => item.is_active)?.id ?? "",
+  const [where, setWhere] = useState(() => initialTaxonomyScope(subcategory, scope));
+  const choices = taxonomyScopeChoices(subcategory, scope);
+  const asksProject = asksForProject(subcategory, scope, where);
+  const owner = asksProject ? null : scopeOwnerName(subcategory, scope, where);
+  // JB146: under a category in use on its project - the project's own or
+  // head office's given to it; head office's sub-category under head
+  // office's. The one it already has never changes.
+  const categoryOptions = parentCategoryOptions(categories, subcategory, where);
+  const [chosenCategory, setCategory] = useState(
+    subcategory?.category ?? categoryOptions[0]?.id ?? "",
   );
+  const category = categoryOptions.some((item) => item.id === chosenCategory)
+    ? chosenCategory
+    : (subcategory?.category ?? categoryOptions[0]?.id ?? "");
   const [code, setCode] = useState(subcategory?.code ?? "");
   const [name, setName] = useState(subcategory?.name ?? "");
   const [description, setDescription] = useState(subcategory?.description ?? "");
@@ -2743,13 +3055,14 @@ function SubcategoryForm({
         description: description.trim(),
         is_active: active,
         needs_inspection: needsInspection,
+        ...taxonomyScopePayload(subcategory, scope, where),
       };
       return subcategory
         ? updateDocumentSubcategory(subcategory.id, payload)
         : createDocumentSubcategory(payload);
     },
     onSuccess: onDone,
-    onError: (error) => setErrors(error instanceof ApiError ? error.errors : {}),
+    onError: (error) => setErrors(scopeErrors(error)),
   });
 
   return (
@@ -2761,6 +3074,8 @@ function SubcategoryForm({
       )}
       isPending={mutation.isPending}
       requires={[
+        [!asksProject || where.project, t("documents.taxonomy.scope.projectLabel")],
+        [where.choice !== "CHOSEN" || where.chosen.length > 0, t("documents.taxonomy.scope.chosenLabel")],
         [category, t("documents.field.category")],
         // 编号 is the system's on a new one: SUB-0001 on in its category (JB100).
         ...(subcategory ? [[code, t("documents.field.code")] as const] : []),
@@ -2769,10 +3084,62 @@ function SubcategoryForm({
       onCancel={onCancel}
       onSubmit={() => mutation.mutate()}
     >
+      {choices.length > 0 && (
+        <FieldWrapper
+          label={t("documents.taxonomy.scope.label")}
+          required
+          error={errors.all_projects}
+          className="sm:col-span-2"
+        >
+          <ScopeChoiceButtons
+            choices={choices}
+            value={where.choice}
+            onChange={(choice) => setWhere((current) => ({ ...current, choice }))}
+          />
+        </FieldWrapper>
+      )}
+      {where.choice === "CHOSEN" && (
+        <FieldWrapper
+          label={t("documents.taxonomy.scope.chosenLabel")}
+          required
+          error={errors.assigned_projects}
+          className="sm:col-span-2"
+        >
+          <ScopeProjectChecklist
+            projects={scope.projects}
+            chosen={where.chosen}
+            onChange={(chosen) => setWhere((current) => ({ ...current, chosen }))}
+          />
+        </FieldWrapper>
+      )}
+      {asksProject && (
+        <FieldWrapper
+          label={t("documents.taxonomy.scope.projectLabel")}
+          required
+          error={errors.project}
+        >
+          <ScopeProjectSelect
+            projects={scope.projects}
+            value={where.project}
+            onChange={(project) => setWhere((current) => ({ ...current, project }))}
+          />
+        </FieldWrapper>
+      )}
+      {owner !== null && (
+        <p className="text-xs text-muted-foreground sm:col-span-2" data-slot="taxonomy-owner">
+          {t("documents.taxonomy.scope.owner", { project: owner })}
+        </p>
+      )}
+      {!asksProject && errors.project && (
+        <p role="alert" className="text-sm text-destructive sm:col-span-2">
+          {errors.project}
+        </p>
+      )}
       <FieldWrapper
         label={t("documents.field.category")}
         required
         error={errors.category}
+        hint={subcategory ? undefined : t("documents.taxonomy.scope.categoryHint")}
       >
         <Select
           value={category}
@@ -2783,13 +3150,14 @@ function SubcategoryForm({
             <SelectValue placeholder={t("common.selectPlaceholder")} />
           </SelectTrigger>
           <SelectContent>
-            {categories
-              .filter((item) => item.is_active || item.id === subcategory?.category)
-              .map((item) => (
-                <SelectItem key={item.id} value={item.id}>
-                  {item.name} ({item.code})
-                </SelectItem>
-              ))}
+            {categoryOptions.map((item) => (
+              <SelectItem key={item.id} value={item.id}>
+                {item.name} ({item.code})
+              </SelectItem>
+            ))}
+            {subcategory && categoryOptions.length === 0 && (
+              <SelectItem value={subcategory.category}>{subcategory.category_name}</SelectItem>
+            )}
           </SelectContent>
         </Select>
       </FieldWrapper>

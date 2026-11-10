@@ -9,6 +9,7 @@ import { FieldUnboundHelp } from "@/components/field-staff/field-unbound-help";
 import { Button } from "@/components/ui/button";
 import { ApiError } from "@/interfaces/api";
 import {
+  FIELD_ACCOUNT_REMOVED,
   getFieldBootstrapToken,
   hasFieldSession,
   isStandaloneApp,
@@ -128,6 +129,10 @@ export function FieldPwaBootstrap({
     );
   }
 
+  // A deleted account's icon (JB154): the PIN screen behind 「登录」 cannot
+  // bring it back - the message says to use the new link and a new icon.
+  const accountRemoved = failure === `refused:${FIELD_ACCOUNT_REMOVED}`;
+
   return (
     <main className="flex min-h-dvh flex-col items-center justify-center gap-4 px-4 text-center">
       <Smartphone className="size-12 text-destructive" />
@@ -143,9 +148,11 @@ export function FieldPwaBootstrap({
           />
         )}
       </div>
-      <Button onClick={() => replacePage("/trace/field-login")}>
-        {t("signIn")}
-      </Button>
+      {!accountRemoved && (
+        <Button onClick={() => replacePage("/trace/field-login")}>
+          {t("signIn")}
+        </Button>
+      )}
     </main>
   );
 }

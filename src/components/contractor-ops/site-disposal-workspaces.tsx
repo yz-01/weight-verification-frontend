@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  AlertTriangle,
   CheckCircle2,
   ClipboardCheck,
   Camera,
@@ -88,6 +89,8 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { ApiError } from "@/interfaces/api";
 import type {
+  DisposalAnomaly,
+  DisposalAnomalyKind,
   DisposalEvidenceKind,
   DisposalEvidenceStage,
   DisposalRequest,
@@ -113,6 +116,7 @@ import {
   getExternalDisposalTask,
   getInternalDisposalTask,
   regenerateDisposalExternalLink,
+  reportDisposalAnomaly,
   exportDisposalRequests,
   recordDisposalNumbers,
   reviewDisposalRequest,
@@ -209,10 +213,11 @@ export function SiteDisposalWorkspace({ initialProject = "", fieldTaskId, onReco
             /* 「36 小时内仍未收到处理照片…**整条记录显示红色**」 (D-217). The
                whole card, not just a badge: a marker inside a list of grey
                cards is something you have to be looking for, and this one has
-               to be noticed by somebody scanning the page. */
+               to be noticed by somebody scanning the page. Since JB149 a
+               problem reported from the phone turns it red too. */
             <article
               key={row.id}
-              className={`surface-panel min-w-0 cursor-pointer rounded-xl p-4 sm:p-6${row.disposal_evidence_is_overdue ? " border-destructive/50 bg-destructive/5" : ""}`}
+              className={`surface-panel min-w-0 cursor-pointer rounded-xl p-4 sm:p-6${row.is_abnormal ? " border-destructive/50 bg-destructive/5" : ""}`}
               onClick={(event) => {
                 if (clickOpensRow(event)) setViewing(row);
               }}
@@ -223,7 +228,7 @@ export function SiteDisposalWorkspace({ initialProject = "", fieldTaskId, onReco
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="font-mono text-xs text-muted-foreground">{row.reference_no}</p>
                     <StatusBadge label={t(`status.${row.status}`)} tone={statusTone(row.status)} />
-                    {row.disposal_evidence_is_overdue && (
+                    {row.is_abnormal && (
                       <StatusBadge label={t("overdue.badge")} tone="danger" />
                     )}
                   </div>
@@ -232,6 +237,12 @@ export function SiteDisposalWorkspace({ initialProject = "", fieldTaskId, onReco
                        something is wrong; it does not tell them what to chase. */
                     <p className="mt-1 text-xs font-medium text-destructive">{t(overdueHelpKey(row))}</p>
                   )}
+                  {/* Each reported problem, in a line (JB149). */}
+                  {(row.anomalies ?? []).map((anomaly) => (
+                    <p key={anomaly.id} className="mt-1 break-words text-xs font-medium text-destructive">
+                      {[anomalyKindLabel(t, anomaly.kind), anomaly.trip_seq ? t("trips.seq", { seq: anomaly.trip_seq }) : "", anomaly.reason].filter(Boolean).join(" · ")}
+                    </p>
+                  ))}
                   <h3 className="mt-1 truncate font-semibold">{row.waste_description}</h3>
                   <p className="mt-1 text-sm text-muted-foreground">{row.project_name} / {row.location_description}</p>
                 </div>
@@ -704,9 +715,233 @@ function SiteEvidenceDialog({ row, onClose, onSaved }: { row: DisposalRequest; o
   );
 }
 
+/** 「每笔异常最少上传2张照片」 (JB149) - the server holds the same number. */
+export const ANOMALY_PHOTO_MIN = 2;
+
+/** The lorries a vehicle problem can name: every one not cancelled (JB149). */
+export function anomalyTrips(row: Pick<DisposalRequest, "trips">): DisposalTrip[] {
+  return row.trips.filter((trip) => trip.status !== "CANCELLED");
+}
+
+/**
+ * Whether 【提交异常】 has what the server asks for (JB149): a reason, at
+ * least two photographs, and - for a vehicle problem - which lorry.
+ */
+export function anomalyReady(draft: { kind: DisposalAnomalyKind; trip: string; reason: string; photos: number }): boolean {
+  return Boolean(draft.reason.trim()) && draft.photos >= ANOMALY_PHOTO_MIN && (draft.kind !== "VEHICLE" || Boolean(draft.trip));
+}
+
+/**
+ * 「报告异常」 on a running job (JB149, 客户 11-10 事项 6).
+ *
+ * 「如果是车辆异常，必须注明第几车发生异常。手机端增加异常拍照功能，每笔异常最少
+ * 上传2张照片。」 Modelled on the site photographs (`SiteEvidenceDialog`): 车辆异常
+ * or 其他异常; for a vehicle problem which lorry (第 N 车) and its plate, filled
+ * from the lorry when it has one; the reason; the camera, several shots; GPS
+ * on the phone, kept without a fix as every disposal photograph is.
+ */
+function AnomalyDialog({ row, onClose, onSaved }: { row: DisposalRequest; onClose: () => void; onSaved: () => void }) {
+  const t = useTranslations("siteDisposal");
+  const { user } = useAuth();
+  const isFieldStaff = Boolean(user?.is_field_staff);
+  const trips = anomalyTrips(row);
+  const [kind, setKind] = useState<DisposalAnomalyKind>(trips.length ? "VEHICLE" : "OTHER");
+  const [trip, setTrip] = useState("");
+  const [plate, setPlate] = useState("");
+  const [reason, setReason] = useState("");
+  const [photos, setPhotos] = useState<File[]>([]);
+  const [location, setLocation] = useState<LocationValue | null>(null);
+  // One id for this report, kept across retries, so a resend is filed once.
+  const [eventId] = useState(() => crypto.randomUUID());
+  const pickTrip = (id: string) => {
+    setTrip(id);
+    setPlate(trips.find((candidate) => candidate.id === id)?.vehicle_plate ?? "");
+  };
+  const save = useMutation({
+    mutationFn: () =>
+      reportDisposalAnomaly(row.id, {
+        kind,
+        trip: kind === "VEHICLE" ? trip : undefined,
+        vehicle_plate: kind === "VEHICLE" ? normalisePlate(plate) : undefined,
+        reason: reason.trim(),
+        photos,
+        latitude: location?.latitude,
+        longitude: location?.longitude,
+        accuracy_m: location?.accuracy,
+        client_event_id: eventId,
+      }),
+    onSuccess: onSaved,
+  });
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="flex max-h-[calc(100dvh-1rem)] min-w-0 flex-col overflow-hidden sm:max-w-lg">
+        <DialogHeader className="shrink-0">
+          <DialogTitle>{t("anomaly.title")}</DialogTitle>
+          <DialogDescription>{t("anomaly.description", { reference: row.reference_no, minimum: ANOMALY_PHOTO_MIN })}</DialogDescription>
+        </DialogHeader>
+        <div className="grid min-h-0 flex-1 gap-4 overflow-y-auto pr-1">
+          <FieldWrapper label={t("anomaly.kind")} required>
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                type="button"
+                variant={kind === "VEHICLE" ? "default" : "outline"}
+                disabledReason={trips.length ? undefined : t("anomaly.noTrips")}
+                disabled={!trips.length}
+                onClick={() => setKind("VEHICLE")}
+              >
+                <Truck />
+                {t("anomaly.kindVEHICLE")}
+              </Button>
+              <Button type="button" variant={kind === "OTHER" ? "default" : "outline"} onClick={() => setKind("OTHER")}>
+                <AlertTriangle />
+                {t("anomaly.kindOTHER")}
+              </Button>
+            </div>
+            {!trips.length && <p className="mt-1 text-xs text-muted-foreground">{t("anomaly.noTrips")}</p>}
+          </FieldWrapper>
+          {kind === "VEHICLE" && (
+            <>
+              <FieldWrapper label={t("anomaly.trip")} required>
+                <Select value={trip} onValueChange={pickTrip}>
+                  <SelectTrigger className="w-full"><SelectValue placeholder={t("anomaly.chooseTrip")} /></SelectTrigger>
+                  <SelectContent>
+                    {trips.map((candidate) => (
+                      <SelectItem key={candidate.id} value={candidate.id}>
+                        {[t("trips.seq", { seq: candidate.seq }), candidate.vehicle_plate].filter(Boolean).join(" · ")}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FieldWrapper>
+              <FieldWrapper label={t("anomaly.plate")} optional={t("optional")} hint={t("anomaly.plateHint")}>
+                <Input value={plate} autoCapitalize="characters" autoComplete="off" onChange={(event) => setPlate(event.target.value)} />
+              </FieldWrapper>
+            </>
+          )}
+          <FieldWrapper label={t("anomaly.reason")} required>
+            <Textarea value={reason} onChange={(event) => setReason(event.target.value)} />
+          </FieldWrapper>
+          <FieldWrapper label={t("anomaly.photos")} required>
+            <p className="mb-2 text-xs text-muted-foreground">{t("anomaly.progress", { count: photos.length, minimum: ANOMALY_PHOTO_MIN })}</p>
+            <FieldCamera
+              label={t("anomaly.photos")}
+              fileCount={photos.length}
+              file={photos[photos.length - 1]}
+              onCapture={(file) => setPhotos((current) => [...current, file])}
+              onClear={() => setPhotos([])}
+            />
+          </FieldWrapper>
+          {isFieldStaff && <LocationField label={t("field.gps")} readyLabel={t("action.locationReady")} value={location} onChange={setLocation} required allowMissing />}
+        </div>
+        <DialogFooter className="shrink-0">
+          <Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button>
+          <Button
+            variant="destructive"
+            requires={[
+              [kind !== "VEHICLE" || trip, t("anomaly.trip")],
+              [reason.trim(), t("anomaly.reason")],
+              [photos.length >= ANOMALY_PHOTO_MIN, t("anomaly.photos")],
+              [isFieldStaff ? location : true, t("field.gps")],
+            ]}
+            disabled={save.isPending}
+            onClick={() => save.mutate()}
+          >
+            {save.isPending ? <Loader2 className="animate-spin" /> : <Send />}
+            {t("anomaly.submit")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/** 「车辆异常」 / 「其他异常」 / 「超时」, as the screen words them (JB149). */
+function anomalyKindLabel(t: ReturnType<typeof useTranslations<"siteDisposal">>, kind: DisposalAnomalyKind | "OVERDUE"): string {
+  return t(`anomaly.kind${kind}`);
+}
+
+/** The clearance company kept on the report, or 「内部清运 · 名字」. */
+function anomalySupplier(t: ReturnType<typeof useTranslations<"siteDisposal">>, anomaly: Pick<DisposalAnomaly, "supplier_name" | "internal_clearance">): string {
+  if (anomaly.internal_clearance) return [t("supplier.internal"), anomaly.supplier_name].filter(Boolean).join(" · ");
+  return anomaly.supplier_name;
+}
+
+/**
+ * The job's reported problems on its detail (JB149), beside the lorries:
+ * what, which lorry and plate, the clearance company as it was then, why,
+ * who and when, and the photographs - and the lateness, when it is late.
+ */
+export function DisposalAnomaliesPanel({ row }: { row: DisposalRequest }) {
+  const t = useTranslations("siteDisposal");
+  const df = useDateFormat();
+  // `?? []`: the screen deploys before the server that sends them.
+  const anomalies = row.anomalies ?? [];
+  if (!anomalies.length && !row.disposal_evidence_is_overdue) return null;
+  return (
+    <section className="rounded-lg border border-destructive/40 bg-destructive/5 p-3">
+      <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-destructive">{t("anomaly.panelTitle")}</h3>
+      <ul className="space-y-2">
+        {anomalies.map((anomaly) => (
+          <li key={anomaly.id} className="rounded-md border border-destructive/30 bg-card px-2 py-2 text-sm">
+            <div className="flex flex-wrap items-center gap-2">
+              <StatusBadge label={anomalyKindLabel(t, anomaly.kind)} tone="danger" />
+              {anomaly.trip_seq ? <span className="font-medium">{t("trips.seq", { seq: anomaly.trip_seq })}</span> : null}
+              {anomaly.vehicle_plate ? <span className="tabular">{anomaly.vehicle_plate}</span> : null}
+            </div>
+            <p className="mt-1 break-words">{anomaly.reason}</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {[anomalySupplier(t, anomaly), t("anomaly.reportedBy", { name: anomaly.reported_by_name, at: df.dateTime(anomaly.reported_at) })].filter(Boolean).join(" · ")}
+            </p>
+            {anomaly.evidence.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {anomaly.evidence.map((item, index, all) => (
+                  <PhotoLink
+                    key={item.id}
+                    href={item.watermarked || item.image}
+                    image
+                    label={t("evidenceKind.ANOMALY")}
+                    photos={all.map((one) => ({ id: one.id, url: one.watermarked || one.image, label: t("evidenceKind.ANOMALY") }))}
+                    index={index}
+                    title={t("evidenceKind.ANOMALY")}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element -- a signed, watermarked evidence URL, not a static asset */}
+                    <img loading="lazy" decoding="async" src={item.watermarked || item.image} alt={t("evidenceKind.ANOMALY")} className="size-12 rounded object-cover" />
+                  </PhotoLink>
+                ))}
+              </div>
+            )}
+          </li>
+        ))}
+        {row.disposal_evidence_is_overdue && (
+          <li className="rounded-md border border-destructive/30 bg-card px-2 py-2 text-sm">
+            <StatusBadge label={anomalyKindLabel(t, "OVERDUE")} tone="danger" />
+            <p className="mt-1 font-medium text-destructive">{t(overdueHelpKey(row))}</p>
+          </li>
+        )}
+      </ul>
+    </section>
+  );
+}
+
+/**
+ * What the 「异常记录」 list shows for one job (JB149, 补充 第 1 点): each report,
+ * then the lateness - one entry each, in the columns' order.
+ */
+export function anomalyEntries(row: Pick<DisposalRequest, "anomalies" | "disposal_evidence_is_overdue">): Array<{
+  key: string;
+  kind: DisposalAnomalyKind | "OVERDUE";
+  anomaly: DisposalAnomaly | null;
+}> {
+  return [
+    ...(row.anomalies ?? []).map((anomaly) => ({ key: anomaly.id, kind: anomaly.kind, anomaly })),
+    ...(row.disposal_evidence_is_overdue ? [{ key: "overdue", kind: "OVERDUE" as const, anomaly: null }] : []),
+  ];
+}
+
 /** The stage of one photograph; the server says, this is only a fallback. */
 function stageOf(item: { kind: DisposalEvidenceKind; stage?: DisposalEvidenceStage }): DisposalEvidenceStage {
   if (item.stage) return item.stage;
+  if (item.kind === "ANOMALY") return "ANOMALY";
   if (item.kind === "REQUEST") return "REQUEST";
   if (["VEHICLE_EXIT", "GATE_PASS", "LOADING"].includes(item.kind)) return "SITE_EXIT";
   if (item.kind === "CONFIRMATION") return "OFFICE_CHECK";
@@ -722,7 +957,8 @@ function validTrips(value: string) {
 }
 
 /**
- * The detail's photograph rows (B23, X11): request, leaving site, then one row
+ * The detail's photograph rows (B23, X11): a reported problem's photographs
+ * first when there are any (JB149), then request, leaving site, then one row
  * per lorry, then any final proof from before C5 (no lorry), then the office
  * check from before E04.
  */
@@ -730,6 +966,7 @@ export function disposalPhotoGroups(row: Pick<DisposalRequest, "evidence" | "tri
   const trips = row.trips.filter((trip) => trip.status !== "CANCELLED" || trip.evidence.length > 0);
   const loose = row.evidence.some((item) => !item.trip && stageOf(item) === "FINAL_PROOF");
   return [
+    ...(row.evidence.some((item) => stageOf(item) === "ANOMALY") ? ["ANOMALY"] : []),
     "REQUEST",
     "SITE_EXIT",
     ...trips.map((trip) => `TRIP-${trip.seq}`),
@@ -1077,6 +1314,7 @@ function DisposalDetailDialog({
         emptyGroupLabel={t("stage.empty")}
         panel={
           <div className="space-y-3">
+          <DisposalAnomaliesPanel row={row} />
           <DisposalTripsPanel row={row} canCheck={can("disposal.confirm") || can("disposal.manage")} onChanged={() => void qc.invalidateQueries({ queryKey: ["site-disposals"] })} />
           <section className="rounded-lg border bg-card p-3">
             <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("timeline")}</h3>
@@ -1111,7 +1349,7 @@ function DisposalDetailDialog({
   );
 }
 
-type DisposalStep = "reviewing" | "assigning" | "regenerating" | "supplier" | "numbers" | "siteEvidence" | "cancelling";
+type DisposalStep = "reviewing" | "assigning" | "regenerating" | "supplier" | "numbers" | "siteEvidence" | "anomaly" | "cancelling";
 
 /** Approved and not yet finished: the only time the job takes photographs. */
 const RUNNING: DisposalRequestStatus[] = ["APPROVED", "ASSIGNED", "IN_PROGRESS", "RETURNED"];
@@ -1136,6 +1374,8 @@ function DisposalActions({ row, onStep }: { row: DisposalRequest; onStep: (step:
       {offersSupplierButton(row, { manage: can("disposal.manage"), confirm: can("disposal.confirm") }) && <Button size="sm" variant="outline" onClick={() => onStep("supplier")}><Truck />{row.collector_supplier ? t("action.changeSupplier") : t("action.setSupplier")}</Button>}
       {/* C08: the site's vehicle exit / Gate Pass, on the same job. */}
       {can("disposal.submit") && RUNNING.includes(row.status) && <Button size="sm" variant="outline" onClick={() => onStep("siteEvidence")}><Camera />{t("action.siteEvidence")}</Button>}
+      {/* JB149: 「手机端增加异常拍照功能」 - a problem on the job, with photos. */}
+      {can("disposal.submit") && RUNNING.includes(row.status) && <Button size="sm" variant="outline" className="border-destructive/50 text-destructive" onClick={() => onStep("anomaly")}><AlertTriangle />{t("action.reportAnomaly")}</Button>}
       {/* E04: no 验收 / 退回 - the final proof's submission ended the job.
           What the office still does is fill in the numbers (D06). */}
       {can("disposal.confirm") && ["COMPLETED", "AWAITING_CONFIRMATION"].includes(row.status) && <Button size="sm" variant="outline" onClick={() => onStep("numbers")}><Hash />{t("action.recordNumbers")}</Button>}
@@ -1176,6 +1416,8 @@ function DisposalStepDialogs({
       return <RecordNumbersDialog row={row} onClose={onClose} onSaved={done} />;
     case "siteEvidence":
       return <SiteEvidenceDialog row={row} onClose={onClose} onSaved={done} />;
+    case "anomaly":
+      return <AnomalyDialog row={row} onClose={onClose} onSaved={done} />;
   }
 }
 
@@ -1227,7 +1469,10 @@ export function SiteDisposalOffice() {
   // I27: a clearance company and a period - what is settled with that
   // company; held in the address like every filter, so it survives Multi
   // Engine's 「添加资料」 visit and a reload.
-  const list = useListQuery(["project", "status", "counted", ...DISPOSAL_SUPPLIER_FILTERS]);
+  // 「异常记录」 (JB149, 补充 第 1 点) is this list with `abnormal=1`, as
+  // 材料管理's Reject is the receipts with `acceptance=REJECTED`.
+  const list = useListQuery(["project", "status", "counted", "abnormal", ...DISPOSAL_SUPPLIER_FILTERS]);
+  const abnormal = list.filters.abnormal === "1";
   const rows = useQuery({
     queryKey: ["site-disposals", "office", list.query],
     queryFn: () => getDisposalRequests(list.query),
@@ -1249,6 +1494,7 @@ export function SiteDisposalOffice() {
   // its result without closing and reopening.
   const shown = listed ?? viewingRecord.data ?? null;
 
+  const anomalyColumns = useMemo(() => abnormalViewColumns(t, tRoot, df), [t, tRoot, df]);
   const columns = useMemo<ColumnDef<DisposalRequest, unknown>[]>(
     () => [
       {
@@ -1279,7 +1525,7 @@ export function SiteDisposalOffice() {
         cell: ({ row }) => (
           <div className="flex flex-wrap gap-1">
             <StatusBadge label={t(`status.${row.original.status}`)} tone={statusTone(row.original.status)} />
-            {row.original.disposal_evidence_is_overdue && <StatusBadge label={t("overdue.badge")} tone="danger" />}
+            {row.original.is_abnormal && <StatusBadge label={t("overdue.badge")} tone="danger" />}
           </div>
         ),
       },
@@ -1366,7 +1612,7 @@ export function SiteDisposalOffice() {
       )}
       <ModuleRecordsTable
         corrected={{ kind: "DISPOSAL_REQUEST" }}
-        title={tRoot("nav.submodule.siteDisposals")}
+        title={abnormal ? t("anomaly.listTitle") : tRoot("nav.submodule.siteDisposals")}
         countLabel={tRoot("moduleTable.count", { count: total })}
         headerAction={
           can("disposal.submit") ? (
@@ -1377,7 +1623,7 @@ export function SiteDisposalOffice() {
           ) : undefined
         }
         list={list}
-        columns={columns}
+        columns={abnormal ? anomalyColumns : columns}
         rows={rows.data?.results ?? []}
         totalCount={total}
         needsActionCount={rows.data?.needs_action_count}
@@ -1413,11 +1659,13 @@ export function SiteDisposalOffice() {
                 onExport={(format) =>
                   exportDisposalRequests({
                     format,
-                    title: tRoot("nav.submodule.siteDisposals"),
+                    title: abnormal ? t("anomaly.listTitle") : tRoot("nav.submodule.siteDisposals"),
                     subtitle: tRoot("moduleTable.count", { count: total }),
-                    emptyLabel: t("empty"),
+                    emptyLabel: abnormal ? t("anomaly.empty") : t("empty"),
                     query: list.query,
-                    columns: [
+                    // 「异常记录」: the view's columns, one row per report (the
+                    // server splits them), and its DO as every export (C12).
+                    columns: abnormal ? [...abnormalExportColumns(t, tRoot), { key: "disposal_do_no", label: t("field.doNo") }] : [
                       { key: "reference_no", label: tRoot("moduleTable.reference") },
                       { key: "project_name", label: t("field.project") },
                       {
@@ -1436,6 +1684,10 @@ export function SiteDisposalOffice() {
                       { key: "trips_accepted", label: t("field.tripsAccepted") },
                       { key: "trips_total", label: t("field.tripsTotal") },
                       { key: "disposal_do_no", label: t("field.doNo") },
+                      // JB149 (客户 11-10 事项 6 第 1 点): 「异常」 on every
+                      // row that is, and what it was.
+                      { key: "is_abnormal", label: t("field.isAbnormal"), values: { true: t("overdue.badge"), false: "" } },
+                      { key: "anomaly_text", label: t("field.anomalyText") },
                     ],
                   })
                 }
@@ -1445,8 +1697,8 @@ export function SiteDisposalOffice() {
         }
         // 「36 小时内仍未收到处理照片…整条记录显示红色」 (D-217): the whole
         // row, because a badge in a column is something you have to be
-        // looking for.
-        rowClassName={(row) => (row.disposal_evidence_is_overdue ? "bg-destructive/5 text-destructive" : undefined)}
+        // looking for - and since JB149 a reported problem too.
+        rowClassName={(row) => (row.is_abnormal ? "bg-destructive/5 text-destructive" : undefined)}
         onOpen={(row) => setViewingId(row.id)}
       />
       {shown && (
@@ -1469,6 +1721,96 @@ export function SiteDisposalOffice() {
       )}
     </>
   );
+}
+
+/**
+ * The 「异常记录」 view's columns (JB149, 补充 第 1 点): 单号, 项目, 清运公司,
+ * 车牌, 异常类型, 第几车, 原因, 报告人, 时间, 照片. A job with several reports
+ * lists each, in the same order in every column; a late job says so as its
+ * own entry. The company and the plate are the report's own (补充 第 2 点).
+ */
+function abnormalViewColumns(
+  t: ReturnType<typeof useTranslations<"siteDisposal">>,
+  tRoot: ReturnType<typeof useTranslations>,
+  df: ReturnType<typeof useDateFormat>,
+): ColumnDef<DisposalRequest, unknown>[] {
+  type Entry = ReturnType<typeof anomalyEntries>[number];
+  const each = (row: DisposalRequest, show: (entry: Entry) => React.ReactNode) => (
+    <div className="space-y-1">
+      {anomalyEntries(row).map((entry) => (
+        <div key={entry.key} className="min-h-5 break-words">{show(entry) || "—"}</div>
+      ))}
+    </div>
+  );
+  const plain = (id: string, label: string, show: (entry: Entry) => React.ReactNode, className = "max-w-45"): ColumnDef<DisposalRequest, unknown> => ({
+    id,
+    meta: { label },
+    header: () => <PlainHeader label={label} />,
+    cell: ({ row }) => <div className={className}>{each(row.original, show)}</div>,
+  });
+  return [
+    {
+      accessorKey: "reference_no",
+      meta: { label: tRoot("recordNo.column") },
+      header: sortable(tRoot("recordNo.column")),
+      cell: ({ row }) => <RecordNo value={row.original.reference_no} />,
+    },
+    {
+      accessorKey: "project_name",
+      meta: { label: t("field.project") },
+      header: () => <PlainHeader label={t("field.project")} />,
+      cell: ({ row }) => <p className="max-w-45 truncate">{row.original.project_name}</p>,
+    },
+    plain("anomaly_supplier", t("anomaly.supplier"), (entry) => (entry.anomaly ? anomalySupplier(t, entry.anomaly) : null)),
+    plain("anomaly_plate", t("anomaly.plate"), (entry) => entry.anomaly?.vehicle_plate, "tabular whitespace-nowrap"),
+    plain("anomaly_kind", t("anomaly.kind"), (entry) => <StatusBadge label={anomalyKindLabel(t, entry.kind)} tone="danger" />, "whitespace-nowrap"),
+    plain(
+      "anomaly_trip",
+      t("anomaly.trip"),
+      (entry) => (entry.anomaly?.trip_seq ? t("trips.seq", { seq: entry.anomaly.trip_seq }) : null),
+      "whitespace-nowrap",
+    ),
+    {
+      id: "anomaly_reason",
+      meta: { label: t("anomaly.reason") },
+      header: () => <PlainHeader label={t("anomaly.reason")} />,
+      cell: ({ row }) => (
+        <div className="max-w-60">
+          {each(row.original, (entry) => (entry.anomaly ? entry.anomaly.reason : t(overdueHelpKey(row.original))))}
+        </div>
+      ),
+    },
+    plain("anomaly_reporter", t("anomaly.reporter"), (entry) => entry.anomaly?.reported_by_name),
+    plain("anomaly_at", t("anomaly.at"), (entry) => (entry.anomaly ? df.dateTime(entry.anomaly.reported_at) : null), "tabular whitespace-nowrap"),
+    // The reports' photographs; a job that is only late shows its own.
+    photoColumn<DisposalRequest>({
+      label: tRoot("moduleTable.photos"),
+      icon: AlertTriangle,
+      reference: (row) => row.reference_no,
+      photos: (row) => {
+        const reported = (row.anomalies ?? []).flatMap((anomaly) => anomaly.evidence);
+        return rowPhotos(reported.length ? reported : row.evidence, row.reference_no);
+      },
+    }),
+  ];
+}
+
+/** The 「异常记录」 file's columns: the view's, one row per report (JB149). */
+export function abnormalExportColumns(
+  t: ReturnType<typeof useTranslations<"siteDisposal">>,
+  tRoot: ReturnType<typeof useTranslations>,
+) {
+  return [
+    { key: "reference_no", label: tRoot("moduleTable.reference") },
+    { key: "project_name", label: t("field.project") },
+    { key: "anomaly_supplier", label: t("anomaly.supplier") },
+    { key: "anomaly_plate", label: t("anomaly.plate") },
+    { key: "anomaly_kind", label: t("anomaly.kind") },
+    { key: "anomaly_trip", label: t("anomaly.trip") },
+    { key: "anomaly_reason", label: t("anomaly.reason") },
+    { key: "anomaly_reporter", label: t("anomaly.reporter") },
+    { key: "anomaly_at", label: t("anomaly.at") },
+  ];
 }
 
 const DISPOSAL_STATES: DisposalRequestStatus[] = [
@@ -1730,6 +2072,9 @@ export function InternalDisposalWorkspace({ disposalId, onSubmitted }: { disposa
   const [error, setError] = useState("");
   const [uploading, setUploading] = useState<DisposalEvidenceKind | null>(null);
   // Per lorry (X11): its weight and DO; the trip count is no longer typed.
+  // The DO number is typed when the worker has it (JB152, 客户 11-10 第二批
+  // 事项 1: 「不填也能上传…因为后台可以改正」): the office fills it in with the
+  // lorry's correction, as for the outside link.
   const [weight, setWeight] = useState("");
   const [doNo, setDoNo] = useState("");
   // 「清运车牌」 (I27): optional, no star; cleared with the weight and DO,
@@ -1821,7 +2166,7 @@ export function InternalDisposalWorkspace({ disposalId, onSubmitted }: { disposa
           proof, up to four, any kind. Vehicle exit / Gate Pass are the
           site's own photographs, taken from the job itself (C08). */}
       <section><h3 className="text-base font-semibold">{load.current ? tTrips("loadTitle", { seq: load.current.seq, total: load.total }) : t("photosTitle")}</h3><p className="mt-1 text-sm text-muted-foreground">{t("photosBody")}</p><div className="mt-3 grid gap-3"><FieldCamera label={t("photosTitle")} fileCount={sent.length} previewUrl={sent.length ? (sent[sent.length - 1].watermarked || sent[sent.length - 1].image || undefined) : undefined} disabled={uploading !== null || full} onCapture={(file) => void upload("DISPOSAL_PROOF", file)} /></div></section>
-      <section className="surface-panel space-y-4 rounded-xl p-4"><h3 className="panel-title">{t("submitTitle")}</h3><FieldWrapper label={t("field.weight")} required><Input inputMode="decimal" type="number" min="0" step="0.01" value={weight} onChange={(event) => setWeight(event.target.value)} /></FieldWrapper><FieldWrapper label={t("field.doNo")} required><Input value={doNo} onChange={(event) => setDoNo(event.target.value)} /></FieldWrapper><FieldWrapper label={t("field.vehiclePlate")} hint={t("field.vehiclePlateHint")}><Input value={plate} autoCapitalize="characters" autoComplete="off" onChange={(event) => setPlate(event.target.value)} /></FieldWrapper><FieldWrapper label={t("field.note")}><Textarea value={note} onChange={(event) => setNote(event.target.value)} /></FieldWrapper><Button size="lg" className="h-14 w-full text-base" disabledReason={!evidenceComplete ? t("action.photosRequired") : undefined} requires={[[weight, t("field.weight")], [doNo, t("field.doNo")]]} disabled={!evidenceComplete || submit.isPending} onClick={() => submit.mutate()}>{submit.isPending ? <Loader2 className="animate-spin" /> : <Send />}{evidenceComplete ? t("action.submit") : t("action.photosRequired")}</Button></section>
+      <section className="surface-panel space-y-4 rounded-xl p-4"><h3 className="panel-title">{t("submitTitle")}</h3><FieldWrapper label={t("field.weight")} required><Input inputMode="decimal" type="number" min="0" step="0.01" value={weight} onChange={(event) => setWeight(event.target.value)} /></FieldWrapper><FieldWrapper label={t("field.doNo")} hint={t("field.doNoHint")}><Input value={doNo} onChange={(event) => setDoNo(event.target.value)} /></FieldWrapper><FieldWrapper label={t("field.vehiclePlate")} hint={t("field.vehiclePlateHint")}><Input value={plate} autoCapitalize="characters" autoComplete="off" onChange={(event) => setPlate(event.target.value)} /></FieldWrapper><FieldWrapper label={t("field.note")}><Textarea value={note} onChange={(event) => setNote(event.target.value)} /></FieldWrapper><Button size="lg" className="h-14 w-full text-base" disabledReason={!evidenceComplete ? t("action.photosRequired") : undefined} requires={[[weight, t("field.weight")]]} disabled={!evidenceComplete || submit.isPending} onClick={() => submit.mutate()}>{submit.isPending ? <Loader2 className="animate-spin" /> : <Send />}{evidenceComplete ? t("action.submit") : t("action.photosRequired")}</Button></section>
     </>}
     {editable && current.status !== "ASSIGNED" && load.allSent && <section className="surface-panel rounded-xl p-6 text-center"><CheckCircle2 className="mx-auto size-12 text-success" /><h3 className="mt-3 text-lg font-semibold">{tTrips("allSentTitle")}</h3><p className="mt-2 text-sm text-muted-foreground">{tTrips("allSentBody")}</p></section>}
     {(current.status === "COMPLETED" || current.status === "AWAITING_CONFIRMATION") && <section className="rounded-xl border border-success/30 bg-success/5 p-6 text-center"><CheckCircle2 className="mx-auto size-12 text-success" /><h3 className="mt-3 text-lg font-semibold">{t("waitingTitle")}</h3><p className="mt-2 text-sm text-muted-foreground">{t("waitingBody")}</p></section>}

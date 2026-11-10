@@ -99,12 +99,13 @@ export function startConversation(
   });
 }
 
-/** One phone conversation on 后台「手机沟通记录」 (JB127). */
+/** One conversation on 后台「沟通记录」 (JB127; the office's own too since JB158). */
 export interface OfficeFieldChat {
   id: string;
   title: string;
   project: string;
   project_name: string;
+  /** `phone_role`: a phone role, `office` or (JB158) `head_office`. */
   people: { id: string; name: string; phone_role: string }[];
   /** Whether this office reader is one of its people (and may answer). */
   member: boolean;
@@ -118,4 +119,45 @@ export function getOfficeFieldChats(
   project?: string,
 ): Promise<{ results: OfficeFieldChat[]; count: number }> {
   return api.get("/api/field-chats/list_conversations/", project ? { project } : undefined);
+}
+
+/**
+ * What a person on the office's 找人沟通 is (JB158): a phone role, a project
+ * office person or head office.
+ */
+export type OfficeChatPersonKind = PhoneRole | "office" | "head_office";
+
+export interface OfficeChatPerson {
+  id: string;
+  full_name: string;
+  kind: OfficeChatPersonKind;
+  avatar: string | null;
+}
+
+/**
+ * The office's 找人沟通 (JB158, 客户 11-10 第七批): the open projects it may
+ * start on - head office every one of its company's, a project office the
+ * ones it is on.
+ */
+export const OFFICE_CHAT_PROJECTS_KEY = ["field-chats", "projects"] as const;
+
+export function getOfficeChatProjects(): Promise<ChatProject[]> {
+  return api.get<ChatProject[]>("/api/field-chats/projects/");
+}
+
+/** The people the office may talk to on one project; the server decides who (JB158). */
+export function getOfficeChatPeople(project: string): Promise<OfficeChatPerson[]> {
+  return api.get<OfficeChatPerson[]>("/api/field-chats/people/", { project });
+}
+
+export function startOfficeConversation(
+  people: string[],
+  title: string | undefined,
+  project: string,
+): Promise<{ kind: "DIRECT"; id: string; created: boolean }> {
+  return api.post("/api/field-chats/start_conversation/", {
+    people,
+    project,
+    ...(title ? { title } : {}),
+  });
 }

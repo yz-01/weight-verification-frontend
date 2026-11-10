@@ -3781,7 +3781,10 @@
       "equipment_name_updated": "修改設備名稱",
       "settings_update_by_platform": "MSE 修改公司設定",
       "project_supplier_added": "把供應商加進項目",
-      "project_supplier_removed": "把供應商移出項目"
+      "project_supplier_removed": "把供應商移出項目",
+      "field_account_moved": "手機賬號換到新項目",
+      "project_permissions_changed": "修改項目權限",
+      "report_anomaly": "清運報告異常"
     },
     "objectType": {
       "SignOffAssistant": "助理副密碼",
@@ -6577,7 +6580,8 @@
       "chooseSpec": "選擇規格",
       "specOptionalHint": "不知道規格可以不選，後台會補上。",
       "specName": "規格名稱",
-      "materialName": "材料名稱"
+      "materialName": "材料名稱",
+      "materialNameHint": "不知道可以不填，後台會補上。"
     },
     "outgoingStatus": {
       "APPROVED": "已批准 / 等待退場",
@@ -7913,7 +7917,28 @@
       "activeHint": "啟用的項目可用於新文檔。",
       "description": "維護檔案使用的分類和子分類結構。",
       "inactive": "停用",
-      "title": "文檔分類"
+      "title": "文檔分類",
+      "scope": {
+        "label": "適用範圍",
+        "choice": {
+          "ALL": "總部 · 全部項目",
+          "CHOSEN": "總部 · 指定項目",
+          "PROJECT": "只屬於一個項目"
+        },
+        "chosenLabel": "使用的項目",
+        "projectLabel": "所屬項目",
+        "owner": "屬於「{project}」，只在這個項目使用，其他項目看不到。",
+        "badge": {
+          "all": "總部 · 全部項目",
+          "chosen": "總部 · {count} 個項目",
+          "here": "本項目",
+          "project": "項目：{project}"
+        },
+        "headOfficeHint": "總部建立的分類和子分類可以給全部項目或指定項目使用；各項目自行新增的只屬於該項目，其他項目看不到。",
+        "projectHint": "你新增的分類和子分類只屬於你的項目，其他項目看不到。標著「總部」的由總部建立，這裡只能使用，不能修改。",
+        "showing": "現在顯示「{project}」使用的分類。",
+        "categoryHint": "只列出這個範圍能用的分類。"
+      }
     },
     "title": "文檔檔案",
     "toast": {
@@ -8474,7 +8499,8 @@
       "field_pin_invalid": "PIN 不正確。",
       "field_pwa_bootstrap_invalid": "這個登入連結已經不能用了（辦公室可能已經重新發了連結）。請打開辦公室最新發給你的連結。",
       "field_link_replaced": "辦公室已重新發出連結，請用新連結重新綁定。",
-      "field_account_stopped": "這個帳號已被停用。",
+      "field_account_stopped": "這個帳號已被辦公室停用，請聯絡辦公室。",
+      "field_account_removed": "這個手機圖示是已經刪除的舊帳號。請刪掉這個圖示，用辦公室發給你的新連結重新登入，再加到主畫面。",
       "field_bootstrap_app_only": "請用辦公室發給你的啟用連結綁定這台手機，或者從主畫面的圖示打開。",
       "field_companion_pin_required": "請輸入 PIN 完成這個 App 的綁定。",
       "flag_not_found": "找不到該功能開關。",
@@ -8534,6 +8560,13 @@
       "project_has_records": "這個項目下還有記錄。請改為標記完成，而不是移除。",
       "project_limit_reached": "當前套餐的項目數量已達到上限。",
       "project_not_found": "找不到這個項目。",
+      "push_endpoint_gone": "蘋果 / 谷歌說這支手機的通知登記已經失效。",
+      "push_not_configured": "伺服器現在不發手機通知（沒有設定或已關閉），測試通知發不出。請聯絡管理員。",
+      "push_off_for_company": "公司設定了通知只在 App 裡顯示、不發到手機，所以手機不會響。請聯絡公司管理員。",
+      "push_provider_refused": "蘋果 / 谷歌拒收了這條通知。",
+      "push_provider_unreachable": "蘋果 / 谷歌沒有回應，可能是網路問題。",
+      "push_subscription_not_found": "伺服器上沒有這支手機的通知登記（可能已失效，或換了帳號登入）。",
+      "push_test_too_soon": "測試通知剛發過，請等 {seconds} 秒再發。",
       "qr_code_not_found": "無法識別這個二維碼。",
       "quota_exceeded": "已超過設定的雲服務額度。",
       "receipt_immutable": "已上傳的材料進場記錄不能修改或刪除，請建立一條更正記錄。",
@@ -8594,6 +8627,7 @@
       "weigh_sequence_invalid": "兩次過磅必須按順序進行：第一次毛重，第二次皮重。",
       "rejection_needs_conversation": "請先在這條記錄的【溝通】裡說明問題，讓現場看得到原因並能回覆，然後才能退回。",
       "column_not_empty": "這個分類下還有記錄：{records}。請先移走，再刪除分類。",
+      "document_category_still_used": "要移除的項目裡還有內容在用這個分類：{records}。請先移走，或保留這些項目。",
       "category_has_records": "這個分類已有 {count} 條記錄（{records}），只能停用，不能刪除。",
       "category_has_children": "這個分類下面還有子分類：{records}，請先刪除或移走子分類。",
       "category_fixed_other": "固定的「其他」不能刪除，可以改名。",
@@ -8773,7 +8807,13 @@
       "file_share_link_not_found": "找不到這個文件連結。",
       "file_share_link_expired": "這個連結已經過期。請向發給你的人再要一次。",
       "file_share_file_too_large": "文件超過 {max_mb} MB，不能做成連結。",
-      "permission_switches_projects_required": "項目用戶只能看指定的項目，請選至少一個項目。"
+      "permission_switches_projects_required": "項目用戶只能看指定的項目，請選至少一個項目。",
+      "project_member_not_switchable": "這個人的權限不在「項目權限」裡改，由總部在「用戶管理」設置。",
+      "disposal_anomaly_not_running": "這項清運還沒批准或已經結束，不能報告異常。",
+      "disposal_anomaly_trip_required": "車輛異常必須註明第幾車：請選這項清運未取消的車次。",
+      "disposal_anomaly_photos_required": "每筆異常最少上傳 {minimum} 張照片。",
+      "disposal_anomaly_reason_required": "請寫明異常原因。",
+      "field_one_project": "{name} 現在在另一個項目{project, select, none {} other {（{project}）}}。手機賬號同一時間只能在一個項目：請原項目先「移出項目」或「刪除」，再在這裡綁定。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -8790,7 +8830,7 @@
       "max_length": "內容過長",
       "min_length": "內容過短",
       "null": "此項為必填",
-      "phone_in_use": "這個手機號碼已經有現場人員賬號在用。要換到新項目，請先在原項目把這個人「刪除」（停用不會釋放號碼），再回來生成鏈接。",
+      "phone_in_use": "這個手機號碼已經有現場人員賬號在用。要換到新項目，請原項目先把這個人「移出項目」或「刪除」（停用不會釋放號碼），再回來生成鏈接；已經在這個項目的人，請按他的「連結 / 二維碼」重新發鏈接。",
       "required": "此項為必填",
       "unique": "此值已被佔用",
       "percent_range": "請輸入 0 到 100 之間的百分比",
@@ -8810,7 +8850,8 @@
       "invalid_passport_no": "護照號碼只能有英文字母和數字，5 到 20 個",
       "invalid_birth_date": "出生日期要在今天以前",
       "site_worker_passport_taken": "這本護照已經在名單裡",
-      "supplier_not_on_project": "這個供應商不在這個項目的「可用供應商」裡。請總部或項目經理先在項目裡加入。"
+      "supplier_not_on_project": "這個供應商不在這個項目的「可用供應商」裡。請總部或項目經理先在項目裡加入。",
+      "field_one_project": "手機賬號同一時間只能在一個項目，請只選一個項目。"
     },
     "forbidden": "你沒有訪問權限。",
     "forbiddenBody": "如果確實需要，請聯繫管理員。",
@@ -9062,6 +9103,8 @@
     "iosInAppBody": "聊天軟體裡面不能加入主畫面。請複製這一頁的連結，貼到 Safari 開啟，再照步驟加入。",
     "unboundAppTitle": "這個主畫面圖示還沒綁定",
     "unboundAppBody": "iPhone 主畫面上的 App 和 Safari 是分開的，這裡還沒有登入資料，所以輸入 PIN 也進不去。請照下面做一次：",
+    "unboundRemovedTitle": "這是已經刪除的舊賬號的圖示",
+    "unboundRemovedBody": "辦公室已經刪除了這個舊賬號，這個圖示不能再用。請照下面做一次，換成新賬號的圖示：",
     "unboundAppStep1": "長按這個圖示，刪除它",
     "unboundAppStep2": "用 Safari 開啟管理員發的啟用連結（或掃 QR 碼），輸入 PIN。連結過期了就請管理員重新產生",
     "unboundAppStep3": "在 Safari 裡（「手機已準備好」那一頁或工作台任何一頁都可以），點 <more></more> →「分享」→「加入主畫面」",
@@ -9070,7 +9113,7 @@
     "unboundInAppBody": "你現在是在聊天軟體裡面開啟的，這裡綁定不了。請點右上角 <more></more> 選「在 Safari 中開啟」，或複製連結貼到 Safari。",
     "unboundBrowserTitle": "這台手機還沒綁定",
     "unboundBrowserBody": "請重新開啟管理員發的啟用連結（或掃 QR 碼），在那裡輸入 PIN。連結過期了就請管理員重新產生。",
-    "installBannerBody": "從主畫面圖示開啟更穩定，不用再輸入 PIN。",
+    "installBannerBody": "iPhone 要從主畫面圖示開啟，才收得到通知和聲音，也不用再輸入 PIN。",
     "installBannerAction": "加入主畫面",
     "iconShare": "分享",
     "iconPageMenu": "頁面選單",
@@ -9107,7 +9150,7 @@
     "description": "建立現場人員手機賬號，並選擇該人員可以進入的項目。",
     "email": "電子郵箱",
     "emailHint": "選填。不填寫時，系統會自動生成內部登錄郵箱。",
-    "existingHelp": "手機號碼不可修改。重新生成鏈接會立即解綁原有設備並註銷所有舊登錄；第一個打開新鏈接並正確輸入 PIN 的設備將成為唯一綁定設備。你也可以同時調整可進入的項目。",
+    "existingHelp": "手機號碼不可修改。重新生成鏈接會立即解綁原有設備並註銷所有舊登錄；第一個打開新鏈接並正確輸入 PIN 的設備將成為唯一綁定設備。你也可以把他換到另一個項目。",
     "existingStaff": "選擇現場人員",
     "expiryHelp": "啟用連結只用來第一次綁定手機。綁定後打開就會自動登入，不用每次輸入 PIN；只有連續很多天沒打開（天數在公司設定裡改），或者辦公室重新產生連結、停用帳號，才需要重新綁定。",
     "fullName": "姓名",
@@ -9147,7 +9190,9 @@
       "inApp": "聊天軟體裡的瀏覽器",
       "computer": "電腦瀏覽器",
       "browser": "瀏覽器"
-    }
+    },
+    "oneProjectHint": "一個手機賬號同一時間只能在一個項目；選另一個項目就是把他換過去。",
+    "onTwoProjects": "同時在 {count} 個項目，請只選一個"
   },
   "fieldDraft": {
     "loading": "正在載入已儲存草稿…",
@@ -9246,7 +9291,8 @@
       "submit": "提交",
       "takePhoto": "拍照",
       "workLocation": "現場位置 / 軸線",
-      "workLocationPlaceholder": "例如：A座，C1-D1軸線"
+      "workLocationPlaceholder": "例如：A座，C1-D1軸線",
+      "askForHint": "不知道選哪個可以不選，後台會補上。"
     },
     "consultantTasks": {
       "title": "顧問現場照片提交"
@@ -9404,7 +9450,7 @@
       "specOptionalHint": "不知道規格可以不選，後台會補上。",
       "autoFilledFromSpec": "隨規格帶出",
       "otherName": "材料名稱",
-      "otherNameHint": "名單裡沒有的材料，選「其他材料」在這裡填寫；辦公室會在分類管理加進名單。"
+      "otherNameHint": "名單裡沒有的材料，選「其他材料」在這裡填寫名稱；不知道可以不填，後台會補上。"
     },
     "materialEvidence": {
       "arrival": "1. 車輛到場",
@@ -11846,7 +11892,8 @@
       "exit_at": "退場時間",
       "request_kind": "申請類型",
       "pdpa_consent": "個人資料告知",
-      "material_lines": "材料明細"
+      "material_lines": "材料明細",
+      "anomaly": "異常"
     },
     "detailTitle": "我提交過的",
     "photos": "照片",
@@ -12217,7 +12264,7 @@
       "materialRequests": "MR / 其他申請",
       "departmentsTrades": "部門與工種",
       "fieldStaffManagement": "現場人員管理",
-      "fieldChats": "手機溝通記錄",
+      "fieldChats": "溝通記錄",
       "photoTimeline": "工程照片牆"
     },
     "subscription_management": "訂閱管理",
@@ -13785,7 +13832,9 @@
       "removeTitle": "將 {name} 移出此項目？",
       "title": "項目人員名單",
       "person": "要加入的人",
-      "whatMembers": "項目成員列表"
+      "whatMembers": "項目成員列表",
+      "onOtherProject": "現在在另一個項目：請原項目先「移出項目」或「刪除」",
+      "removePhoneDescription": "{name} 的手機會立刻停用，所有手機和瀏覽器馬上登出。賬號、手機號碼和已記錄的數據都保留；之後在別的項目用同一個號碼生成鏈接，同一部手機就能重新綁定。"
     },
     "title": "項目",
     "toast": {
@@ -13834,7 +13883,12 @@
       "projectNote": "項目權限：默認全部打開。關掉的那一項，這個人在他所有的項目都不能用。",
       "allOn": "項目權限全部打開",
       "someOff": "關掉了 {count} 項",
-      "grantedCount": "總部開了 {count} 項 B 組權限"
+      "grantedCount": "總部開了 {count} 項 B 組權限",
+      "invited": "還沒激活",
+      "suspended": "已停用",
+      "headOffice": "總部賬號：權限由總部在「用戶管理」設置，這裡只能查看。",
+      "setInUsers": "這個人的權限由總部在「用戶管理」設置，這裡只能查看。",
+      "openUser": "打開用戶頁"
     }
   },
   "qrCodes": {
@@ -16381,7 +16435,8 @@
       "recordNumbers": "補錄數字",
       "siteEvidence": "拍車輛出場 / Gate Pass",
       "setSupplier": "填寫供應商",
-      "changeSupplier": "更改供應商"
+      "changeSupplier": "更改供應商",
+      "reportAnomaly": "報告異常"
     },
     "assign": {
       "copyNow": "複製後發送給外部清運商。鏈接不需要登錄；如遺失，可在清運列表重新生成，舊鏈接會立即失效。",
@@ -16417,7 +16472,8 @@
       "UNLOADING": "卸貨",
       "DISPOSAL_PROOF": "最終處理證明",
       "VEHICLE_EXIT": "車輛出場",
-      "GATE_PASS": "Gate Pass"
+      "GATE_PASS": "Gate Pass",
+      "ANOMALY": "異常照片"
     },
     "external": {
       "action": {
@@ -16503,7 +16559,9 @@
       "supplier": "供應商",
       "vehiclePlates": "清運車牌",
       "vehiclePlate": "車牌",
-      "createdAt": "建立時間"
+      "createdAt": "建立時間",
+      "isAbnormal": "異常",
+      "anomalyText": "異常說明"
     },
     "fieldEvidence": {
       "access": "3. 清運入口或車輛路線",
@@ -16526,7 +16584,8 @@
         "note": "工作備註",
         "weight": "實際重量（kg）",
         "vehiclePlate": "車牌",
-        "vehiclePlateHint": "選填：這一車的車牌"
+        "vehiclePlateHint": "選填：這一車的車牌",
+        "doNoHint": "不知道可以不填，後台會補上。"
       },
       "invalid": "無法打開這項清運任務，請刷新任務列表後重試。",
       "photosBody": "每一車送到合法處理地點後拍照。每車最多 4 張，不限類別；至少 1 張才能送出。送出後由後台驗收這一車。",
@@ -16608,7 +16667,8 @@
       "TRIP_ADDED": "後台加了一車",
       "ENDED_EARLY": "後台提前結束，未送的車次已取消",
       "TRIP_CORRECTED": "後台更正了一車的重量 / DO / 車牌",
-      "SUPPLIER_SET": "後台填寫 / 更改了供應商"
+      "SUPPLIER_SET": "後台填寫 / 更改了供應商",
+      "ANOMALY_REPORTED": "報告異常"
     },
     "title": "工地清運",
     "toast": {
@@ -16624,7 +16684,8 @@
       "tripAdded": "已加一車",
       "endedEarly": "清運已提前結束",
       "tripCorrected": "這一車已更正",
-      "supplierSet": "供應商已保存"
+      "supplierSet": "供應商已保存",
+      "anomalyReported": "異常已提交後台"
     },
     "overdue": {
       "badge": "異常",
@@ -16639,7 +16700,8 @@
       "SITE_EXIT": "裝車與工地出場證據",
       "FINAL_PROOF": "最終處理證明",
       "OFFICE_CHECK": "後台驗收照片（舊流程）",
-      "empty": "暫無"
+      "empty": "暫無",
+      "ANOMALY": "異常照片"
     },
     "recordNumbers": {
       "title": "補錄重量 / 車次 / DO",
@@ -16709,6 +16771,30 @@
       "reason": "更改原因",
       "unchanged": "先選另一家供應商",
       "save": "保存"
+    },
+    "anomaly": {
+      "title": "報告異常",
+      "description": "{reference}：車輛異常要選第幾車；寫明原因，最少拍 {minimum} 張照片。",
+      "kind": "異常類型",
+      "kindVEHICLE": "車輛異常",
+      "kindOTHER": "其他異常",
+      "kindOVERDUE": "超時",
+      "trip": "第幾車",
+      "chooseTrip": "選擇第幾車",
+      "noTrips": "這項清運還沒有車次，不能報告車輛異常，請選「其他異常」。",
+      "plate": "車牌",
+      "plateHint": "有車牌時自動帶出這一車的車牌，不對可以改。",
+      "reason": "異常原因",
+      "photos": "異常照片",
+      "progress": "已拍 {count} 張，最少 {minimum} 張",
+      "submit": "提交異常",
+      "panelTitle": "異常記錄",
+      "reportedBy": "{name} · {at}",
+      "supplier": "清運公司",
+      "reporter": "報告人",
+      "at": "時間",
+      "listTitle": "異常記錄",
+      "empty": "沒有異常記錄"
     }
   },
   "onSiteMap": {
@@ -17886,7 +17972,8 @@
       "vehiclePlate": "車牌",
       "collectionAt": "希望收運時間",
       "collectionAtHint": "你希望車什麼時候來。回收商可以另提一個時間，之後由你確認。",
-      "otherName": "名稱"
+      "otherName": "名稱",
+      "otherNameHint": "不知道可以不填，後台會補上。"
     },
     "filter": {
       "allCategories": "全部類別",
@@ -18599,7 +18686,8 @@
       "submitToOption": {
         "PROJECT": "交給專案經理",
         "HQ": "交給總部"
-      }
+      },
+      "descriptionHint": "可以不填，後台會按收據補上。"
     },
     "submitTo": {
       "PROJECT": "專案經理",
@@ -18708,7 +18796,8 @@
     "tab": {
       "all": "全部",
       "disposal": "工地清運",
-      "dispatch": "廢料訂單"
+      "dispatch": "廢料訂單",
+      "abnormal": "異常記錄"
     },
     "kind": {
       "disposal": "工地清運",
@@ -18722,7 +18811,9 @@
       "project": "項目",
       "content": "廢料內容",
       "at": "建立時間",
-      "open": "查看"
+      "open": "查看",
+      "abnormal": "異常",
+      "anomalyText": "異常說明"
     },
     "pageOf": "第 {page} / {pages} 頁（每頁每種最多 10 筆）",
     "lastPage": "已經是最後一頁。",
@@ -18904,16 +18995,16 @@
       "goToCategories": "前往分類管理",
       "askToSetUp": "請聯絡有權限的後台人員在分類管理設定。",
       "materialData": "材料資料",
-      "otherSpecHint": "選了「其他」：請填寫規格，並選擇單位。",
+      "otherSpecHint": "選了「其他」：知道就填寫規格，不知道可以不填，後台會補上；單位要選。",
       "unitFromSpec": "單位隨規格帶出，不能修改。",
       "unitAfterSpec": "選好規格後自動帶出",
-      "subjectHint": "一句話說明要申請什麼，例如：兩台吊車、一個現場辦公室。",
+      "subjectHint": "一句話說明要申請什麼，例如：兩台吊車、一個現場辦公室。不填就用申請類型的名稱，後台可以改。",
       "contentOrFile": "申請內容和上傳資料至少要有一樣。",
       "contentPlaceholder": "說明申請的內容、數量、時間等",
       "attachmentKindsHint": "照片、PDF、Word、Excel、PowerPoint、CSV、TXT、DWG、ZIP。最多 {count} 份，每份不超過 {limit} MB。",
       "fileKindRefused": "{name} 不能上傳。請上傳照片、PDF、Word、Excel、PowerPoint、CSV、TXT、DWG 或 ZIP。",
       "assignedReviewerManagerHint": "現場人員的申請先交專案經理，專案經理確認後再轉給總部。",
-      "otherMaterialHint": "選了「其他材料」：請填寫材料名稱。"
+      "otherMaterialHint": "選了「其他材料」：知道就填寫材料名稱；不知道可以不填，後台會補上。"
     },
     "toast": {
       "submitted": "申請已提交。",
@@ -20748,6 +20839,9 @@
       "body": "開啟通知，手機待機時有新訊息才會響，桌面圖示才會顯示數字。",
       "action": "開啟通知"
     },
+    "enabled": {
+      "body": "通知已開啟。可以發一條測試通知，看這支手機會不會響。"
+    },
     "denied": {
       "body": "通知被關掉了，有新訊息不會響。請到手機「設定」→「通知」，允許本 App 的通知。"
     },
@@ -20758,6 +20852,17 @@
       "worker": "手機的背景服務還沒準備好。請把 App 完全關掉再打開，再按一次。",
       "subscribe": "手機沒有完成通知登記（蘋果 / 谷歌沒有回應）。請檢查網路，把 App 關掉再打開，再按一次。",
       "server": "通知已在手機打開，但沒有存到伺服器。請檢查網路，再按一次。"
+    }
+  },
+  "pushTest": {
+    "action": "發一條測試通知",
+    "sending": "正在發送測試通知…",
+    "sent": "已發出。幾秒內這支手機應該響一聲，螢幕上出現通知。",
+    "notSent": "沒有發出：{reason}",
+    "advice": {
+      "ios": "請按「{button}」再試一次；還是不行，刪掉手機上的 MSE Trace 圖示，從 Safari 重新加到主畫面。",
+      "android": "請按「{button}」再試一次；還是不行，刪掉手機上的 MSE Trace 圖示，用 Chrome 開啟網站，點 ⋮ →「安裝應用程式」重新安裝。",
+      "other": "請按「{button}」再試一次；還是不行，請在瀏覽器設定裡允許本網站的通知。"
     }
   },
   "passportCapture": {
@@ -20804,7 +20909,8 @@
     "link": "連結 / 二維碼",
     "remove": "刪除",
     "removeTitle": "刪除這個現場人員？",
-    "removeConfirm": "刪除後 {name} 不能再登入，手機號碼可以在別的項目重新使用。他之前的記錄全部保留。"
+    "removeConfirm": "刪除後 {name} 不能再登入，手機號碼可以在別的項目重新使用。他之前的記錄全部保留。",
+    "onTwoProjects": "同時在 {count} 個項目"
   },
   "projectSuppliers": {
     "title": "可用供應商",
@@ -20842,16 +20948,49 @@
     }
   },
   "fieldChats": {
-    "title": "手機溝通記錄",
-    "subtitle": "現場人員、門崗、設備操作人員在手機「溝通」裡的所有對話，按項目保存。你在裡面的對話可以直接回覆。",
+    "title": "溝通記錄",
+    "subtitle": "手機端（現場人員、門崗、設備操作人員）和後台（項目後台、總部）的所有對話，按項目保存。你在裡面的對話可以直接回覆；用「找人溝通」開始新的對話。",
     "project": "項目",
     "allProjects": "全部項目",
     "loading": "正在載入…",
-    "empty": "這個項目還沒有手機溝通。",
+    "empty": "這個項目還沒有溝通記錄。",
     "pick": "在左邊選一個溝通查看。",
     "people": "成員：{names}",
     "noMessages": "還沒有消息。",
-    "attachment": "[照片 / 語音 / 文件]"
+    "attachment": "[照片 / 語音 / 文件]",
+    "conversation": "溝通",
+    "find": {
+      "title": "找人溝通",
+      "hint": "只列出你可以聯繫的人：項目後台可以聯繫本項目的手機端人員、本項目後台和總部；總部可以聯繫各項目後台。手機端人員和總部不會在同一個對話裡。",
+      "back": "返回",
+      "project": "選項目",
+      "search": "搜尋名字",
+      "choose": "要溝通的人",
+      "group": {
+        "phone": "手機端人員",
+        "office": "項目後台",
+        "head_office": "總部"
+      },
+      "kind": {
+        "site_staff": "現場人員",
+        "all_pages": "現場人員",
+        "gate_guard": "門崗",
+        "equipment_operator": "設備操作",
+        "office": "項目後台",
+        "head_office": "總部"
+      },
+      "mix": {
+        "phoneChosen": "已選了手機端人員，總部不能加入同一個對話。",
+        "headOfficeChosen": "已選了總部，手機端人員不能加入同一個對話。"
+      },
+      "groupTitle": "群組名稱（可不填）",
+      "start": "{count, plural, =0 {開始溝通} other {和 # 個人開始溝通}}",
+      "startFailed": "無法開始對話，請再試一次。",
+      "noProject": "你還沒有可以溝通的項目。",
+      "noPeople": "找不到人。",
+      "whatProjects": "項目名單",
+      "whatPeople": "人員名單"
+    }
   },
   "photoWall": {
     "hint": "單擊照片放大，可以左右翻看；雙擊照片打開完整記錄。",

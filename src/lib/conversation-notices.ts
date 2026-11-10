@@ -12,6 +12,11 @@ import type { NotificationSummary } from "@/interfaces/platform-ops";
  * unread: the server keeps one waiting notice per person per thread and
  * reports them as `conversations` whatever `card` asked for. The 我的待办
  * card keeps `total` alone - it lists work, and a message is not work.
+ *
+ * JB153 (客户 11-10 第二批事项 2: 「什么通知都没有」): a notice the office
+ * sends - news, neither work nor chat - sat in the bell's list without a dot.
+ * The dot now adds the waiting notices too (`notices`, also reported whatever
+ * `card` asked for); 10-29: 「红点数量必须与后台未读事项保持一致」.
  */
 export function fieldBellCount(
   summary: NotificationSummary | undefined,
@@ -19,10 +24,13 @@ export function fieldBellCount(
   if (!summary) return undefined;
   const conversations = summary.conversations ?? 0;
   const conversationsToday = summary.conversations_today ?? 0;
+  const notices = summary.notices ?? 0;
+  const noticesToday = summary.notices_today ?? 0;
   return {
-    total: summary.total + conversations,
-    today: summary.today + conversationsToday,
-    earlier: summary.earlier + (conversations - conversationsToday),
+    total: summary.total + conversations + notices,
+    today: summary.today + conversationsToday + noticesToday,
+    earlier:
+      summary.earlier + (conversations - conversationsToday) + (notices - noticesToday),
   };
 }
 

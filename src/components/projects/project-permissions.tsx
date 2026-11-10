@@ -12,14 +12,22 @@
  * person, and back on. Head office also sees the 总部 B permissions here and
  * may switch them on for one person. Each save asks for the six-digit PIN
  * like any permission change.
+ *
+ * JB147 (客户 11-10 事项 3): 「所有已获得该项目后台权限的人员，都必须正确显示在
+ * 「项目权限」名单中」 - the list is the project's whole back-office team, the
+ * people of 「项目人员名单」 but the phone. A head-office (总部) account is shown
+ * read-only (its permissions are set in 「用户管理」); an invited or suspended
+ * person is listed with that status and still switched here.
  */
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChevronDown, KeyRound, Loader2, Save } from "lucide-react";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
-import { LoadFailed } from "@/components/shared/page-primitives";
+import { useAuth } from "@/components/providers/auth-provider";
+import { LoadFailed, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import type { PermissionEntry } from "@/interfaces/auth";
@@ -102,7 +110,9 @@ function MemberRow({
 }) {
   const t = useTranslations("projects.permissions");
   const all = useTranslations();
+  const { can } = useAuth();
   const [open, setOpen] = useState(false);
+  const headOffice = member.kind === "head_office";
   // Only what the reader may switch is sent; the rest is left as it is.
   const initial = useMemo(() => {
     const options = new Set(data.options);
@@ -126,16 +136,34 @@ function MemberRow({
         className="flex w-full items-center justify-between gap-3 px-3 py-2.5 text-left"
       >
         <span className="min-w-0">
-          <span className="block truncate text-sm font-semibold">{member.full_name}</span>
+          <span className="flex min-w-0 items-center gap-2">
+            <span className="truncate text-sm font-semibold">{member.full_name}</span>
+            {member.status === "INVITED" && <StatusBadge label={t("invited")} tone="warning" />}
+            {member.status === "SUSPENDED" && <StatusBadge label={t("suspended")} tone="danger" />}
+          </span>
           <span className="block truncate text-xs text-muted-foreground">
             {roleName({ code: member.role_code ?? "", name: member.role_name }, all)}
             {" · "}
             {projectOff === 0 ? t("allOn") : t("someOff", { count: projectOff })}
-            {grantedB > 0 ? ` · ${t("grantedCount", { count: grantedB })}` : ""}
+            {/* Head office holds B by its role, not by a grant. */}
+            {!headOffice && grantedB > 0 ? ` · ${t("grantedCount", { count: grantedB })}` : ""}
           </span>
         </span>
         <ChevronDown className={cn("size-4 shrink-0 transition-transform", open && "rotate-180")} />
       </button>
+      {!member.editable && (
+        <p className="px-3 pb-2.5 text-xs text-muted-foreground" data-member-note>
+          {headOffice ? t("headOffice") : t("setInUsers")}
+          {can("user.update") && (
+            <>
+              {" "}
+              <Link href={`/users/${member.id}`} className="font-medium text-primary underline-offset-2 hover:underline">
+                {t("openUser")}
+              </Link>
+            </>
+          )}
+        </p>
+      )}
       {open && (
         <div className="space-y-4 border-t p-3">
           <div className="space-y-3" data-member-part="project">

@@ -5,6 +5,11 @@ import { BellRing, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
+import {
+  PushTestButton,
+  PushTestResult,
+  usePushTest,
+} from "@/components/notifications/push-test";
 import { Button } from "@/components/ui/button";
 import { isStandaloneApp } from "@/lib/auth-token";
 import {
@@ -17,6 +22,7 @@ import { detectInstallEnvironment } from "@/lib/field-install";
 import {
   enablePushNotifications,
   getPushConfig,
+  PUSH_REGISTRATION_CHANGED,
   PushEnableError,
   type PushStep,
   getPushSubscriptionStatus,
@@ -47,6 +53,9 @@ export function FieldAlertsHint() {
   // The step 「打开通知」 stopped at, named instead of spinning (Lucas 10-30).
   const [failed, setFailed] = useState<PushStep | null>(null);
   const [version, setVersion] = useState(0);
+  // Just turned on here: offer 「发一条测试通知」 (JB156, 客户 11-10 第四批).
+  const [justEnabled, setJustEnabled] = useState(false);
+  const pushTest = usePushTest();
   const pushSupported = typeof window !== "undefined" && isPushSupported();
   // query-failure: an unread push setting is "not configured" - the hint then names the install / permission steps only
   const config = useQuery({
@@ -81,7 +90,15 @@ export function FieldAlertsHint() {
     };
   }, [configured, pushSupported, version]);
 
-  if (advice.length === 0) return null;
+  // Opening the app registered this phone afresh, or could not - then
+  // 「打开通知」 is shown again (JB156).
+  useEffect(() => {
+    const reread = () => setVersion((value) => value + 1);
+    window.addEventListener(PUSH_REGISTRATION_CHANGED, reread);
+    return () => window.removeEventListener(PUSH_REGISTRATION_CHANGED, reread);
+  }, []);
+
+  if (advice.length === 0 && !justEnabled) return null;
 
   const dismiss = (item: FieldAlertsAdvice) => {
     try {
@@ -97,7 +114,11 @@ export function FieldAlertsHint() {
     setFailed(null);
     try {
       // Inside the tap: iPhone asks for permission only from a gesture.
-      await enablePushNotifications();
+      // After a test that did not go, a fresh registration (JB156).
+      if (await enablePushNotifications({ renew: pushTest.failed })) {
+        setJustEnabled(true);
+        pushTest.reset();
+      }
     } catch (error) {
       setFailed(error instanceof PushEnableError ? error.step : "server");
     } finally {
@@ -135,6 +156,37 @@ export function FieldAlertsHint() {
           )}
         </div>
       ))}
+      {justEnabled && !advice.includes("turn-on") && (
+        <div
+          data-advice="enabled"
+          className="flex items-start gap-3 rounded-xl border border-primary/30 bg-primary/10 px-3 py-2.5 text-sm"
+        >
+          <BellRing className="mt-0.5 size-5 shrink-0 text-primary" />
+          <div className="min-w-0 flex-1 space-y-2 leading-5">
+            <p>{t("enabled.body")}</p>
+            <div className="flex flex-wrap gap-2">
+              <PushTestButton state={pushTest.state} onSend={() => void pushTest.send()} />
+              {pushTest.failed ? (
+                // The way back the advice below names.
+                <Button size="sm" disabled={pending} onClick={() => void turnOn()}>
+                  {pending ? <Loader2 className="animate-spin" /> : null}
+                  {t("turn-on.action")}
+                </Button>
+              ) : (
+                <Button size="sm" variant="ghost" onClick={() => setJustEnabled(false)}>
+                  {t("dismiss")}
+                </Button>
+              )}
+            </div>
+            {failed && (
+              <p role="alert" className="text-destructive">
+                {t(`failed.${failed}`)}
+              </p>
+            )}
+            <PushTestResult state={pushTest.state} button={t("turn-on.action")} />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

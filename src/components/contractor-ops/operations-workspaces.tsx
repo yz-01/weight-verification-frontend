@@ -4149,8 +4149,11 @@ export function OutgoingDialog({
               <p className="text-xs text-muted-foreground">{t("outgoing.noMaterials")}</p>
             ) : null}
           </FieldWrapper>
+          {/* Typed when known, never required (JB152, 客户 11-10 第二批事项 1:
+              「下拉材料名称已有了，还要填写才能上传不合里，不填也能上传」): left
+              blank, the return carries the material chosen above. */}
           {typedMaterial && (
-            <FieldWrapper label={t("outgoing.materialName")} required>
+            <FieldWrapper label={t("outgoing.materialName")} hint={t("outgoing.materialNameHint")}>
               <Input
                 value={form.material_name ?? ""}
                 maxLength={200}
@@ -4304,7 +4307,6 @@ export function OutgoingDialog({
             requires={[
               [project, t("field.project")],
               [form.category, t("outgoing.material")],
-              [!typedMaterial || (form.material_name ?? "").trim(), t("outgoing.materialName")],
               [unit, t("field.unit")],
               [Number(form.quantity) > 0, t("outgoing.returnQuantity")],
               [isFieldStaff || form.executor_name, t("field.executor")],

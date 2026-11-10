@@ -9,18 +9,26 @@
  * newest first, narrowed by project; one opens beside the list with the
  * record chat's own reader. The office answers the ones it is in (a guard or
  * an operator started it with the project office); the rest it reads.
+ *
+ * JB158 (客户 11-10 第七批): 「沟通记录」 - the back office's own conversations
+ * too (a project office with head office, head office with a project's
+ * office), and 「找人沟通」 for builder office accounts: the finder opens in
+ * the right-hand panel, and the conversation it starts opens there.
  */
 
 import { useQuery } from "@tanstack/react-query";
-import { MessagesSquare, UsersRound } from "lucide-react";
+import { MessageSquarePlus, MessagesSquare, UsersRound } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
+import { useAuth } from "@/components/providers/auth-provider";
 import { useCurrentProject, usePageProject } from "@/components/providers/current-project-provider";
 import { FieldWrapper, ListHeader, QueryFailedNote } from "@/components/shared/page-primitives";
 import { RecordConversationPanel } from "@/components/shared/record-conversation";
+import { OFFICE_FIELD_CHATS_KEY, OfficeFindPeople } from "@/components/site-access/field-chats-find";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
+import { Button } from "@/components/ui/button";
 import { useDateFormat } from "@/lib/dates";
 import { cn } from "@/lib/utils";
 import { getOfficeFieldChats, type OfficeFieldChat } from "@/services/field-conversations.service";
@@ -34,8 +42,15 @@ export function FieldChatsOffice() {
   // itself, and so does its label.
   const topBar = useCurrentProject().active;
   const [picked, setPicked] = useState<string | null>(params.get("chat"));
+  const [finding, setFinding] = useState(false);
+  const { user, can } = useAuth();
+  // 找人沟通 is a builder office account's (JB158): a project office or head
+  // office - the server decides whom each may reach.
+  const mayStart = Boolean(
+    user && user.company_type === "CONTRACTOR" && !user.is_field_staff && can("project.view"),
+  );
   const chats = useQuery({
-    queryKey: ["record-conversation", "office-field-chats", project || "all"],
+    queryKey: [...OFFICE_FIELD_CHATS_KEY, project || "all"],
     queryFn: () => getOfficeFieldChats(project && project !== "all" ? project : undefined),
   });
   const rows = chats.data?.results ?? [];
@@ -43,7 +58,18 @@ export function FieldChatsOffice() {
 
   return (
     <div className="space-y-4">
-      <ListHeader title={t("title")} subtitle={t("subtitle")} />
+      <ListHeader
+        title={t("title")}
+        subtitle={t("subtitle")}
+        action={
+          mayStart ? (
+            <Button onClick={() => setFinding(true)} data-office-find-open>
+              <MessageSquarePlus />
+              {t("find.title")}
+            </Button>
+          ) : undefined
+        }
+      />
       {!topBar && (
         <FieldWrapper label={t("project")} className="max-w-md">
           <ProjectPicker
@@ -67,22 +93,43 @@ export function FieldChatsOffice() {
           ) : (
             rows.map((row) => (
               <li key={row.id}>
-                <ChatRow row={row} active={row.id === picked} onOpen={() => setPicked(row.id)} when={df.dateTime(row.last_at)} />
+                <ChatRow
+                  row={row}
+                  active={!finding && row.id === picked}
+                  onOpen={() => {
+                    setFinding(false);
+                    setPicked(row.id);
+                  }}
+                  when={df.dateTime(row.last_at)}
+                />
               </li>
             ))
           )}
         </ul>
         <div className="surface-panel min-h-64 rounded-xl p-4">
-          {open ? (
+          {finding ? (
+            <OfficeFindPeople
+              defaultProject={project && project !== "all" ? project : undefined}
+              onBack={() => setFinding(false)}
+              onStarted={(id) => {
+                setFinding(false);
+                setPicked(id);
+              }}
+            />
+          ) : picked ? (
             <div className="space-y-3">
-              <div className="text-xs text-muted-foreground">
-                {open.project_name} · {t("people", { names: open.people.map((person) => person.name).join("、") })}
-              </div>
+              {open ? (
+                <div className="text-xs text-muted-foreground">
+                  {open.project_name} · {t("people", { names: open.people.map((person) => person.name).join("、") })}
+                </div>
+              ) : null}
+              {/* One not in the list yet (just started, or a notice's link
+                  past the filter) opens all the same (JB158). */}
               <RecordConversationPanel
-                key={open.id}
+                key={picked}
                 kind="DIRECT"
-                recordId={open.id}
-                labels={{ title: open.title, empty: t("noMessages") }}
+                recordId={picked}
+                labels={{ title: open?.title ?? t("conversation"), empty: t("noMessages") }}
               />
             </div>
           ) : (
