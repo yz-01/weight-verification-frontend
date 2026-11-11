@@ -6840,7 +6840,7 @@
       "exitApplicationReviewed": "退场申请的审批结果已记录",
       "equipmentRegistered": "设备已登记，设备编号 {no}。",
       "issueSubmitted": "领用申请已提交，领用编号 {reference}",
-      "issueHandedOver": "正式领用完成，已归档。"
+      "issueHandedOver": "正式领用完成。"
     },
     "what": {
       "roles": "角色列表",
@@ -7098,7 +7098,7 @@
         "APPROVED": "已批准 / 等待领用",
         "REJECTED": "已驳回",
         "PROCESSED": "已领用，待后台确认",
-        "COMPLETED": "已领用 / 已归档",
+        "COMPLETED": "已领用，已完成",
         "RELEASED": "已放行"
       }
     }
