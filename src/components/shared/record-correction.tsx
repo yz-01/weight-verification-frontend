@@ -21,6 +21,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { FormFooterError } from "@/components/shared/form-shell";
 import { FieldWrapper, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { useRecordArchived } from "@/components/shared/record-closure";
 import { ShellPanel } from "@/components/shared/record-detail-shell";
@@ -50,6 +51,7 @@ import type {
   CorrectionHistoryKind,
   CorrectionSource,
 } from "@/interfaces/record-correction";
+import { unchangedRefusal } from "@/lib/correction-refusal";
 import { useDateFormat } from "@/lib/dates";
 import { cn } from "@/lib/utils";
 import {
@@ -495,6 +497,9 @@ export function RecordCorrectionDialog({
               {correcting || signedAlways ? t("save") : t("fillSave")}
             </Button>
           )}
+          {/* The server found nothing changed (JB170): said here, beside the
+              button, not as 「请检查标红的字段」 with nothing red. */}
+          <FormFooterError message={unchangedRefusal(save.error)} />
         </DialogFooter>
       </DialogContent>
     </Dialog>
