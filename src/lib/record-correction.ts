@@ -173,12 +173,30 @@ export function missingRequired(
   return (
     fields.find(
       (field) =>
-        (field.required ||
-          (field.only_for_other && isShown(fields, field, draft)) ||
-          (field.depends_on && offeredOptions(field, draft).length > 0)) &&
+        // An issue line's 单价 (JB171): a blank may stay blank, a price can be
+        // changed but not cleared (「有了单价可以改，不能清空」).
+        (field.line
+          ? field.value.trim() !== ""
+          : field.required ||
+            (field.only_for_other && isShown(fields, field, draft)) ||
+            (field.depends_on && offeredOptions(field, draft).length > 0)) &&
         isShown(fields, field, draft) &&
         !(draft[field.name] ?? "").trim(),
     ) ?? null
+  );
+}
+
+/** A number typed with more decimals than its field takes (单价: two), by field. */
+export function overPlaces(
+  fields: CorrectionField[],
+  draft: Record<string, string>,
+): CorrectionField | null {
+  return (
+    fields.find((field) => {
+      if (field.type !== "decimal" || field.places === undefined) return false;
+      const decimals = /\.(\d+)$/.exec((draft[field.name] ?? "").trim());
+      return Boolean(decimals && decimals[1].length > field.places);
+    }) ?? null
   );
 }
 

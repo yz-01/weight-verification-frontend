@@ -42,15 +42,18 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { useUnitName } from "@/hooks/use-material-units";
 import { ApiError } from "@/interfaces/api";
 import type { ArchiveRecordKind } from "@/interfaces/contractor-ops";
 import type {
   CorrectableKind,
   CorrectionField,
   CorrectionHistoryKind,
+  CorrectionLine,
   CorrectionSource,
 } from "@/interfaces/record-correction";
 import { useDateFormat } from "@/lib/dates";
+import { lineAmount, lineName } from "@/lib/issue-money";
 import { cn } from "@/lib/utils";
 import {
   badNumber,
@@ -65,6 +68,7 @@ import {
   initialDraft,
   missingRequired,
   NO_CHOICE,
+  overPlaces,
 } from "@/lib/record-correction";
 import {
   correctRecord,
@@ -90,6 +94,34 @@ export function useCanCorrect(kind: CorrectableKind): boolean {
 function useFieldLabel() {
   const t = useTranslations("recordCorrection.field");
   return (name: string) => (t.has(name) ? t(name as never) : name);
+}
+
+/**
+ * A field as the window names it: an issue line's 单价 as
+ * 「1. Diesel 单价（RM / Liter）」 (JB171), anything else by its name.
+ */
+function useCorrectionLabel() {
+  const t = useTranslations("recordCorrection");
+  const fieldLabel = useFieldLabel();
+  const unitName = useUnitName();
+  return (field: CorrectionField) =>
+    field.line
+      ? t("linePrice", { name: lineName(field.line), unit: unitName(field.line.unit) })
+      : fieldLabel(field.name);
+}
+
+/** 数量 × 单价 = 金额 beside an issue line's 单价, worked out as it is typed (JB171). */
+function LineAmountNote({ line, typed }: { line: CorrectionLine; typed: string }) {
+  const t = useTranslations("recordCorrection");
+  const unitName = useUnitName();
+  const worked = lineAmount(line, typed);
+  if (!worked) return <p className="text-xs text-muted-foreground">{t("lineAmountEmpty")}</p>;
+  return (
+    <p className="tabular text-xs" data-line-amount={line.id}>
+      {t("lineAmount", { quantity: `${worked.quantity} ${unitName(line.unit)}`, price: typed.trim(), amount: worked.amount })}
+      {worked.requested && <span className="ml-1 text-muted-foreground">{t("lineAmountRequested")}</span>}
+    </p>
+  );
 }
 
 const GOLD_TAG =
@@ -285,7 +317,7 @@ function CorrectionInput({
         type="number"
         inputMode="decimal"
         min="0"
-        step="any"
+        step={field.places !== undefined ? 1 / 10 ** field.places : "any"}
         value={value}
         disabled={locked}
         onChange={(event) => onChange(event.target.value)}
@@ -334,7 +366,7 @@ export function RecordCorrectionDialog({
   title?: string;
 }) {
   const t = useTranslations("recordCorrection");
-  const fieldLabel = useFieldLabel();
+  const labelOf = useCorrectionLabel();
   const queryClient = useQueryClient();
   const form = useQuery({
     queryKey: ["record-correction-form", kind, recordId],
@@ -354,6 +386,9 @@ export function RecordCorrectionDialog({
   const unchanged = Object.keys(changes).length === 0;
   const missing = missingRequired(fields, values);
   const number = badNumber(fields, values);
+  const places = overPlaces(fields, values);
+  // An issue line's 单价 changes (JB171): money, so the PIN is asked on 保存.
+  const pricing = fields.some((field) => field.line && field.name in changes);
   // An archived return (JB169, 客户 11-11: 「已归档的退货记录如需更正，必须通过
   // 六位数密码验证，同时保留完整修改历史」): every change is a correction - a
   // reason, the PIN (the server asks for it), and a line in 修改记录.
@@ -383,10 +418,12 @@ export function RecordCorrectionDialog({
   const disabledReason = unchanged
     ? t("unchanged")
     : missing
-      ? t("missing", { field: fieldLabel(missing.name) })
+      ? t("missing", { field: labelOf(missing) })
       : number
-        ? t("badNumber", { field: fieldLabel(number.name) })
-        : undefined;
+        ? t("badNumber", { field: labelOf(number) })
+        : places
+          ? t("tooManyPlaces", { field: labelOf(places), places: places.places ?? 0 })
+          : undefined;
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
@@ -424,8 +461,8 @@ export function RecordCorrectionDialog({
                 return (
                   <FieldWrapper
                     key={field.name}
-                    label={fieldLabel(field.name)}
-                    required={field.required && !field.locked}
+                    label={labelOf(field)}
+                    required={field.required && !field.line && !field.locked}
                     hint={[
                       field.locked
                         ? t("archivedField")
@@ -445,6 +482,7 @@ export function RecordCorrectionDialog({
                       locked={locked}
                       onChange={(next) => setDraft(changeDraft(fields, values, field.name, next))}
                     />
+                    {field.line && <LineAmountNote line={field.line} typed={values[field.name] ?? ""} />}
                   </FieldWrapper>
                 );
               })}
@@ -469,6 +507,7 @@ export function RecordCorrectionDialog({
                   ? t("evidenceNote")
                   : t("fillNote")}
             </p>
+            {pricing && <p className="text-xs font-medium">{t("priceNeedsPin")}</p>}
             {/* Why 保存改正 will not press, written out: a tooltip on a grey
                 button is never seen (客户 11-11, 图4: a return with no 规格
                 chosen would not save and nothing said why). */}
