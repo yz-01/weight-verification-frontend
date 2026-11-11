@@ -187,6 +187,18 @@ function rowId(row: unknown): string | undefined {
 }
 
 /**
+ * A column's own width, from `meta.width` (JB165): a list that gives every
+ * column but one a width lines its rows up the same on every page, and the
+ * one without takes what is left. A list that gives none is laid out by its
+ * content, as before.
+ */
+export function columnWidth(meta: unknown): string | undefined {
+  if (typeof meta !== "object" || meta === null || !("width" in meta)) return undefined;
+  const { width } = meta as { width?: unknown };
+  return typeof width === "string" && width ? width : undefined;
+}
+
+/**
  * Cells whose whole area is their own: only the tick box, so a near miss
  * ticks nothing and opens nothing. Everywhere else the empty part of a cell
  * opens the row like the rest of it (JB42, Lucas 10-27: the blank 资料包 cell
@@ -441,6 +453,7 @@ function TableFrame<T>({
                     key={header.id}
                     pin={header.column.id === pinnedId ? "end" : undefined}
                     className="h-11 px-4 text-xs font-semibold text-muted-foreground"
+                    style={{ width: columnWidth(header.column.columnDef.meta) }}
                   >
                     {header.isPlaceholder
                       ? null

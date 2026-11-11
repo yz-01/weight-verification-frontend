@@ -15,6 +15,9 @@
  *   server accepts (`ALLOWED_DOCUMENT_EXTENSIONS`).
  * - `inUseOn` / `subcategoryInUseOn` / `scopeBadge`: which project a category
  *   or sub-category is in use on, and how its row says so (JB146).
+ * - `ARCHIVE_COLUMN_WIDTHS` / `FILLS_CELL` / `ONE_LINE` / `splitGroupTitle` /
+ *   `DocumentTitleCell` / `DocumentPathCell`: how a row of the list is laid
+ *   out (JB165).
  */
 
 import {
@@ -377,6 +380,120 @@ export function DocumentCategoryPicker({
   );
 }
 
+/**
+ * The 文件档案 list's column widths (JB165, Lucas 11-11: 「文件归档这里我觉得好乱，
+ * 能不能弄整齐好看」). Every column but the title has its own, so the rows line
+ * up the same on every page whatever the names on it, and the title takes
+ * what is left. With the pinned buttons they leave the title about 11rem on
+ * a 1366 px screen with the sidebar open - the list still fits without
+ * scrolling sideways (I39) - and every pixel more on a wider one. 编号 fits
+ * the longest number, 「DOC-261010-0001」; a longer one, or a longer date,
+ * widens its column rather than being cut.
+ */
+export const ARCHIVE_COLUMN_WIDTHS = {
+  document_no: "8rem",
+  thumbnail: "3.75rem",
+  category: "8rem",
+  project_name: "6.25rem",
+  created_by_name: "5.25rem",
+  status: "5rem",
+  version_count: "3.25rem",
+  created_at: "5.25rem",
+} as const;
+
+/**
+ * A cell's content that takes its column's width and gives none back
+ * (JB165): `w-0` adds nothing to the column's size, `min-w-full` fills it.
+ * A long name inside is cut by the column instead of widening it.
+ */
+export const FILLS_CELL = "w-0 min-w-full";
+
+/**
+ * One line, then 「…」 (JB165). Not `truncate` / `whitespace-nowrap`: a fitted
+ * table turns those back into wrapping (I39, globals.css), which broke
+ * 「Departme / nt」 and long file names over several lines. Inside
+ * `FILLS_CELL` a line kept whole cannot widen its column, which is what that
+ * rule is there to stop.
+ */
+export const ONE_LINE = "overflow-hidden text-ellipsis [white-space:nowrap]";
+
+/**
+ * A title the system made for a document of several files, 「<first file> 等
+ * 6 个文件」 (`groupTitle`), as its name and its ending: the list shows the
+ * ending whole and small under the name, and a long machine file name is
+ * what gives way (JB165). `template` is the language's
+ * `documents.uploadFile.groupTitle`; any other title is all name.
+ */
+export function splitGroupTitle(title: string, template: string): { name: string; suffix: string } {
+  const whole = { name: title, suffix: "" };
+  if (!template.startsWith("{name}") || !template.includes("{count}")) return whole;
+  const ending = template
+    .slice("{name}".length)
+    .replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+    .replace("\\{count\\}", "\\d+");
+  const match = new RegExp(`^(.+?)(${ending})$`).exec(title);
+  return match ? { name: match[1], suffix: match[2].trim() } : whole;
+}
+
+/**
+ * A row's title (JB165): the name on one line, the whole title on hover;
+ * under it, small, 「等 6 个文件」 and `detail` - where the files came from,
+ * or that there is none yet. The one column without a width: it takes what
+ * the others leave, never under 10rem; on a phone, where the table scrolls
+ * sideways, 15rem.
+ */
+export function DocumentTitleCell({ title, detail }: { title: string; detail?: React.ReactNode }) {
+  const t = useTranslations();
+  const { name, suffix } = splitGroupTitle(title, String(t.raw("documents.uploadFile.groupTitle")));
+  return (
+    <div className="min-w-40 max-sm:w-60">
+      <div className={cn(FILLS_CELL, "space-y-0.5")}>
+        <p className={cn(ONE_LINE, "font-medium text-foreground")} title={title} data-document-title>
+          {name}
+        </p>
+        {suffix || detail ? (
+          <div className="flex min-w-0 items-center gap-2 text-xs">
+            {suffix ? (
+              <span className="shrink-0 text-muted-foreground [white-space:nowrap]" data-group-count>
+                {suffix}
+              </span>
+            ) : null}
+            {detail}
+          </div>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Where a document is filed (B28 「显示路径」), in the list (JB165): the
+ * folder, then the category small over its sub-category, each on one line
+ * and never broken inside a word, the whole path on hover.
+ */
+export function DocumentPathCell({
+  category,
+  subcategory,
+}: {
+  category: string;
+  subcategory?: string | null;
+}) {
+  const path = [category, subcategory].filter(Boolean).join(" / ");
+  return (
+    <div className={cn(FILLS_CELL, "flex items-center gap-1.5")} title={path} data-document-path>
+      <Folder className="size-3.5 shrink-0 text-muted-foreground" />
+      {subcategory ? (
+        <span className="min-w-0 flex-1">
+          <span className={cn(ONE_LINE, "block text-xs text-muted-foreground")}>{category}</span>
+          <span className={cn(ONE_LINE, "block")}>{subcategory}</span>
+        </span>
+      ) : (
+        <span className={cn(ONE_LINE, "min-w-0 flex-1")}>{category}</span>
+      )}
+    </div>
+  );
+}
+
 export type ThumbnailKind = "image" | "photo" | "pdf" | "word" | "excel" | "file" | "none";
 
 const PHOTO_EXTENSIONS = new Set(["jpg", "jpeg", "png", "gif", "webp", "bmp", "heic", "heif", "tif", "tiff"]);
@@ -456,6 +573,7 @@ export function DocumentThumb({
   version,
   systemFile,
   coverUrl,
+  more = 0,
   onOpen,
 }: {
   version: DocumentVersion | null;
@@ -463,6 +581,11 @@ export function DocumentThumb({
   systemFile?: DocumentSystemFileInfo | null;
   /** E3: the list row's small stamped copy, when the document is a photograph. */
   coverUrl?: string | null;
+  /**
+   * The document's other files (J34-11), as 「+N」 on the picture's corner -
+   * one square a row, not a second tile beside it (JB165).
+   */
+  more?: number;
   onOpen: () => void;
 }) {
   const t = useTranslations();
@@ -527,36 +650,57 @@ export function DocumentThumb({
   const shown = coverUrl || systemFile?.thumbnail_url || firstPage || url;
   // A document's first page is shown whole, from its top; a photo fills the square.
   const isPage = Boolean(firstPage) || Boolean(systemFile && systemFile.kind !== "PHOTO" && !coverUrl);
+  const label = [
+    fileName ? `${t("filePreview.preview")} · ${fileName}` : t("documents.noFile"),
+    more > 0 ? t("documents.filesMore", { count: more }) : "",
+  ]
+    .filter(Boolean)
+    .join(" · ");
+  // JB165: one 40 px square on every row; the 「+N」 sits on its corner,
+  // partly outside it, so it covers neither a photo's middle nor most of the
+  // type's 「PDF」 / 「XLSX」. The room around the square keeps it inside the
+  // cell, which clips what spills over, and the same on rows without one.
   return (
-    <button
-      ref={button}
-      type="button"
-      className="flex h-10 w-10 shrink-0 flex-col items-center justify-center overflow-hidden rounded-md border bg-muted/40 transition-colors hover:border-primary/50"
-      title={fileName ? `${t("filePreview.preview")} · ${fileName}` : t("documents.noFile")}
-      aria-label={fileName ? `${t("filePreview.preview")} · ${fileName}` : t("documents.noFile")}
-      data-thumbnail={kind}
-      onClick={onOpen}
-    >
-      {kind === "image" && shown ? (
-        // eslint-disable-next-line @next/next/no-img-element -- a blob: URL fetched with the session, or the server's watermarked copy; next/image cannot load either.
-        <img
-          loading="lazy"
-          decoding="async"
-          src={shown}
-          alt=""
-          className={cn("h-full w-full", isPage ? "bg-card object-contain object-top" : "object-cover")}
-          onError={firstPage ? () => setPageFailed(true) : undefined}
-        />
-      ) : (
-        <>
-          <Icon className={cn("h-4 w-4", KIND_TONE[kind])} />
-          {extension && (
-            <span className="mt-0.5 max-w-full truncate px-0.5 text-2xs font-semibold leading-none text-muted-foreground">
-              {extension}
-            </span>
-          )}
-        </>
-      )}
-    </button>
+    <span className="relative inline-flex shrink-0 py-1 pr-2 align-middle" data-document-thumb>
+      <button
+        ref={button}
+        type="button"
+        className="flex size-10 shrink-0 flex-col items-center justify-center overflow-hidden rounded-md border bg-muted/40 transition-colors hover:border-primary/50"
+        title={label}
+        aria-label={label}
+        data-thumbnail={kind}
+        onClick={onOpen}
+      >
+        {kind === "image" && shown ? (
+          // eslint-disable-next-line @next/next/no-img-element -- a blob: URL fetched with the session, or the server's watermarked copy; next/image cannot load either.
+          <img
+            loading="lazy"
+            decoding="async"
+            src={shown}
+            alt=""
+            className={cn("h-full w-full", isPage ? "bg-card object-contain object-top" : "object-cover")}
+            onError={firstPage ? () => setPageFailed(true) : undefined}
+          />
+        ) : (
+          <>
+            <Icon className={cn("h-4 w-4", KIND_TONE[kind])} />
+            {extension && (
+              <span className="mt-0.5 max-w-full truncate px-0.5 text-2xs font-semibold leading-none text-muted-foreground">
+                {extension}
+              </span>
+            )}
+          </>
+        )}
+      </button>
+      {more > 0 ? (
+        <span
+          aria-hidden
+          data-more-files={more}
+          className="pointer-events-none absolute right-0 bottom-0 rounded-full bg-primary px-1.5 text-2xs font-semibold leading-4 text-primary-foreground tabular-nums ring-2 ring-card"
+        >
+          +{more}
+        </span>
+      ) : null}
+    </span>
   );
 }
