@@ -618,11 +618,19 @@ describe("「批量预览 / 打印」 (第 4、5 点)", () => {
   });
 });
 
-describe("totals without money", () => {
-  it("gives quantities only", () => {
+describe("the 汇总 on its own", () => {
+  it("gives quantities only without money", () => {
     const html = render(<IssueTotalsPanel totals={totals({ amount_total: null })} seesMoney={false} />);
     expect(html).toContain("9000.000 Liter");
     expect(html).not.toContain("MYR");
+  });
+
+  it("is 0.00 with money when no counted line has a price, and says why", () => {
+    const html = render(
+      <IssueTotalsPanel totals={totals({ amount_total: null, unpriced_lines: 50 })} seesMoney />,
+    );
+    expect(html).toContain("MYR 0.00");
+    expect(html).toContain(words.totalsUnpriced.replace("{count}", "50"));
   });
 });
 

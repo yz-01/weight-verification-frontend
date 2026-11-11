@@ -105,11 +105,12 @@ export function IssueTotalsPanel({
         <dd>
           <UnitQuantities quantities={totals.quantities} />
         </dd>
-        {seesMoney && totals.amount_total !== null && (
+        {/* Nothing priced counted yet is 0.00 - the lines left out are said below. */}
+        {seesMoney && (
           <>
             <dt className="text-muted-foreground">{t("issue.totalsAmount")}</dt>
             <dd className="tabular font-semibold" data-issue-amount-total>
-              {money(totals.amount_total)}
+              {money(totals.amount_total ?? "0.00")}
             </dd>
           </>
         )}
@@ -382,7 +383,7 @@ export function StatementSheet({
         <p className="flex flex-wrap items-baseline gap-x-3">
           <span className="text-muted-foreground">{t("issue.statementTotalAmount")}</span>
           <span className="tabular text-base font-bold">
-            {totals.amount_total !== null ? money(totals.amount_total) : "—"}
+            {money(totals.amount_total ?? "0.00")}
           </span>
         </p>
         {totals.unpriced_lines > 0 && (
