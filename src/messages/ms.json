@@ -20776,6 +20776,7 @@
       "hazard_create": "Buka item EHS",
       "hazard_verify": "Sahkan pembetulan EHS",
       "material_exit_approve": "Luluskan keluar bahan",
+      "material_issue_approve": "Luluskan pengeluaran bahan",
       "material_exit_confirm": "Sahkan keluar bahan",
       "equipment_exit_approve": "Luluskan keluar peralatan",
       "equipment_exit_confirm": "Sahkan keluar peralatan",

@@ -450,7 +450,8 @@ export function RecordCorrectionDialog({
             )}
             <p className="text-xs text-muted-foreground">{correcting || unchanged ? t("evidenceNote") : t("fillNote")}</p>
             {/* Why 保存改正 will not press, written out: a tooltip on a grey
-                button is never seen (客户 11-11, 图4). */}
+                button is never seen (客户 11-11, 图4: a return with no 规格
+                chosen would not save and nothing said why). */}
             {!unchanged && disabledReason && (
               <p role="status" data-record-correction-why className="text-sm font-medium text-destructive">
                 {disabledReason}

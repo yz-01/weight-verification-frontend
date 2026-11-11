@@ -20776,6 +20776,7 @@
       "hazard_create": "Raise an EHS item",
       "hazard_verify": "Verify an EHS rectification",
       "material_exit_approve": "Approve a material exit",
+      "material_issue_approve": "Approve a material issue",
       "material_exit_confirm": "Confirm a material exit",
       "equipment_exit_approve": "Approve an equipment exit",
       "equipment_exit_confirm": "Confirm an equipment exit",

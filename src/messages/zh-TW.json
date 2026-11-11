@@ -20776,6 +20776,7 @@
       "hazard_create": "建立 EHS 事項",
       "hazard_verify": "驗收確認 EHS 整改",
       "material_exit_approve": "批准材料退場",
+      "material_issue_approve": "批准材料領用",
       "material_exit_confirm": "最終確認材料退場",
       "equipment_exit_approve": "批准設備退場",
       "equipment_exit_confirm": "最終確認設備退場",

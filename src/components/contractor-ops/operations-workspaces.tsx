@@ -4867,7 +4867,11 @@ export function OutgoingDetailDialog({
               : []),
           ]}
           photos={row.photos.map((shot) => {
-            const stage = t(`outgoing.stage.${shot.stage ?? "APPLICATION"}`);
+            // An issue's handover photographs are 「领用照片」, not a return's exit (JB168).
+            const stage =
+              issue && shot.stage === "PROCESSING"
+                ? t("issue.handoverPhotos")
+                : t(`outgoing.stage.${shot.stage ?? "APPLICATION"}`);
             return {
               id: shot.id,
               url: shot.watermarked || shot.image,
@@ -4933,10 +4937,17 @@ export function OutgoingDetailDialog({
                 <dd className="font-medium">{when(row.submitted_by_name, row.captured_at)}</dd>
                 <dt className="text-muted-foreground">{t("outgoing.approvedBy")}</dt>
                 <dd className="font-medium">{when(row.approved_by_name, row.approved_at)}</dd>
-                <dt className="text-muted-foreground">{t("outgoing.processedBy")}</dt>
+                <dt className="text-muted-foreground">
+                  {issue ? t("issue.handover") : t("outgoing.processedBy")}
+                </dt>
                 <dd className="font-medium">{when(row.processed_by_name, row.processed_at)}</dd>
-                <dt className="text-muted-foreground">{t("outgoing.completedBy")}</dt>
-                <dd className="font-medium">{when(row.completed_by_name, row.completed_at)}</dd>
+                {/* An issue closes with its handover on site (JB168): no separate 完成人. */}
+                {issue ? null : (
+                  <>
+                    <dt className="text-muted-foreground">{t("outgoing.completedBy")}</dt>
+                    <dd className="font-medium">{when(row.completed_by_name, row.completed_at)}</dd>
+                  </>
+                )}
               </dl>
             </section>
             </>
