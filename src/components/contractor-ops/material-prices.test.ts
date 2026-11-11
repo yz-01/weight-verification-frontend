@@ -4,6 +4,8 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { isValidUnitPrice } from "@/components/contractor-ops/material-prices";
+import { groupMoney } from "@/components/contractor-ops/category-management";
+import { lineCost } from "@/components/shared/material-lines";
 
 /**
  * 材料单价 (JB167, 客户 11-11): 「材料分类管理已经设定单价，材料每次进场时，系统
@@ -70,5 +72,36 @@ describe("the category's spend is the cost report's figure (第 6 点)", () => {
     const form = read("src/components/receipts/create-receipt.tsx");
     expect(form).toContain('receipt.unit_price_source === "PRICE_LIST"');
     expect(form).toContain('t("receipts.field.unitPriceFromList")');
+  });
+});
+
+describe("a record's material lines (browser check 11-11)", () => {
+  it("show 成本 = 数量 × 单价 beside the price, not a blank 金额", () => {
+    expect(lineCost("12.000", "700.00")).toBe("8,400.00");
+    expect(lineCost("0.125", "10.05")).toBe("1.26");
+    expect(lineCost("1000", "1250.5")).toBe("1,250,500.00");
+    for (const [qty, price] of [["12.000", null], [null, "700.00"], ["12", ""], ["12", "0"], ["x", "1"]]) {
+      expect(lineCost(qty, price), `${qty} × ${price}`).toBeNull();
+    }
+    for (const language of LANGUAGES) {
+      expect(catalogue(language).materialLines.cost, language).toBeTruthy();
+    }
+  });
+
+  it("refreshes 材料分类's list (its 单价 line and 花费) after a price is saved", () => {
+    expect(read("src/components/contractor-ops/material-prices.tsx")).toContain(
+      'invalidateQueries({ queryKey: ["category-management"] })',
+    );
+  });
+});
+
+describe("材料分类's 花费 (browser check 11-11)", () => {
+  it("groups thousands like the cost report, so RM 23,600.00 reads the same on both", () => {
+    expect(groupMoney("23600.00")).toBe("23,600.00");
+    expect(groupMoney("650.00")).toBe("650.00");
+    expect(groupMoney("1234567.5")).toBe("1,234,567.5");
+    expect(groupMoney("-2500.00")).toBe("-2,500.00");
+    expect(groupMoney(null)).toBe("");
+    expect(groupMoney("abc")).toBe("abc");
   });
 });

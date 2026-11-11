@@ -60,6 +60,29 @@ export interface ShownMaterialLine {
   amount?: string | null;
 }
 
+/**
+ * 成本 = 数量 × 单价 of one line (JB167, 客户 11-11 第 2 点) - the figure the cost
+ * report and 材料分类's 花费 add up (`receiving/costs.py`) - to two decimals with
+ * thousands separators; ``null`` when either is missing. Worked in whole
+ * thousandths × cents so no float rounding creeps in.
+ */
+export function lineCost(quantity?: string | null, unitPrice?: string | null): string | null {
+  const scaled = (value: string | null | undefined, places: number): bigint | null => {
+    const text = String(value ?? "").replace(/,/g, "").trim();
+    const match = /^(\d+)(?:\.(\d+))?$/.exec(text);
+    if (!match) return null;
+    const fraction = (match[2] ?? "").padEnd(places, "0");
+    if (fraction.length > places) return null;
+    return BigInt(match[1] + fraction);
+  };
+  const qty = scaled(quantity, 3);
+  const price = scaled(unitPrice, 2);
+  if (qty === null || price === null || price === BigInt(0)) return null;
+  const sen = (qty * price + BigInt(500)) / BigInt(1000); // thousandths × cents → cents, half up
+  const whole = (sen / BigInt(100)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return `${whole}.${(sen % BigInt(100)).toString().padStart(2, "0")}`;
+}
+
 /** The materials of a record, one row each (J35). */
 export function MaterialLinesTable({
   lines,
@@ -80,6 +103,7 @@ export function MaterialLinesTable({
           <TableHead>{t("specification")}</TableHead>
           <TableHead className="text-right">{t("quantity")}</TableHead>
           {money && <TableHead className="text-right">{t("unitPrice")}</TableHead>}
+          {money && <TableHead className="text-right">{t("cost")}</TableHead>}
           {money && <TableHead className="text-right">{t("amount")}</TableHead>}
         </TableRow>
       </TableHeader>
@@ -93,6 +117,9 @@ export function MaterialLinesTable({
               {line.quantity ?? "—"} {unitName(line.unit, line.unit_label ?? null)}
             </TableCell>
             {money && <TableCell className="text-right tabular">{line.unit_price || "—"}</TableCell>}
+            {money && (
+              <TableCell className="text-right tabular">{lineCost(line.quantity, line.unit_price) ?? "—"}</TableCell>
+            )}
             {money && <TableCell className="text-right tabular">{line.amount || "—"}</TableCell>}
           </TableRow>
         ))}

@@ -1849,6 +1849,17 @@ function MachineProfileLine({ row }: { row: EquipmentProfileRow }) {
  * Over budget is its own state, not "100% and a bit": the bar stops at full
  * so the number, not the bar, says how far past it went.
  */
+/**
+ * 「23600.00」 → 「23,600.00」: the same grouping the 材料成本报表 prints, so the
+ * two figures read alike side by side (browser check 11-11, JB167 第 6 点).
+ */
+export function groupMoney(value: string | number | null | undefined): string {
+  const text = String(value ?? "");
+  const match = /^(-?)(\d+)(\.\d+)?$/.exec(text);
+  if (!match) return text;
+  return `${match[1]}${match[2].replace(/\B(?=(\d{3})+(?!\d))/g, ",")}${match[3] ?? ""}`;
+}
+
 function SpendCell({ column }: { column: ProjectCategory }) {
   const t = useTranslations("categoryManagement");
   const unitName = useUnitName();
@@ -1884,7 +1895,7 @@ function SpendCell({ column }: { column: ProjectCategory }) {
                   budget: column.budget_quantity ?? "",
                   unit: unitName(column.default_unit, column.default_unit_label),
                 })
-              : `RM ${column.spend_amount} / RM ${column.budget_amount}`}
+              : `RM ${groupMoney(column.spend_amount)} / RM ${groupMoney(column.budget_amount)}`}
             {percent !== null && ` (${percent}%)`}
           </p>
           <div className="h-1.5 overflow-hidden rounded-full bg-muted">
@@ -1898,7 +1909,7 @@ function SpendCell({ column }: { column: ProjectCategory }) {
         <>
           {/* 实际花费 without a budget too (JB167): the cost report's figure. */}
           {!quantityMode && column.spend_amount != null && (
-            <p className="text-xs tabular-nums">{t("budget.spentOnly", { spent: column.spend_amount })}</p>
+            <p className="text-xs tabular-nums">{t("budget.spentOnly", { spent: groupMoney(column.spend_amount) })}</p>
           )}
           <p className="text-xs text-muted-foreground">{t("budget.none")}</p>
         </>

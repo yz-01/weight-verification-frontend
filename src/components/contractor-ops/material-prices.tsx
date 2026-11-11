@@ -263,7 +263,9 @@ function SetPriceForm({
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["material-prices"] });
       void queryClient.invalidateQueries({ queryKey: ["material-price-history", entry.category] });
-      // The list's 单价 line and 花费 move with it.
+      // The list's 单价 line and 花费 move with it (材料分类 reads
+      // ["category-management", ...]; other pickers ["project-categories"]).
+      void queryClient.invalidateQueries({ queryKey: ["category-management"] });
       void queryClient.invalidateQueries({ queryKey: ["project-categories"] });
       void queryClient.invalidateQueries({ queryKey: ["receipts"] });
       onDone();
