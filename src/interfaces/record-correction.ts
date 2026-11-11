@@ -69,6 +69,11 @@ export interface CorrectionForm {
   blocked: { reason: string; message: string } | null;
   /** Confirmed and archived: only a blank field may be filled in (Lucas 10-30). */
   archived?: boolean;
+  /**
+   * An archived return (JB169, 客户 11-11): every change - a blank filled in
+   * too - asks why and the PIN, and is kept in 修改记录.
+   */
+  every_change_signed?: boolean;
   fields: CorrectionField[];
 }
 

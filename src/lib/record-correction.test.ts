@@ -147,6 +147,18 @@ describe("material → specification (I19, ID46)", () => {
     expect(missingRequired(fields, draft)?.name).toBe("specification");
   });
 
+  // 客户 11-11 (图4–图7): three Disel returns had no specification chosen and
+  // would not save; the client: 「不用了是规格问题」「正确的」 - the rule stays,
+  // the window now writes the reason out (record-correction.tsx).
+  it("a record filed without a specification must choose one before it saves", () => {
+    const pending = fields.map((entry) =>
+      entry.name === "specification" || entry.name === "material_specification"
+        ? { ...entry, value: "" }
+        : entry,
+    );
+    expect(missingRequired(pending, initialDraft(pending))?.name).toBe("specification");
+  });
+
   it("a specification with a unit sets and locks the unit", () => {
     let draft = changeDraft(fields, initialDraft(fields), "material", "cement");
     draft = changeDraft(fields, draft, "specification", "bag");

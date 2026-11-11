@@ -41,6 +41,7 @@ import Link from "next/link";
 
 import { MaterialTabs } from "@/components/receipts/material-tabs";
 import { SpecCell } from "@/components/receipts/spec-pending-tag";
+import { ReturnSupplierCell } from "@/components/contractor-ops/return-supplier";
 import {
   EquipmentMovementActions,
   equipmentReturnNoteSource,
@@ -53,7 +54,8 @@ import { useFileActions } from "@/components/shared/file-actions";
 import { Checkbox } from "@/components/ui/checkbox";
 import { movementStatusKey } from "@/lib/equipment-exit";
 import { ARCHIVE_LOCKS_CHANGES } from "@/lib/archive-policy";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { MaterialIssueList, OutgoingKindSwitch } from "@/components/contractor-ops/material-issue";
 import { useMemo, useState } from "react";
 
 import { AddToPackageButton } from "@/components/contractor-ops/add-to-package";
@@ -244,9 +246,26 @@ export function MaterialOutgoingOffice() {
   ]);
   const unitName = useUnitName();
   const unitValues = useUnitExportValues();
+  // 「供应商退货」 or 「材料领用」 (JB168): `?kind=ISSUE` opens the issues, so
+  // a notice about one lands on its own view. The returns' list is unchanged
+  // and asks for returns only.
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const view: "RETURN" | "ISSUE" = searchParams.get("kind") === "ISSUE" ? "ISSUE" : "RETURN";
+  const switchView = (next: "RETURN" | "ISSUE") => {
+    const params = new URLSearchParams();
+    const keep = searchParams.get("project");
+    if (keep) params.set("project", keep);
+    if (next === "ISSUE") params.set("kind", "ISSUE");
+    const query = params.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+  };
+  const returnsQuery = { ...list.query, kind: "RETURN" };
   const rows = useQuery({
-    queryKey: ["material-outgoing", "office", list.query],
-    queryFn: () => getMaterialOutgoing(list.query),
+    queryKey: ["material-outgoing", "office", returnsQuery],
+    queryFn: () => getMaterialOutgoing(returnsQuery),
+    enabled: view === "RETURN",
   });
   const review = useMutation({
     mutationFn: ({
@@ -372,19 +391,13 @@ export function MaterialOutgoingOffice() {
       // The supplier it goes back to (2026-10 C7), in place of the
       // destination - since 10-02 a return goes to its supplier, and the
       // destination only repeated the supplier's name. Since C9 a return
-      // may name none: 「—」.
+      // may name none - 「待补供应商」 until the office fills it in (JB169:
+      // 「未选择供应商不能确认归档」).
       {
         accessorKey: "supplier_name",
         meta: { label: t("field.supplier") },
         header: () => <PlainHeader label={t("field.supplier")} />,
-        cell: ({ row }) => (
-          <span
-            className="block max-w-45 truncate"
-            title={row.original.supplier_name ?? ""}
-          >
-            {row.original.supplier_name || "—"}
-          </span>
-        ),
+        cell: ({ row }) => <ReturnSupplierCell row={row.original} />,
       },
       // 指定厂商（MR） (2026-10 D1; 2026-10-10), copied from the delivery it
       // went back from. Shown only when a row in view names one.
@@ -424,7 +437,7 @@ export function MaterialOutgoingOffice() {
       title,
       subtitle: tRoot("moduleTable.count", { count: total }),
       emptyLabel: t("state.empty"),
-      query: list.query,
+      query: returnsQuery,
       columns: [
         { key: "reference_no", label: tRoot("recordNo.inOutColumn") },
         { key: "category_name", label: t("field.category") },
@@ -463,8 +476,53 @@ export function MaterialOutgoingOffice() {
       },
     });
 
+  const detailAndDialogs = (
+    <>
+      {viewing && (
+        <OutgoingDetailDialog
+          id={viewing}
+          onClose={() => setViewing(null)}
+          renderActions={(current) => (
+            <OutgoingActions
+              row={current}
+              pending={review.isPending}
+              onReview={(status) => onReview(current, status)}
+            />
+          )}
+        />
+      )}
+      {rejecting && (
+        <RejectOutgoingDialog
+          row={rejecting}
+          pending={review.isPending}
+          onClose={() => setRejecting(null)}
+          onConfirm={(note) => {
+            review.mutate({ id: rejecting.id, status: "REJECTED", note });
+            setRejecting(null);
+          }}
+        />
+      )}
+    </>
+  );
+
+  if (view === "ISSUE") {
+    return (
+      <div className="space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h1 className="text-xl font-semibold">{title}</h1>
+          <OutgoingKindSwitch value={view} onChange={switchView} />
+        </div>
+        <MaterialIssueList onOpen={(id) => setViewing(id)} />
+        {detailAndDialogs}
+      </div>
+    );
+  }
+
   return (
     <>
+      <div className="mb-2 flex justify-end">
+        <OutgoingKindSwitch value={view} onChange={switchView} />
+      </div>
       <ModuleRecordsTable
         corrected={{ kind: "MATERIAL_OUTGOING" }}
         title={title}
@@ -514,30 +572,7 @@ export function MaterialOutgoingOffice() {
         }
         onOpen={(row) => setViewing(row.id)}
       />
-      {viewing && (
-        <OutgoingDetailDialog
-          id={viewing}
-          onClose={() => setViewing(null)}
-          renderActions={(current) => (
-            <OutgoingActions
-              row={current}
-              pending={review.isPending}
-              onReview={(status) => onReview(current, status)}
-            />
-          )}
-        />
-      )}
-      {rejecting && (
-        <RejectOutgoingDialog
-          row={rejecting}
-          pending={review.isPending}
-          onClose={() => setRejecting(null)}
-          onConfirm={(note) => {
-            review.mutate({ id: rejecting.id, status: "REJECTED", note });
-            setRejecting(null);
-          }}
-        />
-      )}
+      {detailAndDialogs}
     </>
   );
 }

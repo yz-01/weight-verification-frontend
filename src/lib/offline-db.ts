@@ -294,6 +294,14 @@ export interface MaterialOutgoingOfflineJob extends OfflineJobBase {
   payload: {
     project: string;
     /**
+     * 材料领用 (JB168): queued like a return, with the machine, the 领用人
+     * and the materials as JSON text. Absent on a return.
+     */
+    kind?: "RETURN" | "ISSUE";
+    equipment?: string;
+    recipient_name?: string;
+    lines?: string;
+    /**
      * Since 2026-10 C9 the supplier is optional and no delivery is chosen
      * (X20); `source_receipt` stays for a job an older build queued.
      */
@@ -337,6 +345,8 @@ export interface MaterialOutgoingExitOfflineJob extends OfflineJobBase {
     /** Its number, so the queue says which return is waiting. */
     reference_no: string;
     returned_quantity: string;
+    /** 材料领用 (JB168): each line's 实际领用数量 as JSON text. */
+    issued?: string;
     note?: string;
     latitude?: string;
     longitude?: string;

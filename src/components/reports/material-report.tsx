@@ -9,6 +9,7 @@ import {
   ClipboardList,
   FilterX,
   Package,
+  PackageMinus,
   ReceiptText,
 } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
@@ -805,10 +806,10 @@ function CostReport({
   const unitName = useUnitName();
   const formatter = useFormatter();
 
-  if (!data || data.total_receipts === 0) return <EmptyReport />;
+  if (!data || (data.total_receipts === 0 && !data.issue_lines)) return <EmptyReport />;
 
-  const money = (value: string | null) =>
-    value === null
+  const money = (value: string | null | undefined) =>
+    value === null || value === undefined
       ? t("common.emptyValue")
       : formatter.number(Number(value), { style: "currency", currency: "MYR" });
   const coverage =
@@ -821,8 +822,15 @@ function CostReport({
       <MetricRow>
         <Metric
           icon={Calculator}
-          label={t("materialReports.cost.totalCost")}
+          label={t("materialReports.cost.purchaseCost")}
           value={money(data.total_cost)}
+        />
+        {/* 领用金额 (JB168): its own figure beside 采购成本, never added to it. */}
+        <Metric
+          icon={PackageMinus}
+          label={t("materialReports.cost.issueAmount")}
+          value={money(data.issue_amount_total)}
+          detail={t("materialReports.cost.separateNote")}
         />
         <Metric
           icon={ReceiptText}
@@ -837,6 +845,13 @@ function CostReport({
           warning={data.unpriced_receipts > 0}
         />
       </MetricRow>
+
+      {(data.unpriced_issue_lines ?? 0) > 0 && (
+        <div className="flex items-start gap-2 rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 text-sm text-foreground">
+          <AlertTriangle className="mt-0.5 size-4 shrink-0 text-warning" />
+          <p>{t("materialReports.cost.unpricedIssueWarning", { count: data.unpriced_issue_lines ?? 0 })}</p>
+        </div>
+      )}
 
       {data.unpriced_receipts > 0 && (
         <div className="flex items-start gap-2 rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 text-sm text-foreground">
@@ -885,7 +900,10 @@ function CostReport({
                 <TableHead>{t("reports.receipts.material")}</TableHead>
                 <TableHead>{t("receipts.field.spec")}</TableHead>
                 <TableHead>{t("reports.receipts.unit")}</TableHead>
-                <TableHead className="text-right">{t("materialReports.cost.totalCost")}</TableHead>
+                <TableHead className="text-right">{t("materialReports.cost.cumulativeReceived")}</TableHead>
+                <TableHead className="text-right">{t("materialReports.cost.issuedQuantity")}</TableHead>
+                <TableHead className="text-right">{t("materialReports.cost.purchaseCost")}</TableHead>
+                <TableHead className="text-right">{t("materialReports.cost.issueAmount")}</TableHead>
                 <TableHead className="text-right">{t("materialReports.cost.missingPrices")}</TableHead>
               </TableRow>
             </TableHeader>
@@ -895,7 +913,20 @@ function CostReport({
                   <TableCell className="font-medium">{row.material_name}</TableCell>
                   <TableCell>{row.material_specification || "—"}</TableCell>
                   <TableCell><TypeBadge label={unitName(row.unit)} /></TableCell>
+                  <TableCell className="tabular text-right">{row.cumulative_received ?? "—"}</TableCell>
+                  <TableCell className="tabular text-right">{row.issued_quantity ?? "—"}</TableCell>
                   <TableCell className="tabular text-right">{money(row.total_cost)}</TableCell>
+                  <TableCell className="tabular text-right">
+                    {/* 「没有单价」, never 0 (JB168). */}
+                    {/* Written like 采购成本 beside it: MYR 5,760.00. */}
+                    {row.issue_amount != null
+                      ? money(row.issue_amount)
+                      : ((row.unpriced_issue_lines ?? 0) > 0 ? (
+                        <span className="text-warning">{t("materialReports.cost.unpriced")}</span>
+                      ) : (
+                        t("common.emptyValue")
+                      ))}
+                  </TableCell>
                   <TableCell className="tabular text-right">
                     {row.unpriced_receipts > 0 ? (
                       <span className="text-warning">{row.unpriced_receipts}</span>

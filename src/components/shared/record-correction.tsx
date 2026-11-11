@@ -55,6 +55,7 @@ import { cn } from "@/lib/utils";
 import {
   badNumber,
   changeDraft,
+  isCorrecting,
   isShown,
   lockedValue,
   offeredOptions,
@@ -317,11 +318,20 @@ export function RecordCorrectionDialog({
   recordId,
   onClose,
   onCorrected,
+  only,
+  title,
 }: {
   kind: CorrectableKind;
   recordId: string;
   onClose: () => void;
   onCorrected?: () => void;
+  /**
+   * Only these fields, for a one-field action beside a button - 「补供应商」
+   * beside a return's 确认 (JB169). The rest of the record is left as it is.
+   */
+  only?: readonly string[];
+  /** The dialog's heading in place of 「改正记录内容」 (「补供应商」). */
+  title?: string;
 }) {
   const t = useTranslations("recordCorrection");
   const fieldLabel = useFieldLabel();
@@ -335,18 +345,22 @@ export function RecordCorrectionDialog({
   });
   const [draft, setDraft] = useState<Record<string, string> | null>(null);
   const [reason, setReason] = useState("");
-  const fields = form.data?.fields ?? [];
+  const fields = (form.data?.fields ?? []).filter(
+    (field) => !only || only.includes(field.name),
+  );
   // The draft starts from the record once its form has arrived.
   const values = draft ?? initialDraft(fields);
   const { changes, expected } = correctionChanges(fields, values);
   const unchanged = Object.keys(changes).length === 0;
   const missing = missingRequired(fields, values);
   const number = badNumber(fields, values);
+  // An archived return (JB169, 客户 11-11: 「已归档的退货记录如需更正，必须通过
+  // 六位数密码验证，同时保留完整修改历史」): every change is a correction - a
+  // reason, the PIN (the server asks for it), and a line in 修改记录.
+  const signedAlways = Boolean(form.data?.every_change_signed);
   // Filling a blank is no correction and asks no reason (Lucas 10-30:
   // 「后台需要补进去的东西都不算改正」); changing what was there does.
-  const correcting = Object.keys(changes).some(
-    (name) => (fields.find((field) => field.name === name)?.value ?? "") !== "",
-  );
+  const correcting = isCorrecting(fields, changes, signedAlways);
   const archived = Boolean(form.data?.archived);
 
   const save = useMutation({
@@ -378,7 +392,7 @@ export function RecordCorrectionDialog({
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{archived ? t("fillTitle") : t("title")}</DialogTitle>
+          <DialogTitle>{title ?? (archived ? t("fillTitle") : t("title"))}</DialogTitle>
           <DialogDescription>
             {form.data?.reference ? `${form.data.reference} · ` : ""}
             {archived ? t("archivedHint") : t("hint")}
@@ -434,7 +448,7 @@ export function RecordCorrectionDialog({
                   </FieldWrapper>
                 );
               })}
-            {correcting && (
+            {(correcting || signedAlways) && (
               <FieldWrapper
                 label={t("reason")}
                 required
@@ -448,7 +462,21 @@ export function RecordCorrectionDialog({
                 />
               </FieldWrapper>
             )}
-            <p className="text-xs text-muted-foreground">{correcting || unchanged ? t("evidenceNote") : t("fillNote")}</p>
+            <p className="text-xs text-muted-foreground">
+              {signedAlways
+                ? t("signedNote")
+                : correcting || unchanged
+                  ? t("evidenceNote")
+                  : t("fillNote")}
+            </p>
+            {/* Why 保存改正 will not press, written out: a tooltip on a grey
+                button is never seen (客户 11-11, 图4: a return with no 规格
+                chosen would not save and nothing said why). */}
+            {!unchanged && disabledReason && (
+              <p role="status" data-record-correction-why className="text-sm font-medium text-destructive">
+                {disabledReason}
+              </p>
+            )}
           </div>
         )}
         <DialogFooter>
@@ -464,7 +492,7 @@ export function RecordCorrectionDialog({
               onClick={() => save.mutate()}
             >
               {save.isPending ? <Loader2 className="animate-spin" /> : <PencilLine />}
-              {correcting ? t("save") : t("fillSave")}
+              {correcting || signedAlways ? t("save") : t("fillSave")}
             </Button>
           )}
         </DialogFooter>

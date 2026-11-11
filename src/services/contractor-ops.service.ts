@@ -34,7 +34,10 @@ import type {
   EquipmentPayload,
   FieldTask,
   FieldTaskPayload,
+  MaterialIssueListRow,
+  MaterialIssueOptions,
   MaterialOutgoing,
+  MaterialOutgoingKind,
   MyTaskRow,
   PersonOption,
   ProjectCategory,
@@ -908,6 +911,14 @@ export const getMaterialOutgoing = (query: ListQuery = {}): Promise<Paginated<Ma
  */
 export async function createMaterialOutgoing(payload: {
   project: string;
+  /**
+   * 材料领用 (JB168): `kind` ISSUE, the machine scanned, the 领用人 typed and
+   * the materials as JSON text (`lines`); a return sends none of these.
+   */
+  kind?: MaterialOutgoingKind;
+  equipment?: string;
+  recipient_name?: string;
+  lines?: string;
   supplier?: string; source_receipt?: string;
   /** Whose make (2026-10 D1); the server takes the delivery's when absent. */
   manufacturer?: string;
@@ -935,9 +946,20 @@ export async function createMaterialOutgoing(payload: {
     "/api/material-outgoing/create_record/",
     data,
   );
-  toastSuccess("contractorOps.toast.outgoingSubmitted");
+  toastSuccess(
+    payload.kind === "ISSUE" ? "contractorOps.toast.issueSubmitted" : "contractorOps.toast.outgoingSubmitted",
+    payload.kind === "ISSUE" ? { reference: row.reference_no } : undefined,
+  );
   return row;
 }
+
+/** 「材料领用」 in the office's 材料出场 (JB168): one row per material. */
+export const getMaterialIssueLines = (query: ListQuery = {}) =>
+  api.list<MaterialIssueListRow>("/api/material-outgoing/get_issue_lines/", query);
+
+/** The choices of the 材料领用 list's filters (材料名称, 所属公司, 设备编号, 领用人). */
+export const getMaterialIssueOptions = (project?: string) =>
+  api.get<MaterialIssueOptions>("/api/material-outgoing/get_issue_options/", { project });
 /** One application with its photographs split by step (T-358). */
 export const getMaterialOutgoingRecord = (id: string) =>
   api.get<MaterialOutgoing>(`/api/material-outgoing/${id}/get_record/`);
@@ -988,6 +1010,11 @@ export async function returnMaterialOutgoingProcessing(
     longitude?: string;
     /** What actually left, and both sides' signatures as it went. */
     returned_quantity: string;
+    /**
+     * 材料领用 (JB168): each line's 实际领用数量 as JSON text,
+     * `[{line, issued_quantity}]`; the signatures are 发料负责人 and 领用人.
+     */
+    issued?: string;
     site_signature: File;
     supplier_signature: File;
     vehicle_plate?: string;
@@ -1005,6 +1032,7 @@ export async function returnMaterialOutgoingProcessing(
   appendPhotoTimes(data, payload.photos);
   if (payload.client_event_id) data.append("client_event_id", payload.client_event_id);
   data.append("returned_quantity", payload.returned_quantity);
+  if (payload.issued) data.append("issued", payload.issued);
   data.append("site_signature", payload.site_signature);
   data.append("supplier_signature", payload.supplier_signature);
   for (const key of ["vehicle_plate", "delivery_note_no", "supplier", "category"] as const) {
@@ -1017,7 +1045,7 @@ export async function returnMaterialOutgoingProcessing(
     `/api/material-outgoing/${id}/return_processing/`,
     data,
   );
-  toastSuccess("contractorOps.toast.outgoingProcessed");
+  toastSuccess(payload.issued ? "contractorOps.toast.issueHandedOver" : "contractorOps.toast.outgoingProcessed");
   return row;
 }
 
