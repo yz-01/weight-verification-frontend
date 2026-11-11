@@ -150,6 +150,25 @@ export function changeDraft(
 }
 
 /** The first required field left empty, or null. */
+/**
+ * Whether a dependent choice (a material's specification) must be chosen now.
+ *
+ * Only when it had a value - it cannot be emptied - or when what it depends
+ * on was changed in this draft, which is when the server asks for it too. A
+ * record filed without one (「待补规格」) can still have its other fields
+ * corrected (客户 11-11: 「这两条退货记录一条可以改……另外一条改不了，奇怪」 -
+ * the one without a specification would not save, and nothing said why).
+ */
+function dependentIsAsked(
+  fields: CorrectionField[],
+  field: CorrectionField,
+  draft: Record<string, string>,
+): boolean {
+  if ((field.value ?? "") !== "") return true;
+  const parent = fields.find((other) => other.name === field.depends_on);
+  return parent !== undefined && (draft[parent.name] ?? "") !== (parent.value ?? "");
+}
+
 export function missingRequired(
   fields: CorrectionField[],
   draft: Record<string, string>,
@@ -159,7 +178,9 @@ export function missingRequired(
       (field) =>
         (field.required ||
           (field.only_for_other && isShown(fields, field, draft)) ||
-          (field.depends_on && offeredOptions(field, draft).length > 0)) &&
+          (field.depends_on &&
+            offeredOptions(field, draft).length > 0 &&
+            dependentIsAsked(fields, field, draft))) &&
         isShown(fields, field, draft) &&
         !(draft[field.name] ?? "").trim(),
     ) ?? null

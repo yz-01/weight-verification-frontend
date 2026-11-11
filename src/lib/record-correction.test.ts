@@ -147,16 +147,30 @@ describe("material → specification (I19, ID46)", () => {
     expect(missingRequired(fields, draft)?.name).toBe("specification");
   });
 
-  // 客户 11-11 (图4–图7): three Disel returns had no specification chosen and
-  // would not save; the client: 「不用了是规格问题」「正确的」 - the rule stays,
-  // the window now writes the reason out (record-correction.tsx).
-  it("a record filed without a specification must choose one before it saves", () => {
+  // 客户 11-11 (图4、图5): the Diesel return filed without a specification
+  // (「待补规格」) would not save any correction, the Y16 one would.
+  describe("a record filed without a specification", () => {
     const pending = fields.map((entry) =>
-      entry.name === "specification" || entry.name === "material_specification"
+      entry.name === "specification"
         ? { ...entry, value: "" }
-        : entry,
+        : entry.name === "material_specification"
+          ? { ...entry, value: "" }
+          : entry,
     );
-    expect(missingRequired(pending, initialDraft(pending))?.name).toBe("specification");
+
+    it("corrects its other fields without being made to choose one", () => {
+      expect(missingRequired(pending, initialDraft(pending))).toBeNull();
+    });
+
+    it("is still asked for one when its material is changed", () => {
+      const draft = changeDraft(pending, initialDraft(pending), "material", "cement");
+      expect(missingRequired(pending, draft)?.name).toBe("specification");
+    });
+
+    it("one that had a specification cannot be saved with it emptied", () => {
+      const draft = { ...initialDraft(fields), specification: "" };
+      expect(missingRequired(fields, draft)?.name).toBe("specification");
+    });
   });
 
   it("a specification with a unit sets and locks the unit", () => {
