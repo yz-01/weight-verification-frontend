@@ -849,15 +849,8 @@ export interface ProgressCorrection {
 /** 供应商退货 or 材料领用 (JB168). Every record from before is a return. */
 export type MaterialOutgoingKind = "RETURN" | "ISSUE";
 
-/**
- * Each material's stock on the issue's project (JB168): 累计进场, 累计领用
- * and 结余, for the office's detail.
- */
-export interface MaterialIssueStock {
-  received: string;
-  issued: string;
-  balance: string;
-}
+/** Where an issue line's unit price came from (JB171): the price list, or typed by the office. */
+export type IssuePriceSource = "PRICE_LIST" | "MANUAL";
 
 /** One material of a 材料领用 (JB168): requested, then actually issued. */
 export interface MaterialIssueLine {
@@ -879,7 +872,13 @@ export interface MaterialIssueLine {
   issue_amount: string | null;
   /** false: 「没有单价」 (never 0); null when the reader sees no money. */
   priced: boolean | null;
-  stock?: MaterialIssueStock | null;
+  /**
+   * 领用金额 = 数量 × 单价 (JB171): the quantity actually taken once handed
+   * over (`ISSUED`), the quantity applied for before (`REQUESTED`).
+   */
+  amount?: string | null;
+  amount_basis?: "ISSUED" | "REQUESTED" | null;
+  unit_price_source?: IssuePriceSource | "" | null;
 }
 
 /** One row of the office's 材料领用 list (JB168): one material line. */
@@ -907,6 +906,77 @@ export interface MaterialIssueListRow {
   recipient_signature: string | null;
   photo_count: number;
   cover_photo_url: string | null;
+  /**
+   * 单价 and 金额 (JB171): null without 金额查看; `priced` false is
+   * 「没有单价」. The amount is by the quantity applied for until handed over.
+   */
+  unit_price?: string | null;
+  amount?: string | null;
+  priced?: boolean | null;
+  handed_over?: boolean;
+}
+
+/** One unit's total of the issues counted (never added across units). */
+export interface MaterialIssueUnitTotal {
+  unit: string;
+  quantity: string;
+}
+
+/**
+ * The 材料领用 list's 自动汇总 (JB171): the whole filtered selection, not one
+ * page. Only what was handed over is counted; `amount_total` is null without
+ * 金额查看.
+ */
+export interface MaterialIssueTotals {
+  lines: number;
+  records: number;
+  counted_lines: number;
+  waiting_lines: number;
+  quantities: MaterialIssueUnitTotal[];
+  amount_total: string | null;
+  unpriced_lines: number;
+}
+
+/** One line of the 材料领用结账单 (JB171): no photographs, both signatures. */
+export interface MaterialIssueStatementRow {
+  id: string;
+  record: string;
+  reference_no: string;
+  at: string;
+  material_name: string;
+  material_specification: string;
+  equipment_company: string;
+  equipment_no: string;
+  recipient_name: string;
+  issuer_name: string;
+  issued_quantity: string | null;
+  unit: string;
+  unit_price: string | null;
+  amount: string | null;
+  priced: boolean | null;
+  issuer_signature: string | null;
+  recipient_signature: string | null;
+}
+
+/**
+ * 「材料领用结账单 / Material Issue Statement」 (JB171 D): the same lines the
+ * 汇总 counts, all of them, newest first. `company` is the letterhead every
+ * formal document carries (JB162).
+ */
+export interface MaterialIssueStatement {
+  company: Record<string, unknown> | null;
+  project: Record<string, unknown> | string | null;
+  filters: Record<string, unknown> | null;
+  rows: MaterialIssueStatementRow[];
+  totals: {
+    lines: number;
+    records: number;
+    quantities: MaterialIssueUnitTotal[];
+    amount_total: string | null;
+    unpriced_lines: number;
+  };
+  limit: number;
+  generated_at: string;
 }
 
 /** The choices of the 材料领用 list's filters. */

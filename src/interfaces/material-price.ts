@@ -39,5 +39,7 @@ export interface MaterialPriceSaved {
   price: MaterialPriceChange;
   /** Records that had no unit price and were given this one. */
   filled: number;
+  /** 材料领用 lines with no unit price given this one (JB171). */
+  filled_issue_lines?: number;
   entry: MaterialPriceEntry;
 }

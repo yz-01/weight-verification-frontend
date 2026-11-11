@@ -36,6 +36,8 @@ import type {
   FieldTaskPayload,
   MaterialIssueListRow,
   MaterialIssueOptions,
+  MaterialIssueStatement,
+  MaterialIssueTotals,
   MaterialOutgoing,
   MaterialOutgoingKind,
   MyTaskRow,
@@ -960,6 +962,34 @@ export const getMaterialIssueLines = (query: ListQuery = {}) =>
 /** The choices of the 材料领用 list's filters (材料名称, 所属公司, 设备编号, 领用人). */
 export const getMaterialIssueOptions = (project?: string) =>
   api.get<MaterialIssueOptions>("/api/material-outgoing/get_issue_options/", { project });
+
+/**
+ * The 材料领用 list's 自动汇总 (JB171): the list's own filters, every page -
+ * 领用数量 per unit and 总金额 of what was handed over.
+ */
+export const getMaterialIssueTotals = (filters: ListQuery = {}) =>
+  api.get<MaterialIssueTotals>("/api/material-outgoing/get_issue_totals/", filters);
+
+/**
+ * 「批量预览」 (JB171): the 材料领用结账单 for the list's filters, every line
+ * handed over. Silent: the preview says why it could not be made (too many
+ * lines: 「请把日期范围缩小一点再试」).
+ */
+export const getMaterialIssueStatement = (filters: ListQuery = {}) =>
+  api.get<MaterialIssueStatement>("/api/material-outgoing/get_issue_statement/", filters, { silent: true });
+
+/**
+ * The same statement as the one PDF (A4 横向) that 打印 and 导出 PDF both use,
+ * so the paper and the file are the same. The filters go as the list sends
+ * them, in the address and in the body alike.
+ */
+export const exportMaterialIssueStatement = (filters: ListQuery = {}) =>
+  fetchAsFile("/api/material-outgoing/export_issue_statement/", {
+    method: "POST",
+    query: filters,
+    body: filters,
+    fallbackFilename: "material-issue-statement.pdf",
+  });
 /** One application with its photographs split by step (T-358). */
 export const getMaterialOutgoingRecord = (id: string) =>
   api.get<MaterialOutgoing>(`/api/material-outgoing/${id}/get_record/`);

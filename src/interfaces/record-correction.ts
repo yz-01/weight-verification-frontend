@@ -59,6 +59,24 @@ export interface CorrectionField {
   only_for_other?: string;
   /** Archived and already filled: shown, not changed (Lucas 10-30). */
   locked?: boolean;
+  /** Decimals the number takes (an issue line's 单价: 2). */
+  places?: number;
+  /**
+   * The 材料领用 line a `line_price:<id>` field prices (JB171): the window
+   * names it 「1. Diesel 单价（RM / Liter）」 and shows 数量 × 单价 = 金额.
+   */
+  line?: CorrectionLine;
+}
+
+/** One 材料领用 line, as its 单价 field in the 改正 window carries it (JB171). */
+export interface CorrectionLine {
+  id: string;
+  position: number;
+  material_name: string;
+  material_specification: string;
+  unit: string;
+  quantity: string;
+  issued_quantity: string | null;
 }
 
 export interface CorrectionForm {

@@ -18,19 +18,21 @@
  *   the way a return's material is;
  * - `IssueHandoverForm`: 「正式领用」 - each material's actual quantity,
  *   photographs, GPS or 「没有定位」, 发料负责人 and 领用人 sign;
- * - `IssueLinesPanel`: every material on the detail, with its stock on the
- *   project and the money for the office;
+ * - `IssueLinesPanel`: every material on the detail, with its 单价 and 金额
+ *   for the office (JB171) and 「填写单价」 where there is none;
  * - `OutgoingKindSwitch` and `MaterialIssueList`: the office's 「材料领用」
- *   view of 材料出场, with exactly the client's filters and columns.
+ *   view of 材料出场, with exactly the client's filters and columns, its
+ *   自动汇总 and 「批量预览 / 打印」 (`issue-statement.tsx`).
  */
 
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { Check, Eye, Loader2, Plus, Save, Trash2, Undo2, Wrench } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Check, Eye, Loader2, PencilLine, Plus, Save, Trash2, Undo2, Wrench } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useState } from "react";
 
 import { MachineNumberField, MachineScanButton } from "@/components/contractor-ops/equipment-exit";
+import { IssueStatementButton, IssueTotalsPanel, MoneyText, useMoney } from "@/components/contractor-ops/issue-statement";
 import { useClearDraft, useDraftState } from "@/components/field-staff/field-draft";
 import {
   createEmptyFieldEvidence,
@@ -43,6 +45,7 @@ import { LocationField } from "@/components/field-staff/location-field";
 import { useAuth } from "@/components/providers/auth-provider";
 import { FieldWrapper, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { ProjectListFilter } from "@/components/shared/module-records-table";
+import { RecordCorrectionDialog, useCanCorrect } from "@/components/shared/record-correction";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
 import {
@@ -72,20 +75,23 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { useMaterialUnits, useUnitName } from "@/hooks/use-material-units";
 import { useListQuery } from "@/hooks/use-list-query";
-import { ApiError } from "@/interfaces/api";
+import { ApiError, type ListQuery } from "@/interfaces/api";
 import type {
+  MaterialIssueLine,
   MaterialIssueListRow,
   MaterialOutgoing,
   ProjectCategory,
   SiteEquipment,
 } from "@/interfaces/contractor-ops";
 import { useDateFormat } from "@/lib/dates";
+import { issueMoney, seesIssueMoney, type MoneyCell } from "@/lib/issue-money";
 import type { LocationValue } from "@/lib/field-location";
 import { columnAutofill } from "@/lib/material-autofill";
 import { isOtherMaterial, offeredSpecs, specChoice } from "@/lib/material-catalogue";
 import {
   getMaterialIssueLines,
   getMaterialIssueOptions,
+  getMaterialIssueTotals,
   getProjectCategories,
   getSiteEquipment,
 } from "@/services/contractor-ops.service";
@@ -830,75 +836,124 @@ export function receiptsHref(row: Pick<MaterialOutgoing, "project">, line: { cat
 
 /**
  * 「点击「查看」，显示完整领用资料」: each material with what was applied for
- * and what was actually taken; for the office its unit price, 领用金额 (or
- * 「没有单价」) and 累计进场 / 累计领用 / 结余 on the project, with the
- * deliveries one press away (「材料进场：对应同项目、同材料名称及规格的进场记录」).
+ * and what was actually taken, the deliveries one press away (「材料进场：对应
+ * 同项目、同材料名称及规格的进场记录」) - and, for the office with 金额查看,
+ * its 单价 and 金额 at every status (JB171, 客户 11-11 晚上: 「申请页面、批准后
+ * 的页面……都无法自动显示单价」). No 累计进场 / 累计领用 / 结余: 「各自独立记录
+ * 和统计，不进行相互扣减」.
  */
 export function IssueLinesPanel({ row }: { row: MaterialOutgoing }) {
   const t = useTranslations("contractorOps");
   const unitName = useUnitName();
+  const money = useMoney();
+  const canCorrect = useCanCorrect("MATERIAL_OUTGOING");
+  const queryClient = useQueryClient();
+  const [filling, setFilling] = useState<MaterialIssueLine | null>(null);
   const lines = row.lines ?? [];
+  // 已驳回 has no 单价 to fill (the server offers none).
+  const fillable = canCorrect && row.status !== "REJECTED";
   return (
     <section className="rounded-lg border bg-card p-3" data-testid="issue-lines">
       <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
         {t("issue.materials")}
       </h3>
       <ul className="space-y-2">
-        {lines.map((line) => (
-          <li key={line.id} className="rounded-md border p-2 text-sm">
-            <p className="font-semibold">
-              {[line.material_name, line.material_specification].filter(Boolean).join(" · ")}
-            </p>
-            <dl className="mt-1 grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5 text-xs">
-              <dt className="text-muted-foreground">{t("issue.requested")}</dt>
-              <dd className="tabular">{line.quantity} {unitName(line.unit)}</dd>
-              <dt className="text-muted-foreground">{t("issue.issued")}</dt>
-              <dd className="tabular font-medium">
-                {line.issued_quantity === null ? "—" : `${line.issued_quantity} ${unitName(line.unit)}`}
-              </dd>
-              {line.priced !== null && (
-                <>
-                  <dt className="text-muted-foreground">{t("issue.unitPrice")}</dt>
-                  <dd className="tabular">
-                    {line.unit_price ?? <span className="text-warning">{t("issue.unpriced")}</span>}
-                  </dd>
-                  <dt className="text-muted-foreground">{t("issue.amount")}</dt>
-                  <dd className="tabular">
-                    {line.issue_amount ?? (line.priced === false ? <span className="text-warning">{t("issue.unpriced")}</span> : "—")}
-                  </dd>
-                </>
-              )}
-            </dl>
-            {line.stock && (
-              <div className="mt-2 rounded bg-muted/40 p-2 text-xs">
-                <p className="mb-1 font-medium text-muted-foreground">{t("issue.stockTitle")}</p>
-                <dl className="grid grid-cols-3 gap-2 text-center">
-                  <div>
-                    <dt className="text-muted-foreground">{t("issue.stockReceived")}</dt>
-                    <dd className="tabular font-semibold">{line.stock.received}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-muted-foreground">{t("issue.stockIssued")}</dt>
-                    <dd className="tabular font-semibold">{line.stock.issued}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-muted-foreground">{t("issue.stockBalance")}</dt>
-                    <dd className="tabular font-semibold">{line.stock.balance}</dd>
-                  </div>
-                </dl>
-                <Link
-                  href={receiptsHref(row, line)}
-                  className="mt-1 inline-block text-primary underline-offset-2 hover:underline"
-                >
-                  {t("issue.openReceipts")}
-                </Link>
-              </div>
-            )}
-          </li>
-        ))}
+        {lines.map((line) => {
+          const price = issueMoney(line.unit_price, line.priced);
+          const amount = issueMoney(line.amount ?? line.issue_amount, line.priced);
+          return (
+            <li key={line.id} className="rounded-md border p-2 text-sm" data-issue-line={line.id}>
+              <p className="font-semibold">
+                {[line.material_name, line.material_specification].filter(Boolean).join(" · ")}
+              </p>
+              <dl className="mt-1 grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5 text-xs">
+                <dt className="text-muted-foreground">{t("issue.requested")}</dt>
+                <dd className="tabular">{line.quantity} {unitName(line.unit)}</dd>
+                <dt className="text-muted-foreground">{t("issue.issued")}</dt>
+                <dd className="tabular font-medium">
+                  {line.issued_quantity === null ? "—" : `${line.issued_quantity} ${unitName(line.unit)}`}
+                </dd>
+                {line.priced !== null && (
+                  <>
+                    <dt className="text-muted-foreground">{t("issue.unitPrice")}</dt>
+                    <dd className="tabular" data-issue-line-price>
+                      {price.kind === "money" ? (
+                        <>
+                          {money(price.value)}
+                          {line.unit_price_source && (
+                            <span className="ml-1.5 text-muted-foreground">
+                              {line.unit_price_source === "MANUAL" ? t("issue.priceManual") : t("issue.priceAuto")}
+                            </span>
+                          )}
+                        </>
+                      ) : price.kind === "unpriced" ? (
+                        <span className="inline-flex flex-wrap items-center gap-2">
+                          <span className="font-medium text-warning">{t("issue.unpriced")}</span>
+                          {fillable && (
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="outline"
+                              className="h-7"
+                              data-fill-issue-price={line.id}
+                              onClick={() => setFilling(line)}
+                            >
+                              <PencilLine />
+                              {t("issue.fillPrice")}
+                            </Button>
+                          )}
+                        </span>
+                      ) : (
+                        "—"
+                      )}
+                    </dd>
+                    <dt className="text-muted-foreground">{t("issue.amount")}</dt>
+                    <dd className="tabular">
+                      {amount.kind === "money" ? (
+                        <>
+                          {money(amount.value)}
+                          {line.amount_basis === "REQUESTED" && (
+                            <span className="ml-1.5 text-muted-foreground">{t("issue.amountByRequested")}</span>
+                          )}
+                        </>
+                      ) : amount.kind === "unpriced" ? (
+                        <span className="text-warning">{t("issue.unpriced")}</span>
+                      ) : (
+                        "—"
+                      )}
+                    </dd>
+                  </>
+                )}
+              </dl>
+              <Link
+                href={receiptsHref(row, line)}
+                className="mt-1 inline-block text-xs text-primary underline-offset-2 hover:underline"
+              >
+                {t("issue.openReceipts")}
+              </Link>
+            </li>
+          );
+        })}
       </ul>
+      {/* 「填写单价」 is the record's own 改正 on this line's 单价 alone: the PIN,
+          and the operation log (a blank filled in is no correction). */}
+      {filling && (
+        <RecordCorrectionDialog
+          kind="MATERIAL_OUTGOING"
+          recordId={row.id}
+          only={[linePriceField(filling.id)]}
+          title={t("issue.fillPrice")}
+          onClose={() => setFilling(null)}
+          onCorrected={() => void queryClient.invalidateQueries({ queryKey: ["material-outgoing"] })}
+        />
+      )}
     </section>
   );
+}
+
+/** The 改正 window's field for one issue line's 单价 (JB171 B8). */
+export function linePriceField(lineId: string): string {
+  return `line_price:${lineId}`;
 }
 
 /** The facts an issue's detail shows in place of a return's supplier, DO and lorry. */
@@ -990,30 +1045,21 @@ function OptionFilter({
   );
 }
 
-function Signed({ url }: { url: string | null }) {
-  const t = useTranslations("contractorOps");
-  return url ? (
-    <a href={url} target="_blank" rel="noreferrer" onClick={(event) => event.stopPropagation()}>
-      {/* eslint-disable-next-line @next/next/no-img-element -- a signature image as stored */}
-      <img src={url} alt={t("issue.signed")} className="h-8 w-16 rounded border bg-background object-contain" />
-    </a>
-  ) : (
-    <span className="text-xs text-muted-foreground">{t("issue.unsigned")}</span>
-  );
-}
-
 /**
- * 「材料领用」 in the office's 材料出场 (JB168 G). Filters, in the client's
- * order: 项目｜日期｜材料名称｜所属公司｜设备编号｜领用人. Columns: 领用编号 (客户
- * 11-11 追加), then his: 日期时间｜材料名称｜规格｜领用数量｜单位｜所属公司｜设备
- * 编号｜领用人｜发料负责人｜双方签名｜照片｜查看. One row per material, newest
- * first; the row opens the record.
+ * 「材料领用」 in the office's 材料出场 (JB168 G, JB171 C). Filters, in the
+ * client's order: 项目｜日期｜材料名称｜所属公司｜设备编号｜领用人. Columns,
+ * exactly his (11-11 晚上): 日期｜领用编号｜材料名称｜规格｜所属公司｜设备编号｜
+ * 领用人｜领用数量｜单位｜单价｜金额, then 查看. One row per material, newest
+ * first; the row opens the record, where 发料负责人, both signatures and the
+ * photographs are (「原始照片、双方签名及其他证据继续保留在单笔记录中」). Under
+ * it the 自动汇总 of every line the filters select; above it 「批量预览 / 打印」.
  */
 export function MaterialIssueList({ onOpen }: { onOpen: (recordId: string) => void }) {
   const t = useTranslations("contractorOps");
   const tRoot = useTranslations();
   const df = useDateFormat();
   const unitName = useUnitName();
+  const { user } = useAuth();
   const list = useListQuery(ISSUE_FILTERS);
   const project = list.filters.project;
   const rows = useQuery({
@@ -1025,9 +1071,16 @@ export function MaterialIssueList({ onOpen }: { onOpen: (recordId: string) => vo
     queryKey: ["material-outgoing", "issue-options", project ?? ""],
     queryFn: () => getMaterialIssueOptions(project || undefined),
   });
+  // The whole selection the filters make, not the page shown (JB171 C4).
+  const selection = issueSelection(list.filters, list.search);
+  const totals = useQuery({
+    queryKey: ["material-outgoing", "issue-totals", selection],
+    queryFn: () => getMaterialIssueTotals(selection),
+  });
   const results: MaterialIssueListRow[] = rows.data?.results ?? [];
   const total = rows.data?.count ?? 0;
   const pages = Math.max(1, Math.ceil(total / list.pageSize));
+  const money = seesIssueMoney(user?.is_field_staff, totals.data, results);
   return (
     <section className="space-y-3" data-testid="material-issue-list">
       <div className="flex flex-wrap items-end gap-2">
@@ -1053,6 +1106,8 @@ export function MaterialIssueList({ onOpen }: { onOpen: (recordId: string) => vo
         <OptionFilter list={list} param="equipment_no" allLabel={t("issue.allEquipment")} options={options.data?.equipment_nos ?? []} />
         <OptionFilter list={list} param="recipient" allLabel={t("issue.allRecipients")} options={options.data?.recipients ?? []} />
       </div>
+      {/* 「批量预览 / 打印」: money, so only for 金额查看 (JB171 D5). */}
+      {money && totals.data && <IssueStatementButton filters={selection} totals={totals.data} />}
       <QueryFailedNote query={rows} what={t("issue.tabIssues")} />
       {rows.isLoading ? (
         <div className="grid min-h-32 place-items-center">
@@ -1065,21 +1120,20 @@ export function MaterialIssueList({ onOpen }: { onOpen: (recordId: string) => vo
           <Table>
             <TableHeader>
               <TableRow>
-                {/* Exactly the client's header, in his order (11-11): 日期时间｜
-                    材料名称｜规格｜领用数量｜单位｜所属公司｜设备编号｜领用人｜
-                    发料负责人｜双方签名｜照片｜查看. The 领用编号 and the status
-                    ride under the date, not in a column of their own. */}
-                <TableHead>{t("issue.colAt")}</TableHead>
+                {/* Exactly the client's header, in his order (11-11 晚上): 日期｜
+                    领用编号｜材料名称｜规格｜所属公司｜设备编号｜领用人｜领用数量｜
+                    单位｜单价｜金额, then 查看. The status rides under the date. */}
+                <TableHead>{t("issue.colDate")}</TableHead>
+                <TableHead>{t("issue.issueNo")}</TableHead>
                 <TableHead>{t("issue.material")}</TableHead>
                 <TableHead>{t("issue.spec")}</TableHead>
-                <TableHead className="text-right">{t("issue.quantity")}</TableHead>
-                <TableHead>{t("issue.unit")}</TableHead>
                 <TableHead>{t("issue.equipmentCompany")}</TableHead>
                 <TableHead>{t("issue.equipmentNo")}</TableHead>
                 <TableHead>{t("issue.recipientShort")}</TableHead>
-                <TableHead>{t("issue.issuer")}</TableHead>
-                <TableHead>{t("issue.colSignatures")}</TableHead>
-                <TableHead>{t("issue.colPhotos")}</TableHead>
+                <TableHead className="text-right">{t("issue.quantity")}</TableHead>
+                <TableHead>{t("issue.unit")}</TableHead>
+                <TableHead className="text-right">{t("issue.unitPrice")}</TableHead>
+                <TableHead className="text-right">{t("issue.colAmount")}</TableHead>
                 <TableHead>{t("issue.colView")}</TableHead>
               </TableRow>
             </TableHeader>
@@ -1092,38 +1146,31 @@ export function MaterialIssueList({ onOpen }: { onOpen: (recordId: string) => vo
                   data-testid="material-issue-row"
                 >
                   <TableCell className="tabular">
-                    <div>{df.dateTime(row.at)}</div>
-                    <div className="text-xs font-medium text-muted-foreground">{row.reference_no}</div>
+                    <div className="whitespace-nowrap">{df.date(row.at)}</div>
+                    <div className="text-xs text-muted-foreground">{df.time(row.at)}</div>
                     <StatusBadge label={t(issueStatusKey(row.status))} tone={row.status === "REJECTED" ? "danger" : row.status === "COMPLETED" ? "positive" : "info"} />
                   </TableCell>
+                  <TableCell className="tabular whitespace-nowrap font-medium">{row.reference_no}</TableCell>
                   <TableCell className="font-medium">{row.material_name}</TableCell>
                   <TableCell>{row.material_specification || "—"}</TableCell>
+                  <TableCell>{row.equipment_company || "—"}</TableCell>
+                  <TableCell className="tabular">{row.equipment_no || "—"}</TableCell>
+                  <TableCell>{row.recipient_name || "—"}</TableCell>
                   <TableCell className="text-right tabular">
                     {row.issued_quantity ?? (
                       <span className="text-muted-foreground">{t("issue.requestedShort", { quantity: row.quantity })}</span>
                     )}
                   </TableCell>
                   <TableCell>{unitName(row.unit)}</TableCell>
-                  <TableCell>{row.equipment_company || "—"}</TableCell>
-                  <TableCell className="tabular">{row.equipment_no || "—"}</TableCell>
-                  <TableCell>{row.recipient_name || "—"}</TableCell>
-                  <TableCell>{row.issuer_name || "—"}</TableCell>
-                  <TableCell>
-                    <div className="flex gap-1">
-                      <Signed url={row.issuer_signature} />
-                      <Signed url={row.recipient_signature} />
-                    </div>
+                  <TableCell className="text-right tabular whitespace-nowrap">
+                    <MoneyText cell={money ? issueMoney(row.unit_price, row.priced) : HIDDEN} />
                   </TableCell>
-                  <TableCell>
-                    {row.cover_photo_url ? (
-                      <span className="flex items-center gap-1">
-                        {/* eslint-disable-next-line @next/next/no-img-element -- the record's own watermarked thumbnail */}
-                        <img src={row.cover_photo_url} alt={t("issue.colPhotos")} className="size-10 rounded object-cover" />
-                        <span className="text-xs text-muted-foreground tabular">{row.photo_count}</span>
-                      </span>
-                    ) : (
-                      <span className="text-xs text-muted-foreground tabular">{row.photo_count}</span>
-                    )}
+                  <TableCell className="text-right tabular whitespace-nowrap">
+                    {/* Before the handover it is by the quantity applied for: greyed, like that quantity. */}
+                    <MoneyText
+                      cell={money ? issueMoney(row.amount, row.priced) : HIDDEN}
+                      muted={row.handed_over === false}
+                    />
                   </TableCell>
                   <TableCell>
                     <Button
@@ -1159,6 +1206,23 @@ export function MaterialIssueList({ onOpen }: { onOpen: (recordId: string) => vo
           )}
         </div>
       )}
+      <QueryFailedNote query={totals} what={t("issue.totalsWhat")} />
+      {totals.data && <IssueTotalsPanel totals={totals.data} seesMoney={money} />}
     </section>
   );
+}
+
+const HIDDEN: MoneyCell = { kind: "hidden" };
+
+/**
+ * What the 汇总 and the 结账单 are made of: the list's filters and search,
+ * without its page - every line they select (JB171 C4, D1).
+ */
+export function issueSelection(filters: Record<string, string>, search: string): ListQuery {
+  const selection: ListQuery = {};
+  for (const key of ISSUE_FILTERS) {
+    if (filters[key]) selection[key] = filters[key];
+  }
+  if (search) selection.search = search;
+  return selection;
 }

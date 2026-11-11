@@ -6,6 +6,7 @@ import { describe, expect, it } from "vitest";
 import { isValidUnitPrice } from "@/components/contractor-ops/material-prices";
 import { groupMoney } from "@/components/contractor-ops/category-management";
 import { lineCost } from "@/components/shared/material-lines";
+import { priceSavedToast } from "@/services/material-price.service";
 
 /**
  * 材料单价 (JB167, 客户 11-11): 「材料分类管理已经设定单价，材料每次进场时，系统
@@ -103,5 +104,31 @@ describe("材料分类's 花费 (browser check 11-11)", () => {
     expect(groupMoney("-2500.00")).toBe("-2,500.00");
     expect(groupMoney(null)).toBe("");
     expect(groupMoney("abc")).toBe("abc");
+  });
+});
+
+describe("设定单价 fills the 材料领用 too (JB171: 「请修复单价关联」)", () => {
+  it("says how many deliveries and issues it filled in", () => {
+    expect(priceSavedToast({ filled: 2, filled_issue_lines: 3 })).toEqual([
+      "materialPrices.toast.filledWithIssues",
+      { count: 2, issues: 3 },
+    ]);
+    expect(priceSavedToast({ filled: 0, filled_issue_lines: 1 })[0]).toBe("materialPrices.toast.filledWithIssues");
+  });
+
+  it("keeps JB167's words when no issue was filled in", () => {
+    expect(priceSavedToast({ filled: 2, filled_issue_lines: 0 })).toEqual(["materialPrices.toast.filled", { count: 2 }]);
+    expect(priceSavedToast({ filled: 2 })).toEqual(["materialPrices.toast.filled", { count: 2 }]);
+    expect(priceSavedToast({ filled: 0 })).toEqual(["materialPrices.toast.saved", undefined]);
+  });
+
+  it("is worded 「补上了 N 条没有单价的进场记录、M 项材料领用」 in every language", () => {
+    for (const language of LANGUAGES) {
+      const toast = (catalogue(language).materialPrices as { toast: Record<string, string> }).toast;
+      expect(toast.filledWithIssues, language).toContain("{count}");
+      expect(toast.filledWithIssues, language).toContain("{issues}");
+    }
+    const zh = (catalogue("zh").materialPrices as { toast: Record<string, string> }).toast;
+    expect(zh.filledWithIssues).toContain("补上了 {count} 条没有单价的进场记录、{issues} 项材料领用");
   });
 });
