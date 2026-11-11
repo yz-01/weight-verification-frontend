@@ -147,6 +147,32 @@ describe("material → specification (I19, ID46)", () => {
     expect(missingRequired(fields, draft)?.name).toBe("specification");
   });
 
+  // 客户 11-11 (图4、图5): the Diesel return filed without a specification
+  // (「待补规格」) would not save any correction, the Y16 one would.
+  describe("a record filed without a specification", () => {
+    const pending = fields.map((entry) =>
+      entry.name === "specification"
+        ? { ...entry, value: "" }
+        : entry.name === "material_specification"
+          ? { ...entry, value: "" }
+          : entry,
+    );
+
+    it("corrects its other fields without being made to choose one", () => {
+      expect(missingRequired(pending, initialDraft(pending))).toBeNull();
+    });
+
+    it("is still asked for one when its material is changed", () => {
+      const draft = changeDraft(pending, initialDraft(pending), "material", "cement");
+      expect(missingRequired(pending, draft)?.name).toBe("specification");
+    });
+
+    it("one that had a specification cannot be saved with it emptied", () => {
+      const draft = { ...initialDraft(fields), specification: "" };
+      expect(missingRequired(fields, draft)?.name).toBe("specification");
+    });
+  });
+
   it("a specification with a unit sets and locks the unit", () => {
     let draft = changeDraft(fields, initialDraft(fields), "material", "cement");
     draft = changeDraft(fields, draft, "specification", "bag");
