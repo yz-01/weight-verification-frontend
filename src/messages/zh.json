@@ -5954,6 +5954,27 @@
       "onlyThisProject": "只限上面选的项目",
       "versionHistory": "以前的版本（{count}）",
       "sendNeedsFilled": "请先上传填好的顾问表格。"
+    },
+    "a4Preview": {
+      "button": "A4 预览",
+      "title": "A4 预览：正式顾问申请表",
+      "noteSaved": "这就是这份申请的正式 A4 申请表：和导出、打印及发送给顾问的 PDF 第一页由同一程序生成，内容完全一样。",
+      "noteUnsaved": "这就是保存后的正式 A4 申请表，按画面上现在填写的内容生成。预览不会保存任何内容，要按「保存草稿」才会保存。",
+      "number": "申请编号：{number}",
+      "numberProvisional": "申请编号 {number} 是现在保存草稿时会得到的编号；如果有人先保存了同类申请，编号会顺延。",
+      "ownFormBlank": "此申请使用顾问自有表格「{name}」（第 {version} 版）。第 1 页是系统的申请表，第 {page} 页起是顾问表格原样，保留顾问原来的公司表头和格式。还没有上传填好的表格，这里显示的是空白原表。",
+      "ownFormFilled": "此申请使用顾问自有表格「{name}」（第 {version} 版）。第 1 页是系统的申请表，第 {page} 页起是上传的已填写顾问表格原样，保留顾问原来的公司表头和格式。",
+      "loading": "正在生成 A4 预览……",
+      "what": "A4 预览",
+      "pageWhat": "第 {page} 页",
+      "pageAlt": "正式 A4 申请表 第 {page} 页",
+      "pageOf": "第 {page} / {total} 页",
+      "morePages": "另有 {count} 页没有在这里显示，请按「打开 PDF」查看全部。",
+      "pdfWhat": "预览 PDF",
+      "pdfPreparing": "PDF 正在生成，请稍候。",
+      "pdfFailed": "PDF 无法生成，请重试。",
+      "openPdf": "打开 PDF",
+      "close": "关闭"
     }
   },
   "contractorDashboard": {

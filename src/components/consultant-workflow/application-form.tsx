@@ -11,6 +11,7 @@ import {
   mainGroups,
   moreGroups,
 } from "@/components/consultant-workflow/application-type-layout";
+import { ApplicationA4PreviewButton } from "@/components/consultant-workflow/application-a4-preview";
 import { ConsultantFormSourceField } from "@/components/consultant-workflow/consultant-own-form";
 import { PhotoLink } from "@/components/shared/photo-link";
 import { ConsultantProjectPicker } from "@/components/consultant-workflow/project-scope-picker";
@@ -329,28 +330,22 @@ function ConsultantApplicationEditor({
     work_type: form.work_type || null,
     priority: form.priority || null,
   };
+  // What 「保存草稿」 sends - and, unsaved, what 「A4 预览」 draws (JB163): one
+  // payload, so the preview cannot show a form the save would not make.
+  const payloadNow = (): ConsultantApplicationPayload => ({
+    ...form,
+    ...optionalChoices,
+    ...(!id && form.source_field_task && sourcePhotoIds.length
+      ? { source_photos: sourcePhotos.map((photo) => photo.id) }
+      : {}),
+    workflow: selectedWorkflow,
+    required_at: requiredAt ? new Date(requiredAt).toISOString() : null,
+    inspection_start_at: inspectionStartAt ? new Date(inspectionStartAt).toISOString() : null,
+    inspection_end_at: inspectionEndAt ? new Date(inspectionEndAt).toISOString() : null,
+  });
   const save = useMutation({
     mutationFn: () =>
-      id
-        ? updateConsultantApplication(id, {
-            ...form,
-            ...optionalChoices,
-            workflow: selectedWorkflow,
-            required_at: requiredAt ? new Date(requiredAt).toISOString() : null,
-            inspection_start_at: inspectionStartAt ? new Date(inspectionStartAt).toISOString() : null,
-            inspection_end_at: inspectionEndAt ? new Date(inspectionEndAt).toISOString() : null,
-          })
-        : createConsultantApplication({
-            ...form,
-            ...optionalChoices,
-            ...(form.source_field_task && sourcePhotoIds.length
-              ? { source_photos: sourcePhotos.map((photo) => photo.id) }
-              : {}),
-            workflow: selectedWorkflow,
-            required_at: requiredAt ? new Date(requiredAt).toISOString() : null,
-            inspection_start_at: inspectionStartAt ? new Date(inspectionStartAt).toISOString() : null,
-            inspection_end_at: inspectionEndAt ? new Date(inspectionEndAt).toISOString() : null,
-          }),
+      id ? updateConsultantApplication(id, payloadNow()) : createConsultantApplication(payloadNow()),
     onSuccess: (row) => finish(`/consultant-applications/${row.id}`),
   });
   const saveReusableOption = useMutation({
@@ -422,6 +417,17 @@ function ConsultantApplicationEditor({
   const main = mainGroups(typeCode);
   const more = moreGroups(typeCode);
   const isMaterial = isMaterialType(typeCode);
+  // What the create / update checks before the A4 form can be drawn (JB163):
+  // the save waits for the same, and for a template's own extra fields too,
+  // which the A4 form does not print.
+  const formRequires = [
+    [form.project, t("field.project")],
+    [form.application_type, t("field.applicationType")],
+    [form.consultant, t("field.consultant")],
+    [form.consultant_organization, t("field.consultantCompany")],
+    [!isMaterial || form.component.trim(), t("field.material")],
+    [form.description, t("field.description")],
+  ] as const;
   const componentField = isMaterial ? (
     <FieldWrapper label={t("field.material")} required><Input value={form.component} onChange={(event) => set("component", event.target.value)} /></FieldWrapper>
   ) : (
@@ -731,6 +737,12 @@ function ConsultantApplicationEditor({
   const actions = (
     <>
         <Button variant="outline" onClick={dismiss}>{t("action.cancel")}</Button>
+        {/* 「A4 预览」 (JB163): the formal form as it will be, before saving. */}
+        <ApplicationA4PreviewButton
+          size="default"
+          requires={formRequires}
+          source={() => (id ? { kind: "draft", id, payload: payloadNow() } : { kind: "new", payload: payloadNow() })}
+        />
         <Button requires={[[form.project, t("field.project")], [form.application_type, t("field.applicationType")], [form.consultant, t("field.consultant")], [form.consultant_organization, t("field.consultantCompany")], [!isMaterial || form.component.trim(), t("field.material")], [form.description, t("field.description")], [requiredTemplateFieldsComplete, missingTemplateFields]]}
                 disabled={save.isPending} onClick={() => save.mutate()}>
           {save.isPending ? <Loader2 className="animate-spin" /> : <Save />}

@@ -5954,6 +5954,27 @@
       "onlyThisProject": "Only the project chosen above",
       "versionHistory": "Earlier versions ({count})",
       "sendNeedsFilled": "Upload the filled-in consultant form first."
+    },
+    "a4Preview": {
+      "button": "A4 preview",
+      "title": "A4 preview: the formal application form",
+      "noteSaved": "This is the application's formal A4 form: drawn by the same program as page 1 of the PDF that is exported, printed and sent to the consultant, with exactly the same content.",
+      "noteUnsaved": "This is the formal A4 form as it will be once saved, drawn from what is filled in on screen now. The preview saves nothing; press Save draft to save.",
+      "number": "Application No.: {number}",
+      "numberProvisional": "{number} is the number the draft gets if it is saved now; if someone saves an application of the same kind first, the next number is given.",
+      "ownFormBlank": "This application uses the consultant's own form \"{name}\" (version {version}). Page 1 is the system's application form; from page {page} on is the consultant's form as it is, with the consultant's own header and layout. No filled-in form has been uploaded yet, so the blank form is shown.",
+      "ownFormFilled": "This application uses the consultant's own form \"{name}\" (version {version}). Page 1 is the system's application form; from page {page} on is the uploaded filled-in consultant's form as it is, with the consultant's own header and layout.",
+      "loading": "Drawing the A4 preview...",
+      "what": "The A4 preview",
+      "pageWhat": "Page {page}",
+      "pageAlt": "Formal A4 application form, page {page}",
+      "pageOf": "Page {page} of {total}",
+      "morePages": "{count} more page(s) are not shown here; press Open PDF to see them all.",
+      "pdfWhat": "The preview PDF",
+      "pdfPreparing": "The PDF is being drawn, please wait.",
+      "pdfFailed": "The PDF could not be drawn. Try again.",
+      "openPdf": "Open PDF",
+      "close": "Close"
     }
   },
   "contractorDashboard": {

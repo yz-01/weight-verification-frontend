@@ -17,6 +17,8 @@ import { Button } from "@/components/ui/button";
  *
  * `exportButtons` is the shared preview / export pair, passed in so the
  * detail keeps drawing `RecordExportButton` itself like every other module.
+ * `a4Preview` is 「A4 预览」 (JB163): this one page itself, as pictures, drawn
+ * by the export's own renderer - first, since it is the form this card is.
  */
 export function ApplicationFormCard({
   consultantName,
@@ -27,6 +29,7 @@ export function ApplicationFormCard({
   onPrint,
   onShowAttachments,
   exportButtons,
+  a4Preview,
   sendBlockedReason,
   printBlockedReason,
 }: {
@@ -47,6 +50,8 @@ export function ApplicationFormCard({
   onPrint: () => Promise<void>;
   onShowAttachments: () => void;
   exportButtons: React.ReactNode;
+  /** 「A4 预览」 (JB163). */
+  a4Preview?: React.ReactNode;
 }) {
   const t = useTranslations("consultantWorkflow.formCard");
   const printing = useMutation({ mutationFn: onPrint });
@@ -66,6 +71,7 @@ export function ApplicationFormCard({
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2 lg:justify-end">
+          {a4Preview}
           {exportButtons}
           <Button
             type="button"
