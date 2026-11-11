@@ -54,6 +54,8 @@ export interface LinkPhoto {
   url: string;
   label: string;
   id?: string;
+  /** A signature or a stamp: shown on white (`ShellPhoto.paper`, JB172). */
+  paper?: boolean;
 }
 
 export function toViewerPhotos(photos: readonly LinkPhoto[]): ShellPhoto[] {
@@ -63,6 +65,7 @@ export function toViewerPhotos(photos: readonly LinkPhoto[]): ShellPhoto[] {
     label: photo.label,
     // A bare file address carries no time or place; the record has them.
     metaUnknown: true,
+    ...(photo.paper ? { paper: true } : {}),
   }));
 }
 
@@ -87,6 +90,7 @@ export function PhotoLink({
   name,
   contentType,
   image,
+  paper,
   photos,
   index = 0,
   reference,
@@ -101,6 +105,12 @@ export function PhotoLink({
   contentType?: string | null;
   /** The caller knows it is a photo (it draws it as one): skip the guess. */
   image?: boolean;
+  /**
+   * It is a signature or a stamp (JB172): the viewer shows it on white, where
+   * its dark ink can be read in both modes. For this link's own picture; a
+   * set passed in `photos` says so photo by photo.
+   */
+  paper?: boolean;
   /** The screen's photos, for 上一张 / 下一张; this one is `photos[index]`. */
   photos?: readonly LinkPhoto[];
   index?: number;
@@ -117,7 +127,7 @@ export function PhotoLink({
       </a>
     );
   }
-  const set = photos && photos.length > 0 ? photos : [{ url: href, label }];
+  const set: readonly LinkPhoto[] = photos && photos.length > 0 ? photos : [{ url: href, label, paper }];
   const start = photos && photos.length > 0 ? Math.min(Math.max(index, 0), set.length - 1) : 0;
   return (
     <>

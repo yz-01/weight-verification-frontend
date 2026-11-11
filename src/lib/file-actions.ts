@@ -185,6 +185,33 @@ export function printImage(url: string, title: string): void {
   page.body.appendChild(image);
 }
 
+/**
+ * Open one picture in a new tab on a white page (JB172, Lucas 11-12: 「签名
+ * 背景是透明的，修复一下弄成白色」). A browser shows a bare image file on a
+ * dark page of its own, where a signature - dark ink on a see-through file -
+ * cannot be read. The page is ours, so the paper under it is white.
+ */
+export function openImageOnPaper(url: string, title: string): void {
+  const popup = window.open("", "_blank");
+  if (!popup) {
+    // No window of ours: the file itself, as before.
+    window.open(url, "_blank", "noopener,noreferrer");
+    return;
+  }
+  popup.opener = null;
+  const page = popup.document;
+  page.open();
+  page.write(
+    '<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;background:#fff}img{display:block;max-width:100%;margin:0 auto}</style></head><body></body></html>',
+  );
+  page.close();
+  page.title = title;
+  const image = page.createElement("img");
+  image.alt = title;
+  image.src = new URL(url, window.location.href).href;
+  page.body.appendChild(image);
+}
+
 export type ShareFileOutcome = "shared" | "cancelled" | "unsupported" | "failed";
 
 interface FileShareNavigator {

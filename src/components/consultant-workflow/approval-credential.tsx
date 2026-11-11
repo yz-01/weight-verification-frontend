@@ -11,6 +11,7 @@ import {
   ListHeader,
   LoadFailed,
 } from "@/components/shared/page-primitives";
+import { PhotoLink } from "@/components/shared/photo-link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -99,16 +100,19 @@ export function ApprovalCredentialSettings() {
               onChange={(event) => setSignature(event.target.files?.[0])}
             />
             {credential.data?.signature && !signature && (
-              <a
+              // Opened in the app's viewer, on white (JB172): as a bare file
+              // the browser put a see-through signature on its own dark page.
+              <PhotoLink
                 href={credential.data.signature}
-                target="_blank"
-                rel="noreferrer"
+                label={t("credential.signature")}
+                image
+                paper
                 className="mt-2 flex h-28 items-center justify-center overflow-hidden rounded-lg border bg-paper p-2"
               >
                 {/* The stored image is user-owned evidence and is intentionally shown without transformation. */}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={credential.data.signature} alt={t("credential.signature")} className="max-h-full max-w-full object-contain" />
-              </a>
+              </PhotoLink>
             )}
           </FieldWrapper>
           <FieldWrapper
@@ -121,15 +125,16 @@ export function ApprovalCredentialSettings() {
               onChange={(event) => setStamp(event.target.files?.[0])}
             />
             {credential.data?.stamp && !stamp && (
-              <a
+              <PhotoLink
                 href={credential.data.stamp}
-                target="_blank"
-                rel="noreferrer"
+                label={t("credential.stamp")}
+                image
+                paper
                 className="mt-2 flex h-28 items-center justify-center overflow-hidden rounded-lg border bg-paper p-2"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={credential.data.stamp} alt={t("credential.stamp")} className="max-h-full max-w-full object-contain" />
-              </a>
+              </PhotoLink>
             )}
           </FieldWrapper>
         </div>

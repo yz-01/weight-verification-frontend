@@ -6,6 +6,9 @@ import { useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 
+/** The sheet a signature is signed on: white, in the saved file too (JB172). */
+export const SIGNATURE_PAPER = "#ffffff";
+
 export function FieldSignaturePad({
   label,
   clearLabel,
@@ -38,6 +41,11 @@ export function FieldSignaturePad({
   const t = useTranslations("common");
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const drawing = useRef(false);
+  // Whether the white sheet is under the ink yet (JB172, Lucas 11-12: 「签名
+  // 背景是透明的，修复一下弄成白色」). The pad looked white only by its CSS; the
+  // file it saved was dark ink on nothing, which a dark screen, a photo
+  // viewer or another app shows as ink on dark. The sheet is now in the file.
+  const sheet = useRef(false);
   const [hasInk, setHasInk] = useState(Boolean(value));
 
   const point = (event: React.PointerEvent<HTMLCanvasElement>) => {
@@ -54,6 +62,11 @@ export function FieldSignaturePad({
     const context = canvas.getContext("2d");
     if (!context) return;
     const { x, y } = point(event);
+    if (!sheet.current) {
+      context.fillStyle = SIGNATURE_PAPER;
+      context.fillRect(0, 0, canvas.width, canvas.height);
+      sheet.current = true;
+    }
     drawing.current = true;
     canvas.setPointerCapture(event.pointerId);
     context.beginPath();
@@ -93,6 +106,8 @@ export function FieldSignaturePad({
     const canvas = canvasRef.current;
     const context = canvas?.getContext("2d");
     if (canvas && context) context.clearRect(0, 0, canvas.width, canvas.height);
+    // The next stroke lays a new sheet.
+    sheet.current = false;
     setHasInk(false);
     onChange(undefined);
   };

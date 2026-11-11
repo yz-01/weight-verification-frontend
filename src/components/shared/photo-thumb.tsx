@@ -77,6 +77,13 @@ export interface PhotoThumbProps {
    * (`InsideRowControl`, audit #11).
    */
   openable?: boolean;
+  /**
+   * A signature or a stamp, not a photograph (JB172, Lucas 11-12: 「签名背景
+   * 是透明的，修复一下弄成白色」): whole on white in both modes - not cut to
+   * fill, not on the dark placeholder, where dark ink cannot be seen. The
+   * viewer it opens shows it on white too.
+   */
+  paper?: boolean;
   className?: string;
 }
 
@@ -92,6 +99,7 @@ export function PhotoThumb({
   photos,
   size = "md",
   openable: openableProp,
+  paper = false,
   className,
 }: PhotoThumbProps) {
   const t = useTranslations("photos");
@@ -100,6 +108,9 @@ export function PhotoThumb({
   const [opened, setOpened] = useState<{ photos: ShellPhoto[]; index: number } | null>(null);
   const [loading, setLoading] = useState(false);
   const total = count ?? 0;
+  // Ink stays on paper in the viewer too.
+  const onPaper = (list: ShellPhoto[]) => (paper ? list.map((photo) => ({ ...photo, paper: true })) : list);
+  const surface = paper ? "bg-paper" : "photo-hatch";
 
   if (!coverUrl) {
     return (
@@ -133,15 +144,15 @@ export function PhotoThumb({
     event.preventDefault();
     if (!photos) return;
     if (Array.isArray(photos)) {
-      setOpened({ photos: photos.length ? photos : fallback, index: 0 });
+      setOpened({ photos: onPaper(photos.length ? photos : fallback), index: 0 });
       return;
     }
     setLoading(true);
     try {
       const loaded = await photos();
-      setOpened({ photos: loaded.length ? loaded : fallback, index: 0 });
+      setOpened({ photos: onPaper(loaded.length ? loaded : fallback), index: 0 });
     } catch {
-      setOpened({ photos: fallback, index: 0 });
+      setOpened({ photos: onPaper(fallback), index: 0 });
     } finally {
       setLoading(false);
     }
@@ -155,7 +166,9 @@ export function PhotoThumb({
         alt=""
         fill
         sizes={size === "md" ? "64px" : "56px"}
-        className="object-cover object-bottom"
+        // A signature whole on its sheet; a photograph cut to fill, from the
+        // bottom so the stamped strip stays.
+        className={paper ? "object-contain p-0.5" : "object-cover object-bottom"}
         unoptimized
       />
       {total > 1 ? (
@@ -174,8 +187,10 @@ export function PhotoThumb({
         role="img"
         aria-label={t("count", { count: total })}
         data-photo-thumb="photo"
+        data-paper={paper || undefined}
         className={cn(
-          "photo-hatch relative block shrink-0 overflow-hidden rounded-lg border border-panel-border",
+          "relative block shrink-0 overflow-hidden rounded-lg border border-panel-border",
+          surface,
           SIZE[size],
           className,
         )}
@@ -193,8 +208,10 @@ export function PhotoThumb({
         title={label}
         aria-busy={loading || undefined}
         data-photo-thumb="photo"
+        data-paper={paper || undefined}
         className={cn(
-          "photo-hatch relative block shrink-0 overflow-hidden rounded-lg border border-panel-border transition hover:border-primary/60 hover:shadow-glow-sm focus-visible:ring-2 focus-visible:ring-ring",
+          "relative block shrink-0 overflow-hidden rounded-lg border border-panel-border transition hover:border-primary/60 hover:shadow-glow-sm focus-visible:ring-2 focus-visible:ring-ring",
+          surface,
           SIZE[size],
           loading && "opacity-60",
           className,
