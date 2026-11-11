@@ -383,7 +383,13 @@ export function RecordDetailShell({
    * the record's own steps are done. Left out for a record that closes
    * another way - a hazard closes by its raiser's 确认完成.
    */
-  closure?: { kind: ArchiveRecordKind; recordId: string; onConfirmed?: () => void } | null;
+  closure?: {
+    kind: ArchiveRecordKind;
+    recordId: string;
+    onConfirmed?: () => void;
+    /** What the module still needs before 确认归档 (JB169: a return's supplier). */
+    blocked?: { reason: string; action?: React.ReactNode } | null;
+  } | null;
   /** 更正记录, when the record has been corrected. */
   corrections?: React.ReactNode;
   /** 记录人 - usually a `RecordRecorder`. */
@@ -557,6 +563,7 @@ export function RecordDetailShell({
                     kind={closure.kind}
                     recordId={closure.recordId}
                     onConfirmed={closure.onConfirmed}
+                    blocked={closure.blocked}
                   />
                 ) : null}
               </ShellPanel>

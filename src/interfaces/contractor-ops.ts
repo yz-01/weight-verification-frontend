@@ -936,6 +936,11 @@ export interface MaterialOutgoing extends RecordedBy {
   lines?: MaterialIssueLine[];
   /** 「待补规格」 (J39): sent without its specification; the office fills it. */
   needs_spec?: boolean;
+  /**
+   * 「待补供应商」 (JB169): a return naming no supplier - not an issue, nor a
+   * rejected application. 后台确认 and 确认归档 wait for 「补供应商」.
+   */
+  needs_supplier?: boolean;
   /** The number before I6 renumbered it (「旧编号」); empty on a newer record. */
   legacy_no?: string;
   /** The first photograph's watermarked thumbnail, or null (E3). */

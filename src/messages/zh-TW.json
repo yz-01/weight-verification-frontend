@@ -6605,6 +6605,10 @@
       "scannedSupplier": "已掃碼：{name}",
       "scanFailed": "這個二維碼不是供應商二維碼。",
       "noSupplier": "不填",
+      "supplierPending": "待補供應商",
+      "supplierPendingHint": "現場沒填供應商：按「補供應商」填上。",
+      "fillSupplier": "補供應商",
+      "needSupplierFirst": "先補上供應商，才能確認歸檔",
       "spec": "規格",
       "chooseSpec": "選擇規格",
       "specOptionalHint": "不知道規格可以不選，後台會補上。",
@@ -8757,6 +8761,7 @@
       "receipt_archived": "這批材料已確認歸檔，不能再驗收或退回。如有新問題，請新建一條記錄。",
       "receipt_awaiting_acceptance": "這批材料還沒驗收，請先驗收或判不合格再歸檔。",
       "receipt_archive_needs_supplier": "這批材料（{receipt}）還沒有供應商。被拒收、不合格的也要先按「補供應商」填上，才能歸檔。",
+      "return_needs_supplier": "這張退貨單（{reference}）還沒有供應商。先按「補供應商」填上，才能確認歸檔。",
       "site_record_field_only": "只有現場人員能在手機上新增這條記錄。後台可以更正已有的記錄。",
       "material_request_assigned_to_other": "這個申請已提交給別人審批。要由你審批，請先按「改派給我」。",
       "material_request_reviewer_not_eligible": "所選的人不能批准這個項目的申請，請從名單裡重新選擇。",
@@ -18655,7 +18660,8 @@
     "fillSave": "儲存",
     "archivedHint": "已確認歸檔：有內容的不能再改，空白的可以補上。",
     "archivedField": "已歸檔，不能改",
-    "fillNote": "儲存後，列表、匯出、報表和 PDF 都會用補上的內容。"
+    "fillNote": "儲存後，列表、匯出、報表和 PDF 都會用補上的內容。",
+    "signedNote": "這筆退貨已歸檔：每次修改都要寫原因、輸入六位數簽核密碼，並記在「修改記錄」裡。"
   },
   "recordConversation": {
     "open": "溝通",

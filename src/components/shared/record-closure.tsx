@@ -24,7 +24,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { CheckCircle2, Loader2, Lock } from "lucide-react";
-import { useState } from "react";
+import { type ReactNode, useState } from "react";
 
 import { LoadFailed } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
@@ -87,6 +87,7 @@ export function RecordClosurePanel({
   kind,
   recordId,
   onConfirmed,
+  blocked = null,
 }: {
   kind: ArchiveRecordKind;
   recordId: string;
@@ -96,6 +97,13 @@ export function RecordClosurePanel({
    * on saying 「等待确认」 until its next poll.
    */
   onConfirmed?: () => void;
+  /**
+   * What the module still needs before it may be archived, said beside the
+   * button and keeping it off: a return with no supplier (JB169, 客户 11-11
+   * 「未选择供应商不能确认归档」), with 「补供应商」 as `action`. The server
+   * refuses it too; this is so the refusal is never a surprise.
+   */
+  blocked?: { reason: string; action?: ReactNode } | null;
 }) {
   const t = useTranslations("recordClosure");
   const formatter = useDateFormat();
@@ -188,9 +196,18 @@ export function RecordClosurePanel({
       />
       {/* The record panel's size, as the buttons above it in the same
           card (JB166, Lucas 11-11: 「这些按钮不consistent」). */}
+      {blocked && (
+        <div className="space-y-2" data-record-closure-blocked>
+          <p role="status" className="rounded-md bg-warning/10 px-2 py-1.5 text-sm font-medium text-warning">
+            {blocked.reason}
+          </p>
+          {blocked.action ?? null}
+        </div>
+      )}
       <Button
         size="sm"
-        disabled={confirm.isPending}
+        disabled={confirm.isPending || Boolean(blocked)}
+        disabledReason={blocked?.reason}
         onClick={() => confirm.mutate()}
       >
         {confirm.isPending ? (

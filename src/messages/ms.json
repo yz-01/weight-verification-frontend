@@ -6605,6 +6605,10 @@
       "scannedSupplier": "Diimbas: {name}",
       "scanFailed": "Kod itu bukan kod QR pembekal.",
       "noSupplier": "Tidak diketahui",
+      "supplierPending": "Pembekal belum diisi",
+      "supplierPendingHint": "Tapak tidak mengisi pembekal: tekan 「Isi pembekal」.",
+      "fillSupplier": "Isi pembekal",
+      "needSupplierFirst": "Isi pembekal dahulu, baru boleh sahkan dan arkibkan.",
       "spec": "Spesifikasi",
       "chooseSpec": "Pilih spesifikasi",
       "specOptionalHint": "Tidak pasti spesifikasinya? Biarkan - pejabat akan mengisinya.",
@@ -8757,6 +8761,7 @@
       "receipt_archived": "Penghantaran ini telah disahkan dan diarkibkan, jadi ia tidak boleh diterima atau ditolak lagi. Buat rekod baharu untuk perkara lain.",
       "receipt_awaiting_acceptance": "Penghantaran ini belum diterima. Terima atau tolak dahulu, kemudian arkibkan.",
       "receipt_archive_needs_supplier": "Penghantaran ini ({receipt}) belum ada pembekal. Yang ditolak juga: tekan 「Isi pembekal」 sebelum mengarkibkan.",
+      "return_needs_supplier": "Pemulangan ini ({reference}) belum ada pembekal. Tekan 「Isi pembekal」 dahulu, kemudian sahkan atau arkibkan.",
       "site_record_field_only": "Hanya kakitangan tapak boleh merekod ini, melalui telefon. Dari pejabat, anda boleh membetulkan rekod sedia ada.",
       "material_request_assigned_to_other": "Permohonan ini dihantar kepada orang lain untuk diluluskan. Untuk memutuskannya sendiri, tekan \"Ambil alih\" dahulu.",
       "material_request_reviewer_not_eligible": "Orang yang dipilih tidak boleh meluluskan permohonan bagi projek ini. Pilih semula daripada senarai.",
@@ -18655,7 +18660,8 @@
     "fillSave": "Simpan",
     "archivedHint": "Telah disahkan dan diarkibkan: yang sudah diisi tidak boleh diubah; ruang kosong masih boleh diisi.",
     "archivedField": "Diarkibkan - tidak boleh diubah",
-    "fillNote": "Selepas disimpan, senarai, eksport, laporan dan PDF menunjukkan maklumat yang dilengkapkan."
+    "fillNote": "Selepas disimpan, senarai, eksport, laporan dan PDF menunjukkan maklumat yang dilengkapkan.",
+    "signedNote": "Pemulangan ini telah diarkibkan: setiap perubahan perlu sebab dan PIN pengesahan enam digit anda, dan disimpan dalam 「Sejarah pengubahan」."
   },
   "recordConversation": {
     "open": "Komunikasi",
