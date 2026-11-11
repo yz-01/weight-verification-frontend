@@ -930,10 +930,20 @@
  * left a gap before them). Doubled attribute: it outranks the fit rule's
  * padding and wrapping and a cell's own `justify-end`. */
 [data-slot="table"] > :is(thead, tbody) > tr > :is(th, td)[data-pin="end"][data-pin] {
-  width: 1%;
   white-space: nowrap;
   text-align: center;
   padding-inline: 0.75rem;
+}
+/* `width: 1%` shrinks the column to its buttons in a table as wide as the
+ * page - the desktop's. A phone's list table is as wide as its content
+ * (`max-sm:min-w-max`), and there the browser made the 1% column its
+ * buttons' width, so the table 100 times that: 文件档案 on a phone was
+ * 20600 px wide, its rows empty space (JB165). On a phone the column is its
+ * buttons' width anyway. */
+@media (min-width: 40rem) {
+  [data-slot="table"] > :is(thead, tbody) > tr > :is(th, td)[data-pin="end"][data-pin] {
+    width: 1%;
+  }
 }
 [data-slot="table"] > :is(thead, tbody) > tr > :is(th, td)[data-pin="end"][data-pin] > :is(div, span) {
   justify-content: center;

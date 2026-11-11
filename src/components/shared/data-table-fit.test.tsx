@@ -92,6 +92,20 @@ describe("the row's 「查看 / 更改」 stays at the right (I39-4)", () => {
   });
 });
 
+describe("a column's own width (JB165)", () => {
+  it("is read from `meta.width`, and nothing else is", async () => {
+    const { columnWidth } = await import("@/components/shared/data-table");
+    expect(columnWidth({ label: "编号", width: "8rem" })).toBe("8rem");
+    expect(columnWidth({ label: "编号" })).toBeUndefined();
+    expect(columnWidth({ width: 128 })).toBeUndefined();
+    expect(columnWidth(undefined)).toBeUndefined();
+  });
+
+  it("leaves a list that gives none laid out by its content", () => {
+    expect(render()).not.toMatch(/<th[^>]*style=/);
+  });
+});
+
 describe("a list's default-hidden columns (I39-5)", () => {
   it("are off until the reader turns them on, and the rest stay", () => {
     const markup = render(["supplier"]);

@@ -12,9 +12,12 @@ import { describe, expect, it } from "vitest";
 import {
   DOCUMENT_FILE_ACCEPT,
   DocumentCategoryPicker,
+  DocumentPathCell,
   DocumentThumb,
+  DocumentTitleCell,
   THUMBNAIL_MAX_BYTES,
   categoryPickerLabel,
+  splitGroupTitle,
   thumbnailKind,
 } from "@/components/document-workflow/document-archive-parts";
 import type {
@@ -143,6 +146,69 @@ describe("table thumbnails (D5)", () => {
     expect(markup).toContain('src="https://media.test/page1.webp"');
     // The whole page shows, from its top - not cropped like a photo.
     expect(markup).toContain("object-contain");
+  });
+});
+
+/**
+ * JB165 (Lucas 11-11: 「文件归档这里我觉得好乱，能不能弄整齐好看」): the row
+ * parts keep each line whole - one line, then 「…」, the whole text on hover -
+ * instead of `truncate`, which a fitted table turns back into wrapping.
+ */
+describe("a tidy archive row (JB165)", () => {
+  const LONG = "mse-site-2026-10-23T17-59-33.192Z-o09f9d31f56af41099439fb6f56f1f180";
+
+  it("splits the system's 「等 N 个文件」 off a title, in each language's words", () => {
+    expect(splitGroupTitle(`${LONG} 等 6 个文件`, zh.documents.uploadFile.groupTitle)).toEqual({
+      name: LONG,
+      suffix: "等 6 个文件",
+    });
+    expect(splitGroupTitle(`${LONG} 等 12 個文件`, zhTW.documents.uploadFile.groupTitle)).toEqual({
+      name: LONG,
+      suffix: "等 12 個文件",
+    });
+    expect(splitGroupTitle("site photo and 3 files", en.documents.uploadFile.groupTitle)).toEqual({
+      name: "site photo",
+      suffix: "and 3 files",
+    });
+    expect(splitGroupTitle("foto tapak dan 3 fail", ms.documents.uploadFile.groupTitle)).toEqual({
+      name: "foto tapak",
+      suffix: "dan 3 fail",
+    });
+    // A title somebody typed is all name.
+    expect(splitGroupTitle("合约 VO-007", zh.documents.uploadFile.groupTitle)).toEqual({ name: "合约 VO-007", suffix: "" });
+    expect(splitGroupTitle("等 6 个文件", zh.documents.uploadFile.groupTitle)).toEqual({ name: "等 6 个文件", suffix: "" });
+  });
+
+  it("puts 「+N」 on the thumbnail's corner, one square, and says it in the label", () => {
+    const markup = render(<DocumentThumb version={version("a.jpg", null)} more={5} onOpen={() => undefined} />);
+    expect(markup).toMatch(/<span aria-hidden="true" data-more-files="5" class="[^"]*absolute[^"]*">\+5<\/span>/);
+    expect(markup.match(/<button/g)).toHaveLength(1);
+    expect(markup).toContain("size-10");
+    expect(markup).toContain(`${zh.filePreview.preview} · a.jpg · 另有 5 个文件`);
+  });
+
+  it("draws no badge for a document of one file", () => {
+    const markup = render(<DocumentThumb version={version("a.pdf", null)} onOpen={() => undefined} />);
+    expect(markup).not.toContain("data-more-files");
+    expect(markup).toContain(`title="${zh.filePreview.preview} · a.pdf"`);
+  });
+
+  it("keeps the title on one line with the whole of it on hover, the file count under it", () => {
+    const markup = render(<DocumentTitleCell title={`${LONG} 等 6 个文件`} detail={<span>{zh.documents.noFile}</span>} />);
+    expect(markup).toContain(`title="${LONG} 等 6 个文件" data-document-title="true">${LONG}</p>`);
+    expect(markup).toContain(`data-group-count="true">等 6 个文件</span><span>${zh.documents.noFile}</span>`);
+    expect(markup).toContain("[white-space:nowrap]");
+    expect(markup).not.toMatch(/\btruncate\b/);
+  });
+
+  it("files a path as the category over the sub-category, never broken, the whole path on hover", () => {
+    const markup = render(<DocumentPathCell category="Safety Department" subcategory="HIRARC/JSA Risk Assessment" />);
+    expect(markup).toContain('title="Safety Department / HIRARC/JSA Risk Assessment" data-document-path="true"');
+    expect(markup).toContain(">Safety Department</span>");
+    expect(markup).toContain(">HIRARC/JSA Risk Assessment</span>");
+    expect(markup).toContain("<svg");
+    expect(markup).not.toMatch(/\btruncate\b/);
+    expect(render(<DocumentPathCell category="合约文件" />)).toContain('title="合约文件"');
   });
 });
 
