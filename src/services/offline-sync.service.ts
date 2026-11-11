@@ -573,6 +573,7 @@ async function sendJob(job: OfflineJob): Promise<void> {
       latitude: exit.latitude,
       longitude: exit.longitude,
       returned_quantity: exit.returned_quantity,
+      issued: exit.issued,
       site_signature: restoreFile(exit.site_signature),
       supplier_signature: restoreFile(exit.supplier_signature),
       vehicle_plate: exit.vehicle_plate,

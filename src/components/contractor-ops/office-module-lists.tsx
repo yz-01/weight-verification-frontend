@@ -53,7 +53,8 @@ import { useFileActions } from "@/components/shared/file-actions";
 import { Checkbox } from "@/components/ui/checkbox";
 import { movementStatusKey } from "@/lib/equipment-exit";
 import { ARCHIVE_LOCKS_CHANGES } from "@/lib/archive-policy";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { MaterialIssueList, OutgoingKindSwitch } from "@/components/contractor-ops/material-issue";
 import { useMemo, useState } from "react";
 
 import { AddToPackageButton } from "@/components/contractor-ops/add-to-package";
@@ -244,9 +245,26 @@ export function MaterialOutgoingOffice() {
   ]);
   const unitName = useUnitName();
   const unitValues = useUnitExportValues();
+  // 「供应商退货」 or 「材料领用」 (JB168): `?kind=ISSUE` opens the issues, so
+  // a notice about one lands on its own view. The returns' list is unchanged
+  // and asks for returns only.
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const view: "RETURN" | "ISSUE" = searchParams.get("kind") === "ISSUE" ? "ISSUE" : "RETURN";
+  const switchView = (next: "RETURN" | "ISSUE") => {
+    const params = new URLSearchParams();
+    const keep = searchParams.get("project");
+    if (keep) params.set("project", keep);
+    if (next === "ISSUE") params.set("kind", "ISSUE");
+    const query = params.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+  };
+  const returnsQuery = { ...list.query, kind: "RETURN" };
   const rows = useQuery({
-    queryKey: ["material-outgoing", "office", list.query],
-    queryFn: () => getMaterialOutgoing(list.query),
+    queryKey: ["material-outgoing", "office", returnsQuery],
+    queryFn: () => getMaterialOutgoing(returnsQuery),
+    enabled: view === "RETURN",
   });
   const review = useMutation({
     mutationFn: ({
@@ -424,7 +442,7 @@ export function MaterialOutgoingOffice() {
       title,
       subtitle: tRoot("moduleTable.count", { count: total }),
       emptyLabel: t("state.empty"),
-      query: list.query,
+      query: returnsQuery,
       columns: [
         { key: "reference_no", label: tRoot("recordNo.inOutColumn") },
         { key: "category_name", label: t("field.category") },
@@ -463,8 +481,53 @@ export function MaterialOutgoingOffice() {
       },
     });
 
+  const detailAndDialogs = (
+    <>
+      {viewing && (
+        <OutgoingDetailDialog
+          id={viewing}
+          onClose={() => setViewing(null)}
+          renderActions={(current) => (
+            <OutgoingActions
+              row={current}
+              pending={review.isPending}
+              onReview={(status) => onReview(current, status)}
+            />
+          )}
+        />
+      )}
+      {rejecting && (
+        <RejectOutgoingDialog
+          row={rejecting}
+          pending={review.isPending}
+          onClose={() => setRejecting(null)}
+          onConfirm={(note) => {
+            review.mutate({ id: rejecting.id, status: "REJECTED", note });
+            setRejecting(null);
+          }}
+        />
+      )}
+    </>
+  );
+
+  if (view === "ISSUE") {
+    return (
+      <div className="space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h1 className="text-xl font-semibold">{title}</h1>
+          <OutgoingKindSwitch value={view} onChange={switchView} />
+        </div>
+        <MaterialIssueList onOpen={(id) => setViewing(id)} />
+        {detailAndDialogs}
+      </div>
+    );
+  }
+
   return (
     <>
+      <div className="mb-2 flex justify-end">
+        <OutgoingKindSwitch value={view} onChange={switchView} />
+      </div>
       <ModuleRecordsTable
         corrected={{ kind: "MATERIAL_OUTGOING" }}
         title={title}
@@ -514,30 +577,7 @@ export function MaterialOutgoingOffice() {
         }
         onOpen={(row) => setViewing(row.id)}
       />
-      {viewing && (
-        <OutgoingDetailDialog
-          id={viewing}
-          onClose={() => setViewing(null)}
-          renderActions={(current) => (
-            <OutgoingActions
-              row={current}
-              pending={review.isPending}
-              onReview={(status) => onReview(current, status)}
-            />
-          )}
-        />
-      )}
-      {rejecting && (
-        <RejectOutgoingDialog
-          row={rejecting}
-          pending={review.isPending}
-          onClose={() => setRejecting(null)}
-          onConfirm={(note) => {
-            review.mutate({ id: rejecting.id, status: "REJECTED", note });
-            setRejecting(null);
-          }}
-        />
-      )}
+      {detailAndDialogs}
     </>
   );
 }
