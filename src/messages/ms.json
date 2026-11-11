@@ -14191,9 +14191,9 @@
     },
     "tabs": {
       "label": "Pengurusan bahan",
-      "in": "Material In",
-      "out": "Material Out",
-      "reject": "Reject",
+      "in": "Bahan masuk",
+      "out": "Bahan keluar",
+      "reject": "Ditolak semasa pemeriksaan",
       "totals": "Jumlah mengikut pembekal",
       "legacyReturns": "Pemulangan yang direkod melalui borang terimaan sebelum 10-02",
       "choose": "Pilih paparan",
@@ -15960,6 +15960,7 @@
       "chooseBackground": "Pilih imej latar",
       "replaceBackground": "Tukar imej latar",
       "removeBackground": "Buang imej latar",
+      "removeLogo": "Buang logo",
       "backgroundRemovePending": "Dibuang apabila anda tekan “Simpan profil syarikat”.",
       "backgroundTooBig": "Imej itu {actual} MB, melebihi had {limit} MB. Sila pilih yang lebih kecil.",
       "backgroundHint": "Saiz dicadangkan 1920 × 400 px (foto mendatar)",
@@ -21086,5 +21087,16 @@
     "openPdf": "Buka PDF",
     "openImage": "Lihat foto",
     "openFile": "Muat turun fail"
+  },
+  "recordedWords": {
+    "arrivingVehicle": "Kenderaan tiba",
+    "unloadingProcess": "Bahan dipunggah",
+    "emptyVehicle": "Kenderaan kosong selepas dipunggah",
+    "otherSitePhoto": "Foto tapak lain",
+    "deliveryOrder": "Delivery Order"
+  },
+  "fieldManifest": {
+    "name": "{company} Kakitangan Tapak",
+    "description": "Ruang kerja kakitangan tapak MSE Trace"
   }
 }

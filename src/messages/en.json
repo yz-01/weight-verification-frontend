@@ -15960,6 +15960,7 @@
       "chooseBackground": "Choose background image",
       "replaceBackground": "Replace background image",
       "removeBackground": "Remove background image",
+      "removeLogo": "Remove logo",
       "backgroundRemovePending": "Removed when you press “Save company profile”.",
       "backgroundTooBig": "That image is {actual} MB, over the {limit} MB limit. Please choose a smaller one.",
       "backgroundHint": "Suggested size 1920 × 400 px (a landscape photo)",
@@ -21086,5 +21087,16 @@
     "openPdf": "Open PDF",
     "openImage": "View photo",
     "openFile": "Download file"
+  },
+  "recordedWords": {
+    "arrivingVehicle": "Arriving vehicle",
+    "unloadingProcess": "Unloading process",
+    "emptyVehicle": "Empty vehicle after unloading",
+    "otherSitePhoto": "Other site photo",
+    "deliveryOrder": "Delivery Order"
+  },
+  "fieldManifest": {
+    "name": "{company} Field Staff",
+    "description": "MSE Trace field staff workspace"
   }
 }

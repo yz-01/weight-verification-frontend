@@ -21,7 +21,7 @@ vi.mock("@/services/api-client", () => ({
   download: vi.fn(),
 }));
 
-const { CompanySiteSettingsWorkspace, MAX_COMPANY_IMAGE_MB, PREFERENCE_SETTINGS, PROFILE_SETTINGS, oversizeMb, pickSettings } = await import(
+const { CompanySiteSettingsWorkspace, MAX_COMPANY_IMAGE_MB, PREFERENCE_SETTINGS, PROFILE_SETTINGS, oversizeMb, pickSettings, preferencesToSave, settingsBase } = await import(
   "@/components/site-access/company-site-settings"
 );
 
@@ -121,6 +121,26 @@ describe("公司设置 (JB99)", () => {
     expect(Object.keys(pickSettings(SETTINGS, PREFERENCE_SETTINGS)).sort()).toEqual(["date_format", "language", "pdf_link_valid_days", "time_format", "timezone"]);
     expect(pickSettings(SETTINGS, PROFILE_SETTINGS)).toEqual({ emergency_contact_name: "Guard house", emergency_contact_phone: "+60123" });
   });
+
+  it("shows and saves the company's own language, not the settings row's untouched 「en」 (JB164)", () => {
+    // A row made before anyone saved 显示偏好 holds its model default.
+    const untouched = { ...SETTINGS, language: "en" as const };
+    expect(settingsBase(untouched, { default_language: "zh" }).language).toBe("zh");
+    expect(pickSettings(settingsBase(untouched, { default_language: "zh" }), PREFERENCE_SETTINGS).language).toBe("zh");
+    expect(settingsBase(untouched, { default_language: "zh-TW" }).language).toBe("zh-TW");
+    // Nothing else changes, and without the company the row is kept.
+    expect({ ...settingsBase(untouched, { default_language: "ms" }), language: "en" }).toEqual(untouched);
+    expect(settingsBase(untouched, null)).toBe(untouched);
+  });
+
+  it("sends the language only when it was changed here (JB164)", () => {
+    const shown = settingsBase({ ...SETTINGS, language: "en" }, { default_language: "zh-TW" });
+    // A date-format change leaves the company's language alone.
+    const dateOnly = preferencesToSave({ ...shown, date_format: "YYYY-MM-DD" }, shown);
+    expect(dateOnly).not.toHaveProperty("language");
+    expect(dateOnly.date_format).toBe("YYYY-MM-DD");
+    expect(preferencesToSave({ ...shown, language: "ms" }, shown).language).toBe("ms");
+  });
 });
 
 describe("公司资料's 仪表盘背景图 (JB161, 客户 11-10 第十批 「背景图设置呢？」, 第十一批)", () => {
@@ -180,5 +200,44 @@ describe("公司资料's 仪表盘背景图 (JB161, 客户 11-10 第十批 「�
     expect(oversizeMb({ size: 2 * mb })).toBeNull();
     expect(oversizeMb({ size: 8 * mb + 1 })).toBe(8.1);
     expect(oversizeMb({ size: 12.34 * mb })).toBe(12.4);
+  });
+});
+
+describe("公司资料's Logo can be taken away (JB164)", () => {
+  /** The logo's buttons in 公司资料. */
+  const actions = (html: string) => html.match(/<div class="flex gap-2" data-company-logo-actions="true">[\s\S]*?<\/label>(<button[\s\S]*?<\/button>)?<\/div>/)?.[0] ?? "";
+
+  it("offers 移除 Logo beside 选择公司 Logo once there is a saved logo, and not before", () => {
+    const withLogo = actions(render({ logo: "https://cdn.example/company/logo/demo.png" }));
+    expect(withLogo).toContain("选择公司 Logo");
+    expect(withLogo).toContain('aria-label="移除 Logo"');
+    const none = actions(render());
+    expect(none).toContain("选择公司 Logo");
+    expect(none).not.toContain("移除 Logo");
+  });
+
+  it("sends a removal as an empty logo; a new logo wins; nothing sent leaves it alone", async () => {
+    const { api } = await import("@/services/api-client");
+    const { updateContractorCompanyProfile } = await import("@/services/site-access.service");
+    const patch = vi.mocked(api.patch);
+    const sent = () => patch.mock.calls.at(-1)?.[1] as FormData;
+
+    await updateContractorCompanyProfile({ ...PROFILE, logo: "https://old" }, null, null, { removeLogo: true });
+    expect(sent().getAll("logo")).toEqual([""]);
+    // Taking the logo away leaves the background alone, and the other way round.
+    expect(sent().has("background_image")).toBe(false);
+    await updateContractorCompanyProfile(PROFILE, null, null, { removeBackground: true });
+    expect(sent().has("logo")).toBe(false);
+
+    const logo = new File(["png"], "logo.png", { type: "image/png" });
+    await updateContractorCompanyProfile(PROFILE, logo, null, { removeLogo: true });
+    expect(sent().getAll("logo")).toEqual([logo]);
+    await updateContractorCompanyProfile({ ...PROFILE, logo: "https://old" }, null, null);
+    expect(sent().has("logo")).toBe(false);
+  });
+
+  it("has the words in all four languages", async () => {
+    const all = await Promise.all(["zh", "zh-TW", "en", "ms"].map((locale) => import(`@/messages/${locale}.json`)));
+    expect(all.map((m) => m.default.siteControl.profile.removeLogo)).toEqual(["移除 Logo", "移除 Logo", "Remove logo", "Buang logo"]);
   });
 });

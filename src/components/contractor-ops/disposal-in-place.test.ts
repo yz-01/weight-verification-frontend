@@ -28,8 +28,17 @@ function body(name: string) {
   return source.slice(start, ends.length ? Math.min(...ends) : undefined);
 }
 
+
+/**
+ * JB164: this test imports a large module inside it (the whole workspace or
+ * config), which under a full parallel run on the 7.5 GB machine took longer
+ * than the default 20 s (logs/final-fe-ci2.log). The assertions are unchanged;
+ * only the wait is longer.
+ */
+const SLOW_IMPORT = 60_000;
+
 describe("a disposal request opened in place (Lucas 10-30)", () => {
-  it("is exported with { id, onClose }", async () => {
+  it("is exported with { id, onClose }", { timeout: SLOW_IMPORT }, async () => {
     const mod = await import("@/components/contractor-ops/site-disposal-workspaces");
     expect(typeof mod.DisposalInPlace).toBe("function");
     expect(source).toContain("export function DisposalInPlace({ id, onClose }: { id: string; onClose: () => void })");

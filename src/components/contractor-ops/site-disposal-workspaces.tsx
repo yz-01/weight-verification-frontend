@@ -130,6 +130,7 @@ import { getProjectAssignments, getSupplier } from "@/services/contractor.servic
 import { submitDisposalRequestOfflineAware } from "@/services/offline-sync.service";
 import { LIST_FITS } from "@/lib/list-fits";
 import { clickOpensRow } from "@/components/shared/inside-row-control";
+import { GPS_SITE_LOCATION, siteLocationText } from "@/lib/recorded-words";
 
 type Coordinates = { latitude: string; longitude: string; accuracy: string };
 
@@ -158,19 +159,10 @@ function statusTone(status: DisposalRequestStatus): "neutral" | "positive" | "wa
   return "neutral";
 }
 
-/**
- * What the phone files as a disposal's 工地位置: it takes the GPS fix, not a
- * typed place. Stored as these words on every job filed from a phone, old and
- * new, so they are worded where they are shown - 「GPS captured site location」
- * stood on Chinese screens and in both PDFs (JB159; the server words its own
- * PDFs, ``contractor_ops/pdf_words.site_location``).
- */
-export const GPS_SITE_LOCATION = "GPS captured site location";
-
-/** A disposal's 工地位置 as the reader reads it. */
-export function siteLocationText(value: string, gpsWords: string): string {
-  return value === GPS_SITE_LOCATION ? gpsWords : value;
-}
+// 「GPS captured site location」, the phone's 工地位置, worded where shown
+// (JB159). The words live in `@/lib/recorded-words` since JB164, so the
+// office's field-task sheet can word them without loading this file.
+export { GPS_SITE_LOCATION, siteLocationText };
 
 export function SiteDisposalWorkspace({ initialProject = "", fieldTaskId, onRecordSaved }: { initialProject?: string; fieldTaskId?: string; onRecordSaved?: () => void } = {}) {
   const t = useTranslations("siteDisposal");

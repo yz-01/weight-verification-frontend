@@ -26,13 +26,29 @@
 import { useQuery } from "@tanstack/react-query";
 import { ExternalLink, FileText, Loader2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { useEffect } from "react";
+import { useEffect, type ReactNode } from "react";
 
 import { QueryFailedNote } from "@/components/shared/page-primitives";
 import { SectionTitle } from "@/components/site-access/settings-fields";
 import { Button } from "@/components/ui/button";
 import type { ContractorCompanyProfile } from "@/interfaces/site-access";
 import { getContractorCompanyProfile, letterheadPreviewObjectUrl } from "@/services/site-access.service";
+
+/**
+ * An email with places it may wrap: after the 「@」 and before each dot of the
+ * domain (JB164, shot r11-l04: 「office@shifan.mse.invali / d」 broke inside a
+ * word in the narrow column). `break-words` stays as the last resort for a
+ * part that still does not fit.
+ */
+export function emailBreaks(value: string): ReactNode {
+  const at = value.indexOf("@");
+  if (at < 0) return value;
+  const domain = value.slice(at + 1).split(".");
+  return [
+    value.slice(0, at + 1),
+    ...domain.flatMap((part, index) => [<wbr key={`w${index}`} />, index ? `.${part}` : part]),
+  ];
+}
 
 /** The address as the letterhead prints it: lines, then postcode and city, then state. */
 export function letterheadAddress(profile: Pick<ContractorCompanyProfile, "address_line_1" | "address_line_2" | "postcode" | "city" | "state">): string {
@@ -121,7 +137,7 @@ export function LetterheadPreviewSection() {
                 <div key={label} className="grid gap-0.5 px-3 py-2 sm:grid-cols-[7.5rem_minmax(0,1fr)] sm:gap-3">
                   <dt className="text-xs text-muted-foreground">{label}</dt>
                   <dd className={value ? "break-words text-sm font-medium text-foreground" : "text-sm text-muted-foreground"}>
-                    {value || t("notFilled")}
+                    {value ? (label === t("email") ? emailBreaks(value) : value) : t("notFilled")}
                   </dd>
                 </div>
               ))}

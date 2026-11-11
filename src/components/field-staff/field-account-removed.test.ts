@@ -25,6 +25,7 @@ import {
   takeFieldSignOut,
   takeFieldSignOutReason,
 } from "@/lib/auth-token";
+import { fieldPinUseful } from "@/lib/field-install";
 
 const read = (path: string) =>
   readFileSync(new URL(`./${path}`, import.meta.url), "utf8");
@@ -88,8 +89,11 @@ describe("no PIN is offered for a deleted account", () => {
     // office ended.
     expect(access).toMatch(/setAccountRemoved\(cause\.code === FIELD_ACCOUNT_REMOVED\)/);
     expect(access).toMatch(/if \(officeCode === FIELD_ACCOUNT_REMOVED\) setAccountRemoved\(true\)/);
-    expect(access).toMatch(/const pinUseful = accountRemoved\s*\?\s*false/);
-    expect(access).toMatch(/\{!accountRemoved && \(\s*<p[^>]*>\s*\{token \? invitation\.data\?\.full_name/);
+    // The decision lives in `fieldPinUseful` since JB164 (which also leaves
+    // the PIN out for 停用): a deleted account never gets one.
+    expect(access).toMatch(/const pinUseful = fieldPinUseful\(\{\s*accountRemoved,\s*accountStopped,/);
+    expect(fieldPinUseful({ accountRemoved: true, accountStopped: false, hasInvitation: true, unbound: false, deviceRefused: false, hasDeviceId: true })).toBe(false);
+    expect(access).toMatch(/\{!accountRemoved && !accountStopped && \(\s*<p[^>]*>\s*\{token \? invitation\.data\?\.full_name/);
     // The PIN box and 登录 both hang on pinUseful.
     expect(access.match(/\{pinUseful && \(/g)).toHaveLength(2);
   });

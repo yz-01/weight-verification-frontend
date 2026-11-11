@@ -62,6 +62,15 @@ function Label({ source }: { source: Pick<DocumentSystemFileInfo, "module" | "re
 const lookup = (catalogue: unknown, key: string) =>
   key.split(".").reduce<unknown>((node, part) => (node as Record<string, unknown>)?.[part], catalogue);
 
+
+/**
+ * JB164: this test imports a large module inside it (the whole workspace or
+ * config), which under a full parallel run on the 7.5 GB machine took longer
+ * than the default 20 s (logs/final-fe-ci2.log). The assertions are unchanged;
+ * only the wait is longer.
+ */
+const SLOW_IMPORT = 60_000;
+
 describe("where a system file came from", () => {
   it("names the record and its module the way the menu does", () => {
     expect(render(<Label source={file("a")} />)).toContain(`来自 RC-005 · ${zh.nav.material_receipts}`);
@@ -160,7 +169,7 @@ describe("the documents screen (E4)", () => {
     expect(source).toContain('t("documents.pickFromSystem.mixedProjects")');
   });
 
-  it("names a document of several files after the first one", async () => {
+  it("names a document of several files after the first one", { timeout: SLOW_IMPORT }, async () => {
     const { groupTitle } = await import("@/components/document-workflow/documents");
     const format = ({ name, count }: { name: string; count: number }) => `${name} 等 ${count} 个文件`;
     expect(groupTitle([], format)).toBe("");

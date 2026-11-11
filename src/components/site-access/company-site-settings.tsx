@@ -78,6 +78,30 @@ export const PROFILE_SETTINGS = ["emergency_contact_name", "emergency_contact_ph
 // how long the file link in a WhatsApp / email send works.
 export const PREFERENCE_SETTINGS = ["language", "date_format", "time_format", "timezone", "pdf_link_valid_days"] as const;
 
+/**
+ * The settings the page starts from. JB164 (screens 11-10 round 2: 显示偏好 → 语言
+ * showed 「英文」 for a Chinese company): the company's language is
+ * `Company.default_language` - what new accounts and the PDFs use. The settings
+ * row only keeps a copy written by a save here, and a row made before any save
+ * holds its model default 「en」. So the drop-down shows, and a save keeps, the
+ * company's own language.
+ */
+export function settingsBase(settings: ContractorSiteSettings, profile?: Pick<ContractorCompanyProfile, "default_language"> | null): ContractorSiteSettings {
+  return profile?.default_language ? { ...settings, language: profile.default_language } : settings;
+}
+
+/**
+ * 显示偏好's save. The language goes only when it was changed here (JB164): an
+ * untouched drop-down never rewrites the company's language - and the
+ * settings row does not take 「zh-TW」, so sending it with a date-format change
+ * would refuse the whole save for a 繁體中文 company.
+ */
+export function preferencesToSave(form: ContractorSiteSettings, shown: ContractorSiteSettings): Partial<ContractorSiteSettings> {
+  const payload: Partial<ContractorSiteSettings> = pickSettings(form, PREFERENCE_SETTINGS);
+  if (payload.language === shown.language) delete payload.language;
+  return payload;
+}
+
 /** Only the named fields of the draft: never send what this page does not show. */
 export function pickSettings<K extends keyof ContractorSiteSettings>(
   form: ContractorSiteSettings,
@@ -98,6 +122,8 @@ export function CompanySiteSettingsWorkspace() {
   const [profileDraft, setProfileDraft] = useState<Partial<ContractorCompanyProfile>>({});
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const logoPreview = useObjectUrl(logoFile);
+  // JB164: the saved logo taken away, sent with 【保存公司资料】 like the background.
+  const [clearLogo, setClearLogo] = useState(false);
   // The background (JB161): a new picture, or the saved one taken away -
   // either goes with 【保存公司资料】, like every other change in the block.
   const [backgroundFile, setBackgroundFile] = useState<File | null>(null);
@@ -106,24 +132,30 @@ export function CompanySiteSettingsWorkspace() {
   const [backgroundTooBig, setBackgroundTooBig] = useState<number | null>(null);
   const [editingBranch, setEditingBranch] = useState<CompanyBranch | "new" | null>(null);
   const [removing, setRemoving] = useState<CompanyBranch | null>(null);
-  const form = settings.data ? { ...settings.data, ...draft } : null;
+  const shownSettings = settings.data ? settingsBase(settings.data, profile.data) : null;
+  const form = shownSettings ? { ...shownSettings, ...draft } : null;
   const profileForm = profile.data ? { ...profile.data, ...profileDraft } : null;
   const setForm = (next: ContractorSiteSettings) => setDraft(next);
   const setCompany = (next: ContractorCompanyProfile) => setProfileDraft(next);
   const savePreferences = useMutation({
     mutationFn: (payload: Partial<ContractorSiteSettings>) => updateContractorSiteSettings(payload),
     onSuccess: async () => {
-      setDraft({});
+      // The language is read from the company (``settingsBase``), which the
+      // backend updates with the save: refetch it before the draft goes, so
+      // the drop-down never flashes the old one (JB164).
       await Promise.all([
         qc.invalidateQueries({ queryKey: ["contractor-site-settings"] }),
+        qc.invalidateQueries({ queryKey: ["contractor-company-profile"] }),
         qc.invalidateQueries({ queryKey: ["auth", "me"] }),
       ]);
+      setDraft({});
     },
   });
   const saveProfile = useMutation({
     mutationFn: async () => {
       const saved = await updateContractorCompanyProfile(profileForm ?? {}, logoFile, backgroundFile, {
         removeBackground: clearBackground,
+        removeLogo: clearLogo,
       });
       // The emergency contact is a setting, saved with the block it sits in.
       if (form && settings.data && PROFILE_SETTINGS.some((field) => form[field] !== settings.data[field])) {
@@ -134,6 +166,7 @@ export function CompanySiteSettingsWorkspace() {
     onSuccess: async (savedProfile) => {
       setProfileDraft({});
       setLogoFile(null);
+      setClearLogo(false);
       setBackgroundFile(null);
       setClearBackground(false);
       qc.setQueryData(["contractor-company-profile"], savedProfile);
@@ -155,6 +188,11 @@ export function CompanySiteSettingsWorkspace() {
     </FieldWrapper>
   );
 
+  const shownLogo = logoPreview || (clearLogo ? "" : profileForm.logo || "");
+  const removeLogo = () => {
+    setLogoFile(null);
+    setClearLogo(Boolean(profileForm.logo));
+  };
   const shownBackground = backgroundPreview || (clearBackground ? "" : profileForm.background_image || "");
   // The backend's own limit, said before the upload rather than after it fails.
   const pickBackground = (file: File | null) => {
@@ -184,9 +222,15 @@ export function CompanySiteSettingsWorkspace() {
         <div className="space-y-3">
           <p className="text-xs font-medium text-muted-foreground">{t("profile.logo")}</p>
           <div className="grid aspect-square place-items-center overflow-hidden rounded-lg border bg-muted/40">
-            {logoPreview || profileForm.logo ? <img src={logoPreview || profileForm.logo || ""} alt={profileForm.name} className="h-full w-full object-contain" /> : <Building2 className="size-12 text-muted-foreground" />}
+            {shownLogo ? <img src={shownLogo} alt={profileForm.name} className="h-full w-full object-contain" /> : <Building2 className="size-12 text-muted-foreground" />}
           </div>
-          {canManage && <label className="flex cursor-pointer items-center justify-center gap-2 rounded-md border px-3 py-2 text-sm font-medium hover:bg-muted"><ImageUp className="size-4" /><span className="truncate">{logoFile?.name || t("profile.chooseLogo")}</span><input className="sr-only" type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => setLogoFile(event.target.files?.[0] ?? null)} /></label>}
+          {/* JB164: a logo can be taken away as well as replaced (like the
+              background below); the removal goes with 【保存公司资料】. */}
+          {canManage && <div className="flex gap-2" data-company-logo-actions>
+            <label className="flex min-w-0 flex-1 cursor-pointer items-center justify-center gap-2 rounded-md border px-3 py-2 text-sm font-medium hover:bg-muted"><ImageUp className="size-4 shrink-0" /><span className="truncate">{logoFile?.name || t("profile.chooseLogo")}</span><input className="sr-only" type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => { const file = event.target.files?.[0] ?? null; setLogoFile(file); if (file) setClearLogo(false); event.target.value = ""; }} /></label>
+            {shownLogo && <Button type="button" variant="outline" size="icon" className="shrink-0 text-destructive" title={t("profile.removeLogo")} aria-label={t("profile.removeLogo")} onClick={removeLogo}><Trash2 /></Button>}
+          </div>}
+          {clearLogo && !logoFile && <p className="text-xs text-muted-foreground">{t("profile.backgroundRemovePending")}</p>}
           <p className="text-2xs text-muted-foreground">{t("profile.imageHint")}</p>
           {/* JB161 (客户 11-10 第十批 「背景图设置呢？」, 第十一批 「在「公司设置」增加
               「仪表盘背景图」上传功能。建议上传尺寸 1920 × 400px。每家建筑公司可自行
@@ -228,7 +272,7 @@ export function CompanySiteSettingsWorkspace() {
     <LetterheadPreviewSection />
 
     <section id="company-preferences" className="scroll-mt-20 space-y-4 rounded-xl">
-      <SectionTitle icon={Globe2} title={t("preferences.title")} description={t("preferences.subtitle")} action={canManage ? <Button disabled={savePreferences.isPending} onClick={() => savePreferences.mutate(pickSettings(form, PREFERENCE_SETTINGS))}><Save />{t("action.saveSettings")}</Button> : undefined} />
+      <SectionTitle icon={Globe2} title={t("preferences.title")} description={t("preferences.subtitle")} action={canManage ? <Button disabled={savePreferences.isPending} onClick={() => savePreferences.mutate(preferencesToSave(form, shownSettings ?? form))}><Save />{t("action.saveSettings")}</Button> : undefined} />
       {savePreferences.isError && <ErrorBanner text={t("settings.saveError")} />}
       <div className="grid gap-4 surface-panel rounded-xl p-4 sm:p-6 sm:grid-cols-2 xl:grid-cols-4">
         <ChoiceField label={t("field.language")} value={form.language} disabled={!canManage} options={["en", "zh", "zh-TW", "ms"]} optionLabel={(value) => t(`language.${value}`)} onChange={(value) => setForm({ ...form, language: value as ContractorSiteSettings["language"] })} />

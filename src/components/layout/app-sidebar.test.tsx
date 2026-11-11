@@ -372,11 +372,30 @@ describe("the sidebar's top is the company's own (JB161, 客户 11-10 第十批)
     const logo = top.match(/<img [^>]*src="([^"]+)"[^>]*>/);
     expect(logo?.[1]).toBe(LOGO);
     // 第十一批: 「建议显示区域 180 × 100px」「保持 Logo 原始比例，不拉伸、不变形」 -
-    // a 180 × 100 box (the old square drew it at 30 × 30), fitted whole and
-    // centred; the whole plate when the sidebar is collapsed.
-    expect(logo?.[0]).toMatch(/class="[^"]*\bh-25 w-45 max-w-full object-contain\b/);
+    // fitted whole inside 180 × 100 and centred; inside the rail's 44 px
+    // square when the sidebar is collapsed.
     expect(top).toMatch(/data-sidebar-brand="logo"[^>]*class="flex flex-col items-center\b/);
-    expect(logo?.[0]).toContain("group-data-[collapsible=icon]:size-full");
+    // JB164 (Lucas 11-11 「把白色的边边去掉，留Logo就好，弄成会适配所有logo的」):
+    // no plate - only the picture. Its height is fixed and its width follows
+    // its own ratio (never a fixed width), up to 180 px: a square logo is
+    // 100 × 100, a 2 : 1 one 180 × 90 inside the box, a tall one 50 × 100.
+    const cls = logo?.[0].match(/class="([^"]*)"/)?.[1].split(" ") ?? [];
+    expect(cls).toEqual(expect.arrayContaining(["h-25", "w-auto", "max-w-[min(100%,11.25rem)]", "object-contain"]));
+    expect(cls.filter((name) => /^w-(?!auto)/.test(name))).toEqual([]);
+    expect(cls).toEqual(expect.arrayContaining(["group-data-[collapsible=icon]:h-11", "group-data-[collapsible=icon]:max-w-11"]));
+    // A faint light halo on its own outline in the dark theme only - no box.
+    expect(cls.filter((name) => name.startsWith("dark:"))).toEqual([
+      "dark:drop-shadow-[0_0_1px_color-mix(in_oklch,var(--foreground)_40%,transparent)]",
+    ]);
+    // Nothing around it: no white plate, border, frame, padding or glow.
+    const brand = top.slice(top.indexOf('data-sidebar-brand="logo"'), top.indexOf("<img"));
+    expect(brand).not.toMatch(/<span/);
+    for (const plate of ["bg-switch-thumb", "border-panel-border", "rounded-xl", "shadow-glow"]) {
+      expect(top, plate).not.toContain(plate);
+    }
+    expect(top).not.toMatch(/[\s"]p-(1\.5|0\.5)[\s"]/);
+    // JB164 item 6: the block hugs the logo - no extra height around it.
+    expect(top).toMatch(/data-sidebar-brand="logo"[^>]*class="[^"]*\bpy-0\.5\b/);
     expect(top).toContain("测试建筑商 1");
     expect(top).not.toContain("MSE Trace");
   });

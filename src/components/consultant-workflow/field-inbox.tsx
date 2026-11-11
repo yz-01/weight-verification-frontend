@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import type { FieldTask } from "@/interfaces/contractor-ops";
 import { consultantTaskTitle } from "@/lib/consultant-task-title";
 import { useDateFormat } from "@/lib/dates";
+import { siteLocationText } from "@/lib/recorded-words";
 import { getFieldTask, getFieldTasks } from "@/services/contractor-ops.service";
 
 /**
@@ -59,6 +60,8 @@ export function ConsultantFieldInbox({
 }) {
   const t = useTranslations("consultantWorkflow.inbox");
   const askFor = useTranslations("fieldStaffPwa.consultantCapture");
+  // A disposal's 「GPS captured site location」 in the reader's words (JB164).
+  const site = useTranslations("siteDisposal");
   const df = useDateFormat();
   const router = useRouter();
   const [ticked, setTicked] = useState<Record<string, string[]>>({});
@@ -173,7 +176,7 @@ export function ConsultantFieldInbox({
               {task.work_location ? (
                 <p className="mt-1 flex items-center gap-1 truncate text-xs text-muted-foreground">
                   <MapPin className="size-3 shrink-0" />
-                  {task.work_location}
+                  {siteLocationText(task.work_location, site("gpsSiteLocation"))}
                 </p>
               ) : null}
               {task.instructions ? (

@@ -57,7 +57,7 @@ export type ClearanceTab = ClearanceKind | "abnormal";
 
 /**
  * Where each tab goes (JB149, 补充 第 1 点). 「异常记录」 is the 工地清运 list
- * with `abnormal=1` - as 材料管理's 「Reject 不合格」 is the receipts list with
+ * with `abnormal=1` - as 材料管理's 「验收不合格」 is the receipts list with
  * `acceptance=REJECTED` - and between those two the project, clearance
  * company and dates the reader chose go along, as `MaterialTabs` carries them.
  */

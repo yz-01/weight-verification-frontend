@@ -25,6 +25,7 @@ import {
   FIELD_OFFICE_SIGN_OUTS,
   bootstrapRefusalKeepsIcon,
 } from "@/lib/auth-token";
+import { fieldPinUseful } from "@/lib/field-install";
 
 const read = (path: string) =>
   readFileSync(new URL(`./${path}`, import.meta.url), "utf8");
@@ -67,6 +68,21 @@ describe("the PIN screen", () => {
     expect(access).toMatch(/if \(officeCode === FIELD_ACCOUNT_STOPPED\) setAccountStopped\(true\)/);
     expect(access).toMatch(/setAccountStopped\(cause\.code === FIELD_ACCOUNT_STOPPED\)/);
     expect(access).toMatch(/const unbound =\s*!token && context && !accountStopped/);
+  });
+
+  it("offers no PIN box or 登录 for 停用 either (JB164, s05 variant)", () => {
+    const base = { accountRemoved: false, accountStopped: false, hasInvitation: false, unbound: false, deviceRefused: false, hasDeviceId: true };
+    expect(fieldPinUseful(base)).toBe(true);
+    expect(fieldPinUseful({ ...base, accountStopped: true })).toBe(false);
+    expect(fieldPinUseful({ ...base, accountStopped: true, hasInvitation: true })).toBe(false);
+    expect(fieldPinUseful({ ...base, accountRemoved: true })).toBe(false);
+    // Unchanged otherwise: an activation link always asks; a never-linked page does not.
+    expect(fieldPinUseful({ ...base, hasInvitation: true, unbound: true, hasDeviceId: false })).toBe(true);
+    expect(fieldPinUseful({ ...base, unbound: true, hasDeviceId: false })).toBe(false);
+    expect(fieldPinUseful({ ...base, unbound: true, hasDeviceId: false, deviceRefused: true })).toBe(true);
+    const access = read("field-access.tsx");
+    expect(access).toContain("const pinUseful = fieldPinUseful({");
+    expect(access).toContain("{!accountRemoved && !accountStopped && (");
   });
 });
 

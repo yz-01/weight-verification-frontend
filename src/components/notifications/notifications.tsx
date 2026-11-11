@@ -48,7 +48,7 @@ import type { NotificationRow } from "@/interfaces/platform-ops";
 import { useDateFormat } from "@/lib/dates";
 import { officeNoticeHref } from "@/lib/office-notification";
 import { useRoleLabel } from "@/lib/role-labels";
-import { contactOf } from "@/lib/team-contact";
+import { contactOf, noticeRecipients } from "@/lib/team-contact";
 import {
   getProjectAssignments,
   getProjects,
@@ -480,7 +480,7 @@ export function ProjectNotificationDialog({
     queryFn: () => getProjectAssignments(project),
     enabled: Boolean(project),
   });
-  const memberRows = members.data?.results ?? [];
+  const memberRows = noticeRecipients(members.data?.results ?? []);
   const roleRows = Array.from(
     memberRows.reduce((rows, member) => {
       const current = rows.get(member.role_code);

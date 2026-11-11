@@ -135,7 +135,8 @@ export function CompanyLockedSettingsPanel({ companyId }: { companyId: string })
         <NumberField label={t("field.targetReminder")} value={form.target_reminder_percent} min={1} max={100} disabled={off} onChange={(value) => set({ target_reminder_percent: value })} />
         <NumberField label={t("field.visitorHours")} value={form.visitor_pass_hours} min={1} max={168} disabled={off} onChange={(value) => set({ visitor_pass_hours: value })} />
         <ChoiceField label={t("field.homePage")} value={form.home_page} disabled={off} options={["/dashboard", "/projects", "/notifications", "/field-staff"]} optionLabel={(value) => t(`homePage.${value.slice(1).replace("-", "_")}`)} onChange={(value) => set({ home_page: value as ContractorSiteSettings["home_page"] })} />
-        <FieldWrapper label={tHq("settingsTitle")} hint={tHq("settingsHint")}><Input disabled={off} maxLength={60} value={form.dashboard_title ?? ""} placeholder={tHq("title")} onChange={(event) => set({ dashboard_title: event.target.value })} /></FieldWrapper>
+        {/* No 「大标题」 here any more (JB164, 客户 11-10 第十一批 第 3 点: the
+            slogan 「永久保留」); a saved one stays in the data, unused. */}
         <FieldWrapper label={tHq("settingsSubtitle")} hint={tHq("settingsHint")} className="sm:col-span-2 xl:col-span-3"><Input disabled={off} maxLength={160} value={form.dashboard_subtitle ?? ""} placeholder={tHq("subtitle")} onChange={(event) => set({ dashboard_subtitle: event.target.value })} /></FieldWrapper>
       </div>
     </div>
