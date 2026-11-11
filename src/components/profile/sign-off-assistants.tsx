@@ -137,9 +137,8 @@ export function SignOffAssistantsSettings() {
                   </Button>
                   <Button
                     type="button"
-                    variant="outline"
+                    variant="outline-destructive"
                     size="sm"
-                    className="text-destructive"
                     onClick={() => setTask({ kind: "remove", assistant: row })}
                   >
                     <Trash2 className="size-4" />

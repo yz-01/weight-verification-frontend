@@ -365,7 +365,7 @@ export function WorkerDetailDialog({
                       </label>
                       <Button
                         size="sm"
-                        variant="destructive"
+                        variant="outline-destructive"
                         disabled={!armed || deactivate.isPending}
                         disabledReason={t("detail.armFirst")}
                         onClick={() => deactivate.mutate()}

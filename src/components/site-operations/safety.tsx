@@ -1073,17 +1073,21 @@ export function HazardRecordDetail({
         emptyGroupLabel={te("photos.none")}
         actions={
           incident.can_confirm || mayAssign || mayFile || correction || maySubmit ? (
-            <div className="grid gap-2">
+            // One row at the record panel's size, each button its own width
+            // (JB166, Lucas 11-11: 「这些按钮不consistent」): they were tall
+            // bars across the panel with 【改正】 small among them. The
+            // category is a field, under them.
+            <div className="space-y-3">
+            <div className="flex flex-wrap items-center gap-2 empty:hidden">
               {maySubmit && (
-                <Button className="min-h-11" onClick={onSubmit}>
+                <Button size="sm" onClick={onSubmit}>
                   <Camera />
                   {t("safetyRectification.action.submit")}
                 </Button>
               )}
-              {correction}
               {incident.can_confirm && (
                 <Button
-                  className="min-h-11"
+                  size="sm"
                   onClick={onReview}
                 >
                   <CheckCircle2 />
@@ -1096,8 +1100,8 @@ export function HazardRecordDetail({
                   pile would have no source. */}
               {mayAssign && (
                 <Button
+                  size="sm"
                   variant="outline"
-                  className="min-h-11"
                   onClick={onAssign}
                 >
                   <UserCheck />
@@ -1106,11 +1110,13 @@ export function HazardRecordDetail({
               )}
               {mayFile && onReassign && incident.responsible_person &&
                 ["ASSIGNED", "RETURNED"].includes(incident.status) && (
-                <Button variant="outline" className="min-h-11" onClick={onReassign}>
+                <Button size="sm" variant="outline" onClick={onReassign}>
                   <UserCog />
                   {t("taskFlow.ehs.reassign")}
                 </Button>
               )}
+              {correction}
+            </div>
               {mayFile && <HazardCategoryControl incident={incident} />}
             </div>
           ) : undefined

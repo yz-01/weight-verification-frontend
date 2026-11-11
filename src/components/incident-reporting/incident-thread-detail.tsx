@@ -232,9 +232,10 @@ export function IncidentThreadDetail({
         }
         actions={
           canResolve ? (
+            // The record panel's size at its own width (JB166).
             <Button
+              size="sm"
               variant="outline"
-              className="w-full"
               onClick={() => resolve.mutate()}
               disabled={resolve.isPending}
             >

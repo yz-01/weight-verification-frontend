@@ -261,15 +261,16 @@ export function ConsultantApplicationDetail({
           <Button asChild variant="outline" size="sm">
             <Link href={`/consultant-applications/${id}/edit`}><Pencil />{t("action.edit")}</Link>
           </Button>
+          <Button size="sm" data-slot="confirm-archive" onClick={() => setConfirming(true)}>
+            <Archive />
+            {draftWords("confirmArchive")}
+          </Button>
+          {/* 删除 last in the row (JB166). */}
           <DeleteRecordButton
             what={application.application_no}
             onDelete={() => deleteConsultantApplication(application.id)}
             onDeleted={() => finish("/consultant-applications")}
           />
-          <Button size="sm" data-slot="confirm-archive" onClick={() => setConfirming(true)}>
-            <Archive />
-            {draftWords("confirmArchive")}
-          </Button>
           <ConfirmDialog
             open={confirming}
             onOpenChange={setConfirming}
@@ -609,7 +610,9 @@ export function ConsultantApplicationDetail({
                   <Button className="min-h-11 justify-start" onClick={() => setDecision("APPROVE")}><CheckCircle2 />{t("decision.APPROVE")}</Button>
                   <Button className="min-h-11 justify-start" variant="outline" onClick={() => setDecision("APPROVE_WITH_REMEDIAL")}><ClipboardCheck />{t("decision.APPROVE_WITH_REMEDIAL")}</Button>
                   <Button className="min-h-11 justify-start" variant="outline" onClick={() => setDecision("REVISE_RESUBMIT")}><RotateCcw />{t("decision.REVISE_RESUBMIT")}</Button>
-                  <Button className="min-h-11 justify-start" variant="destructive" onClick={() => setDecision("REJECT")}><XCircle />{t("decision.REJECT")}</Button>
+                  {/* Drawn as every 驳回 on a record (JB166); the chosen 驳回 in
+                      the decision dialog keeps the filled red. */}
+                  <Button className="min-h-11 justify-start" variant="outline-destructive" onClick={() => setDecision("REJECT")}><XCircle />{t("decision.REJECT")}</Button>
                 </div>
               ) : (
                 <Button asChild className="min-h-11 w-full"><Link href="/approval-credential"><KeyRound />{t("review.setupCredential")}</Link></Button>

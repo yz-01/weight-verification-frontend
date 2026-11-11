@@ -33,6 +33,16 @@
  *    p-1 ... p-8). A hand-typed `p-[13px]` or `gap-[7px]` is how two panels
  *    end up a pixel apart. Only SPACING_ALLOWED may do it, each with why.
  *
+ * 6. DESTRUCTIVE ACTIONS ON A RECORD (JB166, Lucas 11-11: 「这些按钮不
+ *    consistent，歪来歪去的也是好乱」). A record's 取消 / 删除 / 驳回 / 退回 sat
+ *    filled red beside an outlined 报告异常 and a ghost 取消 elsewhere. They
+ *    are all `variant="outline-destructive"` now. Two shapes bring the old
+ *    ones back and are refused: a small (`size="sm"`, the record panels'
+ *    size) button in the filled `destructive` variant - that variant is for
+ *    a confirmation dialog's confirm button, which is full size - and an
+ *    `outline` button coloured red by hand. DESTRUCTIVE_ALLOWED lists the
+ *    exceptions, each with why.
+ *
  * This is a wall, not a ratchet: all the counts are at zero, so anything new
  * is a regression and there is no budget to spend.
  */
@@ -267,6 +277,37 @@ const SIZE_CEILING = new Map([
 /** Files allowed an off-scale spacing value, and why. Empty on purpose. */
 const SPACING_ALLOWED = new Map([]);
 let spacingChecked = 0;
+
+/**
+ * The small red buttons that are not a record's destructive action, and why.
+ * Keyed `file` - the file may hold this many `size="sm"` filled-red buttons.
+ */
+const DESTRUCTIVE_ALLOWED = new Map([
+  [
+    "components/shared/conversation.tsx",
+    [1, "The voice note's stop-and-send while recording: red is the " +
+      "\"recording now\" light, not a destructive step."],
+  ],
+]);
+let buttonsChecked = 0;
+
+/** A `<Button ...>` opening tag's size, variant and class string. */
+function buttonTags(source) {
+  const out = [];
+  const pattern = /<Button\b/g;
+  let match = pattern.exec(source);
+  while (match) {
+    const attrs = attrsOf(source, match.index + match[0].length);
+    out.push({
+      index: match.index,
+      size: (attrs.match(/\bsize="([^"]*)"/) ?? [])[1] ?? "",
+      variant: (attrs.match(/\bvariant="([^"]*)"/) ?? [])[1] ?? "",
+      classes: ((attrs.match(/\bclassName="([^"]*)"/) ?? [])[1] ?? "").split(/\s+/),
+    });
+    match = pattern.exec(source);
+  }
+  return out;
+}
 const OFF_SCALE_TEST = new RegExp(`^(?:[a-z0-9-]+:)*${OFF_SCALE.source.replace("(?<![\w-])", "")}$`);
 
 const files = walkFiles(ROOT, /\.tsx$/);
@@ -294,6 +335,37 @@ for (const relative of files) {
         `${relative}: ${count} row-action cluster(s) written as ${stray}. ` +
           `The house spacing is ${ACTIONS_CLUSTER}.`,
       );
+    }
+  }
+
+  // 6. a record's destructive actions, one look
+  if (!relative.includes(".test.")) {
+    const buttons = buttonTags(source);
+    buttonsChecked += buttons.length;
+    const filled = buttons.filter((b) => b.size === "sm" && b.variant === "destructive");
+    const [allowed = 0] = DESTRUCTIVE_ALLOWED.get(relative) ?? [];
+    if (filled.length > allowed) {
+      for (const b of filled) {
+        problems.push(
+          `${relative}:${lineAt(source, b.index)}: a small button in the filled ` +
+            `"destructive" variant. On a record's panel, card or drawer a ` +
+            `取消 / 删除 / 驳回 / 退回 is variant="outline-destructive"; the ` +
+            `filled one is only a confirmation dialog's (full-size) confirm.`,
+        );
+      }
+    }
+    for (const b of buttons) {
+      if (
+        b.variant === "outline" &&
+        !b.size.startsWith("icon") &&
+        b.classes.some((c) => /^(?:[a-z-]+:)*(?:text|border)-destructive(?:\/\d+)?$/.test(c))
+      ) {
+        problems.push(
+          `${relative}:${lineAt(source, b.index)}: an outline button coloured ` +
+            `red by hand. Use variant="outline-destructive", the one look of ` +
+            `every destructive action on a record.`,
+        );
+      }
     }
   }
 
@@ -400,5 +472,6 @@ console.log(
   `UI consistency: ${tablesSeen} tables across ${columnsCompared} files, ` +
     `every column square, every row-action cluster on the house spacing, ` +
     `${wideChecked} element(s) wider than a phone all inside a scroll region, ` +
-    `spacing on the scale in all ${spacingChecked} files.`,
+    `spacing on the scale in all ${spacingChecked} files, ` +
+    `${buttonsChecked} buttons with every destructive action in one look.`,
 );

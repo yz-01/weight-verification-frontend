@@ -102,7 +102,6 @@ export function ViewSettlement({ id }: { id: string }) {
           {can("settlement.lock") && data.state === "ISSUED" ? (
             <Button
               size="sm"
-              className="rounded-full px-4 shadow-sm"
               onClick={() => setLocking(true)}
             >
               <Lock className="h-4 w-4" />
@@ -227,7 +226,6 @@ export function ViewSettlement({ id }: { id: string }) {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="rounded-full px-4"
                   onClick={() => setPaying(true)}
                 >
                   <Banknote className="h-3.5 w-3.5" />
@@ -439,14 +437,12 @@ function PaymentDialog({
           <Button
             variant="outline"
             size="sm"
-            className="rounded-full px-4"
             onClick={onClose}
           >
             {t("common.cancel")}
           </Button>
           <Button
             size="sm"
-            className="rounded-full px-4 shadow-sm"
             requires={[[amount, t("settlements.payment.amount")]]}
             disabled={record.isPending}
             onClick={() => record.mutate()}

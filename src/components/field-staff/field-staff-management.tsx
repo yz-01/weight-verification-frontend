@@ -164,7 +164,7 @@ export function FieldStaffManagementPage() {
                   <Link2 />
                   {t("link")}
                 </Button>
-                <Button size="sm" variant="outline" className="text-destructive" onClick={() => setRemoving(person)}>
+                <Button size="sm" variant="outline-destructive" onClick={() => setRemoving(person)}>
                   <Trash2 />
                   {t("remove")}
                 </Button>

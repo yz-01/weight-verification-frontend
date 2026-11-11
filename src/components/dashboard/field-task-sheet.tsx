@@ -280,6 +280,9 @@ export function FieldTaskSheet({ id, onClose }: { id: string; onClose: () => voi
             ) : undefined
           }
           recorder={<RecordRecorder record={row} />}
+          // Every button here at the record panel's size (JB166, Lucas 11-11:
+          // 「这些按钮不consistent」): 提交 / 确认完成 were full size beside the
+          // small 【改正】.
           actions={
             maySubmit || mayDecide || mayCorrect || row.can_close ? (
               <>
@@ -302,6 +305,7 @@ export function FieldTaskSheet({ id, onClose }: { id: string; onClose: () => voi
                     <p className="text-xs text-muted-foreground">{t("filesHelp")}</p>
                     <div className="flex justify-end">
                       <Button
+                        size="sm"
                         requires={[[result.trim(), t("resultLabel")]]}
                         disabled={submit.isPending}
                         onClick={() => submit.mutate(row)}
@@ -317,7 +321,6 @@ export function FieldTaskSheet({ id, onClose }: { id: string; onClose: () => voi
                   <div className="flex justify-end" data-task-close>
                     <CloseTaskButton
                       task={row}
-                      size="default"
                       onDone={() => {
                         refresh();
                         void queryClient.invalidateQueries({ queryKey: ["my-tasks"] });
@@ -327,8 +330,8 @@ export function FieldTaskSheet({ id, onClose }: { id: string; onClose: () => voi
                 )}
                 {mayDecide && (
                   <div className="space-y-2" data-task-decide>
-                    <div className="flex flex-wrap justify-end gap-2">
-                      <Button disabled={decide.isPending} onClick={() => decide.mutate(row)}>
+                    <div className="flex flex-wrap items-center justify-end gap-2">
+                      <Button size="sm" disabled={decide.isPending} onClick={() => decide.mutate(row)}>
                         <Check />
                         {t("confirm")}
                       </Button>

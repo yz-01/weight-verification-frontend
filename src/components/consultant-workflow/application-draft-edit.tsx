@@ -280,7 +280,7 @@ export function EvidenceLinkCards({
                 {armed && (
                   <Button
                     size="sm"
-                    variant="destructive"
+                    variant="outline-destructive"
                     className="ml-auto"
                     disabled={busy}
                     onClick={() => unlink.mutate([link.id])}
@@ -327,7 +327,7 @@ export function RelatedRecordRemove({
   return (
     <Button
       size="sm"
-      variant="destructive"
+      variant="outline-destructive"
       className="shrink-0"
       title={t("draftEdit.recordUnlinkHint")}
       disabled={unlink.isPending}
@@ -407,7 +407,7 @@ export function AttachmentRows({
                 {armed && (
                   <Button
                     size="sm"
-                    variant="destructive"
+                    variant="outline-destructive"
                     disabled={remove.isPending}
                     onClick={() => remove.mutate(attachment.id)}
                     data-draft-remove

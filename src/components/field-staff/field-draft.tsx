@@ -55,7 +55,7 @@ function DraftBoundary({ id, children, fill, quiet }: { id: string; children: Re
         <p role="alert" className="mt-2 font-medium text-destructive">{t("photoMissing", { count: snapshot.missingAttachments.length })}</p>
       )}
       {snapshot.ready && Object.keys(snapshot.values).length > 0 && (
-        confirmDiscard ? <div className="mt-2 flex flex-wrap items-center gap-2"><span>{t("confirmDiscard")}</span><Button type="button" size="sm" variant="destructive" onClick={() => { store.clear(); setConfirmDiscard(false); }}>{t("discard")}</Button><Button type="button" size="sm" variant="outline" onClick={() => setConfirmDiscard(false)}>{t("keep")}</Button></div>
+        confirmDiscard ? <div className="mt-2 flex flex-wrap items-center gap-2"><span>{t("confirmDiscard")}</span><Button type="button" size="sm" variant="outline-destructive" onClick={() => { store.clear(); setConfirmDiscard(false); }}>{t("discard")}</Button><Button type="button" size="sm" variant="outline" onClick={() => setConfirmDiscard(false)}>{t("keep")}</Button></div>
           : <Button type="button" variant="ghost" size="sm" className="mt-1" onClick={() => setConfirmDiscard(true)}>{t("discard")}</Button>
       )}
     </div>

@@ -44,7 +44,7 @@ export function ViewRole({ id }: { id: string }) {
         backLabel={t("roles.title")}
         action={
           can("role.update") ? (
-            <Button asChild size="sm" className="rounded-full px-4 shadow-sm">
+            <Button asChild size="sm">
               <Link href={`/roles/${data.id}/edit`}>
                 <Pencil className="h-4 w-4" />
                 {t("common.edit")}

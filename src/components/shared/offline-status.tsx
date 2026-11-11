@@ -410,8 +410,7 @@ export function RefusedRecordsView({
               <Button
                 type="button"
                 size="sm"
-                variant="outline"
-                className="text-destructive"
+                variant="outline-destructive"
                 disabled={busy !== null}
                 onClick={() => onAskDelete(entry)}
                 data-refused-delete

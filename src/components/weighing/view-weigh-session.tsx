@@ -195,7 +195,7 @@ export function ViewWeighSession({ id }: { id: string }) {
                   <RotateCcw className="h-4 w-4" />
                   {t("weighing.action.reweigh")}
                 </Button>
-                <Button size="sm" variant="destructive" onClick={() => setVoidOpen(true)}>
+                <Button size="sm" variant="outline-destructive" onClick={() => setVoidOpen(true)}>
                   <Ban className="h-4 w-4" />
                   {t("weighing.action.void")}
                 </Button>
@@ -506,7 +506,6 @@ export function ViewWeighSession({ id }: { id: string }) {
               <Button
                 variant="outline"
                 size="sm"
-                className="rounded-full px-4"
                 disabled={verification.isPending}
                 onClick={() => verification.mutate()}
               >

@@ -446,13 +446,17 @@ export function SundryClaimDetail({ id, onClose }: { id: string; onClose: () => 
             )}
             {claim.state === "SUBMITTED" && can("sundry_claim.review") && claim.can_review !== false && (
               <>
-                {/* 【改正】 (I30): category, amount, description - only
-                    before the claim is decided. */}
-                <RecordCorrectionButton kind="SUNDRY_CLAIM" recordId={claim.id} onCorrected={refresh} />
-                <Button className="w-full" disabled={review.isPending} onClick={() => review.mutate("CONFIRMED")}>
-                  <Check />
-                  {t("action.confirm")}
-                </Button>
+                {/* One row at the record panel's size, each button its own
+                    width (JB166, Lucas 11-11: 「这些按钮不consistent」). */}
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button size="sm" disabled={review.isPending} onClick={() => review.mutate("CONFIRMED")}>
+                    <Check />
+                    {t("action.confirm")}
+                  </Button>
+                  {/* 【改正】 (I30): category, amount, description - only
+                      before the claim is decided. */}
+                  <RecordCorrectionButton kind="SUNDRY_CLAIM" recordId={claim.id} onCorrected={refresh} />
+                </div>
                 <label className="flex items-center gap-2 rounded-md border px-2 py-1.5">
                   <Switch
                     checked={rejectArmed}
@@ -468,8 +472,9 @@ export function SundryClaimDetail({ id, onClose }: { id: string; onClose: () => 
                   <FieldWrapper label={t("field.rejectReason")} required>
                     <Textarea value={reason} onChange={(event) => setReason(event.target.value)} />
                     <Button
-                      className="mt-2 w-full"
-                      variant="destructive"
+                      size="sm"
+                      className="mt-2"
+                      variant="outline-destructive"
                       requires={[[reason.trim(), t("field.rejectReason")]]}
                       disabled={review.isPending}
                       onClick={() => review.mutate("REJECTED")}
@@ -493,7 +498,7 @@ export function SundryClaimDetail({ id, onClose }: { id: string; onClose: () => 
                     <Input inputMode="decimal" type="number" min="0" step="0.01" className="h-8" value={voucherAmount} onChange={(event) => setVoucherAmount(event.target.value)} />
                   </FieldWrapper>
                   <Button
-                    className="w-full"
+                    size="sm"
                     variant="outline"
                     requires={[[voucher, t("proofs.file")]]}
                     disabled={upload.isPending}
@@ -504,7 +509,7 @@ export function SundryClaimDetail({ id, onClose }: { id: string; onClose: () => 
                   </Button>
                 </FieldWrapper>
                 <Button
-                  className="w-full"
+                  size="sm"
                   requires={[[claim.payment_proofs.length > 0, t("proofs.title")]]}
                   disabled={pay.isPending}
                   onClick={() => pay.mutate()}

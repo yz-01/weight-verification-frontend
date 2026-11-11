@@ -73,7 +73,6 @@ export function ViewCompany({ id }: { id: string }) {
                 asChild
                 variant="outline"
                 size="sm"
-                className="rounded-full px-4"
               >
                 <Link href={`/users/create?company=${data.id}`}>
                   <UserPlus className="h-4 w-4" />
@@ -82,7 +81,7 @@ export function ViewCompany({ id }: { id: string }) {
               </Button>
             ) : null}
             {can("company.update") ? (
-              <Button asChild size="sm" className="rounded-full px-4 shadow-sm">
+              <Button asChild size="sm">
                 <Link href={`/companies/${data.id}/edit`}>
                   <Pencil className="h-4 w-4" />
                   {t("common.edit")}
