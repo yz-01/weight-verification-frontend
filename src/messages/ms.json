@@ -3784,7 +3784,9 @@
       "project_supplier_removed": "Pembekal dikeluarkan dari projek",
       "field_account_moved": "Akaun telefon dipindahkan ke projek baharu",
       "project_permissions_changed": "Kebenaran projek diubah",
-      "report_anomaly": "Anomali pelupusan dilaporkan"
+      "report_anomaly": "Anomali pelupusan dilaporkan",
+      "material_price_set": "Harga seunit bahan ditetapkan",
+      "unit_price_from_price_list": "Penghantaran diberi harga daripada harga seunit bahan"
     },
     "objectType": {
       "SignOffAssistant": "PIN pembantu",
@@ -4336,8 +4338,8 @@
     "dialogEdit": "Sunting kategori · {module}",
     "budget": {
       "title": "Bajet",
-      "help": "Perbelanjaan dijumlahkan daripada pesanan penghantaran yang difailkan dalam kategori ini.",
-      "uncounted": "{count} pesanan penghantaran tiada amaun yang boleh dibaca, jadi tidak termasuk dalam jumlah ini.",
+      "help": "Belanja = kuantiti × harga seunit setiap penghantaran dalam kategori ini - kiraan yang sama dengan laporan kos bahan.",
+      "uncounted": "{count} rekod tiada harga seunit dan tidak dikira dalam jumlah ini.",
       "tracksSpend": "Kira perbelanjaan kategori ini terhadap bajet",
       "amount": "Bajet (RM)",
       "amountHint": "Biarkan kosong untuk kategori yang tidak dikira terhadap bajet",
@@ -4346,7 +4348,7 @@
       "alertsInvalid": "Gunakan nombor bulat antara 1 dan 1000, dipisahkan dengan koma.",
       "none": "Tiada bajet ditetapkan",
       "mode": "Bajet dikira mengikut",
-      "modeAmount": "Wang (RM, daripada pesanan penghantaran)",
+      "modeAmount": "Wang (RM, kuantiti × harga seunit)",
       "modeQuantity": "Kuantiti (dalam unit kategori)",
       "quantity": "Kuantiti bajet",
       "quantityHint": "Dalam {unit}. Tan dan kilogram dicampur bersama.",
@@ -4356,7 +4358,9 @@
       "thresholdAmountsInvalid": "Gunakan nombor melebihi sifar, dipisahkan dengan koma.",
       "recipients": "Amaran dihantar kepada pentadbir syarikat dan ketua projek, sekali bagi setiap garis; jika jumlah turun semula, amaran ditarik balik.",
       "quantityUsed": "{used} daripada {budget} {unit}",
-      "quantityMoved": "Bajet mengira wang sahaja. Tetapkan sasaran kuantiti dalam Pengurusan bahan → Sasaran bahan (bersih selepas pemulangan, mengikut spesifikasi)."
+      "quantityMoved": "Bajet mengira wang sahaja. Tetapkan sasaran kuantiti dalam Pengurusan bahan → Sasaran bahan (bersih selepas pemulangan, mengikut spesifikasi).",
+      "vsPrice": "Bajet ialah jumlah yang boleh dibelanjakan untuk bahan ini. Harga setan atau semeter padu ialah harga seunit: tetapkan dengan butang \"Harga seunit\" pada senarai, bukan di sini.",
+      "spentOnly": "Belanja RM {spent}"
     },
     "saveFailed": "Tidak berjaya. Cuba lagi, atau muat semula halaman.",
     "viewRecords": "Lihat rekod",
@@ -4622,6 +4626,9 @@
       "addToProjectsGo": "Tambah sekarang",
       "addedNone": "Semua projek sudah ada kategori ini. Tiada yang perlu ditambah.",
       "addedSome": "{count} kategori ditambah ke {projects} projek."
+    },
+    "price": {
+      "button": "Harga seunit"
     }
   },
   "cloudServices": {
@@ -8835,7 +8842,10 @@
       "disposal_anomaly_trip_required": "Pengecualian kenderaan mesti menyatakan muatan yang mana: pilih muatan pembersihan ini yang tidak dibatalkan.",
       "disposal_anomaly_photos_required": "Setiap pengecualian memerlukan sekurang-kurangnya {minimum} foto.",
       "disposal_anomaly_reason_required": "Tulis sebab pengecualian.",
-      "field_one_project": "{name} kini berada di projek lain{project, select, none {} other { ({project})}}. Akaun telefon hanya boleh berada di satu projek pada satu masa: di projek lama, tekan \"Keluarkan dari projek\" atau \"Padam\" dahulu, kemudian ikat di sini."
+      "field_one_project": "{name} kini berada di projek lain{project, select, none {} other { ({project})}}. Akaun telefon hanya boleh berada di satu projek pada satu masa: di projek lama, tekan \"Keluarkan dari projek\" atau \"Padam\" dahulu, kemudian ikat di sini.",
+      "material_price_category_not_found": "Bahan atau spesifikasi itu tidak dijumpai, atau anda tidak boleh melihatnya.",
+      "material_price_needs_unit": "Pilih unit untuk \"{name}\" dahulu: harga seunit adalah bagi setiap unit.",
+      "material_price_typed_on_record": "\"Lain-lain\" ditaip pada setiap penghantaran, begitu juga harganya."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -12800,7 +12810,7 @@
       "trouble": "Laporan kosong biasanya bermakna tiada penerimaan dalam julat itu."
     },
     "material_receipts": {
-      "what": "Bahan yang tiba di tapak, dan ruangan bahan - belanjawan dan perbelanjaan setiap bahan. Belanjawan di sini ialah wang yang terkumpul daripada pesanan penghantaran, bukan tan.",
+      "what": "Penghantaran bahan, dan kategori bahan - harga seunit, bajet dan belanja setiap bahan. Belanja = kuantiti × harga seunit, kiraan yang sama dengan laporan kos bahan.",
       "who": "Pemegang receipt.view.",
       "need": "Penerimaan di tapak memerlukan projek, kod, nama, foto pesanan penghantaran, orang yang mengendalikannya, kuantiti, foto tapak dan kedudukan GPS semasa.",
       "then": "Resit yang dihantar tidak boleh disunting - ia membawa foto, tandatangan dan lokasi. Untuk membetulkannya, batalkan dan buat yang baharu.",
@@ -14133,7 +14143,9 @@
       "spec": "Spesifikasi",
       "specHint": "Dari data bahan; spesifikasi membawa nama dan unitnya.",
       "chooseSpec": "Pilih spesifikasi",
-      "noSpec": "Tiada spesifikasi"
+      "noSpec": "Tiada spesifikasi",
+      "unitPriceFromList": "Diisi daripada harga seunit kategori bahan",
+      "unitPriceAuto": "Biarkan kosong untuk guna harga seunit kategori bahan"
     },
     "locationCaptured": "Lokasi direkod",
     "locationMissing": "Tiada lokasi",
@@ -19158,11 +19170,11 @@
     "dialogTitle": "{reference} · Senarai bahan",
     "dialogHelp": "Satu DO boleh membawa beberapa jenis bahan. Setiap satu ada bahan, spesifikasi, unit dan kuantiti sendiri, dan dikira dalam kategori dan jumlahnya sendiri. Bahan 1 ialah bahan asal rekod ini: boleh diubah, tidak boleh dibuang.",
     "pinNote": "Unit atau spesifikasi sahaja tidak memerlukan PIN pengesahan sebelum rekod diarkibkan, tetapi perlu selepas itu. Menukar bahan, kuantiti, harga seunit atau amaun, atau menambah atau membuang bahan, memerlukan PIN dan disimpan dalam sejarah. Mengisi ruang kosong bukan perubahan.",
-    "moneyOnFirst": "Jumlah DO dikira di bawah bahan 1. Untuk membahagikannya, isikan jumlah bagi setiap bahan.",
-    "moneyPerLine": "Sesetengah bahan ada jumlah: hanya jumlah itu dikira, dan bahan tanpa jumlah tidak dikira dalam perbelanjaan.",
     "correctionNote": "Rekod ini ada {count} jenis bahan. Borang ini mengubah bahan 1; tambah, ubah atau buang yang lain dengan \"Tambah bahan\".",
     "correctionNoteOne": "Beberapa jenis bahan pada DO ini? Tambahkannya dengan \"Tambah bahan\", setiap satu difailkan sendiri.",
-    "requestHint": "Satu permohonan boleh meminta beberapa jenis bahan; ia diluluskan sekali gus."
+    "requestHint": "Satu permohonan boleh meminta beberapa jenis bahan; ia diluluskan sekali gus.",
+    "unitPriceHint": "Biarkan kosong untuk guna harga seunit kategori bahan",
+    "moneyByPrice": "Setiap bahan berkos kuantiti × harga seunit, dalam kategorinya sendiri; yang tiada harga seunit tidak dikira dalam kos."
   },
   "filePreview": {
     "unsupported": "Fail {ext} tidak boleh dipratonton di sini. Gunakan Muat turun untuk melihat.",
@@ -20701,7 +20713,8 @@
       "file_send": "Hantar / kongsi fail",
       "archive_confirm": "Sahkan dan arkibkan",
       "assistant_manage": "Tambah atau tukar PIN pembantu",
-      "project_change_permissions": "Tukar kebenaran projek"
+      "project_change_permissions": "Tukar kebenaran projek",
+      "material_price_set": "Tetapkan atau tukar harga seunit bahan"
     },
     "firstTitle": "Tetapkan PIN pengesahan buat kali pertama",
     "firstBanner": "Ini kali pertama anda menggunakan PIN pengesahan",
@@ -21119,5 +21132,51 @@
   "fieldManifest": {
     "name": "{company} Kakitangan Tapak",
     "description": "Ruang kerja kakitangan tapak MSE Trace"
+  },
+  "materialPrices": {
+    "title": "Harga seunit: {name}",
+    "help": "Harga seunit ialah harga bagi satu unit (satu tan, satu meter padu...). Apabila bahan tiba, sistem mengisi harga mengikut bahan dan spesifikasinya, lalu mengira kuantiti × harga seunit = kos.",
+    "keepsOld": "Menukar harga tidak mengubah rekod yang sudah ada harga; harga baharu digunakan dari tarikh mula. Rekod yang belum ada harga akan diisi.",
+    "what": "harga seunit",
+    "loading": "Memuatkan...",
+    "close": "Tutup",
+    "cancel": "Batal",
+    "back": "Kembali",
+    "save": "Simpan harga",
+    "failed": "Tidak berjaya. Sila cuba lagi.",
+    "set": "Tetapkan harga",
+    "adjust": "Tukar harga",
+    "history": "Sejarah harga",
+    "historyTitle": "Sejarah harga: {name}",
+    "historyEmpty": "Belum ada harga ditetapkan.",
+    "none": "Belum ada harga",
+    "usesMaterial": "Guna harga bahan",
+    "typedOnRecord": "Ditaip pada setiap penghantaran",
+    "needsUnit": "Pilih unit dahulu (Sunting)",
+    "wholeMaterial": "{name} (seluruh bahan)",
+    "perUnit": "RM {price} / {unit}",
+    "listLine": "Harga seunit RM {price} / {unit}",
+    "listNone": "Harga seunit belum ditetapkan",
+    "upcoming": "RM {price} / {unit} mulai {date}",
+    "nowIs": "Kini RM {price} / {unit}",
+    "priceLabel": "Harga seunit baharu (RM / {unit})",
+    "priceHint": "Harga bagi satu unit",
+    "priceRule": "Masukkan nombor melebihi 0, paling banyak dua tempat perpuluhan.",
+    "effectiveFrom": "Tarikh mula",
+    "effectiveHint": "Penghantaran mulai hari ini menggunakan harga baharu. Boleh tarikh lalu atau akan datang.",
+    "col": {
+      "name": "Bahan / spesifikasi",
+      "price": "Harga seunit",
+      "action": "Tindakan",
+      "oldPrice": "Harga lama",
+      "newPrice": "Harga baharu",
+      "by": "Ditukar oleh",
+      "at": "Masa ditukar",
+      "from": "Tarikh mula"
+    },
+    "toast": {
+      "saved": "Harga disimpan.",
+      "filled": "Harga disimpan. {count} rekod tanpa harga telah diisi."
+    }
   }
 }

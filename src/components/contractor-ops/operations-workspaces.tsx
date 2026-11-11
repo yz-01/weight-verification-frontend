@@ -865,6 +865,10 @@ export function CategoryDialog({
                 <p className="mt-1 text-xs text-muted-foreground">
                   {modules("budget.help")}
                 </p>
+                {/* JB167: the client typed his price per tonne here. */}
+                <p className="mt-1 rounded-lg border border-panel-border bg-muted/40 px-3 py-2 text-xs">
+                  {modules("budget.vsPrice")}
+                </p>
               </div>
               <label className="flex items-center gap-2 text-sm">
                 <Checkbox

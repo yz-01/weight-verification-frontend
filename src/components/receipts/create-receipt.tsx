@@ -461,6 +461,13 @@ function CorrectReceiptForm({
               label={t("receipts.field.unitPrice")}
               type="number"
               optional
+              // 「按材料分类的单价自动带出」 (JB167): still editable; a price
+              // typed here is kept and the list never replaces it.
+              hint={
+                receipt.unit_price_source === "PRICE_LIST" && field.state.value === (receipt.unit_price ?? "")
+                  ? t("receipts.field.unitPriceFromList")
+                  : t("receipts.field.unitPriceAuto")
+              }
             />
           )}
         </form.Field>

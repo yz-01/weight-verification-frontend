@@ -343,7 +343,7 @@ export function MaterialLinesEditor({
                 )}
               </FieldWrapper>
               {money && (
-                <FieldWrapper label={t("unitPrice")} optional={t("optional")}>
+                <FieldWrapper label={t("unitPrice")} optional={t("optional")} hint={t("unitPriceHint")}>
                   <Input
                     inputMode="decimal"
                     type="number"
