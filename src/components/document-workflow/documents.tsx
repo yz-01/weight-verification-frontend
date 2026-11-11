@@ -134,9 +134,14 @@ import {
   uploadDocumentVersion,
 } from "@/services/document-workflow.service";
 import {
+  ARCHIVE_COLUMN_WIDTHS,
   DOCUMENT_FILE_ACCEPT,
   DocumentCategoryPicker,
+  DocumentPathCell,
   DocumentThumb,
+  DocumentTitleCell,
+  FILLS_CELL,
+  ONE_LINE,
   asksForProject,
   inUseOn,
   initialTaxonomyScope,
@@ -267,11 +272,16 @@ export function Documents() {
     },
   });
 
+  // JB165 (Lucas 11-11: 「文件归档这里我觉得好乱，能不能弄整齐好看」): every
+  // column but the title has its width (`ARCHIVE_COLUMN_WIDTHS`), so the rows
+  // line up on every page; nothing in a row wraps or breaks inside a word - a
+  // long name ends in 「…」 with the whole of it on hover - and every row is
+  // the thumbnail's height.
   const columns = useMemo<ColumnDef<DocumentRecord, unknown>[]>(
     () => [
       {
         accessorKey: "document_no",
-        meta: { label: t("documents.field.number") },
+        meta: { label: t("documents.field.number"), width: ARCHIVE_COLUMN_WIDTHS.document_no },
         header: ({ column }) => (
           <SortableHeader
             label={t("documents.field.number")}
@@ -279,14 +289,21 @@ export function Documents() {
             onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
           />
         ),
+        // The whole number on one line, never cut (JB165: 「DOC-261010-00…」);
+        // the reference under it only when there is one.
         cell: ({ row }) => (
           <div className="min-w-0">
-            <p className="font-medium tabular-nums text-foreground">
+            <p className="font-medium tabular-nums text-foreground [white-space:nowrap]" data-document-no>
               {row.original.document_no}
             </p>
-            <p className="max-w-45 truncate text-xs text-muted-foreground">
-              {row.original.reference_no || t("common.emptyValue")}
-            </p>
+            {row.original.reference_no ? (
+              <p
+                className={cn(FILLS_CELL, ONE_LINE, "text-xs text-muted-foreground")}
+                title={row.original.reference_no}
+              >
+                {row.original.reference_no}
+              </p>
+            ) : null}
           </div>
         ),
       },
@@ -295,36 +312,22 @@ export function Documents() {
         // opens the same preview as the eye button.
         id: "thumbnail",
         enableSorting: false,
-        meta: { label: t("documents.field.thumbnail") },
+        meta: { label: t("documents.field.thumbnail"), width: ARCHIVE_COLUMN_WIDTHS.thumbnail },
         header: () => <span className="sr-only">{t("documents.field.thumbnail")}</span>,
-        cell: ({ row }) => {
-          // The document's other files as 「+N」 beside its picture (J34-11),
-          // never 「等 N 个文件」 in words.
-          const more = (row.original.file_count ?? 1) - 1;
-          return (
-            <span className="inline-flex gap-1">
-              <DocumentThumb
-                version={row.original.latest_version}
-                systemFile={row.original.system_file}
-                coverUrl={row.original.cover_photo_url}
-                onOpen={() => setViewingId(row.original.id)}
-              />
-              {more > 0 ? (
-                <button
-                  type="button"
-                  onClick={() => setViewingId(row.original.id)}
-                  aria-label={t("documents.filesMore", { count: more })}
-                  title={t("documents.filesMore", { count: more })}
-                  className="flex size-12 shrink-0 items-center justify-center rounded-md bg-muted text-sm font-semibold text-muted-foreground ring-1 ring-panel-border"
-                >
-                  +{more}
-                </button>
-              ) : null}
-            </span>
-          );
-        },
+        // The document's other files as 「+N」 on its picture (J34-11; JB165:
+        // on the corner, not a second tile), never 「等 N 个文件」 in words.
+        cell: ({ row }) => (
+          <DocumentThumb
+            version={row.original.latest_version}
+            systemFile={row.original.system_file}
+            coverUrl={row.original.cover_photo_url}
+            more={(row.original.file_count ?? 1) - 1}
+            onOpen={() => setViewingId(row.original.id)}
+          />
+        ),
       },
       {
+        // The one column without a width (JB165): see `DocumentTitleCell`.
         accessorKey: "title",
         meta: { label: t("documents.field.title") },
         header: ({ column }) => (
@@ -335,91 +338,103 @@ export function Documents() {
           />
         ),
         cell: ({ row }) => (
-          <div className="min-w-0">
-            <p
-              className="max-w-65 truncate font-medium text-foreground"
-              title={row.original.title}
-            >
-              {row.original.title}
-            </p>
-            {row.original.system_file ? (
-              <SourceTag
-                source={row.original.system_file}
-                onOpen={() => openSource(row.original)}
-              />
-            ) : row.original.latest_version ? null : (
-              // A list names no file (J34-10, J34-11): the picture beside says what it is.
-              <p className="max-w-65 truncate text-xs text-muted-foreground">
-                {t("documents.noFile")}
-              </p>
-            )}
-          </div>
+          <DocumentTitleCell
+            title={row.original.title}
+            detail={
+              row.original.system_file ? (
+                <SourceTag
+                  source={row.original.system_file}
+                  onOpen={() => openSource(row.original)}
+                />
+              ) : row.original.latest_version ? null : (
+                // A list names no file (J34-10, J34-11): the picture beside says what it is.
+                <span className={cn(ONE_LINE, "min-w-0 text-muted-foreground")}>
+                  {t("documents.noFile")}
+                </span>
+              )
+            }
+          />
         ),
       },
       {
         // Where it is filed, as one path (B28): 「显示路径」.
         id: "category",
-        meta: { label: t("documents.field.path") },
+        meta: { label: t("documents.field.path"), width: ARCHIVE_COLUMN_WIDTHS.category },
         header: () => t("documents.field.path"),
         cell: ({ row }) => (
-          <p
-            className="flex max-w-60 min-w-0 items-center gap-1 text-sm"
-            title={[row.original.category_name, row.original.subcategory_name].filter(Boolean).join(" / ")}
-          >
-            <Folder className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-            <span className="truncate">{row.original.category_name}</span>
-            {row.original.subcategory_name ? (
-              <>
-                <ChevronRight className="h-3 w-3 shrink-0 text-muted-foreground" />
-                <span className="truncate">{row.original.subcategory_name}</span>
-              </>
-            ) : null}
-          </p>
+          <DocumentPathCell
+            category={row.original.category_name}
+            subcategory={row.original.subcategory_name}
+          />
         ),
       },
       {
         accessorKey: "project_name",
-        meta: { label: t("documents.field.project") },
+        meta: { label: t("documents.field.project"), width: ARCHIVE_COLUMN_WIDTHS.project_name },
         header: () => t("documents.field.project"),
-        cell: ({ row }) =>
-          row.original.project_name || t("documents.companyWide"),
+        cell: ({ row }) => {
+          const project = row.original.project_name || t("documents.companyWide");
+          return (
+            <p className={cn(FILLS_CELL, ONE_LINE)} title={project}>
+              {project}
+            </p>
+          );
+        },
       },
       {
         accessorKey: "created_by_name",
-        meta: { label: t("documents.field.uploadedBy") },
+        meta: { label: t("documents.field.uploadedBy"), width: ARCHIVE_COLUMN_WIDTHS.created_by_name },
         header: () => t("documents.field.uploadedBy"),
-        cell: ({ row }) => row.original.created_by_name || t("common.emptyValue"),
+        cell: ({ row }) => {
+          const uploader = row.original.created_by_name || t("common.emptyValue");
+          return (
+            <p className={cn(FILLS_CELL, ONE_LINE)} title={uploader}>
+              {uploader}
+            </p>
+          );
+        },
       },
       {
+        // The pill and the count at the right of their columns, one size on
+        // every row (JB165).
         accessorKey: "status",
-        meta: { label: t("documents.field.status") },
+        meta: { label: t("documents.field.status"), width: ARCHIVE_COLUMN_WIDTHS.status },
         header: ({ column }) => (
-          <SortableHeader
-            label={t("documents.field.status")}
-            isSorted={column.getIsSorted()}
-            onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          />
+          <div className="flex justify-end">
+            <SortableHeader
+              label={t("documents.field.status")}
+              isSorted={column.getIsSorted()}
+              onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            />
+          </div>
         ),
         cell: ({ row }) => (
-          <StatusBadge
-            label={t(`documents.status.${row.original.status}`)}
-            tone={row.original.status === "ACTIVE" ? "positive" : "neutral"}
-          />
+          <div className="flex justify-end">
+            <StatusBadge
+              label={t(`documents.status.${row.original.status}`)}
+              tone={row.original.status === "ACTIVE" ? "positive" : "neutral"}
+            />
+          </div>
         ),
       },
       {
         // Every file the document holds - picked from the system or uploaded
         // (2026-10-10: files picked together are one document).
         id: "version_count",
-        meta: { label: t("documents.field.files") },
-        header: () => t("documents.field.files"),
+        meta: { label: t("documents.field.files"), width: ARCHIVE_COLUMN_WIDTHS.version_count },
+        header: () => <span className="block text-right">{t("documents.field.files")}</span>,
         cell: ({ row }) => (
-          <TypeBadge label={String(row.original.file_count ?? row.original.version_count ?? 0)} />
+          <div className="flex justify-end">
+            <TypeBadge
+              className="min-w-7 justify-center tabular-nums"
+              label={String(row.original.file_count ?? row.original.version_count ?? 0)}
+            />
+          </div>
         ),
       },
       {
         accessorKey: "created_at",
-        meta: { label: t("documents.field.createdAt") },
+        meta: { label: t("documents.field.createdAt"), width: ARCHIVE_COLUMN_WIDTHS.created_at },
         header: ({ column }) => (
           <SortableHeader
             label={t("documents.field.createdAt")}
@@ -427,10 +442,12 @@ export function Documents() {
             onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
           />
         ),
+        // The day over the time, each whole (JB165).
         cell: ({ row }) => (
-          <span className="text-muted-foreground tabular-nums">
-            {df.dateTime(row.original.created_at)}
-          </span>
+          <p className="text-muted-foreground tabular-nums [white-space:nowrap]">
+            <span className="block">{df.date(row.original.created_at)}</span>
+            <span className="block text-xs">{df.time(row.original.created_at)}</span>
+          </p>
         ),
       },
       {
@@ -745,12 +762,15 @@ function SourceTag({
 }) {
   const t = useTranslations();
   const label = useSourceLabel()(source);
+  // One line from the left edge under the title, then 「…」, the whole of it
+  // on hover (JB165: a wrapped button centred its lines, so some rows' tags
+  // sat indented).
   return (
-    <p className="flex max-w-65 min-w-0 items-center gap-1.5 text-xs">
+    <p className="flex min-w-0 max-w-full items-center gap-1.5 text-xs" data-source-tag>
       <button
         type="button"
-        className="min-w-0 truncate text-primary underline-offset-2 hover:underline"
-        title={t("documents.source.open")}
+        className={cn(ONE_LINE, "min-w-0 text-left text-primary underline-offset-2 hover:underline")}
+        title={`${label} · ${t("documents.source.open")}`}
         onClick={onOpen}
       >
         {label}
@@ -759,7 +779,7 @@ function SourceTag({
         <StatusBadge label={t("documents.source.deleted")} tone="neutral" />
       )}
       {more > 0 && (
-        <span className="shrink-0 text-muted-foreground">
+        <span className="shrink-0 text-muted-foreground [white-space:nowrap]">
           {t("documents.filesMore", { count: more })}
         </span>
       )}
