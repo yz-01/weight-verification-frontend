@@ -4681,13 +4681,9 @@ function ExitForm({
           <Input value={plate} onChange={(event) => setPlate(event.target.value.toUpperCase())} />
         </FieldWrapper>
       </div>
-      {/* Required when the record names none (JB169, 客户 11-11 「供应商应该属于
-          必填项目」): the driver taking it is in front of the site. */}
-      <OutgoingSupplierField
-        value={supplier}
-        required={!record.supplier}
-        onChange={(next) => setSupplier(next)}
-      />
+      {/* Still optional on the phone (C9; Lucas 11-11: 「手机不是可以填未填供应商
+          然后后台去补吗」): the office fills it in before 确认归档 (JB169). */}
+      <OutgoingSupplierField value={supplier} onChange={(next) => setSupplier(next)} />
       <div className="grid gap-4 sm:grid-cols-2">
         <FieldSignaturePad
           label={t("outgoing.siteSignature")}
@@ -4738,7 +4734,6 @@ function ExitForm({
             ],
             [category || record.material_name, t("outgoing.material")],
             [Number(returned) > 0, t("outgoing.returnedQuantity")],
-            [supplier || record.supplier, t("outgoing.supplier")],
             [siteSignature, t("outgoing.siteSignature")],
             [supplierSignature, t("outgoing.supplierSignature")],
           ]}

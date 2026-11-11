@@ -1065,7 +1065,10 @@ export function MaterialIssueList({ onOpen }: { onOpen: (recordId: string) => vo
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>{t("issue.issueNo")}</TableHead>
+                {/* Exactly the client's header, in his order (11-11): 日期时间｜
+                    材料名称｜规格｜领用数量｜单位｜所属公司｜设备编号｜领用人｜
+                    发料负责人｜双方签名｜照片｜查看. The 领用编号 and the status
+                    ride under the date, not in a column of their own. */}
                 <TableHead>{t("issue.colAt")}</TableHead>
                 <TableHead>{t("issue.material")}</TableHead>
                 <TableHead>{t("issue.spec")}</TableHead>
@@ -1088,11 +1091,11 @@ export function MaterialIssueList({ onOpen }: { onOpen: (recordId: string) => vo
                   onClick={() => onOpen(row.record)}
                   data-testid="material-issue-row"
                 >
-                  <TableCell className="font-medium tabular">
-                    <div>{row.reference_no}</div>
+                  <TableCell className="tabular">
+                    <div>{df.dateTime(row.at)}</div>
+                    <div className="text-xs font-medium text-muted-foreground">{row.reference_no}</div>
                     <StatusBadge label={t(issueStatusKey(row.status))} tone={row.status === "REJECTED" ? "danger" : row.status === "COMPLETED" ? "positive" : "info"} />
                   </TableCell>
-                  <TableCell className="tabular text-muted-foreground">{df.dateTime(row.at)}</TableCell>
                   <TableCell className="font-medium">{row.material_name}</TableCell>
                   <TableCell>{row.material_specification || "—"}</TableCell>
                   <TableCell className="text-right tabular">

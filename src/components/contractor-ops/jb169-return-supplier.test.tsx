@@ -5,7 +5,7 @@
  * - A return with no supplier reads 「待补供应商」 on the list and the detail.
  * - Its 确认 is off, the reason is written beside it (not only a tooltip),
  *   and 「补供应商」 sits next to it - on the 后台确认 and on 确认归档 alike.
- * - The handover asks for the supplier when the record has none.
+ * - The handover still leaves the supplier optional; the office fills it in.
  * - An archived return's 改正 always asks why, says the change is kept in
  *   修改记录, and saves as 「保存改正」 - a blank filled in too.
  *
@@ -219,7 +219,9 @@ describe("确认归档 waits for the supplier", () => {
   });
 });
 
-describe("the handover asks for the supplier when the record has none", () => {
+// Lucas 11-11: 「手机不是可以填未填供应商然后后台去补吗」 - the phone is never
+// stopped for the supplier; the office's 确认归档 is.
+describe("the handover leaves the supplier optional, as the application does", () => {
   const exit = (record: MaterialOutgoing) =>
     render(
       <ReturnProcessingDialog row={{ id: "o-1", reference_no: record.reference_no }} onClose={() => {}} onSaved={() => {}} />,
@@ -231,10 +233,10 @@ describe("the handover asks for the supplier when the record has none", () => {
   const stillMissing = (html: string) =>
     ([...html.matchAll(/还差这些没填：([^"<]*)/g)].at(-1)?.[1] ?? "").split("、");
 
-  it("waits for it on a return that names none", () => {
+  it("does not wait for it on a return that names none", () => {
     const html = exit(outgoing({ status: "APPROVED" }));
-    expect(html).not.toContain(words.supplierOptional);
-    expect(stillMissing(html)).toContain(words.supplier);
+    expect(html).toContain(words.supplierOptional);
+    expect(stillMissing(html)).not.toContain(words.supplier);
   });
 
   it("stays optional when the record already names one", () => {
