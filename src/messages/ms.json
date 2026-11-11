@@ -5954,6 +5954,27 @@
       "onlyThisProject": "Hanya projek yang dipilih di atas",
       "versionHistory": "Versi terdahulu ({count})",
       "sendNeedsFilled": "Muat naik borang perunding yang telah diisi dahulu."
+    },
+    "a4Preview": {
+      "button": "Pratonton A4",
+      "title": "Pratonton A4: borang permohonan rasmi",
+      "noteSaved": "Inilah borang A4 rasmi permohonan ini: dilukis oleh program yang sama dengan halaman 1 PDF yang dieksport, dicetak dan dihantar kepada perunding, dengan kandungan yang sama.",
+      "noteUnsaved": "Inilah borang A4 rasmi selepas disimpan, dilukis daripada apa yang diisi pada skrin sekarang. Pratonton tidak menyimpan apa-apa; tekan Simpan draf untuk menyimpan.",
+      "number": "No. Permohonan: {number}",
+      "numberProvisional": "{number} ialah nombor yang diberi jika draf disimpan sekarang; jika orang lain menyimpan permohonan jenis yang sama dahulu, nombor seterusnya akan diberi.",
+      "ownFormBlank": "Permohonan ini menggunakan borang perunding sendiri \"{name}\" (versi {version}). Halaman 1 ialah borang permohonan sistem; mulai halaman {page} ialah borang perunding seperti asal, dengan kepala dan format asal perunding. Borang yang telah diisi belum dimuat naik, jadi borang kosong ditunjukkan.",
+      "ownFormFilled": "Permohonan ini menggunakan borang perunding sendiri \"{name}\" (versi {version}). Halaman 1 ialah borang permohonan sistem; mulai halaman {page} ialah borang perunding yang telah diisi dan dimuat naik, seperti asal, dengan kepala dan format asal perunding.",
+      "loading": "Melukis pratonton A4...",
+      "what": "Pratonton A4",
+      "pageWhat": "Halaman {page}",
+      "pageAlt": "Borang permohonan A4 rasmi, halaman {page}",
+      "pageOf": "Halaman {page} daripada {total}",
+      "morePages": "{count} halaman lagi tidak ditunjukkan di sini; tekan Buka PDF untuk melihat semuanya.",
+      "pdfWhat": "PDF pratonton",
+      "pdfPreparing": "PDF sedang dilukis, sila tunggu.",
+      "pdfFailed": "PDF tidak dapat dilukis. Cuba lagi.",
+      "openPdf": "Buka PDF",
+      "close": "Tutup"
     }
   },
   "contractorDashboard": {
