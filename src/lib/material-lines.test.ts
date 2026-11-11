@@ -112,14 +112,12 @@ describe("材料明细 (J35)", () => {
   });
 });
 
-describe("the money note on several materials (audit 10-22)", () => {
+describe("the money note on several materials (JB167: quantity x unit price)", () => {
   it("says nothing for one material", () => {
     expect(linesMoneyNote([{ amount: "" }])).toBeNull();
   });
-  it("puts the DO amount on material 1 when no material has an amount", () => {
-    expect(linesMoneyNote([{ amount: "" }, { amount: " " }])).toBe("moneyOnFirst");
-  });
-  it("says only the typed amounts count once one has an amount", () => {
-    expect(linesMoneyNote([{ amount: "" }, { amount: "300" }])).toBe("moneyPerLine");
+  it("says each material costs its quantity x unit price, amounts typed or not", () => {
+    expect(linesMoneyNote([{ amount: "" }, { amount: " " }])).toBe("moneyByPrice");
+    expect(linesMoneyNote([{ amount: "" }, { amount: "300" }])).toBe("moneyByPrice");
   });
 });

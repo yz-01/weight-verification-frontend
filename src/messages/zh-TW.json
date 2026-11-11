@@ -3784,7 +3784,9 @@
       "project_supplier_removed": "把供應商移出項目",
       "field_account_moved": "手機賬號換到新項目",
       "project_permissions_changed": "修改項目權限",
-      "report_anomaly": "清運報告異常"
+      "report_anomaly": "清運報告異常",
+      "material_price_set": "設定材料單價",
+      "unit_price_from_price_list": "按材料單價補上收貨單價"
     },
     "objectType": {
       "SignOffAssistant": "助理副密碼",
@@ -4336,8 +4338,8 @@
     "dialogEdit": "編輯分類 · {module}",
     "budget": {
       "title": "預算",
-      "help": "花費由這個分類下送貨單的金額累計。",
-      "uncounted": "有 {count} 張送貨單讀不出金額，沒有算進這個合計。",
+      "help": "花費 = 這個分類下每次收貨的 數量 × 單價，和材料成本報表同一個算法。",
+      "uncounted": "有 {count} 條記錄沒有單價，沒有算進合計。",
       "tracksSpend": "這個分類的支出計入預算",
       "amount": "預算（RM）",
       "amountHint": "不計預算的分類留空",
@@ -4346,7 +4348,7 @@
       "alertsInvalid": "請填 1 到 1000 之間的整數，用逗號分隔。",
       "none": "沒有設預算",
       "mode": "預算按",
-      "modeAmount": "金額（RM，按送貨單）",
+      "modeAmount": "金額（RM，數量 × 單價）",
       "modeQuantity": "數量（按分類單位）",
       "quantity": "預算數量",
       "quantityHint": "單位：{unit}。噸和公斤會換算後一起累計。",
@@ -4356,7 +4358,9 @@
       "thresholdAmountsInvalid": "請填大於 0 的數字，用逗號分隔。",
       "recipients": "提醒發給公司管理員和項目負責人，每條線只發一次；總數回落到線下會撤回。",
       "quantityUsed": "已進場 {used} / {budget} {unit}",
-      "quantityMoved": "預算只計金額。數量目標請到「材料管理 → 材料目標」設定（扣除退場，可按規格）。"
+      "quantityMoved": "預算只計金額。數量目標請到「材料管理 → 材料目標」設定（扣除退場，可按規格）。",
+      "vsPrice": "預算是這個材料一共可以花多少錢。每噸、每立方米多少錢是「單價」，請在分類列表按「單價」設定，不要填在這裡。",
+      "spentOnly": "花費 RM {spent}"
     },
     "saveFailed": "沒有成功。請再試一次，或者重新載入頁面。",
     "viewRecords": "查看記錄",
@@ -4622,6 +4626,9 @@
       "addToProjectsGo": "開始加入",
       "addedNone": "所有項目都已經有這些分類，沒有需要加的。",
       "addedSome": "已加到 {projects} 個項目，共 {count} 個分類。"
+    },
+    "price": {
+      "button": "單價"
     }
   },
   "cloudServices": {
@@ -8835,7 +8842,10 @@
       "disposal_anomaly_trip_required": "車輛異常必須註明第幾車：請選這項清運未取消的車次。",
       "disposal_anomaly_photos_required": "每筆異常最少上傳 {minimum} 張照片。",
       "disposal_anomaly_reason_required": "請寫明異常原因。",
-      "field_one_project": "{name} 現在在另一個項目{project, select, none {} other {（{project}）}}。手機賬號同一時間只能在一個項目：請原項目先「移出項目」或「刪除」，再在這裡綁定。"
+      "field_one_project": "{name} 現在在另一個項目{project, select, none {} other {（{project}）}}。手機賬號同一時間只能在一個項目：請原項目先「移出項目」或「刪除」，再在這裡綁定。",
+      "material_price_category_not_found": "找不到這個材料或規格，或者你沒有權限看。",
+      "material_price_needs_unit": "請先給「{name}」選單位，單價是按單位算的。",
+      "material_price_typed_on_record": "「其他」每次進場時填寫，單價也在記錄上填。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -12800,7 +12810,7 @@
       "trouble": "報表是空的，多半是那段時間沒有收料。"
     },
     "material_receipts": {
-      "what": "材料進場，以及材料分類 —— 每項材料的預算與已用。這裡的預算是從送貨單累積起來的錢，不是噸數。",
+      "what": "材料進場，以及材料分類 —— 每項材料的單價、預算與已用。已用 = 數量 × 單價，和材料成本報表同一個算法。",
       "who": "持 receipt.view。",
       "need": "現場收料要專案、編號、名稱、Delivery Order 照片、操作人員、數量、現場照片和目前 GPS 位置。",
       "then": "提交後的收料記錄不能改 —— 它帶著照片、簽名和位置。要更正就作廢重開。",
@@ -14133,7 +14143,9 @@
       "spec": "規格",
       "specHint": "從材料資料選；選了規格，規格名稱和單位隨之帶出。",
       "chooseSpec": "選擇規格",
-      "noSpec": "不指定規格"
+      "noSpec": "不指定規格",
+      "unitPriceFromList": "按材料分類的單價自動帶出",
+      "unitPriceAuto": "留空會按材料分類的單價自動帶出"
     },
     "locationCaptured": "已記錄位置",
     "locationMissing": "無位置",
@@ -19133,7 +19145,8 @@
     "quantity": "數量",
     "unit": "單位",
     "unitPrice": "單價",
-    "amount": "金額",
+    "cost": "成本（數量 × 單價）",
+    "amount": "送貨單金額",
     "amountHint": "這項材料在 DO 上的金額",
     "optional": "選填",
     "chooseMaterial": "選擇材料",
@@ -19158,11 +19171,11 @@
     "dialogTitle": "{reference} · 材料明細",
     "dialogHelp": "一張 DO 可以有多種材料。每種材料各自選材料、規格、單位，填數量，各自進對應的分類和累計。第 1 項是這張單原有的材料，可以改，不能刪。",
     "pinNote": "只改單位或規格，確認歸檔前不用簽核密碼、歸檔後要。改材料、數量、單價或金額，或增減材料，要簽核密碼並記在修改歷史裡。原來空白、現在補上的不算修改。",
-    "moneyOnFirst": "這張 DO 的金額算在第 1 項材料。要分開算，給每項材料填金額。",
-    "moneyPerLine": "已有材料填了金額：只算各項填的金額，沒填金額的那項不算進花費。",
     "correctionNote": "這張單有 {count} 種材料。這裡改第 1 項；其他材料用「增加材料」加、改、刪。",
     "correctionNoteOne": "這張 DO 有多種材料？用「增加材料」加上去，各自歸檔。",
-    "requestHint": "一張申請可以有多種材料，整張一起審批。"
+    "requestHint": "一張申請可以有多種材料，整張一起審批。",
+    "unitPriceHint": "留空會按材料分類的單價自動帶出",
+    "moneyByPrice": "每項材料的花費 = 數量 × 單價，各自算進自己的分類；沒有單價的不算進花費。"
   },
   "filePreview": {
     "unsupported": "{ext} 檔案不能在頁面裡預覽，請按「下載查看」。",
@@ -20701,7 +20714,8 @@
       "file_send": "發送 / 分享文件",
       "archive_confirm": "確認歸檔",
       "assistant_manage": "新增或更改助理副密碼",
-      "project_change_permissions": "修改項目權限"
+      "project_change_permissions": "修改項目權限",
+      "material_price_set": "設定或調整材料單價"
     },
     "firstTitle": "第一次設定簽核密碼",
     "firstBanner": "這是你第一次使用簽核密碼",
@@ -21119,5 +21133,51 @@
   "fieldManifest": {
     "name": "{company} 現場",
     "description": "MSE Trace 現場工作台"
+  },
+  "materialPrices": {
+    "title": "{name} 的單價",
+    "help": "單價是每個單位（每噸、每立方米……）多少錢。材料進場時，系統按材料和規格自動帶出單價，算出 數量 × 單價 = 成本。",
+    "keepsOld": "調整單價不會改已經有價格的記錄；新價格從生效日期開始用。還沒有單價的記錄會自動補上。",
+    "what": "單價",
+    "loading": "正在載入……",
+    "close": "關閉",
+    "cancel": "取消",
+    "back": "返回",
+    "save": "儲存單價",
+    "failed": "沒有成功。請再試一次。",
+    "set": "設定單價",
+    "adjust": "調整單價",
+    "history": "價格歷史",
+    "historyTitle": "{name} 的價格歷史",
+    "historyEmpty": "還沒有設定過單價。",
+    "none": "還沒有單價",
+    "usesMaterial": "用材料的單價",
+    "typedOnRecord": "每次進場時填寫",
+    "needsUnit": "請先在「編輯」裡選單位",
+    "wholeMaterial": "{name}（整個材料）",
+    "perUnit": "RM {price} / {unit}",
+    "listLine": "單價 RM {price} / {unit}",
+    "listNone": "單價未設定",
+    "upcoming": "RM {price} / {unit}，{date} 起生效",
+    "nowIs": "現在 RM {price} / {unit}",
+    "priceLabel": "新單價（RM / {unit}）",
+    "priceHint": "每 1 個單位多少錢",
+    "priceRule": "請填大於 0 的數字，最多兩位小數。",
+    "effectiveFrom": "生效日期",
+    "effectiveHint": "從這一天起的收貨用新單價。可以選以前或以後的日期。",
+    "col": {
+      "name": "材料／規格",
+      "price": "單價",
+      "action": "操作",
+      "oldPrice": "舊價格",
+      "newPrice": "新價格",
+      "by": "修改人",
+      "at": "修改時間",
+      "from": "生效日期"
+    },
+    "toast": {
+      "saved": "單價已儲存。",
+      "filled": "單價已儲存，補上了 {count} 條沒有單價的記錄。"
+    }
   }
 }

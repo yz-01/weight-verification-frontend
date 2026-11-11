@@ -15,6 +15,7 @@ import {
   Plus,
   Ruler,
   Save,
+  Tag,
   Trash2,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -28,6 +29,7 @@ import { ColumnSummary, PageNumbers, StageTabs } from "@/components/contractor-o
 import { CategoryDialog, EquipmentDialog } from "@/components/contractor-ops/operations-workspaces";
 import { equipmentClassTree } from "@/components/contractor-ops/equipment-classes";
 import { MaterialUnitsDialog } from "@/components/contractor-ops/material-units-dialog";
+import { MaterialPriceDialog, PriceLine } from "@/components/contractor-ops/material-prices";
 import { RequestTypesDialog } from "@/components/material-requests/request-types-dialog";
 import { ManufacturerCell } from "@/components/shared/manufacturer-picker";
 import { RecordSheet } from "@/components/contractor-ops/archive-queue";
@@ -368,6 +370,8 @@ export function CategoryManagement() {
   const canRequestTypes = can("material_request.config") || can("category.manage");
   /** The column whose records are open in the dialog (T-396). */
   const [viewing, setViewing] = useState<Row | null>(null);
+  // 单价 (JB167): the material whose prices are open.
+  const [pricing, setPricing] = useState<Row | null>(null);
   const [refusal, setRefusal] = useState<{ name: string; reason: string } | null>(
     null,
   );
@@ -803,6 +807,14 @@ export function CategoryManagement() {
                             })}
                           </p>
                         ) : null}
+                        {/* 单价 (JB167): the price now, and one set for a later day. */}
+                        {isMaterial && (
+                          <PriceLine
+                            price={row.column?.price}
+                            unit={row.column?.default_unit}
+                            unitLabel={row.column?.default_unit_label}
+                          />
+                        )}
                       </TableCell>
                       <TableCell className="font-mono text-xs text-muted-foreground">
                         {row.code}
@@ -840,6 +852,15 @@ export function CategoryManagement() {
                         >
                           {t("viewRecords")}
                         </Button>
+                        {/* 单价 (JB167): for whoever may see amounts; setting
+                            one is checked again in the dialog. Not on
+                            「其他材料」, whose price is typed on each record. */}
+                        {isMaterial && row.column?.price && !row.column.is_other && !row.column.is_fixed && (
+                          <Button size="sm" variant="outline" onClick={() => setPricing(row)}>
+                            <Tag />
+                            {t("price.button")}
+                          </Button>
+                        )}
                         {/* Fixed slots, so every row's buttons stand in the same
                             columns (Lucas 10-30: 「不要歪歪的」): one add
                             button - 登记设备 on a class, + 子分类 on a group -
@@ -1021,6 +1042,13 @@ export function CategoryManagement() {
         />
       )}
       {helpOpen && <CategoryHelpDialog onClose={() => setHelpOpen(false)} />}
+      {pricing && (
+        <MaterialPriceDialog
+          materialId={pricing.id}
+          materialName={pricing.name}
+          onClose={() => setPricing(null)}
+        />
+      )}
       {viewing && (
         <ColumnRecordsDialog
           moduleKey={active.key}
@@ -1821,6 +1849,17 @@ function MachineProfileLine({ row }: { row: EquipmentProfileRow }) {
  * Over budget is its own state, not "100% and a bit": the bar stops at full
  * so the number, not the bar, says how far past it went.
  */
+/**
+ * 「23600.00」 → 「23,600.00」: the same grouping the 材料成本报表 prints, so the
+ * two figures read alike side by side (browser check 11-11, JB167 第 6 点).
+ */
+export function groupMoney(value: string | number | null | undefined): string {
+  const text = String(value ?? "");
+  const match = /^(-?)(\d+)(\.\d+)?$/.exec(text);
+  if (!match) return text;
+  return `${match[1]}${match[2].replace(/\B(?=(\d{3})+(?!\d))/g, ",")}${match[3] ?? ""}`;
+}
+
 function SpendCell({ column }: { column: ProjectCategory }) {
   const t = useTranslations("categoryManagement");
   const unitName = useUnitName();
@@ -1856,7 +1895,7 @@ function SpendCell({ column }: { column: ProjectCategory }) {
                   budget: column.budget_quantity ?? "",
                   unit: unitName(column.default_unit, column.default_unit_label),
                 })
-              : `RM ${column.spend_amount} / RM ${column.budget_amount}`}
+              : `RM ${groupMoney(column.spend_amount)} / RM ${groupMoney(column.budget_amount)}`}
             {percent !== null && ` (${percent}%)`}
           </p>
           <div className="h-1.5 overflow-hidden rounded-full bg-muted">
@@ -1867,11 +1906,17 @@ function SpendCell({ column }: { column: ProjectCategory }) {
           </div>
         </>
       ) : (
-        <p className="text-xs text-muted-foreground">{t("budget.none")}</p>
+        <>
+          {/* 实际花费 without a budget too (JB167): the cost report's figure. */}
+          {!quantityMode && column.spend_amount != null && (
+            <p className="text-xs tabular-nums">{t("budget.spentOnly", { spent: groupMoney(column.spend_amount) })}</p>
+          )}
+          <p className="text-xs text-muted-foreground">{t("budget.none")}</p>
+        </>
       )}
       {uncounted > 0 && (
         // Said out loud: a total that quietly skipped these reads as under
-        // budget exactly when the paperwork could not be read.
+        // budget exactly when prices were missing (JB167: no unit price).
         <p className="flex items-start gap-1 text-xs text-warning">
           <AlertTriangle className="mt-0.5 size-3.5 shrink-0" />
           {t("budget.uncounted", { count: uncounted })}

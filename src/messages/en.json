@@ -3784,7 +3784,9 @@
       "project_supplier_removed": "Supplier taken off a project",
       "field_account_moved": "Phone account moved to a new project",
       "project_permissions_changed": "Project permissions changed",
-      "report_anomaly": "Disposal anomaly reported"
+      "report_anomaly": "Disposal anomaly reported",
+      "material_price_set": "Material unit price set",
+      "unit_price_from_price_list": "Delivery priced from the material unit price"
     },
     "objectType": {
       "SignOffAssistant": "Assistant PIN",
@@ -4336,8 +4338,8 @@
     "dialogEdit": "Edit category · {module}",
     "budget": {
       "title": "Budget",
-      "help": "Spending is added up from the delivery orders filed in this category.",
-      "uncounted": "{count} delivery orders had no readable amount, so they are not in this total.",
+      "help": "Spent = quantity × unit price of each delivery in this category - the same sum as the material cost report.",
+      "uncounted": "{count} records have no unit price and are not in this total.",
       "tracksSpend": "Count spending in this category against a budget",
       "amount": "Budget (RM)",
       "amountHint": "Leave empty for a category that does not count against a budget",
@@ -4346,7 +4348,7 @@
       "alertsInvalid": "Use whole numbers between 1 and 1000, separated by commas.",
       "none": "No budget set",
       "mode": "Budget counts",
-      "modeAmount": "Money (RM, from delivery orders)",
+      "modeAmount": "Money (RM, quantity × unit price)",
       "modeQuantity": "Quantity (in the category's unit)",
       "quantity": "Budget quantity",
       "quantityHint": "In {unit}. Tonnes and kilograms are added together.",
@@ -4356,7 +4358,9 @@
       "thresholdAmountsInvalid": "Use numbers above zero, separated by commas.",
       "recipients": "Warnings go to the company administrators and the project lead, once per line; if the total falls back below a line, its warning is withdrawn.",
       "quantityUsed": "{used} of {budget} {unit}",
-      "quantityMoved": "The budget counts money only. Set quantity targets in Material management → Material targets (net of returns, per specification)."
+      "quantityMoved": "The budget counts money only. Set quantity targets in Material management → Material targets (net of returns, per specification).",
+      "vsPrice": "The budget is what this material may cost in total. The price per tonne or per cubic metre is the unit price: set it with the \"Unit price\" button on the list, not here.",
+      "spentOnly": "Spent RM {spent}"
     },
     "saveFailed": "That did not go through. Try again, or reload the page.",
     "viewRecords": "View records",
@@ -4622,6 +4626,9 @@
       "addToProjectsGo": "Add now",
       "addedNone": "Every project already has these categories. Nothing to add.",
       "addedSome": "Added {count} categories to {projects} projects."
+    },
+    "price": {
+      "button": "Unit price"
     }
   },
   "cloudServices": {
@@ -8835,7 +8842,10 @@
       "disposal_anomaly_trip_required": "A vehicle exception must say which load it was: choose a load of this clearance that was not cancelled.",
       "disposal_anomaly_photos_required": "Each exception needs at least {minimum} photos.",
       "disposal_anomaly_reason_required": "Write the reason for the exception.",
-      "field_one_project": "{name} is on another project now{project, select, none {} other { ({project})}}. A phone account can be on one project at a time: on the old project, first use \"Remove from project\" or \"Delete\", then link them here."
+      "field_one_project": "{name} is on another project now{project, select, none {} other { ({project})}}. A phone account can be on one project at a time: on the old project, first use \"Remove from project\" or \"Delete\", then link them here.",
+      "material_price_category_not_found": "That material or specification was not found, or you cannot see it.",
+      "material_price_needs_unit": "Choose a unit for \"{name}\" first: a unit price is per unit.",
+      "material_price_typed_on_record": "\"Other\" is typed on each delivery, and so is its price."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -12800,7 +12810,7 @@
       "trouble": "An empty report usually means nothing was received in that range."
     },
     "material_receipts": {
-      "what": "Material arriving on site, and the material categories - the budget and the spend for each material. The budget here is money accumulated from delivery orders, not a tonnage.",
+      "what": "Material deliveries, and the material categories - each material's unit price, budget and spend. Spend = quantity × unit price, the same sum as the material cost report.",
       "who": "Holders of receipt.view.",
       "need": "Receiving on site needs the project, the code, the name, a photo of the delivery order, the person handling it, the quantity, a site photo and the current GPS fix.",
       "then": "A submitted receipt cannot be edited - it carries photos, a signature and a location. To correct one, void it and raise a new one.",
@@ -14133,7 +14143,9 @@
       "spec": "Specification",
       "specHint": "From the material data; the specification brings its name and unit.",
       "chooseSpec": "Choose the specification",
-      "noSpec": "No specification"
+      "noSpec": "No specification",
+      "unitPriceFromList": "Filled in from the material category's unit price",
+      "unitPriceAuto": "Leave empty to use the material category's unit price"
     },
     "locationCaptured": "Location captured",
     "locationMissing": "No location",
@@ -19133,7 +19145,8 @@
     "quantity": "Quantity",
     "unit": "Unit",
     "unitPrice": "Unit price",
-    "amount": "Amount",
+    "cost": "Cost (qty × unit price)",
+    "amount": "DO amount",
     "amountHint": "This material's amount on the DO",
     "optional": "Optional",
     "chooseMaterial": "Choose the material",
@@ -19158,11 +19171,11 @@
     "dialogTitle": "{reference} · Materials",
     "dialogHelp": "One DO can carry several materials. Each one gets its own material, specification, unit and quantity, and counts in its own category and totals. Material 1 is the delivery's own: it can be changed, not removed.",
     "pinNote": "A unit or specification alone needs no sign-off PIN before the record is archived, but does after. Changing a material, quantity, unit price or amount, or adding or removing a material, needs the PIN and is kept in the history. Filling in what was blank is not a change.",
-    "moneyOnFirst": "The DO's amount counts under material 1. To split it, give each material its own amount.",
-    "moneyPerLine": "Some materials have an amount: only those amounts count, and a material left without one is not counted in the spending.",
     "correctionNote": "This delivery has {count} materials. This form changes material 1; add, change or remove the others with \"Add material\".",
     "correctionNoteOne": "Several materials on this DO? Add them with \"Add material\" and each is filed on its own.",
-    "requestHint": "One request can ask for several materials; it is approved as a whole."
+    "requestHint": "One request can ask for several materials; it is approved as a whole.",
+    "unitPriceHint": "Leave empty to use the material category's unit price",
+    "moneyByPrice": "Each material costs its quantity × unit price, in its own category; one with no unit price is not in the cost."
   },
   "filePreview": {
     "unsupported": "{ext} files cannot be previewed here. Use Download to view.",
@@ -20701,7 +20714,8 @@
       "file_send": "Send / share a file",
       "archive_confirm": "Confirm and archive",
       "assistant_manage": "Add or change an assistant's PIN",
-      "project_change_permissions": "Change a project's permissions"
+      "project_change_permissions": "Change a project's permissions",
+      "material_price_set": "Set or change a material unit price"
     },
     "firstTitle": "Set your sign-off PIN for the first time",
     "firstBanner": "This is your first time using a sign-off PIN",
@@ -21119,5 +21133,51 @@
   "fieldManifest": {
     "name": "{company} Field Staff",
     "description": "MSE Trace field staff workspace"
+  },
+  "materialPrices": {
+    "title": "Unit prices: {name}",
+    "help": "A unit price is the price of one unit (a tonne, a cubic metre...). When material arrives, the system fills in the price for its material and specification and works out quantity × unit price = cost.",
+    "keepsOld": "Changing a price does not change records that already have one; the new price applies from its start date. Records with no price yet are filled in.",
+    "what": "unit prices",
+    "loading": "Loading...",
+    "close": "Close",
+    "cancel": "Cancel",
+    "back": "Back",
+    "save": "Save price",
+    "failed": "That did not work. Please try again.",
+    "set": "Set price",
+    "adjust": "Change price",
+    "history": "Price history",
+    "historyTitle": "Price history: {name}",
+    "historyEmpty": "No price has been set yet.",
+    "none": "No price yet",
+    "usesMaterial": "Uses the material's price",
+    "typedOnRecord": "Typed on each delivery",
+    "needsUnit": "Choose the unit first (Edit)",
+    "wholeMaterial": "{name} (whole material)",
+    "perUnit": "RM {price} / {unit}",
+    "listLine": "Unit price RM {price} / {unit}",
+    "listNone": "No unit price set",
+    "upcoming": "RM {price} / {unit} from {date}",
+    "nowIs": "Now RM {price} / {unit}",
+    "priceLabel": "New unit price (RM / {unit})",
+    "priceHint": "The price of one unit",
+    "priceRule": "Enter a number above 0, with at most two decimals.",
+    "effectiveFrom": "Start date",
+    "effectiveHint": "Deliveries from this day use the new price. It may be in the past or the future.",
+    "col": {
+      "name": "Material / specification",
+      "price": "Unit price",
+      "action": "Actions",
+      "oldPrice": "Old price",
+      "newPrice": "New price",
+      "by": "Changed by",
+      "at": "Changed at",
+      "from": "Start date"
+    },
+    "toast": {
+      "saved": "Price saved.",
+      "filled": "Price saved. {count} records without a price were filled in."
+    }
   }
 }

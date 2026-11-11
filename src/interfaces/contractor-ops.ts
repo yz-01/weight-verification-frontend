@@ -106,6 +106,23 @@ export interface MaterialSpec {
   /** 「其他」: renamed, never switched off or removed. */
   is_fixed: boolean;
   sort_order: number;
+  /** 单价 (JB167): office only; absent on the phone and with 金额查看 off. */
+  price?: MaterialPriceSummary | null;
+}
+
+/** One price as 材料分类 shows it (JB167): per `unit`, from `effective_from`. */
+export interface MaterialPriceNow {
+  id: string;
+  /** Blanked (null) for an account with 金额查看 off. */
+  unit_price: string | null;
+  unit: string;
+  effective_from: string;
+}
+
+/** The price in force today and the ones set for later days (「X 起生效」). */
+export interface MaterialPriceSummary {
+  current: MaterialPriceNow | null;
+  upcoming: MaterialPriceNow[];
 }
 
 export interface ProjectCategory {
@@ -137,10 +154,10 @@ export interface ProjectCategory {
   sort_order: number;
   /** Whether spending filed here counts against a budget; the owner's switch. */
   tracks_spend: boolean;
-  /** Money, not weight - the amount comes off the supplier's delivery order. */
+  /** Money, not weight: what the whole material may cost (not its unit price). */
   budget_amount: string | null;
   budget_alert_percentages: number[];
-  /** Money off the delivery orders (default), or the quantity in `default_unit` (A6). */
+  /** Money - quantity x unit price (default, JB167), or the quantity in `default_unit` (A6). */
   budget_mode?: BudgetMode;
   /** The quantity budget, in `default_unit`; only read in quantity mode. */
   budget_quantity?: string | null;
@@ -164,14 +181,20 @@ export interface ProjectCategory {
    * module - the count the category management screen shows (D-125).
    */
   record_count: number;
+  /** Quantity x unit price of what came in - the cost report's figure (JB167). */
   spend_amount: string;
   /**
-   * Deliveries whose amount could not be read off the paperwork.
+   * Deliveries with no unit price, so not in `spend_amount` (JB167) - the
+   * cost report's 未定价收货 for this category.
    *
    * Surfaced rather than swallowed: a total that quietly skipped them reads
-   * as under budget precisely when the documents were unreadable.
+   * as under budget precisely when the prices were missing.
    */
   spend_uncounted_deliveries: number;
+  /** 单价 (JB167); null off a material, on the phone, or with 金额查看 off. */
+  price?: MaterialPriceSummary | null;
+  /** Whether this reader may 设定单价 here (category.manage + 金额查看). */
+  can_set_price?: boolean;
   budget_used_percent: number | null;
   /** Shown because it was asked for; never used to decide an alert. */
   tonnes_received: string;

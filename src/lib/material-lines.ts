@@ -124,13 +124,14 @@ export function lineProblems(
 
 /** The body of `save_receipt_lines` (MI): every line, in order. */
 /**
- * Which money note a delivery's lines need (audit 10-22): one material spends
- * the DO amount; several with no amount put the DO amount on material 1;
- * once any material has an amount, only the amounts typed count.
+ * The money note a delivery's lines carry (JB167, 客户 11-11): each material
+ * costs its quantity x unit price in its own category, a unit price left
+ * empty comes from 材料分类, and one with no price is not in the cost. Before
+ * JB167 the DO amount was the money (audit 10-22: on material 1, or each
+ * line's amount); it no longer counts.
  */
-export function linesMoneyNote(lines: readonly Pick<MaterialLineDraft, "amount">[]): "moneyOnFirst" | "moneyPerLine" | null {
-  if (lines.length < 2) return null;
-  return lines.some((line) => line.amount.trim()) ? "moneyPerLine" : "moneyOnFirst";
+export function linesMoneyNote(lines: readonly Pick<MaterialLineDraft, "amount">[]): "moneyByPrice" | null {
+  return lines.length < 2 ? null : "moneyByPrice";
 }
 
 export function receiptLinesPayload(lines: readonly MaterialLineDraft[], materials: readonly CatalogueRow[]) {

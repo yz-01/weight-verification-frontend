@@ -409,10 +409,15 @@ export interface MaterialReceiptLine {
   unit: string;
   unit_label: string | null;
   unit_price: string | null;
+  /** Where the price came from (JB167): the 材料分类 price list, a person, or nowhere. */
+  unit_price_source?: UnitPriceSource;
   /** This material's money on the DO, when the DO prices each line. */
   amount: string | null;
   total_value: string | null;
 }
+
+/** Where a record's unit price came from (JB167). */
+export type UnitPriceSource = "PRICE_LIST" | "MANUAL" | "";
 
 export interface MaterialReceipt {
   /** 「待补规格」 (J39): sent without its specification; the office fills it. */
@@ -462,10 +467,13 @@ export interface MaterialReceipt {
   unit: MaterialUnit;
   total_weight_kg: string | null;
   unit_price: string | null;
+  /** 「按材料分类的单价自动带出」 (JB167): PRICE_LIST, typed (MANUAL), or none. */
+  unit_price_source?: UnitPriceSource;
   total_value: string | null;
   /**
-   * The money on the supplier's delivery order - what the material budget is
-   * measured against (2026-10 A6). Null when nobody could read or type it.
+   * The money on the supplier's delivery order, as the paper says it (2026-10
+   * A6). Since JB167 the budget counts quantity x unit price instead. Null
+   * when nobody could read or type it.
    */
   document_amount?: string | null;
   document_amount_source?: "OCR" | "MANUAL" | "";
