@@ -201,13 +201,20 @@ function components(source) {
  * Checked against their own source on every run, so if one stops wearing the
  * star it stops counting here instead of vouching for a field that has none.
  */
-const SELF_LABELLED = new Map([["ProjectColumnPicker", "field.category"]]);
+const SELF_LABELLED = new Map([
+  ["ProjectColumnPicker", "field.category"],
+  // A return's supplier at the handover (JB169): it draws its own wrapper
+  // labelled outgoing.supplier and stars it when told `required`.
+  ["OutgoingSupplierField", "outgoing.supplier"],
+]);
 const SELF_LABELLED_SOURCES = {
   ProjectColumnPicker: "site-operations/project-column-picker.tsx",
+  OutgoingSupplierField: "contractor-ops/outgoing-supplier-field.tsx",
 };
 for (const [tag, key] of SELF_LABELLED) {
   const own = readFileSync(path.join(ROOT, SELF_LABELLED_SOURCES[tag]), "utf8");
-  const marked = new RegExp(`<FieldWrapper label=\\{t\\("${key.replace(".", "\\.")}"\\)\\} required`);
+  // The attributes may sit one to a line; `required={required}` counts.
+  const marked = new RegExp(`<FieldWrapper\\s+label=\\{t\\("${key.replace(".", "\\.")}"\\)\\}\\s+required\\b`);
   if (!marked.test(own)) {
     console.error(`${tag} no longer renders a required FieldWrapper labelled ${key}; remove it from SELF_LABELLED.`);
     process.exit(1);

@@ -41,6 +41,7 @@ import Link from "next/link";
 
 import { MaterialTabs } from "@/components/receipts/material-tabs";
 import { SpecCell } from "@/components/receipts/spec-pending-tag";
+import { ReturnSupplierCell } from "@/components/contractor-ops/return-supplier";
 import {
   EquipmentMovementActions,
   equipmentReturnNoteSource,
@@ -390,19 +391,13 @@ export function MaterialOutgoingOffice() {
       // The supplier it goes back to (2026-10 C7), in place of the
       // destination - since 10-02 a return goes to its supplier, and the
       // destination only repeated the supplier's name. Since C9 a return
-      // may name none: 「—」.
+      // may name none - 「待补供应商」 until the office fills it in (JB169:
+      // 「未选择供应商不能确认归档」).
       {
         accessorKey: "supplier_name",
         meta: { label: t("field.supplier") },
         header: () => <PlainHeader label={t("field.supplier")} />,
-        cell: ({ row }) => (
-          <span
-            className="block max-w-45 truncate"
-            title={row.original.supplier_name ?? ""}
-          >
-            {row.original.supplier_name || "—"}
-          </span>
-        ),
+        cell: ({ row }) => <ReturnSupplierCell row={row.original} />,
       },
       // 指定厂商（MR） (2026-10 D1; 2026-10-10), copied from the delivery it
       // went back from. Shown only when a row in view names one.

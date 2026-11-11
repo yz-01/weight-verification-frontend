@@ -81,7 +81,13 @@ import {
   RecordCorrectionButton,
   RecordCorrectionHistory,
 } from "@/components/shared/record-correction";
+import {
+  FillReturnSupplierButton,
+  ReturnSupplierNeeded,
+  SupplierPendingTag,
+} from "@/components/contractor-ops/return-supplier";
 import { compactStamp } from "@/lib/compact-stamp";
+import { returnNeedsSupplier } from "@/lib/return-supplier";
 import { useDateFormat } from "@/lib/dates";
 import { isSignOffCancelled } from "@/lib/sign-off";
 import { parseRecordNo } from "@/lib/record-no";
@@ -3953,6 +3959,9 @@ export function OutgoingActions({
   // 材料领用 (JB168) is approved on the application: no Return Note.
   const issue = isIssue(row);
   const needsNote = !issue && !row.has_return_note;
+  // 「未选择供应商不能确认归档」 (JB169, 客户 11-11): the office's 确认 waits for
+  // the supplier, with 「补供应商」 and the reason beside it.
+  const needsSupplier = !issue && returnNeedsSupplier(row);
   return (
     <>
       {can("material_outgoing.approve") && row.status === "PENDING" && (
@@ -3997,14 +4006,18 @@ export function OutgoingActions({
       {/* 待后台确认: the office confirms what left, which closes it. */}
       {row.status === "PROCESSED" &&
         (can("material_outgoing.approve") ? (
-          <Button
-            size="sm"
-            disabled={pending}
-            onClick={() => onReview("COMPLETED")}
-          >
-            <Check />
-            {issue ? t("issue.finalConfirm") : t("outgoing.finalConfirm")}
-          </Button>
+          <div className="space-y-2">
+            {needsSupplier && <ReturnSupplierNeeded row={row} />}
+            <Button
+              size="sm"
+              disabled={pending || needsSupplier}
+              disabledReason={needsSupplier ? t("outgoing.needSupplierFirst") : undefined}
+              onClick={() => onReview("COMPLETED")}
+            >
+              <Check />
+              {issue ? t("issue.finalConfirm") : t("outgoing.finalConfirm")}
+            </Button>
+          </div>
         ) : (
           <p className="rounded-lg border border-info/25 bg-info/5 px-3 py-2 text-sm">
             {t("outgoing.waitingForOffice")}
@@ -4668,7 +4681,13 @@ function ExitForm({
           <Input value={plate} onChange={(event) => setPlate(event.target.value.toUpperCase())} />
         </FieldWrapper>
       </div>
-      <OutgoingSupplierField value={supplier} onChange={(next) => setSupplier(next)} />
+      {/* Required when the record names none (JB169, 客户 11-11 「供应商应该属于
+          必填项目」): the driver taking it is in front of the site. */}
+      <OutgoingSupplierField
+        value={supplier}
+        required={!record.supplier}
+        onChange={(next) => setSupplier(next)}
+      />
       <div className="grid gap-4 sm:grid-cols-2">
         <FieldSignaturePad
           label={t("outgoing.siteSignature")}
@@ -4719,6 +4738,7 @@ function ExitForm({
             ],
             [category || record.material_name, t("outgoing.material")],
             [Number(returned) > 0, t("outgoing.returnedQuantity")],
+            [supplier || record.supplier, t("outgoing.supplier")],
             [siteSignature, t("outgoing.siteSignature")],
             [supplierSignature, t("outgoing.supplierSignature")],
           ]}
@@ -4835,7 +4855,9 @@ export function OutgoingDetailDialog({
             // record as the application, the approval and the signatures.
             ...(row.supplier_name
               ? [{ label: t("outgoing.supplier"), value: row.supplier_name }]
-              : []),
+              : returnNeedsSupplier(row)
+                ? [{ label: t("outgoing.supplier"), value: <SupplierPendingTag /> }]
+                : []),
             // D1: whose make, with 「非指定厂商」 when the category names others.
             ...(row.manufacturer_name
               ? [{
@@ -4974,8 +4996,19 @@ export function OutgoingDetailDialog({
           corrections={<RecordCorrectionHistory kind="MATERIAL_OUTGOING" recordId={row.id} />}
           recorder={<RecordRecorder record={row} />}
           conversation={{ kind: "MATERIAL_OUTGOING", recordId: row.id }}
-          // 【确认归档】 once the return is finished (C4).
-          closure={{ kind: "MATERIAL_OUTGOING", recordId: row.id }}
+          // 【确认归档】 once the return is finished (C4) - and names its
+          // supplier (JB169: 「未选择供应商不能确认归档」).
+          closure={{
+            kind: "MATERIAL_OUTGOING",
+            recordId: row.id,
+            blocked:
+              !issue && returnNeedsSupplier(row)
+                ? {
+                    reason: t("outgoing.needSupplierFirst"),
+                    action: <FillReturnSupplierButton row={row} />,
+                  }
+                : null,
+          }}
         />
       )}
     </RecordDetailDialog>

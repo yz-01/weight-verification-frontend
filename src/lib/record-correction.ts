@@ -87,6 +87,22 @@ export function correctionChanges(
   return { changes, expected };
 }
 
+/**
+ * Whether saving these changes is a correction - it asks why, and is kept in
+ * 修改记录 - rather than a blank filled in (Lucas 10-30: 「后台需要补进去的东西都
+ * 不算改正」). On an archived return every change is one (`signedAlways`,
+ * JB169: 「已归档的退货记录如需更正，必须通过六位数密码验证，同时保留完整修改历史」).
+ */
+export function isCorrecting(
+  fields: CorrectionField[],
+  changes: Record<string, string>,
+  signedAlways = false,
+): boolean {
+  const names = Object.keys(changes);
+  if (signedAlways) return names.length > 0;
+  return names.some((name) => (fields.find((field) => field.name === name)?.value ?? "") !== "");
+}
+
 function chosenOption(fields: CorrectionField[], name: string, values: Record<string, string>) {
   const field = fields.find((item) => item.name === name);
   return field?.options?.find((option) => option.value === values[name]) ?? null;

@@ -6605,6 +6605,10 @@
       "scannedSupplier": "Scanned: {name}",
       "scanFailed": "That code is not a supplier's QR code.",
       "noSupplier": "Not known",
+      "supplierPending": "Supplier to fill in",
+      "supplierPendingHint": "The site left the supplier out: use 「Fill in supplier」.",
+      "fillSupplier": "Fill in supplier",
+      "needSupplierFirst": "Fill in the supplier first, then confirm or archive.",
       "spec": "Specification",
       "chooseSpec": "Choose the specification",
       "specOptionalHint": "Not sure of the specification? Leave it - the office will fill it in.",
@@ -8757,6 +8761,7 @@
       "receipt_archived": "This delivery has been confirmed and archived, so it can no longer be accepted or rejected. Raise a new record for anything further.",
       "receipt_awaiting_acceptance": "This delivery has not been accepted yet. Accept or reject it first, then archive it.",
       "receipt_archive_needs_supplier": "This delivery ({receipt}) has no supplier yet. Rejected deliveries too: use 「Fill in supplier」 before archiving.",
+      "return_needs_supplier": "This return ({reference}) has no supplier yet. Use 「Fill in supplier」 first, then confirm or archive it.",
       "site_record_field_only": "Only site staff record this, on the phone. From the office you can correct an existing record instead.",
       "material_request_assigned_to_other": "This request was sent to somebody else to approve. To decide it yourself, press \"Take it over\" first.",
       "material_request_reviewer_not_eligible": "The person chosen cannot approve requests on this project. Choose again from the list.",
@@ -18655,7 +18660,8 @@
     "fillSave": "Save",
     "archivedHint": "Confirmed and archived: what is filled in can no longer change; blank fields can still be filled.",
     "archivedField": "Archived - cannot be changed",
-    "fillNote": "Once saved, lists, exports, reports and the PDF show what was filled in."
+    "fillNote": "Once saved, lists, exports, reports and the PDF show what was filled in.",
+    "signedNote": "This return is archived: every change needs a reason and your six-digit sign-off PIN, and is kept in 「Modification history」."
   },
   "recordConversation": {
     "open": "Communicate",
