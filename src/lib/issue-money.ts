@@ -69,7 +69,7 @@ export function lineName(line: Pick<CorrectionLine, "position" | "material_name"
 export function lineAmount(
   line: Pick<CorrectionLine, "quantity" | "issued_quantity">,
   typedPrice: string,
-): { quantity: string; requested: boolean; amount: string } | null {
+): { quantity: string; requested: boolean; price: string; amount: string } | null {
   const price = Number(typedPrice.trim());
   if (!typedPrice.trim() || !Number.isFinite(price) || price <= 0) return null;
   const requested = line.issued_quantity === null || line.issued_quantity === "";
@@ -78,7 +78,7 @@ export function lineAmount(
   if (!Number.isFinite(count)) return null;
   // Cents, so 3 x 0.1 is 0.30 and not 0.30000000000000004.
   const cents = Math.round(count * Math.round(price * 100));
-  return { quantity, requested, amount: (cents / 100).toFixed(2) };
+  return { quantity, requested, price: price.toFixed(2), amount: (cents / 100).toFixed(2) };
 }
 
 function text(value: unknown): string {

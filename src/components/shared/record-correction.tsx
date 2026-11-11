@@ -118,7 +118,7 @@ function LineAmountNote({ line, typed }: { line: CorrectionLine; typed: string }
   if (!worked) return <p className="text-xs text-muted-foreground">{t("lineAmountEmpty")}</p>;
   return (
     <p className="tabular text-xs" data-line-amount={line.id}>
-      {t("lineAmount", { quantity: `${worked.quantity} ${unitName(line.unit)}`, price: typed.trim(), amount: worked.amount })}
+      {t("lineAmount", { quantity: `${worked.quantity} ${unitName(line.unit)}`, price: worked.price, amount: worked.amount })}
       {worked.requested && <span className="ml-1 text-muted-foreground">{t("lineAmountRequested")}</span>}
     </p>
   );

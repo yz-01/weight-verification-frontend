@@ -57,9 +57,9 @@ describe("an issue line's 单价 and 金额", () => {
 
   it("works out 金额 as the price is typed: the quantity taken, else the quantity applied for", () => {
     const issued = { quantity: "200.000", issued_quantity: "180.000" };
-    expect(lineAmount(issued, "3.50")).toEqual({ quantity: "180.000", requested: false, amount: "630.00" });
+    expect(lineAmount(issued, "3.50")).toEqual({ quantity: "180.000", requested: false, price: "3.50", amount: "630.00" });
     const waiting = { quantity: "200.000", issued_quantity: null };
-    expect(lineAmount(waiting, "3.5")).toEqual({ quantity: "200.000", requested: true, amount: "700.00" });
+    expect(lineAmount(waiting, "3.5")).toEqual({ quantity: "200.000", requested: true, price: "3.50", amount: "700.00" });
     expect(lineAmount({ quantity: "3", issued_quantity: null }, "0.10")?.amount).toBe("0.30");
     expect(lineAmount(issued, "")).toBeNull();
     expect(lineAmount(issued, "0")).toBeNull();
