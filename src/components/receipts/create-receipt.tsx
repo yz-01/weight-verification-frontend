@@ -36,6 +36,8 @@ import {
 import { ManufacturerPicker } from "@/components/shared/manufacturer-picker";
 import { SupplierPicker } from "@/components/shared/supplier-picker";
 import { useMaterialUnits, useUnitName } from "@/hooks/use-material-units";
+import { useSeesAmounts } from "@/hooks/use-sees-amounts";
+import { unchangedRefusal } from "@/lib/correction-refusal";
 import { correctReceipt, getReceipt } from "@/services/contractor.service";
 import { getProjectCategories } from "@/services/contractor-ops.service";
 import { typedWords } from "@/lib/material-catalogue";
@@ -73,7 +75,11 @@ function CorrectReceiptForm({
   const t = useTranslations();
   const finish = useFinishForm();
   const queryClient = useQueryClient();
+  // A refusal about the whole form, said beside 「保存」 (JB170).
   const [formError, setFormError] = useState<string | null>(null);
+  // 金额查看 off (J17): 单价 and 送货单金额 are not drawn - the server ignores
+  // them for this reader, so typing one would only end in 「没有改动」 (JB170).
+  const seesAmounts = useSeesAmounts();
   // 「+ 增加材料」 (J35): the delivery's other materials, saved on their own.
   const [editingLines, setEditingLines] = useState(false);
 
@@ -168,8 +174,10 @@ function CorrectReceiptForm({
         quantity: value.quantity,
         unit: value.unit,
         total_weight_kg: value.total_weight_kg || null,
-        unit_price: value.unit_price || null,
-        document_amount: value.document_amount || null,
+        // Not sent by a reader who cannot see money: there was no input.
+        ...(seesAmounts
+          ? { unit_price: value.unit_price || null, document_amount: value.document_amount || null }
+          : {}),
         vehicle_plate: value.vehicle_plate,
         delivery_note_no: value.delivery_note_no,
         notes: value.notes,
@@ -189,6 +197,13 @@ function CorrectReceiptForm({
         } as MaterialReceiptPayload & { reason: string });
       } catch (error) {
         if (error instanceof ApiError && error.isValidation) {
+          // Nothing changed (JB170, MI-PRJ-0003-008): said beside 「保存」,
+          // and no field is marked - the reason the person typed is fine.
+          const unchanged = unchangedRefusal(error);
+          if (unchanged) {
+            setFormError(unchanged);
+            return;
+          }
           const leftover = applyServerErrors(
             error.errors,
             form as unknown as Parameters<typeof applyServerErrors>[1],
@@ -209,6 +224,7 @@ function CorrectReceiptForm({
       submitLabel={t("common.save")}
       submitIcon={Save}
       onSubmit={() => void form.handleSubmit()}
+      footerError={formError}
     >
       <FormSection title={t("receipts.section.delivery")}>
         <ReadField
@@ -454,34 +470,38 @@ function CorrectReceiptForm({
           )}
         </form.Field>
 
-        <form.Field name="unit_price">
-          {(field) => (
-            <TextField
-              field={field as unknown as BoundField}
-              label={t("receipts.field.unitPrice")}
-              type="number"
-              optional
-              // 「按材料分类的单价自动带出」 (JB167): still editable; a price
-              // typed here is kept and the list never replaces it.
-              hint={
-                receipt.unit_price_source === "PRICE_LIST" && field.state.value === (receipt.unit_price ?? "")
-                  ? t("receipts.field.unitPriceFromList")
-                  : t("receipts.field.unitPriceAuto")
-              }
-            />
-          )}
-        </form.Field>
+        {seesAmounts && (
+          <form.Field name="unit_price">
+            {(field) => (
+              <TextField
+                field={field as unknown as BoundField}
+                label={t("receipts.field.unitPrice")}
+                type="number"
+                optional
+                // 「按材料分类的单价自动带出」 (JB167): still editable; a price
+                // typed here is kept and the list never replaces it.
+                hint={
+                  receipt.unit_price_source === "PRICE_LIST" && field.state.value === (receipt.unit_price ?? "")
+                    ? t("receipts.field.unitPriceFromList")
+                    : t("receipts.field.unitPriceAuto")
+                }
+              />
+            )}
+          </form.Field>
+        )}
 
-        <form.Field name="document_amount">
-          {(field) => (
-            <TextField
-              field={field as unknown as BoundField}
-              label={t("receipts.field.documentAmount")}
-              type="number"
-              optional
-            />
-          )}
-        </form.Field>
+        {seesAmounts && (
+          <form.Field name="document_amount">
+            {(field) => (
+              <TextField
+                field={field as unknown as BoundField}
+                label={t("receipts.field.documentAmount")}
+                type="number"
+                optional
+              />
+            )}
+          </form.Field>
+        )}
       </FormSection>
 
       <FormSection title={t("receipts.section.vehicle")}>
@@ -528,12 +548,6 @@ function CorrectReceiptForm({
             />
           )}
         </form.Field>
-
-        {formError && (
-          <p className="text-sm font-medium text-destructive md:col-span-2">
-            {formError}
-          </p>
-        )}
       </FormSection>
     </FormShell>
   );
