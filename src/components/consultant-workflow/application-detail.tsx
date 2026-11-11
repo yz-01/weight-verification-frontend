@@ -37,6 +37,7 @@ import {
 import { AttachmentDialog, RequiredAttachmentTile } from "@/components/consultant-workflow/attachment-slots";
 import { AttachmentPicker } from "@/components/shared/attachment-picker";
 import { RecordCorrectionHistory } from "@/components/shared/record-correction";
+import { ApplicationA4PreviewButton } from "@/components/consultant-workflow/application-a4-preview";
 import {
   ApplicationFormCard,
   printPdf,
@@ -427,6 +428,12 @@ export function ConsultantApplicationDetail({
                 document.getElementById("application-attachments")?.scrollIntoView({ behavior: "smooth", block: "start" })
               }
               exportButtons={null}
+              a4Preview={
+                // 「A4 预览」 (JB163): the formal form, for every type and
+                // every status - a draft not yet confirmed too: looking is
+                // not exporting (JB25, JB27).
+                <ApplicationA4PreviewButton source={() => ({ kind: "saved", id: application.id })} />
+              }
               sendBlockedReason={
                 application.consultant_form && !application.form_files?.some((row) => row.kind === "FILLED")
                   ? t("ownForm.sendNeedsFilled")

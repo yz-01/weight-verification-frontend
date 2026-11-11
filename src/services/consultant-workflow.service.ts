@@ -277,6 +277,95 @@ export const updateConsultantApplication = async (
   return row;
 };
 
+/**
+ * 「A4 预览」 (JB163, 客户 11-10 晚上 第十一批 第二段): which application the
+ * preview draws. `saved` is an application as it is (a draft too); `draft` a
+ * draft with the edits still on screen; `new` one still being filled in. The
+ * last two are posted exactly as the save would post them and are never
+ * saved by the preview.
+ */
+export type ApplicationFormPreviewSource =
+  | { kind: "saved"; id: string }
+  | { kind: "draft"; id: string; payload: Partial<ConsultantApplicationPayload> }
+  | { kind: "new"; payload: ConsultantApplicationPayload };
+
+/** What the preview needs to lay its pages out (`?output=json`). */
+export interface ApplicationFormPreviewInfo {
+  application_no: string;
+  /** Not saved yet: the number the draft gets if saved now. */
+  number_provisional: boolean;
+  status: string;
+  application_type_code: string;
+  /** Every page of the preview PDF. */
+  pages: number;
+  /** The application form's own pages (the form is one A4 page). */
+  form_pages: number;
+  /** B, the consultant's own form, after the application form - or null. */
+  consultant_form: {
+    name: string;
+    version: number;
+    file_name: string;
+    /** FILLED: the filled-in form uploaded; BLANK: the blank one, not filled in yet. */
+    source: "FILLED" | "BLANK";
+    pages: number;
+  } | null;
+}
+
+export const getApplicationFormPreviewInfo = (source: ApplicationFormPreviewSource) => {
+  const query = { output: "json" };
+  if (source.kind === "saved") {
+    return api.get<ApplicationFormPreviewInfo>(
+      `/api/consultant-applications/${source.id}/form_preview/`,
+      query,
+      { silent: true },
+    );
+  }
+  if (source.kind === "draft") {
+    return api.post<ApplicationFormPreviewInfo>(
+      `/api/consultant-applications/${source.id}/preview_draft_form/`,
+      source.payload,
+      { query, silent: true },
+    );
+  }
+  return api.post<ApplicationFormPreviewInfo>(
+    "/api/consultant-applications/preview_new_form/",
+    source.payload,
+    { query, silent: true },
+  );
+};
+
+/**
+ * One page of the preview as a picture (`png`, from page 1) - an in-page PDF
+ * does not show on an iPhone - or the PDF itself. The caller revokes the URL.
+ */
+export const applicationFormPreviewObjectUrl = (
+  source: ApplicationFormPreviewSource,
+  output: "png" | "pdf",
+  page = 1,
+) => {
+  const query = output === "png" ? { output, page } : { output };
+  if (source.kind === "saved") {
+    return fetchObjectUrl(`/api/consultant-applications/${source.id}/form_preview/`, {
+      query,
+      silent: true,
+    });
+  }
+  if (source.kind === "draft") {
+    return fetchObjectUrl(`/api/consultant-applications/${source.id}/preview_draft_form/`, {
+      method: "POST",
+      body: source.payload,
+      query,
+      silent: true,
+    });
+  }
+  return fetchObjectUrl("/api/consultant-applications/preview_new_form/", {
+    method: "POST",
+    body: source.payload,
+    query,
+    silent: true,
+  });
+};
+
 /** JB25: 【确认归档】 on a draft - locked from now on, and only then sent. */
 export const confirmConsultantApplication = async (id: string) => {
   const row = await api.post<ConsultantApplication>(

@@ -5954,6 +5954,27 @@
       "onlyThisProject": "只限上面選的項目",
       "versionHistory": "以前的版本（{count}）",
       "sendNeedsFilled": "請先上傳填好的顧問表格。"
+    },
+    "a4Preview": {
+      "button": "A4 預覽",
+      "title": "A4 預覽：正式顧問申請表",
+      "noteSaved": "這就是這份申請的正式 A4 申請表：和匯出、列印及發送給顧問的 PDF 第一頁由同一程式產生，內容完全一樣。",
+      "noteUnsaved": "這就是保存後的正式 A4 申請表，按畫面上現在填寫的內容產生。預覽不會保存任何內容，要按「保存草稿」才會保存。",
+      "number": "申請編號：{number}",
+      "numberProvisional": "申請編號 {number} 是現在保存草稿時會得到的編號；如果有人先保存了同類申請，編號會順延。",
+      "ownFormBlank": "此申請使用顧問自有表格「{name}」（第 {version} 版）。第 1 頁是系統的申請表，第 {page} 頁起是顧問表格原樣，保留顧問原來的公司表頭和格式。還沒有上傳填好的表格，這裡顯示的是空白原表。",
+      "ownFormFilled": "此申請使用顧問自有表格「{name}」（第 {version} 版）。第 1 頁是系統的申請表，第 {page} 頁起是上傳的已填寫顧問表格原樣，保留顧問原來的公司表頭和格式。",
+      "loading": "正在產生 A4 預覽……",
+      "what": "A4 預覽",
+      "pageWhat": "第 {page} 頁",
+      "pageAlt": "正式 A4 申請表 第 {page} 頁",
+      "pageOf": "第 {page} / {total} 頁",
+      "morePages": "另有 {count} 頁沒有在這裡顯示，請按「打開 PDF」查看全部。",
+      "pdfWhat": "預覽 PDF",
+      "pdfPreparing": "PDF 正在產生，請稍候。",
+      "pdfFailed": "PDF 無法產生，請重試。",
+      "openPdf": "打開 PDF",
+      "close": "關閉"
     }
   },
   "contractorDashboard": {
