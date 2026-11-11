@@ -911,7 +911,7 @@ export function MaterialRequestDetail({
                 (2026-10-10, 审批证据完整性): attachments' content, approval
                 history, conversation. 预览 · 打印 · 导出 · 发送, as every
                 exported file (PDF 统一操作规则). */}
-            <div className="grid grid-cols-2 gap-1.5">
+            <div className="grid grid-cols-2 gap-2">
               <FileActionButtons
                 label={tFile("completeEvidence")}
                 labelHint={tFile("completeEvidenceHint")}
@@ -929,7 +929,7 @@ export function MaterialRequestDetail({
             {/* JB25 (客户 10-26 事项 1): before its decision the applicant or an
                 approver changes it in place, or deletes it with the PIN. */}
             {editable && (
-              <div className="flex flex-wrap gap-1.5" data-slot="material-request-draft-actions">
+              <div className="flex flex-wrap items-center gap-2" data-slot="material-request-draft-actions">
                 <Button size="sm" variant="outline" onClick={() => setEditingRequest(true)}>
                   <Pencil />
                   {draft("edit")}
@@ -970,8 +970,10 @@ export function MaterialRequestDetail({
                     </FieldWrapper>
                   </div>
                 )}
+                {/* The record panel's size at its own width, as every
+                    button on a record (JB166, Lucas 11-11). */}
                 <Button
-                  className="w-full"
+                  size="sm"
                   requires={
                     isMaterial
                       ? [[chosenSupplier, t("field.supplier")]]
@@ -998,8 +1000,9 @@ export function MaterialRequestDetail({
                   <FieldWrapper label={t("field.returnReason")} required>
                     <Textarea value={reason} onChange={(event) => setReason(event.target.value)} />
                     <Button
-                      className="mt-2 w-full"
-                      variant="destructive"
+                      size="sm"
+                      className="mt-2"
+                      variant="outline-destructive"
                       requires={[[reason.trim(), t("field.returnReason")]]}
                       disabled={review.isPending}
                       onClick={() => review.mutate("RETURNED")}
@@ -1026,7 +1029,7 @@ export function MaterialRequestDetail({
             {reviewView === "takeOver" && (
               <div className="space-y-1.5">
                 <p className="rounded-md border border-warning/25 bg-warning/5 px-2 py-1.5 text-xs">{waitingLine ?? t("waitingForReview")}</p>
-                <Button className="w-full" variant="outline" disabled={takeOver.isPending} onClick={() => takeOver.mutate()}>
+                <Button size="sm" variant="outline" disabled={takeOver.isPending} onClick={() => takeOver.mutate()}>
                   <UserCheck />
                   {t("action.reassignToMe")}
                 </Button>
@@ -1107,7 +1110,7 @@ function ManagerForward({
         <QueryFailedNote query={options} what={t("field.headOfficeReviewer")} />
       </FieldWrapper>
       <Button
-        className="w-full"
+        size="sm"
         requires={[[target, t("field.headOfficeReviewer")]]}
         disabled={decide.isPending}
         onClick={() => decide.mutate("FORWARD")}
@@ -1130,8 +1133,9 @@ function ManagerForward({
         <FieldWrapper label={t("field.returnReason")} required>
           <Textarea value={reason} onChange={(event) => setReason(event.target.value)} />
           <Button
-            className="mt-2 w-full"
-            variant="destructive"
+            size="sm"
+            className="mt-2"
+            variant="outline-destructive"
             requires={[[reason.trim(), t("field.returnReason")]]}
             disabled={decide.isPending}
             onClick={() => decide.mutate("RETURNED")}

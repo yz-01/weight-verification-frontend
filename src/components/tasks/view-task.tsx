@@ -176,17 +176,17 @@ export function ViewTask({
       headerActions={
         can("task.assign") &&
         !["COMPLETED", "CANCELLED", "FAILED"].includes(data.state) ? (
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {/* The driver's way in: this trip's link. Sending again kills the
                 old one - a link sent to the wrong chat, or a new phone. */}
             <Button size="sm" onClick={() => setSendingLink(true)}>
-              <Link2 className="h-4 w-4" />
+              <Link2 />
               {data.link ? t("tasks.link.resend") : t("tasks.link.send")}
             </Button>
             {data.state === "ASSIGNED" && (
               <Button asChild size="sm" variant="outline">
                 <Link href={`/tasks/${id}/edit`}>
-                  <Pencil className="h-4 w-4" />
+                  <Pencil />
                   {t("tasks.reassign")}
                 </Link>
               </Button>
@@ -200,21 +200,19 @@ export function ViewTask({
             {data.state === "DELIVERED" ? (
               <Button
                 size="sm"
-                variant="outline"
-                className="text-destructive"
+                variant="outline-destructive"
                 onClick={() => setClosing(true)}
               >
-                <XCircle className="h-4 w-4" />
+                <XCircle />
                 {t("tasks.close.action")}
               </Button>
             ) : data.state === "ASSIGNED" || data.state === "ACCEPTED" ? (
               <Button
                 size="sm"
-                variant="outline"
-                className="text-destructive"
+                variant="outline-destructive"
                 onClick={() => setCancelling(true)}
               >
-                <XCircle className="h-4 w-4" />
+                <XCircle />
                 {t("tasks.cancel.action")}
               </Button>
             ) : null}
@@ -260,20 +258,17 @@ export function ViewTask({
         }))}
         actions={
           can("task.submit") && next.length > 0 ? (
+            // The record panel's buttons, not pills (JB166, Lucas 11-11:
+            // 「这些按钮不consistent」); 失败 last, as every destructive step.
             <div className="flex flex-wrap items-center gap-2">
-              {next.map((state) => (
+              {[...next.filter((state) => state !== "FAILED"), ...next.filter((state) => state === "FAILED")].map((state) => (
                 <Button
                   key={state}
                   size="sm"
-                  variant={state === "FAILED" ? "outline" : "default"}
-                  className={
-                    state === "FAILED"
-                      ? "rounded-full px-4 text-destructive"
-                      : "rounded-full px-4 shadow-sm"
-                  }
+                  variant={state === "FAILED" ? "outline-destructive" : "default"}
                   onClick={() => setMoving(state)}
                 >
-                  <ArrowRight className="h-4 w-4" />
+                  <ArrowRight />
                   {t(`tasks.state.${state}`)}
                 </Button>
               ))}

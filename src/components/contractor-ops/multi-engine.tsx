@@ -968,7 +968,7 @@ export function PackageSheet({ id, onClose }: { id: string; onClose: () => void 
                           </Button>
                         )}
                         {isDraft && can("package.manage") && (
-                          <div className="flex flex-wrap gap-2">
+                          <div className="flex flex-wrap items-center gap-2">
                             {moveButtons(index)}
                             <Button
                               size="sm"
@@ -991,14 +991,15 @@ export function PackageSheet({ id, onClose }: { id: string; onClose: () => void 
                                 downloadPackageItem(id, item.id, item.reference)
                               }
                             />
+                            {/* Outlined in the destructive colour as every
+                                removal on a record, at the row's size (JB166). */}
                             <Button
                               size="sm"
-                              variant="ghost"
-                              className="text-destructive"
+                              variant="outline-destructive"
                               disabled={remove.isPending}
                               onClick={() => remove.mutate(item.id)}
                             >
-                              <Trash2 className="size-4" />
+                              <Trash2 />
                             </Button>
                           </div>
                         )}
@@ -1181,19 +1182,13 @@ export function PackageSheet({ id, onClose }: { id: string; onClose: () => void 
             </Button>
           </>
         )}
+        {/* The drawer's size, as the file buttons of a sent package, and
+            移除 last, outlined in the destructive colour (JB166). */}
         {data && isDraft && can("package.manage") && (
           <>
             <Button
-              variant="ghost"
-              className="text-destructive"
-              disabled={drop.isPending}
-              onClick={() => drop.mutate()}
-            >
-              {common("remove")}
-            </Button>
-            <Button
+              size="sm"
               variant="outline"
-              className="ml-auto"
               data-action="preview-draft"
               requires={[[data.items.length > 0, t("field.contents")]]}
               disabled={Boolean(draftFile.busy)}
@@ -1206,10 +1201,11 @@ export function PackageSheet({ id, onClose }: { id: string; onClose: () => void 
                 )
               }
             >
-              {draftFile.busy ? <Loader2 className="size-4 animate-spin" /> : <Eye className="size-4" />}
+              {draftFile.busy ? <Loader2 className="animate-spin" /> : <Eye />}
               {t("previewDraft")}
             </Button>
             <Button
+              size="sm"
               requires={[
                 [data.items.length > 0, t("field.contents")],
                 [(remarks || data.remarks).trim(), t("field.remarks")],
@@ -1217,8 +1213,16 @@ export function PackageSheet({ id, onClose }: { id: string; onClose: () => void 
               disabled={confirm.isPending}
               onClick={() => confirm.mutate()}
             >
-              <FileText className="size-4" />
+              <FileText />
               {t("confirm")}
+            </Button>
+            <Button
+              size="sm"
+              variant="outline-destructive"
+              disabled={drop.isPending}
+              onClick={() => drop.mutate()}
+            >
+              {common("remove")}
             </Button>
           </>
         )}

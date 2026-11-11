@@ -529,8 +529,7 @@ export function ConsultantAccessManagement() {
                       {row.is_active && (
                         <Button
                           size="sm"
-                          variant="outline"
-                          className="text-destructive"
+                          variant="outline-destructive"
                           disabled={revoke.isPending}
                           onClick={() => revoke.mutate(row.id)}
                         >

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Camera, FolderOpen, Layers, Pencil, Plus, Truck } from "lucide-react";
+import { Camera, CheckCircle2, FolderOpen, Layers, Pencil, Plus, Truck, XCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useState } from "react";
@@ -139,9 +139,9 @@ function ReviewDelivery({
   const supplierHint =
     status === "PENDING" ? t("receipts.fillSupplier.hint") : t("receipts.fillSupplier.archiveHint");
   const fillSupplierButton = (
-    <Button asChild size="lg" variant="outline" className="w-full">
+    <Button asChild size="sm" variant="outline">
       <Link href={`/receipts/${receipt.id}/edit?fill=supplier`}>
-        <Truck className="h-4 w-4" />
+        <Truck />
         {t("receipts.fillSupplier.action")}
       </Link>
     </Button>
@@ -238,11 +238,13 @@ function ReviewDelivery({
             {supplierHint}
           </p>
         )}
-        <div className={missingSupplier ? "grid grid-cols-2 gap-2" : undefined}>
+        {/* The record panel's size and natural widths (JB166, Lucas 11-11:
+            「这些按钮不consistent」): it was a tall full-width bar over a row of
+            small buttons. */}
+        <div className="flex flex-wrap items-center gap-2">
         {missingSupplier && fillSupplierButton}
         <Button
-          size="lg"
-          className="w-full"
+          size="sm"
           disabled={review.isPending || status === "ACCEPTED"}
           disabledReason={
             status === "ACCEPTED"
@@ -251,6 +253,7 @@ function ReviewDelivery({
           }
           onClick={() => review.mutate("ACCEPTED")}
         >
+          <CheckCircle2 />
           {t("receipts.acceptance.accept")}
         </Button>
         </div>
@@ -287,13 +290,14 @@ function ReviewDelivery({
                 No conversation first any more (10-02 D08, brief Q3): the
                 switch above is the guard. */}
             <Button
-              variant="destructive"
-              className="w-full"
+              size="sm"
+              variant="outline-destructive"
               requires={[[reason.trim(), t("receipts.acceptance.reason")]]}
               disabled={review.isPending}
               disabledReason={t("common.saving")}
               onClick={() => review.mutate("REJECTED")}
             >
+              <XCircle />
               {t("receipts.acceptance.reject")}
             </Button>
           </div>
@@ -614,7 +618,7 @@ export function ViewReceipt({
                 {t("receipts.acceptance.headOffice")}
               </p>
             )}
-            <div className="flex flex-wrap gap-2 border-t border-panel-border pt-3">
+            <div className="flex flex-wrap items-center gap-2 border-t border-panel-border pt-3">
               <AddToPackageButton
                 kind="MATERIAL_RECEIPT"
                 recordId={data.id}
@@ -628,14 +632,14 @@ export function ViewReceipt({
                   could take (F-204). */}
               {can("receipt.update") && !data.superseded_by && (
                 <Button size="sm" variant="outline" onClick={() => setFiling(true)}>
-                  <FolderOpen className="h-4 w-4" />
+                  <FolderOpen />
                   {t("contractorOps.filing.action")}
                 </Button>
               )}
               {can("receipt.update") && !data.superseded_by && (
                 <Button asChild size="sm" variant="outline">
                   <Link href={`/receipts/${data.id}/edit`}>
-                    <Pencil className="h-4 w-4" />
+                    <Pencil />
                     {t("receipts.correction.action")}
                   </Link>
                 </Button>

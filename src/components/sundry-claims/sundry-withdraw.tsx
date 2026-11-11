@@ -18,7 +18,19 @@ import { Switch } from "@/components/ui/switch";
 import { ApiError } from "@/interfaces/api";
 import { withdrawSundryClaim } from "@/services/sundry-claim.service";
 
-export function SundryWithdraw({ id, onDone }: { id: string; onDone?: () => void }) {
+export function SundryWithdraw({
+  id,
+  onDone,
+  phone = false,
+}: {
+  id: string;
+  onDone?: () => void;
+  /**
+   * The phone's full-width button. Otherwise the record panel's size, as the
+   * buttons beside it (JB166, Lucas 11-11: 「这些按钮不consistent」).
+   */
+  phone?: boolean;
+}) {
   const t = useTranslations("sundryClaim.withdraw");
   const qc = useQueryClient();
   const [armed, setArmed] = useState(false);
@@ -45,7 +57,15 @@ export function SundryWithdraw({ id, onDone }: { id: string; onDone?: () => void
         <span>{t("arm")}</span>
       </label>
       <p className="text-xs text-muted-foreground">{t("help")}</p>
-      <Button variant="outline" className="h-11 w-full" disabled={!armed || withdraw.isPending} disabledReason={armed ? undefined : t("arm")} onClick={() => withdraw.mutate()}>
+      {/* Taking a claim back is a 取消, drawn as every one on a record is. */}
+      <Button
+        variant="outline-destructive"
+        size={phone ? "default" : "sm"}
+        className={phone ? "h-11 w-full" : undefined}
+        disabled={!armed || withdraw.isPending}
+        disabledReason={armed ? undefined : t("arm")}
+        onClick={() => withdraw.mutate()}
+      >
         {withdraw.isPending ? <Loader2 className="animate-spin" /> : <Undo2 />}
         {t("button")}
       </Button>

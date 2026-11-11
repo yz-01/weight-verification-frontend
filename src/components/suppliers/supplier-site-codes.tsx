@@ -174,8 +174,7 @@ export function SupplierSiteCodes({ supplier }: { supplier: Supplier }) {
                   <Button
                     type="button"
                     size="sm"
-                    variant="outline"
-                    className="text-destructive"
+                    variant="outline-destructive"
                     onClick={() => setRevoking(row)}
                   >
                     <XCircle className="size-4" />

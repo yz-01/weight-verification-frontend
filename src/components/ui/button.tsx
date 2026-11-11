@@ -27,8 +27,17 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)] aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
         ghost:
           "hover:bg-accent hover:text-accent-foreground aria-expanded:bg-accent aria-expanded:text-accent-foreground",
+        // The confirm button of a confirmation dialog, and a chosen 驳回 in a
+        // decision toggle: the one press that does the damage.
         destructive:
           "border-destructive/40 bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
+        // Every 取消 / 删除 / 驳回 / 退回 / 作废 / 报告异常 on a record's
+        // panel, card or drawer (JB166, Lucas 11-11: 「这些按钮不consistent」):
+        // the outline button's shape and ground in the destructive colour, so
+        // it sits level with its outline neighbours and still reads as
+        // careful. It opens the dialog, or is armed by the switch, that asks.
+        "outline-destructive":
+          "border-destructive/50 bg-card text-destructive hover:border-destructive hover:bg-destructive/10 aria-expanded:bg-destructive/10 focus-visible:border-destructive/60 focus-visible:ring-destructive/20 dark:bg-field dark:hover:bg-destructive/20 dark:focus-visible:ring-destructive/40",
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {

@@ -186,8 +186,10 @@ export function RecordClosurePanel({
         onChange={(event) => setNote(event.target.value)}
         placeholder={t("notePlaceholder")}
       />
+      {/* The record panel's size, as the buttons above it in the same
+          card (JB166, Lucas 11-11: 「这些按钮不consistent」). */}
       <Button
-        className="w-full"
+        size="sm"
         disabled={confirm.isPending}
         onClick={() => confirm.mutate()}
       >

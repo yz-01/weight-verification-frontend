@@ -7,6 +7,7 @@ import {
   ClipboardCheck,
   Camera,
   Copy,
+  Eye,
   Hash,
   Link2,
   Loader2,
@@ -261,11 +262,11 @@ export function SiteDisposalWorkspace({ initialProject = "", fieldTaskId, onReco
                 {/* 「已验收 x / N 车」 (X11), once the job has lorries. */}
                 {row.trips_total > 0 && <div className="col-span-2"><p className="text-xs font-medium text-muted-foreground">{t("field.tripsProgress")}</p><p className="mt-1 font-medium tabular">{t("trips.progress", { accepted: row.trips_accepted, total: row.trips_total })}</p></div>}
               </div>
-              <div className="mt-3 flex flex-wrap justify-end gap-2">
+              <div className="mt-3 flex flex-wrap items-center justify-end gap-2">
                 {/* Clearance has no categories since 2026-10 (B1, X5); one
                     filed before keeps it, shown as it was. */}
                 <span className="mr-auto self-center text-xs text-muted-foreground">{row.category_name ? <>{ops("field.category")}: <span className="font-medium text-foreground">{row.category_name}</span></> : null}</span>
-                <Button size="sm" variant="outline" onClick={() => setViewing(row)}>{t("action.view")}</Button>
+                <Button size="sm" variant="outline" onClick={() => setViewing(row)}><Eye />{t("action.view")}</Button>
                 <DisposalActions row={row} onStep={(next) => setStep({ step: next, row })} />
               </div>
             </article>
@@ -281,7 +282,7 @@ export function SiteDisposalWorkspace({ initialProject = "", fieldTaskId, onReco
             setViewing(null);
             setLinkClosed(true);
           }}
-          actions={<DisposalActions row={shownRow} onStep={(next) => setStep({ step: next, row: shownRow })} />}
+          onStep={(next) => setStep({ step: next, row: shownRow })}
         />
       )}
       <DisposalStepDialogs step={step?.step ?? null} row={step?.row ?? null} onClose={() => setStep(null)} onChanged={() => void refresh()} />
@@ -1216,7 +1217,7 @@ export function DisposalTripsPanel({
                 <span className="text-xs text-muted-foreground">{t("trips.endHint")}</span>
               </label>
               {endArmed && (
-                <Button size="sm" variant="destructive" className="w-full" disabled={end.isPending} onClick={() => end.mutate()}>
+                <Button size="sm" variant="outline-destructive" disabled={end.isPending} onClick={() => end.mutate()}>
                   {end.isPending ? <Loader2 className="animate-spin" /> : <XCircle />}
                   {t("trips.end")}
                 </Button>
@@ -1250,11 +1251,12 @@ export function DisposalTripsPanel({
 function DisposalDetailDialog({
   row,
   onClose,
-  actions,
+  onStep,
 }: {
   row: DisposalRequest;
   onClose: () => void;
-  actions?: React.ReactNode;
+  /** Opens a step's dialog; the steps themselves are `DisposalActions`. */
+  onStep: (step: DisposalStep) => void;
 }) {
   const t = useTranslations("siteDisposal");
   const df = useDateFormat();
@@ -1342,9 +1344,14 @@ function DisposalDetailDialog({
           </div>
         }
         actions={
-          <div className="flex flex-wrap gap-2">
-            {actions}
-            <AddToPackageButton kind="DISPOSAL_REQUEST" recordId={row.id} projectId={row.project} reference={row.reference_no} />
+          // One row, one size (JB166): 加进资料包 among the job's steps, the
+          // destructive ones after it.
+          <div className="flex flex-wrap items-center gap-2">
+            <DisposalActions
+              row={row}
+              onStep={onStep}
+              extra={<AddToPackageButton kind="DISPOSAL_REQUEST" recordId={row.id} projectId={row.project} reference={row.reference_no} />}
+            />
           </div>
         }
         // The conversation bound to this Record ID (T-316, C-014, D-233), on
@@ -1369,7 +1376,16 @@ const RUNNING: DisposalRequestStatus[] = ["APPROVED", "ASSIGNED", "IN_PROGRESS",
  * (C-020: 「那些按钮放在图 2 的圈起来的位置」), so the two never offer
  * different steps for the same state.
  */
-function DisposalActions({ row, onStep }: { row: DisposalRequest; onStep: (step: DisposalStep) => void }) {
+function DisposalActions({
+  row,
+  onStep,
+  extra,
+}: {
+  row: DisposalRequest;
+  onStep: (step: DisposalStep) => void;
+  /** The record's own buttons (加进资料包), before the destructive steps. */
+  extra?: React.ReactNode;
+}) {
   const t = useTranslations("siteDisposal");
   const { can } = useAuth();
   return (
@@ -1382,12 +1398,15 @@ function DisposalActions({ row, onStep }: { row: DisposalRequest; onStep: (step:
       {offersSupplierButton(row, { manage: can("disposal.manage"), confirm: can("disposal.confirm") }) && <Button size="sm" variant="outline" onClick={() => onStep("supplier")}><Truck />{row.collector_supplier ? t("action.changeSupplier") : t("action.setSupplier")}</Button>}
       {/* C08: the site's vehicle exit / Gate Pass, on the same job. */}
       {can("disposal.submit") && RUNNING.includes(row.status) && <Button size="sm" variant="outline" onClick={() => onStep("siteEvidence")}><Camera />{t("action.siteEvidence")}</Button>}
-      {/* JB149: 「手机端增加异常拍照功能」 - a problem on the job, with photos. */}
-      {can("disposal.submit") && RUNNING.includes(row.status) && <Button size="sm" variant="outline" className="border-destructive/50 text-destructive" onClick={() => onStep("anomaly")}><AlertTriangle />{t("action.reportAnomaly")}</Button>}
       {/* E04: no 验收 / 退回 - the final proof's submission ended the job.
           What the office still does is fill in the numbers (D06). */}
       {can("disposal.confirm") && ["COMPLETED", "AWAITING_CONFIRMATION"].includes(row.status) && <Button size="sm" variant="outline" onClick={() => onStep("numbers")}><Hash />{t("action.recordNumbers")}</Button>}
-      {can("disposal.manage") && !["COMPLETED", "AWAITING_CONFIRMATION", "CANCELLED", "REJECTED"].includes(row.status) && <Button size="sm" variant="destructive" onClick={() => onStep("cancelling")}><XCircle />{t("action.cancelDisposal")}</Button>}
+      {extra}
+      {/* The warning and the destructive step last, drawn alike (JB166):
+          outline in the destructive colour, the size of the rest. */}
+      {/* JB149: 「手机端增加异常拍照功能」 - a problem on the job, with photos. */}
+      {can("disposal.submit") && RUNNING.includes(row.status) && <Button size="sm" variant="outline-destructive" onClick={() => onStep("anomaly")}><AlertTriangle />{t("action.reportAnomaly")}</Button>}
+      {can("disposal.manage") && !["COMPLETED", "AWAITING_CONFIRMATION", "CANCELLED", "REJECTED"].includes(row.status) && <Button size="sm" variant="outline-destructive" onClick={() => onStep("cancelling")}><XCircle />{t("action.cancelDisposal")}</Button>}
     </>
   );
 }
@@ -1454,7 +1473,7 @@ export function DisposalInPlace({ id, onClose }: { id: string; onClose: () => vo
   }
   return (
     <>
-      <DisposalDetailDialog row={row} onClose={onClose} actions={<DisposalActions row={row} onStep={setStep} />} />
+      <DisposalDetailDialog row={row} onClose={onClose} onStep={setStep} />
       <DisposalStepDialogs step={step} row={row} onClose={() => setStep(null)} onChanged={refresh} />
     </>
   );
@@ -1719,7 +1738,7 @@ export function SiteDisposalOffice() {
         <DisposalDetailDialog
           row={shown}
           onClose={() => setViewingId(null)}
-          actions={<DisposalActions row={shown} onStep={(next) => setStep({ step: next, row: shown })} />}
+          onStep={(next) => setStep({ step: next, row: shown })}
         />
       )}
       <DisposalStepDialogs step={step?.step ?? null} row={step?.row ?? null} onClose={() => setStep(null)} onChanged={refresh} />

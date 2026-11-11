@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Check, FileText, Pencil } from "lucide-react";
+import { Check, FileText, Pencil, RotateCcw, XCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
@@ -140,7 +140,7 @@ export function ExitApplicationActions({
           {error}
         </p>
       )}
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <Button size="sm" variant={needsNote ? "default" : "outline"} onClick={() => setNoting(true)}>
           <FileText />
           {needsNote ? t("returnNote.fill") : t("returnNote.edit")}
@@ -179,11 +179,12 @@ export function ExitApplicationActions({
           </FieldWrapper>
           <Button
             size="sm"
-            variant="destructive"
+            variant="outline-destructive"
             requires={[[reason.trim(), t("equipmentExit.office.returnReason")]]}
             disabled={decide.isPending}
             onClick={() => decide.mutate("RETURNED")}
           >
+            <RotateCcw />
             {t("equipmentExit.office.return")}
           </Button>
         </div>
@@ -357,11 +358,12 @@ export function MovementAcceptance({
               </FieldWrapper>
               <Button
                 size="sm"
-                variant="destructive"
+                variant="outline-destructive"
                 requires={[[reason.trim(), t("equipment.acceptance.reason")]]}
                 disabled={review.isPending}
                 onClick={() => review.mutate("REJECTED")}
               >
+                <XCircle />
                 {t("equipment.acceptance.reject")}
               </Button>
             </div>

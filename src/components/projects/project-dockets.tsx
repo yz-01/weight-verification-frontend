@@ -127,13 +127,13 @@ export function ProjectDockets({ projectId }: { projectId: string }) {
                   </Button>
                 )}
                 {row.status === "ISSUED" && can("receipt.update") && (
-                  <Button variant="outline" size="sm" className="text-destructive" onClick={() => setStopping({ note: row, action: "cancel" })}>
+                  <Button variant="outline-destructive" size="sm" onClick={() => setStopping({ note: row, action: "cancel" })}>
                     <XCircle />
                     {t("qrCodes.cancel")}
                   </Button>
                 )}
                 {row.status === "ARRIVED" && can("receipt.update") && (
-                  <Button variant="outline" size="sm" className="text-destructive" onClick={() => setStopping({ note: row, action: "void" })}>
+                  <Button variant="outline-destructive" size="sm" onClick={() => setStopping({ note: row, action: "void" })}>
                     <Ban />
                     {t("qrCodes.void")}
                   </Button>

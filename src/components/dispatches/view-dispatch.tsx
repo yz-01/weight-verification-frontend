@@ -324,24 +324,24 @@ export function ViewDispatch({
         actions={
           canRelease || canCancel ? (
             <div className="flex flex-wrap items-center gap-2">
+              {/* The record panel's buttons, not pills (JB166, Lucas 11-11:
+                  「这些按钮不consistent」). */}
               {canRelease && (
                 <Button
                   size="sm"
-                  className="rounded-full px-4 shadow-sm"
                   onClick={() => setReleasing(true)}
                 >
-                  <Truck className="h-4 w-4" />
+                  <Truck />
                   {t("dispatches.release.confirm")}
                 </Button>
               )}
               {canCancel && (
                 <Button
-                  variant="outline"
+                  variant="outline-destructive"
                   size="sm"
-                  className="rounded-full px-4 text-destructive"
                   onClick={() => setCancelling(true)}
                 >
-                  <Ban className="h-4 w-4" />
+                  <Ban />
                   {t("dispatches.cancel.confirm")}
                 </Button>
               )}
@@ -602,14 +602,12 @@ function ReleaseDialog({ id, onClose }: { id: string; onClose: () => void }) {
           <Button
             variant="outline"
             size="sm"
-            className="rounded-full px-4"
             onClick={onClose}
           >
             {t("common.cancel")}
           </Button>
           <Button
             size="sm"
-            className="rounded-full px-4 shadow-sm"
             requires={[[name, t("dispatches.release.byName")]]}
             disabled={release.isPending}
             onClick={() => release.mutate()}

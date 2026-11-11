@@ -307,7 +307,7 @@ function ReviewSheet({ id, onClose }: { id: string; onClose: () => void }) {
                           </Button>
                           <Button
                             size="sm"
-                            variant="destructive"
+                            variant="outline-destructive"
                             requires={[[reason.trim(), t("field.returnReason")]]}
                             disabled={decide.isPending}
                             onClick={() => decide.mutate({ item: item.id, decision: "RETURNED", reason })}

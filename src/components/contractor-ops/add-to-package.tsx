@@ -57,11 +57,18 @@ export function AddToPackageButton({
   recordId,
   projectId,
   reference,
+  size = "sm",
 }: {
   kind: ArchiveRecordKind;
   recordId: string;
   projectId: string | null;
   reference: string;
+  /**
+   * The size of the action group it sits in (JB166, Lucas 11-11: 「这些按钮不
+   * consistent」). Every record panel's buttons are `sm`; this one used to be
+   * the full size and stood taller than its neighbours.
+   */
+  size?: "sm" | "default";
 }) {
   const t = useTranslations("multiEngine");
   const { can } = useAuth();
@@ -89,8 +96,9 @@ export function AddToPackageButton({
   return (
     <>
       {badge}
-      <Button variant="outline" onClick={() => setOpen(true)}>
-        <FolderPlus className="size-4" />
+      <Button size={size} variant="outline" onClick={() => setOpen(true)}>
+        {/* The icon takes the button's size, as its neighbours' do. */}
+        <FolderPlus />
         {t("addToPackage")}
       </Button>
       {open && (

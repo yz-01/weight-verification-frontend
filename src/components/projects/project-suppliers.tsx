@@ -74,7 +74,7 @@ export function ProjectSuppliersPanel({ projectId }: { projectId: string }) {
           <p className="mt-0.5 text-sm text-muted-foreground">{t("description")}</p>
         </div>
         {mayManage && (
-          <Button size="sm" className="shrink-0 rounded-full px-4 shadow-sm" onClick={() => setAdding(true)}>
+          <Button size="sm" className="shrink-0" onClick={() => setAdding(true)}>
             <ListPlus className="h-4 w-4" />
             {t("add")}
           </Button>
