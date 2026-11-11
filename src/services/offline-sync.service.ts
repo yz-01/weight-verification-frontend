@@ -2221,6 +2221,10 @@ async function redrawPhoto(blob: Blob): Promise<ArrayBuffer> {
     canvas.height = image.naturalHeight;
     const context = canvas.getContext("2d");
     if (!context || !canvas.width || !canvas.height) throw new Error("unreadable");
+    // White under it first (JB172): a JPEG has no see-through, so a signature
+    // kept as ink on nothing would be redrawn as ink on black.
+    context.fillStyle = "#ffffff";
+    context.fillRect(0, 0, canvas.width, canvas.height);
     context.drawImage(image, 0, 0);
     const drawn = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.92));
     if (!drawn) throw new Error("unreadable");

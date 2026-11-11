@@ -1761,6 +1761,9 @@ function MovementRecordDialog({
           ]
             .filter(Boolean)
             .join(" · "),
+          // A signature kept among the photographs (an exit queued by an
+          // older phone): ink on white, whole (JB172).
+          ...(photo.kind === "SIGNATURE" ? { paper: true } : {}),
           // The photo's own time and fix, else the entry's (2026-10-09).
           ...photoMeta(photo, shownMovement),
         }))}

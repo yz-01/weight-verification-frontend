@@ -1041,7 +1041,9 @@ function QueuedDetailSheet({
                     key={url}
                     src={url}
                     alt={t("mySubmissions.photos")}
-                    className="aspect-4/3 w-full rounded-md border object-cover object-bottom"
+                    // White under it (JB172): a kept signature is dark ink on
+                    // a see-through file; a photograph covers it.
+                    className="aspect-4/3 w-full rounded-md border bg-paper object-cover object-bottom"
                   />
                 ))}
               </div>

@@ -299,7 +299,7 @@ export function StatementSheet({
         <div className="flex min-w-0 items-start gap-3">
           {head.logo && (
             // eslint-disable-next-line @next/next/no-img-element -- the company's own logo, as on every formal document (JB162)
-            <img src={head.logo} alt="" className="max-h-16 max-w-36 object-contain" />
+            <img src={head.logo} alt="" className="max-h-16 max-w-36 rounded bg-paper object-contain p-1" />
           )}
           <div className="min-w-0">
             {head.name && <p className="text-base font-bold">{head.name}</p>}
@@ -399,8 +399,9 @@ export function StatementSheet({
 function SignatureImage({ url, label }: { url: string | null; label: string }) {
   const t = useTranslations("contractorOps");
   if (!url) return <span className="text-2xs text-muted-foreground">{t("issue.unsigned")}</span>;
+  // Ink on white in both modes (JB172): on the dark sheet it could not be seen.
   // eslint-disable-next-line @next/next/no-img-element -- a signature image as stored
-  return <img src={url} alt={label} className="h-9 w-20 object-contain" />;
+  return <img src={url} alt={label} className="h-9 w-20 rounded border bg-paper object-contain p-0.5" />;
 }
 
 /** Only the filters that are words: what the statement says it was made of. */

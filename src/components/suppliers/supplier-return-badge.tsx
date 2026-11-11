@@ -30,6 +30,7 @@ import { OutgoingDecision } from "@/components/dashboard/approval-opener";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { ExportButton } from "@/components/shared/export-button";
+import { PhotoLink } from "@/components/shared/photo-link";
 import { PhotoThumb, rowPhotos } from "@/components/shared/photo-thumb";
 import { QueryFailedNote } from "@/components/shared/page-primitives";
 import { Input } from "@/components/ui/input";
@@ -311,25 +312,29 @@ function ownPress(event: React.SyntheticEvent) {
 function Signature({ src, label }: { src?: string | null; label: string }) {
   if (!src) return null;
   return (
-    <a
-      href={src}
-      target="_blank"
-      rel="noreferrer"
-      // Opens the signature, not the row's record behind it.
-      onClick={ownPress}
-      className="flex w-20 shrink-0 flex-col items-center gap-0.5"
-      title={label}
-    >
-      <Image
-        src={src}
-        alt={label}
-        width={80}
-        height={44}
-        unoptimized
-        className="h-11 w-20 rounded-md border bg-paper object-contain p-0.5"
-      />
-      <span className="text-2xs text-muted-foreground">{label}</span>
-    </a>
+    // Opens the signature, not the row's record behind it - in the app's
+    // viewer, on white (JB172): as a bare file the browser put its dark ink
+    // on a dark page of its own.
+    <span className="contents" onClick={ownPress}>
+      <PhotoLink
+        title={label}
+        href={src}
+        label={label}
+        image
+        paper
+        className="flex w-20 shrink-0 flex-col items-center gap-0.5"
+      >
+        <Image
+          src={src}
+          alt={label}
+          width={80}
+          height={44}
+          unoptimized
+          className="h-11 w-20 rounded-md border bg-paper object-contain p-0.5"
+        />
+        <span className="text-2xs text-muted-foreground">{label}</span>
+      </PhotoLink>
+    </span>
   );
 }
 

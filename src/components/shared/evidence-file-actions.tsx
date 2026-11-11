@@ -29,7 +29,7 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { useFileActions } from "@/components/shared/file-actions";
 import { useRecordSendTarget } from "@/components/shared/record-send-log";
 import { Button } from "@/components/ui/button";
-import { printImage } from "@/lib/file-actions";
+import { openImageOnPaper, printImage } from "@/lib/file-actions";
 import { signFileAction } from "@/services/file-action.service";
 
 function isPdf(url: string) {
@@ -84,6 +84,7 @@ export function EvidenceFileActions({
   filename,
   title,
   share = false,
+  paper = false,
   className,
 }: {
   url: string;
@@ -96,6 +97,12 @@ export function EvidenceFileActions({
    * the photograph to WhatsApp, email or another app, as every file is sent.
    */
   share?: boolean;
+  /**
+   * A signature or a stamp (JB172): 预览 opens it on a white page of ours,
+   * not the browser's own dark page for a bare image, where dark ink on a
+   * see-through file cannot be read.
+   */
+  paper?: boolean;
   className?: string;
 }) {
   const t = useTranslations("evidenceFile");
@@ -108,7 +115,22 @@ export function EvidenceFileActions({
   return (
     <div className={className ?? "flex flex-wrap items-center gap-2"} data-slot="evidence-file-actions">
       <Button size="sm" variant="outline" asChild>
-        <a href={url} target="_blank" rel="noreferrer">
+        <a
+          href={url}
+          target="_blank"
+          rel="noreferrer"
+          data-paper={paper || undefined}
+          onClick={
+            paper
+              ? (event) => {
+                  // A middle click or Ctrl/⌘/Shift-click still opens the file itself.
+                  if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+                  event.preventDefault();
+                  openImageOnPaper(url, title);
+                }
+              : undefined
+          }
+        >
           <ExternalLink />
           {t("preview")}
         </a>

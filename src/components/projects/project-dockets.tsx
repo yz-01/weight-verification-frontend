@@ -404,6 +404,9 @@ function DeliveryNoteResultDialog({ note, onClose }: { note: DeliveryNote; onClo
         {note.receiver_signature && (
           <PhotoLink
             href={note.receiver_signature}
+            // Drawn on the pad: a picture whatever its address says, on white (JB172).
+            image
+            paper
             label={t("qrCodes.result.signature")}
             className={buttonVariants({ variant: "outline" })}
           >

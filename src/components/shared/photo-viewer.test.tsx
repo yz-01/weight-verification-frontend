@@ -22,7 +22,7 @@ vi.mock("@/components/shared/evidence-file-actions", () => ({
 }));
 
 const { renderDetail } = await import("@/components/shared/record-detail-test-kit");
-const { PhotoViewer, fitSize, HERO_FIT, heroSources, photoFrameWidth } = await import("@/components/shared/record-detail-shell");
+const { PhotoViewer, fitSize, HERO_FIT, heroSources, photoFrameWidth, photoSurface } = await import("@/components/shared/record-detail-shell");
 
 const photos = [
   {
@@ -279,7 +279,9 @@ describe("the large first photo", () => {
     const source = readFileSync(path.join(process.cwd(), "src/components/shared/record-detail-shell.tsx"), "utf8");
     const hero = source.slice(source.indexOf("function ShellHeroPhoto"), source.indexOf("function ShellRecorder"));
     expect(hero).toContain("aspect-4/3 max-h-[min(36rem,70dvh)] w-full");
-    expect(hero).toContain("bg-muted");
+    // The theme's muted surface around a photograph; white under a signature (JB172).
+    expect(hero).toContain("photoSurface(photo.paper)");
+    expect(photoSurface(false)).toBe("bg-muted");
     expect(hero).not.toContain("aspect-video");
     expect(hero).not.toContain("onLoad");
     expect(hero).not.toContain("photoFrameWidth");

@@ -122,6 +122,7 @@ import {
   deleteConsultantApplication,
 } from "@/services/consultant-workflow.service";
 import { FileThumbs } from "@/components/shared/file-thumbs";
+import { PhotoLink } from "@/components/shared/photo-link";
 
 /**
  * One consultant application, in the record-detail frame every module
@@ -651,7 +652,7 @@ export function ConsultantApplicationDetail({
             </Section>
             {!!application.approval_actions.length && (
               <Section title={t("detail.section.decisions")}>
-                <div className="space-y-3">{application.approval_actions.map((entry) => <div key={entry.id} className="rounded-lg border p-3"><div className="flex items-center justify-between gap-2"><p className="font-medium">{entry.actor_name}</p><StatusBadge label={t(`decision.${entry.decision}`)} tone={entry.decision === "APPROVE" ? "positive" : entry.decision === "REJECT" ? "danger" : "warning"} /></div><p className="mt-1 text-xs text-muted-foreground">{entry.step_name} - {new Date(entry.acted_at).toLocaleString()}</p>{entry.remarks && <p className="mt-2 text-sm">{entry.remarks}</p>}<div className="mt-3 flex gap-2">{entry.signature_snapshot ? <a href={entry.signature_snapshot} target="_blank" rel="noreferrer" className="text-xs font-medium text-primary hover:underline">{t("credential.signature")}</a> : <span className="text-xs font-medium text-muted-foreground">{t("ownForm.signedOnForm")}</span>}{entry.stamp_snapshot && <a href={entry.stamp_snapshot} target="_blank" rel="noreferrer" className="text-xs font-medium text-primary hover:underline">{t("credential.stamp")}</a>}</div></div>)}</div>
+                <div className="space-y-3">{application.approval_actions.map((entry) => <div key={entry.id} className="rounded-lg border p-3"><div className="flex items-center justify-between gap-2"><p className="font-medium">{entry.actor_name}</p><StatusBadge label={t(`decision.${entry.decision}`)} tone={entry.decision === "APPROVE" ? "positive" : entry.decision === "REJECT" ? "danger" : "warning"} /></div><p className="mt-1 text-xs text-muted-foreground">{entry.step_name} - {new Date(entry.acted_at).toLocaleString()}</p>{entry.remarks && <p className="mt-2 text-sm">{entry.remarks}</p>}<div className="mt-3 flex gap-2">{entry.signature_snapshot ? <PhotoLink href={entry.signature_snapshot} label={`${entry.actor_name} · ${t("credential.signature")}`} image paper className="text-xs font-medium text-primary hover:underline">{t("credential.signature")}</PhotoLink> : <span className="text-xs font-medium text-muted-foreground">{t("ownForm.signedOnForm")}</span>}{entry.stamp_snapshot && <PhotoLink href={entry.stamp_snapshot} label={`${entry.actor_name} · ${t("credential.stamp")}`} image paper className="text-xs font-medium text-primary hover:underline">{t("credential.stamp")}</PhotoLink>}</div></div>)}</div>
               </Section>
             )}
             <RemedialSection application={application} onChanged={refresh} />

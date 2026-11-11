@@ -417,9 +417,13 @@ function BreakdownReturnRow({
       {signatures.length ? (
         <div className="flex gap-1.5 max-sm:w-full max-sm:pl-15">
           {signatures.map(({ key, url, label }) => (
+            // Ink on white, whole, small and large (JB172, Lucas 11-12: 「签名
+            // 背景是透明的，修复一下弄成白色」): as a photograph it was dark ink
+            // on the dark placeholder, and cut to fill.
             <PhotoThumb
               key={key}
               size="sm"
+              paper
               coverUrl={url}
               count={1}
               icon={PackageMinus}

@@ -97,6 +97,18 @@ export interface ShellPhoto {
   metaUnknown?: boolean;
   /** Which of `photoGroups` it is shown under, when the record has stages. */
   group?: string;
+  /**
+   * Ink on paper - a signature or a stamp, not a photograph (JB172, Lucas
+   * 11-12: 「签名背景是透明的，修复一下弄成白色」). A drawn signature is dark ink
+   * on a see-through file: on the theme's dark surface it cannot be read. It
+   * is shown whole on white (`bg-paper`) in both modes, small and large.
+   */
+  paper?: boolean;
+}
+
+/** The surface behind a picture: white under ink (`ShellPhoto.paper`), else the theme's. */
+export function photoSurface(paper: boolean | undefined): string {
+  return paper ? "bg-paper" : "bg-muted";
 }
 
 /** One row of photographs, e.g. one stage of a disposal (B23). */
@@ -152,14 +164,19 @@ function ShellThumbnail({ photo, onOpen }: { photo: ShellPhoto; onOpen: () => vo
         title={photo.label}
         onClick={onOpen}
         data-shell-thumbnail
-        className="relative block aspect-4/3 w-24 overflow-hidden rounded-lg bg-muted ring-1 ring-panel-border transition hover:shadow-glow-sm hover:ring-primary/60 focus-visible:ring-2 focus-visible:ring-ring"
+        data-paper={photo.paper || undefined}
+        className={cn(
+          "relative block aspect-4/3 w-24 overflow-hidden rounded-lg ring-1 ring-panel-border transition hover:shadow-glow-sm hover:ring-primary/60 focus-visible:ring-2 focus-visible:ring-ring",
+          photoSurface(photo.paper),
+        )}
       >
         <Image
           src={photo.thumbnailUrl || photo.url}
           alt={photo.label}
           fill
           sizes="96px"
-          className="object-cover object-bottom"
+          // A signature whole on its sheet; a photograph cut to fill.
+          className={photo.paper ? "object-contain p-1" : "object-cover object-bottom"}
           unoptimized
         />
       </button>
@@ -222,7 +239,11 @@ function ShellHeroPhoto({
       title={photo.label}
       onClick={onOpen}
       data-shell-hero
-      className="relative block aspect-4/3 max-h-[min(36rem,70dvh)] w-full overflow-hidden rounded-xl bg-muted ring-1 ring-panel-border transition hover:shadow-glow-sm hover:ring-primary/60 focus-visible:ring-2 focus-visible:ring-ring"
+      data-paper={photo.paper || undefined}
+      className={cn(
+        "relative block aspect-4/3 max-h-[min(36rem,70dvh)] w-full overflow-hidden rounded-xl ring-1 ring-panel-border transition hover:shadow-glow-sm hover:ring-primary/60 focus-visible:ring-2 focus-visible:ring-ring",
+        photoSurface(photo.paper),
+      )}
     >
       {/* eslint-disable-next-line @next/next/no-img-element -- a srcset of two stored renditions, not a resized one */}
       <img
@@ -748,6 +769,7 @@ export function PhotoViewer({
               filename={`${reference}-${index + 1}.jpg`}
               title={`${reference} · ${photo.label}`}
               share
+              paper={photo.paper}
               className="contents"
             />
             {extraActions}
@@ -787,8 +809,12 @@ export function PhotoViewer({
               <div
                 ref={frameRef}
                 data-photo-frame={whole ? "whole" : "zoomed"}
+                data-paper={photo.paper || undefined}
                 className={cn(
-                  "flex max-w-full touch-pan-x touch-pan-y rounded-xl bg-muted ring-1 ring-panel-border transition-[width] duration-200",
+                  // White under a signature (JB172); the theme's muted surface
+                  // around a photograph.
+                  "flex max-w-full touch-pan-x touch-pan-y rounded-xl ring-1 ring-panel-border transition-[width] duration-200",
+                  photoSurface(photo.paper),
                   "max-sm:mx-auto max-sm:aspect-(--photo-shape) max-sm:w-(--photo-frame-width)",
                   "sm:absolute sm:inset-x-14 sm:inset-y-2 sm:rounded-lg sm:ring-0",
                   zoomFrameClass(whole),
