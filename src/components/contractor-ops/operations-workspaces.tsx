@@ -192,6 +192,16 @@ import {
 } from "@/components/suppliers/supplier-return-badge";
 import { columnAutofill } from "@/lib/material-autofill";
 import { offersOutgoingExit } from "@/lib/outgoing-exit";
+import {
+  IssueDialog,
+  IssueHandoverForm,
+  IssueLinesPanel,
+  IssueSubmittedNote,
+  OutgoingKindChooser,
+  isIssue,
+  issueStatusKey,
+  useIssueFacts,
+} from "@/components/contractor-ops/material-issue";
 import { photoMeta } from "@/lib/photo-meta";
 import {
   newClientEventId,
@@ -3622,6 +3632,10 @@ export function MaterialOutgoingWorkspace({ initialProject = "", fieldTaskId, on
   // Kept in the draft, so tapping this 挂号 again reopens the form it was in
   // (D-259). Outside a draft (the office) this is ordinary state.
   const [creating, setCreating] = useDraftState("open:creating", Boolean(fieldTaskId));
+  // 「材料领用」 (JB168): the second of the two choices.
+  const [creatingIssue, setCreatingIssue] = useDraftState("open:creatingIssue", false);
+  // The 领用编号 said once the application has uploaded (客户 11-11).
+  const [justFiled, setJustFiled] = useState<MaterialOutgoing | null>(null);
   const rows = useQuery({
     queryKey: ["material-outgoing", project],
     queryFn: () =>
@@ -3723,15 +3737,13 @@ export function MaterialOutgoingWorkspace({ initialProject = "", fieldTaskId, on
                 disabled={!rows.data?.count}
               />
             )}
-            {can("material_outgoing.submit") ? (
-              <Button onClick={() => setCreating(true)}>
-                <Plus />
-                {t("outgoing.add")}
-              </Button>
-            ) : null}
           </div>
         }
       />
+      {/* 「提供「材料出场」及「材料领用」两个操作选项」 (JB168): two big choices first. */}
+      {can("material_outgoing.submit") ? (
+        <OutgoingKindChooser onReturn={() => setCreating(true)} onIssue={() => setCreatingIssue(true)} />
+      ) : null}
       <FilterBar className="empty:hidden">
         <ProjectFilter value={project} onChange={setProject} />
       </FilterBar>
@@ -3761,21 +3773,40 @@ export function MaterialOutgoingWorkspace({ initialProject = "", fieldTaskId, on
                   <div className="flex flex-wrap items-center gap-2">
                     <h3 className="font-semibold">{row.reference_no}</h3>
                     <StatusBadge
-                      label={t(`outgoingStatus.${row.status}`)}
+                      label={isIssue(row) ? t(issueStatusKey(row.status)) : t(`outgoingStatus.${row.status}`)}
                       tone={tone(row.status)}
                     />
                   </div>
-                  <p className="mt-1 text-sm">
-                    {row.material_name} · {row.quantity} {unitName(row.unit, row.unit_label)}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {t("outgoing.executor")}: {row.executor_name}
-                  </p>
-                  {/* Who it goes back to (2026-10 C7), not the destination
-                      text; since C9 a return may name no supplier: 「—」. */}
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    {t("field.supplier")}: {row.supplier_name || "—"}
-                  </p>
+                  {isIssue(row) ? (
+                    // 材料领用 (JB168): the machine and who takes it, not a supplier.
+                    <>
+                      <p className="mt-1 text-sm font-medium">{t("issue.chooseIssue")}</p>
+                      <p className="text-sm">
+                        {(row.lines ?? [])
+                          .map((line) => `${line.material_name} ${line.issued_quantity ?? line.quantity} ${unitName(line.unit)}`)
+                          .join("; ") || row.material_name}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {t("issue.equipmentNo")}: {row.equipment_no || "—"}
+                        {" · "}
+                        {t("issue.recipientShort")}: {row.recipient_name || "—"}
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="mt-1 text-sm">
+                        {row.material_name} · {row.quantity} {unitName(row.unit, row.unit_label)}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {t("outgoing.executor")}: {row.executor_name}
+                      </p>
+                      {/* Who it goes back to (2026-10 C7), not the destination
+                          text; since C9 a return may name no supplier: 「—」. */}
+                      <p className="mt-2 text-sm text-muted-foreground">
+                        {t("field.supplier")}: {row.supplier_name || "—"}
+                      </p>
+                    </>
+                  )}
                 </div>
               </div>
               {/* Record Communication on the card itself (T-360, D-211). 「后台沟通」
@@ -3851,6 +3882,23 @@ export function MaterialOutgoingWorkspace({ initialProject = "", fieldTaskId, on
           }}
         />
       )}
+      {creatingIssue && (
+        <IssueDialog
+          project={project}
+          onClose={() => setCreatingIssue(false)}
+          onSaved={({ eventId, queued }) => {
+            void qc.invalidateQueries({ queryKey: ["material-outgoing"] });
+            setCreatingIssue(false);
+            if (!queued && eventId) {
+              // The 领用编号 the system gave it, said at once.
+              void getMaterialOutgoing({ client_event_id: eventId, kind: "ISSUE", page_size: 1 })
+                .then((found) => setJustFiled(found.results[0] ?? null))
+                .catch(() => undefined);
+            }
+          }}
+        />
+      )}
+      {justFiled && <IssueSubmittedNote row={justFiled} onClose={() => setJustFiled(null)} />}
       {creating && (
         <OutgoingDialog
           project={project}
@@ -3902,17 +3950,21 @@ export function OutgoingActions({
     Boolean(onReturn) &&
     offersOutgoingExit({ pathname, status: row.status, canSubmit: can("material_outgoing.submit") });
   const [noting, setNoting] = useState(false);
-  const needsNote = !row.has_return_note;
+  // 材料领用 (JB168) is approved on the application: no Return Note.
+  const issue = isIssue(row);
+  const needsNote = !issue && !row.has_return_note;
   return (
     <>
       {can("material_outgoing.approve") && row.status === "PENDING" && (
         // The record panel's size, the destructive step last and drawn as
         // every other one (JB166, Lucas 11-11: 「这些按钮不consistent」).
         <div className="flex flex-wrap items-center gap-2">
-          <Button size="sm" variant={needsNote ? "default" : "outline"} onClick={() => setNoting(true)}>
-            <FileText />
-            {needsNote ? t("returnNote.fill") : t("returnNote.edit")}
-          </Button>
+          {!issue && (
+            <Button size="sm" variant={needsNote ? "default" : "outline"} onClick={() => setNoting(true)}>
+              <FileText />
+              {needsNote ? t("returnNote.fill") : t("returnNote.edit")}
+            </Button>
+          )}
           <Button
             size="sm"
             disabled={pending || needsNote}
@@ -3933,13 +3985,13 @@ export function OutgoingActions({
           on the phone; the office is told it waits for the site. */}
       {row.status === "APPROVED" &&
         (offersExit ? (
-          <Button className="w-full" onClick={onReturn}>
+          <Button className="h-12 w-full text-base" onClick={onReturn}>
             <Camera />
-            {t("outgoing.returnProcessing")}
+            {issue ? t("issue.handover") : t("outgoing.returnProcessing")}
           </Button>
         ) : (
           <p className="rounded-lg border border-info/25 bg-info/5 px-3 py-2 text-sm">
-            {t("outgoing.waitingForSite")}
+            {issue ? t("issue.waitingForSite") : t("outgoing.waitingForSite")}
           </p>
         ))}
       {/* 待后台确认: the office confirms what left, which closes it. */}
@@ -3951,7 +4003,7 @@ export function OutgoingActions({
             onClick={() => onReview("COMPLETED")}
           >
             <Check />
-            {t("outgoing.finalConfirm")}
+            {issue ? t("issue.finalConfirm") : t("outgoing.finalConfirm")}
           </Button>
         ) : (
           <p className="rounded-lg border border-info/25 bg-info/5 px-3 py-2 text-sm">
@@ -4445,13 +4497,18 @@ export function ReturnProcessingDialog({
     queryFn: () => queuedOutgoingExit(user!.id, row.id),
     enabled: Boolean(user?.id),
   });
+  // 材料领用 (JB168): its own words and its own form - each material's
+  // actual quantity, 发料负责人 and 领用人.
+  const issue = isIssue(record.data);
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-h-[92dvh] overflow-y-auto sm:max-w-xl">
         <DialogHeader>
-          <DialogTitle>{t("outgoing.returnProcessing")}</DialogTitle>
+          <DialogTitle>{issue ? t("issue.handoverTitle") : t("outgoing.returnProcessing")}</DialogTitle>
           <DialogDescription>
-            {t("outgoing.returnHelp", { reference: row.reference_no })}
+            {issue
+              ? t("issue.handoverHelp", { reference: row.reference_no })
+              : t("outgoing.returnHelp", { reference: row.reference_no })}
           </DialogDescription>
         </DialogHeader>
         {queued.data ? (
@@ -4466,7 +4523,11 @@ export function ReturnProcessingDialog({
           </div>
         ) : (
           <FieldDraft scope={`outgoing-exit:${record.data.id}`}>
-            <ExitForm record={record.data} onClose={onClose} onSaved={onSaved} />
+            {issue ? (
+              <IssueHandoverForm record={record.data} onClose={onClose} onSaved={onSaved} />
+            ) : (
+              <ExitForm record={record.data} onClose={onClose} onSaved={onSaved} />
+            )}
           </FieldDraft>
         )}
       </DialogContent>
@@ -4713,13 +4774,23 @@ export function OutgoingDetailDialog({
     },
   });
   const row = detail.data;
+  const issueFacts = useIssueFacts();
+  // 材料领用 (JB168): 「Material Issue Note（材料领用单）」, its machine,
+  // people and materials in place of a return's supplier, DO and lorry.
+  const issue = isIssue(row);
   const finished = row ? ["COMPLETED", "REJECTED", "RELEASED"].includes(row.status) : true;
   const when = (name?: string | null, at?: string | null) =>
     name ? `${name}${at ? ` · ${df.dateTime(at)}` : ""}` : "—";
   return (
     <RecordDetailDialog
       title={row?.reference_no ?? t("outgoing.title")}
-      description={row ? `${row.material_name} · ${row.quantity} ${row.unit}` : undefined}
+      description={
+        row
+          ? issue
+            ? `${t("issue.docTitle")} · ${row.material_name}`
+            : `${row.material_name} · ${row.quantity} ${row.unit}`
+          : undefined
+      }
       exportRecord={
         row
           ? { kind: "MATERIAL_OUTGOING", recordId: row.id, reference: row.reference_no }
@@ -4736,7 +4807,20 @@ export function OutgoingDetailDialog({
       ) : (
         <RecordDetailShell
           reference={row.reference_no}
-          facts={[
+          facts={issue ? [
+            {
+              label: t("field.status"),
+              value: <StatusBadge label={t(issueStatusKey(row.status))} tone={tone(row.status)} />,
+            },
+            { label: t("field.project"), value: row.project_name },
+            ...issueFacts(row),
+            ...(row.review_note
+              ? [{ label: t("outgoing.reviewNote"), value: row.review_note, wide: true }]
+              : []),
+            ...(row.processing_note
+              ? [{ label: t("issue.note"), value: row.processing_note, wide: true }]
+              : []),
+          ] : [
             {
               label: t("field.status"),
               value: (
@@ -4824,7 +4908,13 @@ export function OutgoingDetailDialog({
               ] as const
             )
               .filter(([, source]) => Boolean(source))
-              .map(([who, source]) => ({ label: t(`outgoing.${who}`), url: source as string })),
+              .map(([who, source]) => ({
+                // An issue's two sides: 发料负责人 and 领用人 (JB168).
+                label: issue
+                  ? t(who === "siteSignature" ? "issue.issuerSignature" : "issue.recipientSignature")
+                  : t(`outgoing.${who}`),
+                url: source as string,
+              })),
             // The Return Note's approver (2026-10 C9).
             ...(row.approver_signature
               ? [{ label: t("returnNote.approverSignature"), url: row.approver_signature }]
@@ -4832,8 +4922,8 @@ export function OutgoingDetailDialog({
           ]}
           panel={
             <>
-            {/* The Return Note it is approved on (2026-10 C9). */}
-            <ReturnNotePanel row={row} />
+            {/* The Return Note it is approved on (2026-10 C9); an issue's materials (JB168). */}
+            {issue ? <IssueLinesPanel row={row} /> : <ReturnNotePanel row={row} />}
             <section className="rounded-lg border bg-card p-3">
               <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 {t("outgoing.flowTitle")}

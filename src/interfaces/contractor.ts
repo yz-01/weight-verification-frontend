@@ -888,6 +888,13 @@ export interface ReceiptSummary {
     receipts: number;
     total_cost: string | null;
     unpriced_receipts: number;
+    /** 材料领用 (JB168): 累计进场 and 累计领用 to the period's last day. */
+    cumulative_received?: string;
+    issued_quantity?: string;
+    /** 领用金额 of the period; null when unpriced or hidden. */
+    issue_amount?: string | null;
+    /** Issue lines with no unit price: 「没有单价」, never 0. */
+    unpriced_issue_lines?: number;
   }>;
   /** The line with `supplier: null` is the deliveries 「未填供应商」 (I23). */
   by_supplier: Array<{
@@ -897,6 +904,10 @@ export interface ReceiptSummary {
     total_cost: string | null;
     unpriced_receipts: number;
   }>;
+  /** 领用金额 (JB168): its own figure, never added to `total_cost` (采购成本). */
+  issue_amount_total?: string | null;
+  issue_lines?: number;
+  unpriced_issue_lines?: number;
 }
 
 export type WasteType =

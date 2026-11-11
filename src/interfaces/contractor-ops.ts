@@ -846,7 +846,94 @@ export interface ProgressCorrection {
   created_at: string;
 }
 
+/** 供应商退货 or 材料领用 (JB168). Every record from before is a return. */
+export type MaterialOutgoingKind = "RETURN" | "ISSUE";
+
+/**
+ * Each material's stock on the issue's project (JB168): 累计进场, 累计领用
+ * and 结余, for the office's detail.
+ */
+export interface MaterialIssueStock {
+  received: string;
+  issued: string;
+  balance: string;
+}
+
+/** One material of a 材料领用 (JB168): requested, then actually issued. */
+export interface MaterialIssueLine {
+  id: string;
+  position: number;
+  category: string | null;
+  category_name: string | null;
+  spec_category: string | null;
+  spec_category_name: string | null;
+  material_name: string;
+  material_specification: string;
+  unit: string;
+  /** 申请领用数量. */
+  quantity: string;
+  /** 实际领用数量, filled at the handover; 0 when not issued. */
+  issued_quantity: string | null;
+  /** The office only; null on the phone and without 金额查看. */
+  unit_price: string | null;
+  issue_amount: string | null;
+  /** false: 「没有单价」 (never 0); null when the reader sees no money. */
+  priced: boolean | null;
+  stock?: MaterialIssueStock | null;
+}
+
+/** One row of the office's 材料领用 list (JB168): one material line. */
+export interface MaterialIssueListRow {
+  id: string;
+  record: string;
+  /** 领用编号 (Material Issue Note number). */
+  reference_no: string;
+  project: string;
+  project_name: string;
+  status: MaterialOutgoing["status"];
+  at: string;
+  captured_at: string;
+  processed_at: string | null;
+  material_name: string;
+  material_specification: string;
+  quantity: string;
+  issued_quantity: string | null;
+  unit: string;
+  equipment_company: string;
+  equipment_no: string;
+  recipient_name: string;
+  issuer_name: string;
+  issuer_signature: string | null;
+  recipient_signature: string | null;
+  photo_count: number;
+  cover_photo_url: string | null;
+}
+
+/** The choices of the 材料领用 list's filters. */
+export interface MaterialIssueOptions {
+  materials: string[];
+  companies: string[];
+  equipment_nos: string[];
+  recipients: string[];
+}
+
 export interface MaterialOutgoing extends RecordedBy {
+  /** 供应商退货 or 材料领用 (JB168); absent on a cached row from before. */
+  kind?: MaterialOutgoingKind;
+  /** 材料领用: the machine scanned and what the register said then. */
+  equipment?: string | null;
+  equipment_no?: string;
+  equipment_company?: string;
+  /** 领用人, typed on the phone. */
+  recipient_name?: string;
+  /** 发料负责人: the site person who handed it over. */
+  issuer_name?: string;
+  processed_latitude?: string | null;
+  processed_longitude?: string | null;
+  /** 没有定位 at the issue handover (JB142). */
+  handover_without_gps?: boolean;
+  /** 材料领用's materials; empty on a return. */
+  lines?: MaterialIssueLine[];
   /** 「待补规格」 (J39): sent without its specification; the office fills it. */
   needs_spec?: boolean;
   /** The number before I6 renumbered it (「旧编号」); empty on a newer record. */
