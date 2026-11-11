@@ -16,6 +16,7 @@ import { Info, Save } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRef, useState } from "react";
 
+import { FormFooterError } from "@/components/shared/form-shell";
 import { MaterialLinesEditor, useMaterialCatalogue } from "@/components/shared/material-lines";
 import { FieldWrapper } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
@@ -28,8 +29,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { ApiError } from "@/interfaces/api";
 import type { MaterialReceiptDetail } from "@/interfaces/contractor";
+import { useSeesAmounts } from "@/hooks/use-sees-amounts";
+import { linesRefusal } from "@/lib/correction-refusal";
 import {
   draftsFromReceiptLines,
   emptyLine,
@@ -62,6 +64,10 @@ export function ReceiptLinesDialog({
   ]);
   const [reason, setReason] = useState("");
   const [error, setError] = useState("");
+  // 金额查看 off (J17): no 单价 / 金额 to type - the server keeps the line's
+  // own and ignores what it is sent (JB167), so a typed one changed nothing
+  // (JB170).
+  const seesAmounts = useSeesAmounts();
   const eventId = useRef<string | null>(null);
   // query-failure: the editor below reads the same query and says when it fails.
   const catalogue = useMaterialCatalogue(receipt.project ?? "");
@@ -71,7 +77,7 @@ export function ReceiptLinesDialog({
     (line) => lineProblems(line, materials, { stored: Boolean(line.id && storedIds.includes(line.id)) }).length === 0,
   );
 
-  const moneyNote = linesMoneyNote(lines);
+  const moneyNote = seesAmounts ? linesMoneyNote(lines) : null;
 
   const save = useMutation({
     mutationFn: () => {
@@ -92,7 +98,9 @@ export function ReceiptLinesDialog({
     onError: (failure) => {
       // A fresh attempt after a refusal is a new correction.
       eventId.current = null;
-      setError(failure instanceof ApiError ? failure.message : t("saveFailed"));
+      // Said beside 「保存材料明细」 (JB170): 「没有任何改动……」, or what the
+      // server named - never 「请检查标红的字段」 in a window with no red field.
+      setError(linesRefusal(failure, t("saveFailed")));
     },
   });
 
@@ -112,7 +120,7 @@ export function ReceiptLinesDialog({
                 setError("");
                 setLines(next);
               }}
-              money
+              money={seesAmounts}
               keepFirst
               readOnlyFirst={readOnlyFirst}
               storedIds={storedIds}
@@ -131,11 +139,6 @@ export function ReceiptLinesDialog({
             <Info className="mt-0.5 size-3.5 shrink-0" />
             {t("pinNote")}
           </p>
-          {error && (
-            <p role="alert" className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
-              {error}
-            </p>
-          )}
         </div>
         <DialogFooter>
           <Button type="button" variant="outline" onClick={onClose}>
@@ -153,6 +156,7 @@ export function ReceiptLinesDialog({
             <Save className="size-4" />
             {t("save")}
           </Button>
+          <FormFooterError message={error} />
         </DialogFooter>
       </DialogContent>
     </Dialog>

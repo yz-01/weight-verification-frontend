@@ -80,27 +80,29 @@ describe("材料领用 (JB168): words and links", () => {
     );
   });
 
-  it("the office list's header is exactly the client's, in his order (11-11)", () => {
+  it("the office list's header is exactly the client's, in his order (11-11 晚上, JB171)", () => {
     const source = readFileSync(join(__dirname, "material-issue.tsx"), "utf-8");
-    const header = source.slice(source.indexOf("<TableHeader>"), source.indexOf("</TableHeader>"));
+    const list = source.slice(source.indexOf("export function MaterialIssueList("));
+    const header = list.slice(list.indexOf("<TableHeader>"), list.indexOf("</TableHeader>"));
     const keys = [...header.matchAll(/<TableHead[^>]*>\{t\("issue\.([A-Za-z]+)"\)\}/g)].map((found) => found[1]);
     expect(keys).toEqual([
-      "colAt",
+      "colDate",
+      "issueNo",
       "material",
       "spec",
-      "quantity",
-      "unit",
       "equipmentCompany",
       "equipmentNo",
       "recipientShort",
-      "issuer",
-      "colSignatures",
-      "colPhotos",
+      "quantity",
+      "unit",
+      "unitPrice",
+      "colAmount",
       "colView",
     ]);
     const zh = JSON.parse(readFileSync(join(__dirname, "..", "..", "messages", "zh.json"), "utf-8")).contractorOps.issue;
+    // 「日期｜领用编号｜材料名称｜规格｜所属公司｜设备编号｜领用人｜领用数量｜单位｜单价｜金额」, then 查看.
     expect(keys.map((key) => zh[key])).toEqual([
-      "日期时间", "材料名称", "规格", "领用数量", "单位", "所属公司", "设备编号", "领用人", "发料负责人", "双方签名", "照片", "查看",
+      "日期", "领用编号", "材料名称", "规格", "所属公司", "设备编号", "领用人", "领用数量", "单位", "单价", "金额", "查看",
     ]);
   });
 

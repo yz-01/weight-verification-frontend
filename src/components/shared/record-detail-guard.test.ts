@@ -81,6 +81,7 @@ const NOT_BUSINESS_RECORDS: Record<string, string> = {
   "src/components/site-workers/worker-detail.tsx#WorkerDetailDialog": "master data: a worker on the roster (I20)",
   "src/components/site-access/site-access-workspace.tsx#PassDetail": "master data: an access pass",
   "src/components/billing/invoice-list.tsx#InvoiceDetailView": "billing: an invoice",
+  "src/components/contractor-ops/issue-statement.tsx#StatementSheet": "材料领用结账单 (JB171): a statement of many issue lines laid out as its PDF prints, not one record",
   "src/components/notifications/admin-notification-workspace.tsx#NotificationDetails": "admin: a notification",
   "src/components/consultant-workflow/application-template-workspace.tsx#TemplateDetailsDialog": "settings: an application template",
   // Office documents and their approval, not records a phone submits.

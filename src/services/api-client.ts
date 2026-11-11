@@ -870,6 +870,16 @@ const CATALOGUE_WINS = new Set([
   // A write to a record the office confirmed and archived: the server's
   // sentence names a model and an id, the catalogue says what to do.
   "record_archived",
+  // A correction that changes nothing, and a delivery's 「增加材料」 refused
+  // (JB170, 客户 11-11 第四批 事项 1): the server's English reached the
+  // screen as it was - 「The correction changes nothing.」 under the reason.
+  "correction_unchanged",
+  "lines_required",
+  "lines_too_many",
+  "line_not_on_receipt",
+  "line_listed_twice",
+  "first_line_kept",
+  "receipt_line_returned",
 ]);
 
 /**

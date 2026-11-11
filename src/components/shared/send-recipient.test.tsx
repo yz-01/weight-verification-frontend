@@ -331,6 +331,8 @@ describe("10-29 tutorial fixes", () => {
       "contractor-ops/office-module-lists.tsx",
       "package-link/package-link.tsx",
       "reports/report-archive.tsx",
+      // 材料领用结账单 (JB171): every issue line the list's filters select.
+      "contractor-ops/issue-statement.tsx",
     ];
     const missing: string[] = [];
     for (const file of files) {

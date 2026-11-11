@@ -47,6 +47,7 @@ export function FormShell({
   onSubmit,
   children,
   after,
+  footerError,
 }: {
   backHref: string;
   backLabel: string;
@@ -63,6 +64,12 @@ export function FormShell({
    * before, a sibling drawn after the dialog's buttons ran out of the dialog.
    */
   after?: React.ReactNode;
+  /**
+   * A refusal about the whole form rather than one field (JB170: a correction
+   * that changes nothing), said beside 「保存」 - in a dialog its footer, which
+   * never scrolls away - instead of under the last field.
+   */
+  footerError?: string | null;
 }) {
   const t = useTranslations();
   const surface = useFormSurface();
@@ -125,6 +132,7 @@ export function FormShell({
             )}
             {submitLabel}
           </Button>
+          <FormFooterError message={footerError} />
         </DialogFooter>
       </>
     );
@@ -161,6 +169,15 @@ export function FormShell({
           </>
         }
       />
+      {footerError ? (
+        <p
+          role="alert"
+          data-form-footer-error
+          className="rounded-lg bg-destructive/10 px-3 py-2 text-sm font-medium text-destructive"
+        >
+          {footerError}
+        </p>
+      ) : null}
 
       <div className="surface-panel rounded-xl">
         <div className="px-4 py-4 sm:px-6">
@@ -184,6 +201,26 @@ export function FormShell({
       </div>
       {after ? <div className="surface-panel rounded-xl p-4 sm:p-6">{after}</div> : null}
     </div>
+  );
+}
+
+/**
+ * A refusal said in a dialog's footer, beside its buttons (JB170).
+ *
+ * Last in the footer: on a phone the footer stacks bottom-up, so this sits
+ * just above 「保存」; from `sm` it moves to the left of the buttons and wraps
+ * there. Nothing when there is nothing to say.
+ */
+export function FormFooterError({ message }: { message?: string | null }) {
+  if (!message) return null;
+  return (
+    <p
+      role="alert"
+      data-form-footer-error
+      className="text-sm font-medium text-destructive sm:order-first sm:flex-1"
+    >
+      {message}
+    </p>
   );
 }
 
