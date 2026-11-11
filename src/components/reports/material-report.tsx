@@ -918,8 +918,10 @@ function CostReport({
                   <TableCell className="tabular text-right">{money(row.total_cost)}</TableCell>
                   <TableCell className="tabular text-right">
                     {/* 「没有单价」, never 0 (JB168). */}
-                    {row.issue_amount ??
-                      ((row.unpriced_issue_lines ?? 0) > 0 ? (
+                    {/* Written like 采购成本 beside it: MYR 5,760.00. */}
+                    {row.issue_amount != null
+                      ? money(row.issue_amount)
+                      : ((row.unpriced_issue_lines ?? 0) > 0 ? (
                         <span className="text-warning">{t("materialReports.cost.unpriced")}</span>
                       ) : (
                         t("common.emptyValue")
