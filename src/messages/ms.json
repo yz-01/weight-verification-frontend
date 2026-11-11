@@ -6836,7 +6836,7 @@
       "exitApplicationReviewed": "Keputusan permohonan keluar direkodkan",
       "equipmentRegistered": "Mesin didaftarkan sebagai {no}.",
       "issueSubmitted": "Permohonan dihantar. No. pengeluaran {reference}",
-      "issueHandedOver": "Pengeluaran dihantar. Menunggu pengesahan pejabat."
+      "issueHandedOver": "Pengeluaran selesai dan diarkibkan."
     },
     "what": {
       "roles": "Senarai peranan",
@@ -7094,7 +7094,7 @@
         "APPROVED": "Diluluskan - menunggu pengeluaran",
         "REJECTED": "Ditolak",
         "PROCESSED": "Dikeluarkan - menunggu pengesahan pejabat",
-        "COMPLETED": "Disahkan dan ditutup",
+        "COMPLETED": "Dikeluarkan / diarkibkan",
         "RELEASED": "Dilepaskan"
       }
     }

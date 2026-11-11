@@ -6836,7 +6836,7 @@
       "exitApplicationReviewed": "Decision on the exit application recorded",
       "equipmentRegistered": "Machine registered as {no}.",
       "issueSubmitted": "Issue application submitted. Issue no. {reference}",
-      "issueHandedOver": "Issue submitted. Waiting for the office to confirm."
+      "issueHandedOver": "Issue completed and archived."
     },
     "what": {
       "roles": "The role list",
@@ -7094,7 +7094,7 @@
         "APPROVED": "Approved - waiting to issue",
         "REJECTED": "Rejected",
         "PROCESSED": "Issued - waiting for office confirmation",
-        "COMPLETED": "Confirmed and closed",
+        "COMPLETED": "Issued / archived",
         "RELEASED": "Released"
       }
     }
