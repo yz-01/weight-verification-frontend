@@ -1458,7 +1458,9 @@ export function FieldTasksWorkspace({
                     <NeedsActionMarker show={row.needs_action} />
                   </span>
                   {(canEdit || canReview || canPrepareApplication || headOffice || row.can_close) && (
-                    <div className="flex flex-wrap justify-end gap-1.5">
+                    // One spacing and the 删除 last (JB166, Lucas 11-11:
+                    // 「这些按钮不consistent」).
+                    <div className="flex flex-wrap items-center justify-end gap-2">
                       {headOffice ? (
                         <Button size="sm" onClick={() => setOpenedTask(row.id)}>
                           <ClipboardList />
@@ -1483,14 +1485,6 @@ export function FieldTasksWorkspace({
                             <Paperclip />
                             {t("tasks.addReferences")}
                           </Button>
-                          {/* JB25: a task nobody has started can go - PIN, total. */}
-                          {row.status === "OPEN" ? (
-                            <DeleteRecordButton
-                              what={row.record_no || row.title}
-                              onDelete={() => deleteFieldTask(row.id)}
-                              onDeleted={() => void qc.invalidateQueries({ queryKey: ["field-tasks"] })}
-                            />
-                          ) : null}
                         </>
                       ) : null}
                       {/* 「确认完成」 after talking it through (JB129). */}
@@ -1520,6 +1514,14 @@ export function FieldTasksWorkspace({
                           <FilePlus2 />
                           {t("tasks.prepareApplication")}
                         </Button>
+                      ) : null}
+                      {/* JB25: a task nobody has started can go - PIN, total. */}
+                      {canEdit && row.status === "OPEN" ? (
+                        <DeleteRecordButton
+                          what={row.record_no || row.title}
+                          onDelete={() => deleteFieldTask(row.id)}
+                          onDeleted={() => void qc.invalidateQueries({ queryKey: ["field-tasks"] })}
+                        />
                       ) : null}
                     </div>
                   )}
@@ -3900,23 +3902,26 @@ export function OutgoingActions({
   return (
     <>
       {can("material_outgoing.approve") && row.status === "PENDING" && (
-        <div className="flex flex-wrap justify-end gap-2">
-          <Button variant={needsNote ? "default" : "outline"} onClick={() => setNoting(true)}>
+        // The record panel's size, the destructive step last and drawn as
+        // every other one (JB166, Lucas 11-11: 「这些按钮不consistent」).
+        <div className="flex flex-wrap items-center gap-2">
+          <Button size="sm" variant={needsNote ? "default" : "outline"} onClick={() => setNoting(true)}>
             <FileText />
             {needsNote ? t("returnNote.fill") : t("returnNote.edit")}
           </Button>
-          {/* Return ends the application: a reason, no conversation first (C9). */}
-          <Button variant="outline" onClick={() => onReview("REJECTED")}>
-            <RotateCcw />
-            {t("outgoing.returnAction")}
-          </Button>
           <Button
+            size="sm"
             disabled={pending || needsNote}
             disabledReason={needsNote ? t("returnNote.needNoteFirst") : undefined}
             onClick={() => onReview("APPROVED")}
           >
             <Check />
             {t("action.approve")}
+          </Button>
+          {/* Return ends the application: a reason, no conversation first (C9). */}
+          <Button size="sm" variant="outline-destructive" onClick={() => onReview("REJECTED")}>
+            <RotateCcw />
+            {t("outgoing.returnAction")}
           </Button>
         </div>
       )}
@@ -3937,7 +3942,7 @@ export function OutgoingActions({
       {row.status === "PROCESSED" &&
         (can("material_outgoing.approve") ? (
           <Button
-            className="w-full"
+            size="sm"
             disabled={pending}
             onClick={() => onReview("COMPLETED")}
           >
@@ -4845,7 +4850,7 @@ export function OutgoingDetailDialog({
           actions={
             <>
               {renderActions?.(row)}
-              <div className="flex flex-wrap gap-2 border-t pt-2 empty:hidden">
+              <div className="flex flex-wrap items-center gap-2 border-t pt-2 empty:hidden">
                 {/* 【改正】 (I30): supplier, DO, plate, material, quantity… */}
                 <RecordCorrectionButton
                   kind="MATERIAL_OUTGOING"

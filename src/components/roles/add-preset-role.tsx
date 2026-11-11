@@ -98,7 +98,7 @@ export function AddPresetRoleDialog({ onClose }: { onClose: () => void }) {
                   <Button
                     type="button"
                     size="sm"
-                    className="shrink-0 rounded-full px-4"
+                    className="shrink-0"
                     disabled={adding.isPending}
                     onClick={() => adding.mutate(template.code)}
                   >
@@ -120,7 +120,6 @@ export function AddPresetRoleDialog({ onClose }: { onClose: () => void }) {
             type="button"
             variant="outline"
             size="sm"
-            className="rounded-full px-4"
             onClick={onClose}
           >
             {t("common.close")}

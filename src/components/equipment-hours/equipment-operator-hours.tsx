@@ -1234,7 +1234,8 @@ export function DayDialog({
                   ? [day.operator_name, day.cidb_no ? `CIDB ${day.cidb_no}` : ""].filter(Boolean).join(" · ")
                   : t("operator.none")}
               </p>
-              <Button variant="outline" onClick={() => setNaming(true)}>
+              {/* The record panel's size, as every button on it (JB166). */}
+              <Button size="sm" variant="outline" onClick={() => setNaming(true)}>
                 <UserRound />
                 {day.operator_name ? t("operator.edit") : t("operator.fill")}
               </Button>
@@ -1281,6 +1282,7 @@ export function DayDialog({
               )}
               <div className="flex justify-end">
                 <Button
+                  size="sm"
                   requires={[
                     [at, timeLabel],
                     [reason.trim(), t("adjust.reason")],
@@ -1323,6 +1325,7 @@ export function DayDialog({
               {moveError && <p className="text-sm text-destructive">{moveError}</p>}
               <div className="flex justify-end">
                 <Button
+                  size="sm"
                   variant="outline"
                   requires={[
                     [machine, t("move.machine")],

@@ -133,7 +133,7 @@ export function ViewProject({ id }: { id: string }) {
               href={`/projects/${data.id}`}
             />
             {can("project.assign") && (
-              <Button asChild size="sm" variant="outline" className="rounded-full px-4">
+              <Button asChild size="sm" variant="outline">
                 <a href="#project-team">
                   <UserPlus className="h-4 w-4" />
                   {t("projects.team.add")}
@@ -141,7 +141,7 @@ export function ViewProject({ id }: { id: string }) {
               </Button>
             )}
             {can("project.update") && (
-              <Button asChild size="sm" className="rounded-full px-4 shadow-sm">
+              <Button asChild size="sm">
                 <Link href={`/projects/${data.id}/edit`}>
                   <Pencil className="h-4 w-4" />
                   {t("common.edit")}
@@ -152,7 +152,6 @@ export function ViewProject({ id }: { id: string }) {
               <Button
                 size="sm"
                 variant="outline"
-                className="rounded-full px-4"
                 onClick={() => setArchiving(true)}
               >
                 <Archive className="h-4 w-4" />
@@ -441,7 +440,6 @@ function ProjectResponsibilities({ projectId }: { projectId: string }) {
         {can("project.assign") && (
           <Button
             size="sm"
-            className="rounded-full px-4 shadow-sm"
             onClick={() => setEditing("new")}
           >
             <UserCog className="h-4 w-4" />
@@ -746,7 +744,7 @@ function ProjectTeam({ projectId }: { projectId: string }) {
         {can("project.assign") && (
           <Button
             size="sm"
-            className="shrink-0 rounded-full px-4 shadow-sm"
+            className="shrink-0"
             onClick={() => setAdding(true)}
           >
             <UserPlus className="h-4 w-4" />
@@ -907,14 +905,12 @@ function AssignUserDialog({
           <Button
             variant="outline"
             size="sm"
-            className="rounded-full px-4"
             onClick={onClose}
           >
             {t("common.cancel")}
           </Button>
           <Button
             size="sm"
-            className="rounded-full px-4 shadow-sm"
             requires={[[selected, t("projects.team.person")]]}
             disabled={assignment.isPending}
             onClick={() => assignment.mutate(selected)}

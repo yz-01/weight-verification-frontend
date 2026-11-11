@@ -230,7 +230,10 @@ export function ProgressSummaryTab() {
                     })}
                   </p>
                 </div>
-                <div className="flex flex-wrap items-center gap-1.5">
+                {/* One size, one spacing, 删除 last (JB166, Lucas 11-11:
+                    「这些按钮不consistent」): 编辑 and 确认归档 were full size
+                    beside the small file buttons. */}
+                <div className="flex flex-wrap items-center gap-2">
                   {/* 预览 · 打印 · 导出 · 发送: the summary, its blocks in order (H16).
                       JB25: before 确认归档, preview only. */}
                   <FileActionButtons
@@ -247,22 +250,22 @@ export function ProgressSummaryTab() {
                     }}
                   />
                   {canWrite && !user?.is_field_staff && (!shown.archived_at || !ARCHIVE_LOCKS_CHANGES) && (
-                    <Button variant="outline" onClick={() => setEditing(shown)}>
+                    <Button size="sm" variant="outline" onClick={() => setEditing(shown)}>
                       <Pencil />
                       {t("edit")}
                     </Button>
                   )}
                   {canWrite && !shown.archived_at && !user?.is_field_staff && (
                     <>
+                      <Button size="sm" onClick={() => setArchiving(shown)} data-slot="confirm-archive">
+                        <Archive />
+                        {draft("confirmArchive")}
+                      </Button>
                       <DeleteRecordButton
                         what={shown.title}
                         onDelete={() => deleteProgressSummary(shown.id)}
                         onDeleted={() => void qc.invalidateQueries({ queryKey: ["progress-summaries"] })}
                       />
-                      <Button onClick={() => setArchiving(shown)} data-slot="confirm-archive">
-                        <Archive />
-                        {draft("confirmArchive")}
-                      </Button>
                     </>
                   )}
                 </div>

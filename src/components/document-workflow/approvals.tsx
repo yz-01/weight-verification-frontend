@@ -940,7 +940,6 @@ function ApprovalDetailDialog({
           <Button
             variant="outline"
             size="sm"
-            className="rounded-full px-4"
             onClick={onClose}
           >
             <X className="h-4 w-4" />
@@ -950,22 +949,22 @@ function ApprovalDetailDialog({
             <Button
               variant="outline"
               size="sm"
-              className="rounded-full px-4"
               onClick={() => onEdit(record)}
             >
               <Pencil className="h-4 w-4" />
               {t("common.edit")}
             </Button>
           )}
+          {/* 驳回 last and outlined in the destructive colour, as on every
+              record (JB166); the decision dialog's own 驳回 keeps the fill. */}
           {record &&
-            actions.map((action) => (
+            [...actions.filter((action) => action !== "REJECT"), ...actions.filter((action) => action === "REJECT")].map((action) => (
               <Button
                 key={action}
                 variant={
-                  action === "REJECT" ? "destructive" : "default"
+                  action === "REJECT" ? "outline-destructive" : "default"
                 }
                 size="sm"
-                className="rounded-full px-4"
                 onClick={() => onAct(record, action)}
               >
                 <ApprovalActionIcon action={action} />

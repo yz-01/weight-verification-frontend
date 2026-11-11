@@ -433,10 +433,15 @@ export function MySubmissions({
                   <p className="min-w-0 flex-1 basis-full text-xs leading-5 text-muted-foreground">
                     {t("mySubmissions.removeHelp")}
                   </p>
+                  {/* 取消 first, the removal last and outlined in the
+                      destructive colour, as on every record (JB166). */}
+                  <Button type="button" size="sm" variant="outline" onClick={() => setRemoving(null)}>
+                    {t("common.cancel")}
+                  </Button>
                   <Button
                     type="button"
                     size="sm"
-                    variant="destructive"
+                    variant="outline-destructive"
                     onClick={() => {
                       hideSubmission(user.id, row);
                       setRemoving(null);
@@ -445,9 +450,6 @@ export function MySubmissions({
                   >
                     <EyeOff />
                     {t("mySubmissions.removeFromList")}
-                  </Button>
-                  <Button type="button" size="sm" variant="outline" onClick={() => setRemoving(null)}>
-                    {t("common.cancel")}
                   </Button>
                 </ArmRow>
                 </div>
@@ -780,7 +782,7 @@ function StoredDetailSheet({
               </Button>
             ) : row.kind === "SUNDRY_CLAIM" && row.status === "SUBMITTED" ? (
               // 撤回 (I12-6): still undecided, so the applicant may take it back.
-              <SundryWithdraw id={row.id} onDone={onClose} />
+              <SundryWithdraw id={row.id} onDone={onClose} phone />
             ) : offersEquipmentExit(row) && row.machine ? (
               <Button className="h-12 w-full" onClick={() => setLeaving(true)}>
                 <Camera />

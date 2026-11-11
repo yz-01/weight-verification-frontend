@@ -507,7 +507,7 @@ function TableFrame<T>({
                       <Button
                         variant="outline"
                         size="sm"
-                        className="mt-4 rounded-full px-4"
+                        className="mt-4"
                         onClick={onClearFilters}
                       >
                         <FilterX className="h-3.5 w-3.5" />

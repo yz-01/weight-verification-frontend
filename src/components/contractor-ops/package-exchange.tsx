@@ -293,8 +293,7 @@ function RecipientsBlock({
                     )}
                     <Button
                       size="sm"
-                      variant="ghost"
-                      className="text-destructive"
+                      variant="outline-destructive"
                       onClick={() => setArmed(armed === row.id ? null : row.id)}
                     >
                       {t("exchange.revoke")}
@@ -339,7 +338,7 @@ function RevokeRow({ pending, onRevoke }: { pending: boolean; onRevoke: () => vo
       </label>
       <Button
         size="sm"
-        variant="destructive"
+        variant="outline-destructive"
         disabled={!on || pending}
         disabledReason={t("exchange.armFirst")}
         onClick={onRevoke}

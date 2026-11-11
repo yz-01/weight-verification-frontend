@@ -52,17 +52,20 @@ export function DeleteRecordButton({
   if (user?.is_field_staff) return null;
   return (
     <>
+      {/* With its word it is a record's 删除, drawn as every destructive
+          action on a record is (JB166): outline in the destructive colour,
+          the icon at the button's size. Alone, the bin in a file's row. */}
       <Button
         type="button"
         size={iconOnly ? "icon" : size}
-        variant="outline"
+        variant={iconOnly ? "outline" : "outline-destructive"}
         className={className}
         aria-label={t("delete")}
         title={t("delete")}
         data-slot="delete-record"
         onClick={() => setOpen(true)}
       >
-        <Trash2 className="size-4 text-destructive" />
+        <Trash2 className={iconOnly ? "size-4 text-destructive" : undefined} />
         {iconOnly ? null : t("delete")}
       </Button>
       <ConfirmDialog

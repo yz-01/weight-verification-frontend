@@ -66,7 +66,7 @@ export function DriverDetail({ id }: { id: string }) {
         backLabel={t("drivers.title")}
         action={
           can("fleet.manage") ? (
-            <Button asChild size="sm" className="rounded-full px-4 shadow-sm">
+            <Button asChild size="sm">
               <Link href={`/drivers/${id}/edit`}>
                 <Pencil className="h-4 w-4" />
                 {t("common.edit")}
@@ -155,7 +155,7 @@ export function VehicleDetail({ id }: { id: string }) {
         backLabel={t("vehicles.title")}
         action={
           can("fleet.manage") ? (
-            <Button asChild size="sm" className="rounded-full px-4 shadow-sm">
+            <Button asChild size="sm">
               <Link href={`/vehicles/${id}/edit`}>
                 <Pencil className="h-4 w-4" />
                 {t("common.edit")}

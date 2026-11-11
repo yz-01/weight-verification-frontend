@@ -542,7 +542,7 @@ function NoApproversHelp({ project }: { project: string }) {
         <li>{t("noApproverSteps.team")}</li>
       </ol>
       {mayStaff && (
-        <Button asChild size="sm" variant="outline" className="rounded-full px-4">
+        <Button asChild size="sm" variant="outline">
           <Link href={`/projects/${project}#project-team`} target="_blank" rel="noopener noreferrer">
             <UserPlus className="size-4" />
             {t("openProjectTeam")}
@@ -625,9 +625,11 @@ function DecisionPanel({ permit }: { permit: Permit }) {
       {returnArmed && (
         <FieldWrapper label={t("field.returnReason")} required>
           <Textarea value={reason} onChange={(event) => setReason(event.target.value)} />
+          {/* The size of 批准 above it (a phone's full width); outlined in
+              the destructive colour as every 退回 on a record (JB166). */}
           <Button
             className="mt-2 min-h-11 w-full"
-            variant="destructive"
+            variant="outline-destructive"
             requires={[[reason.trim(), t("field.returnReason")]]}
             disabled={busy}
             onClick={() => sendBack.mutate()}

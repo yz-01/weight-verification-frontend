@@ -139,8 +139,10 @@ export function RecordAttachmentsPanel({
           <span className="ml-1 tabular-nums">({rows.length})</span>
         </h3>
         {!controlled && !readOnly && !closed && state.data && !adding && (
-          <Button type="button" size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={() => setAdding(true)}>
-            <Paperclip className="size-3.5" />
+          // The record panel's size, as the buttons above it (JB166): it was
+          // shrunk to h-7 / text-xs and read as a third size on one record.
+          <Button type="button" size="sm" variant="outline" onClick={() => setAdding(true)}>
+            <Paperclip />
             {addLabel ?? t("add")}
           </Button>
         )}
@@ -266,12 +268,11 @@ export function RecordAttachmentsPanel({
                 aria-label={t("note")}
                 onChange={(event) => setNote(event.target.value)}
               />
-              <div className="flex justify-end gap-2">
+              <div className="flex flex-wrap items-center justify-end gap-2">
                 <Button
                   type="button"
                   size="sm"
                   variant="ghost"
-                  className="h-7 px-2 text-xs"
                   disabled={upload.isPending}
                   onClick={() => {
                     setAdding(false);
@@ -279,18 +280,17 @@ export function RecordAttachmentsPanel({
                     setNote("");
                   }}
                 >
-                  <X className="size-3.5" />
+                  <X />
                   {t("cancel")}
                 </Button>
                 <Button
                   type="button"
                   size="sm"
-                  className="h-7 px-2 text-xs"
                   requires={[[files.length > 0, t("files")]]}
                   disabled={upload.isPending}
                   onClick={() => upload.mutate()}
                 >
-                  {upload.isPending ? <Loader2 className="size-3.5 animate-spin" /> : <Upload className="size-3.5" />}
+                  {upload.isPending ? <Loader2 className="animate-spin" /> : <Upload />}
                   {t("upload", { count: files.length })}
                 </Button>
               </div>

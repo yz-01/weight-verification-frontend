@@ -1483,7 +1483,7 @@ export function MachineRecordDialog({
         ]}
         actions={
           can("equipment.capture") || can("equipment.manage") ? (
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col items-start gap-2">
               {/* Recorded on the phone, accepted on the movement (Q27). */}
               {machine.awaiting_acceptance && (
                 <StatusBadge
@@ -1495,8 +1495,11 @@ export function MachineRecordDialog({
                   tone="warning"
                 />
               )}
+              {/* The record panel's size at its own width (JB166): it was a
+                  full-size bar across the panel. */}
               {can("equipment.manage") && (
                 <Button
+                  size="sm"
                   variant="outline"
                   onClick={() => onEdit(machine)}
                 >
@@ -1506,12 +1509,12 @@ export function MachineRecordDialog({
               )}
               {/* Its entries and exits (B2) - on their own page, so not from a
                   window that must not leave its page (Lucas 10-30: 「不要跳转页面」). */}
-              {!movementsLink && <MachineMovements machine={machine} />}
+              {!movementsLink && <div className="w-full"><MachineMovements machine={machine} /></div>}
               {movementsLink && (
                 <Link
                   href={`/site-equipment?equipment=${machine.id}`}
                   onClick={onClose}
-                  className="text-center text-sm text-primary underline-offset-2 hover:underline"
+                  className="self-stretch text-center text-sm text-primary underline-offset-2 hover:underline"
                 >
                   {t("equipment.movementsLink")}
                 </Link>
@@ -1791,7 +1794,7 @@ function MovementRecordDialog({
           .filter(([, source]) => Boolean(source))
           .map(([who, source]) => ({ label: t(`equipment.${who}`), url: source as string }))}
         actions={
-          <div className="flex flex-col gap-2">
+          <div className="space-y-3">
             {/* Accept an entry or an exit (C8, Q27), or hand over an
                 application from before directly (「直接交接」). */}
             <EquipmentMovementActions
@@ -1800,18 +1803,22 @@ function MovementRecordDialog({
               onHandover={onHandover}
               onCompleteProfile={onCompleteProfile}
             />
-            {/* 【改正】 (I30): name, supplier, DO, plate, quantity… with a reason. */}
-            <RecordCorrectionButton
-              kind="EQUIPMENT_MOVEMENT"
-              recordId={shownMovement.id}
-              onCorrected={() => void refreshMovement()}
-            />
-            <AddToPackageButton
-              kind="EQUIPMENT_MOVEMENT"
-              recordId={shownMovement.id}
-              projectId={shownMovement.project}
-              reference={`${shownMovement.equipment_code} - ${shownMovement.equipment_name}`}
-            />
+            {/* One row at the panel's size (JB166): they were stretched
+                across the panel, one under another, two sizes. */}
+            <div className="flex flex-wrap items-center gap-2 empty:hidden">
+              {/* 【改正】 (I30): name, supplier, DO, plate, quantity… with a reason. */}
+              <RecordCorrectionButton
+                kind="EQUIPMENT_MOVEMENT"
+                recordId={shownMovement.id}
+                onCorrected={() => void refreshMovement()}
+              />
+              <AddToPackageButton
+                kind="EQUIPMENT_MOVEMENT"
+                recordId={shownMovement.id}
+                projectId={shownMovement.project}
+                reference={`${shownMovement.equipment_code} - ${shownMovement.equipment_name}`}
+              />
+            </div>
           </div>
         }
         corrections={
@@ -2492,7 +2499,7 @@ function ProgressRecordDialog({
           </section>
         }
         actions={
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {can("progress.confirm") && (
               <ProgressRemarkBox
                 onSave={async (body) => {

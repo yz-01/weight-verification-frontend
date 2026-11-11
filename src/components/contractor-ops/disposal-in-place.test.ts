@@ -47,10 +47,14 @@ describe("a disposal request opened in place (Lucas 10-30)", () => {
   it("renders the very popup, steps and step dialogs the office list does", () => {
     const inPlace = body("DisposalInPlace");
     const office = body("SiteDisposalOffice");
-    for (const part of ["<DisposalDetailDialog", "<DisposalActions", "<DisposalStepDialogs"]) {
+    // The steps are drawn by the popup itself since JB166 (one row with
+    // 加进资料包, the destructive ones last); each screen hands it `onStep`.
+    for (const part of ["<DisposalDetailDialog", "onStep=", "<DisposalStepDialogs"]) {
       expect(inPlace).toContain(part);
       expect(office).toContain(part);
     }
+    const dialog = source.slice(source.indexOf("function DisposalDetailDialog("), source.indexOf("type DisposalStep"));
+    expect(dialog).toContain("<DisposalActions");
   });
 
   it("reads the record under the list's key and refreshes the same queries", () => {

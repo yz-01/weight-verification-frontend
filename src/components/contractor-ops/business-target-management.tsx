@@ -234,7 +234,7 @@ export function BusinessTargetManagement() {
                 <div className="mt-4 flex flex-wrap justify-end gap-2">
                   <Button size="sm" variant="outline" disabled={refresh.isPending} onClick={() => refresh.mutate(row.id)}><RefreshCw className={refresh.isPending ? "animate-spin" : ""} />{t("management.refresh")}</Button>
                   {canManage && <Button size="sm" variant="outline" onClick={() => openEdit(row)}><Edit3 />{t("management.edit")}</Button>}
-                  {canManage && <Button size="sm" variant="outline" className="text-destructive" onClick={() => setRemoving(row)}><Trash2 />{t("management.remove")}</Button>}
+                  {canManage && <Button size="sm" variant="outline-destructive" onClick={() => setRemoving(row)}><Trash2 />{t("management.remove")}</Button>}
                 </div>
               </article>
             );

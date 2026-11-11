@@ -148,7 +148,6 @@ export function AuditEntryDialog({
           <Button
             variant="outline"
             size="sm"
-            className="rounded-full px-4"
             onClick={onClose}
           >
             <X className="h-4 w-4" />

@@ -59,7 +59,7 @@ export function ViewUser({ id }: { id: string }) {
         action={
           // A deleted account is kept for its records only (JB164).
           can("user.update") && data.status !== "REMOVED" ? (
-            <Button asChild size="sm" className="rounded-full px-4 shadow-sm">
+            <Button asChild size="sm">
               <Link href={`/users/${data.id}/edit`}>
                 <Pencil className="h-4 w-4" />
                 {t("common.edit")}
@@ -209,7 +209,7 @@ function SignOffPinSection({ user, canReset }: { user: UserDetail; canReset: boo
           </label>
           <Button
             type="button"
-            variant="destructive"
+            variant="outline-destructive"
             size="sm"
             disabledReason={!armed ? t("resetArmFirst") : undefined}
             disabled={!armed || reset.isPending}

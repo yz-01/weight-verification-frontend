@@ -516,7 +516,7 @@ function WasteOutgoingRecordWindow({
     shared shell, so this is where they moved - not a second copy.
   */
   const renderActions = (row: WasteOutgoingRecord) => (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap items-center gap-2">
       {row.status === "PENDING_APPROVAL" &&
         can("waste_outgoing.approve") &&
         mayDecide(row) && (
@@ -592,13 +592,6 @@ function WasteOutgoingRecordWindow({
           </Button>
         </>
       )}
-      {["DRAFT", "PENDING_APPROVAL", "RETURNED", "APPROVED"].includes(row.status) &&
-        can("waste_outgoing.submit") && (
-          <Button size="sm" variant="ghost" onClick={() => setCancelling(row)}>
-            <XCircle />
-            {t("action.cancel")}
-          </Button>
-        )}
       {/* 【改正】 (I30): kind of waste, quantity, unit, remarks. */}
       <RecordCorrectionButton kind="WASTE_OUTGOING" recordId={row.id} onCorrected={refresh} />
       <AddToPackageButton
@@ -607,6 +600,15 @@ function WasteOutgoingRecordWindow({
         projectId={row.project}
         reference={row.reference_no}
       />
+      {/* 取消 last, drawn as every destructive step on a record (JB166):
+          it was a bare ghost button in the middle of the row. */}
+      {["DRAFT", "PENDING_APPROVAL", "RETURNED", "APPROVED"].includes(row.status) &&
+        can("waste_outgoing.submit") && (
+          <Button size="sm" variant="outline-destructive" onClick={() => setCancelling(row)}>
+            <XCircle />
+            {t("action.cancel")}
+          </Button>
+        )}
     </div>
   );
 

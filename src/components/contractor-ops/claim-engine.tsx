@@ -834,19 +834,13 @@ function ClaimSheet({ id, onClose }: { id: string; onClose: () => void }) {
       </div>
 
       {data && (
-        <footer className="flex flex-wrap justify-end gap-2 border-t p-4">
+        // One size for the drawer's buttons - the file buttons were small,
+        // the rest full size - and 作废 last (JB166, Lucas 11-11).
+        <footer className="flex flex-wrap items-center justify-end gap-2 border-t p-4">
           {data.state === "DRAFT" && can("claim.manage") && (
             <>
               <Button
-                variant="outline"
-                className="text-destructive"
-                disabled={discard.isPending}
-                onClick={() => discard.mutate()}
-              >
-                <Trash2 />
-                {t("discard")}
-              </Button>
-              <Button
+                size="sm"
                 disabled={blocker !== null}
                 disabledReason={blocker === "letterMissing" ? t("letter.missing") : t("nothingSelected")}
                 onClick={() => setConfirming(true)}
@@ -879,28 +873,39 @@ function ClaimSheet({ id, onClose }: { id: string; onClose: () => void }) {
           )}
           {can("claim.manage") && data.payment_state !== "RECEIVED" && (
             <>
-              <Button variant="outline" onClick={() => setEditing(true)}>
+              <Button size="sm" variant="outline" onClick={() => setEditing(true)}>
                 <Pencil />
                 {t("editDetails")}
               </Button>
-              <Button variant="outline" onClick={() => setMoney("amount")}>
+              <Button size="sm" variant="outline" onClick={() => setMoney("amount")}>
                 {t("setAmount")}
               </Button>
             </>
           )}
           {data.state === "CONFIRMED" && can("claim.confirm_payment") && (
             <>
-              <Button variant="outline" onClick={() => setMoney("voucher")}>
+              <Button size="sm" variant="outline" onClick={() => setMoney("voucher")}>
                 <FileUp />
                 {t("addVoucher")}
               </Button>
-              <Button variant="outline" onClick={() => setPaying(true)}>
+              <Button size="sm" variant="outline" onClick={() => setPaying(true)}>
                 <Coins />
                 {t("recordPayment")}
               </Button>
             </>
           )}
-          <Button variant="ghost" onClick={onClose}>
+          {data.state === "DRAFT" && can("claim.manage") && (
+            <Button
+              size="sm"
+              variant="outline-destructive"
+              disabled={discard.isPending}
+              onClick={() => discard.mutate()}
+            >
+              <Trash2 />
+              {t("discard")}
+            </Button>
+          )}
+          <Button size="sm" variant="ghost" onClick={onClose}>
             {common("close")}
           </Button>
         </footer>
