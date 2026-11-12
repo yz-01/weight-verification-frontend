@@ -189,9 +189,9 @@ describe("JB181-8, JB181-9 【加到现有项目】 says what it does, and count
   };
 
   it("explains in two numbered lines and two sentences", () => {
-    expect(words.addStep1).toBe("1. 各项目还没有的材料和规格，加进去。");
+    expect(words.addStep1).toBe("1. 各项目还没有的分类（材料、规格、申请类型等），按名称加进去。");
     expect(words.addStep2).toBe("2. 各项目还没有单价的材料和规格，补上这里的单价。");
-    expect(words.addKeeps).toBe("已经有单价的不会改。");
+    expect(words.addKeeps).toBe("已经有单价的不会改。项目里原有的分类不删除、不改名、不覆盖。已结束的项目不变。");
     expect(words.addFills).toBe("补上单价以后，那个项目从生效日期起、还没有单价的进场和领用记录，会自动算上这个单价。");
     for (const key of ["addStep1", "addStep2", "addKeeps", "addFills"]) expect(COMPANY).toContain(`t("company.${key}")`);
   });
