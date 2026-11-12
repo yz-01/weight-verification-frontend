@@ -1,3 +1,4 @@
+import type { Paginated } from "@/interfaces/api";
 import type { MaterialSpec } from "@/interfaces/contractor-ops";
 import type {
   ContractorReportType,
@@ -348,6 +349,27 @@ export function progressMenuHref(
   }
   const text = next.toString();
   return text ? `${path}?${text}` : path;
+}
+
+/** At most this many pages of 100 are read for the reports' material list. */
+const MAX_MATERIAL_PAGES = 20;
+
+/**
+ * Every row of a list, a page at a time. The server caps a page at 100, and
+ * with 「全部项目」 the material reports read every project's materials at
+ * once (JB174): a material beyond the first page was missing from the 「材料」
+ * dropdown, so its name could not be chosen at all.
+ */
+export async function everyPage<T>(
+  getPage: (page: number) => Promise<Paginated<T>>,
+): Promise<Paginated<T>> {
+  const first = await getPage(1);
+  const results = [...first.results];
+  const last = Math.min(first.total_pages, MAX_MATERIAL_PAGES);
+  for (let page = 2; page <= last; page += 1) {
+    results.push(...(await getPage(page)).results);
+  }
+  return { ...first, results };
 }
 
 /**

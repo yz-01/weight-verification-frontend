@@ -38,6 +38,7 @@ import {
 } from "@/lib/navigation";
 import {
   PROGRESS_MENU,
+  everyPage,
   levelRowName,
   materialMenuEntries,
   progressMenuHref,
@@ -627,7 +628,11 @@ function Waiting() {
 export function useMaterialColumns(project?: string) {
   return useQuery({
     queryKey: ["project-categories", "material-report", project ?? ""],
+    // Every page: 「全部项目」 holds every project's materials, more than
+    // the 100 one page carries (JB174).
     queryFn: () =>
-      getProjectCategories({ kind: "MATERIAL", page_size: 200, project }),
+      everyPage((page) =>
+        getProjectCategories({ kind: "MATERIAL", page_size: 100, page, project }),
+      ),
   });
 }

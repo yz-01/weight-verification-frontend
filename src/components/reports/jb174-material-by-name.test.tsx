@@ -28,6 +28,7 @@ import {
   chosenMaterial,
   chosenMaterialLabels,
   chosenMaterialName,
+  everyPage,
   materialExportSubtitle,
   materialMenuEntries,
   materialNameKey,
@@ -241,5 +242,35 @@ describe("the report page (MaterialReport)", () => {
     expect(source).toContain(
       "spec_category: list.filters.category ? list.filters.spec_category : undefined,",
     );
+  });
+});
+
+describe("JB174: 全部项目 reads every page of the material list", () => {
+  const pageOf = (page: number, names: string[]) => ({
+    count: 250,
+    page,
+    page_size: 100,
+    total_pages: 3,
+    results: names.map((name, index) => ({ id: `${page}-${index}`, name })),
+  });
+
+  it("reads the pages after the first, so a material beyond 100 rows is still offered once", async () => {
+    const asked: number[] = [];
+    const all = await everyPage(async (page) => {
+      asked.push(page);
+      return pageOf(page, page === 3 ? ["钢筋", "BRC"] : ["钢筋", "混凝土"]);
+    });
+
+    expect(asked).toEqual([1, 2, 3]);
+    expect(materialOptions(all.results, { byName: true }).map((option) => option.label)).toEqual([
+      "钢筋",
+      "混凝土",
+      "BRC",
+    ]);
+  });
+
+  it("the material reports' list is read that way", () => {
+    const source = read("src/components/reports/report-selector.tsx");
+    expect(source).toMatch(/everyPage\(\(page\) =>\s*getProjectCategories\(\{ kind: "MATERIAL", page_size: 100, page, project \}\)/);
   });
 });
