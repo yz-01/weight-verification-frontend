@@ -3638,6 +3638,7 @@
       "issue_submitted": "提交材料领用申请",
       "issue_handed_over": "正式领用",
       "material_issue_statement_exported": "导出材料领用结账单",
+      "material_issue_statement_previewed": "预览材料领用结账单",
       "owner_account_updated": "修改负责人账号",
       "paid": "已付款",
       "password_changed": "修改密码",
@@ -7117,7 +7118,7 @@
       "statementButton": "批量预览 / 打印",
       "statementNone": "筛选出来的记录还没有已领用的，没有可以打印的。",
       "statementLoading": "正在准备，请稍等。",
-      "statementHelp": "下面就是印出来的内容：筛选出来的全部已领用记录，不分页，没有照片，有双方签名。按「打印」或「导出 PDF」，纸上和文件一模一样。",
+      "statementHelp": "下面就是印出来的内容：筛选出来的全部已领用记录，不分页，没有照片，有双方签名。按「预览」看正式的 PDF；「打印」把它印出来；「导出 PDF」存到电脑；「发送」用 WhatsApp 或 Email 发给别人。四个用的都是同一份 PDF。",
       "statementTitle": "材料领用结账单 / Material Issue Statement",
       "statementWhat": "结账单",
       "statementProject": "项目",
@@ -7446,7 +7447,8 @@
       "material_outgoing": "材料出场报表",
       "field_tasks": "现场任务报表",
       "daily_report": "日报告",
-      "progress_summary": "项目进度摘要"
+      "progress_summary": "项目进度摘要",
+      "material_issue_statement": "材料领用结账单"
     },
     "what": {
       "filterOptions": "筛选选项",

@@ -13,14 +13,28 @@
  * the page shown. Only what was handed over is counted - the same lines in
  * the 汇总, the preview and the PDF. 打印 and 导出 PDF both use the server's
  * one PDF, so the paper and the file are the same.
+ *
+ * JB179 (客户 11-12 追加 2): 「目前只有关闭、打印、导出 PDF，缺少独立的预览及
+ * 发送／分享功能」 - the window's buttons are the back office's own four,
+ * 预览｜打印｜导出 PDF｜发送, run by `useFileActions` like every other file:
+ * 预览 shows that same PDF (no PIN, not recorded); 打印 / 导出 PDF / 发送 ask
+ * the PIN, 发送 first 「发给谁」 and goes as the 30-day link. Each print,
+ * export and send is kept in 报表导出历史 as 「材料领用结账单」 and written to its
+ * 操作记录 under the statement's project (the server names both on the file).
  */
 
 import { useQuery } from "@tanstack/react-query";
-import { Download, FileSearch, Loader2, Printer } from "lucide-react";
+import { FileSearch, Loader2 } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useState } from "react";
 
-import { useFileActions } from "@/components/shared/file-actions";
+import {
+  FILE_ACTION_ICONS,
+  fileActionsFor,
+  useFileActions,
+  type FileAction,
+  type FileSource,
+} from "@/components/shared/file-actions";
 import { QueryFailedNote } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import {
@@ -178,6 +192,7 @@ export function IssueStatementDialog({
 }) {
   const t = useTranslations("contractorOps");
   const tRoot = useTranslations();
+  const tFile = useTranslations("fileActions");
   const files = useFileActions();
   const statement = useQuery({
     queryKey: ["material-outgoing", "issue-statement", filters],
@@ -199,11 +214,23 @@ export function IssueStatementDialog({
         : !ready
           ? t("issue.statementNone")
           : undefined;
-  const source = {
+  const source: FileSource = {
     load: () => exportMaterialIssueStatement(filters),
     title: t("issue.statementTitle"),
+    // 「材料领用结账单」 in 操作记录, as 报表导出历史 names it (JB179).
+    subject: tRoot("contractorReports.type.material_issue_statement"),
     project: typeof filters.project === "string" ? filters.project : undefined,
+    // The server keeps each one in 报表导出历史: a print, export or send
+    // pressed in the preview fetches it again, so it is kept too.
+    exportedOnServer: true,
   };
+  // 打印 and 导出 PDF keep their words (「字照旧」); 预览 and 发送 are the house's.
+  const label = (action: FileAction) =>
+    action === "print"
+      ? t("issue.statementPrint")
+      : action === "save"
+        ? t("issue.statementExport")
+        : tFile(action);
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
       <DialogContent className="flex max-h-[94dvh] flex-col overflow-hidden sm:max-w-6xl">
@@ -230,27 +257,25 @@ export function IssueStatementDialog({
           <Button type="button" variant="outline" onClick={onClose}>
             {tRoot("common.close")}
           </Button>
-          <Button
-            type="button"
-            variant="outline"
-            data-issue-statement-print
-            disabled={Boolean(notReady) || Boolean(files.busy)}
-            disabledReason={notReady}
-            onClick={() => void files.run("print", source, { key: "print" })}
-          >
-            {files.busy === "print" ? <Loader2 className="animate-spin" /> : <Printer />}
-            {t("issue.statementPrint")}
-          </Button>
-          <Button
-            type="button"
-            data-issue-statement-export
-            disabled={Boolean(notReady) || Boolean(files.busy)}
-            disabledReason={notReady}
-            onClick={() => void files.run("save", source, { key: "save" })}
-          >
-            {files.busy === "save" ? <Loader2 className="animate-spin" /> : <Download />}
-            {t("issue.statementExport")}
-          </Button>
+          {/* 预览｜打印｜导出 PDF｜发送, in the house's one order (JB179). */}
+          {fileActionsFor("pdf").map((action) => {
+            const Icon = FILE_ACTION_ICONS[action];
+            return (
+              <Button
+                key={action}
+                type="button"
+                variant={action === "save" ? "default" : "outline"}
+                data-issue-statement-action={action}
+                disabled={Boolean(notReady) || Boolean(files.busy)}
+                disabledReason={notReady ?? (files.busy ? tFile("preparing") : undefined)}
+                title={action === "share" ? tFile("shareHint") : undefined}
+                onClick={() => void files.run(action, source, { key: action })}
+              >
+                {files.busy === action ? <Loader2 className="animate-spin" /> : <Icon />}
+                {label(action)}
+              </Button>
+            );
+          })}
         </DialogFooter>
         {files.element}
       </DialogContent>

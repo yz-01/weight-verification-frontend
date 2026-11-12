@@ -3638,6 +3638,7 @@
       "issue_submitted": "Material issue application submitted",
       "issue_handed_over": "Issued material handed over",
       "material_issue_statement_exported": "Material issue statement exported",
+      "material_issue_statement_previewed": "Material issue statement previewed",
       "owner_account_updated": "Owner's account changed",
       "paid": "Paid",
       "password_changed": "Password changed",
@@ -7117,7 +7118,7 @@
       "statementButton": "Preview / print all",
       "statementNone": "None of the records you filtered has been issued yet, so there is nothing to print.",
       "statementLoading": "Getting it ready, please wait.",
-      "statementHelp": "Below is exactly what will print: every issued record you filtered, on one list, without photos, with both signatures. Print and Export PDF give the same document.",
+      "statementHelp": "Below is exactly what will print: every issued record you filtered, on one list, without photos, with both signatures. Preview shows the formal PDF; Print prints it; Export PDF saves it to this computer; Send shares it by WhatsApp or Email. All four use the same PDF.",
       "statementTitle": "Material Issue Statement",
       "statementWhat": "the statement",
       "statementProject": "Project",
@@ -7446,7 +7447,8 @@
       "material_outgoing": "Material outgoing report",
       "field_tasks": "Site task report",
       "daily_report": "Daily reports",
-      "progress_summary": "Progress summaries"
+      "progress_summary": "Progress summaries",
+      "material_issue_statement": "Material issue statement"
     },
     "what": {
       "filterOptions": "the filter choices",
