@@ -31,6 +31,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useRecordSendTarget } from "@/components/shared/record-send-log";
 import { cn } from "@/lib/utils";
 import { signFileAction } from "@/services/file-action.service";
 
@@ -91,6 +92,8 @@ export function FilePreview({
   onDownload,
   className,
   subject,
+  recordKind,
+  recordId,
 }: {
   /** Fetches the file and resolves to an object URL; revoked here. */
   load: () => Promise<string>;
@@ -100,8 +103,22 @@ export function FilePreview({
   className?: string;
   /** What the print / download log row names (JB27); the file's name if not given. */
   subject?: string;
+  /**
+   * The record the file belongs to, named on the print / download log row
+   * (JB183 做法 6: 「打开记录」 opens it). Inside a record's window the
+   * window's own record when not given.
+   */
+  recordKind?: string;
+  recordId?: string;
 }) {
   const t = useTranslations("filePreview");
+  const sendTarget = useRecordSendTarget();
+  const record =
+    recordKind && recordId
+      ? { record_kind: recordKind, record_id: recordId }
+      : sendTarget
+        ? { record_kind: sendTarget.recordKind, record_id: sendTarget.recordId }
+        : {};
   const kind = previewKind(previewType, filename);
   const frame = useRef<HTMLIFrameElement>(null);
   const [url, setUrl] = useState<string | null>(null);
@@ -141,6 +158,7 @@ export function FilePreview({
     signFileAction(action, {
       subject: subject || filename,
       file_name: filename,
+      ...record,
       link: `${window.location.pathname}${window.location.search}`,
     });
 
@@ -154,7 +172,7 @@ export function FilePreview({
     }
     // `sign` reads only the props named here.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [onDownload, filename, subject]);
+  }, [onDownload, filename, subject, record.record_kind, record.record_id]);
 
   const print = async () => {
     if (!url) return;
@@ -314,6 +332,9 @@ export function FilePreviewDialog({
   previewType: string | null | undefined;
   filename: string;
   onDownload: () => Promise<void> | void;
+  /** The record the file belongs to, for the log row (JB183). */
+  recordKind?: string;
+  recordId?: string;
 }) {
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>

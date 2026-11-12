@@ -310,6 +310,7 @@ export function ConsultantApplicationDetail({
           formats={["pdf"]}
           label={t("action.downloadReport")}
           title={application.application_no}
+          record={{ kind: "CONSULTANT_APPLICATION", id: application.id }}
           onExport={() => downloadApplicationFinalReport(application.id, application.application_no)}
         />
       )}
@@ -848,6 +849,7 @@ function ArchiveChecklist({ application }: { application: ConsultantApplication 
                     formats={["pdf"]}
                     label={t("action.downloadReport")}
                     title={application.application_no}
+                    record={{ kind: "CONSULTANT_APPLICATION", id: application.id }}
                     onExport={() => downloadApplicationFinalReport(application.id, application.application_no)}
                   />
                   {application.verification_code && (

@@ -21,6 +21,7 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { DrillNote } from "@/components/shared/drill-note";
 import { PermitDetail } from "@/components/permits/permit-parts";
 import { useRecordOpener } from "@/components/shared/record-opener";
+import { RecordSendTargetProvider } from "@/components/shared/record-send-log";
 import { clickOpensRow } from "@/components/shared/inside-row-control";
 import { EmptyState, FilterBar, ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
@@ -664,6 +665,9 @@ export function RecordSheet<K extends RecordSheetKind = ArchiveRecordKind>({
   }
 
   return (
+    // A photo, attachment or file printed or sent from this sheet is this
+    // record's row in 操作记录, which opens it again (JB183 做法 6).
+    <RecordSendTargetProvider value={{ recordKind: recordPdfKindFor(row.kind) ?? row.kind, recordId: row.id }}>
     <RecordDetailDialog
       title={row.reference}
       // A company-wide document has no project, so the empty part is
@@ -780,5 +784,6 @@ export function RecordSheet<K extends RecordSheetKind = ArchiveRecordKind>({
         }
       />
     </RecordDetailDialog>
+    </RecordSendTargetProvider>
   );
 }
