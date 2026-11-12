@@ -65,6 +65,7 @@ function submissionStatusText(
 }
 
 import { SundryWithdraw } from "@/components/sundry-claims/sundry-withdraw";
+import { SundryReminderNote } from "@/components/sundry-claims/sundry-reminder-note";
 import { PhotoLink } from "@/components/shared/photo-link";
 import { PhotoThumb, recordKindIcon } from "@/components/shared/photo-thumb";
 import { FileThumbs } from "@/components/shared/file-thumbs";
@@ -743,6 +744,15 @@ function StoredDetailSheet({
                 <p className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-sm leading-6">
                   {t("mySubmissions.returnedClosed")}
                 </p>
+              )}
+              {/* 每 48 小时提醒 (JB184-4): the same lines as the office's detail. */}
+              {row.kind === "SUNDRY_CLAIM" && (
+                <SundryReminderNote
+                  status={detail.data.status ?? row.status}
+                  hours={detail.data.reminder_hours}
+                  count={detail.data.reminder_count}
+                  lastAt={detail.data.reminded_at}
+                />
               )}
             </>
           }

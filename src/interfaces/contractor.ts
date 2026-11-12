@@ -674,6 +674,10 @@ export interface MySubmissionDetail extends MySubmissionRow {
   photos: MySubmissionPhoto[];
   /** Sundry claims only: the payment vouchers finance uploaded (第 54、57 条). */
   payment_proofs?: Array<{ id: string; url: string; name?: string; amount: string | null; uploaded_at: string }>;
+  /** Sundry claims only (JB184): the 48-hour reminder rule, how many went, the last. */
+  reminder_hours?: number;
+  reminder_count?: number;
+  reminded_at?: string | null;
   /** MR / Other Request only (I16, ID49): every file sent with it, pictures and documents. */
   files?: Array<{ id: string; name: string; url: string; content_type: string; size_bytes: number; is_image: boolean }>;
   /**

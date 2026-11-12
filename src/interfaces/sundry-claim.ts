@@ -72,6 +72,13 @@ export interface SundryClaim extends RecordedBy {
    */
   category: string | null;
   category_name: string | null;
+  /**
+   * 每 48 小时提醒 (JB184): while the claim is not finished, both sides are
+   * reminded every `reminder_hours`; how many reminders went and the last.
+   */
+  reminder_hours?: number;
+  reminder_count?: number;
+  reminded_at?: string | null;
 }
 
 /** What one claim looks like to a person: its decision, or paid once paid. */

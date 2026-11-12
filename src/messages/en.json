@@ -19026,6 +19026,10 @@
       "PROJECT": "Sent to the project manager: head office does not decide it.",
       "HQ": "Sent to head office: the project manager does not decide it.",
       "NONE": "Anyone who may review decides it."
+    },
+    "reminder": {
+      "rule": "This claim is not finished yet. Every {hours} hours the system reminds the person who submitted it and the people who must act, until it is confirmed paid (or rejected, or withdrawn).",
+      "sent": "{count, plural, one {Reminded # time} other {Reminded # times}}, last: {at}."
     }
   },
   "moduleHub": {
