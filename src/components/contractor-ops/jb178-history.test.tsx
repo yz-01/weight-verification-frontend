@@ -53,9 +53,6 @@ const { exportBody } = await import("@/services/contractor.service");
 const source = (path: string) =>
   readFileSync(resolve(process.cwd(), path), "utf8").replace(/\r\n/g, "\n");
 
-/g, "
-");
-
 function render(node: React.ReactNode) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return renderToStaticMarkup(
