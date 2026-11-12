@@ -6,8 +6,8 @@
  * 方式发送。支持查看多次发送历史。」
  *
  * Every send of the record, newest first: to whom (name, company, phone or
- * email), how, when, by whom, and 已打开分享窗口 or 已确认发送 - with
- * 「标记为已发送」 on one that is still open. Drawn once in the record detail
+ * email), how, by whom, and its three states with their times (JB178,
+ * `SendStates`) - with 「标记为已发送」 on one not yet confirmed. Drawn once in the record detail
  * frame (`record-detail-shell.tsx`), so every record kind has it; a detail
  * outside the frame draws it itself.
  *
@@ -19,11 +19,11 @@ import { useTranslations } from "next-intl";
 import { createContext, useContext } from "react";
 import { toast } from "sonner";
 
-import { QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
+import { QueryFailedNote } from "@/components/shared/page-primitives";
 import { FILE_SHARES_KEY } from "@/components/shared/send-recipient";
+import { SendStates } from "@/components/shared/send-states";
 import { Button } from "@/components/ui/button";
 import type { FileShare } from "@/interfaces/file-action";
-import { useDateFormat } from "@/lib/dates";
 import { cn } from "@/lib/utils";
 import { confirmFileShare, getRecordShares, signsFileActions } from "@/services/file-action.service";
 
@@ -66,15 +66,12 @@ export function ShareLine({
 }) {
   const t = useTranslations("fileActions.send");
   const common = useTranslations("common");
-  const formatter = useDateFormat();
   const confirmed = share.status === "CONFIRMED";
   return (
     <div className="space-y-1" data-share-row={share.status}>
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-sm font-semibold">{share.recipient_name || "—"}</span>
         {share.recipient_company ? <span className="text-sm">{share.recipient_company}</span> : null}
-        <StatusBadge label={t(`status.${share.status}`)} tone={confirmed ? "positive" : "warning"} />
-        {share.opened_at ? <OpenedBadge openedAt={share.opened_at} count={share.open_count ?? 1} /> : null}
       </div>
       <p className="text-sm">
         {t(share.method)}
@@ -83,21 +80,10 @@ export function ShareLine({
         {extra ? <> · {extra}</> : null}
       </p>
       {share.file_name ? <p className="break-all text-xs text-muted-foreground">{share.file_name}</p> : null}
-      <p className="text-xs text-muted-foreground">
-        {t("log.by", { name: share.sent_by_name || "—", when: formatter.dateTime(share.created_at) })}
-      </p>
-      {confirmed ? (
-        <p className="text-xs text-primary">
-          {/* No confirmer: the recipient opened the link, which confirmed it
-              (Lucas 11-08: 「对方打开链接的时候弄成自动标记已发送」). */}
-          {!share.confirmed_by_name && share.opened_at
-            ? t("log.confirmedByOpen", { when: formatter.dateTime(share.confirmed_at) })
-            : t("log.confirmedBy", {
-                name: share.confirmed_by_name || "—",
-                when: formatter.dateTime(share.confirmed_at),
-              })}
-        </p>
-      ) : onMark ? (
+      <p className="text-xs text-muted-foreground">{t("states.sender", { name: share.sent_by_name || "—" })}</p>
+      {/* JB178: 分享链接已生成 · 已打开 WhatsApp · 实际发送, each with its time. */}
+      <SendStates share={share} />
+      {confirmed ? null : onMark ? (
         <Button
           size="sm"
           variant="outline"
@@ -111,22 +97,6 @@ export function ShareLine({
         </Button>
       ) : null}
     </div>
-  );
-}
-
-/**
- * 「对方已打开 · {time}」 (客户 11-08): the recipient opened the file's private
- * link. Beside the status, never instead of it - only a person's 「已发送」 makes
- * 已确认发送.
- */
-export function OpenedBadge({ openedAt, count }: { openedAt: string; count: number }) {
-  const t = useTranslations("fileActions.send");
-  const formatter = useDateFormat();
-  const label = `${t("log.opened", { when: formatter.dateTime(openedAt) })}${count > 1 ? t("log.openedCount", { count }) : ""}`;
-  return (
-    <span data-share-opened className="inline-flex">
-      <StatusBadge label={label} tone="info" />
-    </span>
   );
 }
 

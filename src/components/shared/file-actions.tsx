@@ -68,8 +68,9 @@ import {
   SentQuestionDialog,
   watchReturn,
 } from "@/components/shared/send-recipient";
+import { SendStates } from "@/components/shared/send-states";
 import { ApiError } from "@/interfaces/api";
-import type { FileActionType, FileShare, SendRecipient, ShareLink } from "@/interfaces/file-action";
+import type { FileActionType, FileShare, FileShareChannel, SendRecipient, ShareLink } from "@/interfaces/file-action";
 import {
   canShareFile,
   canShowPdfInPage,
@@ -166,10 +167,11 @@ interface Held {
   share?: FileShare | null;
   /**
    * JB64, no share window on this computer: the send is not written yet. The
-   * first of 下载文件 / WhatsApp / 电邮 writes it (已打开分享窗口) and hands
+   * first of 下载文件 / WhatsApp / 电邮 writes it (not yet confirmed) and hands
    * back its share; null when the server refused, and nothing happens.
+   * `channel` is the button pressed (JB178: 「已打开 WhatsApp」…).
    */
-  writeLog?: () => Promise<FileShare | null>;
+  writeLog?: (channel: FileShareChannel) => Promise<FileShare | null>;
   /**
    * Who 「发给谁？」 named (JB64). WhatsApp and Email send the file as a
    * private link in the message (客户 11-08), never the download trio.
@@ -318,8 +320,9 @@ export function useFileActions() {
         // WhatsApp / 电邮 is pressed, not now; pressing nothing writes nothing.
         // WhatsApp and Email always come here, share window or not: their
         // message carries the file's private link (客户 11-08).
-        const writeLog = async () => {
-          const written = await recordFileAction(type, details, grant, recipient);
+        const writeLog = async (channel: FileShareChannel) => {
+          // JB178: which button was pressed - 「已打开 WhatsApp」, 「已打开电邮」…
+          const written = await recordFileAction(type, { ...details, channel }, grant, recipient);
           if (!written) return null;
           if (written.share) source.onLogged?.();
           return written.share;
@@ -330,7 +333,13 @@ export function useFileActions() {
       let share: FileShare | null = null;
       if (signs) {
         setBusy(options.key);
-        const written = await recordFileAction(type, details, grant, recipient);
+        // A send from here goes to the share window (JB178: 「已打开分享窗口」).
+        const written = await recordFileAction(
+          type,
+          action === "share" ? { ...details, channel: "share_sheet" } : details,
+          grant,
+          recipient,
+        );
         setBusy(null);
         if (!written) return;
         share = written.share;
@@ -833,12 +842,12 @@ function ShareFileDialog({ held, onClose }: { held: Held; onClose: () => void })
    * The first press writes the send down (JB64) - only then does the file
    * go - and tells the caller. False when the server refused: nothing goes.
    */
-  const handOver = async (): Promise<FileShare | null | false> => {
+  const handOver = async (channel: FileShareChannel): Promise<FileShare | null | false> => {
     if (handed) return share;
     let written = share;
     if (held.writeLog) {
       setWriting(true);
-      written = await held.writeLog();
+      written = await held.writeLog(channel);
       setWriting(false);
       if (!written) return false;
       setShare(written);
@@ -858,13 +867,13 @@ function ShareFileDialog({ held, onClose }: { held: Held; onClose: () => void })
     }
   };
   const download = async () => {
-    if ((await handOver()) !== false) saveFile(held.file);
+    if ((await handOver("download")) !== false) saveFile(held.file);
   };
   const email = async () => {
-    if ((await handOver()) !== false) window.location.href = mailtoLink(held.title, message);
+    if ((await handOver("email")) !== false) window.location.href = mailtoLink(held.title, message);
   };
   const whatsapp = async () => {
-    const sent = await handOver();
+    const sent = await handOver("whatsapp");
     if (sent === false) return;
     // Straight to the chat of the number in 「发给谁？」 (JB132, 客户 11-07 事项 8).
     const phone = sent?.method === "WHATSAPP" ? sent.recipient_contact : "";
@@ -964,6 +973,9 @@ function ShareFileDialog({ held, onClose }: { held: Held; onClose: () => void })
             ) : null}
           </div>
         )}
+        {/* JB178: what has happened so far, each with its time - pressing a
+            button is never 「已发送」. */}
+        {handed && share ? <SendStates share={share} className="rounded-md border p-2" /> : null}
         {back && share ? <SentQuestion share={share} onAnswered={answered} inline /> : null}
         <p className="rounded-md bg-muted/50 p-2 text-xs text-muted-foreground">{t("shareHint")}</p>
       </DialogContent>
@@ -1025,10 +1037,12 @@ function LinkSend({
   const go = async (via: LinkVia) => {
     setWorking(true);
     try {
+      const writeLog = held.writeLog;
       const result = await sendByLink(recipient, held.file, via, {
         win: window,
         share,
-        writeLog: held.writeLog,
+        // JB178: the button pressed - 「已打开 WhatsApp」 or 「已打开电邮」.
+        writeLog: writeLog ? () => writeLog(via === "whatsapp" ? "whatsapp" : "email") : undefined,
         existing: made,
         attach: attachShareFile,
         linkUrl: (token) => shareLinkUrl(token),

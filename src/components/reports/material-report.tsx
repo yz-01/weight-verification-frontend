@@ -201,6 +201,9 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
       : t(`materialReports.${mode}.title`);
   const chosen = [viewTitle, level].join(" › ");
 
+  // Kept in 「报表导出历史」 under its own name (JB178, 客户 11-12 追加 1).
+  const reportType = mode === "cost" ? "material_cost" : "material_quantity";
+
   function runExport(format: ExportFormat) {
     // The file ends with each material's 累计总数量 (E5, Q24): one
     // quantity beside 收货次数, as on the screen (Lucas 2026-10-10).
@@ -229,6 +232,7 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
         // The PDF carries each return's complete evidence pages (JB48).
         completeEvidence: true,
         returnTo: currentPage(),
+        reportType,
         summary: cumulativeSummary,
         columns: [
               { key: "return_note_no", label: t("materialReports.records.returnNo") },
@@ -260,6 +264,7 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
       // The PDF carries each delivery's complete evidence pages (JB48).
       completeEvidence: true,
       returnTo: currentPage(),
+      reportType,
       // The file ends with each material's 累计总数量 (E5, Q24): one
       // quantity beside 收货次数, as on the screen (Lucas 2026-10-10).
       summary: mode === "quantity" ? cumulativeSummary : undefined,

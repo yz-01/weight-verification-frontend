@@ -100,6 +100,12 @@ export interface ExportRequest {
   completeEvidence?: boolean;
   /** The report page, for a background report's 「重新导出」 (JB48). */
   returnTo?: string;
+  /**
+   * The report centre's report this export is (JB178): 材料数量报表 /
+   * 材料成本报表 are kept in 「报表导出历史」 by the server. Left out, the
+   * file is the module's plain list export.
+   */
+  reportType?: "material_quantity" | "material_cost";
 }
 
 /**
@@ -121,6 +127,7 @@ export function exportBody(request: ExportRequest) {
     columns: request.columns,
     ...(request.completeEvidence ? { complete_evidence: true } : {}),
     ...(request.returnTo ? { return_to: request.returnTo } : {}),
+    ...(request.reportType ? { report_type: request.reportType } : {}),
     ...(request.summary
       ? {
           summary: {

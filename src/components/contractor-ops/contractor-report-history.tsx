@@ -15,6 +15,13 @@
  * every print, download and send in the back office, with the same four
  * filters and the project. Each report opens its own records.
  *
+ * JB178 / JB180 (客户 11-12 追加 1、3): both tabs follow the page's project
+ * (the top bar's choice) and say what they show - 「现在只显示：…，共 N 笔。」 -
+ * and, when a project has nothing, which project and how to see all. Every
+ * 操作记录 row has 「查看」 (the file as it was kept), 「打开记录」 (a single
+ * record) or 「这一份当时没有保存文件」; a send shows to whom, how and its
+ * three states (`SendStates`).
+ *
  * Rows from before files were kept (before 2026-10-10) have nothing stored
  * to open. 「按当时条件重新生成」 generates them again from the conditions the
  * row saved - with the data as it is now, which the file says - into a new
@@ -22,10 +29,10 @@
  */
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { History, Loader2, RotateCcw } from "lucide-react";
+import { Eye, History, Loader2, RotateCcw } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
-import { useDeferredValue, useState } from "react";
+import { useDeferredValue, useState, type ReactNode } from "react";
 import { toast } from "sonner";
 
 import { CompanyBanner } from "@/components/dashboard/company-banner";
@@ -40,8 +47,9 @@ import {
 import { ReportJobs } from "@/components/reports/report-jobs";
 import { ReportSelector } from "@/components/reports/report-selector";
 import { clickOpensRow } from "@/components/shared/inside-row-control";
-import { FilterBar, FilterField, ListHeader, StatusBadge } from "@/components/shared/page-primitives";
-import { useProjectBoxShown } from "@/components/providers/current-project-provider";
+import { FilterBar, FilterField, ListHeader } from "@/components/shared/page-primitives";
+import { SendStates } from "@/components/shared/send-states";
+import { useCurrentProject, useProjectBoxShown } from "@/components/providers/current-project-provider";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
 import {
@@ -67,22 +75,27 @@ import {
   type FileActionType,
   type FileShare,
 } from "@/interfaces/file-action";
+import type { ArchivedReportFile } from "@/interfaces/report-archive";
 import { useDateFormat } from "@/lib/dates";
 import { messageCodes, reportColumnValues } from "@/lib/report-preview";
 import { useUnitExportValues } from "@/hooks/use-material-units";
 import { isSignOffCancelled } from "@/lib/sign-off";
+import { cn } from "@/lib/utils";
 import { captureDownload } from "@/services/api-client";
 import {
   exportContractorReport,
   getContractorReport,
   getContractorReportHistory,
 } from "@/services/contractor-report.service";
+import { getProjects } from "@/services/contractor.service";
 import { getFileActionRecords } from "@/services/file-action.service";
 
 const PAGE_SIZE = 20;
 
 /** The reports a name typed in 「报表 / 资料名称」 can match (by their words). */
-const REPORT_TYPES: ReadonlyArray<ContractorReportType | "material_report" | "material_issue_statement"> = [
+const REPORT_TYPES: ReadonlyArray<
+  ContractorReportType | "material_report" | "material_cost" | "material_quantity" | "material_issue_statement"
+> = [
   "progress", "safety", "consultant", "attendance", "equipment", "recycling", "schedule", "target",
   "photos", "documents", "daily_report", "progress_summary", "field_tasks", "material_outgoing",
   "claims", "sundry_claims", "material_returns", "material_rejections",
@@ -90,6 +103,9 @@ const REPORT_TYPES: ReadonlyArray<ContractorReportType | "material_report" | "ma
   "material_report",
   // 材料领用结账单, printed / exported / sent from 材料出场 › 材料领用 (JB179).
   "material_issue_statement",
+  // 材料成本报表 / 材料数量报表, kept since JB178.
+  "material_cost",
+  "material_quantity",
 ];
 
 /** The filter keys a history row may have saved, sent back as they were. */
@@ -123,8 +139,8 @@ export function ContractorReportHistoryWorkspace() {
     setPage(1);
     setLogPage(1);
   };
-  const filtering = JSON.stringify(filters) !== JSON.stringify(NO_FILTERS);
   const projectBoxShown = useProjectBoxShown("filter");
+  const scope = useHistoryScope(filters, tab, () => set(NO_FILTERS));
   const projectPicker = (
     <ProjectPicker
       value={filters.project}
@@ -200,29 +216,130 @@ export function ContractorReportHistoryWorkspace() {
               />
             </FilterField>
           ) : null}
-          {/* The top bar's project covers it: no empty 「项目」 label (JB65 fix). */}
-          {tab === "log" ? (
-            projectBoxShown ? (
-              <FilterField label={t("history.project")}>{projectPicker}</FilterField>
-            ) : (
-              // Following the top bar's project: kept for its sync, with no label.
-              projectPicker
-            )
-          ) : null}
-          {filtering ? (
-            <Button variant="ghost" onClick={() => set(NO_FILTERS)}>{h("filter.clear")}</Button>
-          ) : null}
+          {/* The top bar's project covers it: no empty 「项目」 label (JB65 fix).
+              Both tabs follow it (JB178: 「报表」页签同样). */}
+          {projectBoxShown ? (
+            <FilterField label={t("history.project")}>{projectPicker}</FilterField>
+          ) : (
+            // Following the top bar's project: kept for its sync, with no label.
+            projectPicker
+          )}
         </FilterBar>
         <p className="mt-2 text-xs text-muted-foreground">
           {tab === "log" ? h("logHint") : h("actionFilterHint")}
         </p>
         <TabsContent value="reports" className="mt-3">
-          <ReportRows filters={filters} page={page} onPage={setPage} />
+          <ReportRows filters={filters} page={page} onPage={setPage} scope={scope} />
         </TabsContent>
         <TabsContent value="log" className="mt-3">
-          <ActionLog filters={filters} page={logPage} onPage={setLogPage} />
+          <ActionLog filters={filters} page={logPage} onPage={setLogPage} scope={scope} />
         </TabsContent>
       </Tabs>
+    </div>
+  );
+}
+
+/**
+ * What the page is showing (JB180 第 4 点, JB178 第 5 点): the project and the
+ * filters in force, in plain words - 「现在只显示：PRJ-0003 - PUTRA_MAS ·
+ * 12/11/2026 · 下载 / 导出，共 1 笔。」 - and, when a project has nothing, which
+ * project and where to choose 「全部项目」.
+ */
+export interface HistoryScope {
+  /** 「PRJ-0003 - PUTRA_MAS」 while one project is chosen, else "". */
+  projectLabel: string;
+  /** The project and filters in force, each in words. */
+  parts: string[];
+  /** A filter other than the project narrows the list. */
+  narrowed: boolean;
+  /** Something 【清除筛选】 can take away (the top bar's project it cannot). */
+  clearable: boolean;
+  /** 「要看所有项目的，请在右上角选「全部项目」。」 */
+  allProjectsHint: string;
+  onClear: () => void;
+}
+
+/** 「PRJ-0003 - PUTRA_MAS」 for a project id; "" for 「全部项目」. */
+function useProjectLabel(project: string): string {
+  const current = useCurrentProject();
+  const wanted = project && project !== "all" ? project : "";
+  // query-failure: only names the project in a sentence; without the list the sentence shows 「…」 for it
+  const list = useQuery({
+    queryKey: ["projects", "options"],
+    queryFn: () => getProjects({ page_size: 100, sort_by: "name" }),
+    enabled: Boolean(wanted) && !current.active,
+    staleTime: 60_000,
+  });
+  if (!wanted) return "";
+  const found = (current.active ? current.projects : list.data?.results ?? []).find((row) => row.id === wanted);
+  return found ? `${found.code} - ${found.name}` : "…";
+}
+
+function useHistoryScope(filters: Filters, tab: string, onClear: () => void): HistoryScope {
+  const t = useTranslations("contractorReports");
+  const h = useTranslations("contractorReports.history");
+  const df = useDateFormat();
+  const current = useCurrentProject();
+  const projectLabel = useProjectLabel(filters.project);
+  const others = [
+    filters.date ? df.date(filters.date) : "",
+    filters.operator.trim(),
+    filters.action ? h(`action.${filters.action}`) : "",
+    filters.name.trim(),
+    tab === "log" ? filters.recipient.trim() : "",
+  ].filter(Boolean);
+  return {
+    projectLabel,
+    parts: [projectLabel, ...others].filter(Boolean),
+    narrowed: others.length > 0,
+    clearable: others.length > 0 || (!current.active && Boolean(projectLabel)),
+    allProjectsHint: current.active
+      ? h("allProjectsTopBar")
+      : h("allProjectsFilter", { all: t("filter.allProjects") }),
+    onClear,
+  };
+}
+
+/** 「现在只显示：…，共 N 笔。」 and 【清除筛选】, above the table. */
+export function ShowingOnly({ scope, count }: { scope: HistoryScope; count?: number }) {
+  const h = useTranslations("contractorReports.history");
+  if (!scope.parts.length || count === undefined) return null;
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-2 border-b px-4 py-2 text-sm" data-slot="history-showing">
+      <p className="min-w-0 break-words">{h("showingOnly", { what: scope.parts.join(" · "), count })}</p>
+      {scope.clearable ? (
+        <Button size="sm" variant="ghost" onClick={scope.onClear} data-slot="history-clear">
+          {h("filter.clear")}
+        </Button>
+      ) : null}
+    </div>
+  );
+}
+
+/** Nothing to list: why, in words that say which project and how to see all. */
+export function EmptyNote({
+  scope,
+  plain,
+  noMatch,
+  projectEmpty,
+}: {
+  scope: HistoryScope;
+  plain: string;
+  noMatch: string;
+  projectEmpty: string;
+}) {
+  return (
+    <div className="space-y-1 p-10 text-center text-sm text-muted-foreground" data-slot="history-empty">
+      {scope.narrowed ? (
+        <p>{noMatch}</p>
+      ) : scope.projectLabel ? (
+        <>
+          <p>{projectEmpty}</p>
+          <p>{scope.allProjectsHint}</p>
+        </>
+      ) : (
+        <p>{plain}</p>
+      )}
     </div>
   );
 }
@@ -240,7 +357,17 @@ function useMatchingTypes(name: string): string[] {
 
 /* --------------------------------------------------------------- reports */
 
-function ReportRows({ filters, page, onPage }: { filters: Filters; page: number; onPage: (page: number) => void }) {
+function ReportRows({
+  filters,
+  page,
+  onPage,
+  scope,
+}: {
+  filters: Filters;
+  page: number;
+  onPage: (page: number) => void;
+  scope: HistoryScope;
+}) {
   const t = useTranslations("contractorReports");
   const h = useTranslations("contractorReports.history");
   const dashboard = useTranslations("contractorDashboard");
@@ -259,6 +386,8 @@ function ReportRows({ filters, page, onPage }: { filters: Filters; page: number;
     action: filters.action || undefined,
     name: name || undefined,
     report_types: types.length ? types.join(",") : undefined,
+    // The page's project, as on 「操作记录」 (JB178): 「全部项目」 sends none.
+    project: filters.project === "all" ? undefined : filters.project,
   };
   const history = useQuery({
     queryKey: ["contractor-reports", "history", query],
@@ -280,11 +409,18 @@ function ReportRows({ filters, page, onPage }: { filters: Filters; page: number;
       ) : history.isError ? (
         <p className="p-8 text-center text-sm text-destructive">{t("loadError")}</p>
       ) : rows.length === 0 ? (
-        <p className="p-10 text-center text-sm text-muted-foreground">
-          {page === 1 && !filters.date && !operator && !filters.action && !name ? h("empty") : h("noMatch")}
-        </p>
+        <>
+          <ShowingOnly scope={scope} count={history.data?.count ?? 0} />
+          <EmptyNote
+            scope={scope}
+            plain={h("empty")}
+            noMatch={h("noMatch")}
+            projectEmpty={h("emptyProject", { project: scope.projectLabel })}
+          />
+        </>
       ) : (
         <>
+          <ShowingOnly scope={scope} count={history.data?.count} />
           {/* Fits the page (I39): the file name wraps, the dates stack. */}
           <Table fit>
             <TableHeader><TableRow>
@@ -495,7 +631,18 @@ function ReportActionsDialog({
 
 /* ------------------------------------------------------------ action log */
 
-function ActionLog({ filters, page, onPage }: { filters: Filters; page: number; onPage: (page: number) => void }) {
+function ActionLog({
+  filters,
+  page,
+  onPage,
+  scope,
+}: {
+  filters: Filters;
+  page: number;
+  onPage: (page: number) => void;
+  scope: HistoryScope;
+}) {
+  const h = useTranslations("contractorReports.history");
   const operator = useDeferredValue(filters.operator.trim());
   const name = useDeferredValue(filters.name.trim());
   const recipient = useDeferredValue(filters.recipient.trim());
@@ -516,22 +663,37 @@ function ActionLog({ filters, page, onPage }: { filters: Filters; page: number; 
   });
   return (
     <section className="surface-panel overflow-hidden rounded-xl" data-slot="history-action-log">
-      <ActionTable records={records} />
+      {records.isSuccess ? <ShowingOnly scope={scope} count={records.data?.count ?? 0} /> : null}
+      <ActionTable
+        records={records}
+        empty={
+          <EmptyNote
+            scope={scope}
+            plain={h("logEmpty")}
+            noMatch={h("logNoMatch")}
+            projectEmpty={h("logEmptyProject", { project: scope.projectLabel })}
+          />
+        }
+      />
       <Pager page={page} count={records.data?.count} totalPages={records.data?.total_pages ?? 0} onPage={onPage} />
     </section>
   );
 }
 
 /**
- * The log's rows: 操作人员姓名及账号、日期及时间（24 小时制）、操作类型、所属
- * 项目、对应业务事项、报表或文件名称 - and where it opens.
+ * The log's rows (JB180 第 5 点): 日期时间｜操作员（姓名和账号）｜操作类型｜项目｜
+ * 报表名称｜发送记录（发给谁、方式、状态）｜查看. A click on a row with a kept
+ * file opens it, as its 「查看」 does.
  */
 function ActionTable({
   records,
   compact = false,
+  empty,
 }: {
   records: { isLoading: boolean; isError: boolean; data?: { results: FileActionRecord[] } };
   compact?: boolean;
+  /** What an empty list says; 「还没有打印、下载或发送的记录。」 by default. */
+  empty?: ReactNode;
 }) {
   const h = useTranslations("contractorReports.history");
   const t = useTranslations("contractorReports");
@@ -545,7 +707,9 @@ function ActionTable({
     );
   }
   if (records.isError) return <p className="p-8 text-center text-sm text-destructive">{t("loadError")}</p>;
-  if (!rows.length) return <p className="p-10 text-center text-sm text-muted-foreground">{h("logEmpty")}</p>;
+  if (!rows.length) {
+    return empty ?? <p className="p-10 text-center text-sm text-muted-foreground">{h("logEmpty")}</p>;
+  }
   return (
     <>
       <Table fit>
@@ -554,30 +718,46 @@ function ActionTable({
           <TableHead>{h("log.operator")}</TableHead>
           <TableHead>{h("log.action")}</TableHead>
           {compact ? null : <TableHead>{h("project")}</TableHead>}
-          <TableHead>{h("log.subject")}</TableHead>
+          <TableHead>{h("log.reportName")}</TableHead>
+          <TableHead>{h("log.sendRecord")}</TableHead>
+          <TableHead pin="end">{h("log.view")}</TableHead>
         </TableRow></TableHeader>
         <TableBody>
-          {rows.map((row) => (
-            <TableRow key={row.id} className="align-top" data-slot="history-action-row">
-              <TableCell className="whitespace-nowrap tabular">{dateTime24(row.created_at)}</TableCell>
-              <TableCell className="whitespace-normal">
-                <p>{row.actor_name || "-"}</p>
-                <p className="break-all text-xs text-muted-foreground">{row.actor_account}</p>
-              </TableCell>
-              <TableCell className="whitespace-normal">
-                <p>{h(`action.${row.action}`)}</p>
-                {row.share ? (
-                  <SentToCell share={row.share} />
-                ) : row.channel ? (
-                  <p className="text-xs text-muted-foreground">{h(`channel.${row.channel}`)}</p>
-                ) : null}
-              </TableCell>
-              {compact ? null : <TableCell>{row.project_name || "-"}</TableCell>}
-              <TableCell className="whitespace-normal">
-                <ActionSubject row={row} archive={archive} />
-              </TableCell>
-            </TableRow>
-          ))}
+          {rows.map((row) => {
+            const kept = keptFile(row);
+            return (
+              <TableRow
+                key={row.id}
+                className={cn("align-top", kept && "cursor-pointer")}
+                data-slot="history-action-row"
+                onClick={(event) => {
+                  if (kept && clickOpensRow(event) && !archive.busy) archive.open(kept, "preview", rowTitle(row));
+                }}
+              >
+                <TableCell className="whitespace-nowrap tabular">{dateTime24(row.created_at)}</TableCell>
+                <TableCell className="whitespace-normal">
+                  <p>{row.actor_name || "-"}</p>
+                  <p className="break-all text-xs text-muted-foreground">{row.actor_account}</p>
+                </TableCell>
+                <TableCell className="whitespace-normal">
+                  <p>{h(`action.${row.action}`)}</p>
+                  {!row.share && row.channel ? (
+                    <p className="text-xs text-muted-foreground">{h(`channel.${row.channel}`)}</p>
+                  ) : null}
+                </TableCell>
+                {compact ? null : <TableCell>{row.project_name || "-"}</TableCell>}
+                <TableCell className="whitespace-normal">
+                  <ActionSubject row={row} />
+                </TableCell>
+                <TableCell className="whitespace-normal">
+                  {row.share ? <SentToCell share={row.share} /> : <span className="text-muted-foreground">-</span>}
+                </TableCell>
+                <TableCell pin="end">
+                  <RowView row={row} kept={kept} archive={archive} />
+                </TableCell>
+              </TableRow>
+            );
+          })}
         </TableBody>
       </Table>
       {archive.element}
@@ -585,15 +765,79 @@ function ActionTable({
   );
 }
 
+/** The 「报表导出历史」 file a log row is, when it was kept (JB180). */
+export function keptFile(row: FileActionRecord): ArchivedReportFile | null {
+  if (!row.report_export || !row.report_has_file) return null;
+  const name = row.report_file_name || row.file_name || "";
+  return {
+    id: row.report_export,
+    file_name: name,
+    export_format: /\.pdf$/i.test(name) ? "PDF" : "EXCEL",
+    has_file: true,
+    file_size: 0,
+    file_sha256: "",
+  };
+}
+
+function rowTitle(row: FileActionRecord): string {
+  return row.subject || row.file_name || row.report_file_name || "";
+}
+
 /**
- * A send's recipient, under 「发送 / 分享」 (JB65, 客户 10-29 事项 3 第 2 点):
- * 接收方姓名、公司、电话或 Email、发送方式, and 已打开分享窗口 / 已确认发送.
- * Print, download and export rows carry none and stay as they were.
+ * 「查看」 (JB180 第 2 点: 「历史记录没有明确的「查看」按钮，必须能够重新打开原来的
+ * 报表，支持预览、打印、下载及发送／分享」): the file as it was kept - never made
+ * again - in the viewer with 预览｜打印｜导出｜发送. A single record keeps
+ * 「打开记录」; a row whose file was never kept says so.
+ */
+export function RowView({
+  row,
+  kept,
+  archive,
+}: {
+  row: FileActionRecord;
+  kept: ArchivedReportFile | null;
+  archive: ReportArchive;
+}) {
+  const h = useTranslations("contractorReports.history");
+  const files = useTranslations("fileActions");
+  return (
+    <div className="flex flex-col items-start gap-1">
+      {kept ? (
+        <Button
+          size="sm"
+          variant="outline"
+          disabled={Boolean(archive.busy)}
+          disabledReason={files("preparing")}
+          onClick={() => archive.open(kept, "preview", rowTitle(row))}
+          data-slot="history-action-view"
+        >
+          {archive.busy === `${kept.id}:preview` ? <Loader2 className="animate-spin" /> : <Eye />}
+          {h("log.view")}
+        </Button>
+      ) : null}
+      {row.link ? (
+        <Button size="sm" variant="ghost" asChild>
+          <a href={row.link} data-slot="history-action-link">{h("log.openRecord")}</a>
+        </Button>
+      ) : null}
+      {!kept && !row.link ? (
+        <p className="max-w-48 text-xs leading-snug text-muted-foreground" data-slot="history-action-no-file">
+          {h("log.noFile")}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
+/**
+ * A send's 发送记录 (JB65, JB178): 发给谁（姓名、公司、电话或 Email）、发送方式,
+ * and its three states with their times (`SendStates`). Print, download and
+ * export rows carry none.
  */
 export function SentToCell({ share }: { share: FileShare }) {
   const s = useTranslations("fileActions.send");
   return (
-    <div className="mt-1 space-y-0.5 text-xs" data-slot="history-send-details">
+    <div className="space-y-0.5 text-xs" data-slot="history-send-details">
       <p className="font-medium text-foreground">
         {share.recipient_name || "-"}
         {share.recipient_company ? ` · ${share.recipient_company}` : ""}
@@ -602,52 +846,18 @@ export function SentToCell({ share }: { share: FileShare }) {
         {s(share.method)}
         {share.recipient_contact ? ` · ${share.recipient_contact}` : ""}
       </p>
-      <StatusBadge
-        label={s(`status.${share.status}`)}
-        tone={share.status === "CONFIRMED" ? "positive" : "warning"}
-      />
+      <SendStates share={share} />
     </div>
   );
 }
 
-/** The business item and file, with a way back to the report or record. */
-function ActionSubject({ row, archive }: { row: FileActionRecord; archive: ReportArchive }) {
-  const h = useTranslations("contractorReports.history");
+/** The business item and the file it was. */
+function ActionSubject({ row }: { row: FileActionRecord }) {
   const name = row.file_name || row.report_file_name || "";
   return (
     <div className="min-w-0 space-y-0.5">
       {row.subject ? <p className="break-all">{row.subject}</p> : null}
       {name && name !== row.subject ? <p className="break-all text-xs text-muted-foreground">{name}</p> : null}
-      <div className="flex flex-wrap gap-2 text-xs">
-        {row.report_export && row.report_has_file ? (
-          <button
-            type="button"
-            className="text-primary underline-offset-2 hover:underline"
-            onClick={() =>
-              archive.open(
-                {
-                  id: row.report_export!,
-                  file_name: row.report_file_name ?? name,
-                  export_format: /\.pdf$/i.test(row.report_file_name ?? name) ? "PDF" : "EXCEL",
-                  has_file: true,
-                  file_size: 0,
-                  file_sha256: "",
-                },
-                "preview",
-                row.subject || name,
-              )
-            }
-            data-slot="history-action-open-report"
-          >
-            {h("log.openReport")}
-          </button>
-        ) : null}
-        {row.link ? (
-          <a className="text-primary underline-offset-2 hover:underline" href={row.link} data-slot="history-action-link">
-            {h("log.openRecord")}
-          </a>
-        ) : null}
-      </div>
     </div>
   );
 }

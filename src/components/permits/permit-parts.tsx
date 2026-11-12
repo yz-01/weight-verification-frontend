@@ -82,6 +82,7 @@ import {
   resubmitPermit,
   returnPermit,
 } from "@/services/permit.service";
+import { signFileAction } from "@/services/file-action.service";
 
 /**
  * What a permit form arrives as: Word, Excel, PDF or a photo of it. Exactly
@@ -177,17 +178,28 @@ export function PermitFileActions({
   permitId,
   file,
   compact = false,
+  project,
 }: {
   permitId: string;
   file: PermitFile;
   compact?: boolean;
+  /** The permit's project: its print / download log row is filed under it (JB178). */
+  project?: string;
 }) {
   const t = useTranslations("permits.files");
   const df = useDateFormat();
   const [previewing, setPreviewing] = useState(false);
   const [printing, setPrinting] = useState(false);
+  const details = {
+    subject: file.original_name,
+    file_name: file.original_name,
+    project,
+    link: typeof window === "undefined" ? undefined : `${window.location.pathname}${window.location.search}`,
+  };
   const print = async () => {
     if (file.preview_type === "application/pdf") {
+      // 打印 asks for the person's own PIN and is logged (JB27; JB178 audit).
+      if (!(await signFileAction("PRINT", details))) return;
       setPrinting(true);
       try {
         if (await printFile(await permitFileBlob(permitId, file))) return;
@@ -200,6 +212,10 @@ export function PermitFileActions({
     setPreviewing(true);
   };
   const buttonSize = compact ? "size-7" : "size-8";
+  const download = async () => {
+    // 下载 asks for the person's own PIN and is logged (JB27; JB178 audit).
+    if (await signFileAction("DOWNLOAD", details)) await downloadPermitFile(permitId, file);
+  };
   return (
     <>
       <Button
@@ -241,7 +257,7 @@ export function PermitFileActions({
         aria-label={t("download")}
         onClick={(event) => {
           event.stopPropagation();
-          void downloadPermitFile(permitId, file);
+          void download();
         }}
       >
         <Download className="size-3.5" />
@@ -348,7 +364,7 @@ export function PermitDocuments({ permit }: { permit: Permit }) {
               </span>
             </button>
             <div className="flex shrink-0 flex-col justify-center">
-              <PermitFileActions permitId={permit.id} file={file} compact />
+              <PermitFileActions permitId={permit.id} file={file} compact project={permit.project} />
             </div>
           </li>
         );
@@ -824,7 +840,8 @@ export function PermitDetail({
   if (presentation === "inline") return <>{body}</>;
   return (
     <RecordDetailDialog
-      title={permit?.incident_no ?? t("title")}
+      title={permit?.incident_no ?? t("title")}
+
       description={permit ? `${permit.project_name} · ${permit.title}` : undefined}
       status={permit ? <PermitStatusBadge status={permit.status} /> : undefined}
       // 完整证据 PDF (2026-10-10, 审批证据完整性): the permit's details, its

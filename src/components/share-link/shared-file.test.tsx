@@ -120,11 +120,11 @@ describe("发送记录: 对方已打开", () => {
     ...overrides,
   });
 
-  it("shows the badge beside the status, which stays 已打开分享窗口", () => {
+  it("says 对方已打开链接 under 实际发送, beside the button pressed (JB178)", () => {
     const html = render(<ShareLine share={share({ opened_at: "2026-11-08T03:00:00Z", open_count: 1 })} />);
-    expect(html).toContain("data-share-opened");
-    expect(html).toContain("对方已打开 · ");
-    expect(html).toContain("已打开分享窗口");
+    expect(html).toContain('data-send-state="actual"');
+    expect(html).toContain("对方已打开链接 · ");
+    expect(html).toContain("已打开 WhatsApp · ");
     expect(html).not.toContain("次）");
   });
 
@@ -133,7 +133,9 @@ describe("发送记录: 对方已打开", () => {
     expect(html).toContain("（3 次）");
   });
 
-  it("no badge before anybody opened it", () => {
-    expect(render(<ShareLine share={share({ opened_at: null, open_count: 0 })} />)).not.toContain("data-share-opened");
+  it("before anybody opened it: 还没有确认发出", () => {
+    const html = render(<ShareLine share={share({ opened_at: null, open_count: 0 })} />);
+    expect(html).not.toContain("对方已打开链接");
+    expect(html).toContain("还没有确认发出");
   });
 });

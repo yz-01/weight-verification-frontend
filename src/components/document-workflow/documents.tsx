@@ -133,6 +133,7 @@ import {
   uploadDocument,
   uploadDocumentVersion,
 } from "@/services/document-workflow.service";
+import { signFileAction } from "@/services/file-action.service";
 import {
   ARCHIVE_COLUMN_WIDTHS,
   DOCUMENT_FILE_ACCEPT,
@@ -1855,6 +1856,16 @@ function DocumentDetailDialog({
   });
 
   const handleDownload = async (version: DocumentVersion) => {
+    // 下载 asks for the person's own PIN and is logged under the document's
+    // record and project (JB27; JB178 audit).
+    const signed = await signFileAction("DOWNLOAD", {
+      subject: version.original_name,
+      file_name: version.original_name,
+      record_kind: "DOCUMENT",
+      record_id: documentId,
+      link: `${window.location.pathname}${window.location.search}`,
+    });
+    if (!signed) return;
     setDownloading(version.id);
     try {
       await downloadDocumentVersion(version);
