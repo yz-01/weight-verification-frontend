@@ -320,3 +320,26 @@ describe("every new word in four languages", () => {
     expect(JSON.stringify(zh.contractorReports.history)).not.toContain("您");
   });
 });
+
+describe("JB178-6: the gaps the audit found, filled", () => {
+  it("a permit file's 打印 / 下载 and a document version's 下载 ask the PIN and are logged with their project", () => {
+    const permit = source("src/components/permits/permit-parts.tsx");
+    expect(permit).toContain('if (!(await signFileAction("PRINT", details))) return;');
+    expect(permit).toContain('if (await signFileAction("DOWNLOAD", details)) await downloadPermitFile(permitId, file);');
+    expect(permit).toContain("project={permit.project}");
+    const documents = source("src/components/document-workflow/documents.tsx");
+    const download = documents.slice(documents.indexOf("const handleDownload = async"), documents.indexOf("const systemFiles"));
+    expect(download).toContain('signFileAction("DOWNLOAD", {');
+    expect(download).toContain('record_kind: "DOCUMENT"');
+    expect(download.indexOf("signFileAction")).toBeLessThan(download.indexOf("downloadDocumentVersion(version)"));
+  });
+
+  it("sign-first QR downloads and a photo's print / download name their project or record", () => {
+    expect(source("src/components/projects/project-dockets.tsx")).toContain("project: note.project");
+    expect(source("src/components/site-access/site-access-workspace.tsx")).toContain("project: row.project");
+    expect(source("src/components/suppliers/supplier-site-codes.tsx")).toContain("project: code.project");
+    expect(source("src/components/qrcodes/admin-qr-workspace.tsx").match(/project: code\.project \?\? undefined/g)).toHaveLength(2);
+    const photo = source("src/components/shared/evidence-file-actions.tsx");
+    expect(photo.match(/record_kind: target\?\.recordKind/g)).toHaveLength(2);
+  });
+});
