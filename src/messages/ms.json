@@ -3638,6 +3638,7 @@
       "issue_submitted": "Permohonan pengeluaran bahan dihantar",
       "issue_handed_over": "Bahan yang dikeluarkan diserahkan",
       "material_issue_statement_exported": "Penyata pengeluaran bahan dieksport",
+      "material_issue_statement_previewed": "Penyata pengeluaran bahan dipratonton",
       "owner_account_updated": "Akaun pemilik diubah",
       "paid": "Dibayar",
       "password_changed": "Kata laluan diubah",
@@ -7117,7 +7118,7 @@
       "statementButton": "Pratonton / cetak semua",
       "statementNone": "Tiada rekod yang ditapis telah dikeluarkan lagi, jadi tiada apa untuk dicetak.",
       "statementLoading": "Sedang disediakan, sila tunggu.",
-      "statementHelp": "Di bawah ialah apa yang akan dicetak: semua rekod yang telah dikeluarkan mengikut tapisan, dalam satu senarai, tanpa foto, dengan kedua-dua tandatangan. Cetak dan Eksport PDF memberi dokumen yang sama.",
+      "statementHelp": "Di bawah ialah apa yang akan dicetak: semua rekod yang telah dikeluarkan mengikut tapisan, dalam satu senarai, tanpa foto, dengan kedua-dua tandatangan. Pratonton menunjukkan PDF rasmi; Cetak mencetaknya; Eksport PDF menyimpannya ke komputer ini; Hantar berkongsinya melalui WhatsApp atau E-mel. Keempat-empatnya menggunakan PDF yang sama.",
       "statementTitle": "Penyata Pengeluaran Bahan / Material Issue Statement",
       "statementWhat": "penyata",
       "statementProject": "Projek",
@@ -7446,7 +7447,8 @@
       "material_outgoing": "Laporan bahan keluar",
       "field_tasks": "Laporan tugasan tapak",
       "daily_report": "Laporan harian",
-      "progress_summary": "Ringkasan kemajuan"
+      "progress_summary": "Ringkasan kemajuan",
+      "material_issue_statement": "Penyata pengeluaran bahan"
     },
     "what": {
       "filterOptions": "pilihan penapis",

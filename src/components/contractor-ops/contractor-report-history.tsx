@@ -82,12 +82,14 @@ import { getFileActionRecords } from "@/services/file-action.service";
 const PAGE_SIZE = 20;
 
 /** The reports a name typed in 「报表 / 资料名称」 can match (by their words). */
-const REPORT_TYPES: ReadonlyArray<ContractorReportType | "material_report"> = [
+const REPORT_TYPES: ReadonlyArray<ContractorReportType | "material_report" | "material_issue_statement"> = [
   "progress", "safety", "consultant", "attendance", "equipment", "recycling", "schedule", "target",
   "photos", "documents", "daily_report", "progress_summary", "field_tasks", "material_outgoing",
   "claims", "sundry_claims", "material_returns", "material_rejections",
   // 材料报表's PDF of more than 20 deliveries, made in the background (JB48).
   "material_report",
+  // 材料领用结账单, printed / exported / sent from 材料出场 › 材料领用 (JB179).
+  "material_issue_statement",
 ];
 
 /** The filter keys a history row may have saved, sent back as they were. */

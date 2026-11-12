@@ -160,8 +160,11 @@ export interface ReportLevelRow {
 /** One row of 报表导出历史, and the file it keeps (`ArchivedReportFile`). */
 export interface ContractorReportExportRecord extends ArchivedReportFile {
   id: string;
-  /** `dashboard`: the 现场看板 export, kept in the same history. */
-  report_type: ContractorReportType | "dashboard";
+  /**
+   * `dashboard`: the 现场看板 export, kept in the same history; and
+   * `material_issue_statement`, 材料领用's 结账单 (JB179).
+   */
+  report_type: ContractorReportType | "dashboard" | "material_issue_statement";
   export_format: "PDF" | "EXCEL";
   date_from: string;
   date_to: string;

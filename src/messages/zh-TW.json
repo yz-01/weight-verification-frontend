@@ -3638,6 +3638,7 @@
       "issue_submitted": "提交材料領用申請",
       "issue_handed_over": "正式領用",
       "material_issue_statement_exported": "導出材料領用結帳單",
+      "material_issue_statement_previewed": "預覽材料領用結帳單",
       "owner_account_updated": "修改負責人賬號",
       "paid": "已付款",
       "password_changed": "修改密碼",
@@ -7117,7 +7118,7 @@
       "statementButton": "批量預覽 / 列印",
       "statementNone": "篩選出來的記錄還沒有已領用的，沒有可以列印的。",
       "statementLoading": "正在準備，請稍等。",
-      "statementHelp": "下面就是印出來的內容：篩選出來的全部已領用記錄，不分頁，沒有照片，有雙方簽名。按「列印」或「匯出 PDF」，紙上和檔案一模一樣。",
+      "statementHelp": "下面就是印出來的內容：篩選出來的全部已領用記錄，不分頁，沒有照片，有雙方簽名。按「預覽」看正式的 PDF；「列印」把它印出來；「匯出 PDF」存到電腦；「發送」用 WhatsApp 或 Email 發給別人。四個用的都是同一份 PDF。",
       "statementTitle": "材料領用結帳單 / Material Issue Statement",
       "statementWhat": "結帳單",
       "statementProject": "項目",
@@ -7446,7 +7447,8 @@
       "material_outgoing": "材料出場報表",
       "field_tasks": "現場任務報表",
       "daily_report": "日報告",
-      "progress_summary": "項目進度摘要"
+      "progress_summary": "項目進度摘要",
+      "material_issue_statement": "材料領用結帳單"
     },
     "what": {
       "filterOptions": "篩選選項",
