@@ -80,9 +80,13 @@ describe("公司通用分类 needs no project (JB103 第 1、2 点)", () => {
   it("lists the company's materials with their specifications, and adds without a project", () => {
     permissions = ["category.manage", "category.view"];
     const html = render();
-    for (const name of ["钢筋", "混凝土", "砂石", "Rebar", "Sand &amp; Aggregate", "Y10"]) {
+    for (const name of ["钢筋", "混凝土", "砂石", "Rebar", "Sand &amp; Aggregate"]) {
       expect(html).toContain(name);
     }
+    // JB181 (客户 11-12 追加 4): a material's specifications are folded under
+    // it and counted - 「平时只显示材料名称及规格数量」; Y10 shows once 钢筋 is unfolded.
+    expect(html).toContain("1 个规格");
+    expect(html).not.toContain(">Y10<");
     expect(html).toContain(zh.categoryManagement.company.create);
     expect(html).toContain(zh.categoryManagement.company.addToProjects);
     // No project anywhere: no picker, no 「先选项目」.
@@ -96,7 +100,9 @@ describe("公司通用分类 needs no project (JB103 第 1、2 点)", () => {
     const html = render();
     expect(html).toContain("钢筋");
     expect(html).not.toContain(zh.categoryManagement.company.create);
-    expect(html).not.toContain(zh.categoryManagement.company.addToProjects);
+    // The button, not the words: since JB181 the page's own sentence names
+    // 【加到现有项目】 (「已有的项目要按【加到现有项目】才会补上」).
+    expect(html).not.toContain(`</svg>${zh.categoryManagement.company.addToProjects}</button>`);
     permissions = ["category.manage", "category.view"];
   });
 

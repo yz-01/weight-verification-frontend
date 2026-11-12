@@ -1,6 +1,7 @@
 import { appendPhotoTimes } from "@/lib/photo-meta";
 import type { DeliveryNoteOCRResult } from "@/interfaces/contractor";
 import { ApiError, type ListQuery, type Paginated } from "@/interfaces/api";
+import type { MaterialPriceChange } from "@/interfaces/material-price";
 import {
   exportBody,
   exportQuery,
@@ -15,6 +16,7 @@ import type {
   CompanyCategoriesAdded,
   CompanyCategory,
   CompanyCategoryKind,
+  CompanyMaterialPayload,
   ArchiveRecordKind,
   CategoryRecordKind,
   CategoryRecordPage,
@@ -145,6 +147,25 @@ export const deleteCompanyCategory = async (id: string) => {
   await api.delete(`/api/company-categories/${id}/delete_category/`);
   toastSuccess("contractorOps.toast.removed");
 };
+/**
+ * A company material saved whole (JB181): its specifications, each row's
+ * suppliers and price, in one request. With a price in it the server asks for
+ * the sign-off PIN, and the PIN dialog opens by itself.
+ */
+export const saveCompanyMaterial = async (payload: CompanyMaterialPayload) => {
+  const row = await api.post<CompanyCategory & { prices_set: number }>(
+    "/api/company-categories/save_material/",
+    payload,
+  );
+  toastSuccess("contractorOps.toast.saved");
+  return row;
+};
+/** 价格历史 of a company material or specification, newest first (JB181). */
+export const getCompanyPriceHistory = (category: string) =>
+  api.get<{ category: string; name: string; results: MaterialPriceChange[] }>(
+    "/api/company-categories/get_price_history/",
+    { category },
+  );
 /** 「加到现有项目」: only what each project is missing, by name. */
 export const addCompanyCategoriesToProjects = (project?: string) =>
   api.post<CompanyCategoriesAdded>(

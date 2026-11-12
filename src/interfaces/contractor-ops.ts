@@ -592,13 +592,58 @@ export interface CompanyCategory {
   parent: string | null;
   /** A material's specifications. */
   specs?: CompanyCategory[];
+  /** 供应商 of a material or specification (JB181): the company's own list. */
+  suppliers?: { id: string; name: string }[];
+  /**
+   * 单价 of a material or specification (JB181): the price now and the ones
+   * set for later days. Null for a reader without 金额查看.
+   */
+  price?: MaterialPriceSummary | null;
+}
+
+/** A company material saved whole from its one page (JB181, 追加 5 第 3 点). */
+export interface CompanyMaterialPayload {
+  /** The material changed; none for a new one. */
+  id?: string;
+  name: string;
+  description: string;
+  default_unit: string;
+  is_active: boolean;
+  suppliers: string[];
+  /** "" for no change: a price once set is changed, never cleared. */
+  unit_price: string;
+  specs: {
+    id?: string;
+    name: string;
+    default_unit: string;
+    is_active: boolean;
+    suppliers: string[];
+    unit_price: string;
+  }[];
+  removed_specs: string[];
+  /** The day every price of this save starts; sent only with a price. */
+  effective_from?: string;
 }
 
 /** What 「加到现有项目」 added, project by project. */
 export interface CompanyCategoriesAdded {
-  projects: { project: string; project_name: string; added: string[] }[];
+  projects: {
+    project: string;
+    project_name: string;
+    added: string[];
+    /** JB181: the materials / specifications given the company's price. */
+    prices?: string[];
+    filled?: number;
+    filled_issue_lines?: number;
+  }[];
+  /** Projects given anything - a category, a price, or both. */
   project_count: number;
   added_count: number;
+  /** JB181: prices given to materials and specifications that had none. */
+  price_count?: number;
+  /** Deliveries and 材料领用 lines with no price that the new prices filled in. */
+  filled?: number;
+  filled_issue_lines?: number;
 }
 
 export interface EquipmentPayload {

@@ -6,6 +6,8 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { CompanyMaterialForm } from "@/components/contractor-ops/company-material-form";
+import { CompanyMaterialList, toggled } from "@/components/contractor-ops/company-material-list";
 import { WasteCategoryDialog } from "@/components/contractor-ops/waste-category-dialog";
 import {
   EmptyState,
@@ -40,6 +42,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useMaterialUnits, useUnitName } from "@/hooks/use-material-units";
+import { useSeesAmounts } from "@/hooks/use-sees-amounts";
 import { ApiError } from "@/interfaces/api";
 import type {
   CompanyCategoriesAdded,
@@ -188,9 +191,13 @@ export function CompanyCategories() {
   const [moduleKey, setModuleKey] = useState<CompanyModuleKey>("material");
   const [editing, setEditing] = useState<Editing>(null);
   const [adding, setAdding] = useState(false);
+  // JB181: a material's one page (追加 5 第 3 点) in place of the list, and
+  // the materials whose specifications are unfolded - none at first.
+  const [materialPage, setMaterialPage] = useState<{ row: CompanyCategory | null; addSpec?: boolean } | null>(null);
+  const [open, setOpen] = useState<ReadonlySet<string>>(() => new Set());
   const active = COMPANY_MODULES.find((entry) => entry.key === moduleKey) ?? COMPANY_MODULES[0];
   const canManage = active.manage.some((code) => can(code));
-  const unitName = useUnitName();
+  const seesAmounts = useSeesAmounts();
 
   const lines = useQuery({
     queryKey: ["company-categories", active.key],
@@ -208,11 +215,30 @@ export function CompanyCategories() {
   };
 
   const createButton = canManage && (
-    <Button onClick={() => setEditing({ line: null })}>
+    <Button onClick={() => (active.key === "material" ? setMaterialPage({ row: null }) : setEditing({ line: null }))}>
       <Plus />
       {t("company.create")}
     </Button>
   );
+
+  // The material's page: the list makes way for it (JB181 做法 5), and back
+  // on the list after 【保存】 the material is unfolded (做法 4).
+  if (materialPage && active.key === "material") {
+    return (
+      <CompanyMaterialForm
+        row={materialPage.row}
+        addSpec={materialPage.addSpec}
+        onBack={() => setMaterialPage(null)}
+        onSaved={(id) => {
+          if (id) setOpen((current) => new Set(current).add(id));
+          setMaterialPage(null);
+          refresh();
+        }}
+      />
+    );
+  }
+  // The company's materials, as the server listed them (their specifications inside).
+  const materials = rows.flatMap((line) => (line.depth === 0 && line.category ? [line.category] : []));
 
   return (
     <div className="flex flex-col gap-4">
@@ -258,18 +284,31 @@ export function CompanyCategories() {
             <div className="ml-auto flex flex-wrap items-center gap-2">{createButton}</div>
           </header>
           <p className="mb-3 text-xs text-muted-foreground">{t(`company.moduleHelp.${active.key}`)}</p>
+          {/* JB181 (Lucas 11-12 「怕客户不会用或者不明白」): how the fold works, in words. */}
+          {active.key === "material" && rows.length > 0 && (
+            <p className="mb-3 text-sm text-muted-foreground">{t("company.foldHelp")}</p>
+          )}
           <QueryFailedNote query={lines} what={t(`company.module.${active.key}`)} />
           {lines.isLoading ? (
             <p className="text-sm text-muted-foreground">{t("loading")}</p>
           ) : lines.isError ? null : !rows.length ? (
             <EmptyState title={t("company.empty")} action={createButton || undefined} />
+          ) : active.key === "material" ? (
+            <CompanyMaterialList
+              materials={materials}
+              open={open}
+              onToggle={(id) => setOpen((current) => toggled(current, id))}
+              canManage={canManage}
+              showsPrices={seesAmounts}
+              onEdit={(row) => setMaterialPage({ row })}
+              onAddSpec={(row) => setMaterialPage({ row, addSpec: true })}
+            />
           ) : (
             <div className="overflow-x-auto rounded-lg border">
               <Table className="min-w-[32rem]">
                 <TableHeader>
                   <TableRow>
                     <TableHead>{t("column.name")}</TableHead>
-                    {active.key === "material" && <TableHead>{t("company.unit")}</TableHead>}
                     <TableHead>{t("column.status")}</TableHead>
                     {canManage && <TableHead>{t("column.action")}</TableHead>}
                   </TableRow>
@@ -293,9 +332,6 @@ export function CompanyCategories() {
                           </span>
                         ) : null}
                       </TableCell>
-                      {active.key === "material" && (
-                        <TableCell className="text-sm">{line.unit ? unitName(line.unit) : "—"}</TableCell>
-                      )}
                       <TableCell>
                         <StatusBadge
                           label={t(line.isActive ? "active" : "inactive")}
@@ -305,17 +341,6 @@ export function CompanyCategories() {
                       {canManage && (
                         <TableCell>
                           <div className="flex items-center gap-1">
-                            {/* 「客户可以在这些基础分类上自行增加其他材料、规格」 */}
-                            {active.key === "material" && line.depth === 0 && (
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => setEditing({ line: null, parent: line.category ?? null })}
-                              >
-                                <Plus />
-                                {t("company.addSpec")}
-                              </Button>
-                            )}
                             <Button
                               size="icon-sm"
                               variant="ghost"
@@ -362,6 +387,19 @@ export function CompanyCategories() {
 
 const failure = (reason: unknown, fallback: string) =>
   reason instanceof ApiError ? reason.message : fallback;
+
+/**
+ * What 【加到现有项目】 did, in one sentence (JB181): 「完成。N 个项目加了 X 个
+ * 分类、补了 Y 个单价。」, or 「所有项目都已经有了，没有改动。」.
+ */
+export function addedWords(
+  result: Pick<CompanyCategoriesAdded, "project_count" | "added_count" | "price_count">,
+  t: (key: string, values?: Record<string, number>) => string,
+): string {
+  const prices = result.price_count ?? 0;
+  if (!result.added_count && !prices) return t("company.addedNone");
+  return t("company.addedSome", { projects: result.project_count, count: result.added_count, prices });
+}
 
 /** Add or change one row of the company's list; a material's specification too. */
 function CompanyCategoryDialog({
@@ -602,6 +640,10 @@ function EquipmentNameDialog({
  * 「加到现有项目」 (JB103 第 3 点): what each open project is missing, by name.
  * Said before it runs - nothing is removed, renamed or overwritten - and
  * what it added said after.
+ *
+ * JB181 (Lucas 11-12 「跟分类一样带入」): the company's prices too, for the
+ * materials and specifications with none - said in two numbered lines before,
+ * and counted after: 「完成。N 个项目加了 X 个分类、补了 Y 个单价。」
  */
 function AddToProjectsDialog({ onClose, onDone }: { onClose: () => void; onDone: () => void }) {
   const t = useTranslations("categoryManagement");
@@ -621,20 +663,40 @@ function AddToProjectsDialog({ onClose, onDone }: { onClose: () => void; onDone:
       <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>{t("company.addToProjects")}</DialogTitle>
-          <DialogDescription>{t("company.addToProjectsBody")}</DialogDescription>
+          <DialogDescription asChild>
+            <div className="grid gap-2 text-sm">
+              <div className="grid gap-1 font-medium text-foreground">
+                <p>{t("company.addStep1")}</p>
+                <p>{t("company.addStep2")}</p>
+              </div>
+              <p>{t("company.addKeeps")}</p>
+              <p>{t("company.addFills")}</p>
+            </div>
+          </DialogDescription>
         </DialogHeader>
         {result && (
           <div role="status" className="grid gap-2 text-sm">
-            <p className="font-medium">
-              {result.added_count
-                ? t("company.addedSome", { projects: result.project_count, count: result.added_count })
-                : t("company.addedNone")}
-            </p>
+            <p className="font-medium">{addedWords(result, t)}</p>
+            {Boolean(result.filled || result.filled_issue_lines) && (
+              <p>
+                {t("company.addedFilled", {
+                  deliveries: result.filled ?? 0,
+                  issues: result.filled_issue_lines ?? 0,
+                })}
+              </p>
+            )}
             <ul className="grid gap-1">
               {result.projects.map((line) => (
                 <li key={line.project} className="rounded-lg border px-3 py-2">
                   <span className="font-medium">{line.project_name}</span>
-                  <span className="block text-xs text-muted-foreground">{line.added.join("、")}</span>
+                  {line.added.length > 0 && (
+                    <span className="block text-xs text-muted-foreground">{line.added.join("、")}</span>
+                  )}
+                  {Boolean(line.prices?.length) && (
+                    <span className="block text-xs text-muted-foreground">
+                      {t("company.addedPrices", { names: (line.prices ?? []).join("、") })}
+                    </span>
+                  )}
                 </li>
               ))}
             </ul>
