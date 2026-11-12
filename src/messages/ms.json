@@ -3113,6 +3113,11 @@
       "only": "Hanya rekod yang menunggu pengesahan anda - sama seperti “Menunggu anda” di papan pemuka. Buka satu untuk mengesahkannya di halamannya sendiri.",
       "showAll": "Tunjuk semua rekod",
       "empty": "Tiada rekod yang menunggu pengesahan anda."
+    },
+    "outgoing": {
+      "label": "Jenis bahan keluar",
+      "RETURN": "MO — Pulangan pembekal",
+      "ISSUE": "MIN — Pengeluaran bahan"
     }
   },
   "assets": {
@@ -5224,6 +5229,12 @@
       "organizations": "Firma perunding"
     },
     "title": "Akaun perunding dan akses projek",
+    "projectView": {
+      "notice": "Ibu pejabat menetapkan firma perunding, akaun perunding dan projek mereka.",
+      "title": "Perunding yang dibuka pada projek anda",
+      "empty": "Belum ada perunding dibuka pada projek anda. Sila hubungi ibu pejabat.",
+      "what": "perunding yang dibuka pada projek anda"
+    },
     "toast": {
       "consultantSaved": "Akaun perunding didaftarkan.",
       "grantRevoked": "Akses projek dibatalkan.",
@@ -5580,7 +5591,9 @@
     },
     "form": {
       "editTitle": "Edit draf permohonan perunding",
-      "noConsultantGrant": "Tiada perunding aktif diberi akses kepada projek ini.",
+      "noConsultantGrantHeadOffice": "Projek ini belum dibuka kepada mana-mana perunding. Pergi ke “Tetapan perunding › Akses perunding”, buka projek ini kepada perunding, kemudian kembali untuk membuat permohonan.",
+      "noConsultantGrantProject": "Projek ini belum dibuka kepada mana-mana perunding. Ibu pejabat yang membuka perunding: minta ibu pejabat membuka projek ini kepada perunding di “Tetapan perunding › Akses perunding”. Selepas itu anda boleh memilihnya di sini.",
+      "openConsultantAccess": "Buka kepada perunding",
       "requiredAttachments": "Sebelum dihantar, lampirkan dokumen wajib ini: {codes}.",
       "saveError": "Draf permohonan tidak dapat disimpan. Semak maklumat yang diisi dan cuba lagi.",
       "saveReusableOptionHelp": "Tambah nilai ini ke senarai projek supaya pasukan boleh memilihnya pada masa akan datang.",
@@ -5836,7 +5849,9 @@
       "access": {
         "title": "Akses perunding",
         "need": "Wajib · sekali setiap perunding setiap projek",
-        "body": "Cipta syarikat dan akaun perunding, dan beri mereka akses ke projek. Perunding tanpa akses tidak boleh dipilih."
+        "body": "Cipta syarikat dan akaun perunding, dan beri mereka akses ke projek. Perunding tanpa akses tidak boleh dipilih.",
+        "needProject": "Ditetapkan oleh ibu pejabat",
+        "bodyProject": "Ibu pejabat menetapkan firma perunding, akaun perunding dan projek mereka. Di sini anda boleh melihat perunding yang dibuka pada projek anda."
       },
       "workflows": {
         "title": "Aliran kelulusan",

@@ -3113,6 +3113,11 @@
       "only": "Only the records waiting for your confirmation - the same ones as the dashboard's “Waiting for you”. Open one to confirm it on its own page.",
       "showAll": "Show all records",
       "empty": "Nothing is waiting for your confirmation."
+    },
+    "outgoing": {
+      "label": "Material out types",
+      "RETURN": "MO — Supplier returns",
+      "ISSUE": "MIN — Material issue"
     }
   },
   "assets": {
@@ -5224,6 +5229,12 @@
       "organizations": "Consultant firms"
     },
     "title": "Consultant accounts and project access",
+    "projectView": {
+      "notice": "Head office sets up consultant firms, consultant accounts and their projects.",
+      "title": "Consultants open on your projects",
+      "empty": "No consultant is open on your projects yet. Please ask head office.",
+      "what": "consultants open on your projects"
+    },
     "toast": {
       "consultantSaved": "Consultant account registered.",
       "grantRevoked": "Project access revoked.",
@@ -5580,7 +5591,9 @@
     },
     "form": {
       "editTitle": "Edit consultant application draft",
-      "noConsultantGrant": "No active consultant is authorised for this project. Grant project access before creating an application.",
+      "noConsultantGrantHeadOffice": "No consultant is open on this project yet. Go to “Consultant settings › Consultant access”, open this project to a consultant, then come back to create the application.",
+      "noConsultantGrantProject": "No consultant is open on this project yet. Head office opens consultants: ask head office to open this project to a consultant in “Consultant settings › Consultant access”. Once that is done, you can choose them here.",
+      "openConsultantAccess": "Open to a consultant",
       "requiredAttachments": "Before submission, attach these required documents: {codes}.",
       "saveError": "The application draft could not be saved. Check the highlighted information and try again.",
       "saveReusableOptionHelp": "Add this value to the project's list so the team can select it next time.",
@@ -5836,7 +5849,9 @@
       "access": {
         "title": "Consultant access",
         "need": "Required · once per consultant per project",
-        "body": "Create the consultant company and accounts, and give them access to the project. A consultant without access cannot be chosen on an application."
+        "body": "Create the consultant company and accounts, and give them access to the project. A consultant without access cannot be chosen on an application.",
+        "needProject": "Set by head office",
+        "bodyProject": "Head office sets up consultant firms, consultant accounts and their projects. Here you can see which consultants are open on your projects."
       },
       "workflows": {
         "title": "Approval workflows",

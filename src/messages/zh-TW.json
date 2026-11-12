@@ -3113,6 +3113,11 @@
       "only": "只顯示等你確認的記錄，和儀表板「等你處理」是同一批。點「打開」到它的業務頁面確認。",
       "showAll": "顯示全部記錄",
       "empty": "沒有等你確認的記錄。"
+    },
+    "outgoing": {
+      "label": "材料出場分類",
+      "RETURN": "MO — 供應商退貨",
+      "ISSUE": "MIN — 材料領用"
     }
   },
   "assets": {
@@ -5224,6 +5229,12 @@
       "organizations": "顧問單位"
     },
     "title": "顧問賬號與項目授權",
+    "projectView": {
+      "notice": "顧問單位、顧問賬號和項目授權由總部設置。",
+      "title": "你的項目已開通的顧問",
+      "empty": "你的項目還沒有開通顧問，請聯繫總部。",
+      "what": "你的項目已開通的顧問"
+    },
     "toast": {
       "consultantSaved": "顧問賬號已登記。",
       "grantRevoked": "項目授權已撤銷。",
@@ -5580,7 +5591,9 @@
     },
     "form": {
       "editTitle": "編輯顧問申請草稿",
-      "noConsultantGrant": "此項目沒有獲授權的顧問，請先授予項目權限。",
+      "noConsultantGrantHeadOffice": "這個項目還沒有開通顧問。請到「顧問設定 › 顧問賬號與項目授權」給顧問開通這個項目，再回來建立申請。",
+      "noConsultantGrantProject": "這個項目還沒有開通顧問。顧問由總部開通：請總部在「顧問設定 › 顧問賬號與項目授權」給顧問開通這個項目，開通後這裡就可以選。",
+      "openConsultantAccess": "去開通顧問",
       "requiredAttachments": "提交前必須先上傳這些文件：{codes}。",
       "saveError": "申請草稿保存失敗，請檢查填寫內容後重試。",
       "saveReusableOptionHelp": "把這個內容加入本項目的選項，下次團隊可直接選擇。",
@@ -5825,7 +5838,7 @@
         "title": "顧問批准／退回／要求修改",
         "body": "顧問在自己的帳號裡簽名並輸入 PIN 作出決定。結果、簽名和溝通都留在這條申請裡；要求修改的，按提示修改後再提交。"
       },
-      "setupOnce": "只需要設定一次：先把顧問加進這個項目（顧問設定 → 顧問帳號授權），否則新建申請時選不到顧問。",
+      "setupOnce": "只需要設定一次：先把顧問加進這個項目（顧問設定 → 顧問賬號與項目授權），否則新建申請時選不到顧問。",
       "openSettings": "打開顧問設定",
       "askAdmin": "請有設定權限的同事處理。",
       "signatureOnce": "顧問第一次審批前，要先在「簽章」設定自己的簽名和 PIN。"
@@ -5834,9 +5847,11 @@
       "title": "顧問設定",
       "subtitle": "顧問申請的三項設定。只有第一項是必須的，其餘兩項不設也能用。",
       "access": {
-        "title": "顧問帳號授權",
+        "title": "顧問賬號與項目授權",
         "need": "必須 · 每個顧問每個項目做一次",
-        "body": "建立顧問公司與顧問帳號，並授權他們看這個項目。沒授權的顧問在新建申請時選不到。"
+        "body": "建立顧問公司與顧問帳號，並授權他們看這個項目。沒授權的顧問在新建申請時選不到。",
+        "needProject": "由總部設置",
+        "bodyProject": "顧問單位、顧問賬號和項目授權由總部設置。你在這裡可以看你的項目開通了哪些顧問。"
       },
       "workflows": {
         "title": "審批流程",
@@ -5859,7 +5874,7 @@
       "templates": "RFI 表格模板",
       "scheduleTasks": "施工計劃活動",
       "applicationOptions": "申請選項（類型、專業、工作類型、優先級）",
-      "consultantGrants": "有本項目權限的顧問",
+      "consultantGrants": "這個項目已開通的顧問",
       "applicationTypes": "申請類型",
       "reviewerChoices": "審批人列表",
       "consultantForms": "顧問自有表格",
