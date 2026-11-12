@@ -50,7 +50,9 @@ const { SentToCell, RowView, keptFile, ShowingOnly, EmptyNote } = await import(
 const { exportBody } = await import("@/services/contractor.service");
 
 // CRLF on a Windows checkout reads as LF: the checks below are about the code, not its line endings.
-const source = (path: string) => readFileSync(resolve(process.cwd(), path), "utf8").replace(/
+const source = (path: string) =>
+  readFileSync(resolve(process.cwd(), path), "utf8").replace(/\r\n/g, "\n");
+
 /g, "
 ");
 
