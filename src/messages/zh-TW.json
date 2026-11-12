@@ -3089,7 +3089,7 @@
     "next": "下一頁",
     "open": "查看",
     "pageOf": "第 {page} / {pages} 頁",
-    "perPersonHelp": "這裡只能查看。「未看」指的是**你**還沒打開過的記錄，打開一筆就算你看過了；每個帳號各自計算，不會從同事的列表裡消失。確認歸檔在各業務頁面的詳情裡做。",
+    "perPersonHelp": "這裡只能查看。「未看」指的是你還沒打開過的記錄，打開一筆就算你看過了；每個帳號各自計算，不會從同事的列表裡消失。確認歸檔在各業務頁面的詳情裡做。",
     "previous": "上一頁",
     "state": {
       "pending": "未看",
@@ -3638,6 +3638,7 @@
       "issue_submitted": "提交材料領用申請",
       "issue_handed_over": "正式領用",
       "material_issue_statement_exported": "導出材料領用結帳單",
+      "material_issue_statement_previewed": "預覽材料領用結帳單",
       "owner_account_updated": "修改負責人賬號",
       "paid": "已付款",
       "password_changed": "修改密碼",
@@ -7117,7 +7118,7 @@
       "statementButton": "批量預覽 / 列印",
       "statementNone": "篩選出來的記錄還沒有已領用的，沒有可以列印的。",
       "statementLoading": "正在準備，請稍等。",
-      "statementHelp": "下面就是印出來的內容：篩選出來的全部已領用記錄，不分頁，沒有照片，有雙方簽名。按「列印」或「匯出 PDF」，紙上和檔案一模一樣。",
+      "statementHelp": "下面就是印出來的內容：篩選出來的全部已領用記錄，不分頁，沒有照片，有雙方簽名。按「預覽」看正式的 PDF；「列印」把它印出來；「匯出 PDF」存到電腦；「發送」用 WhatsApp 或 Email 發給別人。四個用的都是同一份 PDF。",
       "statementTitle": "材料領用結帳單 / Material Issue Statement",
       "statementWhat": "結帳單",
       "statementProject": "項目",
@@ -7366,7 +7367,7 @@
         "link": "複製連結",
         "download": "下載後附上"
       },
-      "logHint": "整個後台的列印、下載、發送，每次都用本人六位數密碼確認。預覽不記錄。",
+      "logHint": "整個後台的列印、下載 / 導出、發送 / 分享，每次都用本人六位數密碼確認，各記一行。預覽不記錄。",
       "actionFilterHint": "日期和操作員：報表的生成日期和生成人。選了操作類型：被列印、下載或發送過的報表，以及操作人。",
       "noMatch": "沒有符合篩選條件的報表。",
       "regeneratedNote": "按 {when} 的條件重新生成，內容為重新生成時的資料。",
@@ -7387,11 +7388,21 @@
         "openReport": "打開報表",
         "openRecord": "打開記錄",
         "recipient": "發給誰",
-        "status": "發送狀態"
+        "status": "發送狀態",
+        "reportName": "報表名稱",
+        "sendRecord": "發送記錄",
+        "view": "查看",
+        "noFile": "這一份當時沒有保存文件"
       },
       "count": "共 {count} 筆 · 第 {page} / {pages} 頁",
       "regenerating": "正在重新生成…",
-      "alreadyRegenerated": "已按當時條件重新生成過：請打開同一報表、同一期間的新一行。"
+      "alreadyRegenerated": "已按當時條件重新生成過：請打開同一報表、同一期間的新一行。",
+      "showingOnly": "現在只顯示：{what}，共 {count} 筆。",
+      "logEmptyProject": "這個項目（{project}）還沒有列印、下載或發送的記錄。",
+      "emptyProject": "這個項目（{project}）還沒有導出的報表。",
+      "allProjectsTopBar": "要看所有項目的，請在右上角選「全部項目」。",
+      "allProjectsFilter": "要看所有項目的，請在「項目」選「{all}」。",
+      "logNoMatch": "沒有符合篩選條件的記錄。"
     },
     "loadError": "無法加載報表。",
     "period": "期間：{from} 至 {to}",
@@ -7446,7 +7457,10 @@
       "material_outgoing": "材料出場報表",
       "field_tasks": "現場任務報表",
       "daily_report": "日報告",
-      "progress_summary": "項目進度摘要"
+      "progress_summary": "項目進度摘要",
+      "material_issue_statement": "材料領用結帳單",
+      "material_cost": "材料成本報表",
+      "material_quantity": "材料數量報表"
     },
     "what": {
       "filterOptions": "篩選選項",
@@ -19416,10 +19430,10 @@
       "yes": "已發送",
       "no": "沒有發",
       "confirmed": "已記下：已確認發送。",
-      "keptOpened": "好的，記錄是「已打開分享視窗」。以後發了，可以在「發送記錄」按「標記為已發送」。",
+      "keptOpened": "好的，記錄是「還沒有確認發出」。以後發了，可以在「發送記錄」按「標記為已發送」。",
       "confirmFailed": "沒有記下來。請在這筆記錄的「發送記錄」按「標記為已發送」。",
       "status": {
-        "OPENED": "已打開分享視窗",
+        "OPENED": "還沒有確認發出",
         "CONFIRMED": "已確認發送"
       },
       "log": {
@@ -19435,7 +19449,22 @@
         "confirmedByOpen": "對方於 {when} 打開鏈接，自動確認已發送"
       },
       "askBodyLink": "發給 {name}：{file}。在 WhatsApp 裡按了發送就可以。對方打開鏈接時，系統會自動確認已發送；你也可以現在按「已發送」。",
-      "askBodyLinkEmail": "發給 {name}：{file}。在電郵裡按了發送就可以。對方打開鏈接時，系統會自動確認已發送；你也可以現在按「已發送」。"
+      "askBodyLinkEmail": "發給 {name}：{file}。在電郵裡按了發送就可以。對方打開鏈接時，系統會自動確認已發送；你也可以現在按「已發送」。",
+      "states": {
+        "linkMade": "分享連結已生成 · {when}",
+        "opened": {
+          "whatsapp": "已打開 WhatsApp · {when}",
+          "email": "已打開電郵 · {when}",
+          "share_sheet": "已打開分享視窗 · {when}",
+          "link": "已複製連結 · {when}",
+          "download": "已下載文件 · {when}"
+        },
+        "actual": "實際發送：",
+        "confirmed": "已確認發送 · {name} · {when}",
+        "confirmedNoName": "已確認發送 · {when}",
+        "openedLink": "對方已打開連結 · {when}",
+        "sender": "操作人：{name}"
+      }
     },
     "link": {
       "whatsappButton": "打開 {name} 的 WhatsApp 對話",

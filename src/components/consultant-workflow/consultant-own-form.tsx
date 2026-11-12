@@ -87,6 +87,7 @@ import {
   uploadApplicationFormFile,
   type ApplicationFormFileRef,
 } from "@/services/consultant-workflow.service";
+import { signFileAction } from "@/services/file-action.service";
 
 /** What a consultant's form may be: the same list the server accepts. */
 export const FORM_FILE_SUFFIXES = [".pdf", ".docx", ".doc", ".xlsx", ".xls", ".jpg", ".jpeg", ".png"] as const;
@@ -685,6 +686,19 @@ export function ApplicationConsultantFormPanel({
       load: () => applicationFormFileObjectUrl(application.id, ref),
       save: () => downloadApplicationFormFile(application.id, ref, filename),
     });
+  // The row's own 下载 asks for the PIN and is logged under the application
+  // and its project, as the preview's is (JB27; JB178 audit).
+  const download = async (ref: ApplicationFormFileRef, filename: string) => {
+    const signed = await signFileAction("DOWNLOAD", {
+      subject: filename,
+      file_name: filename,
+      project: application.project,
+      record_kind: "CONSULTANT_APPLICATION",
+      record_id: application.id,
+      link: `${window.location.pathname}${window.location.search}`,
+    });
+    if (signed) await downloadApplicationFormFile(application.id, ref, filename);
+  };
   const fileRow = (row: ApplicationFormFile, label: string) => (
     <FormFileRow
       key={row.id}
@@ -692,7 +706,7 @@ export function ApplicationConsultantFormPanel({
       name={row.original_name}
       detail={t("ownForm.uploadedBy", { name: row.uploaded_by_name ?? "-", when: df.dateTime(row.created_at) })}
       onPreview={() => open(label, { file: row.id }, row.original_name, row.preview_type)}
-      onDownload={() => downloadApplicationFormFile(application.id, { file: row.id }, row.original_name)}
+      onDownload={() => download({ file: row.id }, row.original_name)}
     />
   );
 
@@ -713,7 +727,7 @@ export function ApplicationConsultantFormPanel({
           name={form.original_name}
           detail={form.newer_version ? t("ownForm.newerVersion", { version: form.newer_version }) : ""}
           onPreview={() => open(t("ownForm.blankForm"), { blank: true }, form.original_name, form.preview_type)}
-          onDownload={() => downloadApplicationFormFile(application.id, { blank: true }, form.original_name)}
+          onDownload={() => download({ blank: true }, form.original_name)}
         />
         {filled ? (
           fileRow(filled, t("ownForm.filledForm"))

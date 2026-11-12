@@ -285,7 +285,7 @@ function SiteCodeDialog({
   async function downloadPng() {
     if (!canvas.current) return;
     // 下载 asks for the person's own PIN and is logged (JB27).
-    if (!(await signFileAction("DOWNLOAD", { subject: `QR ${code.project_code}-${code.supplier_code}`, file_name: `${code.project_code}-${code.supplier_code}.png`, link: window.location.pathname }))) return;
+    if (!(await signFileAction("DOWNLOAD", { subject: `QR ${code.project_code}-${code.supplier_code}`, file_name: `${code.project_code}-${code.supplier_code}.png`, project: code.project, link: window.location.pathname }))) return;
     if (!canvas.current) return;
     const link = document.createElement("a");
     link.href = canvas.current.toDataURL("image/png");

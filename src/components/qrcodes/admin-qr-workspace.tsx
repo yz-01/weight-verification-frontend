@@ -368,7 +368,7 @@ function IssuedTokenDialog({ code, onClose }: { code: QRCodeIssue | null; onClos
     const canvas = qrRef.current;
     if (!canvas) return;
     // 下载 asks for the person's own PIN and is logged (JB27).
-    if (!(await signFileAction("DOWNLOAD", { subject: `QR ${code.serial}`, file_name: `${code.serial}.${format}`, link: window.location.pathname }))) return;
+    if (!(await signFileAction("DOWNLOAD", { subject: `QR ${code.serial}`, file_name: `${code.serial}.${format}`, project: code.project ?? undefined, link: window.location.pathname }))) return;
     const mime = format === "jpg" ? "image/jpeg" : "image/png";
     const link = document.createElement("a");
     link.href = canvas.toDataURL(mime, 0.96);
@@ -381,7 +381,7 @@ function IssuedTokenDialog({ code, onClose }: { code: QRCodeIssue | null; onClos
     if (!canvas) return;
     const image = canvas.toDataURL("image/png");
     // 打印 asks for the person's own PIN and is logged (JB27).
-    if (!(await signFileAction("PRINT", { subject: `QR ${code.serial}`, link: window.location.pathname }))) return;
+    if (!(await signFileAction("PRINT", { subject: `QR ${code.serial}`, project: code.project ?? undefined, link: window.location.pathname }))) return;
     printPage(
       `<!doctype html><html><head><title>${code.serial}</title><style>body{font-family:Arial,sans-serif;text-align:center;padding:32px}img{width:320px;height:320px}.serial{font-size:20px;font-weight:700;margin-top:20px}</style></head><body><img src="${image}" alt="${code.serial}"><div class="serial">${code.serial}</div><script>window.onload=()=>{window.print();window.close()}</script></body></html>`,
       "width=520,height=680",

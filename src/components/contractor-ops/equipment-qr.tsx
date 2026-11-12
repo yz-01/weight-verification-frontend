@@ -34,6 +34,7 @@ import {
   equipmentQrObjectUrl,
   equipmentQrStickers,
 } from "@/services/contractor-ops.service";
+import { signFileAction } from "@/services/file-action.service";
 
 /** The big number on the sticker: the 现场编号, else the equipment number. */
 export function stickerNumber(machine: Pick<SiteEquipment, "site_no" | "code">): string {
@@ -63,7 +64,18 @@ export function EquipmentQrDialog({
     [imageUrl],
   );
   const save = useMutation({
-    mutationFn: () => downloadEquipmentQr(machine.id, stickerNumber(machine)),
+    // 下载 asks for the person's own PIN and is logged under the machine's
+    // project (JB27; JB178 audit).
+    mutationFn: async () => {
+      const signed = await signFileAction("DOWNLOAD", {
+        subject: t("equipmentQr.stickerTitle", { number: stickerNumber(machine) }),
+        file_name: `${stickerNumber(machine)}.png`,
+        project: machine.project,
+        record_kind: "SITE_EQUIPMENT",
+        record_id: machine.id,
+      });
+      if (signed) await downloadEquipmentQr(machine.id, stickerNumber(machine));
+    },
   });
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>

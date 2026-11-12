@@ -602,10 +602,11 @@ describe("「批量预览 / 打印」 (第 4、5 点)", () => {
     expect(buttonWith(html, words.statementPrint)).not.toMatch(/\sdisabled=""/);
     expect(buttonWith(html, words.statementExport)).not.toMatch(/\sdisabled=""/);
     const source = read("src/components/contractor-ops/issue-statement.tsx");
-    // Both buttons run on `source`, whose file is the server's export.
+    // Every button runs on `source`, whose file is the server's export
+    // (JB179: 预览｜打印｜导出 PDF｜发送, one loop over the house's four).
     expect(source).toContain("load: () => exportMaterialIssueStatement(filters)");
-    expect(source).toContain('files.run("print", source');
-    expect(source).toContain('files.run("save", source');
+    expect(source).toContain('fileActionsFor("pdf").map((action)');
+    expect(source).toContain("files.run(action, source");
   });
 
   it("says plainly when the selection is too long for one statement", () => {

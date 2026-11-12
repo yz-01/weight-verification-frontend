@@ -150,7 +150,8 @@ describe("JB64: 发给谁 - the recipient form's rules match the server's", () =
       expect(send.log.title).toBeTruthy();
       expect(messages.contractorReports.history.filter.recipient).toBeTruthy();
     }
-    expect(zh.fileActions.send.status.OPENED).toBe("已打开分享窗口");
+    // JB178: pressing the button is never 「已发送」 - not yet confirmed.
+    expect(zh.fileActions.send.status.OPENED).toBe("还没有确认发出");
     expect(zh.fileActions.send.status.CONFIRMED).toBe("已确认发送");
     expect(zh.fileActions.send.askTitle).toBe("发出去了吗？");
     expect(zh.fileActions.send.yes).toBe("已发送");
@@ -232,8 +233,8 @@ describe("JB65: the operation log shows the recipient", () => {
     const history = source("src/components/contractor-ops/contractor-report-history.tsx");
     expect(history).toContain('data-slot="history-filter-recipient"');
     expect(history).toContain("recipient: recipient || undefined");
-    // Print, download and export rows stay as they were.
-    expect(history).toMatch(/row\.share \? \(\s+<SentToCell share=\{row\.share\} \/>\s+\) : row\.channel \?/);
+    // Print, download and export rows carry no 发送记录 (JB178: its own column).
+    expect(history).toContain("{row.share ? <SentToCell share={row.share} /> : <span");
   });
 });
 
@@ -253,9 +254,10 @@ describe("10-29 fixes", () => {
     for (const press of ["const download", "const email", "const whatsapp"]) {
       const body = dialog.slice(dialog.indexOf(press), dialog.indexOf("};", dialog.indexOf(press)));
       // JB132: handOver gives back the written send (false when refused).
-      expect(body, press).toMatch(/\(await handOver\(\)\) !== false|sent === false\) return;/);
+      // JB178: each names the button pressed.
+      expect(body, press).toMatch(/\(await handOver\("[a-z_]+"\)\) !== false|sent === false\) return;/);
     }
-    expect(dialog).toMatch(/written = await held\.writeLog\(\);\s+setWriting\(false\);\s+if \(!written\) return false;/);
+    expect(dialog).toMatch(/written = await held\.writeLog\(channel\);\s+setWriting\(false\);\s+if \(!written\) return false;/);
     // No link that leaves before the send is written.
     expect(dialog).not.toContain("<a href={mailtoLink");
   });

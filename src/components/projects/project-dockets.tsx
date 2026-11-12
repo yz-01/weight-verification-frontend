@@ -328,7 +328,7 @@ function DeliveryNoteQrDialog({ note, onClose }: { note: DeliveryNote; onClose: 
   const download = async () => {
     if (!qrRef.current) return;
     // 下载 asks for the person's own PIN and is logged (JB27).
-    if (!(await signFileAction("DOWNLOAD", { subject: `QR ${note.note_no}`, file_name: `${note.note_no}.png`, link: window.location.pathname }))) return;
+    if (!(await signFileAction("DOWNLOAD", { subject: `QR ${note.note_no}`, file_name: `${note.note_no}.png`, project: note.project, link: window.location.pathname }))) return;
     if (!qrRef.current) return;
     const link = document.createElement("a");
     link.download = `${note.note_no}.png`;
