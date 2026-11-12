@@ -19649,9 +19649,14 @@
         "position": "第 {n} / 共 {total} 篇",
         "previous": "上一篇",
         "next": "下一篇",
-        "first": "这已经是第一篇。",
-        "last": "这已经是最后一篇。",
-        "waiting": "正在打开这一篇，请稍候。"
+        "first": "这已经是这个月的第一篇。",
+        "last": "这已经是这个月的最后一篇。",
+        "waiting": "正在打开这一篇，请稍候。",
+        "month": "{year} 年 {month} 月",
+        "previousMonth": "上个月",
+        "nextMonth": "下个月",
+        "noEarlierMonth": "这个项目没有更早月份的日报告。",
+        "noLaterMonth": "这个项目没有更晚月份的日报告。"
       },
       "signer": {
         "author": "填写人",

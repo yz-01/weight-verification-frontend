@@ -109,6 +109,23 @@ export interface DailyReportPayload {
   recollect?: boolean;
 }
 
+/**
+ * What an opened report's 上一篇 / 下一篇 turn through (JB175): every report
+ * of one project in one month - the month of the last day a report covers -
+ * oldest first. Ids, names and days only; each is read in full when turned to.
+ */
+export interface DailyReportMonthBook {
+  project: { id: string; code: string; name: string };
+  /** `YYYY-MM`. */
+  month: string;
+  /** The months this project has reports in, oldest first (上个月 / 下个月). */
+  months: string[];
+  reports: Pick<DailyReport, "id" | "name" | "record_no" | "report_date" | "end_date">[];
+}
+
+/** Which month book: the one a report is in, or a project's month. */
+export type DailyReportMonthBookQuery = { report: string } | { project: string; month: string };
+
 /** What a report of these days would hold, before it is saved. */
 export interface DailyReportCollection {
   entries: DailyReportEntry[];

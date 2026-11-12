@@ -19649,9 +19649,14 @@
         "position": "{n} daripada {total}",
         "previous": "Sebelumnya",
         "next": "Seterusnya",
-        "first": "Ini laporan pertama.",
-        "last": "Ini laporan terakhir.",
-        "waiting": "Sedang membuka laporan ini, sebentar."
+        "first": "Ini laporan pertama bulan ini.",
+        "last": "Ini laporan terakhir bulan ini.",
+        "waiting": "Sedang membuka laporan ini, sebentar.",
+        "month": "{month} {year}",
+        "previousMonth": "Bulan sebelumnya",
+        "nextMonth": "Bulan seterusnya",
+        "noEarlierMonth": "Projek ini tiada laporan harian pada bulan yang lebih awal.",
+        "noLaterMonth": "Projek ini tiada laporan harian pada bulan yang lebih lewat."
       },
       "signer": {
         "author": "Ditulis oleh",

@@ -245,8 +245,9 @@ export function ContractorReportWorkspace({
     const day = latest.data.day ?? dateValue(new Date());
     setFilters({ latest: undefined, date_from: day, date_to: day });
   }, [latest.data, latest.isFetchedAfterMount, latest.isSuccess, setFilters, wantsLatest]);
-  // A daily report opens in the book of the reports listed, by date (I9).
-  const [book, setBook] = useState<number | null>(null);
+  // A daily report opens in the book of its project's month (I9, JB175),
+  // whatever the preview is filtered to.
+  const [book, setBook] = useState<string | null>(null);
   const filters = useMemo<ContractorReportFilters>(
     () => ({
       report_type: reportType,
@@ -272,10 +273,6 @@ export function ContractorReportWorkspace({
     enabled:
       Boolean(dateFrom && dateTo && dateFrom <= dateTo) && !wantsLatest && !asksDays,
   });
-  const bookIds = useMemo(
-    () => (report.data?.records ?? []).map((entry) => entry.id ?? ""),
-    [report.data],
-  );
   const exportMutation = useMutation({
     mutationFn: (format: "PDF" | "EXCEL") =>
       exportContractorReport({
@@ -470,9 +467,10 @@ export function ContractorReportWorkspace({
                   const record = report.data.records?.[index] ?? null;
                   const reference = reportRowReference(row);
                   const open = rowOpener(record);
+                  const reportId = dailyReport ? record?.id : undefined;
                   const openRow =
-                    dailyReport && record?.id
-                      ? () => setBook(index)
+                    reportId
+                      ? () => setBook(reportId)
                       : open
                         ? () => open(reference, String(row.project ?? ""))
                         : undefined;
@@ -541,8 +539,8 @@ export function ContractorReportWorkspace({
       {opener.sheet}
       {book !== null && (
         <DailyReportBook
-          source={{ kind: "ids", ids: bookIds }}
-          start={book}
+          key={book}
+          report={book}
           onClose={() => setBook(null)}
           onChanged={() =>
             queryClient.invalidateQueries({ queryKey: ["contractor-reports", "report"] })

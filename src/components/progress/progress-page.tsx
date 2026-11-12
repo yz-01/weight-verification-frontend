@@ -17,14 +17,14 @@
  * export), unchanged.
  */
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Loader2, PenLine, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { SiteProgressOffice } from "@/components/contractor-ops/office-module-lists";
-import { DailyReportDialog, DailyReportView, DailyReportsTab } from "@/components/progress/daily-reports";
+import { DailyReportBook, DailyReportDialog, DailyReportsTab } from "@/components/progress/daily-reports";
 import { PhaseTab } from "@/components/progress/phase-tab";
 import {
   DayRange,
@@ -45,7 +45,6 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ExportButton } from "@/components/shared/export-button";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useListQuery } from "@/hooks/use-list-query";
-import type { DailyReport } from "@/interfaces/progress-reports";
 import { cn } from "@/lib/utils";
 import { exportProgressPhotos, getConstructionPhases } from "@/services/contractor-ops.service";
 import { getProgressPhotos } from "@/services/progress-reports.service";
@@ -259,7 +258,10 @@ export function SitePhotosTab() {
   const rows = photos.data?.results ?? [];
   const total = photos.data?.count ?? 0;
   const [writing, setWriting] = useState(false);
-  const [written, setWritten] = useState<DailyReport | null>(null);
+  // The report just written from these photographs, opened in the book of
+  // its project's month like any other (JB175).
+  const [written, setWritten] = useState<string | null>(null);
+  const qc = useQueryClient();
   // 「＋新增施工分类」 from the filter (H14, HD3).
   const [addingPhase, setAddingPhase] = useState(false);
   const viewer = usePhotoViewer(rows, t("tabs.photos"));
@@ -362,16 +364,14 @@ export function SitePhotosTab() {
           onClose={() => setWriting(false)}
           onSaved={(report) => {
             setWriting(false);
-            setWritten(report);
+            // Shown at once from what the save answered (B4 audit #20).
+            qc.setQueryData(["daily-reports", "one", report.id], report);
+            setWritten(report.id);
           }}
         />
       )}
       {written && (
-        <DailyReportView
-          report={written}
-          onClose={() => setWritten(null)}
-          onSaved={setWritten}
-        />
+        <DailyReportBook key={written} report={written} onClose={() => setWritten(null)} />
       )}
     </div>
   );

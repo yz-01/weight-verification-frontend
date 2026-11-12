@@ -136,13 +136,23 @@ describe("the progress page's tabs", () => {
   it("show a daily report's new text at once after editing it from 现场照片 (#20)", () => {
     const read = (file: string) =>
       readFileSync(path.join(process.cwd(), file), "utf8").replace(/\r\n/g, "\n");
-    // The report written from the photos is held by the photo tab; the view
-    // hands the saved report back so the tab shows it, not the old copy.
-    expect(read("src/components/progress/progress-page.tsx")).toMatch(
-      /<DailyReportView\s+report=\{written\}\s+onClose=\{\(\) => setWritten\(null\)\}\s+onSaved=\{setWritten\}/,
+    // The report written from the photos opens in the book of its project's
+    // month (JB175), shown at once from what the save answered; an edit in
+    // the book hands the saved report back and the book shows it, not the
+    // old copy.
+    const progressPage = read("src/components/progress/progress-page.tsx");
+    expect(progressPage).toMatch(
+      /qc\.setQueryData\(\["daily-reports", "one", report\.id\], report\);\s*setWritten\(report\.id\);/,
     );
-    expect(read("src/components/progress/daily-reports.tsx")).toMatch(
+    expect(progressPage).toMatch(
+      /<DailyReportBook key=\{written\} report=\{written\} onClose=\{\(\) => setWritten\(null\)\} \/>/,
+    );
+    const dailyReports = read("src/components/progress/daily-reports.tsx");
+    expect(dailyReports).toMatch(
       /onSaved=\{\(saved\) => \{\s*setEditing\(false\);\s*onSaved\?\.\(saved\);/,
+    );
+    expect(dailyReports).toMatch(
+      /onSaved=\{\(saved\) => \{\s*qc\.setQueryData\(\["daily-reports", "one", saved\.id\], saved\);/,
     );
   });
 
