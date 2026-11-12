@@ -343,3 +343,15 @@ describe("JB178-6: the gaps the audit found, filled", () => {
     expect(photo.match(/record_kind: target\?\.recordKind/g)).toHaveLength(2);
   });
 });
+
+describe("JB178-6: two more direct downloads now signed and logged", () => {
+  it("a consultant application's form file row and a machine's QR picture", () => {
+    const own = source("src/components/consultant-workflow/consultant-own-form.tsx");
+    const download = own.slice(own.indexOf("const download = async (ref"), own.indexOf("const fileRow ="));
+    expect(download).toContain('signFileAction("DOWNLOAD", {');
+    expect(download).toContain("project: application.project");
+    expect(own).not.toContain("onDownload={() => downloadApplicationFormFile(");
+    const qr = source("src/components/contractor-ops/equipment-qr.tsx");
+    expect(qr).toContain("if (signed) await downloadEquipmentQr(machine.id, stickerNumber(machine));");
+  });
+});
