@@ -1,8 +1,9 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ClipboardPen, Images, Loader2, MapPin, Plus, Save } from "lucide-react";
+import { ClipboardPen, Images, Loader2, MapPin, Plus, Save, UserCheck } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -667,9 +668,7 @@ function ConsultantApplicationEditor({
           </FieldWrapper>
         </div>
         {form.project && !grants.isLoading && !grants.isError && !grants.data?.length && (
-          <p className="mt-3 rounded-lg border border-warning/30 bg-warning/10 p-3 text-sm text-warning">
-            {t("form.noConsultantGrant")}
-          </p>
+          <NoConsultantNotice canOpen={can("project.assign")} />
         )}
         {/* 表格来源 (2026-10-10): only when this consultant has their own form
             for this project and type; otherwise the standard form, as before. */}
@@ -863,6 +862,35 @@ function ExtraTicks({
         ))}
       </div>
     </FieldWrapper>
+  );
+}
+
+/**
+ * The project has no consultant to choose (JB176, 客户 11-12 事项 3).
+ *
+ * It used to say 「此项目没有获授权的顾问，请先授予项目权限」, and the client went
+ * to the role's 「项目权限」 - which was never the cause. A consultant is
+ * chosen from the project's grants, and only head office opens a project to
+ * one (Lucas 11-12). So the words say where that is and who does it: head
+ * office (it may open projects, `project.assign`) is sent there with a
+ * button; a project user is told head office does it. Shown the same on a
+ * new application and on a draft being edited - one form.
+ */
+export function NoConsultantNotice({ canOpen }: { canOpen: boolean }) {
+  const t = useTranslations("consultantWorkflow.form");
+  return (
+    <div className="mt-3 flex flex-col gap-3 rounded-lg border border-warning/30 bg-warning/10 p-3 text-sm text-warning sm:flex-row sm:items-center">
+      <p className="min-w-0 flex-1">
+        {t(canOpen ? "noConsultantGrantHeadOffice" : "noConsultantGrantProject")}
+      </p>
+      {canOpen && (
+        <Button asChild size="sm" variant="outline" className="shrink-0">
+          <Link href="/consultant-access">
+            <UserCheck /> {t("openConsultantAccess")}
+          </Link>
+        </Button>
+      )}
+    </div>
   );
 }
 

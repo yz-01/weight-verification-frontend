@@ -26,6 +26,7 @@ import {
   DetailHeader,
   FieldWrapper,
   ListHeader,
+  QueryFailedNote,
   StatusBadge,
 } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
@@ -48,6 +49,14 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
   Tabs,
   TabsContent,
   TabsList,
@@ -60,6 +69,8 @@ import type {
   ConsultantProjectAccessGrant,
 } from "@/interfaces/consultant-workflow";
 import { ApiError } from "@/interfaces/api";
+import { setsUpConsultants } from "@/lib/consultant-access";
+import { useDateFormat } from "@/lib/dates";
 import { getProjects } from "@/services/contractor.service";
 import {
   createConsultantAccessGrant,
@@ -67,6 +78,7 @@ import {
   getConsultantAccessGrants,
   getConsultantMembers,
   getConsultantOrganizations,
+  getOpenConsultants,
   inviteConsultantAccount,
   revokeConsultantAccessGrant,
   updateConsultantAccessGrant,
@@ -193,7 +205,84 @@ class LogoNotSavedError extends Error {
   }
 }
 
+/**
+ * 「顾问账号与项目授权」.
+ *
+ * Head office registers the firms and the consultants and opens projects to
+ * them - the page as it always was. A project user (JB176) reaches the page
+ * with 顾问设定 but holds none of the permissions it reads and writes with, so
+ * it showed him three empty tabs and no button, and the client concluded
+ * nothing could be set up. He now reads what head office has opened on his
+ * own projects instead. Lucas 11-12: 「只有总部给顾问开通项目」 - that rule is
+ * unchanged.
+ */
 export function ConsultantAccessManagement() {
+  const { can } = useAuth();
+  return setsUpConsultants(can) ? <HeadOfficeConsultantAccess /> : <ProjectConsultantAccess />;
+}
+
+/**
+ * The project user's page (JB176 做法 2): who sets this up, and the
+ * consultants open on his projects now - read-only, no 新增 / 编辑 / 撤销.
+ */
+export function ProjectConsultantAccess() {
+  const t = useTranslations("consultantAccess");
+  const formatter = useDateFormat();
+  const open = useQuery({
+    queryKey: ["consultant-access", "open-consultants"],
+    queryFn: getOpenConsultants,
+  });
+  const rows = open.data ?? [];
+  return (
+    <div className="space-y-4 pb-10">
+      <DetailHeader backHref="/modules/consultants" backLabel={t("back")} />
+      {/* 「顾问单位、顾问账号和项目授权由总部设置。」 - the sentence on top. */}
+      <ListHeader title={t("title")} subtitle={t("projectView.notice")} />
+      <section className="space-y-3">
+        <h2 className="panel-title">{t("projectView.title")}</h2>
+        {open.isError ? (
+          <QueryFailedNote query={open} what={t("projectView.what")} />
+        ) : (
+          <LoadingState loading={open.isLoading} empty={!rows.length} emptyText={t("projectView.empty")}>
+            <div className="surface-panel overflow-hidden rounded-xl">
+              <Table fit>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{t("field.project")}</TableHead>
+                    <TableHead>{t("field.consultant")}</TableHead>
+                    <TableHead>{t("field.organization")}</TableHead>
+                    <TableHead>{t("field.validUntil")}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {rows.map((row) => (
+                    <TableRow key={`${row.project}:${row.consultant}`}>
+                      <TableCell>
+                        <span className="block font-medium">{row.project_code}</span>
+                        <span className="block text-xs text-muted-foreground">{row.project_name}</span>
+                      </TableCell>
+                      <TableCell>
+                        <span className="block font-medium">{row.consultant_name}</span>
+                        <span className="block text-xs text-muted-foreground">{row.consultant_email}</span>
+                      </TableCell>
+                      <TableCell>{row.organization_name}</TableCell>
+                      <TableCell className="whitespace-nowrap">
+                        {row.valid_until ? formatter.dateTime(row.valid_until) : t("grant.noExpiry")}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </LoadingState>
+        )}
+      </section>
+    </div>
+  );
+}
+
+/** Head office's page: unchanged by JB176. */
+function HeadOfficeConsultantAccess() {
   const t = useTranslations("consultantAccess");
   const { can } = useAuth();
   const queryClient = useQueryClient();
