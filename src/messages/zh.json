@@ -5847,7 +5847,7 @@
       "title": "顾问设定",
       "subtitle": "顾问申请的三项设定。只有第一项是必须的，其余两项不设也能用。",
       "access": {
-        "title": "顾问账号授权",
+        "title": "顾问账号与项目授权",
         "need": "必须 · 每个顾问每个项目做一次",
         "body": "建立顾问公司与顾问账号，并授权他们看这个项目。没授权的顾问在新建申请时选不到。",
         "needProject": "由总部设置",
@@ -5874,7 +5874,7 @@
       "templates": "RFI 表格模板",
       "scheduleTasks": "施工计划活动",
       "applicationOptions": "申请选项（类型、专业、工作类型、优先级）",
-      "consultantGrants": "有本项目权限的顾问",
+      "consultantGrants": "这个项目已开通的顾问",
       "applicationTypes": "申请类型",
       "reviewerChoices": "审批人列表",
       "consultantForms": "顾问自有表格",

@@ -283,4 +283,21 @@ describe("the 顾问设定 card (JB176 做法 3)", () => {
       expect(access.bodyProject.length).toBeGreaterThan(0);
     }
   });
+
+  it("carries the page's own name, the one the warning sends people to", () => {
+    // 「顾问设定 › 顾问账号与项目授权」: the card used to read 「顾问账号授权」,
+    // a name the warning does not say.
+    for (const catalogue of [zh, zhTW, en, ms] as (typeof zh)[]) {
+      expect(catalogue.consultantWorkflow.settingsHub.access.title).toBe(
+        catalogue.nav.submodule.consultantAccess,
+      );
+    }
+    as(HEAD_OFFICE);
+    expect(text(render(<ConsultantSettingsHub />))).toContain("顾问账号与项目授权");
+  });
+
+  it("the consultant field's failure note does not say 项目权限 either", () => {
+    expect(zh.consultantWorkflow.what.consultantGrants).not.toContain("项目权限");
+    expect(zhTW.consultantWorkflow.what.consultantGrants).not.toContain("項目權限");
+  });
 });

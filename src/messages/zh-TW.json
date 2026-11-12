@@ -5847,7 +5847,7 @@
       "title": "顧問設定",
       "subtitle": "顧問申請的三項設定。只有第一項是必須的，其餘兩項不設也能用。",
       "access": {
-        "title": "顧問帳號授權",
+        "title": "顧問賬號與項目授權",
         "need": "必須 · 每個顧問每個項目做一次",
         "body": "建立顧問公司與顧問帳號，並授權他們看這個項目。沒授權的顧問在新建申請時選不到。",
         "needProject": "由總部設置",
@@ -5874,7 +5874,7 @@
       "templates": "RFI 表格模板",
       "scheduleTasks": "施工計劃活動",
       "applicationOptions": "申請選項（類型、專業、工作類型、優先級）",
-      "consultantGrants": "有本項目權限的顧問",
+      "consultantGrants": "這個項目已開通的顧問",
       "applicationTypes": "申請類型",
       "reviewerChoices": "審批人列表",
       "consultantForms": "顧問自有表格",
