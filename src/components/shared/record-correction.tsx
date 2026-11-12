@@ -55,7 +55,7 @@ import type {
 } from "@/interfaces/record-correction";
 import { unchangedRefusal } from "@/lib/correction-refusal";
 import { useDateFormat } from "@/lib/dates";
-import { lineAmount, lineName } from "@/lib/issue-money";
+import { isLinePrice, isLineQuantity, lineAmount, lineName, linesTotal } from "@/lib/issue-money";
 import { cn } from "@/lib/utils";
 import {
   badNumber,
@@ -100,28 +100,69 @@ function useFieldLabel() {
 
 /**
  * A field as the window names it: an issue line's 单价 as
- * 「1. Diesel 单价（RM / Liter）」 (JB171), anything else by its name.
+ * 「1. Diesel 单价（RM / Liter）」 (JB171), its 数量 as 「1. Diesel 领用数量
+ * （Liter）」 - 「申请数量」 before the handover (JB182) - anything else by its name.
  */
 function useCorrectionLabel() {
   const t = useTranslations("recordCorrection");
   const fieldLabel = useFieldLabel();
   const unitName = useUnitName();
-  return (field: CorrectionField) =>
-    field.line
-      ? t("linePrice", { name: lineName(field.line), unit: unitName(field.line.unit) })
-      : fieldLabel(field.name);
+  return (field: CorrectionField) => {
+    if (!field.line) return fieldLabel(field.name);
+    const words = { name: lineName(field.line), unit: unitName(field.line.unit) };
+    if (!isLineQuantity(field)) return t("linePrice", words);
+    return field.line.issued_quantity === null
+      ? t("lineQuantityRequested", words)
+      : t("lineQuantityIssued", words);
+  };
 }
 
-/** 数量 × 单价 = 金额 beside an issue line's 单价, worked out as it is typed (JB171). */
-function LineAmountNote({ line, typed }: { line: CorrectionLine; typed: string }) {
+/**
+ * 数量 × 单价 = 金额 under an issue line's 单价, worked out as it is typed
+ * (JB171) - from the 数量 typed above it when the window offers one (JB182).
+ */
+function LineAmountNote({
+  line,
+  typed,
+  typedQuantity,
+}: {
+  line: CorrectionLine;
+  typed: string;
+  typedQuantity?: string;
+}) {
   const t = useTranslations("recordCorrection");
   const unitName = useUnitName();
-  const worked = lineAmount(line, typed);
+  const worked = lineAmount(line, typed, typedQuantity);
   if (!worked) return <p className="text-xs text-muted-foreground">{t("lineAmountEmpty")}</p>;
   return (
     <p className="tabular text-xs" data-line-amount={line.id}>
       {t("lineAmount", { quantity: `${worked.quantity} ${unitName(line.unit)}`, price: worked.price, amount: worked.amount })}
       {worked.requested && <span className="ml-1 text-muted-foreground">{t("lineAmountRequested")}</span>}
+    </p>
+  );
+}
+
+/**
+ * 「总金额：RM …」 under the last material when an issue has more than one
+ * (JB182 第 3 点), from the quantities and prices as typed; a material with no
+ * 单价 is left out and said. Only with the 单价 fields - so never without
+ * 金额查看.
+ */
+function LinesTotalNote({
+  lines,
+}: {
+  lines: readonly { priced: boolean; amount: string | null }[];
+}) {
+  const t = useTranslations("recordCorrection");
+  const total = linesTotal(lines);
+  return (
+    <p className="tabular text-sm font-medium" data-lines-total>
+      {total.amount === null ? t("lineTotalNone") : t("lineTotal", { amount: total.amount })}
+      {total.amount !== null && total.unpriced > 0 && (
+        <span className="ml-1 text-xs font-normal text-muted-foreground">
+          {t("lineTotalUnpriced", { count: total.unpriced })}
+        </span>
+      )}
     </p>
   );
 }
@@ -390,7 +431,21 @@ export function RecordCorrectionDialog({
   const number = badNumber(fields, values);
   const places = overPlaces(fields, values);
   // An issue line's 单价 changes (JB171): money, so the PIN is asked on 保存.
-  const pricing = fields.some((field) => field.line && field.name in changes);
+  const pricing = fields.some((field) => isLinePrice(field) && field.name in changes);
+  // An issue line's 数量 as typed (JB182), for its 金额 and the 总金额;
+  // undefined when the window does not offer it (「填写单价」 on one line).
+  const typedQuantity = (line: CorrectionLine) => {
+    const quantity = fields.find((field) => isLineQuantity(field) && field.line?.id === line.id);
+    return quantity ? (values[quantity.name] ?? "") : undefined;
+  };
+  const priceFields = fields.filter(isLinePrice);
+  const lineAmounts = priceFields.map((field) => {
+    const typed = values[field.name] ?? "";
+    return {
+      priced: typed.trim() !== "",
+      amount: field.line ? (lineAmount(field.line, typed, typedQuantity(field.line))?.amount ?? null) : null,
+    };
+  });
   // An archived return (JB169, 客户 11-11: 「已归档的退货记录如需更正，必须通过
   // 六位数密码验证，同时保留完整修改历史」): every change is a correction - a
   // reason, the PIN (the server asks for it), and a line in 修改记录.
@@ -484,10 +539,17 @@ export function RecordCorrectionDialog({
                       locked={locked}
                       onChange={(next) => setDraft(changeDraft(fields, values, field.name, next))}
                     />
-                    {field.line && <LineAmountNote line={field.line} typed={values[field.name] ?? ""} />}
+                    {field.line && isLinePrice(field) && (
+                      <LineAmountNote
+                        line={field.line}
+                        typed={values[field.name] ?? ""}
+                        typedQuantity={typedQuantity(field.line)}
+                      />
+                    )}
                   </FieldWrapper>
                 );
               })}
+            {priceFields.length > 1 && <LinesTotalNote lines={lineAmounts} />}
             {(correcting || signedAlways) && (
               <FieldWrapper
                 label={t("reason")}
