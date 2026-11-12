@@ -23,6 +23,8 @@ import {
   Camera,
   ChevronLeft,
   ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
   Eye,
   Loader2,
   NotebookPen,
@@ -73,15 +75,22 @@ import { Textarea } from "@/components/ui/textarea";
 import { useArrowKeys } from "@/hooks/use-arrow-keys";
 import { useListQuery } from "@/hooks/use-list-query";
 import { ApiError } from "@/interfaces/api";
-import type { DailyReport, DailyReportEntry, DailyReportSignature } from "@/interfaces/progress-reports";
+import type {
+  DailyReport,
+  DailyReportEntry,
+  DailyReportMonthBookQuery,
+  DailyReportSignature,
+} from "@/interfaces/progress-reports";
 import { useDateFormat } from "@/lib/dates";
 import { SIGN_OFF_CANCELLED } from "@/lib/sign-off";
 import { usePercentText } from "@/lib/progress-percent";
 import {
   bookCounter,
-  bookPage,
-  bookPosition,
+  bookPlace,
   isTopDialog,
+  monthWords,
+  neighbourMonth,
+  shownReport,
   swipeStep,
   turnTo,
 } from "@/lib/report-book";
@@ -93,6 +102,7 @@ import {
   dailyReportPdfFile,
   deleteDailyReport,
   getDailyReport,
+  getDailyReportMonthBook,
   getDailyReports,
   updateDailyReport,
 } from "@/services/progress-reports.service";
@@ -131,19 +141,16 @@ export function DailyReportsTab() {
   const df = useDateFormat();
   const list = useListQuery(["project", "date_from", "date_to"]);
   const project = list.filters.project ?? "";
-  // The newest written first (I28): the server's order, which the book
-  // below turns through page by page.
+  // The newest written first (I28): the server's order.
   const rows = useQuery({
     queryKey: ["daily-reports", list.filters, list.page],
     queryFn: () =>
       getDailyReports({ ...list.filters, page: list.page, page_size: PAGE }),
   });
   const [writing, setWriting] = useState(false);
-  // A row opens the book at its place in the list (I9); a report just written
-  // opens on its own, wherever the list's filter would put it.
-  const [viewing, setViewing] = useState<
-    { position: number } | { id: string } | null
-  >(null);
+  // A row - or a report just written - opens the book of its project's month
+  // at that report (JB175), whatever this list is filtered to.
+  const [viewing, setViewing] = useState<string | null>(null);
   const total = rows.data?.count ?? 0;
 
   return (
@@ -212,12 +219,12 @@ export function DailyReportsTab() {
                 </TableCell>
               </TableRow>
             ) : (
-              (rows.data?.results ?? []).map((row, index) => (
+              (rows.data?.results ?? []).map((row) => (
                 <TableRow
                   key={row.id}
                   className={cn("cursor-pointer", row.was_corrected && CORRECTED_ROW_CLASS)}
                   onClick={(event) => {
-                    if (clickOpensRow(event)) setViewing({ position: bookPosition(list.page, index, PAGE) });
+                    if (clickOpensRow(event)) setViewing(row.id);
                   }}
                 >
                   <TableCell>
@@ -264,7 +271,7 @@ export function DailyReportsTab() {
                       title={t("reports.view")}
                       onClick={(event) => {
                         event.stopPropagation();
-                        setViewing({ position: bookPosition(list.page, index, PAGE) });
+                        setViewing(row.id);
                       }}
                     >
                       <Eye className="size-3.5" />
@@ -280,15 +287,8 @@ export function DailyReportsTab() {
         <Pager page={list.page} pages={Math.ceil(total / PAGE)} onPage={list.setPage} />
       )}
 
-      {viewing && "position" in viewing && (
-        <DailyReportBook
-          source={{ kind: "list", query: list.filters, total }}
-          start={viewing.position}
-          onClose={() => setViewing(null)}
-        />
-      )}
-      {viewing && "id" in viewing && (
-        <DailyReportOpened id={viewing.id} onClose={() => setViewing(null)} />
+      {viewing && (
+        <DailyReportBook key={viewing} report={viewing} onClose={() => setViewing(null)} />
       )}
       {writing && (
         <DailyReportDialog
@@ -296,7 +296,7 @@ export function DailyReportsTab() {
           onClose={() => setWriting(false)}
           onSaved={(saved) => {
             setWriting(false);
-            setViewing({ id: saved.id });
+            setViewing(saved.id);
           }}
         />
       )}
@@ -304,82 +304,49 @@ export function DailyReportsTab() {
   );
 }
 
-/** A report from the list: read in full (the list carries its counts only). */
-function DailyReportOpened({ id, onClose }: { id: string; onClose: () => void }) {
-  const t = useTranslations("progressPage");
-  const qc = useQueryClient();
-  const report = useQuery({
-    queryKey: ["daily-reports", "one", id],
-    queryFn: () => getDailyReport(id),
-  });
-  if (!report.data) {
-    return (
-      <Dialog open onOpenChange={(open) => !open && onClose()}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>{t("tabs.reports")}</DialogTitle>
-            <DialogDescription className="sr-only">{t("tabs.reports")}</DialogDescription>
-          </DialogHeader>
-          {report.isError ? (
-            <QueryFailedNote query={report} what={t("tabs.reports")} />
-          ) : (
-            <Loader2 className="size-4 animate-spin text-muted-foreground" />
-          )}
-        </DialogContent>
-      </Dialog>
-    );
-  }
-  return (
-    <DailyReportView
-      report={report.data}
-      onClose={onClose}
-      onSaved={(saved) => qc.setQueryData(["daily-reports", "one", id], saved)}
-    />
-  );
-}
-
-/** The rows a book turns through: the list's own pages, or the ids it was handed. */
-export type DailyReportBookSource =
-  /** 日报告 on the progress page: the list's filter, page by page (I9). */
-  | { kind: "list"; query: Readonly<Record<string, string>>; total: number }
-  /** The report centre's preview rows, by date (I8). */
-  | { kind: "ids"; ids: readonly string[] };
-
 /**
- * 日报告 like a book (I9): the report at `start`, then 上一篇 / 下一篇, ← / →
- * and a sideways swipe through the rest, 「第 n / 共 N 篇」 at the top.
+ * 日报告 like a book (I9, JB175): the report opened, then 上一篇 / 下一篇,
+ * ← / → and a sideways swipe through every report of its project in its
+ * month, and 上个月 / 下个月 to that project's other months. The bar says
+ * 「项目 · 2026 年 11 月 · 第 n / 共 N 篇」.
  *
- * The list rows carry counts, not photographs (`compact`), so each report is
- * read in full as it is turned to, and its neighbours are fetched ahead. The
- * page behind the last row of a list page is fetched when the book gets
- * there, so it reads on past row 20 without closing.
+ * The client (11-12): 「同一个项目、同一个月份的所有日报告，可以通过「上一篇」
+ * 「下一篇」连续查看，不需要退出再重新打开」. So the pages are not the rows of
+ * the list it was opened from - whatever that list's days, writer, keyword
+ * or 「全部项目」 - but the opened report's project and month
+ * (`get_month_book`), oldest first. Under 「全部项目」 a report opens its own
+ * project's book; nothing turns from one project into another.
+ *
+ * The book holds ids and names only, so each report is read in full as it is
+ * turned to, and its neighbours are fetched ahead.
  */
 export function DailyReportBook({
-  source,
-  start,
+  report: opened,
   onClose,
   onChanged,
 }: {
-  source: DailyReportBookSource;
-  start: number;
+  /** The report opened: the book is its project's month, open at it. */
+  report: string;
   onClose: () => void;
   /** After a report was corrected or removed from the book. */
   onChanged?: () => void;
 }) {
   const t = useTranslations("progressPage");
   const qc = useQueryClient();
-  const [position, setPosition] = useState(start);
+  // Which month: the opened report's, then one chosen with 上个月 / 下个月.
+  const [which, setWhich] = useState<DailyReportMonthBookQuery>({ report: opened });
+  // The report on show; `null` after a change of month - that month's first.
+  const [current, setCurrent] = useState<string | null>(opened);
   const [direction, setDirection] = useState<-1 | 0 | 1>(0);
-  const query = source.kind === "list" ? source.query : null;
-  const ids = source.kind === "ids" ? source.ids : null;
-  const { page, index } = bookPage(position, PAGE);
-  const listPage = useQuery({
-    queryKey: ["daily-reports", query, page],
-    queryFn: () => getDailyReports({ ...query, page, page_size: PAGE }),
-    enabled: query !== null,
+  const book = useQuery({
+    queryKey: ["daily-reports", "month-book", which],
+    queryFn: () => getDailyReportMonthBook(which),
+    // The bar and the page stay up while another month comes.
+    placeholderData: keepPreviousData,
   });
-  const total = ids ? ids.length : (listPage.data?.count ?? (source.kind === "list" ? source.total : 0));
-  const id = (ids ? ids[position] : listPage.data?.results[index]?.id) || undefined;
+  const pages = book.data?.reports ?? [];
+  // Never a page of the month turned from while the next month is coming.
+  const id = shownReport(current, pages, book.isPlaceholderData);
   const report = useQuery({
     queryKey: ["daily-reports", "one", id],
     queryFn: () => getDailyReport(id!),
@@ -387,21 +354,20 @@ export function DailyReportBook({
     // The page turned from stays up until the next one has come (no flash).
     placeholderData: keepPreviousData,
   });
+  const position = bookPlace(pages, id ?? report.data?.id);
+  const total = pages.length;
+  // A month left with no report (the last one removed elsewhere): nothing to show.
+  const empty = book.isSuccess && !book.isPlaceholderData && total === 0;
+  useEffect(() => {
+    if (empty) onClose();
+  }, [empty, onClose]);
 
   // The pages either side, read ahead so a turn shows at once.
   useEffect(() => {
+    if (!id) return;
     for (const by of [-1, 1] as const) {
       const next = turnTo(position, total, by);
-      if (next === null) continue;
-      const spot = bookPage(next, PAGE);
-      if (query !== null && spot.page !== page) {
-        void qc.prefetchQuery({
-          queryKey: ["daily-reports", query, spot.page],
-          queryFn: () => getDailyReports({ ...query, page: spot.page, page_size: PAGE }),
-        });
-        continue;
-      }
-      const nextId = ids ? ids[next] : listPage.data?.results[spot.index]?.id;
+      const nextId = next === null ? undefined : pages[next]?.id;
       if (nextId) {
         void qc.prefetchQuery({
           queryKey: ["daily-reports", "one", nextId],
@@ -409,22 +375,33 @@ export function DailyReportBook({
         });
       }
     }
-  }, [ids, listPage.data, page, position, qc, query, total]);
+  }, [id, pages, position, qc, total]);
 
   const turn = (by: -1 | 1) => {
+    // Not while another month is coming: its pages are not here yet.
+    if (!id) return;
     const next = turnTo(position, total, by);
     if (next === null) return;
     setDirection(by);
-    setPosition(next);
+    setCurrent(pages[next].id);
+  };
+  const month = book.data?.month ?? "";
+  const months = book.data?.months ?? [];
+  const toMonth = (by: -1 | 1) => {
+    const target = neighbourMonth(months, month, by);
+    if (!target || !book.data) return;
+    setDirection(by);
+    setWhich({ project: book.data.project.id, month: target });
+    setCurrent(null);
   };
   const notice = (
     <>
-      <QueryFailedNote query={listPage} what={t("tabs.reports")} />
+      <QueryFailedNote query={book} what={t("tabs.reports")} />
       <QueryFailedNote query={report} what={t("tabs.reports")} />
     </>
   );
 
-  if (!report.data) {
+  if (!report.data || !book.data) {
     return (
       <Dialog open onOpenChange={(open) => !open && onClose()}>
         <DialogContent className="sm:max-w-md">
@@ -432,7 +409,7 @@ export function DailyReportBook({
             <DialogTitle>{t("tabs.reports")}</DialogTitle>
             <DialogDescription className="sr-only">{t("tabs.reports")}</DialogDescription>
           </DialogHeader>
-          {listPage.isError || report.isError ? (
+          {book.isError || report.isError ? (
             notice
           ) : (
             <Loader2 className="size-4 animate-spin text-muted-foreground" />
@@ -447,6 +424,11 @@ export function DailyReportBook({
       onClose={onClose}
       onSaved={(saved) => {
         qc.setQueryData(["daily-reports", "one", saved.id], saved);
+        // The book of where it is now: new days may have moved it to
+        // another month (the save already asked for every book again).
+        setWhich({ report: saved.id });
+        setCurrent(saved.id);
+        setDirection(0);
         onChanged?.();
       }}
       onRemoved={() => {
@@ -457,63 +439,116 @@ export function DailyReportBook({
         position,
         total,
         direction,
-        turning: report.isPlaceholderData || (!id && listPage.isFetching),
+        turning: report.isPlaceholderData || book.isPlaceholderData,
         onTurn: turn,
+        project: book.data.project.name || book.data.project.code,
+        month,
+        months,
+        onMonth: toMonth,
         notice,
       }}
     />
   );
 }
 
-/** What an opened report needs to be one page of a book (I9). */
+/** What an opened report needs to be one page of a book (I9, JB175). */
 export interface DailyReportBookNav {
-  /** 0-based, over the whole list. */
+  /** 0-based, within the month. */
   position: number;
+  /** The reports of this project in this month. */
   total: number;
   /** The way the last turn went, for the page's slide in. */
   direction: -1 | 0 | 1;
   /** The next page is still on its way; this one stays up meanwhile. */
   turning: boolean;
   onTurn: (by: -1 | 1) => void;
+  /** The book's project, as the bar names it. */
+  project: string;
+  /** The book's month, `YYYY-MM`. */
+  month: string;
+  /** The months this project has reports in (上个月 / 下个月 go only there). */
+  months: readonly string[];
+  onMonth: (by: -1 | 1) => void;
   /** Why the next page could not be read. */
   notice?: ReactNode;
 }
 
-/** 上一篇 · 「第 n / 共 N 篇」 · 下一篇. */
-function BookBar({ book }: { book: DailyReportBookNav }) {
+/**
+ * 上个月 · 上一篇 · 「项目 · 2026 年 11 月 · 第 n / 共 N 篇」 · 下一篇 · 下个月
+ * (JB175). On a phone the words sit on their own line above the buttons.
+ */
+export function BookBar({ book }: { book: DailyReportBookNav }) {
   const t = useTranslations("progressPage.reports.book");
+  const locale = useLocale();
   const counter = bookCounter(book.position, book.total);
   const first = turnTo(book.position, book.total, -1) === null;
   const last = turnTo(book.position, book.total, 1) === null;
+  const earlier = neighbourMonth(book.months, book.month, -1);
+  const later = neighbourMonth(book.months, book.month, 1);
+  const place = [
+    book.project,
+    book.month ? t("month", monthWords(book.month, locale)) : "",
+    t("position", counter),
+  ]
+    .filter(Boolean)
+    .join(" · ");
   return (
     <div
       data-book-bar
-      className="sticky -top-4 z-10 -mx-4 flex items-center justify-between gap-2 border-b border-panel-border bg-popover px-4 py-2"
+      className="sticky -top-4 z-10 -mx-4 flex flex-wrap items-center justify-between gap-2 border-b border-panel-border bg-popover px-4 py-2"
     >
-      <Button
-        variant="outline"
-        size="sm"
-        disabled={first}
-        disabledReason={t("first")}
-        onClick={() => book.onTurn(-1)}
+      <div className="flex gap-1.5">
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={!earlier}
+          disabledReason={t("noEarlierMonth")}
+          onClick={() => book.onMonth(-1)}
+        >
+          <ChevronsLeft />
+          {t("previousMonth")}
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={first}
+          disabledReason={t("first")}
+          onClick={() => book.onTurn(-1)}
+        >
+          <ChevronLeft />
+          {t("previous")}
+        </Button>
+      </div>
+      <span
+        data-book-place
+        className="flex min-w-0 flex-1 items-center justify-center gap-1.5 text-center text-sm font-medium tabular max-sm:order-first max-sm:basis-full"
+        aria-live="polite"
       >
-        <ChevronLeft />
-        {t("previous")}
-      </Button>
-      <span className="flex items-center gap-1.5 text-sm font-medium tabular" aria-live="polite">
-        {book.turning && <Loader2 className="size-3.5 animate-spin text-muted-foreground" />}
-        {t("position", counter)}
+        {book.turning && <Loader2 className="size-3.5 shrink-0 animate-spin text-muted-foreground" />}
+        {place}
       </span>
-      <Button
-        variant="outline"
-        size="sm"
-        disabled={last}
-        disabledReason={t("last")}
-        onClick={() => book.onTurn(1)}
-      >
-        {t("next")}
-        <ChevronRight />
-      </Button>
+      <div className="flex gap-1.5">
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={last}
+          disabledReason={t("last")}
+          onClick={() => book.onTurn(1)}
+        >
+          {t("next")}
+          <ChevronRight />
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={!later}
+          disabledReason={t("noLaterMonth")}
+          onClick={() => book.onMonth(1)}
+        >
+          {t("nextMonth")}
+          <ChevronsRight />
+        </Button>
+      </div>
     </div>
   );
 }
@@ -605,7 +640,7 @@ export function DailyReportView({
   onSaved?: (saved: DailyReport) => void;
   /** After 删除 from 修改; closes the view when not given. */
   onRemoved?: () => void;
-  /** Turned like a book through a list of reports (I9). */
+  /** Turned like a book through its project's month of reports (I9, JB175). */
   book?: DailyReportBookNav;
 }) {
   const t = useTranslations("progressPage");

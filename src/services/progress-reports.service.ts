@@ -5,6 +5,8 @@ import type { ListQuery } from "@/interfaces/api";
 import type {
   DailyReport,
   DailyReportCollection,
+  DailyReportMonthBook,
+  DailyReportMonthBookQuery,
   DailyReportPayload,
   ProgressPhoto,
   ProgressSummary,
@@ -23,6 +25,10 @@ export const getDailyReports = (query: ListQuery = {}) =>
 
 export const getDailyReport = (id: string) =>
   api.get<DailyReport>(`/api/daily-reports/${id}/get_report/`);
+
+/** An opened report's book: its project's reports of its month (JB175). */
+export const getDailyReportMonthBook = (query: DailyReportMonthBookQuery) =>
+  api.get<DailyReportMonthBook>("/api/daily-reports/get_month_book/", query);
 
 /** The list of reports, as Excel or PDF (H16, HD13); each report has its own PDF. */
 export function exportDailyReports(request: ExportRequest): Promise<void> {

@@ -3,26 +3,17 @@
  *
  * The client: 「点进去看日报告的应该是一本书，好像翻书本那样每一页一篇，不用点
  * 进点出」. An opened report has 上一篇 / 下一篇, the ← and → keys and a
- * sideways swipe on a phone, and says 「第 n / 共 N 篇」. The pages are the
- * list's own rows in the list's own order - newest written first (I28) - so
- * 下一篇 after the first row is the second row, and after the last row of a
- * list page the book reads on into the next page.
+ * sideways swipe on a phone, and says 「第 n / 共 N 篇」.
+ *
+ * JB175 (client 11-12): 「同一个项目、同一个月份的所有日报告，可以通过「上一篇」
+ * 「下一篇」连续查看」. The pages are no longer the rows of the list it was
+ * opened from: they are every report of the opened one's project in its month
+ * (`daily-reports/get_month_book/`), oldest first, and 上个月 / 下个月 move
+ * between the months that project has reports in.
  *
  * Kept free of React and the DOM so the order and the gestures are tested on
  * their own (`report-book.test.ts`).
  */
-
-/** Where a position (0-based, over the whole list) sits: its page (1-based) and row. */
-export function bookPage(position: number, pageSize: number): { page: number; index: number } {
-  const size = Math.max(1, Math.floor(pageSize));
-  const at = Math.max(0, Math.floor(position));
-  return { page: Math.floor(at / size) + 1, index: at % size };
-}
-
-/** The position of row `index` on list page `page` (1-based). */
-export function bookPosition(page: number, index: number, pageSize: number): number {
-  return (Math.max(1, page) - 1) * pageSize + Math.max(0, index);
-}
 
 /** The position one turn away, or `null` past either end of the book. */
 export function turnTo(position: number, total: number, by: -1 | 1): number | null {
@@ -34,6 +25,51 @@ export function turnTo(position: number, total: number, by: -1 | 1): number | nu
 export function bookCounter(position: number, total: number): { n: number; total: number } {
   const n = Math.max(0, Math.floor(position)) + 1;
   return { n, total: Math.max(total, n) };
+}
+
+/**
+ * The report a month book shows (JB175): the one opened or turned to, or -
+ * after a change of month, `chosen` being `null` - that month's first, once
+ * its pages have come (`waiting` while they are on their way).
+ */
+export function shownReport(
+  chosen: string | null,
+  pages: readonly { id: string }[],
+  waiting: boolean,
+): string | undefined {
+  if (chosen) return chosen;
+  return waiting ? undefined : pages[0]?.id;
+}
+
+/** Where report `id` sits in the month's pages (0-based); the first when it is not there. */
+export function bookPlace(pages: readonly { id: string }[], id: string | undefined): number {
+  return Math.max(0, pages.findIndex((page) => page.id === id));
+}
+
+/**
+ * 上个月 (-1) / 下个月 (+1): the nearest earlier or later month (`YYYY-MM`)
+ * among `months` - the months this project has reports in - or `null` when
+ * there is none. A month without reports is skipped, never opened empty.
+ */
+export function neighbourMonth(months: readonly string[], month: string, by: -1 | 1): string | null {
+  const sorted = [...months].sort();
+  if (by < 0) return sorted.filter((each) => each < month).at(-1) ?? null;
+  return sorted.find((each) => each > month) ?? null;
+}
+
+/**
+ * 「2026 年 11 月」 / 「November 2026」's two values: the year, and the month -
+ * its number in Chinese, its name in English and Malay.
+ */
+export function monthWords(month: string, locale: string): { year: string; month: string } {
+  const [year, number] = month.split("-");
+  const index = Number(number);
+  if (!year || !index) return { year: year ?? "", month: number ?? "" };
+  if (locale.startsWith("zh")) return { year, month: String(index) };
+  const name = new Intl.DateTimeFormat(locale, { month: "long", timeZone: "UTC" }).format(
+    new Date(Date.UTC(Number(year), index - 1, 1)),
+  );
+  return { year, month: name };
 }
 
 /** What a key press needs to say about itself. */

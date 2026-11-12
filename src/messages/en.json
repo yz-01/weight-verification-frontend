@@ -19649,9 +19649,14 @@
         "position": "{n} of {total}",
         "previous": "Previous",
         "next": "Next",
-        "first": "This is the first report.",
-        "last": "This is the last report.",
-        "waiting": "Opening this report, one moment."
+        "first": "This is the first report of this month.",
+        "last": "This is the last report of this month.",
+        "waiting": "Opening this report, one moment.",
+        "month": "{month} {year}",
+        "previousMonth": "Previous month",
+        "nextMonth": "Next month",
+        "noEarlierMonth": "This project has no daily reports in an earlier month.",
+        "noLaterMonth": "This project has no daily reports in a later month."
       },
       "signer": {
         "author": "Written by",
