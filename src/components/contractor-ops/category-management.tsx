@@ -336,7 +336,7 @@ export function CategoryManagement() {
   // 「公司通用分类」 first (JB103): the office sets the company's list up before
   // any project exists. An address that names a project or a module - the
   // old column pages, the dashboard's 「新增栏目」 - is about one project.
-  const [tab, setTab] = useState<"company" | "project">(
+  const [chosenTab, setTab] = useState<"company" | "project">(
     searchParams.get("project") || searchParams.get("module") || searchParams.get("create")
       ? "project"
       : "company",
@@ -351,6 +351,13 @@ export function CategoryManagement() {
   const [helpOpen, setHelpOpen] = useState(false);
   // The top bar's 「当前项目」 when it is in force (B13); `?project=` moves it.
   const topBar = useCurrentProject();
+  // 「项目已有『项目专属分类』，项目端就不需要再显示『公司通用分类』」 (JB181,
+  // 客户 11-12 追加 5 第 6 点): the company's list is head office's, on
+  // 「全部项目」. With one project in force, or for a project's own account,
+  // the page is that project's categories only, with no tabs.
+  const headOffice = can("project.view_all");
+  const showsCompany = headOffice && !(topBar.active && topBar.projectId);
+  const tab = showsCompany ? chosenTab : "project";
   const [project, setProject] = usePageProject(initialProject);
   const [editing, setEditing] = useState<Row | "new" | { parent: Row } | null>(
     searchParams.get("create") === "1" &&
@@ -523,6 +530,7 @@ export function CategoryManagement() {
       <ListHeader title={t("title")} subtitle={t("subtitle")} />
       {/* 「分类管理分为『公司通用分类』及『项目专属分类』」 (JB103, 客户 11-05 事项 8
           第 2 点): the company's list needs no project at all (第 1 点). */}
+      {showsCompany && (
       <div role="tablist" aria-label={t("tabs.label")} className="flex gap-1 overflow-x-auto border-b">
         {(["company", "project"] as const).map((key) => (
           <button
@@ -541,6 +549,7 @@ export function CategoryManagement() {
           </button>
         ))}
       </div>
+      )}
       {tab === "company" ? (
         <CompanyCategories />
       ) : (
@@ -548,6 +557,10 @@ export function CategoryManagement() {
       {/* 第 4 点: 「项目负责人可以根据实际需要，为自己的项目继续增加专属分类，
           不影响其他项目」. */}
       <p className="text-sm text-muted-foreground">{t("tabs.projectIntro")}</p>
+      {/* Head office on one project: where the company's list is (JB181 做法 15). */}
+      {headOffice && !showsCompany && (
+        <p className="text-xs text-muted-foreground">{t("tabs.companyWhere")}</p>
+      )}
       {/* The project filter, and for a project-scoped module the project a new
           column is created in - so it wears the star the create button asks for. */}
       {/* With the top bar's project in force there is no second box: on one

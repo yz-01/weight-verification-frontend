@@ -3796,7 +3796,9 @@
       "project_permissions_changed": "修改项目权限",
       "report_anomaly": "清运报告异常",
       "material_price_set": "设定材料单价",
-      "unit_price_from_price_list": "按材料单价补上收货单价"
+      "unit_price_from_price_list": "按材料单价补上收货单价",
+      "company_material_price_carried": "从公司通用分类带入单价",
+      "company_material_price_set": "设定公司通用分类单价"
     },
     "objectType": {
       "SignOffAssistant": "助理副密码",
@@ -4592,10 +4594,11 @@
       "label": "分类范围",
       "company": "公司通用分类",
       "project": "项目专属分类",
-      "projectIntro": "项目专属分类只影响选中的项目。新项目建立时已经带入公司通用分类；这个项目另外需要的，在这里加，不影响其他项目。"
+      "projectIntro": "这里是这个项目自己的分类，只影响这个项目。",
+      "companyWhere": "公司通用分类：请在右上角选「全部项目」。"
     },
     "company": {
-      "intro": "公司通用分类不用选项目，项目还没开工就可以先建好。建立新项目时，系统自动带入这里启用中的全部分类。在这里修改不会改动已有项目。",
+      "intro": "公司通用分类不用选项目，项目还没开工就可以先建好。建立新项目时，系统自动带入这里启用中的全部分类和单价。在这里修改不会改动已有项目；已有的项目要按【加到现有项目】才会补上。",
       "modules": "公司通用分类的业务栏目",
       "module": {
         "material": "材料分类（含规格）",
@@ -4634,8 +4637,54 @@
       "addToProjects": "加到现有项目",
       "addToProjectsBody": "把公司通用分类里各项目还没有的分类，按名称加进去。已经有同名的不会重复加；项目里原有的分类不删除、不改名、不覆盖。已结束的项目不变。",
       "addToProjectsGo": "开始加入",
-      "addedNone": "所有项目都已经有这些分类，没有需要加的。",
-      "addedSome": "已加到 {projects} 个项目，共 {count} 个分类。"
+      "addedNone": "所有项目都已经有了，没有改动。",
+      "addedSome": "完成。{projects} 个项目加了 {count} 个分类、补了 {prices} 个单价。",
+      "foldHelp": "每个材料一行。按【展开】看它的全部规格，再按一次收起。",
+      "specCount": "{count} 个规格",
+      "noSpecs": "没有规格",
+      "expand": "展开",
+      "collapse": "收起",
+      "col": {
+        "material": "材料名称",
+        "specs": "规格",
+        "suppliers": "供应商",
+        "price": "单价"
+      },
+      "suppliersNone": "没有选",
+      "suppliersMore": "{names} 等 {count} 家",
+      "suppliersJoiner": "、",
+      "pricePer": "RM {price} / {unit}",
+      "priceUsesMaterial": "用材料的单价（RM {price} / {unit}）",
+      "priceNone": "没有设单价",
+      "addStep1": "1. 各项目还没有的材料和规格，加进去。",
+      "addStep2": "2. 各项目还没有单价的材料和规格，补上这里的单价。",
+      "addKeeps": "已经有单价的不会改。",
+      "addFills": "补上单价以后，那个项目从生效日期起、还没有单价的进场和领用记录，会自动算上这个单价。",
+      "addedPrices": "补了单价：{names}",
+      "addedFilled": "还没有单价的 {deliveries} 条进场记录、{issues} 项领用，已经算上单价。",
+      "form": {
+        "back": "返回列表",
+        "newTitle": "新增材料",
+        "editTitle": "编辑材料 · {name}",
+        "name": "材料名称",
+        "chooseUnit": "请选单位",
+        "table": "规格、供应商和单价",
+        "wholeMaterial": "整个材料",
+        "wholeMaterialHint": "没有规格的材料，或者规格没有自己填的时候用。",
+        "specName": "规格名称",
+        "specNameOf": "第 {row} 行的规格名称",
+        "rowNumber": "第 {row} 行规格",
+        "price": "单价（RM）",
+        "chooseSuppliers": "选供应商",
+        "addRow": "加一行规格",
+        "remove": "移除",
+        "specNameMissing": "请填规格名称，或者按【移除】。",
+        "specNameTwice": "这个规格名称前面已经有了。",
+        "priceCleared": "设过的单价可以改，不能清空。",
+        "pricesChanged": "这次填了 / 改了 {count} 个单价。从哪一天开始用？",
+        "fixRows": "请先改好标红的那一行。",
+        "save": "保存"
+      }
     },
     "price": {
       "button": "单价"
@@ -8971,6 +9020,11 @@
       "equipment_number_by_system": "设备编号由系统自动给，不能人工修改。",
       "category_group_single": "这个模块每个项目只有一个分类组，请直接改它的名称。",
       "company_category_fixed": "每个项目都要用这个分类：可以改名，不能停用或删除。",
+      "company_material_name_taken": "公司通用分类里已经有「{name}」了。请换一个名称。",
+      "company_material_unit_missing": "请选单位。单价是按单位算的。",
+      "company_material_spec_invalid": "第 {row} 行规格要改一下：名称不能空着，也不能和别的规格一样。",
+      "company_material_price_invalid": "「{row}」的单价不对。请填大于 0 的数目，最多两位小数。",
+      "company_material_supplier_not_found": "有一家供应商不在公司的供应商名单里。请重新选。",
       "phone_page_not_yours": "你的手机没有这个页面。",
       "chat_people_invalid": "请从名单里选人。",
       "user_removed": "这个账号已经删除，不能再启用。请重新建立一个新账号。",
