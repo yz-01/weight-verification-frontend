@@ -109,7 +109,7 @@ import {
 import { signOffBeforeEditing } from "@/services/sign-off.service";
 import { CORRECTED_ROW_CLASS, CorrectedTag } from "@/components/shared/record-correction";
 import { PhotoStrip } from "@/components/shared/photo-thumb";
-import { RecordSendLog } from "@/components/shared/record-send-log";
+import { RecordSendLog, RecordSendTargetProvider } from "@/components/shared/record-send-log";
 
 const PAGE = 20;
 
@@ -697,6 +697,9 @@ export function DailyReportView({
       }
     : {};
   return (
+    // A photo printed or sent from inside the report is the report's row in
+    // 操作记录, which opens this report again (JB183 做法 6).
+    <RecordSendTargetProvider value={{ recordKind: "DAILY_REPORT", recordId: report.id }}>
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent
         ref={contentRef}
@@ -772,6 +775,7 @@ export function DailyReportView({
         )}
       </DialogContent>
     </Dialog>
+    </RecordSendTargetProvider>
   );
 }
 

@@ -54,6 +54,7 @@ export function ExportButton({
   allowSave = true,
   title,
   link,
+  record,
   label,
   size,
   variant = "outline",
@@ -72,6 +73,11 @@ export function ExportButton({
   title?: string;
   /** Where the same rows open in the system, offered beside the sent file. */
   link?: string;
+  /**
+   * The one record this file is (a weigh ticket, a final report, a package's
+   * single item): named on the log row, so 「打开记录」 opens it (JB183).
+   */
+  record?: { kind: string; id: string };
   /** The trigger's words; 「导出」 (「文件」 without 导出) unless the screen names its file. */
   label?: string;
   size?: "sm" | "default";
@@ -88,6 +94,8 @@ export function ExportButton({
         load: () => captureDownload(() => onExport(format)),
         title: title ?? "",
         link,
+        recordKind: record?.kind,
+        recordId: record?.id,
         // Each real export is kept in 「报表导出历史」 by the server; a
         // preview is not (JB27), so an action from the preview fetches again.
         exportedOnServer: true,

@@ -7436,12 +7436,18 @@
         "subject": "Perkara / laporan / fail",
         "openReport": "Buka laporan",
         "openRecord": "Buka rekod",
+        "openPastPage": "Buka halaman ketika itu",
         "recipient": "Dihantar kepada",
         "status": "Status penghantaran",
         "reportName": "Nama laporan",
         "sendRecord": "Rekod penghantaran",
         "view": "Lihat",
-        "noFile": "Fail ini tidak disimpan pada masa itu"
+        "noFile": "Baris ini hanya merekodkan tindakan; tiada fail untuk dibuka."
+      },
+      "window": {
+        "record": "Rekod",
+        "gone": "Rekod ini telah dipadam atau tidak dapat ditemui lagi.",
+        "forbidden": "Akaun anda tiada kebenaran untuk melihat rekod ini."
       },
       "count": "{count} kesemuanya · halaman {page} daripada {pages}",
       "regenerating": "Sedang dijana semula…",

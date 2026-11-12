@@ -194,6 +194,9 @@ export function PermitFileActions({
     subject: file.original_name,
     file_name: file.original_name,
     project,
+    // The permit (logged as HAZARD, as its 完整证据 is): 「打开记录」 opens it (JB183).
+    record_kind: "HAZARD",
+    record_id: permitId,
     link: typeof window === "undefined" ? undefined : `${window.location.pathname}${window.location.search}`,
   };
   const print = async () => {
@@ -270,6 +273,8 @@ export function PermitFileActions({
           previewType={file.preview_type}
           filename={file.original_name}
           onDownload={() => downloadPermitFile(permitId, file)}
+          recordKind="HAZARD"
+          recordId={permitId}
           onClose={() => setPreviewing(false)}
         />
       )}
@@ -398,6 +403,8 @@ export function PermitDocuments({ permit }: { permit: Permit }) {
           previewType={previewing.preview_type}
           filename={previewing.original_name}
           onDownload={() => downloadPermitFile(permit.id, previewing)}
+          recordKind="HAZARD"
+          recordId={permit.id}
           onClose={() => setPreviewing(null)}
         />
       )}

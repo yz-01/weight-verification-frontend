@@ -7436,12 +7436,18 @@
         "subject": "業務事項 / 報表 / 文件",
         "openReport": "打開報表",
         "openRecord": "打開記錄",
+        "openPastPage": "打開當時的頁面",
         "recipient": "發給誰",
         "status": "發送狀態",
         "reportName": "報表名稱",
         "sendRecord": "發送記錄",
         "view": "查看",
-        "noFile": "這一份當時沒有保存文件"
+        "noFile": "這一行只記下了操作，沒有可以打開的文件。"
+      },
+      "window": {
+        "record": "記錄",
+        "gone": "這一條記錄已經刪除，或者找不到了。",
+        "forbidden": "你的賬號沒有權限看這一條記錄。"
       },
       "count": "共 {count} 筆 · 第 {page} / {pages} 頁",
       "regenerating": "正在重新生成…",

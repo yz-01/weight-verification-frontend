@@ -307,6 +307,9 @@ export function RecordAttachmentsPanel({
           previewType={previewing.preview_type}
           filename={previewing.original_name}
           onDownload={() => downloadRecordAttachment(kind, recordId, previewing)}
+          // Its print / download row names this record (JB183 做法 6).
+          recordKind={kind}
+          recordId={recordId}
           onClose={() => setPreviewing(null)}
         />
       )}

@@ -70,6 +70,7 @@ import {
   useCanCorrect,
 } from "@/components/shared/record-correction";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
+import { PermitDetail } from "@/components/permits/permit-parts";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { HazardConversationPanel } from "@/components/site-operations/hazard-conversation";
@@ -1154,7 +1155,8 @@ export function HazardRecordDetail({
  * dialog in its place and come back to the record, re-read, when it closes -
  * the list closes the record instead, because the list itself is what shows
  * the change there. A permit is shown here too rather than sent to 施工准证:
- * this popup never navigates.
+ * this popup never navigates - and as the permit it is (`PermitDetail`), not
+ * as a hazard card (JB183: a permit's 操作记录 row is logged as HAZARD).
  */
 export function HazardInPlace({ id, onClose }: { id: string; onClose: () => void }) {
   const t = useTranslations();
@@ -1186,6 +1188,8 @@ export function HazardInPlace({ id, onClose }: { id: string; onClose: () => void
       </RecordDetailDialog>
     );
   }
+  // 施工准证 is a HAZARD row too: its own window, as the record sheet opens it.
+  if (incident.record_type === "PERMIT") return <PermitDetail id={id} presentation="dialog" onClose={onClose} />;
   if (step === "review") return <SafetyReviewDialog incident={incident} onClose={back} />;
   if (step === "assign") return <SafetyAssignDialog incident={incident} onClose={back} />;
   if (step === "reassign") return <SafetyReassignDialog incident={incident} onClose={back} />;

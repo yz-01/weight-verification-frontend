@@ -57,7 +57,9 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { ProjectListFilter } from "@/components/shared/module-records-table";
 import { FieldWrapper, FilterBar, QueryFailedNote } from "@/components/shared/page-primitives";
 import { RecordCorrectionHistory } from "@/components/shared/record-correction";
-import { RecordSendLog } from "@/components/shared/record-send-log";
+import { RecordDetailDialog } from "@/components/shared/record-detail-shell";
+import { RecordSendLog, RecordSendTargetProvider } from "@/components/shared/record-send-log";
+import { RecordWindowFailure } from "@/components/shared/record-window-failure";
 import { absoluteUrl } from "@/lib/share";
 import { ARCHIVE_LOCKS_CHANGES } from "@/lib/archive-policy";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
@@ -101,6 +103,7 @@ import {
   archiveProgressSummary,
   deleteProgressSummary,
   getProgressSummaries,
+  getProgressSummary,
   progressSummaryPdfFile,
   updateProgressSummary,
 } from "@/services/progress-reports.service";
@@ -219,6 +222,9 @@ export function ProgressSummaryTab() {
             ))}
           </nav>
           {shown && (
+            // A photo printed or sent from the summary is the summary's row
+            // in 操作记录, which opens it again (JB183 做法 6).
+            <RecordSendTargetProvider value={{ recordKind: "PROGRESS_SUMMARY", recordId: shown.id }}>
             <article className="surface-panel min-w-0 space-y-4 rounded-xl p-4 sm:p-6">
               <header className="flex flex-wrap items-start justify-between gap-2">
                 <div>
@@ -284,10 +290,88 @@ export function ProgressSummaryTab() {
               <RecordCorrectionHistory kind="PROGRESS_SUMMARY" recordId={shown.id} />
               <RecordSendLog recordKind="PROGRESS_SUMMARY" recordId={shown.id} />
             </article>
+            </RecordSendTargetProvider>
           )}
         </div>
       )}
     </div>
+  );
+}
+
+/**
+ * One summary in a window over the page the reader is on (JB183: 操作记录's
+ * 「打开记录」 opens 「那一份摘要」, and closing it leaves the list as it was).
+ * What the tab shows of it - its blocks, 修改记录, 发送记录 - with 预览 ·
+ * 打印 · 导出 · 发送 (preview only before 确认归档, as on the tab). Writing,
+ * archiving and deleting stay on 工程进度.
+ */
+export function ProgressSummaryWindow({ id, onClose }: { id: string; onClose: () => void }) {
+  const t = useTranslations("progressPage.summary");
+  const tPage = useTranslations("progressPage");
+  const draft = useTranslations("draftRecords");
+  const locale = useLocale();
+  const df = useDateFormat();
+  const notArchived = useNotArchivedReason();
+  const summary = useQuery({
+    queryKey: ["progress-summaries", "one", id],
+    queryFn: () => getProgressSummary(id),
+  });
+  const shown = summary.data;
+  return (
+    <RecordDetailDialog
+      title={shown?.title ?? tPage("tabs.summary")}
+      description={
+        shown
+          ? [
+              shown.project_name,
+              t("updated", {
+                time: df.dateTime(shown.updated_at),
+                name: shown.updated_by_name ?? shown.author_name ?? "—",
+              }),
+            ]
+              .filter(Boolean)
+              .join(" · ")
+          : undefined
+      }
+      headerActions={
+        shown ? (
+          <FileActionButtons
+            blockedReason={shown.archived_at ? undefined : notArchived}
+            source={{
+              load: () => progressSummaryPdfFile(shown.id, locale, shown.title),
+              title: shown.title,
+              project: shown.project,
+              recordKind: "PROGRESS_SUMMARY",
+              recordId: shown.id,
+              link: absoluteUrl(`/progress?tab=summary&summary=${shown.id}`),
+            }}
+          />
+        ) : undefined
+      }
+      onClose={onClose}
+    >
+      {shown ? (
+        <RecordSendTargetProvider value={{ recordKind: "PROGRESS_SUMMARY", recordId: shown.id }}>
+          <div className="min-w-0 space-y-4" data-slot="progress-summary-window">
+            <p className="text-xs text-muted-foreground" data-slot="archive-state">
+              {shown.archived_at
+                ? draft("archivedBy", {
+                    name: shown.archived_by_name ?? "—",
+                    when: df.dateTime(shown.archived_at),
+                  })
+                : draft("draftHint")}
+            </p>
+            <SummaryBlocksView summary={shown} />
+            <RecordCorrectionHistory kind="PROGRESS_SUMMARY" recordId={shown.id} />
+            <RecordSendLog recordKind="PROGRESS_SUMMARY" recordId={shown.id} />
+          </div>
+        </RecordSendTargetProvider>
+      ) : summary.isError ? (
+        <RecordWindowFailure query={summary} what={tPage("tabs.summary")} />
+      ) : (
+        <Loader2 className="size-5 animate-spin text-muted-foreground" />
+      )}
+    </RecordDetailDialog>
   );
 }
 
