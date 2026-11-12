@@ -19026,6 +19026,10 @@
       "PROJECT": "Dihantar kepada pengurus projek: ibu pejabat tidak memutuskannya.",
       "HQ": "Dihantar kepada ibu pejabat: pengurus projek tidak memutuskannya.",
       "NONE": "Sesiapa yang boleh menyemak memutuskannya."
+    },
+    "reminder": {
+      "rule": "Tuntutan ini belum selesai. Setiap {hours} jam sistem mengingatkan orang yang menghantarnya dan orang yang perlu bertindak, sehingga disahkan dibayar (atau ditolak, atau ditarik balik).",
+      "sent": "Sudah diingatkan {count} kali, kali terakhir: {at}."
     }
   },
   "moduleHub": {
