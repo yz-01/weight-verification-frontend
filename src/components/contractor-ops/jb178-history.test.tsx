@@ -219,14 +219,25 @@ describe("JB180-2: every row has 「查看」", () => {
   });
 
   it("a single record keeps 「打开记录」; a row with no kept file says so", () => {
-    const record = row({ report_export: null, report_has_file: false, link: "/receipts/1" });
+    // JB183: the record the row names opens in its window - no longer the
+    // stored `link` as a plain link.
+    const record = row({
+      report_export: null,
+      report_has_file: false,
+      record_kind: "MATERIAL_RECEIPT",
+      record_id: "1",
+      link: "/receipts/1",
+    });
     const linked = render(<RowView row={record} kept={keptFile(record)} archive={archive} />);
     expect(linked).toContain(zh.contractorReports.history.log.openRecord);
-    expect(linked).toContain('href="/receipts/1"');
+    expect(linked).not.toContain('href="/receipts/1"');
     expect(linked).not.toContain("history-action-view");
     const old = row({ report_has_file: false });
     expect(keptFile(old)).toBeNull();
-    expect(render(<RowView row={old} kept={null} archive={archive} />)).toContain("这一份当时没有保存文件");
+    // JB183 做法 7: the sentence only for a row with nothing to open, in clearer words.
+    expect(render(<RowView row={old} kept={null} archive={archive} />)).toContain(
+      "这一行只记下了操作，没有可以打开的文件。",
+    );
   });
 });
 

@@ -7436,12 +7436,18 @@
         "subject": "Item / report / file",
         "openReport": "Open the report",
         "openRecord": "Open the record",
+        "openPastPage": "Open the page it was on",
         "recipient": "Sent to",
         "status": "Send status",
         "reportName": "Report name",
         "sendRecord": "Send record",
         "view": "View",
-        "noFile": "No file was kept for this one at the time"
+        "noFile": "This row only records the action; there is no file to open."
+      },
+      "window": {
+        "record": "Record",
+        "gone": "This record has been deleted or can no longer be found.",
+        "forbidden": "Your account does not have permission to view this record."
       },
       "count": "{count} in total · page {page} of {pages}",
       "regenerating": "Generating it again…",

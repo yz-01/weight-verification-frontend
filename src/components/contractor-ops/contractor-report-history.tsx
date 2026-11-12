@@ -22,6 +22,15 @@
  * record) or 「这一份当时没有保存文件」; a send shows to whom, how and its
  * three states (`SendStates`).
  *
+ * JB183 (客户 11-13 事项 1、2): 「打开记录」 opens the record the row names
+ * (`record_kind` + `record_id`, `logRowTarget`) in its own window over the
+ * list (`LogRecordWindow`) - never the page the button happened to be
+ * pressed on - and X, Esc, a click outside or the browser's back closes it
+ * onto the same list. The page keeps its tab, filters, project and pages in
+ * its address and its scroll position for that address, so the back arrow
+ * from a record that has only a page, and a reload, come back to the same
+ * place.
+ *
  * Rows from before files were kept (before 2026-10-10) have nothing stored
  * to open. 「按当时条件重新生成」 generates them again from the conditions the
  * row saved - with the data as it is now, which the file says - into a new
@@ -31,8 +40,18 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Eye, History, Loader2, RotateCcw } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { useSearchParams } from "next/navigation";
-import { useDeferredValue, useState, type ReactNode } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useDeferredValue,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+  type RefObject,
+} from "react";
 import { toast } from "sonner";
 
 import { CompanyBanner } from "@/components/dashboard/company-banner";
@@ -46,6 +65,7 @@ import {
 } from "@/components/reports/report-archive";
 import { ReportJobs } from "@/components/reports/report-jobs";
 import { ReportSelector } from "@/components/reports/report-selector";
+import { LogRecordWindow, type LogRecordHeading } from "@/components/contractor-ops/log-record-window";
 import { clickOpensRow } from "@/components/shared/inside-row-control";
 import { FilterBar, FilterField, ListHeader } from "@/components/shared/page-primitives";
 import { SendStates } from "@/components/shared/send-states";
@@ -77,7 +97,17 @@ import {
 } from "@/interfaces/file-action";
 import type { ArchivedReportFile } from "@/interfaces/report-archive";
 import { useDateFormat } from "@/lib/dates";
+import { logRowTarget } from "@/lib/log-record-open";
 import { messageCodes, reportColumnValues } from "@/lib/report-preview";
+import {
+  historyQuery,
+  openRecordIn,
+  readHistoryAddress,
+  scrollKey,
+  withOpenRecord,
+  withoutOpenRecord,
+  type HistoryTab,
+} from "@/lib/report-history-address";
 import { useUnitExportValues } from "@/hooks/use-material-units";
 import { isSignOffCancelled } from "@/lib/sign-off";
 import { cn } from "@/lib/utils";
@@ -130,21 +160,54 @@ export function ContractorReportHistoryWorkspace() {
   const t = useTranslations("contractorReports");
   const h = useTranslations("contractorReports.history");
   const search = useSearchParams();
-  const [tab, setTab] = useState(search.get("tab") === "log" ? "log" : "reports");
-  const [filters, setFilters] = useState<Filters>(NO_FILTERS);
-  const [page, setPage] = useState(1);
-  const [logPage, setLogPage] = useState(1);
+  const pathname = usePathname();
+  const router = useRouter();
+  const current = useCurrentProject();
+  // JB183 做法 5: where the page was - tab, filters, project, pages - read
+  // from its address once, when it opens (back, the back arrow, a reload).
+  const [initial] = useState(() => readHistoryAddress(new URLSearchParams(search.toString())));
+  const [home] = useState(pathname);
+  const [tab, setTab] = useState<HistoryTab>(initial.tab);
+  const [filters, setFilters] = useState<Filters>(() => ({
+    date: initial.date,
+    operator: initial.operator,
+    action: (FILE_ACTION_TYPES as readonly string[]).includes(initial.action) ? (initial.action as FileActionType) : "",
+    name: initial.name,
+    recipient: initial.recipient,
+    // The project the page was on; else the top bar's, which it follows.
+    project: initial.project !== "all" ? initial.project : current.active ? current.projectId || "all" : "all",
+  }));
+  const [page, setPage] = useState(initial.page);
+  const [logPage, setLogPage] = useState(initial.logPage);
   const set = (patch: Partial<Filters>) => {
     setFilters((current) => ({ ...current, ...patch }));
     setPage(1);
     setLogPage(1);
   };
+  // The page's state, kept in its address as it changes (replacing the
+  // entry: a filter typed is not a step for the back button).
+  const searchText = search.toString();
+  useEffect(() => {
+    if (window.location.pathname !== home) return;
+    const now = new URLSearchParams(window.location.search);
+    const query = historyQuery(now, { tab, ...filters, page, logPage });
+    if (query === now.toString()) return;
+    window.history.replaceState(null, "", query ? `${home}?${query}` : home);
+  }, [tab, filters, page, logPage, home, searchText]);
+  const listRef = useRef<HTMLDivElement | null>(null);
+  useSavedListScroll(listRef);
+  const opened = useOpenedLogRecord({ home, listRef, router });
   const projectBoxShown = useProjectBoxShown("filter");
   const scope = useHistoryScope(filters, tab, () => set(NO_FILTERS));
   const projectPicker = (
     <ProjectPicker
       value={filters.project}
-      onValueChange={(value) => set({ project: value })}
+      onValueChange={(value) => {
+        // The top bar settling while its list loads is not a choice: the
+        // page and its project stay as they were (JB183 做法 5).
+        if (current.active && current.loading) return;
+        set({ project: value });
+      }}
       placeholder={t("filter.allProjects")}
       allowAll
       allLabel={t("filter.allProjects")}
@@ -153,13 +216,14 @@ export function ContractorReportHistoryWorkspace() {
   );
 
   return (
-    <div className="flex flex-col gap-4">
+    <OpenLogRow.Provider value={opened.open}>
+    <div className="flex flex-col gap-4" ref={listRef} data-slot="report-history">
       <CompanyBanner scope="reports" />
       <ReportSelector />
       <ListHeader title={h("title")} subtitle={h("subtitle")} />
       {/* 「准备中」 and the ones not made (JB48): above the finished files. */}
       <ReportJobs />
-      <Tabs value={tab} onValueChange={setTab}>
+      <Tabs value={tab} onValueChange={(value) => setTab(value === "log" ? "log" : "reports")}>
         <TabsList>
           <TabsTrigger value="reports" data-slot="history-tab-reports">{h("tabReports")}</TabsTrigger>
           <TabsTrigger value="log" data-slot="history-tab-log">{h("tabLog")}</TabsTrigger>
@@ -235,8 +299,161 @@ export function ContractorReportHistoryWorkspace() {
           <ActionLog filters={filters} page={logPage} onPage={setLogPage} scope={scope} />
         </TabsContent>
       </Tabs>
+      {opened.window}
     </div>
+    </OpenLogRow.Provider>
   );
+}
+
+/* ------------------------------------------------- the record a row opens */
+
+/** Opens the record a log row names (JB183); null outside the page. */
+const OpenLogRow = createContext<((row: FileActionRecord) => void) | null>(null);
+
+/**
+ * 「打开记录」 (JB183 做法 1、2): the record in its window over this list,
+ * named in the address as a history entry of its own (`open_kind` +
+ * `open_id`), so the browser's back closes the window and stays here; X,
+ * Esc and a click outside close it the same way. A record that has only a
+ * page, and a row that kept only the page it was written on, go there; the
+ * list's place is saved first, for the way back.
+ */
+function useOpenedLogRecord({
+  home,
+  listRef,
+  router,
+}: {
+  home: string;
+  /** The list, whose scroll place is saved before a page opens. */
+  listRef: RefObject<HTMLDivElement | null>;
+  router: ReturnType<typeof useRouter>;
+}) {
+  const search = useSearchParams();
+  // What the row said of its record, for the window's heading.
+  const [headings, setHeadings] = useState<Record<string, LogRecordHeading>>({});
+  // Whether this page added the window's history entry (then X goes back to
+  // the list's own entry rather than adding another).
+  const pushed = useRef(false);
+  const open = useCallback(
+    (row: FileActionRecord) => {
+      const target = logRowTarget(row);
+      if (!target) return;
+      if ("window" in target) {
+        const heading: LogRecordHeading = {
+          reference: rowTitle(row),
+          project_id: row.project,
+          project_name: row.project_name ?? "",
+        };
+        setHeadings((known) => ({ ...known, [`${row.record_kind}:${row.record_id}`]: heading }));
+        const query = withOpenRecord(new URLSearchParams(window.location.search), row.record_kind, row.record_id);
+        window.history.pushState(null, "", `${home}?${query}`);
+        pushed.current = true;
+        return;
+      }
+      saveListScroll(listRef.current);
+      router.push("page" in target ? target.page : target.pastPage);
+    },
+    [home, listRef, router],
+  );
+  const close = useCallback(() => {
+    const now = new URLSearchParams(window.location.search);
+    if (window.location.pathname !== home || !openRecordIn(now)) return;
+    if (pushed.current) {
+      pushed.current = false;
+      window.history.back();
+      return;
+    }
+    // Opened from the address itself (a reload): take the record out of it.
+    const query = withoutOpenRecord(now);
+    window.history.replaceState(null, "", query ? `${home}?${query}` : home);
+  }, [home]);
+  const named = openRecordIn(search);
+  const target = named ? logRowTarget({ record_kind: named.kind, record_id: named.id }) : null;
+  const shown =
+    named && target && "window" in target ? (
+      <LogRecordWindow
+        key={`${named.kind}:${named.id}`}
+        opener={target.window}
+        kind={target.kind}
+        id={target.id}
+        heading={headings[`${named.kind}:${named.id}`]}
+        onClose={close}
+      />
+    ) : null;
+  return { open, window: shown };
+}
+
+/* ------------------------------------------------- the list's scroll place */
+
+/** Where the list was scrolled, for which address (sessionStorage). */
+const SCROLL_STORE = "report-history-scroll";
+
+/** The element the page scrolls in: the layout's, not the window. */
+function scrollBox(node: HTMLElement | null): HTMLElement | null {
+  for (let at = node?.parentElement ?? null; at; at = at.parentElement) {
+    if (/(auto|scroll)/.test(window.getComputedStyle(at).overflowY)) return at;
+  }
+  return null;
+}
+
+function currentScrollKey(): string {
+  return scrollKey(window.location.pathname, new URLSearchParams(window.location.search));
+}
+
+/** Keep where the list around `node` is scrolled, for the current address. */
+function saveListScroll(node: HTMLElement | null) {
+  const box = scrollBox(node);
+  if (!box) return;
+  try {
+    window.sessionStorage.setItem(SCROLL_STORE, JSON.stringify({ key: currentScrollKey(), top: box.scrollTop }));
+  } catch {
+    // No storage (a private window): the list opens at the top.
+  }
+}
+
+/**
+ * 「返回后保留…列表位置」 (JB183 做法 5): the scroll position is kept for this
+ * address as the reader scrolls, before a record's page opens (`open`) and
+ * before a reload; `useRestoredListScroll` puts it back once the list has come.
+ */
+function useSavedListScroll(listRef: RefObject<HTMLDivElement | null>) {
+  useEffect(() => {
+    const node = listRef.current;
+    const box = scrollBox(node);
+    if (!box) return;
+    const save = () => saveListScroll(node);
+    let frame = 0;
+    const onScroll = () => {
+      window.cancelAnimationFrame(frame);
+      frame = window.requestAnimationFrame(save);
+    };
+    box.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("pagehide", save);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      box.removeEventListener("scroll", onScroll);
+      window.removeEventListener("pagehide", save);
+    };
+  }, [listRef]);
+}
+
+/** Back to the kept place, once, when the list for the same address has come. */
+function useRestoredListScroll(ready: boolean) {
+  const marker = useRef<HTMLElement | null>(null);
+  const done = useRef(false);
+  useEffect(() => {
+    if (!ready || done.current) return;
+    done.current = true;
+    const box = scrollBox(marker.current);
+    if (!box) return;
+    try {
+      const kept = JSON.parse(window.sessionStorage.getItem(SCROLL_STORE) ?? "null") as { key?: string; top?: number } | null;
+      if (kept && kept.key === currentScrollKey() && typeof kept.top === "number") box.scrollTop = kept.top;
+    } catch {
+      // Nothing kept, or no storage: stay at the top.
+    }
+  }, [ready]);
+  return marker;
 }
 
 /**
@@ -399,9 +616,10 @@ function ReportRows({
   const previewTitle = (row: ContractorReportExportRecord) =>
     `${reportName(row)} · ${row.date_from} - ${row.date_to}`;
   const rows = history.data?.results ?? [];
+  const marker = useRestoredListScroll(history.isSuccess);
 
   return (
-    <section className="surface-panel overflow-hidden rounded-xl">
+    <section className="surface-panel overflow-hidden rounded-xl" ref={marker}>
       {history.isLoading ? (
         <div className="space-y-3 p-4">
           {Array.from({ length: 5 }).map((_, index) => <Skeleton key={index} className="h-9 w-full" />)}
@@ -661,8 +879,9 @@ function ActionLog({
     queryKey: ["file-actions", "log", query],
     queryFn: () => getFileActionRecords(query),
   });
+  const marker = useRestoredListScroll(records.isSuccess);
   return (
-    <section className="surface-panel overflow-hidden rounded-xl" data-slot="history-action-log">
+    <section className="surface-panel overflow-hidden rounded-xl" data-slot="history-action-log" ref={marker}>
       {records.isSuccess ? <ShowingOnly scope={scope} count={records.data?.count ?? 0} /> : null}
       <ActionTable
         records={records}
@@ -698,6 +917,7 @@ function ActionTable({
   const h = useTranslations("contractorReports.history");
   const t = useTranslations("contractorReports");
   const archive = useReportArchive();
+  const openRow = useContext(OpenLogRow);
   const rows = records.data?.results ?? [];
   if (records.isLoading) {
     return (
@@ -725,13 +945,20 @@ function ActionTable({
         <TableBody>
           {rows.map((row) => {
             const kept = keptFile(row);
+            // A row opens what it has: the kept file, else its record (JB183).
+            const record = openRow ? logRowTarget(row) : null;
             return (
               <TableRow
                 key={row.id}
-                className={cn("align-top", kept && "cursor-pointer")}
+                className={cn("align-top", (kept || record) && "cursor-pointer")}
                 data-slot="history-action-row"
                 onClick={(event) => {
-                  if (kept && clickOpensRow(event) && !archive.busy) archive.open(kept, "preview", rowTitle(row));
+                  if (!clickOpensRow(event)) return;
+                  if (kept) {
+                    if (!archive.busy) archive.open(kept, "preview", rowTitle(row));
+                  } else if (record) {
+                    openRow?.(row);
+                  }
                 }}
               >
                 <TableCell className="whitespace-nowrap tabular">{dateTime24(row.created_at)}</TableCell>
@@ -786,8 +1013,12 @@ function rowTitle(row: FileActionRecord): string {
 /**
  * 「查看」 (JB180 第 2 点: 「历史记录没有明确的「查看」按钮，必须能够重新打开原来的
  * 报表，支持预览、打印、下载及发送／分享」): the file as it was kept - never made
- * again - in the viewer with 预览｜打印｜导出｜发送. A single record keeps
- * 「打开记录」; a row whose file was never kept says so.
+ * again - in the viewer with 预览｜打印｜导出｜发送.
+ *
+ * 「打开记录」 (JB183): the record the row names, in its window over the list
+ * (or its page, for the few with only a page). A row that names no record
+ * but kept the page it was written on offers 「打开当时的页面」; a row with
+ * neither says 「这一行只记下了操作，没有可以打开的文件。」.
  */
 export function RowView({
   row,
@@ -800,6 +1031,8 @@ export function RowView({
 }) {
   const h = useTranslations("contractorReports.history");
   const files = useTranslations("fileActions");
+  const openRow = useContext(OpenLogRow);
+  const target = logRowTarget(row);
   return (
     <div className="flex flex-col items-start gap-1">
       {kept ? (
@@ -815,12 +1048,18 @@ export function RowView({
           {h("log.view")}
         </Button>
       ) : null}
-      {row.link ? (
-        <Button size="sm" variant="ghost" asChild>
-          <a href={row.link} data-slot="history-action-link">{h("log.openRecord")}</a>
+      {target ? (
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={() => openRow?.(row)}
+          data-slot="history-action-link"
+          data-opens={"window" in target ? "window" : "page" in target ? "page" : "past-page"}
+        >
+          {"pastPage" in target ? h("log.openPastPage") : h("log.openRecord")}
         </Button>
       ) : null}
-      {!kept && !row.link ? (
+      {!kept && !target ? (
         <p className="max-w-48 text-xs leading-snug text-muted-foreground" data-slot="history-action-no-file">
           {h("log.noFile")}
         </p>
