@@ -8,9 +8,12 @@ import { describe, expect, it } from "vitest";
 
 import type { CorrectionField } from "@/interfaces/record-correction";
 import {
+  isLinePrice,
+  isLineQuantity,
   issueMoney,
   lineAmount,
   lineName,
+  linesTotal,
   purchaseUnitPrice,
   reportMoneyHidden,
   seesIssueMoney,
@@ -64,6 +67,47 @@ describe("an issue line's 单价 and 金额", () => {
     expect(lineAmount(issued, "")).toBeNull();
     expect(lineAmount(issued, "0")).toBeNull();
     expect(lineAmount(issued, "abc")).toBeNull();
+  });
+
+  it("works out 金额 from the quantity typed in the 改正 window when there is one (JB182)", () => {
+    const issued = { quantity: "200.000", issued_quantity: "200.000" };
+    expect(lineAmount(issued, "6.80", "180")).toEqual({ quantity: "180", requested: false, price: "6.80", amount: "1224.00" });
+    expect(lineAmount(issued, "6.80", " 200.000 ")).toMatchObject({ quantity: "200.000", amount: "1360.00" });
+    const waiting = { quantity: "200.000", issued_quantity: null };
+    expect(lineAmount(waiting, "6.80", "150")).toMatchObject({ requested: true, amount: "1020.00" });
+    expect(lineAmount(issued, "6.80", "")).toBeNull();
+    expect(lineAmount(issued, "6.80", "abc")).toBeNull();
+    expect(lineAmount(issued, "6.80", "-1")).toBeNull();
+    // Without a quantity box (「填写单价」 on one line) the stored figure counts.
+    expect(lineAmount(issued, "6.80", undefined)?.amount).toBe("1360.00");
+    // A material handed over as 0 is worth 0.00, not 「没有单价」.
+    expect(lineAmount({ quantity: "5", issued_quantity: "0.000" }, "6.80")?.amount).toBe("0.00");
+  });
+
+  it("adds the 总金额 to the cent, leaving out and counting the unpriced (JB182)", () => {
+    expect(
+      linesTotal([
+        { priced: true, amount: "1224.00" },
+        { priced: false, amount: null },
+        { priced: true, amount: "0.10" },
+        { priced: true, amount: "0.20" },
+      ]),
+    ).toEqual({ amount: "1224.30", unpriced: 1 });
+    expect(linesTotal([{ priced: false, amount: null }, { priced: false, amount: null }])).toEqual({ amount: null, unpriced: 2 });
+    // A price typed but not yet a number: left out, not counted as unpriced.
+    expect(linesTotal([{ priced: true, amount: null }, { priced: true, amount: "5.00" }])).toEqual({ amount: "5.00", unpriced: 0 });
+  });
+
+  it("tells an issue line's 数量 from its 单价 (JB182)", () => {
+    const line = { id: "l-1", position: 1, material_name: "Disel", material_specification: "", unit: "Liter", quantity: "1", issued_quantity: null };
+    const base: CorrectionField = { name: "x", type: "decimal", required: false, max_length: null, value: "", display: "", options: null };
+    expect(isLineQuantity({ ...base, line, line_part: "quantity" })).toBe(true);
+    expect(isLinePrice({ ...base, line, line_part: "quantity" })).toBe(false);
+    expect(isLinePrice({ ...base, line, line_part: "price" })).toBe(true);
+    // A 单价 field from before JB182 carries no `line_part`.
+    expect(isLinePrice({ ...base, line })).toBe(true);
+    expect(isLinePrice(base)).toBe(false);
+    expect(isLineQuantity(base)).toBe(false);
   });
 
   it("names the line by its number, material and specification", () => {

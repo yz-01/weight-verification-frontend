@@ -210,6 +210,9 @@ export function badNumber(
       if (field.type !== "decimal") return false;
       const typed = (draft[field.name] ?? "").trim();
       if (!typed) return false;
+      // An issue line's figure left as it is is not sent (JB182: a material
+      // handed over as 0 keeps its 0 while another line is corrected).
+      if (field.line && sameValue(field, typed)) return false;
       const number = Number(typed);
       return !Number.isFinite(number) || number <= 0;
     }) ?? null
