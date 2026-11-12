@@ -7366,7 +7366,7 @@
         "link": "复制链接",
         "download": "下载后附上"
       },
-      "logHint": "整个后台的打印、下载、发送，每次都用本人六位数密码确认。预览不记录。",
+      "logHint": "整个后台的打印、下载 / 导出、发送 / 分享，每次都用本人六位数密码确认，各记一行。预览不记录。",
       "actionFilterHint": "日期和操作员：报表的生成日期和生成人。选了操作类型：被打印、下载或发送过的报表，以及操作人。",
       "noMatch": "没有符合筛选条件的报表。",
       "regeneratedNote": "按 {when} 的条件重新生成，内容为重新生成时的资料。",
@@ -7387,11 +7387,21 @@
         "openReport": "打开报表",
         "openRecord": "打开记录",
         "recipient": "发给谁",
-        "status": "发送状态"
+        "status": "发送状态",
+        "reportName": "报表名称",
+        "sendRecord": "发送记录",
+        "view": "查看",
+        "noFile": "这一份当时没有保存文件"
       },
       "count": "共 {count} 笔 · 第 {page} / {pages} 页",
       "regenerating": "正在重新生成…",
-      "alreadyRegenerated": "已按当时条件重新生成过：请打开同一报表、同一期间的新一行。"
+      "alreadyRegenerated": "已按当时条件重新生成过：请打开同一报表、同一期间的新一行。",
+      "showingOnly": "现在只显示：{what}，共 {count} 笔。",
+      "logEmptyProject": "这个项目（{project}）还没有打印、下载或发送的记录。",
+      "emptyProject": "这个项目（{project}）还没有导出的报表。",
+      "allProjectsTopBar": "要看所有项目的，请在右上角选「全部项目」。",
+      "allProjectsFilter": "要看所有项目的，请在「项目」选「{all}」。",
+      "logNoMatch": "没有符合筛选条件的记录。"
     },
     "loadError": "无法加载报表。",
     "period": "期间：{from} 至 {to}",
@@ -7446,7 +7456,9 @@
       "material_outgoing": "材料出场报表",
       "field_tasks": "现场任务报表",
       "daily_report": "日报告",
-      "progress_summary": "项目进度摘要"
+      "progress_summary": "项目进度摘要",
+      "material_cost": "材料成本报表",
+      "material_quantity": "材料数量报表"
     },
     "what": {
       "filterOptions": "筛选选项",
@@ -19416,10 +19428,10 @@
       "yes": "已发送",
       "no": "没有发",
       "confirmed": "已记下：已确认发送。",
-      "keptOpened": "好的，记录是「已打开分享窗口」。以后发了，可以在「发送记录」按「标记为已发送」。",
+      "keptOpened": "好的，记录是「还没有确认发出」。以后发了，可以在「发送记录」按「标记为已发送」。",
       "confirmFailed": "没有记下来。请在这笔记录的「发送记录」按「标记为已发送」。",
       "status": {
-        "OPENED": "已打开分享窗口",
+        "OPENED": "还没有确认发出",
         "CONFIRMED": "已确认发送"
       },
       "log": {
@@ -19435,7 +19447,22 @@
         "confirmedByOpen": "对方于 {when} 打开链接，自动确认已发送"
       },
       "askBodyLink": "发给 {name}：{file}。在 WhatsApp 里按了发送就可以。对方打开链接时，系统会自动确认已发送；你也可以现在按「已发送」。",
-      "askBodyLinkEmail": "发给 {name}：{file}。在电邮里按了发送就可以。对方打开链接时，系统会自动确认已发送；你也可以现在按「已发送」。"
+      "askBodyLinkEmail": "发给 {name}：{file}。在电邮里按了发送就可以。对方打开链接时，系统会自动确认已发送；你也可以现在按「已发送」。",
+      "states": {
+        "linkMade": "分享链接已生成 · {when}",
+        "opened": {
+          "whatsapp": "已打开 WhatsApp · {when}",
+          "email": "已打开电邮 · {when}",
+          "share_sheet": "已打开分享窗口 · {when}",
+          "link": "已复制链接 · {when}",
+          "download": "已下载文件 · {when}"
+        },
+        "actual": "实际发送：",
+        "confirmed": "已确认发送 · {name} · {when}",
+        "confirmedNoName": "已确认发送 · {when}",
+        "openedLink": "对方已打开链接 · {when}",
+        "sender": "操作人：{name}"
+      }
     },
     "link": {
       "whatsappButton": "打开 {name} 的 WhatsApp 对话",

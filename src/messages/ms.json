@@ -7366,7 +7366,7 @@
         "link": "Pautan disalin",
         "download": "Dimuat turun untuk dilampirkan"
       },
-      "logHint": "Setiap cetakan, muat turun dan penghantaran di pejabat, setiap kali disahkan dengan PIN enam digit sendiri. Pratonton tidak direkodkan.",
+      "logHint": "Setiap cetakan, muat turun / eksport dan penghantaran / perkongsian di pejabat disahkan dengan PIN enam digit sendiri, dan setiap satu direkodkan sebagai satu baris. Pratonton tidak direkodkan.",
       "actionFilterHint": "Tarikh dan pengendali: bila dan oleh siapa laporan dijana. Dengan tindakan dipilih: laporan yang dicetak, dimuat turun atau dihantar, dan oleh siapa.",
       "noMatch": "Tiada laporan sepadan dengan penapis ini.",
       "regeneratedNote": "Dijana semula mengikut syarat {when}, dengan data semasa.",
@@ -7387,11 +7387,21 @@
         "openReport": "Buka laporan",
         "openRecord": "Buka rekod",
         "recipient": "Dihantar kepada",
-        "status": "Status penghantaran"
+        "status": "Status penghantaran",
+        "reportName": "Nama laporan",
+        "sendRecord": "Rekod penghantaran",
+        "view": "Lihat",
+        "noFile": "Fail ini tidak disimpan pada masa itu"
       },
       "count": "{count} kesemuanya · halaman {page} daripada {pages}",
       "regenerating": "Sedang dijana semula…",
-      "alreadyRegenerated": "Sudah dijana semula mengikut syarat ini: buka baris baharu dengan laporan dan tempoh yang sama."
+      "alreadyRegenerated": "Sudah dijana semula mengikut syarat ini: buka baris baharu dengan laporan dan tempoh yang sama.",
+      "showingOnly": "Hanya dipaparkan: {what} - {count} kesemuanya.",
+      "logEmptyProject": "Projek ini ({project}) belum ada cetakan, muat turun atau penghantaran direkodkan.",
+      "emptyProject": "Projek ini ({project}) belum ada laporan dieksport.",
+      "allProjectsTopBar": "Untuk melihat semua projek, pilih \"Semua projek\" di penjuru kanan atas.",
+      "allProjectsFilter": "Untuk melihat semua projek, pilih \"{all}\" di Projek.",
+      "logNoMatch": "Tiada rekod sepadan dengan penapis ini."
     },
     "loadError": "Laporan tidak dapat dimuatkan.",
     "period": "Tempoh: {from} hingga {to}",
@@ -7446,7 +7456,9 @@
       "material_outgoing": "Laporan bahan keluar",
       "field_tasks": "Laporan tugasan tapak",
       "daily_report": "Laporan harian",
-      "progress_summary": "Ringkasan kemajuan"
+      "progress_summary": "Ringkasan kemajuan",
+      "material_cost": "Laporan kos bahan",
+      "material_quantity": "Laporan kuantiti bahan"
     },
     "what": {
       "filterOptions": "pilihan penapis",
@@ -19416,10 +19428,10 @@
       "yes": "Sudah dihantar",
       "no": "Belum dihantar",
       "confirmed": "Dicatat: disahkan dihantar.",
-      "keptOpened": "Baik, rekod kekal \"tetingkap kongsi dibuka\". Bila sudah dihantar nanti, tekan \"Tanda sudah dihantar\" dalam Rekod penghantaran.",
+      "keptOpened": "Baik, rekod kekal \"belum disahkan dihantar\". Bila sudah dihantar nanti, tekan \"Tanda sudah dihantar\" dalam Rekod penghantaran.",
       "confirmFailed": "Tidak dicatat. Tekan \"Tanda sudah dihantar\" dalam Rekod penghantaran rekod ini.",
       "status": {
-        "OPENED": "Tetingkap kongsi dibuka",
+        "OPENED": "Belum disahkan dihantar",
         "CONFIRMED": "Disahkan dihantar"
       },
       "log": {
@@ -19435,7 +19447,22 @@
         "confirmedByOpen": "Penerima membuka pautan pada {when}, jadi ia disahkan dihantar"
       },
       "askBodyLink": "Kepada {name}: {file}. Tekan hantar dalam WhatsApp. Apabila penerima membuka pautan, sistem mengesahkan ia dihantar dengan sendiri; anda juga boleh tekan Dihantar sekarang.",
-      "askBodyLinkEmail": "Kepada {name}: {file}. Tekan hantar dalam e-mel anda. Apabila penerima membuka pautan, sistem mengesahkan ia dihantar dengan sendiri; anda juga boleh tekan Dihantar sekarang."
+      "askBodyLinkEmail": "Kepada {name}: {file}. Tekan hantar dalam e-mel anda. Apabila penerima membuka pautan, sistem mengesahkan ia dihantar dengan sendiri; anda juga boleh tekan Dihantar sekarang.",
+      "states": {
+        "linkMade": "Pautan kongsi dibuat · {when}",
+        "opened": {
+          "whatsapp": "WhatsApp dibuka · {when}",
+          "email": "E-mel dibuka · {when}",
+          "share_sheet": "Tetingkap kongsi dibuka · {when}",
+          "link": "Pautan disalin · {when}",
+          "download": "Fail dimuat turun · {when}"
+        },
+        "actual": "Penghantaran sebenar:",
+        "confirmed": "Disahkan dihantar · {name} · {when}",
+        "confirmedNoName": "Disahkan dihantar · {when}",
+        "openedLink": "Penerima membuka pautan · {when}",
+        "sender": "Oleh {name}"
+      }
     },
     "link": {
       "whatsappButton": "Buka perbualan WhatsApp dengan {name}",

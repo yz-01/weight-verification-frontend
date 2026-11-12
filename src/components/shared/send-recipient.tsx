@@ -25,6 +25,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { FieldWrapper } from "@/components/shared/page-primitives";
+import { SendStates } from "@/components/shared/send-states";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -261,7 +262,8 @@ export function SendRecipientDialog({
 
 /**
  * 「发出去了吗？」 - asked once the person is back from the share window.
- * 「已发送」 → 已确认发送; 「没有发」 leaves 已打开分享窗口.
+ * 「已发送」 → 已确认发送; 「没有发」 leaves it 「还没有确认发出」 - with the
+ * send's states so far under it (JB178, `SendStates`).
  */
 export function SentQuestionDialog({
   share,
@@ -274,6 +276,7 @@ export function SentQuestionDialog({
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-md" data-slot="send-question">
         <SentQuestion share={share} onAnswered={onClose} />
+        <SendStates share={share} className="rounded-md border p-2" />
       </DialogContent>
     </Dialog>
   );

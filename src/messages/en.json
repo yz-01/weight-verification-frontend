@@ -7366,7 +7366,7 @@
         "link": "Link copied",
         "download": "Downloaded to attach"
       },
-      "logHint": "Every print, download and send in the back office, each signed with the person's own six-digit PIN. Previewing is not recorded.",
+      "logHint": "Every print, download / export and send / share in the back office is signed with the person's own six-digit PIN, and each is one row. Previewing is not recorded.",
       "actionFilterHint": "Date and operator: when and by whom the report was generated. With an action chosen: reports printed, downloaded or sent, and by whom.",
       "noMatch": "No reports match these filters.",
       "regeneratedNote": "Generated again from the conditions of {when}, with the data as it is now.",
@@ -7387,11 +7387,21 @@
         "openReport": "Open the report",
         "openRecord": "Open the record",
         "recipient": "Sent to",
-        "status": "Send status"
+        "status": "Send status",
+        "reportName": "Report name",
+        "sendRecord": "Send record",
+        "view": "View",
+        "noFile": "No file was kept for this one at the time"
       },
       "count": "{count} in total · page {page} of {pages}",
       "regenerating": "Generating it again…",
-      "alreadyRegenerated": "Already generated again from these conditions: open the new row with the same report and period."
+      "alreadyRegenerated": "Already generated again from these conditions: open the new row with the same report and period.",
+      "showingOnly": "Showing only: {what} - {count} in all.",
+      "logEmptyProject": "This project ({project}) has no prints, downloads or sends recorded yet.",
+      "emptyProject": "This project ({project}) has no exported reports yet.",
+      "allProjectsTopBar": "To see every project's, choose \"All projects\" at the top right.",
+      "allProjectsFilter": "To see every project's, choose \"{all}\" under Project.",
+      "logNoMatch": "No records match these filters."
     },
     "loadError": "The report could not be loaded.",
     "period": "Period: {from} to {to}",
@@ -7446,7 +7456,9 @@
       "material_outgoing": "Material outgoing report",
       "field_tasks": "Site task report",
       "daily_report": "Daily reports",
-      "progress_summary": "Progress summaries"
+      "progress_summary": "Progress summaries",
+      "material_cost": "Material cost report",
+      "material_quantity": "Material quantity report"
     },
     "what": {
       "filterOptions": "the filter choices",
@@ -19416,10 +19428,10 @@
       "yes": "Sent",
       "no": "Not sent",
       "confirmed": "Noted: confirmed sent.",
-      "keptOpened": "OK, it stays as \"share window opened\". When you send it later, press \"Mark as sent\" in Send history.",
+      "keptOpened": "OK, it stays as \"not yet confirmed sent\". When you send it later, press \"Mark as sent\" in Send history.",
       "confirmFailed": "It was not noted. Press \"Mark as sent\" in this record's Send history.",
       "status": {
-        "OPENED": "Share window opened",
+        "OPENED": "Not yet confirmed sent",
         "CONFIRMED": "Confirmed sent"
       },
       "log": {
@@ -19435,7 +19447,22 @@
         "confirmedByOpen": "The recipient opened the link at {when}, so it is confirmed sent"
       },
       "askBodyLink": "To {name}: {file}. Press send in WhatsApp. When the recipient opens the link, the system confirms it sent by itself; you can also press Sent now.",
-      "askBodyLinkEmail": "To {name}: {file}. Press send in your email. When the recipient opens the link, the system confirms it sent by itself; you can also press Sent now."
+      "askBodyLinkEmail": "To {name}: {file}. Press send in your email. When the recipient opens the link, the system confirms it sent by itself; you can also press Sent now.",
+      "states": {
+        "linkMade": "Share link made · {when}",
+        "opened": {
+          "whatsapp": "WhatsApp opened · {when}",
+          "email": "Email opened · {when}",
+          "share_sheet": "Share window opened · {when}",
+          "link": "Link copied · {when}",
+          "download": "File downloaded · {when}"
+        },
+        "actual": "Actually sent:",
+        "confirmed": "Confirmed sent · {name} · {when}",
+        "confirmedNoName": "Confirmed sent · {when}",
+        "openedLink": "Recipient opened the link · {when}",
+        "sender": "By {name}"
+      }
     },
     "link": {
       "whatsappButton": "Open the WhatsApp chat with {name}",
