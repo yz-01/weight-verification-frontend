@@ -1473,7 +1473,7 @@ function PassQr({
   async function save() {
     if (!ref.current) return;
     // 下载 asks for the person's own PIN and is logged (JB27); the phone is not asked.
-    if (!(await signFileAction("DOWNLOAD", { subject: `QR ${row.pass_no}`, file_name: `${row.pass_no}.png`, link: window.location.pathname }))) return;
+    if (!(await signFileAction("DOWNLOAD", { subject: `QR ${row.pass_no}`, file_name: `${row.pass_no}.png`, project: row.project, link: window.location.pathname }))) return;
     const canvas = ref.current;
     if (!canvas) return;
     const link = document.createElement("a");

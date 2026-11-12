@@ -108,7 +108,7 @@ const row = (overrides: Partial<FileActionRecord> = {}): FileActionRecord => ({
   ...overrides,
 });
 
-const archive = { busy: null, open: () => {}, element: null };
+const archive = { busy: null as string | null, open: () => {}, element: <></> };
 
 describe("JB178-4: 分享链接已生成 · 已打开 WhatsApp · 实际发送, each with its time", () => {
   it("a WhatsApp send just pressed: the link, the chat opened, and not yet confirmed", () => {

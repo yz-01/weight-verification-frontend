@@ -140,7 +140,14 @@ export function EvidenceFileActions({
         variant="outline"
         onClick={async () => {
           // 打印 / 下载 ask for the person's own PIN and are logged (JB27).
-          if (await signFileAction("PRINT", { subject: title, file_name: filename, link: pagePath() })) {
+          if (await signFileAction("PRINT", {
+            subject: title,
+            file_name: filename,
+            link: pagePath(),
+            // JB178: the record shown names the project its log row is filed under.
+            record_kind: target?.recordKind,
+            record_id: target?.recordId,
+          })) {
             printEvidence(url, title);
           }
         }}
@@ -152,7 +159,14 @@ export function EvidenceFileActions({
         size="sm"
         variant="outline"
         onClick={async () => {
-          if (await signFileAction("DOWNLOAD", { subject: title, file_name: filename, link: pagePath() })) {
+          if (await signFileAction("DOWNLOAD", {
+            subject: title,
+            file_name: filename,
+            link: pagePath(),
+            // JB178: the record shown names the project its log row is filed under.
+            record_kind: target?.recordKind,
+            record_id: target?.recordId,
+          })) {
             await downloadEvidence(url, filename);
           }
         }}
