@@ -48,6 +48,7 @@ export function ReportChoiceField({
   onChange,
   loading = false,
   allLabel,
+  valueLabel,
 }: {
   label: string;
   value?: string;
@@ -57,6 +58,11 @@ export function ReportChoiceField({
   allLabel?: string;
   /** The choices are still on their way: the chosen one is "…", not its id. */
   loading?: boolean;
+  /**
+   * What the chosen value is called when it is not among the choices - a
+   * material named across projects while one project is chosen (JB174).
+   */
+  valueLabel?: string;
 }) {
   const t = useTranslations();
   const chosen = value ?? ALL;
@@ -73,9 +79,7 @@ export function ReportChoiceField({
         // A value from a link that is not among the choices still shows.
         selectedLabel={
           value && !options.some((option) => option.value === value)
-            ? loading
-              ? "…"
-              : value
+            ? (valueLabel ?? (loading ? "…" : value))
             : undefined
         }
         triggerClassName="w-full"

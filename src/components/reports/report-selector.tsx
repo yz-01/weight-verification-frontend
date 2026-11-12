@@ -38,7 +38,9 @@ import {
 } from "@/lib/navigation";
 import {
   PROGRESS_MENU,
+  everyPage,
   levelRowName,
+  materialMenuEntries,
   progressMenuHref,
   reportHref,
   reportMenuKind,
@@ -48,7 +50,7 @@ import {
 } from "@/lib/report-menu";
 import { supplierFilterValue, supplierShown } from "@/lib/receipt-supplier";
 import { cn } from "@/lib/utils";
-import { getProjects, getReceiptSummary } from "@/services/contractor.service";
+import { getReceiptSummary } from "@/services/contractor.service";
 import { getProjectCategories } from "@/services/contractor-ops.service";
 import { categoryTree, showsGroups } from "@/lib/category-tree";
 import { getReportCategories } from "@/services/contractor-report.service";
@@ -294,9 +296,10 @@ export function PickableSub({
 
 /**
  * The material level: 「全部材料」, then the project's material columns. With
- * no project chosen the columns of every project are listed, and a name two
- * projects share says which project it is. Both the material and 「全部材料」
- * open the report when clicked (B9) and list their suppliers on hover.
+ * no project chosen every project's materials are listed, a name once (JB174,
+ * 客户 11-12 事项 1: 「相同材料名称只需要显示一次」) - picking it opens every
+ * project's material of that name. Both the material and 「全部材料」 open the
+ * report when clicked (B9) and list their suppliers on hover.
  */
 function MaterialLevel({
   project,
@@ -307,14 +310,6 @@ function MaterialLevel({
 }) {
   const t = useTranslations("reportSelector");
   const categories = useMaterialColumns(project);
-  // query-failure: it only adds a project code beside a name two projects share; the name still shows.
-  const projects = useQuery({
-    queryKey: ["projects", "report-selector"],
-    queryFn: () => getProjects({ page_size: 200 }),
-    enabled: !project,
-  });
-  const projectCode = (id: string) =>
-    projects.data?.results.find((row) => row.id === id)?.code ?? "";
   const rows = categories.data?.results ?? [];
   const tRoot = useTranslations();
   const tree = categoryTree(rows);
@@ -328,11 +323,7 @@ function MaterialLevel({
     tree.flatMap((group) =>
       group.entries.filter((entry) => entry.depth === 1 && entry.row.parent === id).map((entry) => entry.row),
     );
-  const shared = new Set(
-    rows
-      .map((row) => row.name)
-      .filter((name, index, names) => names.indexOf(name) !== index),
-  );
+  const materials = materialMenuEntries(ordered, specsOf, { byName: !project });
 
   return (
     <>
@@ -362,30 +353,23 @@ function MaterialLevel({
           ) : null,
         )}
       {headed && <DropdownMenuSeparator />}
-      {ordered.map((row) => (
+      {materials.map((entry) => (
         <PickableSub
-          key={row.id}
+          key={entry.value}
           className="h-8"
-          onPick={() => onPick({ category: row.id })}
-          label={
-            <>
-              {row.name}
-              {!project && shared.has(row.name) && projectCode(row.project) ? (
-                <span className="text-muted-foreground"> · {projectCode(row.project)}</span>
-              ) : null}
-            </>
-          }
+          onPick={() => onPick({ category: entry.value })}
+          label={entry.name}
         >
           <SupplierLevel
             project={project}
-            category={row.id}
-            onPick={(supplier) => onPick({ category: row.id, supplier })}
+            category={entry.value}
+            onPick={(supplier) => onPick({ category: entry.value, supplier })}
           />
           <SpecLevel
-            specs={specsOf(row.id)}
+            specs={entry.specs}
             project={project}
-            category={row.id}
-            onPick={(levels) => onPick({ category: row.id, ...levels })}
+            category={entry.value}
+            onPick={(levels) => onPick({ category: entry.value, ...levels })}
           />
         </PickableSub>
       ))}
@@ -644,7 +628,11 @@ function Waiting() {
 export function useMaterialColumns(project?: string) {
   return useQuery({
     queryKey: ["project-categories", "material-report", project ?? ""],
+    // Every page: 「全部项目」 holds every project's materials, more than
+    // the 100 one page carries (JB174).
     queryFn: () =>
-      getProjectCategories({ kind: "MATERIAL", page_size: 200, project }),
+      everyPage((page) =>
+        getProjectCategories({ kind: "MATERIAL", page_size: 100, page, project }),
+      ),
   });
 }

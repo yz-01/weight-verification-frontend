@@ -54,7 +54,13 @@ import { SupplierDateFilter } from "@/components/shared/supplier-date-filter";
 import { useUnitExportValues, useUnitName } from "@/hooks/use-material-units";
 import { useDateFormat } from "@/lib/dates";
 import { purchaseUnitPrice, reportMoneyHidden } from "@/lib/issue-money";
-import { materialExportSubtitle, materialOptions } from "@/lib/report-menu";
+import {
+  chosenMaterial,
+  chosenMaterialLabels,
+  chosenMaterialName,
+  materialExportSubtitle,
+  materialOptions,
+} from "@/lib/report-menu";
 import { UNFILLED_SUPPLIER, supplierShown } from "@/lib/receipt-supplier";
 import { cn } from "@/lib/utils";
 import {
@@ -124,10 +130,14 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
     project: list.filters.project,
     date_from: list.filters.date_from,
     date_to: list.filters.date_to,
+    // 「全部项目」: a material by its name, every project's (JB174); one
+    // project: its own material, by id, as before.
     category: list.filters.category,
     // One specification of the material (I11, I19): the figures, the records
-    // and the export all follow it.
-    spec_category: list.filters.spec_category,
+    // and the export all follow it. Never without its material: another
+    // project in the top bar takes the material out of the address (B13),
+    // and a 规格 left behind would narrow the report unseen (JB174).
+    spec_category: list.filters.category ? list.filters.spec_category : undefined,
     supplier: list.filters.supplier,
     // 不合格 / 退货 view (J36): the figures, the records and the export.
     // The normal view is sent as well, or the list and the export would
@@ -151,11 +161,19 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
   // query-failure: as above.
   const returnRows = useReturnRecords(filters, list.page, list.pageSize, view === "returns");
   const columns = useMaterialColumns(filters.project);
+  const materialRows = columns.data?.results ?? [];
+  // 「全部项目」 (JB174, 客户 11-12 事项 1): one 钢筋 for every project's 钢筋.
+  const byName = !filters.project;
+  const material = chosenMaterial(materialRows, filters.category);
+  const labels = chosenMaterialLabels(materialRows, {
+    category: filters.category,
+    spec: filters.spec_category,
+  });
   // A failed column list leaves the figures right and only the name unknown.
+  // A material chosen by its name needs no list to say what it is.
   const materialName = filters.category
-    ? columns.isError
-      ? t("common.emptyValue")
-      : columns.data?.results.find((row) => row.id === filters.category)?.name
+    ? chosenMaterialName(filters.category) ||
+      (columns.isError ? t("common.emptyValue") : labels.material)
     : t("reportSelector.allMaterials");
   // 「未填供应商」 (2026-10-15 I23) is a level of its own: `supplier=none`.
   const supplierName = !filters.supplier
@@ -164,13 +182,13 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
       ? t("receipts.supplierUnfilled")
       : summary.data?.by_supplier.find((row) => row.supplier === filters.supplier)?.supplier_name;
   const specName = filters.spec_category
-    ? columns.isError
-      ? t("common.emptyValue")
-      : columns.isSuccess
-        // A specification that is switched off is no longer in the list.
-        ? (columns.data.results.find((row) => row.id === filters.spec_category)?.name ??
-          t("reportSelector.specOff"))
-        : undefined
+    ? chosenMaterialName(filters.spec_category) ||
+      (columns.isError
+        ? t("common.emptyValue")
+        : columns.isSuccess
+          // A specification that is switched off is no longer in the list.
+          ? (labels.spec ?? t("reportSelector.specOff"))
+          : undefined)
     : undefined;
   const level = [
     materialName ?? "…",
@@ -342,16 +360,19 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
         <ReportChoiceField
           label={t("reportSelector.material")}
           value={list.filters.category}
-          options={materialOptions(columns.data?.results ?? [])}
+          // 「全部项目」: each name once, valued `name:<材料>` (JB174).
+          options={materialOptions(materialRows, { byName })}
           // A specification belongs to one material: choosing another drops it.
           onChange={(category) => list.setFilters({ category, spec_category: undefined })}
           loading={columns.isLoading}
+          valueLabel={materialName}
         />
-        {/* 规格 (J2-3, Q2-2): one specification of the chosen material. */}
+        {/* 规格 (J2-3, Q2-2): one specification of the chosen material - of
+            every project's material of that name with 「全部项目」 (JB174). */}
         <FilterField label={t("specFilter.label")} className="sm:w-44">
           <SpecFilterSelect
-            material={columns.data?.results.find((row) => row.id === list.filters.category)}
-            value={list.filters.spec_category}
+            material={material}
+            value={filters.spec_category}
             onChange={(spec) => list.setFilter("spec_category", spec)}
             className="sm:w-full"
           />
