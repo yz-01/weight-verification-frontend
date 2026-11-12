@@ -1561,7 +1561,16 @@ export interface ArchiveQueuePage {
    */
   counts: Partial<Record<ArchiveRecordKind, number>>;
   kinds: ArchiveRecordKind[];
+  /**
+   * 材料出场 split into MO — 供应商退货 (`RETURN`) and MIN — 材料领用
+   * (`ISSUE`), under the same filters as the list (JB177). Absent for a reader
+   * who may not read 材料出场.
+   */
+  outgoing_counts?: Record<ArchiveOutgoingKind, number>;
 }
+
+/** The two sub-categories under 材料出场 in 现场记录中心 (JB177). */
+export type ArchiveOutgoingKind = "RETURN" | "ISSUE";
 
 /* -------------------------------------------------------------------------
  * Multi Engine: evidence packages (T-235)

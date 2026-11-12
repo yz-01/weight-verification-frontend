@@ -3113,6 +3113,11 @@
       "only": "Only the records waiting for your confirmation - the same ones as the dashboard's “Waiting for you”. Open one to confirm it on its own page.",
       "showAll": "Show all records",
       "empty": "Nothing is waiting for your confirmation."
+    },
+    "outgoing": {
+      "label": "Material out types",
+      "RETURN": "MO — Supplier returns",
+      "ISSUE": "MIN — Material issue"
     }
   },
   "assets": {

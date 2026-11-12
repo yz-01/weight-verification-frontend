@@ -3113,6 +3113,11 @@
       "only": "Hanya rekod yang menunggu pengesahan anda - sama seperti “Menunggu anda” di papan pemuka. Buka satu untuk mengesahkannya di halamannya sendiri.",
       "showAll": "Tunjuk semua rekod",
       "empty": "Tiada rekod yang menunggu pengesahan anda."
+    },
+    "outgoing": {
+      "label": "Jenis bahan keluar",
+      "RETURN": "MO — Pulangan pembekal",
+      "ISSUE": "MIN — Pengeluaran bahan"
     }
   },
   "assets": {
