@@ -1,7 +1,9 @@
+import type { MaterialSpec } from "@/interfaces/contractor-ops";
 import type {
   ContractorReportType,
   ReportLevelRow,
 } from "@/interfaces/contractor-report";
+import type { MaterialWithSpecs } from "@/lib/material-catalogue";
 
 /**
  * 【选择报表】's levels (D6, Q16, Q17): what sits under each report, and what
@@ -349,12 +351,163 @@ export function progressMenuHref(
 }
 
 /**
+ * A material - or a specification - chosen by its name rather than one
+ * project's row (JB174, 客户 11-12 事项 1): with 「全部项目」 the material
+ * reports listed one 「钢筋」 per project. The client: 「相同材料名称只需要显示一次
+ * ……选择后自动汇总所有项目的钢筋记录及数量」. The server reads `name:钢筋` as
+ * every 钢筋 the reader can see (`contractor_ops.models.materials_named`).
+ */
+export const MATERIAL_NAME_PREFIX = "name:";
+
+/** Names compared the way the server compares them: case and the spaces around them ignored. */
+export function materialNameKey(name: string): string {
+  return name.trim().toLowerCase();
+}
+
+/** The filter value that names `name`. */
+export function byMaterialName(name: string): string {
+  return `${MATERIAL_NAME_PREFIX}${name.trim()}`;
+}
+
+/** The name a `name:` value carries; undefined for an id (or nothing). */
+export function chosenMaterialName(value: string | undefined): string | undefined {
+  return value?.startsWith(MATERIAL_NAME_PREFIX)
+    ? value.slice(MATERIAL_NAME_PREFIX.length).trim()
+    : undefined;
+}
+
+interface MaterialRow {
+  id: string;
+  name: string;
+  parent?: string | null;
+  specs?: MaterialSpec[];
+}
+
+/**
  * The material dropdown of the material reports (I19): materials only. A
  * material's specifications are its sub-categories, chosen at the spec level
  * of 【选择报表】, so a row with a parent is never a 「材料」 of its own.
+ *
+ * `byName` (no project chosen, JB174): one option per name - the first
+ * spelling met - whose value is `name:<材料>`. With a project: one per row, by id.
  */
 export function materialOptions(
-  rows: readonly { id: string; name: string; parent?: string | null }[],
+  rows: readonly MaterialRow[],
+  { byName = false }: { byName?: boolean } = {},
 ): { value: string; label: string }[] {
-  return rows.filter((row) => !row.parent).map((row) => ({ value: row.id, label: row.name }));
+  const materials = rows.filter((row) => !row.parent);
+  if (!byName) return materials.map((row) => ({ value: row.id, label: row.name }));
+  const options = new Map<string, { value: string; label: string }>();
+  for (const row of materials) {
+    const key = materialNameKey(row.name);
+    if (key && !options.has(key)) {
+      options.set(key, { value: byMaterialName(row.name), label: row.name.trim() });
+    }
+  }
+  return [...options.values()];
+}
+
+/**
+ * The material a report is narrowed to, with the specifications its 规格
+ * dropdown offers. An id is that row. A name (JB174) is every row of that
+ * name taken together: their specifications one per name - the first
+ * spelling met, switched on when any of them is - each valued `name:<规格>`.
+ */
+export function chosenMaterial(
+  rows: readonly MaterialRow[],
+  value: string | undefined,
+): MaterialWithSpecs | undefined {
+  if (!value) return undefined;
+  const name = chosenMaterialName(value);
+  if (name === undefined) return rows.find((row) => row.id === value);
+  const key = materialNameKey(name);
+  const same = rows.filter((row) => !row.parent && key && materialNameKey(row.name) === key);
+  if (same.length === 0) return undefined;
+  const specs = new Map<string, MaterialSpec>();
+  for (const spec of same.flatMap((row) => row.specs ?? [])) {
+    // 「其他」 is not one specification: what was typed under it differs.
+    const specKey = materialNameKey(spec.name);
+    if (spec.is_other || !specKey) continue;
+    const seen = specs.get(specKey);
+    if (!seen) {
+      specs.set(specKey, { ...spec, id: byMaterialName(spec.name), name: spec.name.trim() });
+    } else if (spec.is_active && !seen.is_active) {
+      specs.set(specKey, { ...seen, is_active: true });
+    }
+  }
+  return { id: value, name: same[0].name.trim(), specs: [...specs.values()] };
+}
+
+/** A material in 【选择报表】's material level, with its specifications. */
+export interface MaterialMenuEntry {
+  /** What a pick puts in `category`: the row's id, or `name:<材料>` (JB174). */
+  value: string;
+  name: string;
+  /** `id` is what a pick puts in `spec_category`. */
+  specs: { id: string; name: string }[];
+}
+
+/**
+ * 【选择报表】's material level. With a project: one entry per material, as
+ * before. `byName` (「全部项目」, JB174): one entry per name - never a name
+ * twice, never a project code beside it - holding every project's
+ * specifications of that material, one per name.
+ */
+export function materialMenuEntries(
+  materials: readonly { id: string; name: string }[],
+  specsOf: (id: string) => readonly { id: string; name: string }[],
+  { byName = false }: { byName?: boolean } = {},
+): MaterialMenuEntry[] {
+  if (!byName) {
+    return materials.map((row) => ({
+      value: row.id,
+      name: row.name,
+      specs: specsOf(row.id).map((spec) => ({ id: spec.id, name: spec.name })),
+    }));
+  }
+  const entries = new Map<string, MaterialMenuEntry>();
+  const specKeys = new Map<string, Set<string>>();
+  for (const row of materials) {
+    const key = materialNameKey(row.name);
+    if (!key) continue;
+    let entry = entries.get(key);
+    let seen = specKeys.get(key);
+    if (!entry || !seen) {
+      entry = { value: byMaterialName(row.name), name: row.name.trim(), specs: [] };
+      seen = new Set();
+      entries.set(key, entry);
+      specKeys.set(key, seen);
+    }
+    for (const spec of specsOf(row.id)) {
+      const specKey = materialNameKey(spec.name);
+      if (!specKey || seen.has(specKey)) continue;
+      seen.add(specKey);
+      entry.specs.push({ id: byMaterialName(spec.name), name: spec.name.trim() });
+    }
+  }
+  return [...entries.values()];
+}
+
+/**
+ * What the report says it is narrowed to - the material's name and the
+ * specification's - for the line beside 【选择报表】 and the export's
+ * subtitle. A name is shown as itself, never as `name:…`; an id by its row
+ * (a specification from its material's list, while it is switched on).
+ * Undefined where the row is not (or not yet) in `rows`.
+ */
+export function chosenMaterialLabels(
+  rows: readonly MaterialRow[],
+  { category, spec }: { category?: string; spec?: string },
+): { material?: string; spec?: string } {
+  const material = chosenMaterial(rows, category);
+  const specName = chosenMaterialName(spec);
+  return {
+    material: chosenMaterialName(category) || material?.name,
+    spec:
+      specName ||
+      (spec
+        ? (material?.specs?.find((row) => row.id === spec && row.is_active)?.name ??
+          rows.find((row) => row.id === spec)?.name)
+        : undefined),
+  };
 }
