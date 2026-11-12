@@ -23,6 +23,7 @@ import type {
   ConsultantWorkflowStep,
   EvidenceCandidate,
   EvidenceFilterOptions,
+  OpenConsultant,
   ProjectApplicationOption,
   ProjectOptionCategory,
   RemedialItem,
@@ -676,6 +677,10 @@ export const getConsultantGrants = (project: string) =>
     "/api/consultant-applications/get_consultant_choices/",
     { project },
   );
+
+/** JB176: the consultants open on the reader's own projects now, read-only. */
+export const getOpenConsultants = () =>
+  api.get<OpenConsultant[]>("/api/consultant-applications/get_open_consultants/");
 
 export const getConsultantOrganizations = () =>
   api.list<ConsultantOrganizationOption>(

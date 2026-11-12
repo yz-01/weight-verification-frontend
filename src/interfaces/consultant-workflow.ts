@@ -69,6 +69,21 @@ export interface ConsultantGrantOption {
   is_current: boolean;
 }
 
+/**
+ * A consultant open on one of the reader's projects right now (JB176) - what
+ * a project user reads on 「顾问账号与项目授权」. Only head office opens them.
+ */
+export interface OpenConsultant {
+  project: string;
+  project_code: string;
+  project_name: string;
+  consultant: string;
+  consultant_name: string;
+  consultant_email: string;
+  organization_name: string;
+  valid_until: string | null;
+}
+
 export interface ConsultantOrganizationOption {
   id: string;
   name: string;

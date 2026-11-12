@@ -71,7 +71,7 @@ vi.mock("@/components/providers/auth-provider", () => ({
 
 const { ReportMenu } = await import("@/components/reports/report-selector");
 const { navLeaves, visibleNavigation } = await import("@/lib/navigation");
-const { PROGRESS_MENU } = await import("@/lib/report-menu");
+const { PROGRESS_MENU, reportMenuKind } = await import("@/lib/report-menu");
 
 const reports = navLeaves(
   visibleNavigation(
@@ -92,7 +92,9 @@ function client() {
     defaultOptions: { queries: { staleTime: Infinity, retry: false } },
   });
   const set = (key: unknown[], data: unknown) => queries.setQueryData(key, data);
-  set(["project-categories", "material-report", ""], {
+  const suppliers = { by_supplier: [{ supplier: "steel-co", supplier_name: "钢材行" }] };
+  // One project chosen (p1): its own materials, by id.
+  set(["project-categories", "material-report", "p1"], {
     count: 2,
     next: null,
     previous: null,
@@ -102,14 +104,27 @@ function client() {
       { id: "y12", name: "Y12", project: "p1", parent: "rebar" },
     ],
   });
-  set(["receipts", "summary", "report-selector", "", "rebar", "y12"], {
-    by_supplier: [{ supplier: "steel-co", supplier_name: "钢材行" }],
+  for (const levels of [[""], ["rebar"], ["rebar", "y12"]]) {
+    set(["receipts", "summary", "report-selector", "p1", ...levels], suppliers);
+  }
+  // 「全部项目」 (JB174): every project's materials - 钢筋 three times, one
+  // with a space after it, and Y12 twice in two spellings.
+  set(["project-categories", "material-report", ""], {
+    count: 7,
+    next: null,
+    previous: null,
+    results: [
+      { id: "rebar", name: "钢筋", project: "p1" },
+      { id: "y12", name: "Y12", project: "p1", parent: "rebar" },
+      { id: "rebar-2", name: "钢筋 ", project: "p2" },
+      { id: "y12-2", name: "y12", project: "p2", parent: "rebar-2" },
+      { id: "y16-2", name: "Y16", project: "p2", parent: "rebar-2" },
+      { id: "rebar-3", name: "钢筋", project: "p3" },
+      { id: "sand", name: "沙", project: "p3" },
+    ],
   });
-  set(["projects", "report-selector"], { count: 1, results: [{ id: "p1", code: "P1" }] });
-  for (const category of ["", "rebar"]) {
-    set(["receipts", "summary", "report-selector", "", category], {
-      by_supplier: [{ supplier: "steel-co", supplier_name: "钢材行" }],
-    });
+  for (const levels of [[""], ["name:钢筋"], ["name:钢筋", "name:Y12"]]) {
+    set(["receipts", "summary", "report-selector", "", ...levels], suppliers);
   }
   const levels = (type: string, data: unknown, parent = "") =>
     set(["contractor-reports", "levels", type, "", parent], data);
@@ -208,45 +223,106 @@ describe("【选择报表】 (D6, B9)", () => {
     if (row.kind === "trigger") expect(preventDefault).toHaveBeenCalled();
   });
 
+  // One project chosen: its own materials by id, exactly as before JB174.
+  const P1 = `project=p1&${DATES}`;
+
   it("opens a material by its name, and 全部材料 too (B9)", () => {
-    const material = render();
+    const material = render(P1);
     click("钢筋");
     expect(material.navigate).toHaveBeenCalledWith(
-      `/reports/material-quantity?${DATES}&category=rebar`,
+      `/reports/material-quantity?${P1}&category=rebar`,
     );
     expect(material.onOpenChange).toHaveBeenCalledWith(false);
 
-    const all = render();
+    const all = render(P1);
     click("全部材料");
-    expect(all.navigate).toHaveBeenCalledWith(`/reports/material-quantity?${DATES}`);
+    expect(all.navigate).toHaveBeenCalledWith(`/reports/material-quantity?${P1}`);
 
-    const supplier = render();
+    const supplier = render(P1);
     // Under 钢筋 in 材料数量报表: 全部材料's suppliers come first, then 钢筋's.
     click("钢材行", 1);
     expect(supplier.navigate).toHaveBeenCalledWith(
-      `/reports/material-quantity?${DATES}&category=rebar&supplier=steel-co`,
+      `/reports/material-quantity?${P1}&category=rebar&supplier=steel-co`,
     );
   });
 
   it("lists a material's specification under it, and opens the report at that spec (I11, I19)", () => {
-    const texts = (render(), rows.map((row) => row.text));
+    const texts = (render(P1), rows.map((row) => row.text));
     // 材料 → 规格: the spec is its own row under 钢筋, not a material of its own.
     expect(texts).toContain("Y12");
     expect(texts).toContain("全部规格");
     expect(texts.indexOf("Y12")).toBeGreaterThan(texts.indexOf("钢筋"));
 
-    const spec = render();
+    const spec = render(P1);
     click("Y12");
     expect(spec.navigate).toHaveBeenCalledWith(
-      `/reports/material-quantity?${DATES}&category=rebar&spec_category=y12`,
+      `/reports/material-quantity?${P1}&category=rebar&spec_category=y12`,
     );
     expect(spec.onOpenChange).toHaveBeenCalledWith(false);
 
     // The supplier stays reachable under the spec.
+    const supplier = render(P1);
+    click("钢材行", 2);
+    expect(supplier.navigate).toHaveBeenCalledWith(
+      `/reports/material-quantity?${P1}&category=rebar&supplier=steel-co&spec_category=y12`,
+    );
+  });
+
+  // JB174 (客户 11-12 事项 1): 「总部选择「全部项目」时，相同材料名称只需要显示一次」.
+  it("with 全部项目 lists each material name once and opens every project's by name", () => {
+    const materialReports = reports.filter(
+      (report) => reportMenuKind(report.href).kind === "material",
+    ).length;
+    const texts = (render(), rows.map((row) => row.text));
+    // 钢筋 is in three projects (one spelled 「钢筋 」): one row per material report.
+    expect(texts.filter((text) => text === "钢筋")).toHaveLength(materialReports);
+    expect(texts.filter((text) => text.startsWith("钢筋"))).toHaveLength(materialReports);
+    // No project code beside it, and never the value's own `name:`.
+    expect(texts.some((text) => /^钢筋\s*·/.test(text) || text.includes("name:"))).toBe(false);
+    expect(texts).toContain("沙");
+
+    const material = render();
+    click("钢筋");
+    expect(material.navigate).toHaveBeenCalledWith(
+      `/reports/material-quantity?${DATES}&${new URLSearchParams({ category: "name:钢筋" })}`,
+    );
+
+    const supplier = render();
+    click("钢材行", 1);
+    expect(supplier.navigate).toHaveBeenCalledWith(
+      `/reports/material-quantity?${DATES}&${new URLSearchParams({
+        category: "name:钢筋",
+        supplier: "steel-co",
+      })}`,
+    );
+  });
+
+  it("with 全部项目 lists every project's specifications of the material, a name once", () => {
+    const materialReports = reports.filter(
+      (report) => reportMenuKind(report.href).kind === "material",
+    ).length;
+    const texts = (render(), rows.map((row) => row.text));
+    // 「Y12」 and 「y12」 are one specification; Y16 is only in p2.
+    expect(texts.filter((text) => text.toLowerCase() === "y12")).toHaveLength(materialReports);
+    expect(texts.filter((text) => text === "Y16")).toHaveLength(materialReports);
+
+    const spec = render();
+    click("Y12");
+    expect(spec.navigate).toHaveBeenCalledWith(
+      `/reports/material-quantity?${DATES}&${new URLSearchParams({
+        category: "name:钢筋",
+        spec_category: "name:Y12",
+      })}`,
+    );
+
     const supplier = render();
     click("钢材行", 2);
     expect(supplier.navigate).toHaveBeenCalledWith(
-      `/reports/material-quantity?${DATES}&category=rebar&supplier=steel-co&spec_category=y12`,
+      `/reports/material-quantity?${DATES}&${new URLSearchParams({
+        category: "name:钢筋",
+        supplier: "steel-co",
+        spec_category: "name:Y12",
+      })}`,
     );
   });
 

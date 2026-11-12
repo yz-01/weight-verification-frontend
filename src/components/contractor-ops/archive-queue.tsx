@@ -42,6 +42,7 @@ import { recordStatusLabel } from "@/lib/record-status";
 import { useDateFormat } from "@/lib/dates";
 import { photoMeta } from "@/lib/photo-meta";
 import type {
+  ArchiveOutgoingKind,
   ArchiveQueueDetail,
   ArchiveQueueRow,
   ArchiveRecordKind,
@@ -104,6 +105,72 @@ const KINDS: ArchiveRecordKind[] = [
 
 const PAGE_SIZE = 20;
 
+/**
+ * The two sub-categories under 材料出场 (JB177), in the client's own words:
+ * 「保留现有『材料出场』模块，点击后显示两个分类：MO — 供应商退货、MIN — 材料领用；
+ * 各自显示对应记录及数量」. MO and MIN are one record kind on the server
+ * (`MaterialOutgoing`), told apart by its `kind`.
+ */
+export const OUTGOING_KINDS: ArchiveOutgoingKind[] = ["RETURN", "ISSUE"];
+
+/**
+ * Pressing a sub-category narrows the list to it; pressing the one already
+ * chosen goes back to both (JB177 做法 3).
+ */
+export function nextOutgoing(
+  current: ArchiveOutgoingKind | "",
+  pressed: ArchiveOutgoingKind,
+): ArchiveOutgoingKind | "" {
+  return current === pressed ? "" : pressed;
+}
+
+/**
+ * The `outgoing` the list, its counts and its export ask for: only while
+ * 材料出场 is the module chosen, so another module or 全部模块 is never narrowed.
+ */
+export function outgoingFilter(
+  kind: ArchiveRecordKind | "",
+  outgoing: ArchiveOutgoingKind | "",
+): ArchiveOutgoingKind | undefined {
+  return kind === "MATERIAL_OUTGOING" && outgoing ? outgoing : undefined;
+}
+
+/**
+ * The second row under 材料出场: 「MO — 供应商退货 n」「MIN — 材料领用 m」, each
+ * with its own count under the screen's other filters (JB177 做法 2, 4).
+ */
+export function OutgoingChips({
+  value,
+  counts,
+  onPress,
+}: {
+  value: ArchiveOutgoingKind | "";
+  counts: Partial<Record<ArchiveOutgoingKind, number>>;
+  onPress: (pressed: ArchiveOutgoingKind) => void;
+}) {
+  const t = useTranslations("archiveQueue");
+  return (
+    <nav aria-label={t("outgoing.label")} className="flex w-full flex-wrap gap-1.5">
+      {OUTGOING_KINDS.map((row) => (
+        <button
+          key={row}
+          type="button"
+          onClick={() => onPress(row)}
+          aria-current={value === row ? "true" : undefined}
+          className={`inline-flex h-8 items-center rounded-full border px-3 text-xs font-medium transition-colors pointer-coarse:h-10 ${
+            value === row
+              ? "border-primary/40 bg-primary/12 text-primary"
+              : "border-border bg-card text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          {t(`outgoing.${row}`)}
+          <span className="ml-1.5 tabular-nums text-muted-foreground">{counts[row] ?? 0}</span>
+        </button>
+      ))}
+    </nav>
+  );
+}
+
 export function ArchiveQueue() {
   const t = useTranslations("archiveQueue");
   const root = useTranslations();
@@ -115,6 +182,9 @@ export function ArchiveQueue() {
   // named person - not whether *this reader* has looked, which is `state`.
   const [closure, setClosure] = useState<"" | "open" | "closed">("");
   const [kind, setKind] = useState<ArchiveRecordKind | "">("");
+  // MO — 供应商退货 / MIN — 材料领用 under 材料出场 (JB177); "" lists both.
+  const [outgoing, setOutgoing] = useState<ArchiveOutgoingKind | "">("");
+  const outgoingAsked = outgoingFilter(kind, outgoing);
   const searchParams = useSearchParams();
   // The dashboard's 「等你处理」 card (B8) opens this screen with
   // `?waiting=1&project=`: what waits for this reader's 【确认】, counted the
@@ -156,13 +226,14 @@ export function ArchiveQueue() {
   };
 
   const query = useQuery({
-    queryKey: ["archive-queue", state, closure, kind, project, page, waiting],
+    queryKey: ["archive-queue", state, closure, kind, project, page, waiting, outgoingAsked],
     queryFn: () =>
       getArchiveQueue({
         state,
         closure: closure || undefined,
         waiting: waiting ? "1" : undefined,
         kind: kind || undefined,
+        outgoing: outgoingAsked,
         project: project || undefined,
         page,
         page_size: PAGE_SIZE,
@@ -203,6 +274,7 @@ export function ArchiveQueue() {
                     closure: closure || undefined,
                     waiting: waiting ? "1" : undefined,
                     kind: kind || undefined,
+                    outgoing: outgoingAsked,
                     project: project || undefined,
                   },
                   columns: [
@@ -294,7 +366,10 @@ export function ArchiveQueue() {
       <nav aria-label={t("modules")} className="flex w-full flex-wrap gap-1.5">
         <button
           type="button"
-          onClick={() => reset(() => setKind(""))}
+          onClick={() => reset(() => {
+            setKind("");
+            setOutgoing("");
+          })}
           aria-current={kind === "" ? "true" : undefined}
           className={`inline-flex h-8 items-center rounded-full border px-3 text-xs font-medium transition-colors pointer-coarse:h-10 ${
             kind === "" ? "border-primary/40 bg-primary/12 text-primary" : "border-border bg-card text-muted-foreground hover:text-foreground"
@@ -306,7 +381,11 @@ export function ArchiveQueue() {
           <button
             key={row}
             type="button"
-            onClick={() => reset(() => setKind(row))}
+            onClick={() => reset(() => {
+              setKind(row);
+              // 刚点「材料出场」时照旧两种都列出来 (JB177 做法 3).
+              setOutgoing("");
+            })}
             aria-current={kind === row ? "true" : undefined}
             className={`inline-flex h-8 items-center rounded-full border px-3 text-xs font-medium transition-colors pointer-coarse:h-10 ${
               kind === row
@@ -323,6 +402,15 @@ export function ArchiveQueue() {
           </button>
         ))}
       </nav>
+      {/* 材料出场 pressed: its two sub-categories below (JB177). Folded away
+          for every other module and for 全部模块. */}
+      {kind === "MATERIAL_OUTGOING" && available.includes("MATERIAL_OUTGOING") && (
+        <OutgoingChips
+          value={outgoing}
+          counts={query.data?.outgoing_counts ?? {}}
+          onPress={(pressed) => reset(() => setOutgoing((current) => nextOutgoing(current, pressed)))}
+        />
+      )}
       </FilterBar>
 
       {query.isLoading ? (

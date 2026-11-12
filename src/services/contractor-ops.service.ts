@@ -7,6 +7,7 @@ import {
   type ExportRequest,
 } from "@/services/contractor.service";
 import type {
+  ArchiveOutgoingKind,
   ArchiveQueueDetail,
   ArchiveQueuePage,
   ArchiveQueueRow,
@@ -1522,6 +1523,11 @@ export function getArchiveQueue(query: {
   /** 「未归档」 / 「已归档」 (T-391); left out for both. */
   closure?: "open" | "closed";
   kind?: ArchiveRecordKind;
+  /**
+   * MO — 供应商退货 (`RETURN`) or MIN — 材料领用 (`ISSUE`), only while
+   * `kind` is 材料出场 (JB177); left out for both.
+   */
+  outgoing?: ArchiveOutgoingKind;
   project?: string;
   /**
    * 「等你处理」 (B8): only what waits for this reader's 【确认】 - the
