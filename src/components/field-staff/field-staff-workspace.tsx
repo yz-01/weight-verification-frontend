@@ -73,7 +73,7 @@ import type { FieldTask } from "@/interfaces/contractor-ops";
 import type { AttendanceEvent, SafetyIncident } from "@/interfaces/site-operations";
 import { ApiError } from "@/interfaces/api";
 import { getFieldTask } from "@/services/contractor-ops.service";
-import { getProjects } from "@/services/contractor.service";
+import { PROJECT_OPTIONS_KEY, loadProjectOptions } from "@/lib/project-options";
 import { submitAttendanceOfflineAware } from "@/services/offline-sync.service";
 import { getAttendance, getSafetyIncident } from "@/services/site-operations.service";
 import { createFieldPwaBootstrap } from "@/services/field-access.service";
@@ -439,9 +439,10 @@ function FieldStaffWorkspaceContent({
     else openTab(key);
   };
 
+  // Kept on the phone and used when there is no network (`loadProjectOptions`).
   const projects = useQuery({
-    queryKey: ["projects", "options"],
-    queryFn: () => getProjects({ page_size: 100, sort_by: "name" }),
+    queryKey: PROJECT_OPTIONS_KEY,
+    queryFn: () => loadProjectOptions(user),
     staleTime: 60_000,
   });
   const projectNames = (projects.data?.results ?? []).map((project) => project.name);

@@ -13,8 +13,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { usePhoneOffline } from "@/hooks/use-phone-offline";
 import type { Project } from "@/interfaces/contractor";
-import { getProjects } from "@/services/contractor.service";
+import { PROJECT_OPTIONS_KEY, loadProjectOptions } from "@/lib/project-options";
 
 /**
  * What a project choice is for, which decides what the top bar's 「当前项目」
@@ -68,12 +69,15 @@ export function ProjectPicker({
   const current = useCurrentProject();
   const role: ProjectPickerScope = scope ?? (allowAll ? "filter" : "form");
   const shouldLoadProjects = projects === undefined && !current.active;
+  // On the phone the list is kept and used when there is no network
+  // (`loadProjectOptions`), so a record can still be given its project.
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["projects", "options"],
-    queryFn: () => getProjects({ page_size: 100, sort_by: "name" }),
+    queryKey: PROJECT_OPTIONS_KEY,
+    queryFn: () => loadProjectOptions(user),
     enabled: shouldLoadProjects,
     staleTime: 60_000,
   });
+  const offline = usePhoneOffline();
   const options = projects ?? (current.active ? current.projects : data?.results) ?? [];
   const loading = projectsLoading ?? (current.active ? current.loading : shouldLoadProjects && isLoading);
   const failed = projectsError ?? (shouldLoadProjects && isError);
@@ -134,7 +138,10 @@ export function ProjectPicker({
       </SelectContent>
     </Select>
     {topBar === "" && role === "page" && <p className="mt-1.5 text-xs text-muted-foreground">{tc("pageHint")}</p>}
-    {failed && <p role="alert" className="mt-1.5 text-xs font-medium text-destructive">{t("state.projectLoadError")}</p>}
+    {/* No connection is not a failure, and not a permission problem: said
+        quietly (Lucas 2026-10-23). The list loads when the network is back. */}
+    {failed && offline && <p className="mt-1.5 text-xs text-muted-foreground" data-project-offline>{t("state.projectLoadOffline")}</p>}
+    {failed && !offline && <p role="alert" className="mt-1.5 text-xs font-medium text-destructive">{t("state.projectLoadError")}</p>}
     {!loading && !failed && options.length === 0 && <p className="mt-1.5 text-xs text-muted-foreground">{t("noProjects")}</p>}
     </div>
   );
