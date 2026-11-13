@@ -8934,7 +8934,7 @@
       "package_recipient_kind": "Nyatakan untuk siapa.",
       "package_consultant_required": "Pilih perunding.",
       "package_consultant_no_access": "Perunding itu tiada akses semasa ke projek ini.",
-      "package_already_sent": "Sudah dihantar kepada perunding itu.",
+      "package_already_sent": "Pakej ini sudah dihantar kepadanya. Untuk menghantar sekali lagi, tekan 【Hantar lagi】 pada barisnya.",
       "package_recipient_name_required": "Namakan orang atau organisasi.",
       "package_days": "Antara 1 hingga 365 hari.",
       "package_recipient_revoked": "Penerima ini telah dibatalkan.",
@@ -11846,7 +11846,8 @@
         "extended": "Dilanjutkan.",
         "regenerated": "Pautan baharu dibuat; yang lama tidak lagi berfungsi.",
         "resubmitted": "Dihantar semula.",
-        "signed": "Ditandatangani."
+        "signed": "Ditandatangani.",
+        "resent": "Dihantar lagi. Nombor pakej baharu ialah {number}."
       },
       "changeAnswer": "Tukar jawapan",
       "sign": "Tandatangan",
@@ -11870,7 +11871,15 @@
       "ip": "IP {ip}",
       "writeFirst": "Tulis mesej atau pilih fail dahulu.",
       "headquartersHelp": "Dihantar ke ibu pejabat syarikat anda dalam sistem: tiada pautan dibuat. Ibu pejabat melihatnya di Pakej diterima dalam Multi Engine dan menerima notis; siapa yang membukanya disimpan.",
-      "sendToHeadquarters": "Hantar ke ibu pejabat"
+      "sendToHeadquarters": "Hantar ke ibu pejabat",
+      "talk": "Mesej",
+      "talkAfterSend": "Anda boleh berhubung selepas pakej dihantar.",
+      "talkPick": "Mesej dengan siapa?",
+      "resend": "Hantar lagi",
+      "resendAsk": "Nombor pakej baharu akan dibuat, dengan kandungan yang sama, dan dihantar kepada {name}.",
+      "resendConfirm": "Hantar lagi sekarang",
+      "resentFrom": "Dihantar lagi daripada {number}",
+      "resentTo": "Dihantar lagi: {number} ({date}) · {name}"
     },
     "claimFacet": {
       "title": "Jumlah dan bayaran tuntutan",
@@ -20405,7 +20414,8 @@
     "nameTitle": "Nama anda",
     "nameHelp": "Nama anda direkodkan pada pengesahan, pemulangan, tandatangan dan mesej. Pelayar ini mengingatinya.",
     "name": "Nama",
-    "continue": "Teruskan"
+    "continue": "Teruskan",
+    "talk": "Mesej"
   },
   "taskFlow": {
     "moreWork": {
@@ -21334,7 +21344,10 @@
       "noPeopleOnProject": "Belum ada sesiapa dalam projek ini yang boleh dihubungi: tambah orang dalam \"Senarai kakitangan projek\" dahulu.",
       "whatProjects": "senarai projek",
       "whatPeople": "senarai orang"
-    }
+    },
+    "packageThread": "Pakej · {name}",
+    "packageKind": "Pakej",
+    "packageGone": "Perbualan pakej ini tidak dijumpai, atau anda tiada kebenaran untuk melihatnya."
   },
   "photoWall": {
     "hint": "Klik foto untuk membesarkannya dan selak ke kiri atau kanan; klik dua kali untuk membuka rekod penuhnya.",

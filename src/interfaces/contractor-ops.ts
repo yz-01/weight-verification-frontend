@@ -1722,6 +1722,8 @@ export interface PackageMessage {
   /** An API path (office / consultant / link); fetched as a file. */
   attachment_url: string;
   created_at: string;
+  /** JB189: the account that wrote it - on the office's copy only. */
+  author?: string | null;
 }
 
 export interface PackageEvent {
@@ -1951,6 +1953,44 @@ export interface EvidencePackageDetail extends EvidencePackageRow {
   /* The consultant's view: their own recipient row (H17 五 2). */
   recipient?: PackageRecipient;
   can_sign?: boolean;
+  /** JB189 【重新发送】: the package this one was resent from (「重新发送自 PKG-…」). */
+  resent_from?: PackageResendLink | null;
+  /** JB189: the resends of this package, newest first (「已重新发送：PKG-…（日期）」). */
+  resends?: PackageResendLink[];
+  /** JB189: the answer of 【重新发送】 only - the new recipient row (a link's `token` in full, this once). */
+  sent?: PackageRecipient;
+}
+
+/** One package at the other end of a resend (JB189). */
+export interface PackageResendLink {
+  id: string;
+  package_no: string;
+  name: string;
+  confirmed_at: string | null;
+  /** Who the resend went to (on `resends` only). */
+  recipient_name?: string;
+  recipient_kind?: RecipientKind | "";
+}
+
+/**
+ * One package conversation on 「沟通记录」 (JB189): a package and one of its
+ * recipients - that recipient's own thread. `id` is the recipient's id.
+ */
+export interface PackageThreadRow {
+  id: string;
+  package: string;
+  package_no: string;
+  package_name: string;
+  recipient_name: string;
+  recipient_kind: RecipientKind;
+  revoked: boolean;
+  project: string;
+  project_name: string;
+  message_count: number;
+  last: { author_name: string; body: string; attachment_name: string; side: "OFFICE" | "RECIPIENT" } | null;
+  last_at: string;
+  /** The package's records, on the one row asked for by `recipient` only (「关于哪一笔记录」). */
+  items?: { id: string; record_kind: ArchiveRecordKind; reference: string }[];
 }
 
 /** What the package link's page shows (H17 八 3): no money, one thread. */

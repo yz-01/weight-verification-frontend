@@ -68,6 +68,7 @@ import type {
   PackageEvent,
   PackageMessage,
   PackageRecipient,
+  PackageThreadRow,
   PackageRound,
   PackageType,
   RecipientKind,
@@ -2135,6 +2136,25 @@ export async function resubmitPackage(id: string, items: string[], reason: strin
   toastSuccess("multiEngine.exchange.toast.resubmitted");
   return row;
 }
+
+/**
+ * 【重新发送】 (JB189, 客户 11-13): the same contents as a new package with the
+ * next PKG number, confirmed and sent to the same recipient. Asks for the PIN
+ * as 「确认」 does. The answer is the new package; `sent` is its recipient
+ * row (a link's `token` in full, this once).
+ */
+export async function resendPackage(id: string, recipient: string) {
+  const row = await api.post<EvidencePackageDetail>(`/api/evidence-packages/${id}/resend/`, { recipient });
+  toastSuccess("multiEngine.exchange.toast.resent", { number: row.package_no });
+  return row;
+}
+
+/**
+ * The package conversations on 「沟通记录」 (JB189): one per package and
+ * recipient this account reads; `recipient` asks for that one row only.
+ */
+export const getPackageThreads = (params: { project?: string; recipient?: string }) =>
+  api.get<{ results: PackageThreadRow[] }>("/api/evidence-packages/package_threads/", params);
 
 /** 往来记录 (H17 九): its own report; its digest goes on the timeline. */
 export const correspondenceReportFile = (id: string, name: string, inline = false) =>

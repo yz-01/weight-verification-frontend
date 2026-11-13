@@ -8934,7 +8934,7 @@
       "package_recipient_kind": "請選擇發給誰。",
       "package_consultant_required": "請選擇顧問。",
       "package_consultant_no_access": "這位顧問沒有這個項目的有效授權，打不開。",
-      "package_already_sent": "已經發給這位顧問了。",
+      "package_already_sent": "這個資料包已經發給他了。要再發一次，請按那一行的【重新發送】。",
       "package_recipient_name_required": "請填對方姓名或單位。",
       "package_days": "天數要在 1 到 365 之間。",
       "package_recipient_revoked": "這個收件方已撤銷。",
@@ -11846,7 +11846,8 @@
         "extended": "已延期。",
         "regenerated": "新連結已產生，舊連結已作廢。",
         "resubmitted": "已重新提交。",
-        "signed": "已簽收。"
+        "signed": "已簽收。",
+        "resent": "已重新發送，新的資料包編號是 {number}。"
       },
       "changeAnswer": "修改意見",
       "sign": "簽收",
@@ -11870,7 +11871,15 @@
       "ip": "IP {ip}",
       "writeFirst": "先寫留言或選附件。",
       "headquartersHelp": "發給貴司系統裡的總部，不用生成連結。總部在 Multi Engine 的「收到的資料包」看到，並收到系統通知；系統記錄誰打開過。",
-      "sendToHeadquarters": "發給總部"
+      "sendToHeadquarters": "發給總部",
+      "talk": "溝通",
+      "talkAfterSend": "發送以後才能溝通。",
+      "talkPick": "和哪一位溝通？",
+      "resend": "重新發送",
+      "resendAsk": "會生成一個新的資料包編號，內容和原來一樣，發給 {name}。",
+      "resendConfirm": "確認重新發送",
+      "resentFrom": "重新發送自 {number}",
+      "resentTo": "已重新發送：{number}（{date}）· {name}"
     },
     "claimFacet": {
       "title": "Claim 金額與收款",
@@ -20405,7 +20414,8 @@
     "nameTitle": "請輸入你的名字",
     "nameHelp": "名字會記錄在你的確認、退回、簽收和留言上。這個瀏覽器會記住，下次不用再填。",
     "name": "名字",
-    "continue": "繼續"
+    "continue": "繼續",
+    "talk": "溝通"
   },
   "taskFlow": {
     "moreWork": {
@@ -21334,7 +21344,10 @@
       "noPeopleOnProject": "這個項目還沒有可以找的人：請先在「項目人員名單」加人。",
       "whatProjects": "項目名單",
       "whatPeople": "人員名單"
-    }
+    },
+    "packageThread": "資料包 · {name}",
+    "packageKind": "資料包",
+    "packageGone": "找不到這個資料包的溝通，或者你沒有權限看。"
   },
   "photoWall": {
     "hint": "單擊照片放大，可以左右翻看；雙擊照片打開完整記錄。",

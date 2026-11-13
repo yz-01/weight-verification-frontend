@@ -8934,7 +8934,7 @@
       "package_recipient_kind": "Say who this is for.",
       "package_consultant_required": "Choose a consultant.",
       "package_consultant_no_access": "That consultant has no current access to this project.",
-      "package_already_sent": "Already sent to that consultant.",
+      "package_already_sent": "This package was already sent to them. To send it again, press 【Resend】 on their row.",
       "package_recipient_name_required": "Name the person or the organisation.",
       "package_days": "Between 1 and 365 days.",
       "package_recipient_revoked": "This recipient is revoked.",
@@ -11846,7 +11846,8 @@
         "extended": "Extended.",
         "regenerated": "New link made; the old one no longer works.",
         "resubmitted": "Resubmitted.",
-        "signed": "Signed for."
+        "signed": "Signed for.",
+        "resent": "Resent. The new package number is {number}."
       },
       "changeAnswer": "Change answer",
       "sign": "Sign for it",
@@ -11870,7 +11871,15 @@
       "ip": "IP {ip}",
       "writeFirst": "Write a message or choose a file first.",
       "headquartersHelp": "Sent to your own company's head office in the system: no link is made. Head office finds it under Received packages in Multi Engine and gets a notice; who opened it is kept.",
-      "sendToHeadquarters": "Send to head office"
+      "sendToHeadquarters": "Send to head office",
+      "talk": "Messages",
+      "talkAfterSend": "You can send messages after sending the package.",
+      "talkPick": "Messages with whom?",
+      "resend": "Resend",
+      "resendAsk": "A new package number will be made, with the same contents, and sent to {name}.",
+      "resendConfirm": "Resend now",
+      "resentFrom": "Resent from {number}",
+      "resentTo": "Resent: {number} ({date}) · {name}"
     },
     "claimFacet": {
       "title": "Claim amount and payment",
@@ -20405,7 +20414,8 @@
     "nameTitle": "Your name, please",
     "nameHelp": "Your name goes on your confirmations, returns, signature and messages. This browser remembers it.",
     "name": "Name",
-    "continue": "Continue"
+    "continue": "Continue",
+    "talk": "Messages"
   },
   "taskFlow": {
     "moreWork": {
@@ -21334,7 +21344,10 @@
       "noPeopleOnProject": "Nobody on this project can be messaged yet: add people on its \"Project staff list\" first.",
       "whatProjects": "the projects",
       "whatPeople": "the people"
-    }
+    },
+    "packageThread": "Package · {name}",
+    "packageKind": "Package",
+    "packageGone": "This package conversation cannot be found, or you may not see it."
   },
   "photoWall": {
     "hint": "Click a photo to enlarge it and page left or right; double-click it to open its full record.",

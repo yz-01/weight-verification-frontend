@@ -43,6 +43,7 @@ import { ProjectFilter } from "@/components/contractor-ops/operations-workspaces
 import {
   AnswerLines,
   ExchangePanel,
+  PackageTalkButton,
 } from "@/components/contractor-ops/package-exchange";
 import { ClaimFacetBlock } from "@/components/contractor-ops/package-claim-facet";
 import { PackTargetChooser } from "@/components/contractor-ops/pack-collect";
@@ -680,6 +681,30 @@ function TypePicker({
  * it.
  */
 export function PackageSheet({ id, onClose }: { id: string; onClose: () => void }) {
+  // 【重新发送】 (JB189): 「重新发送自 PKG-…」 and 「已重新发送：PKG-…」 open the
+  // other package in this same window; the window it was opened as comes
+  // back when the page opens another.
+  const [jump, setJump] = useState<{ from: string; to: string } | null>(null);
+  const shown = jump && jump.from === id ? jump.to : id;
+  return (
+    <PackageWindowContent
+      key={shown}
+      id={shown}
+      onClose={onClose}
+      onOpenPackage={(next) => setJump({ from: id, to: next })}
+    />
+  );
+}
+
+function PackageWindowContent({
+  id,
+  onClose,
+  onOpenPackage,
+}: {
+  id: string;
+  onClose: () => void;
+  onOpenPackage: (id: string) => void;
+}) {
   const t = useTranslations("multiEngine");
   const common = useTranslations("common");
   const queryClient = useQueryClient();
@@ -842,6 +867,43 @@ export function PackageSheet({ id, onClose }: { id: string; onClose: () => void 
                 </>
               )}
             </p>
+            {/* JB189 (客户 11-13): 「沟通」 bound to this PKG number - to
+                「沟通记录」 on the recipient's own thread - and the packages
+                a 【重新发送】 links, each opening the other. */}
+            <div className="flex flex-wrap items-center gap-2" data-package-talk-row>
+              <PackageTalkButton packageNo={data.package_no ?? ""} recipients={data.recipients ?? []} />
+              {data.resent_from && (
+                <Button
+                  size="sm"
+                  variant="link"
+                  className="h-auto px-0"
+                  onClick={() => onOpenPackage(data.resent_from!.id)}
+                  data-resent-from
+                >
+                  {t("exchange.resentFrom", { number: data.resent_from.package_no })}
+                </Button>
+              )}
+            </div>
+            {(data.resends ?? []).length > 0 && (
+              <ul className="space-y-0.5" data-package-resends>
+                {(data.resends ?? []).map((row) => (
+                  <li key={row.id}>
+                    <Button
+                      size="sm"
+                      variant="link"
+                      className="h-auto whitespace-normal px-0 text-left"
+                      onClick={() => onOpenPackage(row.id)}
+                    >
+                      {t("exchange.resentTo", {
+                        number: row.package_no,
+                        date: formatter.date(row.confirmed_at),
+                        name: row.recipient_name || (row.recipient_kind ? t(`exchange.kind.${row.recipient_kind}`) : "—"),
+                      })}
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            )}
             {/* JB52: a Progress Claim's 期数 / 类型 / 分类 / 分包商 - no amount,
                 no 收款 (「MSE Trace 不算工程款」; the data is kept). A Sundry
                 Claim package still adds up its sundry claims. */}
