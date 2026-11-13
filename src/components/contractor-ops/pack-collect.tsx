@@ -49,6 +49,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { ApiError } from "@/interfaces/api";
 import type {
   ArchiveRecordKind,
+  PackRowReason,
   PackRowStatus,
   RecordPackageRow,
 } from "@/interfaces/contractor-ops";
@@ -370,6 +371,12 @@ export interface PackListConfig<T> {
   kind: ArchiveRecordKind;
   /** The record's id when a row's `id` is something else. */
   rowId?: (row: T) => string;
+  /**
+   * A row the list itself knows cannot go into a package, and why - a voided
+   * rain record (JB192 做法 二.6: 「不能再勾选打包」). Its box is greyed with
+   * that reason whatever the server's status says, and 全选 passes it by.
+   */
+  blocked?: (row: T) => PackRowReason | null;
 }
 
 /** Column ids, so the table does not open a row when its box is pressed. */
@@ -399,12 +406,20 @@ export function usePackList<T>(config: PackListConfig<T>, rows: readonly T[]): P
   const { can } = useAuth();
   const { collecting } = usePackCollect();
   const queryClient = useQueryClient();
-  const { kind, rowId } = config;
+  const { kind, rowId, blocked } = config;
   const canView = can("package.view");
   const picking = collecting !== null && can("package.manage");
-  const ids = rows
-    .map((row) => (rowId ? rowId(row) : String((row as { id?: unknown }).id ?? "")))
-    .filter(Boolean);
+  const idOf = (row: T) => (rowId ? rowId(row) : String((row as { id?: unknown }).id ?? ""));
+  const ids = rows.map(idOf).filter(Boolean);
+  // Rows the list knows cannot be packed (JB192: a voided rain record).
+  const refused = new Map<string, PackRowReason>();
+  if (blocked) {
+    for (const row of rows) {
+      const reason = blocked(row);
+      if (reason) refused.set(idOf(row), reason);
+    }
+  }
+  const allowed = ids.filter((id) => !refused.has(id));
 
   const status = useQuery({
     queryKey: ["evidence-packages", "pack-status", kind, collecting?.id ?? "", ids],
@@ -415,8 +430,8 @@ export function usePackList<T>(config: PackListConfig<T>, rows: readonly T[]): P
   const [picked, setPicked] = useState<string[]>([]);
   // Derived, not stored: a row that joined, left the page or cannot be added
   // any more is no longer ticked.
-  const ticks = keepTickable(picked, ids, records);
-  const open = tickableIds(ids, records);
+  const ticks = keepTickable(picked, allowed, records);
+  const open = tickableIds(allowed, records);
   const [opened, setOpened] = useState<string | null>(null);
 
   const refresh = () => queryClient.invalidateQueries({ queryKey: ["evidence-packages"] });
@@ -437,6 +452,14 @@ export function usePackList<T>(config: PackListConfig<T>, rows: readonly T[]): P
 
   const check = (id: string) => {
     const row = records?.[id];
+    const own = refused.get(id);
+    if (own && !row?.in_package) {
+      return (
+        <span className="inline-flex" title={t(`reason.${own}`)}>
+          <Checkbox disabled aria-label={t(`reason.${own}`)} />
+        </span>
+      );
+    }
     const reason = row?.reason ? t(`reason.${row.reason}`) : t("reason.loading");
     // The reason sits on a wrapper too: a disabled control shows no tooltip
     // of its own in every browser.

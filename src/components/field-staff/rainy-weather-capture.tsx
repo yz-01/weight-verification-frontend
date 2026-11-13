@@ -40,6 +40,7 @@ import { FieldCamera } from "@/components/shared/field-camera";
 import { FieldWrapper } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
+import { useRainDuration } from "@/hooks/use-rain-duration";
 import { ApiError } from "@/interfaces/api";
 import { useDateFormat } from "@/lib/dates";
 import { asFix, type LocationValue } from "@/lib/field-location";
@@ -58,7 +59,6 @@ import { photoTakenAt } from "@/lib/photo-meta";
 import {
   elapsedMinutes,
   endIsAfterStart,
-  formatRainDuration,
   heldPhoto,
   heldRainId,
   isLongRain,
@@ -88,13 +88,6 @@ function useMinuteClock(running: boolean): number {
     return () => window.clearInterval(timer);
   }, [running]);
   return now;
-}
-
-/** 「1 小时 5 分」 in the reader's language. */
-export function useRainDuration() {
-  const t = useTranslations("rainRecords");
-  return (minutes: number | null | undefined) =>
-    formatRainDuration(minutes, (key, values) => t(key as "duration.hm", values));
 }
 
 /** What the line over the button says after 【提交雨天记录】. */

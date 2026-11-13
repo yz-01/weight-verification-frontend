@@ -76,7 +76,7 @@ const summary: ProgressSummary = {
 };
 
 describe("the progress page's tabs", () => {
-  it("are the five the client asked for, in his order", () => {
+  it("are the five the client asked for, in his order, and 雨天记录 after them", () => {
     auth.features = ["progress", "schedule"];
     search.value = "";
     expect(tabLabels(render(<page.ProgressTabStrip />))).toEqual([
@@ -86,6 +86,8 @@ describe("the progress page's tabs", () => {
       "日报告",
       "施工计划",
       "项目进度摘要",
+      // JB192 (客户 11-13 晚上): 「工程进度 → Rainy Weather」, its own tab.
+      "雨天记录",
     ]);
   });
 
@@ -104,7 +106,7 @@ describe("the progress page's tabs", () => {
     auth.features = ["progress"];
     search.value = "";
     expect(tabLabels(render(<page.ProgressTabStrip />))).not.toContain("施工计划");
-    expect(page.progressTabsFor(["progress"])).toEqual(["phases", "photos", "reports", "summary"]);
+    expect(page.progressTabsFor(["progress"])).toEqual(["phases", "photos", "reports", "summary", "rain"]);
     auth.features = ["progress", "schedule"];
   });
 

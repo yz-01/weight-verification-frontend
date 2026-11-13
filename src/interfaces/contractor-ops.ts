@@ -868,7 +868,16 @@ export interface SiteProgressRecord extends RecordedBy {
   confirmed_by_name: string | null;
   confirmed_at: string | null;
   review_note: string;
-  photos: Array<{ id: string; image: string; watermarked?: string | null; caption: string; captured_at: string }>;
+  photos: Array<{
+    id: string;
+    image: string;
+    watermarked?: string | null;
+    caption: string;
+    captured_at: string;
+    /** Each photo's own fix (a rain record's two photos each have one). */
+    latitude?: string | null;
+    longitude?: string | null;
+  }>;
   /** The office's 【备注】, oldest first (T-359). */
   remarks?: Array<{ id: string; body: string; author_name: string | null; created_at: string }>;
   /**
@@ -878,6 +887,20 @@ export interface SiteProgressRecord extends RecordedBy {
   archived?: boolean;
   /** Every office correction of 实际完成比例, oldest first (2026-10-09). */
   corrections?: ProgressCorrection[];
+  /**
+   * Rainy Weather 雨天记录 (JB192): a record sent from the phone's 「Rainy
+   * Weather」 - photo 1 when the rain started, photo 2 when it stopped. The
+   * minutes are worked out from the two photos' moments, cut to the minute.
+   */
+  is_rain?: boolean;
+  rain_started_at?: string | null;
+  rain_ended_at?: string | null;
+  rain_minutes?: number | null;
+  /** 【作废】 (JB192): kept, marked, left out of every count; never undone. */
+  is_voided?: boolean;
+  voided_at?: string | null;
+  voided_by_name?: string | null;
+  void_reason?: string;
 }
 
 /** One office correction of a progress record's 实际完成比例 (2026-10-09). */
@@ -2079,7 +2102,9 @@ export type PackRowReason =
   | "package_closed"
   | "not_finished"
   | "other_project"
-  | "no_package";
+  | "no_package"
+  /** A voided rain record (JB192 做法 二.6): 「不能再勾选打包」. */
+  | "voided";
 
 /** One row of a module's list, as Multi Engine sees it. */
 export interface PackRowStatus {
