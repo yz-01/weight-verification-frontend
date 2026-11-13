@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { packageRecord, usePackageSend, type PackageShareWhat } from "@/components/contractor-ops/package-share";
@@ -33,12 +33,15 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { useNewMessageTone } from "@/hooks/use-new-message-tone";
 import { useDateFormat } from "@/lib/dates";
+import { roleLabel } from "@/lib/role-labels";
 import type {
   EvidencePackageDetail,
   PackageAnswer,
   PackageMessage,
   PackageRecipient,
+  PackageThreadPeople,
   RecipientKind,
 } from "@/interfaces/contractor-ops";
 import { isLinkRecipient } from "@/interfaces/contractor-ops";
@@ -49,6 +52,7 @@ import {
   extendPackageRecipient,
   getPackageConsultantChoices,
   getPackageMessages,
+  getPackageThreadPeople,
   getPackageThreads,
   getPackageTimeline,
   packageAttachmentFile,
@@ -706,7 +710,7 @@ export function SendDialog({
 
 function OfficeChat({ pkg, recipients }: { pkg: EvidencePackageDetail; recipients: PackageRecipient[] }) {
   const t = useTranslations("multiEngine");
-  const { can } = useAuth();
+  const { can, user } = useAuth();
   const queryClient = useQueryClient();
   const [picked, setPicked] = useState<string | null>(null);
   const current = recipients.find((row) => row.id === picked) ?? recipients[0];
@@ -715,6 +719,9 @@ function OfficeChat({ pkg, recipients }: { pkg: EvidencePackageDetail; recipient
     queryFn: () => getPackageMessages(pkg.id, current!.id),
     enabled: Boolean(current),
   });
+  // JB191: head office's thread asks 「发给谁」, here as on 「沟通记录」.
+  const twoOffices = current?.kind === "HEADQUARTERS";
+  const addressing = useThreadAddressing(pkg.id, current?.id ?? "", twoOffices && can("package.manage"));
 
   if (!current) {
     return (
@@ -725,6 +732,7 @@ function OfficeChat({ pkg, recipients }: { pkg: EvidencePackageDetail; recipient
   }
   return (
     <div className="grid gap-3 sm:grid-cols-[12rem_1fr]">
+      {twoOffices && <AddressedTone key={current.id} messages={thread.data} me={user?.id} />}
       <nav aria-label={t("exchange.chatPick")} className="flex gap-1.5 overflow-x-auto sm:flex-col">
         {recipients.map((row) => (
           <button
@@ -754,10 +762,14 @@ function OfficeChat({ pkg, recipients }: { pkg: EvidencePackageDetail; recipient
             items={pkg.items.map((item) => ({ id: item.id, label: item.reference || t(`kind.${item.record_kind}`) }))}
             ownSide="OFFICE"
             otherName={current.display_name}
+            // An office at both ends (JB189 / JB190): the reader's own on the right.
+            mineId={twoOffices ? user?.id : undefined}
+            addressing={addressing}
             canWrite={can("package.manage")}
             onSend={async (payload) => {
               await sendPackageMessage(pkg.id, current.id, payload);
               await queryClient.invalidateQueries({ queryKey: ["evidence-packages", "messages", pkg.id] });
+              await queryClient.invalidateQueries({ queryKey: PACKAGE_THREADS_KEY });
             }}
             openAttachment={(message) => packageAttachmentFile(message.attachment_url, message.attachment_name)}
           />
@@ -770,6 +782,82 @@ function OfficeChat({ pkg, recipients }: { pkg: EvidencePackageDetail; recipient
 /** The query keys of the package conversations on 「沟通记录」 (JB189). */
 export const PACKAGE_THREADS_KEY = ["evidence-packages", "threads"] as const;
 export const packageThreadKey = (recipientId: string) => ["evidence-packages", "thread", recipientId] as const;
+
+/** What 「发给谁」 needs on one thread (JB191); `undefined`: this thread does not ask. */
+export interface ThreadAddressing {
+  people: PackageThreadPeople["people"];
+  suggested: string[];
+  fromHeadquarters: boolean;
+  loading: boolean;
+  failed: boolean;
+  retry: () => void;
+}
+
+/**
+ * The open head-office thread rings when a message sent to this reader
+ * arrives (JB191, 第 5 点: 铃声). Reading the thread settles its notice at
+ * once, so the bell may have nothing left to ring for - as on any open
+ * conversation (JB36); the tone is the bell's own and never rings twice for
+ * one message. A message sent to somebody else does not ring here. Keyed by
+ * the thread where it is used: another thread's messages are not news.
+ */
+export function AddressedTone({ messages, me }: { messages: PackageMessage[] | undefined; me: string | undefined }) {
+  const mine = useMemo(
+    () => (me && messages ? messages.filter((message) => message.addressees?.includes(me)) : undefined),
+    [messages, me],
+  );
+  useNewMessageTone(mine, me);
+  return null;
+}
+
+/**
+ * Who is ticked under 「发给谁」: the writer's own ticks once they touched
+ * the box, else the server's (their last choice, or whoever wrote to them
+ * since) - and only people this thread still offers.
+ */
+export function tickedAddressees(ticked: string[] | null, addressing: ThreadAddressing | undefined): string[] {
+  const offered = addressing?.people ?? [];
+  return (ticked ?? addressing?.suggested ?? []).filter((id) => offered.some((person) => person.id === id));
+}
+
+/**
+ * Whether the message must wait for a tick: the thread asks, and there are
+ * people to choose from but none is ticked (or the list is still being
+ * read). A thread with nobody to choose from still takes the message.
+ */
+export function mustChooseAddressee(addressing: ThreadAddressing | undefined, chosen: string[]): boolean {
+  if (!addressing) return false;
+  return addressing.loading || (addressing.people.length > 0 && chosen.length === 0);
+}
+
+/**
+ * 「发给谁」 on head office's thread (JB191, 客户 11-13: 「双方都可以选择接收人，
+ * 不应固定某一个账号……指定接收人必须收到消息通知、红点及铃声提醒」): whom this
+ * reader may choose and who is ticked to begin with. Kept under the thread's
+ * own messages key, so whatever re-reads the thread (a message sent, a new
+ * one arriving) re-reads who is ticked too - a reply goes to whoever wrote.
+ */
+export function useThreadAddressing(
+  packageId: string,
+  recipientId: string,
+  enabled: boolean,
+): ThreadAddressing | undefined {
+  const people = useQuery({
+    queryKey: ["evidence-packages", "messages", packageId, recipientId, "people"],
+    queryFn: () => getPackageThreadPeople(packageId, recipientId),
+    enabled: enabled && Boolean(packageId) && Boolean(recipientId),
+  });
+  if (!enabled) return undefined;
+  if (people.data && !people.data.choose) return undefined;
+  return {
+    people: people.data?.people ?? [],
+    suggested: people.data?.suggested ?? [],
+    fromHeadquarters: people.data?.from_headquarters ?? false,
+    loading: people.isLoading,
+    failed: people.isError,
+    retry: () => void people.refetch(),
+  };
+}
 
 /**
  * One package conversation on 「沟通记录」 (JB189, Lucas chose A): the office's
@@ -791,6 +879,22 @@ export function PackageThreadPanel({ recipientId }: { recipientId: string }) {
     queryFn: () => getPackageMessages(row!.package, recipientId),
     enabled: Boolean(row),
   });
+  const addressing = useThreadAddressing(
+    row?.package ?? "",
+    recipientId,
+    row?.recipient_kind === "HEADQUARTERS" && can("package.manage"),
+  );
+  // JB191: reading the thread settled this reader's notice for it on the
+  // server. The red number on its row and the bell's count are re-read, so
+  // the dot drops now and not at the next poll.
+  const unread = row?.unread ?? 0;
+  const readAt = thread.dataUpdatedAt;
+  useEffect(() => {
+    if (!readAt || unread <= 0) return;
+    void queryClient.invalidateQueries({ queryKey: PACKAGE_THREADS_KEY });
+    void queryClient.invalidateQueries({ queryKey: packageThreadKey(recipientId) });
+    void queryClient.invalidateQueries({ queryKey: ["notifications"] });
+  }, [readAt, unread, recipientId, queryClient]);
 
   if (found.isLoading) return <p className="text-sm text-muted-foreground">{t("loading")}</p>;
   if (found.isError) return <LoadFailed what={chats("conversation")} onRetry={() => void found.refetch()} />;
@@ -804,6 +908,7 @@ export function PackageThreadPanel({ recipientId }: { recipientId: string }) {
   const who = recipientLabel(t, row);
   return (
     <div className="space-y-3" data-package-thread={row.id}>
+      {row.recipient_kind === "HEADQUARTERS" && <AddressedTone messages={thread.data} me={user?.id} />}
       <div className="space-y-0.5">
         <h3 className="text-sm font-semibold">
           {row.package_no} · {who}
@@ -825,6 +930,7 @@ export function PackageThreadPanel({ recipientId }: { recipientId: string }) {
           otherName={who}
           // Head office's thread has an office at both ends (JB190: 自己在右，对方在左).
           mineId={row.recipient_kind === "HEADQUARTERS" ? user?.id : undefined}
+          addressing={addressing}
           canWrite={can("package.manage")}
           onSend={async (payload) => {
             await sendPackageMessage(row.package, row.id, payload);
@@ -853,6 +959,7 @@ export function ThreadView({
   openAttachment,
   record,
   mineId,
+  addressing,
 }: {
   messages: PackageMessage[];
   loading?: boolean;
@@ -864,9 +971,15 @@ export function ThreadView({
    * the other office's left. Without it, a side is a side.
    */
   mineId?: string;
+  /**
+   * JB191: head office's thread asks 「发给谁」 before a message goes - the
+   * people ticked get the bell, its sound and the red dot. Not given: this
+   * thread does not ask (a consultant's, a link's).
+   */
+  addressing?: ThreadAddressing;
   otherName: string;
   canWrite: boolean;
-  onSend: (payload: { body: string; item?: string; attachment?: File | null }) => Promise<unknown>;
+  onSend: (payload: { body: string; item?: string; attachment?: File | null; to?: string[] }) => Promise<unknown>;
   openAttachment: (message: PackageMessage) => Promise<File>;
   /** The package an attachment's 打印 / 导出 / 发送 row is filed under (JB65 fix). */
   record?: { recordKind: string; recordId: string; project?: string };
@@ -878,14 +991,31 @@ export function ThreadView({
   const [attachment, setAttachment] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
   const files = useFileActions();
+  const all = useTranslations();
   const label = (id: string | null) => items.find((row) => row.id === id)?.label;
+  // 「发给谁」 (JB191). `null`: not touched since the last message - the ticks
+  // are the server's (my last choice, or whoever wrote to me since). Touched,
+  // they are the writer's until the message goes.
+  const [ticked, setTicked] = useState<string[] | null>(null);
+  const offered = addressing?.people ?? [];
+  const chosen = tickedAddressees(ticked, addressing);
+  const mustChoose = mustChooseAddressee(addressing, chosen);
+  const tick = (id: string, on: boolean) =>
+    setTicked(on ? [...chosen.filter((other) => other !== id), id] : chosen.filter((other) => other !== id));
 
   const send = async () => {
     setBusy(true);
     try {
-      await onSend({ body: body.trim(), item: item || undefined, attachment });
+      await onSend({
+        body: body.trim(),
+        item: item || undefined,
+        attachment,
+        ...(addressing ? { to: chosen } : {}),
+      });
       setBody("");
       setAttachment(null);
+      // The thread was re-read with who is ticked now: follow it again.
+      setTicked(null);
     } catch {
       // The refusal has been said already (toast); the text stays to retry.
     } finally {
@@ -918,6 +1048,12 @@ export function ThreadView({
                     {" · "}
                     {formatter.dateTime(message.created_at)}
                   </p>
+                  {message.addressee_names && (
+                    // JB191: whom it was sent to - the people it rang.
+                    <p className="text-xs font-medium text-muted-foreground" data-message-to>
+                      {t("exchange.sentTo", { names: message.addressee_names })}
+                    </p>
+                  )}
                   {message.item && label(message.item) && (
                     <p className="text-xs font-medium text-muted-foreground">
                       {t("exchange.aboutItem", { item: label(message.item) ?? "" })}
@@ -947,6 +1083,46 @@ export function ThreadView({
       )}
       {canWrite && (
         <div className="space-y-2 rounded-lg border bg-muted/20 p-3">
+          {addressing && (
+            <fieldset className="space-y-1.5" data-thread-to>
+              <legend className="text-sm font-medium">
+                {t("exchange.to")}
+                <span className="ml-2 text-xs font-normal text-muted-foreground">
+                  {addressing.fromHeadquarters ? t("exchange.toProject") : t("exchange.toHeadOffice")}
+                </span>
+              </legend>
+              {addressing.loading ? (
+                <p className="text-sm text-muted-foreground">{t("loading")}</p>
+              ) : addressing.failed ? (
+                <LoadFailed what={t("exchange.to")} onRetry={addressing.retry} />
+              ) : offered.length === 0 ? (
+                <p className="text-sm text-muted-foreground" data-thread-to-nobody>
+                  {addressing.fromHeadquarters ? t("exchange.toNobodyProject") : t("exchange.toNobodyHeadOffice")}
+                </p>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {offered.map((person) => {
+                    const on = chosen.includes(person.id);
+                    const role = roleLabel(person.role_code, person.role_name, all);
+                    return (
+                      <label
+                        key={person.id}
+                        data-thread-to-person={person.id}
+                        className={`inline-flex min-h-9 cursor-pointer items-center gap-2 rounded-md border px-3 py-1.5 text-sm pointer-coarse:min-h-11 ${
+                          on ? "border-primary/50 bg-primary/10" : "bg-background"
+                        }`}
+                      >
+                        <Checkbox checked={on} onCheckedChange={(next) => tick(person.id, next === true)} />
+                        <span className="font-medium">{person.full_name}</span>
+                        {role && <span className="text-xs text-muted-foreground">{role}</span>}
+                      </label>
+                    );
+                  })}
+                </div>
+              )}
+              {offered.length > 0 && <p className="text-xs text-muted-foreground">{t("exchange.toHint")}</p>}
+            </fieldset>
+          )}
           <Textarea
             rows={2}
             value={body}
@@ -980,8 +1156,8 @@ export function ThreadView({
             </label>
             <Button
               size="sm"
-              disabled={busy || (!body.trim() && !attachment)}
-              disabledReason={t("exchange.writeFirst")}
+              disabled={busy || (!body.trim() && !attachment) || mustChoose}
+              disabledReason={!body.trim() && !attachment ? t("exchange.writeFirst") : t("exchange.toChooseFirst")}
               onClick={() => void send()}
             >
               <Send className="size-4" />
