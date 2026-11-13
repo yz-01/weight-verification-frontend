@@ -16319,7 +16319,8 @@
     "state": {
       "loadError": "Maklumat ini tidak dapat dimuatkan. Semak sambungan dan cuba lagi.",
       "loading": "Memuatkan kawalan tapak...",
-      "projectLoadError": "Projek tidak dapat dimuatkan. Semak akses projek akaun ini dan cuba lagi."
+      "projectLoadError": "Projek tidak dapat dimuatkan. Semak akses projek akaun ini dan cuba lagi.",
+      "projectLoadOffline": "Tiada rangkaian - senarai projek akan dimuatkan apabila sambungan pulih."
     },
     "status": {
       "active": "Aktif",

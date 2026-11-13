@@ -16319,7 +16319,8 @@
     "state": {
       "loadError": "This information could not be loaded. Check the connection and try again.",
       "loading": "Loading site controls...",
-      "projectLoadError": "Projects could not be loaded. Check your project access and try again."
+      "projectLoadError": "Projects could not be loaded. Check your project access and try again.",
+      "projectLoadOffline": "No network - the project list will load when the connection is back."
     },
     "status": {
       "active": "Active",
