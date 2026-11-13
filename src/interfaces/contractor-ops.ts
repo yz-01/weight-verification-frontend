@@ -1724,6 +1724,35 @@ export interface PackageMessage {
   created_at: string;
   /** JB189: the account that wrote it - on the office's copy only. */
   author?: string | null;
+  /**
+   * JB191: on head office's thread, the accounts the writer ticked under
+   * 「发给谁」 - the ones the message rang - and their names as they were when
+   * it was sent. On the office's copy only; empty everywhere else.
+   */
+  addressees?: string[];
+  addressee_names?: string;
+}
+
+/** One account a message on head office's thread may be for (JB191). */
+export interface PackageThreadPerson {
+  id: string;
+  full_name: string;
+  role_code: string;
+  role_name: string;
+  /** The other end of the thread: head office to a project, the project's office to head office. */
+  kind: "head_office" | "office";
+}
+
+/**
+ * 「发给谁」 (JB191, 客户 11-13: 「双方都可以选择接收人，不应固定某一个账号」):
+ * whether this thread asks at all (only 总部（系统内）), whom this reader may
+ * choose and who is ticked to begin with.
+ */
+export interface PackageThreadPeople {
+  choose: boolean;
+  from_headquarters: boolean;
+  people: PackageThreadPerson[];
+  suggested: string[];
 }
 
 export interface PackageEvent {
@@ -1989,6 +2018,8 @@ export interface PackageThreadRow {
   message_count: number;
   last: { author_name: string; body: string; attachment_name: string; side: "OFFICE" | "RECIPIENT" } | null;
   last_at: string;
+  /** JB191: the messages sent to this reader they have not read yet (the red number). */
+  unread?: number;
   /** The package's records, on the one row asked for by `recipient` only (「关于哪一笔记录」). */
   items?: { id: string; record_kind: ArchiveRecordKind; reference: string }[];
 }

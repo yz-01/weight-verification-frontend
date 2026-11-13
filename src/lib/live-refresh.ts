@@ -124,6 +124,10 @@ export const REALTIME_FAMILY_KEYS: Readonly<Record<string, readonly QueryKey[]>>
   "notification.created": [
     ["notifications"], ["notification-records"], ["admin-notifications"],
     ["contractor-dashboard", "banner-notifications"], BADGES,
+    // JB191: a message on a package's head-office thread reaches the people
+    // it was sent to as a notice - the list on 「沟通记录」 (its red number)
+    // and the thread, when one is open, show it at once.
+    ["evidence-packages", "threads"], ["evidence-packages", "thread"], ["evidence-packages", "messages"],
   ],
 };
 
