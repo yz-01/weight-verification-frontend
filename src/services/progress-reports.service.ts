@@ -14,6 +14,7 @@ import type {
 } from "@/interfaces/progress-reports";
 import { api, download, fetchAsFile, toastSuccess } from "@/services/api-client";
 import { exportBody, exportQuery, type ExportRequest } from "@/services/contractor.service";
+import type { WeatherReading } from "@/lib/weather-words";
 
 /** 现场照片: progress photographs by project, 施工分类 and day. */
 export const getProgressPhotos = (query: ListQuery = {}) =>
@@ -46,6 +47,20 @@ export const collectDailyReportEntries = (query: {
   date_from: string;
   date_to: string;
 }) => api.get<DailyReportCollection>("/api/daily-reports/collect_entries/", query);
+
+/**
+ * The weather now at `project`, for a new report's 日报天气 (JB186), or null:
+ * a project with no location, or a weather service that does not answer.
+ * Silent - the form says so itself and offers the name without a weather.
+ */
+export async function getDailyReportWeather(project: string): Promise<WeatherReading | null> {
+  const data = await api.get<{ weather: WeatherReading | null }>(
+    "/api/daily-reports/get_weather/",
+    { project },
+    { silent: true },
+  );
+  return data.weather;
+}
 
 /** The report as a PDF, fetched once for 预览 · 打印 · 导出 · 发送 (H15). */
 export const dailyReportPdfFile = (id: string, lang: string, name: string) =>

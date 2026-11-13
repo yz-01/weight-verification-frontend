@@ -55,20 +55,28 @@ import { useDateFormat } from "@/lib/dates";
 import { ALL_PROJECTS_CHOICE } from "@/lib/project-context";
 import { cardHref, cardProject, type HeadquartersCard } from "@/lib/headquarters-links";
 import { TONES, type Tone } from "@/lib/tones";
+import { weatherWordKey, type WeatherWord } from "@/lib/weather-words";
 import { cn } from "@/lib/utils";
 import { getContractorDashboard, getWeather } from "@/services/contractor-dashboard.service";
 
-/** WMO weather codes (Open-Meteo) by the word and icon shown. */
-function weatherLook(code: number): { key: string; icon: LucideIcon } {
-  if (code === 0) return { key: "clear", icon: Sun };
-  if (code <= 2) return { key: "partly", icon: CloudSun };
-  if (code === 3) return { key: "cloudy", icon: Cloud };
-  if (code === 45 || code === 48) return { key: "fog", icon: CloudFog };
-  if (code >= 51 && code <= 57) return { key: "drizzle", icon: CloudDrizzle };
-  if ((code >= 61 && code <= 67) || (code >= 80 && code <= 82)) return { key: "rain", icon: CloudRain };
-  if ((code >= 71 && code <= 77) || code === 85 || code === 86) return { key: "snow", icon: Snowflake };
-  if (code >= 95) return { key: "storm", icon: CloudLightning };
-  return { key: "cloudy", icon: Cloud };
+const WEATHER_ICONS: Record<WeatherWord, LucideIcon> = {
+  clear: Sun,
+  partly: CloudSun,
+  cloudy: Cloud,
+  fog: CloudFog,
+  drizzle: CloudDrizzle,
+  rain: CloudRain,
+  snow: Snowflake,
+  storm: CloudLightning,
+};
+
+/**
+ * WMO weather codes (Open-Meteo) by the word and icon shown. The word is
+ * `weatherWordKey`'s, which a daily report's 日报天气 says too (JB186).
+ */
+function weatherLook(code: number): { key: WeatherWord; icon: LucideIcon } {
+  const key = weatherWordKey(code);
+  return { key, icon: WEATHER_ICONS[key] };
 }
 
 /** 大标题、副标题、「总公司视图」、日期和星期、天气 (要做 1). */
