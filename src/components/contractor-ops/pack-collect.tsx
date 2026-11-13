@@ -49,6 +49,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { ApiError } from "@/interfaces/api";
 import type {
   ArchiveRecordKind,
+  PackRecordRef,
   PackRowReason,
   PackRowStatus,
   RecordPackageRow,
@@ -60,13 +61,17 @@ import {
   PACK_STORAGE_KEY,
   PACK_TARGETS,
   type CollectingPackage,
+  type PackTarget,
   collectHref,
   keepTickable,
+  packRecordRefs,
   packageHref,
   parseCollecting,
   resolveCollecting,
   showsPackColumn,
+  targetKinds,
   tickableIds,
+  uniqueIds,
   writeCollecting,
 } from "@/lib/pack-collect";
 import { toneOf } from "@/lib/tones";
@@ -288,7 +293,7 @@ export function PackCollectDock() {
  * 「添加资料」: which module to pick from
  * ---------------------------------------------------------------------- */
 
-const KIND_PERMISSION: Record<ArchiveRecordKind, string> = {
+export const KIND_PERMISSION: Record<ArchiveRecordKind, string> = {
   MATERIAL_RECEIPT: "receipt.view",
   MATERIAL_OUTGOING: "material_outgoing.view",
   EQUIPMENT_MOVEMENT: "equipment.view",
@@ -300,7 +305,19 @@ const KIND_PERMISSION: Record<ArchiveRecordKind, string> = {
   ATTENDANCE_DAY: "attendance.view",
   SUNDRY_CLAIM: "sundry_claim.view",
   MATERIAL_REQUEST: "material_request.view",
+  // JB193: the same permissions as the backend's sources.
+  DAILY_REPORT: "progress.view",
+  DOCUMENT: "document.view",
 };
+
+/**
+ * Whether a column's records are readable by this account: its kind's
+ * permission, or - for 现场记录中心, which mixes kinds (JB193) - any one of
+ * them, as that page lists only the kinds its reader may read.
+ */
+export function mayPickFrom(target: Pick<PackTarget, "kind">, can: (permission: string) => boolean): boolean {
+  return targetKinds(target).some((kind) => can(KIND_PERMISSION[kind]));
+}
 
 /**
  * 「添加资料」 → choose the column → that module's own list (二 1, 二 2).
@@ -324,7 +341,7 @@ export function PackTargetChooser({
   const targets = PACK_TARGETS.filter(
     (target) =>
       user !== null &&
-      can(KIND_PERMISSION[target.kind]) &&
+      mayPickFrom(target, can) &&
       isRouteAllowed(user.portal, user.features, target.path, user.permissions, user.is_superuser),
   );
   return (
@@ -368,8 +385,16 @@ export function PackTargetChooser({
  * ---------------------------------------------------------------------- */
 
 export interface PackListConfig<T> {
-  kind: ArchiveRecordKind;
-  /** The record's id when a row's `id` is something else. */
+  /**
+   * The list's kind - or, on a page that mixes kinds (现场记录中心, JB193),
+   * each row's own: then the page is asked about and added with every
+   * record's kind beside its id (`pack_status/?items=`, `{records: […]}`).
+   */
+  kind: ArchiveRecordKind | ((row: T) => ArchiveRecordKind);
+  /**
+   * The record's id when a row's `id` is something else. Rows may share one
+   * (the lines of a MIN, JB193): they tick together and count once.
+   */
   rowId?: (row: T) => string;
   /**
    * A row the list itself knows cannot go into a package, and why - a voided
@@ -410,7 +435,19 @@ export function usePackList<T>(config: PackListConfig<T>, rows: readonly T[]): P
   const canView = can("package.view");
   const picking = collecting !== null && can("package.manage");
   const idOf = (row: T) => (rowId ? rowId(row) : String((row as { id?: unknown }).id ?? ""));
-  const ids = rows.map(idOf).filter(Boolean);
+  // A page that mixes kinds says each record's (JB193); every other list
+  // has one kind and asks exactly as it always did.
+  const ask: { kind: ArchiveRecordKind } | { refs: PackRecordRef[] } =
+    typeof kind === "function" ? { refs: packRecordRefs(rows, idOf, kind) } : { kind };
+  const kindOf = new Map("refs" in ask ? ask.refs.map((ref) => [ref.id, ref.kind] as const) : []);
+  const kindFor = (id: string): ArchiveRecordKind | undefined => ("kind" in ask ? ask.kind : kindOf.get(id));
+  const refsOf = (chosen: readonly string[]): PackRecordRef[] =>
+    chosen.flatMap((id) => {
+      const own = kindOf.get(id);
+      return own ? [{ kind: own, id }] : [];
+    });
+  // Each record once: the lines of one MIN share its id (JB193 一 1).
+  const ids = "refs" in ask ? ask.refs.map((ref) => ref.id) : uniqueIds(rows.map(idOf));
   // Rows the list knows cannot be packed (JB192: a voided rain record).
   const refused = new Map<string, PackRowReason>();
   if (blocked) {
@@ -422,8 +459,12 @@ export function usePackList<T>(config: PackListConfig<T>, rows: readonly T[]): P
   const allowed = ids.filter((id) => !refused.has(id));
 
   const status = useQuery({
-    queryKey: ["evidence-packages", "pack-status", kind, collecting?.id ?? "", ids],
-    queryFn: () => getPackStatus(kind, ids, collecting?.id),
+    queryKey:
+      "refs" in ask
+        ? ["evidence-packages", "pack-status", "items", collecting?.id ?? "", ask.refs.map((ref) => `${ref.kind}:${ref.id}`)]
+        : ["evidence-packages", "pack-status", ask.kind, collecting?.id ?? "", ids],
+    queryFn: () =>
+      "refs" in ask ? getPackStatus(ask.refs, collecting?.id) : getPackStatus(ask.kind, ids, collecting?.id),
     enabled: canView && ids.length > 0,
   });
   const records = status.data?.records;
@@ -436,14 +477,20 @@ export function usePackList<T>(config: PackListConfig<T>, rows: readonly T[]): P
 
   const refresh = () => queryClient.invalidateQueries({ queryKey: ["evidence-packages"] });
   const link = useMutation({
-    mutationFn: (chosen: string[]) => linkPackageRecords(collecting?.id ?? "", kind, chosen),
+    mutationFn: (chosen: string[]) =>
+      "refs" in ask
+        ? linkPackageRecords(collecting?.id ?? "", refsOf(chosen))
+        : linkPackageRecords(collecting?.id ?? "", ask.kind, chosen),
     onSuccess: () => {
       setPicked([]);
       void refresh();
     },
   });
   const unlink = useMutation({
-    mutationFn: (id: string) => unlinkPackageRecords(collecting?.id ?? "", kind, [id]),
+    mutationFn: (id: string) =>
+      "refs" in ask
+        ? unlinkPackageRecords(collecting?.id ?? "", refsOf([id]))
+        : unlinkPackageRecords(collecting?.id ?? "", ask.kind, [id]),
     onSuccess: () => void refresh(),
   });
 
@@ -497,16 +544,19 @@ export function usePackList<T>(config: PackListConfig<T>, rows: readonly T[]): P
     />
   );
 
-  const badge = (id: string) => (
-    <PackCell
-      kind={kind}
-      recordId={id}
-      status={records?.[id]}
-      onOpen={setOpened}
-      onRemove={picking ? () => unlink.mutate(id) : undefined}
-      removing={unlink.isPending}
-    />
-  );
+  const badge = (id: string) => {
+    const own = kindFor(id);
+    return own ? (
+      <PackCell
+        kind={own}
+        recordId={id}
+        status={records?.[id]}
+        onOpen={setOpened}
+        onRemove={picking ? () => unlink.mutate(id) : undefined}
+        removing={unlink.isPending}
+      />
+    ) : null;
+  };
 
   const bar = picking ? (
     <PackActionBar

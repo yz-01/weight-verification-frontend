@@ -16,6 +16,7 @@ import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 import { ProjectFilter } from "@/components/contractor-ops/operations-workspaces";
+import { usePackList } from "@/components/contractor-ops/pack-collect";
 import { useOnProjectChange, usePageProject } from "@/components/providers/current-project-provider";
 import { useAuth } from "@/components/providers/auth-provider";
 import { DrillNote } from "@/components/shared/drill-note";
@@ -248,6 +249,11 @@ export function ArchiveQueue() {
   const rows = query.data?.results ?? [];
   const total = query.data?.count ?? 0;
   const lastPage = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  // Multi Engine picks here too (JB193 四 1): under 全部模块, one module or
+  // MO / MIN, each row with its own kind's rules, several kinds in one go.
+  // Ticking is on the list only; the record's window stays read-only (四 5).
+  const pack = usePackList({ kind: (row: ArchiveQueueRow) => row.kind }, rows);
+  const tPack = useTranslations("multiEngine.collect");
 
   const reset = (next: () => void) => {
     next();
@@ -431,11 +437,15 @@ export function ArchiveQueue() {
         />
       ) : (
         <div className="surface-panel overflow-hidden rounded-xl">
+          {pack.bar}
           {/* Fits the page, the actions pinned at the right (I39). */}
           <Table fit>
             <TableHeader>
               <TableRow>
+                {/* Multi Engine's tick box first, as on every packable list. */}
+                {pack.picking && <TableHead className="w-10">{pack.checkAll}</TableHead>}
                 <TableHead>{t("column.record")}</TableHead>
+                {pack.showColumn && <TableHead>{tPack("column")}</TableHead>}
                 <TableHead>{t("column.module")}</TableHead>
                 <TableHead>{t("column.project")}</TableHead>
                 <TableHead>{t("column.when")}</TableHead>
@@ -456,6 +466,12 @@ export function ArchiveQueue() {
                     if (clickOpensRow(event)) openRow(row);
                   }}
                 >
+                  {pack.picking && (
+                    // The box ticks; it neither opens the row nor marks it 已看.
+                    <TableCell onClick={(event) => event.stopPropagation()} onKeyDown={(event) => event.stopPropagation()}>
+                      {pack.check(row.id)}
+                    </TableCell>
+                  )}
                   {/* Photo first (B06): the site's picture and a short
                       summary in the list; everything else in the record. */}
                   <TableCell className="font-medium">
@@ -490,6 +506,7 @@ export function ArchiveQueue() {
                       </span>
                     </div>
                   </TableCell>
+                  {pack.showColumn && <TableCell>{pack.badge(row.id)}</TableCell>}
                   <TableCell className="text-muted-foreground">
                     {t(`kind.${recordKindKey(row)}` as never)}
                   </TableCell>
@@ -578,6 +595,7 @@ export function ArchiveQueue() {
         </div>
       )}
 
+      {pack.overlay}
       {open && <RecordSheet row={open} onClose={() => setOpen(null)} />}
       {confirmOpener.sheet}
     </div>

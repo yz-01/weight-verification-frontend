@@ -33,6 +33,7 @@ import { useState } from "react";
 
 import { MachineNumberField, MachineScanButton } from "@/components/contractor-ops/equipment-exit";
 import { IssueStatementButton, IssueTotalsPanel, MoneyText, useMoney } from "@/components/contractor-ops/issue-statement";
+import { usePackList } from "@/components/contractor-ops/pack-collect";
 import { useClearDraft, useDraftState } from "@/components/field-staff/field-draft";
 import {
   createEmptyFieldEvidence,
@@ -1081,6 +1082,11 @@ export function MaterialIssueList({ onOpen }: { onOpen: (recordId: string) => vo
   const total = rows.data?.count ?? 0;
   const pages = Math.max(1, Math.ceil(total / list.pageSize));
   const money = seesIssueMoney(user?.is_field_staff, totals.data, results);
+  // Multi Engine picks MINs here (JB193 一 1: 「一张领用单是一笔资料」): every
+  // line names its MIN, so ticking one ticks the MIN's other lines with it and
+  // the MIN is added - and counted - once. The 「资料包」 badge is on each line.
+  const pack = usePackList({ kind: "MATERIAL_OUTGOING", rowId: (row: MaterialIssueListRow) => row.record }, results);
+  const tPack = useTranslations("multiEngine.collect");
   return (
     <section className="space-y-3" data-testid="material-issue-list">
       <div className="flex flex-wrap items-end gap-2">
@@ -1117,13 +1123,17 @@ export function MaterialIssueList({ onOpen }: { onOpen: (recordId: string) => vo
         <p className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">{t("issue.empty")}</p>
       ) : (
         <div className="rounded-lg border">
+          {pack.bar}
           <Table>
             <TableHeader>
               <TableRow>
+                {/* Multi Engine's tick box first, as on every packable list. */}
+                {pack.picking && <TableHead className="w-10">{pack.checkAll}</TableHead>}
                 {/* Exactly the client's header, in his order (11-11 晚上): 日期｜
                     领用编号｜材料名称｜规格｜所属公司｜设备编号｜领用人｜领用数量｜
                     单位｜单价｜金额, then 查看. The status rides under the date. */}
                 <TableHead>{t("issue.colDate")}</TableHead>
+                {pack.showColumn && <TableHead>{tPack("column")}</TableHead>}
                 <TableHead>{t("issue.issueNo")}</TableHead>
                 <TableHead>{t("issue.material")}</TableHead>
                 <TableHead>{t("issue.spec")}</TableHead>
@@ -1145,11 +1155,18 @@ export function MaterialIssueList({ onOpen }: { onOpen: (recordId: string) => vo
                   onClick={() => onOpen(row.record)}
                   data-testid="material-issue-row"
                 >
+                  {pack.picking && (
+                    // The box ticks; it does not open the row.
+                    <TableCell onClick={(event) => event.stopPropagation()} onKeyDown={(event) => event.stopPropagation()}>
+                      {pack.check(row.record)}
+                    </TableCell>
+                  )}
                   <TableCell className="tabular">
                     <div className="whitespace-nowrap">{df.date(row.at)}</div>
                     <div className="text-xs text-muted-foreground">{df.time(row.at)}</div>
                     <StatusBadge label={t(issueStatusKey(row.status))} tone={row.status === "REJECTED" ? "danger" : row.status === "COMPLETED" ? "positive" : "info"} />
                   </TableCell>
+                  {pack.showColumn && <TableCell>{pack.badge(row.record)}</TableCell>}
                   <TableCell className="tabular whitespace-nowrap font-medium">{row.reference_no}</TableCell>
                   <TableCell className="font-medium">{row.material_name}</TableCell>
                   <TableCell>{row.material_specification || "—"}</TableCell>
@@ -1191,6 +1208,7 @@ export function MaterialIssueList({ onOpen }: { onOpen: (recordId: string) => vo
           </Table>
         </div>
       )}
+      {pack.overlay}
       {pages > 1 && (
         <div className="flex items-center justify-end gap-2 text-sm">
           {list.page > 1 && (
