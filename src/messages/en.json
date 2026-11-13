@@ -21651,7 +21651,8 @@
       "date": "Date",
       "times": "Times it rained",
       "minutes": "Duration",
-      "records": "Records"
+      "records": "Records",
+      "carried": "Continued from the day before"
     },
     "list": {
       "title": "Rain records",

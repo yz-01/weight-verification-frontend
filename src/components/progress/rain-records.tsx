@@ -32,7 +32,6 @@ import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 import { ProgressRecordDialog } from "@/components/contractor-ops/office-module-lists";
-import { tone } from "@/components/contractor-ops/operations-workspaces";
 import { DayRange } from "@/components/progress/progress-photos";
 import { useAuth } from "@/components/providers/auth-provider";
 import { DataTable } from "@/components/shared/data-table";
@@ -303,14 +302,18 @@ export function RainRecordsTab() {
   );
 }
 
-/** 「已作废」, or the progress record's own status. */
+/**
+ * 「有效」 or 「已作废」 - the two states a rain record has, and the two the
+ * list's 状态 filter offers. Not the progress record's own status: nothing
+ * about a rain record waits to be confirmed, and 「等待确认」 beside it made
+ * the reader ask who should confirm it (seen in the browser, 11-13).
+ */
 export function RainStatus({ record }: { record: SiteProgressRecord }) {
   const t = useTranslations("rainRecords");
-  const tOps = useTranslations("contractorOps");
   return record.is_voided ? (
     <StatusBadge label={t("record.voided")} tone="danger" />
   ) : (
-    <StatusBadge label={tOps(`progressStatus.${record.status}`)} tone={tone(record.status)} />
+    <StatusBadge label={t("filter.active")} tone="positive" />
   );
 }
 
@@ -477,9 +480,17 @@ export function RainSummaryPanel({
                     {data.daily.map((day) => (
                       <TableRow key={day.date} data-day={day.date}>
                         <TableCell className="tabular">{df.date(day.date)}</TableCell>
-                        <TableCell className="tabular">{t("summary.timesValue", { count: day.times })}</TableCell>
+                        {/* A rain that began the evening before and ran past midnight: its minutes
+                            are this day's, but it is not another rain - 「0 次」 read as a mistake. */}
+                        <TableCell className="tabular">
+                          {day.times === 0 && day.minutes > 0
+                            ? t("daily.carried")
+                            : t("summary.timesValue", { count: day.times })}
+                        </TableCell>
                         <TableCell className="tabular font-semibold">{duration(day.minutes)}</TableCell>
-                        <TableCell className="tabular">{t("summary.recordsValue", { count: day.records })}</TableCell>
+                        <TableCell className="tabular">
+                          {day.times === 0 && day.minutes > 0 ? "—" : t("summary.recordsValue", { count: day.records })}
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>

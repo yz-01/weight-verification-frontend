@@ -21651,7 +21651,8 @@
       "date": "日期",
       "times": "下雨次數",
       "minutes": "時長",
-      "records": "份數"
+      "records": "份數",
+      "carried": "接前一天的雨"
     },
     "list": {
       "title": "雨天記錄清單",

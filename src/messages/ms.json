@@ -21651,7 +21651,8 @@
       "date": "Tarikh",
       "times": "Kali hujan",
       "minutes": "Tempoh",
-      "records": "Rekod"
+      "records": "Rekod",
+      "carried": "Sambungan hari sebelumnya"
     },
     "list": {
       "title": "Rekod hujan",
