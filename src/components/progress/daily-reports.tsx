@@ -243,9 +243,12 @@ export function DailyReportsTab() {
                   }}
                 >
                   {pack.picking && (
-                    // The box ticks; it does not open the report.
-                    <TableCell onClick={(event) => event.stopPropagation()} onKeyDown={(event) => event.stopPropagation()}>
-                      {pack.check(row.id)}
+                    // The box ticks; it does not open the report (`clickOpensRow`
+                    // passes by an own-click control; the cell itself still opens, JB42).
+                    <TableCell>
+                      <div data-own-click className="flex items-center">
+                        {pack.check(row.id)}
+                      </div>
                     </TableCell>
                   )}
                   <TableCell>

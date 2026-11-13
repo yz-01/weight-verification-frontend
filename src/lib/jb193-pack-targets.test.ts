@@ -182,7 +182,9 @@ describe("the words both sides print (contract table)", () => {
     ["archiveQueue.kind.DAILY_REPORT", { zh: "日报告", "zh-TW": "日報告", en: "Daily report", ms: "Laporan harian" }],
     ["mySubmissions.field.report_name", { zh: "日报告名称", "zh-TW": "日報告名稱", en: "Report name", ms: "Nama laporan" }],
     ["mySubmissions.field.report_period", { zh: "报告日期", "zh-TW": "報告日期", en: "Report dates", ms: "Tarikh laporan" }],
-    ["mySubmissions.field.report_records", { zh: "进度记录", "zh-TW": "進度記錄", en: "Progress records", ms: "Rekod kemajuan" }],
+    // en / ms: the daily reports list's own words for the same count - the contract's
+    // "Progress records" / "Rekod kemajuan" are retired module names (T-367, field-home-naming).
+    ["mySubmissions.field.report_records", { zh: "进度记录", "zh-TW": "進度記錄", en: "Records taken in", ms: "Rekod yang dimasukkan" }],
     ["mySubmissions.field.report_photos", { zh: "照片数量", "zh-TW": "照片數量", en: "Photos", ms: "Foto" }],
   ];
 

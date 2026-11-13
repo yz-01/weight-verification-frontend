@@ -244,7 +244,7 @@ describe("JB193-1: the 材料领用 list ticks a whole MIN", () => {
     const list = read("src/components/contractor-ops/material-issue.tsx");
     expect(list).toContain('usePackList({ kind: "MATERIAL_OUTGOING", rowId: (row: MaterialIssueListRow) => row.record }, results)');
     expect(list).toMatch(
-      /<TableCell onClick=\{\(event\) => event\.stopPropagation\(\)\} onKeyDown=\{\(event\) => event\.stopPropagation\(\)\}>\s*\{pack\.check\(row\.record\)\}/,
+      /<TableCell>\s*<div data-own-click className="flex items-center" onClick=\{\(event\) => event\.stopPropagation\(\)\}>\s*\{pack\.check\(row\.record\)\}/,
     );
     expect(list).toContain("{pack.badge(row.record)}");
   });
@@ -307,7 +307,7 @@ describe("JB193-3: the 日报告 list can be ticked", () => {
     const tab = read("src/components/progress/daily-reports.tsx");
     expect(tab).toContain('const [viewing, setViewing] = useUrlSelection("report");');
     expect(tab).toContain('usePackList({ kind: "DAILY_REPORT" }, reportRows)');
-    expect(tab).toMatch(/<TableCell onClick=\{\(event\) => event\.stopPropagation\(\)\} onKeyDown=\{\(event\) => event\.stopPropagation\(\)\}>\s*\{pack\.check\(row\.id\)\}/);
+    expect(tab).toMatch(/<TableCell>\s*<div data-own-click className="flex items-center">\s*\{pack\.check\(row\.id\)\}/);
     // The single export, print and send of a report are untouched (JB193-10).
     expect(tab).toContain('recordKind: "DAILY_REPORT"');
   });
@@ -449,7 +449,9 @@ describe("JB193-6 / JB193-7: 现场记录中心 ticks records of several kinds i
   it("keeps the record window read-only and the tick from opening the row or marking it 已看", () => {
     const queue = read("src/components/contractor-ops/archive-queue.tsx");
     expect(queue).toContain("usePackList({ kind: (row: ArchiveQueueRow) => row.kind }, rows)");
-    expect(queue).toMatch(/<TableCell onClick=\{\(event\) => event\.stopPropagation\(\)\} onKeyDown=\{\(event\) => event\.stopPropagation\(\)\}>\s*\{pack\.check\(row\.id\)\}/);
+    expect(queue).toMatch(/<TableCell>\s*<div data-own-click className="flex items-center">\s*\{pack\.check\(row\.id\)\}/);
+    // `clickOpensRow` passes by an own-click control, so the row is neither opened nor marked seen.
+    expect(read("src/components/shared/inside-row-control.ts")).toContain("[data-own-click]");
     // The sheet itself gains nothing (四 5; confirm-on-business-page pins its buttons).
     const sheet = queue.slice(queue.indexOf("export function RecordSheet"));
     expect(sheet).not.toMatch(/usePackList|AddToPackageButton|linkPackageRecords/);

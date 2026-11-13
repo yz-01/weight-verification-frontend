@@ -467,9 +467,12 @@ export function ArchiveQueue() {
                   }}
                 >
                   {pack.picking && (
-                    // The box ticks; it neither opens the row nor marks it 已看.
-                    <TableCell onClick={(event) => event.stopPropagation()} onKeyDown={(event) => event.stopPropagation()}>
-                      {pack.check(row.id)}
+                    // The box ticks; it neither opens the row nor marks it 已看
+                    // (`clickOpensRow` passes by an own-click control, JB42).
+                    <TableCell>
+                      <div data-own-click className="flex items-center">
+                        {pack.check(row.id)}
+                      </div>
                     </TableCell>
                   )}
                   {/* Photo first (B06): the site's picture and a short

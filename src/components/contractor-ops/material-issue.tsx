@@ -1156,9 +1156,12 @@ export function MaterialIssueList({ onOpen }: { onOpen: (recordId: string) => vo
                   data-testid="material-issue-row"
                 >
                   {pack.picking && (
-                    // The box ticks; it does not open the row.
-                    <TableCell onClick={(event) => event.stopPropagation()} onKeyDown={(event) => event.stopPropagation()}>
-                      {pack.check(row.record)}
+                    // The box ticks; it does not open the row (the cell itself
+                    // still does, JB42).
+                    <TableCell>
+                      <div data-own-click className="flex items-center" onClick={(event) => event.stopPropagation()}>
+                        {pack.check(row.record)}
+                      </div>
                     </TableCell>
                   )}
                   <TableCell className="tabular">
