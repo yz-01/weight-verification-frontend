@@ -68,6 +68,7 @@ import type {
   PackageEvent,
   PackageMessage,
   PackageRecipient,
+  PackageThreadPeople,
   PackageThreadRow,
   PackageRound,
   PackageType,
@@ -2096,11 +2097,19 @@ export interface NewPackageMessage {
   body: string;
   item?: string;
   attachment?: File | null;
+  /**
+   * JB191: the accounts ticked under 「发给谁」 on head office's thread. Left
+   * out on every other thread - there nobody is chosen.
+   */
+  to?: string[];
 }
 
 function messageForm(payload: NewPackageMessage & { recipient?: string }) {
   const data = new FormData();
   if (payload.recipient) data.append("recipient", payload.recipient);
+  // One field, the ids with commas: sent even when empty, so the server
+  // knows the page asked (and says 「请先勾发给谁」 rather than guessing).
+  if (payload.to) data.append("to", payload.to.join(","));
   data.append("body", payload.body);
   if (payload.item) data.append("item", payload.item);
   if (payload.attachment) data.append("attachment", payload.attachment);
@@ -2155,6 +2164,10 @@ export async function resendPackage(id: string, recipient: string) {
  */
 export const getPackageThreads = (params: { project?: string; recipient?: string }) =>
   api.get<{ results: PackageThreadRow[] }>("/api/evidence-packages/package_threads/", params);
+
+/** 「发给谁」 on one thread of a package (JB191): who may be chosen, who is ticked. */
+export const getPackageThreadPeople = (id: string, recipient: string) =>
+  api.get<PackageThreadPeople>(`/api/evidence-packages/${id}/thread_people/`, { recipient });
 
 /** 往来记录 (H17 九): its own report; its digest goes on the timeline. */
 export const correspondenceReportFile = (id: string, name: string, inline = false) =>

@@ -67,13 +67,25 @@ export function FieldChatsOffice() {
   // The top bar's project picker rules when it is on; then this one hides
   // itself, and so does its label.
   const topBar = useCurrentProject().active;
-  const [picked, setPicked] = useState<Picked | null>(() => {
-    const thread = params.get(PACKAGE_CHAT_PARAM);
-    if (thread) return { kind: "PACKAGE", id: thread };
-    const chat = params.get("chat");
-    return chat ? { kind: "DIRECT", id: chat } : null;
-  });
+  // What the address names: a package's thread (JB189) or a conversation.
+  const thread = params.get(PACKAGE_CHAT_PARAM);
+  const chat = params.get("chat");
+  const named: Picked | null = thread ? { kind: "PACKAGE", id: thread } : chat ? { kind: "DIRECT", id: chat } : null;
+  const namedKey = named ? `${named.kind}:${named.id}` : "";
+  const [picked, setPicked] = useState<Picked | null>(named);
   const [finding, setFinding] = useState(false);
+  // JB191: a notice clicked while this page is already open names another
+  // conversation in the address - the page stays, so it opens that one (a
+  // new address is followed once; picking from the list afterwards is the
+  // reader's own).
+  const [followedKey, setFollowedKey] = useState(namedKey);
+  if (namedKey !== followedKey) {
+    setFollowedKey(namedKey);
+    if (named) {
+      setPicked(named);
+      setFinding(false);
+    }
+  }
   const { user, can } = useAuth();
   // 找人沟通 is a builder office account's (JB158): a project office or head
   // office - the server decides whom each may reach.
@@ -326,6 +338,15 @@ function PackageChatRow({
           {last ? `${author}：${last.body || last.attachment_name || t("attachment")}` : t("noMessages")}
         </span>
       </span>
+      {/* JB191: the messages sent to me on this PKG I have not read - the same red number a conversation has. */}
+      {(row.unread ?? 0) > 0 && (
+        <span
+          data-package-chat-unread={row.unread}
+          className="mt-1 grid min-w-5 place-items-center rounded-full bg-destructive px-1.5 text-2xs font-semibold text-destructive-foreground"
+        >
+          {row.unread}
+        </span>
+      )}
     </button>
   );
 }
