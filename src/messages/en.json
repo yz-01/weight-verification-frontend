@@ -20996,6 +20996,7 @@
       "schedule_delete": "Delete a draft schedule revision or task",
       "progress_summary_delete": "Delete a progress summary not yet archived",
       "package_delete": "Delete a draft evidence package",
+      "package_resend": "Resend a package",
       "attachment_delete": "Delete a file on a record not yet archived",
       "field_task_delete": "Delete a field task not yet started",
       "material_target_append": "Add to a material target",

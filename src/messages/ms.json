@@ -20996,6 +20996,7 @@
       "schedule_delete": "Padam semakan atau tugas jadual draf",
       "progress_summary_delete": "Padam ringkasan kemajuan yang belum diarkibkan",
       "package_delete": "Padam pakej bukti draf",
+      "package_resend": "Hantar semula pakej",
       "attachment_delete": "Padam fail pada rekod yang belum diarkibkan",
       "field_task_delete": "Padam tugas tapak yang belum dimulakan",
       "material_target_append": "Tambah sasaran bahan",

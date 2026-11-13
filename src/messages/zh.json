@@ -20996,6 +20996,7 @@
       "schedule_delete": "删除施工计划草稿",
       "progress_summary_delete": "删除未归档的项目进度摘要",
       "package_delete": "删除资料包草稿",
+      "package_resend": "重新发送资料包",
       "attachment_delete": "删除未归档记录上的文件",
       "field_task_delete": "删除未执行的现场任务",
       "material_target_append": "追加材料目标",
