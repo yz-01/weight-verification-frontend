@@ -79,6 +79,7 @@ import { PackageItemPictures } from "@/components/contractor-ops/package-item-pi
 import { FileThumbs } from "@/components/shared/file-thumbs";
 import { useClearSearchParam } from "@/hooks/use-url-selection";
 import { useDateFormat } from "@/lib/dates";
+import { packageKindName, withFixedFiles } from "@/lib/package-items";
 import {
   PACKAGE_TYPES,
   type ArchiveRecordKind,
@@ -135,7 +136,10 @@ import { clickOpensRow } from "@/components/shared/inside-row-control";
  * from the server for exactly this reason.
  */
 
-/** Columns a package can draw from. Attendance is a grouping, not a record. */
+/**
+ * Columns a package can draw from. Since JB193 (五 3) a day of 人员进场 is one
+ * too: the project's day, as its own export prints it.
+ */
 const KINDS: ArchiveRecordKind[] = [
   "MATERIAL_RECEIPT",
   "MATERIAL_OUTGOING",
@@ -144,11 +148,16 @@ const KINDS: ArchiveRecordKind[] = [
   "WASTE_OUTGOING",
   "DISPOSAL_REQUEST",
   "PROGRESS",
+  // JB193: 工程进度's 日报告.
+  "DAILY_REPORT",
   "CONSULTANT_APPLICATION",
   // HD17: 杂费报销 records, packed as a Sundry Claim's sources.
   "SUNDRY_CLAIM",
   // J30-2: MR / 其他申请, once decided.
   "MATERIAL_REQUEST",
+  // JB193: 文件档案 (archived ones) and 人员进场 by day.
+  "DOCUMENT",
+  "ATTENDANCE_DAY",
 ];
 
 const PAGE_SIZE = 20;
@@ -983,10 +992,10 @@ function PackageWindowContent({
                         <div className="min-w-0 flex-1">
                           <p className="truncate font-medium">
                             <span className="tabular-nums text-muted-foreground">{index + 1}. </span>
-                            {item.reference || t(`kind.${item.record_kind}`)}
+                            {item.reference || packageKindName(t, item)}
                           </p>
                           <p className="text-xs text-muted-foreground">
-                            {t(`kind.${item.record_kind}`)} ·{" "}
+                            {packageKindName(t, item)} ·{" "}
                             {t("partsSummary", {
                               fields: item.fields.length,
                               photos: item.photos.length,
@@ -1405,7 +1414,7 @@ function AddRecordsDialog({
                   : "border-border bg-card text-muted-foreground hover:text-foreground"
               }`}
             >
-              {t(`kind.${row}`)}
+              {packageKindName(t, { record_kind: row })}
             </button>
           ))}
         </nav>
@@ -1558,12 +1567,17 @@ function TickPartsDialog({
   const initial = (group: keyof PackageSelection, ids: string[]) =>
     group in item.selection ? (item.selection[group] ?? []) : ids;
   const [edited, setSelection] = useState<PackageSelection | null>(null);
-  const selection: PackageSelection = edited ?? {
-    fields: initial("fields", all.fields.map((field) => field.key)),
-    photos: initial("photos", all.photos.map((shot) => shot.id ?? "")),
-    documents: initial("documents", all.documents.map((doc) => doc.id)),
-    files: initial("files", (all.files ?? []).map((file) => file.id)),
-  };
+  // A record's own body (JB193: a daily report's PDF, a document's files) is
+  // always in: shown ticked and never sent as unticked.
+  const selection: PackageSelection = withFixedFiles(
+    edited ?? {
+      fields: initial("fields", all.fields.map((field) => field.key)),
+      photos: initial("photos", all.photos.map((shot) => shot.id ?? "")),
+      documents: initial("documents", all.documents.map((doc) => doc.id)),
+      files: initial("files", (all.files ?? []).map((file) => file.id)),
+    },
+    all.files,
+  );
 
   const save = useMutation({
     mutationFn: () => updatePackageItem(packageId, item.id, selection),
@@ -1679,18 +1693,30 @@ function TickPartsDialog({
               {t("group.files")}
             </h3>
             <ul className="divide-y rounded-lg border">
-              {(all.files ?? []).map((file) => (
-                <li key={file.id} className="flex items-center gap-3 p-2.5">
-                  <Checkbox
-                    checked={(selection.files ?? []).includes(file.id)}
-                    onCheckedChange={() => toggle("files", file.id)}
-                    aria-label={file.name}
-                  />
-                  <FileThumbs files={[{ id: file.id, name: file.name }]} />
-                  <span className="min-w-0 flex-1 truncate text-sm">{file.name}</span>
-                  <span className="shrink-0 text-xs text-muted-foreground">{file.uploaded_by_name}</span>
-                </li>
-              ))}
+              {(all.files ?? []).map((file) =>
+                file.fixed ? (
+                  // The record's own body (JB193): ticked, and it stays ticked.
+                  <li key={file.id} className="flex flex-wrap items-center gap-3 p-2.5" data-fixed-file>
+                    <span className="inline-flex" title={t("fixedPart")}>
+                      <Checkbox checked disabled aria-label={`${file.name} · ${t("fixedPart")}`} />
+                    </span>
+                    <FileThumbs files={[{ id: file.id, name: file.name }]} />
+                    <span className="min-w-0 flex-1 truncate text-sm">{file.name}</span>
+                    <span className="shrink-0 text-xs font-medium text-muted-foreground">{t("fixedPart")}</span>
+                  </li>
+                ) : (
+                  <li key={file.id} className="flex items-center gap-3 p-2.5">
+                    <Checkbox
+                      checked={(selection.files ?? []).includes(file.id)}
+                      onCheckedChange={() => toggle("files", file.id)}
+                      aria-label={file.name}
+                    />
+                    <FileThumbs files={[{ id: file.id, name: file.name }]} />
+                    <span className="min-w-0 flex-1 truncate text-sm">{file.name}</span>
+                    <span className="shrink-0 text-xs text-muted-foreground">{file.uploaded_by_name}</span>
+                  </li>
+                ),
+              )}
             </ul>
           </section>
         )}
