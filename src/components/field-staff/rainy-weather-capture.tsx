@@ -106,6 +106,28 @@ export function RainyWeatherCapture({ initialProject = "" }: { initialProject?: 
   const queryClient = useQueryClient();
   const ownerId = user?.id ?? "";
   const [project, setProject] = useState(initialProject);
+  // A worker on several projects picks the project here. When this phone is
+  // already holding a rain record of theirs, the screen opens on that
+  // record's project - coming back for the second photo must not start with
+  // 「项目」 empty and the first photo out of sight (客户第 6 点: 不能丢失).
+  // Followed once; choosing another project afterwards is the worker's own.
+  // query-failure: no store on this browser - nothing is held, the picker is simply empty.
+  const mine = useQuery({
+    queryKey: ["rain-held", "mine", ownerId],
+    queryFn: () => getHeldRains(ownerId),
+    enabled: Boolean(ownerId) && !initialProject,
+    networkMode: "always",
+    staleTime: 0,
+    gcTime: 0,
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+  const heldProject = openRainProject(mine.data);
+  const [followedHeld, setFollowedHeld] = useState(false);
+  if (!followedHeld && !project && heldProject) {
+    setFollowedHeld(true);
+    setProject(heldProject);
+  }
   const projectName =
     project && user?.active_project?.project_id === project ? user.active_project.project_name : undefined;
   const id = ownerId && project ? heldRainId(ownerId, project) : "";
@@ -473,6 +495,16 @@ function SentNote({ sent }: { sent: Sent }) {
       {sent.status === "queued" ? t("sentQueued", values) : t("sent", values)}
     </p>
   );
+}
+
+/**
+ * The project the screen opens on when the phone already holds a rain record
+ * of this account: the one saved last (the rain the worker is in the middle
+ * of). Nothing held, no project.
+ */
+export function openRainProject(held: readonly Pick<HeldRainRecord, "project" | "savedAt">[] | undefined): string {
+  if (!held?.length) return "";
+  return [...held].sort((a, b) => (a.savedAt < b.savedAt ? 1 : -1))[0].project;
 }
 
 /**

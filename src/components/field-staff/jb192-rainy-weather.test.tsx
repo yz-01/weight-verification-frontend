@@ -230,3 +230,26 @@ describe("one open record per account and project (JB192-5)", () => {
     expect(other).not.toContain(words.endBig);
   });
 });
+
+describe("JB192-2, -5: a worker on several projects comes back to the rain in progress", () => {
+  it("opens on the project of the record this phone holds - the one saved last", async () => {
+    const { openRainProject } = await import("@/components/field-staff/rainy-weather-capture");
+    expect(openRainProject(undefined)).toBe("");
+    expect(openRainProject([])).toBe("");
+    expect(openRainProject([{ project: "p-a", savedAt: "2026-11-13T06:05:00.000Z" }])).toBe("p-a");
+    expect(
+      openRainProject([
+        { project: "p-a", savedAt: "2026-11-13T06:05:00.000Z" },
+        { project: "p-b", savedAt: "2026-11-13T09:40:00.000Z" },
+      ]),
+    ).toBe("p-b");
+  });
+
+  it("follows it once, and only when the phone is not bound to a project", async () => {
+    const { readFileSync } = await import("node:fs");
+    const path = await import("node:path");
+    const source = readFileSync(path.resolve(__dirname, "rainy-weather-capture.tsx"), "utf8").replace(/\r\n/g, "\n");
+    expect(source).toContain("enabled: Boolean(ownerId) && !initialProject,");
+    expect(source).toMatch(/if \(!followedHeld && !project && heldProject\) \{\s+setFollowedHeld\(true\);\s+setProject\(heldProject\);/);
+  });
+});
