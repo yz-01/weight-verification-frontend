@@ -21597,6 +21597,7 @@
       "sentQueued": "Disimpan dalam telefon, dihantar bila ada talian: {start}–{end} ({duration})",
       "notKept": "Telefon ini tidak dapat menyimpan gambar (mod peribadi atau ruang penuh). Jangan tutup halaman ini dan hantar sebaik sahaja gambar 2 diambil.",
       "loadFailed": "Rekod hujan yang disimpan dalam telefon ini tidak dapat dibaca. Tutup halaman ini dan buka semula.",
+      "failed": "Ia tidak dihantar. Tekan 「Hantar rekod hujan」 sekali lagi.",
       "inProgress": "Sedang berjalan",
       "refused": {
         "quotaFull": "Projek ini sudah menerima {limit} rekod hujan dalam {minutes} minit ini, jadi yang ini tidak diterima. Ia tidak boleh dihantar lagi - tekan 「Batalkan yang ini」.",

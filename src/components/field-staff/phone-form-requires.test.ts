@@ -106,6 +106,7 @@ const WORKSPACE = "src/components/field-staff/field-staff-workspace.tsx";
 const TASKS = "src/components/field-staff/my-tasks-panel.tsx";
 const PERMITS = "src/components/permits/permit-parts.tsx";
 const REQUEST = "src/components/material-requests/request-form.tsx";
+const RAIN = "src/components/field-staff/rainy-weather-capture.tsx";
 
 describe("JB152: what each phone form still demands", () => {
   it.each([
@@ -169,6 +170,10 @@ describe("JB152: what each phone form still demands", () => {
       ],
     ],
     ["设备操作员工时", HOURS, "EquipmentHoursCapture", ["phone.project", "phone.photo", "phone.signature", "phone.location"]],
+    // JB192 (客户第 5 点: 「现场人员不需要手动填写时间或计算下雨时长」): nothing
+    // to type - each step is one camera button, and the two photos are the
+    // record. No GPS fix never holds it (a photo record, 11-09 item 6).
+    ["Rainy Weather", RAIN, "RainyWeatherCapture", []],
     ["工程进度", WORKSPACES, "ProgressDialog", ["field.project", "field.phase", "field.photos", "field.location"]],
     ["整改提交", SAFETY, "SafetySubmitDialog", ["field.photo", "field.location", "field.workDone"]],
     ["考勤", WORKSPACE, "FieldAttendancePanel", ["attendance.selectProject", "attendance.takeSelfie", "attendance.getLocation"]],

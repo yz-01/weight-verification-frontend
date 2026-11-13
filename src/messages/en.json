@@ -21597,6 +21597,7 @@
       "sentQueued": "Saved on the phone, sends when online: {start}–{end} ({duration})",
       "notKept": "This phone could not save the photo (private browsing or no space). Keep this page open and submit as soon as photo 2 is taken.",
       "loadFailed": "The rain record saved on this phone could not be read. Close this page and open it again.",
+      "failed": "It was not submitted. Press 「Submit rain record」 again.",
       "inProgress": "In progress",
       "refused": {
         "quotaFull": "This project has already received {limit} rain records in these {minutes} minutes, so this one was not accepted. It cannot be submitted again - press 「Cancel this one」.",
