@@ -44,6 +44,9 @@ const PAGES: Record<string, (id: string) => string> = {
   GATE_PASS: (id) => `/site-access?pass=${id}`,
   // A document (文件资料): its detail on 文件档案.
   DOCUMENT: (id) => `/documents?document=${id}`,
+  // A daily report (JB193: a 「被退回」 notice about one in a package): 工程进度's
+  // 日报告 tab, the report open in its book.
+  DAILY_REPORT: (id) => `/progress?tab=reports&report=${id}`,
 };
 
 /** No detail page of their own yet: the read-only record sheet. */

@@ -3081,7 +3081,8 @@
       "WEIGH_SESSION": "Weighing records",
       "ANNOUNCEMENT": "Announcement",
       "VISITOR_ARRIVAL": "Visitor arrival",
-      "MATERIAL_ISSUE": "Material Issue Note"
+      "MATERIAL_ISSUE": "Material Issue Note",
+      "DAILY_REPORT": "Daily report"
     },
     "lastPage": "You are on the last page.",
     "loading": "Loading…",
@@ -11624,7 +11625,11 @@
       "PROGRESS": "Progress",
       "CONSULTANT_APPLICATION": "Consultant application",
       "SUNDRY_CLAIM": "Sundry claim",
-      "MATERIAL_REQUEST": "MR / Other requests"
+      "MATERIAL_REQUEST": "MR / Other requests",
+      "DAILY_REPORT": "Daily report",
+      "DOCUMENT": "Document archive",
+      "ATTENDANCE_DAY": "Site entry",
+      "MATERIAL_ISSUE": "Material issue"
     },
     "lastPage": "This is the last page.",
     "loading": "Loading…",
@@ -11733,7 +11738,8 @@
         "other_project": "This record belongs to another project; a package only takes records from one project",
         "no_package": "Open a package in Multi Engine first",
         "loading": "Reading where the records are packed…",
-        "voided": "This rain record is voided and cannot be packed"
+        "voided": "This rain record is voided and cannot be packed",
+        "not_archived": "This document is not archived yet; it can go into a package once it is archived"
       },
       "what": {
         "status": "Package status",
@@ -12001,7 +12007,8 @@
     "layoutUpload": "Uploaded from the computer",
     "layoutLetter": "Letter",
     "previewDraft": "Preview the whole package",
-    "draftPreviewOnly": "This is a preview before confirming. Print, export and send open once it is confirmed."
+    "draftPreviewOnly": "This is a preview before confirming. Print, export and send open once it is confirmed.",
+    "fixedPart": "Always goes into the package"
   },
   "mySubmissions": {
     "title": "What I sent",
@@ -12193,7 +12200,11 @@
       "recipient_name": "Taken by",
       "issuer_name": "Issued by",
       "issue_lines": "Materials issued",
-      "handover_gps": "GPS at issue"
+      "handover_gps": "GPS at issue",
+      "report_name": "Report name",
+      "report_period": "Report dates",
+      "report_records": "Records taken in",
+      "report_photos": "Photos"
     },
     "detailTitle": "What I sent",
     "photos": "Photographs",
@@ -12566,7 +12577,8 @@
       "departmentsTrades": "Departments and trades",
       "fieldStaffManagement": "Field staff",
       "fieldChats": "Conversations",
-      "photoTimeline": "Project photo timeline"
+      "photoTimeline": "Project photo timeline",
+      "materialIssue": "Material issue (MIN)"
     },
     "subscription_management": "Subscriptions",
     "suppliers": "Suppliers",

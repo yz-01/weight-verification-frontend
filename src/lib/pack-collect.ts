@@ -1,8 +1,10 @@
 import type {
   ArchiveRecordKind,
+  PackRecordRef,
   PackRowReason,
   PackRowStatus,
 } from "@/interfaces/contractor-ops";
+import { QUEUE_KINDS } from "@/lib/record-chat";
 
 /**
  * Multi Engine's 「添加资料」 on the modules' own lists (2026-10-10).
@@ -117,7 +119,11 @@ export function resolveCollecting(
  */
 export interface PackTarget {
   key: string;
-  kind: ArchiveRecordKind;
+  /**
+   * The records its list holds. Several for a list that mixes kinds
+   * (现场记录中心, JB193): it is offered to whoever may read any of them.
+   */
+  kind: ArchiveRecordKind | readonly ArchiveRecordKind[];
   /** A `nav.submodule.*` key - the module's name in the menu. */
   labelKey: string;
   /** The module's list, before `project` and `pack` are added. */
@@ -134,6 +140,15 @@ export interface PackTarget {
 export const PACK_TARGETS: readonly PackTarget[] = [
   { key: "receipts", kind: "MATERIAL_RECEIPT", labelKey: "nav.submodule.materialReceipts", path: "/receipts" },
   { key: "outgoing", kind: "MATERIAL_OUTGOING", labelKey: "nav.submodule.materialOutgoing", path: "/material-outgoing" },
+  // JB193 (客户 11-14: 「材料领用（MIN）：目前无法打包，请支持选择领用记录」): the 材料领用
+  // list itself. A MIN is a material outgoing on the server, so the same kind.
+  {
+    key: "issue",
+    kind: "MATERIAL_OUTGOING",
+    labelKey: "nav.submodule.materialIssue",
+    path: "/material-outgoing",
+    params: { kind: "ISSUE" },
+  },
   { key: "equipment", kind: "EQUIPMENT_MOVEMENT", labelKey: "nav.submodule.siteEquipment", path: "/site-equipment" },
   { key: "hazards", kind: "HAZARD", labelKey: "nav.submodule.hazardRectifications", path: "/hazard-rectifications" },
   { key: "permits", kind: "HAZARD", labelKey: "nav.submodule.permits", path: "/permits" },
@@ -156,6 +171,14 @@ export const PACK_TARGETS: readonly PackTarget[] = [
   // Rainy Weather 记录，再勾选需要的雨天记录进行打包」): the rain records' own list - a rain record
   // is a progress record, so the same kind; the list has the month and the date range.
   { key: "rain", kind: "PROGRESS", labelKey: "nav.submodule.rainRecords", path: "/progress", params: { tab: "rain" } },
+  // JB193 (「工程进度记录已支持打包，日报告也必须支持」): 工程进度's 日报告 tab.
+  {
+    key: "dailyReports",
+    kind: "DAILY_REPORT",
+    labelKey: "nav.submodule.dailyReport",
+    path: "/progress",
+    params: { tab: "reports" },
+  },
   {
     key: "applications",
     kind: "CONSULTANT_APPLICATION",
@@ -166,7 +189,48 @@ export const PACK_TARGETS: readonly PackTarget[] = [
   { key: "sundryClaims", kind: "SUNDRY_CLAIM", labelKey: "nav.submodule.sundryClaims", path: "/sundry-claims" },
   // J30-2: an MR / 其他申请, once decided, can go into a package.
   { key: "materialRequests", kind: "MATERIAL_REQUEST", labelKey: "nav.submodule.materialRequests", path: "/material-requests" },
+  // JB193 (「文件档案：所有文件分类及子分类中的文件，都必须能够选择打包」): the archive
+  // under any category; named with the menu's own key (「文件归档」, spec 第二十六轮).
+  { key: "documents", kind: "DOCUMENT", labelKey: "nav.submodule.documentArchive", path: "/documents" },
+  // JB193 (「现场记录中心：各分类及子分类的现场记录，也必须支持打包」): one page of
+  // every queue kind - each row carries its own.
+  { key: "archiveQueue", kind: QUEUE_KINDS, labelKey: "nav.submodule.archiveQueue", path: "/archive-queue" },
 ];
+
+/** The kinds a column's list holds: one, or several on 现场记录中心 (JB193). */
+export function targetKinds(target: Pick<PackTarget, "kind">): readonly ArchiveRecordKind[] {
+  return typeof target.kind === "string" ? [target.kind] : target.kind;
+}
+
+/**
+ * The record ids of a page, each once and in order. The lines of one MIN
+ * share their record's id (JB193 一 1: 「一张领用单是一笔资料」), so a MIN is
+ * asked about, ticked, counted and added once however many lines it has.
+ */
+export function uniqueIds(ids: readonly string[]): string[] {
+  return [...new Set(ids.filter(Boolean))];
+}
+
+/**
+ * The records of a page that mixes kinds (现场记录中心, JB193), each once,
+ * with the kind its own row says - what `pack_status/?items=` and
+ * `link_records` `{records}` are sent.
+ */
+export function packRecordRefs<T>(
+  rows: readonly T[],
+  idOf: (row: T) => string,
+  kindOf: (row: T) => ArchiveRecordKind,
+): PackRecordRef[] {
+  const seen = new Set<string>();
+  const out: PackRecordRef[] = [];
+  for (const row of rows) {
+    const id = idOf(row);
+    if (!id || seen.has(id)) continue;
+    seen.add(id);
+    out.push({ kind: kindOf(row), id });
+  }
+  return out;
+}
 
 /** The module's list, opened on the package's project, collecting into it. */
 export function collectHref(target: PackTarget, pkg: { id: string; project: string }): string {

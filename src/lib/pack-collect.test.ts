@@ -186,6 +186,14 @@ describe("every module list Multi Engine picks from", () => {
     ["contractor-ops/waste-outgoing-workspace.tsx", 'pack="WASTE_OUTGOING"'],
     ["contractor-ops/site-disposal-workspaces.tsx", 'pack="DISPOSAL_REQUEST"'],
     ["consultant-workflow/applications-list.tsx", 'kind: "CONSULTANT_APPLICATION"'],
+    ["sundry-claims/sundry-claims-office.tsx", 'pack="SUNDRY_CLAIM"'],
+    ["material-requests/material-requests-office.tsx", 'pack="MATERIAL_REQUEST"'],
+    ["progress/rain-records.tsx", 'kind: "PROGRESS"'],
+    // JB193: 材料领用（MIN）, 日报告, 文件档案 and 现场记录中心.
+    ["contractor-ops/material-issue.tsx", 'kind: "MATERIAL_OUTGOING"'],
+    ["progress/daily-reports.tsx", 'kind: "DAILY_REPORT"'],
+    ["document-workflow/documents.tsx", 'kind: "DOCUMENT"'],
+    ["contractor-ops/archive-queue.tsx", "kind: (row: ArchiveQueueRow) => row.kind"],
   ];
 
   it.each(wired)("%s carries %s", (file, marker) => {
