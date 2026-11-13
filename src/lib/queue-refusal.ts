@@ -64,6 +64,17 @@ const FIELD_REASONS: Record<string, string> = {
 const GENERIC_CODES = new Set(["validation_failed", ""]);
 
 /**
+ * Refusals a queued record can only be discarded after (JB192 做法 二.3): a
+ * rain record refused because its project's half hour was full, or because
+ * its second photo is not later than its first, would be refused again. The
+ * queue's sentence says so, in place of the API's.
+ */
+export const QUEUE_CODE_REASONS: Record<string, string> = {
+  rain_record_quota_full: "offline.refused.rainQuotaFull",
+  rain_end_not_after_start: "offline.refused.rainEndNotAfterStart",
+};
+
+/**
  * The message key (and its values) for one refusal.
  *
  * `has` says whether the catalogue holds a key, so a code the frontend has
@@ -75,6 +86,8 @@ export function refusalReason(
 ): RefusalReason {
   const code = facts.code ?? "";
   if (code === PHOTO_LOST) return { key: "offline.refused.photoLost" };
+  const queueKey = QUEUE_CODE_REASONS[code];
+  if (queueKey && has(queueKey)) return { key: queueKey };
   if (!GENERIC_CODES.has(code) && has(`errors.api.${code}`)) {
     return { key: `errors.api.${code}` };
   }

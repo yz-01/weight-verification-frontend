@@ -3801,7 +3801,10 @@
       "company_material_price_set": "Harga seunit kategori syarikat ditetapkan",
       "material_return_checked": "Pemulangan pembekal disemak",
       "material_return_check_pdf_exported": "PDF semakan pemulangan dieksport",
-      "material_return_check_pdf_previewed": "PDF semakan pemulangan dipratonton"
+      "material_return_check_pdf_previewed": "PDF semakan pemulangan dipratonton",
+      "rain_record_submitted": "Rekod hujan dihantar",
+      "rain_record_voided": "Rekod hujan dibatalkan",
+      "rain_rules_changed": "Peraturan rekod hujan diubah"
     },
     "objectType": {
       "SignOffAssistant": "PIN pembantu",
@@ -9063,7 +9066,13 @@
       "return_check_other_supplier": "Pemulangan {reference} milik pembekal lain. Satu semakan hanya untuk pemulangan satu pembekal.",
       "return_check_not_completed": "Pemulangan {reference} belum 「Telah keluar tapak - selesai」, jadi belum boleh disemak.",
       "return_check_already_checked": "Pemulangan {reference} sudah disemak dalam {check_no}.",
-      "return_check_final": "Semakan yang disimpan tidak boleh diubah atau dipadam, dan baucarnya tidak boleh ditambah atau dibuang."
+      "return_check_final": "Semakan yang disimpan tidak boleh diubah atau dipadam, dan baucarnya tidak boleh ditambah atau dibuang.",
+      "rain_photos_required": "Rekod hujan perlu dua gambar: satu ketika hujan mula, satu ketika hujan berhenti.",
+      "rain_end_not_after_start": "Gambar hujan berhenti mesti sekurang-kurangnya 1 minit selepas gambar mula.",
+      "rain_record_quota_full": "Projek ini sudah menerima rekod hujan yang cukup untuk tempoh ini, jadi yang ini tidak diterima.",
+      "rain_void_reason_required": "Tulis sebab rekod ini dibatalkan.",
+      "rain_record_already_voided": "Rekod hujan ini sudah dibatalkan; ia tidak boleh dibatalkan lagi.",
+      "rain_rules_out_of_range": "Bilangan rekod mesti 1 hingga 50, dan minit 5 hingga 1440."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -9753,7 +9762,8 @@
       "gate": "Pintu",
       "operatorHours": "Jam operator peralatan",
       "permit": "Permit kerja",
-      "visitor": "Imbas QR Pelawat"
+      "visitor": "Imbas QR Pelawat",
+      "rain": "Rainy Weather"
     },
     "status": {
       "ACCEPTED": "Selesai",
@@ -11720,7 +11730,8 @@
         "not_finished": "Rekod ini belum selesai; ia boleh dipakej selepas selesai",
         "other_project": "Rekod ini milik projek lain; satu pakej hanya menerima rekod dari satu projek",
         "no_package": "Buka pakej dalam Multi Engine dahulu",
-        "loading": "Sedang membaca status pakej…"
+        "loading": "Sedang membaca status pakej…",
+        "voided": "Rekod hujan ini sudah dibatalkan dan tidak boleh dipakej"
       },
       "what": {
         "status": "Status pakej",
@@ -12728,7 +12739,8 @@
       "WASTE_OUTGOING": "Permohonan bahan alam sekitar keluar",
       "SUNDRY_CLAIM": "Tuntutan pelbagai",
       "EQUIPMENT_HOURS_PHOTO": "Jam operator peralatan",
-      "GATE_PHOTO": "Pintu"
+      "GATE_PHOTO": "Pintu",
+      "RAIN_RECORD": "Rekod Rainy Weather"
     },
     "pageDescription": "Halaman ini belum dicache. Sambung semula sekali dan buka halaman ini semula untuk kegunaan luar talian.",
     "queue": {
@@ -12760,7 +12772,9 @@
         "members": "Orang yang anda pilih untuk berbincang tiada lagi dalam projek ini, jadi tidak boleh dimuat naik.",
         "project": "Projek ini sudah tiada, atau anda tiada lagi dalam projek ini.",
         "time": "Masa salah, jadi tidak boleh dimuat naik."
-      }
+      },
+      "rainQuotaFull": "Projek ini sudah menerima rekod hujan yang cukup untuk tempoh ini, jadi yang ini tidak diterima. Menghantarnya lagi juga akan ditolak - padam yang ini.",
+      "rainEndNotAfterStart": "Gambar hujan berhenti tidak lewat daripada gambar mula (jam telefon mungkin telah diubah), jadi ia tidak diterima. Padam yang ini dan ambil gambar semula."
     },
     "status": {
       "failed": "{count} tindakan perlu diuruskan",
@@ -19712,14 +19726,16 @@
       "photos": "Timeline",
       "reports": "Laporan harian",
       "schedule": "Jadual pembinaan",
-      "summary": "Ringkasan kemajuan"
+      "summary": "Ringkasan kemajuan",
+      "rain": "Rekod hujan"
     },
     "subtitle": {
       "phases": "Kategori pembinaan dan wajaran setiap projek. Telefon memilih satu bagi setiap foto kemajuan; kemajuan keseluruhan dikira ikut wajaran.",
       "photos": "Foto kemajuan dari tapak, ikut tarikh dan kategori pembinaan. Tanda foto untuk menulis laporan harian.",
       "reports": "Satu laporan sehari; buka untuk teks penuh dan foto yang dipilih.",
       "schedule": "Jadual pembinaan projek dan kemajuan sebenar.",
-      "summary": "Ringkasan yang disusun sendiri oleh pengurus projek: teks, foto, kad nombor, carta."
+      "summary": "Ringkasan yang disusun sendiri oleh pengurus projek: teks, foto, kad nombor, carta.",
+      "rain": "Rekod hujan dari 「Rainy Weather」 telefon: dua gambar setiap kali hujan, mula, tamat dan tempoh; jumlah bulanan, PDF bulanan, dan tanda untuk dipakej."
     },
     "project": "Projek",
     "chooseProject": "Pilih projek",
@@ -21017,7 +21033,8 @@
       "assistant_manage": "Tambah atau tukar PIN pembantu",
       "project_change_permissions": "Tukar kebenaran projek",
       "material_price_set": "Tetapkan atau tukar harga seunit bahan",
-      "material_return_check": "Semak pemulangan pembekal"
+      "material_return_check": "Semak pemulangan pembekal",
+      "rain_record_void": "Batalkan rekod hujan"
     },
     "firstTitle": "Tetapkan PIN pengesahan buat kali pertama",
     "firstBanner": "Ini kali pertama anda menggunakan PIN pengesahan",
@@ -21545,5 +21562,133 @@
     "vouchersHint": "Fail, foto atau PDF yang dimuat naik bersama semakan. Semakan tidak boleh diubah atau dipadam.",
     "pdf": "PDF semakan pemulangan",
     "pdfTitle": "Semakan pemulangan {number}"
+  },
+  "rainRecords": {
+    "duration": {
+      "hm": "{hours} j {minutes} min",
+      "m": "{minutes} min"
+    },
+    "phone": {
+      "project": "Projek",
+      "howTo": "Bila hujan mula, ambil gambar pertama. Bila hujan berhenti, masuk semula dan ambil gambar kedua. Masa dan tempoh hujan dikira sendiri - tiada apa perlu diisi.",
+      "startBig": "Hujan mula: ambil gambar 1",
+      "endBig": "Hujan berhenti: ambil gambar 2",
+      "startPhoto": "Hujan mula",
+      "endPhoto": "Hujan berhenti",
+      "start": "Mula",
+      "end": "Tamat",
+      "duration": "Tempoh hujan",
+      "started": "Mula {time}",
+      "raining": "Sudah hujan {duration}",
+      "held": "Gambar 1 disimpan dalam telefon ini dan belum dimuat naik; tiada talian atau menutup halaman tidak akan menghilangkannya. Bila hujan berhenti, masuk semula dengan telefon ini untuk gambar 2.",
+      "review": "Semak kedua-dua gambar dan masa, kemudian tekan 「Hantar rekod hujan」.",
+      "submit": "Hantar rekod hujan",
+      "retake": "Ambil semula gambar 2",
+      "cancel": "Batalkan yang ini",
+      "cancelAsk": "Batalkan yang ini? Gambarnya dipadam dari telefon dan tidak dimuat naik.",
+      "cancelYes": "Ya, batalkan",
+      "cancelNo": "Jangan batalkan",
+      "cancelled": "Yang ini telah dibatalkan.",
+      "long": "Yang ini sudah lebih 12 jam. Adakah anda terlupa mengambil gambar ketika hujan berhenti? Anda masih boleh menghantarnya, atau batalkan yang ini.",
+      "tooShort": "Gambar 2 mesti sekurang-kurangnya 1 minit selepas gambar 1. Tekan 「Ambil semula gambar 2」.",
+      "location": "Lokasi GPS",
+      "locationReady": "Lokasi diperoleh",
+      "sent": "Rekod hujan dihantar: {start}–{end} ({duration})",
+      "sentQueued": "Disimpan dalam telefon, dihantar bila ada talian: {start}–{end} ({duration})",
+      "notKept": "Telefon ini tidak dapat menyimpan gambar (mod peribadi atau ruang penuh). Jangan tutup halaman ini dan hantar sebaik sahaja gambar 2 diambil.",
+      "loadFailed": "Rekod hujan yang disimpan dalam telefon ini tidak dapat dibaca. Tutup halaman ini dan buka semula.",
+      "failed": "Ia tidak dihantar. Tekan 「Hantar rekod hujan」 sekali lagi.",
+      "inProgress": "Sedang berjalan",
+      "refused": {
+        "quotaFull": "Projek ini sudah menerima {limit} rekod hujan dalam {minutes} minit ini, jadi yang ini tidak diterima. Ia tidak boleh dihantar lagi - tekan 「Batalkan yang ini」.",
+        "quotaFullPlain": "Projek ini sudah menerima rekod hujan yang cukup untuk tempoh ini, jadi yang ini tidak diterima. Ia tidak boleh dihantar lagi - tekan 「Batalkan yang ini」.",
+        "endNotAfterStart": "Gambar 2 mesti sekurang-kurangnya 1 minit selepas gambar 1, jadi ia tidak diterima. Tekan 「Ambil semula gambar 2」 dan ambil semula.",
+        "photosRequired": "Dua gambar tidak lengkap, jadi ia tidak diterima. Tekan 「Ambil semula gambar 2」, atau 「Batalkan yang ini」 dan mula semula.",
+        "other": "Tidak diterima: {reason} Anda boleh tekan 「Hantar rekod hujan」 sekali lagi, atau 「Batalkan yang ini」."
+      }
+    },
+    "what": "rekod hujan",
+    "rules": {
+      "line": "Peraturan: setiap projek menerima paling banyak {limit} rekod hujan dalam mana-mana {minutes} minit; selebihnya ditolak sendiri.",
+      "button": "Peraturan",
+      "title": "Peraturan rekod hujan",
+      "help": "Dikira bagi setiap projek: paling banyak sekian rekod hujan dalam mana-mana sekian minit berturut-turut, ikut masa gambar kedua diambil. Perubahan berkuat kuasa serta-merta.",
+      "limit": "Paling banyak berapa rekod",
+      "limitHint": "1 hingga 50",
+      "minutes": "Dalam berapa minit",
+      "minutesHint": "5 hingga 1440 minit",
+      "save": "Simpan",
+      "saved": "Peraturan disimpan",
+      "readOnly": "Hanya ibu pejabat (dengan tetapan syarikat) boleh mengubahnya.",
+      "what": "peraturan"
+    },
+    "filter": {
+      "month": "Bulan",
+      "allStates": "Semua status",
+      "active": "Sah",
+      "voided": "Dibatalkan"
+    },
+    "summary": {
+      "title": "Jumlah: {from} hingga {to}",
+      "times": "Kali hujan",
+      "days": "Hari hujan",
+      "minutes": "Jumlah tempoh",
+      "records": "Rekod",
+      "voided": "Dibatalkan",
+      "timesValue": "{count} kali",
+      "daysValue": "{count} hari",
+      "recordsValue": "{count}",
+      "chooseProject": "Pilih projek untuk melihat jumlah dan laporan bulanannya. Senarai di bawah ialah semua projek.",
+      "noRain": "Tiada hujan direkodkan dalam tempoh ini.",
+      "hint": "Satu hujan yang diambil gambar oleh beberapa orang dikira sekali; masa yang bertindih dikira sekali; rekod yang dibatalkan tidak dikira.",
+      "what": "jumlah hujan"
+    },
+    "daily": {
+      "title": "Setiap hari",
+      "date": "Tarikh",
+      "times": "Kali hujan",
+      "minutes": "Tempoh",
+      "records": "Rekod"
+    },
+    "list": {
+      "title": "Rekod hujan",
+      "count": "{count} rekod"
+    },
+    "column": {
+      "number": "No.",
+      "photos": "Dua gambar",
+      "start": "Mula",
+      "end": "Tamat",
+      "duration": "Tempoh",
+      "who": "Diambil oleh",
+      "project": "Projek",
+      "status": "Status"
+    },
+    "pdf": {
+      "label": "Laporan bulanan",
+      "title": "Laporan bulanan Rainy Weather {month}",
+      "needMonth": "Pilih projek dan bulan untuk pratonton, cetak, eksport atau hantar laporan bulan itu."
+    },
+    "record": {
+      "start": "Hujan mula",
+      "end": "Hujan berhenti",
+      "duration": "Tempoh hujan",
+      "position": "GPS {latitude}, {longitude}",
+      "noGps": "Tiada lokasi",
+      "voided": "Dibatalkan",
+      "voidedBy": "Dibatalkan oleh",
+      "voidedAt": "Masa dibatalkan",
+      "voidReason": "Sebab"
+    },
+    "void": {
+      "button": "Batalkan",
+      "title": "Batalkan rekod hujan ini",
+      "help": "Selepas dibatalkan rekod kekal, ditanda 「Dibatalkan」; ia tidak dikira dalam jumlah, tidak masuk senarai laporan bulanan, dan tidak boleh dipakej. Pembatalan tidak boleh diundur.",
+      "reason": "Sebab dibatalkan",
+      "reasonPlaceholder": "cth. gambar salah, diambil dua kali",
+      "confirm": "Sahkan pembatalan",
+      "pin": "Selepas 「Sahkan pembatalan」, masukkan PIN pengesahan enam digit anda.",
+      "done": "{number} dibatalkan"
+    }
   }
 }

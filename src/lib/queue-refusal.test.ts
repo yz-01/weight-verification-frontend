@@ -27,6 +27,31 @@ describe("refusalReason", () => {
     });
   });
 
+  // JB192 做法 二.3: a queued rain record refused for a full half hour, or for
+  // a second photo not later than the first, says so plainly - and that it
+  // can only be discarded. The fields the 409 carries (limit, minutes) are
+  // not read as fields a worker could fix.
+  it("words a refused rain record in the queue's own sentences", () => {
+    expect(
+      refusalReason({ status: 409, code: "rain_record_quota_full", fields: ["limit", "minutes"] }, has),
+    ).toEqual({ key: "offline.refused.rainQuotaFull" });
+    expect(refusalReason({ status: 400, code: "rain_end_not_after_start" }, has)).toEqual({
+      key: "offline.refused.rainEndNotAfterStart",
+    });
+    for (const messages of [zh, zhTW, en, ms]) {
+      const inThis = catalogue(messages);
+      for (const key of [
+        "offline.refused.rainQuotaFull",
+        "offline.refused.rainEndNotAfterStart",
+        "offline.kind.RAIN_RECORD",
+      ]) {
+        expect(inThis(key), key).toBe(true);
+      }
+    }
+    // The queue's own button is 「删除这一条」: the sentence names it.
+    expect(zh.offline.refused.rainQuotaFull).toContain("删除这一条");
+  });
+
   it("reads the fields of a generic or codeless refusal", () => {
     expect(
       refusalReason({ status: 400, code: "validation_failed", fields: ["latitude"] }, has),

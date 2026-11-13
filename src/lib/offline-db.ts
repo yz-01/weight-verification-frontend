@@ -24,7 +24,8 @@ export type OfflineJobKind =
   | "GATE_PHOTO"
   | "DISPATCH_ACCEPT"
   | "DISPATCH_COLLECT"
-  | "TRIP_ASSIGN";
+  | "TRIP_ASSIGN"
+  | "RAIN_RECORD";
 
 /**
  * A photo, signature or file kept on the phone until it can be sent.
@@ -630,6 +631,31 @@ export interface GatePhotoOfflineJob extends OfflineJobBase {
   };
 }
 
+/**
+ * Rainy Weather (JB192, 客户 11-13): one rain record, both photographs sent
+ * together once the second is taken. The field names are the server's
+ * (`create_rain_record`); `client_event_id` was made when the first photo was
+ * taken and is the same on every retry, so a replay lands once.
+ */
+export interface RainRecordOfflineJob extends OfflineJobBase {
+  kind: "RAIN_RECORD";
+  payload: {
+    project: string;
+    client_event_id: string;
+    /** When each photo was taken, ISO - the duration is counted from these. */
+    start_captured_at: string;
+    end_captured_at: string;
+    /** Each pair both or neither: a photo taken with no GPS fix has none. */
+    start_latitude?: string;
+    start_longitude?: string;
+    end_latitude?: string;
+    end_longitude?: string;
+    device_id?: string;
+    start_photo: StoredFile;
+    end_photo: StoredFile;
+  };
+}
+
 export type OfflineJob =
   | AttendanceOfflineJob
   | TaskTransitionOfflineJob
@@ -654,7 +680,8 @@ export type OfflineJob =
   | GatePhotoOfflineJob
   | DispatchAcceptOfflineJob
   | DispatchCollectOfflineJob
-  | TripAssignOfflineJob;
+  | TripAssignOfflineJob
+  | RainRecordOfflineJob;
 
 const DB_NAME = "mse-trace-offline";
 const STORE_NAME = "jobs";
@@ -667,7 +694,44 @@ const RECYCLER_SNAPSHOT_STORE = "recyclerSnapshots";
  * job and snapshot it had.
  */
 const ORIGINALS_STORE = "originals";
-const DB_VERSION = 4;
+/**
+ * Rainy Weather (JB192): the rain record a worker has started and not sent -
+ * its first photo, held on this phone until the second is taken (客户第 2、6
+ * 点: 「照片暂存，不立即提交」「第一张照片即使遇到断网或关闭页面，也不能丢失」).
+ * One row per account and project. Added in version 5; the upgrade only
+ * creates what is missing, so every queued job and kept original stays.
+ */
+const RAIN_HELD_STORE = "rainHeld";
+const DB_VERSION = 5;
+
+/** One photo of a held rain record, kept as its bytes with its moment and fix. */
+export interface HeldRainPhoto {
+  file: StoredFile;
+  /** When the photo was taken (ISO), from the file itself. */
+  capturedAt: string;
+  latitude?: string;
+  longitude?: string;
+  accuracy?: string;
+}
+
+/**
+ * A rain record started on this phone (JB192): the first photo at once, the
+ * second when the rain stops. Nothing of it is on the server until both are
+ * taken and 【提交雨天记录】 is pressed.
+ */
+export interface HeldRainRecord {
+  /** `rain:<account>:<project>` - one open record per account and project. */
+  id: string;
+  ownerId: string;
+  project: string;
+  projectName?: string;
+  /** Made with the first photo, sent with the record, kept for every retry. */
+  clientEventId: string;
+  start: HeldRainPhoto;
+  end?: HeldRainPhoto;
+  /** When this phone last saved it (ISO). */
+  savedAt: string;
+}
 
 export type DriverSnapshotKind = "DASHBOARD" | "TASK_LIST" | "TASK_DETAIL";
 
@@ -743,6 +807,10 @@ export function upgradeOfflineStores(
     const store = database.createObjectStore(ORIGINALS_STORE, { keyPath: "id" });
     store.createIndex("ownerId", "ownerId", { unique: false });
     store.createIndex("sha256", "sha256", { unique: false });
+  }
+  if (!database.objectStoreNames.contains(RAIN_HELD_STORE)) {
+    const store = database.createObjectStore(RAIN_HELD_STORE, { keyPath: "id" });
+    store.createIndex("ownerId", "ownerId", { unique: false });
   }
 }
 
@@ -1087,6 +1155,62 @@ export async function deleteLocalOriginal(id: string): Promise<void> {
   try {
     const transaction = database.transaction(ORIGINALS_STORE, "readwrite");
     transaction.objectStore(ORIGINALS_STORE).delete(id);
+    await transactionDone(transaction);
+  } finally {
+    database.close();
+  }
+}
+
+/** Save a held rain record (JB192): its first photo, then its second. */
+export async function putHeldRain(record: HeldRainRecord): Promise<void> {
+  const database = await openDatabase();
+  try {
+    const transaction = database.transaction(RAIN_HELD_STORE, "readwrite");
+    transaction.objectStore(RAIN_HELD_STORE).put(record);
+    await transactionDone(transaction);
+  } finally {
+    database.close();
+  }
+}
+
+/** The held rain record with this id (`rain:<account>:<project>`), or null. */
+export async function getHeldRain(id: string): Promise<HeldRainRecord | null> {
+  const database = await openDatabase();
+  try {
+    const transaction = database.transaction(RAIN_HELD_STORE, "readonly");
+    const row = await requestResult(
+      transaction.objectStore(RAIN_HELD_STORE).get(id) as IDBRequest<HeldRainRecord | undefined>,
+    );
+    await transactionDone(transaction);
+    return row ?? null;
+  } finally {
+    database.close();
+  }
+}
+
+/** Every held rain record of one account, one per project. */
+export async function getHeldRains(ownerId: string): Promise<HeldRainRecord[]> {
+  const database = await openDatabase();
+  try {
+    const transaction = database.transaction(RAIN_HELD_STORE, "readonly");
+    const index = transaction.objectStore(RAIN_HELD_STORE).index("ownerId");
+    const rows = await requestResult(index.getAll(ownerId) as IDBRequest<HeldRainRecord[]>);
+    await transactionDone(transaction);
+    return rows;
+  } finally {
+    database.close();
+  }
+}
+
+/**
+ * Drop a held rain record: sent (uploaded or queued - the queued job holds
+ * its own copy of both photos), or 「取消这一次」. Nothing else deletes it.
+ */
+export async function deleteHeldRain(id: string): Promise<void> {
+  const database = await openDatabase();
+  try {
+    const transaction = database.transaction(RAIN_HELD_STORE, "readwrite");
+    transaction.objectStore(RAIN_HELD_STORE).delete(id);
     await transactionDone(transaction);
   } finally {
     database.close();
