@@ -16319,7 +16319,8 @@
     "state": {
       "loadError": "無法加載資料，請檢查網絡後重試。",
       "loading": "正在加載現場控制資料...",
-      "projectLoadError": "無法加載項目，請檢查此賬號的項目權限後重試。"
+      "projectLoadError": "無法加載項目，請檢查此賬號的項目權限後重試。",
+      "projectLoadOffline": "沒有網路，項目列表等有網路時再載入。"
     },
     "status": {
       "active": "啟用",

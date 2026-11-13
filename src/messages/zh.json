@@ -16319,7 +16319,8 @@
     "state": {
       "loadError": "无法加载资料，请检查网络后重试。",
       "loading": "正在加载现场控制资料...",
-      "projectLoadError": "无法加载项目，请检查此账号的项目权限后重试。"
+      "projectLoadError": "无法加载项目，请检查此账号的项目权限后重试。",
+      "projectLoadOffline": "没有网络，项目列表等有网络时再载入。"
     },
     "status": {
       "active": "启用",
