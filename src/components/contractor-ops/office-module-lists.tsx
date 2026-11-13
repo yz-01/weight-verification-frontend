@@ -81,6 +81,12 @@ import {
   tone,
 } from "@/components/contractor-ops/operations-workspaces";
 import { usePageTitle } from "@/components/layout/page-title-override";
+import {
+  RainStatus,
+  RainVoidButton,
+  useRainFacts,
+  useRainPhotoLabel,
+} from "@/components/progress/rain-records";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ExportButton } from "@/components/shared/export-button";
 import { photoColumn, rowPhotos } from "@/components/shared/photo-thumb";
@@ -2413,7 +2419,11 @@ function useProgressReference() {
   // 待归类 (J40): a record the phone sent without a 施工分类 reads by its
   // record number until the office files it.
   return (row: SiteProgressRecord) =>
-    `${row.phase_name ?? row.record_no ?? t("progress.unclassified")} / ${percent(row.percent_complete)}`;
+    // A rain record (JB192) has no percentage to speak of: it reads by its own
+    // line, 「Rainy Weather 14:05–15:10 (1h 05m)」, not 「Rainy Weather / 未填」.
+    row.is_rain
+      ? row.description || row.phase_name || row.record_no || ""
+      : `${row.phase_name ?? row.record_no ?? t("progress.unclassified")} / ${percent(row.percent_complete)}`;
 }
 
 /**
@@ -2421,8 +2431,13 @@ function useProgressReference() {
  * office corrects in place, photographs, 备注, 改正, 修改记录, 沟通 and
  * 确认归档. The progress list opens it, and so does 分类管理's 查看记录
  * through `ProgressInPlace` - one window, so the two cannot drift.
+ *
+ * A rain record (JB192) is a progress record: the same window, with its rain
+ * section on top - start and stop with each photo's GPS, the duration, and
+ * once voided who, when and why - its photos named 「开始下雨」 / 「雨停」,
+ * and 【作废】. A voided one says 「已作废」 and cannot be packed.
  */
-function ProgressRecordDialog({
+export function ProgressRecordDialog({
   record: shown,
   onClose,
   onShow,
@@ -2449,6 +2464,9 @@ function ProgressRecordDialog({
   // A06: an archived progress record took no more photographs - until
   // Lucas 10-30 evening (`ARCHIVE_LOCKS_CHANGES`).
   const shownArchived = useRecordArchived("PROGRESS", shown.id) && ARCHIVE_LOCKS_CHANGES;
+  // Rainy Weather (JB192): empty for any other progress record.
+  const rainFacts = useRainFacts(shown);
+  const rainPhotoLabel = useRainPhotoLabel(shown);
   return (
     <RecordDetailDialog
       title={reference(shown)}
@@ -2466,9 +2484,13 @@ function ProgressRecordDialog({
         // 记录人 (E8): who recorded it, with a number to call.
         recorder={<RecordRecorder record={shown} />}
         facts={[
+          ...rainFacts,
           {
             label: t("field.status"),
-            value: (
+            // A rain record is 有效 or 已作废; nothing about it waits to be confirmed.
+            value: shown.is_rain || shown.is_voided ? (
+              <RainStatus record={shown} />
+            ) : (
               <StatusBadge
                 label={t(`progressStatus.${shown.status}`)}
                 tone={tone(shown.status)}
@@ -2482,7 +2504,8 @@ function ProgressRecordDialog({
               <StatusBadge label={t("progress.unclassified")} tone="warning" />
             ),
           },
-          {
+          // No 实际完成比例 on a rain record: it measures the rain, not the works.
+          ...(shown.is_rain ? [] : [{
             label: t("field.percentComplete"),
             // The office corrects the figure in place (2026-10-09).
             value: (
@@ -2500,7 +2523,7 @@ function ProgressRecordDialog({
               />
             ),
             wide: editingPercent,
-          },
+          }]),
           {
             label: t("progress.submittedBy"),
             value: shown.submitted_by_name,
@@ -2535,7 +2558,7 @@ function ProgressRecordDialog({
         photos={shown.photos.map((photo, index) => ({
           id: photo.id,
           url: photo.watermarked || photo.image,
-          label: photo.caption || `${t("field.photos")} ${index + 1}`,
+          label: rainPhotoLabel(photo.id) || photo.caption || `${t("field.photos")} ${index + 1}`,
           ...photoMeta(photo, shown),
         }))}
         photoActions={
@@ -2598,11 +2621,22 @@ function ProgressRecordDialog({
               recordId={shown.id}
               onCorrected={refreshProgress}
             />
-            <AddToPackageButton
-              kind="PROGRESS"
-              recordId={shown.id}
-              projectId={shown.project}
-              reference={reference(shown)}
+            {/* A voided rain record cannot be packed (JB192 做法 二.6). */}
+            {shown.is_voided ? null : (
+              <AddToPackageButton
+                kind="PROGRESS"
+                recordId={shown.id}
+                projectId={shown.project}
+                reference={reference(shown)}
+              />
+            )}
+            {/* 【作废】: only on a rain record, for whoever confirms progress. */}
+            <RainVoidButton
+              record={shown}
+              onVoided={(fresh) => {
+                onShow(fresh);
+                refreshProgress();
+              }}
             />
           </div>
         }

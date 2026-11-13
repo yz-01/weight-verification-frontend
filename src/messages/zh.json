@@ -3801,7 +3801,12 @@
       "company_material_price_set": "设定公司通用分类单价",
       "material_return_checked": "退货核对",
       "material_return_check_pdf_exported": "导出退货核对单",
-      "material_return_check_pdf_previewed": "预览退货核对单"
+      "material_return_check_pdf_previewed": "预览退货核对单",
+      "rain_record_submitted": "提交雨天记录",
+      "rain_record_voided": "作废雨天记录",
+      "rain_rules_changed": "修改雨天记录接收规则",
+      "rain_report_pdf_exported": "导出雨天记录月报",
+      "rain_report_pdf_previewed": "预览雨天记录月报"
     },
     "objectType": {
       "SignOffAssistant": "助理副密码",
@@ -9063,7 +9068,13 @@
       "return_check_other_supplier": "退货 {reference} 不是这家供应商的。一次只能核对同一家供应商的退货。",
       "return_check_not_completed": "退货 {reference} 还不是「已退场，已完成」，现在不能核对。",
       "return_check_already_checked": "退货 {reference} 已经在 {check_no} 核对过了，不用再核对。",
-      "return_check_final": "核对记录保存后不能修改或删除，凭证也不能再加或删除。"
+      "return_check_final": "核对记录保存后不能修改或删除，凭证也不能再加或删除。",
+      "rain_photos_required": "雨天记录要两张照片：开始下雨一张、雨停一张。",
+      "rain_end_not_after_start": "雨停的照片要比开始的照片晚至少 1 分钟。",
+      "rain_record_quota_full": "这个项目这段时间已经收满雨天记录，后台没有接收这一份。",
+      "rain_void_reason_required": "请写作废原因。",
+      "rain_record_already_voided": "这份雨天记录已经作废了，不能再作废一次。",
+      "rain_rules_out_of_range": "份数要在 1 到 50 之间，分钟要在 5 到 1440 之间。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -9753,7 +9764,8 @@
       "gate": "门岗",
       "operatorHours": "设备操作员工时",
       "permit": "施工准证",
-      "visitor": "访客扫码"
+      "visitor": "访客扫码",
+      "rain": "Rainy Weather"
     },
     "status": {
       "ACCEPTED": "已完成",
@@ -11720,7 +11732,8 @@
         "not_finished": "这条记录还没完成，完成后才能打包",
         "other_project": "这条记录属于别的项目；一个资料包只收同一个项目的记录",
         "no_package": "先在 Multi Engine 打开一个资料包",
-        "loading": "正在读取打包情况…"
+        "loading": "正在读取打包情况…",
+        "voided": "这份雨天记录已作废，不能打包"
       },
       "what": {
         "status": "打包情况",
@@ -12453,6 +12466,7 @@
       "platformCommission": "平台佣金管理",
       "platformJobs": "定时任务",
       "progressRecords": "工程进度",
+      "rainRecords": "雨天记录（Rainy Weather）",
       "projectRecords": "项目资料",
       "documentRecords": "文件资料",
       "qrActivity": "二维码操作记录",
@@ -12728,7 +12742,8 @@
       "WASTE_OUTGOING": "环保材料出场申请",
       "SUNDRY_CLAIM": "杂费报销",
       "EQUIPMENT_HOURS_PHOTO": "设备操作员工时",
-      "GATE_PHOTO": "门岗"
+      "GATE_PHOTO": "门岗",
+      "RAIN_RECORD": "Rainy Weather 雨天记录"
     },
     "pageDescription": "此页面尚未缓存。请先恢复网络并打开一次，之后即可离线使用。",
     "queue": {
@@ -12760,7 +12775,9 @@
         "members": "选的沟通人员已经不在这个项目，无法上传。",
         "project": "这个项目已经没有了，或你已经不在这个项目。",
         "time": "时间资料不对，无法上传。"
-      }
+      },
+      "rainQuotaFull": "这个项目这段时间已经收满雨天记录，后台没有接收这一份。再上传也会被拒收，请删除这一条。",
+      "rainEndNotAfterStart": "雨停的照片没有比开始的照片晚（手机时间可能改过），后台没有接收。请删除这一条，再重新拍一次。"
     },
     "status": {
       "failed": "{count} 条动作需要处理",
@@ -19712,14 +19729,16 @@
       "photos": "工程时间轴",
       "reports": "日报告",
       "schedule": "施工计划",
-      "summary": "项目进度摘要"
+      "summary": "项目进度摘要",
+      "rain": "雨天记录"
     },
     "subtitle": {
       "phases": "每个项目自己的施工分类和权重。手机报进度时选施工分类，整体进度按权重计算。",
       "photos": "现场拍的进度照片，按日期和施工分类找；勾选照片就能填写日报告。",
       "reports": "每天的日报告，点开看全文和当时勾选的照片。",
       "schedule": "项目的施工计划和实际进度。",
-      "summary": "项目经理自己排版的项目进度摘要：文字、照片、数字卡、图表。"
+      "summary": "项目经理自己排版的项目进度摘要：文字、照片、数字卡、图表。",
+      "rain": "手机「Rainy Weather」拍的雨天记录：每次下雨的两张照片、开始、结束、时长；按月统计、月报 PDF、勾选打包。"
     },
     "project": "项目",
     "chooseProject": "选择项目",
@@ -21017,7 +21036,8 @@
       "assistant_manage": "新增或更改助理副密码",
       "project_change_permissions": "修改项目权限",
       "material_price_set": "设定或调整材料单价",
-      "material_return_check": "退货核对"
+      "material_return_check": "退货核对",
+      "rain_record_void": "作废雨天记录"
     },
     "firstTitle": "第一次设定签核密码",
     "firstBanner": "这是你第一次使用签核密码",
@@ -21545,5 +21565,134 @@
     "vouchersHint": "核对时上传的文件、照片或 PDF。核对记录不能修改或删除。",
     "pdf": "退货核对单 PDF",
     "pdfTitle": "退货核对单 {number}"
+  },
+  "rainRecords": {
+    "duration": {
+      "hm": "{hours} 小时 {minutes} 分",
+      "m": "{minutes} 分钟"
+    },
+    "phone": {
+      "project": "项目",
+      "howTo": "开始下雨时拍第一张，雨停了再进来拍第二张。时间和下雨时长系统自动算，不用填。",
+      "startBig": "开始下雨：拍第一张",
+      "endBig": "雨停了：拍第二张",
+      "startPhoto": "开始下雨",
+      "endPhoto": "雨停",
+      "start": "开始",
+      "end": "结束",
+      "duration": "下雨时长",
+      "started": "开始 {time}",
+      "raining": "已经下了 {duration}",
+      "held": "第一张已经存在这部手机里，还没有上传；断网、关掉页面也不会丢。雨停了用这部手机进来拍第二张。",
+      "review": "看一下两张照片和时间，没问题就按【提交雨天记录】。",
+      "submit": "提交雨天记录",
+      "retake": "重拍第二张",
+      "cancel": "取消这一次",
+      "cancelAsk": "确定取消这一次？手机里这一次的照片会删掉，不会上传。",
+      "cancelYes": "确定取消",
+      "cancelNo": "不取消",
+      "cancelled": "已取消这一次。",
+      "long": "这一次已经超过 12 小时，是不是忘了拍雨停的照片？可以照样提交，也可以取消这一次。",
+      "tooShort": "雨停的照片要比开始的照片晚至少 1 分钟。请按「重拍第二张」。",
+      "location": "GPS 定位",
+      "locationReady": "已定位",
+      "sent": "已提交雨天记录：{start}–{end}（{duration}）",
+      "sentQueued": "已存在手机，有网络会自动上传：{start}–{end}（{duration}）",
+      "notKept": "这部手机存不了这张照片（可能是无痕模式或空间不够）。请不要关掉这一页，拍完第二张马上提交。",
+      "loadFailed": "读不到这部手机里暂存的雨天记录。请关掉这一页再打开。",
+      "failed": "没有提交成功，请再按一次【提交雨天记录】。",
+      "inProgress": "进行中",
+      "refused": {
+        "quotaFull": "这个项目这 {minutes} 分钟已经收满 {limit} 份雨天记录，后台没有接收这一份。这一份不能再提交，请按「取消这一次」。",
+        "quotaFullPlain": "这个项目这段时间已经收满雨天记录，后台没有接收这一份。这一份不能再提交，请按「取消这一次」。",
+        "endNotAfterStart": "雨停的照片要比开始的照片晚至少 1 分钟，后台没有接收。请按「重拍第二张」再拍一次。",
+        "photosRequired": "两张照片不齐，后台没有接收。请按「重拍第二张」，或者「取消这一次」重新开始。",
+        "other": "后台没有接收：{reason} 可以再按一次【提交雨天记录】，或者「取消这一次」。"
+      }
+    },
+    "what": "雨天记录",
+    "rules": {
+      "line": "接收规则：每个项目任何 {minutes} 分钟里最多接收 {limit} 份，超过的后台自动拒收。",
+      "button": "接收规则",
+      "title": "雨天记录接收规则",
+      "help": "每个项目分开算：任何连续的这么多分钟里，最多接收这么多份雨天记录，按拍完第二张照片的时间算。改了马上生效。",
+      "limit": "最多接收几份",
+      "limitHint": "1 到 50 份",
+      "minutes": "多少分钟里",
+      "minutesHint": "5 到 1440 分钟",
+      "save": "保存",
+      "saved": "接收规则已保存",
+      "readOnly": "只有总部（有「公司设置」权限）可以修改。",
+      "what": "接收规则"
+    },
+    "filter": {
+      "month": "月份",
+      "allStates": "全部状态",
+      "active": "有效",
+      "voided": "已作废"
+    },
+    "summary": {
+      "title": "统计：{from} 至 {to}",
+      "times": "下雨次数",
+      "days": "下雨天数",
+      "minutes": "总时长",
+      "records": "记录份数",
+      "voided": "已作废",
+      "timesValue": "{count} 次",
+      "daysValue": "{count} 天",
+      "recordsValue": "{count} 份",
+      "chooseProject": "先选择项目，才能看统计和月报。下面的清单是全部项目的。",
+      "noRain": "这段时间没有下雨的记录。",
+      "hint": "几个人拍同一场雨只算一次，时间重叠的部分只算一次；已作废的不算。",
+      "what": "雨天统计"
+    },
+    "daily": {
+      "title": "每天",
+      "date": "日期",
+      "times": "下雨次数",
+      "minutes": "时长",
+      "records": "份数",
+      "carried": "接前一天的雨"
+    },
+    "list": {
+      "title": "雨天记录清单",
+      "count": "共 {count} 份"
+    },
+    "column": {
+      "number": "编号",
+      "photos": "两张照片",
+      "start": "开始",
+      "end": "结束",
+      "duration": "时长",
+      "who": "拍摄人",
+      "project": "项目",
+      "status": "状态"
+    },
+    "pdf": {
+      "label": "月报",
+      "title": "Rainy Weather 雨天记录月报 {month}",
+      "needMonth": "选择项目和月份以后，可以预览、打印、导出、发送这个月的月报。"
+    },
+    "record": {
+      "start": "开始下雨",
+      "end": "雨停",
+      "duration": "下雨时长",
+      "position": "GPS {latitude}, {longitude}",
+      "noGps": "没有定位",
+      "voided": "已作废",
+      "voidedBy": "作废人",
+      "voidedAt": "作废时间",
+      "voidReason": "作废原因"
+    },
+    "void": {
+      "button": "作废",
+      "title": "作废这份雨天记录",
+      "help": "作废以后，记录还在，标「已作废」；不算进统计，不进月报明细，不能再打包。作废不能取消。",
+      "reason": "作废原因",
+      "reasonPlaceholder": "例如：拍错了、重复拍了",
+      "confirm": "确认作废",
+      "pin": "按【确认作废】以后要输入你的六位数签核密码。",
+      "done": "已作废 {number}"
+    }
   }
 }

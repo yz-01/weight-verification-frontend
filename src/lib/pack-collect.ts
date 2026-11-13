@@ -152,6 +152,10 @@ export const PACK_TARGETS: readonly PackTarget[] = [
     path: "/progress",
     params: { tab: "photos", view: "records" },
   },
+  // JB192 (客户 11-13 第 22、23 点: 「直接使用现有 Multi Engine 勾选打包功能…按日期或月份筛选
+  // Rainy Weather 记录，再勾选需要的雨天记录进行打包」): the rain records' own list - a rain record
+  // is a progress record, so the same kind; the list has the month and the date range.
+  { key: "rain", kind: "PROGRESS", labelKey: "nav.submodule.rainRecords", path: "/progress", params: { tab: "rain" } },
   {
     key: "applications",
     kind: "CONSULTANT_APPLICATION",

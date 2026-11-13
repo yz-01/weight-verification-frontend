@@ -20,6 +20,7 @@ import { ApiError } from "@/interfaces/api";
 import { draftFileNames } from "@/lib/form-draft-store";
 import {
   deleteLocalOriginal,
+  getHeldRains,
   getLocalOriginal,
   getLocalOriginals,
   getOfflineJobs,
@@ -248,12 +249,18 @@ async function run(
  */
 export async function pruneAbandonedOriginals(ownerId: string, now: number = Date.now()): Promise<number> {
   try {
-    const [jobs, originals, drafts] = await Promise.all([
+    // A rain record's photos held on the phone (JB192) hold their originals
+    // too; unreadable, like the drafts, means nothing is dropped.
+    const [jobs, originals, drafts, held] = await Promise.all([
       getOfflineJobs(ownerId),
       getLocalOriginals(ownerId),
       draftFileNames(),
+      getHeldRains(ownerId),
     ]);
-    const keep = protectedLocalItems({ jobs, originals, draftFileNames: drafts }, now).originalIds;
+    const keep = protectedLocalItems(
+      { jobs, originals, draftFileNames: drafts, held: held.map((record) => ({ id: record.id, payload: record })) },
+      now,
+    ).originalIds;
     const candidates = originals.filter((row) => !keep.has(row.id));
     if (candidates.length === 0 || offline()) return 0;
     // The phone's own word is not enough: an upload can land while its

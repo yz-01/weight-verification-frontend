@@ -5,6 +5,7 @@ import {
   ArrowLeft,
   Camera,
   ClipboardList,
+  CloudRain,
   DoorOpen,
   FilePlus2,
   FileSignature,
@@ -41,6 +42,7 @@ import { FieldDraft, useClearDraft, useDraftEventId, useDraftState } from "@/com
 import { FieldSlots } from "@/components/field-staff/field-slots";
 import { SundryClaimCapture } from "@/components/field-staff/sundry-claim-capture";
 import { EquipmentHoursCapture } from "@/components/equipment-hours/equipment-hours-capture";
+import { RainInProgressMark, RainyWeatherCapture } from "@/components/field-staff/rainy-weather-capture";
 import { MaterialRequestForm } from "@/components/material-requests/request-form";
 import { GateRecordsPanel } from "@/components/site-access/gate-records";
 import { SupplierQrScanner } from "@/components/field-staff/supplier-qr-scanner";
@@ -112,6 +114,7 @@ export type FieldRecordMode =
   | "equipment"
   | "operatorHours"
   | "progress"
+  | "rain"
   | "disposal"
   | "outgoing"
   | "waste"
@@ -137,6 +140,10 @@ const RECORD_OPTIONS: RecordOption[] = [
   // it stops. Same permission as the equipment entry - it is the same people.
   { key: "operatorHours", permission: "equipment.capture", icon: Timer, tone: "bg-info/10 text-info" },
   { key: "progress", permission: "progress.manage", icon: ListChecks, tone: "bg-primary/10 text-primary" },
+  // Rainy Weather 雨天记录 (JB192, 客户 11-13 晚上): a photo when the rain
+  // starts, one when it stops. Same permission as 工程进度 - it is a progress
+  // record, and the same people send it.
+  { key: "rain", permission: "progress.manage", icon: CloudRain, tone: "bg-info/10 text-info" },
   { key: "disposal", permission: "disposal.submit", icon: Recycle, tone: "bg-success/10 text-success" },
   { key: "outgoing", permission: "material_outgoing.submit", icon: Truck, tone: "bg-destructive/10 text-destructive" },
   { key: "waste", permission: "waste_outgoing.submit", icon: Recycle, tone: "bg-success/10 text-success" },
@@ -199,6 +206,9 @@ export function FieldRecordsPanel({
   if (mode === "progress") {
     return <RecordFrame title={t("records.progress")} onBack={() => chooseMode(null)}><FieldDraft scope={`progress:${task?.id ?? "new"}`}><SiteProgressWorkspace initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} onClose={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
   }
+  if (mode === "rain") {
+    return <RecordFrame title={t("records.rain")} onBack={() => chooseMode(null)}><RainyWeatherCapture initialProject={task?.project ?? boundProject} /></RecordFrame>;
+  }
   if (mode === "disposal") {
     if (
       task?.linked_record_type === "DISPOSAL_EXECUTION" &&
@@ -251,8 +261,14 @@ export function FieldRecordsPanel({
               className="surface-panel flex min-h-28 min-w-0 flex-col items-start justify-between rounded-xl p-3 text-left transition-colors hover:border-primary/50 active:scale-[0.98]"
               onClick={() => chooseMode(option.key)}
             >
-              <span className={`grid size-10 place-items-center rounded-lg ${option.tone}`}>
-                <Icon className="size-5" />
+              <span className="flex w-full items-start justify-between gap-2">
+                <span className={`grid size-10 place-items-center rounded-lg ${option.tone}`}>
+                  <Icon className="size-5" />
+                </span>
+                {/* 「进行中」: a rain record started and not sent (JB192). */}
+                {option.key === "rain" && user?.id ? (
+                  <RainInProgressMark ownerId={user.id} project={boundProject} />
+                ) : null}
               </span>
               <span className="mt-4 break-words text-sm font-semibold leading-5">
                 {t(`records.${option.key}`)}

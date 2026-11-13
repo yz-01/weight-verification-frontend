@@ -106,6 +106,31 @@ describe("what no cleanup may remove (protectedOnPhone)", () => {
     );
     expect(kept.drafts).toBe(1);
   });
+
+  // JB192 (客户第 6 点): a rain record started on the phone is a record not
+  // submitted yet - said as kept, and its photo's original is held.
+  it("counts a rain record waiting for its second photo as kept, with its original", () => {
+    const first = "4".repeat(32);
+    const kept = protectedOnPhone(
+      {
+        jobs: [],
+        drafts: [],
+        draftFileNames: [],
+        originals: [original(first, "u-1", 250, "captured", OLD)],
+        held: [
+          {
+            id: "rain:u-1:p-1",
+            payload: {
+              start: { file: { name: nameWithOriginal("start.jpg", first), bytes: new ArrayBuffer(4) } },
+            },
+          },
+        ],
+      },
+      "u-1",
+      NOW,
+    );
+    expect(kept).toEqual({ unsent: 0, drafts: 1, originals: 1, originalBytes: 250 });
+  });
 });
 
 /** Cache Storage in memory, entries per cache name. */

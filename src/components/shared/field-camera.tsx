@@ -116,6 +116,11 @@ interface FieldCameraProps {
   icon?: React.ReactNode;
   /** The button trigger's size (`Button`'s own). */
   size?: "default" | "sm" | "lg";
+  /**
+   * The button trigger's look (`Button`'s own): outlined unless the camera is
+   * the screen's one main action - Rainy Weather's 「开始下雨：拍第一张」 (JB192).
+   */
+  variant?: "default" | "outline";
   disabled?: boolean;
   className?: string;
   /**
@@ -138,6 +143,7 @@ export function FieldCamera({
   trigger = "tile",
   icon,
   size,
+  variant = "outline",
   disabled = false,
   className = "",
   adds = false,
@@ -363,7 +369,7 @@ export function FieldCamera({
       {trigger === "button" ? (
         <Button
           type="button"
-          variant="outline"
+          variant={variant}
           size={size}
           className={className}
           disabled={disabled}

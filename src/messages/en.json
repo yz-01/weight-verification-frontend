@@ -3801,7 +3801,12 @@
       "company_material_price_set": "Company category unit price set",
       "material_return_checked": "Supplier returns checked",
       "material_return_check_pdf_exported": "Return check PDF exported",
-      "material_return_check_pdf_previewed": "Return check PDF previewed"
+      "material_return_check_pdf_previewed": "Return check PDF previewed",
+      "rain_record_submitted": "Rain record submitted",
+      "rain_record_voided": "Rain record voided",
+      "rain_rules_changed": "Rain record rules changed",
+      "rain_report_pdf_exported": "Rain record monthly report exported",
+      "rain_report_pdf_previewed": "Rain record monthly report previewed"
     },
     "objectType": {
       "SignOffAssistant": "Assistant PIN",
@@ -9063,7 +9068,13 @@
       "return_check_other_supplier": "Return {reference} belongs to another supplier. One check holds one supplier's returns.",
       "return_check_not_completed": "Return {reference} is not 「Left site - complete」 yet, so it cannot be checked.",
       "return_check_already_checked": "Return {reference} was already checked in {check_no}.",
-      "return_check_final": "A saved check cannot be changed or deleted, and its vouchers cannot be added to or removed."
+      "return_check_final": "A saved check cannot be changed or deleted, and its vouchers cannot be added to or removed.",
+      "rain_photos_required": "A rain record needs two photos: one when the rain starts, one when it stops.",
+      "rain_end_not_after_start": "The rain-stopped photo must be at least 1 minute after the start photo.",
+      "rain_record_quota_full": "This project has already received its rain records for this period, so this one was not accepted.",
+      "rain_void_reason_required": "Write why the record is voided.",
+      "rain_record_already_voided": "This rain record is already voided; it cannot be voided again.",
+      "rain_rules_out_of_range": "The number of records must be 1 to 50, and the minutes 5 to 1440."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -9753,7 +9764,8 @@
       "gate": "Gate",
       "operatorHours": "Equipment operator hours",
       "permit": "Permit to work",
-      "visitor": "Visitor QR Scan"
+      "visitor": "Visitor QR Scan",
+      "rain": "Rainy Weather"
     },
     "status": {
       "ACCEPTED": "Complete",
@@ -11720,7 +11732,8 @@
         "not_finished": "This record is not finished yet; it can be packed once it is",
         "other_project": "This record belongs to another project; a package only takes records from one project",
         "no_package": "Open a package in Multi Engine first",
-        "loading": "Reading where the records are packed…"
+        "loading": "Reading where the records are packed…",
+        "voided": "This rain record is voided and cannot be packed"
       },
       "what": {
         "status": "Package status",
@@ -12453,6 +12466,7 @@
       "platformCommission": "Platform commission",
       "platformJobs": "Scheduled jobs",
       "progressRecords": "Project progress",
+      "rainRecords": "Rainy Weather records",
       "projectRecords": "Project records",
       "documentRecords": "Document records",
       "qrActivity": "QR activity",
@@ -12728,7 +12742,8 @@
       "WASTE_OUTGOING": "Environmental material outgoing",
       "SUNDRY_CLAIM": "Sundry claims",
       "EQUIPMENT_HOURS_PHOTO": "Equipment operator hours",
-      "GATE_PHOTO": "Gate"
+      "GATE_PHOTO": "Gate",
+      "RAIN_RECORD": "Rainy Weather record"
     },
     "pageDescription": "This page is not cached yet. Reconnect once, then open it again for offline use.",
     "queue": {
@@ -12760,7 +12775,9 @@
         "members": "A person you chose to talk to is no longer on this project, so it cannot upload.",
         "project": "This project no longer exists, or you are no longer on it.",
         "time": "The time is wrong, so it cannot upload."
-      }
+      },
+      "rainQuotaFull": "This project has already received its rain records for this period, so this one was not accepted. Sending it again would be refused too - delete this one.",
+      "rainEndNotAfterStart": "The rain-stopped photo is not later than the start photo (the phone clock may have been changed), so it was not accepted. Delete this one and take the photos again."
     },
     "status": {
       "failed": "{count, plural, one {# action needs attention} other {# actions need attention}}",
@@ -19712,14 +19729,16 @@
       "photos": "Timeline",
       "reports": "Daily reports",
       "schedule": "Construction schedule",
-      "summary": "Progress summary"
+      "summary": "Progress summary",
+      "rain": "Rainy Weather"
     },
     "subtitle": {
       "phases": "Each project's own construction categories and weights. The phone picks one with every progress photo; overall progress is weighted by them.",
       "photos": "Progress photos from site, by date and construction category. Tick photos to write a daily report from them.",
       "reports": "One report per day; open it for the full text and the photos chosen for it.",
       "schedule": "The project's construction schedule and actual progress.",
-      "summary": "A summary the project manager arranges himself: text, photos, number cards, charts."
+      "summary": "A summary the project manager arranges himself: text, photos, number cards, charts.",
+      "rain": "Rain records from the phone's 「Rainy Weather」: two photos per rain, start, end and duration; monthly totals, the monthly PDF, and ticking into packages."
     },
     "project": "Project",
     "chooseProject": "Choose a project",
@@ -21017,7 +21036,8 @@
       "assistant_manage": "Add or change an assistant's PIN",
       "project_change_permissions": "Change a project's permissions",
       "material_price_set": "Set or change a material unit price",
-      "material_return_check": "Check supplier returns"
+      "material_return_check": "Check supplier returns",
+      "rain_record_void": "Void rain record"
     },
     "firstTitle": "Set your sign-off PIN for the first time",
     "firstBanner": "This is your first time using a sign-off PIN",
@@ -21545,5 +21565,134 @@
     "vouchersHint": "The files, photos or PDFs uploaded with the check. A check cannot be changed or deleted.",
     "pdf": "Return check PDF",
     "pdfTitle": "Return check {number}"
+  },
+  "rainRecords": {
+    "duration": {
+      "hm": "{hours}h {minutes}m",
+      "m": "{minutes}m"
+    },
+    "phone": {
+      "project": "Project",
+      "howTo": "When the rain starts, take the first photo. When it stops, come back and take the second. The times and how long it rained are worked out for you - nothing to fill in.",
+      "startBig": "Rain started: take photo 1",
+      "endBig": "Rain stopped: take photo 2",
+      "startPhoto": "Rain started",
+      "endPhoto": "Rain stopped",
+      "start": "Start",
+      "end": "End",
+      "duration": "Rain duration",
+      "started": "Started {time}",
+      "raining": "Raining for {duration}",
+      "held": "Photo 1 is saved on this phone and not uploaded yet; no signal or closing the page will not lose it. When the rain stops, come back on this phone for photo 2.",
+      "review": "Check both photos and the times, then press 「Submit rain record」.",
+      "submit": "Submit rain record",
+      "retake": "Retake photo 2",
+      "cancel": "Cancel this one",
+      "cancelAsk": "Cancel this one? Its photos are deleted from the phone and not uploaded.",
+      "cancelYes": "Yes, cancel",
+      "cancelNo": "Keep it",
+      "cancelled": "This one was cancelled.",
+      "long": "This one is over 12 hours. Did you forget the photo when the rain stopped? You can still submit it, or cancel this one.",
+      "tooShort": "Photo 2 must be at least 1 minute after photo 1. Press 「Retake photo 2」.",
+      "location": "GPS location",
+      "locationReady": "Located",
+      "sent": "Rain record submitted: {start}–{end} ({duration})",
+      "sentQueued": "Saved on the phone, sends when online: {start}–{end} ({duration})",
+      "notKept": "This phone could not save the photo (private browsing or no space). Keep this page open and submit as soon as photo 2 is taken.",
+      "loadFailed": "The rain record saved on this phone could not be read. Close this page and open it again.",
+      "failed": "It was not submitted. Press 「Submit rain record」 again.",
+      "inProgress": "In progress",
+      "refused": {
+        "quotaFull": "This project has already received {limit} rain records in these {minutes} minutes, so this one was not accepted. It cannot be submitted again - press 「Cancel this one」.",
+        "quotaFullPlain": "This project has already received its rain records for this period, so this one was not accepted. It cannot be submitted again - press 「Cancel this one」.",
+        "endNotAfterStart": "Photo 2 must be at least 1 minute after photo 1, so it was not accepted. Press 「Retake photo 2」 and take it again.",
+        "photosRequired": "The two photos are not complete, so it was not accepted. Press 「Retake photo 2」, or 「Cancel this one」 and start again.",
+        "other": "Not accepted: {reason} You can press 「Submit rain record」 again, or 「Cancel this one」."
+      }
+    },
+    "what": "rain records",
+    "rules": {
+      "line": "Rule: each project takes at most {limit} rain records in any {minutes} minutes; more are refused automatically.",
+      "button": "Rules",
+      "title": "Rain record rules",
+      "help": "Counted per project: at most this many rain records in any this many minutes in a row, by when the second photo was taken. A change applies at once.",
+      "limit": "At most how many records",
+      "limitHint": "1 to 50",
+      "minutes": "In how many minutes",
+      "minutesHint": "5 to 1440 minutes",
+      "save": "Save",
+      "saved": "Rules saved",
+      "readOnly": "Only head office (with company settings) can change them.",
+      "what": "the rules"
+    },
+    "filter": {
+      "month": "Month",
+      "allStates": "All statuses",
+      "active": "Valid",
+      "voided": "Voided"
+    },
+    "summary": {
+      "title": "Totals: {from} to {to}",
+      "times": "Times it rained",
+      "days": "Rain days",
+      "minutes": "Total duration",
+      "records": "Records",
+      "voided": "Voided",
+      "timesValue": "{count, plural, one {# time} other {# times}}",
+      "daysValue": "{count, plural, one {# day} other {# days}}",
+      "recordsValue": "{count}",
+      "chooseProject": "Choose a project to see its totals and monthly report. The list below is every project's.",
+      "noRain": "No rain recorded in this period.",
+      "hint": "One rain photographed by several people counts once; overlapping time counts once; voided records do not count.",
+      "what": "rain totals"
+    },
+    "daily": {
+      "title": "Each day",
+      "date": "Date",
+      "times": "Times it rained",
+      "minutes": "Duration",
+      "records": "Records",
+      "carried": "Continued from the day before"
+    },
+    "list": {
+      "title": "Rain records",
+      "count": "{count, plural, one {# record} other {# records}}"
+    },
+    "column": {
+      "number": "No.",
+      "photos": "Two photos",
+      "start": "Start",
+      "end": "End",
+      "duration": "Duration",
+      "who": "Taken by",
+      "project": "Project",
+      "status": "Status"
+    },
+    "pdf": {
+      "label": "Monthly report",
+      "title": "Rainy Weather monthly report {month}",
+      "needMonth": "Choose a project and a month to preview, print, export or send that month's report."
+    },
+    "record": {
+      "start": "Rain started",
+      "end": "Rain stopped",
+      "duration": "Rain duration",
+      "position": "GPS {latitude}, {longitude}",
+      "noGps": "No location",
+      "voided": "Voided",
+      "voidedBy": "Voided by",
+      "voidedAt": "Voided at",
+      "voidReason": "Reason"
+    },
+    "void": {
+      "button": "Void",
+      "title": "Void this rain record",
+      "help": "Once voided the record stays, marked 「Voided」; it is left out of the totals and the monthly report's list, and cannot be packed. Voiding cannot be undone.",
+      "reason": "Reason for voiding",
+      "reasonPlaceholder": "e.g. wrong photo, taken twice",
+      "confirm": "Confirm void",
+      "pin": "After 「Confirm void」, enter your six-digit sign-off PIN.",
+      "done": "{number} voided"
+    }
   }
 }

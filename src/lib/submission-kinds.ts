@@ -54,6 +54,8 @@ export const QUEUED_SUBMISSION_KINDS: Record<string, string> = {
   EQUIPMENT_HOURS_PHOTO: "EQUIPMENT_HOURS",
   ATTENDANCE: "ATTENDANCE",
   CONSULTANT_SUBMISSION: "CONSULTANT",
+  // Rainy Weather (JB192): on the server it is a progress record.
+  RAIN_RECORD: "PROGRESS",
 };
 
 /**
