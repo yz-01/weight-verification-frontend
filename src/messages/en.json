@@ -3804,7 +3804,9 @@
       "material_return_check_pdf_previewed": "Return check PDF previewed",
       "rain_record_submitted": "Rain record submitted",
       "rain_record_voided": "Rain record voided",
-      "rain_rules_changed": "Rain record rules changed"
+      "rain_rules_changed": "Rain record rules changed",
+      "rain_report_pdf_exported": "Rain record monthly report exported",
+      "rain_report_pdf_previewed": "Rain record monthly report previewed"
     },
     "objectType": {
       "SignOffAssistant": "Assistant PIN",

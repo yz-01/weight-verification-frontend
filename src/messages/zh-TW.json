@@ -3804,7 +3804,9 @@
       "material_return_check_pdf_previewed": "預覽退貨核對單",
       "rain_record_submitted": "提交雨天記錄",
       "rain_record_voided": "作廢雨天記錄",
-      "rain_rules_changed": "修改雨天記錄接收規則"
+      "rain_rules_changed": "修改雨天記錄接收規則",
+      "rain_report_pdf_exported": "匯出雨天記錄月報",
+      "rain_report_pdf_previewed": "預覽雨天記錄月報"
     },
     "objectType": {
       "SignOffAssistant": "助理副密碼",

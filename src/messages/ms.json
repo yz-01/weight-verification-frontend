@@ -3804,7 +3804,9 @@
       "material_return_check_pdf_previewed": "PDF semakan pemulangan dipratonton",
       "rain_record_submitted": "Rekod hujan dihantar",
       "rain_record_voided": "Rekod hujan dibatalkan",
-      "rain_rules_changed": "Peraturan rekod hujan diubah"
+      "rain_rules_changed": "Peraturan rekod hujan diubah",
+      "rain_report_pdf_exported": "Laporan bulanan rekod hujan dieksport",
+      "rain_report_pdf_previewed": "Laporan bulanan rekod hujan dipratonton"
     },
     "objectType": {
       "SignOffAssistant": "PIN pembantu",
