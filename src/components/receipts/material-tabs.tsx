@@ -295,13 +295,14 @@ export function NetTotalsView({
                           {index === 0 || shown[index - 1].material_name !== row.material_name
                             ? row.material_name
                             : null}
-                          {(row.return_count ?? 0) > 0 ? (
+                          {/* Only returns not yet checked (JB188): all checked, no mark. */}
+                          {(row.unchecked_return_count ?? 0) > 0 ? (
                             <button
                               type="button"
                               data-slot="net-return-tag"
                               className="inline-flex shrink-0 cursor-pointer items-center gap-1 rounded-full border border-tone-amber/35 bg-tone-amber/12 px-1.5 py-0 text-2xs font-medium leading-5 text-tone-amber-fg hover:bg-tone-amber/20"
-                              title={t("receipts.net.returnTagHint", { count: row.return_count ?? 0 })}
-                              aria-label={t("receipts.net.returnTagHint", { count: row.return_count ?? 0 })}
+                              title={t("receipts.net.returnTagHint", { count: row.unchecked_return_count ?? 0 })}
+                              aria-label={t("receipts.net.returnTagHint", { count: row.unchecked_return_count ?? 0 })}
                               onClick={() => setDrill({ row, focus: "returned" })}
                             >
                               <Undo2 className="size-3" />

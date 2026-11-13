@@ -20,11 +20,13 @@
  */
 
 import { useQuery } from "@tanstack/react-query";
-import { Loader2, PackageMinus, Undo2 } from "lucide-react";
+import { ArrowLeft, ClipboardCheck, Loader2, PackageMinus, Undo2 } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
+import { ReturnCheckForm } from "@/components/contractor-ops/return-checks";
 import { clickOpensRow } from "@/components/shared/inside-row-control";
 import { OutgoingDecision } from "@/components/dashboard/approval-opener";
 import { useAuth } from "@/components/providers/auth-provider";
@@ -33,6 +35,8 @@ import { ExportButton } from "@/components/shared/export-button";
 import { PhotoLink } from "@/components/shared/photo-link";
 import { PhotoThumb, rowPhotos } from "@/components/shared/photo-thumb";
 import { QueryFailedNote } from "@/components/shared/page-primitives";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import {
   Dialog,
@@ -149,7 +153,10 @@ export function SupplierReturnsDialog({
   const ops = useTranslations("contractorOps");
   const dates = useTranslations("supplierDateFilter");
   const { can } = useAuth();
+  const router = useRouter();
   const unitValues = useUnitExportValues();
+  // 【退货核对】 in this window (JB188 做法 4): the same rows, ticked here.
+  const [checking, setChecking] = useState(false);
   // A long history is cut at the server's cap (audit #24): narrowed here by
   // project and by the day the material left. Every project the reader sees
   // to begin with, not the top bar's: the 「有退场资料」 mark counts them all,
@@ -170,11 +177,12 @@ export function SupplierReturnsDialog({
 
   // The same export the 材料出场 list makes, narrowed to this supplier's
   // finished returns: each row with its photographs (C12) and Return Note.
+  // Not yet checked, as the list here (JB188, Lucas 11-13 决定 1).
   const exportRequest = (format: "xlsx" | "pdf"): ExportRequest => ({
     format,
     title,
     emptyLabel: t("empty"),
-    query: { supplier: supplier.id, status: "COMPLETED", ...narrow },
+    query: { supplier: supplier.id, status: "COMPLETED", unchecked: "1", ...narrow },
     columns: supplierReturnsExportColumns(t, ops, unitValues),
   });
 
@@ -186,6 +194,26 @@ export function SupplierReturnsDialog({
           <DialogDescription>{t("help")}</DialogDescription>
         </DialogHeader>
         <div className="flex flex-wrap items-center justify-end gap-2">
+          {/* 【退货核对】 here too, for whoever may approve 材料出场 (JB188 做法 4). */}
+          {can("material_outgoing.approve") ? (
+            checking ? (
+              <Button variant="outline" data-slot="supplier-returns-back" onClick={() => setChecking(false)}>
+                <ArrowLeft />
+                {t("backToList")}
+              </Button>
+            ) : (
+              <Button
+                data-slot="supplier-returns-check"
+                title={t("checkHint")}
+                disabledReason={t("empty")}
+                disabled={!rows.length}
+                onClick={() => setChecking(true)}
+              >
+                <ClipboardCheck />
+                {t("check")}
+              </Button>
+            )
+          ) : null}
           {/* 预览 · 打印 · 导出 · 发送, as on every export (PDF 统一操作规则).
               Exporting is its own permission, as on every other list; without
               it the returns can still be previewed, printed and sent, as
@@ -245,6 +273,21 @@ export function SupplierReturnsDialog({
           </div>
         ) : returns.isSuccess && !rows.length ? (
           <p className="rounded-xl border border-dashed border-panel-border p-6 text-center text-sm text-muted-foreground">{t("empty")}</p>
+        ) : rows.length && checking ? (
+          <ReturnCheckForm
+            supplier={supplier}
+            rows={rows}
+            truncated={
+              returns.data?.truncated
+                ? { shown: returns.data.count, total: returns.data.total ?? returns.data.count }
+                : null
+            }
+            // Saved: the window closes and 「已核对」 shows it on top (做法 3).
+            onSaved={() => {
+              onClose();
+              router.push("/material-outgoing?tab=checked");
+            }}
+          />
         ) : rows.length ? (
           <SupplierReturnsTable rows={rows} />
         ) : null}
@@ -261,16 +304,42 @@ export function SupplierReturnsDialog({
  * which stays open behind it (Lucas 2026-10-10, 图8 → 图9). The reference
  * used to be a link to the 材料出场 page, which took the reader away.
  */
-export function SupplierReturnsTable({ rows }: { rows: readonly MaterialOutgoing[] }) {
+export function SupplierReturnsTable({
+  rows,
+  selection,
+}: {
+  rows: readonly MaterialOutgoing[];
+  /**
+   * 【退货核对】 (JB188 做法 2): a tick before each row and 「全选」 - the same
+   * list, so the returns are picked from what the badge already shows.
+   */
+  selection?: ReturnSelection;
+}) {
   const t = useTranslations("supplierReturns");
+  const checks = useTranslations("returnChecks");
   const df = useDateFormat();
   const unitName = useUnitName();
   const [opened, setOpened] = useState<string | null>(null);
+  const all = selection ? rows.length > 0 && rows.every((row) => selection.chosen.has(row.id)) : false;
+  const some = selection ? rows.some((row) => selection.chosen.has(row.id)) : false;
   return (
     <div className="overflow-x-auto rounded-lg border">
       <Table>
         <TableHeader>
           <TableRow>
+            {selection ? (
+              <TableHead className="w-24">
+                <label className="inline-flex min-h-11 cursor-pointer items-center gap-2 text-xs font-semibold">
+                  <Checkbox
+                    data-slot="return-select-all"
+                    checked={all ? true : some ? "indeterminate" : false}
+                    onCheckedChange={() => selection.onToggleAll()}
+                    aria-label={checks("selectAll")}
+                  />
+                  {checks("selectAll")}
+                </label>
+              </TableHead>
+            ) : null}
             <TableHead>{t("column.date")}</TableHead>
             <TableHead>{t("column.material")}</TableHead>
             <TableHead className="text-right">{t("column.quantity")}</TableHead>
@@ -290,6 +359,7 @@ export function SupplierReturnsTable({ rows }: { rows: readonly MaterialOutgoing
               unitName={unitName}
               df={df}
               onOpen={() => setOpened(row.id)}
+              selection={selection}
             />
           ))}
         </TableBody>
@@ -297,6 +367,13 @@ export function SupplierReturnsTable({ rows }: { rows: readonly MaterialOutgoing
       {opened ? <OutgoingDecision id={opened} onClose={() => setOpened(null)} /> : null}
     </div>
   );
+}
+
+/** The ticked returns of 【退货核对】 and how to tick (JB188). */
+export interface ReturnSelection {
+  chosen: ReadonlySet<string>;
+  onToggle: (id: string) => void;
+  onToggleAll: () => void;
 }
 
 /** A press inside a photo or a signature is for that picture, not the row. */
@@ -343,14 +420,17 @@ function ReturnRow({
   unitName,
   df,
   onOpen,
+  selection,
 }: {
   row: MaterialOutgoing;
   unitName: ReturnType<typeof useUnitName>;
   df: ReturnType<typeof useDateFormat>;
   onOpen: () => void;
+  selection?: ReturnSelection;
 }) {
   const t = useTranslations("supplierReturns");
   const ops = useTranslations("contractorOps");
+  const checks = useTranslations("returnChecks");
   const when = row.processed_at || row.completed_at || row.captured_at;
   return (
     <TableRow
@@ -362,6 +442,19 @@ function ReturnRow({
         if (clickOpensRow(event)) onOpen();
       }}
     >
+      {selection ? (
+        <TableCell>
+          {/* The tick is the tick's; the rest of the row opens the record. */}
+          <label className="inline-flex min-h-11 min-w-11 cursor-pointer items-center justify-center">
+            <Checkbox
+              data-slot="return-select-row"
+              checked={selection.chosen.has(row.id)}
+              onCheckedChange={() => selection.onToggle(row.id)}
+              aria-label={checks("selectRow", { reference: row.reference_no })}
+            />
+          </label>
+        </TableCell>
+      ) : null}
       <TableCell className="whitespace-nowrap">
         <div className="tabular">{df.date(when)}</div>
         {/* The keyboard's way in; the whole row opens it for a pointer. */}

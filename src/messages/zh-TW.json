@@ -3798,7 +3798,10 @@
       "material_price_set": "設定材料單價",
       "unit_price_from_price_list": "按材料單價補上收貨單價",
       "company_material_price_carried": "從公司通用分類帶入單價",
-      "company_material_price_set": "設定公司通用分類單價"
+      "company_material_price_set": "設定公司通用分類單價",
+      "material_return_checked": "退貨核對",
+      "material_return_check_pdf_exported": "導出退貨核對單",
+      "material_return_check_pdf_previewed": "預覽退貨核對單"
     },
     "objectType": {
       "SignOffAssistant": "助理副密碼",
@@ -3834,7 +3837,8 @@
       "FieldTask": "現場任務",
       "SundryClaim": "雜項請款",
       "Document": "文件檔案",
-      "RecordCorrection": "更正"
+      "RecordCorrection": "更正",
+      "MaterialReturnCheck": "退貨核對"
     },
     "result": {
       "FAILED": "失敗",
@@ -9049,7 +9053,15 @@
       "material_price_needs_unit": "請先給「{name}」選單位，單價是按單位算的。",
       "material_price_typed_on_record": "「其他」每次進場時填寫，單價也在記錄上填。",
       "issue_has_no_return_note": "材料領用不需要 Return Note。",
-      "issue_statement_too_long": "這次篩選出來有 {count} 項，一份最多 {limit} 項。請把日期範圍縮小一點再試。"
+      "issue_statement_too_long": "這次篩選出來有 {count} 項，一份最多 {limit} 項。請把日期範圍縮小一點再試。",
+      "return_check_supplier_required": "請先選擇供應商。",
+      "return_check_none_chosen": "請至少勾選一筆退貨。",
+      "return_check_return_not_found": "有 {count} 筆勾選的退貨找不到，或者在你看不到的項目裡。請關掉視窗，重新打開「退貨核對」再勾選。",
+      "return_check_no_supplier": "退貨 {reference} 還沒有填供應商，不能核對。請先打開這筆退貨，把供應商補上。",
+      "return_check_other_supplier": "退貨 {reference} 不是這家供應商的。一次只能核對同一家供應商的退貨。",
+      "return_check_not_completed": "退貨 {reference} 還不是「已退場，已完成」，現在不能核對。",
+      "return_check_already_checked": "退貨 {reference} 已經在 {check_no} 核對過了，不用再核對。",
+      "return_check_final": "核對記錄保存後不能修改或刪除，憑證也不能再加或刪除。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -14491,7 +14503,7 @@
       },
       "returnTag": "有退貨資料",
       "noSpec": "未填規格",
-      "returnTagHint": "這一行有 {count} 筆已完成的退場，點開查看",
+      "returnTagHint": "這一行有 {count} 筆還沒核對的退貨，點開查看",
       "openNumber": "查看{label} {value} 是哪些記錄",
       "breakdown": {
         "what": "這一行的明細",
@@ -19843,10 +19855,10 @@
   },
   "supplierReturns": {
     "badge": "有退貨資料",
-    "badgeHint": "這家供應商有 {count} 筆已完成的退場，點開查看",
+    "badgeHint": "這家供應商有 {count} 筆還沒核對的退貨，點開查看",
     "title": "{name} 的退貨資料",
-    "help": "這家供應商所有已完成的退場：Return Note、照片、雙方簽名和批准資料。點任意一行查看完整記錄。",
-    "empty": "沒有已完成的退場。",
+    "help": "這家供應商已完成、還沒核對的退貨：Return Note、照片、雙方簽名和批准資料。點任意一行查看完整記錄。已經核對的在「材料出場 › 已核對」。",
+    "empty": "沒有待核對的退貨。",
     "truncated": "只顯示最近 {shown} 筆（共 {total} 筆）。請按項目或日期縮小範圍。",
     "what": "退貨資料",
     "column": {
@@ -19867,7 +19879,10 @@
     "print": "列印",
     "export": "導出",
     "share": "分享",
-    "open": "查看 {reference} 的完整記錄"
+    "open": "查看 {reference} 的完整記錄",
+    "check": "退貨核對",
+    "checkHint": "在這裡勾選這家供應商的退貨，一起核對",
+    "backToList": "返回列表"
   },
   "equipmentHours": {
     "subtitle": "開工拍一張、收工拍一張：每一對開工和收工是一筆工時，結束減開始就是工時（不扣午休），不分白天晚上。",
@@ -20980,7 +20995,8 @@
       "archive_confirm": "確認歸檔",
       "assistant_manage": "新增或更改助理副密碼",
       "project_change_permissions": "修改項目權限",
-      "material_price_set": "設定或調整材料單價"
+      "material_price_set": "設定或調整材料單價",
+      "material_return_check": "退貨核對"
     },
     "firstTitle": "第一次設定簽核密碼",
     "firstBanner": "這是你第一次使用簽核密碼",
@@ -21445,5 +21461,65 @@
       "filledWithIssues": "單價已儲存，補上了 {count} 條沒有單價的進場記錄、{issues} 項材料領用。",
       "filled": "單價已儲存，補上了 {count} 條沒有單價的記錄。"
     }
+  },
+  "returnChecks": {
+    "tabsLabel": "供應商退貨的頁籤",
+    "tabPending": "待核對",
+    "tabChecked": "已核對",
+    "button": "退貨核對",
+    "buttonHint": "勾選同一家供應商已完成的退貨，一起核對",
+    "title": "退貨核對",
+    "help": "先選供應商，再勾選這家供應商已完成、還沒核對的退貨。",
+    "chooseSupplier": "選擇供應商",
+    "supplierCount": "{count} 筆待核對",
+    "noSuppliers": "現在沒有待核對的退貨。",
+    "suppliersWhat": "待核對的供應商",
+    "returnsWhat": "待核對的退貨",
+    "changeSupplier": "換一家供應商",
+    "pickTitle": "{name} 待核對的退貨",
+    "pickHelp": "勾選要核對的退貨，可以勾一筆或多筆。點一行可以查看完整記錄。",
+    "noReturns": "這家供應商沒有待核對的退貨。",
+    "truncated": "只顯示最近 {shown} 筆（共 {total} 筆）。核對完這些，其餘的會接著顯示。",
+    "selectAll": "全選",
+    "selectRow": "勾選 {reference}",
+    "tickFirst": "先勾選要核對的退貨，下面才會出現核對確認。",
+    "confirmTitle": "核對確認",
+    "chosen": "已勾選 {count} 筆",
+    "checker": "核對人",
+    "checkedAt": "日期及時間",
+    "files": "上傳文件、照片或 PDF",
+    "filesHint": "可以不傳。最多 {count} 個，每個不超過 {limit} MB。",
+    "note": "備註",
+    "notePlaceholder": "可以不填",
+    "noPrice": "不用重新填寫退貨資料，也不涉及價格或結算。",
+    "confirm": "確認核對",
+    "confirmPin": "按「確認核對」後，輸入你的六位數簽核密碼。",
+    "needTick": "先勾選至少一筆退貨",
+    "saved": "已核對，編號 {number}",
+    "cancel": "取消",
+    "count": "{count} 次核對",
+    "column": {
+      "number": "核對編號",
+      "supplier": "供應商",
+      "count": "筆數",
+      "date": "日期",
+      "checker": "核對人",
+      "view": "查看"
+    },
+    "countValue": "{count} 筆",
+    "empty": "還沒有核對記錄。",
+    "listWhat": "核對記錄",
+    "view": "查看",
+    "windowTitle": "退貨核對 {number}",
+    "what": "這次核對",
+    "returnsTitle": "這次勾選的退貨（{count} 筆）",
+    "returnsHelp": "點任意一行打開那一筆退貨的原始記錄，關掉回到這裡。",
+    "hidden": "另有 {count} 筆在別的項目。",
+    "detailsTitle": "核對資料",
+    "noNote": "沒有備註",
+    "vouchers": "上傳憑證",
+    "vouchersHint": "核對時上傳的文件、照片或 PDF。核對記錄不能修改或刪除。",
+    "pdf": "退貨核對單 PDF",
+    "pdfTitle": "退貨核對單 {number}"
   }
 }
