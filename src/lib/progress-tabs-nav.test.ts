@@ -7,7 +7,8 @@
  * - 「施工分类」 is one name: the progress page's tab, the field on the phone
  *   and in the lists, and the report menu's second level (D6) all say it.
  *   It was 施工阶段 on some screens and 施工分类 on others.
- * - The daily report tab is 「日报告」 and each report's name is 「日报名称」.
+ * - The daily report tab is 「日报告」 and each report's name was 「日报名称」;
+ *   since JB186 (客户 11-13: 「日报名称改为日报天气」) it is 「日报天气」.
  */
 import { describe, expect, it } from "vitest";
 
@@ -72,14 +73,14 @@ describe("施工分类 has one name (Q5, X7)", () => {
   });
 });
 
-describe("日报告 and 日报名称", () => {
+describe("日报告 and 日报天气", () => {
   it("are the tab and the name of one report", () => {
     expect(zh.progressPage.tabs.reports).toBe("日报告");
-    expect(zh.progressPage.reports.name).toBe("日报名称");
+    expect(zh.progressPage.reports.name).toBe("日报天气");
     expect(zh.progressPage.reports.date).toBe("日期");
     expect(zh.progressPage.reports.view).toBe("查看");
     expect(zhTW.progressPage.tabs.reports).toBe("日報告");
-    expect(zhTW.progressPage.reports.name).toBe("日報名稱");
+    expect(zhTW.progressPage.reports.name).toBe("日報天氣");
   });
 
   it("the page title is the menu's own name", () => {
