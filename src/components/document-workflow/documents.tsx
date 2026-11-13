@@ -28,6 +28,7 @@ import { useMemo, useRef, useState } from "react";
 import { RecordExportButton } from "@/components/shared/record-export-button";
 import { AttachmentPicker } from "@/components/shared/attachment-picker";
 import { FileThumbs } from "@/components/shared/file-thumbs";
+import { usePackCollect } from "@/components/contractor-ops/pack-collect";
 import { useAuth } from "@/components/providers/auth-provider";
 import { useCurrentProject } from "@/components/providers/current-project-provider";
 import {
@@ -189,10 +190,13 @@ export function Documents() {
   const opener = useRecordOpener();
 
   // On the top bar's 「当前项目」 (B13) the archive shows that project's files
-  // and the company-wide ones, which belong to every project.
+  // and the company-wide ones, which belong to every project. So does it while
+  // a package of that project is being put together (JB193 三 3: 「公司通用文件」
+  // go into any project's package), whoever's screen has no top bar.
   const topBar = useCurrentProject();
+  const { collecting } = usePackCollect();
   const documentsQuery =
-    topBar.active && list.filters.project
+    (topBar.active || collecting !== null) && list.filters.project
       ? { ...list.query, with_company: "1" }
       : list.query;
   const documents = useQuery({
@@ -588,6 +592,10 @@ export function Documents() {
         onRowClick={(row) => setViewingId(row.id)}
         columns={columns}
         rows={rows}
+        // Multi Engine picks documents here, under any category, sub-category
+        // or 「全部」 (JB193 三 1). Only an archived one can go in (三 3, the
+        // client's own 10-26 rule JB25: 「确认归档前，不能对外转发」).
+        pack={{ kind: "DOCUMENT", blocked: (row) => (row.status !== "ARCHIVED" ? "not_archived" : null) }}
         totalCount={totalCount}
         page={list.page}
         pageSize={list.pageSize}

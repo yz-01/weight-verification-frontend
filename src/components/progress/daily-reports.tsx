@@ -44,6 +44,7 @@ import {
   localDay,
   usePhotoViewer,
 } from "@/components/progress/progress-photos";
+import { usePackList } from "@/components/contractor-ops/pack-collect";
 import { RecordNo } from "@/components/shared/record-no";
 import { clickOpensRow } from "@/components/shared/inside-row-control";
 import { useAuth } from "@/components/providers/auth-provider";
@@ -74,6 +75,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { useArrowKeys } from "@/hooks/use-arrow-keys";
 import { useListQuery } from "@/hooks/use-list-query";
+import { useUrlSelection } from "@/hooks/use-url-selection";
 import { ApiError } from "@/interfaces/api";
 import type {
   DailyReport,
@@ -151,9 +153,16 @@ export function DailyReportsTab() {
   });
   const [writing, setWriting] = useState(false);
   // A row - or a report just written - opens the book of its project's month
-  // at that report (JB175), whatever this list is filtered to.
-  const [viewing, setViewing] = useState<string | null>(null);
+  // at that report (JB175), whatever this list is filtered to. A link may
+  // name one too (`?report=`, JB193: a 「被退回」 notice about a report).
+  const [viewing, setViewing] = useUrlSelection("report");
   const total = rows.data?.count ?? 0;
+  const reportRows = rows.data?.results ?? [];
+  // Multi Engine picks reports here (JB193 二 1): any saved report can go in.
+  const pack = usePackList({ kind: "DAILY_REPORT" }, reportRows);
+  const tPack = useTranslations("multiEngine.collect");
+  // The loading and empty rows span every column, the pack ones too.
+  const span = 4 + (pack.picking ? 1 : 0) + (pack.showColumn ? 1 : 0);
 
   return (
     <div className="space-y-4">
@@ -196,12 +205,16 @@ export function DailyReportsTab() {
       </FilterBar>
       <QueryFailedNote query={rows} what={t("tabs.reports")} />
       <div className="surface-panel overflow-hidden rounded-xl">
+        {pack.bar}
         {/* Fits the page, 查看 pinned at the right (I39). */}
         <Table fit>
           <TableHeader>
             <TableRow>
+              {/* Multi Engine's tick box first, as on every packable list. */}
+              {pack.picking && <TableHead className="w-10">{pack.checkAll}</TableHead>}
               {/* 记录编号 (I6): DR-<project>-001. */}
               <TableHead className="w-32">{tRoot("recordNo.column")}</TableHead>
+              {pack.showColumn && <TableHead>{tPack("column")}</TableHead>}
               <TableHead>{t("reports.name")}</TableHead>
               <TableHead className="w-48">{t("reports.date")}</TableHead>
               <TableHead pin="end" className="w-20 text-right">{t("reports.view")}</TableHead>
@@ -210,18 +223,18 @@ export function DailyReportsTab() {
           <TableBody>
             {rows.isLoading ? (
               <TableRow>
-                <TableCell colSpan={4} className="text-center">
+                <TableCell colSpan={span} className="text-center">
                   <Loader2 className="size-4 animate-spin text-muted-foreground" />
                 </TableCell>
               </TableRow>
-            ) : (rows.data?.results ?? []).length === 0 ? (
+            ) : reportRows.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={4} className="py-8 text-center text-sm text-muted-foreground">
+                <TableCell colSpan={span} className="py-8 text-center text-sm text-muted-foreground">
                   {rows.isError ? "—" : t("reports.empty")}
                 </TableCell>
               </TableRow>
             ) : (
-              (rows.data?.results ?? []).map((row) => (
+              reportRows.map((row) => (
                 <TableRow
                   key={row.id}
                   className={cn("cursor-pointer", row.was_corrected && CORRECTED_ROW_CLASS)}
@@ -229,6 +242,15 @@ export function DailyReportsTab() {
                     if (clickOpensRow(event)) setViewing(row.id);
                   }}
                 >
+                  {pack.picking && (
+                    // The box ticks; it does not open the report (`clickOpensRow`
+                    // passes by an own-click control; the cell itself still opens, JB42).
+                    <TableCell>
+                      <div data-own-click className="flex items-center">
+                        {pack.check(row.id)}
+                      </div>
+                    </TableCell>
+                  )}
                   <TableCell>
                     <span className="flex items-center gap-1.5">
                       {/* 「已修改」 (J20): opens the report's edit history. */}
@@ -236,6 +258,7 @@ export function DailyReportsTab() {
                       <RecordNo value={row.record_no} />
                     </span>
                   </TableCell>
+                  {pack.showColumn && <TableCell>{pack.badge(row.id)}</TableCell>}
                   <TableCell>
                     <p className="font-medium text-foreground">{row.name}</p>
                     <p className="text-xs text-muted-foreground">
@@ -288,6 +311,7 @@ export function DailyReportsTab() {
       {total > PAGE && (
         <Pager page={list.page} pages={Math.ceil(total / PAGE)} onPage={list.setPage} />
       )}
+      {pack.overlay}
 
       {viewing && (
         <DailyReportBook key={viewing} report={viewing} onClose={() => setViewing(null)} />

@@ -59,6 +59,7 @@ import type {
   EvidencePackageDetail,
   EvidencePackageRow,
   PackageLinkResult,
+  PackRecordRef,
   PackStatus,
   RecordPackageRow,
   PackageRecordParts,
@@ -1786,15 +1787,47 @@ export async function removePackageItem(id: string, item: string) {
  * every list says how often each row was packed (三 4).
  */
 
+/**
+ * Which records a pack call is about: one kind and its ids, as every
+ * single-kind list has always sent, or - for a list that mixes kinds
+ * (现场记录中心, JB193 「一次问 / 加入好几种」) - each record with its own kind.
+ */
+export type PackRecords = ArchiveRecordKind | readonly PackRecordRef[];
+
+/** `KIND:id,KIND:id` - several kinds in one `pack_status` question (JB193). */
+export function packItemsParam(records: readonly PackRecordRef[]): string {
+  return records.map((row) => `${row.kind}:${row.id}`).join(",");
+}
+
+/** The body of `link_records` / `unlink_records`: `{kind, ids}`, or `{records}` for several kinds. */
+export function packRecordsBody(
+  records: PackRecords,
+  ids: readonly string[] = [],
+): { kind: ArchiveRecordKind; ids: string[] } | { records: PackRecordRef[] } {
+  if (typeof records === "string") return { kind: records, ids: [...ids] };
+  return { records: records.map((row) => ({ kind: row.kind, id: row.id })) };
+}
+
+/** The query of `pack_status`: `kind` + `ids`, or `items` for several kinds. */
+export function packStatusQuery(
+  records: PackRecords,
+  ids: readonly string[],
+  packageId?: string,
+): Record<string, string | undefined> {
+  if (typeof records === "string") {
+    return { kind: records, ids: ids.join(","), package: packageId || undefined };
+  }
+  return { items: packItemsParam(records), package: packageId || undefined };
+}
+
 /** 「加入当前资料包」: whole records, once per package; the rest are counted. */
-export async function linkPackageRecords(
-  id: string,
-  kind: ArchiveRecordKind,
-  ids: string[],
-) {
+export async function linkPackageRecords(id: string, kind: ArchiveRecordKind, ids: string[]): Promise<PackageLinkResult>;
+/** Several kinds at once (现场记录中心, JB193): `{records: [{kind, id}, …]}`. */
+export async function linkPackageRecords(id: string, records: readonly PackRecordRef[]): Promise<PackageLinkResult>;
+export async function linkPackageRecords(id: string, records: PackRecords, ids: string[] = []) {
   const result = await api.post<PackageLinkResult>(
     `/api/evidence-packages/${id}/link_records/`,
-    { kind, ids },
+    packRecordsBody(records, ids),
   );
   const skipped = result.already_in + result.refused.length;
   toastSuccess(
@@ -1804,27 +1837,36 @@ export async function linkPackageRecords(
   return result;
 }
 
+type PackUnlinkResult = { removed: number; package: PackageLinkResult["package"] };
+
 /** Untick on the list: the record leaves this draft and stops counting (三 6). */
-export async function unlinkPackageRecords(
-  id: string,
-  kind: ArchiveRecordKind,
-  ids: string[],
-) {
-  const result = await api.post<{ removed: number; package: PackageLinkResult["package"] }>(
+export async function unlinkPackageRecords(id: string, kind: ArchiveRecordKind, ids: string[]): Promise<PackUnlinkResult>;
+/** Several kinds at once (现场记录中心, JB193): `{records: [{kind, id}, …]}`. */
+export async function unlinkPackageRecords(id: string, records: readonly PackRecordRef[]): Promise<PackUnlinkResult>;
+export async function unlinkPackageRecords(id: string, records: PackRecords, ids: string[] = []) {
+  const result = await api.post<PackUnlinkResult>(
     `/api/evidence-packages/${id}/unlink_records/`,
-    { kind, ids },
+    packRecordsBody(records, ids),
   );
   toastSuccess("multiEngine.collect.toast.unlinked");
   return result;
 }
 
 /** For one page of a module's list: 「已打包 X 次」 and 「已加入当前资料包」 per row. */
-export const getPackStatus = (kind: ArchiveRecordKind, ids: string[], packageId?: string) =>
-  api.get<PackStatus>("/api/evidence-packages/pack_status/", {
-    kind,
-    ids: ids.join(","),
-    package: packageId || undefined,
-  });
+export function getPackStatus(kind: ArchiveRecordKind, ids: string[], packageId?: string): Promise<PackStatus>;
+/** One page mixing kinds (现场记录中心, JB193): `?items=KIND:id,…`; still keyed by id. */
+export function getPackStatus(records: readonly PackRecordRef[], packageId?: string): Promise<PackStatus>;
+export function getPackStatus(
+  records: PackRecords,
+  idsOrPackage?: string[] | string,
+  packageId?: string,
+): Promise<PackStatus> {
+  const query =
+    typeof records === "string"
+      ? packStatusQuery(records, Array.isArray(idsOrPackage) ? idsOrPackage : [], packageId)
+      : packStatusQuery(records, [], typeof idsOrPackage === "string" ? idsOrPackage : undefined);
+  return api.get<PackStatus>("/api/evidence-packages/pack_status/", query);
+}
 
 /** Every package one record was packed into, newest first. */
 export const getRecordPackages = (kind: ArchiveRecordKind, id: string) =>

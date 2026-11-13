@@ -3081,7 +3081,8 @@
       "WEIGH_SESSION": "稱重記錄",
       "ANNOUNCEMENT": "公告",
       "VISITOR_ARRIVAL": "訪客到訪",
-      "MATERIAL_ISSUE": "Material Issue Note（材料領用單）"
+      "MATERIAL_ISSUE": "Material Issue Note（材料領用單）",
+      "DAILY_REPORT": "日報告"
     },
     "lastPage": "已經是最後一頁了。",
     "loading": "載入中…",
@@ -11624,7 +11625,11 @@
       "PROGRESS": "工程進度",
       "CONSULTANT_APPLICATION": "顧問申請",
       "SUNDRY_CLAIM": "雜費報銷",
-      "MATERIAL_REQUEST": "MR / 其他申請"
+      "MATERIAL_REQUEST": "MR / 其他申請",
+      "DAILY_REPORT": "日報告",
+      "DOCUMENT": "文件檔案",
+      "ATTENDANCE_DAY": "出入場（按日）",
+      "MATERIAL_ISSUE": "材料領用"
     },
     "lastPage": "已經是最後一頁了。",
     "loading": "載入中…",
@@ -11733,7 +11738,8 @@
         "other_project": "這筆記錄屬於別的項目；一個資料包只收同一個項目的記錄",
         "no_package": "先在 Multi Engine 打開一個資料包",
         "loading": "正在讀取打包情況…",
-        "voided": "這份雨天記錄已作廢，不能打包"
+        "voided": "這份雨天記錄已作廢，不能打包",
+        "not_archived": "這份文件還沒確認歸檔，歸檔後才能放進資料包"
       },
       "what": {
         "status": "打包情況",
@@ -12001,7 +12007,8 @@
     "layoutUpload": "電腦上傳的檔案",
     "layoutLetter": "書信",
     "previewDraft": "預覽完整資料",
-    "draftPreviewOnly": "這是確認前的預覽。確認後才能列印、匯出和發送。"
+    "draftPreviewOnly": "這是確認前的預覽。確認後才能列印、匯出和發送。",
+    "fixedPart": "一定會放進資料包"
   },
   "mySubmissions": {
     "title": "我提交過的",
@@ -12193,7 +12200,12 @@
       "recipient_name": "領用人",
       "issuer_name": "發料負責人",
       "issue_lines": "領用材料",
-      "handover_gps": "領用 GPS 位置"
+      "handover_gps": "領用 GPS 位置",
+      "report_name": "日報告名稱",
+      "report_period": "報告日期",
+      "report_records": "進度記錄",
+      "report_photos": "照片數量",
+      "document_title": "文件名稱"
     },
     "detailTitle": "我提交過的",
     "photos": "照片",
@@ -12566,7 +12578,8 @@
       "departmentsTrades": "部門與工種",
       "fieldStaffManagement": "現場人員管理",
       "fieldChats": "溝通記錄",
-      "photoTimeline": "工程照片牆"
+      "photoTimeline": "工程照片牆",
+      "materialIssue": "材料領用（MIN）"
     },
     "subscription_management": "訂閱管理",
     "suppliers": "供應商",

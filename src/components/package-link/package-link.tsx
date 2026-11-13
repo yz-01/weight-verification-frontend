@@ -28,6 +28,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ApiError } from "@/interfaces/api";
 import type { PackageLinkItem, PackageLinkPage } from "@/interfaces/contractor-ops";
 import { useDateFormat } from "@/lib/dates";
+import { packageKindName } from "@/lib/package-items";
 import {
   getPackageLink,
   linkAttachmentFile,
@@ -275,7 +276,7 @@ function LinkPage({
               <li key={item.id} className="space-y-3 rounded-xl border bg-card p-3">
                 <div>
                   <p className="text-xs text-muted-foreground">
-                    {index + 1}. {kinds.has(`kind.${item.record_kind}`) ? kinds(`kind.${item.record_kind}`) : item.record_kind}
+                    {index + 1}. {packageKindName(kinds, item)}
                     {item.round_no > 1 && <> · {t("newInRound", { n: item.round_no })}</>}
                   </p>
                   <p className="font-medium">{item.reference}</p>

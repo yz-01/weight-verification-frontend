@@ -58,6 +58,10 @@ export function officeNotificationHref(
       // A record's conversation, linked for the phone (2026-10-09).
       const chat = parseChatParam(query.get("chat"));
       if (chat) return recordPage(chat.kind, chat.recordId);
+      // A daily report or a document returned from a package (JB193 五 4)
+      // has no conversation of its own: the notice opens the record itself.
+      const returned = /^(DAILY_REPORT|DOCUMENT):(.+)$/.exec(query.get("chat") ?? "");
+      if (returned) return recordPage(returned[1], returned[2]);
       if (record === "disposal") {
         const id = text(data.record_id);
         return id ? `/waste-clearance?kind=disposal&record=${encodeURIComponent(id)}` : "/waste-clearance?kind=disposal";
