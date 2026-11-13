@@ -95,6 +95,7 @@ import {
   turnTo,
 } from "@/lib/report-book";
 import { cn } from "@/lib/utils";
+import { reportTakesWeather, weatherWordKey } from "@/lib/weather-words";
 import {
   collectDailyReportEntries,
   createDailyReport,
@@ -103,6 +104,7 @@ import {
   deleteDailyReport,
   getDailyReport,
   getDailyReportMonthBook,
+  getDailyReportWeather,
   getDailyReports,
   updateDailyReport,
 } from "@/services/progress-reports.service";
@@ -821,6 +823,8 @@ export function DailyReportDialog({
   onRemoved?: () => void;
 }) {
   const t = useTranslations("progressPage");
+  // The dashboard's own words for a weather reading (JB186).
+  const tWeather = useTranslations("headquarters.reference");
   const df = useDateFormat();
   const qc = useQueryClient();
   // 「开始填写或修改前，必须输入签核密码」 (I29): the editor opens only after the
@@ -835,7 +839,31 @@ export function DailyReportDialog({
   const [project, setProject] = useState(report?.project ?? initialProject);
   const [from, setFrom] = useState(report?.report_date ?? startDay);
   const [to, setTo] = useState(report?.end_date ?? report?.report_date ?? (initialDays?.to || startDay));
-  const [name, setName] = useState(report?.name ?? t("reports.defaultName", { date: startDay }));
+  // 日报天气 (JB186, 客户 11-13: 「日报名称改为日报天气，右上角报告上面能否
+  // 页面的天气局气象报告」; Lucas 11-13 chose A). He had been typing
+  // 「2026-11-13 日报告 天气：雨天」 into this box by hand. A new report of
+  // today now starts with that line, the weather read where the dashboard
+  // reads it, at the report's own project - 「2026-11-13 日报告 天气：27°C
+  // 毛毛雨」 - and the box is his to change. The PDF prints the box at its
+  // top right, as it always did.
+  const takesWeather = reportTakesWeather({ editing: Boolean(report), firstDay: startDay, today });
+  // query-failure: no weather is the answer when it cannot be read; the box says so below (weatherMissing)
+  const weather = useQuery({
+    queryKey: ["daily-reports", "weather", project],
+    queryFn: () => getDailyReportWeather(project),
+    enabled: takesWeather && Boolean(project),
+    staleTime: 10 * 60_000,
+  });
+  const weatherWords = weather.data
+    ? `${tWeather("temperature", { value: weather.data.temperature })} ${tWeather(`weather.${weatherWordKey(weather.data.weather_code)}`)}`
+    : "";
+  const offeredName = weatherWords
+    ? t("reports.defaultNameWeather", { date: startDay, weather: weatherWords })
+    : t("reports.defaultName", { date: startDay });
+  // What the writer typed; until then the box shows the line offered, which
+  // gains the weather when it arrives and follows a change of project.
+  const [typedName, setName] = useState<string | null>(report?.name ?? null);
+  const name = typedName ?? offeredName;
   const [body, setBody] = useState(report?.body ?? "");
   // A report being corrected shows what it froze until the reader asks for
   // the days again; a new one always shows what the days hold.
@@ -938,6 +966,12 @@ export function DailyReportDialog({
         </div>
         <FieldWrapper label={t("reports.name")} required>
           <Input value={name} maxLength={200} onChange={(event) => setName(event.target.value)} />
+          {/* Where the weather came from, or why there is none (JB186). */}
+          {takesWeather && project && typedName === null && !weather.isPending ? (
+            <p className="mt-1 text-xs text-muted-foreground" data-report-weather={weatherWords ? "read" : "none"}>
+              {weatherWords ? t("reports.weatherFilled") : t("reports.weatherMissing")}
+            </p>
+          ) : null}
         </FieldWrapper>
         <FieldWrapper label={t("reports.body")}>
           <Textarea rows={8} value={body} onChange={(event) => setBody(event.target.value)} />
