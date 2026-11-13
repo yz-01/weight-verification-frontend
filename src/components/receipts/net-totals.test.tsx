@@ -63,6 +63,8 @@ const ROWS = [
     // All time, from the server (audit #23) - not the one return in view.
     supplier_return_count: 4,
     return_count: 1,
+    // JB188: the yellow mark counts the returns not checked yet.
+    unchecked_return_count: 1,
     items: [
       { kind: "DELIVERY", id: "r-1", reference: "RC-1", date: "2026-10-01T02:00:00Z", quantity: "10.000", unit: "TONNE", delivery_note_no: "DO-11", vehicle_plate: "ABC 1", supplier_name: "Rebar Supply", manufacturer_name: "Ann Joo", return_note_no: "" },
       { kind: "RETURN", id: "o-1", reference: "MO-1", date: "2026-10-05T02:00:00Z", quantity: "4.000", unit: "TONNE", delivery_note_no: "DO-R", vehicle_plate: "WXY 1", supplier_name: "Rebar Supply", manufacturer_name: "", return_note_no: "RN-1" },
@@ -256,9 +258,10 @@ describe("每个数字点进去 (client, 2026-10-09)", () => {
     const html = render(<NetTotalsView project="p-1" />);
     const tags = html.match(/<button[^>]*data-slot="net-return-tag"[^>]*>/g) ?? [];
     expect(tags).toHaveLength(1);
-    expect(tags[0]).toContain("这一行有 1 笔已完成的退场，点开查看");
+    expect(tags[0]).toContain("这一行有 1 笔还没核对的退货，点开查看");
     expect(html).toContain("有退货资料");
     expect(html).not.toContain("有退场记录");
-    expect(source).toMatch(/data-slot="net-return-tag"[\s\S]{0,500}onClick=\{\(\) => setDrill\(\{ row, focus: "returned" \}\)\}/);
+    // (JB188: the count it reads is the unchecked returns', a longer name.)
+    expect(source).toMatch(/data-slot="net-return-tag"[\s\S]{0,600}onClick=\{\(\) => setDrill\(\{ row, focus: "returned" \}\)\}/);
   });
 });

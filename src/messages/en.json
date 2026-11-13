@@ -3798,7 +3798,10 @@
       "material_price_set": "Material unit price set",
       "unit_price_from_price_list": "Delivery priced from the material unit price",
       "company_material_price_carried": "Unit price brought in from the company categories",
-      "company_material_price_set": "Company category unit price set"
+      "company_material_price_set": "Company category unit price set",
+      "material_return_checked": "Supplier returns checked",
+      "material_return_check_pdf_exported": "Return check PDF exported",
+      "material_return_check_pdf_previewed": "Return check PDF previewed"
     },
     "objectType": {
       "SignOffAssistant": "Assistant PIN",
@@ -3834,7 +3837,8 @@
       "FieldTask": "Field task",
       "SundryClaim": "Sundry claim",
       "Document": "Archive file",
-      "RecordCorrection": "Correction"
+      "RecordCorrection": "Correction",
+      "MaterialReturnCheck": "Return check"
     },
     "result": {
       "FAILED": "Failed",
@@ -8930,7 +8934,7 @@
       "package_recipient_kind": "Say who this is for.",
       "package_consultant_required": "Choose a consultant.",
       "package_consultant_no_access": "That consultant has no current access to this project.",
-      "package_already_sent": "Already sent to that consultant.",
+      "package_already_sent": "This package was already sent to them. To send it again, press 【Resend】 on their row.",
       "package_recipient_name_required": "Name the person or the organisation.",
       "package_days": "Between 1 and 365 days.",
       "package_recipient_revoked": "This recipient is revoked.",
@@ -9049,7 +9053,15 @@
       "material_price_needs_unit": "Choose a unit for \"{name}\" first: a unit price is per unit.",
       "material_price_typed_on_record": "\"Other\" is typed on each delivery, and so is its price.",
       "issue_has_no_return_note": "A material issue has no Return Note.",
-      "issue_statement_too_long": "This filter selects {count} items; one statement takes at most {limit}. Please choose a shorter date range and try again."
+      "issue_statement_too_long": "This filter selects {count} items; one statement takes at most {limit}. Please choose a shorter date range and try again.",
+      "return_check_supplier_required": "Choose the supplier first.",
+      "return_check_none_chosen": "Tick at least one return.",
+      "return_check_return_not_found": "{count} of the ticked returns cannot be found, or are on a project you cannot see. Close the window, open 「Check returns」 again and tick again.",
+      "return_check_no_supplier": "Return {reference} has no supplier yet, so it cannot be checked. Open it and fill in the supplier first.",
+      "return_check_other_supplier": "Return {reference} belongs to another supplier. One check holds one supplier's returns.",
+      "return_check_not_completed": "Return {reference} is not 「Left site - complete」 yet, so it cannot be checked.",
+      "return_check_already_checked": "Return {reference} was already checked in {check_no}.",
+      "return_check_final": "A saved check cannot be changed or deleted, and its vouchers cannot be added to or removed."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -11834,7 +11846,8 @@
         "extended": "Extended.",
         "regenerated": "New link made; the old one no longer works.",
         "resubmitted": "Resubmitted.",
-        "signed": "Signed for."
+        "signed": "Signed for.",
+        "resent": "Resent. The new package number is {number}."
       },
       "changeAnswer": "Change answer",
       "sign": "Sign for it",
@@ -11858,7 +11871,15 @@
       "ip": "IP {ip}",
       "writeFirst": "Write a message or choose a file first.",
       "headquartersHelp": "Sent to your own company's head office in the system: no link is made. Head office finds it under Received packages in Multi Engine and gets a notice; who opened it is kept.",
-      "sendToHeadquarters": "Send to head office"
+      "sendToHeadquarters": "Send to head office",
+      "talk": "Messages",
+      "talkAfterSend": "You can send messages after sending the package.",
+      "talkPick": "Messages with whom?",
+      "resend": "Resend",
+      "resendAsk": "A new package number will be made, with the same contents, and sent to {name}.",
+      "resendConfirm": "Resend now",
+      "resentFrom": "Resent from {number}",
+      "resentTo": "Resent: {number} ({date}) · {name}"
     },
     "claimFacet": {
       "title": "Claim amount and payment",
@@ -14491,7 +14512,7 @@
       },
       "returnTag": "Has return records",
       "noSpec": "No spec yet",
-      "returnTagHint": "This line has {count} completed returns - open to see them",
+      "returnTagHint": "This line has {count} return(s) not checked yet - open to see them",
       "openNumber": "See the records behind {label} {value}",
       "breakdown": {
         "what": "this line's records",
@@ -19843,10 +19864,10 @@
   },
   "supplierReturns": {
     "badge": "Has return records",
-    "badgeHint": "{count} finished return(s) to this supplier - open to see them",
+    "badgeHint": "{count} return(s) to this supplier not checked yet - open to see them",
     "title": "Return records for {name}",
-    "help": "Every finished return to this supplier, with its Return Note, photos, both signatures and approval. Press a row to see the full record.",
-    "empty": "No finished returns.",
+    "help": "This supplier's finished returns that are not checked yet, with their Return Note, photos, both signatures and approval. Press a row to see the full record. The checked ones are under Material exit › Checked.",
+    "empty": "No returns waiting to be checked.",
     "truncated": "Showing the latest {shown} of {total}. Narrow it by project or date.",
     "what": "The return records",
     "column": {
@@ -19867,7 +19888,10 @@
     "print": "Print",
     "export": "Export",
     "share": "Share",
-    "open": "See the full record of {reference}"
+    "open": "See the full record of {reference}",
+    "check": "Check returns",
+    "checkHint": "Tick this supplier's returns here and check them together",
+    "backToList": "Back to the list"
   },
   "equipmentHours": {
     "subtitle": "One photo when the machine starts, one when it stops: each start and its stop is one entry, and its hours are the time between them (no lunch deducted), day or night.",
@@ -20390,7 +20414,8 @@
     "nameTitle": "Your name, please",
     "nameHelp": "Your name goes on your confirmations, returns, signature and messages. This browser remembers it.",
     "name": "Name",
-    "continue": "Continue"
+    "continue": "Continue",
+    "talk": "Messages"
   },
   "taskFlow": {
     "moreWork": {
@@ -20971,6 +20996,7 @@
       "schedule_delete": "Delete a draft schedule revision or task",
       "progress_summary_delete": "Delete a progress summary not yet archived",
       "package_delete": "Delete a draft evidence package",
+      "package_resend": "Resend a package",
       "attachment_delete": "Delete a file on a record not yet archived",
       "field_task_delete": "Delete a field task not yet started",
       "material_target_append": "Add to a material target",
@@ -20980,7 +21006,8 @@
       "archive_confirm": "Confirm and archive",
       "assistant_manage": "Add or change an assistant's PIN",
       "project_change_permissions": "Change a project's permissions",
-      "material_price_set": "Set or change a material unit price"
+      "material_price_set": "Set or change a material unit price",
+      "material_return_check": "Check supplier returns"
     },
     "firstTitle": "Set your sign-off PIN for the first time",
     "firstBanner": "This is your first time using a sign-off PIN",
@@ -21318,7 +21345,10 @@
       "noPeopleOnProject": "Nobody on this project can be messaged yet: add people on its \"Project staff list\" first.",
       "whatProjects": "the projects",
       "whatPeople": "the people"
-    }
+    },
+    "packageThread": "Package · {name}",
+    "packageKind": "Package",
+    "packageGone": "This package conversation cannot be found, or you may not see it."
   },
   "photoWall": {
     "hint": "Click a photo to enlarge it and page left or right; double-click it to open its full record.",
@@ -21445,5 +21475,65 @@
       "filledWithIssues": "Price saved. Filled in {count} deliveries and {issues} material issues that had no price.",
       "filled": "Price saved. {count} records without a price were filled in."
     }
+  },
+  "returnChecks": {
+    "tabsLabel": "Supplier return tabs",
+    "tabPending": "To check",
+    "tabChecked": "Checked",
+    "button": "Check returns",
+    "buttonHint": "Tick finished returns of one supplier and check them together",
+    "title": "Check returns",
+    "help": "Choose the supplier, then tick its finished returns that are not checked yet.",
+    "chooseSupplier": "Choose the supplier",
+    "supplierCount": "{count} to check",
+    "noSuppliers": "No returns are waiting to be checked.",
+    "suppliersWhat": "The suppliers to check",
+    "returnsWhat": "The returns to check",
+    "changeSupplier": "Another supplier",
+    "pickTitle": "Returns of {name} to check",
+    "pickHelp": "Tick the returns to check - one or more. Press a row to see its full record.",
+    "noReturns": "This supplier has no returns waiting to be checked.",
+    "truncated": "Showing the latest {shown} of {total}. Once these are checked, the rest follow.",
+    "selectAll": "Select all",
+    "selectRow": "Tick {reference}",
+    "tickFirst": "Tick the returns to check first; the confirmation then appears below.",
+    "confirmTitle": "Confirm the check",
+    "chosen": "{count} ticked",
+    "checker": "Checked by",
+    "checkedAt": "Date and time",
+    "files": "Upload files, photos or PDFs",
+    "filesHint": "Optional. Up to {count} files, {limit} MB each.",
+    "note": "Remarks",
+    "notePlaceholder": "Optional",
+    "noPrice": "Nothing of the returns is filled in again, and no prices are involved.",
+    "confirm": "Confirm check",
+    "confirmPin": "After 「Confirm check」, enter your six-digit sign-off PIN.",
+    "needTick": "Tick at least one return first",
+    "saved": "Checked as {number}",
+    "cancel": "Cancel",
+    "count": "{count} checks",
+    "column": {
+      "number": "Check No.",
+      "supplier": "Supplier",
+      "count": "Returns",
+      "date": "Date",
+      "checker": "Checked by",
+      "view": "View"
+    },
+    "countValue": "{count}",
+    "empty": "No checks yet.",
+    "listWhat": "The checks",
+    "view": "View",
+    "windowTitle": "Return check {number}",
+    "what": "This check",
+    "returnsTitle": "The returns ticked in this check ({count})",
+    "returnsHelp": "Press a row to open that return's original record; closing it comes back here.",
+    "hidden": "{count} more on other projects.",
+    "detailsTitle": "Check details",
+    "noNote": "No remarks",
+    "vouchers": "Uploaded vouchers",
+    "vouchersHint": "The files, photos or PDFs uploaded with the check. A check cannot be changed or deleted.",
+    "pdf": "Return check PDF",
+    "pdfTitle": "Return check {number}"
   }
 }

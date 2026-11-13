@@ -548,7 +548,10 @@ export interface MaterialNetTotalRow {
   /** Grouped by supplier since 2026-10 C11; empty when none was named. */
   supplier: string;
   supplier_name: string;
-  /** The supplier's finished returns, all time (C10's badge count, audit #23). */
+  /**
+   * The supplier's finished returns not yet checked, all time (C10's badge
+   * count, audit #23; JB188: only the unchecked ones).
+   */
   supplier_return_count?: number;
   material_name: string;
   material_specification: string;
@@ -560,8 +563,13 @@ export interface MaterialNetTotalRow {
   returned: string;
   net: string;
   deliveries: number;
-  /** The returns behind `returned` (2026-10-09): 「有退场记录」 when above 0. */
+  /** The returns behind `returned` (2026-10-09). */
   return_count?: number;
+  /**
+   * Of them, the ones not yet checked (JB188, Lucas 11-13 决定 1): the yellow
+   * 「有退货资料」 on the line when above 0. The quantities count them all.
+   */
+  unchecked_return_count?: number;
   items?: MaterialNetTotalItem[];
 }
 

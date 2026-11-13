@@ -3798,7 +3798,10 @@
       "material_price_set": "Harga seunit bahan ditetapkan",
       "unit_price_from_price_list": "Penghantaran diberi harga daripada harga seunit bahan",
       "company_material_price_carried": "Harga seunit dibawa masuk daripada kategori syarikat",
-      "company_material_price_set": "Harga seunit kategori syarikat ditetapkan"
+      "company_material_price_set": "Harga seunit kategori syarikat ditetapkan",
+      "material_return_checked": "Pemulangan pembekal disemak",
+      "material_return_check_pdf_exported": "PDF semakan pemulangan dieksport",
+      "material_return_check_pdf_previewed": "PDF semakan pemulangan dipratonton"
     },
     "objectType": {
       "SignOffAssistant": "PIN pembantu",
@@ -3834,7 +3837,8 @@
       "FieldTask": "Tugasan tapak",
       "SundryClaim": "Tuntutan pelbagai",
       "Document": "Fail arkib",
-      "RecordCorrection": "Pembetulan"
+      "RecordCorrection": "Pembetulan",
+      "MaterialReturnCheck": "Semakan pemulangan"
     },
     "result": {
       "FAILED": "Gagal",
@@ -8930,7 +8934,7 @@
       "package_recipient_kind": "Nyatakan untuk siapa.",
       "package_consultant_required": "Pilih perunding.",
       "package_consultant_no_access": "Perunding itu tiada akses semasa ke projek ini.",
-      "package_already_sent": "Sudah dihantar kepada perunding itu.",
+      "package_already_sent": "Pakej ini sudah dihantar kepadanya. Untuk menghantar sekali lagi, tekan 【Hantar lagi】 pada barisnya.",
       "package_recipient_name_required": "Namakan orang atau organisasi.",
       "package_days": "Antara 1 hingga 365 hari.",
       "package_recipient_revoked": "Penerima ini telah dibatalkan.",
@@ -9049,7 +9053,15 @@
       "material_price_needs_unit": "Pilih unit untuk \"{name}\" dahulu: harga seunit adalah bagi setiap unit.",
       "material_price_typed_on_record": "\"Lain-lain\" ditaip pada setiap penghantaran, begitu juga harganya.",
       "issue_has_no_return_note": "Pengeluaran bahan tidak memerlukan Return Note.",
-      "issue_statement_too_long": "Tapisan ini memilih {count} item; satu penyata paling banyak {limit} item. Sila pilih julat tarikh yang lebih pendek dan cuba lagi."
+      "issue_statement_too_long": "Tapisan ini memilih {count} item; satu penyata paling banyak {limit} item. Sila pilih julat tarikh yang lebih pendek dan cuba lagi.",
+      "return_check_supplier_required": "Pilih pembekal dahulu.",
+      "return_check_none_chosen": "Tandakan sekurang-kurangnya satu pemulangan.",
+      "return_check_return_not_found": "{count} pemulangan yang ditanda tidak dijumpai, atau dalam projek yang anda tidak boleh lihat. Tutup tetingkap, buka 「Semak pemulangan」 semula dan tanda sekali lagi.",
+      "return_check_no_supplier": "Pemulangan {reference} belum ada pembekal, jadi tidak boleh disemak. Buka dan isi pembekal dahulu.",
+      "return_check_other_supplier": "Pemulangan {reference} milik pembekal lain. Satu semakan hanya untuk pemulangan satu pembekal.",
+      "return_check_not_completed": "Pemulangan {reference} belum 「Telah keluar tapak - selesai」, jadi belum boleh disemak.",
+      "return_check_already_checked": "Pemulangan {reference} sudah disemak dalam {check_no}.",
+      "return_check_final": "Semakan yang disimpan tidak boleh diubah atau dipadam, dan baucarnya tidak boleh ditambah atau dibuang."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -11834,7 +11846,8 @@
         "extended": "Dilanjutkan.",
         "regenerated": "Pautan baharu dibuat; yang lama tidak lagi berfungsi.",
         "resubmitted": "Dihantar semula.",
-        "signed": "Ditandatangani."
+        "signed": "Ditandatangani.",
+        "resent": "Dihantar lagi. Nombor pakej baharu ialah {number}."
       },
       "changeAnswer": "Tukar jawapan",
       "sign": "Tandatangan",
@@ -11858,7 +11871,15 @@
       "ip": "IP {ip}",
       "writeFirst": "Tulis mesej atau pilih fail dahulu.",
       "headquartersHelp": "Dihantar ke ibu pejabat syarikat anda dalam sistem: tiada pautan dibuat. Ibu pejabat melihatnya di Pakej diterima dalam Multi Engine dan menerima notis; siapa yang membukanya disimpan.",
-      "sendToHeadquarters": "Hantar ke ibu pejabat"
+      "sendToHeadquarters": "Hantar ke ibu pejabat",
+      "talk": "Mesej",
+      "talkAfterSend": "Anda boleh berhubung selepas pakej dihantar.",
+      "talkPick": "Mesej dengan siapa?",
+      "resend": "Hantar lagi",
+      "resendAsk": "Nombor pakej baharu akan dibuat, dengan kandungan yang sama, dan dihantar kepada {name}.",
+      "resendConfirm": "Hantar lagi sekarang",
+      "resentFrom": "Dihantar lagi daripada {number}",
+      "resentTo": "Dihantar lagi: {number} ({date}) · {name}"
     },
     "claimFacet": {
       "title": "Jumlah dan bayaran tuntutan",
@@ -14491,7 +14512,7 @@
       },
       "returnTag": "Ada rekod pemulangan",
       "noSpec": "Tiada spesifikasi lagi",
-      "returnTagHint": "Baris ini ada {count} pemulangan yang selesai - buka untuk melihatnya",
+      "returnTagHint": "Baris ini ada {count} pemulangan belum disemak - buka untuk melihatnya",
       "openNumber": "Lihat rekod di sebalik {label} {value}",
       "breakdown": {
         "what": "rekod baris ini",
@@ -19843,10 +19864,10 @@
   },
   "supplierReturns": {
     "badge": "Ada rekod pemulangan",
-    "badgeHint": "{count} pemulangan selesai kepada pembekal ini - buka untuk melihat",
+    "badgeHint": "{count} pemulangan kepada pembekal ini belum disemak - buka untuk melihatnya",
     "title": "Rekod pemulangan {name}",
-    "help": "Setiap pemulangan yang selesai kepada pembekal ini, dengan Return Note, foto, kedua-dua tandatangan dan kelulusan. Tekan satu baris untuk melihat rekod penuh.",
-    "empty": "Tiada pemulangan yang selesai.",
+    "help": "Pemulangan selesai pembekal ini yang belum disemak, dengan Return Note, foto, kedua-dua tandatangan dan kelulusan. Tekan satu baris untuk melihat rekod penuh. Yang sudah disemak ada di Keluar bahan › Sudah disemak.",
+    "empty": "Tiada pemulangan menunggu semakan.",
     "truncated": "Menunjukkan {shown} terkini daripada {total}. Kecilkan mengikut projek atau tarikh.",
     "what": "Rekod pemulangan",
     "column": {
@@ -19867,7 +19888,10 @@
     "print": "Cetak",
     "export": "Eksport",
     "share": "Kongsi",
-    "open": "Lihat rekod penuh {reference}"
+    "open": "Lihat rekod penuh {reference}",
+    "check": "Semak pemulangan",
+    "checkHint": "Tandakan pemulangan pembekal ini di sini dan semak bersama",
+    "backToList": "Kembali ke senarai"
   },
   "equipmentHours": {
     "subtitle": "Satu foto semasa mesin dimulakan, satu semasa dihentikan: setiap mula dan hentinya ialah satu catatan, dan jamnya ialah masa di antaranya (tanpa tolak rehat), siang atau malam.",
@@ -20390,7 +20414,8 @@
     "nameTitle": "Nama anda",
     "nameHelp": "Nama anda direkodkan pada pengesahan, pemulangan, tandatangan dan mesej. Pelayar ini mengingatinya.",
     "name": "Nama",
-    "continue": "Teruskan"
+    "continue": "Teruskan",
+    "talk": "Mesej"
   },
   "taskFlow": {
     "moreWork": {
@@ -20971,6 +20996,7 @@
       "schedule_delete": "Padam semakan atau tugas jadual draf",
       "progress_summary_delete": "Padam ringkasan kemajuan yang belum diarkibkan",
       "package_delete": "Padam pakej bukti draf",
+      "package_resend": "Hantar semula pakej",
       "attachment_delete": "Padam fail pada rekod yang belum diarkibkan",
       "field_task_delete": "Padam tugas tapak yang belum dimulakan",
       "material_target_append": "Tambah sasaran bahan",
@@ -20980,7 +21006,8 @@
       "archive_confirm": "Sahkan dan arkibkan",
       "assistant_manage": "Tambah atau tukar PIN pembantu",
       "project_change_permissions": "Tukar kebenaran projek",
-      "material_price_set": "Tetapkan atau tukar harga seunit bahan"
+      "material_price_set": "Tetapkan atau tukar harga seunit bahan",
+      "material_return_check": "Semak pemulangan pembekal"
     },
     "firstTitle": "Tetapkan PIN pengesahan buat kali pertama",
     "firstBanner": "Ini kali pertama anda menggunakan PIN pengesahan",
@@ -21318,7 +21345,10 @@
       "noPeopleOnProject": "Belum ada sesiapa dalam projek ini yang boleh dihubungi: tambah orang dalam \"Senarai kakitangan projek\" dahulu.",
       "whatProjects": "senarai projek",
       "whatPeople": "senarai orang"
-    }
+    },
+    "packageThread": "Pakej · {name}",
+    "packageKind": "Pakej",
+    "packageGone": "Perbualan pakej ini tidak dijumpai, atau anda tiada kebenaran untuk melihatnya."
   },
   "photoWall": {
     "hint": "Klik foto untuk membesarkannya dan selak ke kiri atau kanan; klik dua kali untuk membuka rekod penuhnya.",
@@ -21445,5 +21475,65 @@
       "filledWithIssues": "Harga disimpan. {count} rekod penerimaan dan {issues} pengeluaran bahan tanpa harga telah diisi.",
       "filled": "Harga disimpan. {count} rekod tanpa harga telah diisi."
     }
+  },
+  "returnChecks": {
+    "tabsLabel": "Tab pemulangan pembekal",
+    "tabPending": "Belum disemak",
+    "tabChecked": "Sudah disemak",
+    "button": "Semak pemulangan",
+    "buttonHint": "Tandakan pemulangan selesai satu pembekal dan semak bersama",
+    "title": "Semak pemulangan",
+    "help": "Pilih pembekal, kemudian tandakan pemulangannya yang selesai dan belum disemak.",
+    "chooseSupplier": "Pilih pembekal",
+    "supplierCount": "{count} belum disemak",
+    "noSuppliers": "Tiada pemulangan menunggu semakan.",
+    "suppliersWhat": "Pembekal untuk disemak",
+    "returnsWhat": "Pemulangan untuk disemak",
+    "changeSupplier": "Pembekal lain",
+    "pickTitle": "Pemulangan {name} untuk disemak",
+    "pickHelp": "Tandakan pemulangan untuk disemak - satu atau lebih. Tekan satu baris untuk melihat rekod penuh.",
+    "noReturns": "Pembekal ini tiada pemulangan menunggu semakan.",
+    "truncated": "Menunjukkan {shown} terkini daripada {total}. Selepas ini disemak, selebihnya menyusul.",
+    "selectAll": "Pilih semua",
+    "selectRow": "Tandakan {reference}",
+    "tickFirst": "Tandakan pemulangan dahulu; pengesahan akan muncul di bawah.",
+    "confirmTitle": "Sahkan semakan",
+    "chosen": "{count} ditanda",
+    "checker": "Disemak oleh",
+    "checkedAt": "Tarikh dan masa",
+    "files": "Muat naik fail, foto atau PDF",
+    "filesHint": "Pilihan. Sehingga {count} fail, {limit} MB setiap satu.",
+    "note": "Catatan",
+    "notePlaceholder": "Pilihan",
+    "noPrice": "Tiada maklumat pemulangan diisi semula, dan tiada harga terlibat.",
+    "confirm": "Sahkan semakan",
+    "confirmPin": "Selepas 「Sahkan semakan」, masukkan PIN pengesahan enam digit anda.",
+    "needTick": "Tandakan sekurang-kurangnya satu pemulangan dahulu",
+    "saved": "Disemak sebagai {number}",
+    "cancel": "Batal",
+    "count": "{count} semakan",
+    "column": {
+      "number": "No. Semakan",
+      "supplier": "Pembekal",
+      "count": "Bilangan",
+      "date": "Tarikh",
+      "checker": "Disemak oleh",
+      "view": "Lihat"
+    },
+    "countValue": "{count}",
+    "empty": "Belum ada semakan.",
+    "listWhat": "Semakan",
+    "view": "Lihat",
+    "windowTitle": "Semakan pemulangan {number}",
+    "what": "Semakan ini",
+    "returnsTitle": "Pemulangan yang ditanda dalam semakan ini ({count})",
+    "returnsHelp": "Tekan satu baris untuk membuka rekod asal pemulangan itu; tutup untuk kembali ke sini.",
+    "hidden": "{count} lagi dalam projek lain.",
+    "detailsTitle": "Butiran semakan",
+    "noNote": "Tiada catatan",
+    "vouchers": "Baucar dimuat naik",
+    "vouchersHint": "Fail, foto atau PDF yang dimuat naik bersama semakan. Semakan tidak boleh diubah atau dipadam.",
+    "pdf": "PDF semakan pemulangan",
+    "pdfTitle": "Semakan pemulangan {number}"
   }
 }

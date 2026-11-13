@@ -19,6 +19,7 @@ import { useEffect, useState } from "react";
 
 import { AnnouncementDialog } from "@/components/announcements/announcement-dialog";
 import { RecordSheet } from "@/components/contractor-ops/archive-queue";
+import { ReturnCheckWindow } from "@/components/contractor-ops/return-checks";
 import { PackageSheet } from "@/components/contractor-ops/multi-engine";
 import { ViewDispatch } from "@/components/dispatches/view-dispatch";
 import { IncidentThreadDetail } from "@/components/incident-reporting/incident-thread-detail";
@@ -116,6 +117,8 @@ export function LogRecordWindow({
       return <PassWindow id={id} heading={heading} onClose={onClose} />;
     case "recordPdf":
       return <RecordPdfWindow kind={kind} id={id} heading={heading} onClose={onClose} />;
+    case "returnCheck":
+      return <ReturnCheckWindow id={id} onClose={onClose} />;
     default: {
       // A new opener in `log-record-open.ts` must be drawn here.
       const unknown: never = opener;

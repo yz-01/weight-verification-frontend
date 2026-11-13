@@ -8,11 +8,14 @@ import {
   History,
   Link2,
   MessageCircle,
+  MessagesSquare,
   RefreshCw,
+  Repeat,
   Send,
   Share2,
   Users,
 } from "lucide-react";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -46,10 +49,12 @@ import {
   extendPackageRecipient,
   getPackageConsultantChoices,
   getPackageMessages,
+  getPackageThreads,
   getPackageTimeline,
   packageAttachmentFile,
   previewEvidencePackage,
   regeneratePackageLink,
+  resendPackage,
   resubmitPackage,
   revokePackageRecipient,
   sendPackageMessage,
@@ -68,6 +73,91 @@ import {
 
 // 总部（系统内）first (J30-1): the company's own head office, no link.
 const RECIPIENT_KINDS: RecipientKind[] = ["HEADQUARTERS", "CONSULTANT", "OWNER", "SUPPLIER", "OTHER"];
+
+/**
+ * 「沟通」 (JB189, 客户 11-13: 「点击后，直接跳到现有「沟通记录」页面，进入该资料包
+ * 对应的沟通事项」; Lucas chose A): the office's 沟通记录 page with this
+ * package and recipient's own thread open. The recipient's id names both -
+ * a recipient belongs to one package. Opened on the click (a link), never
+ * from an effect (JB187).
+ */
+export const PACKAGE_CHAT_PARAM = "package_chat";
+
+export function packageChatHref(recipientId: string) {
+  return `/field-chats?${PACKAGE_CHAT_PARAM}=${encodeURIComponent(recipientId)}`;
+}
+
+/** Who a recipient is, in words: head office has no name of its own. */
+export function recipientLabel(
+  t: (key: string) => string,
+  row: { display_name?: string; recipient_name?: string; kind?: RecipientKind; recipient_kind?: RecipientKind },
+) {
+  const name = row.display_name ?? row.recipient_name ?? "";
+  const kind = row.kind ?? row.recipient_kind;
+  return name || (kind ? t(`exchange.kind.${kind}`) : "");
+}
+
+/**
+ * The 「沟通」 at the top of the package window (JB189 做法 1): one recipient
+ * goes straight to its thread; several are chosen from first; none yet is
+ * greyed out with the reason.
+ */
+export function PackageTalkButton({
+  packageNo,
+  recipients,
+}: {
+  packageNo: string;
+  recipients: PackageRecipient[];
+}) {
+  const t = useTranslations("multiEngine");
+  const [choosing, setChoosing] = useState(false);
+  if (recipients.length === 0) {
+    return (
+      <Button size="sm" variant="outline" disabled disabledReason={t("exchange.talkAfterSend")} data-package-talk-top>
+        <MessagesSquare className="size-4" />
+        {t("exchange.talk")}
+      </Button>
+    );
+  }
+  if (recipients.length === 1) {
+    return (
+      <Button size="sm" variant="outline" asChild data-package-talk-top>
+        <Link href={packageChatHref(recipients[0].id)}>
+          <MessagesSquare className="size-4" />
+          {t("exchange.talk")}
+        </Link>
+      </Button>
+    );
+  }
+  return (
+    <div className="space-y-2" data-package-talk-top>
+      <Button size="sm" variant="outline" aria-expanded={choosing} onClick={() => setChoosing((open) => !open)}>
+        <MessagesSquare className="size-4" />
+        {t("exchange.talk")}
+      </Button>
+      {choosing && (
+        <div className="space-y-1.5 rounded-lg border bg-muted/20 p-2" data-package-talk-pick>
+          <p className="text-xs text-muted-foreground">{t("exchange.talkPick")}</p>
+          <ul className="flex flex-wrap gap-1.5">
+            {recipients.map((row) => (
+              <li key={row.id}>
+                <Button size="sm" variant="outline" asChild>
+                  <Link href={packageChatHref(row.id)}>
+                    {packageNo ? `${packageNo} · ` : ""}
+                    {recipientLabel(t, row)}
+                    {row.display_name && (
+                      <span className="text-xs text-muted-foreground">{t(`exchange.kind.${row.kind}`)}</span>
+                    )}
+                  </Link>
+                </Button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
 
 /** The page an outside recipient opens. The token is the whole credential. */
 export function packageLinkAddress(token: string) {
@@ -169,13 +259,29 @@ function RecipientsBlock({
   onChanged: () => void;
 }) {
   const t = useTranslations("multiEngine");
+  const common = useTranslations("common");
   const formatter = useDateFormat();
   const { can } = useAuth();
   const manage = can("package.manage");
   const [sending, setSending] = useState(false);
   // A link in full, the one time the server hands it over (五 1).
   const [revealed, setRevealed] = useState<PackageRecipient | null>(null);
+  // Whose package that link opens: a resend's link is the new package's (JB189).
+  const [revealedFor, setRevealedFor] = useState<{ package_no?: string; name: string } | null>(null);
   const [armed, setArmed] = useState<string | null>(null);
+  // 【重新发送】 asks once before it goes (JB189 做法 2).
+  const [resending, setResending] = useState<string | null>(null);
+  const resend = useMutation({
+    mutationFn: (recipient: PackageRecipient) => resendPackage(pkg.id, recipient.id),
+    onSuccess: (made) => {
+      setResending(null);
+      if (made.sent?.token) {
+        setRevealed(made.sent);
+        setRevealedFor({ package_no: made.package_no, name: made.name });
+      }
+      onChanged();
+    },
+  });
 
   const act = useMutation({
     mutationFn: (input: { recipient: PackageRecipient; action: "regenerate" | "extend" | "revoke" }) => {
@@ -185,7 +291,10 @@ function RecipientsBlock({
     },
     onSuccess: (row) => {
       setArmed(null);
-      if (row.token) setRevealed(row);
+      if (row.token) {
+        setRevealed(row);
+        setRevealedFor(null);
+      }
       onChanged();
     },
   });
@@ -199,7 +308,7 @@ function RecipientsBlock({
         </Button>
       )}
       {revealed?.token && (
-        <LinkReady recipient={revealed} pkg={pkg} onDismiss={() => setRevealed(null)} />
+        <LinkReady recipient={revealed} pkg={revealedFor ?? pkg} onDismiss={() => setRevealed(null)} />
       )}
       {recipients.length === 0 ? (
         <p className="rounded-lg border border-dashed bg-muted/20 p-4 text-sm text-muted-foreground">
@@ -268,35 +377,76 @@ function RecipientsBlock({
                     {t("exchange.signedBy", { name: row.signed_name, when: formatter.dateTime(row.signed_at) })}
                   </p>
                 )}
-                {manage && !closed && (
-                  <div className="flex flex-wrap gap-2">
-                    {isLinkRecipient(row.kind) && (
-                      <>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          disabled={act.isPending}
-                          onClick={() => act.mutate({ recipient: row, action: "regenerate" })}
-                        >
-                          <Link2 className="size-4" />
-                          {t("exchange.regenerate")}
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          disabled={act.isPending}
-                          onClick={() => act.mutate({ recipient: row, action: "extend" })}
-                        >
-                          {t("exchange.extend")}
-                        </Button>
-                      </>
-                    )}
+                <div className="flex flex-wrap gap-2">
+                  {/* JB189: 「沟通」 opens this recipient's own thread on
+                      「沟通记录」; 【重新发送】 sends the same contents again
+                      as a new package with a new number. */}
+                  <Button size="sm" variant="outline" asChild data-package-talk>
+                    <Link href={packageChatHref(row.id)}>
+                      <MessagesSquare className="size-4" />
+                      {t("exchange.talk")}
+                    </Link>
+                  </Button>
+                  {manage && (
                     <Button
                       size="sm"
-                      variant="outline-destructive"
-                      onClick={() => setArmed(armed === row.id ? null : row.id)}
+                      variant="outline"
+                      aria-expanded={resending === row.id}
+                      onClick={() => setResending(resending === row.id ? null : row.id)}
+                      data-package-resend
                     >
-                      {t("exchange.revoke")}
+                      <Repeat className="size-4" />
+                      {t("exchange.resend")}
+                    </Button>
+                  )}
+                  {manage && !closed && (
+                    <>
+                      {isLinkRecipient(row.kind) && (
+                        <>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            disabled={act.isPending}
+                            onClick={() => act.mutate({ recipient: row, action: "regenerate" })}
+                          >
+                            <Link2 className="size-4" />
+                            {t("exchange.regenerate")}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            disabled={act.isPending}
+                            onClick={() => act.mutate({ recipient: row, action: "extend" })}
+                          >
+                            {t("exchange.extend")}
+                          </Button>
+                        </>
+                      )}
+                      <Button
+                        size="sm"
+                        variant="outline-destructive"
+                        onClick={() => setArmed(armed === row.id ? null : row.id)}
+                      >
+                        {t("exchange.revoke")}
+                      </Button>
+                    </>
+                  )}
+                </div>
+                {resending === row.id && (
+                  /* 「按了先问一次」: what it will do, then the button that does it. */
+                  <div
+                    className="flex flex-wrap items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 p-3"
+                    data-package-resend-ask
+                  >
+                    <p className="min-w-0 flex-1 text-sm">
+                      {t("exchange.resendAsk", { name: recipientLabel(t, row) })}
+                    </p>
+                    <Button size="sm" variant="outline" onClick={() => setResending(null)}>
+                      {common("cancel")}
+                    </Button>
+                    <Button size="sm" disabled={resend.isPending} onClick={() => resend.mutate(row)}>
+                      <Repeat className="size-4" />
+                      {t("exchange.resendConfirm")}
                     </Button>
                   </div>
                 )}
@@ -356,7 +506,7 @@ function LinkReady({
   onDismiss,
 }: {
   recipient: PackageRecipient;
-  pkg: EvidencePackageDetail;
+  pkg: { package_no?: string; name: string };
   onDismiss: () => void;
 }) {
   const t = useTranslations("multiEngine");
@@ -617,6 +767,77 @@ function OfficeChat({ pkg, recipients }: { pkg: EvidencePackageDetail; recipient
   );
 }
 
+/** The query keys of the package conversations on 「沟通记录」 (JB189). */
+export const PACKAGE_THREADS_KEY = ["evidence-packages", "threads"] as const;
+export const packageThreadKey = (recipientId: string) => ["evidence-packages", "thread", recipientId] as const;
+
+/**
+ * One package conversation on 「沟通记录」 (JB189, Lucas chose A): the office's
+ * side of one recipient's thread - the same thread as the package window's
+ * 往来聊天, read and answered by the same calls and rules. Not a new chat.
+ */
+export function PackageThreadPanel({ recipientId }: { recipientId: string }) {
+  const t = useTranslations("multiEngine");
+  const chats = useTranslations("fieldChats");
+  const { can, user } = useAuth();
+  const queryClient = useQueryClient();
+  const found = useQuery({
+    queryKey: packageThreadKey(recipientId),
+    queryFn: () => getPackageThreads({ recipient: recipientId }),
+  });
+  const row = found.data?.results[0];
+  const thread = useQuery({
+    queryKey: ["evidence-packages", "messages", row?.package, recipientId],
+    queryFn: () => getPackageMessages(row!.package, recipientId),
+    enabled: Boolean(row),
+  });
+
+  if (found.isLoading) return <p className="text-sm text-muted-foreground">{t("loading")}</p>;
+  if (found.isError) return <LoadFailed what={chats("conversation")} onRetry={() => void found.refetch()} />;
+  if (!row) {
+    return (
+      <p className="rounded-lg border border-dashed bg-muted/20 p-4 text-sm text-muted-foreground">
+        {chats("packageGone")}
+      </p>
+    );
+  }
+  const who = recipientLabel(t, row);
+  return (
+    <div className="space-y-3" data-package-thread={row.id}>
+      <div className="space-y-0.5">
+        <h3 className="text-sm font-semibold">
+          {row.package_no} · {who}
+        </h3>
+        <p className="text-xs text-muted-foreground">
+          {chats("packageThread", { name: row.package_name })} · {row.project_name}
+          {row.revoked && <> · {t("exchange.status.REVOKED")}</>}
+        </p>
+      </div>
+      {thread.isError ? (
+        <LoadFailed what={t("exchange.tab.chat")} onRetry={() => void thread.refetch()} />
+      ) : (
+        <ThreadView
+          record={{ recordKind: "EVIDENCE_PACKAGE", recordId: row.package, project: row.project }}
+          messages={thread.data ?? []}
+          loading={thread.isLoading}
+          items={(row.items ?? []).map((item) => ({ id: item.id, label: item.reference || t(`kind.${item.record_kind}`) }))}
+          ownSide="OFFICE"
+          otherName={who}
+          // Head office's thread has an office at both ends (JB190: 自己在右，对方在左).
+          mineId={row.recipient_kind === "HEADQUARTERS" ? user?.id : undefined}
+          canWrite={can("package.manage")}
+          onSend={async (payload) => {
+            await sendPackageMessage(row.package, row.id, payload);
+            await queryClient.invalidateQueries({ queryKey: ["evidence-packages", "messages", row.package] });
+            await queryClient.invalidateQueries({ queryKey: PACKAGE_THREADS_KEY });
+          }}
+          openAttachment={(message) => packageAttachmentFile(message.attachment_url, message.attachment_name)}
+        />
+      )}
+    </div>
+  );
+}
+
 /**
  * One thread, oldest first, and the box to add to it. Shared by the office,
  * the consultant and the link page: the three must read alike.
@@ -631,11 +852,18 @@ export function ThreadView({
   onSend,
   openAttachment,
   record,
+  mineId,
 }: {
   messages: PackageMessage[];
   loading?: boolean;
   items: { id: string; label: string }[];
   ownSide: "OFFICE" | "RECIPIENT";
+  /**
+   * JB189: on head office's thread both ends are office accounts, so on
+   * 「沟通记录」 the reader's own messages (by who wrote them) go right and
+   * the other office's left. Without it, a side is a side.
+   */
+  mineId?: string;
   otherName: string;
   canWrite: boolean;
   onSend: (payload: { body: string; item?: string; attachment?: File | null }) => Promise<unknown>;
@@ -676,7 +904,7 @@ export function ThreadView({
       ) : (
         <ol className="space-y-2">
           {messages.map((message) => {
-            const mine = message.side === ownSide;
+            const mine = mineId && message.author ? message.author === mineId : message.side === ownSide;
             return (
               <li key={message.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
                 <div
