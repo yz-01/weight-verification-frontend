@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Inbox, PenLine } from "lucide-react";
+import { Inbox, MessagesSquare, PenLine } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { useRef, useState } from "react";
@@ -169,6 +169,8 @@ function ReviewSheet({ id, onClose }: { id: string; onClose: () => void }) {
   const [armed, setArmed] = useState(false);
   // The first load is the open the office sees (H17 四 5); a refetch is not.
   const opened = useRef(false);
+  // JB189 「沟通」: this consultant's own thread with the office, below.
+  const chat = useRef<HTMLElement | null>(null);
 
   const detail = useQuery({
     queryKey: ["package-reviews", "detail", id],
@@ -233,6 +235,18 @@ function ReviewSheet({ id, onClose }: { id: string; onClose: () => void }) {
                   recordId: id,
                 }}
               />
+              {/* JB189 (客户 11-13: 「顾问及业主点击后…进入该资料包对应的沟通事项」;
+                  Lucas chose A): a consultant has no 「沟通记录」 page - this
+                  goes to their own thread on this package, the one below. */}
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => chat.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
+                data-package-talk
+              >
+                <MessagesSquare className="size-4" />
+                {t("exchange.talk")}
+              </Button>
             </div>
             {mine?.signed_at ? (
               <p className="rounded-lg border border-primary/30 bg-primary/5 p-3 text-sm">
@@ -363,7 +377,7 @@ function ReviewSheet({ id, onClose }: { id: string; onClose: () => void }) {
               <p className="text-xs text-muted-foreground">{t("exchange.signAfterResubmit")}</p>
             )}
 
-            <section className="space-y-2">
+            <section ref={chat} className="scroll-mt-4 space-y-2" data-package-chat>
               <h3 className="panel-title">{t("exchange.tab.chat")}</h3>
               {thread.isError ? (
                 <LoadFailed what={t("exchange.tab.chat")} onRetry={() => void thread.refetch()} />

@@ -1,7 +1,16 @@
 "use client";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { CheckCircle2, FileSearch, Images, Loader2, PackageOpen, RotateCcw, UserRound } from "lucide-react";
+import {
+  CheckCircle2,
+  FileSearch,
+  Images,
+  Loader2,
+  MessagesSquare,
+  PackageOpen,
+  RotateCcw,
+  UserRound,
+} from "lucide-react";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { useRef, useState } from "react";
@@ -147,6 +156,8 @@ function LinkPage({
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState(false);
   const [armed, setArmed] = useState(false);
+  // JB189 「沟通」: this link's own thread with the office, further down.
+  const chat = useRef<HTMLElement | null>(null);
 
   const say = (error: unknown) => {
     const code = error instanceof ApiError ? error.code : "";
@@ -233,6 +244,18 @@ function LinkPage({
               title: data.package_no || data.package_name,
             }}
           />
+          {/* JB189 (客户 11-13: 「顾问及业主点击后…进入该资料包对应的沟通事项」;
+              Lucas chose A): an owner has no account and no 「沟通记录」 -
+              this goes to their own thread on this package, below. */}
+          <Button
+            variant="outline"
+            className="h-11"
+            onClick={() => chat.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
+            data-package-talk
+          >
+            <MessagesSquare className="size-4" />
+            {t("talk")}
+          </Button>
         </div>
 
         {data.recipient.signed_at && (
@@ -363,7 +386,7 @@ function LinkPage({
           </ul>
         </section>
 
-        <section className="space-y-2" aria-label={t("chat")}>
+        <section ref={chat} className="scroll-mt-20 space-y-2" aria-label={t("chat")} data-package-chat>
           <h2 className="text-sm font-semibold">{t("chat")}</h2>
           <ThreadView
             messages={data.messages}
