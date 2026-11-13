@@ -50,7 +50,9 @@ export type LogWindowOpener =
   /** 通行证 (`PassDetail`), read by its id. */
   | "pass"
   /** No window of its own: the record's own PDF (完整证据) in the viewer. */
-  | "recordPdf";
+  | "recordPdf"
+  /** 退货核对 (JB188): that one check (`ReturnCheckWindow`). */
+  | "returnCheck";
 
 export interface LogWindowEntry {
   opener: LogWindowOpener;
@@ -106,6 +108,8 @@ export const WINDOW_OPENERS: Readonly<Record<string, LogWindowEntry>> = {
   // opens one, so their own PDF - what was printed or sent - is shown.
   ATTENDANCE: { opener: "recordPdf" },
   EQUIPMENT_HOURS: { opener: "recordPdf" },
+  // 退货核对单's 打印 / 导出 / 发送 open that check (JB188 做法 8).
+  MATERIAL_RETURN_CHECK: { opener: "returnCheck" },
 };
 
 /**

@@ -53,7 +53,8 @@ describe("the badge", () => {
   it("is a button that says how many, beside a chosen supplier or in a list", () => {
     const html = render(<SupplierReturnBadge supplier={WITH} />);
     expect(html).toMatch(/^<button/);
-    expect(html).toContain("这家供应商有 3 笔已完成的退场，点开查看");
+    // JB188: only the returns not checked yet (Lucas 11-13 决定 1).
+    expect(html).toContain("这家供应商有 3 笔还没核对的退货，点开查看");
   });
 
   it("is only a mark inside a dropdown option, where pressing chooses the supplier", () => {

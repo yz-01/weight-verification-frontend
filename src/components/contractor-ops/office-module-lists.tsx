@@ -56,6 +56,14 @@ import { movementStatusKey } from "@/lib/equipment-exit";
 import { ARCHIVE_LOCKS_CHANGES } from "@/lib/archive-policy";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { MaterialIssueList, OutgoingKindSwitch } from "@/components/contractor-ops/material-issue";
+import {
+  ReturnCheckButton,
+  ReturnCheckTabs,
+  ReturnCheckWindow,
+  ReturnChecksList,
+  returnTabOf,
+  type ReturnTab,
+} from "@/components/contractor-ops/return-checks";
 import { useMemo, useState } from "react";
 
 import { AddToPackageButton } from "@/components/contractor-ops/add-to-package";
@@ -261,11 +269,26 @@ export function MaterialOutgoingOffice() {
     const query = params.toString();
     router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
   };
-  const returnsQuery = { ...list.query, kind: "RETURN" };
+  // 「待核对｜已核对」 on the returns' side (JB188 做法 1), kept in the address
+  // (`?tab=checked`) so a refresh or the back button stays on it.
+  const tab: ReturnTab = returnTabOf(searchParams.get("tab"));
+  const switchTab = (next: ReturnTab) => {
+    const params = new URLSearchParams();
+    const keep = searchParams.get("project");
+    if (keep) params.set("project", keep);
+    if (next === "checked") params.set("tab", "checked");
+    const query = params.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+  };
+  // One 核对 open over 「已核对」, by state: closing it closes it (JB187).
+  const [checkOpen, setCheckOpen] = useState<string | null>(null);
+  // 「待核对」 is the list as it was, without the checked returns (Lucas
+  // 11-13 决定 3) - on screen and in its export.
+  const returnsQuery = { ...list.query, kind: "RETURN", unchecked: "1" };
   const rows = useQuery({
     queryKey: ["material-outgoing", "office", returnsQuery],
     queryFn: () => getMaterialOutgoing(returnsQuery),
-    enabled: view === "RETURN",
+    enabled: view === "RETURN" && tab === "pending",
   });
   const review = useMutation({
     mutationFn: ({
@@ -518,6 +541,23 @@ export function MaterialOutgoingOffice() {
     );
   }
 
+  if (tab === "checked") {
+    // 「已核对」: one line per 核对, newest first (JB188 做法 1).
+    return (
+      <>
+        <div className="mb-2 flex justify-end">
+          <OutgoingKindSwitch value={view} onChange={switchView} />
+        </div>
+        <ReturnChecksList
+          title={title}
+          above={<ReturnCheckTabs value={tab} onChange={switchTab} />}
+          onOpen={setCheckOpen}
+        />
+        {checkOpen ? <ReturnCheckWindow id={checkOpen} onClose={() => setCheckOpen(null)} /> : null}
+      </>
+    );
+  }
+
   return (
     <>
       <div className="mb-2 flex justify-end">
@@ -527,11 +567,15 @@ export function MaterialOutgoingOffice() {
         corrected={{ kind: "MATERIAL_OUTGOING" }}
         title={title}
         countLabel={tRoot("moduleTable.count", { count: total })}
+        // 【退货核对】 above 「待核对」, for whoever may approve (JB188 做法 2);
+        // saved, the page goes to 「已核对」 with the new check on top.
+        headerAction={<ReturnCheckButton onSaved={() => switchTab("checked")} />}
         // Material Out in 材料管理's views (B09, C14), with the supplier and
         // date filter beside them (B5). Returns typed 退场 on the receipt
         // form before 10-02 are listed on their own, one click away.
         above={
           <div className="flex flex-col gap-2">
+            <ReturnCheckTabs value={tab} onChange={switchTab} />
             <MaterialTabs>
               <SupplierDateListFilter list={list} showManufacturer />
             </MaterialTabs>
