@@ -3081,7 +3081,8 @@
       "WEIGH_SESSION": "Rekod timbangan",
       "ANNOUNCEMENT": "Pengumuman",
       "VISITOR_ARRIVAL": "Ketibaan pelawat",
-      "MATERIAL_ISSUE": "Material Issue Note (Nota Pengeluaran Bahan)"
+      "MATERIAL_ISSUE": "Material Issue Note (Nota Pengeluaran Bahan)",
+      "DAILY_REPORT": "Laporan harian"
     },
     "lastPage": "Anda berada di halaman terakhir.",
     "loading": "Memuatkan…",
@@ -11624,7 +11625,11 @@
       "PROGRESS": "Kemajuan",
       "CONSULTANT_APPLICATION": "Permohonan perunding",
       "SUNDRY_CLAIM": "Tuntutan pelbagai",
-      "MATERIAL_REQUEST": "MR / Permohonan lain"
+      "MATERIAL_REQUEST": "MR / Permohonan lain",
+      "DAILY_REPORT": "Laporan harian",
+      "DOCUMENT": "Arkib dokumen",
+      "ATTENDANCE_DAY": "Kemasukan tapak",
+      "MATERIAL_ISSUE": "Pengeluaran bahan"
     },
     "lastPage": "Ini halaman terakhir.",
     "loading": "Memuatkan…",
@@ -11733,7 +11738,8 @@
         "other_project": "Rekod ini milik projek lain; satu pakej hanya menerima rekod dari satu projek",
         "no_package": "Buka pakej dalam Multi Engine dahulu",
         "loading": "Sedang membaca status pakej…",
-        "voided": "Rekod hujan ini sudah dibatalkan dan tidak boleh dipakej"
+        "voided": "Rekod hujan ini sudah dibatalkan dan tidak boleh dipakej",
+        "not_archived": "Dokumen ini belum diarkibkan; ia boleh dimasukkan ke dalam pakej selepas diarkibkan"
       },
       "what": {
         "status": "Status pakej",
@@ -12001,7 +12007,8 @@
     "layoutUpload": "Dimuat naik dari komputer",
     "layoutLetter": "Surat",
     "previewDraft": "Pratonton seluruh pakej",
-    "draftPreviewOnly": "Ini pratonton sebelum disahkan. Cetak, eksport dan hantar dibuka selepas disahkan."
+    "draftPreviewOnly": "Ini pratonton sebelum disahkan. Cetak, eksport dan hantar dibuka selepas disahkan.",
+    "fixedPart": "Sentiasa dimasukkan ke dalam pakej"
   },
   "mySubmissions": {
     "title": "Apa yang saya hantar",
@@ -12193,7 +12200,11 @@
       "recipient_name": "Diambil oleh",
       "issuer_name": "Dikeluarkan oleh",
       "issue_lines": "Bahan dikeluarkan",
-      "handover_gps": "GPS semasa pengeluaran"
+      "handover_gps": "GPS semasa pengeluaran",
+      "report_name": "Nama laporan",
+      "report_period": "Tarikh laporan",
+      "report_records": "Rekod kemajuan",
+      "report_photos": "Foto"
     },
     "detailTitle": "Apa yang saya hantar",
     "photos": "Gambar",
@@ -12566,7 +12577,8 @@
       "departmentsTrades": "Jabatan dan tred",
       "fieldStaffManagement": "Kakitangan tapak",
       "fieldChats": "Rekod perbualan",
-      "photoTimeline": "Garis masa foto projek"
+      "photoTimeline": "Garis masa foto projek",
+      "materialIssue": "Pengeluaran bahan (MIN)"
     },
     "subscription_management": "Pengurusan Langganan",
     "suppliers": "Pembekal",

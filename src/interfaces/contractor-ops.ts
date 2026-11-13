@@ -1451,7 +1451,22 @@ export type ArchiveRecordKind =
   | "ATTENDANCE_DAY"
   | "SUNDRY_CLAIM"
   /** MR / 其他申请 (J30-2): packable in Multi Engine, not a 现场记录中心 row. */
-  | "MATERIAL_REQUEST";
+  | "MATERIAL_REQUEST"
+  /**
+   * JB193 (客户 11-14: 「日报告也必须支持」「文件档案…都必须能够选择打包」):
+   * packable in Multi Engine, not 现场记录中心 rows either.
+   */
+  | "DAILY_REPORT"
+  | "DOCUMENT";
+
+/**
+ * One record of a list that mixes kinds (现场记录中心, JB193): what
+ * `pack_status/?items=` and `link_records` `{records: […]}` take.
+ */
+export interface PackRecordRef {
+  kind: ArchiveRecordKind;
+  id: string;
+}
 
 /**
  * Every kind a Category Management column can hold (T-396, D-276).
@@ -1533,6 +1548,11 @@ export interface ArchiveQueueRow<K extends string = ArchiveRecordKind> {
   movement_type?: "ENTRY" | "RETURN";
   /** A safety row's type: a 施工准证 opens as a permit, not a hazard card. */
   record_type?: "HAZARD" | "PERMIT";
+  /**
+   * A material outgoing's own kind (JB193, Multi Engine's candidates): MO
+   * (`RETURN`) or MIN (`ISSUE`); absent or null for every other kind.
+   */
+  outgoing_kind?: ArchiveOutgoingKind | null;
   /** When this reader opened it in 现场记录中心 (未看 / 已看), or null (T-391, C4). */
   seen_at: string | null;
   /** Whether anything archives this kind at all; an attendance day does not. */
@@ -1857,8 +1877,14 @@ export interface PackageRecordParts {
   fields: import("@/interfaces/contractor").MySubmissionField[];
   photos: import("@/interfaces/contractor").MySubmissionPhoto[];
   documents: PackageDocument[];
-  /** The record's general attachments (B28), one tickable part each. */
-  files?: Array<{ id: string; name: string; uploaded_by_name: string; uploaded_at: string }>;
+  /**
+   * The record's general attachments (B28), one tickable part each. `fixed`
+   * (JB193): the record's own body - a daily report's PDF, a document's
+   * files - which always goes into the PDF and cannot be unticked.
+   */
+  files?: Array<{ id: string; name: string; uploaded_by_name: string; uploaded_at: string; fixed?: boolean }>;
+  /** A material outgoing's own kind (JB193): `ISSUE` is named 「材料领用」. */
+  outgoing_kind?: ArchiveOutgoingKind | null;
 }
 
 /**
@@ -2044,7 +2070,7 @@ export interface PackageThreadRow {
   /** JB191: the messages sent to this reader they have not read yet (the red number). */
   unread?: number;
   /** The package's records, on the one row asked for by `recipient` only (「关于哪一笔记录」). */
-  items?: { id: string; record_kind: ArchiveRecordKind; reference: string }[];
+  items?: { id: string; record_kind: ArchiveRecordKind; reference: string; outgoing_kind?: ArchiveOutgoingKind | null }[];
 }
 
 /** What the package link's page shows (H17 八 3): no money, one thread. */
@@ -2078,6 +2104,8 @@ export interface PackageLinkPage {
 export interface PackageLinkItem {
   id: string;
   record_kind: ArchiveRecordKind;
+  /** A material outgoing's own kind (JB193): `ISSUE` is named 「材料领用」. */
+  outgoing_kind?: ArchiveOutgoingKind | null;
   reference: string;
   fields: import("@/interfaces/contractor").MySubmissionField[];
   photo_count: number;
@@ -2104,7 +2132,9 @@ export type PackRowReason =
   | "other_project"
   | "no_package"
   /** A voided rain record (JB192 做法 二.6): 「不能再勾选打包」. */
-  | "voided";
+  | "voided"
+  /** A document not yet archived (JB193 三 3, the client's 10-26 rule JB25). */
+  | "not_archived";
 
 /** One row of a module's list, as Multi Engine sees it. */
 export interface PackRowStatus {
