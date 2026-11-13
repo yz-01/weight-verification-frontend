@@ -28,6 +28,46 @@ export function openOnSamePage(href: string, replace = false): void {
   else window.history.pushState(null, "", path);
 }
 
+/**
+ * `href` without the parameters `names`, or null when it carries none of
+ * them. Pure, so the rule can be tested without a window.
+ */
+export function addressWithoutParams(
+  href: string,
+  names: readonly string[],
+): string | null {
+  const url = new URL(href, "https://same-page.mse-trace.local");
+  if (!names.some((name) => url.searchParams.has(name))) return null;
+  for (const name of names) url.searchParams.delete(name);
+  return `${url.pathname}${url.search}${url.hash}`;
+}
+
+/**
+ * Takes `names` out of the address of the page showing, in the history entry
+ * it has, **before this returns** - for a page that a link opened with a
+ * parameter (`?notice=`, `?dispatch=`) and that goes on to another address.
+ *
+ * 客户 11-13 (JB187): 「打开事项，然后按 X 一直会重新弹出来」. A system
+ * notification opened 通知中心 at `?notice=<id>`, which went on to the record
+ * with `router.push`. The record's X goes back one entry - to `?notice=<id>`,
+ * which went on to the record again, for ever: the record could not be
+ * closed and no other page could be reached.
+ *
+ * `router.replace` followed by `router.push` does not do this: the push
+ * supersedes the replace that is still on its way, so the entry keeps its
+ * parameter (the recycler's `?dispatch=` did exactly that).
+ * `history.replaceState` changes the entry at once, and the App Router
+ * follows it.
+ */
+export function dropFromAddress(names: readonly string[]): void {
+  if (typeof window === "undefined") return;
+  const next = addressWithoutParams(
+    `${window.location.pathname}${window.location.search}${window.location.hash}`,
+    names,
+  );
+  if (next !== null) openOnSamePage(next, true);
+}
+
 /** A click the browser should handle itself (new tab, new window, …). */
 export function isModifiedClick(event: {
   button: number;

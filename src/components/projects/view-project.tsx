@@ -134,7 +134,19 @@ export function ViewProject({ id }: { id: string }) {
             />
             {can("project.assign") && (
               <Button asChild size="sm" variant="outline">
-                <a href="#project-team">
+                {/* Scrolled to, not navigated to: the browser makes a history
+                    entry for `#project-team`, and this page is also a window
+                    whose X goes back one entry - the first X then only took
+                    the `#` away and the window stayed (JB187). */}
+                <a
+                  href="#project-team"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    document
+                      .getElementById("project-team")
+                      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }}
+                >
                   <UserPlus className="h-4 w-4" />
                   {t("projects.team.add")}
                 </a>

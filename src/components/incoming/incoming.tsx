@@ -45,6 +45,7 @@ import { useListQuery } from "@/hooks/use-list-query";
 import { useClearSearchParam } from "@/hooks/use-url-selection";
 import type { WasteDispatch } from "@/interfaces/contractor";
 import { useDateFormat } from "@/lib/dates";
+import { dropFromAddress } from "@/lib/same-page-link";
 import {
   getIncomingOfflineAware,
   getIncomingSummaryOfflineAware,
@@ -114,12 +115,19 @@ export function Incoming() {
     if (load && load.id !== linkedDispatchId) return;
     const timer = window.setTimeout(() => {
       handledDispatchRef.current = linkedDispatchId;
-      clearLinkedDispatch();
       if (load && can("task.assign") && ["PENDING_ACCEPTANCE", "ACCEPTED"].includes(load.state)) {
+        clearLinkedDispatch();
         setAssigning(load);
       } else if (load && can("dispatch.update") && load.state === "RELEASED") {
+        clearLinkedDispatch();
         setCollecting(load);
       } else {
+        // The order in its own window. The address lets go of `?dispatch=`
+        // first, in the entry it has: the window's X goes back one entry,
+        // and back at `?dispatch=` this would open the order again, for ever
+        // (JB187 - the same trap as 通知中心's `?notice=`). A `router.replace`
+        // here is superseded by the push below and leaves it in.
+        dropFromAddress(["dispatch"]);
         router.push(`/dispatches/${linkedDispatchId}`);
       }
     }, 0);
