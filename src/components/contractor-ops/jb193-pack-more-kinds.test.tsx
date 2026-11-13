@@ -527,7 +527,7 @@ describe("JB193-8: the owner's link page names each record", () => {
       [2, "材料出场"],
       [3, "日报告"],
       [4, "文件档案"],
-      [5, "人员进场"],
+      [5, "出入场（按日）"],
       [6, "SOMETHING_NEW"],
     ] as const) {
       expect(html, name).toContain(`${index}. ${name}`);

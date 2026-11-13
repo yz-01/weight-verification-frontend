@@ -135,7 +135,11 @@ describe("JB193-1 / JB193-8: a package record says what it is", () => {
     const t = fake(zh);
     expect(packageKindName(t, { record_kind: "DAILY_REPORT" })).toBe("日报告");
     expect(packageKindName(t, { record_kind: "DOCUMENT" })).toBe("文件档案");
-    expect(packageKindName(t, { record_kind: "ATTENDANCE_DAY" })).toBe("人员进场");
+    // As the record centre's own chip names it, and the package PDF: one word for one thing.
+    expect(packageKindName(t, { record_kind: "ATTENDANCE_DAY" })).toBe("出入场（按日）");
+    for (const catalogue of Object.values(CATALOGUES)) {
+      expect(words(catalogue, "multiEngine.kind.ATTENDANCE_DAY")).toBe(words(catalogue, "archiveQueue.kind.ATTENDANCE_DAY"));
+    }
     for (const [locale, catalogue] of Object.entries(CATALOGUES)) {
       for (const kind of ["DAILY_REPORT", "DOCUMENT", "ATTENDANCE_DAY", "MATERIAL_ISSUE"]) {
         expect(typeof words(catalogue, `multiEngine.kind.${kind}`), `${locale} ${kind}`).toBe("string");

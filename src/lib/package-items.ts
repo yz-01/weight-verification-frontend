@@ -6,7 +6,7 @@
 
 /**
  * The `multiEngine.kind.*` key of one package record (JB193 五 2: 「资料包里每一
- * 笔写它是哪一种（「日报告」「文件档案」「人员进场」「材料领用」）」): its kind's,
+ * 笔写它是哪一种（「日报告」「文件档案」「出入场（按日）」「材料领用」）」): its kind's,
  * except a material outgoing that is a MIN (`outgoing_kind` `ISSUE`), which is
  * 「材料领用」 - on the server both are `MATERIAL_OUTGOING` (JB193 一 4).
  */

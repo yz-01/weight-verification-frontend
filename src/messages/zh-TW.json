@@ -11628,7 +11628,7 @@
       "MATERIAL_REQUEST": "MR / 其他申請",
       "DAILY_REPORT": "日報告",
       "DOCUMENT": "文件檔案",
-      "ATTENDANCE_DAY": "人員進場",
+      "ATTENDANCE_DAY": "出入場（按日）",
       "MATERIAL_ISSUE": "材料領用"
     },
     "lastPage": "已經是最後一頁了。",
@@ -12204,7 +12204,8 @@
       "report_name": "日報告名稱",
       "report_period": "報告日期",
       "report_records": "進度記錄",
-      "report_photos": "照片數量"
+      "report_photos": "照片數量",
+      "document_title": "文件名稱"
     },
     "detailTitle": "我提交過的",
     "photos": "照片",

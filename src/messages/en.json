@@ -11628,7 +11628,7 @@
       "MATERIAL_REQUEST": "MR / Other requests",
       "DAILY_REPORT": "Daily report",
       "DOCUMENT": "Document archive",
-      "ATTENDANCE_DAY": "Site entry",
+      "ATTENDANCE_DAY": "Site entry, by day",
       "MATERIAL_ISSUE": "Material issue"
     },
     "lastPage": "This is the last page.",
@@ -12204,7 +12204,8 @@
       "report_name": "Report name",
       "report_period": "Report dates",
       "report_records": "Records taken in",
-      "report_photos": "Photos"
+      "report_photos": "Photos",
+      "document_title": "Document name"
     },
     "detailTitle": "What I sent",
     "photos": "Photographs",

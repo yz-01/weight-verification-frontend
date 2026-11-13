@@ -11628,7 +11628,7 @@
       "MATERIAL_REQUEST": "MR / Permohonan lain",
       "DAILY_REPORT": "Laporan harian",
       "DOCUMENT": "Arkib dokumen",
-      "ATTENDANCE_DAY": "Kemasukan tapak",
+      "ATTENDANCE_DAY": "Kemasukan tapak, mengikut hari",
       "MATERIAL_ISSUE": "Pengeluaran bahan"
     },
     "lastPage": "Ini halaman terakhir.",
@@ -12204,7 +12204,8 @@
       "report_name": "Nama laporan",
       "report_period": "Tarikh laporan",
       "report_records": "Rekod yang dimasukkan",
-      "report_photos": "Foto"
+      "report_photos": "Foto",
+      "document_title": "Nama dokumen"
     },
     "detailTitle": "Apa yang saya hantar",
     "photos": "Gambar",
