@@ -38,7 +38,13 @@ export function NoticeOpener({
   id: string;
   /** The bell's own rule: where this notice leads, or `null`. */
   resolve: (notice: NotificationRow) => string | null;
-  /** Go there, replacing the `?notice=` address (it closes this). */
+  /**
+   * Go there (it closes this). The `?notice=` address must not stay in
+   * history under the item: going back to it would come here and go on to
+   * the item again, for ever (客户 11-13, JB187). The phone replaces it; the
+   * office takes the notice out of its entry first (`dropFromAddress`), so
+   * closing the item comes back to 通知中心.
+   */
   navigate: (href: string) => void;
   onClose: () => void;
 }) {

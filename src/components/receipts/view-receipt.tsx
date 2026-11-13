@@ -42,6 +42,7 @@ import {
 import { useDateFormat } from "@/lib/dates";
 import { ARCHIVE_LOCKS_CHANGES } from "@/lib/archive-policy";
 import { needsSupplier, supplierShown } from "@/lib/receipt-supplier";
+import { useRecordShownInPlace } from "@/components/shared/dialog-navigation";
 import { useRecordArchived } from "@/components/shared/record-closure";
 import { RecordCorrectionHistory } from "@/components/shared/record-correction";
 import { InspectionBadge } from "@/components/document-workflow/inspection";
@@ -433,6 +434,10 @@ export function ViewReceipt({
   });
   // A06: an archived delivery takes no more photographs.
   const archived = useRecordArchived("MATERIAL_RECEIPT", id);
+  // Opened in place (a dashboard photo, a report row, 操作记录): 更正 and
+  // 补供应商 inside come back to this window when saved, not to a second
+  // one of the same delivery over it (JB187).
+  useRecordShownInPlace(presentation === "dialog" && onClose ? `/receipts/${id}` : null);
 
   // No "seen" mark on opening (T-292, 客户第 14 条; D-206). Reading a
   // delivery is not a business event, and the receipts list no longer shows

@@ -48,6 +48,7 @@ import type { NotificationRow } from "@/interfaces/platform-ops";
 import { useDateFormat } from "@/lib/dates";
 import { officeNoticeHref } from "@/lib/office-notification";
 import { useRoleLabel } from "@/lib/role-labels";
+import { dropFromAddress } from "@/lib/same-page-link";
 import { contactOf, noticeRecipients } from "@/lib/team-contact";
 import {
   getProjectAssignments,
@@ -260,6 +261,10 @@ export function Notifications({
           resolve={officeNoticeHref}
           navigate={(href) => {
             setChosenNotice(null);
+            // The address lets go of the notice first, in the entry it has:
+            // the record's X goes back one entry, and back at `?notice=` this
+            // would go on to the record again, for ever (客户 11-13, JB187).
+            dropFromAddress(["notice"]);
             router.push(href);
           }}
           onClose={() => {

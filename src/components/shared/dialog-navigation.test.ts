@@ -13,11 +13,16 @@ import {
   decideDismiss,
   decideFormExit,
   recordVisit,
+  resetShownInPlace,
   resetTrail,
   sectionRoot,
+  showInPlace,
 } from "@/components/shared/dialog-navigation";
 
-afterEach(() => resetTrail());
+afterEach(() => {
+  resetTrail();
+  resetShownInPlace();
+});
 
 describe("after a successful save", () => {
   it("edit user opened from the list: the dialog closes once, by going back", () => {
@@ -103,6 +108,85 @@ describe("after a successful save", () => {
         visited: ["/users", "/users/42/edit"],
       }),
     ).toEqual({ action: "push", href: "/users" });
+  });
+});
+
+/**
+ * JB187 (客户 11-13: 「按 X 一直会重新弹出来」). A delivery opened *in place* -
+ * a dashboard photo, a report row, 操作记录's 「打开记录」 - has no address of
+ * its own. 更正 inside it is the form's address; saved, the form used to be
+ * replaced by the delivery's own address, which drew the delivery a second
+ * time over the window it was opened from: one X closed the top one and the
+ * same delivery was still on screen.
+ */
+describe("a form saved over a record that is open in place", () => {
+  it("goes back to that window - never a second window of the same record", () => {
+    expect(
+      decideFormExit({
+        surface: "dialog",
+        href: "/receipts/7",
+        visited: ["/dashboard", "/receipts/7/edit"],
+        inPlace: new Set(["/receipts/7"]),
+      }),
+    ).toEqual({ action: "back" });
+  });
+
+  it("the same from 操作记录, whose address is not the record's either", () => {
+    expect(
+      decideFormExit({
+        surface: "dialog",
+        href: "/receipts/7?from=log",
+        visited: ["/reports/contractor/history", "/receipts/7/edit"],
+        inPlace: new Set(["/receipts/7"]),
+      }),
+    ).toEqual({ action: "back" });
+  });
+
+  it("another record open in place changes nothing: the saved one opens in the form's place", () => {
+    expect(
+      decideFormExit({
+        surface: "dialog",
+        href: "/receipts/7",
+        visited: ["/receipts", "/receipts/7/edit"],
+        inPlace: new Set(["/receipts/8"]),
+      }),
+    ).toEqual({ action: "replace", href: "/receipts/7" });
+  });
+
+  it("with no window in place, a list's 更正 still lands on the record it saved", () => {
+    expect(
+      decideFormExit({
+        surface: "dialog",
+        href: "/receipts/7",
+        visited: ["/receipts", "/receipts/7/edit"],
+      }),
+    ).toEqual({ action: "replace", href: "/receipts/7" });
+  });
+
+  it("reads the windows that said they are on screen, each counted", () => {
+    resetTrail(["/dashboard", "/receipts/7/edit"]);
+    const first = showInPlace("/receipts/7");
+    const second = showInPlace("/receipts/7");
+    expect(decideFormExit({ surface: "dialog", href: "/receipts/7" })).toEqual({ action: "back" });
+    first();
+    // One of the two closed: the other is still there.
+    expect(decideFormExit({ surface: "dialog", href: "/receipts/7" })).toEqual({ action: "back" });
+    second();
+    expect(decideFormExit({ surface: "dialog", href: "/receipts/7" })).toEqual({
+      action: "replace",
+      href: "/receipts/7",
+    });
+  });
+
+  it("on a full page nothing changes: forward to the record", () => {
+    expect(
+      decideFormExit({
+        surface: "page",
+        href: "/receipts/7",
+        visited: ["/dashboard", "/receipts/7/edit"],
+        inPlace: new Set(["/receipts/7"]),
+      }),
+    ).toEqual({ action: "push", href: "/receipts/7" });
   });
 });
 

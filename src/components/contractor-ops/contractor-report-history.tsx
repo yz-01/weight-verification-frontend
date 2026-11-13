@@ -196,7 +196,7 @@ export function ContractorReportHistoryWorkspace() {
   }, [tab, filters, page, logPage, home, searchText]);
   const listRef = useRef<HTMLDivElement | null>(null);
   useSavedListScroll(listRef);
-  const opened = useOpenedLogRecord({ home, listRef, router });
+  const opened = useOpenedLogRecord({ home, pathname, listRef, router });
   const projectBoxShown = useProjectBoxShown("filter");
   const scope = useHistoryScope(filters, tab, () => set(NO_FILTERS));
   const projectPicker = (
@@ -320,10 +320,13 @@ const OpenLogRow = createContext<((row: FileActionRecord) => void) | null>(null)
  */
 function useOpenedLogRecord({
   home,
+  pathname,
   listRef,
   router,
 }: {
   home: string;
+  /** The address now: `home`, or a form / record opened over this page. */
+  pathname: string;
   /** The list, whose scroll place is saved before a page opens. */
   listRef: RefObject<HTMLDivElement | null>;
   router: ReturnType<typeof useRouter>;
@@ -367,7 +370,16 @@ function useOpenedLogRecord({
     const query = withoutOpenRecord(now);
     window.history.replaceState(null, "", query ? `${home}?${query}` : home);
   }, [home]);
-  const named = openRecordIn(search);
+  // A form or record opened from inside the window (更正, 补供应商) has an
+  // address of its own, over this page, and this page's address no longer
+  // names the window. The window stays under it, as every window opened in
+  // place does - so a saved form comes back to it, not to a second window
+  // of the same record that had to be closed first (JB187).
+  const namedHere = openRecordIn(search);
+  const here = pathname === home;
+  const [kept, setKept] = useState(namedHere);
+  if (here && (kept?.kind !== namedHere?.kind || kept?.id !== namedHere?.id)) setKept(namedHere);
+  const named = here ? namedHere : kept;
   const target = named ? logRowTarget({ record_kind: named.kind, record_id: named.id }) : null;
   const shown =
     named && target && "window" in target ? (

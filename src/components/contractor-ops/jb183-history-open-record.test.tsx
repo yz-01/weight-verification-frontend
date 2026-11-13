@@ -155,8 +155,25 @@ describe("JB183-2: a window with X over the list; closing comes back to the same
     expect(history).toContain('window.history.pushState(null, "", `${home}?${query}`);');
     expect(history).toMatch(/if \(pushed\.current\) \{\n\s+pushed\.current = false;\n\s+window\.history\.back\(\);/);
     // The window is drawn from the address, so going back takes it away.
-    expect(history).toContain("const named = openRecordIn(search);");
+    expect(history).toContain("const namedHere = openRecordIn(search);");
+    expect(history).toContain("const named = here ? namedHere : kept;");
     expect(history).toContain("onClose={close}");
+  });
+
+  it("JB187: the window stays under a form opened from inside it, so saving comes back to it", () => {
+    // 更正 inside the window is an address of its own, over this page; this
+    // page's address no longer names the window. Taken away then, the saved
+    // form had no window to come back to and drew the record a second time:
+    // one X closed that one and 操作记录's own window was there again.
+    expect(history).toContain("const here = pathname === home;");
+    expect(history).toContain("const [kept, setKept] = useState(namedHere);");
+    expect(history).toMatch(
+      /if \(here && \(kept\?\.kind !== namedHere\?\.kind \|\| kept\?\.id !== namedHere\?\.id\)\) setKept\(namedHere\);/,
+    );
+    // The delivery's window says it is on screen in place (`dialog-navigation`).
+    expect(source("src/components/receipts/view-receipt.tsx")).toContain(
+      "useRecordShownInPlace(presentation === \"dialog\" && onClose ? `/receipts/${id}` : null);",
+    );
   });
 
   it("every window is the module's own Dialog (with its X), drawn over the page", () => {
