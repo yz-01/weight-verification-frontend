@@ -2419,7 +2419,11 @@ function useProgressReference() {
   // 待归类 (J40): a record the phone sent without a 施工分类 reads by its
   // record number until the office files it.
   return (row: SiteProgressRecord) =>
-    `${row.phase_name ?? row.record_no ?? t("progress.unclassified")} / ${percent(row.percent_complete)}`;
+    // A rain record (JB192) has no percentage to speak of: it reads by its own
+    // line, 「Rainy Weather 14:05–15:10 (1h 05m)」, not 「Rainy Weather / 未填」.
+    row.is_rain
+      ? row.description || row.phase_name || row.record_no || ""
+      : `${row.phase_name ?? row.record_no ?? t("progress.unclassified")} / ${percent(row.percent_complete)}`;
 }
 
 /**
@@ -2483,7 +2487,8 @@ export function ProgressRecordDialog({
           ...rainFacts,
           {
             label: t("field.status"),
-            value: shown.is_voided ? (
+            // A rain record is 有效 or 已作废; nothing about it waits to be confirmed.
+            value: shown.is_rain || shown.is_voided ? (
               <RainStatus record={shown} />
             ) : (
               <StatusBadge
@@ -2499,7 +2504,8 @@ export function ProgressRecordDialog({
               <StatusBadge label={t("progress.unclassified")} tone="warning" />
             ),
           },
-          {
+          // No 实际完成比例 on a rain record: it measures the rain, not the works.
+          ...(shown.is_rain ? [] : [{
             label: t("field.percentComplete"),
             // The office corrects the figure in place (2026-10-09).
             value: (
@@ -2517,7 +2523,7 @@ export function ProgressRecordDialog({
               />
             ),
             wide: editingPercent,
-          },
+          }]),
           {
             label: t("progress.submittedBy"),
             value: shown.submitted_by_name,
