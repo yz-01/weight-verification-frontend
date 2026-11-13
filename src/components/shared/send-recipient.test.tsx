@@ -335,6 +335,9 @@ describe("10-29 tutorial fixes", () => {
       "reports/report-archive.tsx",
       // 材料领用结账单 (JB171): every issue line the list's filters select.
       "contractor-ops/issue-statement.tsx",
+      // Rainy Weather 月报 (JB192): every rain record of one project's month;
+      // its log row names the project.
+      "progress/rain-records.tsx",
     ];
     const missing: string[] = [];
     for (const file of files) {

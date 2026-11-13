@@ -28,10 +28,21 @@ function fakeDatabase(existing: string[]) {
 }
 
 describe("upgradeOfflineStores", () => {
-  it("adds only the originals store to a version 3 database", () => {
+  it("adds only the missing stores to a version 3 database", () => {
     const database = fakeDatabase(["jobs", "driverSnapshots", "recyclerSnapshots"]);
     upgradeOfflineStores(database);
-    expect(database.created).toEqual([{ name: "originals", indexes: ["ownerId", "sha256"] }]);
+    expect(database.created).toEqual([
+      { name: "originals", indexes: ["ownerId", "sha256"] },
+      { name: "rainHeld", indexes: ["ownerId"] },
+    ]);
+  });
+
+  // Version 5 (JB192): the held rain records. A phone on version 4 keeps its
+  // queued jobs, snapshots and kept originals exactly as they were.
+  it("adds only the held rain records to a version 4 database", () => {
+    const database = fakeDatabase(["jobs", "driverSnapshots", "recyclerSnapshots", "originals"]);
+    upgradeOfflineStores(database);
+    expect(database.created).toEqual([{ name: "rainHeld", indexes: ["ownerId"] }]);
   });
 
   it("builds every store on a new phone", () => {
@@ -42,6 +53,7 @@ describe("upgradeOfflineStores", () => {
       "driverSnapshots",
       "recyclerSnapshots",
       "originals",
+      "rainHeld",
     ]);
   });
 });

@@ -15,6 +15,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const originals = new Map<string, Record<string, unknown>>();
 const jobs: Array<{ id: string; ownerId: string; payload: unknown; needsAttention?: boolean }> = [];
+// Rain records started on the phone and not sent (JB192).
+const heldRains: Array<{ id: string; ownerId: string; start: unknown; end?: unknown }> = [];
 let draftNames: string[] = [];
 const post = vi.fn();
 let flush: Promise<unknown> | null = null;
@@ -33,6 +35,7 @@ vi.mock("@/lib/offline-db", () => ({
     originals.delete(id);
   },
   getOfflineJobs: async (ownerId: string) => jobs.filter((job) => job.ownerId === ownerId),
+  getHeldRains: async (ownerId: string) => heldRains.filter((row) => row.ownerId === ownerId),
 }));
 vi.mock("@/lib/form-draft-store", () => ({ draftFileNames: async () => draftNames }));
 vi.mock("@/services/api-client", () => ({ api: { post: (...args: unknown[]) => post(...args) } }));
@@ -71,6 +74,7 @@ const C = "c".repeat(32);
 beforeEach(() => {
   originals.clear();
   jobs.length = 0;
+  heldRains.length = 0;
   draftNames = [];
   post.mockReset();
   flush = null;
@@ -242,6 +246,24 @@ describe("pruneAbandonedOriginals", () => {
     // Only the candidate is asked about.
     expect(post).toHaveBeenCalledTimes(1);
     expect(post.mock.calls[0][1]).toEqual({ sha256: ["a".repeat(64)], photo_sha256: ["p".repeat(64)] });
+  });
+
+  // JB192 (客户第 6 点): the first rain photo waits on the phone for the
+  // second, for hours or longer; its original is held like a queued job's.
+  // The photo is kept as bytes (11-06), and still read as held.
+  it("keeps the originals of a rain record held on the phone", async () => {
+    const old = new Date(Date.now() - ABANDONED_AFTER_MS - 60_000).toISOString();
+    keep(A, "captured", { capturedAt: old });
+    keep(B, "captured", { capturedAt: old });
+    heldRains.push({
+      id: "rain:worker:p-1",
+      ownerId: "worker",
+      start: { file: { name: nameWithOriginal("start.jpg", A), bytes: new ArrayBuffer(3) }, capturedAt: old },
+    });
+    post.mockResolvedValueOnce(statuses({}));
+
+    expect(await pruneAbandonedOriginals("worker")).toBe(1);
+    expect([...originals.keys()]).toEqual([A]);
   });
 
   it("keeps a captured original the server is waiting for, or whose photo it holds", async () => {

@@ -2,7 +2,9 @@
 
 /**
  * 工程进度 as one page with five tabs (2026-10 B17):
- * 施工分类 | 现场照片 | 日报告 | 施工计划 | 项目进度摘要.
+ * 施工分类 | 现场照片 | 日报告 | 施工计划 | 项目进度摘要 - and since JB192
+ * (客户 11-13 晚上) a sixth, 雨天记录 (`?tab=rain`): the Rainy Weather
+ * records, their statistics, the month's PDF and the tick-and-pack list.
  *
  * The boss opens one page and finds the site's photographs, the daily
  * reports written from them, the schedule, and a summary the project
@@ -34,6 +36,7 @@ import {
   usePhotoViewer,
 } from "@/components/progress/progress-photos";
 import { ProgressSummaryTab } from "@/components/progress/progress-summary";
+import { RainRecordsTab } from "@/components/progress/rain-records";
 import { useAuth } from "@/components/providers/auth-provider";
 import { FilterSelect, ProjectListFilter } from "@/components/shared/module-records-table";
 import { NewPhaseDialog } from "@/components/progress/new-phase-dialog";
@@ -49,7 +52,7 @@ import { cn } from "@/lib/utils";
 import { exportProgressPhotos, getConstructionPhases } from "@/services/contractor-ops.service";
 import { getProgressPhotos } from "@/services/progress-reports.service";
 
-export const PROGRESS_TABS = ["phases", "photos", "reports", "schedule", "summary"] as const;
+export const PROGRESS_TABS = ["phases", "photos", "reports", "schedule", "summary", "rain"] as const;
 export type ProgressTab = (typeof PROGRESS_TABS)[number];
 
 /** The tab a reader opens on: the photographs, as `/progress` always did. */
@@ -137,6 +140,7 @@ export function ProgressPage() {
       {active === "reports" && <DailyReportsTab />}
       {active === "schedule" && <ScheduleTab />}
       {active === "summary" && <ProgressSummaryTab />}
+      {active === "rain" && <RainRecordsTab />}
     </div>
   );
 }

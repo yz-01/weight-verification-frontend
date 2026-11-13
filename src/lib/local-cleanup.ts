@@ -22,11 +22,20 @@
  *
  * The queue and the originals are read through `lib/offline-db.ts`, so this
  * file never opens `mse-trace-offline` itself - only that module knows its
- * version (4) and upgrades it.
+ * version (5) and upgrades it.
+ *
+ * A rain record started on the phone and not sent yet (JB192: its first
+ * photo, held until the second) is a record not submitted: it counts as a
+ * draft here, and its photos' originals are held like a queued job's.
  */
 
 import { draftFileNames } from "@/lib/form-draft-store";
-import { getLocalOriginals, getOfflineJobs, type LocalOriginalInfo } from "@/lib/offline-db";
+import {
+  getHeldRains,
+  getLocalOriginals,
+  getOfflineJobs,
+  type LocalOriginalInfo,
+} from "@/lib/offline-db";
 import { protectedLocalItems } from "@/lib/original-photos";
 
 /** Every Cache Storage name that holds only copies of server photos. */
@@ -56,6 +65,11 @@ export interface PhoneHoldings {
   draftFileNames: string[] | null;
   /** Kept originals still on the phone (none of them backed up yet). */
   originals: Pick<LocalOriginalInfo, "id" | "ownerId" | "size" | "state" | "capturedAt">[];
+  /**
+   * Rain records started and not sent yet (JB192), as `{ id, payload }`: the
+   * held record itself is the payload. Optional: none on most phones.
+   */
+  held?: { id: string; payload: unknown }[];
 }
 
 export interface ProtectedOnPhone {
@@ -100,15 +114,17 @@ export function protectedOnPhone(
     return (owner === null || owner === userId) && hasContent(draft.values);
   });
   const mine = holdings.originals.filter((row) => !row.ownerId || row.ownerId === userId);
+  const held = holdings.held ?? [];
   const kept = protectedLocalItems(
-    { jobs: holdings.jobs, originals: mine, draftFileNames: holdings.draftFileNames ?? [] },
+    { jobs: holdings.jobs, originals: mine, draftFileNames: holdings.draftFileNames ?? [], held },
     now,
   );
   const originals =
     holdings.draftFileNames === null ? mine : mine.filter((row) => kept.originalIds.has(row.id));
   return {
     unsent: kept.jobIds.size,
-    drafts: drafts.length,
+    // A held rain record is a record not submitted yet: kept, like a draft.
+    drafts: drafts.length + held.length,
     originals: originals.length,
     originalBytes: originals.reduce((sum, row) => sum + (row.size ?? 0), 0),
   };
@@ -275,13 +291,20 @@ async function readDrafts(): Promise<PhoneHoldings["drafts"]> {
  * the draft store - the same reads `pruneAbandonedOriginals` makes.
  */
 export async function readPhoneHoldings(ownerId: string): Promise<PhoneHoldings> {
-  const [jobs, drafts, fileNames, originals] = await Promise.all([
+  const [jobs, drafts, fileNames, originals, held] = await Promise.all([
     getOfflineJobs(ownerId).catch(() => []),
     readDrafts().catch(() => []),
     draftFileNames().catch(() => null),
     getLocalOriginals(ownerId).catch(() => []),
+    getHeldRains(ownerId).catch(() => []),
   ]);
-  return { jobs, drafts, draftFileNames: fileNames, originals };
+  return {
+    jobs,
+    drafts,
+    draftFileNames: fileNames,
+    originals,
+    held: held.map((record) => ({ id: record.id, payload: record })),
+  };
 }
 
 /** The browser's own figure for everything this app stores on the phone. */

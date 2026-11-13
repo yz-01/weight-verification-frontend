@@ -419,13 +419,17 @@ export function summariseLocal(rows: Pick<LocalOriginalInfo, "state" | "size">[]
   };
 }
 
-/** Every file name a queued job holds (photos inside its payload, at any depth). */
+/**
+ * Every file name a queued job holds (photos inside its payload, at any
+ * depth). A kept file is `{ name, bytes }` since 客户 11-06, `{ name, blob }`
+ * before (`StoredFile`); both are read.
+ */
 export function fileNamesIn(value: unknown, into: Set<string> = new Set()): Set<string> {
   if (Array.isArray(value)) {
     for (const entry of value) fileNamesIn(entry, into);
   } else if (value && typeof value === "object") {
     const record = value as Record<string, unknown>;
-    if (typeof record.name === "string" && "blob" in record) into.add(record.name);
+    if (typeof record.name === "string" && ("blob" in record || "bytes" in record)) into.add(record.name);
     else for (const entry of Object.values(record)) fileNamesIn(entry, into);
   }
   return into;
@@ -437,6 +441,12 @@ export interface LocalInventory {
   originals: Pick<LocalOriginalInfo, "id" | "state" | "capturedAt">[];
   /** Names of photo files held by saved form drafts. */
   draftFileNames?: Iterable<string>;
+  /**
+   * Records held on this phone before they are sent - a rain record's first
+   * photo waiting for its second (JB192, 客户第 6 点: 「不能丢失」). Their
+   * photos' originals are held exactly as a queued job's are.
+   */
+  held?: { id: string; payload: unknown }[];
 }
 
 export interface ProtectedItems {
@@ -456,8 +466,8 @@ export interface ProtectedItems {
  * - Every kept original whose record reached the server and is not yet
  *   backed up (`pending`, `failed`) - backed-up ones are not on the phone
  *   any more, the server's verified copy replaced them.
- * - Every `captured` original a queued job or a saved draft still holds, and
- *   every one younger than `ABANDONED_AFTER_MS`.
+ * - Every `captured` original a queued job, a saved draft or a held rain
+ *   record still holds, and every one younger than `ABANDONED_AFTER_MS`.
  *
  * What is left is a shot whose record was never sent (retaken, or the form
  * abandoned) for a week: not the original of anything on the server.
@@ -465,7 +475,7 @@ export interface ProtectedItems {
 export function protectedLocalItems(inventory: LocalInventory, now: number = Date.now()): ProtectedItems {
   const jobIds = new Set(inventory.jobs.map((job) => job.id));
   const held = new Set<string>();
-  for (const job of inventory.jobs) {
+  for (const job of [...inventory.jobs, ...(inventory.held ?? [])]) {
     for (const name of fileNamesIn(job.payload)) {
       const id = originalIdOf(name);
       if (id) held.add(id);
