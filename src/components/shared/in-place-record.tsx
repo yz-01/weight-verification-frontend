@@ -29,6 +29,7 @@ import { WasteOutgoingInPlace } from "@/components/contractor-ops/waste-outgoing
 import { DisposalInPlace } from "@/components/contractor-ops/site-disposal-workspaces";
 import { ClaimInPlace } from "@/components/contractor-ops/claim-engine";
 import { EquipmentMovementInPlace, ProgressInPlace } from "@/components/contractor-ops/office-module-lists";
+import { DailyReportBook } from "@/components/progress/daily-reports";
 
 const IN_PLACE_KINDS = new Set([
   "MATERIAL_RECEIPT",
@@ -51,6 +52,9 @@ const IN_PLACE_KINDS = new Set([
   "EQUIPMENT_MOVEMENT",
   "PROGRESS",
   "SITE_PROGRESS",
+  // A daily report in a Multi Engine package (JB193 五 2: 「点它可以打开原来的
+  // 记录」): the report's own book, as its list opens it.
+  "DAILY_REPORT",
 ]);
 
 /** Whether a record of this kind opens in a popup over the current page. */
@@ -105,6 +109,8 @@ export function InPlaceRecord({
     case "PROGRESS":
     case "SITE_PROGRESS":
       return <ProgressInPlace id={id} onClose={onClose} />;
+    case "DAILY_REPORT":
+      return <DailyReportBook report={id} onClose={onClose} />;
     default:
       return null;
   }

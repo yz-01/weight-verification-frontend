@@ -35,6 +35,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { useNewMessageTone } from "@/hooks/use-new-message-tone";
 import { useDateFormat } from "@/lib/dates";
+import { packageKindName } from "@/lib/package-items";
 import { roleLabel } from "@/lib/role-labels";
 import type {
   EvidencePackageDetail,
@@ -759,7 +760,7 @@ function OfficeChat({ pkg, recipients }: { pkg: EvidencePackageDetail; recipient
             record={packageRecord(pkg)}
             messages={thread.data ?? []}
             loading={thread.isLoading}
-            items={pkg.items.map((item) => ({ id: item.id, label: item.reference || t(`kind.${item.record_kind}`) }))}
+            items={pkg.items.map((item) => ({ id: item.id, label: item.reference || packageKindName(t, item) }))}
             ownSide="OFFICE"
             otherName={current.display_name}
             // An office at both ends (JB189 / JB190): the reader's own on the right.
@@ -925,7 +926,7 @@ export function PackageThreadPanel({ recipientId }: { recipientId: string }) {
           record={{ recordKind: "EVIDENCE_PACKAGE", recordId: row.package, project: row.project }}
           messages={thread.data ?? []}
           loading={thread.isLoading}
-          items={(row.items ?? []).map((item) => ({ id: item.id, label: item.reference || t(`kind.${item.record_kind}`) }))}
+          items={(row.items ?? []).map((item) => ({ id: item.id, label: item.reference || packageKindName(t, item) }))}
           ownSide="OFFICE"
           otherName={who}
           // Head office's thread has an office at both ends (JB190: 自己在右，对方在左).
@@ -1389,7 +1390,7 @@ function ResubmitDialog({
                       }
                     />
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-medium">{item.reference || t(`kind.${item.record_kind}`)}</p>
+                      <p className="truncate text-sm font-medium">{item.reference || packageKindName(t, item)}</p>
                       <p className="text-xs text-destructive">{item.returned_reason}</p>
                     </div>
                   </li>

@@ -3081,7 +3081,8 @@
       "WEIGH_SESSION": "称重记录",
       "ANNOUNCEMENT": "公告",
       "VISITOR_ARRIVAL": "访客到访",
-      "MATERIAL_ISSUE": "Material Issue Note（材料领用单）"
+      "MATERIAL_ISSUE": "Material Issue Note（材料领用单）",
+      "DAILY_REPORT": "日报告"
     },
     "lastPage": "已经是最后一页了。",
     "loading": "载入中…",
@@ -11624,7 +11625,11 @@
       "PROGRESS": "工程进度",
       "CONSULTANT_APPLICATION": "顾问申请",
       "SUNDRY_CLAIM": "杂费报销",
-      "MATERIAL_REQUEST": "MR / 其他申请"
+      "MATERIAL_REQUEST": "MR / 其他申请",
+      "DAILY_REPORT": "日报告",
+      "DOCUMENT": "文件档案",
+      "ATTENDANCE_DAY": "出入场（按日）",
+      "MATERIAL_ISSUE": "材料领用"
     },
     "lastPage": "已经是最后一页了。",
     "loading": "加载中…",
@@ -11733,7 +11738,8 @@
         "other_project": "这条记录属于别的项目；一个资料包只收同一个项目的记录",
         "no_package": "先在 Multi Engine 打开一个资料包",
         "loading": "正在读取打包情况…",
-        "voided": "这份雨天记录已作废，不能打包"
+        "voided": "这份雨天记录已作废，不能打包",
+        "not_archived": "这份文件还没确认归档，归档后才能放进资料包"
       },
       "what": {
         "status": "打包情况",
@@ -12001,7 +12007,8 @@
     "layoutUpload": "电脑上传的文件",
     "layoutLetter": "书信",
     "previewDraft": "预览完整资料",
-    "draftPreviewOnly": "这是确认前的预览。确认后才能打印、导出和发送。"
+    "draftPreviewOnly": "这是确认前的预览。确认后才能打印、导出和发送。",
+    "fixedPart": "一定会放进资料包"
   },
   "mySubmissions": {
     "title": "我提交过的",
@@ -12193,7 +12200,12 @@
       "recipient_name": "领用人",
       "issuer_name": "发料负责人",
       "issue_lines": "领用材料",
-      "handover_gps": "领用 GPS 位置"
+      "handover_gps": "领用 GPS 位置",
+      "report_name": "日报告名称",
+      "report_period": "报告日期",
+      "report_records": "进度记录",
+      "report_photos": "照片数量",
+      "document_title": "文件名称"
     },
     "detailTitle": "我提交过的",
     "photos": "照片",
@@ -12566,7 +12578,8 @@
       "departmentsTrades": "部门与工种",
       "fieldStaffManagement": "现场人员管理",
       "fieldChats": "沟通记录",
-      "photoTimeline": "工程照片墙"
+      "photoTimeline": "工程照片墙",
+      "materialIssue": "材料领用（MIN）"
     },
     "subscription_management": "订阅管理",
     "suppliers": "供应商",

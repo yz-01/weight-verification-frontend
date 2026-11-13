@@ -24,6 +24,7 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useClearSearchParam } from "@/hooks/use-url-selection";
 import { useDateFormat } from "@/lib/dates";
+import { packageKindName } from "@/lib/package-items";
 import type { EvidencePackageRow } from "@/interfaces/contractor-ops";
 import {
   exportPackagesToReview,
@@ -266,9 +267,9 @@ function ReviewSheet({ id, onClose }: { id: string; onClose: () => void }) {
                   <li key={item.id} className="space-y-2 rounded-lg border p-3">
                     <div className="flex flex-wrap items-start gap-2">
                       <div className="min-w-0 flex-1">
-                        <p className="font-medium">{item.reference || t(`kind.${item.record_kind}`)}</p>
+                        <p className="font-medium">{item.reference || packageKindName(t, item)}</p>
                         <p className="text-xs text-muted-foreground">
-                          {t(`kind.${item.record_kind}`)} ·{" "}
+                          {packageKindName(t, item)} ·{" "}
                           {t("partsSummary", {
                             fields: item.fields.length,
                             photos: item.photos.length,
@@ -287,7 +288,7 @@ function ReviewSheet({ id, onClose }: { id: string; onClose: () => void }) {
                         allowSave
                         source={{
                           load: () => reviewPackageItemFile(id, item.id, item.reference, true),
-                          title: item.reference || t(`kind.${item.record_kind}`),
+                          title: item.reference || packageKindName(t, item),
                           project: data.project,
                           recordKind: item.record_kind,
                           recordId: item.record_id,
@@ -386,7 +387,7 @@ function ReviewSheet({ id, onClose }: { id: string; onClose: () => void }) {
                   record={{ recordKind: "EVIDENCE_PACKAGE", recordId: id, project: data.project }}
                   messages={thread.data ?? []}
                   loading={thread.isLoading}
-                  items={data.items.map((item) => ({ id: item.id, label: item.reference || t(`kind.${item.record_kind}`) }))}
+                  items={data.items.map((item) => ({ id: item.id, label: item.reference || packageKindName(t, item) }))}
                   ownSide="RECIPIENT"
                   otherName={t("exchange.office")}
                   canWrite
