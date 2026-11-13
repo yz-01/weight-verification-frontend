@@ -32,6 +32,12 @@ import { useFormSurface, type FormSurface } from "@/components/shared/form-surfa
  *   form's place, so closing it never shows the form again.
  * - With nothing to go back to, replace with `href` rather than leaving the
  *   app.
+ * - In a dialog opened from a window that already shows the record `href`
+ *   names - the record opened *in place*, over a dashboard, a report or
+ *   操作记录 (`useRecordShownInPlace`) - go *back*: the form closes and the
+ *   window under it shows what was saved. Replacing drew the record a second
+ *   time over itself, so one X closed the top one and the same record was
+ *   still on screen (JB187, 客户 11-13: 「按 X 一直会重新弹出来」).
  *
  * `useDismissDialog()` is the same decision for 取消, Escape and the X: back
  * when there is somewhere to go, otherwise the module's list.
@@ -65,6 +71,41 @@ export function resetTrail(entries: string[] = []) {
   trail.splice(0, trail.length, ...entries);
 }
 
+/**
+ * The records on screen in a window opened *in place* - over the page it was
+ * opened from, with no address of its own (a dashboard photo, a report row,
+ * 操作记录's 「打开记录」) - by the address their own form saves to
+ * (`/receipts/<id>`), each counted. A window says so while it is drawn
+ * (`useRecordShownInPlace`).
+ */
+const shownInPlace = new Map<string, number>();
+
+/** `href`'s record is on screen in place; the returned function takes it off. */
+export function showInPlace(href: string): () => void {
+  shownInPlace.set(href, (shownInPlace.get(href) ?? 0) + 1);
+  return () => {
+    const left = (shownInPlace.get(href) ?? 1) - 1;
+    if (left > 0) shownInPlace.set(href, left);
+    else shownInPlace.delete(href);
+  };
+}
+
+/**
+ * A record's window opened in place says which record it shows, by the
+ * address a saved form of that record goes to. `null` for the same record on
+ * a page of its own or in the dialog of its own address: those are found by
+ * the trail.
+ */
+export function useRecordShownInPlace(href: string | null | undefined): void {
+  useEffect(() => (href ? showInPlace(href) : undefined), [href]);
+}
+
+/** For tests. */
+export function resetShownInPlace(hrefs: string[] = []) {
+  shownInPlace.clear();
+  for (const href of hrefs) showInPlace(href);
+}
+
 export type DialogExit =
   | { action: "back" }
   | { action: "push" | "replace"; href: string };
@@ -85,15 +126,21 @@ export function decideFormExit({
   surface,
   href,
   visited = trail,
+  inPlace = shownInPlace,
 }: {
   surface: FormSurface;
   href: string;
   visited?: readonly string[];
+  /** The records on screen in a window opened in place, by address. */
+  inPlace?: { has: (href: string) => boolean };
 }): DialogExit {
   if (surface !== "dialog") return { action: "push", href };
   if (visited.length < 2) return { action: "replace", href };
   const previous = visited[visited.length - 2];
   if (previous === pathOf(href)) return { action: "back" };
+  // The record is already on screen, in the window this form was opened
+  // from: back to that window, never a second one of the same record.
+  if (inPlace.has(pathOf(href))) return { action: "back" };
   return { action: "replace", href };
 }
 
