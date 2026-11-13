@@ -202,10 +202,16 @@ function RecordConversationContent({
         {labels?.title ?? t("recordChat.title", { reference: data.reference })}
       </h3>
 
+      {/* 左右对话 (JB190, Lucas 11-13: 「沟通采用左右沟通」, with the client's
+          photo of 沟通记录): the reader's own messages on the right, everybody
+          else's on the left - the bubbles the phone's chat has had since
+          JB127, now also on the office's 沟通记录 page and in every record's
+          沟通记录 panel. Nothing else of the panel changes. */}
       <ConversationMessageList
         messages={data.messages}
         emptyLabel={labels?.empty ?? t("recordChat.empty")}
         reference={data.reference}
+        mineId={user?.id}
       />
 
       {/* A finished record keeps its whole history and loses only the way to
