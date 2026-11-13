@@ -310,10 +310,14 @@ function PackageChatRow({
       </span>
       <span className="min-w-0 flex-1">
         <span className="flex items-baseline justify-between gap-2">
-          <span className="truncate text-sm font-semibold">
-            {row.package_no} · {who}
-          </span>
+          <span className="truncate text-sm font-semibold">{row.package_no}</span>
           <span className="shrink-0 text-2xs text-muted-foreground">{when}</span>
+        </span>
+        {/* The recipient on a line of its own: on one line with a long PKG
+            number it was cut off, and a package's rows - one per recipient -
+            all read the same (seen in the browser, 11-13). */}
+        <span className="block break-words text-sm font-medium" data-package-chat-who>
+          {who}
         </span>
         <span className="block truncate text-xs text-muted-foreground">
           {t("packageThread", { name: row.package_name })} · {row.project_name}

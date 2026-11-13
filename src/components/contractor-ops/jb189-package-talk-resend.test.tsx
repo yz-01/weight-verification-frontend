@@ -313,8 +313,14 @@ describe("JB189-2..-5: the package threads on 「沟通记录」", () => {
     const html = page("");
     const rows = [...html.matchAll(/data-package-chat-row="([^"]+)"/g)].map((match) => match[1]);
     expect(rows).toEqual(["r-con", "r-hq"]);
-    expect(html).toContain("PKG-T-001 · Reviewing Consultant");
-    expect(html).toContain(`PKG-T-001 · ${words.kind.HEADQUARTERS}`);
+    // The PKG number, and the recipient on a line of its own - never cut off
+    // by a long number, so a package's rows can be told apart.
+    expect(html).toMatch(
+      /data-package-chat-row="r-con"[\s\S]*?PKG-T-001[\s\S]*?data-package-chat-who="true">Reviewing Consultant</,
+    );
+    const headOffice = html.slice(html.indexOf('data-package-chat-row="r-hq"'));
+    expect(headOffice).toContain("PKG-T-001");
+    expect(headOffice).toContain(`data-package-chat-who="true">${words.kind.HEADQUARTERS}<`);
     expect(html).toContain("资料包 · Progress claim March · Tower");
     expect(html).toContain("Reviewing Consultant：Checked.");
     // Mixed with the conversations between people, by time.
