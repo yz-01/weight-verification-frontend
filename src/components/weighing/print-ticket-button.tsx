@@ -39,6 +39,7 @@ export function PrintTicketButton({
       formats={["pdf"]}
       label={t("ticket.action")}
       title={sessionNo}
+      record={{ kind: "WEIGH_SESSION", id: sessionId }}
       onExport={() => printWeighTicket(sessionId, sessionNo, ticketLabels(t))}
     />
   );

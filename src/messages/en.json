@@ -7436,12 +7436,18 @@
         "subject": "Item / report / file",
         "openReport": "Open the report",
         "openRecord": "Open the record",
+        "openPastPage": "Open the page it was on",
         "recipient": "Sent to",
         "status": "Send status",
         "reportName": "Report name",
         "sendRecord": "Send record",
         "view": "View",
-        "noFile": "No file was kept for this one at the time"
+        "noFile": "This row only records the action; there is no file to open."
+      },
+      "window": {
+        "record": "Record",
+        "gone": "This record has been deleted or can no longer be found.",
+        "forbidden": "Your account does not have permission to view this record."
       },
       "count": "{count} in total · page {page} of {pages}",
       "regenerating": "Generating it again…",
@@ -19026,6 +19032,10 @@
       "PROJECT": "Sent to the project manager: head office does not decide it.",
       "HQ": "Sent to head office: the project manager does not decide it.",
       "NONE": "Anyone who may review decides it."
+    },
+    "reminder": {
+      "rule": "This claim is not finished yet. Every {hours} hours the system reminds the person who submitted it and the people who must act, until it is confirmed paid (or rejected, or withdrawn).",
+      "sent": "{count, plural, one {Reminded # time} other {Reminded # times}}, last: {at}."
     }
   },
   "moduleHub": {

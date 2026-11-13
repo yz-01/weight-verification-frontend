@@ -7436,12 +7436,18 @@
         "subject": "Perkara / laporan / fail",
         "openReport": "Buka laporan",
         "openRecord": "Buka rekod",
+        "openPastPage": "Buka halaman ketika itu",
         "recipient": "Dihantar kepada",
         "status": "Status penghantaran",
         "reportName": "Nama laporan",
         "sendRecord": "Rekod penghantaran",
         "view": "Lihat",
-        "noFile": "Fail ini tidak disimpan pada masa itu"
+        "noFile": "Baris ini hanya merekodkan tindakan; tiada fail untuk dibuka."
+      },
+      "window": {
+        "record": "Rekod",
+        "gone": "Rekod ini telah dipadam atau tidak dapat ditemui lagi.",
+        "forbidden": "Akaun anda tiada kebenaran untuk melihat rekod ini."
       },
       "count": "{count} kesemuanya · halaman {page} daripada {pages}",
       "regenerating": "Sedang dijana semula…",
@@ -19026,6 +19032,10 @@
       "PROJECT": "Dihantar kepada pengurus projek: ibu pejabat tidak memutuskannya.",
       "HQ": "Dihantar kepada ibu pejabat: pengurus projek tidak memutuskannya.",
       "NONE": "Sesiapa yang boleh menyemak memutuskannya."
+    },
+    "reminder": {
+      "rule": "Tuntutan ini belum selesai. Setiap {hours} jam sistem mengingatkan orang yang menghantarnya dan orang yang perlu bertindak, sehingga disahkan dibayar (atau ditolak, atau ditarik balik).",
+      "sent": "Sudah diingatkan {count} kali, kali terakhir: {at}."
     }
   },
   "moduleHub": {

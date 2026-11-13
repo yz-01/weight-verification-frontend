@@ -987,6 +987,7 @@ export function PackageSheet({ id, onClose }: { id: string; onClose: () => void 
                               formats={["pdf"]}
                               label={t("exportOne")}
                               title={item.reference}
+                              record={{ kind: item.record_kind, id: item.record_id }}
                               onExport={() =>
                                 downloadPackageItem(id, item.id, item.reference)
                               }

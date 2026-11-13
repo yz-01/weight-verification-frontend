@@ -49,6 +49,7 @@ import {
 } from "@/components/shared/record-correction";
 import { SundryWithdraw } from "@/components/sundry-claims/sundry-withdraw";
 import { SundryClaimCreate } from "@/components/sundry-claims/sundry-claim-create";
+import { SundryReminderNote } from "@/components/sundry-claims/sundry-reminder-note";
 import { VoucherSource } from "@/components/sundry-claims/voucher-source";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -365,6 +366,15 @@ export function SundryClaimDetail({ id, onClose }: { id: string; onClose: () => 
     >
       <RecordDetailShell
         reference={claim.claim_no}
+        // 每 48 小时提醒 (JB184-4): the rule, how many went, the last one.
+        notices={
+          <SundryReminderNote
+            status={status}
+            hours={claim.reminder_hours}
+            count={claim.reminder_count}
+            lastAt={claim.reminded_at}
+          />
+        }
         // 记录人 (E8): who recorded it, with a number to call.
         recorder={<RecordRecorder record={claim} />}
         facts={[

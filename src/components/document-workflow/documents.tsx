@@ -1965,6 +1965,9 @@ function DocumentDetailDialog({
                     previewType={systemFilePreviewType(shown.file)}
                     filename={shown.file.file_name}
                     onDownload={() => downloadSystemFile(detail.data, shown.file)}
+                    // Its print / download row names the document (JB183 做法 6).
+                    recordKind="DOCUMENT"
+                    recordId={detail.data.id}
                     className="h-[52dvh] lg:h-[min(64dvh,calc(94dvh-14rem))]"
                   />
                 </>
@@ -1975,6 +1978,8 @@ function DocumentDetailDialog({
                   previewType={shown.version.preview_type}
                   filename={shown.version.original_name}
                   onDownload={() => handleDownload(shown.version)}
+                  recordKind="DOCUMENT"
+                  recordId={detail.data.id}
                   className="h-[52dvh] lg:h-[min(64dvh,calc(94dvh-14rem))]"
                 />
               ) : (
