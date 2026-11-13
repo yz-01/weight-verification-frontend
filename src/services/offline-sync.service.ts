@@ -8,6 +8,7 @@ import {
   countOfflineJobs,
   deleteOfflineJob,
   getOfflineJobs,
+  type HeldRainRecord,
   type OfflineJob,
   putOfflineJob,
   keptBlob,
@@ -59,6 +60,8 @@ import { createWasteOutgoingRecord } from "@/services/waste-outgoing.service";
 import { createSundryClaim } from "@/services/sundry-claim.service";
 import { clockDriverLink } from "@/services/driver-clock.service";
 import { uploadEquipmentHoursPhoto } from "@/services/equipment-hours.service";
+import { createRainRecord } from "@/services/rain-records.service";
+import { rainJobId, rainJobPayload } from "@/lib/rain-record";
 import type {
   EquipmentHoursPhotoDraft,
   EquipmentHoursUpload,
@@ -680,6 +683,15 @@ async function sendJob(job: OfflineJob): Promise<void> {
     return;
   }
 
+  if (job.kind === "RAIN_RECORD") {
+    await createRainRecord({
+      ...job.payload,
+      start_photo: restoreFile(job.payload.start_photo),
+      end_photo: restoreFile(job.payload.end_photo),
+    });
+    return;
+  }
+
   if (job.kind === "GATE_PHOTO") {
     const { photos, photo_meta, ...fields } = job.payload;
     await createGateIncident({
@@ -1033,7 +1045,8 @@ async function submitCaptureJob(
         | "SAFETY_INCIDENT"
         | "CONSULTANT_SUBMISSION"
         | "CATEGORY_EVIDENCE"
-        | "GATE_PHOTO";
+        | "GATE_PHOTO"
+        | "RAIN_RECORD";
     }
   >,
 ): Promise<OfflineSubmission> {
@@ -1098,6 +1111,37 @@ export async function submitSiteProgressOfflineAware(
     attempts: 0,
     lastError: "",
     payload: { ...draft, photos: await storePhotos(draft.photos) },
+  });
+}
+
+/**
+ * 【提交雨天记录】 (JB192): the held record's two photographs, sent together.
+ *
+ * Online it is sent now; with no signal it waits in the queue and goes by
+ * itself (客户第 6 点: 「使用现有离线缓存功能」). Both photos go through
+ * `storePhoto` like every other queued photo. The record's `client_event_id`
+ * is the one made with the first photo, and the job's id is built from it,
+ * so a second press, a retry or a replay is still the one record. A refusal
+ * (a 4xx) is thrown to the screen, which keeps the held record and says why.
+ */
+export async function submitRainRecordOfflineAware(
+  ownerId: string,
+  record: HeldRainRecord,
+  deviceId?: string,
+): Promise<OfflineSubmission> {
+  if (!record.end) throw new Error("The rain record has no second photo yet.");
+  const [start, end] = await Promise.all([
+    storePhoto(restoreFile(record.start.file)),
+    storePhoto(restoreFile(record.end.file)),
+  ]);
+  return submitCaptureJob({
+    id: rainJobId(record.clientEventId),
+    ownerId,
+    kind: "RAIN_RECORD",
+    queuedAt: new Date().toISOString(),
+    attempts: 0,
+    lastError: "",
+    payload: rainJobPayload(record, { start, end }, deviceId),
   });
 }
 

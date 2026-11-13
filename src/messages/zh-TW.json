@@ -3801,7 +3801,10 @@
       "company_material_price_set": "設定公司通用分類單價",
       "material_return_checked": "退貨核對",
       "material_return_check_pdf_exported": "導出退貨核對單",
-      "material_return_check_pdf_previewed": "預覽退貨核對單"
+      "material_return_check_pdf_previewed": "預覽退貨核對單",
+      "rain_record_submitted": "提交雨天記錄",
+      "rain_record_voided": "作廢雨天記錄",
+      "rain_rules_changed": "修改雨天記錄接收規則"
     },
     "objectType": {
       "SignOffAssistant": "助理副密碼",
@@ -9063,7 +9066,13 @@
       "return_check_other_supplier": "退貨 {reference} 不是這家供應商的。一次只能核對同一家供應商的退貨。",
       "return_check_not_completed": "退貨 {reference} 還不是「已退場，已完成」，現在不能核對。",
       "return_check_already_checked": "退貨 {reference} 已經在 {check_no} 核對過了，不用再核對。",
-      "return_check_final": "核對記錄保存後不能修改或刪除，憑證也不能再加或刪除。"
+      "return_check_final": "核對記錄保存後不能修改或刪除，憑證也不能再加或刪除。",
+      "rain_photos_required": "雨天記錄要兩張照片：開始下雨一張、雨停一張。",
+      "rain_end_not_after_start": "雨停的照片要比開始的照片晚至少 1 分鐘。",
+      "rain_record_quota_full": "這個項目這段時間已經收滿雨天記錄，後台沒有接收這一份。",
+      "rain_void_reason_required": "請寫作廢原因。",
+      "rain_record_already_voided": "這份雨天記錄已經作廢了，不能再作廢一次。",
+      "rain_rules_out_of_range": "份數要在 1 到 50 之間，分鐘要在 5 到 1440 之間。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -9753,7 +9762,8 @@
       "gate": "門崗",
       "operatorHours": "設備操作員工時",
       "permit": "施工准證",
-      "visitor": "訪客掃碼"
+      "visitor": "訪客掃碼",
+      "rain": "Rainy Weather"
     },
     "status": {
       "ACCEPTED": "已完成",
@@ -11720,7 +11730,8 @@
         "not_finished": "這筆記錄還沒完成，完成後才能打包",
         "other_project": "這筆記錄屬於別的項目；一個資料包只收同一個項目的記錄",
         "no_package": "先在 Multi Engine 打開一個資料包",
-        "loading": "正在讀取打包情況…"
+        "loading": "正在讀取打包情況…",
+        "voided": "這份雨天記錄已作廢，不能打包"
       },
       "what": {
         "status": "打包情況",
@@ -12728,7 +12739,8 @@
       "WASTE_OUTGOING": "環保材料出場申請",
       "SUNDRY_CLAIM": "雜費報銷",
       "EQUIPMENT_HOURS_PHOTO": "設備操作員工時",
-      "GATE_PHOTO": "門崗"
+      "GATE_PHOTO": "門崗",
+      "RAIN_RECORD": "Rainy Weather 雨天記錄"
     },
     "pageDescription": "此頁面尚未緩存。請先恢復網絡並打開一次，之後即可離線使用。",
     "queue": {
@@ -12760,7 +12772,9 @@
         "members": "選的溝通人員已經不在這個項目，無法上傳。",
         "project": "這個項目已經沒有了，或你已經不在這個項目。",
         "time": "時間資料不對，無法上傳。"
-      }
+      },
+      "rainQuotaFull": "這個項目這段時間已經收滿雨天記錄，後台沒有接收這一份。再上傳也會被拒收，請刪除這一條。",
+      "rainEndNotAfterStart": "雨停的照片沒有比開始的照片晚（手機時間可能改過），後台沒有接收。請刪除這一條，再重新拍一次。"
     },
     "status": {
       "failed": "{count} 條動作需要處理",
@@ -19712,14 +19726,16 @@
       "photos": "工程時間軸",
       "reports": "日報告",
       "schedule": "施工計劃",
-      "summary": "項目進度摘要"
+      "summary": "項目進度摘要",
+      "rain": "雨天記錄"
     },
     "subtitle": {
       "phases": "每個項目自己的施工分類和權重。手機報進度時選施工分類，整體進度按權重計算。",
       "photos": "現場拍的進度照片，按日期和施工分類找；勾選照片就能填寫日報告。",
       "reports": "每天的日報告，點開看全文和當時勾選的照片。",
       "schedule": "項目的施工計劃和實際進度。",
-      "summary": "項目經理自己排版的項目進度摘要：文字、照片、數字卡、圖表。"
+      "summary": "項目經理自己排版的項目進度摘要：文字、照片、數字卡、圖表。",
+      "rain": "手機「Rainy Weather」拍的雨天記錄：每次下雨的兩張照片、開始、結束、時長；按月統計、月報 PDF、勾選打包。"
     },
     "project": "項目",
     "chooseProject": "選擇項目",
@@ -21017,7 +21033,8 @@
       "assistant_manage": "新增或更改助理副密碼",
       "project_change_permissions": "修改項目權限",
       "material_price_set": "設定或調整材料單價",
-      "material_return_check": "退貨核對"
+      "material_return_check": "退貨核對",
+      "rain_record_void": "作廢雨天記錄"
     },
     "firstTitle": "第一次設定簽核密碼",
     "firstBanner": "這是你第一次使用簽核密碼",
@@ -21545,5 +21562,132 @@
     "vouchersHint": "核對時上傳的文件、照片或 PDF。核對記錄不能修改或刪除。",
     "pdf": "退貨核對單 PDF",
     "pdfTitle": "退貨核對單 {number}"
+  },
+  "rainRecords": {
+    "duration": {
+      "hm": "{hours} 小時 {minutes} 分",
+      "m": "{minutes} 分鐘"
+    },
+    "phone": {
+      "project": "項目",
+      "howTo": "開始下雨時拍第一張，雨停了再進來拍第二張。時間和下雨時長系統自動算，不用填。",
+      "startBig": "開始下雨：拍第一張",
+      "endBig": "雨停了：拍第二張",
+      "startPhoto": "開始下雨",
+      "endPhoto": "雨停",
+      "start": "開始",
+      "end": "結束",
+      "duration": "下雨時長",
+      "started": "開始 {time}",
+      "raining": "已經下了 {duration}",
+      "held": "第一張已經存在這部手機裡，還沒有上傳；斷網、關掉頁面也不會丟。雨停了用這部手機進來拍第二張。",
+      "review": "看一下兩張照片和時間，沒問題就按【提交雨天記錄】。",
+      "submit": "提交雨天記錄",
+      "retake": "重拍第二張",
+      "cancel": "取消這一次",
+      "cancelAsk": "確定取消這一次？手機裡這一次的照片會刪掉，不會上傳。",
+      "cancelYes": "確定取消",
+      "cancelNo": "不取消",
+      "cancelled": "已取消這一次。",
+      "long": "這一次已經超過 12 小時，是不是忘了拍雨停的照片？可以照樣提交，也可以取消這一次。",
+      "tooShort": "雨停的照片要比開始的照片晚至少 1 分鐘。請按「重拍第二張」。",
+      "location": "GPS 定位",
+      "locationReady": "已定位",
+      "sent": "已提交雨天記錄：{start}–{end}（{duration}）",
+      "sentQueued": "已存在手機，有網路會自動上傳：{start}–{end}（{duration}）",
+      "notKept": "這部手機存不了這張照片（可能是無痕模式或空間不夠）。請不要關掉這一頁，拍完第二張馬上提交。",
+      "loadFailed": "讀不到這部手機裡暫存的雨天記錄。請關掉這一頁再打開。",
+      "inProgress": "進行中",
+      "refused": {
+        "quotaFull": "這個項目這 {minutes} 分鐘已經收滿 {limit} 份雨天記錄，後台沒有接收這一份。這一份不能再提交，請按「取消這一次」。",
+        "quotaFullPlain": "這個項目這段時間已經收滿雨天記錄，後台沒有接收這一份。這一份不能再提交，請按「取消這一次」。",
+        "endNotAfterStart": "雨停的照片要比開始的照片晚至少 1 分鐘，後台沒有接收。請按「重拍第二張」再拍一次。",
+        "photosRequired": "兩張照片不齊，後台沒有接收。請按「重拍第二張」，或者「取消這一次」重新開始。",
+        "other": "後台沒有接收：{reason} 可以再按一次【提交雨天記錄】，或者「取消這一次」。"
+      }
+    },
+    "what": "雨天記錄",
+    "rules": {
+      "line": "接收規則：每個項目任何 {minutes} 分鐘裡最多接收 {limit} 份，超過的後台自動拒收。",
+      "button": "接收規則",
+      "title": "雨天記錄接收規則",
+      "help": "每個項目分開算：任何連續的這麼多分鐘裡，最多接收這麼多份雨天記錄，按拍完第二張照片的時間算。改了馬上生效。",
+      "limit": "最多接收幾份",
+      "limitHint": "1 到 50 份",
+      "minutes": "多少分鐘裡",
+      "minutesHint": "5 到 1440 分鐘",
+      "save": "保存",
+      "saved": "接收規則已保存",
+      "readOnly": "只有總部（有「公司設置」權限）可以修改。",
+      "what": "接收規則"
+    },
+    "filter": {
+      "month": "月份",
+      "allStates": "全部狀態",
+      "active": "有效",
+      "voided": "已作廢"
+    },
+    "summary": {
+      "title": "統計：{from} 至 {to}",
+      "times": "下雨次數",
+      "days": "下雨天數",
+      "minutes": "總時長",
+      "records": "記錄份數",
+      "voided": "已作廢",
+      "timesValue": "{count} 次",
+      "daysValue": "{count} 天",
+      "recordsValue": "{count} 份",
+      "chooseProject": "先選擇項目，才能看統計和月報。下面的清單是全部項目的。",
+      "noRain": "這段時間沒有下雨的記錄。",
+      "hint": "幾個人拍同一場雨只算一次，時間重疊的部分只算一次；已作廢的不算。",
+      "what": "雨天統計"
+    },
+    "daily": {
+      "title": "每天",
+      "date": "日期",
+      "times": "下雨次數",
+      "minutes": "時長",
+      "records": "份數"
+    },
+    "list": {
+      "title": "雨天記錄清單",
+      "count": "共 {count} 份"
+    },
+    "column": {
+      "number": "編號",
+      "photos": "兩張照片",
+      "start": "開始",
+      "end": "結束",
+      "duration": "時長",
+      "who": "拍攝人",
+      "project": "項目",
+      "status": "狀態"
+    },
+    "pdf": {
+      "label": "月報",
+      "title": "Rainy Weather 雨天記錄月報 {month}",
+      "needMonth": "選擇項目和月份以後，可以預覽、列印、匯出、發送這個月的月報。"
+    },
+    "record": {
+      "start": "開始下雨",
+      "end": "雨停",
+      "duration": "下雨時長",
+      "position": "GPS {latitude}, {longitude}",
+      "noGps": "沒有定位",
+      "voided": "已作廢",
+      "voidedBy": "作廢人",
+      "voidedAt": "作廢時間",
+      "voidReason": "作廢原因"
+    },
+    "void": {
+      "button": "作廢",
+      "title": "作廢這份雨天記錄",
+      "help": "作廢以後，記錄還在，標「已作廢」；不算進統計，不進月報明細，不能再打包。作廢不能取消。",
+      "reason": "作廢原因",
+      "reasonPlaceholder": "例如：拍錯了、重複拍了",
+      "confirm": "確認作廢",
+      "pin": "按【確認作廢】以後要輸入你的六位數簽核密碼。",
+      "done": "已作廢 {number}"
+    }
   }
 }
