@@ -8234,7 +8234,8 @@
       "from": "Dari {reference} · {module}",
       "fromModule": "Dari {module}",
       "deleted": "Rekod dipadam",
-      "open": "Buka rekod"
+      "open": "Buka rekod",
+      "more": ", dan {count} rekod lain"
     },
     "pickFromSystem": {
       "tab": "Dari sistem",
@@ -8346,7 +8347,10 @@
       "machinesHint": "Hanya mesin yang berada di tapak sekarang disenaraikan. Tandakan setiap mesin dan pilih Lulus atau Gagal di sebelahnya; satu hantaran menyimpan keputusan bagi setiap mesin. {count} dipilih.",
       "noMachinesOnSite": "Tiada mesin projek ini berada di tapak sekarang.",
       "addItem": "Tambah",
-      "removeItem": "Buang"
+      "removeItem": "Buang",
+      "reportDateOn": "Laporan bertarikh {date}",
+      "notSaved": "Keputusan pemeriksaan tidak disimpan.",
+      "notSavedHint": "Apa yang anda isi masih ada. Betulkan dan tekan Hantar sekali lagi."
     }
   },
   "driver": {
