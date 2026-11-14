@@ -15,12 +15,16 @@
  *
  * One tab, the house's pieces: the project (the top bar's, as on the other
  * tabs), a month or a date range; the statistics the server works out for
- * that project and period (merged, so overlapping records count once; voided
- * ones not at all) with a line per day; the month's PDF with the four file
- * buttons; the records themselves - the shared table, newest first, two
- * thumbnails a row, ticked into a package with Multi Engine's own tick boxes
- * (a voided one cannot be). A row opens the progress record's own window,
- * where the rain section and 【作废】 are. 【接收规则】 for head office.
+ * that project and period (merged, so overlapping records count once) with a
+ * line per day; the month's PDF with the four file buttons; the records
+ * themselves - the shared table, newest first, two thumbnails a row, ticked
+ * into a package with Multi Engine's own tick boxes. A row opens the progress
+ * record's own window, where the rain section and 【作废】 are. 【接收规则】
+ * for head office.
+ *
+ * JB198 (客户 11-14: 「雨天记录已作废的记录，直接删除，不留痕迹」): a voided
+ * record is deleted, so the list has no 状态 column and no status filter, and
+ * the statistics no 「已作废 N 份」.
  *
  * Windows open and close by state, never by an effect (JB187).
  */
@@ -36,7 +40,7 @@ import { DayRange } from "@/components/progress/progress-photos";
 import { useAuth } from "@/components/providers/auth-provider";
 import { DataTable } from "@/components/shared/data-table";
 import { FileActionButtons } from "@/components/shared/file-actions";
-import { FilterSelect, PlainHeader, ProjectListFilter } from "@/components/shared/module-records-table";
+import { PlainHeader, ProjectListFilter } from "@/components/shared/module-records-table";
 import { FieldWrapper, FilterBar, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { photoColumn, rowPhotos } from "@/components/shared/photo-thumb";
 import type { ShellFact } from "@/components/shared/record-detail-shell";
@@ -77,9 +81,6 @@ export const RAIN_MINUTES_RANGE = { min: 5, max: 1440 } as const;
 /** A void's reason: a sentence, not a document. */
 const REASON_MAX = 500;
 
-/** 「全部状态 / 有效 / 已作废」 - the server's `voided` filter. */
-const VOIDED_OPTIONS = ["0", "1"] as const;
-
 /**
  * A month chosen sets the range to that month; a date typed in the range
  * drops the month (one or the other, 做法 四.4).
@@ -99,7 +100,7 @@ export function RainRecordsTab() {
   const locale = useLocale();
   const df = useDateFormat();
   const duration = useRainDuration();
-  const list = useListQuery(["project", "month", "date_from", "date_to", "voided"]);
+  const list = useListQuery(["project", "month", "date_from", "date_to"]);
   const project = list.filters.project ?? "";
   // This month when nothing is chosen, counted once when the tab opens.
   const [today] = useState(() => new Date());
@@ -126,7 +127,7 @@ export function RainRecordsTab() {
   const rows = records.data?.results ?? [];
   const total = records.data?.count ?? 0;
   const [viewing, setViewing] = useState<SiteProgressRecord | null>(null);
-  // The open record follows the list, so a void shows at once.
+  // The open record follows the list; a void closes it (JB198).
   const shown = viewing ? (rows.find((row) => row.id === viewing.id) ?? viewing) : null;
   const [editingRules, setEditingRules] = useState(false);
 
@@ -177,12 +178,6 @@ export function RainRecordsTab() {
         header: () => <PlainHeader label={t("column.project")} />,
         cell: ({ row }) => <p className="max-w-45 truncate">{row.original.project_name}</p>,
       },
-      {
-        id: "status",
-        meta: { label: t("column.status") },
-        header: () => <PlainHeader label={t("column.status")} />,
-        cell: ({ row }) => <RainStatus record={row.original} />,
-      },
     ],
     [t, df, duration],
   );
@@ -204,15 +199,6 @@ export function RainRecordsTab() {
         </label>
         {/* A month shows as its range; typing a date makes it a range. */}
         <DayRange from={period.from} to={period.to} onChange={(next) => list.setFilters(rangeChange(next))} />
-        <FilterSelect
-          list={list}
-          param="voided"
-          allLabel={t("filter.allStates")}
-          options={VOIDED_OPTIONS.map((value) => ({
-            value,
-            label: value === "1" ? t("filter.voided") : t("filter.active"),
-          }))}
-        />
       </FilterBar>
 
       <RainRulesLine query={rules} onEdit={() => setEditingRules(true)} />
@@ -274,7 +260,7 @@ export function RainRecordsTab() {
           // Multi Engine's own tick boxes (五.1); a voided record cannot be packed.
           pack={{ kind: "PROGRESS", blocked: (row) => (row.is_voided ? "voided" : null) }}
           phoneCard={{
-            title: ["record_no", "status"],
+            title: ["record_no"],
             detail: ["rain_started_at", "rain_minutes", "submitted_by_name"],
             photo: "cover_photo",
           }}
@@ -303,18 +289,14 @@ export function RainRecordsTab() {
 }
 
 /**
- * 「有效」 or 「已作废」 - the two states a rain record has, and the two the
- * list's 状态 filter offers. Not the progress record's own status: nothing
- * about a rain record waits to be confirmed, and 「等待确认」 beside it made
- * the reader ask who should confirm it (seen in the browser, 11-13).
+ * 「有效」 - a rain record's state in its window. Not the progress record's
+ * own status: nothing about a rain record waits to be confirmed, and 「等待
+ * 确认」 beside it made the reader ask who should confirm it (seen in the
+ * browser, 11-13). A voided one is deleted (JB198), so there is no other.
  */
-export function RainStatus({ record }: { record: SiteProgressRecord }) {
+export function RainStatus() {
   const t = useTranslations("rainRecords");
-  return record.is_voided ? (
-    <StatusBadge label={t("record.voided")} tone="danger" />
-  ) : (
-    <StatusBadge label={t("filter.active")} tone="positive" />
-  );
+  return <StatusBadge label={t("filter.active")} tone="positive" />;
 }
 
 /** The rule everyone sees, and 【接收规则】 for whoever may change it (二.5). */
@@ -438,7 +420,6 @@ export function RainSummaryPanel({
         { key: "days", label: t("summary.days"), value: t("summary.daysValue", { count: data.days }) },
         { key: "minutes", label: t("summary.minutes"), value: duration(data.minutes) },
         { key: "records", label: t("summary.records"), value: t("summary.recordsValue", { count: data.records }) },
-        { key: "voided", label: t("summary.voided"), value: t("summary.recordsValue", { count: data.voided }) },
       ]
     : [];
   return (
@@ -450,7 +431,7 @@ export function RainSummaryPanel({
       {summary.isLoading ? <Loader2 className="size-5 animate-spin text-muted-foreground" /> : null}
       {data ? (
         <>
-          <dl className="grid grid-cols-2 gap-2 sm:grid-cols-5">
+          <dl className="grid grid-cols-2 gap-2 sm:grid-cols-4">
             {tiles.map((tile) => (
               <div key={tile.key} className="rounded-lg border bg-muted/20 p-3" data-stat={tile.key}>
                 <dt className="text-xs text-muted-foreground">{tile.label}</dt>
@@ -516,8 +497,8 @@ export function rainPhotoRoles(record: Pick<SiteProgressRecord, "photos">): { st
 
 /**
  * The rain section of a progress record's window (做法 四.4): start, stop -
- * each with its own photo's GPS - the duration, and once voided who, when
- * and why. Nothing for a record that is not a rain record.
+ * each with its own photo's GPS - and the duration. Nothing for a record that
+ * is not a rain record. (A voided one is deleted, JB198: no 「已作废」 block.)
  */
 export function useRainFacts(record: SiteProgressRecord): ShellFact[] {
   const t = useTranslations("rainRecords");
@@ -537,7 +518,7 @@ export function useRainFacts(record: SiteProgressRecord): ShellFact[] {
     </span>
   );
   const startPhoto = photoOf(roles.start) ?? { latitude: record.latitude, longitude: record.longitude };
-  const facts: ShellFact[] = [
+  return [
     { label: t("record.start"), value: moment(record.rain_started_at ?? record.captured_at, startPhoto) },
     { label: t("record.end"), value: moment(record.rain_ended_at, photoOf(roles.end)) },
     {
@@ -545,14 +526,6 @@ export function useRainFacts(record: SiteProgressRecord): ShellFact[] {
       value: <span className="tabular text-base font-bold">{duration(record.rain_minutes)}</span>,
     },
   ];
-  if (record.is_voided) {
-    facts.push(
-      { label: t("record.voidedBy"), value: record.voided_by_name || "—" },
-      { label: t("record.voidedAt"), value: df.dateTime(record.voided_at) },
-      { label: t("record.voidReason"), value: record.void_reason || "—", wide: true },
-    );
-  }
-  return facts;
 }
 
 /** A rain record's photo labels: 「开始下雨」 and 「雨停」. */
@@ -571,7 +544,9 @@ export function useRainPhotoLabel(record: SiteProgressRecord) {
 /**
  * 【作废】 (做法 二.6): for whoever confirms progress, on a rain record not yet
  * voided. A reason is required; the server asks for the PIN (「作废雨天记录」).
- * Never undone - there is no button for that.
+ * Never undone - there is no button for that. Since JB198 the record is then
+ * deleted: the confirmation says so (`voidGone`), and the window that held
+ * it closes (`onVoided`).
  */
 export function RainVoidButton({
   record,
@@ -633,9 +608,10 @@ export function RainVoidDialog({
       <DialogContent data-slot="rain-void-dialog" className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>{t("void.title")}</DialogTitle>
-          <DialogDescription>
+          {/* JB198 做法 4: what happens - it is deleted, for good. */}
+          <DialogDescription data-slot="rain-void-gone">
             {record.record_no ? `${record.record_no} · ` : ""}
-            {t("void.help")}
+            {t("voidGone")}
           </DialogDescription>
         </DialogHeader>
         <FieldWrapper label={t("void.reason")} required>

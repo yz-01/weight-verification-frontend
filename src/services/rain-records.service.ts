@@ -45,8 +45,9 @@ export interface RainSummary {
   days: number;
   /** 总时长, in minutes. */
   minutes: number;
-  /** Records not voided. */
+  /** Records in the period (a voided one is deleted, JB198). */
   records: number;
+  /** Always 0 since JB198 (a voided record is deleted); not shown. */
   voided: number;
   /** Only days with rain, oldest first. */
   daily: RainSummaryDay[];

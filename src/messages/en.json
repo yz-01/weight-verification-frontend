@@ -21645,9 +21645,7 @@
     },
     "filter": {
       "month": "Month",
-      "allStates": "All statuses",
-      "active": "Valid",
-      "voided": "Voided"
+      "active": "Valid"
     },
     "summary": {
       "title": "Totals: {from} to {to}",
@@ -21655,13 +21653,12 @@
       "days": "Rain days",
       "minutes": "Total duration",
       "records": "Records",
-      "voided": "Voided",
       "timesValue": "{count, plural, one {# time} other {# times}}",
       "daysValue": "{count, plural, one {# day} other {# days}}",
       "recordsValue": "{count}",
       "chooseProject": "Choose a project to see its totals and monthly report. The list below is every project's.",
       "noRain": "No rain recorded in this period.",
-      "hint": "One rain photographed by several people counts once; overlapping time counts once; voided records do not count.",
+      "hint": "One rain photographed by several people counts once; overlapping time counts once.",
       "what": "rain totals"
     },
     "daily": {
@@ -21683,8 +21680,7 @@
       "end": "End",
       "duration": "Duration",
       "who": "Taken by",
-      "project": "Project",
-      "status": "Status"
+      "project": "Project"
     },
     "pdf": {
       "label": "Monthly report",
@@ -21696,21 +21692,17 @@
       "end": "Rain stopped",
       "duration": "Rain duration",
       "position": "GPS {latitude}, {longitude}",
-      "noGps": "No location",
-      "voided": "Voided",
-      "voidedBy": "Voided by",
-      "voidedAt": "Voided at",
-      "voidReason": "Reason"
+      "noGps": "No location"
     },
     "void": {
       "button": "Void",
       "title": "Void this rain record",
-      "help": "Once voided the record stays, marked 「Voided」; it is left out of the totals and the monthly report's list, and cannot be packed. Voiding cannot be undone.",
       "reason": "Reason for voiding",
       "reasonPlaceholder": "e.g. wrong photo, taken twice",
       "confirm": "Confirm void",
       "pin": "After 「Confirm void」, enter your six-digit sign-off PIN.",
       "done": "{number} voided"
-    }
+    },
+    "voidGone": "Once voided, this record is deleted. It will no longer be in the list, the totals or the monthly report, and it cannot be brought back."
   }
 }
