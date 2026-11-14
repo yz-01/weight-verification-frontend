@@ -21641,9 +21641,7 @@
     },
     "filter": {
       "month": "月份",
-      "allStates": "全部狀態",
-      "active": "有效",
-      "voided": "已作廢"
+      "active": "有效"
     },
     "summary": {
       "title": "統計：{from} 至 {to}",
@@ -21651,13 +21649,12 @@
       "days": "下雨天數",
       "minutes": "總時長",
       "records": "記錄份數",
-      "voided": "已作廢",
       "timesValue": "{count} 次",
       "daysValue": "{count} 天",
       "recordsValue": "{count} 份",
       "chooseProject": "先選擇項目，才能看統計和月報。下面的清單是全部項目的。",
       "noRain": "這段時間沒有下雨的記錄。",
-      "hint": "幾個人拍同一場雨只算一次，時間重疊的部分只算一次；已作廢的不算。",
+      "hint": "幾個人拍同一場雨只算一次，時間重疊的部分只算一次。",
       "what": "雨天統計"
     },
     "daily": {
@@ -21679,8 +21676,7 @@
       "end": "結束",
       "duration": "時長",
       "who": "拍攝人",
-      "project": "項目",
-      "status": "狀態"
+      "project": "項目"
     },
     "pdf": {
       "label": "月報",
@@ -21692,21 +21688,17 @@
       "end": "雨停",
       "duration": "下雨時長",
       "position": "GPS {latitude}, {longitude}",
-      "noGps": "沒有定位",
-      "voided": "已作廢",
-      "voidedBy": "作廢人",
-      "voidedAt": "作廢時間",
-      "voidReason": "作廢原因"
+      "noGps": "沒有定位"
     },
     "void": {
       "button": "作廢",
       "title": "作廢這份雨天記錄",
-      "help": "作廢以後，記錄還在，標「已作廢」；不算進統計，不進月報明細，不能再打包。作廢不能取消。",
       "reason": "作廢原因",
       "reasonPlaceholder": "例如：拍錯了、重複拍了",
       "confirm": "確認作廢",
       "pin": "按【確認作廢】以後要輸入你的六位數簽核密碼。",
       "done": "已作廢 {number}"
-    }
+    },
+    "voidGone": "作廢後這筆記錄會直接刪除，清單、統計和月報裡都不會再有，不能恢復。"
   }
 }
