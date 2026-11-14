@@ -26,6 +26,11 @@
  * record is deleted, so the list has no 状态 column and no status filter, and
  * the statistics no 「已作废 N 份」.
  *
+ * JB199 (客户 11-14: 「两种都支持填写意见备注」): a rain record's window has its
+ * 「意见 / 备注」 under the rain details, and the month's report its own above
+ * the four file buttons - written by whoever may void, read by everyone else;
+ * both print in the PDFs.
+ *
  * Windows open and close by state, never by an effect (JB187).
  */
 
@@ -63,13 +68,19 @@ import type { SiteProgressRecord } from "@/interfaces/contractor-ops";
 import { useDateFormat } from "@/lib/dates";
 import { isMonth, periodQuery, rainPeriod, type RainPeriod } from "@/lib/rain-record";
 import {
+  getRainMonthRemark,
   getRainRecords,
   getRainRules,
   getRainSummary,
+  RAIN_MONTH_REMARK_MAX,
   RAIN_RECORDS_KEY,
+  RAIN_REMARK_MAX,
   rainReportPdfFile,
+  setRainMonthRemark,
+  setRainRemark,
   setRainRules,
   voidRainRecord,
+  type RainMonthRemark,
   type RainRules,
   type RainSummary,
 } from "@/services/rain-records.service";
@@ -214,21 +225,26 @@ export function RainRecordsTab() {
         </p>
       )}
 
-      {/* 月报: 预览 · 打印 · 导出 · 发送 - the house's four file buttons. */}
+      {/* 月报: the month's 「意见 / 备注」 (JB199 B), then 预览 · 打印 · 导出 ·
+          发送 - the house's four file buttons. A month only: a date range
+          has no report, so no remark either. */}
       {project && period.month ? (
-        <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4" data-slot="rain-pdf">
-          <FileActionButtons
-            label={t("pdf.label")}
-            source={{
-              load: () => rainReportPdfFile(project, period.month, locale),
-              title: t("pdf.title", { month: period.month }),
-              subject: t("pdf.title", { month: period.month }),
-              project,
-              // 打印 · 导出 · 发送 fetch it again with the PIN's grant, as
-              // every other report the server makes.
-              exportedOnServer: true,
-            }}
-          />
+        <div className="space-y-2">
+          <RainMonthRemarkBox key={`${project}:${period.month}`} project={project} month={period.month} />
+          <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4" data-slot="rain-pdf">
+            <FileActionButtons
+              label={t("pdf.label")}
+              source={{
+                load: () => rainReportPdfFile(project, period.month, locale),
+                title: t("pdf.title", { month: period.month }),
+                subject: t("pdf.title", { month: period.month }),
+                project,
+                // 打印 · 导出 · 发送 fetch it again with the PIN's grant, as
+                // every other report the server makes.
+                exportedOnServer: true,
+              }}
+            />
+          </div>
         </div>
       ) : (
         <p className="text-xs text-muted-foreground" data-slot="rain-pdf-need">
@@ -497,10 +513,15 @@ export function rainPhotoRoles(record: Pick<SiteProgressRecord, "photos">): { st
 
 /**
  * The rain section of a progress record's window (做法 四.4): start, stop -
- * each with its own photo's GPS - and the duration. Nothing for a record that
- * is not a rain record. (A voided one is deleted, JB198: no 「已作废」 block.)
+ * each with its own photo's GPS - and the duration; under them the record's
+ * 「意见 / 备注」 (JB199), which `onRemarkSaved` hears about once saved. Nothing
+ * for a record that is not a rain record. (A voided one is deleted, JB198:
+ * no 「已作废」 block.)
  */
-export function useRainFacts(record: SiteProgressRecord): ShellFact[] {
+export function useRainFacts(
+  record: SiteProgressRecord,
+  onRemarkSaved: (fresh: SiteProgressRecord) => void = () => {},
+): ShellFact[] {
   const t = useTranslations("rainRecords");
   const df = useDateFormat();
   const duration = useRainDuration();
@@ -525,7 +546,185 @@ export function useRainFacts(record: SiteProgressRecord): ShellFact[] {
       label: t("record.duration"),
       value: <span className="tabular text-base font-bold">{duration(record.rain_minutes)}</span>,
     },
+    {
+      label: t("remark.label"),
+      value: <RainRemarkBlock key={record.id} record={record} onSaved={onRemarkSaved} />,
+      wide: true,
+    },
   ];
+}
+
+/**
+ * Who writes a rain record's 「意见 / 备注」: the people who may press 【作废】
+ * - whoever confirms progress - on a rain record. (A voided one is deleted,
+ * JB198, so no window shows one; the server answers 404 for it.)
+ */
+export function mayWriteRainRemark(record: SiteProgressRecord, can: (code: string) => boolean): boolean {
+  return Boolean(record.is_rain || record.rain_started_at) && can("progress.confirm");
+}
+
+/** 「{name} 于 {at} 填写」 under a remark that has text and a writer. */
+function RemarkWriter({ text, name, at }: { text: string; name?: string | null; at?: string | null }) {
+  const t = useTranslations("rainRecords");
+  const df = useDateFormat();
+  if (!text || !name) return null;
+  return (
+    <p className="text-xs text-muted-foreground" data-slot="rain-remark-by">
+      {t("remark.by", { name, at: at ? df.dateTime(at) : "—" })}
+    </p>
+  );
+}
+
+/**
+ * A rain record's 「意见 / 备注」 (JB199 做法 1-2): whoever may void it writes,
+ * changes or clears it here and presses 【保存】 - no reason, no PIN, archived
+ * or not; everybody else reads it. Saved, the window stays open and shows the
+ * text and who wrote it when; the lists are read again as after a void.
+ */
+export function RainRemarkBlock({
+  record,
+  onSaved,
+}: {
+  record: SiteProgressRecord;
+  onSaved: (fresh: SiteProgressRecord) => void;
+}) {
+  const t = useTranslations("rainRecords");
+  const tRoot = useTranslations();
+  const { can } = useAuth();
+  const queryClient = useQueryClient();
+  // The server's answer, until the list it came from has been read again.
+  const [answer, setAnswer] = useState<SiteProgressRecord | null>(null);
+  const current =
+    answer && answer.id === record.id && (record.rain_remark_at ?? "") <= (answer.rain_remark_at ?? "")
+      ? answer
+      : record;
+  const stored = current.rain_remark ?? "";
+  const [text, setText] = useState(stored);
+  const save = useMutation({
+    mutationFn: () => setRainRemark(record.id, text),
+    onSuccess: (fresh) => {
+      setAnswer(fresh);
+      setText(fresh.rain_remark ?? "");
+      void queryClient.invalidateQueries({ queryKey: [...RAIN_RECORDS_KEY] });
+      void queryClient.invalidateQueries({ queryKey: ["site-progress"] });
+      void queryClient.invalidateQueries({ queryKey: ["evidence-packages"] });
+      onSaved(fresh);
+    },
+    // A refusal (too long, no permission) is said by the API client.
+  });
+  const writer = <RemarkWriter text={stored} name={current.rain_remark_by_name} at={current.rain_remark_at} />;
+  if (!mayWriteRainRemark(record, can)) {
+    return (
+      <div className="space-y-1" data-slot="rain-remark">
+        <p className="whitespace-pre-wrap text-sm" data-slot="rain-remark-text">
+          {stored || <span className="text-muted-foreground">{t("remark.empty")}</span>}
+        </p>
+        {writer}
+      </div>
+    );
+  }
+  return (
+    <div className="space-y-2" data-slot="rain-remark">
+      <Textarea
+        value={text}
+        maxLength={RAIN_REMARK_MAX}
+        rows={3}
+        placeholder={t("remark.placeholder")}
+        aria-label={t("remark.label")}
+        onChange={(event) => setText(event.target.value)}
+      />
+      <div className="flex flex-wrap items-center gap-2">
+        {writer}
+        <Button
+          size="sm"
+          className="ml-auto"
+          data-slot="rain-remark-save"
+          disabled={save.isPending || text.trim() === stored}
+          disabledReason={tRoot(save.isPending ? "common.saving" : "common.noChanges")}
+          onClick={() => save.mutate()}
+        >
+          {save.isPending ? <Loader2 className="animate-spin" /> : null}
+          {t("remark.save")}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * The month's 「意见 / 备注」 for its report (JB199 B, 做法 7): one per project
+ * and month, above the four file buttons - shown only for a month. Whoever
+ * may void a rain record writes, changes or clears it; everybody else reads
+ * it. Printed under the month's totals in the report PDF.
+ */
+export function RainMonthRemarkBox({ project, month }: { project: string; month: string }) {
+  const t = useTranslations("rainRecords");
+  const key = [...RAIN_RECORDS_KEY, "month-remark", project, month];
+  const remark = useQuery({ queryKey: key, queryFn: () => getRainMonthRemark({ project, month }) });
+  return (
+    <section className="space-y-2 rounded-xl border bg-card p-4" data-slot="rain-month-remark">
+      <div className="space-y-0.5">
+        <h3 className="text-sm font-semibold">{t("monthRemark.label")}</h3>
+        <p className="text-xs text-muted-foreground">{t("monthRemark.hint")}</p>
+      </div>
+      <QueryFailedNote query={remark} what={t("monthRemark.label")} />
+      {remark.isLoading ? <Loader2 className="size-4 animate-spin text-muted-foreground" /> : null}
+      {remark.data ? <RainMonthRemarkEditor queryKey={key} remark={remark.data} /> : null}
+    </section>
+  );
+}
+
+function RainMonthRemarkEditor({ queryKey, remark }: { queryKey: unknown[]; remark: RainMonthRemark }) {
+  const t = useTranslations("rainRecords");
+  const tRoot = useTranslations();
+  const { can } = useAuth();
+  const queryClient = useQueryClient();
+  const [text, setText] = useState(remark.remark);
+  const save = useMutation({
+    mutationFn: () => setRainMonthRemark({ project: remark.project, month: remark.month, remark: text }),
+    onSuccess: (saved) => {
+      queryClient.setQueryData(queryKey, saved);
+      setText(saved.remark);
+    },
+    // A refusal (too long, no permission) is said by the API client.
+  });
+  const writer = <RemarkWriter text={remark.remark} name={remark.by_name} at={remark.at} />;
+  if (!can("progress.confirm")) {
+    return (
+      <div className="space-y-1">
+        <p className="whitespace-pre-wrap text-sm" data-slot="rain-month-remark-text">
+          {remark.remark || <span className="text-muted-foreground">{t("remark.empty")}</span>}
+        </p>
+        {writer}
+      </div>
+    );
+  }
+  return (
+    <div className="space-y-2">
+      <Textarea
+        value={text}
+        maxLength={RAIN_MONTH_REMARK_MAX}
+        rows={3}
+        placeholder={t("monthRemark.placeholder")}
+        aria-label={t("monthRemark.label")}
+        onChange={(event) => setText(event.target.value)}
+      />
+      <div className="flex flex-wrap items-center gap-2">
+        {writer}
+        <Button
+          size="sm"
+          className="ml-auto"
+          data-slot="rain-month-remark-save"
+          disabled={save.isPending || text.trim() === remark.remark}
+          disabledReason={tRoot(save.isPending ? "common.saving" : "common.noChanges")}
+          onClick={() => save.mutate()}
+        >
+          {save.isPending ? <Loader2 className="animate-spin" /> : null}
+          {t("remark.save")}
+        </Button>
+      </div>
+    </div>
+  );
 }
 
 /** A rain record's photo labels: 「开始下雨」 and 「雨停」. */

@@ -3807,7 +3807,9 @@
       "rain_record_voided": "Rekod hujan dibatalkan",
       "rain_rules_changed": "Peraturan rekod hujan diubah",
       "rain_report_pdf_exported": "Laporan bulanan rekod hujan dieksport",
-      "rain_report_pdf_previewed": "Laporan bulanan rekod hujan dipratonton"
+      "rain_report_pdf_previewed": "Laporan bulanan rekod hujan dipratonton",
+      "rain_remark_set": "Menulis catatan rekod hujan",
+      "rain_month_remark_set": "Menulis catatan bulanan laporan hujan"
     },
     "objectType": {
       "SignOffAssistant": "PIN pembantu",
@@ -12209,7 +12211,8 @@
       "report_period": "Tarikh laporan",
       "report_records": "Rekod yang dimasukkan",
       "report_photos": "Foto",
-      "document_title": "Nama dokumen"
+      "document_title": "Nama dokumen",
+      "rain_remark": "Catatan"
     },
     "detailTitle": "Apa yang saya hantar",
     "photos": "Gambar",
@@ -21703,6 +21706,19 @@
       "pin": "Selepas 「Sahkan pembatalan」, masukkan PIN pengesahan enam digit anda.",
       "done": "{number} dibatalkan"
     },
-    "voidGone": "Selepas dibatalkan, rekod ini dipadam terus. Ia tidak lagi ada dalam senarai, jumlah atau laporan bulanan, dan tidak boleh dikembalikan."
+    "voidGone": "Selepas dibatalkan, rekod ini dipadam terus. Ia tidak lagi ada dalam senarai, jumlah atau laporan bulanan, dan tidak boleh dikembalikan.",
+    "remark": {
+      "label": "Catatan",
+      "placeholder": "Contoh: hujan lebat, semua kerja dihentikan.",
+      "save": "Simpan",
+      "saved": "Catatan disimpan.",
+      "by": "Ditulis oleh {name} pada {at}",
+      "empty": "Belum ditulis."
+    },
+    "monthRemark": {
+      "label": "Catatan untuk bulan ini",
+      "placeholder": "Contoh: kerja terhenti 5 hari bulan ini kerana hujan.",
+      "hint": "Dicetak pada PDF laporan bulan ini."
+    }
   }
 }

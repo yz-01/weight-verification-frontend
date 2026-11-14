@@ -7,6 +7,9 @@
  * records (`get_records?rain=1`), the statistics (`rain_summary`), the rules
  * (`rain_rules`, `set_rain_rules`), voids one (`void_rain_record`, signed with
  * the PIN `rain_record.void`) and fetches the month's PDF (`rain_report_pdf`).
+ *
+ * JB199: a record's 「意见 / 备注」 (`set_rain_remark`) and the month's
+ * (`rain_month_remark`, `set_rain_month_remark`) - no reason, no PIN.
  */
 
 import type { ListQuery, Paginated } from "@/interfaces/api";
@@ -96,6 +99,51 @@ export async function voidRainRecord(id: string, reason: string): Promise<SitePr
   });
   toastSuccess("rainRecords.void.done", { number: record.record_no ?? "" });
   return record;
+}
+
+/** The longest 「意见 / 备注」 of a record and of a month, as the server checks them. */
+export const RAIN_REMARK_MAX = 1000;
+export const RAIN_MONTH_REMARK_MAX = 2000;
+
+/**
+ * A rain record's 「意见 / 备注」 (JB199): written, changed, or cleared with an
+ * empty one. The answer is the record as the list reads it.
+ */
+export async function setRainRemark(id: string, remark: string): Promise<SiteProgressRecord> {
+  const record = await api.post<SiteProgressRecord>(`/api/site-progress/${id}/set_rain_remark/`, {
+    remark: remark.trim(),
+  });
+  toastSuccess("rainRecords.remark.saved");
+  return record;
+}
+
+/** `rain_month_remark`: one project's month - empty when nobody wrote one. */
+export interface RainMonthRemark {
+  project: string;
+  /** `YYYY-MM`. */
+  month: string;
+  remark: string;
+  /** Who last changed it, `""` when nobody. */
+  by_name: string;
+  at: string | null;
+}
+
+export const getRainMonthRemark = (query: { project: string; month: string }) =>
+  api.get<RainMonthRemark>("/api/site-progress/rain_month_remark/", query);
+
+/** The month's 「意见 / 备注」 for the report (JB199 B); empty clears it. */
+export async function setRainMonthRemark(payload: {
+  project: string;
+  month: string;
+  remark: string;
+}): Promise<RainMonthRemark> {
+  const saved = await api.post<RainMonthRemark>("/api/site-progress/set_rain_month_remark/", {
+    project: payload.project,
+    month: payload.month,
+    remark: payload.remark.trim(),
+  });
+  toastSuccess("rainRecords.remark.saved");
+  return saved;
 }
 
 /** The month's PDF that 预览 · 打印 · 导出 · 发送 act on. */

@@ -3807,7 +3807,9 @@
       "rain_record_voided": "Rain record voided",
       "rain_rules_changed": "Rain record rules changed",
       "rain_report_pdf_exported": "Rain record monthly report exported",
-      "rain_report_pdf_previewed": "Rain record monthly report previewed"
+      "rain_report_pdf_previewed": "Rain record monthly report previewed",
+      "rain_remark_set": "Wrote a rain record's remarks",
+      "rain_month_remark_set": "Wrote the rain report's monthly remarks"
     },
     "objectType": {
       "SignOffAssistant": "Assistant PIN",
@@ -12209,7 +12211,8 @@
       "report_period": "Report dates",
       "report_records": "Records taken in",
       "report_photos": "Photos",
-      "document_title": "Document name"
+      "document_title": "Document name",
+      "rain_remark": "Remarks"
     },
     "detailTitle": "What I sent",
     "photos": "Photographs",
@@ -21703,6 +21706,19 @@
       "pin": "After 「Confirm void」, enter your six-digit sign-off PIN.",
       "done": "{number} voided"
     },
-    "voidGone": "Once voided, this record is deleted. It will no longer be in the list, the totals or the monthly report, and it cannot be brought back."
+    "voidGone": "Once voided, this record is deleted. It will no longer be in the list, the totals or the monthly report, and it cannot be brought back.",
+    "remark": {
+      "label": "Remarks",
+      "placeholder": "For example: heavy rain, all work stopped.",
+      "save": "Save",
+      "saved": "Remarks saved.",
+      "by": "Written by {name} on {at}",
+      "empty": "Nothing written yet."
+    },
+    "monthRemark": {
+      "label": "Remarks for this month",
+      "placeholder": "For example: work stopped for 5 days this month because of rain.",
+      "hint": "Printed on this month's report PDF."
+    }
   }
 }
