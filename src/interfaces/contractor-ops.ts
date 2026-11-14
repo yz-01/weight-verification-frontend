@@ -901,6 +901,13 @@ export interface SiteProgressRecord extends RecordedBy {
   voided_at?: string | null;
   voided_by_name?: string | null;
   void_reason?: string;
+  /**
+   * 「意见 / 备注」 (JB199): the office's own sentence about a rain record,
+   * `""` when none; who last changed it (`""` when nobody) and when.
+   */
+  rain_remark?: string;
+  rain_remark_by_name?: string;
+  rain_remark_at?: string | null;
 }
 
 /** One office correction of a progress record's 实际完成比例 (2026-10-09). */
