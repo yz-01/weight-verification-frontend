@@ -8234,7 +8234,8 @@
       "from": "Dari {reference} · {module}",
       "fromModule": "Dari {module}",
       "deleted": "Rekod dipadam",
-      "open": "Buka rekod"
+      "open": "Buka rekod",
+      "more": ", dan {count} rekod lain"
     },
     "pickFromSystem": {
       "tab": "Dari sistem",
@@ -8346,7 +8347,10 @@
       "machinesHint": "Hanya mesin yang berada di tapak sekarang disenaraikan. Tandakan setiap mesin dan pilih Lulus atau Gagal di sebelahnya; satu hantaran menyimpan keputusan bagi setiap mesin. {count} dipilih.",
       "noMachinesOnSite": "Tiada mesin projek ini berada di tapak sekarang.",
       "addItem": "Tambah",
-      "removeItem": "Buang"
+      "removeItem": "Buang",
+      "reportDateOn": "Laporan bertarikh {date}",
+      "notSaved": "Keputusan pemeriksaan tidak disimpan.",
+      "notSavedHint": "Apa yang anda isi masih ada. Betulkan dan tekan Hantar sekali lagi."
     }
   },
   "driver": {
@@ -21641,9 +21645,7 @@
     },
     "filter": {
       "month": "Bulan",
-      "allStates": "Semua status",
-      "active": "Sah",
-      "voided": "Dibatalkan"
+      "active": "Sah"
     },
     "summary": {
       "title": "Jumlah: {from} hingga {to}",
@@ -21651,13 +21653,12 @@
       "days": "Hari hujan",
       "minutes": "Jumlah tempoh",
       "records": "Rekod",
-      "voided": "Dibatalkan",
       "timesValue": "{count} kali",
       "daysValue": "{count} hari",
       "recordsValue": "{count}",
       "chooseProject": "Pilih projek untuk melihat jumlah dan laporan bulanannya. Senarai di bawah ialah semua projek.",
       "noRain": "Tiada hujan direkodkan dalam tempoh ini.",
-      "hint": "Satu hujan yang diambil gambar oleh beberapa orang dikira sekali; masa yang bertindih dikira sekali; rekod yang dibatalkan tidak dikira.",
+      "hint": "Satu hujan yang diambil gambar oleh beberapa orang dikira sekali; masa yang bertindih dikira sekali.",
       "what": "jumlah hujan"
     },
     "daily": {
@@ -21679,8 +21680,7 @@
       "end": "Tamat",
       "duration": "Tempoh",
       "who": "Diambil oleh",
-      "project": "Projek",
-      "status": "Status"
+      "project": "Projek"
     },
     "pdf": {
       "label": "Laporan bulanan",
@@ -21692,21 +21692,17 @@
       "end": "Hujan berhenti",
       "duration": "Tempoh hujan",
       "position": "GPS {latitude}, {longitude}",
-      "noGps": "Tiada lokasi",
-      "voided": "Dibatalkan",
-      "voidedBy": "Dibatalkan oleh",
-      "voidedAt": "Masa dibatalkan",
-      "voidReason": "Sebab"
+      "noGps": "Tiada lokasi"
     },
     "void": {
       "button": "Batalkan",
       "title": "Batalkan rekod hujan ini",
-      "help": "Selepas dibatalkan rekod kekal, ditanda 「Dibatalkan」; ia tidak dikira dalam jumlah, tidak masuk senarai laporan bulanan, dan tidak boleh dipakej. Pembatalan tidak boleh diundur.",
       "reason": "Sebab dibatalkan",
       "reasonPlaceholder": "cth. gambar salah, diambil dua kali",
       "confirm": "Sahkan pembatalan",
       "pin": "Selepas 「Sahkan pembatalan」, masukkan PIN pengesahan enam digit anda.",
       "done": "{number} dibatalkan"
-    }
+    },
+    "voidGone": "Selepas dibatalkan, rekod ini dipadam terus. Ia tidak lagi ada dalam senarai, jumlah atau laporan bulanan, dan tidak boleh dikembalikan."
   }
 }

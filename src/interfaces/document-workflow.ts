@@ -158,6 +158,8 @@ export interface DocumentRecord {
   system_file?: DocumentSystemFileInfo | null;
   /** How many files were picked from the system into it. */
   system_file_count?: number;
+  /** How many different records its system files come from; 0 for none (JB196). */
+  source_count?: number;
   /** Every file it holds: picked files plus uploaded versions (「文件数」). */
   file_count?: number;
   archived_at: string | null;
@@ -240,6 +242,8 @@ export interface InspectionInfo {
   target: "EQUIPMENT" | "MATERIAL";
   equipment: string | null;
   equipment_name: string;
+  /** The machine's number (`site_no`, else `code`); "" for a material (JB196). */
+  equipment_no?: string;
   material: string | null;
   material_name: string;
   spec: string | null;

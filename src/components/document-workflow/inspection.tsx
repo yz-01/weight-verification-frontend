@@ -22,7 +22,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ClipboardCheck, Loader2, Plus, X } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { type Ref, useEffect, useRef, useState } from "react";
 
 import { FieldWrapper, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
@@ -38,7 +38,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ApiError } from "@/interfaces/api";
-import type { InspectionInfo, InspectionPayload } from "@/interfaces/document-workflow";
+import type { DocumentDetail, InspectionInfo, InspectionPayload } from "@/interfaces/document-workflow";
 import { useDateFormat } from "@/lib/dates";
 import { getProjectCategories, getSiteEquipment } from "@/services/contractor-ops.service";
 import { addInspection } from "@/services/document-workflow.service";
@@ -52,6 +52,23 @@ export type ChosenMachines = { equipment: string; result: Verdict | "" }[];
 export function machineInspectionItems(chosen: ChosenMachines): { equipment: string; result: Verdict }[] | null {
   if (chosen.length === 0 || chosen.some((row) => !row.result)) return null;
   return chosen.map((row) => ({ equipment: row.equipment, result: row.result as Verdict }));
+}
+
+/**
+ * The document's detail with the results just saved at the front (JB196-6):
+ * straight from the server's answer, so they show the moment the dialog
+ * closes. A row already there (same id) is not added twice; no detail in the
+ * cache stays none (TanStack Query leaves the cache alone on undefined).
+ */
+export function withSavedInspections(
+  detail: DocumentDetail | undefined,
+  saved: InspectionInfo[],
+): DocumentDetail | undefined {
+  if (!detail) return undefined;
+  const current = detail.inspections ?? [];
+  const known = new Set(current.map((row) => row.id));
+  const fresh = saved.filter((row) => !known.has(row.id));
+  return { ...detail, inspections: [...fresh, ...current] };
 }
 
 /** 「合格 · 2026-10-05」 / 「不合格 · …」, with the expiry when near; nothing for none. */
@@ -96,9 +113,11 @@ export function InspectionList({ rows }: { rows: InspectionInfo[] }) {
           <p className="text-xs text-muted-foreground">
             {[
               row.target === "EQUIPMENT"
-                ? row.equipment_name
+                ? // 「EQ0001 · 挖土机」 (JB196-5); the name alone from an older answer.
+                  [row.equipment_no, row.equipment_name].filter(Boolean).join(" · ")
                 : [row.material_name, row.spec_name].filter(Boolean).join(" · "),
               row.inspector,
+              row.report_date ? t("reportDateOn", { date: df.date(row.report_date) }) : "",
               row.valid_until ? t("validUntil", { date: df.date(row.valid_until) }) : "",
               t("filedBy", { name: row.created_by_name, at: df.dateTime(row.created_at) }),
             ]
@@ -108,6 +127,28 @@ export function InspectionList({ rows }: { rows: InspectionInfo[] }) {
         </li>
       ))}
     </ul>
+  );
+}
+
+/**
+ * 「检验结果没有保存。」 (JB196-7, 客户 11-14 事项 1): a submit that failed
+ * says so in one clear block, the reason under it, in the place and the size
+ * of the 「提交后不能修改，确定吗？」 block - no longer one small red line under
+ * the form, easy to miss before 【取消】. Everything filled in stays.
+ */
+export function InspectionNotSaved({ reason, ref }: { reason: string; ref?: Ref<HTMLDivElement> }) {
+  const t = useTranslations("documents.inspection");
+  return (
+    <div
+      ref={ref}
+      role="alert"
+      data-testid="inspection-not-saved"
+      className="space-y-1 rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm"
+    >
+      <p className="font-semibold text-destructive">{t("notSaved")}</p>
+      <p>{reason}</p>
+      <p className="text-muted-foreground">{t("notSavedHint")}</p>
+    </div>
   );
 }
 
@@ -136,6 +177,11 @@ export function InspectionDialog({
   const [validUntil, setValidUntil] = useState("");
   const [confirming, setConfirming] = useState(false);
   const [error, setError] = useState("");
+  // 「检验结果没有保存。」 is scrolled into view where the confirm block was (JB196-7).
+  const notSaved = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (error) notSaved.current?.scrollIntoView({ block: "nearest" });
+  }, [error]);
   const machines = useQuery({
     queryKey: ["site-equipment", "inspection", project ?? ""],
     // Only machines on site now, by the 设备清单's own 在场 rule (JB54).
@@ -184,7 +230,11 @@ export function InspectionDialog({
       };
       return addInspection(documentId, payload);
     },
-    onSuccess: () => {
+    onSuccess: (saved) => {
+      // The detail shows the rows just saved at once (JB196-6), then is read again.
+      queryClient.setQueryData<DocumentDetail>(["documents", "detail", documentId], (detail) =>
+        withSavedInspections(detail, saved),
+      );
       void queryClient.invalidateQueries({ queryKey: ["documents"] });
       void queryClient.invalidateQueries({ queryKey: ["site-equipment"] });
       void queryClient.invalidateQueries({ queryKey: ["equipment-hours"] });
@@ -388,7 +438,8 @@ export function InspectionDialog({
             <Input type="date" value={validUntil} onChange={(event) => setValidUntil(event.target.value)} />
           </FieldWrapper>
         </div>
-        {error && <p className="text-sm text-destructive">{error}</p>}
+        {/* Not saved (JB196-7): where the confirm block was, scrolled to. */}
+        {error && <InspectionNotSaved ref={notSaved} reason={error} />}
         {confirming ? (
           // 「提交后不能修改，确定吗？」 (Q12-6): said in the dialog, never a browser box.
           <div role="alert" className="space-y-2 rounded-lg border border-warning/40 bg-warning/10 p-3 text-sm">
@@ -408,7 +459,13 @@ export function InspectionDialog({
             <Button variant="outline" onClick={onClose}>
               {t("cancel")}
             </Button>
-            <Button requires={requires} onClick={() => setConfirming(true)}>
+            <Button
+              requires={requires}
+              onClick={() => {
+                setError("");
+                setConfirming(true);
+              }}
+            >
               <ClipboardCheck />
               {t("submit")}
             </Button>

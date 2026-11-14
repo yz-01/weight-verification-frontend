@@ -2433,9 +2433,9 @@ function useProgressReference() {
  * through `ProgressInPlace` - one window, so the two cannot drift.
  *
  * A rain record (JB192) is a progress record: the same window, with its rain
- * section on top - start and stop with each photo's GPS, the duration, and
- * once voided who, when and why - its photos named 「开始下雨」 / 「雨停」,
- * and 【作废】. A voided one says 「已作废」 and cannot be packed.
+ * section on top - start and stop with each photo's GPS and the duration -
+ * its photos named 「开始下雨」 / 「雨停」, and 【作废】. A voided one is
+ * deleted (JB198), so the window closes once it is voided.
  */
 export function ProgressRecordDialog({
   record: shown,
@@ -2487,9 +2487,9 @@ export function ProgressRecordDialog({
           ...rainFacts,
           {
             label: t("field.status"),
-            // A rain record is 有效 or 已作废; nothing about it waits to be confirmed.
+            // A rain record is 有效; nothing about it waits to be confirmed.
             value: shown.is_rain || shown.is_voided ? (
-              <RainStatus record={shown} />
+              <RainStatus />
             ) : (
               <StatusBadge
                 label={t(`progressStatus.${shown.status}`)}
@@ -2630,12 +2630,13 @@ export function ProgressRecordDialog({
                 reference={reference(shown)}
               />
             )}
-            {/* 【作废】: only on a rain record, for whoever confirms progress. */}
+            {/* 【作废】: only on a rain record, for whoever confirms progress.
+                The record is then deleted (JB198), so its window closes. */}
             <RainVoidButton
               record={shown}
-              onVoided={(fresh) => {
-                onShow(fresh);
+              onVoided={() => {
                 refreshProgress();
+                onClose();
               }}
             />
           </div>

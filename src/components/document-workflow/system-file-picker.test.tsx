@@ -158,7 +158,9 @@ describe("the documents screen (E4)", () => {
 
   it("offers the same add-files button on every row, a system file's too (2026-10-10 图3)", () => {
     expect(source).not.toContain("!record.system_file &&");
-    expect(source).toContain("{changeable && canUpload && (");
+    // One rule for the row's icon and the detail's 【添加文件】 (JB196-8).
+    expect(source).toContain("const addFiles = addFilesRule(record, can, t);");
+    expect(source).toContain("{addFiles.shown && (");
     // Greyed with its reason, never silently missing.
     expect(source).toContain('t("documents.upload.companyWideManagerOnly")');
   });
