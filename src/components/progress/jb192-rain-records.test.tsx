@@ -144,7 +144,8 @@ const SUMMARY = {
   days: 5,
   minutes: 612,
   records: 9,
-  voided: 1,
+  // Always 0 since JB198 (a voided record is deleted).
+  voided: 0,
   daily: [
     { date: "2026-11-03", times: 2, minutes: 95, records: 3 },
     { date: "2026-11-13", times: 1, minutes: 65, records: 1 },
@@ -158,7 +159,7 @@ function seedTab(qc: QueryClient, { project = "p-1", month = "2026-11", canChang
   qc.setQueryData([...RAIN_RECORDS_KEY, "summary", project, { month }], SUMMARY);
   qc.setQueryData(
     [...RAIN_RECORDS_KEY, "list", { page: 1, page_size: 25, ...(project ? { project } : {}), month }, { month }],
-    { count: 2, results: [rainRecord(), VOIDED] },
+    { count: 2, results: [rainRecord(), rainRecord({ id: "r-2", record_no: "PG-PRJ-0003-020" })] },
   );
 }
 
@@ -178,24 +179,22 @@ describe("「雨天记录」 tab (JB192-12)", () => {
     const html = render(<RainRecordsTab />, (qc) => seedTab(qc));
     const shown = text(html);
     expect(shown).toContain("接收规则：每个项目任何 30 分钟里最多接收 5 份");
-    // 下雨次数 · 下雨天数 · 总时长 · 记录份数 · 已作废.
+    // 下雨次数 · 下雨天数 · 总时长 · 记录份数 (no 「已作废」 since JB198).
     expect(html).toMatch(/data-stat="times"[\s\S]*?7 次/);
     expect(html).toMatch(/data-stat="days"[\s\S]*?5 天/);
     expect(html).toMatch(/data-stat="minutes"[\s\S]*?10 小时 12 分/);
     expect(html).toMatch(/data-stat="records"[\s\S]*?9 份/);
-    expect(html).toMatch(/data-stat="voided"[\s\S]*?1 份/);
     expect(html).toContain('data-day="2026-11-03"');
     expect(html).toMatch(/data-day="2026-11-03"[\s\S]*?1 小时 35 分/);
     expect(html).toContain('data-slot="rain-pdf"');
     expect(html).not.toContain('data-slot="rain-pdf-need"');
-    // Newest first, as the server sends them: number, start, end, duration, who, project, status.
+    // Newest first, as the server sends them: number, start, end, duration, who, project.
     // (RecordNo shows the running number, 「PG-021」, with the project beside it.)
     expect(shown.indexOf("PG-021")).toBeGreaterThan(-1);
     expect(shown.indexOf("PG-021")).toBeLessThan(shown.indexOf("PG-020"));
     expect(shown).toContain("1 小时 5 分");
     expect(shown).toContain("Ali");
     expect(shown).toContain("Site A");
-    expect(shown).toContain(words.record.voided);
     // The month picker shows the month, the range its first and last day.
     expect(html).toMatch(/type="month"[^>]*value="2026-11"/);
     expect(html).toMatch(/type="date"[^>]*value="2026-11-01"/);
@@ -229,9 +228,10 @@ describe("「雨天记录」 tab (JB192-12)", () => {
     });
   });
 
-  it("filters by project, month or dates and status, and reads the list with rain=1", () => {
+  it("filters by project, month or dates, and reads the list with rain=1", () => {
     const tab = read("src/components/progress/rain-records.tsx");
-    expect(tab).toMatch(/useListQuery\(\["project", "month", "date_from", "date_to", "voided"\]\)/);
+    // No status filter since JB198.
+    expect(tab).toMatch(/useListQuery\(\["project", "month", "date_from", "date_to"\]\)/);
     expect(read("src/services/rain-records.service.ts")).toMatch(/\{ \.\.\.query, rain: "1" \}/);
     // A row opens its record on click (the progress record's own window).
     expect(tab).toMatch(/onRowClick=\{setViewing\}/);
@@ -278,14 +278,14 @@ describe("【作废】 and the rain section of the record window (JB192-10, JB19
     expect(shown).toContain(`${words.record.start} 2026-11-13 14:05 GPS 3.1000000, 101.6000000`);
     expect(shown).toContain(`${words.record.end} 2026-11-13 15:10 GPS 3.2000000, 101.7000000`);
     expect(shown).toContain(`${words.record.duration} 1 小时 5 分`);
-    expect(shown).not.toContain(words.record.voidReason);
+    expect(shown).not.toContain("作废");
   });
 
-  it("once voided, says who, when and why", () => {
+  it("has no 「已作废」 block, even for a record the server called voided (JB198)", () => {
     const shown = text(render(<Facts record={VOIDED} />));
-    expect(shown).toContain(`${words.record.voidedBy} Mike`);
-    expect(shown).toContain(`${words.record.voidedAt} 2026-11-13 17:00`);
-    expect(shown).toContain(`${words.record.voidReason} 重复拍了`);
+    expect(shown).toBe(text(render(<Facts record={rainRecord({ id: "r-2" })} />)));
+    expect(shown).not.toContain("Mike");
+    expect(shown).not.toContain("重复拍了");
   });
 
   it("adds nothing to a progress record that is not a rain record", () => {
