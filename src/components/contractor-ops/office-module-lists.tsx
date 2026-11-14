@@ -2464,8 +2464,12 @@ export function ProgressRecordDialog({
   // A06: an archived progress record took no more photographs - until
   // Lucas 10-30 evening (`ARCHIVE_LOCKS_CHANGES`).
   const shownArchived = useRecordArchived("PROGRESS", shown.id) && ARCHIVE_LOCKS_CHANGES;
-  // Rainy Weather (JB192): empty for any other progress record.
-  const rainFacts = useRainFacts(shown);
+  // Rainy Weather (JB192): empty for any other progress record. Its
+  // 「意见 / 备注」 (JB199) saved here keeps the window open on the answer.
+  const rainFacts = useRainFacts(shown, (fresh) => {
+    onShow(fresh);
+    refreshProgress();
+  });
   const rainPhotoLabel = useRainPhotoLabel(shown);
   return (
     <RecordDetailDialog

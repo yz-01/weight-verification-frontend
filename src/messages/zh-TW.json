@@ -3807,7 +3807,9 @@
       "rain_record_voided": "作廢雨天記錄",
       "rain_rules_changed": "修改雨天記錄接收規則",
       "rain_report_pdf_exported": "匯出雨天記錄月報",
-      "rain_report_pdf_previewed": "預覽雨天記錄月報"
+      "rain_report_pdf_previewed": "預覽雨天記錄月報",
+      "rain_remark_set": "填寫雨天記錄的意見 / 備註",
+      "rain_month_remark_set": "填寫雨天月報的意見 / 備註"
     },
     "objectType": {
       "SignOffAssistant": "助理副密碼",
@@ -12209,7 +12211,8 @@
       "report_period": "報告日期",
       "report_records": "進度記錄",
       "report_photos": "照片數量",
-      "document_title": "文件名稱"
+      "document_title": "文件名稱",
+      "rain_remark": "意見 / 備註"
     },
     "detailTitle": "我提交過的",
     "photos": "照片",
@@ -21703,6 +21706,19 @@
       "pin": "按【確認作廢】以後要輸入你的六位數簽核密碼。",
       "done": "已作廢 {number}"
     },
-    "voidGone": "作廢後這筆記錄會直接刪除，清單、統計和月報裡都不會再有，不能恢復。"
+    "voidGone": "作廢後這筆記錄會直接刪除，清單、統計和月報裡都不會再有，不能恢復。",
+    "remark": {
+      "label": "意見 / 備註",
+      "placeholder": "例如：雨太大，全部停工。",
+      "save": "保存",
+      "saved": "意見 / 備註已保存。",
+      "by": "{name} 於 {at} 填寫",
+      "empty": "還沒有填寫。"
+    },
+    "monthRemark": {
+      "label": "這個月的意見 / 備註",
+      "placeholder": "例如：本月因下雨停工 5 天。",
+      "hint": "會印在這個月的月報 PDF 上。"
+    }
   }
 }
