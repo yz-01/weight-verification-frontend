@@ -349,6 +349,7 @@ export function Documents() {
               row.original.system_file ? (
                 <SourceTag
                   source={row.original.system_file}
+                  records={row.original.source_count}
                   onOpen={() => openSource(row.original)}
                 />
               ) : row.original.latest_version ? null : (
@@ -464,6 +465,7 @@ export function Documents() {
           const active = record.status === "ACTIVE";
           // Archived is still changed (Lucas 10-30 evening), not archived twice.
           const changeable = active || (record.status === "ARCHIVED" && !ARCHIVE_LOCKS_CHANGES);
+          const addFiles = addFilesRule(record, can, t);
           return (
             <div className="flex items-center justify-end gap-0.5">
               <Button
@@ -477,21 +479,16 @@ export function Documents() {
               </Button>
               {/* Add a file (a new version, or more files) to any document -
                   uploaded or picked from the system alike (2026-10-10 图3).
-                  Anybody on the project; a company-wide document only from
-                  the manager (the server says the same), so it is greyed
-                  with the reason rather than missing. */}
-              {changeable && canUpload && (
+                  Who may, and the greyed reason: `addFilesRule`, the same
+                  as the detail's 【添加文件】 (JB196-8). */}
+              {addFiles.shown && (
                 <Button
                   variant="ghost"
                   size="icon"
                   className="h-8 w-8"
                   title={t("documents.upload.action")}
-                  disabled={!manages && !record.project}
-                  disabledReason={
-                    !manages && !record.project
-                      ? t("documents.upload.companyWideManagerOnly")
-                      : undefined
-                  }
+                  disabled={Boolean(addFiles.disabledReason)}
+                  disabledReason={addFiles.disabledReason}
                   onClick={() => setUploading(record)}
                 >
                   <Upload className="h-4 w-4" />
@@ -681,20 +678,25 @@ export function Documents() {
         />
       )}
 
+      {viewingId && (
+        <DocumentDetailDialog
+          documentId={viewingId}
+          onOpenSource={openSource}
+          // 【添加文件】 opens the row's own 上传 dialog over the detail (JB196-8).
+          onAddFiles={setUploading}
+          onClose={() => setViewingId(null)}
+        />
+      )}
+
+      {/* After the detail: opened from its 【添加文件】 it sits over it, and
+          closing it leaves the detail open, its versions read again (refresh
+          invalidates every ["documents"] query, the detail's too). */}
       {uploading && (
         <VersionUploadDialog
           document={uploading}
           projects={projects.data?.results ?? []}
           onClose={() => setUploading(null)}
           onDone={refresh}
-        />
-      )}
-
-      {viewingId && (
-        <DocumentDetailDialog
-          documentId={viewingId}
-          onOpenSource={openSource}
-          onClose={() => setViewingId(null)}
         />
       )}
       {opener.sheet}
@@ -756,21 +758,50 @@ function uploadErrors(error: unknown): Record<string, string> {
 }
 
 /**
+ * Adding files to a document (2026-10-10 图3): the list row's 上传 icon and
+ * 【添加文件】 in its detail (JB196-8) are one rule, so they cannot drift.
+ * Shown on a document that still takes changes, to anybody who reads the
+ * archive and is on the project (B28, E10); a company-wide document only from
+ * the manager (the server says the same), so it is greyed with the reason
+ * rather than missing.
+ */
+export function addFilesRule(
+  record: Pick<DocumentRecord, "status" | "project">,
+  can: (code: string) => boolean,
+  t: (key: string) => string,
+): { shown: boolean; disabledReason: string | undefined } {
+  // Archived is still changed (Lucas 10-30 evening), not archived twice.
+  const changeable = record.status === "ACTIVE" || (record.status === "ARCHIVED" && !ARCHIVE_LOCKS_CHANGES);
+  const canUpload = can("document.view") || can("document.manage");
+  const manages = can("document.manage");
+  return {
+    shown: changeable && canUpload,
+    disabledReason: !manages && !record.project ? t("documents.upload.companyWideManagerOnly") : undefined,
+  };
+}
+
+/**
  * 「来自 RC-005 · 材料进场」 under a system file's title (E4), opening the
  * record it came from; 「原记录已删除」 when that record is gone (Q23).
  */
-function SourceTag({
+export function SourceTag({
   source,
   onOpen,
   more = 0,
+  records = 0,
 }: {
   source: DocumentSystemFileInfo;
   onOpen: () => void;
   /** The document's other files, said after the tag: 「等 3 个文件」. */
   more?: number;
+  /** How many records the document's system files come from (`source_count`):
+   *  more than one adds 「，另有 N 个记录」 (JB196-10). */
+  records?: number;
 }) {
   const t = useTranslations();
-  const label = useSourceLabel()(source);
+  const sourceLabel = useSourceLabel()(source);
+  // The click still opens the first file's record, as it always did.
+  const label = records > 1 ? `${sourceLabel}${t("documents.source.more", { count: records - 1 })}` : sourceLabel;
   // One line from the left edge under the title, then 「…」, the whole of it
   // on hover (JB165: a wrapped button centred its lines, so some rows' tags
   // sat indented).
@@ -1834,10 +1865,13 @@ type ShownFile =
 function DocumentDetailDialog({
   documentId,
   onOpenSource,
+  onAddFiles,
   onClose,
 }: {
   documentId: string;
   onOpenSource: (record: DocumentRecord, source?: DocumentSystemFileInfo) => void;
+  /** The list's 上传 dialog for this document (JB196-8); none, no 【添加文件】. */
+  onAddFiles?: (record: DocumentRecord) => void;
   onClose: () => void;
 }) {
   const t = useTranslations();
@@ -2004,6 +2038,7 @@ function DocumentDetailDialog({
               onPreview={showInPreview}
               onDownload={(version) => void handleDownload(version)}
               onOpenSource={(file) => onOpenSource(detail.data, file)}
+              onAddFiles={onAddFiles ? () => onAddFiles(detail.data) : undefined}
             />
           </div>
         )}
@@ -2182,7 +2217,7 @@ export function SourcePhotoStrip({
   );
 }
 
-function DocumentDetailBody({
+export function DocumentDetailBody({
   document,
   systemFiles,
   downloading,
@@ -2190,6 +2225,7 @@ function DocumentDetailBody({
   onPreview,
   onDownload,
   onOpenSource,
+  onAddFiles,
 }: {
   document: DocumentDetail;
   systemFiles: DocumentSystemFileInfo[];
@@ -2199,11 +2235,15 @@ function DocumentDetailBody({
   onPreview: (key: string) => void;
   onDownload: (version: DocumentVersion) => void;
   onOpenSource: (file: DocumentSystemFileInfo) => void;
+  /** 【添加文件】 beside the versions' count (JB196-8); none, no button. */
+  onAddFiles?: () => void;
 }) {
   const t = useTranslations();
   const df = useDateFormat();
   const { can } = useAuth();
   const notArchived = useNotArchivedReason();
+  // The same rule as the list row's 上传 icon (JB196-8).
+  const addFiles = addFilesRule(document, can, t);
   // 填写检验结果 (J12-7): only where the subcategory asks for it.
   const [inspecting, setInspecting] = useState(false);
   // The picked files the photo row does not show (JB62-3).
@@ -2403,11 +2443,29 @@ function DocumentDetailBody({
       )}
 
       <section className="space-y-2 border-t pt-5">
-        <div className="flex items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <h3 className="text-sm font-semibold text-foreground">
             {t("documents.versions.title")}
           </h3>
-          <TypeBadge label={String(document.versions.length)} />
+          <div className="flex items-center gap-2">
+            <TypeBadge label={String(document.versions.length)} />
+            {/* 【添加文件】 (JB196-8, 客户 11-14 事项 1 第 2 点): the list row's
+                上传 dialog, same who-may and greyed reason; a new row here
+                afterwards, the inspection results untouched. */}
+            {onAddFiles && addFiles.shown ? (
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={Boolean(addFiles.disabledReason)}
+                disabledReason={addFiles.disabledReason}
+                onClick={onAddFiles}
+                data-testid="document-add-files"
+              >
+                <Upload className="h-4 w-4" />
+                {t("documents.upload.action")}
+              </Button>
+            ) : null}
+          </div>
         </div>
         <div className="overflow-x-auto rounded-md border">
           <Table>

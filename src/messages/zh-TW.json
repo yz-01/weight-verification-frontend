@@ -8234,7 +8234,8 @@
       "from": "來自 {reference} · {module}",
       "fromModule": "來自{module}",
       "deleted": "原記錄已刪除",
-      "open": "打開原記錄"
+      "open": "打開原記錄",
+      "more": "，另有 {count} 個記錄"
     },
     "pickFromSystem": {
       "tab": "從系統裡選",
@@ -8346,7 +8347,10 @@
       "machinesHint": "只列現在在場的設備。每台勾選後，在旁邊選「合格」或「不合格」；一起提交，每台各存一筆。已選 {count} 台。",
       "noMachinesOnSite": "這個項目現在沒有在場的設備。",
       "addItem": "加入",
-      "removeItem": "移除"
+      "removeItem": "移除",
+      "reportDateOn": "報告日期 {date}",
+      "notSaved": "檢驗結果沒有保存。",
+      "notSavedHint": "你填的內容還在，改好後再按一次「提交」。"
     }
   },
   "driver": {

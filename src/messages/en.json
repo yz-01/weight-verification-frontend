@@ -8234,7 +8234,8 @@
       "from": "From {reference} · {module}",
       "fromModule": "From {module}",
       "deleted": "Record deleted",
-      "open": "Open the record"
+      "open": "Open the record",
+      "more": ", and {count, plural, one {# more record} other {# more records}}"
     },
     "pickFromSystem": {
       "tab": "From the system",
@@ -8346,7 +8347,10 @@
       "machinesHint": "Only machines on site now are listed. Tick each machine and choose Pass or Fail beside it; one submit saves a result for each. {count} chosen.",
       "noMachinesOnSite": "No machine of this project is on site now.",
       "addItem": "Add",
-      "removeItem": "Remove"
+      "removeItem": "Remove",
+      "reportDateOn": "Report dated {date}",
+      "notSaved": "The inspection result was not saved.",
+      "notSavedHint": "What you filled in is still here. Correct it and press Submit again."
     }
   },
   "driver": {
