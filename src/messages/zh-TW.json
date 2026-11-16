@@ -3058,7 +3058,7 @@
       "WASTE_OUTGOING": "環保材料出場申請",
       "DISPOSAL_REQUEST": "工地清運",
       "PROGRESS": "工程進度",
-      "CONSULTANT_APPLICATION": "顧問資料",
+      "CONSULTANT_APPLICATION": "顧問申請",
       "ATTENDANCE_DAY": "出入場（按日）",
       "SUNDRY_CLAIM": "雜費報銷",
       "DELIVERY_NOTE": "送貨單",
@@ -3503,7 +3503,7 @@
       "RESTART": "重新啟動",
       "WITHDRAWN": "已撤回",
       "accept_trip": "接受車次",
-      "acknowledged": "已確認收到",
+      "acknowledged": "已確認申請",
       "add_evidence": "補充證據",
       "add_trip": "新增車次",
       "announcement_published": "發布公告",
@@ -3541,7 +3541,7 @@
       "collection_requested": "申請收運",
       "collection_time_proposed_by_recycler": "回收商提出收運時間",
       "complete": "完成",
-      "confirm_draft": "確認草稿",
+      "confirm_draft": "確認歸檔",
       "confirm_weigh_ticket": "確認過磅單",
       "consultant_registered": "登記顧問",
       "correct_trip": "更正車次",
@@ -3688,7 +3688,7 @@
       "receipt_records_queried": "查詢材料進場記錄",
       "receipt_refiled": "材料進場改歸另一種材料",
       "receipt_reviewed": "驗收材料進場",
-      "received": "已收到",
+      "received": "已接收",
       "recipient_dismissed": "關閉通知",
       "record_cancelled": "取消記錄",
       "record_corrected": "更正記錄",
@@ -3706,8 +3706,8 @@
       "recycler_settings_update": "修改回收商設置",
       "regenerate_external_link": "重新生成外部連接",
       "remark_added": "新增備註",
-      "remedial_item_closed": "關閉待整改項",
-      "remedial_item_raised": "提出待整改項",
+      "remedial_item_closed": "關閉這條整改",
+      "remedial_item_raised": "開一條整改",
       "remove_attachment": "刪除附件",
       "reorder_evidence": "調整證據順序",
       "replace_attachment_file": "更換附件文件",
@@ -3745,7 +3745,7 @@
       "site_access_revoke": "取消工地出入",
       "site_evidence": "工地補充證據",
       "start": "開始",
-      "submit": "提交",
+      "submit": "發送給顧問",
       "subscription_exported": "導出訂閱",
       "supplier_qr_scanned": "掃描供應商二維碼",
       "supplier_qr_status_changed": "啟用或停用供應商二維碼",
@@ -3779,8 +3779,8 @@
       "APPROVE": "批准",
       "REJECT": "拒絕",
       "RETURN": "退回",
-      "APPROVE_WITH_REMEDIAL": "批准（需整改）",
-      "REVISE_RESUBMIT": "修改後重新提交",
+      "APPROVE_WITH_REMEDIAL": "批准並要求整改",
+      "REVISE_RESUBMIT": "修改後重提",
       "bulk_fill_trade": "批量填寫工種",
       "create_trade": "新增工種",
       "company_categories_added_to_projects": "公司通用分類加到現有項目",
@@ -5185,7 +5185,7 @@
       "revoke": "撤銷授權",
       "save": "保存"
     },
-    "back": "顧問門戶",
+    "back": "返回顧問設定",
     "common": {
       "noContact": "未填寫聯繫人資料",
       "noJobTitle": "顧問",
@@ -5229,7 +5229,7 @@
       "validUntil": "到期時間"
     },
     "grant": {
-      "needsProjects": "至少要選一個專案",
+      "needsProjects": "至少要選一個項目",
       "needsConsultants": "至少要選一位顧問",
       "add": "新增項目授權",
       "createTitle": "授權顧問訪問項目",
@@ -5310,7 +5310,7 @@
     }
   },
   "consultantDashboard": {
-    "credential": "審批簽名",
+    "credential": "簽名與簽核密碼",
     "currentStep": "當前步驟：{step}",
     "due": {
       "description": "未來七天內需要處理的已提交申請。",
@@ -5321,11 +5321,11 @@
       "application": "申請",
       "applicationHelp": "填寫 RFI 資料，並關聯現場照片和必需附件。",
       "approval": "審批",
-      "approvalHelp": "顧問按順序審核，並使用 PIN 簽署每項決定。",
+      "approvalHelp": "顧問按順序審核，並使用簽核密碼簽署每項決定。",
       "archive": "歸檔",
       "archiveHelp": "確認申請、審批記錄和最終報告都已保存。",
-      "final": "最終 PDF",
-      "finalHelp": "下載已經完成的客戶格式 RFI 審批報告。",
+      "final": "最終報告",
+      "finalHelp": "下載已經完成的最終報告（客戶格式 RFI）。",
       "subtitle": "直接打開需要處理的步驟。每份申請都會從填寫資料一直保存到安全歸檔。",
       "title": "四個簡單步驟"
     },
@@ -5334,14 +5334,7 @@
       "empty": "此賬號尚未留下審批決定。",
       "title": "我的審批記錄"
     },
-    "loadError": "無法載入顧問工作臺。請刷新頁面，或檢查該顧問的項目授權是否仍有效。",
-    "metric": {
-      "approved": "已批准",
-      "dueSoon": "7 天內到期",
-      "pending": "待我審批",
-      "returned": "已拒絕或退回",
-      "today": "今日申請"
-    },
+    "loadError": "無法載入顧問首頁。請刷新頁面，或檢查該顧問的項目授權是否仍有效。",
     "newApplication": "新建申請",
     "notifications": {
       "description": "發送給此賬號的項目、審批及系統通知。",
@@ -5358,7 +5351,7 @@
     "searchPlaceholder": "搜索申請編號、項目、位置或申請人",
     "status": {
       "APPROVED": "已批准",
-      "APPROVED_WITH_REMEDIAL": "附整改批准",
+      "APPROVED_WITH_REMEDIAL": "已批准（需整改）",
       "ARCHIVED": "已歸檔",
       "DRAFT": "草稿",
       "REJECTED": "已拒絕",
@@ -5367,7 +5360,7 @@
     },
     "subtitle": "在同一個工作臺查看待審批申請、期限、審批記錄和項目通知。",
     "title": "顧問首頁",
-    "workflowSettings": "審批流程設置"
+    "workflowSettings": "顧問設定"
   },
   "consultantProject": {
     "choose": "選擇專案",
@@ -5398,7 +5391,7 @@
       "raisedBy": "由 {name} 提出"
     },
     "action": {
-      "closeRemedial": "關閉這條",
+      "closeRemedial": "關閉這條整改",
       "raiseRemedial": "開一條整改",
       "acknowledge": "確認申請",
       "cancel": "取消",
@@ -5407,22 +5400,21 @@
       "edit": "編輯草稿",
       "receive": "標記為已接收",
       "remove": "移除",
-      "retryReport": "重新產生報告",
+      "retryReport": "重新產生最終報告",
       "save": "保存",
       "saveDraft": "保存草稿",
-      "saveReusableOption": "保存為項目選項",
-      "submit": "提交審批"
+      "saveReusableOption": "保存為項目選項"
     },
     "applications": {
       "back": "返回顧問申請",
-      "create": "新增申請",
+      "create": "新建申請",
       "search": "搜索申請編號、位置或顧問",
       "stage": {
         "all": "全部",
         "approval": "審批",
         "archive": "歸檔",
         "draft": "申請",
-        "final": "最終 PDF",
+        "final": "最終報告",
         "inbox": "待整理現場資料"
       },
       "stageLabel": "申請階段",
@@ -5434,7 +5426,7 @@
       "kind": {
         "APPLICATION": "申請資料歸檔",
         "APPROVAL": "簽名審批記錄歸檔",
-        "FINAL_REPORT": "最終 PDF 歸檔",
+        "FINAL_REPORT": "最終報告歸檔",
         "CONSULTANT_FORM": "顧問自有表格（原表格、填寫後、最終版本）"
       },
       "pending": "等待中",
@@ -5482,20 +5474,20 @@
       "currentPassword": "當前登入密碼",
       "identityHelp": "每次審批都會保存不可修改的副本，日後更換不會影響舊報告。",
       "identityTitle": "簽名與顧問印章",
-      "passwordHelp": "修改簽署憑證前需驗證當前密碼。",
-      "pin": "新 6 位 PIN",
-      "pinConfirm": "確認 PIN",
+      "passwordHelp": "修改簽名或簽核密碼前需驗證當前登入密碼。",
+      "pin": "新的 6 位簽核密碼",
+      "pinConfirm": "再輸入一次",
       "pinHelp": "這就是您的 6 位簽核密碼，確認歸檔、列印、發送和審批都用它。",
-      "pinMismatch": "兩次 PIN 不一致。",
-      "pinTitle": "審批 PIN",
-      "save": "保存簽署憑證",
-      "shortTitle": "簽名與 PIN",
+      "pinMismatch": "兩次輸入的簽核密碼不一樣。",
+      "pinTitle": "簽核密碼",
+      "save": "保存簽名與簽核密碼",
+      "shortTitle": "簽名與簽核密碼",
       "signature": "電子簽名",
       "signatureHelp": "上傳背景清楚的 PNG 或 JPG 簽名。",
       "stamp": "顧問印章",
       "stampHelp": "流程步驟要求蓋章時才是必填。",
       "subtitle": "設置用於可追溯項目決定的個人簽名。",
-      "title": "審批簽名與 PIN",
+      "title": "簽名與簽核密碼",
       "pinKeep": "已經設好簽核密碼：不想改就留空。只換簽名或印章，不用輸入新的。"
     },
     "decision": {
@@ -5513,19 +5505,19 @@
         "archive": "歸檔",
         "complete": "已完成",
         "current": "當前步驟",
-        "final": "最終 PDF",
+        "final": "最終報告",
         "pending": "尚未開始",
         "title": "申請進度"
       },
       "next": {
-        "archived": "這份申請已經完成。申請資料、簽名審批記錄和最終 PDF 都已安全歸檔。",
+        "archived": "這份申請已經完成。申請資料、簽名審批記錄和最終報告都已安全歸檔。",
         "complete": "審批決定已經完成，系統正在準備最終報告。",
         "draft": "填好表格，加上現場照片和附件。然後先按【確認歸檔】（輸入 6 位簽核密碼），再按申請表上的【發送給顧問】。",
-        "final": "審批已經完成。請下載最終 PDF，並查看驗證記錄。",
+        "final": "審批已經完成。請下載最終報告，並查看驗證記錄。",
         "review": "這份申請正在等待您的決定。請查看現場證據，然後選擇審批結果。",
-        "revise": "申請已被退回。請建立新版本，按照意見修改後再次提交。",
+        "revise": "顧問選了「修改後重提」。請按【建立新版本】，按照意見修改後再發送給顧問。",
         "waiting": "您現在不需要操作，申請正在等待“{step}”處理。",
-        "remedialOpen": "已批准，但還有 {count} 條整改沒完成。做好後，在下面的「整改事項」裡按「關閉這條」，附上能證明的照片。",
+        "remedialOpen": "已批准，但還有 {count} 條整改沒完成。做好後，在下面的「整改事項」裡按「關閉這條整改」，附上能證明的照片。",
         "reviseMade": "這份申請已經建立了新版本（版本 {revision}）。請在下面「版本記錄」裡打開它，改好後再發送。"
       },
       "nextAction": "下一步要做什麼",
@@ -5544,15 +5536,15 @@
         "evidence": "關聯現場證據",
         "relatedRecords": "關聯現場資料",
         "revisions": "版本記錄",
-        "site": "現場申請"
+        "site": "來源現場資料"
       },
       "raisedOnSite": "現場提交：{name} {when}",
-      "forwardedBy": "經理轉給顧問：{name} {when}"
+      "forwardedBy": "經理發送給顧問：{name} {when}"
     },
     "draftEdit": {
       "armRemove": "允許移除",
       "armRemoveHelp": "先打開開關，再按「移除」，按下立即生效。",
-      "locked": "已提交，退回修改後才能改",
+      "locked": "已發送給顧問；顧問選「修改後重提」後，在新版本裡改",
       "remove": "移除",
       "unlink": "取消關聯",
       "edit": "修改",
@@ -5628,7 +5620,7 @@
       "chooseWorkflow": "選擇審批流程",
       "component": "構件／工作區域",
       "consultant": "顧問",
-      "consultantCompany": "顧問公司",
+      "consultantCompany": "顧問單位",
       "customApplicationType": "自定義申請類型",
       "customDiscipline": "自定義專業",
       "customPriority": "自定義優先級",
@@ -5658,7 +5650,7 @@
     },
     "form": {
       "editTitle": "編輯顧問申請草稿",
-      "noConsultantGrantHeadOffice": "這個項目還沒有開通顧問。請到「顧問設定 › 顧問賬號與項目授權」給顧問開通這個項目，再回來建立申請。",
+      "noConsultantGrantHeadOffice": "這個項目還沒有開通顧問。請到「顧問設定 › 顧問賬號與項目授權」給顧問開通這個項目，再回來新建申請。",
       "noConsultantGrantProject": "這個項目還沒有開通顧問。顧問由總部開通：請總部在「顧問設定 › 顧問賬號與項目授權」給顧問開通這個項目，開通後這裡就可以選。",
       "openConsultantAccess": "去開通顧問",
       "requiredAttachments": "提交前必須先上傳這些文件：{codes}。",
@@ -5677,7 +5669,7 @@
       "sourceSubmittedAt": "提交時間：{value}",
       "sourceTitle": "來源現場資料",
       "subtitle": "填寫現場申請、關聯證據，再按項目審批流程提交。",
-      "title": "建立顧問申請",
+      "title": "新建顧問申請",
       "advanced": "進階設定（可不填）",
       "advancedHelp": "不選就用這個項目的預設流程「顧問審批」：一步，送給你選的顧問簽名審批。模板也可以不選。",
       "more": "更多（選填）",
@@ -5713,7 +5705,7 @@
     "review": {
       "dialog": {
         "APPROVE": {
-          "description": "確認現場申請；最後一步完成後系統會生成最終審批報告。",
+          "description": "批准這份申請；最後一步完成後系統會生成最終報告。",
           "title": "批准此申請"
         },
         "APPROVE_WITH_REMEDIAL": {
@@ -5726,17 +5718,17 @@
         },
         "REVISE_RESUBMIT": {
           "description": "請清楚說明建築商修改後重新提交的內容。",
-          "title": "退回修改"
+          "title": "修改後重提"
         }
       },
       "pending": "當前步驟：{step}",
-      "pin": "6 位審批 PIN",
-      "pinHint": "PIN 用於確認此簽署決定由您本人作出。",
+      "pin": "6 位簽核密碼",
+      "pinHint": "簽核密碼用於確認此簽署決定由您本人作出。",
       "remarks": "決定備註",
       "reviewerConsultant": "指定顧問：{name}",
       "reviewerRole": "指定角色：{name}",
       "reviewerUser": "指定審批人：{name}",
-      "setupCredential": "設置簽名與 PIN",
+      "setupCredential": "設定簽名與簽核密碼",
       "remedialList": {
         "hint": "一條寫一件事。每一條都會印在你簽名的最終 PDF 上；建築商做好後會在申請裡逐條關閉，並附上照片。",
         "item": "第 {n} 條：要整改什麼",
@@ -5760,19 +5752,19 @@
     },
     "status": {
       "APPROVED": "已批准",
-      "APPROVED_WITH_REMEDIAL": "已批准，需完成整改",
+      "APPROVED_WITH_REMEDIAL": "已批准（需整改）",
       "ARCHIVED": "已歸檔",
       "DRAFT": "草稿",
       "REJECTED": "已拒絕",
       "REVISE_RESUBMIT": "修改後重提",
-      "SUBMITTED": "等待審批"
+      "SUBMITTED": "待審批"
     },
     "stepStatus": {
       "APPROVED": "已批准",
-      "APPROVED_WITH_REMEDIAL": "已批准，需完成整改",
+      "APPROVED_WITH_REMEDIAL": "已批准（需整改）",
       "CURRENT": "需要處理",
       "REJECTED": "已拒絕",
-      "REVISE_RESUBMIT": "需要修改",
+      "REVISE_RESUBMIT": "修改後重提",
       "SKIPPED": "已跳過",
       "WAITING": "等待中"
     },
@@ -5815,7 +5807,7 @@
       "save": "保存模板",
       "saveVersion": "建立版本",
       "standardLayout": "標準客戶 RFI PDF",
-      "standardLayoutHelp": "最終 PDF 固定使用客戶確認的 RFI 與顧問審批格式，避免用戶誤選尚未支持的版式。",
+      "standardLayoutHelp": "最終報告固定使用客戶確認的 RFI 與顧問審批格式，避免用戶誤選尚未支持的版式。",
       "stillOffered": "繼續提供",
       "stillOfferedHelp": "關掉之後新申請就用不到它了，已送出的不受影響。",
       "subtitle": "按項目管理表格欄位、必需附件和不可修改版本，不需要填寫技術 JSON。",
@@ -5830,16 +5822,16 @@
     "toast": {
       "acknowledged": "申請已確認",
       "attachmentAdded": "附件已添加",
-      "credentialSaved": "簽署憑證已保存",
+      "credentialSaved": "簽名與簽核密碼已保存",
       "decisionSaved": "簽署決定已保存",
       "draftSaved": "申請草稿已保存",
       "evidenceLinked": "現場證據已關聯",
       "received": "申請已標記為已接收",
-      "reportRebuilt": "報告已重新產生",
+      "reportRebuilt": "最終報告已重新產生",
       "revisionCreated": "新版本已建立",
       "stepRemoved": "審批步驟已移除",
       "stepSaved": "審批步驟已保存",
-      "submitted": "申請已提交審批",
+      "submitted": "已發送給顧問",
       "templateSaved": "RFI 表格模板已保存",
       "templateVersionSaved": "RFI 表格模板版本已保存",
       "workflowSaved": "審批流程已保存",
@@ -5853,7 +5845,7 @@
       "applicationType": "申請類型",
       "company": "建築商",
       "consultant": "顧問",
-      "consultantCompany": "顧問公司",
+      "consultantCompany": "顧問單位",
       "decision": "最終決定",
       "finalizedAt": "完成時間",
       "notFoundHelp": "此二維碼無效或最終報告已不可用。",
@@ -5888,7 +5880,6 @@
       "requireStamp": "必須顧問蓋章",
       "reviewer": "審批人",
       "reviewerKind": "此步驟由誰審批",
-      "shortTitle": "流程設置",
       "stampHelp": "審批人未上傳印章時將不能批准。",
       "stepName": "步驟名稱",
       "stepsLocked": "這條流程上已經有申請送出去了，審批路線現在屬於記錄的一部分，改不了。要換路線請新建一條流程。",
@@ -5911,17 +5902,17 @@
         "body": "按【新建申請】，選項目和顧問，填寫要檢查的內容（位置、說明、圖紙編號等），需要的話加附件。流程和模板都可以不選。"
       },
       "submit": {
-        "title": "送出給顧問",
+        "title": "發送給顧問",
         "body": "草稿填好後，先按【確認歸檔】（輸入 6 位簽核密碼），再按申請表上的【發送給顧問】。顧問會收到通知，申請進入「待審批」。確認歸檔以前，草稿可以修改或刪除。"
       },
       "decide": {
-        "title": "顧問批准／退回／要求修改",
-        "body": "顧問在自己的賬號裡用電子簽名和簽核密碼作出決定。結果、簽名和溝通都留在這條申請裡。要求修改後重提的，按【建立新版本】，改好後再確認歸檔、發送給顧問。"
+        "title": "顧問作出決定",
+        "body": "顧問在自己的賬號裡用電子簽名和簽核密碼，選「批准」「批准並要求整改」「修改後重提」或「拒絕」。結果、簽名和溝通都留在這條申請裡。選了「修改後重提」的，按【建立新版本】，改好後再確認歸檔、發送給顧問。"
       },
       "setupOnce": "只需要設定一次：先把顧問加進這個項目（顧問設定 → 顧問賬號與項目授權），否則新建申請時選不到顧問。",
       "openSettings": "打開顧問設定",
       "askAdmin": "請有設定權限的同事處理。",
-      "signatureOnce": "顧問第一次審批前，要先在「簽章」設定自己的簽名和 PIN。"
+      "signatureOnce": "顧問第一次審批前，要先在「簽名與簽核密碼」設定自己的簽名和簽核密碼。"
     },
     "settingsHub": {
       "title": "顧問設定",
@@ -5929,28 +5920,28 @@
       "access": {
         "title": "顧問賬號與項目授權",
         "need": "必須 · 每個顧問每個項目做一次",
-        "body": "建立顧問公司與顧問帳號，並授權他們看這個項目。沒授權的顧問在新建申請時選不到。",
+        "body": "建立顧問單位與顧問賬號，並授權他們看這個項目。沒授權的顧問在新建申請時選不到。",
         "needProject": "由總部設置",
         "bodyProject": "顧問單位、顧問賬號和項目授權由總部設置。你在這裡可以看你的項目開通了哪些顧問。"
       },
       "workflows": {
-        "title": "審批流程",
+        "title": "顧問審批流程",
         "need": "可不設 · 已有預設流程",
         "body": "每個項目自動有一個「顧問審批」流程（一步，送給選定的顧問）。需要多級審批時才來這裡加步驟。"
       },
       "templates": {
-        "title": "申請模板",
+        "title": "RFI 表格模板",
         "need": "可不設",
-        "body": "需要固定表格欄位、必交附件或自訂編號時才建模板。不建模板照樣可以新建和送出申請。"
+        "body": "需要固定表格欄位、必交附件或自訂編號時才建模板。不建模板照樣可以新建和發送申請。"
       }
     },
     "what": {
       "archiveCategories": "檔案分類",
       "evidenceFilters": "篩選選項",
-      "credential": "你的審批簽名與 PIN",
+      "credential": "你的簽名與簽核密碼",
       "evidenceCandidates": "本項目的現場證據",
       "archiveDocuments": "文件管理列表",
-      "workflows": "審批流程",
+      "workflows": "顧問審批流程",
       "templates": "RFI 表格模板",
       "scheduleTasks": "施工計劃活動",
       "applicationOptions": "申請選項（類型、專業、工作類型、優先級）",
@@ -5958,7 +5949,7 @@
       "applicationTypes": "申請類型",
       "reviewerChoices": "審批人列表",
       "consultantForms": "顧問自有表格",
-      "consultantFirms": "顧問公司"
+      "consultantFirms": "顧問單位"
     },
     "inbox": {
       "what": "待整理現場資料",
@@ -5975,7 +5966,7 @@
     },
     "formCard": {
       "title": "顧問申請表（A4）",
-      "help": "預覽、列印、匯出的是完整證據 PDF：第一頁是這張 A4（左邊我方公司，右邊顧問公司，下面是申請內容、照片和附件清單），後面接著附件內容、顧問審批記錄及簽名、溝通記錄。",
+      "help": "預覽、列印、匯出的是完整證據 PDF：第一頁是這張 A4（左邊我方公司，右邊顧問單位，下面是申請內容、照片和附件清單），後面接著附件內容、顧問審批記錄及簽名、溝通記錄。",
       "print": "列印",
       "attachments": "看附件（{count}）",
       "send": "發送給顧問 {name}"
@@ -5993,9 +5984,9 @@
       "emptyConsultant": "還沒有顧問自有表格。按「新增模板」，選 B。",
       "loading": "正在載入顧問自有表格...",
       "name": "表格名稱",
-      "consultant": "顧問公司",
-      "chooseConsultant": "選擇顧問公司",
-      "noFirms": "還沒有登記顧問公司，請先在顧問授權裡新增。",
+      "consultant": "顧問單位",
+      "chooseConsultant": "選擇顧問單位",
+      "noFirms": "還沒有登記顧問單位，請先在「顧問賬號與項目授權」裡新增。",
       "project": "項目",
       "allProjects": "公司全部項目",
       "applicationType": "申請類型",
@@ -6042,12 +6033,12 @@
       "uploadedBy": "{name} · {when}",
       "signedOnForm": "簽署見上傳表格",
       "signingTitle": "簽署方式",
-      "signingEsignature": "電子簽名 + PIN",
+      "signingEsignature": "電子簽名 + 簽核密碼",
       "signingSignedForm": "上傳已簽名蓋章的表格",
       "signedFormFile": "已簽名蓋章的表格",
       "signedFormHint": "簽了名、蓋了章的顧問表格，掃描或拍照都可以。",
-      "pinForSignedForm": "輸入 PIN，確認上傳的表格是你本人簽署的。",
-      "noCredential": "你還沒有設定電子簽名：可以上傳已簽名蓋章的表格，或先設定簽名和 PIN。",
+      "pinForSignedForm": "輸入簽核密碼，確認上傳的表格是你本人簽署的。",
+      "noCredential": "你還沒有設定電子簽名：可以上傳已簽名蓋章的表格，或先設定簽名與簽核密碼。",
       "archiveBlank": "原表格：{name}（第 {version} 版）",
       "archiveFilled": "填寫後：{name}",
       "archiveFinal": "最終版本：{name}",
@@ -6827,7 +6818,7 @@
       "SUBMITTED": "已提交"
     },
     "taskType": {
-      "CONSULTANT": "顧問提交",
+      "CONSULTANT": "顧問資料提交",
       "EQUIPMENT": "設備",
       "MATERIAL": "材料",
       "OTHER": "其他",
@@ -6851,7 +6842,7 @@
       "linkedRecord": "提交的記錄：{reference}",
       "linkedHint": "現場人員用這筆記錄完成任務，它的照片也顯示在上面。",
       "photos": "照片：{current}/{required}",
-      "prepareApplication": "檢查後轉給顧問",
+      "prepareApplication": "整理成顧問申請",
       "projectFixed": "工地改不了 —— 接任務的人是從這個工地的班組裡選的。",
       "referenceFiles": "參考照片或文件",
       "referenceHelp": "現場人員開始任務前會先看到這些資料。",
@@ -6887,8 +6878,8 @@
       "focused": "只顯示卡片指向的這一項任務。",
       "focusedMissing": "卡片指向的任務不在目前列表裡，可能已處理完或不屬於所選項目。",
       "showAll": "顯示全部",
-      "forwardedAs": "已轉給顧問：{reference}",
-      "draftedAs": "已整理成申請 {reference}，尚未轉給顧問",
+      "forwardedAs": "已發送給顧問：{reference}",
+      "draftedAs": "已整理成顧問申請 {reference}，尚未發送給顧問",
       "expand": "展開「{task}」",
       "collapse": "收起「{task}」",
       "dueShort": "期限 {value}",
@@ -8712,8 +8703,8 @@
       "config_required": "不能移除必要的系統設置。",
       "config_unknown": "系統不支持該配置鍵。",
       "conflict": "這項資料現在的狀態不允許這個操作。",
-      "consultant_grant_not_current": "選的顧問已經沒有這個專案的授權，申請仍是草稿。請換一位顧問，或先在顧問授權裡續期。",
-      "consultant_application_locked": "這份申請已經提交，附件和關聯證據不能再改。退回修改後，在新版本裡改。",
+      "consultant_grant_not_current": "選的顧問已經沒有這個項目的授權，申請仍是草稿。請換一位顧問，或先在「顧問賬號與項目授權」裡續期。",
+      "consultant_application_locked": "這份申請已經發送給顧問，附件和關聯證據不能再改。顧問選「修改後重提」後，在新版本裡改。",
       "consultant_grant_not_found": "找不到該顧問項目授權。",
       "consultant_organization_not_found": "找不到該顧問單位。",
       "customer_assignment_not_found": "找不到該客戶歸屬記錄。",
@@ -9591,9 +9582,7 @@
       "workLocationPlaceholder": "例如：A座，C1-D1軸線",
       "askForHint": "不知道選哪個可以不選，後台會補上。"
     },
-    "consultantTasks": {
-      "title": "顧問現場照片提交"
-    },
+    "consultantTasks": {},
     "error": {
       "action": "操作未能完成，請重試。",
       "load": "頁面讀取失敗，請檢查網絡。",
@@ -11699,7 +11688,7 @@
     },
     "reviewEmpty": "目前沒有發給你的資料包。",
     "reviewSubtitle": "逐項接受，或者填寫原因退回給申請者。",
-    "reviewTitle": "待審閱的資料包",
+    "reviewTitle": "待審閱資料包",
     "searchPlaceholder": "按名稱或備註搜尋",
     "send": "發送給顧問",
     "sourceMissing": "這條指向的記錄，目前帳號已經讀不到了。",
@@ -11726,7 +11715,7 @@
     "what": {
       "candidates": "可新增的資料",
       "recordParts": "這條資料的全部內容",
-      "packagesToReview": "待審閱的資料包",
+      "packagesToReview": "待審閱資料包",
       "package": "這個資料包"
     },
     "include": {
@@ -11857,7 +11846,7 @@
         "whatChanged": "改了什麼",
         "who": "對方姓名或單位"
       },
-      "consultantHelp": "顧問用自己的帳號登入，在「待審閱的資料包」裡打開。",
+      "consultantHelp": "顧問用自己的賬號登入，在「待審閱資料包」裡打開。",
       "contactHelp": "只用來發連結，系統不會自動發訊息。手機寫國際格式（例如 +60…）可以直接用 WhatsApp 打開對方。",
       "makeLink": "產生連結",
       "sendToConsultant": "發給顧問",
@@ -12066,7 +12055,7 @@
       "EQUIPMENT_HOURS": "設備開工 / 收工",
       "ATTENDANCE": "人員進場",
       "PERMIT": "施工准證",
-      "CONSULTANT": "顧問申請"
+      "CONSULTANT": "顧問資料提交"
     },
     "gateStatus": {
       "RECORDED": "已記錄",
@@ -12355,7 +12344,7 @@
       "anprSettings": "ANPR 設置",
       "apiGatewayMonitoring": "API Gateway 監控",
       "apiGatewaySettings": "API Gateway 設置",
-      "approvalCredentials": "審批憑證",
+      "approvalCredentials": "簽名與簽核密碼",
       "approvals": "審批流程（進階）",
       "archiveQueue": "現場記錄中心",
       "assetActivity": "操作記錄",
@@ -12419,7 +12408,7 @@
       "consultantDashboard": "顧問首頁",
       "consultantFieldInbox": "待整理現場資料",
       "consultantTemplates": "RFI 表格模板",
-      "consultantWorkflows": "審批流程",
+      "consultantWorkflows": "顧問審批流程",
       "contractorNotifications": "建築商通知",
       "contractorReports": "建築商報表",
       "crmActivity": "客戶服務操作記錄",
@@ -12766,7 +12755,7 @@
       "HAZARD_FILE": "整改附件",
       "ATTENDANCE": "人員進場打卡",
       "CATEGORY_EVIDENCE": "現場照片",
-      "CONSULTANT_SUBMISSION": "顧問提交",
+      "CONSULTANT_SUBMISSION": "顧問資料提交",
       "DISPATCH_ACCEPT": "接受訂單",
       "DISPATCH_COLLECT": "確認收貨",
       "DISPOSAL_REQUEST": "處置申請",
@@ -12997,9 +12986,9 @@
     "consultant_applications": {
       "what": "顧問那一攤：提申請、走審批鏈、簽字，以及支撐它的現場證據。",
       "who": "持 approval.view；改流程設定要 consultant.config，提申請要 consultant.submit，做審批要 approval.review。",
-      "need": "提申請要專案、審批流程、申請類型、專業類別、檢查類型、優先級、顧問、顧問公司、檢查位置、構件或工作區域、說明內容和 RFI 表格範本；做審批要 6 位審批 PIN 和決定備註；設 PIN 要目前登入密碼、新 PIN 兩次和電子簽名。",
+      "need": "提申請要項目、審批流程、申請類型、專業類別、檢查類型、優先級、顧問、顧問單位、檢查位置、構件或工作區域、說明內容和 RFI 表格模板；做審批要 6 位簽核密碼和決定備註；設簽核密碼要目前登入密碼、新簽核密碼兩次和電子簽名。",
       "then": "PIN 加電子簽名等同簽字，簽下去不能撤銷。",
-      "trouble": "審批按鈕是灰的，是你還沒設審批 PIN。顧問登進來看不到專案，是授權過期了或者根本沒給那個專案 —— 授權是按專案給的，有起訖時間。"
+      "trouble": "審批按鈕是灰的，是你還沒設簽核密碼。顧問登進來看不到項目，是授權過期了或者根本沒給那個項目 —— 授權是按項目給的，有起訖時間。"
     },
     "customer_management": {
       "what": "料是從哪來的：跟你有平台合作的建築商，以及自己開車上門的私人客戶。",
@@ -21061,7 +21050,7 @@
       "equipment_set_site_no": "修改設備編號",
       "equipment_hours_move": "設備工時改設備歸屬",
       "user_change_permissions": "修改用戶的權限開關",
-      "consultant_submit": "提交顧問申請",
+      "consultant_submit": "發送給顧問",
       "visitor_photo_purge": "刪除到期訪客照片",
       "document_delete": "刪除未歸檔的文件檔案",
       "consultant_delete": "刪除顧問申請草稿",

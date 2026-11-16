@@ -3503,7 +3503,7 @@
       "RESTART": "Dimulakan semula",
       "WITHDRAWN": "Ditarik balik",
       "accept_trip": "Trip diterima",
-      "acknowledged": "Diakui",
+      "acknowledged": "Permohonan disahkan",
       "add_evidence": "Bukti ditambah",
       "add_trip": "Trip ditambah",
       "announcement_published": "Pengumuman diterbitkan",
@@ -3541,7 +3541,7 @@
       "collection_requested": "Kutipan dimohon",
       "collection_time_proposed_by_recycler": "Pengitar semula mencadangkan masa kutipan",
       "complete": "Selesai",
-      "confirm_draft": "Draf disahkan",
+      "confirm_draft": "Disahkan & diarkibkan",
       "confirm_weigh_ticket": "Tiket timbang disahkan",
       "consultant_registered": "Perunding didaftarkan",
       "correct_trip": "Trip dibetulkan",
@@ -3706,8 +3706,8 @@
       "recycler_settings_update": "Tetapan pengitar semula diubah",
       "regenerate_external_link": "Pautan luar dijana semula",
       "remark_added": "Catatan ditambah",
-      "remedial_item_closed": "Item pemulihan ditutup",
-      "remedial_item_raised": "Item pemulihan dibangkitkan",
+      "remedial_item_closed": "Perkara pembaikan ditutup",
+      "remedial_item_raised": "Perkara pembaikan dibuka",
       "remove_attachment": "Lampiran dibuang",
       "reorder_evidence": "Susunan bukti diubah",
       "replace_attachment_file": "Fail lampiran diganti",
@@ -3745,7 +3745,7 @@
       "site_access_revoke": "Akses tapak ditarik balik",
       "site_evidence": "Bukti tapak ditambah",
       "start": "Dimulakan",
-      "submit": "Dihantar",
+      "submit": "Dihantar kepada perunding",
       "subscription_exported": "Langganan dieksport",
       "supplier_qr_scanned": "QR pembekal diimbas",
       "supplier_qr_status_changed": "QR pembekal dihidupkan atau dimatikan",
@@ -3779,7 +3779,7 @@
       "APPROVE": "Diluluskan",
       "REJECT": "Ditolak",
       "RETURN": "Dikembalikan",
-      "APPROVE_WITH_REMEDIAL": "Diluluskan dengan kerja pemulihan",
+      "APPROVE_WITH_REMEDIAL": "Diluluskan dengan kerja pembaikan",
       "REVISE_RESUBMIT": "Semak dan hantar semula",
       "bulk_fill_trade": "Pertukangan diisi untuk beberapa pekerja",
       "create_trade": "Pertukangan ditambah",
@@ -3813,7 +3813,7 @@
     },
     "objectType": {
       "SignOffAssistant": "PIN pembantu",
-      "UserApprovalCredential": "PIN kelulusan",
+      "UserApprovalCredential": "PIN pengesahan",
       "User": "Akaun",
       "Role": "Peranan",
       "Project": "Projek",
@@ -5185,7 +5185,7 @@
       "revoke": "Batalkan akses",
       "save": "Simpan"
     },
-    "back": "Portal perunding",
+    "back": "Kembali ke tetapan perunding",
     "common": {
       "noContact": "Tiada maklumat hubungan",
       "noJobTitle": "Perunding",
@@ -5290,7 +5290,7 @@
       "grants": "Akses projek",
       "organizations": "Firma perunding"
     },
-    "title": "Akaun perunding dan akses projek",
+    "title": "Akses perunding",
     "projectView": {
       "notice": "Ibu pejabat menetapkan firma perunding, akaun perunding dan projek mereka.",
       "title": "Perunding yang dibuka pada projek anda",
@@ -5310,7 +5310,7 @@
     }
   },
   "consultantDashboard": {
-    "credential": "Tandatangan kelulusan",
+    "credential": "Tandatangan dan PIN pengesahan",
     "currentStep": "Langkah semasa: {step}",
     "due": {
       "description": "Permohonan dihantar yang diperlukan dalam tujuh hari akan datang.",
@@ -5321,11 +5321,11 @@
       "application": "Permohonan",
       "applicationHelp": "Sediakan butiran RFI, bukti tapak dan lampiran wajib.",
       "approval": "Kelulusan",
-      "approvalHelp": "Perunding menyemak mengikut turutan dan menandatangani setiap keputusan dengan PIN.",
+      "approvalHelp": "Perunding menyemak mengikut turutan dan menandatangani setiap keputusan dengan PIN pengesahan.",
       "archive": "Arkib",
       "archiveHelp": "Pastikan permohonan, sejarah kelulusan dan laporan akhir telah disimpan.",
-      "final": "PDF akhir",
-      "finalHelp": "Muat turun laporan kelulusan RFI dalam format pelanggan.",
+      "final": "Laporan akhir",
+      "finalHelp": "Muat turun laporan akhir yang lengkap (format RFI pelanggan).",
       "subtitle": "Buka langkah yang perlu diurus. Setiap permohonan bergerak daripada penyediaan hingga arkib yang dilindungi.",
       "title": "Empat langkah mudah"
     },
@@ -5334,14 +5334,7 @@
       "empty": "Tiada keputusan kelulusan direkodkan untuk akaun ini.",
       "title": "Keputusan terkini saya"
     },
-    "loadError": "Senarai kerja perunding tidak dapat dimuatkan. Muat semula halaman atau semak kebenaran akses projek.",
-    "metric": {
-      "approved": "Diluluskan",
-      "dueSoon": "Tamat dalam 7 hari",
-      "pending": "Menunggu semakan",
-      "returned": "Ditolak atau dipulangkan",
-      "today": "Permohonan hari ini"
-    },
+    "loadError": "Papan pemuka perunding tidak dapat dimuatkan. Muat semula halaman atau semak kebenaran akses projek.",
     "newApplication": "Permohonan baharu",
     "notifications": {
       "description": "Notis projek, kelulusan dan sistem untuk akaun ini.",
@@ -5358,7 +5351,7 @@
     "searchPlaceholder": "Cari nombor permohonan, projek, lokasi atau pemohon",
     "status": {
       "APPROVED": "Diluluskan",
-      "APPROVED_WITH_REMEDIAL": "Diluluskan dengan pembetulan",
+      "APPROVED_WITH_REMEDIAL": "Diluluskan dengan kerja pembaikan",
       "ARCHIVED": "Diarkibkan",
       "DRAFT": "Draf",
       "REJECTED": "Ditolak",
@@ -5367,7 +5360,7 @@
     },
     "subtitle": "Semak permohonan ditugaskan, tarikh akhir, keputusan dan notis projek dalam satu senarai kerja.",
     "title": "Papan pemuka perunding",
-    "workflowSettings": "Tetapan aliran kelulusan"
+    "workflowSettings": "Tetapan perunding"
   },
   "consultantProject": {
     "choose": "Pilih projek",
@@ -5398,7 +5391,7 @@
       "raisedBy": "Dibangkitkan oleh {name}"
     },
     "action": {
-      "closeRemedial": "Tutup",
+      "closeRemedial": "Tutup perkara pembaikan ini",
       "raiseRemedial": "Buka perkara pembaikan",
       "acknowledge": "Sahkan permohonan",
       "cancel": "Batal",
@@ -5407,11 +5400,10 @@
       "edit": "Edit draf",
       "receive": "Tanda sebagai diterima",
       "remove": "Alih keluar",
-      "retryReport": "Bina semula laporan",
+      "retryReport": "Bina semula laporan akhir",
       "save": "Simpan",
       "saveDraft": "Simpan draf",
-      "saveReusableOption": "Simpan sebagai pilihan projek",
-      "submit": "Hantar untuk kelulusan"
+      "saveReusableOption": "Simpan sebagai pilihan projek"
     },
     "applications": {
       "back": "Kembali ke permohonan perunding",
@@ -5422,7 +5414,7 @@
         "approval": "Kelulusan",
         "archive": "Arkib",
         "draft": "Permohonan",
-        "final": "PDF akhir",
+        "final": "Laporan akhir",
         "inbox": "Bahan tapak untuk disusun"
       },
       "stageLabel": "Peringkat permohonan",
@@ -5434,7 +5426,7 @@
       "kind": {
         "APPLICATION": "Arkib permohonan",
         "APPROVAL": "Sejarah kelulusan bertandatangan",
-        "FINAL_REPORT": "Arkib PDF akhir",
+        "FINAL_REPORT": "Arkib laporan akhir",
         "CONSULTANT_FORM": "Borang perunding sendiri (kosong, diisi, versi akhir)"
       },
       "pending": "Menunggu",
@@ -5482,20 +5474,20 @@
       "currentPassword": "Kata laluan semasa",
       "identityHelp": "Setiap kelulusan menyimpan salinan kekal; perubahan kemudian tidak mengubah laporan lama.",
       "identityTitle": "Tandatangan dan cop perunding",
-      "passwordHelp": "Kata laluan semasa melindungi perubahan kelayakan tandatangan.",
-      "pin": "PIN 6 digit baharu",
-      "pinConfirm": "Sahkan PIN",
+      "passwordHelp": "Kata laluan semasa melindungi perubahan tandatangan dan PIN pengesahan.",
+      "pin": "PIN pengesahan 6 digit baharu",
+      "pinConfirm": "Masukkan sekali lagi",
       "pinHelp": "Ini PIN pengesahan enam digit anda. PIN yang sama digunakan untuk Sahkan & arkib, mencetak, menghantar dan setiap keputusan.",
-      "pinMismatch": "PIN tidak sepadan.",
-      "pinTitle": "PIN kelulusan",
-      "save": "Simpan kelayakan tandatangan",
-      "shortTitle": "Tandatangan dan PIN",
+      "pinMismatch": "Kedua-dua PIN tidak sama.",
+      "pinTitle": "PIN pengesahan",
+      "save": "Simpan tandatangan dan PIN pengesahan",
+      "shortTitle": "Tandatangan dan PIN pengesahan",
       "signature": "Tandatangan elektronik",
       "signatureHelp": "Muat naik tandatangan PNG atau JPG yang jelas.",
       "stamp": "Cop perunding",
       "stampHelp": "Pilihan sehingga langkah aliran mewajibkannya.",
       "subtitle": "Tetapkan tandatangan peribadi bagi keputusan projek yang boleh dijejaki.",
-      "title": "Tandatangan dan PIN Kelulusan",
+      "title": "Tandatangan dan PIN pengesahan",
       "pinKeep": "PIN pengesahan anda sudah ditetapkan. Biarkan kosong untuk mengekalkannya; menukar tandatangan atau cop sahaja tidak memerlukan PIN baharu."
     },
     "decision": {
@@ -5513,19 +5505,19 @@
         "archive": "Arkib",
         "complete": "Selesai",
         "current": "Langkah semasa",
-        "final": "PDF akhir",
+        "final": "Laporan akhir",
         "pending": "Belum bermula",
         "title": "Kemajuan permohonan"
       },
       "next": {
-        "archived": "Permohonan ini telah selesai. Permohonan, sejarah kelulusan bertandatangan dan PDF akhir telah diarkibkan dengan selamat.",
+        "archived": "Permohonan ini telah selesai. Permohonan, sejarah kelulusan bertandatangan dan laporan akhir telah diarkibkan dengan selamat.",
         "complete": "Keputusan kelulusan telah selesai. Laporan akhir sedang disediakan.",
         "draft": "Lengkapkan borang dan tambah foto tapak serta lampiran. Kemudian tekan Sahkan & arkib (dengan PIN pengesahan enam digit), diikuti Hantar pada borang permohonan.",
-        "final": "Kelulusan telah selesai. Muat turun PDF akhir dan semak rekod pengesahan.",
+        "final": "Kelulusan telah selesai. Muat turun laporan akhir dan semak rekod pengesahan.",
         "review": "Permohonan ini menunggu keputusan anda. Semak bukti, kemudian pilih keputusan kelulusan.",
-        "revise": "Permohonan telah dikembalikan. Cipta semakan baharu, buat pembetulan dan hantar semula.",
+        "revise": "Perunding memilih Semak dan hantar semula. Cipta semakan baharu, buat pembetulan dan hantar semula kepada perunding.",
         "waiting": "Anda tidak perlu bertindak sekarang. Permohonan sedang menunggu di {step}.",
-        "remedialOpen": "Diluluskan, tetapi {count} perkara pembaikan masih dibuka. Apabila kerja siap, tekan 「Tutup」 di bawah 「Perkara pembaikan」 dan tambah foto sebagai bukti.",
+        "remedialOpen": "Diluluskan, tetapi {count} perkara pembaikan masih dibuka. Apabila kerja siap, tekan 「Tutup perkara pembaikan ini」 di bawah 「Perkara pembaikan」 dan tambah foto sebagai bukti.",
         "reviseMade": "Semakan baharu (semakan {revision}) sudah dibuat. Buka di Sejarah semakan di bawah, buat pembetulan di sana dan hantar."
       },
       "nextAction": "Apa yang berlaku seterusnya",
@@ -5544,7 +5536,7 @@
         "evidence": "Bukti tapak dipautkan",
         "relatedRecords": "Rekod tapak berkaitan",
         "revisions": "Sejarah semakan",
-        "site": "Permintaan tapak"
+        "site": "Sumber penyerahan tapak"
       },
       "raisedOnSite": "Dibangkitkan di tapak oleh {name} {when}",
       "forwardedBy": "Dihantar kepada perunding oleh {name} {when}"
@@ -5552,7 +5544,7 @@
     "draftEdit": {
       "armRemove": "Benarkan alih keluar",
       "armRemoveHelp": "Hidupkan suis dahulu, kemudian tekan Alih keluar. Ia berkuat kuasa serta-merta.",
-      "locked": "Sudah dihantar. Boleh diubah semula hanya selepas dikembalikan untuk semakan.",
+      "locked": "Sudah dihantar kepada perunding. Jika perunding memilih Semak dan hantar semula, ubahnya dalam semakan baharu.",
       "remove": "Alih keluar",
       "unlink": "Nyahpaut",
       "edit": "Ubah",
@@ -5628,7 +5620,7 @@
       "chooseWorkflow": "Pilih aliran kelulusan",
       "component": "Komponen / kawasan kerja",
       "consultant": "Perunding",
-      "consultantCompany": "Syarikat perunding",
+      "consultantCompany": "Firma perunding",
       "customApplicationType": "Jenis permohonan tersuai",
       "customDiscipline": "Disiplin tersuai",
       "customPriority": "Keutamaan tersuai",
@@ -5677,7 +5669,7 @@
       "sourceSubmittedAt": "Dihantar pada {value}",
       "sourceTitle": "Sumber penyerahan tapak",
       "subtitle": "Sediakan permintaan tapak, pautkan bukti, kemudian hantar melalui aliran kelulusan projek.",
-      "title": "Cipta permohonan perunding",
+      "title": "Permohonan perunding baharu",
       "advanced": "Lanjutan (pilihan)",
       "advancedHelp": "Biarkan kosong untuk guna laluan lalai projek, “Semakan perunding”: satu langkah, kepada perunding yang anda pilih, ditandatangani. Templat juga pilihan.",
       "more": "Lagi (pilihan)",
@@ -5713,7 +5705,7 @@
     "review": {
       "dialog": {
         "APPROVE": {
-          "description": "Sahkan permintaan tapak. Laporan akhir dijana selepas langkah terakhir.",
+          "description": "Luluskan permohonan ini. Laporan akhir dijana selepas langkah terakhir.",
           "title": "Luluskan permohonan ini"
         },
         "APPROVE_WITH_REMEDIAL": {
@@ -5726,17 +5718,17 @@
         },
         "REVISE_RESUBMIT": {
           "description": "Terangkan perkara yang perlu dibetulkan sebelum dihantar semula.",
-          "title": "Kembalikan untuk semakan"
+          "title": "Semak dan hantar semula"
         }
       },
       "pending": "Langkah semasa: {step}",
-      "pin": "PIN kelulusan 6 digit",
-      "pinHint": "PIN mengesahkan keputusan bertandatangan ini dibuat oleh anda.",
+      "pin": "PIN pengesahan 6 digit",
+      "pinHint": "PIN pengesahan mengesahkan keputusan bertandatangan ini dibuat oleh anda.",
       "remarks": "Catatan keputusan",
       "reviewerConsultant": "Perunding ditugaskan: {name}",
       "reviewerRole": "Peranan ditugaskan: {name}",
       "reviewerUser": "Penyemak ditugaskan: {name}",
-      "setupCredential": "Tetapkan tandatangan dan PIN",
+      "setupCredential": "Tetapkan tandatangan dan PIN pengesahan",
       "remedialList": {
         "hint": "Satu perkara setiap baris. Setiap baris dicetak pada PDF akhir yang anda tandatangani; kontraktor menutup setiap satu dalam permohonan apabila siap, dengan foto.",
         "item": "Perkara {n}: apa yang perlu dibetulkan",
@@ -5772,7 +5764,7 @@
       "APPROVED_WITH_REMEDIAL": "Diluluskan dengan kerja pembaikan",
       "CURRENT": "Tindakan diperlukan",
       "REJECTED": "Ditolak",
-      "REVISE_RESUBMIT": "Semakan diperlukan",
+      "REVISE_RESUBMIT": "Semak dan hantar semula",
       "SKIPPED": "Dilangkau",
       "WAITING": "Menunggu"
     },
@@ -5815,11 +5807,11 @@
       "save": "Simpan templat",
       "saveVersion": "Cipta versi",
       "standardLayout": "PDF RFI pelanggan standard",
-      "standardLayoutHelp": "PDF akhir menggunakan format RFI dan kelulusan perunding yang diluluskan pelanggan. Format ini dikunci supaya pengguna tidak tersalah pilih susun atur yang belum disokong.",
+      "standardLayoutHelp": "Laporan akhir menggunakan format RFI dan kelulusan perunding yang diluluskan pelanggan. Format ini dikunci supaya pengguna tidak tersalah pilih susun atur yang belum disokong.",
       "stillOffered": "Masih ditawarkan",
       "stillOfferedHelp": "Matikan supaya permohonan baharu tidak menggunakannya. Yang difailkan kekal.",
       "subtitle": "Urus medan borang, lampiran wajib dan versi kekal mengikut projek tanpa tetapan JSON teknikal.",
-      "title": "Templat Borang RFI",
+      "title": "Templat borang RFI",
       "versionHelp": "Versi kekal baharu akan dicipta. Permohonan sedia ada mengekalkan medan dan peraturan asal.",
       "versionTitle": "{name} versi {version}",
       "what": {
@@ -5830,16 +5822,16 @@
     "toast": {
       "acknowledged": "Permohonan disahkan",
       "attachmentAdded": "Lampiran ditambah",
-      "credentialSaved": "Kelayakan tandatangan disimpan",
+      "credentialSaved": "Tandatangan dan PIN pengesahan disimpan",
       "decisionSaved": "Keputusan bertandatangan disimpan",
       "draftSaved": "Draf permohonan disimpan",
       "evidenceLinked": "Bukti tapak dipautkan",
       "received": "Permohonan ditanda diterima",
-      "reportRebuilt": "Laporan dibina semula",
+      "reportRebuilt": "Laporan akhir dibina semula",
       "revisionCreated": "Semakan baharu dicipta",
       "stepRemoved": "Langkah kelulusan dialih keluar",
       "stepSaved": "Langkah kelulusan disimpan",
-      "submitted": "Permohonan dihantar untuk kelulusan",
+      "submitted": "Dihantar kepada perunding",
       "templateSaved": "Templat borang RFI disimpan",
       "templateVersionSaved": "Versi templat borang RFI disimpan",
       "workflowSaved": "Aliran kelulusan disimpan",
@@ -5853,7 +5845,7 @@
       "applicationType": "Jenis permohonan",
       "company": "Kontraktor",
       "consultant": "Perunding",
-      "consultantCompany": "Syarikat perunding",
+      "consultantCompany": "Firma perunding",
       "decision": "Keputusan akhir",
       "finalizedAt": "Dimuktamadkan pada",
       "notFoundHelp": "Kod QR ini tidak sah atau laporan akhir tidak tersedia.",
@@ -5888,14 +5880,13 @@
       "requireStamp": "Wajib cop perunding",
       "reviewer": "Penyemak",
       "reviewerKind": "Siapa menyemak langkah ini",
-      "shortTitle": "Tetapan aliran",
       "stampHelp": "Kelulusan disekat sehingga penyemak memuat naik cop.",
       "stepName": "Nama langkah",
       "stepsLocked": "Permohonan pada aliran kerja ini telah dihantar, jadi laluan kelulusannya kini sebahagian daripada rekod dan tidak boleh diubah. Buat aliran kerja baharu untuk laluan yang berbeza.",
       "stillOffered": "Masih ditawarkan",
       "stillOfferedHelp": "Matikan supaya permohonan baharu tidak memilihnya. Yang sedia ada kekal.",
       "subtitle": "Tetapkan urutan kelulusan sebenar bagi setiap projek.",
-      "title": "Aliran Kelulusan Perunding",
+      "title": "Aliran kelulusan perunding",
       "typeFixed": "Tetap - permohonan telah difailkan pada aliran kerja ini.",
       "inactive": "Dihentikan",
       "inactiveHelp": "Permohonan baharu tidak boleh memilih aliran ini. Untuk menggunakannya semula, tekan pensel dan hidupkan “Masih ditawarkan”.",
@@ -5907,7 +5898,7 @@
       "title": "Cara guna permohonan perunding",
       "stepNumber": "Langkah {number}",
       "create": {
-        "title": "Buat permohonan",
+        "title": "Permohonan baharu",
         "body": "Tekan Permohonan baharu, pilih projek dan perunding, isi apa yang hendak diperiksa (lokasi, keterangan, no. lukisan). Tambah lampiran jika perlu. Aliran kerja dan templat adalah pilihan."
       },
       "submit": {
@@ -5915,13 +5906,13 @@
         "body": "Apabila draf lengkap, tekan Sahkan & arkib (dengan PIN pengesahan enam digit), kemudian Hantar pada borang permohonan. Perunding dimaklumkan dan ia masuk “Menunggu kelulusan”. Sebelum Sahkan & arkib, draf masih boleh diubah atau dipadam."
       },
       "decide": {
-        "title": "Perunding lulus, tolak atau minta pindaan",
-        "body": "Perunding membuat keputusan dalam akaun sendiri dengan tandatangan elektronik dan PIN pengesahan. Keputusan, tandatangan dan perbualan kekal pada permohonan. Jika dikembalikan untuk pindaan, tekan Cipta semakan baharu, buat pembetulan, kemudian Sahkan & arkib dan Hantar semula."
+        "title": "Perunding membuat keputusan",
+        "body": "Perunding membuat keputusan dalam akaun sendiri dengan tandatangan elektronik dan PIN pengesahan: Luluskan, Lulus dengan kerja pembaikan, Semak dan hantar semula atau Tolak. Keputusan, tandatangan dan perbualan kekal pada permohonan. Selepas Semak dan hantar semula, tekan Cipta semakan baharu, buat pembetulan, kemudian Sahkan & arkib dan Hantar kepada perunding semula."
       },
       "setupOnce": "Tetapkan sekali: tambah perunding ke projek ini (Tetapan perunding → Akses perunding), jika tidak mereka tidak boleh dipilih.",
       "openSettings": "Buka tetapan perunding",
       "askAdmin": "Minta rakan sekerja yang boleh mengubah tetapan.",
-      "signatureOnce": "Sebelum kelulusan pertama, perunding menetapkan tandatangan dan PIN di Tandatangan."
+      "signatureOnce": "Sebelum kelulusan pertama, perunding menetapkan tandatangan dan PIN pengesahan di Tandatangan dan PIN pengesahan."
     },
     "settingsHub": {
       "title": "Tetapan perunding",
@@ -5929,17 +5920,17 @@
       "access": {
         "title": "Akses perunding",
         "need": "Wajib · sekali setiap perunding setiap projek",
-        "body": "Cipta syarikat dan akaun perunding, dan beri mereka akses ke projek. Perunding tanpa akses tidak boleh dipilih.",
+        "body": "Cipta firma dan akaun perunding, dan beri mereka akses ke projek. Perunding tanpa akses tidak boleh dipilih.",
         "needProject": "Ditetapkan oleh ibu pejabat",
         "bodyProject": "Ibu pejabat menetapkan firma perunding, akaun perunding dan projek mereka. Di sini anda boleh melihat perunding yang dibuka pada projek anda."
       },
       "workflows": {
-        "title": "Aliran kelulusan",
+        "title": "Aliran kelulusan perunding",
         "need": "Pilihan · lalai sudah ada",
         "body": "Setiap projek ada laluan “Semakan perunding” secara automatik (satu langkah). Datang ke sini hanya untuk tambah langkah kelulusan berperingkat."
       },
       "templates": {
-        "title": "Templat permohonan",
+        "title": "Templat borang RFI",
         "need": "Pilihan",
         "body": "Bina templat hanya untuk medan tetap, lampiran wajib atau penomboran khas. Permohonan boleh dibuat dan dihantar tanpanya."
       }
@@ -5947,10 +5938,10 @@
     "what": {
       "archiveCategories": "Kategori fail",
       "evidenceFilters": "Pilihan penapis",
-      "credential": "Tandatangan dan PIN kelulusan anda",
+      "credential": "Tandatangan dan PIN pengesahan anda",
       "evidenceCandidates": "Bukti tapak projek",
       "archiveDocuments": "Senarai Arkib Dokumen",
-      "workflows": "Aliran kelulusan",
+      "workflows": "Aliran kelulusan perunding",
       "templates": "Templat borang RFI",
       "scheduleTasks": "Aktiviti jadual",
       "applicationOptions": "Pilihan permohonan (jenis, disiplin, jenis kerja, keutamaan)",
@@ -6042,12 +6033,12 @@
       "uploadedBy": "{name} · {when}",
       "signedOnForm": "Ditandatangani pada borang yang dimuat naik",
       "signingTitle": "Cara menandatangani",
-      "signingEsignature": "Tandatangan elektronik dan PIN",
+      "signingEsignature": "Tandatangan elektronik dan PIN pengesahan",
       "signingSignedForm": "Muat naik borang yang ditandatangani dan dicop",
       "signedFormFile": "Borang ditandatangani / dicop",
       "signedFormHint": "Imbasan atau foto borang perunding dengan tandatangan dan cop anda.",
-      "pinForSignedForm": "PIN anda mengesahkan borang yang dimuat naik ditandatangani oleh anda.",
-      "noCredential": "Anda belum mempunyai tandatangan elektronik: muat naik borang yang ditandatangani dan dicop, atau sediakan tandatangan dan PIN dahulu.",
+      "pinForSignedForm": "PIN pengesahan anda mengesahkan borang yang dimuat naik ditandatangani oleh anda.",
+      "noCredential": "Anda belum mempunyai tandatangan elektronik: muat naik borang yang ditandatangani dan dicop, atau tetapkan tandatangan dan PIN pengesahan dahulu.",
       "archiveBlank": "Borang kosong: {name} (v{version})",
       "archiveFilled": "Borang diisi: {name}",
       "archiveFinal": "Versi akhir: {name}",
@@ -6090,7 +6081,7 @@
       "title": "Aktiviti tapak hari ini"
     },
     "activityKind": {
-      "CONSULTANT_APPLICATION": "Perunding",
+      "CONSULTANT_APPLICATION": "Permohonan perunding",
       "DISPOSAL": "Pelupusan",
       "EQUIPMENT_MOVEMENT": "Peralatan",
       "FIELD_TASK": "Tugas tapak",
@@ -6292,7 +6283,7 @@
       "title": "Garis masa"
     },
     "timelineKind": {
-      "CONSULTANT_APPLICATION": "Perunding",
+      "CONSULTANT_APPLICATION": "Permohonan perunding",
       "DISPOSAL": "Pelupusan",
       "EQUIPMENT_MOVEMENT": "Peralatan",
       "FIELD_TASK": "Tugas tapak",
@@ -6827,7 +6818,7 @@
       "SUBMITTED": "Dihantar"
     },
     "taskType": {
-      "CONSULTANT": "Serahan perunding",
+      "CONSULTANT": "Penyerahan perunding",
       "EQUIPMENT": "Peralatan",
       "MATERIAL": "Bahan",
       "OTHER": "Lain-lain",
@@ -6851,7 +6842,7 @@
       "linkedRecord": "Dihantar sebagai: {reference}",
       "linkedHint": "Pekerja menyiapkan tugasan dengan rekod ini; gambarnya turut dipaparkan di atas.",
       "photos": "Foto: {current}/{required}",
-      "prepareApplication": "Semak dan hantar kepada perunding",
+      "prepareApplication": "Jadikan permohonan perunding",
       "projectFixed": "Tapak tidak boleh diubah - penerima tugas diambil daripada pasukan tapak ini.",
       "referenceFiles": "Foto atau fail rujukan",
       "referenceHelp": "Pekerja tapak akan melihatnya sebelum memulakan tugas.",
@@ -8713,7 +8704,7 @@
       "config_unknown": "Kunci konfigurasi ini tidak disokong.",
       "conflict": "Itu tidak boleh dilakukan dalam keadaan rekod sekarang.",
       "consultant_grant_not_current": "Perunding yang dipilih tidak lagi mempunyai akses ke projek ini, jadi permohonan masih draf. Pilih perunding lain atau perbaharui akses mereka dahulu.",
-      "consultant_application_locked": "Permohonan ini sudah dihantar, jadi lampiran dan bukti terpautnya tidak boleh diubah lagi. Selepas dikembalikan untuk semakan, ubahnya dalam versi baharu.",
+      "consultant_application_locked": "Permohonan ini sudah dihantar kepada perunding, jadi lampiran dan bukti terpautnya tidak boleh diubah lagi. Jika perunding memilih Semak dan hantar semula, ubahnya dalam semakan baharu.",
       "consultant_grant_not_found": "Akses projek perunding itu tidak dijumpai.",
       "consultant_organization_not_found": "Organisasi perunding itu tidak dijumpai.",
       "customer_assignment_not_found": "Rekod pemilikan pelanggan itu tidak dijumpai.",
@@ -9591,9 +9582,7 @@
       "workLocationPlaceholder": "Contoh: Blok A, Grid C1-D1",
       "askForHint": "Tidak pasti yang mana? Biarkan - pejabat akan memutuskannya."
     },
-    "consultantTasks": {
-      "title": "Penyerahan foto perunding"
-    },
+    "consultantTasks": {},
     "error": {
       "action": "Tindakan tidak dapat diselesaikan. Cuba lagi.",
       "load": "Halaman tidak dapat dimuatkan. Semak sambungan.",
@@ -12066,7 +12055,7 @@
       "EQUIPMENT_HOURS": "Mula / henti jentera",
       "ATTENDANCE": "Kemasukan tapak",
       "PERMIT": "Permit kerja",
-      "CONSULTANT": "Permohonan perunding"
+      "CONSULTANT": "Penyerahan perunding"
     },
     "gateStatus": {
       "RECORDED": "Direkodkan",
@@ -12355,7 +12344,7 @@
       "anprSettings": "Tetapan ANPR",
       "apiGatewayMonitoring": "Pemantauan API Gateway",
       "apiGatewaySettings": "Tetapan API Gateway",
-      "approvalCredentials": "Kelayakan kelulusan",
+      "approvalCredentials": "Tandatangan dan PIN pengesahan",
       "approvals": "Aliran kelulusan (lanjutan)",
       "archiveQueue": "Pusat Rekod Tapak",
       "assetActivity": "Rekod aset",
@@ -12419,7 +12408,7 @@
       "consultantDashboard": "Papan pemuka perunding",
       "consultantFieldInbox": "Bahan tapak untuk disusun",
       "consultantTemplates": "Templat borang RFI",
-      "consultantWorkflows": "Aliran kerja kelulusan",
+      "consultantWorkflows": "Aliran kelulusan perunding",
       "contractorNotifications": "Notifikasi kontraktor",
       "contractorReports": "Laporan kontraktor",
       "crmActivity": "Rekod khidmat pelanggan",
@@ -12997,9 +12986,9 @@
     "consultant_applications": {
       "what": "Sisi perunding: mengemukakan permohonan, melaluinya rantaian kelulusan, menandatanganinya, dan bukti lapangan yang menyokongnya.",
       "who": "Pemegang approval.view. Mengkonfigurasi aliran memerlukan consultant.config, mengemukakan memerlukan consultant.submit, memutuskan memerlukan approval.review.",
-      "need": "Permohonan memerlukan projek, aliran kerja, jenis, disiplin, jenis pemeriksaan, keutamaan, perunding dan firma, lokasi, elemen atau kawasan kerja, penerangan dan templat borang. Keputusan memerlukan PIN kelulusan enam digit dan nota. Menetapkan PIN memerlukan kata laluan semasa, PIN baharu dua kali dan tandatangan.",
+      "need": "Permohonan memerlukan projek, aliran kerja, jenis, disiplin, jenis pemeriksaan, keutamaan, perunding dan firma, lokasi, elemen atau kawasan kerja, penerangan dan templat borang. Keputusan memerlukan PIN pengesahan enam digit dan nota. Menetapkan PIN pengesahan memerlukan kata laluan semasa, PIN baharu dua kali dan tandatangan.",
       "then": "PIN dan tandatangan ialah tandatangan. Ia tidak boleh dibatalkan.",
-      "trouble": "Butang kelulusan kelabu bermakna anda belum menetapkan PIN kelulusan. Perunding yang tidak nampak projek mempunyai kebenaran yang luput atau tidak pernah diberi untuk projek itu."
+      "trouble": "Butang kelulusan kelabu bermakna anda belum menetapkan PIN pengesahan. Perunding yang tidak nampak projek mempunyai kebenaran yang luput atau tidak pernah diberi untuk projek itu."
     },
     "customer_management": {
       "what": "Dari mana bahan anda datang: kontraktor yang anda ada perkongsian platform, dan pelanggan persendirian yang datang sendiri.",

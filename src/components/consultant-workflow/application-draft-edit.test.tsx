@@ -177,7 +177,8 @@ describe("switch and locked note (E6)", () => {
 
   it("a submitted application says why nothing can be changed", () => {
     const html = render(<LockedNote />);
-    expect(html).toContain("已提交，退回修改后才能改");
+    // JB201: the same words as the decision the consultant picks.
+    expect(html).toContain("已发送给顾问；顾问选「修改后重提」后，在新版本里改");
   });
 });
 

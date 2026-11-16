@@ -247,7 +247,8 @@ export function ProjectConsultantAccess() {
   const rows = open.data ?? [];
   return (
     <div className="space-y-4 pb-10">
-      <DetailHeader backHref="/modules/consultants" backLabel={t("back")} />
+      {/* JB201: back to 顾问设定, the page this one is opened from. */}
+      <DetailHeader backHref="/consultant-settings" backLabel={t("back")} />
       {/* 「顾问单位、顾问账号和项目授权由总部设置。」 - the sentence on top. */}
       <ListHeader title={t("title")} subtitle={t("projectView.notice")} />
       <section className="space-y-3">
@@ -361,7 +362,7 @@ function HeadOfficeConsultantAccess() {
   return (
     <div className="space-y-4 pb-10">
       <DetailHeader
-        backHref="/modules/consultants"
+        backHref="/consultant-settings"
         backLabel={t("back")}
       />
       <ListHeader title={t("title")} subtitle={t("subtitle")} />

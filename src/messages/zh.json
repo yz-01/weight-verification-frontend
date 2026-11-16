@@ -3058,7 +3058,7 @@
       "WASTE_OUTGOING": "环保材料出场申请",
       "DISPOSAL_REQUEST": "工地清运",
       "PROGRESS": "工程进度",
-      "CONSULTANT_APPLICATION": "顾问资料",
+      "CONSULTANT_APPLICATION": "顾问申请",
       "ATTENDANCE_DAY": "出入场（按日）",
       "SUNDRY_CLAIM": "杂费报销",
       "DELIVERY_NOTE": "送货单",
@@ -3503,7 +3503,7 @@
       "RESTART": "重新启动",
       "WITHDRAWN": "已撤回",
       "accept_trip": "接受车次",
-      "acknowledged": "已确认收到",
+      "acknowledged": "已确认申请",
       "add_evidence": "补充证据",
       "add_trip": "新增车次",
       "announcement_published": "发布公告",
@@ -3541,7 +3541,7 @@
       "collection_requested": "申请收运",
       "collection_time_proposed_by_recycler": "回收商提出收运时间",
       "complete": "完成",
-      "confirm_draft": "确认草稿",
+      "confirm_draft": "确认归档",
       "confirm_weigh_ticket": "确认过磅单",
       "consultant_registered": "登记顾问",
       "correct_trip": "更正车次",
@@ -3688,7 +3688,7 @@
       "receipt_records_queried": "查询材料进场记录",
       "receipt_refiled": "材料进场改归另一种材料",
       "receipt_reviewed": "验收材料进场",
-      "received": "已收到",
+      "received": "已接收",
       "recipient_dismissed": "关闭通知",
       "record_cancelled": "取消记录",
       "record_corrected": "更正记录",
@@ -3706,8 +3706,8 @@
       "recycler_settings_update": "修改回收商设置",
       "regenerate_external_link": "重新生成外部链接",
       "remark_added": "新增备注",
-      "remedial_item_closed": "关闭待整改项",
-      "remedial_item_raised": "提出待整改项",
+      "remedial_item_closed": "关闭这条整改",
+      "remedial_item_raised": "开一条整改",
       "remove_attachment": "删除附件",
       "reorder_evidence": "调整证据顺序",
       "replace_attachment_file": "更换附件文件",
@@ -3745,7 +3745,7 @@
       "site_access_revoke": "取消工地出入",
       "site_evidence": "工地补充证据",
       "start": "开始",
-      "submit": "提交",
+      "submit": "发送给顾问",
       "subscription_exported": "导出订阅",
       "supplier_qr_scanned": "扫描供应商二维码",
       "supplier_qr_status_changed": "启用或停用供应商二维码",
@@ -3779,8 +3779,8 @@
       "APPROVE": "批准",
       "REJECT": "拒绝",
       "RETURN": "退回",
-      "APPROVE_WITH_REMEDIAL": "批准（需整改）",
-      "REVISE_RESUBMIT": "修改后重新提交",
+      "APPROVE_WITH_REMEDIAL": "批准并要求整改",
+      "REVISE_RESUBMIT": "修改后重提",
       "bulk_fill_trade": "批量填写工种",
       "create_trade": "新增工种",
       "company_categories_added_to_projects": "公司通用分类加到现有项目",
@@ -5185,7 +5185,7 @@
       "revoke": "撤销授权",
       "save": "保存"
     },
-    "back": "顾问门户",
+    "back": "返回顾问设定",
     "common": {
       "noContact": "未填写联系人资料",
       "noJobTitle": "顾问",
@@ -5310,7 +5310,7 @@
     }
   },
   "consultantDashboard": {
-    "credential": "审批签名",
+    "credential": "签名与签核密码",
     "currentStep": "当前步骤：{step}",
     "due": {
       "description": "未来七天内需要处理的已提交申请。",
@@ -5321,11 +5321,11 @@
       "application": "申请",
       "applicationHelp": "填写 RFI 资料，并关联现场照片和必需附件。",
       "approval": "审批",
-      "approvalHelp": "顾问按顺序审核，并使用 PIN 签署每项决定。",
+      "approvalHelp": "顾问按顺序审核，并使用签核密码签署每项决定。",
       "archive": "归档",
       "archiveHelp": "确认申请、审批记录和最终报告都已保存。",
-      "final": "最终 PDF",
-      "finalHelp": "下载已经完成的客户格式 RFI 审批报告。",
+      "final": "最终报告",
+      "finalHelp": "下载已经完成的最终报告（客户格式 RFI）。",
       "subtitle": "直接打开需要处理的步骤。每份申请都会从填写资料一直保存到安全归档。",
       "title": "四个简单步骤"
     },
@@ -5334,14 +5334,7 @@
       "empty": "此账号尚未留下审批决定。",
       "title": "我的审批记录"
     },
-    "loadError": "无法载入顾问工作台。请刷新页面，或检查该顾问的项目授权是否仍有效。",
-    "metric": {
-      "approved": "已批准",
-      "dueSoon": "7 天内到期",
-      "pending": "待我审批",
-      "returned": "已拒绝或退回",
-      "today": "今日申请"
-    },
+    "loadError": "无法载入顾问首页。请刷新页面，或检查该顾问的项目授权是否仍有效。",
     "newApplication": "新建申请",
     "notifications": {
       "description": "发送给此账号的项目、审批及系统通知。",
@@ -5358,7 +5351,7 @@
     "searchPlaceholder": "搜索申请编号、项目、位置或申请人",
     "status": {
       "APPROVED": "已批准",
-      "APPROVED_WITH_REMEDIAL": "附整改批准",
+      "APPROVED_WITH_REMEDIAL": "已批准（需整改）",
       "ARCHIVED": "已归档",
       "DRAFT": "草稿",
       "REJECTED": "已拒绝",
@@ -5367,7 +5360,7 @@
     },
     "subtitle": "在同一个工作台查看待审批申请、期限、审批记录和项目通知。",
     "title": "顾问首页",
-    "workflowSettings": "审批流程设置"
+    "workflowSettings": "顾问设定"
   },
   "consultantProject": {
     "choose": "选择项目",
@@ -5398,7 +5391,7 @@
       "raisedBy": "由 {name} 提出"
     },
     "action": {
-      "closeRemedial": "关闭这条",
+      "closeRemedial": "关闭这条整改",
       "raiseRemedial": "开一条整改",
       "acknowledge": "确认申请",
       "cancel": "取消",
@@ -5407,22 +5400,21 @@
       "edit": "编辑草稿",
       "receive": "标记为已接收",
       "remove": "移除",
-      "retryReport": "重新生成报告",
+      "retryReport": "重新生成最终报告",
       "save": "保存",
       "saveDraft": "保存草稿",
-      "saveReusableOption": "保存为项目选项",
-      "submit": "提交审批"
+      "saveReusableOption": "保存为项目选项"
     },
     "applications": {
       "back": "返回顾问申请",
-      "create": "新增申请",
+      "create": "新建申请",
       "search": "搜索申请编号、位置或顾问",
       "stage": {
         "all": "全部",
         "approval": "审批",
         "archive": "归档",
         "draft": "申请",
-        "final": "最终 PDF",
+        "final": "最终报告",
         "inbox": "待整理现场资料"
       },
       "stageLabel": "申请阶段",
@@ -5434,7 +5426,7 @@
       "kind": {
         "APPLICATION": "申请资料归档",
         "APPROVAL": "签名审批记录归档",
-        "FINAL_REPORT": "最终 PDF 归档",
+        "FINAL_REPORT": "最终报告归档",
         "CONSULTANT_FORM": "顾问自有表格（原表格、填写后、最终版本）"
       },
       "pending": "等待中",
@@ -5482,20 +5474,20 @@
       "currentPassword": "当前登录密码",
       "identityHelp": "每次审批都会保存不可修改的副本，日后更换不会影响旧报告。",
       "identityTitle": "签名与顾问印章",
-      "passwordHelp": "修改签署凭证前需验证当前密码。",
-      "pin": "新 6 位 PIN",
-      "pinConfirm": "确认 PIN",
+      "passwordHelp": "修改签名或签核密码前需验证当前登录密码。",
+      "pin": "新的 6 位签核密码",
+      "pinConfirm": "再输入一次",
       "pinHelp": "这就是您的 6 位签核密码，确认归档、打印、发送和审批都用它。",
-      "pinMismatch": "两次 PIN 不一致。",
-      "pinTitle": "审批 PIN",
-      "save": "保存签署凭证",
-      "shortTitle": "签名与 PIN",
+      "pinMismatch": "两次输入的签核密码不一样。",
+      "pinTitle": "签核密码",
+      "save": "保存签名与签核密码",
+      "shortTitle": "签名与签核密码",
       "signature": "电子签名",
       "signatureHelp": "上传背景清楚的 PNG 或 JPG 签名。",
       "stamp": "顾问印章",
       "stampHelp": "流程步骤要求盖章时才是必填。",
       "subtitle": "设置用于可追溯项目决定的个人签名。",
-      "title": "审批签名与 PIN",
+      "title": "签名与签核密码",
       "pinKeep": "已经设好签核密码：不想改就留空。只换签名或印章，不用输入新的。"
     },
     "decision": {
@@ -5513,19 +5505,19 @@
         "archive": "归档",
         "complete": "已完成",
         "current": "当前步骤",
-        "final": "最终 PDF",
+        "final": "最终报告",
         "pending": "尚未开始",
         "title": "申请进度"
       },
       "next": {
-        "archived": "这份申请已经完成。申请资料、签名审批记录和最终 PDF 都已安全归档。",
+        "archived": "这份申请已经完成。申请资料、签名审批记录和最终报告都已安全归档。",
         "complete": "审批决定已经完成，系统正在准备最终报告。",
         "draft": "填好表格，加上现场照片和附件。然后先按【确认归档】（输入 6 位签核密码），再按申请表上的【发送给顾问】。",
-        "final": "审批已经完成。请下载最终 PDF，并查看验证记录。",
+        "final": "审批已经完成。请下载最终报告，并查看验证记录。",
         "review": "这份申请正在等待您的决定。请查看现场证据，然后选择审批结果。",
-        "revise": "申请已被退回。请建立新版本，按照意见修改后再次提交。",
+        "revise": "顾问选了「修改后重提」。请按【建立新版本】，按照意见修改后再发送给顾问。",
         "waiting": "您现在不需要操作，申请正在等待“{step}”处理。",
-        "remedialOpen": "已批准，但还有 {count} 条整改没完成。做好后，在下面的「整改事项」里按「关闭这条」，附上能证明的照片。",
+        "remedialOpen": "已批准，但还有 {count} 条整改没完成。做好后，在下面的「整改事项」里按「关闭这条整改」，附上能证明的照片。",
         "reviseMade": "这份申请已经建立了新版本（版本 {revision}）。请在下面「版本记录」里打开它，改好后再发送。"
       },
       "nextAction": "下一步要做什么",
@@ -5544,15 +5536,15 @@
         "evidence": "关联现场证据",
         "relatedRecords": "关联现场资料",
         "revisions": "版本记录",
-        "site": "现场申请"
+        "site": "来源现场资料"
       },
       "raisedOnSite": "现场提交：{name} {when}",
-      "forwardedBy": "经理转给顾问：{name} {when}"
+      "forwardedBy": "经理发送给顾问：{name} {when}"
     },
     "draftEdit": {
       "armRemove": "允许移除",
       "armRemoveHelp": "先打开开关，再按「移除」，按下立即生效。",
-      "locked": "已提交，退回修改后才能改",
+      "locked": "已发送给顾问；顾问选「修改后重提」后，在新版本里改",
       "remove": "移除",
       "unlink": "取消关联",
       "edit": "修改",
@@ -5628,7 +5620,7 @@
       "chooseWorkflow": "选择审批流程",
       "component": "构件／工作区域",
       "consultant": "顾问",
-      "consultantCompany": "顾问公司",
+      "consultantCompany": "顾问单位",
       "customApplicationType": "自定义申请类型",
       "customDiscipline": "自定义专业",
       "customPriority": "自定义优先级",
@@ -5658,7 +5650,7 @@
     },
     "form": {
       "editTitle": "编辑顾问申请草稿",
-      "noConsultantGrantHeadOffice": "这个项目还没有开通顾问。请到「顾问设定 › 顾问账号与项目授权」给顾问开通这个项目，再回来建立申请。",
+      "noConsultantGrantHeadOffice": "这个项目还没有开通顾问。请到「顾问设定 › 顾问账号与项目授权」给顾问开通这个项目，再回来新建申请。",
       "noConsultantGrantProject": "这个项目还没有开通顾问。顾问由总部开通：请总部在「顾问设定 › 顾问账号与项目授权」给顾问开通这个项目，开通后这里就可以选。",
       "openConsultantAccess": "去开通顾问",
       "requiredAttachments": "提交前必须先上传这些文件：{codes}。",
@@ -5677,7 +5669,7 @@
       "sourceSubmittedAt": "提交时间：{value}",
       "sourceTitle": "来源现场资料",
       "subtitle": "填写现场申请、关联证据，再按项目审批流程提交。",
-      "title": "建立顾问申请",
+      "title": "新建顾问申请",
       "advanced": "进阶设定（可不填）",
       "advancedHelp": "不选就用这个项目的默认流程「顾问审批」：一步，送给你选的顾问签名审批。模板也可以不选。",
       "more": "更多（选填）",
@@ -5713,7 +5705,7 @@
     "review": {
       "dialog": {
         "APPROVE": {
-          "description": "确认现场申请；最后一步完成后系统会生成最终审批报告。",
+          "description": "批准这份申请；最后一步完成后系统会生成最终报告。",
           "title": "批准此申请"
         },
         "APPROVE_WITH_REMEDIAL": {
@@ -5726,17 +5718,17 @@
         },
         "REVISE_RESUBMIT": {
           "description": "请清楚说明建筑商修改后重新提交的内容。",
-          "title": "退回修改"
+          "title": "修改后重提"
         }
       },
       "pending": "当前步骤：{step}",
-      "pin": "6 位审批 PIN",
-      "pinHint": "PIN 用于确认此签署决定由您本人作出。",
+      "pin": "6 位签核密码",
+      "pinHint": "签核密码用于确认此签署决定由您本人作出。",
       "remarks": "决定备注",
       "reviewerConsultant": "指定顾问：{name}",
       "reviewerRole": "指定角色：{name}",
       "reviewerUser": "指定审批人：{name}",
-      "setupCredential": "设置签名与 PIN",
+      "setupCredential": "设定签名与签核密码",
       "remedialList": {
         "hint": "一条写一件事。每一条都会印在你签名的最终 PDF 上；建筑商做好后会在申请里逐条关闭，并附上照片。",
         "item": "第 {n} 条：要整改什么",
@@ -5760,19 +5752,19 @@
     },
     "status": {
       "APPROVED": "已批准",
-      "APPROVED_WITH_REMEDIAL": "已批准，需完成整改",
+      "APPROVED_WITH_REMEDIAL": "已批准（需整改）",
       "ARCHIVED": "已归档",
       "DRAFT": "草稿",
       "REJECTED": "已拒绝",
       "REVISE_RESUBMIT": "修改后重提",
-      "SUBMITTED": "等待审批"
+      "SUBMITTED": "待审批"
     },
     "stepStatus": {
       "APPROVED": "已批准",
-      "APPROVED_WITH_REMEDIAL": "已批准，需完成整改",
+      "APPROVED_WITH_REMEDIAL": "已批准（需整改）",
       "CURRENT": "需要处理",
       "REJECTED": "已拒绝",
-      "REVISE_RESUBMIT": "需要修改",
+      "REVISE_RESUBMIT": "修改后重提",
       "SKIPPED": "已跳过",
       "WAITING": "等待中"
     },
@@ -5815,7 +5807,7 @@
       "save": "保存模板",
       "saveVersion": "建立版本",
       "standardLayout": "标准客户 RFI PDF",
-      "standardLayoutHelp": "最终 PDF 固定使用客户确认的 RFI 与顾问审批格式，避免用户误选尚未支持的版式。",
+      "standardLayoutHelp": "最终报告固定使用客户确认的 RFI 与顾问审批格式，避免用户误选尚未支持的版式。",
       "stillOffered": "继续提供",
       "stillOfferedHelp": "关掉之后新申请就用不到它了，已提交的不受影响。",
       "subtitle": "按项目管理表格栏位、必需附件和不可修改版本，不需要填写技术 JSON。",
@@ -5830,16 +5822,16 @@
     "toast": {
       "acknowledged": "申请已确认",
       "attachmentAdded": "附件已添加",
-      "credentialSaved": "签署凭证已保存",
+      "credentialSaved": "签名与签核密码已保存",
       "decisionSaved": "签署决定已保存",
       "draftSaved": "申请草稿已保存",
       "evidenceLinked": "现场证据已关联",
       "received": "申请已标记为已接收",
-      "reportRebuilt": "报告已重新生成",
+      "reportRebuilt": "最终报告已重新生成",
       "revisionCreated": "新版本已建立",
       "stepRemoved": "审批步骤已移除",
       "stepSaved": "审批步骤已保存",
-      "submitted": "申请已提交审批",
+      "submitted": "已发送给顾问",
       "templateSaved": "RFI 表格模板已保存",
       "templateVersionSaved": "RFI 表格模板版本已保存",
       "workflowSaved": "审批流程已保存",
@@ -5853,7 +5845,7 @@
       "applicationType": "申请类型",
       "company": "建筑商",
       "consultant": "顾问",
-      "consultantCompany": "顾问公司",
+      "consultantCompany": "顾问单位",
       "decision": "最终决定",
       "finalizedAt": "完成时间",
       "notFoundHelp": "此二维码无效或最终报告已不可用。",
@@ -5888,7 +5880,6 @@
       "requireStamp": "必须顾问盖章",
       "reviewer": "审批人",
       "reviewerKind": "此步骤由谁审批",
-      "shortTitle": "流程设置",
       "stampHelp": "审批人未上传印章时将不能批准。",
       "stepName": "步骤名称",
       "stepsLocked": "这条流程上已经有申请提交出去了，审批路线现在属于记录的一部分，改不了。要换路线请新建一条流程。",
@@ -5911,17 +5902,17 @@
         "body": "按【新建申请】，选项目和顾问，填写要检查的内容（位置、说明、图纸编号等），需要的话加附件。流程和模板都可以不选。"
       },
       "submit": {
-        "title": "送出给顾问",
+        "title": "发送给顾问",
         "body": "草稿填好后，先按【确认归档】（输入 6 位签核密码），再按申请表上的【发送给顾问】。顾问会收到通知，申请进入「待审批」。确认归档以前，草稿可以修改或删除。"
       },
       "decide": {
-        "title": "顾问批准／退回／要求修改",
-        "body": "顾问在自己的账号里用电子签名和签核密码作出决定。结果、签名和沟通都留在这条申请里。要求修改后重提的，按【建立新版本】，改好后再确认归档、发送给顾问。"
+        "title": "顾问作出决定",
+        "body": "顾问在自己的账号里用电子签名和签核密码，选「批准」「批准并要求整改」「修改后重提」或「拒绝」。结果、签名和沟通都留在这条申请里。选了「修改后重提」的，按【建立新版本】，改好后再确认归档、发送给顾问。"
       },
       "setupOnce": "只需要设定一次：先把顾问加进这个项目（顾问设定 → 顾问账号与项目授权），否则新建申请时选不到顾问。",
       "openSettings": "打开顾问设定",
       "askAdmin": "请有设定权限的同事处理。",
-      "signatureOnce": "顾问第一次审批前，要先在「签章」设定自己的签名和 PIN。"
+      "signatureOnce": "顾问第一次审批前，要先在「签名与签核密码」设定自己的签名和签核密码。"
     },
     "settingsHub": {
       "title": "顾问设定",
@@ -5929,28 +5920,28 @@
       "access": {
         "title": "顾问账号与项目授权",
         "need": "必须 · 每个顾问每个项目做一次",
-        "body": "建立顾问公司与顾问账号，并授权他们看这个项目。没授权的顾问在新建申请时选不到。",
+        "body": "建立顾问单位与顾问账号，并授权他们看这个项目。没授权的顾问在新建申请时选不到。",
         "needProject": "由总部设置",
         "bodyProject": "顾问单位、顾问账号和项目授权由总部设置。你在这里可以看你的项目开通了哪些顾问。"
       },
       "workflows": {
-        "title": "审批流程",
+        "title": "顾问审批流程",
         "need": "可不设 · 已有默认流程",
         "body": "每个项目自动有一个「顾问审批」流程（一步，送给选定的顾问）。需要多级审批时才来这里加步骤。"
       },
       "templates": {
-        "title": "申请模板",
+        "title": "RFI 表格模板",
         "need": "可不设",
-        "body": "需要固定表格栏位、必交附件或自订编号时才建模板。不建模板照样可以新建和送出申请。"
+        "body": "需要固定表格栏位、必交附件或自订编号时才建模板。不建模板照样可以新建和发送申请。"
       }
     },
     "what": {
       "archiveCategories": "文件分类",
       "evidenceFilters": "筛选选项",
-      "credential": "你的审批签名与 PIN",
+      "credential": "你的签名与签核密码",
       "evidenceCandidates": "本项目的现场证据",
       "archiveDocuments": "文件管理列表",
-      "workflows": "审批流程",
+      "workflows": "顾问审批流程",
       "templates": "RFI 表格模板",
       "scheduleTasks": "施工计划活动",
       "applicationOptions": "申请选项（类型、专业、工作类型、优先级）",
@@ -5958,7 +5949,7 @@
       "applicationTypes": "申请类型",
       "reviewerChoices": "审批人列表",
       "consultantForms": "顾问自有表格",
-      "consultantFirms": "顾问公司"
+      "consultantFirms": "顾问单位"
     },
     "inbox": {
       "what": "待整理现场资料",
@@ -5975,7 +5966,7 @@
     },
     "formCard": {
       "title": "顾问申请表（A4）",
-      "help": "预览、打印、导出的是完整证据 PDF：第一页是这张 A4（左边我方公司，右边顾问公司，下面是申请内容、照片和附件清单），后面接着附件内容、顾问审批记录及签名、沟通记录。",
+      "help": "预览、打印、导出的是完整证据 PDF：第一页是这张 A4（左边我方公司，右边顾问单位，下面是申请内容、照片和附件清单），后面接着附件内容、顾问审批记录及签名、沟通记录。",
       "print": "打印",
       "attachments": "看附件（{count}）",
       "send": "发送给顾问 {name}"
@@ -5993,9 +5984,9 @@
       "emptyConsultant": "还没有顾问自有表格。按「新增模板」，选 B。",
       "loading": "正在加载顾问自有表格...",
       "name": "表格名称",
-      "consultant": "顾问公司",
-      "chooseConsultant": "选择顾问公司",
-      "noFirms": "还没有登记顾问公司，请先在顾问授权里新增。",
+      "consultant": "顾问单位",
+      "chooseConsultant": "选择顾问单位",
+      "noFirms": "还没有登记顾问单位，请先在「顾问账号与项目授权」里新增。",
       "project": "项目",
       "allProjects": "公司全部项目",
       "applicationType": "申请类型",
@@ -6042,12 +6033,12 @@
       "uploadedBy": "{name} · {when}",
       "signedOnForm": "签署见上传表格",
       "signingTitle": "签署方式",
-      "signingEsignature": "电子签名 + PIN",
+      "signingEsignature": "电子签名 + 签核密码",
       "signingSignedForm": "上传已签名盖章的表格",
       "signedFormFile": "已签名盖章的表格",
       "signedFormHint": "签了名、盖了章的顾问表格，扫描或拍照都可以。",
-      "pinForSignedForm": "输入 PIN，确认上传的表格是你本人签署的。",
-      "noCredential": "你还没有设置电子签名：可以上传已签名盖章的表格，或先设置签名和 PIN。",
+      "pinForSignedForm": "输入签核密码，确认上传的表格是你本人签署的。",
+      "noCredential": "你还没有设定电子签名：可以上传已签名盖章的表格，或先设定签名与签核密码。",
       "archiveBlank": "原表格：{name}（第 {version} 版）",
       "archiveFilled": "填写后：{name}",
       "archiveFinal": "最终版本：{name}",
@@ -6827,7 +6818,7 @@
       "SUBMITTED": "已提交"
     },
     "taskType": {
-      "CONSULTANT": "顾问提交",
+      "CONSULTANT": "顾问资料提交",
       "EQUIPMENT": "设备",
       "MATERIAL": "材料",
       "OTHER": "其他",
@@ -6851,7 +6842,7 @@
       "linkedRecord": "提交的记录：{reference}",
       "linkedHint": "现场人员用这笔记录完成任务，它的照片也显示在上面。",
       "photos": "照片：{current}/{required}",
-      "prepareApplication": "检查后转给顾问",
+      "prepareApplication": "整理成顾问申请",
       "projectFixed": "工地改不了 —— 接任务的人是从这个工地的班组里选的。",
       "referenceFiles": "参考照片或文件",
       "referenceHelp": "现场人员开始任务前会先看到这些资料。",
@@ -6887,8 +6878,8 @@
       "focused": "只显示卡片指向的这一项任务。",
       "focusedMissing": "卡片指向的任务不在当前列表里，可能已处理完或不属于所选项目。",
       "showAll": "显示全部",
-      "forwardedAs": "已转给顾问：{reference}",
-      "draftedAs": "已整理成申请 {reference}，尚未转给顾问",
+      "forwardedAs": "已发送给顾问：{reference}",
+      "draftedAs": "已整理成顾问申请 {reference}，尚未发送给顾问",
       "expand": "展开「{task}」",
       "collapse": "收起「{task}」",
       "dueShort": "期限 {value}",
@@ -8712,8 +8703,8 @@
       "config_required": "不能移除必要的系统设置。",
       "config_unknown": "系统不支持该配置键。",
       "conflict": "这项资料现在的状态不允许这个操作。",
-      "consultant_grant_not_current": "选的顾问已经没有这个项目的授权，申请仍是草稿。请换一位顾问，或先在顾问授权里续期。",
-      "consultant_application_locked": "这份申请已经提交，附件和关联证据不能再改。退回修改后，在新版本里改。",
+      "consultant_grant_not_current": "选的顾问已经没有这个项目的授权，申请仍是草稿。请换一位顾问，或先在「顾问账号与项目授权」里续期。",
+      "consultant_application_locked": "这份申请已经发送给顾问，附件和关联证据不能再改。顾问选「修改后重提」后，在新版本里改。",
       "consultant_grant_not_found": "找不到该顾问项目授权。",
       "consultant_organization_not_found": "找不到该顾问单位。",
       "customer_assignment_not_found": "找不到该客户归属记录。",
@@ -9591,9 +9582,7 @@
       "workLocationPlaceholder": "例如：A座，C1-D1轴线",
       "askForHint": "不知道选哪个可以不选，后台会补上。"
     },
-    "consultantTasks": {
-      "title": "顾问现场照片提交"
-    },
+    "consultantTasks": {},
     "error": {
       "action": "操作未能完成，请重试。",
       "load": "页面读取失败，请检查网络。",
@@ -11699,7 +11688,7 @@
     },
     "reviewEmpty": "目前没有发给你的资料包。",
     "reviewSubtitle": "逐项接受，或者填写原因退回给申请者。",
-    "reviewTitle": "待审阅的资料包",
+    "reviewTitle": "待审阅资料包",
     "searchPlaceholder": "按名称或备注搜索",
     "send": "发送给顾问",
     "sourceMissing": "这条指向的记录，当前账号已经读不到了。",
@@ -11726,7 +11715,7 @@
     "what": {
       "candidates": "可添加的资料",
       "recordParts": "这条资料的全部内容",
-      "packagesToReview": "待审阅的资料包",
+      "packagesToReview": "待审阅资料包",
       "package": "这个资料包"
     },
     "include": {
@@ -11857,7 +11846,7 @@
         "whatChanged": "改了什么",
         "who": "对方姓名或单位"
       },
-      "consultantHelp": "顾问用自己的账号登录，在「待审阅的资料包」里打开。",
+      "consultantHelp": "顾问用自己的账号登录，在「待审阅资料包」里打开。",
       "contactHelp": "只用来发链接，系统不会自动发信息。手机写国际格式（例如 +60…）可以直接用 WhatsApp 打开对方。",
       "makeLink": "生成链接",
       "sendToConsultant": "发给顾问",
@@ -12066,7 +12055,7 @@
       "EQUIPMENT_HOURS": "设备开工 / 收工",
       "ATTENDANCE": "人员进场",
       "PERMIT": "施工准证",
-      "CONSULTANT": "顾问申请"
+      "CONSULTANT": "顾问资料提交"
     },
     "gateStatus": {
       "RECORDED": "已记录",
@@ -12355,7 +12344,7 @@
       "anprSettings": "ANPR 设置",
       "apiGatewayMonitoring": "API Gateway 监控",
       "apiGatewaySettings": "API Gateway 设置",
-      "approvalCredentials": "审批凭证",
+      "approvalCredentials": "签名与签核密码",
       "approvals": "审批流程（高级）",
       "archiveQueue": "现场记录中心",
       "assetActivity": "操作记录",
@@ -12419,7 +12408,7 @@
       "consultantDashboard": "顾问首页",
       "consultantFieldInbox": "待整理现场资料",
       "consultantTemplates": "RFI 表格模板",
-      "consultantWorkflows": "审批流程",
+      "consultantWorkflows": "顾问审批流程",
       "contractorNotifications": "建筑商通知",
       "contractorReports": "建筑商报表",
       "crmActivity": "客户服务操作记录",
@@ -12766,7 +12755,7 @@
       "HAZARD_FILE": "整改附件",
       "ATTENDANCE": "人员进场打卡",
       "CATEGORY_EVIDENCE": "现场照片",
-      "CONSULTANT_SUBMISSION": "顾问提交",
+      "CONSULTANT_SUBMISSION": "顾问资料提交",
       "DISPATCH_ACCEPT": "接受订单",
       "DISPATCH_COLLECT": "确认收货",
       "DISPOSAL_REQUEST": "处置申请",
@@ -12997,9 +12986,9 @@
     "consultant_applications": {
       "what": "顾问那一摊：提申请、走审批链、签字，以及支撑它的现场证据。",
       "who": "持 approval.view；改流程配置要 consultant.config，提申请要 consultant.submit，做审批要 approval.review。",
-      "need": "提申请要项目、审批流程、申请类型、专业类别、检查类型、优先级、顾问、顾问公司、检查位置、构件或工作区域、说明内容和 RFI 表格模板；做审批要 6 位审批 PIN 和决定备注；设 PIN 要当前登录密码、新 PIN 两次和电子签名。",
+      "need": "提申请要项目、审批流程、申请类型、专业类别、检查类型、优先级、顾问、顾问单位、检查位置、构件或工作区域、说明内容和 RFI 表格模板；做审批要 6 位签核密码和决定备注；设签核密码要当前登录密码、新签核密码两次和电子签名。",
       "then": "PIN 加电子签名等同签字，签下去不能撤销。",
-      "trouble": "审批按钮是灰的，是你还没设审批 PIN。顾问登进来看不到项目，是授权过期了或者根本没给那个项目 —— 授权是按项目给的，有起止时间。"
+      "trouble": "审批按钮是灰的，是你还没设签核密码。顾问登进来看不到项目，是授权过期了或者根本没给那个项目 —— 授权是按项目给的，有起止时间。"
     },
     "customer_management": {
       "what": "料是从哪来的：跟你有平台合作的建筑商，以及自己开车上门的私人客户。",
@@ -21061,7 +21050,7 @@
       "equipment_set_site_no": "修改设备编号",
       "equipment_hours_move": "设备工时改设备归属",
       "user_change_permissions": "修改用户的权限开关",
-      "consultant_submit": "提交顾问申请",
+      "consultant_submit": "发送给顾问",
       "visitor_photo_purge": "删除到期访客照片",
       "document_delete": "删除未归档的文件档案",
       "consultant_delete": "删除顾问申请草稿",

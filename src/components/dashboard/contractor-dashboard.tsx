@@ -69,6 +69,7 @@ import {
   timelineTone,
 } from "@/lib/timeline-targets";
 import { useDateFormat } from "@/lib/dates";
+import { recordStatusLabel } from "@/lib/record-status";
 import {
   exportContractorDashboard,
   getContractorDashboard,
@@ -136,9 +137,16 @@ const TIMELINE_ICONS: Record<string, LucideIcon> = {
  * `contractorDashboard.recordStatus.FOO` at the reader would be worse than
  * printing `FOO`, and a code on screen is a visible prompt to add the entry.
  */
-function useRecordStatus(): (status: string) => string {
+export function useRecordStatus(): (status: string, kind?: string) => string {
   const t = useTranslations("contractorDashboard");
-  return (status: string) => {
+  const root = useTranslations();
+  return (status: string, kind?: string) => {
+    // JB201 (Lucas 11-16 「确保每个功能的名称都是一样的」): a consultant
+    // application reads in its own module's words (待审批, 修改后重提), not
+    // 已提交 or a raw code.
+    if (kind === "CONSULTANT_APPLICATION") {
+      return recordStatusLabel(root, { kind, status, status_label: status });
+    }
     const key = `recordStatus.${status}`;
     return t.has(key) ? t(key) : status;
   };
@@ -498,7 +506,7 @@ export function ContractorDashboard({
                         </p>
                       </div>
                       <div className="shrink-0 text-right">
-                        <StatusBadge label={recordStatus(row.status)} />
+                        <StatusBadge label={recordStatus(row.status, row.kind)} />
                         <p className="mt-1 text-xs text-muted-foreground">
                           {df.dateTime(row.occurred_at)}
                         </p>
@@ -972,7 +980,7 @@ function QuickSearch({ project }: { project: string }) {
                     )}
                   </span>
                   {row.status && (
-                    <StatusBadge label={recordStatus(row.status)} />
+                    <StatusBadge label={recordStatus(row.status, row.kind)} />
                   )}
                 </li>
               ))}
