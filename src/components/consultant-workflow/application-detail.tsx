@@ -1356,56 +1356,53 @@ export function DecisionDialog({ application, decision, hasCredential, onClose, 
         </DialogHeader>
         <div className="space-y-4">
           {remedial ? (
-            <div className="space-y-3" data-slot="remedial-lines">
-              <div>
-                <p className="text-sm font-medium">
-                  {t("detail.section.remedial")} <span className="text-destructive">*</span>
-                </p>
-                <p className="mt-1 text-sm text-muted-foreground">{t("review.remedialList.hint")}</p>
-              </div>
-              {lines.map((line, index) => (
-                <div key={index} className="space-y-2 rounded-lg border p-3">
-                  <FieldWrapper label={t("review.remedialList.item", { n: index + 1 })}>
-                    <Textarea
-                      rows={2}
-                      value={line.description}
-                      placeholder={t("review.remedialList.placeholder")}
-                      onChange={(event) => setLine(index, { description: event.target.value })}
-                    />
-                  </FieldWrapper>
-                  <div className="flex flex-wrap items-end gap-2">
-                    <FieldWrapper label={t("remedial.dueDate")} optional={common("optional")} className="min-w-44 flex-1">
-                      <Input
-                        type="date"
-                        min={todayIso()}
-                        value={line.due_on}
-                        onChange={(event) => setLine(index, { due_on: event.target.value })}
+            <FieldWrapper label={t("detail.section.remedial")} required>
+              <div className="space-y-3" data-slot="remedial-lines">
+                <p className="text-sm text-muted-foreground">{t("review.remedialList.hint")}</p>
+                {lines.map((line, index) => (
+                  <div key={index} className="space-y-2 rounded-lg border p-3">
+                    <FieldWrapper label={t("review.remedialList.item", { n: index + 1 })}>
+                      <Textarea
+                        rows={2}
+                        value={line.description}
+                        placeholder={t("review.remedialList.placeholder")}
+                        onChange={(event) => setLine(index, { description: event.target.value })}
                       />
                     </FieldWrapper>
-                    {lines.length > 1 && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => setLines((current) => current.filter((_, at) => at !== index))}
-                      >
-                        <XCircle />
-                        {t("review.remedialList.remove")}
-                      </Button>
-                    )}
+                    <div className="flex flex-wrap items-end gap-2">
+                      <FieldWrapper label={t("remedial.dueDate")} optional={common("optional")} className="min-w-44 flex-1">
+                        <Input
+                          type="date"
+                          min={todayIso()}
+                          value={line.due_on}
+                          onChange={(event) => setLine(index, { due_on: event.target.value })}
+                        />
+                      </FieldWrapper>
+                      {lines.length > 1 && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setLines((current) => current.filter((_, at) => at !== index))}
+                        >
+                          <XCircle />
+                          {t("review.remedialList.remove")}
+                        </Button>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => setLines((current) => [...current, { description: "", due_on: "" }])}
-              >
-                <Plus />
-                {t("review.remedialList.add")}
-              </Button>
-              <p className="text-xs text-muted-foreground">{t("remedial.dueHint")}</p>
-            </div>
+                ))}
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setLines((current) => [...current, { description: "", due_on: "" }])}
+                >
+                  <Plus />
+                  {t("review.remedialList.add")}
+                </Button>
+                <p className="text-xs text-muted-foreground">{t("remedial.dueHint")}</p>
+              </div>
+            </FieldWrapper>
           ) : null}
           <FieldWrapper
             label={t("review.remarks")}
