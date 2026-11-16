@@ -18,11 +18,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link2Off, Loader2, RefreshCw, Smartphone, Truck } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { DriverMyRecords } from "@/components/equipment-hours/equipment-phone-records";
 import { EquipmentHoursCapture, driverQueueOwner } from "@/components/equipment-hours/equipment-hours-capture";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
+import { RefusedRecordsView } from "@/components/shared/offline-status";
 import { FieldWrapper } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,7 +32,14 @@ import { cn } from "@/lib/utils";
 import { workerLinkToken } from "@/lib/site-workers";
 import { bindDriverPhone, getDriverLink, type DriverLinkState } from "@/services/driver-clock.service";
 import { getOrCreateFieldDeviceId } from "@/services/field-access.service";
-import { flushOfflineJobs } from "@/services/offline-sync.service";
+import {
+  discardOfflineJob,
+  flushOfflineJobs,
+  getOfflineQueueEntries,
+  OFFLINE_QUEUE_CHANGED,
+  retryOfflineJob,
+  type OfflineQueueEntry,
+} from "@/services/offline-sync.service";
 
 type Ending = "invalid" | "closed" | "otherDevice";
 
@@ -119,6 +127,7 @@ export function DriverClockLink({ token: rawToken }: { token: string }) {
                 company: state.company_name || "-",
               })}
             </p>
+            <DriverRefusedRecords token={token} />
             {/* J37-1: 打卡 / 我的记录 - the second is read only. */}
             <div className="grid grid-cols-2 gap-2" role="tablist" aria-label={t("title")}>
               {(["clock", "records"] as const).map((value) => (
@@ -147,6 +156,77 @@ export function DriverClockLink({ token: rawToken }: { token: string }) {
         )}
       </main>
     </div>
+  );
+}
+
+/**
+ * The 开工 / 收工 the server refused, on the page itself (JB204-2, Lucas 11-16
+ * audit). This page has no upload sign at the top and no account whose queue
+ * the app reads, so a refused photo was never shown, never retried, and the
+ * driver believed it would go by itself. Each one says why, with 重试 and
+ * 删除 - the same list the field app's upload sign opens.
+ */
+export function DriverRefusedRecords({ token }: { token: string }) {
+  const owner = driverQueueOwner(token);
+  const [entries, setEntries] = useState<OfflineQueueEntry[]>([]);
+  const [busy, setBusy] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState<OfflineQueueEntry | null>(null);
+
+  const load = useCallback(async () => {
+    try {
+      const rows = await getOfflineQueueEntries(owner);
+      setEntries(rows.filter((row) => row.state === "failed"));
+    } catch {
+      // No offline store on this browser: nothing can have been refused.
+      setEntries([]);
+    }
+  }, [owner]);
+
+  useEffect(() => {
+    const reload = () => void load();
+    reload();
+    window.addEventListener(OFFLINE_QUEUE_CHANGED, reload);
+    return () => window.removeEventListener(OFFLINE_QUEUE_CHANGED, reload);
+  }, [load]);
+
+  const retry = async (entry: OfflineQueueEntry) => {
+    setBusy(entry.id);
+    try {
+      await retryOfflineJob(owner, entry.id);
+    } catch {
+      // Said by the pass itself; the list below is read again either way.
+    } finally {
+      setBusy(null);
+      await load();
+    }
+  };
+
+  const remove = async (entry: OfflineQueueEntry) => {
+    setBusy(entry.id);
+    try {
+      await discardOfflineJob(entry.id);
+    } finally {
+      setBusy(null);
+      setDeleting(null);
+      await load();
+    }
+  };
+
+  if (entries.length === 0) return null;
+  return (
+    <section className="rounded-lg border border-destructive/30 bg-card p-3" data-testid="driver-refused">
+      <RefusedRecordsView
+        entries={entries}
+        count={entries.length}
+        showTitle
+        busy={busy}
+        deleting={deleting}
+        onRetry={(entry) => void retry(entry)}
+        onAskDelete={setDeleting}
+        onConfirmDelete={(entry) => void remove(entry)}
+        onCancelDelete={() => setDeleting(null)}
+      />
+    </section>
   );
 }
 

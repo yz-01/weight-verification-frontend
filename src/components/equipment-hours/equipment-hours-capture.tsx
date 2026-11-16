@@ -176,11 +176,17 @@ async function loadDriverMachines(token: string, device: string): Promise<Equipm
   }));
 }
 
-async function waitingPhotos(ownerId: string): Promise<WaitingPhoto[]> {
+/**
+ * The photos still waiting on this phone. One the server refused is not
+ * waiting - it goes nowhere until the worker retries it - so it no longer
+ * decides 开工 or 收工 (JB204-2, Lucas 11-16 audit): a 开工 refused would
+ * otherwise have the next scan offer 收工.
+ */
+export async function waitingPhotos(ownerId: string): Promise<WaitingPhoto[]> {
   try {
     const jobs = await getOfflineJobs(ownerId);
     return jobs.flatMap((job) =>
-      job.kind === "EQUIPMENT_HOURS_PHOTO"
+      job.kind === "EQUIPMENT_HOURS_PHOTO" && !job.needsAttention
         ? [{ equipment: job.payload.equipment, kind: job.payload.kind, capturedAt: job.payload.capturedAt }]
         : [],
     );

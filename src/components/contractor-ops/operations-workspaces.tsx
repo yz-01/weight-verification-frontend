@@ -1917,6 +1917,20 @@ export function machineLabeller(rows: readonly SiteEquipment[]) {
  *
  * Only the phone mounts this component (field-records-panel.tsx).
  */
+/**
+ * The way a machine named by the address is going. A sticker scanned with the
+ * phone's own camera names only the machine (JB204-1, Lucas 11-16 audit), so
+ * the way is where it is: 退场 for a machine on site, 进场 for one that is not
+ * - what the in-app scan and the office's own link already chose.
+ */
+export function linkedDirection(
+  named: string | null,
+  machine: Pick<SiteEquipment, "status"> | undefined,
+): "ENTRY" | "EXIT" {
+  if (named !== null) return named === "EXIT" ? "EXIT" : "ENTRY";
+  return machine?.status === "ON_SITE" ? "EXIT" : "ENTRY";
+}
+
 export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRecordSaved }: { initialProject?: string; fieldTaskId?: string; onRecordSaved?: () => void } = {}) {
   const t = useTranslations("contractorOps");
   const { can } = useAuth();
@@ -1937,10 +1951,19 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
   const linkedMachine = searchParams.get("machine") ?? "";
   const [linkSettled, setLinkSettled] = useState(false);
   const followLink = Boolean(linkedMachine) && !linkSettled;
+  const rows = useQuery({
+    queryKey: ["site-equipment", "field", project],
+    queryFn: () =>
+      getSiteEquipment({
+        project: project || undefined,
+        page_size: 200,
+      }),
+  });
   const direction: "ENTRY" | "EXIT" = followLink
-    ? searchParams.get("direction") === "EXIT"
-      ? "EXIT"
-      : "ENTRY"
+    ? linkedDirection(
+        searchParams.get("direction"),
+        rows.data?.results.find((row) => row.id === linkedMachine),
+      )
     : draftDirection;
   const chosen = followLink ? linkedMachine : draftChosen;
   const choose = (next: string, way: "ENTRY" | "EXIT" = direction) => {
@@ -1957,14 +1980,6 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
     }
   };
   const [entering, setEntering] = useDraftState("open:enteringEquipment", false);
-  const rows = useQuery({
-    queryKey: ["site-equipment", "field", project],
-    queryFn: () =>
-      getSiteEquipment({
-        project: project || undefined,
-        page_size: 200,
-      }),
-  });
   const going = direction === "EXIT";
   // A machine switched off is not offered for a new entry or exit. 退场 takes
   // a machine on site on this project; 进场 one that is not.

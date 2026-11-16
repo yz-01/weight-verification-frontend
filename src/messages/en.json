@@ -7922,6 +7922,8 @@
     "decisionTitle": "Receiving decision",
     "error": {
       "action": "The action could not be completed.",
+      "location": "The phone's location could not be read. Turn on location and allow this page to use it, then press again.",
+      "refused": "This step was not completed. Refresh this page and try again; if it still fails, contact the site.",
       "quantityRequired": "Enter the actual quantity.",
       "signatureRequired": "Draw the receiver signature first."
     },
@@ -12818,7 +12820,8 @@
       "offlineHelp": "No connection right now. Your records are saved on this phone and upload by themselves when the connection is back. Nothing to do.",
       "refusedHelp": "The server did not accept the records below, and they will not upload by themselves. Read why, then press Retry or Delete this one.",
       "uploadFailed": "{count, plural, one {# record failed to upload} other {# records failed to upload}}",
-      "refusedToast": "{count, plural, one {# record failed to upload} other {# records failed to upload}}. Tap the upload sign at the top to see why, retry or delete."
+      "refusedToast": "{count, plural, one {# record failed to upload} other {# records failed to upload}}. Tap the upload sign at the top to see why, retry or delete.",
+      "refusedToastOnPage": "{count, plural, one {# record failed to upload} other {# records failed to upload}}. The reason is at the top of this page; retry or delete it there."
     },
     "synced": "Uploaded {count, plural, one {# saved record} other {# saved records}}",
     "filesFollow": "Sent to the office. {count, plural, one {# file is} other {# files are}} still uploading in the background.",
@@ -16844,7 +16847,8 @@
         "submit": "Send this load"
       },
       "error": {
-        "action": "The action could not be completed. Check the connection and try again."
+        "action": "The action could not be completed. Check the connection and try again.",
+        "location": "The phone's location could not be read. Turn on location and allow this page to use it, then take the photo again."
       },
       "evidence": {
         "DISPOSAL_DO": "Disposal DO photo",
@@ -20538,7 +20542,8 @@
       "workflowHint": "This task is handed in on its own form.",
       "openWorkflow": "Open work form",
       "waiting": "Submitted, waiting for the check.",
-      "finished": "This task is finished."
+      "finished": "This task is finished.",
+      "disposalTitle": "Carry out disposal {reference}"
     },
     "ehs": {
       "unsorted": "Unsorted",

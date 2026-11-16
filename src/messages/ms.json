@@ -7922,6 +7922,8 @@
     "decisionTitle": "Keputusan penerimaan",
     "error": {
       "action": "Tindakan tidak dapat diselesaikan.",
+      "location": "Lokasi telefon tidak dapat dibaca. Hidupkan lokasi dan benarkan halaman ini menggunakannya, kemudian tekan sekali lagi.",
+      "refused": "Langkah ini tidak selesai. Muat semula halaman ini dan cuba lagi; jika masih gagal, hubungi tapak.",
       "quantityRequired": "Masukkan kuantiti sebenar.",
       "signatureRequired": "Lukis tandatangan penerima dahulu."
     },
@@ -12818,7 +12820,8 @@
       "offlineHelp": "Tiada sambungan sekarang. Rekod anda disimpan dalam telefon ini dan dimuat naik sendiri apabila sambungan kembali. Tiada apa perlu dibuat.",
       "refusedHelp": "Pelayan tidak menerima rekod di bawah, dan ia tidak akan dimuat naik sendiri. Baca sebabnya, kemudian tekan Cuba lagi atau Padam yang ini.",
       "uploadFailed": "{count} rekod gagal dimuat naik",
-      "refusedToast": "{count} rekod gagal dimuat naik. Tekan tanda muat naik di atas untuk lihat sebabnya, cuba lagi atau padam."
+      "refusedToast": "{count} rekod gagal dimuat naik. Tekan tanda muat naik di atas untuk lihat sebabnya, cuba lagi atau padam.",
+      "refusedToastOnPage": "{count} rekod gagal dimuat naik. Sebabnya ada di bahagian atas halaman ini; cuba lagi atau padam di situ."
     },
     "synced": "{count} rekod yang disimpan telah dimuat naik",
     "filesFollow": "Dihantar ke pejabat. {count} fail masih dimuat naik di latar belakang.",
@@ -16844,7 +16847,8 @@
         "submit": "Hantar muatan ini"
       },
       "error": {
-        "action": "Tindakan tidak dapat diselesaikan. Semak sambungan dan cuba lagi."
+        "action": "Tindakan tidak dapat diselesaikan. Semak sambungan dan cuba lagi.",
+        "location": "Lokasi telefon tidak dapat dibaca. Hidupkan lokasi dan benarkan halaman ini menggunakannya, kemudian ambil gambar sekali lagi."
       },
       "evidence": {
         "DISPOSAL_DO": "Foto Disposal DO",
@@ -20538,7 +20542,8 @@
       "workflowHint": "Tugasan ini dihantar melalui borangnya sendiri.",
       "openWorkflow": "Buka borang kerja",
       "waiting": "Dihantar, menunggu semakan.",
-      "finished": "Tugasan ini sudah selesai."
+      "finished": "Tugasan ini sudah selesai.",
+      "disposalTitle": "Laksanakan pelupusan {reference}"
     },
     "ehs": {
       "unsorted": "Belum dikategorikan",

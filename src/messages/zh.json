@@ -7922,6 +7922,8 @@
     "decisionTitle": "收货决定",
     "error": {
       "action": "操作无法完成。",
+      "location": "读不到手机位置。请打开手机定位，并允许本页面使用定位，再按一次。",
+      "refused": "这一步没有完成。请刷新本页再试一次；还是不行，请联络工地。",
       "quantityRequired": "请输入实际数量。",
       "signatureRequired": "请先画接收人签名。"
     },
@@ -12818,7 +12820,8 @@
       "offlineHelp": "现在没有网络。记录已存在这台手机上，网络恢复后会自动上传，不用另外操作。",
       "refusedHelp": "服务器没有接收下面的记录，它们不会再自动上传。看原因后可以「重试」，或「删除这一条」。",
       "uploadFailed": "上传失败 {count} 条",
-      "refusedToast": "上传失败 {count} 条。点上方的上传图标看原因，可以重试或删除。"
+      "refusedToast": "上传失败 {count} 条。点上方的上传图标看原因，可以重试或删除。",
+      "refusedToastOnPage": "上传失败 {count} 条。原因写在本页上方，可以在那里重试或删除。"
     },
     "synced": "已上传 {count} 条暂存的记录",
     "filesFollow": "已送到办公室。{count} 个附件正在后台上传。",
@@ -16844,7 +16847,8 @@
         "submit": "送出这一车"
       },
       "error": {
-        "action": "操作无法完成，请检查网络后重试。"
+        "action": "操作无法完成，请检查网络后重试。",
+        "location": "读不到手机位置。请打开手机定位，并允许本页面使用定位，再拍一次。"
       },
       "evidence": {
         "DISPOSAL_DO": "Disposal DO 照片",
@@ -20538,7 +20542,8 @@
       "workflowHint": "这个任务要在它自己的表单里提交。",
       "openWorkflow": "打开工作表单",
       "waiting": "已提交，等待验收。",
-      "finished": "这个任务已经结束。"
+      "finished": "这个任务已经结束。",
+      "disposalTitle": "执行清运 {reference}"
     },
     "ehs": {
       "unsorted": "未分类",

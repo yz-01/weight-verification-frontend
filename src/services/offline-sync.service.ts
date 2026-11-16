@@ -2532,7 +2532,13 @@ async function runFlush(
   if (synced > 0) toastOutcome("offline.synced", { count: synced });
   // One line for what was refused, pointing at where it can be read and
   // retried or deleted - not the server's sentence per record (JB98).
-  if (refused > 0) toastRefusal("offline.status.refusedToast", { count: refused });
+  // A driver's clock link (`driverQueueOwner`) has no upload sign at the top;
+  // it lists its refused records on the page itself (JB204-2, Lucas 11-16
+  // audit), so the line says where to look there.
+  const refusedKey = ownerId.startsWith("driver-link:")
+    ? "offline.status.refusedToastOnPage"
+    : "offline.status.refusedToast";
+  if (refused > 0) toastRefusal(refusedKey, { count: refused });
   return { synced, remaining };
 }
 
