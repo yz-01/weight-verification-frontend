@@ -48,10 +48,15 @@ import { api, download, fetchObjectUrl, toastSuccess } from "@/services/api-clie
 export const getApplicationOptions = (
   project: string,
   category?: ProjectOptionCategory,
+  /**
+   * `"false"`: the switched-off options too (JB203-3) - only 「表单选项」 asks,
+   * so 「可选」 can be turned back on. Every picker leaves it out.
+   */
+  active?: "false",
 ) =>
   api.list<ProjectApplicationOption>(
     "/api/consultant-application-options/get_options/",
-    { project, category, page_size: 200 },
+    { project, category, page_size: 200, ...(active ? { active } : {}) },
   );
 
 export const createApplicationOption = async (payload: {
@@ -822,9 +827,17 @@ export const closeRemedialItem = async (
   return item;
 };
 
+/**
+ * The public QR check (field audit F5, with JB203): read by anybody, signed in
+ * or not. Sent with a stale office session it came back 401 and the visitor
+ * was sent to the login page; without the session it never does, and the
+ * page says 「找不到验证记录」 itself rather than a toast.
+ */
 export const verifyConsultantApplication = (code: string) =>
   api.get<ApplicationVerification>(
     `/api/consultant-applications/verify/${encodeURIComponent(code)}/`,
+    undefined,
+    { auth: false, silent: true },
   );
 
 // ---- B. 顾问自有表格 (2026-10-10) ------------------------------------------

@@ -19,6 +19,7 @@ import { useTranslations } from "next-intl";
 import { useCallback, useState } from "react";
 
 import { ConsultantProjectPicker } from "@/components/consultant-workflow/project-scope-picker";
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { usePageProject, useProjectBoxShown } from "@/components/providers/current-project-provider";
 import {
   DetailHeader,
@@ -79,17 +80,26 @@ export function ConsultantWorkflowSettings() {
     step: ConsultantWorkflowStep;
   } | null>(null);
   const onProjectChange = useCallback((id: string) => setProject(id), [setProject]);
+  // JB203-1 (Lucas 11-16 audit): the switched-off workflows too, so one
+  // turned off with 「继续提供」 can be turned back on. Its own key: the
+  // application form's list (active only) shares the prefix, not the rows.
   const rows = useQuery({
-    queryKey: ["consultant-workflows", project],
-    queryFn: () => getConsultantWorkflows({ project, page_size: 200 }),
+    queryKey: ["consultant-workflows", project, "manage"],
+    queryFn: () => getConsultantWorkflows({ project, page_size: 200, active: "false" }),
     enabled: Boolean(project),
   });
   const refresh = () =>
     queryClient.invalidateQueries({ queryKey: ["consultant-workflows", project] });
+  // JB203-11: the trash can on a step asks first. The last step gone, every
+  // draft on that route stops at 「没有审批步骤」.
+  const [removing, setRemoving] = useState<{ workflow: string; step: ConsultantWorkflowStep } | null>(null);
   const removeStep = useMutation({
     mutationFn: ({ workflow, step }: { workflow: string; step: string }) =>
       deleteConsultantWorkflowStep(workflow, step),
-    onSuccess: refresh,
+    onSuccess: () => {
+      setRemoving(null);
+      return refresh();
+    },
   });
 
   return (
@@ -117,18 +127,23 @@ export function ConsultantWorkflowSettings() {
         <Empty text={t("workflow.empty")} />
       ) : (
         <div className="grid gap-4 xl:grid-cols-2">
-          {rows.data.results.map((workflow) => (
-            <section key={workflow.id} className="overflow-hidden surface-panel rounded-xl">
+          {rows.data.results.map((workflow) => {
+            // A switched-off workflow is shown greyed with 「已停用」 and only
+            // its edit button, which is where it is switched back on (JB203-1).
+            const stepsEditable = workflow.is_active && !workflow.steps_locked;
+            return (
+            <section key={workflow.id} data-inactive={workflow.is_active ? undefined : ""} className={`overflow-hidden surface-panel rounded-xl ${workflow.is_active ? "" : "opacity-70"}`}>
               <div className="flex items-start gap-3 border-b p-4">
                 <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary"><Settings2 className="size-5" /></span>
                 <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2"><h2 className="font-semibold">{workflow.name}</h2>{workflow.is_default && <StatusBadge label={t("workflow.default")} tone="info" />}</div>
+                  <div className="flex flex-wrap items-center gap-2"><h2 className="font-semibold">{workflow.name}</h2>{workflow.is_default && workflow.is_active && <StatusBadge label={t("workflow.default")} tone="info" />}{!workflow.is_active && <StatusBadge label={t("workflow.inactive")} tone="neutral" />}</div>
                   <p className="mt-1 text-sm text-muted-foreground">{workflow.application_type_label || t("workflow.allTypes")}</p>
                   {workflow.description && <p className="mt-2 text-sm">{workflow.description}</p>}
+                  {!workflow.is_active && <p className="mt-2 text-xs text-muted-foreground">{t("workflow.inactiveHelp")}</p>}
                 </div>
                 <div className="flex shrink-0 items-center gap-1">
                   <Button size="icon-sm" variant="outline" title={t("workflow.edit")} onClick={() => setEditing(workflow)}><Pencil /></Button>
-                  {!workflow.steps_locked && <Button size="icon-sm" variant="outline" title={t("workflow.addStep")} onClick={() => setAddingTo(workflow)}><Plus /></Button>}
+                  {stepsEditable && <Button size="icon-sm" variant="outline" title={t("workflow.addStep")} onClick={() => setAddingTo(workflow)}><Plus /></Button>}
                 </div>
               </div>
               <div className="divide-y">
@@ -138,10 +153,10 @@ export function ConsultantWorkflowSettings() {
                     <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-muted/60 text-muted-foreground">{step.reviewer_kind === "ROLE" ? <Users className="size-4" /> : step.reviewer_kind === "USER" ? <UserRoundCheck className="size-4" /> : <Stamp className="size-4" />}</span>
                     <div className="min-w-0 flex-1"><p className="truncate text-sm font-medium">{step.name}</p><p className="truncate text-xs text-muted-foreground">{step.reviewer_kind === "CONSULTANT" ? t("reviewerKind.CONSULTANT") : step.reviewer_user_name || step.reviewer_role_name}</p></div>
                     <div className="flex items-center gap-1 text-xs text-muted-foreground">{step.requires_signature && <KeyRound className="size-3.5" />}{step.requires_stamp && <Stamp className="size-3.5" />}</div>
-                    {!workflow.steps_locked && (
+                    {stepsEditable && (
                       <>
                         <Button size="icon-sm" variant="ghost" title={t("workflow.editStep")} onClick={() => setEditingStep({ workflow, step })}><Pencil /></Button>
-                        <Button size="icon-sm" variant="ghost" className="text-destructive" title={t("action.remove")} disabled={removeStep.isPending} onClick={() => removeStep.mutate({ workflow: workflow.id, step: step.id })}><Trash2 /></Button>
+                        <Button size="icon-sm" variant="ghost" className="text-destructive" title={t("action.remove")} onClick={() => setRemoving({ workflow: workflow.id, step })}><Trash2 /></Button>
                       </>
                     )}
                   </div>
@@ -150,9 +165,19 @@ export function ConsultantWorkflowSettings() {
                 {workflow.steps_locked && <p className="flex items-start gap-2 border-t bg-muted/30 px-4 py-3 text-xs text-muted-foreground"><Lock className="mt-0.5 size-3.5 shrink-0" />{t("workflow.stepsLocked")}</p>}
               </div>
             </section>
-          ))}
+            );
+          })}
         </div>
       )}
+      <ConfirmDialog
+        open={removing !== null}
+        onOpenChange={(open) => { if (!open) setRemoving(null); }}
+        title={t("workflow.removeStepTitle", { step: removing?.step.name ?? "" })}
+        description={t("workflow.removeStepBody")}
+        confirmLabel={t("action.remove")}
+        isPending={removeStep.isPending}
+        onConfirm={() => removing && removeStep.mutate({ workflow: removing.workflow, step: removing.step.id })}
+      />
       {creating && <WorkflowDialog project={project} onClose={() => setCreating(false)} onSaved={() => { void refresh(); setCreating(false); }} />}
       {editing && <WorkflowDialog project={project} workflow={editing} onClose={() => setEditing(null)} onSaved={() => { void refresh(); setEditing(null); }} />}
       {addingTo && <StepDialog workflow={addingTo} onClose={() => setAddingTo(null)} onSaved={() => { void refresh(); setAddingTo(null); }} />}
@@ -195,12 +220,15 @@ function WorkflowDialog({ project, workflow, onClose, onSaved }: { project: stri
  * by mistake meant deleting the step and adding it again, which puts it back
  * at the end of the route.
  */
-function StepDialog({ workflow, step: editing, onClose, onSaved }: { workflow: ConsultantWorkflow; step?: ConsultantWorkflowStep; onClose: () => void; onSaved: () => void }) {
+export function StepDialog({ workflow, step: editing, onClose, onSaved }: { workflow: ConsultantWorkflow; step?: ConsultantWorkflowStep; onClose: () => void; onSaved: () => void }) {
   const t = useTranslations("consultantWorkflow");
   const [name, setName] = useState(editing?.name ?? "");
   const [kind, setKind] = useState<WorkflowReviewerKind>(editing?.reviewer_kind ?? "CONSULTANT");
   const [reviewer, setReviewer] = useState(editing?.reviewer_user ?? editing?.reviewer_role ?? "");
-  const [signature, setSignature] = useState(editing?.requires_signature ?? true);
+  // JB203-7 (Lucas 11-16 audit): 「必须电子签名」 changed nothing - every
+  // decision is signed with the e-signature and the PIN, which is the decided
+  // rule. The switch is a fixed line now; the field is sent as it was.
+  const signature = editing?.requires_signature ?? true;
   const [stamp, setStamp] = useState(editing?.requires_stamp ?? false);
   const choices = useQuery({ queryKey: ["consultant-reviewer-choices", workflow.project], queryFn: () => getWorkflowReviewerChoices(workflow.project) });
   const save = useMutation({
@@ -213,7 +241,7 @@ function StepDialog({ workflow, step: editing, onClose, onSaved }: { workflow: C
     onSuccess: onSaved,
   });
   const reviewerOptions = kind === "USER" ? choices.data?.users ?? [] : kind === "ROLE" ? choices.data?.roles ?? [] : [];
-  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle>{t(editing ? "workflow.editStepTitle" : "workflow.addStepTitle")}</DialogTitle><DialogDescription>{t("workflow.addStepHelp")}</DialogDescription></DialogHeader><div className="space-y-4"><FieldWrapper label={t("workflow.stepName")} required><Input value={name} onChange={(event) => setName(event.target.value)} /></FieldWrapper><FieldWrapper label={t("workflow.reviewerKind")} required><Select value={kind} onValueChange={(value) => { setKind(value as WorkflowReviewerKind); setReviewer(""); }}><SelectTrigger className="w-full"><SelectValue /></SelectTrigger><SelectContent>{(["CONSULTANT", "USER", "ROLE"] as const).map((value) => <SelectItem key={value} value={value}>{t(`reviewerKind.${value}`)}</SelectItem>)}</SelectContent></Select></FieldWrapper>{kind !== "CONSULTANT" && <FieldWrapper label={t("workflow.reviewer")} required><Select value={reviewer || undefined} onValueChange={setReviewer}><SelectTrigger className="w-full"><SelectValue placeholder={t("workflow.chooseReviewer")} /></SelectTrigger><SelectContent>{reviewerOptions.map((row) => <SelectItem key={row.id} value={row.id}>{row.name}{"role" in row && row.role ? ` - ${row.role}` : ""}</SelectItem>)}</SelectContent></Select><QueryFailedNote query={choices} what={t("what.reviewerChoices")} /></FieldWrapper>}<label className="flex items-center justify-between gap-3 rounded-lg border p-3 text-sm"><span className="font-medium">{t("workflow.requireSignature")}</span><Switch checked={signature} onCheckedChange={setSignature} /></label><label className="flex items-center justify-between gap-3 rounded-lg border p-3 text-sm"><span><span className="block font-medium">{t("workflow.requireStamp")}</span><span className="text-xs text-muted-foreground">{t("workflow.stampHelp")}</span></span><Switch checked={stamp} onCheckedChange={(value) => { setStamp(value); if (value) setSignature(true); }} /></label></div><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button requires={[[name, t("workflow.stepName")], [kind === "CONSULTANT" || reviewer, t("workflow.reviewer")]]} disabled={save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <Check />}{t(editing ? "action.save" : "workflow.addStep")}</Button></DialogFooter></DialogContent></Dialog>;
+  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle>{t(editing ? "workflow.editStepTitle" : "workflow.addStepTitle")}</DialogTitle><DialogDescription>{t("workflow.addStepHelp")}</DialogDescription></DialogHeader><div className="space-y-4"><FieldWrapper label={t("workflow.stepName")} required><Input value={name} onChange={(event) => setName(event.target.value)} /></FieldWrapper><FieldWrapper label={t("workflow.reviewerKind")} required><Select value={kind} onValueChange={(value) => { setKind(value as WorkflowReviewerKind); setReviewer(""); }}><SelectTrigger className="w-full"><SelectValue /></SelectTrigger><SelectContent>{(["CONSULTANT", "USER", "ROLE"] as const).map((value) => <SelectItem key={value} value={value}>{t(`reviewerKind.${value}`)}</SelectItem>)}</SelectContent></Select></FieldWrapper>{kind !== "CONSULTANT" && <FieldWrapper label={t("workflow.reviewer")} required><Select value={reviewer || undefined} onValueChange={setReviewer}><SelectTrigger className="w-full"><SelectValue placeholder={t("workflow.chooseReviewer")} /></SelectTrigger><SelectContent>{reviewerOptions.map((row) => <SelectItem key={row.id} value={row.id}>{row.name}{"role" in row && row.role ? ` - ${row.role}` : ""}</SelectItem>)}</SelectContent></Select><QueryFailedNote query={choices} what={t("what.reviewerChoices")} /></FieldWrapper>}<p data-slot="always-signed" className="flex items-start gap-2 rounded-lg border bg-muted/30 p-3 text-sm"><KeyRound className="mt-0.5 size-4 shrink-0 text-primary" />{t("workflow.alwaysSigned")}</p><label className="flex items-center justify-between gap-3 rounded-lg border p-3 text-sm"><span><span className="block font-medium">{t("workflow.requireStamp")}</span><span className="text-xs text-muted-foreground">{t("workflow.stampHelp")}</span></span><Switch checked={stamp} onCheckedChange={setStamp} /></label></div><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button requires={[[name, t("workflow.stepName")], [kind === "CONSULTANT" || reviewer, t("workflow.reviewer")]]} disabled={save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <Check />}{t(editing ? "action.save" : "workflow.addStep")}</Button></DialogFooter></DialogContent></Dialog>;
 }
 
 function Empty({ text }: { text: string }) {

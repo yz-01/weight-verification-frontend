@@ -586,6 +586,8 @@ export interface ApprovalCredential {
   signature: string;
   stamp: string | null;
   is_active: boolean;
+  /** A PIN is on file and in force: leaving the PIN empty keeps it (JB203-11). */
+  has_pin?: boolean;
   created_at: string;
   updated_at: string;
 }

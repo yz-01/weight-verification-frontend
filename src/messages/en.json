@@ -3541,7 +3541,7 @@
       "collection_requested": "Collection requested",
       "collection_time_proposed_by_recycler": "Recycler proposed a collection time",
       "complete": "Completed",
-      "confirm_draft": "Draft confirmed",
+      "confirm_draft": "Confirmed & archived",
       "confirm_weigh_ticket": "Weighing ticket confirmed",
       "consultant_registered": "Consultant registered",
       "correct_trip": "Trip corrected",
@@ -3745,7 +3745,7 @@
       "site_access_revoke": "Site access taken away",
       "site_evidence": "Site evidence added",
       "start": "Started",
-      "submit": "Submitted",
+      "submit": "Sent to the consultant",
       "subscription_exported": "Subscriptions exported",
       "supplier_qr_scanned": "Supplier QR scanned",
       "supplier_qr_status_changed": "Supplier QR switched on or off",
@@ -3779,7 +3779,7 @@
       "APPROVE": "Approved",
       "REJECT": "Rejected",
       "RETURN": "Returned",
-      "APPROVE_WITH_REMEDIAL": "Approved with remedial works",
+      "APPROVE_WITH_REMEDIAL": "Approved with remedial work",
       "REVISE_RESUBMIT": "Revise and resubmit",
       "bulk_fill_trade": "Trade filled in for several workers",
       "create_trade": "Trade added",
@@ -3813,7 +3813,7 @@
     },
     "objectType": {
       "SignOffAssistant": "Assistant PIN",
-      "UserApprovalCredential": "Approval PIN",
+      "UserApprovalCredential": "Sign-off PIN",
       "User": "Account",
       "Role": "Role",
       "Project": "Project",
@@ -5185,7 +5185,7 @@
       "revoke": "Revoke access",
       "save": "Save"
     },
-    "back": "Consultant portal",
+    "back": "Back to consultant settings",
     "common": {
       "noContact": "No contact details",
       "noJobTitle": "Consultant",
@@ -5290,7 +5290,7 @@
       "grants": "Project access",
       "organizations": "Consultant firms"
     },
-    "title": "Consultant accounts and project access",
+    "title": "Consultant access",
     "projectView": {
       "notice": "Head office sets up consultant firms, consultant accounts and their projects.",
       "title": "Consultants open on your projects",
@@ -5310,7 +5310,7 @@
     }
   },
   "consultantDashboard": {
-    "credential": "Approval signature",
+    "credential": "Signature and sign-off PIN",
     "currentStep": "Current step: {step}",
     "due": {
       "description": "Submitted applications required within the next seven days.",
@@ -5321,11 +5321,11 @@
       "application": "Application",
       "applicationHelp": "Prepare the RFI details, site evidence and required attachments.",
       "approval": "Approval",
-      "approvalHelp": "Consultants review in order and sign each decision with their PIN.",
+      "approvalHelp": "Consultants review in order and sign each decision with their sign-off PIN.",
       "archive": "Archive",
       "archiveHelp": "Confirm the application, approval history and final report are stored.",
-      "final": "Final PDF",
-      "finalHelp": "Download the completed customer-format RFI approval report.",
+      "final": "Final report",
+      "finalHelp": "Download the completed final report (customer RFI format).",
       "subtitle": "Open the step you need. Every application moves from preparation to a protected archive.",
       "title": "Four simple steps"
     },
@@ -5334,14 +5334,7 @@
       "empty": "No approval decision has been recorded for this account.",
       "title": "My recent decisions"
     },
-    "loadError": "The consultant work queue could not be loaded. Refresh the page or check the project access grant.",
-    "metric": {
-      "approved": "Approved",
-      "dueSoon": "Due within 7 days",
-      "pending": "Pending review",
-      "returned": "Rejected or returned",
-      "today": "Applications today"
-    },
+    "loadError": "The consultant dashboard could not be loaded. Refresh the page or check the project access grant.",
     "newApplication": "New application",
     "notifications": {
       "description": "Project, approval and system notices addressed to this account.",
@@ -5367,7 +5360,7 @@
     },
     "subtitle": "Review assigned applications, deadlines, decisions and project notifications from one work queue.",
     "title": "Consultant dashboard",
-    "workflowSettings": "Workflow settings"
+    "workflowSettings": "Consultant settings"
   },
   "consultantProject": {
     "choose": "Choose a project",
@@ -5398,7 +5391,7 @@
       "raisedBy": "Raised by {name}"
     },
     "action": {
-      "closeRemedial": "Close it",
+      "closeRemedial": "Close this remedial item",
       "raiseRemedial": "Raise a remedial item",
       "acknowledge": "Acknowledge application",
       "cancel": "Cancel",
@@ -5407,11 +5400,10 @@
       "edit": "Edit draft",
       "receive": "Mark as received",
       "remove": "Remove",
-      "retryReport": "Rebuild the report",
+      "retryReport": "Rebuild the final report",
       "save": "Save",
       "saveDraft": "Save draft",
-      "saveReusableOption": "Save as project option",
-      "submit": "Submit for approval"
+      "saveReusableOption": "Save as project option"
     },
     "applications": {
       "back": "Back to consultant applications",
@@ -5422,7 +5414,7 @@
         "approval": "Approval",
         "archive": "Archive",
         "draft": "Application",
-        "final": "Final PDF",
+        "final": "Final report",
         "inbox": "Site submissions to organise"
       },
       "stageLabel": "Application stage",
@@ -5434,7 +5426,7 @@
       "kind": {
         "APPLICATION": "Application archive",
         "APPROVAL": "Signed approval history",
-        "FINAL_REPORT": "Final PDF archive",
+        "FINAL_REPORT": "Final report archive",
         "CONSULTANT_FORM": "Consultant's own form (blank, filled, final version)"
       },
       "pending": "Pending",
@@ -5482,20 +5474,21 @@
       "currentPassword": "Current login password",
       "identityHelp": "Every approval stores an immutable copy, so changing this later does not alter old reports.",
       "identityTitle": "Signature and consultant stamp",
-      "passwordHelp": "Your current password protects changes to signing credentials.",
-      "pin": "New 6-digit PIN",
-      "pinConfirm": "Confirm PIN",
-      "pinHelp": "Enter this six-digit PIN whenever you approve, reject or return an application.",
-      "pinMismatch": "The PINs do not match.",
-      "pinTitle": "Approval PIN",
-      "save": "Save signing credentials",
-      "shortTitle": "Signature and PIN",
+      "passwordHelp": "Your current password protects changes to your signature and sign-off PIN.",
+      "pin": "New 6-digit sign-off PIN",
+      "pinConfirm": "Enter it again",
+      "pinHelp": "This is your six-digit sign-off PIN. The same one is used for Confirm & archive, printing, sending and every decision.",
+      "pinMismatch": "The two PINs are not the same.",
+      "pinTitle": "Sign-off PIN",
+      "save": "Save signature and sign-off PIN",
+      "shortTitle": "Signature and sign-off PIN",
       "signature": "Electronic signature",
       "signatureHelp": "Upload a clear PNG or JPG signature on a plain background.",
       "stamp": "Consultant stamp",
       "stampHelp": "Optional until a workflow step explicitly requires it.",
       "subtitle": "Set the personal signature used for traceable project decisions.",
-      "title": "Approval Signature and PIN"
+      "title": "Signature and sign-off PIN",
+      "pinKeep": "Your sign-off PIN is already set. Leave these empty to keep it; changing only the signature or stamp needs no new PIN."
     },
     "decision": {
       "APPROVE": "Approve",
@@ -5512,19 +5505,20 @@
         "archive": "Archive",
         "complete": "Complete",
         "current": "Current step",
-        "final": "Final PDF",
+        "final": "Final report",
         "pending": "Not started",
         "title": "Application progress"
       },
       "next": {
-        "archived": "This application is complete. The application, signed approval history and final PDF are safely archived.",
+        "archived": "This application is complete. The application, signed approval history and final report are safely archived.",
         "complete": "The approval decision is complete. The final report is being prepared.",
-        "draft": "Complete the form, link the site photographs and attachments, then submit it for approval.",
-        "final": "The approval is complete. Download the final PDF and check its verification record.",
+        "draft": "Complete the form and add the site photographs and attachments. Then press Confirm & archive (with your six-digit sign-off PIN), and then Send on the application form.",
+        "final": "The approval is complete. Download the final report and check its verification record.",
         "review": "This application is waiting for your decision. Review the evidence, then choose an approval result.",
-        "revise": "The application was returned. Create a new revision, make the requested changes and submit again.",
+        "revise": "The consultant chose Revise and resubmit. Create a new revision, make the requested changes and send it to the consultant again.",
         "waiting": "No action is needed from you now. It is waiting at {step}.",
-        "remedialOpen": "Approved, but {count} remedial item(s) are still open. When the work is done, press 「Close it」 under 「Remedial items」 below and add a photo that shows it."
+        "remedialOpen": "Approved, but {count} remedial item(s) are still open. When the work is done, press 「Close this remedial item」 under 「Remedial items」 below and add a photo that shows it.",
+        "reviseMade": "A new revision (revision {revision}) has already been made. Open it under Revision history below, make the changes there and send it."
       },
       "nextAction": "What happens next",
       "noRevisions": "No revision history is available.",
@@ -5542,7 +5536,7 @@
         "evidence": "Linked site evidence",
         "relatedRecords": "Linked site records",
         "revisions": "Revision history",
-        "site": "Site request"
+        "site": "Source field submission"
       },
       "raisedOnSite": "Raised on site by {name} {when}",
       "forwardedBy": "Sent to the consultant by {name} {when}"
@@ -5550,7 +5544,7 @@
     "draftEdit": {
       "armRemove": "Allow removing",
       "armRemoveHelp": "Turn the switch on, then press Remove. It takes effect at once.",
-      "locked": "Submitted. It can be changed again only after it is returned for revision.",
+      "locked": "Sent to the consultant. If they choose Revise and resubmit, change it in the new revision.",
       "remove": "Remove",
       "unlink": "Unlink",
       "edit": "Edit",
@@ -5626,7 +5620,7 @@
       "chooseWorkflow": "Choose approval workflow",
       "component": "Component / work area",
       "consultant": "Consultant",
-      "consultantCompany": "Consultant company",
+      "consultantCompany": "Consultant firm",
       "customApplicationType": "Custom application type",
       "customDiscipline": "Custom discipline",
       "customPriority": "Custom priority",
@@ -5675,7 +5669,7 @@
       "sourceSubmittedAt": "Submitted {value}",
       "sourceTitle": "Source field submission",
       "subtitle": "Prepare the site request, attach evidence, then submit it through the project's approval flow.",
-      "title": "Create consultant application",
+      "title": "New consultant application",
       "advanced": "Advanced (optional)",
       "advancedHelp": "Leave blank to use the project's default route, “Consultant review”: one step, to the consultant you choose, signed. A template is optional too.",
       "more": "More (optional)",
@@ -5711,7 +5705,7 @@
     "review": {
       "dialog": {
         "APPROVE": {
-          "description": "Confirm the site request. The final approval report is generated after the last step.",
+          "description": "Approve this application. The final report is generated after the last step.",
           "title": "Approve this application"
         },
         "APPROVE_WITH_REMEDIAL": {
@@ -5724,24 +5718,25 @@
         },
         "REVISE_RESUBMIT": {
           "description": "Explain exactly what the contractor must correct before resubmitting.",
-          "title": "Return for revision"
+          "title": "Revise and resubmit"
         }
       },
       "pending": "Current step: {step}",
-      "pin": "6-digit approval PIN",
-      "pinHint": "Your PIN confirms that this signed decision was made by you.",
+      "pin": "6-digit sign-off PIN",
+      "pinHint": "Your sign-off PIN confirms that this signed decision was made by you.",
       "remarks": "Decision remarks",
       "reviewerConsultant": "Assigned consultant: {name}",
       "reviewerRole": "Assigned role: {name}",
       "reviewerUser": "Assigned reviewer: {name}",
-      "setupCredential": "Set signature and PIN",
+      "setupCredential": "Set signature and sign-off PIN",
       "remedialList": {
         "hint": "One thing per line. Every line is printed on the final PDF you sign; the contractor closes each one in the application when it is done, with a photo.",
         "item": "Item {n}: what has to be put right",
         "placeholder": "For example: patch the honeycombing on the west wall.",
         "add": "Add another",
         "remove": "Remove this one"
-      }
+      },
+      "stampMissing": "This step needs your consultant stamp and you have not uploaded one. Press the button below to upload it, then come back to decide."
     },
     "reviewerKind": {
       "CONSULTANT": "Consultant selected on the application",
@@ -5752,7 +5747,8 @@
       "chooseProject": "Choose a project to view its consultant work.",
       "draftUnavailable": "This draft cannot be edited. It may already have been submitted or you no longer have access.",
       "loadError": "This information could not be loaded. Check your project access and try again.",
-      "noApplications": "No consultant applications match this project and search."
+      "noApplications": "No consultant applications match this project and search.",
+      "otherProject": "This application may be on your other project. Choose that project below and it opens."
     },
     "status": {
       "APPROVED": "Approved",
@@ -5768,7 +5764,7 @@
       "APPROVED_WITH_REMEDIAL": "Approved with remedial work",
       "CURRENT": "Action required",
       "REJECTED": "Rejected",
-      "REVISE_RESUBMIT": "Revision required",
+      "REVISE_RESUBMIT": "Revise and resubmit",
       "SKIPPED": "Skipped",
       "WAITING": "Waiting"
     },
@@ -5811,11 +5807,11 @@
       "save": "Save template",
       "saveVersion": "Create version",
       "standardLayout": "Standard customer RFI PDF",
-      "standardLayoutHelp": "The final PDF follows the approved customer RFI and consultant approval format. This output is fixed so users cannot accidentally choose an unsupported layout.",
+      "standardLayoutHelp": "The final report follows the approved customer RFI and consultant approval format. This output is fixed so users cannot accidentally choose an unsupported layout.",
       "stillOffered": "Still offered",
       "stillOfferedHelp": "Turn off to stop new applications using it. Filed ones are untouched.",
       "subtitle": "Maintain project-specific form fields, required attachments and immutable versions without technical JSON settings.",
-      "title": "RFI Form Templates",
+      "title": "RFI form templates",
       "versionHelp": "This creates a new immutable version. Existing applications keep their original fields and attachment rules.",
       "versionTitle": "{name} version {version}",
       "what": {
@@ -5826,16 +5822,16 @@
     "toast": {
       "acknowledged": "Application acknowledged",
       "attachmentAdded": "Attachment added",
-      "credentialSaved": "Signing credentials saved",
+      "credentialSaved": "Signature and sign-off PIN saved",
       "decisionSaved": "Signed decision saved",
       "draftSaved": "Application draft saved",
       "evidenceLinked": "Site evidence linked",
       "received": "Application marked as received",
-      "reportRebuilt": "Report rebuilt",
+      "reportRebuilt": "Final report rebuilt",
       "revisionCreated": "New revision created",
       "stepRemoved": "Approval step removed",
       "stepSaved": "Approval step saved",
-      "submitted": "Application submitted for approval",
+      "submitted": "Sent to the consultant",
       "templateSaved": "RFI form template saved",
       "templateVersionSaved": "RFI form template version saved",
       "workflowSaved": "Approval workflow saved",
@@ -5849,7 +5845,7 @@
       "applicationType": "Application type",
       "company": "Contractor",
       "consultant": "Consultant",
-      "consultantCompany": "Consultant company",
+      "consultantCompany": "Consultant firm",
       "decision": "Final decision",
       "finalizedAt": "Finalized at",
       "notFoundHelp": "This QR code is invalid or the final report is no longer available.",
@@ -5881,39 +5877,42 @@
       "makeDefault": "Use as default workflow",
       "name": "Workflow name",
       "noSteps": "No approval steps. Add at least one before using this workflow.",
-      "requireSignature": "Require electronic signature",
       "requireStamp": "Require consultant stamp",
       "reviewer": "Reviewer",
       "reviewerKind": "Who reviews this step",
-      "shortTitle": "Workflow settings",
       "stampHelp": "Approval is blocked until the reviewer has uploaded a stamp.",
       "stepName": "Step name",
       "stepsLocked": "An application on this workflow has been submitted, so its approval route is now part of the record and cannot be changed. Create a new workflow for a different route.",
       "stillOffered": "Still offered",
       "stillOfferedHelp": "Turn off to stop new applications choosing it. Existing ones are untouched.",
       "subtitle": "Set the real approval sequence used by each project's applications.",
-      "title": "Consultant Approval Workflows",
-      "typeFixed": "Fixed - applications have already been filed on this workflow."
+      "title": "Consultant approval workflows",
+      "typeFixed": "Fixed - applications have already been filed on this workflow.",
+      "inactive": "Switched off",
+      "inactiveHelp": "New applications cannot choose this workflow. To use it again, press the pencil and turn on “Still offered”.",
+      "alwaysSigned": "Every decision is signed with the reviewer's e-signature and six-digit sign-off PIN. There is nothing to set here.",
+      "removeStepTitle": "Remove the step “{step}”?",
+      "removeStepBody": "The step leaves the workflow. A workflow with no steps left cannot send the drafts on it."
     },
     "howTo": {
       "title": "How consultant applications work",
       "stepNumber": "Step {number}",
       "create": {
-        "title": "Create the application",
+        "title": "New application",
         "body": "Press New application, choose the project and the consultant, and fill in what is to be inspected (location, description, drawing no.). Add attachments if needed. Workflow and template are optional."
       },
       "submit": {
         "title": "Send it to the consultant",
-        "body": "Press Submit on the application. The consultant is notified and it moves to “In approval”. Until then it is a draft and can be edited."
+        "body": "When the draft is complete, press Confirm & archive (with your six-digit sign-off PIN), then Send on the application form. The consultant is notified and it moves to “Pending approval”. Before Confirm & archive the draft can still be edited or deleted."
       },
       "decide": {
-        "title": "The consultant approves, rejects or asks for changes",
-        "body": "The consultant signs and enters a PIN in their own account. The result, signature and conversation stay on the application; if changes are asked for, revise and submit again."
+        "title": "The consultant decides",
+        "body": "The consultant decides in their own account with their e-signature and sign-off PIN: Approve, Approve with remedial work, Revise and resubmit or Reject. The result, signature and conversation stay on the application. After Revise and resubmit, press Create new revision, make the changes, then Confirm & archive and Send to the consultant again."
       },
       "setupOnce": "Set up once: add the consultant to this project (Consultant settings → Consultant access), otherwise they cannot be chosen on a new application.",
       "openSettings": "Open consultant settings",
       "askAdmin": "Ask a colleague who can change settings.",
-      "signatureOnce": "Before their first approval, a consultant sets their signature and PIN under Signature."
+      "signatureOnce": "Before their first approval, a consultant sets their signature and sign-off PIN under Signature and sign-off PIN."
     },
     "settingsHub": {
       "title": "Consultant settings",
@@ -5921,17 +5920,17 @@
       "access": {
         "title": "Consultant access",
         "need": "Required · once per consultant per project",
-        "body": "Create the consultant company and accounts, and give them access to the project. A consultant without access cannot be chosen on an application.",
+        "body": "Create the consultant firm and accounts, and give them access to the project. A consultant without access cannot be chosen on an application.",
         "needProject": "Set by head office",
         "bodyProject": "Head office sets up consultant firms, consultant accounts and their projects. Here you can see which consultants are open on your projects."
       },
       "workflows": {
-        "title": "Approval workflows",
+        "title": "Consultant approval workflows",
         "need": "Optional · a default already exists",
         "body": "Every project has a “Consultant review” route automatically (one step, to the chosen consultant). Come here only to add steps for multi-level approval."
       },
       "templates": {
-        "title": "Application templates",
+        "title": "RFI form templates",
         "need": "Optional",
         "body": "Build a template only for fixed form fields, required attachments or custom numbering. Applications can be created and sent without one."
       }
@@ -5939,10 +5938,10 @@
     "what": {
       "archiveCategories": "The file categories",
       "evidenceFilters": "The filter choices",
-      "credential": "Your approval signature and PIN",
+      "credential": "Your signature and sign-off PIN",
       "evidenceCandidates": "The project's site evidence",
       "archiveDocuments": "The Document Archival list",
-      "workflows": "The approval workflows",
+      "workflows": "The consultant approval workflows",
       "templates": "The RFI form templates",
       "scheduleTasks": "The schedule activities",
       "applicationOptions": "The application choices (type, discipline, work type, priority)",
@@ -6034,12 +6033,12 @@
       "uploadedBy": "{name} · {when}",
       "signedOnForm": "Signed on the uploaded form",
       "signingTitle": "How do you sign?",
-      "signingEsignature": "Electronic signature and PIN",
+      "signingEsignature": "Electronic signature and sign-off PIN",
       "signingSignedForm": "Upload the form signed and stamped",
       "signedFormFile": "Signed / stamped form",
       "signedFormHint": "A scan or photo of the consultant's form with your signature and chop.",
-      "pinForSignedForm": "Your PIN confirms the uploaded form was signed by you.",
-      "noCredential": "You have no electronic signature yet: upload the form signed and stamped, or set up your signature and PIN first.",
+      "pinForSignedForm": "Your sign-off PIN confirms the uploaded form was signed by you.",
+      "noCredential": "You have no electronic signature yet: upload the form signed and stamped, or set your signature and sign-off PIN first.",
       "archiveBlank": "Blank form: {name} (v{version})",
       "archiveFilled": "Filled form: {name}",
       "archiveFinal": "Final version: {name}",
@@ -6082,7 +6081,7 @@
       "title": "Today's site activity"
     },
     "activityKind": {
-      "CONSULTANT_APPLICATION": "Consultant",
+      "CONSULTANT_APPLICATION": "Consultant application",
       "DISPOSAL": "Disposal",
       "EQUIPMENT_MOVEMENT": "Equipment",
       "FIELD_TASK": "Field task",
@@ -6284,7 +6283,7 @@
       "title": "Timeline"
     },
     "timelineKind": {
-      "CONSULTANT_APPLICATION": "Consultant",
+      "CONSULTANT_APPLICATION": "Consultant application",
       "DISPOSAL": "Disposal",
       "EQUIPMENT_MOVEMENT": "Equipment",
       "FIELD_TASK": "Field task",
@@ -6843,7 +6842,7 @@
       "linkedRecord": "Sent in as: {reference}",
       "linkedHint": "The worker finished the task with this record; its photos are shown above too.",
       "photos": "Photos: {current}/{required}",
-      "prepareApplication": "Check and send to the consultant",
+      "prepareApplication": "Make a consultant application",
       "projectFixed": "The site cannot change - the assignee is drawn from this site's team.",
       "referenceFiles": "Reference photos or files",
       "referenceHelp": "Field staff will see these before starting the task.",
@@ -8705,7 +8704,7 @@
       "config_unknown": "This configuration key is not supported.",
       "conflict": "That cannot be done while the record is in its current state.",
       "consultant_grant_not_current": "The chosen consultant no longer has access to this project, so the application is still a draft. Choose another consultant or renew their access first.",
-      "consultant_application_locked": "This application has been submitted, so its attachments and linked evidence can no longer change. Once it is returned for revision, change them in the new version.",
+      "consultant_application_locked": "This application has been sent to the consultant, so its attachments and linked evidence can no longer change. If the consultant chooses Revise and resubmit, change them in the new revision.",
       "consultant_grant_not_found": "That consultant project access record could not be found.",
       "consultant_organization_not_found": "That consultant organization could not be found.",
       "customer_assignment_not_found": "That customer assignment could not be found.",
@@ -9091,7 +9090,12 @@
       "rain_record_quota_full": "This project has already received its rain records for this period, so this one was not accepted.",
       "rain_void_reason_required": "Write why the record is voided.",
       "rain_record_already_voided": "This rain record is already voided; it cannot be voided again.",
-      "rain_rules_out_of_range": "The number of records must be 1 to 50, and the minutes 5 to 1440."
+      "rain_rules_out_of_range": "The number of records must be 1 to 50, and the minutes 5 to 1440.",
+      "consultant_workflow_last_active": "This is the project's only approval workflow, so it cannot be switched off. To change the route, add another workflow first and make it the default.",
+      "consultant_required_fields_missing": "Required fields still empty on the form ({count}): {fields}. Fill them in, then carry on.",
+      "consultant_required_attachments_missing": "Required attachments not added yet: {count}. Fill every required box under Attachments, then carry on.",
+      "consultant_workflow_no_steps": "This approval workflow has no steps yet, so it cannot be sent. Add a step to it under Consultant Approval Workflows, or choose another workflow on the application.",
+      "consultant_stamp_required": "This step needs your consultant stamp and you have not uploaded one. Upload it under Signature and sign-off PIN first, then come back to decide."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -9578,9 +9582,7 @@
       "workLocationPlaceholder": "Example: Block A, Grid C1-D1",
       "askForHint": "Not sure which? Leave it - the office will decide."
     },
-    "consultantTasks": {
-      "title": "Consultant photo submissions"
-    },
+    "consultantTasks": {},
     "error": {
       "action": "The action could not be completed. Try again.",
       "load": "This page could not be loaded. Check the connection.",
@@ -12053,7 +12055,7 @@
       "EQUIPMENT_HOURS": "Machine start / stop",
       "ATTENDANCE": "Site entry",
       "PERMIT": "Permit to work",
-      "CONSULTANT": "Consultant request"
+      "CONSULTANT": "Consultant submission"
     },
     "gateStatus": {
       "RECORDED": "Recorded",
@@ -12342,7 +12344,7 @@
       "anprSettings": "ANPR settings",
       "apiGatewayMonitoring": "API Gateway monitoring",
       "apiGatewaySettings": "API Gateway settings",
-      "approvalCredentials": "Approval credentials",
+      "approvalCredentials": "Signature and sign-off PIN",
       "approvals": "Approval workflows (advanced)",
       "archiveQueue": "Site Record Center",
       "assetActivity": "Asset records",
@@ -12406,7 +12408,7 @@
       "consultantDashboard": "Consultant dashboard",
       "consultantFieldInbox": "Site submissions to organise",
       "consultantTemplates": "RFI form templates",
-      "consultantWorkflows": "Approval workflow",
+      "consultantWorkflows": "Consultant approval workflows",
       "contractorNotifications": "Contractor notifications",
       "contractorReports": "Contractor reports",
       "crmActivity": "Customer service records",
@@ -12984,9 +12986,9 @@
     "consultant_applications": {
       "what": "The consultant side: raising applications, walking them through an approval chain, signing them, and the field evidence that supports them.",
       "who": "Holders of approval.view. Configuring flows needs consultant.config, raising one needs consultant.submit, deciding needs approval.review.",
-      "need": "An application needs the project, the workflow, the type, the discipline, the inspection type, the priority, the consultant and their firm, the location, the element or work area, the description and the form template. A decision needs your six-digit approval PIN and a note. Setting that PIN needs your current password, the new PIN twice and a signature.",
+      "need": "An application needs the project, the workflow, the type, the discipline, the inspection type, the priority, the consultant and their firm, the location, the element or work area, the description and the form template. A decision needs your six-digit sign-off PIN and a note. Setting that sign-off PIN needs your current password, the new PIN twice and a signature.",
       "then": "A PIN plus a signature is a signature. It cannot be undone.",
-      "trouble": "Approval buttons greyed out means you have not set your approval PIN yet. Consultants seeing no projects have authorisation that has expired or was never given for that project - it is granted per project with a start and an end."
+      "trouble": "Approval buttons greyed out means you have not set your sign-off PIN yet. Consultants seeing no projects have authorisation that has expired or was never given for that project - it is granted per project with a start and an end."
     },
     "customer_management": {
       "what": "Where your material comes from: contractors you have a platform partnership with, and private customers who simply drive in.",
