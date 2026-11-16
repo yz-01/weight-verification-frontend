@@ -160,7 +160,14 @@ describe("a 开工 the server refused on the driver's link", () => {
     expect(html).toContain(zh.offline.refused.retry);
     expect(html).toContain(zh.offline.refused.delete);
 
-    // 重试 sends it again; this time it goes.
+    // 重试 sends it again; this time the link's endpoint takes it.
+    post.mockImplementationOnce(async () => ({
+      id: "log",
+      equipment: "eq-1",
+      kind: "START",
+      captured_at: "2026-11-16T00:00:00Z",
+      client_event_id: "equipment-hours-1",
+    }));
     await queue.retryOfflineJob(owner, refused[0].id);
     expect(await queue.getOfflineQueueEntries(owner)).toEqual([]);
   });
