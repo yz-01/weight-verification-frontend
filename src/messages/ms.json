@@ -23,7 +23,9 @@
       "return": "Pulangkan",
       "save": "Simpan",
       "start": "Mula",
-      "transferAsset": "Pindah aset"
+      "transferAsset": "Pindah aset",
+      "goToCategories": "Pergi ke kategori aset",
+      "removeCategory": "Padam kategori"
     },
     "assetStatus": {
       "BORROWED": "Dipinjam",
@@ -283,7 +285,10 @@
       "removedOn": "Tarikh dikeluarkan",
       "decision": "Keputusan",
       "selectSource": "Pilih lokasi semasa",
-      "fromHint": "Diisi mengikut lokasi aset yang direkodkan sekarang. Tukar hanya jika rekod itu salah."
+      "fromHint": "Diisi mengikut lokasi aset yang direkodkan sekarang. Tukar hanya jika rekod itu salah.",
+      "noCustomCategories": "Belum ada kategori tersuai untuk dipilih. Tambah dahulu di Kategori aset, kemudian kembali ke sini.",
+      "recurringHint": "Penyelenggaraan berulang: isi tarikh seterusnya semasa menyelesaikan kali ini, jika tidak tiada lawatan seterusnya dijadualkan.",
+      "nextDateRecurringHint": "Penyelenggaraan ini berulang. Isi tarikh seterusnya dan lawatan seterusnya dijadualkan pada tarikh itu."
     },
     "installationStatus": {
       "ACTIVE": "Aktif",
@@ -425,6 +430,12 @@
       "staff": "Senarai kakitangan",
       "options": "Senarai kakitangan, jabatan, pelanggan dan projek",
       "customers": "Nama pelanggan"
+    },
+    "saveError": "Tidak dapat disimpan. Semak maklumat yang dimasukkan dan cuba lagi.",
+    "saveFieldError": "{field}: {error}",
+    "confirm": {
+      "removeCategory": "Padam kategori \"{name}\"? Kategori yang sudah digunakan oleh aset tidak boleh dipadam; nyahaktifkan sahaja.",
+      "removeDepartment": "Padam jabatan \"{name}\"? Selepas ini ia tidak boleh dipilih lagi untuk pemindahan."
     }
   },
   "adminAuditCenter": {
@@ -656,7 +667,10 @@
       "usageUnit": "Unit penggunaan",
       "vendor": "Pilih pembekal",
       "video_storage_gb": "Storan video GB",
-      "year": "Tahun"
+      "year": "Tahun",
+      "tenantId": "ID penyewa (Azure)",
+      "tenantIdHint": "Penggunaan Azure hanya diselaraskan apabila ID penyewa ini diisi bersama kunci API.",
+      "tiersHint": "Bagi setiap peringkat, isi had penggunaan (limit) dan harga seunit (price); peringkat terakhir dengan limit 0 tiada had. Ikut contoh dalam kotak."
     },
     "formSection": {
       "basic": "Butiran asas",
@@ -797,6 +811,17 @@
       "services": "Senarai perkhidmatan awan",
       "vendors": "Senarai vendor",
       "companiesProjects": "Senarai pelanggan dan projek"
+    },
+    "saveFieldError": "{field}: {error}",
+    "alertMessage": "{type}: kini {current}, paras amaran {threshold}",
+    "unit": {
+      "GB": "GB",
+      "TB": "TB",
+      "REQUESTS": "Permintaan API",
+      "MESSAGES": "Mesej (SMS)",
+      "HOURS": "Jam",
+      "TRANSACTIONS": "Transaksi",
+      "none": "Tidak ditetapkan"
     }
   },
   "adminCustomerService": {
@@ -818,7 +843,9 @@
       "process": "Proses",
       "respond": "Jawab",
       "save": "Simpan",
-      "updateStatus": "Kemas kini status"
+      "updateStatus": "Kemas kini status",
+      "view": "Lihat",
+      "close": "Tutup"
     },
     "column": {
       "actions": "Tindakan",
@@ -897,7 +924,11 @@
       "type": "Jenis",
       "visit_code": "Susulan",
       "visit_date": "Tarikh susulan",
-      "visited_by_name": "Pegawai"
+      "visited_by_name": "Pegawai",
+      "message": "Kandungan",
+      "requirements": "Keperluan",
+      "notes": "Keputusan",
+      "lost_reason": "Sebab hilang"
     },
     "feedbackCategory": {
       "BUG_REPORT": "Laporan bug",
@@ -939,7 +970,10 @@
       "meetingLinkHint": "Untuk latihan dalam talian: pautan panggilan video, bermula dengan https://",
       "visitTime": "Masa susulan",
       "visitReport": "Fail laporan susulan",
-      "viewReport": "Lihat laporan"
+      "viewReport": "Lihat laporan",
+      "assignee": "Dikendalikan oleh",
+      "unassigned": "Belum ditetapkan",
+      "pastResults": "Keputusan terdahulu"
     },
     "loadError": "Rekod khidmat pelanggan tidak dapat dimuatkan.",
     "loading": "Memuatkan rekod khidmat pelanggan...",
@@ -1024,7 +1058,8 @@
       "open": "Terbuka",
       "resolved": "Selesai",
       "satisfied": "Puas",
-      "unsatisfied": "Tidak puas"
+      "unsatisfied": "Tidak puas",
+      "resolvedLocked": "Maklum balas yang telah selesai tidak boleh ditukar kembali kepada belum selesai."
     },
     "subtitle": "Urus pertanyaan, latihan, susulan, maklum balas dan sejarah perkhidmatan kekal.",
     "title": "Pusat Khidmat Pelanggan",
@@ -1041,7 +1076,8 @@
     },
     "what": {
       "summary": "ringkasan khidmat pelanggan",
-      "companies": "senarai pelanggan"
+      "companies": "senarai pelanggan",
+      "assignees": "Senarai orang yang boleh ditugaskan"
     }
   },
   "adminCwe": {
@@ -1361,7 +1397,8 @@
       "submit": "Hantar",
       "terminate": "Tamatkan",
       "view": "Lihat",
-      "viewPaymentProof": "Lihat bukti pembayaran"
+      "viewPaymentProof": "Lihat bukti pembayaran",
+      "delete": "Padam"
     },
     "agreementStatus": {
       "ACTIVE": "Aktif",
@@ -1503,7 +1540,13 @@
       "terms": "Terma perjanjian",
       "title": "Tajuk perjanjian",
       "signedOn": "Tarikh ditandatangani",
-      "paymentProof": "Bukti pembayaran"
+      "paymentProof": "Bukti pembayaran",
+      "commissionStart": "Komisen dari",
+      "commissionStartHint": "Biarkan kosong untuk bermula hari ini",
+      "commissionEnd": "Komisen hingga",
+      "commissionEndHint": "Biarkan kosong jika tiada tarikh tamat",
+      "changeReason": "Sebab perubahan (pilihan)",
+      "calculationConfigExample": "Gunakan format ini, contohnya: {example}"
     },
     "heading": {
       "payouts": "Pembayaran komisen",
@@ -1641,6 +1684,31 @@
       "territories": "Senarai wilayah",
       "agreements": "Peraturan komisen perjanjian",
       "payouts": "Senarai pembayaran komisen"
+    },
+    "remove": {
+      "typeTitle": "Padam jenis rakan kongsi \"{name}\"?",
+      "typeDescription": "Selepas dipadam, jenis ini tidak boleh dipilih lagi. Jenis yang sudah digunakan oleh rakan kongsi tidak boleh dipadam - nyahaktifkannya.",
+      "territoryTitle": "Padam kawasan \"{name}\"?",
+      "territoryDescription": "Selepas dipadam, kawasan ini tidak boleh dipilih untuk pelanggan. Kawasan yang sudah ada pelanggan tidak boleh dipadam - isikan tarikh tamat."
+    },
+    "payout": {
+      "rejectedClosed": "Ditolak - bayaran ini tidak boleh dibayar lagi. Untuk mengira semula, tekan \"Kira komisen\"."
+    },
+    "toast": {
+      "statusChanged": "Status rakan kongsi dikemas kini",
+      "agreementUpdated": "Perjanjian disimpan",
+      "typeSaved": "Jenis rakan kongsi disimpan",
+      "typeRemoved": "Jenis rakan kongsi dipadam",
+      "territorySaved": "Kawasan disimpan",
+      "territoryRemoved": "Kawasan dipadam",
+      "customerAssigned": "Pelanggan diberikan kepada rakan kongsi",
+      "assignmentUpdated": "Penugasan pelanggan dikemas kini",
+      "agreementSubmitted": "Perjanjian dihantar untuk ditandatangani",
+      "agreementActivated": "Perjanjian kini berkuat kuasa",
+      "agreementRenewed": "Pembaharuan dibuat sebagai draf",
+      "agreementTerminated": "Perjanjian ditamatkan",
+      "payoutAdjusted": "Pelarasan disimpan",
+      "payoutUpdated": "Bayaran dikemas kini"
     }
   },
   "adminQr": {
@@ -1941,7 +2009,11 @@
       "editPerson": "Edit jurujual",
       "process": "Proses",
       "reassign": "Pindah",
-      "save": "Simpan"
+      "save": "Simpan",
+      "editTerritory": "Edit kawasan",
+      "view": "Lihat",
+      "close": "Tutup",
+      "goToSettlements": "Pergi ke penyelesaian"
     },
     "basis": {
       "CUSTOM_FORMULA": "Formula tersuai",
@@ -2009,7 +2081,8 @@
       "platform_commission_percent": "Peratus komisen platform",
       "saas_percent": "Peratus hasil SaaS",
       "target_bonus": "Amaun bonus sasaran",
-      "target_threshold": "Ambang sasaran"
+      "target_threshold": "Ambang sasaran",
+      "targetMetric": "Bonus sasaran diukur pada"
     },
     "cycle": {
       "MONTHLY": "Bulanan",
@@ -2043,7 +2116,15 @@
       "selectSupervisor": "Pilih penyelia atau pengurus",
       "target": "Jumlah sasaran",
       "wonOn": "Tarikh kontrak ditandatangani",
-      "reasonLabel": "Sebab"
+      "reasonLabel": "Sebab",
+      "noEndDate": "Tiada tarikh tamat",
+      "territoryName": "Nama kawasan",
+      "territoryNameHint": "Contohnya: Wilayah Utara",
+      "nationalSwitch": "Seluruh negara (meliputi semua negeri)",
+      "effectiveTo": "Tamat pada",
+      "effectiveToHint": "Biarkan kosong jika tiada tarikh tamat",
+      "exclusiveSwitch": "Eksklusif (jika dua orang meliputi negeri yang sama, pelanggan baharu diberi kepada orang ini dahulu)",
+      "nameInSchemes": "Tukar nama dan keterangan di Skim komisen; di sini hanya cara pengiraan"
     },
     "loadError": "Rekod jualan tidak dapat dimuatkan.",
     "loading": "Memuatkan rekod jualan...",
@@ -2070,7 +2151,8 @@
       "recyclers_won": "Pengitar semula dimenangi",
       "saas_revenue": "Hasil SaaS",
       "team_size": "Saiz pasukan",
-      "total_customers": "Pelanggan"
+      "total_customers": "Pelanggan",
+      "period": "Tempoh: {start} hingga {end}"
     },
     "remove": {
       "confirm": "Alih keluar wilayah",
@@ -2094,7 +2176,8 @@
     "saveError": "Tugasan pelanggan tidak dapat disimpan. Semak pelanggan dan jurujual yang dipilih, kemudian cuba lagi.",
     "scope": {
       "NATIONAL": "Seluruh negara",
-      "STATES": "Negeri dinamakan"
+      "STATES": "Negeri dinamakan",
+      "none": "Belum ditetapkan"
     },
     "section": {
       "activity": {
@@ -2167,7 +2250,17 @@
       "summary": "Ringkasan jualan",
       "schemes": "Senarai skim komisen",
       "people": "Senarai jurujual",
-      "performance": "Angka prestasi pasukan"
+      "performance": "Angka prestasi pasukan",
+      "acknowledgements": "rekod pengesahan"
+    },
+    "territory": {
+      "notCurrent": "Tidak berkuat kuasa hari ini",
+      "empty": "Belum ada kawasan jualan. Tekan \"Tambah kawasan\", pilih jurujual dan negeri yang diliputi (atau seluruh negara). Syarikat baharu akan diberi kepada orang yang meliputi negerinya."
+    },
+    "termsView": {
+      "confirmedBy": "Disahkan oleh",
+      "noneConfirmed": "Belum ada yang mengesahkan versi ini.",
+      "confirmedOn": "Disahkan {date}"
     }
   },
   "adminSystemSettings": {
@@ -2691,7 +2784,10 @@
       "actualHours": "Jam sebenar",
       "resolutionNotes": "Nota penyelesaian",
       "resolutionNotesHelp": "Nota yang diisi semasa menandakan tiket selesai juga ditulis di sini.",
-      "laborHours": "Jam kerja"
+      "laborHours": "Jam kerja",
+      "assignee": "Dikendalikan oleh",
+      "unassigned": "Belum ditetapkan",
+      "fixedInVersion": "Dibaiki dalam versi"
     },
     "guide": {
       "action": {
@@ -2841,7 +2937,7 @@
     "ticketComment": {
       "empty": "Belum ada sesiapa menulis pada tiket ini.",
       "internal": "Dalaman",
-      "internalHelp": "Nota dalaman - untuk kakitangan sahaja, pelanggan tidak nampak",
+      "internalHelp": "Tandakan sebagai nota dalaman. Setiap balasan di sini hanya rekod kakitangan; tiada apa-apa dihantar kepada pelanggan.",
       "placeholder": "Tulis balasan",
       "send": "Tambah komen",
       "title": "Perbualan",
@@ -2851,7 +2947,9 @@
     "ticketEdit": {
       "moveOn": "Teruskan statusnya",
       "save": "Simpan pembetulan",
-      "title": "Betulkan tiket ini"
+      "title": "Betulkan tiket ini",
+      "moveOnHint": "Hanya status yang boleh dituju oleh tiket ini sekarang disenaraikan.",
+      "closedFinal": "Tiket ini telah ditutup dan statusnya tidak boleh ditukar. Jika masalah berulang, tambah tiket baharu."
     },
     "ticketState": {
       "CLOSED": "Ditutup",
@@ -2873,7 +2971,10 @@
     "title": "Pusat Sokongan Teknikal",
     "what": {
       "summary": "ringkasan sokongan teknikal",
-      "companies": "senarai syarikat"
+      "companies": "senarai syarikat",
+      "assignees": "Senarai orang yang boleh ditugaskan",
+      "integrations": "sambungan integrasi sistem",
+      "devices": "peranti berdaftar"
     }
   },
   "app": {
@@ -8699,7 +8800,7 @@
       "attendance_gps_inaccurate": "Lokasi telefon anda kurang tepat (kira-kira {accuracy} m) untuk menentukan sama ada anda di dalam pagar tapak. Pergi ke kawasan lapang, tunggu beberapa saat dan cuba lagi.",
       "attendance_outside_geofence": "Anda berada di luar pagar tapak, {distance} m dari yang terdekat. Dekati dan cuba lagi.",
       "audit_entry_not_found": "Rekod audit itu tidak dijumpai.",
-      "below_minimum_payout": "Jumlah ini di bawah bayaran minimum.",
+      "below_minimum_payout": "Komisen ini di bawah bayaran minimum perjanjian, jadi tiada bayaran dibuat. Ia boleh dikira bersama tempoh seterusnya.",
       "bug_not_found": "Rekod pepijat itu tidak dijumpai.",
       "calibration_expired": "Kalibrasi jambatan timbang ini telah tamat.",
       "cannot_modify_self": "Anda tidak boleh menukar akaun sendiri dengan cara ini. Gunakan profil anda.",
@@ -8713,7 +8814,7 @@
       "commission_payout_not_found": "Rekod bayaran komisen itu tidak dijumpai.",
       "commission_rule_not_found": "Peraturan komisen itu tidak dijumpai.",
       "commission_scheme_not_found": "Skim komisen itu tidak dijumpai.",
-      "company_already_referred": "Syarikat ini sudah ditugaskan kepada rakan kongsi.",
+      "company_already_referred": "Pelanggan ini sudah milik rakan kongsi lain. Untuk menukarnya, sunting rekod asal di bawah agihan pelanggan.",
       "company_bank_account_not_found": "Akaun bank itu tidak dijumpai.",
       "company_document_not_found": "Dokumen syarikat itu tidak dijumpai.",
       "company_has_active_users": "Syarikat ini masih ada orang yang boleh log masuk. Gantung sahaja, atau nyahaktifkan mereka dahulu.",
@@ -8824,7 +8925,7 @@
       "user_replacement_contractor_only": "Hanya akaun syarikat kontraktor boleh diserahkan. Bagi akaun lain, gantung akaun itu dan tambah akaun baharu untuk orang yang mengambil alih.",
       "maintenance_not_found": "Rekod penyelenggaraan itu tidak dijumpai.",
       "method_not_allowed": "Tindakan itu tidak tersedia di sini.",
-      "no_active_agreement": "Rakan kongsi ini tiada perjanjian aktif.",
+      "no_active_agreement": "Rakan kongsi ini tiada perjanjian aktif untuk tempoh itu. Aktifkan perjanjian dahulu, atau pilih tempoh lain.",
       "no_current_version": "Tiada versi platform semasa dipilih.",
       "not_acceptable": "Peranti ini tidak dapat membaca format balasan pelayan.",
       "not_authenticated": "Sila log masuk semula.",
@@ -8843,8 +8944,8 @@
       "partnership_not_counterparty": "Hanya syarikat pihak satu lagi boleh menjawab permintaan kerjasama ini.",
       "partnership_not_found": "Kerjasama itu tidak dijumpai.",
       "payment_not_found": "Rekod pembayaran itu tidak dijumpai.",
-      "payout_already_exists": "Bayaran sudah wujud untuk tempoh ini.",
-      "payout_not_draft": "Hanya bayaran draf boleh diubah dengan cara ini.",
+      "payout_already_exists": "Komisen untuk tempoh ini sudah dikira. Uruskan bayaran itu dalam senarai di bawah.",
+      "payout_not_draft": "Hanya bayaran yang baru dikira dan belum dihantar untuk kelulusan boleh dilaraskan.",
       "permission_denied": "Anda tidak dibenarkan berbuat demikian.",
       "portal_mismatch": "Akaun ini milik portal lain. Gunakan halaman log masuk yang betul.",
       "pricing_rule_not_found": "Peraturan harga awan itu tidak dijumpai.",
@@ -9142,7 +9243,36 @@
       "consultant_stamp_required": "Langkah ini memerlukan cop perunding anda dan anda belum memuat naik cop. Muat naik di Tandatangan dan PIN pengesahan dahulu, kemudian kembali untuk membuat keputusan.",
       "dispatch_not_loaded": "Pemandu belum menekan [Sudah dimuatkan] di telefon. Minta pemandu tekan [Sudah dimuatkan] dahulu, kemudian imbas semula.",
       "recycler_standard_plan": "Pengitar semula ini menggunakan pelan Standard dan tidak boleh menerima pesanan kontraktor. Sila pilih pengitar semula pelan Rakan kongsi.",
-      "standard_plan_no_partnership": "Syarikat anda menggunakan pelan Standard yang tidak boleh menerima pesanan kontraktor, jadi tidak boleh memohon kerjasama. Untuk menerima pesanan kontraktor, hubungi MSE untuk bertukar ke pelan Rakan kongsi."
+      "standard_plan_no_partnership": "Syarikat anda menggunakan pelan Standard yang tidak boleh menerima pesanan kontraktor, jadi tidak boleh memohon kerjasama. Untuk menerima pesanan kontraktor, hubungi MSE untuk bertukar ke pelan Rakan kongsi.",
+      "invalid_state_transition": "Tiket tidak boleh terus bertukar daripada status sekarang kepada status itu. Pilih status yang ada dalam senarai, contohnya 「Dalam proses」 dahulu.",
+      "partner_type_system": "Jenis rakan kongsi terbina dalam tidak boleh dipadam.",
+      "partner_type_in_use": "Sudah ada rakan kongsi yang menggunakan jenis ini, jadi ia tidak boleh dipadam. Sunting dan nyahaktifkannya.",
+      "partner_territory_in_use": "Kawasan ini sudah ada pelanggan, jadi ia tidak boleh dipadam. Sunting dan beri tarikh tamat.",
+      "agreement_document_required": "Muat naik dokumen perjanjian yang sudah ditandatangani dahulu, kemudian hantar atau aktifkan.",
+      "payout_adjustment_negative": "Pelarasan itu akan menjadikan bayaran negatif. Kecilkan potongan.",
+      "payout_rejected_final": "Bayaran ini telah ditolak dan tidak boleh dihantar atau dibayar lagi. Untuk mengira semula, tekan 「Kira pembayaran」 untuk tempoh itu.",
+      "payout_invalid_transition": "Bayaran ini tidak boleh bertukar kepada status itu sekarang. Muat semula halaman untuk melihat statusnya.",
+      "sales_calculate_no_scheme": "Kakitangan jualan ini belum ada skim komisen. Pilih satu untuknya di bahagian kakitangan jualan dahulu.",
+      "sales_calculate_scheme_inactive": "Skim komisen kakitangan jualan ini telah dinyahaktifkan. Beri skim yang aktif dahulu.",
+      "sales_calculate_already_settled": "Komisen untuk tempoh ini sudah disahkan dan tidak boleh dikira semula.",
+      "sales_calculate_nothing_earned": "Tiada komisen diperoleh dalam tempoh ini, jadi tiada apa-apa dibuat.",
+      "sales_already_owner": "Pelanggan ini memang milik kakitangan jualan itu; tiada apa yang perlu dipindahkan.",
+      "sales_terms_not_draft": "Hanya versi draf boleh diaktifkan. Tambah versi terma baharu dan aktifkannya.",
+      "sales_terms_already_confirmed": "Kakitangan jualan ini sudah mengesahkan versi itu; tidak perlu direkodkan lagi.",
+      "sales_payout_locked": "Bayaran ini sudah disahkan dan tidak boleh dilaraskan lagi.",
+      "sales_payout_negative": "Pelarasan itu akan menjadikan bayaran di bawah sifar. Kecilkan potongan.",
+      "sales_payout_invalid_transition": "Bayaran ini tidak boleh bertukar kepada status itu sekarang. Muat semula halaman untuk melihat statusnya.",
+      "asset_retired_final": "Aset yang telah dilupuskan tidak boleh diaktifkan semula.",
+      "asset_category_system": "Kategori aset terbina dalam tidak boleh dipadam.",
+      "asset_category_in_use": "Aset atau pembelian sudah menggunakan kategori ini, jadi ia tidak boleh dipadam. Sunting dan nyahaktifkannya.",
+      "asset_purchase_closed": "Pembelian ini sudah diterima sepenuhnya atau dibatalkan; tiada lagi stok boleh diterima.",
+      "asset_purchase_over_received": "Hanya {remaining} item lagi belum tiba untuk pembelian ini. Masukkan {remaining} atau kurang.",
+      "asset_assignment_closed": "Item ini sudah dipulangkan.",
+      "asset_installation_invalid_transition": "Pemasangan ini tidak boleh bertukar kepada status itu sekarang. Muat semula halaman untuk melihat statusnya.",
+      "asset_maintenance_not_scheduled": "Hanya pembaikan atau penyelenggaraan yang dijadualkan boleh dimulakan.",
+      "asset_maintenance_closed": "Pembaikan atau penyelenggaraan ini sudah selesai dan tidak boleh diubah.",
+      "asset_disposal_invalid_state": "Permohonan pelupusan ini tidak boleh diuruskan begitu sekarang. Muat semula halaman untuk melihat statusnya.",
+      "asset_disposal_reason_required": "Menolak permohonan pelupusan memerlukan sebab. Tulis dalam catatan."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -13496,6 +13626,12 @@
       "REFERRAL": "Rakan Rujukan",
       "REGIONAL_AGENT": "Ejen Wilayah",
       "TECHNOLOGY": "Rakan Teknologi"
+    },
+    "toast": {
+      "created": "Rakan kongsi dicipta",
+      "updated": "Butiran rakan kongsi disimpan",
+      "agreementCreated": "Perjanjian dicipta",
+      "payoutCalculated": "Komisen dikira"
     }
   },
   "partnerships": {
@@ -15610,7 +15746,17 @@
       "reassigned": "Pemilikan pelanggan dipindahkan",
       "removed": "Wilayah dialih keluar",
       "saved": "Tetapan jualan disimpan",
-      "updated": "Jurujual dikemas kini"
+      "updated": "Jurujual dikemas kini",
+      "payoutsCalculated": "{count} bayaran komisen dikira",
+      "nothingCalculated": "Tiada komisen baharu dikira: {reasons}",
+      "skipped": {
+        "no_scheme": "{count} orang tiada skim komisen - pilih skim untuk mereka di Jurujual",
+        "scheme_inactive": "{count} orang mempunyai skim komisen yang dinyahaktifkan - aktifkannya di Skim komisen",
+        "already_settled": "{count} orang sudah diluluskan untuk tempoh ini",
+        "nothing_earned": "{count} orang tidak memperoleh komisen dalam tempoh ini",
+        "other": "{count} orang tidak dikira atas sebab lain",
+        "nobody": "tiada jurujual aktif yang mempunyai skim komisen"
+      }
     }
   },
   "scales": {
@@ -21812,5 +21958,9 @@
       "placeholder": "Contoh: kerja terhenti 5 hari bulan ini kerana hujan.",
       "hint": "Dicetak pada PDF laporan bulan ini."
     }
+  },
+  "pagedList": {
+    "shown": "Memaparkan {shown} daripada {total}",
+    "loadMore": "Muat lagi"
   }
 }

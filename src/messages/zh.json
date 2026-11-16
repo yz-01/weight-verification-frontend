@@ -23,7 +23,9 @@
       "return": "归还",
       "save": "保存",
       "start": "开始",
-      "transferAsset": "调拨资产"
+      "transferAsset": "调拨资产",
+      "goToCategories": "前往资产类别",
+      "removeCategory": "删除类别"
     },
     "assetStatus": {
       "BORROWED": "已借出",
@@ -283,7 +285,10 @@
       "removedOn": "拆除日期",
       "decision": "处理决定",
       "selectSource": "选择目前所在",
-      "fromHint": "按资产目前记录的所在位置自动带出，只有记录不对时才需要改。"
+      "fromHint": "按资产目前记录的所在位置自动带出，只有记录不对时才需要改。",
+      "noCustomCategories": "还没有可选的自定义类别。请先到「资产类别」新增，再回来选择。",
+      "recurringHint": "定期重复保养：完成这次保养时要填「下次日期」，系统才会自动排下一次。",
+      "nextDateRecurringHint": "这是定期重复保养，请填下次日期，系统会按这个日期排下一次保养。"
     },
     "installationStatus": {
       "ACTIVE": "已启用",
@@ -425,6 +430,12 @@
       "staff": "员工列表",
       "options": "员工、部门、客户和项目列表",
       "customers": "客户名称"
+    },
+    "saveError": "保存失败，请检查输入内容后重试。",
+    "saveFieldError": "「{field}」：{error}",
+    "confirm": {
+      "removeCategory": "确定要删除类别「{name}」吗？已经有资产在用的类别不能删除，请改为停用。",
+      "removeDepartment": "确定要删除部门「{name}」吗？删除后，调拨时不能再选这个部门。"
     }
   },
   "adminAuditCenter": {
@@ -656,7 +667,10 @@
       "usageUnit": "使用单位",
       "vendor": "选择供应商",
       "video_storage_gb": "Video Storage GB",
-      "year": "年份"
+      "year": "年份",
+      "tenantId": "租户 ID（Azure）",
+      "tenantIdHint": "Azure 的用量要自动同步，除了 API 密钥，还要填这个租户 ID。",
+      "tiersHint": "每一档写用量上限（limit）和单价（price）；最后一档的 limit 写 0，表示不封顶。可照框里的例子填。"
     },
     "formSection": {
       "basic": "基本资料",
@@ -797,6 +811,17 @@
       "services": "云服务列表",
       "vendors": "供应商列表",
       "companiesProjects": "客户和项目列表"
+    },
+    "saveFieldError": "「{field}」：{error}",
+    "alertMessage": "{type}：目前 {current}，预警线 {threshold}",
+    "unit": {
+      "GB": "GB",
+      "TB": "TB",
+      "REQUESTS": "次（API 请求）",
+      "MESSAGES": "条（短信 / 讯息）",
+      "HOURS": "小时",
+      "TRANSACTIONS": "笔（交易）",
+      "none": "不指定"
     }
   },
   "adminCustomerService": {
@@ -818,7 +843,9 @@
       "process": "处理",
       "respond": "回复",
       "save": "保存",
-      "updateStatus": "更新状态"
+      "updateStatus": "更新状态",
+      "view": "查看",
+      "close": "关闭"
     },
     "column": {
       "actions": "操作",
@@ -897,7 +924,11 @@
       "type": "类型",
       "visit_code": "回访编号",
       "visit_date": "回访日期",
-      "visited_by_name": "回访人员"
+      "visited_by_name": "回访人员",
+      "message": "内容",
+      "requirements": "客户需求",
+      "notes": "处理结果",
+      "lost_reason": "流失原因"
     },
     "feedbackCategory": {
       "BUG_REPORT": "Bug 反馈",
@@ -939,7 +970,10 @@
       "meetingLinkHint": "线上培训时填写视频会议链接，以 https:// 开头",
       "visitTime": "回访时间",
       "visitReport": "回访报告文件",
-      "viewReport": "查看报告"
+      "viewReport": "查看报告",
+      "assignee": "处理人员",
+      "unassigned": "未指定",
+      "pastResults": "以前的处理结果"
     },
     "loadError": "无法加载客户服务记录。",
     "loading": "正在加载客户服务记录...",
@@ -1024,7 +1058,8 @@
       "open": "待处理",
       "resolved": "已解决",
       "satisfied": "满意",
-      "unsatisfied": "不满意"
+      "unsatisfied": "不满意",
+      "resolvedLocked": "已解决的反馈不能改回未解决。"
     },
     "subtitle": "统一管理客户咨询、培训、回访、反馈及永久服务历史。",
     "title": "客户服务中心",
@@ -1041,7 +1076,8 @@
     },
     "what": {
       "summary": "客服中心统计",
-      "companies": "客户列表"
+      "companies": "客户列表",
+      "assignees": "可指派的人员名单"
     }
   },
   "adminCwe": {
@@ -1361,7 +1397,8 @@
       "submit": "提交",
       "terminate": "终止",
       "view": "在线查看",
-      "viewPaymentProof": "查看付款凭证"
+      "viewPaymentProof": "查看付款凭证",
+      "delete": "删除"
     },
     "agreementStatus": {
       "ACTIVE": "生效中",
@@ -1503,7 +1540,13 @@
       "terms": "协议条款",
       "title": "协议标题",
       "signedOn": "签署日期",
-      "paymentProof": "付款凭证"
+      "paymentProof": "付款凭证",
+      "commissionStart": "佣金开始日期",
+      "commissionStartHint": "不填就从今天开始算",
+      "commissionEnd": "佣金结束日期",
+      "commissionEndHint": "不填就一直算下去",
+      "changeReason": "修改原因（选填）",
+      "calculationConfigExample": "按这个格式填写，例如：{example}"
     },
     "heading": {
       "payouts": "合作伙伴佣金结算",
@@ -1641,6 +1684,31 @@
       "territories": "负责区域列表",
       "agreements": "协议佣金规则",
       "payouts": "佣金结算列表"
+    },
+    "remove": {
+      "typeTitle": "删除合作类型「{name}」？",
+      "typeDescription": "删除后，这个类型就不能再选。已经有合作伙伴在用的类型不能删除，请改为停用。",
+      "territoryTitle": "删除负责区域「{name}」？",
+      "territoryDescription": "删除后，这个区域就不能再选来分配客户。已经有客户归属的区域不能删除，请改为填写到期日期。"
+    },
+    "payout": {
+      "rejectedClosed": "已驳回，不能再付款。要重新算，请按「计算佣金」。"
+    },
+    "toast": {
+      "statusChanged": "合作伙伴状态已更新",
+      "agreementUpdated": "协议已保存",
+      "typeSaved": "合作类型已保存",
+      "typeRemoved": "合作类型已删除",
+      "territorySaved": "负责区域已保存",
+      "territoryRemoved": "负责区域已删除",
+      "customerAssigned": "客户已分配给合作伙伴",
+      "assignmentUpdated": "客户归属已更新",
+      "agreementSubmitted": "协议已提交，等待签署",
+      "agreementActivated": "协议已生效",
+      "agreementRenewed": "续签协议已建立（草稿）",
+      "agreementTerminated": "协议已终止",
+      "payoutAdjusted": "调整金额已保存",
+      "payoutUpdated": "佣金结算已更新"
     }
   },
   "adminQr": {
@@ -1941,7 +2009,11 @@
       "editPerson": "编辑销售人员",
       "process": "处理",
       "reassign": "转移",
-      "save": "保存"
+      "save": "保存",
+      "editTerritory": "编辑区域",
+      "view": "查看",
+      "close": "关闭",
+      "goToSettlements": "去佣金结算"
     },
     "basis": {
       "CUSTOM_FORMULA": "自定义计算公式",
@@ -2009,7 +2081,8 @@
       "platform_commission_percent": "平台佣金百分比",
       "saas_percent": "SaaS 收入百分比",
       "target_bonus": "目标奖励金额",
-      "target_threshold": "目标门槛"
+      "target_threshold": "目标门槛",
+      "targetMetric": "目标奖励按什么算"
     },
     "cycle": {
       "MONTHLY": "每月",
@@ -2043,7 +2116,15 @@
       "selectSupervisor": "选择主管或经理",
       "target": "目标金额",
       "wonOn": "签约日期",
-      "reasonLabel": "原因"
+      "reasonLabel": "原因",
+      "noEndDate": "长期有效",
+      "territoryName": "区域名称",
+      "territoryNameHint": "例如：北马、中马",
+      "nationalSwitch": "全国（负责所有州属）",
+      "effectiveTo": "到期日期",
+      "effectiveToHint": "不填就一直有效",
+      "exclusiveSwitch": "独家负责（同一个州属有两位负责人时，新客户先给这一位）",
+      "nameInSchemes": "名称和说明请到「佣金方案」修改，这里只改计算方式"
     },
     "loadError": "无法加载销售记录。",
     "loading": "正在加载销售记录...",
@@ -2070,7 +2151,8 @@
       "recyclers_won": "回收商客户",
       "saas_revenue": "SaaS 收入",
       "team_size": "团队人数",
-      "total_customers": "客户"
+      "total_customers": "客户",
+      "period": "统计期间：{start} 至 {end}"
     },
     "remove": {
       "confirm": "移除负责区域",
@@ -2094,7 +2176,8 @@
     "saveError": "无法保存客户归属，请检查所选客户和销售人员后重试。",
     "scope": {
       "NATIONAL": "全国",
-      "STATES": "指定州属"
+      "STATES": "指定州属",
+      "none": "未设定"
     },
     "section": {
       "activity": {
@@ -2167,7 +2250,17 @@
       "summary": "销售汇总",
       "schemes": "佣金方案列表",
       "people": "销售人员列表",
-      "performance": "团队业绩数据"
+      "performance": "团队业绩数据",
+      "acknowledgements": "确认记录"
+    },
+    "territory": {
+      "notCurrent": "不在生效期内",
+      "empty": "还没有设定销售区域。按「新增区域」，选一位销售人员和他负责的州属（或全国）。新公司会按州属自动分给负责的人。"
+    },
+    "termsView": {
+      "confirmedBy": "已确认的销售人员",
+      "noneConfirmed": "还没有人确认这个版本。",
+      "confirmedOn": "{date} 确认"
     }
   },
   "adminSystemSettings": {
@@ -2691,7 +2784,10 @@
       "actualHours": "实际工时（小时）",
       "resolutionNotes": "处理说明",
       "resolutionNotesHelp": "把工单标为完成时填写的说明也会写到这里。",
-      "laborHours": "人工工时（小时）"
+      "laborHours": "人工工时（小时）",
+      "assignee": "负责人",
+      "unassigned": "未指定",
+      "fixedInVersion": "修复版本"
     },
     "guide": {
       "action": {
@@ -2841,7 +2937,7 @@
     "ticketComment": {
       "empty": "这张工单还没有人说过话。",
       "internal": "内部",
-      "internalHelp": "内部备注 —— 只有自己人看得到，客户看不到",
+      "internalHelp": "标为内部备注。这里的回复都只记录在后台给同事看，系统不会发给客户。",
       "placeholder": "写一条回复",
       "send": "添加评论",
       "title": "对话记录",
@@ -2851,7 +2947,9 @@
     "ticketEdit": {
       "moveOn": "推进状态",
       "save": "保存更正",
-      "title": "更正这张工单"
+      "title": "更正这张工单",
+      "moveOnHint": "这里只列出这张工单现在可以改去的状态。",
+      "closedFinal": "这张工单已经关闭，状态不能再改。如果问题又出现，请新增一张工单。"
     },
     "ticketState": {
       "CLOSED": "已关闭",
@@ -2873,7 +2971,10 @@
     "title": "技术支持中心",
     "what": {
       "summary": "技术支持中心统计",
-      "companies": "公司列表"
+      "companies": "公司列表",
+      "assignees": "可指派的人员名单",
+      "integrations": "系统集成连接",
+      "devices": "已登记的设备"
     }
   },
   "app": {
@@ -8699,7 +8800,7 @@
       "attendance_gps_inaccurate": "手机定位不够准（误差约 {accuracy} 米），判断不了你在不在工地围栏内。到空旷处等几秒再试。",
       "attendance_outside_geofence": "你不在工地围栏内，离最近围栏 {distance} 米。走近一点再试。",
       "audit_entry_not_found": "找不到这条审计记录。",
-      "below_minimum_payout": "该金额低于最低付款额度。",
+      "below_minimum_payout": "算出来的佣金低于协议的最低付款额，这次不建立付款。可以等下一期再一起算。",
       "bug_not_found": "找不到该 Bug 记录。",
       "calibration_expired": "这台地磅的校准已过期。",
       "cannot_modify_self": "无法用这种方式更改自己的账号，请到个人资料页操作。",
@@ -8713,7 +8814,7 @@
       "commission_payout_not_found": "找不到该佣金结算记录。",
       "commission_rule_not_found": "找不到该佣金规则。",
       "commission_scheme_not_found": "找不到该佣金方案。",
-      "company_already_referred": "该公司已经归属其他合作伙伴。",
+      "company_already_referred": "这个客户已经归属其他合作伙伴。如要换人，请在「客户归属」里编辑原来那一笔。",
       "company_bank_account_not_found": "找不到该银行账号。",
       "company_document_not_found": "找不到该公司文件。",
       "company_has_active_users": "这家公司还有可以登录的人员。请改为停用，或先停用这些人员。",
@@ -8824,7 +8925,7 @@
       "user_replacement_contractor_only": "只有建筑商公司的账号可以交接。其他账号请先停用，再为接手的人新增一个账号。",
       "maintenance_not_found": "找不到该维护记录。",
       "method_not_allowed": "这个位置不支持这个操作。",
-      "no_active_agreement": "该合作伙伴没有生效中的协议。",
+      "no_active_agreement": "这个合作伙伴在这段期间没有生效中的协议。请先到「合作协议」启用协议，或换一段期间再算。",
       "no_current_version": "尚未选择当前平台版本。",
       "not_acceptable": "这台设备读不了服务器回复的格式。",
       "not_authenticated": "请重新登录。",
@@ -8843,8 +8944,8 @@
       "partnership_not_counterparty": "只有另一方公司可以回应此合作申请。",
       "partnership_not_found": "找不到这条合作关系。",
       "payment_not_found": "找不到该付款记录。",
-      "payout_already_exists": "该期间已经建立付款。",
-      "payout_not_draft": "只有草稿状态的付款可以这样修改。",
+      "payout_already_exists": "这段期间已经算过佣金了。请在下面的列表里处理原来那一笔。",
+      "payout_not_draft": "只有刚算出来、还没送审的佣金可以调整金额。",
       "permission_denied": "你没有权限做这件事。",
       "portal_mismatch": "此账号属于另一个后台，请使用对应的登录入口。",
       "pricing_rule_not_found": "找不到该云服务收费规则。",
@@ -9142,7 +9243,36 @@
       "consultant_stamp_required": "这一步要盖顾问印章，您还没有上传印章。请先到「签名与签核密码」上传印章，再回来审批。",
       "dispatch_not_loaded": "司机还没在手机上按【装好货了】。请司机先按【装好货了】，再扫码。",
       "recycler_standard_plan": "这家回收商是标准版，不能接收建筑商的订单。请选择合作版回收商。",
-      "standard_plan_no_partnership": "你们公司是标准版，不能接收建筑商的订单，所以不能申请合作。如要接收建筑商的订单，请联系 MSE 改为合作版。"
+      "standard_plan_no_partnership": "你们公司是标准版，不能接收建筑商的订单，所以不能申请合作。如要接收建筑商的订单，请联系 MSE 改为合作版。",
+      "invalid_state_transition": "工单不能从现在的状态直接改到这一步。请在下拉选单里选一个可以选的状态，例如先改成「处理中」。",
+      "partner_type_system": "系统自带的合作伙伴类型不能删除。",
+      "partner_type_in_use": "已经有合作伙伴用这个类型，不能删除。请编辑它，把它改为停用。",
+      "partner_territory_in_use": "这个区域下已经有客户，不能删除。请编辑它，填上到期日期。",
+      "agreement_document_required": "请先上传已签好的协议文件，再送签或启用。",
+      "payout_adjustment_negative": "调整后金额会变成负数。请把扣减的金额改小一点。",
+      "payout_rejected_final": "这笔佣金已经驳回，不能再送审或付款。如需重算，请按「计算佣金」重新计算这段期间。",
+      "payout_invalid_transition": "这笔佣金现在不能改到这个状态。请刷新页面，看它现在的状态再处理。",
+      "sales_calculate_no_scheme": "这位销售人员还没有佣金方案。请先在「销售人员管理」里给他选一个佣金方案。",
+      "sales_calculate_scheme_inactive": "这位销售人员的佣金方案已经停用。请先换一个启用中的方案。",
+      "sales_calculate_already_settled": "这一期的佣金已经确认过，不能再算。",
+      "sales_calculate_nothing_earned": "这一期没有可以算佣金的收入，所以没有建立佣金。",
+      "sales_already_owner": "这个客户本来就归这位销售人员，不用转移。",
+      "sales_terms_not_draft": "只有草稿版本可以启用。请新增一个条款版本再启用。",
+      "sales_terms_already_confirmed": "这位销售人员已经确认过这个版本，不用再记录一次。",
+      "sales_payout_locked": "这笔佣金已经确认，不能再调整。",
+      "sales_payout_negative": "调整后金额会低于零。请把扣减的金额改小一点。",
+      "sales_payout_invalid_transition": "这笔佣金现在不能改到这个状态。请刷新页面，看它现在的状态再处理。",
+      "asset_retired_final": "已报废的资产不能再启用。",
+      "asset_category_system": "系统自带的资产类别不能删除。",
+      "asset_category_in_use": "这个类别已经有资产或采购在用，不能删除。请编辑它，把它改为停用。",
+      "asset_purchase_closed": "这张采购单已经收齐或已取消，不能再登记到货。",
+      "asset_purchase_over_received": "这张采购单只剩 {remaining} 件还没到货。请把到货数量改为不超过 {remaining}。",
+      "asset_assignment_closed": "这笔领用已经归还，不用再归还。",
+      "asset_installation_invalid_transition": "这笔安装现在不能改到这个状态。请刷新页面，看它现在的状态再处理。",
+      "asset_maintenance_not_scheduled": "只有「已排程」的维修或保养可以开始。",
+      "asset_maintenance_closed": "这笔维修或保养已经完成，不能再改。",
+      "asset_disposal_invalid_state": "这份报废申请现在不能这样处理。请刷新页面，看它现在的状态再处理。",
+      "asset_disposal_reason_required": "驳回报废申请要写原因，请在备注里写上。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -13496,6 +13626,12 @@
       "REFERRAL": "推荐伙伴",
       "REGIONAL_AGENT": "地区代理",
       "TECHNOLOGY": "技术合作伙伴"
+    },
+    "toast": {
+      "created": "合作伙伴已建立",
+      "updated": "合作伙伴资料已保存",
+      "agreementCreated": "协议已建立",
+      "payoutCalculated": "佣金已计算"
     }
   },
   "partnerships": {
@@ -15610,7 +15746,17 @@
       "reassigned": "客户归属已转移",
       "removed": "负责区域已移除",
       "saved": "销售设置已保存",
-      "updated": "销售人员已更新"
+      "updated": "销售人员已更新",
+      "payoutsCalculated": "已算出 {count} 笔佣金",
+      "nothingCalculated": "没有算出新的佣金：{reasons}",
+      "skipped": {
+        "no_scheme": "{count} 位没有佣金方案，请到「销售人员管理」给他们选方案",
+        "scheme_inactive": "{count} 位的佣金方案已停用，请到「佣金方案」启用",
+        "already_settled": "{count} 位这一期的佣金已经批准过",
+        "nothing_earned": "{count} 位这一期没有赚到佣金",
+        "other": "{count} 位因其他原因没有计算",
+        "nobody": "没有启用中、而且有佣金方案的销售人员"
+      }
     }
   },
   "scales": {
@@ -21812,5 +21958,9 @@
       "placeholder": "例如：本月因下雨停工 5 天。",
       "hint": "会印在这个月的月报 PDF 上。"
     }
+  },
+  "pagedList": {
+    "shown": "已显示 {shown} 笔，共 {total} 笔",
+    "loadMore": "加载更多"
   }
 }

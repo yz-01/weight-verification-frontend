@@ -3,6 +3,7 @@ import type { ListQuery, Paginated } from "@/interfaces/api";
 import type {
   APIIntegration,
   ActivationStatus,
+  AssigneeOption,
   BugReport,
   BugSeverity,
   BugState,
@@ -63,11 +64,19 @@ export async function addTicketComment(
   return row;
 }
 
+/**
+ * Who a ticket or Bug can be handed to: platform staff who hold
+ * `support.manage` (JB209-6, Lucas 11-16 audit C-F2). The field was writable
+ * all along; no screen ever offered a name, so 负责人 stayed "-" for ever.
+ */
+export const getSupportAssigneeOptions = (): Promise<AssigneeOption[]> =>
+  api.get("/api/support-tickets/get_assignee_options/");
+
 export async function transitionTicket(id: string, state: TicketState, note = "") { const row = await api.post<SupportTicket>(`/api/support-tickets/${id}/transition_ticket/`, { state, note }); toastSuccess("support.toast.transitioned"); return row; }
 
 export const getBugs = (query?: ListQuery): Promise<Paginated<BugReport>> => api.list("/api/bug-reports/get_bugs/", query);
 export async function createBug(payload: BugPayload) { const row = await api.post<BugReport>("/api/bug-reports/create_bug/", payload); toastSuccess("support.toast.bugCreated"); return row; }
-export async function updateBug(id: string, payload: Partial<{ severity: BugSeverity; state: BugState; module: string; root_cause: string; fix_description: string; fixed_in_version: string }>) { const row = await api.patch<BugReport>(`/api/bug-reports/${id}/update_bug/`, payload); toastSuccess("support.toast.updated"); return row; }
+export async function updateBug(id: string, payload: Partial<{ severity: BugSeverity; state: BugState; module: string; root_cause: string; fix_description: string; fixed_in_version: string; assigned_to: string | null }>) { const row = await api.patch<BugReport>(`/api/bug-reports/${id}/update_bug/`, payload); toastSuccess("support.toast.updated"); return row; }
 
 export const getAPIIntegrations = (query?: ListQuery): Promise<Paginated<APIIntegration>> => api.list("/api/support-api-integrations/get_integrations/", query);
 export async function createAPIIntegration(payload: IntegrationPayload) { const row = await api.post<APIIntegration>("/api/support-api-integrations/create_integration/", payload); toastSuccess("support.toast.integrationCreated"); return row; }
@@ -79,7 +88,7 @@ export async function completeMaintenance(id: string, payload: { work_performed:
 export async function remoteOperate(id: string, operation: RemoteOperation, mode: OperationMode, reason: string, configuration: Record<string, unknown> = {}, firmwareVersion = "") { const result = await api.post<{ mode: OperationMode; operation: RemoteOperation; result: string; device: DeviceMaintenance }>(`/api/device-maintenance/${id}/remote_operate/`, { operation, mode, reason, configuration, firmware_version: firmwareVersion }); toastSuccess("support.toast.remoteCompleted"); return result; }
 
 export const getTechnicalSupportSummary = (): Promise<TechnicalSupportSummary> => api.get("/api/technical-support-reports/get_summary/");
-export function exportTechnicalSupportReport(dataset: string, format: "pdf" | "xlsx", title: string, columns: Array<{ key: string; label: string }>) { return download("/api/technical-support-reports/export_report/", { method: "POST", body: { dataset, format, title, columns, empty_label: "" }, fallbackFilename: `technical-${dataset}.${format}` }); }
+export function exportTechnicalSupportReport(dataset: string, format: "pdf" | "xlsx", title: string, columns: Array<{ key: string; label: string; values?: Record<string, string> }>) { return download("/api/technical-support-reports/export_report/", { method: "POST", body: { dataset, format, title, columns, empty_label: "" }, fallbackFilename: `technical-${dataset}.${format}` }); }
 
 /**
  * Remote-operation history (15.2.6, kept permanently by 15.2.8).

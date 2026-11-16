@@ -23,7 +23,9 @@
       "return": "Return",
       "save": "Save",
       "start": "Start",
-      "transferAsset": "Transfer asset"
+      "transferAsset": "Transfer asset",
+      "goToCategories": "Go to asset categories",
+      "removeCategory": "Delete category"
     },
     "assetStatus": {
       "BORROWED": "Borrowed",
@@ -283,7 +285,10 @@
       "removedOn": "Removed on",
       "decision": "Decision",
       "selectSource": "Choose where it is now",
-      "fromHint": "Filled in from where the asset is recorded now. Change it only if that record is wrong."
+      "fromHint": "Filled in from where the asset is recorded now. Change it only if that record is wrong.",
+      "noCustomCategories": "There are no custom categories to choose yet. Add one under Asset categories first, then come back.",
+      "recurringHint": "Recurring maintenance: fill in the next date when you complete this one, or no next visit is scheduled.",
+      "nextDateRecurringHint": "This maintenance repeats. Fill in the next date and the next visit is scheduled for it."
     },
     "installationStatus": {
       "ACTIVE": "Active",
@@ -425,6 +430,12 @@
       "staff": "The staff list",
       "options": "The staff, department, customer and project lists",
       "customers": "The customer names"
+    },
+    "saveError": "Could not save. Check what you entered and try again.",
+    "saveFieldError": "{field}: {error}",
+    "confirm": {
+      "removeCategory": "Delete the category \"{name}\"? A category that assets already use cannot be deleted; deactivate it instead.",
+      "removeDepartment": "Delete the department \"{name}\"? After this it can no longer be chosen for a transfer."
     }
   },
   "adminAuditCenter": {
@@ -656,7 +667,10 @@
       "usageUnit": "Usage unit",
       "vendor": "Choose vendor",
       "video_storage_gb": "Video storage GB",
-      "year": "Year"
+      "year": "Year",
+      "tenantId": "Tenant ID (Azure)",
+      "tenantIdHint": "Azure usage only syncs when this tenant ID is filled in beside the API key.",
+      "tiersHint": "For each tier give the usage limit (limit) and the unit price (price); a last tier with limit 0 has no cap. Follow the example in the box."
     },
     "formSection": {
       "basic": "Basic details",
@@ -797,6 +811,17 @@
       "services": "The cloud service list",
       "vendors": "The vendor list",
       "companiesProjects": "The customer and project lists"
+    },
+    "saveFieldError": "{field}: {error}",
+    "alertMessage": "{type}: now {current}, alert level {threshold}",
+    "unit": {
+      "GB": "GB",
+      "TB": "TB",
+      "REQUESTS": "API requests",
+      "MESSAGES": "Messages (SMS)",
+      "HOURS": "Hours",
+      "TRANSACTIONS": "Transactions",
+      "none": "Not set"
     }
   },
   "adminCustomerService": {
@@ -818,7 +843,9 @@
       "process": "Process",
       "respond": "Respond",
       "save": "Save",
-      "updateStatus": "Update status"
+      "updateStatus": "Update status",
+      "view": "View",
+      "close": "Close"
     },
     "column": {
       "actions": "Actions",
@@ -897,7 +924,11 @@
       "type": "Type",
       "visit_code": "Follow-up",
       "visit_date": "Follow-up date",
-      "visited_by_name": "Staff"
+      "visited_by_name": "Staff",
+      "message": "Content",
+      "requirements": "Requirements",
+      "notes": "Results",
+      "lost_reason": "Lost reason"
     },
     "feedbackCategory": {
       "BUG_REPORT": "Bug report",
@@ -939,7 +970,10 @@
       "meetingLinkHint": "For online training: the video call link, starting with https://",
       "visitTime": "Follow-up time",
       "visitReport": "Follow-up report file",
-      "viewReport": "View report"
+      "viewReport": "View report",
+      "assignee": "Handled by",
+      "unassigned": "Not assigned",
+      "pastResults": "Earlier results"
     },
     "loadError": "Customer service records could not be loaded.",
     "loading": "Loading customer service records...",
@@ -1024,7 +1058,8 @@
       "open": "Open",
       "resolved": "Resolved",
       "satisfied": "Satisfied",
-      "unsatisfied": "Unsatisfied"
+      "unsatisfied": "Unsatisfied",
+      "resolvedLocked": "Resolved feedback cannot be set back to unresolved."
     },
     "subtitle": "Customer enquiries, training, follow-ups, feedback and permanent service history.",
     "title": "Customer Service Centre",
@@ -1041,7 +1076,8 @@
     },
     "what": {
       "summary": "the customer service summary",
-      "companies": "the customer list"
+      "companies": "the customer list",
+      "assignees": "the list of people who can be assigned"
     }
   },
   "adminCwe": {
@@ -1361,7 +1397,8 @@
       "submit": "Submit",
       "terminate": "Terminate",
       "view": "View",
-      "viewPaymentProof": "View payment proof"
+      "viewPaymentProof": "View payment proof",
+      "delete": "Delete"
     },
     "agreementStatus": {
       "ACTIVE": "Active",
@@ -1503,7 +1540,13 @@
       "terms": "Agreement terms",
       "title": "Agreement title",
       "signedOn": "Signed on",
-      "paymentProof": "Payment proof"
+      "paymentProof": "Payment proof",
+      "commissionStart": "Commission from",
+      "commissionStartHint": "Leave empty to start today",
+      "commissionEnd": "Commission until",
+      "commissionEndHint": "Leave empty for no end date",
+      "changeReason": "Reason for the change (optional)",
+      "calculationConfigExample": "Use this format, for example: {example}"
     },
     "heading": {
       "payouts": "Commission payouts",
@@ -1641,6 +1684,31 @@
       "territories": "The territory list",
       "agreements": "The agreement commission rules",
       "payouts": "The commission payout list"
+    },
+    "remove": {
+      "typeTitle": "Delete the partner type \"{name}\"?",
+      "typeDescription": "Once deleted, this type can no longer be chosen. A type a partner already uses cannot be deleted - deactivate it instead.",
+      "territoryTitle": "Delete the area \"{name}\"?",
+      "territoryDescription": "Once deleted, this area can no longer be chosen for a customer. An area that already has customers cannot be deleted - give it an expiry date instead."
+    },
+    "payout": {
+      "rejectedClosed": "Rejected - this payout can no longer be paid. To work it out again, press \"Calculate commission\"."
+    },
+    "toast": {
+      "statusChanged": "Partner status updated",
+      "agreementUpdated": "Agreement saved",
+      "typeSaved": "Partner type saved",
+      "typeRemoved": "Partner type deleted",
+      "territorySaved": "Area saved",
+      "territoryRemoved": "Area deleted",
+      "customerAssigned": "Customer assigned to the partner",
+      "assignmentUpdated": "Customer assignment updated",
+      "agreementSubmitted": "Agreement submitted for signing",
+      "agreementActivated": "Agreement is now in force",
+      "agreementRenewed": "Renewal created as a draft",
+      "agreementTerminated": "Agreement terminated",
+      "payoutAdjusted": "Adjustment saved",
+      "payoutUpdated": "Payout updated"
     }
   },
   "adminQr": {
@@ -1941,7 +2009,11 @@
       "editPerson": "Edit salesperson",
       "process": "Process",
       "reassign": "Transfer",
-      "save": "Save"
+      "save": "Save",
+      "editTerritory": "Edit area",
+      "view": "View",
+      "close": "Close",
+      "goToSettlements": "Go to settlements"
     },
     "basis": {
       "CUSTOM_FORMULA": "Custom formula",
@@ -2009,7 +2081,8 @@
       "platform_commission_percent": "Platform commission percentage",
       "saas_percent": "SaaS revenue percentage",
       "target_bonus": "Target bonus amount",
-      "target_threshold": "Target threshold"
+      "target_threshold": "Target threshold",
+      "targetMetric": "Target bonus is measured on"
     },
     "cycle": {
       "MONTHLY": "Monthly",
@@ -2043,7 +2116,15 @@
       "selectSupervisor": "Select supervisor or manager",
       "target": "Target amount",
       "wonOn": "Contract signed date",
-      "reasonLabel": "Reason"
+      "reasonLabel": "Reason",
+      "noEndDate": "No end date",
+      "territoryName": "Area name",
+      "territoryNameHint": "For example: Northern region",
+      "nationalSwitch": "Nationwide (covers every state)",
+      "effectiveTo": "Ends on",
+      "effectiveToHint": "Leave empty for no end date",
+      "exclusiveSwitch": "Exclusive (when two people cover a state, new customers go to this one first)",
+      "nameInSchemes": "Change the name and description under Commission schemes; here you change only the calculation"
     },
     "loadError": "Sales records could not be loaded.",
     "loading": "Loading sales records...",
@@ -2070,7 +2151,8 @@
       "recyclers_won": "Recyclers won",
       "saas_revenue": "SaaS revenue",
       "team_size": "Team size",
-      "total_customers": "Customers"
+      "total_customers": "Customers",
+      "period": "Period: {start} to {end}"
     },
     "remove": {
       "confirm": "Remove territory",
@@ -2094,7 +2176,8 @@
     "saveError": "Could not save the customer assignment. Check the selected customer and salesperson, then try again.",
     "scope": {
       "NATIONAL": "Nationwide",
-      "STATES": "Named states"
+      "STATES": "Named states",
+      "none": "Not set"
     },
     "section": {
       "activity": {
@@ -2167,7 +2250,17 @@
       "summary": "The sales summary",
       "schemes": "The commission scheme list",
       "people": "The salesperson list",
-      "performance": "The team performance figures"
+      "performance": "The team performance figures",
+      "acknowledgements": "confirmations"
+    },
+    "territory": {
+      "notCurrent": "Not in force today",
+      "empty": "No sales areas yet. Press \"Add area\", choose a salesperson and the states they cover (or nationwide). New companies are then given to the person covering their state."
+    },
+    "termsView": {
+      "confirmedBy": "Confirmed by",
+      "noneConfirmed": "Nobody has confirmed this version yet.",
+      "confirmedOn": "Confirmed {date}"
     }
   },
   "adminSystemSettings": {
@@ -2691,7 +2784,10 @@
       "actualHours": "Actual hours",
       "resolutionNotes": "Resolution notes",
       "resolutionNotesHelp": "Completing the ticket with a note also writes it here.",
-      "laborHours": "Labour hours"
+      "laborHours": "Labour hours",
+      "assignee": "Handled by",
+      "unassigned": "Not assigned",
+      "fixedInVersion": "Fixed in version"
     },
     "guide": {
       "action": {
@@ -2841,7 +2937,7 @@
     "ticketComment": {
       "empty": "Nothing has been said on this ticket yet.",
       "internal": "Internal",
-      "internalHelp": "Internal note - for staff only, the customer does not see it",
+      "internalHelp": "Mark as an internal note. Every reply here is a staff record only; nothing is sent to the customer.",
       "placeholder": "Write a reply",
       "send": "Add comment",
       "title": "Conversation",
@@ -2851,7 +2947,9 @@
     "ticketEdit": {
       "moveOn": "Move it along",
       "save": "Save corrections",
-      "title": "Correct this ticket"
+      "title": "Correct this ticket",
+      "moveOnHint": "Only the states this ticket can move to now are listed.",
+      "closedFinal": "This ticket is closed and its state cannot change. If the problem comes back, add a new ticket."
     },
     "ticketState": {
       "CLOSED": "Closed",
@@ -2873,7 +2971,10 @@
     "title": "Technical Support Centre",
     "what": {
       "summary": "the technical support summary",
-      "companies": "the company list"
+      "companies": "the company list",
+      "assignees": "the list of people who can be assigned",
+      "integrations": "the system integration connections",
+      "devices": "the registered devices"
     }
   },
   "app": {
@@ -8699,7 +8800,7 @@
       "attendance_gps_inaccurate": "Your phone's location is too rough (about {accuracy} m) to tell whether you are inside the site fence. Move into the open, wait a few seconds and try again.",
       "attendance_outside_geofence": "You are outside the site fence, {distance} m from the nearest one. Move closer and try again.",
       "audit_entry_not_found": "That audit entry could not be found.",
-      "below_minimum_payout": "This amount is below the minimum payout.",
+      "below_minimum_payout": "The commission is below the agreement's minimum payout, so no payout was made. It can be calculated together with the next period.",
       "bug_not_found": "That bug record could not be found.",
       "calibration_expired": "This weighbridge calibration has expired.",
       "cannot_modify_self": "You cannot change your own account this way. Use your profile instead.",
@@ -8713,7 +8814,7 @@
       "commission_payout_not_found": "That commission payout could not be found.",
       "commission_rule_not_found": "That commission rule could not be found.",
       "commission_scheme_not_found": "That commission scheme could not be found.",
-      "company_already_referred": "This company is already assigned to a partner.",
+      "company_already_referred": "This customer already belongs to another partner. To change it, edit the existing row under customer assignments.",
       "company_bank_account_not_found": "That bank account could not be found.",
       "company_document_not_found": "That company document could not be found.",
       "company_has_active_users": "This company still has people who can sign in. Suspend it instead, or deactivate them first.",
@@ -8824,7 +8925,7 @@
       "user_replacement_contractor_only": "Only a contractor company's accounts can be handed over. For any other account, suspend it and add a new account for the person taking over.",
       "maintenance_not_found": "That maintenance record could not be found.",
       "method_not_allowed": "That action is not available here.",
-      "no_active_agreement": "This partner has no active agreement.",
+      "no_active_agreement": "This partner has no active agreement for that period. Activate an agreement first, or choose another period.",
       "no_current_version": "No current platform version has been selected.",
       "not_acceptable": "This device cannot read the format the server replied in.",
       "not_authenticated": "Please sign in again.",
@@ -8843,8 +8944,8 @@
       "partnership_not_counterparty": "Only the other company can respond to this partnership request.",
       "partnership_not_found": "That partnership could not be found.",
       "payment_not_found": "That payment could not be found.",
-      "payout_already_exists": "A payout already exists for this period.",
-      "payout_not_draft": "Only a draft payout can be changed this way.",
+      "payout_already_exists": "Commission for this period has already been calculated. Work on that payout in the list below.",
+      "payout_not_draft": "Only a payout that has just been calculated and not yet submitted can be adjusted.",
       "permission_denied": "You are not allowed to do that.",
       "portal_mismatch": "This account belongs to a different portal. Use its correct sign-in page.",
       "pricing_rule_not_found": "That cloud pricing rule could not be found.",
@@ -9142,7 +9243,36 @@
       "consultant_stamp_required": "This step needs your consultant stamp and you have not uploaded one. Upload it under Signature and sign-off PIN first, then come back to decide.",
       "dispatch_not_loaded": "The driver has not pressed [Loaded] on the phone yet. Ask the driver to press [Loaded] first, then scan again.",
       "recycler_standard_plan": "This recycler is on the Standard plan and cannot receive contractor orders. Please choose a recycler on the Partner plan.",
-      "standard_plan_no_partnership": "Your company is on the Standard plan, which cannot receive contractor orders, so it cannot request a partnership. To receive contractor orders, contact MSE to move to the Partner plan."
+      "standard_plan_no_partnership": "Your company is on the Standard plan, which cannot receive contractor orders, so it cannot request a partnership. To receive contractor orders, contact MSE to move to the Partner plan.",
+      "invalid_state_transition": "A ticket cannot go straight from its current status to that one. Pick one of the statuses the list offers, for example 「In progress」 first.",
+      "partner_type_system": "Built-in partner types cannot be deleted.",
+      "partner_type_in_use": "A partner already uses this type, so it cannot be deleted. Edit it and switch it off instead.",
+      "partner_territory_in_use": "This territory already has customers, so it cannot be deleted. Edit it and give it an end date instead.",
+      "agreement_document_required": "Upload the signed agreement document first, then submit or activate it.",
+      "payout_adjustment_negative": "That adjustment would make the payout negative. Make the deduction smaller.",
+      "payout_rejected_final": "This payout was rejected and cannot be submitted or paid again. To redo it, press 「Calculate payout」 for the period.",
+      "payout_invalid_transition": "This payout cannot move to that status now. Refresh the page to see where it stands.",
+      "sales_calculate_no_scheme": "This salesperson has no commission scheme yet. Choose one for them under salespeople first.",
+      "sales_calculate_scheme_inactive": "This salesperson's commission scheme has been switched off. Give them an active scheme first.",
+      "sales_calculate_already_settled": "Commission for this period has already been confirmed and cannot be calculated again.",
+      "sales_calculate_nothing_earned": "No commission was earned in this period, so nothing was created.",
+      "sales_already_owner": "This customer already belongs to that salesperson; there is nothing to move.",
+      "sales_terms_not_draft": "Only a draft version can be activated. Add a new terms version and activate that.",
+      "sales_terms_already_confirmed": "This salesperson has already confirmed that version; there is no need to record it again.",
+      "sales_payout_locked": "This payout has been confirmed and can no longer be adjusted.",
+      "sales_payout_negative": "That adjustment would take the payout below zero. Make the deduction smaller.",
+      "sales_payout_invalid_transition": "This payout cannot move to that status now. Refresh the page to see where it stands.",
+      "asset_retired_final": "A retired asset cannot be switched on again.",
+      "asset_category_system": "Built-in asset categories cannot be deleted.",
+      "asset_category_in_use": "Assets or purchases already use this category, so it cannot be deleted. Edit it and switch it off instead.",
+      "asset_purchase_closed": "This purchase is fully received or cancelled; no more stock can be received on it.",
+      "asset_purchase_over_received": "Only {remaining} item(s) are still to arrive on this purchase. Enter {remaining} or fewer.",
+      "asset_assignment_closed": "This item has already been returned.",
+      "asset_installation_invalid_transition": "This installation cannot move to that status now. Refresh the page to see where it stands.",
+      "asset_maintenance_not_scheduled": "Only scheduled repairs or maintenance can be started.",
+      "asset_maintenance_closed": "This repair or maintenance is already finished and cannot be changed.",
+      "asset_disposal_invalid_state": "This disposal request cannot be handled that way now. Refresh the page to see where it stands.",
+      "asset_disposal_reason_required": "Rejecting a disposal request needs a reason. Write it in the note."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -13496,6 +13626,12 @@
       "REFERRAL": "Referral Partner",
       "REGIONAL_AGENT": "Regional Agent",
       "TECHNOLOGY": "Technology Partner"
+    },
+    "toast": {
+      "created": "Partner created",
+      "updated": "Partner details saved",
+      "agreementCreated": "Agreement created",
+      "payoutCalculated": "Commission calculated"
     }
   },
   "partnerships": {
@@ -15610,7 +15746,17 @@
       "reassigned": "Customer ownership transferred",
       "removed": "Territory removed",
       "saved": "Sales setting saved",
-      "updated": "Salesperson updated"
+      "updated": "Salesperson updated",
+      "payoutsCalculated": "{count, plural, one {# commission payout} other {# commission payouts}} calculated",
+      "nothingCalculated": "No new commission was calculated: {reasons}",
+      "skipped": {
+        "no_scheme": "{count} have no commission scheme - choose one for them under Salespeople",
+        "scheme_inactive": "{count} have a commission scheme that is switched off - switch it on under Commission schemes",
+        "already_settled": "{count} already have this period approved",
+        "nothing_earned": "{count} earned no commission in this period",
+        "other": "{count} were not calculated for another reason",
+        "nobody": "there is no active salesperson with a commission scheme"
+      }
     }
   },
   "scales": {
@@ -21812,5 +21958,9 @@
       "placeholder": "For example: work stopped for 5 days this month because of rain.",
       "hint": "Printed on this month's report PDF."
     }
+  },
+  "pagedList": {
+    "shown": "Showing {shown} of {total}",
+    "loadMore": "Load more"
   }
 }

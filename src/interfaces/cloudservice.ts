@@ -12,6 +12,8 @@ export type UsageSourceMode = "MANUAL" | "SIMULATED" | "LIVE";
 export interface CloudServiceVendor {
   id: string; code: string; name: string; description: string; contact_email: string;
   support_url: string; portal_url: string; account_id: string; is_active: boolean;
+  /** Azure's directory id, needed beside the key for its usage feed (JB209-15). */
+  tenant_id?: string;
   notes: string; created_at: string; updated_at: string;
 }
 export interface CloudService {

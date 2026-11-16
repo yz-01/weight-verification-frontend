@@ -109,6 +109,10 @@ export interface CustomerReferral {
   territory?: string | null;
   territory_name?: string | null;
   company_type?: string;
+  /** Read back into 「编辑归属」 so saving does not wipe them (JB209-1). */
+  commission_start?: string | null;
+  commission_end?: string | null;
+  notes?: string;
 }
 
 export interface PartnerSummary {

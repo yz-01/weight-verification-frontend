@@ -23,6 +23,7 @@ import { useState } from "react";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ExportButton } from "@/components/shared/export-button";
 import { KpiCard } from "@/components/shared/kpi-card";
+import { LoadMoreRow } from "@/components/shared/load-more-row";
 import {
   EmptyState,
   FieldWrapper,
@@ -56,6 +57,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
+import { readAllPages, usePagedList } from "@/hooks/use-paged-list";
 import type { CompanyRow } from "@/interfaces/company";
 import type {
   IntegrationConfig,
@@ -87,6 +89,7 @@ import {
   getAPIIntegrations,
   getBugs,
   getMaintenance,
+  getSupportAssigneeOptions,
   getTechnicalSupportSummary,
   getTickets,
   getRemoteSessions,
@@ -123,13 +126,28 @@ const SUBMODULES: Array<{
 ];
 const TICKET_PRIORITIES: TicketPriority[] = ["LOW", "MEDIUM", "HIGH", "URGENT"];
 
-const TICKET_STATES: TicketState[] = [
-  "PENDING",
-  "IN_PROGRESS",
-  "TESTING",
-  "COMPLETED",
-  "CLOSED",
-];
+/**
+ * Where a ticket may go next - the server's `TICKET_TRANSITIONS`
+ * (`support/views.py`) word for word.
+ *
+ * JB209-5 (Lucas 11-16 audit, C-F1): 推进状态 offered all five states, the
+ * server refused most of them, and the refusal came back as a server error. A
+ * 待处理 ticket fixed on the phone and set straight to 已完成 just failed,
+ * with nothing saying to go through 处理中. Now the list holds only what the
+ * server accepts; 已关闭 is final and is said so.
+ */
+export const TICKET_TRANSITIONS: Record<TicketState, TicketState[]> = {
+  PENDING: ["IN_PROGRESS", "CLOSED"],
+  IN_PROGRESS: ["TESTING", "COMPLETED", "CLOSED"],
+  TESTING: ["IN_PROGRESS", "COMPLETED"],
+  COMPLETED: ["IN_PROGRESS", "CLOSED"],
+  CLOSED: [],
+};
+
+/** The 推进状态 choices: where the ticket is now, then where it may go. */
+export function ticketStateOptions(state: TicketState): TicketState[] {
+  return [state, ...TICKET_TRANSITIONS[state]];
+}
 
 type CapabilityState =
   | "READY"
@@ -285,6 +303,11 @@ function Overview() {
   const common = useTranslations("common");
   const none = common("emptyValue");
   const d = summary.data;
+  // JB209-16 (Lucas 11-16 audit, C usability): 系统集成 is a page the Support
+  // Agent role cannot open, so for it these steps are text, not links that
+  // bounce back to the dashboard.
+  const { can } = useAuth();
+  const mayOpenIntegrations = can("integration.view");
   return (
     <div className="flex flex-col gap-4">
       <ListHeader title={t("title")} subtitle={t("subtitle")} />
@@ -315,29 +338,42 @@ function Overview() {
                 ["connect", "/integrations"],
                 ["commission", "/monitoring/live-platform"],
               ] as const).map(
-                ([step, href], index) => (
-                  <Link
-                    key={step}
-                    href={href}
-                    className="rounded-lg border bg-background p-3 transition-colors hover:border-primary/40 hover:bg-primary/5"
-                  >
-                    <p className="text-xs font-semibold text-primary">
-                      {t("readiness.step", { number: index + 1 })}
-                    </p>
-                    <p className="mt-1 text-sm font-medium">
-                      {t(`readiness.${step}`)}
-                    </p>
-                  </Link>
-                ),
+                ([step, href], index) => {
+                  const body = (
+                    <>
+                      <p className="text-xs font-semibold text-primary">
+                        {t("readiness.step", { number: index + 1 })}
+                      </p>
+                      <p className="mt-1 text-sm font-medium">
+                        {t(`readiness.${step}`)}
+                      </p>
+                    </>
+                  );
+                  return href === "/integrations" && !mayOpenIntegrations ? (
+                    <div key={step} className="rounded-lg border bg-background p-3">
+                      {body}
+                    </div>
+                  ) : (
+                    <Link
+                      key={step}
+                      href={href}
+                      className="rounded-lg border bg-background p-3 transition-colors hover:border-primary/40 hover:bg-primary/5"
+                    >
+                      {body}
+                    </Link>
+                  );
+                },
               )}
             </div>
           </div>
-          <Button asChild variant="outline" size="sm" className="hidden shrink-0 lg:inline-flex">
-            <Link href="/integrations">
-              {t("guide.action.integrations")}
-              <ArrowRight />
-            </Link>
-          </Button>
+          {mayOpenIntegrations && (
+            <Button asChild variant="outline" size="sm" className="hidden shrink-0 lg:inline-flex">
+              <Link href="/integrations">
+                {t("guide.action.integrations")}
+                <ArrowRight />
+              </Link>
+            </Button>
+          )}
         </div>
       </section>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -394,8 +430,54 @@ function Panel({
 function useCompanies() {
   return useQuery({
     queryKey: ["companies", "support-options"],
-    queryFn: () => getCompanies({ page_size: 200, sort_by: "name" }),
+    // JB209-14 (Lucas 11-16 audit, X-2): every company, page after page; the
+    // 101st could never be chosen for a ticket, API record or device.
+    queryFn: () =>
+      readAllPages((paging) => getCompanies({ ...paging, sort_by: "name" })),
   });
+}
+
+/**
+ * The 负责人 picker (JB209-6, Lucas 11-16 audit C-F2): platform staff who hold
+ * `support.manage`, and 「未指定」. The server took a handler all along and no
+ * screen offered one, so 负责人 read "-" on every ticket and Bug. Someone
+ * already on the record who has since lost the permission stays listed, so
+ * opening the dialog never quietly changes who has it.
+ */
+export function SupportAssigneeSelect({
+  value,
+  onChange,
+  currentName,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  currentName?: string | null;
+}) {
+  const t = useTranslations("adminTechnicalSupport");
+  const options = useQuery({
+    queryKey: ["support-assignee-options"],
+    queryFn: getSupportAssigneeOptions,
+  });
+  const people = options.data ?? [];
+  const kept = value && !people.some((person) => person.id === value);
+  return (
+    <>
+      <select
+        className="native-control"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+      >
+        <option value="">{t("field.unassigned")}</option>
+        {kept && <option value={value}>{currentName || value}</option>}
+        {people.map((person) => (
+          <option key={person.id} value={person.id}>
+            {person.full_name || person.email}
+          </option>
+        ))}
+      </select>
+      <QueryFailedNote query={options} what={t("what.assignees")} />
+    </>
+  );
 }
 /**
  * The company picker. The caller wraps it in the labelled FieldWrapper (so the
@@ -451,6 +533,10 @@ function TechnicalSetupGuide({
   kind: "api" | "installations" | "maintenance";
 }) {
   const t = useTranslations("adminTechnicalSupport");
+  // JB209-16 (Lucas 11-16 audit, C usability): no 「打开系统集成」 for a role
+  // that cannot open that page.
+  const { can } = useAuth();
+  const mayOpenIntegrations = can("integration.view");
   const links = {
     api: [
       ["/integrations", "guide.action.integrations"],
@@ -486,7 +572,7 @@ function TechnicalSetupGuide({
         </div>
       </div>
       <div className="flex flex-wrap gap-2 lg:justify-end">
-        {links[kind].map(([href, label]) => (
+        {links[kind].filter(([href]) => href !== "/integrations" || mayOpenIntegrations).map(([href, label]) => (
           <Button key={href} asChild size="sm" variant="outline">
             <Link href={href}>
               {t(label)}
@@ -526,18 +612,29 @@ function TicketPanel({ createAllowed }: { createAllowed: boolean }) {
   const t = useTranslations("adminTechnicalSupport");
   const df = useDateFormat();
   const qc = useQueryClient();
-  const rows = useQuery({
+  // JB209-16 (Lucas 11-16 audit, C usability): 新增 and 处理 only for whoever
+  // may save them; `createAllowed` alone was always true.
+  const { can } = useAuth();
+  const manage = can("support.manage");
+  // JB209-14 (X-2): a hundred at a time with 「加载更多」 instead of a silent 100.
+  const rows = usePagedList({
     queryKey: ["support-tickets", createAllowed],
-    queryFn: () => getTickets({ page_size: 200 }),
+    queryFn: (paging) => getTickets({ ...paging }),
   });
   const [creating, setCreating] = useState(false);
   const [processing, setProcessing] = useState<SupportTicket | null>(null);
+  // JB209-16 (C usability): the dialog reads the row from the refreshed list,
+  // so a reply just sent shows in 对话记录 without closing and reopening.
+  const processingRow = processing
+    ? (rows.data?.results.find((row) => row.id === processing.id) ?? processing)
+    : null;
   return (
     <>
     <SectionListHeader
       section="tickets"
       action={
         createAllowed &&
+        manage &&
         !rows.isLoading &&
         !rows.isError && (
           <Button onClick={() => setCreating(true)}>
@@ -591,19 +688,22 @@ function TicketPanel({ createAllowed }: { createAllowed: boolean }) {
                 />
               </TableCell>
               <TableCell>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => setProcessing(row)}
-                >
-                  <Settings2 />
-                  {t("action.process")}
-                </Button>
+                {manage && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setProcessing(row)}
+                  >
+                    <Settings2 />
+                    {t("action.process")}
+                  </Button>
+                )}
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
+      <LoadMoreRow list={rows} />
       {creating && (
         <TicketDialog
           onClose={() => setCreating(false)}
@@ -612,9 +712,9 @@ function TicketPanel({ createAllowed }: { createAllowed: boolean }) {
           }
         />
       )}
-      {processing && (
+      {processingRow && (
         <TicketStateDialog
-          row={processing}
+          row={processingRow}
           onClose={() => setProcessing(null)}
           onSaved={() =>
             qc.invalidateQueries({ queryKey: ["support-tickets"] })
@@ -812,6 +912,9 @@ function TicketStateDialog({
   const [priority, setPriority] = useState<TicketPriority>(row.priority);
   const [title, setTitle] = useState(row.title);
   const [description, setDescription] = useState(row.description);
+  // JB209-6 (Lucas 11-16 audit, C-F2): who handles it, saved with the correction.
+  const [assignee, setAssignee] = useState(row.assigned_to ?? "");
+  const nextStates = TICKET_TRANSITIONS[row.state];
   // The rest of the ticket the backend keeps and nobody could fill (T-382):
   // what should have happened, what did, when it is due, the effort planned and
   // spent, and how it was resolved. Prefilled so a correction never blanks them.
@@ -841,6 +944,7 @@ function TicketStateDialog({
         priority,
         title,
         description,
+        assigned_to: assignee || null,
         expected_result: details.expected_result,
         actual_result: details.actual_result,
         resolution_notes: details.resolution_notes,
@@ -860,6 +964,7 @@ function TicketStateDialog({
 
   const edited =
     priority !== row.priority ||
+    assignee !== (row.assigned_to ?? "") ||
     title !== row.title ||
     description !== row.description ||
     details.expected_result !== (row.expected_result ?? "") ||
@@ -898,6 +1003,13 @@ function TicketStateDialog({
                   </option>
                 ))}
               </select>
+            </FieldWrapper>
+            <FieldWrapper className="sm:col-span-2" label={t("field.assignee")}>
+              <SupportAssigneeSelect
+                value={assignee}
+                onChange={setAssignee}
+                currentName={row.assigned_to_name}
+              />
             </FieldWrapper>
             <FieldWrapper className="sm:col-span-2" label={t("field.description")}>
               <Textarea
@@ -1026,40 +1138,51 @@ function TicketStateDialog({
 
         <div className="space-y-3 border-t pt-4">
           <p className="panel-title">{t("ticketEdit.moveOn")}</p>
-          <select
-            className="native-control"
-            aria-label={t("action.process")}
-            value={state}
-            onChange={(e) => setState(e.target.value as TicketState)}
-          >
-            {TICKET_STATES.map((x) => (
-              <option key={x} value={x}>
-                {t(`ticketState.${x}`)}
-              </option>
-            ))}
-          </select>
-          <FieldWrapper label={t("field.result")}>
-            <Textarea
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-            />
-          </FieldWrapper>
+          {nextStates.length === 0 ? (
+            <p data-ticket-final className="rounded-lg border border-dashed border-panel-border p-3 text-sm text-muted-foreground">
+              {t("ticketEdit.closedFinal")}
+            </p>
+          ) : (
+            <>
+              <select
+                className="native-control"
+                aria-label={t("action.process")}
+                value={state}
+                onChange={(e) => setState(e.target.value as TicketState)}
+              >
+                {ticketStateOptions(row.state).map((x) => (
+                  <option key={x} value={x}>
+                    {t(`ticketState.${x}`)}
+                  </option>
+                ))}
+              </select>
+              <p className="text-xs text-muted-foreground">{t("ticketEdit.moveOnHint")}</p>
+              <FieldWrapper label={t("field.result")}>
+                <Textarea
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                />
+              </FieldWrapper>
+            </>
+          )}
         </div>
 
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
             {t("action.cancel")}
           </Button>
-          <Button
-            disabledReason={
-              state === row.state ? common("noChanges") : undefined
-            }
-            disabled={state === row.state || save.isPending}
-            onClick={() => save.mutate()}
-          >
-            <Check />
-            {t("action.confirm")}
-          </Button>
+          {nextStates.length > 0 && (
+            <Button
+              disabledReason={
+                state === row.state ? common("noChanges") : undefined
+              }
+              disabled={state === row.state || save.isPending}
+              onClick={() => save.mutate()}
+            >
+              <Check />
+              {t("action.confirm")}
+            </Button>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -1070,9 +1193,11 @@ function BugPanel() {
   const t = useTranslations("adminTechnicalSupport");
   const df = useDateFormat();
   const qc = useQueryClient();
-  const rows = useQuery({
+  const { can } = useAuth();
+  const manage = can("support.manage");
+  const rows = usePagedList({
     queryKey: ["bug-reports"],
-    queryFn: () => getBugs({ page_size: 200 }),
+    queryFn: (paging) => getBugs({ ...paging }),
   });
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<BugReport | null>(null);
@@ -1081,6 +1206,7 @@ function BugPanel() {
     <SectionListHeader
       section="bugs"
       action={
+        manage &&
         !rows.isLoading &&
         !rows.isError && (
           <Button onClick={() => setCreating(true)}>
@@ -1119,18 +1245,21 @@ function BugPanel() {
               <TableCell>{df.date(row.created_at)}</TableCell>
               <TableCell>{t(`bugState.${row.state}`)}</TableCell>
               <TableCell>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => setEditing(row)}
-                >
-                  {t("action.process")}
-                </Button>
+                {manage && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setEditing(row)}
+                  >
+                    {t("action.process")}
+                  </Button>
+                )}
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
+      <LoadMoreRow list={rows} />
       {creating && (
         <BugDialog
           onClose={() => setCreating(false)}
@@ -1271,6 +1400,9 @@ function BugUpdateDialog({
   const [root, setRoot] = useState(row.root_cause);
   const [fix, setFix] = useState(row.fix_description);
   const [version, setVersion] = useState(row.fixed_in_version);
+  // JB209-6 (Lucas 11-16 audit, C-F2): the Bug's 处理人 (its ticket's handler),
+  // sent only when changed.
+  const [assignee, setAssignee] = useState(row.assigned_to ?? "");
   const save = useMutation({
     mutationFn: () =>
       updateBug(row.id, {
@@ -1278,6 +1410,9 @@ function BugUpdateDialog({
         root_cause: root,
         fix_description: fix,
         fixed_in_version: version,
+        ...(assignee !== (row.assigned_to ?? "")
+          ? { assigned_to: assignee || null }
+          : {}),
       }),
     onSuccess: () => {
       onSaved();
@@ -1291,40 +1426,48 @@ function BugUpdateDialog({
           <DialogTitle>{row.bug_code}</DialogTitle>
           <DialogDescription>{row.title}</DialogDescription>
         </DialogHeader>
-        <select
-          className="native-control"
-          value={state}
-          onChange={(e) => setState(e.target.value as BugState)}
-        >
-          {[
-            "OPEN",
-            "CONFIRMED",
-            "IN_PROGRESS",
-            "FIXED",
-            "VERIFIED",
-            "CLOSED",
-            "WONT_FIX",
-          ].map((x) => (
-            <option key={x} value={x}>
-              {t(`bugState.${x}`)}
-            </option>
-          ))}
-        </select>
-        <Textarea
-          placeholder={t("field.rootCause")}
-          value={root}
-          onChange={(e) => setRoot(e.target.value)}
-        />
-        <Textarea
-          placeholder={t("field.fix")}
-          value={fix}
-          onChange={(e) => setFix(e.target.value)}
-        />
-        <Input
-          placeholder={t("field.firmware")}
-          value={version}
-          onChange={(e) => setVersion(e.target.value)}
-        />
+        {/* JB209-16 (Lucas 11-16 audit, C usability): every box has its name
+            above it, not a placeholder that vanishes on typing, and 修复版本
+            is no longer labelled 「Firmware 版本」. */}
+        <div className="grid gap-4">
+          <FieldWrapper label={t("column.status")}>
+            <select
+              className="native-control"
+              value={state}
+              onChange={(e) => setState(e.target.value as BugState)}
+            >
+              {[
+                "OPEN",
+                "CONFIRMED",
+                "IN_PROGRESS",
+                "FIXED",
+                "VERIFIED",
+                "CLOSED",
+                "WONT_FIX",
+              ].map((x) => (
+                <option key={x} value={x}>
+                  {t(`bugState.${x}`)}
+                </option>
+              ))}
+            </select>
+          </FieldWrapper>
+          <FieldWrapper label={t("field.assignee")}>
+            <SupportAssigneeSelect
+              value={assignee}
+              onChange={setAssignee}
+              currentName={row.assigned_to_name}
+            />
+          </FieldWrapper>
+          <FieldWrapper label={t("field.rootCause")}>
+            <Textarea value={root} onChange={(e) => setRoot(e.target.value)} />
+          </FieldWrapper>
+          <FieldWrapper label={t("field.fix")}>
+            <Textarea value={fix} onChange={(e) => setFix(e.target.value)} />
+          </FieldWrapper>
+          <FieldWrapper label={t("field.fixedInVersion")}>
+            <Input value={version} onChange={(e) => setVersion(e.target.value)} />
+          </FieldWrapper>
+        </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
             {t("action.cancel")}
@@ -1342,25 +1485,34 @@ function BugUpdateDialog({
 function APIIntegrationPanel() {
   const t = useTranslations("adminTechnicalSupport");
   const qc = useQueryClient();
-  const rows = useQuery({
+  const { can } = useAuth();
+  const manage = can("support.manage");
+  const mayOpenIntegrations = can("integration.view");
+  const rows = usePagedList({
     queryKey: ["support-api-integrations"],
-    queryFn: () => getAPIIntegrations({ page_size: 200 }),
+    queryFn: (paging) => getAPIIntegrations({ ...paging }),
   });
+  // JB209-8 (Lucas 11-16 audit, C-F4): the live connections are a lookup for
+  // the 实际能力 column and the 已连接 picker, and they need
+  // `integration.view`, which the Support Agent role does not hold. That one
+  // refused lookup used to blank the whole page with 「无法加载技术记录」.
+  // It is now asked only of those who may read it, and its failure is a note:
+  // the records still show, capability reads as not yet connected and the
+  // picker offers only 「尚未绑定」.
   const liveConnections = useQuery({
     queryKey: ["integrations", "support-capability"],
-    queryFn: () => getIntegrations({ page_size: 500 }),
+    queryFn: () => readAllPages((paging) => getIntegrations({ ...paging })),
+    enabled: mayOpenIntegrations,
   });
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<APIIntegration | null>(null);
-  const ready =
-    !(rows.isLoading || liveConnections.isLoading) &&
-    !(rows.isError || liveConnections.isError);
+  const ready = !rows.isLoading && !rows.isError;
   return (
     <>
       <SectionListHeader
         section="api"
         action={
-          ready && (
+          ready && manage && (
             <Button onClick={() => setCreating(true)}>
               <Plus />
               {t("action.addIntegration")}
@@ -1369,9 +1521,10 @@ function APIIntegrationPanel() {
         }
       />
       <TechnicalSetupGuide kind="api" />
+      <QueryFailedNote query={liveConnections} what={t("what.integrations")} />
       <Panel
-        loading={rows.isLoading || liveConnections.isLoading}
-        error={rows.isError || liveConnections.isError}
+        loading={rows.isLoading}
+        error={rows.isError}
       >
       <Table>
         <TableHeader>
@@ -1411,25 +1564,30 @@ function APIIntegrationPanel() {
               </TableCell>
               <TableCell>
                 <div className="flex flex-wrap gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => setEditing(row)}
-                  >
-                    {t("action.process")}
-                  </Button>
-                  <Button size="sm" variant="outline" asChild>
-                    <Link href={`/integrations?company=${row.company}`}>
-                      <Cable />
-                      {t("action.openConfiguration")}
-                    </Link>
-                  </Button>
+                  {manage && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setEditing(row)}
+                    >
+                      {t("action.process")}
+                    </Button>
+                  )}
+                  {mayOpenIntegrations && (
+                    <Button size="sm" variant="outline" asChild>
+                      <Link href={`/integrations?company=${row.company}`}>
+                        <Cable />
+                        {t("action.openConfiguration")}
+                      </Link>
+                    </Button>
+                  )}
                 </div>
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
+      <LoadMoreRow list={rows} />
       {creating && (
         <IntegrationDialog
           connections={liveConnections.data?.results ?? []}
@@ -1691,17 +1849,24 @@ function DevicePanel({ installations }: { installations: boolean }) {
   const df = useDateFormat();
   const qc = useQueryClient();
   const { can } = useAuth();
-  const rows = useQuery({
+  const manage = can("support.manage");
+  const mayOpenIntegrations = can("integration.view");
+  const rows = usePagedList({
     queryKey: ["device-maintenance", installations],
-    queryFn: () =>
+    queryFn: (paging) =>
       getMaintenance({
-        page_size: 200,
+        ...paging,
         ...(installations ? { installation: true } : {}),
       }),
   });
+  // JB209-8 (Lucas 11-16 audit, C-F4): the registered devices are a lookup
+  // for telemetry, 实际能力 and the 已连接 picker, and need
+  // `integration.view`. Asked only of those who may read them; when refused
+  // the records still show (as 「需要硬件」) and the picker offers 「尚未绑定」.
   const registeredDevices = useQuery({
     queryKey: ["integration-devices", "support-capability"],
-    queryFn: () => getIntegrationDevices({ page_size: 500 }),
+    queryFn: () => readAllPages((paging) => getIntegrationDevices({ ...paging })),
+    enabled: mayOpenIntegrations,
   });
   const [creating, setCreating] = useState(false);
   const [completing, setCompleting] = useState<DeviceMaintenance | null>(null);
@@ -1709,15 +1874,13 @@ function DevicePanel({ installations }: { installations: boolean }) {
   const refresh = () =>
     qc.invalidateQueries({ queryKey: ["device-maintenance"] });
 
-  const ready =
-    !(rows.isLoading || registeredDevices.isLoading) &&
-    !(rows.isError || registeredDevices.isError);
+  const ready = !rows.isLoading && !rows.isError;
   return (
     <>
       <SectionListHeader
         section={installations ? "installations" : "maintenance"}
         action={
-          ready && (
+          ready && manage && (
             <Button onClick={() => setCreating(true)}>
               <Plus />
               {t(
@@ -1730,9 +1893,10 @@ function DevicePanel({ installations }: { installations: boolean }) {
         }
       />
       <TechnicalSetupGuide kind={installations ? "installations" : "maintenance"} />
+      <QueryFailedNote query={registeredDevices} what={t("what.devices")} />
       <Panel
-        loading={rows.isLoading || registeredDevices.isLoading}
-        error={rows.isError || registeredDevices.isError}
+        loading={rows.isLoading}
+        error={rows.isError}
       >
       <Table className="min-w-470">
         <TableHeader>
@@ -1814,23 +1978,36 @@ function DevicePanel({ installations }: { installations: boolean }) {
                 </TableCell>
                 <TableCell className="min-w-64">
                   <div className="flex flex-wrap gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setCompleting(row)}
-                    >
-                      {t("action.complete")}
-                    </Button>
-                    <Button size="sm" variant="outline" asChild>
-                      <Link href={`/integrations?company=${row.company}`}>
-                        <Cable />
-                        {t("action.openConfiguration")}
-                      </Link>
-                    </Button>
-                    {!installations && can("support.remote_operate") && (
+                    {manage && (
                       <Button
                         size="sm"
                         variant="outline"
+                        onClick={() => setCompleting(row)}
+                      >
+                        {t("action.complete")}
+                      </Button>
+                    )}
+                    {mayOpenIntegrations && (
+                      <Button size="sm" variant="outline" asChild>
+                        <Link href={`/integrations?company=${row.company}`}>
+                          <Cable />
+                          {t("action.openConfiguration")}
+                        </Link>
+                      </Button>
+                    )}
+                    {!installations && can("support.remote_operate") && (
+                      // JB209-16 (Lucas 11-16 audit, C usability): a LIVE
+                      // record is refused by the server every time (no
+                      // hardware connector yet) and the refusal read 「请检查
+                      // 标红的字段」 with nothing red. The button now says why
+                      // before anyone fills the form.
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabledReason={
+                          row.operation_mode === "LIVE" ? t("mode.live") : undefined
+                        }
+                        disabled={row.operation_mode === "LIVE"}
                         onClick={() => setRemote(row)}
                       >
                         <RadioTower />
@@ -1844,6 +2021,7 @@ function DevicePanel({ installations }: { installations: boolean }) {
             })}
         </TableBody>
       </Table>
+      <LoadMoreRow list={rows} />
       {creating && (
         <DeviceDialog
           installations={installations}
@@ -1877,11 +2055,14 @@ function DevicePanel({ installations }: { installations: boolean }) {
 
 function RemoteSessionHistory() {
   const t = useTranslations("support");
+  const ts = useTranslations("adminTechnicalSupport");
   const df = useDateFormat();
-  const sessions = useQuery({
+  // JB209-14 (X-2): the permanent record (15.2.8) no longer stops at the
+  // newest 100 - older sessions are one 「加载更多」 away.
+  const sessions = usePagedList({
     queryKey: ["remote-sessions"],
-    queryFn: () => getRemoteSessions({
-        page_size: 100,
+    queryFn: (paging) => getRemoteSessions({
+        ...paging,
         sort_by: "started_at",
         sort_order: "desc",
       }),
@@ -1930,7 +2111,12 @@ function RemoteSessionHistory() {
                     {df.dateTime(row.started_at)}
                   </TableCell>
                   <TableCell>{row.company_name}</TableCell>
-                  <TableCell>{row.session_type}</TableCell>
+                  {/* JB209-16 (Lucas 11-16 audit, C usability): 远端测试, not TEST. */}
+                  <TableCell>
+                    {ts.has(`remoteOperation.${row.session_type}`)
+                      ? ts(`remoteOperation.${row.session_type}`)
+                      : row.session_type}
+                  </TableCell>
                   <TableCell>{row.operator_name || "-"}</TableCell>
                   <TableCell className="max-w-64 truncate">{row.description}</TableCell>
                   <TableCell>
@@ -1947,6 +2133,7 @@ function RemoteSessionHistory() {
               ))}
             </TableBody>
           </Table>
+          <LoadMoreRow list={sessions} />
         </div>
       )}
     </section>
@@ -2463,6 +2650,17 @@ function ReportPanel() {
       ],
     ],
   ] as const;
+  // JB209-16 (Lucas 11-16 audit, C usability): the files printed PENDING,
+  // HIGH, WEIGHBRIDGE and True/False; each code column now carries the words
+  // the screen already shows.
+  const words = (key: string) => t.raw(key) as Record<string, string>;
+  const values: Record<string, Record<string, Record<string, string>>> = {
+    tickets: { type: words("ticketType"), state: words("ticketState"), priority: words("priority") },
+    bugs: { severity: words("severity"), state: words("bugState") },
+    api: { test_status: words("testStatus"), live_status: words("activationStatus") },
+    installations: { device_type: words("deviceType"), test_status: words("testStatus"), activation_status: words("activationStatus") },
+    maintenance: { device_type: words("deviceType"), is_online: { true: t("status.online"), false: t("status.offline") } },
+  };
   const exporting = useMutation({
     mutationFn: ({
       dataset,
@@ -2477,7 +2675,11 @@ function ReportPanel() {
         dataset,
         format,
         t(`report.${dataset}`),
-        fields.map((key) => ({ key, label: t(`exportColumn.${key}`) })),
+        fields.map((key) => ({
+          key,
+          label: t(`exportColumn.${key}`),
+          ...(values[dataset]?.[key] ? { values: values[dataset][key] } : {}),
+        })),
       ),
   });
   const common = useTranslations("common");
