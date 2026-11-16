@@ -965,6 +965,21 @@ export const PORTAL_NAVIGATION = {
           "/weighing",
           "recycling_records",
         ),
+        // 扣杂 the recycler claims on one of these loads, out of the menu: the
+        // 「请确认扣杂」 card opens `/deductions?search=<load>`, and the guard
+        // used to turn the contractor away to the dashboard, so the claim was
+        // never answered and the load could never be settled - JB207-1
+        // (Lucas 11-16 audit). `/deductions/create` stays the recycler's
+        // (`deduction.create`, PERMISSION_ROUTE_RULES).
+        {
+          ...child(
+            "8.2.6a",
+            "nav.deductions",
+            "/deductions",
+            "recycling_records",
+          ),
+          menuHidden: true,
+        },
       ],
     ),
     // 安全事故 (安全事件 + 事故上报) removed at the customer's request on
@@ -1533,10 +1548,12 @@ export const PORTAL_NAVIGATION = {
       child("recycler-customers", "nav.customer_management", "/recycler-customers", "customer_management"),
       child("recycler-partnerships", "nav.partnerships", "/partnerships", "partnerships"),
     ]),
-    item("yards", "/recycler-modules/yards", Warehouse, "operations", [
-      "/vehicles",
-      "/drivers",
-    ], false, [
+    // 车辆 / 司机 and 地磅 / 付款状态 are not parent prefixes: each is a child
+    // with its own feature, and a prefix answered with the parent's feature
+    // first - the weighbridge operator (no 回收场) saw 车辆 in the menu and
+    // was bounced, so nobody but the admin could 设定皮重; a 标准版 yard (no
+    // 称重记录) the same with 付款状态. JB207-3 (Lucas 11-16 audit).
+    item("yards", "/recycler-modules/yards", Warehouse, "operations", undefined, false, [
       child("recycler-yards", "nav.yards", "/sites", "yards"),
       child("recycler-vehicles", "nav.vehicles", "/vehicles", "vehicles"),
       child("recycler-drivers", "nav.drivers", "/drivers", "drivers"),
@@ -1555,8 +1572,6 @@ export const PORTAL_NAVIGATION = {
     item("weighing_records", "/recycler-modules/weighing_records", Gauge, "operations", [
       "/gate",
       "/deductions",
-      "/settlements",
-      "/scales",
     ], false, [
       child("recycler-weighing", "nav.weighing_records", "/weighing", "weighing_records"),
       child("recycler-scales", "nav.weighbridges", "/scales", "weighbridges"),

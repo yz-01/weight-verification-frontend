@@ -235,24 +235,25 @@ export function Recyclers() {
                 partnership.status === "PENDING" &&
                 incoming && (
                   <>
+                    {/* In words beside the icon (JB207-10, Lucas 11-16 audit). */}
                     <Button
                       variant="ghost"
-                      size="icon"
-                      className="h-7 w-7 text-success hover:bg-success/10"
-                      title={t("recyclers.action.accept")}
+                      size="sm"
+                      className="h-7 text-success hover:bg-success/10"
                       disabled={isAccepting}
                       onClick={() => acceptPartnership(partnership.id)}
                     >
                       <Check className="h-3.5 w-3.5" />
+                      {t("recyclers.action.accept")}
                     </Button>
                     <Button
                       variant="ghost"
-                      size="icon"
-                      className="h-7 w-7 text-destructive hover:bg-destructive/10"
-                      title={t("recyclers.action.reject")}
+                      size="sm"
+                      className="h-7 text-destructive hover:bg-destructive/10"
                       onClick={() => setConfirmation({ kind: "reject", partnership })}
                     >
                       <X className="h-3.5 w-3.5" />
+                      {t("recyclers.action.reject")}
                     </Button>
                   </>
                 )}

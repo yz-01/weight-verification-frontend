@@ -560,7 +560,9 @@ function WasteOutgoingRecordWindow({
         row.dispatch_state === "ACCEPTED" &&
         row.proposed_collection_at &&
         !row.confirmed_collection_at &&
-        can("waste_outgoing.order") && (
+        // What `confirm_collection_plan` asks, and who the card goes to
+        // (JB207-9, Lucas 11-16 audit).
+        can("dispatch.update") && (
           <Button size="sm" onClick={() => setConfirming(row)}>
             <CalendarCheck2 />
             {t("action.confirmSchedule")}
@@ -615,7 +617,7 @@ function WasteOutgoingRecordWindow({
   return (
     <>
       <RecordDetailDialog
-        title={shown.reference_no}
+        title={shown.reference_no}
         description={`${shown.project_name} · ${shown.category_name}`}
         exportRecord={{
           kind: "WASTE_OUTGOING",

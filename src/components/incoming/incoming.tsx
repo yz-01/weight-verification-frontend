@@ -298,14 +298,16 @@ export function Incoming() {
             </Button>
             {can("task.assign") &&
             ["PENDING_ACCEPTANCE", "ACCEPTED"].includes(row.original.state) ? (
+              // In words, not a 28 px truck with a hover tooltip (JB207-10,
+              // Lucas 11-16 audit): it is the one next step on the row.
               <Button
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7 text-primary hover:bg-primary/10"
-                title={t("incoming.order.action")}
+                variant="outline"
+                size="sm"
+                className="text-primary"
                 onClick={() => setAssigning(row.original)}
               >
                 <Truck className="h-3.5 w-3.5" />
+                {t("dispatches.recyclerNext")}
               </Button>
           ) : can("dispatch.update") && row.original.state === "RELEASED" ? (
               <Button

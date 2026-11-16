@@ -259,29 +259,32 @@ export function Partnerships() {
 
           return (
             <div className="flex items-center justify-end gap-0.5">
+              {/* 接受 / 拒绝 in words beside the icon (JB207-10, Lucas 11-16
+                  audit): a request waiting on this company is the row's
+                  whole point, and two bare icons did not say so. */}
               {canRespond && (
                 <>
                   <Button
                     variant="ghost"
-                    size="icon-sm"
+                    size="sm"
                     className="text-success hover:bg-success/10"
-                    title={t("partnerships.respond.accept")}
                     onClick={() =>
                       setResponse({ partnership, status: "ACTIVE" })
                     }
                   >
                     <BadgeCheck className="h-3.5 w-3.5" />
+                    {t("partnerships.respond.accept")}
                   </Button>
                   <Button
                     variant="ghost"
-                    size="icon-sm"
+                    size="sm"
                     className="text-destructive hover:bg-destructive/10"
-                    title={t("partnerships.respond.reject")}
                     onClick={() =>
                       setResponse({ partnership, status: "REJECTED" })
                     }
                   >
                     <XCircle className="h-3.5 w-3.5" />
+                    {t("partnerships.respond.reject")}
                   </Button>
                 </>
               )}
@@ -321,12 +324,16 @@ export function Partnerships() {
   const activeStatus = list.filters.status ?? "";
   const managing =
     data?.results.find((partnership) => partnership.id === managingId) ?? null;
+  // Only a pair waiting or working together is left out: a rejected or
+  // suspended one can be asked again, which reopens it (JB207-5b).
   const excludedCompanyIds = new Set(
-    (data?.results ?? []).map((partnership) =>
-      user?.company_type === "RECYCLER"
-        ? partnership.contractor
-        : partnership.recycler,
-    ),
+    (data?.results ?? [])
+      .filter((partnership) => partnership.status === "PENDING" || partnership.status === "ACTIVE")
+      .map((partnership) =>
+        user?.company_type === "RECYCLER"
+          ? partnership.contractor
+          : partnership.recycler,
+      ),
   );
 
   return (

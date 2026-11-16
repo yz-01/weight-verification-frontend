@@ -8082,7 +8082,8 @@
       "category": "Kategori",
       "legacy": "Pesanan lama",
       "createdAt": "Tarikh pesanan"
-    }
+    },
+    "recyclerNext": "Tugaskan pemandu / masa kutipan"
   },
   "documents": {
     "downloading": "Sedang memuat turun",
@@ -8515,7 +8516,13 @@
       "pushStatus": "Status pemberitahuan"
     },
     "takeIssuePhoto": "Ambil foto masalah dalam perjalanan (kemalangan / kenderaan)",
-    "issuePhotoHelp": "Dihantar kepada pengitar semula dan kontraktor serta-merta."
+    "issuePhotoHelp": "Dihantar kepada pengitar semula dan kontraktor serta-merta.",
+    "notRecorded": {
+      "stepOffline": "Tiada internet: langkah ini tidak direkodkan. Tekan sekali lagi apabila ada isyarat.",
+      "photoOffline": "Tiada internet: foto ini tidak direkodkan. Ambil semula apabila ada isyarat.",
+      "step": "Langkah ini tidak direkodkan: {reason}",
+      "photo": "Foto ini tidak direkodkan: {reason}"
+    }
   },
   "driverGps": {
     "action": {
@@ -9091,7 +9098,10 @@
       "rain_record_quota_full": "Projek ini sudah menerima rekod hujan yang cukup untuk tempoh ini, jadi yang ini tidak diterima.",
       "rain_void_reason_required": "Tulis sebab rekod ini dibatalkan.",
       "rain_record_already_voided": "Rekod hujan ini sudah dibatalkan; ia tidak boleh dibatalkan lagi.",
-      "rain_rules_out_of_range": "Bilangan rekod mesti 1 hingga 50, dan minit 5 hingga 1440."
+      "rain_rules_out_of_range": "Bilangan rekod mesti 1 hingga 50, dan minit 5 hingga 1440.",
+      "dispatch_not_loaded": "Pemandu belum menekan [Sudah dimuatkan] di telefon. Minta pemandu tekan [Sudah dimuatkan] dahulu, kemudian imbas semula.",
+      "recycler_standard_plan": "Pengitar semula ini menggunakan pelan Standard dan tidak boleh menerima pesanan kontraktor. Sila pilih pengitar semula pelan Rakan kongsi.",
+      "standard_plan_no_partnership": "Syarikat anda menggunakan pelan Standard yang tidak boleh menerima pesanan kontraktor, jadi tidak boleh memohon kerjasama. Untuk menerima pesanan kontraktor, hubungi MSE untuk bertukar ke pelan Rakan kongsi."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -14712,7 +14722,8 @@
       "scanHelp": "Gunakan kamera, muat naik imej QR, atau letakkan kursor di sini dan gunakan pengimbas USB.",
       "startHelp": "Imbas QR pelanggan yang sah, pilih tapak dan bahan, kemudian lengkapkan dengan timbangan dua kali yang sah.",
       "startTitle": "Mulakan penerimaan pelanggan persendirian",
-      "tab": "Penerimaan persendirian"
+      "tab": "Penerimaan persendirian",
+      "confirmedOnly": "Hanya tiket yang disahkan disenaraikan. Untuk tiket yang belum disahkan, bukanya di Rekod penimbangan, tekan Sahkan tiket, kemudian kembali."
     },
     "inventory": {
       "adjustHelp": "Setiap perubahan merekod siapa, bila dan sebab secara kekal.",
@@ -15891,7 +15902,9 @@
       "notes": "Nota",
       "paidOn": "Dibayar pada",
       "reference": "Rujukan",
-      "title": "Rekod pembayaran"
+      "title": "Rekod pembayaran",
+      "document": "Fail bukti",
+      "documentHint": "Slip bank atau tangkapan skrin pindahan, sebagai foto atau PDF. Kontraktor melihatnya di Bukti pembayaran."
     },
     "quote": {
       "openDeductions": "{count} potongan masih menunggu",
@@ -17792,7 +17805,9 @@
       "whatDrivers": "Pemandu terkini",
       "whatPlates": "Plat terkini",
       "assign": "Tugaskan dan buat pautan",
-      "incomplete": "Isi nama pemandu, telefon dan nombor plat"
+      "incomplete": "Isi nama pemandu, telefon dan nombor plat",
+      "noSites": "Belum ada tapak, jadi pemandu tidak boleh ditugaskan. Pergi ke Tapak kitar semula, tekan Tapak baharu, kemudian kembali.",
+      "noSitesAskAdmin": "Belum ada tapak, jadi pemandu tidak boleh ditugaskan. Minta pentadbir syarikat menambah tapak di Tapak kitar semula dahulu."
     },
     "link": {
       "ruleLabel": "Bila pautan tamat",
