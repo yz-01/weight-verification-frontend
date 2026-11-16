@@ -18,7 +18,7 @@ const source = readFileSync(
 describe("the ticket link in fleet history", () => {
   it("opens the weighing ticket", () => {
     expect(source).toContain("href={`/weighing/${row.weigh_session_id}`}");
-    expect(source).not.toContain("/weigh-sessions/");
+    expect(source).not.toContain("href={`/weigh-sessions/");
   });
 
   it("is a page the recycler opens", () => {

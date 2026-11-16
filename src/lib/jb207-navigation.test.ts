@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { isRouteAllowed, navLeaves, visibleNavigation } from "./navigation";
+import { PORTAL_NAVIGATION, isRouteAllowed, navLeaves, visibleNavigation } from "./navigation";
 import { helpKeyFor } from "./page-help";
 
 /**
@@ -118,6 +118,31 @@ describe("JB207-3: a recycler reaches every page its menu shows", () => {
     // The parent alone used to open them.
     expect(isRouteAllowed("MSE_SCRAP", ["yards"], "/vehicles")).toBe(false);
     expect(isRouteAllowed("MSE_SCRAP", ["weighing_records"], "/settlements")).toBe(false);
+    expect(isRouteAllowed("MSE_SCRAP", ["waste_orders"], "/tasks")).toBe(false);
+    expect(isRouteAllowed("MSE_SCRAP", ["customer_management"], "/partnerships")).toBe(false);
+    expect(isRouteAllowed("MSE_SCRAP", ["inventory_management"], "/recycler-outbound")).toBe(false);
+    // What stays the parent's: pages with no child of their own.
+    expect(isRouteAllowed("MSE_SCRAP", ["waste_orders"], "/incoming")).toBe(true);
+    expect(isRouteAllowed("MSE_SCRAP", ["waste_orders"], "/dispatches/abc")).toBe(true);
+    expect(isRouteAllowed("MSE_SCRAP", ["weighing_records"], "/deductions")).toBe(true);
+    expect(
+      isRouteAllowed("MSE_SCRAP", ["weighing_records"], "/gate", ["weighing.operate"]),
+    ).toBe(true);
+  });
+
+  it("opens every recycler child page on that child's own feature (the whole class)", () => {
+    // The sweep (「检查一下有没有类似的问题」): a parent prefix answered with
+    // the parent's feature first, so a child shown by its own feature bounced
+    // whenever the parent's was off - 司机任务, 司机定位, 建筑商合作, 出库 too.
+    for (const navItem of PORTAL_NAVIGATION.MSE_SCRAP) {
+      for (const leaf of navLeaves(navItem.children)) {
+        const feature = leaf.feature ?? navItem.feature;
+        expect(
+          isRouteAllowed("MSE_SCRAP", ["dashboard", feature], leaf.href),
+          `${leaf.href} on ${feature} alone`,
+        ).toBe(true);
+      }
+    }
   });
 
   it("keeps the action rules on the pages beneath", () => {
