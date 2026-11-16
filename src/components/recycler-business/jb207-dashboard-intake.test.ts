@@ -18,6 +18,14 @@ describe("JB207-8: the dashboard's 待派车 row", () => {
     expect(row).not.toContain('href: "/tasks"');
     expect(isRouteAllowed("MSE_SCRAP", ["waste_orders"], "/waste-orders")).toBe(true);
   });
+
+  it("does the same on the 今日 card with that count (the sibling)", () => {
+    const at = dashboard.indexOf("value={number(data.business_today.pending_dispatch)}");
+    expect(at).toBeGreaterThan(-1);
+    const card = dashboard.slice(dashboard.lastIndexOf("<MetricCard", at), dashboard.indexOf("/>", at));
+    expect(card).toContain('href="/waste-orders?state=ACCEPTED"');
+    expect(card).not.toContain('href="/tasks"');
+  });
 });
 
 describe("JB207-10: 私人入库 完成 lists only confirmed tickets", () => {

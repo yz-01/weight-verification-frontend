@@ -1542,9 +1542,7 @@ export const PORTAL_NAVIGATION = {
   ],
   MSE_SCRAP: [
     item("dashboard", "/dashboard", LayoutDashboard, "overview"),
-    item("customer_management", "/recycler-modules/customer_management", Users, "operations", [
-      "/partnerships",
-    ], false, [
+    item("customer_management", "/recycler-modules/customer_management", Users, "operations", undefined, false, [
       child("recycler-customers", "nav.customer_management", "/recycler-customers", "customer_management"),
       child("recycler-partnerships", "nav.partnerships", "/partnerships", "partnerships"),
     ]),
@@ -1558,11 +1556,11 @@ export const PORTAL_NAVIGATION = {
       child("recycler-vehicles", "nav.vehicles", "/vehicles", "vehicles"),
       child("recycler-drivers", "nav.drivers", "/drivers", "drivers"),
     ]),
+    // The same for 司机任务 / 司机定位 here, 建筑商合作 and 出库 below (JB207-3,
+    // the sweep for the same shape): their own child decides.
     item("waste_orders", "/recycler-modules/waste_orders", Inbox, "operations", [
       "/incoming",
       "/dispatches",
-      "/tasks",
-      "/driver-gps",
       "/driver",
     ], false, [
       child("recycler-orders", "nav.waste_orders", "/waste-orders", "waste_orders"),
@@ -1578,9 +1576,7 @@ export const PORTAL_NAVIGATION = {
       child("recycler-deductions", "nav.deductions", "/deductions", "weighing_records"),
       child("recycler-settlements", "nav.payment_status", "/settlements", "payment_status"),
     ]),
-    item("inventory_management", "/recycler-modules/inventory_management", Box, "operations", [
-      "/recycler-outbound",
-    ], false, [
+    item("inventory_management", "/recycler-modules/inventory_management", Box, "operations", undefined, false, [
       child("recycler-inventory", "nav.inventory_management", "/recycler-inventory", "inventory_management"),
       child("recycler-outbound", "nav.outbound_management", "/recycler-outbound", "outbound_management"),
     ]),

@@ -256,7 +256,9 @@ export function RecyclerDashboard({ features }: { features: string[] }) {
               label={t("dispatches.state.ACCEPTED")}
               value={number(data.business_today.pending_dispatch)}
               icon={Truck}
-              href="/tasks"
+              // The same 待派车 count as the row below: its orders are on
+              // 废料订单, not 司机任务 (JB207-8).
+              href="/waste-orders?state=ACCEPTED"
               tone="warning"
             />
             <MetricCard
