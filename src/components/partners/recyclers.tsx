@@ -229,53 +229,59 @@ export function Recyclers() {
         cell: ({ row }) => {
           const partnership = row.original;
           const incoming = partnership.requested_by_company !== user?.company;
+          // Each button says what it does in words, not only on mouse-over
+          // (JB206-8, Lucas 11-16 audit: 「要站在老人家的角度去思考」).
           return (
-            <div className="flex items-center justify-end gap-0.5">
+            <div className="flex flex-wrap items-center justify-end gap-0.5" data-slot="recycler-row-actions">
               {can("partnership.manage") &&
                 partnership.status === "PENDING" &&
                 incoming && (
                   <>
                     <Button
                       variant="ghost"
-                      size="icon"
-                      className="h-7 w-7 text-success hover:bg-success/10"
+                      size="sm"
+                      className="h-7 gap-1 px-2 text-success hover:bg-success/10"
                       title={t("recyclers.action.accept")}
                       disabled={isAccepting}
                       onClick={() => acceptPartnership(partnership.id)}
                     >
                       <Check className="h-3.5 w-3.5" />
+                      {t("recyclers.action.accept")}
                     </Button>
                     <Button
                       variant="ghost"
-                      size="icon"
-                      className="h-7 w-7 text-destructive hover:bg-destructive/10"
+                      size="sm"
+                      className="h-7 gap-1 px-2 text-destructive hover:bg-destructive/10"
                       title={t("recyclers.action.reject")}
                       onClick={() => setConfirmation({ kind: "reject", partnership })}
                     >
                       <X className="h-3.5 w-3.5" />
+                      {t("recyclers.action.reject")}
                     </Button>
                   </>
                 )}
               {partnership.status === "ACTIVE" && (
                 <Button
                   variant="ghost"
-                  size="icon"
-                  className="h-7 w-7 text-primary hover:bg-primary/10"
+                  size="sm"
+                  className="h-7 gap-1 px-2 text-primary hover:bg-primary/10"
                   title={t("recyclers.action.manageProjects")}
                   onClick={() => setProjectPartnership(partnership)}
                 >
                   <FolderCog className="h-3.5 w-3.5" />
+                  {t("recyclers.action.manageProjects")}
                 </Button>
               )}
               {can("partnership.manage") && partnership.status === "ACTIVE" && (
                 <Button
                   variant="ghost"
-                  size="icon"
-                  className="h-7 w-7 text-warning hover:bg-warning/10"
+                  size="sm"
+                  className="h-7 gap-1 px-2 text-warning hover:bg-warning/10"
                   title={t("recyclers.action.suspend")}
                   onClick={() => setConfirmation({ kind: "suspend", partnership })}
                 >
                   <PauseCircle className="h-3.5 w-3.5" />
+                  {t("recyclers.action.suspend")}
                 </Button>
               )}
             </div>

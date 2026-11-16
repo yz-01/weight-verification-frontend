@@ -210,29 +210,33 @@ export function PaymentProofs() {
           isLoading ? t("common.loading") : t("paymentProofs.count", { count: total })
         }
         action={
-          // The settlements listed, as a file (H16, HD13).
-          <ExportButton
-            disabled={total === 0}
-            disabledReason={t("paymentProofs.count", { count: 0 })}
-            title={t("paymentProofs.title")}
-            onExport={(format) =>
-              exportTransactions({
-                format,
-                title: t("paymentProofs.title"),
-                subtitle: t("paymentProofs.count", { count: total }),
-                query: list.query,
-                columns: [
-                  { key: "settlement_no", label: t("paymentProofs.field.settlementNo") },
-                  { key: "dispatch_no", label: t("mySubmissions.field.dispatch_no") },
-                  { key: "project_name", label: t("paymentProofs.field.project") },
-                  { key: "recycler_name", label: t("mySubmissions.field.recycler") },
-                  { key: "issued_at", label: t("paymentProofs.field.issuedAt") },
-                  { key: "total_amount", label: t("paymentProofs.field.totalAmount") },
-                  { key: "amount_paid", label: t("paymentProofs.field.amount") },
-                ],
-              })
-            }
-          />
+          // The settlements listed, as a file (H16, HD13) - only for who
+          // holds 导出 (JB206-6, Lucas 11-16 audit): the server asks for
+          // `report.export`, as the other lists' 导出 do.
+          can("report.export") && (
+            <ExportButton
+              disabled={total === 0}
+              disabledReason={t("paymentProofs.count", { count: 0 })}
+              title={t("paymentProofs.title")}
+              onExport={(format) =>
+                exportTransactions({
+                  format,
+                  title: t("paymentProofs.title"),
+                  subtitle: t("paymentProofs.count", { count: total }),
+                  query: list.query,
+                  columns: [
+                    { key: "settlement_no", label: t("paymentProofs.field.settlementNo") },
+                    { key: "dispatch_no", label: t("mySubmissions.field.dispatch_no") },
+                    { key: "project_name", label: t("paymentProofs.field.project") },
+                    { key: "recycler_name", label: t("mySubmissions.field.recycler") },
+                    { key: "issued_at", label: t("paymentProofs.field.issuedAt") },
+                    { key: "total_amount", label: t("paymentProofs.field.totalAmount") },
+                    { key: "amount_paid", label: t("paymentProofs.field.amount") },
+                  ],
+                })
+              }
+            />
+          )
         }
       />
 

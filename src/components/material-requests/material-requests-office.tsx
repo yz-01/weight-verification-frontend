@@ -45,7 +45,13 @@ import { useEffect, useMemo, useState } from "react";
 import { FieldDraft } from "@/components/field-staff/field-draft";
 import { RequestTypesDialog } from "@/components/material-requests/request-types-dialog";
 import { requestTypeNameOptions } from "@/lib/request-types";
-import { chosenReviewer, materialRequestReviewView } from "@/components/material-requests/review-gate";
+import {
+  chosenReviewer,
+  decidesForAwayManager,
+  materialRequestReviewView,
+  materialRequestWaiting,
+  mayChangeMaterialRequest,
+} from "@/components/material-requests/review-gate";
 import {
   MaterialRequestForm,
   type MaterialRequestPrefill,
@@ -721,17 +727,26 @@ export function MaterialRequestDetail({
   // an approver it was not sent to takes it over first (Q15).
   const reviewView = materialRequestReviewView(row, user?.id, can("material_request.review"));
   // 「等待 XXX 审批」: whose desk it is on. Requests from before D2 name nobody.
-  const waitingLine = row.assigned_reviewer_name
-    ? t("waitingFor", { name: row.assigned_reviewer_name })
-    : null;
+  // Still with the project manager it says so, stage and name (JB206-8, Lucas
+  // 11-16 audit): head office read 「等待 XXX 审批」 and took it for its own.
+  const waiting = materialRequestWaiting(row);
+  const waitingLine = waiting ? t(waiting.key, { name: waiting.name }) : null;
+  // The server lets only the applicant or an approver change it (JB206-2,
+  // Lucas 11-16 audit): nobody else types a whole change only to be refused.
+  const mayChange = mayChangeMaterialRequest(row, user?.id, can);
+  // 「总部代批」 (JB206-13): the project manager it waits on is away.
+  const forAwayManager = decidesForAwayManager(row, reviewView);
   const changeable =
-    !decided && !user?.is_field_staff && reviewView !== "waiting";
+    mayChange && !decided && !user?.is_field_staff && reviewView !== "waiting";
   // Decided is its archive (JB25); it is still changed, not deleted (Lucas
   // 10-30 evening: 「归档后的事项都可以修改」).
-  const editable = changeable || (decided && !ARCHIVE_LOCKS_CHANGES && !user?.is_field_staff);
+  const editable =
+    changeable || (mayChange && decided && !ARCHIVE_LOCKS_CHANGES && !user?.is_field_staff);
   const takeOvers = row.decisions.filter((entry) => entry.decision === "REASSIGNED");
   // 「转呈总部」 (I12, ID29): the project manager sent it on.
   const forwards = row.decisions.filter((entry) => entry.decision === "FORWARDED");
+  // 「总部代批」 (JB206-13): head office decided it for an away manager.
+  const onBehalf = row.decisions.filter((entry) => entry.on_behalf);
 
   return (
     <RecordDetailDialog title={row.request_no} description={`${row.project_name} · ${requestTypeName(row, t)}`} onClose={onClose}>
@@ -829,6 +844,28 @@ export function MaterialRequestDetail({
                             at: df.dateTime(entry.decided_at),
                           })}
                           {entry.note ? ` · ${entry.note}` : ""}
+                        </li>
+                      ))}
+                    </ul>
+                  ),
+                },
+              ]
+            : []),
+          // Who decided it in whose place, and when (JB206-13).
+          ...(onBehalf.length
+            ? [
+                {
+                  label: t("field.onBehalfHistory"),
+                  wide: true,
+                  value: (
+                    <ul className="space-y-0.5">
+                      {onBehalf.map((entry) => (
+                        <li key={entry.id}>
+                          {t(entry.decision === "RETURNED" ? "onBehalf.returned" : "onBehalf.approved", {
+                            by: entry.decided_by_name ?? "—",
+                            manager: entry.previous_reviewer_name ?? "—",
+                            at: df.dateTime(entry.decided_at),
+                          })}
                         </li>
                       ))}
                     </ul>
@@ -947,6 +984,11 @@ export function MaterialRequestDetail({
             {editingRequest && <MaterialRequestEditDialog row={row} onClose={() => setEditingRequest(false)} />}
             {reviewView === "decide" && (
               <>
+                {forAwayManager && (
+                  <p className="rounded-md border border-warning/25 bg-warning/5 px-2 py-1.5 text-xs" data-slot="on-behalf-note">
+                    {t("onBehalf.help", { manager: row.assigned_reviewer_name ?? "—" })}
+                  </p>
+                )}
                 {isMaterial && (
                   // D2 + D1: approving settles the supplier; the owner's
                   // named manufacturer is optional (2026-10-10). Returning

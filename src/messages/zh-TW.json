@@ -3809,7 +3809,8 @@
       "rain_report_pdf_exported": "匯出雨天記錄月報",
       "rain_report_pdf_previewed": "預覽雨天記錄月報",
       "rain_remark_set": "填寫雨天記錄的意見 / 備註",
-      "rain_month_remark_set": "填寫雨天月報的意見 / 備註"
+      "rain_month_remark_set": "填寫雨天月報的意見 / 備註",
+      "head_office_on_behalf": "總部代批"
     },
     "objectType": {
       "SignOffAssistant": "助理副密碼",
@@ -4808,7 +4809,8 @@
     "combobox": {
       "byLetter": "按首字母篩選"
     },
-    "loadOffline": "沒有網路，{what}等有網路時再載入。"
+    "loadOffline": "沒有網路，{what}等有網路時再載入。",
+    "pageNotOpen": "你的賬號不能打開這個頁面，已帶你回到可以用的頁面。需要用這個頁面，請聯繫你們公司的管理員開通。"
   },
   "companies": {
     "owner": {
@@ -9091,7 +9093,15 @@
       "rain_record_quota_full": "這個項目這段時間已經收滿雨天記錄，後台沒有接收這一份。",
       "rain_void_reason_required": "請寫作廢原因。",
       "rain_record_already_voided": "這份雨天記錄已經作廢了，不能再作廢一次。",
-      "rain_rules_out_of_range": "份數要在 1 到 50 之間，分鐘要在 5 到 1440 之間。"
+      "rain_rules_out_of_range": "份數要在 1 到 50 之間，分鐘要在 5 到 1440 之間。",
+      "waste_outgoing_delegate_not_on_project": "這個人不在這個項目裡，打不開這份申請。請從名單裡另選這個項目的人。",
+      "project_archived_read_only": "這個項目已經歸檔，資料只能查看，不能再修改。請關掉這一頁，回到項目列表。",
+      "project_archive_use_action": "「已歸檔」不能在修改裡選。請先把狀態改成「已完工」並保存，再在項目頁按【歸檔項目】。",
+      "project_status_move_refused": "項目現在的狀態不能直接改成你選的狀態。請重新打開修改頁面，從狀態列表裡選。",
+      "hazard_not_awaiting_check": "這一項已經有人處理過了，現在不是等驗收的狀態。請刷新頁面，看最新的情況。",
+      "hazard_confirmed_by_other": "{incident_no} 由負責確認的人 {confirmer} 來驗收或退回。你可以查看，但不能操作；需要的話請聯繫他。",
+      "visitor_host_required": "請先選訪客要找的人，再按確認。",
+      "visitor_host_not_on_project": "這個人不在這個項目裡。請從名單裡選這個項目的人。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -11570,6 +11580,10 @@
       "add": "上傳書信",
       "missing": "請先上傳書信",
       "confirmNote": "書信會放在合併 PDF 的最前面。"
+    },
+    "discardConfirm": {
+      "title": "丟棄這期 Claim？",
+      "description": "這期 Claim 草稿會被刪除，裡面勾選的記錄和上傳的書信都不再在這期裡。刪除後不能恢復。"
     }
   },
   "multiEngine": {
@@ -13036,7 +13050,7 @@
     },
     "emergency_list": {
       "what": "此刻還在工地裡的人，附可撥打的電話。出事要清點人數時用。",
-      "who": "持 geofence.view。",
+      "who": "持 site_access.view。",
       "then": "名單會自動重新整理，點電話號碼就能撥。",
       "trouble": "名單上少了某個人，是他已經掃碼出場了，或者根本沒掃碼進來 —— 門禁事件裡寫著是哪一種。"
     },
@@ -13056,7 +13070,7 @@
     },
     "field_tasks": {
       "what": "派給某個現場人員的活：去哪、做什麼、要拍幾張才能交。",
-      "who": "持 project.view；派任務要 task.assign。",
+      "who": "持 project.view；派任務要 field_task.manage。",
       "need": "派一條任務要專案、任務標題、以及交給哪位現場人員。",
       "then": "它立刻出現在那個人的手機上，並寫明要拍幾張。",
       "trouble": "交上來的活反覆被退，多半是任務說明寫得太籠統 —— 現場看到的只有你寫的那幾行。"
@@ -13071,8 +13085,8 @@
     "hazard_rectification": {
       "what": "工地上查出來的問題、誰去整改、以及證明整改完了的那張照片。",
       "who": "同時持 safety.view 和 project.view。",
-      "need": "派整改要整改負責人、整改期限和整改位置；報完成要寫已完成工作；驗收要驗收照片和驗收說明。",
-      "then": "沒有驗收照片就不算整改完成 —— 問題不會因為有人說好了就算好了。",
+      "need": "派整改要整改負責人、整改期限和整改位置；報完成要寫已完成的工作，並拍整改照片；驗收只寫驗收說明，不用再拍照。",
+      "then": "整改照片由現場負責整改的人拍；開這一項的人或安全主管看了照片，再確認完成或退回（在電腦上確認要輸入六位數密碼）。問題不會因為有人說好了就算好了。",
       "trouble": "目前沒有常見到值得預警的問題。"
     },
     "integrations": {
@@ -13251,7 +13265,7 @@
     },
     "schedule": {
       "what": "施工計劃：選一份計劃，上面是三個數字（進度、已完成、延誤），下面是甘特圖和任務列表。匯出、新建、導入、改名、歸檔和計劃版本都在「更多」裡。",
-      "who": "同時持 progress.view 和 project.view。",
+      "who": "同時持 schedule.view 和 project.view。",
       "need": "匯入要 .xlsx 檔案、計畫名稱、修訂版名稱；改已確認的計畫還要寫變更原因。手工加一條任務要 WBS、任務名稱、計畫開始、計畫完成。",
       "then": "新計劃先是草稿，加好任務後按「確認並鎖定」。之後每項任務按「確認進度」填完成%。「已延誤」= 過了計劃完成日還沒做完；做完了但比計劃晚，顯示「延期完成」，不算延誤。",
       "trouble": "匯不進去，多半是有欄沒對上：WBS、任務名稱、計畫開始是必須的，另外計畫完成和工期至少要有一個。"
@@ -13272,7 +13286,7 @@
     },
     "site_gps": {
       "what": "你的人此刻在工地的什麼位置。",
-      "who": "持 geofence.view。",
+      "who": "持 field_position.view。",
       "need": "先選一個專案。",
       "then": "地圖顯示每個人最後一次上報的位置。",
       "trouble": "地圖上沒人：手機鎖屏後瀏覽器就停止上報，所以斷點是正常的。斷點就畫成斷點 —— 系統不會把兩點連成一條沒人走過的路。"
@@ -13398,6 +13412,13 @@
       "who": "項目經理，只看到自己負責項目的現場人員。總部也可以用。",
       "then": "把連結和 6 位數 PIN 發給那個人；他用手機打開連結、輸入 PIN，就能用手機工作。",
       "trouble": "看不到某個項目：請總部把你加到那個項目。手機號碼說已經被使用：請先在原來的項目把那個人「刪除」。"
+    },
+    "company_settings_trace": {
+      "what": "你們公司自己的資料：公司名稱、地址、Logo 和首頁背景、緊急聯繫人；顯示語言、日期時間格式和文件連結的有效天數；以及公司總部和分公司的記錄。",
+      "who": "公司管理員和總部：持 company_settings.view 可以看，持 company_settings.manage 才能修改。",
+      "need": "改好一欄，就按那一欄自己的【保存】。",
+      "then": "公司名稱和 Logo 印在報表、二維碼記錄和項目文件上；緊急聯繫人顯示在緊急名單和門崗的手機上。",
+      "trouble": "權限、二維碼、通知、GPS、安全和資料保存由 MSE 統一管理，這裡不能改；需要修改請聯繫 MSE。"
     }
   },
   "partners": {
@@ -15999,7 +16020,7 @@
       "new": "新增分公司",
       "removeBody": "之後不能用於新記錄，原有歷史仍會保留。",
       "removeTitle": "移除這個分公司？",
-      "subtitle": "保存地圖和報表使用的真實辦公室與分公司位置。",
+      "subtitle": "登記公司總部和各分公司的辦公室地址與位置，留作公司記錄。",
       "title": "分公司與總部"
     },
     "categories": {
@@ -16773,6 +16794,11 @@
       "loading": "正在生成樣板……",
       "caption": "A4 樣板：抬頭和實際匯出的 PDF 完全一樣，下面的內容只是示例。",
       "pdfWhat": "樣板 PDF"
+    },
+    "emergencyContact": {
+      "label": "緊急聯繫人：",
+      "call": "打電話給 {phone}",
+      "what": "緊急聯繫人"
     }
   },
   "siteDisposal": {
@@ -17553,7 +17579,8 @@
       "scanHelp": "手機相機會打開現場人員的材料進場記錄。已經登入的工地人員會直接進入並自動帶出該供應商。",
       "share": "分享",
       "shareText": "{supplier} 的供應商二維碼",
-      "title": "供應商二維碼"
+      "title": "供應商二維碼",
+      "rowLabel": "二維碼"
     },
     "remove": {
       "confirm": "刪除",
@@ -17933,7 +17960,7 @@
       "projects": "項目權限",
       "responsibilities": "項目負責人職責",
       "role": "角色與權限",
-      "tasks": "尚未完成的現場任務",
+      "tasks": "尚未完成的現場任務和等他審批的申請（MR）",
       "title": "需要轉移的內容"
     },
     "warning": {
@@ -18260,7 +18287,8 @@
       "help": "選擇已綁定此項目的回收商。{reference} 的訂單會立即發送至對方系統。",
       "noPartners": "此項目尚未綁定回收商。請先在「環保材料管理 › 回收商合作」中綁定，再建立訂單。",
       "partnersFailed": "無法載入回收合作商，所以選擇框是空的。這不代表你沒有合作商。",
-      "title": "安排回收商"
+      "title": "安排回收商",
+      "noPartnersAskHeadOffice": "此項目尚未綁定回收商。綁定回收商要由總部來做：請聯繫總部，把回收商綁定到這個項目，再回來安排。"
     },
     "reassign": {
       "arm": "我確定要收回這張訂單",
@@ -19115,7 +19143,8 @@
     "reminder": {
       "rule": "這一筆還沒走完。系統每 {hours} 小時提醒一次提交的人和要處理的人，直到確認已付款（或拒絕、撤回）。",
       "sent": "已經提醒 {count} 次，上一次：{at}。"
-    }
+    },
+    "withdrawn": "這筆報銷已由申請人撤回，原記錄保留，不用再處理。如果還要報銷，請申請人重新提交。"
   },
   "moduleHub": {
     "nothingToOpen": "此模組中沒有您可以開啟的頁面。"
@@ -19304,7 +19333,8 @@
       "forwardHistory": "轉呈記錄",
       "headOfficeReviewer": "總部審批人",
       "materialName": "材料名稱",
-      "materials": "材料明細"
+      "materials": "材料明細",
+      "onBehalfHistory": "總部代批"
     },
     "action": {
       "view": "查看",
@@ -19448,7 +19478,13 @@
       "manager": "待專案經理確認"
     },
     "forwarded": "{by} 於 {at} 轉呈總部",
-    "managerHelp": "現場人員交給你的申請：確認後選總部審批人，按「提交總部審批」；不對就退回。"
+    "managerHelp": "現場人員交給你的申請：確認後選總部審批人，按「提交總部審批」；不對就退回。",
+    "waitingForManager": "待專案經理 {name} 確認。他轉呈總部後，才由總部審批。",
+    "onBehalf": {
+      "help": "專案經理 {manager} 的賬號已停用，這一筆由總部代批：你可以直接批准或退回，記錄會寫明「總部代批」。",
+      "approved": "{by} 代 {manager} 批准（總部代批）· {at}",
+      "returned": "{by} 代 {manager} 退回（總部代批）· {at}"
+    }
   },
   "materialLines": {
     "title": "材料明細",
@@ -20177,7 +20213,8 @@
       "label": "每天正常工時（小時）",
       "save": "保存",
       "failed": "保存沒有成功，請再試一次。",
-      "current": "{name} 於 {at} 設定"
+      "current": "{name} 於 {at} 設定",
+      "chooseProject": "每個項目各自設置每日正常工時：請先在上方選擇項目。"
     },
     "records": {
       "what": "記錄",
@@ -21185,7 +21222,12 @@
       "stop": "停用",
       "lastUsed": "最近使用 {at}",
       "failed": "保存沒有成功，請再試一次。",
-      "chooseProject": "先在頁面上方選一個項目，才能新增連結。"
+      "chooseProject": "先在頁面上方選一個項目，才能新增連結。",
+      "askReissue": "重新發送後，司機現在手上的連結會馬上失效，要把新連結再發給他。確定重新發送嗎？",
+      "askStop": "停用後，這個司機就不能再用這個連結打卡。確定停用嗎？",
+      "confirmReissue": "確定重新發送",
+      "confirmStop": "確定停用",
+      "working": "正在處理，請稍等。"
     },
     "tabs": {
       "clock": "開工 / 收工",

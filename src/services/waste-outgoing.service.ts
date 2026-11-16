@@ -193,11 +193,15 @@ export async function submitWasteCollectionRequest(
   return row;
 }
 
-/** The people this company has authorised to decide these applications. */
-export function getWasteOutgoingDelegateOptions(): Promise<{
+/**
+ * The people this company has authorised to decide these applications - for
+ * one application (`record`), only those who can open its project, the rule
+ * the server holds 转交 to (JB206-4, Lucas 11-16 audit).
+ */
+export function getWasteOutgoingDelegateOptions(record?: string): Promise<{
   results: { id: string; name: string; role: string }[];
 }> {
-  return api.get("/api/waste-outgoing/get_delegate_options/");
+  return api.get("/api/waste-outgoing/get_delegate_options/", record ? { record } : {});
 }
 
 export async function delegateWasteOutgoingReview(

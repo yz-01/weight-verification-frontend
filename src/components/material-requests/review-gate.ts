@@ -13,7 +13,10 @@ import type { MaterialRequest } from "@/interfaces/material-request";
  *   request. The server refuses it too (`cannot_review_own_request`).
  * - `waiting`: somebody else decides it; the reader only waits.
  * - `manager`: the project manager a site staff's request was sent to first
- *   (I12, ID29) - 「转呈总部」 or return; never approve.
+ *   (I12, ID29) - 「转呈总部」 or return; never approve. While his account is
+ *   suspended or stopped, head office gets `decide` instead - 「总部代批」
+ *   (JB206-13, Lucas 11-16: 「总部可以代为审批」); while he is active,
+ *   head office waits.
  * - `none`: already decided.
  *
  * An unknown reader is treated as not allowed to decide: the buttons appear
@@ -23,7 +26,7 @@ export type MaterialRequestReviewView = "decide" | "takeOver" | "own" | "waiting
 
 export function materialRequestReviewView(
   row: Pick<MaterialRequest, "status" | "submitted_by"> &
-    Partial<Pick<MaterialRequest, "assigned_reviewer" | "awaiting_manager">>,
+    Partial<Pick<MaterialRequest, "assigned_reviewer" | "awaiting_manager" | "assigned_reviewer_active">>,
   readerId: string | null | undefined,
   canReview: boolean,
 ): MaterialRequestReviewView {
@@ -32,7 +35,8 @@ export function materialRequestReviewView(
   // With the project manager first (I12, ID29): theirs to send on; head
   // office and everybody else wait for it.
   if (row.awaiting_manager) {
-    return readerId && row.assigned_reviewer === readerId ? "manager" : "waiting";
+    if (readerId && row.assigned_reviewer === readerId) return "manager";
+    return readerId && canReview && row.assigned_reviewer_active === false ? "decide" : "waiting";
   }
   if (!readerId || !canReview) return "waiting";
   if (row.assigned_reviewer && row.assigned_reviewer !== readerId) return "takeOver";
@@ -48,4 +52,47 @@ export function materialRequestReviewView(
 export function chosenReviewer(rows: readonly { id: string }[], picked: string | null | undefined): string {
   if (rows.length === 1) return rows[0].id;
   return picked && rows.some((row) => row.id === picked) ? picked : "";
+}
+
+/**
+ * Whether this reader may 修改 / 删除 the request at all: the person who
+ * raised it or an approver (`material_request.review`) - the server's own
+ * rule (`_changeable`), so a project manager at his 转呈 stage, or a project
+ * user on a decided request, no longer types a whole change only to be
+ * refused. JB206-2 (Lucas 11-16 audit).
+ */
+export function mayChangeMaterialRequest(
+  row: Pick<MaterialRequest, "submitted_by">,
+  readerId: string | null | undefined,
+  can: (code: string) => boolean,
+): boolean {
+  return Boolean(readerId && row.submitted_by === readerId) || can("material_request.review");
+}
+
+/**
+ * 「总部代批」 (JB206-13): head office deciding a request at the stage of a
+ * project manager who is away. The detail says so above the buttons, and
+ * the history keeps it.
+ */
+export function decidesForAwayManager(
+  row: Partial<Pick<MaterialRequest, "awaiting_manager">>,
+  view: MaterialRequestReviewView,
+): boolean {
+  return Boolean(row.awaiting_manager) && view === "decide";
+}
+
+/**
+ * Whose desk a waiting request is on, in words: 「等待 XXX 审批」, or - still
+ * with the project manager (ID29) - 「待项目经理 XXX 确认」, so head office
+ * knows it is not theirs yet. `null` when it names nobody (a request from
+ * before D2). JB206-8 (Lucas 11-16 audit).
+ */
+export function materialRequestWaiting(
+  row: Pick<MaterialRequest, "assigned_reviewer_name"> & Partial<Pick<MaterialRequest, "awaiting_manager">>,
+): { key: "waitingFor" | "waitingForManager"; name: string } | null {
+  if (!row.assigned_reviewer_name) return null;
+  return {
+    key: row.awaiting_manager ? "waitingForManager" : "waitingFor",
+    name: row.assigned_reviewer_name,
+  };
 }

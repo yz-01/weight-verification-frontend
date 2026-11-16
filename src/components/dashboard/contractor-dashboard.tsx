@@ -681,16 +681,22 @@ function Empty({ label }: { label: string }) {
   return <p className="py-3 text-center text-sm text-muted-foreground">{label}</p>;
 }
 
-function QuickActions({ project }: { project: string }) {
+export function QuickActions({ project }: { project: string }) {
   const t = useTranslations("contractorDashboard.quickActions");
+  const { can } = useAuth();
   const actions: Array<{
     href: string;
     label: string;
     icon: typeof Inbox;
     requiresProject?: boolean;
+    /** Only who holds it (JB206-3, Lucas 11-16 audit): without it the page
+     *  refuses the address and the reader landed back here with no word. */
+    permission?: string;
   }> = [
-    { href: "/projects/create", label: t("project"), icon: Plus },
-    { href: "/suppliers/create", label: t("supplier"), icon: Inbox },
+    // 新建项目 is head office's (`project.create`, group A).
+    { href: "/projects/create", label: t("project"), icon: Plus, permission: "project.create" },
+    // 新增供应商 is a group B code a project role holds only when ticked.
+    { href: "/suppliers/create", label: t("supplier"), icon: Inbox, permission: "supplier.create" },
     {
       // Opens the create dialog on Category Management in place (D-264).
       href: `/category-management?project=${encodeURIComponent(project)}&module=material&create=1`,
@@ -707,6 +713,7 @@ function QuickActions({ project }: { project: string }) {
     <div className="flex gap-2 overflow-x-auto pb-1">
       {actions.map((action) => {
         const Icon = action.icon;
+        if (action.permission && !can(action.permission)) return null;
         if (action.requiresProject && !project) {
           return (
             <Button

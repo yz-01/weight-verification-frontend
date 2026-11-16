@@ -205,41 +205,44 @@ export function Suppliers() {
         id: "actions",
         enableHiding: false,
         header: () => <span className="sr-only">{t("common.actions")}</span>,
+        // Each button says what it does in words, not only on mouse-over
+        // (JB206-8, Lucas 11-16 audit: 「要站在老人家的角度去思考」).
         cell: ({ row }) => (
-          <div className="flex items-center justify-end gap-0.5">
+          <div className="flex flex-wrap items-center justify-end gap-0.5" data-slot="supplier-row-actions">
             {can("supplier.update") && (
               <Button
                 asChild
                 variant="ghost"
-                size="icon"
-                className="h-7 w-7 text-info hover:bg-info/10"
-                title={t("common.edit")}
+                size="sm"
+                className="h-7 gap-1 px-2 text-info hover:bg-info/10"
               >
                 <Link href={`/suppliers/${row.original.id}/edit`}>
                   <Pencil className="h-3.5 w-3.5" />
+                  {t("common.edit")}
                 </Link>
               </Button>
             )}
             {can("supplier.view") && (
               <Button
                 variant="ghost"
-                size="icon"
-                className="h-7 w-7 text-primary hover:bg-primary/10"
+                size="sm"
+                className="h-7 gap-1 px-2 text-primary hover:bg-primary/10"
                 title={t("suppliers.qr.title")}
                 onClick={() => setQrPreviewId(row.original.id)}
               >
                 <QrCode className="h-3.5 w-3.5" />
+                {t("suppliers.qr.rowLabel")}
               </Button>
             )}
             {can("supplier.delete") && (
               <Button
                 variant="ghost"
-                size="icon"
-                className="h-7 w-7 text-destructive hover:bg-destructive/10"
-                title={t("common.remove")}
+                size="sm"
+                className="h-7 gap-1 px-2 text-destructive hover:bg-destructive/10"
                 onClick={() => setRemoving(row.original)}
               >
                 <Trash2 className="h-3.5 w-3.5" />
+                {t("common.remove")}
               </Button>
             )}
           </div>

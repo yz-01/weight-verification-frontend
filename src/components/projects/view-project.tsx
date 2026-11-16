@@ -152,7 +152,9 @@ export function ViewProject({ id }: { id: string }) {
                 </a>
               </Button>
             )}
-            {can("project.update") && (
+            {/* An archived project is read-only on the server: no 修改
+                that can never save (JB206-7, Lucas 11-16 audit). */}
+            {can("project.update") && data.status !== "ARCHIVED" && (
               <Button asChild size="sm">
                 <Link href={`/projects/${data.id}/edit`}>
                   <Pencil className="h-4 w-4" />

@@ -3809,7 +3809,8 @@
       "rain_report_pdf_exported": "导出雨天记录月报",
       "rain_report_pdf_previewed": "预览雨天记录月报",
       "rain_remark_set": "填写雨天记录的意见 / 备注",
-      "rain_month_remark_set": "填写雨天月报的意见 / 备注"
+      "rain_month_remark_set": "填写雨天月报的意见 / 备注",
+      "head_office_on_behalf": "总部代批"
     },
     "objectType": {
       "SignOffAssistant": "助理副密码",
@@ -4808,7 +4809,8 @@
     "combobox": {
       "byLetter": "按首字母筛选"
     },
-    "loadOffline": "没有网络，{what}等有网络时再载入。"
+    "loadOffline": "没有网络，{what}等有网络时再载入。",
+    "pageNotOpen": "你的账号不能打开这个页面，已带你回到可以用的页面。需要用这个页面，请联系你们公司的管理员开通。"
   },
   "companies": {
     "owner": {
@@ -9091,7 +9093,15 @@
       "rain_record_quota_full": "这个项目这段时间已经收满雨天记录，后台没有接收这一份。",
       "rain_void_reason_required": "请写作废原因。",
       "rain_record_already_voided": "这份雨天记录已经作废了，不能再作废一次。",
-      "rain_rules_out_of_range": "份数要在 1 到 50 之间，分钟要在 5 到 1440 之间。"
+      "rain_rules_out_of_range": "份数要在 1 到 50 之间，分钟要在 5 到 1440 之间。",
+      "waste_outgoing_delegate_not_on_project": "这个人不在这个项目里，打不开这份申请。请从名单里另选这个项目的人。",
+      "project_archived_read_only": "这个项目已经归档，资料只能查看，不能再修改。请关掉这一页，回到项目列表。",
+      "project_archive_use_action": "「已归档」不能在修改里选。请先把状态改成「已完工」并保存，再在项目页按【归档项目】。",
+      "project_status_move_refused": "项目现在的状态不能直接改成你选的状态。请重新打开修改页面，从状态列表里选。",
+      "hazard_not_awaiting_check": "这一项已经有人处理过了，现在不是等验收的状态。请刷新页面，看最新的情况。",
+      "hazard_confirmed_by_other": "{incident_no} 由负责确认的人 {confirmer} 来验收或退回。你可以查看，但不能操作；需要的话请联系他。",
+      "visitor_host_required": "请先选访客要找的人，再按确认。",
+      "visitor_host_not_on_project": "这个人不在这个项目里。请从名单里选这个项目的人。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -11570,6 +11580,10 @@
       "add": "上传书信",
       "missing": "请先上传书信",
       "confirmNote": "书信会放在合并 PDF 的最前面。"
+    },
+    "discardConfirm": {
+      "title": "丢弃这期 Claim？",
+      "description": "这期 Claim 草稿会被删除，里面勾选的记录和上传的书信都不再在这期里。删除后不能恢复。"
     }
   },
   "multiEngine": {
@@ -13036,7 +13050,7 @@
     },
     "emergency_list": {
       "what": "此刻还在工地里的人，附可拨打的电话。出事要清点人数时用。",
-      "who": "持 geofence.view。",
+      "who": "持 site_access.view。",
       "then": "名单会自动刷新，点电话号码就能拨。",
       "trouble": "名单上少了某个人，是他已经扫码出场了，或者根本没扫码进来 —— 门禁事件里写着是哪一种。"
     },
@@ -13056,7 +13070,7 @@
     },
     "field_tasks": {
       "what": "派给某个现场人员的活：去哪、做什么、要拍几张才能交。",
-      "who": "持 project.view；派任务要 task.assign。",
+      "who": "持 project.view；派任务要 field_task.manage。",
       "need": "派一条任务要项目、任务标题、以及交给哪位现场人员。",
       "then": "它立刻出现在那个人的手机上，并写明要拍几张。",
       "trouble": "交上来的活反复被退，多半是任务说明写得太笼统 —— 现场看到的只有你写的那几行。"
@@ -13071,8 +13085,8 @@
     "hazard_rectification": {
       "what": "工地上查出来的问题、谁去整改、以及证明整改完了的那张照片。",
       "who": "同时持 safety.view 和 project.view。",
-      "need": "派整改要整改负责人、整改期限和整改位置；报完成要写已完成工作；验收要验收照片和验收说明。",
-      "then": "没有验收照片就不算整改完成 —— 问题不会因为有人说好了就算好了。",
+      "need": "派整改要整改负责人、整改期限和整改位置；报完成要写已完成的工作，并拍整改照片；验收只写验收说明，不用再拍照。",
+      "then": "整改照片由现场负责整改的人拍；开这一项的人或安全主管看了照片，再确认完成或退回（在电脑上确认要输入六位数密码）。问题不会因为有人说好了就算好了。",
       "trouble": "目前没有常见到值得预警的问题。"
     },
     "integrations": {
@@ -13251,7 +13265,7 @@
     },
     "schedule": {
       "what": "施工计划：选一份计划，上面是三个数字（进度、已完成、延误），下面是甘特图和任务列表。导出、新建、导入、改名、归档和计划版本都在「更多」里。",
-      "who": "同时持 progress.view 和 project.view。",
+      "who": "同时持 schedule.view 和 project.view。",
       "need": "导入要 .xlsx 文件、计划名称、修订版名称；改已确认的计划还要写变更原因。手工加一条任务要 WBS、任务名称、计划开始、计划完成。",
       "then": "新计划先是草稿，加好任务后按「确认并锁定」。之后每项任务按「确认进度」填完成%。「已延误」= 过了计划完成日还没做完；做完了但比计划晚，显示「延期完成」，不算延误。",
       "trouble": "导不进去，多半是有列没对上：WBS、任务名称、计划开始是必须的，另外计划完成和工期至少要有一个。"
@@ -13272,7 +13286,7 @@
     },
     "site_gps": {
       "what": "你的人此刻在工地的什么位置。",
-      "who": "持 geofence.view。",
+      "who": "持 field_position.view。",
       "need": "先选一个项目。",
       "then": "地图显示每个人最后一次上报的位置。",
       "trouble": "地图上没人：手机锁屏后浏览器就停止上报，所以断点是正常的。断点就画成断点 —— 系统不会把两点连成一条没人走过的路。"
@@ -13398,6 +13412,13 @@
       "who": "项目经理，只看到自己负责项目的现场人员。总部也可以用。",
       "then": "把链接和 6 位数 PIN 发给那个人；他用手机打开链接、输入 PIN，就能用手机工作。",
       "trouble": "看不到某个项目：请总部把你加到那个项目。手机号码说已经被使用：请先在原来的项目把那个人「删除」。"
+    },
+    "company_settings_trace": {
+      "what": "你们公司自己的资料：公司名称、地址、Logo 和首页背景、紧急联系人；显示语言、日期时间格式和文件链接的有效天数；以及公司总部和分公司的记录。",
+      "who": "公司管理员和总部：持 company_settings.view 可以看，持 company_settings.manage 才能修改。",
+      "need": "改好一栏，就按那一栏自己的【保存】。",
+      "then": "公司名称和 Logo 印在报表、二维码记录和项目文件上；紧急联系人显示在紧急名单和门岗的手机上。",
+      "trouble": "权限、二维码、通知、GPS、安全和资料保存由 MSE 统一管理，这里不能改；需要修改请联系 MSE。"
     }
   },
   "partners": {
@@ -15999,7 +16020,7 @@
       "new": "新增分公司",
       "removeBody": "之后不能用于新记录，原有历史仍会保留。",
       "removeTitle": "移除这个分公司？",
-      "subtitle": "保存地图和报表使用的真实办公室与分公司位置。",
+      "subtitle": "登记公司总部和各分公司的办公室地址与位置，留作公司记录。",
       "title": "分公司与总部"
     },
     "categories": {
@@ -16773,6 +16794,11 @@
       "loading": "正在生成样板……",
       "caption": "A4 样板：抬头和实际导出的 PDF 完全一样，下面的内容只是示例。",
       "pdfWhat": "样板 PDF"
+    },
+    "emergencyContact": {
+      "label": "紧急联系人：",
+      "call": "打电话给 {phone}",
+      "what": "紧急联系人"
     }
   },
   "siteDisposal": {
@@ -17553,7 +17579,8 @@
       "scanHelp": "手机相机会打开现场人员的材料进场记录。已经登录的工地人员会直接进入并自动带出该供应商。",
       "share": "分享",
       "shareText": "{supplier} 的供应商二维码",
-      "title": "供应商二维码"
+      "title": "供应商二维码",
+      "rowLabel": "二维码"
     },
     "remove": {
       "confirm": "删除",
@@ -17933,7 +17960,7 @@
       "projects": "项目权限",
       "responsibilities": "项目负责人职责",
       "role": "角色与权限",
-      "tasks": "尚未完成的现场任务",
+      "tasks": "尚未完成的现场任务和等他审批的申请（MR）",
       "title": "需要转移的内容"
     },
     "warning": {
@@ -18260,7 +18287,8 @@
       "help": "选择已绑定此项目的回收商。{reference} 的订单会立即发送至对方系统。",
       "noPartners": "此项目尚未绑定回收商。请先在「环保材料管理 › 回收商合作」中绑定，再建立订单。",
       "partnersFailed": "无法载入回收合作商，所以选择框是空的。这不代表你没有合作商。",
-      "title": "安排回收商"
+      "title": "安排回收商",
+      "noPartnersAskHeadOffice": "此项目尚未绑定回收商。绑定回收商要由总部来做：请联系总部，把回收商绑定到这个项目，再回来安排。"
     },
     "reassign": {
       "arm": "我确定要收回这张订单",
@@ -19115,7 +19143,8 @@
     "reminder": {
       "rule": "这一笔还没走完。系统每 {hours} 小时提醒一次提交的人和要处理的人，直到确认已付款（或拒绝、撤回）。",
       "sent": "已经提醒 {count} 次，上一次：{at}。"
-    }
+    },
+    "withdrawn": "这笔报销已由申请人撤回，原记录保留，不用再处理。如果还要报销，请申请人重新提交。"
   },
   "moduleHub": {
     "nothingToOpen": "此模块中没有您可以打开的页面。"
@@ -19304,7 +19333,8 @@
       "forwardHistory": "转呈记录",
       "headOfficeReviewer": "总部审批人",
       "materialName": "材料名称",
-      "materials": "材料明细"
+      "materials": "材料明细",
+      "onBehalfHistory": "总部代批"
     },
     "action": {
       "view": "查看",
@@ -19448,7 +19478,13 @@
       "manager": "待项目经理确认"
     },
     "forwarded": "{by} 于 {at} 转呈总部",
-    "managerHelp": "现场人员交给你的申请：确认后选总部审批人，按「提交总部审批」；不对就退回。"
+    "managerHelp": "现场人员交给你的申请：确认后选总部审批人，按「提交总部审批」；不对就退回。",
+    "waitingForManager": "待项目经理 {name} 确认。他转呈总部后，才由总部审批。",
+    "onBehalf": {
+      "help": "项目经理 {manager} 的账号已停用，这一笔由总部代批：你可以直接批准或退回，记录会写明「总部代批」。",
+      "approved": "{by} 代 {manager} 批准（总部代批）· {at}",
+      "returned": "{by} 代 {manager} 退回（总部代批）· {at}"
+    }
   },
   "materialLines": {
     "title": "材料明细",
@@ -20177,7 +20213,8 @@
       "label": "每天正常工时（小时）",
       "save": "保存",
       "failed": "保存没有成功，请再试一次。",
-      "current": "{name} 于 {at} 设定"
+      "current": "{name} 于 {at} 设定",
+      "chooseProject": "每个项目各自设置每日正常工时：请先在上方选择项目。"
     },
     "records": {
       "what": "记录",
@@ -21185,7 +21222,12 @@
       "stop": "停用",
       "lastUsed": "最近使用 {at}",
       "failed": "保存没有成功，请再试一次。",
-      "chooseProject": "先在页面上方选一个项目，才能新增链接。"
+      "chooseProject": "先在页面上方选一个项目，才能新增链接。",
+      "askReissue": "重新发送后，司机现在手上的链接会马上失效，要把新链接再发给他。确定重新发送吗？",
+      "askStop": "停用后，这个司机就不能再用这个链接打卡。确定停用吗？",
+      "confirmReissue": "确定重新发送",
+      "confirmStop": "确定停用",
+      "working": "正在处理，请稍等。"
     },
     "tabs": {
       "clock": "开工 / 收工",
