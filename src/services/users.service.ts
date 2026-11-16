@@ -20,8 +20,26 @@ import type {
   WorkTrade,
   WorkTradePayload,
 } from "@/interfaces/auth";
+import { toast } from "sonner";
+
+import { t } from "@/lib/i18n-runtime";
 import { api, download, toastSuccess } from "@/services/api-client";
 import { exportBody, exportQuery, type ExportRequest } from "@/services/contractor.service";
+
+/**
+ * The email did not go out (JB208-7, Lucas 11-16 audit).
+ *
+ * The server says so - `invitation_sent` / `delivered` is false when no mail
+ * server is set or the send failed - and the screen used to say 「用户已邀请」 /
+ * 「重设链接已发送」 regardless, so the new person never got a way in while
+ * the admin believed the link was on its way. The same functions serve MSE
+ * Admin and a tenant's own user pages, so the sentence names the button both
+ * have (「发送重设链接」) and asks whoever runs the system to check the mail.
+ * Amber and long enough to read; it is not a success.
+ */
+function warnNotSent(messageKey: string): void {
+  toast.warning(t(messageKey), { duration: 15_000 });
+}
 
 export function getUsers(query: ListQuery): Promise<Paginated<UserRow>> {
   return api.list<UserRow>("/api/users/get_users/", query);
@@ -35,11 +53,15 @@ export async function createUser(
   payload: UserPayload & { company?: string },
   emailCopy?: EmailCopy,
 ): Promise<UserDetail> {
-  const user = await api.post<UserDetail>("/api/users/create_user/", {
-    ...payload,
-    ...(emailCopy ? { email_copy: emailCopy } : {}),
-  });
-  toastSuccess("users.toast.created");
+  const user = await api.post<UserDetail & { invitation_sent?: boolean }>(
+    "/api/users/create_user/",
+    {
+      ...payload,
+      ...(emailCopy ? { email_copy: emailCopy } : {}),
+    },
+  );
+  if (user.invitation_sent === false) warnNotSent("users.toast.createdNotSent");
+  else toastSuccess("users.toast.created");
   return user;
 }
 
@@ -99,11 +121,12 @@ export async function sendPasswordReset(
   id: string,
   emailCopy?: EmailCopy,
 ): Promise<void> {
-  await api.post(
+  const result = await api.post<{ delivered?: boolean } | undefined>(
     `/api/users/${id}/send_password_reset/`,
     emailCopy ? { email_copy: emailCopy } : {},
   );
-  toastSuccess("users.resetPassword.sent");
+  if (result?.delivered === false) warnNotSent("users.resetPassword.notSent");
+  else toastSuccess("users.resetPassword.sent");
 }
 
 export async function forceLogoutUser(id: string): Promise<number> {

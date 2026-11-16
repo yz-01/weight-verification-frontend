@@ -88,6 +88,7 @@ export function CreateCompany({
   // created — so the form is replaced by it rather than navigating away.
   const [ownerLink, setOwnerLink] = useState("");
   const [ownerLinkCopied, setOwnerLinkCopied] = useState(false);
+  const [doneHref, setDoneHref] = useState("");
   const [logo, setLogo] = useState<File | null>(null);
   const [ssmCertificate, setSsmCertificate] = useState<File | null>(null);
   const [companyProfile, setCompanyProfile] = useState<File | null>(null);
@@ -136,11 +137,19 @@ export function CreateCompany({
     },
     onSuccess: (saved) => {
       void queryClient.invalidateQueries({ queryKey: ["companies"] });
+      // JB208-12 (Lucas 11-16 audit): a new company opens on its own page,
+      // where 入驻资料 says what is still missing before its owner can sign
+      // in - the directory said nothing about it.
+      const next =
+        !isEdit && user?.portal === "MSE_ADMIN"
+          ? `/companies/${saved.id}`
+          : listHref;
       if (saved.owner_invitation_url) {
         setOwnerLink(saved.owner_invitation_url);
+        setDoneHref(next);
         return;
       }
-      finish(listHref);
+      finish(next);
     },
   });
 
@@ -328,7 +337,7 @@ export function CreateCompany({
             <Copy />
             {t("common.copy")}
           </Button>
-          <Button onClick={() => finish(listHref)}>
+          <Button onClick={() => finish(doneHref || listHref)}>
             {t("common.close")}
           </Button>
         </div>

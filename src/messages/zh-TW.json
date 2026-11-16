@@ -3952,6 +3952,7 @@
     },
     "close": {
       "description": "在未收齊餘款的情況下關閉賬單 {invoice}。",
+      "paidReason": "這張賬單已經收到部分款項，不能關閉。請繼續跟進餘款。",
       "title": "關閉賬單"
     },
     "companyType": {
@@ -5089,6 +5090,11 @@
       "confirm": "恢復",
       "description": "這家公司的所有人將可以重新登入。",
       "title": "恢復 {name}？"
+    },
+    "activateTrial": {
+      "confirm": "啟用",
+      "description": "試用結束。這家公司從現在起算作正常使用的公司，報表也會把它算進有效公司。",
+      "title": "啟用 {name}？"
     },
     "remove": {
       "blockedByUsers": "這家公司還有可以登入的人員。請改為停用，或先停用這些人員。",
@@ -7631,6 +7637,7 @@
   "dashboard": {
     "admin": {
       "error": "無法加載平臺儀表板。",
+      "sectionUnavailable": "這一部分不在你的權限範圍內。如需查看，請找系統管理員開通。",
       "health": {
         "configured": "已配置",
         "degraded": "性能下降",
@@ -8785,6 +8792,23 @@
       "invalid_credentials": "郵箱或密碼不正確。",
       "invalid_rule_params": "請檢查檢測參數後重試。",
       "invoice_not_found": "找不到該賬單。",
+      "invoice_company_not_billable": "這家公司現在不能開這一類賬單。請先確認公司沒有停用、已經選了套餐；佣金賬單只開給合作版回收商。",
+      "invoice_not_commission_bearing": "這家公司的套餐不收平台佣金，所以不能開佣金賬單。如要收佣金，請先在「公司訂閱管理」把它換成合作版套餐。",
+      "invoice_no_commission_rule": "這家公司還沒有生效中的佣金規則，算不出佣金。請先到「佣金規則管理」新增一條規則，再生成賬單。",
+      "invoice_already_invoiced": "這個期間已經開過賬單，不用再開。請在賬單列表裡找這家公司的賬單。",
+      "invoice_no_billable_settlements": "這個期間沒有已開出、還沒開賬單的結算單，暫時沒有佣金可收。等結算單開出後再生成。",
+      "invoice_nothing_to_charge": "算出來這個期間要收的金額是 0，所以沒有開賬單。如果金額不對，請檢查這家公司的套餐費用或佣金規則。",
+      "invoice_no_plan": "這家公司還沒有套餐，不能開訂閱賬單。請先在「公司訂閱管理」給它選一個套餐。",
+      "invoice_not_draft": "只有草稿賬單可以發出。這張賬單已經發出過了，請刷新列表再看。",
+      "invoice_already_closed": "這張賬單已經關閉，不用再關。請刷新列表再看。",
+      "invoice_has_confirmed_payments": "這張賬單已經確認收到部分款項，不能關閉。剩下的餘款請繼續跟進收款；如需另作處理，請找主管決定。",
+      "commission_rule_in_use": "這條佣金規則已經用來開過賬單，不能刪除。如不再使用，請把它改為停用。",
+      "automatic_billing_disabled": "自動開賬單已經暫停，所以不能立即運行。請找系統管理員在「定時任務」裡重新開啟。",
+      "payment_already_confirmed": "這筆收款已經確認過了，不用再處理。請刷新列表再看。",
+      "subscription_no_plan": "這家公司還沒有套餐，不能續期。請先按「更換套餐」給它選一個套餐。",
+      "subscription_already_ended": "這家公司的訂閱已經結束，不用再結束一次。如要讓它繼續使用，請按「延長或續費」。",
+      "company_site_settings_contractor_only": "只有建築商有工地設定，回收商沒有這一項，不用設定。",
+      "user_replacement_contractor_only": "只有建築商公司的賬號可以交接。其他賬號請先停用，再為接手的人新增一個賬號。",
       "maintenance_not_found": "找不到該維護記錄。",
       "method_not_allowed": "這個位置不支援這個操作。",
       "no_active_agreement": "該合作伙伴沒有生效中的協議。",
@@ -17989,6 +18013,7 @@
       "lastLoginIp": "最近 IP",
       "phone": "電話",
       "role": "角色",
+      "roleHint": "不選角色，這個賬號登入後甚麼都看不到。",
       "status": "狀態",
       "timezone": "時區"
     },
@@ -18051,7 +18076,8 @@
     },
     "resetPassword": {
       "action": "發送重設鏈接",
-      "sent": "重設鏈接已發送"
+      "sent": "重設鏈接已發送",
+      "notSent": "重設鏈接沒有發出去。請稍後再按一次；還是發不出，請找負責系統的人檢查郵件設定。"
     },
     "section": {
       "access": "權限",
@@ -18083,6 +18109,7 @@
     "titleStaff": "內部人員",
     "toast": {
       "created": "用戶已邀請",
+      "createdNotSent": "賬號已建立，但邀請郵件沒有發出去。請稍後在用戶列表按「發送重設鏈接」再發一次；還是發不出，請找負責系統的人檢查郵件設定。",
       "removed": "用戶已移除",
       "statusUpdated": "用戶狀態已更新",
       "updated": "用戶已更新",

@@ -33,6 +33,7 @@ import {
   YAxis,
 } from "recharts";
 
+import { useAuth } from "@/components/providers/auth-provider";
 import {
   LocationMap,
   type LocationMapMarker,
@@ -59,10 +60,124 @@ interface Metric {
   key: string;
   value: NumericValue;
   href: string;
+  /** The module `href` belongs to; a reader without it gets no link. */
+  feature: string;
   icon: typeof Building2;
   format?: "number" | "weight" | "currency";
   tone?: "default" | "warning" | "danger";
 }
+
+/**
+ * Which MSE Admin module each part of the dashboard belongs to (JB208-1,
+ * Lucas 11-16 audit). The dashboard is every account's first page, so a part
+ * whose module the reader does not hold is left out - rather than shown as
+ * 「无法加载系统状态」 (系统状态 needs 平台监控, which Finance does not hold)
+ * or as figures whose links bounce back here. Parts not listed are for
+ * everyone who can open the dashboard.
+ */
+export const ADMIN_DASHBOARD_SECTION_FEATURE: Partial<
+  Record<AdminDashboardSection, string>
+> = {
+  map: "company_management",
+  platform: "company_management",
+  subscriptions: "subscription_management",
+  commission: "billing_commission",
+  cwe: "cloud_weighing",
+  notifications: "notification_center",
+  "system-status": "platform_monitoring",
+};
+
+export function adminDashboardSectionVisible(
+  section: AdminDashboardSection,
+  features: ReadonlySet<string>,
+): boolean {
+  const feature = ADMIN_DASHBOARD_SECTION_FEATURE[section];
+  return feature === undefined || features.has(feature);
+}
+
+/**
+ * 待处理事项. Each row opens the page that lists exactly what it counts
+ * (JB208-2): the module addresses dropped the filter and opened the module's
+ * first page - 待审核申请 opened an empty 新增公司 form. A row whose module
+ * the reader does not hold is left out (JB208-1).
+ */
+export const ADMIN_PENDING_LINKS = [
+  {
+    key: "contractorReviews",
+    count: "contractor_reviews",
+    href: "/companies/admin/review?type=CONTRACTOR",
+    feature: "company_management",
+  },
+  {
+    key: "recyclerReviews",
+    count: "recycler_reviews",
+    href: "/companies/admin/review?type=RECYCLER",
+    feature: "company_management",
+  },
+  {
+    key: "payments",
+    count: "payments",
+    href: "/billing/collections",
+    feature: "billing_commission",
+  },
+  {
+    key: "systemExceptions",
+    count: "system_exceptions",
+    href: "/monitoring/exceptions",
+    feature: "platform_monitoring",
+  },
+  {
+    key: "customerService",
+    count: "customer_service",
+    href: "/customer-service/enquiries",
+    feature: "customer_service",
+  },
+  {
+    key: "supportTickets",
+    count: "support_tickets",
+    href: "/support-tickets/tickets",
+    feature: "technical_support",
+  },
+] as const;
+
+/**
+ * 快捷操作, each to a concrete page (JB208-2) and only for the reader's own
+ * modules (JB208-12): a Support Agent pressing 订阅管理 was sent back here
+ * without a word.
+ */
+export const ADMIN_QUICK_ACTIONS = [
+  {
+    key: "companies",
+    href: "/companies/admin/directory",
+    icon: Building2,
+    feature: "company_management",
+  },
+  {
+    key: "users",
+    href: "/users/admin/management",
+    icon: Users,
+    feature: "user_management",
+  },
+  {
+    key: "subscriptions",
+    href: "/subscriptions/companies",
+    icon: CreditCard,
+    feature: "subscription_management",
+  },
+  {
+    key: "billing",
+    href: "/billing/search",
+    icon: Receipt,
+    feature: "billing_commission",
+  },
+  { key: "reports", href: "/reports", icon: FileText, feature: "report_center" },
+  {
+    key: "settings",
+    href: "/system-settings",
+    icon: Settings,
+    feature: "platform_settings",
+  },
+] as const;
 
 export function AdminDashboard({
   section,
@@ -73,25 +188,34 @@ export function AdminDashboard({
   const common = useTranslations("common");
   const df = useDateFormat();
   const format = useFormatter();
+  const { user, can } = useAuth();
+  const features = useMemo(
+    () => new Set<string>(user?.features ?? []),
+    [user?.features],
+  );
   const [search, setSearch] = useState("");
   const [state, setState] = useState("ALL");
   const [kind, setKind] = useState("ALL");
   const [contractor, setContractor] = useState("ALL");
   const [recycler, setRecycler] = useState("ALL");
   const [projectStatus, setProjectStatus] = useState("ALL");
+  // JB208-1: the server opens the dashboard to 平台监控 or 公司管理 holders.
+  const canLoad = can("platform.monitor") || can("company.view");
   const dashboard = useQuery({
     queryKey: ["admin-dashboard"],
     queryFn: getAdminDashboard,
+    enabled: canLoad,
     refetchInterval: 60_000,
   });
+  const show = (target: AdminDashboardSection) =>
+    (section === undefined || section === target) &&
+    adminDashboardSectionVisible(target, features);
   const monitoring = useQuery({
     queryKey: ["monitoring", "dashboard-system-status"],
     queryFn: getMonitoringOverview,
-    enabled: section === undefined || section === "system-status",
+    enabled: show("system-status"),
     refetchInterval: 30_000,
   });
-  const show = (target: AdminDashboardSection) =>
-    section === undefined || section === target;
 
   const data = dashboard.data;
   const markers = useMemo(
@@ -119,6 +243,19 @@ export function AdminDashboard({
     [markers, t],
   );
 
+  // JB208-1: a part of the dashboard outside the reader's modules, or an
+  // account that may not read the dashboard at all (no role yet), is told so
+  // in words rather than shown 「无法加载平台仪表板。」.
+  if (
+    !canLoad ||
+    (section !== undefined && !adminDashboardSectionVisible(section, features))
+  ) {
+    return (
+      <div className="border-y py-12 text-center text-sm text-muted-foreground">
+        {t("sectionUnavailable")}
+      </div>
+    );
+  }
   if (dashboard.isError) {
     return (
       <div className="border-y py-12 text-center text-sm text-muted-foreground">
@@ -128,30 +265,43 @@ export function AdminDashboard({
   }
   if (!data) return <AdminDashboardSkeleton />;
 
+  // JB208-2: every figure opens the page that lists it, with its filter. The
+  // module addresses (`/companies?type=…`, `/subscriptions?state=…`,
+  // `/billing?kind=…`) dropped the filter and opened the module's first page.
   const platformMetrics: Metric[] = [
     {
       key: "contractors",
       value: data.platform.contractors,
-      href: "/companies?type=CONTRACTOR",
+      href: "/companies/admin/directory?type=CONTRACTOR",
+      feature: "company_management",
       icon: Building2,
     },
     {
       key: "recyclers",
       value: data.platform.recyclers,
-      href: "/companies?type=RECYCLER",
+      href: "/companies/admin/directory?type=RECYCLER",
+      feature: "company_management",
       icon: Recycle,
     },
     {
       key: "projects",
       value: data.platform.projects,
-      href: "/companies",
+      href: "/companies/admin/projects",
+      feature: "company_management",
       icon: MapPinned,
     },
-    { key: "users", value: data.platform.users, href: "/users", icon: Users },
+    {
+      key: "users",
+      value: data.platform.users,
+      href: "/users/admin/management",
+      feature: "user_management",
+      icon: Users,
+    },
     {
       key: "onlineUsers",
       value: data.platform.online_users,
-      href: "/users",
+      href: "/users/admin/management",
+      feature: "user_management",
       icon: CheckCircle2,
     },
   ];
@@ -160,32 +310,37 @@ export function AdminDashboard({
       key: "orders",
       value: data.business_today.orders,
       href: "/reports",
+      feature: "report_center",
       icon: Receipt,
     },
     {
       key: "completedOrders",
       value: data.business_today.completed_orders,
       href: "/reports",
+      feature: "report_center",
       icon: ClipboardCheck,
     },
     {
       key: "recoveredWeight",
       value: data.business_today.recovered_weight_kg,
       href: "/weighing",
+      feature: "cloud_weighing",
       icon: Weight,
       format: "weight",
     },
     {
       key: "settlementAmount",
       value: data.business_today.settlement_amount,
-      href: "/billing",
+      href: "/billing/search?kind=COMMISSION",
+      feature: "billing_commission",
       icon: CircleDollarSign,
       format: "currency",
     },
     {
       key: "serviceCommission",
       value: data.business_today.service_commission,
-      href: "/billing",
+      href: "/billing/search?kind=COMMISSION",
+      feature: "billing_commission",
       icon: CreditCard,
       format: "currency",
     },
@@ -194,33 +349,38 @@ export function AdminDashboard({
     {
       key: "activeSubscriptions",
       value: data.subscriptions.active,
-      href: "/subscriptions",
+      href: "/subscriptions/companies?state=ACTIVE",
+      feature: "subscription_management",
       icon: CheckCircle2,
     },
     {
       key: "expiringSubscriptions",
       value: data.subscriptions.expiring_soon,
-      href: "/subscriptions?state=EXPIRING_SOON",
+      href: "/subscriptions/companies?state=EXPIRING_SOON",
+      feature: "subscription_management",
       icon: AlertTriangle,
       tone: "warning",
     },
     {
       key: "expiredSubscriptions",
       value: data.subscriptions.expired,
-      href: "/subscriptions?state=EXPIRED",
+      href: "/subscriptions/companies?state=EXPIRED",
+      feature: "subscription_management",
       icon: AlertTriangle,
       tone: "danger",
     },
     {
       key: "renewedToday",
       value: data.subscriptions.renewed_today,
-      href: "/subscriptions",
+      href: "/subscriptions/companies",
+      feature: "subscription_management",
       icon: CreditCard,
     },
     {
       key: "monthlySaasRevenue",
       value: data.subscriptions.monthly_revenue,
-      href: "/billing?kind=SAAS",
+      href: "/billing/search?kind=SAAS",
+      feature: "billing_commission",
       icon: CircleDollarSign,
       format: "currency",
     },
@@ -229,35 +389,40 @@ export function AdminDashboard({
     {
       key: "commissionWeight",
       value: data.commission.business_weight_kg,
-      href: "/billing?kind=COMMISSION",
+      href: "/billing/search?kind=COMMISSION",
+      feature: "billing_commission",
       icon: Weight,
       format: "weight",
     },
     {
       key: "commissionSettlement",
       value: data.commission.settlement_amount,
-      href: "/billing?kind=COMMISSION",
+      href: "/billing/search?kind=COMMISSION",
+      feature: "billing_commission",
       icon: Receipt,
       format: "currency",
     },
     {
       key: "commissionReceivable",
       value: data.commission.receivable,
-      href: "/billing?kind=COMMISSION",
+      href: "/billing/search?kind=COMMISSION",
+      feature: "billing_commission",
       icon: CreditCard,
       format: "currency",
     },
     {
       key: "commissionReceived",
       value: data.commission.received,
-      href: "/billing?kind=COMMISSION",
+      href: "/billing/search?kind=COMMISSION",
+      feature: "billing_commission",
       icon: CheckCircle2,
       format: "currency",
     },
     {
       key: "commissionOutstanding",
       value: data.commission.outstanding,
-      href: "/billing?kind=COMMISSION",
+      href: "/billing/search?kind=COMMISSION",
+      feature: "billing_commission",
       icon: AlertTriangle,
       format: "currency",
       tone: Number(data.commission.outstanding) > 0 ? "warning" : "default",
@@ -315,6 +480,7 @@ export function AdminDashboard({
         <div className="grid gap-6 xl:grid-cols-2" data-dashboard-priority>
           <AdminPendingPanel
             pending={data.pending}
+            features={features}
             title={t("pending.title")}
             labels={{
               contractorReviews: t("pending.contractorReviews"),
@@ -325,12 +491,14 @@ export function AdminDashboard({
               supportTickets: t("pending.supportTickets"),
             }}
           />
-          <AdminNotificationsPanel
-            notifications={data.notifications}
-            title={t("notifications.title")}
-            viewAll={t("notifications.viewAll")}
-            empty={t("notifications.empty")}
-          />
+          {show("notifications") && (
+            <AdminNotificationsPanel
+              notifications={data.notifications}
+              title={t("notifications.title")}
+              viewAll={t("notifications.viewAll")}
+              empty={t("notifications.empty")}
+            />
+          )}
         </div>
       )}
       {show("map") && (
@@ -517,6 +685,7 @@ export function AdminDashboard({
         <MetricSection
           title={t("section.platform")}
           metrics={platformMetrics}
+          features={features}
           t={t}
           format={format}
         />
@@ -525,6 +694,7 @@ export function AdminDashboard({
         <MetricSection
           title={t("section.businessToday")}
           metrics={businessMetrics}
+          features={features}
           t={t}
           format={format}
         />
@@ -533,6 +703,7 @@ export function AdminDashboard({
         <MetricSection
           title={t("section.subscriptions")}
           metrics={subscriptionMetrics}
+          features={features}
           t={t}
           format={format}
         />
@@ -541,6 +712,7 @@ export function AdminDashboard({
         <MetricSection
           title={t("section.commission")}
           metrics={commissionMetrics}
+          features={features}
           t={t}
           format={format}
         />
@@ -665,6 +837,7 @@ export function AdminDashboard({
           {section !== undefined && show("pending") && (
             <AdminPendingPanel
               pending={data.pending}
+              features={features}
               title={t("pending.title")}
               labels={{
                 contractorReviews: t("pending.contractorReviews"),
@@ -740,18 +913,9 @@ export function AdminDashboard({
             {t("quickActions.title")}
           </h2>
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-            {[
-              { key: "companies", href: "/companies", icon: Building2 },
-              { key: "users", href: "/users", icon: Users },
-              {
-                key: "subscriptions",
-                href: "/subscriptions",
-                icon: CreditCard,
-              },
-              { key: "billing", href: "/billing", icon: Receipt },
-              { key: "reports", href: "/reports", icon: FileText },
-              { key: "settings", href: "/system-settings", icon: Settings },
-            ].map((action) => {
+            {ADMIN_QUICK_ACTIONS.filter((action) =>
+              features.has(action.feature),
+            ).map((action) => {
               const Icon = action.icon;
               return (
                 <Link
@@ -830,11 +994,13 @@ export function AdminDashboard({
 function MetricSection({
   title,
   metrics,
+  features,
   t,
   format,
 }: {
   title: string;
   metrics: Metric[];
+  features: ReadonlySet<string>;
   t: ReturnType<typeof useTranslations<"dashboard.admin">>;
   format: ReturnType<typeof useFormatter>;
 }) {
@@ -844,12 +1010,8 @@ function MetricSection({
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
         {metrics.map((metric) => {
           const Icon = metric.icon;
-          return (
-            <Link
-              key={metric.key}
-              href={metric.href}
-              className="min-h-28 surface-panel rounded-xl p-4 transition hover:border-primary/30 hover:shadow-md"
-            >
+          const body = (
+            <>
               <div className="flex items-center justify-between gap-3">
                 <p className="text-xs font-medium text-muted-foreground">
                   {t(`metric.${metric.key}`)}
@@ -863,6 +1025,24 @@ function MetricSection({
               <p className="mt-4 text-2xl font-semibold tabular-nums">
                 {formatMetric(metric.value, metric.format, format, t)}
               </p>
+            </>
+          );
+          // JB208-1: a figure from a module the reader does not hold is shown
+          // but is not a link - its page would only send them back here.
+          if (!features.has(metric.feature)) {
+            return (
+              <div key={metric.key} className="min-h-28 surface-panel rounded-xl p-4">
+                {body}
+              </div>
+            );
+          }
+          return (
+            <Link
+              key={metric.key}
+              href={metric.href}
+              className="min-h-28 surface-panel rounded-xl p-4 transition hover:border-primary/30 hover:shadow-md"
+            >
+              {body}
             </Link>
           );
         })}
@@ -873,30 +1053,22 @@ function MetricSection({
 
 function AdminPendingPanel({
   pending,
+  features,
   title,
   labels,
 }: {
   pending: AdminDashboardData["pending"];
+  features: ReadonlySet<string>;
   title: string;
-  labels: {
-    contractorReviews: string;
-    recyclerReviews: string;
-    payments: string;
-    systemExceptions: string;
-    customerService: string;
-    supportTickets: string;
-  };
+  labels: Record<(typeof ADMIN_PENDING_LINKS)[number]["key"], string>;
 }) {
   return (
     <section className="space-y-3" aria-labelledby="admin-pending-title">
       <h2 id="admin-pending-title" className="text-base font-semibold">{title}</h2>
       <div className="divide-y rounded-lg border bg-card px-4 shadow-sm">
-        <PendingLink href="/companies?type=CONTRACTOR&review_status=PENDING" label={labels.contractorReviews} value={pending.contractor_reviews} />
-        <PendingLink href="/companies?type=RECYCLER&review_status=PENDING" label={labels.recyclerReviews} value={pending.recycler_reviews} />
-        <PendingLink href="/billing?payment_state=PENDING" label={labels.payments} value={pending.payments} />
-        <PendingLink href="/monitoring" label={labels.systemExceptions} value={pending.system_exceptions} />
-        <PendingLink href="/customer-service" label={labels.customerService} value={pending.customer_service} />
-        <PendingLink href="/support-tickets" label={labels.supportTickets} value={pending.support_tickets} />
+        {ADMIN_PENDING_LINKS.filter((row) => features.has(row.feature)).map((row) => (
+          <PendingLink key={row.key} href={row.href} label={labels[row.key]} value={pending[row.count]} />
+        ))}
       </div>
     </section>
   );

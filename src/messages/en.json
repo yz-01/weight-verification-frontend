@@ -3952,6 +3952,7 @@
     },
     "close": {
       "description": "Close invoice {invoice} without receiving its remaining balance.",
+      "paidReason": "Part of this invoice has been paid, so it cannot be closed. Keep following up the balance.",
       "title": "Close invoice"
     },
     "companyType": {
@@ -5089,6 +5090,11 @@
       "confirm": "Reinstate",
       "description": "Everyone from this company will be able to sign in again.",
       "title": "Reinstate {name}?"
+    },
+    "activateTrial": {
+      "confirm": "Activate",
+      "description": "The trial ends. From now on this company counts as an active company, in reports too.",
+      "title": "Activate {name}?"
     },
     "remove": {
       "blockedByUsers": "This company still has people who can sign in. Suspend it instead, or deactivate them first.",
@@ -7631,6 +7637,7 @@
   "dashboard": {
     "admin": {
       "error": "Unable to load the platform dashboard.",
+      "sectionUnavailable": "This part is outside your permissions. Ask a system administrator if you need to see it.",
       "health": {
         "configured": "Configured",
         "degraded": "Degraded",
@@ -8785,6 +8792,23 @@
       "invalid_credentials": "Incorrect email or password.",
       "invalid_rule_params": "Check the detection settings and try again.",
       "invoice_not_found": "That invoice could not be found.",
+      "invoice_company_not_billable": "This company cannot get this type of invoice right now. Check that the company is not suspended and has a package; commission invoices are only for recyclers on the partner package.",
+      "invoice_not_commission_bearing": "This company's package carries no platform commission, so no commission invoice can be made. To charge commission, first move it to the partner package in Company subscriptions.",
+      "invoice_no_commission_rule": "No commission rule is in force for this company, so no commission can be worked out. Add a rule in Commission rules first, then generate the invoice.",
+      "invoice_already_invoiced": "This period already has its invoice, so there is nothing more to bill. Look for this company's invoice in the invoice list.",
+      "invoice_no_billable_settlements": "No issued settlement in this period is waiting to be billed, so there is no commission to charge yet. Generate again once settlements are issued.",
+      "invoice_nothing_to_charge": "The amount for this period comes to zero, so no invoice was made. If that is wrong, check this company's package fees or commission rule.",
+      "invoice_no_plan": "This company has no package, so no subscription invoice can be made. Choose a package for it in Company subscriptions first.",
+      "invoice_not_draft": "Only a draft invoice can be issued. This one has already been issued; refresh the list to see where it stands.",
+      "invoice_already_closed": "This invoice is already closed. Refresh the list to see where it stands.",
+      "invoice_has_confirmed_payments": "Part of this invoice has already been paid and confirmed, so it cannot be closed. Keep following up the balance; ask your manager if it needs to be handled another way.",
+      "commission_rule_in_use": "This commission rule has already been used to bill, so it cannot be deleted. If it is no longer needed, switch it off instead.",
+      "automatic_billing_disabled": "Automatic billing is switched off, so it cannot run now. Ask a system administrator to switch it back on in Scheduled jobs.",
+      "payment_already_confirmed": "This payment has already been confirmed, so there is nothing more to do. Refresh the list to see where it stands.",
+      "subscription_no_plan": "This company has no package, so its term cannot be extended. Choose a package for it with Change package first.",
+      "subscription_already_ended": "This company's subscription has already ended, so there is nothing to end. To let it carry on, use Extend or renew.",
+      "company_site_settings_contractor_only": "Only a contractor has site settings; a recycler has none to set.",
+      "user_replacement_contractor_only": "Only a contractor company's accounts can be handed over. For any other account, suspend it and add a new account for the person taking over.",
       "maintenance_not_found": "That maintenance record could not be found.",
       "method_not_allowed": "That action is not available here.",
       "no_active_agreement": "This partner has no active agreement.",
@@ -17989,6 +18013,7 @@
       "lastLoginIp": "Last IP",
       "phone": "Phone",
       "role": "Role",
+      "roleHint": "Without a role, this account sees nothing after signing in.",
       "status": "Status",
       "timezone": "Time zone"
     },
@@ -18051,7 +18076,8 @@
     },
     "resetPassword": {
       "action": "Send reset link",
-      "sent": "Reset link sent"
+      "sent": "Reset link sent",
+      "notSent": "The reset link did not go out. Press it again later; if it still fails, ask whoever runs the system to check the email settings."
     },
     "section": {
       "access": "Access",
@@ -18083,6 +18109,7 @@
     "titleStaff": "Internal staff",
     "toast": {
       "created": "User invited",
+      "createdNotSent": "The account was created, but the invitation email did not go out. Press Send reset link in the user list later to send it again; if it still fails, ask whoever runs the system to check the email settings.",
       "removed": "User removed",
       "statusUpdated": "User status updated",
       "updated": "User updated",
