@@ -232,11 +232,13 @@ export function NotificationButton() {
   useEffect(() => {
     if (countQuery.isSuccess) setAppBadgeCount(count);
   }, [count, countQuery.isSuccess]);
+  // MSE staff: their own notices (JB205-8, Lucas 11-16 audit), not 通知管理's
+  // list of everybody's, which is where /notifications/search led.
   const notificationHref =
     user?.is_field_staff
       ? "/field-staff?tab=home"
       : user?.portal === "MSE_ADMIN"
-        ? "/notifications/search"
+        ? "/notifications?mine=1"
         : "/notifications";
 
   if (!enabled) return null;

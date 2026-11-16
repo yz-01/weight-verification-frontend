@@ -6,10 +6,10 @@ import {
   Copy,
   Download,
   Eye,
+  Pencil,
   Plus,
   Power,
   Printer,
-  RefreshCw,
   RotateCw,
   ShieldX,
 } from "lucide-react";
@@ -18,6 +18,7 @@ import Link from "next/link";
 import { QRCodeCanvas } from "qrcode.react";
 import { useRef, useState } from "react";
 
+import { useAuth } from "@/components/providers/auth-provider";
 import { ExportButton } from "@/components/shared/export-button";
 import { clickOpensRow } from "@/components/shared/inside-row-control";
 import {
@@ -114,6 +115,11 @@ export function AdminQRWorkspace({
   section?: AdminQRSection;
 }) {
   const t = useTranslations("adminQr");
+  // JB205-7 (Lucas 11-16 audit): 签发 / 编辑 / 停用 / 作废 / 重新生成 are
+  // `qr.manage` on the server; a read-only platform role (Support Agent)
+  // was shown them and every press ended in a 403.
+  const { can } = useAuth();
+  const manage = can("qr.manage");
   const content = (() => {
     if (section === "overview") return <ModuleIndex />;
     if (section === "types") {
@@ -122,9 +128,9 @@ export function AdminQRWorkspace({
           <QRStatistics />
           <QRTypeCatalogue />
           <QRCodeRegister
-            allowIssue
-            allowEdit
-            allowLifecycle
+            allowIssue={manage}
+            allowEdit={manage}
+            allowLifecycle={manage}
             advancedFilters
           />
         </div>
@@ -287,7 +293,7 @@ function QRCodeRegister({
       <Table>
         <TableHeader><TableRow><TableHead>{t("field.qrId")}</TableHead><TableHead>{t("field.subjectType")}</TableHead><TableHead>{t("field.subject")}</TableHead><TableHead>{t("field.company")}</TableHead><TableHead>{t("field.projectSite")}</TableHead><TableHead>{t("field.status")}</TableHead><TableHead>{t("field.issuedOn")}</TableHead><TableHead className="text-right tabular">{t("field.scanCount")}</TableHead><TableHead className="text-right">{t("field.action")}</TableHead></TableRow></TableHeader>
         <TableBody>
-          {codes.data?.results.map((code) => <TableRow key={code.id} className="cursor-pointer" onClick={(event) => { if (clickOpensRow(event)) setViewing(code); }}><TableCell className="tabular font-medium">{code.serial}</TableCell><TableCell><TypeBadge label={t(`subjectType.${code.subject_type}`)} /></TableCell><TableCell>{code.subject_label || "-"}</TableCell><TableCell><p>{code.company_name ?? "-"}</p><p className="text-xs text-muted-foreground">{code.company_code}</p></TableCell><TableCell>{code.project_name ?? code.site_name ?? "-"}</TableCell><TableCell><StatusBadge label={t(`status.${code.effective_status}`)} tone={statusTone(code.effective_status)} /></TableCell><TableCell className="tabular">{df.date(code.issued_on)}</TableCell><TableCell className="text-right tabular">{code.scan_count}</TableCell><TableCell><div className="flex items-center justify-end gap-0.5"><Button size="icon-sm" variant="ghost" title={common("view")} onClick={() => setViewing(code)}><Eye /></Button>{allowEdit && <Button size="icon-sm" variant="ghost" title={common("edit")} onClick={() => setEditing(code)}><RefreshCw /></Button>}{allowLifecycle && <LifecycleButtons code={code} onSelect={(selection) => { setLifecycle(selection); setNote(""); }} />}</div></TableCell></TableRow>)}
+          {codes.data?.results.map((code) => <TableRow key={code.id} className="cursor-pointer" onClick={(event) => { if (clickOpensRow(event)) setViewing(code); }}><TableCell className="tabular font-medium">{code.serial}</TableCell><TableCell><TypeBadge label={t(`subjectType.${code.subject_type}`)} /></TableCell><TableCell>{code.subject_label || "-"}</TableCell><TableCell><p>{code.company_name ?? "-"}</p><p className="text-xs text-muted-foreground">{code.company_code}</p></TableCell><TableCell>{code.project_name ?? code.site_name ?? "-"}</TableCell><TableCell><StatusBadge label={t(`status.${code.effective_status}`)} tone={statusTone(code.effective_status)} /></TableCell><TableCell className="tabular">{df.date(code.issued_on)}</TableCell><TableCell className="text-right tabular">{code.scan_count}</TableCell>{/* JB205-10 (Lucas 11-16 audit): each action says its name - an icon alone, with 编辑 drawn as ↻, asked an older reader to guess. */}<TableCell><div className="flex items-center justify-end gap-0.5"><Button size="sm" variant="ghost" title={common("view")} onClick={() => setViewing(code)}><Eye />{common("view")}</Button>{allowEdit && <Button size="sm" variant="ghost" title={common("edit")} onClick={() => setEditing(code)}><Pencil />{common("edit")}</Button>}{allowLifecycle && <LifecycleButtons code={code} onSelect={(selection) => { setLifecycle(selection); setNote(""); }} />}</div></TableCell></TableRow>)}
           {codes.isError ? <FailedRow columns={9} query={codes} what={t("what.codes")} /> : !codes.isLoading && (codes.data?.results.length ?? 0) === 0 && <EmptyRow columns={9} />}
         </TableBody>
       </Table>
@@ -295,7 +301,11 @@ function QRCodeRegister({
       <Pagination page={page} totalPages={codes.data?.total_pages ?? 0} count={codes.data?.count} onPage={setPage} />
       <IssueDialog open={showIssue} onClose={() => setShowIssue(false)} onIssued={(code) => { setShowIssue(false); setIssued(code); void queryClient.invalidateQueries({ queryKey: ["admin-qr"] }); }} />
       <CodeDialog code={viewing} onClose={() => setViewing(null)} />
-      <EditDialog code={editing} onClose={() => setEditing(null)} onSaved={() => void queryClient.invalidateQueries({ queryKey: ["admin-qr"] })} />
+      {/* JB205-2 (Lucas 11-16 audit): keyed by the code, so each 编辑 mounts a
+          dialog filled from that code. Its fields used to be filled only by
+          Radix's onOpenChange, which a dialog opened from state never fires:
+          it opened empty, and 保存 wiped the expiry date and the note. */}
+      <EditDialog key={editing?.id ?? "none"} code={editing} onClose={() => setEditing(null)} onSaved={() => void queryClient.invalidateQueries({ queryKey: ["admin-qr"] })} />
       <LifecycleDialog selection={lifecycle} note={note} setNote={setNote} pending={changeStatus.isPending} onClose={() => setLifecycle(null)} onSave={() => changeStatus.mutate()} />
       <IssuedTokenDialog code={issued} onClose={() => setIssued(null)} />
     </div>
@@ -305,7 +315,7 @@ function QRCodeRegister({
 function LifecycleButtons({ code, onSelect }: { code: QRCode; onSelect: (selection: { code: QRCode; status?: "ACTIVE" | "DISABLED" | "VOIDED"; reissue?: boolean }) => void }) {
   const t = useTranslations("adminQr.action");
   if (["VOIDED", "SUPERSEDED"].includes(code.effective_status)) return null;
-  return <>{code.effective_status === "DISABLED" ? <Button size="icon-sm" variant="ghost" title={t("enable")} onClick={() => onSelect({ code, status: "ACTIVE" })}><Power /></Button> : <Button size="icon-sm" variant="ghost" title={t("disable")} onClick={() => onSelect({ code, status: "DISABLED" })}><Power /></Button>}<Button size="icon-sm" variant="ghost" title={t("void")} onClick={() => onSelect({ code, status: "VOIDED" })}><ShieldX /></Button><Button size="icon-sm" variant="ghost" title={t("reissue")} onClick={() => onSelect({ code, reissue: true })}><RotateCw /></Button></>;
+  return <>{code.effective_status === "DISABLED" ? <Button size="sm" variant="ghost" title={t("enable")} onClick={() => onSelect({ code, status: "ACTIVE" })}><Power />{t("enable")}</Button> : <Button size="sm" variant="ghost" title={t("disable")} onClick={() => onSelect({ code, status: "DISABLED" })}><Power />{t("disable")}</Button>}<Button size="sm" variant="ghost" title={t("void")} onClick={() => onSelect({ code, status: "VOIDED" })}><ShieldX />{t("void")}</Button><Button size="sm" variant="ghost" title={t("reissue")} onClick={() => onSelect({ code, reissue: true })}><RotateCw />{t("reissue")}</Button></>;
 }
 
 function IssueDialog({ open, onClose, onIssued }: { open: boolean; onClose: () => void; onIssued: (code: QRCodeIssue) => void }) {
@@ -338,14 +348,14 @@ function CodeDialog({ code, onClose }: { code: QRCode | null; onClose: () => voi
   return <Dialog open={code !== null} onOpenChange={(open) => !open && onClose()}><DialogContent><DialogHeader><DialogTitle>{code?.serial}</DialogTitle><DialogDescription>{code ? t(`subjectType.${code.subject_type}`) : ""}</DialogDescription></DialogHeader>{code && <div className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">{[["subject", code.subject_label], ["company", code.company_name], ["project", code.project_name], ["site", code.site_name], ["status", t(`status.${code.effective_status}`)], ["issuedOn", df.date(code.issued_on)], ["expiresOn", code.expires_on ? df.date(code.expires_on) : "-"], ["lastScanned", code.last_scanned_at ? df.dateTime(code.last_scanned_at) : "-"], ["scanCount", code.scan_count], ["notes", code.notes || "-"]].map(([key, value]) => <div key={key as string}><p className="text-xs text-muted-foreground">{t(`field.${key}`)}</p><p className="mt-1 break-words font-medium">{value}</p></div>)}</div>}</DialogContent></Dialog>;
 }
 
-function EditDialog({ code, onClose, onSaved }: { code: QRCode | null; onClose: () => void; onSaved: () => void }) {
+export function EditDialog({ code, onClose, onSaved }: { code: QRCode | null; onClose: () => void; onSaved: () => void }) {
   const t = useTranslations("adminQr");
   const common = useTranslations("common");
-  const [expiry, setExpiry] = useState("");
-  const [notes, setNotes] = useState("");
+  // JB205-2: filled from the code it was mounted for (the caller keys it by id).
+  const [expiry, setExpiry] = useState(code?.expires_on ?? "");
+  const [notes, setNotes] = useState(code?.notes ?? "");
   const save = useMutation({ mutationFn: () => updateQRCode(code!.id, { expires_on: expiry || null, notes }), onSuccess: () => { onSaved(); onClose(); } });
-  const initialise = () => { if (code) { setExpiry(code.expires_on ?? ""); setNotes(code.notes); } };
-  return <Dialog open={code !== null} onOpenChange={(open) => { if (open) initialise(); else onClose(); }}><DialogContent><DialogHeader><DialogTitle>{t("edit.title")}</DialogTitle><DialogDescription>{code?.serial}</DialogDescription></DialogHeader><FieldWrapper label={t("field.subject")} required><div className="flex min-h-10 items-center rounded-lg border bg-muted/30 px-3 py-2 text-sm font-medium">{code?.subject_label || "-"}</div><p className="text-xs leading-5 text-muted-foreground">{t("edit.bindingLocked")}</p></FieldWrapper><FieldWrapper label={t("field.expiresOn")}><Input type="date" value={expiry} onChange={(event) => setExpiry(event.target.value)} /></FieldWrapper><FieldWrapper label={t("field.notes")}><Textarea value={notes} onChange={(event) => setNotes(event.target.value)} /></FieldWrapper><DialogFooter><Button variant="outline" onClick={onClose}>{common("cancel")}</Button><Button disabled={save.isPending} onClick={() => save.mutate()}>{common("save")}</Button></DialogFooter></DialogContent></Dialog>;
+  return <Dialog open={code !== null} onOpenChange={(open) => { if (!open) onClose(); }}><DialogContent><DialogHeader><DialogTitle>{t("edit.title")}</DialogTitle><DialogDescription>{code?.serial}</DialogDescription></DialogHeader><FieldWrapper label={t("field.subject")} required><div className="flex min-h-10 items-center rounded-lg border bg-muted/30 px-3 py-2 text-sm font-medium">{code?.subject_label || "-"}</div><p className="text-xs leading-5 text-muted-foreground">{t("edit.bindingLocked")}</p></FieldWrapper><FieldWrapper label={t("field.expiresOn")}><Input type="date" value={expiry} onChange={(event) => setExpiry(event.target.value)} /></FieldWrapper><FieldWrapper label={t("field.notes")}><Textarea value={notes} onChange={(event) => setNotes(event.target.value)} /></FieldWrapper><DialogFooter><Button variant="outline" onClick={onClose}>{common("cancel")}</Button><Button disabled={save.isPending} onClick={() => save.mutate()}>{common("save")}</Button></DialogFooter></DialogContent></Dialog>;
 }
 
 function LifecycleDialog({ selection, note, setNote, pending, onClose, onSave }: { selection: { code: QRCode; status?: "ACTIVE" | "DISABLED" | "VOIDED"; reissue?: boolean } | null; note: string; setNote: (value: string) => void; pending: boolean; onClose: () => void; onSave: () => void }) {

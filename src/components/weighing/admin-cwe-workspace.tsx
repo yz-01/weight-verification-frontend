@@ -13,6 +13,7 @@ import { useFormatter, useTranslations } from "next-intl";
 import Link from "next/link";
 import { useState } from "react";
 
+import { useAuth } from "@/components/providers/auth-provider";
 import { KpiCard } from "@/components/shared/kpi-card";
 import { clickOpensRow } from "@/components/shared/inside-row-control";
 import {
@@ -118,12 +119,15 @@ function useCWEOverview() {
 function ScaleRegister() {
   const t = useTranslations("adminCwe");
   const common = useTranslations("common");
+  // JB205-7 (Lucas 11-16 audit): 登记地磅 opens /scales/create, which needs
+  // `scale.manage`; a read-only platform role was shown it and refused.
+  const { can } = useAuth();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [company, setCompany] = useState("");
   const companies = useQuery({ queryKey: ["companies", "cwe-options"], queryFn: () => getCompanies({ page_size: 250, sort_by: "name", sort_order: "asc" }) });
   const scales = useQuery({ queryKey: ["admin-cwe", "scales", page, search, company], queryFn: () => getScales({ page, page_size: 25, search, company, sort_by: "code", sort_order: "asc" }) });
-  return <div className="space-y-4"><FilterBar><Input className="flex-1 sm:min-w-56" value={search} onChange={(event) => { setSearch(event.target.value); setPage(1); }} placeholder={t("scaleSearchPlaceholder")} /><SelectControl ariaLabel={t("field.company")} value={company} onChange={(value) => { setCompany(value); setPage(1); }} options={[{ value: "", label: common("all") }, ...(companies.data?.results ?? []).map((row) => ({ value: row.id, label: `${row.code} - ${row.name}` }))]} /><Button asChild><Link href="/scales/create"><Plus />{t("action.registerScale")}</Link></Button><QueryFailedNote query={companies} what={t("what.companies")} className="basis-full" /></FilterBar><QueryBoundary query={scales} what={t("what.scales")}><ScaleTable scales={scales.data?.results ?? []} mode="register" /><Pagination page={page} totalPages={scales.data?.total_pages ?? 0} count={scales.data?.count} onPage={setPage} /></QueryBoundary></div>;
+  return <div className="space-y-4"><FilterBar><Input className="flex-1 sm:min-w-56" value={search} onChange={(event) => { setSearch(event.target.value); setPage(1); }} placeholder={t("scaleSearchPlaceholder")} /><SelectControl ariaLabel={t("field.company")} value={company} onChange={(value) => { setCompany(value); setPage(1); }} options={[{ value: "", label: common("all") }, ...(companies.data?.results ?? []).map((row) => ({ value: row.id, label: `${row.code} - ${row.name}` }))]} />{can("scale.manage") && <Button asChild><Link href="/scales/create"><Plus />{t("action.registerScale")}</Link></Button>}<QueryFailedNote query={companies} what={t("what.companies")} className="basis-full" /></FilterBar><QueryBoundary query={scales} what={t("what.scales")}><ScaleTable scales={scales.data?.results ?? []} mode="register" /><Pagination page={page} totalPages={scales.data?.total_pages ?? 0} count={scales.data?.count} onPage={setPage} /></QueryBoundary></div>;
 }
 
 function ConnectionStatus() {

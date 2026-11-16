@@ -22,9 +22,16 @@ import {
   applyServerErrors,
   required,
 } from "@/components/shared/form-shell";
-import { QueryFailedNote } from "@/components/shared/page-primitives";
+import { FieldWrapper, QueryFailedNote } from "@/components/shared/page-primitives";
+import { Input } from "@/components/ui/input";
+import { useDebounce } from "@/hooks/use-debounce";
 import { ApiError } from "@/interfaces/api";
-import type { Scale, ScalePayload, ScaleProtocol } from "@/interfaces/weighing";
+import type {
+  RecyclingSite,
+  Scale,
+  ScalePayload,
+  ScaleProtocol,
+} from "@/interfaces/weighing";
 import {
   createScale,
   getScale,
@@ -61,11 +68,26 @@ export function CreateScale({ scale }: { scale?: Scale }) {
   const listHref =
     user?.portal === "MSE_ADMIN" ? "/weighing/admin/scales" : "/scales";
 
+  // JB205-10 (Lucas 11-16 audit): MSE staff pick from every recycler's
+  // yards - the first 100 only, as `code · name`, so two companies' 「Main
+  // Yard」 looked the same and the 101st could not be picked. For them each
+  // yard says whose it is, and a search box reaches past the first 100. A
+  // recycler's own form lists its own yards, as before.
+  const isPlatform = user?.portal === "MSE_ADMIN";
+  const [siteSearch, setSiteSearch] = useState("");
+  const search = useDebounce(siteSearch.trim());
   const siteQuery = useQuery({
-    queryKey: ["sites", "options"],
-    queryFn: () => getSites({ page_size: 100 }),
+    queryKey: isPlatform ? ["sites", "options", search] : ["sites", "options"],
+    queryFn: () =>
+      getSites({ page_size: 100, ...(isPlatform && search ? { search } : {}) }),
   });
   const sites = siteQuery.data;
+  // The yard already chosen stays in the list while a search shows others.
+  const [chosenSite, setChosenSite] = useState<{ value: string; label: string } | null>(
+    isPlatform && scale
+      ? { value: scale.site, label: `${scale.company_name} · ${scale.site_name}` }
+      : null,
+  );
 
   const mutation = useMutation({
     mutationFn: (values: ScalePayload) =>
@@ -112,11 +134,18 @@ export function CreateScale({ scale }: { scale?: Scale }) {
     },
   });
 
+  const siteLabel = (site: RecyclingSite) =>
+    isPlatform
+      ? `${site.company_name} · ${site.code} · ${site.name}`
+      : `${site.code} · ${site.name}`;
   const siteOptions =
     sites?.results.map((site) => ({
       value: site.id,
-      label: `${site.code} · ${site.name}`,
+      label: siteLabel(site),
     })) ?? [];
+  if (chosenSite && !siteOptions.some((option) => option.value === chosenSite.value)) {
+    siteOptions.unshift(chosenSite);
+  }
 
   return (
     <FormShell
@@ -160,9 +189,28 @@ export function CreateScale({ scale }: { scale?: Scale }) {
           )}
         </form.Field>
 
+        {isPlatform && (
+          <FieldWrapper
+            label={t("scales.siteSearch")}
+            hint={t("scales.siteSearchHint")}
+            className="md:col-span-2"
+          >
+            <Input
+              value={siteSearch}
+              placeholder={t("scales.siteSearchPlaceholder")}
+              onChange={(event) => setSiteSearch(event.target.value)}
+            />
+          </FieldWrapper>
+        )}
         <form.Field
           name="site"
           validators={{ onSubmit: required(t("validation.required")) }}
+          listeners={{
+            onChange: ({ value }) => {
+              const option = siteOptions.find((row) => row.value === value);
+              if (isPlatform && option) setChosenSite(option);
+            },
+          }}
         >
           {(field) => (
             <SelectField

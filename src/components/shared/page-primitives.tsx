@@ -415,10 +415,17 @@ export function DetailHeader({
   backHref,
   backLabel,
   action,
+  onBack,
 }: {
   backHref: string;
   backLabel: string;
   action?: React.ReactNode;
+  /**
+   * Instead of following `backHref` (JB205-10, Lucas 11-16 audit): a page
+   * reached from several lists goes back to the one it came from. The link
+   * keeps `backHref`, for a new tab. Left out, nothing changes.
+   */
+  onBack?: () => void;
 }) {
   const surface = useFormSurface();
 
@@ -451,6 +458,15 @@ export function DetailHeader({
     >
       <Link
         href={backHref}
+        onClick={
+          onBack
+            ? (event) => {
+                if (event.metaKey || event.ctrlKey || event.shiftKey) return;
+                event.preventDefault();
+                onBack();
+              }
+            : undefined
+        }
         className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
       >
         <ArrowLeft className="h-4 w-4" />

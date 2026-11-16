@@ -1330,6 +1330,10 @@
       "notifications": "Senarai pemberitahuan",
       "deliveryRecords": "Rekod penghantaran",
       "statusRecords": "Rekod status"
+    },
+    "toast": {
+      "sent": "Dihantar kepada {count} orang.",
+      "sentToNobody": "Tiada yang dihantar: syarikat ini tiada akaun yang boleh menerima notis sekarang."
     }
   },
   "adminPartnerManagement": {
@@ -1917,7 +1921,8 @@
     "what": {
       "filterOptions": "Pilihan penapis laporan",
       "history": "Sejarah laporan"
-    }
+    },
+    "datesBackwards": "Tarikh mula tidak boleh selepas tarikh tamat."
   },
   "adminSales": {
     "action": {
@@ -2260,7 +2265,8 @@
         "saved": "Pengumuman dikemas kini."
       },
       "translations": "Bahasa lain",
-      "translationsHelp": "Jika dibiarkan kosong, pembaca akan kembali ke teks Inggeris medan demi medan."
+      "translationsHelp": "Jika dibiarkan kosong, pembaca akan kembali ke teks Inggeris medan demi medan.",
+      "mainLanguageHint": "Tulis Tajuk dan Mesej di bawah dalam bahasa Inggeris: setiap pembaca akan kembali kepadanya. Bahasa Cina dan Melayu diisi di bawah “Bahasa lain”."
     },
     "branding": {
       "description": "Digunakan pada tab pelayar dan pintasan yang dipasang apabila syarikat belum memuat naik logonya sendiri. PNG, JPG dan WebP sehingga 5 MB disokong.",
@@ -2507,7 +2513,12 @@
       "companySaved": "Tetapan syarikat disimpan",
       "saved": "Tetapan disimpan"
     },
-    "updatedAt": "Terakhir disimpan: {value}"
+    "updatedAt": "Terakhir disimpan: {value}",
+    "leave": {
+      "title": "Ada tetapan belum disimpan",
+      "description": "Halaman ini ada tetapan yang anda ubah tetapi belum disimpan. Jika anda keluar sekarang, perubahan itu akan hilang.",
+      "confirm": "Keluar tanpa simpan"
+    }
   },
   "adminTechnicalSupport": {
     "action": {
@@ -11242,6 +11253,25 @@
       "what": {
         "workers": "status pekerja",
         "handlers": "senarai pengendali tugas"
+      },
+      "name": {
+        "PLATFORM_MONITOR_SNAPSHOT": "Rekod keadaan platform",
+        "EXPIRE_CONTRACTOR_SUBSCRIPTIONS": "Hentikan langganan yang telah tamat",
+        "SEND_SUBSCRIPTION_REMINDERS": "Peringatan langganan hampir tamat",
+        "GENERATE_AUTOMATIC_BILLING": "Jana invois SaaS dan komisen",
+        "PROCESS_PARTNER_AGREEMENTS": "Tamatkan perjanjian rakan kongsi dan ingatkan pembaharuan",
+        "PROCESS_ASSET_LIFECYCLE": "Pinjaman aset lewat dan peringatan penyelenggaraan",
+        "NOTIFY_EXPIRED_SITE_ACCESS": "Maklumkan pas tapak yang telah tamat",
+        "REFRESH_BUSINESS_TARGETS": "Kemas kini kemajuan sasaran perniagaan dan hantar notis pencapaian",
+        "RETRY_NOTIFICATION_DELIVERIES": "Hantar semula notis yang gagal",
+        "PUBLISH_ANNOUNCEMENTS": "Terbitkan pengumuman berjadual",
+        "NOTIFY_OFFLINE_GATEWAYS": "Amaran apabila get laluan jambatan timbang luar talian",
+        "REMIND_UNREAD_NOTIFICATIONS": "Peringatan notis belum dibaca",
+        "REMIND_EQUIPMENT_EXPIRY": "Peringatan dokumen peralatan hampir tamat",
+        "CLOSE_SILENT_PRESENCE": "Tutup lawatan tapak yang telefonnya berhenti melapor",
+        "PURGE_WORKER_POSITIONS": "Padam lokasi pekerja lebih 31 hari",
+        "REMIND_SUNDRY_CLAIMS": "Peringatan tuntutan pelbagai setiap 48 jam",
+        "REMIND_REMEDIAL_ITEMS": "Peringatan item pembetulan sebelum dan selepas tarikh akhir"
       }
     },
     "loadError": "Data pemantauan tidak dapat dimuatkan.",
@@ -15634,7 +15664,10 @@
     "viewTitle": "Jambatan timbang",
     "what": {
       "sites": "Senarai tapak"
-    }
+    },
+    "siteSearch": "Cari tapak",
+    "siteSearchPlaceholder": "Taip kod, nama atau bandar tapak",
+    "siteSearchHint": "Senarai di bawah memaparkan sehingga 100 tapak; jika tiada, taip di sini dan pilih."
   },
   "schedulePlanning": {
     "action": {

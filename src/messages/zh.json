@@ -1330,6 +1330,10 @@
       "notifications": "通知列表",
       "deliveryRecords": "发送记录",
       "statusRecords": "状态记录"
+    },
+    "toast": {
+      "sent": "已发送给 {count} 人。",
+      "sentToNobody": "没有发出去：这家公司现在没有可以收通知的账号。"
     }
   },
   "adminPartnerManagement": {
@@ -1917,7 +1921,8 @@
     "what": {
       "filterOptions": "报表筛选选项",
       "history": "报表历史记录"
-    }
+    },
+    "datesBackwards": "开始日期不能晚于结束日期。"
   },
   "adminSales": {
     "action": {
@@ -2260,7 +2265,8 @@
         "saved": "公告已更新。"
       },
       "translations": "其他语言",
-      "translationsHelp": "留空的话，该语言的读者会逐字段退回英文。"
+      "translationsHelp": "留空的话，该语言的读者会逐字段退回英文。",
+      "mainLanguageHint": "下面的「标题」和「内容」请写英文，这是每位读者的默认内容；中文请在下面的「其他语言」里填写。"
     },
     "branding": {
       "description": "当公司没有上传自己的 Logo 时，浏览器标签和添加到桌面的快捷方式会使用此图标。支持 5 MB 以内的 PNG、JPG 和 WebP。",
@@ -2507,7 +2513,12 @@
       "companySaved": "公司设置已保存",
       "saved": "设置已保存"
     },
-    "updatedAt": "最后保存：{value}"
+    "updatedAt": "最后保存：{value}",
+    "leave": {
+      "title": "还有设定没有保存",
+      "description": "这一页有改过、还没按「保存」的设定。现在离开的话，这些改动不会保存。",
+      "confirm": "离开，不保存"
+    }
   },
   "adminTechnicalSupport": {
     "action": {
@@ -11242,6 +11253,25 @@
       "what": {
         "workers": "工作进程状态",
         "handlers": "任务处理器列表"
+      },
+      "name": {
+        "PLATFORM_MONITOR_SNAPSHOT": "记录平台运行状况",
+        "EXPIRE_CONTRACTOR_SUBSCRIPTIONS": "到期的订阅自动停用",
+        "SEND_SUBSCRIPTION_REMINDERS": "发送订阅快到期的提醒",
+        "GENERATE_AUTOMATIC_BILLING": "自动开 SaaS 和佣金账单",
+        "PROCESS_PARTNER_AGREEMENTS": "合作协议到期处理和续约提醒",
+        "PROCESS_ASSET_LIFECYCLE": "资产借用逾期和保养提醒",
+        "NOTIFY_EXPIRED_SITE_ACCESS": "通知已过期的通行证",
+        "REFRESH_BUSINESS_TARGETS": "刷新业务目标进度并发达标提醒",
+        "RETRY_NOTIFICATION_DELIVERIES": "重新发送没发出去的通知",
+        "PUBLISH_ANNOUNCEMENTS": "按时发布系统公告",
+        "NOTIFY_OFFLINE_GATEWAYS": "地磅网关离线提醒",
+        "REMIND_UNREAD_NOTIFICATIONS": "未读通知提醒",
+        "REMIND_EQUIPMENT_EXPIRY": "设备证件快到期提醒",
+        "CLOSE_SILENT_PRESENCE": "结束手机已没有回报的在场记录",
+        "PURGE_WORKER_POSITIONS": "清除 31 天以前的人员定位",
+        "REMIND_SUNDRY_CLAIMS": "杂费报销每 48 小时提醒",
+        "REMIND_REMEDIAL_ITEMS": "整改事项到期前和逾期提醒"
       }
     },
     "loadError": "无法加载监控数据。",
@@ -15634,7 +15664,10 @@
     "viewTitle": "地磅详情",
     "what": {
       "sites": "回收场列表"
-    }
+    },
+    "siteSearch": "找地点",
+    "siteSearchPlaceholder": "输入地点编号、名称或城市",
+    "siteSearchHint": "下面的列表最多显示 100 个地点；找不到的，在这里输入再选。"
   },
   "schedulePlanning": {
     "action": {
