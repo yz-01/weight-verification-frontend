@@ -5377,23 +5377,25 @@
     "remedial": {
       "failed": "That could not be saved",
       "noEvidence": "No evidence attached",
-      "evidenceHint": "Pick from the evidence already filed against this application.",
+      "evidenceHint": "Pick the site photos of this project that show the work is done (newest first). Take them with the phone app first.",
       "evidence": "Evidence",
       "closedBy": "Closed by {name} on {when}",
       "closureNote": "What was done",
       "closeHelp": "Say what was done, and attach what proves it.",
       "closeTitle": "Close this remedial item",
-      "unassigned": "Nobody assigned",
       "overdue": "Overdue",
       "closed": "Closed",
       "open": "Open",
       "empty": "No remedial items",
       "dueOn": "Due {date}",
-      "dueHint": "The site is reminded before this date, and it is marked overdue after it.",
+      "dueHint": "The person responsible is reminded the day before; once the date has passed it is marked 「Overdue」 and reminded once more.",
       "dueDate": "Due by",
       "description": "What has to be put right",
       "raiseHelp": "Say what has to be put right, and by when.",
-      "raiseTitle": "Raise a remedial item"
+      "raiseTitle": "Raise a remedial item",
+      "responsible": "Responsible: {name}",
+      "responsibleApplicant": "Responsible: {name} (applicant)",
+      "raisedBy": "Raised by {name}"
     },
     "action": {
       "closeRemedial": "Close it",
@@ -5521,7 +5523,8 @@
         "final": "The approval is complete. Download the final PDF and check its verification record.",
         "review": "This application is waiting for your decision. Review the evidence, then choose an approval result.",
         "revise": "The application was returned. Create a new revision, make the requested changes and submit again.",
-        "waiting": "No action is needed from you now. It is waiting at {step}."
+        "waiting": "No action is needed from you now. It is waiting at {step}.",
+        "remedialOpen": "Approved, but {count} remedial item(s) are still open. When the work is done, press 「Close it」 under 「Remedial items」 below and add a photo that shows it."
       },
       "nextAction": "What happens next",
       "noRevisions": "No revision history is available.",
@@ -5731,7 +5734,14 @@
       "reviewerConsultant": "Assigned consultant: {name}",
       "reviewerRole": "Assigned role: {name}",
       "reviewerUser": "Assigned reviewer: {name}",
-      "setupCredential": "Set signature and PIN"
+      "setupCredential": "Set signature and PIN",
+      "remedialList": {
+        "hint": "One thing per line. Every line is printed on the final PDF you sign; the contractor closes each one in the application when it is done, with a photo.",
+        "item": "Item {n}: what has to be put right",
+        "placeholder": "For example: patch the honeycombing on the west wall.",
+        "add": "Add another",
+        "remove": "Remove this one"
+      }
     },
     "reviewerKind": {
       "CONSULTANT": "Consultant selected on the application",

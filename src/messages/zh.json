@@ -5377,23 +5377,25 @@
     "remedial": {
       "failed": "没能保存",
       "noEvidence": "没有附证据",
-      "evidenceHint": "从这份申请已有的证据里挑。",
+      "evidenceHint": "从这个项目的现场照片里挑能证明已经做好的（最新的在最前面）。照片要先用手机拍好上传。",
       "evidence": "证据",
       "closedBy": "{name} 于 {when} 关闭",
       "closureNote": "做了什么",
       "closeHelp": "写清楚做了什么，并附上能证明的东西。",
       "closeTitle": "关闭这条整改",
-      "unassigned": "没有指派人",
       "overdue": "已逾期",
       "closed": "已关闭",
       "open": "未完成",
       "empty": "没有整改事项",
       "dueOn": "限期 {date}",
-      "dueHint": "到期前会提醒现场，过了就标成逾期。",
+      "dueHint": "到期前一天会提醒负责的人；过了限期会标成「已逾期」，再提醒一次。",
       "dueDate": "限期",
       "description": "要整改什么",
       "raiseHelp": "写清楚要整改什么，什么时候之前完成。",
-      "raiseTitle": "开一条整改"
+      "raiseTitle": "开一条整改",
+      "responsible": "负责：{name}",
+      "responsibleApplicant": "负责：{name}（申请人）",
+      "raisedBy": "由 {name} 提出"
     },
     "action": {
       "closeRemedial": "关闭这条",
@@ -5521,7 +5523,8 @@
         "final": "审批已经完成。请下载最终 PDF，并查看验证记录。",
         "review": "这份申请正在等待您的决定。请查看现场证据，然后选择审批结果。",
         "revise": "申请已被退回。请建立新版本，按照意见修改后再次提交。",
-        "waiting": "您现在不需要操作，申请正在等待“{step}”处理。"
+        "waiting": "您现在不需要操作，申请正在等待“{step}”处理。",
+        "remedialOpen": "已批准，但还有 {count} 条整改没完成。做好后，在下面的「整改事项」里按「关闭这条」，附上能证明的照片。"
       },
       "nextAction": "下一步要做什么",
       "noRevisions": "目前没有版本记录。",
@@ -5731,7 +5734,14 @@
       "reviewerConsultant": "指定顾问：{name}",
       "reviewerRole": "指定角色：{name}",
       "reviewerUser": "指定审批人：{name}",
-      "setupCredential": "设置签名与 PIN"
+      "setupCredential": "设置签名与 PIN",
+      "remedialList": {
+        "hint": "一条写一件事。每一条都会印在你签名的最终 PDF 上；建筑商做好后会在申请里逐条关闭，并附上照片。",
+        "item": "第 {n} 条：要整改什么",
+        "placeholder": "例如：西面墙的蜂窝要修补。",
+        "add": "再加一条",
+        "remove": "删除这一条"
+      }
     },
     "reviewerKind": {
       "CONSULTANT": "申请中指定的顾问",

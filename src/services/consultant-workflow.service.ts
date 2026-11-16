@@ -423,6 +423,11 @@ export const reviewConsultantApplication = async (
      */
     signing?: "ESIGNATURE" | "SIGNED_FORM";
     signed_form?: File | null;
+    /**
+     * JB200: 「批准并要求整改」 lists the work in the decision, so the signed
+     * final report prints it. Only with that decision.
+     */
+    remedial_items?: { description: string; due_on: string | null }[];
   },
 ) => {
   const { signed_form: signedForm, ...fields } = payload;
@@ -430,7 +435,9 @@ export const reviewConsultantApplication = async (
   if (signedForm) {
     const data = new FormData();
     for (const [key, value] of Object.entries(fields)) {
-      if (value !== undefined && value !== "") data.append(key, value);
+      if (value === undefined || value === "") continue;
+      // A list travels as one JSON value in a form post (JB200).
+      data.append(key, Array.isArray(value) ? JSON.stringify(value) : value);
     }
     data.append("signed_form", signedForm);
     body = data;

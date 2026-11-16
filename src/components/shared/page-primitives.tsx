@@ -272,14 +272,18 @@ export function StatusBadge({
   tone?: StatusTone;
 }) {
   return (
+    // One line wherever it fits, exactly as before; where the slot is too
+    // narrow it wraps inside the pill instead of being cut off at the
+    // container's edge (Lucas 11-16: 「已批准，需完成整改」 cut off on the
+    // consultant list - 「检查一下有没有类似的问题也修复一下」).
     <span
       className={cn(
-        "inline-flex h-6 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 text-xs font-medium leading-none ring-1 ring-inset",
+        "inline-flex min-h-6 max-w-full shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium leading-none ring-1 ring-inset",
         toneOf(tone).soft,
       )}
     >
-      <span className={cn("h-1.5 w-1.5 rounded-full", STATUS_DOT_CLASS[tone])} />
-      {label}
+      <span className={cn("h-1.5 w-1.5 shrink-0 rounded-full", STATUS_DOT_CLASS[tone])} />
+      <span className="min-w-0 [overflow-wrap:anywhere]">{label}</span>
     </span>
   );
 }
@@ -295,7 +299,8 @@ export function TypeBadge({
   return (
     <span
       className={cn(
-        "inline-flex h-6 items-center whitespace-nowrap rounded-full bg-tone-blue/12 px-2.5 text-xs font-medium leading-none text-tone-blue-fg ring-1 ring-inset ring-tone-blue/25",
+        // As StatusBadge (11-16): one line where it fits, wraps rather than clipped.
+        "inline-flex min-h-6 max-w-full shrink-0 items-center rounded-full bg-tone-blue/12 px-2.5 py-1 text-xs font-medium leading-none text-tone-blue-fg ring-1 ring-inset ring-tone-blue/25 [overflow-wrap:anywhere]",
         className,
       )}
     >

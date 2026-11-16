@@ -294,6 +294,8 @@ export interface RemedialItem {
   closed_at: string | null;
   closed_by: string | null;
   closed_by_name: string | null;
+  /** Who listed it (JB200). */
+  created_by_name: string | null;
   created_at: string;
   updated_at: string;
 }

@@ -5377,23 +5377,25 @@
     "remedial": {
       "failed": "Gagal disimpan",
       "noEvidence": "Tiada bukti dilampirkan",
-      "evidenceHint": "Pilih daripada bukti yang sudah difailkan untuk permohonan ini.",
+      "evidenceHint": "Pilih foto tapak projek ini yang menunjukkan kerja sudah siap (terbaru di atas). Ambil foto dengan aplikasi telefon dahulu.",
       "evidence": "Bukti",
       "closedBy": "Ditutup oleh {name} pada {when}",
       "closureNote": "Apa yang telah dibuat",
       "closeHelp": "Nyatakan apa yang telah dibuat dan lampirkan buktinya.",
       "closeTitle": "Tutup perkara pembaikan ini",
-      "unassigned": "Tiada siapa ditugaskan",
       "overdue": "Lewat",
       "closed": "Ditutup",
       "open": "Terbuka",
       "empty": "Tiada perkara pembaikan",
       "dueOn": "Perlu siap {date}",
-      "dueHint": "Tapak diingatkan sebelum tarikh ini, dan ditanda lewat selepasnya.",
+      "dueHint": "Orang yang bertanggungjawab diingatkan sehari sebelumnya; selepas tarikh itu ia ditanda 「Lewat」 dan diingatkan sekali lagi.",
       "dueDate": "Perlu siap sebelum",
       "description": "Apa yang perlu dibetulkan",
       "raiseHelp": "Nyatakan apa yang perlu dibetulkan dan bila.",
-      "raiseTitle": "Buka perkara pembaikan"
+      "raiseTitle": "Buka perkara pembaikan",
+      "responsible": "Bertanggungjawab: {name}",
+      "responsibleApplicant": "Bertanggungjawab: {name} (pemohon)",
+      "raisedBy": "Dibangkitkan oleh {name}"
     },
     "action": {
       "closeRemedial": "Tutup",
@@ -5521,7 +5523,8 @@
         "final": "Kelulusan telah selesai. Muat turun PDF akhir dan semak rekod pengesahan.",
         "review": "Permohonan ini menunggu keputusan anda. Semak bukti, kemudian pilih keputusan kelulusan.",
         "revise": "Permohonan telah dikembalikan. Cipta semakan baharu, buat pembetulan dan hantar semula.",
-        "waiting": "Anda tidak perlu bertindak sekarang. Permohonan sedang menunggu di {step}."
+        "waiting": "Anda tidak perlu bertindak sekarang. Permohonan sedang menunggu di {step}.",
+        "remedialOpen": "Diluluskan, tetapi {count} perkara pembaikan masih dibuka. Apabila kerja siap, tekan 「Tutup」 di bawah 「Perkara pembaikan」 dan tambah foto sebagai bukti."
       },
       "nextAction": "Apa yang berlaku seterusnya",
       "noRevisions": "Tiada sejarah semakan tersedia.",
@@ -5731,7 +5734,14 @@
       "reviewerConsultant": "Perunding ditugaskan: {name}",
       "reviewerRole": "Peranan ditugaskan: {name}",
       "reviewerUser": "Penyemak ditugaskan: {name}",
-      "setupCredential": "Tetapkan tandatangan dan PIN"
+      "setupCredential": "Tetapkan tandatangan dan PIN",
+      "remedialList": {
+        "hint": "Satu perkara setiap baris. Setiap baris dicetak pada PDF akhir yang anda tandatangani; kontraktor menutup setiap satu dalam permohonan apabila siap, dengan foto.",
+        "item": "Perkara {n}: apa yang perlu dibetulkan",
+        "placeholder": "Contoh: tampal sarang lebah pada dinding barat.",
+        "add": "Tambah satu lagi",
+        "remove": "Buang yang ini"
+      }
     },
     "reviewerKind": {
       "CONSULTANT": "Perunding yang dipilih dalam permohonan",

@@ -5377,23 +5377,25 @@
     "remedial": {
       "failed": "沒能儲存",
       "noEvidence": "沒有附證據",
-      "evidenceHint": "從這份申請已有的證據裡挑。",
+      "evidenceHint": "從這個項目的現場照片裡挑能證明已經做好的（最新的在最前面）。照片要先用手機拍好上傳。",
       "evidence": "證據",
       "closedBy": "{name} 於 {when} 關閉",
       "closureNote": "做了什麼",
       "closeHelp": "寫清楚做了什麼，並附上能證明的東西。",
       "closeTitle": "關閉這條整改",
-      "unassigned": "沒有指派人",
       "overdue": "已逾期",
       "closed": "已關閉",
       "open": "未完成",
       "empty": "沒有整改事項",
       "dueOn": "限期 {date}",
-      "dueHint": "到期前會提醒現場，過了就標成逾期。",
+      "dueHint": "到期前一天會提醒負責的人；過了限期會標成「已逾期」，再提醒一次。",
       "dueDate": "限期",
       "description": "要整改什麼",
       "raiseHelp": "寫清楚要整改什麼，什麼時候之前完成。",
-      "raiseTitle": "開一條整改"
+      "raiseTitle": "開一條整改",
+      "responsible": "負責：{name}",
+      "responsibleApplicant": "負責：{name}（申請人）",
+      "raisedBy": "由 {name} 提出"
     },
     "action": {
       "closeRemedial": "關閉這條",
@@ -5521,7 +5523,8 @@
         "final": "審批已經完成。請下載最終 PDF，並查看驗證記錄。",
         "review": "這份申請正在等待您的決定。請查看現場證據，然後選擇審批結果。",
         "revise": "申請已被退回。請建立新版本，按照意見修改後再次提交。",
-        "waiting": "您現在不需要操作，申請正在等待“{step}”處理。"
+        "waiting": "您現在不需要操作，申請正在等待“{step}”處理。",
+        "remedialOpen": "已批准，但還有 {count} 條整改沒完成。做好後，在下面的「整改事項」裡按「關閉這條」，附上能證明的照片。"
       },
       "nextAction": "下一步要做什麼",
       "noRevisions": "目前沒有版本記錄。",
@@ -5731,7 +5734,14 @@
       "reviewerConsultant": "指定顧問：{name}",
       "reviewerRole": "指定角色：{name}",
       "reviewerUser": "指定審批人：{name}",
-      "setupCredential": "設置簽名與 PIN"
+      "setupCredential": "設置簽名與 PIN",
+      "remedialList": {
+        "hint": "一條寫一件事。每一條都會印在你簽名的最終 PDF 上；建築商做好後會在申請裡逐條關閉，並附上照片。",
+        "item": "第 {n} 條：要整改什麼",
+        "placeholder": "例如：西面牆的蜂窩要修補。",
+        "add": "再加一條",
+        "remove": "刪除這一條"
+      }
     },
     "reviewerKind": {
       "CONSULTANT": "申請中指定的顧問",

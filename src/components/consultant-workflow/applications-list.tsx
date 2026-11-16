@@ -303,7 +303,7 @@ export function ConsultantApplicationsList() {
                 {pack.picking && <div className="flex items-center self-stretch pl-4">{pack.check(application.id)}</div>}
                 <Link
                   href={`/consultant-applications/${application.id}`}
-                  className="grid min-w-0 flex-1 gap-3 p-4 transition-colors hover:bg-muted/35 sm:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_18rem] sm:items-center"
+                  className="grid min-w-0 flex-1 gap-3 p-4 transition-colors hover:bg-muted/35 sm:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_21rem] sm:items-center"
                 >
                   <div className="flex min-w-0 items-start gap-3">
                     {/* The linked site photograph (E3); the row is a link to
@@ -341,7 +341,9 @@ export function ConsultantApplicationsList() {
                   </div>
                   {/* Fixed slots on a desk screen (2026-10-17): every row's
                       marker, date and status sit at the same x, whether or not
-                      the row has a 待处理 marker. A phone keeps the plain line. */}
+                      the row has a 待处理 marker. A phone keeps the plain line.
+                      The status slot is 9rem (11-16): the longest status,
+                      「已批准，需完成整改」, was cut off in the old 6rem. */}
                   <div className="flex items-center gap-3 sm:grid sm:grid-cols-[5.5rem_5.5rem_minmax(0,1fr)] sm:justify-items-start sm:gap-2">
                     <span className="contents sm:flex sm:min-w-0">
                       <NeedsActionMarker show={application.needs_action} />
