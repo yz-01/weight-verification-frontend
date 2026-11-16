@@ -15,7 +15,8 @@ import type {
   TermsAcknowledgement,
   Territory,
 } from "@/interfaces/sales";
-import { api, download, toastSuccess } from "@/services/api-client";
+import { t } from "@/lib/i18n-runtime";
+import { api, download, toastRefusal, toastSuccess } from "@/services/api-client";
 
 /** What a new or edited salesperson record carries. */
 export interface SalespersonPayload {
@@ -313,6 +314,48 @@ export async function calculatePayout(
   );
   toastSuccess("sales.toast.payoutCalculated");
   return payout;
+}
+
+/** What 「计算佣金」 for the whole team answers. */
+export interface TeamCalculationResult {
+  created: number;
+  /** How many people were passed over, by reason (`sales.services`). */
+  skipped: Record<string, number>;
+}
+
+/** The reasons `calculate_payout` names; anything else is worded as 其他. */
+const SKIP_REASONS = ["no_scheme", "scheme_inactive", "already_settled", "nothing_earned"];
+
+/** Why nobody - or some - got a payout, as one sentence. */
+export function skippedReasons(skipped: Record<string, number>): string {
+  return Object.entries(skipped)
+    .filter(([, count]) => count > 0)
+    .map(([reason, count]) =>
+      t(`sales.toast.skipped.${SKIP_REASONS.includes(reason) ? reason : "other"}`, { count }),
+    )
+    .join(t("common.listSeparator"));
+}
+
+/**
+ * Work out commission for the whole team.
+ *
+ * JB209-16 (Lucas 11-16 audit): the button always said 「佣金已计算」, even
+ * when nothing was made - the server's `{created, skipped}` was thrown away.
+ * Now it says how many were made, and when none, why not.
+ */
+export async function calculateTeamPayouts(): Promise<TeamCalculationResult> {
+  const result = await api.post<TeamCalculationResult>(
+    "/api/commission-payouts/calculate/",
+    {},
+  );
+  if (result.created > 0) {
+    toastSuccess("sales.toast.payoutsCalculated", { count: result.created });
+  } else {
+    toastRefusal("sales.toast.nothingCalculated", {
+      reasons: skippedReasons(result.skipped) || t("sales.toast.skipped.nobody"),
+    });
+  }
+  return result;
 }
 
 export async function transitionPayout(

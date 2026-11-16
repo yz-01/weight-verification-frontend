@@ -5,16 +5,21 @@ import {
   ArrowRight,
   Check,
   Edit3,
+  Eye,
   Loader2,
   Plus,
   Save,
+  Trash2,
 } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
+import { useAuth } from "@/components/providers/auth-provider";
 import { AdvancedTechnicalSettings } from "@/components/shared/advanced-technical-settings";
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { ExportButton } from "@/components/shared/export-button";
+import { LoadMoreRow } from "@/components/shared/load-more-row";
 import {
   FieldWrapper,
   ListHeader,
@@ -42,6 +47,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
+import { readAllPages, usePagedList } from "@/hooks/use-paged-list";
 import type {
   CommissionCalculationConfig,
   CommissionPayout,
@@ -50,6 +56,7 @@ import type {
   PayoutState,
   Salesperson,
   SalesTerms,
+  Territory,
 } from "@/interfaces/sales";
 import type { CompanyRow } from "@/interfaces/company";
 import { useDateFormat } from "@/lib/dates";
@@ -58,11 +65,13 @@ import {
   acknowledgeSalesTerms,
   activateSalesTerms,
   adjustPayout,
-  calculatePayout,
+  calculateTeamPayouts,
   createCommissionScheme,
   createCustomerAssignment,
   createSalesperson,
   createSalesTerms,
+  createTerritory,
+  deleteTerritory,
   exportSalesDataset,
   getCommissionSchemes,
   getCustomerAssignments,
@@ -71,13 +80,17 @@ import {
   getSalesSummary,
   getSalesTerms,
   getTeamPerformance,
+  getTermsAcknowledgements,
+  getTerritories,
   reassignCustomer,
   transitionPayout,
   updateCommissionRule,
   updateCommissionScheme,
   updateSalesperson,
+  updateTerritory,
   type CommissionSchemePayload,
   type SalespersonPayload,
+  type TerritoryPayload,
 } from "@/services/sales.service";
 
 export type SalesAdminSection =
@@ -122,6 +135,86 @@ const BASES = [
   "CUSTOM_FORMULA",
 ];
 
+/** The 13 states and 3 federal territories a sales area can cover. */
+const STATES = [
+  "JOHOR",
+  "KEDAH",
+  "KELANTAN",
+  "MELAKA",
+  "NEGERI_SEMBILAN",
+  "PAHANG",
+  "PENANG",
+  "PERAK",
+  "PERLIS",
+  "SABAH",
+  "SARAWAK",
+  "SELANGOR",
+  "TERENGGANU",
+  "KUALA_LUMPUR",
+  "LABUAN",
+  "PUTRAJAYA",
+];
+
+/** Every active salesperson, for a picker (JB209-14, Lucas 11-16 audit X-2). */
+const activeSalespeople = () =>
+  readAllPages((paging) => getSalespeople({ ...paging, is_active: true }));
+
+/**
+ * Where a payout may go next - the server's `ALLOWED_PAYOUT_TRANSITIONS`.
+ * JB209-16 (Lucas 11-16 audit): 「处理」 is offered only on a row that has
+ * somewhere to go; on 已付款 / 已取消 it opened an empty list.
+ */
+export const PAYOUT_TARGETS: Partial<Record<PayoutState, PayoutState[]>> = {
+  DRAFT: ["SUPERVISOR_APPROVED", "REJECTED", "CANCELLED"],
+  SUPERVISOR_APPROVED: ["FINANCE_APPROVED", "REJECTED", "CANCELLED"],
+  FINANCE_APPROVED: ["PAID", "CANCELLED"],
+  REJECTED: ["SUPERVISOR_APPROVED", "CANCELLED"],
+};
+
+/**
+ * What a salesperson covers today: a current 全国 area, the states of their
+ * current areas, or nothing.
+ *
+ * JB209-17 (Lucas 11-16: 「做一个设置画面」, reverses D-083 for sales only):
+ * the people table printed 「全国」 for anybody without states - and with no
+ * area screen that was everybody. Only a current 全国 area says 全国 now.
+ */
+export function salesCoverage(
+  territories: Array<Pick<Territory, "scope" | "states" | "is_current">>,
+): "NATIONAL" | "NONE" | string[] {
+  const current = territories.filter((x) => x.is_current);
+  if (current.some((x) => x.scope === "NATIONAL")) return "NATIONAL";
+  const states = [...new Set(current.flatMap((x) => x.states))];
+  return states.length ? states : "NONE";
+}
+
+type Words = ReturnType<typeof useTranslations>;
+
+/** `salesCoverage` in words: 全国, the state names, or 未设定. */
+function coverageLabel(
+  cover: ReturnType<typeof salesCoverage>,
+  words: Words,
+  places: Words,
+) {
+  if (cover === "NATIONAL") return words("scope.NATIONAL");
+  if (cover === "NONE") return words("scope.none");
+  return cover
+    .map((state) => (places.has(`state.${state}`) ? places(`state.${state}`) : state))
+    .join(", ");
+}
+
+/**
+ * What the area dialog sends. A 全国 area carries no states (the server
+ * refuses one that does), and an empty end date is no end date.
+ */
+export function territoryPayload(form: TerritoryPayload): TerritoryPayload {
+  return {
+    ...form,
+    states: form.scope === "NATIONAL" ? [] : form.states,
+    effective_to: form.effective_to || null,
+  };
+}
+
 /** Draws the section's ListHeader, with the panel's primary action if any. */
 type SectionHeaderSlot = (action?: React.ReactNode) => React.ReactNode;
 
@@ -143,6 +236,7 @@ export function SalesAdminWorkspace({
   );
   const panelOwnsHeader = [
     "people",
+    "territories",
     "assignments",
     "rules",
     "schemes",
@@ -154,6 +248,7 @@ export function SalesAdminWorkspace({
     <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4">
       {panelOwnsHeader ? null : header()}
       {section === "people" ? <PeoplePanel manageable header={header} /> : null}
+      {section === "territories" ? <TerritoryPanel header={header} /> : null}
       {section === "hierarchy" ? <HierarchyPanel /> : null}
       {section === "assignments" ? <AssignmentPanel header={header} /> : null}
       {section === "rules" ? <SchemePanel mode="rules" header={header} /> : null}
@@ -258,15 +353,26 @@ function PeoplePanel({
   header: SectionHeaderSlot;
 }) {
   const t = useTranslations("adminSales");
+  const places = useTranslations("adminPartnerManagement");
   const df = useDateFormat();
   const qc = useQueryClient();
-  const people = useQuery({
+  // JB209-16 (Lucas 11-16 audit): 新增 / 编辑 showed for Finance, who holds
+  // no sales.manage and was refused only after filling the form.
+  const { can } = useAuth();
+  const manage = manageable && can("sales.manage");
+  // JB209-14 (Lucas 11-16 audit, X-2): the table a hundred at a time; the
+  // 主管 picker reads every page.
+  const people = usePagedList({
     queryKey: ["salespeople", "admin"],
-    queryFn: () => getSalespeople({ page_size: 200 }),
+    queryFn: (paging) => getSalespeople(paging),
+  });
+  const everyone = useQuery({
+    queryKey: ["salespeople", "all"],
+    queryFn: () => readAllPages((paging) => getSalespeople(paging)),
   });
   const schemes = useQuery({
     queryKey: ["commission-schemes", "options"],
-    queryFn: () => getCommissionSchemes({ page_size: 200 }),
+    queryFn: () => readAllPages((paging) => getCommissionSchemes(paging)),
   });
   const [editing, setEditing] = useState<Salesperson | null | undefined>(
     undefined,
@@ -274,7 +380,7 @@ function PeoplePanel({
   return (
     <>
       {header(
-        manageable && !people.isLoading && !people.isError ? (
+        manage && !people.isLoading && !people.isError ? (
           <Button onClick={() => setEditing(null)}>
             <Plus />
             {t("action.addPerson")}
@@ -314,8 +420,7 @@ function PeoplePanel({
               </TableCell>
               <TableCell>{t(`role.${person.sales_role}`)}</TableCell>
               <TableCell>
-                {person.territories.flatMap((x) => x.states).join(", ") ||
-                  t("scope.NATIONAL")}
+                {coverageLabel(salesCoverage(person.territories), t, places)}
               </TableCell>
               <TableCell>{person.supervisor_name || "-"}</TableCell>
               <TableCell>{person.scheme_name || "-"}</TableCell>
@@ -329,7 +434,7 @@ function PeoplePanel({
                 />
               </TableCell>
               <TableCell>
-                {manageable && (
+                {manage && (
                   <Button
                     size="icon-sm"
                     variant="ghost"
@@ -343,10 +448,12 @@ function PeoplePanel({
           ))}
         </TableBody>
       </Table>
+      <LoadMoreRow list={people} />
       {editing !== undefined && (
         <PersonDialog
           initial={editing}
-          people={people.data?.results ?? []}
+          people={everyone.data?.results ?? []}
+          peopleStatus={{ isError: everyone.isError, refetch: everyone.refetch }}
           schemes={schemes.data?.results ?? []}
           schemesStatus={{ isError: schemes.isError, refetch: schemes.refetch }}
           onClose={() => setEditing(undefined)}
@@ -361,6 +468,7 @@ function PeoplePanel({
 function PersonDialog({
   initial,
   people,
+  peopleStatus,
   schemes,
   schemesStatus,
   onClose,
@@ -368,6 +476,7 @@ function PersonDialog({
 }: {
   initial: Salesperson | null;
   people: Salesperson[];
+  peopleStatus: { isError: boolean; refetch: () => unknown };
   schemes: CommissionScheme[];
   schemesStatus: { isError: boolean; refetch: () => unknown };
   onClose: () => void;
@@ -465,6 +574,7 @@ function PersonDialog({
                   </option>
                 ))}
             </select>
+            <QueryFailedNote query={peopleStatus} what={t("what.people")} />
           </FieldWrapper>
           <FieldWrapper label={t("column.scheme")}>
             <select
@@ -523,11 +633,327 @@ function PersonDialog({
   );
 }
 
+/**
+ * 销售区域 (13.2.3): which states each salesperson covers, or 全国.
+ *
+ * JB209-17 (Lucas 11-16: 「做一个设置画面」, reverses D-083 for sales only).
+ * D-083 sent this page to the partners' areas on the belief that both used
+ * one table; they do not - partner areas are `partners.PartnerTerritory`,
+ * sales areas `sales.Territory` - so nothing could ever fill the sales one.
+ * Auto-assignment of a new company, the overview's 「未分配州属」 and the
+ * people table's area column all read it, and all three stood still. This is
+ * the panel removed in f9cb3d48, in today's style: the service functions and
+ * the server endpoints never went away.
+ */
+function TerritoryPanel({ header }: { header: SectionHeaderSlot }) {
+  const t = useTranslations("adminSales");
+  const places = useTranslations("adminPartnerManagement");
+  const df = useDateFormat();
+  const qc = useQueryClient();
+  const { can } = useAuth();
+  const manage = can("sales.manage");
+  const rows = usePagedList({
+    queryKey: ["sales-territories"],
+    queryFn: (paging) => getTerritories({ ...paging, sort_by: "name" }),
+  });
+  const people = useQuery({
+    queryKey: ["salespeople", "options"],
+    queryFn: activeSalespeople,
+  });
+  const [editing, setEditing] = useState<Territory | null | undefined>(
+    undefined,
+  );
+  const [removing, setRemoving] = useState<Territory | null>(null);
+  // An area moves who new customers go to, the overview's uncovered states
+  // and the people table, so all three are read again after a change.
+  const refresh = () => {
+    qc.invalidateQueries({ queryKey: ["sales-territories"] });
+    qc.invalidateQueries({ queryKey: ["salespeople"] });
+    qc.invalidateQueries({ queryKey: ["sales-summary"] });
+  };
+  const remove = useMutation({
+    mutationFn: deleteTerritory,
+    onSuccess: refresh,
+    onSettled: () => setRemoving(null),
+  });
+  const stateNames = (states: string[]) =>
+    states
+      .map((state) => (places.has(`state.${state}`) ? places(`state.${state}`) : state))
+      .join(", ");
+  return (
+    <>
+      {header(
+        manage && !rows.isLoading && !rows.isError ? (
+          <Button onClick={() => setEditing(null)}>
+            <Plus />
+            {t("action.addTerritory")}
+          </Button>
+        ) : undefined,
+      )}
+      <PanelState loading={rows.isLoading} error={rows.isError}>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              {[
+                "salesperson",
+                "name",
+                "states",
+                "exclusive",
+                "effective",
+                "actions",
+              ].map((key) => (
+                <TableHead key={key}>{t(`column.${key}`)}</TableHead>
+              ))}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {(rows.data?.results ?? []).map((row) => (
+              <TableRow key={row.id}>
+                <TableCell>{row.salesperson_name}</TableCell>
+                <TableCell className="font-medium">{row.name}</TableCell>
+                <TableCell>
+                  {row.scope === "NATIONAL"
+                    ? t("scope.NATIONAL")
+                    : stateNames(row.states)}
+                </TableCell>
+                <TableCell>{row.is_exclusive ? t("yes") : t("no")}</TableCell>
+                <TableCell className="tabular">
+                  {df.date(row.effective_from)} –{" "}
+                  {row.effective_to ? df.date(row.effective_to) : t("field.noEndDate")}
+                  {!row.is_current && (
+                    <p className="text-xs text-muted-foreground">
+                      {t("territory.notCurrent")}
+                    </p>
+                  )}
+                </TableCell>
+                <TableCell>
+                  {manage && (
+                    <div className="flex gap-1">
+                      <Button
+                        size="icon-sm"
+                        variant="ghost"
+                        title={t("action.editTerritory")}
+                        onClick={() => setEditing(row)}
+                      >
+                        <Edit3 />
+                      </Button>
+                      <Button
+                        size="icon-sm"
+                        variant="ghost"
+                        title={t("remove.confirm")}
+                        disabled={remove.isPending}
+                        onClick={() => setRemoving(row)}
+                      >
+                        <Trash2 />
+                      </Button>
+                    </div>
+                  )}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+        {!rows.data?.results.length && (
+          <p className="p-6 text-center text-sm text-muted-foreground">
+            {t("territory.empty")}
+          </p>
+        )}
+        <LoadMoreRow list={rows} />
+        {editing !== undefined && (
+          <TerritoryDialog
+            initial={editing}
+            people={people.data?.results ?? []}
+            peopleStatus={{ isError: people.isError, refetch: people.refetch }}
+            onClose={() => setEditing(undefined)}
+            onSaved={refresh}
+          />
+        )}
+        <ConfirmDialog
+          open={removing !== null}
+          onOpenChange={(open) => {
+            if (!open) setRemoving(null);
+          }}
+          title={t("remove.title", { name: removing?.name ?? "" })}
+          description={t("remove.description")}
+          confirmLabel={t("remove.confirm")}
+          isPending={remove.isPending}
+          onConfirm={() => {
+            if (removing) remove.mutate(removing.id);
+          }}
+        />
+      </PanelState>
+    </>
+  );
+}
+
+function TerritoryDialog({
+  initial,
+  people,
+  peopleStatus,
+  onClose,
+  onSaved,
+}: {
+  initial: Territory | null;
+  people: Salesperson[];
+  peopleStatus: { isError: boolean; refetch: () => unknown };
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const t = useTranslations("adminSales");
+  const places = useTranslations("adminPartnerManagement");
+  const [form, setForm] = useState<TerritoryPayload>({
+    salesperson: initial?.salesperson ?? "",
+    name: initial?.name ?? "",
+    scope: initial?.scope ?? "STATES",
+    states: initial?.states ?? [],
+    is_exclusive: initial?.is_exclusive ?? true,
+    effective_from:
+      initial?.effective_from ?? new Date().toISOString().slice(0, 10),
+    effective_to: initial?.effective_to ?? null,
+  });
+  const save = useMutation({
+    mutationFn: () =>
+      initial
+        ? updateTerritory(initial.id, territoryPayload(form))
+        : createTerritory(territoryPayload(form)),
+    onSuccess: () => {
+      onSaved();
+      onClose();
+    },
+  });
+  const set = (key: keyof TerritoryPayload, value: unknown) =>
+    setForm((x) => ({ ...x, [key]: value }));
+  const toggleState = (state: string) =>
+    set(
+      "states",
+      form.states.includes(state)
+        ? form.states.filter((x) => x !== state)
+        : [...form.states, state],
+    );
+  const national = form.scope === "NATIONAL";
+  return (
+    <Dialog
+      open
+      onOpenChange={(x) => {
+        if (!x) onClose();
+      }}
+    >
+      <DialogContent className="sm:max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>
+            {t(initial ? "action.editTerritory" : "action.addTerritory")}
+          </DialogTitle>
+          <DialogDescription>{t("dialog.territory")}</DialogDescription>
+        </DialogHeader>
+        <div className="grid max-h-[65dvh] grid-cols-1 gap-4 overflow-auto sm:grid-cols-2">
+          <FieldWrapper label={t("column.salesperson")} required>
+            <select
+              className="native-control"
+              value={form.salesperson}
+              onChange={(e) => set("salesperson", e.target.value)}
+            >
+              <option value="">{t("field.selectPerson")}</option>
+              {people.map((x) => (
+                <option key={x.id} value={x.id}>
+                  {x.code} / {x.full_name}
+                </option>
+              ))}
+            </select>
+            <QueryFailedNote query={peopleStatus} what={t("what.people")} />
+          </FieldWrapper>
+          <FieldWrapper
+            label={t("field.territoryName")}
+            hint={t("field.territoryNameHint")}
+            required
+          >
+            <Input
+              value={form.name}
+              onChange={(e) => set("name", e.target.value)}
+            />
+          </FieldWrapper>
+          <label className="flex items-center gap-2 sm:col-span-2">
+            <Switch
+              checked={national}
+              onCheckedChange={(on) =>
+                setForm((x) => ({
+                  ...x,
+                  scope: on ? "NATIONAL" : "STATES",
+                  states: on ? [] : x.states,
+                }))
+              }
+            />
+            {t("field.nationalSwitch")}
+          </label>
+          {!national && (
+            <FieldWrapper
+              className="sm:col-span-2"
+              label={t("scope.STATES")}
+              required
+            >
+              <div className="grid grid-cols-2 gap-2 rounded-lg border bg-muted/30 p-3 sm:grid-cols-4">
+                {STATES.map((state) => (
+                  <label key={state} className="flex items-center gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={form.states.includes(state)}
+                      onChange={() => toggleState(state)}
+                    />
+                    {places(`state.${state}`)}
+                  </label>
+                ))}
+              </div>
+            </FieldWrapper>
+          )}
+          <FieldWrapper label={t("field.effectiveFrom")} required>
+            <Input
+              type="date"
+              value={form.effective_from}
+              onChange={(e) => set("effective_from", e.target.value)}
+            />
+          </FieldWrapper>
+          <FieldWrapper label={t("field.effectiveTo")} hint={t("field.effectiveToHint")}>
+            <Input
+              type="date"
+              value={form.effective_to ?? ""}
+              onChange={(e) => set("effective_to", e.target.value || null)}
+            />
+          </FieldWrapper>
+          <label className="flex items-center gap-2 sm:col-span-2">
+            <Switch
+              checked={form.is_exclusive}
+              onCheckedChange={(x) => set("is_exclusive", x)}
+            />
+            {t("field.exclusiveSwitch")}
+          </label>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>
+            {t("action.cancel")}
+          </Button>
+          <Button
+            requires={[
+              [form.salesperson, t("column.salesperson")],
+              [form.name, t("field.territoryName")],
+              [national || form.states.length > 0, t("scope.STATES")],
+              [form.effective_from, t("field.effectiveFrom")],
+            ]}
+            disabled={save.isPending}
+            onClick={() => save.mutate()}
+          >
+            {save.isPending ? <Loader2 className="animate-spin" /> : <Save />}
+            {t("action.save")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function HierarchyPanel() {
   const t = useTranslations("adminSales");
-  const rows = useQuery({
+  const rows = usePagedList({
     queryKey: ["salespeople", "hierarchy"],
-    queryFn: () => getSalespeople({ page_size: 200 }),
+    queryFn: (paging) => getSalespeople(paging),
   });
   return (
     <PanelState loading={rows.isLoading} error={rows.isError}>
@@ -561,39 +987,51 @@ function HierarchyPanel() {
           ))}
         </TableBody>
       </Table>
+      <LoadMoreRow list={rows} />
     </PanelState>
   );
 }
 
 function AssignmentPanel({ header }: { header: SectionHeaderSlot }) {
   const t = useTranslations("adminSales");
+  const places = useTranslations("adminPartnerManagement");
+  const df = useDateFormat();
   const qc = useQueryClient();
+  const { can } = useAuth();
+  const manage = can("sales.manage");
   const [selected, setSelected] = useState<CustomerAssignment | null>(null);
   const [creating, setCreating] = useState(false);
-  const rows = useQuery({
+  // JB209-14 (Lucas 11-16 audit, X-2): the table a hundred at a time; the
+  // pickers - and the list of customers already taken - read every page,
+  // so the 101st customer can be chosen and a taken one is never offered.
+  const rows = usePagedList({
     queryKey: ["customer-assignments"],
-    queryFn: () => getCustomerAssignments({ page_size: 200 }),
+    queryFn: (paging) => getCustomerAssignments(paging),
+  });
+  const assigned = useQuery({
+    queryKey: ["customer-assignments", "all"],
+    queryFn: () => readAllPages((paging) => getCustomerAssignments(paging)),
   });
   const people = useQuery({
     queryKey: ["salespeople", "options"],
-    queryFn: () => getSalespeople({ page_size: 200, is_active: true }),
+    queryFn: activeSalespeople,
   });
   const companies = useQuery({
     queryKey: ["companies", "sales-assignment-options"],
-    queryFn: () => getCompanies({ page_size: 500, sort_by: "name" }),
+    queryFn: () => readAllPages((paging) => getCompanies({ ...paging, sort_by: "name" })),
   });
   const assignedCompanyIds = new Set(
-    (rows.data?.results ?? []).map((assignment) => assignment.company),
+    (assigned.data?.results ?? []).map((assignment) => assignment.company),
   );
   const availableCompanies = (companies.data?.results ?? []).filter(
     (company) => !assignedCompanyIds.has(company.id),
   );
-  const loading = rows.isLoading || companies.isLoading;
-  const error = rows.isError || companies.isError;
+  const loading = rows.isLoading || companies.isLoading || assigned.isLoading;
+  const error = rows.isError || companies.isError || assigned.isError;
   return (
     <>
       {header(
-        !loading && !error ? (
+        manage && !loading && !error ? (
           <Button
             disabled={people.isLoading}
             onClick={() => setCreating(true)}
@@ -626,27 +1064,42 @@ function AssignmentPanel({ header }: { header: SectionHeaderSlot }) {
               <TableCell>
                 {x.company_code} / {x.company_name}
               </TableCell>
-              <TableCell>{x.company_type}</TableCell>
+              {/* JB209-16 (Lucas 11-16 audit): CONTRACTOR, SELANGOR and an ISO
+                  date were printed as stored. */}
+              <TableCell>
+                {places.has(`companyType.${x.company_type}`)
+                  ? places(`companyType.${x.company_type}`)
+                  : x.company_type}
+              </TableCell>
               <TableCell>
                 {x.salesperson_code} / {x.salesperson_name}
               </TableCell>
               <TableCell>{x.supervisor_name || "-"}</TableCell>
-              <TableCell>{x.state || "-"}</TableCell>
-              <TableCell className="tabular">{x.won_on}</TableCell>
               <TableCell>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => setSelected(x)}
-                >
-                  <Edit3 />
-                  {t("action.reassign")}
-                </Button>
+                {x.state
+                  ? places.has(`state.${x.state}`)
+                    ? places(`state.${x.state}`)
+                    : x.state
+                  : "-"}
+              </TableCell>
+              <TableCell className="tabular">{df.date(x.won_on)}</TableCell>
+              <TableCell>
+                {manage && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setSelected(x)}
+                  >
+                    <Edit3 />
+                    {t("action.reassign")}
+                  </Button>
+                )}
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
+      <LoadMoreRow list={rows} />
       {selected && (
         <ReassignDialog
           assignment={selected}
@@ -893,9 +1346,13 @@ function SchemePanel({
 }) {
   const t = useTranslations("adminSales");
   const qc = useQueryClient();
-  const rows = useQuery({
+  // JB209-16 (Lucas 11-16 audit): the rules and schemes are written with
+  // sales_commission.manage; without it the buttons only led to a refusal.
+  const { can } = useAuth();
+  const manage = can("sales_commission.manage");
+  const rows = usePagedList({
     queryKey: ["commission-schemes"],
-    queryFn: () => getCommissionSchemes({ page_size: 200 }),
+    queryFn: (paging) => getCommissionSchemes(paging),
   });
   const [editing, setEditing] = useState<CommissionScheme | null | undefined>(
     undefined,
@@ -903,7 +1360,7 @@ function SchemePanel({
   return (
     <>
       {header(
-        !rows.isLoading && !rows.isError ? (
+        manage && !rows.isLoading && !rows.isError ? (
           <Button onClick={() => setEditing(null)}>
             <Plus />
             {t(mode === "rules" ? "action.addRule" : "action.addScheme")}
@@ -964,18 +1421,21 @@ function SchemePanel({
                 </>
               )}
               <TableCell>
-                <Button
-                  size="icon-sm"
-                  variant="ghost"
-                  onClick={() => setEditing(x)}
-                >
-                  <Edit3 />
-                </Button>
+                {manage && (
+                  <Button
+                    size="icon-sm"
+                    variant="ghost"
+                    onClick={() => setEditing(x)}
+                  >
+                    <Edit3 />
+                  </Button>
+                )}
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
+      <LoadMoreRow list={rows} />
       {editing !== undefined && (
         <SchemeDialog
           initial={editing}
@@ -1020,6 +1480,10 @@ function SchemeDialog({
   });
   const set = (key: keyof CommissionSchemePayload, value: unknown) =>
     setForm((x) => ({ ...x, [key]: value }));
+  // JB209-15 (Lucas 11-16 audit, B-P3-1): editing a rule saves only its
+  // formula, so a changed name or description was dropped while the toast
+  // said 已保存. On 佣金规则 they are shown fixed, with where to change them.
+  const nameElsewhere = mode === "rules" && Boolean(initial);
   const save = useMutation({
     mutationFn: () =>
       initial
@@ -1069,9 +1533,14 @@ function SchemeDialog({
               onChange={(e) => set("code", e.target.value)}
             />
           </FieldWrapper>
-          <FieldWrapper label={t("column.name")} required>
+          <FieldWrapper
+            label={t("column.name")}
+            required
+            hint={nameElsewhere ? t("field.nameInSchemes") : undefined}
+          >
             <Input
               value={form.name}
+              disabled={nameElsewhere}
               onChange={(e) => set("name", e.target.value)}
             />
           </FieldWrapper>
@@ -1123,12 +1592,14 @@ function SchemeDialog({
               </FieldWrapper>
             </>
           )}
-          <FieldWrapper className="sm:col-span-2" label={t("field.description")}>
-            <Textarea
-              value={form.description}
-              onChange={(e) => set("description", e.target.value)}
-            />
-          </FieldWrapper>
+          {!nameElsewhere && (
+            <FieldWrapper className="sm:col-span-2" label={t("field.description")}>
+              <Textarea
+                value={form.description}
+                onChange={(e) => set("description", e.target.value)}
+              />
+            </FieldWrapper>
+          )}
           {mode === "schemes" && (
             <label className="flex items-center gap-2">
               <Switch
@@ -1172,37 +1643,44 @@ function RuleFields({
   const setConfig = (key: keyof CommissionCalculationConfig, value: string) =>
     set("calculation_config", { ...config, [key]: value });
 
+  // JB209-16 (Lucas 11-16 audit): every box here carried only a grey
+  // placeholder, gone the moment a figure is typed - nine unnamed numbers in
+  // the custom formula. Each now has its name above it.
   return (
     <>
-      <select
-        className="native-control"
-        value={form.basis}
-        onChange={(e) => set("basis", e.target.value)}
-      >
-        {BASES.map((x) => (
-          <option key={x} value={x}>
-            {t(`basis.${x}`)}
-          </option>
-        ))}
-      </select>
+      <FieldWrapper label={t("column.basis")}>
+        <select
+          className="native-control"
+          value={form.basis}
+          onChange={(e) => set("basis", e.target.value)}
+        >
+          {BASES.map((x) => (
+            <option key={x} value={x}>
+              {t(`basis.${x}`)}
+            </option>
+          ))}
+        </select>
+      </FieldWrapper>
       {form.basis !== "CUSTOM_FORMULA" && (
-        <Input
-          type="number"
-          min="0"
-          step="0.001"
-          placeholder={t("column.rate")}
-          value={form.rate}
-          onChange={(e) => set("rate", e.target.value)}
-        />
+        <FieldWrapper label={t("column.rate")}>
+          <Input
+            type="number"
+            min="0"
+            step="0.001"
+            value={form.rate}
+            onChange={(e) => set("rate", e.target.value)}
+          />
+        </FieldWrapper>
       )}
       {form.basis === "TARGET_BONUS" && (
-        <Input
-          type="number"
-          min="0"
-          placeholder={t("field.target")}
-          value={form.target_amount ?? ""}
-          onChange={(e) => set("target_amount", e.target.value || null)}
-        />
+        <FieldWrapper label={t("field.target")}>
+          <Input
+            type="number"
+            min="0"
+            value={form.target_amount ?? ""}
+            onChange={(e) => set("target_amount", e.target.value || null)}
+          />
+        </FieldWrapper>
       )}
       {form.basis === "CUSTOM_FORMULA" && (
         <div className="grid grid-cols-1 gap-4 sm:col-span-2 sm:grid-cols-2">
@@ -1217,41 +1695,43 @@ function RuleFields({
             "target_threshold",
             "target_bonus",
           ].map((key) => (
-            <Input
-              key={key}
-              type="number"
-              min="0"
-              step="0.001"
-              placeholder={t(`custom.${key}`)}
-              value={config[key as keyof CommissionCalculationConfig] ?? ""}
-              onChange={(e) =>
-                setConfig(
-                  key as keyof CommissionCalculationConfig,
-                  e.target.value,
-                )
-              }
-            />
+            <FieldWrapper key={key} label={t(`custom.${key}`)}>
+              <Input
+                type="number"
+                min="0"
+                step="0.001"
+                value={config[key as keyof CommissionCalculationConfig] ?? ""}
+                onChange={(e) =>
+                  setConfig(
+                    key as keyof CommissionCalculationConfig,
+                    e.target.value,
+                  )
+                }
+              />
+            </FieldWrapper>
           ))}
-          <select
-            className="native-control"
-            value={config.target_metric ?? ""}
-            onChange={(e) => setConfig("target_metric", e.target.value)}
-          >
-            <option value="">{t("custom.noTarget")}</option>
-            {[
-              "combined_revenue",
-              "saas_revenue",
-              "platform_commission",
-              "business_value",
-              "customers",
-              "contractors",
-              "recyclers",
-            ].map((metric) => (
-              <option key={metric} value={metric}>
-                {t(`custom.metric.${metric}`)}
-              </option>
-            ))}
-          </select>
+          <FieldWrapper label={t("custom.targetMetric")}>
+            <select
+              className="native-control"
+              value={config.target_metric ?? ""}
+              onChange={(e) => setConfig("target_metric", e.target.value)}
+            >
+              <option value="">{t("custom.noTarget")}</option>
+              {[
+                "combined_revenue",
+                "saas_revenue",
+                "platform_commission",
+                "business_value",
+                "customers",
+                "contractors",
+                "recyclers",
+              ].map((metric) => (
+                <option key={metric} value={metric}>
+                  {t(`custom.metric.${metric}`)}
+                </option>
+              ))}
+            </select>
+          </FieldWrapper>
         </div>
       )}
     </>
@@ -1261,16 +1741,21 @@ function RuleFields({
 function TermsPanel({ header }: { header: SectionHeaderSlot }) {
   const t = useTranslations("adminSales");
   const qc = useQueryClient();
-  const rows = useQuery({
+  // JB209-16 (Lucas 11-16 audit): new version / 启用 / 记录确认 need
+  // sales.manage; 查看 is for everyone who can open the page.
+  const { can } = useAuth();
+  const manage = can("sales.manage");
+  const rows = usePagedList({
     queryKey: ["sales-terms"],
-    queryFn: () => getSalesTerms({ page_size: 200 }),
+    queryFn: (paging) => getSalesTerms(paging),
   });
   const people = useQuery({
     queryKey: ["salespeople", "options"],
-    queryFn: () => getSalespeople({ page_size: 200, is_active: true }),
+    queryFn: activeSalespeople,
   });
   const [creating, setCreating] = useState(false);
   const [ack, setAck] = useState<SalesTerms | null>(null);
+  const [viewing, setViewing] = useState<SalesTerms | null>(null);
   const activate = useMutation({
     mutationFn: activateSalesTerms,
     onSuccess: () => qc.invalidateQueries({ queryKey: ["sales-terms"] }),
@@ -1278,7 +1763,7 @@ function TermsPanel({ header }: { header: SectionHeaderSlot }) {
   return (
     <>
       {header(
-        !rows.isLoading && !rows.isError ? (
+        manage && !rows.isLoading && !rows.isError ? (
           <Button onClick={() => setCreating(true)}>
             <Plus />
             {t("action.addTerms")}
@@ -1309,21 +1794,29 @@ function TermsPanel({ header }: { header: SectionHeaderSlot }) {
               <TableCell className="text-right tabular">{x.acknowledgement_count}</TableCell>
               <TableCell>
                 <div className="flex items-center gap-1">
-                  {x.status === "DRAFT" && (
+                  <Button size="sm" variant="ghost" onClick={() => setViewing(x)}>
+                    <Eye />
+                    {t("action.view")}
+                  </Button>
+                  {manage && x.status === "DRAFT" && (
                     <Button size="sm" onClick={() => activate.mutate(x.id)}>
                       <Check />
                       {t("action.activate")}
                     </Button>
                   )}
-                  <Button size="sm" variant="outline" onClick={() => setAck(x)}>
-                    {t("action.acknowledge")}
-                  </Button>
+                  {manage && (
+                    <Button size="sm" variant="outline" onClick={() => setAck(x)}>
+                      {t("action.acknowledge")}
+                    </Button>
+                  )}
                 </div>
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
+      <LoadMoreRow list={rows} />
+      {viewing && <TermsViewDialog terms={viewing} onClose={() => setViewing(null)} />}
       {creating && (
         <TermsDialog
           onClose={() => setCreating(false)}
@@ -1341,6 +1834,87 @@ function TermsPanel({ header }: { header: SectionHeaderSlot }) {
       )}
     </PanelState>
     </>
+  );
+}
+
+/**
+ * One terms version: its text and who has confirmed it.
+ *
+ * JB209-15 (Lucas 11-16 audit, B-P3-5): the page promised 「版本、内容、…
+ * 确认状态」 but showed a count - the text a salesperson agreed to and the
+ * names behind that count could not be read anywhere.
+ */
+function TermsViewDialog({
+  terms,
+  onClose,
+}: {
+  terms: SalesTerms;
+  onClose: () => void;
+}) {
+  const t = useTranslations("adminSales");
+  const df = useDateFormat();
+  const confirmations = useQuery({
+    queryKey: ["sales-terms", terms.id, "acknowledgements"],
+    queryFn: () =>
+      readAllPages((paging) => getTermsAcknowledgements({ ...paging, terms: terms.id })),
+  });
+  const rows = confirmations.data?.results ?? [];
+  return (
+    <Dialog
+      open
+      onOpenChange={(x) => {
+        if (!x) onClose();
+      }}
+    >
+      <DialogContent className="sm:max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>{terms.title}</DialogTitle>
+          <DialogDescription>
+            {terms.code} v{terms.version}
+          </DialogDescription>
+        </DialogHeader>
+        <div className="max-h-[65dvh] space-y-4 overflow-auto">
+          <section>
+            <h3 className="text-sm font-medium">{t("field.body")}</h3>
+            <p className="mt-1 whitespace-pre-wrap rounded-lg border bg-muted/30 p-3 text-sm">
+              {terms.body || "-"}
+            </p>
+          </section>
+          <section>
+            <h3 className="text-sm font-medium">{t("termsView.confirmedBy")}</h3>
+            <QueryFailedNote query={confirmations} what={t("what.acknowledgements")} />
+            {confirmations.isLoading ? (
+              <p className="mt-1 text-sm text-muted-foreground">{t("loading")}</p>
+            ) : !confirmations.isError && rows.length === 0 ? (
+              <p className="mt-1 text-sm text-muted-foreground">
+                {t("termsView.noneConfirmed")}
+              </p>
+            ) : (
+              <ul className="mt-1 divide-y rounded-lg border">
+                {rows.map((row) => (
+                  <li key={row.id} className="px-3 py-2 text-sm">
+                    <p className="font-medium">{row.salesperson_name}</p>
+                    <p className="text-xs text-muted-foreground tabular">
+                      {t("termsView.confirmedOn", {
+                        date: df.dateTime(row.confirmed_at ?? row.created_at),
+                      })}
+                    </p>
+                    {row.note && (
+                      <p className="mt-1 whitespace-pre-wrap text-xs">{row.note}</p>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>
+            {t("action.close")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -1550,12 +2124,15 @@ function PayoutPanel({
 }) {
   const t = useTranslations("adminSales");
   const qc = useQueryClient();
-  const rows = useQuery({
+  // JB209-16 (Lucas 11-16 audit): 计算佣金 needs sales_commission.manage and
+  // 处理 needs sales_commission.approve; Finance saw both and was refused.
+  const { can } = useAuth();
+  const rows = usePagedList({
     queryKey: ["commission-payouts"],
-    queryFn: () => getPayouts({ page_size: 200 }),
+    queryFn: (paging) => getPayouts(paging),
   });
   const calculate = useMutation({
-    mutationFn: () => calculatePayout({}),
+    mutationFn: calculateTeamPayouts,
     onSuccess: () => qc.invalidateQueries({ queryKey: ["commission-payouts"] }),
   });
   const [selected, setSelected] = useState<CommissionPayout | null>(null);
@@ -1563,17 +2140,29 @@ function PayoutPanel({
     <>
       {header(
         !settlements && !rows.isLoading && !rows.isError ? (
-          <Button
-            onClick={() => calculate.mutate()}
-            disabled={calculate.isPending}
-          >
-            {calculate.isPending ? (
-              <Loader2 className="animate-spin" />
-            ) : (
-              <Plus />
+          <div className="flex flex-wrap gap-2">
+            {/* JB209-16 (Lucas 11-16 audit): these rows have no 操作 - approving
+                and paying happen on 佣金结算, which nothing here pointed to. */}
+            <Button variant="outline" asChild>
+              <Link href="/sales/settlements">
+                <ArrowRight />
+                {t("action.goToSettlements")}
+              </Link>
+            </Button>
+            {can("sales_commission.manage") && (
+              <Button
+                onClick={() => calculate.mutate()}
+                disabled={calculate.isPending}
+              >
+                {calculate.isPending ? (
+                  <Loader2 className="animate-spin" />
+                ) : (
+                  <Plus />
+                )}
+                {t("action.calculate")}
+              </Button>
             )}
-            {t("action.calculate")}
-          </Button>
+          </div>
         ) : undefined,
       )}
     <PanelState loading={rows.isLoading} error={rows.isError}>
@@ -1622,7 +2211,11 @@ function PayoutPanel({
                 />
               </TableCell>
               <TableCell>
-                {settlements && (
+                {/* JB209-16 (Lucas 11-16 audit): 处理 opened on 已付款 / 已取消
+                    rows with nothing to choose and a 确认 that never passed. */}
+                {settlements &&
+                  can("sales_commission.approve") &&
+                  (PAYOUT_TARGETS[x.state]?.length ?? 0) > 0 && (
                   <Button
                     size="sm"
                     variant="outline"
@@ -1637,6 +2230,7 @@ function PayoutPanel({
           ))}
         </TableBody>
       </Table>
+      <LoadMoreRow list={rows} />
       {selected && (
         <PayoutDialog
           payout={selected}
@@ -1661,12 +2255,7 @@ function PayoutDialog({
   onSaved: () => void;
 }) {
   const t = useTranslations("adminSales");
-  const targets: Partial<Record<PayoutState, PayoutState[]>> = {
-    DRAFT: ["SUPERVISOR_APPROVED", "REJECTED", "CANCELLED"],
-    SUPERVISOR_APPROVED: ["FINANCE_APPROVED", "REJECTED", "CANCELLED"],
-    FINANCE_APPROVED: ["PAID", "CANCELLED"],
-    REJECTED: ["SUPERVISOR_APPROVED", "CANCELLED"],
-  };
+  const targets = PAYOUT_TARGETS;
   const [target, setTarget] = useState<PayoutState | "">("");
   const [note, setNote] = useState("");
   const [reference, setReference] = useState("");
@@ -1789,10 +2378,11 @@ function PayoutDialog({
 
 function PerformancePanel() {
   const t = useTranslations("adminSales");
+  const df = useDateFormat();
   const [id, setId] = useState("");
   const people = useQuery({
     queryKey: ["salespeople", "performance-options"],
-    queryFn: () => getSalespeople({ page_size: 200 }),
+    queryFn: () => readAllPages((paging) => getSalespeople(paging)),
   });
   const perf = useQuery({
     queryKey: ["team-performance", id],
@@ -1821,8 +2411,18 @@ function PerformancePanel() {
           onRetry={() => perf.refetch()}
         />
       )}
+      {/* JB209-16 (Lucas 11-16 audit): eight figures and no word of which
+          period they cover. */}
       {perf.data && (
-        <div className="mt-4 grid grid-cols-1 overflow-hidden rounded-lg border sm:grid-cols-2 xl:grid-cols-4">
+        <p className="mt-4 text-sm text-muted-foreground tabular">
+          {t("performance.period", {
+            start: df.date(perf.data.period_start),
+            end: df.date(perf.data.period_end),
+          })}
+        </p>
+      )}
+      {perf.data && (
+        <div className="mt-2 grid grid-cols-1 overflow-hidden rounded-lg border sm:grid-cols-2 xl:grid-cols-4">
           {[
             "team_size",
             "total_customers",

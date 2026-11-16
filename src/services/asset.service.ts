@@ -49,6 +49,6 @@ export async function createAssetDisposal(payload: Record<string, unknown>): Pro
 export async function decideAssetDisposal(id: string, payload: Record<string, unknown>): Promise<AssetDisposal> { const row = await api.post<AssetDisposal>(`/api/asset-disposals/decide-disposal/${id}/`, payload); toastSuccess("adminAssetManagement.toast.disposalUpdated"); return row; }
 
 export const getAssetReportSummary = (): Promise<AssetReportSummary> => api.get("/api/asset-reports/get-report-summary/");
-export function exportAssetReport(dataset: string, format: "xlsx" | "pdf", columns: Array<{ key: string; label: string }>, title: string): Promise<void> {
+export function exportAssetReport(dataset: string, format: "xlsx" | "pdf", columns: Array<{ key: string; label: string; values?: Record<string, string> }>, title: string): Promise<void> {
   return download("/api/asset-reports/export-report/", { method: "POST", body: { dataset, format, columns, title }, fallbackFilename: `asset-${dataset}.${format}` });
 }
