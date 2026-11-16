@@ -28,8 +28,15 @@ describe("the settlement link on 付款凭证", () => {
 
   it("is refused to a contractor and open to a recycler", () => {
     expect(isRouteAllowed("MSE_TRACE", ["recyclers"], "/settlements/abc", ["settlement.view"])).toBe(false);
+    // The page is 付款状态's own (`payment_status`, settlement.view), not
+    // 称重记录's since JB207-3: the recycler a settlement.view holder is.
     expect(
-      isRouteAllowed("MSE_SCRAP", ["weighing_records"], "/settlements/abc", ["settlement.view", "weighing.view"]),
+      isRouteAllowed(
+        "MSE_SCRAP",
+        ["weighing_records", "payment_status"],
+        "/settlements/abc",
+        ["settlement.view", "weighing.view"],
+      ),
     ).toBe(true);
   });
 
