@@ -8,7 +8,7 @@ import { useState } from "react";
 import { ExportButton } from "@/components/shared/export-button";
 import { FilterBar, FilterField } from "@/components/shared/page-primitives";
 import { Input } from "@/components/ui/input";
-import type { InvoiceState } from "@/interfaces/billing";
+import type { InvoiceState, PaymentMethod, PaymentState } from "@/interfaces/billing";
 import {
   exportInvoices,
   exportPayments,
@@ -17,6 +17,9 @@ import {
 import { NOT_LIVE } from "@/lib/live-refresh";
 
 type ReportKey = "saas" | "commission" | "receivables" | "paid" | "unpaid";
+
+const PAYMENT_METHODS: PaymentMethod[] = ["BANK_TRANSFER", "CHEQUE", "CASH", "ONLINE", "OTHER"];
+const PAYMENT_STATES: PaymentState[] = ["PENDING", "CONFIRMED", "REJECTED"];
 
 const REPORTS: Array<{ key: ReportKey; icon: typeof ReceiptText; query: Record<string, string | boolean> }> = [
   { key: "saas", icon: ReceiptText, query: { kind: "SAAS", issued_only: true } },
@@ -135,14 +138,16 @@ function reportColumns(t: ReturnType<typeof useTranslations<"billing">>) {
   ];
 }
 
-function paymentColumns(t: ReturnType<typeof useTranslations<"billing">>) {
+export function paymentColumns(t: ReturnType<typeof useTranslations<"billing">>) {
   return [
     { key: "invoice_no", label: t("field.invoiceNumber") },
     { key: "company_name", label: t("field.company") },
     { key: "amount", label: t("field.received") },
     { key: "paid_on", label: t("field.paidOn") },
-    { key: "method", label: t("field.method") },
+    // JB208-12 (Lucas 11-16 audit): the file printed BANK_TRANSFER and
+    // CONFIRMED; it now says them as the screen does.
+    { key: "method", label: t("field.method"), values: Object.fromEntries(PAYMENT_METHODS.map((method) => [method, t(`paymentMethod.${method}`)])) },
     { key: "reference", label: t("field.reference") },
-    { key: "state", label: t("field.state") },
+    { key: "state", label: t("field.state"), values: Object.fromEntries(PAYMENT_STATES.map((state) => [state, t(`paymentState.${state}`)])) },
   ];
 }

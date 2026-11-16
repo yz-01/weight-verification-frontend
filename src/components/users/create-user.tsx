@@ -283,6 +283,13 @@ export function CreateUser({
                 field={field as unknown as BoundField}
                 label={t("users.field.role")}
                 options={roleOptions}
+                // JB208-12 (Lucas 11-16 audit): an MSE account saved with no
+                // role signs in to a dashboard that shows nothing.
+                hint={
+                  me?.portal === "MSE_ADMIN" && !companyId
+                    ? t("users.field.roleHint")
+                    : undefined
+                }
               />
               <QueryFailedNote query={rolesQuery} what={t("users.what.roles")} />
             </div>

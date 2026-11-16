@@ -43,7 +43,10 @@ export function PaymentManager({ proofsOnly = false }: { proofsOnly?: boolean })
   const format = useFormatter();
   const { can } = useAuth();
   const queryClient = useQueryClient();
-  const [state, setState] = useState("");
+  // JB208-12 (Lucas 11-16 audit): opens on 待确认, the slips waiting for this
+  // page. The list stops at the newest 100, so under 全部 an older pending
+  // slip could drop out of sight.
+  const [state, setState] = useState("PENDING");
   const [showCreate, setShowCreate] = useState(false);
   const [reviewing, setReviewing] = useState<Payment | null>(null);
   const [reviewState, setReviewState] = useState<"CONFIRMED" | "REJECTED">("CONFIRMED");

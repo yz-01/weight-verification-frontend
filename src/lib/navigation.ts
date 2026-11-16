@@ -259,7 +259,16 @@ export const PORTAL_NAVIGATION = {
       undefined,
       false,
       [
-        child("2.2.1", "nav.submodule.companyCreate", "/companies/create"),
+        // JB208-3 (Lucas 11-16 audit): only who may create a company sees it.
+        // As the first child it was where 公司管理 opened, and the route rule
+        // below sent a Support Agent straight back to the dashboard.
+        child(
+          "2.2.1",
+          "nav.submodule.companyCreate",
+          "/companies/create",
+          undefined,
+          "company.create",
+        ),
         child(
           "2.2.2",
           "nav.submodule.companyDirectory",

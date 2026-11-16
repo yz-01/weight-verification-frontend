@@ -111,14 +111,19 @@ export function InvoiceList({ fixedKind, embedded = false }: { fixedKind?: Invoi
     { accessorKey: "due_on", meta: { label: t("field.dueDate") }, header: ({ column }) => <SortableHeader label={t("field.dueDate")} isSorted={column.getIsSorted()} onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")} />, cell: ({ row }) => <span className="tabular-nums text-muted-foreground">{row.original.due_on ? df.date(row.original.due_on) : common("emptyValue")}</span> },
     { accessorKey: "state", meta: { label: t("field.state") }, header: () => t("field.state"), cell: ({ row }) => <StatusBadge label={t(`state.${row.original.state}`)} tone={TONES[row.original.state]} /> },
     { id: "actions", enableHiding: false, header: () => <span className="sr-only">{common("actions")}</span>, cell: ({ row }) => (
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" title={common("actions")}><EllipsisVertical className="h-4 w-4" /></Button></DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-48">
-          <DropdownMenuItem onSelect={() => setViewing(row.original)}><Eye className="h-4 w-4" />{common("view")}</DropdownMenuItem>
-          {can("billing.manage") && row.original.state === "DRAFT" && <DropdownMenuItem onSelect={() => issue.mutate(row.original.id)}><FileCheck2 className="h-4 w-4" />{t("action.issue")}</DropdownMenuItem>}
-          {can("billing.manage") && !["PAID", "CANCELLED", "WRITTEN_OFF"].includes(row.original.state) && <><DropdownMenuSeparator /><DropdownMenuItem className="text-destructive" onSelect={() => { setClosing(row.original); setCloseState("CANCELLED"); }}><XCircle className="h-4 w-4" />{t("action.close")}</DropdownMenuItem></>}
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <div className="flex items-center justify-end gap-0.5">
+        {/* JB208-12 (Lucas 11-16 audit): 发出 is the step after 生成账单 and lived only inside ⋮; on a draft it is a button of its own. */}
+        {can("billing.manage") && row.original.state === "DRAFT" && <Button variant="outline" size="sm" disabled={issue.isPending} onClick={() => issue.mutate(row.original.id)}><FileCheck2 className="h-4 w-4" />{t("action.issue")}</Button>}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" title={common("actions")}><EllipsisVertical className="h-4 w-4" /></Button></DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuItem onSelect={() => setViewing(row.original)}><Eye className="h-4 w-4" />{common("view")}</DropdownMenuItem>
+            {can("billing.manage") && row.original.state === "DRAFT" && <DropdownMenuItem onSelect={() => issue.mutate(row.original.id)}><FileCheck2 className="h-4 w-4" />{t("action.issue")}</DropdownMenuItem>}
+            {/* JB208-6 (Lucas 11-16 audit): the server refuses to close an invoice with a confirmed payment, so once money is in, 关闭账单 is greyed with the reason instead of pressed and refused. */}
+            {can("billing.manage") && !["PAID", "CANCELLED", "WRITTEN_OFF"].includes(row.original.state) && <><DropdownMenuSeparator /><DropdownMenuItem className="text-destructive" disabled={hasConfirmedPayment(row.original)} onSelect={() => { setClosing(row.original); setCloseState("CANCELLED"); }}><XCircle className="h-4 w-4" /><span className="flex flex-col">{t("action.close")}{hasConfirmedPayment(row.original) && <span className="text-xs font-normal text-muted-foreground">{t("close.paidReason")}</span>}</span></DropdownMenuItem></>}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
     ) },
   ], [can, common, df, format, issue, t]);
 
@@ -189,6 +194,15 @@ function InvoiceDetailView({ invoice }: { invoice: Awaited<ReturnType<typeof get
     {invoice.settlement_links.length > 0 && <div><h3 className="mb-2 text-sm font-semibold">{t("detail.settlements")}</h3>{invoice.settlement_links.map((link) => <div key={link.id} className="grid grid-cols-3 border-t py-2 text-xs"><span>{link.settlement_no}</span><span>{link.settled_weight_kg} kg</span><span>{invoice.currency} {link.settled_amount}</span></div>)}</div>}
     {invoice.payments.length > 0 && <div><h3 className="mb-2 text-sm font-semibold">{t("detail.payments")}</h3>{invoice.payments.map((payment) => <div key={payment.id} className="flex items-center justify-between gap-3 border-t py-2 text-sm"><span>{df.date(payment.paid_on)} / {payment.reference || "-"}</span><StatusBadge label={t(`paymentState.${payment.state}`)} tone={payment.state === "CONFIRMED" ? "positive" : payment.state === "REJECTED" ? "danger" : "warning"} /><span className="tabular-nums">{invoice.currency} {payment.amount}</span></div>)}</div>}
   </div>;
+}
+
+/**
+ * Whether any payment on this invoice is confirmed (JB208-6). `amount_paid`
+ * sums confirmed payments only (billing.models.Invoice.amount_paid), and a
+ * confirmed payment is exactly what makes the server refuse 关闭账单.
+ */
+export function hasConfirmedPayment(invoice: Pick<Invoice, "amount_paid">): boolean {
+  return Number(invoice.amount_paid) > 0;
 }
 
 function Value({ label, value }: { label: string; value: string }) { return <div><p className="text-xs text-muted-foreground">{label}</p><p className="mt-1 font-medium">{value}</p></div>; }

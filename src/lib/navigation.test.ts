@@ -556,9 +556,10 @@ describe("entries open their pages directly", () => {
       "/material-outgoing",
     );
     expect(hubDestination("MSE_SCRAP", "yards", ["yards", "vehicles"])).toBe("/sites");
-    expect(hubDestination("MSE_ADMIN", "company_management", ["company_management"])).toBe(
-      "/companies/create",
-    );
+    // 新增公司 is listed only with company.create (JB208-3, Lucas 11-16 audit).
+    expect(
+      hubDestination("MSE_ADMIN", "company_management", ["company_management"], ["company.create"]),
+    ).toBe("/companies/create");
     expect(hubDestination("MSE_TRACE", "material_receipts", [])).toBeNull();
     // The old address itself stays open, so the forward can happen.
     expect(isRouteAllowed("MSE_TRACE", ["material_outgoing"], "/modules/materials")).toBe(true);

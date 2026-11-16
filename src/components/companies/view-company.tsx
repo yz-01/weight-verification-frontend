@@ -52,10 +52,12 @@ export function ViewCompany({ id }: { id: string }) {
   // The sidebar pages that own these two lists. Sending someone back to a
   // page they cannot find again in the sidebar is how the orphan pair got used
   // in the first place.
+  // JB208-12 (Lucas 11-16 audit): a recycler goes back to 回收商资料, which
+  // lists every recycler; 回收商审核 dropped it once approved.
   const listHref =
     data.type === "CONTRACTOR"
       ? "/companies/admin/directory"
-      : "/companies/admin/review";
+      : "/companies/admin/recyclers";
 
   return (
     <div className="space-y-4">
@@ -64,7 +66,7 @@ export function ViewCompany({ id }: { id: string }) {
         backLabel={
           data.type === "CONTRACTOR"
             ? t("contractorPartners.title")
-            : t("recyclerReview.title")
+            : t("nav.submodule.companyRecyclerData")
         }
         action={
           <div className="flex items-center gap-2">

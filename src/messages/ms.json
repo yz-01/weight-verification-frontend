@@ -3952,6 +3952,7 @@
     },
     "close": {
       "description": "Tutup invois {invoice} tanpa menerima baki penuh.",
+      "paidReason": "Sebahagian invois ini telah dibayar, jadi ia tidak boleh ditutup. Teruskan susulan baki.",
       "title": "Tutup invois"
     },
     "companyType": {
@@ -5089,6 +5090,11 @@
       "confirm": "Pulihkan",
       "description": "Semua orang dari syarikat ini boleh log masuk semula.",
       "title": "Pulihkan {name}?"
+    },
+    "activateTrial": {
+      "confirm": "Aktifkan",
+      "description": "Tempoh percubaan tamat. Mulai sekarang syarikat ini dikira sebagai syarikat aktif, termasuk dalam laporan.",
+      "title": "Aktifkan {name}?"
     },
     "remove": {
       "blockedByUsers": "Syarikat ini masih ada orang yang boleh log masuk. Gantung sahaja, atau nyahaktifkan mereka dahulu.",
@@ -7632,6 +7638,7 @@
   "dashboard": {
     "admin": {
       "error": "Papan pemuka platform tidak dapat dimuatkan.",
+      "sectionUnavailable": "Bahagian ini di luar kebenaran anda. Minta pentadbir sistem jika anda perlu melihatnya.",
       "health": {
         "configured": "Dikonfigurasi",
         "degraded": "Terganggu",
@@ -8779,6 +8786,23 @@
       "invalid_credentials": "E-mel atau kata laluan salah.",
       "invalid_rule_params": "Semak tetapan pengesanan dan cuba lagi.",
       "invoice_not_found": "Invois itu tidak dijumpai.",
+      "invoice_company_not_billable": "Syarikat ini tidak boleh menerima jenis invois ini sekarang. Pastikan syarikat tidak digantung dan sudah mempunyai pelan; invois komisen hanya untuk pengitar semula pelan rakan kongsi.",
+      "invoice_not_commission_bearing": "Pelan syarikat ini tidak mengenakan komisen platform, jadi invois komisen tidak boleh dibuat. Untuk mengenakan komisen, tukar dahulu kepada pelan rakan kongsi di Langganan syarikat.",
+      "invoice_no_commission_rule": "Tiada peraturan komisen yang berkuat kuasa untuk syarikat ini, jadi komisen tidak dapat dikira. Tambah peraturan di Peraturan komisen dahulu, kemudian jana invois.",
+      "invoice_already_invoiced": "Tempoh ini sudah mempunyai invoisnya, jadi tiada lagi yang perlu dibilkan. Cari invois syarikat ini dalam senarai invois.",
+      "invoice_no_billable_settlements": "Tiada penyelesaian yang telah dikeluarkan dalam tempoh ini menunggu untuk dibilkan, jadi belum ada komisen untuk dikenakan. Jana semula selepas penyelesaian dikeluarkan.",
+      "invoice_nothing_to_charge": "Jumlah untuk tempoh ini ialah sifar, jadi tiada invois dibuat. Jika itu salah, semak yuran pelan atau peraturan komisen syarikat ini.",
+      "invoice_no_plan": "Syarikat ini belum mempunyai pelan, jadi invois langganan tidak boleh dibuat. Pilih pelan untuknya di Langganan syarikat dahulu.",
+      "invoice_not_draft": "Hanya invois draf boleh dikeluarkan. Invois ini sudah dikeluarkan; segar semula senarai untuk melihat statusnya.",
+      "invoice_already_closed": "Invois ini sudah ditutup. Segar semula senarai untuk melihat statusnya.",
+      "invoice_has_confirmed_payments": "Sebahagian invois ini sudah dibayar dan disahkan, jadi ia tidak boleh ditutup. Teruskan susulan baki; tanya pengurus anda jika ia perlu dikendalikan dengan cara lain.",
+      "commission_rule_in_use": "Peraturan komisen ini sudah digunakan untuk membil, jadi ia tidak boleh dipadam. Jika tidak diperlukan lagi, nyahaktifkan sahaja.",
+      "automatic_billing_disabled": "Pengebilan automatik dimatikan, jadi ia tidak boleh dijalankan sekarang. Minta pentadbir sistem menghidupkannya semula di Kerja berjadual.",
+      "payment_already_confirmed": "Bayaran ini sudah disahkan, jadi tiada apa lagi perlu dibuat. Segar semula senarai untuk melihat statusnya.",
+      "subscription_no_plan": "Syarikat ini belum mempunyai pelan, jadi tempohnya tidak boleh dilanjutkan. Pilih pelan untuknya dengan Tukar pelan dahulu.",
+      "subscription_already_ended": "Langganan syarikat ini sudah tamat, jadi tiada apa untuk ditamatkan. Untuk meneruskannya, gunakan Lanjut atau perbaharui.",
+      "company_site_settings_contractor_only": "Hanya kontraktor mempunyai tetapan tapak; pengitar semula tiada tetapan untuk diubah.",
+      "user_replacement_contractor_only": "Hanya akaun syarikat kontraktor boleh diserahkan. Bagi akaun lain, gantung akaun itu dan tambah akaun baharu untuk orang yang mengambil alih.",
       "maintenance_not_found": "Rekod penyelenggaraan itu tidak dijumpai.",
       "method_not_allowed": "Tindakan itu tidak tersedia di sini.",
       "no_active_agreement": "Rakan kongsi ini tiada perjanjian aktif.",
@@ -17972,6 +17996,7 @@
       "lastLoginIp": "IP terakhir",
       "phone": "Telefon",
       "role": "Peranan",
+      "roleHint": "Tanpa peranan, akaun ini tidak dapat melihat apa-apa selepas log masuk.",
       "status": "Status",
       "timezone": "Zon waktu"
     },
@@ -18034,7 +18059,8 @@
     },
     "resetPassword": {
       "action": "Hantar pautan tetapan semula",
-      "sent": "Pautan tetapan semula dihantar"
+      "sent": "Pautan tetapan semula dihantar",
+      "notSent": "Pautan tetapan semula tidak dihantar. Tekan sekali lagi nanti; jika masih gagal, minta pengendali sistem menyemak tetapan e-mel."
     },
     "section": {
       "access": "Akses",
@@ -18066,6 +18092,7 @@
     "titleStaff": "Kakitangan dalaman",
     "toast": {
       "created": "Pengguna dijemput",
+      "createdNotSent": "Akaun telah dibuat, tetapi e-mel jemputan tidak dihantar. Tekan Hantar pautan tetapan semula dalam senarai pengguna nanti untuk menghantarnya semula; jika masih gagal, minta pengendali sistem menyemak tetapan e-mel.",
       "removed": "Pengguna dibuang",
       "statusUpdated": "Status pengguna dikemas kini",
       "updated": "Pengguna dikemas kini",
