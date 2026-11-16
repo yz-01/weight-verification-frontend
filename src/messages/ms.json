@@ -3921,7 +3921,8 @@
       "rain_report_pdf_exported": "Laporan bulanan rekod hujan dieksport",
       "rain_report_pdf_previewed": "Laporan bulanan rekod hujan dipratonton",
       "rain_remark_set": "Menulis catatan rekod hujan",
-      "rain_month_remark_set": "Menulis catatan bulanan laporan hujan"
+      "rain_month_remark_set": "Menulis catatan bulanan laporan hujan",
+      "head_office_on_behalf": "Diputuskan oleh ibu pejabat bagi pihak pengurus"
     },
     "objectType": {
       "SignOffAssistant": "PIN pembantu",
@@ -4921,7 +4922,8 @@
     "combobox": {
       "byLetter": "Tapis ikut huruf pertama"
     },
-    "loadOffline": "Tiada rangkaian - {what} akan dimuatkan apabila sambungan pulih."
+    "loadOffline": "Tiada rangkaian - {what} akan dimuatkan apabila sambungan pulih.",
+    "pageNotOpen": "Akaun anda tidak boleh membuka halaman itu, jadi anda dibawa kembali. Untuk menggunakannya, minta pentadbir syarikat anda membukanya untuk anda."
   },
   "companies": {
     "owner": {
@@ -9272,7 +9274,15 @@
       "asset_maintenance_not_scheduled": "Hanya pembaikan atau penyelenggaraan yang dijadualkan boleh dimulakan.",
       "asset_maintenance_closed": "Pembaikan atau penyelenggaraan ini sudah selesai dan tidak boleh diubah.",
       "asset_disposal_invalid_state": "Permohonan pelupusan ini tidak boleh diuruskan begitu sekarang. Muat semula halaman untuk melihat statusnya.",
-      "asset_disposal_reason_required": "Menolak permohonan pelupusan memerlukan sebab. Tulis dalam catatan."
+      "asset_disposal_reason_required": "Menolak permohonan pelupusan memerlukan sebab. Tulis dalam catatan.",
+      "waste_outgoing_delegate_not_on_project": "Orang itu tidak bekerja di projek ini, jadi tidak dapat membuka permohonan ini. Pilih orang daripada projek ini dalam senarai.",
+      "project_archived_read_only": "Projek ini telah diarkibkan. Butirannya boleh dibaca tetapi tidak boleh diubah. Tutup halaman ini dan kembali ke senarai projek.",
+      "project_archive_use_action": "Diarkibkan tidak boleh dipilih di sini. Tukar status kepada Selesai dan simpan, kemudian tekan Arkib projek di halaman projek.",
+      "project_status_move_refused": "Projek tidak boleh terus bertukar daripada status semasa kepada status yang dipilih. Buka halaman sunting semula dan pilih daripada senarai status.",
+      "hazard_not_awaiting_check": "Seseorang telah menguruskan perkara ini, jadi ia tidak lagi menunggu semakan. Muat semula halaman untuk melihat keadaan terkini.",
+      "hazard_confirmed_by_other": "{incident_no} disemak atau dipulangkan oleh orang yang mengesahkannya {confirmer}. Anda boleh membacanya tetapi tidak boleh bertindak; hubungi mereka jika perlu.",
+      "visitor_host_required": "Pilih orang yang ingin ditemui pelawat, kemudian tekan sahkan.",
+      "visitor_host_not_on_project": "Orang itu tidak bekerja di projek ini. Pilih orang daripada projek ini dalam senarai."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -11768,6 +11778,10 @@
       "add": "Muat naik surat",
       "missing": "Muat naik surat dahulu.",
       "confirmNote": "Surat diletakkan di hadapan PDF gabungan."
+    },
+    "discardConfirm": {
+      "title": "Buang tuntutan ini?",
+      "description": "Draf tuntutan ini dipadam, dan rekod yang ditanda serta surat yang dimuat naik tidak lagi menjadi sebahagian daripadanya. Ini tidak boleh dibatalkan."
     }
   },
   "multiEngine": {
@@ -13235,7 +13249,7 @@
     },
     "emergency_list": {
       "what": "Siapa masih di dalam tapak sekarang, dengan nombor yang boleh dihubungi. Untuk kiraan kepala apabila sesuatu berlaku.",
-      "who": "Pemegang geofence.view.",
+      "who": "Pemegang site_access.view.",
       "then": "Senarai menyegar sendiri. Menekan nombor akan mendailnya.",
       "trouble": "Seseorang yang tiada dalam senarai sudah diimbas keluar, atau tidak pernah diimbas masuk. Peristiwa pintu menyatakan yang mana."
     },
@@ -13255,7 +13269,7 @@
     },
     "field_tasks": {
       "what": "Kerja yang dihantar kepada seseorang di tapak: di mana, apa, dan berapa foto untuk menutupnya.",
-      "who": "Pemegang project.view; menugaskan memerlukan task.assign.",
+      "who": "Pemegang project.view; menugaskan memerlukan field_task.manage.",
       "need": "Tugas memerlukan projek, tajuk dan orang tapak yang menerimanya.",
       "then": "Ia muncul di telefon orang itu serta-merta, dengan bilangan foto yang diperlukan.",
       "trouble": "Kerja yang berulang kali ditolak biasanya bermakna arahan terlalu kabur. Tapak hanya melihat apa yang anda taip."
@@ -13270,8 +13284,8 @@
     "hazard_rectification": {
       "what": "Bahaya yang ditemui di tapak, siapa mesti membaikinya, dan foto yang membuktikan ia dibaiki.",
       "who": "Pemegang safety.view dan project.view sekali.",
-      "need": "Menugaskan memerlukan orang bertanggungjawab, tarikh akhir dan lokasi. Melaporkan siap memerlukan apa yang disiapkan. Menerimanya memerlukan foto penerimaan dan nota.",
-      "then": "Tiada foto penerimaan, tiada penutupan. Bahaya tidak selesai kerana seseorang berkata begitu.",
+      "need": "Menugaskan memerlukan orang bertanggungjawab, tarikh akhir dan lokasi. Melaporkan siap memerlukan apa yang disiapkan dan foto pembetulan. Menyemak hanya memerlukan nota - tiada foto.",
+      "then": "Orang yang membaikinya di tapak mengambil foto pembetulan; orang yang membukanya, atau ketua keselamatan, melihatnya kemudian mengesahkan siap atau memulangkannya (pengesahan di komputer meminta PIN enam digit). Bahaya tidak selesai kerana seseorang berkata begitu.",
       "trouble": "Belum ada yang cukup lazim untuk diberi amaran."
     },
     "integrations": {
@@ -13450,7 +13464,7 @@
     },
     "schedule": {
       "what": "Jadual pembinaan: pilih pelan untuk melihat tiga angka (kemajuan, selesai, lewat), kemudian carta Gantt dan senarai tugas. Eksport, pelan baharu, import, namakan semula, arkib dan versi pelan ada di bawah Lagi.",
-      "who": "Pemegang progress.view dan project.view sekali.",
+      "who": "Pemegang schedule.view dan project.view sekali.",
       "need": "Import memerlukan fail .xlsx, nama pelan dan nama semakan; menyemak pelan yang disahkan juga memerlukan sebab perubahan. Tugas manual memerlukan WBS, nama, mula dan tamat dirancang.",
       "then": "Pelan baharu bermula sebagai draf; tambah tugas, kemudian Sahkan dan kunci. Selepas itu, isi Siap % setiap tugas melalui Sahkan kemajuan. Lewat bermaksud melepasi tarikh siap dan belum selesai; tugas yang siap selepas tarikh siap dipaparkan sebagai Siap lewat dan tidak dikira lewat.",
       "trouble": "Import yang gagal biasanya kehilangan pemetaan: WBS, nama tugas dan mula dirancang diperlukan, serta tamat dirancang atau tempoh."
@@ -13471,7 +13485,7 @@
     },
     "site_gps": {
       "what": "Di mana orang anda berada di tapak sekarang.",
-      "who": "Pemegang geofence.view.",
+      "who": "Pemegang field_position.view.",
       "need": "Pilih projek dahulu.",
       "then": "Peta menunjukkan kedudukan terakhir yang dilaporkan setiap orang.",
       "trouble": "Tiada sesiapa di peta: pelayar telefon berhenti melapor apabila skrin dikunci, jadi jurang adalah normal. Jurang dilukis sebagai jurang."
@@ -13597,6 +13611,13 @@
       "who": "Pengurus projek, yang hanya melihat kakitangan tapak projek mereka sendiri. Ibu pejabat juga boleh menggunakannya.",
       "then": "Hantar pautan dan PIN 6 digit kepada orang itu; dia membuka pautan di telefon, memasukkan PIN dan boleh mula bekerja.",
       "trouble": "Projek tidak kelihatan: minta ibu pejabat meletakkan anda dalam projek itu. \"Nombor telefon sudah digunakan\": padam orang itu di projek lamanya dahulu."
+    },
+    "company_settings_trace": {
+      "what": "Butiran syarikat anda sendiri: nama, alamat, logo dan latar halaman utama, pegawai kecemasan; bahasa, format tarikh dan masa serta tempoh pautan fail; dan rekod ibu pejabat serta cawangan.",
+      "who": "Pentadbir syarikat dan ibu pejabat: company_settings.view untuk membaca, company_settings.manage untuk mengubah.",
+      "need": "Ubah satu bahagian, kemudian tekan Simpan bahagian itu.",
+      "then": "Nama dan logo dicetak pada laporan, rekod QR dan fail projek; pegawai kecemasan dipaparkan pada senarai kecemasan dan telefon pengawal pintu.",
+      "trouble": "Kebenaran, peraturan QR, pemberitahuan, GPS, keselamatan dan penyimpanan rekod diurus oleh MSE dan tidak boleh diubah di sini; hubungi MSE untuk mengubahnya."
     }
   },
   "partners": {
@@ -16220,7 +16241,7 @@
       "new": "Cawangan baharu",
       "removeBody": "Cawangan tidak lagi tersedia untuk rekod baharu. Sejarah sedia ada kekal.",
       "removeTitle": "Buang cawangan ini?",
-      "subtitle": "Simpan lokasi pejabat sebenar untuk peta dan laporan.",
+      "subtitle": "Rekod ibu pejabat dan pejabat cawangan, dengan alamat dan lokasinya.",
       "title": "Cawangan dan ibu pejabat"
     },
     "categories": {
@@ -16994,6 +17015,11 @@
       "loading": "Menyediakan contoh…",
       "caption": "Contoh A4: kepala sama seperti PDF yang dieksport; kandungan di bawahnya hanya contoh.",
       "pdfWhat": "PDF contoh"
+    },
+    "emergencyContact": {
+      "label": "Pegawai kecemasan:",
+      "call": "Hubungi {phone}",
+      "what": "pegawai kecemasan"
     }
   },
   "siteDisposal": {
@@ -17775,7 +17801,8 @@
       "scanHelp": "Kamera telefon membuka skrin bahan Field Staff. Pekerja yang telah log masuk dibawa terus kepada pembekal yang sepadan.",
       "share": "Kongsi",
       "shareText": "Kod QR pembekal untuk {supplier}",
-      "title": "Kod QR pembekal"
+      "title": "Kod QR pembekal",
+      "rowLabel": "Kod QR"
     },
     "remove": {
       "confirm": "Buang",
@@ -18157,7 +18184,7 @@
       "projects": "Akses projek",
       "responsibilities": "Tanggungjawab projek",
       "role": "Peranan dan kebenaran",
-      "tasks": "Tugas tapak belum selesai",
+      "tasks": "Tugas tapak belum selesai dan permohonan (MR) yang menunggunya",
       "title": "Perkara yang perlu dipindahkan"
     },
     "warning": {
@@ -18487,7 +18514,8 @@
       "help": "Pilih pengitar yang terikat pada projek ini. Pesanan untuk {reference} dihantar ke sistem mereka serta-merta.",
       "noPartners": "Tiada pengitar terikat pada projek ini. Ikat satu di bawah Pengurusan bahan alam sekitar › Rakan pengitar sebelum mengeluarkan pesanan.",
       "partnersFailed": "Rakan kitar semula tidak dapat dimuatkan, jadi pemilih kosong. Itu tidak bermakna anda tiada.",
-      "title": "Tetapkan pengitar"
+      "title": "Tetapkan pengitar",
+      "noPartnersAskHeadOffice": "Tiada pengitar terikat pada projek ini. Mengikat pengitar dilakukan oleh ibu pejabat: minta ibu pejabat mengikat pengitar pada projek ini, kemudian kembali untuk mengaturnya."
     },
     "reassign": {
       "arm": "Saya mahu tarik balik pesanan ini",
@@ -19342,7 +19370,8 @@
     "reminder": {
       "rule": "Tuntutan ini belum selesai. Setiap {hours} jam sistem mengingatkan orang yang menghantarnya dan orang yang perlu bertindak, sehingga disahkan dibayar (atau ditolak, atau ditarik balik).",
       "sent": "Sudah diingatkan {count} kali, kali terakhir: {at}."
-    }
+    },
+    "withdrawn": "Pemohon telah menarik balik tuntutan ini. Rekod disimpan dan tiada apa-apa lagi perlu dibuat. Untuk menuntut semula, pemohon menghantar tuntutan baharu."
   },
   "moduleHub": {
     "nothingToOpen": "Tiada apa-apa dalam modul ini yang boleh anda buka."
@@ -19531,7 +19560,8 @@
       "forwardHistory": "Dihantar",
       "headOfficeReviewer": "Pelulus ibu pejabat",
       "materialName": "Nama bahan",
-      "materials": "Senarai bahan"
+      "materials": "Senarai bahan",
+      "onBehalfHistory": "Diputuskan oleh ibu pejabat bagi pihak pengurus"
     },
     "action": {
       "view": "Lihat",
@@ -19675,7 +19705,13 @@
       "manager": "Menunggu pengurus projek"
     },
     "forwarded": "Dihantar ke ibu pejabat oleh {by} pada {at}",
-    "managerHelp": "Permohonan tapak kepada anda: pilih pelulus ibu pejabat dan tekan “Hantar ke ibu pejabat”, atau pulangkan."
+    "managerHelp": "Permohonan tapak kepada anda: pilih pelulus ibu pejabat dan tekan “Hantar ke ibu pejabat”, atau pulangkan.",
+    "waitingForManager": "Menunggu pengurus projek {name} menyemaknya. Ibu pejabat meluluskannya selepas dia menghantarnya.",
+    "onBehalf": {
+      "help": "Akaun pengurus projek {manager} digantung, jadi ibu pejabat memutuskan permohonan ini bagi pihaknya: luluskan atau pulangkan di sini. Rekod akan menyatakan ia diputuskan oleh ibu pejabat.",
+      "approved": "{by} meluluskannya bagi pihak {manager} (ibu pejabat) · {at}",
+      "returned": "{by} memulangkannya bagi pihak {manager} (ibu pejabat) · {at}"
+    }
   },
   "materialLines": {
     "title": "Senarai bahan",
@@ -20404,7 +20440,8 @@
       "label": "Jam biasa sehari",
       "save": "Simpan",
       "failed": "Tidak dapat menyimpan. Sila cuba lagi.",
-      "current": "Ditetapkan {at} oleh {name}"
+      "current": "Ditetapkan {at} oleh {name}",
+      "chooseProject": "Setiap projek ada jam biasa harian sendiri: pilih projek di atas dahulu."
     },
     "records": {
       "what": "rekod",
@@ -21413,7 +21450,12 @@
       "stop": "Hentikan",
       "lastUsed": "Terakhir digunakan {at}",
       "failed": "Tidak dapat menyimpan. Sila cuba lagi.",
-      "chooseProject": "Pilih projek di bahagian atas halaman untuk membuat pautan."
+      "chooseProject": "Pilih projek di bahagian atas halaman untuk membuat pautan.",
+      "askReissue": "Menghantar semula menghentikan pautan yang ada pada pemandu serta-merta; kemudian hantar pautan baharu kepadanya. Hantar semula?",
+      "askStop": "Selepas dihentikan, pemandu ini tidak lagi boleh merekod masa dengan pautan ini. Hentikan?",
+      "confirmReissue": "Ya, hantar semula",
+      "confirmStop": "Ya, hentikan",
+      "working": "Sedang diproses, sila tunggu."
     },
     "tabs": {
       "clock": "Mula / tamat kerja",

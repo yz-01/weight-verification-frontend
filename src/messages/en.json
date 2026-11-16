@@ -3921,7 +3921,8 @@
       "rain_report_pdf_exported": "Rain record monthly report exported",
       "rain_report_pdf_previewed": "Rain record monthly report previewed",
       "rain_remark_set": "Wrote a rain record's remarks",
-      "rain_month_remark_set": "Wrote the rain report's monthly remarks"
+      "rain_month_remark_set": "Wrote the rain report's monthly remarks",
+      "head_office_on_behalf": "Decided by head office for the manager"
     },
     "objectType": {
       "SignOffAssistant": "Assistant PIN",
@@ -4921,7 +4922,8 @@
     "combobox": {
       "byLetter": "Filter by first letter"
     },
-    "loadOffline": "No network - {what} will load when the connection is back."
+    "loadOffline": "No network - {what} will load when the connection is back.",
+    "pageNotOpen": "Your account cannot open that page, so you have been brought back. To use it, ask your company's administrator to switch it on for you."
   },
   "companies": {
     "owner": {
@@ -9272,7 +9274,15 @@
       "asset_maintenance_not_scheduled": "Only scheduled repairs or maintenance can be started.",
       "asset_maintenance_closed": "This repair or maintenance is already finished and cannot be changed.",
       "asset_disposal_invalid_state": "This disposal request cannot be handled that way now. Refresh the page to see where it stands.",
-      "asset_disposal_reason_required": "Rejecting a disposal request needs a reason. Write it in the note."
+      "asset_disposal_reason_required": "Rejecting a disposal request needs a reason. Write it in the note.",
+      "waste_outgoing_delegate_not_on_project": "That person does not work on this project, so they could not open this application. Choose someone from this project in the list.",
+      "project_archived_read_only": "This project is archived. Its details can be read but not changed. Close this page and go back to the project list.",
+      "project_archive_use_action": "Archived cannot be chosen here. Set the status to Completed and save, then press Archive project on the project page.",
+      "project_status_move_refused": "The project cannot move straight from its current status to the one chosen. Open the edit page again and choose from the status list.",
+      "hazard_not_awaiting_check": "Someone has already dealt with this item, so it is no longer waiting to be checked. Refresh the page to see where it is now.",
+      "hazard_confirmed_by_other": "{incident_no} is checked or returned by the person who confirms it {confirmer}. You can read it but not act on it; contact them if needed.",
+      "visitor_host_required": "Choose who the visitor is here to see, then press confirm.",
+      "visitor_host_not_on_project": "That person does not work on this project. Choose someone from this project in the list."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -11768,6 +11778,10 @@
       "add": "Upload letter",
       "missing": "Upload the letter first.",
       "confirmNote": "The letter goes at the front of the merged PDF."
+    },
+    "discardConfirm": {
+      "title": "Discard this claim?",
+      "description": "This draft claim is deleted, and the records ticked in it and the letter uploaded to it are no longer part of it. This cannot be undone."
     }
   },
   "multiEngine": {
@@ -13235,7 +13249,7 @@
     },
     "emergency_list": {
       "what": "Who is still inside the site right now, with a number you can call. For a headcount when something has gone wrong.",
-      "who": "Holders of geofence.view.",
+      "who": "Holders of site_access.view.",
       "then": "The list refreshes on its own. Tapping a number dials it.",
       "trouble": "Someone missing from the list has already been scanned out, or never scanned in. The gate events say which."
     },
@@ -13255,7 +13269,7 @@
     },
     "field_tasks": {
       "what": "Jobs sent to a named person on site: where, what, and how many photos it takes to close.",
-      "who": "Holders of project.view; assigning needs task.assign.",
+      "who": "Holders of project.view; assigning needs field_task.manage.",
       "need": "A task needs the project, a title and the site person it goes to.",
       "then": "It appears on that person's phone immediately, with the photo count it needs.",
       "trouble": "Submitted work coming back rejected repeatedly usually means the instruction was too vague. The site sees only what you typed."
@@ -13270,8 +13284,8 @@
     "hazard_rectification": {
       "what": "Hazards found on site, who has to fix them, and the photo that proves it was fixed.",
       "who": "Holders of both safety.view and project.view.",
-      "need": "Assigning needs the person responsible, a deadline and the location. Reporting it done needs what was completed. Signing it off needs an acceptance photo and a note.",
-      "then": "No acceptance photo, no closure. A hazard is not fixed because someone said so.",
+      "need": "Assigning needs the person responsible, a deadline and the location. Reporting it done needs what was completed and the rectification photos. Checking it needs only a note - no photo.",
+      "then": "The person fixing it on site takes the rectification photos; whoever raised it, or a safety lead, looks at them and then confirms it done or returns it (confirming on the computer asks for the six-digit PIN). A hazard is not fixed because someone said so.",
       "trouble": "Nothing common enough to warn about yet."
     },
     "integrations": {
@@ -13450,7 +13464,7 @@
     },
     "schedule": {
       "what": "The construction schedule: pick a plan to see three figures (progress, completed, delayed), then the Gantt chart and the task list. Export, new plan, import, rename, archive and plan versions are under More.",
-      "who": "Holders of both progress.view and project.view.",
+      "who": "Holders of both schedule.view and project.view.",
       "need": "An import needs an .xlsx file, a plan name and a revision name; revising a confirmed plan also needs the reason for the change. A task added by hand needs its WBS, name, planned start and planned finish.",
       "then": "A new plan starts as a draft; add its tasks, then Confirm and lock. After that, enter each task's Done % with Confirm progress. Delayed means past the planned finish and not done; a task done after its planned finish shows Finished late and is not counted as delayed.",
       "trouble": "An import that will not go through is usually missing a mapping: WBS, task name and planned start are required, plus either planned finish or a duration."
@@ -13471,7 +13485,7 @@
     },
     "site_gps": {
       "what": "Where your people are on site right now.",
-      "who": "Holders of geofence.view.",
+      "who": "Holders of field_position.view.",
       "need": "Pick a project first.",
       "then": "The map shows the last position each person reported.",
       "trouble": "Nobody on the map: phone browsers stop reporting when the screen locks, so gaps are normal. A gap is drawn as a gap - the system will not join two points into a road nobody travelled."
@@ -13597,6 +13611,13 @@
       "who": "Project managers, who see only the field staff on their own projects. Head office can use it too.",
       "then": "Send the link and the 6-digit PIN to the person; they open the link on their phone, enter the PIN and can start working.",
       "trouble": "A project is missing: ask head office to put you on it. \"Mobile number already in use\": delete the person on their old project first."
+    },
+    "company_settings_trace": {
+      "what": "Your own company's details: name, address, logo and home background, the emergency contact; the language, date and time formats and how long file links last; and the record of the head office and branches.",
+      "who": "Company administrators and head office: company_settings.view to read, company_settings.manage to change.",
+      "need": "Change a section, then press that section's own Save.",
+      "then": "The name and logo are printed on reports, QR records and project files; the emergency contact shows on the emergency list and on the gate guard's phone.",
+      "trouble": "Permissions, QR rules, notifications, GPS, security and record keeping are managed by MSE and cannot be changed here; contact MSE to change them."
     }
   },
   "partners": {
@@ -16220,7 +16241,7 @@
       "new": "New branch",
       "removeBody": "The branch will no longer be available for new records. Existing history is retained.",
       "removeTitle": "Remove this branch?",
-      "subtitle": "Keep the real office and branch locations used by maps and reports.",
+      "subtitle": "A record of the head office and branch offices, with their addresses and locations.",
       "title": "Branches and headquarters"
     },
     "categories": {
@@ -16994,6 +17015,11 @@
       "loading": "Preparing the sample…",
       "caption": "A4 sample: the header is exactly as on your exported PDFs; the content under it is only an example.",
       "pdfWhat": "The sample PDF"
+    },
+    "emergencyContact": {
+      "label": "Emergency contact:",
+      "call": "Call {phone}",
+      "what": "the emergency contact"
     }
   },
   "siteDisposal": {
@@ -17775,7 +17801,8 @@
       "scanHelp": "The phone camera opens the Field Staff material screen. An already signed-in worker is taken straight to the matched supplier.",
       "share": "Share",
       "shareText": "Supplier QR code for {supplier}",
-      "title": "Supplier QR code"
+      "title": "Supplier QR code",
+      "rowLabel": "QR code"
     },
     "remove": {
       "confirm": "Remove",
@@ -18157,7 +18184,7 @@
       "projects": "Project access",
       "responsibilities": "Project responsibilities",
       "role": "Role and permissions",
-      "tasks": "Unfinished site tasks",
+      "tasks": "Unfinished site tasks and requests (MR) waiting for them",
       "title": "What should be transferred"
     },
     "warning": {
@@ -18487,7 +18514,8 @@
       "help": "Choose a recycler bound to this project. The order for {reference} is sent to their system immediately.",
       "noPartners": "No recycler is bound to this project yet. Bind one under Environmental materials › Recycler partners before raising an order.",
       "partnersFailed": "The recycling partners could not be loaded, so the picker is empty. That does not mean you have none.",
-      "title": "Assign a recycler"
+      "title": "Assign a recycler",
+      "noPartnersAskHeadOffice": "No recycler is bound to this project yet. Binding one is done by head office: ask head office to bind a recycler to this project, then come back to arrange it."
     },
     "reassign": {
       "arm": "I want to take this order back",
@@ -19342,7 +19370,8 @@
     "reminder": {
       "rule": "This claim is not finished yet. Every {hours} hours the system reminds the person who submitted it and the people who must act, until it is confirmed paid (or rejected, or withdrawn).",
       "sent": "{count, plural, one {Reminded # time} other {Reminded # times}}, last: {at}."
-    }
+    },
+    "withdrawn": "The applicant withdrew this claim. The record is kept and nothing more needs doing. To claim again, the applicant submits a new one."
   },
   "moduleHub": {
     "nothingToOpen": "There is nothing in this module you can open."
@@ -19531,7 +19560,8 @@
       "forwardHistory": "Sent on",
       "headOfficeReviewer": "Head office approver",
       "materialName": "Material name",
-      "materials": "Materials"
+      "materials": "Materials",
+      "onBehalfHistory": "Decided by head office for the manager"
     },
     "action": {
       "view": "View",
@@ -19675,7 +19705,13 @@
       "manager": "Waiting for the project manager"
     },
     "forwarded": "Sent to head office by {by} on {at}",
-    "managerHelp": "A site request sent to you: choose who at head office approves it and press “Send to head office”, or return it."
+    "managerHelp": "A site request sent to you: choose who at head office approves it and press “Send to head office”, or return it.",
+    "waitingForManager": "Waiting for the project manager {name} to check it. Head office approves it once he sends it on.",
+    "onBehalf": {
+      "help": "The project manager {manager}'s account is suspended, so head office decides this one for him: approve or return it here. The record will say it was decided by head office.",
+      "approved": "{by} approved it for {manager} (head office) · {at}",
+      "returned": "{by} returned it for {manager} (head office) · {at}"
+    }
   },
   "materialLines": {
     "title": "Materials",
@@ -20404,7 +20440,8 @@
       "label": "Normal hours a day",
       "save": "Save",
       "failed": "Could not save. Please try again.",
-      "current": "Set {at} by {name}"
+      "current": "Set {at} by {name}",
+      "chooseProject": "Each project has its own daily normal hours: choose a project above first."
     },
     "records": {
       "what": "the records",
@@ -21413,7 +21450,12 @@
       "stop": "Stop",
       "lastUsed": "Last used {at}",
       "failed": "Could not save. Please try again.",
-      "chooseProject": "Choose a project at the top of the page to make a link."
+      "chooseProject": "Choose a project at the top of the page to make a link.",
+      "askReissue": "Sending again stops the link the driver has now at once; you then send him the new one. Send again?",
+      "askStop": "Once stopped, this driver can no longer clock on or off with this link. Stop it?",
+      "confirmReissue": "Yes, send again",
+      "confirmStop": "Yes, stop it",
+      "working": "Working on it, please wait."
     },
     "tabs": {
       "clock": "Clock in / out",

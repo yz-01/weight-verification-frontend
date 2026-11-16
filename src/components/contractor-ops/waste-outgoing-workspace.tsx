@@ -886,9 +886,10 @@ function HandOverDialog({
   const [person, setPerson] = useState(record.delegated_to ?? "");
   const [note, setNote] = useState("");
   const [error, setError] = useState("");
+  // Only who can open this application's project (JB206-4).
   const people = useQuery({
-    queryKey: ["waste-outgoing", "delegate-options"],
-    queryFn: getWasteOutgoingDelegateOptions,
+    queryKey: ["waste-outgoing", "delegate-options", record.id],
+    queryFn: () => getWasteOutgoingDelegateOptions(record.id),
   });
   const save = useMutation({
     mutationFn: () =>
@@ -1374,6 +1375,7 @@ function AssignDialog({
   onSaved: () => void;
 }) {
   const t = useTranslations("wasteOutgoing");
+  const mayBind = useAuth().can("partnership.manage");
   const [recycler, setRecycler] = useState("");
   const [weight, setWeight] = useState("");
   const [description, setDescription] = useState("");
@@ -1427,7 +1429,10 @@ function AssignDialog({
               <Skeleton className="h-10 w-full" />
             ) : rows.length === 0 ? (
               <p className="rounded-lg border border-dashed border-panel-border bg-muted/30 p-3 text-xs text-muted-foreground">
-                {t("assign.noPartners")}
+                {/* Binding a recycler is head office's (`partnership.manage`,
+                    group B): a project user is told whom to ask (JB206-8,
+                    Lucas 11-16 audit). */}
+                {t(mayBind ? "assign.noPartners" : "assign.noPartnersAskHeadOffice")}
               </p>
             ) : (
               <Select value={recycler} onValueChange={setRecycler}>

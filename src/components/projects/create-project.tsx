@@ -41,12 +41,24 @@ import {
   updateProject,
 } from "@/services/contractor.service";
 
-const STATUSES: ProjectStatus[] = [
-  "PLANNING",
-  "ACTIVE",
-  "SUSPENDED",
-  "COMPLETED",
-];
+/**
+ * Where a project's status may go from here: the server's
+ * `PROJECT_STATUS_TRANSITIONS` - nothing out of 已完工, and 已归档 only by
+ * the project page's 【归档项目】 - so 修改 offers only the moves it will
+ * save, the current status first. It offered all four and the server
+ * refused in English (JB206-7, Lucas 11-16 audit).
+ */
+const STATUS_MOVES: Record<ProjectStatus, readonly ProjectStatus[]> = {
+  PLANNING: ["ACTIVE", "SUSPENDED"],
+  ACTIVE: ["SUSPENDED", "COMPLETED"],
+  SUSPENDED: ["ACTIVE", "COMPLETED"],
+  COMPLETED: [],
+  ARCHIVED: [],
+};
+
+export function projectStatusOptions(current: ProjectStatus): ProjectStatus[] {
+  return [current, ...(STATUS_MOVES[current] ?? [])];
+}
 
 /**
  * 电子围栏半径 a new project starts at when the company's own default cannot
@@ -380,7 +392,7 @@ export function CreateProject({ project }: { project?: Project }) {
                 <SelectField
                   field={field as unknown as BoundField}
                   label={t("projects.field.status")}
-                  options={STATUSES.map((status) => ({
+                  options={projectStatusOptions(project?.status ?? "ACTIVE").map((status) => ({
                     value: status,
                     label: t(`projects.status.${status}`),
                   }))}

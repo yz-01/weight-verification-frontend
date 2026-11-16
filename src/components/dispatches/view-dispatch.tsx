@@ -124,6 +124,25 @@ function AddDispatchPhoto({
  * Label and value pairs inside one of the dispatch's own panels, drawn like
  * the shell's information grid so every panel of the popup reads the same.
  */
+/** The query this page reads a dispatch with; a new photo refreshes it. */
+export const dispatchDetailKey = (id: string) => ["dispatches", "detail", id] as const;
+
+/**
+ * A recycler's code in the reader's words - 扣杂's kind and state, the
+ * settlement's state, the payment's method - or the code itself when the
+ * catalogue has none. The contractor's dispatch page read 「MOISTURE ·
+ * PENDING」 (JB206-8, Lucas 11-16 audit).
+ */
+export function codeWords(
+  t: { (key: string): string; has(key: string): boolean },
+  prefix: string,
+  code: string | null | undefined,
+): string | null {
+  if (!code) return null;
+  const key = `${prefix}.${code}`;
+  return t.has(key) ? t(key) : code;
+}
+
 function PanelFacts({ facts }: { facts: ShellFact[] }) {
   return (
     <dl className="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2">
@@ -165,7 +184,7 @@ export function ViewDispatch({
   const [cancelling, setCancelling] = useState(false);
   const [reason, setReason] = useState("");
   const { data, isLoading, isLoadingError } = useQuery({
-    queryKey: ["dispatches", "detail", id],
+    queryKey: dispatchDetailKey(id),
     queryFn: () => getDispatch(id),
   });
   const tracking = useQuery({
@@ -323,7 +342,10 @@ export function ViewDispatch({
               dispatchId={data.id}
               onAdded={() =>
                 void queryClient.invalidateQueries({
-                  queryKey: ["dispatch", data.id],
+                  // The key this page reads (JB206-5, Lucas 11-16 audit):
+                  // `["dispatch", id]` matched nothing, so a new photo
+                  // showed only after F5.
+                  queryKey: dispatchDetailKey(data.id),
                 })
               }
             />
@@ -484,7 +506,7 @@ export function ViewDispatch({
                 <PanelFacts
                   facts={[
                     { label: t("dispatches.field.settlementNo"), value: execution.settlement.settlement_no ?? null },
-                    { label: t("dispatches.field.settlementState"), value: execution.settlement.state ?? null },
+                    { label: t("dispatches.field.settlementState"), value: codeWords(t, "settlements.state", execution.settlement.state) },
                     { label: t("settlements.field.deductionWeight"), value: execution.settlement.deduction_weight_kg ? `${execution.settlement.deduction_weight_kg} kg` : "0 kg" },
                     { label: t("dispatches.field.settledWeight"), value: execution.settlement.settled_weight_kg ? `${execution.settlement.settled_weight_kg} kg` : null },
                     { label: t("dispatches.field.settlementAmount"), value: execution.settlement.total_amount ? `${execution.settlement.currency} ${execution.settlement.total_amount}` : null },
@@ -496,7 +518,7 @@ export function ViewDispatch({
                   <div className="mt-3 divide-y border-y">
                     {execution.settlement.deductions.map((deduction) => (
                       <div key={deduction.id} className="py-2 text-sm">
-                        <p className="font-medium">{deduction.kind} · {t("companies.weightKg", { value: deduction.weight_kg })} · {deduction.state}</p>
+                        <p className="font-medium">{codeWords(t, "deductions.kind", deduction.kind)} · {t("companies.weightKg", { value: deduction.weight_kg })} · {codeWords(t, "deductions.state", deduction.state)}</p>
                         <p className="mt-0.5 text-muted-foreground">{deduction.reason}</p>
                       </div>
                     ))}
@@ -506,7 +528,7 @@ export function ViewDispatch({
                   <div className="mt-3 divide-y border-y">
                     {execution.settlement.payments.map((payment) => (
                       <div key={payment.id} className="flex flex-wrap items-center justify-between gap-2 py-2 text-sm">
-                        <span>{payment.method}{payment.reference ? ` · ${payment.reference}` : ""}</span>
+                        <span>{codeWords(t, "settlements.method", payment.method)}{payment.reference ? ` · ${payment.reference}` : ""}</span>
                         <span className="font-medium tabular-nums">{execution.settlement!.currency} {payment.amount} · {df.date(payment.paid_on)}</span>
                       </div>
                     ))}

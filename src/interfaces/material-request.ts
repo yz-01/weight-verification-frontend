@@ -44,8 +44,13 @@ export interface MaterialRequestDecision {
   /** On `REASSIGNED`: who took it over. */
   decided_by_name: string | null;
   decided_at: string;
-  /** On `REASSIGNED`: who had it before (empty for a request from before D2). */
+  /**
+   * On `REASSIGNED`: who had it before (empty for a request from before D2).
+   * On a 「总部代批」 approve / return: the project manager it was decided for.
+   */
   previous_reviewer_name: string | null;
+  /** 「总部代批」 (JB206-13): head office decided it for an away project manager. */
+  on_behalf?: boolean;
 }
 
 /**
@@ -154,6 +159,12 @@ export interface MaterialRequest extends RecordedBy {
   assigned_reviewer_name: string | null;
   /** 「待项目经理确认」 (I12, ID29): with the project manager, not head office yet. */
   awaiting_manager?: boolean;
+  /**
+   * Whether the person it waits on can still act; `false` at the project
+   * manager's stage lets head office decide it for him (JB206-13). Null when
+   * it names nobody.
+   */
+  assigned_reviewer_active?: boolean | null;
   decided_by_name: string | null;
   decided_at: string | null;
   decision_note: string;

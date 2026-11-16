@@ -423,8 +423,9 @@ export function EquipmentOperatorHours() {
                   {t("siteNo.open")}
                 </Button>
               )}
-              {/* 每日正常工时 (J31): one project's own setting. */}
-              {canAdjust && projectFilterValue(project) ? (
+              {/* 每日正常工时 (J31): one project's own setting - greyed out,
+                  saying why, until a project is picked (JB206-8). */}
+              {canAdjust ? (
                 <EquipmentNormalHoursButton project={projectFilterValue(project)} />
               ) : null}
               {canAdjust && (

@@ -2,7 +2,7 @@
 
 import { Loader2 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 import {
   PackCollectDock,
@@ -33,7 +33,9 @@ import {
   isRouteAllowed,
 } from "@/lib/navigation";
 import { portalLoginPath, redirectWithFallback } from "@/lib/portal";
+import { refusedPageNotice } from "@/lib/refused-page";
 import { canUseRealtime, useOrderRealtime } from "@/hooks/use-order-realtime";
+import { toastRefusal } from "@/services/api-client";
 
 const GLOBAL_REALTIME_KEYS: never[] = [];
 
@@ -58,6 +60,9 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
     user !== null &&
     isDriverOnlyAccount(user.portal, user.permissions, user.is_superuser);
   const isFieldStaff = user?.is_field_staff ?? false;
+  // The refused address already toasted, so a re-run before the move lands
+  // does not say it twice (JB206-8).
+  const toldRefused = useRef("");
   // One stream at the signed-in shell keeps every list/detail screen current,
   // including pages that do not have a feature-specific subscription. The
   // same stream brings the hazard pop-up cards (C3).
@@ -94,6 +99,11 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       user.is_superuser,
     )
     ) {
+      const notice = refusedPageNotice(pathname);
+      if (notice && toldRefused.current !== pathname) {
+        toldRefused.current = pathname;
+        toastRefusal(notice);
+      }
       redirectWithFallback(
         router,
         firstAllowedDashboardPath(user.portal, user.features),
