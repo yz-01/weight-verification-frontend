@@ -1959,6 +1959,16 @@ export function linkErrorText(
   return fallback;
 }
 
+/**
+ * Whether a photo failed because the phone gave no position (JB204-6, Lucas
+ * 11-16 audit): location off, or not allowed for this page. The driver read
+ * 「请检查网络」 and checked his signal, not his location setting.
+ */
+export function isLocationRefusal(reason: unknown): boolean {
+  if (typeof GeolocationPositionError !== "undefined" && reason instanceof GeolocationPositionError) return true;
+  return reason instanceof Error && reason.message === "location_unavailable";
+}
+
 function useLinkErrorText() {
   const tApi = useTranslations("errors.api");
   return (reason: unknown, fallback: string) =>
@@ -2014,7 +2024,7 @@ export function ExternalDisposalWorkspace({ token }: { token: string }) {
       await addExternalDisposalEvidence(token, { kind, image, ...location, client_event_id: crypto.randomUUID() });
       await taskQuery.refetch();
     } catch (reason) {
-      setError(reasonText(reason, t("error.action")));
+      setError(isLocationRefusal(reason) ? t("error.location") : reasonText(reason, t("error.action")));
     } finally { setUploading(null); }
   };
 

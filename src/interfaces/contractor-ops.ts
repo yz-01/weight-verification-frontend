@@ -448,6 +448,13 @@ export interface MyTaskRow {
   needs_more_work: boolean;
   note: string;
   task_type: FieldTaskType | null;
+  /**
+   * What a field task was made for (JB204-6, Lucas 11-16 audit): a disposal
+   * execution's 「DISPOSAL_EXECUTION」 and its request number, so the phone
+   * can word its title. Absent on a hazard row.
+   */
+  linked_record_type?: string;
+  linked_record_reference?: string;
   assigned_by_name: string;
   last_message: {
     author_name: string;

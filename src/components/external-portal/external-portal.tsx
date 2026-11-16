@@ -97,7 +97,8 @@ export function ExternalPortal({ token }: { token: string }) {
         {data.progress.map((item) => (
           <li key={`${item.title}-${item.reported_at}`} className="flex flex-wrap items-center justify-between gap-3 border-b py-3 last:border-b-0">
             <span className="font-medium">{item.title}</span>
-            <span className="tabular-nums">{item.percent_complete}%</span>
+            {/* A record may carry no percentage (H5/H11): 「—」, not a lone 「%」 (JB204-3, Lucas 11-16 audit). */}
+            <span className="tabular-nums">{item.percent_complete ? `${item.percent_complete}%` : t("common.emptyValue")}</span>
           </li>
         ))}
       </ExternalSection>
