@@ -1330,6 +1330,10 @@
       "notifications": "The notification list",
       "deliveryRecords": "The delivery records",
       "statusRecords": "The status records"
+    },
+    "toast": {
+      "sent": "Sent to {count, plural, one {# person} other {# people}}.",
+      "sentToNobody": "Nothing was sent: this company has no account that can receive notices right now."
     }
   },
   "adminPartnerManagement": {
@@ -1917,7 +1921,8 @@
     "what": {
       "filterOptions": "The report filter choices",
       "history": "The report history"
-    }
+    },
+    "datesBackwards": "The start date cannot be after the end date."
   },
   "adminSales": {
     "action": {
@@ -2260,7 +2265,8 @@
         "saved": "Announcement updated."
       },
       "translations": "Other languages",
-      "translationsHelp": "Left blank, a reader falls back to the English text field by field."
+      "translationsHelp": "Left blank, a reader falls back to the English text field by field.",
+      "mainLanguageHint": "Write the Title and Message below in English: every reader falls back to them. Chinese and Malay go under “Other languages” below."
     },
     "branding": {
       "description": "Used for browser tabs and installed shortcuts when a company has not uploaded its own logo. PNG, JPG and WebP up to 5 MB are supported.",
@@ -2507,7 +2513,12 @@
       "companySaved": "Company setting saved",
       "saved": "Setting saved"
     },
-    "updatedAt": "Last saved: {value}"
+    "updatedAt": "Last saved: {value}",
+    "leave": {
+      "title": "Some settings are not saved",
+      "description": "This page has settings you changed but did not save. If you leave now, those changes are lost.",
+      "confirm": "Leave without saving"
+    }
   },
   "adminTechnicalSupport": {
     "action": {
@@ -11206,6 +11217,25 @@
       "what": {
         "workers": "the worker status",
         "handlers": "the list of job handlers"
+      },
+      "name": {
+        "PLATFORM_MONITOR_SNAPSHOT": "Record how the platform is running",
+        "EXPIRE_CONTRACTOR_SUBSCRIPTIONS": "Stop subscriptions that have run out",
+        "SEND_SUBSCRIPTION_REMINDERS": "Remind about subscriptions running out",
+        "GENERATE_AUTOMATIC_BILLING": "Make SaaS and commission invoices",
+        "PROCESS_PARTNER_AGREEMENTS": "End partner agreements and remind to renew",
+        "PROCESS_ASSET_LIFECYCLE": "Overdue asset loans and maintenance reminders",
+        "NOTIFY_EXPIRED_SITE_ACCESS": "Tell about site passes that have expired",
+        "REFRESH_BUSINESS_TARGETS": "Refresh business target progress and send milestone notices",
+        "RETRY_NOTIFICATION_DELIVERIES": "Send failed notices again",
+        "PUBLISH_ANNOUNCEMENTS": "Publish scheduled announcements",
+        "NOTIFY_OFFLINE_GATEWAYS": "Alert when a weighbridge gateway goes offline",
+        "REMIND_UNREAD_NOTIFICATIONS": "Remind about unread notices",
+        "REMIND_EQUIPMENT_EXPIRY": "Remind about equipment papers running out",
+        "CLOSE_SILENT_PRESENCE": "Close site visits whose phone stopped reporting",
+        "PURGE_WORKER_POSITIONS": "Clear worker locations older than 31 days",
+        "REMIND_SUNDRY_CLAIMS": "Remind about unfinished sundry claims every 48 hours",
+        "REMIND_REMEDIAL_ITEMS": "Remind about remedial items before and after they are due"
       }
     },
     "loadError": "Monitoring data could not be loaded.",
@@ -15597,7 +15627,10 @@
     "viewTitle": "Weighbridge",
     "what": {
       "sites": "The yard list"
-    }
+    },
+    "siteSearch": "Find a yard",
+    "siteSearchPlaceholder": "Type the yard's code, name or city",
+    "siteSearchHint": "The list below shows up to 100 yards; for one not in it, type here and then choose."
   },
   "schedulePlanning": {
     "action": {

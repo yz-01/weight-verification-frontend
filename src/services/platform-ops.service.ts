@@ -194,14 +194,27 @@ export function getNotificationStatusRecords(
   });
 }
 
-export function sendAdminNotification(input: {
+export async function sendAdminNotification(input: {
   company_id: string;
   kind: string;
   title: string;
   message: string;
   channels: Array<"IN_APP" | "EMAIL" | "PUSH">;
 }): Promise<{ sent: number }> {
-  return api.post("/api/notifications/send_notification/", input);
+  const result = await api.post<{ sent: number }>(
+    "/api/notifications/send_notification/",
+    input,
+  );
+  // JB205-10 (Lucas 11-16 audit): the form only emptied itself, which
+  // looked the same as nothing happening. Say how many it reached - and
+  // plainly when that is nobody.
+  toastSuccess(
+    result.sent > 0
+      ? "adminNotifications.toast.sent"
+      : "adminNotifications.toast.sentToNobody",
+    { count: result.sent },
+  );
+  return result;
 }
 
 export function getAdminDashboard(): Promise<AdminDashboardData> {

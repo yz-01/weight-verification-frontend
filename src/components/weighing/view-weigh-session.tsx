@@ -21,6 +21,7 @@ import {
   FormSkeleton,
   LoadErrorCard,
 } from "@/components/shared/form-shell";
+import { useDismissDialog } from "@/components/shared/dialog-navigation";
 import { RecordExportButton } from "@/components/shared/record-export-button";
 import { useAuth } from "@/components/providers/auth-provider";
 import { PrintTicketButton } from "@/components/weighing/print-ticket-button";
@@ -81,6 +82,11 @@ export function ViewWeighSession({ id }: { id: string }) {
   const formatter = useFormatter();
   const queryClient = useQueryClient();
   const { can } = useAuth();
+  // 「返回」 goes back to the list this session was opened from - 实时称重,
+  // 异常, 查询… - when there is one (JB205-10, Lucas 11-16 audit). /weighing
+  // lands MSE staff on 地磅登记, which is where it always sent them; it is
+  // still where a session opened on its own (a link, a new tab) goes back to.
+  const goBack = useDismissDialog("/weighing", "page");
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [reweighOpen, setReweighOpen] = useState(false);
   const [voidOpen, setVoidOpen] = useState(false);
@@ -157,6 +163,7 @@ export function ViewWeighSession({ id }: { id: string }) {
       <DetailHeader
         backHref="/weighing"
         backLabel={t("weighing.title")}
+        onBack={goBack}
         action={
           <div className="flex flex-wrap justify-end gap-2">
             {record.ticket_status === "CONFIRMED" ? (

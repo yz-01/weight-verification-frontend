@@ -157,12 +157,29 @@ function AdminNotificationList({
   const t = useTranslations("adminNotifications");
   const df = useDateFormat();
   const queryClient = useQueryClient();
-  const [search, setSearch] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("");
-  const [company, setCompany] = useState("");
-  const [status, setStatus] = useState("");
-  const [dateFrom, setDateFrom] = useState("");
-  const [dateTo, setDateTo] = useState("");
+  // JB205-7 (Lucas 11-16 audit): 退回待处理 and 移除 are
+  // `platform_settings.manage` on the server; a read-only role only looks.
+  const { can } = useAuth();
+  const canManage = can("platform_settings.manage");
+  // JB205-9: the list stopped at its first 100 rows with no way further.
+  const [page, setPage] = useState(1);
+  const [search, setSearchValue] = useState("");
+  const [categoryFilter, setCategoryFilterValue] = useState("");
+  const [company, setCompanyValue] = useState("");
+  const [status, setStatusValue] = useState("");
+  const [dateFrom, setDateFromValue] = useState("");
+  const [dateTo, setDateToValue] = useState("");
+  // A new filter starts again from its first page.
+  const firstPage = <T,>(set: (value: T) => void) => (value: T) => {
+    set(value);
+    setPage(1);
+  };
+  const setSearch = firstPage(setSearchValue);
+  const setCategoryFilter = firstPage(setCategoryFilterValue);
+  const setCompany = firstPage(setCompanyValue);
+  const setStatus = firstPage(setStatusValue);
+  const setDateFrom = firstPage(setDateFromValue);
+  const setDateTo = firstPage(setDateToValue);
   const [pendingRemoval, setPendingRemoval] = useState<AdminNotificationRow | null>(null);
   const [selected, setSelected] = useState<AdminNotificationRow | null>(null);
   const companies = useQuery({
@@ -172,6 +189,7 @@ function AdminNotificationList({
   });
   const params = useMemo(
     () => ({
+      page,
       page_size: 100,
       category: (category ?? categoryFilter) || undefined,
       search: search || undefined,
@@ -180,7 +198,7 @@ function AdminNotificationList({
       date_from: dateFrom || undefined,
       date_to: dateTo || undefined,
     }),
-    [category, categoryFilter, company, dateFrom, dateTo, search, status],
+    [category, categoryFilter, company, dateFrom, dateTo, page, search, status],
   );
   const notifications = useQuery({
     queryKey: ["admin-notifications", params],
@@ -302,7 +320,7 @@ function AdminNotificationList({
                       >
                         <Eye />
                       </Button>
-                      {!row.is_outstanding && (
+                      {canManage && !row.is_outstanding && (
                         <Button
                           size="icon"
                           variant="ghost"
@@ -313,14 +331,16 @@ function AdminNotificationList({
                           <Undo2 />
                         </Button>
                       )}
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        title={t("action.remove")}
-                        onClick={() => setPendingRemoval(row)}
-                      >
-                        <Trash2 />
-                      </Button>
+                      {canManage && (
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          title={t("action.remove")}
+                          onClick={() => setPendingRemoval(row)}
+                        >
+                          <Trash2 />
+                        </Button>
+                      )}
                     </div>
                   </TableCell>
                 )}
@@ -343,6 +363,7 @@ function AdminNotificationList({
           </TableBody>
         </Table>
       </div>
+      <Pager page={page} data={notifications.data} onPage={setPage} />
       <ConfirmDialog
         open={pendingRemoval !== null}
         onOpenChange={(open) => !open && setPendingRemoval(null)}
@@ -682,22 +703,28 @@ function NotificationRecords() {
   const system = useTranslations("adminSystemSettings");
   const df = useDateFormat();
   const [recordType, setRecordType] = useState<"DELIVERY" | "STATUS">("DELIVERY");
+  // JB205-9 (Lucas 11-16 audit): both lists stopped at their first 100 rows.
+  const [page, setPage] = useState(1);
+  const showRecords = (type: "DELIVERY" | "STATUS") => {
+    setRecordType(type);
+    setPage(1);
+  };
   const delivery = useQuery({
-    queryKey: ["notification-records", "delivery"],
-    queryFn: () => getNotificationDeliveryRecords({ page_size: 100 }),
+    queryKey: ["notification-records", "delivery", page],
+    queryFn: () => getNotificationDeliveryRecords({ page, page_size: 100 }),
     enabled: recordType === "DELIVERY",
   });
   const statuses = useQuery({
-    queryKey: ["notification-records", "status"],
-    queryFn: () => getNotificationStatusRecords({ page_size: 100 }),
+    queryKey: ["notification-records", "status", page],
+    queryFn: () => getNotificationStatusRecords({ page, page_size: 100 }),
     enabled: recordType === "STATUS",
   });
 
   return (
     <div className="min-h-0 flex-1 space-y-3 overflow-y-auto">
       <div className="flex flex-wrap gap-2">
-        <Button variant={recordType === "DELIVERY" ? "default" : "outline"} onClick={() => setRecordType("DELIVERY")}>{t("record.delivery")}</Button>
-        <Button variant={recordType === "STATUS" ? "default" : "outline"} onClick={() => setRecordType("STATUS")}>{t("record.status")}</Button>
+        <Button variant={recordType === "DELIVERY" ? "default" : "outline"} onClick={() => showRecords("DELIVERY")}>{t("record.delivery")}</Button>
+        <Button variant={recordType === "STATUS" ? "default" : "outline"} onClick={() => showRecords("STATUS")}>{t("record.status")}</Button>
       </div>
       <div className="overflow-auto surface-panel rounded-xl">
         <Table>
@@ -752,6 +779,58 @@ function NotificationRecords() {
                 ))}
           </TableBody>
         </Table>
+      </div>
+      <Pager
+        page={page}
+        data={recordType === "DELIVERY" ? delivery.data : statuses.data}
+        onPage={setPage}
+      />
+    </div>
+  );
+}
+
+/**
+ * 上一页 / 下一页 under a list, as the QR and CWE registers have (JB205-9).
+ * Hidden while the list fits on one page, so nothing changes for a short one.
+ */
+function Pager({
+  page,
+  data,
+  onPage,
+}: {
+  page: number;
+  data?: { count: number; page_size: number; total_pages: number };
+  onPage: (page: number) => void;
+}) {
+  const common = useTranslations("common");
+  const table = useTranslations("table");
+  if (!data || data.total_pages <= 1) return null;
+  const from = (page - 1) * data.page_size + 1;
+  const to = Math.min(page * data.page_size, data.count);
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
+      <span className="text-muted-foreground">
+        {table("showing", { from, to, total: data.count })}
+      </span>
+      <div className="flex gap-2">
+        <Button
+          size="sm"
+          variant="outline"
+          disabledReason={page <= 1 ? common("alreadyFirstPage") : undefined}
+          disabled={page <= 1}
+          onClick={() => onPage(page - 1)}
+        >
+          {table("previous")}
+        </Button>
+        <Button
+          size="sm"
+          variant="outline"
+          disabledReason={page >= data.total_pages ? common("alreadyLastPage") : undefined}
+          disabled={page >= data.total_pages}
+          onClick={() => onPage(page + 1)}
+        >
+          {table("next")}
+        </Button>
       </div>
     </div>
   );

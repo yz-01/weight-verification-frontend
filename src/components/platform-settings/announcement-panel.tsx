@@ -279,6 +279,12 @@ function AnnouncementEditor({
           <DialogDescription>{t("editorHelp")}</DialogDescription>
         </DialogHeader>
 
+        {/* JB205-10 (Lucas 11-16 audit): the two fields below are the English
+            text every reader falls back to; the Chinese goes under 「其他语言」,
+            which a reader of this form had no way to know. */}
+        <p className="rounded-lg border bg-muted/30 px-3 py-2 text-sm">
+          {t("mainLanguageHint")}
+        </p>
         <FieldWrapper label={t("field.title")} required>
           <Input
             value={form.title}

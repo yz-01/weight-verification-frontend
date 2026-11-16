@@ -8,6 +8,7 @@ import { useFormatter, useTranslations } from "next-intl";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
+import { useAuth } from "@/components/providers/auth-provider";
 import { exportedReportName } from "@/components/reports/exported-report-name";
 import {
   ArchivedReportActions,
@@ -140,6 +141,12 @@ function ReportPanel({
   const [company, setCompany] = useState("");
   const [project, setProject] = useState("");
   const [state, setState] = useState("");
+  // JB205-7 (Lucas 11-16 audit): the file - 预览, 打印 and 导出 alike - is
+  // made by the export endpoint, which needs `report.export`.
+  const { can } = useAuth();
+  // JB205-10: the server refuses a start after the end, and the screen used
+  // to say only 「无法加载报表」. Not asked at all now; said under the dates.
+  const backwards = Boolean(dateFrom && dateTo && dateFrom > dateTo);
   const options = useQuery({
     queryKey: ["admin-reports", "options"],
     queryFn: getAdminReportFilterOptions,
@@ -160,6 +167,7 @@ function ReportPanel({
     queryFn: () => getAdminReport(filters),
     // An aggregation: refreshed by the person, not by the realtime layer (S1).
     meta: NOT_LIVE,
+    enabled: !backwards,
   });
   const exportMutation = useMutation({
     mutationFn: (exportFormat: "PDF" | "EXCEL") =>
@@ -233,20 +241,27 @@ function ReportPanel({
         />
         <DateFilter label={t("filter.dateFrom")} value={dateFrom} onChange={setDateFrom} />
         <DateFilter label={t("filter.dateTo")} value={dateTo} onChange={setDateTo} />
+        {backwards && (
+          <p role="alert" className="basis-full text-sm text-destructive">
+            {t("datesBackwards")}
+          </p>
+        )}
         <QueryFailedNote query={options} what={t("what.filterOptions")} className="basis-full" />
       </FilterBar>
 
-      <div className="flex flex-wrap justify-end gap-2">
-        {/* 预览 · 打印 · 导出 · 发送 (PDF 统一操作规则). */}
-        <ExportButton
-          onExport={(format) => exportMutation.mutateAsync(format === "pdf" ? "PDF" : "EXCEL")}
-          disabled={!report.data}
-          disabledReason={common("noReportYet")}
-          title={t(`reportType.${reportType}`)}
-        />
-      </div>
+      {can("report.export") && (
+        <div className="flex flex-wrap justify-end gap-2">
+          {/* 预览 · 打印 · 导出 · 发送 (PDF 统一操作规则). */}
+          <ExportButton
+            onExport={(format) => exportMutation.mutateAsync(format === "pdf" ? "PDF" : "EXCEL")}
+            disabled={!report.data || backwards}
+            disabledReason={backwards ? t("datesBackwards") : common("noReportYet")}
+            title={t(`reportType.${reportType}`)}
+          />
+        </div>
+      )}
 
-      {report.isError ? (
+      {backwards ? null : report.isError ? (
         <div className="surface-panel rounded-xl px-6 py-12 text-center text-sm text-muted-foreground">
           {t("loadError")}
         </div>

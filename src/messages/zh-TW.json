@@ -1330,6 +1330,10 @@
       "notifications": "通知列表",
       "deliveryRecords": "發送記錄",
       "statusRecords": "狀態記錄"
+    },
+    "toast": {
+      "sent": "已發送給 {count} 人。",
+      "sentToNobody": "沒有發出去：這家公司現在沒有可以收通知的帳號。"
     }
   },
   "adminPartnerManagement": {
@@ -1917,7 +1921,8 @@
     "what": {
       "filterOptions": "報表篩選選項",
       "history": "報表歷史記錄"
-    }
+    },
+    "datesBackwards": "開始日期不能晚於結束日期。"
   },
   "adminSales": {
     "action": {
@@ -2260,7 +2265,8 @@
         "saved": "公告已更新。"
       },
       "translations": "其他語言",
-      "translationsHelp": "留空的話，該語言的讀者會逐欄位退回英文。"
+      "translationsHelp": "留空的話，該語言的讀者會逐欄位退回英文。",
+      "mainLanguageHint": "下面的「標題」和「內容」請寫英文，這是每位讀者的預設內容；中文請在下面的「其他語言」裡填寫。"
     },
     "branding": {
       "description": "當公司沒有上傳自己的 Logo 時，瀏覽器標籤和添加到桌面的快捷方式會使用此圖標。支持 5 MB 以內的 PNG、JPG 和 WebP。",
@@ -2507,7 +2513,12 @@
       "companySaved": "公司設置已保存",
       "saved": "設置已保存"
     },
-    "updatedAt": "最後保存：{value}"
+    "updatedAt": "最後保存：{value}",
+    "leave": {
+      "title": "還有設定沒有保存",
+      "description": "這一頁有改過、還沒按「保存」的設定。現在離開的話，這些改動不會保存。",
+      "confirm": "離開，不保存"
+    }
   },
   "adminTechnicalSupport": {
     "action": {
@@ -11206,6 +11217,25 @@
       "what": {
         "workers": "工作進程狀態",
         "handlers": "任務處理器列表"
+      },
+      "name": {
+        "PLATFORM_MONITOR_SNAPSHOT": "記錄平台運行狀況",
+        "EXPIRE_CONTRACTOR_SUBSCRIPTIONS": "到期的訂閱自動停用",
+        "SEND_SUBSCRIPTION_REMINDERS": "發送訂閱快到期的提醒",
+        "GENERATE_AUTOMATIC_BILLING": "自動開 SaaS 和佣金帳單",
+        "PROCESS_PARTNER_AGREEMENTS": "合作協議到期處理和續約提醒",
+        "PROCESS_ASSET_LIFECYCLE": "資產借用逾期和保養提醒",
+        "NOTIFY_EXPIRED_SITE_ACCESS": "通知已過期的通行證",
+        "REFRESH_BUSINESS_TARGETS": "刷新業務目標進度並發達標提醒",
+        "RETRY_NOTIFICATION_DELIVERIES": "重新發送沒發出去的通知",
+        "PUBLISH_ANNOUNCEMENTS": "按時發布系統公告",
+        "NOTIFY_OFFLINE_GATEWAYS": "地磅網關離線提醒",
+        "REMIND_UNREAD_NOTIFICATIONS": "未讀通知提醒",
+        "REMIND_EQUIPMENT_EXPIRY": "設備證件快到期提醒",
+        "CLOSE_SILENT_PRESENCE": "結束手機已沒有回報的在場記錄",
+        "PURGE_WORKER_POSITIONS": "清除 31 天以前的人員定位",
+        "REMIND_SUNDRY_CLAIMS": "雜費報銷每 48 小時提醒",
+        "REMIND_REMEDIAL_ITEMS": "整改事項到期前和逾期提醒"
       }
     },
     "loadError": "無法加載監控數據。",
@@ -15597,7 +15627,10 @@
     "viewTitle": "地磅詳情",
     "what": {
       "sites": "回收場列表"
-    }
+    },
+    "siteSearch": "找地點",
+    "siteSearchPlaceholder": "輸入地點編號、名稱或城市",
+    "siteSearchHint": "下面的列表最多顯示 100 個地點；找不到的，在這裡輸入再選。"
   },
   "schedulePlanning": {
     "action": {

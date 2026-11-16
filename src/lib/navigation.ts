@@ -383,7 +383,16 @@ export const PORTAL_NAVIGATION = {
           "/monitoring/records",
         ),
         // The background work behind the recovery and exception counters.
-        child("A6.2.9", "nav.submodule.platformJobs", "/monitoring/jobs"),
+        // Only for platform.maintenance, which its API needs (JB205-5, Lucas
+        // 11-16 audit): a Support Agent monitors but does not run jobs, and
+        // was offered a page that opened on a refusal.
+        child(
+          "A6.2.9",
+          "nav.submodule.platformJobs",
+          "/monitoring/jobs",
+          undefined,
+          "platform.maintenance",
+        ),
       ],
     ),
     item(
@@ -498,11 +507,18 @@ export const PORTAL_NAVIGATION = {
           "nav.submodule.apiGatewaySettings",
           "/system-settings/api-gateway",
         ),
+        // 系统集成 under 系统设置, for whoever may read it (JB205-5, Lucas
+        // 11-16 audit). It asked for the `integrations` feature, which the
+        // MSE Admin portal never has (only the builder and recycler portals
+        // do), so it was never shown and the page was reached only through
+        // 「管理安全连接」. The builder's and recycler's own entries are
+        // separate items and are not touched.
         child(
           "11.2.8A",
           "nav.submodule.integrationSettings",
           "/integrations",
-          "integrations",
+          undefined,
+          "integration.view",
         ),
         child(
           "11.2.9",

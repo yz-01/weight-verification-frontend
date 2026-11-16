@@ -23,6 +23,7 @@ import { useFormatter, useTranslations } from "next-intl";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
+import { useAuth } from "@/components/providers/auth-provider";
 import {
   EmptyState,
   FieldWrapper,
@@ -131,6 +132,13 @@ export function MonitoringWorkspace({
   const common = useTranslations("common");
   const df = useDateFormat();
   const queryClient = useQueryClient();
+  // JB205-5 (Lucas 11-16 audit): 后台任务 reads and runs the job table,
+  // which is `platform.maintenance`; offered as a card to whoever only
+  // monitors, it opened on a refusal. The menu row follows the same rule.
+  const { can } = useAuth();
+  const modules = SUBMODULES.filter(
+    (module) => module.section !== "jobs" || can("platform.maintenance"),
+  );
   const [serviceSearch, setServiceSearch] = useState("");
   const overview = useQuery({
     queryKey: ["monitoring", "overview"],
@@ -176,7 +184,7 @@ export function MonitoringWorkspace({
         <div className="space-y-4">
           {overview.data && <MonitoringSummary data={overview.data} />}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {SUBMODULES.map((module) => (
+            {modules.map((module) => (
               <MonitoringModuleLink
                 key={module.section}
                 section={module.section}
@@ -408,6 +416,7 @@ function SectionContent({
 }) {
   const t = useTranslations("monitoring");
   const format = useFormatter();
+  const df = useDateFormat();
 
   if (section === "live-platform") {
     const needle = serviceSearch.trim().toLowerCase();
@@ -633,7 +642,8 @@ function SectionContent({
                       ? t(`integrationStatus.${row.status}`)
                       : row.status}
                   </TableCell>
-                  <TableCell>{row.last_success_at ?? "-"}</TableCell>
+                  {/* JB205-10 (Lucas 11-16 audit): a date, not the raw ISO text. */}
+                  <TableCell>{row.last_success_at ? df.dateTime(row.last_success_at) : "-"}</TableCell>
                   <TableCell className="max-w-64 truncate">
                     {row.last_error || "-"}
                   </TableCell>
@@ -782,7 +792,15 @@ function JobsPanel() {
                           setSelected(selected === job.id ? "" : job.id)
                         }
                       >
-                        <span className="font-medium">{job.name}</span>
+                        {/* JB205-10 (Lucas 11-16 audit): the seeded jobs are
+                            named in English by their migrations; a known one
+                            is named in the reader's language, the code stays
+                            small underneath. */}
+                        <span className="font-medium">
+                          {job.company === null && t.has(`name.${job.code}`)
+                            ? t(`name.${job.code}`)
+                            : job.name}
+                        </span>
                         <span className="block font-mono text-xs text-muted-foreground">
                           {job.handler}
                         </span>
@@ -1694,10 +1712,15 @@ function EventLedger({ exceptionsOnly }: { exceptionsOnly: boolean }) {
                 <TableCell>{df.dateTime(event.occurred_at)}</TableCell>
                 <TableCell>{event.source}</TableCell>
                 <TableCell className="max-w-80 whitespace-normal">
-                  <p className="font-medium">{event.event_type}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {event.message || "-"}
-                  </p>
+                  {/* JB205-10 (Lucas 11-16 audit): what happened first, in
+                      words; the code (weighing.gateway_offline) small
+                      underneath for whoever looks it up. */}
+                  <p className="font-medium">{event.message || event.event_type}</p>
+                  {event.message && (
+                    <p className="font-mono text-xs text-muted-foreground">
+                      {event.event_type}
+                    </p>
+                  )}
                 </TableCell>
                 <TableCell>
                   <StatusBadge
