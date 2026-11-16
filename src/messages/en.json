@@ -5485,7 +5485,7 @@
       "passwordHelp": "Your current password protects changes to signing credentials.",
       "pin": "New 6-digit PIN",
       "pinConfirm": "Confirm PIN",
-      "pinHelp": "Enter this six-digit PIN whenever you approve, reject or return an application.",
+      "pinHelp": "This is your six-digit sign-off PIN. The same one is used for Confirm & archive, printing, sending and every decision.",
       "pinMismatch": "The PINs do not match.",
       "pinTitle": "Approval PIN",
       "save": "Save signing credentials",
@@ -5495,7 +5495,8 @@
       "stamp": "Consultant stamp",
       "stampHelp": "Optional until a workflow step explicitly requires it.",
       "subtitle": "Set the personal signature used for traceable project decisions.",
-      "title": "Approval Signature and PIN"
+      "title": "Approval Signature and PIN",
+      "pinKeep": "Your sign-off PIN is already set. Leave these empty to keep it; changing only the signature or stamp needs no new PIN."
     },
     "decision": {
       "APPROVE": "Approve",
@@ -5519,12 +5520,13 @@
       "next": {
         "archived": "This application is complete. The application, signed approval history and final PDF are safely archived.",
         "complete": "The approval decision is complete. The final report is being prepared.",
-        "draft": "Complete the form, link the site photographs and attachments, then submit it for approval.",
+        "draft": "Complete the form and add the site photographs and attachments. Then press Confirm & archive (with your six-digit sign-off PIN), and then Send on the application form.",
         "final": "The approval is complete. Download the final PDF and check its verification record.",
         "review": "This application is waiting for your decision. Review the evidence, then choose an approval result.",
         "revise": "The application was returned. Create a new revision, make the requested changes and submit again.",
         "waiting": "No action is needed from you now. It is waiting at {step}.",
-        "remedialOpen": "Approved, but {count} remedial item(s) are still open. When the work is done, press 「Close it」 under 「Remedial items」 below and add a photo that shows it."
+        "remedialOpen": "Approved, but {count} remedial item(s) are still open. When the work is done, press 「Close it」 under 「Remedial items」 below and add a photo that shows it.",
+        "reviseMade": "A new revision (revision {revision}) has already been made. Open it under Revision history below, make the changes there and send it."
       },
       "nextAction": "What happens next",
       "noRevisions": "No revision history is available.",
@@ -5741,7 +5743,8 @@
         "placeholder": "For example: patch the honeycombing on the west wall.",
         "add": "Add another",
         "remove": "Remove this one"
-      }
+      },
+      "stampMissing": "This step needs your consultant stamp and you have not uploaded one. Press the button below to upload it, then come back to decide."
     },
     "reviewerKind": {
       "CONSULTANT": "Consultant selected on the application",
@@ -5752,7 +5755,8 @@
       "chooseProject": "Choose a project to view its consultant work.",
       "draftUnavailable": "This draft cannot be edited. It may already have been submitted or you no longer have access.",
       "loadError": "This information could not be loaded. Check your project access and try again.",
-      "noApplications": "No consultant applications match this project and search."
+      "noApplications": "No consultant applications match this project and search.",
+      "otherProject": "This application may be on your other project. Choose that project below and it opens."
     },
     "status": {
       "APPROVED": "Approved",
@@ -5881,7 +5885,6 @@
       "makeDefault": "Use as default workflow",
       "name": "Workflow name",
       "noSteps": "No approval steps. Add at least one before using this workflow.",
-      "requireSignature": "Require electronic signature",
       "requireStamp": "Require consultant stamp",
       "reviewer": "Reviewer",
       "reviewerKind": "Who reviews this step",
@@ -5893,7 +5896,12 @@
       "stillOfferedHelp": "Turn off to stop new applications choosing it. Existing ones are untouched.",
       "subtitle": "Set the real approval sequence used by each project's applications.",
       "title": "Consultant Approval Workflows",
-      "typeFixed": "Fixed - applications have already been filed on this workflow."
+      "typeFixed": "Fixed - applications have already been filed on this workflow.",
+      "inactive": "Switched off",
+      "inactiveHelp": "New applications cannot choose this workflow. To use it again, press the pencil and turn on “Still offered”.",
+      "alwaysSigned": "Every decision is signed with the reviewer's e-signature and six-digit sign-off PIN. There is nothing to set here.",
+      "removeStepTitle": "Remove the step “{step}”?",
+      "removeStepBody": "The step leaves the workflow. A workflow with no steps left cannot send the drafts on it."
     },
     "howTo": {
       "title": "How consultant applications work",
@@ -5904,11 +5912,11 @@
       },
       "submit": {
         "title": "Send it to the consultant",
-        "body": "Press Submit on the application. The consultant is notified and it moves to “In approval”. Until then it is a draft and can be edited."
+        "body": "When the draft is complete, press Confirm & archive (with your six-digit sign-off PIN), then Send on the application form. The consultant is notified and it moves to “Pending approval”. Before Confirm & archive the draft can still be edited or deleted."
       },
       "decide": {
         "title": "The consultant approves, rejects or asks for changes",
-        "body": "The consultant signs and enters a PIN in their own account. The result, signature and conversation stay on the application; if changes are asked for, revise and submit again."
+        "body": "The consultant decides in their own account with their e-signature and sign-off PIN. The result, signature and conversation stay on the application. If it comes back for revision, press Create new revision, make the changes, then Confirm & archive and Send again."
       },
       "setupOnce": "Set up once: add the consultant to this project (Consultant settings → Consultant access), otherwise they cannot be chosen on a new application.",
       "openSettings": "Open consultant settings",
@@ -9091,7 +9099,12 @@
       "rain_record_quota_full": "This project has already received its rain records for this period, so this one was not accepted.",
       "rain_void_reason_required": "Write why the record is voided.",
       "rain_record_already_voided": "This rain record is already voided; it cannot be voided again.",
-      "rain_rules_out_of_range": "The number of records must be 1 to 50, and the minutes 5 to 1440."
+      "rain_rules_out_of_range": "The number of records must be 1 to 50, and the minutes 5 to 1440.",
+      "consultant_workflow_last_active": "This is the project's only approval workflow, so it cannot be switched off. To change the route, add another workflow first and make it the default.",
+      "consultant_required_fields_missing": "Required fields still empty on the form ({count}): {fields}. Fill them in, then carry on.",
+      "consultant_required_attachments_missing": "Required attachments not added yet: {count}. Fill every required box under Attachments, then carry on.",
+      "consultant_workflow_no_steps": "This approval workflow has no steps yet, so it cannot be sent. Add a step to it under Consultant Approval Workflows, or choose another workflow on the application.",
+      "consultant_stamp_required": "This step needs your consultant stamp and you have not uploaded one. Upload it under Signature and sign-off PIN first, then come back to decide."
     },
     "backToDashboard": "Back to dashboard",
     "field": {

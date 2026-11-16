@@ -49,6 +49,7 @@ import {
   signingNeeds,
   type Signing,
 } from "@/components/consultant-workflow/consultant-own-form";
+import { ConsultantProjectPicker } from "@/components/consultant-workflow/project-scope-picker";
 import { useAuth } from "@/components/providers/auth-provider";
 import { useFinishForm } from "@/components/shared/dialog-navigation";
 import { ExportButton } from "@/components/shared/export-button";
@@ -224,9 +225,22 @@ export function ConsultantApplicationDetail({
     );
   }
   if (query.isLoadingError || !query.data) {
+    // JB203-12 (audit P2-4): a consultant reads one project at a time (the
+    // top bar's), so a notice about an application on their other project
+    // came here. Saying so, with the same picker, is the way forward.
+    const otherProject =
+      user?.account_type === "CONSULTANT" &&
+      (user.consultant_projects ?? []).filter((project) => project.is_current).length > 1;
     return (
       <RecordDetailFrame {...frame} title={t("applications.title")}>
-        <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-10 text-center text-sm text-destructive">{t("state.loadError")}</div>
+        {otherProject ? (
+          <div data-slot="other-project" className="space-y-3 rounded-lg border border-info/30 bg-info/5 p-6 text-sm">
+            <p>{t("state.otherProject")}</p>
+            <ConsultantProjectPicker value={user?.active_project?.project_id ?? ""} onChange={() => undefined} />
+          </div>
+        ) : (
+          <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-10 text-center text-sm text-destructive">{t("state.loadError")}</div>
+        )}
       </RecordDetailFrame>
     );
   }
@@ -253,6 +267,9 @@ export function ConsultantApplicationDetail({
   const canAct = Boolean(
     currentStep && user && can("approval.review") && reviewerMatches(currentStep, application, user),
   );
+  // JB203-2 (Lucas 11-16 audit): the returned version keeps its status, so
+  // 【建立新版本】 stayed after the new one was made. It goes once there is one.
+  const laterRevision = laterRevisionOf(application);
   const action = (
     <>
       {/* Sending is on the A4 form card below (C1): the form it sends is
@@ -285,7 +302,7 @@ export function ConsultantApplicationDetail({
           />
         </>
       )}
-      {application.status === "REVISE_RESUBMIT" && can("consultant.submit") && (
+      {application.status === "REVISE_RESUBMIT" && !laterRevision && can("consultant.submit") && (
         <Button size="sm" disabled={revision.isPending} onClick={() => revision.mutate()}>
           {revision.isPending ? <Loader2 className="animate-spin" /> : <RotateCcw />}
           {t("action.createRevision")}
@@ -607,6 +624,13 @@ export function ConsultantApplicationDetail({
             {currentStep && canAct && (
               credential.isError ? (
                 <LoadFailed className="w-full" what={t("what.credential")} onRetry={() => credential.refetch()} />
+              ) : currentStep.requires_stamp && !application.consultant_form && signsWithCredential(credential.data) && !credential.data?.stamp ? (
+                // JB203-11 (Lucas 11-16 audit): the step needs the stamp and
+                // there is none - said before the PIN is typed, not after.
+                <div data-slot="stamp-missing" className="space-y-2 rounded-lg border border-warning/30 bg-warning/5 p-3 text-sm">
+                  <p>{t("review.stampMissing")}</p>
+                  <Button asChild className="min-h-11 w-full"><Link href="/approval-credential"><KeyRound />{t("review.setupCredential")}</Link></Button>
+                </div>
               ) : signsWithCredential(credential.data) || (application.consultant_form && credential.isSuccess) ? (
                 <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-1">
                   <Button className="min-h-11 justify-start" onClick={() => setDecision("APPROVE")}><CheckCircle2 />{t("decision.APPROVE")}</Button>
@@ -867,6 +891,11 @@ function ArchiveChecklist({ application }: { application: ConsultantApplication 
   );
 }
 
+/** The version made from this one after it was returned, if there is one (JB203-2). */
+export function laterRevisionOf(application: Pick<ConsultantApplication, "revision" | "revision_chain">) {
+  return application.revision_chain.find((row) => row.revision > application.revision);
+}
+
 function nextActionText(
   application: ConsultantApplication,
   currentStep: ApplicationReviewStep | undefined,
@@ -874,7 +903,12 @@ function nextActionText(
   t: ReturnType<typeof useTranslations<"consultantWorkflow">>,
 ) {
   if (application.status === "DRAFT") return t("detail.next.draft");
-  if (application.status === "REVISE_RESUBMIT") return t("detail.next.revise");
+  if (application.status === "REVISE_RESUBMIT") {
+    const later = laterRevisionOf(application);
+    // JB203-2: the new version is made - say where to go on, not 「请建立新版本」.
+    if (later) return t("detail.next.reviseMade", { revision: later.revision });
+    return t("detail.next.revise");
+  }
   if (application.status === "SUBMITTED" && canAct) return t("detail.next.review");
   if (application.status === "SUBMITTED" && currentStep) {
     return t("detail.next.waiting", { step: currentStep.name });

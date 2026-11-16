@@ -29,6 +29,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { ConsultantDashboardRow } from "@/interfaces/consultant-workflow";
 import { useDateFormat } from "@/lib/dates";
+import { officeNoticeHref } from "@/lib/office-notification";
 import { getConsultantDashboard } from "@/services/consultant-workflow.service";
 import { getNotifications } from "@/services/platform-ops.service";
 
@@ -41,6 +42,9 @@ export function ConsultantDashboard() {
   // The top bar's 「当前项目」 for the contractor's office (B13).
   const [project, setProject] = usePageProject();
   const needsProject = user?.account_type === "CONSULTANT";
+  const isConsultant = user?.account_type === "CONSULTANT";
+  // Without the 「申请」 card a consultant's steps still count from 1.
+  const step = (number: number) => (isConsultant ? number - 1 : number);
   const dashboard = useQuery({
     queryKey: ["consultant-dashboard", project],
     queryFn: () => getConsultantDashboard(project || undefined),
@@ -178,14 +182,18 @@ export function ConsultantDashboard() {
                 <p className="py-8 text-center text-sm text-muted-foreground">{t("notifications.empty")}</p>
               ) : (
                 <div className="divide-y">
+                  {/* JB203-11 (Lucas 11-16 audit): each notice opens what it
+                      is about, as on the bell; one with no page of its own
+                      opens the notices. */}
                   {(notifications.data?.results ?? []).map((row) => (
-                    <div key={row.id} className="py-3">
+                    <Link key={row.id} href={officeNoticeHref(row) ?? "/notifications"} className="block py-3 transition-colors hover:bg-muted/30">
                       <div className="flex items-center gap-2">
                         {row.is_outstanding && <span className="size-2 rounded-full bg-primary" />}
                         <p className="min-w-0 flex-1 truncate text-sm font-medium">{row.title}</p>
+                        <ArrowRight className="size-4 shrink-0 text-muted-foreground" />
                       </div>
                       <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{row.message}</p>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               )}
@@ -204,7 +212,10 @@ export function ConsultantDashboard() {
               <h2 id="consultant-flow-title" className="text-lg font-semibold">{t("flow.title")}</h2>
               <p className="mt-1 text-sm text-muted-foreground">{t("flow.subtitle")}</p>
             </div>
-            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            {/* JB203-11 (Lucas 11-16 audit): a consultant never has drafts
+                (they are the contractor's), so no 「申请 0」 card for them. */}
+            <div className={`grid gap-3 md:grid-cols-2 ${isConsultant ? "xl:grid-cols-3" : "xl:grid-cols-4"}`}>
+              {!isConsultant && (
               <LifecycleStep
                 number={1}
                 label={t("flow.application")}
@@ -214,8 +225,9 @@ export function ConsultantDashboard() {
                 icon={FileText}
                 tone="neutral"
               />
+              )}
               <LifecycleStep
-                number={2}
+                number={step(2)}
                 label={t("flow.approval")}
                 help={t("flow.approvalHelp")}
                 value={data.summary.in_approval}
@@ -224,7 +236,7 @@ export function ConsultantDashboard() {
                 tone="warning"
               />
               <LifecycleStep
-                number={3}
+                number={step(3)}
                 label={t("flow.final")}
                 help={t("flow.finalHelp")}
                 value={data.summary.final_reports}
@@ -233,7 +245,7 @@ export function ConsultantDashboard() {
                 tone="positive"
               />
               <LifecycleStep
-                number={4}
+                number={step(4)}
                 label={t("flow.archive")}
                 help={t("flow.archiveHelp")}
                 value={data.summary.archived}

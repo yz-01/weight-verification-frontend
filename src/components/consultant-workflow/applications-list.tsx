@@ -82,7 +82,13 @@ export function ConsultantApplicationsList() {
     can("consultant.submit") &&
     !user?.is_field_staff &&
     user?.account_type !== "CONSULTANT";
-  const stages = STAGES.filter((value) => value !== "inbox" || canOrganize);
+  // JB203-11 (Lucas 11-16 audit): drafts are the contractor's, never a
+  // consultant's, so a consultant gets no 「草稿」 tab that is always empty.
+  const stages = STAGES.filter(
+    (value) =>
+      (value !== "inbox" || canOrganize) &&
+      (value !== "draft" || user?.account_type !== "CONSULTANT"),
+  );
   const stage: ApplicationStage = stages.includes(stageParam as ApplicationStage)
     ? (stageParam as ApplicationStage)
     : "all";
@@ -242,7 +248,11 @@ export function ConsultantApplicationsList() {
       <nav
         aria-label={t("applications.stageLabel")}
         className={`surface-panel grid grid-cols-2 gap-2 rounded-xl p-2 ${
-          stages.length === 6 ? "sm:grid-cols-3 lg:grid-cols-6" : "sm:grid-cols-5"
+          stages.length === 6
+            ? "sm:grid-cols-3 lg:grid-cols-6"
+            : stages.length === 5
+              ? "sm:grid-cols-5"
+              : "sm:grid-cols-4"
         }`}
       >
         {stages.map((value) => {

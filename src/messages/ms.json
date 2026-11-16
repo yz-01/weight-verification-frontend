@@ -5485,7 +5485,7 @@
       "passwordHelp": "Kata laluan semasa melindungi perubahan kelayakan tandatangan.",
       "pin": "PIN 6 digit baharu",
       "pinConfirm": "Sahkan PIN",
-      "pinHelp": "Masukkan PIN enam digit apabila meluluskan, menolak atau mengembalikan permohonan.",
+      "pinHelp": "Ini PIN pengesahan enam digit anda. PIN yang sama digunakan untuk Sahkan & arkib, mencetak, menghantar dan setiap keputusan.",
       "pinMismatch": "PIN tidak sepadan.",
       "pinTitle": "PIN kelulusan",
       "save": "Simpan kelayakan tandatangan",
@@ -5495,7 +5495,8 @@
       "stamp": "Cop perunding",
       "stampHelp": "Pilihan sehingga langkah aliran mewajibkannya.",
       "subtitle": "Tetapkan tandatangan peribadi bagi keputusan projek yang boleh dijejaki.",
-      "title": "Tandatangan dan PIN Kelulusan"
+      "title": "Tandatangan dan PIN Kelulusan",
+      "pinKeep": "PIN pengesahan anda sudah ditetapkan. Biarkan kosong untuk mengekalkannya; menukar tandatangan atau cop sahaja tidak memerlukan PIN baharu."
     },
     "decision": {
       "APPROVE": "Luluskan",
@@ -5519,12 +5520,13 @@
       "next": {
         "archived": "Permohonan ini telah selesai. Permohonan, sejarah kelulusan bertandatangan dan PDF akhir telah diarkibkan dengan selamat.",
         "complete": "Keputusan kelulusan telah selesai. Laporan akhir sedang disediakan.",
-        "draft": "Lengkapkan borang, pautkan foto tapak dan lampiran, kemudian hantar untuk kelulusan.",
+        "draft": "Lengkapkan borang dan tambah foto tapak serta lampiran. Kemudian tekan Sahkan & arkib (dengan PIN pengesahan enam digit), diikuti Hantar pada borang permohonan.",
         "final": "Kelulusan telah selesai. Muat turun PDF akhir dan semak rekod pengesahan.",
         "review": "Permohonan ini menunggu keputusan anda. Semak bukti, kemudian pilih keputusan kelulusan.",
         "revise": "Permohonan telah dikembalikan. Cipta semakan baharu, buat pembetulan dan hantar semula.",
         "waiting": "Anda tidak perlu bertindak sekarang. Permohonan sedang menunggu di {step}.",
-        "remedialOpen": "Diluluskan, tetapi {count} perkara pembaikan masih dibuka. Apabila kerja siap, tekan 「Tutup」 di bawah 「Perkara pembaikan」 dan tambah foto sebagai bukti."
+        "remedialOpen": "Diluluskan, tetapi {count} perkara pembaikan masih dibuka. Apabila kerja siap, tekan 「Tutup」 di bawah 「Perkara pembaikan」 dan tambah foto sebagai bukti.",
+        "reviseMade": "Semakan baharu (semakan {revision}) sudah dibuat. Buka di Sejarah semakan di bawah, buat pembetulan di sana dan hantar."
       },
       "nextAction": "Apa yang berlaku seterusnya",
       "noRevisions": "Tiada sejarah semakan tersedia.",
@@ -5741,7 +5743,8 @@
         "placeholder": "Contoh: tampal sarang lebah pada dinding barat.",
         "add": "Tambah satu lagi",
         "remove": "Buang yang ini"
-      }
+      },
+      "stampMissing": "Langkah ini memerlukan cop perunding anda dan anda belum memuat naik cop. Tekan butang di bawah untuk memuat naiknya, kemudian kembali untuk membuat keputusan."
     },
     "reviewerKind": {
       "CONSULTANT": "Perunding yang dipilih dalam permohonan",
@@ -5752,7 +5755,8 @@
       "chooseProject": "Pilih projek untuk melihat kerja perunding.",
       "draftUnavailable": "Draf ini tidak boleh diedit. Ia mungkin telah dihantar atau akses anda telah tamat.",
       "loadError": "Maklumat tidak dapat dimuatkan. Semak akses projek dan cuba lagi.",
-      "noApplications": "Tiada permohonan perunding yang sepadan."
+      "noApplications": "Tiada permohonan perunding yang sepadan.",
+      "otherProject": "Permohonan ini mungkin dalam projek anda yang lain. Pilih projek itu di bawah dan ia akan dibuka."
     },
     "status": {
       "APPROVED": "Diluluskan",
@@ -5881,7 +5885,6 @@
       "makeDefault": "Gunakan sebagai aliran lalai",
       "name": "Nama aliran",
       "noSteps": "Tiada langkah kelulusan. Tambah sekurang-kurangnya satu.",
-      "requireSignature": "Wajib tandatangan elektronik",
       "requireStamp": "Wajib cop perunding",
       "reviewer": "Penyemak",
       "reviewerKind": "Siapa menyemak langkah ini",
@@ -5893,7 +5896,12 @@
       "stillOfferedHelp": "Matikan supaya permohonan baharu tidak memilihnya. Yang sedia ada kekal.",
       "subtitle": "Tetapkan urutan kelulusan sebenar bagi setiap projek.",
       "title": "Aliran Kelulusan Perunding",
-      "typeFixed": "Tetap - permohonan telah difailkan pada aliran kerja ini."
+      "typeFixed": "Tetap - permohonan telah difailkan pada aliran kerja ini.",
+      "inactive": "Dihentikan",
+      "inactiveHelp": "Permohonan baharu tidak boleh memilih aliran ini. Untuk menggunakannya semula, tekan pensel dan hidupkan “Masih ditawarkan”.",
+      "alwaysSigned": "Setiap keputusan ditandatangani dengan tandatangan elektronik dan PIN pengesahan enam digit penyemak. Tiada apa-apa untuk ditetapkan di sini.",
+      "removeStepTitle": "Buang langkah “{step}”?",
+      "removeStepBody": "Langkah ini akan keluar dari aliran. Aliran tanpa sebarang langkah tidak boleh menghantar draf padanya."
     },
     "howTo": {
       "title": "Cara guna permohonan perunding",
@@ -5904,11 +5912,11 @@
       },
       "submit": {
         "title": "Hantar kepada perunding",
-        "body": "Tekan Hantar pada permohonan. Perunding dimaklumkan dan ia masuk “Dalam kelulusan”. Sebelum itu ia draf dan boleh diubah."
+        "body": "Apabila draf lengkap, tekan Sahkan & arkib (dengan PIN pengesahan enam digit), kemudian Hantar pada borang permohonan. Perunding dimaklumkan dan ia masuk “Menunggu kelulusan”. Sebelum Sahkan & arkib, draf masih boleh diubah atau dipadam."
       },
       "decide": {
         "title": "Perunding lulus, tolak atau minta pindaan",
-        "body": "Perunding menandatangani dan memasukkan PIN dalam akaun sendiri. Keputusan, tandatangan dan perbualan kekal pada permohonan; jika diminta pindaan, pinda dan hantar semula."
+        "body": "Perunding membuat keputusan dalam akaun sendiri dengan tandatangan elektronik dan PIN pengesahan. Keputusan, tandatangan dan perbualan kekal pada permohonan. Jika dikembalikan untuk pindaan, tekan Cipta semakan baharu, buat pembetulan, kemudian Sahkan & arkib dan Hantar semula."
       },
       "setupOnce": "Tetapkan sekali: tambah perunding ke projek ini (Tetapan perunding → Akses perunding), jika tidak mereka tidak boleh dipilih.",
       "openSettings": "Buka tetapan perunding",
@@ -9091,7 +9099,12 @@
       "rain_record_quota_full": "Projek ini sudah menerima rekod hujan yang cukup untuk tempoh ini, jadi yang ini tidak diterima.",
       "rain_void_reason_required": "Tulis sebab rekod ini dibatalkan.",
       "rain_record_already_voided": "Rekod hujan ini sudah dibatalkan; ia tidak boleh dibatalkan lagi.",
-      "rain_rules_out_of_range": "Bilangan rekod mesti 1 hingga 50, dan minit 5 hingga 1440."
+      "rain_rules_out_of_range": "Bilangan rekod mesti 1 hingga 50, dan minit 5 hingga 1440.",
+      "consultant_workflow_last_active": "Ini satu-satunya aliran kelulusan projek ini, jadi ia tidak boleh dihentikan. Untuk menukar laluan, tambah aliran lain dahulu dan jadikan ia lalai.",
+      "consultant_required_fields_missing": "Masih ada {count} medan wajib yang kosong pada borang: {fields}. Isi dahulu, kemudian teruskan.",
+      "consultant_required_attachments_missing": "Masih ada {count} lampiran wajib yang belum dimuat naik. Isi setiap kotak wajib di bawah Lampiran, kemudian teruskan.",
+      "consultant_workflow_no_steps": "Aliran kelulusan ini belum ada langkah, jadi ia tidak boleh dihantar. Tambah satu langkah di Aliran Kelulusan Perunding, atau pilih aliran lain pada permohonan.",
+      "consultant_stamp_required": "Langkah ini memerlukan cop perunding anda dan anda belum memuat naik cop. Muat naik di Tandatangan dan PIN pengesahan dahulu, kemudian kembali untuk membuat keputusan."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {

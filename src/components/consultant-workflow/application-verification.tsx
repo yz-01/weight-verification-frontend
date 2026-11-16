@@ -8,6 +8,7 @@ import { verifyConsultantApplication } from "@/services/consultant-workflow.serv
 
 export function ApplicationVerification({ code }: { code: string }) {
   const t = useTranslations("consultantWorkflow.verification");
+  const status = useTranslations("consultantWorkflow.status");
   const query = useQuery({
     queryKey: ["public-application-verification", code],
     queryFn: () => verifyConsultantApplication(code),
@@ -43,7 +44,9 @@ export function ApplicationVerification({ code }: { code: string }) {
               <VerificationRow label={t("applicationType")} value={query.data.application_type} />
               <VerificationRow label={t("consultantCompany")} value={query.data.consultant_company} />
               <VerificationRow label={t("consultant")} value={query.data.consultant_name} />
-              <VerificationRow label={t("decision")} value={query.data.decision} strong />
+              {/* JB203-11 (Lucas 11-16 audit): the decision in words, not
+                  「APPROVED_WITH_REMEDIAL」. */}
+              <VerificationRow label={t("decision")} value={status.has(query.data.decision) ? status(query.data.decision) : query.data.decision} strong />
               <VerificationRow label={t("finalizedAt")} value={new Date(query.data.finalized_at).toLocaleString()} />
             </dl>
             <div className="mt-4 rounded-lg border bg-muted/30 p-4">
