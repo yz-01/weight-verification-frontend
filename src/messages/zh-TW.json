@@ -8081,7 +8081,8 @@
       "category": "分類",
       "legacy": "舊訂單",
       "createdAt": "下單日期"
-    }
+    },
+    "recyclerNext": "派車 / 約收運時間"
   },
   "documents": {
     "downloading": "下載中",
@@ -8514,7 +8515,13 @@
       "pushStatus": "通知狀態"
     },
     "takeIssuePhoto": "途中異常拍照（意外 / 事故 / 車輛問題）",
-    "issuePhotoHelp": "照片會馬上發給回收商和建築商。"
+    "issuePhotoHelp": "照片會馬上發給回收商和建築商。",
+    "notRecorded": {
+      "stepOffline": "沒有網路，這一步沒有記錄，有網路後請再按一次。",
+      "photoOffline": "沒有網路，這張照片沒有記錄，有網路後請再拍一次。",
+      "step": "這一步沒有記錄：{reason}",
+      "photo": "這張照片沒有記錄：{reason}"
+    }
   },
   "driverGps": {
     "action": {
@@ -9095,7 +9102,10 @@
       "consultant_required_fields_missing": "表格裡還有 {count} 個必填項沒有填：{fields}。請先填好，再繼續。",
       "consultant_required_attachments_missing": "還有 {count} 份必附文件沒有上傳。請在「附件」裡把標著必附的格子都補上，再繼續。",
       "consultant_workflow_no_steps": "這條審批流程還沒有審批步驟，送不出去。請到「顧問審批流程」給它加一步，或在申請裡換一條流程。",
-      "consultant_stamp_required": "這一步要蓋顧問印章，您還沒有上傳印章。請先到「簽名與簽核密碼」上傳印章，再回來審批。"
+      "consultant_stamp_required": "這一步要蓋顧問印章，您還沒有上傳印章。請先到「簽名與簽核密碼」上傳印章，再回來審批。",
+      "dispatch_not_loaded": "司機還沒在手機上按【裝好貨了】。請司機先按【裝好貨了】，再掃碼。",
+      "recycler_standard_plan": "這家回收商是標準版，不能接收建築商的訂單。請選擇合作版回收商。",
+      "standard_plan_no_partnership": "你們公司是標準版，不能接收建築商的訂單，所以不能申請合作。如要接收建築商的訂單，請聯絡 MSE 改為合作版。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -14714,7 +14724,8 @@
       "scanHelp": "可以用相機、上傳二維碼圖片，或把光標放在這裡後使用 USB 掃碼器。",
       "startHelp": "掃描客戶目前有效的二維碼，選擇回收場和材料，並只使用有效的兩次過磅完成入庫。",
       "startTitle": "開始私人客戶入庫",
-      "tab": "私人入庫"
+      "tab": "私人入庫",
+      "confirmedOnly": "這裡只列出已確認的地磅單。還沒確認的，請先到【稱重記錄】打開它，按【確認地磅單】，再回來選。"
     },
     "inventory": {
       "adjustHelp": "每次調整都會永久記錄操作人、時間和原因。",
@@ -15893,7 +15904,9 @@
       "notes": "備註",
       "paidOn": "付款日期",
       "reference": "參考號",
-      "title": "記錄付款"
+      "title": "記錄付款",
+      "document": "憑證文件",
+      "documentHint": "銀行單據或轉帳截圖，照片或 PDF 都可以。建築商會在【付款憑證】裡看到。"
     },
     "quote": {
       "openDeductions": "還有 {count} 條扣雜待回應",
@@ -17794,7 +17807,9 @@
       "whatDrivers": "常用司機",
       "whatPlates": "常用車牌",
       "assign": "派車並產生連結",
-      "incomplete": "請填寫司機姓名、電話和車牌"
+      "incomplete": "請填寫司機姓名、電話和車牌",
+      "noSites": "還沒有回收場，不能派車。請先到【回收場】按【新增回收場】，再回來派車。",
+      "noSitesAskAdmin": "還沒有回收場，不能派車。請公司管理員先到【回收場】新增一個回收場。"
     },
     "link": {
       "ruleLabel": "連結什麼時候失效",

@@ -8081,7 +8081,8 @@
       "category": "Category",
       "legacy": "Old order",
       "createdAt": "Ordered on"
-    }
+    },
+    "recyclerNext": "Assign driver / collection time"
   },
   "documents": {
     "downloading": "Downloading",
@@ -8514,7 +8515,13 @@
       "pushStatus": "The notification status"
     },
     "takeIssuePhoto": "Photograph a problem on the road (accident / vehicle issue)",
-    "issuePhotoHelp": "Sent to the recycler and the contractor straight away."
+    "issuePhotoHelp": "Sent to the recycler and the contractor straight away.",
+    "notRecorded": {
+      "stepOffline": "No internet: this step was not recorded. Press it again when you have signal.",
+      "photoOffline": "No internet: this photo was not recorded. Take it again when you have signal.",
+      "step": "This step was not recorded: {reason}",
+      "photo": "This photo was not recorded: {reason}"
+    }
   },
   "driverGps": {
     "action": {
@@ -9095,7 +9102,10 @@
       "consultant_required_fields_missing": "Required fields still empty on the form ({count}): {fields}. Fill them in, then carry on.",
       "consultant_required_attachments_missing": "Required attachments not added yet: {count}. Fill every required box under Attachments, then carry on.",
       "consultant_workflow_no_steps": "This approval workflow has no steps yet, so it cannot be sent. Add a step to it under Consultant Approval Workflows, or choose another workflow on the application.",
-      "consultant_stamp_required": "This step needs your consultant stamp and you have not uploaded one. Upload it under Signature and sign-off PIN first, then come back to decide."
+      "consultant_stamp_required": "This step needs your consultant stamp and you have not uploaded one. Upload it under Signature and sign-off PIN first, then come back to decide.",
+      "dispatch_not_loaded": "The driver has not pressed [Loaded] on the phone yet. Ask the driver to press [Loaded] first, then scan again.",
+      "recycler_standard_plan": "This recycler is on the Standard plan and cannot receive contractor orders. Please choose a recycler on the Partner plan.",
+      "standard_plan_no_partnership": "Your company is on the Standard plan, which cannot receive contractor orders, so it cannot request a partnership. To receive contractor orders, contact MSE to move to the Partner plan."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -14714,7 +14724,8 @@
       "scanHelp": "Use the camera, upload a QR image, or leave the cursor here and scan with a USB scanner.",
       "startHelp": "Scan the customer's current QR, choose your recycling yard and material, then complete it only with a valid two-pass weighing.",
       "startTitle": "Start private customer intake",
-      "tab": "Private intake"
+      "tab": "Private intake",
+      "confirmedOnly": "Only confirmed tickets are listed. For one not confirmed yet, open it under Weighing records, press Confirm ticket, then come back."
     },
     "inventory": {
       "adjustHelp": "Every change is permanent and records who made it, when and why.",
@@ -15893,7 +15904,9 @@
       "notes": "Notes",
       "paidOn": "Paid on",
       "reference": "Reference",
-      "title": "Record a payment"
+      "title": "Record a payment",
+      "document": "Proof file",
+      "documentHint": "A bank slip or transfer screenshot, as a photo or PDF. The contractor sees it under Payment proofs."
     },
     "quote": {
       "openDeductions": "{count, plural, one {# deduction} other {# deductions}} still waiting",
@@ -17794,7 +17807,9 @@
       "whatDrivers": "Recent drivers",
       "whatPlates": "Recent plates",
       "assign": "Assign and make the link",
-      "incomplete": "Fill in the driver's name, phone and the plate"
+      "incomplete": "Fill in the driver's name, phone and the plate",
+      "noSites": "There is no yard yet, so no driver can be assigned. Go to Recycling yards, press New yard, then come back.",
+      "noSitesAskAdmin": "There is no yard yet, so no driver can be assigned. Ask your company administrator to add a yard under Recycling yards first."
     },
     "link": {
       "ruleLabel": "When the link stops working",

@@ -739,7 +739,9 @@ function PendingActions({
           key: "dispatch",
           label: t("dispatches.state.ACCEPTED"),
           value: data.pending.pending_dispatch,
-          href: "/tasks",
+          // Orders with no driver yet have no trip, so 司机任务 cannot list
+          // them; 废料订单 on 已接单 does, with 派车 (JB207-8).
+          href: "/waste-orders?state=ACCEPTED",
         },
     data.pending.pending_deduction_confirmation === undefined
       ? null

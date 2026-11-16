@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Ban, Camera, Clock3, Info, MapPin, Truck } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
 
 import { DISPATCH_STATE_TONE } from "@/components/dispatches/dispatches";
@@ -228,6 +229,13 @@ export function ViewDispatch({
     !isRecycler &&
     can("dispatch.update") &&
     (data.state === "DRAFT" || data.state === "RELEASED");
+  // The recycler's next step on an order, as words (JB207-10, Lucas 11-16
+  // audit): it was only a small truck icon on the list row, and this page had
+  // none. It opens 废料订单's own dialog, which reads `?dispatch=`.
+  const canArrange =
+    isRecycler &&
+    can("task.assign") &&
+    (data.state === "ACCEPTED" || data.state === "PENDING_ACCEPTANCE");
 
   return (
     <RecordDetailFrame
@@ -322,10 +330,18 @@ export function ViewDispatch({
           ) : null
         }
         actions={
-          canRelease || canCancel ? (
+          canRelease || canCancel || canArrange ? (
             <div className="flex flex-wrap items-center gap-2">
               {/* The record panel's buttons, not pills (JB166, Lucas 11-11:
                   「这些按钮不consistent」). */}
+              {canArrange && (
+                <Button asChild size="sm">
+                  <Link href={`/waste-orders?dispatch=${data.id}`}>
+                    <Truck />
+                    {t("dispatches.recyclerNext")}
+                  </Link>
+                </Button>
+              )}
               {canRelease && (
                 <Button
                   size="sm"

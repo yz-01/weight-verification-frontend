@@ -8081,7 +8081,8 @@
       "category": "Kategori",
       "legacy": "Pesanan lama",
       "createdAt": "Tarikh pesanan"
-    }
+    },
+    "recyclerNext": "Tugaskan pemandu / masa kutipan"
   },
   "documents": {
     "downloading": "Sedang memuat turun",
@@ -8514,7 +8515,13 @@
       "pushStatus": "Status pemberitahuan"
     },
     "takeIssuePhoto": "Ambil foto masalah dalam perjalanan (kemalangan / kenderaan)",
-    "issuePhotoHelp": "Dihantar kepada pengitar semula dan kontraktor serta-merta."
+    "issuePhotoHelp": "Dihantar kepada pengitar semula dan kontraktor serta-merta.",
+    "notRecorded": {
+      "stepOffline": "Tiada internet: langkah ini tidak direkodkan. Tekan sekali lagi apabila ada isyarat.",
+      "photoOffline": "Tiada internet: foto ini tidak direkodkan. Ambil semula apabila ada isyarat.",
+      "step": "Langkah ini tidak direkodkan: {reason}",
+      "photo": "Foto ini tidak direkodkan: {reason}"
+    }
   },
   "driverGps": {
     "action": {
@@ -9095,7 +9102,10 @@
       "consultant_required_fields_missing": "Masih ada {count} medan wajib yang kosong pada borang: {fields}. Isi dahulu, kemudian teruskan.",
       "consultant_required_attachments_missing": "Masih ada {count} lampiran wajib yang belum dimuat naik. Isi setiap kotak wajib di bawah Lampiran, kemudian teruskan.",
       "consultant_workflow_no_steps": "Aliran kelulusan ini belum ada langkah, jadi ia tidak boleh dihantar. Tambah satu langkah di Aliran Kelulusan Perunding, atau pilih aliran lain pada permohonan.",
-      "consultant_stamp_required": "Langkah ini memerlukan cop perunding anda dan anda belum memuat naik cop. Muat naik di Tandatangan dan PIN pengesahan dahulu, kemudian kembali untuk membuat keputusan."
+      "consultant_stamp_required": "Langkah ini memerlukan cop perunding anda dan anda belum memuat naik cop. Muat naik di Tandatangan dan PIN pengesahan dahulu, kemudian kembali untuk membuat keputusan.",
+      "dispatch_not_loaded": "Pemandu belum menekan [Sudah dimuatkan] di telefon. Minta pemandu tekan [Sudah dimuatkan] dahulu, kemudian imbas semula.",
+      "recycler_standard_plan": "Pengitar semula ini menggunakan pelan Standard dan tidak boleh menerima pesanan kontraktor. Sila pilih pengitar semula pelan Rakan kongsi.",
+      "standard_plan_no_partnership": "Syarikat anda menggunakan pelan Standard yang tidak boleh menerima pesanan kontraktor, jadi tidak boleh memohon kerjasama. Untuk menerima pesanan kontraktor, hubungi MSE untuk bertukar ke pelan Rakan kongsi."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -14714,7 +14724,8 @@
       "scanHelp": "Gunakan kamera, muat naik imej QR, atau letakkan kursor di sini dan gunakan pengimbas USB.",
       "startHelp": "Imbas QR pelanggan yang sah, pilih tapak dan bahan, kemudian lengkapkan dengan timbangan dua kali yang sah.",
       "startTitle": "Mulakan penerimaan pelanggan persendirian",
-      "tab": "Penerimaan persendirian"
+      "tab": "Penerimaan persendirian",
+      "confirmedOnly": "Hanya tiket yang disahkan disenaraikan. Untuk tiket yang belum disahkan, bukanya di Rekod penimbangan, tekan Sahkan tiket, kemudian kembali."
     },
     "inventory": {
       "adjustHelp": "Setiap perubahan merekod siapa, bila dan sebab secara kekal.",
@@ -15893,7 +15904,9 @@
       "notes": "Nota",
       "paidOn": "Dibayar pada",
       "reference": "Rujukan",
-      "title": "Rekod pembayaran"
+      "title": "Rekod pembayaran",
+      "document": "Fail bukti",
+      "documentHint": "Slip bank atau tangkapan skrin pindahan, sebagai foto atau PDF. Kontraktor melihatnya di Bukti pembayaran."
     },
     "quote": {
       "openDeductions": "{count} potongan masih menunggu",
@@ -17794,7 +17807,9 @@
       "whatDrivers": "Pemandu terkini",
       "whatPlates": "Plat terkini",
       "assign": "Tugaskan dan buat pautan",
-      "incomplete": "Isi nama pemandu, telefon dan nombor plat"
+      "incomplete": "Isi nama pemandu, telefon dan nombor plat",
+      "noSites": "Belum ada tapak, jadi pemandu tidak boleh ditugaskan. Pergi ke Tapak kitar semula, tekan Tapak baharu, kemudian kembali.",
+      "noSitesAskAdmin": "Belum ada tapak, jadi pemandu tidak boleh ditugaskan. Minta pentadbir syarikat menambah tapak di Tapak kitar semula dahulu."
     },
     "link": {
       "ruleLabel": "Bila pautan tamat",

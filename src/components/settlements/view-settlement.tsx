@@ -356,15 +356,22 @@ function PaymentDialog({
   );
   const [method, setMethod] = useState<PaymentMethod>("BANK_TRANSFER");
   const [reference, setReference] = useState("");
+  // The bank slip itself (JB207-6, Lucas 11-16 audit): the contractor's
+  // 付款凭证 has a 「凭证文件」 column that nothing here could ever fill.
+  const [proofFile, setProofFile] = useState<File | null>(null);
 
   const record = useMutation({
     mutationFn: () =>
-      recordPayment(settlementId, {
-        amount,
-        paid_on: paidOn,
-        method,
-        reference: reference.trim(),
-      }),
+      recordPayment(
+        settlementId,
+        {
+          amount,
+          paid_on: paidOn,
+          method,
+          reference: reference.trim(),
+        },
+        proofFile,
+      ),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["settlements"] });
       onClose();
@@ -431,6 +438,19 @@ function PaymentDialog({
               onChange={(event) => setReference(event.target.value)}
             />
           </div>
+          <FieldWrapper
+            label={t("settlements.payment.document")}
+            optional={t("common.optional")}
+            hint={t("settlements.payment.documentHint")}
+            className="sm:col-span-2"
+          >
+            <Input
+              type="file"
+              accept="application/pdf,image/png,image/jpeg"
+              aria-label={t("settlements.payment.document")}
+              onChange={(event) => setProofFile(event.target.files?.[0] ?? null)}
+            />
+          </FieldWrapper>
         </div>
 
         <DialogFooter className="gap-2 sm:gap-2">

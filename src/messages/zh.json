@@ -8081,7 +8081,8 @@
       "category": "分类",
       "legacy": "旧订单",
       "createdAt": "下单日期"
-    }
+    },
+    "recyclerNext": "派车 / 约收运时间"
   },
   "documents": {
     "downloading": "下载中",
@@ -8514,7 +8515,13 @@
       "pushStatus": "通知状态"
     },
     "takeIssuePhoto": "途中异常拍照（意外 / 事故 / 车辆问题）",
-    "issuePhotoHelp": "照片会马上发给回收商和建筑商。"
+    "issuePhotoHelp": "照片会马上发给回收商和建筑商。",
+    "notRecorded": {
+      "stepOffline": "没有网络，这一步没有记录，有网络后请再按一次。",
+      "photoOffline": "没有网络，这张照片没有记录，有网络后请再拍一次。",
+      "step": "这一步没有记录：{reason}",
+      "photo": "这张照片没有记录：{reason}"
+    }
   },
   "driverGps": {
     "action": {
@@ -9095,7 +9102,10 @@
       "consultant_required_fields_missing": "表格里还有 {count} 个必填项没有填：{fields}。请先填好，再继续。",
       "consultant_required_attachments_missing": "还有 {count} 份必附文件没有上传。请在「附件」里把标着必附的格子都补上，再继续。",
       "consultant_workflow_no_steps": "这条审批流程还没有审批步骤，送不出去。请到「顾问审批流程」给它加一步，或在申请里换一条流程。",
-      "consultant_stamp_required": "这一步要盖顾问印章，您还没有上传印章。请先到「签名与签核密码」上传印章，再回来审批。"
+      "consultant_stamp_required": "这一步要盖顾问印章，您还没有上传印章。请先到「签名与签核密码」上传印章，再回来审批。",
+      "dispatch_not_loaded": "司机还没在手机上按【装好货了】。请司机先按【装好货了】，再扫码。",
+      "recycler_standard_plan": "这家回收商是标准版，不能接收建筑商的订单。请选择合作版回收商。",
+      "standard_plan_no_partnership": "你们公司是标准版，不能接收建筑商的订单，所以不能申请合作。如要接收建筑商的订单，请联系 MSE 改为合作版。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -14714,7 +14724,8 @@
       "scanHelp": "可以用相机、上传二维码图片，或把光标放在这里后使用 USB 扫码器。",
       "startHelp": "扫描客户目前有效的二维码，选择回收场和材料，并只使用有效的两次过磅完成入库。",
       "startTitle": "开始私人客户入库",
-      "tab": "私人入库"
+      "tab": "私人入库",
+      "confirmedOnly": "这里只列出已确认的地磅单。还没确认的，请先到【称重记录】打开它，按【确认地磅单】，再回来选。"
     },
     "inventory": {
       "adjustHelp": "每次调整都会永久记录操作人、时间和原因。",
@@ -15893,7 +15904,9 @@
       "notes": "备注",
       "paidOn": "付款日期",
       "reference": "参考号",
-      "title": "记录付款"
+      "title": "记录付款",
+      "document": "凭证文件",
+      "documentHint": "银行单据或转账截图，照片或 PDF 都可以。建筑商会在【付款凭证】里看到。"
     },
     "quote": {
       "openDeductions": "还有 {count} 条扣杂待回应",
@@ -17794,7 +17807,9 @@
       "whatDrivers": "常用司机",
       "whatPlates": "常用车牌",
       "assign": "派车并生成链接",
-      "incomplete": "请填写司机姓名、电话和车牌"
+      "incomplete": "请填写司机姓名、电话和车牌",
+      "noSites": "还没有回收场，不能派车。请先到【回收场】按【新增回收场】，再回来派车。",
+      "noSitesAskAdmin": "还没有回收场，不能派车。请公司管理员先到【回收场】新增一个回收场。"
     },
     "link": {
       "ruleLabel": "链接什么时候失效",
