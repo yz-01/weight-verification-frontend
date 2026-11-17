@@ -3868,6 +3868,7 @@
       "progress_summary_pdf_exported": "Progress summary PDF exported",
       "progress_summary_updated": "Progress summary changed",
       "project_archived": "Project archived",
+      "project_archive_lock_by_platform": "MSE set a project's archive lock",
       "project_grant_reactivated": "Project access given back",
       "project_granted": "Project access given",
       "project_notification_sent": "Project notice sent",

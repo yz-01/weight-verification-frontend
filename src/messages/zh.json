@@ -3868,6 +3868,7 @@
       "progress_summary_pdf_exported": "导出项目进度摘要 PDF",
       "progress_summary_updated": "修改项目进度摘要",
       "project_archived": "项目归档",
+      "project_archive_lock_by_platform": "MSE 设定项目的「归档后锁定记录」",
       "project_grant_reactivated": "恢复项目权限",
       "project_granted": "授予项目权限",
       "project_notification_sent": "发送项目通知",

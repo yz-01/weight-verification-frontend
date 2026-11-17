@@ -3868,6 +3868,7 @@
       "progress_summary_pdf_exported": "導出項目進度摘要 PDF",
       "progress_summary_updated": "修改項目進度摘要",
       "project_archived": "項目歸檔",
+      "project_archive_lock_by_platform": "MSE 設定項目的「歸檔後鎖定記錄」",
       "project_grant_reactivated": "恢複項目權限",
       "project_granted": "授予項目權限",
       "project_notification_sent": "發送項目通知",
