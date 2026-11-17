@@ -1,12 +1,14 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { FileCheck2, Info, TriangleAlert } from "lucide-react";
+import { CheckCircle2, FileCheck2, Info, TriangleAlert } from "lucide-react";
 import { useTranslations } from "next-intl";
+import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
 
 import { useFinishForm } from "@/components/shared/dialog-navigation";
+import { Button } from "@/components/ui/button";
 import {
   SelectField,
   TextAreaField,
@@ -15,6 +17,7 @@ import {
 import { FormSection, FormShell } from "@/components/shared/form-shell";
 import { LoadFailed, QueryFailedNote } from "@/components/shared/page-primitives";
 import { ApiError } from "@/interfaces/api";
+import type { Settlement } from "@/interfaces/recycler";
 import {
   getIncoming,
   getSettlementQuote,
@@ -59,11 +62,22 @@ export function CreateSettlement() {
     enabled: Boolean(dispatch),
   });
 
+  // The one just issued (JB207W, walk 11-17). The walk saw this page stay on
+  // the form after 【开单】 instead of opening the settlement, which invites
+  // issuing it again. Until the page moves on it says so, with a link, and
+  // the form is cleared - the issued load is no longer in the picker.
+  const [issued, setIssued] = useState<Pick<Settlement, "id" | "settlement_no"> | null>(null);
+
   const issue = useMutation({
     mutationFn: () =>
       issueSettlement({ dispatch, unit_price: unitPrice, notes: notes.trim() }),
     onSuccess: (settlement) => {
+      setIssued({ id: settlement.id, settlement_no: settlement.settlement_no });
+      setDispatch("");
+      setUnitPrice("");
+      setNotes("");
       void queryClient.invalidateQueries({ queryKey: ["settlements"] });
+      void queryClient.invalidateQueries({ queryKey: ["incoming"] });
       finish(`/settlements/${settlement.id}`);
     },
   });
@@ -104,6 +118,22 @@ export function CreateSettlement() {
       onSubmit={submit}
     >
       <FormSection title={t("settlements.section.load")}>
+        {issued && (
+          <div
+            role="status"
+            className="flex flex-wrap items-center gap-3 rounded-lg border border-success/25 bg-success/8 px-3 py-2 text-sm md:col-span-2"
+          >
+            <CheckCircle2 className="size-4 shrink-0 text-success" />
+            <span className="font-medium">
+              {t("settlements.issue.done", { no: issued.settlement_no })}
+            </span>
+            <Button asChild size="sm" variant="outline">
+              <Link href={`/settlements/${issued.id}`}>
+                {t("settlements.issue.open")}
+              </Link>
+            </Button>
+          </div>
+        )}
         <div className="space-y-1">
           <SelectField
             field={{

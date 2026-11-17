@@ -8130,6 +8130,14 @@
       "weighingNo": "地磅单号"
     },
     "lockedNote": "此车已离场，无法再修改。若最终没有送达，请取消。",
+    "lockedBy": {
+      "PENDING_ACCEPTANCE": "订单已发给回收商，内容不能再修改。",
+      "ACCEPTED": "回收商已接单，订单内容不能再修改。",
+      "RELEASED": "此车已离场，无法再修改。若最终没有送达，请取消。",
+      "COLLECTED": "货已装上回收商的车，订单内容不能再修改。",
+      "WEIGHED": "已过磅，订单内容不能再修改。",
+      "SETTLED": "已结算，订单内容不能再修改。"
+    },
     "noPhotos": "这一车还没有附照片。",
     "photoKind": {
       "LOADING": "装车",
@@ -16099,7 +16107,9 @@
       "notes": "备注",
       "pickLoad": "先选一张已过磅的订单，下面才会出数。",
       "title": "开出这张结算单",
-      "unitPrice": "单价（每吨）"
+      "unitPrice": "单价（每吨）",
+      "done": "结算单 {no} 已开出。",
+      "open": "打开这张结算单"
     },
     "lock": {
       "confirm": "锁定",

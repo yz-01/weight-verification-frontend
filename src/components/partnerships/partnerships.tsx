@@ -258,7 +258,10 @@ export function Partnerships() {
             partnership.requested_by_company !== currentCompanyId;
 
           return (
-            <div className="flex items-center justify-end gap-0.5">
+            <div
+              className="flex flex-wrap items-center justify-end gap-0.5"
+              data-slot="partnership-row-actions"
+            >
               {/* 接受 / 拒绝 in words beside the icon (JB207-10, Lucas 11-16
                   audit): a request waiting on this company is the row's
                   whole point, and two bare icons did not say so. */}
@@ -289,27 +292,31 @@ export function Partnerships() {
                 </>
               )}
 
+              {/* 管理项目 / 暂停 in words too, as the contractor's side has
+                  them since JB206-8 (JB207W, walk 11-17). */}
               {partnership.status === "ACTIVE" && (
                 <Button
                   variant="ghost"
-                  size="icon-sm"
-                  className="text-info hover:bg-info/10"
+                  size="sm"
+                  className="h-7 gap-1 px-2 text-info hover:bg-info/10"
                   title={t("partnerships.projects.manage")}
                   onClick={() => setManagingId(partnership.id)}
                 >
                   <FolderCog className="h-3.5 w-3.5" />
+                  {t("partnerships.projects.manage")}
                 </Button>
               )}
 
               {canManage && partnership.status === "ACTIVE" && (
                 <Button
                   variant="ghost"
-                  size="icon-sm"
-                  className="text-warning hover:bg-warning/10"
+                  size="sm"
+                  className="h-7 gap-1 px-2 text-warning hover:bg-warning/10"
                   title={t("partnerships.suspend.confirm")}
                   onClick={() => setSuspending(partnership)}
                 >
                   <Ban className="h-3.5 w-3.5" />
+                  {t("partnerships.suspend.confirm")}
                 </Button>
               )}
             </div>

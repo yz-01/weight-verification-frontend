@@ -91,6 +91,7 @@ import {
   updateCloudService,
   updateCloudVendor,
 } from "@/services/cloudservice.service";
+import { localToday } from "@/lib/local-date";
 
 export type CloudSection =
   | "overview"
@@ -1626,7 +1627,7 @@ function UsageDialog({
     service_id: "",
     company_id: "",
     project_id: "",
-    usage_date: new Date().toISOString().slice(0, 10),
+    usage_date: localToday(),
     usage_amount: "",
     usage_unit: "GB",
     source_mode: "MANUAL",

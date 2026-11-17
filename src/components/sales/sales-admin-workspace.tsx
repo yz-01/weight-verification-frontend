@@ -92,6 +92,7 @@ import {
   type SalespersonPayload,
   type TerritoryPayload,
 } from "@/services/sales.service";
+import { localToday } from "@/lib/local-date";
 
 export type SalesAdminSection =
   | "overview"
@@ -491,7 +492,7 @@ function PersonDialog({
     sales_role: initial?.sales_role ?? "EXECUTIVE",
     supervisor: initial?.supervisor,
     commission_scheme: initial?.commission_scheme,
-    joined_on: initial?.joined_on ?? new Date().toISOString().slice(0, 10),
+    joined_on: initial?.joined_on ?? localToday(),
     left_on: initial?.left_on,
     is_active: initial?.is_active ?? true,
     notes: initial?.notes ?? "",
@@ -808,7 +809,7 @@ function TerritoryDialog({
     states: initial?.states ?? [],
     is_exclusive: initial?.is_exclusive ?? true,
     effective_from:
-      initial?.effective_from ?? new Date().toISOString().slice(0, 10),
+      initial?.effective_from ?? localToday(),
     effective_to: initial?.effective_to ?? null,
   });
   const save = useMutation({
@@ -1145,7 +1146,7 @@ function AssignmentDialog({
   const [form, setForm] = useState({
     company: "",
     salesperson: "",
-    won_on: new Date().toISOString().slice(0, 10),
+    won_on: localToday(),
     notes: "",
   });
   const save = useMutation({

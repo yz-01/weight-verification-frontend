@@ -26,6 +26,19 @@ import type {
 import { api, download, toastSuccess } from "@/services/api-client";
 import { exportBody, exportQuery, type ExportRequest } from "@/services/contractor.service";
 
+/**
+ * Any one of these reads the yard list (`get_sites`'s permission_map). A page
+ * that only offers the yard as a filter asks for the list when the reader
+ * holds one, so a role without them (Finance, custom roles) is not shown
+ * 「无法载入回收场列表」 and 「你没有权限做这件事。」 on every visit (JB207W).
+ */
+export const YARD_LIST_PERMISSIONS = [
+  "yard.view",
+  "task.assign",
+  "weighing.operate",
+  "deduction.create",
+];
+
 export function getSites(query: ListQuery): Promise<Paginated<RecyclingSite>> {
   return api.list<RecyclingSite>("/api/sites/get_sites/", query);
 }

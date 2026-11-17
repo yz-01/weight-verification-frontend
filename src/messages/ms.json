@@ -8130,6 +8130,14 @@
       "weighingNo": "No. tiket timbang"
     },
     "lockedNote": "Muatan ini telah meninggalkan tapak dan tidak boleh diubah lagi. Batalkan jika ia tidak sampai.",
+    "lockedBy": {
+      "PENDING_ACCEPTANCE": "Pesanan ini telah dihantar kepada pengitar semula, jadi ia tidak boleh diubah lagi.",
+      "ACCEPTED": "Pengitar semula telah menerima pesanan ini, jadi ia tidak boleh diubah lagi.",
+      "RELEASED": "Muatan ini telah meninggalkan tapak dan tidak boleh diubah lagi. Batalkan jika ia tidak sampai.",
+      "COLLECTED": "Muatan sudah berada di lori pengitar semula, jadi pesanan tidak boleh diubah lagi.",
+      "WEIGHED": "Muatan telah ditimbang, jadi pesanan tidak boleh diubah lagi.",
+      "SETTLED": "Pesanan ini telah diselesaikan, jadi ia tidak boleh diubah lagi."
+    },
     "noPhotos": "Tiada gambar dilampirkan pada muatan ini.",
     "photoKind": {
       "LOADING": "Memuat",
@@ -16099,7 +16107,9 @@
       "notes": "Nota",
       "pickLoad": "Pilih muatan yang sudah ditimbang untuk melihat angkanya.",
       "title": "Keluarkan penyelesaian ini",
-      "unitPrice": "Harga setan"
+      "unitPrice": "Harga setan",
+      "done": "Penyelesaian {no} telah dikeluarkan.",
+      "open": "Buka penyelesaian ini"
     },
     "lock": {
       "confirm": "Kunci",

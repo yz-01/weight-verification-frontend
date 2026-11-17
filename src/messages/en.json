@@ -8130,6 +8130,14 @@
       "weighingNo": "Weighbridge ticket no."
     },
     "lockedNote": "This load has left the site, so it can no longer be changed. Cancel it if it never arrives.",
+    "lockedBy": {
+      "PENDING_ACCEPTANCE": "This order has been sent to the recycler, so it can no longer be changed.",
+      "ACCEPTED": "The recycler has taken this order, so it can no longer be changed.",
+      "RELEASED": "This load has left the site, so it can no longer be changed. Cancel it if it never arrives.",
+      "COLLECTED": "The load is on the recycler's lorry, so the order can no longer be changed.",
+      "WEIGHED": "The load has been weighed, so the order can no longer be changed.",
+      "SETTLED": "This order has been settled, so it can no longer be changed."
+    },
     "noPhotos": "No photos have been attached to this load.",
     "photoKind": {
       "LOADING": "Loading",
@@ -16099,7 +16107,9 @@
       "notes": "Notes",
       "pickLoad": "Choose a weighed load to see the figures.",
       "title": "Issue this settlement",
-      "unitPrice": "Price per tonne"
+      "unitPrice": "Price per tonne",
+      "done": "Settlement {no} has been issued.",
+      "open": "Open this settlement"
     },
     "lock": {
       "confirm": "Lock",

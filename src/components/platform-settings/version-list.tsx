@@ -33,6 +33,7 @@ import {
   type VersionDetail,
 } from "@/services/version.service";
 import { LoadFailed } from "@/components/shared/page-primitives";
+import { localToday } from "@/lib/local-date";
 
 export function VersionList() {
   const t = useTranslations();
@@ -209,7 +210,7 @@ function VersionEditor({
     release_notes: initial?.release_notes ?? "",
     release_notes_zh: initial?.release_notes_zh ?? "",
     release_notes_ms: initial?.release_notes_ms ?? "",
-    released_on: initial?.released_on ?? new Date().toISOString().slice(0, 10),
+    released_on: initial?.released_on ?? localToday(),
     min_supported_version: initial?.min_supported_version ?? "",
     force_update: initial?.force_update ?? false,
     rollout_percentage: initial?.rollout_percentage ?? 100,
