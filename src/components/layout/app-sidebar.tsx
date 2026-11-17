@@ -501,7 +501,11 @@ function InlineLevel({
               <SidebarMenuSubButton
                 asChild
                 isActive={node.active && !hasLevel}
-                className="h-10 min-w-0 flex-1 rounded-lg px-3 pointer-coarse:h-11 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground"
+                // JB202 (Lucas 11-16 「字被裁掉了」): on a phone a long page name
+                // (「Environmental material outgoing」) takes a second line
+                // instead of ending in 「…」; `!` beats the sub-button's own
+                // `[&>span:last-child]:truncate`.
+                className="h-auto min-h-10 min-w-0 flex-1 rounded-lg px-3 py-2 pointer-coarse:h-auto pointer-coarse:min-h-11 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground"
               >
                 <Link
                   href={node.href}
@@ -509,7 +513,7 @@ function InlineLevel({
                   onClick={onNavigate}
                   aria-current={node.active && !hasLevel ? "page" : undefined}
                 >
-                  <span className="min-w-0 flex-1 truncate">{node.label}</span>
+                  <span className="min-w-0 flex-1 break-words leading-snug whitespace-normal!">{node.label}</span>
                   <WaitingBadge
                     count={node.waiting}
                     feature={feature}

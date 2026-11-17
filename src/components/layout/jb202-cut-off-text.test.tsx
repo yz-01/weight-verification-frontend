@@ -138,6 +138,13 @@ describe("the menu's entries take a second line instead of 「…」 (JB202)", (
     );
   });
 
+  it("lets a phone's sub-page row grow and its name wrap (「Environmental material outgoing」)", () => {
+    const level = sidebar.slice(sidebar.indexOf("function InlineLevel"));
+    expect(level).toContain('className="h-auto min-h-10 min-w-0 flex-1 rounded-lg px-3 py-2 pointer-coarse:h-auto pointer-coarse:min-h-11');
+    expect(level).toContain('<span className="min-w-0 flex-1 break-words leading-snug whitespace-normal!">{node.label}</span>');
+    expect(level).not.toContain("min-w-0 flex-1 truncate");
+  });
+
   it("wraps the entry's name, beating the menu button's own truncate", () => {
     expect(sidebar).toContain('<span className="min-w-0 break-words leading-snug whitespace-normal!">{label}</span>');
   });
