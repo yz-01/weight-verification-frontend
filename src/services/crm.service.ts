@@ -40,8 +40,8 @@ export interface ServiceRecordPayload {
 
 export const getEnquiries = (query?: ListQuery): Promise<Paginated<CustomerEnquiry>> => api.list("/api/customer-enquiries/get_enquiries/", query);
 export async function createEnquiry(payload: EnquiryPayload) { const row = await api.post<CustomerEnquiry>("/api/customer-enquiries/create_enquiry/", payload); toastSuccess("crm.toast.enquiryCreated"); return row; }
-export const getEnquiryNotes = (id: string): Promise<Paginated<EnquiryNote>> =>
-  api.list(`/api/customer-enquiries/${id}/get_notes/`);
+export const getEnquiryNotes = (id: string, query?: ListQuery): Promise<Paginated<EnquiryNote>> =>
+  api.list(`/api/customer-enquiries/${id}/get_notes/`, query);
 
 /**
  * Add a note to an enquiry.

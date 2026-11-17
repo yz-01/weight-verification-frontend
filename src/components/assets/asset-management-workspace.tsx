@@ -445,6 +445,8 @@ const REPORTS: Record<string, string[]> = {
  * The word group that turns a report column's codes into words. JB209-16
  * (Lucas 11-16 audit): the files printed IN_STOCK, GATEWAY, CORRECTIVE; the
  * screen's own words now go with the columns (`utils/exports.py` `values`).
+ * JB215B-1: 调拨报表's 「类型」 printed TRANSFER / ISSUE / RETURN; it reads the
+ * movement types' own words now (`assets/constants.py` MovementType).
  */
 export const REPORT_VALUE_GROUPS: Record<string, Record<string, string>> = {
   assets: { category: "category", status: "assetStatus" },
@@ -452,6 +454,7 @@ export const REPORT_VALUE_GROUPS: Record<string, Record<string, string>> = {
   purchases: { delivery_status: "purchaseStatus" },
   assignments: { status: "assignmentStatus" },
   installations: { status: "installationStatus" },
+  movements: { type: "movementType" },
   repairs: { status: "maintenanceStatus" },
   maintenance: { type: "maintenanceType", status: "maintenanceStatus" },
   disposals: { status: "disposalStatus" },

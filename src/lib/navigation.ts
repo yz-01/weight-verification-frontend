@@ -1988,6 +1988,10 @@ const PERMISSION_ROUTE_RULES: readonly PermissionRouteRule[] = [
   { pattern: "/technical", permission: "company_settings.manage" },
   { pattern: "/departments-trades", permission: "department.view|work_trade.view" },
   { pattern: "/field-staff-management", permission: "field_staff.manage" },
+  // 后台任务: its API is platform.maintenance (JB205-5). The menu entry was
+  // hidden then; typing the address still opened a page whose every call
+  // came back 403, for a Support Agent who only monitors (JB215B-7).
+  { pattern: "/monitoring/jobs", permission: "platform.maintenance" },
 ];
 
 function matchesPattern(pathname: string, pattern: string): boolean {
@@ -2030,7 +2034,8 @@ export function isRouteAllowed(
   if (matchesPrefix(pathname, "/monitoring")) {
     return (
       portal === "MSE_ADMIN" &&
-      hasPermission(permissions, "platform.monitor", isSuperuser)
+      hasPermission(permissions, "platform.monitor", isSuperuser) &&
+      actionRuleAllows(pathname, permissions, isSuperuser)
     );
   }
 
@@ -2068,6 +2073,15 @@ export function isRouteAllowed(
 
   if (!owned) return false;
 
+  return actionRuleAllows(pathname, permissions, isSuperuser);
+}
+
+/** Whether the page's own action permission, if it names one, is held. */
+function actionRuleAllows(
+  pathname: string,
+  permissions: readonly string[],
+  isSuperuser: boolean,
+): boolean {
   const actionRule = PERMISSION_ROUTE_RULES.find((rule) =>
     matchesPattern(pathname, rule.pattern),
   );

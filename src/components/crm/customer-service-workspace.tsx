@@ -166,7 +166,9 @@ function EnquiryNotes({ enquiry }: { enquiry: CustomerEnquiry }) {
   const { can } = useAuth();
   const [draft, setDraft] = useState("");
   const key = ["customer-enquiry-notes", enquiry.id];
-  const notes = useQuery({ queryKey: key, queryFn: () => getEnquiryNotes(enquiry.id) });
+  // Every note, page after page (JB215B-10, noticed in JB209): one page held
+  // the server's first 25, so an enquiry with more lost its older notes.
+  const notes = useQuery({ queryKey: key, queryFn: () => readAllPages((paging) => getEnquiryNotes(enquiry.id, paging)) });
   const add = useMutation({
     mutationFn: () => addEnquiryNote(enquiry.id, draft.trim()),
     onSuccess: async () => { setDraft(""); await qc.invalidateQueries({ queryKey: key }); },

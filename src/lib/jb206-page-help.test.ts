@@ -21,8 +21,8 @@ const ALL = [zh, zhTW, en, ms];
 describe("隐患整改's own help (U1)", () => {
   it("is the hazard help, not the removed incident report's", () => {
     expect(helpKeyFor("MSE_TRACE", "/hazard-rectifications")).toBe("hazard_rectification");
-    // 施工准证 keeps its entry's help.
-    expect(helpKeyFor("MSE_TRACE", "/permits")).toBe("safety");
+    // 施工准证 has its own help since JB215B-3 (no longer the old 安全事件 text).
+    expect(helpKeyFor("MSE_TRACE", "/permits")).toBe("permits");
   });
 
   it("asks for no photo at 验收", () => {

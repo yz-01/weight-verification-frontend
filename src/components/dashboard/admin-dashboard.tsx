@@ -1074,11 +1074,19 @@ function AdminPendingPanel({
   );
 }
 
+/**
+ * The reader's own notices (JB215B-8): these rows are the reader's own
+ * (`platform_ops/dashboard.py` recent_notifications), so 查看全部 and a row
+ * with no link of its own open the same list the bell's 查看全部 does
+ * (JB205-8). `/notifications/search` led to 通知管理, everybody's notices.
+ */
+export const ADMIN_OWN_NOTICES_HREF = "/notifications?mine=1";
+
 function adminNotificationHref(notification: NotificationRow): string {
   const rawHref = notification.data.href ?? notification.data.url;
   return typeof rawHref === "string" && rawHref.startsWith("/")
     ? rawHref
-    : "/notifications/search";
+    : ADMIN_OWN_NOTICES_HREF;
 }
 
 function AdminNotificationsPanel({
@@ -1096,7 +1104,7 @@ function AdminNotificationsPanel({
     <section className="space-y-3" aria-labelledby="admin-notifications-title">
       <div className="flex items-center justify-between gap-3">
         <h2 id="admin-notifications-title" className="text-base font-semibold">{title}</h2>
-        <Link href="/notifications/search" className="text-sm font-medium text-primary hover:underline">
+        <Link href={ADMIN_OWN_NOTICES_HREF} className="text-sm font-medium text-primary hover:underline">
           {viewAll}
         </Link>
       </div>
