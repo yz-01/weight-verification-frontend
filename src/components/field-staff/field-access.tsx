@@ -7,6 +7,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { FieldUnboundHelp } from "@/components/field-staff/field-unbound-help";
+import { ContactMse } from "@/components/platform-status/contact-mse";
 import { MaintenanceBanner } from "@/components/platform-status/maintenance-banner";
 import { useAuth } from "@/components/providers/auth-provider";
 import { FieldWrapper } from "@/components/shared/page-primitives";
@@ -40,6 +41,7 @@ import {
 import { replacePage, safeReturnPath } from "@/lib/portal";
 import { isPrivateBrowsing } from "@/lib/private-browsing";
 import { cacheBranding } from "@/lib/branding";
+import { usePlatformStatus } from "@/hooks/use-platform-status";
 import {
   activateFieldDevice,
   fieldDeviceIdIsPersistent,
@@ -72,6 +74,10 @@ export function FieldAccess() {
     enabled: Boolean(token),
     retry: false,
   });
+  // JB211 (walk F-A6): 联系 MSE, as on the office, recycler and MSE sign-in
+  // pages - the same box, a line only for what MSE filled in.
+  // query-failure: without an answer the page simply shows no contact lines; the PIN sign-in still works.
+  const platformStatus = usePlatformStatus();
   const [pin, setPin] = useState("");
   const [pending, setPending] = useState(false);
   // Why the phone was signed out, when the office did it (new link, or the
@@ -358,87 +364,95 @@ export function FieldAccess() {
 
   return (
     <main className="flex min-h-dvh items-center justify-center px-4 py-10">
-      <section className="w-full max-w-md overflow-hidden surface-panel rounded-xl">
-        <div className="border-b border-panel-border bg-primary/10 px-4 py-6 sm:px-6">
-          <span className="mb-4 flex size-12 items-center justify-center rounded-xl border border-panel-border bg-primary/15 text-primary shadow-glow-sm">
-            <Camera className="size-7" />
-          </span>
-          <h1 className="text-xl font-bold leading-tight">{token ? t("activateTitle") : t("loginTitle")}</h1>
-          {/* 「请输入你的 6 位 PIN」 is not said where no PIN can help (JB154, JB164). */}
-          {!accountRemoved && !accountStopped && (
-            <p className="mt-1 text-sm text-muted-foreground">
-              {token ? invitation.data?.full_name : joinLink ? t("joinBody") : t("loginBody")}
-            </p>
-          )}
-        </div>
-        <div className="space-y-4 p-4 sm:p-6">
-          {/* 系统维护 coming or under way, before the PIN is typed (JB211). */}
-          <MaintenanceBanner className="rounded-lg" />
-          {token && invitation.data && (
-            <div className="rounded-lg border bg-muted/30 p-3 text-sm">
-              <p className="font-medium">{invitation.data.projects.map((project) => project.name).join(", ")}</p>
-              <p className="mt-1 text-muted-foreground">{invitation.data.phone}</p>
-            </div>
-          )}
-          {unbound && context && (
-            <FieldUnboundHelp
-              reason={unbound}
-              standalone={context.standalone}
-              code={unboundCode({
-                standalone: context.standalone,
-                environment: context.environment,
-                refusedCode,
-                deviceRefused,
-                joinLink: Boolean(joinLink),
-              })}
-            />
-          )}
-          {pinUseful && (
-            <FieldWrapper label={t("pin")} required>
-              <Input
-                id="field-pin"
-                inputMode="numeric"
-                autoComplete="one-time-code"
-                maxLength={6}
-                className="h-12 text-center text-xl"
-                value={pin}
-                onChange={(event) => setPin(event.target.value.replace(/\D/g, "").slice(0, 6))}
+      <div className="w-full max-w-md">
+        <section className="w-full overflow-hidden surface-panel rounded-xl">
+          <div className="border-b border-panel-border bg-primary/10 px-4 py-6 sm:px-6">
+            <span className="mb-4 flex size-12 items-center justify-center rounded-xl border border-panel-border bg-primary/15 text-primary shadow-glow-sm">
+              <Camera className="size-7" />
+            </span>
+            <h1 className="text-xl font-bold leading-tight">{token ? t("activateTitle") : t("loginTitle")}</h1>
+            {/* 「请输入你的 6 位 PIN」 is not said where no PIN can help (JB154, JB164). */}
+            {!accountRemoved && !accountStopped && (
+              <p className="mt-1 text-sm text-muted-foreground">
+                {token ? invitation.data?.full_name : joinLink ? t("joinBody") : t("loginBody")}
+              </p>
+            )}
+          </div>
+          <div className="space-y-4 p-4 sm:p-6">
+            {/* 系统维护 coming or under way, before the PIN is typed (JB211). */}
+            <MaintenanceBanner className="rounded-lg" />
+            {token && invitation.data && (
+              <div className="rounded-lg border bg-muted/30 p-3 text-sm">
+                <p className="font-medium">{invitation.data.projects.map((project) => project.name).join(", ")}</p>
+                <p className="mt-1 text-muted-foreground">{invitation.data.phone}</p>
+              </div>
+            )}
+            {unbound && context && (
+              <FieldUnboundHelp
+                reason={unbound}
+                standalone={context.standalone}
+                code={unboundCode({
+                  standalone: context.standalone,
+                  environment: context.environment,
+                  refusedCode,
+                  deviceRefused,
+                  joinLink: Boolean(joinLink),
+                })}
               />
-            </FieldWrapper>
-          )}
-          {/* The link keeps working: tapping it again, or opening it in
-              another browser on this phone, signs in with the same PIN
-              (Lucas 2026-10-23). */}
-          {token ? (
-            <p className="rounded-lg border bg-muted/30 p-3 text-xs leading-5 text-muted-foreground">
-              {t("reuseLinkTip")}
-            </p>
-          ) : null}
-          {error && <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">{error}</p>}
-          {privateBrowsing && (
-            <p className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-sm text-muted-foreground">
-              {t("privateBrowsing")}
-            </p>
-          )}
-          {storageBlocked && (
-            <p className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-sm text-muted-foreground">
-              {t("storageBlocked")}
-            </p>
-          )}
-          {pinUseful && (
-            <Button
-              size="lg"
-              className="h-12 w-full text-sm"
-              requires={[[pin.length === 6, t("pin")]]}
-              disabled={pending}
-              onClick={() => void submit()}
-            >
-              {pending ? <Loader2 className="animate-spin" /> : <LogIn />}
-              {token ? t("bind") : t("signIn")}
-            </Button>
-          )}
-        </div>
-      </section>
+            )}
+            {pinUseful && (
+              <FieldWrapper label={t("pin")} required>
+                <Input
+                  id="field-pin"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  maxLength={6}
+                  className="h-12 text-center text-xl"
+                  value={pin}
+                  onChange={(event) => setPin(event.target.value.replace(/\D/g, "").slice(0, 6))}
+                />
+              </FieldWrapper>
+            )}
+            {/* The link keeps working: tapping it again, or opening it in
+                another browser on this phone, signs in with the same PIN
+                (Lucas 2026-10-23). */}
+            {token ? (
+              <p className="rounded-lg border bg-muted/30 p-3 text-xs leading-5 text-muted-foreground">
+                {t("reuseLinkTip")}
+              </p>
+            ) : null}
+            {error && <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">{error}</p>}
+            {privateBrowsing && (
+              <p className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-sm text-muted-foreground">
+                {t("privateBrowsing")}
+              </p>
+            )}
+            {storageBlocked && (
+              <p className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-sm text-muted-foreground">
+                {t("storageBlocked")}
+              </p>
+            )}
+            {pinUseful && (
+              <Button
+                size="lg"
+                className="h-12 w-full text-sm"
+                requires={[[pin.length === 6, t("pin")]]}
+                disabled={pending}
+                onClick={() => void submit()}
+              >
+                {pending ? <Loader2 className="animate-spin" /> : <LogIn />}
+                {token ? t("bind") : t("signIn")}
+              </Button>
+            )}
+          </div>
+        </section>
+        {/* JB211 (11.2.1 联络资料, walk F-A6): 联系 MSE under the card, as on
+            the other sign-in pages - also where this phone is not linked yet. */}
+        <ContactMse
+          contact={platformStatus.data?.contact}
+          className="mt-6 rounded-lg border border-panel-border px-3 py-2"
+        />
+      </div>
     </main>
   );
 }
