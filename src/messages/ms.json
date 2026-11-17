@@ -3923,6 +3923,7 @@
       "rain_report_pdf_previewed": "Laporan bulanan rekod hujan dipratonton",
       "rain_remark_set": "Menulis catatan rekod hujan",
       "rain_month_remark_set": "Menulis catatan bulanan laporan hujan",
+      "settings_reset_on_wiring": "Penyelenggaraan dan kemas kini paksa ditetapkan semula apabila mula berkuat kuasa",
       "head_office_on_behalf": "Diputuskan oleh ibu pejabat bagi pihak pengurus"
     },
     "objectType": {
@@ -9255,6 +9256,10 @@
       "rain_void_reason_required": "Tulis sebab rekod ini dibatalkan.",
       "rain_record_already_voided": "Rekod hujan ini sudah dibatalkan; ia tidak boleh dibatalkan lagi.",
       "rain_rules_out_of_range": "Bilangan rekod mesti 1 hingga 50, dan minit 5 hingga 1440.",
+      "platform_maintenance": "MSE Trace sedang diselenggara, jadi tidak boleh digunakan sekarang. Selepas penyelenggaraan ia dibuka semula dengan sendiri; tidak perlu log masuk semula.",
+      "client_update_required": "Sistem telah dikemas kini. Tekan Muat semula untuk menukar ke versi baharu, kemudian teruskan.",
+      "version_min_invalid": "Masukkan versi minimum disokong sebagai nombor versi seperti 1.2.0, tidak lebih tinggi daripada nombor versi ini sendiri ({version}). Jika tidak, semua pelanggan tidak dapat masuk.",
+      "maintenance_permission_required": "Hanya orang yang mempunyai kebenaran “Letakkan platform dalam penyelenggaraan” boleh menukar tetapan penyelenggaraan. Minta pentadbir sistem MSE.",
       "consultant_workflow_last_active": "Ini satu-satunya aliran kelulusan projek ini, jadi ia tidak boleh dihentikan. Untuk menukar laluan, tambah aliran lain dahulu dan jadikan ia lalai.",
       "consultant_required_fields_missing": "Masih ada {count} medan wajib yang kosong pada borang: {fields}. Isi dahulu, kemudian teruskan.",
       "consultant_required_attachments_missing": "Masih ada {count} lampiran wajib yang belum dimuat naik. Isi setiap kotak wajib di bawah Lampiran, kemudian teruskan.",
@@ -13075,7 +13080,9 @@
       "stalled": "Muat naik tersekat dan dihentikan; ia akan cuba lagi sendiri",
       "signedOut": "Log masuk anda telah tamat. Log keluar dan log masuk semula; ia dimuat naik selepas itu",
       "server": "Pelayan menghadapi masalah ({status}); ia akan cuba lagi sendiri",
-      "unknown": "Muat naik tidak berjaya; ia akan cuba lagi sendiri"
+      "unknown": "Muat naik tidak berjaya; ia akan cuba lagi sendiri",
+      "maintenance": "Sistem sedang diselenggara; ia dimuat naik sendiri selepas penyelenggaraan tamat",
+      "updateRequired": "Sistem telah dikemas kini: tekan Muat semula, kemudian ia dimuat naik sendiri"
     },
     "waiting": {
       "title": "Rekod menunggu dimuat naik",
@@ -18507,7 +18514,11 @@
       "created": "Versi dicipta",
       "setCurrent": "Versi semasa dikemas kini",
       "updated": "Versi dikemas kini"
-    }
+    },
+    "thisComputer": "Komputer ini menggunakan v{version}",
+    "thisComputerHelp": "Setiap halaman pelanggan melaporkan versinya. Apabila Kemas Kini Paksa dihidupkan, halaman yang lebih lama daripada versi minimum disokong diminta memuat semula; kakitangan MSE tidak pernah disekat.",
+    "minSupportedHelp": "Nombor versi seperti 1.2.0, tidak lebih tinggi daripada {version}. Biarkan kosong supaya tiada siapa disekat.",
+    "forceUpdateHelp": "Hidup: halaman pelanggan yang lebih lama daripada versi minimum disokong perlu menekan Muat semula sebelum boleh meneruskan. Kakitangan MSE tidak terjejas. Komputer ini menggunakan v{version}."
   },
   "wasteOutgoing": {
     "action": {
@@ -22019,6 +22030,41 @@
       "label": "Catatan untuk bulan ini",
       "placeholder": "Contoh: kerja terhenti 5 hari bulan ini kerana hujan.",
       "hint": "Dicetak pada PDF laporan bulan ini."
+    }
+  },
+  "platformStatus": {
+    "contact": {
+      "title": "Hubungi MSE",
+      "phone": "Telefon",
+      "email": "E-mel",
+      "website": "Laman web"
+    },
+    "maintenance": {
+      "bannerActive": "Penyelenggaraan sistem sedang berjalan: {window}.",
+      "bannerUpcoming": "Penyelenggaraan sistem dirancang: {window}.",
+      "customerNote": "Semasa penyelenggaraan tiada siapa boleh log masuk atau menggunakan sistem. Selepas itu ia berfungsi seperti biasa tanpa perlu log masuk semula.",
+      "staffNote": "Pelanggan tidak boleh log masuk atau menggunakan sistem semasa itu; kakitangan MSE meneruskan seperti biasa.",
+      "window": {
+        "between": "dari {starts} hingga {ends}",
+        "from": "mulai {starts}; MSE akan memaklumkan bila ia tamat",
+        "until": "hingga lebih kurang {ends}",
+        "open": "MSE akan memaklumkan bila ia tamat",
+        "stopped": "sistem dihentikan buat sementara; MSE akan memaklumkan bila ia kembali"
+      }
+    },
+    "gate": {
+      "maintenanceTitle": "Penyelenggaraan sistem",
+      "maintenanceBody": "Sistem tidak boleh digunakan sekarang. Selepas penyelenggaraan halaman ini dibuka semula dengan sendiri, tanpa perlu log masuk semula.",
+      "nothingLost": "Anda masih log masuk. Rekod yang belum dimuat naik kekal pada telefon atau komputer ini dan dimuat naik selepas itu.",
+      "tryAgain": "Cuba lagi",
+      "updateTitle": "Sistem telah dikemas kini",
+      "updateBody": "Tekan Muat semula untuk menukar ke versi baharu, kemudian teruskan seperti biasa.",
+      "updateStillOld": "Jika skrin ini muncul semula selepas memuat semula, versi baharu masih disediakan. Tunggu beberapa minit dan tekan Muat semula sekali lagi.",
+      "reload": "Muat semula"
+    },
+    "issuer": {
+      "title": "Dikeluarkan oleh",
+      "registrationNo": "No. pendaftaran syarikat: {number}"
     }
   },
   "pagedList": {

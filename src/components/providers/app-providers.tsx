@@ -11,6 +11,7 @@ import { NavigationRecovery } from "@/components/providers/navigation-recovery";
 import { OfflineSyncProvider } from "@/components/providers/offline-sync-provider";
 import { ServiceWorkerRegistration } from "@/components/providers/service-worker-registration";
 import { TranslationBridge } from "@/components/providers/translation-bridge";
+import { PlatformGateOverlay } from "@/components/platform-status/platform-gate-overlay";
 import { SignOffHost } from "@/components/shared/sign-off-dialog";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -85,6 +86,8 @@ export function AppProviders({
           <Toaster position="top-right" richColors closeButton />
           {/* The sign-off PIN dialog every office operation shares (I29). */}
           <SignOffHost />
+          {/* 系统维护 / 「系统已更新，请重新载入」 over any page (JB211). */}
+          <PlatformGateOverlay />
         </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>

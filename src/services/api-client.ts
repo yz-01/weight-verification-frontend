@@ -32,10 +32,12 @@ import {
   isFieldSessionContext,
   setTokens,
 } from "@/lib/auth-token";
+import { APP_VERSION } from "@/lib/app-version";
 import { portalLoginPath } from "@/lib/portal";
 import { t } from "@/lib/i18n-runtime";
 import { getActiveProjectId } from "@/lib/project-context";
 import { attachOriginalManifest, carriesOriginals, markOriginalsDeclared } from "@/lib/original-photos";
+import { gateForRefusal, reportPlatformGate } from "@/lib/platform-gate";
 import {
   SIGN_OFF_CANCELLED,
   askSignOff,
@@ -239,6 +241,23 @@ function endSession(): void {
 }
 
 /**
+ * 系统维护 (503 `platform_maintenance`) or an outdated build (426
+ * `client_update_required`), JB211: put up the one full-screen notice and say
+ * so (`true`). The session is kept - this is never `endSession`.
+ *
+ * A sign-in refused for maintenance is the exception: the sign-in form says it
+ * in place, under the page's own maintenance notice, so the form stays open
+ * for MSE staff, who are never kept out.
+ */
+function announcePlatformGate(status: number, code: string, path: string): boolean {
+  const gate = gateForRefusal(status, code);
+  if (gate === null) return false;
+  if (gate === "maintenance" && isCredentialExchange(path)) return true;
+  reportPlatformGate(gate);
+  return true;
+}
+
+/**
  * How long an upload may run before it counts as failed (A9).
  *
  * A file upload on a weak site signal could hang with no answer at all, and
@@ -342,6 +361,10 @@ async function send(path: string, options: RequestOptions): Promise<Response> {
     if (options.signOffPin) headers["X-Sign-Off-PIN"] = options.signOffPin;
     if (options.fileHeaders) Object.assign(headers, options.fileHeaders);
   }
+  // JB211 (11.2.9 强制更新): which build is asking, on every signed-in call and
+  // every sign-in. A public read (a visitor page, a driver link, branding)
+  // goes without it, so it stays a plain request with no extra preflight.
+  if (auth || isCredentialExchange(path)) headers["X-Client-Version"] = APP_VERSION;
 
   let payload: BodyInit | undefined;
   const offlineCreatedAt = currentOfflineCreatedAt;
@@ -456,6 +479,13 @@ export async function request<T>(
       const errors = envelope.success ? {} : translateFieldErrors(envelope.errors);
       const values = envelope.success ? undefined : envelope.values;
       const message = resolveMessage(code, envelope.success ? "" : envelope.message, values);
+
+      // JB211: 系统维护 (503) or an outdated build (426). Not a sign-out - the
+      // tokens stay - and not a toast: one full-screen notice says it.
+      if (announcePlatformGate(response.status, code, path)) {
+        if (attempt.signOffPin) settleSignOff();
+        throw new ApiError(message, response.status, {}, code, values);
+      }
 
       // The sign-off PIN (I29): ask, and send the same request again.
       const pin = attempt.noSignOffPrompt
@@ -758,6 +788,11 @@ async function fetchFile(path: string, options: RequestOptions): Promise<Respons
       const code = envelope.success ? "" : (envelope.code ?? "");
       const values = envelope.success ? undefined : envelope.values;
       const message = resolveMessage(code, envelope.success ? "" : envelope.message, values);
+      // JB211: the same full-screen notice as any other call.
+      if (announcePlatformGate(response.status, code, path)) {
+        if (attempt.signOffPin) settleSignOff();
+        throw new ApiError(message, response.status, {}, code);
+      }
       const pin = attempt.noSignOffPrompt
         ? undefined
         : await answerSignOff(response.status, code, message, attempt.signOffPin, values, asked);

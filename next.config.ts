@@ -1,7 +1,21 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
+
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
+
+/**
+ * The build's own version, from `package.json` (JB211, 11.2.9 强制更新): every
+ * API call says it (`X-Client-Version`), and 版本管理 shows it as
+ * 「这台电脑正在用的版本」. Only the number goes into the bundle, not the file.
+ */
+const packageVersion = String(
+  (JSON.parse(readFileSync(path.join(process.cwd(), "package.json"), "utf8")) as {
+    version?: unknown;
+  }).version ?? "",
+);
 
 const isTypeGeneration = process.env.npm_lifecycle_event === "typecheck";
 const deploymentId =
@@ -49,6 +63,7 @@ const HTML_LIMITED_BOTS = new RegExp(
 );
 
 const nextConfig: NextConfig = {
+  env: { MSE_PACKAGE_VERSION: packageVersion },
   htmlLimitedBots: HTML_LIMITED_BOTS,
   // A browser can remain open while Vercel promotes a newer build. Mark every
   // production build so Next.js can detect that version skew and fall back to

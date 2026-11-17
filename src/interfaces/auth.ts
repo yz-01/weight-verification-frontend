@@ -2,6 +2,7 @@
 
 import type { Locale } from "@/i18n/config";
 import type { CompanyType } from "@/interfaces/company";
+import type { PlatformContact, PlatformMaintenance } from "@/lib/platform-status";
 
 /** REMOVED: a phone account deleted from its project; its number is free (JB109). */
 export type UserStatus = "INVITED" | "ACTIVE" | "SUSPENDED" | "REMOVED";
@@ -50,6 +51,10 @@ export interface Branding {
   icon_url: string | null;
   revision: string | null;
   uses_platform_default: boolean;
+  /** JB211: the 维护 notice, live (older cached copies have none). */
+  maintenance?: PlatformMaintenance;
+  /** JB211: MSE's 联络资料 (11.2.1); blank fields are not shown. */
+  contact?: PlatformContact;
 }
 
 export interface TokenPair {

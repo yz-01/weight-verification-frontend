@@ -6,6 +6,7 @@ import { EllipsisVertical, Eye, FileCheck2, FilePlus2, Filter, XCircle } from "l
 import { useFormatter, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
+import { InvoiceIssuer } from "@/components/billing/invoice-issuer";
 import { useAuth } from "@/components/providers/auth-provider";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import { ExportButton } from "@/components/shared/export-button";
@@ -188,7 +189,7 @@ export function InvoiceList({ fixedKind, embedded = false }: { fixedKind?: Invoi
 
 function InvoiceDetailView({ invoice }: { invoice: Awaited<ReturnType<typeof getInvoice>> }) {
   const t = useTranslations("billing"); const df = useDateFormat(); const format = useFormatter();
-  return <div className="space-y-5"><div className="grid grid-cols-2 gap-x-6 gap-y-3 border-y py-4 text-sm md:grid-cols-4"><Value label={t("field.state")} value={t(`state.${invoice.state}`)} /><Value label={t("field.period")} value={`${df.date(invoice.period_start)} - ${df.date(invoice.period_end)}`} /><Value label={t("field.receivable")} value={format.number(Number(invoice.total_amount), { style: "currency", currency: invoice.currency })} /><Value label={t("field.outstanding")} value={format.number(Number(invoice.amount_outstanding), { style: "currency", currency: invoice.currency })} /></div>
+  return <div className="space-y-5">{/* 开票方: who the bill is from (JB211, 11.2.1). */}<InvoiceIssuer /><div className="grid grid-cols-2 gap-x-6 gap-y-3 border-y py-4 text-sm md:grid-cols-4"><Value label={t("field.state")} value={t(`state.${invoice.state}`)} /><Value label={t("field.period")} value={`${df.date(invoice.period_start)} - ${df.date(invoice.period_end)}`} /><Value label={t("field.receivable")} value={format.number(Number(invoice.total_amount), { style: "currency", currency: invoice.currency })} /><Value label={t("field.outstanding")} value={format.number(Number(invoice.amount_outstanding), { style: "currency", currency: invoice.currency })} /></div>
     {invoice.kind === "COMMISSION" && <div className="grid grid-cols-3 gap-3 text-sm"><Value label={t("field.businessWeight")} value={`${invoice.basis_weight_kg} kg`} /><Value label={t("field.settlementAmount")} value={`${invoice.currency} ${invoice.basis_amount}`} /><Value label={t("field.commissionRate")} value={invoice.basis_rate ?? "-"} /></div>}
     <div><h3 className="mb-2 text-sm font-semibold">{t("detail.lines")}</h3>{invoice.lines.map((line) => <div key={line.id} className="flex justify-between gap-4 border-t py-2 text-sm"><span>{line.description}</span><span className="tabular-nums">{invoice.currency} {line.line_total}</span></div>)}</div>
     {invoice.settlement_links.length > 0 && <div><h3 className="mb-2 text-sm font-semibold">{t("detail.settlements")}</h3>{invoice.settlement_links.map((link) => <div key={link.id} className="grid grid-cols-3 border-t py-2 text-xs"><span>{link.settlement_no}</span><span>{link.settled_weight_kg} kg</span><span>{invoice.currency} {link.settled_amount}</span></div>)}</div>}
