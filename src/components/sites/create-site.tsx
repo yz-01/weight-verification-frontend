@@ -65,6 +65,10 @@ export function CreateSite({ site }: { site?: RecyclingSite }) {
         if (error instanceof ApiError && error.isValidation) {
           const leftover = applyServerErrors(error.errors, form as unknown as Parameters<typeof applyServerErrors>[1]);
           if (leftover.length > 0) setFormError(leftover[0]);
+        } else if (error instanceof ApiError && error.code === "site_limit_reached") {
+          // 场地上限 / 地磅上限 (JB213): the reason, the number and whom to ask
+          // stay on the form; a toast is gone before it is read.
+          setFormError(error.message);
         }
       }
     },

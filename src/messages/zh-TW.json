@@ -5086,7 +5086,13 @@
       "usedUserSeats": "已使用賬號",
       "userCount": "用戶數",
       "userLimit": "賬號額度",
-      "website": "網站"
+      "website": "網站",
+      "trialDays": "試用天數",
+      "trialEndsOn": "免費試用到",
+      "siteLimit": "回收場上限",
+      "scaleLimit": "地磅上限",
+      "siteLimitOverride": "自訂回收場上限",
+      "scaleLimitOverride": "自訂地磅上限"
     },
     "filter": {
       "active": "正常",
@@ -5375,7 +5381,14 @@
       "recordsHelp": "歸檔後鎖定記錄，什麼時候必須拍照。",
       "defaults": "系統預設值",
       "defaultsHelp": "新項目、訪客證和總部 Dashboard 一開始用的值。"
-    }
+    },
+    "trialDaysHint": "這個套餐預設試用 {days} 天。試用期間不出帳單；試用結束後要在訂閱管理按「續期」才開始收費。填 0 = 不試用。",
+    "trialNote": "試用期間不出帳單。試用結束後要在訂閱管理按「續期」才開始收費。",
+    "siteLimitOverrideHint": "空著 = 按套餐的上限（{limit}）。調高後馬上可以新增；調低不會影響已經有的回收場。",
+    "scaleLimitOverrideHint": "空著 = 按套餐的上限（{limit}）。調高後馬上可以新增；調低不會影響已經有的地磅。",
+    "limitUsage": "已用 {used}，上限 {limit}",
+    "noLimit": "不限",
+    "planHidden": "{name}（不公開）"
   },
   "consultantAccess": {
     "action": {
@@ -9382,7 +9395,10 @@
       "hazard_confirmed_by_other": "{incident_no} 由負責確認的人 {confirmer} 來驗收或退回。你可以查看，但不能操作；需要的話請聯繫他。",
       "visitor_host_required": "請先選訪客要找的人，再按確認。",
       "visitor_host_not_on_project": "這個人不在這個項目裡。請從名單裡選這個項目的人。",
-      "commission_disabled": "平台佣金已在系統設定關閉，不能開佣金帳單。"
+      "commission_disabled": "平台佣金已在系統設定關閉，不能開佣金帳單。",
+      "site_limit_reached": "貴公司的套餐最多可以有 {limit} 個回收場，現在已經有 {used} 個，所以不能再新增。如需增加，請聯絡 MSE。",
+      "scale_limit_reached": "這家回收商的套餐最多可以有 {limit} 台在用的地磅，現在已經有 {used} 台，所以不能再新增或重新啟用。請先在公司頁面調高「自訂地磅上限」。",
+      "external_integration_not_in_plan": "這家公司的套餐不包含外部系統對接（ERP、會計系統、MyInvois、Webhook、API），所以不能新增或開啟這類連線。如需開通，請聯絡 MSE 更換套餐。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -11234,7 +11250,9 @@
       "projects": "項目列表",
       "sites": "回收場列表",
       "scales": "地磅列表"
-    }
+    },
+    "outsidePlan": "套餐不含外部系統對接：這條連線照常運行，但關掉後不能再開啟。",
+    "outsidePlanCannotEnable": "這家公司的套餐不含外部系統對接，所以不能開啟。請聯絡 MSE 更換套餐。"
   },
   "loginRecords": {
     "count": "{count, plural, =0 {暫無記錄} other {# 次嘗試}}",
@@ -17763,11 +17781,22 @@
     },
     "hint": {
       "effectiveImmediately": "關閉時保留公司當前已付到期日。",
-      "features": "以逗號分隔此套餐啟用的功能權限鍵。",
+      "features": "全部不勾 = 所有功能都可以用（跟現在一樣）。勾了哪些，這個套餐的公司就只看到、只能用哪些。灰色的幾項一直都有。",
       "partnerServiceFee": "合作版只在首次開通收取此服務費，之後只運行佣金制度，月費與年費保持為零。",
       "planDefault": "使用套餐額度",
       "seatOverride": "留空則使用套餐設定的賬號額度。",
-      "terminate": "此操作會立即令訂閱到期、禁止公司使用系統並撤銷現有登入。"
+      "terminate": "此操作會立即令訂閱到期、禁止公司使用系統並撤銷現有登入。",
+      "billingCycle": "新增公司、換套餐和續期時，預設按這個週期算月份：月 1、季 3、半年 6、年 12。",
+      "trialDays": "新公司開在這個套餐上時，先免費試用這麼多天：試用期間不出帳單；到期後要在訂閱管理按「續期」才開始收費。0 = 不試用。",
+      "maxSites": "回收商最多可以有幾個回收場。空著 = 不限。已經有的回收場不受影響，只是不能再新增。",
+      "maxScales": "回收商最多可以有幾台在用的地磅。空著 = 不限。已經有的地磅照常使用，只是不能再新增。",
+      "contractorNoSiteLimit": "建築商沒有回收場和地磅，這一格不用填。",
+      "externalIntegration": "開了，回收商可以自己接 ERP、會計系統、MyInvois、Webhook。沒開的套餐不能新增或開啟這類連線；已經開著的照常運行。",
+      "publicPlan": "關掉後，新增公司和換套餐時不會出現這個套餐；已經在用的公司照常使用。",
+      "defaultsFrom": "收費週期、試用天數和帳號上限已按系統設定的 SaaS 預設值填好，可以直接改。",
+      "trialPlanChange": "這家公司還在免費試用（到 {date}）。換套餐只換套餐，試用日期不變；要開始收費請按「續期」。",
+      "trialRenew": "這家公司還在免費試用（到 {date}）。續期後，付費期從 {start} 開始，並開始出帳單。",
+      "cycleDefault": "按套餐的收費週期，預設 {months} 個月。"
     },
     "metric": {
       "active": "使用中",
@@ -17789,7 +17818,11 @@
       "create": "建立套餐",
       "edit": "編輯套餐",
       "empty": "沒有訂閱套餐。",
-      "formDescription": "價格、額度與功能權限會應用於分配此套餐的公司。"
+      "formDescription": "價格、額度與功能權限會應用於分配此套餐的公司。",
+      "allowanceSummaryRecycler": "{users} 個帳號，{sites} 個回收場，{scales} 台地磅",
+      "featuresAll": "所有功能",
+      "featuresCount": "{count} 項功能",
+      "legacyFeatures": "以前填寫、系統不認識的：{keys}（保留，不起作用）"
     },
     "renewals": {
       "count": "{count} 個訂閱需要處理",
@@ -17864,7 +17897,19 @@
     },
     "what": {
       "summary": "訂閱匯總",
-      "plans": "套餐列表"
+      "plans": "套餐列表",
+      "planDefaults": "套餐預設值"
+    },
+    "badge": {
+      "hidden": "不公開",
+      "default": "預設",
+      "trialDays": "試用 {days} 天",
+      "trialUntil": "試用到 {date}"
+    },
+    "featureName": {
+      "gate_records": "門崗記錄",
+      "field_staff": "現場人員管理",
+      "site_workers": "人員名單"
     }
   },
   "suppliers": {

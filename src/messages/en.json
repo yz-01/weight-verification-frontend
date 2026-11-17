@@ -5086,7 +5086,13 @@
       "usedUserSeats": "Users in use",
       "userCount": "Users",
       "userLimit": "User allowance",
-      "website": "Website"
+      "website": "Website",
+      "trialDays": "Trial days",
+      "trialEndsOn": "Free trial until",
+      "siteLimit": "Yard limit",
+      "scaleLimit": "Weighbridge limit",
+      "siteLimitOverride": "Custom yard limit",
+      "scaleLimitOverride": "Custom weighbridge limit"
     },
     "filter": {
       "active": "Active",
@@ -5375,7 +5381,14 @@
       "recordsHelp": "Locking after archive, and when a photo must be taken.",
       "defaults": "System defaults",
       "defaultsHelp": "What new projects, visitor passes and the dashboard start with."
-    }
+    },
+    "trialDaysHint": "This plan gives {days} free days by default. No bill during the trial; billing starts only when you press Renew in Subscriptions. Enter 0 for no trial.",
+    "trialNote": "No bill during the trial. Billing starts only when you press Renew in Subscriptions.",
+    "siteLimitOverrideHint": "Empty = the plan's limit ({limit}). Raising it allows adding at once; lowering it does not affect existing yards.",
+    "scaleLimitOverrideHint": "Empty = the plan's limit ({limit}). Raising it allows adding at once; lowering it does not affect existing weighbridges.",
+    "limitUsage": "{used} used of {limit}",
+    "noLimit": "No limit",
+    "planHidden": "{name} (hidden)"
   },
   "consultantAccess": {
     "action": {
@@ -9382,7 +9395,10 @@
       "hazard_confirmed_by_other": "{incident_no} is checked or returned by the person who confirms it {confirmer}. You can read it but not act on it; contact them if needed.",
       "visitor_host_required": "Choose who the visitor is here to see, then press confirm.",
       "visitor_host_not_on_project": "That person does not work on this project. Choose someone from this project in the list.",
-      "commission_disabled": "Platform commission is switched off in System Settings, so no commission bill can be made."
+      "commission_disabled": "Platform commission is switched off in System Settings, so no commission bill can be made.",
+      "site_limit_reached": "Your package allows {limit} yard(s) and you already have {used}, so another one cannot be added. To add more, please contact MSE.",
+      "scale_limit_reached": "This recycler's package allows {limit} weighbridge(s) in use and it already has {used}, so another one cannot be added or switched back on. Raise its custom weighbridge limit on the company page first.",
+      "external_integration_not_in_plan": "This company's package does not include connections to outside systems (ERP, accounting, MyInvois, webhook, API), so this kind of connection cannot be added or switched on. To get it, please contact MSE to change the package."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -11234,7 +11250,9 @@
       "projects": "the project list",
       "sites": "the recycling site list",
       "scales": "the weighbridge list"
-    }
+    },
+    "outsidePlan": "Not in the package: this connection keeps running, but once switched off it cannot be switched on again.",
+    "outsidePlanCannotEnable": "This company's package does not include outside-system connections, so it cannot be switched on. Contact MSE to change the package."
   },
   "loginRecords": {
     "count": "{count, plural, =0 {No attempts} one {# attempt} other {# attempts}}",
@@ -17763,11 +17781,22 @@
     },
     "hint": {
       "effectiveImmediately": "Off keeps the company's existing paid-to date.",
-      "features": "Comma-separated feature keys enabled by this plan.",
+      "features": "Leave all unticked = every feature, as today. Tick some and companies on this plan see and use only those. The greyed ones are always there.",
       "partnerServiceFee": "Partner plans charge this once, then use commission only. Monthly and yearly fees stay at zero.",
       "planDefault": "Use plan allowance",
       "seatOverride": "Leave blank to use the allowance defined by the plan.",
-      "terminate": "This immediately expires the subscription, blocks tenant access and revokes active sessions."
+      "terminate": "This immediately expires the subscription, blocks tenant access and revokes active sessions.",
+      "billingCycle": "New companies, plan changes and renewals default to this many months: monthly 1, quarterly 3, half-yearly 6, yearly 12.",
+      "trialDays": "A new company on this plan first gets this many free days: no bill during the trial; billing starts only when you press Renew in Subscriptions. 0 = no trial.",
+      "maxSites": "How many yards a recycler may have. Empty = no limit. Existing yards are not affected; only adding another is stopped.",
+      "maxScales": "How many weighbridges in use a recycler may have. Empty = no limit. Existing weighbridges keep working; only adding another is stopped.",
+      "contractorNoSiteLimit": "Contractors have no yards or weighbridges; leave this empty.",
+      "externalIntegration": "On: the recycler can connect its own ERP, accounting, MyInvois or webhook. Off: such connections cannot be added or switched on; ones already on keep running.",
+      "publicPlan": "Off: this plan is not offered when adding a company or changing plan; companies already on it keep it.",
+      "defaultsFrom": "Billing cycle, trial days and account limit are filled in from the SaaS defaults in System Settings; change them as needed.",
+      "trialPlanChange": "This company is on its free trial (until {date}). Changing plan changes only the plan; the trial dates stay. Press Renew to start billing.",
+      "trialRenew": "This company is on its free trial (until {date}). After renewal the paid term starts on {start} and billing starts.",
+      "cycleDefault": "The plan's billing cycle: {months} month(s) by default."
     },
     "metric": {
       "active": "Active",
@@ -17789,7 +17818,11 @@
       "create": "Create plan",
       "edit": "Edit plan",
       "empty": "No subscription plans found.",
-      "formDescription": "Prices, allowances and entitlements take effect for companies assigned to this plan."
+      "formDescription": "Prices, allowances and entitlements take effect for companies assigned to this plan.",
+      "allowanceSummaryRecycler": "{users} accounts, {sites} yards, {scales} weighbridges",
+      "featuresAll": "All features",
+      "featuresCount": "{count} features",
+      "legacyFeatures": "Typed earlier, not recognised: {keys} (kept, no effect)"
     },
     "renewals": {
       "count": "{count} subscriptions require attention",
@@ -17864,7 +17897,19 @@
     },
     "what": {
       "summary": "The subscription summary",
-      "plans": "The plan list"
+      "plans": "The plan list",
+      "planDefaults": "The plan defaults"
+    },
+    "badge": {
+      "hidden": "Hidden",
+      "default": "Default",
+      "trialDays": "{days}-day trial",
+      "trialUntil": "Trial until {date}"
+    },
+    "featureName": {
+      "gate_records": "Gate records",
+      "field_staff": "Field staff",
+      "site_workers": "Site workers"
     }
   },
   "suppliers": {

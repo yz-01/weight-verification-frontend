@@ -34,6 +34,11 @@ export interface IntegrationConfig {
   available_events: string[];
   status: IntegrationStatus;
   is_enabled: boolean;
+  /**
+   * An outbound connection the company's package does not include (JB213,
+   * 外部接口): left running if it is on, but it cannot be switched on again.
+   */
+  outside_plan?: boolean;
   has_secret: boolean;
   last_success_at: string | null;
   last_error: string;
