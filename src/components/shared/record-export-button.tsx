@@ -94,11 +94,15 @@ function RecordExportButtons({
   const href = givenHref ?? (target && "href" in target ? target.href : "/");
   const corrected = versioned && (history.data?.corrections?.length ?? 0) > 0;
   const Actions = layout === "menu" ? FileActionMenu : FileActionButtons;
+  // A consultant's own 顾问申请 is his work: 导出 / 发送 as before (JB210);
+  // any other record needs his 「导出」 (`useTakeOut`).
+  const ownWork = kind === "CONSULTANT_APPLICATION";
   const latest = (
     <Actions
       label={t("completeEvidence")}
       labelHint={t("completeEvidenceHint")}
       blockedReason={blockedReason}
+      ownWork={ownWork}
       source={{
         load: () => recordPdfFile(kind, recordId, reference),
         title: t("completeEvidenceTitle", { reference }),
@@ -120,6 +124,7 @@ function RecordExportButtons({
     <Actions
       label={t("originalVersion")}
       labelHint={t("originalVersionHint")}
+      ownWork={ownWork}
       source={{
         load: () => recordPdfFile(kind, recordId, reference, 1),
         title: t("originalVersionTitle", { reference }),

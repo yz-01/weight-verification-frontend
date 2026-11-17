@@ -326,6 +326,8 @@ export function ConsultantApplicationDetail({
       {/* The final approval report: 预览 · 打印 · 导出 · 发送 (PDF 统一操作规则). */}
       {application.final_report && (
         <ExportButton
+          // His own 顾问申请 / 资料包 work: as before, 「导出」 or not (JB210).
+          ownWork
           size="sm"
           formats={["pdf"]}
           label={t("action.downloadReport")}
@@ -887,6 +889,8 @@ function ArchiveChecklist({ application }: { application: ConsultantApplication 
               {kind === "FINAL_REPORT" && entry && (
                 <div className="mt-2 flex flex-wrap items-center gap-3 text-xs font-semibold">
                   <ExportButton
+                    // His own 顾问申请 / 资料包 work: as before, 「导出」 or not (JB210).
+                    ownWork
                     size="sm"
                     formats={["pdf"]}
                     label={t("action.downloadReport")}

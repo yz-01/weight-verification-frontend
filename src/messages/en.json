@@ -5589,7 +5589,7 @@
       "progress": "Progress updates, daily reports, rain records, schedule - view only, may add remarks",
       "safety": "Sees rectifications and work permits; may raise a rectification and follow up his own",
       "documents": "This project's confirmed and archived files - view and download",
-      "recordCentre": "Finished records of the modules ticked above - view only",
+      "recordCentre": "Records of the modules ticked above - view only",
       "reports": "Reports of the modules ticked above",
       "notifications": "Notifications sent to him on this project",
       "conversations": "Conversations he takes part in"
@@ -9489,7 +9489,8 @@
       "archive_lock_choice_invalid": "Choose on or off.",
       "consultant_read_only": "A consultant account can only view this, not change it.",
       "consultant_module_not_granted": "Head office has not opened this module to you on this project. Ask head office if you need it.",
-      "consultant_no_permit": "A work permit is applied for by the contractor, not a consultant. You can raise a rectification instead."
+      "consultant_no_permit": "A work permit is applied for by the contractor, not a consultant. You can raise a rectification instead.",
+      "consultant_export_not_granted": "Head office has not given you Export on this project, so you cannot export or send. You can preview and print."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -21097,6 +21098,16 @@
       "allAssignees": "All assignees",
       "dateFrom": "Start date",
       "dateTo": "End date"
+    },
+    "consultantReview": {
+      "open": "Accept / return",
+      "hint": "Accept: the task is done. Return: say why, and the task goes back to the contractor to redo.",
+      "accept": "Accept",
+      "return": "Return",
+      "reason": "Reason for returning",
+      "reasonHint": "Say what is not right and what to change. The contractor sees it on the task.",
+      "confirmReturn": "Return the task",
+      "cancel": "Cancel"
     }
   },
   "mapFrame": {

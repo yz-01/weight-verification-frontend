@@ -5589,7 +5589,7 @@
       "progress": "Kemajuan projek, laporan harian, rekod hujan, jadual - lihat sahaja, boleh menulis catatan",
       "safety": "Lihat pembetulan dan permit kerja; boleh membuka pembetulan dan menyusul yang dibukanya",
       "documents": "Fail projek ini yang telah disahkan dan diarkibkan - lihat dan muat turun",
-      "recordCentre": "Rekod yang selesai bagi modul yang ditanda di atas - lihat sahaja",
+      "recordCentre": "Rekod modul yang ditanda di atas - lihat sahaja",
       "reports": "Laporan bagi modul yang ditanda di atas",
       "notifications": "Pemberitahuan yang dihantar kepadanya dalam projek ini",
       "conversations": "Perbualan yang dia sertai"
@@ -9489,7 +9489,8 @@
       "archive_lock_choice_invalid": "Pilih hidup atau mati.",
       "consultant_read_only": "Akaun perunding hanya boleh melihat ini, bukan mengubahnya.",
       "consultant_module_not_granted": "Ibu pejabat belum membuka modul ini untuk anda dalam projek ini. Hubungi ibu pejabat jika anda memerlukannya.",
-      "consultant_no_permit": "Permit kerja dipohon oleh kontraktor, bukan perunding. Anda boleh membuka pembetulan."
+      "consultant_no_permit": "Permit kerja dipohon oleh kontraktor, bukan perunding. Anda boleh membuka pembetulan.",
+      "consultant_export_not_granted": "Ibu pejabat belum memberi anda Eksport dalam projek ini, jadi anda tidak boleh mengeksport atau menghantar. Anda boleh pratonton dan mencetak."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -21097,6 +21098,16 @@
       "allAssignees": "Semua penerima tugasan",
       "dateFrom": "Tarikh mula",
       "dateTo": "Tarikh akhir"
+    },
+    "consultantReview": {
+      "open": "Terima / pulangkan",
+      "hint": "Terima: tugas selesai. Pulangkan: nyatakan sebabnya, dan tugas kembali kepada kontraktor untuk dibuat semula.",
+      "accept": "Terima",
+      "return": "Pulangkan",
+      "reason": "Sebab dipulangkan",
+      "reasonHint": "Nyatakan apa yang tidak betul dan apa yang perlu diubah. Kontraktor melihatnya pada tugas.",
+      "confirmReturn": "Pulangkan tugas",
+      "cancel": "Batal"
     }
   },
   "mapFrame": {

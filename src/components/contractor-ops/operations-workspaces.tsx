@@ -1515,7 +1515,14 @@ export function FieldTasksWorkspace({
                         task={row}
                         onDone={() => void qc.invalidateQueries({ queryKey: ["field-tasks"] })}
                       />
-                      {canReview ? (
+                      {canReview && user?.account_type === "CONSULTANT" ? (
+                        // A consultant 验收 / 退回 in the task's window, where
+                        // he can say why (JB210, walk 11-17 F-A5).
+                        <Button size="sm" onClick={() => setOpenedTask(row.id)}>
+                          <Check />
+                          {flow("consultantReview.open")}
+                        </Button>
+                      ) : canReview ? (
                         <Button
                           size="sm"
                           disabled={transition.isPending}

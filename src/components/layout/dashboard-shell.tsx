@@ -100,7 +100,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       user.is_superuser,
     )
     ) {
-      const notice = refusedPageNotice(pathname);
+      const notice = refusedPageNotice(pathname, user.features);
       if (notice && toldRefused.current !== pathname) {
         toldRefused.current = pathname;
         toastRefusal(notice);

@@ -39,6 +39,8 @@ export interface FileActionDetails {
   channel?: string;
   /** JB64: which of the record's files went (a package's `R2` / `TRANSCRIPT`). */
   part?: string;
+  /** JB210: a consultant's own 顾问申请 / 资料包 work, taken out without 「导出」. */
+  own_work?: boolean;
 }
 
 /**
@@ -69,9 +71,17 @@ export function linkPath(link: string | undefined): string | undefined {
  * write its log row with, or null when the dialog was closed or the server
  * refused (already said in a toast).
  */
-export async function authorizeFileAction(action: FileActionType): Promise<string | null> {
+export async function authorizeFileAction(
+  action: FileActionType,
+  /** JB210: what is taken out, so a consultant without 「导出」 is told before the PIN. */
+  about: { ownWork?: boolean; recordKind?: string } = {},
+): Promise<string | null> {
   try {
-    const data = await api.post<{ grant: string }>("/api/file-actions/authorize/", { action });
+    const data = await api.post<{ grant: string }>("/api/file-actions/authorize/", {
+      action,
+      ...(about.recordKind ? { record_kind: about.recordKind } : {}),
+      ...(about.ownWork ? { own_work: true } : {}),
+    });
     return data.grant || null;
   } catch {
     return null;
