@@ -15,6 +15,7 @@ import type {
   FinancialReportsSummary,
   Payment,
   PaymentState,
+  PlatformDefaultCommission,
 } from "@/interfaces/billing";
 import type { ExportRequest } from "@/services/contractor.service";
 import { api, download, toastSuccess } from "@/services/api-client";
@@ -172,6 +173,11 @@ export function getCommissionRules(
   query?: ListQuery,
 ): Promise<Paginated<CommissionRule>> {
   return api.list<CommissionRule>("/api/commission-rules/get_rules/", query);
+}
+
+/** 11.2.3 佣金设置 (JB212-4): the platform default rule in force today and the next version. */
+export function getPlatformDefaultCommission(): Promise<PlatformDefaultCommission> {
+  return api.get<PlatformDefaultCommission>("/api/commission-rules/get_platform_default/");
 }
 
 export async function createCommissionRule(

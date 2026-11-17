@@ -2453,7 +2453,7 @@
       "qr_duplicate_use_policy": "重複使用規則",
       "qr_number_prefix": "編號前綴",
       "saas_default_billing_cycle": "默認收費週期",
-      "saas_default_plan_code": "默認配套編號",
+      "saas_default_plan_code": "新建築商的預設配套",
       "saas_default_trial_days": "默認試用天數",
       "saas_default_user_limit": "默認賬號上限",
       "saas_plans_enabled": "啟用配套"
@@ -2584,7 +2584,7 @@
         "title": "二維碼設置"
       },
       "saas": {
-        "subtitle": "默認配套、收費週期、試用期、賬號上限和配套啟停。",
+        "subtitle": "預設配套、收費週期、試用期和賬號上限。",
         "title": "SaaS 設置"
       },
       "versions": {
@@ -2612,6 +2612,83 @@
       "title": "還有設定沒有保存",
       "description": "這一頁有改過、還沒按「保存」的設定。現在離開的話，這些改動不會保存。",
       "confirm": "離開，不保存"
+    },
+    "notificationTypes": {
+      "hint": "打勾的類別會自動發通知；沒打勾的不發（MSE 和客戶都不發）。帳單、訂閱這些資料本身不受影響，自己發的公告也照樣發出。",
+      "COMPANY": {
+        "label": "公司通知",
+        "help": "新建築商、新回收商註冊，公司啟用、停用"
+      },
+      "SUBSCRIPTION": {
+        "label": "訂閱通知",
+        "help": "訂閱快到期、已到期、續期"
+      },
+      "SAAS_BILLING": {
+        "label": "SaaS 帳單通知",
+        "help": "SaaS 帳單開出、付款確認。不打勾時客戶也收不到「帳單已開出」，但帳單照樣在客戶的帳單中心裡。"
+      },
+      "COMMISSION_BILLING": {
+        "label": "平台佣金通知",
+        "help": "佣金帳單開出、付款確認。不打勾時客戶也收不到「帳單已開出」，但帳單照樣在客戶的帳單中心裡。"
+      },
+      "CWE": {
+        "label": "地磅通知",
+        "help": "地磅離線、恢復連線"
+      },
+      "SYSTEM": {
+        "label": "系統通知",
+        "help": "系統維護"
+      }
+    },
+    "reminderDays": {
+      "before": "訂閱到期前",
+      "after": "天開始每天提醒",
+      "hint": "填 1 到 365。原來固定是 30 天。",
+      "invalid": "請填 1 到 365 之間的整數"
+    },
+    "duplicateWindow": {
+      "before": "同一個二維碼在",
+      "after": "秒內再掃一次，算重複使用",
+      "hint": "填 10 到 3600（3600 秒 = 1 小時）。重複使用以後怎麼處理，看「重複使用規則」。原來固定是 90 秒。",
+      "invalid": "請填 10 到 3600 之間的整數"
+    },
+    "maintenanceWindow": {
+      "label": "維護時間",
+      "start": "開始",
+      "end": "結束",
+      "startBlank": "不填開始時間：一打開維護模式就開始",
+      "endBlank": "不填結束時間：一直到關閉維護模式",
+      "endBeforeStart": "結束時間要比開始時間晚",
+      "clear": "清除"
+    },
+    "defaultPlan": {
+      "none": "不指定（用排在最前面的建築商配套）",
+      "stopped": "{code}（已停用或已刪除）",
+      "hint": "新增建築商時沒有選配套，就用這個。回收商一定要自己選配套（合作版和標準版收費不同）。",
+      "what": "建築商配套"
+    },
+    "saasPlansNote": "每個配套的啟用 / 停用，在「套餐管理」裡分開設定。",
+    "saasPlansLink": "打開套餐管理",
+    "commissionCard": {
+      "title": "平台預設佣金",
+      "description": "所有合作版回收商都用這個（另外談好特別佣金的公司除外）。修改從生效日期起用，已經開出的帳單不會變。",
+      "rate": "佣金比例",
+      "basis": "計算方式",
+      "cycle": "結算週期",
+      "effectiveFrom": "生效日期",
+      "next": "{date} 起改為 {rate}",
+      "none": "還沒有設定平台預設佣金，現在不會開出任何佣金帳單。",
+      "firstWarning": "儲存後，合作版回收商從生效日期起開始產生佣金帳單。",
+      "change": "修改",
+      "set": "設定平台預設佣金",
+      "allVersions": "查看全部版本",
+      "switchedOff": "「啟用佣金」已關閉：現在不開新的佣金帳單。",
+      "what": "平台預設佣金",
+      "dialogTitle": "修改平台預設佣金",
+      "dialogNotice": "儲存後會加一個新版本，從生效日期起使用；之前開出的帳單不會變。"
+    },
+    "help": {
+      "commission_enabled": "關掉後，系統不再開出新的平台佣金帳單（自動和手動都不開）。已經開出的帳單照樣要付。"
     }
   },
   "adminTechnicalSupport": {
@@ -9304,7 +9381,8 @@
       "hazard_not_awaiting_check": "這一項已經有人處理過了，現在不是等驗收的狀態。請刷新頁面，看最新的情況。",
       "hazard_confirmed_by_other": "{incident_no} 由負責確認的人 {confirmer} 來驗收或退回。你可以查看，但不能操作；需要的話請聯繫他。",
       "visitor_host_required": "請先選訪客要找的人，再按確認。",
-      "visitor_host_not_on_project": "這個人不在這個項目裡。請從名單裡選這個項目的人。"
+      "visitor_host_not_on_project": "這個人不在這個項目裡。請從名單裡選這個項目的人。",
+      "commission_disabled": "平台佣金已在系統設定關閉，不能開佣金帳單。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
