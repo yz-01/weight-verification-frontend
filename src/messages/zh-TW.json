@@ -5488,7 +5488,12 @@
       "subtitle": "每一行代表一名顧問對一個項目的權限；撤銷後會立即停止訪問。",
       "title": "項目授權",
       "validity": "從 {from} 至 {until}",
-      "organizationEditHint": "只列出這位顧問已登記所屬的顧問單位。"
+      "organizationEditHint": "只列出這位顧問已登記所屬的顧問單位。",
+      "modulesTitle": "這個項目上，顧問可以用的模組（內容只限這個項目）",
+      "optionsTitle": "其他權限",
+      "selectAll": "全選",
+      "selectNone": "全不選",
+      "noModules": "沒有勾選模組"
     },
     "organization": {
       "activeHelp": "停用後，該單位的所有項目授權會立即失效。",
@@ -5553,6 +5558,41 @@
       "ACTIVE": "正常",
       "INVITED": "等待接受邀請",
       "SUSPENDED": "已停用"
+    },
+    "module": {
+      "dashboard": "儀表板",
+      "projects": "項目",
+      "fieldTasks": "現場任務",
+      "materials": "材料管理",
+      "progress": "工程進度",
+      "safety": "整改／EHS",
+      "documents": "文件檔案",
+      "recordCentre": "現場記錄中心",
+      "reports": "報表中心",
+      "notifications": "通知中心",
+      "conversations": "溝通記錄"
+    },
+    "moduleHint": {
+      "dashboard": "首頁，只顯示下面勾了的模組",
+      "projects": "項目基本資料（不顯示人員電話、電郵和權限）",
+      "fieldTasks": "只顯示發給顧問驗收的、他參與過的任務",
+      "materials": "材料進場、材料出場、材料目標——只能看，不顯示金額",
+      "progress": "進度記錄、日報告、雨天記錄、施工計劃——只能看，可以寫備註",
+      "safety": "看整改和施工准證；可以發起整改，跟進自己發起的",
+      "documents": "本項目已確認歸檔的文件——看和下載",
+      "recordCentre": "上面勾了的模組裡已完成的記錄——只能看",
+      "reports": "上面勾了的模組的報表",
+      "notifications": "這個項目發給他的通知",
+      "conversations": "他參與的溝通"
+    },
+    "option": {
+      "approvalView": "顧問申請：查看",
+      "approvalReview": "顧問申請：審批（簽核）",
+      "export": "導出"
+    },
+    "optionHint": {
+      "approvalReview": "勾這一項會同時勾上「查看」",
+      "export": "報表和各模組清單可以導出"
     }
   },
   "consultantDashboard": {
@@ -9436,7 +9476,10 @@
       "scale_limit_reached": "這家回收商的套餐最多可以有 {limit} 台在用的地磅，現在已經有 {used} 台，所以不能再新增或重新啟用。請先在公司頁面調高「自訂地磅上限」。",
       "external_integration_not_in_plan": "這家公司的套餐不包含外部系統對接（ERP、會計系統、MyInvois、Webhook、API），所以不能新增或開啟這類連線。如需開通，請聯絡 MSE 更換套餐。",
       "ai_cctv_disabled": "這家回收商已關閉 AI CCTV，照片沒有收下。",
-      "archive_lock_choice_invalid": "請選擇打開或關閉。"
+      "archive_lock_choice_invalid": "請選擇打開或關閉。",
+      "consultant_read_only": "顧問帳號只能查看這裡的資料，不能修改。",
+      "consultant_module_not_granted": "總部沒有為您在這個項目開通這個模組。如需使用，請聯絡總部。",
+      "consultant_no_permit": "施工准證由施工方申請，顧問不能提交。您可以發起整改。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -21879,7 +21922,17 @@
     },
     "packageThread": "資料包 · {name}",
     "packageKind": "資料包",
-    "packageGone": "找不到這個資料包的溝通，或者你沒有權限看。"
+    "packageGone": "找不到這個資料包的溝通，或者你沒有權限看。",
+    "consultant": {
+      "subtitle": "這個項目上發給您、或您參與過的溝通：資料包、顧問申請、現場任務和整改。",
+      "empty": "這個項目還沒有您參與的溝通。",
+      "kind": {
+        "FIELD_TASK": "現場任務",
+        "CONSULTANT_APPLICATION": "顧問申請",
+        "HAZARD": "整改",
+        "PACKAGE": "資料包"
+      }
+    }
   },
   "photoWall": {
     "hint": "單擊照片放大，可以左右翻看；雙擊照片打開完整記錄。",

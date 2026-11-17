@@ -163,7 +163,9 @@ export function Documents() {
   const t = useTranslations();
   const df = useDateFormat();
   const queryClient = useQueryClient();
-  const { can } = useAuth();
+  const { can, user } = useAuth();
+  // 文件档案 for a consultant (JB210, Lucas 11-16 Q6 = A): 只看和下载.
+  const consultant = user?.account_type === "CONSULTANT";
   const searchParams = useSearchParams();
   const list = useListQuery([
     "status",
@@ -179,7 +181,7 @@ export function Documents() {
   const [editing, setEditing] = useState<DocumentRecord | null>(null);
   // Uploading is for everybody who reads the archive and is on the project
   // (B28, E10); filing company-wide and editing stay with the manager.
-  const canUpload = can("document.view") || can("document.manage");
+  const canUpload = !consultant && (can("document.view") || can("document.manage"));
   const manages = can("document.manage");
   const [filing, setFiling] = useState(searchParams.get("create") === "1" && canUpload);
   const [uploading, setUploading] = useState<DocumentRecord | null>(null);
@@ -472,6 +474,8 @@ export function Documents() {
           // unless MSE locked its project (「归档后锁定记录」, JB214-3d).
           const changeable = active || (record.status === "ARCHIVED" && !ARCHIVE_LOCKS_CHANGES && !record.archive_locked);
           const addFiles = addFilesRule(record, can, t);
+          // Not a consultant's (JB210, Lucas 11-16 Q6 = A: 只看和下载).
+          if (consultant) addFiles.shown = false;
           return (
             <div className="flex items-center justify-end gap-0.5">
               <Button
@@ -528,7 +532,7 @@ export function Documents() {
       },
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps -- openSource reads the opener, which is stable per render of this page.
-    [can, canUpload, df, manages, t],
+    [can, canUpload, consultant, df, manages, t],
   );
 
   function openSource(record: DocumentRecord, file?: DocumentSystemFileInfo) {
@@ -2252,10 +2256,12 @@ export function DocumentDetailBody({
 }) {
   const t = useTranslations();
   const df = useDateFormat();
-  const { can } = useAuth();
+  const { can, user } = useAuth();
   const notArchived = useNotArchivedReason();
   // The same rule as the list row's 上传 icon (JB196-8).
   const addFiles = addFilesRule(document, can, t);
+  // 文件档案 for a consultant: 只看和下载 (JB210, Lucas 11-16 Q6 = A).
+  if (user?.account_type === "CONSULTANT") addFiles.shown = false;
   // 填写检验结果 (J12-7): only where the subcategory asks for it.
   const [inspecting, setInspecting] = useState(false);
   // The picked files the photo row does not show (JB62-3).

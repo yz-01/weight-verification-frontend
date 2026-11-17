@@ -43,6 +43,7 @@ import {
 } from "@/components/providers/current-project-provider";
 import { FieldWrapper, ListHeader, QueryFailedNote } from "@/components/shared/page-primitives";
 import { RecordConversationPanel } from "@/components/shared/record-conversation";
+import { ConsultantFieldChats } from "@/components/site-access/field-chats-consultant";
 import { OFFICE_FIELD_CHATS_KEY, OfficeFindPeople } from "@/components/site-access/field-chats-find";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
@@ -59,7 +60,16 @@ type Entry =
   | { kind: "DIRECT"; id: string; at: number; row: OfficeFieldChat }
   | { kind: "PACKAGE"; id: string; at: number; row: PackageThreadRow };
 
+/**
+ * 「沟通记录」: the office's list, or a consultant's own (JB210, 客户 11-16:
+ * 「任务和沟通只显示顾问参与的记录」).
+ */
 export function FieldChatsOffice() {
+  const { user } = useAuth();
+  return user?.account_type === "CONSULTANT" ? <ConsultantFieldChats /> : <OfficeFieldChats />;
+}
+
+function OfficeFieldChats() {
   const t = useTranslations("fieldChats");
   const df = useDateFormat();
   const params = useSearchParams();

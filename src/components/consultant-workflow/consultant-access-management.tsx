@@ -70,6 +70,19 @@ import type {
 } from "@/interfaces/consultant-workflow";
 import { ApiError } from "@/interfaces/api";
 import { setsUpConsultants } from "@/lib/consultant-access";
+import {
+  CONSULTANT_MODULES,
+  CONSULTANT_OPTIONS,
+  MODULE_MESSAGE_KEYS,
+  OPTION_MESSAGE_KEYS,
+  orderedModules,
+  orderedOptions,
+  startingGrant,
+  toggleModule,
+  toggleOption,
+  type ConsultantModule,
+  type ConsultantOption,
+} from "@/lib/consultant-modules";
 import { useDateFormat } from "@/lib/dates";
 import { getProjects } from "@/services/contractor.service";
 import {
@@ -88,53 +101,22 @@ import {
 import { getContractorSiteSettings } from "@/services/site-access.service";
 
 /**
- * Everything a consultant may be granted, and what a new grant starts with.
- *
- * Mirrors `CONSULTANT_PERMISSION_CODES` and `default_consultant_permissions`
- * on the backend, which are authoritative: a tick the API refuses comes back
- * as a 400 on the permissions field. Company documents and construction
- * progress are deliberately absent — a consultant inspects the safety record
- * and signs approvals, and the rest of the contractor's business is not
- * theirs to read.
+ * What head office ticks for a consultant on one project (JB210, 客户 11-16:
+ * 「保留原有7项权限，并支持总部按项目勾选以下11个模块」): the 11 module ticks and
+ * the three options left of the original seven. `lib/consultant-modules`
+ * mirrors `accounts.consultant_access` on the backend, which is authoritative.
  */
-const PERMISSIONS = [
-  "project.view",
-  "approval.view",
-  "approval.review",
-  "notification.view",
-  "safety.view",
-  "report.view",
-  "report.export",
-] as const;
+export { startingGrant } from "@/lib/consultant-modules";
 
-const DEFAULT_PERMISSIONS = [
-  "project.view",
-  "approval.view",
-  "approval.review",
-  "notification.view",
-  "safety.view",
-];
-
-/**
- * What a new grant starts with: the company's default list (only codes a
- * consultant may hold, as the server filters it), else the usual five.
- */
-export function startingPermissions(companyDefaults: readonly string[] | null | undefined): string[] {
-  const allowed = (companyDefaults ?? []).filter((code) =>
-    (PERMISSIONS as readonly string[]).includes(code),
-  );
-  return allowed.length ? allowed : DEFAULT_PERMISSIONS;
+/** One grant's ticks and options as words, for its row in the list. */
+function grantSummary(
+  row: Pick<ConsultantProjectAccessGrant, "modules" | "permissions">,
+  t: (key: string) => string,
+): string {
+  const modules = orderedModules(row.modules).map((key) => t(`module.${MODULE_MESSAGE_KEYS[key]}`));
+  const options = orderedOptions(row.permissions).map((code) => t(`option.${OPTION_MESSAGE_KEYS[code]}`));
+  return [...(modules.length ? modules : [t("grant.noModules")]), ...options].join(" · ");
 }
-
-const PERMISSION_MESSAGE_KEYS: Record<(typeof PERMISSIONS)[number], string> = {
-  "project.view": "project_view",
-  "approval.view": "approval_view",
-  "approval.review": "approval_review",
-  "notification.view": "notification_view",
-  "safety.view": "safety_view",
-  "report.view": "report_view",
-  "report.export": "report_export",
-};
 
 function localDateTime(value?: string | null) {
   const date = value ? new Date(value) : new Date();
@@ -607,16 +589,9 @@ function HeadOfficeConsultantAccess() {
                           : t("grant.noExpiry"),
                       })}
                     </p>
-                    <p className="mt-2 text-xs text-muted-foreground">
-                      {row.permissions
-                        .map((code) =>
-                          code in PERMISSION_MESSAGE_KEYS
-                            ? t(
-                                `permission.${PERMISSION_MESSAGE_KEYS[code as keyof typeof PERMISSION_MESSAGE_KEYS]}`,
-                              )
-                            : code,
-                        )
-                        .join(" · ")}
+                    {/* JB210: the ticks and options, by name (「仪表板 · 项目 · 整改／EHS …」). */}
+                    <p className="mt-2 text-xs text-muted-foreground" data-slot="grant-modules">
+                      {grantSummary(row, t)}
                     </p>
                   </div>
                   {can("project.assign") && (
@@ -1035,7 +1010,8 @@ function ConsultantInviteDialog({
   );
 }
 
-function GrantDialog({
+/** Exported for its screen test (JB210). */
+export function GrantDialog({
   row,
   organizations,
   members,
@@ -1075,25 +1051,34 @@ function GrantDialog({
   // JB203-9 (Lucas 11-16 audit): a new grant starts from the company's
   // 「顾问项目默认权限」 (锁定设置), as its help text promises; the server only
   // read it when no list was sent, and this dialog always sends one.
-  // query-failure: it only pre-ticks the boxes - without it they start from the usual five, as before.
+  // query-failure: it only pre-ticks the boxes - without it they start from the usual default, as before.
   const companySettings = useQuery({
     queryKey: ["contractor-site-settings"],
     queryFn: getContractorSiteSettings,
     enabled: !row && can("company_settings.view"),
     retry: false,
   });
-  const [chosen, setChosen] = useState<string[] | null>(row?.permissions ?? null);
-  const permissions = chosen ?? startingPermissions(companySettings.data?.default_consultant_permissions);
+  // JB210 (客户 11-16): 11 module ticks + 3 options, one grant per project.
+  const [chosen, setChosen] = useState<{ modules: ConsultantModule[]; options: ConsultantOption[] } | null>(
+    row ? { modules: orderedModules(row.modules), options: orderedOptions(row.permissions) } : null,
+  );
+  const { modules, options } =
+    chosen ??
+    startingGrant(
+      companySettings.data?.default_consultant_modules,
+      companySettings.data?.default_consultant_permissions,
+    );
   const [active, setActive] = useState(row?.is_active ?? true);
-  const togglePermission = (code: string, checked: boolean) =>
-    setChosen(checked ? [...new Set([...permissions, code])] : permissions.filter((item) => item !== code));
+  const setModules = (next: ConsultantModule[]) => setChosen({ modules: next, options });
+  const setOptions = (next: ConsultantOption[]) => setChosen({ modules, options: next });
   const save = useMutation({
     mutationFn: () => {
       const payload = {
         organization: organizationId,
         consultant,
         project,
-        permissions,
+        modules,
+        permissions: options,
         valid_from: toIso(validFrom) ?? new Date().toISOString(),
         valid_until: noExpiry ? null : toIso(validUntil),
         is_active: active,
@@ -1144,15 +1129,58 @@ function GrantDialog({
             <span className="text-sm font-medium">{t("grant.noExpiry")}</span>
           </label>
           <FieldWrapper label={t("field.permissions")} required hint={t("grant.permissionHelp")} className="sm:col-span-2">
-            <div className="grid gap-2 sm:grid-cols-2">
-              {PERMISSIONS.map((code) => (
-                <label key={code} className="flex items-start gap-3 rounded-lg border p-3">
-                  <Checkbox checked={permissions.includes(code)} onCheckedChange={(value) => togglePermission(code, value === true)} />
-                  <span className="text-sm">
-                    {t(`permission.${PERMISSION_MESSAGE_KEYS[code]}`)}
-                  </span>
-                </label>
-              ))}
+            <div className="space-y-4" data-slot="grant-ticks">
+              <div className="space-y-2">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <p className="text-sm font-medium">{t("grant.modulesTitle")}</p>
+                  <div className="flex gap-2">
+                    <Button type="button" size="sm" variant="outline" onClick={() => setModules([...CONSULTANT_MODULES])}>
+                      {t("grant.selectAll")}
+                    </Button>
+                    <Button type="button" size="sm" variant="outline" onClick={() => setModules([])}>
+                      {t("grant.selectNone")}
+                    </Button>
+                  </div>
+                </div>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {CONSULTANT_MODULES.map((key) => (
+                    <label key={key} className="flex items-start gap-3 rounded-lg border p-3" data-module={key}>
+                      <Checkbox
+                        checked={modules.includes(key)}
+                        onCheckedChange={(value) => setModules(toggleModule(modules, key, value === true))}
+                      />
+                      <span className="min-w-0 text-sm">
+                        <span className="block font-medium">{t(`module.${MODULE_MESSAGE_KEYS[key]}`)}</span>
+                        <span className="block text-xs text-muted-foreground">
+                          {t(`moduleHint.${MODULE_MESSAGE_KEYS[key]}`)}
+                        </span>
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <div className="space-y-2">
+                <p className="text-sm font-medium">{t("grant.optionsTitle")}</p>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {CONSULTANT_OPTIONS.map((code) => (
+                    <label key={code} className="flex items-start gap-3 rounded-lg border p-3" data-option={code}>
+                      <Checkbox
+                        checked={options.includes(code)}
+                        onCheckedChange={(value) => setOptions(toggleOption(options, code, value === true))}
+                      />
+                      <span className="min-w-0 text-sm">
+                        <span className="block font-medium">{t(`option.${OPTION_MESSAGE_KEYS[code]}`)}</span>
+                        {code === "approval.review" && (
+                          <span className="block text-xs text-muted-foreground">{t("optionHint.approvalReview")}</span>
+                        )}
+                        {code === "report.export" && (
+                          <span className="block text-xs text-muted-foreground">{t("optionHint.export")}</span>
+                        )}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
             </div>
           </FieldWrapper>
           {row && (
@@ -1169,7 +1197,7 @@ function GrantDialog({
         )}
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button>
-          <Button requires={[[organizationId, t("field.organization")], [consultant, t("field.consultant")], [project, t("field.project")], [permissions.length, t("field.permissions")], [validFrom, t("field.validFrom")], [noExpiry || validUntil, t("field.validUntil")]]} disabled={save.isPending} onClick={() => save.mutate()}>
+          <Button requires={[[organizationId, t("field.organization")], [consultant, t("field.consultant")], [project, t("field.project")], [modules.length + options.length, t("field.permissions")], [validFrom, t("field.validFrom")], [noExpiry || validUntil, t("field.validUntil")]]} disabled={save.isPending} onClick={() => save.mutate()}>
             {save.isPending ? <Loader2 className="animate-spin" /> : <ShieldCheck />}
             {t("action.save")}
           </Button>

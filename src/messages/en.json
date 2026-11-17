@@ -5488,7 +5488,12 @@
       "subtitle": "One row is one consultant's permission to one project. Revoke it to end access immediately.",
       "title": "Project access",
       "validity": "From {from} until {until}",
-      "organizationEditHint": "Only firms this consultant is registered under are listed."
+      "organizationEditHint": "Only firms this consultant is registered under are listed.",
+      "modulesTitle": "Modules the consultant can use on this project (content limited to this project)",
+      "optionsTitle": "Other permissions",
+      "selectAll": "Select all",
+      "selectNone": "Select none",
+      "noModules": "No module ticked"
     },
     "organization": {
       "activeHelp": "Deactivating the firm immediately stops all of its project access.",
@@ -5553,6 +5558,41 @@
       "ACTIVE": "Active",
       "INVITED": "Invitation pending",
       "SUSPENDED": "Suspended"
+    },
+    "module": {
+      "dashboard": "Dashboard",
+      "projects": "Projects",
+      "fieldTasks": "Site tasks",
+      "materials": "Material management",
+      "progress": "Construction progress",
+      "safety": "Rectification / EHS",
+      "documents": "Document archive",
+      "recordCentre": "Site Record Center",
+      "reports": "Report Center",
+      "notifications": "Notification centre",
+      "conversations": "Conversations"
+    },
+    "moduleHint": {
+      "dashboard": "Home page, showing only the modules ticked below",
+      "projects": "Project basics (no staff phone numbers, emails or permissions)",
+      "fieldTasks": "Only tasks sent to the consultant to check, or that he took part in",
+      "materials": "Material in, material out, material targets - view only, no amounts",
+      "progress": "Progress updates, daily reports, rain records, schedule - view only, may add remarks",
+      "safety": "Sees rectifications and work permits; may raise a rectification and follow up his own",
+      "documents": "This project's confirmed and archived files - view and download",
+      "recordCentre": "Finished records of the modules ticked above - view only",
+      "reports": "Reports of the modules ticked above",
+      "notifications": "Notifications sent to him on this project",
+      "conversations": "Conversations he takes part in"
+    },
+    "option": {
+      "approvalView": "Consultant applications: view",
+      "approvalReview": "Consultant applications: approve (sign off)",
+      "export": "Export"
+    },
+    "optionHint": {
+      "approvalReview": "Ticking this also ticks \"view\"",
+      "export": "Reports and each module's lists can be exported"
     }
   },
   "consultantDashboard": {
@@ -9436,7 +9476,10 @@
       "scale_limit_reached": "This recycler's package allows {limit} weighbridge(s) in use and it already has {used}, so another one cannot be added or switched back on. Raise its custom weighbridge limit on the company page first.",
       "external_integration_not_in_plan": "This company's package does not include connections to outside systems (ERP, accounting, MyInvois, webhook, API), so this kind of connection cannot be added or switched on. To get it, please contact MSE to change the package.",
       "ai_cctv_disabled": "AI CCTV is switched off for this recycler, so the photo was not kept.",
-      "archive_lock_choice_invalid": "Choose on or off."
+      "archive_lock_choice_invalid": "Choose on or off.",
+      "consultant_read_only": "A consultant account can only view this, not change it.",
+      "consultant_module_not_granted": "Head office has not opened this module to you on this project. Ask head office if you need it.",
+      "consultant_no_permit": "A work permit is applied for by the contractor, not a consultant. You can raise a rectification instead."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -21879,7 +21922,17 @@
     },
     "packageThread": "Package · {name}",
     "packageKind": "Package",
-    "packageGone": "This package conversation cannot be found, or you may not see it."
+    "packageGone": "This package conversation cannot be found, or you may not see it.",
+    "consultant": {
+      "subtitle": "Conversations on this project sent to you or that you took part in: packages, consultant applications, site tasks and rectifications.",
+      "empty": "No conversation of yours on this project yet.",
+      "kind": {
+        "FIELD_TASK": "Site task",
+        "CONSULTANT_APPLICATION": "Consultant application",
+        "HAZARD": "Rectification",
+        "PACKAGE": "Package"
+      }
+    }
   },
   "photoWall": {
     "hint": "Click a photo to enlarge it and page left or right; double-click it to open its full record.",

@@ -5488,7 +5488,12 @@
       "subtitle": "每一行代表一名顾问对一个项目的权限；撤销后会立即停止访问。",
       "title": "项目授权",
       "validity": "从 {from} 至 {until}",
-      "organizationEditHint": "只列出这位顾问已登记所属的顾问单位。"
+      "organizationEditHint": "只列出这位顾问已登记所属的顾问单位。",
+      "modulesTitle": "这个项目上，顾问可以用的模块（内容只限这个项目）",
+      "optionsTitle": "其他权限",
+      "selectAll": "全选",
+      "selectNone": "全不选",
+      "noModules": "没有勾选模块"
     },
     "organization": {
       "activeHelp": "停用后，该单位的所有项目授权会立即失效。",
@@ -5553,6 +5558,41 @@
       "ACTIVE": "正常",
       "INVITED": "等待接受邀请",
       "SUSPENDED": "已停用"
+    },
+    "module": {
+      "dashboard": "仪表板",
+      "projects": "项目",
+      "fieldTasks": "现场任务",
+      "materials": "材料管理",
+      "progress": "工程进度",
+      "safety": "整改／EHS",
+      "documents": "文件档案",
+      "recordCentre": "现场记录中心",
+      "reports": "报表中心",
+      "notifications": "通知中心",
+      "conversations": "沟通记录"
+    },
+    "moduleHint": {
+      "dashboard": "首页，只显示下面勾了的模块",
+      "projects": "项目基本资料（不显示人员电话、邮箱和权限）",
+      "fieldTasks": "只显示发给顾问验收的、他参与过的任务",
+      "materials": "材料进场、材料出场、材料目标——只能看，不显示金额",
+      "progress": "进度记录、日报告、雨天记录、施工计划——只能看，可以写备注",
+      "safety": "看整改和施工准证；可以发起整改，跟进自己发起的",
+      "documents": "本项目已确认归档的文件——看和下载",
+      "recordCentre": "上面勾了的模块里已完成的记录——只能看",
+      "reports": "上面勾了的模块的报表",
+      "notifications": "这个项目发给他的通知",
+      "conversations": "他参与的沟通"
+    },
+    "option": {
+      "approvalView": "顾问申请：查看",
+      "approvalReview": "顾问申请：审批（签核）",
+      "export": "导出"
+    },
+    "optionHint": {
+      "approvalReview": "勾这一项会同时勾上「查看」",
+      "export": "报表和各模块清单可以导出"
     }
   },
   "consultantDashboard": {
@@ -9436,7 +9476,10 @@
       "scale_limit_reached": "这家回收商的套餐最多可以有 {limit} 台在用的地磅，现在已经有 {used} 台，所以不能再新增或重新启用。请先在公司页面调高「自定义地磅上限」。",
       "external_integration_not_in_plan": "这家公司的套餐不包含外部系统对接（ERP、会计系统、MyInvois、Webhook、API），所以不能新增或打开这类连接。如需开通，请联系 MSE 更换套餐。",
       "ai_cctv_disabled": "这家回收商已关闭 AI CCTV，照片没有收下。",
-      "archive_lock_choice_invalid": "请选择打开或关闭。"
+      "archive_lock_choice_invalid": "请选择打开或关闭。",
+      "consultant_read_only": "顾问账号只能查看这里的资料，不能修改。",
+      "consultant_module_not_granted": "总部没有为您在这个项目开通这个模块。如需使用，请联系总部。",
+      "consultant_no_permit": "施工准证由施工方申请，顾问不能提交。您可以发起整改。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -21879,7 +21922,17 @@
     },
     "packageThread": "资料包 · {name}",
     "packageKind": "资料包",
-    "packageGone": "找不到这个资料包的沟通，或者你没有权限看。"
+    "packageGone": "找不到这个资料包的沟通，或者你没有权限看。",
+    "consultant": {
+      "subtitle": "这个项目上发给您、或您参与过的沟通：资料包、顾问申请、现场任务和整改。",
+      "empty": "这个项目还没有您参与的沟通。",
+      "kind": {
+        "FIELD_TASK": "现场任务",
+        "CONSULTANT_APPLICATION": "顾问申请",
+        "HAZARD": "整改",
+        "PACKAGE": "资料包"
+      }
+    }
   },
   "photoWall": {
     "hint": "单击照片放大，可以左右翻看；双击照片打开完整记录。",

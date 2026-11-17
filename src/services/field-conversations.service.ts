@@ -102,6 +102,11 @@ export function startConversation(
 /** One conversation on 后台「沟通记录」 (JB127; the office's own too since JB158). */
 export interface OfficeFieldChat {
   id: string;
+  /**
+   * A consultant's rows only (JB210): what the conversation is about -
+   * `FIELD_TASK`, `CONSULTANT_APPLICATION`, `HAZARD` or `PACKAGE`.
+   */
+  kind?: string;
   title: string;
   project: string;
   project_name: string;

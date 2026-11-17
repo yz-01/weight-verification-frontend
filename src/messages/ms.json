@@ -5488,7 +5488,12 @@
       "subtitle": "Setiap baris ialah kebenaran seorang perunding untuk satu projek. Batalkan untuk menghentikan akses serta-merta.",
       "title": "Akses projek",
       "validity": "Dari {from} hingga {until}",
-      "organizationEditHint": "Hanya firma yang mendaftarkan perunding ini disenaraikan."
+      "organizationEditHint": "Hanya firma yang mendaftarkan perunding ini disenaraikan.",
+      "modulesTitle": "Modul yang boleh digunakan perunding dalam projek ini (kandungan terhad kepada projek ini)",
+      "optionsTitle": "Kebenaran lain",
+      "selectAll": "Pilih semua",
+      "selectNone": "Kosongkan semua",
+      "noModules": "Tiada modul ditanda"
     },
     "organization": {
       "activeHelp": "Menyahaktifkan firma akan menghentikan semua akses projeknya serta-merta.",
@@ -5553,6 +5558,41 @@
       "ACTIVE": "Aktif",
       "INVITED": "Menunggu jemputan",
       "SUSPENDED": "Digantung"
+    },
+    "module": {
+      "dashboard": "Papan pemuka",
+      "projects": "Projek",
+      "fieldTasks": "Tugas tapak",
+      "materials": "Pengurusan bahan",
+      "progress": "Kemajuan pembinaan",
+      "safety": "Pembetulan / EHS",
+      "documents": "Arkib dokumen",
+      "recordCentre": "Pusat Rekod Tapak",
+      "reports": "Pusat Laporan",
+      "notifications": "Pusat pemberitahuan",
+      "conversations": "Rekod perbualan"
+    },
+    "moduleHint": {
+      "dashboard": "Halaman utama, hanya modul yang ditanda di bawah",
+      "projects": "Maklumat asas projek (tiada telefon, e-mel atau kebenaran kakitangan)",
+      "fieldTasks": "Hanya tugas yang dihantar kepada perunding untuk disemak, atau yang dia sertai",
+      "materials": "Bahan masuk, bahan keluar, sasaran bahan - lihat sahaja, tanpa amaun",
+      "progress": "Kemajuan projek, laporan harian, rekod hujan, jadual - lihat sahaja, boleh menulis catatan",
+      "safety": "Lihat pembetulan dan permit kerja; boleh membuka pembetulan dan menyusul yang dibukanya",
+      "documents": "Fail projek ini yang telah disahkan dan diarkibkan - lihat dan muat turun",
+      "recordCentre": "Rekod yang selesai bagi modul yang ditanda di atas - lihat sahaja",
+      "reports": "Laporan bagi modul yang ditanda di atas",
+      "notifications": "Pemberitahuan yang dihantar kepadanya dalam projek ini",
+      "conversations": "Perbualan yang dia sertai"
+    },
+    "option": {
+      "approvalView": "Permohonan perunding: lihat",
+      "approvalReview": "Permohonan perunding: lulus (tandatangan)",
+      "export": "Eksport"
+    },
+    "optionHint": {
+      "approvalReview": "Menanda ini turut menanda \"lihat\"",
+      "export": "Laporan dan senarai setiap modul boleh dieksport"
     }
   },
   "consultantDashboard": {
@@ -9436,7 +9476,10 @@
       "scale_limit_reached": "Pakej pengitar semula ini membenarkan {limit} jambatan timbang aktif dan ia sudah ada {used}, jadi yang baharu tidak boleh ditambah atau diaktifkan semula. Naikkan had jambatan timbang tersuainya di halaman syarikat dahulu.",
       "external_integration_not_in_plan": "Pakej syarikat ini tidak termasuk sambungan ke sistem luar (ERP, perakaunan, MyInvois, webhook, API), jadi sambungan jenis ini tidak boleh ditambah atau dihidupkan. Untuk mendapatkannya, sila hubungi MSE untuk menukar pakej.",
       "ai_cctv_disabled": "AI CCTV dimatikan untuk pengitar semula ini, jadi foto tidak disimpan.",
-      "archive_lock_choice_invalid": "Pilih hidup atau mati."
+      "archive_lock_choice_invalid": "Pilih hidup atau mati.",
+      "consultant_read_only": "Akaun perunding hanya boleh melihat ini, bukan mengubahnya.",
+      "consultant_module_not_granted": "Ibu pejabat belum membuka modul ini untuk anda dalam projek ini. Hubungi ibu pejabat jika anda memerlukannya.",
+      "consultant_no_permit": "Permit kerja dipohon oleh kontraktor, bukan perunding. Anda boleh membuka pembetulan."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -21879,7 +21922,17 @@
     },
     "packageThread": "Pakej · {name}",
     "packageKind": "Pakej",
-    "packageGone": "Perbualan pakej ini tidak dijumpai, atau anda tiada kebenaran untuk melihatnya."
+    "packageGone": "Perbualan pakej ini tidak dijumpai, atau anda tiada kebenaran untuk melihatnya.",
+    "consultant": {
+      "subtitle": "Perbualan dalam projek ini yang dihantar kepada anda atau yang anda sertai: pakej, permohonan perunding, tugas tapak dan pembetulan.",
+      "empty": "Belum ada perbualan anda dalam projek ini.",
+      "kind": {
+        "FIELD_TASK": "Tugas tapak",
+        "CONSULTANT_APPLICATION": "Permohonan perunding",
+        "HAZARD": "Pembetulan",
+        "PACKAGE": "Pakej"
+      }
+    }
   },
   "photoWall": {
     "hint": "Klik foto untuk membesarkannya dan selak ke kiri atau kanan; klik dua kali untuk membuka rekod penuhnya.",

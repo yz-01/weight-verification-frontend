@@ -135,6 +135,8 @@ export interface ConsultantProjectAccess {
   company_id: string;
   company_name: string;
   organization_name: string;
+  /** JB210 (客户 11-16): the module ticks on this project. Absent before JB210. */
+  modules?: string[];
   permissions: string[];
   valid_from: string;
   valid_until: string | null;
@@ -146,6 +148,8 @@ export interface ActiveProject {
   project_name: string;
   company_id: string;
   company_name: string;
+  /** JB210: what head office ticked on this project. Absent before JB210. */
+  modules?: string[];
 }
 
 export interface LoginResponse {

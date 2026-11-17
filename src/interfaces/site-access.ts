@@ -74,7 +74,13 @@ export interface ContractorSiteSettings {
   default_notification_rules: Record<string, boolean>;
   default_user_role_code: string;
   default_approval_role_code: string;
+  /**
+   * 「顾问项目默认权限」 (JB210, 客户 11-16): only the three options now -
+   * 顾问申请 查看 / 审批 and 导出; the ticks are `default_consultant_modules`.
+   */
   default_consultant_permissions: string[];
+  /** The module ticks a new consultant grant starts with (JB210). */
+  default_consultant_modules: string[];
   date_format: "DD/MM/YYYY" | "MM/DD/YYYY" | "YYYY-MM-DD";
   time_format: "12H" | "24H";
   language: "en" | "zh" | "zh-TW" | "ms";

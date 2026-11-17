@@ -177,8 +177,11 @@ export function ArchiveQueue() {
   const t = useTranslations("archiveQueue");
   const root = useTranslations();
   const formatter = useDateFormat();
-  const { user } = useAuth();
+  const { user, can } = useAuth();
   const canManageCategories = user?.features.includes("project_categories") ?? false;
+  // A consultant exports with 「导出」 ticked (JB210, Lucas 11-16 Q5 = A); the
+  // contractor's export as before.
+  const mayExport = user?.account_type !== "CONSULTANT" || can("report.export");
   const [state, setState] = useState<"pending" | "archived">("pending");
   // The second question on this screen (T-391): archived for everybody, by a
   // named person - not whether *this reader* has looked, which is `state`.
@@ -268,7 +271,7 @@ export function ArchiveQueue() {
         action={
           <div className="flex flex-wrap items-center gap-2">
             {/* The rows of this view, as a file (H16, HD13). */}
-            <ExportButton
+            {mayExport && <ExportButton
               disabled={total === 0}
               disabledReason={t("subtitle")}
               title={t("title")}
@@ -298,7 +301,7 @@ export function ArchiveQueue() {
                   ],
                 })
               }
-            />
+            />}
             {/* B05: 「分类管理可以做在总栏目右上角，有一个分类管理的 button 点了直接
                 去到分类管理页面」. Only for whoever may open that page. */}
             {canManageCategories ? (
