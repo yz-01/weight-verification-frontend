@@ -36,7 +36,7 @@ import type {
   SubscriptionPlan,
   SubscriptionPlanPayload,
 } from "@/interfaces/subscription";
-import { featureListIsOpen, featureListParts, toggleFeature } from "@/lib/plan-terms";
+import { cycleBill, featureListIsOpen, featureListParts, toggleFeature } from "@/lib/plan-terms";
 import {
   createSubscriptionPlan,
   getPlanDefaults,
@@ -243,7 +243,7 @@ export function PlanManager() {
                   {plan.tier === "PARTNER" ? (
                     <span>{plan.currency} {plan.setup_fee} {t("fee.once")}</span>
                   ) : (
-                    <span>{plan.currency} {plan.monthly_fee} {t("fee.monthly")}</span>
+                    <PlanFee plan={plan} />
                   )}
                 </TableCell>
                 <TableCell className="text-xs">
@@ -399,6 +399,32 @@ function ToggleField({ label, checked, onChange, disabled, hint }: { label: stri
       </span>
       <Switch checked={checked} disabled={disabled} onCheckedChange={onChange} />
     </div>
+  );
+}
+
+/**
+ * A package's fee in the list: the monthly fee, and for a package not billed
+ * monthly also what one bill is (JB213 walk 11-17: 「MYR 300.00 每月」 on a 季付
+ * package; an older reader expects the amount on the bill). A monthly
+ * package reads exactly as before.
+ */
+export function PlanFee({ plan }: { plan: Pick<SubscriptionPlan, "currency" | "monthly_fee" | "yearly_fee" | "billing_cycle"> }) {
+  const t = useTranslations("subscriptions");
+  const bill = cycleBill(plan);
+  return (
+    <span className="inline-flex flex-col items-end" data-plan-fee>
+      <span>{plan.currency} {plan.monthly_fee} {t("fee.monthly")}</span>
+      {bill && (
+        <span className="text-xs text-muted-foreground">
+          {t("fee.perBill", {
+            cycle: t(`billingCycle.${plan.billing_cycle}`),
+            months: bill.months,
+            currency: plan.currency,
+            amount: bill.amount,
+          })}
+        </span>
+      )}
+    </span>
   );
 }
 

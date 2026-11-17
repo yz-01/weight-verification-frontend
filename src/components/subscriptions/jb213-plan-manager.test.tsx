@@ -52,13 +52,17 @@ function wrap(node: React.ReactNode, messages: Record<string, unknown> = zh, loc
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   client.setQueryData(["subscription-plans", "defaults"], DEFAULTS);
   client.setQueryData(["subscription-plans", "all"], {
-    count: 3, page: 1, page_size: 100, total_pages: 1,
+    count: 4, page: 1, page_size: 100, total_pages: 1,
     results: [
       plan({ id: "p-basic", code: "BASIC", name: "Basic", is_default: true }),
       plan({ id: "p-trial", code: "TRIAL", name: "Trial", trial_days: 14, is_public: false }),
       plan({
         id: "p-partner", code: "PARTNER", name: "Partner", audience: "RECYCLER", tier: "PARTNER",
         max_users: 3, max_sites: 2, max_scales: 4, feature_flags: ["yards", "weighbridges"],
+      }),
+      plan({
+        id: "p-standard", code: "STANDARD", name: "Standard", audience: "RECYCLER", tier: "STANDARD",
+        billing_cycle: "QUARTERLY", monthly_fee: "300.00",
       }),
     ],
   });
@@ -88,6 +92,27 @@ describe("套餐管理 list (JB213)", () => {
     const html = wrap(<PlanManager />);
     expect(html).toContain(zh.subscriptions.plans.featuresAll);
     expect(html).toContain("2 项功能");
+  });
+});
+
+describe("fee column on a package not billed monthly (walk 11-17)", () => {
+  it("adds what one bill is, and leaves a monthly package as it was", () => {
+    const html = wrap(<PlanManager />);
+    expect(html).toContain("（季付：每 3 个月一张账单 MYR 900.00）");
+    // Basic is monthly at MYR 100.00: no bill line for it.
+    expect(html).not.toContain("每 1 个月");
+    expect(html.match(/一张账单/g)).toHaveLength(1);
+  });
+
+  it("is worded in all four languages", () => {
+    const expected = {
+      en: "(Quarterly: one bill every 3 months, MYR 900.00)",
+      ms: "(Suku tahunan: satu bil setiap 3 bulan, MYR 900.00)",
+      "zh-TW": "（季付：每 3 個月一張帳單 MYR 900.00）",
+    } as const;
+    for (const [locale, messages] of [["en", en], ["ms", ms], ["zh-TW", zhTW]] as const) {
+      expect(wrap(<PlanManager />, messages, locale)).toContain(expected[locale]);
+    }
   });
 });
 

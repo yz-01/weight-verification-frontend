@@ -5282,7 +5282,8 @@
     },
     "planTerms": {
       "partner": "一次性 {currency} {fee} + {rate}% 佣金",
-      "standard": "每月 {currency} {fee}"
+      "standard": "每月 {currency} {fee}",
+      "standardCycle": "每月 {currency} {fee}，{cycle}：每 {months} 个月一张账单 {currency} {amount}"
     },
     "projectLimitOverrideHint": "留空时使用所选套餐的项目额度。",
     "projectStats": {
@@ -5338,6 +5339,7 @@
     },
     "subscriptionExpiryHint": "选填。留空时系统会根据订阅周期自动计算到期日。",
     "subscriptionMonthsHint": "更改套餐或周期后，将从今天开始新的订阅周期。",
+    "subscriptionMonthsTrialHint": "免费试用到 {date}，之后在订阅管理按「延长或续费」才开始收费。",
     "subscriptionPeriod": "{months} 个月",
     "summary": {
       "active": "活跃公司",
@@ -5417,8 +5419,8 @@
         "confirmOff": "确定取消锁定"
       }
     },
-    "trialDaysHint": "这个套餐默认试用 {days} 天。试用期间不出账单；试用结束后要在订阅管理按「续期」才开始收费。填 0 = 不试用。",
-    "trialNote": "试用期间不出账单。试用结束后要在订阅管理按「续期」才开始收费。",
+    "trialDaysHint": "这个套餐默认试用 {days} 天。试用期间不出账单；试用结束后要在订阅管理按「延长或续费」才开始收费。填 0 = 不试用。",
+    "trialNote": "试用期间不出账单。试用结束后要在订阅管理按「延长或续费」才开始收费。",
     "siteLimitOverrideHint": "空着 = 按套餐的上限（{limit}）。调高后马上可以新增；调低不会影响已经有的回收场。",
     "scaleLimitOverrideHint": "空着 = 按套餐的上限（{limit}）。调高后马上可以新增；调低不会影响已经有的地磅。",
     "limitUsage": "已用 {used}，上限 {limit}",
@@ -9099,6 +9101,7 @@
       "invoice_already_invoiced": "这个期间已经开过账单，不用再开。请在账单列表里找这家公司的账单。",
       "invoice_no_billable_settlements": "这个期间没有已开出、还没开账单的结算单，暂时没有佣金可收。等结算单开出后再生成。",
       "invoice_nothing_to_charge": "算出来这个期间要收的金额是 0，所以没有开账单。如果金额不对，请检查这家公司的套餐费用或佣金规则。",
+      "invoice_in_trial": "这家公司是免费试用（试用到 {date}），还没有续期，所以没有开账单。试用不收钱；在订阅管理按「延长或续费」开始付费期后，才会有第一张账单。",
       "invoice_no_plan": "这家公司还没有套餐，不能开订阅账单。请先在「公司订阅管理」给它选一个套餐。",
       "invoice_not_draft": "只有草稿账单可以发出。这张账单已经发出过了，请刷新列表再看。",
       "invoice_already_closed": "这张账单已经关闭，不用再关。请刷新列表再看。",
@@ -17819,7 +17822,8 @@
     },
     "fee": {
       "monthly": "每月",
-      "once": "一次"
+      "once": "一次",
+      "perBill": "（{cycle}：每 {months} 个月一张账单 {currency} {amount}）"
     },
     "field": {
       "userLimitMin": "账号额度至少要 1。",
@@ -17877,15 +17881,16 @@
       "seatOverride": "留空则使用套餐设定的账号额度。",
       "terminate": "此操作会立即令订阅到期、禁止公司使用系统并撤销现有登录。",
       "billingCycle": "新增公司、换套餐和续期时，默认按这个周期算月份：月 1、季 3、半年 6、年 12。",
-      "trialDays": "新公司开在这个套餐上时，先免费试用这么多天：试用期间不出账单；到期后要在订阅管理按「续期」才开始收费。0 = 不试用。",
+      "trialDays": "新公司开在这个套餐上时，先免费试用这么多天：试用期间不出账单；到期后要在订阅管理按「延长或续费」才开始收费。0 = 不试用。",
       "maxSites": "回收商最多可以有几个回收场。空着 = 不限。已经有的回收场不受影响，只是不能再新增。",
       "maxScales": "回收商最多可以有几台在用的地磅。空着 = 不限。已经有的地磅照常使用，只是不能再新增。",
       "contractorNoSiteLimit": "建筑商没有回收场和地磅，这一格不用填。",
       "externalIntegration": "开了，回收商可以自己接 ERP、会计系统、MyInvois、Webhook。没开的套餐不能新增或打开这类连接；已经开着的照常运行。",
       "publicPlan": "关掉后，新增公司和换套餐时不会出现这个套餐；已经在用的公司照常使用。",
       "defaultsFrom": "收费周期、试用天数和账号上限已按系统设置的 SaaS 默认值填好，可以直接改。",
-      "trialPlanChange": "这家公司还在免费试用（到 {date}）。换套餐只换套餐，试用日期不变；要开始收费请按「续期」。",
+      "trialPlanChange": "这家公司还在免费试用（到 {date}）。换套餐只换套餐，试用日期不变；要开始收费请按「延长或续费」。",
       "trialRenew": "这家公司还在免费试用（到 {date}）。续期后，付费期从 {start} 开始，并开始出账单。",
+      "lapsedRenew": "这家公司已经过期，续期从今天开始算，停掉的那段时间不收钱。",
       "cycleDefault": "按套餐的收费周期，默认 {months} 个月。"
     },
     "metric": {

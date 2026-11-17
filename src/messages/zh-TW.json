@@ -5282,7 +5282,8 @@
     },
     "planTerms": {
       "partner": "一次性 {currency} {fee} + {rate}% 佣金",
-      "standard": "每月 {currency} {fee}"
+      "standard": "每月 {currency} {fee}",
+      "standardCycle": "每月 {currency} {fee}，{cycle}：每 {months} 個月一張帳單 {currency} {amount}"
     },
     "projectLimitOverrideHint": "留空時使用所選套餐的項目額度。",
     "projectStats": {
@@ -5338,6 +5339,7 @@
     },
     "subscriptionExpiryHint": "選填。留空時系統會根據訂閱週期自動計算到期日。",
     "subscriptionMonthsHint": "更改套餐或週期後，將從今天開始新的訂閱週期。",
+    "subscriptionMonthsTrialHint": "免費試用到 {date}，之後在訂閱管理按「延長或續費」才開始收費。",
     "subscriptionPeriod": "{months} 個月",
     "summary": {
       "active": "活躍公司",
@@ -5417,8 +5419,8 @@
         "confirmOff": "確定取消鎖定"
       }
     },
-    "trialDaysHint": "這個套餐預設試用 {days} 天。試用期間不出帳單；試用結束後要在訂閱管理按「續期」才開始收費。填 0 = 不試用。",
-    "trialNote": "試用期間不出帳單。試用結束後要在訂閱管理按「續期」才開始收費。",
+    "trialDaysHint": "這個套餐預設試用 {days} 天。試用期間不出帳單；試用結束後要在訂閱管理按「延長或續費」才開始收費。填 0 = 不試用。",
+    "trialNote": "試用期間不出帳單。試用結束後要在訂閱管理按「延長或續費」才開始收費。",
     "siteLimitOverrideHint": "空著 = 按套餐的上限（{limit}）。調高後馬上可以新增；調低不會影響已經有的回收場。",
     "scaleLimitOverrideHint": "空著 = 按套餐的上限（{limit}）。調高後馬上可以新增；調低不會影響已經有的地磅。",
     "limitUsage": "已用 {used}，上限 {limit}",
@@ -9099,6 +9101,7 @@
       "invoice_already_invoiced": "這個期間已經開過賬單，不用再開。請在賬單列表裡找這家公司的賬單。",
       "invoice_no_billable_settlements": "這個期間沒有已開出、還沒開賬單的結算單，暫時沒有佣金可收。等結算單開出後再生成。",
       "invoice_nothing_to_charge": "算出來這個期間要收的金額是 0，所以沒有開賬單。如果金額不對，請檢查這家公司的套餐費用或佣金規則。",
+      "invoice_in_trial": "這家公司是免費試用（試用到 {date}），還沒有續期，所以沒有開帳單。試用不收錢；在訂閱管理按「延長或續費」開始付費期後，才會有第一張帳單。",
       "invoice_no_plan": "這家公司還沒有套餐，不能開訂閱賬單。請先在「公司訂閱管理」給它選一個套餐。",
       "invoice_not_draft": "只有草稿賬單可以發出。這張賬單已經發出過了，請刷新列表再看。",
       "invoice_already_closed": "這張賬單已經關閉，不用再關。請刷新列表再看。",
@@ -17819,7 +17822,8 @@
     },
     "fee": {
       "monthly": "每月",
-      "once": "一次"
+      "once": "一次",
+      "perBill": "（{cycle}：每 {months} 個月一張帳單 {currency} {amount}）"
     },
     "field": {
       "userLimitMin": "帳號額度至少要 1。",
@@ -17877,15 +17881,16 @@
       "seatOverride": "留空則使用套餐設定的賬號額度。",
       "terminate": "此操作會立即令訂閱到期、禁止公司使用系統並撤銷現有登入。",
       "billingCycle": "新增公司、換套餐和續期時，預設按這個週期算月份：月 1、季 3、半年 6、年 12。",
-      "trialDays": "新公司開在這個套餐上時，先免費試用這麼多天：試用期間不出帳單；到期後要在訂閱管理按「續期」才開始收費。0 = 不試用。",
+      "trialDays": "新公司開在這個套餐上時，先免費試用這麼多天：試用期間不出帳單；到期後要在訂閱管理按「延長或續費」才開始收費。0 = 不試用。",
       "maxSites": "回收商最多可以有幾個回收場。空著 = 不限。已經有的回收場不受影響，只是不能再新增。",
       "maxScales": "回收商最多可以有幾台在用的地磅。空著 = 不限。已經有的地磅照常使用，只是不能再新增。",
       "contractorNoSiteLimit": "建築商沒有回收場和地磅，這一格不用填。",
       "externalIntegration": "開了，回收商可以自己接 ERP、會計系統、MyInvois、Webhook。沒開的套餐不能新增或開啟這類連線；已經開著的照常運行。",
       "publicPlan": "關掉後，新增公司和換套餐時不會出現這個套餐；已經在用的公司照常使用。",
       "defaultsFrom": "收費週期、試用天數和帳號上限已按系統設定的 SaaS 預設值填好，可以直接改。",
-      "trialPlanChange": "這家公司還在免費試用（到 {date}）。換套餐只換套餐，試用日期不變；要開始收費請按「續期」。",
+      "trialPlanChange": "這家公司還在免費試用（到 {date}）。換套餐只換套餐，試用日期不變；要開始收費請按「延長或續費」。",
       "trialRenew": "這家公司還在免費試用（到 {date}）。續期後，付費期從 {start} 開始，並開始出帳單。",
+      "lapsedRenew": "這家公司已經過期，續期從今天開始算，停掉的那段時間不收錢。",
       "cycleDefault": "按套餐的收費週期，預設 {months} 個月。"
     },
     "metric": {

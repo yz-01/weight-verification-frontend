@@ -84,6 +84,13 @@ export function SubscriptionActionDialog({
     ),
   );
   const onTrial = Boolean(subscription?.trial_ends_on);
+  // Past its expiry: 续期 starts the new term today and the gap is not
+  // charged (JB215, Lucas 11-17 「从续期那天算」) - the server's own test
+  // (`expires_on < today`). Said in the dialog (JB213 walk 11-17).
+  const lapsed = Boolean(
+    subscription?.subscription_expires_on &&
+      subscription.subscription_expires_on < localToday(),
+  );
   const [expiryMode, setExpiryMode] = useState<"months" | "date">("months");
   const [expiresOn, setExpiresOn] = useState("");
   const [effectiveImmediately, setEffectiveImmediately] = useState(false);
@@ -214,6 +221,11 @@ export function SubscriptionActionDialog({
                     date: subscription.trial_ends_on ?? "",
                     start: paidTermStart(subscription.trial_ends_on ?? localToday(), localToday()),
                   })}
+                </p>
+              )}
+              {!onTrial && lapsed && (
+                <p className="rounded-lg border border-warning/40 bg-warning/10 p-3 text-sm" data-lapsed-renew>
+                  {t("hint.lapsedRenew")}
                 </p>
               )}
               <div className="grid grid-cols-2 gap-1 rounded-lg border p-1">

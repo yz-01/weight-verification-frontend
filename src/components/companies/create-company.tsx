@@ -44,6 +44,7 @@ import type {
 import { localToday } from "@/lib/local-date";
 import { MALAYSIA_STATES } from "@/lib/malaysia";
 import {
+  cycleBill,
   cycleMonths,
   defaultPlanId,
   pickerPlans,
@@ -675,6 +676,9 @@ export function CreateCompany({
                     required
                     hint={plansLoading ? t("common.loading") : undefined}
                     options={eligiblePlans.map((plan) => {
+                      // Not billed monthly: also what one bill is (JB213
+                      // walk 11-17), priced as the SaaS bill prices it.
+                      const bill = cycleBill(plan);
                       const terms =
                         plan.tier === "PARTNER"
                           ? t("companies.planTerms.partner", {
@@ -683,10 +687,18 @@ export function CreateCompany({
                               rate: plan.effective_commission_rate ?? "0",
                             })
                           : plan.tier === "STANDARD"
-                            ? t("companies.planTerms.standard", {
-                                currency: plan.currency,
-                                fee: plan.monthly_fee,
-                              })
+                            ? bill
+                              ? t("companies.planTerms.standardCycle", {
+                                  currency: plan.currency,
+                                  fee: plan.monthly_fee,
+                                  cycle: t(`subscriptions.billingCycle.${plan.billing_cycle}`),
+                                  months: bill.months,
+                                  amount: bill.amount,
+                                })
+                              : t("companies.planTerms.standard", {
+                                  currency: plan.currency,
+                                  fee: plan.monthly_fee,
+                                })
                             : plan.max_projects === null
                               ? t("contractorPartners.unlimitedProjects")
                               : t("contractorPartners.projectLimit", {
@@ -803,7 +815,17 @@ export function CreateCompany({
                     field={field as unknown as BoundField}
                     label={t("companies.field.subscriptionMonths")}
                     required
-                    hint={t("companies.subscriptionMonthsHint")}
+                    // On a free trial the paid term does not start today:
+                    // it starts once 续期 converts the trial (JB213 walk
+                    // 11-17). The trial being chosen (create) or running
+                    // (edit) says so instead.
+                    hint={
+                      trialEnd || company?.trial_ends_on
+                        ? t("companies.subscriptionMonthsTrialHint", {
+                            date: trialEnd ?? company?.trial_ends_on ?? "",
+                          })
+                        : t("companies.subscriptionMonthsHint")
+                    }
                     options={[1, 3, 6, 12].map((months) => ({
                       value: String(months),
                       label: t("companies.subscriptionPeriod", { months }),

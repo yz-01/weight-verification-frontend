@@ -19,6 +19,34 @@ export function cycleMonths(cycle: string | null | undefined): number {
   return BILLING_CYCLE_MONTHS[cycle as BillingCycle] ?? 1;
 }
 
+/**
+ * One bill of a package on its own 付款周期 (JB213 walk 11-17: 「MYR 300.00
+ * 每月」 on a 季付 package left an older reader guessing what one bill is).
+ *
+ * Priced exactly as `generate_saas_invoice` prices a term: 12 months or more
+ * is the yearly fee per year when the package has one, otherwise the monthly
+ * fee times the months. `null` for a monthly package (its bill is the monthly
+ * fee, already on screen) and when there is nothing to bill, as the server
+ * then raises no bill either.
+ */
+export function cycleBill(plan: {
+  billing_cycle: string | null | undefined;
+  monthly_fee: string | null | undefined;
+  yearly_fee: string | null | undefined;
+}): { months: number; amount: string } | null {
+  const months = cycleMonths(plan.billing_cycle);
+  if (months <= 1) return null;
+  // Whole cents, so 3 × 0.10 is 0.30 and not 0.30000000000000004.
+  const cents = (value: string | null | undefined) => Math.round(Number(value || 0) * 100);
+  const yearly = cents(plan.yearly_fee);
+  const total =
+    months >= 12 && yearly > 0
+      ? Math.round((yearly * months) / 12)
+      : cents(plan.monthly_fee) * months;
+  if (!Number.isFinite(total) || total <= 0) return null;
+  return { months, amount: (total / 100).toFixed(2) };
+}
+
 /** `iso` moved by `days` calendar days (UTC arithmetic, so no DST slip). */
 export function addDays(iso: string, days: number): string {
   const [year, month, day] = iso.split("-").map(Number);

@@ -5282,7 +5282,8 @@
     },
     "planTerms": {
       "partner": "{currency} {fee} once + {rate}% commission",
-      "standard": "{currency} {fee} per month"
+      "standard": "{currency} {fee} per month",
+      "standardCycle": "{currency} {fee} per month; {cycle}: one bill every {months} months, {currency} {amount}"
     },
     "projectLimitOverrideHint": "Leave blank to use the selected plan's allowance.",
     "projectStats": {
@@ -5338,6 +5339,7 @@
     },
     "subscriptionExpiryHint": "Optional. Leave blank to calculate the expiry from the billing period.",
     "subscriptionMonthsHint": "Changing the plan or period starts a new subscription from today.",
+    "subscriptionMonthsTrialHint": "Free trial until {date}; billing starts only after you press Extend or renew in Subscriptions.",
     "subscriptionPeriod": "{months, plural, one {# month} other {# months}}",
     "summary": {
       "active": "Active companies",
@@ -5417,8 +5419,8 @@
         "confirmOff": "Unlock"
       }
     },
-    "trialDaysHint": "This plan gives {days} free days by default. No bill during the trial; billing starts only when you press Renew in Subscriptions. Enter 0 for no trial.",
-    "trialNote": "No bill during the trial. Billing starts only when you press Renew in Subscriptions.",
+    "trialDaysHint": "This plan gives {days} free days by default. No bill during the trial; billing starts only when you press Extend or renew in Subscriptions. Enter 0 for no trial.",
+    "trialNote": "No bill during the trial. Billing starts only when you press Extend or renew in Subscriptions.",
     "siteLimitOverrideHint": "Empty = the plan's limit ({limit}). Raising it allows adding at once; lowering it does not affect existing yards.",
     "scaleLimitOverrideHint": "Empty = the plan's limit ({limit}). Raising it allows adding at once; lowering it does not affect existing weighbridges.",
     "limitUsage": "{used} used of {limit}",
@@ -9099,6 +9101,7 @@
       "invoice_already_invoiced": "This period already has its invoice, so there is nothing more to bill. Look for this company's invoice in the invoice list.",
       "invoice_no_billable_settlements": "No issued settlement in this period is waiting to be billed, so there is no commission to charge yet. Generate again once settlements are issued.",
       "invoice_nothing_to_charge": "The amount for this period comes to zero, so no invoice was made. If that is wrong, check this company's package fees or commission rule.",
+      "invoice_in_trial": "This company is on a free trial (until {date}) and has not been renewed, so no invoice was made. A trial is free; the first bill comes after you press Extend or renew in Subscriptions and the paid term starts.",
       "invoice_no_plan": "This company has no package, so no subscription invoice can be made. Choose a package for it in Company subscriptions first.",
       "invoice_not_draft": "Only a draft invoice can be issued. This one has already been issued; refresh the list to see where it stands.",
       "invoice_already_closed": "This invoice is already closed. Refresh the list to see where it stands.",
@@ -17819,7 +17822,8 @@
     },
     "fee": {
       "monthly": "per month",
-      "once": "once"
+      "once": "once",
+      "perBill": "({cycle}: one bill every {months} months, {currency} {amount})"
     },
     "field": {
       "userLimitMin": "The seat limit has to be at least 1.",
@@ -17877,15 +17881,16 @@
       "seatOverride": "Leave blank to use the allowance defined by the plan.",
       "terminate": "This immediately expires the subscription, blocks tenant access and revokes active sessions.",
       "billingCycle": "New companies, plan changes and renewals default to this many months: monthly 1, quarterly 3, half-yearly 6, yearly 12.",
-      "trialDays": "A new company on this plan first gets this many free days: no bill during the trial; billing starts only when you press Renew in Subscriptions. 0 = no trial.",
+      "trialDays": "A new company on this plan first gets this many free days: no bill during the trial; billing starts only when you press Extend or renew in Subscriptions. 0 = no trial.",
       "maxSites": "How many yards a recycler may have. Empty = no limit. Existing yards are not affected; only adding another is stopped.",
       "maxScales": "How many weighbridges in use a recycler may have. Empty = no limit. Existing weighbridges keep working; only adding another is stopped.",
       "contractorNoSiteLimit": "Contractors have no yards or weighbridges; leave this empty.",
       "externalIntegration": "On: the recycler can connect its own ERP, accounting, MyInvois or webhook. Off: such connections cannot be added or switched on; ones already on keep running.",
       "publicPlan": "Off: this plan is not offered when adding a company or changing plan; companies already on it keep it.",
       "defaultsFrom": "Billing cycle, trial days and account limit are filled in from the SaaS defaults in System Settings; change them as needed.",
-      "trialPlanChange": "This company is on its free trial (until {date}). Changing plan changes only the plan; the trial dates stay. Press Renew to start billing.",
+      "trialPlanChange": "This company is on its free trial (until {date}). Changing plan changes only the plan; the trial dates stay. Press Extend or renew to start billing.",
       "trialRenew": "This company is on its free trial (until {date}). After renewal the paid term starts on {start} and billing starts.",
+      "lapsedRenew": "This company's subscription has ended. The renewal counts from today; the time it was stopped is not charged.",
       "cycleDefault": "The plan's billing cycle: {months} month(s) by default."
     },
     "metric": {

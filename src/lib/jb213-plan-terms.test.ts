@@ -7,6 +7,7 @@ import { describe, expect, it } from "vitest";
 import {
   addDays,
   canSwitchOn,
+  cycleBill,
   cycleMonths,
   defaultPlanId,
   featureListIsOpen,
@@ -25,6 +26,37 @@ describe("付款周期 is the default term (4a)", () => {
     expect(cycleMonths("YEARLY")).toBe(12);
     expect(cycleMonths(null)).toBe(1);
     expect(cycleMonths("SOMETHING_ELSE")).toBe(1);
+  });
+});
+
+describe("one bill on the package's cycle (walk 11-17)", () => {
+  const fees = { monthly_fee: "300.00", yearly_fee: "0.00" };
+
+  it("is the monthly fee times the cycle's months, as generate_saas_invoice prices it", () => {
+    expect(cycleBill({ ...fees, billing_cycle: "QUARTERLY" })).toEqual({ months: 3, amount: "900.00" });
+    expect(cycleBill({ ...fees, billing_cycle: "HALF_YEARLY" })).toEqual({ months: 6, amount: "1800.00" });
+    expect(cycleBill({ ...fees, billing_cycle: "YEARLY" })).toEqual({ months: 12, amount: "3600.00" });
+    expect(cycleBill({ monthly_fee: "0.10", yearly_fee: "0.00", billing_cycle: "QUARTERLY" })).toEqual({
+      months: 3,
+      amount: "0.30",
+    });
+  });
+
+  it("uses the yearly fee for a yearly package that has one", () => {
+    expect(cycleBill({ monthly_fee: "300.00", yearly_fee: "3000.00", billing_cycle: "YEARLY" })).toEqual({
+      months: 12,
+      amount: "3000.00",
+    });
+    // Under a year the yearly fee plays no part, as on the bill.
+    expect(cycleBill({ monthly_fee: "300.00", yearly_fee: "3000.00", billing_cycle: "HALF_YEARLY" })).toEqual({
+      months: 6,
+      amount: "1800.00",
+    });
+  });
+
+  it("adds nothing for a monthly package or a package with nothing to bill", () => {
+    expect(cycleBill({ ...fees, billing_cycle: "MONTHLY" })).toBeNull();
+    expect(cycleBill({ monthly_fee: "0.00", yearly_fee: "0.00", billing_cycle: "QUARTERLY" })).toBeNull();
   });
 });
 
