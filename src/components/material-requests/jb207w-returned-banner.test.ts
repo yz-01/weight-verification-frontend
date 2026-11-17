@@ -18,8 +18,9 @@ function read(file: string) {
 describe("a returned MR", () => {
   it("still offers 修改 where the server allows it (decided, applicant or approver)", () => {
     const office = read("src/components/material-requests/material-requests-office.tsx");
+    // JB214-3d: the archive rule is the request's project's (`archiveLocks`).
     expect(office).toContain(
-      "changeable || (mayChange && decided && !ARCHIVE_LOCKS_CHANGES && !user?.is_field_staff)",
+      "changeable || (mayChange && decided && !archiveLocks && !user?.is_field_staff)",
     );
     // 删除 stays pending-only, as the server's delete refuses a decided one.
     expect(office).toContain("{changeable && <DeleteRecordButton");
