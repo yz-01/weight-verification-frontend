@@ -182,7 +182,9 @@ export function ContractorReportWorkspace({
   const queryClient = useQueryClient();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user } = useAuth();
+  const { user, can } = useAuth();
+  // A consultant exports with 「导出」 ticked (JB210, Lucas 11-16 Q5 = A).
+  const mayExport = user?.account_type !== "CONSULTANT" || can("report.export");
   const opener = useRecordOpener();
   const now = new Date();
   // 「往日报告」 offers the last seven days when the address names none (I8).
@@ -408,12 +410,14 @@ export function ContractorReportWorkspace({
         <ReportClearButton active={list.hasFilters} onClear={list.clearFilters} />
         <div className="flex flex-wrap items-end gap-2 max-sm:[&>*]:flex-1">
           {/* 预览 · 打印 · 导出 · 发送 (PDF 统一操作规则). */}
-          <ExportButton
-            onExport={(format) => exportMutation.mutateAsync(format === "pdf" ? "PDF" : "EXCEL")}
-            disabled={!report.data}
-            disabledReason={common("noReportYet")}
-            title={t(`type.${reportType}`)}
-          />
+          {mayExport && (
+            <ExportButton
+              onExport={(format) => exportMutation.mutateAsync(format === "pdf" ? "PDF" : "EXCEL")}
+              disabled={!report.data}
+              disabledReason={common("noReportYet")}
+              title={t(`type.${reportType}`)}
+            />
+          )}
         </div>
         {reportType === "target" && (
           <p className="w-full text-xs leading-5 text-muted-foreground">

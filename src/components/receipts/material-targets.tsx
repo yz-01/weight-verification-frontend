@@ -29,6 +29,7 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { Fragment, useState } from "react";
 
+import { useAuth } from "@/components/providers/auth-provider";
 import { AppendTargetDialog } from "@/components/receipts/material-target-append";
 import { MaterialTabs } from "@/components/receipts/material-tabs";
 import { ProjectListFilter } from "@/components/shared/module-records-table";
@@ -89,6 +90,10 @@ export function MaterialTargets() {
   });
   const rows = targets.data?.results ?? [];
   const canManage = Boolean(targets.data?.can_manage);
+  // 「材料管理只能查看，不能新增、修改、删除或审批」 (JB210, 客户 11-16): 【追加】
+  // raises the contractor's target - not a consultant's (the server refuses it).
+  const { user } = useAuth();
+  const mayAppend = user?.account_type !== "CONSULTANT";
   const [editing, setEditing] = useState<MaterialTarget | "new" | null>(null);
   const [appending, setAppending] = useState<MaterialTarget | null>(null);
   const [armed, setArmed] = useState<string | null>(null);
@@ -217,10 +222,12 @@ export function MaterialTargets() {
                       </TableCell>
                       <TableCell pin="end">
                         <div className="flex items-center gap-1">
-                          <Button size="sm" variant="outline" className="h-7" onClick={() => setAppending(row)}>
-                            <ListPlus />
-                            {t("changeTarget")}
-                          </Button>
+                          {mayAppend && (
+                            <Button size="sm" variant="outline" className="h-7" onClick={() => setAppending(row)}>
+                              <ListPlus />
+                              {t("changeTarget")}
+                            </Button>
+                          )}
                           {canManage && (
                             <>
                               <Button size="icon-sm" variant="ghost" title={t("edit")} onClick={() => setEditing(row)}>

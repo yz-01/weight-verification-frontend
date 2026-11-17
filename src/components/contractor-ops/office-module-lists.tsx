@@ -2450,7 +2450,10 @@ export function ProgressRecordDialog({
   const t = useTranslations("contractorOps");
   const tRoot = useTranslations();
   const df = useDateFormat();
-  const { can } = useAuth();
+  const { can, user } = useAuth();
+  // 【备注】 is a consultant's too (JB210, Lucas 11-16 Q1 = A): a dated note under
+  // his name; the record itself stays the contractor's.
+  const mayRemark = can("progress.confirm") || user?.account_type === "CONSULTANT";
   const qc = useQueryClient();
   const reference = useProgressReference();
   // The 实际完成比例 correction form, open in place of the figure (2026-10-09).
@@ -2609,7 +2612,7 @@ export function ProgressRecordDialog({
         }
         actions={
           <div className="flex flex-wrap items-center gap-2">
-            {can("progress.confirm") && (
+            {mayRemark && (
               <ProgressRemarkBox
                 onSave={async (body) => {
                   const fresh = await addProgressRemark(shown.id, body);

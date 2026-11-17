@@ -66,6 +66,7 @@ import {
 import { ReportJobs } from "@/components/reports/report-jobs";
 import { ReportSelector } from "@/components/reports/report-selector";
 import { LogRecordWindow, type LogRecordHeading } from "@/components/contractor-ops/log-record-window";
+import { useAuth } from "@/components/providers/auth-provider";
 import { clickOpensRow } from "@/components/shared/inside-row-control";
 import { FilterBar, FilterField, ListHeader } from "@/components/shared/page-primitives";
 import { SendStates } from "@/components/shared/send-states";
@@ -760,6 +761,9 @@ function RegenerateButton({ row, reportName }: { row: ContractorReportExportReco
   const df = useDateFormat();
   const queryClient = useQueryClient();
   const [busy, setBusy] = useState(false);
+  const { user, can } = useAuth();
+  // Generating again is an export: a consultant's needs 「导出」 (JB210, Q5 = A).
+  if (user?.account_type === "CONSULTANT" && !can("report.export")) return null;
   // The 现场看板 is exported from its own screen, with its own words: its
   // old rows cannot be generated here.
   if (row.report_type === "dashboard") {

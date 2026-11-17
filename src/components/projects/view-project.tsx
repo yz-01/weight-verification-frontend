@@ -105,7 +105,8 @@ export function membershipOpen(status: ProjectStatus): boolean {
 export function ViewProject({ id }: { id: string }) {
   const t = useTranslations();
   const df = useDateFormat();
-  const { can } = useAuth();
+  const { can, user } = useAuth();
+  const consultant = user?.account_type === "CONSULTANT";
   const queryClient = useQueryClient();
   const [archiving, setArchiving] = useState(false);
 
@@ -308,12 +309,19 @@ export function ViewProject({ id }: { id: string }) {
       )}
       <ProjectTeam projectId={id} open={membershipOpen(data.status)} />
       <ProjectResponsibilities projectId={id} />
-      {/* 「项目权限」 (JB131, 客户 11-07 事项 6). */}
-      <ProjectPermissions projectId={id} />
-      <ProjectDockets projectId={id} />
-      {/* 可用供应商 (JB115): who this project may receive from. Last on the
-          page (JB124): the guide says 「要拉到最下面」. */}
-      <ProjectSuppliersPanel projectId={id} />
+      {/* A consultant reads the project's basics and team (JB210, 客户 11-16):
+          not every member's switches, the delivery dockets or the supplier
+          list - the server refuses or narrows them for him. */}
+      {!consultant && (
+        <>
+          {/* 「项目权限」 (JB131, 客户 11-07 事项 6). */}
+          <ProjectPermissions projectId={id} />
+          <ProjectDockets projectId={id} />
+          {/* 可用供应商 (JB115): who this project may receive from. Last on the
+              page (JB124): the guide says 「要拉到最下面」. */}
+          <ProjectSuppliersPanel projectId={id} />
+        </>
+      )}
 
       <ConfirmDialog
         open={archiving}

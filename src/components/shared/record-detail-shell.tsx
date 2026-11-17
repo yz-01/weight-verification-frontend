@@ -67,6 +67,7 @@ import {
 import { useArrowKeys } from "@/hooks/use-arrow-keys";
 import type { ArchiveRecordKind } from "@/interfaces/contractor-ops";
 import type { RecordedBy } from "@/interfaces/recorder";
+import { consultantSeesConversation } from "@/lib/consultant-modules";
 import type { ChatRecordKind } from "@/lib/record-chat";
 import { useDateFormat } from "@/lib/dates";
 import { cn } from "@/lib/utils";
@@ -627,7 +628,8 @@ export function RecordDetailShell({
                 <RecordAttachmentsPanel kind={conversation.kind} recordId={conversation.recordId} />
               </div>
             ) : null}
-            {conversation ? (
+            {/* JB210 (Lucas 11-16 Q2 = A): not the contractor's own talk for a consultant. */}
+            {conversation && consultantSeesConversation(user?.account_type, conversation.kind) ? (
               <ShellPanel title={t("conversation")} className="order-9">
                 <RecordConversationPanel
                   kind={conversation.kind}
