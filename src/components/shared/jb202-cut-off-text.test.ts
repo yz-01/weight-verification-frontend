@@ -88,6 +88,37 @@ describe("总公司仪表板: a project card's line and the notices, whole (JB20
   });
 });
 
+describe("tabs on a phone wrap to a second row instead of sliding off with no scrollbar (JB202)", () => {
+  // 工程进度 on a 390 px phone: 「施工分类 工程时间轴 日报告 施工计划 项」 - the fifth tab
+  // was off the edge and `no-scrollbar` hid any sign of it.
+  const source = read("ui/tabs.tsx");
+
+  it("the list wraps and grows on a phone", () => {
+    const list = source.slice(source.indexOf("const tabsListVariants"), source.indexOf("variants: {"));
+    expect(list).toContain("max-sm:h-auto! max-sm:flex-wrap max-sm:overflow-visible");
+  });
+
+  it("a tab keeps its height in a wrapped row", () => {
+    const trigger = source.slice(source.indexOf("function TabsTrigger"), source.indexOf("function TabsContent"));
+    expect(trigger).toMatch(/"relative inline-flex h-full flex-1 [^"]* max-sm:min-h-10 /);
+  });
+});
+
+describe("沟通记录: the list fits a phone, names and numbers whole (JB202)", () => {
+  const source = read("site-access/field-chats-office.tsx");
+
+  it("lets the list's column be narrower than its longest line", () => {
+    expect(source).toContain('className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]"');
+  });
+
+  it("wraps who is in it, the project, and a PKG number", () => {
+    wraps(classesBefore(source, "{row.title}</span>"));
+    wraps(classesBefore(source, "{row.project_name}</span>"));
+    wraps(classesBefore(source, "{row.package_no}</span>"));
+    wraps(classesBefore(source, '{t("packageThread"'));
+  });
+});
+
 describe("仪表板 待审批事项: number, title and quantity, whole (JB202)", () => {
   it("wraps both lines of a row instead of 「… 2.0…」 on a phone", () => {
     const source = read("dashboard/headquarters-approvals.tsx");
