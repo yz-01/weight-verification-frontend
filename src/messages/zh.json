@@ -5455,7 +5455,7 @@
       "progress": "进度记录、日报告、雨天记录、施工计划——只能看，可以写备注",
       "safety": "看整改和施工准证；可以发起整改，跟进自己发起的",
       "documents": "本项目已确认归档的文件——看和下载",
-      "recordCentre": "上面勾了的模块里已完成的记录——只能看",
+      "recordCentre": "上面勾了的模块的记录——只能看",
       "reports": "上面勾了的模块的报表",
       "notifications": "这个项目发给他的通知",
       "conversations": "他参与的沟通"
@@ -9342,7 +9342,8 @@
       "visitor_host_not_on_project": "这个人不在这个项目里。请从名单里选这个项目的人。",
       "consultant_read_only": "顾问账号只能查看这里的资料，不能修改。",
       "consultant_module_not_granted": "总部没有为您在这个项目开通这个模块。如需使用，请联系总部。",
-      "consultant_no_permit": "施工准证由施工方申请，顾问不能提交。您可以发起整改。"
+      "consultant_no_permit": "施工准证由施工方申请，顾问不能提交。您可以发起整改。",
+      "consultant_export_not_granted": "总部没有为您在这个项目开通「导出」，所以不能导出或发送。可以预览和打印。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -20898,6 +20899,16 @@
       "allAssignees": "全部负责人",
       "dateFrom": "开始日期",
       "dateTo": "结束日期"
+    },
+    "consultantReview": {
+      "open": "验收 / 退回",
+      "hint": "验收通过：这个任务完成。退回：写明原因，任务退回施工方重做。",
+      "accept": "验收通过",
+      "return": "退回",
+      "reason": "退回原因",
+      "reasonHint": "写清楚哪里不合格、要改什么。施工方会在任务里看到。",
+      "confirmReturn": "确认退回",
+      "cancel": "取消"
     }
   },
   "mapFrame": {

@@ -26,6 +26,7 @@ import { Download, ExternalLink, Loader2, Printer, Share2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { useMayExport } from "@/hooks/use-may-export";
 import { useFileActions } from "@/components/shared/file-actions";
 import { useRecordSendTarget } from "@/components/shared/record-send-log";
 import { Button } from "@/components/ui/button";
@@ -110,6 +111,9 @@ export function EvidenceFileActions({
   const target = useRecordSendTarget();
   const { busy, run, element } = useFileActions();
   const { user } = useAuth();
+  // 发送 is taking it out: a consultant's needs 「导出」 (JB210, walk 11-17
+  // F-A4); 下载 of the stored file is reading it (Q6 = A: 只看和下载).
+  const mayExport = useMayExport();
   // 预览、打印、下载、发送 are the office's (Lucas 11-05): the phone only looks.
   if (user?.is_field_staff) return null;
   return (
@@ -174,7 +178,7 @@ export function EvidenceFileActions({
         <Download />
         {t("download")}
       </Button>
-      {share ? (
+      {share && mayExport ? (
         <Button
           size="sm"
           variant="outline"

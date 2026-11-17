@@ -132,6 +132,8 @@ export function ConsultantApplicationsList() {
             {stage !== "inbox" && (
               // The applications listed, as a file (H16, HD13).
               <ExportButton
+                // His own 顾问申请 / 资料包 work: as before, 「导出」 or not (JB210).
+                ownWork
                 disabled={!rows.data?.count}
                 disabledReason={t("applications.subtitle", { count: 0 })}
                 title={t("applications.title")}
@@ -171,6 +173,8 @@ export function ConsultantApplicationsList() {
             {stage === "inbox" && (
               // 待整理现场资料 as a file: the submissions waiting here (H16).
               <ExportButton
+                // His own 顾问申请 / 资料包 work: as before, 「导出」 or not (JB210).
+                ownWork
                 disabled={!toOrganize.data?.count}
                 disabledReason={t("inbox.empty")}
                 title={t("inbox.what")}

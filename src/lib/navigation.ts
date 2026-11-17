@@ -1919,6 +1919,39 @@ function asConsultant<T extends FeatureNavItem | FeatureNavChild>(entry: T): T {
   };
 }
 
+/**
+ * Whether the page an address names most closely is open to this consultant:
+ * the menu entry or page whose address is the longest one the address starts
+ * with, by its (consultant's) feature. No such page: left to the usual rule.
+ */
+function consultantPageOpen(portal: Portal, enabled: ReadonlySet<string>, pathname: string): boolean {
+  // No page named yet: open, and left to the usual rule.
+  const best = { length: -1, open: true };
+  const consider = (href: string, feature: string | undefined, anyFeatures?: readonly string[]) => {
+    const canonical = href.split("?", 1)[0];
+    if (!matchesPrefix(pathname, canonical)) return;
+    if (best.length >= canonical.length) return;
+    best.length = canonical.length;
+    best.open =
+      (feature !== undefined && enabled.has(feature)) ||
+      (anyFeatures ?? []).some((key) => enabled.has(key));
+  };
+  const walk = (children: readonly FeatureNavChild[] | undefined, parent: string) => {
+    for (const childItem of children ?? []) {
+      if (childItem.children?.length) {
+        walk(childItem.children, childItem.feature ?? parent);
+        continue;
+      }
+      consider(childItem.href, childItem.feature ?? parent, childItem.anyFeatures);
+    }
+  };
+  for (const navItem of registryFor(portal, enabled)) {
+    consider(navItem.href, navItem.feature);
+    walk(navItem.children, navItem.feature);
+  }
+  return best.open;
+}
+
 /** The menu registry this feature list reads: a consultant's, or as it is. */
 function registryFor(portal: Portal, features: ReadonlySet<string>): readonly FeatureNavItem[] {
   const registry = PORTAL_NAVIGATION[portal] as readonly FeatureNavItem[];
@@ -2141,6 +2174,12 @@ export function isRouteAllowed(
   }
 
   const enabled = new Set(features);
+  // A consultant's own page keys (JB210, walk 11-17 F-A3): the page the
+  // address names most closely decides - 「/reports」 opening every report
+  // address must not open a report of a module not ticked for him.
+  if (enabled.has(CONSULTANT_MENU) && !consultantPageOpen(portal, enabled, pathname)) {
+    return false;
+  }
   const owned = registryFor(portal, enabled).some((navItem) => {
     const parentEnabled = enabled.has(navItem.feature);
     const leaves = navLeaves(navItem.children);

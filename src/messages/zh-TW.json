@@ -5455,7 +5455,7 @@
       "progress": "進度記錄、日報告、雨天記錄、施工計劃——只能看，可以寫備註",
       "safety": "看整改和施工准證；可以發起整改，跟進自己發起的",
       "documents": "本項目已確認歸檔的文件——看和下載",
-      "recordCentre": "上面勾了的模組裡已完成的記錄——只能看",
+      "recordCentre": "上面勾了的模組的記錄——只能看",
       "reports": "上面勾了的模組的報表",
       "notifications": "這個項目發給他的通知",
       "conversations": "他參與的溝通"
@@ -9342,7 +9342,8 @@
       "visitor_host_not_on_project": "這個人不在這個項目裡。請從名單裡選這個項目的人。",
       "consultant_read_only": "顧問帳號只能查看這裡的資料，不能修改。",
       "consultant_module_not_granted": "總部沒有為您在這個項目開通這個模組。如需使用，請聯絡總部。",
-      "consultant_no_permit": "施工准證由施工方申請，顧問不能提交。您可以發起整改。"
+      "consultant_no_permit": "施工准證由施工方申請，顧問不能提交。您可以發起整改。",
+      "consultant_export_not_granted": "總部沒有為您在這個項目開通「導出」，所以不能導出或發送。可以預覽和列印。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -20898,6 +20899,16 @@
       "allAssignees": "全部負責人",
       "dateFrom": "開始日期",
       "dateTo": "結束日期"
+    },
+    "consultantReview": {
+      "open": "驗收 / 退回",
+      "hint": "驗收通過：這個任務完成。退回：寫明原因，任務退回施工方重做。",
+      "accept": "驗收通過",
+      "return": "退回",
+      "reason": "退回原因",
+      "reasonHint": "寫清楚哪裡不合格、要改什麼。施工方會在任務裡看到。",
+      "confirmReturn": "確認退回",
+      "cancel": "取消"
     }
   },
   "mapFrame": {

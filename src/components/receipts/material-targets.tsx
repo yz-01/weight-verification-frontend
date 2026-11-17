@@ -144,7 +144,8 @@ export function MaterialTargets() {
       ) : targets.isLoading ? (
         <p className="text-sm text-muted-foreground">{t("loading")}</p>
       ) : rows.length === 0 ? (
-        <EmptyState title={project ? t("empty") : t("emptyAll")} action={addButton || undefined} />
+        // A consultant adds none (JB210, walk 11-17 N-A3): his project's empty line, no 「再新增」.
+        <EmptyState title={project || !mayAppend ? t("empty") : t("emptyAll")} action={addButton || undefined} />
       ) : (
         <div className="rounded-lg border">
           {/* Fits the page (I39): no sideways scroll at 1366 px. */}
