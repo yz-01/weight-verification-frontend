@@ -12,6 +12,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import en from "@/messages/en.json";
 import zh from "@/messages/zh.json";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { ApiError } from "@/interfaces/api";
 import { APP_VERSION } from "@/lib/app-version";
 import {
@@ -30,6 +31,11 @@ vi.mock("@/components/shared/data-table", () => ({
   DataTable: () => null,
   SortableHeader: () => null,
 }));
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn(), back: vi.fn(), replace: vi.fn(), prefetch: vi.fn() }),
+  usePathname: () => "/trace/field-login",
+  useSearchParams: () => new URLSearchParams(""),
+}));
 
 const { MaintenanceBanner, MaintenanceNotice } = await import(
   "@/components/platform-status/maintenance-banner"
@@ -41,6 +47,7 @@ const { ContactMse } = await import("@/components/platform-status/contact-mse");
 const { InvoiceIssuerBlock } = await import("@/components/billing/invoice-issuer");
 const { VersionList } = await import("@/components/platform-settings/version-list");
 const { refusalForMse } = await import("@/components/auth/login");
+const { FieldAccess } = await import("@/components/field-staff/field-access");
 const { PLATFORM_STATUS_KEY } = await import("@/hooks/use-platform-status");
 
 const CONTACT: PlatformContact = {
@@ -82,7 +89,8 @@ function render(node: ReactNode, { locale = "zh", seed }: { locale?: "zh" | "en"
         timeZone="Asia/Kuala_Lumpur"
         now={NOW}
       >
-        {node}
+        {/* As in AppProviders: the field sign-in page's 登录 explains itself in a tooltip. */}
+        <TooltipProvider>{node}</TooltipProvider>
       </NextIntlClientProvider>
     </QueryClientProvider>,
   );
@@ -186,6 +194,29 @@ describe("JB211-F7 联系 MSE and the bill's 开票方 (11.2.1)", () => {
     expect(html).toContain("Shah Alam");
     expect(issuerLines({ ...CONTACT, company_name: "", registration_no: "", address: "" })).toBeNull();
     expect(render(<InvoiceIssuerBlock contact={null} />)).toBe("");
+  });
+
+  it("the field phone's sign-in page has 联系 MSE too, a line only for what is filled in (walk F-A6)", () => {
+    const html = render(<FieldAccess />, {
+      seed: { maintenance: OFF, contact: { ...CONTACT, website: "www.mse.example" } },
+    });
+    expect(html).toContain(zh.fieldAccess.loginTitle);
+    expect(html).toContain('data-testid="contact-mse"');
+    expect(html).toContain("tel:+60312345678");
+    expect(html).toContain("mailto:support@mse.example");
+    expect(html).toContain('href="https://www.mse.example"');
+
+    // 官方网站 left empty: its line is gone, the others stay.
+    const noWebsite = render(<FieldAccess />, { seed: { maintenance: OFF, contact: CONTACT } });
+    expect(noWebsite).toContain("tel:+60312345678");
+    expect(noWebsite).not.toContain("www.mse.example");
+
+    // Nothing filled in, or no answer: no box at all.
+    const blank = { ...CONTACT, phone: "", email: "", website: "" };
+    expect(render(<FieldAccess />, { seed: { maintenance: OFF, contact: blank } })).not.toContain(
+      'data-testid="contact-mse"',
+    );
+    expect(render(<FieldAccess />)).not.toContain('data-testid="contact-mse"');
   });
 
   it("shows MSE's contact under the refusals only MSE can lift", () => {
