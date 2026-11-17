@@ -35,6 +35,12 @@ describe("record windows: the photo's caption names who took it, whole (JB202)",
     wraps(classes);
     expect(classes).toEqual(expect.arrayContaining(["mt-1", "text-[11px]", "leading-snug"]));
   });
+
+  it("wraps the big photo's label, who took it and when, over the picture", () => {
+    const classes = classesBefore(read("shared/record-detail-shell.tsx"), /\{photo\.label\}\s*\{photo\.takenAt/);
+    wraps(classes);
+    expect(classes).toEqual(expect.arrayContaining(["absolute", "max-w-[calc(100%-1rem)]", "text-left"]));
+  });
 });
 
 describe("StatusBadge / TypeBadge break between whole words, never one character a line (JB202)", () => {
@@ -171,6 +177,14 @@ describe("文件档案: numbers, names and categories wrap in JB165's columns (J
     const cell = parts.slice(parts.indexOf("export function DocumentPathCell"), parts.indexOf("export type ThumbnailKind"));
     expect(cell).not.toContain("ONE_LINE");
     expect(cell.match(/break-words/g)).toHaveLength(3);
+  });
+});
+
+describe("项目 › 供应商: name, code and who added it, whole (JB202)", () => {
+  it("wraps both lines", () => {
+    const source = read("projects/project-suppliers.tsx");
+    wraps(classesBefore(source, "{row.supplier_name}</p>"));
+    wraps(classesBefore(source, "{row.supplier_code}"));
   });
 });
 

@@ -257,8 +257,10 @@ function ShellHeroPhoto({
         decoding="async"
         className={`absolute inset-0 size-full ${HERO_FIT}`}
       />
-      {/* At the top: at the foot it covered the photo's watermark strip. */}
-      <span className="absolute left-2 top-2 max-w-[calc(100%-1rem)] truncate rounded-md bg-overlay px-2 py-1 text-xs text-overlay-foreground">
+      {/* At the top: at the foot it covered the photo's watermark strip.
+          JB202 (Lucas 11-16 「字被裁掉了」): what it is, who took it and when
+          wrap instead of ending in 「…」 (「… · 阿强（设备操作） · 05/1…」 on a phone). */}
+      <span className="absolute left-2 top-2 max-w-[calc(100%-1rem)] break-words rounded-md bg-overlay px-2 py-1 text-left text-xs text-overlay-foreground">
         {photo.label}
         {photo.takenAt ? ` · ${df.dateTime(photo.takenAt)}` : ""}
       </span>

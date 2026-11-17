@@ -92,9 +92,11 @@ export function ProjectSuppliersPanel({ projectId }: { projectId: string }) {
             <div key={row.id} className="flex items-center justify-between gap-4 px-6 py-3" data-testid="project-supplier-row">
               <div className="flex min-w-0 items-center gap-3">
                 <Truck className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+                {/* JB202 (Lucas 11-16 「字被裁掉了」): the supplier's name, code
+                    and who added it wrap on a phone instead of 「…示范 项目经…」. */}
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-medium text-foreground">{row.supplier_name}</p>
-                  <p className="truncate text-xs text-muted-foreground">
+                  <p className="break-words text-sm font-medium text-foreground">{row.supplier_name}</p>
+                  <p className="break-words text-xs text-muted-foreground">
                     {row.supplier_code}
                     {row.added_by_name ? ` · ${t("addedBy", { name: row.added_by_name })}` : ""}
                   </p>
