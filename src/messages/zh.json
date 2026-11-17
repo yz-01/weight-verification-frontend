@@ -23,7 +23,9 @@
       "return": "归还",
       "save": "保存",
       "start": "开始",
-      "transferAsset": "调拨资产"
+      "transferAsset": "调拨资产",
+      "goToCategories": "前往资产类别",
+      "removeCategory": "删除类别"
     },
     "assetStatus": {
       "BORROWED": "已借出",
@@ -283,7 +285,10 @@
       "removedOn": "拆除日期",
       "decision": "处理决定",
       "selectSource": "选择目前所在",
-      "fromHint": "按资产目前记录的所在位置自动带出，只有记录不对时才需要改。"
+      "fromHint": "按资产目前记录的所在位置自动带出，只有记录不对时才需要改。",
+      "noCustomCategories": "还没有可选的自定义类别。请先到「资产类别」新增，再回来选择。",
+      "recurringHint": "定期重复保养：完成这次保养时要填「下次日期」，系统才会自动排下一次。",
+      "nextDateRecurringHint": "这是定期重复保养，请填下次日期，系统会按这个日期排下一次保养。"
     },
     "installationStatus": {
       "ACTIVE": "已启用",
@@ -425,6 +430,12 @@
       "staff": "员工列表",
       "options": "员工、部门、客户和项目列表",
       "customers": "客户名称"
+    },
+    "saveError": "保存失败，请检查输入内容后重试。",
+    "saveFieldError": "「{field}」：{error}",
+    "confirm": {
+      "removeCategory": "确定要删除类别「{name}」吗？已经有资产在用的类别不能删除，请改为停用。",
+      "removeDepartment": "确定要删除部门「{name}」吗？删除后，调拨时不能再选这个部门。"
     }
   },
   "adminAuditCenter": {
@@ -656,7 +667,10 @@
       "usageUnit": "使用单位",
       "vendor": "选择供应商",
       "video_storage_gb": "Video Storage GB",
-      "year": "年份"
+      "year": "年份",
+      "tenantId": "租户 ID（Azure）",
+      "tenantIdHint": "Azure 的用量要自动同步，除了 API 密钥，还要填这个租户 ID。",
+      "tiersHint": "每一档写用量上限（limit）和单价（price）；最后一档的 limit 写 0，表示不封顶。可照框里的例子填。"
     },
     "formSection": {
       "basic": "基本资料",
@@ -797,6 +811,17 @@
       "services": "云服务列表",
       "vendors": "供应商列表",
       "companiesProjects": "客户和项目列表"
+    },
+    "saveFieldError": "「{field}」：{error}",
+    "alertMessage": "{type}：目前 {current}，预警线 {threshold}",
+    "unit": {
+      "GB": "GB",
+      "TB": "TB",
+      "REQUESTS": "次（API 请求）",
+      "MESSAGES": "条（短信 / 讯息）",
+      "HOURS": "小时",
+      "TRANSACTIONS": "笔（交易）",
+      "none": "不指定"
     }
   },
   "adminCustomerService": {
@@ -818,7 +843,9 @@
       "process": "处理",
       "respond": "回复",
       "save": "保存",
-      "updateStatus": "更新状态"
+      "updateStatus": "更新状态",
+      "view": "查看",
+      "close": "关闭"
     },
     "column": {
       "actions": "操作",
@@ -897,7 +924,11 @@
       "type": "类型",
       "visit_code": "回访编号",
       "visit_date": "回访日期",
-      "visited_by_name": "回访人员"
+      "visited_by_name": "回访人员",
+      "message": "内容",
+      "requirements": "客户需求",
+      "notes": "处理结果",
+      "lost_reason": "流失原因"
     },
     "feedbackCategory": {
       "BUG_REPORT": "Bug 反馈",
@@ -939,7 +970,10 @@
       "meetingLinkHint": "线上培训时填写视频会议链接，以 https:// 开头",
       "visitTime": "回访时间",
       "visitReport": "回访报告文件",
-      "viewReport": "查看报告"
+      "viewReport": "查看报告",
+      "assignee": "处理人员",
+      "unassigned": "未指定",
+      "pastResults": "以前的处理结果"
     },
     "loadError": "无法加载客户服务记录。",
     "loading": "正在加载客户服务记录...",
@@ -1024,7 +1058,8 @@
       "open": "待处理",
       "resolved": "已解决",
       "satisfied": "满意",
-      "unsatisfied": "不满意"
+      "unsatisfied": "不满意",
+      "resolvedLocked": "已解决的反馈不能改回未解决。"
     },
     "subtitle": "统一管理客户咨询、培训、回访、反馈及永久服务历史。",
     "title": "客户服务中心",
@@ -1041,7 +1076,8 @@
     },
     "what": {
       "summary": "客服中心统计",
-      "companies": "客户列表"
+      "companies": "客户列表",
+      "assignees": "可指派的人员名单"
     }
   },
   "adminCwe": {
@@ -1330,6 +1366,10 @@
       "notifications": "通知列表",
       "deliveryRecords": "发送记录",
       "statusRecords": "状态记录"
+    },
+    "toast": {
+      "sent": "已发送给 {count} 人。",
+      "sentToNobody": "没有发出去：这家公司现在没有可以收通知的账号。"
     }
   },
   "adminPartnerManagement": {
@@ -1357,7 +1397,8 @@
       "submit": "提交",
       "terminate": "终止",
       "view": "在线查看",
-      "viewPaymentProof": "查看付款凭证"
+      "viewPaymentProof": "查看付款凭证",
+      "delete": "删除"
     },
     "agreementStatus": {
       "ACTIVE": "生效中",
@@ -1499,7 +1540,13 @@
       "terms": "协议条款",
       "title": "协议标题",
       "signedOn": "签署日期",
-      "paymentProof": "付款凭证"
+      "paymentProof": "付款凭证",
+      "commissionStart": "佣金开始日期",
+      "commissionStartHint": "不填就从今天开始算",
+      "commissionEnd": "佣金结束日期",
+      "commissionEndHint": "不填就一直算下去",
+      "changeReason": "修改原因（选填）",
+      "calculationConfigExample": "按这个格式填写，例如：{example}"
     },
     "heading": {
       "payouts": "合作伙伴佣金结算",
@@ -1637,6 +1684,31 @@
       "territories": "负责区域列表",
       "agreements": "协议佣金规则",
       "payouts": "佣金结算列表"
+    },
+    "remove": {
+      "typeTitle": "删除合作类型「{name}」？",
+      "typeDescription": "删除后，这个类型就不能再选。已经有合作伙伴在用的类型不能删除，请改为停用。",
+      "territoryTitle": "删除负责区域「{name}」？",
+      "territoryDescription": "删除后，这个区域就不能再选来分配客户。已经有客户归属的区域不能删除，请改为填写到期日期。"
+    },
+    "payout": {
+      "rejectedClosed": "已驳回，不能再付款。要重新算，请按「计算佣金」。"
+    },
+    "toast": {
+      "statusChanged": "合作伙伴状态已更新",
+      "agreementUpdated": "协议已保存",
+      "typeSaved": "合作类型已保存",
+      "typeRemoved": "合作类型已删除",
+      "territorySaved": "负责区域已保存",
+      "territoryRemoved": "负责区域已删除",
+      "customerAssigned": "客户已分配给合作伙伴",
+      "assignmentUpdated": "客户归属已更新",
+      "agreementSubmitted": "协议已提交，等待签署",
+      "agreementActivated": "协议已生效",
+      "agreementRenewed": "续签协议已建立（草稿）",
+      "agreementTerminated": "协议已终止",
+      "payoutAdjusted": "调整金额已保存",
+      "payoutUpdated": "佣金结算已更新"
     }
   },
   "adminQr": {
@@ -1766,6 +1838,7 @@
     },
     "subjectType": {
       "CONTRACTOR": "建筑商",
+      "CUSTOMER": "私人客户",
       "DELIVERY_NOTE": "送货单",
       "DEVICE": "设备",
       "DRIVER": "司机",
@@ -1917,7 +1990,8 @@
     "what": {
       "filterOptions": "报表筛选选项",
       "history": "报表历史记录"
-    }
+    },
+    "datesBackwards": "开始日期不能晚于结束日期。"
   },
   "adminSales": {
     "action": {
@@ -1936,7 +2010,11 @@
       "editPerson": "编辑销售人员",
       "process": "处理",
       "reassign": "转移",
-      "save": "保存"
+      "save": "保存",
+      "editTerritory": "编辑区域",
+      "view": "查看",
+      "close": "关闭",
+      "goToSettlements": "去佣金结算"
     },
     "basis": {
       "CUSTOM_FORMULA": "自定义计算公式",
@@ -2004,7 +2082,8 @@
       "platform_commission_percent": "平台佣金百分比",
       "saas_percent": "SaaS 收入百分比",
       "target_bonus": "目标奖励金额",
-      "target_threshold": "目标门槛"
+      "target_threshold": "目标门槛",
+      "targetMetric": "目标奖励按什么算"
     },
     "cycle": {
       "MONTHLY": "每月",
@@ -2038,7 +2117,15 @@
       "selectSupervisor": "选择主管或经理",
       "target": "目标金额",
       "wonOn": "签约日期",
-      "reasonLabel": "原因"
+      "reasonLabel": "原因",
+      "noEndDate": "长期有效",
+      "territoryName": "区域名称",
+      "territoryNameHint": "例如：北马、中马",
+      "nationalSwitch": "全国（负责所有州属）",
+      "effectiveTo": "到期日期",
+      "effectiveToHint": "不填就一直有效",
+      "exclusiveSwitch": "独家负责（同一个州属有两位负责人时，新客户先给这一位）",
+      "nameInSchemes": "名称和说明请到「佣金方案」修改，这里只改计算方式"
     },
     "loadError": "无法加载销售记录。",
     "loading": "正在加载销售记录...",
@@ -2065,7 +2152,8 @@
       "recyclers_won": "回收商客户",
       "saas_revenue": "SaaS 收入",
       "team_size": "团队人数",
-      "total_customers": "客户"
+      "total_customers": "客户",
+      "period": "统计期间：{start} 至 {end}"
     },
     "remove": {
       "confirm": "移除负责区域",
@@ -2089,7 +2177,8 @@
     "saveError": "无法保存客户归属，请检查所选客户和销售人员后重试。",
     "scope": {
       "NATIONAL": "全国",
-      "STATES": "指定州属"
+      "STATES": "指定州属",
+      "none": "未设定"
     },
     "section": {
       "activity": {
@@ -2162,7 +2251,17 @@
       "summary": "销售汇总",
       "schemes": "佣金方案列表",
       "people": "销售人员列表",
-      "performance": "团队业绩数据"
+      "performance": "团队业绩数据",
+      "acknowledgements": "确认记录"
+    },
+    "territory": {
+      "notCurrent": "不在生效期内",
+      "empty": "还没有设定销售区域。按「新增区域」，选一位销售人员和他负责的州属（或全国）。新公司会按州属自动分给负责的人。"
+    },
+    "termsView": {
+      "confirmedBy": "已确认的销售人员",
+      "noneConfirmed": "还没有人确认这个版本。",
+      "confirmedOn": "{date} 确认"
     }
   },
   "adminSystemSettings": {
@@ -2260,7 +2359,8 @@
         "saved": "公告已更新。"
       },
       "translations": "其他语言",
-      "translationsHelp": "留空的话，该语言的读者会逐字段退回英文。"
+      "translationsHelp": "留空的话，该语言的读者会逐字段退回英文。",
+      "mainLanguageHint": "下面的「标题」和「内容」请写英文，这是每位读者的默认内容；中文请在下面的「其他语言」里填写。"
     },
     "branding": {
       "description": "当公司没有上传自己的 Logo 时，浏览器标签和添加到桌面的快捷方式会使用此图标。支持 5 MB 以内的 PNG、JPG 和 WebP。",
@@ -2507,7 +2607,12 @@
       "companySaved": "公司设置已保存",
       "saved": "设置已保存"
     },
-    "updatedAt": "最后保存：{value}"
+    "updatedAt": "最后保存：{value}",
+    "leave": {
+      "title": "还有设定没有保存",
+      "description": "这一页有改过、还没按「保存」的设定。现在离开的话，这些改动不会保存。",
+      "confirm": "离开，不保存"
+    }
   },
   "adminTechnicalSupport": {
     "action": {
@@ -2680,7 +2785,10 @@
       "actualHours": "实际工时（小时）",
       "resolutionNotes": "处理说明",
       "resolutionNotesHelp": "把工单标为完成时填写的说明也会写到这里。",
-      "laborHours": "人工工时（小时）"
+      "laborHours": "人工工时（小时）",
+      "assignee": "负责人",
+      "unassigned": "未指定",
+      "fixedInVersion": "修复版本"
     },
     "guide": {
       "action": {
@@ -2830,7 +2938,7 @@
     "ticketComment": {
       "empty": "这张工单还没有人说过话。",
       "internal": "内部",
-      "internalHelp": "内部备注 —— 只有自己人看得到，客户看不到",
+      "internalHelp": "标为内部备注。这里的回复都只记录在后台给同事看，系统不会发给客户。",
       "placeholder": "写一条回复",
       "send": "添加评论",
       "title": "对话记录",
@@ -2840,7 +2948,9 @@
     "ticketEdit": {
       "moveOn": "推进状态",
       "save": "保存更正",
-      "title": "更正这张工单"
+      "title": "更正这张工单",
+      "moveOnHint": "这里只列出这张工单现在可以改去的状态。",
+      "closedFinal": "这张工单已经关闭，状态不能再改。如果问题又出现，请新增一张工单。"
     },
     "ticketState": {
       "CLOSED": "已关闭",
@@ -2862,7 +2972,10 @@
     "title": "技术支持中心",
     "what": {
       "summary": "技术支持中心统计",
-      "companies": "公司列表"
+      "companies": "公司列表",
+      "assignees": "可指派的人员名单",
+      "integrations": "系统集成连接",
+      "devices": "已登记的设备"
     }
   },
   "app": {
@@ -3058,7 +3171,7 @@
       "WASTE_OUTGOING": "环保材料出场申请",
       "DISPOSAL_REQUEST": "工地清运",
       "PROGRESS": "工程进度",
-      "CONSULTANT_APPLICATION": "顾问资料",
+      "CONSULTANT_APPLICATION": "顾问申请",
       "ATTENDANCE_DAY": "出入场（按日）",
       "SUNDRY_CLAIM": "杂费报销",
       "DELIVERY_NOTE": "送货单",
@@ -3503,7 +3616,7 @@
       "RESTART": "重新启动",
       "WITHDRAWN": "已撤回",
       "accept_trip": "接受车次",
-      "acknowledged": "已确认收到",
+      "acknowledged": "已确认申请",
       "add_evidence": "补充证据",
       "add_trip": "新增车次",
       "announcement_published": "发布公告",
@@ -3541,7 +3654,7 @@
       "collection_requested": "申请收运",
       "collection_time_proposed_by_recycler": "回收商提出收运时间",
       "complete": "完成",
-      "confirm_draft": "确认草稿",
+      "confirm_draft": "确认归档",
       "confirm_weigh_ticket": "确认过磅单",
       "consultant_registered": "登记顾问",
       "correct_trip": "更正车次",
@@ -3688,7 +3801,7 @@
       "receipt_records_queried": "查询材料进场记录",
       "receipt_refiled": "材料进场改归另一种材料",
       "receipt_reviewed": "验收材料进场",
-      "received": "已收到",
+      "received": "已接收",
       "recipient_dismissed": "关闭通知",
       "record_cancelled": "取消记录",
       "record_corrected": "更正记录",
@@ -3706,8 +3819,8 @@
       "recycler_settings_update": "修改回收商设置",
       "regenerate_external_link": "重新生成外部链接",
       "remark_added": "新增备注",
-      "remedial_item_closed": "关闭待整改项",
-      "remedial_item_raised": "提出待整改项",
+      "remedial_item_closed": "关闭这条整改",
+      "remedial_item_raised": "开一条整改",
       "remove_attachment": "删除附件",
       "reorder_evidence": "调整证据顺序",
       "replace_attachment_file": "更换附件文件",
@@ -3745,7 +3858,7 @@
       "site_access_revoke": "取消工地出入",
       "site_evidence": "工地补充证据",
       "start": "开始",
-      "submit": "提交",
+      "submit": "发送给顾问",
       "subscription_exported": "导出订阅",
       "supplier_qr_scanned": "扫描供应商二维码",
       "supplier_qr_status_changed": "启用或停用供应商二维码",
@@ -3779,8 +3892,8 @@
       "APPROVE": "批准",
       "REJECT": "拒绝",
       "RETURN": "退回",
-      "APPROVE_WITH_REMEDIAL": "批准（需整改）",
-      "REVISE_RESUBMIT": "修改后重新提交",
+      "APPROVE_WITH_REMEDIAL": "批准并要求整改",
+      "REVISE_RESUBMIT": "修改后重提",
       "bulk_fill_trade": "批量填写工种",
       "create_trade": "新增工种",
       "company_categories_added_to_projects": "公司通用分类加到现有项目",
@@ -3809,7 +3922,8 @@
       "rain_report_pdf_exported": "导出雨天记录月报",
       "rain_report_pdf_previewed": "预览雨天记录月报",
       "rain_remark_set": "填写雨天记录的意见 / 备注",
-      "rain_month_remark_set": "填写雨天月报的意见 / 备注"
+      "rain_month_remark_set": "填写雨天月报的意见 / 备注",
+      "head_office_on_behalf": "总部代批"
     },
     "objectType": {
       "SignOffAssistant": "助理副密码",
@@ -3952,6 +4066,7 @@
     },
     "close": {
       "description": "在未收齐余款的情况下关闭账单 {invoice}。",
+      "paidReason": "这张账单已经收到部分款项，不能关闭。请继续跟进余款。",
       "title": "关闭账单"
     },
     "companyType": {
@@ -4808,7 +4923,8 @@
     "combobox": {
       "byLetter": "按首字母筛选"
     },
-    "loadOffline": "没有网络，{what}等有网络时再载入。"
+    "loadOffline": "没有网络，{what}等有网络时再载入。",
+    "pageNotOpen": "你的账号不能打开这个页面，已带你回到可以用的页面。需要用这个页面，请联系你们公司的管理员开通。"
   },
   "companies": {
     "owner": {
@@ -5090,6 +5206,11 @@
       "description": "这家公司的所有人将可以重新登录。",
       "title": "恢复 {name}？"
     },
+    "activateTrial": {
+      "confirm": "启用",
+      "description": "试用结束。这家公司从现在起算作正常使用的公司，报表也会把它算进有效公司。",
+      "title": "启用 {name}？"
+    },
     "remove": {
       "blockedByUsers": "这家公司还有可以登录的人员。请改为停用，或先停用这些人员。",
       "confirm": "移除",
@@ -5185,7 +5306,7 @@
       "revoke": "撤销授权",
       "save": "保存"
     },
-    "back": "顾问门户",
+    "back": "返回顾问设定",
     "common": {
       "noContact": "未填写联系人资料",
       "noJobTitle": "顾问",
@@ -5310,7 +5431,7 @@
     }
   },
   "consultantDashboard": {
-    "credential": "审批签名",
+    "credential": "签名与签核密码",
     "currentStep": "当前步骤：{step}",
     "due": {
       "description": "未来七天内需要处理的已提交申请。",
@@ -5321,27 +5442,20 @@
       "application": "申请",
       "applicationHelp": "填写 RFI 资料，并关联现场照片和必需附件。",
       "approval": "审批",
-      "approvalHelp": "顾问按顺序审核，并使用 PIN 签署每项决定。",
+      "approvalHelp": "顾问按顺序审核，并使用签核密码签署每项决定。",
       "archive": "归档",
       "archiveHelp": "确认申请、审批记录和最终报告都已保存。",
-      "final": "最终 PDF",
-      "finalHelp": "下载已经完成的客户格式 RFI 审批报告。",
+      "final": "最终报告",
+      "finalHelp": "下载已经完成的最终报告（客户格式 RFI）。",
       "subtitle": "直接打开需要处理的步骤。每份申请都会从填写资料一直保存到安全归档。",
-      "title": "四个简单步骤"
+      "title": "简单步骤"
     },
     "history": {
       "description": "已经记录此账号电子签名与审批动作的申请。",
       "empty": "此账号尚未留下审批决定。",
       "title": "我的审批记录"
     },
-    "loadError": "无法载入顾问工作台。请刷新页面，或检查该顾问的项目授权是否仍有效。",
-    "metric": {
-      "approved": "已批准",
-      "dueSoon": "7 天内到期",
-      "pending": "待我审批",
-      "returned": "已拒绝或退回",
-      "today": "今日申请"
-    },
+    "loadError": "无法载入顾问首页。请刷新页面，或检查该顾问的项目授权是否仍有效。",
     "newApplication": "新建申请",
     "notifications": {
       "description": "发送给此账号的项目、审批及系统通知。",
@@ -5358,7 +5472,7 @@
     "searchPlaceholder": "搜索申请编号、项目、位置或申请人",
     "status": {
       "APPROVED": "已批准",
-      "APPROVED_WITH_REMEDIAL": "附整改批准",
+      "APPROVED_WITH_REMEDIAL": "已批准（需整改）",
       "ARCHIVED": "已归档",
       "DRAFT": "草稿",
       "REJECTED": "已拒绝",
@@ -5367,7 +5481,7 @@
     },
     "subtitle": "在同一个工作台查看待审批申请、期限、审批记录和项目通知。",
     "title": "顾问首页",
-    "workflowSettings": "审批流程设置"
+    "workflowSettings": "顾问设定"
   },
   "consultantProject": {
     "choose": "选择项目",
@@ -5377,26 +5491,28 @@
     "remedial": {
       "failed": "没能保存",
       "noEvidence": "没有附证据",
-      "evidenceHint": "从这份申请已有的证据里挑。",
+      "evidenceHint": "从这个项目的现场照片里挑能证明已经做好的（最新的在最前面）。照片要先用手机拍好上传。",
       "evidence": "证据",
-      "closedBy": "{name} 于 {when} 关闭",
+      "closedBy": "{name} 于 {when} 关闭，附证据 {count} 份",
       "closureNote": "做了什么",
       "closeHelp": "写清楚做了什么，并附上能证明的东西。",
       "closeTitle": "关闭这条整改",
-      "unassigned": "没有指派人",
       "overdue": "已逾期",
       "closed": "已关闭",
       "open": "未完成",
       "empty": "没有整改事项",
       "dueOn": "限期 {date}",
-      "dueHint": "到期前会提醒现场，过了就标成逾期。",
+      "dueHint": "到期前一天会提醒负责的人；过了限期会标成「已逾期」，再提醒一次。",
       "dueDate": "限期",
       "description": "要整改什么",
       "raiseHelp": "写清楚要整改什么，什么时候之前完成。",
-      "raiseTitle": "开一条整改"
+      "raiseTitle": "开一条整改",
+      "responsible": "负责：{name}",
+      "responsibleApplicant": "负责：{name}（申请人）",
+      "raisedBy": "由 {name} 提出"
     },
     "action": {
-      "closeRemedial": "关闭这条",
+      "closeRemedial": "关闭这条整改",
       "raiseRemedial": "开一条整改",
       "acknowledge": "确认申请",
       "cancel": "取消",
@@ -5405,22 +5521,21 @@
       "edit": "编辑草稿",
       "receive": "标记为已接收",
       "remove": "移除",
-      "retryReport": "重新生成报告",
+      "retryReport": "重新生成最终报告",
       "save": "保存",
       "saveDraft": "保存草稿",
-      "saveReusableOption": "保存为项目选项",
-      "submit": "提交审批"
+      "saveReusableOption": "保存为项目选项"
     },
     "applications": {
       "back": "返回顾问申请",
-      "create": "新增申请",
+      "create": "新建申请",
       "search": "搜索申请编号、位置或顾问",
       "stage": {
         "all": "全部",
         "approval": "审批",
         "archive": "归档",
         "draft": "申请",
-        "final": "最终 PDF",
+        "final": "最终报告",
         "inbox": "待整理现场资料"
       },
       "stageLabel": "申请阶段",
@@ -5432,7 +5547,7 @@
       "kind": {
         "APPLICATION": "申请资料归档",
         "APPROVAL": "签名审批记录归档",
-        "FINAL_REPORT": "最终 PDF 归档",
+        "FINAL_REPORT": "最终报告归档",
         "CONSULTANT_FORM": "顾问自有表格（原表格、填写后、最终版本）"
       },
       "pending": "等待中",
@@ -5480,20 +5595,21 @@
       "currentPassword": "当前登录密码",
       "identityHelp": "每次审批都会保存不可修改的副本，日后更换不会影响旧报告。",
       "identityTitle": "签名与顾问印章",
-      "passwordHelp": "修改签署凭证前需验证当前密码。",
-      "pin": "新 6 位 PIN",
-      "pinConfirm": "确认 PIN",
-      "pinHelp": "批准、拒绝或退回申请时输入此 6 位 PIN。",
-      "pinMismatch": "两次 PIN 不一致。",
-      "pinTitle": "审批 PIN",
-      "save": "保存签署凭证",
-      "shortTitle": "签名与 PIN",
+      "passwordHelp": "修改签名或签核密码前需验证当前登录密码。",
+      "pin": "新的 6 位签核密码",
+      "pinConfirm": "再输入一次",
+      "pinHelp": "这就是您的 6 位签核密码，确认归档、打印、发送和审批都用它。",
+      "pinMismatch": "两次输入的签核密码不一样。",
+      "pinTitle": "签核密码",
+      "save": "保存签名与签核密码",
+      "shortTitle": "签名与签核密码",
       "signature": "电子签名",
       "signatureHelp": "上传背景清楚的 PNG 或 JPG 签名。",
       "stamp": "顾问印章",
       "stampHelp": "流程步骤要求盖章时才是必填。",
       "subtitle": "设置用于可追溯项目决定的个人签名。",
-      "title": "审批签名与 PIN"
+      "title": "签名与签核密码",
+      "pinKeep": "已经设好签核密码：不想改就留空。只换签名或印章，不用输入新的。"
     },
     "decision": {
       "APPROVE": "批准",
@@ -5510,24 +5626,34 @@
         "archive": "归档",
         "complete": "已完成",
         "current": "当前步骤",
-        "final": "最终 PDF",
+        "final": "最终报告",
         "pending": "尚未开始",
         "title": "申请进度"
       },
       "next": {
-        "archived": "这份申请已经完成。申请资料、签名审批记录和最终 PDF 都已安全归档。",
+        "archived": "这份申请已经完成。申请资料、签名审批记录和最终报告都已安全归档。",
         "complete": "审批决定已经完成，系统正在准备最终报告。",
-        "draft": "完成表格，关联现场照片和附件，然后提交审批。",
-        "final": "审批已经完成。请下载最终 PDF，并查看验证记录。",
+        "draft": "填好表格，加上现场照片和附件。然后先按【确认归档】（输入 6 位签核密码），再按申请表上的【发送给顾问】。",
+        "final": "审批已经完成。请下载最终报告，并查看验证记录。",
         "review": "这份申请正在等待您的决定。请查看现场证据，然后选择审批结果。",
-        "revise": "申请已被退回。请建立新版本，按照意见修改后再次提交。",
-        "waiting": "您现在不需要操作，申请正在等待“{step}”处理。"
+        "revise": "顾问选了「修改后重提」。请按【建立新版本】，按照意见修改后再发送给顾问。",
+        "waiting": "您现在不需要操作，申请正在等待“{step}”处理。",
+        "remedialOpen": "已批准，但还有 {count} 条整改没完成。做好后，在下面的「整改事项」里按「关闭这条整改」，附上能证明的照片。",
+        "remedialOpenReviewer": "还有 {count} 条整改等建筑商完成；他们关闭时你会收到通知。需要时可以按【开一条整改】。",
+        "remedialOpenWatching": "还有 {count} 条整改等建筑商完成。",
+        "rejected": "顾问拒绝了这份申请，原因在「已签署决定」。改好后请另外按【新建申请】。",
+        "reviseMade": "这份申请已经建立了新版本（版本 {revision}）。请在下面「版本记录」里打开它，改好后再发送。",
+        "reviseSent": "新版本（版本 {revision}）已经发送给顾问，请在「版本记录」里打开它查看。",
+        "reviseDecided": "顾问已经对新版本（版本 {revision}）作出决定，请在「版本记录」里打开它查看。",
+        "reviseReviewer": "已经退回给建筑商修改。他们建立新版本并发送后，你会收到通知。"
       },
       "nextAction": "下一步要做什么",
       "noRevisions": "目前没有版本记录。",
+      "noRelatedRecords": "这份申请没有关联的现场资料。",
       "receivedAt": "顾问接收时间",
       "revision": "版本 {revision}",
-      "revisionCurrent": "当前版本",
+      "revisionCurrent": "正在看的版本",
+      "revisionLatest": "最新版本",
       "section": {
         "remedial": "整改事项",
         "application": "申请资料",
@@ -5539,15 +5665,15 @@
         "evidence": "关联现场证据",
         "relatedRecords": "关联现场资料",
         "revisions": "版本记录",
-        "site": "现场申请"
+        "site": "来源现场资料"
       },
       "raisedOnSite": "现场提交：{name} {when}",
-      "forwardedBy": "经理转给顾问：{name} {when}"
+      "forwardedBy": "经理发送给顾问：{name} {when}"
     },
     "draftEdit": {
       "armRemove": "允许移除",
       "armRemoveHelp": "先打开开关，再按「移除」，按下立即生效。",
-      "locked": "已提交，退回修改后才能改",
+      "locked": "已发送给顾问；顾问选「修改后重提」后，在新版本里改",
       "remove": "移除",
       "unlink": "取消关联",
       "edit": "修改",
@@ -5623,7 +5749,7 @@
       "chooseWorkflow": "选择审批流程",
       "component": "构件／工作区域",
       "consultant": "顾问",
-      "consultantCompany": "顾问公司",
+      "consultantCompany": "顾问单位",
       "customApplicationType": "自定义申请类型",
       "customDiscipline": "自定义专业",
       "customPriority": "自定义优先级",
@@ -5653,7 +5779,7 @@
     },
     "form": {
       "editTitle": "编辑顾问申请草稿",
-      "noConsultantGrantHeadOffice": "这个项目还没有开通顾问。请到「顾问设定 › 顾问账号与项目授权」给顾问开通这个项目，再回来建立申请。",
+      "noConsultantGrantHeadOffice": "这个项目还没有开通顾问。请到「顾问设定 › 顾问账号与项目授权」给顾问开通这个项目，再回来新建申请。",
       "noConsultantGrantProject": "这个项目还没有开通顾问。顾问由总部开通：请总部在「顾问设定 › 顾问账号与项目授权」给顾问开通这个项目，开通后这里就可以选。",
       "openConsultantAccess": "去开通顾问",
       "requiredAttachments": "提交前必须先上传这些文件：{codes}。",
@@ -5672,7 +5798,7 @@
       "sourceSubmittedAt": "提交时间：{value}",
       "sourceTitle": "来源现场资料",
       "subtitle": "填写现场申请、关联证据，再按项目审批流程提交。",
-      "title": "建立顾问申请",
+      "title": "新建顾问申请",
       "advanced": "进阶设定（可不填）",
       "advancedHelp": "不选就用这个项目的默认流程「顾问审批」：一步，送给你选的顾问签名审批。模板也可以不选。",
       "more": "更多（选填）",
@@ -5708,7 +5834,7 @@
     "review": {
       "dialog": {
         "APPROVE": {
-          "description": "确认现场申请；最后一步完成后系统会生成最终审批报告。",
+          "description": "批准这份申请；最后一步完成后系统会生成最终报告。",
           "title": "批准此申请"
         },
         "APPROVE_WITH_REMEDIAL": {
@@ -5721,17 +5847,25 @@
         },
         "REVISE_RESUBMIT": {
           "description": "请清楚说明建筑商修改后重新提交的内容。",
-          "title": "退回修改"
+          "title": "修改后重提"
         }
       },
       "pending": "当前步骤：{step}",
-      "pin": "6 位审批 PIN",
-      "pinHint": "PIN 用于确认此签署决定由您本人作出。",
+      "pin": "6 位签核密码",
+      "pinHint": "签核密码用于确认此签署决定由您本人作出。",
       "remarks": "决定备注",
       "reviewerConsultant": "指定顾问：{name}",
       "reviewerRole": "指定角色：{name}",
       "reviewerUser": "指定审批人：{name}",
-      "setupCredential": "设置签名与 PIN"
+      "setupCredential": "设定签名与签核密码",
+      "remedialList": {
+        "hint": "一条写一件事。每一条都会印在你签名的最终报告上；建筑商做好后会在申请里逐条关闭，并附上照片。",
+        "item": "第 {n} 条：要整改什么",
+        "placeholder": "例如：西面墙的蜂窝要修补。",
+        "add": "再加一条",
+        "remove": "删除这一条"
+      },
+      "stampMissing": "这一步要盖顾问印章，您还没有上传印章。请先按下面的按钮上传印章，再回来审批。"
     },
     "reviewerKind": {
       "CONSULTANT": "申请中指定的顾问",
@@ -5742,23 +5876,24 @@
       "chooseProject": "请选择项目以查看该项目的顾问工作。",
       "draftUnavailable": "此草稿无法编辑，可能已经提交或您已没有权限。",
       "loadError": "无法载入资料，请检查项目权限后重试。",
-      "noApplications": "该项目没有符合条件的顾问申请。"
+      "noApplications": "该项目没有符合条件的顾问申请。",
+      "otherProject": "这份申请可能在您的另一个项目。请在下面选那个项目，申请就会打开。"
     },
     "status": {
       "APPROVED": "已批准",
-      "APPROVED_WITH_REMEDIAL": "已批准，需完成整改",
+      "APPROVED_WITH_REMEDIAL": "已批准（需整改）",
       "ARCHIVED": "已归档",
       "DRAFT": "草稿",
       "REJECTED": "已拒绝",
       "REVISE_RESUBMIT": "修改后重提",
-      "SUBMITTED": "等待审批"
+      "SUBMITTED": "待审批"
     },
     "stepStatus": {
       "APPROVED": "已批准",
-      "APPROVED_WITH_REMEDIAL": "已批准，需完成整改",
+      "APPROVED_WITH_REMEDIAL": "已批准（需整改）",
       "CURRENT": "需要处理",
       "REJECTED": "已拒绝",
-      "REVISE_RESUBMIT": "需要修改",
+      "REVISE_RESUBMIT": "修改后重提",
       "SKIPPED": "已跳过",
       "WAITING": "等待中"
     },
@@ -5801,7 +5936,7 @@
       "save": "保存模板",
       "saveVersion": "建立版本",
       "standardLayout": "标准客户 RFI PDF",
-      "standardLayoutHelp": "最终 PDF 固定使用客户确认的 RFI 与顾问审批格式，避免用户误选尚未支持的版式。",
+      "standardLayoutHelp": "最终报告固定使用客户确认的 RFI 与顾问审批格式，避免用户误选尚未支持的版式。",
       "stillOffered": "继续提供",
       "stillOfferedHelp": "关掉之后新申请就用不到它了，已提交的不受影响。",
       "subtitle": "按项目管理表格栏位、必需附件和不可修改版本，不需要填写技术 JSON。",
@@ -5816,16 +5951,16 @@
     "toast": {
       "acknowledged": "申请已确认",
       "attachmentAdded": "附件已添加",
-      "credentialSaved": "签署凭证已保存",
+      "credentialSaved": "签名与签核密码已保存",
       "decisionSaved": "签署决定已保存",
       "draftSaved": "申请草稿已保存",
       "evidenceLinked": "现场证据已关联",
       "received": "申请已标记为已接收",
-      "reportRebuilt": "报告已重新生成",
+      "reportRebuilt": "最终报告已重新生成",
       "revisionCreated": "新版本已建立",
       "stepRemoved": "审批步骤已移除",
       "stepSaved": "审批步骤已保存",
-      "submitted": "申请已提交审批",
+      "submitted": "已发送给顾问",
       "templateSaved": "RFI 表格模板已保存",
       "templateVersionSaved": "RFI 表格模板版本已保存",
       "workflowSaved": "审批流程已保存",
@@ -5839,7 +5974,7 @@
       "applicationType": "申请类型",
       "company": "建筑商",
       "consultant": "顾问",
-      "consultantCompany": "顾问公司",
+      "consultantCompany": "顾问单位",
       "decision": "最终决定",
       "finalizedAt": "完成时间",
       "notFoundHelp": "此二维码无效或最终报告已不可用。",
@@ -5871,11 +6006,9 @@
       "makeDefault": "设为默认流程",
       "name": "流程名称",
       "noSteps": "尚无审批步骤，使用前请至少增加一步。",
-      "requireSignature": "必须电子签名",
       "requireStamp": "必须顾问盖章",
       "reviewer": "审批人",
       "reviewerKind": "此步骤由谁审批",
-      "shortTitle": "流程设置",
       "stampHelp": "审批人未上传印章时将不能批准。",
       "stepName": "步骤名称",
       "stepsLocked": "这条流程上已经有申请提交出去了，审批路线现在属于记录的一部分，改不了。要换路线请新建一条流程。",
@@ -5883,7 +6016,12 @@
       "stillOfferedHelp": "关掉之后新申请就选不到它了，已有的申请不受影响。",
       "subtitle": "设置各项目申请实际采用的审批顺序。",
       "title": "顾问审批流程",
-      "typeFixed": "已锁定 —— 这条流程上已经有申请了。"
+      "typeFixed": "已锁定 —— 这条流程上已经有申请了。",
+      "inactive": "已停用",
+      "inactiveHelp": "新申请选不到这条流程。要再用，按铅笔，打开「继续提供」。",
+      "alwaysSigned": "每一个审批决定都用审批人的电子签名和 6 位签核密码签署，不用另外设定。",
+      "removeStepTitle": "删除步骤「{step}」？",
+      "removeStepBody": "删除后这一步就不在流程里了。流程一步都没有的话，这条流程上的草稿就发送不了。"
     },
     "howTo": {
       "title": "顾问申请怎么用",
@@ -5893,17 +6031,17 @@
         "body": "按【新建申请】，选项目和顾问，填写要检查的内容（位置、说明、图纸编号等），需要的话加附件。流程和模板都可以不选。"
       },
       "submit": {
-        "title": "送出给顾问",
-        "body": "在申请详情按【提交】。顾问会收到通知，申请进入「审批中」。送出前还是草稿，可以改。"
+        "title": "发送给顾问",
+        "body": "草稿填好后，先按【确认归档】（输入 6 位签核密码），再按申请表上的【发送给顾问】。顾问会收到通知，申请进入「待审批」。确认归档以前，草稿可以修改或删除。"
       },
       "decide": {
-        "title": "顾问批准／退回／要求修改",
-        "body": "顾问在自己的账号里签名并输入 PIN 作出决定。结果、签名和沟通都留在这条申请里；要求修改的，按提示修改后再提交。"
+        "title": "顾问作出决定",
+        "body": "顾问在自己的账号里用电子签名和签核密码，选「批准」「批准并要求整改」「修改后重提」或「拒绝」。结果、签名和沟通都留在这条申请里。选了「修改后重提」的，按【建立新版本】，改好后再确认归档、发送给顾问。"
       },
       "setupOnce": "只需要设定一次：先把顾问加进这个项目（顾问设定 → 顾问账号与项目授权），否则新建申请时选不到顾问。",
       "openSettings": "打开顾问设定",
       "askAdmin": "请有设定权限的同事处理。",
-      "signatureOnce": "顾问第一次审批前，要先在「签章」设定自己的签名和 PIN。"
+      "signatureOnce": "顾问第一次审批前，要先在「签名与签核密码」设定自己的签名和签核密码。"
     },
     "settingsHub": {
       "title": "顾问设定",
@@ -5911,28 +6049,28 @@
       "access": {
         "title": "顾问账号与项目授权",
         "need": "必须 · 每个顾问每个项目做一次",
-        "body": "建立顾问公司与顾问账号，并授权他们看这个项目。没授权的顾问在新建申请时选不到。",
+        "body": "建立顾问单位与顾问账号，并授权他们看这个项目。没授权的顾问在新建申请时选不到。",
         "needProject": "由总部设置",
         "bodyProject": "顾问单位、顾问账号和项目授权由总部设置。你在这里可以看你的项目开通了哪些顾问。"
       },
       "workflows": {
-        "title": "审批流程",
+        "title": "顾问审批流程",
         "need": "可不设 · 已有默认流程",
         "body": "每个项目自动有一个「顾问审批」流程（一步，送给选定的顾问）。需要多级审批时才来这里加步骤。"
       },
       "templates": {
-        "title": "申请模板",
+        "title": "RFI 表格模板",
         "need": "可不设",
-        "body": "需要固定表格栏位、必交附件或自订编号时才建模板。不建模板照样可以新建和送出申请。"
+        "body": "需要固定表格栏位、必交附件或自订编号时才建模板。不建模板照样可以新建和发送申请。"
       }
     },
     "what": {
       "archiveCategories": "文件分类",
       "evidenceFilters": "筛选选项",
-      "credential": "你的审批签名与 PIN",
+      "credential": "你的签名与签核密码",
       "evidenceCandidates": "本项目的现场证据",
       "archiveDocuments": "文件管理列表",
-      "workflows": "审批流程",
+      "workflows": "顾问审批流程",
       "templates": "RFI 表格模板",
       "scheduleTasks": "施工计划活动",
       "applicationOptions": "申请选项（类型、专业、工作类型、优先级）",
@@ -5940,7 +6078,7 @@
       "applicationTypes": "申请类型",
       "reviewerChoices": "审批人列表",
       "consultantForms": "顾问自有表格",
-      "consultantFirms": "顾问公司"
+      "consultantFirms": "顾问单位"
     },
     "inbox": {
       "what": "待整理现场资料",
@@ -5957,7 +6095,7 @@
     },
     "formCard": {
       "title": "顾问申请表（A4）",
-      "help": "预览、打印、导出的是完整证据 PDF：第一页是这张 A4（左边我方公司，右边顾问公司，下面是申请内容、照片和附件清单），后面接着附件内容、顾问审批记录及签名、沟通记录。",
+      "help": "预览、打印、导出的是完整证据 PDF：第一页是这张 A4（左边我方公司，右边顾问单位，下面是申请内容、照片和附件清单），后面接着附件内容、顾问审批记录及签名、沟通记录。",
       "print": "打印",
       "attachments": "看附件（{count}）",
       "send": "发送给顾问 {name}"
@@ -5975,9 +6113,9 @@
       "emptyConsultant": "还没有顾问自有表格。按「新增模板」，选 B。",
       "loading": "正在加载顾问自有表格...",
       "name": "表格名称",
-      "consultant": "顾问公司",
-      "chooseConsultant": "选择顾问公司",
-      "noFirms": "还没有登记顾问公司，请先在顾问授权里新增。",
+      "consultant": "顾问单位",
+      "chooseConsultant": "选择顾问单位",
+      "noFirms": "还没有登记顾问单位，请先在「顾问账号与项目授权」里新增。",
       "project": "项目",
       "allProjects": "公司全部项目",
       "applicationType": "申请类型",
@@ -6024,12 +6162,12 @@
       "uploadedBy": "{name} · {when}",
       "signedOnForm": "签署见上传表格",
       "signingTitle": "签署方式",
-      "signingEsignature": "电子签名 + PIN",
+      "signingEsignature": "电子签名 + 签核密码",
       "signingSignedForm": "上传已签名盖章的表格",
       "signedFormFile": "已签名盖章的表格",
       "signedFormHint": "签了名、盖了章的顾问表格，扫描或拍照都可以。",
-      "pinForSignedForm": "输入 PIN，确认上传的表格是你本人签署的。",
-      "noCredential": "你还没有设置电子签名：可以上传已签名盖章的表格，或先设置签名和 PIN。",
+      "pinForSignedForm": "输入签核密码，确认上传的表格是你本人签署的。",
+      "noCredential": "你还没有设定电子签名：可以上传已签名盖章的表格，或先设定签名与签核密码。",
       "archiveBlank": "原表格：{name}（第 {version} 版）",
       "archiveFilled": "填写后：{name}",
       "archiveFinal": "最终版本：{name}",
@@ -6809,7 +6947,7 @@
       "SUBMITTED": "已提交"
     },
     "taskType": {
-      "CONSULTANT": "顾问提交",
+      "CONSULTANT": "顾问资料提交",
       "EQUIPMENT": "设备",
       "MATERIAL": "材料",
       "OTHER": "其他",
@@ -6833,7 +6971,7 @@
       "linkedRecord": "提交的记录：{reference}",
       "linkedHint": "现场人员用这笔记录完成任务，它的照片也显示在上面。",
       "photos": "照片：{current}/{required}",
-      "prepareApplication": "检查后转给顾问",
+      "prepareApplication": "整理成顾问申请",
       "projectFixed": "工地改不了 —— 接任务的人是从这个工地的班组里选的。",
       "referenceFiles": "参考照片或文件",
       "referenceHelp": "现场人员开始任务前会先看到这些资料。",
@@ -6869,8 +7007,8 @@
       "focused": "只显示卡片指向的这一项任务。",
       "focusedMissing": "卡片指向的任务不在当前列表里，可能已处理完或不属于所选项目。",
       "showAll": "显示全部",
-      "forwardedAs": "已转给顾问：{reference}",
-      "draftedAs": "已整理成申请 {reference}，尚未转给顾问",
+      "forwardedAs": "已发送给顾问：{reference}",
+      "draftedAs": "已整理成顾问申请 {reference}，尚未发送给顾问",
       "expand": "展开「{task}」",
       "collapse": "收起「{task}」",
       "dueShort": "期限 {value}",
@@ -7622,6 +7760,7 @@
   "dashboard": {
     "admin": {
       "error": "无法加载平台仪表板。",
+      "sectionUnavailable": "这一部分不在你的权限范围内。如需查看，请找系统管理员开通。",
       "health": {
         "configured": "已配置",
         "degraded": "性能下降",
@@ -7912,6 +8051,8 @@
     "decisionTitle": "收货决定",
     "error": {
       "action": "操作无法完成。",
+      "location": "读不到手机位置。请打开手机定位，并允许本页面使用定位，再按一次。",
+      "refused": "这一步没有完成。请刷新本页再试一次；还是不行，请联络工地。",
       "quantityRequired": "请输入实际数量。",
       "signatureRequired": "请先画接收人签名。"
     },
@@ -7998,6 +8139,14 @@
       "weighingNo": "地磅单号"
     },
     "lockedNote": "此车已离场，无法再修改。若最终没有送达，请取消。",
+    "lockedBy": {
+      "PENDING_ACCEPTANCE": "订单已发给回收商，内容不能再修改。",
+      "ACCEPTED": "回收商已接单，订单内容不能再修改。",
+      "RELEASED": "此车已离场，无法再修改。若最终没有送达，请取消。",
+      "COLLECTED": "货已装上回收商的车，订单内容不能再修改。",
+      "WEIGHED": "已过磅，订单内容不能再修改。",
+      "SETTLED": "已结算，订单内容不能再修改。"
+    },
     "noPhotos": "这一车还没有附照片。",
     "photoKind": {
       "LOADING": "装车",
@@ -8072,7 +8221,8 @@
       "category": "分类",
       "legacy": "旧订单",
       "createdAt": "下单日期"
-    }
+    },
+    "recyclerNext": "派车 / 约收运时间"
   },
   "documents": {
     "downloading": "下载中",
@@ -8505,7 +8655,13 @@
       "pushStatus": "通知状态"
     },
     "takeIssuePhoto": "途中异常拍照（意外 / 事故 / 车辆问题）",
-    "issuePhotoHelp": "照片会马上发给回收商和建筑商。"
+    "issuePhotoHelp": "照片会马上发给回收商和建筑商。",
+    "notRecorded": {
+      "stepOffline": "没有网络，这一步没有记录，有网络后请再按一次。",
+      "photoOffline": "没有网络，这张照片没有记录，有网络后请再拍一次。",
+      "step": "这一步没有记录：{reason}",
+      "photo": "这张照片没有记录：{reason}"
+    }
   },
   "driverGps": {
     "action": {
@@ -8663,7 +8819,7 @@
       "attendance_gps_inaccurate": "手机定位不够准（误差约 {accuracy} 米），判断不了你在不在工地围栏内。到空旷处等几秒再试。",
       "attendance_outside_geofence": "你不在工地围栏内，离最近围栏 {distance} 米。走近一点再试。",
       "audit_entry_not_found": "找不到这条审计记录。",
-      "below_minimum_payout": "该金额低于最低付款额度。",
+      "below_minimum_payout": "算出来的佣金低于协议的最低付款额，这次不建立付款。可以等下一期再一起算。",
       "bug_not_found": "找不到该 Bug 记录。",
       "calibration_expired": "这台地磅的校准已过期。",
       "cannot_modify_self": "无法用这种方式更改自己的账号，请到个人资料页操作。",
@@ -8677,7 +8833,7 @@
       "commission_payout_not_found": "找不到该佣金结算记录。",
       "commission_rule_not_found": "找不到该佣金规则。",
       "commission_scheme_not_found": "找不到该佣金方案。",
-      "company_already_referred": "该公司已经归属其他合作伙伴。",
+      "company_already_referred": "这个客户已经归属其他合作伙伴。如要换人，请在「客户归属」里编辑原来那一笔。",
       "company_bank_account_not_found": "找不到该银行账号。",
       "company_document_not_found": "找不到该公司文件。",
       "company_has_active_users": "这家公司还有可以登录的人员。请改为停用，或先停用这些人员。",
@@ -8694,8 +8850,8 @@
       "config_required": "不能移除必要的系统设置。",
       "config_unknown": "系统不支持该配置键。",
       "conflict": "这项资料现在的状态不允许这个操作。",
-      "consultant_grant_not_current": "选的顾问已经没有这个项目的授权，申请仍是草稿。请换一位顾问，或先在顾问授权里续期。",
-      "consultant_application_locked": "这份申请已经提交，附件和关联证据不能再改。退回修改后，在新版本里改。",
+      "consultant_grant_not_current": "选的顾问已经没有这个项目的授权，申请仍是草稿。请换一位顾问，或先在「顾问账号与项目授权」里续期。",
+      "consultant_application_locked": "这份申请已经发送给顾问，附件和关联证据不能再改。顾问选「修改后重提」后，在新版本里改。",
       "consultant_grant_not_found": "找不到该顾问项目授权。",
       "consultant_organization_not_found": "找不到该顾问单位。",
       "customer_assignment_not_found": "找不到该客户归属记录。",
@@ -8769,9 +8925,26 @@
       "invalid_credentials": "邮箱或密码不正确。",
       "invalid_rule_params": "请检查检测参数后重试。",
       "invoice_not_found": "找不到该账单。",
+      "invoice_company_not_billable": "这家公司现在不能开这一类账单。请先确认公司没有停用、已经选了套餐；佣金账单只开给合作版回收商。",
+      "invoice_not_commission_bearing": "这家公司的套餐不收平台佣金，所以不能开佣金账单。如要收佣金，请先在「公司订阅管理」把它换成合作版套餐。",
+      "invoice_no_commission_rule": "这家公司还没有生效中的佣金规则，算不出佣金。请先到「佣金规则管理」新增一条规则，再生成账单。",
+      "invoice_already_invoiced": "这个期间已经开过账单，不用再开。请在账单列表里找这家公司的账单。",
+      "invoice_no_billable_settlements": "这个期间没有已开出、还没开账单的结算单，暂时没有佣金可收。等结算单开出后再生成。",
+      "invoice_nothing_to_charge": "算出来这个期间要收的金额是 0，所以没有开账单。如果金额不对，请检查这家公司的套餐费用或佣金规则。",
+      "invoice_no_plan": "这家公司还没有套餐，不能开订阅账单。请先在「公司订阅管理」给它选一个套餐。",
+      "invoice_not_draft": "只有草稿账单可以发出。这张账单已经发出过了，请刷新列表再看。",
+      "invoice_already_closed": "这张账单已经关闭，不用再关。请刷新列表再看。",
+      "invoice_has_confirmed_payments": "这张账单已经确认收到部分款项，不能关闭。剩下的余款请继续跟进收款；如需另作处理，请找主管决定。",
+      "commission_rule_in_use": "这条佣金规则已经用来开过账单，不能删除。如不再使用，请把它改为停用。",
+      "automatic_billing_disabled": "自动开账单已经暂停，所以不能立即运行。请找系统管理员在「定时任务」里重新开启。",
+      "payment_already_confirmed": "这笔收款已经确认过了，不用再处理。请刷新列表再看。",
+      "subscription_no_plan": "这家公司还没有套餐，不能续期。请先按「更换套餐」给它选一个套餐。",
+      "subscription_already_ended": "这家公司的订阅已经结束，不用再结束一次。如要让它继续使用，请按「延长或续费」。",
+      "company_site_settings_contractor_only": "只有建筑商有工地设定，回收商没有这一项，不用设定。",
+      "user_replacement_contractor_only": "只有建筑商公司的账号可以交接。其他账号请先停用，再为接手的人新增一个账号。",
       "maintenance_not_found": "找不到该维护记录。",
       "method_not_allowed": "这个位置不支持这个操作。",
-      "no_active_agreement": "该合作伙伴没有生效中的协议。",
+      "no_active_agreement": "这个合作伙伴在这段期间没有生效中的协议。请先到「合作协议」启用协议，或换一段期间再算。",
       "no_current_version": "尚未选择当前平台版本。",
       "not_acceptable": "这台设备读不了服务器回复的格式。",
       "not_authenticated": "请重新登录。",
@@ -8790,8 +8963,8 @@
       "partnership_not_counterparty": "只有另一方公司可以回应此合作申请。",
       "partnership_not_found": "找不到这条合作关系。",
       "payment_not_found": "找不到该付款记录。",
-      "payout_already_exists": "该期间已经建立付款。",
-      "payout_not_draft": "只有草稿状态的付款可以这样修改。",
+      "payout_already_exists": "这段期间已经算过佣金了。请在下面的列表里处理原来那一笔。",
+      "payout_not_draft": "只有刚算出来、还没送审的佣金可以调整金额。",
       "permission_denied": "你没有权限做这件事。",
       "portal_mismatch": "此账号属于另一个后台，请使用对应的登录入口。",
       "pricing_rule_not_found": "找不到该云服务收费规则。",
@@ -9081,7 +9254,52 @@
       "rain_record_quota_full": "这个项目这段时间已经收满雨天记录，后台没有接收这一份。",
       "rain_void_reason_required": "请写作废原因。",
       "rain_record_already_voided": "这份雨天记录已经作废了，不能再作废一次。",
-      "rain_rules_out_of_range": "份数要在 1 到 50 之间，分钟要在 5 到 1440 之间。"
+      "rain_rules_out_of_range": "份数要在 1 到 50 之间，分钟要在 5 到 1440 之间。",
+      "consultant_workflow_last_active": "这是这个项目唯一的审批流程，不能停用。要换流程，请先新增一个并设为默认。",
+      "consultant_required_fields_missing": "表格里还有 {count} 个必填项没有填：{fields}。请先填好，再继续。",
+      "consultant_required_attachments_missing": "还有 {count} 份必附文件没有上传。请在「附件」里把标着必附的格子都补上，再继续。",
+      "consultant_workflow_no_steps": "这条审批流程还没有审批步骤，送不出去。请到「顾问审批流程」给它加一步，或在申请里换一条流程。",
+      "consultant_stamp_required": "这一步要盖顾问印章，您还没有上传印章。请先到「签名与签核密码」上传印章，再回来审批。",
+      "dispatch_not_loaded": "司机还没在手机上按【装好货了】。请司机先按【装好货了】，再扫码。",
+      "recycler_standard_plan": "这家回收商是标准版，不能接收建筑商的订单。请选择合作版回收商。",
+      "standard_plan_no_partnership": "你们公司是标准版，不能接收建筑商的订单，所以不能申请合作。如要接收建筑商的订单，请联系 MSE 改为合作版。",
+      "invalid_state_transition": "工单不能从现在的状态直接改到这一步。请在下拉选单里选一个可以选的状态，例如先改成「处理中」。",
+      "partner_type_system": "系统自带的合作伙伴类型不能删除。",
+      "partner_type_in_use": "已经有合作伙伴用这个类型，不能删除。请编辑它，把它改为停用。",
+      "partner_territory_in_use": "这个区域下已经有客户，不能删除。请编辑它，填上到期日期。",
+      "agreement_document_required": "请先上传已签好的协议文件，再送签或启用。",
+      "payout_adjustment_negative": "调整后金额会变成负数。请把扣减的金额改小一点。",
+      "payout_rejected_final": "这笔佣金已经驳回，不能再送审或付款。如需重算，请按「计算佣金」重新计算这段期间。",
+      "payout_invalid_transition": "这笔佣金现在不能改到这个状态。请刷新页面，看它现在的状态再处理。",
+      "sales_calculate_no_scheme": "这位销售人员还没有佣金方案。请先在「销售人员管理」里给他选一个佣金方案。",
+      "sales_calculate_scheme_inactive": "这位销售人员的佣金方案已经停用。请先换一个启用中的方案。",
+      "sales_calculate_already_settled": "这一期的佣金已经确认过，不能再算。",
+      "sales_calculate_nothing_earned": "这一期没有可以算佣金的收入，所以没有建立佣金。",
+      "sales_already_owner": "这个客户本来就归这位销售人员，不用转移。",
+      "sales_terms_not_draft": "只有草稿版本可以启用。请新增一个条款版本再启用。",
+      "sales_terms_already_confirmed": "这位销售人员已经确认过这个版本，不用再记录一次。",
+      "sales_payout_locked": "这笔佣金已经确认，不能再调整。",
+      "sales_payout_negative": "调整后金额会低于零。请把扣减的金额改小一点。",
+      "sales_payout_invalid_transition": "这笔佣金现在不能改到这个状态。请刷新页面，看它现在的状态再处理。",
+      "asset_retired_final": "已报废的资产不能再启用。",
+      "asset_category_system": "系统自带的资产类别不能删除。",
+      "asset_category_in_use": "这个类别已经有资产或采购在用，不能删除。请编辑它，把它改为停用。",
+      "asset_purchase_closed": "这张采购单已经收齐或已取消，不能再登记到货。",
+      "asset_purchase_over_received": "这张采购单只剩 {remaining} 件还没到货。请把到货数量改为不超过 {remaining}。",
+      "asset_assignment_closed": "这笔领用已经归还，不用再归还。",
+      "asset_installation_invalid_transition": "这笔安装现在不能改到这个状态。请刷新页面，看它现在的状态再处理。",
+      "asset_maintenance_not_scheduled": "只有「已排程」的维修或保养可以开始。",
+      "asset_maintenance_closed": "这笔维修或保养已经完成，不能再改。",
+      "asset_disposal_invalid_state": "这份报废申请现在不能这样处理。请刷新页面，看它现在的状态再处理。",
+      "asset_disposal_reason_required": "驳回报废申请要写原因，请在备注里写上。",
+      "waste_outgoing_delegate_not_on_project": "这个人不在这个项目里，打不开这份申请。请从名单里另选这个项目的人。",
+      "project_archived_read_only": "这个项目已经归档，资料只能查看，不能再修改。请关掉这一页，回到项目列表。",
+      "project_archive_use_action": "「已归档」不能在修改里选。请先把状态改成「已完工」并保存，再在项目页按【归档项目】。",
+      "project_status_move_refused": "项目现在的状态不能直接改成你选的状态。请重新打开修改页面，从状态列表里选。",
+      "hazard_not_awaiting_check": "这一项已经有人处理过了，现在不是等验收的状态。请刷新页面，看最新的情况。",
+      "hazard_confirmed_by_other": "{incident_no} 由负责确认的人 {confirmer} 来验收或退回。你可以查看，但不能操作；需要的话请联系他。",
+      "visitor_host_required": "请先选访客要找的人，再按确认。",
+      "visitor_host_not_on_project": "这个人不在这个项目里。请从名单里选这个项目的人。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -9568,9 +9786,7 @@
       "workLocationPlaceholder": "例如：A座，C1-D1轴线",
       "askForHint": "不知道选哪个可以不选，后台会补上。"
     },
-    "consultantTasks": {
-      "title": "顾问现场照片提交"
-    },
+    "consultantTasks": {},
     "error": {
       "action": "操作未能完成，请重试。",
       "load": "页面读取失败，请检查网络。",
@@ -11196,6 +11412,25 @@
       "what": {
         "workers": "工作进程状态",
         "handlers": "任务处理器列表"
+      },
+      "name": {
+        "PLATFORM_MONITOR_SNAPSHOT": "记录平台运行状况",
+        "EXPIRE_CONTRACTOR_SUBSCRIPTIONS": "到期的订阅自动停用",
+        "SEND_SUBSCRIPTION_REMINDERS": "发送订阅快到期的提醒",
+        "GENERATE_AUTOMATIC_BILLING": "自动开 SaaS 和佣金账单",
+        "PROCESS_PARTNER_AGREEMENTS": "合作协议到期处理和续约提醒",
+        "PROCESS_ASSET_LIFECYCLE": "资产借用逾期和保养提醒",
+        "NOTIFY_EXPIRED_SITE_ACCESS": "通知已过期的通行证",
+        "REFRESH_BUSINESS_TARGETS": "刷新业务目标进度并发达标提醒",
+        "RETRY_NOTIFICATION_DELIVERIES": "重新发送没发出去的通知",
+        "PUBLISH_ANNOUNCEMENTS": "按时发布系统公告",
+        "NOTIFY_OFFLINE_GATEWAYS": "地磅网关离线提醒",
+        "REMIND_UNREAD_NOTIFICATIONS": "未读通知提醒",
+        "REMIND_EQUIPMENT_EXPIRY": "设备证件快到期提醒",
+        "CLOSE_SILENT_PRESENCE": "结束手机已没有回报的在场记录",
+        "PURGE_WORKER_POSITIONS": "清除 31 天以前的人员定位",
+        "REMIND_SUNDRY_CLAIMS": "杂费报销每 48 小时提醒",
+        "REMIND_REMEDIAL_ITEMS": "整改事项到期前和逾期提醒"
       }
     },
     "loadError": "无法加载监控数据。",
@@ -11560,6 +11795,10 @@
       "add": "上传书信",
       "missing": "请先上传书信",
       "confirmNote": "书信会放在合并 PDF 的最前面。"
+    },
+    "discardConfirm": {
+      "title": "丢弃这期 Claim？",
+      "description": "这期 Claim 草稿会被删除，里面勾选的记录和上传的书信都不再在这期里。删除后不能恢复。"
     }
   },
   "multiEngine": {
@@ -11676,7 +11915,7 @@
     },
     "reviewEmpty": "目前没有发给你的资料包。",
     "reviewSubtitle": "逐项接受，或者填写原因退回给申请者。",
-    "reviewTitle": "待审阅的资料包",
+    "reviewTitle": "待审阅资料包",
     "searchPlaceholder": "按名称或备注搜索",
     "send": "发送给顾问",
     "sourceMissing": "这条指向的记录，当前账号已经读不到了。",
@@ -11703,7 +11942,7 @@
     "what": {
       "candidates": "可添加的资料",
       "recordParts": "这条资料的全部内容",
-      "packagesToReview": "待审阅的资料包",
+      "packagesToReview": "待审阅资料包",
       "package": "这个资料包"
     },
     "include": {
@@ -11834,7 +12073,7 @@
         "whatChanged": "改了什么",
         "who": "对方姓名或单位"
       },
-      "consultantHelp": "顾问用自己的账号登录，在「待审阅的资料包」里打开。",
+      "consultantHelp": "顾问用自己的账号登录，在「待审阅资料包」里打开。",
       "contactHelp": "只用来发链接，系统不会自动发信息。手机写国际格式（例如 +60…）可以直接用 WhatsApp 打开对方。",
       "makeLink": "生成链接",
       "sendToConsultant": "发给顾问",
@@ -12043,7 +12282,7 @@
       "EQUIPMENT_HOURS": "设备开工 / 收工",
       "ATTENDANCE": "人员进场",
       "PERMIT": "施工准证",
-      "CONSULTANT": "顾问申请"
+      "CONSULTANT": "顾问资料提交"
     },
     "gateStatus": {
       "RECORDED": "已记录",
@@ -12332,7 +12571,7 @@
       "anprSettings": "ANPR 设置",
       "apiGatewayMonitoring": "API Gateway 监控",
       "apiGatewaySettings": "API Gateway 设置",
-      "approvalCredentials": "审批凭证",
+      "approvalCredentials": "签名与签核密码",
       "approvals": "审批流程（高级）",
       "archiveQueue": "现场记录中心",
       "assetActivity": "操作记录",
@@ -12396,7 +12635,7 @@
       "consultantDashboard": "顾问首页",
       "consultantFieldInbox": "待整理现场资料",
       "consultantTemplates": "RFI 表格模板",
-      "consultantWorkflows": "审批流程",
+      "consultantWorkflows": "顾问审批流程",
       "contractorNotifications": "建筑商通知",
       "contractorReports": "建筑商报表",
       "crmActivity": "客户服务操作记录",
@@ -12743,7 +12982,7 @@
       "HAZARD_FILE": "整改附件",
       "ATTENDANCE": "人员进场打卡",
       "CATEGORY_EVIDENCE": "现场照片",
-      "CONSULTANT_SUBMISSION": "顾问提交",
+      "CONSULTANT_SUBMISSION": "顾问资料提交",
       "DISPATCH_ACCEPT": "接受订单",
       "DISPATCH_COLLECT": "确认收货",
       "DISPOSAL_REQUEST": "处置申请",
@@ -12808,7 +13047,8 @@
       "offlineHelp": "现在没有网络。记录已存在这台手机上，网络恢复后会自动上传，不用另外操作。",
       "refusedHelp": "服务器没有接收下面的记录，它们不会再自动上传。看原因后可以「重试」，或「删除这一条」。",
       "uploadFailed": "上传失败 {count} 条",
-      "refusedToast": "上传失败 {count} 条。点上方的上传图标看原因，可以重试或删除。"
+      "refusedToast": "上传失败 {count} 条。点上方的上传图标看原因，可以重试或删除。",
+      "refusedToastOnPage": "上传失败 {count} 条。原因写在本页上方，可以在那里重试或删除。"
     },
     "synced": "已上传 {count} 条暂存的记录",
     "filesFollow": "已送到办公室。{count} 个附件正在后台上传。",
@@ -12974,9 +13214,9 @@
     "consultant_applications": {
       "what": "顾问那一摊：提申请、走审批链、签字，以及支撑它的现场证据。",
       "who": "持 approval.view；改流程配置要 consultant.config，提申请要 consultant.submit，做审批要 approval.review。",
-      "need": "提申请要项目、审批流程、申请类型、专业类别、检查类型、优先级、顾问、顾问公司、检查位置、构件或工作区域、说明内容和 RFI 表格模板；做审批要 6 位审批 PIN 和决定备注；设 PIN 要当前登录密码、新 PIN 两次和电子签名。",
+      "need": "提申请要项目、审批流程、申请类型、专业类别、检查类型、优先级、顾问、顾问单位、检查位置、构件或工作区域、说明内容和 RFI 表格模板；做审批要 6 位签核密码和决定备注；设签核密码要当前登录密码、新签核密码两次和电子签名。",
       "then": "PIN 加电子签名等同签字，签下去不能撤销。",
-      "trouble": "审批按钮是灰的，是你还没设审批 PIN。顾问登进来看不到项目，是授权过期了或者根本没给那个项目 —— 授权是按项目给的，有起止时间。"
+      "trouble": "审批按钮是灰的，是你还没设签核密码。顾问登进来看不到项目，是授权过期了或者根本没给那个项目 —— 授权是按项目给的，有起止时间。"
     },
     "customer_management": {
       "what": "料是从哪来的：跟你有平台合作的建筑商，以及自己开车上门的私人客户。",
@@ -13026,7 +13266,7 @@
     },
     "emergency_list": {
       "what": "此刻还在工地里的人，附可拨打的电话。出事要清点人数时用。",
-      "who": "持 geofence.view。",
+      "who": "持 site_access.view。",
       "then": "名单会自动刷新，点电话号码就能拨。",
       "trouble": "名单上少了某个人，是他已经扫码出场了，或者根本没扫码进来 —— 门禁事件里写着是哪一种。"
     },
@@ -13046,7 +13286,7 @@
     },
     "field_tasks": {
       "what": "派给某个现场人员的活：去哪、做什么、要拍几张才能交。",
-      "who": "持 project.view；派任务要 task.assign。",
+      "who": "持 project.view；派任务要 field_task.manage。",
       "need": "派一条任务要项目、任务标题、以及交给哪位现场人员。",
       "then": "它立刻出现在那个人的手机上，并写明要拍几张。",
       "trouble": "交上来的活反复被退，多半是任务说明写得太笼统 —— 现场看到的只有你写的那几行。"
@@ -13061,8 +13301,8 @@
     "hazard_rectification": {
       "what": "工地上查出来的问题、谁去整改、以及证明整改完了的那张照片。",
       "who": "同时持 safety.view 和 project.view。",
-      "need": "派整改要整改负责人、整改期限和整改位置；报完成要写已完成工作；验收要验收照片和验收说明。",
-      "then": "没有验收照片就不算整改完成 —— 问题不会因为有人说好了就算好了。",
+      "need": "派整改要整改负责人、整改期限和整改位置；报完成要写已完成的工作，并拍整改照片；验收只写验收说明，不用再拍照。",
+      "then": "整改照片由现场负责整改的人拍；开这一项的人或安全主管看了照片，再确认完成或退回（在电脑上确认要输入六位数密码）。问题不会因为有人说好了就算好了。",
       "trouble": "目前没有常见到值得预警的问题。"
     },
     "integrations": {
@@ -13241,7 +13481,7 @@
     },
     "schedule": {
       "what": "施工计划：选一份计划，上面是三个数字（进度、已完成、延误），下面是甘特图和任务列表。导出、新建、导入、改名、归档和计划版本都在「更多」里。",
-      "who": "同时持 progress.view 和 project.view。",
+      "who": "同时持 schedule.view 和 project.view。",
       "need": "导入要 .xlsx 文件、计划名称、修订版名称；改已确认的计划还要写变更原因。手工加一条任务要 WBS、任务名称、计划开始、计划完成。",
       "then": "新计划先是草稿，加好任务后按「确认并锁定」。之后每项任务按「确认进度」填完成%。「已延误」= 过了计划完成日还没做完；做完了但比计划晚，显示「延期完成」，不算延误。",
       "trouble": "导不进去，多半是有列没对上：WBS、任务名称、计划开始是必须的，另外计划完成和工期至少要有一个。"
@@ -13262,7 +13502,7 @@
     },
     "site_gps": {
       "what": "你的人此刻在工地的什么位置。",
-      "who": "持 geofence.view。",
+      "who": "持 field_position.view。",
       "need": "先选一个项目。",
       "then": "地图显示每个人最后一次上报的位置。",
       "trouble": "地图上没人：手机锁屏后浏览器就停止上报，所以断点是正常的。断点就画成断点 —— 系统不会把两点连成一条没人走过的路。"
@@ -13388,6 +13628,13 @@
       "who": "项目经理，只看到自己负责项目的现场人员。总部也可以用。",
       "then": "把链接和 6 位数 PIN 发给那个人；他用手机打开链接、输入 PIN，就能用手机工作。",
       "trouble": "看不到某个项目：请总部把你加到那个项目。手机号码说已经被使用：请先在原来的项目把那个人「删除」。"
+    },
+    "company_settings_trace": {
+      "what": "你们公司自己的资料：公司名称、地址、Logo 和首页背景、紧急联系人；显示语言、日期时间格式和文件链接的有效天数；以及公司总部和分公司的记录。",
+      "who": "公司管理员和总部：持 company_settings.view 可以看，持 company_settings.manage 才能修改。",
+      "need": "改好一栏，就按那一栏自己的【保存】。",
+      "then": "公司名称和 Logo 印在报表、二维码记录和项目文件上；紧急联系人显示在紧急名单和门岗的手机上。",
+      "trouble": "权限、二维码、通知、GPS、安全和资料保存由 MSE 统一管理，这里不能改；需要修改请联系 MSE。"
     }
   },
   "partners": {
@@ -13417,6 +13664,12 @@
       "REFERRAL": "推荐伙伴",
       "REGIONAL_AGENT": "地区代理",
       "TECHNOLOGY": "技术合作伙伴"
+    },
+    "toast": {
+      "created": "合作伙伴已建立",
+      "updated": "合作伙伴资料已保存",
+      "agreementCreated": "协议已建立",
+      "payoutCalculated": "佣金已计算"
     }
   },
   "partnerships": {
@@ -14158,7 +14411,8 @@
       "person": "要加入的人",
       "whatMembers": "项目成员列表",
       "onOtherProject": "现在在另一个项目：请原项目先「移出项目」或「删除」",
-      "removePhoneDescription": "{name} 的手机会立刻停用，所有手机和浏览器马上登出。账号、手机号码和已记录的数据都保留；之后在别的项目用同一个号码生成链接，同一部手机就能重新绑定。"
+      "removePhoneDescription": "{name} 的手机会立刻停用，所有手机和浏览器马上登出。账号、手机号码和已记录的数据都保留；之后在别的项目用同一个号码生成链接，同一部手机就能重新绑定。",
+      "closed": "这个项目已暂停、完工或归档，人员不能再增减。"
     },
     "title": "项目",
     "toast": {
@@ -14702,7 +14956,8 @@
       "scanHelp": "可以用相机、上传二维码图片，或把光标放在这里后使用 USB 扫码器。",
       "startHelp": "扫描客户目前有效的二维码，选择回收场和材料，并只使用有效的两次过磅完成入库。",
       "startTitle": "开始私人客户入库",
-      "tab": "私人入库"
+      "tab": "私人入库",
+      "confirmedOnly": "这里只列出已确认的地磅单。还没确认的，请先到【称重记录】打开它，按【确认地磅单】，再回来选。"
     },
     "inventory": {
       "adjustHelp": "每次调整都会永久记录操作人、时间和原因。",
@@ -15530,7 +15785,17 @@
       "reassigned": "客户归属已转移",
       "removed": "负责区域已移除",
       "saved": "销售设置已保存",
-      "updated": "销售人员已更新"
+      "updated": "销售人员已更新",
+      "payoutsCalculated": "已算出 {count} 笔佣金",
+      "nothingCalculated": "没有算出新的佣金：{reasons}",
+      "skipped": {
+        "no_scheme": "{count} 位没有佣金方案，请到「销售人员管理」给他们选方案",
+        "scheme_inactive": "{count} 位的佣金方案已停用，请到「佣金方案」启用",
+        "already_settled": "{count} 位这一期的佣金已经批准过",
+        "nothing_earned": "{count} 位这一期没有赚到佣金",
+        "other": "{count} 位因其他原因没有计算",
+        "nobody": "没有启用中、而且有佣金方案的销售人员"
+      }
     }
   },
   "scales": {
@@ -15587,7 +15852,10 @@
     "viewTitle": "地磅详情",
     "what": {
       "sites": "回收场列表"
-    }
+    },
+    "siteSearch": "找地点",
+    "siteSearchPlaceholder": "输入地点编号、名称或城市",
+    "siteSearchHint": "下面的列表最多显示 100 个地点；找不到的，在这里输入再选。"
   },
   "schedulePlanning": {
     "action": {
@@ -15849,7 +16117,9 @@
       "notes": "备注",
       "pickLoad": "先选一张已过磅的订单，下面才会出数。",
       "title": "开出这张结算单",
-      "unitPrice": "单价（每吨）"
+      "unitPrice": "单价（每吨）",
+      "done": "结算单 {no} 已开出。",
+      "open": "打开这张结算单"
     },
     "lock": {
       "confirm": "锁定",
@@ -15881,7 +16151,9 @@
       "notes": "备注",
       "paidOn": "付款日期",
       "reference": "参考号",
-      "title": "记录付款"
+      "title": "记录付款",
+      "document": "凭证文件",
+      "documentHint": "银行单据或转账截图，照片或 PDF 都可以。建筑商会在【付款凭证】里看到。"
     },
     "quote": {
       "openDeductions": "还有 {count} 条扣杂待回应",
@@ -15989,7 +16261,7 @@
       "new": "新增分公司",
       "removeBody": "之后不能用于新记录，原有历史仍会保留。",
       "removeTitle": "移除这个分公司？",
-      "subtitle": "保存地图和报表使用的真实办公室与分公司位置。",
+      "subtitle": "登记公司总部和各分公司的办公室地址与位置，留作公司记录。",
       "title": "分公司与总部"
     },
     "categories": {
@@ -16763,6 +17035,11 @@
       "loading": "正在生成样板……",
       "caption": "A4 样板：抬头和实际导出的 PDF 完全一样，下面的内容只是示例。",
       "pdfWhat": "样板 PDF"
+    },
+    "emergencyContact": {
+      "label": "紧急联系人：",
+      "call": "打电话给 {phone}",
+      "what": "紧急联系人"
     }
   },
   "siteDisposal": {
@@ -16834,7 +17111,8 @@
         "submit": "送出这一车"
       },
       "error": {
-        "action": "操作无法完成，请检查网络后重试。"
+        "action": "操作无法完成，请检查网络后重试。",
+        "location": "读不到手机位置。请打开手机定位，并允许本页面使用定位，再拍一次。"
       },
       "evidence": {
         "DISPOSAL_DO": "Disposal DO 照片",
@@ -17543,7 +17821,8 @@
       "scanHelp": "手机相机会打开现场人员的材料进场记录。已经登录的工地人员会直接进入并自动带出该供应商。",
       "share": "分享",
       "shareText": "{supplier} 的供应商二维码",
-      "title": "供应商二维码"
+      "title": "供应商二维码",
+      "rowLabel": "二维码"
     },
     "remove": {
       "confirm": "删除",
@@ -17782,7 +18061,9 @@
       "whatDrivers": "常用司机",
       "whatPlates": "常用车牌",
       "assign": "派车并生成链接",
-      "incomplete": "请填写司机姓名、电话和车牌"
+      "incomplete": "请填写司机姓名、电话和车牌",
+      "noSites": "还没有回收场，不能派车。请先到【回收场】按【新增回收场】，再回来派车。",
+      "noSitesAskAdmin": "还没有回收场，不能派车。请公司管理员先到【回收场】新增一个回收场。"
     },
     "link": {
       "ruleLabel": "链接什么时候失效",
@@ -17923,7 +18204,7 @@
       "projects": "项目权限",
       "responsibilities": "项目负责人职责",
       "role": "角色与权限",
-      "tasks": "尚未完成的现场任务",
+      "tasks": "尚未完成的现场任务和等他审批的申请（MR）",
       "title": "需要转移的内容"
     },
     "warning": {
@@ -17962,6 +18243,7 @@
       "lastLoginIp": "最近 IP",
       "phone": "电话",
       "role": "角色",
+      "roleHint": "不选角色，这个账号登录后什么都看不到。",
       "status": "状态",
       "timezone": "时区"
     },
@@ -18024,7 +18306,8 @@
     },
     "resetPassword": {
       "action": "发送重设链接",
-      "sent": "重设链接已发送"
+      "sent": "重设链接已发送",
+      "notSent": "重设链接没有发出去。请稍后再按一次；还是发不出，请找负责系统的人检查邮件设定。"
     },
     "section": {
       "access": "权限",
@@ -18056,6 +18339,7 @@
     "titleStaff": "内部人员",
     "toast": {
       "created": "用户已邀请",
+      "createdNotSent": "账号已建立，但邀请邮件没有发出去。请稍后在用户列表按「发送重设链接」再发一次；还是发不出，请找负责系统的人检查邮件设定。",
       "removed": "用户已移除",
       "statusUpdated": "用户状态已更新",
       "updated": "用户已更新",
@@ -18250,7 +18534,8 @@
       "help": "选择已绑定此项目的回收商。{reference} 的订单会立即发送至对方系统。",
       "noPartners": "此项目尚未绑定回收商。请先在「环保材料管理 › 回收商合作」中绑定，再建立订单。",
       "partnersFailed": "无法载入回收合作商，所以选择框是空的。这不代表你没有合作商。",
-      "title": "安排回收商"
+      "title": "安排回收商",
+      "noPartnersAskHeadOffice": "此项目尚未绑定回收商。绑定回收商要由总部来做：请联系总部，把回收商绑定到这个项目，再回来安排。"
     },
     "reassign": {
       "arm": "我确定要收回这张订单",
@@ -19105,7 +19390,8 @@
     "reminder": {
       "rule": "这一笔还没走完。系统每 {hours} 小时提醒一次提交的人和要处理的人，直到确认已付款（或拒绝、撤回）。",
       "sent": "已经提醒 {count} 次，上一次：{at}。"
-    }
+    },
+    "withdrawn": "这笔报销已由申请人撤回，原记录保留，不用再处理。如果还要报销，请申请人重新提交。"
   },
   "moduleHub": {
     "nothingToOpen": "此模块中没有您可以打开的页面。"
@@ -19294,7 +19580,8 @@
       "forwardHistory": "转呈记录",
       "headOfficeReviewer": "总部审批人",
       "materialName": "材料名称",
-      "materials": "材料明细"
+      "materials": "材料明细",
+      "onBehalfHistory": "总部代批"
     },
     "action": {
       "view": "查看",
@@ -19316,7 +19603,7 @@
     "detailTitle": "申请",
     "pendingDecision": "待审批，尚未审批",
     "noRemark": "无备注",
-    "returnedNotice": "此申请已退回并结束，不能修改或重新提交。如需再申请，请新建申请，会产生新的申请编号。",
+    "returnedNotice": "此申请已退回并结束，不能再重新提交。如需再申请，请新建申请，会产生新的申请编号。",
     "waitingForReview": "等待总部或授权负责人批准或退回。",
     "ownRequestWaiting": "等待审批。这是你提交的申请，由总部或授权负责人批准或退回，你自己不能审批。",
     "attachments": {
@@ -19438,7 +19725,13 @@
       "manager": "待项目经理确认"
     },
     "forwarded": "{by} 于 {at} 转呈总部",
-    "managerHelp": "现场人员交给你的申请：确认后选总部审批人，按「提交总部审批」；不对就退回。"
+    "managerHelp": "现场人员交给你的申请：确认后选总部审批人，按「提交总部审批」；不对就退回。",
+    "waitingForManager": "待项目经理 {name} 确认。他转呈总部后，才由总部审批。",
+    "onBehalf": {
+      "help": "项目经理 {manager} 的账号已停用，这一笔由总部代批：你可以直接批准或退回，记录会写明「总部代批」。",
+      "approved": "{by} 代 {manager} 批准（总部代批）· {at}",
+      "returned": "{by} 代 {manager} 退回（总部代批）· {at}"
+    }
   },
   "materialLines": {
     "title": "材料明细",
@@ -20167,7 +20460,8 @@
       "label": "每天正常工时（小时）",
       "save": "保存",
       "failed": "保存没有成功，请再试一次。",
-      "current": "{name} 于 {at} 设定"
+      "current": "{name} 于 {at} 设定",
+      "chooseProject": "每个项目各自设置每日正常工时：请先在上方选择项目。"
     },
     "records": {
       "what": "记录",
@@ -20528,7 +20822,8 @@
       "workflowHint": "这个任务要在它自己的表单里提交。",
       "openWorkflow": "打开工作表单",
       "waiting": "已提交，等待验收。",
-      "finished": "这个任务已经结束。"
+      "finished": "这个任务已经结束。",
+      "disposalTitle": "执行清运 {reference}"
     },
     "ehs": {
       "unsorted": "未分类",
@@ -21038,7 +21333,7 @@
       "equipment_set_site_no": "修改设备编号",
       "equipment_hours_move": "设备工时改设备归属",
       "user_change_permissions": "修改用户的权限开关",
-      "consultant_submit": "提交顾问申请",
+      "consultant_submit": "发送给顾问",
       "visitor_photo_purge": "删除到期访客照片",
       "document_delete": "删除未归档的文件档案",
       "consultant_delete": "删除顾问申请草稿",
@@ -21175,7 +21470,12 @@
       "stop": "停用",
       "lastUsed": "最近使用 {at}",
       "failed": "保存没有成功，请再试一次。",
-      "chooseProject": "先在页面上方选一个项目，才能新增链接。"
+      "chooseProject": "先在页面上方选一个项目，才能新增链接。",
+      "askReissue": "重新发送后，司机现在手上的链接会马上失效，要把新链接再发给他。确定重新发送吗？",
+      "askStop": "停用后，这个司机就不能再用这个链接打卡。确定停用吗？",
+      "confirmReissue": "确定重新发送",
+      "confirmStop": "确定停用",
+      "working": "正在处理，请稍等。"
     },
     "tabs": {
       "clock": "开工 / 收工",
@@ -21720,5 +22020,9 @@
       "placeholder": "例如：本月因下雨停工 5 天。",
       "hint": "会印在这个月的月报 PDF 上。"
     }
+  },
+  "pagedList": {
+    "shown": "已显示 {shown} 笔，共 {total} 笔",
+    "loadMore": "加载更多"
   }
 }

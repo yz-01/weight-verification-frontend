@@ -55,6 +55,7 @@ import {
   type TaskState,
 } from "@/interfaces/recycler";
 import { useDateFormat } from "@/lib/dates";
+import { notRecorded, type NotRecorded } from "@/lib/driver-not-recorded";
 import { MAP_PRIMARY } from "@/lib/map-palette";
 import { getDriverTaskOfflineAware } from "@/services/driver-offline.service";
 import {
@@ -362,6 +363,10 @@ export function DriverTask({
   // The step that carries the trip forward, as opposed to abandoning it.
   const forward = next.find((state) => state !== "FAILED" && state !== "CANCELLED");
   const canFail = next.includes("FAILED");
+  // A press or a photo that did not go, said where the driver is looking
+  // (JB207-5): offline the API client is silent and the link keeps nothing.
+  const stepMissed = notRecorded(advance.error);
+  const photoMissed = notRecorded(upload.error);
 
   return (
     <div className="space-y-4 pb-4">
@@ -684,6 +689,7 @@ export function DriverTask({
           <p className="text-center text-xs text-muted-foreground">
             {t("driver.issuePhotoHelp")}
           </p>
+          <NotRecordedLine missed={photoMissed} photo />
           </>
         )}
       </div>
@@ -765,6 +771,8 @@ export function DriverTask({
         </Button>
       )}
 
+      {!moving && <NotRecordedLine missed={stepMissed} />}
+
       {moving && (
         <Dialog
           open
@@ -799,6 +807,9 @@ export function DriverTask({
               </FieldWrapper>
             )}
 
+            {/* The confirm stays open when the step did not go: said here. */}
+            <NotRecordedLine missed={stepMissed} />
+
             <DialogFooter className="gap-2 sm:gap-2">
               <Button
                 variant="outline"
@@ -831,6 +842,33 @@ export function DriverTask({
         </Dialog>
       )}
     </div>
+  );
+}
+
+/**
+ * One plain line when a step or a photo did not reach the server (JB207-5,
+ * Lucas 11-16 audit). Offline it says so and what to do - press again once
+ * there is signal - because the link keeps nothing to send later; refused,
+ * it carries the server's reason, which a toast shows for only a moment.
+ */
+function NotRecordedLine({ missed, photo = false }: { missed: NotRecorded; photo?: boolean }) {
+  const t = useTranslations();
+  if (!missed) return null;
+  let text: string;
+  if (missed.kind === "offline") {
+    text = photo ? t("driver.notRecorded.photoOffline") : t("driver.notRecorded.stepOffline");
+  } else {
+    text = photo
+      ? t("driver.notRecorded.photo", { reason: missed.reason })
+      : t("driver.notRecorded.step", { reason: missed.reason });
+  }
+  return (
+    <p
+      role="alert"
+      className="rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+    >
+      {text}
+    </p>
   );
 }
 

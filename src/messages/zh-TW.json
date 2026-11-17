@@ -23,7 +23,9 @@
       "return": "歸還",
       "save": "保存",
       "start": "開始",
-      "transferAsset": "調撥資產"
+      "transferAsset": "調撥資產",
+      "goToCategories": "前往資產類別",
+      "removeCategory": "刪除類別"
     },
     "assetStatus": {
       "BORROWED": "已借出",
@@ -283,7 +285,10 @@
       "removedOn": "拆除日期",
       "decision": "處理決定",
       "selectSource": "選擇目前所在",
-      "fromHint": "按資產目前記錄的所在位置自動帶出，只有記錄不對時才需要改。"
+      "fromHint": "按資產目前記錄的所在位置自動帶出，只有記錄不對時才需要改。",
+      "noCustomCategories": "還沒有可選的自訂類別。請先到「資產類別」新增，再回來選擇。",
+      "recurringHint": "定期重複保養：完成這次保養時要填「下次日期」，系統才會自動排下一次。",
+      "nextDateRecurringHint": "這是定期重複保養，請填下次日期，系統會按這個日期排下一次保養。"
     },
     "installationStatus": {
       "ACTIVE": "已啟用",
@@ -425,6 +430,12 @@
       "staff": "員工列表",
       "options": "員工、部門、客戶和項目列表",
       "customers": "客戶名稱"
+    },
+    "saveError": "儲存失敗，請檢查輸入內容後重試。",
+    "saveFieldError": "「{field}」：{error}",
+    "confirm": {
+      "removeCategory": "確定要刪除類別「{name}」嗎？已經有資產在用的類別不能刪除，請改為停用。",
+      "removeDepartment": "確定要刪除部門「{name}」嗎？刪除後，調撥時不能再選這個部門。"
     }
   },
   "adminAuditCenter": {
@@ -656,7 +667,10 @@
       "usageUnit": "使用單位",
       "vendor": "選擇供應商",
       "video_storage_gb": "Video Storage GB",
-      "year": "年份"
+      "year": "年份",
+      "tenantId": "租戶 ID（Azure）",
+      "tenantIdHint": "Azure 的用量要自動同步，除了 API 金鑰，還要填這個租戶 ID。",
+      "tiersHint": "每一檔寫用量上限（limit）和單價（price）；最後一檔的 limit 寫 0，表示不封頂。可照框裡的例子填。"
     },
     "formSection": {
       "basic": "基本資料",
@@ -797,6 +811,17 @@
       "services": "雲服務列表",
       "vendors": "供應商列表",
       "companiesProjects": "客戶和項目列表"
+    },
+    "saveFieldError": "「{field}」：{error}",
+    "alertMessage": "{type}：目前 {current}，預警線 {threshold}",
+    "unit": {
+      "GB": "GB",
+      "TB": "TB",
+      "REQUESTS": "次（API 請求）",
+      "MESSAGES": "則（簡訊 / 訊息）",
+      "HOURS": "小時",
+      "TRANSACTIONS": "筆（交易）",
+      "none": "不指定"
     }
   },
   "adminCustomerService": {
@@ -818,7 +843,9 @@
       "process": "處理",
       "respond": "回覆",
       "save": "保存",
-      "updateStatus": "更新狀態"
+      "updateStatus": "更新狀態",
+      "view": "查看",
+      "close": "關閉"
     },
     "column": {
       "actions": "操作",
@@ -897,7 +924,11 @@
       "type": "類型",
       "visit_code": "回訪編號",
       "visit_date": "回訪日期",
-      "visited_by_name": "回訪人員"
+      "visited_by_name": "回訪人員",
+      "message": "內容",
+      "requirements": "客戶需求",
+      "notes": "處理結果",
+      "lost_reason": "流失原因"
     },
     "feedbackCategory": {
       "BUG_REPORT": "Bug 反饋",
@@ -939,7 +970,10 @@
       "meetingLinkHint": "線上培訓時填寫視訊會議連結，以 https:// 開頭",
       "visitTime": "回訪時間",
       "visitReport": "回訪報告檔案",
-      "viewReport": "查看報告"
+      "viewReport": "查看報告",
+      "assignee": "處理人員",
+      "unassigned": "未指定",
+      "pastResults": "以前的處理結果"
     },
     "loadError": "無法加載客戶服務記錄。",
     "loading": "正在加載客戶服務記錄...",
@@ -1024,7 +1058,8 @@
       "open": "待處理",
       "resolved": "已解決",
       "satisfied": "滿意",
-      "unsatisfied": "不滿意"
+      "unsatisfied": "不滿意",
+      "resolvedLocked": "已解決的反饋不能改回未解決。"
     },
     "subtitle": "統一管理客戶諮詢、培訓、回訪、反饋及永久服務歷史。",
     "title": "客戶服務中心",
@@ -1041,7 +1076,8 @@
     },
     "what": {
       "summary": "客服中心統計",
-      "companies": "客戶列表"
+      "companies": "客戶列表",
+      "assignees": "可指派的人員名單"
     }
   },
   "adminCwe": {
@@ -1330,6 +1366,10 @@
       "notifications": "通知列表",
       "deliveryRecords": "發送記錄",
       "statusRecords": "狀態記錄"
+    },
+    "toast": {
+      "sent": "已發送給 {count} 人。",
+      "sentToNobody": "沒有發出去：這家公司現在沒有可以收通知的帳號。"
     }
   },
   "adminPartnerManagement": {
@@ -1357,7 +1397,8 @@
       "submit": "提交",
       "terminate": "終止",
       "view": "在線查看",
-      "viewPaymentProof": "查看付款憑證"
+      "viewPaymentProof": "查看付款憑證",
+      "delete": "刪除"
     },
     "agreementStatus": {
       "ACTIVE": "生效中",
@@ -1499,7 +1540,13 @@
       "terms": "協議條款",
       "title": "協議標題",
       "signedOn": "簽署日期",
-      "paymentProof": "付款憑證"
+      "paymentProof": "付款憑證",
+      "commissionStart": "佣金開始日期",
+      "commissionStartHint": "不填就從今天開始算",
+      "commissionEnd": "佣金結束日期",
+      "commissionEndHint": "不填就一直算下去",
+      "changeReason": "修改原因（選填）",
+      "calculationConfigExample": "按這個格式填寫，例如：{example}"
     },
     "heading": {
       "payouts": "合作伙伴佣金結算",
@@ -1637,6 +1684,31 @@
       "territories": "負責區域列表",
       "agreements": "協議佣金規則",
       "payouts": "佣金結算列表"
+    },
+    "remove": {
+      "typeTitle": "刪除合作類型「{name}」？",
+      "typeDescription": "刪除後，這個類型就不能再選。已經有合作夥伴在用的類型不能刪除，請改為停用。",
+      "territoryTitle": "刪除負責區域「{name}」？",
+      "territoryDescription": "刪除後，這個區域就不能再選來分配客戶。已經有客戶歸屬的區域不能刪除，請改為填寫到期日期。"
+    },
+    "payout": {
+      "rejectedClosed": "已駁回，不能再付款。要重新算，請按「計算佣金」。"
+    },
+    "toast": {
+      "statusChanged": "合作夥伴狀態已更新",
+      "agreementUpdated": "協議已保存",
+      "typeSaved": "合作類型已保存",
+      "typeRemoved": "合作類型已刪除",
+      "territorySaved": "負責區域已保存",
+      "territoryRemoved": "負責區域已刪除",
+      "customerAssigned": "客戶已分配給合作夥伴",
+      "assignmentUpdated": "客戶歸屬已更新",
+      "agreementSubmitted": "協議已提交，等待簽署",
+      "agreementActivated": "協議已生效",
+      "agreementRenewed": "續簽協議已建立（草稿）",
+      "agreementTerminated": "協議已終止",
+      "payoutAdjusted": "調整金額已保存",
+      "payoutUpdated": "佣金結算已更新"
     }
   },
   "adminQr": {
@@ -1766,6 +1838,7 @@
     },
     "subjectType": {
       "CONTRACTOR": "建築商",
+      "CUSTOMER": "私人客戶",
       "DELIVERY_NOTE": "送貨單",
       "DEVICE": "設備",
       "DRIVER": "司機",
@@ -1917,7 +1990,8 @@
     "what": {
       "filterOptions": "報表篩選選項",
       "history": "報表歷史記錄"
-    }
+    },
+    "datesBackwards": "開始日期不能晚於結束日期。"
   },
   "adminSales": {
     "action": {
@@ -1936,7 +2010,11 @@
       "editPerson": "編輯銷售人員",
       "process": "處理",
       "reassign": "轉移",
-      "save": "保存"
+      "save": "保存",
+      "editTerritory": "編輯區域",
+      "view": "查看",
+      "close": "關閉",
+      "goToSettlements": "去佣金結算"
     },
     "basis": {
       "CUSTOM_FORMULA": "自定義計算公式",
@@ -2004,7 +2082,8 @@
       "platform_commission_percent": "平臺佣金百分比",
       "saas_percent": "SaaS 收入百分比",
       "target_bonus": "目標獎勵金額",
-      "target_threshold": "目標門檻"
+      "target_threshold": "目標門檻",
+      "targetMetric": "目標獎勵按什麼算"
     },
     "cycle": {
       "MONTHLY": "每月",
@@ -2038,7 +2117,15 @@
       "selectSupervisor": "選擇主管或經理",
       "target": "目標金額",
       "wonOn": "簽約日期",
-      "reasonLabel": "原因"
+      "reasonLabel": "原因",
+      "noEndDate": "長期有效",
+      "territoryName": "區域名稱",
+      "territoryNameHint": "例如：北馬、中馬",
+      "nationalSwitch": "全國（負責所有州屬）",
+      "effectiveTo": "到期日期",
+      "effectiveToHint": "不填就一直有效",
+      "exclusiveSwitch": "獨家負責（同一個州屬有兩位負責人時，新客戶先給這一位）",
+      "nameInSchemes": "名稱和說明請到「佣金方案」修改，這裡只改計算方式"
     },
     "loadError": "無法加載銷售記錄。",
     "loading": "正在加載銷售記錄...",
@@ -2065,7 +2152,8 @@
       "recyclers_won": "回收商客戶",
       "saas_revenue": "SaaS 收入",
       "team_size": "團隊人數",
-      "total_customers": "客戶"
+      "total_customers": "客戶",
+      "period": "統計期間：{start} 至 {end}"
     },
     "remove": {
       "confirm": "移除負責區域",
@@ -2089,7 +2177,8 @@
     "saveError": "無法保存客戶歸屬，請檢查所選客戶和銷售人員後重試。",
     "scope": {
       "NATIONAL": "全國",
-      "STATES": "指定州屬"
+      "STATES": "指定州屬",
+      "none": "未設定"
     },
     "section": {
       "activity": {
@@ -2162,7 +2251,17 @@
       "summary": "銷售匯總",
       "schemes": "佣金方案列表",
       "people": "銷售人員列表",
-      "performance": "團隊業績數據"
+      "performance": "團隊業績數據",
+      "acknowledgements": "確認記錄"
+    },
+    "territory": {
+      "notCurrent": "不在生效期內",
+      "empty": "還沒有設定銷售區域。按「新增區域」，選一位銷售人員和他負責的州屬（或全國）。新公司會按州屬自動分給負責的人。"
+    },
+    "termsView": {
+      "confirmedBy": "已確認的銷售人員",
+      "noneConfirmed": "還沒有人確認這個版本。",
+      "confirmedOn": "{date} 確認"
     }
   },
   "adminSystemSettings": {
@@ -2260,7 +2359,8 @@
         "saved": "公告已更新。"
       },
       "translations": "其他語言",
-      "translationsHelp": "留空的話，該語言的讀者會逐欄位退回英文。"
+      "translationsHelp": "留空的話，該語言的讀者會逐欄位退回英文。",
+      "mainLanguageHint": "下面的「標題」和「內容」請寫英文，這是每位讀者的預設內容；中文請在下面的「其他語言」裡填寫。"
     },
     "branding": {
       "description": "當公司沒有上傳自己的 Logo 時，瀏覽器標籤和添加到桌面的快捷方式會使用此圖標。支持 5 MB 以內的 PNG、JPG 和 WebP。",
@@ -2507,7 +2607,12 @@
       "companySaved": "公司設置已保存",
       "saved": "設置已保存"
     },
-    "updatedAt": "最後保存：{value}"
+    "updatedAt": "最後保存：{value}",
+    "leave": {
+      "title": "還有設定沒有保存",
+      "description": "這一頁有改過、還沒按「保存」的設定。現在離開的話，這些改動不會保存。",
+      "confirm": "離開，不保存"
+    }
   },
   "adminTechnicalSupport": {
     "action": {
@@ -2680,7 +2785,10 @@
       "actualHours": "實際工時（小時）",
       "resolutionNotes": "處理說明",
       "resolutionNotesHelp": "把工單標為完成時填寫的說明也會寫到這裡。",
-      "laborHours": "人工工時（小時）"
+      "laborHours": "人工工時（小時）",
+      "assignee": "負責人",
+      "unassigned": "未指定",
+      "fixedInVersion": "修復版本"
     },
     "guide": {
       "action": {
@@ -2830,7 +2938,7 @@
     "ticketComment": {
       "empty": "這張工單還沒有人說過話。",
       "internal": "內部",
-      "internalHelp": "內部備註 —— 只有自己人看得到，客戶看不到",
+      "internalHelp": "標為內部備註。這裡的回覆都只記錄在後台給同事看，系統不會發給客戶。",
       "placeholder": "寫一條回覆",
       "send": "新增評論",
       "title": "對話記錄",
@@ -2840,7 +2948,9 @@
     "ticketEdit": {
       "moveOn": "推進狀態",
       "save": "儲存更正",
-      "title": "更正這張工單"
+      "title": "更正這張工單",
+      "moveOnHint": "這裡只列出這張工單現在可以改去的狀態。",
+      "closedFinal": "這張工單已經關閉，狀態不能再改。如果問題又出現，請新增一張工單。"
     },
     "ticketState": {
       "CLOSED": "已關閉",
@@ -2862,7 +2972,10 @@
     "title": "技術支持中心",
     "what": {
       "summary": "技術支持中心統計",
-      "companies": "公司列表"
+      "companies": "公司列表",
+      "assignees": "可指派的人員名單",
+      "integrations": "系統整合連線",
+      "devices": "已登記的設備"
     }
   },
   "app": {
@@ -3058,7 +3171,7 @@
       "WASTE_OUTGOING": "環保材料出場申請",
       "DISPOSAL_REQUEST": "工地清運",
       "PROGRESS": "工程進度",
-      "CONSULTANT_APPLICATION": "顧問資料",
+      "CONSULTANT_APPLICATION": "顧問申請",
       "ATTENDANCE_DAY": "出入場（按日）",
       "SUNDRY_CLAIM": "雜費報銷",
       "DELIVERY_NOTE": "送貨單",
@@ -3503,7 +3616,7 @@
       "RESTART": "重新啟動",
       "WITHDRAWN": "已撤回",
       "accept_trip": "接受車次",
-      "acknowledged": "已確認收到",
+      "acknowledged": "已確認申請",
       "add_evidence": "補充證據",
       "add_trip": "新增車次",
       "announcement_published": "發布公告",
@@ -3541,7 +3654,7 @@
       "collection_requested": "申請收運",
       "collection_time_proposed_by_recycler": "回收商提出收運時間",
       "complete": "完成",
-      "confirm_draft": "確認草稿",
+      "confirm_draft": "確認歸檔",
       "confirm_weigh_ticket": "確認過磅單",
       "consultant_registered": "登記顧問",
       "correct_trip": "更正車次",
@@ -3688,7 +3801,7 @@
       "receipt_records_queried": "查詢材料進場記錄",
       "receipt_refiled": "材料進場改歸另一種材料",
       "receipt_reviewed": "驗收材料進場",
-      "received": "已收到",
+      "received": "已接收",
       "recipient_dismissed": "關閉通知",
       "record_cancelled": "取消記錄",
       "record_corrected": "更正記錄",
@@ -3706,8 +3819,8 @@
       "recycler_settings_update": "修改回收商設置",
       "regenerate_external_link": "重新生成外部連接",
       "remark_added": "新增備註",
-      "remedial_item_closed": "關閉待整改項",
-      "remedial_item_raised": "提出待整改項",
+      "remedial_item_closed": "關閉這條整改",
+      "remedial_item_raised": "開一條整改",
       "remove_attachment": "刪除附件",
       "reorder_evidence": "調整證據順序",
       "replace_attachment_file": "更換附件文件",
@@ -3745,7 +3858,7 @@
       "site_access_revoke": "取消工地出入",
       "site_evidence": "工地補充證據",
       "start": "開始",
-      "submit": "提交",
+      "submit": "發送給顧問",
       "subscription_exported": "導出訂閱",
       "supplier_qr_scanned": "掃描供應商二維碼",
       "supplier_qr_status_changed": "啟用或停用供應商二維碼",
@@ -3779,8 +3892,8 @@
       "APPROVE": "批准",
       "REJECT": "拒絕",
       "RETURN": "退回",
-      "APPROVE_WITH_REMEDIAL": "批准（需整改）",
-      "REVISE_RESUBMIT": "修改後重新提交",
+      "APPROVE_WITH_REMEDIAL": "批准並要求整改",
+      "REVISE_RESUBMIT": "修改後重提",
       "bulk_fill_trade": "批量填寫工種",
       "create_trade": "新增工種",
       "company_categories_added_to_projects": "公司通用分類加到現有項目",
@@ -3809,7 +3922,8 @@
       "rain_report_pdf_exported": "匯出雨天記錄月報",
       "rain_report_pdf_previewed": "預覽雨天記錄月報",
       "rain_remark_set": "填寫雨天記錄的意見 / 備註",
-      "rain_month_remark_set": "填寫雨天月報的意見 / 備註"
+      "rain_month_remark_set": "填寫雨天月報的意見 / 備註",
+      "head_office_on_behalf": "總部代批"
     },
     "objectType": {
       "SignOffAssistant": "助理副密碼",
@@ -3952,6 +4066,7 @@
     },
     "close": {
       "description": "在未收齊餘款的情況下關閉賬單 {invoice}。",
+      "paidReason": "這張賬單已經收到部分款項，不能關閉。請繼續跟進餘款。",
       "title": "關閉賬單"
     },
     "companyType": {
@@ -4808,7 +4923,8 @@
     "combobox": {
       "byLetter": "按首字母篩選"
     },
-    "loadOffline": "沒有網路，{what}等有網路時再載入。"
+    "loadOffline": "沒有網路，{what}等有網路時再載入。",
+    "pageNotOpen": "你的賬號不能打開這個頁面，已帶你回到可以用的頁面。需要用這個頁面，請聯繫你們公司的管理員開通。"
   },
   "companies": {
     "owner": {
@@ -5090,6 +5206,11 @@
       "description": "這家公司的所有人將可以重新登入。",
       "title": "恢復 {name}？"
     },
+    "activateTrial": {
+      "confirm": "啟用",
+      "description": "試用結束。這家公司從現在起算作正常使用的公司，報表也會把它算進有效公司。",
+      "title": "啟用 {name}？"
+    },
     "remove": {
       "blockedByUsers": "這家公司還有可以登入的人員。請改為停用，或先停用這些人員。",
       "confirm": "移除",
@@ -5185,7 +5306,7 @@
       "revoke": "撤銷授權",
       "save": "保存"
     },
-    "back": "顧問門戶",
+    "back": "返回顧問設定",
     "common": {
       "noContact": "未填寫聯繫人資料",
       "noJobTitle": "顧問",
@@ -5229,7 +5350,7 @@
       "validUntil": "到期時間"
     },
     "grant": {
-      "needsProjects": "至少要選一個專案",
+      "needsProjects": "至少要選一個項目",
       "needsConsultants": "至少要選一位顧問",
       "add": "新增項目授權",
       "createTitle": "授權顧問訪問項目",
@@ -5310,7 +5431,7 @@
     }
   },
   "consultantDashboard": {
-    "credential": "審批簽名",
+    "credential": "簽名與簽核密碼",
     "currentStep": "當前步驟：{step}",
     "due": {
       "description": "未來七天內需要處理的已提交申請。",
@@ -5321,27 +5442,20 @@
       "application": "申請",
       "applicationHelp": "填寫 RFI 資料，並關聯現場照片和必需附件。",
       "approval": "審批",
-      "approvalHelp": "顧問按順序審核，並使用 PIN 簽署每項決定。",
+      "approvalHelp": "顧問按順序審核，並使用簽核密碼簽署每項決定。",
       "archive": "歸檔",
       "archiveHelp": "確認申請、審批記錄和最終報告都已保存。",
-      "final": "最終 PDF",
-      "finalHelp": "下載已經完成的客戶格式 RFI 審批報告。",
+      "final": "最終報告",
+      "finalHelp": "下載已經完成的最終報告（客戶格式 RFI）。",
       "subtitle": "直接打開需要處理的步驟。每份申請都會從填寫資料一直保存到安全歸檔。",
-      "title": "四個簡單步驟"
+      "title": "簡單步驟"
     },
     "history": {
       "description": "已經記錄此賬號電子簽名與審批動作的申請。",
       "empty": "此賬號尚未留下審批決定。",
       "title": "我的審批記錄"
     },
-    "loadError": "無法載入顧問工作臺。請刷新頁面，或檢查該顧問的項目授權是否仍有效。",
-    "metric": {
-      "approved": "已批准",
-      "dueSoon": "7 天內到期",
-      "pending": "待我審批",
-      "returned": "已拒絕或退回",
-      "today": "今日申請"
-    },
+    "loadError": "無法載入顧問首頁。請刷新頁面，或檢查該顧問的項目授權是否仍有效。",
     "newApplication": "新建申請",
     "notifications": {
       "description": "發送給此賬號的項目、審批及系統通知。",
@@ -5358,7 +5472,7 @@
     "searchPlaceholder": "搜索申請編號、項目、位置或申請人",
     "status": {
       "APPROVED": "已批准",
-      "APPROVED_WITH_REMEDIAL": "附整改批准",
+      "APPROVED_WITH_REMEDIAL": "已批准（需整改）",
       "ARCHIVED": "已歸檔",
       "DRAFT": "草稿",
       "REJECTED": "已拒絕",
@@ -5367,7 +5481,7 @@
     },
     "subtitle": "在同一個工作臺查看待審批申請、期限、審批記錄和項目通知。",
     "title": "顧問首頁",
-    "workflowSettings": "審批流程設置"
+    "workflowSettings": "顧問設定"
   },
   "consultantProject": {
     "choose": "選擇專案",
@@ -5377,26 +5491,28 @@
     "remedial": {
       "failed": "沒能儲存",
       "noEvidence": "沒有附證據",
-      "evidenceHint": "從這份申請已有的證據裡挑。",
+      "evidenceHint": "從這個項目的現場照片裡挑能證明已經做好的（最新的在最前面）。照片要先用手機拍好上傳。",
       "evidence": "證據",
-      "closedBy": "{name} 於 {when} 關閉",
+      "closedBy": "{name} 於 {when} 關閉，附證據 {count} 份",
       "closureNote": "做了什麼",
       "closeHelp": "寫清楚做了什麼，並附上能證明的東西。",
       "closeTitle": "關閉這條整改",
-      "unassigned": "沒有指派人",
       "overdue": "已逾期",
       "closed": "已關閉",
       "open": "未完成",
       "empty": "沒有整改事項",
       "dueOn": "限期 {date}",
-      "dueHint": "到期前會提醒現場，過了就標成逾期。",
+      "dueHint": "到期前一天會提醒負責的人；過了限期會標成「已逾期」，再提醒一次。",
       "dueDate": "限期",
       "description": "要整改什麼",
       "raiseHelp": "寫清楚要整改什麼，什麼時候之前完成。",
-      "raiseTitle": "開一條整改"
+      "raiseTitle": "開一條整改",
+      "responsible": "負責：{name}",
+      "responsibleApplicant": "負責：{name}（申請人）",
+      "raisedBy": "由 {name} 提出"
     },
     "action": {
-      "closeRemedial": "關閉這條",
+      "closeRemedial": "關閉這條整改",
       "raiseRemedial": "開一條整改",
       "acknowledge": "確認申請",
       "cancel": "取消",
@@ -5405,22 +5521,21 @@
       "edit": "編輯草稿",
       "receive": "標記為已接收",
       "remove": "移除",
-      "retryReport": "重新產生報告",
+      "retryReport": "重新產生最終報告",
       "save": "保存",
       "saveDraft": "保存草稿",
-      "saveReusableOption": "保存為項目選項",
-      "submit": "提交審批"
+      "saveReusableOption": "保存為項目選項"
     },
     "applications": {
       "back": "返回顧問申請",
-      "create": "新增申請",
+      "create": "新建申請",
       "search": "搜索申請編號、位置或顧問",
       "stage": {
         "all": "全部",
         "approval": "審批",
         "archive": "歸檔",
         "draft": "申請",
-        "final": "最終 PDF",
+        "final": "最終報告",
         "inbox": "待整理現場資料"
       },
       "stageLabel": "申請階段",
@@ -5432,7 +5547,7 @@
       "kind": {
         "APPLICATION": "申請資料歸檔",
         "APPROVAL": "簽名審批記錄歸檔",
-        "FINAL_REPORT": "最終 PDF 歸檔",
+        "FINAL_REPORT": "最終報告歸檔",
         "CONSULTANT_FORM": "顧問自有表格（原表格、填寫後、最終版本）"
       },
       "pending": "等待中",
@@ -5480,20 +5595,21 @@
       "currentPassword": "當前登入密碼",
       "identityHelp": "每次審批都會保存不可修改的副本，日後更換不會影響舊報告。",
       "identityTitle": "簽名與顧問印章",
-      "passwordHelp": "修改簽署憑證前需驗證當前密碼。",
-      "pin": "新 6 位 PIN",
-      "pinConfirm": "確認 PIN",
-      "pinHelp": "批准、拒絕或退回申請時輸入此 6 位 PIN。",
-      "pinMismatch": "兩次 PIN 不一致。",
-      "pinTitle": "審批 PIN",
-      "save": "保存簽署憑證",
-      "shortTitle": "簽名與 PIN",
+      "passwordHelp": "修改簽名或簽核密碼前需驗證當前登入密碼。",
+      "pin": "新的 6 位簽核密碼",
+      "pinConfirm": "再輸入一次",
+      "pinHelp": "這就是您的 6 位簽核密碼，確認歸檔、列印、發送和審批都用它。",
+      "pinMismatch": "兩次輸入的簽核密碼不一樣。",
+      "pinTitle": "簽核密碼",
+      "save": "保存簽名與簽核密碼",
+      "shortTitle": "簽名與簽核密碼",
       "signature": "電子簽名",
       "signatureHelp": "上傳背景清楚的 PNG 或 JPG 簽名。",
       "stamp": "顧問印章",
       "stampHelp": "流程步驟要求蓋章時才是必填。",
       "subtitle": "設置用於可追溯項目決定的個人簽名。",
-      "title": "審批簽名與 PIN"
+      "title": "簽名與簽核密碼",
+      "pinKeep": "已經設好簽核密碼：不想改就留空。只換簽名或印章，不用輸入新的。"
     },
     "decision": {
       "APPROVE": "批准",
@@ -5510,24 +5626,34 @@
         "archive": "歸檔",
         "complete": "已完成",
         "current": "當前步驟",
-        "final": "最終 PDF",
+        "final": "最終報告",
         "pending": "尚未開始",
         "title": "申請進度"
       },
       "next": {
-        "archived": "這份申請已經完成。申請資料、簽名審批記錄和最終 PDF 都已安全歸檔。",
+        "archived": "這份申請已經完成。申請資料、簽名審批記錄和最終報告都已安全歸檔。",
         "complete": "審批決定已經完成，系統正在準備最終報告。",
-        "draft": "完成表格，關聯現場照片和附件，然後提交審批。",
-        "final": "審批已經完成。請下載最終 PDF，並查看驗證記錄。",
+        "draft": "填好表格，加上現場照片和附件。然後先按【確認歸檔】（輸入 6 位簽核密碼），再按申請表上的【發送給顧問】。",
+        "final": "審批已經完成。請下載最終報告，並查看驗證記錄。",
         "review": "這份申請正在等待您的決定。請查看現場證據，然後選擇審批結果。",
-        "revise": "申請已被退回。請建立新版本，按照意見修改後再次提交。",
-        "waiting": "您現在不需要操作，申請正在等待“{step}”處理。"
+        "revise": "顧問選了「修改後重提」。請按【建立新版本】，按照意見修改後再發送給顧問。",
+        "waiting": "您現在不需要操作，申請正在等待“{step}”處理。",
+        "remedialOpen": "已批准，但還有 {count} 條整改沒完成。做好後，在下面的「整改事項」裡按「關閉這條整改」，附上能證明的照片。",
+        "remedialOpenReviewer": "還有 {count} 條整改等建築商完成；他們關閉時你會收到通知。需要時可以按【開一條整改】。",
+        "remedialOpenWatching": "還有 {count} 條整改等建築商完成。",
+        "rejected": "顧問拒絕了這份申請，原因在「已簽署決定」。改好後請另外按【新建申請】。",
+        "reviseMade": "這份申請已經建立了新版本（版本 {revision}）。請在下面「版本記錄」裡打開它，改好後再發送。",
+        "reviseSent": "新版本（版本 {revision}）已經發送給顧問，請在「版本記錄」裡打開它查看。",
+        "reviseDecided": "顧問已經對新版本（版本 {revision}）作出決定，請在「版本記錄」裡打開它查看。",
+        "reviseReviewer": "已經退回給建築商修改。他們建立新版本並發送後，你會收到通知。"
       },
       "nextAction": "下一步要做什麼",
       "noRevisions": "目前沒有版本記錄。",
+      "noRelatedRecords": "這份申請沒有關聯的現場資料。",
       "receivedAt": "顧問接收時間",
       "revision": "版本 {revision}",
-      "revisionCurrent": "當前版本",
+      "revisionCurrent": "正在看的版本",
+      "revisionLatest": "最新版本",
       "section": {
         "remedial": "整改事項",
         "application": "申請資料",
@@ -5539,15 +5665,15 @@
         "evidence": "關聯現場證據",
         "relatedRecords": "關聯現場資料",
         "revisions": "版本記錄",
-        "site": "現場申請"
+        "site": "來源現場資料"
       },
       "raisedOnSite": "現場提交：{name} {when}",
-      "forwardedBy": "經理轉給顧問：{name} {when}"
+      "forwardedBy": "經理發送給顧問：{name} {when}"
     },
     "draftEdit": {
       "armRemove": "允許移除",
       "armRemoveHelp": "先打開開關，再按「移除」，按下立即生效。",
-      "locked": "已提交，退回修改後才能改",
+      "locked": "已發送給顧問；顧問選「修改後重提」後，在新版本裡改",
       "remove": "移除",
       "unlink": "取消關聯",
       "edit": "修改",
@@ -5623,7 +5749,7 @@
       "chooseWorkflow": "選擇審批流程",
       "component": "構件／工作區域",
       "consultant": "顧問",
-      "consultantCompany": "顧問公司",
+      "consultantCompany": "顧問單位",
       "customApplicationType": "自定義申請類型",
       "customDiscipline": "自定義專業",
       "customPriority": "自定義優先級",
@@ -5653,7 +5779,7 @@
     },
     "form": {
       "editTitle": "編輯顧問申請草稿",
-      "noConsultantGrantHeadOffice": "這個項目還沒有開通顧問。請到「顧問設定 › 顧問賬號與項目授權」給顧問開通這個項目，再回來建立申請。",
+      "noConsultantGrantHeadOffice": "這個項目還沒有開通顧問。請到「顧問設定 › 顧問賬號與項目授權」給顧問開通這個項目，再回來新建申請。",
       "noConsultantGrantProject": "這個項目還沒有開通顧問。顧問由總部開通：請總部在「顧問設定 › 顧問賬號與項目授權」給顧問開通這個項目，開通後這裡就可以選。",
       "openConsultantAccess": "去開通顧問",
       "requiredAttachments": "提交前必須先上傳這些文件：{codes}。",
@@ -5672,7 +5798,7 @@
       "sourceSubmittedAt": "提交時間：{value}",
       "sourceTitle": "來源現場資料",
       "subtitle": "填寫現場申請、關聯證據，再按項目審批流程提交。",
-      "title": "建立顧問申請",
+      "title": "新建顧問申請",
       "advanced": "進階設定（可不填）",
       "advancedHelp": "不選就用這個項目的預設流程「顧問審批」：一步，送給你選的顧問簽名審批。模板也可以不選。",
       "more": "更多（選填）",
@@ -5708,7 +5834,7 @@
     "review": {
       "dialog": {
         "APPROVE": {
-          "description": "確認現場申請；最後一步完成後系統會生成最終審批報告。",
+          "description": "批准這份申請；最後一步完成後系統會生成最終報告。",
           "title": "批准此申請"
         },
         "APPROVE_WITH_REMEDIAL": {
@@ -5721,17 +5847,25 @@
         },
         "REVISE_RESUBMIT": {
           "description": "請清楚說明建築商修改後重新提交的內容。",
-          "title": "退回修改"
+          "title": "修改後重提"
         }
       },
       "pending": "當前步驟：{step}",
-      "pin": "6 位審批 PIN",
-      "pinHint": "PIN 用於確認此簽署決定由您本人作出。",
+      "pin": "6 位簽核密碼",
+      "pinHint": "簽核密碼用於確認此簽署決定由您本人作出。",
       "remarks": "決定備註",
       "reviewerConsultant": "指定顧問：{name}",
       "reviewerRole": "指定角色：{name}",
       "reviewerUser": "指定審批人：{name}",
-      "setupCredential": "設置簽名與 PIN"
+      "setupCredential": "設定簽名與簽核密碼",
+      "remedialList": {
+        "hint": "一條寫一件事。每一條都會印在你簽名的最終報告上；建築商做好後會在申請裡逐條關閉，並附上照片。",
+        "item": "第 {n} 條：要整改什麼",
+        "placeholder": "例如：西面牆的蜂窩要修補。",
+        "add": "再加一條",
+        "remove": "刪除這一條"
+      },
+      "stampMissing": "這一步要蓋顧問印章，您還沒有上傳印章。請先按下面的按鈕上傳印章，再回來審批。"
     },
     "reviewerKind": {
       "CONSULTANT": "申請中指定的顧問",
@@ -5742,23 +5876,24 @@
       "chooseProject": "請選擇項目以查看該項目的顧問工作。",
       "draftUnavailable": "此草稿無法編輯，可能已經提交或您已沒有權限。",
       "loadError": "無法載入資料，請檢查項目權限後重試。",
-      "noApplications": "該項目沒有符合條件的顧問申請。"
+      "noApplications": "該項目沒有符合條件的顧問申請。",
+      "otherProject": "這份申請可能在您的另一個項目。請在下面選那個項目，申請就會打開。"
     },
     "status": {
       "APPROVED": "已批准",
-      "APPROVED_WITH_REMEDIAL": "已批准，需完成整改",
+      "APPROVED_WITH_REMEDIAL": "已批准（需整改）",
       "ARCHIVED": "已歸檔",
       "DRAFT": "草稿",
       "REJECTED": "已拒絕",
       "REVISE_RESUBMIT": "修改後重提",
-      "SUBMITTED": "等待審批"
+      "SUBMITTED": "待審批"
     },
     "stepStatus": {
       "APPROVED": "已批准",
-      "APPROVED_WITH_REMEDIAL": "已批准，需完成整改",
+      "APPROVED_WITH_REMEDIAL": "已批准（需整改）",
       "CURRENT": "需要處理",
       "REJECTED": "已拒絕",
-      "REVISE_RESUBMIT": "需要修改",
+      "REVISE_RESUBMIT": "修改後重提",
       "SKIPPED": "已跳過",
       "WAITING": "等待中"
     },
@@ -5801,7 +5936,7 @@
       "save": "保存模板",
       "saveVersion": "建立版本",
       "standardLayout": "標準客戶 RFI PDF",
-      "standardLayoutHelp": "最終 PDF 固定使用客戶確認的 RFI 與顧問審批格式，避免用戶誤選尚未支持的版式。",
+      "standardLayoutHelp": "最終報告固定使用客戶確認的 RFI 與顧問審批格式，避免用戶誤選尚未支持的版式。",
       "stillOffered": "繼續提供",
       "stillOfferedHelp": "關掉之後新申請就用不到它了，已送出的不受影響。",
       "subtitle": "按項目管理表格欄位、必需附件和不可修改版本，不需要填寫技術 JSON。",
@@ -5816,16 +5951,16 @@
     "toast": {
       "acknowledged": "申請已確認",
       "attachmentAdded": "附件已添加",
-      "credentialSaved": "簽署憑證已保存",
+      "credentialSaved": "簽名與簽核密碼已保存",
       "decisionSaved": "簽署決定已保存",
       "draftSaved": "申請草稿已保存",
       "evidenceLinked": "現場證據已關聯",
       "received": "申請已標記為已接收",
-      "reportRebuilt": "報告已重新產生",
+      "reportRebuilt": "最終報告已重新產生",
       "revisionCreated": "新版本已建立",
       "stepRemoved": "審批步驟已移除",
       "stepSaved": "審批步驟已保存",
-      "submitted": "申請已提交審批",
+      "submitted": "已發送給顧問",
       "templateSaved": "RFI 表格模板已保存",
       "templateVersionSaved": "RFI 表格模板版本已保存",
       "workflowSaved": "審批流程已保存",
@@ -5839,7 +5974,7 @@
       "applicationType": "申請類型",
       "company": "建築商",
       "consultant": "顧問",
-      "consultantCompany": "顧問公司",
+      "consultantCompany": "顧問單位",
       "decision": "最終決定",
       "finalizedAt": "完成時間",
       "notFoundHelp": "此二維碼無效或最終報告已不可用。",
@@ -5871,11 +6006,9 @@
       "makeDefault": "設為默認流程",
       "name": "流程名稱",
       "noSteps": "尚無審批步驟，使用前請至少增加一步。",
-      "requireSignature": "必須電子簽名",
       "requireStamp": "必須顧問蓋章",
       "reviewer": "審批人",
       "reviewerKind": "此步驟由誰審批",
-      "shortTitle": "流程設置",
       "stampHelp": "審批人未上傳印章時將不能批准。",
       "stepName": "步驟名稱",
       "stepsLocked": "這條流程上已經有申請送出去了，審批路線現在屬於記錄的一部分，改不了。要換路線請新建一條流程。",
@@ -5883,7 +6016,12 @@
       "stillOfferedHelp": "關掉之後新申請就選不到它了，已有的申請不受影響。",
       "subtitle": "設置各項目申請實際採用的審批順序。",
       "title": "顧問審批流程",
-      "typeFixed": "已鎖定 —— 這條流程上已經有申請了。"
+      "typeFixed": "已鎖定 —— 這條流程上已經有申請了。",
+      "inactive": "已停用",
+      "inactiveHelp": "新申請選不到這條流程。要再用，按鉛筆，打開「繼續提供」。",
+      "alwaysSigned": "每一個審批決定都用審批人的電子簽名和 6 位簽核密碼簽署，不用另外設定。",
+      "removeStepTitle": "刪除步驟「{step}」？",
+      "removeStepBody": "刪除後這一步就不在流程裡了。流程一步都沒有的話，這條流程上的草稿就發送不了。"
     },
     "howTo": {
       "title": "顧問申請怎麼用",
@@ -5893,17 +6031,17 @@
         "body": "按【新建申請】，選項目和顧問，填寫要檢查的內容（位置、說明、圖紙編號等），需要的話加附件。流程和模板都可以不選。"
       },
       "submit": {
-        "title": "送出給顧問",
-        "body": "在申請詳情按【提交】。顧問會收到通知，申請進入「審批中」。送出前還是草稿，可以改。"
+        "title": "發送給顧問",
+        "body": "草稿填好後，先按【確認歸檔】（輸入 6 位簽核密碼），再按申請表上的【發送給顧問】。顧問會收到通知，申請進入「待審批」。確認歸檔以前，草稿可以修改或刪除。"
       },
       "decide": {
-        "title": "顧問批准／退回／要求修改",
-        "body": "顧問在自己的帳號裡簽名並輸入 PIN 作出決定。結果、簽名和溝通都留在這條申請裡；要求修改的，按提示修改後再提交。"
+        "title": "顧問作出決定",
+        "body": "顧問在自己的賬號裡用電子簽名和簽核密碼，選「批准」「批准並要求整改」「修改後重提」或「拒絕」。結果、簽名和溝通都留在這條申請裡。選了「修改後重提」的，按【建立新版本】，改好後再確認歸檔、發送給顧問。"
       },
       "setupOnce": "只需要設定一次：先把顧問加進這個項目（顧問設定 → 顧問賬號與項目授權），否則新建申請時選不到顧問。",
       "openSettings": "打開顧問設定",
       "askAdmin": "請有設定權限的同事處理。",
-      "signatureOnce": "顧問第一次審批前，要先在「簽章」設定自己的簽名和 PIN。"
+      "signatureOnce": "顧問第一次審批前，要先在「簽名與簽核密碼」設定自己的簽名和簽核密碼。"
     },
     "settingsHub": {
       "title": "顧問設定",
@@ -5911,28 +6049,28 @@
       "access": {
         "title": "顧問賬號與項目授權",
         "need": "必須 · 每個顧問每個項目做一次",
-        "body": "建立顧問公司與顧問帳號，並授權他們看這個項目。沒授權的顧問在新建申請時選不到。",
+        "body": "建立顧問單位與顧問賬號，並授權他們看這個項目。沒授權的顧問在新建申請時選不到。",
         "needProject": "由總部設置",
         "bodyProject": "顧問單位、顧問賬號和項目授權由總部設置。你在這裡可以看你的項目開通了哪些顧問。"
       },
       "workflows": {
-        "title": "審批流程",
+        "title": "顧問審批流程",
         "need": "可不設 · 已有預設流程",
         "body": "每個項目自動有一個「顧問審批」流程（一步，送給選定的顧問）。需要多級審批時才來這裡加步驟。"
       },
       "templates": {
-        "title": "申請模板",
+        "title": "RFI 表格模板",
         "need": "可不設",
-        "body": "需要固定表格欄位、必交附件或自訂編號時才建模板。不建模板照樣可以新建和送出申請。"
+        "body": "需要固定表格欄位、必交附件或自訂編號時才建模板。不建模板照樣可以新建和發送申請。"
       }
     },
     "what": {
       "archiveCategories": "檔案分類",
       "evidenceFilters": "篩選選項",
-      "credential": "你的審批簽名與 PIN",
+      "credential": "你的簽名與簽核密碼",
       "evidenceCandidates": "本項目的現場證據",
       "archiveDocuments": "文件管理列表",
-      "workflows": "審批流程",
+      "workflows": "顧問審批流程",
       "templates": "RFI 表格模板",
       "scheduleTasks": "施工計劃活動",
       "applicationOptions": "申請選項（類型、專業、工作類型、優先級）",
@@ -5940,7 +6078,7 @@
       "applicationTypes": "申請類型",
       "reviewerChoices": "審批人列表",
       "consultantForms": "顧問自有表格",
-      "consultantFirms": "顧問公司"
+      "consultantFirms": "顧問單位"
     },
     "inbox": {
       "what": "待整理現場資料",
@@ -5957,7 +6095,7 @@
     },
     "formCard": {
       "title": "顧問申請表（A4）",
-      "help": "預覽、列印、匯出的是完整證據 PDF：第一頁是這張 A4（左邊我方公司，右邊顧問公司，下面是申請內容、照片和附件清單），後面接著附件內容、顧問審批記錄及簽名、溝通記錄。",
+      "help": "預覽、列印、匯出的是完整證據 PDF：第一頁是這張 A4（左邊我方公司，右邊顧問單位，下面是申請內容、照片和附件清單），後面接著附件內容、顧問審批記錄及簽名、溝通記錄。",
       "print": "列印",
       "attachments": "看附件（{count}）",
       "send": "發送給顧問 {name}"
@@ -5975,9 +6113,9 @@
       "emptyConsultant": "還沒有顧問自有表格。按「新增模板」，選 B。",
       "loading": "正在載入顧問自有表格...",
       "name": "表格名稱",
-      "consultant": "顧問公司",
-      "chooseConsultant": "選擇顧問公司",
-      "noFirms": "還沒有登記顧問公司，請先在顧問授權裡新增。",
+      "consultant": "顧問單位",
+      "chooseConsultant": "選擇顧問單位",
+      "noFirms": "還沒有登記顧問單位，請先在「顧問賬號與項目授權」裡新增。",
       "project": "項目",
       "allProjects": "公司全部項目",
       "applicationType": "申請類型",
@@ -6024,12 +6162,12 @@
       "uploadedBy": "{name} · {when}",
       "signedOnForm": "簽署見上傳表格",
       "signingTitle": "簽署方式",
-      "signingEsignature": "電子簽名 + PIN",
+      "signingEsignature": "電子簽名 + 簽核密碼",
       "signingSignedForm": "上傳已簽名蓋章的表格",
       "signedFormFile": "已簽名蓋章的表格",
       "signedFormHint": "簽了名、蓋了章的顧問表格，掃描或拍照都可以。",
-      "pinForSignedForm": "輸入 PIN，確認上傳的表格是你本人簽署的。",
-      "noCredential": "你還沒有設定電子簽名：可以上傳已簽名蓋章的表格，或先設定簽名和 PIN。",
+      "pinForSignedForm": "輸入簽核密碼，確認上傳的表格是你本人簽署的。",
+      "noCredential": "你還沒有設定電子簽名：可以上傳已簽名蓋章的表格，或先設定簽名與簽核密碼。",
       "archiveBlank": "原表格：{name}（第 {version} 版）",
       "archiveFilled": "填寫後：{name}",
       "archiveFinal": "最終版本：{name}",
@@ -6809,7 +6947,7 @@
       "SUBMITTED": "已提交"
     },
     "taskType": {
-      "CONSULTANT": "顧問提交",
+      "CONSULTANT": "顧問資料提交",
       "EQUIPMENT": "設備",
       "MATERIAL": "材料",
       "OTHER": "其他",
@@ -6833,7 +6971,7 @@
       "linkedRecord": "提交的記錄：{reference}",
       "linkedHint": "現場人員用這筆記錄完成任務，它的照片也顯示在上面。",
       "photos": "照片：{current}/{required}",
-      "prepareApplication": "檢查後轉給顧問",
+      "prepareApplication": "整理成顧問申請",
       "projectFixed": "工地改不了 —— 接任務的人是從這個工地的班組裡選的。",
       "referenceFiles": "參考照片或文件",
       "referenceHelp": "現場人員開始任務前會先看到這些資料。",
@@ -6869,8 +7007,8 @@
       "focused": "只顯示卡片指向的這一項任務。",
       "focusedMissing": "卡片指向的任務不在目前列表裡，可能已處理完或不屬於所選項目。",
       "showAll": "顯示全部",
-      "forwardedAs": "已轉給顧問：{reference}",
-      "draftedAs": "已整理成申請 {reference}，尚未轉給顧問",
+      "forwardedAs": "已發送給顧問：{reference}",
+      "draftedAs": "已整理成顧問申請 {reference}，尚未發送給顧問",
       "expand": "展開「{task}」",
       "collapse": "收起「{task}」",
       "dueShort": "期限 {value}",
@@ -7622,6 +7760,7 @@
   "dashboard": {
     "admin": {
       "error": "無法加載平臺儀表板。",
+      "sectionUnavailable": "這一部分不在你的權限範圍內。如需查看，請找系統管理員開通。",
       "health": {
         "configured": "已配置",
         "degraded": "性能下降",
@@ -7912,6 +8051,8 @@
     "decisionTitle": "收貨決定",
     "error": {
       "action": "操作無法完成。",
+      "location": "讀不到手機位置。請打開手機定位，並允許本頁面使用定位，再按一次。",
+      "refused": "這一步沒有完成。請重新整理本頁再試一次；還是不行，請聯絡工地。",
       "quantityRequired": "請輸入實際數量。",
       "signatureRequired": "請先畫接收人簽名。"
     },
@@ -7998,6 +8139,14 @@
       "weighingNo": "地磅單號"
     },
     "lockedNote": "此車已離場，無法再修改。若最終沒有送達，請取消。",
+    "lockedBy": {
+      "PENDING_ACCEPTANCE": "訂單已發給回收商，內容不能再修改。",
+      "ACCEPTED": "回收商已接單，訂單內容不能再修改。",
+      "RELEASED": "此車已離場，無法再修改。若最終沒有送達，請取消。",
+      "COLLECTED": "貨已裝上回收商的車，訂單內容不能再修改。",
+      "WEIGHED": "已過磅，訂單內容不能再修改。",
+      "SETTLED": "已結算，訂單內容不能再修改。"
+    },
     "noPhotos": "這一車還沒有附照片。",
     "photoKind": {
       "LOADING": "裝車",
@@ -8072,7 +8221,8 @@
       "category": "分類",
       "legacy": "舊訂單",
       "createdAt": "下單日期"
-    }
+    },
+    "recyclerNext": "派車 / 約收運時間"
   },
   "documents": {
     "downloading": "下載中",
@@ -8505,7 +8655,13 @@
       "pushStatus": "通知狀態"
     },
     "takeIssuePhoto": "途中異常拍照（意外 / 事故 / 車輛問題）",
-    "issuePhotoHelp": "照片會馬上發給回收商和建築商。"
+    "issuePhotoHelp": "照片會馬上發給回收商和建築商。",
+    "notRecorded": {
+      "stepOffline": "沒有網路，這一步沒有記錄，有網路後請再按一次。",
+      "photoOffline": "沒有網路，這張照片沒有記錄，有網路後請再拍一次。",
+      "step": "這一步沒有記錄：{reason}",
+      "photo": "這張照片沒有記錄：{reason}"
+    }
   },
   "driverGps": {
     "action": {
@@ -8663,7 +8819,7 @@
       "attendance_gps_inaccurate": "手機定位不夠準（誤差約 {accuracy} 公尺），判斷不了你在不在工地圍欄內。到空曠處等幾秒再試。",
       "attendance_outside_geofence": "你不在工地圍欄內，離最近圍欄 {distance} 公尺。走近一點再試。",
       "audit_entry_not_found": "找不到這條審計記錄。",
-      "below_minimum_payout": "該金額低於最低付款額度。",
+      "below_minimum_payout": "算出來的佣金低於協議的最低付款額，這次不建立付款。可以等下一期再一起算。",
       "bug_not_found": "找不到該 Bug 記錄。",
       "calibration_expired": "這臺地磅的校準已過期。",
       "cannot_modify_self": "無法用這種方式更改自己的賬號，請到個人資料頁操作。",
@@ -8677,7 +8833,7 @@
       "commission_payout_not_found": "找不到該佣金結算記錄。",
       "commission_rule_not_found": "找不到該佣金規則。",
       "commission_scheme_not_found": "找不到該佣金方案。",
-      "company_already_referred": "該公司已經歸屬其他合作伙伴。",
+      "company_already_referred": "這個客戶已經歸屬其他合作夥伴。如要換人，請在「客戶歸屬」裡編輯原來那一筆。",
       "company_bank_account_not_found": "找不到該銀行賬號。",
       "company_document_not_found": "找不到該公司文件。",
       "company_has_active_users": "這家公司還有可以登入的人員。請改為停用，或先停用這些人員。",
@@ -8694,8 +8850,8 @@
       "config_required": "不能移除必要的系統設置。",
       "config_unknown": "系統不支持該配置鍵。",
       "conflict": "這項資料現在的狀態不允許這個操作。",
-      "consultant_grant_not_current": "選的顧問已經沒有這個專案的授權，申請仍是草稿。請換一位顧問，或先在顧問授權裡續期。",
-      "consultant_application_locked": "這份申請已經提交，附件和關聯證據不能再改。退回修改後，在新版本裡改。",
+      "consultant_grant_not_current": "選的顧問已經沒有這個項目的授權，申請仍是草稿。請換一位顧問，或先在「顧問賬號與項目授權」裡續期。",
+      "consultant_application_locked": "這份申請已經發送給顧問，附件和關聯證據不能再改。顧問選「修改後重提」後，在新版本裡改。",
       "consultant_grant_not_found": "找不到該顧問項目授權。",
       "consultant_organization_not_found": "找不到該顧問單位。",
       "customer_assignment_not_found": "找不到該客戶歸屬記錄。",
@@ -8769,9 +8925,26 @@
       "invalid_credentials": "郵箱或密碼不正確。",
       "invalid_rule_params": "請檢查檢測參數後重試。",
       "invoice_not_found": "找不到該賬單。",
+      "invoice_company_not_billable": "這家公司現在不能開這一類賬單。請先確認公司沒有停用、已經選了套餐；佣金賬單只開給合作版回收商。",
+      "invoice_not_commission_bearing": "這家公司的套餐不收平台佣金，所以不能開佣金賬單。如要收佣金，請先在「公司訂閱管理」把它換成合作版套餐。",
+      "invoice_no_commission_rule": "這家公司還沒有生效中的佣金規則，算不出佣金。請先到「佣金規則管理」新增一條規則，再生成賬單。",
+      "invoice_already_invoiced": "這個期間已經開過賬單，不用再開。請在賬單列表裡找這家公司的賬單。",
+      "invoice_no_billable_settlements": "這個期間沒有已開出、還沒開賬單的結算單，暫時沒有佣金可收。等結算單開出後再生成。",
+      "invoice_nothing_to_charge": "算出來這個期間要收的金額是 0，所以沒有開賬單。如果金額不對，請檢查這家公司的套餐費用或佣金規則。",
+      "invoice_no_plan": "這家公司還沒有套餐，不能開訂閱賬單。請先在「公司訂閱管理」給它選一個套餐。",
+      "invoice_not_draft": "只有草稿賬單可以發出。這張賬單已經發出過了，請刷新列表再看。",
+      "invoice_already_closed": "這張賬單已經關閉，不用再關。請刷新列表再看。",
+      "invoice_has_confirmed_payments": "這張賬單已經確認收到部分款項，不能關閉。剩下的餘款請繼續跟進收款；如需另作處理，請找主管決定。",
+      "commission_rule_in_use": "這條佣金規則已經用來開過賬單，不能刪除。如不再使用，請把它改為停用。",
+      "automatic_billing_disabled": "自動開賬單已經暫停，所以不能立即運行。請找系統管理員在「定時任務」裡重新開啟。",
+      "payment_already_confirmed": "這筆收款已經確認過了，不用再處理。請刷新列表再看。",
+      "subscription_no_plan": "這家公司還沒有套餐，不能續期。請先按「更換套餐」給它選一個套餐。",
+      "subscription_already_ended": "這家公司的訂閱已經結束，不用再結束一次。如要讓它繼續使用，請按「延長或續費」。",
+      "company_site_settings_contractor_only": "只有建築商有工地設定，回收商沒有這一項，不用設定。",
+      "user_replacement_contractor_only": "只有建築商公司的賬號可以交接。其他賬號請先停用，再為接手的人新增一個賬號。",
       "maintenance_not_found": "找不到該維護記錄。",
       "method_not_allowed": "這個位置不支援這個操作。",
-      "no_active_agreement": "該合作伙伴沒有生效中的協議。",
+      "no_active_agreement": "這個合作夥伴在這段期間沒有生效中的協議。請先到「合作協議」啟用協議，或換一段期間再算。",
       "no_current_version": "尚未選擇當前平臺版本。",
       "not_acceptable": "這台裝置讀不了伺服器回覆的格式。",
       "not_authenticated": "請重新登入。",
@@ -8790,8 +8963,8 @@
       "partnership_not_counterparty": "只有另一方公司可以回應此合作申請。",
       "partnership_not_found": "找不到這條合作關係。",
       "payment_not_found": "找不到該付款記錄。",
-      "payout_already_exists": "該期間已經建立付款。",
-      "payout_not_draft": "只有草稿狀態的付款可以這樣修改。",
+      "payout_already_exists": "這段期間已經算過佣金了。請在下面的列表裡處理原來那一筆。",
+      "payout_not_draft": "只有剛算出來、還沒送審的佣金可以調整金額。",
       "permission_denied": "你沒有權限做這件事。",
       "portal_mismatch": "此賬號屬於另一個後臺，請使用對應的登入入口。",
       "pricing_rule_not_found": "找不到該雲服務收費規則。",
@@ -9081,7 +9254,52 @@
       "rain_record_quota_full": "這個項目這段時間已經收滿雨天記錄，後台沒有接收這一份。",
       "rain_void_reason_required": "請寫作廢原因。",
       "rain_record_already_voided": "這份雨天記錄已經作廢了，不能再作廢一次。",
-      "rain_rules_out_of_range": "份數要在 1 到 50 之間，分鐘要在 5 到 1440 之間。"
+      "rain_rules_out_of_range": "份數要在 1 到 50 之間，分鐘要在 5 到 1440 之間。",
+      "consultant_workflow_last_active": "這是這個項目唯一的審批流程，不能停用。要換流程，請先新增一個並設為預設。",
+      "consultant_required_fields_missing": "表格裡還有 {count} 個必填項沒有填：{fields}。請先填好，再繼續。",
+      "consultant_required_attachments_missing": "還有 {count} 份必附文件沒有上傳。請在「附件」裡把標著必附的格子都補上，再繼續。",
+      "consultant_workflow_no_steps": "這條審批流程還沒有審批步驟，送不出去。請到「顧問審批流程」給它加一步，或在申請裡換一條流程。",
+      "consultant_stamp_required": "這一步要蓋顧問印章，您還沒有上傳印章。請先到「簽名與簽核密碼」上傳印章，再回來審批。",
+      "dispatch_not_loaded": "司機還沒在手機上按【裝好貨了】。請司機先按【裝好貨了】，再掃碼。",
+      "recycler_standard_plan": "這家回收商是標準版，不能接收建築商的訂單。請選擇合作版回收商。",
+      "standard_plan_no_partnership": "你們公司是標準版，不能接收建築商的訂單，所以不能申請合作。如要接收建築商的訂單，請聯絡 MSE 改為合作版。",
+      "invalid_state_transition": "工單不能從現在的狀態直接改到這一步。請在下拉選單裡選一個可以選的狀態，例如先改成「處理中」。",
+      "partner_type_system": "系統自帶的合作夥伴類型不能刪除。",
+      "partner_type_in_use": "已經有合作夥伴用這個類型，不能刪除。請編輯它，把它改為停用。",
+      "partner_territory_in_use": "這個區域下已經有客戶，不能刪除。請編輯它，填上到期日期。",
+      "agreement_document_required": "請先上傳已簽好的協議文件，再送簽或啟用。",
+      "payout_adjustment_negative": "調整後金額會變成負數。請把扣減的金額改小一點。",
+      "payout_rejected_final": "這筆佣金已經駁回，不能再送審或付款。如需重算，請按「計算佣金」重新計算這段期間。",
+      "payout_invalid_transition": "這筆佣金現在不能改到這個狀態。請重新整理頁面，看它現在的狀態再處理。",
+      "sales_calculate_no_scheme": "這位銷售人員還沒有佣金方案。請先在「銷售人員管理」裡給他選一個佣金方案。",
+      "sales_calculate_scheme_inactive": "這位銷售人員的佣金方案已經停用。請先換一個啟用中的方案。",
+      "sales_calculate_already_settled": "這一期的佣金已經確認過，不能再算。",
+      "sales_calculate_nothing_earned": "這一期沒有可以算佣金的收入，所以沒有建立佣金。",
+      "sales_already_owner": "這個客戶本來就歸這位銷售人員，不用轉移。",
+      "sales_terms_not_draft": "只有草稿版本可以啟用。請新增一個條款版本再啟用。",
+      "sales_terms_already_confirmed": "這位銷售人員已經確認過這個版本，不用再記錄一次。",
+      "sales_payout_locked": "這筆佣金已經確認，不能再調整。",
+      "sales_payout_negative": "調整後金額會低於零。請把扣減的金額改小一點。",
+      "sales_payout_invalid_transition": "這筆佣金現在不能改到這個狀態。請重新整理頁面，看它現在的狀態再處理。",
+      "asset_retired_final": "已報廢的資產不能再啟用。",
+      "asset_category_system": "系統自帶的資產類別不能刪除。",
+      "asset_category_in_use": "這個類別已經有資產或採購在用，不能刪除。請編輯它，把它改為停用。",
+      "asset_purchase_closed": "這張採購單已經收齊或已取消，不能再登記到貨。",
+      "asset_purchase_over_received": "這張採購單只剩 {remaining} 件還沒到貨。請把到貨數量改為不超過 {remaining}。",
+      "asset_assignment_closed": "這筆領用已經歸還，不用再歸還。",
+      "asset_installation_invalid_transition": "這筆安裝現在不能改到這個狀態。請重新整理頁面，看它現在的狀態再處理。",
+      "asset_maintenance_not_scheduled": "只有「已排程」的維修或保養可以開始。",
+      "asset_maintenance_closed": "這筆維修或保養已經完成，不能再改。",
+      "asset_disposal_invalid_state": "這份報廢申請現在不能這樣處理。請重新整理頁面，看它現在的狀態再處理。",
+      "asset_disposal_reason_required": "駁回報廢申請要寫原因，請在備註裡寫上。",
+      "waste_outgoing_delegate_not_on_project": "這個人不在這個項目裡，打不開這份申請。請從名單裡另選這個項目的人。",
+      "project_archived_read_only": "這個項目已經歸檔，資料只能查看，不能再修改。請關掉這一頁，回到項目列表。",
+      "project_archive_use_action": "「已歸檔」不能在修改裡選。請先把狀態改成「已完工」並保存，再在項目頁按【歸檔項目】。",
+      "project_status_move_refused": "項目現在的狀態不能直接改成你選的狀態。請重新打開修改頁面，從狀態列表裡選。",
+      "hazard_not_awaiting_check": "這一項已經有人處理過了，現在不是等驗收的狀態。請刷新頁面，看最新的情況。",
+      "hazard_confirmed_by_other": "{incident_no} 由負責確認的人 {confirmer} 來驗收或退回。你可以查看，但不能操作；需要的話請聯繫他。",
+      "visitor_host_required": "請先選訪客要找的人，再按確認。",
+      "visitor_host_not_on_project": "這個人不在這個項目裡。請從名單裡選這個項目的人。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -9568,9 +9786,7 @@
       "workLocationPlaceholder": "例如：A座，C1-D1軸線",
       "askForHint": "不知道選哪個可以不選，後台會補上。"
     },
-    "consultantTasks": {
-      "title": "顧問現場照片提交"
-    },
+    "consultantTasks": {},
     "error": {
       "action": "操作未能完成，請重試。",
       "load": "頁面讀取失敗，請檢查網絡。",
@@ -11196,6 +11412,25 @@
       "what": {
         "workers": "工作進程狀態",
         "handlers": "任務處理器列表"
+      },
+      "name": {
+        "PLATFORM_MONITOR_SNAPSHOT": "記錄平台運行狀況",
+        "EXPIRE_CONTRACTOR_SUBSCRIPTIONS": "到期的訂閱自動停用",
+        "SEND_SUBSCRIPTION_REMINDERS": "發送訂閱快到期的提醒",
+        "GENERATE_AUTOMATIC_BILLING": "自動開 SaaS 和佣金帳單",
+        "PROCESS_PARTNER_AGREEMENTS": "合作協議到期處理和續約提醒",
+        "PROCESS_ASSET_LIFECYCLE": "資產借用逾期和保養提醒",
+        "NOTIFY_EXPIRED_SITE_ACCESS": "通知已過期的通行證",
+        "REFRESH_BUSINESS_TARGETS": "刷新業務目標進度並發達標提醒",
+        "RETRY_NOTIFICATION_DELIVERIES": "重新發送沒發出去的通知",
+        "PUBLISH_ANNOUNCEMENTS": "按時發布系統公告",
+        "NOTIFY_OFFLINE_GATEWAYS": "地磅網關離線提醒",
+        "REMIND_UNREAD_NOTIFICATIONS": "未讀通知提醒",
+        "REMIND_EQUIPMENT_EXPIRY": "設備證件快到期提醒",
+        "CLOSE_SILENT_PRESENCE": "結束手機已沒有回報的在場記錄",
+        "PURGE_WORKER_POSITIONS": "清除 31 天以前的人員定位",
+        "REMIND_SUNDRY_CLAIMS": "雜費報銷每 48 小時提醒",
+        "REMIND_REMEDIAL_ITEMS": "整改事項到期前和逾期提醒"
       }
     },
     "loadError": "無法加載監控數據。",
@@ -11560,6 +11795,10 @@
       "add": "上傳書信",
       "missing": "請先上傳書信",
       "confirmNote": "書信會放在合併 PDF 的最前面。"
+    },
+    "discardConfirm": {
+      "title": "丟棄這期 Claim？",
+      "description": "這期 Claim 草稿會被刪除，裡面勾選的記錄和上傳的書信都不再在這期裡。刪除後不能恢復。"
     }
   },
   "multiEngine": {
@@ -11676,7 +11915,7 @@
     },
     "reviewEmpty": "目前沒有發給你的資料包。",
     "reviewSubtitle": "逐項接受，或者填寫原因退回給申請者。",
-    "reviewTitle": "待審閱的資料包",
+    "reviewTitle": "待審閱資料包",
     "searchPlaceholder": "按名稱或備註搜尋",
     "send": "發送給顧問",
     "sourceMissing": "這條指向的記錄，目前帳號已經讀不到了。",
@@ -11703,7 +11942,7 @@
     "what": {
       "candidates": "可新增的資料",
       "recordParts": "這條資料的全部內容",
-      "packagesToReview": "待審閱的資料包",
+      "packagesToReview": "待審閱資料包",
       "package": "這個資料包"
     },
     "include": {
@@ -11834,7 +12073,7 @@
         "whatChanged": "改了什麼",
         "who": "對方姓名或單位"
       },
-      "consultantHelp": "顧問用自己的帳號登入，在「待審閱的資料包」裡打開。",
+      "consultantHelp": "顧問用自己的賬號登入，在「待審閱資料包」裡打開。",
       "contactHelp": "只用來發連結，系統不會自動發訊息。手機寫國際格式（例如 +60…）可以直接用 WhatsApp 打開對方。",
       "makeLink": "產生連結",
       "sendToConsultant": "發給顧問",
@@ -12043,7 +12282,7 @@
       "EQUIPMENT_HOURS": "設備開工 / 收工",
       "ATTENDANCE": "人員進場",
       "PERMIT": "施工准證",
-      "CONSULTANT": "顧問申請"
+      "CONSULTANT": "顧問資料提交"
     },
     "gateStatus": {
       "RECORDED": "已記錄",
@@ -12332,7 +12571,7 @@
       "anprSettings": "ANPR 設置",
       "apiGatewayMonitoring": "API Gateway 監控",
       "apiGatewaySettings": "API Gateway 設置",
-      "approvalCredentials": "審批憑證",
+      "approvalCredentials": "簽名與簽核密碼",
       "approvals": "審批流程（進階）",
       "archiveQueue": "現場記錄中心",
       "assetActivity": "操作記錄",
@@ -12396,7 +12635,7 @@
       "consultantDashboard": "顧問首頁",
       "consultantFieldInbox": "待整理現場資料",
       "consultantTemplates": "RFI 表格模板",
-      "consultantWorkflows": "審批流程",
+      "consultantWorkflows": "顧問審批流程",
       "contractorNotifications": "建築商通知",
       "contractorReports": "建築商報表",
       "crmActivity": "客戶服務操作記錄",
@@ -12743,7 +12982,7 @@
       "HAZARD_FILE": "整改附件",
       "ATTENDANCE": "人員進場打卡",
       "CATEGORY_EVIDENCE": "現場照片",
-      "CONSULTANT_SUBMISSION": "顧問提交",
+      "CONSULTANT_SUBMISSION": "顧問資料提交",
       "DISPATCH_ACCEPT": "接受訂單",
       "DISPATCH_COLLECT": "確認收貨",
       "DISPOSAL_REQUEST": "處置申請",
@@ -12808,7 +13047,8 @@
       "offlineHelp": "現在沒有網路。記錄已存在這台手機上，網路恢復後會自動上傳，不用另外操作。",
       "refusedHelp": "伺服器沒有接收下面的記錄，它們不會再自動上傳。看原因後可以「重試」，或「刪除這一條」。",
       "uploadFailed": "上傳失敗 {count} 條",
-      "refusedToast": "上傳失敗 {count} 條。點上方的上傳圖示看原因，可以重試或刪除。"
+      "refusedToast": "上傳失敗 {count} 條。點上方的上傳圖示看原因，可以重試或刪除。",
+      "refusedToastOnPage": "上傳失敗 {count} 條。原因寫在本頁上方，可以在那裡重試或刪除。"
     },
     "synced": "已上傳 {count} 條暫存的記錄",
     "filesFollow": "已送到辦公室。{count} 個附件正在後台上傳。",
@@ -12974,9 +13214,9 @@
     "consultant_applications": {
       "what": "顧問那一攤：提申請、走審批鏈、簽字，以及支撐它的現場證據。",
       "who": "持 approval.view；改流程設定要 consultant.config，提申請要 consultant.submit，做審批要 approval.review。",
-      "need": "提申請要專案、審批流程、申請類型、專業類別、檢查類型、優先級、顧問、顧問公司、檢查位置、構件或工作區域、說明內容和 RFI 表格範本；做審批要 6 位審批 PIN 和決定備註；設 PIN 要目前登入密碼、新 PIN 兩次和電子簽名。",
+      "need": "提申請要項目、審批流程、申請類型、專業類別、檢查類型、優先級、顧問、顧問單位、檢查位置、構件或工作區域、說明內容和 RFI 表格模板；做審批要 6 位簽核密碼和決定備註；設簽核密碼要目前登入密碼、新簽核密碼兩次和電子簽名。",
       "then": "PIN 加電子簽名等同簽字，簽下去不能撤銷。",
-      "trouble": "審批按鈕是灰的，是你還沒設審批 PIN。顧問登進來看不到專案，是授權過期了或者根本沒給那個專案 —— 授權是按專案給的，有起訖時間。"
+      "trouble": "審批按鈕是灰的，是你還沒設簽核密碼。顧問登進來看不到項目，是授權過期了或者根本沒給那個項目 —— 授權是按項目給的，有起訖時間。"
     },
     "customer_management": {
       "what": "料是從哪來的：跟你有平台合作的建築商，以及自己開車上門的私人客戶。",
@@ -13026,7 +13266,7 @@
     },
     "emergency_list": {
       "what": "此刻還在工地裡的人，附可撥打的電話。出事要清點人數時用。",
-      "who": "持 geofence.view。",
+      "who": "持 site_access.view。",
       "then": "名單會自動重新整理，點電話號碼就能撥。",
       "trouble": "名單上少了某個人，是他已經掃碼出場了，或者根本沒掃碼進來 —— 門禁事件裡寫著是哪一種。"
     },
@@ -13046,7 +13286,7 @@
     },
     "field_tasks": {
       "what": "派給某個現場人員的活：去哪、做什麼、要拍幾張才能交。",
-      "who": "持 project.view；派任務要 task.assign。",
+      "who": "持 project.view；派任務要 field_task.manage。",
       "need": "派一條任務要專案、任務標題、以及交給哪位現場人員。",
       "then": "它立刻出現在那個人的手機上，並寫明要拍幾張。",
       "trouble": "交上來的活反覆被退，多半是任務說明寫得太籠統 —— 現場看到的只有你寫的那幾行。"
@@ -13061,8 +13301,8 @@
     "hazard_rectification": {
       "what": "工地上查出來的問題、誰去整改、以及證明整改完了的那張照片。",
       "who": "同時持 safety.view 和 project.view。",
-      "need": "派整改要整改負責人、整改期限和整改位置；報完成要寫已完成工作；驗收要驗收照片和驗收說明。",
-      "then": "沒有驗收照片就不算整改完成 —— 問題不會因為有人說好了就算好了。",
+      "need": "派整改要整改負責人、整改期限和整改位置；報完成要寫已完成的工作，並拍整改照片；驗收只寫驗收說明，不用再拍照。",
+      "then": "整改照片由現場負責整改的人拍；開這一項的人或安全主管看了照片，再確認完成或退回（在電腦上確認要輸入六位數密碼）。問題不會因為有人說好了就算好了。",
       "trouble": "目前沒有常見到值得預警的問題。"
     },
     "integrations": {
@@ -13241,7 +13481,7 @@
     },
     "schedule": {
       "what": "施工計劃：選一份計劃，上面是三個數字（進度、已完成、延誤），下面是甘特圖和任務列表。匯出、新建、導入、改名、歸檔和計劃版本都在「更多」裡。",
-      "who": "同時持 progress.view 和 project.view。",
+      "who": "同時持 schedule.view 和 project.view。",
       "need": "匯入要 .xlsx 檔案、計畫名稱、修訂版名稱；改已確認的計畫還要寫變更原因。手工加一條任務要 WBS、任務名稱、計畫開始、計畫完成。",
       "then": "新計劃先是草稿，加好任務後按「確認並鎖定」。之後每項任務按「確認進度」填完成%。「已延誤」= 過了計劃完成日還沒做完；做完了但比計劃晚，顯示「延期完成」，不算延誤。",
       "trouble": "匯不進去，多半是有欄沒對上：WBS、任務名稱、計畫開始是必須的，另外計畫完成和工期至少要有一個。"
@@ -13262,7 +13502,7 @@
     },
     "site_gps": {
       "what": "你的人此刻在工地的什麼位置。",
-      "who": "持 geofence.view。",
+      "who": "持 field_position.view。",
       "need": "先選一個專案。",
       "then": "地圖顯示每個人最後一次上報的位置。",
       "trouble": "地圖上沒人：手機鎖屏後瀏覽器就停止上報，所以斷點是正常的。斷點就畫成斷點 —— 系統不會把兩點連成一條沒人走過的路。"
@@ -13388,6 +13628,13 @@
       "who": "項目經理，只看到自己負責項目的現場人員。總部也可以用。",
       "then": "把連結和 6 位數 PIN 發給那個人；他用手機打開連結、輸入 PIN，就能用手機工作。",
       "trouble": "看不到某個項目：請總部把你加到那個項目。手機號碼說已經被使用：請先在原來的項目把那個人「刪除」。"
+    },
+    "company_settings_trace": {
+      "what": "你們公司自己的資料：公司名稱、地址、Logo 和首頁背景、緊急聯繫人；顯示語言、日期時間格式和文件連結的有效天數；以及公司總部和分公司的記錄。",
+      "who": "公司管理員和總部：持 company_settings.view 可以看，持 company_settings.manage 才能修改。",
+      "need": "改好一欄，就按那一欄自己的【保存】。",
+      "then": "公司名稱和 Logo 印在報表、二維碼記錄和項目文件上；緊急聯繫人顯示在緊急名單和門崗的手機上。",
+      "trouble": "權限、二維碼、通知、GPS、安全和資料保存由 MSE 統一管理，這裡不能改；需要修改請聯繫 MSE。"
     }
   },
   "partners": {
@@ -13417,6 +13664,12 @@
       "REFERRAL": "推薦夥伴",
       "REGIONAL_AGENT": "地區代理",
       "TECHNOLOGY": "技術合作夥伴"
+    },
+    "toast": {
+      "created": "合作夥伴已建立",
+      "updated": "合作夥伴資料已保存",
+      "agreementCreated": "協議已建立",
+      "payoutCalculated": "佣金已計算"
     }
   },
   "partnerships": {
@@ -14158,7 +14411,8 @@
       "person": "要加入的人",
       "whatMembers": "項目成員列表",
       "onOtherProject": "現在在另一個項目：請原項目先「移出項目」或「刪除」",
-      "removePhoneDescription": "{name} 的手機會立刻停用，所有手機和瀏覽器馬上登出。賬號、手機號碼和已記錄的數據都保留；之後在別的項目用同一個號碼生成鏈接，同一部手機就能重新綁定。"
+      "removePhoneDescription": "{name} 的手機會立刻停用，所有手機和瀏覽器馬上登出。賬號、手機號碼和已記錄的數據都保留；之後在別的項目用同一個號碼生成鏈接，同一部手機就能重新綁定。",
+      "closed": "這個項目已暫停、完工或歸檔，人員不能再增減。"
     },
     "title": "項目",
     "toast": {
@@ -14702,7 +14956,8 @@
       "scanHelp": "可以用相機、上傳二維碼圖片，或把光標放在這裡後使用 USB 掃碼器。",
       "startHelp": "掃描客戶目前有效的二維碼，選擇回收場和材料，並只使用有效的兩次過磅完成入庫。",
       "startTitle": "開始私人客戶入庫",
-      "tab": "私人入庫"
+      "tab": "私人入庫",
+      "confirmedOnly": "這裡只列出已確認的地磅單。還沒確認的，請先到【稱重記錄】打開它，按【確認地磅單】，再回來選。"
     },
     "inventory": {
       "adjustHelp": "每次調整都會永久記錄操作人、時間和原因。",
@@ -15530,7 +15785,17 @@
       "reassigned": "客戶歸屬已轉移",
       "removed": "負責區域已移除",
       "saved": "銷售設置已保存",
-      "updated": "銷售人員已更新"
+      "updated": "銷售人員已更新",
+      "payoutsCalculated": "已算出 {count} 筆佣金",
+      "nothingCalculated": "沒有算出新的佣金：{reasons}",
+      "skipped": {
+        "no_scheme": "{count} 位沒有佣金方案，請到「銷售人員管理」給他們選方案",
+        "scheme_inactive": "{count} 位的佣金方案已停用，請到「佣金方案」啟用",
+        "already_settled": "{count} 位這一期的佣金已經批准過",
+        "nothing_earned": "{count} 位這一期沒有賺到佣金",
+        "other": "{count} 位因其他原因沒有計算",
+        "nobody": "沒有啟用中、而且有佣金方案的銷售人員"
+      }
     }
   },
   "scales": {
@@ -15587,7 +15852,10 @@
     "viewTitle": "地磅詳情",
     "what": {
       "sites": "回收場列表"
-    }
+    },
+    "siteSearch": "找地點",
+    "siteSearchPlaceholder": "輸入地點編號、名稱或城市",
+    "siteSearchHint": "下面的列表最多顯示 100 個地點；找不到的，在這裡輸入再選。"
   },
   "schedulePlanning": {
     "action": {
@@ -15849,7 +16117,9 @@
       "notes": "備註",
       "pickLoad": "先選一張已過磅的訂單，下面才會出數。",
       "title": "開出這張結算單",
-      "unitPrice": "單價（每噸）"
+      "unitPrice": "單價（每噸）",
+      "done": "結算單 {no} 已開出。",
+      "open": "打開這張結算單"
     },
     "lock": {
       "confirm": "鎖定",
@@ -15881,7 +16151,9 @@
       "notes": "備註",
       "paidOn": "付款日期",
       "reference": "參考號",
-      "title": "記錄付款"
+      "title": "記錄付款",
+      "document": "憑證文件",
+      "documentHint": "銀行單據或轉帳截圖，照片或 PDF 都可以。建築商會在【付款憑證】裡看到。"
     },
     "quote": {
       "openDeductions": "還有 {count} 條扣雜待回應",
@@ -15989,7 +16261,7 @@
       "new": "新增分公司",
       "removeBody": "之後不能用於新記錄，原有歷史仍會保留。",
       "removeTitle": "移除這個分公司？",
-      "subtitle": "保存地圖和報表使用的真實辦公室與分公司位置。",
+      "subtitle": "登記公司總部和各分公司的辦公室地址與位置，留作公司記錄。",
       "title": "分公司與總部"
     },
     "categories": {
@@ -16763,6 +17035,11 @@
       "loading": "正在生成樣板……",
       "caption": "A4 樣板：抬頭和實際匯出的 PDF 完全一樣，下面的內容只是示例。",
       "pdfWhat": "樣板 PDF"
+    },
+    "emergencyContact": {
+      "label": "緊急聯繫人：",
+      "call": "打電話給 {phone}",
+      "what": "緊急聯繫人"
     }
   },
   "siteDisposal": {
@@ -16834,7 +17111,8 @@
         "submit": "送出這一車"
       },
       "error": {
-        "action": "操作無法完成，請檢查網絡後重試。"
+        "action": "操作無法完成，請檢查網絡後重試。",
+        "location": "讀不到手機位置。請打開手機定位，並允許本頁面使用定位，再拍一次。"
       },
       "evidence": {
         "DISPOSAL_DO": "Disposal DO 照片",
@@ -17543,7 +17821,8 @@
       "scanHelp": "手機相機會打開現場人員的材料進場記錄。已經登入的工地人員會直接進入並自動帶出該供應商。",
       "share": "分享",
       "shareText": "{supplier} 的供應商二維碼",
-      "title": "供應商二維碼"
+      "title": "供應商二維碼",
+      "rowLabel": "二維碼"
     },
     "remove": {
       "confirm": "刪除",
@@ -17782,7 +18061,9 @@
       "whatDrivers": "常用司機",
       "whatPlates": "常用車牌",
       "assign": "派車並產生連結",
-      "incomplete": "請填寫司機姓名、電話和車牌"
+      "incomplete": "請填寫司機姓名、電話和車牌",
+      "noSites": "還沒有回收場，不能派車。請先到【回收場】按【新增回收場】，再回來派車。",
+      "noSitesAskAdmin": "還沒有回收場，不能派車。請公司管理員先到【回收場】新增一個回收場。"
     },
     "link": {
       "ruleLabel": "連結什麼時候失效",
@@ -17923,7 +18204,7 @@
       "projects": "項目權限",
       "responsibilities": "項目負責人職責",
       "role": "角色與權限",
-      "tasks": "尚未完成的現場任務",
+      "tasks": "尚未完成的現場任務和等他審批的申請（MR）",
       "title": "需要轉移的內容"
     },
     "warning": {
@@ -17962,6 +18243,7 @@
       "lastLoginIp": "最近 IP",
       "phone": "電話",
       "role": "角色",
+      "roleHint": "不選角色，這個賬號登入後甚麼都看不到。",
       "status": "狀態",
       "timezone": "時區"
     },
@@ -18024,7 +18306,8 @@
     },
     "resetPassword": {
       "action": "發送重設鏈接",
-      "sent": "重設鏈接已發送"
+      "sent": "重設鏈接已發送",
+      "notSent": "重設鏈接沒有發出去。請稍後再按一次；還是發不出，請找負責系統的人檢查郵件設定。"
     },
     "section": {
       "access": "權限",
@@ -18056,6 +18339,7 @@
     "titleStaff": "內部人員",
     "toast": {
       "created": "用戶已邀請",
+      "createdNotSent": "賬號已建立，但邀請郵件沒有發出去。請稍後在用戶列表按「發送重設鏈接」再發一次；還是發不出，請找負責系統的人檢查郵件設定。",
       "removed": "用戶已移除",
       "statusUpdated": "用戶狀態已更新",
       "updated": "用戶已更新",
@@ -18250,7 +18534,8 @@
       "help": "選擇已綁定此項目的回收商。{reference} 的訂單會立即發送至對方系統。",
       "noPartners": "此項目尚未綁定回收商。請先在「環保材料管理 › 回收商合作」中綁定，再建立訂單。",
       "partnersFailed": "無法載入回收合作商，所以選擇框是空的。這不代表你沒有合作商。",
-      "title": "安排回收商"
+      "title": "安排回收商",
+      "noPartnersAskHeadOffice": "此項目尚未綁定回收商。綁定回收商要由總部來做：請聯繫總部，把回收商綁定到這個項目，再回來安排。"
     },
     "reassign": {
       "arm": "我確定要收回這張訂單",
@@ -19105,7 +19390,8 @@
     "reminder": {
       "rule": "這一筆還沒走完。系統每 {hours} 小時提醒一次提交的人和要處理的人，直到確認已付款（或拒絕、撤回）。",
       "sent": "已經提醒 {count} 次，上一次：{at}。"
-    }
+    },
+    "withdrawn": "這筆報銷已由申請人撤回，原記錄保留，不用再處理。如果還要報銷，請申請人重新提交。"
   },
   "moduleHub": {
     "nothingToOpen": "此模組中沒有您可以開啟的頁面。"
@@ -19294,7 +19580,8 @@
       "forwardHistory": "轉呈記錄",
       "headOfficeReviewer": "總部審批人",
       "materialName": "材料名稱",
-      "materials": "材料明細"
+      "materials": "材料明細",
+      "onBehalfHistory": "總部代批"
     },
     "action": {
       "view": "查看",
@@ -19316,7 +19603,7 @@
     "detailTitle": "申請",
     "pendingDecision": "待審批，尚未審批",
     "noRemark": "無備註",
-    "returnedNotice": "此申請已退回並結束，不能修改或重新提交。如需再申請，請新建申請，會產生新的申請編號。",
+    "returnedNotice": "此申請已退回並結束，不能再重新提交。如需再申請，請新建申請，會產生新的申請編號。",
     "waitingForReview": "等待總部或授權負責人批准或退回。",
     "ownRequestWaiting": "等待審批。這是你提交的申請，由總部或授權負責人批准或退回，你自己不能審批。",
     "attachments": {
@@ -19438,7 +19725,13 @@
       "manager": "待專案經理確認"
     },
     "forwarded": "{by} 於 {at} 轉呈總部",
-    "managerHelp": "現場人員交給你的申請：確認後選總部審批人，按「提交總部審批」；不對就退回。"
+    "managerHelp": "現場人員交給你的申請：確認後選總部審批人，按「提交總部審批」；不對就退回。",
+    "waitingForManager": "待專案經理 {name} 確認。他轉呈總部後，才由總部審批。",
+    "onBehalf": {
+      "help": "專案經理 {manager} 的賬號已停用，這一筆由總部代批：你可以直接批准或退回，記錄會寫明「總部代批」。",
+      "approved": "{by} 代 {manager} 批准（總部代批）· {at}",
+      "returned": "{by} 代 {manager} 退回（總部代批）· {at}"
+    }
   },
   "materialLines": {
     "title": "材料明細",
@@ -20167,7 +20460,8 @@
       "label": "每天正常工時（小時）",
       "save": "保存",
       "failed": "保存沒有成功，請再試一次。",
-      "current": "{name} 於 {at} 設定"
+      "current": "{name} 於 {at} 設定",
+      "chooseProject": "每個項目各自設置每日正常工時：請先在上方選擇項目。"
     },
     "records": {
       "what": "記錄",
@@ -20528,7 +20822,8 @@
       "workflowHint": "這個任務要在它自己的表單裡提交。",
       "openWorkflow": "打開工作表單",
       "waiting": "已提交，等待驗收。",
-      "finished": "這個任務已經結束。"
+      "finished": "這個任務已經結束。",
+      "disposalTitle": "執行清運 {reference}"
     },
     "ehs": {
       "unsorted": "未分類",
@@ -21038,7 +21333,7 @@
       "equipment_set_site_no": "修改設備編號",
       "equipment_hours_move": "設備工時改設備歸屬",
       "user_change_permissions": "修改用戶的權限開關",
-      "consultant_submit": "提交顧問申請",
+      "consultant_submit": "發送給顧問",
       "visitor_photo_purge": "刪除到期訪客照片",
       "document_delete": "刪除未歸檔的文件檔案",
       "consultant_delete": "刪除顧問申請草稿",
@@ -21175,7 +21470,12 @@
       "stop": "停用",
       "lastUsed": "最近使用 {at}",
       "failed": "保存沒有成功，請再試一次。",
-      "chooseProject": "先在頁面上方選一個項目，才能新增連結。"
+      "chooseProject": "先在頁面上方選一個項目，才能新增連結。",
+      "askReissue": "重新發送後，司機現在手上的連結會馬上失效，要把新連結再發給他。確定重新發送嗎？",
+      "askStop": "停用後，這個司機就不能再用這個連結打卡。確定停用嗎？",
+      "confirmReissue": "確定重新發送",
+      "confirmStop": "確定停用",
+      "working": "正在處理，請稍等。"
     },
     "tabs": {
       "clock": "開工 / 收工",
@@ -21720,5 +22020,9 @@
       "placeholder": "例如：本月因下雨停工 5 天。",
       "hint": "會印在這個月的月報 PDF 上。"
     }
+  },
+  "pagedList": {
+    "shown": "已顯示 {shown} 筆，共 {total} 筆",
+    "loadMore": "載入更多"
   }
 }

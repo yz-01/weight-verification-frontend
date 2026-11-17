@@ -180,7 +180,10 @@ function ShellThumbnail({ photo, onOpen }: { photo: ShellPhoto; onOpen: () => vo
           unoptimized
         />
       </button>
-      <p className="mt-1 truncate text-[11px] text-muted-foreground">
+      {/* JB202 (Lucas 11-16 「字被裁掉了」): the caption names who took it
+          (「施工前 1 · 示范 管理员」); it wraps under the picture instead of
+          ending in 「…」 - a phone has no hover to show the title. */}
+      <p className="mt-1 break-words text-[11px] leading-snug text-muted-foreground">
         {photo.label}
       </p>
     </li>
@@ -254,8 +257,10 @@ function ShellHeroPhoto({
         decoding="async"
         className={`absolute inset-0 size-full ${HERO_FIT}`}
       />
-      {/* At the top: at the foot it covered the photo's watermark strip. */}
-      <span className="absolute left-2 top-2 max-w-[calc(100%-1rem)] truncate rounded-md bg-overlay px-2 py-1 text-xs text-overlay-foreground">
+      {/* At the top: at the foot it covered the photo's watermark strip.
+          JB202 (Lucas 11-16 「字被裁掉了」): what it is, who took it and when
+          wrap instead of ending in 「…」 (「… · 阿强（设备操作） · 05/1…」 on a phone). */}
+      <span className="absolute left-2 top-2 max-w-[calc(100%-1rem)] break-words rounded-md bg-overlay px-2 py-1 text-left text-xs text-overlay-foreground">
         {photo.label}
         {photo.takenAt ? ` · ${df.dateTime(photo.takenAt)}` : ""}
       </span>
@@ -292,9 +297,11 @@ export function ShellRecorder({
           {initials}
         </AvatarFallback>
       </Avatar>
+      {/* JB202 (Lucas 11-16 「字被裁掉了」): the recorder's whole name beside
+          the phone button (「阿强（设备…」 on a phone). */}
       <div className="min-w-0">
         <p className="text-xs text-muted-foreground">{label}</p>
-        <p className="truncate text-sm font-medium">{name}</p>
+        <p className="break-words text-sm font-medium">{name}</p>
       </div>
       {phone ? (
         <a

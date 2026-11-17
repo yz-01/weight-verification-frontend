@@ -88,6 +88,7 @@ import { getProject } from "@/services/contractor.service";
 import { WASTE_UNITS } from "@/interfaces/waste-outgoing";
 import { useDateFormat } from "@/lib/dates";
 import { MAP_COLORS } from "@/lib/map-palette";
+import { roleLabel } from "@/lib/role-labels";
 import { LocationMap } from "@/components/shared/location-map";
 import { trackPaths } from "@/lib/track-paths";
 import {
@@ -560,7 +561,9 @@ function WasteOutgoingRecordWindow({
         row.dispatch_state === "ACCEPTED" &&
         row.proposed_collection_at &&
         !row.confirmed_collection_at &&
-        can("waste_outgoing.order") && (
+        // What `confirm_collection_plan` asks, and who the card goes to
+        // (JB207-9, Lucas 11-16 audit).
+        can("dispatch.update") && (
           <Button size="sm" onClick={() => setConfirming(row)}>
             <CalendarCheck2 />
             {t("action.confirmSchedule")}
@@ -615,7 +618,7 @@ function WasteOutgoingRecordWindow({
   return (
     <>
       <RecordDetailDialog
-        title={shown.reference_no}
+        title={shown.reference_no}
         description={`${shown.project_name} · ${shown.category_name}`}
         exportRecord={{
           kind: "WASTE_OUTGOING",
@@ -881,12 +884,14 @@ function HandOverDialog({
   onSaved: () => void;
 }) {
   const t = useTranslations("wasteOutgoing");
+  const tRoot = useTranslations();
   const [person, setPerson] = useState(record.delegated_to ?? "");
   const [note, setNote] = useState("");
   const [error, setError] = useState("");
+  // Only who can open this application's project (JB206-4).
   const people = useQuery({
-    queryKey: ["waste-outgoing", "delegate-options"],
-    queryFn: getWasteOutgoingDelegateOptions,
+    queryKey: ["waste-outgoing", "delegate-options", record.id],
+    queryFn: () => getWasteOutgoingDelegateOptions(record.id),
   });
   const save = useMutation({
     mutationFn: () =>
@@ -921,11 +926,16 @@ function HandOverDialog({
                 />
               </SelectTrigger>
               <SelectContent>
-                {(people.data?.results ?? []).map((row) => (
-                  <SelectItem key={row.id} value={row.id}>
-                    {row.role ? `${row.name} · ${row.role}` : row.name}
-                  </SelectItem>
-                ))}
+                {(people.data?.results ?? []).map((row) => {
+                  // A seeded role in the reader's language; a role the
+                  // company named itself as typed (JB207W, walk 11-17).
+                  const role = roleLabel(row.role_code, row.role, tRoot);
+                  return (
+                    <SelectItem key={row.id} value={row.id}>
+                      {role ? `${row.name} · ${role}` : row.name}
+                    </SelectItem>
+                  );
+                })}
               </SelectContent>
             </Select>
             <QueryFailedNote query={people} what={t("what.delegates")} />
@@ -1372,6 +1382,7 @@ function AssignDialog({
   onSaved: () => void;
 }) {
   const t = useTranslations("wasteOutgoing");
+  const mayBind = useAuth().can("partnership.manage");
   const [recycler, setRecycler] = useState("");
   const [weight, setWeight] = useState("");
   const [description, setDescription] = useState("");
@@ -1425,7 +1436,10 @@ function AssignDialog({
               <Skeleton className="h-10 w-full" />
             ) : rows.length === 0 ? (
               <p className="rounded-lg border border-dashed border-panel-border bg-muted/30 p-3 text-xs text-muted-foreground">
-                {t("assign.noPartners")}
+                {/* Binding a recycler is head office's (`partnership.manage`,
+                    group B): a project user is told whom to ask (JB206-8,
+                    Lucas 11-16 audit). */}
+                {t(mayBind ? "assign.noPartners" : "assign.noPartnersAskHeadOffice")}
               </p>
             ) : (
               <Select value={recycler} onValueChange={setRecycler}>

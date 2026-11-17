@@ -1,8 +1,9 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Truck } from "lucide-react";
+import { Loader2, Plus, Truck } from "lucide-react";
 import { useTranslations } from "next-intl";
+import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -51,7 +52,7 @@ export function AssignTripPanel({
 }) {
   const t = useTranslations();
   const queryClient = useQueryClient();
-  const { user } = useAuth();
+  const { user, can } = useAuth();
   const ownerId = user?.id ?? "";
   const [crew, setCrew] = useState<CrewValue>(EMPTY_CREW);
   const [rule, setRule] = useState<LinkRuleValue>(DEFAULT_LINK_RULE);
@@ -67,6 +68,12 @@ export function AssignTripPanel({
   });
   const siteRows = sites.data?.results ?? [];
   const chosenSite = site || (siteRows.length === 1 ? siteRows[0].id : "");
+  // Loaded, and there is none: an empty 回收场 box and 「必填」 told nobody
+  // what to do (JB207-10, Lucas 11-16 audit), so it is said in words, with
+  // the way to add one for whoever may.
+  const noSites = sites.isSuccess && siteRows.length === 0;
+  const canAddSite = can("yard.manage");
+  const noSitesText = canAddSite ? t("tasks.crew.noSites") : t("tasks.crew.noSitesAskAdmin");
 
   const assign = useMutation({
     mutationFn: () =>
@@ -119,7 +126,22 @@ export function AssignTripPanel({
   return (
     <div className="grid gap-4 rounded-lg border p-3 md:grid-cols-2">
       <p className="text-sm font-semibold md:col-span-2">{t("tasks.crew.title")}</p>
-      {siteRows.length !== 1 && (
+      {noSites ? (
+        <div
+          role="alert"
+          className="space-y-2 rounded-lg border border-warning/40 bg-warning/10 px-4 py-3 text-sm text-foreground md:col-span-2"
+        >
+          <p>{noSitesText}</p>
+          {canAddSite && (
+            <Button asChild size="sm" variant="outline">
+              <Link href="/sites/create">
+                <Plus />
+                {t("sites.new")}
+              </Link>
+            </Button>
+          )}
+        </div>
+      ) : siteRows.length !== 1 && (
         <FieldWrapper
           label={t("tasks.field.site")}
           required
@@ -143,7 +165,12 @@ export function AssignTripPanel({
       <QueryFailedNote query={sites} what={t("tasks.what.sites")} className="md:col-span-2" />
       <CrewFields value={crew} onChange={setCrew} errors={errors} />
       <LinkRuleFields value={rule} onChange={setRule} />
-      <Button className="md:col-span-2" disabled={assign.isPending} onClick={submit}>
+      <Button
+        className="md:col-span-2"
+        disabled={assign.isPending || noSites}
+        disabledReason={noSites ? noSitesText : undefined}
+        onClick={submit}
+      >
         {assign.isPending ? <Loader2 className="animate-spin" /> : <Truck />}
         {t("tasks.crew.assign")}
       </Button>

@@ -55,7 +55,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { getSites } from "@/services/weighing.service";
+import { getSites, YARD_LIST_PERMISSIONS } from "@/services/weighing.service";
+import { useAuth } from "@/components/providers/auth-provider";
 import { getDriverLivePositions, getDriverLiveRoutes } from "@/services/driver-gps.service";
 import { trackPaths } from "@/lib/track-paths";
 
@@ -89,9 +90,16 @@ export function RecyclerDashboard({ features }: { features: string[] }) {
   const format = useFormatter();
   const df = useDateFormat();
   const [site, setSite] = useState(ALL_YARDS);
+  const { canAny } = useAuth();
+  // The yard list only feeds the 回收场 filter. A role that may not read it
+  // got 「无法载入回收场列表…」 + 「你没有权限做这件事。」 on every visit (JB207W,
+  // walk 11-17): ask only when the reader may; the others see the whole
+  // company, as they did.
+  const canReadYards = canAny(YARD_LIST_PERMISSIONS);
   const yards = useQuery({
     queryKey: ["recycling-sites", "dashboard"],
     queryFn: () => getSites({ page_size: 100, sort_by: "name" }),
+    enabled: canReadYards,
   });
   const dashboard = useQuery({
     queryKey: ["recycler-dashboard", site],
@@ -256,7 +264,9 @@ export function RecyclerDashboard({ features }: { features: string[] }) {
               label={t("dispatches.state.ACCEPTED")}
               value={number(data.business_today.pending_dispatch)}
               icon={Truck}
-              href="/tasks"
+              // The same 待派车 count as the row below: its orders are on
+              // 废料订单, not 司机任务 (JB207-8).
+              href="/waste-orders?state=ACCEPTED"
               tone="warning"
             />
             <MetricCard
@@ -739,7 +749,9 @@ function PendingActions({
           key: "dispatch",
           label: t("dispatches.state.ACCEPTED"),
           value: data.pending.pending_dispatch,
-          href: "/tasks",
+          // Orders with no driver yet have no trip, so 司机任务 cannot list
+          // them; 废料订单 on 已接单 does, with 派车 (JB207-8).
+          href: "/waste-orders?state=ACCEPTED",
         },
     data.pending.pending_deduction_confirmation === undefined
       ? null

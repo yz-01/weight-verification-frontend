@@ -46,6 +46,7 @@ import { ApiError } from "@/interfaces/api";
 import type {
   ConsultantApplication,
   ConsultantApplicationPayload,
+  ConsultantWorkflow,
   ProjectApplicationOption,
   ProjectOptionCategory,
 } from "@/interfaces/consultant-workflow";
@@ -296,9 +297,9 @@ function ConsultantApplicationEditor({
     return () => window.clearTimeout(timer);
   }, [form.application_type, options.data, sourceTask.data]);
 
-  const preferredWorkflow =
-    workflows.data?.results.find((workflow) => workflow.is_default) ??
-    workflows.data?.results[0];
+  // JB203-6 (Lucas 11-16 audit): the route set up for this application type
+  // first, then the default - as the server picks when none is chosen.
+  const preferredWorkflow = preferWorkflow(workflows.data?.results ?? [], form.application_type);
   const selectedWorkflow = form.workflow || preferredWorkflow?.id || "";
   const selectedTemplate = (templates.data?.results ?? []).find((template) =>
     template.versions.some((version) => version.id === form.template_version),
@@ -891,6 +892,27 @@ export function NoConsultantNotice({ canOpen }: { canOpen: boolean }) {
         </Button>
       )}
     </div>
+  );
+}
+
+/**
+ * The workflow a new application starts on (JB203-6, Lucas 11-16 audit): the
+ * project's route for its application type, then the default, then the first.
+ * The same order as the server's `workflow_for_application`, which decides
+ * when nothing is sent.
+ */
+export function preferWorkflow<T extends Pick<ConsultantWorkflow, "application_type" | "is_default">>(
+  workflows: readonly T[],
+  applicationType: string | null | undefined,
+): T | undefined {
+  const typed = applicationType
+    ? workflows.filter((workflow) => workflow.application_type === applicationType)
+    : [];
+  return (
+    typed.find((workflow) => workflow.is_default) ??
+    typed[0] ??
+    workflows.find((workflow) => workflow.is_default) ??
+    workflows[0]
   );
 }
 

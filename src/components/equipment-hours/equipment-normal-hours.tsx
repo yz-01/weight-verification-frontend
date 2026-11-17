@@ -33,7 +33,17 @@ export function EquipmentNormalHoursButton({ project }: { project: string }) {
     queryFn: () => getEquipmentNormalHours(project),
     enabled: Boolean(project),
   });
-  if (!project) return null;
+  // Each project has its own setting: before one is picked the button
+  // shows, greyed out, saying so - it used to vanish with no reason
+  // (JB206-8, Lucas 11-16 audit).
+  if (!project) {
+    return (
+      <Button variant="outline" disabled disabledReason={t("normal.chooseProject")} showReason>
+        <Clock />
+        {t("normal.title")}
+      </Button>
+    );
+  }
   return (
     <>
       <Button variant="outline" onClick={() => setOpen(true)}>

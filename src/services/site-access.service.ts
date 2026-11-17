@@ -98,6 +98,16 @@ export const letterheadPreviewObjectUrl = (output: "png" | "pdf", language: stri
 export const getSiteLocationPolicy = () =>
   api.get<SiteLocationPolicy>("/api/contractor-site-settings/get_location_policy/");
 
+/** 公司设置's 紧急联系人 / 紧急联系电话, read only (JB206-9). */
+export interface EmergencyContact {
+  name: string;
+  phone: string;
+}
+
+/** For 紧急名单 and the guard's 门岗 page: whoever sees the gate reads it. */
+export const getEmergencyContact = () =>
+  api.get<EmergencyContact>("/api/contractor-site-settings/get_emergency_contact/");
+
 export async function updateContractorSiteSettings(payload: Partial<ContractorSiteSettings>) {
   const row = await api.patch<ContractorSiteSettings>("/api/contractor-site-settings/update_settings/", payload);
   toastSuccess("siteControl.toast.settingsSaved");

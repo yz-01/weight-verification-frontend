@@ -6,7 +6,6 @@ import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 import { DriverTask, type DriverTaskSource } from "@/components/driver/driver-task";
-import { OfflineStatus } from "@/components/shared/offline-status";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { Button } from "@/components/ui/button";
 import { ApiError } from "@/interfaces/api";
@@ -144,8 +143,11 @@ export function DriverTaskLink({ token: rawToken }: { token: string }) {
               {trip.data.dispatch_no ?? trip.data.task_no}
             </p>
           </div>
+          {/* No offline sign here (JB207-5, Lucas 11-16 audit): it says
+              「记录已存在这台手机上…会自动上传」, and the link keeps nothing -
+              no queue. A step or photo that did not go says so under the
+              buttons instead (`DriverTask`). */}
           <div className="flex shrink-0 items-center gap-0.5">
-            <OfflineStatus />
             <LanguageSwitcher />
           </div>
         </div>

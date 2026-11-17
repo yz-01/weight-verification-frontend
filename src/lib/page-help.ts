@@ -22,6 +22,27 @@ import type { Portal } from "@/interfaces/auth";
  * and the reader needs the one they are actually looking at.
  */
 
+/** A help entry that is not a module's own feature key (JB206-12). */
+export type HelpKey = PortalFeatureKey | "company_settings_trace";
+
+/**
+ * Screens whose help is not their menu entry's (JB206-12, Lucas 11-16 audit,
+ * U1 and U2). Checked before the menu, for one portal only.
+ *
+ * - 隐患整改 is declared under the `safety` feature (navigation.ts says why),
+ *   whose help was written for the removed 安全事件 / 事故上报; the page has
+ *   its own, `hazard_rectification`.
+ * - The contractor's 公司设置 has had no external links or bank details
+ *   since JB99, which `company_settings` - MSE Scrap's page, unchanged -
+ *   talks about; it gets its own words.
+ */
+const HELP_OVERRIDES: Partial<Record<Portal, Readonly<Record<string, HelpKey>>>> = {
+  MSE_TRACE: {
+    "/hazard-rectifications": "hazard_rectification",
+    "/company-settings": "company_settings_trace",
+  },
+};
+
 /** A route matches when it is the page itself or something beneath it. */
 function covers(href: string, pathname: string): boolean {
   const route = href.split("?", 1)[0];
@@ -39,8 +60,11 @@ function covers(href: string, pathname: string): boolean {
 export function helpKeyFor(
   portal: Portal | undefined,
   pathname: string,
-): PortalFeatureKey | null {
+): HelpKey | null {
   if (!portal) return null;
+  for (const [route, key] of Object.entries(HELP_OVERRIDES[portal] ?? {})) {
+    if (covers(route, pathname)) return key;
+  }
   const items = PORTAL_NAVIGATION[portal];
   if (!items) return null;
 
@@ -68,8 +92,11 @@ export function helpKeyFor(
 }
 
 /** Every module key that needs a help entry, across all three portals. */
-export function helpKeys(): PortalFeatureKey[] {
-  const keys = new Set<PortalFeatureKey>();
+export function helpKeys(): HelpKey[] {
+  const keys = new Set<HelpKey>();
+  for (const overrides of Object.values(HELP_OVERRIDES)) {
+    for (const key of Object.values(overrides ?? {})) keys.add(key);
+  }
   for (const items of Object.values(PORTAL_NAVIGATION)) {
     for (const item of items) {
       keys.add(item.feature);

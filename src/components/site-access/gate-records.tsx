@@ -63,6 +63,7 @@ import {
   RecordCorrectionHistory,
 } from "@/components/shared/record-correction";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
+import { EmergencyContactLine } from "@/components/site-access/emergency-contact-line";
 import { VisitorScanPanel } from "@/components/site-access/visitor-scan";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -209,6 +210,8 @@ export function GateRecordsPanel({
 
   return (
     <div className="space-y-4">
+      {/* 公司设置's 紧急联系人, 「给门岗用」 - one tap to call (JB206-9). */}
+      <EmergencyContactLine />
       {mayScan && (
         <>
           <div className="grid grid-cols-2 gap-3" role="group" aria-label={tp("title")} data-gate-actions>

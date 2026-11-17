@@ -104,7 +104,10 @@ export function GlobalModuleSearch() {
       <PopoverTrigger asChild>
         <Button
           variant="outline"
-          className="h-10 min-w-0 max-w-full shrink justify-start bg-card px-3 text-muted-foreground hover:border-primary/40 hover:bg-accent sm:w-56 sm:flex-none lg:w-72"
+          // JB202: never pressed thinner than its icon (on a phone its right
+          // edge was cut off); from `sm` up as wide as its words need, at
+          // least the old 14 / 18 rem (in English the hint lost its end).
+          className="h-10 max-w-full shrink-0 justify-start bg-card px-3 text-muted-foreground hover:border-primary/40 hover:bg-accent max-sm:ml-auto sm:min-w-56 lg:min-w-72"
           aria-label={t("globalSearch.open")}
         >
           <Search className="size-4" />

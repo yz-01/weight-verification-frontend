@@ -72,20 +72,32 @@ export function getPartnerSummary(): Promise<PartnerSummary> {
   return api.get<PartnerSummary>("/api/partners/get-summary/");
 }
 
-export function getPartnerTypes(): Promise<Paginated<PartnerTypeDefinition>> {
-  return api.list<PartnerTypeDefinition>("/api/partner-types/get-types/", { page_size: 200, sort_by: "name" });
+/** JB209-14 (Lucas 11-16 audit, X-2): paged by the caller - the list a
+ * hundred at a time, the picker every page - instead of one 200 the
+ * server cut to 100. */
+export function getPartnerTypes(query?: ListQuery): Promise<Paginated<PartnerTypeDefinition>> {
+  return api.list<PartnerTypeDefinition>("/api/partner-types/get-types/", { sort_by: "name", ...query });
 }
 
+// JB209-16 (Lucas 11-16 audit): these saves were silent - nothing said the
+// type, area, assignment, agreement step or payout step had gone through.
+// Each now says so, as createPartner always did.
 export async function createPartnerType(payload: { code: string; name: string; description?: string }) {
-  return api.post<PartnerTypeDefinition>("/api/partner-types/create-type/", payload);
+  const row = await api.post<PartnerTypeDefinition>("/api/partner-types/create-type/", payload);
+  toastSuccess("adminPartnerManagement.toast.typeSaved");
+  return row;
 }
 
 export async function updatePartnerType(id: string, payload: Partial<{ name: string; description: string; is_active: boolean }>) {
-  return api.patch<PartnerTypeDefinition>(`/api/partner-types/update-type/${id}/`, payload);
+  const row = await api.patch<PartnerTypeDefinition>(`/api/partner-types/update-type/${id}/`, payload);
+  toastSuccess("adminPartnerManagement.toast.typeSaved");
+  return row;
 }
 
 export async function deletePartnerType(id: string) {
-  return api.delete(`/api/partner-types/delete-type/${id}/`);
+  const result = await api.delete(`/api/partner-types/delete-type/${id}/`);
+  toastSuccess("adminPartnerManagement.toast.typeRemoved");
+  return result;
 }
 
 export async function createPartner(
@@ -197,12 +209,16 @@ export async function updateAgreement(
   return row;
 }
 
-export async function submitAgreement(id: string) { return api.post<PartnerAgreement>(`/api/partner-agreements/submit-agreement/${id}/`, {}); }
-export async function activateAgreement(id: string, signedBy: string, signedOn?: string) { return api.post<PartnerAgreement>(`/api/partner-agreements/activate-agreement/${id}/`, { signed_by: signedBy, signed_on: signedOn }); }
+export async function submitAgreement(id: string) { const row = await api.post<PartnerAgreement>(`/api/partner-agreements/submit-agreement/${id}/`, {}); toastSuccess("adminPartnerManagement.toast.agreementSubmitted"); return row; }
+export async function activateAgreement(id: string, signedBy: string, signedOn?: string) { const row = await api.post<PartnerAgreement>(`/api/partner-agreements/activate-agreement/${id}/`, { signed_by: signedBy, signed_on: signedOn }); toastSuccess("adminPartnerManagement.toast.agreementActivated"); return row; }
+/** `effective_to: null` is an open-ended renewal (JB209-2, Lucas 11-16 audit
+ * B-P2-1): an empty box used to go out as "" and the server refused it. */
 export async function renewAgreement(id: string, payload: Partial<CreateAgreementPayload>) {
-  return api.post<PartnerAgreement>(`/api/partner-agreements/renew-agreement/${id}/`, payload);
+  const row = await api.post<PartnerAgreement>(`/api/partner-agreements/renew-agreement/${id}/`, payload);
+  toastSuccess("adminPartnerManagement.toast.agreementRenewed");
+  return row;
 }
-export async function terminateAgreement(id: string, reason: string) { return api.post<PartnerAgreement>(`/api/partner-agreements/terminate-agreement/${id}/`, { reason }); }
+export async function terminateAgreement(id: string, reason: string) { const row = await api.post<PartnerAgreement>(`/api/partner-agreements/terminate-agreement/${id}/`, { reason }); toastSuccess("adminPartnerManagement.toast.agreementTerminated"); return row; }
 export function viewAgreementDocument(id: string) { return download(`/api/partner-agreements/view-document/${id}/`, { method: "GET", fallbackFilename: "agreement", openInNewTab: true }); }
 export function downloadAgreementDocument(id: string) { return download(`/api/partner-agreements/download-document/${id}/`, { method: "GET", fallbackFilename: "agreement" }); }
 
@@ -233,13 +249,13 @@ export function exportPartners(request: ExportRequest): Promise<void> {
 }
 
 export function getTerritories(query?: ListQuery): Promise<Paginated<PartnerTerritory>> { return api.list("/api/partner-territories/get-territories/", query); }
-export async function createTerritory(payload: Record<string, unknown>) { return api.post<PartnerTerritory>("/api/partner-territories/create-territory/", payload); }
-export async function updateTerritory(id: string, payload: Record<string, unknown>) { return api.patch<PartnerTerritory>(`/api/partner-territories/update-territory/${id}/`, payload); }
-export async function deleteTerritory(id: string) { return api.delete(`/api/partner-territories/delete-territory/${id}/`); }
+export async function createTerritory(payload: Record<string, unknown>) { const row = await api.post<PartnerTerritory>("/api/partner-territories/create-territory/", payload); toastSuccess("adminPartnerManagement.toast.territorySaved"); return row; }
+export async function updateTerritory(id: string, payload: Record<string, unknown>) { const row = await api.patch<PartnerTerritory>(`/api/partner-territories/update-territory/${id}/`, payload); toastSuccess("adminPartnerManagement.toast.territorySaved"); return row; }
+export async function deleteTerritory(id: string) { const result = await api.delete(`/api/partner-territories/delete-territory/${id}/`); toastSuccess("adminPartnerManagement.toast.territoryRemoved"); return result; }
 
 export function getReferrals(query?: ListQuery): Promise<Paginated<CustomerReferral>> { return api.list("/api/customer-referrals/get-referrals/", query); }
-export async function createReferral(payload: Record<string, unknown>) { return api.post<CustomerReferral>("/api/customer-referrals/create-referral/", payload); }
-export async function updateReferral(id: string, payload: Record<string, unknown>) { return api.patch<CustomerReferral>(`/api/customer-referrals/update-referral/${id}/`, payload); }
+export async function createReferral(payload: Record<string, unknown>) { const row = await api.post<CustomerReferral>("/api/customer-referrals/create-referral/", payload); toastSuccess("adminPartnerManagement.toast.customerAssigned"); return row; }
+export async function updateReferral(id: string, payload: Record<string, unknown>) { const row = await api.patch<CustomerReferral>(`/api/customer-referrals/update-referral/${id}/`, payload); toastSuccess("adminPartnerManagement.toast.assignmentUpdated"); return row; }
 
 // ── Commission payouts ────────────────────────────────────────────────────
 
@@ -263,7 +279,7 @@ export async function calculatePartnerPayout(
   return payout;
 }
 
-export async function adjustPartnerPayout(id: string, adjustment: string, reason: string) { return api.post<PartnerCommissionPayout>(`/api/partner-payouts/adjust-payout/${id}/`, { adjustment, reason }); }
+export async function adjustPartnerPayout(id: string, adjustment: string, reason: string) { const row = await api.post<PartnerCommissionPayout>(`/api/partner-payouts/adjust-payout/${id}/`, { adjustment, reason }); toastSuccess("adminPartnerManagement.toast.payoutAdjusted"); return row; }
 /**
  * Move a payout along its approval chain.
  *
@@ -278,7 +294,9 @@ export async function transitionPartnerPayout(id: string, state: string, extra: 
     if (value === undefined || value === null || value === "") return;
     body.append(key, value instanceof File ? value : String(value));
   });
-  return api.post<PartnerCommissionPayout>(`/api/partner-payouts/transition-payout/${id}/`, body);
+  const row = await api.post<PartnerCommissionPayout>(`/api/partner-payouts/transition-payout/${id}/`, body);
+  toastSuccess("adminPartnerManagement.toast.payoutUpdated");
+  return row;
 }
 export function getPartnerPerformance(query?: ListQuery): Promise<{ results: PartnerPerformance[]; count: number }> { return api.get("/api/partner-reports/get-performance/", query); }
 export function exportPartnerReport(dataset: string, format: "pdf" | "xlsx", title: string, columns: Array<{ key: string; label: string }>) { return download("/api/partner-reports/export-report/", { method: "POST", body: { dataset, format, title, columns, empty_label: "" }, fallbackFilename: `partner-${dataset}.${format}` }); }

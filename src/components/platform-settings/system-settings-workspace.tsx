@@ -6,19 +6,22 @@ import {
   Cable,
   ChevronDown,
   Loader2,
+  LogOut,
   RotateCcw,
   Save,
   Settings2,
   Upload,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { AnnouncementPanel } from "@/components/platform-settings/announcement-panel";
 import { FeatureFlagPanel } from "@/components/platform-settings/feature-flag-panel";
 import { VersionList } from "@/components/platform-settings/version-list";
 import { useAuth } from "@/components/providers/auth-provider";
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { ListHeader, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { DetectionSettings } from "@/components/weighing/detection-settings";
 import { Button } from "@/components/ui/button";
@@ -193,6 +196,7 @@ function ConfigGroupEditor({ group }: { group: PlatformConfigGroup }) {
 
   return (
     <div className="surface-panel min-h-0 flex-1 overflow-y-auto rounded-xl">
+      <UnsavedLeaveGuard />
       {supportsCompanyOverrides && (
         <div className="border-b bg-muted/30 px-4 py-4 sm:px-6">
           <div className="mx-auto flex max-w-5xl flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
@@ -443,6 +447,106 @@ function GroupGuide({ group }: { group: PlatformConfigGroup }) {
   );
 }
 
+/**
+ * The rows on screen changed and not yet saved (JB205-10, Lucas 11-16 audit).
+ * Each row has its own 保存, and leaving the page dropped an edit without a
+ * word. Module state because it is only read when somebody tries to leave.
+ */
+const unsavedRows = new Set<string>();
+
+function hasUnsavedRows(): boolean {
+  return unsavedRows.size > 0;
+}
+
+/** A row says it has an edit not yet saved, for as long as it has. */
+function useUnsavedRow(id: string, unsaved: boolean) {
+  useEffect(() => {
+    if (!unsaved) return;
+    unsavedRows.add(id);
+    return () => {
+      unsavedRows.delete(id);
+    };
+  }, [id, unsaved]);
+}
+
+type LeavingClick = Pick<
+  MouseEvent,
+  "defaultPrevented" | "button" | "metaKey" | "ctrlKey" | "shiftKey" | "altKey"
+> & { target: unknown };
+
+/**
+ * Where a click takes the person when it leaves this page for another one in
+ * the app; null for anything else (a new tab, another site, this same page).
+ */
+export function leavingTo(
+  event: LeavingClick,
+  here: Pick<Location, "href" | "origin" | "pathname" | "search">,
+): string | null {
+  if (event.defaultPrevented || event.button !== 0) return null;
+  if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return null;
+  const target = event.target as { closest?: (selector: string) => unknown } | null;
+  const anchor = target?.closest?.("a[href]") as
+    | Pick<HTMLAnchorElement, "target" | "getAttribute" | "hasAttribute">
+    | null
+    | undefined;
+  if (!anchor) return null;
+  if (anchor.target === "_blank" || anchor.hasAttribute("download")) return null;
+  const next = new URL(anchor.getAttribute("href") ?? "", here.href);
+  if (next.origin !== here.origin) return null;
+  if (next.pathname === here.pathname && next.search === here.search) return null;
+  return `${next.pathname}${next.search}${next.hash}`;
+}
+
+/**
+ * Asks before the page is left with a row not saved: the browser asks on a
+ * reload or a closed tab (as the field drafts do), and a link inside the
+ * app - the menu, a card - opens 「还有设定没有保存」 first.
+ */
+function UnsavedLeaveGuard() {
+  const t = useTranslations("adminSystemSettings.leave");
+  const router = useRouter();
+  const [pending, setPending] = useState<string | null>(null);
+  useEffect(() => {
+    const warn = (event: BeforeUnloadEvent) => {
+      if (!hasUnsavedRows()) return;
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    const intercept = (event: MouseEvent) => {
+      const href = hasUnsavedRows() ? leavingTo(event, window.location) : null;
+      if (!href) return;
+      // Before the link's own handler: the app does not move until asked.
+      event.preventDefault();
+      event.stopPropagation();
+      setPending(href);
+    };
+    window.addEventListener("beforeunload", warn);
+    window.addEventListener("click", intercept, true);
+    return () => {
+      window.removeEventListener("beforeunload", warn);
+      window.removeEventListener("click", intercept, true);
+    };
+  }, []);
+  return (
+    <ConfirmDialog
+      open={pending !== null}
+      onOpenChange={(open) => {
+        if (!open) setPending(null);
+      }}
+      title={t("title")}
+      description={t("description")}
+      confirmLabel={t("confirm")}
+      confirmIcon={LogOut}
+      onConfirm={() => {
+        const href = pending;
+        setPending(null);
+        unsavedRows.clear();
+        if (href) router.push(href);
+      }}
+    />
+  );
+}
+
 function isAdvancedConfig(row: PlatformConfigEntry) {
   return (
     row.value_type === "JSON" ||
@@ -548,6 +652,10 @@ function ConfigRow({
   const { can, refresh } = useAuth();
   const queryClient = useQueryClient();
   const [value, setValue] = useState(row.value);
+  useUnsavedRow(
+    `${company ?? ""}:${row.key}`,
+    !row.is_readonly && can("platform_settings.manage") && value !== row.value,
+  );
   const save = useMutation({
     mutationFn: () =>
       company

@@ -31,6 +31,10 @@ export function ApprovalCredentialSettings() {
     queryKey: ["approval-credential"],
     queryFn: getApprovalCredential,
   });
+  // JB203-11 (Lucas 11-16 audit): with a PIN already set, the PIN boxes are
+  // optional - a new stamp or signature alone keeps it. Asking for a 「新 6 位
+  // PIN」 to save a picture replaced the one PIN used everywhere.
+  const keepsPin = Boolean(credential.data?.has_pin) && pin === "" && pinConfirm === "";
   const save = useMutation({
     mutationFn: () =>
       setApprovalCredential({
@@ -143,13 +147,13 @@ export function ApprovalCredentialSettings() {
       <section id="credential-pin" className="surface-panel scroll-mt-20 rounded-xl p-4 sm:p-6">
         <div className="mb-4 flex items-start gap-3 border-b pb-4">
           <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-info/10 text-info"><KeyRound className="size-5" /></span>
-          <div><h2 className="font-semibold">{t("credential.pinTitle")}</h2><p className="mt-1 text-sm text-muted-foreground">{t("credential.pinHelp")}</p></div>
+          <div><h2 className="font-semibold">{t("credential.pinTitle")}</h2><p className="mt-1 text-sm text-muted-foreground">{t("credential.pinHelp")}</p>{credential.data?.has_pin && <p data-slot="pin-keep" className="mt-1 text-sm text-muted-foreground">{t("credential.pinKeep")}</p>}</div>
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
-          <FieldWrapper label={t("credential.pin")} required>
+          <FieldWrapper label={t("credential.pin")} required={!credential.data?.has_pin}>
             <Input type="password" inputMode="numeric" autoComplete="new-password" maxLength={6} value={pin} onChange={(event) => setPin(event.target.value.replace(/\D/g, ""))} />
           </FieldWrapper>
-          <FieldWrapper label={t("credential.pinConfirm")} required error={pinConfirm && pinConfirm !== pin ? t("credential.pinMismatch") : undefined}>
+          <FieldWrapper label={t("credential.pinConfirm")} required={!credential.data?.has_pin} error={pinConfirm && pinConfirm !== pin ? t("credential.pinMismatch") : undefined}>
             <Input type="password" inputMode="numeric" autoComplete="new-password" maxLength={6} value={pinConfirm} onChange={(event) => setPinConfirm(event.target.value.replace(/\D/g, ""))} />
           </FieldWrapper>
           <FieldWrapper label={t("credential.currentPassword")} required className="sm:col-span-2" hint={t("credential.passwordHelp")}>
@@ -159,7 +163,7 @@ export function ApprovalCredentialSettings() {
       </section>
 
       <div className="flex justify-end max-sm:[&_button]:w-full">
-        <Button requires={[[password, t("credential.currentPassword")], [pin.length === 6, t("credential.pin")], [pinConfirm.length === 6, t("credential.pinConfirm")], [credential.data?.signature || signature, t("credential.signature")]]}
+        <Button requires={[[password, t("credential.currentPassword")], [keepsPin || pin.length === 6, t("credential.pin")], [keepsPin || pinConfirm.length === 6, t("credential.pinConfirm")], [credential.data?.signature || signature, t("credential.signature")]]}
 disabledReason={pin.length === 6 && pinConfirm.length === 6 && pin !== pinConfirm ? t("credential.pinMismatch") : undefined}
                 disabled={pin !== pinConfirm || save.isPending} onClick={() => save.mutate()}>
           {save.isPending ? <Loader2 className="animate-spin" /> : credential.data ? <Save /> : <Stamp />}

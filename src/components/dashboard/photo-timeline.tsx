@@ -180,7 +180,10 @@ export function PhotoTimeline() {
                               className="size-full object-cover"
                             />
                           ) : null}
-                          <span className="absolute inset-x-0 bottom-0 block truncate bg-overlay px-1.5 py-0.5 text-2xs text-overlay-foreground">
+                          {/* JB202 (Lucas 11-16 「字被裁掉了」): the time and the
+                              project's whole name, on two lines when the tile is
+                              narrow, instead of 「示范商业大厦…」. */}
+                          <span className="absolute inset-x-0 bottom-0 block break-words bg-overlay px-1.5 py-0.5 text-2xs leading-tight text-overlay-foreground">
                             <span className="tabular">{df.time(photo.captured_at)}</span> · {photo.project}
                           </span>
                         </button>

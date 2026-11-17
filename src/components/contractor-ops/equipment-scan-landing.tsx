@@ -24,7 +24,7 @@ import { Button } from "@/components/ui/button";
 import { ApiError } from "@/interfaces/api";
 import type { SiteEquipment } from "@/interfaces/contractor-ops";
 import type { CurrentUser } from "@/interfaces/auth";
-import { getFieldBootstrapToken } from "@/lib/auth-token";
+import { getFieldBootstrapToken, hasFieldSession } from "@/lib/auth-token";
 import { EQUIPMENT_SCAN_PATH } from "@/lib/machine-scan";
 import { redirectWithFallback, withReturnPath } from "@/lib/portal";
 import { lookupEquipmentByScan } from "@/services/contractor-ops.service";
@@ -45,6 +45,18 @@ export function equipmentScanTarget(
   return { href: `/site-equipment?${query.toString()}` };
 }
 
+/**
+ * Where a phone signed in to the field app only goes for this machine
+ * (JB204-1, Lucas 11-16 audit). This page reads the office sign-in, which
+ * such a phone does not hold, so sending it to sign in again only brought it
+ * back here, round and round. The field app itself has the worker's sign-in
+ * and its site, and picks 退场 or 进场 from where the machine is.
+ */
+export function fieldScanHref(machineId: string): string {
+  const query = new URLSearchParams({ record: "equipment", machine: machineId });
+  return `/field-staff?${query.toString()}`;
+}
+
 export function EquipmentScanLanding() {
   const t = useTranslations("contractorOps.equipmentScan");
   const router = useRouter();
@@ -59,18 +71,19 @@ export function EquipmentScanLanding() {
     retry: false,
   });
   const target = machine.data && user ? equipmentScanTarget(machine.data, user) : null;
-  const href = target && "href" in target ? target.href : null;
   const signIn = !isLoading && !user && Boolean(machineId);
+  const fieldHref = signIn && hasFieldSession() ? fieldScanHref(machineId) : null;
+  const href = (target && "href" in target ? target.href : null) ?? fieldHref;
   useEffect(() => {
     if (href) redirectWithFallback(router, href, 1_200);
   }, [href, router]);
   // The worker's own phone app keeps its sign-in: straight to it, and back
   // here. Anybody else chooses below.
   useEffect(() => {
-    if (signIn && getFieldBootstrapToken()) {
+    if (signIn && !fieldHref && getFieldBootstrapToken()) {
       redirectWithFallback(router, withReturnPath("/trace/field-login", returnPath), 1_200);
     }
-  }, [returnPath, router, signIn]);
+  }, [fieldHref, returnPath, router, signIn]);
 
   return (
     <AuthCard title={t("title")} subtitle={t("subtitle")}>

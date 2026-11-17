@@ -48,12 +48,15 @@ export function DriverClockLinksDialog({ project, onClose }: { project: string; 
   const [copied, setCopied] = useState(false);
   const [adding, setAdding] = useState(false);
   const [error, setError] = useState("");
+  // The row whose 重新发送 / 停用 is waiting for its 确定 (JB206-8).
+  const [asking, setAsking] = useState<{ id: string; kind: DriverLinkAsk } | null>(null);
 
   const done = (row: DriverClockLink) => {
     if (row.url) {
       setShown({ name: row.driver_name, url: row.url });
       setCopied(false);
     }
+    setAsking(null);
     setError("");
     void queryClient.invalidateQueries({ queryKey: ["driver-clock-links"] });
   };
@@ -132,28 +135,14 @@ export function DriverClockLinksDialog({ project, onClose }: { project: string; 
                     </p>
                   ) : null}
                 </div>
-                <div className="flex gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    disabled={reissue.isPending}
-                    onClick={() => reissue.mutate(row.id)}
-                  >
-                    <RefreshCw />
-                    {t("office.sendAgain")}
-                  </Button>
-                  {row.is_active ? (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      disabled={stop.isPending}
-                      onClick={() => stop.mutate(row.id)}
-                    >
-                      <Square />
-                      {t("office.stop")}
-                    </Button>
-                  ) : null}
-                </div>
+                <DriverLinkActions
+                  active={row.is_active}
+                  asking={asking?.id === row.id ? asking.kind : null}
+                  pending={reissue.isPending || stop.isPending}
+                  onAsk={(kind) => setAsking({ id: row.id, kind })}
+                  onCancel={() => setAsking(null)}
+                  onConfirm={(kind) => (kind === "reissue" ? reissue.mutate(row.id) : stop.mutate(row.id))}
+                />
               </li>
             ))}
           </ul>
@@ -166,6 +155,72 @@ export function DriverClockLinksDialog({ project, onClose }: { project: string; 
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+/** What a row's 确定 is for: 重新发送 or 停用. */
+export type DriverLinkAsk = "reissue" | "stop";
+
+/**
+ * A link's 重新发送 and 停用, each asked once before it acts.
+ *
+ * One tap did either (JB206-8, Lucas 11-16 audit): 重新发送 stops the link
+ * the driver has now, and 停用 stops it outright. So the first tap asks, in
+ * the row, saying what will happen, and only 确定 acts.
+ */
+export function DriverLinkActions({
+  active,
+  asking,
+  pending,
+  onAsk,
+  onCancel,
+  onConfirm,
+}: {
+  active: boolean;
+  asking: DriverLinkAsk | null;
+  pending: boolean;
+  onAsk: (kind: DriverLinkAsk) => void;
+  onCancel: () => void;
+  onConfirm: (kind: DriverLinkAsk) => void;
+}) {
+  const t = useTranslations("driverClock");
+  if (asking) {
+    return (
+      <div className="flex flex-col gap-2 sm:max-w-xs" data-driver-link-ask={asking}>
+        <p role="alert" className="rounded-md border border-warning/30 bg-warning/5 px-2 py-1.5 text-xs">
+          {t(asking === "reissue" ? "office.askReissue" : "office.askStop")}
+        </p>
+        <div className="flex gap-2">
+          <Button
+            size="sm"
+            variant={asking === "stop" ? "destructive" : "default"}
+            disabled={pending}
+            disabledReason={t("office.working")}
+            onClick={() => onConfirm(asking)}
+          >
+            {pending ? <Loader2 className="animate-spin" /> : asking === "reissue" ? <RefreshCw /> : <Square />}
+            {t(asking === "reissue" ? "office.confirmReissue" : "office.confirmStop")}
+          </Button>
+          <Button size="sm" variant="outline" disabled={pending} disabledReason={t("office.working")} onClick={onCancel}>
+            {t("office.cancel")}
+          </Button>
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div className="flex gap-2">
+      <Button size="sm" variant="outline" onClick={() => onAsk("reissue")}>
+        <RefreshCw />
+        {t("office.sendAgain")}
+      </Button>
+      {active ? (
+        <Button size="sm" variant="outline" onClick={() => onAsk("stop")}>
+          <Square />
+          {t("office.stop")}
+        </Button>
+      ) : null}
+    </div>
   );
 }
 

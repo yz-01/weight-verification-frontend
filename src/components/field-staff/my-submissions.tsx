@@ -64,6 +64,20 @@ function submissionStatusText(
   return `${base} · ${t(`contractorOps.${movementStatusKey(row.status, row.movement_status)}`)}`;
 }
 
+/**
+ * A row's name as the phone says it. A disposal execution task is stored as
+ * 「Execute site disposal DR-…」; it reads 「执行清运 DR-…」 here, as on My
+ * Tasks (`disposalTaskReference`, JB207W walk 11-17). Every other row keeps
+ * its own reference.
+ */
+function submissionReference(
+  t: ReturnType<typeof useTranslations>,
+  row: MySubmissionRow,
+): string {
+  const disposal = disposalTaskReference(row);
+  return disposal ? t("taskFlow.work.disposalTitle", { reference: disposal }) : row.reference;
+}
+
 import { SundryWithdraw } from "@/components/sundry-claims/sundry-withdraw";
 import { SundryReminderNote } from "@/components/sundry-claims/sundry-reminder-note";
 import { PhotoLink } from "@/components/shared/photo-link";
@@ -72,6 +86,7 @@ import { FileThumbs } from "@/components/shared/file-thumbs";
 import { ReturnProcessingDialog } from "@/components/contractor-ops/operations-workspaces";
 import { EquipmentExitHandoverDialog } from "@/components/contractor-ops/equipment-exit";
 import { OfficeSentFiles, type OfficeSentKind } from "@/components/field-staff/office-sent-files";
+import { disposalTaskReference } from "@/components/field-staff/my-tasks-panel";
 import { useEffect, useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
@@ -386,7 +401,7 @@ export function MySubmissions({
                   openable={false}
                 />
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium">{row.reference}</p>
+                  <p className="truncate text-sm font-medium">{submissionReference(t, row)}</p>
                   <p className="truncate text-xs text-muted-foreground">
                     {t(submissionKindKey(row))}
                     {row.detail ? ` · ${row.detail}` : ""}
@@ -706,7 +721,7 @@ function StoredDetailSheet({
 
   return (
     <RecordDetailDialog
-      title={row.reference}
+      title={submissionReference(t, row)}
       description={`${t(submissionKindKey(row))} · ${formatter.dateTime(row.submitted_at)}`}
       status={<StatusBadge label={submissionStatusText(t, row)} tone="neutral" />}
       onClose={onClose}

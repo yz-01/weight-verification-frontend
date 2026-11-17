@@ -535,6 +535,13 @@ export function SundryClaimDetail({ id, onClose }: { id: string; onClose: () => 
             {(status === "PAID" || status === "REJECTED") && (
               <p className="rounded-md border px-2 py-1.5 text-xs text-muted-foreground">{t("closed")}</p>
             )}
+            {/* Withdrawn by the applicant: said, not an empty area (JB206-8,
+                Lucas 11-16 audit). */}
+            {status === "CANCELLED" && (
+              <p className="rounded-md border px-2 py-1.5 text-xs text-muted-foreground" data-slot="sundry-withdrawn">
+                {t("withdrawn")}
+              </p>
+            )}
           </div>
         }
         corrections={<RecordCorrectionHistory kind="SUNDRY_CLAIM" recordId={claim.id} />}

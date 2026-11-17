@@ -6,6 +6,7 @@ import type {
   CustomerServiceSummary, CustomerTraining, CustomerVisit,
   EnquiryNote, EnquiryStatus, TrainingStatus,
 } from "@/interfaces/crm";
+import type { AssigneeOption } from "@/interfaces/support";
 import { api, download, toastSuccess } from "@/services/api-client";
 
 export interface EnquiryPayload {
@@ -59,7 +60,16 @@ export async function addEnquiryNote(id: string, note: string) {
   return row;
 }
 
-export async function updateEnquiryStatus(id: string, status: EnquiryStatus, result: string, lostReason = "") { const row = await api.post<CustomerEnquiry>(`/api/customer-enquiries/${id}/update_status/`, { status, result, lost_reason: lostReason }); toastSuccess("crm.toast.statusUpdated"); return row; }
+/**
+ * `also` carries what the 处理 dialog can now change besides the status
+ * (JB209-6 / JB209-16, Lucas 11-16 audit C-F2 and C usability): the 处理人员
+ * and the 下次跟进日期. A key left out stays as it is on the server.
+ */
+export async function updateEnquiryStatus(id: string, status: EnquiryStatus, result: string, lostReason = "", also: { assigned_to?: string | null; follow_up_date?: string | null } = {}) { const row = await api.post<CustomerEnquiry>(`/api/customer-enquiries/${id}/update_status/`, { status, result, lost_reason: lostReason, ...also }); toastSuccess("crm.toast.statusUpdated"); return row; }
+
+/** Who an enquiry can be handed to: platform staff holding `crm.manage` (JB209-6, C-F2). */
+export const getEnquiryAssigneeOptions = (): Promise<AssigneeOption[]> =>
+  api.get("/api/customer-enquiries/get_assignee_options/");
 
 export const getTraining = (query?: ListQuery): Promise<Paginated<CustomerTraining>> => api.list("/api/customer-training/get_training/", query);
 export async function createTraining(payload: TrainingPayload) { const row = await api.post<CustomerTraining>("/api/customer-training/create_training/", payload); toastSuccess("crm.toast.trainingCreated"); return row; }
@@ -95,6 +105,6 @@ export const getServiceRecords = (query?: ListQuery): Promise<Paginated<Customer
 export async function createServiceRecord(payload: ServiceRecordPayload) { const row = await api.post<CustomerServiceRecord>("/api/customer-service-records/create_record/", payload); toastSuccess("crm.toast.serviceCreated"); return row; }
 
 export const getCustomerServiceSummary = (): Promise<CustomerServiceSummary> => api.get("/api/customer-service-reports/get_summary/");
-export function exportCustomerServiceReport(dataset: string, format: "pdf" | "xlsx", title: string, columns: Array<{ key: string; label: string }>) {
+export function exportCustomerServiceReport(dataset: string, format: "pdf" | "xlsx", title: string, columns: Array<{ key: string; label: string; values?: Record<string, string> }>) {
   return download("/api/customer-service-reports/export_report/", { method: "POST", body: { dataset, format, title, columns, empty_label: "" }, fallbackFilename: `customer-service-${dataset}.${format}` });
 }

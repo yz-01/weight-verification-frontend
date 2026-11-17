@@ -52,9 +52,13 @@ export function ConsultantOptionManager({ project }: { project: string }) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [label, setLabel] = useState("");
 
+  // JB203-3 (Lucas 11-16 audit): the switched-off ones too, greyed, so 「可选」
+  // turned off by mistake can be turned back on. Before, the row vanished on
+  // the next read and the option was gone from every new application. The
+  // types retired by Q2 / B7 stay out (the server leaves them out).
   const rows = useQuery({
     queryKey: ["consultant-options", project, category, "manage"],
-    queryFn: () => getApplicationOptions(project, category),
+    queryFn: () => getApplicationOptions(project, category, "false"),
   });
   const refresh = () =>
     queryClient.invalidateQueries({ queryKey: ["consultant-options"] });

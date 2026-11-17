@@ -85,6 +85,7 @@ import {
   updateConsultantOrganization,
   uploadConsultantOrganizationLogo,
 } from "@/services/consultant-workflow.service";
+import { getContractorSiteSettings } from "@/services/site-access.service";
 
 /**
  * Everything a consultant may be granted, and what a new grant starts with.
@@ -113,6 +114,17 @@ const DEFAULT_PERMISSIONS = [
   "notification.view",
   "safety.view",
 ];
+
+/**
+ * What a new grant starts with: the company's default list (only codes a
+ * consultant may hold, as the server filters it), else the usual five.
+ */
+export function startingPermissions(companyDefaults: readonly string[] | null | undefined): string[] {
+  const allowed = (companyDefaults ?? []).filter((code) =>
+    (PERMISSIONS as readonly string[]).includes(code),
+  );
+  return allowed.length ? allowed : DEFAULT_PERMISSIONS;
+}
 
 const PERMISSION_MESSAGE_KEYS: Record<(typeof PERMISSIONS)[number], string> = {
   "project.view": "project_view",
@@ -235,7 +247,8 @@ export function ProjectConsultantAccess() {
   const rows = open.data ?? [];
   return (
     <div className="space-y-4 pb-10">
-      <DetailHeader backHref="/modules/consultants" backLabel={t("back")} />
+      {/* JB201: back to 顾问设定, the page this one is opened from. */}
+      <DetailHeader backHref="/consultant-settings" backLabel={t("back")} />
       {/* 「顾问单位、顾问账号和项目授权由总部设置。」 - the sentence on top. */}
       <ListHeader title={t("title")} subtitle={t("projectView.notice")} />
       <section className="space-y-3">
@@ -349,7 +362,7 @@ function HeadOfficeConsultantAccess() {
   return (
     <div className="space-y-4 pb-10">
       <DetailHeader
-        backHref="/modules/consultants"
+        backHref="/consultant-settings"
         backLabel={t("back")}
       />
       <ListHeader title={t("title")} subtitle={t("subtitle")} />
@@ -1058,10 +1071,22 @@ function GrantDialog({
   const [validFrom, setValidFrom] = useState(localDateTime(row?.valid_from));
   const [validUntil, setValidUntil] = useState(localDateTime(row?.valid_until));
   const [noExpiry, setNoExpiry] = useState(!row?.valid_until);
-  const [permissions, setPermissions] = useState<string[]>(row?.permissions ?? DEFAULT_PERMISSIONS);
+  const { can } = useAuth();
+  // JB203-9 (Lucas 11-16 audit): a new grant starts from the company's
+  // 「顾问项目默认权限」 (锁定设置), as its help text promises; the server only
+  // read it when no list was sent, and this dialog always sends one.
+  // query-failure: it only pre-ticks the boxes - without it they start from the usual five, as before.
+  const companySettings = useQuery({
+    queryKey: ["contractor-site-settings"],
+    queryFn: getContractorSiteSettings,
+    enabled: !row && can("company_settings.view"),
+    retry: false,
+  });
+  const [chosen, setChosen] = useState<string[] | null>(row?.permissions ?? null);
+  const permissions = chosen ?? startingPermissions(companySettings.data?.default_consultant_permissions);
   const [active, setActive] = useState(row?.is_active ?? true);
   const togglePermission = (code: string, checked: boolean) =>
-    setPermissions((old) => checked ? [...new Set([...old, code])] : old.filter((item) => item !== code));
+    setChosen(checked ? [...new Set([...permissions, code])] : permissions.filter((item) => item !== code));
   const save = useMutation({
     mutationFn: () => {
       const payload = {

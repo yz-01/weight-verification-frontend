@@ -269,8 +269,10 @@ function HistoryTable({
               <TableCell>{row.completed_at ? df.dateTime(row.completed_at) : "—"}</TableCell>
               <TableCell>{row.net_weight_kg ? `${row.net_weight_kg} kg` : "—"}</TableCell>
               <TableCell>
+                {/* The ticket's own page; `/weigh-sessions/` was never a route
+                    and the guard sent the click to the dashboard (JB207-7). */}
                 {row.weigh_session_id ? (
-                  <Link className="font-medium text-primary hover:underline" href={`/weigh-sessions/${row.weigh_session_id}`}>
+                  <Link className="font-medium text-primary hover:underline" href={`/weighing/${row.weigh_session_id}`}>
                     {row.weigh_session_no}
                   </Link>
                 ) : "—"}

@@ -207,7 +207,8 @@ export function Projects() {
                 <Eye className="h-3.5 w-3.5" />
               </Link>
             </Button>
-            {can("project.update") && (
+            {/* Not on an archived project, which never saves (JB206-7). */}
+            {can("project.update") && row.original.status !== "ARCHIVED" && (
               <Button
                 asChild
                 variant="ghost"

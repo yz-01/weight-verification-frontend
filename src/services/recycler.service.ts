@@ -519,10 +519,21 @@ export async function recordPayment(
     reference?: string;
     notes?: string;
   },
+  /** 凭证文件 (JB207-6): sent as a form only when there is one. */
+  proofFile?: File | null,
 ): Promise<unknown> {
+  let body: typeof payload | FormData = payload;
+  if (proofFile) {
+    const form = new FormData();
+    for (const [key, value] of Object.entries(payload)) {
+      if (value !== undefined) form.append(key, value);
+    }
+    form.append("document", proofFile);
+    body = form;
+  }
   const payment = await api.post(
     `/api/settlements/${id}/record_payment/`,
-    payload,
+    body,
   );
   toastSuccess("settlements.toast.paymentRecorded");
   return payment;

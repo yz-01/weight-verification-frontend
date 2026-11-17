@@ -102,7 +102,7 @@ describe("the warning when a project has no consultant (JB176-2)", () => {
   it("tells head office where to go, with 【去开通顾问】 to the page", () => {
     const html = render(<NoConsultantNotice canOpen />);
     expect(text(html)).toContain(
-      "这个项目还没有开通顾问。请到「顾问设定 › 顾问账号与项目授权」给顾问开通这个项目，再回来建立申请。",
+      "这个项目还没有开通顾问。请到「顾问设定 › 顾问账号与项目授权」给顾问开通这个项目，再回来新建申请。",
     );
     expect(html).toMatch(/<a[^>]*href="\/consultant-access"[^>]*>[\s\S]*去开通顾问[\s\S]*<\/a>/);
   });

@@ -9,6 +9,7 @@ import { useState } from "react";
 import { CategoryDialog } from "@/components/contractor-ops/operations-workspaces";
 import { CategoryOptionItems } from "@/components/shared/category-options";
 import { QueryFailedNote } from "@/components/shared/page-primitives";
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { RecordAttachmentsPanel, recordAttachmentsKey } from "@/components/shared/record-attachments";
 import { claimConfirmBlocker, claimNeedsLetter } from "@/lib/claim-letter";
 import { getRecordAttachments } from "@/services/record-attachment.service";
@@ -599,6 +600,9 @@ function ClaimSheet({ id, onClose }: { id: string; onClose: () => void }) {
   const [paying, setPaying] = useState(false);
   const [money, setMoney] = useState<"amount" | "voucher" | null>(null);
   const [editing, setEditing] = useState(false);
+  // 丢弃 asks first (JB206-8, Lucas 11-16 audit): one click deleted the
+  // draft with its ticked records and its letter.
+  const [discarding, setDiscarding] = useState(false);
 
   const claim = useQuery({
     queryKey: ["claims", id],
@@ -899,7 +903,7 @@ function ClaimSheet({ id, onClose }: { id: string; onClose: () => void }) {
               size="sm"
               variant="outline-destructive"
               disabled={discard.isPending}
-              onClick={() => discard.mutate()}
+              onClick={() => setDiscarding(true)}
             >
               <Trash2 />
               {t("discard")}
@@ -911,6 +915,15 @@ function ClaimSheet({ id, onClose }: { id: string; onClose: () => void }) {
         </footer>
       )}
 
+      <ConfirmDialog
+        open={discarding}
+        onOpenChange={setDiscarding}
+        title={t("discardConfirm.title")}
+        description={t("discardConfirm.description")}
+        confirmLabel={t("discard")}
+        isPending={discard.isPending}
+        onConfirm={() => discard.mutate()}
+      />
       {confirming && data && (
         <ConfirmClaimDialog
           claim={data}

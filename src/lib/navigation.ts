@@ -259,7 +259,16 @@ export const PORTAL_NAVIGATION = {
       undefined,
       false,
       [
-        child("2.2.1", "nav.submodule.companyCreate", "/companies/create"),
+        // JB208-3 (Lucas 11-16 audit): only who may create a company sees it.
+        // As the first child it was where 公司管理 opened, and the route rule
+        // below sent a Support Agent straight back to the dashboard.
+        child(
+          "2.2.1",
+          "nav.submodule.companyCreate",
+          "/companies/create",
+          undefined,
+          "company.create",
+        ),
         child(
           "2.2.2",
           "nav.submodule.companyDirectory",
@@ -383,7 +392,16 @@ export const PORTAL_NAVIGATION = {
           "/monitoring/records",
         ),
         // The background work behind the recovery and exception counters.
-        child("A6.2.9", "nav.submodule.platformJobs", "/monitoring/jobs"),
+        // Only for platform.maintenance, which its API needs (JB205-5, Lucas
+        // 11-16 audit): a Support Agent monitors but does not run jobs, and
+        // was offered a page that opened on a refusal.
+        child(
+          "A6.2.9",
+          "nav.submodule.platformJobs",
+          "/monitoring/jobs",
+          undefined,
+          "platform.maintenance",
+        ),
       ],
     ),
     item(
@@ -498,11 +516,18 @@ export const PORTAL_NAVIGATION = {
           "nav.submodule.apiGatewaySettings",
           "/system-settings/api-gateway",
         ),
+        // 系统集成 under 系统设置, for whoever may read it (JB205-5, Lucas
+        // 11-16 audit). It asked for the `integrations` feature, which the
+        // MSE Admin portal never has (only the builder and recycler portals
+        // do), so it was never shown and the page was reached only through
+        // 「管理安全连接」. The builder's and recycler's own entries are
+        // separate items and are not touched.
         child(
           "11.2.8A",
           "nav.submodule.integrationSettings",
           "/integrations",
-          "integrations",
+          undefined,
+          "integration.view",
         ),
         child(
           "11.2.9",
@@ -965,6 +990,21 @@ export const PORTAL_NAVIGATION = {
           "/weighing",
           "recycling_records",
         ),
+        // 扣杂 the recycler claims on one of these loads, out of the menu: the
+        // 「请确认扣杂」 card opens `/deductions?search=<load>`, and the guard
+        // used to turn the contractor away to the dashboard, so the claim was
+        // never answered and the load could never be settled - JB207-1
+        // (Lucas 11-16 audit). `/deductions/create` stays the recycler's
+        // (`deduction.create`, PERMISSION_ROUTE_RULES).
+        {
+          ...child(
+            "8.2.6a",
+            "nav.deductions",
+            "/deductions",
+            "recycling_records",
+          ),
+          menuHidden: true,
+        },
       ],
     ),
     // 安全事故 (安全事件 + 事故上报) removed at the customer's request on
@@ -1527,25 +1567,25 @@ export const PORTAL_NAVIGATION = {
   ],
   MSE_SCRAP: [
     item("dashboard", "/dashboard", LayoutDashboard, "overview"),
-    item("customer_management", "/recycler-modules/customer_management", Users, "operations", [
-      "/partnerships",
-    ], false, [
+    item("customer_management", "/recycler-modules/customer_management", Users, "operations", undefined, false, [
       child("recycler-customers", "nav.customer_management", "/recycler-customers", "customer_management"),
       child("recycler-partnerships", "nav.partnerships", "/partnerships", "partnerships"),
     ]),
-    item("yards", "/recycler-modules/yards", Warehouse, "operations", [
-      "/vehicles",
-      "/drivers",
-    ], false, [
+    // 车辆 / 司机 and 地磅 / 付款状态 are not parent prefixes: each is a child
+    // with its own feature, and a prefix answered with the parent's feature
+    // first - the weighbridge operator (no 回收场) saw 车辆 in the menu and
+    // was bounced, so nobody but the admin could 设定皮重; a 标准版 yard (no
+    // 称重记录) the same with 付款状态. JB207-3 (Lucas 11-16 audit).
+    item("yards", "/recycler-modules/yards", Warehouse, "operations", undefined, false, [
       child("recycler-yards", "nav.yards", "/sites", "yards"),
       child("recycler-vehicles", "nav.vehicles", "/vehicles", "vehicles"),
       child("recycler-drivers", "nav.drivers", "/drivers", "drivers"),
     ]),
+    // The same for 司机任务 / 司机定位 here, 建筑商合作 and 出库 below (JB207-3,
+    // the sweep for the same shape): their own child decides.
     item("waste_orders", "/recycler-modules/waste_orders", Inbox, "operations", [
       "/incoming",
       "/dispatches",
-      "/tasks",
-      "/driver-gps",
       "/driver",
     ], false, [
       child("recycler-orders", "nav.waste_orders", "/waste-orders", "waste_orders"),
@@ -1555,17 +1595,13 @@ export const PORTAL_NAVIGATION = {
     item("weighing_records", "/recycler-modules/weighing_records", Gauge, "operations", [
       "/gate",
       "/deductions",
-      "/settlements",
-      "/scales",
     ], false, [
       child("recycler-weighing", "nav.weighing_records", "/weighing", "weighing_records"),
       child("recycler-scales", "nav.weighbridges", "/scales", "weighbridges"),
       child("recycler-deductions", "nav.deductions", "/deductions", "weighing_records"),
       child("recycler-settlements", "nav.payment_status", "/settlements", "payment_status"),
     ]),
-    item("inventory_management", "/recycler-modules/inventory_management", Box, "operations", [
-      "/recycler-outbound",
-    ], false, [
+    item("inventory_management", "/recycler-modules/inventory_management", Box, "operations", undefined, false, [
       child("recycler-inventory", "nav.inventory_management", "/recycler-inventory", "inventory_management"),
       child("recycler-outbound", "nav.outbound_management", "/recycler-outbound", "outbound_management"),
     ]),

@@ -49,6 +49,7 @@ import {
   signingNeeds,
   type Signing,
 } from "@/components/consultant-workflow/consultant-own-form";
+import { ConsultantProjectPicker } from "@/components/consultant-workflow/project-scope-picker";
 import { useAuth } from "@/components/providers/auth-provider";
 import { useFinishForm } from "@/components/shared/dialog-navigation";
 import { ExportButton } from "@/components/shared/export-button";
@@ -122,7 +123,7 @@ import {
   deleteConsultantApplication,
 } from "@/services/consultant-workflow.service";
 import { FileThumbs } from "@/components/shared/file-thumbs";
-import { PhotoLink } from "@/components/shared/photo-link";
+import { isImageFile, PhotoLink } from "@/components/shared/photo-link";
 
 /**
  * One consultant application, in the record-detail frame every module
@@ -224,9 +225,22 @@ export function ConsultantApplicationDetail({
     );
   }
   if (query.isLoadingError || !query.data) {
+    // JB203-12 (audit P2-4): a consultant reads one project at a time (the
+    // top bar's), so a notice about an application on their other project
+    // came here. Saying so, with the same picker, is the way forward.
+    const otherProject =
+      user?.account_type === "CONSULTANT" &&
+      (user.consultant_projects ?? []).filter((project) => project.is_current).length > 1;
     return (
       <RecordDetailFrame {...frame} title={t("applications.title")}>
-        <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-10 text-center text-sm text-destructive">{t("state.loadError")}</div>
+        {otherProject ? (
+          <div data-slot="other-project" className="space-y-3 rounded-lg border border-info/30 bg-info/5 p-6 text-sm">
+            <p>{t("state.otherProject")}</p>
+            <ConsultantProjectPicker value={user?.active_project?.project_id ?? ""} onChange={() => undefined} />
+          </div>
+        ) : (
+          <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-10 text-center text-sm text-destructive">{t("state.loadError")}</div>
+        )}
       </RecordDetailFrame>
     );
   }
@@ -253,6 +267,9 @@ export function ConsultantApplicationDetail({
   const canAct = Boolean(
     currentStep && user && can("approval.review") && reviewerMatches(currentStep, application, user),
   );
+  // JB203-2 (Lucas 11-16 audit): the returned version keeps its status, so
+  // 【建立新版本】 stayed after the new one was made. It goes once there is one.
+  const laterRevision = laterRevisionOf(application);
   const action = (
     <>
       {/* Sending is on the A4 form card below (C1): the form it sends is
@@ -285,7 +302,7 @@ export function ConsultantApplicationDetail({
           />
         </>
       )}
-      {application.status === "REVISE_RESUBMIT" && can("consultant.submit") && (
+      {application.status === "REVISE_RESUBMIT" && !laterRevision && can("consultant.submit") && (
         <Button size="sm" disabled={revision.isPending} onClick={() => revision.mutate()}>
           {revision.isPending ? <Loader2 className="animate-spin" /> : <RotateCcw />}
           {t("action.createRevision")}
@@ -493,7 +510,9 @@ export function ConsultantApplicationDetail({
               }
             >
               {!application.related_record_groups.length ? (
-                <Empty text={t("state.noApplications")} />
+                // JB203W (walk F-2): its own words, not the list's 「该项目没有
+                // 符合条件的顾问申请」.
+                <Empty text={t("detail.noRelatedRecords")} />
               ) : (
                 <div className="space-y-4">
                   {application.related_record_groups.map((group) => (
@@ -596,7 +615,10 @@ export function ConsultantApplicationDetail({
             <div className="min-w-0">
               <h3 className="panel-title">{t("detail.nextAction")}</h3>
               <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                {nextActionText(application, currentStep, canAct, t)}
+                {nextActionText(application, currentStep, canAct, t, {
+                  canSubmit: can("consultant.submit"),
+                  canRaise: canRaiseRemedial(application, user?.id, can),
+                })}
               </p>
               {currentStep && (
                 <p className="mt-2 text-sm font-medium text-foreground">
@@ -607,6 +629,13 @@ export function ConsultantApplicationDetail({
             {currentStep && canAct && (
               credential.isError ? (
                 <LoadFailed className="w-full" what={t("what.credential")} onRetry={() => credential.refetch()} />
+              ) : currentStep.requires_stamp && !application.consultant_form && signsWithCredential(credential.data) && !credential.data?.stamp ? (
+                // JB203-11 (Lucas 11-16 audit): the step needs the stamp and
+                // there is none - said before the PIN is typed, not after.
+                <div data-slot="stamp-missing" className="space-y-2 rounded-lg border border-warning/30 bg-warning/5 p-3 text-sm">
+                  <p>{t("review.stampMissing")}</p>
+                  <Button asChild className="min-h-11 w-full"><Link href="/approval-credential"><KeyRound />{t("review.setupCredential")}</Link></Button>
+                </div>
               ) : signsWithCredential(credential.data) || (application.consultant_form && credential.isSuccess) ? (
                 <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-1">
                   <Button className="min-h-11 justify-start" onClick={() => setDecision("APPROVE")}><CheckCircle2 />{t("decision.APPROVE")}</Button>
@@ -738,6 +767,14 @@ function ApplicationLifecycle({ application }: { application: ConsultantApplicat
 function RevisionTimeline({ application }: { application: ConsultantApplication }) {
   const t = useTranslations("consultantWorkflow");
   if (!application.revision_chain.length) return <Empty text={t("detail.noRevisions")} />;
+  // JB203W (walk F-10): 「当前版本」 on the version being read, beside a newer
+  // one, read as "the live one". The row on screen says so, and once there
+  // is more than one version the newest says it is the newest - the same row
+  // may say both.
+  const latest =
+    application.revision_chain.length > 1
+      ? Math.max(...application.revision_chain.map((row) => row.revision))
+      : null;
 
   return (
     <div className="space-y-2">
@@ -756,9 +793,11 @@ function RevisionTimeline({ application }: { application: ConsultantApplication 
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
                 <p className="font-medium">{t("detail.revision", { revision: row.revision })}</p>
-                {row.is_current && <span className="text-xs font-semibold text-primary">{t("detail.revisionCurrent")}</span>}
+                {row.is_current && <span data-revision-tag="viewing" className="text-xs font-semibold text-primary">{t("detail.revisionCurrent")}</span>}
+                {row.revision === latest && <span data-revision-tag="latest" className="text-xs font-semibold text-success">{t("detail.revisionLatest")}</span>}
               </div>
-              <p className="truncate text-xs text-muted-foreground">{row.application_no}</p>
+              {/* JB202: the number wraps on a phone instead of ending in 「…」. */}
+              <p className="break-words text-xs text-muted-foreground">{row.application_no}</p>
               {timestamp && <p className="mt-1 text-xs text-muted-foreground">{new Date(timestamp).toLocaleString()}</p>}
             </div>
             <StatusBadge label={t(`status.${row.status}`)} tone={statusTone(row.status)} />
@@ -867,18 +906,75 @@ function ArchiveChecklist({ application }: { application: ConsultantApplication 
   );
 }
 
+/** The version made from this one after it was returned, if there is one (JB203-2). */
+export function laterRevisionOf(application: Pick<ConsultantApplication, "revision" | "revision_chain">) {
+  return application.revision_chain.find((row) => row.revision > application.revision);
+}
+
+/** The newest version made from this one, through later returns too (JB203W). */
+export function newestRevisionOf(application: Pick<ConsultantApplication, "revision" | "revision_chain">) {
+  return application.revision_chain.reduce<ConsultantApplication["revision_chain"][number] | undefined>(
+    (newest, row) => (row.revision > (newest?.revision ?? application.revision) ? row : newest),
+    undefined,
+  );
+}
+
+/**
+ * Whether this reader may press 【开一条整改】: the reviewer who approved with
+ * remedial works, while the application is still under review or approved on
+ * that condition - the same rule the reminders follow (JB200).
+ */
+export function canRaiseRemedial(
+  application: Pick<ConsultantApplication, "status" | "review_steps">,
+  userId: string | undefined,
+  can: (code: string) => boolean,
+) {
+  return (
+    can("approval.review") &&
+    (application.status === "SUBMITTED" || application.status === "APPROVED_WITH_REMEDIAL") &&
+    application.review_steps.some(
+      (step) => step.status === "APPROVED_WITH_REMEDIAL" && Boolean(userId) && step.decided_by === userId,
+    )
+  );
+}
+
 function nextActionText(
   application: ConsultantApplication,
   currentStep: ApplicationReviewStep | undefined,
   canAct: boolean,
   t: ReturnType<typeof useTranslations<"consultantWorkflow">>,
+  /** What this reader can press: the contractor's 【建立新版本】 / 【关闭这条整改】, or 【开一条整改】. */
+  reader: { canSubmit: boolean; canRaise: boolean },
 ) {
   if (application.status === "DRAFT") return t("detail.next.draft");
-  if (application.status === "REVISE_RESUBMIT") return t("detail.next.revise");
+  if (application.status === "REVISE_RESUBMIT") {
+    // JB203-2: the new version is made - say where to go on, not 「请建立新版本」.
+    // JB203W (walk F-10): and what became of it since - 「改好后再发送」 was
+    // still said after it was sent and decided.
+    const newest = newestRevisionOf(application);
+    if (newest?.status === "DRAFT") return t("detail.next.reviseMade", { revision: newest.revision });
+    if (newest?.status === "SUBMITTED") return t("detail.next.reviseSent", { revision: newest.revision });
+    if (newest) return t("detail.next.reviseDecided", { revision: newest.revision });
+    // The reviewer has no 【建立新版本】 (sibling of walk F-4).
+    if (!reader.canSubmit) return t("detail.next.reviseReviewer");
+    return t("detail.next.revise");
+  }
   if (application.status === "SUBMITTED" && canAct) return t("detail.next.review");
   if (application.status === "SUBMITTED" && currentStep) {
     return t("detail.next.waiting", { step: currentStep.name });
   }
+  // JB200: approved on condition and work still open - say what to do, not
+  // only that the paperwork is archived.
+  const openRemedial = (application.remedial_items ?? []).filter((item) => item.status === "OPEN").length;
+  if (application.status === "APPROVED_WITH_REMEDIAL" && openRemedial > 0) {
+    // JB203W (walk F-4): 【关闭这条整改】 is the contractor's; the reviewer
+    // was told to press it. They wait, and may raise another.
+    if (reader.canSubmit) return t("detail.next.remedialOpen", { count: openRemedial });
+    if (reader.canRaise) return t("detail.next.remedialOpenReviewer", { count: openRemedial });
+    return t("detail.next.remedialOpenWatching", { count: openRemedial });
+  }
+  // JB203W (walk NOTE 32): rejected - nothing said the work may be sent again.
+  if (application.status === "REJECTED" && reader.canSubmit) return t("detail.next.rejected");
   if (application.archived_at) return t("detail.next.archived");
   if (application.final_report) return t("detail.next.final");
   return t("detail.next.complete");
@@ -900,18 +996,21 @@ function RemedialSection({
   onChanged: () => void;
 }) {
   const t = useTranslations("consultantWorkflow");
-  const { can } = useAuth();
+  const { can, user } = useAuth();
   const [raising, setRaising] = useState(false);
   const [closing, setClosing] = useState<RemedialItem | null>(null);
   const items = application.remedial_items ?? [];
+  // JB200 (Lucas 11-16): the button used to need an unsent draft, which a
+  // consultant never sees (`canRaiseRemedial`, which 下一步 asks too).
+  const canRaise = canRaiseRemedial(application, user?.id, can);
 
-  if (!items.length && !can("approval.review")) return null;
+  if (!items.length && !canRaise) return null;
 
   return (
     <Section
       title={t("detail.section.remedial")}
       action={
-        can("approval.review") && !application.is_locked ? (
+        canRaise ? (
           <Button size="sm" variant="outline" onClick={() => setRaising(true)}>
             <Plus />
             {t("action.raiseRemedial")}
@@ -946,25 +1045,48 @@ function RemedialSection({
               </div>
               <p className="mt-1 text-xs text-muted-foreground">
                 {[
-                  item.assigned_to_name ?? t("remedial.unassigned"),
+                  item.assigned_to_name
+                    ? t("remedial.responsible", { name: item.assigned_to_name })
+                    : t("remedial.responsibleApplicant", { name: application.applicant_name }),
                   item.due_on ? t("remedial.dueOn", { date: item.due_on }) : "",
+                  item.created_by_name ? t("remedial.raisedBy", { name: item.created_by_name }) : "",
                 ]
                   .filter(Boolean)
                   .join(" · ")}
               </p>
               {item.status === "CLOSED" && (
-                <p className="mt-2 text-sm">
-                  {item.closure_note}
-                  <span className="ml-2 text-xs text-muted-foreground">
-                    {t("remedial.closedBy", {
-                      name: item.closed_by_name ?? "",
-                      when: item.closed_at
-                        ? new Date(item.closed_at).toLocaleString()
-                        : "",
-                      count: item.evidence.length,
-                    })}
-                  </span>
-                </p>
+                <>
+                  <p className="mt-2 text-sm">
+                    {item.closure_note}
+                    <span className="ml-2 text-xs text-muted-foreground">
+                      {t("remedial.closedBy", {
+                        name: item.closed_by_name ?? "",
+                        when: item.closed_at
+                          ? new Date(item.closed_at).toLocaleString()
+                          : "",
+                        count: item.evidence.length,
+                      })}
+                    </span>
+                  </p>
+                  {/* JB203W (walk F-8): the proof itself - the consultant told
+                      「整改已关闭」 could not see the photo that closed it. A
+                      photo opens in the viewer, a document in a new tab. */}
+                  {(item.evidence_files ?? []).length > 0 && (
+                    <div className="mt-2" data-slot="remedial-proof">
+                      <FileThumbs
+                        all
+                        files={(item.evidence_files ?? []).map((file) => ({
+                          id: file.id,
+                          name: file.original_filename,
+                          thumbnail_url: isImageFile(file.original_filename, file.content_type)
+                            ? file.watermarked_file || file.file
+                            : null,
+                          href: file.watermarked_file || file.file,
+                        }))}
+                      />
+                    </div>
+                  )}
+                </>
               )}
               {item.status === "OPEN" && can("consultant.submit") && (
                 <Button
@@ -1052,6 +1174,7 @@ function RaiseRemedialDialog({
           <FieldWrapper label={t("remedial.dueDate")} hint={t("remedial.dueHint")}>
             <Input
               type="date"
+              min={todayIso()}
               value={dueOn}
               onChange={(event) => setDueOn(event.target.value)}
             />
@@ -1291,11 +1414,22 @@ function EvidenceDialog({ application, onClose, onSaved }: { application: Consul
   return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="max-h-[92dvh] overflow-y-auto sm:max-w-6xl"><DialogHeader><DialogTitle>{t("evidence.title")}</DialogTitle><DialogDescription>{t("evidence.help")}</DialogDescription></DialogHeader><div className="space-y-3">{options.isError ? <LoadFailed what={t("what.evidenceFilters")} onRetry={() => options.refetch()} /> : <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"><FieldWrapper label={t("evidence.module")}><FilterSelect value={moduleFilter} onChange={setModuleFilter} allLabel={t("evidence.allModules")} choices={moduleChoices.map((row) => ({ value: row.value, label: MODULE_LABEL_PATH[row.key] ? root(MODULE_LABEL_PATH[row.key] as string) : t("evidence.moduleName.other"), count: row.count }))} /></FieldWrapper><FieldWrapper label={t("evidence.category")}><FilterSelect value={category} onChange={(next) => { setCategory(next); setSubcategory(""); }} allLabel={t("evidence.allCategories")} choices={(options.data?.categories ?? []).map((row) => ({ value: row.value, label: categoryLabel(row.value), count: row.count }))} /></FieldWrapper><FieldWrapper label={t("evidence.subcategory")}><FilterSelect value={subcategory} onChange={setSubcategory} allLabel={t("evidence.allSubcategories")} disabled={!category || subcategoryChoices.length === 0} choices={subcategoryChoices.map((row) => ({ value: row.value, label: categoryLabel(row.value), count: row.count }))} /></FieldWrapper><FieldWrapper label={t("evidence.uploader")}><FilterSelect value={uploader} onChange={setUploader} allLabel={t("evidence.allUploaders")} choices={(options.data?.uploaders ?? []).map((row) => ({ value: row.value, label: row.label || t("common.unknown"), count: row.count }))} /></FieldWrapper></div>}<div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"><Input type="date" aria-label={t("evidence.dateFrom")} value={dateFrom} max={dateTo || undefined} onChange={(event) => setDateFrom(event.target.value)} /><Input type="date" aria-label={t("evidence.dateTo")} value={dateTo} min={dateFrom || undefined} onChange={(event) => setDateTo(event.target.value)} /><Input className="sm:col-span-2" placeholder={t("evidence.searchPlaceholder")} aria-label={t("evidence.keyword")} value={search} onChange={(event) => setSearch(event.target.value)} /></div></div>{rows.isLoading ? <div className="grid min-h-32 place-items-center"><Loader2 className="animate-spin" /></div> : rows.isError ? <LoadFailed what={t("what.evidenceCandidates")} onRetry={() => rows.refetch()} /> : <div className="space-y-3"><FieldWrapper label={t("evidence.selectPhotos")} required><div className="max-h-[58dvh] space-y-3 overflow-y-auto pr-1">{groups.map((group) => { const ids = group.rows.map((row) => row.id); const allSelected = ids.every((id) => selected.includes(id)); const open = expanded === group.key; const first = group.rows[0]; return <div key={group.key} className={`rounded-lg border ${allSelected ? "border-primary ring-2 ring-primary/20" : ""}`}><div className="flex items-start gap-3 p-3"><Checkbox checked={allSelected} onCheckedChange={() => toggleGroup(group)} aria-label={t("evidence.selectRecord")} /><button type="button" className="flex min-w-0 flex-1 items-start gap-3 text-left" onClick={() => setExpanded(open ? null : group.key)}><span className="mt-0.5 shrink-0">{open ? <ChevronDown className="size-4" /> : <ChevronRight className="size-4" />}</span><span className="min-w-0"><span className="block truncate font-medium">{first.record_reference} · {first.record_type_label} · {first.record_title}</span><span className="block text-xs text-muted-foreground">{first.project_name || t("common.emptyValue")} · {categoryLabel(first.category) || t("common.emptyValue")} {first.subcategory ? `· ${categoryLabel(first.subcategory)}` : ""}</span><span className="block text-xs text-muted-foreground">{group.rows.length} {t("evidence.recordPhotos")} · {first.record_uploader || first.photographer_name || t("common.unknown")} · {first.record_date ? new Date(first.record_date).toLocaleString() : new Date(first.captured_at).toLocaleString()}</span></span></button></div>{open && <div className="grid gap-3 border-t bg-muted/20 p-3 sm:grid-cols-4">{group.rows.map((row) => { const checked = selected.includes(row.id); const image = row.watermarked_file || row.file; return <div key={row.id} className={`rounded-md border bg-card p-2 ${checked ? "border-primary" : ""}`}><div className="relative aspect-[4/3] overflow-hidden rounded bg-muted">{row.kind === "PHOTO" ? <Image src={image} alt={row.original_filename} fill unoptimized className="object-cover object-bottom" /> : <div className="grid h-full place-items-center p-2 text-center text-xs text-muted-foreground">{row.original_filename}</div>}</div><label className="mt-2 flex items-start gap-2 text-xs"><Checkbox checked={checked} onCheckedChange={() => toggle(row.id)} /><span className="min-w-0"><span className="block truncate font-medium">{row.original_filename}</span><span className="block text-muted-foreground">{new Date(row.captured_at).toLocaleString()} · {t("evidence.gps")} {row.latitude ?? "-"}, {row.longitude ?? "-"}</span><span className="block text-muted-foreground">{row.photographer_name || t("common.unknown")} · {row.watermark_text ? t("evidence.watermarked") : ""}</span></span></label></div>; })}</div>}</div>; })}{!groups.length && <Empty text={t("evidence.noCandidates")} />}</div></FieldWrapper><div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground"><span>{t("evidence.showing", { shown: candidates.length, count: totalCount })}</span>{rows.hasNextPage && <Button type="button" size="sm" variant="outline" disabled={rows.isFetchingNextPage} onClick={() => void rows.fetchNextPage()}>{rows.isFetchingNextPage ? <Loader2 className="animate-spin" /> : null}{t("evidence.loadMore")}</Button>}</div><div className="flex flex-wrap items-end gap-3"><FieldWrapper label={t("evidence.caption")} className="min-w-64 flex-1"><Input value={caption} onChange={(event) => setCaption(event.target.value)} /></FieldWrapper><p className="pb-2 text-sm font-medium text-primary">{selected.length} / {candidates.length}</p></div></div>}<DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button requires={[[selected.length, t("evidence.selectPhotos")]]} disabled={save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <Link2 />}{t("evidence.link")} ({selected.length})</Button></DialogFooter></DialogContent></Dialog>;
 }
 
-function DecisionDialog({ application, decision, hasCredential, onClose, onSaved }: { application: ConsultantApplication; decision: "APPROVE" | "APPROVE_WITH_REMEDIAL" | "REJECT" | "REVISE_RESUBMIT"; hasCredential: boolean; onClose: () => void; onSaved: () => void }) {
+export function DecisionDialog({ application, decision, hasCredential, onClose, onSaved }: { application: ConsultantApplication; decision: "APPROVE" | "APPROVE_WITH_REMEDIAL" | "REJECT" | "REVISE_RESUBMIT"; hasCredential: boolean; onClose: () => void; onSaved: () => void }) {
   const t = useTranslations("consultantWorkflow");
   const common = useTranslations("common");
   const [remarks, setRemarks] = useState("");
   const [pin, setPin] = useState("");
+  // JB200: 「批准并要求整改」 lists the work here, one line per thing, so the
+  // signed final report prints it and the contractor can close each one.
+  const remedial = decision === "APPROVE_WITH_REMEDIAL";
+  const [lines, setLines] = useState<{ description: string; due_on: string }[]>([
+    { description: "", due_on: "" },
+  ]);
+  const listed = lines
+    .filter((line) => line.description.trim())
+    .map((line) => ({ description: line.description.trim(), due_on: line.due_on || null }));
+  const setLine = (index: number, patch: Partial<{ description: string; due_on: string }>) =>
+    setLines((current) => current.map((line, at) => (at === index ? { ...line, ...patch } : line)));
   // B (2026-10-10): the consultant's own form may also be signed and stamped
   // by hand and uploaded - 「也可上传已经签名 / 盖章的最终版本」.
   const choices = signingChoices(Boolean(application.consultant_form), hasCredential);
@@ -1307,12 +1441,14 @@ function DecisionDialog({ application, decision, hasCredential, onClose, onSaved
       reviewConsultantApplication(application.id, {
         decision,
         remarks,
+        ...(remedial ? { remedial_items: listed } : {}),
         ...(needs.pin ? { approval_pin: pin } : {}),
         ...(application.consultant_form ? { signing, signed_form: signedForm } : {}),
       }),
     onSuccess: onSaved,
   });
-  const remarksRequired = decision !== "APPROVE";
+  // The list says what is owed, so with it the remarks are optional (JB200).
+  const remarksRequired = decision !== "APPROVE" && !remedial;
   const ownForm = Boolean(application.consultant_form);
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
@@ -1322,7 +1458,60 @@ function DecisionDialog({ application, decision, hasCredential, onClose, onSaved
           <DialogDescription>{t(`review.dialog.${decision}.description`)}</DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
-          <FieldWrapper label={t("review.remarks")} required={remarksRequired}>
+          {remedial ? (
+            <FieldWrapper label={t("detail.section.remedial")} required>
+              <div className="space-y-3" data-slot="remedial-lines">
+                <p className="text-sm text-muted-foreground">{t("review.remedialList.hint")}</p>
+                {lines.map((line, index) => (
+                  <div key={index} className="space-y-2 rounded-lg border p-3">
+                    <FieldWrapper label={t("review.remedialList.item", { n: index + 1 })}>
+                      <Textarea
+                        rows={2}
+                        value={line.description}
+                        placeholder={t("review.remedialList.placeholder")}
+                        onChange={(event) => setLine(index, { description: event.target.value })}
+                      />
+                    </FieldWrapper>
+                    <div className="flex flex-wrap items-end gap-2">
+                      <FieldWrapper label={t("remedial.dueDate")} optional={common("optional")} className="min-w-44 flex-1">
+                        <Input
+                          type="date"
+                          min={todayIso()}
+                          value={line.due_on}
+                          onChange={(event) => setLine(index, { due_on: event.target.value })}
+                        />
+                      </FieldWrapper>
+                      {lines.length > 1 && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setLines((current) => current.filter((_, at) => at !== index))}
+                        >
+                          <XCircle />
+                          {t("review.remedialList.remove")}
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setLines((current) => [...current, { description: "", due_on: "" }])}
+                >
+                  <Plus />
+                  {t("review.remedialList.add")}
+                </Button>
+                <p className="text-xs text-muted-foreground">{t("remedial.dueHint")}</p>
+              </div>
+            </FieldWrapper>
+          ) : null}
+          <FieldWrapper
+            label={t("review.remarks")}
+            required={remarksRequired}
+            optional={remedial ? common("optional") : undefined}
+          >
             <Textarea rows={4} value={remarks} onChange={(event) => setRemarks(event.target.value)} />
           </FieldWrapper>
           {ownForm && choices.length > 1 ? (
@@ -1379,6 +1568,7 @@ function DecisionDialog({ application, decision, hasCredential, onClose, onSaved
             requires={[
               [!needs.pin || pin.length === 6, t("review.pin")],
               [!needs.file || signedForm, t("ownForm.signedFormFile")],
+              [!remedial || listed.length > 0, t("detail.section.remedial")],
               [!remarksRequired || remarks, t("review.remarks")],
             ]}
             disabled={save.isPending}
@@ -1438,6 +1628,13 @@ function statusTone(status: ConsultantApplication["status"]): "neutral" | "posit
   if (status === "SUBMITTED" || status === "REVISE_RESUBMIT" || status === "APPROVED_WITH_REMEDIAL") return "warning";
   if (status === "ARCHIVED") return "info";
   return "neutral";
+}
+
+/** Today as YYYY-MM-DD in the reader's own time zone (a date input's min). */
+function todayIso() {
+  const now = new Date();
+  const pad = (value: number) => String(value).padStart(2, "0");
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
 }
 
 function Empty({ text }: { text: string }) {

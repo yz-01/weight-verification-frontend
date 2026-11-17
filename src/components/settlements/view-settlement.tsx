@@ -47,6 +47,7 @@ import {
   lockSettlement,
   recordPayment,
 } from "@/services/recycler.service";
+import { localToday } from "@/lib/local-date";
 
 /**
  * One load's money, from both ends.
@@ -351,20 +352,27 @@ function PaymentDialog({
   // Pre-filled with what is still owed: paying the balance is the common case,
   // and a wrong number typed from memory is worse than one that was offered.
   const [amount, setAmount] = useState(outstanding ?? "");
-  const [paidOn, setPaidOn] = useState(
-    new Date().toISOString().slice(0, 10),
-  );
+  // Today on the reader's calendar, not UTC's (JB207W: before 08:00 in
+  // Malaysia the UTC date is still yesterday).
+  const [paidOn, setPaidOn] = useState(localToday());
   const [method, setMethod] = useState<PaymentMethod>("BANK_TRANSFER");
   const [reference, setReference] = useState("");
+  // The bank slip itself (JB207-6, Lucas 11-16 audit): the contractor's
+  // 付款凭证 has a 「凭证文件」 column that nothing here could ever fill.
+  const [proofFile, setProofFile] = useState<File | null>(null);
 
   const record = useMutation({
     mutationFn: () =>
-      recordPayment(settlementId, {
-        amount,
-        paid_on: paidOn,
-        method,
-        reference: reference.trim(),
-      }),
+      recordPayment(
+        settlementId,
+        {
+          amount,
+          paid_on: paidOn,
+          method,
+          reference: reference.trim(),
+        },
+        proofFile,
+      ),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["settlements"] });
       onClose();
@@ -431,6 +439,19 @@ function PaymentDialog({
               onChange={(event) => setReference(event.target.value)}
             />
           </div>
+          <FieldWrapper
+            label={t("settlements.payment.document")}
+            optional={t("common.optional")}
+            hint={t("settlements.payment.documentHint")}
+            className="sm:col-span-2"
+          >
+            <Input
+              type="file"
+              accept="application/pdf,image/png,image/jpeg"
+              aria-label={t("settlements.payment.document")}
+              onChange={(event) => setProofFile(event.target.files?.[0] ?? null)}
+            />
+          </FieldWrapper>
         </div>
 
         <DialogFooter className="gap-2 sm:gap-2">

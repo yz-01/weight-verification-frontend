@@ -24,8 +24,12 @@ function Tabs({
   )
 }
 
+// JB202 (Lucas 11-16 「字被裁掉了…检查一下有没有类似的问题」): on a phone the
+// tabs that do not fit wrap to a second row (`max-sm:flex-wrap`, the height
+// follows) instead of sliding off the edge with no scrollbar - 工程进度's
+// 「项目进度摘要」 showed as 「项」 and nothing told the reader to swipe.
 const tabsListVariants = cva(
-  "group/tabs-list no-scrollbar inline-flex w-fit max-w-full items-center justify-start overflow-x-auto rounded-xl p-1 text-muted-foreground group-data-horizontal/tabs:h-10 pointer-coarse:group-data-horizontal/tabs:h-12 group-data-vertical/tabs:h-fit group-data-vertical/tabs:flex-col data-[variant=line]:rounded-none",
+  "group/tabs-list no-scrollbar inline-flex w-fit max-w-full items-center justify-start overflow-x-auto rounded-xl p-1 text-muted-foreground group-data-horizontal/tabs:h-10 pointer-coarse:group-data-horizontal/tabs:h-12 group-data-vertical/tabs:h-fit group-data-vertical/tabs:flex-col data-[variant=line]:rounded-none max-sm:h-auto! max-sm:flex-wrap max-sm:overflow-visible",
   {
     variants: {
       variant: {
@@ -63,7 +67,8 @@ function TabsTrigger({
     <TabsPrimitive.Trigger
       data-slot="tabs-trigger"
       className={cn(
-        "relative inline-flex h-full flex-1 items-center justify-center gap-1.5 rounded-lg border border-transparent px-3 py-0.5 text-sm font-medium whitespace-nowrap text-muted-foreground transition-all group-data-vertical/tabs:w-full group-data-vertical/tabs:justify-start hover:text-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-1 focus-visible:outline-ring disabled:pointer-events-none disabled:opacity-50 has-data-[icon=inline-end]:pr-1 has-data-[icon=inline-start]:pl-1 dark:text-muted-foreground dark:hover:text-foreground group-data-[variant=default]/tabs-list:data-active:shadow-sm group-data-[variant=line]/tabs-list:data-active:shadow-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        // JB202: `max-sm:min-h-10` - in a wrapped row on a phone the tab keeps its height.
+        "relative inline-flex h-full flex-1 items-center justify-center gap-1.5 rounded-lg border border-transparent px-3 py-0.5 text-sm font-medium whitespace-nowrap text-muted-foreground transition-all max-sm:min-h-10 group-data-vertical/tabs:w-full group-data-vertical/tabs:justify-start hover:text-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-1 focus-visible:outline-ring disabled:pointer-events-none disabled:opacity-50 has-data-[icon=inline-end]:pr-1 has-data-[icon=inline-start]:pl-1 dark:text-muted-foreground dark:hover:text-foreground group-data-[variant=default]/tabs-list:data-active:shadow-sm group-data-[variant=line]/tabs-list:data-active:shadow-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         "group-data-[variant=line]/tabs-list:bg-transparent group-data-[variant=line]/tabs-list:data-active:bg-transparent dark:group-data-[variant=line]/tabs-list:data-active:border-transparent dark:group-data-[variant=line]/tabs-list:data-active:bg-transparent",
         "data-active:bg-card data-active:text-foreground data-active:shadow-panel dark:data-active:border-primary/40 dark:data-active:bg-primary/15 dark:data-active:text-tone-cyan-fg",
         "after:absolute after:bg-primary after:opacity-0 after:transition-opacity group-data-horizontal/tabs:after:inset-x-0 group-data-horizontal/tabs:after:bottom-[-5px] group-data-horizontal/tabs:after:h-0.5 group-data-vertical/tabs:after:inset-y-0 group-data-vertical/tabs:after:-right-1 group-data-vertical/tabs:after:w-0.5 group-data-[variant=line]/tabs-list:data-active:after:opacity-100",

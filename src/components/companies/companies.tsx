@@ -86,9 +86,14 @@ export function Companies({
     queryKey: ["companies", "summary"],
     queryFn: getCompanySummary,
   });
+  // JB208-12 (Lucas 11-16 audit): packages are read with 账单 rights. A
+  // Support Agent has none, and saw 「无法加载套餐」 under a filter it could
+  // never use; without them the filter is not offered.
+  const canFilterPlans = can("billing.view");
   const plans = useQuery({
     queryKey: ["subscription-plans", "company-filter"],
     queryFn: () => getSubscriptionPlans(),
+    enabled: canFilterPlans,
   });
 
   function closeDialog() {
@@ -442,6 +447,22 @@ export function Companies({
                 </Button>
               )}
 
+              {/* JB208-4 (Lucas 11-16 audit): every company starts 「试用」 and
+                  nothing moved it on, so reports counted paying customers as
+                  not active. The same 启用 a suspended company gets; the
+                  server already takes TRIAL → ACTIVE. 停用 stays beside it. */}
+              {can("company.suspend") && company.status === "TRIAL" && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 text-success hover:bg-success/10"
+                  title={t("companies.activateTrial.confirm")}
+                  onClick={() => setPending({ kind: "reinstate", company })}
+                >
+                  <RotateCcw className="h-3.5 w-3.5" />
+                </Button>
+              )}
+
               {can("company.suspend") &&
                 (suspended ? (
                   <Button
@@ -660,22 +681,26 @@ export function Companies({
                 </option>
               ))}
             </select>
-            <select
-              value={list.filters.plan ?? ""}
-              onChange={(event) =>
-                list.setFilter("plan", event.target.value || undefined)
-              }
-              className="native-control sm:w-48"
-              aria-label={t("companies.filter.plan")}
-            >
-              <option value="">{t("companies.filter.allPlans")}</option>
-              {(plans.data?.results ?? []).map((plan) => (
-                <option key={plan.id} value={plan.id}>
-                  {plan.name}
-                </option>
-              ))}
-            </select>
-            <QueryFailedNote query={plans} what={t("companies.what.plans")} />
+            {canFilterPlans && (
+              <>
+                <select
+                  value={list.filters.plan ?? ""}
+                  onChange={(event) =>
+                    list.setFilter("plan", event.target.value || undefined)
+                  }
+                  className="native-control sm:w-48"
+                  aria-label={t("companies.filter.plan")}
+                >
+                  <option value="">{t("companies.filter.allPlans")}</option>
+                  {(plans.data?.results ?? []).map((plan) => (
+                    <option key={plan.id} value={plan.id}>
+                      {plan.name}
+                    </option>
+                  ))}
+                </select>
+                <QueryFailedNote query={plans} what={t("companies.what.plans")} />
+              </>
+            )}
           </FilterBar>
 
           <DataTable
@@ -738,9 +763,21 @@ export function Companies({
           open
           onOpenChange={closeDialog}
           variant="default"
-          title={t("companies.reinstate.title", { name: pending.company.name })}
-          description={t("companies.reinstate.description")}
-          confirmLabel={t("companies.reinstate.confirm")}
+          title={
+            pending.company.status === "TRIAL"
+              ? t("companies.activateTrial.title", { name: pending.company.name })
+              : t("companies.reinstate.title", { name: pending.company.name })
+          }
+          description={
+            pending.company.status === "TRIAL"
+              ? t("companies.activateTrial.description")
+              : t("companies.reinstate.description")
+          }
+          confirmLabel={
+            pending.company.status === "TRIAL"
+              ? t("companies.activateTrial.confirm")
+              : t("companies.reinstate.confirm")
+          }
           isPending={isPending}
           onConfirm={() =>
             statusChange.mutate({ id: pending.company.id, status: "ACTIVE" })

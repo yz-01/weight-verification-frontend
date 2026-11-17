@@ -23,7 +23,9 @@
       "return": "Return",
       "save": "Save",
       "start": "Start",
-      "transferAsset": "Transfer asset"
+      "transferAsset": "Transfer asset",
+      "goToCategories": "Go to asset categories",
+      "removeCategory": "Delete category"
     },
     "assetStatus": {
       "BORROWED": "Borrowed",
@@ -283,7 +285,10 @@
       "removedOn": "Removed on",
       "decision": "Decision",
       "selectSource": "Choose where it is now",
-      "fromHint": "Filled in from where the asset is recorded now. Change it only if that record is wrong."
+      "fromHint": "Filled in from where the asset is recorded now. Change it only if that record is wrong.",
+      "noCustomCategories": "There are no custom categories to choose yet. Add one under Asset categories first, then come back.",
+      "recurringHint": "Recurring maintenance: fill in the next date when you complete this one, or no next visit is scheduled.",
+      "nextDateRecurringHint": "This maintenance repeats. Fill in the next date and the next visit is scheduled for it."
     },
     "installationStatus": {
       "ACTIVE": "Active",
@@ -425,6 +430,12 @@
       "staff": "The staff list",
       "options": "The staff, department, customer and project lists",
       "customers": "The customer names"
+    },
+    "saveError": "Could not save. Check what you entered and try again.",
+    "saveFieldError": "{field}: {error}",
+    "confirm": {
+      "removeCategory": "Delete the category \"{name}\"? A category that assets already use cannot be deleted; deactivate it instead.",
+      "removeDepartment": "Delete the department \"{name}\"? After this it can no longer be chosen for a transfer."
     }
   },
   "adminAuditCenter": {
@@ -656,7 +667,10 @@
       "usageUnit": "Usage unit",
       "vendor": "Choose vendor",
       "video_storage_gb": "Video storage GB",
-      "year": "Year"
+      "year": "Year",
+      "tenantId": "Tenant ID (Azure)",
+      "tenantIdHint": "Azure usage only syncs when this tenant ID is filled in beside the API key.",
+      "tiersHint": "For each tier give the usage limit (limit) and the unit price (price); a last tier with limit 0 has no cap. Follow the example in the box."
     },
     "formSection": {
       "basic": "Basic details",
@@ -797,6 +811,17 @@
       "services": "The cloud service list",
       "vendors": "The vendor list",
       "companiesProjects": "The customer and project lists"
+    },
+    "saveFieldError": "{field}: {error}",
+    "alertMessage": "{type}: now {current}, alert level {threshold}",
+    "unit": {
+      "GB": "GB",
+      "TB": "TB",
+      "REQUESTS": "API requests",
+      "MESSAGES": "Messages (SMS)",
+      "HOURS": "Hours",
+      "TRANSACTIONS": "Transactions",
+      "none": "Not set"
     }
   },
   "adminCustomerService": {
@@ -818,7 +843,9 @@
       "process": "Process",
       "respond": "Respond",
       "save": "Save",
-      "updateStatus": "Update status"
+      "updateStatus": "Update status",
+      "view": "View",
+      "close": "Close"
     },
     "column": {
       "actions": "Actions",
@@ -897,7 +924,11 @@
       "type": "Type",
       "visit_code": "Follow-up",
       "visit_date": "Follow-up date",
-      "visited_by_name": "Staff"
+      "visited_by_name": "Staff",
+      "message": "Content",
+      "requirements": "Requirements",
+      "notes": "Results",
+      "lost_reason": "Lost reason"
     },
     "feedbackCategory": {
       "BUG_REPORT": "Bug report",
@@ -939,7 +970,10 @@
       "meetingLinkHint": "For online training: the video call link, starting with https://",
       "visitTime": "Follow-up time",
       "visitReport": "Follow-up report file",
-      "viewReport": "View report"
+      "viewReport": "View report",
+      "assignee": "Handled by",
+      "unassigned": "Not assigned",
+      "pastResults": "Earlier results"
     },
     "loadError": "Customer service records could not be loaded.",
     "loading": "Loading customer service records...",
@@ -1024,7 +1058,8 @@
       "open": "Open",
       "resolved": "Resolved",
       "satisfied": "Satisfied",
-      "unsatisfied": "Unsatisfied"
+      "unsatisfied": "Unsatisfied",
+      "resolvedLocked": "Resolved feedback cannot be set back to unresolved."
     },
     "subtitle": "Customer enquiries, training, follow-ups, feedback and permanent service history.",
     "title": "Customer Service Centre",
@@ -1041,7 +1076,8 @@
     },
     "what": {
       "summary": "the customer service summary",
-      "companies": "the customer list"
+      "companies": "the customer list",
+      "assignees": "the list of people who can be assigned"
     }
   },
   "adminCwe": {
@@ -1330,6 +1366,10 @@
       "notifications": "The notification list",
       "deliveryRecords": "The delivery records",
       "statusRecords": "The status records"
+    },
+    "toast": {
+      "sent": "Sent to {count, plural, one {# person} other {# people}}.",
+      "sentToNobody": "Nothing was sent: this company has no account that can receive notices right now."
     }
   },
   "adminPartnerManagement": {
@@ -1357,7 +1397,8 @@
       "submit": "Submit",
       "terminate": "Terminate",
       "view": "View",
-      "viewPaymentProof": "View payment proof"
+      "viewPaymentProof": "View payment proof",
+      "delete": "Delete"
     },
     "agreementStatus": {
       "ACTIVE": "Active",
@@ -1499,7 +1540,13 @@
       "terms": "Agreement terms",
       "title": "Agreement title",
       "signedOn": "Signed on",
-      "paymentProof": "Payment proof"
+      "paymentProof": "Payment proof",
+      "commissionStart": "Commission from",
+      "commissionStartHint": "Leave empty to start today",
+      "commissionEnd": "Commission until",
+      "commissionEndHint": "Leave empty for no end date",
+      "changeReason": "Reason for the change (optional)",
+      "calculationConfigExample": "Use this format, for example: {example}"
     },
     "heading": {
       "payouts": "Commission payouts",
@@ -1637,6 +1684,31 @@
       "territories": "The territory list",
       "agreements": "The agreement commission rules",
       "payouts": "The commission payout list"
+    },
+    "remove": {
+      "typeTitle": "Delete the partner type \"{name}\"?",
+      "typeDescription": "Once deleted, this type can no longer be chosen. A type a partner already uses cannot be deleted - deactivate it instead.",
+      "territoryTitle": "Delete the area \"{name}\"?",
+      "territoryDescription": "Once deleted, this area can no longer be chosen for a customer. An area that already has customers cannot be deleted - give it an expiry date instead."
+    },
+    "payout": {
+      "rejectedClosed": "Rejected - this payout can no longer be paid. To work it out again, press \"Calculate commission\"."
+    },
+    "toast": {
+      "statusChanged": "Partner status updated",
+      "agreementUpdated": "Agreement saved",
+      "typeSaved": "Partner type saved",
+      "typeRemoved": "Partner type deleted",
+      "territorySaved": "Area saved",
+      "territoryRemoved": "Area deleted",
+      "customerAssigned": "Customer assigned to the partner",
+      "assignmentUpdated": "Customer assignment updated",
+      "agreementSubmitted": "Agreement submitted for signing",
+      "agreementActivated": "Agreement is now in force",
+      "agreementRenewed": "Renewal created as a draft",
+      "agreementTerminated": "Agreement terminated",
+      "payoutAdjusted": "Adjustment saved",
+      "payoutUpdated": "Payout updated"
     }
   },
   "adminQr": {
@@ -1766,6 +1838,7 @@
     },
     "subjectType": {
       "CONTRACTOR": "Contractor",
+      "CUSTOMER": "Private customer",
       "DELIVERY_NOTE": "Delivery note",
       "DEVICE": "Device",
       "DRIVER": "Driver",
@@ -1917,7 +1990,8 @@
     "what": {
       "filterOptions": "The report filter choices",
       "history": "The report history"
-    }
+    },
+    "datesBackwards": "The start date cannot be after the end date."
   },
   "adminSales": {
     "action": {
@@ -1936,7 +2010,11 @@
       "editPerson": "Edit salesperson",
       "process": "Process",
       "reassign": "Transfer",
-      "save": "Save"
+      "save": "Save",
+      "editTerritory": "Edit area",
+      "view": "View",
+      "close": "Close",
+      "goToSettlements": "Go to settlements"
     },
     "basis": {
       "CUSTOM_FORMULA": "Custom formula",
@@ -2004,7 +2082,8 @@
       "platform_commission_percent": "Platform commission percentage",
       "saas_percent": "SaaS revenue percentage",
       "target_bonus": "Target bonus amount",
-      "target_threshold": "Target threshold"
+      "target_threshold": "Target threshold",
+      "targetMetric": "Target bonus is measured on"
     },
     "cycle": {
       "MONTHLY": "Monthly",
@@ -2038,7 +2117,15 @@
       "selectSupervisor": "Select supervisor or manager",
       "target": "Target amount",
       "wonOn": "Contract signed date",
-      "reasonLabel": "Reason"
+      "reasonLabel": "Reason",
+      "noEndDate": "No end date",
+      "territoryName": "Area name",
+      "territoryNameHint": "For example: Northern region",
+      "nationalSwitch": "Nationwide (covers every state)",
+      "effectiveTo": "Ends on",
+      "effectiveToHint": "Leave empty for no end date",
+      "exclusiveSwitch": "Exclusive (when two people cover a state, new customers go to this one first)",
+      "nameInSchemes": "Change the name and description under Commission schemes; here you change only the calculation"
     },
     "loadError": "Sales records could not be loaded.",
     "loading": "Loading sales records...",
@@ -2065,7 +2152,8 @@
       "recyclers_won": "Recyclers won",
       "saas_revenue": "SaaS revenue",
       "team_size": "Team size",
-      "total_customers": "Customers"
+      "total_customers": "Customers",
+      "period": "Period: {start} to {end}"
     },
     "remove": {
       "confirm": "Remove territory",
@@ -2089,7 +2177,8 @@
     "saveError": "Could not save the customer assignment. Check the selected customer and salesperson, then try again.",
     "scope": {
       "NATIONAL": "Nationwide",
-      "STATES": "Named states"
+      "STATES": "Named states",
+      "none": "Not set"
     },
     "section": {
       "activity": {
@@ -2162,7 +2251,17 @@
       "summary": "The sales summary",
       "schemes": "The commission scheme list",
       "people": "The salesperson list",
-      "performance": "The team performance figures"
+      "performance": "The team performance figures",
+      "acknowledgements": "confirmations"
+    },
+    "territory": {
+      "notCurrent": "Not in force today",
+      "empty": "No sales areas yet. Press \"Add area\", choose a salesperson and the states they cover (or nationwide). New companies are then given to the person covering their state."
+    },
+    "termsView": {
+      "confirmedBy": "Confirmed by",
+      "noneConfirmed": "Nobody has confirmed this version yet.",
+      "confirmedOn": "Confirmed {date}"
     }
   },
   "adminSystemSettings": {
@@ -2260,7 +2359,8 @@
         "saved": "Announcement updated."
       },
       "translations": "Other languages",
-      "translationsHelp": "Left blank, a reader falls back to the English text field by field."
+      "translationsHelp": "Left blank, a reader falls back to the English text field by field.",
+      "mainLanguageHint": "Write the Title and Message below in English: every reader falls back to them. Chinese and Malay go under “Other languages” below."
     },
     "branding": {
       "description": "Used for browser tabs and installed shortcuts when a company has not uploaded its own logo. PNG, JPG and WebP up to 5 MB are supported.",
@@ -2507,7 +2607,12 @@
       "companySaved": "Company setting saved",
       "saved": "Setting saved"
     },
-    "updatedAt": "Last saved: {value}"
+    "updatedAt": "Last saved: {value}",
+    "leave": {
+      "title": "Some settings are not saved",
+      "description": "This page has settings you changed but did not save. If you leave now, those changes are lost.",
+      "confirm": "Leave without saving"
+    }
   },
   "adminTechnicalSupport": {
     "action": {
@@ -2680,7 +2785,10 @@
       "actualHours": "Actual hours",
       "resolutionNotes": "Resolution notes",
       "resolutionNotesHelp": "Completing the ticket with a note also writes it here.",
-      "laborHours": "Labour hours"
+      "laborHours": "Labour hours",
+      "assignee": "Handled by",
+      "unassigned": "Not assigned",
+      "fixedInVersion": "Fixed in version"
     },
     "guide": {
       "action": {
@@ -2830,7 +2938,7 @@
     "ticketComment": {
       "empty": "Nothing has been said on this ticket yet.",
       "internal": "Internal",
-      "internalHelp": "Internal note - for staff only, the customer does not see it",
+      "internalHelp": "Mark as an internal note. Every reply here is a staff record only; nothing is sent to the customer.",
       "placeholder": "Write a reply",
       "send": "Add comment",
       "title": "Conversation",
@@ -2840,7 +2948,9 @@
     "ticketEdit": {
       "moveOn": "Move it along",
       "save": "Save corrections",
-      "title": "Correct this ticket"
+      "title": "Correct this ticket",
+      "moveOnHint": "Only the states this ticket can move to now are listed.",
+      "closedFinal": "This ticket is closed and its state cannot change. If the problem comes back, add a new ticket."
     },
     "ticketState": {
       "CLOSED": "Closed",
@@ -2862,7 +2972,10 @@
     "title": "Technical Support Centre",
     "what": {
       "summary": "the technical support summary",
-      "companies": "the company list"
+      "companies": "the company list",
+      "assignees": "the list of people who can be assigned",
+      "integrations": "the system integration connections",
+      "devices": "the registered devices"
     }
   },
   "app": {
@@ -3541,7 +3654,7 @@
       "collection_requested": "Collection requested",
       "collection_time_proposed_by_recycler": "Recycler proposed a collection time",
       "complete": "Completed",
-      "confirm_draft": "Draft confirmed",
+      "confirm_draft": "Confirmed & archived",
       "confirm_weigh_ticket": "Weighing ticket confirmed",
       "consultant_registered": "Consultant registered",
       "correct_trip": "Trip corrected",
@@ -3745,7 +3858,7 @@
       "site_access_revoke": "Site access taken away",
       "site_evidence": "Site evidence added",
       "start": "Started",
-      "submit": "Submitted",
+      "submit": "Sent to the consultant",
       "subscription_exported": "Subscriptions exported",
       "supplier_qr_scanned": "Supplier QR scanned",
       "supplier_qr_status_changed": "Supplier QR switched on or off",
@@ -3779,7 +3892,7 @@
       "APPROVE": "Approved",
       "REJECT": "Rejected",
       "RETURN": "Returned",
-      "APPROVE_WITH_REMEDIAL": "Approved with remedial works",
+      "APPROVE_WITH_REMEDIAL": "Approved with remedial work",
       "REVISE_RESUBMIT": "Revise and resubmit",
       "bulk_fill_trade": "Trade filled in for several workers",
       "create_trade": "Trade added",
@@ -3809,11 +3922,12 @@
       "rain_report_pdf_exported": "Rain record monthly report exported",
       "rain_report_pdf_previewed": "Rain record monthly report previewed",
       "rain_remark_set": "Wrote a rain record's remarks",
-      "rain_month_remark_set": "Wrote the rain report's monthly remarks"
+      "rain_month_remark_set": "Wrote the rain report's monthly remarks",
+      "head_office_on_behalf": "Decided by head office for the manager"
     },
     "objectType": {
       "SignOffAssistant": "Assistant PIN",
-      "UserApprovalCredential": "Approval PIN",
+      "UserApprovalCredential": "Sign-off PIN",
       "User": "Account",
       "Role": "Role",
       "Project": "Project",
@@ -3952,6 +4066,7 @@
     },
     "close": {
       "description": "Close invoice {invoice} without receiving its remaining balance.",
+      "paidReason": "Part of this invoice has been paid, so it cannot be closed. Keep following up the balance.",
       "title": "Close invoice"
     },
     "companyType": {
@@ -4808,7 +4923,8 @@
     "combobox": {
       "byLetter": "Filter by first letter"
     },
-    "loadOffline": "No network - {what} will load when the connection is back."
+    "loadOffline": "No network - {what} will load when the connection is back.",
+    "pageNotOpen": "Your account cannot open that page, so you have been brought back. To use it, ask your company's administrator to switch it on for you."
   },
   "companies": {
     "owner": {
@@ -5090,6 +5206,11 @@
       "description": "Everyone from this company will be able to sign in again.",
       "title": "Reinstate {name}?"
     },
+    "activateTrial": {
+      "confirm": "Activate",
+      "description": "The trial ends. From now on this company counts as an active company, in reports too.",
+      "title": "Activate {name}?"
+    },
     "remove": {
       "blockedByUsers": "This company still has people who can sign in. Suspend it instead, or deactivate them first.",
       "confirm": "Remove",
@@ -5185,7 +5306,7 @@
       "revoke": "Revoke access",
       "save": "Save"
     },
-    "back": "Consultant portal",
+    "back": "Back to consultant settings",
     "common": {
       "noContact": "No contact details",
       "noJobTitle": "Consultant",
@@ -5290,7 +5411,7 @@
       "grants": "Project access",
       "organizations": "Consultant firms"
     },
-    "title": "Consultant accounts and project access",
+    "title": "Consultant access",
     "projectView": {
       "notice": "Head office sets up consultant firms, consultant accounts and their projects.",
       "title": "Consultants open on your projects",
@@ -5310,7 +5431,7 @@
     }
   },
   "consultantDashboard": {
-    "credential": "Approval signature",
+    "credential": "Signature and sign-off PIN",
     "currentStep": "Current step: {step}",
     "due": {
       "description": "Submitted applications required within the next seven days.",
@@ -5321,27 +5442,20 @@
       "application": "Application",
       "applicationHelp": "Prepare the RFI details, site evidence and required attachments.",
       "approval": "Approval",
-      "approvalHelp": "Consultants review in order and sign each decision with their PIN.",
+      "approvalHelp": "Consultants review in order and sign each decision with their sign-off PIN.",
       "archive": "Archive",
       "archiveHelp": "Confirm the application, approval history and final report are stored.",
-      "final": "Final PDF",
-      "finalHelp": "Download the completed customer-format RFI approval report.",
+      "final": "Final report",
+      "finalHelp": "Download the completed final report (customer RFI format).",
       "subtitle": "Open the step you need. Every application moves from preparation to a protected archive.",
-      "title": "Four simple steps"
+      "title": "Simple steps"
     },
     "history": {
       "description": "Applications where your signed approval action was recorded.",
       "empty": "No approval decision has been recorded for this account.",
       "title": "My recent decisions"
     },
-    "loadError": "The consultant work queue could not be loaded. Refresh the page or check the project access grant.",
-    "metric": {
-      "approved": "Approved",
-      "dueSoon": "Due within 7 days",
-      "pending": "Pending review",
-      "returned": "Rejected or returned",
-      "today": "Applications today"
-    },
+    "loadError": "The consultant dashboard could not be loaded. Refresh the page or check the project access grant.",
     "newApplication": "New application",
     "notifications": {
       "description": "Project, approval and system notices addressed to this account.",
@@ -5367,7 +5481,7 @@
     },
     "subtitle": "Review assigned applications, deadlines, decisions and project notifications from one work queue.",
     "title": "Consultant dashboard",
-    "workflowSettings": "Workflow settings"
+    "workflowSettings": "Consultant settings"
   },
   "consultantProject": {
     "choose": "Choose a project",
@@ -5377,26 +5491,28 @@
     "remedial": {
       "failed": "That could not be saved",
       "noEvidence": "No evidence attached",
-      "evidenceHint": "Pick from the evidence already filed against this application.",
+      "evidenceHint": "Pick the site photos of this project that show the work is done (newest first). Take them with the phone app first.",
       "evidence": "Evidence",
-      "closedBy": "Closed by {name} on {when}",
+      "closedBy": "Closed by {name} on {when}, {count} evidence file(s) attached",
       "closureNote": "What was done",
       "closeHelp": "Say what was done, and attach what proves it.",
       "closeTitle": "Close this remedial item",
-      "unassigned": "Nobody assigned",
       "overdue": "Overdue",
       "closed": "Closed",
       "open": "Open",
       "empty": "No remedial items",
       "dueOn": "Due {date}",
-      "dueHint": "The site is reminded before this date, and it is marked overdue after it.",
+      "dueHint": "The person responsible is reminded the day before; once the date has passed it is marked 「Overdue」 and reminded once more.",
       "dueDate": "Due by",
       "description": "What has to be put right",
       "raiseHelp": "Say what has to be put right, and by when.",
-      "raiseTitle": "Raise a remedial item"
+      "raiseTitle": "Raise a remedial item",
+      "responsible": "Responsible: {name}",
+      "responsibleApplicant": "Responsible: {name} (applicant)",
+      "raisedBy": "Raised by {name}"
     },
     "action": {
-      "closeRemedial": "Close it",
+      "closeRemedial": "Close this remedial item",
       "raiseRemedial": "Raise a remedial item",
       "acknowledge": "Acknowledge application",
       "cancel": "Cancel",
@@ -5405,11 +5521,10 @@
       "edit": "Edit draft",
       "receive": "Mark as received",
       "remove": "Remove",
-      "retryReport": "Rebuild the report",
+      "retryReport": "Rebuild the final report",
       "save": "Save",
       "saveDraft": "Save draft",
-      "saveReusableOption": "Save as project option",
-      "submit": "Submit for approval"
+      "saveReusableOption": "Save as project option"
     },
     "applications": {
       "back": "Back to consultant applications",
@@ -5420,7 +5535,7 @@
         "approval": "Approval",
         "archive": "Archive",
         "draft": "Application",
-        "final": "Final PDF",
+        "final": "Final report",
         "inbox": "Site submissions to organise"
       },
       "stageLabel": "Application stage",
@@ -5432,7 +5547,7 @@
       "kind": {
         "APPLICATION": "Application archive",
         "APPROVAL": "Signed approval history",
-        "FINAL_REPORT": "Final PDF archive",
+        "FINAL_REPORT": "Final report archive",
         "CONSULTANT_FORM": "Consultant's own form (blank, filled, final version)"
       },
       "pending": "Pending",
@@ -5480,20 +5595,21 @@
       "currentPassword": "Current login password",
       "identityHelp": "Every approval stores an immutable copy, so changing this later does not alter old reports.",
       "identityTitle": "Signature and consultant stamp",
-      "passwordHelp": "Your current password protects changes to signing credentials.",
-      "pin": "New 6-digit PIN",
-      "pinConfirm": "Confirm PIN",
-      "pinHelp": "Enter this six-digit PIN whenever you approve, reject or return an application.",
-      "pinMismatch": "The PINs do not match.",
-      "pinTitle": "Approval PIN",
-      "save": "Save signing credentials",
-      "shortTitle": "Signature and PIN",
+      "passwordHelp": "Your current password protects changes to your signature and sign-off PIN.",
+      "pin": "New 6-digit sign-off PIN",
+      "pinConfirm": "Enter it again",
+      "pinHelp": "This is your six-digit sign-off PIN. The same one is used for Confirm & archive, printing, sending and every decision.",
+      "pinMismatch": "The two PINs are not the same.",
+      "pinTitle": "Sign-off PIN",
+      "save": "Save signature and sign-off PIN",
+      "shortTitle": "Signature and sign-off PIN",
       "signature": "Electronic signature",
       "signatureHelp": "Upload a clear PNG or JPG signature on a plain background.",
       "stamp": "Consultant stamp",
       "stampHelp": "Optional until a workflow step explicitly requires it.",
       "subtitle": "Set the personal signature used for traceable project decisions.",
-      "title": "Approval Signature and PIN"
+      "title": "Signature and sign-off PIN",
+      "pinKeep": "Your sign-off PIN is already set. Leave these empty to keep it; changing only the signature or stamp needs no new PIN."
     },
     "decision": {
       "APPROVE": "Approve",
@@ -5510,24 +5626,34 @@
         "archive": "Archive",
         "complete": "Complete",
         "current": "Current step",
-        "final": "Final PDF",
+        "final": "Final report",
         "pending": "Not started",
         "title": "Application progress"
       },
       "next": {
-        "archived": "This application is complete. The application, signed approval history and final PDF are safely archived.",
+        "archived": "This application is complete. The application, signed approval history and final report are safely archived.",
         "complete": "The approval decision is complete. The final report is being prepared.",
-        "draft": "Complete the form, link the site photographs and attachments, then submit it for approval.",
-        "final": "The approval is complete. Download the final PDF and check its verification record.",
+        "draft": "Complete the form and add the site photographs and attachments. Then press Confirm & archive (with your six-digit sign-off PIN), and then Send on the application form.",
+        "final": "The approval is complete. Download the final report and check its verification record.",
         "review": "This application is waiting for your decision. Review the evidence, then choose an approval result.",
-        "revise": "The application was returned. Create a new revision, make the requested changes and submit again.",
-        "waiting": "No action is needed from you now. It is waiting at {step}."
+        "revise": "The consultant chose Revise and resubmit. Create a new revision, make the requested changes and send it to the consultant again.",
+        "waiting": "No action is needed from you now. It is waiting at {step}.",
+        "remedialOpen": "Approved, but {count} remedial item(s) are still open. When the work is done, press 「Close this remedial item」 under 「Remedial items」 below and add a photo that shows it.",
+        "remedialOpenReviewer": "{count} remedial item(s) are waiting for the contractor; you will be told when they close them. If more is needed, press 【Raise a remedial item】.",
+        "remedialOpenWatching": "{count} remedial item(s) are waiting for the contractor.",
+        "rejected": "The consultant rejected this application; the reason is under Signed decisions. When the work is put right, press 【New application】 to send it again.",
+        "reviseMade": "A new revision (revision {revision}) has already been made. Open it under Revision history below, make the changes there and send it.",
+        "reviseSent": "The new revision (revision {revision}) has been sent to the consultant. Open it under Revision history to follow it.",
+        "reviseDecided": "The consultant has decided on the new revision (revision {revision}). Open it under Revision history to see the result.",
+        "reviseReviewer": "It has gone back to the contractor to be changed. You will be told when they make the new revision and send it."
       },
       "nextAction": "What happens next",
       "noRevisions": "No revision history is available.",
+      "noRelatedRecords": "This application has no linked site records.",
       "receivedAt": "Received by consultant",
       "revision": "Revision {revision}",
-      "revisionCurrent": "Current version",
+      "revisionCurrent": "Version you are viewing",
+      "revisionLatest": "Latest version",
       "section": {
         "remedial": "Remedial items",
         "application": "Application details",
@@ -5539,7 +5665,7 @@
         "evidence": "Linked site evidence",
         "relatedRecords": "Linked site records",
         "revisions": "Revision history",
-        "site": "Site request"
+        "site": "Source field submission"
       },
       "raisedOnSite": "Raised on site by {name} {when}",
       "forwardedBy": "Sent to the consultant by {name} {when}"
@@ -5547,7 +5673,7 @@
     "draftEdit": {
       "armRemove": "Allow removing",
       "armRemoveHelp": "Turn the switch on, then press Remove. It takes effect at once.",
-      "locked": "Submitted. It can be changed again only after it is returned for revision.",
+      "locked": "Sent to the consultant. If they choose Revise and resubmit, change it in the new revision.",
       "remove": "Remove",
       "unlink": "Unlink",
       "edit": "Edit",
@@ -5623,7 +5749,7 @@
       "chooseWorkflow": "Choose approval workflow",
       "component": "Component / work area",
       "consultant": "Consultant",
-      "consultantCompany": "Consultant company",
+      "consultantCompany": "Consultant firm",
       "customApplicationType": "Custom application type",
       "customDiscipline": "Custom discipline",
       "customPriority": "Custom priority",
@@ -5672,7 +5798,7 @@
       "sourceSubmittedAt": "Submitted {value}",
       "sourceTitle": "Source field submission",
       "subtitle": "Prepare the site request, attach evidence, then submit it through the project's approval flow.",
-      "title": "Create consultant application",
+      "title": "New consultant application",
       "advanced": "Advanced (optional)",
       "advancedHelp": "Leave blank to use the project's default route, “Consultant review”: one step, to the consultant you choose, signed. A template is optional too.",
       "more": "More (optional)",
@@ -5708,7 +5834,7 @@
     "review": {
       "dialog": {
         "APPROVE": {
-          "description": "Confirm the site request. The final approval report is generated after the last step.",
+          "description": "Approve this application. The final report is generated after the last step.",
           "title": "Approve this application"
         },
         "APPROVE_WITH_REMEDIAL": {
@@ -5721,17 +5847,25 @@
         },
         "REVISE_RESUBMIT": {
           "description": "Explain exactly what the contractor must correct before resubmitting.",
-          "title": "Return for revision"
+          "title": "Revise and resubmit"
         }
       },
       "pending": "Current step: {step}",
-      "pin": "6-digit approval PIN",
-      "pinHint": "Your PIN confirms that this signed decision was made by you.",
+      "pin": "6-digit sign-off PIN",
+      "pinHint": "Your sign-off PIN confirms that this signed decision was made by you.",
       "remarks": "Decision remarks",
       "reviewerConsultant": "Assigned consultant: {name}",
       "reviewerRole": "Assigned role: {name}",
       "reviewerUser": "Assigned reviewer: {name}",
-      "setupCredential": "Set signature and PIN"
+      "setupCredential": "Set signature and sign-off PIN",
+      "remedialList": {
+        "hint": "One thing per line. Every line is printed on the final report you sign; the contractor closes each one in the application when it is done, with a photo.",
+        "item": "Item {n}: what has to be put right",
+        "placeholder": "For example: patch the honeycombing on the west wall.",
+        "add": "Add another",
+        "remove": "Remove this one"
+      },
+      "stampMissing": "This step needs your consultant stamp and you have not uploaded one. Press the button below to upload it, then come back to decide."
     },
     "reviewerKind": {
       "CONSULTANT": "Consultant selected on the application",
@@ -5742,7 +5876,8 @@
       "chooseProject": "Choose a project to view its consultant work.",
       "draftUnavailable": "This draft cannot be edited. It may already have been submitted or you no longer have access.",
       "loadError": "This information could not be loaded. Check your project access and try again.",
-      "noApplications": "No consultant applications match this project and search."
+      "noApplications": "No consultant applications match this project and search.",
+      "otherProject": "This application may be on your other project. Choose that project below and it opens."
     },
     "status": {
       "APPROVED": "Approved",
@@ -5758,7 +5893,7 @@
       "APPROVED_WITH_REMEDIAL": "Approved with remedial work",
       "CURRENT": "Action required",
       "REJECTED": "Rejected",
-      "REVISE_RESUBMIT": "Revision required",
+      "REVISE_RESUBMIT": "Revise and resubmit",
       "SKIPPED": "Skipped",
       "WAITING": "Waiting"
     },
@@ -5801,11 +5936,11 @@
       "save": "Save template",
       "saveVersion": "Create version",
       "standardLayout": "Standard customer RFI PDF",
-      "standardLayoutHelp": "The final PDF follows the approved customer RFI and consultant approval format. This output is fixed so users cannot accidentally choose an unsupported layout.",
+      "standardLayoutHelp": "The final report follows the approved customer RFI and consultant approval format. This output is fixed so users cannot accidentally choose an unsupported layout.",
       "stillOffered": "Still offered",
       "stillOfferedHelp": "Turn off to stop new applications using it. Filed ones are untouched.",
       "subtitle": "Maintain project-specific form fields, required attachments and immutable versions without technical JSON settings.",
-      "title": "RFI Form Templates",
+      "title": "RFI form templates",
       "versionHelp": "This creates a new immutable version. Existing applications keep their original fields and attachment rules.",
       "versionTitle": "{name} version {version}",
       "what": {
@@ -5816,16 +5951,16 @@
     "toast": {
       "acknowledged": "Application acknowledged",
       "attachmentAdded": "Attachment added",
-      "credentialSaved": "Signing credentials saved",
+      "credentialSaved": "Signature and sign-off PIN saved",
       "decisionSaved": "Signed decision saved",
       "draftSaved": "Application draft saved",
       "evidenceLinked": "Site evidence linked",
       "received": "Application marked as received",
-      "reportRebuilt": "Report rebuilt",
+      "reportRebuilt": "Final report rebuilt",
       "revisionCreated": "New revision created",
       "stepRemoved": "Approval step removed",
       "stepSaved": "Approval step saved",
-      "submitted": "Application submitted for approval",
+      "submitted": "Sent to the consultant",
       "templateSaved": "RFI form template saved",
       "templateVersionSaved": "RFI form template version saved",
       "workflowSaved": "Approval workflow saved",
@@ -5839,7 +5974,7 @@
       "applicationType": "Application type",
       "company": "Contractor",
       "consultant": "Consultant",
-      "consultantCompany": "Consultant company",
+      "consultantCompany": "Consultant firm",
       "decision": "Final decision",
       "finalizedAt": "Finalized at",
       "notFoundHelp": "This QR code is invalid or the final report is no longer available.",
@@ -5871,39 +6006,42 @@
       "makeDefault": "Use as default workflow",
       "name": "Workflow name",
       "noSteps": "No approval steps. Add at least one before using this workflow.",
-      "requireSignature": "Require electronic signature",
       "requireStamp": "Require consultant stamp",
       "reviewer": "Reviewer",
       "reviewerKind": "Who reviews this step",
-      "shortTitle": "Workflow settings",
       "stampHelp": "Approval is blocked until the reviewer has uploaded a stamp.",
       "stepName": "Step name",
       "stepsLocked": "An application on this workflow has been submitted, so its approval route is now part of the record and cannot be changed. Create a new workflow for a different route.",
       "stillOffered": "Still offered",
       "stillOfferedHelp": "Turn off to stop new applications choosing it. Existing ones are untouched.",
       "subtitle": "Set the real approval sequence used by each project's applications.",
-      "title": "Consultant Approval Workflows",
-      "typeFixed": "Fixed - applications have already been filed on this workflow."
+      "title": "Consultant approval workflows",
+      "typeFixed": "Fixed - applications have already been filed on this workflow.",
+      "inactive": "Switched off",
+      "inactiveHelp": "New applications cannot choose this workflow. To use it again, press the pencil and turn on “Still offered”.",
+      "alwaysSigned": "Every decision is signed with the reviewer's e-signature and six-digit sign-off PIN. There is nothing to set here.",
+      "removeStepTitle": "Remove the step “{step}”?",
+      "removeStepBody": "The step leaves the workflow. A workflow with no steps left cannot send the drafts on it."
     },
     "howTo": {
       "title": "How consultant applications work",
       "stepNumber": "Step {number}",
       "create": {
-        "title": "Create the application",
+        "title": "New application",
         "body": "Press New application, choose the project and the consultant, and fill in what is to be inspected (location, description, drawing no.). Add attachments if needed. Workflow and template are optional."
       },
       "submit": {
         "title": "Send it to the consultant",
-        "body": "Press Submit on the application. The consultant is notified and it moves to “In approval”. Until then it is a draft and can be edited."
+        "body": "When the draft is complete, press Confirm & archive (with your six-digit sign-off PIN), then Send on the application form. The consultant is notified and it moves to “Pending approval”. Before Confirm & archive the draft can still be edited or deleted."
       },
       "decide": {
-        "title": "The consultant approves, rejects or asks for changes",
-        "body": "The consultant signs and enters a PIN in their own account. The result, signature and conversation stay on the application; if changes are asked for, revise and submit again."
+        "title": "The consultant decides",
+        "body": "The consultant decides in their own account with their e-signature and sign-off PIN: Approve, Approve with remedial work, Revise and resubmit or Reject. The result, signature and conversation stay on the application. After Revise and resubmit, press Create new revision, make the changes, then Confirm & archive and Send to the consultant again."
       },
       "setupOnce": "Set up once: add the consultant to this project (Consultant settings → Consultant access), otherwise they cannot be chosen on a new application.",
       "openSettings": "Open consultant settings",
       "askAdmin": "Ask a colleague who can change settings.",
-      "signatureOnce": "Before their first approval, a consultant sets their signature and PIN under Signature."
+      "signatureOnce": "Before their first approval, a consultant sets their signature and sign-off PIN under Signature and sign-off PIN."
     },
     "settingsHub": {
       "title": "Consultant settings",
@@ -5911,17 +6049,17 @@
       "access": {
         "title": "Consultant access",
         "need": "Required · once per consultant per project",
-        "body": "Create the consultant company and accounts, and give them access to the project. A consultant without access cannot be chosen on an application.",
+        "body": "Create the consultant firm and accounts, and give them access to the project. A consultant without access cannot be chosen on an application.",
         "needProject": "Set by head office",
         "bodyProject": "Head office sets up consultant firms, consultant accounts and their projects. Here you can see which consultants are open on your projects."
       },
       "workflows": {
-        "title": "Approval workflows",
+        "title": "Consultant approval workflows",
         "need": "Optional · a default already exists",
         "body": "Every project has a “Consultant review” route automatically (one step, to the chosen consultant). Come here only to add steps for multi-level approval."
       },
       "templates": {
-        "title": "Application templates",
+        "title": "RFI form templates",
         "need": "Optional",
         "body": "Build a template only for fixed form fields, required attachments or custom numbering. Applications can be created and sent without one."
       }
@@ -5929,10 +6067,10 @@
     "what": {
       "archiveCategories": "The file categories",
       "evidenceFilters": "The filter choices",
-      "credential": "Your approval signature and PIN",
+      "credential": "Your signature and sign-off PIN",
       "evidenceCandidates": "The project's site evidence",
       "archiveDocuments": "The Document Archival list",
-      "workflows": "The approval workflows",
+      "workflows": "The consultant approval workflows",
       "templates": "The RFI form templates",
       "scheduleTasks": "The schedule activities",
       "applicationOptions": "The application choices (type, discipline, work type, priority)",
@@ -6024,12 +6162,12 @@
       "uploadedBy": "{name} · {when}",
       "signedOnForm": "Signed on the uploaded form",
       "signingTitle": "How do you sign?",
-      "signingEsignature": "Electronic signature and PIN",
+      "signingEsignature": "Electronic signature and sign-off PIN",
       "signingSignedForm": "Upload the form signed and stamped",
       "signedFormFile": "Signed / stamped form",
       "signedFormHint": "A scan or photo of the consultant's form with your signature and chop.",
-      "pinForSignedForm": "Your PIN confirms the uploaded form was signed by you.",
-      "noCredential": "You have no electronic signature yet: upload the form signed and stamped, or set up your signature and PIN first.",
+      "pinForSignedForm": "Your sign-off PIN confirms the uploaded form was signed by you.",
+      "noCredential": "You have no electronic signature yet: upload the form signed and stamped, or set your signature and sign-off PIN first.",
       "archiveBlank": "Blank form: {name} (v{version})",
       "archiveFilled": "Filled form: {name}",
       "archiveFinal": "Final version: {name}",
@@ -6072,7 +6210,7 @@
       "title": "Today's site activity"
     },
     "activityKind": {
-      "CONSULTANT_APPLICATION": "Consultant",
+      "CONSULTANT_APPLICATION": "Consultant application",
       "DISPOSAL": "Disposal",
       "EQUIPMENT_MOVEMENT": "Equipment",
       "FIELD_TASK": "Field task",
@@ -6274,7 +6412,7 @@
       "title": "Timeline"
     },
     "timelineKind": {
-      "CONSULTANT_APPLICATION": "Consultant",
+      "CONSULTANT_APPLICATION": "Consultant application",
       "DISPOSAL": "Disposal",
       "EQUIPMENT_MOVEMENT": "Equipment",
       "FIELD_TASK": "Field task",
@@ -6833,7 +6971,7 @@
       "linkedRecord": "Sent in as: {reference}",
       "linkedHint": "The worker finished the task with this record; its photos are shown above too.",
       "photos": "Photos: {current}/{required}",
-      "prepareApplication": "Check and send to the consultant",
+      "prepareApplication": "Make a consultant application",
       "projectFixed": "The site cannot change - the assignee is drawn from this site's team.",
       "referenceFiles": "Reference photos or files",
       "referenceHelp": "Field staff will see these before starting the task.",
@@ -7622,6 +7760,7 @@
   "dashboard": {
     "admin": {
       "error": "Unable to load the platform dashboard.",
+      "sectionUnavailable": "This part is outside your permissions. Ask a system administrator if you need to see it.",
       "health": {
         "configured": "Configured",
         "degraded": "Degraded",
@@ -7912,6 +8051,8 @@
     "decisionTitle": "Receiving decision",
     "error": {
       "action": "The action could not be completed.",
+      "location": "The phone's location could not be read. Turn on location and allow this page to use it, then press again.",
+      "refused": "This step was not completed. Refresh this page and try again; if it still fails, contact the site.",
       "quantityRequired": "Enter the actual quantity.",
       "signatureRequired": "Draw the receiver signature first."
     },
@@ -7998,6 +8139,14 @@
       "weighingNo": "Weighbridge ticket no."
     },
     "lockedNote": "This load has left the site, so it can no longer be changed. Cancel it if it never arrives.",
+    "lockedBy": {
+      "PENDING_ACCEPTANCE": "This order has been sent to the recycler, so it can no longer be changed.",
+      "ACCEPTED": "The recycler has taken this order, so it can no longer be changed.",
+      "RELEASED": "This load has left the site, so it can no longer be changed. Cancel it if it never arrives.",
+      "COLLECTED": "The load is on the recycler's lorry, so the order can no longer be changed.",
+      "WEIGHED": "The load has been weighed, so the order can no longer be changed.",
+      "SETTLED": "This order has been settled, so it can no longer be changed."
+    },
     "noPhotos": "No photos have been attached to this load.",
     "photoKind": {
       "LOADING": "Loading",
@@ -8072,7 +8221,8 @@
       "category": "Category",
       "legacy": "Old order",
       "createdAt": "Ordered on"
-    }
+    },
+    "recyclerNext": "Assign driver / collection time"
   },
   "documents": {
     "downloading": "Downloading",
@@ -8505,7 +8655,13 @@
       "pushStatus": "The notification status"
     },
     "takeIssuePhoto": "Photograph a problem on the road (accident / vehicle issue)",
-    "issuePhotoHelp": "Sent to the recycler and the contractor straight away."
+    "issuePhotoHelp": "Sent to the recycler and the contractor straight away.",
+    "notRecorded": {
+      "stepOffline": "No internet: this step was not recorded. Press it again when you have signal.",
+      "photoOffline": "No internet: this photo was not recorded. Take it again when you have signal.",
+      "step": "This step was not recorded: {reason}",
+      "photo": "This photo was not recorded: {reason}"
+    }
   },
   "driverGps": {
     "action": {
@@ -8663,7 +8819,7 @@
       "attendance_gps_inaccurate": "Your phone's location is too rough (about {accuracy} m) to tell whether you are inside the site fence. Move into the open, wait a few seconds and try again.",
       "attendance_outside_geofence": "You are outside the site fence, {distance} m from the nearest one. Move closer and try again.",
       "audit_entry_not_found": "That audit entry could not be found.",
-      "below_minimum_payout": "This amount is below the minimum payout.",
+      "below_minimum_payout": "The commission is below the agreement's minimum payout, so no payout was made. It can be calculated together with the next period.",
       "bug_not_found": "That bug record could not be found.",
       "calibration_expired": "This weighbridge calibration has expired.",
       "cannot_modify_self": "You cannot change your own account this way. Use your profile instead.",
@@ -8677,7 +8833,7 @@
       "commission_payout_not_found": "That commission payout could not be found.",
       "commission_rule_not_found": "That commission rule could not be found.",
       "commission_scheme_not_found": "That commission scheme could not be found.",
-      "company_already_referred": "This company is already assigned to a partner.",
+      "company_already_referred": "This customer already belongs to another partner. To change it, edit the existing row under customer assignments.",
       "company_bank_account_not_found": "That bank account could not be found.",
       "company_document_not_found": "That company document could not be found.",
       "company_has_active_users": "This company still has people who can sign in. Suspend it instead, or deactivate them first.",
@@ -8695,7 +8851,7 @@
       "config_unknown": "This configuration key is not supported.",
       "conflict": "That cannot be done while the record is in its current state.",
       "consultant_grant_not_current": "The chosen consultant no longer has access to this project, so the application is still a draft. Choose another consultant or renew their access first.",
-      "consultant_application_locked": "This application has been submitted, so its attachments and linked evidence can no longer change. Once it is returned for revision, change them in the new version.",
+      "consultant_application_locked": "This application has been sent to the consultant, so its attachments and linked evidence can no longer change. If the consultant chooses Revise and resubmit, change them in the new revision.",
       "consultant_grant_not_found": "That consultant project access record could not be found.",
       "consultant_organization_not_found": "That consultant organization could not be found.",
       "customer_assignment_not_found": "That customer assignment could not be found.",
@@ -8769,9 +8925,26 @@
       "invalid_credentials": "Incorrect email or password.",
       "invalid_rule_params": "Check the detection settings and try again.",
       "invoice_not_found": "That invoice could not be found.",
+      "invoice_company_not_billable": "This company cannot get this type of invoice right now. Check that the company is not suspended and has a package; commission invoices are only for recyclers on the partner package.",
+      "invoice_not_commission_bearing": "This company's package carries no platform commission, so no commission invoice can be made. To charge commission, first move it to the partner package in Company subscriptions.",
+      "invoice_no_commission_rule": "No commission rule is in force for this company, so no commission can be worked out. Add a rule in Commission rules first, then generate the invoice.",
+      "invoice_already_invoiced": "This period already has its invoice, so there is nothing more to bill. Look for this company's invoice in the invoice list.",
+      "invoice_no_billable_settlements": "No issued settlement in this period is waiting to be billed, so there is no commission to charge yet. Generate again once settlements are issued.",
+      "invoice_nothing_to_charge": "The amount for this period comes to zero, so no invoice was made. If that is wrong, check this company's package fees or commission rule.",
+      "invoice_no_plan": "This company has no package, so no subscription invoice can be made. Choose a package for it in Company subscriptions first.",
+      "invoice_not_draft": "Only a draft invoice can be issued. This one has already been issued; refresh the list to see where it stands.",
+      "invoice_already_closed": "This invoice is already closed. Refresh the list to see where it stands.",
+      "invoice_has_confirmed_payments": "Part of this invoice has already been paid and confirmed, so it cannot be closed. Keep following up the balance; ask your manager if it needs to be handled another way.",
+      "commission_rule_in_use": "This commission rule has already been used to bill, so it cannot be deleted. If it is no longer needed, switch it off instead.",
+      "automatic_billing_disabled": "Automatic billing is switched off, so it cannot run now. Ask a system administrator to switch it back on in Scheduled jobs.",
+      "payment_already_confirmed": "This payment has already been confirmed, so there is nothing more to do. Refresh the list to see where it stands.",
+      "subscription_no_plan": "This company has no package, so its term cannot be extended. Choose a package for it with Change package first.",
+      "subscription_already_ended": "This company's subscription has already ended, so there is nothing to end. To let it carry on, use Extend or renew.",
+      "company_site_settings_contractor_only": "Only a contractor has site settings; a recycler has none to set.",
+      "user_replacement_contractor_only": "Only a contractor company's accounts can be handed over. For any other account, suspend it and add a new account for the person taking over.",
       "maintenance_not_found": "That maintenance record could not be found.",
       "method_not_allowed": "That action is not available here.",
-      "no_active_agreement": "This partner has no active agreement.",
+      "no_active_agreement": "This partner has no active agreement for that period. Activate an agreement first, or choose another period.",
       "no_current_version": "No current platform version has been selected.",
       "not_acceptable": "This device cannot read the format the server replied in.",
       "not_authenticated": "Please sign in again.",
@@ -8790,8 +8963,8 @@
       "partnership_not_counterparty": "Only the other company can respond to this partnership request.",
       "partnership_not_found": "That partnership could not be found.",
       "payment_not_found": "That payment could not be found.",
-      "payout_already_exists": "A payout already exists for this period.",
-      "payout_not_draft": "Only a draft payout can be changed this way.",
+      "payout_already_exists": "Commission for this period has already been calculated. Work on that payout in the list below.",
+      "payout_not_draft": "Only a payout that has just been calculated and not yet submitted can be adjusted.",
       "permission_denied": "You are not allowed to do that.",
       "portal_mismatch": "This account belongs to a different portal. Use its correct sign-in page.",
       "pricing_rule_not_found": "That cloud pricing rule could not be found.",
@@ -9081,7 +9254,52 @@
       "rain_record_quota_full": "This project has already received its rain records for this period, so this one was not accepted.",
       "rain_void_reason_required": "Write why the record is voided.",
       "rain_record_already_voided": "This rain record is already voided; it cannot be voided again.",
-      "rain_rules_out_of_range": "The number of records must be 1 to 50, and the minutes 5 to 1440."
+      "rain_rules_out_of_range": "The number of records must be 1 to 50, and the minutes 5 to 1440.",
+      "consultant_workflow_last_active": "This is the project's only approval workflow, so it cannot be switched off. To change the route, add another workflow first and make it the default.",
+      "consultant_required_fields_missing": "Required fields still empty on the form ({count}): {fields}. Fill them in, then carry on.",
+      "consultant_required_attachments_missing": "Required attachments not added yet: {count}. Fill every required box under Attachments, then carry on.",
+      "consultant_workflow_no_steps": "This approval workflow has no steps yet, so it cannot be sent. Add a step to it under Consultant Approval Workflows, or choose another workflow on the application.",
+      "consultant_stamp_required": "This step needs your consultant stamp and you have not uploaded one. Upload it under Signature and sign-off PIN first, then come back to decide.",
+      "dispatch_not_loaded": "The driver has not pressed [Loaded] on the phone yet. Ask the driver to press [Loaded] first, then scan again.",
+      "recycler_standard_plan": "This recycler is on the Standard plan and cannot receive contractor orders. Please choose a recycler on the Partner plan.",
+      "standard_plan_no_partnership": "Your company is on the Standard plan, which cannot receive contractor orders, so it cannot request a partnership. To receive contractor orders, contact MSE to move to the Partner plan.",
+      "invalid_state_transition": "A ticket cannot go straight from its current status to that one. Pick one of the statuses the list offers, for example 「In progress」 first.",
+      "partner_type_system": "Built-in partner types cannot be deleted.",
+      "partner_type_in_use": "A partner already uses this type, so it cannot be deleted. Edit it and switch it off instead.",
+      "partner_territory_in_use": "This territory already has customers, so it cannot be deleted. Edit it and give it an end date instead.",
+      "agreement_document_required": "Upload the signed agreement document first, then submit or activate it.",
+      "payout_adjustment_negative": "That adjustment would make the payout negative. Make the deduction smaller.",
+      "payout_rejected_final": "This payout was rejected and cannot be submitted or paid again. To redo it, press 「Calculate payout」 for the period.",
+      "payout_invalid_transition": "This payout cannot move to that status now. Refresh the page to see where it stands.",
+      "sales_calculate_no_scheme": "This salesperson has no commission scheme yet. Choose one for them under salespeople first.",
+      "sales_calculate_scheme_inactive": "This salesperson's commission scheme has been switched off. Give them an active scheme first.",
+      "sales_calculate_already_settled": "Commission for this period has already been confirmed and cannot be calculated again.",
+      "sales_calculate_nothing_earned": "No commission was earned in this period, so nothing was created.",
+      "sales_already_owner": "This customer already belongs to that salesperson; there is nothing to move.",
+      "sales_terms_not_draft": "Only a draft version can be activated. Add a new terms version and activate that.",
+      "sales_terms_already_confirmed": "This salesperson has already confirmed that version; there is no need to record it again.",
+      "sales_payout_locked": "This payout has been confirmed and can no longer be adjusted.",
+      "sales_payout_negative": "That adjustment would take the payout below zero. Make the deduction smaller.",
+      "sales_payout_invalid_transition": "This payout cannot move to that status now. Refresh the page to see where it stands.",
+      "asset_retired_final": "A retired asset cannot be switched on again.",
+      "asset_category_system": "Built-in asset categories cannot be deleted.",
+      "asset_category_in_use": "Assets or purchases already use this category, so it cannot be deleted. Edit it and switch it off instead.",
+      "asset_purchase_closed": "This purchase is fully received or cancelled; no more stock can be received on it.",
+      "asset_purchase_over_received": "Only {remaining} item(s) are still to arrive on this purchase. Enter {remaining} or fewer.",
+      "asset_assignment_closed": "This item has already been returned.",
+      "asset_installation_invalid_transition": "This installation cannot move to that status now. Refresh the page to see where it stands.",
+      "asset_maintenance_not_scheduled": "Only scheduled repairs or maintenance can be started.",
+      "asset_maintenance_closed": "This repair or maintenance is already finished and cannot be changed.",
+      "asset_disposal_invalid_state": "This disposal request cannot be handled that way now. Refresh the page to see where it stands.",
+      "asset_disposal_reason_required": "Rejecting a disposal request needs a reason. Write it in the note.",
+      "waste_outgoing_delegate_not_on_project": "That person does not work on this project, so they could not open this application. Choose someone from this project in the list.",
+      "project_archived_read_only": "This project is archived. Its details can be read but not changed. Close this page and go back to the project list.",
+      "project_archive_use_action": "Archived cannot be chosen here. Set the status to Completed and save, then press Archive project on the project page.",
+      "project_status_move_refused": "The project cannot move straight from its current status to the one chosen. Open the edit page again and choose from the status list.",
+      "hazard_not_awaiting_check": "Someone has already dealt with this item, so it is no longer waiting to be checked. Refresh the page to see where it is now.",
+      "hazard_confirmed_by_other": "{incident_no} is checked or returned by the person who confirms it {confirmer}. You can read it but not act on it; contact them if needed.",
+      "visitor_host_required": "Choose who the visitor is here to see, then press confirm.",
+      "visitor_host_not_on_project": "That person does not work on this project. Choose someone from this project in the list."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -9568,9 +9786,7 @@
       "workLocationPlaceholder": "Example: Block A, Grid C1-D1",
       "askForHint": "Not sure which? Leave it - the office will decide."
     },
-    "consultantTasks": {
-      "title": "Consultant photo submissions"
-    },
+    "consultantTasks": {},
     "error": {
       "action": "The action could not be completed. Try again.",
       "load": "This page could not be loaded. Check the connection.",
@@ -11196,6 +11412,25 @@
       "what": {
         "workers": "the worker status",
         "handlers": "the list of job handlers"
+      },
+      "name": {
+        "PLATFORM_MONITOR_SNAPSHOT": "Record how the platform is running",
+        "EXPIRE_CONTRACTOR_SUBSCRIPTIONS": "Stop subscriptions that have run out",
+        "SEND_SUBSCRIPTION_REMINDERS": "Remind about subscriptions running out",
+        "GENERATE_AUTOMATIC_BILLING": "Make SaaS and commission invoices",
+        "PROCESS_PARTNER_AGREEMENTS": "End partner agreements and remind to renew",
+        "PROCESS_ASSET_LIFECYCLE": "Overdue asset loans and maintenance reminders",
+        "NOTIFY_EXPIRED_SITE_ACCESS": "Tell about site passes that have expired",
+        "REFRESH_BUSINESS_TARGETS": "Refresh business target progress and send milestone notices",
+        "RETRY_NOTIFICATION_DELIVERIES": "Send failed notices again",
+        "PUBLISH_ANNOUNCEMENTS": "Publish scheduled announcements",
+        "NOTIFY_OFFLINE_GATEWAYS": "Alert when a weighbridge gateway goes offline",
+        "REMIND_UNREAD_NOTIFICATIONS": "Remind about unread notices",
+        "REMIND_EQUIPMENT_EXPIRY": "Remind about equipment papers running out",
+        "CLOSE_SILENT_PRESENCE": "Close site visits whose phone stopped reporting",
+        "PURGE_WORKER_POSITIONS": "Clear worker locations older than 31 days",
+        "REMIND_SUNDRY_CLAIMS": "Remind about unfinished sundry claims every 48 hours",
+        "REMIND_REMEDIAL_ITEMS": "Remind about remedial items before and after they are due"
       }
     },
     "loadError": "Monitoring data could not be loaded.",
@@ -11560,6 +11795,10 @@
       "add": "Upload letter",
       "missing": "Upload the letter first.",
       "confirmNote": "The letter goes at the front of the merged PDF."
+    },
+    "discardConfirm": {
+      "title": "Discard this claim?",
+      "description": "This draft claim is deleted, and the records ticked in it and the letter uploaded to it are no longer part of it. This cannot be undone."
     }
   },
   "multiEngine": {
@@ -12043,7 +12282,7 @@
       "EQUIPMENT_HOURS": "Machine start / stop",
       "ATTENDANCE": "Site entry",
       "PERMIT": "Permit to work",
-      "CONSULTANT": "Consultant request"
+      "CONSULTANT": "Consultant submission"
     },
     "gateStatus": {
       "RECORDED": "Recorded",
@@ -12332,7 +12571,7 @@
       "anprSettings": "ANPR settings",
       "apiGatewayMonitoring": "API Gateway monitoring",
       "apiGatewaySettings": "API Gateway settings",
-      "approvalCredentials": "Approval credentials",
+      "approvalCredentials": "Signature and sign-off PIN",
       "approvals": "Approval workflows (advanced)",
       "archiveQueue": "Site Record Center",
       "assetActivity": "Asset records",
@@ -12396,7 +12635,7 @@
       "consultantDashboard": "Consultant dashboard",
       "consultantFieldInbox": "Site submissions to organise",
       "consultantTemplates": "RFI form templates",
-      "consultantWorkflows": "Approval workflow",
+      "consultantWorkflows": "Consultant approval workflows",
       "contractorNotifications": "Contractor notifications",
       "contractorReports": "Contractor reports",
       "crmActivity": "Customer service records",
@@ -12808,7 +13047,8 @@
       "offlineHelp": "No connection right now. Your records are saved on this phone and upload by themselves when the connection is back. Nothing to do.",
       "refusedHelp": "The server did not accept the records below, and they will not upload by themselves. Read why, then press Retry or Delete this one.",
       "uploadFailed": "{count, plural, one {# record failed to upload} other {# records failed to upload}}",
-      "refusedToast": "{count, plural, one {# record failed to upload} other {# records failed to upload}}. Tap the upload sign at the top to see why, retry or delete."
+      "refusedToast": "{count, plural, one {# record failed to upload} other {# records failed to upload}}. Tap the upload sign at the top to see why, retry or delete.",
+      "refusedToastOnPage": "{count, plural, one {# record failed to upload} other {# records failed to upload}}. The reason is at the top of this page; retry or delete it there."
     },
     "synced": "Uploaded {count, plural, one {# saved record} other {# saved records}}",
     "filesFollow": "Sent to the office. {count, plural, one {# file is} other {# files are}} still uploading in the background.",
@@ -12974,9 +13214,9 @@
     "consultant_applications": {
       "what": "The consultant side: raising applications, walking them through an approval chain, signing them, and the field evidence that supports them.",
       "who": "Holders of approval.view. Configuring flows needs consultant.config, raising one needs consultant.submit, deciding needs approval.review.",
-      "need": "An application needs the project, the workflow, the type, the discipline, the inspection type, the priority, the consultant and their firm, the location, the element or work area, the description and the form template. A decision needs your six-digit approval PIN and a note. Setting that PIN needs your current password, the new PIN twice and a signature.",
+      "need": "An application needs the project, the workflow, the type, the discipline, the inspection type, the priority, the consultant and their firm, the location, the element or work area, the description and the form template. A decision needs your six-digit sign-off PIN and a note. Setting that sign-off PIN needs your current password, the new PIN twice and a signature.",
       "then": "A PIN plus a signature is a signature. It cannot be undone.",
-      "trouble": "Approval buttons greyed out means you have not set your approval PIN yet. Consultants seeing no projects have authorisation that has expired or was never given for that project - it is granted per project with a start and an end."
+      "trouble": "Approval buttons greyed out means you have not set your sign-off PIN yet. Consultants seeing no projects have authorisation that has expired or was never given for that project - it is granted per project with a start and an end."
     },
     "customer_management": {
       "what": "Where your material comes from: contractors you have a platform partnership with, and private customers who simply drive in.",
@@ -13026,7 +13266,7 @@
     },
     "emergency_list": {
       "what": "Who is still inside the site right now, with a number you can call. For a headcount when something has gone wrong.",
-      "who": "Holders of geofence.view.",
+      "who": "Holders of site_access.view.",
       "then": "The list refreshes on its own. Tapping a number dials it.",
       "trouble": "Someone missing from the list has already been scanned out, or never scanned in. The gate events say which."
     },
@@ -13046,7 +13286,7 @@
     },
     "field_tasks": {
       "what": "Jobs sent to a named person on site: where, what, and how many photos it takes to close.",
-      "who": "Holders of project.view; assigning needs task.assign.",
+      "who": "Holders of project.view; assigning needs field_task.manage.",
       "need": "A task needs the project, a title and the site person it goes to.",
       "then": "It appears on that person's phone immediately, with the photo count it needs.",
       "trouble": "Submitted work coming back rejected repeatedly usually means the instruction was too vague. The site sees only what you typed."
@@ -13061,8 +13301,8 @@
     "hazard_rectification": {
       "what": "Hazards found on site, who has to fix them, and the photo that proves it was fixed.",
       "who": "Holders of both safety.view and project.view.",
-      "need": "Assigning needs the person responsible, a deadline and the location. Reporting it done needs what was completed. Signing it off needs an acceptance photo and a note.",
-      "then": "No acceptance photo, no closure. A hazard is not fixed because someone said so.",
+      "need": "Assigning needs the person responsible, a deadline and the location. Reporting it done needs what was completed and the rectification photos. Checking it needs only a note - no photo.",
+      "then": "The person fixing it on site takes the rectification photos; whoever raised it, or a safety lead, looks at them and then confirms it done or returns it (confirming on the computer asks for the six-digit PIN). A hazard is not fixed because someone said so.",
       "trouble": "Nothing common enough to warn about yet."
     },
     "integrations": {
@@ -13241,7 +13481,7 @@
     },
     "schedule": {
       "what": "The construction schedule: pick a plan to see three figures (progress, completed, delayed), then the Gantt chart and the task list. Export, new plan, import, rename, archive and plan versions are under More.",
-      "who": "Holders of both progress.view and project.view.",
+      "who": "Holders of both schedule.view and project.view.",
       "need": "An import needs an .xlsx file, a plan name and a revision name; revising a confirmed plan also needs the reason for the change. A task added by hand needs its WBS, name, planned start and planned finish.",
       "then": "A new plan starts as a draft; add its tasks, then Confirm and lock. After that, enter each task's Done % with Confirm progress. Delayed means past the planned finish and not done; a task done after its planned finish shows Finished late and is not counted as delayed.",
       "trouble": "An import that will not go through is usually missing a mapping: WBS, task name and planned start are required, plus either planned finish or a duration."
@@ -13262,7 +13502,7 @@
     },
     "site_gps": {
       "what": "Where your people are on site right now.",
-      "who": "Holders of geofence.view.",
+      "who": "Holders of field_position.view.",
       "need": "Pick a project first.",
       "then": "The map shows the last position each person reported.",
       "trouble": "Nobody on the map: phone browsers stop reporting when the screen locks, so gaps are normal. A gap is drawn as a gap - the system will not join two points into a road nobody travelled."
@@ -13388,6 +13628,13 @@
       "who": "Project managers, who see only the field staff on their own projects. Head office can use it too.",
       "then": "Send the link and the 6-digit PIN to the person; they open the link on their phone, enter the PIN and can start working.",
       "trouble": "A project is missing: ask head office to put you on it. \"Mobile number already in use\": delete the person on their old project first."
+    },
+    "company_settings_trace": {
+      "what": "Your own company's details: name, address, logo and home background, the emergency contact; the language, date and time formats and how long file links last; and the record of the head office and branches.",
+      "who": "Company administrators and head office: company_settings.view to read, company_settings.manage to change.",
+      "need": "Change a section, then press that section's own Save.",
+      "then": "The name and logo are printed on reports, QR records and project files; the emergency contact shows on the emergency list and on the gate guard's phone.",
+      "trouble": "Permissions, QR rules, notifications, GPS, security and record keeping are managed by MSE and cannot be changed here; contact MSE to change them."
     }
   },
   "partners": {
@@ -13417,6 +13664,12 @@
       "REFERRAL": "Referral Partner",
       "REGIONAL_AGENT": "Regional Agent",
       "TECHNOLOGY": "Technology Partner"
+    },
+    "toast": {
+      "created": "Partner created",
+      "updated": "Partner details saved",
+      "agreementCreated": "Agreement created",
+      "payoutCalculated": "Commission calculated"
     }
   },
   "partnerships": {
@@ -14158,7 +14411,8 @@
       "person": "Person to add",
       "whatMembers": "The project member list",
       "onOtherProject": "On another project now: remove them there first (\"Remove from project\" or \"Delete\")",
-      "removePhoneDescription": "{name}'s phone stops at once: every phone and browser is signed out. The account, the mobile number and everything recorded stay; a link made with the same number on another project binds the same phone again."
+      "removePhoneDescription": "{name}'s phone stops at once: every phone and browser is signed out. The account, the mobile number and everything recorded stay; a link made with the same number on another project binds the same phone again.",
+      "closed": "This project is suspended, completed or archived, so its people can no longer be added or removed."
     },
     "title": "Projects",
     "toast": {
@@ -14702,7 +14956,8 @@
       "scanHelp": "Use the camera, upload a QR image, or leave the cursor here and scan with a USB scanner.",
       "startHelp": "Scan the customer's current QR, choose your recycling yard and material, then complete it only with a valid two-pass weighing.",
       "startTitle": "Start private customer intake",
-      "tab": "Private intake"
+      "tab": "Private intake",
+      "confirmedOnly": "Only confirmed tickets are listed. For one not confirmed yet, open it under Weighing records, press Confirm ticket, then come back."
     },
     "inventory": {
       "adjustHelp": "Every change is permanent and records who made it, when and why.",
@@ -15530,7 +15785,17 @@
       "reassigned": "Customer ownership transferred",
       "removed": "Territory removed",
       "saved": "Sales setting saved",
-      "updated": "Salesperson updated"
+      "updated": "Salesperson updated",
+      "payoutsCalculated": "{count, plural, one {# commission payout} other {# commission payouts}} calculated",
+      "nothingCalculated": "No new commission was calculated: {reasons}",
+      "skipped": {
+        "no_scheme": "{count} have no commission scheme - choose one for them under Salespeople",
+        "scheme_inactive": "{count} have a commission scheme that is switched off - switch it on under Commission schemes",
+        "already_settled": "{count} already have this period approved",
+        "nothing_earned": "{count} earned no commission in this period",
+        "other": "{count} were not calculated for another reason",
+        "nobody": "there is no active salesperson with a commission scheme"
+      }
     }
   },
   "scales": {
@@ -15587,7 +15852,10 @@
     "viewTitle": "Weighbridge",
     "what": {
       "sites": "The yard list"
-    }
+    },
+    "siteSearch": "Find a yard",
+    "siteSearchPlaceholder": "Type the yard's code, name or city",
+    "siteSearchHint": "The list below shows up to 100 yards; for one not in it, type here and then choose."
   },
   "schedulePlanning": {
     "action": {
@@ -15849,7 +16117,9 @@
       "notes": "Notes",
       "pickLoad": "Choose a weighed load to see the figures.",
       "title": "Issue this settlement",
-      "unitPrice": "Price per tonne"
+      "unitPrice": "Price per tonne",
+      "done": "Settlement {no} has been issued.",
+      "open": "Open this settlement"
     },
     "lock": {
       "confirm": "Lock",
@@ -15881,7 +16151,9 @@
       "notes": "Notes",
       "paidOn": "Paid on",
       "reference": "Reference",
-      "title": "Record a payment"
+      "title": "Record a payment",
+      "document": "Proof file",
+      "documentHint": "A bank slip or transfer screenshot, as a photo or PDF. The contractor sees it under Payment proofs."
     },
     "quote": {
       "openDeductions": "{count, plural, one {# deduction} other {# deductions}} still waiting",
@@ -15989,7 +16261,7 @@
       "new": "New branch",
       "removeBody": "The branch will no longer be available for new records. Existing history is retained.",
       "removeTitle": "Remove this branch?",
-      "subtitle": "Keep the real office and branch locations used by maps and reports.",
+      "subtitle": "A record of the head office and branch offices, with their addresses and locations.",
       "title": "Branches and headquarters"
     },
     "categories": {
@@ -16763,6 +17035,11 @@
       "loading": "Preparing the sample…",
       "caption": "A4 sample: the header is exactly as on your exported PDFs; the content under it is only an example.",
       "pdfWhat": "The sample PDF"
+    },
+    "emergencyContact": {
+      "label": "Emergency contact:",
+      "call": "Call {phone}",
+      "what": "the emergency contact"
     }
   },
   "siteDisposal": {
@@ -16834,7 +17111,8 @@
         "submit": "Send this load"
       },
       "error": {
-        "action": "The action could not be completed. Check the connection and try again."
+        "action": "The action could not be completed. Check the connection and try again.",
+        "location": "The phone's location could not be read. Turn on location and allow this page to use it, then take the photo again."
       },
       "evidence": {
         "DISPOSAL_DO": "Disposal DO photo",
@@ -17543,7 +17821,8 @@
       "scanHelp": "The phone camera opens the Field Staff material screen. An already signed-in worker is taken straight to the matched supplier.",
       "share": "Share",
       "shareText": "Supplier QR code for {supplier}",
-      "title": "Supplier QR code"
+      "title": "Supplier QR code",
+      "rowLabel": "QR code"
     },
     "remove": {
       "confirm": "Remove",
@@ -17782,7 +18061,9 @@
       "whatDrivers": "Recent drivers",
       "whatPlates": "Recent plates",
       "assign": "Assign and make the link",
-      "incomplete": "Fill in the driver's name, phone and the plate"
+      "incomplete": "Fill in the driver's name, phone and the plate",
+      "noSites": "There is no yard yet, so no driver can be assigned. Go to Recycling yards, press New yard, then come back.",
+      "noSitesAskAdmin": "There is no yard yet, so no driver can be assigned. Ask your company administrator to add a yard under Recycling yards first."
     },
     "link": {
       "ruleLabel": "When the link stops working",
@@ -17923,7 +18204,7 @@
       "projects": "Project access",
       "responsibilities": "Project responsibilities",
       "role": "Role and permissions",
-      "tasks": "Unfinished site tasks",
+      "tasks": "Unfinished site tasks and requests (MR) waiting for them",
       "title": "What should be transferred"
     },
     "warning": {
@@ -17962,6 +18243,7 @@
       "lastLoginIp": "Last IP",
       "phone": "Phone",
       "role": "Role",
+      "roleHint": "Without a role, this account sees nothing after signing in.",
       "status": "Status",
       "timezone": "Time zone"
     },
@@ -18024,7 +18306,8 @@
     },
     "resetPassword": {
       "action": "Send reset link",
-      "sent": "Reset link sent"
+      "sent": "Reset link sent",
+      "notSent": "The reset link did not go out. Press it again later; if it still fails, ask whoever runs the system to check the email settings."
     },
     "section": {
       "access": "Access",
@@ -18056,6 +18339,7 @@
     "titleStaff": "Internal staff",
     "toast": {
       "created": "User invited",
+      "createdNotSent": "The account was created, but the invitation email did not go out. Press Send reset link in the user list later to send it again; if it still fails, ask whoever runs the system to check the email settings.",
       "removed": "User removed",
       "statusUpdated": "User status updated",
       "updated": "User updated",
@@ -18250,7 +18534,8 @@
       "help": "Choose a recycler bound to this project. The order for {reference} is sent to their system immediately.",
       "noPartners": "No recycler is bound to this project yet. Bind one under Environmental materials › Recycler partners before raising an order.",
       "partnersFailed": "The recycling partners could not be loaded, so the picker is empty. That does not mean you have none.",
-      "title": "Assign a recycler"
+      "title": "Assign a recycler",
+      "noPartnersAskHeadOffice": "No recycler is bound to this project yet. Binding one is done by head office: ask head office to bind a recycler to this project, then come back to arrange it."
     },
     "reassign": {
       "arm": "I want to take this order back",
@@ -19105,7 +19390,8 @@
     "reminder": {
       "rule": "This claim is not finished yet. Every {hours} hours the system reminds the person who submitted it and the people who must act, until it is confirmed paid (or rejected, or withdrawn).",
       "sent": "{count, plural, one {Reminded # time} other {Reminded # times}}, last: {at}."
-    }
+    },
+    "withdrawn": "The applicant withdrew this claim. The record is kept and nothing more needs doing. To claim again, the applicant submits a new one."
   },
   "moduleHub": {
     "nothingToOpen": "There is nothing in this module you can open."
@@ -19294,7 +19580,8 @@
       "forwardHistory": "Sent on",
       "headOfficeReviewer": "Head office approver",
       "materialName": "Material name",
-      "materials": "Materials"
+      "materials": "Materials",
+      "onBehalfHistory": "Decided by head office for the manager"
     },
     "action": {
       "view": "View",
@@ -19316,7 +19603,7 @@
     "detailTitle": "Request",
     "pendingDecision": "Pending approval - not decided yet",
     "noRemark": "No remark",
-    "returnedNotice": "This request was returned and is closed; it cannot be edited or sent again. To ask again, raise a new request - it gets a new Request No.",
+    "returnedNotice": "This request was returned and is closed; it cannot be sent again. To ask again, raise a new request - it gets a new Request No.",
     "waitingForReview": "Waiting for head office or the authorised manager to approve or return it.",
     "ownRequestWaiting": "Waiting for approval. You raised this request, so head office or the authorised manager approves or returns it - not you.",
     "attachments": {
@@ -19438,7 +19725,13 @@
       "manager": "Waiting for the project manager"
     },
     "forwarded": "Sent to head office by {by} on {at}",
-    "managerHelp": "A site request sent to you: choose who at head office approves it and press “Send to head office”, or return it."
+    "managerHelp": "A site request sent to you: choose who at head office approves it and press “Send to head office”, or return it.",
+    "waitingForManager": "Waiting for the project manager {name} to check it. Head office approves it once he sends it on.",
+    "onBehalf": {
+      "help": "The project manager {manager}'s account is suspended, so head office decides this one for him: approve or return it here. The record will say it was decided by head office.",
+      "approved": "{by} approved it for {manager} (head office) · {at}",
+      "returned": "{by} returned it for {manager} (head office) · {at}"
+    }
   },
   "materialLines": {
     "title": "Materials",
@@ -20167,7 +20460,8 @@
       "label": "Normal hours a day",
       "save": "Save",
       "failed": "Could not save. Please try again.",
-      "current": "Set {at} by {name}"
+      "current": "Set {at} by {name}",
+      "chooseProject": "Each project has its own daily normal hours: choose a project above first."
     },
     "records": {
       "what": "the records",
@@ -20528,7 +20822,8 @@
       "workflowHint": "This task is handed in on its own form.",
       "openWorkflow": "Open work form",
       "waiting": "Submitted, waiting for the check.",
-      "finished": "This task is finished."
+      "finished": "This task is finished.",
+      "disposalTitle": "Carry out disposal {reference}"
     },
     "ehs": {
       "unsorted": "Unsorted",
@@ -21175,7 +21470,12 @@
       "stop": "Stop",
       "lastUsed": "Last used {at}",
       "failed": "Could not save. Please try again.",
-      "chooseProject": "Choose a project at the top of the page to make a link."
+      "chooseProject": "Choose a project at the top of the page to make a link.",
+      "askReissue": "Sending again stops the link the driver has now at once; you then send him the new one. Send again?",
+      "askStop": "Once stopped, this driver can no longer clock on or off with this link. Stop it?",
+      "confirmReissue": "Yes, send again",
+      "confirmStop": "Yes, stop it",
+      "working": "Working on it, please wait."
     },
     "tabs": {
       "clock": "Clock in / out",
@@ -21720,5 +22020,9 @@
       "placeholder": "For example: work stopped for 5 days this month because of rain.",
       "hint": "Printed on this month's report PDF."
     }
+  },
+  "pagedList": {
+    "shown": "Showing {shown} of {total}",
+    "loadMore": "Load more"
   }
 }

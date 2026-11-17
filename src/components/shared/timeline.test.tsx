@@ -74,8 +74,9 @@ describe("Timeline", () => {
       );
       const dot = markup.match(/data-timeline-dot="[a-z]+" class="([^"]+)"/)![1];
       expect(dot.split(" ")).toContain(STATUS_DOT_CLASS[tone]);
-      // The badge's own leading dot carries the same class.
-      const badgeDot = markup.match(/<span class="h-1\.5 w-1\.5 rounded-full ([^"]+)"/)![1];
+      // The badge's own leading dot carries the same class (`shrink-0` since
+      // 11-16: a long label wraps beside it instead of squeezing it away).
+      const badgeDot = markup.match(/<span class="h-1\.5 w-1\.5 shrink-0 rounded-full ([^"]+)"/)![1];
       expect(badgeDot).toBe(STATUS_DOT_CLASS[tone]);
       // Never the old grey that disappeared into the line.
       expect(dot.split(" ")).not.toContain("bg-border");

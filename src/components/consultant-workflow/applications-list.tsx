@@ -82,7 +82,13 @@ export function ConsultantApplicationsList() {
     can("consultant.submit") &&
     !user?.is_field_staff &&
     user?.account_type !== "CONSULTANT";
-  const stages = STAGES.filter((value) => value !== "inbox" || canOrganize);
+  // JB203-11 (Lucas 11-16 audit): drafts are the contractor's, never a
+  // consultant's, so a consultant gets no 「草稿」 tab that is always empty.
+  const stages = STAGES.filter(
+    (value) =>
+      (value !== "inbox" || canOrganize) &&
+      (value !== "draft" || user?.account_type !== "CONSULTANT"),
+  );
   const stage: ApplicationStage = stages.includes(stageParam as ApplicationStage)
     ? (stageParam as ApplicationStage)
     : "all";
@@ -242,7 +248,11 @@ export function ConsultantApplicationsList() {
       <nav
         aria-label={t("applications.stageLabel")}
         className={`surface-panel grid grid-cols-2 gap-2 rounded-xl p-2 ${
-          stages.length === 6 ? "sm:grid-cols-3 lg:grid-cols-6" : "sm:grid-cols-5"
+          stages.length === 6
+            ? "sm:grid-cols-3 lg:grid-cols-6"
+            : stages.length === 5
+              ? "sm:grid-cols-5"
+              : "sm:grid-cols-4"
         }`}
       >
         {stages.map((value) => {
@@ -303,7 +313,7 @@ export function ConsultantApplicationsList() {
                 {pack.picking && <div className="flex items-center self-stretch pl-4">{pack.check(application.id)}</div>}
                 <Link
                   href={`/consultant-applications/${application.id}`}
-                  className="grid min-w-0 flex-1 gap-3 p-4 transition-colors hover:bg-muted/35 sm:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_18rem] sm:items-center"
+                  className="grid min-w-0 flex-1 gap-3 p-4 transition-colors hover:bg-muted/35 sm:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_21rem] sm:items-center"
                 >
                   <div className="flex min-w-0 items-start gap-3">
                     {/* The linked site photograph (E3); the row is a link to
@@ -341,7 +351,9 @@ export function ConsultantApplicationsList() {
                   </div>
                   {/* Fixed slots on a desk screen (2026-10-17): every row's
                       marker, date and status sit at the same x, whether or not
-                      the row has a 待处理 marker. A phone keeps the plain line. */}
+                      the row has a 待处理 marker. A phone keeps the plain line.
+                      The status slot is 9rem (11-16): the longest status,
+                      「已批准，需完成整改」, was cut off in the old 6rem. */}
                   <div className="flex items-center gap-3 sm:grid sm:grid-cols-[5.5rem_5.5rem_minmax(0,1fr)] sm:justify-items-start sm:gap-2">
                     <span className="contents sm:flex sm:min-w-0">
                       <NeedsActionMarker show={application.needs_action} />

@@ -157,8 +157,25 @@ export function MyTasksPanel({
   );
 }
 
+/**
+ * The 清运 a task is for, when it is a disposal execution (JB204-6, Lucas
+ * 11-16 audit): the server files that task's title in English - 「Execute site
+ * disposal DR-…」 - so the phone words it from the catalogue instead, with the
+ * request's number. Any other task keeps the title the office gave it.
+ */
+export function disposalTaskReference(row: {
+  linked_record_type?: string;
+  linked_record_reference?: string;
+}): string | null {
+  return row.linked_record_type === "DISPOSAL_EXECUTION" && row.linked_record_reference
+    ? row.linked_record_reference
+    : null;
+}
+
 function MyTaskCard({ row, onOpen }: { row: MyTaskRow; onOpen: () => void }) {
   const t = useTranslations("taskFlow.myTasks");
+  const work = useTranslations("taskFlow.work");
+  const disposal = disposalTaskReference(row);
   const df = useDateFormat();
   const hazard = row.kind === "HAZARD";
   const Icon = hazard ? ShieldAlert : ClipboardList;
@@ -176,7 +193,9 @@ function MyTaskCard({ row, onOpen }: { row: MyTaskRow; onOpen: () => void }) {
           <StatusBadge label={t(hazard ? "kind.HAZARD" : "kind.FIELD_TASK")} tone={hazard ? "warning" : "info"} />
           {row.needs_more_work && <StatusBadge label={t("moreWork")} tone="danger" />}
         </span>
-        <span className="mt-2 block font-semibold leading-snug">{row.title}</span>
+        <span className="mt-2 block font-semibold leading-snug">
+          {disposal ? work("disposalTitle", { reference: disposal }) : row.title}
+        </span>
         <span className="block text-sm text-muted-foreground">
           {[row.no, row.project_name].filter(Boolean).join(" · ")}
         </span>
@@ -217,6 +236,7 @@ function FieldTaskWork({
   const t = useTranslations("taskFlow.work");
   // A disposal's 「GPS captured site location」 in the worker's words (JB164).
   const site = useTranslations("siteDisposal");
+  const chat = useTranslations("recordChat");
   const df = useDateFormat();
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -330,12 +350,20 @@ function FieldTaskWork({
   const needed = headOffice ? 0 : Math.max(row.evidence_required, 1);
   const busy = photo.isPending || submit.isPending;
   const stageKey = fieldTaskStageKey(row.status);
+  const disposal = disposalTaskReference(row);
+  // The conversation's heading in the same words as the page's - its own
+  // reference is the stored English title (JB207W, walk 11-17).
+  const disposalChat = disposal
+    ? { title: chat("title", { reference: t("disposalTitle", { reference: disposal }) }) }
+    : undefined;
   return (
     <section className="space-y-4">
       <div className="flex items-center gap-3">
         {back}
         <div className="min-w-0">
-          <h2 className="truncate text-base font-semibold">{row.title}</h2>
+          <h2 className="truncate text-base font-semibold">
+            {disposal ? t("disposalTitle", { reference: disposal }) : row.title}
+          </h2>
           <p className="truncate text-sm text-muted-foreground">{row.project_name}</p>
         </div>
       </div>
@@ -498,7 +526,7 @@ function FieldTaskWork({
       )}
 
       <div className="surface-panel rounded-xl p-4">
-        <RecordConversationPanel kind="FIELD_TASK" recordId={row.id} />
+        <RecordConversationPanel kind="FIELD_TASK" recordId={row.id} labels={disposalChat} />
       </div>
     </section>
   );

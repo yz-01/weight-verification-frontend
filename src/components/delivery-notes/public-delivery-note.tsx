@@ -11,6 +11,7 @@ import { FieldWrapper, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { ApiError } from "@/interfaces/api";
 import type { DeliveryNoteEvidenceKind, DeliveryNotePublic } from "@/interfaces/contractor";
 import {
   completePublicDeliveryNote,
@@ -21,9 +22,15 @@ import {
 
 const EVIDENCE_KINDS: DeliveryNoteEvidenceKind[] = ["VEHICLE", "UNLOADING", "DELIVERY_NOTE", "OTHER"];
 
-function getLocation(): Promise<{ latitude: string; longitude: string; location_accuracy_m?: string }> {
+/**
+ * The phone's position, or a refusal in the reader's words (JB204-6, Lucas
+ * 11-16 audit): arrival, every photo and the completion all need it, and a
+ * phone with location off read only 「Allow location access before recording
+ * site evidence.」 in English. `refused` says what to do, in their language.
+ */
+function getLocation(refused: string): Promise<{ latitude: string; longitude: string; location_accuracy_m?: string }> {
   if (typeof navigator === "undefined" || !navigator.geolocation) {
-    return Promise.reject(new Error("Location access is required."));
+    return Promise.reject(new Error(refused));
   }
   return new Promise((resolve, reject) => {
     navigator.geolocation.getCurrentPosition(
@@ -32,10 +39,23 @@ function getLocation(): Promise<{ latitude: string; longitude: string; location_
         longitude: position.coords.longitude.toFixed(7),
         location_accuracy_m: position.coords.accuracy.toFixed(2),
       }),
-      () => reject(new Error("Allow location access before recording site evidence.")),
+      () => reject(new Error(refused)),
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
     );
   });
+}
+
+/**
+ * What a failure says on this page (JB204-6, Lucas 11-16 audit). The server's
+ * refusals here name no code, so its English sentence - 「Record vehicle
+ * arrival before adding delivery evidence.」 - reached the reader as it was:
+ * a refusal without a code reads `refused`, in their language, saying what to
+ * do. A coded refusal is already worded from the catalogue, no answer at all
+ * says 「请检查网络」, and the page's own sentences (location, signature) stand.
+ */
+export function deliveryNoteErrorText(reason: unknown, refused: string, fallback: string): string {
+  if (reason instanceof ApiError && !reason.isNetwork && !reason.code) return refused;
+  return reason instanceof Error && reason.message ? reason.message : fallback;
 }
 
 export function PublicDeliveryNote({ token }: { token: string }) {
@@ -61,14 +81,14 @@ export function PublicDeliveryNote({ token }: { token: string }) {
   const noteData = current ?? query.data ?? null;
 
   const arrive = useMutation({
-    mutationFn: async () => recordPublicDeliveryArrival(token, await getLocation()),
+    mutationFn: async () => recordPublicDeliveryArrival(token, await getLocation(t("error.location"))),
     onSuccess: setCurrent,
-    onError: (reason) => setError(reason instanceof Error ? reason.message : t("error.action")),
+    onError: (reason) => setError(deliveryNoteErrorText(reason, t("error.refused"), t("error.action"))),
   });
   const complete = useMutation({
     mutationFn: async () => {
       if (!signature) throw new Error(t("error.signatureRequired"));
-      const location = await getLocation();
+      const location = await getLocation(t("error.location"));
       return completePublicDeliveryNote(token, {
         decision,
         actual_quantity: quantity,
@@ -80,7 +100,7 @@ export function PublicDeliveryNote({ token }: { token: string }) {
       });
     },
     onSuccess: setCurrent,
-    onError: (reason) => setError(reason instanceof Error ? reason.message : t("error.action")),
+    onError: (reason) => setError(deliveryNoteErrorText(reason, t("error.refused"), t("error.action"))),
   });
 
   const upload = async (kind: DeliveryNoteEvidenceKind, image?: File) => {
@@ -88,7 +108,7 @@ export function PublicDeliveryNote({ token }: { token: string }) {
     setError("");
     setUploading(kind);
     try {
-      const location = await getLocation();
+      const location = await getLocation(t("error.location"));
       const saved = await uploadPublicDeliveryEvidence(token, {
         kind,
         image,
@@ -97,7 +117,7 @@ export function PublicDeliveryNote({ token }: { token: string }) {
       });
       setCurrent(saved);
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : t("error.action"));
+      setError(deliveryNoteErrorText(reason, t("error.refused"), t("error.action")));
     } finally {
       setUploading(null);
     }

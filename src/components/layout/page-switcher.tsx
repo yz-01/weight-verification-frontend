@@ -47,7 +47,10 @@ export function PageSwitcher() {
         <Button
           variant="outline"
           size="sm"
-          className="h-10 min-w-0 max-w-56 shrink gap-2 bg-card px-3"
+          // JB202: never pressed thinner than its own words / icon - the
+          // top bar moves it to a second row instead (on a phone it had been
+          // squeezed to a sliver).
+          className="h-10 max-w-full shrink-0 gap-2 bg-card px-3"
           aria-label={t("pageSwitcher.label", { page: t(here.labelKey) })}
           title={t("pageSwitcher.label", { page: t(here.labelKey) })}
         >

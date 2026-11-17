@@ -258,55 +258,65 @@ export function Partnerships() {
             partnership.requested_by_company !== currentCompanyId;
 
           return (
-            <div className="flex items-center justify-end gap-0.5">
+            <div
+              className="flex flex-wrap items-center justify-end gap-0.5"
+              data-slot="partnership-row-actions"
+            >
+              {/* 接受 / 拒绝 in words beside the icon (JB207-10, Lucas 11-16
+                  audit): a request waiting on this company is the row's
+                  whole point, and two bare icons did not say so. */}
               {canRespond && (
                 <>
                   <Button
                     variant="ghost"
-                    size="icon-sm"
+                    size="sm"
                     className="text-success hover:bg-success/10"
-                    title={t("partnerships.respond.accept")}
                     onClick={() =>
                       setResponse({ partnership, status: "ACTIVE" })
                     }
                   >
                     <BadgeCheck className="h-3.5 w-3.5" />
+                    {t("partnerships.respond.accept")}
                   </Button>
                   <Button
                     variant="ghost"
-                    size="icon-sm"
+                    size="sm"
                     className="text-destructive hover:bg-destructive/10"
-                    title={t("partnerships.respond.reject")}
                     onClick={() =>
                       setResponse({ partnership, status: "REJECTED" })
                     }
                   >
                     <XCircle className="h-3.5 w-3.5" />
+                    {t("partnerships.respond.reject")}
                   </Button>
                 </>
               )}
 
+              {/* 管理项目 / 暂停 in words too, as the contractor's side has
+                  them since JB206-8 (JB207W, walk 11-17). */}
               {partnership.status === "ACTIVE" && (
                 <Button
                   variant="ghost"
-                  size="icon-sm"
-                  className="text-info hover:bg-info/10"
+                  size="sm"
+                  className="h-7 gap-1 px-2 text-info hover:bg-info/10"
                   title={t("partnerships.projects.manage")}
                   onClick={() => setManagingId(partnership.id)}
                 >
                   <FolderCog className="h-3.5 w-3.5" />
+                  {t("partnerships.projects.manage")}
                 </Button>
               )}
 
               {canManage && partnership.status === "ACTIVE" && (
                 <Button
                   variant="ghost"
-                  size="icon-sm"
-                  className="text-warning hover:bg-warning/10"
+                  size="sm"
+                  className="h-7 gap-1 px-2 text-warning hover:bg-warning/10"
                   title={t("partnerships.suspend.confirm")}
                   onClick={() => setSuspending(partnership)}
                 >
                   <Ban className="h-3.5 w-3.5" />
+                  {t("partnerships.suspend.confirm")}
                 </Button>
               )}
             </div>
@@ -321,12 +331,16 @@ export function Partnerships() {
   const activeStatus = list.filters.status ?? "";
   const managing =
     data?.results.find((partnership) => partnership.id === managingId) ?? null;
+  // Only a pair waiting or working together is left out: a rejected or
+  // suspended one can be asked again, which reopens it (JB207-5b).
   const excludedCompanyIds = new Set(
-    (data?.results ?? []).map((partnership) =>
-      user?.company_type === "RECYCLER"
-        ? partnership.contractor
-        : partnership.recycler,
-    ),
+    (data?.results ?? [])
+      .filter((partnership) => partnership.status === "PENDING" || partnership.status === "ACTIVE")
+      .map((partnership) =>
+        user?.company_type === "RECYCLER"
+          ? partnership.contractor
+          : partnership.recycler,
+      ),
   );
 
   return (
