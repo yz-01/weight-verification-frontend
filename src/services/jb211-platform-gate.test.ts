@@ -121,15 +121,14 @@ describe("JB211-F1 every call says which build it is", () => {
     expect(sent[0].headers["X-Client-Version"]).toBeUndefined();
   });
 
-  it("is package.json's own version in a build, unless the deployment names one", async () => {
+  it("is package.json's own version in a build, whatever the deployment sets", async () => {
     const { readFileSync } = await import("node:fs");
     const config = readFileSync(new URL("../../next.config.ts", import.meta.url), "utf8");
     const source = readFileSync(new URL("../lib/app-version.ts", import.meta.url), "utf8");
     expect(config).toMatch(/readFileSync\(path\.join\(process\.cwd\(\), "package\.json"\)/);
     expect(config).toMatch(/env: \{ MSE_PACKAGE_VERSION: packageVersion \}/);
-    expect(source).toMatch(
-      /process\.env\.NEXT_PUBLIC_APP_VERSION \|\| process\.env\.MSE_PACKAGE_VERSION \|\| "0\.1\.0"/,
-    );
+    expect(source).toMatch(/APP_VERSION = process\.env\.MSE_PACKAGE_VERSION \|\| "0\.1\.0"/);
+    expect(source).not.toMatch(/process\.env\.NEXT_PUBLIC_APP_VERSION/);
   });
 });
 
