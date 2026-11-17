@@ -577,6 +577,12 @@ export interface MySubmissionRow {
     | "PERMIT";
   /** A site record's task type: `CONSULTANT` is a 顾问申请 sent from the phone (JB116). */
   task_type?: string;
+  /**
+   * What a site record's task was made for: a disposal execution is worded
+   * 「执行清运 DR-…」 from these, not its stored English title (JB207W).
+   */
+  linked_record_type?: string;
+  linked_record_reference?: string;
   /** A gate record that is a 门岗事项 rather than a plain photo (JB116). */
   gate_issue?: boolean;
   /** A hazard or permit row's record type (`PERMIT` on a 施工准证). */

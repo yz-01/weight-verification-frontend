@@ -236,6 +236,7 @@ function FieldTaskWork({
   const t = useTranslations("taskFlow.work");
   // A disposal's 「GPS captured site location」 in the worker's words (JB164).
   const site = useTranslations("siteDisposal");
+  const chat = useTranslations("recordChat");
   const df = useDateFormat();
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -350,6 +351,11 @@ function FieldTaskWork({
   const busy = photo.isPending || submit.isPending;
   const stageKey = fieldTaskStageKey(row.status);
   const disposal = disposalTaskReference(row);
+  // The conversation's heading in the same words as the page's - its own
+  // reference is the stored English title (JB207W, walk 11-17).
+  const disposalChat = disposal
+    ? { title: chat("title", { reference: t("disposalTitle", { reference: disposal }) }) }
+    : undefined;
   return (
     <section className="space-y-4">
       <div className="flex items-center gap-3">
@@ -520,7 +526,7 @@ function FieldTaskWork({
       )}
 
       <div className="surface-panel rounded-xl p-4">
-        <RecordConversationPanel kind="FIELD_TASK" recordId={row.id} />
+        <RecordConversationPanel kind="FIELD_TASK" recordId={row.id} labels={disposalChat} />
       </div>
     </section>
   );

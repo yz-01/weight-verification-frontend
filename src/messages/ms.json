@@ -14402,7 +14402,8 @@
       "person": "Orang yang hendak ditambah",
       "whatMembers": "Senarai ahli projek",
       "onOtherProject": "Kini di projek lain: keluarkan di sana dahulu (\"Keluarkan dari projek\" atau \"Padam\")",
-      "removePhoneDescription": "Telefon {name} berhenti serta-merta: semua telefon dan pelayar dilog keluar. Akaun, nombor telefon dan semua rekod kekal; pautan dengan nombor yang sama di projek lain akan mengikat telefon yang sama semula."
+      "removePhoneDescription": "Telefon {name} berhenti serta-merta: semua telefon dan pelayar dilog keluar. Akaun, nombor telefon dan semua rekod kekal; pautan dengan nombor yang sama di projek lain akan mengikat telefon yang sama semula.",
+      "closed": "Projek ini digantung, siap atau diarkibkan, jadi orangnya tidak boleh ditambah atau dibuang lagi."
     },
     "title": "Projek",
     "toast": {
@@ -19593,7 +19594,7 @@
     "detailTitle": "Permohonan",
     "pendingDecision": "Menunggu kelulusan - belum diputuskan",
     "noRemark": "Tiada catatan",
-    "returnedNotice": "Permohonan ini dikembalikan dan ditutup; ia tidak boleh disunting atau dihantar semula. Untuk memohon semula, buat permohonan baharu - ia diberi No. Permohonan baharu.",
+    "returnedNotice": "Permohonan ini dikembalikan dan ditutup; ia tidak boleh dihantar semula. Untuk memohon semula, buat permohonan baharu - ia diberi No. Permohonan baharu.",
     "waitingForReview": "Menunggu ibu pejabat atau pengurus yang diberi kuasa meluluskan atau mengembalikannya.",
     "ownRequestWaiting": "Menunggu kelulusan. Anda yang membuat permohonan ini, jadi ibu pejabat atau pengurus yang diberi kuasa akan meluluskan atau mengembalikannya - bukan anda.",
     "attachments": {

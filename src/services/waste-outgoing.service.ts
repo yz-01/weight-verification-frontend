@@ -199,7 +199,8 @@ export async function submitWasteCollectionRequest(
  * the server holds 转交 to (JB206-4, Lucas 11-16 audit).
  */
 export function getWasteOutgoingDelegateOptions(record?: string): Promise<{
-  results: { id: string; name: string; role: string }[];
+  /** `role_code` names a seeded role in the reader's language (`roleLabel`). */
+  results: { id: string; name: string; role: string; role_code?: string }[];
 }> {
   return api.get("/api/waste-outgoing/get_delegate_options/", record ? { record } : {});
 }

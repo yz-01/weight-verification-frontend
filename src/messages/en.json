@@ -14402,7 +14402,8 @@
       "person": "Person to add",
       "whatMembers": "The project member list",
       "onOtherProject": "On another project now: remove them there first (\"Remove from project\" or \"Delete\")",
-      "removePhoneDescription": "{name}'s phone stops at once: every phone and browser is signed out. The account, the mobile number and everything recorded stay; a link made with the same number on another project binds the same phone again."
+      "removePhoneDescription": "{name}'s phone stops at once: every phone and browser is signed out. The account, the mobile number and everything recorded stay; a link made with the same number on another project binds the same phone again.",
+      "closed": "This project is suspended, completed or archived, so its people can no longer be added or removed."
     },
     "title": "Projects",
     "toast": {
@@ -19593,7 +19594,7 @@
     "detailTitle": "Request",
     "pendingDecision": "Pending approval - not decided yet",
     "noRemark": "No remark",
-    "returnedNotice": "This request was returned and is closed; it cannot be edited or sent again. To ask again, raise a new request - it gets a new Request No.",
+    "returnedNotice": "This request was returned and is closed; it cannot be sent again. To ask again, raise a new request - it gets a new Request No.",
     "waitingForReview": "Waiting for head office or the authorised manager to approve or return it.",
     "ownRequestWaiting": "Waiting for approval. You raised this request, so head office or the authorised manager approves or returns it - not you.",
     "attachments": {
