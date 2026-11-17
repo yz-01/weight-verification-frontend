@@ -5008,7 +5008,13 @@
       "usedUserSeats": "已使用账号",
       "userCount": "用户数",
       "userLimit": "账号额度",
-      "website": "网站"
+      "website": "网站",
+      "trialDays": "试用天数",
+      "trialEndsOn": "免费试用到",
+      "siteLimit": "回收场上限",
+      "scaleLimit": "地磅上限",
+      "siteLimitOverride": "自定义回收场上限",
+      "scaleLimitOverride": "自定义地磅上限"
     },
     "filter": {
       "active": "正常",
@@ -5297,7 +5303,14 @@
       "recordsHelp": "归档后锁定记录，什么时候必须拍照。",
       "defaults": "系统默认值",
       "defaultsHelp": "新项目、访客证和总部 Dashboard 一开始用的值。"
-    }
+    },
+    "trialDaysHint": "这个套餐默认试用 {days} 天。试用期间不出账单；试用结束后要在订阅管理按「续期」才开始收费。填 0 = 不试用。",
+    "trialNote": "试用期间不出账单。试用结束后要在订阅管理按「续期」才开始收费。",
+    "siteLimitOverrideHint": "空着 = 按套餐的上限（{limit}）。调高后马上可以新增；调低不会影响已经有的回收场。",
+    "scaleLimitOverrideHint": "空着 = 按套餐的上限（{limit}）。调高后马上可以新增；调低不会影响已经有的地磅。",
+    "limitUsage": "已用 {used}，上限 {limit}",
+    "noLimit": "不限",
+    "planHidden": "{name}（不公开）"
   },
   "consultantAccess": {
     "action": {
@@ -9255,6 +9268,9 @@
       "rain_void_reason_required": "请写作废原因。",
       "rain_record_already_voided": "这份雨天记录已经作废了，不能再作废一次。",
       "rain_rules_out_of_range": "份数要在 1 到 50 之间，分钟要在 5 到 1440 之间。",
+      "site_limit_reached": "贵公司的套餐最多可以有 {limit} 个回收场，现在已经有 {used} 个，所以不能再新增。如需增加，请联系 MSE。",
+      "scale_limit_reached": "这家回收商的套餐最多可以有 {limit} 台在用的地磅，现在已经有 {used} 台，所以不能再新增或重新启用。请先在公司页面调高「自定义地磅上限」。",
+      "external_integration_not_in_plan": "这家公司的套餐不包含外部系统对接（ERP、会计系统、MyInvois、Webhook、API），所以不能新增或打开这类连接。如需开通，请联系 MSE 更换套餐。",
       "consultant_workflow_last_active": "这是这个项目唯一的审批流程，不能停用。要换流程，请先新增一个并设为默认。",
       "consultant_required_fields_missing": "表格里还有 {count} 个必填项没有填：{fields}。请先填好，再继续。",
       "consultant_required_attachments_missing": "还有 {count} 份必附文件没有上传。请在「附件」里把标着必附的格子都补上，再继续。",
@@ -11151,7 +11167,9 @@
       "projects": "项目列表",
       "sites": "回收场列表",
       "scales": "地磅列表"
-    }
+    },
+    "outsidePlan": "套餐不含外部系统对接：这条连接照常运行，但关掉后不能再打开。",
+    "outsidePlanCannotEnable": "这家公司的套餐不含外部系统对接，所以不能打开。请联系 MSE 更换套餐。"
   },
   "loginRecords": {
     "count": "{count, plural, =0 {暂无记录} other {# 次尝试}}",
@@ -17678,11 +17696,22 @@
     },
     "hint": {
       "effectiveImmediately": "关闭时保留公司当前已付到期日。",
-      "features": "以逗号分隔此套餐启用的功能权限键。",
+      "features": "全部不勾 = 所有功能都可以用（跟现在一样）。勾了哪些，这个套餐的公司就只看到、只能用哪些。灰色的几项一直都有。",
       "partnerServiceFee": "合作版只在首次开通收取此服务费，之后只运行佣金制度，月费与年费保持为零。",
       "planDefault": "使用套餐额度",
       "seatOverride": "留空则使用套餐设定的账号额度。",
-      "terminate": "此操作会立即令订阅到期、禁止公司使用系统并撤销现有登录。"
+      "terminate": "此操作会立即令订阅到期、禁止公司使用系统并撤销现有登录。",
+      "billingCycle": "新增公司、换套餐和续期时，默认按这个周期算月份：月 1、季 3、半年 6、年 12。",
+      "trialDays": "新公司开在这个套餐上时，先免费试用这么多天：试用期间不出账单；到期后要在订阅管理按「续期」才开始收费。0 = 不试用。",
+      "maxSites": "回收商最多可以有几个回收场。空着 = 不限。已经有的回收场不受影响，只是不能再新增。",
+      "maxScales": "回收商最多可以有几台在用的地磅。空着 = 不限。已经有的地磅照常使用，只是不能再新增。",
+      "contractorNoSiteLimit": "建筑商没有回收场和地磅，这一格不用填。",
+      "externalIntegration": "开了，回收商可以自己接 ERP、会计系统、MyInvois、Webhook。没开的套餐不能新增或打开这类连接；已经开着的照常运行。",
+      "publicPlan": "关掉后，新增公司和换套餐时不会出现这个套餐；已经在用的公司照常使用。",
+      "defaultsFrom": "收费周期、试用天数和账号上限已按系统设置的 SaaS 默认值填好，可以直接改。",
+      "trialPlanChange": "这家公司还在免费试用（到 {date}）。换套餐只换套餐，试用日期不变；要开始收费请按「续期」。",
+      "trialRenew": "这家公司还在免费试用（到 {date}）。续期后，付费期从 {start} 开始，并开始出账单。",
+      "cycleDefault": "按套餐的收费周期，默认 {months} 个月。"
     },
     "metric": {
       "active": "使用中",
@@ -17704,7 +17733,11 @@
       "create": "建立套餐",
       "edit": "编辑套餐",
       "empty": "没有订阅套餐。",
-      "formDescription": "价格、额度与功能权限会应用于分配此套餐的公司。"
+      "formDescription": "价格、额度与功能权限会应用于分配此套餐的公司。",
+      "allowanceSummaryRecycler": "{users} 个账号，{sites} 个回收场，{scales} 台地磅",
+      "featuresAll": "所有功能",
+      "featuresCount": "{count} 项功能",
+      "legacyFeatures": "以前填写、系统不认识的：{keys}（保留，不起作用）"
     },
     "renewals": {
       "count": "{count} 个订阅需要处理",
@@ -17779,7 +17812,19 @@
     },
     "what": {
       "summary": "订阅汇总",
-      "plans": "套餐列表"
+      "plans": "套餐列表",
+      "planDefaults": "套餐默认值"
+    },
+    "badge": {
+      "hidden": "不公开",
+      "default": "默认",
+      "trialDays": "试用 {days} 天",
+      "trialUntil": "试用到 {date}"
+    },
+    "featureName": {
+      "gate_records": "门岗记录",
+      "field_staff": "现场人员管理",
+      "site_workers": "人员名单"
     }
   },
   "suppliers": {

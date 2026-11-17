@@ -22,6 +22,8 @@ import type {
   CompanySubscription,
   SubscriptionPlan,
 } from "@/interfaces/subscription";
+import { localToday } from "@/lib/local-date";
+import { cycleMonths, paidTermStart } from "@/lib/plan-terms";
 import {
   changePlan,
   extendSubscription,
@@ -62,13 +64,26 @@ export function SubscriptionActionDialog({
       plans.filter(
         (candidate) =>
           candidate.is_active &&
+          // 「在套餐选择中显示」 (JB213, 4g): a hidden package is not offered.
+          candidate.is_public &&
           candidate.audience === subscription?.company_type &&
           candidate.id !== subscription?.plan,
       ),
     [plans, subscription],
   );
   const [plan, setPlan] = useState(availablePlans[0]?.id ?? "");
-  const [months, setMonths] = useState("1");
+  // The package's 付款周期 is the default term (JB213, 4a): the chosen
+  // package's when changing, the company's own when renewing.
+  const [months, setMonths] = useState(() =>
+    String(
+      cycleMonths(
+        mode === "plan"
+          ? availablePlans[0]?.billing_cycle
+          : subscription?.plan_billing_cycle,
+      ),
+    ),
+  );
+  const onTrial = Boolean(subscription?.trial_ends_on);
   const [expiryMode, setExpiryMode] = useState<"months" | "date">("months");
   const [expiresOn, setExpiresOn] = useState("");
   const [effectiveImmediately, setEffectiveImmediately] = useState(false);
@@ -142,7 +157,11 @@ export function SubscriptionActionDialog({
                 <select
                   className="native-control"
                   value={plan}
-                  onChange={(event) => setPlan(event.target.value)}
+                  onChange={(event) => {
+                    setPlan(event.target.value);
+                    const chosen = availablePlans.find((candidate) => candidate.id === event.target.value);
+                    setMonths(String(cycleMonths(chosen?.billing_cycle)));
+                  }}
                 >
                   {availablePlans.map((candidate) => (
                     <option key={candidate.id} value={candidate.id}>
@@ -152,7 +171,18 @@ export function SubscriptionActionDialog({
                 </select>
                 {plansFailed}
               </FieldWrapper>
-              <FieldWrapper label={t("field.termMonths")} required>
+              {onTrial && (
+                <p className="rounded-lg border border-warning/40 bg-warning/10 p-3 text-sm">
+                  {t("hint.trialPlanChange", { date: subscription.trial_ends_on ?? "" })}
+                </p>
+              )}
+              <FieldWrapper
+                label={t("field.termMonths")}
+                required
+                hint={t("hint.cycleDefault", {
+                  months: cycleMonths(availablePlans.find((candidate) => candidate.id === plan)?.billing_cycle),
+                })}
+              >
                 <Input
                   type="number"
                   min={1}
@@ -178,6 +208,14 @@ export function SubscriptionActionDialog({
 
           {mode === "extend" && (
             <>
+              {onTrial && (
+                <p className="rounded-lg border border-warning/40 bg-warning/10 p-3 text-sm">
+                  {t("hint.trialRenew", {
+                    date: subscription.trial_ends_on ?? "",
+                    start: paidTermStart(subscription.trial_ends_on ?? localToday(), localToday()),
+                  })}
+                </p>
+              )}
               <div className="grid grid-cols-2 gap-1 rounded-lg border p-1">
                 {(["months", "date"] as const).map((value) => (
                   <Button
@@ -192,7 +230,11 @@ export function SubscriptionActionDialog({
                 ))}
               </div>
               {expiryMode === "months" ? (
-                <FieldWrapper label={t("field.extensionMonths")} required>
+                <FieldWrapper
+                  label={t("field.extensionMonths")}
+                  required
+                  hint={t("hint.cycleDefault", { months: cycleMonths(subscription.plan_billing_cycle) })}
+                >
                   <Input
                     type="number"
                     min={1}

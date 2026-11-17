@@ -131,7 +131,13 @@ export function CompanySubscriptions({
         accessorKey: "subscription_state",
         meta: { label: t("field.state") },
         header: () => t("field.state"),
-        cell: ({ row }) => <StatusBadge label={t(`state.${row.original.subscription_state}`)} tone={TONES[row.original.subscription_state]} />,
+        cell: ({ row }) => (
+          <span className="flex flex-wrap gap-1">
+            <StatusBadge label={t(`state.${row.original.subscription_state}`)} tone={TONES[row.original.subscription_state]} />
+            {/* A free trial 续期 has not converted yet (JB213, Q5 = A). */}
+            {row.original.trial_ends_on && <TypeBadge label={t("badge.trialUntil", { date: row.original.trial_ends_on })} />}
+          </span>
+        ),
       },
       {
         accessorKey: "subscription_started_on",

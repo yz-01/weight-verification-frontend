@@ -37,6 +37,8 @@ export interface SubscriptionPlan {
   is_active: boolean;
   sort_order: number;
   company_count: number;
+  /** The package a new contractor gets when none is chosen (11.2.2, JB213). */
+  is_default: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -63,6 +65,10 @@ export interface CompanySubscription {
   remaining_user_seats: number | null;
   earns_platform_commission: boolean;
   commission_rate: string | null;
+  /** Last free day of a trial that has not been renewed yet (JB213, Q5). */
+  trial_ends_on: string | null;
+  /** The package's 付款周期, the default term for 续期 / 换套餐 (JB213). */
+  plan_billing_cycle: BillingCycle | null;
 }
 
 export interface SubscriptionSummary {
@@ -111,6 +117,7 @@ export interface ChangePlanPayload {
 }
 
 export interface ExtendSubscriptionPayload {
+  /** Left out: the package's own 付款周期 (JB213). */
   months?: number;
   expires_on?: string;
   reason: string;
@@ -120,3 +127,23 @@ export interface SetSeatsPayload {
   user_limit_override: number | null;
   reason: string;
 }
+
+/** What a new package starts with, from 11.2.2 SaaS 默认值 (JB213). */
+export interface PlanDefaults {
+  billing_cycle: BillingCycle;
+  trial_days: number;
+  max_users: number | null;
+  default_plan: { id: string; code: string; name: string } | null;
+  /** The menus a package can switch, per audience, in menu order. */
+  feature_choices: Record<CompanyType, string[]>;
+  /** Menus every package keeps, whatever is ticked. */
+  always_on_features: string[];
+}
+
+/** Months in one 付款周期, as the server counts them. */
+export const BILLING_CYCLE_MONTHS: Record<BillingCycle, number> = {
+  MONTHLY: 1,
+  QUARTERLY: 3,
+  HALF_YEARLY: 6,
+  YEARLY: 12,
+};

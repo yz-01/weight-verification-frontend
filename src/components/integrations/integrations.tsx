@@ -54,6 +54,7 @@ import type {
   IntegrationDevicePayload,
   IntegrationKind,
 } from "@/interfaces/integration";
+import { canSwitchOn } from "@/lib/plan-terms";
 import { getProjects } from "@/services/contractor.service";
 import { getCompanies } from "@/services/companies.service";
 import {
@@ -751,6 +752,13 @@ export function Integrations() {
                           })}
                     </p>
                   )}
+                  {/* 外部接口 not in the package (JB213): left running if on,
+                      and said so, so MSE can see which ones these are. */}
+                  {row.outside_plan && (
+                    <p className="mt-1 text-xs text-warning" data-outside-plan>
+                      {t("integrations.outsidePlan")}
+                    </p>
+                  )}
                 </div>
                 <span className="flex">
                   <StatusBadge
@@ -828,7 +836,12 @@ export function Integrations() {
                       </Button>
                       <Button
                         variant={row.is_enabled ? "destructive" : "default"}
-                        disabled={toggle.isPending}
+                        disabled={toggle.isPending || !canSwitchOn(row)}
+                        disabledReason={
+                          canSwitchOn(row)
+                            ? undefined
+                            : t("integrations.outsidePlanCannotEnable")
+                        }
                         onClick={() => void toggle.mutateAsync(row)}
                       >
                         {row.is_enabled

@@ -5008,7 +5008,13 @@
       "usedUserSeats": "Pengguna digunakan",
       "userCount": "Pengguna",
       "userLimit": "Had pengguna",
-      "website": "Laman web"
+      "website": "Laman web",
+      "trialDays": "Hari percubaan",
+      "trialEndsOn": "Percubaan percuma hingga",
+      "siteLimit": "Had tapak",
+      "scaleLimit": "Had jambatan timbang",
+      "siteLimitOverride": "Had tapak tersuai",
+      "scaleLimitOverride": "Had jambatan timbang tersuai"
     },
     "filter": {
       "active": "Aktif",
@@ -5297,7 +5303,14 @@
       "recordsHelp": "Kunci selepas arkib, dan bila foto mesti diambil.",
       "defaults": "Nilai lalai sistem",
       "defaultsHelp": "Nilai permulaan untuk projek baharu, pas pelawat dan papan pemuka."
-    }
+    },
+    "trialDaysHint": "Pakej ini memberi {days} hari percuma secara lalai. Tiada bil semasa percubaan; bil bermula hanya apabila anda tekan Perbaharui di Langganan. Masukkan 0 untuk tiada percubaan.",
+    "trialNote": "Tiada bil semasa percubaan. Bil bermula hanya apabila anda tekan Perbaharui di Langganan.",
+    "siteLimitOverrideHint": "Kosong = had pakej ({limit}). Menaikkannya membenarkan penambahan serta-merta; menurunkannya tidak menjejaskan tapak sedia ada.",
+    "scaleLimitOverrideHint": "Kosong = had pakej ({limit}). Menaikkannya membenarkan penambahan serta-merta; menurunkannya tidak menjejaskan jambatan timbang sedia ada.",
+    "limitUsage": "{used} digunakan daripada {limit}",
+    "noLimit": "Tiada had",
+    "planHidden": "{name} (tersembunyi)"
   },
   "consultantAccess": {
     "action": {
@@ -9255,6 +9268,9 @@
       "rain_void_reason_required": "Tulis sebab rekod ini dibatalkan.",
       "rain_record_already_voided": "Rekod hujan ini sudah dibatalkan; ia tidak boleh dibatalkan lagi.",
       "rain_rules_out_of_range": "Bilangan rekod mesti 1 hingga 50, dan minit 5 hingga 1440.",
+      "site_limit_reached": "Pakej anda membenarkan {limit} tapak dan anda sudah ada {used}, jadi tapak baharu tidak boleh ditambah. Untuk menambah lagi, sila hubungi MSE.",
+      "scale_limit_reached": "Pakej pengitar semula ini membenarkan {limit} jambatan timbang aktif dan ia sudah ada {used}, jadi yang baharu tidak boleh ditambah atau diaktifkan semula. Naikkan had jambatan timbang tersuainya di halaman syarikat dahulu.",
+      "external_integration_not_in_plan": "Pakej syarikat ini tidak termasuk sambungan ke sistem luar (ERP, perakaunan, MyInvois, webhook, API), jadi sambungan jenis ini tidak boleh ditambah atau dihidupkan. Untuk mendapatkannya, sila hubungi MSE untuk menukar pakej.",
       "consultant_workflow_last_active": "Ini satu-satunya aliran kelulusan projek ini, jadi ia tidak boleh dihentikan. Untuk menukar laluan, tambah aliran lain dahulu dan jadikan ia lalai.",
       "consultant_required_fields_missing": "Masih ada {count} medan wajib yang kosong pada borang: {fields}. Isi dahulu, kemudian teruskan.",
       "consultant_required_attachments_missing": "Masih ada {count} lampiran wajib yang belum dimuat naik. Isi setiap kotak wajib di bawah Lampiran, kemudian teruskan.",
@@ -11151,7 +11167,9 @@
       "projects": "senarai projek",
       "sites": "senarai tapak kitar semula",
       "scales": "senarai jambatan timbang"
-    }
+    },
+    "outsidePlan": "Tiada dalam pakej: sambungan ini terus berjalan, tetapi apabila dimatikan ia tidak boleh dihidupkan semula.",
+    "outsidePlanCannotEnable": "Pakej syarikat ini tidak termasuk sambungan sistem luar, jadi ia tidak boleh dihidupkan. Hubungi MSE untuk menukar pakej."
   },
   "loginRecords": {
     "count": "{count, plural, =0 {Tiada percubaan} other {# percubaan}}",
@@ -17678,11 +17696,22 @@
     },
     "hint": {
       "effectiveImmediately": "Jika dimatikan, tarikh berbayar sedia ada dikekalkan.",
-      "features": "Kunci ciri dipisahkan dengan koma.",
+      "features": "Tiada yang ditanda = semua fungsi, seperti sekarang. Tanda beberapa dan syarikat pada pakej ini hanya melihat dan menggunakan yang ditanda. Yang kelabu sentiasa ada.",
       "partnerServiceFee": "Pelan Rakan Kongsi mengenakan yuran ini sekali sahaja, kemudian hanya komisen. Yuran bulanan dan tahunan kekal sifar.",
       "planDefault": "Gunakan had pelan",
       "seatOverride": "Biarkan kosong untuk menggunakan had pelan.",
-      "terminate": "Ini menamatkan langganan, menyekat akses syarikat dan membatalkan sesi aktif serta-merta."
+      "terminate": "Ini menamatkan langganan, menyekat akses syarikat dan membatalkan sesi aktif serta-merta.",
+      "billingCycle": "Syarikat baharu, pertukaran pakej dan pembaharuan menggunakan bilangan bulan ini secara lalai: bulanan 1, suku tahunan 3, setengah tahunan 6, tahunan 12.",
+      "trialDays": "Syarikat baharu pada pakej ini mendapat sekian hari percubaan percuma dahulu: tiada bil semasa percubaan; bil bermula hanya apabila anda tekan Perbaharui di Langganan. 0 = tiada percubaan.",
+      "maxSites": "Bilangan tapak maksimum bagi pengitar semula. Kosong = tiada had. Tapak sedia ada tidak terjejas; hanya penambahan baharu dihalang.",
+      "maxScales": "Bilangan jambatan timbang aktif maksimum bagi pengitar semula. Kosong = tiada had. Jambatan timbang sedia ada terus berfungsi; hanya penambahan baharu dihalang.",
+      "contractorNoSiteLimit": "Kontraktor tiada tapak atau jambatan timbang; biarkan kosong.",
+      "externalIntegration": "Hidup: pengitar semula boleh menyambung ERP, perakaunan, MyInvois atau webhook sendiri. Mati: sambungan sebegini tidak boleh ditambah atau dihidupkan; yang sudah hidup terus berjalan.",
+      "publicPlan": "Mati: pakej ini tidak ditawarkan semasa menambah syarikat atau menukar pakej; syarikat yang sudah menggunakannya kekal.",
+      "defaultsFrom": "Kitaran bil, hari percubaan dan had akaun diisi daripada nilai lalai SaaS dalam Tetapan Sistem; ubah jika perlu.",
+      "trialPlanChange": "Syarikat ini dalam percubaan percuma (hingga {date}). Menukar pakej hanya menukar pakej; tarikh percubaan kekal. Tekan Perbaharui untuk mula membuat bil.",
+      "trialRenew": "Syarikat ini dalam percubaan percuma (hingga {date}). Selepas pembaharuan, tempoh berbayar bermula pada {start} dan bil bermula.",
+      "cycleDefault": "Kitaran bil pakej: {months} bulan secara lalai."
     },
     "metric": {
       "active": "Aktif",
@@ -17704,7 +17733,11 @@
       "create": "Cipta pelan",
       "edit": "Edit pelan",
       "empty": "Tiada pelan langganan.",
-      "formDescription": "Harga, had dan kelayakan digunakan pada syarikat yang menerima pelan ini."
+      "formDescription": "Harga, had dan kelayakan digunakan pada syarikat yang menerima pelan ini.",
+      "allowanceSummaryRecycler": "{users} akaun, {sites} tapak, {scales} jambatan timbang",
+      "featuresAll": "Semua fungsi",
+      "featuresCount": "{count} fungsi",
+      "legacyFeatures": "Ditaip sebelum ini, tidak dikenali: {keys} (disimpan, tiada kesan)"
     },
     "renewals": {
       "count": "{count} langganan perlu tindakan",
@@ -17779,7 +17812,19 @@
     },
     "what": {
       "summary": "Ringkasan langganan",
-      "plans": "Senarai pelan"
+      "plans": "Senarai pelan",
+      "planDefaults": "Nilai lalai pakej"
+    },
+    "badge": {
+      "hidden": "Tersembunyi",
+      "default": "Lalai",
+      "trialDays": "Percubaan {days} hari",
+      "trialUntil": "Percubaan hingga {date}"
+    },
+    "featureName": {
+      "gate_records": "Rekod pintu pagar",
+      "field_staff": "Kakitangan tapak",
+      "site_workers": "Senarai pekerja"
     }
   },
   "suppliers": {
