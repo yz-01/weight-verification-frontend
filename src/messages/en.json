@@ -5447,7 +5447,7 @@
       "final": "Final report",
       "finalHelp": "Download the completed final report (customer RFI format).",
       "subtitle": "Open the step you need. Every application moves from preparation to a protected archive.",
-      "title": "Four simple steps"
+      "title": "Simple steps"
     },
     "history": {
       "description": "Applications where your signed approval action was recorded.",
@@ -5492,7 +5492,7 @@
       "noEvidence": "No evidence attached",
       "evidenceHint": "Pick the site photos of this project that show the work is done (newest first). Take them with the phone app first.",
       "evidence": "Evidence",
-      "closedBy": "Closed by {name} on {when}",
+      "closedBy": "Closed by {name} on {when}, {count} evidence file(s) attached",
       "closureNote": "What was done",
       "closeHelp": "Say what was done, and attach what proves it.",
       "closeTitle": "Close this remedial item",
@@ -5638,13 +5638,21 @@
         "revise": "The consultant chose Revise and resubmit. Create a new revision, make the requested changes and send it to the consultant again.",
         "waiting": "No action is needed from you now. It is waiting at {step}.",
         "remedialOpen": "Approved, but {count} remedial item(s) are still open. When the work is done, press 「Close this remedial item」 under 「Remedial items」 below and add a photo that shows it.",
-        "reviseMade": "A new revision (revision {revision}) has already been made. Open it under Revision history below, make the changes there and send it."
+        "remedialOpenReviewer": "{count} remedial item(s) are waiting for the contractor; you will be told when they close them. If more is needed, press 【Raise a remedial item】.",
+        "remedialOpenWatching": "{count} remedial item(s) are waiting for the contractor.",
+        "rejected": "The consultant rejected this application; the reason is under Signed decisions. When the work is put right, press 【New application】 to send it again.",
+        "reviseMade": "A new revision (revision {revision}) has already been made. Open it under Revision history below, make the changes there and send it.",
+        "reviseSent": "The new revision (revision {revision}) has been sent to the consultant. Open it under Revision history to follow it.",
+        "reviseDecided": "The consultant has decided on the new revision (revision {revision}). Open it under Revision history to see the result.",
+        "reviseReviewer": "It has gone back to the contractor to be changed. You will be told when they make the new revision and send it."
       },
       "nextAction": "What happens next",
       "noRevisions": "No revision history is available.",
+      "noRelatedRecords": "This application has no linked site records.",
       "receivedAt": "Received by consultant",
       "revision": "Revision {revision}",
-      "revisionCurrent": "Current version",
+      "revisionCurrent": "Version you are viewing",
+      "revisionLatest": "Latest version",
       "section": {
         "remedial": "Remedial items",
         "application": "Application details",
@@ -5850,7 +5858,7 @@
       "reviewerUser": "Assigned reviewer: {name}",
       "setupCredential": "Set signature and sign-off PIN",
       "remedialList": {
-        "hint": "One thing per line. Every line is printed on the final PDF you sign; the contractor closes each one in the application when it is done, with a photo.",
+        "hint": "One thing per line. Every line is printed on the final report you sign; the contractor closes each one in the application when it is done, with a photo.",
         "item": "Item {n}: what has to be put right",
         "placeholder": "For example: patch the honeycombing on the west wall.",
         "add": "Add another",

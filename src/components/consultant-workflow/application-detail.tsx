@@ -123,7 +123,7 @@ import {
   deleteConsultantApplication,
 } from "@/services/consultant-workflow.service";
 import { FileThumbs } from "@/components/shared/file-thumbs";
-import { PhotoLink } from "@/components/shared/photo-link";
+import { isImageFile, PhotoLink } from "@/components/shared/photo-link";
 
 /**
  * One consultant application, in the record-detail frame every module
@@ -510,7 +510,9 @@ export function ConsultantApplicationDetail({
               }
             >
               {!application.related_record_groups.length ? (
-                <Empty text={t("state.noApplications")} />
+                // JB203W (walk F-2): its own words, not the list's 「该项目没有
+                // 符合条件的顾问申请」.
+                <Empty text={t("detail.noRelatedRecords")} />
               ) : (
                 <div className="space-y-4">
                   {application.related_record_groups.map((group) => (
@@ -613,7 +615,10 @@ export function ConsultantApplicationDetail({
             <div className="min-w-0">
               <h3 className="panel-title">{t("detail.nextAction")}</h3>
               <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                {nextActionText(application, currentStep, canAct, t)}
+                {nextActionText(application, currentStep, canAct, t, {
+                  canSubmit: can("consultant.submit"),
+                  canRaise: canRaiseRemedial(application, user?.id, can),
+                })}
               </p>
               {currentStep && (
                 <p className="mt-2 text-sm font-medium text-foreground">
@@ -762,6 +767,14 @@ function ApplicationLifecycle({ application }: { application: ConsultantApplicat
 function RevisionTimeline({ application }: { application: ConsultantApplication }) {
   const t = useTranslations("consultantWorkflow");
   if (!application.revision_chain.length) return <Empty text={t("detail.noRevisions")} />;
+  // JB203W (walk F-10): 「当前版本」 on the version being read, beside a newer
+  // one, read as "the live one". The row on screen says so, and once there
+  // is more than one version the newest says it is the newest - the same row
+  // may say both.
+  const latest =
+    application.revision_chain.length > 1
+      ? Math.max(...application.revision_chain.map((row) => row.revision))
+      : null;
 
   return (
     <div className="space-y-2">
@@ -780,7 +793,8 @@ function RevisionTimeline({ application }: { application: ConsultantApplication 
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
                 <p className="font-medium">{t("detail.revision", { revision: row.revision })}</p>
-                {row.is_current && <span className="text-xs font-semibold text-primary">{t("detail.revisionCurrent")}</span>}
+                {row.is_current && <span data-revision-tag="viewing" className="text-xs font-semibold text-primary">{t("detail.revisionCurrent")}</span>}
+                {row.revision === latest && <span data-revision-tag="latest" className="text-xs font-semibold text-success">{t("detail.revisionLatest")}</span>}
               </div>
               <p className="truncate text-xs text-muted-foreground">{row.application_no}</p>
               {timestamp && <p className="mt-1 text-xs text-muted-foreground">{new Date(timestamp).toLocaleString()}</p>}
@@ -896,17 +910,52 @@ export function laterRevisionOf(application: Pick<ConsultantApplication, "revisi
   return application.revision_chain.find((row) => row.revision > application.revision);
 }
 
+/** The newest version made from this one, through later returns too (JB203W). */
+export function newestRevisionOf(application: Pick<ConsultantApplication, "revision" | "revision_chain">) {
+  return application.revision_chain.reduce<ConsultantApplication["revision_chain"][number] | undefined>(
+    (newest, row) => (row.revision > (newest?.revision ?? application.revision) ? row : newest),
+    undefined,
+  );
+}
+
+/**
+ * Whether this reader may press 【开一条整改】: the reviewer who approved with
+ * remedial works, while the application is still under review or approved on
+ * that condition - the same rule the reminders follow (JB200).
+ */
+export function canRaiseRemedial(
+  application: Pick<ConsultantApplication, "status" | "review_steps">,
+  userId: string | undefined,
+  can: (code: string) => boolean,
+) {
+  return (
+    can("approval.review") &&
+    (application.status === "SUBMITTED" || application.status === "APPROVED_WITH_REMEDIAL") &&
+    application.review_steps.some(
+      (step) => step.status === "APPROVED_WITH_REMEDIAL" && Boolean(userId) && step.decided_by === userId,
+    )
+  );
+}
+
 function nextActionText(
   application: ConsultantApplication,
   currentStep: ApplicationReviewStep | undefined,
   canAct: boolean,
   t: ReturnType<typeof useTranslations<"consultantWorkflow">>,
+  /** What this reader can press: the contractor's 【建立新版本】 / 【关闭这条整改】, or 【开一条整改】. */
+  reader: { canSubmit: boolean; canRaise: boolean },
 ) {
   if (application.status === "DRAFT") return t("detail.next.draft");
   if (application.status === "REVISE_RESUBMIT") {
-    const later = laterRevisionOf(application);
     // JB203-2: the new version is made - say where to go on, not 「请建立新版本」.
-    if (later) return t("detail.next.reviseMade", { revision: later.revision });
+    // JB203W (walk F-10): and what became of it since - 「改好后再发送」 was
+    // still said after it was sent and decided.
+    const newest = newestRevisionOf(application);
+    if (newest?.status === "DRAFT") return t("detail.next.reviseMade", { revision: newest.revision });
+    if (newest?.status === "SUBMITTED") return t("detail.next.reviseSent", { revision: newest.revision });
+    if (newest) return t("detail.next.reviseDecided", { revision: newest.revision });
+    // The reviewer has no 【建立新版本】 (sibling of walk F-4).
+    if (!reader.canSubmit) return t("detail.next.reviseReviewer");
     return t("detail.next.revise");
   }
   if (application.status === "SUBMITTED" && canAct) return t("detail.next.review");
@@ -917,8 +966,14 @@ function nextActionText(
   // only that the paperwork is archived.
   const openRemedial = (application.remedial_items ?? []).filter((item) => item.status === "OPEN").length;
   if (application.status === "APPROVED_WITH_REMEDIAL" && openRemedial > 0) {
-    return t("detail.next.remedialOpen", { count: openRemedial });
+    // JB203W (walk F-4): 【关闭这条整改】 is the contractor's; the reviewer
+    // was told to press it. They wait, and may raise another.
+    if (reader.canSubmit) return t("detail.next.remedialOpen", { count: openRemedial });
+    if (reader.canRaise) return t("detail.next.remedialOpenReviewer", { count: openRemedial });
+    return t("detail.next.remedialOpenWatching", { count: openRemedial });
   }
+  // JB203W (walk NOTE 32): rejected - nothing said the work may be sent again.
+  if (application.status === "REJECTED" && reader.canSubmit) return t("detail.next.rejected");
   if (application.archived_at) return t("detail.next.archived");
   if (application.final_report) return t("detail.next.final");
   return t("detail.next.complete");
@@ -945,15 +1000,8 @@ function RemedialSection({
   const [closing, setClosing] = useState<RemedialItem | null>(null);
   const items = application.remedial_items ?? [];
   // JB200 (Lucas 11-16): the button used to need an unsent draft, which a
-  // consultant never sees. It belongs to the reviewer who approved with
-  // remedial works, while the application is still under review or approved
-  // on that condition - the same rule the reminders follow.
-  const canRaise =
-    can("approval.review") &&
-    (application.status === "SUBMITTED" || application.status === "APPROVED_WITH_REMEDIAL") &&
-    application.review_steps.some(
-      (step) => step.status === "APPROVED_WITH_REMEDIAL" && Boolean(user) && step.decided_by === user?.id,
-    );
+  // consultant never sees (`canRaiseRemedial`, which 下一步 asks too).
+  const canRaise = canRaiseRemedial(application, user?.id, can);
 
   if (!items.length && !canRaise) return null;
 
@@ -1006,18 +1054,38 @@ function RemedialSection({
                   .join(" · ")}
               </p>
               {item.status === "CLOSED" && (
-                <p className="mt-2 text-sm">
-                  {item.closure_note}
-                  <span className="ml-2 text-xs text-muted-foreground">
-                    {t("remedial.closedBy", {
-                      name: item.closed_by_name ?? "",
-                      when: item.closed_at
-                        ? new Date(item.closed_at).toLocaleString()
-                        : "",
-                      count: item.evidence.length,
-                    })}
-                  </span>
-                </p>
+                <>
+                  <p className="mt-2 text-sm">
+                    {item.closure_note}
+                    <span className="ml-2 text-xs text-muted-foreground">
+                      {t("remedial.closedBy", {
+                        name: item.closed_by_name ?? "",
+                        when: item.closed_at
+                          ? new Date(item.closed_at).toLocaleString()
+                          : "",
+                        count: item.evidence.length,
+                      })}
+                    </span>
+                  </p>
+                  {/* JB203W (walk F-8): the proof itself - the consultant told
+                      「整改已关闭」 could not see the photo that closed it. A
+                      photo opens in the viewer, a document in a new tab. */}
+                  {(item.evidence_files ?? []).length > 0 && (
+                    <div className="mt-2" data-slot="remedial-proof">
+                      <FileThumbs
+                        all
+                        files={(item.evidence_files ?? []).map((file) => ({
+                          id: file.id,
+                          name: file.original_filename,
+                          thumbnail_url: isImageFile(file.original_filename, file.content_type)
+                            ? file.watermarked_file || file.file
+                            : null,
+                          href: file.watermarked_file || file.file,
+                        }))}
+                      />
+                    </div>
+                  )}
+                </>
               )}
               {item.status === "OPEN" && can("consultant.submit") && (
                 <Button
