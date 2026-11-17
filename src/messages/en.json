@@ -1838,6 +1838,7 @@
     },
     "subjectType": {
       "CONTRACTOR": "Contractor",
+      "CUSTOMER": "Private customer",
       "DELIVERY_NOTE": "Delivery note",
       "DEVICE": "Device",
       "DRIVER": "Driver",

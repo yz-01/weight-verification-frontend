@@ -100,6 +100,10 @@ const SUBJECT_TYPES: QRSubjectType[] = [
   "DELIVERY_NOTE",
 ];
 
+// JB205W (walk 11-17): a recycler's private-customer code (CUSTOMER) is made from the recycler's
+// 客户与私人入库 page, not issued here - so it is listed, counted and filterable, but not in the issue form.
+const LISTED_SUBJECT_TYPES: QRSubjectType[] = [...SUBJECT_TYPES, "CUSTOMER"];
+
 const SUBMODULES: Array<{
   section: Exclude<AdminQRSection, "overview">;
   number: string;
@@ -190,7 +194,7 @@ function QRTypeCatalogue() {
   return (
     <div className="surface-panel overflow-hidden rounded-xl">
       <div className="-mb-px -mr-px grid sm:grid-cols-2 xl:grid-cols-4">
-        {SUBJECT_TYPES.map((type) => (
+        {LISTED_SUBJECT_TYPES.map((type) => (
           <div
             key={type}
             className="flex min-h-20 items-center justify-between gap-3 border-b border-r px-5 py-4"
@@ -282,7 +286,7 @@ function QRCodeRegister({
       <FilterBar>
         <Input className="sm:w-auto sm:min-w-56 sm:flex-1" value={search} onChange={(event) => { setSearch(event.target.value); resetPage(); }} placeholder={t("searchPlaceholder")} />
         <SelectControl ariaLabel={t("field.status")} value={status} onChange={(value) => { setStatus(value); resetPage(); }} options={[{ value: "", label: common("all") }, ...(["ACTIVE", "DISABLED", "VOIDED", "EXPIRED", "SUPERSEDED"] as QRCodeStatus[]).map((value) => ({ value, label: t(`status.${value}`) }))]} />
-        <SelectControl ariaLabel={t("field.subjectType")} value={subjectType} onChange={(value) => { setSubjectType(value); resetPage(); }} options={[{ value: "", label: common("all") }, ...SUBJECT_TYPES.map((value) => ({ value, label: t(`subjectType.${value}`) }))]} />
+        <SelectControl ariaLabel={t("field.subjectType")} value={subjectType} onChange={(value) => { setSubjectType(value); resetPage(); }} options={[{ value: "", label: common("all") }, ...LISTED_SUBJECT_TYPES.map((value) => ({ value, label: t(`subjectType.${value}`) }))]} />
         <SelectControl ariaLabel={t("field.company")} value={company} onChange={(value) => { setCompany(value); resetPage(); }} options={[{ value: "", label: common("all") }, ...(companies.data?.results ?? []).map((row) => ({ value: row.id, label: `${row.code} - ${row.name}` }))]} />
         {advancedFilters && <><FilterField label={t("field.issuedFrom")}><Input type="date" className="sm:w-44" value={issuedFrom} onChange={(event) => { setIssuedFrom(event.target.value); resetPage(); }} /></FilterField><FilterField label={t("field.issuedTo")}><Input type="date" className="sm:w-44" value={issuedTo} onChange={(event) => { setIssuedTo(event.target.value); resetPage(); }} /></FilterField></>}
         {allowIssue && <Button onClick={() => setShowIssue(true)}><Plus />{t("action.issue")}</Button>}
@@ -421,7 +425,7 @@ function QRStatistics() {
   const data = summary.data;
   // Without an answer every figure is a dash: a failed read is not "0 codes".
   const none = common("emptyValue");
-  return <div className="space-y-4"><QueryFailedNote query={summary} what={t("what.summary")} /><div className="surface-panel overflow-hidden rounded-xl"><div className="-mb-px -mr-px grid sm:grid-cols-2 lg:grid-cols-4">{[["total", data ? data.total : none], ["active", data ? (data.by_status.ACTIVE ?? 0) : none], ["scansToday", data ? data.scans_today : none], ["failedScansToday", data ? data.failed_scans_today : none]].map(([key, value]) => <div key={key} className="min-h-24 min-w-0 border-b border-r p-4"><p className="text-xs font-medium text-muted-foreground">{t(`metric.${key}`)}</p><p className="tabular mt-3 text-xl font-semibold">{value}</p></div>)}</div></div><div className="grid gap-4 lg:grid-cols-2"><div className="surface-panel rounded-xl p-4 sm:p-6"><h3 className="panel-title mb-3">{t("statistics.byType")}</h3><div className="divide-y border-y">{SUBJECT_TYPES.map((type) => <div key={type} className="flex items-center justify-between py-3"><span>{t(`subjectType.${type}`)}</span><span className="tabular font-medium">{data ? (data.by_subject_type[type] ?? 0) : none}</span></div>)}</div></div><div className="surface-panel rounded-xl p-4 sm:p-6"><h3 className="panel-title mb-3">{t("statistics.byStatus")}</h3><div className="divide-y border-y">{(["ACTIVE", "DISABLED", "VOIDED", "EXPIRED", "SUPERSEDED"] as QRCodeStatus[]).map((status) => <div key={status} className="flex items-center justify-between py-3"><StatusBadge label={t(`status.${status}`)} tone={statusTone(status)} /><span className="tabular font-medium">{data ? (data.by_status[status] ?? 0) : none}</span></div>)}</div></div></div></div>;
+  return <div className="space-y-4"><QueryFailedNote query={summary} what={t("what.summary")} /><div className="surface-panel overflow-hidden rounded-xl"><div className="-mb-px -mr-px grid sm:grid-cols-2 lg:grid-cols-4">{[["total", data ? data.total : none], ["active", data ? (data.by_status.ACTIVE ?? 0) : none], ["scansToday", data ? data.scans_today : none], ["failedScansToday", data ? data.failed_scans_today : none]].map(([key, value]) => <div key={key} className="min-h-24 min-w-0 border-b border-r p-4"><p className="text-xs font-medium text-muted-foreground">{t(`metric.${key}`)}</p><p className="tabular mt-3 text-xl font-semibold">{value}</p></div>)}</div></div><div className="grid gap-4 lg:grid-cols-2"><div className="surface-panel rounded-xl p-4 sm:p-6"><h3 className="panel-title mb-3">{t("statistics.byType")}</h3><div className="divide-y border-y">{LISTED_SUBJECT_TYPES.map((type) => <div key={type} className="flex items-center justify-between py-3"><span>{t(`subjectType.${type}`)}</span><span className="tabular font-medium">{data ? (data.by_subject_type[type] ?? 0) : none}</span></div>)}</div></div><div className="surface-panel rounded-xl p-4 sm:p-6"><h3 className="panel-title mb-3">{t("statistics.byStatus")}</h3><div className="divide-y border-y">{(["ACTIVE", "DISABLED", "VOIDED", "EXPIRED", "SUPERSEDED"] as QRCodeStatus[]).map((status) => <div key={status} className="flex items-center justify-between py-3"><StatusBadge label={t(`status.${status}`)} tone={statusTone(status)} /><span className="tabular font-medium">{data ? (data.by_status[status] ?? 0) : none}</span></div>)}</div></div></div></div>;
 }
 
 /** 预览 · 打印 · 导出 · 发送 (PDF 统一操作规则), as on every other export. */

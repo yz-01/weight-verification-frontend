@@ -1838,6 +1838,7 @@
     },
     "subjectType": {
       "CONTRACTOR": "Kontraktor",
+      "CUSTOMER": "Pelanggan persendirian",
       "DELIVERY_NOTE": "Nota hantar",
       "DEVICE": "Peranti",
       "DRIVER": "Pemandu",
