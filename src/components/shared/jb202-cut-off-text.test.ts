@@ -104,6 +104,27 @@ describe("tabs on a phone wrap to a second row instead of sliding off with no sc
   });
 });
 
+describe("报表中心 / 仪表板 banner: the company's name whole on a phone (JB202)", () => {
+  // At 390 px the reader's name and 【通知】 took the row: 「报表中心」 stood one
+  // character a line and the company's name was gone.
+  const source = read("dashboard/company-banner.tsx");
+
+  it("lets the reader's part move below instead of squeezing the company's", () => {
+    expect(source).toContain('<div className="flex min-w-0 flex-1 basis-64 items-center gap-3">');
+  });
+
+  it("wraps the company's name", () => {
+    wraps(classesBefore(source, "{companyName}</h1>"));
+  });
+});
+
+describe("操作记录: who / what was changed, whole on a phone (JB202)", () => {
+  it("wraps it in its column", () => {
+    const classes = classesBefore(read("audit/audit-logs.tsx"), "title={row.original.object_repr}");
+    expect(classes).toEqual(["max-w-60", "break-words"]);
+  });
+});
+
 describe("沟通记录: the list fits a phone, names and numbers whole (JB202)", () => {
   const source = read("site-access/field-chats-office.tsx");
 

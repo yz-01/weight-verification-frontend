@@ -89,7 +89,11 @@ export function CompanyBanner({
           "bg-gradient-to-r from-background/95 via-background/70 to-background/20",
         )}
       >
-        <div className="flex min-w-0 flex-1 items-center gap-3">
+        {/* JB202 (Lucas 11-16 「字被裁掉了」): `basis-64` - on a phone the
+            reader's name and 【通知】 move below instead of squeezing this part
+            to a sliver (「报/表/中/心」 one character a line, the company's
+            name gone); the name wraps instead of ending in 「…」. */}
+        <div className="flex min-w-0 flex-1 basis-64 items-center gap-3">
           <span className="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-panel-border bg-switch-thumb shadow-glow-sm">
             {logo ? (
               <img src={logo} alt={companyName} className="h-full w-full object-contain" />
@@ -98,7 +102,7 @@ export function CompanyBanner({
             )}
           </span>
           <div className="min-w-0">
-            <h1 className="truncate text-xl font-bold leading-tight sm:text-2xl" title={companyName}>{companyName}</h1>
+            <h1 className="break-words text-xl font-bold leading-tight sm:text-2xl" title={companyName}>{companyName}</h1>
             <p
               className={cn(
                 "mt-1 flex flex-wrap items-center gap-x-2 text-sm text-muted-foreground",
