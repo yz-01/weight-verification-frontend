@@ -436,6 +436,15 @@
     "confirm": {
       "removeCategory": "Padam kategori \"{name}\"? Kategori yang sudah digunakan oleh aset tidak boleh dipadam; nyahaktifkan sahaja.",
       "removeDepartment": "Padam jabatan \"{name}\"? Selepas ini ia tidak boleh dipilih lagi untuk pemindahan."
+    },
+    "movementType": {
+      "PURCHASE": "Pembelian",
+      "ISSUE": "Diserahkan kepada pelanggan",
+      "INSTALL": "Pemasangan",
+      "TRANSFER": "Pemindahan",
+      "RETURN": "Pemulangan",
+      "REPAIR": "Dihantar untuk dibaiki",
+      "DISPOSAL": "Pelupusan"
     }
   },
   "adminAuditCenter": {
@@ -1398,7 +1407,8 @@
       "terminate": "Tamatkan",
       "view": "Lihat",
       "viewPaymentProof": "Lihat bukti pembayaran",
-      "delete": "Padam"
+      "delete": "Padam",
+      "recalculatePeriod": "Kira semula tempoh ini"
     },
     "agreementStatus": {
       "ACTIVE": "Aktif",
@@ -1692,7 +1702,9 @@
       "territoryDescription": "Selepas dipadam, kawasan ini tidak boleh dipilih untuk pelanggan. Kawasan yang sudah ada pelanggan tidak boleh dipadam - isikan tarikh tamat."
     },
     "payout": {
-      "rejectedClosed": "Ditolak - bayaran ini tidak boleh dibayar lagi. Untuk mengira semula, tekan \"Kira komisen\"."
+      "rejectedClosed": "Ditolak - bayaran ini tidak boleh dibayar lagi. Untuk mengira semula, tekan \"Kira komisen\".",
+      "rejectedRecalculate": "Bayaran tempoh ini ditolak. Untuk membetulkannya, tekan \"Kira semula tempoh ini\".",
+      "recalculated": "Tempoh ini telah dikira semula: {code}."
     },
     "toast": {
       "statusChanged": "Status rakan kongsi dikemas kini",
@@ -2453,7 +2465,7 @@
       "qr_duplicate_use_policy": "Polisi penggunaan berulang",
       "qr_number_prefix": "Awalan nombor",
       "saas_default_billing_cycle": "Kitaran bil lalai",
-      "saas_default_plan_code": "Kod pelan lalai",
+      "saas_default_plan_code": "Pelan lalai untuk kontraktor baharu",
       "saas_default_trial_days": "Hari percubaan lalai",
       "saas_default_user_limit": "Had akaun lalai",
       "saas_plans_enabled": "Pelan diaktifkan"
@@ -2584,7 +2596,7 @@
         "title": "Tetapan QR"
       },
       "saas": {
-        "subtitle": "Pelan, kitaran bil, percubaan, had akaun dan ketersediaan pelan lalai.",
+        "subtitle": "Pelan lalai, kitaran bil, percubaan dan had akaun.",
         "title": "Tetapan SaaS"
       },
       "versions": {
@@ -2612,6 +2624,83 @@
       "title": "Ada tetapan belum disimpan",
       "description": "Halaman ini ada tetapan yang anda ubah tetapi belum disimpan. Jika anda keluar sekarang, perubahan itu akan hilang.",
       "confirm": "Keluar tanpa simpan"
+    },
+    "notificationTypes": {
+      "hint": "Jenis yang ditanda dihantar secara automatik; yang tidak ditanda tidak dihantar kepada sesiapa (MSE atau pelanggan). Bil, langganan dan rekod lain tidak terjejas, dan pengumuman yang anda hantar sendiri tetap dihantar.",
+      "COMPANY": {
+        "label": "Notis syarikat",
+        "help": "Kontraktor atau pengitar semula baharu mendaftar, syarikat diaktifkan atau dinyahaktifkan"
+      },
+      "SUBSCRIPTION": {
+        "label": "Notis langganan",
+        "help": "Langganan hampir tamat, telah tamat atau diperbaharui"
+      },
+      "SAAS_BILLING": {
+        "label": "Notis bil SaaS",
+        "help": "Bil SaaS dikeluarkan atau bayaran disahkan. Jika tidak ditanda, pelanggan juga tidak diberitahu 'bil dikeluarkan', tetapi bil tetap ada dalam pusat bil mereka."
+      },
+      "COMMISSION_BILLING": {
+        "label": "Notis komisen platform",
+        "help": "Bil komisen dikeluarkan atau bayaran disahkan. Jika tidak ditanda, pelanggan juga tidak diberitahu 'bil dikeluarkan', tetapi bil tetap ada dalam pusat bil mereka."
+      },
+      "CWE": {
+        "label": "Notis jambatan timbang",
+        "help": "Jambatan timbang di luar talian atau kembali dalam talian"
+      },
+      "SYSTEM": {
+        "label": "Notis sistem",
+        "help": "Penyelenggaraan sistem"
+      }
+    },
+    "reminderDays": {
+      "before": "Mula mengingatkan setiap hari",
+      "after": "hari sebelum langganan tamat",
+      "hint": "Masukkan 1 hingga 365. Dahulu tetap 30 hari.",
+      "invalid": "Masukkan nombor bulat dari 1 hingga 365"
+    },
+    "duplicateWindow": {
+      "before": "Kod QR yang sama diimbas semula dalam",
+      "after": "saat dikira sebagai penggunaan berulang",
+      "hint": "Masukkan 10 hingga 3600 (3600 saat = 1 jam). Tindakan untuk penggunaan berulang ditetapkan dalam 'Peraturan penggunaan berulang'. Dahulu tetap 90 saat.",
+      "invalid": "Masukkan nombor bulat dari 10 hingga 3600"
+    },
+    "maintenanceWindow": {
+      "label": "Masa penyelenggaraan",
+      "start": "Mula",
+      "end": "Tamat",
+      "startBlank": "Tiada masa mula: penyelenggaraan bermula sebaik mod penyelenggaraan dihidupkan",
+      "endBlank": "Tiada masa tamat: penyelenggaraan berterusan sehingga mod penyelenggaraan dimatikan",
+      "endBeforeStart": "Masa tamat mesti lebih lewat daripada masa mula",
+      "clear": "Kosongkan"
+    },
+    "defaultPlan": {
+      "none": "Tidak ditetapkan (guna pelan kontraktor pertama dalam senarai)",
+      "stopped": "{code} (dihentikan atau dibuang)",
+      "hint": "Digunakan apabila kontraktor baharu ditambah tanpa memilih pelan. Pengitar semula mesti sentiasa dipilih pelannya sendiri (rakan kongsi dan standard dibilkan secara berbeza).",
+      "what": "pelan kontraktor"
+    },
+    "saasPlansNote": "Setiap pelan dihidupkan atau dimatikan secara berasingan dalam Pengurusan pelan.",
+    "saasPlansLink": "Buka Pengurusan pelan",
+    "commissionCard": {
+      "title": "Komisen lalai platform",
+      "description": "Semua pengitar semula rakan kongsi menggunakan ini, kecuali syarikat yang mempunyai komisen persetujuan sendiri. Perubahan berkuat kuasa dari tarikh mulanya; bil yang telah dikeluarkan tidak berubah.",
+      "rate": "Kadar komisen",
+      "basis": "Dikira berdasarkan",
+      "cycle": "Kitaran penyelesaian",
+      "effectiveFrom": "Berkuat kuasa dari",
+      "next": "Mulai {date}: {rate}",
+      "none": "Komisen lalai platform belum ditetapkan, jadi tiada bil komisen dibuat langsung.",
+      "firstWarning": "Selepas disimpan, pengitar semula rakan kongsi mula menerima bil komisen dari tarikh mula.",
+      "change": "Ubah",
+      "set": "Tetapkan komisen lalai platform",
+      "allVersions": "Lihat semua versi",
+      "switchedOff": "'Komisen diaktifkan' dimatikan: tiada bil komisen baharu dibuat.",
+      "what": "komisen lalai platform",
+      "dialogTitle": "Ubah komisen lalai platform",
+      "dialogNotice": "Menyimpan menambah versi baharu yang digunakan dari tarikh mulanya. Bil yang telah dikeluarkan tidak berubah."
+    },
+    "help": {
+      "commission_enabled": "Jika dimatikan, tiada bil komisen platform baharu dibuat, sama ada secara automatik atau manual. Bil yang telah dikeluarkan masih perlu dibayar."
     }
   },
   "adminTechnicalSupport": {
@@ -3779,6 +3868,7 @@
       "progress_summary_pdf_exported": "PDF ringkasan kemajuan dieksport",
       "progress_summary_updated": "Ringkasan kemajuan diubah",
       "project_archived": "Projek diarkibkan",
+      "project_archive_lock_by_platform": "MSE menetapkan kunci arkib projek",
       "project_grant_reactivated": "Akses projek dipulihkan",
       "project_granted": "Akses projek diberi",
       "project_notification_sent": "Notis projek dihantar",
@@ -3923,6 +4013,7 @@
       "rain_report_pdf_previewed": "Laporan bulanan rekod hujan dipratonton",
       "rain_remark_set": "Menulis catatan rekod hujan",
       "rain_month_remark_set": "Menulis catatan bulanan laporan hujan",
+      "settings_reset_on_wiring": "Penyelenggaraan dan kemas kini paksa ditetapkan semula apabila mula berkuat kuasa",
       "head_office_on_behalf": "Diputuskan oleh ibu pejabat bagi pihak pengurus"
     },
     "objectType": {
@@ -4191,7 +4282,9 @@
       "record": "Rekod bayaran",
       "recordDescription": "Kaitkan bayaran dan buktinya dengan invois yang dikeluarkan.",
       "reject": "Tolak bayaran",
-      "viewProof": "Lihat bukti"
+      "viewProof": "Lihat bukti",
+      "recordOwn": "Rekod bayaran",
+      "recordOwnDescription": "Rekod bayaran anda kepada MSE bagi invois ini, bersama slip bank; MSE menyemak dan mengesahkannya."
     },
     "paymentMethod": {
       "BANK_TRANSFER": "Pindahan bank",
@@ -4315,6 +4408,10 @@
       "invoice": "Invois ini",
       "payments": "Rekod bayaran",
       "openInvoices": "Senarai invois belum dibayar"
+    },
+    "own": {
+      "title": "Bil daripada MSE",
+      "subtitle": "Bil yang MSE hantar kepada syarikat anda: jumlah setiap tempoh, apa yang sudah dibayar dan apa yang masih tertunggak."
     }
   },
   "businessTargets": {
@@ -5008,7 +5105,13 @@
       "usedUserSeats": "Pengguna digunakan",
       "userCount": "Pengguna",
       "userLimit": "Had pengguna",
-      "website": "Laman web"
+      "website": "Laman web",
+      "trialDays": "Hari percubaan",
+      "trialEndsOn": "Percubaan percuma hingga",
+      "siteLimit": "Had tapak",
+      "scaleLimit": "Had jambatan timbang",
+      "siteLimitOverride": "Had tapak tersuai",
+      "scaleLimitOverride": "Had jambatan timbang tersuai"
     },
     "filter": {
       "active": "Aktif",
@@ -5185,7 +5288,8 @@
     },
     "planTerms": {
       "partner": "{currency} {fee} sekali + komisen {rate}%",
-      "standard": "{currency} {fee} sebulan"
+      "standard": "{currency} {fee} sebulan",
+      "standardCycle": "{currency} {fee} sebulan; {cycle}: satu bil setiap {months} bulan, {currency} {amount}"
     },
     "projectLimitOverrideHint": "Biarkan kosong untuk menggunakan had pelan yang dipilih.",
     "projectStats": {
@@ -5241,6 +5345,7 @@
     },
     "subscriptionExpiryHint": "Pilihan. Biarkan kosong untuk mengira tarikh tamat daripada tempoh langganan.",
     "subscriptionMonthsHint": "Menukar pelan atau tempoh memulakan langganan baharu dari hari ini.",
+    "subscriptionMonthsTrialHint": "Percubaan percuma hingga {date}; bil bermula hanya selepas anda tekan Lanjut atau perbaharui di Langganan.",
     "subscriptionPeriod": "{months} bulan",
     "summary": {
       "active": "Syarikat aktif",
@@ -5296,8 +5401,37 @@
       "records": "Rekod dan foto",
       "recordsHelp": "Kunci selepas arkib, dan bila foto mesti diambil.",
       "defaults": "Nilai lalai sistem",
-      "defaultsHelp": "Nilai permulaan untuk projek baharu, pas pelawat dan papan pemuka."
-    }
+      "defaultsHelp": "Nilai permulaan untuk projek baharu, pas pelawat dan papan pemuka.",
+      "qrPrefixHint": "Hanya pas yang dibuka mulai sekarang menggunakannya; nombor pas sedia ada kekal. Guna 2 hingga 6 huruf, bukan permulaan nombor rekod lain (rekod pintu pagar guna GT).",
+      "qrPrefixFormat": "Guna 2 hingga 6 huruf (A hingga Z), tanpa nombor atau simbol.",
+      "qrPrefixTaken": "“{prefix}” sudah menjadi permulaan nombor rekod lain. Pilih huruf lain.",
+      "qrStyleHint": "Saiz kod QR pas semasa dimuat turun dan dicetak: kecil 160, standard 220, cetakan besar 440 piksel. Cetakan besar turut mencetak nombor pas di bawah kod.",
+      "archiveDefault": "Projek baharu: kunci rekod selepas arkib",
+      "archiveDefaultHelp": "Apabila dihidupkan, projek yang dibuka mulai sekarang bermula dalam keadaan dikunci. Tetapkan setiap projek sedia ada di bawah.",
+      "projectLocks": {
+        "title": "Kunci rekod selepas arkib, mengikut projek",
+        "help": "Projek dikunci: selepas Sahkan & arkib, hanya ruang kosong boleh diisi; apa yang telah ditulis tidak boleh diubah. Projek tidak dikunci: rekod yang diarkib masih boleh diubah di pejabat dengan PIN 6 digit, dan setiap perubahan direkodkan.",
+        "what": "senarai projek",
+        "loading": "Memuatkan projek…",
+        "empty": "Syarikat ini belum ada projek.",
+        "on": "Dikunci",
+        "off": "Tidak dikunci",
+        "saveError": "Tidak disimpan. Sila cuba lagi.",
+        "confirmOnTitle": "Kunci rekod yang diarkib bagi “{project}”?",
+        "confirmOnBody": "Apabila dihidupkan, rekod projek ini yang telah diarkib dan yang akan diarkib hanya menerima ruang kosong diisi; apa yang telah ditulis tidak boleh diubah. Hanya MSE boleh mematikannya semula.",
+        "confirmOn": "Kunci",
+        "confirmOffTitle": "Buka kunci “{project}”?",
+        "confirmOffBody": "Apabila dimatikan, rekod projek ini yang diarkib boleh diubah di pejabat dengan PIN 6 digit, dan setiap perubahan direkodkan.",
+        "confirmOff": "Buka kunci"
+      }
+    },
+    "trialDaysHint": "Pakej ini memberi {days} hari percuma secara lalai. Tiada bil semasa percubaan; bil bermula hanya apabila anda tekan Lanjut atau perbaharui di Langganan. Masukkan 0 untuk tiada percubaan.",
+    "trialNote": "Tiada bil semasa percubaan. Bil bermula hanya apabila anda tekan Lanjut atau perbaharui di Langganan.",
+    "siteLimitOverrideHint": "Kosong = had pakej ({limit}). Menaikkannya membenarkan penambahan serta-merta; menurunkannya tidak menjejaskan tapak sedia ada.",
+    "scaleLimitOverrideHint": "Kosong = had pakej ({limit}). Menaikkannya membenarkan penambahan serta-merta; menurunkannya tidak menjejaskan jambatan timbang sedia ada.",
+    "limitUsage": "{used} digunakan daripada {limit}",
+    "noLimit": "Tiada had",
+    "planHidden": "{name} (tersembunyi)"
   },
   "consultantAccess": {
     "action": {
@@ -5363,7 +5497,12 @@
       "subtitle": "Setiap baris ialah kebenaran seorang perunding untuk satu projek. Batalkan untuk menghentikan akses serta-merta.",
       "title": "Akses projek",
       "validity": "Dari {from} hingga {until}",
-      "organizationEditHint": "Hanya firma yang mendaftarkan perunding ini disenaraikan."
+      "organizationEditHint": "Hanya firma yang mendaftarkan perunding ini disenaraikan.",
+      "modulesTitle": "Modul yang boleh digunakan perunding dalam projek ini (kandungan terhad kepada projek ini)",
+      "optionsTitle": "Kebenaran lain",
+      "selectAll": "Pilih semua",
+      "selectNone": "Kosongkan semua",
+      "noModules": "Tiada modul ditanda"
     },
     "organization": {
       "activeHelp": "Menyahaktifkan firma akan menghentikan semua akses projeknya serta-merta.",
@@ -5428,6 +5567,41 @@
       "ACTIVE": "Aktif",
       "INVITED": "Menunggu jemputan",
       "SUSPENDED": "Digantung"
+    },
+    "module": {
+      "dashboard": "Papan pemuka",
+      "projects": "Projek",
+      "fieldTasks": "Tugas tapak",
+      "materials": "Pengurusan bahan",
+      "progress": "Kemajuan pembinaan",
+      "safety": "Pembetulan / EHS",
+      "documents": "Arkib dokumen",
+      "recordCentre": "Pusat Rekod Tapak",
+      "reports": "Pusat Laporan",
+      "notifications": "Pusat pemberitahuan",
+      "conversations": "Rekod perbualan"
+    },
+    "moduleHint": {
+      "dashboard": "Halaman utama, hanya modul yang ditanda di bawah",
+      "projects": "Maklumat asas projek (tiada telefon, e-mel atau kebenaran kakitangan)",
+      "fieldTasks": "Hanya tugas yang dihantar kepada perunding untuk disemak, atau yang dia sertai",
+      "materials": "Bahan masuk, bahan keluar, sasaran bahan - lihat sahaja, tanpa amaun",
+      "progress": "Kemajuan projek, laporan harian, rekod hujan, jadual - lihat sahaja, boleh menulis catatan",
+      "safety": "Lihat pembetulan dan permit kerja; boleh membuka pembetulan dan menyusul yang dibukanya",
+      "documents": "Fail projek ini yang telah disahkan dan diarkibkan - lihat dan muat turun",
+      "recordCentre": "Rekod modul yang ditanda di atas - lihat sahaja",
+      "reports": "Laporan bagi modul yang ditanda di atas",
+      "notifications": "Pemberitahuan yang dihantar kepadanya dalam projek ini",
+      "conversations": "Perbualan yang dia sertai"
+    },
+    "option": {
+      "approvalView": "Permohonan perunding: lihat",
+      "approvalReview": "Permohonan perunding: lulus (tandatangan)",
+      "export": "Eksport"
+    },
+    "optionHint": {
+      "approvalReview": "Menanda ini turut menanda \"lihat\"",
+      "export": "Laporan dan senarai setiap modul boleh dieksport"
     }
   },
   "consultantDashboard": {
@@ -6201,7 +6375,9 @@
       "pdfFailed": "PDF tidak dapat dilukis. Cuba lagi.",
       "openPdf": "Buka PDF",
       "close": "Tutup"
-    }
+    },
+    "backToSettings": "Kembali ke tetapan perunding",
+    "backToDashboard": "Kembali ke papan pemuka perunding"
   },
   "contractorDashboard": {
     "activity": {
@@ -8931,6 +9107,7 @@
       "invoice_already_invoiced": "Tempoh ini sudah mempunyai invoisnya, jadi tiada lagi yang perlu dibilkan. Cari invois syarikat ini dalam senarai invois.",
       "invoice_no_billable_settlements": "Tiada penyelesaian yang telah dikeluarkan dalam tempoh ini menunggu untuk dibilkan, jadi belum ada komisen untuk dikenakan. Jana semula selepas penyelesaian dikeluarkan.",
       "invoice_nothing_to_charge": "Jumlah untuk tempoh ini ialah sifar, jadi tiada invois dibuat. Jika itu salah, semak yuran pelan atau peraturan komisen syarikat ini.",
+      "invoice_in_trial": "Syarikat ini dalam percubaan percuma (hingga {date}) dan belum diperbaharui, jadi tiada invois dibuat. Percubaan adalah percuma; bil pertama datang selepas anda tekan Lanjut atau perbaharui di Langganan dan tempoh berbayar bermula.",
       "invoice_no_plan": "Syarikat ini belum mempunyai pelan, jadi invois langganan tidak boleh dibuat. Pilih pelan untuknya di Langganan syarikat dahulu.",
       "invoice_not_draft": "Hanya invois draf boleh dikeluarkan. Invois ini sudah dikeluarkan; segar semula senarai untuk melihat statusnya.",
       "invoice_already_closed": "Invois ini sudah ditutup. Segar semula senarai untuk melihat statusnya.",
@@ -9255,6 +9432,10 @@
       "rain_void_reason_required": "Tulis sebab rekod ini dibatalkan.",
       "rain_record_already_voided": "Rekod hujan ini sudah dibatalkan; ia tidak boleh dibatalkan lagi.",
       "rain_rules_out_of_range": "Bilangan rekod mesti 1 hingga 50, dan minit 5 hingga 1440.",
+      "platform_maintenance": "MSE Trace sedang diselenggara, jadi tidak boleh digunakan sekarang. Selepas penyelenggaraan ia dibuka semula dengan sendiri; tidak perlu log masuk semula.",
+      "client_update_required": "Sistem telah dikemas kini. Tekan Muat semula untuk menukar ke versi baharu, kemudian teruskan.",
+      "version_min_invalid": "Masukkan versi minimum disokong sebagai nombor versi seperti 1.2.0, tidak lebih tinggi daripada nombor versi ini sendiri ({version}). Jika tidak, semua pelanggan tidak dapat masuk.",
+      "maintenance_permission_required": "Hanya orang yang mempunyai kebenaran “Letakkan platform dalam penyelenggaraan” boleh menukar tetapan penyelenggaraan. Minta pentadbir sistem MSE.",
       "consultant_workflow_last_active": "Ini satu-satunya aliran kelulusan projek ini, jadi ia tidak boleh dihentikan. Untuk menukar laluan, tambah aliran lain dahulu dan jadikan ia lalai.",
       "consultant_required_fields_missing": "Masih ada {count} medan wajib yang kosong pada borang: {fields}. Isi dahulu, kemudian teruskan.",
       "consultant_required_attachments_missing": "Masih ada {count} lampiran wajib yang belum dimuat naik. Isi setiap kotak wajib di bawah Lampiran, kemudian teruskan.",
@@ -9299,7 +9480,17 @@
       "hazard_not_awaiting_check": "Seseorang telah menguruskan perkara ini, jadi ia tidak lagi menunggu semakan. Muat semula halaman untuk melihat keadaan terkini.",
       "hazard_confirmed_by_other": "{incident_no} disemak atau dipulangkan oleh orang yang mengesahkannya {confirmer}. Anda boleh membacanya tetapi tidak boleh bertindak; hubungi mereka jika perlu.",
       "visitor_host_required": "Pilih orang yang ingin ditemui pelawat, kemudian tekan sahkan.",
-      "visitor_host_not_on_project": "Orang itu tidak bekerja di projek ini. Pilih orang daripada projek ini dalam senarai."
+      "visitor_host_not_on_project": "Orang itu tidak bekerja di projek ini. Pilih orang daripada projek ini dalam senarai.",
+      "commission_disabled": "Komisen platform dimatikan dalam Tetapan Sistem, jadi bil komisen tidak boleh dibuat.",
+      "site_limit_reached": "Pakej anda membenarkan {limit} tapak dan anda sudah ada {used}, jadi tapak baharu tidak boleh ditambah. Untuk menambah lagi, sila hubungi MSE.",
+      "scale_limit_reached": "Pakej pengitar semula ini membenarkan {limit} jambatan timbang aktif dan ia sudah ada {used}, jadi yang baharu tidak boleh ditambah atau diaktifkan semula. Naikkan had jambatan timbang tersuainya di halaman syarikat dahulu.",
+      "external_integration_not_in_plan": "Pakej syarikat ini tidak termasuk sambungan ke sistem luar (ERP, perakaunan, MyInvois, webhook, API), jadi sambungan jenis ini tidak boleh ditambah atau dihidupkan. Untuk mendapatkannya, sila hubungi MSE untuk menukar pakej.",
+      "ai_cctv_disabled": "AI CCTV dimatikan untuk pengitar semula ini, jadi foto tidak disimpan.",
+      "archive_lock_choice_invalid": "Pilih hidup atau mati.",
+      "consultant_read_only": "Akaun perunding hanya boleh melihat ini, bukan mengubahnya.",
+      "consultant_module_not_granted": "Ibu pejabat belum membuka modul ini untuk anda dalam projek ini. Hubungi ibu pejabat jika anda memerlukannya.",
+      "consultant_no_permit": "Permit kerja dipohon oleh kontraktor, bukan perunding. Anda boleh membuka pembetulan.",
+      "consultant_export_not_granted": "Ibu pejabat belum memberi anda Eksport dalam projek ini, jadi anda tidak boleh mengeksport atau menghantar. Anda boleh pratonton dan mencetak."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -11151,7 +11342,9 @@
       "projects": "senarai projek",
       "sites": "senarai tapak kitar semula",
       "scales": "senarai jambatan timbang"
-    }
+    },
+    "outsidePlan": "Tiada dalam pakej: sambungan ini terus berjalan, tetapi apabila dimatikan ia tidak boleh dihidupkan semula.",
+    "outsidePlanCannotEnable": "Pakej syarikat ini tidak termasuk sambungan sistem luar, jadi ia tidak boleh dihidupkan. Hubungi MSE untuk menukar pakej."
   },
   "loginRecords": {
     "count": "{count, plural, =0 {Tiada percubaan} other {# percubaan}}",
@@ -13075,7 +13268,9 @@
       "stalled": "Muat naik tersekat dan dihentikan; ia akan cuba lagi sendiri",
       "signedOut": "Log masuk anda telah tamat. Log keluar dan log masuk semula; ia dimuat naik selepas itu",
       "server": "Pelayan menghadapi masalah ({status}); ia akan cuba lagi sendiri",
-      "unknown": "Muat naik tidak berjaya; ia akan cuba lagi sendiri"
+      "unknown": "Muat naik tidak berjaya; ia akan cuba lagi sendiri",
+      "maintenance": "Sistem sedang diselenggara; ia dimuat naik sendiri selepas penyelenggaraan tamat",
+      "updateRequired": "Sistem telah dikemas kini: tekan Muat semula, kemudian ia dimuat naik sendiri"
     },
     "waiting": {
       "title": "Rekod menunggu dimuat naik",
@@ -13635,6 +13830,20 @@
       "need": "Ubah satu bahagian, kemudian tekan Simpan bahagian itu.",
       "then": "Nama dan logo dicetak pada laporan, rekod QR dan fail projek; pegawai kecemasan dipaparkan pada senarai kecemasan dan telefon pengawal pintu.",
       "trouble": "Kebenaran, peraturan QR, pemberitahuan, GPS, keselamatan dan penyimpanan rekod diurus oleh MSE dan tidak boleh diubah di sini; hubungi MSE untuk mengubahnya."
+    },
+    "permits": {
+      "what": "Permit kerja: muat naik borang permit syarikat anda sendiri (Word, PDF atau foto) dan hantar kepada pengurus keselamatan yang dinamakan, yang menandatangan untuk meluluskannya atau memulangkannya; permit yang diluluskan diarkibkan. Setiap permit boleh dicari semula mengikut projek, status kelulusan, pemohon dan tarikh, dan failnya boleh dipratonton, dicetak atau dimuat turun.",
+      "who": "Orang yang ada “Lihat bahaya / EHS dan permit kerja” boleh melihat dan memuat turun; dengan “Lapor dan tugaskan bahaya, mohon permit kerja” mereka memohon dengan “Permohonan baharu”. Meluluskan memerlukan “Pengesahan keselamatan (boleh lulus permit kerja)” dan dibuat oleh pengurus keselamatan yang dipilih pemohon, atau pentadbir syarikat. Tiada sesiapa meluluskan permit sendiri.",
+      "need": "Permohonan baharu memerlukan projek, fail permit (Word, PDF atau foto borang; beberapa halaman, paling banyak 10 sekali gus) dan pengurus keselamatan pelulus; catatan adalah pilihan. Meluluskan memerlukan tandatangan; memulangkan memerlukan sebabnya.",
+      "then": "Pengurus keselamatan yang dipilih (dan pentadbir syarikat) menerima notis tugasan. Selepas diluluskan, fail asal, keputusan, tandatangan, jawatan pelulus dan masa diarkibkan bersama dan tidak boleh diubah lagi. Permit yang dipulangkan dibetulkan oleh pemohon dan dihantar semula dengan fail baharu; fail terdahulu disimpan. Pemohon dimaklumkan dalam kedua-dua keadaan.",
+      "trouble": "Jika tiada pengurus keselamatan boleh dipilih, belum ada sesiapa dalam projek ini yang boleh meluluskan permit: peranan pelulus memerlukan “Pengesahan keselamatan” dan “Lihat projek”, dan orang itu mesti ada dalam senarai kakitangan projek ini. Tetingkap “Permohonan baharu” menyenaraikan tiga langkah ini."
+    },
+    "billing_customer": {
+      "what": "Bil yang MSE hantar kepada syarikat anda: langganan SaaS dan, bagi pelan kerjasama, komisen platform. Setiap bil menunjukkan tempoh, jumlah, yang sudah dibayar dan yang masih tertunggak.",
+      "who": "Orang yang ada “Lihat pengebilan” boleh melihat bil; dengan “Muat naik slip bayaran” mereka boleh merekod bayaran dan memuat naik slip bank.",
+      "need": "Merekod bayaran memerlukan invois, jumlah, tarikh bayar dan cara bayaran; rujukan, slip dan catatan adalah pilihan. Dengan slip bank, MSE dapat menyemaknya lebih cepat.",
+      "then": "Bayaran yang direkod berstatus “Menunggu semakan” sehingga MSE menyemak dan mengesahkan atau menolaknya; hanya bayaran yang disahkan dikira untuk bil.",
+      "trouble": "Jika jumlah pada bil kelihatan salah, hubungi MSE terus."
     }
   },
   "partners": {
@@ -15105,14 +15314,15 @@
     },
     "business": {
       "anpr": "ANPR",
-      "anprHelp": "Guna kebenaran nombor plat selepas perkakasan disambungkan oleh platform.",
+      "anprHelp": "Hidup: plat yang sepadan dengan pesanan dibenarkan naik ke jambatan timbang. Mati: tiada plat membenarkan lori naik; imbas QR atau masukkan secara manual seperti biasa.",
       "cctv": "AI CCTV",
-      "cctvHelp": "Guna bukti AI CCTV selepas perkakasan disambungkan oleh platform.",
+      "cctvHelp": "Hidup: tiket jambatan timbang menerima foto dan klip CCTV. Mati: ditolak dan tidak disimpan.",
       "deduction": "Pengesahan potongan dua pihak melebihi (kg)",
       "deviceCount": "{count} dipautkan",
       "hardwareOwner": "Hanya pentadbir platform MSE boleh memaut atau menukar jambatan timbang, Gateway, CCTV dan ANPR.",
       "help": "Tetapan ini mengawal operasi. Perkakasan kekal di bawah pentadbir platform.",
-      "title": "Kawalan perniagaan"
+      "title": "Kawalan perniagaan",
+      "noDevice": "Belum ada peranti dipautkan, jadi menghidupkannya tidak mengubah apa-apa."
     },
     "commission": {
       "basis": "Asas",
@@ -17626,7 +17836,8 @@
     },
     "fee": {
       "monthly": "sebulan",
-      "once": "sekali"
+      "once": "sekali",
+      "perBill": "({cycle}: satu bil setiap {months} bulan, {currency} {amount})"
     },
     "field": {
       "userLimitMin": "Had kerusi mestilah sekurang-kurangnya 1.",
@@ -17678,11 +17889,24 @@
     },
     "hint": {
       "effectiveImmediately": "Jika dimatikan, tarikh berbayar sedia ada dikekalkan.",
-      "features": "Kunci ciri dipisahkan dengan koma.",
+      "features": "Tiada yang ditanda = semua fungsi, seperti sekarang. Tanda beberapa dan syarikat pada pakej ini hanya melihat dan menggunakan yang ditanda. Yang kelabu sentiasa ada.",
+      "weighingNeedsCwe": "Pakej ini tidak termasuk Cloud Weighing Engine, jadi Jambatan timbang dan Rekod penimbangan tidak muncul dalam menu pengitar semula walaupun ditanda.",
       "partnerServiceFee": "Pelan Rakan Kongsi mengenakan yuran ini sekali sahaja, kemudian hanya komisen. Yuran bulanan dan tahunan kekal sifar.",
       "planDefault": "Gunakan had pelan",
       "seatOverride": "Biarkan kosong untuk menggunakan had pelan.",
-      "terminate": "Ini menamatkan langganan, menyekat akses syarikat dan membatalkan sesi aktif serta-merta."
+      "terminate": "Ini menamatkan langganan, menyekat akses syarikat dan membatalkan sesi aktif serta-merta.",
+      "billingCycle": "Syarikat baharu, pertukaran pakej dan pembaharuan menggunakan bilangan bulan ini secara lalai: bulanan 1, suku tahunan 3, setengah tahunan 6, tahunan 12.",
+      "trialDays": "Syarikat baharu pada pakej ini mendapat sekian hari percubaan percuma dahulu: tiada bil semasa percubaan; bil bermula hanya apabila anda tekan Lanjut atau perbaharui di Langganan. 0 = tiada percubaan.",
+      "maxSites": "Bilangan tapak maksimum bagi pengitar semula. Kosong = tiada had. Tapak sedia ada tidak terjejas; hanya penambahan baharu dihalang.",
+      "maxScales": "Bilangan jambatan timbang aktif maksimum bagi pengitar semula. Kosong = tiada had. Jambatan timbang sedia ada terus berfungsi; hanya penambahan baharu dihalang.",
+      "contractorNoSiteLimit": "Kontraktor tiada tapak atau jambatan timbang; biarkan kosong.",
+      "externalIntegration": "Hidup: pengitar semula boleh menyambung ERP, perakaunan, MyInvois atau webhook sendiri. Mati: sambungan sebegini tidak boleh ditambah atau dihidupkan; yang sudah hidup terus berjalan.",
+      "publicPlan": "Mati: pakej ini tidak ditawarkan semasa menambah syarikat atau menukar pakej; syarikat yang sudah menggunakannya kekal.",
+      "defaultsFrom": "Kitaran bil, hari percubaan dan had akaun diisi daripada nilai lalai SaaS dalam Tetapan Sistem; ubah jika perlu.",
+      "trialPlanChange": "Syarikat ini dalam percubaan percuma (hingga {date}). Menukar pakej hanya menukar pakej; tarikh percubaan kekal. Tekan Lanjut atau perbaharui untuk mula membuat bil.",
+      "trialRenew": "Syarikat ini dalam percubaan percuma (hingga {date}). Selepas pembaharuan, tempoh berbayar bermula pada {start} dan bil bermula.",
+      "lapsedRenew": "Langganan syarikat ini telah tamat. Pembaharuan dikira dari hari ini; tempoh ia terhenti tidak dikenakan bayaran.",
+      "cycleDefault": "Kitaran bil pakej: {months} bulan secara lalai."
     },
     "metric": {
       "active": "Aktif",
@@ -17704,7 +17928,11 @@
       "create": "Cipta pelan",
       "edit": "Edit pelan",
       "empty": "Tiada pelan langganan.",
-      "formDescription": "Harga, had dan kelayakan digunakan pada syarikat yang menerima pelan ini."
+      "formDescription": "Harga, had dan kelayakan digunakan pada syarikat yang menerima pelan ini.",
+      "allowanceSummaryRecycler": "{users} akaun, {sites} tapak, {scales} jambatan timbang",
+      "featuresAll": "Semua fungsi",
+      "featuresCount": "{count} fungsi",
+      "legacyFeatures": "Ditaip sebelum ini, tidak dikenali: {keys} (disimpan, tiada kesan)"
     },
     "renewals": {
       "count": "{count} langganan perlu tindakan",
@@ -17779,7 +18007,19 @@
     },
     "what": {
       "summary": "Ringkasan langganan",
-      "plans": "Senarai pelan"
+      "plans": "Senarai pelan",
+      "planDefaults": "Nilai lalai pakej"
+    },
+    "badge": {
+      "hidden": "Tersembunyi",
+      "default": "Lalai",
+      "trialDays": "Percubaan {days} hari",
+      "trialUntil": "Percubaan hingga {date}"
+    },
+    "featureName": {
+      "gate_records": "Rekod pintu pagar",
+      "field_staff": "Kakitangan tapak",
+      "site_workers": "Senarai pekerja"
     }
   },
   "suppliers": {
@@ -18507,7 +18747,11 @@
       "created": "Versi dicipta",
       "setCurrent": "Versi semasa dikemas kini",
       "updated": "Versi dikemas kini"
-    }
+    },
+    "thisComputer": "Komputer ini menggunakan v{version}",
+    "thisComputerHelp": "Setiap halaman pelanggan melaporkan versinya. Apabila Kemas Kini Paksa dihidupkan, halaman yang lebih lama daripada versi minimum disokong diminta memuat semula; kakitangan MSE tidak pernah disekat.",
+    "minSupportedHelp": "Nombor versi seperti 1.2.0, tidak lebih tinggi daripada {version}. Biarkan kosong supaya tiada siapa disekat.",
+    "forceUpdateHelp": "Hidup: halaman pelanggan yang lebih lama daripada versi minimum disokong perlu menekan Muat semula sebelum boleh meneruskan. Kakitangan MSE tidak terjejas. Komputer ini menggunakan v{version}."
   },
   "wasteOutgoing": {
     "action": {
@@ -20855,6 +21099,16 @@
       "allAssignees": "Semua penerima tugasan",
       "dateFrom": "Tarikh mula",
       "dateTo": "Tarikh akhir"
+    },
+    "consultantReview": {
+      "open": "Terima / pulangkan",
+      "hint": "Terima: tugas selesai. Pulangkan: nyatakan sebabnya, dan tugas kembali kepada kontraktor untuk dibuat semula.",
+      "accept": "Terima",
+      "return": "Pulangkan",
+      "reason": "Sebab dipulangkan",
+      "reasonHint": "Nyatakan apa yang tidak betul dan apa yang perlu diubah. Kontraktor melihatnya pada tugas.",
+      "confirmReturn": "Pulangkan tugas",
+      "cancel": "Batal"
     }
   },
   "mapFrame": {
@@ -21699,7 +21953,17 @@
     },
     "packageThread": "Pakej · {name}",
     "packageKind": "Pakej",
-    "packageGone": "Perbualan pakej ini tidak dijumpai, atau anda tiada kebenaran untuk melihatnya."
+    "packageGone": "Perbualan pakej ini tidak dijumpai, atau anda tiada kebenaran untuk melihatnya.",
+    "consultant": {
+      "subtitle": "Perbualan dalam projek ini yang dihantar kepada anda atau yang anda sertai: pakej, permohonan perunding, tugas tapak dan pembetulan.",
+      "empty": "Belum ada perbualan anda dalam projek ini.",
+      "kind": {
+        "FIELD_TASK": "Tugas tapak",
+        "CONSULTANT_APPLICATION": "Permohonan perunding",
+        "HAZARD": "Pembetulan",
+        "PACKAGE": "Pakej"
+      }
+    }
   },
   "photoWall": {
     "hint": "Klik foto untuk membesarkannya dan selak ke kiri atau kanan; klik dua kali untuk membuka rekod penuhnya.",
@@ -22019,6 +22283,41 @@
       "label": "Catatan untuk bulan ini",
       "placeholder": "Contoh: kerja terhenti 5 hari bulan ini kerana hujan.",
       "hint": "Dicetak pada PDF laporan bulan ini."
+    }
+  },
+  "platformStatus": {
+    "contact": {
+      "title": "Hubungi MSE",
+      "phone": "Telefon",
+      "email": "E-mel",
+      "website": "Laman web"
+    },
+    "maintenance": {
+      "bannerActive": "Penyelenggaraan sistem sedang berjalan: {window}.",
+      "bannerUpcoming": "Penyelenggaraan sistem dirancang: {window}.",
+      "customerNote": "Semasa penyelenggaraan tiada siapa boleh log masuk atau menggunakan sistem. Selepas itu ia berfungsi seperti biasa tanpa perlu log masuk semula.",
+      "staffNote": "Pelanggan tidak boleh log masuk atau menggunakan sistem semasa itu; kakitangan MSE meneruskan seperti biasa.",
+      "window": {
+        "between": "dari {starts} hingga {ends}",
+        "from": "mulai {starts}; MSE akan memaklumkan bila ia tamat",
+        "until": "hingga lebih kurang {ends}",
+        "open": "MSE akan memaklumkan bila ia tamat",
+        "stopped": "sistem dihentikan buat sementara; MSE akan memaklumkan bila ia kembali"
+      }
+    },
+    "gate": {
+      "maintenanceTitle": "Penyelenggaraan sistem",
+      "maintenanceBody": "Sistem tidak boleh digunakan sekarang. Selepas penyelenggaraan halaman ini dibuka semula dengan sendiri, tanpa perlu log masuk semula.",
+      "nothingLost": "Anda masih log masuk. Rekod yang belum dimuat naik kekal pada telefon atau komputer ini dan dimuat naik selepas itu.",
+      "tryAgain": "Cuba lagi",
+      "updateTitle": "Sistem telah dikemas kini",
+      "updateBody": "Tekan Muat semula untuk menukar ke versi baharu, kemudian teruskan seperti biasa.",
+      "updateStillOld": "Jika skrin ini muncul semula selepas memuat semula, versi baharu masih disediakan. Tunggu beberapa minit dan tekan Muat semula sekali lagi.",
+      "reload": "Muat semula"
+    },
+    "issuer": {
+      "title": "Dikeluarkan oleh",
+      "registrationNo": "No. pendaftaran syarikat: {number}"
     }
   },
   "pagedList": {

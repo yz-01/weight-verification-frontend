@@ -40,7 +40,7 @@ import { RecordExportButton } from "@/components/shared/record-export-button";
 import { RecordNo } from "@/components/shared/record-no";
 import { ManufacturerCell } from "@/components/shared/manufacturer-picker";
 import { canConfirmClosure, canDiscuss, isQueueKind } from "@/lib/record-chat";
-import { recordStatusLabel } from "@/lib/record-status";
+import { recordStatusLabel, recordStatusWords } from "@/lib/record-status";
 import { useDateFormat } from "@/lib/dates";
 import { photoMeta } from "@/lib/photo-meta";
 import type {
@@ -177,8 +177,11 @@ export function ArchiveQueue() {
   const t = useTranslations("archiveQueue");
   const root = useTranslations();
   const formatter = useDateFormat();
-  const { user } = useAuth();
+  const { user, can } = useAuth();
   const canManageCategories = user?.features.includes("project_categories") ?? false;
+  // A consultant exports with 「导出」 ticked (JB210, Lucas 11-16 Q5 = A); the
+  // contractor's export as before.
+  const mayExport = user?.account_type !== "CONSULTANT" || can("report.export");
   const [state, setState] = useState<"pending" | "archived">("pending");
   // The second question on this screen (T-391): archived for everybody, by a
   // named person - not whether *this reader* has looked, which is `state`.
@@ -268,7 +271,7 @@ export function ArchiveQueue() {
         action={
           <div className="flex flex-wrap items-center gap-2">
             {/* The rows of this view, as a file (H16, HD13). */}
-            <ExportButton
+            {mayExport && <ExportButton
               disabled={total === 0}
               disabledReason={t("subtitle")}
               title={t("title")}
@@ -290,14 +293,15 @@ export function ArchiveQueue() {
                     { key: "kind", label: t("column.module"), values: t.raw("kind") as Record<string, string> },
                     { key: "project_name", label: t("column.project") },
                     { key: "submitted_at", label: t("column.when") },
-                    { key: "status_label", label: t("column.status") },
+                    // The status in the words the list shows, per kind (JB215).
+                    { key: "kind_status", label: t("column.status"), values: recordStatusWords(root) },
                     { key: "archived_by", label: t("column.archived") },
                     { key: "archived_at", label: t("closure.closed") },
                     { key: "seen_at", label: t("state.archived") },
                   ],
                 })
               }
-            />
+            />}
             {/* B05: 「分类管理可以做在总栏目右上角，有一个分类管理的 button 点了直接
                 去到分类管理页面」. Only for whoever may open that page. */}
             {canManageCategories ? (

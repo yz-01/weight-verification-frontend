@@ -43,6 +43,7 @@ const SETTINGS = {
   default_user_role_code: "site_staff",
   default_approval_role_code: "project_manager",
   default_consultant_permissions: ["project.view"],
+  default_consultant_modules: ["dashboard", "projects", "safety", "notifications"],
   date_format: "DD/MM/YYYY",
   time_format: "24H",
   language: "zh",

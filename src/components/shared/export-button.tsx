@@ -11,6 +11,7 @@ import {
   type FileAction,
 } from "@/components/shared/file-actions";
 import { Button } from "@/components/ui/button";
+import { useMayExport } from "@/hooks/use-may-export";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -58,6 +59,7 @@ export function ExportButton({
   label,
   size,
   variant = "outline",
+  ownWork,
 }: {
   onExport: (format: ExportFormat) => Promise<unknown>;
   disabled?: boolean;
@@ -82,10 +84,18 @@ export function ExportButton({
   label?: string;
   size?: "sm" | "default";
   variant?: "outline" | "default";
+  /**
+   * A consultant's own 顾问申请 / 资料包 list (JB210): exported as before,
+   * 「导出」 ticked or not.
+   */
+  ownWork?: boolean;
 }) {
   const t = useTranslations();
   const { busy, run, element } = useFileActions();
   const { user } = useAuth();
+  // 「导出：报表和各模块清单可以导出」 (JB210, walk 11-17 F-A4): a consultant
+  // without it gets no list file at all - the server makes none for him.
+  const mayExport = useMayExport() || Boolean(ownWork);
 
   const start = (format: ExportFormat, action: FileAction) =>
     void run(
@@ -99,12 +109,14 @@ export function ExportButton({
         // Each real export is kept in 「报表导出历史」 by the server; a
         // preview is not (JB27), so an action from the preview fetches again.
         exportedOnServer: true,
+        ownWork,
       },
       { key: `${format}-${action}`, allowSave },
     );
 
   // Files are the office's (Lucas 11-05): never offered on the phone.
   if (user?.is_field_staff) return null;
+  if (!mayExport) return null;
   return (
     <>
       <DropdownMenu>

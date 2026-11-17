@@ -53,7 +53,7 @@ import { PhotoFileInput } from "@/components/shared/photo-file-input";
 import { useFileActions } from "@/components/shared/file-actions";
 import { Checkbox } from "@/components/ui/checkbox";
 import { movementStatusKey } from "@/lib/equipment-exit";
-import { ARCHIVE_LOCKS_CHANGES } from "@/lib/archive-policy";
+import { useArchiveLocksChanges } from "@/lib/archive-policy";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { MaterialIssueList, OutgoingKindSwitch } from "@/components/contractor-ops/material-issue";
 import {
@@ -2450,7 +2450,10 @@ export function ProgressRecordDialog({
   const t = useTranslations("contractorOps");
   const tRoot = useTranslations();
   const df = useDateFormat();
-  const { can } = useAuth();
+  const { can, user } = useAuth();
+  // 【备注】 is a consultant's too (JB210, Lucas 11-16 Q1 = A): a dated note under
+  // his name; the record itself stays the contractor's.
+  const mayRemark = can("progress.confirm") || user?.account_type === "CONSULTANT";
   const qc = useQueryClient();
   const reference = useProgressReference();
   // The 实际完成比例 correction form, open in place of the figure (2026-10-09).
@@ -2462,8 +2465,10 @@ export function ProgressRecordDialog({
     void qc.invalidateQueries({ queryKey: ["site-progress-summary"] });
   };
   // A06: an archived progress record took no more photographs - until
-  // Lucas 10-30 evening (`ARCHIVE_LOCKS_CHANGES`).
-  const shownArchived = useRecordArchived("PROGRESS", shown.id) && ARCHIVE_LOCKS_CHANGES;
+  // Lucas 10-30 evening (`ARCHIVE_LOCKS_CHANGES`); again on a project MSE
+  // locked (「归档后锁定记录」, JB214-3d).
+  const archiveLocks = useArchiveLocksChanges(shown.project);
+  const shownArchived = useRecordArchived("PROGRESS", shown.id) && archiveLocks;
   // Rainy Weather (JB192): empty for any other progress record. Its
   // 「意见 / 备注」 (JB199) saved here keeps the window open on the answer.
   const rainFacts = useRainFacts(shown, (fresh) => {
@@ -2609,7 +2614,7 @@ export function ProgressRecordDialog({
         }
         actions={
           <div className="flex flex-wrap items-center gap-2">
-            {can("progress.confirm") && (
+            {mayRemark && (
               <ProgressRemarkBox
                 onSave={async (body) => {
                   const fresh = await addProgressRemark(shown.id, body);

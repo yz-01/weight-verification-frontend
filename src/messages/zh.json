@@ -436,6 +436,15 @@
     "confirm": {
       "removeCategory": "确定要删除类别「{name}」吗？已经有资产在用的类别不能删除，请改为停用。",
       "removeDepartment": "确定要删除部门「{name}」吗？删除后，调拨时不能再选这个部门。"
+    },
+    "movementType": {
+      "PURCHASE": "采购入库",
+      "ISSUE": "交给客户",
+      "INSTALL": "安装",
+      "TRANSFER": "调拨",
+      "RETURN": "归还",
+      "REPAIR": "送修",
+      "DISPOSAL": "报废"
     }
   },
   "adminAuditCenter": {
@@ -1398,7 +1407,8 @@
       "terminate": "终止",
       "view": "在线查看",
       "viewPaymentProof": "查看付款凭证",
-      "delete": "删除"
+      "delete": "删除",
+      "recalculatePeriod": "重新计算这一期"
     },
     "agreementStatus": {
       "ACTIVE": "生效中",
@@ -1692,7 +1702,9 @@
       "territoryDescription": "删除后，这个区域就不能再选来分配客户。已经有客户归属的区域不能删除，请改为填写到期日期。"
     },
     "payout": {
-      "rejectedClosed": "已驳回，不能再付款。要重新算，请按「计算佣金」。"
+      "rejectedClosed": "已驳回，不能再付款。要重新算，请按「计算佣金」。",
+      "rejectedRecalculate": "这一期已驳回。要更正，请按【重新计算这一期】。",
+      "recalculated": "这一期已重新计算：{code}。"
     },
     "toast": {
       "statusChanged": "合作伙伴状态已更新",
@@ -2453,7 +2465,7 @@
       "qr_duplicate_use_policy": "重复使用规则",
       "qr_number_prefix": "编号前缀",
       "saas_default_billing_cycle": "默认收费周期",
-      "saas_default_plan_code": "默认配套编号",
+      "saas_default_plan_code": "新建筑商的默认配套",
       "saas_default_trial_days": "默认试用天数",
       "saas_default_user_limit": "默认账号上限",
       "saas_plans_enabled": "启用配套"
@@ -2584,7 +2596,7 @@
         "title": "二维码设置"
       },
       "saas": {
-        "subtitle": "默认配套、收费周期、试用期、账号上限和配套启停。",
+        "subtitle": "默认配套、收费周期、试用期和账号上限。",
         "title": "SaaS 设置"
       },
       "versions": {
@@ -2612,6 +2624,83 @@
       "title": "还有设定没有保存",
       "description": "这一页有改过、还没按「保存」的设定。现在离开的话，这些改动不会保存。",
       "confirm": "离开，不保存"
+    },
+    "notificationTypes": {
+      "hint": "打勾的类别会自动发通知；没打勾的不发（MSE 和客户都不发）。账单、订阅这些资料本身不受影响，自己发的公告也照样发出。",
+      "COMPANY": {
+        "label": "公司通知",
+        "help": "新建筑商、新回收商注册，公司启用、停用"
+      },
+      "SUBSCRIPTION": {
+        "label": "订阅通知",
+        "help": "订阅快到期、已到期、续期"
+      },
+      "SAAS_BILLING": {
+        "label": "SaaS 账单通知",
+        "help": "SaaS 账单开出、付款确认。不打勾时客户也收不到「账单已开出」，但账单照样在客户的账单中心里。"
+      },
+      "COMMISSION_BILLING": {
+        "label": "平台佣金通知",
+        "help": "佣金账单开出、付款确认。不打勾时客户也收不到「账单已开出」，但账单照样在客户的账单中心里。"
+      },
+      "CWE": {
+        "label": "地磅通知",
+        "help": "地磅离线、恢复连线"
+      },
+      "SYSTEM": {
+        "label": "系统通知",
+        "help": "系统维护"
+      }
+    },
+    "reminderDays": {
+      "before": "订阅到期前",
+      "after": "天开始每天提醒",
+      "hint": "填 1 到 365。原来固定是 30 天。",
+      "invalid": "请填 1 到 365 之间的整数"
+    },
+    "duplicateWindow": {
+      "before": "同一个二维码在",
+      "after": "秒内再扫一次，算重复使用",
+      "hint": "填 10 到 3600（3600 秒 = 1 小时）。重复使用以后怎么处理，看「重复使用规则」。原来固定是 90 秒。",
+      "invalid": "请填 10 到 3600 之间的整数"
+    },
+    "maintenanceWindow": {
+      "label": "维护时间",
+      "start": "开始",
+      "end": "结束",
+      "startBlank": "不填开始时间：一打开维护模式就开始",
+      "endBlank": "不填结束时间：一直到关闭维护模式",
+      "endBeforeStart": "结束时间要比开始时间晚",
+      "clear": "清除"
+    },
+    "defaultPlan": {
+      "none": "不指定（用排在最前面的建筑商配套）",
+      "stopped": "{code}（已停用或已删除）",
+      "hint": "新增建筑商时没有选配套，就用这个。回收商一定要自己选配套（合作版和标准版收费不同）。",
+      "what": "建筑商配套"
+    },
+    "saasPlansNote": "每个配套的启用 / 停用，在「套餐管理」里分开设定。",
+    "saasPlansLink": "打开套餐管理",
+    "commissionCard": {
+      "title": "平台默认佣金",
+      "description": "所有合作版回收商都用这个（另外谈好特别佣金的公司除外）。修改从生效日期起用，已经开出的账单不会变。",
+      "rate": "佣金比例",
+      "basis": "计算方式",
+      "cycle": "结算周期",
+      "effectiveFrom": "生效日期",
+      "next": "{date} 起改为 {rate}",
+      "none": "还没有设定平台默认佣金，现在不会开出任何佣金账单。",
+      "firstWarning": "保存后，合作版回收商从生效日期起开始产生佣金账单。",
+      "change": "修改",
+      "set": "设定平台默认佣金",
+      "allVersions": "查看全部版本",
+      "switchedOff": "「启用佣金」已关闭：现在不开新的佣金账单。",
+      "what": "平台默认佣金",
+      "dialogTitle": "修改平台默认佣金",
+      "dialogNotice": "保存后会加一个新版本，从生效日期起使用；之前开出的账单不会变。"
+    },
+    "help": {
+      "commission_enabled": "关掉后，系统不再开出新的平台佣金账单（自动和手动都不开）。已经开出的账单照样要付。"
     }
   },
   "adminTechnicalSupport": {
@@ -3779,6 +3868,7 @@
       "progress_summary_pdf_exported": "导出项目进度摘要 PDF",
       "progress_summary_updated": "修改项目进度摘要",
       "project_archived": "项目归档",
+      "project_archive_lock_by_platform": "MSE 设定项目的「归档后锁定记录」",
       "project_grant_reactivated": "恢复项目权限",
       "project_granted": "授予项目权限",
       "project_notification_sent": "发送项目通知",
@@ -3923,6 +4013,7 @@
       "rain_report_pdf_previewed": "预览雨天记录月报",
       "rain_remark_set": "填写雨天记录的意见 / 备注",
       "rain_month_remark_set": "填写雨天月报的意见 / 备注",
+      "settings_reset_on_wiring": "维护模式、强制更新接通时重设",
       "head_office_on_behalf": "总部代批"
     },
     "objectType": {
@@ -4191,7 +4282,9 @@
       "record": "记录收款",
       "recordDescription": "把收款及凭证关联至已发出的账单。",
       "reject": "驳回凭证",
-      "viewProof": "查看凭证"
+      "viewProof": "查看凭证",
+      "recordOwn": "登记付款",
+      "recordOwnDescription": "把你们付给 MSE 的款项登记到这张账单上，附上银行凭证；MSE 核对后确认。"
     },
     "paymentMethod": {
       "BANK_TRANSFER": "银行转账",
@@ -4315,6 +4408,10 @@
       "invoice": "这张账单",
       "payments": "付款记录",
       "openInvoices": "未付清账单列表"
+    },
+    "own": {
+      "title": "MSE 发来的账单",
+      "subtitle": "MSE 发给你们公司的账单：每一期要付多少、已经付了多少、还欠多少。"
     }
   },
   "businessTargets": {
@@ -5008,7 +5105,13 @@
       "usedUserSeats": "已使用账号",
       "userCount": "用户数",
       "userLimit": "账号额度",
-      "website": "网站"
+      "website": "网站",
+      "trialDays": "试用天数",
+      "trialEndsOn": "免费试用到",
+      "siteLimit": "回收场上限",
+      "scaleLimit": "地磅上限",
+      "siteLimitOverride": "自定义回收场上限",
+      "scaleLimitOverride": "自定义地磅上限"
     },
     "filter": {
       "active": "正常",
@@ -5185,7 +5288,8 @@
     },
     "planTerms": {
       "partner": "一次性 {currency} {fee} + {rate}% 佣金",
-      "standard": "每月 {currency} {fee}"
+      "standard": "每月 {currency} {fee}",
+      "standardCycle": "每月 {currency} {fee}，{cycle}：每 {months} 个月一张账单 {currency} {amount}"
     },
     "projectLimitOverrideHint": "留空时使用所选套餐的项目额度。",
     "projectStats": {
@@ -5241,6 +5345,7 @@
     },
     "subscriptionExpiryHint": "选填。留空时系统会根据订阅周期自动计算到期日。",
     "subscriptionMonthsHint": "更改套餐或周期后，将从今天开始新的订阅周期。",
+    "subscriptionMonthsTrialHint": "免费试用到 {date}，之后在订阅管理按「延长或续费」才开始收费。",
     "subscriptionPeriod": "{months} 个月",
     "summary": {
       "active": "活跃公司",
@@ -5296,8 +5401,37 @@
       "records": "归档与照片规则",
       "recordsHelp": "归档后锁定记录，什么时候必须拍照。",
       "defaults": "系统默认值",
-      "defaultsHelp": "新项目、访客证和总部 Dashboard 一开始用的值。"
-    }
+      "defaultsHelp": "新项目、访客证和总部 Dashboard 一开始用的值。",
+      "qrPrefixHint": "只影响以后新开的通行证，已经开的编号不变。请填 2 到 6 个英文字母，不能和其他记录的开头一样（例如门岗记录用 GT）。",
+      "qrPrefixFormat": "请填 2 到 6 个英文字母（A 到 Z），不要数字或符号。",
+      "qrPrefixTaken": "「{prefix}」已经是其他记录编号的开头，请换别的字母。",
+      "qrStyleHint": "通行证二维码下载和打印的大小：小型 160、标准 220、大字打印 440 像素。大字打印会在二维码下面印上通行证编号。",
+      "archiveDefault": "新项目默认：归档后锁定记录",
+      "archiveDefaultHelp": "打开后，以后新开的项目一开始就锁定。已经有的项目在下面一个一个设定。",
+      "projectLocks": {
+        "title": "各项目的「归档后锁定记录」",
+        "help": "打开的项目：确认归档以后只能补空白，有内容的不能改。没打开的项目：归档后的记录仍可在电脑后台修改，要 6 位密码，并留下修改记录。",
+        "what": "项目列表",
+        "loading": "正在读取项目……",
+        "empty": "这家公司还没有项目。",
+        "on": "已锁定",
+        "off": "没有锁定",
+        "saveError": "没有保存成功，请再试一次。",
+        "confirmOnTitle": "锁定「{project}」归档后的记录？",
+        "confirmOnBody": "打开后，这个项目已经归档的记录和以后归档的记录，都只能补空白，有内容的不能再改。之后要改，只能由 MSE 关掉这个开关。",
+        "confirmOn": "确定锁定",
+        "confirmOffTitle": "取消锁定「{project}」？",
+        "confirmOffBody": "关掉后，这个项目归档后的记录可以在电脑后台修改，要 6 位密码，并留下修改记录。",
+        "confirmOff": "确定取消锁定"
+      }
+    },
+    "trialDaysHint": "这个套餐默认试用 {days} 天。试用期间不出账单；试用结束后要在订阅管理按「延长或续费」才开始收费。填 0 = 不试用。",
+    "trialNote": "试用期间不出账单。试用结束后要在订阅管理按「延长或续费」才开始收费。",
+    "siteLimitOverrideHint": "空着 = 按套餐的上限（{limit}）。调高后马上可以新增；调低不会影响已经有的回收场。",
+    "scaleLimitOverrideHint": "空着 = 按套餐的上限（{limit}）。调高后马上可以新增；调低不会影响已经有的地磅。",
+    "limitUsage": "已用 {used}，上限 {limit}",
+    "noLimit": "不限",
+    "planHidden": "{name}（不公开）"
   },
   "consultantAccess": {
     "action": {
@@ -5363,7 +5497,12 @@
       "subtitle": "每一行代表一名顾问对一个项目的权限；撤销后会立即停止访问。",
       "title": "项目授权",
       "validity": "从 {from} 至 {until}",
-      "organizationEditHint": "只列出这位顾问已登记所属的顾问单位。"
+      "organizationEditHint": "只列出这位顾问已登记所属的顾问单位。",
+      "modulesTitle": "这个项目上，顾问可以用的模块（内容只限这个项目）",
+      "optionsTitle": "其他权限",
+      "selectAll": "全选",
+      "selectNone": "全不选",
+      "noModules": "没有勾选模块"
     },
     "organization": {
       "activeHelp": "停用后，该单位的所有项目授权会立即失效。",
@@ -5428,6 +5567,41 @@
       "ACTIVE": "正常",
       "INVITED": "等待接受邀请",
       "SUSPENDED": "已停用"
+    },
+    "module": {
+      "dashboard": "仪表板",
+      "projects": "项目",
+      "fieldTasks": "现场任务",
+      "materials": "材料管理",
+      "progress": "工程进度",
+      "safety": "整改／EHS",
+      "documents": "文件档案",
+      "recordCentre": "现场记录中心",
+      "reports": "报表中心",
+      "notifications": "通知中心",
+      "conversations": "沟通记录"
+    },
+    "moduleHint": {
+      "dashboard": "首页，只显示下面勾了的模块",
+      "projects": "项目基本资料（不显示人员电话、邮箱和权限）",
+      "fieldTasks": "只显示发给顾问验收的、他参与过的任务",
+      "materials": "材料进场、材料出场、材料目标——只能看，不显示金额",
+      "progress": "进度记录、日报告、雨天记录、施工计划——只能看，可以写备注",
+      "safety": "看整改和施工准证；可以发起整改，跟进自己发起的",
+      "documents": "本项目已确认归档的文件——看和下载",
+      "recordCentre": "上面勾了的模块的记录——只能看",
+      "reports": "上面勾了的模块的报表",
+      "notifications": "这个项目发给他的通知",
+      "conversations": "他参与的沟通"
+    },
+    "option": {
+      "approvalView": "顾问申请：查看",
+      "approvalReview": "顾问申请：审批（签核）",
+      "export": "导出"
+    },
+    "optionHint": {
+      "approvalReview": "勾这一项会同时勾上「查看」",
+      "export": "报表和各模块清单可以导出"
     }
   },
   "consultantDashboard": {
@@ -6201,7 +6375,9 @@
       "pdfFailed": "PDF 无法生成，请重试。",
       "openPdf": "打开 PDF",
       "close": "关闭"
-    }
+    },
+    "backToSettings": "返回顾问设定",
+    "backToDashboard": "返回顾问首页"
   },
   "contractorDashboard": {
     "activity": {
@@ -8931,6 +9107,7 @@
       "invoice_already_invoiced": "这个期间已经开过账单，不用再开。请在账单列表里找这家公司的账单。",
       "invoice_no_billable_settlements": "这个期间没有已开出、还没开账单的结算单，暂时没有佣金可收。等结算单开出后再生成。",
       "invoice_nothing_to_charge": "算出来这个期间要收的金额是 0，所以没有开账单。如果金额不对，请检查这家公司的套餐费用或佣金规则。",
+      "invoice_in_trial": "这家公司是免费试用（试用到 {date}），还没有续期，所以没有开账单。试用不收钱；在订阅管理按「延长或续费」开始付费期后，才会有第一张账单。",
       "invoice_no_plan": "这家公司还没有套餐，不能开订阅账单。请先在「公司订阅管理」给它选一个套餐。",
       "invoice_not_draft": "只有草稿账单可以发出。这张账单已经发出过了，请刷新列表再看。",
       "invoice_already_closed": "这张账单已经关闭，不用再关。请刷新列表再看。",
@@ -9255,6 +9432,10 @@
       "rain_void_reason_required": "请写作废原因。",
       "rain_record_already_voided": "这份雨天记录已经作废了，不能再作废一次。",
       "rain_rules_out_of_range": "份数要在 1 到 50 之间，分钟要在 5 到 1440 之间。",
+      "platform_maintenance": "系统维护中，现在不能使用。维护结束后会自动恢复，不用重新登录。",
+      "client_update_required": "系统已更新，请按【重新载入】换成新版本，然后继续使用。",
+      "version_min_invalid": "最低支持版本要填版本号（例如 1.2.0），而且不能高于这个版本自己的号码（{version}），不然所有客户都会进不来。",
+      "maintenance_permission_required": "只有有「开启平台维护模式」权限的人才能改维护设置，请找 MSE 系统管理员。",
       "consultant_workflow_last_active": "这是这个项目唯一的审批流程，不能停用。要换流程，请先新增一个并设为默认。",
       "consultant_required_fields_missing": "表格里还有 {count} 个必填项没有填：{fields}。请先填好，再继续。",
       "consultant_required_attachments_missing": "还有 {count} 份必附文件没有上传。请在「附件」里把标着必附的格子都补上，再继续。",
@@ -9299,7 +9480,17 @@
       "hazard_not_awaiting_check": "这一项已经有人处理过了，现在不是等验收的状态。请刷新页面，看最新的情况。",
       "hazard_confirmed_by_other": "{incident_no} 由负责确认的人 {confirmer} 来验收或退回。你可以查看，但不能操作；需要的话请联系他。",
       "visitor_host_required": "请先选访客要找的人，再按确认。",
-      "visitor_host_not_on_project": "这个人不在这个项目里。请从名单里选这个项目的人。"
+      "visitor_host_not_on_project": "这个人不在这个项目里。请从名单里选这个项目的人。",
+      "commission_disabled": "平台佣金已在系统设置关闭，不能开佣金账单。",
+      "site_limit_reached": "贵公司的套餐最多可以有 {limit} 个回收场，现在已经有 {used} 个，所以不能再新增。如需增加，请联系 MSE。",
+      "scale_limit_reached": "这家回收商的套餐最多可以有 {limit} 台在用的地磅，现在已经有 {used} 台，所以不能再新增或重新启用。请先在公司页面调高「自定义地磅上限」。",
+      "external_integration_not_in_plan": "这家公司的套餐不包含外部系统对接（ERP、会计系统、MyInvois、Webhook、API），所以不能新增或打开这类连接。如需开通，请联系 MSE 更换套餐。",
+      "ai_cctv_disabled": "这家回收商已关闭 AI CCTV，照片没有收下。",
+      "archive_lock_choice_invalid": "请选择打开或关闭。",
+      "consultant_read_only": "顾问账号只能查看这里的资料，不能修改。",
+      "consultant_module_not_granted": "总部没有为您在这个项目开通这个模块。如需使用，请联系总部。",
+      "consultant_no_permit": "施工准证由施工方申请，顾问不能提交。您可以发起整改。",
+      "consultant_export_not_granted": "总部没有为您在这个项目开通「导出」，所以不能导出或发送。可以预览和打印。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -11151,7 +11342,9 @@
       "projects": "项目列表",
       "sites": "回收场列表",
       "scales": "地磅列表"
-    }
+    },
+    "outsidePlan": "套餐不含外部系统对接：这条连接照常运行，但关掉后不能再打开。",
+    "outsidePlanCannotEnable": "这家公司的套餐不含外部系统对接，所以不能打开。请联系 MSE 更换套餐。"
   },
   "loginRecords": {
     "count": "{count, plural, =0 {暂无记录} other {# 次尝试}}",
@@ -13075,7 +13268,9 @@
       "stalled": "上传卡住了，已停下，会自动再试",
       "signedOut": "登录已过期，请退出后重新登录，登录后会自动上传",
       "server": "服务器暂时出错（{status}），会自动再试",
-      "unknown": "上传没有成功，会自动再试"
+      "unknown": "上传没有成功，会自动再试",
+      "maintenance": "系统维护中，维护结束后会自动上传",
+      "updateRequired": "系统已更新，请按【重新载入】，之后会自动上传"
     },
     "waiting": {
       "title": "等待上传的记录",
@@ -13635,6 +13830,20 @@
       "need": "改好一栏，就按那一栏自己的【保存】。",
       "then": "公司名称和 Logo 印在报表、二维码记录和项目文件上；紧急联系人显示在紧急名单和门岗的手机上。",
       "trouble": "权限、二维码、通知、GPS、安全和资料保存由 MSE 统一管理，这里不能改；需要修改请联系 MSE。"
+    },
+    "permits": {
+      "what": "施工准证：把公司原有的准证表格（Word、PDF 或照片）上传，交给指定的安全经理签名批准或退回，批准后归档。也能按项目、审批状态、申请人和日期找回每一份准证，预览、打印或下载文件。",
+      "who": "有「查看整改 / EHS 与施工准证」权限的人可以查看和下载；有「上报及指派整改、申请施工准证」的人可以按【新申请】申请；审批要有「安全验收（可审批施工准证）」，而且是申请人选的那位安全经理，或公司管理员。自己申请的准证要由别人审批。",
+      "need": "新申请要选项目、上传准证文件（Word、PDF 或表格照片，可以多页，一次最多 10 个），再选审批的安全经理；备注选填。批准要签名；退回要写原因。",
+      "then": "选中的安全经理（和公司管理员）会收到待审批的通知。批准后，原文件、审批记录、签名、审批人职位和时间一起归档，不能再修改；退回后，申请人按原因改好，上传新文件重新提交，之前的文件保留备查。批准或退回，申请人都会收到通知。",
+      "trouble": "选不到安全经理，是因为这个项目还没有能审批准证的人：审批人的角色要勾「安全验收」和「查看项目」，还要加进这个项目的人员名单。【新申请】窗口里写着这三步。"
+    },
+    "billing_customer": {
+      "what": "MSE 发给你们公司的账单：SaaS 订阅费，合作版还有平台佣金。每一张都看得到期间、金额、已付多少和还欠多少。",
+      "who": "有「查看收费」权限的人可以看账单；有「上传付款凭证」的人可以登记付款、上传银行凭证。",
+      "need": "登记付款要选账单、填金额、付款日期和付款方式；参考号、凭证和备注选填。附上银行凭证，MSE 核对得比较快。",
+      "then": "登记的付款先是「待确认」，MSE 核对后确认或驳回；确认了，账单才算付了。",
+      "trouble": "对账单金额有疑问，请直接联系 MSE。"
     }
   },
   "partners": {
@@ -15105,14 +15314,15 @@
     },
     "business": {
       "anpr": "车牌识别 ANPR",
-      "anprHelp": "平台完成硬件连接后，使用车牌授权称重。",
+      "anprHelp": "开着：车牌对上订单就自动放行上磅。关闭：不自动放行，照常扫二维码或手动输入。",
       "cctv": "AI CCTV",
-      "cctvHelp": "平台完成硬件连接后，使用 AI CCTV 证据。",
+      "cctvHelp": "开着：地磅单收下 CCTV 拍的照片和影片。关闭：不收，也不保存。",
       "deduction": "超过此扣杂重量需双方确认（kg）",
       "deviceCount": "已绑定 {count} 台",
       "hardwareOwner": "只有 MSE 平台管理员可以绑定或更换地磅、Gateway、CCTV 和 ANPR 设备。",
       "help": "这里只控制业务开关，硬件仍由平台管理员绑定。",
-      "title": "业务设置"
+      "title": "业务设置",
+      "noDevice": "还没有绑定设备，开了也不会有作用。"
     },
     "commission": {
       "basis": "计算方式",
@@ -17626,7 +17836,8 @@
     },
     "fee": {
       "monthly": "每月",
-      "once": "一次"
+      "once": "一次",
+      "perBill": "（{cycle}：每 {months} 个月一张账单 {currency} {amount}）"
     },
     "field": {
       "userLimitMin": "账号额度至少要 1。",
@@ -17678,11 +17889,24 @@
     },
     "hint": {
       "effectiveImmediately": "关闭时保留公司当前已付到期日。",
-      "features": "以逗号分隔此套餐启用的功能权限键。",
+      "features": "全部不勾 = 所有功能都可以用（跟现在一样）。勾了哪些，这个套餐的公司就只看到、只能用哪些。灰色的几项一直都有。",
+      "weighingNeedsCwe": "这个套餐没有开「云端称重引擎」，所以「地磅」和「称重记录」勾了也不会出现在回收商的菜单。",
       "partnerServiceFee": "合作版只在首次开通收取此服务费，之后只运行佣金制度，月费与年费保持为零。",
       "planDefault": "使用套餐额度",
       "seatOverride": "留空则使用套餐设定的账号额度。",
-      "terminate": "此操作会立即令订阅到期、禁止公司使用系统并撤销现有登录。"
+      "terminate": "此操作会立即令订阅到期、禁止公司使用系统并撤销现有登录。",
+      "billingCycle": "新增公司、换套餐和续期时，默认按这个周期算月份：月 1、季 3、半年 6、年 12。",
+      "trialDays": "新公司开在这个套餐上时，先免费试用这么多天：试用期间不出账单；到期后要在订阅管理按「延长或续费」才开始收费。0 = 不试用。",
+      "maxSites": "回收商最多可以有几个回收场。空着 = 不限。已经有的回收场不受影响，只是不能再新增。",
+      "maxScales": "回收商最多可以有几台在用的地磅。空着 = 不限。已经有的地磅照常使用，只是不能再新增。",
+      "contractorNoSiteLimit": "建筑商没有回收场和地磅，这一格不用填。",
+      "externalIntegration": "开了，回收商可以自己接 ERP、会计系统、MyInvois、Webhook。没开的套餐不能新增或打开这类连接；已经开着的照常运行。",
+      "publicPlan": "关掉后，新增公司和换套餐时不会出现这个套餐；已经在用的公司照常使用。",
+      "defaultsFrom": "收费周期、试用天数和账号上限已按系统设置的 SaaS 默认值填好，可以直接改。",
+      "trialPlanChange": "这家公司还在免费试用（到 {date}）。换套餐只换套餐，试用日期不变；要开始收费请按「延长或续费」。",
+      "trialRenew": "这家公司还在免费试用（到 {date}）。续期后，付费期从 {start} 开始，并开始出账单。",
+      "lapsedRenew": "这家公司已经过期，续期从今天开始算，停掉的那段时间不收钱。",
+      "cycleDefault": "按套餐的收费周期，默认 {months} 个月。"
     },
     "metric": {
       "active": "使用中",
@@ -17704,7 +17928,11 @@
       "create": "建立套餐",
       "edit": "编辑套餐",
       "empty": "没有订阅套餐。",
-      "formDescription": "价格、额度与功能权限会应用于分配此套餐的公司。"
+      "formDescription": "价格、额度与功能权限会应用于分配此套餐的公司。",
+      "allowanceSummaryRecycler": "{users} 个账号，{sites} 个回收场，{scales} 台地磅",
+      "featuresAll": "所有功能",
+      "featuresCount": "{count} 项功能",
+      "legacyFeatures": "以前填写、系统不认识的：{keys}（保留，不起作用）"
     },
     "renewals": {
       "count": "{count} 个订阅需要处理",
@@ -17779,7 +18007,19 @@
     },
     "what": {
       "summary": "订阅汇总",
-      "plans": "套餐列表"
+      "plans": "套餐列表",
+      "planDefaults": "套餐默认值"
+    },
+    "badge": {
+      "hidden": "不公开",
+      "default": "默认",
+      "trialDays": "试用 {days} 天",
+      "trialUntil": "试用到 {date}"
+    },
+    "featureName": {
+      "gate_records": "门岗记录",
+      "field_staff": "现场人员管理",
+      "site_workers": "人员名单"
     }
   },
   "suppliers": {
@@ -18507,7 +18747,11 @@
       "created": "版本已建立",
       "setCurrent": "当前版本已更新",
       "updated": "版本已更新"
-    }
+    },
+    "thisComputer": "这台电脑正在用的版本：v{version}",
+    "thisComputerHelp": "客户的画面每次都会报自己的版本。打开「强制更新」后，比「最低支持版本」旧的画面会被要求按【重新载入】；MSE 员工不受影响。",
+    "minSupportedHelp": "填版本号，例如 1.2.0，不能高于 {version}。留空就不会挡任何人。",
+    "forceUpdateHelp": "打开后，比「最低支持版本」旧的客户画面要先按【重新载入】才能继续用；MSE 员工不受影响。这台电脑用的是 v{version}。"
   },
   "wasteOutgoing": {
     "action": {
@@ -20855,6 +21099,16 @@
       "allAssignees": "全部负责人",
       "dateFrom": "开始日期",
       "dateTo": "结束日期"
+    },
+    "consultantReview": {
+      "open": "验收 / 退回",
+      "hint": "验收通过：这个任务完成。退回：写明原因，任务退回施工方重做。",
+      "accept": "验收通过",
+      "return": "退回",
+      "reason": "退回原因",
+      "reasonHint": "写清楚哪里不合格、要改什么。施工方会在任务里看到。",
+      "confirmReturn": "确认退回",
+      "cancel": "取消"
     }
   },
   "mapFrame": {
@@ -21699,7 +21953,17 @@
     },
     "packageThread": "资料包 · {name}",
     "packageKind": "资料包",
-    "packageGone": "找不到这个资料包的沟通，或者你没有权限看。"
+    "packageGone": "找不到这个资料包的沟通，或者你没有权限看。",
+    "consultant": {
+      "subtitle": "这个项目上发给您、或您参与过的沟通：资料包、顾问申请、现场任务和整改。",
+      "empty": "这个项目还没有您参与的沟通。",
+      "kind": {
+        "FIELD_TASK": "现场任务",
+        "CONSULTANT_APPLICATION": "顾问申请",
+        "HAZARD": "整改",
+        "PACKAGE": "资料包"
+      }
+    }
   },
   "photoWall": {
     "hint": "单击照片放大，可以左右翻看；双击照片打开完整记录。",
@@ -22019,6 +22283,41 @@
       "label": "这个月的意见 / 备注",
       "placeholder": "例如：本月因下雨停工 5 天。",
       "hint": "会印在这个月的月报 PDF 上。"
+    }
+  },
+  "platformStatus": {
+    "contact": {
+      "title": "联系 MSE",
+      "phone": "电话",
+      "email": "Email",
+      "website": "网站"
+    },
+    "maintenance": {
+      "bannerActive": "系统维护中：{window}。",
+      "bannerUpcoming": "系统维护通知：{window}。",
+      "customerNote": "维护期间不能登录，也不能使用系统；结束后照常使用，不用重新登录。",
+      "staffNote": "维护期间客户不能登录、不能使用；MSE 员工照常使用。",
+      "window": {
+        "between": "{starts} 至 {ends}",
+        "from": "从 {starts} 开始，结束时间 MSE 会再通知",
+        "until": "预计 {ends} 结束",
+        "open": "结束时间 MSE 会再通知",
+        "stopped": "系统暂停服务，恢复时间 MSE 会再通知"
+      }
+    },
+    "gate": {
+      "maintenanceTitle": "系统维护中",
+      "maintenanceBody": "现在不能使用系统。维护结束后，这个画面会自动恢复，不用重新登录。",
+      "nothingLost": "您还是登录着的。还没上传的资料会留在这台手机或电脑里，之后自动上传。",
+      "tryAgain": "再试一次",
+      "updateTitle": "系统已更新",
+      "updateBody": "请按【重新载入】换成新版本，然后照常使用。",
+      "updateStillOld": "如果按了还是看到这个画面，表示新版本还在准备中，请几分钟后再按一次。",
+      "reload": "重新载入"
+    },
+    "issuer": {
+      "title": "开票方",
+      "registrationNo": "公司注册号码：{number}"
     }
   },
   "pagedList": {

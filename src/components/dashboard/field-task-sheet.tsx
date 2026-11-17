@@ -3,7 +3,7 @@
 import { CloseTaskButton } from "@/components/contractor-ops/close-task-button";
 import { PhotoLink, referencePhotos } from "@/components/shared/photo-link";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Check, Loader2, MapPin, Send } from "lucide-react";
+import { Check, Loader2, MapPin, Send, Undo2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
@@ -29,7 +29,8 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import type { FieldTask } from "@/interfaces/contractor-ops";
-import { consultantTaskTitle } from "@/lib/consultant-task-title";
+import { consultantAskType, consultantTaskTitle } from "@/lib/consultant-task-title";
+import { disposalTaskTitle } from "@/lib/field-task-title";
 import { useDateFormat } from "@/lib/dates";
 import { photoCaptionText, siteLocationText } from "@/lib/recorded-words";
 import {
@@ -141,13 +142,19 @@ export function FieldTaskSheet({ id, onClose }: { id: string; onClose: () => voi
   const photoTotal = row.photos.length + linkedPhotos.length;
   const gpsPhoto = [...row.photos, ...linkedPhotos].find((photo) => photo.latitude && photo.longitude);
   const sentOn = row.consultant_application ?? null;
-  const category = row.submission_category
-    ? askOption(row.submission_category) ?? row.submission_category
-    : null;
+  // 「这次要顾问看什么」 only on a consultant submission, and always in words
+  // (JB215B, walk 11-17): a disposal run printed 「SITE_DISPOSAL_EXECUTION」
+  // here, a photo filed into a site column its column's code.
+  const askType = consultantAskType(row);
+  const category = askType ? askOption(askType) : null;
+  // A site disposal's task is 「执行清运 DR-…」, as on the phone (JB215): its
+  // stored title is English.
+  const disposal = disposalTaskTitle(row, (reference) => flow("work.disposalTitle", { reference }));
+  const shownTitle = disposal ?? consultantTaskTitle(row, askOption);
 
   return (
     <RecordDetailDialog
-      title={consultantTaskTitle(row, askOption)}
+      title={shownTitle}
       recordNo={row.record_no}
       description={[row.project_name, headOffice ? t("fromHeadOffice") : t("fromSite")].join(" · ")}
       status={
@@ -164,14 +171,14 @@ export function FieldTaskSheet({ id, onClose }: { id: string; onClose: () => voi
       exportRecord={{
         kind: "FIELD_TASK",
         recordId: row.id,
-        reference: row.title,
+        reference: disposal ?? row.title,
         // JB25: a task nobody has started is still the office's draft.
         blockedReason: row.status === "OPEN" ? notArchived : undefined,
       }}
     >
       <div data-field-task-sheet={row.origin}>
         <RecordDetailShell
-          reference={row.title}
+          reference={disposal ?? row.title}
           facts={[
             { label: t("assignee"), value: row.assigned_to_name },
             {
@@ -328,7 +335,19 @@ export function FieldTaskSheet({ id, onClose }: { id: string; onClose: () => voi
                     />
                   </div>
                 )}
-                {mayDecide && (
+                {/* A consultant 验收 / 退回 a task sent to him, in plain words
+                    (JB210, walk 11-17 F-A5): the contractor's 「需要继续整改」
+                    switch is not his. The contractor's own screen as before. */}
+                {mayDecide && user?.account_type === "CONSULTANT" && (
+                  <ConsultantTaskDecision
+                    task={row}
+                    onDone={() => {
+                      refresh();
+                      void queryClient.invalidateQueries({ queryKey: ["my-tasks"] });
+                    }}
+                  />
+                )}
+                {mayDecide && user?.account_type !== "CONSULTANT" && (
                   <div className="space-y-2" data-task-decide>
                     <div className="flex flex-wrap items-center justify-end gap-2">
                       <Button size="sm" disabled={decide.isPending} onClick={() => decide.mutate(row)}>
@@ -453,5 +472,66 @@ function ChosenPhotos({ photos }: { photos: File[] }) {
         </li>
       ))}
     </ul>
+  );
+}
+
+/**
+ * 【验收通过】 and 【退回】 for a consultant (JB210, walk 11-17 F-A5).
+ *
+ * 「提交顾问审批：发给顾问审批」 (10-13): the consultant accepts the task sent to
+ * him, or returns it with the reason the site reads - the explicit 退回 the
+ * server allows him (`transition_task`), never the contractor's 「需要继续整改」
+ * switch in the conversation.
+ */
+function ConsultantTaskDecision({ task, onDone }: { task: FieldTask; onDone: () => void }) {
+  const t = useTranslations("taskFlow.consultantReview");
+  const [returning, setReturning] = useState(false);
+  const [reason, setReason] = useState("");
+  const decide = useMutation({
+    mutationFn: (status: "ACCEPTED" | "RETURNED") =>
+      transitionFieldTask(task.id, status, status === "RETURNED" ? reason.trim() : ""),
+    onSuccess: () => {
+      setReturning(false);
+      setReason("");
+      onDone();
+    },
+  });
+  return (
+    <div className="space-y-2" data-task-consultant-decide>
+      <p className="text-xs text-muted-foreground">{t("hint")}</p>
+      {returning ? (
+        <div className="space-y-2" data-task-return>
+          <FieldWrapper label={t("reason")} required hint={t("reasonHint")}>
+            <Textarea rows={3} value={reason} onChange={(event) => setReason(event.target.value)} />
+          </FieldWrapper>
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <Button size="sm" variant="outline" disabled={decide.isPending} onClick={() => setReturning(false)}>
+              {t("cancel")}
+            </Button>
+            <Button
+              size="sm"
+              variant="outline-destructive"
+              requires={[[reason.trim(), t("reason")]]}
+              disabled={decide.isPending}
+              onClick={() => decide.mutate("RETURNED")}
+            >
+              {decide.isPending ? <Loader2 className="animate-spin" /> : <Undo2 />}
+              {t("confirmReturn")}
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          <Button size="sm" variant="outline" disabled={decide.isPending} onClick={() => setReturning(true)}>
+            <Undo2 />
+            {t("return")}
+          </Button>
+          <Button size="sm" disabled={decide.isPending} onClick={() => decide.mutate("ACCEPTED")}>
+            {decide.isPending ? <Loader2 className="animate-spin" /> : <Check />}
+            {t("accept")}
+          </Button>
+        </div>
+      )}
+    </div>
   );
 }

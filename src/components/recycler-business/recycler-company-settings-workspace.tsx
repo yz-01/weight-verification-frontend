@@ -380,9 +380,14 @@ function Toggle({ label, help, checked, disabled, onChange }: { label: string; h
   return <label className="surface-panel flex min-h-24 items-center justify-between gap-4 rounded-xl p-4"><span className="min-w-0"><span className="block font-medium">{label}</span><span className="mt-1 block text-sm leading-5 text-muted-foreground">{help}</span></span><Switch checked={checked} disabled={disabled} onCheckedChange={onChange} /></label>;
 }
 
+/**
+ * AI CCTV / ANPR (JB214-5, Lucas 11-16 「把它们真的做出来」): the switch now
+ * decides what the yard does, so its words say what on and off do, and - with
+ * no device bound - that switching it on changes nothing yet.
+ */
 function HardwareToggle({ icon: Icon, label, help, count, checked, disabled, onChange }: { icon: typeof Camera; label: string; help: string; count: number; checked: boolean; disabled: boolean; onChange: (value: boolean) => void }) {
   const t = useTranslations("recyclerCompanySettings");
-  return <div className="flex items-start justify-between gap-4 rounded-lg border bg-muted/30 p-3"><div className="flex min-w-0 gap-3"><Icon className="mt-0.5 size-5 shrink-0 text-primary" /><div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><span className="font-medium">{label}</span><StatusBadge label={t("business.deviceCount", { count })} tone={count ? "positive" : "neutral"} /></div><p className="mt-1 text-sm leading-5 text-muted-foreground">{help}</p></div></div><Switch checked={checked} disabled={disabled} onCheckedChange={onChange} /></div>;
+  return <div className="flex items-start justify-between gap-4 rounded-lg border bg-muted/30 p-3"><div className="flex min-w-0 gap-3"><Icon className="mt-0.5 size-5 shrink-0 text-primary" /><div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><span className="font-medium">{label}</span><StatusBadge label={t("business.deviceCount", { count })} tone={count ? "positive" : "neutral"} /></div><p className="mt-1 text-sm leading-5 text-muted-foreground">{help}</p>{count === 0 && <p className="mt-1 text-sm leading-5 text-muted-foreground" data-testid="hardware-none-bound">{t("business.noDevice")}</p>}</div></div><Switch checked={checked} disabled={disabled} onCheckedChange={onChange} /></div>;
 }
 
 function ReadOnly({ label, value }: { label: string; value: string }) {

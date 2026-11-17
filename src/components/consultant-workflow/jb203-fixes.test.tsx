@@ -60,7 +60,7 @@ const { ConsultantWorkflowSettings, StepDialog } = await import(
 );
 const { ConsultantOptionManager } = await import("@/components/consultant-workflow/option-manager");
 const { preferWorkflow } = await import("@/components/consultant-workflow/application-form");
-const { startingPermissions } = await import(
+const { startingGrant } = await import(
   "@/components/consultant-workflow/consultant-access-management"
 );
 const { ApplicationVerification } = await import(
@@ -303,16 +303,22 @@ describe("JB203-7 the step dialog", () => {
   });
 });
 
+// JB210 (客户 11-16) keeps JB203-9's rule with the module ticks: the company's
+// default is its ticks + options, and one still saved as codes counts as ticks.
 describe("JB203-9 a new consultant grant", () => {
   it("starts from the company's 顾问项目默认权限", () => {
-    expect(startingPermissions(["project.view", "report.view", "document.view"])).toEqual([
-      "project.view",
-      "report.view",
-    ]);
+    expect(startingGrant(["projects", "reports"], ["report.export"])).toEqual({
+      modules: ["projects", "reports"],
+      options: ["report.export"],
+    });
+    expect(startingGrant([], ["project.view", "report.view", "document.view"])).toEqual({
+      modules: ["projects", "reports"],
+      options: [],
+    });
   });
-  it("falls back to the usual five when the company has none", () => {
-    expect(startingPermissions([])).toContain("approval.review");
-    expect(startingPermissions(undefined)).toHaveLength(5);
+  it("falls back to the usual default when the company has none", () => {
+    expect(startingGrant([], []).options).toContain("approval.review");
+    expect(startingGrant(undefined, undefined).modules).toEqual(["dashboard", "projects", "safety", "notifications"]);
   });
 });
 

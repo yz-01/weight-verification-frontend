@@ -24,6 +24,7 @@ import {
   isDriverSessionPath,
   isDriverStandaloneApp,
   isFieldStandaloneApp,
+  isFieldAppPage,
   isFieldSessionPath,
   rememberSignOutReason,
   SIGNED_OUT,
@@ -39,6 +40,7 @@ import {
 } from "@/lib/field-offline-user";
 import { isDriverOnlyAccount } from "@/lib/navigation";
 import { portalLoginPath } from "@/lib/portal";
+import { retrySessionCheck, sessionCheckState } from "@/lib/session-check";
 import * as authService from "@/services/auth.service";
 import { detachPushFromAccount } from "@/services/push-notification.service";
 import { setAppBadgeCount } from "@/lib/app-badge";
@@ -110,7 +112,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 
   useEffect(() => {
-    if (fieldApp && !isFieldSessionPath(pathname)) {
+    // The installed field app stays on its own screens, except the pages its
+    // worker uses outside them - a scan landing, a file sent by link (JB215:
+    // the redirect raced the machine QR's landing and won).
+    if (fieldApp && !isFieldSessionPath(pathname) && !isFieldAppPage(pathname)) {
       router.replace("/field-staff");
     }
   }, [fieldApp, pathname, router]);
@@ -128,7 +133,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // The session lives in the query cache rather than in component state, so
   // that a profile update and the shell read the same record and neither can
   // go stale against the other.
-  const { data, isPending, isFetched, isError } = useQuery({
+  // query-failure: a failed check is `sessionUnreachable` (sessionCheckState below), which every shell shows.
+  const { data, isFetched } = useQuery({
     queryKey: currentUserKey,
     queryFn: async () => {
       try {
@@ -184,24 +190,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
      * `queryFn` catch above. `api-client` ends the session itself on a 401 -
      * clearing the tokens and navigating - so asking again three more times
      * re-enters that path and the repeated navigations fight each other, and
-     * the person ends up on neither screen.
+     * the person ends up on neither screen. So are 系统维护 / 强制更新
+     * (JB211): the same answer until MSE lifts it (`retrySessionCheck`).
      */
-    retry: (count, error) =>
-      count < 3 &&
-      !(error instanceof ApiError && [401, 403].includes(error.status)),
+    retry: retrySessionCheck,
     retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 8000),
   });
 
   const user = data ?? null;
-  const isLoading =
-    sessionPresent && !isFieldCredentialExchange && isPending && !isFetched;
+  // JB211 (walk F-A7): read from the answer itself, not from the query's
+  // status - asking again after a failure puts the status back to "pending",
+  // and that used to read as signed out (`lib/session-check`).
   /*
-   * Tokens in hand, retries spent, still no answer. Not the same thing as
-   * having no account, and the difference is what keeps a field device signed
-   * in through a bad minute of signal.
+   * `sessionUnreachable`: tokens in hand, retries spent, still no answer. Not
+   * the same thing as having no account, and the difference is what keeps a
+   * field device signed in through a bad minute of signal - and a customer
+   * signed in behind 系统维护 / 「系统已更新」.
    */
-  const sessionUnreachable =
-    sessionPresent && !isFieldCredentialExchange && isError && user === null;
+  const { isLoading, sessionUnreachable } = sessionCheckState({
+    asking: sessionPresent && !isFieldCredentialExchange,
+    data,
+    isFetched,
+  });
 
   const setUser = useCallback(
     (next: CurrentUser) => {

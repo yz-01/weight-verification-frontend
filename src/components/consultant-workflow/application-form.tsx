@@ -60,6 +60,7 @@ import {
   getConsultantWorkflows,
   updateConsultantApplication,
 } from "@/services/consultant-workflow.service";
+import { consultantAskType } from "@/lib/consultant-task-title";
 import { getFieldTask } from "@/services/contractor-ops.service";
 import { getScheduleTasks } from "@/services/schedule-planning.service";
 
@@ -198,6 +199,9 @@ function ConsultantApplicationEditor({
     enabled: !id && Boolean(sourceFieldTaskId),
     retry: false,
   });
+  // What the phone asked the consultant to look at, in words (JB215B).
+  const askOption = useTranslations("fieldStaffPwa.consultantCapture.askOption");
+  const sourceAsk = sourceTask.data ? consultantAskType(sourceTask.data) : null;
   const [requiredAt, setRequiredAt] = useState(() =>
     initial?.required_at
       ? new Date(initial.required_at).toISOString().slice(0, 16)
@@ -533,7 +537,8 @@ function ConsultantApplicationEditor({
               <p className="mt-1 text-sm text-muted-foreground">{t("form.sourceHelp")}</p>
               <div className="mt-3 grid gap-1 text-sm">
                 <p><strong>{sourceTask.data.project_name}</strong></p>
-                {sourceTask.data.submission_category && <p>{sourceTask.data.submission_category}</p>}
+                {/* The phone's answer in words, never its code (JB215B, walk 11-17). */}
+                {sourceAsk && <p>{askOption(sourceAsk)}</p>}
                 {sourceTask.data.work_location && <p>{sourceTask.data.work_location}</p>}
                 {sourceTask.data.submitted_at && <p className="text-muted-foreground">{t("form.sourceSubmittedAt", { value: new Date(sourceTask.data.submitted_at).toLocaleString() })}</p>}
               </div>

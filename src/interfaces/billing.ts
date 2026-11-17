@@ -208,6 +208,14 @@ export interface CreatePaymentPayload {
   proof?: File | null;
 }
 
+/** 11.2.3 佣金设置 (JB212-4): the platform default rule in force and the next version. */
+export interface PlatformDefaultCommission {
+  /** 「启用佣金」: off, no commission bill is made. */
+  commission_enabled: boolean;
+  in_force: CommissionRule | null;
+  next: CommissionRule | null;
+}
+
 export interface CommissionRulePayload {
   name: string;
   basis: CommissionBasis;

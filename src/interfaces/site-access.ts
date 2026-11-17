@@ -74,7 +74,13 @@ export interface ContractorSiteSettings {
   default_notification_rules: Record<string, boolean>;
   default_user_role_code: string;
   default_approval_role_code: string;
+  /**
+   * 「顾问项目默认权限」 (JB210, 客户 11-16): only the three options now -
+   * 顾问申请 查看 / 审批 and 导出; the ticks are `default_consultant_modules`.
+   */
   default_consultant_permissions: string[];
+  /** The module ticks a new consultant grant starts with (JB210). */
+  default_consultant_modules: string[];
   date_format: "DD/MM/YYYY" | "MM/DD/YYYY" | "YYYY-MM-DD";
   time_format: "12H" | "24H";
   language: "en" | "zh" | "zh-TW" | "ms";
@@ -105,6 +111,11 @@ export interface ContractorSiteSettings {
   emergency_contact_name: string;
   emergency_contact_phone: string;
   updated_at: string;
+  /**
+   * The letters 「通行证编号前缀」 may not take - other records' prefixes
+   * (GT, MI …) - so MSE's page says so while typing (JB214-3a).
+   */
+  reserved_qr_prefixes?: string[];
 }
 
 /** The settings as MSE reads them on the platform company page (JB99). */
@@ -205,6 +216,8 @@ export interface SiteAccessPass {
   status: AccessPassStatus;
   effective_status: EffectiveAccessPassStatus;
   qr_value: string;
+  /** 二维码打印大小 MSE set for the company (JB214-3b); STANDARD when absent. */
+  qr_print_size?: "COMPACT" | "STANDARD" | "LARGE";
   approved_by_name: string | null;
   approved_at: string | null;
   review_note: string;

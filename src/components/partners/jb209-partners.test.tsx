@@ -111,8 +111,15 @@ describe("JB209-15 a rejected partner payout is closed (B-P3-4)", () => {
 
   it("shows no 处理 on a rejected row, says why, and keeps 处理 on a draft", () => {
     const rejected = renderSchemes([payout("1", "REJECTED")]);
-    expect(rejected).toContain(words.payout.rejectedClosed);
+    // JB215B-11: whoever may calculate payouts reads how to correct it
+    // (jb215b-payout-recalculate.test.tsx); a reader without partner.manage
+    // keeps the closed line.
+    expect(rejected).toContain(words.payout.rejectedRecalculate);
     expect(rejected).not.toContain(`>${words.action.process}<`);
+    reader.codes = new Set(["partner.view"]);
+    const readOnly = renderSchemes([payout("1", "REJECTED")]);
+    reader.codes = new Set(["partner.view", "partner.manage"]);
+    expect(readOnly).toContain(words.payout.rejectedClosed);
     const draft = renderSchemes([payout("2", "DRAFT")]);
     expect(draft).toContain(`>${words.action.process}<`);
     expect(draft).not.toContain(words.payout.rejectedClosed);

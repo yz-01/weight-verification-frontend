@@ -436,6 +436,15 @@
     "confirm": {
       "removeCategory": "Delete the category \"{name}\"? A category that assets already use cannot be deleted; deactivate it instead.",
       "removeDepartment": "Delete the department \"{name}\"? After this it can no longer be chosen for a transfer."
+    },
+    "movementType": {
+      "PURCHASE": "Purchase",
+      "ISSUE": "Issued to customer",
+      "INSTALL": "Installation",
+      "TRANSFER": "Transfer",
+      "RETURN": "Return",
+      "REPAIR": "Sent for repair",
+      "DISPOSAL": "Disposal"
     }
   },
   "adminAuditCenter": {
@@ -1398,7 +1407,8 @@
       "terminate": "Terminate",
       "view": "View",
       "viewPaymentProof": "View payment proof",
-      "delete": "Delete"
+      "delete": "Delete",
+      "recalculatePeriod": "Recalculate this period"
     },
     "agreementStatus": {
       "ACTIVE": "Active",
@@ -1692,7 +1702,9 @@
       "territoryDescription": "Once deleted, this area can no longer be chosen for a customer. An area that already has customers cannot be deleted - give it an expiry date instead."
     },
     "payout": {
-      "rejectedClosed": "Rejected - this payout can no longer be paid. To work it out again, press \"Calculate commission\"."
+      "rejectedClosed": "Rejected - this payout can no longer be paid. To work it out again, press \"Calculate commission\".",
+      "rejectedRecalculate": "This period's payout was rejected. To correct it, press \"Recalculate this period\".",
+      "recalculated": "This period was recalculated: {code}."
     },
     "toast": {
       "statusChanged": "Partner status updated",
@@ -2453,7 +2465,7 @@
       "qr_duplicate_use_policy": "Duplicate-use policy",
       "qr_number_prefix": "Number prefix",
       "saas_default_billing_cycle": "Default billing cycle",
-      "saas_default_plan_code": "Default plan code",
+      "saas_default_plan_code": "Default plan for new builders",
       "saas_default_trial_days": "Default trial days",
       "saas_default_user_limit": "Default account limit",
       "saas_plans_enabled": "Plans enabled"
@@ -2584,7 +2596,7 @@
         "title": "QR settings"
       },
       "saas": {
-        "subtitle": "Default plan, billing cycle, trial, account limit and plan availability.",
+        "subtitle": "Default plan, billing cycle, trial and account limit.",
         "title": "SaaS settings"
       },
       "versions": {
@@ -2612,6 +2624,83 @@
       "title": "Some settings are not saved",
       "description": "This page has settings you changed but did not save. If you leave now, those changes are lost.",
       "confirm": "Leave without saving"
+    },
+    "notificationTypes": {
+      "hint": "Ticked kinds are sent automatically; unticked kinds are not sent to anyone (MSE or customers). Bills, subscriptions and other records are not affected, and announcements you send yourself always go out.",
+      "COMPANY": {
+        "label": "Company notices",
+        "help": "A new builder or recycler registers, a company is enabled or disabled"
+      },
+      "SUBSCRIPTION": {
+        "label": "Subscription notices",
+        "help": "A subscription is about to end, has ended, or is renewed"
+      },
+      "SAAS_BILLING": {
+        "label": "SaaS bill notices",
+        "help": "A SaaS bill is issued or a payment is confirmed. Unticked, customers are not told 'bill issued' either, but the bill is still in their billing centre."
+      },
+      "COMMISSION_BILLING": {
+        "label": "Platform commission notices",
+        "help": "A commission bill is issued or a payment is confirmed. Unticked, customers are not told 'bill issued' either, but the bill is still in their billing centre."
+      },
+      "CWE": {
+        "label": "Weighbridge notices",
+        "help": "A weighbridge goes offline or comes back online"
+      },
+      "SYSTEM": {
+        "label": "System notices",
+        "help": "System maintenance"
+      }
+    },
+    "reminderDays": {
+      "before": "Start reminding every day",
+      "after": "days before a subscription ends",
+      "hint": "Enter 1 to 365. It used to be fixed at 30 days.",
+      "invalid": "Enter a whole number from 1 to 365"
+    },
+    "duplicateWindow": {
+      "before": "The same QR code scanned again within",
+      "after": "seconds counts as repeated use",
+      "hint": "Enter 10 to 3600 (3600 seconds = 1 hour). What happens to a repeated use is set in 'Duplicate use rule'. It used to be fixed at 90 seconds.",
+      "invalid": "Enter a whole number from 10 to 3600"
+    },
+    "maintenanceWindow": {
+      "label": "Maintenance time",
+      "start": "Start",
+      "end": "End",
+      "startBlank": "No start time: maintenance starts as soon as maintenance mode is switched on",
+      "endBlank": "No end time: maintenance lasts until maintenance mode is switched off",
+      "endBeforeStart": "The end time must be later than the start time",
+      "clear": "Clear"
+    },
+    "defaultPlan": {
+      "none": "Not set (use the first builder plan in the list)",
+      "stopped": "{code} (stopped or removed)",
+      "hint": "Used when a new builder is added without choosing a plan. A recycler always needs its plan chosen by hand (partner and standard are billed differently).",
+      "what": "builder plans"
+    },
+    "saasPlansNote": "Each plan is switched on or off on its own in Plan management.",
+    "saasPlansLink": "Open Plan management",
+    "commissionCard": {
+      "title": "Platform default commission",
+      "description": "Every partner recycler uses this, except a company with its own agreed commission. A change applies from its start date; bills already issued do not change.",
+      "rate": "Commission rate",
+      "basis": "Calculated on",
+      "cycle": "Settlement cycle",
+      "effectiveFrom": "In use from",
+      "next": "From {date}: {rate}",
+      "none": "No platform default commission is set, so no commission bill is made at all.",
+      "firstWarning": "Once saved, partner recyclers start getting commission bills from the start date.",
+      "change": "Change",
+      "set": "Set the platform default commission",
+      "allVersions": "See every version",
+      "switchedOff": "'Commission enabled' is off: no new commission bills are made.",
+      "what": "the platform default commission",
+      "dialogTitle": "Change the platform default commission",
+      "dialogNotice": "Saving adds a new version used from its start date. Bills already issued do not change."
+    },
+    "help": {
+      "commission_enabled": "Switched off, no new platform commission bill is made, neither automatically nor by hand. Bills already issued are still due."
     }
   },
   "adminTechnicalSupport": {
@@ -3779,6 +3868,7 @@
       "progress_summary_pdf_exported": "Progress summary PDF exported",
       "progress_summary_updated": "Progress summary changed",
       "project_archived": "Project archived",
+      "project_archive_lock_by_platform": "MSE set a project's archive lock",
       "project_grant_reactivated": "Project access given back",
       "project_granted": "Project access given",
       "project_notification_sent": "Project notice sent",
@@ -3923,6 +4013,7 @@
       "rain_report_pdf_previewed": "Rain record monthly report previewed",
       "rain_remark_set": "Wrote a rain record's remarks",
       "rain_month_remark_set": "Wrote the rain report's monthly remarks",
+      "settings_reset_on_wiring": "Maintenance and force update reset when they took effect",
       "head_office_on_behalf": "Decided by head office for the manager"
     },
     "objectType": {
@@ -4191,7 +4282,9 @@
       "record": "Record payment",
       "recordDescription": "Associate a payment and its proof with an issued invoice.",
       "reject": "Reject payment",
-      "viewProof": "View proof"
+      "viewProof": "View proof",
+      "recordOwn": "Record a payment",
+      "recordOwnDescription": "Record what you paid MSE against this invoice, with the bank slip; MSE checks it and confirms."
     },
     "paymentMethod": {
       "BANK_TRANSFER": "Bank transfer",
@@ -4315,6 +4408,10 @@
       "invoice": "This invoice",
       "payments": "The payment records",
       "openInvoices": "The list of unpaid invoices"
+    },
+    "own": {
+      "title": "Bills from MSE",
+      "subtitle": "The bills MSE sends your company: what each period costs, what you have paid and what is still owed."
     }
   },
   "businessTargets": {
@@ -5008,7 +5105,13 @@
       "usedUserSeats": "Users in use",
       "userCount": "Users",
       "userLimit": "User allowance",
-      "website": "Website"
+      "website": "Website",
+      "trialDays": "Trial days",
+      "trialEndsOn": "Free trial until",
+      "siteLimit": "Yard limit",
+      "scaleLimit": "Weighbridge limit",
+      "siteLimitOverride": "Custom yard limit",
+      "scaleLimitOverride": "Custom weighbridge limit"
     },
     "filter": {
       "active": "Active",
@@ -5185,7 +5288,8 @@
     },
     "planTerms": {
       "partner": "{currency} {fee} once + {rate}% commission",
-      "standard": "{currency} {fee} per month"
+      "standard": "{currency} {fee} per month",
+      "standardCycle": "{currency} {fee} per month; {cycle}: one bill every {months} months, {currency} {amount}"
     },
     "projectLimitOverrideHint": "Leave blank to use the selected plan's allowance.",
     "projectStats": {
@@ -5241,6 +5345,7 @@
     },
     "subscriptionExpiryHint": "Optional. Leave blank to calculate the expiry from the billing period.",
     "subscriptionMonthsHint": "Changing the plan or period starts a new subscription from today.",
+    "subscriptionMonthsTrialHint": "Free trial until {date}; billing starts only after you press Extend or renew in Subscriptions.",
     "subscriptionPeriod": "{months, plural, one {# month} other {# months}}",
     "summary": {
       "active": "Active companies",
@@ -5296,8 +5401,37 @@
       "records": "Records and photos",
       "recordsHelp": "Locking after archive, and when a photo must be taken.",
       "defaults": "System defaults",
-      "defaultsHelp": "What new projects, visitor passes and the dashboard start with."
-    }
+      "defaultsHelp": "What new projects, visitor passes and the dashboard start with.",
+      "qrPrefixHint": "Only passes opened from now on use it; existing pass numbers stay. Use 2 to 6 letters, not the start of another record’s number (gate records use GT).",
+      "qrPrefixFormat": "Use 2 to 6 letters (A to Z), no numbers or symbols.",
+      "qrPrefixTaken": "“{prefix}” already starts another record’s number. Choose other letters.",
+      "qrStyleHint": "The size a pass QR code is downloaded and printed at: compact 160, standard 220, large print 440 pixels. Large print also prints the pass number under the code.",
+      "archiveDefault": "New projects: lock records after archive",
+      "archiveDefaultHelp": "When on, projects opened from now on start locked. Set each existing project below.",
+      "projectLocks": {
+        "title": "Lock records after archive, project by project",
+        "help": "Locked project: after Confirm & archive, only blanks can be filled in; what was written cannot be changed. Unlocked project: archived records can still be changed in the office with the 6-digit PIN, and every change is logged.",
+        "what": "the project list",
+        "loading": "Loading projects…",
+        "empty": "This company has no projects yet.",
+        "on": "Locked",
+        "off": "Not locked",
+        "saveError": "Not saved. Please try again.",
+        "confirmOnTitle": "Lock the archived records of “{project}”?",
+        "confirmOnBody": "Once on, this project’s archived records — those archived already and those archived later — only take blanks filled in; what was written cannot be changed. Only MSE can switch it off again.",
+        "confirmOn": "Lock",
+        "confirmOffTitle": "Unlock “{project}”?",
+        "confirmOffBody": "Once off, this project’s archived records can be changed in the office with the 6-digit PIN, and every change is logged.",
+        "confirmOff": "Unlock"
+      }
+    },
+    "trialDaysHint": "This plan gives {days} free days by default. No bill during the trial; billing starts only when you press Extend or renew in Subscriptions. Enter 0 for no trial.",
+    "trialNote": "No bill during the trial. Billing starts only when you press Extend or renew in Subscriptions.",
+    "siteLimitOverrideHint": "Empty = the plan's limit ({limit}). Raising it allows adding at once; lowering it does not affect existing yards.",
+    "scaleLimitOverrideHint": "Empty = the plan's limit ({limit}). Raising it allows adding at once; lowering it does not affect existing weighbridges.",
+    "limitUsage": "{used} used of {limit}",
+    "noLimit": "No limit",
+    "planHidden": "{name} (hidden)"
   },
   "consultantAccess": {
     "action": {
@@ -5363,7 +5497,12 @@
       "subtitle": "One row is one consultant's permission to one project. Revoke it to end access immediately.",
       "title": "Project access",
       "validity": "From {from} until {until}",
-      "organizationEditHint": "Only firms this consultant is registered under are listed."
+      "organizationEditHint": "Only firms this consultant is registered under are listed.",
+      "modulesTitle": "Modules the consultant can use on this project (content limited to this project)",
+      "optionsTitle": "Other permissions",
+      "selectAll": "Select all",
+      "selectNone": "Select none",
+      "noModules": "No module ticked"
     },
     "organization": {
       "activeHelp": "Deactivating the firm immediately stops all of its project access.",
@@ -5428,6 +5567,41 @@
       "ACTIVE": "Active",
       "INVITED": "Invitation pending",
       "SUSPENDED": "Suspended"
+    },
+    "module": {
+      "dashboard": "Dashboard",
+      "projects": "Projects",
+      "fieldTasks": "Site tasks",
+      "materials": "Material management",
+      "progress": "Construction progress",
+      "safety": "Rectification / EHS",
+      "documents": "Document archive",
+      "recordCentre": "Site Record Center",
+      "reports": "Report Center",
+      "notifications": "Notification centre",
+      "conversations": "Conversations"
+    },
+    "moduleHint": {
+      "dashboard": "Home page, showing only the modules ticked below",
+      "projects": "Project basics (no staff phone numbers, emails or permissions)",
+      "fieldTasks": "Only tasks sent to the consultant to check, or that he took part in",
+      "materials": "Material in, material out, material targets - view only, no amounts",
+      "progress": "Progress updates, daily reports, rain records, schedule - view only, may add remarks",
+      "safety": "Sees rectifications and work permits; may raise a rectification and follow up his own",
+      "documents": "This project's confirmed and archived files - view and download",
+      "recordCentre": "Records of the modules ticked above - view only",
+      "reports": "Reports of the modules ticked above",
+      "notifications": "Notifications sent to him on this project",
+      "conversations": "Conversations he takes part in"
+    },
+    "option": {
+      "approvalView": "Consultant applications: view",
+      "approvalReview": "Consultant applications: approve (sign off)",
+      "export": "Export"
+    },
+    "optionHint": {
+      "approvalReview": "Ticking this also ticks \"view\"",
+      "export": "Reports and each module's lists can be exported"
     }
   },
   "consultantDashboard": {
@@ -6201,7 +6375,9 @@
       "pdfFailed": "The PDF could not be drawn. Try again.",
       "openPdf": "Open PDF",
       "close": "Close"
-    }
+    },
+    "backToSettings": "Back to consultant settings",
+    "backToDashboard": "Back to consultant dashboard"
   },
   "contractorDashboard": {
     "activity": {
@@ -8931,6 +9107,7 @@
       "invoice_already_invoiced": "This period already has its invoice, so there is nothing more to bill. Look for this company's invoice in the invoice list.",
       "invoice_no_billable_settlements": "No issued settlement in this period is waiting to be billed, so there is no commission to charge yet. Generate again once settlements are issued.",
       "invoice_nothing_to_charge": "The amount for this period comes to zero, so no invoice was made. If that is wrong, check this company's package fees or commission rule.",
+      "invoice_in_trial": "This company is on a free trial (until {date}) and has not been renewed, so no invoice was made. A trial is free; the first bill comes after you press Extend or renew in Subscriptions and the paid term starts.",
       "invoice_no_plan": "This company has no package, so no subscription invoice can be made. Choose a package for it in Company subscriptions first.",
       "invoice_not_draft": "Only a draft invoice can be issued. This one has already been issued; refresh the list to see where it stands.",
       "invoice_already_closed": "This invoice is already closed. Refresh the list to see where it stands.",
@@ -9255,6 +9432,10 @@
       "rain_void_reason_required": "Write why the record is voided.",
       "rain_record_already_voided": "This rain record is already voided; it cannot be voided again.",
       "rain_rules_out_of_range": "The number of records must be 1 to 50, and the minutes 5 to 1440.",
+      "platform_maintenance": "MSE Trace is under maintenance, so it cannot be used right now. When the maintenance is over it opens again by itself; there is no need to sign in again.",
+      "client_update_required": "The system has been updated. Press Reload to switch to the new version, then carry on.",
+      "version_min_invalid": "Enter the minimum supported version as a version number such as 1.2.0, no higher than this release's own number ({version}). Otherwise every customer would be locked out.",
+      "maintenance_permission_required": "Only someone with the permission “Put the platform into maintenance” can change the maintenance settings. Ask an MSE system administrator.",
       "consultant_workflow_last_active": "This is the project's only approval workflow, so it cannot be switched off. To change the route, add another workflow first and make it the default.",
       "consultant_required_fields_missing": "Required fields still empty on the form ({count}): {fields}. Fill them in, then carry on.",
       "consultant_required_attachments_missing": "Required attachments not added yet: {count}. Fill every required box under Attachments, then carry on.",
@@ -9299,7 +9480,17 @@
       "hazard_not_awaiting_check": "Someone has already dealt with this item, so it is no longer waiting to be checked. Refresh the page to see where it is now.",
       "hazard_confirmed_by_other": "{incident_no} is checked or returned by the person who confirms it {confirmer}. You can read it but not act on it; contact them if needed.",
       "visitor_host_required": "Choose who the visitor is here to see, then press confirm.",
-      "visitor_host_not_on_project": "That person does not work on this project. Choose someone from this project in the list."
+      "visitor_host_not_on_project": "That person does not work on this project. Choose someone from this project in the list.",
+      "commission_disabled": "Platform commission is switched off in System Settings, so no commission bill can be made.",
+      "site_limit_reached": "Your package allows {limit} yard(s) and you already have {used}, so another one cannot be added. To add more, please contact MSE.",
+      "scale_limit_reached": "This recycler's package allows {limit} weighbridge(s) in use and it already has {used}, so another one cannot be added or switched back on. Raise its custom weighbridge limit on the company page first.",
+      "external_integration_not_in_plan": "This company's package does not include connections to outside systems (ERP, accounting, MyInvois, webhook, API), so this kind of connection cannot be added or switched on. To get it, please contact MSE to change the package.",
+      "ai_cctv_disabled": "AI CCTV is switched off for this recycler, so the photo was not kept.",
+      "archive_lock_choice_invalid": "Choose on or off.",
+      "consultant_read_only": "A consultant account can only view this, not change it.",
+      "consultant_module_not_granted": "Head office has not opened this module to you on this project. Ask head office if you need it.",
+      "consultant_no_permit": "A work permit is applied for by the contractor, not a consultant. You can raise a rectification instead.",
+      "consultant_export_not_granted": "Head office has not given you Export on this project, so you cannot export or send. You can preview and print."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -11151,7 +11342,9 @@
       "projects": "the project list",
       "sites": "the recycling site list",
       "scales": "the weighbridge list"
-    }
+    },
+    "outsidePlan": "Not in the package: this connection keeps running, but once switched off it cannot be switched on again.",
+    "outsidePlanCannotEnable": "This company's package does not include outside-system connections, so it cannot be switched on. Contact MSE to change the package."
   },
   "loginRecords": {
     "count": "{count, plural, =0 {No attempts} one {# attempt} other {# attempts}}",
@@ -13075,7 +13268,9 @@
       "stalled": "The upload got stuck and was stopped; it will try again by itself",
       "signedOut": "Your sign-in has expired. Sign out and sign in again; it uploads after that",
       "server": "The server had a problem ({status}); it will try again by itself",
-      "unknown": "The upload did not go through; it will try again by itself"
+      "unknown": "The upload did not go through; it will try again by itself",
+      "maintenance": "The system is under maintenance; it uploads by itself when the maintenance is over",
+      "updateRequired": "The system has been updated: press Reload, then it uploads by itself"
     },
     "waiting": {
       "title": "Records waiting to upload",
@@ -13635,6 +13830,20 @@
       "need": "Change a section, then press that section's own Save.",
       "then": "The name and logo are printed on reports, QR records and project files; the emergency contact shows on the emergency list and on the gate guard's phone.",
       "trouble": "Permissions, QR rules, notifications, GPS, security and record keeping are managed by MSE and cannot be changed here; contact MSE to change them."
+    },
+    "permits": {
+      "what": "Permits to work: upload your company's own permit form (Word, PDF or a photo) and send it to a named safety manager, who signs to approve it or returns it; an approved permit is archived. Every permit can be found again by project, approval status, applicant and date, and its files previewed, printed or downloaded.",
+      "who": "People with “View hazards / EHS and permits to work” can read and download; with “Report and assign hazards, apply for permits to work” they apply with “New application”. Approving needs “Safety verification (can approve permits to work)” and is done by the safety manager the applicant chose, or a company administrator. Nobody approves their own permit.",
+      "need": "A new application needs the project, the permit files (Word, PDF or photos of the form; several pages, at most 10 at a time) and the approving safety manager; a remark is optional. Approving needs a signature; returning needs the reason.",
+      "then": "The chosen safety manager (and the company administrators) get a to-do notice. Once approved, the original files, the decision, the signature, the approver's position and the time are archived together and can no longer change. A returned permit is corrected by the applicant and resubmitted with new files; the earlier files are kept. The applicant is told either way.",
+      "trouble": "If no safety manager can be chosen, nobody on this project can approve permits yet: the approver's role needs “Safety verification” and “View projects”, and the person must be on this project's staff list. The “New application” window lists these three steps."
+    },
+    "billing_customer": {
+      "what": "The bills MSE sends your company: the SaaS subscription and, on the partnership plan, the platform commission. Each shows its period, the amount, what has been paid and what is still owed.",
+      "who": "People with “View billing” can read the bills; with “Upload payment slips” they can record a payment and upload the bank slip.",
+      "need": "Recording a payment needs the invoice, the amount, the date paid and how it was paid; the reference, slip and notes are optional. With the bank slip attached MSE can check it sooner.",
+      "then": "A recorded payment is “Pending review” until MSE checks it and confirms or rejects it; only a confirmed payment counts against the bill.",
+      "trouble": "If an amount on a bill looks wrong, contact MSE directly."
     }
   },
   "partners": {
@@ -15105,14 +15314,15 @@
     },
     "business": {
       "anpr": "ANPR",
-      "anprHelp": "Use number plate authorization when platform hardware is connected.",
+      "anprHelp": "On: a plate that matches an order is let onto the weighbridge. Off: no plate lets a lorry on; scan the QR or enter it by hand as usual.",
       "cctv": "AI CCTV",
-      "cctvHelp": "Use AI CCTV evidence when platform hardware is connected.",
+      "cctvHelp": "On: weighbridge tickets take the CCTV photos and clips. Off: they are refused and not kept.",
       "deduction": "Both-party deduction confirmation above (kg)",
       "deviceCount": "{count} bound",
       "hardwareOwner": "Only the MSE platform administrator can bind or change weighbridges, gateways, CCTV and ANPR devices.",
       "help": "Simple company rules. Hardware remains under platform administrator control.",
-      "title": "Business controls"
+      "title": "Business controls",
+      "noDevice": "No device is bound yet, so switching it on changes nothing."
     },
     "commission": {
       "basis": "Basis",
@@ -17626,7 +17836,8 @@
     },
     "fee": {
       "monthly": "per month",
-      "once": "once"
+      "once": "once",
+      "perBill": "({cycle}: one bill every {months} months, {currency} {amount})"
     },
     "field": {
       "userLimitMin": "The seat limit has to be at least 1.",
@@ -17678,11 +17889,24 @@
     },
     "hint": {
       "effectiveImmediately": "Off keeps the company's existing paid-to date.",
-      "features": "Comma-separated feature keys enabled by this plan.",
+      "features": "Leave all unticked = every feature, as today. Tick some and companies on this plan see and use only those. The greyed ones are always there.",
+      "weighingNeedsCwe": "This plan does not include the Cloud Weighing Engine, so Weighbridges and Weighing records stay out of the recycler's menu even when ticked.",
       "partnerServiceFee": "Partner plans charge this once, then use commission only. Monthly and yearly fees stay at zero.",
       "planDefault": "Use plan allowance",
       "seatOverride": "Leave blank to use the allowance defined by the plan.",
-      "terminate": "This immediately expires the subscription, blocks tenant access and revokes active sessions."
+      "terminate": "This immediately expires the subscription, blocks tenant access and revokes active sessions.",
+      "billingCycle": "New companies, plan changes and renewals default to this many months: monthly 1, quarterly 3, half-yearly 6, yearly 12.",
+      "trialDays": "A new company on this plan first gets this many free days: no bill during the trial; billing starts only when you press Extend or renew in Subscriptions. 0 = no trial.",
+      "maxSites": "How many yards a recycler may have. Empty = no limit. Existing yards are not affected; only adding another is stopped.",
+      "maxScales": "How many weighbridges in use a recycler may have. Empty = no limit. Existing weighbridges keep working; only adding another is stopped.",
+      "contractorNoSiteLimit": "Contractors have no yards or weighbridges; leave this empty.",
+      "externalIntegration": "On: the recycler can connect its own ERP, accounting, MyInvois or webhook. Off: such connections cannot be added or switched on; ones already on keep running.",
+      "publicPlan": "Off: this plan is not offered when adding a company or changing plan; companies already on it keep it.",
+      "defaultsFrom": "Billing cycle, trial days and account limit are filled in from the SaaS defaults in System Settings; change them as needed.",
+      "trialPlanChange": "This company is on its free trial (until {date}). Changing plan changes only the plan; the trial dates stay. Press Extend or renew to start billing.",
+      "trialRenew": "This company is on its free trial (until {date}). After renewal the paid term starts on {start} and billing starts.",
+      "lapsedRenew": "This company's subscription has ended. The renewal counts from today; the time it was stopped is not charged.",
+      "cycleDefault": "The plan's billing cycle: {months} month(s) by default."
     },
     "metric": {
       "active": "Active",
@@ -17704,7 +17928,11 @@
       "create": "Create plan",
       "edit": "Edit plan",
       "empty": "No subscription plans found.",
-      "formDescription": "Prices, allowances and entitlements take effect for companies assigned to this plan."
+      "formDescription": "Prices, allowances and entitlements take effect for companies assigned to this plan.",
+      "allowanceSummaryRecycler": "{users} accounts, {sites} yards, {scales} weighbridges",
+      "featuresAll": "All features",
+      "featuresCount": "{count} features",
+      "legacyFeatures": "Typed earlier, not recognised: {keys} (kept, no effect)"
     },
     "renewals": {
       "count": "{count} subscriptions require attention",
@@ -17779,7 +18007,19 @@
     },
     "what": {
       "summary": "The subscription summary",
-      "plans": "The plan list"
+      "plans": "The plan list",
+      "planDefaults": "The plan defaults"
+    },
+    "badge": {
+      "hidden": "Hidden",
+      "default": "Default",
+      "trialDays": "{days}-day trial",
+      "trialUntil": "Trial until {date}"
+    },
+    "featureName": {
+      "gate_records": "Gate records",
+      "field_staff": "Field staff",
+      "site_workers": "Site workers"
     }
   },
   "suppliers": {
@@ -18507,7 +18747,11 @@
       "created": "Version created",
       "setCurrent": "Current version updated",
       "updated": "Version updated"
-    }
+    },
+    "thisComputer": "This computer is running v{version}",
+    "thisComputerHelp": "Every customer page reports its version. With Force Update on, a page older than the minimum supported version is asked to reload; MSE staff are never held back.",
+    "minSupportedHelp": "A version number such as 1.2.0, no higher than {version}. Leave it blank to hold nobody back.",
+    "forceUpdateHelp": "On: customer pages older than the minimum supported version must press Reload before they can carry on. MSE staff are not affected. This computer runs v{version}."
   },
   "wasteOutgoing": {
     "action": {
@@ -20855,6 +21099,16 @@
       "allAssignees": "All assignees",
       "dateFrom": "Start date",
       "dateTo": "End date"
+    },
+    "consultantReview": {
+      "open": "Accept / return",
+      "hint": "Accept: the task is done. Return: say why, and the task goes back to the contractor to redo.",
+      "accept": "Accept",
+      "return": "Return",
+      "reason": "Reason for returning",
+      "reasonHint": "Say what is not right and what to change. The contractor sees it on the task.",
+      "confirmReturn": "Return the task",
+      "cancel": "Cancel"
     }
   },
   "mapFrame": {
@@ -21699,7 +21953,17 @@
     },
     "packageThread": "Package · {name}",
     "packageKind": "Package",
-    "packageGone": "This package conversation cannot be found, or you may not see it."
+    "packageGone": "This package conversation cannot be found, or you may not see it.",
+    "consultant": {
+      "subtitle": "Conversations on this project sent to you or that you took part in: packages, consultant applications, site tasks and rectifications.",
+      "empty": "No conversation of yours on this project yet.",
+      "kind": {
+        "FIELD_TASK": "Site task",
+        "CONSULTANT_APPLICATION": "Consultant application",
+        "HAZARD": "Rectification",
+        "PACKAGE": "Package"
+      }
+    }
   },
   "photoWall": {
     "hint": "Click a photo to enlarge it and page left or right; double-click it to open its full record.",
@@ -22019,6 +22283,41 @@
       "label": "Remarks for this month",
       "placeholder": "For example: work stopped for 5 days this month because of rain.",
       "hint": "Printed on this month's report PDF."
+    }
+  },
+  "platformStatus": {
+    "contact": {
+      "title": "Contact MSE",
+      "phone": "Phone",
+      "email": "Email",
+      "website": "Website"
+    },
+    "maintenance": {
+      "bannerActive": "System maintenance in progress: {window}.",
+      "bannerUpcoming": "System maintenance planned: {window}.",
+      "customerNote": "During maintenance nobody can sign in or use the system. Afterwards it works as before, without signing in again.",
+      "staffNote": "Customers cannot sign in or use the system during it; MSE staff carry on as usual.",
+      "window": {
+        "between": "from {starts} to {ends}",
+        "from": "from {starts}; MSE will say when it ends",
+        "until": "until about {ends}",
+        "open": "MSE will say when it ends",
+        "stopped": "the system is paused; MSE will say when it is back"
+      }
+    },
+    "gate": {
+      "maintenanceTitle": "System maintenance",
+      "maintenanceBody": "The system cannot be used right now. When the maintenance is over this page opens again by itself, with no need to sign in again.",
+      "nothingLost": "You are still signed in. Records not yet uploaded stay on this phone or computer and go up afterwards.",
+      "tryAgain": "Try again",
+      "updateTitle": "The system has been updated",
+      "updateBody": "Press Reload to switch to the new version, then carry on as before.",
+      "updateStillOld": "If this screen comes back after reloading, the new version is still being put out. Wait a few minutes and press Reload again.",
+      "reload": "Reload"
+    },
+    "issuer": {
+      "title": "Issued by",
+      "registrationNo": "Company registration no.: {number}"
     }
   },
   "pagedList": {

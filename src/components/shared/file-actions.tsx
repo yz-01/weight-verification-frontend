@@ -69,6 +69,7 @@ import {
   watchReturn,
 } from "@/components/shared/send-recipient";
 import { SendStates } from "@/components/shared/send-states";
+import { useMayExport } from "@/hooks/use-may-export";
 import { ApiError } from "@/interfaces/api";
 import type { FileActionType, FileShare, FileShareChannel, SendRecipient, ShareLink } from "@/interfaces/file-action";
 import {
@@ -144,6 +145,11 @@ export interface FileSource {
    * preview fetches it again, so it is kept and the log row points at it.
    */
   exportedOnServer?: boolean;
+  /**
+   * A consultant's own 顾问申请 / 资料包 work (JB210): exported and sent as
+   * before, 「导出」 ticked or not (`useMayExport`).
+   */
+  ownWork?: boolean;
 }
 
 /** Share2, not Send: 「发送给顾问」 and other formal sends already use Send. */
@@ -159,6 +165,8 @@ interface Held {
   title: string;
   link?: string;
   allowSave: boolean;
+  /** 发送 offered (JB210: not to a consultant without 「导出」). */
+  allowShare?: boolean;
   /** Where the file came from: fetched again, and named in the log (JB27). */
   source: FileSource;
   /** JB25: why print / export / send are off; only the preview works. */
@@ -206,6 +214,7 @@ export function fileActionDetails(source: FileSource, file: File, title: string)
     record_id: source.recordId,
     link: source.link,
     part: source.part,
+    ...(source.ownWork ? { own_work: true } : {}),
   };
 }
 
@@ -302,7 +311,7 @@ export function useFileActions() {
       let grant: string | null = null;
       if (signs) {
         setBusy(options.key);
-        grant = await authorizeFileAction(type);
+        grant = await authorizeFileAction(type, { ownWork: source.ownWork, recordKind: source.recordKind });
         setBusy(null);
         if (!grant) return;
       }
@@ -368,11 +377,12 @@ export function useFileActions() {
     async (
       action: FileAction,
       source: FileSource,
-      options: { key?: string; allowSave?: boolean; blockedReason?: string } = {},
+      options: { key?: string; allowSave?: boolean; allowShare?: boolean; blockedReason?: string } = {},
     ) => {
       if (busy) return;
       const key = options.key ?? action;
       const allowSave = options.allowSave ?? true;
+      const allowShare = options.allowShare ?? true;
       // JB25: not yet confirmed - looked at, never taken out.
       if (options.blockedReason && action !== "preview") return;
       if (action !== "preview") {
@@ -390,6 +400,7 @@ export function useFileActions() {
         title: source.title || file.name.replace(/\.[^.]+$/, ""),
         link: source.link,
         allowSave,
+        allowShare,
         source,
         blockedReason: options.blockedReason,
       });
@@ -433,9 +444,19 @@ export function useFileActions() {
 }
 
 /** The four, in their one order. Printing is for PDFs only. */
-export function fileActionsFor(format: "pdf" | "sheet", allowSave = true): FileAction[] {
+export function fileActionsFor(format: "pdf" | "sheet", allowSave = true, allowShare = true): FileAction[] {
   const all: FileAction[] = format === "pdf" ? ["preview", "print", "save", "share"] : ["preview", "save", "share"];
-  return allowSave ? all : all.filter((action) => action !== "save");
+  return all.filter((action) => (action !== "save" || allowSave) && (action !== "share" || allowShare));
+}
+
+/**
+ * 导出 and 发送 for this file, by who is looking (JB210, walk 11-17 F-A4): a
+ * consultant without 「导出」 previews and prints only, except on his own
+ * 顾问申请 / 资料包 work. Everyone else keeps the caller's `allowSave`.
+ */
+function useTakeOut(allowSave: boolean, ownWork: boolean | undefined) {
+  const mayExport = useMayExport() || Boolean(ownWork);
+  return { allowSave: allowSave && mayExport, allowShare: mayExport };
 }
 
 /**
@@ -452,10 +473,13 @@ export function FileActionButtons({
   labelHint,
   blockedReason,
   omit,
+  ownWork,
 }: {
   source: FileSource;
   /** False where the person may look at the file but not export it. */
   allowSave?: boolean;
+  /** A consultant's own 顾问申请 / 资料包 work (JB210): `useTakeOut`. */
+  ownWork?: boolean;
   /**
    * Actions drawn by the caller instead: an evidence package's 「发送」 is its
    * own 「对外分享（WhatsApp / 电邮）」, which writes the share down (JB51).
@@ -479,6 +503,8 @@ export function FileActionButtons({
 }) {
   const t = useTranslations("fileActions");
   const { busy, run, element } = useFileActions();
+  const takeOut = useTakeOut(allowSave, ownWork);
+  const held = { ...source, ownWork: source.ownWork ?? ownWork };
   return (
     <>
       <div className={cn("contents", className)} data-slot="file-actions">
@@ -492,7 +518,7 @@ export function FileActionButtons({
             {label}
           </span>
         ) : null}
-        {fileActionsFor("pdf", allowSave).filter((action) => !omit?.includes(action)).map((action) => {
+        {fileActionsFor("pdf", takeOut.allowSave, takeOut.allowShare).filter((action) => !omit?.includes(action)).map((action) => {
           const Icon = FILE_ACTION_ICONS[action];
           return (
             <Button
@@ -512,7 +538,7 @@ export function FileActionButtons({
                       : undefined
               }
               title={action === "share" ? t("shareHint") : undefined}
-              onClick={() => void run(action, source, { allowSave, blockedReason })}
+              onClick={() => void run(action, held, { ...takeOut, blockedReason })}
             >
               {busy === action ? <Loader2 className="size-3.5 animate-spin" /> : <Icon className="size-3.5" />}
               {t(action)}
@@ -537,6 +563,7 @@ export function FileActionMenu({
   labelHint,
   allowSave = true,
   blockedReason,
+  ownWork,
 }: {
   source: FileSource;
   /** What the file is, on the button. */
@@ -545,9 +572,13 @@ export function FileActionMenu({
   allowSave?: boolean;
   /** JB25: as `FileActionButtons` - preview only, with this reason. */
   blockedReason?: string;
+  /** A consultant's own 顾问申请 / 资料包 work (JB210): `useTakeOut`. */
+  ownWork?: boolean;
 }) {
   const t = useTranslations("fileActions");
   const { busy, run, element } = useFileActions();
+  const takeOut = useTakeOut(allowSave, ownWork);
+  const held = { ...source, ownWork: source.ownWork ?? ownWork };
   return (
     <>
       <DropdownMenu>
@@ -567,7 +598,7 @@ export function FileActionMenu({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-auto">
-          {fileActionsFor("pdf", allowSave).map((action) => {
+          {fileActionsFor("pdf", takeOut.allowSave, takeOut.allowShare).map((action) => {
             const Icon = FILE_ACTION_ICONS[action];
             return (
               <DropdownMenuItem
@@ -575,7 +606,7 @@ export function FileActionMenu({
                 data-slot={`file-action-${action}`}
                 disabled={Boolean(blockedReason) && action !== "preview"}
                 title={blockedReason && action !== "preview" ? blockedReason : undefined}
-                onSelect={() => void run(action, source, { allowSave, blockedReason })}
+                onSelect={() => void run(action, held, { ...takeOut, blockedReason })}
               >
                 <Icon className="size-3.5" />
                 {t(action)}
@@ -605,7 +636,7 @@ function FileViewerDialog({
   const t = useTranslations("fileActions");
   const format = fileFormat(held.file);
   const url = useObjectUrl(held.file);
-  const actions = fileActionsFor(format === "pdf" ? "pdf" : "sheet", held.allowSave).filter(
+  const actions = fileActionsFor(format === "pdf" ? "pdf" : "sheet", held.allowSave, held.allowShare ?? true).filter(
     (action) => action !== "preview",
   );
   return (

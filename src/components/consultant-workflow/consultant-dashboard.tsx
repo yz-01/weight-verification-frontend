@@ -52,6 +52,9 @@ export function ConsultantDashboard() {
     enabled: !needsProject || Boolean(project),
     refetchInterval: 30_000,
   });
+  // 通知中心 is a module head office ticks per project (JB210, 客户 11-16): no
+  // tick, no notices here either - the server would refuse them.
+  const readsNotices = can("notification.view");
   const notifications = useQuery({
     queryKey: ["consultant-dashboard", "notifications"],
     queryFn: () => getNotifications({
@@ -59,6 +62,7 @@ export function ConsultantDashboard() {
         sort_by: "created_at",
         sort_order: "desc",
       }),
+    enabled: readsNotices,
     refetchInterval: 30_000,
   });
 
@@ -169,7 +173,7 @@ export function ConsultantDashboard() {
               empty={t("due.empty")}
               showDue
             />
-            <section className="surface-panel rounded-xl p-4 sm:p-6">
+            {readsNotices && <section className="surface-panel rounded-xl p-4 sm:p-6">
               <div className="flex items-start justify-between gap-3 border-b pb-3">
                 <div>
                   <h2 className="panel-title">{t("notifications.title")}</h2>
@@ -200,7 +204,7 @@ export function ConsultantDashboard() {
                   ))}
                 </div>
               )}
-            </section>
+            </section>}
           </div>          {/*
             The four-step overview, now below the pending work. It explains the
             lifecycle rather than asking for anything, which is why it lost the

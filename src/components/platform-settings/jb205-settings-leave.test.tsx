@@ -85,9 +85,14 @@ describe("a row with an edit not saved holds the page", () => {
   const source = read("src/components/platform-settings/system-settings-workspace.tsx");
 
   it("each row says when it has one, and only an edit it could save", () => {
+    // JB212: a row with an editor (ticks, one number) holds its value as the
+    // editor shows it, so "changed" compares with the saved value read the
+    // same way; a row without an editor reads its saved value unchanged.
     expect(source).toMatch(
-      /useUnsavedRow\(\n\s+`\$\{company \?\? ""\}:\$\{row\.key\}`,\n\s+!row\.is_readonly && can\("platform_settings\.manage"\) && value !== row\.value,\n\s+\);/,
+      /useUnsavedRow\(\n\s+`\$\{company \?\? ""\}:\$\{row\.key\}`,\n\s+!row\.is_readonly && can\("platform_settings\.manage"\) && value !== initial,\n\s+\);/,
     );
+    expect(source).toContain("const initial = editorValue(editor, row.value);");
+    expect(source).toMatch(/function editorValue\([^)]*\): string \{[\s\S]*?\n  return stored;\n\}/);
   });
 
   it("the settings page asks before leaving: browser and in-app links", () => {

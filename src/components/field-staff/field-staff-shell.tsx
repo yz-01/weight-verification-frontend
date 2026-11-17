@@ -22,6 +22,7 @@ import { FieldAlertsHint } from "@/components/field-staff/field-alerts-hint";
 import { FieldInstallBanner } from "@/components/field-staff/field-install-banner";
 import { FieldManifestToken } from "@/components/field-staff/field-manifest-token";
 import { FieldWorkspaceAddress } from "@/components/field-staff/field-workspace-address";
+import { MaintenanceBanner } from "@/components/platform-status/maintenance-banner";
 import { canUseRealtime, useOrderRealtime } from "@/hooks/use-order-realtime";
 import { usePhoneOffline } from "@/hooks/use-phone-offline";
 
@@ -126,7 +127,11 @@ export function FieldStaffShell({ children }: { children: React.ReactNode }) {
       <FieldInstallBanner />
       {/* Sound and the icon's number: what this phone still needs (JB36). */}
       <FieldAlertsHint />
-      <main className="mx-auto min-w-0 w-full max-w-2xl px-4 py-5">{children}</main>
+      <main className="mx-auto min-w-0 w-full max-w-2xl px-4 py-5">
+        {/* 系统维护 coming or under way (JB211). */}
+        <MaintenanceBanner className="mb-4 rounded-lg" />
+        {children}
+      </main>
     </div>
   );
 }

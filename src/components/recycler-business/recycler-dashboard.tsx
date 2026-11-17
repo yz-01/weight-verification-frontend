@@ -47,6 +47,7 @@ import type {
 } from "@/interfaces/recycler-dashboard";
 import { useDateFormat } from "@/lib/dates";
 import { MAP_COLORS, MAP_PRIMARY } from "@/lib/map-palette";
+import { isRouteAllowed } from "@/lib/navigation";
 import { getRecyclerDashboard } from "@/services/recycler-dashboard.service";
 import {
   Select,
@@ -90,7 +91,20 @@ export function RecyclerDashboard({ features }: { features: string[] }) {
   const format = useFormatter();
   const df = useDateFormat();
   const [site, setSite] = useState(ALL_YARDS);
-  const { canAny } = useAuth();
+  const { canAny, user } = useAuth();
+  // A to-do row, tile or list that opens a page leaves the dashboard with
+  // that page: the same test the menu and the route guard make, so a
+  // package with a narrowed 功能 list (JB213) or a weighbridge menu hidden by
+  // 云端称重 shows no way into what it hides (walk 11-17). With every menu
+  // open, every link passes, as before.
+  const opens = (href: string) =>
+    isRouteAllowed(
+      "MSE_SCRAP",
+      features,
+      href.split("?", 1)[0],
+      user?.permissions ?? [],
+      user?.is_superuser ?? false,
+    );
   // The yard list only feeds the 回收场 filter. A role that may not read it
   // got 「无法载入回收场列表…」 + 「你没有权限做这件事。」 on every visit (JB207W,
   // walk 11-17): ask only when the reader may; the others see the whole
@@ -234,8 +248,8 @@ export function RecyclerDashboard({ features }: { features: string[] }) {
         </FilterBar>
       )}
       <QueryFailedNote query={yards} what={t("recyclerBusiness.what.yards")} />
-      <PendingActions data={data} number={number} />
-      {data.business_today && (
+      <PendingActions data={data} number={number} opens={opens} />
+      {data.business_today && opens("/waste-orders") && (
         <section
           data-dashboard-overview
           className="space-y-3"
@@ -293,7 +307,12 @@ export function RecyclerDashboard({ features }: { features: string[] }) {
         </section>
       )}
 
-      <RecyclerDriverMap />
+      {/* Its two requests need 司机任务's permission: asked only when a
+          driver menu is open, or a narrowed package met a red 「你没有权限做这件
+          事。」 on every visit (walk 11-17). */}
+      {(features.includes("driver_tasks") || features.includes("driver_gps")) && (
+        <RecyclerDriverMap />
+      )}
 
       <div className="grid gap-8 xl:grid-cols-3">
         {data.recovery_today && (
@@ -516,7 +535,7 @@ export function RecyclerDashboard({ features }: { features: string[] }) {
       )}
 
       <LatestNotifications notifications={data.notifications} />
-      <RecentBusiness data={data} money={money} weight={weight} />
+      <RecentBusiness data={data} money={money} weight={weight} opens={opens} />
     </div>
   );
 }
@@ -729,9 +748,12 @@ function MetricBand({
 function PendingActions({
   data,
   number,
+  opens,
 }: {
   data: RecyclerDashboardData;
   number: (value: number) => string;
+  /** Whether the row's page is open to the reader (the menu's own test). */
+  opens: (href: string) => boolean;
 }) {
   const t = useTranslations();
   const rows = [
@@ -795,7 +817,9 @@ function PendingActions({
           value: data.pending.open_commission_invoices,
           href: "/billing",
         },
-  ].filter((row): row is NonNullable<typeof row> => row !== null);
+  ].filter(
+    (row): row is NonNullable<typeof row> => row !== null && opens(row.href),
+  );
 
   if (rows.length === 0) return null;
 
@@ -998,10 +1022,13 @@ function RecentBusiness({
   data,
   money,
   weight,
+  opens,
 }: {
   data: RecyclerDashboardData;
   money: (value: string | number, currency?: string) => string;
   weight: (value: string | number) => string;
+  /** Whether a group's page is open to the reader (the menu's own test). */
+  opens: (href: string) => boolean;
 }) {
   const t = useTranslations();
   const df = useDateFormat();
@@ -1012,50 +1039,60 @@ function RecentBusiness({
         title={t("reports.transaction.transactions")}
       />
       <div className="grid gap-x-8 gap-y-6 xl:grid-cols-2">
-        <RecentGroup
-          title={t("dashboard.tile.wasteOrders")}
-          href="/waste-orders"
-          empty={t("reports.empty")}
-          rows={data.recent.orders.map((row) =>
-            recentOrder(row, df.dateTime(row.occurred_at), t),
-          )}
-        />
-        <RecentGroup
-          title={t("dashboard.tile.weighingSessions")}
-          href="/weighing"
-          empty={t("reports.empty")}
-          rows={data.recent.recoveries.map((row) =>
-            recentRecovery(row, df.dateTime(row.occurred_at), weight, t),
-          )}
-        />
-        <RecentGroup
-          title={t("recyclerBusiness.outbound.title")}
-          href="/recycler-outbound"
-          empty={t("reports.empty")}
-          rows={data.recent.outbound.map((row) =>
-            recentOutbound(row, df.dateTime(row.occurred_at), weight, t),
-          )}
-        />
-        <RecentGroup
-          title={t("billing.field.invoices")}
-          href="/billing"
-          empty={t("reports.empty")}
-          rows={data.recent.invoices.map((row) => recentInvoice(row, money, t))}
-        />
-        <RecentGroup
-          title={t("dashboard.admin.notifications.title")}
-          href="/notifications"
-          empty={t("dashboard.admin.notifications.empty")}
-          rows={data.recent.notifications.map((row) => ({
-            id: row.id,
-            href: row.href,
-            primary: row.title,
-            secondary: df.dateTime(row.created_at),
-            value: "",
-            status: "",
-            tone: "neutral" as const,
-          }))}
-        />
+        {opens("/waste-orders") && (
+          <RecentGroup
+            title={t("dashboard.tile.wasteOrders")}
+            href="/waste-orders"
+            empty={t("reports.empty")}
+            rows={data.recent.orders.map((row) =>
+              recentOrder(row, df.dateTime(row.occurred_at), t),
+            )}
+          />
+        )}
+        {opens("/weighing") && (
+          <RecentGroup
+            title={t("dashboard.tile.weighingSessions")}
+            href="/weighing"
+            empty={t("reports.empty")}
+            rows={data.recent.recoveries.map((row) =>
+              recentRecovery(row, df.dateTime(row.occurred_at), weight, t),
+            )}
+          />
+        )}
+        {opens("/recycler-outbound") && (
+          <RecentGroup
+            title={t("recyclerBusiness.outbound.title")}
+            href="/recycler-outbound"
+            empty={t("reports.empty")}
+            rows={data.recent.outbound.map((row) =>
+              recentOutbound(row, df.dateTime(row.occurred_at), weight, t),
+            )}
+          />
+        )}
+        {opens("/billing") && (
+          <RecentGroup
+            title={t("billing.field.invoices")}
+            href="/billing"
+            empty={t("reports.empty")}
+            rows={data.recent.invoices.map((row) => recentInvoice(row, money, t))}
+          />
+        )}
+        {opens("/notifications") && (
+          <RecentGroup
+            title={t("dashboard.admin.notifications.title")}
+            href="/notifications"
+            empty={t("dashboard.admin.notifications.empty")}
+            rows={data.recent.notifications.map((row) => ({
+              id: row.id,
+              href: row.href,
+              primary: row.title,
+              secondary: df.dateTime(row.created_at),
+              value: "",
+              status: "",
+              tone: "neutral" as const,
+            }))}
+          />
+        )}
       </div>
     </section>
   );

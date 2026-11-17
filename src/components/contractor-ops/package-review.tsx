@@ -75,6 +75,8 @@ export function PackageReviewWorkspace() {
         action={
           /* The queue as a file (H16): this consultant's own state and returns. */
           <ExportButton
+            // His own 顾问申请 / 资料包 work: as before, 「导出」 or not (JB210).
+            ownWork
             disabled={rows.length === 0}
             disabledReason={t("reviewEmpty")}
             title={t("reviewTitle")}
@@ -226,6 +228,8 @@ function ReviewSheet({ id, onClose }: { id: string; onClose: () => void }) {
             {data.remarks && <p className="text-sm">{data.remarks}</p>}
             <div className="flex flex-wrap gap-2">
               <FileActionButtons
+                // His own 顾问申请 / 资料包 work: as before, 「导出」 or not (JB210).
+                ownWork
                 allowSave
                 source={{
                   load: () => reviewPackageFile(id, data.package_no || data.name, true),
@@ -285,6 +289,8 @@ function ReviewSheet({ id, onClose }: { id: string; onClose: () => void }) {
                         />
                       </div>
                       <FileActionButtons
+                        // His own 顾问申请 / 资料包 work: as before, 「导出」 or not (JB210).
+                        ownWork
                         allowSave
                         source={{
                           load: () => reviewPackageItemFile(id, item.id, item.reference, true),

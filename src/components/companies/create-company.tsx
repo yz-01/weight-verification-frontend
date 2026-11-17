@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { OwnerAccountPanel } from "@/components/companies/owner-account-panel";
@@ -41,14 +41,67 @@ import type {
   CompanyPayload,
   CompanyType,
 } from "@/interfaces/company";
+import { localToday } from "@/lib/local-date";
 import { MALAYSIA_STATES } from "@/lib/malaysia";
+import {
+  cycleBill,
+  cycleMonths,
+  defaultPlanId,
+  pickerPlans,
+  trialEndsOn,
+} from "@/lib/plan-terms";
 import {
   createCompanyBankAccount,
   createCompany,
-  getSubscriptionPlans,
+  getPlanPickerOptions,
   uploadCompanyDocument,
   updateCompany,
 } from "@/services/companies.service";
+
+/** Blank, or a whole number from 0: the trial's days (0 skips it). */
+function optionalWholeNumber(message: string) {
+  return ({ value }: { value: string }) =>
+    value.trim() === "" || /^\d+$/.test(value.trim()) ? undefined : message;
+}
+
+/** Blank becomes null (the package's own limit), anything else a number. */
+function limitOrNull(raw: string): number | null {
+  return raw.trim() === "" ? null : Number(raw);
+}
+
+/**
+ * 新增公司 starts from the 11.2.2 默认配套 and the package's 付款周期
+ * (JB213, Lucas 11-16 「把它们真的做出来」). Renders nothing: it only fills
+ * the plan when none is chosen yet, and the months each time the package
+ * changes - the operator can still change either afterwards.
+ */
+function PlanDefaults({
+  type,
+  planId,
+  plans,
+  setPlan,
+  setMonths,
+}: {
+  type: CompanyType | "";
+  planId: string;
+  plans: { id: string; audience: CompanyType; is_active: boolean; is_public: boolean; is_default?: boolean; billing_cycle: string }[];
+  setPlan: (id: string) => void;
+  setMonths: (months: number) => void;
+}) {
+  const seenPlan = useRef(planId);
+  useEffect(() => {
+    if (planId) return;
+    const preferred = defaultPlanId(plans, type);
+    if (preferred) setPlan(preferred);
+  }, [planId, plans, type, setPlan]);
+  useEffect(() => {
+    if (planId === seenPlan.current) return;
+    seenPlan.current = planId;
+    const plan = plans.find((candidate) => candidate.id === planId);
+    if (plan) setMonths(cycleMonths(plan.billing_cycle));
+  }, [planId, plans, setMonths]);
+  return null;
+}
 
 const TIMEZONES = [
   "Asia/Kuala_Lumpur",
@@ -100,9 +153,11 @@ export function CreateCompany({
     currency: "MYR",
     is_primary: true,
   });
+  // The picker lists what 「在套餐选择中显示」 allows, plus the package this
+  // company is already on even if hidden or stopped (JB213, 4g).
   const plansQuery = useQuery({
-    queryKey: ["subscription-plans", "active"],
-    queryFn: () => getSubscriptionPlans(),
+    queryKey: ["subscription-plans", "picker", company?.plan ?? ""],
+    queryFn: () => getPlanPickerOptions(company?.plan),
   });
   const plans = plansQuery.data;
   const plansLoading = plansQuery.isLoading;
@@ -191,6 +246,10 @@ export function CreateCompany({
       timezone: company?.timezone ?? "Asia/Kuala_Lumpur",
       plan: company?.plan ?? "",
       project_limit_override: company?.project_limit_override?.toString() ?? "",
+      site_limit_override: company?.site_limit_override?.toString() ?? "",
+      scale_limit_override: company?.scale_limit_override?.toString() ?? "",
+      // Blank = the package's 试用天数 (JB213); create only.
+      trial_days: "",
       subscription_months: company?.subscription_months?.toString() ?? "1",
       subscription_expires_on: company?.subscription_expiry_is_custom
         ? (company.subscription_expires_on ?? "")
@@ -217,13 +276,23 @@ export function CreateCompany({
         // The owner belongs to creation only. On edit the backend refuses
         // these fields outright rather than accepting them and doing nothing,
         // so they are stripped here instead of being sent and rejected.
-        const { owner_name, owner_email, owner_phone, ...companyValues } = value;
+        const {
+          owner_name,
+          owner_email,
+          owner_phone,
+          trial_days,
+          site_limit_override,
+          scale_limit_override,
+          ...companyValues
+        } = value;
         const ownerFields: Partial<CompanyPayload> = isEdit
           ? {}
           : {
               owner_name,
               owner_email,
               owner_phone,
+              // Left out, the package's own 试用天数 (JB213, Q5 = A).
+              trial_days: trial_days.trim() === "" ? undefined : Number(trial_days),
               // Wording comes from the message catalogue so the owner is
               // written to in their own language; the backend only splices in
               // the token, which is the one thing the frontend cannot know.
@@ -285,6 +354,9 @@ export function CreateCompany({
                 ...basePayload,
                 ...subscriptionFields,
                 project_limit_override: undefined,
+                // 场地上限 / 地磅上限 MSE lifts per recycler (JB213).
+                site_limit_override: limitOrNull(site_limit_override),
+                scale_limit_override: limitOrNull(scale_limit_override),
               };
         await mutation.mutateAsync({
           ...payload,
@@ -564,13 +636,35 @@ export function CreateCompany({
         </FieldWrapper>
       </FormSection>
 
-      <form.Subscribe selector={(state) => state.values.type}>
-        {(selectedType) => {
-          const eligiblePlans = (plans?.results ?? []).filter(
-            (plan) => plan.audience === selectedType,
+      <form.Subscribe
+        selector={(state) => [state.values.type, state.values.plan, state.values.trial_days] as const}
+      >
+        {([selectedType, selectedPlanId, trialDaysValue]) => {
+          const eligiblePlans = pickerPlans(
+            plans?.results ?? [],
+            selectedType as CompanyType | "",
+            company?.plan,
           );
+          const selectedPlan = eligiblePlans.find((plan) => plan.id === selectedPlanId);
+          // A trial applies on create only, and only on a package that has one.
+          const trialDays =
+            !isEdit && selectedPlan && selectedPlan.trial_days > 0
+              ? trialDaysValue.trim() === ""
+                ? selectedPlan.trial_days
+                : Number(trialDaysValue) || 0
+              : 0;
+          const trialEnd = trialDays > 0 ? trialEndsOn(localToday(), trialDays) : null;
           return selectedType ? (
             <FormSection title={t("companies.section.subscription")}>
+              {!isEdit && (
+                <PlanDefaults
+                  type={selectedType as CompanyType | ""}
+                  planId={selectedPlanId}
+                  plans={eligiblePlans}
+                  setPlan={(id) => form.setFieldValue("plan", id)}
+                  setMonths={(months) => form.setFieldValue("subscription_months", String(months))}
+                />
+              )}
               <form.Field
                 name="plan"
                 validators={{ onSubmit: required(t("validation.required")) }}
@@ -582,6 +676,9 @@ export function CreateCompany({
                     required
                     hint={plansLoading ? t("common.loading") : undefined}
                     options={eligiblePlans.map((plan) => {
+                      // Not billed monthly: also what one bill is (JB213
+                      // walk 11-17), priced as the SaaS bill prices it.
+                      const bill = cycleBill(plan);
                       const terms =
                         plan.tier === "PARTNER"
                           ? t("companies.planTerms.partner", {
@@ -590,24 +687,104 @@ export function CreateCompany({
                               rate: plan.effective_commission_rate ?? "0",
                             })
                           : plan.tier === "STANDARD"
-                            ? t("companies.planTerms.standard", {
-                                currency: plan.currency,
-                                fee: plan.monthly_fee,
-                              })
+                            ? bill
+                              ? t("companies.planTerms.standardCycle", {
+                                  currency: plan.currency,
+                                  fee: plan.monthly_fee,
+                                  cycle: t(`subscriptions.billingCycle.${plan.billing_cycle}`),
+                                  months: bill.months,
+                                  amount: bill.amount,
+                                })
+                              : t("companies.planTerms.standard", {
+                                  currency: plan.currency,
+                                  fee: plan.monthly_fee,
+                                })
                             : plan.max_projects === null
                               ? t("contractorPartners.unlimitedProjects")
                               : t("contractorPartners.projectLimit", {
                                   count: plan.max_projects,
                                 });
+                      const name = plan.is_public
+                        ? plan.name
+                        : t("companies.planHidden", { name: plan.name });
                       return {
                         value: plan.id,
-                        label: `${plan.name} (${terms})`,
+                        label: `${name} (${terms})`,
                       };
                     })}
                   />
                 )}
               </form.Field>
               <QueryFailedNote query={plansQuery} what={t("companies.what.plans")} />
+
+              {!isEdit && selectedPlan && selectedPlan.trial_days > 0 && (
+                <form.Field
+                  name="trial_days"
+                  validators={{
+                    onSubmit: optionalWholeNumber(t("validation.positiveInteger")),
+                  }}
+                >
+                  {(field) => (
+                    <TextField
+                      field={field as unknown as BoundField}
+                      label={t("companies.field.trialDays")}
+                      optional
+                      type="number"
+                      min={0}
+                      step={1}
+                      placeholder={String(selectedPlan.trial_days)}
+                      hint={`${t("companies.trialDaysHint", { days: selectedPlan.trial_days })}${
+                        trialEnd ? ` ${t("subscriptions.badge.trialUntil", { date: trialEnd })}` : ""
+                      }`}
+                    />
+                  )}
+                </form.Field>
+              )}
+
+              {selectedType === "RECYCLER" && (
+                <>
+                  <form.Field
+                    name="site_limit_override"
+                    validators={{
+                      onSubmit: optionalPositiveInteger(t("validation.positiveInteger")),
+                    }}
+                  >
+                    {(field) => (
+                      <TextField
+                        field={field as unknown as BoundField}
+                        label={t("companies.field.siteLimitOverride")}
+                        optional
+                        type="number"
+                        min={1}
+                        step={1}
+                        hint={t("companies.siteLimitOverrideHint", {
+                          limit: selectedPlan?.max_sites ?? t("companies.noLimit"),
+                        })}
+                      />
+                    )}
+                  </form.Field>
+                  <form.Field
+                    name="scale_limit_override"
+                    validators={{
+                      onSubmit: optionalPositiveInteger(t("validation.positiveInteger")),
+                    }}
+                  >
+                    {(field) => (
+                      <TextField
+                        field={field as unknown as BoundField}
+                        label={t("companies.field.scaleLimitOverride")}
+                        optional
+                        type="number"
+                        min={1}
+                        step={1}
+                        hint={t("companies.scaleLimitOverrideHint", {
+                          limit: selectedPlan?.max_scales ?? t("companies.noLimit"),
+                        })}
+                      />
+                    )}
+                  </form.Field>
+                </>
+              )}
 
               {selectedType === "CONTRACTOR" && (
                 <form.Field
@@ -638,7 +815,17 @@ export function CreateCompany({
                     field={field as unknown as BoundField}
                     label={t("companies.field.subscriptionMonths")}
                     required
-                    hint={t("companies.subscriptionMonthsHint")}
+                    // On a free trial the paid term does not start today:
+                    // it starts once 续期 converts the trial (JB213 walk
+                    // 11-17). The trial being chosen (create) or running
+                    // (edit) says so instead.
+                    hint={
+                      trialEnd || company?.trial_ends_on
+                        ? t("companies.subscriptionMonthsTrialHint", {
+                            date: trialEnd ?? company?.trial_ends_on ?? "",
+                          })
+                        : t("companies.subscriptionMonthsHint")
+                    }
                     options={[1, 3, 6, 12].map((months) => ({
                       value: String(months),
                       label: t("companies.subscriptionPeriod", { months }),
@@ -647,17 +834,21 @@ export function CreateCompany({
                 )}
               </form.Field>
 
-              <form.Field name="subscription_expires_on">
-                {(field) => (
-                  <TextField
-                    field={field as unknown as BoundField}
-                    label={t("companies.field.subscriptionExpiresOn")}
-                    optional
-                    type="date"
-                    hint={t("companies.subscriptionExpiryHint")}
-                  />
-                )}
-              </form.Field>
+              {/* A trial ends on its own last day (JB213): the custom expiry
+                  is for a company opened without one, or once 续期 ran. */}
+              {trialDays === 0 && !company?.trial_ends_on && (
+                <form.Field name="subscription_expires_on">
+                  {(field) => (
+                    <TextField
+                      field={field as unknown as BoundField}
+                      label={t("companies.field.subscriptionExpiresOn")}
+                      optional
+                      type="date"
+                      hint={t("companies.subscriptionExpiryHint")}
+                    />
+                  )}
+                </form.Field>
+              )}
             </FormSection>
           ) : null;
         }}

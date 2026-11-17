@@ -107,6 +107,7 @@ import { FileThumbs } from "@/components/shared/file-thumbs";
 import { VisitorConsent, useVisitorNotice } from "@/components/site-access/visitor-consent";
 import { clickOpensRow } from "@/components/shared/inside-row-control";
 import { RecordSendLog } from "@/components/shared/record-send-log";
+import { passQrPng, passQrSize } from "@/lib/pass-qr";
 
 /** The status filter's "approved, running out within the week" choice. */
 const EXPIRING = "expiring";
@@ -1469,6 +1470,7 @@ function PassQr({
   const t = useTranslations("siteControl");
   const ref = useRef<HTMLCanvasElement>(null);
   const token = extractToken(row.qr_value);
+  const size = passQrSize(row);
   const url =
     typeof window === "undefined"
       ? row.qr_value
@@ -1481,7 +1483,7 @@ function PassQr({
     if (!canvas) return;
     const link = document.createElement("a");
     link.download = `${row.pass_no}.png`;
-    link.href = canvas.toDataURL("image/png");
+    link.href = passQrPng(canvas, row);
     link.click();
   }
   return (
@@ -1491,13 +1493,16 @@ function PassQr({
           <DialogTitle>{t("access.qrTitle")}</DialogTitle>
           <DialogDescription>{t("access.qrHelp")}</DialogDescription>
         </DialogHeader>
-        <div className="mx-auto rounded-lg border bg-paper p-4">
+        <div className="mx-auto max-w-full rounded-lg border bg-paper p-4" data-qr-size={size}>
+          {/* Drawn at the print size; a 大字打印 code is shown scaled to the
+              window, and downloads at its full 440 px. */}
           <QRCodeCanvas
             ref={ref}
             value={url}
-            size={220}
+            size={size}
             level="H"
             marginSize={1}
+            style={{ maxWidth: "100%", height: "auto" }}
           />
         </div>
         <p className="text-center font-semibold tabular-nums">{row.pass_no}</p>

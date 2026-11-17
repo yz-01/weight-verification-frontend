@@ -116,6 +116,21 @@ export function getSubscriptionPlans(
   });
 }
 
+/**
+ * The plan picker of 新增公司 / 编辑公司: active packages shown in the picker
+ * (公开), plus the one the company is already on even if it is hidden or
+ * stopped - a company keeps the package it has (JB213, 4g).
+ */
+export function getPlanPickerOptions(
+  currentPlan?: string | null,
+): Promise<Paginated<SubscriptionPlan>> {
+  return api.list<SubscriptionPlan>("/api/subscription-plans/get_plans/", {
+    for_picker: 1,
+    current_plan: currentPlan || undefined,
+    page_size: 100,
+  });
+}
+
 export async function reviewCompany(
   id: string,
   payload: CompanyReviewPayload,

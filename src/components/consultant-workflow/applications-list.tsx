@@ -36,6 +36,7 @@ import { ExportButton } from "@/components/shared/export-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { ConsultantApplicationStatus } from "@/interfaces/consultant-workflow";
+import { CONSULTANT_ASK_TYPES } from "@/lib/consultant-task-title";
 import { useDateFormat } from "@/lib/dates";
 import { exportConsultantApplications, getConsultantApplications } from "@/services/consultant-workflow.service";
 import { exportFieldTasks, getFieldTasks } from "@/services/contractor-ops.service";
@@ -132,6 +133,8 @@ export function ConsultantApplicationsList() {
             {stage !== "inbox" && (
               // The applications listed, as a file (H16, HD13).
               <ExportButton
+                // His own 顾问申请 / 资料包 work: as before, 「导出」 or not (JB210).
+                ownWork
                 disabled={!rows.data?.count}
                 disabledReason={t("applications.subtitle", { count: 0 })}
                 title={t("applications.title")}
@@ -171,6 +174,8 @@ export function ConsultantApplicationsList() {
             {stage === "inbox" && (
               // 待整理现场资料 as a file: the submissions waiting here (H16).
               <ExportButton
+                // His own 顾问申请 / 资料包 work: as before, 「导出」 or not (JB210).
+                ownWork
                 disabled={!toOrganize.data?.count}
                 disabledReason={t("inbox.empty")}
                 title={t("inbox.what")}
@@ -181,7 +186,16 @@ export function ConsultantApplicationsList() {
                     query: { to_organize: "1", project: project || undefined },
                     columns: [
                       { key: "title", label: tRoot("contractorOps.field.title") },
-                      { key: "submission_category", label: t("field.applicationType") },
+                      // The phone's answer in words, not its code (JB215B, walk
+                      // 11-17); an older 「MATERIAL」 is 材料申请, as the server files it.
+                      {
+                        key: "submission_category",
+                        label: t("field.applicationType"),
+                        values: {
+                          ...Object.fromEntries(CONSULTANT_ASK_TYPES.map((code) => [code, tRoot(`fieldStaffPwa.consultantCapture.askOption.${code}`)])),
+                          MATERIAL: tRoot("fieldStaffPwa.consultantCapture.askOption.MATERIAL_APPROVAL"),
+                        },
+                      },
                       { key: "project_name", label: t("field.project") },
                       { key: "created_by_name", label: tRoot("mySubmissions.field.requested_by") },
                       { key: "submitted_at", label: tRoot("contractorReports.column.submitted_at") },

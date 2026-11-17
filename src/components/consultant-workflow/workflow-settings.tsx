@@ -104,7 +104,9 @@ export function ConsultantWorkflowSettings() {
 
   return (
     <div className="space-y-4 pb-8">
-      <DetailHeader backHref="/consultant-applications" backLabel={t("applications.back")} />
+      {/* Back to where this page is opened from, 顾问设定 (JB215B-4, jb201-names
+          §4.3): it said 「返回顾问申请」 and went to the applications list. */}
+      <DetailHeader backHref="/consultant-settings" backLabel={t("backToSettings")} />
       <ListHeader
         title={t("workflow.title")}
         subtitle={t("workflow.subtitle")}

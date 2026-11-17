@@ -160,6 +160,11 @@ export function ViewCompany({ id }: { id: string }) {
               />
               {data.type === "CONTRACTOR" && <ReadField label={t("companies.field.projectLimit")} value={data.project_limit === null ? t("contractorPartners.unlimitedProjects") : String(data.project_limit)} />}
               {data.type === "CONTRACTOR" && <ReadField label={t("companies.field.projectLimitOverride")} value={data.project_limit_override === null ? null : String(data.project_limit_override)} />}
+              {/* 场地上限 / 地磅上限 in force and what is used (JB213). */}
+              {data.type === "RECYCLER" && <ReadField label={t("companies.field.siteLimit")} value={t("companies.limitUsage", { used: data.used_sites ?? 0, limit: data.site_limit ?? t("companies.noLimit") })} />}
+              {data.type === "RECYCLER" && <ReadField label={t("companies.field.siteLimitOverride")} value={data.site_limit_override === null ? null : String(data.site_limit_override)} />}
+              {data.type === "RECYCLER" && <ReadField label={t("companies.field.scaleLimit")} value={t("companies.limitUsage", { used: data.used_scales ?? 0, limit: data.scale_limit ?? t("companies.noLimit") })} />}
+              {data.type === "RECYCLER" && <ReadField label={t("companies.field.scaleLimitOverride")} value={data.scale_limit_override === null ? null : String(data.scale_limit_override)} />}
               <ReadField label={t("companies.field.userLimit")} value={data.user_limit === null ? t("companies.unlimitedUsers") : String(data.user_limit)} />
               <ReadField label={t("companies.field.usedUserSeats")} value={String(data.used_user_seats)} />
               <ReadField label={t("companies.field.remainingUserSeats")} value={data.remaining_user_seats === null ? t("companies.unlimitedUsers") : String(data.remaining_user_seats)} />
@@ -181,6 +186,12 @@ export function ViewCompany({ id }: { id: string }) {
                     : null
                 }
               />
+              {data.trial_ends_on && (
+                <ReadField
+                  label={t("companies.field.trialEndsOn")}
+                  value={`${df.date(data.trial_ends_on)} · ${t("companies.trialNote")}`}
+                />
+              )}
               <ReadField
                 label={t("companies.field.subscriptionExpiresOn")}
                 value={

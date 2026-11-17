@@ -64,7 +64,12 @@ export interface ConsultantGrantOption {
   project: string;
   project_name: string;
   project_code: string;
+  /** JB210 (客户 11-16): the module ticks head office chose on this project. */
+  modules: string[];
+  /** The three options only: 顾问申请 查看 / 审批 and 导出 (JB210). */
   permissions: string[];
+  /** What the ticks and options open, for display (JB210). */
+  effective_permissions?: string[];
   is_active: boolean;
   is_current: boolean;
 }
@@ -144,6 +149,8 @@ export interface ConsultantGrantPayload {
   organization: string;
   consultant: string;
   project: string;
+  /** JB210: the module ticks; `permissions` carries the three options. */
+  modules: string[];
   permissions: string[];
   valid_from: string;
   valid_until?: string | null;

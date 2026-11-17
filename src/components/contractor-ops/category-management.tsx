@@ -857,7 +857,11 @@ export function CategoryManagement() {
                         />
                       </TableCell>
                       <TableCell>
-                        <div className="flex items-center gap-1">
+                        {/* JB215B-6 (jb202 #36): the row's buttons may wrap. In
+                            English they and three columns slid off the right
+                            of the table on a desktop; where they fit on one
+                            line (Chinese) nothing moves. */}
+                        <div className="flex flex-wrap items-center gap-1" data-slot="category-row-actions">
                         {/* For every reader, not only a manager: looking at
                             what is filed is not managing the column. */}
                         <Button
@@ -915,7 +919,7 @@ export function CategoryManagement() {
                         </div>
                         )}
                         {canManage && (
-                          <div className="flex items-center gap-1">
+                          <div className="flex flex-wrap items-center gap-1">
                             {canReorder && (
                               <>
                                 <Button

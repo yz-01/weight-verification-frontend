@@ -23,7 +23,7 @@
 
 import { MaterialLinesChip, MaterialLinesTable } from "@/components/shared/material-lines";
 import { requestShownLines } from "@/lib/material-lines";
-import { ARCHIVE_LOCKS_CHANGES } from "@/lib/archive-policy";
+import { useArchiveLocksChanges } from "@/lib/archive-policy";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
@@ -709,6 +709,8 @@ export function MaterialRequestDetail({
     onError: (reasonError) => setError(reasonError instanceof ApiError ? reasonError.message : t("failed")),
   });
 
+  // 「归档后锁定记录」 for the request's project (JB214-3d).
+  const archiveLocks = useArchiveLocksChanges(detail.data?.project);
   const row = detail.data;
   if (!row) {
     return (
@@ -739,9 +741,11 @@ export function MaterialRequestDetail({
   const changeable =
     mayChange && !decided && !user?.is_field_staff && reviewView !== "waiting";
   // Decided is its archive (JB25); it is still changed, not deleted (Lucas
-  // 10-30 evening: 「归档后的事项都可以修改」).
+  // 10-30 evening: 「归档后的事项都可以修改」) - unless MSE locked its project
+  // (JB214-3d), where the server takes only what was left blank.  Only one
+  // who may change it (JB206) is offered the button.
   const editable =
-    changeable || (mayChange && decided && !ARCHIVE_LOCKS_CHANGES && !user?.is_field_staff);
+    changeable || (mayChange && decided && !archiveLocks && !user?.is_field_staff);
   const takeOvers = row.decisions.filter((entry) => entry.decision === "REASSIGNED");
   // 「转呈总部」 (I12, ID29): the project manager sent it on.
   const forwards = row.decisions.filter((entry) => entry.decision === "FORWARDED");

@@ -19,6 +19,7 @@ import { exportAuditLogs, getAuditLogs } from "@/services/audit.service";
 import { getCompanies } from "@/services/companies.service";
 import { auditObjectTypeLabel, auditOperationLabel } from "@/lib/audit-labels";
 import { useDateFormat } from "@/lib/dates";
+import { clippedText } from "@/lib/table-fit";
 
 const FILTER_KEYS = [
   "actor",
@@ -170,7 +171,11 @@ export function AuditLogs({
       },
       {
         accessorKey: "action",
-        meta: { label: t("audit.field.action") },
+        // JB215B-6 (jb202 #35): in English a two-line operation name pushed
+        // its badge under the fitted table's two-line clamp, so 「Updated」
+        // was gone. The cell is not clamped; the name clamps itself to two
+        // lines on a desktop and the badge always shows under it.
+        meta: { label: t("audit.field.action"), unclamped: true },
         header: ({ column }) => (
           <SortableHeader
             label={t("audit.field.action")}
@@ -184,7 +189,15 @@ export function AuditLogs({
             <div className="space-y-1">
               {operationLabel ? (
                 <>
-                  <p className="max-w-52 text-sm font-medium leading-snug">
+                  <p
+                    className="max-w-52 text-sm font-medium leading-snug sm:line-clamp-2"
+                    onMouseEnter={(event) => {
+                      // The whole name as the hover tip, only when cut (I39).
+                      const whole = clippedText(event.currentTarget);
+                      if (whole) event.currentTarget.title = whole;
+                      else event.currentTarget.removeAttribute("title");
+                    }}
+                  >
                     {operationLabel}
                   </p>
                   <StatusBadge

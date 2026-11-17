@@ -111,6 +111,8 @@ export interface SubscriptionPlan {
   is_public: boolean;
   sort_order: number;
   is_active: boolean;
+  /** The package a new contractor gets when none is chosen (JB213). */
+  is_default?: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -204,6 +206,15 @@ export interface CompanyDetail {
   plan_tier: "SUBSCRIPTION" | "PARTNER" | "STANDARD" | null;
   project_limit: number | null;
   project_limit_override: number | null;
+  /** 场地上限 / 地磅上限 in force for a recycler: override, else the package's (JB213). */
+  site_limit: number | null;
+  site_limit_override: number | null;
+  scale_limit: number | null;
+  scale_limit_override: number | null;
+  used_sites: number | null;
+  used_scales: number | null;
+  /** Last free day of a trial that has not been renewed yet (JB213, Q5). */
+  trial_ends_on: string | null;
   user_limit: number | null;
   user_limit_override: number | null;
   used_user_seats: number;
@@ -293,6 +304,10 @@ export interface CompanyPayload {
   timezone?: string;
   plan?: string | null;
   project_limit_override?: number | null;
+  site_limit_override?: number | null;
+  scale_limit_override?: number | null;
+  /** Create only: days of free trial; 0 skips it (JB213). */
+  trial_days?: number;
   user_limit_override?: number | null;
   subscription_months?: 1 | 3 | 6 | 12 | null;
   subscription_expires_on?: string | null;

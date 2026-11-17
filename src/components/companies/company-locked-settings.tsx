@@ -17,24 +17,47 @@ import { BellRing, FileArchive, Lock, MapPin, QrCode, Save, Settings2, ShieldChe
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
+import { ProjectArchiveLocks } from "@/components/companies/project-archive-locks";
 import { useAuth } from "@/components/providers/auth-provider";
 import { FieldWrapper } from "@/components/shared/page-primitives";
 import { ChoiceField, ErrorBanner, NumberField, SectionTitle, State, Toggle } from "@/components/site-access/settings-fields";
 import { VisitorPrivacySection } from "@/components/site-access/visitor-privacy-settings";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ApiError } from "@/interfaces/api";
 import type { CompanyLockedSettings, ContractorSiteSettings } from "@/interfaces/site-access";
+import {
+  CONSULTANT_MODULES,
+  CONSULTANT_OPTIONS,
+  MODULE_MESSAGE_KEYS,
+  OPTION_MESSAGE_KEYS,
+  foldLegacyCodes,
+  orderedModules,
+  toggleModule,
+  toggleOption,
+} from "@/lib/consultant-modules";
 import { roleName } from "@/lib/role-labels";
 import { getCompanySiteSettings, updateCompanySiteSettings } from "@/services/companies.service";
 
-// Mirrors CONSULTANT_PERMISSION_CODES on the backend, which is authoritative.
-const CONSULTANT_PERMISSIONS = ["project.view", "approval.view", "approval.review", "notification.view", "safety.view", "report.view", "report.export"];
+
+/**
+ * What is wrong with a 通行证编号前缀, said while it is typed (JB214-3a, Lucas
+ * 11-16 Q3: 「不能和其他记录开头一样」): 2 to 6 letters, and none of the
+ * letters other records start with - the server's list, sent with the
+ * settings. The server checks the same and has the last word.
+ */
+export function qrPrefixProblem(value: string, reserved: string[] | undefined): "format" | "taken" | null {
+  if (!/^[A-Z]{2,6}$/.test(value)) return "format";
+  if ((reserved ?? []).includes(value)) return "taken";
+  return null;
+}
 
 export function CompanyLockedSettingsPanel({ companyId }: { companyId: string }) {
   const t = useTranslations("siteControl");
   const tLocked = useTranslations("companies.lockedSettings");
   const tHq = useTranslations("headquarters.reference");
   const tAll = useTranslations();
+  const tConsultant = useTranslations("consultantAccess");
   const { can } = useAuth();
   const qc = useQueryClient();
   const canManage = can("company.update");
@@ -43,7 +66,13 @@ export function CompanyLockedSettingsPanel({ companyId }: { companyId: string })
   const [draft, setDraft] = useState<Partial<CompanyLockedSettings>>({});
   const save = useMutation({
     // Only what was changed here: a field nobody touched keeps its value.
-    mutationFn: () => updateCompanySiteSettings(companyId, draft),
+    // A prefix that would not do is said under it and not sent (JB214-3a).
+    mutationFn: () => {
+      if (draft.qr_prefix !== undefined && qrPrefixProblem(draft.qr_prefix, settings.data?.reserved_qr_prefixes)) {
+        return Promise.reject(new Error("qr_prefix"));
+      }
+      return updateCompanySiteSettings(companyId, draft);
+    },
     onSuccess: (row) => {
       setDraft({});
       qc.setQueryData(queryKey, row);
@@ -60,10 +89,30 @@ export function CompanyLockedSettingsPanel({ companyId }: { companyId: string })
   const rule = (field: "default_archive_rules" | "default_notification_rules", key: string, value: boolean) =>
     set({ [field]: { ...(form[field] ?? {}), [key]: value } });
   const off = !canManage;
+  // 通行证编号前缀 (JB214-3a): said under the field as it is typed. Should the
+  // server still refuse it, the whole rule is said there in the reader's
+  // words rather than the server's English sentence.
+  const prefixProblem = draft.qr_prefix !== undefined ? qrPrefixProblem(form.qr_prefix, form.reserved_qr_prefixes) : null;
+  const prefixRefused = save.error instanceof ApiError && Boolean(save.error.fieldError("qr_prefix"));
+  const prefixError =
+    prefixProblem === "taken"
+      ? tLocked("qrPrefixTaken", { prefix: form.qr_prefix })
+      : prefixProblem === "format"
+        ? tLocked("qrPrefixFormat")
+        : prefixRefused
+          ? tLocked("qrPrefixHint")
+          : undefined;
+  // 「顾问项目默认权限」 as the grant dialog's 11 ticks + 3 options (JB210, 客户
+  // 11-16). A default still saved as the seven codes reads as its ticks.
+  const folded = foldLegacyCodes(form.default_consultant_permissions);
+  const consultantModules = orderedModules([...(form.default_consultant_modules ?? []), ...folded.modules]);
+  const consultantOptions = folded.options;
+  const setConsultant = (modules: string[], options: string[]) =>
+    set({ default_consultant_modules: modules, default_consultant_permissions: options });
 
   return <section id="company-locked-settings" className="scroll-mt-20 space-y-5 border-t p-4 sm:p-6" data-testid="company-locked-settings">
     <SectionTitle icon={Lock} title={tLocked("title")} description={tLocked("subtitle")} action={canManage ? <Button disabled={save.isPending} onClick={() => save.mutate()}><Save />{t("action.saveSettings")}</Button> : undefined} />
-    {save.isError && <ErrorBanner text={t("settings.saveError")} />}
+    {save.isError && !prefixError && <ErrorBanner text={t("settings.saveError")} />}
 
     <div className="space-y-3" data-locked="permissions">
       <SectionTitle icon={Settings2} title={t("permissionDefaults.title")} description={tLocked("permissionsHelp")} />
@@ -72,14 +121,22 @@ export function CompanyLockedSettingsPanel({ companyId }: { companyId: string })
         <ChoiceField label={t("field.defaultApprovalRole")} value={form.default_approval_role_code} disabled={off} options={roleOptions} optionLabel={roleLabel} onChange={(value) => set({ default_approval_role_code: value })} />
       </div>
       <p className="text-sm font-medium">{t("permissionDefaults.consultant")}</p>
-      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">{CONSULTANT_PERMISSIONS.map((code) => <Toggle key={code} compact label={t(`permissionDefaults.permission.${code.replaceAll(".", "_")}`)} checked={form.default_consultant_permissions.includes(code)} disabled={off} onChange={(checked) => set({ default_consultant_permissions: checked ? [...form.default_consultant_permissions, code] : form.default_consultant_permissions.filter((item) => item !== code) })} />)}</div>
+      <p className="text-xs text-muted-foreground">{tConsultant("grant.modulesTitle")}</p>
+      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3" data-slot="consultant-default-modules">{CONSULTANT_MODULES.map((key) => <Toggle key={key} compact label={tConsultant(`module.${MODULE_MESSAGE_KEYS[key]}`)} checked={consultantModules.includes(key)} disabled={off} onChange={(checked) => setConsultant(toggleModule(consultantModules, key, checked), consultantOptions)} />)}</div>
+      <p className="text-xs text-muted-foreground">{tConsultant("grant.optionsTitle")}</p>
+      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3" data-slot="consultant-default-options">{CONSULTANT_OPTIONS.map((code) => <Toggle key={code} compact label={tConsultant(`option.${OPTION_MESSAGE_KEYS[code]}`)} checked={consultantOptions.includes(code)} disabled={off} onChange={(checked) => setConsultant(consultantModules, toggleOption(consultantOptions, code, checked))} />)}</div>
     </div>
 
     <div className="space-y-3" data-locked="qr">
       <SectionTitle icon={QrCode} title={t("qrSettings.title")} description={t("qrSettings.subtitle")} />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <FieldWrapper label={t("field.qrPrefix")}><Input disabled={off} value={form.qr_prefix} maxLength={20} onChange={(event) => set({ qr_prefix: event.target.value.toUpperCase() })} /></FieldWrapper>
-        <ChoiceField label={t("field.qrStyle")} value={form.qr_style} disabled={off} options={["STANDARD", "COMPACT", "LARGE"]} optionLabel={(value) => t(`qrStyle.${value}`)} onChange={(value) => set({ qr_style: value as ContractorSiteSettings["qr_style"] })} />
+        {/* JB214-3a: only passes opened from now on take it (Lucas 11-16 Q3). */}
+        <FieldWrapper label={t("field.qrPrefix")} hint={tLocked("qrPrefixHint")} error={prefixError}><Input disabled={off} value={form.qr_prefix} maxLength={6} onChange={(event) => set({ qr_prefix: event.target.value.trim().toUpperCase() })} /></FieldWrapper>
+        {/* JB214-3b: the pass QR is downloaded and printed at this size. */}
+        <div className="space-y-1">
+          <ChoiceField label={t("field.qrStyle")} value={form.qr_style} disabled={off} options={["STANDARD", "COMPACT", "LARGE"]} optionLabel={(value) => t(`qrStyle.${value}`)} onChange={(value) => set({ qr_style: value as ContractorSiteSettings["qr_style"] })} />
+          <p className="text-xs text-muted-foreground">{tLocked("qrStyleHint")}</p>
+        </div>
         <Toggle label={t("qrSettings.siteAccess")} description={t("qrSettings.siteAccessHelp")} checked={form.enable_site_access_qr} disabled={off} onChange={(checked) => set({ enable_site_access_qr: checked })} />
         <Toggle label={t("qrSettings.visitor")} description={t("qrSettings.visitorHelp")} checked={form.enable_visitor_qr} disabled={off} onChange={(checked) => set({ enable_visitor_qr: checked })} />
         <Toggle label={t("qrSettings.vehicle")} description={t("qrSettings.vehicleHelp")} checked={form.enable_vehicle_qr} disabled={off} onChange={(checked) => set({ enable_vehicle_qr: checked })} />
@@ -94,7 +151,9 @@ export function CompanyLockedSettingsPanel({ companyId }: { companyId: string })
         <Toggle label={t("notificationSettings.rectification")} description={t("notificationSettings.rectificationHelp")} checked={form.rectification_notifications} disabled={off} onChange={(checked) => set({ rectification_notifications: checked })} />
         <Toggle label={t("notificationSettings.expiry")} description={t("notificationSettings.expiryHelp")} checked={form.expiry_notifications} disabled={off} onChange={(checked) => set({ expiry_notifications: checked })} />
         <Toggle label={t("notificationSettings.email")} description={t("notificationSettings.emailHelp")} checked={form.email_notifications} disabled={off} onChange={(checked) => set({ email_notifications: checked })} />
-        <Toggle label={t("projectDefaults.notifyManager")} description={t("projectDefaults.notifyManagerHelp")} checked={Boolean(form.default_notification_rules.notify_project_manager ?? true)} disabled={off} onChange={(checked) => rule("default_notification_rules", "notify_project_manager", checked)} />
+        {/* No 「通知项目经理」 (JB214-3c, Lucas 11-16 Q2 = A): a project manager
+            gets exactly what waits on him (JB97), so the switch could only
+            have stopped that. The saved value stays in the data, unused. */}
         <ChoiceField label={t("field.notificationChannel")} value={form.default_notification_channel} disabled={off} options={["IN_APP", "PUSH"]} optionLabel={(value) => t(`notificationChannel.${value}`)} onChange={(value) => set({ default_notification_channel: value as ContractorSiteSettings["default_notification_channel"] })} />
       </div>
     </div>
@@ -120,10 +179,12 @@ export function CompanyLockedSettingsPanel({ companyId }: { companyId: string })
     <div className="space-y-3" data-locked="records">
       <SectionTitle icon={FileArchive} title={tLocked("records")} description={tLocked("recordsHelp")} />
       <div className="grid gap-3 md:grid-cols-3">
-        <Toggle label={t("projectDefaults.archiveLock")} description={t("projectDefaults.archiveLockHelp")} checked={Boolean(form.default_archive_rules.lock_after_archive)} disabled={off} onChange={(checked) => rule("default_archive_rules", "lock_after_archive", checked)} />
+        {/* The default a new project copies (JB214-3d); each existing project is below. */}
+        <Toggle label={tLocked("archiveDefault")} description={tLocked("archiveDefaultHelp")} checked={form.default_archive_rules.lock_after_archive === true} disabled={off} onChange={(checked) => rule("default_archive_rules", "lock_after_archive", checked)} />
         <Toggle label={t("field.attendancePhoto")} description={t("settings.attendancePhotoHelp")} checked={form.require_attendance_photo} disabled={off} onChange={(checked) => set({ require_attendance_photo: checked })} />
         <Toggle label={t("field.gatePhoto")} description={t("settings.gatePhotoHelp")} checked={form.require_gate_photo} disabled={off} onChange={(checked) => set({ require_gate_photo: checked })} />
       </div>
+      <ProjectArchiveLocks companyId={companyId} canManage={canManage} />
     </div>
     <VisitorPrivacySection form={form} canManage={canManage} companyId={companyId} onChange={set} />
 

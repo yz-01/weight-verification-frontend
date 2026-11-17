@@ -33,6 +33,7 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { useBellRefreshOnRead } from "@/hooks/use-bell-refresh-on-read";
 import { useNewMessageTone } from "@/hooks/use-new-message-tone";
 import { ApiError } from "@/interfaces/api";
+import { consultantSeesConversation } from "@/lib/consultant-modules";
 import { conversationClosedLine, recordConversationKey, type ChatRecordKind } from "@/lib/record-chat";
 import {
   getRecordConversation,
@@ -65,12 +66,18 @@ export function RecordConversationPanel({
   // JB159: with no message box (read only, closed) there is nothing to keep,
   // so the draft's 「你填写的内容会保存在这台设备上。」 is not said. The same
   // query the conversation below reads; it says when that failed.
+  // JB210 (Lucas 11-16 Q2 = A): a consultant sees only the conversations he
+  // takes part in - not the contractor's own talk on its records.
+  const { user } = useAuth();
+  const shown = consultantSeesConversation(user?.account_type, kind);
   // query-failure: the conversation below answers for it; this only hides the draft line
   const conversation = useQuery({
     queryKey: recordConversationKey(kind, recordId),
     queryFn: () => getRecordConversation(kind, recordId),
+    enabled: shown,
   });
   const noComposer = Boolean(conversationClosedLine(conversation.data?.closed, kind));
+  if (!shown) return null;
   return (
     // The draft scope is per record, so a half-typed question on one delivery
     // is not offered back on the next one.

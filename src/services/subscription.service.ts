@@ -5,6 +5,7 @@ import type {
   ChangePlanPayload,
   CompanySubscription,
   ExtendSubscriptionPayload,
+  PlanDefaults,
   SetSeatsPayload,
   SubscriptionPlan,
   SubscriptionPlanPayload,
@@ -17,6 +18,11 @@ export function getSubscriptionPlans(
   query?: ListQuery,
 ): Promise<Paginated<SubscriptionPlan>> {
   return api.list<SubscriptionPlan>("/api/subscription-plans/get_plans/", query);
+}
+
+/** 11.2.2 SaaS 默认值 for a new package, and the menus a package can switch (JB213). */
+export function getPlanDefaults(): Promise<PlanDefaults> {
+  return api.get<PlanDefaults>("/api/subscription-plans/get_plan_defaults/");
 }
 
 export async function createSubscriptionPlan(

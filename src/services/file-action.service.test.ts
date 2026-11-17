@@ -105,7 +105,7 @@ describe("every way out of the back office asks", () => {
   it("the shared file buttons sign before they fetch and log before they act", () => {
     const actions = read("src/components/shared/file-actions.tsx");
     const leave = actions.slice(actions.indexOf("const leave = useCallback"), actions.indexOf("const act = useCallback"));
-    const order = ["authorizeFileAction(type)", "withFileFetch(grant", "recordFileAction(type", "await perform("];
+    const order = ["authorizeFileAction(type", "withFileFetch(grant", "recordFileAction(type", "await perform("];
     const at = order.map((step) => leave.indexOf(step));
     expect(at.every((index) => index >= 0)).toBe(true);
     expect([...at].sort((a, b) => a - b)).toEqual(at);

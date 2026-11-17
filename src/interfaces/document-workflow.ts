@@ -134,6 +134,11 @@ export interface AddSystemFilesPayload {
 }
 
 export interface DocumentRecord {
+  /**
+   * 「归档后锁定记录」 on for its project (JB214-3d): archived, it takes files
+   * only while it holds none. Absent or false on head office's documents.
+   */
+  archive_locked?: boolean;
   /** The first photograph's watermarked thumbnail, or null (E3). */
   cover_photo_url?: string | null;
   /** How many photographs the record has (E3). */
