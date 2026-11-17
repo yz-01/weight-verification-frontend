@@ -102,6 +102,13 @@ describe("JB215B the rest of a customer's 账单 pages", () => {
       }
     }
     expect(Object.values(zh.pageHelp.billing_customer).join("")).not.toContain("平台的两笔钱");
+    // In the 权限 page's words, never a permission code (coordinator 11-17).
+    for (const messages of [zh, zhTW, en, ms]) {
+      const help = messages.pageHelp.billing_customer;
+      expect(help.who).toContain(messages.permissions.code.billing.view);
+      expect(help.who).toContain(messages.permissions.code.billing.pay);
+      for (const text of Object.values(help)) expect(text).not.toMatch(/\b[a-z_]+\.[a-z_]+\b/);
+    }
   });
 
   it("word the payment button from the customer's side", () => {

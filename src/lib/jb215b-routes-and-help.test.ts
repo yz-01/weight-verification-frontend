@@ -44,9 +44,18 @@ describe("JB215B-3 施工准证's own help", () => {
     expect(words).toContain("签名");
     expect(words).toContain("退回");
     expect(words).toContain("归档");
-    // The permissions the server checks (`site_operations/permits.py`).
-    expect(zh.pageHelp.permits.who).toContain("safety.manage");
-    expect(zh.pageHelp.permits.who).toContain("safety.verify");
+  });
+
+  it("names the permissions in the 权限 page's words, never their codes", () => {
+    // The permissions the server checks (`site_operations/permits.py`), as
+    // `permissions.code.*` names them on the 权限 page (coordinator 11-17:
+    // the help showed safety.view / safety.manage / safety.verify).
+    for (const messages of ALL) {
+      const help = (messages.pageHelp as unknown as Record<string, Record<string, string>>).permits;
+      const names = messages.permissions.code.safety;
+      for (const name of [names.view, names.manage, names.verify]) expect(help.who).toContain(name);
+      for (const section of SECTIONS) expect(help[section], section).not.toMatch(/\b[a-z_]+\.[a-z_]+\b/);
+    }
   });
 });
 
