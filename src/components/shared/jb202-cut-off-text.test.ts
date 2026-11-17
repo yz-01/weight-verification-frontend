@@ -36,6 +36,10 @@ describe("record windows: the photo's caption names who took it, whole (JB202)",
     expect(classes).toEqual(expect.arrayContaining(["mt-1", "text-[11px]", "leading-snug"]));
   });
 
+  it("wraps the recorder's name beside the phone button", () => {
+    wraps(classesBefore(read("shared/record-detail-shell.tsx"), '{name}</p>'));
+  });
+
   it("wraps the big photo's label, who took it and when, over the picture", () => {
     const classes = classesBefore(read("shared/record-detail-shell.tsx"), /\{photo\.label\}\s*\{photo\.takenAt/);
     wraps(classes);
@@ -121,6 +125,14 @@ describe("报表中心 / 仪表板 banner: the company's name whole on a phone (
 
   it("wraps the company's name", () => {
     wraps(classesBefore(source, "{companyName}</h1>"));
+  });
+});
+
+describe("人员实时位置: the person's name and project beside the badge, whole (JB202)", () => {
+  it("wraps both", () => {
+    const source = read("site-operations/on-site-map.tsx");
+    wraps(classesBefore(source, "{row.full_name}</p>"));
+    wraps(classesBefore(source, "{row.project_name}</p>"));
   });
 });
 

@@ -297,9 +297,11 @@ export function ShellRecorder({
           {initials}
         </AvatarFallback>
       </Avatar>
+      {/* JB202 (Lucas 11-16 「字被裁掉了」): the recorder's whole name beside
+          the phone button (「阿强（设备…」 on a phone). */}
       <div className="min-w-0">
         <p className="text-xs text-muted-foreground">{label}</p>
-        <p className="truncate text-sm font-medium">{name}</p>
+        <p className="break-words text-sm font-medium">{name}</p>
       </div>
       {phone ? (
         <a

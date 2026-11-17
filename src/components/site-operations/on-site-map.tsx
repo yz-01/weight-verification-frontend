@@ -200,9 +200,11 @@ export function OnSiteMap({
                     className={cn("flex items-start gap-2 px-3 py-2.5", row.stale && "opacity-60")}
                   >
                     <UserRound className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+                    {/* JB202 (Lucas 11-16 「字被裁掉了」): the person's name and
+                        project wrap beside the badge instead of 「阿华（门…」 on a phone. */}
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium">{row.full_name}</p>
-                      <p className="truncate text-xs text-muted-foreground">{row.project_name}</p>
+                      <p className="break-words text-sm font-medium">{row.full_name}</p>
+                      <p className="break-words text-xs text-muted-foreground">{row.project_name}</p>
                       <p className="text-xs text-muted-foreground">
                         {t("lastSeen", { at: dates.dateTime(row.last_seen_at) })}
                       </p>
