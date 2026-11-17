@@ -1,0 +1,128 @@
+/**
+ * JB202 (Lucas 11-16, on the consultant list: 「还有这个顾问这里的字被裁掉了，
+ * 修复一下然后检查一下有没有类似的问题也修复一下」). The sweep of every menu page
+ * (desktop 1440 / phone 390, Chinese / English) found words a reader needs
+ * ending in 「…」 or cut at a box's edge in the components below. Each now wraps
+ * (or grows) instead. The runner has no DOM, so these read the class lists
+ * that decide it; each fails on the old `truncate`.
+ */
+import { readFileSync } from "node:fs";
+import path from "node:path";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { describe, expect, it } from "vitest";
+
+import { StatusBadge, TypeBadge } from "@/components/shared/page-primitives";
+
+const read = (file: string) => readFileSync(path.join(process.cwd(), "src/components", file), "utf8");
+
+/** The class list of the nearest `className="…"` before `content` (a string, or a pattern). */
+function classesBefore(source: string, content: string | RegExp): string[] {
+  const at = typeof content === "string" ? source.indexOf(content) : source.search(content);
+  expect(at, String(content)).toBeGreaterThan(-1);
+  const open = source.lastIndexOf('className="', at);
+  return source.slice(open + 11, source.indexOf('"', open + 11)).split(" ");
+}
+
+function wraps(classes: string[]) {
+  expect(classes).toContain("break-words");
+  expect(classes).not.toContain("truncate");
+}
+
+describe("record windows: the photo's caption names who took it, whole (JB202)", () => {
+  it("wraps under the picture", () => {
+    const classes = classesBefore(read("shared/record-detail-shell.tsx"), />\s*\{photo\.label\}\s*<\/p>/);
+    wraps(classes);
+    expect(classes).toEqual(expect.arrayContaining(["mt-1", "text-[11px]", "leading-snug"]));
+  });
+});
+
+describe("StatusBadge / TypeBadge break between whole words, never one character a line (JB202)", () => {
+  // JB200 let a badge wrap instead of being cut, but breaking anywhere let a
+  // tight table squeeze its column to one character: 「缺收工」 stood as three
+  // lines on 设备操作员工时. Whole words first (a Chinese status is one word),
+  // broken only when one word alone is wider than the slot.
+  it("StatusBadge", () => {
+    const html = renderToStaticMarkup(createElement(StatusBadge, { label: "缺收工", tone: "warning" }));
+    expect(html).toContain('<span class="min-w-0 break-words [word-break:keep-all]">缺收工</span>');
+    expect(html).not.toContain("overflow-wrap:anywhere");
+    expect(html).toMatch(/^<span class="inline-flex min-h-6 max-w-full shrink-0 /);
+  });
+
+  it("TypeBadge", () => {
+    const html = renderToStaticMarkup(createElement(TypeBadge, { label: "混凝土" }));
+    expect(html).toMatch(/class="[^"]* break-words \[word-break:keep-all\]"/);
+    expect(html).not.toContain("overflow-wrap:anywhere");
+  });
+});
+
+describe("list pages: the header's buttons never lie over the filters (JB202)", () => {
+  it("keeps the list header out of the fixed-height column's squeeze", () => {
+    // On a phone the buttons wrap below the title; squeezed to the title's
+    // height, 整改 / EHS showed 【历史档案】【建立事项】 on top of 「所有项目」.
+    const source = read("shared/page-primitives.tsx");
+    expect(source).toMatch(/data-slot="list-header"\s+className="flex min-h-12 shrink-0 flex-wrap/);
+  });
+});
+
+describe("工程照片墙: a tile's time and project name, whole (JB202)", () => {
+  it("wraps the caption over the picture instead of 「示范商业大厦…」", () => {
+    const classes = classesBefore(read("dashboard/photo-timeline.tsx"), '<span className="tabular">{df.time(photo.captured_at)}');
+    wraps(classes);
+    expect(classes).toEqual(expect.arrayContaining(["absolute", "bottom-0", "leading-tight"]));
+  });
+});
+
+describe("总公司仪表板: a project card's line and the notices, whole (JB202)", () => {
+  const source = read("dashboard/headquarters-reference.tsx");
+
+  it("wraps the record's title and quantity (the quantity comes last)", () => {
+    const classes = classesBefore(source, /\{headline\s*\?/);
+    wraps(classes);
+    expect(classes).toContain("min-h-5");
+  });
+
+  it("wraps a notice's title and message - the row is not a link", () => {
+    wraps(classesBefore(source, "{row.title}</span>"));
+    wraps(classesBefore(source, "{row.message}</span>"));
+  });
+});
+
+describe("文件档案: numbers, names and categories wrap in JB165's columns (JB202)", () => {
+  const documents = read("document-workflow/documents.tsx");
+  const parts = read("document-workflow/document-archive-parts.tsx");
+
+  it("the reference under the document number", () => {
+    expect(documents).toMatch(
+      /className=\{cn\(FILLS_CELL, "break-words text-xs text-muted-foreground"\)\}\s+title=\{row\.original\.reference_no\}/,
+    );
+  });
+
+  it("the project and the uploader, the column widths unchanged", () => {
+    expect(documents.match(/<p className=\{cn\(FILLS_CELL, "break-words"\)\} title=\{(project|uploader)\}>/g)).toHaveLength(2);
+    expect(documents).not.toMatch(/cn\(FILLS_CELL, ONE_LINE\)/);
+  });
+
+  it("the 「来自 …」 tag with the record's number", () => {
+    expect(documents).toContain('className="min-w-0 break-words text-left text-primary underline-offset-2 hover:underline"');
+  });
+
+  it("the category over its sub-category", () => {
+    const cell = parts.slice(parts.indexOf("export function DocumentPathCell"), parts.indexOf("export type ThumbnailKind"));
+    expect(cell).not.toContain("ONE_LINE");
+    expect(cell.match(/break-words/g)).toHaveLength(3);
+  });
+});
+
+describe("项目 › 项目权限: each member's name and 「职位 · 权限」 line, whole (JB202)", () => {
+  const source = read("projects/project-permissions.tsx");
+
+  it("wraps the name, with the badges moving below when they do not fit", () => {
+    wraps(classesBefore(source, "{member.full_name}</span>"));
+    expect(classesBefore(source, '<span className="min-w-0 break-words text-sm font-semibold">')).toContain("flex-wrap");
+  });
+
+  it("wraps the role and permissions line", () => {
+    wraps(classesBefore(source, "{roleName({ code: member.role_code"));
+  });
+});

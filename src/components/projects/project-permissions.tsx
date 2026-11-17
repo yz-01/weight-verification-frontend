@@ -135,13 +135,15 @@ function MemberRow({
         aria-expanded={open}
         className="flex w-full items-center justify-between gap-3 px-3 py-2.5 text-left"
       >
+        {/* JB202 (Lucas 11-16 「字被裁掉了」): the name and 「职位 · 项目权限 ·
+            总部开了几项」 wrap on a phone instead of ending in 「…」. */}
         <span className="min-w-0">
-          <span className="flex min-w-0 items-center gap-2">
-            <span className="truncate text-sm font-semibold">{member.full_name}</span>
+          <span className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+            <span className="min-w-0 break-words text-sm font-semibold">{member.full_name}</span>
             {member.status === "INVITED" && <StatusBadge label={t("invited")} tone="warning" />}
             {member.status === "SUSPENDED" && <StatusBadge label={t("suspended")} tone="danger" />}
           </span>
-          <span className="block truncate text-xs text-muted-foreground">
+          <span className="block break-words text-xs text-muted-foreground">
             {roleName({ code: member.role_code ?? "", name: member.role_name }, all)}
             {" · "}
             {projectOff === 0 ? t("allOn") : t("someOff", { count: projectOff })}

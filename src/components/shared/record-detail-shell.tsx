@@ -180,7 +180,10 @@ function ShellThumbnail({ photo, onOpen }: { photo: ShellPhoto; onOpen: () => vo
           unoptimized
         />
       </button>
-      <p className="mt-1 truncate text-[11px] text-muted-foreground">
+      {/* JB202 (Lucas 11-16 「字被裁掉了」): the caption names who took it
+          (「施工前 1 · 示范 管理员」); it wraps under the picture instead of
+          ending in 「…」 - a phone has no hover to show the title. */}
+      <p className="mt-1 break-words text-[11px] leading-snug text-muted-foreground">
         {photo.label}
       </p>
     </li>

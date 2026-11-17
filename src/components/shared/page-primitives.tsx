@@ -283,7 +283,11 @@ export function StatusBadge({
       )}
     >
       <span className={cn("h-1.5 w-1.5 shrink-0 rounded-full", STATUS_DOT_CLASS[tone])} />
-      <span className="min-w-0 [overflow-wrap:anywhere]">{label}</span>
+      {/* JB202: whole words first (`keep-all`: a Chinese status is one word),
+          broken only when one word alone is wider than the slot. Breaking
+          anywhere let a tight table squeeze the column to one character, and
+          「缺收工」 stood as three lines (设备操作员工时). */}
+      <span className="min-w-0 break-words [word-break:keep-all]">{label}</span>
     </span>
   );
 }
@@ -299,8 +303,9 @@ export function TypeBadge({
   return (
     <span
       className={cn(
-        // As StatusBadge (11-16): one line where it fits, wraps rather than clipped.
-        "inline-flex min-h-6 max-w-full shrink-0 items-center rounded-full bg-tone-blue/12 px-2.5 py-1 text-xs font-medium leading-none text-tone-blue-fg ring-1 ring-inset ring-tone-blue/25 [overflow-wrap:anywhere]",
+        // As StatusBadge (11-16): one line where it fits, wraps rather than
+        // clipped - between whole words (JB202), not one character a line.
+        "inline-flex min-h-6 max-w-full shrink-0 items-center rounded-full bg-tone-blue/12 px-2.5 py-1 text-xs font-medium leading-none text-tone-blue-fg ring-1 ring-inset ring-tone-blue/25 break-words [word-break:keep-all]",
         className,
       )}
     >
@@ -345,9 +350,14 @@ export function ListHeader({
     : [];
 
   return (
+    // JB202 (Lucas 11-16 「字被裁掉了」): `shrink-0` - the list pages are a
+    // column of fixed height, and on a phone, where the buttons wrap below the
+    // title, the column squeezed this header to the title's height, so its
+    // buttons lay over the filters (整改 / EHS: 【历史档案】【建立事项】 hid
+    // 「所有项目」).
     <div
       data-slot="list-header"
-      className="flex min-h-12 flex-wrap items-end justify-between gap-x-4 gap-y-3 pb-4"
+      className="flex min-h-12 shrink-0 flex-wrap items-end justify-between gap-x-4 gap-y-3 pb-4"
     >
       <div className="flex min-w-0 items-center gap-3">
         <span

@@ -20,26 +20,33 @@ export function CurrentProjectPicker() {
 
   if (current.projects.length === 1) {
     const only = current.projects[0];
+    // JB202 (Lucas 11-16 「字被裁掉了」): the project's whole name, never
+    // 「…」 - on a phone on a row of its own under the top bar's buttons
+    // (`order-last basis-full`), wrapping if it is longer still.
     return (
       <span
         data-current-project
         title={t("label")}
-        className="flex h-9 min-w-0 max-w-56 items-center gap-1.5 truncate rounded-md border bg-background px-2 text-sm"
+        className="order-last flex min-h-9 min-w-0 max-w-full basis-full items-center gap-1.5 rounded-md border bg-background px-2 py-1 text-sm sm:order-none sm:basis-auto"
       >
         <Building2 className="size-4 shrink-0 text-muted-foreground" />
-        <span className="truncate">{only.code} - {only.name}</span>
+        <span className="min-w-0 break-words">{only.code} - {only.name}</span>
       </span>
     );
   }
 
   return (
-    <label className="flex min-w-0 items-center gap-1.5" data-current-project>
+    // JB202: a select box cannot wrap, so it gets the room for the chosen
+    // project's name (it had 9 rem on a phone - an empty box - and 14 rem on
+    // a desktop, one character short of 「PRJ-0001 - 示范商业大厦一期」); on a
+    // phone it has the second row of the top bar to itself.
+    <label className="order-last flex min-w-0 max-w-full basis-full items-center gap-1.5 sm:order-none sm:basis-auto" data-current-project>
       <Building2 className="hidden size-4 shrink-0 text-muted-foreground sm:block" />
       <span className="sr-only">{t("label")}</span>
       <select
         aria-label={t("label")}
         title={t("label")}
-        className="h-9 min-w-0 max-w-36 rounded-md border bg-background px-2 text-sm sm:max-w-56"
+        className="h-9 min-w-0 max-w-full flex-1 rounded-md border bg-background px-2 text-sm sm:flex-initial"
         value={current.projectId || ALL_PROJECTS_CHOICE}
         onChange={(event) => current.setProjectId(event.target.value)}
       >

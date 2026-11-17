@@ -301,9 +301,11 @@ export function Documents() {
             <p className="font-medium tabular-nums text-foreground [white-space:nowrap]" data-document-no>
               {row.original.document_no}
             </p>
+            {/* JB202 (Lucas 11-16 「字被裁掉了」): the reference is a number
+                too - it wraps in its column instead of 「VO-007/ARCH/202…」. */}
             {row.original.reference_no ? (
               <p
-                className={cn(FILLS_CELL, ONE_LINE, "text-xs text-muted-foreground")}
+                className={cn(FILLS_CELL, "break-words text-xs text-muted-foreground")}
                 title={row.original.reference_no}
               >
                 {row.original.reference_no}
@@ -380,8 +382,11 @@ export function Documents() {
         header: () => t("documents.field.project"),
         cell: ({ row }) => {
           const project = row.original.project_name || t("documents.companyWide");
+          // JB202: the project's and the uploader's names wrap in their
+          // columns (still `FILLS_CELL`, so the widths stay JB165's) instead
+          // of 「示范商业大…」 - a phone or a tablet has no hover to show it.
           return (
-            <p className={cn(FILLS_CELL, ONE_LINE)} title={project}>
+            <p className={cn(FILLS_CELL, "break-words")} title={project}>
               {project}
             </p>
           );
@@ -394,7 +399,7 @@ export function Documents() {
         cell: ({ row }) => {
           const uploader = row.original.created_by_name || t("common.emptyValue");
           return (
-            <p className={cn(FILLS_CELL, ONE_LINE)} title={uploader}>
+            <p className={cn(FILLS_CELL, "break-words")} title={uploader}>
               {uploader}
             </p>
           );
@@ -802,14 +807,15 @@ export function SourceTag({
   const sourceLabel = useSourceLabel()(source);
   // The click still opens the first file's record, as it always did.
   const label = records > 1 ? `${sourceLabel}${t("documents.source.more", { count: records - 1 })}` : sourceLabel;
-  // One line from the left edge under the title, then 「…」, the whole of it
-  // on hover (JB165: a wrapped button centred its lines, so some rows' tags
-  // sat indented).
+  // From the left edge under the title (JB165: a wrapped button centred its
+  // lines, so some rows' tags sat indented - `text-left` keeps them at the
+  // edge). JB202: it wraps instead of ending in 「…」 - it names the record's
+  // number (「来自 MI-PRJ-0001-001 · 材料进场」).
   return (
     <p className="flex min-w-0 max-w-full items-center gap-1.5 text-xs" data-source-tag>
       <button
         type="button"
-        className={cn(ONE_LINE, "min-w-0 text-left text-primary underline-offset-2 hover:underline")}
+        className="min-w-0 break-words text-left text-primary underline-offset-2 hover:underline"
         title={`${label} · ${t("documents.source.open")}`}
         onClick={onOpen}
       >

@@ -238,8 +238,11 @@ export function AppSidebar() {
                         asChild
                         isActive={active}
                         tooltip={hasMenu && !isMobile ? undefined : label}
+                        // JB202 (Lucas 11-16 「字被裁掉了」): a long entry
+                        // (「Hazard rectification / EHS」) takes a second line
+                        // instead of ending in 「…」, so the row grows with it.
                         className={cn(
-                          "rounded-lg px-2 data-[active=true]:bg-sidebar-accent data-[active=true]:font-semibold data-[active=true]:text-sidebar-accent-foreground data-[active=true]:shadow-[inset_2px_0_0_var(--sidebar-primary)]",
+                          "h-auto min-h-10 rounded-lg px-2 py-1.5 pointer-coarse:h-auto pointer-coarse:min-h-11 data-[active=true]:bg-sidebar-accent data-[active=true]:font-semibold data-[active=true]:text-sidebar-accent-foreground data-[active=true]:shadow-[inset_2px_0_0_var(--sidebar-primary)]",
                           flyoutOpen &&
                             "bg-sidebar-accent text-sidebar-accent-foreground",
                         )}
@@ -264,7 +267,9 @@ export function AppSidebar() {
                           >
                             <Icon />
                           </span>
-                          <span>{label}</span>
+                          {/* `!` beats the menu button's own
+                              `[&>span:last-child]:truncate`. */}
+                          <span className="min-w-0 break-words leading-snug whitespace-normal!">{label}</span>
                           {/* Inside the Link, not in a SidebarMenuAction: the
                               right-hand slot already holds the submodule
                               arrow on every entry that has children, and

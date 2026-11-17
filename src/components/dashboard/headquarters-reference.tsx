@@ -310,7 +310,10 @@ export function HeadquartersSiteActivity({
                   </span>
                   <span className="block space-y-0.5 p-3">
                     <span className="block truncate text-sm font-semibold">{project.name}</span>
-                    <span className="block min-h-5 truncate text-sm">
+                    {/* JB202 (Lucas 11-16 「字被裁掉了」): the record's title
+                        and its quantity, which comes last and was the first
+                        thing cut - wraps instead of ending in 「…」. */}
+                    <span className="block min-h-5 break-words text-sm">
                       {headline
                         ? [
                             headline.title,
@@ -373,9 +376,12 @@ export function HeadquartersNotices() {
         <ul className="divide-y">
           {rows.slice(0, 5).map((row) => (
             <li key={row.id} className="flex items-start justify-between gap-3 py-2">
+              {/* JB202: a notice here is not a link, so its title (with the
+                  record's number) and its message wrap instead of ending in
+                  「…」 - there was no tap that showed the rest. */}
               <span className="min-w-0">
-                <span className="block truncate text-sm font-medium">{row.title}</span>
-                <span className="block truncate text-xs text-muted-foreground">{row.message}</span>
+                <span className="block break-words text-sm font-medium">{row.title}</span>
+                <span className="block break-words text-xs text-muted-foreground">{row.message}</span>
               </span>
               <span className="shrink-0 text-xs text-muted-foreground">{df.relative(row.created_at)}</span>
             </li>

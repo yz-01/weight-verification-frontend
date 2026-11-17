@@ -796,7 +796,8 @@ function RevisionTimeline({ application }: { application: ConsultantApplication 
                 {row.is_current && <span data-revision-tag="viewing" className="text-xs font-semibold text-primary">{t("detail.revisionCurrent")}</span>}
                 {row.revision === latest && <span data-revision-tag="latest" className="text-xs font-semibold text-success">{t("detail.revisionLatest")}</span>}
               </div>
-              <p className="truncate text-xs text-muted-foreground">{row.application_no}</p>
+              {/* JB202: the number wraps on a phone instead of ending in 「…」. */}
+              <p className="break-words text-xs text-muted-foreground">{row.application_no}</p>
               {timestamp && <p className="mt-1 text-xs text-muted-foreground">{new Date(timestamp).toLocaleString()}</p>}
             </div>
             <StatusBadge label={t(`status.${row.status}`)} tone={statusTone(row.status)} />
