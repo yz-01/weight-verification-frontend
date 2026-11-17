@@ -4282,7 +4282,9 @@
       "record": "Rekod bayaran",
       "recordDescription": "Kaitkan bayaran dan buktinya dengan invois yang dikeluarkan.",
       "reject": "Tolak bayaran",
-      "viewProof": "Lihat bukti"
+      "viewProof": "Lihat bukti",
+      "recordOwn": "Rekod bayaran",
+      "recordOwnDescription": "Rekod bayaran anda kepada MSE bagi invois ini, bersama slip bank; MSE menyemak dan mengesahkannya."
     },
     "paymentMethod": {
       "BANK_TRANSFER": "Pindahan bank",
@@ -4406,6 +4408,10 @@
       "invoice": "Invois ini",
       "payments": "Rekod bayaran",
       "openInvoices": "Senarai invois belum dibayar"
+    },
+    "own": {
+      "title": "Bil daripada MSE",
+      "subtitle": "Bil yang MSE hantar kepada syarikat anda: jumlah setiap tempoh, apa yang sudah dibayar dan apa yang masih tertunggak."
     }
   },
   "businessTargets": {
@@ -13827,6 +13833,13 @@
       "need": "Permohonan baharu memerlukan projek, fail permit (Word, PDF atau foto borang; beberapa halaman, paling banyak 10 sekali gus) dan pengurus keselamatan pelulus; catatan adalah pilihan. Meluluskan memerlukan tandatangan; memulangkan memerlukan sebabnya.",
       "then": "Pengurus keselamatan yang dipilih (dan pentadbir syarikat) menerima notis tugasan. Selepas diluluskan, fail asal, keputusan, tandatangan, jawatan pelulus dan masa diarkibkan bersama dan tidak boleh diubah lagi. Permit yang dipulangkan dibetulkan oleh pemohon dan dihantar semula dengan fail baharu; fail terdahulu disimpan. Pemohon dimaklumkan dalam kedua-dua keadaan.",
       "trouble": "Jika tiada pengurus keselamatan boleh dipilih, belum ada sesiapa dalam projek ini yang boleh meluluskan permit: peranan pelulus memerlukan “Pengesahan keselamatan” dan “Lihat projek”, dan orang itu mesti ada dalam senarai kakitangan projek ini. Tetingkap “Permohonan baharu” menyenaraikan tiga langkah ini."
+    },
+    "billing_customer": {
+      "what": "Bil yang MSE hantar kepada syarikat anda: langganan SaaS dan, bagi pelan kerjasama, komisen platform. Setiap bil menunjukkan tempoh, jumlah, yang sudah dibayar dan yang masih tertunggak.",
+      "who": "Pemegang billing.view boleh melihat bil; pemegang billing.pay boleh merekod bayaran dan memuat naik slip bank.",
+      "need": "Merekod bayaran memerlukan invois, jumlah, tarikh bayar dan cara bayaran; rujukan, slip dan catatan adalah pilihan. Dengan slip bank, MSE dapat menyemaknya lebih cepat.",
+      "then": "Bayaran yang direkod berstatus “Menunggu semakan” sehingga MSE menyemak dan mengesahkan atau menolaknya; hanya bayaran yang disahkan dikira untuk bil.",
+      "trouble": "Jika jumlah pada bil kelihatan salah, hubungi MSE terus."
     }
   },
   "partners": {

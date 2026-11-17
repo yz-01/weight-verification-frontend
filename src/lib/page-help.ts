@@ -23,7 +23,7 @@ import type { Portal } from "@/interfaces/auth";
  */
 
 /** A help entry that is not a module's own feature key (JB206-12). */
-export type HelpKey = PortalFeatureKey | "company_settings_trace" | "permits";
+export type HelpKey = PortalFeatureKey | "company_settings_trace" | "permits" | "billing_customer";
 
 /**
  * Screens whose help is not their menu entry's (JB206-12, Lucas 11-16 audit,
@@ -39,12 +39,18 @@ export type HelpKey = PortalFeatureKey | "company_settings_trace" | "permits";
  *   安全事件 / 事故上报 text (JB215B-3, noticed in JB206); it gets its own,
  *   written from what the page does (upload the company's form, the named
  *   safety manager signs or returns it, then it is archived).
+ * - A recycler's 账单与佣金 is MSE Admin's page shared, and `billing_commission`
+ *   explains MSE's side - 平台的两笔钱, confirming collections (JB215B, walk
+ *   11-17). The customer gets help about its own bills from MSE.
  */
 const HELP_OVERRIDES: Partial<Record<Portal, Readonly<Record<string, HelpKey>>>> = {
   MSE_TRACE: {
     "/hazard-rectifications": "hazard_rectification",
     "/company-settings": "company_settings_trace",
     "/permits": "permits",
+  },
+  MSE_SCRAP: {
+    "/billing": "billing_customer",
   },
 };
 

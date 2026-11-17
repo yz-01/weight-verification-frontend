@@ -29,7 +29,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import type { FieldTask } from "@/interfaces/contractor-ops";
-import { consultantTaskTitle } from "@/lib/consultant-task-title";
+import { consultantAskType, consultantTaskTitle } from "@/lib/consultant-task-title";
 import { disposalTaskTitle } from "@/lib/field-task-title";
 import { useDateFormat } from "@/lib/dates";
 import { photoCaptionText, siteLocationText } from "@/lib/recorded-words";
@@ -142,9 +142,11 @@ export function FieldTaskSheet({ id, onClose }: { id: string; onClose: () => voi
   const photoTotal = row.photos.length + linkedPhotos.length;
   const gpsPhoto = [...row.photos, ...linkedPhotos].find((photo) => photo.latitude && photo.longitude);
   const sentOn = row.consultant_application ?? null;
-  const category = row.submission_category
-    ? askOption(row.submission_category) ?? row.submission_category
-    : null;
+  // 「这次要顾问看什么」 only on a consultant submission, and always in words
+  // (JB215B, walk 11-17): a disposal run printed 「SITE_DISPOSAL_EXECUTION」
+  // here, a photo filed into a site column its column's code.
+  const askType = consultantAskType(row);
+  const category = askType ? askOption(askType) : null;
   // A site disposal's task is 「执行清运 DR-…」, as on the phone (JB215): its
   // stored title is English.
   const disposal = disposalTaskTitle(row, (reference) => flow("work.disposalTitle", { reference }));

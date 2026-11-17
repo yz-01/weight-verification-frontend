@@ -4282,7 +4282,9 @@
       "record": "Record payment",
       "recordDescription": "Associate a payment and its proof with an issued invoice.",
       "reject": "Reject payment",
-      "viewProof": "View proof"
+      "viewProof": "View proof",
+      "recordOwn": "Record a payment",
+      "recordOwnDescription": "Record what you paid MSE against this invoice, with the bank slip; MSE checks it and confirms."
     },
     "paymentMethod": {
       "BANK_TRANSFER": "Bank transfer",
@@ -4406,6 +4408,10 @@
       "invoice": "This invoice",
       "payments": "The payment records",
       "openInvoices": "The list of unpaid invoices"
+    },
+    "own": {
+      "title": "Bills from MSE",
+      "subtitle": "The bills MSE sends your company: what each period costs, what you have paid and what is still owed."
     }
   },
   "businessTargets": {
@@ -13827,6 +13833,13 @@
       "need": "A new application needs the project, the permit files (Word, PDF or photos of the form; several pages, at most 10 at a time) and the approving safety manager; a remark is optional. Approving needs a signature; returning needs the reason.",
       "then": "The chosen safety manager (and the company administrators) get a to-do notice. Once approved, the original files, the decision, the signature, the approver's position and the time are archived together and can no longer change. A returned permit is corrected by the applicant and resubmitted with new files; the earlier files are kept. The applicant is told either way.",
       "trouble": "If no safety manager can be chosen, nobody on this project can approve permits yet: the approver's role needs “Safety verification” and “View projects”, and the person must be on this project's staff list. The “New application” window lists these three steps."
+    },
+    "billing_customer": {
+      "what": "The bills MSE sends your company: the SaaS subscription and, on the partnership plan, the platform commission. Each shows its period, the amount, what has been paid and what is still owed.",
+      "who": "Holders of billing.view read the bills; holders of billing.pay record a payment and upload the bank slip.",
+      "need": "Recording a payment needs the invoice, the amount, the date paid and how it was paid; the reference, slip and notes are optional. With the bank slip attached MSE can check it sooner.",
+      "then": "A recorded payment is “Pending review” until MSE checks it and confirms or rejects it; only a confirmed payment counts against the bill.",
+      "trouble": "If an amount on a bill looks wrong, contact MSE directly."
     }
   },
   "partners": {

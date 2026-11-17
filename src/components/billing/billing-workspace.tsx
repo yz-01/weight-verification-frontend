@@ -39,11 +39,18 @@ const SUBMODULES: Array<{ section: Exclude<BillingSection, "overview">; number: 
 
 export function BillingWorkspace({ section = "overview" }: { section?: BillingSection }) {
   const t = useTranslations("billing");
-  const { can } = useAuth();
+  const { can, user } = useAuth();
+  // A customer company (a recycler on 账单与佣金) reads the bills MSE sends
+  // it (JB215B, walk 11-17). The page is shared with MSE Admin, and it
+  // showed MSE's own header 「管理 SaaS 收费、平台佣金、账单及收款」, MSE's
+  // five-step charging workflow and MSE's receivable tiles (本月 SaaS 应收 …,
+  // the company's own figures - the server scopes them - in MSE's words). It
+  // gets a plain header of its own; the workflow and the tiles are MSE's.
+  const customer = Boolean(user) && user?.portal !== "MSE_ADMIN";
   const canManage = can("billing.manage");
   const canCollect = can("billing.collect");
   const canPay = can("billing.pay");
-  const summary = useQuery({ queryKey: ["billing", "summary"], queryFn: getBillingSummary });
+  const summary = useQuery({ queryKey: ["billing", "summary"], queryFn: getBillingSummary, enabled: !customer });
   const visibleModules = SUBMODULES.filter((module) => {
     if (["automatic-billing", "commission-rules"].includes(module.section)) return canManage;
     if (module.section === "collections") return canCollect;
@@ -59,7 +66,10 @@ export function BillingWorkspace({ section = "overview" }: { section?: BillingSe
   else if (section === "reports") content = <FinancialReports />;
   else content = <InvoiceList embedded />;
 
-  return <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4"><ListHeader title={section === "overview" ? t("title") : t(`section.${section}.title`)} subtitle={section === "overview" ? t("subtitle") : t(`section.${section}.subtitle`)} /><BillingWorkflow section={section} />{(section === "overview" || section === "search") && <><QueryFailedNote query={summary} what={t("what.summary")} /><Summary data={summary.data} loading={summary.isLoading} failed={summary.isError} expanded={section === "search"} /></>}{content}</div>;
+  const header = customer && section === "overview"
+    ? { title: t("own.title"), subtitle: t("own.subtitle") }
+    : { title: section === "overview" ? t("title") : t(`section.${section}.title`), subtitle: section === "overview" ? t("subtitle") : t(`section.${section}.subtitle`) };
+  return <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4"><ListHeader {...header} />{!customer && <BillingWorkflow section={section} />}{!customer && (section === "overview" || section === "search") && <><QueryFailedNote query={summary} what={t("what.summary")} /><Summary data={summary.data} loading={summary.isLoading} failed={summary.isError} expanded={section === "search"} /></>}{content}</div>;
 }
 
 const WORKFLOW_STEPS = [
