@@ -2453,7 +2453,7 @@
       "qr_duplicate_use_policy": "Polisi penggunaan berulang",
       "qr_number_prefix": "Awalan nombor",
       "saas_default_billing_cycle": "Kitaran bil lalai",
-      "saas_default_plan_code": "Kod pelan lalai",
+      "saas_default_plan_code": "Pelan lalai untuk kontraktor baharu",
       "saas_default_trial_days": "Hari percubaan lalai",
       "saas_default_user_limit": "Had akaun lalai",
       "saas_plans_enabled": "Pelan diaktifkan"
@@ -2584,7 +2584,7 @@
         "title": "Tetapan QR"
       },
       "saas": {
-        "subtitle": "Pelan, kitaran bil, percubaan, had akaun dan ketersediaan pelan lalai.",
+        "subtitle": "Pelan lalai, kitaran bil, percubaan dan had akaun.",
         "title": "Tetapan SaaS"
       },
       "versions": {
@@ -2612,6 +2612,83 @@
       "title": "Ada tetapan belum disimpan",
       "description": "Halaman ini ada tetapan yang anda ubah tetapi belum disimpan. Jika anda keluar sekarang, perubahan itu akan hilang.",
       "confirm": "Keluar tanpa simpan"
+    },
+    "notificationTypes": {
+      "hint": "Jenis yang ditanda dihantar secara automatik; yang tidak ditanda tidak dihantar kepada sesiapa (MSE atau pelanggan). Bil, langganan dan rekod lain tidak terjejas, dan pengumuman yang anda hantar sendiri tetap dihantar.",
+      "COMPANY": {
+        "label": "Notis syarikat",
+        "help": "Kontraktor atau pengitar semula baharu mendaftar, syarikat diaktifkan atau dinyahaktifkan"
+      },
+      "SUBSCRIPTION": {
+        "label": "Notis langganan",
+        "help": "Langganan hampir tamat, telah tamat atau diperbaharui"
+      },
+      "SAAS_BILLING": {
+        "label": "Notis bil SaaS",
+        "help": "Bil SaaS dikeluarkan atau bayaran disahkan. Jika tidak ditanda, pelanggan juga tidak diberitahu 'bil dikeluarkan', tetapi bil tetap ada dalam pusat bil mereka."
+      },
+      "COMMISSION_BILLING": {
+        "label": "Notis komisen platform",
+        "help": "Bil komisen dikeluarkan atau bayaran disahkan. Jika tidak ditanda, pelanggan juga tidak diberitahu 'bil dikeluarkan', tetapi bil tetap ada dalam pusat bil mereka."
+      },
+      "CWE": {
+        "label": "Notis jambatan timbang",
+        "help": "Jambatan timbang di luar talian atau kembali dalam talian"
+      },
+      "SYSTEM": {
+        "label": "Notis sistem",
+        "help": "Penyelenggaraan sistem"
+      }
+    },
+    "reminderDays": {
+      "before": "Mula mengingatkan setiap hari",
+      "after": "hari sebelum langganan tamat",
+      "hint": "Masukkan 1 hingga 365. Dahulu tetap 30 hari.",
+      "invalid": "Masukkan nombor bulat dari 1 hingga 365"
+    },
+    "duplicateWindow": {
+      "before": "Kod QR yang sama diimbas semula dalam",
+      "after": "saat dikira sebagai penggunaan berulang",
+      "hint": "Masukkan 10 hingga 3600 (3600 saat = 1 jam). Tindakan untuk penggunaan berulang ditetapkan dalam 'Peraturan penggunaan berulang'. Dahulu tetap 90 saat.",
+      "invalid": "Masukkan nombor bulat dari 10 hingga 3600"
+    },
+    "maintenanceWindow": {
+      "label": "Masa penyelenggaraan",
+      "start": "Mula",
+      "end": "Tamat",
+      "startBlank": "Tiada masa mula: penyelenggaraan bermula sebaik mod penyelenggaraan dihidupkan",
+      "endBlank": "Tiada masa tamat: penyelenggaraan berterusan sehingga mod penyelenggaraan dimatikan",
+      "endBeforeStart": "Masa tamat mesti lebih lewat daripada masa mula",
+      "clear": "Kosongkan"
+    },
+    "defaultPlan": {
+      "none": "Tidak ditetapkan (guna pelan kontraktor pertama dalam senarai)",
+      "stopped": "{code} (dihentikan atau dibuang)",
+      "hint": "Digunakan apabila kontraktor baharu ditambah tanpa memilih pelan. Pengitar semula mesti sentiasa dipilih pelannya sendiri (rakan kongsi dan standard dibilkan secara berbeza).",
+      "what": "pelan kontraktor"
+    },
+    "saasPlansNote": "Setiap pelan dihidupkan atau dimatikan secara berasingan dalam Pengurusan pelan.",
+    "saasPlansLink": "Buka Pengurusan pelan",
+    "commissionCard": {
+      "title": "Komisen lalai platform",
+      "description": "Semua pengitar semula rakan kongsi menggunakan ini, kecuali syarikat yang mempunyai komisen persetujuan sendiri. Perubahan berkuat kuasa dari tarikh mulanya; bil yang telah dikeluarkan tidak berubah.",
+      "rate": "Kadar komisen",
+      "basis": "Dikira berdasarkan",
+      "cycle": "Kitaran penyelesaian",
+      "effectiveFrom": "Berkuat kuasa dari",
+      "next": "Mulai {date}: {rate}",
+      "none": "Komisen lalai platform belum ditetapkan, jadi tiada bil komisen dibuat langsung.",
+      "firstWarning": "Selepas disimpan, pengitar semula rakan kongsi mula menerima bil komisen dari tarikh mula.",
+      "change": "Ubah",
+      "set": "Tetapkan komisen lalai platform",
+      "allVersions": "Lihat semua versi",
+      "switchedOff": "'Komisen diaktifkan' dimatikan: tiada bil komisen baharu dibuat.",
+      "what": "komisen lalai platform",
+      "dialogTitle": "Ubah komisen lalai platform",
+      "dialogNotice": "Menyimpan menambah versi baharu yang digunakan dari tarikh mulanya. Bil yang telah dikeluarkan tidak berubah."
+    },
+    "help": {
+      "commission_enabled": "Jika dimatikan, tiada bil komisen platform baharu dibuat, sama ada secara automatik atau manual. Bil yang telah dikeluarkan masih perlu dibayar."
     }
   },
   "adminTechnicalSupport": {
@@ -9299,7 +9376,8 @@
       "hazard_not_awaiting_check": "Seseorang telah menguruskan perkara ini, jadi ia tidak lagi menunggu semakan. Muat semula halaman untuk melihat keadaan terkini.",
       "hazard_confirmed_by_other": "{incident_no} disemak atau dipulangkan oleh orang yang mengesahkannya {confirmer}. Anda boleh membacanya tetapi tidak boleh bertindak; hubungi mereka jika perlu.",
       "visitor_host_required": "Pilih orang yang ingin ditemui pelawat, kemudian tekan sahkan.",
-      "visitor_host_not_on_project": "Orang itu tidak bekerja di projek ini. Pilih orang daripada projek ini dalam senarai."
+      "visitor_host_not_on_project": "Orang itu tidak bekerja di projek ini. Pilih orang daripada projek ini dalam senarai.",
+      "commission_disabled": "Komisen platform dimatikan dalam Tetapan Sistem, jadi bil komisen tidak boleh dibuat."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {

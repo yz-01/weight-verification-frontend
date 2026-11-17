@@ -2453,7 +2453,7 @@
       "qr_duplicate_use_policy": "Duplicate-use policy",
       "qr_number_prefix": "Number prefix",
       "saas_default_billing_cycle": "Default billing cycle",
-      "saas_default_plan_code": "Default plan code",
+      "saas_default_plan_code": "Default plan for new builders",
       "saas_default_trial_days": "Default trial days",
       "saas_default_user_limit": "Default account limit",
       "saas_plans_enabled": "Plans enabled"
@@ -2584,7 +2584,7 @@
         "title": "QR settings"
       },
       "saas": {
-        "subtitle": "Default plan, billing cycle, trial, account limit and plan availability.",
+        "subtitle": "Default plan, billing cycle, trial and account limit.",
         "title": "SaaS settings"
       },
       "versions": {
@@ -2612,6 +2612,83 @@
       "title": "Some settings are not saved",
       "description": "This page has settings you changed but did not save. If you leave now, those changes are lost.",
       "confirm": "Leave without saving"
+    },
+    "notificationTypes": {
+      "hint": "Ticked kinds are sent automatically; unticked kinds are not sent to anyone (MSE or customers). Bills, subscriptions and other records are not affected, and announcements you send yourself always go out.",
+      "COMPANY": {
+        "label": "Company notices",
+        "help": "A new builder or recycler registers, a company is enabled or disabled"
+      },
+      "SUBSCRIPTION": {
+        "label": "Subscription notices",
+        "help": "A subscription is about to end, has ended, or is renewed"
+      },
+      "SAAS_BILLING": {
+        "label": "SaaS bill notices",
+        "help": "A SaaS bill is issued or a payment is confirmed. Unticked, customers are not told 'bill issued' either, but the bill is still in their billing centre."
+      },
+      "COMMISSION_BILLING": {
+        "label": "Platform commission notices",
+        "help": "A commission bill is issued or a payment is confirmed. Unticked, customers are not told 'bill issued' either, but the bill is still in their billing centre."
+      },
+      "CWE": {
+        "label": "Weighbridge notices",
+        "help": "A weighbridge goes offline or comes back online"
+      },
+      "SYSTEM": {
+        "label": "System notices",
+        "help": "System maintenance"
+      }
+    },
+    "reminderDays": {
+      "before": "Start reminding every day",
+      "after": "days before a subscription ends",
+      "hint": "Enter 1 to 365. It used to be fixed at 30 days.",
+      "invalid": "Enter a whole number from 1 to 365"
+    },
+    "duplicateWindow": {
+      "before": "The same QR code scanned again within",
+      "after": "seconds counts as repeated use",
+      "hint": "Enter 10 to 3600 (3600 seconds = 1 hour). What happens to a repeated use is set in 'Duplicate use rule'. It used to be fixed at 90 seconds.",
+      "invalid": "Enter a whole number from 10 to 3600"
+    },
+    "maintenanceWindow": {
+      "label": "Maintenance time",
+      "start": "Start",
+      "end": "End",
+      "startBlank": "No start time: maintenance starts as soon as maintenance mode is switched on",
+      "endBlank": "No end time: maintenance lasts until maintenance mode is switched off",
+      "endBeforeStart": "The end time must be later than the start time",
+      "clear": "Clear"
+    },
+    "defaultPlan": {
+      "none": "Not set (use the first builder plan in the list)",
+      "stopped": "{code} (stopped or removed)",
+      "hint": "Used when a new builder is added without choosing a plan. A recycler always needs its plan chosen by hand (partner and standard are billed differently).",
+      "what": "builder plans"
+    },
+    "saasPlansNote": "Each plan is switched on or off on its own in Plan management.",
+    "saasPlansLink": "Open Plan management",
+    "commissionCard": {
+      "title": "Platform default commission",
+      "description": "Every partner recycler uses this, except a company with its own agreed commission. A change applies from its start date; bills already issued do not change.",
+      "rate": "Commission rate",
+      "basis": "Calculated on",
+      "cycle": "Settlement cycle",
+      "effectiveFrom": "In use from",
+      "next": "From {date}: {rate}",
+      "none": "No platform default commission is set, so no commission bill is made at all.",
+      "firstWarning": "Once saved, partner recyclers start getting commission bills from the start date.",
+      "change": "Change",
+      "set": "Set the platform default commission",
+      "allVersions": "See every version",
+      "switchedOff": "'Commission enabled' is off: no new commission bills are made.",
+      "what": "the platform default commission",
+      "dialogTitle": "Change the platform default commission",
+      "dialogNotice": "Saving adds a new version used from its start date. Bills already issued do not change."
+    },
+    "help": {
+      "commission_enabled": "Switched off, no new platform commission bill is made, neither automatically nor by hand. Bills already issued are still due."
     }
   },
   "adminTechnicalSupport": {
@@ -9299,7 +9376,8 @@
       "hazard_not_awaiting_check": "Someone has already dealt with this item, so it is no longer waiting to be checked. Refresh the page to see where it is now.",
       "hazard_confirmed_by_other": "{incident_no} is checked or returned by the person who confirms it {confirmer}. You can read it but not act on it; contact them if needed.",
       "visitor_host_required": "Choose who the visitor is here to see, then press confirm.",
-      "visitor_host_not_on_project": "That person does not work on this project. Choose someone from this project in the list."
+      "visitor_host_not_on_project": "That person does not work on this project. Choose someone from this project in the list.",
+      "commission_disabled": "Platform commission is switched off in System Settings, so no commission bill can be made."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
