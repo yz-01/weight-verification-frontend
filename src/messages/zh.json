@@ -1838,6 +1838,7 @@
     },
     "subjectType": {
       "CONTRACTOR": "建筑商",
+      "CUSTOMER": "私人客户",
       "DELIVERY_NOTE": "送货单",
       "DEVICE": "设备",
       "DRIVER": "司机",
