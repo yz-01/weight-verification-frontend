@@ -160,7 +160,11 @@ export function FieldChatsOffice() {
       )}
       <QueryFailedNote query={chats} what={t("title")} />
       <QueryFailedNote query={packageThreads} what={t("packageKind")} />
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]">
+      {/* JB202 (Lucas 11-16 「字被裁掉了」): `grid-cols-1` (a column that may
+          be narrower than its longest line) - without it the list took the
+          width of its longest name and ran past a phone's edge, cutting the
+          time off each row. */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]">
         <ul className="space-y-2" data-field-chats>
           {loading ? (
             <li className="text-sm text-muted-foreground">{t("loading")}</li>
@@ -264,12 +268,15 @@ function ChatRow({
       <span className="mt-0.5 grid size-9 shrink-0 place-items-center rounded-full bg-muted">
         {row.people.length > 2 ? <UsersRound className="size-4" /> : <MessagesSquare className="size-4" />}
       </span>
+      {/* JB202: who is in the conversation and the project wrap instead of
+          「阿明（现场）、示范 项目经理、示…」; the last message stays one line
+          (free text - the row opens it). */}
       <span className="min-w-0 flex-1">
         <span className="flex items-baseline justify-between gap-2">
-          <span className="truncate text-sm font-semibold">{row.title}</span>
+          <span className="min-w-0 break-words text-sm font-semibold">{row.title}</span>
           <span className="shrink-0 text-2xs text-muted-foreground">{when}</span>
         </span>
-        <span className="block truncate text-xs text-muted-foreground">{row.project_name}</span>
+        <span className="block break-words text-xs text-muted-foreground">{row.project_name}</span>
         <span className="block truncate text-xs">
           {last ? `${last.author_name}：${last.body || t("attachment")}` : t("noMessages")}
         </span>
@@ -322,7 +329,8 @@ function PackageChatRow({
       </span>
       <span className="min-w-0 flex-1">
         <span className="flex items-baseline justify-between gap-2">
-          <span className="truncate text-sm font-semibold">{row.package_no}</span>
+          {/* JB202: the PKG number wraps instead of ending in 「…」. */}
+          <span className="min-w-0 break-words text-sm font-semibold">{row.package_no}</span>
           <span className="shrink-0 text-2xs text-muted-foreground">{when}</span>
         </span>
         {/* The recipient on a line of its own: on one line with a long PKG
@@ -331,7 +339,7 @@ function PackageChatRow({
         <span className="block break-words text-sm font-medium" data-package-chat-who>
           {who}
         </span>
-        <span className="block truncate text-xs text-muted-foreground">
+        <span className="block break-words text-xs text-muted-foreground">
           {t("packageThread", { name: row.package_name })} · {row.project_name}
         </span>
         <span className="block truncate text-xs">

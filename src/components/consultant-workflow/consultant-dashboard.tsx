@@ -348,9 +348,12 @@ function ApplicationList({
         <div className="divide-y">
           {rows.map((row) => (
             <Link key={row.id} href={`/consultant-applications/${row.id}`} className="flex items-start justify-between gap-3 py-3 transition-colors hover:bg-muted/30">
+              {/* JB202 (Lucas 11-16 「字被裁掉了…检查一下有没有类似的问题」): the
+                  application number and who sent it wrap on a phone instead of
+                  ending in 「…」 - the number is how rows are told apart. */}
               <div className="min-w-0">
-                <p className="truncate text-sm font-medium">{row.application_no} - {row.application_type}</p>
-                <p className="truncate text-xs text-muted-foreground">{row.project_name} · {row.applicant_name}</p>
+                <p className="break-words text-sm font-medium">{row.application_no} - {row.application_type}</p>
+                <p className="break-words text-xs text-muted-foreground">{row.project_name} · {row.applicant_name}</p>
                 {row.current_step && <p className="mt-1 text-xs text-primary">{t("currentStep", { step: row.current_step })}</p>}
               </div>
               <div className="shrink-0 text-right">

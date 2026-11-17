@@ -229,7 +229,8 @@ export function AuditLogs({
         ),
         cell: ({ row }) => (
           <div className="min-w-0">
-            <p className="max-w-50 truncate">
+            {/* JB202: the person's whole name (「林工程师（示范顾问）」 ended in 「…」). */}
+            <p className="max-w-50 break-words">
               {row.original.actor_name ??
                 row.original.actor_email ??
                 t("common.emptyValue")}
@@ -257,8 +258,10 @@ export function AuditLogs({
         ),
         cell: ({ row }) => (
           <div className="min-w-0">
+            {/* JB202 (Lucas 11-16 「字被裁掉了」): who / what was changed wraps
+                on a phone instead of 「示范 项目经理 <shifan.pm@mse.inval…」. */}
             <p
-              className="max-w-60 truncate"
+              className="max-w-60 break-words"
               title={row.original.object_repr}
             >
               {row.original.object_repr || t("common.emptyValue")}

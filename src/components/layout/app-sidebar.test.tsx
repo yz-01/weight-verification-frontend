@@ -132,7 +132,10 @@ describe("the restyled sidebar keeps the whole menu", () => {
         .split(".")
         .reduce<unknown>((node, key) => (node as Record<string, unknown>)[key], nav) as string;
       expect(label, item.labelKey).toBeTruthy();
-      expect(markup, item.labelKey).toContain(`<span>${label}</span>`);
+      // JB202: the entry's name wraps instead of ending in 「…」.
+      expect(markup, item.labelKey).toContain(
+        `<span class="min-w-0 break-words leading-snug whitespace-normal!">${label}</span>`,
+      );
     }
     // Every group heading is still there, in order.
     const groups = visibleNavigation("MSE_TRACE", features, [], true).map(

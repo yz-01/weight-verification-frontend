@@ -52,7 +52,15 @@ export function DashboardToolbar() {
   }, [autoSelect]);
 
   return (
-    <header className="relative z-40 flex h-14 shrink-0 items-center gap-2 border-b border-sidebar-border bg-background/85 px-2 backdrop-blur-md sm:px-4 lg:px-6">
+    // JB202 (Lucas 11-16 「字被裁掉了…检查一下有没有类似的问题也修复一下」): the
+    // bar grows a second row instead of squeezing. On a phone the buttons
+    // were pressed into slivers (the project box showed no name, the search
+    // button was cut) and in English the page name ran under them; on a
+    // desktop in English the controls covered the page name. Now the
+    // buttons keep their size, and whatever does not fit moves to a row
+    // below: on a phone the project box gets the whole second row, so its
+    // name reads in full; on a desktop the controls go below the page name.
+    <header className="relative z-40 flex min-h-14 shrink-0 flex-wrap items-center gap-x-1 gap-y-1.5 border-b border-sidebar-border bg-background/85 px-2 py-1.5 backdrop-blur-md sm:gap-x-2 sm:px-4 lg:px-6">
       <SidebarTrigger className="size-10" />
       {showBack && (
         <Button
@@ -68,15 +76,22 @@ export function DashboardToolbar() {
       {/* Where the reader is, in the menu's words (B02, 图7): the same bar
           and the same title in every console. */}
       {current && <PageTitle current={current} />}
-      <div className="ml-auto flex min-w-0 flex-1 items-center justify-end gap-2">
+      {/* On a phone these are the bar's own items (`contents`): the icons
+          stay on the first row beside the page name and the project box
+          takes the second row; from `sm` up they are one group that moves
+          below the page name when both do not fit on one row. */}
+      <div className="contents sm:ml-auto sm:flex sm:max-w-full sm:flex-wrap sm:items-center sm:justify-end sm:gap-2">
         <PageSwitcher />
         {/* Everyone else's 「当前项目」; the consultant's is the select below,
             which the server enforces (B13). */}
         <CurrentProjectPicker />
         {user?.account_type === "CONSULTANT" && (
+          // JB202: wide enough for the project's whole name - a select box
+          // cannot wrap, and at 14 rem 「PRJ-0001 - 示范商业大厦一期」 lost its
+          // last character even on a desktop; a phone gives it a row of its own.
           <select
             aria-label={t("consultantProject.label")}
-            className="h-10 min-w-0 max-w-56 rounded-lg border border-input bg-card px-3 text-sm pointer-coarse:text-base"
+            className="order-last h-10 min-w-0 max-w-full basis-full rounded-lg border border-input bg-card px-3 text-sm pointer-coarse:text-base sm:order-none sm:basis-auto"
             value={user.active_project?.project_id ?? ""}
             onChange={(event) => void switchConsultantProject(event.target.value)}
           >
@@ -119,15 +134,18 @@ function PageTitle({
   const page = override ?? (current.leaf ? t(current.leaf.labelKey) : null);
   const showPage = page !== null && page !== entry;
   return (
-    <div className="flex min-w-0 shrink items-center gap-2 text-sm sm:text-base">
+    // JB202: the page name wraps rather than ending in 「…」 (in English
+    // 「Consultant dashboard」 read 「Cons…」); on a phone it takes the room
+    // the buttons leave on the first row.
+    <div className="flex min-w-0 flex-1 items-center gap-2 text-sm leading-snug sm:flex-initial sm:text-base">
       <span className="hidden size-8 shrink-0 place-items-center rounded-lg bg-primary/12 text-primary shadow-glow-sm sm:grid">
         <Icon className="size-4" />
       </span>
       <span
         className={
           showPage
-            ? "hidden truncate font-medium text-muted-foreground md:inline"
-            : "truncate font-semibold text-foreground"
+            ? "hidden min-w-0 break-words font-medium text-muted-foreground md:inline"
+            : "min-w-0 break-words font-semibold text-foreground"
         }
       >
         {entry}
@@ -135,7 +153,7 @@ function PageTitle({
       {showPage && (
         <>
           <ChevronRight className="hidden size-3.5 shrink-0 text-muted-foreground md:block" />
-          <span className="truncate font-semibold text-foreground">{page}</span>
+          <span className="min-w-0 break-words font-semibold text-foreground">{page}</span>
         </>
       )}
     </div>

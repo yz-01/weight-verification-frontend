@@ -468,8 +468,9 @@ export function DocumentTitleCell({ title, detail }: { title: string; detail?: R
 
 /**
  * Where a document is filed (B28 「显示路径」), in the list (JB165): the
- * folder, then the category small over its sub-category, each on one line
- * and never broken inside a word, the whole path on hover.
+ * folder, then the category small over its sub-category, never broken
+ * inside a word, the whole path on hover (one line each until JB202; they
+ * wrap now rather than end in 「…」).
  */
 export function DocumentPathCell({
   category,
@@ -479,16 +480,19 @@ export function DocumentPathCell({
   subcategory?: string | null;
 }) {
   const path = [category, subcategory].filter(Boolean).join(" / ");
+  // JB202 (Lucas 11-16 「字被裁掉了」): the category names wrap between whole
+  // words in the column (「Safety / Department」) instead of 「Safety Departm…」;
+  // a word is broken only when it alone is wider than the column.
   return (
     <div className={cn(FILLS_CELL, "flex items-center gap-1.5")} title={path} data-document-path>
       <Folder className="size-3.5 shrink-0 text-muted-foreground" />
       {subcategory ? (
         <span className="min-w-0 flex-1">
-          <span className={cn(ONE_LINE, "block text-xs text-muted-foreground")}>{category}</span>
-          <span className={cn(ONE_LINE, "block")}>{subcategory}</span>
+          <span className="block break-words text-xs text-muted-foreground">{category}</span>
+          <span className="block break-words">{subcategory}</span>
         </span>
       ) : (
-        <span className={cn(ONE_LINE, "min-w-0 flex-1")}>{category}</span>
+        <span className="min-w-0 flex-1 break-words">{category}</span>
       )}
     </div>
   );
