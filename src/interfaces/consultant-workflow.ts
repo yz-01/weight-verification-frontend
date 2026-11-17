@@ -291,6 +291,8 @@ export interface RemedialItem {
   is_overdue: boolean;
   closure_note: string;
   evidence: string[];
+  /** The files it was closed with, to look at (JB203W, walk F-8). */
+  evidence_files?: RemedialEvidenceFile[];
   closed_at: string | null;
   closed_by: string | null;
   closed_by_name: string | null;
@@ -298,6 +300,17 @@ export interface RemedialItem {
   created_by_name: string | null;
   created_at: string;
   updated_at: string;
+}
+
+/** One file a remedial item was closed with: the photo, or a document. */
+export interface RemedialEvidenceFile {
+  id: string;
+  kind: string;
+  file: string;
+  watermarked_file: string | null;
+  original_filename: string;
+  content_type: string;
+  captured_at: string | null;
 }
 
 export interface ConsultantApplication extends RecordedBy {

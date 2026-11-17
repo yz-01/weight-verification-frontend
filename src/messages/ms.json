@@ -5447,7 +5447,7 @@
       "final": "Laporan akhir",
       "finalHelp": "Muat turun laporan akhir yang lengkap (format RFI pelanggan).",
       "subtitle": "Buka langkah yang perlu diurus. Setiap permohonan bergerak daripada penyediaan hingga arkib yang dilindungi.",
-      "title": "Empat langkah mudah"
+      "title": "Langkah mudah"
     },
     "history": {
       "description": "Permohonan yang merekodkan tindakan kelulusan bertandatangan akaun ini.",
@@ -5492,7 +5492,7 @@
       "noEvidence": "Tiada bukti dilampirkan",
       "evidenceHint": "Pilih foto tapak projek ini yang menunjukkan kerja sudah siap (terbaru di atas). Ambil foto dengan aplikasi telefon dahulu.",
       "evidence": "Bukti",
-      "closedBy": "Ditutup oleh {name} pada {when}",
+      "closedBy": "Ditutup oleh {name} pada {when}, {count} bukti dilampirkan",
       "closureNote": "Apa yang telah dibuat",
       "closeHelp": "Nyatakan apa yang telah dibuat dan lampirkan buktinya.",
       "closeTitle": "Tutup perkara pembaikan ini",
@@ -5638,13 +5638,21 @@
         "revise": "Perunding memilih Semak dan hantar semula. Cipta semakan baharu, buat pembetulan dan hantar semula kepada perunding.",
         "waiting": "Anda tidak perlu bertindak sekarang. Permohonan sedang menunggu di {step}.",
         "remedialOpen": "Diluluskan, tetapi {count} perkara pembaikan masih dibuka. Apabila kerja siap, tekan 「Tutup perkara pembaikan ini」 di bawah 「Perkara pembaikan」 dan tambah foto sebagai bukti.",
-        "reviseMade": "Semakan baharu (semakan {revision}) sudah dibuat. Buka di Sejarah semakan di bawah, buat pembetulan di sana dan hantar."
+        "remedialOpenReviewer": "{count} perkara pembaikan menunggu kontraktor; anda akan dimaklumkan apabila mereka menutupnya. Jika perlu lagi, tekan 【Buka perkara pembaikan】.",
+        "remedialOpenWatching": "{count} perkara pembaikan menunggu kontraktor.",
+        "rejected": "Perunding menolak permohonan ini; sebabnya di bawah Keputusan ditandatangani. Selepas dibetulkan, tekan 【Permohonan baharu】 untuk menghantarnya semula.",
+        "reviseMade": "Semakan baharu (semakan {revision}) sudah dibuat. Buka di Sejarah semakan di bawah, buat pembetulan di sana dan hantar.",
+        "reviseSent": "Semakan baharu (semakan {revision}) telah dihantar kepada perunding. Buka di Sejarah semakan untuk melihatnya.",
+        "reviseDecided": "Perunding telah membuat keputusan tentang semakan baharu (semakan {revision}). Buka di Sejarah semakan untuk melihat keputusannya.",
+        "reviseReviewer": "Permohonan telah dikembalikan kepada kontraktor untuk dibetulkan. Anda akan dimaklumkan apabila mereka membuat semakan baharu dan menghantarnya."
       },
       "nextAction": "Apa yang berlaku seterusnya",
       "noRevisions": "Tiada sejarah semakan tersedia.",
+      "noRelatedRecords": "Permohonan ini tiada rekod tapak berkaitan.",
       "receivedAt": "Diterima oleh perunding",
       "revision": "Semakan {revision}",
-      "revisionCurrent": "Versi semasa",
+      "revisionCurrent": "Versi yang sedang dilihat",
+      "revisionLatest": "Versi terkini",
       "section": {
         "remedial": "Perkara pembaikan",
         "application": "Butiran permohonan",
@@ -5850,7 +5858,7 @@
       "reviewerUser": "Penyemak ditugaskan: {name}",
       "setupCredential": "Tetapkan tandatangan dan PIN pengesahan",
       "remedialList": {
-        "hint": "Satu perkara setiap baris. Setiap baris dicetak pada PDF akhir yang anda tandatangani; kontraktor menutup setiap satu dalam permohonan apabila siap, dengan foto.",
+        "hint": "Satu perkara setiap baris. Setiap baris dicetak pada laporan akhir yang anda tandatangani; kontraktor menutup setiap satu dalam permohonan apabila siap, dengan foto.",
         "item": "Perkara {n}: apa yang perlu dibetulkan",
         "placeholder": "Contoh: tampal sarang lebah pada dinding barat.",
         "add": "Tambah satu lagi",

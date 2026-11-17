@@ -5447,7 +5447,7 @@
       "final": "最終報告",
       "finalHelp": "下載已經完成的最終報告（客戶格式 RFI）。",
       "subtitle": "直接打開需要處理的步驟。每份申請都會從填寫資料一直保存到安全歸檔。",
-      "title": "四個簡單步驟"
+      "title": "簡單步驟"
     },
     "history": {
       "description": "已經記錄此賬號電子簽名與審批動作的申請。",
@@ -5492,7 +5492,7 @@
       "noEvidence": "沒有附證據",
       "evidenceHint": "從這個項目的現場照片裡挑能證明已經做好的（最新的在最前面）。照片要先用手機拍好上傳。",
       "evidence": "證據",
-      "closedBy": "{name} 於 {when} 關閉",
+      "closedBy": "{name} 於 {when} 關閉，附證據 {count} 份",
       "closureNote": "做了什麼",
       "closeHelp": "寫清楚做了什麼，並附上能證明的東西。",
       "closeTitle": "關閉這條整改",
@@ -5638,13 +5638,21 @@
         "revise": "顧問選了「修改後重提」。請按【建立新版本】，按照意見修改後再發送給顧問。",
         "waiting": "您現在不需要操作，申請正在等待“{step}”處理。",
         "remedialOpen": "已批准，但還有 {count} 條整改沒完成。做好後，在下面的「整改事項」裡按「關閉這條整改」，附上能證明的照片。",
-        "reviseMade": "這份申請已經建立了新版本（版本 {revision}）。請在下面「版本記錄」裡打開它，改好後再發送。"
+        "remedialOpenReviewer": "還有 {count} 條整改等建築商完成；他們關閉時你會收到通知。需要時可以按【開一條整改】。",
+        "remedialOpenWatching": "還有 {count} 條整改等建築商完成。",
+        "rejected": "顧問拒絕了這份申請，原因在「已簽署決定」。改好後請另外按【新建申請】。",
+        "reviseMade": "這份申請已經建立了新版本（版本 {revision}）。請在下面「版本記錄」裡打開它，改好後再發送。",
+        "reviseSent": "新版本（版本 {revision}）已經發送給顧問，請在「版本記錄」裡打開它查看。",
+        "reviseDecided": "顧問已經對新版本（版本 {revision}）作出決定，請在「版本記錄」裡打開它查看。",
+        "reviseReviewer": "已經退回給建築商修改。他們建立新版本並發送後，你會收到通知。"
       },
       "nextAction": "下一步要做什麼",
       "noRevisions": "目前沒有版本記錄。",
+      "noRelatedRecords": "這份申請沒有關聯的現場資料。",
       "receivedAt": "顧問接收時間",
       "revision": "版本 {revision}",
-      "revisionCurrent": "當前版本",
+      "revisionCurrent": "正在看的版本",
+      "revisionLatest": "最新版本",
       "section": {
         "remedial": "整改事項",
         "application": "申請資料",
@@ -5850,7 +5858,7 @@
       "reviewerUser": "指定審批人：{name}",
       "setupCredential": "設定簽名與簽核密碼",
       "remedialList": {
-        "hint": "一條寫一件事。每一條都會印在你簽名的最終 PDF 上；建築商做好後會在申請裡逐條關閉，並附上照片。",
+        "hint": "一條寫一件事。每一條都會印在你簽名的最終報告上；建築商做好後會在申請裡逐條關閉，並附上照片。",
         "item": "第 {n} 條：要整改什麼",
         "placeholder": "例如：西面牆的蜂窩要修補。",
         "add": "再加一條",

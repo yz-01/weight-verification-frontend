@@ -7,6 +7,7 @@ import {
   ClipboardCheck,
   FileCheck2,
   FileText,
+  KeyRound,
   Plus,
   Search,
   Settings2,
@@ -78,14 +79,16 @@ export function ConsultantDashboard() {
           <p className="mt-1 text-sm text-muted-foreground">{t("subtitle")}</p>
         </div>
         <div className="flex flex-wrap gap-2">
+          {/* JB203W (walk F-11): the same icon and order as on 顾问申请's
+              header - 签名与签核密码 (key), then 顾问设定. */}
+          {can("approval.review") && (
+            <Button asChild variant="outline">
+              <Link href="/approval-credential"><KeyRound />{t("credential")}</Link>
+            </Button>
+          )}
           {can("consultant.config") && (
             <Button asChild variant="outline">
               <Link href="/consultant-settings"><Settings2 />{t("workflowSettings")}</Link>
-            </Button>
-          )}
-          {can("approval.review") && (
-            <Button asChild variant="outline">
-              <Link href="/approval-credential"><ClipboardCheck />{t("credential")}</Link>
             </Button>
           )}
           {can("consultant.submit") && (
