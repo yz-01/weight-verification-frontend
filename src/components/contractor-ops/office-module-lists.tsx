@@ -53,7 +53,7 @@ import { PhotoFileInput } from "@/components/shared/photo-file-input";
 import { useFileActions } from "@/components/shared/file-actions";
 import { Checkbox } from "@/components/ui/checkbox";
 import { movementStatusKey } from "@/lib/equipment-exit";
-import { ARCHIVE_LOCKS_CHANGES } from "@/lib/archive-policy";
+import { useArchiveLocksChanges } from "@/lib/archive-policy";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { MaterialIssueList, OutgoingKindSwitch } from "@/components/contractor-ops/material-issue";
 import {
@@ -2462,8 +2462,10 @@ export function ProgressRecordDialog({
     void qc.invalidateQueries({ queryKey: ["site-progress-summary"] });
   };
   // A06: an archived progress record took no more photographs - until
-  // Lucas 10-30 evening (`ARCHIVE_LOCKS_CHANGES`).
-  const shownArchived = useRecordArchived("PROGRESS", shown.id) && ARCHIVE_LOCKS_CHANGES;
+  // Lucas 10-30 evening (`ARCHIVE_LOCKS_CHANGES`); again on a project MSE
+  // locked (「归档后锁定记录」, JB214-3d).
+  const archiveLocks = useArchiveLocksChanges(shown.project);
+  const shownArchived = useRecordArchived("PROGRESS", shown.id) && archiveLocks;
   // Rainy Weather (JB192): empty for any other progress record. Its
   // 「意见 / 备注」 (JB199) saved here keeps the window open on the answer.
   const rainFacts = useRainFacts(shown, (fresh) => {

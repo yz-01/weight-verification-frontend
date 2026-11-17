@@ -61,7 +61,7 @@ import { RecordDetailDialog } from "@/components/shared/record-detail-shell";
 import { RecordSendLog, RecordSendTargetProvider } from "@/components/shared/record-send-log";
 import { RecordWindowFailure } from "@/components/shared/record-window-failure";
 import { absoluteUrl } from "@/lib/share";
-import { ARCHIVE_LOCKS_CHANGES } from "@/lib/archive-policy";
+import { useArchiveLocksChanges } from "@/lib/archive-policy";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
 import {
@@ -148,6 +148,8 @@ export function ProgressSummaryTab() {
       void qc.invalidateQueries({ queryKey: ["progress-summaries"] });
     },
   });
+  // 「归档后锁定记录」 for the shown summary's project (JB214-3d).
+  const archiveLocks = useArchiveLocksChanges(shown?.project);
   const choose = (id: string) => {
     const next = new URLSearchParams(params.toString());
     next.set("summary", id);
@@ -255,7 +257,7 @@ export function ProgressSummaryTab() {
                       link: absoluteUrl(`/progress?tab=summary&summary=${shown.id}`),
                     }}
                   />
-                  {canWrite && !user?.is_field_staff && (!shown.archived_at || !ARCHIVE_LOCKS_CHANGES) && (
+                  {canWrite && !user?.is_field_staff && (!shown.archived_at || !archiveLocks) && (
                     <Button size="sm" variant="outline" onClick={() => setEditing(shown)}>
                       <Pencil />
                       {t("edit")}

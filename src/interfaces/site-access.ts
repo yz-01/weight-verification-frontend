@@ -105,6 +105,11 @@ export interface ContractorSiteSettings {
   emergency_contact_name: string;
   emergency_contact_phone: string;
   updated_at: string;
+  /**
+   * The letters 「通行证编号前缀」 may not take - other records' prefixes
+   * (GT, MI …) - so MSE's page says so while typing (JB214-3a).
+   */
+  reserved_qr_prefixes?: string[];
 }
 
 /** The settings as MSE reads them on the platform company page (JB99). */
@@ -205,6 +210,8 @@ export interface SiteAccessPass {
   status: AccessPassStatus;
   effective_status: EffectiveAccessPassStatus;
   qr_value: string;
+  /** 二维码打印大小 MSE set for the company (JB214-3b); STANDARD when absent. */
+  qr_print_size?: "COMPACT" | "STANDARD" | "LARGE";
   approved_by_name: string | null;
   approved_at: string | null;
   review_note: string;

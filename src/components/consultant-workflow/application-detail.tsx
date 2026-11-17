@@ -98,7 +98,7 @@ import type {
 } from "@/interfaces/consultant-workflow";
 import { ApiError } from "@/interfaces/api";
 import { builtinCategoryKey, groupModules, MODULE_LABEL_PATH, subcategoriesOf } from "@/lib/evidence-filters";
-import { ARCHIVE_LOCKS_CHANGES } from "@/lib/archive-policy";
+import { useArchiveLocksChanges } from "@/lib/archive-policy";
 import { useDebounce } from "@/hooks/use-debounce";
 import { recordConversationKey } from "@/lib/record-chat";
 import { signsWithCredential } from "@/lib/sign-off";
@@ -210,6 +210,8 @@ export function ConsultantApplicationDetail({
     mutationFn: () => acknowledgeConsultantApplication(id),
     onSuccess: refresh,
   });
+  // 「归档后锁定记录」 for this application's project (JB214-3d).
+  const archiveLocks = useArchiveLocksChanges(query.data?.project);
 
   const frame = {
     presentation,
@@ -253,9 +255,10 @@ export function ConsultantApplicationDetail({
   // A draft is a draft (E6): whoever may fill it in may correct what was
   // added. Submitted, the controls go and each block says why.
   // Confirmed is its archive (JB25): a confirmed draft not yet sent is still
-  // changed (Lucas 10-30 evening); once sent, it is the consultant's.
+  // changed (Lucas 10-30 evening) - unless MSE locked its project (JB214-3d);
+  // once sent, it is the consultant's.
   const openDraft =
-    !application.is_locked || (application.status === "DRAFT" && !ARCHIVE_LOCKS_CHANGES);
+    !application.is_locked || (application.status === "DRAFT" && !archiveLocks);
   const draftEditable = openDraft && can("consultant.submit");
   // JB25: confirmed (or sent) - only then printed, exported and sent.
   const confirmed = application.is_confirmed ?? application.status !== "DRAFT";

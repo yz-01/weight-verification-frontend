@@ -5296,7 +5296,29 @@
       "records": "Rekod dan foto",
       "recordsHelp": "Kunci selepas arkib, dan bila foto mesti diambil.",
       "defaults": "Nilai lalai sistem",
-      "defaultsHelp": "Nilai permulaan untuk projek baharu, pas pelawat dan papan pemuka."
+      "defaultsHelp": "Nilai permulaan untuk projek baharu, pas pelawat dan papan pemuka.",
+      "qrPrefixHint": "Hanya pas yang dibuka mulai sekarang menggunakannya; nombor pas sedia ada kekal. Guna 2 hingga 6 huruf, bukan permulaan nombor rekod lain (rekod pintu pagar guna GT).",
+      "qrPrefixFormat": "Guna 2 hingga 6 huruf (A hingga Z), tanpa nombor atau simbol.",
+      "qrPrefixTaken": "“{prefix}” sudah menjadi permulaan nombor rekod lain. Pilih huruf lain.",
+      "qrStyleHint": "Saiz kod QR pas semasa dimuat turun dan dicetak: kecil 160, standard 220, cetakan besar 440 piksel. Cetakan besar turut mencetak nombor pas di bawah kod.",
+      "archiveDefault": "Projek baharu: kunci rekod selepas arkib",
+      "archiveDefaultHelp": "Apabila dihidupkan, projek yang dibuka mulai sekarang bermula dalam keadaan dikunci. Tetapkan setiap projek sedia ada di bawah.",
+      "projectLocks": {
+        "title": "Kunci rekod selepas arkib, mengikut projek",
+        "help": "Projek dikunci: selepas Sahkan & arkib, hanya ruang kosong boleh diisi; apa yang telah ditulis tidak boleh diubah. Projek tidak dikunci: rekod yang diarkib masih boleh diubah di pejabat dengan PIN 6 digit, dan setiap perubahan direkodkan.",
+        "what": "senarai projek",
+        "loading": "Memuatkan projek…",
+        "empty": "Syarikat ini belum ada projek.",
+        "on": "Dikunci",
+        "off": "Tidak dikunci",
+        "saveError": "Tidak disimpan. Sila cuba lagi.",
+        "confirmOnTitle": "Kunci rekod yang diarkib bagi “{project}”?",
+        "confirmOnBody": "Apabila dihidupkan, rekod projek ini yang telah diarkib dan yang akan diarkib hanya menerima ruang kosong diisi; apa yang telah ditulis tidak boleh diubah. Hanya MSE boleh mematikannya semula.",
+        "confirmOn": "Kunci",
+        "confirmOffTitle": "Buka kunci “{project}”?",
+        "confirmOffBody": "Apabila dimatikan, rekod projek ini yang diarkib boleh diubah di pejabat dengan PIN 6 digit, dan setiap perubahan direkodkan.",
+        "confirmOff": "Buka kunci"
+      }
     }
   },
   "consultantAccess": {
@@ -9255,6 +9277,8 @@
       "rain_void_reason_required": "Tulis sebab rekod ini dibatalkan.",
       "rain_record_already_voided": "Rekod hujan ini sudah dibatalkan; ia tidak boleh dibatalkan lagi.",
       "rain_rules_out_of_range": "Bilangan rekod mesti 1 hingga 50, dan minit 5 hingga 1440.",
+      "ai_cctv_disabled": "AI CCTV dimatikan untuk pengitar semula ini, jadi foto tidak disimpan.",
+      "archive_lock_choice_invalid": "Pilih hidup atau mati.",
       "consultant_workflow_last_active": "Ini satu-satunya aliran kelulusan projek ini, jadi ia tidak boleh dihentikan. Untuk menukar laluan, tambah aliran lain dahulu dan jadikan ia lalai.",
       "consultant_required_fields_missing": "Masih ada {count} medan wajib yang kosong pada borang: {fields}. Isi dahulu, kemudian teruskan.",
       "consultant_required_attachments_missing": "Masih ada {count} lampiran wajib yang belum dimuat naik. Isi setiap kotak wajib di bawah Lampiran, kemudian teruskan.",
@@ -15105,14 +15129,15 @@
     },
     "business": {
       "anpr": "ANPR",
-      "anprHelp": "Guna kebenaran nombor plat selepas perkakasan disambungkan oleh platform.",
+      "anprHelp": "Hidup: plat yang sepadan dengan pesanan dibenarkan naik ke jambatan timbang. Mati: tiada plat membenarkan lori naik; imbas QR atau masukkan secara manual seperti biasa.",
       "cctv": "AI CCTV",
-      "cctvHelp": "Guna bukti AI CCTV selepas perkakasan disambungkan oleh platform.",
+      "cctvHelp": "Hidup: tiket jambatan timbang menerima foto dan klip CCTV. Mati: ditolak dan tidak disimpan.",
       "deduction": "Pengesahan potongan dua pihak melebihi (kg)",
       "deviceCount": "{count} dipautkan",
       "hardwareOwner": "Hanya pentadbir platform MSE boleh memaut atau menukar jambatan timbang, Gateway, CCTV dan ANPR.",
       "help": "Tetapan ini mengawal operasi. Perkakasan kekal di bawah pentadbir platform.",
-      "title": "Kawalan perniagaan"
+      "title": "Kawalan perniagaan",
+      "noDevice": "Belum ada peranti dipautkan, jadi menghidupkannya tidak mengubah apa-apa."
     },
     "commission": {
       "basis": "Asas",

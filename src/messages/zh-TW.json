@@ -5296,7 +5296,29 @@
       "records": "歸檔與照片規則",
       "recordsHelp": "歸檔後鎖定記錄，什麼時候必須拍照。",
       "defaults": "系統預設值",
-      "defaultsHelp": "新項目、訪客證和總部 Dashboard 一開始用的值。"
+      "defaultsHelp": "新項目、訪客證和總部 Dashboard 一開始用的值。",
+      "qrPrefixHint": "只影響以後新開的通行證，已經開的編號不變。請填 2 到 6 個英文字母，不能和其他記錄的開頭一樣（例如門崗記錄用 GT）。",
+      "qrPrefixFormat": "請填 2 到 6 個英文字母（A 到 Z），不要數字或符號。",
+      "qrPrefixTaken": "「{prefix}」已經是其他記錄編號的開頭，請換別的字母。",
+      "qrStyleHint": "通行證二維碼下載和打印的大小：小型 160、標準 220、大字打印 440 像素。大字打印會在二維碼下面印上通行證編號。",
+      "archiveDefault": "新項目預設：歸檔後鎖定記錄",
+      "archiveDefaultHelp": "打開後，以後新開的項目一開始就鎖定。已經有的項目在下面一個一個設定。",
+      "projectLocks": {
+        "title": "各項目的「歸檔後鎖定記錄」",
+        "help": "打開的項目：確認歸檔以後只能補空白，有內容的不能改。沒打開的項目：歸檔後的記錄仍可在電腦後台修改，要 6 位密碼，並留下修改記錄。",
+        "what": "項目列表",
+        "loading": "正在讀取項目……",
+        "empty": "這家公司還沒有項目。",
+        "on": "已鎖定",
+        "off": "沒有鎖定",
+        "saveError": "沒有儲存成功，請再試一次。",
+        "confirmOnTitle": "鎖定「{project}」歸檔後的記錄？",
+        "confirmOnBody": "打開後，這個項目已經歸檔的記錄和以後歸檔的記錄，都只能補空白，有內容的不能再改。之後要改，只能由 MSE 關掉這個開關。",
+        "confirmOn": "確定鎖定",
+        "confirmOffTitle": "取消鎖定「{project}」？",
+        "confirmOffBody": "關掉後，這個項目歸檔後的記錄可以在電腦後台修改，要 6 位密碼，並留下修改記錄。",
+        "confirmOff": "確定取消鎖定"
+      }
     }
   },
   "consultantAccess": {
@@ -9255,6 +9277,8 @@
       "rain_void_reason_required": "請寫作廢原因。",
       "rain_record_already_voided": "這份雨天記錄已經作廢了，不能再作廢一次。",
       "rain_rules_out_of_range": "份數要在 1 到 50 之間，分鐘要在 5 到 1440 之間。",
+      "ai_cctv_disabled": "這家回收商已關閉 AI CCTV，照片沒有收下。",
+      "archive_lock_choice_invalid": "請選擇打開或關閉。",
       "consultant_workflow_last_active": "這是這個項目唯一的審批流程，不能停用。要換流程，請先新增一個並設為預設。",
       "consultant_required_fields_missing": "表格裡還有 {count} 個必填項沒有填：{fields}。請先填好，再繼續。",
       "consultant_required_attachments_missing": "還有 {count} 份必附文件沒有上傳。請在「附件」裡把標著必附的格子都補上，再繼續。",
@@ -15105,14 +15129,15 @@
     },
     "business": {
       "anpr": "車牌識別 ANPR",
-      "anprHelp": "平臺完成硬件連接後，使用車牌授權稱重。",
+      "anprHelp": "開著：車牌對上訂單就自動放行上磅。關閉：不自動放行，照常掃二維碼或手動輸入。",
       "cctv": "AI CCTV",
-      "cctvHelp": "平臺完成硬件連接後，使用 AI CCTV 證據。",
+      "cctvHelp": "開著：地磅單收下 CCTV 拍的照片和影片。關閉：不收，也不保存。",
       "deduction": "超過此扣雜重量需雙方確認（kg）",
       "deviceCount": "已綁定 {count} 臺",
       "hardwareOwner": "只有 MSE 平臺管理員可以綁定或更換地磅、Gateway、CCTV 和 ANPR 設備。",
       "help": "這裡只控制業務開關，硬件仍由平臺管理員綁定。",
-      "title": "業務設置"
+      "title": "業務設置",
+      "noDevice": "還沒有綁定設備，開了也不會有作用。"
     },
     "commission": {
       "basis": "計算方式",
