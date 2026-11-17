@@ -44,6 +44,19 @@ export function isFieldSessionPath(pathname?: string): boolean {
   );
 }
 
+/**
+ * Pages outside the field app's own screens that its worker uses (JB215;
+ * JB204 noted the race): the scan landings - a machine's QR
+ * (`/scan/equipment`, which sends a field user on to 设备进退场 with the
+ * machine chosen) and a site QR (`/scan/qr`, which a site worker may scan) -
+ * and a file sent to the site as a private link (`/s/<token>`, no sign-in).
+ * The installed app captures these links (its scope is the whole site) and
+ * used to send every one of them to its home screen before they opened.
+ */
+export function isFieldAppPage(pathname: string): boolean {
+  return pathname.startsWith("/scan/") || pathname.startsWith("/s/");
+}
+
 export function isDriverSessionPath(pathname?: string): boolean {
   if (!isBrowser() && pathname === undefined) return false;
   const path = pathname ?? window.location.pathname;

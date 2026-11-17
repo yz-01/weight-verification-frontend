@@ -66,6 +66,16 @@ export function officeNotificationHref(
         const id = text(data.record_id);
         return id ? `/waste-clearance?kind=disposal&record=${encodeURIComponent(id)}` : "/waste-clearance?kind=disposal";
       }
+      // 废料出场 (JB215): 「收运时间已确认」 sent to an office applicant with
+      // the phone's link before the server sent the office one - it opens the
+      // record on 环保材料出场, or the list when the notice names none.
+      if (record === "waste") {
+        const id = query.get("record_id") ?? text(data.record_id);
+        const project = text(data.project_id);
+        if (!id) return "/waste-outgoing";
+        const page = `/waste-outgoing?record=${encodeURIComponent(id)}`;
+        return project ? `${page}&project=${encodeURIComponent(project)}` : page;
+      }
       return null;
     }
 
@@ -77,6 +87,18 @@ export function officeNotificationHref(
     const dispatch = query.get("dispatch");
     if (parsed.pathname === "/waste-outgoing" && dispatch && !query.get("record")) {
       return `/dispatches/${encodeURIComponent(dispatch)}`;
+    }
+
+    // 结算单已开出 / 已记录付款 filed for the contractor before JB207-4 linked
+    // the recycler's `/settlements/<id>`, which the contractor's portal turns
+    // away (JB215). The server sent that link only on these cards (they carry
+    // the settlement's number and its load), so they open 付款凭证 found by
+    // the number, as the new ones do. Nothing stored is rewritten.
+    const settlementNo = text(data.settlement_no);
+    if (/^\/settlements\/[^/]+$/.test(parsed.pathname) && settlementNo && text(data.dispatch_id)) {
+      const project = text(data.project_id);
+      const proofs = `/payment-proofs?search=${encodeURIComponent(settlementNo)}`;
+      return project ? `${proofs}&project=${encodeURIComponent(project)}` : proofs;
     }
 
     return `${parsed.pathname}${parsed.search}`;

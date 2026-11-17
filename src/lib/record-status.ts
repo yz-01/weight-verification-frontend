@@ -82,3 +82,29 @@ export function recordStatusLabel(
   const key = namespace ? `${namespace}.${row.status}` : "";
   return key && t.has(key) ? t(key) : row.status_label;
 }
+
+/**
+ * 现场记录中心's export: every status as `<kind>:<status>` → the words this
+ * screen shows for it (JB215; the file used to print the server's English
+ * label). The server sends that key (`kind_status`, a 施工准证 as
+ * `HAZARD:PERMIT:<status>`), because one code reads differently per kind;
+ * the words are `recordStatusLabel`'s, so the file says what the list says.
+ */
+export function recordStatusWords(t: Translate): Record<string, string> {
+  const words: Record<string, string> = {};
+  for (const [kind, statuses] of Object.entries(RECORD_STATUSES)) {
+    for (const status of statuses) {
+      words[`${kind}:${status}`] = recordStatusLabel(t, { kind, status, status_label: status });
+    }
+  }
+  // A permit's own words where it has them, else the hazard's.
+  for (const status of RECORD_STATUSES.HAZARD) {
+    words[`HAZARD:PERMIT:${status}`] = recordStatusLabel(t, {
+      kind: "HAZARD",
+      record_type: "PERMIT",
+      status,
+      status_label: words[`HAZARD:${status}`],
+    });
+  }
+  return words;
+}

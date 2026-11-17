@@ -175,6 +175,7 @@ import {
   getNextEquipmentNo,
 } from "@/services/contractor-ops.service";
 import { consultantTaskTitle } from "@/lib/consultant-task-title";
+import { disposalTaskTitle } from "@/lib/field-task-title";
 import {
   getProjectAssignments,
   getSuppliers,
@@ -1024,8 +1025,11 @@ export function FieldTasksWorkspace({
   const tRoot = useTranslations();
   // The four 「这次要顾问看什么」 answers by name, not by code (2026-10 F4).
   const askFor = useTranslations("fieldStaffPwa.consultantCapture");
-  // A phone submission's title names its type in the reader's words (F4).
+  const flow = useTranslations("taskFlow");
+  // A phone submission's title names its type in the reader's words (F4); a
+  // site disposal's task is 「执行清运 DR-…」, as on the phone (JB215).
   const taskTitle = (row: FieldTask) =>
+    disposalTaskTitle(row, (reference) => flow("work.disposalTitle", { reference })) ??
     consultantTaskTitle(row, (code) =>
       askFor.has(`askOption.${code}`) ? askFor(`askOption.${code}` as never) : null,
     );
@@ -1033,7 +1037,6 @@ export function FieldTasksWorkspace({
   const df = useDateFormat();
   const companyTimeZone =
     user?.company_preferences?.timezone || user?.timezone || "Asia/Kuala_Lumpur";
-  const flow = useTranslations("taskFlow");
   const stageLabel = (status: FieldTask["status"]) => {
     const key = fieldTaskStageKey(status);
     return key === "CANCELLED" ? t("taskStatus.CANCELLED") : flow(`stage.${key}`);
