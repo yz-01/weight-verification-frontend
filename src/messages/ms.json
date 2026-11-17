@@ -17890,6 +17890,7 @@
     "hint": {
       "effectiveImmediately": "Jika dimatikan, tarikh berbayar sedia ada dikekalkan.",
       "features": "Tiada yang ditanda = semua fungsi, seperti sekarang. Tanda beberapa dan syarikat pada pakej ini hanya melihat dan menggunakan yang ditanda. Yang kelabu sentiasa ada.",
+      "weighingNeedsCwe": "Pakej ini tidak termasuk Cloud Weighing Engine, jadi Jambatan timbang dan Rekod penimbangan tidak muncul dalam menu pengitar semula walaupun ditanda.",
       "partnerServiceFee": "Pelan Rakan Kongsi mengenakan yuran ini sekali sahaja, kemudian hanya komisen. Yuran bulanan dan tahunan kekal sifar.",
       "planDefault": "Gunakan had pelan",
       "seatOverride": "Biarkan kosong untuk menggunakan had pelan.",

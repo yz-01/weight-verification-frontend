@@ -17890,6 +17890,7 @@
     "hint": {
       "effectiveImmediately": "Off keeps the company's existing paid-to date.",
       "features": "Leave all unticked = every feature, as today. Tick some and companies on this plan see and use only those. The greyed ones are always there.",
+      "weighingNeedsCwe": "This plan does not include the Cloud Weighing Engine, so Weighbridges and Weighing records stay out of the recycler's menu even when ticked.",
       "partnerServiceFee": "Partner plans charge this once, then use commission only. Monthly and yearly fees stay at zero.",
       "planDefault": "Use plan allowance",
       "seatOverride": "Leave blank to use the allowance defined by the plan.",

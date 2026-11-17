@@ -22,7 +22,7 @@ vi.mock("@/services/api-client", () => ({
   download: vi.fn(),
 }));
 
-const { PlanFeatureChecklist, PlanManager } = await import("@/components/subscriptions/plan-manager");
+const { PlanFeatureChecklist, PlanManager, weighingHiddenByCwe } = await import("@/components/subscriptions/plan-manager");
 
 const RECYCLER_MENUS = [
   "dashboard", "partnerships", "yards", "weighbridges", "outbound_management", "billing_commission", "users",
@@ -176,6 +176,33 @@ describe("功能 checklist (JB213, 4e)", () => {
       const html = wrap(<PlanManager />, messages, locale);
       expect(html).toContain(messages.subscriptions.badge.hidden);
       expect(html).toContain(messages.subscriptions.plans.featuresAll);
+    }
+  });
+});
+
+describe("地磅 / 称重记录 ticked without 云端称重引擎 (walk 11-17, step 11)", () => {
+  const recycler = { audience: "RECYCLER" as const, allows_cloud_weighing: false };
+
+  it("says the two stay out of the menu, as get_portal_features drops them", () => {
+    expect(weighingHiddenByCwe({ ...recycler, feature_flags: ["yards", "weighing_records"] })).toBe(true);
+    expect(weighingHiddenByCwe({ ...recycler, feature_flags: ["weighbridges"] })).toBe(true);
+  });
+
+  it("says nothing when they are not ticked, the plan has the engine, or it is a contractor package", () => {
+    expect(weighingHiddenByCwe({ ...recycler, feature_flags: ["yards", "waste_orders"] })).toBe(false);
+    expect(weighingHiddenByCwe({ ...recycler, feature_flags: [] })).toBe(false);
+    expect(weighingHiddenByCwe({ ...recycler, allows_cloud_weighing: true, feature_flags: ["weighing_records"] })).toBe(false);
+    expect(
+      weighingHiddenByCwe({ audience: "CONTRACTOR", allows_cloud_weighing: false, feature_flags: ["weighing_records"] }),
+    ).toBe(false);
+  });
+
+  it("is worded in all four languages, naming the engine and both menus", () => {
+    for (const messages of [zh, zhTW, en, ms]) {
+      const sentence = messages.subscriptions.hint.weighingNeedsCwe;
+      expect(sentence).toContain(messages.subscriptions.field.cloudWeighing);
+      expect(sentence).toContain(messages.nav.weighbridges);
+      expect(sentence).toContain(messages.nav.weighing_records);
     }
   });
 });
