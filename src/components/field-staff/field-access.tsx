@@ -7,6 +7,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { FieldUnboundHelp } from "@/components/field-staff/field-unbound-help";
+import { MaintenanceBanner } from "@/components/platform-status/maintenance-banner";
 import { useAuth } from "@/components/providers/auth-provider";
 import { FieldWrapper } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
@@ -371,6 +372,8 @@ export function FieldAccess() {
           )}
         </div>
         <div className="space-y-4 p-4 sm:p-6">
+          {/* 系统维护 coming or under way, before the PIN is typed (JB211). */}
+          <MaintenanceBanner className="rounded-lg" />
           {token && invitation.data && (
             <div className="rounded-lg border bg-muted/30 p-3 text-sm">
               <p className="font-medium">{invitation.data.projects.map((project) => project.name).join(", ")}</p>

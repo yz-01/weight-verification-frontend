@@ -20,6 +20,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { APP_VERSION } from "@/lib/app-version";
 import { useDateFormat } from "@/lib/dates";
 import {
   addChangelog,
@@ -150,6 +151,15 @@ export function VersionList() {
           </Button>
         )}
       />
+      {/* JB211 (11.2.9 强制更新): the build this browser runs, so 最低支持版本
+          is set knowing what is out there. */}
+      <div
+        data-testid="this-computer-version"
+        className="surface-panel flex shrink-0 flex-wrap items-center gap-x-4 gap-y-1 rounded-xl px-4 py-3 text-sm"
+      >
+        <span className="font-medium">{t("versions.thisComputer", { version: APP_VERSION })}</span>
+        <span className="text-muted-foreground">{t("versions.thisComputerHelp")}</span>
+      </div>
       <DataTable
         columns={columns}
         rows={rows}
@@ -253,7 +263,10 @@ function VersionEditor({
         <FieldWrapper label={t("versions.field.releasedOn")} required>
           <Input type="date" value={form.released_on} disabled={Boolean(initial)} onChange={(event) => set("released_on", event.target.value)} />
         </FieldWrapper>
-        <FieldWrapper label={t("versions.field.minSupportedVersion")}>
+        <FieldWrapper
+          label={t("versions.field.minSupportedVersion")}
+          hint={t("versions.minSupportedHelp", { version: form.version || APP_VERSION })}
+        >
           <Input value={form.min_supported_version} onChange={(event) => set("min_supported_version", event.target.value)} />
         </FieldWrapper>
         <FieldWrapper label={t("versions.field.rollout")}>
@@ -264,6 +277,9 @@ function VersionEditor({
             <Switch checked={Boolean(form.force_update)} onCheckedChange={(checked) => set("force_update", checked)} />
             {t("versions.field.forceUpdate")}
           </label>
+          <p className="basis-full text-xs leading-5 text-muted-foreground">
+            {t("versions.forceUpdateHelp", { version: APP_VERSION })}
+          </p>
           {initial && (
             <label className="flex items-center gap-2 text-sm font-medium">
               <Switch checked={form.is_active} onCheckedChange={(checked) => set("is_active", checked)} />

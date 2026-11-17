@@ -3923,6 +3923,7 @@
       "rain_report_pdf_previewed": "預覽雨天記錄月報",
       "rain_remark_set": "填寫雨天記錄的意見 / 備註",
       "rain_month_remark_set": "填寫雨天月報的意見 / 備註",
+      "settings_reset_on_wiring": "維護模式、強制更新接通時重設",
       "head_office_on_behalf": "總部代批"
     },
     "objectType": {
@@ -9255,6 +9256,10 @@
       "rain_void_reason_required": "請寫作廢原因。",
       "rain_record_already_voided": "這份雨天記錄已經作廢了，不能再作廢一次。",
       "rain_rules_out_of_range": "份數要在 1 到 50 之間，分鐘要在 5 到 1440 之間。",
+      "platform_maintenance": "系統維護中，現在不能使用。維護結束後會自動恢復，不用重新登入。",
+      "client_update_required": "系統已更新，請按【重新載入】換成新版本，然後繼續使用。",
+      "version_min_invalid": "最低支持版本要填版本號（例如 1.2.0），而且不能高於這個版本自己的號碼（{version}），不然所有客戶都會進不來。",
+      "maintenance_permission_required": "只有有「開啟平臺維護模式」權限的人才能改維護設置，請找 MSE 系統管理員。",
       "consultant_workflow_last_active": "這是這個項目唯一的審批流程，不能停用。要換流程，請先新增一個並設為預設。",
       "consultant_required_fields_missing": "表格裡還有 {count} 個必填項沒有填：{fields}。請先填好，再繼續。",
       "consultant_required_attachments_missing": "還有 {count} 份必附文件沒有上傳。請在「附件」裡把標著必附的格子都補上，再繼續。",
@@ -13075,7 +13080,9 @@
       "stalled": "上傳卡住了，已停下，會自動再試",
       "signedOut": "登入已過期，請登出後重新登入，登入後會自動上傳",
       "server": "伺服器暫時出錯（{status}），會自動再試",
-      "unknown": "上傳沒有成功，會自動再試"
+      "unknown": "上傳沒有成功，會自動再試",
+      "maintenance": "系統維護中，維護結束後會自動上傳",
+      "updateRequired": "系統已更新，請按【重新載入】，之後會自動上傳"
     },
     "waiting": {
       "title": "等待上傳的記錄",
@@ -18507,7 +18514,11 @@
       "created": "版本已建立",
       "setCurrent": "當前版本已更新",
       "updated": "版本已更新"
-    }
+    },
+    "thisComputer": "這台電腦正在用的版本：v{version}",
+    "thisComputerHelp": "客戶的畫面每次都會報自己的版本。打開「強制更新」後，比「最低支持版本」舊的畫面會被要求按【重新載入】；MSE 員工不受影響。",
+    "minSupportedHelp": "填版本號，例如 1.2.0，不能高於 {version}。留空就不會擋任何人。",
+    "forceUpdateHelp": "打開後，比「最低支持版本」舊的客戶畫面要先按【重新載入】才能繼續用；MSE 員工不受影響。這台電腦用的是 v{version}。"
   },
   "wasteOutgoing": {
     "action": {
@@ -22019,6 +22030,41 @@
       "label": "這個月的意見 / 備註",
       "placeholder": "例如：本月因下雨停工 5 天。",
       "hint": "會印在這個月的月報 PDF 上。"
+    }
+  },
+  "platformStatus": {
+    "contact": {
+      "title": "聯繫 MSE",
+      "phone": "電話",
+      "email": "Email",
+      "website": "網站"
+    },
+    "maintenance": {
+      "bannerActive": "系統維護中：{window}。",
+      "bannerUpcoming": "系統維護通知：{window}。",
+      "customerNote": "維護期間不能登入，也不能使用系統；結束後照常使用，不用重新登入。",
+      "staffNote": "維護期間客戶不能登入、不能使用；MSE 員工照常使用。",
+      "window": {
+        "between": "{starts} 至 {ends}",
+        "from": "從 {starts} 開始，結束時間 MSE 會再通知",
+        "until": "預計 {ends} 結束",
+        "open": "結束時間 MSE 會再通知",
+        "stopped": "系統暫停服務，恢復時間 MSE 會再通知"
+      }
+    },
+    "gate": {
+      "maintenanceTitle": "系統維護中",
+      "maintenanceBody": "現在不能使用系統。維護結束後，這個畫面會自動恢復，不用重新登入。",
+      "nothingLost": "您還是登入著的。還沒上傳的資料會留在這台手機或電腦裡，之後自動上傳。",
+      "tryAgain": "再試一次",
+      "updateTitle": "系統已更新",
+      "updateBody": "請按【重新載入】換成新版本，然後照常使用。",
+      "updateStillOld": "如果按了還是看到這個畫面，表示新版本還在準備中，請幾分鐘後再按一次。",
+      "reload": "重新載入"
+    },
+    "issuer": {
+      "title": "開票方",
+      "registrationNo": "公司註冊號碼：{number}"
     }
   },
   "pagedList": {

@@ -1,13 +1,16 @@
 "use client";
 
 import { useForm } from "@tanstack/react-form";
-import { Loader2, LogIn } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { Loader2, LogIn, RefreshCw } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
+import { ContactMse } from "@/components/platform-status/contact-mse";
+import { MaintenanceNotice } from "@/components/platform-status/maintenance-banner";
 import { required, requiredEmail } from "@/components/shared/form-shell";
 import { BrandIcon } from "@/components/shared/brand-icon";
 import { useAuth } from "@/components/providers/auth-provider";
@@ -22,7 +25,10 @@ import {
   redirectWithFallback,
 } from "@/lib/portal";
 import { SIGNED_OUT, takeSignOutReason } from "@/lib/auth-token";
+import { APP_VERSION } from "@/lib/app-version";
 import { cn } from "@/lib/utils";
+import { usePlatformStatus } from "@/hooks/use-platform-status";
+import { checkClientVersion } from "@/services/platform-status.service";
 import {
   firstAllowedDashboardPath,
   isRouteAllowed,
@@ -35,6 +41,18 @@ export function Login({ portal, nextPath }: { portal: Portal; nextPath?: string 
   const router = useRouter();
   const { setUser } = useAuth();
   const [formError, setFormError] = useState<string | null>(null);
+  // JB211: a refusal MSE has to sort out (停用 / 到期 / 系统维护) shows MSE's
+  // phone and email right under it.
+  const [askMse, setAskMse] = useState(false);
+  // query-failure: without an answer the page simply shows no notice and no contact lines; signing in still works.
+  const status = usePlatformStatus();
+  // query-failure: a failed check shows nothing; the server still answers an outdated build itself (426).
+  const versionCheck = useQuery({
+    queryKey: ["client-version-check", APP_VERSION],
+    queryFn: () => checkClientVersion(APP_VERSION),
+    staleTime: 5 * 60_000,
+    retry: false,
+  });
   // JB56: why this computer was signed out - the same account signed in on
   // another computer, or (JB78) the person pressed 退出登录. Read once, after the first paint (sessionStorage).
   const [signedOutReason, setSignedOutReason] = useState("");
@@ -47,6 +65,7 @@ export function Login({ portal, nextPath }: { portal: Portal; nextPath?: string 
     defaultValues: { email: "", password: "" },
     onSubmit: async ({ value }) => {
       setFormError(null);
+      setAskMse(false);
       try {
         const result = await authService.login(value.email, value.password, portal);
         setUser(result.user);
@@ -81,6 +100,7 @@ export function Login({ portal, nextPath }: { portal: Portal; nextPath?: string 
         redirectWithFallback(router, destination, 1_200);
       } catch (error) {
         setFormError(messageFor(error, t));
+        setAskMse(refusalForMse(error));
       }
     },
   });
@@ -109,6 +129,26 @@ export function Login({ portal, nextPath }: { portal: Portal; nextPath?: string 
               {t("auth.login.subtitle")}
             </p>
           </div>
+
+          {/* JB211: 系统维护 coming or under way, said before anyone types. */}
+          <MaintenanceNotice
+            maintenance={status.data?.maintenance}
+            className="mb-4 rounded-lg"
+          />
+          {/* JB211 强制更新: this open page is older than the system allows. */}
+          {versionCheck.data?.update_required ? (
+            <div
+              role="status"
+              data-testid="login-version-outdated"
+              className="mb-4 space-y-2 rounded-lg border border-warning/40 bg-warning/10 px-3 py-2.5 text-sm text-foreground"
+            >
+              <p className="font-medium">{t("platformStatus.gate.updateBody")}</p>
+              <Button type="button" variant="outline" onClick={() => window.location.reload()}>
+                <RefreshCw className="size-4" />
+                {t("platformStatus.gate.reload")}
+              </Button>
+            </div>
+          ) : null}
 
           <div className="surface-panel rounded-xl p-4 sm:p-6">
             <form
@@ -209,6 +249,9 @@ export function Login({ portal, nextPath }: { portal: Portal; nextPath?: string 
                   className="rounded-lg border border-destructive/25 bg-destructive/8 px-3 py-2.5 text-sm text-destructive"
                 >
                   {formError}
+                  {askMse ? (
+                    <ContactMse contact={status.data?.contact} className="mt-2" />
+                  ) : null}
                 </div>
               )}
 
@@ -230,6 +273,14 @@ export function Login({ portal, nextPath }: { portal: Portal; nextPath?: string 
               </form.Subscribe>
             </form>
           </div>
+
+          {/* JB211 (11.2.1 联络资料): 联系 MSE, from what MSE filled in. */}
+          {!askMse ? (
+            <ContactMse
+              contact={status.data?.contact}
+              className="mt-6 rounded-lg border border-panel-border px-3 py-2"
+            />
+          ) : null}
 
           <p className="mt-6 text-center text-xs text-muted-foreground">
             {t("app.tagline")}
@@ -255,12 +306,25 @@ function messageFor(error: unknown, t: Translate): string {
   if (error.status === 429) return t("auth.login.throttled");
   if (error.status === 401) return t("auth.login.invalid");
   if (error.status === 403) {
-    return error.message.toLowerCase().includes("company")
+    // The code first: the message is already in the reader's language, so
+    // 「company」 was only ever found in English (JB211).
+    return error.code === "company_suspended" ||
+      error.message.toLowerCase().includes("company")
       ? t("auth.login.companySuspended")
       : t("auth.login.userSuspended");
   }
   if (error.isNetwork) return t("errors.network");
   return error.message || t("common.unknownError");
+}
+
+/**
+ * A refusal only MSE can lift (JB211): the company stopped or its subscription
+ * over (both `company_suspended`), or 系统维护. MSE's phone and email go
+ * right under it.
+ */
+export function refusalForMse(error: unknown): boolean {
+  if (!(error instanceof ApiError)) return false;
+  return error.code === "company_suspended" || error.code === "platform_maintenance";
 }
 
 function emailValidator(t: Translate) {

@@ -17,6 +17,7 @@ import {
   storeFile,
 } from "@/lib/offline-db";
 import { compressPhoto } from "@/lib/photo-compression";
+import { gateForRefusal } from "@/lib/platform-gate";
 import { t } from "@/lib/i18n-runtime";
 import { requestPersistentStorage } from "@/lib/original-photos";
 import {
@@ -1837,6 +1838,13 @@ export const QUEUE_ERROR_STALLED = "stalled";
 export const QUEUE_ERROR_SIGNED_OUT = "signed_out";
 /** The server answered with its own fault, ``server:<status>`` (JB106). */
 export const QUEUE_ERROR_SERVER = "server";
+/**
+ * 系统维护 (JB211): nothing goes until it ends; the record waits on the phone
+ * and goes by itself afterwards.
+ */
+export const QUEUE_ERROR_MAINTENANCE = "maintenance";
+/** 强制更新 (JB211): goes once the app has been reloaded onto the new version. */
+export const QUEUE_ERROR_UPDATE = "update_required";
 
 /** The message key for a stored no-answer reason, or null for the server's own words. */
 export function queueErrorKey(lastError: string): string | null {
@@ -1844,7 +1852,22 @@ export function queueErrorKey(lastError: string): string | null {
   if (lastError === QUEUE_ERROR_TIMEOUT) return "offline.reason.timeout";
   if (lastError === QUEUE_ERROR_STALLED) return "offline.reason.stalled";
   if (lastError === QUEUE_ERROR_SIGNED_OUT) return "offline.reason.signedOut";
+  if (lastError === QUEUE_ERROR_MAINTENANCE) return "offline.reason.maintenance";
+  if (lastError === QUEUE_ERROR_UPDATE) return "offline.reason.updateRequired";
   if (lastError.startsWith(`${QUEUE_ERROR_SERVER}:`)) return "offline.reason.server";
+  return null;
+}
+
+/**
+ * The platform keeps every customer out for now (JB211): 系统维护 or an
+ * outdated app. Not this record's fault, and nothing else would go either -
+ * the pass stops, says why on the record, and the record goes later.
+ */
+export function platformGateHold(error: unknown): string | null {
+  if (!(error instanceof ApiError)) return null;
+  const gate = gateForRefusal(error.status, error.code);
+  if (gate === "maintenance") return QUEUE_ERROR_MAINTENANCE;
+  if (gate === "update") return QUEUE_ERROR_UPDATE;
   return null;
 }
 
@@ -1869,17 +1892,20 @@ export function waitingReason(
  * A refusal: the server answered and said no.
  *
  * 401 is not one (the session ran out; the pass stops and the job is not
- * blamed), nor 408 / 429 (the server asks to be tried again later). Anything
+ * blamed), nor 408 / 429 (the server asks to be tried again later), nor 426
+ * (JB211 强制更新: the app reloads onto the new version and sends it then -
+ * without this the record would be marked 「需要处理」 for nothing). Anything
  * that is not an `ApiError` is a fault in the job itself and would fail the
  * same way every time.
  */
-function isRefusal(error: unknown): boolean {
+export function isRefusal(error: unknown): boolean {
   if (!(error instanceof ApiError)) return true;
   return (
     error.status >= 400 &&
     error.status < 500 &&
     error.status !== 401 &&
     error.status !== 408 &&
+    error.status !== 426 &&
     error.status !== 429
   );
 }
@@ -2476,6 +2502,14 @@ async function runFlush(
       if (error instanceof ApiError && error.isUnauthorized) {
         // Said on the record, so 「等待上传」 tells the worker why (JB106).
         await putOfflineJob({ ...job, lastError: QUEUE_ERROR_SIGNED_OUT });
+        setSyncing(null);
+        break;
+      }
+      // 系统维护 or 强制更新 (JB211): the same - every record waits, none is
+      // blamed, and the next pass after it sends them.
+      const held = platformGateHold(error);
+      if (held) {
+        await putOfflineJob({ ...job, lastError: held });
         setSyncing(null);
         break;
       }

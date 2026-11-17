@@ -21,6 +21,7 @@ import {
 } from "@/components/notifications/task-card-dock";
 import { useAuth } from "@/components/providers/auth-provider";
 import { CurrentProjectProvider } from "@/components/providers/current-project-provider";
+import { MaintenanceBanner } from "@/components/platform-status/maintenance-banner";
 import { SessionUnreachable } from "@/components/shared/session-unreachable";
 import {
   SidebarInset,
@@ -148,6 +149,11 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           {/* A page may name itself more precisely than its menu entry (B14). */}
           <PageTitleOverrideProvider>
             <DashboardToolbar />
+            {/* 系统维护 coming or under way (JB211); takes room only then. */}
+            <MaintenanceBanner
+              staff={user.is_platform_staff}
+              className="shrink-0 border-x-0 px-4 lg:px-6"
+            />
             <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4 lg:px-6 lg:py-5">
               {children}
             </div>

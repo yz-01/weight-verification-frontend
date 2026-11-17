@@ -3923,6 +3923,7 @@
       "rain_report_pdf_previewed": "Rain record monthly report previewed",
       "rain_remark_set": "Wrote a rain record's remarks",
       "rain_month_remark_set": "Wrote the rain report's monthly remarks",
+      "settings_reset_on_wiring": "Maintenance and force update reset when they took effect",
       "head_office_on_behalf": "Decided by head office for the manager"
     },
     "objectType": {
@@ -9255,6 +9256,10 @@
       "rain_void_reason_required": "Write why the record is voided.",
       "rain_record_already_voided": "This rain record is already voided; it cannot be voided again.",
       "rain_rules_out_of_range": "The number of records must be 1 to 50, and the minutes 5 to 1440.",
+      "platform_maintenance": "MSE Trace is under maintenance, so it cannot be used right now. When the maintenance is over it opens again by itself; there is no need to sign in again.",
+      "client_update_required": "The system has been updated. Press Reload to switch to the new version, then carry on.",
+      "version_min_invalid": "Enter the minimum supported version as a version number such as 1.2.0, no higher than this release's own number ({version}). Otherwise every customer would be locked out.",
+      "maintenance_permission_required": "Only someone with the permission “Put the platform into maintenance” can change the maintenance settings. Ask an MSE system administrator.",
       "consultant_workflow_last_active": "This is the project's only approval workflow, so it cannot be switched off. To change the route, add another workflow first and make it the default.",
       "consultant_required_fields_missing": "Required fields still empty on the form ({count}): {fields}. Fill them in, then carry on.",
       "consultant_required_attachments_missing": "Required attachments not added yet: {count}. Fill every required box under Attachments, then carry on.",
@@ -13075,7 +13080,9 @@
       "stalled": "The upload got stuck and was stopped; it will try again by itself",
       "signedOut": "Your sign-in has expired. Sign out and sign in again; it uploads after that",
       "server": "The server had a problem ({status}); it will try again by itself",
-      "unknown": "The upload did not go through; it will try again by itself"
+      "unknown": "The upload did not go through; it will try again by itself",
+      "maintenance": "The system is under maintenance; it uploads by itself when the maintenance is over",
+      "updateRequired": "The system has been updated: press Reload, then it uploads by itself"
     },
     "waiting": {
       "title": "Records waiting to upload",
@@ -18507,7 +18514,11 @@
       "created": "Version created",
       "setCurrent": "Current version updated",
       "updated": "Version updated"
-    }
+    },
+    "thisComputer": "This computer is running v{version}",
+    "thisComputerHelp": "Every customer page reports its version. With Force Update on, a page older than the minimum supported version is asked to reload; MSE staff are never held back.",
+    "minSupportedHelp": "A version number such as 1.2.0, no higher than {version}. Leave it blank to hold nobody back.",
+    "forceUpdateHelp": "On: customer pages older than the minimum supported version must press Reload before they can carry on. MSE staff are not affected. This computer runs v{version}."
   },
   "wasteOutgoing": {
     "action": {
@@ -22019,6 +22030,41 @@
       "label": "Remarks for this month",
       "placeholder": "For example: work stopped for 5 days this month because of rain.",
       "hint": "Printed on this month's report PDF."
+    }
+  },
+  "platformStatus": {
+    "contact": {
+      "title": "Contact MSE",
+      "phone": "Phone",
+      "email": "Email",
+      "website": "Website"
+    },
+    "maintenance": {
+      "bannerActive": "System maintenance in progress: {window}.",
+      "bannerUpcoming": "System maintenance planned: {window}.",
+      "customerNote": "During maintenance nobody can sign in or use the system. Afterwards it works as before, without signing in again.",
+      "staffNote": "Customers cannot sign in or use the system during it; MSE staff carry on as usual.",
+      "window": {
+        "between": "from {starts} to {ends}",
+        "from": "from {starts}; MSE will say when it ends",
+        "until": "until about {ends}",
+        "open": "MSE will say when it ends",
+        "stopped": "the system is paused; MSE will say when it is back"
+      }
+    },
+    "gate": {
+      "maintenanceTitle": "System maintenance",
+      "maintenanceBody": "The system cannot be used right now. When the maintenance is over this page opens again by itself, with no need to sign in again.",
+      "nothingLost": "You are still signed in. Records not yet uploaded stay on this phone or computer and go up afterwards.",
+      "tryAgain": "Try again",
+      "updateTitle": "The system has been updated",
+      "updateBody": "Press Reload to switch to the new version, then carry on as before.",
+      "updateStillOld": "If this screen comes back after reloading, the new version is still being put out. Wait a few minutes and press Reload again.",
+      "reload": "Reload"
+    },
+    "issuer": {
+      "title": "Issued by",
+      "registrationNo": "Company registration no.: {number}"
     }
   },
   "pagedList": {
