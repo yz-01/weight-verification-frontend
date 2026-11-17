@@ -436,6 +436,15 @@
     "confirm": {
       "removeCategory": "Padam kategori \"{name}\"? Kategori yang sudah digunakan oleh aset tidak boleh dipadam; nyahaktifkan sahaja.",
       "removeDepartment": "Padam jabatan \"{name}\"? Selepas ini ia tidak boleh dipilih lagi untuk pemindahan."
+    },
+    "movementType": {
+      "PURCHASE": "Pembelian",
+      "ISSUE": "Diserahkan kepada pelanggan",
+      "INSTALL": "Pemasangan",
+      "TRANSFER": "Pemindahan",
+      "RETURN": "Pemulangan",
+      "REPAIR": "Dihantar untuk dibaiki",
+      "DISPOSAL": "Pelupusan"
     }
   },
   "adminAuditCenter": {
@@ -1398,7 +1407,8 @@
       "terminate": "Tamatkan",
       "view": "Lihat",
       "viewPaymentProof": "Lihat bukti pembayaran",
-      "delete": "Padam"
+      "delete": "Padam",
+      "recalculatePeriod": "Kira semula tempoh ini"
     },
     "agreementStatus": {
       "ACTIVE": "Aktif",
@@ -1692,7 +1702,9 @@
       "territoryDescription": "Selepas dipadam, kawasan ini tidak boleh dipilih untuk pelanggan. Kawasan yang sudah ada pelanggan tidak boleh dipadam - isikan tarikh tamat."
     },
     "payout": {
-      "rejectedClosed": "Ditolak - bayaran ini tidak boleh dibayar lagi. Untuk mengira semula, tekan \"Kira komisen\"."
+      "rejectedClosed": "Ditolak - bayaran ini tidak boleh dibayar lagi. Untuk mengira semula, tekan \"Kira komisen\".",
+      "rejectedRecalculate": "Bayaran tempoh ini ditolak. Untuk membetulkannya, tekan \"Kira semula tempoh ini\".",
+      "recalculated": "Tempoh ini telah dikira semula: {code}."
     },
     "toast": {
       "statusChanged": "Status rakan kongsi dikemas kini",
@@ -6201,7 +6213,9 @@
       "pdfFailed": "PDF tidak dapat dilukis. Cuba lagi.",
       "openPdf": "Buka PDF",
       "close": "Tutup"
-    }
+    },
+    "backToSettings": "Kembali ke tetapan perunding",
+    "backToDashboard": "Kembali ke papan pemuka perunding"
   },
   "contractorDashboard": {
     "activity": {
@@ -13635,6 +13649,13 @@
       "need": "Ubah satu bahagian, kemudian tekan Simpan bahagian itu.",
       "then": "Nama dan logo dicetak pada laporan, rekod QR dan fail projek; pegawai kecemasan dipaparkan pada senarai kecemasan dan telefon pengawal pintu.",
       "trouble": "Kebenaran, peraturan QR, pemberitahuan, GPS, keselamatan dan penyimpanan rekod diurus oleh MSE dan tidak boleh diubah di sini; hubungi MSE untuk mengubahnya."
+    },
+    "permits": {
+      "what": "Permit kerja: muat naik borang permit syarikat anda sendiri (Word, PDF atau foto) dan hantar kepada pengurus keselamatan yang dinamakan, yang menandatangan untuk meluluskannya atau memulangkannya; permit yang diluluskan diarkibkan. Setiap permit boleh dicari semula mengikut projek, status kelulusan, pemohon dan tarikh, dan failnya boleh dipratonton, dicetak atau dimuat turun.",
+      "who": "Pemegang safety.view boleh melihat dan memuat turun; pemegang safety.manage memohon dengan “Permohonan baharu”. Meluluskan memerlukan safety.verify dan dibuat oleh pengurus keselamatan yang dipilih pemohon, atau pentadbir syarikat. Tiada sesiapa meluluskan permit sendiri.",
+      "need": "Permohonan baharu memerlukan projek, fail permit (Word, PDF atau foto borang; beberapa halaman, paling banyak 10 sekali gus) dan pengurus keselamatan pelulus; catatan adalah pilihan. Meluluskan memerlukan tandatangan; memulangkan memerlukan sebabnya.",
+      "then": "Pengurus keselamatan yang dipilih (dan pentadbir syarikat) menerima notis tugasan. Selepas diluluskan, fail asal, keputusan, tandatangan, jawatan pelulus dan masa diarkibkan bersama dan tidak boleh diubah lagi. Permit yang dipulangkan dibetulkan oleh pemohon dan dihantar semula dengan fail baharu; fail terdahulu disimpan. Pemohon dimaklumkan dalam kedua-dua keadaan.",
+      "trouble": "Jika tiada pengurus keselamatan boleh dipilih, belum ada sesiapa dalam projek ini yang boleh meluluskan permit: peranan pelulus memerlukan “Pengesahan keselamatan” dan “Lihat projek”, dan orang itu mesti ada dalam senarai kakitangan projek ini. Tetingkap “Permohonan baharu” menyenaraikan tiga langkah ini."
     }
   },
   "partners": {

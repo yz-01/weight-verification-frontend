@@ -436,6 +436,15 @@
     "confirm": {
       "removeCategory": "確定要刪除類別「{name}」嗎？已經有資產在用的類別不能刪除，請改為停用。",
       "removeDepartment": "確定要刪除部門「{name}」嗎？刪除後，調撥時不能再選這個部門。"
+    },
+    "movementType": {
+      "PURCHASE": "採購入庫",
+      "ISSUE": "交給客戶",
+      "INSTALL": "安裝",
+      "TRANSFER": "調撥",
+      "RETURN": "歸還",
+      "REPAIR": "送修",
+      "DISPOSAL": "報廢"
     }
   },
   "adminAuditCenter": {
@@ -1398,7 +1407,8 @@
       "terminate": "終止",
       "view": "在線查看",
       "viewPaymentProof": "查看付款憑證",
-      "delete": "刪除"
+      "delete": "刪除",
+      "recalculatePeriod": "重新計算這一期"
     },
     "agreementStatus": {
       "ACTIVE": "生效中",
@@ -1692,7 +1702,9 @@
       "territoryDescription": "刪除後，這個區域就不能再選來分配客戶。已經有客戶歸屬的區域不能刪除，請改為填寫到期日期。"
     },
     "payout": {
-      "rejectedClosed": "已駁回，不能再付款。要重新算，請按「計算佣金」。"
+      "rejectedClosed": "已駁回，不能再付款。要重新算，請按「計算佣金」。",
+      "rejectedRecalculate": "這一期已駁回。要更正，請按【重新計算這一期】。",
+      "recalculated": "這一期已重新計算：{code}。"
     },
     "toast": {
       "statusChanged": "合作夥伴狀態已更新",
@@ -6201,7 +6213,9 @@
       "pdfFailed": "PDF 無法產生，請重試。",
       "openPdf": "打開 PDF",
       "close": "關閉"
-    }
+    },
+    "backToSettings": "返回顧問設定",
+    "backToDashboard": "返回顧問首頁"
   },
   "contractorDashboard": {
     "activity": {
@@ -13635,6 +13649,13 @@
       "need": "改好一欄，就按那一欄自己的【保存】。",
       "then": "公司名稱和 Logo 印在報表、二維碼記錄和項目文件上；緊急聯繫人顯示在緊急名單和門崗的手機上。",
       "trouble": "權限、二維碼、通知、GPS、安全和資料保存由 MSE 統一管理，這裡不能改；需要修改請聯繫 MSE。"
+    },
+    "permits": {
+      "what": "施工准證：把公司原有的准證表格（Word、PDF 或照片）上傳，交給指定的安全經理簽名批准或退回，批准後歸檔。也能按項目、審批狀態、申請人和日期找回每一份准證，預覽、列印或下載文件。",
+      "who": "持 safety.view 可以查看和下載；持 safety.manage 可以按【新申請】申請；審批要持 safety.verify，而且是申請人選的那位安全經理，或公司管理員。自己申請的准證要由別人審批。",
+      "need": "新申請要選項目、上傳准證文件（Word、PDF 或表格照片，可以多頁，一次最多 10 個），再選審批的安全經理；備註選填。批准要簽名；退回要寫原因。",
+      "then": "選中的安全經理（和公司管理員）會收到待審批的通知。批准後，原文件、審批記錄、簽名、審批人職位和時間一起歸檔，不能再修改；退回後，申請人按原因改好，上傳新文件重新提交，之前的文件保留備查。批准或退回，申請人都會收到通知。",
+      "trouble": "選不到安全經理，是因為這個項目還沒有能審批准證的人：審批人的角色要勾「安全驗收」和「查看項目」，還要加進這個項目的人員名單。【新申請】視窗裡寫著這三步。"
     }
   },
   "partners": {

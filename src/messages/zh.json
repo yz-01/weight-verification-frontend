@@ -436,6 +436,15 @@
     "confirm": {
       "removeCategory": "确定要删除类别「{name}」吗？已经有资产在用的类别不能删除，请改为停用。",
       "removeDepartment": "确定要删除部门「{name}」吗？删除后，调拨时不能再选这个部门。"
+    },
+    "movementType": {
+      "PURCHASE": "采购入库",
+      "ISSUE": "交给客户",
+      "INSTALL": "安装",
+      "TRANSFER": "调拨",
+      "RETURN": "归还",
+      "REPAIR": "送修",
+      "DISPOSAL": "报废"
     }
   },
   "adminAuditCenter": {
@@ -1398,7 +1407,8 @@
       "terminate": "终止",
       "view": "在线查看",
       "viewPaymentProof": "查看付款凭证",
-      "delete": "删除"
+      "delete": "删除",
+      "recalculatePeriod": "重新计算这一期"
     },
     "agreementStatus": {
       "ACTIVE": "生效中",
@@ -1692,7 +1702,9 @@
       "territoryDescription": "删除后，这个区域就不能再选来分配客户。已经有客户归属的区域不能删除，请改为填写到期日期。"
     },
     "payout": {
-      "rejectedClosed": "已驳回，不能再付款。要重新算，请按「计算佣金」。"
+      "rejectedClosed": "已驳回，不能再付款。要重新算，请按「计算佣金」。",
+      "rejectedRecalculate": "这一期已驳回。要更正，请按【重新计算这一期】。",
+      "recalculated": "这一期已重新计算：{code}。"
     },
     "toast": {
       "statusChanged": "合作伙伴状态已更新",
@@ -6201,7 +6213,9 @@
       "pdfFailed": "PDF 无法生成，请重试。",
       "openPdf": "打开 PDF",
       "close": "关闭"
-    }
+    },
+    "backToSettings": "返回顾问设定",
+    "backToDashboard": "返回顾问首页"
   },
   "contractorDashboard": {
     "activity": {
@@ -13635,6 +13649,13 @@
       "need": "改好一栏，就按那一栏自己的【保存】。",
       "then": "公司名称和 Logo 印在报表、二维码记录和项目文件上；紧急联系人显示在紧急名单和门岗的手机上。",
       "trouble": "权限、二维码、通知、GPS、安全和资料保存由 MSE 统一管理，这里不能改；需要修改请联系 MSE。"
+    },
+    "permits": {
+      "what": "施工准证：把公司原有的准证表格（Word、PDF 或照片）上传，交给指定的安全经理签名批准或退回，批准后归档。也能按项目、审批状态、申请人和日期找回每一份准证，预览、打印或下载文件。",
+      "who": "持 safety.view 可以查看和下载；持 safety.manage 可以按【新申请】申请；审批要持 safety.verify，而且是申请人选的那位安全经理，或公司管理员。自己申请的准证要由别人审批。",
+      "need": "新申请要选项目、上传准证文件（Word、PDF 或表格照片，可以多页，一次最多 10 个），再选审批的安全经理；备注选填。批准要签名；退回要写原因。",
+      "then": "选中的安全经理（和公司管理员）会收到待审批的通知。批准后，原文件、审批记录、签名、审批人职位和时间一起归档，不能再修改；退回后，申请人按原因改好，上传新文件重新提交，之前的文件保留备查。批准或退回，申请人都会收到通知。",
+      "trouble": "选不到安全经理，是因为这个项目还没有能审批准证的人：审批人的角色要勾「安全验收」和「查看项目」，还要加进这个项目的人员名单。【新申请】窗口里写着这三步。"
     }
   },
   "partners": {

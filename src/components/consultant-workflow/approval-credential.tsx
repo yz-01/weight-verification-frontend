@@ -5,6 +5,7 @@ import { KeyRound, Loader2, Save, ShieldCheck, Stamp } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
+import { useAuth } from "@/components/providers/auth-provider";
 import {
   DetailHeader,
   FieldWrapper,
@@ -22,6 +23,13 @@ import {
 export function ApprovalCredentialSettings() {
   const t = useTranslations("consultantWorkflow");
   const queryClient = useQueryClient();
+  // Back to where the reader came from (JB215B-4, jb201-names §4.3): a
+  // consultant opens this page from 顾问首页, a contractor from 顾问申请. It
+  // said 「返回顾问申请」 to both.
+  const { user } = useAuth();
+  const back = user?.account_type === "CONSULTANT"
+    ? { backHref: "/consultant-dashboard", backLabel: t("backToDashboard") }
+    : { backHref: "/consultant-applications", backLabel: t("applications.back") };
   const [password, setPassword] = useState("");
   const [pin, setPin] = useState("");
   const [pinConfirm, setPinConfirm] = useState("");
@@ -57,10 +65,7 @@ export function ApprovalCredentialSettings() {
     // Without the stored credential the form cannot tell "set up" from "replace".
     return (
       <div className="mx-auto max-w-4xl space-y-4 pb-8">
-        <DetailHeader
-          backHref="/consultant-applications"
-          backLabel={t("applications.back")}
-        />
+        <DetailHeader {...back} />
         <ListHeader
           title={t("credential.title")}
           subtitle={t("credential.subtitle")}
@@ -72,10 +77,7 @@ export function ApprovalCredentialSettings() {
 
   return (
     <div className="mx-auto max-w-4xl space-y-4 pb-8">
-      <DetailHeader
-        backHref="/consultant-applications"
-        backLabel={t("applications.back")}
-      />
+      <DetailHeader {...back} />
       <ListHeader
         title={t("credential.title")}
         subtitle={t("credential.subtitle")}

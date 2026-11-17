@@ -23,7 +23,7 @@ import type { Portal } from "@/interfaces/auth";
  */
 
 /** A help entry that is not a module's own feature key (JB206-12). */
-export type HelpKey = PortalFeatureKey | "company_settings_trace";
+export type HelpKey = PortalFeatureKey | "company_settings_trace" | "permits";
 
 /**
  * Screens whose help is not their menu entry's (JB206-12, Lucas 11-16 audit,
@@ -35,11 +35,16 @@ export type HelpKey = PortalFeatureKey | "company_settings_trace";
  * - The contractor's 公司设置 has had no external links or bank details
  *   since JB99, which `company_settings` - MSE Scrap's page, unchanged -
  *   talks about; it gets its own words.
+ * - 施工准证 is declared under `safety` too and opened that same old
+ *   安全事件 / 事故上报 text (JB215B-3, noticed in JB206); it gets its own,
+ *   written from what the page does (upload the company's form, the named
+ *   safety manager signs or returns it, then it is archived).
  */
 const HELP_OVERRIDES: Partial<Record<Portal, Readonly<Record<string, HelpKey>>>> = {
   MSE_TRACE: {
     "/hazard-rectifications": "hazard_rectification",
     "/company-settings": "company_settings_trace",
+    "/permits": "permits",
   },
 };
 

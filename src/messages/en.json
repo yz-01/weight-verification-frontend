@@ -436,6 +436,15 @@
     "confirm": {
       "removeCategory": "Delete the category \"{name}\"? A category that assets already use cannot be deleted; deactivate it instead.",
       "removeDepartment": "Delete the department \"{name}\"? After this it can no longer be chosen for a transfer."
+    },
+    "movementType": {
+      "PURCHASE": "Purchase",
+      "ISSUE": "Issued to customer",
+      "INSTALL": "Installation",
+      "TRANSFER": "Transfer",
+      "RETURN": "Return",
+      "REPAIR": "Sent for repair",
+      "DISPOSAL": "Disposal"
     }
   },
   "adminAuditCenter": {
@@ -1398,7 +1407,8 @@
       "terminate": "Terminate",
       "view": "View",
       "viewPaymentProof": "View payment proof",
-      "delete": "Delete"
+      "delete": "Delete",
+      "recalculatePeriod": "Recalculate this period"
     },
     "agreementStatus": {
       "ACTIVE": "Active",
@@ -1692,7 +1702,9 @@
       "territoryDescription": "Once deleted, this area can no longer be chosen for a customer. An area that already has customers cannot be deleted - give it an expiry date instead."
     },
     "payout": {
-      "rejectedClosed": "Rejected - this payout can no longer be paid. To work it out again, press \"Calculate commission\"."
+      "rejectedClosed": "Rejected - this payout can no longer be paid. To work it out again, press \"Calculate commission\".",
+      "rejectedRecalculate": "This period's payout was rejected. To correct it, press \"Recalculate this period\".",
+      "recalculated": "This period was recalculated: {code}."
     },
     "toast": {
       "statusChanged": "Partner status updated",
@@ -6201,7 +6213,9 @@
       "pdfFailed": "The PDF could not be drawn. Try again.",
       "openPdf": "Open PDF",
       "close": "Close"
-    }
+    },
+    "backToSettings": "Back to consultant settings",
+    "backToDashboard": "Back to consultant dashboard"
   },
   "contractorDashboard": {
     "activity": {
@@ -13635,6 +13649,13 @@
       "need": "Change a section, then press that section's own Save.",
       "then": "The name and logo are printed on reports, QR records and project files; the emergency contact shows on the emergency list and on the gate guard's phone.",
       "trouble": "Permissions, QR rules, notifications, GPS, security and record keeping are managed by MSE and cannot be changed here; contact MSE to change them."
+    },
+    "permits": {
+      "what": "Permits to work: upload your company's own permit form (Word, PDF or a photo) and send it to a named safety manager, who signs to approve it or returns it; an approved permit is archived. Every permit can be found again by project, approval status, applicant and date, and its files previewed, printed or downloaded.",
+      "who": "Holders of safety.view read and download; holders of safety.manage apply with “New application”. Approving needs safety.verify and is done by the safety manager the applicant chose, or a company administrator. Nobody approves their own permit.",
+      "need": "A new application needs the project, the permit files (Word, PDF or photos of the form; several pages, at most 10 at a time) and the approving safety manager; a remark is optional. Approving needs a signature; returning needs the reason.",
+      "then": "The chosen safety manager (and the company administrators) get a to-do notice. Once approved, the original files, the decision, the signature, the approver's position and the time are archived together and can no longer change. A returned permit is corrected by the applicant and resubmitted with new files; the earlier files are kept. The applicant is told either way.",
+      "trouble": "If no safety manager can be chosen, nobody on this project can approve permits yet: the approver's role needs “Safety verification” and “View projects”, and the person must be on this project's staff list. The “New application” window lists these three steps."
     }
   },
   "partners": {

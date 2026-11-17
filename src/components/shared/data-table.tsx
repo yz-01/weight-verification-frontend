@@ -199,6 +199,16 @@ export function columnWidth(meta: unknown): string | undefined {
 }
 
 /**
+ * A column that keeps its own lines instead of the fitted table's two-line
+ * clamp, from `meta.unclamped` (JB215B-6): 操作记录's 动作 cell is an
+ * operation name over its badge. In English the name takes two lines, and
+ * the clamp hid the badge under them; the cell clamps the name itself.
+ */
+export function columnUnclamped(meta: unknown): boolean {
+  return typeof meta === "object" && meta !== null && "unclamped" in meta && meta.unclamped === true;
+}
+
+/**
  * Cells whose whole area is their own: only the tick box, so a near miss
  * ticks nothing and opens nothing. Everywhere else the empty part of a cell
  * opens the row like the rest of it (JB42, Lucas 10-27: the blank 资料包 cell
@@ -589,7 +599,7 @@ function TableFrame<T>({
                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                           </div>
                         </div>
-                      ) : UNCLAMPED_COLUMNS.has(cell.column.id) ? (
+                      ) : UNCLAMPED_COLUMNS.has(cell.column.id) || columnUnclamped(cell.column.columnDef.meta) ? (
                         flexRender(cell.column.columnDef.cell, cell.getContext())
                       ) : (
                         // Two lines at most, the whole text on hover (I39).
