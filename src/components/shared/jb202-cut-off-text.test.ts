@@ -88,6 +88,14 @@ describe("总公司仪表板: a project card's line and the notices, whole (JB20
   });
 });
 
+describe("仪表板 待审批事项: number, title and quantity, whole (JB202)", () => {
+  it("wraps both lines of a row instead of 「… 2.0…」 on a phone", () => {
+    const source = read("dashboard/headquarters-approvals.tsx");
+    wraps(classesBefore(source, '<span className="mr-1.5 rounded bg-primary/10'));
+    wraps(classesBefore(source, "row.project || t(\"companyWide\")"));
+  });
+});
+
 describe("文件档案: numbers, names and categories wrap in JB165's columns (JB202)", () => {
   const documents = read("document-workflow/documents.tsx");
   const parts = read("document-workflow/document-archive-parts.tsx");

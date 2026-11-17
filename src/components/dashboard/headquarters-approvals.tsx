@@ -121,14 +121,17 @@ export function HeadquartersApprovals({ initialProject = "" }: { initialProject?
                   onClick={() => opener.open(row)}
                   className="flex w-full items-start justify-between gap-3 px-3 py-2 text-left hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
+                  {/* JB202 (Lucas 11-16 「字被裁掉了」): the approval's number,
+                      title and quantity (「… 2.000 TONNE」, last, was the part
+                      cut on a phone), and who / when, wrap instead of 「…」. */}
                   <span className="min-w-0">
-                    <span className="block truncate text-sm font-medium">
+                    <span className="block break-words text-sm font-medium">
                       <span className="mr-1.5 rounded bg-primary/10 px-1.5 py-0.5 text-2xs text-primary">
                         {sources.has(row.source) ? sources(row.source) : row.resource_type}
                       </span>
                       {row.approval_no ? `${row.approval_no} · ${row.title}` : row.title}
                     </span>
-                    <span className="block truncate text-xs text-muted-foreground">
+                    <span className="block break-words text-xs text-muted-foreground">
                       {[
                         row.project || t("companyWide"),
                         row.requested_by,
