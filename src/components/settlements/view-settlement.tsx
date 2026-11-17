@@ -47,6 +47,7 @@ import {
   lockSettlement,
   recordPayment,
 } from "@/services/recycler.service";
+import { localToday } from "@/lib/local-date";
 
 /**
  * One load's money, from both ends.
@@ -351,9 +352,9 @@ function PaymentDialog({
   // Pre-filled with what is still owed: paying the balance is the common case,
   // and a wrong number typed from memory is worse than one that was offered.
   const [amount, setAmount] = useState(outstanding ?? "");
-  const [paidOn, setPaidOn] = useState(
-    new Date().toISOString().slice(0, 10),
-  );
+  // Today on the reader's calendar, not UTC's (JB207W: before 08:00 in
+  // Malaysia the UTC date is still yesterday).
+  const [paidOn, setPaidOn] = useState(localToday());
   const [method, setMethod] = useState<PaymentMethod>("BANK_TRANSFER");
   const [reference, setReference] = useState("");
   // The bank slip itself (JB207-6, Lucas 11-16 audit): the contractor's

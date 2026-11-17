@@ -68,6 +68,7 @@ import {
 import type {
   ProjectAssignment,
   ProjectStatisticsPeriod,
+  ProjectStatus,
 } from "@/interfaces/contractor";
 import type { ProjectResponsibility } from "@/interfaces/contractor-ops";
 import {
@@ -91,6 +92,15 @@ import { contactOf } from "@/lib/team-contact";
 
 /** How a person on the team is reached (`lib/team-contact`). */
 export { contactOf };
+
+/**
+ * Whether people can still be added to or removed from the project - the
+ * server's `Project.is_open` (规划中 / 进行中), which `assign_user` and
+ * `unassign_user` refuse outside of (JB207W).
+ */
+export function membershipOpen(status: ProjectStatus): boolean {
+  return status === "PLANNING" || status === "ACTIVE";
+}
 
 export function ViewProject({ id }: { id: string }) {
   const t = useTranslations();
@@ -132,7 +142,7 @@ export function ViewProject({ id }: { id: string }) {
               reference={`${data.code} ${data.name}`}
               href={`/projects/${data.id}`}
             />
-            {can("project.assign") && (
+            {can("project.assign") && membershipOpen(data.status) && (
               <Button asChild size="sm" variant="outline">
                 {/* Scrolled to, not navigated to: the browser makes a history
                     entry for `#project-team`, and this page is also a window
@@ -296,7 +306,7 @@ export function ViewProject({ id }: { id: string }) {
           archived={data.status === "ARCHIVED"}
         />
       )}
-      <ProjectTeam projectId={id} />
+      <ProjectTeam projectId={id} open={membershipOpen(data.status)} />
       <ProjectResponsibilities projectId={id} />
       {/* 「项目权限」 (JB131, 客户 11-07 事项 6). */}
       <ProjectPermissions projectId={id} />
@@ -718,9 +728,13 @@ function ResponsibilityDialog({
  * site clerk without one sees nothing of this project at all, so the list of
  * names here is the list of people who can record a delivery on this site.
  */
-function ProjectTeam({ projectId }: { projectId: string }) {
+function ProjectTeam({ projectId, open }: { projectId: string; open: boolean }) {
   const t = useTranslations();
   const { can } = useAuth();
+  // The server refuses 添加人员 and 移除 outside 规划中 / 进行中
+  // (`assign_user` / `unassign_user`, `Project.is_open`): no button that
+  // can only be refused (JB207W, walk 11-17 - an archived project's page).
+  const canChange = can("project.assign") && open;
   const queryClient = useQueryClient();
   const [adding, setAdding] = useState(false);
   const [removing, setRemoving] = useState<ProjectAssignment | null>(null);
@@ -754,8 +768,13 @@ function ProjectTeam({ projectId }: { projectId: string }) {
           <p className="mt-0.5 text-sm text-muted-foreground">
             {t("projects.team.description")}
           </p>
+          {can("project.assign") && !open && (
+            <p className="mt-1 text-sm text-muted-foreground" data-slot="project-team-closed">
+              {t("projects.team.closed")}
+            </p>
+          )}
         </div>
-        {can("project.assign") && (
+        {canChange && (
           <Button
             size="sm"
             className="shrink-0"
@@ -792,7 +811,7 @@ function ProjectTeam({ projectId }: { projectId: string }) {
                   {contactOf(assignment)}
                 </p>
               </div>
-              {can("project.assign") && (
+              {canChange && (
                 <Button
                   variant="ghost"
                   size="icon"

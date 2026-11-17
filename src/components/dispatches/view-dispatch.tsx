@@ -278,7 +278,11 @@ export function ViewDispatch({
           !data.is_editable && data.state !== "CANCELLED" ? (
             <p className="flex items-start gap-2 rounded-xl border border-panel-border bg-muted/40 px-4 py-3 text-xs text-muted-foreground">
               <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-              {t("dispatches.lockedNote")}
+              {/* Why it can no longer be changed, in this state's own words
+                  (JB207W, walk 11-17): 「此车已离场」 stood on an accepted
+                  order whose lorry had not even been sent. Only DRAFT is
+                  editable (`WasteDispatch.is_editable`). */}
+              {t(`dispatches.lockedBy.${data.state}`)}
             </p>
           ) : null
         }

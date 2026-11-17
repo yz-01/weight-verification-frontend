@@ -8138,6 +8138,14 @@
       "weighingNo": "Weighbridge ticket no."
     },
     "lockedNote": "This load has left the site, so it can no longer be changed. Cancel it if it never arrives.",
+    "lockedBy": {
+      "PENDING_ACCEPTANCE": "This order has been sent to the recycler, so it can no longer be changed.",
+      "ACCEPTED": "The recycler has taken this order, so it can no longer be changed.",
+      "RELEASED": "This load has left the site, so it can no longer be changed. Cancel it if it never arrives.",
+      "COLLECTED": "The load is on the recycler's lorry, so the order can no longer be changed.",
+      "WEIGHED": "The load has been weighed, so the order can no longer be changed.",
+      "SETTLED": "This order has been settled, so it can no longer be changed."
+    },
     "noPhotos": "No photos have been attached to this load.",
     "photoKind": {
       "LOADING": "Loading",
@@ -14402,7 +14410,8 @@
       "person": "Person to add",
       "whatMembers": "The project member list",
       "onOtherProject": "On another project now: remove them there first (\"Remove from project\" or \"Delete\")",
-      "removePhoneDescription": "{name}'s phone stops at once: every phone and browser is signed out. The account, the mobile number and everything recorded stay; a link made with the same number on another project binds the same phone again."
+      "removePhoneDescription": "{name}'s phone stops at once: every phone and browser is signed out. The account, the mobile number and everything recorded stay; a link made with the same number on another project binds the same phone again.",
+      "closed": "This project is suspended, completed or archived, so its people can no longer be added or removed."
     },
     "title": "Projects",
     "toast": {
@@ -16107,7 +16116,9 @@
       "notes": "Notes",
       "pickLoad": "Choose a weighed load to see the figures.",
       "title": "Issue this settlement",
-      "unitPrice": "Price per tonne"
+      "unitPrice": "Price per tonne",
+      "done": "Settlement {no} has been issued.",
+      "open": "Open this settlement"
     },
     "lock": {
       "confirm": "Lock",
@@ -19591,7 +19602,7 @@
     "detailTitle": "Request",
     "pendingDecision": "Pending approval - not decided yet",
     "noRemark": "No remark",
-    "returnedNotice": "This request was returned and is closed; it cannot be edited or sent again. To ask again, raise a new request - it gets a new Request No.",
+    "returnedNotice": "This request was returned and is closed; it cannot be sent again. To ask again, raise a new request - it gets a new Request No.",
     "waitingForReview": "Waiting for head office or the authorised manager to approve or return it.",
     "ownRequestWaiting": "Waiting for approval. You raised this request, so head office or the authorised manager approves or returns it - not you.",
     "attachments": {

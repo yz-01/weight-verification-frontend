@@ -88,6 +88,7 @@ import { getProject } from "@/services/contractor.service";
 import { WASTE_UNITS } from "@/interfaces/waste-outgoing";
 import { useDateFormat } from "@/lib/dates";
 import { MAP_COLORS } from "@/lib/map-palette";
+import { roleLabel } from "@/lib/role-labels";
 import { LocationMap } from "@/components/shared/location-map";
 import { trackPaths } from "@/lib/track-paths";
 import {
@@ -883,6 +884,7 @@ function HandOverDialog({
   onSaved: () => void;
 }) {
   const t = useTranslations("wasteOutgoing");
+  const tRoot = useTranslations();
   const [person, setPerson] = useState(record.delegated_to ?? "");
   const [note, setNote] = useState("");
   const [error, setError] = useState("");
@@ -924,11 +926,16 @@ function HandOverDialog({
                 />
               </SelectTrigger>
               <SelectContent>
-                {(people.data?.results ?? []).map((row) => (
-                  <SelectItem key={row.id} value={row.id}>
-                    {row.role ? `${row.name} · ${row.role}` : row.name}
-                  </SelectItem>
-                ))}
+                {(people.data?.results ?? []).map((row) => {
+                  // A seeded role in the reader's language; a role the
+                  // company named itself as typed (JB207W, walk 11-17).
+                  const role = roleLabel(row.role_code, row.role, tRoot);
+                  return (
+                    <SelectItem key={row.id} value={row.id}>
+                      {role ? `${row.name} · ${role}` : row.name}
+                    </SelectItem>
+                  );
+                })}
               </SelectContent>
             </Select>
             <QueryFailedNote query={people} what={t("what.delegates")} />

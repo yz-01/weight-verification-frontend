@@ -73,6 +73,7 @@ import {
   uploadOutboundAttachment,
 } from "@/services/recycler-business.service";
 import { FileThumbs, pictureByName } from "@/components/shared/file-thumbs";
+import { localToday } from "@/lib/local-date";
 
 export function RecyclerOutboundWorkspace() {
   const t = useTranslations("recyclerBusiness");
@@ -153,7 +154,7 @@ const EMPTY_SHIPMENT: OutboundShipmentPayload = {
   material_type: "METAL",
   business_source: "PLATFORM",
   weight_kg: "",
-  outbound_date: new Date().toISOString().slice(0, 10),
+  outbound_date: localToday(),
   vehicle_plate: "",
   driver_name: "",
   e_invoice_no: "",
