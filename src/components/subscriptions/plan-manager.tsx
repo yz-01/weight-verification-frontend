@@ -338,6 +338,11 @@ export function PlanManager() {
                 alwaysOn={defaults.data?.always_on_features ?? []}
                 onChange={(feature_flags) => setForm((current) => ({ ...current, feature_flags }))}
               />
+              {weighingHiddenByCwe(form) && (
+                <p className="mt-2 text-xs text-warning" data-weighing-needs-cwe>
+                  {t("hint.weighingNeedsCwe")}
+                </p>
+              )}
             </FieldWrapper>
             <ToggleField label={t("field.commissionEnabled")} checked={form.earns_platform_commission} disabled={form.tier !== "PARTNER"} onChange={(earns_platform_commission) => setForm((current) => ({ ...current, earns_platform_commission }))} />
             <ToggleField label={t("field.externalIntegration")} hint={t("hint.externalIntegration")} checked={form.allows_external_integration} disabled={form.audience !== "RECYCLER"} onChange={(allows_external_integration) => setForm((current) => ({ ...current, allows_external_integration }))} />
@@ -399,6 +404,21 @@ function ToggleField({ label, checked, onChange, disabled, hint }: { label: stri
       </span>
       <Switch checked={checked} disabled={disabled} onCheckedChange={onChange} />
     </div>
+  );
+}
+
+/**
+ * 地磅 / 称重记录 ticked on a recycler package without 云端称重引擎: the menu
+ * drops both whatever the list says (`accounts/portal_features.py`,
+ * `get_portal_features`), so the form says so (walk 11-17, JB213 step 11).
+ */
+export function weighingHiddenByCwe(
+  plan: Pick<SubscriptionPlanPayload, "audience" | "allows_cloud_weighing" | "feature_flags">,
+): boolean {
+  return (
+    plan.audience === "RECYCLER" &&
+    !plan.allows_cloud_weighing &&
+    plan.feature_flags.some((key) => key === "weighbridges" || key === "weighing_records")
   );
 }
 
