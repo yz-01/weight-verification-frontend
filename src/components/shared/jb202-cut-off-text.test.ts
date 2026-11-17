@@ -128,6 +128,26 @@ describe("报表中心 / 仪表板 banner: the company's name whole on a phone (
   });
 });
 
+describe("「完整证据 PDF」 buttons get the dialog's width (JB202)", () => {
+  // RecordExportButton lays out its own four (one even row on a phone, JB85);
+  // inside a 2-column grid it had half the width, and on a phone in English
+  // 【Preview】【Print】【Export】【Send】 lay over each other (人员进场记录).
+  const files = [
+    "announcements/announcement-dialog.tsx",
+    "document-workflow/approvals.tsx",
+    "document-workflow/documents.tsx",
+    "site-operations/attendance.tsx",
+    "site-access/site-access-workspace.tsx",
+    "settlements/payment-proofs.tsx",
+  ];
+
+  it.each(files)("%s", (file) => {
+    const source = read(file);
+    expect(source).toMatch(/<div className="min-w-0">\s*<RecordExportButton/);
+    expect(source).not.toMatch(/grid-cols-2 gap-1\.5 sm:grid-cols-4">\s*<RecordExportButton/);
+  });
+});
+
 describe("人员实时位置: the person's name and project beside the badge, whole (JB202)", () => {
   it("wraps both", () => {
     const source = read("site-operations/on-site-map.tsx");

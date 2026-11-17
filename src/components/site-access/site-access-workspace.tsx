@@ -1192,7 +1192,10 @@ export function PassDetail({
           {/* 「旧编号」 (I6, ID21): printed passes carry the number from before. */}
         </DialogHeader>
         {/* 预览 · 打印 · 导出 · 发送 on this one pass and its entries and exits (H16, HD13). */}
-        <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
+        {/* JB202 (Lucas 11-16 「字被裁掉了」): RecordExportButton lays out its own
+            buttons (one even row of four on a phone, JB85); in a 2-column grid
+            it got half the width and its four buttons overlapped on a phone. */}
+        <div className="min-w-0">
           <RecordExportButton
             kind="ACCESS_PASS"
             recordId={row.id}
