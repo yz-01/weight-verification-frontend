@@ -5392,7 +5392,29 @@
       "records": "歸檔與照片規則",
       "recordsHelp": "歸檔後鎖定記錄，什麼時候必須拍照。",
       "defaults": "系統預設值",
-      "defaultsHelp": "新項目、訪客證和總部 Dashboard 一開始用的值。"
+      "defaultsHelp": "新項目、訪客證和總部 Dashboard 一開始用的值。",
+      "qrPrefixHint": "只影響以後新開的通行證，已經開的編號不變。請填 2 到 6 個英文字母，不能和其他記錄的開頭一樣（例如門崗記錄用 GT）。",
+      "qrPrefixFormat": "請填 2 到 6 個英文字母（A 到 Z），不要數字或符號。",
+      "qrPrefixTaken": "「{prefix}」已經是其他記錄編號的開頭，請換別的字母。",
+      "qrStyleHint": "通行證二維碼下載和打印的大小：小型 160、標準 220、大字打印 440 像素。大字打印會在二維碼下面印上通行證編號。",
+      "archiveDefault": "新項目預設：歸檔後鎖定記錄",
+      "archiveDefaultHelp": "打開後，以後新開的項目一開始就鎖定。已經有的項目在下面一個一個設定。",
+      "projectLocks": {
+        "title": "各項目的「歸檔後鎖定記錄」",
+        "help": "打開的項目：確認歸檔以後只能補空白，有內容的不能改。沒打開的項目：歸檔後的記錄仍可在電腦後台修改，要 6 位密碼，並留下修改記錄。",
+        "what": "項目列表",
+        "loading": "正在讀取項目……",
+        "empty": "這家公司還沒有項目。",
+        "on": "已鎖定",
+        "off": "沒有鎖定",
+        "saveError": "沒有儲存成功，請再試一次。",
+        "confirmOnTitle": "鎖定「{project}」歸檔後的記錄？",
+        "confirmOnBody": "打開後，這個項目已經歸檔的記錄和以後歸檔的記錄，都只能補空白，有內容的不能再改。之後要改，只能由 MSE 關掉這個開關。",
+        "confirmOn": "確定鎖定",
+        "confirmOffTitle": "取消鎖定「{project}」？",
+        "confirmOffBody": "關掉後，這個項目歸檔後的記錄可以在電腦後台修改，要 6 位密碼，並留下修改記錄。",
+        "confirmOff": "確定取消鎖定"
+      }
     },
     "trialDaysHint": "這個套餐預設試用 {days} 天。試用期間不出帳單；試用結束後要在訂閱管理按「續期」才開始收費。填 0 = 不試用。",
     "trialNote": "試用期間不出帳單。試用結束後要在訂閱管理按「續期」才開始收費。",
@@ -9412,7 +9434,9 @@
       "commission_disabled": "平台佣金已在系統設定關閉，不能開佣金帳單。",
       "site_limit_reached": "貴公司的套餐最多可以有 {limit} 個回收場，現在已經有 {used} 個，所以不能再新增。如需增加，請聯絡 MSE。",
       "scale_limit_reached": "這家回收商的套餐最多可以有 {limit} 台在用的地磅，現在已經有 {used} 台，所以不能再新增或重新啟用。請先在公司頁面調高「自訂地磅上限」。",
-      "external_integration_not_in_plan": "這家公司的套餐不包含外部系統對接（ERP、會計系統、MyInvois、Webhook、API），所以不能新增或開啟這類連線。如需開通，請聯絡 MSE 更換套餐。"
+      "external_integration_not_in_plan": "這家公司的套餐不包含外部系統對接（ERP、會計系統、MyInvois、Webhook、API），所以不能新增或開啟這類連線。如需開通，請聯絡 MSE 更換套餐。",
+      "ai_cctv_disabled": "這家回收商已關閉 AI CCTV，照片沒有收下。",
+      "archive_lock_choice_invalid": "請選擇打開或關閉。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -15229,14 +15253,15 @@
     },
     "business": {
       "anpr": "車牌識別 ANPR",
-      "anprHelp": "平臺完成硬件連接後，使用車牌授權稱重。",
+      "anprHelp": "開著：車牌對上訂單就自動放行上磅。關閉：不自動放行，照常掃二維碼或手動輸入。",
       "cctv": "AI CCTV",
-      "cctvHelp": "平臺完成硬件連接後，使用 AI CCTV 證據。",
+      "cctvHelp": "開著：地磅單收下 CCTV 拍的照片和影片。關閉：不收，也不保存。",
       "deduction": "超過此扣雜重量需雙方確認（kg）",
       "deviceCount": "已綁定 {count} 臺",
       "hardwareOwner": "只有 MSE 平臺管理員可以綁定或更換地磅、Gateway、CCTV 和 ANPR 設備。",
       "help": "這裡只控制業務開關，硬件仍由平臺管理員綁定。",
-      "title": "業務設置"
+      "title": "業務設置",
+      "noDevice": "還沒有綁定設備，開了也不會有作用。"
     },
     "commission": {
       "basis": "計算方式",

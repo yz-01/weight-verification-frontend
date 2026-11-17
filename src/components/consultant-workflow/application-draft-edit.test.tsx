@@ -193,8 +193,9 @@ describe("the detail page wires it in (E6)", () => {
   );
 
   it("decides editability once, from the lock and the right to fill in the draft", () => {
-    // Lucas 10-30 evening: a confirmed draft not yet sent is still changed.
-    expect(detail).toContain('!application.is_locked || (application.status === "DRAFT" && !ARCHIVE_LOCKS_CHANGES)');
+    // Lucas 10-30 evening: a confirmed draft not yet sent is still changed -
+    // unless MSE locked its project (JB214-3d, Lucas 11-16 「按项目锁」).
+    expect(detail).toContain('!application.is_locked || (application.status === "DRAFT" && !archiveLocks)');
     expect(detail).toContain('const draftEditable = openDraft && can("consultant.submit");');
     expect(detail).toContain('const showLocked = !openDraft && can("consultant.submit");');
   });

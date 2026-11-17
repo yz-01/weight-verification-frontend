@@ -468,8 +468,9 @@ export function Documents() {
         cell: ({ row }) => {
           const record = row.original;
           const active = record.status === "ACTIVE";
-          // Archived is still changed (Lucas 10-30 evening), not archived twice.
-          const changeable = active || (record.status === "ARCHIVED" && !ARCHIVE_LOCKS_CHANGES);
+          // Archived is still changed (Lucas 10-30 evening), not archived twice -
+          // unless MSE locked its project (「归档后锁定记录」, JB214-3d).
+          const changeable = active || (record.status === "ARCHIVED" && !ARCHIVE_LOCKS_CHANGES && !record.archive_locked);
           const addFiles = addFilesRule(record, can, t);
           return (
             <div className="flex items-center justify-end gap-0.5">
@@ -771,12 +772,14 @@ function uploadErrors(error: unknown): Record<string, string> {
  * rather than missing.
  */
 export function addFilesRule(
-  record: Pick<DocumentRecord, "status" | "project">,
+  record: Pick<DocumentRecord, "status" | "project"> & Partial<Pick<DocumentRecord, "archive_locked">>,
   can: (code: string) => boolean,
   t: (key: string) => string,
 ): { shown: boolean; disabledReason: string | undefined } {
-  // Archived is still changed (Lucas 10-30 evening), not archived twice.
-  const changeable = record.status === "ACTIVE" || (record.status === "ARCHIVED" && !ARCHIVE_LOCKS_CHANGES);
+  // Archived is still changed (Lucas 10-30 evening), not archived twice -
+  // unless MSE locked its project (「归档后锁定记录」, JB214-3d).
+  const changeable =
+    record.status === "ACTIVE" || (record.status === "ARCHIVED" && !ARCHIVE_LOCKS_CHANGES && !record.archive_locked);
   const canUpload = can("document.view") || can("document.manage");
   const manages = can("document.manage");
   return {

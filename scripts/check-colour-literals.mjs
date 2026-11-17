@@ -45,6 +45,7 @@ const ALLOWED = new Map([
   ["lib/file-actions.ts", [1, "The white page a signature opens on in a new tab (JB172): a page of its own, outside the app's CSS, white in every mode so dark ink can be read."]],
   ["services/offline-sync.service.ts", [1, "A canvas fill behind a kept photo being redrawn to JPEG (no transparency, JB172): pixels, not page colour."]],
   ["components/projects/project-qr-panel.tsx", [2, "QR code colours: black on white in every mode, or a scanner cannot read it."]],
+  ["lib/pass-qr.ts", [2, "The 大字打印 pass card (JB214-3b): the white paper and the black pass number drawn into the PNG under its QR code - pixels, not page colour."]],
   ["components/suppliers/supplier-qr-panel.tsx", [3, "QR code colours (black on white) and the print page's own HTML, which prints outside the app's CSS."]],
   ["components/suppliers/supplier-site-codes.tsx", [2, "QR code colours: black on white in every mode."]],
   ["components/qrcodes/admin-qr-workspace.tsx", [2, "QR code colours: black on white in every mode."]],

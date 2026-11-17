@@ -38,6 +38,11 @@ export interface Project {
   manager?: string | null;
   /** The drawn site boundary (JB110), `[lat, lng]` each; empty when none. */
   boundary?: [number, number][];
+  /**
+   * 「归档后锁定记录」 on for this project (JB214-3d, Lucas 11-16 Q1 = A): after
+   * 确认归档 its records take only blanks filled in. Set by MSE.
+   */
+  archive_locked?: boolean;
   assigned_user_count?: number;
   created_at: string;
 }

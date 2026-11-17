@@ -5392,7 +5392,29 @@
       "records": "Records and photos",
       "recordsHelp": "Locking after archive, and when a photo must be taken.",
       "defaults": "System defaults",
-      "defaultsHelp": "What new projects, visitor passes and the dashboard start with."
+      "defaultsHelp": "What new projects, visitor passes and the dashboard start with.",
+      "qrPrefixHint": "Only passes opened from now on use it; existing pass numbers stay. Use 2 to 6 letters, not the start of another record’s number (gate records use GT).",
+      "qrPrefixFormat": "Use 2 to 6 letters (A to Z), no numbers or symbols.",
+      "qrPrefixTaken": "“{prefix}” already starts another record’s number. Choose other letters.",
+      "qrStyleHint": "The size a pass QR code is downloaded and printed at: compact 160, standard 220, large print 440 pixels. Large print also prints the pass number under the code.",
+      "archiveDefault": "New projects: lock records after archive",
+      "archiveDefaultHelp": "When on, projects opened from now on start locked. Set each existing project below.",
+      "projectLocks": {
+        "title": "Lock records after archive, project by project",
+        "help": "Locked project: after Confirm & archive, only blanks can be filled in; what was written cannot be changed. Unlocked project: archived records can still be changed in the office with the 6-digit PIN, and every change is logged.",
+        "what": "the project list",
+        "loading": "Loading projects…",
+        "empty": "This company has no projects yet.",
+        "on": "Locked",
+        "off": "Not locked",
+        "saveError": "Not saved. Please try again.",
+        "confirmOnTitle": "Lock the archived records of “{project}”?",
+        "confirmOnBody": "Once on, this project’s archived records — those archived already and those archived later — only take blanks filled in; what was written cannot be changed. Only MSE can switch it off again.",
+        "confirmOn": "Lock",
+        "confirmOffTitle": "Unlock “{project}”?",
+        "confirmOffBody": "Once off, this project’s archived records can be changed in the office with the 6-digit PIN, and every change is logged.",
+        "confirmOff": "Unlock"
+      }
     },
     "trialDaysHint": "This plan gives {days} free days by default. No bill during the trial; billing starts only when you press Renew in Subscriptions. Enter 0 for no trial.",
     "trialNote": "No bill during the trial. Billing starts only when you press Renew in Subscriptions.",
@@ -9412,7 +9434,9 @@
       "commission_disabled": "Platform commission is switched off in System Settings, so no commission bill can be made.",
       "site_limit_reached": "Your package allows {limit} yard(s) and you already have {used}, so another one cannot be added. To add more, please contact MSE.",
       "scale_limit_reached": "This recycler's package allows {limit} weighbridge(s) in use and it already has {used}, so another one cannot be added or switched back on. Raise its custom weighbridge limit on the company page first.",
-      "external_integration_not_in_plan": "This company's package does not include connections to outside systems (ERP, accounting, MyInvois, webhook, API), so this kind of connection cannot be added or switched on. To get it, please contact MSE to change the package."
+      "external_integration_not_in_plan": "This company's package does not include connections to outside systems (ERP, accounting, MyInvois, webhook, API), so this kind of connection cannot be added or switched on. To get it, please contact MSE to change the package.",
+      "ai_cctv_disabled": "AI CCTV is switched off for this recycler, so the photo was not kept.",
+      "archive_lock_choice_invalid": "Choose on or off."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -15229,14 +15253,15 @@
     },
     "business": {
       "anpr": "ANPR",
-      "anprHelp": "Use number plate authorization when platform hardware is connected.",
+      "anprHelp": "On: a plate that matches an order is let onto the weighbridge. Off: no plate lets a lorry on; scan the QR or enter it by hand as usual.",
       "cctv": "AI CCTV",
-      "cctvHelp": "Use AI CCTV evidence when platform hardware is connected.",
+      "cctvHelp": "On: weighbridge tickets take the CCTV photos and clips. Off: they are refused and not kept.",
       "deduction": "Both-party deduction confirmation above (kg)",
       "deviceCount": "{count} bound",
       "hardwareOwner": "Only the MSE platform administrator can bind or change weighbridges, gateways, CCTV and ANPR devices.",
       "help": "Simple company rules. Hardware remains under platform administrator control.",
-      "title": "Business controls"
+      "title": "Business controls",
+      "noDevice": "No device is bound yet, so switching it on changes nothing."
     },
     "commission": {
       "basis": "Basis",

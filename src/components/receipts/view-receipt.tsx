@@ -40,7 +40,7 @@ import {
   reviewReceipt,
 } from "@/services/contractor.service";
 import { useDateFormat } from "@/lib/dates";
-import { ARCHIVE_LOCKS_CHANGES } from "@/lib/archive-policy";
+import { useArchiveLocksChanges } from "@/lib/archive-policy";
 import { needsSupplier, supplierShown } from "@/lib/receipt-supplier";
 import { useRecordShownInPlace } from "@/components/shared/dialog-navigation";
 import { useRecordArchived } from "@/components/shared/record-closure";
@@ -434,6 +434,8 @@ export function ViewReceipt({
   });
   // A06: an archived delivery takes no more photographs.
   const archived = useRecordArchived("MATERIAL_RECEIPT", id);
+  // 「归档后锁定记录」 for the delivery's project (JB214-3d).
+  const archiveLocks = useArchiveLocksChanges(data?.project);
   // Opened in place (a dashboard photo, a report row, 操作记录): 更正 and
   // 补供应商 inside come back to this window when saved, not to a second
   // one of the same delivery over it (JB187).
@@ -576,7 +578,7 @@ export function ViewReceipt({
           longitude: photo.longitude,
         }))}
         photoActions={
-          can("receipt.create") && !data.superseded_by && !(archived && ARCHIVE_LOCKS_CHANGES) ? (
+          can("receipt.create") && !data.superseded_by && !(archived && archiveLocks) ? (
             <AddPhoto
               receipt={data}
               onAdded={() =>
@@ -592,7 +594,7 @@ export function ViewReceipt({
             <DeliveryOrderPanel receipt={data} />
             <ReceiptLinesPanel
               receipt={data}
-              canEdit={can("receipt.update") && !data.superseded_by && !(archived && ARCHIVE_LOCKS_CHANGES)}
+              canEdit={can("receipt.update") && !data.superseded_by && !(archived && archiveLocks)}
               onEdit={setEditingLines}
             />
           </div>
