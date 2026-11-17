@@ -169,6 +169,11 @@ describe("操作记录: who / what was changed, whole on a phone (JB202)", () =>
     const classes = classesBefore(read("audit/audit-logs.tsx"), "title={row.original.object_repr}");
     expect(classes).toEqual(["max-w-60", "break-words"]);
   });
+
+  it("wraps who did it", () => {
+    const classes = classesBefore(read("audit/audit-logs.tsx"), /\{row\.original\.actor_name \?\?/);
+    expect(classes).toEqual(["max-w-50", "break-words"]);
+  });
 });
 
 describe("沟通记录: the list fits a phone, names and numbers whole (JB202)", () => {
