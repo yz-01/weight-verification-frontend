@@ -227,7 +227,8 @@ export function CompanySiteSettingsWorkspace() {
           {/* JB164: a logo can be taken away as well as replaced (like the
               background below); the removal goes with 【保存公司资料】. */}
           {canManage && <div className="flex gap-2" data-company-logo-actions>
-            <label className="flex min-w-0 flex-1 cursor-pointer items-center justify-center gap-2 rounded-md border px-3 py-2 text-sm font-medium hover:bg-muted"><ImageUp className="size-4 shrink-0" /><span className="truncate">{logoFile?.name || t("profile.chooseLogo")}</span><input className="sr-only" type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => { const file = event.target.files?.[0] ?? null; setLogoFile(file); if (file) setClearLogo(false); event.target.value = ""; }} /></label>
+            {/* JB202 (Lucas 11-16 「字被裁掉了」): the two buttons' names wrap (「Choose co…」 in English). */}
+            <label className="flex min-w-0 flex-1 cursor-pointer items-center justify-center gap-2 rounded-md border px-3 py-2 text-sm font-medium hover:bg-muted"><ImageUp className="size-4 shrink-0" /><span className="min-w-0 break-words text-center">{logoFile?.name || t("profile.chooseLogo")}</span><input className="sr-only" type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => { const file = event.target.files?.[0] ?? null; setLogoFile(file); if (file) setClearLogo(false); event.target.value = ""; }} /></label>
             {shownLogo && <Button type="button" variant="outline" size="icon" className="shrink-0 text-destructive" title={t("profile.removeLogo")} aria-label={t("profile.removeLogo")} onClick={removeLogo}><Trash2 /></Button>}
           </div>}
           {clearLogo && !logoFile && <p className="text-xs text-muted-foreground">{t("profile.backgroundRemovePending")}</p>}
@@ -243,7 +244,7 @@ export function CompanySiteSettingsWorkspace() {
               {shownBackground ? <img src={shownBackground} alt={t("profile.dashboardBackground")} className="h-full w-full object-cover" /> : <ImageIcon className="size-6 text-muted-foreground" aria-hidden />}
             </div>
             {canManage && <div className="flex gap-2">
-              <label className="flex min-w-0 flex-1 cursor-pointer items-center justify-center gap-2 rounded-md border px-3 py-2 text-sm font-medium hover:bg-muted"><ImageUp className="size-4 shrink-0" /><span className="truncate">{backgroundFile?.name || (shownBackground ? t("profile.replaceBackground") : t("profile.chooseBackground"))}</span><input className="sr-only" type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => { pickBackground(event.target.files?.[0] ?? null); event.target.value = ""; }} /></label>
+              <label className="flex min-w-0 flex-1 cursor-pointer items-center justify-center gap-2 rounded-md border px-3 py-2 text-sm font-medium hover:bg-muted"><ImageUp className="size-4 shrink-0" /><span className="min-w-0 break-words text-center">{backgroundFile?.name || (shownBackground ? t("profile.replaceBackground") : t("profile.chooseBackground"))}</span><input className="sr-only" type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => { pickBackground(event.target.files?.[0] ?? null); event.target.value = ""; }} /></label>
               {shownBackground && <Button type="button" variant="outline" size="icon" className="shrink-0 text-destructive" title={t("profile.removeBackground")} aria-label={t("profile.removeBackground")} onClick={removeBackground}><Trash2 /></Button>}
             </div>}
             {backgroundTooBig !== null && <p role="alert" className="text-xs text-destructive">{t("profile.backgroundTooBig", { actual: backgroundTooBig, limit: MAX_COMPANY_IMAGE_MB })}</p>}

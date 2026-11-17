@@ -148,6 +148,14 @@ describe("「完整证据 PDF」 buttons get the dialog's width (JB202)", () => 
   });
 });
 
+describe("公司设定: 【选择公司标志】【选择背景图】 name themselves whole (JB202)", () => {
+  it("wraps both buttons' names", () => {
+    const source = read("site-access/company-site-settings.tsx");
+    expect(source.match(/<span className="min-w-0 break-words text-center">\{(logoFile|backgroundFile)\?\.name/g)).toHaveLength(2);
+    expect(source).not.toMatch(/<span className="truncate">\{(logoFile|backgroundFile)/);
+  });
+});
+
 describe("分类管理: each group's name and module, whole (JB202)", () => {
   it("wraps them in the left list", () => {
     const source = read("contractor-ops/category-management.tsx");
