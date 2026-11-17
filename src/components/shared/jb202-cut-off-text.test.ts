@@ -148,6 +148,14 @@ describe("「完整证据 PDF」 buttons get the dialog's width (JB202)", () => 
   });
 });
 
+describe("分类管理: each group's name and module, whole (JB202)", () => {
+  it("wraps them in the left list", () => {
+    const source = read("contractor-ops/category-management.tsx");
+    wraps(classesBefore(source, "{groupLabel(row)}</span>"));
+    wraps(classesBefore(source, "{moduleName(row.module)}"));
+  });
+});
+
 describe("人员实时位置: the person's name and project beside the badge, whole (JB202)", () => {
   it("wraps both", () => {
     const source = read("site-operations/on-site-map.tsx");

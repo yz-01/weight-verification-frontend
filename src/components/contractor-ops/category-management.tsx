@@ -622,11 +622,13 @@ export function CategoryManagement() {
                 }`}
               >
                 <ListTree className="size-4 shrink-0" />
+                {/* JB202 (Lucas 11-16 「字被裁掉了」): the group's name and its
+                    module wrap instead of 「Environmental material o…」. */}
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate">{groupLabel(row)}</span>
+                  <span className="block break-words">{groupLabel(row)}</span>
                   {/* A group the project made says which module it belongs to. */}
                   {!row.is_system && (
-                    <span className="block truncate text-xs font-normal text-muted-foreground">
+                    <span className="block break-words text-xs font-normal text-muted-foreground">
                       {moduleName(row.module)}
                     </span>
                   )}
