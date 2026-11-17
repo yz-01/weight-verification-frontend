@@ -24,6 +24,7 @@ import {
   isDriverSessionPath,
   isDriverStandaloneApp,
   isFieldStandaloneApp,
+  isFieldAppPage,
   isFieldSessionPath,
   rememberSignOutReason,
   SIGNED_OUT,
@@ -110,7 +111,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 
   useEffect(() => {
-    if (fieldApp && !isFieldSessionPath(pathname)) {
+    // The installed field app stays on its own screens, except the pages its
+    // worker uses outside them - a scan landing, a file sent by link (JB215:
+    // the redirect raced the machine QR's landing and won).
+    if (fieldApp && !isFieldSessionPath(pathname) && !isFieldAppPage(pathname)) {
       router.replace("/field-staff");
     }
   }, [fieldApp, pathname, router]);

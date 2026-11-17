@@ -30,6 +30,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import type { FieldTask } from "@/interfaces/contractor-ops";
 import { consultantTaskTitle } from "@/lib/consultant-task-title";
+import { disposalTaskTitle } from "@/lib/field-task-title";
 import { useDateFormat } from "@/lib/dates";
 import { photoCaptionText, siteLocationText } from "@/lib/recorded-words";
 import {
@@ -144,10 +145,14 @@ export function FieldTaskSheet({ id, onClose }: { id: string; onClose: () => voi
   const category = row.submission_category
     ? askOption(row.submission_category) ?? row.submission_category
     : null;
+  // A site disposal's task is 「执行清运 DR-…」, as on the phone (JB215): its
+  // stored title is English.
+  const disposal = disposalTaskTitle(row, (reference) => flow("work.disposalTitle", { reference }));
+  const shownTitle = disposal ?? consultantTaskTitle(row, askOption);
 
   return (
     <RecordDetailDialog
-      title={consultantTaskTitle(row, askOption)}
+      title={shownTitle}
       recordNo={row.record_no}
       description={[row.project_name, headOffice ? t("fromHeadOffice") : t("fromSite")].join(" · ")}
       status={
@@ -164,14 +169,14 @@ export function FieldTaskSheet({ id, onClose }: { id: string; onClose: () => voi
       exportRecord={{
         kind: "FIELD_TASK",
         recordId: row.id,
-        reference: row.title,
+        reference: disposal ?? row.title,
         // JB25: a task nobody has started is still the office's draft.
         blockedReason: row.status === "OPEN" ? notArchived : undefined,
       }}
     >
       <div data-field-task-sheet={row.origin}>
         <RecordDetailShell
-          reference={row.title}
+          reference={disposal ?? row.title}
           facts={[
             { label: t("assignee"), value: row.assigned_to_name },
             {
