@@ -124,8 +124,8 @@ describe("the top bar's 「当前项目」 shows the whole name (JB202)", () => 
   it("one project: the name wraps rather than ending in 「…」", () => {
     const html = picker([LONG]);
     expect(html).not.toContain("truncate");
-    expect(html).toContain('<span class="min-w-0 break-words">PRJ-0001<!-- --> - <!-- -->示范商业大厦一期</span>');
-    expect(html).toMatch(/data-current-project=""[^>]*class="order-last flex min-h-9 min-w-0 max-w-full basis-full/);
+    expect(html).toContain('<span class="min-w-0 break-words">PRJ-0001 - 示范商业大厦一期</span>');
+    expect(html).toMatch(/data-current-project="true"[^>]*class="order-last flex min-h-9 min-w-0 max-w-full basis-full/);
   });
 });
 
