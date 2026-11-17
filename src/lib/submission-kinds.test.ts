@@ -85,7 +85,8 @@ describe("「我提交过的」 names every kind (JB116)", () => {
     expect(submissionKindKey({ kind: "SITE_RECORD", task_type: "OTHER" })).toBe("mySubmissions.kind.SITE_RECORD");
     expect(submissionKindKey({ kind: "SITE_RECORD", task_type: "CONSULTANT" })).toBe("mySubmissions.kind.CONSULTANT");
     expect(messages("zh").mySubmissions.kind.GATE_INCIDENT).toBe("门岗照片");
-    expect(messages("zh").mySubmissions.kind.CONSULTANT).toBe("顾问申请");
+    // JB201: the field side's consultant item is 「顾问资料提交」 (the office turns it into a 顾问申请).
+    expect(messages("zh").mySubmissions.kind.CONSULTANT).toBe("顾问资料提交");
   });
 
   it("opens the conversation on a gate issue only", () => {
