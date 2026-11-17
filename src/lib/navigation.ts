@@ -67,6 +67,19 @@ export type PortalFeatureKey =
   | "gate_records"
   | "material_quantity_report"
   | "material_cost_report"
+  // JB210 (客户 11-16 顾问权限): a consultant's menu only (`consultantFeature`,
+  // `consultant_menu`); a contractor's menu never carries them.
+  | "consultant_menu"
+  | "record_centre"
+  | "field_chats"
+  | "document_approvals"
+  | "report_progress"
+  | "report_safety"
+  | "report_field_tasks"
+  | "report_materials"
+  | "report_documents"
+  | "report_consultant"
+  | "report_contractor"
   | "users"
   | "roles"
   | "user_logs"
@@ -140,6 +153,8 @@ export interface FeatureNavItem {
   routePrefixes?: readonly string[];
   /** Requirement-numbered pages shown beneath the main Admin module. */
   children?: readonly FeatureNavChild[];
+  /** The feature a consultant's menu opens this entry with (JB210); see `CONSULTANT_MENU`. */
+  consultantFeature?: PortalFeatureKey;
   /**
    * The parent's own address is a real page, not a hub of cards. Without this
    * an entry with children opens its first child (A03: the card page that
@@ -177,6 +192,8 @@ export interface FeatureNavChild {
    * of them (「垃圾清运」 shows site disposals and waste dispatches, B08).
    */
   anyFeatures?: readonly PortalFeatureKey[];
+  /** The feature a consultant's menu opens this page with (JB210); see `CONSULTANT_MENU`. */
+  consultantFeature?: PortalFeatureKey;
   /**
    * A further level, opened to the right of this one (B03 「下一层继续从当前
    * 选中项旁展开」). A node with children is a heading, not a page: its `href`
@@ -1173,7 +1190,12 @@ export const PORTAL_NAVIGATION = {
           "/documents",
           "documents",
         ),
-        child("12.2.2", "nav.submodule.approvals", "/approvals", "approvals"),
+        // 审批流程（高级）: the company's own document approvals, never a
+        // consultant's (JB210, L4) - a key no consultant is given.
+        {
+          ...child("12.2.2", "nav.submodule.approvals", "/approvals", "approvals"),
+          consultantFeature: "document_approvals",
+        },
         // Out of the menu (T-345, 第 67 条), not out of the product: the
         // page and every piece of evidence under it stay, and the route still
         // opens for anyone who had it.
@@ -1218,6 +1240,7 @@ export const PORTAL_NAVIGATION = {
             "report_center",
           ),
           menuHidden: true,
+          consultantFeature: "report_contractor",
         },
         // The old page of report cards (A03). Out of the menu; the address
         // stays, and opens the first report.
@@ -1235,6 +1258,8 @@ export const PORTAL_NAVIGATION = {
           "nav.submodule.progressRecords",
           "/reports/contractor/progress",
           "report_center",
+          undefined,
+          "report_progress",
         ),
         // 工程进度's own reports (I8, ID24): reached from 工程进度 in
         // 【选择报表】 (`PROGRESS_MENU`, lib/report-menu), not from the first
@@ -1247,6 +1272,7 @@ export const PORTAL_NAVIGATION = {
             "report_center",
           ),
           menuHidden: true,
+          consultantFeature: "report_progress",
         },
         {
           ...child(
@@ -1256,36 +1282,47 @@ export const PORTAL_NAVIGATION = {
             "report_center",
           ),
           menuHidden: true,
+          consultantFeature: "report_progress",
         },
         child(
           "13.2.5",
           "nav.submodule.safetyIncidents",
           "/reports/contractor/safety",
           "report_center",
+          undefined,
+          "report_safety",
         ),
         child(
           "13.2.6",
           "nav.submodule.consultantApplications",
           "/reports/contractor/consultant",
           "report_center",
+          undefined,
+          "report_consultant",
         ),
         child(
           "13.2.7",
           "nav.submodule.attendanceRecords",
           "/reports/contractor/attendance",
           "report_center",
+          undefined,
+          "report_contractor",
         ),
         child(
           "13.2.8",
           "nav.submodule.siteEquipment",
           "/reports/contractor/equipment",
           "report_center",
+          undefined,
+          "report_contractor",
         ),
         child(
           "13.2.9",
           "nav.submodule.wasteDispatches",
           "/reports/contractor/recycling",
           "report_center",
+          undefined,
+          "report_contractor",
         ),
         // The four modules that had no report (I11, ID27), named as their
         // pages are named; material outgoing and Progress Claim open at their
@@ -1295,24 +1332,32 @@ export const PORTAL_NAVIGATION = {
           "nav.submodule.fieldTasks",
           "/reports/contractor/field_tasks",
           "report_center",
+          undefined,
+          "report_field_tasks",
         ),
         child(
           "13.2.9B",
           "nav.submodule.materialOutgoing",
           "/reports/contractor/material_outgoing",
           "report_center",
+          undefined,
+          "report_materials",
         ),
         child(
           "13.2.9C",
           "nav.submodule.claimEngine",
           "/reports/contractor/claims",
           "report_center",
+          undefined,
+          "report_contractor",
         ),
         child(
           "13.2.9D",
           "nav.submodule.sundryClaims",
           "/reports/contractor/sundry_claims",
           "report_center",
+          undefined,
+          "report_contractor",
         ),
         // 材料退货记录（RN）and 材料不合格记录 (J29, 客户 10-20).
         child(
@@ -1320,12 +1365,16 @@ export const PORTAL_NAVIGATION = {
           "nav.submodule.materialReturnsReport",
           "/reports/contractor/material_returns",
           "report_center",
+          undefined,
+          "report_materials",
         ),
         child(
           "13.2.9F",
           "nav.submodule.materialRejectionsReport",
           "/reports/contractor/material_rejections",
           "report_center",
+          undefined,
+          "report_materials",
         ),
         // 施工计划 moved under 工程进度 (I8, ID24); the address stays.
         {
@@ -1336,6 +1385,7 @@ export const PORTAL_NAVIGATION = {
             "report_center",
           ),
           menuHidden: true,
+          consultantFeature: "report_progress",
         },
         // 文件资料 (JB60, was 项目资料) is the document archive, by 文档大分类
         // → 子分类 (D6). The
@@ -1346,6 +1396,7 @@ export const PORTAL_NAVIGATION = {
           "/reports/contractor/documents",
           "report_center",
           "document.view",
+          "report_documents",
         ),
         // Targets and their achievement, which 文件资料 used to open.
         child(
@@ -1353,6 +1404,8 @@ export const PORTAL_NAVIGATION = {
           "nav.submodule.targetReport",
           "/reports/contractor/target",
           "report_center",
+          undefined,
+          "report_contractor",
         ),
         child(
           "13.2.12",
@@ -1432,11 +1485,18 @@ export const PORTAL_NAVIGATION = {
     // of all of them and who archived each - not a list of categories, so it
     // is not folded into Category Management; Multi Engine bundles records
     // from several entries into one PDF.
-    entry("project_categories", "submodule.archiveQueue", "/archive-queue", Inbox, "tools"),
+    // 现场记录中心: for a consultant its own tick (JB210, 客户 11-16).
+    entry("project_categories", "submodule.archiveQueue", "/archive-queue", Inbox, "tools", {
+      consultantFeature: "record_centre",
+    }),
     // 沟通记录 (JB127, 客户 11-07 事项 1; renamed by JB158, 客户 11-10 第七批):
     // every phone and back-office conversation of the projects the reader can
     // see, and the office's 找人沟通. No waiting count of its own.
-    entry("projects", "submodule.fieldChats", "/field-chats", MessagesSquare, "tools", { badge: [] }),
+    entry("projects", "submodule.fieldChats", "/field-chats", MessagesSquare, "tools", {
+      badge: [],
+      // 沟通记录: for a consultant its own tick (JB210, 客户 11-16).
+      consultantFeature: "field_chats",
+    }),
     entry("project_categories", "submodule.multiEngine", "/evidence-packages", Package, "tools", {
       // Head office reads claims without reading packages: it sees the
       // Progress Claim tab only.
@@ -1676,12 +1736,14 @@ function entry(
     routePrefixes?: readonly string[];
     requiredPermission?: string;
     badge?: readonly string[];
+    consultantFeature?: PortalFeatureKey;
   } = {},
 ): FeatureNavItem {
   return {
     ...itemWithLabel(feature, labelKey, href, icon, group, options.routePrefixes),
     requiredPermission: options.requiredPermission,
     badge: options.badge,
+    ...(options.consultantFeature ? { consultantFeature: options.consultantFeature } : {}),
   };
 }
 
@@ -1758,8 +1820,16 @@ function child(
   href: string,
   feature?: PortalFeatureKey,
   requiredPermission?: string,
+  consultantFeature?: PortalFeatureKey,
 ): FeatureNavChild {
-  return { key, labelKey, href, feature, requiredPermission };
+  return {
+    key,
+    labelKey,
+    href,
+    feature,
+    requiredPermission,
+    ...(consultantFeature ? { consultantFeature } : {}),
+  };
 }
 
 /** Whether one child's own feature test passes (its permission is separate). */
@@ -1825,6 +1895,42 @@ export function navLeaves(
   );
 }
 
+/**
+ * The marker a consultant's feature list carries (JB210, 客户 11-16: 「支持总部按
+ * 项目勾选以下11个模块」; `accounts.consultant_access.consultant_features`).
+ *
+ * A consultant's menu is his project's ticks, so a few pages open on a key of
+ * their own for him: 现场记录中心 and 沟通记录 are ticks no code stands for, each
+ * 报表中心 page follows the module it reports on, and 审批流程（高级） is never
+ * his. Those pages name it as `consultantFeature`; with this marker present
+ * it replaces their `feature`. A contractor's list never carries the marker,
+ * so the contractor's menu reads exactly as before.
+ */
+export const CONSULTANT_MENU = "consultant_menu";
+
+const CONSULTANT_REGISTRY = new Map<Portal, readonly FeatureNavItem[]>();
+
+function asConsultant<T extends FeatureNavItem | FeatureNavChild>(entry: T): T {
+  const children = entry.children?.map((childItem) => asConsultant(childItem));
+  return {
+    ...entry,
+    ...(entry.consultantFeature ? { feature: entry.consultantFeature } : {}),
+    ...(children ? { children } : {}),
+  };
+}
+
+/** The menu registry this feature list reads: a consultant's, or as it is. */
+function registryFor(portal: Portal, features: ReadonlySet<string>): readonly FeatureNavItem[] {
+  const registry = PORTAL_NAVIGATION[portal] as readonly FeatureNavItem[];
+  if (!features.has(CONSULTANT_MENU)) return registry;
+  let mapped = CONSULTANT_REGISTRY.get(portal);
+  if (!mapped) {
+    mapped = registry.map((navItem) => asConsultant(navItem));
+    CONSULTANT_REGISTRY.set(portal, mapped);
+  }
+  return mapped;
+}
+
 /** Groups containing only features returned for this signed-in user. */
 export function visibleNavigation(
   portal: Portal | undefined,
@@ -1846,7 +1952,7 @@ export function visibleNavigation(
     groupOrder.map((key) => [key, []]),
   );
 
-  for (const navItem of PORTAL_NAVIGATION[portal] as readonly FeatureNavItem[]) {
+  for (const navItem of registryFor(portal, visible)) {
     if (
       navItem.requiredPermission &&
       !hasPermission(permissions, navItem.requiredPermission, isSuperuser)
@@ -1890,7 +1996,7 @@ export function hubDestination(
   permissions: readonly string[] = [],
   isSuperuser = false,
 ): string | null {
-  const navItem = (PORTAL_NAVIGATION[portal] as readonly FeatureNavItem[]).find(
+  const navItem = registryFor(portal, new Set(features)).find(
     (entry) => entry.feature === feature && (entry.children?.length ?? 0) > 0,
   );
   if (!navItem) return null;
@@ -2035,7 +2141,7 @@ export function isRouteAllowed(
   }
 
   const enabled = new Set(features);
-  const owned = (PORTAL_NAVIGATION[portal] as readonly FeatureNavItem[]).some((navItem) => {
+  const owned = registryFor(portal, enabled).some((navItem) => {
     const parentEnabled = enabled.has(navItem.feature);
     const leaves = navLeaves(navItem.children);
     const hasEnabledChild = leaves.some(
@@ -2100,7 +2206,7 @@ export function firstAllowedDashboardPath(
 ): string {
   const enabled = new Set(features);
   return (
-    PORTAL_NAVIGATION[portal].find((navItem) => enabled.has(navItem.feature))
+    registryFor(portal, enabled).find((navItem) => enabled.has(navItem.feature))
       ?.href ?? "/profile"
   );
 }

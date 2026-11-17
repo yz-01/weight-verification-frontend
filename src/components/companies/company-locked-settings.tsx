@@ -24,17 +24,26 @@ import { VisitorPrivacySection } from "@/components/site-access/visitor-privacy-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { CompanyLockedSettings, ContractorSiteSettings } from "@/interfaces/site-access";
+import {
+  CONSULTANT_MODULES,
+  CONSULTANT_OPTIONS,
+  MODULE_MESSAGE_KEYS,
+  OPTION_MESSAGE_KEYS,
+  foldLegacyCodes,
+  orderedModules,
+  toggleModule,
+  toggleOption,
+} from "@/lib/consultant-modules";
 import { roleName } from "@/lib/role-labels";
 import { getCompanySiteSettings, updateCompanySiteSettings } from "@/services/companies.service";
 
-// Mirrors CONSULTANT_PERMISSION_CODES on the backend, which is authoritative.
-const CONSULTANT_PERMISSIONS = ["project.view", "approval.view", "approval.review", "notification.view", "safety.view", "report.view", "report.export"];
 
 export function CompanyLockedSettingsPanel({ companyId }: { companyId: string }) {
   const t = useTranslations("siteControl");
   const tLocked = useTranslations("companies.lockedSettings");
   const tHq = useTranslations("headquarters.reference");
   const tAll = useTranslations();
+  const tConsultant = useTranslations("consultantAccess");
   const { can } = useAuth();
   const qc = useQueryClient();
   const canManage = can("company.update");
@@ -60,6 +69,13 @@ export function CompanyLockedSettingsPanel({ companyId }: { companyId: string })
   const rule = (field: "default_archive_rules" | "default_notification_rules", key: string, value: boolean) =>
     set({ [field]: { ...(form[field] ?? {}), [key]: value } });
   const off = !canManage;
+  // 「顾问项目默认权限」 as the grant dialog's 11 ticks + 3 options (JB210, 客户
+  // 11-16). A default still saved as the seven codes reads as its ticks.
+  const folded = foldLegacyCodes(form.default_consultant_permissions);
+  const consultantModules = orderedModules([...(form.default_consultant_modules ?? []), ...folded.modules]);
+  const consultantOptions = folded.options;
+  const setConsultant = (modules: string[], options: string[]) =>
+    set({ default_consultant_modules: modules, default_consultant_permissions: options });
 
   return <section id="company-locked-settings" className="scroll-mt-20 space-y-5 border-t p-4 sm:p-6" data-testid="company-locked-settings">
     <SectionTitle icon={Lock} title={tLocked("title")} description={tLocked("subtitle")} action={canManage ? <Button disabled={save.isPending} onClick={() => save.mutate()}><Save />{t("action.saveSettings")}</Button> : undefined} />
@@ -72,7 +88,10 @@ export function CompanyLockedSettingsPanel({ companyId }: { companyId: string })
         <ChoiceField label={t("field.defaultApprovalRole")} value={form.default_approval_role_code} disabled={off} options={roleOptions} optionLabel={roleLabel} onChange={(value) => set({ default_approval_role_code: value })} />
       </div>
       <p className="text-sm font-medium">{t("permissionDefaults.consultant")}</p>
-      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">{CONSULTANT_PERMISSIONS.map((code) => <Toggle key={code} compact label={t(`permissionDefaults.permission.${code.replaceAll(".", "_")}`)} checked={form.default_consultant_permissions.includes(code)} disabled={off} onChange={(checked) => set({ default_consultant_permissions: checked ? [...form.default_consultant_permissions, code] : form.default_consultant_permissions.filter((item) => item !== code) })} />)}</div>
+      <p className="text-xs text-muted-foreground">{tConsultant("grant.modulesTitle")}</p>
+      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3" data-slot="consultant-default-modules">{CONSULTANT_MODULES.map((key) => <Toggle key={key} compact label={tConsultant(`module.${MODULE_MESSAGE_KEYS[key]}`)} checked={consultantModules.includes(key)} disabled={off} onChange={(checked) => setConsultant(toggleModule(consultantModules, key, checked), consultantOptions)} />)}</div>
+      <p className="text-xs text-muted-foreground">{tConsultant("grant.optionsTitle")}</p>
+      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3" data-slot="consultant-default-options">{CONSULTANT_OPTIONS.map((code) => <Toggle key={code} compact label={tConsultant(`option.${OPTION_MESSAGE_KEYS[code]}`)} checked={consultantOptions.includes(code)} disabled={off} onChange={(checked) => setConsultant(consultantModules, toggleOption(consultantOptions, code, checked))} />)}</div>
     </div>
 
     <div className="space-y-3" data-locked="qr">
