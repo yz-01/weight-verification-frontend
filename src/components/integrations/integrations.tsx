@@ -56,6 +56,7 @@ import type {
 } from "@/interfaces/integration";
 import { canSwitchOn } from "@/lib/plan-terms";
 import { getProjects } from "@/services/contractor.service";
+import { getCompanyProjectArchiveLocks } from "@/services/project-archive-lock.service";
 import { getCompanies } from "@/services/companies.service";
 import {
   createIntegration,
@@ -333,8 +334,12 @@ export function Integrations() {
   });
   const projects = useQuery({
     queryKey: ["projects", "integration-options", selectedCompany],
-    queryFn: () =>
-      getProjects({ ...companyQuery, page_size: 100, sort_by: "name" }),
+    queryFn: (): Promise<{ results: Array<{ id: string; code: string; name: string }> }> =>
+      user?.is_platform_staff
+        ? // JB220 (D5): MSE binds devices from the customer's project
+          // directory (code, name, status); the projects list is the customer's.
+          getCompanyProjectArchiveLocks(selectedCompany).then((rows) => ({ results: rows }))
+        : getProjects({ ...companyQuery, page_size: 100, sort_by: "name" }),
     enabled: Boolean(selectedCompany && selectedCompanyType === "CONTRACTOR"),
   });
   const sites = useQuery({

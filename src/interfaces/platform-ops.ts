@@ -369,6 +369,8 @@ export interface AdminDashboardData {
       DashboardMarkerKind,
       { total: number; mapped: number; missing: number }
     >;
+    /** JB220 (PO-1 = A): customer sites left off the map until the customer opens 「允许 MSE 查看」. */
+    hidden_project_pins?: number;
   };
   platform: {
     companies: number;

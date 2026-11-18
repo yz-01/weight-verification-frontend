@@ -425,8 +425,11 @@ export function Notifications({
   );
 }
 
-function notificationKindKey(kind: string): string {
+export function notificationKindKey(kind: string): string {
   if (kind === "PLATFORM_ANNOUNCEMENT") return "ANNOUNCEMENT";
+  // JB220: MSE's request for access, and MSE's change of an account, are not
+  // 工地门禁 - checked before the `ACCESS` rule below would take them.
+  if (kind === "PLATFORM_ACCESS") return "PLATFORM_ACCESS";
   if (kind.startsWith("DRIVER_TASK")) return "DRIVER_TASK";
   if (kind.startsWith("waste.") || kind === "ORDER") return "DISPATCH";
   if (kind.includes("WEIGH")) return "WEIGHING";
