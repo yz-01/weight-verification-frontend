@@ -31,6 +31,7 @@ import {
   Camera,
   CheckCircle2,
   DoorOpen,
+  ExternalLink,
   Images,
   Loader2,
   Lock,
@@ -42,6 +43,7 @@ import {
   UserPlus,
   X,
 } from "lucide-react";
+import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -64,6 +66,11 @@ import {
 } from "@/components/shared/record-correction";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { EmergencyContactLine } from "@/components/site-access/emergency-contact-line";
+import {
+  ExitPassWaitingList,
+  ExitPassWindow,
+  useMayOpenExitRecord,
+} from "@/components/site-access/exit-pass-window";
 import { VisitorScanPanel } from "@/components/site-access/visitor-scan";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -105,12 +112,18 @@ import {
 
 const PAGE_SIZE = 20;
 
+// JB217: 【打开原记录】 of a 门岗放行, the exit's own window (office only).
+const InPlaceRecord = dynamic(
+  () => import("@/components/shared/in-place-record").then((module) => module.InPlaceRecord),
+  { ssr: false },
+);
+
 function newEventId() {
   return `gate-${crypto.randomUUID()}`;
 }
 
 /** Ask once for where the phone is; a refusal is an answer, not an error. */
-function useGateLocation() {
+export function useGateLocation() {
   const [fix, setFix] = useState<LocationFix | null>(null);
   const [failed, setFailed] = useState(false);
   const asked = useRef(false);
@@ -153,7 +166,7 @@ export function GateRecordsPanel({
 } = {}) {
   const t = useTranslations("siteControl.gateRecords");
   const tp = useTranslations("siteControl.gatePhoto");
-  const { can } = useAuth();
+  const { can, user } = useAuth();
   const search = useSearchParams();
   // `gate_incident`, not `incident`: the phone already reads `incident` as a
   // hazard, and a gate record's id there would open the wrong thing.
@@ -212,6 +225,10 @@ export function GateRecordsPanel({
     <div className="space-y-4">
       {/* 公司设置's 紧急联系人, 「给门岗用」 - one tap to call (JB206-9). */}
       <EmergencyContactLine />
+      {/* JB217 (客户 11-18 事项 2): 「门岗收到后，打开该事项检查车辆及货物，在事项内
+          现场拍照，再确认放行」 - the 出门条 waiting at this gate, above the
+          two buttons, on the gate's own 拍照 page (no new page, JB104). */}
+      {mayScan && user?.is_field_staff ? <ExitPassWaitingList project={project} /> : null}
       {mayScan && (
         <>
           <div className="grid grid-cols-2 gap-3" role="group" aria-label={tp("title")} data-gate-actions>
@@ -394,7 +411,7 @@ function GateIncidentCard({
 }
 
 /** Photos taken but not yet saved, each with its own moment and fix. */
-function PhotoTray({
+export function PhotoTray({
   photos,
   onRemove,
 }: {
@@ -430,7 +447,7 @@ function PhotoTray({
   );
 }
 
-function useContinuousCamera(fix: LocationFix | null) {
+export function useContinuousCamera(fix: LocationFix | null) {
   const [photos, setPhotos] = useState<GatePhotoDraft[]>([]);
   const add = (file: File) =>
     setPhotos((items) => [
@@ -449,7 +466,7 @@ function useContinuousCamera(fix: LocationFix | null) {
   return { photos, add, remove, clear: () => setPhotos([]) };
 }
 
-function LocationLine({ fix, failed, onRetry }: { fix: LocationFix | null; failed: boolean; onRetry: () => void }) {
+export function LocationLine({ fix, failed, onRetry }: { fix: LocationFix | null; failed: boolean; onRetry: () => void }) {
   const t = useTranslations("siteControl.gateRecords");
   return (
     <div className="flex flex-wrap items-center gap-2 text-sm">
@@ -940,6 +957,16 @@ export function GateIncidentDetailDialog({
   const mayAdd = open && can("site_access.scan");
   const chatRef = useRef<HTMLDivElement>(null);
   const isIssue = Boolean(row?.is_issue);
+  // JB217: a 门岗放行 (「确认后，该条事项归入「门岗事项」保存，保留核查照片、放行人员
+  // 及时间，并关联原申请」) - its 放行 facts in place of the people asked in,
+  // and 「关联原申请」 with 【打开原记录】.
+  const te = useTranslations("exitPass");
+  const exitLink = row?.category === "EXIT_RELEASE" ? (row.exit_record ?? null) : null;
+  const releaseRow = row?.category === "EXIT_RELEASE";
+  const [openedOriginal, setOpenedOriginal] = useState(false);
+  // The office opens the record's own window, when its page is open to the
+  // reader; a phone - and anybody else - the 出门条 window, read only.
+  const officeOpens = useMayOpenExitRecord(exitLink?.kind);
   useEffect(() => {
     if (!talkAsks || !isIssue) return;
     chatRef.current?.scrollIntoView({ block: "start", behavior: "smooth" });
@@ -1000,11 +1027,36 @@ export function GateIncidentDetailDialog({
                   },
                 ]
               : []),
-            ...(row.closed_at
+            ...(exitLink
               ? [
-                  { label: t("field.closedBy"), value: row.closed_by_name ?? "" },
-                  { label: t("field.closedAt"), value: df.dateTime(row.closed_at) },
+                  {
+                    label: te("gateRecord.linked"),
+                    value: (
+                      <span className="flex flex-wrap items-center gap-2" data-exit-record-link={exitLink.reference}>
+                        <span className="tabular">
+                          {te("gateRecord.linkedValue", { reference: exitLink.reference, kind: te(`kind.${exitLink.kind}`) })}
+                        </span>
+                        <Button size="sm" variant="outline" onClick={() => setOpenedOriginal(true)}>
+                          <ExternalLink />
+                          {te("gateRecord.openOriginal")}
+                        </Button>
+                      </span>
+                    ),
+                    wide: true,
+                  },
                 ]
+              : []),
+            ...(row.closed_at
+              ? releaseRow
+                ? [
+                    { label: te("gateRecord.releasedBy"), value: row.closed_by_name ?? row.guard_name },
+                    { label: te("gateRecord.releasedAt"), value: df.dateTime(row.closed_at) },
+                    { label: te("gateRecord.checkPhotos"), value: te("gateRecord.photoCount", { count: row.photos.length }) },
+                  ]
+                : [
+                    { label: t("field.closedBy"), value: row.closed_by_name ?? "" },
+                    { label: t("field.closedAt"), value: df.dateTime(row.closed_at) },
+                  ]
               : []),
           ]}
           // Every photo keeps its own gate, guard, time and GPS (D09): the
@@ -1056,6 +1108,18 @@ export function GateIncidentDetailDialog({
                   <MessagesSquare />
                   {t("talk")}
                 </Button>
+              </ShellPanel>
+            ) : releaseRow ? (
+              // Released at the gate and closed at once in the guard's name:
+              // nobody to ask in, nothing left to finish.
+              <ShellPanel title={te("gateRecord.releaseTitle")} data-gate-release>
+                <p className="text-sm leading-6">
+                  {te("gateRecord.releaseDone", {
+                    name: row.closed_by_name ?? row.guard_name,
+                    when: row.closed_at ? df.dateTime(row.closed_at) : df.dateTime(row.occurred_at),
+                    count: row.photos.length,
+                  })}
+                </p>
               </ShellPanel>
             ) : row.is_issue ? (
               <div className="space-y-4">
@@ -1119,6 +1183,18 @@ export function GateIncidentDetailDialog({
           }}
         />
       )}
+      {exitLink && openedOriginal ? (
+        officeOpens ? (
+          <InPlaceRecord kind={exitLink.kind} id={exitLink.id} onClose={() => setOpenedOriginal(false)} />
+        ) : (
+          <ExitPassWindow
+            kind={exitLink.kind}
+            record={exitLink.id}
+            readOnly
+            onClose={() => setOpenedOriginal(false)}
+          />
+        )
+      ) : null}
     </RecordDetailDialog>
   );
 }

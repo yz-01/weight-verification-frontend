@@ -9,6 +9,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 import { AnnouncementDialog } from "@/components/announcements/announcement-dialog";
 import { VisitorArrivalDialog } from "@/components/site-access/visitor-arrival";
+import { ExitPassWindow } from "@/components/site-access/exit-pass-window";
+import { parseExitPassParam } from "@/interfaces/exit-pass";
 import { NoticeOpener } from "@/components/notifications/notice-opener";
 import { useClearSearchParam } from "@/hooks/use-url-selection";
 import { useMemo, useState } from "react";
@@ -91,6 +93,9 @@ export function Notifications({
   // 访客进场确认 (I26): a host's notice opens 「确认接待」 here.
   const visitorArrival = searchParams.get("visitor_arrival");
   const clearVisitorArrival = useClearSearchParam("visitor_arrival");
+  // JB217: a 出门条's notice opens the 出门条 here (`officeNotificationHref`).
+  const exitPass = parseExitPassParam(searchParams.get("exit_pass"));
+  const clearExitPass = useClearSearchParam("exit_pass");
   // JB97: one notice, by its id - what an office push opens, and a row with
   // no page of its own. It goes on to its record as the bell does, or opens
   // here, whole.
@@ -254,6 +259,9 @@ export function Notifications({
           Reading it does not dismiss the notice (D04). */}
       {visitorArrival && (
         <VisitorArrivalDialog id={visitorArrival} onClose={clearVisitorArrival} />
+      )}
+      {exitPass && (
+        <ExitPassWindow kind={exitPass.kind} record={exitPass.record} onClose={clearExitPass} />
       )}
       {shownNotice && (
         <NoticeOpener

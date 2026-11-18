@@ -1916,6 +1916,8 @@ function MovementRecordDialog({
           kind: "EQUIPMENT_MOVEMENT",
           recordId: shownMovement.id,
         }}
+        // JB217: 出门条批准（安全经理） · 外部审批 · 门岗放行 - an exit only (D1).
+        exitPass={shownMovement.direction === "EXIT" ? { kind: "EQUIPMENT_MOVEMENT", recordId: shownMovement.id } : null}
         // 【确认归档】 with the movement itself (C4), once it is done.
         closure={{ kind: "EQUIPMENT_MOVEMENT", recordId: shownMovement.id }}
       />
