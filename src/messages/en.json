@@ -4014,7 +4014,19 @@
       "rain_remark_set": "Wrote a rain record's remarks",
       "rain_month_remark_set": "Wrote the rain report's monthly remarks",
       "settings_reset_on_wiring": "Maintenance and force update reset when they took effect",
-      "head_office_on_behalf": "Decided by head office for the manager"
+      "head_office_on_behalf": "Decided by head office for the manager",
+      "exit_pass_signed": "Safety manager signed the exit pass",
+      "exit_pass_external_set": "Set whether external approval is needed",
+      "exit_pass_external_waived": "Changed to no external approval",
+      "exit_pass_external_signed": "External approval signed online",
+      "exit_pass_external_paper_recorded": "Signed external approval copy registered",
+      "exit_pass_sent": "Exit pass sent",
+      "exit_pass_released": "Gate confirmed the release",
+      "exit_pass_external_paper_corrected": "Signed external approval copy replaced",
+      "permit_form_saved": "E-permit saved",
+      "permit_work_type_added": "Type of work added",
+      "permit_work_type_renamed": "Type of work renamed",
+      "permit_work_type_removed": "Type of work removed"
     },
     "objectType": {
       "SignOffAssistant": "Assistant PIN",
@@ -4830,7 +4842,8 @@
         "ehs": "Rectification / EHS categories",
         "claim": "Progress Claim categories",
         "equipmentName": "Equipment names",
-        "recycle": "Recyclable material outgoing categories"
+        "recycle": "Recyclable material outgoing categories",
+        "permitWorkType": "Permit to work · Types of work"
       },
       "moduleHelp": {
         "material": "Materials and the specifications under them. A new project gets them together.",
@@ -4838,7 +4851,8 @@
         "ehs": "Rectification / EHS categories. The work permit category is the system's.",
         "claim": "Progress Claim categories.",
         "equipmentName": "Equipment names are shared by the whole company: every project picks from this list when registering equipment.",
-        "recycle": "Recyclable material outgoing categories have always been shared by the whole company."
+        "recycle": "Recyclable material outgoing categories have always been shared by the whole company.",
+        "permitWorkType": "The choices under \"Type of work\" when an e-permit is filled in. Add, rename or remove them; renaming or removing never changes an e-permit already filled in. \"Other (write it in)\" is always there."
       },
       "create": "Add category",
       "createTitle": "Add · {module}",
@@ -5423,7 +5437,9 @@
         "confirmOffTitle": "Unlock “{project}”?",
         "confirmOffBody": "Once off, this project’s archived records can be changed in the office with the 6-digit PIN, and every change is logged.",
         "confirmOff": "Unlock"
-      }
+      },
+      "noRole": "Not set (everyone who may approve)",
+      "roleMissing": "{name} (this company has no such role)"
     },
     "trialDaysHint": "This plan gives {days} free days by default. No bill during the trial; billing starts only when you press Extend or renew in Subscriptions. Enter 0 for no trial.",
     "trialNote": "No bill during the trial. Billing starts only when you press Extend or renew in Subscriptions.",
@@ -9498,7 +9514,28 @@
       "consultant_read_only": "A consultant account can only view this, not change it.",
       "consultant_module_not_granted": "Head office has not opened this module to you on this project. Ask head office if you need it.",
       "consultant_no_permit": "A work permit is applied for by the contractor, not a consultant. You can raise a rectification instead.",
-      "consultant_export_not_granted": "Head office has not given you Export on this project, so you cannot export or send. You can preview and print."
+      "consultant_export_not_granted": "Head office has not given you Export on this project, so you cannot export or send. You can preview and print.",
+      "exit_pass_not_applicable": "This record has no exit pass (a material issue, an equipment entry, or a record finished before exit passes began), so nothing needs signing or releasing.",
+      "exit_pass_not_ready": "This request is not approved yet, so the exit pass cannot be signed now. Sign it once the office has approved it.",
+      "exit_pass_record_closed": "This record has been archived, returned or cancelled, so its exit pass can no longer be signed or released. If in doubt, contact the applicant or the office.",
+      "exit_pass_not_a_signer": "You are not a safety manager of this project, so you cannot sign the exit pass. Ask the company administrator to give you 「Safety verification」 and add you to this project.",
+      "exit_pass_own_application": "This is your own request, so you cannot sign its exit pass. Ask another safety manager of this project to sign.",
+      "exit_pass_already_signed": "Another safety manager has just signed this exit pass, so you do not need to. The page has been refreshed.",
+      "exit_pass_signature_required": "There is no signature yet. Sign in the signature box first, then press 「Sign to approve」.",
+      "exit_pass_needs_signature_first": "The safety manager has not signed the exit pass yet, so the external approval cannot be done now. Ask the safety manager to sign first.",
+      "exit_pass_external_not_waiting": "This is not waiting for an external approval now (none is needed, it is done, or the gate has released it), so nothing more is needed. The page has been refreshed.",
+      "exit_pass_external_not_allowed": "You cannot do this step: the external approval is done on a computer by someone with approval rights for this kind of record, not by the applicant or the safety manager who signed. Ask head office or the project's approver.",
+      "exit_pass_external_fields_required": "Something is missing: fill in the company / department, the approver's name and the date, choose or upload the signed copy, then save.",
+      "exit_pass_external_locked": "「Needs external approval」 can no longer be changed, because the external approval is done or the exit pass has been sent. The page has been refreshed.",
+      "exit_pass_not_sent": "This exit pass has not been sent yet, so it cannot be released now. Ask the vehicle to wait, and contact the applicant or the safety manager to sign the exit pass first.",
+      "exit_pass_already_released": "This exit pass has already been released by the gate (or this clearance has ended), so nothing more is needed. The page has been refreshed.",
+      "exit_pass_release_phone_only": "A release is confirmed by the gate guard on the phone after taking photos; the office system cannot release. Use the gate phone.",
+      "exit_pass_external_pending": "This is still waiting for the external approval, so it cannot be confirmed and archived now. Register the signed copy, ask the approver to sign online, or change it to no external approval, then confirm and archive.",
+      "role_kind_fixed": "The Company Administrator is always a head-office role, and a phone account's role cannot become one.",
+      "role_self_lockout": "You hold this role yourself, so saving this would switch off your own user management. Keep “View users” and “Edit users” ticked, or ask the Company Administrator to make the change.",
+      "permit_form_office_only": "The e-permit is filled in on the office computer. Please sign in on a computer to fill it in.",
+      "permit_work_type_exists": "\"{name}\" is already on the list.",
+      "permit_form_changed": "{name} saved this e-permit after you opened it. Close it, open it again, read the latest and then change it."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -12652,7 +12689,15 @@
       "report_records": "Records taken in",
       "report_photos": "Photos",
       "document_title": "Document name",
-      "rain_remark": "Remarks"
+      "rain_remark": "Remarks",
+      "last_return_reason": "Last reason for return",
+      "permit_work_type": "Type of work",
+      "permit_location": "Work location",
+      "permit_work_content": "Work description",
+      "permit_work_period": "Requested period",
+      "permit_safety_measures": "Risks and safety measures",
+      "permit_conditions": "Conditions of approval",
+      "permit_valid_period": "Approved period"
     },
     "detailTitle": "What I sent",
     "photos": "Photographs",
@@ -13665,8 +13710,8 @@
     "roles": {
       "what": "What each role in your company is allowed to see and do.",
       "who": "Holders of role.view; editing needs role.update.",
-      "need": "A role needs a code, a name and at least one permission.",
-      "then": "Permission changes take effect the next time that person loads a page. They may need to refresh.",
+      "need": "A new role needs a name and a type: a head-office role, where you tick group A and group B, or a project role, where you tick group B and project permissions are all on by default. The role code is numbered by the system.",
+      "then": "When you save, this role's people change with it; it takes effect the next time they load a page. They may need to refresh.",
       "trouble": "Someone sees an empty sidebar: their role has no module permissions at all."
     },
     "safety": {
@@ -13841,11 +13886,11 @@
       "trouble": "Permissions, QR rules, notifications, GPS, security and record keeping are managed by MSE and cannot be changed here; contact MSE to change them."
     },
     "permits": {
-      "what": "Permits to work: upload your company's own permit form (Word, PDF or a photo) and send it to a named safety manager, who signs to approve it or returns it; an approved permit is archived. Every permit can be found again by project, approval status, applicant and date, and its files previewed, printed or downloaded.",
+      "what": "Permits to work: upload your company's own permit form (Word, PDF or a photo) and send it to a named safety manager, who signs to approve it or returns it; an approved permit is archived. Every permit can be found again by project, approval status, applicant and date, and its files previewed, printed or downloaded. The approver can press \"Fill in e-permit\" in the window to turn the application into an e-permit, printed as the first page of the complete evidence PDF.",
       "who": "People with “View hazards / EHS and permits to work” can read and download; with “Report and assign hazards, apply for permits to work” they apply with “New application”. Approving needs “Safety verification (can approve permits to work)” and is done by the safety manager the applicant chose, or a company administrator. Nobody approves their own permit.",
-      "need": "A new application needs the project, the permit files (Word, PDF or photos of the form; several pages, at most 10 at a time) and the approving safety manager; a remark is optional. Approving needs a signature; returning needs the reason.",
-      "then": "The chosen safety manager (and the company administrators) get a to-do notice. Once approved, the original files, the decision, the signature, the approver's position and the time are archived together and can no longer change. A returned permit is corrected by the applicant and resubmitted with new files; the earlier files are kept. The applicant is told either way.",
-      "trouble": "If no safety manager can be chosen, nobody on this project can approve permits yet: the approver's role needs “Safety verification” and “View projects”, and the person must be on this project's staff list. The “New application” window lists these three steps."
+      "need": "A new application needs the project, the permit files (Word, PDF or photos of the form; several pages, at most 10 at a time) and the approving safety manager; a remark is optional. Approving needs a signature; returning needs the reason. The e-permit is optional; if it is filled in, the work description, location and requested times are needed. The types of work are set in Category management → Company categories → Permit to work · Types of work.",
+      "then": "The chosen safety manager (and the company administrators) get a to-do notice. Once approved, the original files, the decision, the signature, the approver's position and the time are archived together and can no longer change. A returned permit is corrected by the applicant and resubmitted with new files; the earlier files are kept. The applicant is told either way. Only the permit's approver can fill in the e-permit, on a computer; the applicant can only read it. Once signed it is archived with the permit and can no longer change.",
+      "trouble": "If no safety manager can be chosen, nobody on this project can approve permits yet: the approver's account needs “Safety verification” and “View projects” (on by default for a project role), and the person must be on this project's staff list. The “New application” window lists these three steps."
     },
     "billing_customer": {
       "what": "The bills MSE sends your company: the SaaS subscription and, on the partnership plan, the platform commission. Each shows its period, the amount, what has been paid and what is still owed.",
@@ -15689,7 +15734,8 @@
       "description": "Description",
       "name": "Role name",
       "permissions": "Permissions",
-      "userCount": "People"
+      "userCount": "People",
+      "kind": "Type"
     },
     "new": "New role",
     "permissionCount": "{count, plural, =0 {No permissions} one {# permission} other {# permissions}}",
@@ -15778,14 +15824,35 @@
       "label": "Permission pages",
       "hq": "Head office",
       "project": "Project",
-      "hqHelp": "Group A is head office's only; head office decides which project users get group B.",
-      "hqHelpProjectRole": "This is a project role: group A is head office's only and cannot be ticked; group B is off by default, and ticked here the role's people get it. Head office can also switch it on for one person in Edit user.",
+      "hqHelp": "This is a head-office role: you tick group A and group B. Ticked, this role's people have it; unticked, they do not.",
+      "hqHelpProjectRole": "This is a project role: group A is head office's only and cannot be ticked; you tick group B, and ticked, this role's people have it. Head office can also switch it on for one person in Edit user.",
       "projectHelp": "What people do inside projects.",
       "sectionA": "Group A · head office only (never project users)",
       "sectionB": "Group B · head office may give to project users",
       "projectDefaultOn": "Project permissions: all on by default for this role's people, nothing to tick. Later one can be switched off for a person in Edit user or on the project's Project permissions.",
-      "defaultOn": "On by default"
-    }
+      "defaultOn": "On by default",
+      "projectDefaultOnHeadOffice": "Project permissions: all on by default for this role's people, nothing to tick. Later one can be switched off for a person in Edit user."
+    },
+    "kind": {
+      "label": "Role type",
+      "headOffice": "Head-office role",
+      "headOfficeHelp": "Works at head office and runs the whole company. You tick group A and group B.",
+      "project": "Project role",
+      "projectHelp": "Works only on the projects it is given. Group A cannot be given; you tick group B; project permissions are all on by default.",
+      "phone": "Phone account",
+      "required": "Choose “Head-office role” or “Project role” first.",
+      "chooseFirst": "Choose the role type above first: head-office role or project role. The permissions to tick are listed here once it is chosen.",
+      "changeHolders": "{count, plural, one {This role has # person now.} other {This role has # people now.}} After the type changes, their head-office permissions are set again from this role; project permissions switched off for one of them stay off.",
+      "adminFixed": "Head-office role. The Company Administrator is always a head-office role; this cannot be changed."
+    },
+    "followers": "{count, plural, one {This role has # person now.} other {This role has # people now.}} When you save, the ticks you changed this time reach them; anything opened or switched off for one of them separately stays as it is.",
+    "adminLocked": "The Company Administrator has every permission; this cannot be changed.",
+    "phoneRole": "This is a phone account's role (site staff, equipment operator, gate guard). It is made and managed in Field staff; here its permissions can only be viewed.",
+    "phoneRoleLink": "Open Field staff",
+    "hqCount": "{count, plural, =0 {No head-office permissions ticked} one {# head-office permission} other {# head-office permissions}}",
+    "allPermissions": "Every permission",
+    "phoneHere": "Phone accounts (site staff, equipment operator, gate guard) are made in Field staff, not here.",
+    "onlyAdmin": "The Company Administrator already has every permission. For any other job, press “New role” at the top right, give it your own name, choose head-office role or project role, and tick its permissions."
   },
   "safety": {
     "officeCreate": {
@@ -16895,7 +16962,8 @@
       "ABNORMAL_VEHICLE": "Abnormal vehicle",
       "ITEM_REMOVAL": "Items taken out",
       "DISPUTE": "Dispute",
-      "OTHER": "Other"
+      "OTHER": "Other",
+      "EXIT_RELEASE": "Exit release"
     },
     "gateRecords": {
       "title": "Gate Records",
@@ -18494,7 +18562,10 @@
       "role": "Role",
       "roleHint": "Without a role, this account sees nothing after signing in.",
       "status": "Status",
-      "timezone": "Time zone"
+      "timezone": "Time zone",
+      "roleRequired": "Choose a role.",
+      "noOwnRoles": "The company has not made any roles of its own yet. To give this person less than the Company Administrator, first go to Users › Roles and permissions and press “New role”.",
+      "noOwnRolesLink": "Go to Roles and permissions"
     },
     "filter": {
       "allAudiences": "All user categories",
@@ -20890,7 +20961,8 @@
       "reviewNote": "Approval note / reason for return",
       "signature": "Approver's signature",
       "returnedBy": "Returned by",
-      "approvedBy": "Approved by"
+      "approvedBy": "Approved by",
+      "lastReturnReason": "Last reason for return"
     },
     "status": {
       "RECTIFICATION_SUBMITTED": "Waiting for approval",
@@ -20952,14 +21024,100 @@
       "submitted": "{reference} sent for approval",
       "resubmitted": "{reference} resubmitted",
       "approved": "{reference} approved and archived",
-      "returned": "{reference} returned to the applicant"
+      "returned": "{reference} returned to the applicant",
+      "formSaved": "E-permit {reference} saved. Now write the approval note and sign on the right."
     },
     "openInModule": "Open under Permit to work",
     "openProjectTeam": "Add people to the project team",
     "noApproverSteps": {
-      "role": "Roles: give the approver's role “Safety verification” and “View projects” (the preset “Safety Manager” has both).",
-      "user": "Users: set the approver's account to that role. A new account becomes active once its owner sets a password from the email.",
-      "team": "Project team: add them under “Project staff list” on this project (not needed if the role has “See every project in the company”)."
+      "role": "Permissions: the approver's account needs “Safety verification” and “View projects”. A project role's people have both on by default; if one was switched off, switch it on for them in Edit user or on the project's Project permissions.",
+      "user": "Users: the approver needs an office account (added under Users). A new account becomes active once its owner sets a password from the email.",
+      "team": "Project team: add them under “Project staff list” on this project (not needed for head-office staff who see every project in the company)."
+    },
+    "eForm": {
+      "fill": "Fill in e-permit",
+      "view": "View e-permit",
+      "title": "Permit to work",
+      "intro": "This application's details, photos and attachments are already filled in. Add the work, location, times, safety measures and conditions and press [Save]; then finish with the approval note, signature and [Sign and approve] on the right.",
+      "viewIntro": "Only the person who approves this permit can fill it in; here you can only read it.",
+      "tile": "E-permit {no} · filled in by {name} · {time}",
+      "permitNo": "Permit no.",
+      "applicationNo": "Related application no.",
+      "project": "Project",
+      "appliedOn": "Date applied",
+      "applicant": "Applicant",
+      "subcontractor": "Subcontractor",
+      "workLead": "Person in charge of the work",
+      "contactPhone": "Contact number",
+      "workType": "Type of work",
+      "workTypeOther": "Other type of work (write it in)",
+      "chooseType": "Choose the type of work",
+      "other": "Other (write it in)",
+      "manageTypes": "Manage types of work",
+      "typesEmpty": "Your company has no types of work yet: choose \"Other (write it in)\" and write it.",
+      "location": "Work location",
+      "workContent": "Work description",
+      "workStart": "Requested start",
+      "workEnd": "Requested end",
+      "photos": "Site photos and attachments",
+      "photoN": "Photo {n}",
+      "noPhotos": "This application has no photos.",
+      "otherFiles": "Other attachments",
+      "none": "None",
+      "measures": "Risks and safety measures",
+      "approvalSection": "Safety manager's approval",
+      "opinion": "Approval note",
+      "returnReason": "Reason for return",
+      "lastReturnReason": "Last reason for return",
+      "opinionWhere": "Written in \"Approval note\" on the right; it is printed here once signed.",
+      "conditions": "Conditions of approval",
+      "result": "Decision",
+      "validFrom": "Approved from",
+      "validUntil": "Approved until",
+      "validHint": "Left empty, the requested times are used.",
+      "manager": "Safety manager",
+      "decidedAt": "Date / time of decision",
+      "signature": "Safety manager's signature",
+      "afterSigning": "Filled in when the permit is signed.",
+      "autoNumber": "Numbered when saved",
+      "endBeforeStart": "The end is before the start. Please correct it.",
+      "save": "Save",
+      "cancel": "Cancel",
+      "close": "Close",
+      "failed": "That did not save. Please try again.",
+      "filledHint": "The e-permit is filled in ({no}). Once signed, it is archived with the approval note, the signature and the time.",
+      "fillHint": "Need an e-permit? Press \"Fill in e-permit\" beside \"Permit documents\" first, save it, then sign to approve.",
+      "photosOnly": "The permit form came as photos: see the photos above.",
+      "what": {
+        "workTypes": "the types of work",
+        "attachments": "the attachments"
+      }
+    },
+    "workTypes": {
+      "title": "Permit to work · Types of work",
+      "help": "The choices under \"Type of work\" when an e-permit is filled in. Add, rename or remove them; renaming or removing never changes an e-permit already filled in. \"Other (write it in)\" is always there.",
+      "add": "Add type of work",
+      "editTitle": "Edit \"{name}\"",
+      "name": "Name",
+      "other": "Other (write it in)",
+      "otherHelp": "Always there and cannot be removed: for anything not on the list, choose it and write it in.",
+      "system": "System",
+      "empty": "No types of work yet. \"Other (write it in)\" is still offered on the e-permit.",
+      "armRemove": "Yes, remove \"{name}\"",
+      "removeHint": "Once removed, new e-permits no longer offer it; e-permits already filled in are not changed.",
+      "remove": "Remove",
+      "armFirst": "Turn on the switch beside it first to confirm.",
+      "edit": "Edit",
+      "save": "Save",
+      "cancel": "Cancel",
+      "failed": "That did not save. Please try again.",
+      "what": "the types of work",
+      "toast": {
+        "added": "Added \"{name}\"",
+        "renamed": "Renamed to \"{name}\"",
+        "removed": "Removed \"{name}\""
+      },
+      "readOnly": "Only people who manage categories can add, rename or remove these; ask your company administrator to change them."
     }
   },
   "gateCard": {
@@ -21432,7 +21590,7 @@
   "materialTargets": {
     "title": "Material targets",
     "count": "{count, plural, =0 {No targets} one {# target} other {# targets}}",
-    "basis": "Net received = deliveries (rejected loads left out) less the returns confirmed complete, per material, specification and unit; other units are not converted. Near, at and over a target, the project's project manager, QS and whoever set it are told.",
+    "basis": "Net received = deliveries (rejected loads left out) less the returns confirmed complete, per material, specification and unit; other units are not converted. Near, at and over a target, the people on the project who may set material targets, and whoever set it, are told.",
     "loading": "Loading…",
     "empty": "This project has no material targets yet.",
     "emptyAll": "No material targets yet. Choose a project above, then add one.",
@@ -21480,7 +21638,7 @@
     "quantityRule": "Above 0, up to three decimal places",
     "alertsHint": "e.g. 80, 100: at 80% 「near」, at 100% 「reached」; above 100% 「over」 is always said.",
     "alertsInvalid": "Use whole numbers from 1 to 100, separated by commas.",
-    "recipients": "Who is told: the project's project manager and QS (whoever may set material targets) and whoever set this one, with a sound.",
+    "recipients": "Who is told: the people on the project who may set material targets (not the Company Administrator) and whoever set this one, with a sound.",
     "cancel": "Cancel",
     "save": "Save",
     "toast": {
@@ -21617,7 +21775,10 @@
       "project_change_permissions": "Change a project's permissions",
       "material_price_set": "Set or change a material unit price",
       "material_return_check": "Check supplier returns",
-      "rain_record_void": "Void rain record"
+      "rain_record_void": "Void rain record",
+      "exit_pass_approve": "Exit pass approval (safety manager) signature",
+      "exit_pass_external": "External approval",
+      "exit_pass_waive_external": "Drop the external approval and send the exit pass"
     },
     "firstTitle": "Set your sign-off PIN for the first time",
     "firstBanner": "This is your first time using a sign-off PIN",
@@ -22591,5 +22752,188 @@
   "pagedList": {
     "shown": "Showing {shown} of {total}",
     "loadMore": "Load more"
+  },
+  "exitPass": {
+    "what": "the exit pass",
+    "loading": "Loading…",
+    "failed": "That did not go through. Please try again.",
+    "cancel": "Cancel",
+    "optional": "Optional",
+    "nameSeparator": ", ",
+    "kind": {
+      "MATERIAL_OUTGOING": "Material exit",
+      "EQUIPMENT_MOVEMENT": "Equipment exit",
+      "WASTE_OUTGOING": "Waste material exit request",
+      "DISPOSAL_REQUEST": "Site clearance"
+    },
+    "closed": {
+      "archived": "This record is archived. The exit pass can no longer be signed or released.",
+      "rejected": "This request was returned. The exit pass can be read but no longer acted on.",
+      "cancelled": "This record was cancelled. The exit pass can be read but no longer acted on.",
+      "voided": "This record was returned or cancelled. The exit pass is no longer valid and cannot be released."
+    },
+    "approval": {
+      "title": "Exit pass approval (Safety manager)",
+      "notApproved": "Not approved",
+      "approved": "Approved",
+      "legacy": "This record was finished before exit passes were introduced. It has no exit pass.",
+      "notReady": "Once the request is approved, a safety manager signs the exit pass here.",
+      "notReadyClosed": "This request was not approved. It has no exit pass.",
+      "closedUnsigned": "Not approved: the record ended before a safety manager signed the exit pass.",
+      "notSentYet": "No exit pass sent yet: waiting for a safety manager's signature.",
+      "signers": "Waiting for a safety manager to sign (who can sign: {names})",
+      "signersMore": "Waiting for a safety manager to sign (who can sign: {names} and {total} in all)",
+      "sign": "Sign to approve",
+      "name": "Safety manager",
+      "signature": "Signature",
+      "at": "Approved at"
+    },
+    "noSigners": {
+      "title": "Nobody on this project can sign exit passes yet. An administrator sets it up in three steps:",
+      "permission": "Permission: turn on 「Safety verification」 for the account (or the role) of the person who will sign.",
+      "project": "Project: add them to this project's team list (not needed for someone who sees every project).",
+      "account": "Account: make sure their account is active (a new account is active once its owner sets a password from the email).",
+      "openTeam": "Add to project team",
+      "onlyApplicant": "The applicant is the only safety manager on this project, and another safety manager has to sign the exit pass. An administrator adds one in three steps:"
+    },
+    "signDialog": {
+      "title": "Sign to approve the exit pass",
+      "signature": "Safety manager's signature",
+      "clear": "Sign again",
+      "nextSend": "After 【Sign to approve】, the exit pass goes at once to the applicant's phone and this project's gate phones.",
+      "nextExternal": "After 【Sign to approve】, it waits for the external approval; only when that is done does the exit pass go to the applicant and the gate."
+    },
+    "external": {
+      "title": "External approval",
+      "notRequired": "Not needed",
+      "waiting": "Waiting for external approval",
+      "done": "External approval done",
+      "switch": "Needs external approval",
+      "switchHelp": "Turn this on when the owner or a higher office must also sign; left off, the internal approval is all it needs.",
+      "off": "This item needs no external approval; the internal approval is all it needs.",
+      "waivedBy": "Changed to no external approval ({name} · {when})",
+      "afterSignature": "Needs external approval: once the safety manager has signed, print it or use 【Send】 to send it to the owner / higher office to sign.",
+      "howTo": "Use 【Print】 or 【Send】 at the top of the window to send this record (with the blank external approval box) to the owner / higher office to sign; when it comes back signed, register it with 【Register the signed copy】. Someone with approval rights in this system can open this record and press 【Sign online】.",
+      "whoActs": "The signed copy is registered on a computer by office staff who approve this kind of record, or by a safety manager; someone with approval rights in this system can open this record on a computer and sign online.",
+      "closedWaiting": "This record has ended; no external approval is needed any more.",
+      "company": "Company / department",
+      "name": "Approver's name",
+      "opinion": "Approval remarks",
+      "signature": "Signature",
+      "date": "Date",
+      "seeAttachment": "See attachment: {name}",
+      "recordedBy": "Registered by {name} · {when}",
+      "signedBy": "Signed online by {name} · {when}",
+      "signOnline": "Sign online",
+      "recordPaper": "Register the signed copy",
+      "waive": "No external approval needed, send the exit pass now",
+      "correctPaper": "Use another signed copy",
+      "correctHelp": "Chose the wrong file? Choose or upload the right signed copy; the old file stays in the attachments."
+    },
+    "waiveDialog": {
+      "body": "No external approval for this one? The exit pass goes to the applicant and the gate at once, and it cannot be changed back to needing external approval.",
+      "confirm": "Yes, send the exit pass now"
+    },
+    "onlineDialog": {
+      "title": "External approval · Sign online",
+      "today": "Today ({date}), by the system's clock",
+      "next": "After 【Sign】, the external approval is done and the exit pass goes at once to the applicant and this project's gate.",
+      "submit": "Sign"
+    },
+    "paperDialog": {
+      "title": "Register the signed copy",
+      "help": "Register here the copy the owner / higher office signed and sent back. Choose a file already in the attachments, or upload it now (it goes into this record's attachments).",
+      "file": "Signed copy",
+      "noAttachments": "There are no attachments yet. Choose 「Upload now」.",
+      "uploadNow": "Upload now",
+      "whatAttachments": "the attachments",
+      "dateHint": "The date written on the signed copy.",
+      "next": "After 【Save】, the external approval is done and the exit pass goes at once to the applicant and this project's gate.",
+      "submit": "Save",
+      "nextCorrect": "After 【Save】, the external approval points to the new file; the exit pass was already sent and is not sent again."
+    },
+    "release": {
+      "title": "Gate release",
+      "waitingBadge": "Waiting for release",
+      "released": "Released",
+      "trips": "{count, plural, one {# lorry released} other {# lorries released}}",
+      "notSent": "No exit pass sent yet: waiting for a safety manager's signature.",
+      "notSentExternal": "No exit pass sent yet: waiting for the external approval.",
+      "notSentClosed": "This record has ended. No exit pass was sent and nothing was released at the gate.",
+      "sentTo": "Exit pass sent to: {to} · {when}",
+      "toApplicant": "applicant {names}",
+      "toGate": "gate {names}",
+      "toSeparator": "; ",
+      "noGatePhones": "This project has no gate phone account yet, so the exit pass went to the applicant only. Open a phone account for the gate under 「Field staff」.",
+      "waiting": "Waiting for the gate: the guard opens the exit pass on the phone, takes check photos and presses 【Confirm release】.",
+      "closedUnreleased": "This record has ended. There is no gate release on it.",
+      "done": "{count, plural, one {Released · {name} · {when} · # check photo} other {Released · {name} · {when} · # check photos}}",
+      "open": "Open"
+    },
+    "gate": {
+      "title": "Check photos, then confirm release",
+      "help": "Check the vehicle and the goods, take check photos here (more than one if you like), then press 【Confirm release】.",
+      "photos": "Check photos",
+      "photosHint": "Each photo keeps the time and place it was taken.",
+      "takePhoto": "Take a check photo",
+      "takeAnother": "{count, plural, one {Take another (# taken)} other {Take another (# taken)}}",
+      "confirm": "Confirm release",
+      "retry": "Try again",
+      "needPhoto": "Take at least one check photo first",
+      "needNetwork": "Confirming the release needs the network: press it again where there is signal. The photos stay.",
+      "failed": "The release did not go through: {reason}. The photos are still here; check the network, then press 「Try again」.",
+      "failedNetwork": "the phone has no network",
+      "failedUnknown": "the system did not answer",
+      "photosKept": "{count, plural, one {# check photo is still here.} other {# check photos are still here.}}",
+      "done": "Released, filed as gate item {number}.",
+      "doneTrip": "Lorry {count} released, filed as gate item {number}. Take photos again when the next lorry comes.",
+      "alreadyReleased": "This exit pass was already released by {name} at {when} ({number}). Nothing more to do.",
+      "notSentYet": "This exit pass has not been sent yet, so it cannot be released now. Ask the vehicle to wait, and contact the applicant or the safety manager to sign the exit pass first.",
+      "refused": "The release did not go through: {reason}"
+    },
+    "waiting": {
+      "title": "Waiting for release ({count})",
+      "what": "the exit passes waiting for release",
+      "empty": "No exit pass is waiting for release. A vehicle without an exit pass waits; contact the applicant or the safety manager.",
+      "help": "Exit passes a safety manager has approved. Tap one to open it, check the vehicle and the goods, take photos, then press 【Confirm release】.",
+      "plate": "Plate {plate}",
+      "sentAt": "sent {when}",
+      "open": "Open"
+    },
+    "window": {
+      "title": "Exit pass · {reference}",
+      "titleBare": "Exit pass",
+      "none": "This record has no exit pass.",
+      "viewNote": "The exit pass shows this record as it is now.",
+      "openRecord": "Open the original record",
+      "kind": "Type",
+      "goes": "Leaving site",
+      "plate": "Vehicle plate",
+      "project": "Project",
+      "applicant": "Applicant"
+    },
+    "archive": {
+      "externalPending": "This is still waiting for the external approval, so it cannot be confirmed and archived now. Register the signed copy, ask the approver to sign online, or change it to no external approval, then confirm and archive."
+    },
+    "gateRecord": {
+      "linked": "Original request",
+      "linkedValue": "{reference} ({kind})",
+      "openOriginal": "Open the original record",
+      "releasedBy": "Released by",
+      "releasedAt": "Released at",
+      "checkPhotos": "Check photos",
+      "photoCount": "{count, plural, one {# photo} other {# photos}}",
+      "releaseTitle": "Gate release",
+      "releaseDone": "{count, plural, one {{name} took # check photo at {when} and confirmed the release. This gate item is finished and can only be read.} other {{name} took # check photos at {when} and confirmed the release. This gate item is finished and can only be read.}}",
+      "listNote": "Exit release: {reference} ({kind})"
+    },
+    "toast": {
+      "signedSent": "Signed. The exit pass was sent to the applicant and the gate: {reference}",
+      "signedWaitExternal": "Signed. Waiting for the external approval: {reference}",
+      "externalDone": "External approval done; the exit pass was sent: {reference}",
+      "waived": "Changed to no external approval; the exit pass was sent: {reference}",
+      "released": "Release confirmed and filed as a gate item: {reference}"
+    },
+    "correctedAfter": "After the exit pass was signed, this record was corrected by {by} at {when}; what you see here is the corrected record."
   }
 }

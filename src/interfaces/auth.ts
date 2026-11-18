@@ -273,11 +273,16 @@ export interface Role {
   description: string;
   permissions: string[];
   /**
-   * JB139: head office's role (公司管理员, 总部), a phone role, or a builder's
-   * project role - whose project permissions are on by default for its
-   * people. Missing from an older backend.
+   * A builder's 总部角色 (A and B ticked by the company, JB218/JB219), 项目角色
+   * (A never; project permissions on by default for its people) or phone
+   * role; ``plain`` for a recycler's or MSE's role, not split into A / B.
+   * Missing from an older backend.
    */
-  kind?: "head_office" | "phone" | "project";
+  kind?: "head_office" | "phone" | "project" | "plain";
+  /** JB219: the company marked it 总部角色 (公司管理员 always is). */
+  head_office?: boolean;
+  /** JB219: how many 总部权限 (A + B) it ticks; ``null`` outside a builder. */
+  hq_permission_count?: number | null;
   is_system: boolean;
   user_count?: number;
   created_at: string;
@@ -289,6 +294,8 @@ export interface RolePayload {
   name: string;
   description?: string;
   permissions: string[];
+  /** A builder's role: 总部角色 (true) or 项目角色 (false) - JB219. */
+  head_office?: boolean;
 }
 
 /** One row of the permission matrix, as the registry defines it. */

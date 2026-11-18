@@ -46,6 +46,9 @@ import { getCompanySiteSettings, updateCompanySiteSettings } from "@/services/co
  * letters other records start with - the server's list, sent with the
  * settings. The server checks the same and has the last word.
  */
+/** 「不指定」 in the 默认审批角色 select (saved as a blank code, JB219). */
+const NO_ROLE = "__no_role__";
+
 export function qrPrefixProblem(value: string, reserved: string[] | undefined): "format" | "taken" | null {
   if (!/^[A-Z]{2,6}$/.test(value)) return "format";
   if ((reserved ?? []).includes(value)) return "taken";
@@ -83,9 +86,21 @@ export function CompanyLockedSettingsPanel({ companyId }: { companyId: string })
   if (settings.isError || !settings.data) return <State text={t("state.loadError")} danger />;
   const form: CompanyLockedSettings = { ...settings.data, ...draft };
   const set = (next: Partial<ContractorSiteSettings>) => setDraft((current) => ({ ...current, ...next }));
-  const roleOptions = Array.from(new Set([...form.role_options.map((role) => role.code), form.default_user_role_code, form.default_approval_role_code]));
+  const companyRoles = form.role_options.map((role) => role.code);
+  const roleOptions = Array.from(new Set([...companyRoles, form.default_user_role_code].filter(Boolean)));
+  // 默认审批角色 may name no role (JB219): a builder no longer starts with 项目经理,
+  // and a code the company has no role for already meant 不指定 - every
+  // reviewer who may. So it is shown as 不指定, not as a role it lacks.
+  // A select item cannot carry an empty value, so 不指定 travels as NO_ROLE.
+  const approvalOptions = [NO_ROLE, ...companyRoles];
+  const approvalValue = companyRoles.includes(form.default_approval_role_code) ? form.default_approval_role_code : NO_ROLE;
   // Seeded roles are stored with an English name; roleName reads the catalogue.
-  const roleLabel = (code: string) => roleName({ code, name: form.role_options.find((role) => role.code === code)?.name ?? code }, tAll);
+  const roleLabel = (code: string) => {
+    if (!code || code === NO_ROLE) return tLocked("noRole");
+    const row = form.role_options.find((role) => role.code === code);
+    const name = roleName({ code, name: row?.name ?? code }, tAll);
+    return row ? name : tLocked("roleMissing", { name });
+  };
   const rule = (field: "default_archive_rules" | "default_notification_rules", key: string, value: boolean) =>
     set({ [field]: { ...(form[field] ?? {}), [key]: value } });
   const off = !canManage;
@@ -118,7 +133,7 @@ export function CompanyLockedSettingsPanel({ companyId }: { companyId: string })
       <SectionTitle icon={Settings2} title={t("permissionDefaults.title")} description={tLocked("permissionsHelp")} />
       <div className="grid gap-4 sm:grid-cols-2">
         <ChoiceField label={t("field.defaultUserRole")} value={form.default_user_role_code} disabled={off} options={roleOptions} optionLabel={roleLabel} onChange={(value) => set({ default_user_role_code: value })} />
-        <ChoiceField label={t("field.defaultApprovalRole")} value={form.default_approval_role_code} disabled={off} options={roleOptions} optionLabel={roleLabel} onChange={(value) => set({ default_approval_role_code: value })} />
+        <ChoiceField label={t("field.defaultApprovalRole")} value={approvalValue} disabled={off} options={approvalOptions} optionLabel={roleLabel} onChange={(value) => set({ default_approval_role_code: value === NO_ROLE ? "" : value })} />
       </div>
       <p className="text-sm font-medium">{t("permissionDefaults.consultant")}</p>
       <p className="text-xs text-muted-foreground">{tConsultant("grant.modulesTitle")}</p>

@@ -73,6 +73,32 @@ export interface PermissionSwitchesHandle {
   saveIfDirty: () => Promise<boolean>;
 }
 
+/**
+ * A person's switches as their role sets them (按角色套用, and a 角色 changed on
+ * the form - JB126), as the server does on a change of role (JB139, JB218):
+ * a project user - A off, B as the role ticks; head office - A and B as the
+ * role ticks, 公司管理员 everything. A 项目权限 switched off for this person
+ * stays off either way: project permissions are on by default, not the role's.
+ * A project user sees chosen projects only; head office as the role ticks.
+ */
+export function switchesForRole(
+  entries: PermissionEntry[],
+  role: Pick<Role, "code" | "permissions">,
+  currentOff: Set<string>,
+  asProjectUser: boolean,
+): { off: Set<string>; allProjects: boolean } {
+  if (role.code === "company_admin") return { off: new Set(), allProjects: true };
+  const granted = new Set(role.permissions);
+  const off = new Set<string>();
+  for (const entry of entries) {
+    const page = pageOf(entry);
+    if (page === "hq_reserved" && (asProjectUser || !granted.has(entry.code))) off.add(entry.code);
+    if (page === "hq_grantable" && !granted.has(entry.code)) off.add(entry.code);
+    if (page === "project" && currentOff.has(entry.code)) off.add(entry.code);
+  }
+  return { off, allProjects: !asProjectUser && granted.has(SCOPE_CODE) };
+}
+
 /** Whether the draft differs from what the server holds. */
 export function isSwitchesDirty(
   state: PermissionSwitchState,
@@ -238,15 +264,27 @@ function SwitchForm({
     queryFn: () => getRoles({ page_size: 100 }),
   });
 
+  // JB126 (Lucas 11-07: 「我已经选总部了……不是应该自动会选择角色的权限吗」):
+  // a different 角色 chosen on the form turns the switches into that role's.
+  // The role the form opened with is the starting point and changes nothing.
+  const [openedRole] = useState(roleId);
+  const [followedRole, setFollowedRole] = useState(roleId);
+  const [followedName, setFollowedName] = useState("");
+  const chosenRole =
+    followedRole && followedRole !== openedRole
+      ? roles.data?.results.find((row) => row.id === followedRole)
+      : undefined;
+
   // JB139 (客户 11-09 事项 3): a project user - 总部专属 A is never theirs,
   // 总部 B is off until head office switches it on here, and every 项目权限
   // is on unless switched off (Lucas: 「默认是全部打开，后续可以自行开关」).
-  const projectUser = state.project_user === true;
+  // Which kind the person is follows the 角色 chosen on the form (JB219
+  // sibling): moved from a 项目角色 to a 总部角色, they are head office as soon
+  // as it is chosen - the panel used to keep the old kind and save A off.
+  const projectUser = chosenRole?.kind
+    ? chosenRole.kind === "project"
+    : state.project_user === true;
   const entries = useMemo(() => catalogue.filter((entry) => entry.code !== SCOPE_CODE), [catalogue]);
-  const reserved = useMemo(
-    () => (projectUser ? entries.filter((entry) => pageOf(entry) === "hq_reserved").map((entry) => entry.code) : []),
-    [entries, projectUser],
-  );
   // What this page switches: for a project user, everything but A.
   const switchable = useMemo(
     () => (projectUser ? entries.filter((entry) => pageOf(entry) !== "hq_reserved") : entries),
@@ -299,38 +337,22 @@ function SwitchForm({
     },
   });
 
-  // 按角色套用: the role's codes ON, the rest OFF - a starting point. For a
-  // project user the role decides 总部 B only: A stays off, and a 项目权限
-  // switched off for this person stays off (JB139, as the server does when
-  // the role changes).
-  const applyRole = (role: Role) => {
-    const granted = new Set(role.permissions);
-    if (projectUser) {
-      setOff((current) => {
-        const next = new Set(reserved);
-        for (const entry of entries) {
-          const page = pageOf(entry);
-          if (page === "hq_grantable" && !granted.has(entry.code)) next.add(entry.code);
-          if (page === "project" && current.has(entry.code)) next.add(entry.code);
-        }
-        return next;
-      });
-      return;
-    }
-    setOff(new Set(entries.map((entry) => entry.code).filter((code) => !granted.has(code))));
-    setAllProjects(granted.has(SCOPE_CODE));
+  // 按角色套用: the role's 总部权限 as it ticks them, as the server does when
+  // the role changes (JB139, JB218): a project user - A off, B as the role
+  // ticks; head office - A and B as the role ticks (公司管理员: everything).
+  // Either way a 项目权限 switched off for this person stays off: project
+  // permissions are on by default and not the role's.
+  const applyRole = (role: Role, asProjectUser: boolean) => {
+    const next = switchesForRole(entries, role, off, asProjectUser);
+    setOff(next.off);
+    setAllProjects(next.allProjects);
   };
 
-  // JB126 (Lucas 11-07: 「我已经选总部了……不是应该自动会选择角色的权限吗」):
-  // a different 角色 chosen on the form turns the switches into that role's.
-  // The role the form opened with is the starting point and changes nothing.
-  const [followedRole, setFollowedRole] = useState(roleId);
-  const [followedName, setFollowedName] = useState("");
   if (roleId && roleId !== followedRole && roles.data) {
     const role = roles.data.results.find((row) => row.id === roleId);
     setFollowedRole(roleId);
     if (role) {
-      applyRole(role);
+      applyRole(role, role.kind ? role.kind === "project" : projectUser);
       setFollowedName(roleName(role, tRoot));
     }
   }
@@ -380,7 +402,7 @@ function SwitchForm({
             value=""
             onValueChange={(id) => {
               const role = roles.data?.results.find((row) => row.id === id);
-              if (role) applyRole(role);
+              if (role) applyRole(role, projectUser);
             }}
           >
             <SelectTrigger className="w-44 bg-card" aria-label={t("applyRole")} title={t("applyRoleHint")}>
@@ -388,7 +410,9 @@ function SwitchForm({
             </SelectTrigger>
             <SelectContent>
               {(roles.data?.results ?? [])
-                .filter((role) => role.code !== "site_staff")
+                // An office person takes an office role's permissions, never
+                // a phone's (JB219: all three phone roles, not only 工地人员).
+                .filter((role) => role.kind !== "phone" && role.code !== "site_staff")
                 .map((role) => (
                   <SelectItem key={role.id} value={role.id}>
                     {roleName(role, tRoot)}
@@ -397,6 +421,16 @@ function SwitchForm({
             </SelectContent>
           </Select>
           <QueryFailedNote query={roles} what={t("applyRole")} />
+          {/* Inside 编辑用户 the 角色 field above says it already. */}
+          {!embedded &&
+          roles.data &&
+          !roles.data.results.some(
+            (role) => !role.is_system && (role.kind === "head_office" || role.kind === "project"),
+          ) ? (
+            <p className="basis-full text-xs text-muted-foreground" data-no-own-roles>
+              {tRoot("users.field.noOwnRoles")}
+            </p>
+          ) : null}
         </div>
       </div>
 

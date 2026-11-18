@@ -3,10 +3,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ListTree, Loader2, Pencil, Plus, Save, Send, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { CompanyMaterialForm } from "@/components/contractor-ops/company-material-form";
+import { PermitWorkTypesPanel } from "@/components/contractor-ops/permit-work-types";
 import { CompanyMaterialList, toggled } from "@/components/contractor-ops/company-material-list";
 import { WasteCategoryDialog } from "@/components/contractor-ops/waste-category-dialog";
 import {
@@ -76,7 +78,14 @@ import { getWasteCategories } from "@/services/waste-outgoing.service";
  * server numbers every row (事项 7 「分类编号全部自动生成」).
  */
 
-export type CompanyModuleKey = "material" | "requestType" | "ehs" | "claim" | "equipmentName" | "recycle";
+export type CompanyModuleKey =
+  | "material"
+  | "requestType"
+  | "ehs"
+  | "claim"
+  | "equipmentName"
+  | "recycle"
+  | "permitWorkType";
 
 interface CompanyModule {
   key: CompanyModuleKey;
@@ -95,7 +104,13 @@ export const COMPANY_MODULES: CompanyModule[] = [
   { key: "equipmentName", manage: ["category.manage", "equipment.manage"] },
   // Company-wide since ID2, kept with its own permission (ID4).
   { key: "recycle", manage: ["waste_outgoing.config"] },
+  // 施工准证 · 施工类别 (JB216): the e-permit's drop-down, the company's own;
+  // its own small list (`PermitWorkTypesPanel`), kept with 分类管理's permission.
+  { key: "permitWorkType", manage: ["category.manage"] },
 ];
+
+const isCompanyModuleKey = (value: string | null | undefined): value is CompanyModuleKey =>
+  COMPANY_MODULES.some((entry) => entry.key === value);
 
 /** One line of the table, whichever list it came from. */
 interface Line {
@@ -153,6 +168,8 @@ export async function allWasteCategories(
 }
 
 async function fetchLines(module: CompanyModule): Promise<Line[]> {
+  // Read by its own panel (`PermitWorkTypesPanel`).
+  if (module.key === "permitWorkType") return [];
   if (module.kind) return linesOf((await getCompanyCategories(module.kind)).results);
   if (module.key === "equipmentName") {
     return (await getEquipmentNames(undefined, { includeInactive: true })).map((row) => ({
@@ -188,7 +205,11 @@ export function CompanyCategories() {
   const t = useTranslations("categoryManagement");
   const { can } = useAuth();
   const qc = useQueryClient();
-  const [moduleKey, setModuleKey] = useState<CompanyModuleKey>("material");
+  // `?company=permitWorkType` - the e-permit's 「管理施工类别」 (JB216) - opens
+  // that list.
+  // (No address at all outside the app's router - a test's render.)
+  const wanted = useSearchParams()?.get("company");
+  const [moduleKey, setModuleKey] = useState<CompanyModuleKey>(isCompanyModuleKey(wanted) ? wanted : "material");
   const [editing, setEditing] = useState<Editing>(null);
   const [adding, setAdding] = useState(false);
   // JB181: a material's one page (追加 5 第 3 点) in place of the list, and
@@ -199,9 +220,11 @@ export function CompanyCategories() {
   const canManage = active.manage.some((code) => can(code));
   const seesAmounts = useSeesAmounts();
 
+  const ownPanel = active.key === "permitWorkType";
   const lines = useQuery({
     queryKey: ["company-categories", active.key],
     queryFn: () => fetchLines(active),
+    enabled: !ownPanel,
   });
   const rows = lines.data ?? [];
   const refresh = () => {
@@ -214,7 +237,7 @@ export function CompanyCategories() {
     refresh();
   };
 
-  const createButton = canManage && (
+  const createButton = canManage && !ownPanel && (
     <Button onClick={() => (active.key === "material" ? setMaterialPage({ row: null }) : setEditing({ line: null }))}>
       <Plus />
       {t("company.create")}
@@ -289,7 +312,9 @@ export function CompanyCategories() {
             <p className="mb-3 text-sm text-muted-foreground">{t("company.foldHelp")}</p>
           )}
           <QueryFailedNote query={lines} what={t(`company.module.${active.key}`)} />
-          {lines.isLoading ? (
+          {ownPanel ? (
+            <PermitWorkTypesPanel canManage={canManage} />
+          ) : lines.isLoading ? (
             <p className="text-sm text-muted-foreground">{t("loading")}</p>
           ) : lines.isError ? null : !rows.length ? (
             <EmptyState title={t("company.empty")} action={createButton || undefined} />

@@ -20,6 +20,7 @@ import {
   Check,
   Download,
   Eye,
+  FileSignature,
   FileText,
   Loader2,
   Lock,
@@ -53,6 +54,11 @@ import {
   type ShellPhoto,
   type ShellPhotoGroup,
 } from "@/components/shared/record-detail-shell";
+import {
+  PermitWorkFormDialog,
+  PermitWorkFormTile,
+  PermitWorkFormView,
+} from "@/components/permits/permit-work-form";
 import { HazardConversationPanel } from "@/components/site-operations/hazard-conversation";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
@@ -335,11 +341,12 @@ export function permitPhotos(permit: Permit, submissionLabel: (round: number) =>
  */
 export function PermitDocuments({ permit }: { permit: Permit }) {
   const t = useTranslations("permits.files");
+  const tForm = useTranslations("permits.eForm");
   const df = useDateFormat();
   const [previewing, setPreviewing] = useState<PermitFile | null>(null);
+  const [eForm, setEForm] = useState<"fill" | "view" | null>(null);
   const documents = permit.files.filter((file) => !isPermitPhoto(file));
   const hasPhotos = permit.files.some(isPermitPhoto);
-  if (documents.length === 0 && hasPhotos) return null;
   const current = documents.filter((file) => file.is_current);
   const earlier = documents.filter((file) => !file.is_current);
   const tiles = (files: PermitFile[]) => (
@@ -378,8 +385,24 @@ export function PermitDocuments({ permit }: { permit: Permit }) {
   );
   return (
     <section className="surface-panel space-y-3 rounded-xl p-4" data-slot="permit-file-list">
-      <h3 className="panel-title">{t("documents")}</h3>
-      {documents.length === 0 ? (
+      {/* 「在左侧「准证文件」标题右边设置「填写电子准证」按钮，仅后台获授权审批人员
+          可操作，申请人不能修改」 (JB216, 客户 11-18 事项 1, 图 1): the server
+          says who (`can_fill_work_form`: who may 签名批准 it, in the office). */}
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h3 className="panel-title">{t("documents")}</h3>
+        {permit.can_fill_work_form && (
+          <Button type="button" onClick={() => setEForm("fill")} data-slot="permit-fill-e-permit">
+            <FileSignature className="size-4" />
+            {tForm("fill")}
+          </Button>
+        )}
+      </div>
+      <PermitWorkFormTile permit={permit} onView={() => setEForm("view")} />
+      {/* JB216 S1: the form came only as photos - the panel used to vanish,
+          heading and all. It stays, and says where the form is. */}
+      {documents.length === 0 && hasPhotos ? (
+        <p className="text-xs text-muted-foreground">{tForm("photosOnly")}</p>
+      ) : documents.length === 0 ? (
         <p className="text-xs text-muted-foreground">{t("noneOnRecord")}</p>
       ) : (
         <>
@@ -408,6 +431,8 @@ export function PermitDocuments({ permit }: { permit: Permit }) {
           onClose={() => setPreviewing(null)}
         />
       )}
+      {eForm === "fill" && <PermitWorkFormDialog permit={permit} onClose={() => setEForm(null)} />}
+      {eForm === "view" && <PermitWorkFormView permit={permit} onClose={() => setEForm(null)} />}
     </section>
   );
 }
@@ -614,6 +639,17 @@ function DecisionPanel({ permit }: { permit: Permit }) {
         </p>
       )}
       <p className="text-xs text-muted-foreground">{t("approveHelp")}</p>
+      {/* JB216: 「保存后，使用右侧原有的审批意见、签名位置及「签名批准」按钮完成
+          审批」 - the order said where the approver is about to sign. */}
+      {permit.work_form ? (
+        <p className="rounded-md border border-primary/25 bg-primary/5 px-2 py-1.5 text-xs" data-slot="permit-form-filled-hint">
+          {t("eForm.filledHint", { no: permit.work_form.permit_no })}
+        </p>
+      ) : permit.can_fill_work_form ? (
+        <p className="text-xs text-muted-foreground" data-slot="permit-form-fill-hint">
+          {t("eForm.fillHint")}
+        </p>
+      ) : null}
       <FieldWrapper label={t("field.approvalNote")} optional={t("optional")}>
         <Textarea rows={2} value={note} onChange={(event) => setNote(event.target.value)} />
       </FieldWrapper>
@@ -804,7 +840,15 @@ export function PermitDetail({
       ...(permit.review_note
         ? [
             {
-              label: t(permit.status === "RETURNED" ? "field.returnReason" : "field.approvalNote"),
+              // JB216 S2: back in 待审批 after a return, the note is that
+              // return's reason - not a 审批意见 nobody has given yet.
+              label: t(
+                permit.status === "RETURNED"
+                  ? "field.returnReason"
+                  : permit.status === "RECTIFICATION_SUBMITTED"
+                    ? "field.lastReturnReason"
+                    : "field.approvalNote",
+              ),
               value: permit.review_note,
               wide: true,
             },

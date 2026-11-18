@@ -748,6 +748,8 @@ function WasteOutgoingRecordWindow({
           actions={renderActions(shown)}
           corrections={<RecordCorrectionHistory kind="WASTE_OUTGOING" recordId={shown.id} />}
           conversation={{ kind: "WASTE_OUTGOING", recordId: shown.id }}
+          // JB217: 出门条批准（安全经理） · 外部审批 · 门岗放行.
+          exitPass={{ kind: "WASTE_OUTGOING", recordId: shown.id }}
           // 【确认归档】 once the dispatch is completed (C4).
           closure={{ kind: "WASTE_OUTGOING", recordId: shown.id }}
         />

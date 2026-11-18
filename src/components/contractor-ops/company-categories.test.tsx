@@ -24,6 +24,13 @@ let permissions: string[] = ["category.manage", "category.view"];
 vi.mock("@/components/providers/auth-provider", () => ({
   useAuth: () => ({ can: (code: string) => permissions.includes(code) }),
 }));
+// `?company=…` opens one list (JB216's 「管理施工类别」).
+const address = vi.hoisted(() => ({ search: "" }));
+vi.mock("next/navigation", () => ({
+  useSearchParams: () => new URLSearchParams(address.search),
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn() }),
+  usePathname: () => "/category-management",
+}));
 
 const { CompanyCategories, COMPANY_MODULES, linesOf, allWasteCategories } = await import(
   "@/components/contractor-ops/company-categories"
@@ -114,7 +121,20 @@ describe("公司通用分类 needs no project (JB103 第 1、2 点)", () => {
       "claim",
       "equipmentName",
       "recycle",
+      // JB216: 施工准证 · 施工类别, the company's own (Lucas 11-18).
+      "permitWorkType",
     ]);
+  });
+
+  it("opens 施工准证 · 施工类别 from the e-permit's 「管理施工类别」 (JB216)", () => {
+    address.search = "company=permitWorkType";
+    const html = render();
+    address.search = "";
+    const listName = zh.categoryManagement.company.module.permitWorkType;
+    expect(html).toMatch(new RegExp(`<h2[^>]*>${listName}</h2>`));
+    expect(html).toContain(zh.categoryManagement.company.moduleHelp.permitWorkType);
+    // Its own list, with its own 【新增施工类别】 - not the material one.
+    expect(html).not.toContain(zh.categoryManagement.company.create);
   });
 
   it("never asks for a code (事项 7 「分类编号全部自动生成」)", () => {
@@ -154,7 +174,8 @@ describe("the words", () => {
       expect(words.tabs.project).toBeTruthy();
       expect(words.company.addToProjects).toBeTruthy();
       expect(Object.keys(words.company.module).sort()).toEqual(
-        ["claim", "ehs", "equipmentName", "material", "recycle", "requestType"],
+        // JB216: 施工准证 · 施工类别.
+        ["claim", "ehs", "equipmentName", "material", "permitWorkType", "recycle", "requestType"],
       );
       expect(messages.errors.api.category_group_single).toBeTruthy();
       expect(messages.errors.api.company_category_fixed).toBeTruthy();

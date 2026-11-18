@@ -191,9 +191,18 @@ export function GateRecordsOffice() {
         accessorKey: "issue_note",
         meta: { label: t("field.note") },
         header: () => <PlainHeader label={t("field.note")} />,
-        cell: ({ row }) => (
-          <span className="line-clamp-2 max-w-72 whitespace-pre-wrap">{row.original.issue_note || "—"}</span>
-        ),
+        cell: ({ row }) =>
+          // JB217: a 门岗放行 says what it released (「关联原申请」).
+          row.original.exit_record ? (
+            <span className="line-clamp-2 max-w-72" data-exit-release-row={row.original.exit_record.reference}>
+              {tRoot("exitPass.gateRecord.listNote", {
+                reference: row.original.exit_record.reference,
+                kind: tRoot(`exitPass.kind.${row.original.exit_record.kind}`),
+              })}
+            </span>
+          ) : (
+            <span className="line-clamp-2 max-w-72 whitespace-pre-wrap">{row.original.issue_note || "—"}</span>
+          ),
       },
       {
         accessorKey: "member_names",

@@ -1,3 +1,4 @@
+import { parseExitPassParam } from "@/interfaces/exit-pass";
 import { parseChatParam } from "@/lib/record-chat";
 import { recordTarget } from "@/lib/record-routes";
 
@@ -37,6 +38,18 @@ export function officeNotificationHref(
 ): string | null {
   const text = (value: unknown) => (typeof value === "string" && value ? value : null);
   const raw = text(data.href) ?? text(data.url);
+
+  // JB217: a 出门条's notice (待你批准 / 已批准 / 待放行) opens the 出门条
+  // itself, over the notification centre every account reaches - a safety
+  // manager may hold 「安全验收」 without the exit's own page, which would
+  // turn the record link away (plan D3). The window offers 【打开原记录】 to
+  // whoever may open that page.
+  const exitPass =
+    text(data.exit_pass) ??
+    (raw?.startsWith("/") ? new URL(raw, "https://office.mse-trace.local").searchParams.get("exit_pass") : null);
+  if (exitPass && parseExitPassParam(exitPass)) {
+    return `/notifications?exit_pass=${encodeURIComponent(exitPass)}`;
+  }
 
   if (raw?.startsWith("/")) {
     const parsed = new URL(raw, "https://office.mse-trace.local");
