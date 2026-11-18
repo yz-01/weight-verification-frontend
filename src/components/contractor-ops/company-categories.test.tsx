@@ -174,7 +174,8 @@ describe("the words", () => {
       expect(words.tabs.project).toBeTruthy();
       expect(words.company.addToProjects).toBeTruthy();
       expect(Object.keys(words.company.module).sort()).toEqual(
-        ["claim", "ehs", "equipmentName", "material", "recycle", "requestType"],
+        // JB216: 施工准证 · 施工类别.
+        ["claim", "ehs", "equipmentName", "material", "permitWorkType", "recycle", "requestType"],
       );
       expect(messages.errors.api.category_group_single).toBeTruthy();
       expect(messages.errors.api.company_category_fixed).toBeTruthy();
