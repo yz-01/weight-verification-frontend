@@ -4014,7 +4014,11 @@
       "rain_remark_set": "填写雨天记录的意见 / 备注",
       "rain_month_remark_set": "填写雨天月报的意见 / 备注",
       "settings_reset_on_wiring": "维护模式、强制更新接通时重设",
-      "head_office_on_behalf": "总部代批"
+      "head_office_on_behalf": "总部代批",
+      "permit_form_saved": "保存电子准证",
+      "permit_work_type_added": "新增施工类别",
+      "permit_work_type_renamed": "施工类别改名",
+      "permit_work_type_removed": "删除施工类别"
     },
     "objectType": {
       "SignOffAssistant": "助理副密码",
@@ -4830,7 +4834,8 @@
         "ehs": "整改 / EHS 分类",
         "claim": "Progress Claim 分类",
         "equipmentName": "设备名称",
-        "recycle": "环保材料出场分类"
+        "recycle": "环保材料出场分类",
+        "permitWorkType": "施工准证 · 施工类别"
       },
       "moduleHelp": {
         "material": "材料和它下面的规格。建立新项目时一起带入。",
@@ -4838,7 +4843,8 @@
         "ehs": "整改 / EHS 的分类。施工准证申请是系统的。",
         "claim": "Progress Claim 的分类。",
         "equipmentName": "设备名称全公司共用，所有项目登记设备时都从这里选。",
-        "recycle": "环保材料出场分类本来就是全公司共用。"
+        "recycle": "环保材料出场分类本来就是全公司共用。",
+        "permitWorkType": "填写电子准证时「施工类别」下拉里的选项。可以新增、改名或删除；改名或删除不会改动已经填好的电子准证。「其他（写明）」一直都有。"
       },
       "create": "新增分类",
       "createTitle": "新增 · {module}",
@@ -9490,7 +9496,10 @@
       "consultant_read_only": "顾问账号只能查看这里的资料，不能修改。",
       "consultant_module_not_granted": "总部没有为您在这个项目开通这个模块。如需使用，请联系总部。",
       "consultant_no_permit": "施工准证由施工方申请，顾问不能提交。您可以发起整改。",
-      "consultant_export_not_granted": "总部没有为您在这个项目开通「导出」，所以不能导出或发送。可以预览和打印。"
+      "consultant_export_not_granted": "总部没有为您在这个项目开通「导出」，所以不能导出或发送。可以预览和打印。",
+      "permit_form_office_only": "电子准证要在电脑后台填写。请用电脑登录后再填。",
+      "permit_work_type_exists": "已经有「{name}」了，不用再加。",
+      "permit_form_changed": "{name} 在你打开之后也保存了这张电子准证。请关闭后重新打开，看过最新内容再改。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -12644,7 +12653,15 @@
       "report_records": "进度记录",
       "report_photos": "照片数量",
       "document_title": "文件名称",
-      "rain_remark": "意见 / 备注"
+      "rain_remark": "意见 / 备注",
+      "last_return_reason": "上次退回原因",
+      "permit_work_type": "施工类别",
+      "permit_location": "施工位置",
+      "permit_work_content": "施工内容",
+      "permit_work_period": "申请起止时间",
+      "permit_safety_measures": "风险及安全措施",
+      "permit_conditions": "批准条件",
+      "permit_valid_period": "批准起止时间"
     },
     "detailTitle": "我提交过的",
     "photos": "照片",
@@ -13832,10 +13849,10 @@
       "trouble": "权限、二维码、通知、GPS、安全和资料保存由 MSE 统一管理，这里不能改；需要修改请联系 MSE。"
     },
     "permits": {
-      "what": "施工准证：把公司原有的准证表格（Word、PDF 或照片）上传，交给指定的安全经理签名批准或退回，批准后归档。也能按项目、审批状态、申请人和日期找回每一份准证，预览、打印或下载文件。",
+      "what": "施工准证：把公司原有的准证表格（Word、PDF 或照片）上传，交给指定的安全经理签名批准或退回，批准后归档。也能按项目、审批状态、申请人和日期找回每一份准证，预览、打印或下载文件。审批人可以在窗口里按「填写电子准证」，把这份申请填成一张电子准证，它会印在完整证据 PDF 的第一页。",
       "who": "有「查看整改 / EHS 与施工准证」权限的人可以查看和下载；有「上报及指派整改、申请施工准证」的人可以按【新申请】申请；审批要有「安全验收（可审批施工准证）」，而且是申请人选的那位安全经理，或公司管理员。自己申请的准证要由别人审批。",
-      "need": "新申请要选项目、上传准证文件（Word、PDF 或表格照片，可以多页，一次最多 10 个），再选审批的安全经理；备注选填。批准要签名；退回要写原因。",
-      "then": "选中的安全经理（和公司管理员）会收到待审批的通知。批准后，原文件、审批记录、签名、审批人职位和时间一起归档，不能再修改；退回后，申请人按原因改好，上传新文件重新提交，之前的文件保留备查。批准或退回，申请人都会收到通知。",
+      "need": "新申请要选项目、上传准证文件（Word、PDF 或表格照片，可以多页，一次最多 10 个），再选审批的安全经理；备注选填。批准要签名；退回要写原因。电子准证选填；填的话，施工内容、施工位置和申请起止时间必填。施工类别的选项在「分类管理 → 公司通用分类 → 施工准证 · 施工类别」设定。",
+      "then": "选中的安全经理（和公司管理员）会收到待审批的通知。批准后，原文件、审批记录、签名、审批人职位和时间一起归档，不能再修改；退回后，申请人按原因改好，上传新文件重新提交，之前的文件保留备查。批准或退回，申请人都会收到通知。电子准证只有审批这份准证的人在电脑上可以填写，申请人只能查看；签名批准后跟准证一起归档，不能再修改。",
       "trouble": "选不到安全经理，是因为这个项目还没有能审批准证的人：审批人的角色要勾「安全验收」和「查看项目」，还要加进这个项目的人员名单。【新申请】窗口里写着这三步。"
     },
     "billing_customer": {
@@ -20881,7 +20898,8 @@
       "reviewNote": "审批意见 / 退回原因",
       "signature": "审批签名",
       "returnedBy": "退回人",
-      "approvedBy": "批准人"
+      "approvedBy": "批准人",
+      "lastReturnReason": "上次退回原因"
     },
     "status": {
       "RECTIFICATION_SUBMITTED": "待审批",
@@ -20943,7 +20961,8 @@
       "submitted": "{reference} 已提交审批",
       "resubmitted": "{reference} 已重新提交",
       "approved": "{reference} 已批准并归档",
-      "returned": "{reference} 已退回给申请人"
+      "returned": "{reference} 已退回给申请人",
+      "formSaved": "{reference} 电子准证已保存。请在右边写审批意见、签名批准。"
     },
     "openInModule": "在「施工准证」里打开",
     "openProjectTeam": "去项目团队添加",
@@ -20951,6 +20970,90 @@
       "role": "角色权限：审批人的角色勾「安全验收」和「查看项目」（系统已预设「安全经理」）。",
       "user": "用户：把审批人的角色设为这个角色；新账号要本人从邮件设好密码才会启用。",
       "team": "项目团队：在这个项目的「项目人员名单」添加他（角色有「查看公司全部项目」的不用加）。"
+    },
+    "eForm": {
+      "fill": "填写电子准证",
+      "view": "查看电子准证",
+      "title": "安全施工准证 PERMIT TO WORK",
+      "intro": "这份申请的资料、照片和附件已经带入。补填施工内容、地点、起止时间、安全措施和批准条件，按【保存】；然后用右边的审批意见、签名和【签名批准】完成审批。",
+      "viewIntro": "只有审批这份准证的人可以填写；这里只能查看。",
+      "tile": "电子准证 {no} · 填写人 {name} · {time}",
+      "permitNo": "准证编号",
+      "applicationNo": "关联申请编号",
+      "project": "项目名称",
+      "appliedOn": "申请日期",
+      "applicant": "申请人",
+      "subcontractor": "分包商",
+      "workLead": "施工负责人",
+      "contactPhone": "联系电话",
+      "workType": "施工类别",
+      "workTypeOther": "其他施工类别（写明）",
+      "chooseType": "选择施工类别",
+      "other": "其他（写明）",
+      "manageTypes": "管理施工类别",
+      "typesEmpty": "公司还没有设施工类别，可以选「其他（写明）」自己写。",
+      "location": "施工位置",
+      "workContent": "施工内容",
+      "workStart": "申请开始时间",
+      "workEnd": "申请结束时间",
+      "photos": "现场照片及附件",
+      "noPhotos": "这份申请没有照片。",
+      "otherFiles": "其他附件名称",
+      "none": "无",
+      "measures": "风险及安全措施",
+      "approvalSection": "安全经理审批",
+      "opinion": "审批意见",
+      "returnReason": "退回原因",
+      "lastReturnReason": "上次退回原因",
+      "opinionWhere": "在右边「审批意见」填写，签名批准后印在电子准证上。",
+      "conditions": "批准条件",
+      "result": "审批结果",
+      "validFrom": "批准开始时间",
+      "validUntil": "批准截止时间",
+      "validHint": "不填就按申请的起止时间。",
+      "manager": "安全经理姓名",
+      "decidedAt": "审批日期／时间",
+      "signature": "安全经理签名",
+      "afterSigning": "签名批准后自动填上。",
+      "autoNumber": "保存后自动编号",
+      "endBeforeStart": "结束时间早于开始时间，请改正。",
+      "save": "保存",
+      "cancel": "取消",
+      "close": "关闭",
+      "failed": "没有保存成功，请再试一次。",
+      "filledHint": "电子准证已填写（{no}）。签名批准后，电子准证和审批意见、签名、时间一起归档。",
+      "fillHint": "如需电子准证，先按「准证文件」旁的「填写电子准证」，保存后再签名批准。",
+      "photosOnly": "准证表格是照片，在上面的照片里。",
+      "what": {
+        "workTypes": "施工类别名单",
+        "attachments": "附件名单"
+      }
+    },
+    "workTypes": {
+      "title": "施工准证 · 施工类别",
+      "help": "填写电子准证时「施工类别」下拉里的选项。可以新增、改名或删除；改名或删除不会改动已经填好的电子准证。「其他（写明）」一直都有。",
+      "add": "新增施工类别",
+      "editTitle": "修改「{name}」",
+      "name": "名称",
+      "other": "其他（写明）",
+      "otherHelp": "一直都有，不能删除：列表里没有的，填写时选它自己写。",
+      "system": "系统",
+      "empty": "还没有施工类别。填写电子准证时仍可选「其他（写明）」。",
+      "armRemove": "确定删除「{name}」",
+      "removeHint": "删除后，新的电子准证不再提供这个类别；已经填好的电子准证不受影响。",
+      "remove": "删除",
+      "armFirst": "先打开旁边的开关，确认要删除。",
+      "edit": "修改",
+      "save": "保存",
+      "cancel": "取消",
+      "failed": "没有保存成功，请再试一次。",
+      "what": "施工类别名单",
+      "toast": {
+        "added": "已新增施工类别「{name}」",
+        "renamed": "已改名为「{name}」",
+        "removed": "已删除施工类别「{name}」"
+      },
+      "readOnly": "只有能管理分类的人可以新增、改名或删除；需要改的话请找公司管理员。"
     }
   },
   "gateCard": {
