@@ -130,8 +130,8 @@ describe("公司通用分类 needs no project (JB103 第 1、2 点)", () => {
     address.search = "company=permitWorkType";
     const html = render();
     address.search = "";
-    const module = zh.categoryManagement.company.module.permitWorkType;
-    expect(html).toMatch(new RegExp(`<h2[^>]*>${module}</h2>`));
+    const listName = zh.categoryManagement.company.module.permitWorkType;
+    expect(html).toMatch(new RegExp(`<h2[^>]*>${listName}</h2>`));
     expect(html).toContain(zh.categoryManagement.company.moduleHelp.permitWorkType);
     // Its own list, with its own 【新增施工类别】 - not the material one.
     expect(html).not.toContain(zh.categoryManagement.company.create);

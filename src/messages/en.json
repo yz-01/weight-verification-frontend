@@ -20997,6 +20997,7 @@
       "workStart": "Requested start",
       "workEnd": "Requested end",
       "photos": "Site photos and attachments",
+      "photoN": "Photo {n}",
       "noPhotos": "This application has no photos.",
       "otherFiles": "Other attachments",
       "none": "None",

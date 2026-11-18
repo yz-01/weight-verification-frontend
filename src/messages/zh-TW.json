@@ -20997,6 +20997,7 @@
       "workStart": "申請開始時間",
       "workEnd": "申請結束時間",
       "photos": "現場照片及附件",
+      "photoN": "照片 {n}",
       "noPhotos": "這份申請沒有照片。",
       "otherFiles": "其他附件名稱",
       "none": "無",

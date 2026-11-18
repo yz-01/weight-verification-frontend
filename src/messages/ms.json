@@ -20997,6 +20997,7 @@
       "workStart": "Mula dipohon",
       "workEnd": "Tamat dipohon",
       "photos": "Foto tapak dan lampiran",
+      "photoN": "Foto {n}",
       "noPhotos": "Permohonan ini tiada foto.",
       "otherFiles": "Lampiran lain",
       "none": "Tiada",
