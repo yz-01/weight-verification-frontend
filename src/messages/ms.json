@@ -5431,7 +5431,9 @@
         "confirmOffTitle": "Buka kunci “{project}”?",
         "confirmOffBody": "Apabila dimatikan, rekod projek ini yang diarkib boleh diubah di pejabat dengan PIN 6 digit, dan setiap perubahan direkodkan.",
         "confirmOff": "Buka kunci"
-      }
+      },
+      "noRole": "Tidak ditetapkan (semua yang boleh meluluskan)",
+      "roleMissing": "{name} (syarikat ini tiada peranan ini)"
     },
     "trialDaysHint": "Pakej ini memberi {days} hari percuma secara lalai. Tiada bil semasa percubaan; bil bermula hanya apabila anda tekan Lanjut atau perbaharui di Langganan. Masukkan 0 untuk tiada percubaan.",
     "trialNote": "Tiada bil semasa percubaan. Bil bermula hanya apabila anda tekan Lanjut atau perbaharui di Langganan.",
@@ -9514,7 +9516,9 @@
       "exit_pass_not_sent": "Pas keluar ini belum dihantar, jadi ia tidak boleh dilepaskan sekarang. Minta kenderaan menunggu, dan hubungi pemohon atau pengurus keselamatan supaya pas keluar ditandatangani dahulu.",
       "exit_pass_already_released": "Pas keluar ini sudah dilepaskan oleh pintu (atau pembersihan ini sudah tamat), jadi tiada apa lagi perlu dibuat. Halaman telah dimuat semula.",
       "exit_pass_release_phone_only": "Pelepasan disahkan oleh pengawal pintu di telefon selepas mengambil gambar; sistem pejabat tidak boleh melepaskan. Gunakan telefon pengawal pintu.",
-      "exit_pass_external_pending": "Ini masih menunggu kelulusan luar, jadi ia tidak boleh disahkan dan diarkibkan sekarang. Daftar salinan bertandatangan, minta pelulus menandatangani dalam talian, atau tukar kepada tidak perlu kelulusan luar, kemudian sahkan dan arkibkan."
+      "exit_pass_external_pending": "Ini masih menunggu kelulusan luar, jadi ia tidak boleh disahkan dan diarkibkan sekarang. Daftar salinan bertandatangan, minta pelulus menandatangani dalam talian, atau tukar kepada tidak perlu kelulusan luar, kemudian sahkan dan arkibkan.",
+      "role_kind_fixed": "Pentadbir Syarikat sentiasa peranan ibu pejabat, dan peranan akaun telefon tidak boleh menjadi peranan ibu pejabat.",
+      "role_self_lockout": "Anda sendiri memegang peranan ini, jadi menyimpan ini akan mematikan pengurusan pengguna anda sendiri. Kekalkan tanda “Lihat pengguna” dan “Edit pengguna”, atau minta Pentadbir Syarikat membuat perubahan."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -13680,8 +13684,8 @@
     "roles": {
       "what": "Apa yang setiap peranan dalam syarikat anda dibenarkan lihat dan lakukan.",
       "who": "Pemegang role.view; menyuntingnya memerlukan role.update.",
-      "need": "Peranan memerlukan kod, nama dan sekurang-kurangnya satu kebenaran.",
-      "then": "Perubahan kebenaran berkuat kuasa apabila orang itu memuatkan halaman seterusnya. Mereka mungkin perlu menyegar semula.",
+      "need": "Peranan baharu memerlukan nama dan jenis: peranan ibu pejabat, di mana anda tanda kumpulan A dan B, atau peranan projek, di mana anda tanda kumpulan B dan kebenaran projek semuanya hidup secara lalai. Kod peranan dinomborkan oleh sistem.",
+      "then": "Apabila disimpan, orang dalam peranan ini berubah bersamanya; ia berkuat kuasa apabila mereka memuatkan halaman seterusnya. Mereka mungkin perlu menyegar semula.",
       "trouble": "Seseorang melihat bar sisi kosong: peranannya langsung tiada kebenaran modul."
     },
     "safety": {
@@ -13860,7 +13864,7 @@
       "who": "Orang yang ada “Lihat bahaya / EHS dan permit kerja” boleh melihat dan memuat turun; dengan “Lapor dan tugaskan bahaya, mohon permit kerja” mereka memohon dengan “Permohonan baharu”. Meluluskan memerlukan “Pengesahan keselamatan (boleh lulus permit kerja)” dan dibuat oleh pengurus keselamatan yang dipilih pemohon, atau pentadbir syarikat. Tiada sesiapa meluluskan permit sendiri.",
       "need": "Permohonan baharu memerlukan projek, fail permit (Word, PDF atau foto borang; beberapa halaman, paling banyak 10 sekali gus) dan pengurus keselamatan pelulus; catatan adalah pilihan. Meluluskan memerlukan tandatangan; memulangkan memerlukan sebabnya.",
       "then": "Pengurus keselamatan yang dipilih (dan pentadbir syarikat) menerima notis tugasan. Selepas diluluskan, fail asal, keputusan, tandatangan, jawatan pelulus dan masa diarkibkan bersama dan tidak boleh diubah lagi. Permit yang dipulangkan dibetulkan oleh pemohon dan dihantar semula dengan fail baharu; fail terdahulu disimpan. Pemohon dimaklumkan dalam kedua-dua keadaan.",
-      "trouble": "Jika tiada pengurus keselamatan boleh dipilih, belum ada sesiapa dalam projek ini yang boleh meluluskan permit: peranan pelulus memerlukan “Pengesahan keselamatan” dan “Lihat projek”, dan orang itu mesti ada dalam senarai kakitangan projek ini. Tetingkap “Permohonan baharu” menyenaraikan tiga langkah ini."
+      "trouble": "Jika tiada pengurus keselamatan boleh dipilih, belum ada sesiapa dalam projek ini yang boleh meluluskan permit: akaun pelulus memerlukan “Pengesahan keselamatan” dan “Lihat projek” (hidup secara lalai bagi peranan projek), dan orang itu mesti ada dalam senarai kakitangan projek ini. Tetingkap “Permohonan baharu” menyenaraikan tiga langkah ini."
     },
     "billing_customer": {
       "what": "Bil yang MSE hantar kepada syarikat anda: langganan SaaS dan, bagi pelan kerjasama, komisen platform. Setiap bil menunjukkan tempoh, jumlah, yang sudah dibayar dan yang masih tertunggak.",
@@ -15704,7 +15708,8 @@
       "description": "Keterangan",
       "name": "Nama peranan",
       "permissions": "Kebenaran",
-      "userCount": "Orang"
+      "userCount": "Orang",
+      "kind": "Jenis"
     },
     "new": "Peranan baharu",
     "permissionCount": "{count, plural, =0 {Tiada kebenaran} other {# kebenaran}}",
@@ -15793,14 +15798,35 @@
       "label": "Halaman kebenaran",
       "hq": "Ibu pejabat",
       "project": "Projek",
-      "hqHelp": "Kumpulan A hanya untuk ibu pejabat; ibu pejabat menentukan pengguna projek mana yang mendapat kumpulan B.",
-      "hqHelpProjectRole": "Ini peranan projek: kumpulan A hanya untuk ibu pejabat dan tidak boleh ditanda; kumpulan B mati secara lalai, dan jika ditanda di sini orang dalam peranan ini mendapatnya. Ibu pejabat juga boleh menghidupkannya untuk seseorang dalam Edit pengguna.",
+      "hqHelp": "Ini peranan ibu pejabat: anda tanda kumpulan A dan kumpulan B. Jika ditanda, orang dalam peranan ini mendapatnya; jika tidak, mereka tidak mendapatnya.",
+      "hqHelpProjectRole": "Ini peranan projek: kumpulan A hanya untuk ibu pejabat dan tidak boleh ditanda; anda tanda kumpulan B, dan jika ditanda, orang dalam peranan ini mendapatnya. Ibu pejabat juga boleh menghidupkannya untuk seseorang dalam Edit pengguna.",
       "projectHelp": "Apa yang orang buat dalam projek.",
       "sectionA": "Kumpulan A · ibu pejabat sahaja (bukan pengguna projek)",
       "sectionB": "Kumpulan B · ibu pejabat boleh beri kepada pengguna projek",
       "projectDefaultOn": "Kebenaran projek: semuanya hidup secara lalai untuk orang dalam peranan ini, tiada apa untuk ditanda. Kemudian satu boleh dimatikan untuk seseorang dalam Edit pengguna atau Kebenaran projek di projek itu.",
-      "defaultOn": "Hidup secara lalai"
-    }
+      "defaultOn": "Hidup secara lalai",
+      "projectDefaultOnHeadOffice": "Kebenaran projek: semuanya hidup secara lalai untuk orang dalam peranan ini, tiada apa untuk ditanda. Kemudian satu boleh dimatikan untuk seseorang dalam Edit pengguna."
+    },
+    "kind": {
+      "label": "Jenis peranan",
+      "headOffice": "Peranan ibu pejabat",
+      "headOfficeHelp": "Bekerja di ibu pejabat dan mengurus seluruh syarikat. Anda tanda kumpulan A dan kumpulan B.",
+      "project": "Peranan projek",
+      "projectHelp": "Hanya bekerja pada projek yang diberi. Kumpulan A tidak boleh diberi; anda tanda kumpulan B; kebenaran projek semuanya hidup secara lalai.",
+      "phone": "Akaun telefon",
+      "required": "Pilih “Peranan ibu pejabat” atau “Peranan projek” dahulu.",
+      "chooseFirst": "Pilih jenis peranan di atas dahulu: peranan ibu pejabat atau peranan projek. Kebenaran untuk ditanda disenaraikan di sini selepas dipilih.",
+      "changeHolders": "Peranan ini kini ada {count} orang. Selepas jenisnya ditukar, kebenaran ibu pejabat mereka ditetapkan semula daripada peranan ini; kebenaran projek yang dimatikan untuk seseorang kekal mati.",
+      "adminFixed": "Peranan ibu pejabat. Pentadbir Syarikat sentiasa peranan ibu pejabat; ini tidak boleh ditukar."
+    },
+    "followers": "Peranan ini kini ada {count} orang. Apabila disimpan, tanda yang anda ubah kali ini sampai kepada mereka; apa-apa yang dihidupkan atau dimatikan untuk seseorang secara berasingan kekal seperti sedia ada.",
+    "adminLocked": "Pentadbir Syarikat mempunyai semua kebenaran; ini tidak boleh diubah.",
+    "phoneRole": "Ini peranan akaun telefon (kakitangan tapak, operator jentera, pengawal pintu). Ia dibuat dan diurus dalam Kakitangan tapak; di sini kebenarannya hanya boleh dilihat.",
+    "phoneRoleLink": "Buka Kakitangan tapak",
+    "hqCount": "{count, plural, =0 {Tiada kebenaran ibu pejabat ditanda} other {# kebenaran ibu pejabat}}",
+    "allPermissions": "Semua kebenaran",
+    "phoneHere": "Akaun telefon (kakitangan tapak, operator jentera, pengawal pintu) dibuat dalam Kakitangan tapak, bukan di sini.",
+    "onlyAdmin": "Pentadbir Syarikat sudah mempunyai semua kebenaran. Untuk kerja lain, tekan “Peranan baharu” di kanan atas, beri nama anda sendiri, pilih peranan ibu pejabat atau peranan projek, dan tanda kebenarannya."
   },
   "safety": {
     "officeCreate": {
@@ -18510,7 +18536,10 @@
       "role": "Peranan",
       "roleHint": "Tanpa peranan, akaun ini tidak dapat melihat apa-apa selepas log masuk.",
       "status": "Status",
-      "timezone": "Zon waktu"
+      "timezone": "Zon waktu",
+      "roleRequired": "Pilih peranan.",
+      "noOwnRoles": "Syarikat belum membuat peranannya sendiri. Untuk memberi orang ini kurang daripada Pentadbir Syarikat, pergi dahulu ke Pengguna › Peranan dan kebenaran dan tekan “Peranan baharu”.",
+      "noOwnRolesLink": "Pergi ke Peranan dan kebenaran"
     },
     "filter": {
       "allAudiences": "Semua kategori pengguna",
@@ -20973,9 +21002,9 @@
     "openInModule": "Buka di bawah Permit kerja",
     "openProjectTeam": "Tambah orang ke pasukan projek",
     "noApproverSteps": {
-      "role": "Peranan: beri peranan pelulus “Pengesahan keselamatan” dan “Lihat projek” (pratetap “Pengurus Keselamatan” ada kedua-duanya).",
-      "user": "Pengguna: tetapkan akaun pelulus kepada peranan itu. Akaun baharu aktif selepas pemiliknya menetapkan kata laluan daripada e-mel.",
-      "team": "Pasukan projek: tambah mereka di bawah “Senarai kakitangan projek” pada projek ini (tidak perlu jika peranan mempunyai “Lihat setiap projek dalam syarikat”)."
+      "role": "Kebenaran: akaun pelulus memerlukan “Pengesahan keselamatan” dan “Lihat projek”. Orang dalam peranan projek mempunyai kedua-duanya secara lalai; jika satu dimatikan, hidupkannya untuk mereka dalam Edit pengguna atau Kebenaran projek di projek itu.",
+      "user": "Pengguna: pelulus memerlukan akaun pejabat (ditambah di bawah Pengguna). Akaun baharu aktif selepas pemiliknya menetapkan kata laluan daripada e-mel.",
+      "team": "Pasukan projek: tambah mereka di bawah “Senarai kakitangan projek” pada projek ini (tidak perlu bagi kakitangan ibu pejabat yang melihat setiap projek dalam syarikat)."
     }
   },
   "gateCard": {
@@ -21448,7 +21477,7 @@
   "materialTargets": {
     "title": "Sasaran bahan",
     "count": "{count, plural, =0 {Tiada sasaran} other {# sasaran}}",
-    "basis": "Bersih diterima = penghantaran (muatan ditolak tidak dikira) tolak pemulangan yang disahkan selesai, mengikut bahan, spesifikasi dan unit; unit lain tidak ditukar. Apabila hampir, mencapai atau melebihi sasaran, pengurus projek, QS dan penetapnya dimaklumkan.",
+    "basis": "Bersih diterima = penghantaran (muatan ditolak tidak dikira) tolak pemulangan yang disahkan selesai, mengikut bahan, spesifikasi dan unit; unit lain tidak ditukar. Apabila hampir, mencapai atau melebihi sasaran, orang dalam projek yang boleh menetapkan sasaran bahan dan penetapnya dimaklumkan.",
     "loading": "Memuatkan…",
     "empty": "Projek ini belum ada sasaran bahan.",
     "emptyAll": "Belum ada sasaran bahan. Pilih projek di atas, kemudian tambah.",
@@ -21496,7 +21525,7 @@
     "quantityRule": "Melebihi 0, sehingga tiga tempat perpuluhan",
     "alertsHint": "cth. 80, 100: pada 80% 「hampir」, pada 100% 「dicapai」; melebihi 100% 「melebihi」 sentiasa dimaklumkan.",
     "alertsInvalid": "Gunakan nombor bulat 1 hingga 100, dipisahkan koma.",
-    "recipients": "Siapa dimaklumkan: pengurus projek dan QS projek (sesiapa yang boleh menetapkan sasaran bahan) dan penetapnya, dengan bunyi.",
+    "recipients": "Siapa dimaklumkan: orang dalam projek yang boleh menetapkan sasaran bahan (kecuali Pentadbir Syarikat) dan penetapnya, dengan bunyi.",
     "cancel": "Batal",
     "save": "Simpan",
     "toast": {

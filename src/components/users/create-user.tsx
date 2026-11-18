@@ -4,6 +4,7 @@ import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Info, Save, UserPlus } from "lucide-react";
 import { useTranslations } from "next-intl";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 
@@ -46,6 +47,31 @@ import { createUser, getRoles, updateUser } from "@/services/users.service";
 function isDriverRole(role: Role): boolean {
   const permissions = new Set(role.permissions);
   return permissions.has("task.submit") && !permissions.has("task.view_all");
+}
+
+/** The phone's roles: made from 现场人员管理's link, never here (JB104 F7). */
+const PHONE_ROLE_CODES = ["site_staff", "gate_guard", "equipment_operator"];
+
+function isPhoneRole(role: Role): boolean {
+  return role.kind === "phone" || PHONE_ROLE_CODES.includes(role.code);
+}
+
+/**
+ * The roles the 角色 field offers. A new person: never a phone role (every
+ * one, not only 工地人员 - JB219 sibling: 设备操作人员 and 门岗保安 were offered
+ * and then refused) and never the driver's. Editing: whatever they hold too.
+ */
+export function invitableRoles(roles: Role[], isEdit: boolean): Role[] {
+  return roles.filter((role) => isEdit || (!isPhoneRole(role) && !isDriverRole(role)));
+}
+
+/** Whether a builder has made no role of its own yet - 公司管理员 alone (JB219). */
+export function hasNoOwnRoles(roles: Role[]): boolean {
+  const builder = roles.some((role) => role.kind === "head_office" || role.kind === "project");
+  return (
+    builder &&
+    !roles.some((role) => !role.is_system && (role.kind === "head_office" || role.kind === "project"))
+  );
 }
 
 /**
@@ -196,16 +222,20 @@ export function CreateUser({
   // both here, so neither is offered: a role that can only ever come back as
   // an error is not a choice.
   const roleOptions =
-    roles?.results
-      .filter(
-        (role) =>
-          isEdit ||
-          (role.code !== "site_staff" && !isDriverRole(role)),
-      )
-      .map((role) => ({
+    (roles ? invitableRoles(roles.results, isEdit) : undefined)
+      ?.map((role) => ({
         value: role.id,
         label: roleName(role, t),
       })) ?? [];
+  // JB219 (客户 11-18 事项 4): a builder starts with 公司管理员 alone and makes
+  // its own roles. A new person needs one chosen - left blank, the company's
+  // default is the phone's 工地人员, which an email invitation cannot be - and
+  // with only 公司管理员 to choose, the form says how to make a smaller one.
+  const builder = (roles?.results ?? []).some(
+    (role) => role.kind === "head_office" || role.kind === "project",
+  );
+  const noOwnRoles = hasNoOwnRoles(roles?.results ?? []);
+  const roleRequired = builder && !isEdit;
 
   return (
     <FormShell
@@ -276,12 +306,19 @@ export function CreateUser({
       </FormSection>
 
       <FormSection title={t("users.section.access")}>
-        <form.Field name="role">
+        <form.Field
+          name="role"
+          validators={{
+            onSubmit: ({ value }) =>
+              roleRequired && !value ? t("users.field.roleRequired") : undefined,
+          }}
+        >
           {(field) => (
             <div className="space-y-1 md:col-span-2">
               <SelectField
                 field={field as unknown as BoundField}
                 label={t("users.field.role")}
+                required={roleRequired}
                 options={roleOptions}
                 // JB208-12 (Lucas 11-16 audit): an MSE account saved with no
                 // role signs in to a dashboard that shows nothing.
@@ -292,6 +329,16 @@ export function CreateUser({
                 }
               />
               <QueryFailedNote query={rolesQuery} what={t("users.what.roles")} />
+              {noOwnRoles && (
+                <p role="note" data-no-own-roles className="text-sm leading-6 text-muted-foreground">
+                  {t("users.field.noOwnRoles")}{" "}
+                  {me?.portal === "MSE_TRACE" ? (
+                    <Link href="/roles" className="font-medium text-primary underline-offset-4 hover:underline">
+                      {t("users.field.noOwnRolesLink")}
+                    </Link>
+                  ) : null}
+                </p>
+              )}
             </div>
           )}
         </form.Field>

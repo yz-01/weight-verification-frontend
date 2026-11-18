@@ -28,27 +28,33 @@ export function PermissionMatrix({
   selected,
   onChange,
   readOnly = false,
-  kind = "head_office",
+  kind = "plain",
   initialPage,
 }: {
   selected: string[];
   onChange?: (codes: string[]) => void;
   readOnly?: boolean;
   /**
-   * Whose role it is (JB139, 客户 11-09 事项 3). ``head_office`` (公司管理员,
-   * 总部): every box. ``project``: 总部专属 A cannot be ticked (the server
-   * drops it too), B is head office's choice, and the 项目权限 are on by
-   * default for the role's people - shown, not ticked. ``phone``: A locked,
-   * the rest ticked as before (the phone keeps its own set).
+   * Whose role it is (JB139, JB218/JB219 客户 11-18 事项 3、4).
+   * ``head_office`` (总部角色): A and B both ticked by the company, nothing
+   * locked; the 项目权限 are on by default for its people - shown, not ticked.
+   * ``project`` (项目角色): 总部专属 A cannot be ticked (the server drops it
+   * too), B is head office's choice, 项目权限 on by default as above.
+   * ``phone``: A locked, the rest ticked (the phone keeps its own set).
+   * ``plain``: a recycler's or MSE's role - one page, every box (their roles
+   * are not split into A / B).
    */
   kind?: RoleKind;
-  /** The page shown first; a project role opens on 总部权限, others on 项目权限. */
+  /** The page shown first; a builder office role opens on 总部权限. */
   initialPage?: "hq" | "project";
 }) {
   const t = useTranslations();
   const headOffice = kind === "head_office";
-  // 项目权限 on by default for a project role's people: not ticked here.
-  const projectDefaultOn = kind === "project";
+  const plain = kind === "plain";
+  // 项目权限 on by default for a builder office role's people: not ticked here.
+  const projectDefaultOn = kind === "project" || kind === "head_office";
+  // A is head office's: locked on a project role and on the phone's.
+  const reservedLocked = kind === "project" || kind === "phone";
   // 「请将现有权限分成两个独立页面：总部权限、项目权限」 (JB131).
   const [page, setPage] = useState<"hq" | "project">(
     initialPage ?? (projectDefaultOn ? "hq" : "project"),
@@ -67,21 +73,31 @@ export function PermissionMatrix({
   const pageOf = (entry: PermissionEntry) => entry.page ?? "project";
   const shownEntries = useMemo(
     () =>
-      readOnly
-        ? // A project role's 项目权限 are on for its people whatever it ticks
-          // (the note says so), and it never holds A: only B is its own.
+      readOnly || plain
+        ? // A builder office role's 项目权限 are on for its people whatever it
+          // ticks (the note says so): only its 总部权限 are its own.
           projectDefaultOn
-          ? entries.filter((entry) => pageOf(entry) === "hq_grantable")
+          ? entries.filter((entry) => pageOf(entry) !== "project")
           : entries
         : entries.filter((entry) =>
             page === "project" ? pageOf(entry) === "project" : pageOf(entry) !== "project",
           ),
-    [entries, page, readOnly, projectDefaultOn],
+    [entries, page, readOnly, plain, projectDefaultOn],
   );
   const groups = useMemo(() => groupByDomain(shownEntries), [shownEntries]);
   const locked = (entry: PermissionEntry) =>
-    (!headOffice && pageOf(entry) === "hq_reserved") || (projectDefaultOn && pageOf(entry) === "project");
+    (reservedLocked && pageOf(entry) === "hq_reserved") || (projectDefaultOn && pageOf(entry) === "project");
   const chosen = useMemo(() => new Set(selected), [selected]);
+  // The count is of what the role itself decides: its 总部权限 on a builder
+  // office role (a kept 总部 preset also stores project codes, which are on
+  // for everybody anyway).
+  const countable = useMemo(
+    () =>
+      projectDefaultOn
+        ? entries.filter((entry) => pageOf(entry) !== "project" && chosen.has(entry.code)).length
+        : chosen.size,
+    [entries, chosen, projectDefaultOn],
+  );
 
   if (isLoading) {
     return (
@@ -131,7 +147,7 @@ export function PermissionMatrix({
 
   return (
     <div className="space-y-4">
-      {!readOnly && (
+      {!readOnly && !plain && (
         <div className="space-y-2" data-permission-pages>
           <div className="inline-flex rounded-lg border p-1" role="tablist" aria-label={t("roles.pages.label")}>
             {(["hq", "project"] as const).map((key) => (
@@ -153,13 +169,19 @@ export function PermissionMatrix({
           <p className="text-xs text-muted-foreground">
             {page === "hq"
               ? t(headOffice ? "roles.pages.hqHelp" : "roles.pages.hqHelpProjectRole")
-              : t(projectDefaultOn ? "roles.pages.projectDefaultOn" : "roles.pages.projectHelp")}
+              : t(
+                  headOffice
+                    ? "roles.pages.projectDefaultOnHeadOffice"
+                    : projectDefaultOn
+                      ? "roles.pages.projectDefaultOn"
+                      : "roles.pages.projectHelp",
+                )}
           </p>
         </div>
       )}
       {readOnly && projectDefaultOn && (
         <p className="rounded-lg border border-primary/30 bg-primary/8 px-3 py-2 text-sm" data-project-default-on>
-          {t("roles.pages.projectDefaultOn")}
+          {t(headOffice ? "roles.pages.projectDefaultOnHeadOffice" : "roles.pages.projectDefaultOn")}
         </p>
       )}
       {!readOnly && !(projectDefaultOn && page === "project") && (
@@ -183,7 +205,7 @@ export function PermissionMatrix({
             {t("roles.clearAll")}
           </Button>
           <span className="ml-auto text-xs text-muted-foreground">
-            {t("roles.permissionCount", { count: chosen.size })}
+            {t("roles.permissionCount", { count: countable })}
           </span>
         </div>
       )}
@@ -202,7 +224,7 @@ export function PermissionMatrix({
         return (
           <div key={`${section}:${group.key}`}>
             {/* 总部保留 (A) / 可授权给项目 (B) headings on the head-office page. */}
-            {!readOnly && page === "hq" && section !== previous ? (
+            {!readOnly && !plain && page === "hq" && section !== previous ? (
               <p className="mb-2 mt-4 text-sm font-semibold text-primary" data-permission-section={section}>
                 {t(section === "hq_reserved" ? "roles.pages.sectionA" : "roles.pages.sectionB")}
               </p>
@@ -287,17 +309,25 @@ export function PermissionMatrix({
 
 const SECTION_ORDER = ["hq_reserved", "hq_grantable", "project"] as const;
 
-/** Whose role a matrix edits (JB139): head office's, the phone's, or a project's. */
-export type RoleKind = "head_office" | "phone" | "project";
+/**
+ * Whose role a matrix edits (JB139, JB219): a builder's 总部角色, phone role
+ * or 项目角色, or a recycler's / MSE's role (``plain``, not split into A / B).
+ */
+export type RoleKind = "head_office" | "phone" | "project" | "plain";
 
-const HEAD_OFFICE_ROLE_CODES = ["company_admin", "headquarters"];
 const PHONE_ROLE_CODES = ["site_staff", "equipment_operator", "gate_guard", "all_pages"];
 
-/** The kind of a role: the server's when it says, else read from its code. */
-export function roleKindOf(role: { code?: string | null; kind?: RoleKind } | undefined | null): RoleKind {
+/**
+ * The kind of a role: the server's when it says, else its 总部角色 mark, else
+ * its code. Head office is the company's choice now (JB219), not a code: only
+ * 公司管理员 is head office by its code.
+ */
+export function roleKindOf(
+  role: { code?: string | null; kind?: RoleKind; head_office?: boolean } | undefined | null,
+): RoleKind {
   if (role?.kind) return role.kind;
   const code = String(role?.code ?? "").trim();
-  if (HEAD_OFFICE_ROLE_CODES.includes(code)) return "head_office";
+  if (role?.head_office || code === "company_admin") return "head_office";
   if (PHONE_ROLE_CODES.includes(code)) return "phone";
   return "project";
 }
