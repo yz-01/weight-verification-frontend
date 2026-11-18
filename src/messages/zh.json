@@ -4014,7 +4014,15 @@
       "rain_remark_set": "填写雨天记录的意见 / 备注",
       "rain_month_remark_set": "填写雨天月报的意见 / 备注",
       "settings_reset_on_wiring": "维护模式、强制更新接通时重设",
-      "head_office_on_behalf": "总部代批"
+      "head_office_on_behalf": "总部代批",
+      "exit_pass_signed": "安全经理签名批准出门条",
+      "exit_pass_external_set": "设定是否需要外部审批",
+      "exit_pass_external_waived": "改为不需要外部审批",
+      "exit_pass_external_signed": "外部审批在线签名",
+      "exit_pass_external_paper_recorded": "登记签回的外部审批文件",
+      "exit_pass_sent": "发出出门条",
+      "exit_pass_released": "门岗确认放行",
+      "exit_pass_external_paper_corrected": "更换签回的外部审批文件"
     },
     "objectType": {
       "SignOffAssistant": "助理副密码",
@@ -9490,7 +9498,23 @@
       "consultant_read_only": "顾问账号只能查看这里的资料，不能修改。",
       "consultant_module_not_granted": "总部没有为您在这个项目开通这个模块。如需使用，请联系总部。",
       "consultant_no_permit": "施工准证由施工方申请，顾问不能提交。您可以发起整改。",
-      "consultant_export_not_granted": "总部没有为您在这个项目开通「导出」，所以不能导出或发送。可以预览和打印。"
+      "consultant_export_not_granted": "总部没有为您在这个项目开通「导出」，所以不能导出或发送。可以预览和打印。",
+      "exit_pass_not_applicable": "这笔记录没有出门条（材料领用、设备进场，或出门条功能启用前已完成的记录），不需要签名或放行。",
+      "exit_pass_not_ready": "这笔申请还没有批准，现在不能签出门条；请等后台批准后再签。",
+      "exit_pass_record_closed": "这笔记录已经归档、退回或取消，出门条已经不能再签名或放行；如有疑问请联系申请人或后台。",
+      "exit_pass_not_a_signer": "你不是这个项目的安全经理，不能签出门条；请联系公司管理员给你「安全验收」权限并把你加进这个项目。",
+      "exit_pass_own_application": "这是你自己的申请，不能自己签出门条；请请这个项目的另一位安全经理签名。",
+      "exit_pass_already_signed": "另一位安全经理刚刚已经签了这张出门条，你不用再签；页面已刷新。",
+      "exit_pass_signature_required": "还没有签名；请先在签名框里签名，再按「签名批准」。",
+      "exit_pass_needs_signature_first": "安全经理还没有签出门条，现在不能做外部审批；请先请安全经理签名批准。",
+      "exit_pass_external_not_waiting": "这笔现在不在等待外部审批（不需要外部审批，或已经完成，或门岗已经放行），不用再做；页面已刷新。",
+      "exit_pass_external_not_allowed": "你不能做这一步：外部审批要在电脑后台、由有这类记录审批权限的人做，申请人和签出门条的安全经理不能做；请请总部或项目审批人处理。",
+      "exit_pass_external_fields_required": "还缺资料：请填写所属公司／部门、审批人姓名和日期，并选择或上传签回的文件，再保存。",
+      "exit_pass_external_locked": "「需要外部审批」现在不能再改，因为外部审批已经完成或出门条已经发出；页面已刷新。",
+      "exit_pass_not_sent": "这张出门条还没有发出，现在不能放行；请车辆先等候，并联系申请人或安全经理先签出门条。",
+      "exit_pass_already_released": "这张出门条已经由门岗放行过（或这笔清运已经结束），不用再放行；页面已刷新。",
+      "exit_pass_release_phone_only": "放行要由门岗在手机上拍照后确认，电脑后台不能放行；请到门岗手机上操作。",
+      "exit_pass_external_pending": "这笔还在等外部审批，现在不能确认归档；请先登记签回的文件或请对方在线签名，或改为不需要外部审批，再确认归档。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -16886,7 +16910,8 @@
       "ABNORMAL_VEHICLE": "异常车辆",
       "ITEM_REMOVAL": "物品带出",
       "DISPUTE": "纠纷",
-      "OTHER": "其他"
+      "OTHER": "其他",
+      "EXIT_RELEASE": "出场放行"
     },
     "gateRecords": {
       "title": "门岗记录",
@@ -21607,7 +21632,10 @@
       "project_change_permissions": "修改项目权限",
       "material_price_set": "设定或调整材料单价",
       "material_return_check": "退货核对",
-      "rain_record_void": "作废雨天记录"
+      "rain_record_void": "作废雨天记录",
+      "exit_pass_approve": "出门条批准（安全经理）签名",
+      "exit_pass_external": "外部审批",
+      "exit_pass_waive_external": "改为不需要外部审批并发出门条"
     },
     "firstTitle": "第一次设定签核密码",
     "firstBanner": "这是你第一次使用签核密码",
@@ -22323,5 +22351,188 @@
   "pagedList": {
     "shown": "已显示 {shown} 笔，共 {total} 笔",
     "loadMore": "加载更多"
+  },
+  "exitPass": {
+    "what": "出门条",
+    "loading": "正在载入…",
+    "failed": "没有成功，请再试一次。",
+    "cancel": "取消",
+    "optional": "选填",
+    "nameSeparator": "、",
+    "kind": {
+      "MATERIAL_OUTGOING": "材料出场",
+      "EQUIPMENT_MOVEMENT": "设备退场",
+      "WASTE_OUTGOING": "环保材料出场申请",
+      "DISPOSAL_REQUEST": "工地清运"
+    },
+    "closed": {
+      "archived": "这笔记录已归档，出门条不能再签名或放行。",
+      "rejected": "这笔申请已退回，出门条只能查看，不能再操作。",
+      "cancelled": "这笔记录已取消，出门条只能查看，不能再操作。",
+      "voided": "这笔记录已退回或已取消，出门条已失效，不能放行。"
+    },
+    "approval": {
+      "title": "出门条批准（安全经理）",
+      "notApproved": "未批准",
+      "approved": "已批准",
+      "legacy": "本记录在出门条功能启用前已完成，没有出门条。",
+      "notReady": "申请批准后，由安全经理在这里签出门条。",
+      "notReadyClosed": "这笔申请没有批准，没有出门条。",
+      "closedUnsigned": "未批准：这笔记录结束时，出门条还没有安全经理签名。",
+      "notSentYet": "还没有发出门条：等安全经理签名。",
+      "signers": "等待安全经理签名批准（可以签的人：{names}）",
+      "signersMore": "等待安全经理签名批准（可以签的人：{names} 等 {total} 人）",
+      "sign": "签名批准",
+      "name": "安全经理",
+      "signature": "签名",
+      "at": "批准时间"
+    },
+    "noSigners": {
+      "title": "这个项目还没有能签出门条的安全经理。请管理员照以下三步设置：",
+      "permission": "权限：给要签出门条的人的账号（或他的角色）打开「安全验收」。",
+      "project": "项目：把他加进这个项目的「项目人员名单」（看得到全部项目的人不用加）。",
+      "account": "账号：确认他的账号已启用（新账号要本人从邮件设好密码）。",
+      "openTeam": "去项目团队添加",
+      "onlyApplicant": "这个项目只有申请人自己是安全经理，出门条要由另一位安全经理签名。请管理员照以下三步再加一位："
+    },
+    "signDialog": {
+      "title": "签名批准出门条",
+      "signature": "安全经理签名",
+      "clear": "重签",
+      "nextSend": "按【签名批准】后，出门条马上发给申请人和本项目门岗的手机。",
+      "nextExternal": "按【签名批准】后，先等外部审批；外部审批完成后，才把出门条发给申请人和门岗。"
+    },
+    "external": {
+      "title": "外部审批",
+      "notRequired": "不需要",
+      "waiting": "等待外部审批",
+      "done": "外部审批已完成",
+      "switch": "需要外部审批",
+      "switchHelp": "要业主或上级部门也签名的，打开这个开关；不打开就沿用内部批准流程。",
+      "off": "本事项不需要外部审批，沿用内部批准流程。",
+      "waivedBy": "已改为不需要外部审批（{name} · {when}）",
+      "afterSignature": "需要外部审批：安全经理签名后，打印或用【发送】发给业主／上级部门签署。",
+      "howTo": "按窗口上方的【打印】或【发送】，把这笔记录（含空白的外部审批栏）发给业主／上级部门签署；签回后按【登记签回的文件】登记。对方在本系统有审批权限的，可以自己打开这笔记录按【在线签名】。",
+      "whoActs": "签回的文件由有这类记录审批权限的后台人员或安全经理在电脑上登记；对方在本系统有审批权限的，可以在电脑上打开这笔记录在线签名。",
+      "closedWaiting": "这笔记录已经结束，外部审批不用再做。",
+      "company": "所属公司／部门",
+      "name": "审批人姓名",
+      "opinion": "审批意见",
+      "signature": "签名",
+      "date": "日期",
+      "seeAttachment": "见附件：{name}",
+      "recordedBy": "登记人：{name} · {when}",
+      "signedBy": "在线签名：{name} · {when}",
+      "signOnline": "在线签名",
+      "recordPaper": "登记签回的文件",
+      "waive": "不需要外部审批，直接发出门条",
+      "correctPaper": "换一个签回的文件",
+      "correctHelp": "选错了文件？选或上传正确的签回文件，原来的文件仍保留在附件里。"
+    },
+    "waiveDialog": {
+      "body": "确定这一笔不需要外部审批？出门条会马上发给申请人和门岗，之后不能再改回需要外部审批。",
+      "confirm": "确定，直接发出门条"
+    },
+    "onlineDialog": {
+      "title": "外部审批 · 在线签名",
+      "today": "今天（{date}），以系统时间为准",
+      "next": "按【签名】后，外部审批算完成，出门条马上发给申请人和本项目门岗。",
+      "submit": "签名"
+    },
+    "paperDialog": {
+      "title": "登记签回的文件",
+      "help": "业主／上级部门签回的文件登记在这里。可以选附件里已有的文件，也可以现在上传（会放进这笔记录的附件）。",
+      "file": "签回的文件",
+      "noAttachments": "附件里还没有文件，请选「现在上传」。",
+      "uploadNow": "现在上传",
+      "whatAttachments": "附件",
+      "dateHint": "填文件上签的日期。",
+      "next": "按【保存】后，外部审批算完成，出门条马上发给申请人和本项目门岗。",
+      "submit": "保存",
+      "nextCorrect": "按【保存】后，外部审批改用新的文件；出门条已经发过，不会再发一次。"
+    },
+    "release": {
+      "title": "门岗放行",
+      "waitingBadge": "等待放行",
+      "released": "已放行",
+      "trips": "已放行 {count} 车",
+      "notSent": "还没有发出门条：等安全经理签名。",
+      "notSentExternal": "还没有发出门条：等外部审批完成。",
+      "notSentClosed": "这笔记录已经结束，出门条没有发出，没有门岗放行。",
+      "sentTo": "出门条已发送给：{to} · {when}",
+      "toApplicant": "申请人 {names}",
+      "toGate": "门岗 {names}",
+      "toSeparator": "；",
+      "noGatePhones": "这个项目还没有门岗手机账号，出门条只发给了申请人。请在「现场人员管理」为门岗开手机账号。",
+      "waiting": "等待门岗放行：门岗在手机上打开出门条，拍照核查后按【确认放行】。",
+      "closedUnreleased": "这笔记录已经结束，门岗没有放行记录。",
+      "done": "已放行 · {name} · {when} · 核查照片 {count} 张",
+      "open": "打开"
+    },
+    "gate": {
+      "title": "核查拍照，确认放行",
+      "help": "检查车辆及货物，在这里拍核查照片（可以拍几张），再按【确认放行】。",
+      "photos": "核查照片",
+      "photosHint": "每张照片都记下拍照时间和位置。",
+      "takePhoto": "核查拍照",
+      "takeAnother": "再拍一张（已拍 {count} 张）",
+      "confirm": "确认放行",
+      "retry": "重试",
+      "needPhoto": "先拍至少一张核查照片",
+      "needNetwork": "确认放行要有网络：请到有信号的地方再按。照片会留着。",
+      "failed": "放行没有提交成功：{reason}。照片还在，请检查网络后按「重试」。",
+      "failedNetwork": "手机没有网络",
+      "failedUnknown": "系统没有回应",
+      "photosKept": "{count} 张核查照片还在。",
+      "done": "已放行，记入门岗事项 {number}。",
+      "doneTrip": "第 {count} 车已放行，记入门岗事项 {number}。下一车来时再拍照放行。",
+      "alreadyReleased": "这张出门条已经由 {name} 在 {when} 放行（{number}），不用再放行。",
+      "notSentYet": "这张出门条还没有发出，现在不能放行；请车辆先等候，并联系申请人或安全经理先签出门条。",
+      "refused": "放行没有提交成功：{reason}"
+    },
+    "waiting": {
+      "title": "待放行 ({count})",
+      "what": "待放行的出门条",
+      "empty": "现在没有待放行的出门条。车辆没有出门条的，请先等候，并联系申请人或安全经理。",
+      "help": "安全经理已批准的出门条。按一下打开，检查车辆及货物，拍照后按【确认放行】。",
+      "plate": "车牌 {plate}",
+      "sentAt": "{when} 发出",
+      "open": "打开"
+    },
+    "window": {
+      "title": "出门条 · {reference}",
+      "titleBare": "出门条",
+      "none": "这笔记录没有出门条。",
+      "viewNote": "出门条显示的是这笔记录现在的资料。",
+      "openRecord": "打开原记录",
+      "kind": "类别",
+      "goes": "出场物品",
+      "plate": "车牌",
+      "project": "项目",
+      "applicant": "申请人"
+    },
+    "archive": {
+      "externalPending": "这笔还在等外部审批，现在不能确认归档；请先登记签回的文件或请对方在线签名，或改为不需要外部审批，再确认归档。"
+    },
+    "gateRecord": {
+      "linked": "关联原申请",
+      "linkedValue": "{reference}（{kind}）",
+      "openOriginal": "打开原记录",
+      "releasedBy": "放行人员",
+      "releasedAt": "放行时间",
+      "checkPhotos": "核查照片",
+      "photoCount": "{count} 张",
+      "releaseTitle": "门岗放行",
+      "releaseDone": "{name} 在 {when} 拍了 {count} 张核查照片后确认放行。这条门岗事项已完成，只能查看。",
+      "listNote": "出场放行：{reference}（{kind}）"
+    },
+    "toast": {
+      "signedSent": "已签名批准，出门条已发给申请人和门岗：{reference}",
+      "signedWaitExternal": "已签名批准，等外部审批：{reference}",
+      "externalDone": "外部审批已完成，出门条已发出：{reference}",
+      "waived": "已改为不需要外部审批，出门条已发出：{reference}",
+      "released": "已确认放行，记入门岗事项：{reference}"
+    },
+    "correctedAfter": "出门条签名后，这笔记录在 {when} 由 {by} 改正过；这里显示的是改正后的资料。"
   }
 }

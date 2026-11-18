@@ -4014,7 +4014,15 @@
       "rain_remark_set": "Menulis catatan rekod hujan",
       "rain_month_remark_set": "Menulis catatan bulanan laporan hujan",
       "settings_reset_on_wiring": "Penyelenggaraan dan kemas kini paksa ditetapkan semula apabila mula berkuat kuasa",
-      "head_office_on_behalf": "Diputuskan oleh ibu pejabat bagi pihak pengurus"
+      "head_office_on_behalf": "Diputuskan oleh ibu pejabat bagi pihak pengurus",
+      "exit_pass_signed": "Pengurus keselamatan menandatangani pas keluar",
+      "exit_pass_external_set": "Tetapkan sama ada perlu kelulusan luar",
+      "exit_pass_external_waived": "Ditukar kepada tidak perlu kelulusan luar",
+      "exit_pass_external_signed": "Kelulusan luar ditandatangani dalam talian",
+      "exit_pass_external_paper_recorded": "Salinan kelulusan luar bertandatangan didaftarkan",
+      "exit_pass_sent": "Pas keluar dihantar",
+      "exit_pass_released": "Pintu mengesahkan pelepasan",
+      "exit_pass_external_paper_corrected": "Salinan kelulusan luar bertandatangan diganti"
     },
     "objectType": {
       "SignOffAssistant": "PIN pembantu",
@@ -9490,7 +9498,23 @@
       "consultant_read_only": "Akaun perunding hanya boleh melihat ini, bukan mengubahnya.",
       "consultant_module_not_granted": "Ibu pejabat belum membuka modul ini untuk anda dalam projek ini. Hubungi ibu pejabat jika anda memerlukannya.",
       "consultant_no_permit": "Permit kerja dipohon oleh kontraktor, bukan perunding. Anda boleh membuka pembetulan.",
-      "consultant_export_not_granted": "Ibu pejabat belum memberi anda Eksport dalam projek ini, jadi anda tidak boleh mengeksport atau menghantar. Anda boleh pratonton dan mencetak."
+      "consultant_export_not_granted": "Ibu pejabat belum memberi anda Eksport dalam projek ini, jadi anda tidak boleh mengeksport atau menghantar. Anda boleh pratonton dan mencetak.",
+      "exit_pass_not_applicable": "Rekod ini tiada pas keluar (pengeluaran bahan, peralatan masuk, atau rekod yang selesai sebelum pas keluar bermula), jadi tiada apa perlu ditandatangani atau dilepaskan.",
+      "exit_pass_not_ready": "Permohonan ini belum diluluskan, jadi pas keluar belum boleh ditandatangani. Tandatangan selepas pejabat meluluskannya.",
+      "exit_pass_record_closed": "Rekod ini telah diarkibkan, dikembalikan atau dibatalkan, jadi pas keluarnya tidak boleh ditandatangani atau dilepaskan lagi. Jika ragu, hubungi pemohon atau pejabat.",
+      "exit_pass_not_a_signer": "Anda bukan pengurus keselamatan projek ini, jadi anda tidak boleh menandatangani pas keluar. Minta pentadbir syarikat memberi anda 「Pengesahan keselamatan」 dan memasukkan anda ke projek ini.",
+      "exit_pass_own_application": "Ini permohonan anda sendiri, jadi anda tidak boleh menandatangani pas keluarnya. Minta pengurus keselamatan lain dalam projek ini menandatangani.",
+      "exit_pass_already_signed": "Pengurus keselamatan lain baru sahaja menandatangani pas keluar ini, jadi anda tidak perlu. Halaman telah dimuat semula.",
+      "exit_pass_signature_required": "Belum ada tandatangan. Tandatangan dalam kotak tandatangan dahulu, kemudian tekan 「Tandatangan untuk lulus」.",
+      "exit_pass_needs_signature_first": "Pengurus keselamatan belum menandatangani pas keluar, jadi kelulusan luar belum boleh dibuat. Minta pengurus keselamatan menandatangani dahulu.",
+      "exit_pass_external_not_waiting": "Ini tidak menunggu kelulusan luar sekarang (tidak perlu, sudah selesai, atau pintu sudah melepaskannya), jadi tiada apa lagi perlu dibuat. Halaman telah dimuat semula.",
+      "exit_pass_external_not_allowed": "Anda tidak boleh membuat langkah ini: kelulusan luar dibuat di komputer oleh orang yang ada hak kelulusan untuk rekod jenis ini, bukan pemohon atau pengurus keselamatan yang menandatangani. Minta ibu pejabat atau pelulus projek.",
+      "exit_pass_external_fields_required": "Ada yang belum diisi: isi syarikat / jabatan, nama pelulus dan tarikh, pilih atau muat naik salinan bertandatangan, kemudian simpan.",
+      "exit_pass_external_locked": "「Perlu kelulusan luar」 tidak boleh diubah lagi kerana kelulusan luar sudah selesai atau pas keluar sudah dihantar. Halaman telah dimuat semula.",
+      "exit_pass_not_sent": "Pas keluar ini belum dihantar, jadi ia tidak boleh dilepaskan sekarang. Minta kenderaan menunggu, dan hubungi pemohon atau pengurus keselamatan supaya pas keluar ditandatangani dahulu.",
+      "exit_pass_already_released": "Pas keluar ini sudah dilepaskan oleh pintu (atau pembersihan ini sudah tamat), jadi tiada apa lagi perlu dibuat. Halaman telah dimuat semula.",
+      "exit_pass_release_phone_only": "Pelepasan disahkan oleh pengawal pintu di telefon selepas mengambil gambar; sistem pejabat tidak boleh melepaskan. Gunakan telefon pengawal pintu.",
+      "exit_pass_external_pending": "Ini masih menunggu kelulusan luar, jadi ia tidak boleh disahkan dan diarkibkan sekarang. Daftar salinan bertandatangan, minta pelulus menandatangani dalam talian, atau tukar kepada tidak perlu kelulusan luar, kemudian sahkan dan arkibkan."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -16886,7 +16910,8 @@
       "ABNORMAL_VEHICLE": "Kenderaan luar biasa",
       "ITEM_REMOVAL": "Barang dibawa keluar",
       "DISPUTE": "Pertikaian",
-      "OTHER": "Lain-lain"
+      "OTHER": "Lain-lain",
+      "EXIT_RELEASE": "Pelepasan keluar"
     },
     "gateRecords": {
       "title": "Rekod Pintu",
@@ -21607,7 +21632,10 @@
       "project_change_permissions": "Tukar kebenaran projek",
       "material_price_set": "Tetapkan atau tukar harga seunit bahan",
       "material_return_check": "Semak pemulangan pembekal",
-      "rain_record_void": "Batalkan rekod hujan"
+      "rain_record_void": "Batalkan rekod hujan",
+      "exit_pass_approve": "Tandatangan kelulusan pas keluar (pengurus keselamatan)",
+      "exit_pass_external": "Kelulusan luar",
+      "exit_pass_waive_external": "Batalkan kelulusan luar dan hantar pas keluar"
     },
     "firstTitle": "Tetapkan PIN pengesahan buat kali pertama",
     "firstBanner": "Ini kali pertama anda menggunakan PIN pengesahan",
@@ -22323,5 +22351,188 @@
   "pagedList": {
     "shown": "Memaparkan {shown} daripada {total}",
     "loadMore": "Muat lagi"
+  },
+  "exitPass": {
+    "what": "pas keluar",
+    "loading": "Memuatkan…",
+    "failed": "Tidak berjaya. Sila cuba lagi.",
+    "cancel": "Batal",
+    "optional": "Pilihan",
+    "nameSeparator": ", ",
+    "kind": {
+      "MATERIAL_OUTGOING": "Bahan keluar",
+      "EQUIPMENT_MOVEMENT": "Peralatan keluar",
+      "WASTE_OUTGOING": "Permohonan bahan buangan keluar",
+      "DISPOSAL_REQUEST": "Pembersihan tapak"
+    },
+    "closed": {
+      "archived": "Rekod ini telah diarkibkan. Pas keluar tidak boleh ditandatangani atau dilepaskan lagi.",
+      "rejected": "Permohonan ini telah dikembalikan. Pas keluar boleh dibaca tetapi tidak boleh diurus lagi.",
+      "cancelled": "Rekod ini telah dibatalkan. Pas keluar boleh dibaca tetapi tidak boleh diurus lagi.",
+      "voided": "Rekod ini telah dikembalikan atau dibatalkan. Pas keluar tidak sah lagi dan tidak boleh dilepaskan."
+    },
+    "approval": {
+      "title": "Kelulusan pas keluar (Pengurus keselamatan)",
+      "notApproved": "Belum diluluskan",
+      "approved": "Diluluskan",
+      "legacy": "Rekod ini selesai sebelum pas keluar diperkenalkan. Ia tiada pas keluar.",
+      "notReady": "Selepas permohonan diluluskan, pengurus keselamatan menandatangani pas keluar di sini.",
+      "notReadyClosed": "Permohonan ini tidak diluluskan. Ia tiada pas keluar.",
+      "closedUnsigned": "Belum diluluskan: rekod ini tamat sebelum pengurus keselamatan menandatangani pas keluar.",
+      "notSentYet": "Pas keluar belum dihantar: menunggu tandatangan pengurus keselamatan.",
+      "signers": "Menunggu tandatangan pengurus keselamatan (yang boleh menandatangani: {names})",
+      "signersMore": "Menunggu tandatangan pengurus keselamatan (yang boleh menandatangani: {names} dan lain-lain, {total} orang)",
+      "sign": "Tandatangan untuk lulus",
+      "name": "Pengurus keselamatan",
+      "signature": "Tandatangan",
+      "at": "Masa diluluskan"
+    },
+    "noSigners": {
+      "title": "Belum ada sesiapa dalam projek ini yang boleh menandatangani pas keluar. Pentadbir menetapkannya dalam tiga langkah:",
+      "permission": "Kebenaran: hidupkan 「Pengesahan keselamatan」 untuk akaun (atau peranan) orang yang akan menandatangani.",
+      "project": "Projek: masukkan dia ke senarai pasukan projek ini (tidak perlu bagi orang yang nampak semua projek).",
+      "account": "Akaun: pastikan akaunnya aktif (akaun baharu aktif selepas pemiliknya menetapkan kata laluan dari e-mel).",
+      "openTeam": "Tambah ke pasukan projek",
+      "onlyApplicant": "Pemohon ialah satu-satunya pengurus keselamatan dalam projek ini, dan pengurus keselamatan lain perlu menandatangani pas keluar. Pentadbir menambah seorang lagi dalam tiga langkah:"
+    },
+    "signDialog": {
+      "title": "Tandatangan untuk lulus pas keluar",
+      "signature": "Tandatangan pengurus keselamatan",
+      "clear": "Tandatangan semula",
+      "nextSend": "Selepas 【Tandatangan untuk lulus】, pas keluar terus dihantar ke telefon pemohon dan telefon pengawal pintu projek ini.",
+      "nextExternal": "Selepas 【Tandatangan untuk lulus】, ia menunggu kelulusan luar dahulu; hanya selepas itu pas keluar dihantar kepada pemohon dan pengawal pintu."
+    },
+    "external": {
+      "title": "Kelulusan luar",
+      "notRequired": "Tidak perlu",
+      "waiting": "Menunggu kelulusan luar",
+      "done": "Kelulusan luar selesai",
+      "switch": "Perlu kelulusan luar",
+      "switchHelp": "Hidupkan jika pemilik atau pejabat atasan juga perlu menandatangani; jika dimatikan, kelulusan dalaman sudah memadai.",
+      "off": "Perkara ini tidak perlu kelulusan luar; kelulusan dalaman sudah memadai.",
+      "waivedBy": "Ditukar kepada tidak perlu kelulusan luar ({name} · {when})",
+      "afterSignature": "Perlu kelulusan luar: selepas pengurus keselamatan menandatangani, cetak atau guna 【Hantar】 untuk menghantarnya kepada pemilik / pejabat atasan untuk ditandatangani.",
+      "howTo": "Guna 【Cetak】 atau 【Hantar】 di bahagian atas tetingkap untuk menghantar rekod ini (dengan ruang kelulusan luar yang kosong) kepada pemilik / pejabat atasan untuk ditandatangani; apabila salinan bertandatangan kembali, daftarkannya dengan 【Daftar salinan bertandatangan】. Orang yang ada hak kelulusan dalam sistem ini boleh membuka rekod ini dan menekan 【Tandatangan dalam talian】.",
+      "whoActs": "Salinan bertandatangan didaftarkan di komputer oleh kakitangan pejabat yang meluluskan rekod jenis ini, atau oleh pengurus keselamatan; orang yang ada hak kelulusan dalam sistem ini boleh membuka rekod ini di komputer dan menandatangani dalam talian.",
+      "closedWaiting": "Rekod ini telah tamat; kelulusan luar tidak diperlukan lagi.",
+      "company": "Syarikat / jabatan",
+      "name": "Nama pelulus",
+      "opinion": "Ulasan kelulusan",
+      "signature": "Tandatangan",
+      "date": "Tarikh",
+      "seeAttachment": "Lihat lampiran: {name}",
+      "recordedBy": "Didaftarkan oleh {name} · {when}",
+      "signedBy": "Ditandatangani dalam talian oleh {name} · {when}",
+      "signOnline": "Tandatangan dalam talian",
+      "recordPaper": "Daftar salinan bertandatangan",
+      "waive": "Tidak perlu kelulusan luar, hantar pas keluar sekarang",
+      "correctPaper": "Guna salinan bertandatangan lain",
+      "correctHelp": "Tersalah pilih fail? Pilih atau muat naik salinan bertandatangan yang betul; fail lama kekal dalam lampiran."
+    },
+    "waiveDialog": {
+      "body": "Pasti perkara ini tidak perlu kelulusan luar? Pas keluar akan terus dihantar kepada pemohon dan pengawal pintu, dan tidak boleh ditukar balik kepada perlu kelulusan luar.",
+      "confirm": "Ya, hantar pas keluar sekarang"
+    },
+    "onlineDialog": {
+      "title": "Kelulusan luar · Tandatangan dalam talian",
+      "today": "Hari ini ({date}), mengikut jam sistem",
+      "next": "Selepas 【Tandatangan】, kelulusan luar selesai dan pas keluar terus dihantar kepada pemohon dan pengawal pintu projek ini.",
+      "submit": "Tandatangan"
+    },
+    "paperDialog": {
+      "title": "Daftar salinan bertandatangan",
+      "help": "Daftarkan di sini salinan yang ditandatangani dan dihantar balik oleh pemilik / pejabat atasan. Pilih fail yang sudah ada dalam lampiran, atau muat naik sekarang (ia dimasukkan ke lampiran rekod ini).",
+      "file": "Salinan bertandatangan",
+      "noAttachments": "Belum ada lampiran. Pilih 「Muat naik sekarang」.",
+      "uploadNow": "Muat naik sekarang",
+      "whatAttachments": "lampiran",
+      "dateHint": "Tarikh yang ditulis pada salinan bertandatangan.",
+      "next": "Selepas 【Simpan】, kelulusan luar selesai dan pas keluar terus dihantar kepada pemohon dan pengawal pintu projek ini.",
+      "submit": "Simpan",
+      "nextCorrect": "Selepas 【Simpan】, kelulusan luar menggunakan fail baharu; pas keluar sudah dihantar dan tidak dihantar sekali lagi."
+    },
+    "release": {
+      "title": "Pelepasan di pintu",
+      "waitingBadge": "Menunggu pelepasan",
+      "released": "Dilepaskan",
+      "trips": "{count} lori dilepaskan",
+      "notSent": "Pas keluar belum dihantar: menunggu tandatangan pengurus keselamatan.",
+      "notSentExternal": "Pas keluar belum dihantar: menunggu kelulusan luar selesai.",
+      "notSentClosed": "Rekod ini telah tamat. Pas keluar tidak dihantar dan tiada pelepasan di pintu.",
+      "sentTo": "Pas keluar dihantar kepada: {to} · {when}",
+      "toApplicant": "pemohon {names}",
+      "toGate": "pengawal pintu {names}",
+      "toSeparator": "; ",
+      "noGatePhones": "Projek ini belum ada akaun telefon pengawal pintu, jadi pas keluar dihantar kepada pemohon sahaja. Buka akaun telefon untuk pengawal pintu di 「Kakitangan tapak」.",
+      "waiting": "Menunggu pengawal pintu: dia membuka pas keluar di telefon, mengambil gambar semakan dan menekan 【Sahkan pelepasan】.",
+      "closedUnreleased": "Rekod ini telah tamat. Tiada pelepasan di pintu padanya.",
+      "done": "Dilepaskan · {name} · {when} · {count} gambar semakan",
+      "open": "Buka"
+    },
+    "gate": {
+      "title": "Ambil gambar semakan, sahkan pelepasan",
+      "help": "Periksa kenderaan dan barang, ambil gambar semakan di sini (boleh lebih daripada satu), kemudian tekan 【Sahkan pelepasan】.",
+      "photos": "Gambar semakan",
+      "photosHint": "Setiap gambar menyimpan masa dan tempat ia diambil.",
+      "takePhoto": "Ambil gambar semakan",
+      "takeAnother": "Ambil satu lagi ({count} sudah diambil)",
+      "confirm": "Sahkan pelepasan",
+      "retry": "Cuba lagi",
+      "needPhoto": "Ambil sekurang-kurangnya satu gambar semakan dahulu",
+      "needNetwork": "Mengesahkan pelepasan perlukan rangkaian: tekan semula di tempat yang ada isyarat. Gambar akan kekal.",
+      "failed": "Pelepasan tidak berjaya dihantar: {reason}. Gambar masih ada; semak rangkaian, kemudian tekan 「Cuba lagi」.",
+      "failedNetwork": "telefon tiada rangkaian",
+      "failedUnknown": "sistem tidak menjawab",
+      "photosKept": "{count} gambar semakan masih ada.",
+      "done": "Dilepaskan, difailkan sebagai perkara pintu {number}.",
+      "doneTrip": "Lori ke-{count} dilepaskan, difailkan sebagai perkara pintu {number}. Ambil gambar semula apabila lori seterusnya tiba.",
+      "alreadyReleased": "Pas keluar ini sudah dilepaskan oleh {name} pada {when} ({number}). Tiada apa lagi yang perlu dibuat.",
+      "notSentYet": "Pas keluar ini belum dihantar, jadi ia tidak boleh dilepaskan sekarang. Minta kenderaan menunggu, dan hubungi pemohon atau pengurus keselamatan supaya pas keluar ditandatangani dahulu.",
+      "refused": "Pelepasan tidak berjaya dihantar: {reason}"
+    },
+    "waiting": {
+      "title": "Menunggu pelepasan ({count})",
+      "what": "pas keluar yang menunggu pelepasan",
+      "empty": "Tiada pas keluar yang menunggu pelepasan. Kenderaan tanpa pas keluar perlu menunggu; hubungi pemohon atau pengurus keselamatan.",
+      "help": "Pas keluar yang telah diluluskan oleh pengurus keselamatan. Tekan untuk membuka, periksa kenderaan dan barang, ambil gambar, kemudian tekan 【Sahkan pelepasan】.",
+      "plate": "No. pendaftaran {plate}",
+      "sentAt": "dihantar {when}",
+      "open": "Buka"
+    },
+    "window": {
+      "title": "Pas keluar · {reference}",
+      "titleBare": "Pas keluar",
+      "none": "Rekod ini tiada pas keluar.",
+      "viewNote": "Pas keluar menunjukkan rekod ini seperti sekarang.",
+      "openRecord": "Buka rekod asal",
+      "kind": "Jenis",
+      "goes": "Keluar dari tapak",
+      "plate": "No. pendaftaran kenderaan",
+      "project": "Projek",
+      "applicant": "Pemohon"
+    },
+    "archive": {
+      "externalPending": "Ini masih menunggu kelulusan luar, jadi ia tidak boleh disahkan dan diarkibkan sekarang. Daftar salinan bertandatangan, minta pelulus menandatangani dalam talian, atau tukar kepada tidak perlu kelulusan luar, kemudian sahkan dan arkibkan."
+    },
+    "gateRecord": {
+      "linked": "Permohonan asal",
+      "linkedValue": "{reference} ({kind})",
+      "openOriginal": "Buka rekod asal",
+      "releasedBy": "Dilepaskan oleh",
+      "releasedAt": "Masa dilepaskan",
+      "checkPhotos": "Gambar semakan",
+      "photoCount": "{count} gambar",
+      "releaseTitle": "Pelepasan di pintu",
+      "releaseDone": "{name} mengambil {count} gambar semakan pada {when} dan mengesahkan pelepasan. Perkara pintu ini selesai dan hanya boleh dibaca.",
+      "listNote": "Pelepasan keluar: {reference} ({kind})"
+    },
+    "toast": {
+      "signedSent": "Ditandatangani. Pas keluar dihantar kepada pemohon dan pengawal pintu: {reference}",
+      "signedWaitExternal": "Ditandatangani. Menunggu kelulusan luar: {reference}",
+      "externalDone": "Kelulusan luar selesai; pas keluar dihantar: {reference}",
+      "waived": "Ditukar kepada tidak perlu kelulusan luar; pas keluar dihantar: {reference}",
+      "released": "Pelepasan disahkan dan difailkan sebagai perkara pintu: {reference}"
+    },
+    "correctedAfter": "Selepas pas keluar ditandatangani, rekod ini dibetulkan oleh {by} pada {when}; yang dipaparkan di sini ialah rekod yang telah dibetulkan."
   }
 }

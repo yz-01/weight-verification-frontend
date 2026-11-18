@@ -4014,7 +4014,15 @@
       "rain_remark_set": "填寫雨天記錄的意見 / 備註",
       "rain_month_remark_set": "填寫雨天月報的意見 / 備註",
       "settings_reset_on_wiring": "維護模式、強制更新接通時重設",
-      "head_office_on_behalf": "總部代批"
+      "head_office_on_behalf": "總部代批",
+      "exit_pass_signed": "安全經理簽名批准出門條",
+      "exit_pass_external_set": "設定是否需要外部審批",
+      "exit_pass_external_waived": "改為不需要外部審批",
+      "exit_pass_external_signed": "外部審批在線簽名",
+      "exit_pass_external_paper_recorded": "登記簽回的外部審批文件",
+      "exit_pass_sent": "發出出門條",
+      "exit_pass_released": "門崗確認放行",
+      "exit_pass_external_paper_corrected": "更換簽回的外部審批文件"
     },
     "objectType": {
       "SignOffAssistant": "助理副密碼",
@@ -9490,7 +9498,23 @@
       "consultant_read_only": "顧問帳號只能查看這裡的資料，不能修改。",
       "consultant_module_not_granted": "總部沒有為您在這個項目開通這個模組。如需使用，請聯絡總部。",
       "consultant_no_permit": "施工准證由施工方申請，顧問不能提交。您可以發起整改。",
-      "consultant_export_not_granted": "總部沒有為您在這個項目開通「導出」，所以不能導出或發送。可以預覽和列印。"
+      "consultant_export_not_granted": "總部沒有為您在這個項目開通「導出」，所以不能導出或發送。可以預覽和列印。",
+      "exit_pass_not_applicable": "這筆記錄沒有出門條（材料領用、設備進場，或出門條功能啟用前已完成的記錄），不需要簽名或放行。",
+      "exit_pass_not_ready": "這筆申請還沒有批准，現在不能簽出門條；請等後台批准後再簽。",
+      "exit_pass_record_closed": "這筆記錄已經歸檔、退回或取消，出門條已經不能再簽名或放行；如有疑問請聯繫申請人或後台。",
+      "exit_pass_not_a_signer": "你不是這個項目的安全經理，不能簽出門條；請聯繫公司管理員給你「安全驗收」權限並把你加進這個項目。",
+      "exit_pass_own_application": "這是你自己的申請，不能自己簽出門條；請請這個項目的另一位安全經理簽名。",
+      "exit_pass_already_signed": "另一位安全經理剛剛已經簽了這張出門條，你不用再簽；頁面已刷新。",
+      "exit_pass_signature_required": "還沒有簽名；請先在簽名框裡簽名，再按「簽名批准」。",
+      "exit_pass_needs_signature_first": "安全經理還沒有簽出門條，現在不能做外部審批；請先請安全經理簽名批准。",
+      "exit_pass_external_not_waiting": "這筆現在不在等待外部審批（不需要外部審批，或已經完成，或門崗已經放行），不用再做；頁面已刷新。",
+      "exit_pass_external_not_allowed": "你不能做這一步：外部審批要在電腦後台、由有這類記錄審批權限的人做，申請人和簽出門條的安全經理不能做；請請總部或項目審批人處理。",
+      "exit_pass_external_fields_required": "還缺資料：請填寫所屬公司／部門、審批人姓名和日期，並選擇或上傳簽回的文件，再保存。",
+      "exit_pass_external_locked": "「需要外部審批」現在不能再改，因為外部審批已經完成或出門條已經發出；頁面已刷新。",
+      "exit_pass_not_sent": "這張出門條還沒有發出，現在不能放行；請車輛先等候，並聯繫申請人或安全經理先簽出門條。",
+      "exit_pass_already_released": "這張出門條已經由門崗放行過（或這筆清運已經結束），不用再放行；頁面已刷新。",
+      "exit_pass_release_phone_only": "放行要由門崗在手機上拍照後確認，電腦後台不能放行；請到門崗手機上操作。",
+      "exit_pass_external_pending": "這筆還在等外部審批，現在不能確認歸檔；請先登記簽回的文件或請對方在線簽名，或改為不需要外部審批，再確認歸檔。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -16886,7 +16910,8 @@
       "ABNORMAL_VEHICLE": "異常車輛",
       "ITEM_REMOVAL": "物品帶出",
       "DISPUTE": "糾紛",
-      "OTHER": "其他"
+      "OTHER": "其他",
+      "EXIT_RELEASE": "出場放行"
     },
     "gateRecords": {
       "title": "門崗記錄",
@@ -21607,7 +21632,10 @@
       "project_change_permissions": "修改項目權限",
       "material_price_set": "設定或調整材料單價",
       "material_return_check": "退貨核對",
-      "rain_record_void": "作廢雨天記錄"
+      "rain_record_void": "作廢雨天記錄",
+      "exit_pass_approve": "出門條批准（安全經理）簽名",
+      "exit_pass_external": "外部審批",
+      "exit_pass_waive_external": "改為不需要外部審批並發出門條"
     },
     "firstTitle": "第一次設定簽核密碼",
     "firstBanner": "這是你第一次使用簽核密碼",
@@ -22323,5 +22351,188 @@
   "pagedList": {
     "shown": "已顯示 {shown} 筆，共 {total} 筆",
     "loadMore": "載入更多"
+  },
+  "exitPass": {
+    "what": "出門條",
+    "loading": "正在載入…",
+    "failed": "沒有成功，請再試一次。",
+    "cancel": "取消",
+    "optional": "選填",
+    "nameSeparator": "、",
+    "kind": {
+      "MATERIAL_OUTGOING": "材料出場",
+      "EQUIPMENT_MOVEMENT": "設備退場",
+      "WASTE_OUTGOING": "環保材料出場申請",
+      "DISPOSAL_REQUEST": "工地清運"
+    },
+    "closed": {
+      "archived": "這筆記錄已歸檔，出門條不能再簽名或放行。",
+      "rejected": "這筆申請已退回，出門條只能查看，不能再操作。",
+      "cancelled": "這筆記錄已取消，出門條只能查看，不能再操作。",
+      "voided": "這筆記錄已退回或已取消，出門條已失效，不能放行。"
+    },
+    "approval": {
+      "title": "出門條批准（安全經理）",
+      "notApproved": "未批准",
+      "approved": "已批准",
+      "legacy": "本記錄在出門條功能啟用前已完成，沒有出門條。",
+      "notReady": "申請批准後，由安全經理在這裡簽出門條。",
+      "notReadyClosed": "這筆申請沒有批准，沒有出門條。",
+      "closedUnsigned": "未批准：這筆記錄結束時，出門條還沒有安全經理簽名。",
+      "notSentYet": "還沒有發出門條：等安全經理簽名。",
+      "signers": "等待安全經理簽名批准（可以簽的人：{names}）",
+      "signersMore": "等待安全經理簽名批准（可以簽的人：{names} 等 {total} 人）",
+      "sign": "簽名批准",
+      "name": "安全經理",
+      "signature": "簽名",
+      "at": "批准時間"
+    },
+    "noSigners": {
+      "title": "這個項目還沒有能簽出門條的安全經理。請管理員照以下三步設置：",
+      "permission": "權限：給要簽出門條的人的帳號（或他的角色）打開「安全驗收」。",
+      "project": "項目：把他加進這個項目的「項目人員名單」（看得到全部項目的人不用加）。",
+      "account": "帳號：確認他的帳號已啟用（新帳號要本人從郵件設好密碼）。",
+      "openTeam": "去項目團隊添加",
+      "onlyApplicant": "這個項目只有申請人自己是安全經理，出門條要由另一位安全經理簽名。請管理員照以下三步再加一位："
+    },
+    "signDialog": {
+      "title": "簽名批准出門條",
+      "signature": "安全經理簽名",
+      "clear": "重簽",
+      "nextSend": "按【簽名批准】後，出門條馬上發給申請人和本項目門崗的手機。",
+      "nextExternal": "按【簽名批准】後，先等外部審批；外部審批完成後，才把出門條發給申請人和門崗。"
+    },
+    "external": {
+      "title": "外部審批",
+      "notRequired": "不需要",
+      "waiting": "等待外部審批",
+      "done": "外部審批已完成",
+      "switch": "需要外部審批",
+      "switchHelp": "要業主或上級部門也簽名的，打開這個開關；不打開就沿用內部批准流程。",
+      "off": "本事項不需要外部審批，沿用內部批准流程。",
+      "waivedBy": "已改為不需要外部審批（{name} · {when}）",
+      "afterSignature": "需要外部審批：安全經理簽名後，列印或用【發送】發給業主／上級部門簽署。",
+      "howTo": "按視窗上方的【列印】或【發送】，把這筆記錄（含空白的外部審批欄）發給業主／上級部門簽署；簽回後按【登記簽回的文件】登記。對方在本系統有審批權限的，可以自己打開這筆記錄按【在線簽名】。",
+      "whoActs": "簽回的文件由有這類記錄審批權限的後台人員或安全經理在電腦上登記；對方在本系統有審批權限的，可以在電腦上打開這筆記錄在線簽名。",
+      "closedWaiting": "這筆記錄已經結束，外部審批不用再做。",
+      "company": "所屬公司／部門",
+      "name": "審批人姓名",
+      "opinion": "審批意見",
+      "signature": "簽名",
+      "date": "日期",
+      "seeAttachment": "見附件：{name}",
+      "recordedBy": "登記人：{name} · {when}",
+      "signedBy": "在線簽名：{name} · {when}",
+      "signOnline": "在線簽名",
+      "recordPaper": "登記簽回的文件",
+      "waive": "不需要外部審批，直接發出門條",
+      "correctPaper": "換一個簽回的文件",
+      "correctHelp": "選錯了文件？選或上傳正確的簽回文件，原來的文件仍保留在附件裡。"
+    },
+    "waiveDialog": {
+      "body": "確定這一筆不需要外部審批？出門條會馬上發給申請人和門崗，之後不能再改回需要外部審批。",
+      "confirm": "確定，直接發出門條"
+    },
+    "onlineDialog": {
+      "title": "外部審批 · 在線簽名",
+      "today": "今天（{date}），以系統時間為準",
+      "next": "按【簽名】後，外部審批算完成，出門條馬上發給申請人和本項目門崗。",
+      "submit": "簽名"
+    },
+    "paperDialog": {
+      "title": "登記簽回的文件",
+      "help": "業主／上級部門簽回的文件登記在這裡。可以選附件裡已有的文件，也可以現在上傳（會放進這筆記錄的附件）。",
+      "file": "簽回的文件",
+      "noAttachments": "附件裡還沒有文件，請選「現在上傳」。",
+      "uploadNow": "現在上傳",
+      "whatAttachments": "附件",
+      "dateHint": "填文件上簽的日期。",
+      "next": "按【保存】後，外部審批算完成，出門條馬上發給申請人和本項目門崗。",
+      "submit": "保存",
+      "nextCorrect": "按【保存】後，外部審批改用新的文件；出門條已經發過，不會再發一次。"
+    },
+    "release": {
+      "title": "門崗放行",
+      "waitingBadge": "等待放行",
+      "released": "已放行",
+      "trips": "已放行 {count} 車",
+      "notSent": "還沒有發出門條：等安全經理簽名。",
+      "notSentExternal": "還沒有發出門條：等外部審批完成。",
+      "notSentClosed": "這筆記錄已經結束，出門條沒有發出，沒有門崗放行。",
+      "sentTo": "出門條已發送給：{to} · {when}",
+      "toApplicant": "申請人 {names}",
+      "toGate": "門崗 {names}",
+      "toSeparator": "；",
+      "noGatePhones": "這個項目還沒有門崗手機帳號，出門條只發給了申請人。請在「現場人員管理」為門崗開手機帳號。",
+      "waiting": "等待門崗放行：門崗在手機上打開出門條，拍照核查後按【確認放行】。",
+      "closedUnreleased": "這筆記錄已經結束，門崗沒有放行記錄。",
+      "done": "已放行 · {name} · {when} · 核查照片 {count} 張",
+      "open": "打開"
+    },
+    "gate": {
+      "title": "核查拍照，確認放行",
+      "help": "檢查車輛及貨物，在這裡拍核查照片（可以拍幾張），再按【確認放行】。",
+      "photos": "核查照片",
+      "photosHint": "每張照片都記下拍照時間和位置。",
+      "takePhoto": "核查拍照",
+      "takeAnother": "再拍一張（已拍 {count} 張）",
+      "confirm": "確認放行",
+      "retry": "重試",
+      "needPhoto": "先拍至少一張核查照片",
+      "needNetwork": "確認放行要有網絡：請到有訊號的地方再按。照片會留著。",
+      "failed": "放行沒有提交成功：{reason}。照片還在，請檢查網絡後按「重試」。",
+      "failedNetwork": "手機沒有網絡",
+      "failedUnknown": "系統沒有回應",
+      "photosKept": "{count} 張核查照片還在。",
+      "done": "已放行，記入門崗事項 {number}。",
+      "doneTrip": "第 {count} 車已放行，記入門崗事項 {number}。下一車來時再拍照放行。",
+      "alreadyReleased": "這張出門條已經由 {name} 在 {when} 放行（{number}），不用再放行。",
+      "notSentYet": "這張出門條還沒有發出，現在不能放行；請車輛先等候，並聯繫申請人或安全經理先簽出門條。",
+      "refused": "放行沒有提交成功：{reason}"
+    },
+    "waiting": {
+      "title": "待放行 ({count})",
+      "what": "待放行的出門條",
+      "empty": "現在沒有待放行的出門條。車輛沒有出門條的，請先等候，並聯繫申請人或安全經理。",
+      "help": "安全經理已批准的出門條。按一下打開，檢查車輛及貨物，拍照後按【確認放行】。",
+      "plate": "車牌 {plate}",
+      "sentAt": "{when} 發出",
+      "open": "打開"
+    },
+    "window": {
+      "title": "出門條 · {reference}",
+      "titleBare": "出門條",
+      "none": "這筆記錄沒有出門條。",
+      "viewNote": "出門條顯示的是這筆記錄現在的資料。",
+      "openRecord": "打開原記錄",
+      "kind": "類別",
+      "goes": "出場物品",
+      "plate": "車牌",
+      "project": "項目",
+      "applicant": "申請人"
+    },
+    "archive": {
+      "externalPending": "這筆還在等外部審批，現在不能確認歸檔；請先登記簽回的文件或請對方在線簽名，或改為不需要外部審批，再確認歸檔。"
+    },
+    "gateRecord": {
+      "linked": "關聯原申請",
+      "linkedValue": "{reference}（{kind}）",
+      "openOriginal": "打開原記錄",
+      "releasedBy": "放行人員",
+      "releasedAt": "放行時間",
+      "checkPhotos": "核查照片",
+      "photoCount": "{count} 張",
+      "releaseTitle": "門崗放行",
+      "releaseDone": "{name} 在 {when} 拍了 {count} 張核查照片後確認放行。這條門崗事項已完成，只能查看。",
+      "listNote": "出場放行：{reference}（{kind}）"
+    },
+    "toast": {
+      "signedSent": "已簽名批准，出門條已發給申請人和門崗：{reference}",
+      "signedWaitExternal": "已簽名批准，等外部審批：{reference}",
+      "externalDone": "外部審批已完成，出門條已發出：{reference}",
+      "waived": "已改為不需要外部審批，出門條已發出：{reference}",
+      "released": "已確認放行，記入門崗事項：{reference}"
+    },
+    "correctedAfter": "出門條簽名後，這筆記錄在 {when} 由 {by} 改正過；這裡顯示的是改正後的資料。"
   }
 }

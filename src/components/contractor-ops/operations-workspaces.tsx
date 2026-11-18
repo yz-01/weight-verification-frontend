@@ -5016,6 +5016,8 @@ export function OutgoingDetailDialog({
           corrections={<RecordCorrectionHistory kind="MATERIAL_OUTGOING" recordId={row.id} />}
           recorder={<RecordRecorder record={row} />}
           conversation={{ kind: "MATERIAL_OUTGOING", recordId: row.id }}
+          // JB217: 出门条批准（安全经理） · 外部审批 · 门岗放行 - a return only (D1).
+          exitPass={issue ? null : { kind: "MATERIAL_OUTGOING", recordId: row.id }}
           // 【确认归档】 once the return is finished (C4) - and names its
           // supplier (JB169: 「未选择供应商不能确认归档」).
           closure={{
