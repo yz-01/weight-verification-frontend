@@ -38,7 +38,9 @@ const status = (overrides: Partial<PlatformAccessStatus> = {}): PlatformAccessSt
   durations: {},
   can_change: false,
   always_visible: [],
-  hidden_unless_open: [],
+  visible_when_open: [],
+  never_visible: [],
+  mse_added_accounts: [],
   external_links: [],
   ...overrides,
 });
@@ -57,9 +59,9 @@ describe("客户开放情况 — the two doors in words", () => {
     expect(html).toContain(zh.mseAccess.mse.viewClosed);
     expect(html).toContain(zh.mseAccess.mse.accountsClosed);
     expect(rowOf(html, "VIEW_RECORDS")).toContain("请客户开放查看");
-    expect(rowOf(html, "VIEW_RECORDS")).not.toContain("disabled");
+    expect(rowOf(html, "VIEW_RECORDS")).not.toContain('disabled=""');
     expect(rowOf(html, "MANAGE_ACCOUNTS")).toContain("请客户开放账号管理");
-    expect(rowOf(html, "MANAGE_ACCOUNTS")).not.toContain("disabled");
+    expect(rowOf(html, "MANAGE_ACCOUNTS")).not.toContain('disabled=""');
   });
 
   it("open: until when, who opened it and why; asking again is greyed with the reason", () => {
@@ -148,6 +150,7 @@ describe("「客户开放」 in the directory", () => {
   it("is a column of 公司目录 and 回收商资料", () => {
     const source = read("src/components/companies/companies.tsx");
     expect(source).toContain('id: "platform_access"');
-    expect(source.match(/"platform_access",/g)?.length).toBe(2);
+    // Listed in the directory's columns and in 回收商资料's.
+    expect(source.match(/^\s+"platform_access",$/gm)?.length).toBe(2);
   });
 });

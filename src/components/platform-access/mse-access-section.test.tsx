@@ -311,6 +311,8 @@ describe("「MSE 查看记录」 (JB220-3)", () => {
 
   it("a record that did not load says so, with 重试", () => {
     const html = renderDetail(<PlatformAccessRecords audience="customer" />, (client) => {
+      // The failed read stays failed on mount instead of loading again.
+      client.setQueryDefaults(["platform-access", "records"], { retryOnMount: false });
       const query = client.getQueryCache().build(client, { queryKey: ["platform-access", "records", { page: 1, page_size: 20 }] });
       query.setState({ status: "error", error: new Error("boom"), fetchStatus: "idle" });
     });
@@ -368,6 +370,7 @@ describe("the section on 公司设置", () => {
 
   it("a status that did not load says so, never a shut door it did not see", () => {
     const html = renderDetail(<MseAccessSection />, (client) => {
+      client.setQueryDefaults([...OWN_STATUS_KEY], { retryOnMount: false });
       const query = client.getQueryCache().build(client, { queryKey: [...OWN_STATUS_KEY] });
       query.setState({ status: "error", error: new Error("boom"), fetchStatus: "idle" });
       client.setQueryData(["platform-access", "records", { page: 1, page_size: 20 }], page([]));

@@ -35,6 +35,8 @@ const MEDIA_KEY = ["device-media", "weighsession", "s-1"];
 
 const failedMedia = (error: unknown, closedShown = false) =>
   renderDetail(<DeviceMediaList sessionId="s-1" platformCompany="c-rec" closedShown={closedShown} />, (client) => {
+    // The failed read stays failed on mount instead of loading again.
+    client.setQueryDefaults(MEDIA_KEY, { retryOnMount: false });
     client.getQueryCache().build(client, { queryKey: MEDIA_KEY }).setState({ status: "error", error, fetchStatus: "idle" } as never);
   });
 
