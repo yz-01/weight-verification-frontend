@@ -98,7 +98,8 @@ describe("X-MSE-Company (JB220)", () => {
       platform_access_not_available:
         "这是客户自己的业务资料，MSE 后台不能打开；需要帮客户看时，请客户开放「允许 MSE 管理账号」，由 MSE 给客户加一个客户看得到、随时可删的支持账号。",
       platform_accounts_closed: "改这家客户的账号要客户同意，请客户管理员在「公司设置」里点「允许 MSE 管理账号」后再试。",
-      platform_owner_locked: "客户已经开始用这个管理员账号，MSE 不能改它的登录邮箱；请客户来函，由管服务器的同事处理。",
+      platform_owner_locked:
+        "客户已经开始用这个管理员账号，MSE 不能改它的登录邮箱；请告诉客户：由客户自己的公司管理员在「用户管理」里修改，或者客户来函，由管服务器的同事处理。",
       platform_access_admin_only: "只有公司管理员可以开放或关闭 MSE 查看权限，请找贵公司的管理员。",
       platform_access_request_sent: "一小时内已经通知过这家客户，请 {minutes} 分钟后再发。",
     };

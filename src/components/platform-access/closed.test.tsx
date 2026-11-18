@@ -93,7 +93,7 @@ describe("the one line above the table", () => {
   });
 
   it("counts the customer sites left off the map, and says nothing when none were", () => {
-    expect(render(<PlatformHiddenPins count={3} />)).toContain("3 个客户的工地没有显示在地图上");
+    expect(render(<PlatformHiddenPins count={3} />)).toContain("有 3 个工地没有显示，因为客户还没有开放查看。");
     expect(render(<PlatformHiddenPins count={0} />)).toBe("");
   });
 

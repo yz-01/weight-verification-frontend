@@ -22466,6 +22466,7 @@
       "emptyMse": "This customer has no MSE access record yet.",
       "emptyFiltered": "Nothing like this in that period. Try other dates, or choose “All”.",
       "loading": "Loading the record…",
+      "notAllowed": "The MSE access record can be read by the company administrator and colleagues who can read the activity log. To read it, ask your company administrator.",
       "page": "Page {page} of {pages} · {count} in all",
       "previous": "Previous",
       "next": "Next"

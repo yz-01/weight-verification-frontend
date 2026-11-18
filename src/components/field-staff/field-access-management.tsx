@@ -114,7 +114,10 @@ function FieldAccessManagementContent({
   const canonicalPhone = phoneDigits ? `+60${phoneDigits}` : "";
 
   const projects = useQuery({
-    queryKey: ["projects", "field-access-options", platformCompany ?? "own"],
+    // The customer's own list keeps its key; MSE's reads one customer's directory.
+    queryKey: platformCompany
+      ? ["projects", "field-access-options", platformCompany]
+      : ["projects", "field-access-options"],
     queryFn: (): Promise<{ results: Array<{ id: string; code: string; name: string; status: string }> }> =>
       platformCompany
         ? getCompanyProjectArchiveLocks(platformCompany).then((rows) => ({ results: rows }))

@@ -517,7 +517,7 @@ export function AuditLogs({
       {/* JB220 (客户 11-18): a customer's own people's operations are listed
           for MSE only while that customer has opened 「允许 MSE 查看」; MSE's
           own staff, platform rows and sign-ins always are. */}
-      {user?.is_platform_staff && (data as { hidden_customer_rows?: boolean } | undefined)?.hidden_customer_rows && (
+      {user?.is_platform_staff && (data as unknown as { hidden_customer_rows?: boolean } | undefined)?.hidden_customer_rows && (
         <PlatformReasonLine text={t("mseAccess.closed.auditHidden")} />
       )}
 

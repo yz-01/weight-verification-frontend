@@ -30,6 +30,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
 import { PlatformAccessRecords } from "@/components/platform-access/access-records";
+import { useAuth } from "@/components/providers/auth-provider";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { FieldWrapper, LoadFailed, StatusBadge } from "@/components/shared/page-primitives";
 import { SectionTitle } from "@/components/site-access/settings-fields";
@@ -89,6 +90,7 @@ export function hoursFor(status: Pick<PlatformAccessStatus, "durations"> | null 
 
 export function MseAccessSection() {
   const t = useTranslations("mseAccess");
+  const { can } = useAuth();
   const queryClient = useQueryClient();
   const status = useQuery({ queryKey: OWN_STATUS_KEY, queryFn: () => getPlatformAccessStatus() });
   const [opening, setOpening] = useState<PlatformAccessKind | null>(null);
@@ -131,9 +133,14 @@ export function MseAccessSection() {
         />
       )}
 
-      {/* Who looked, and when - also for someone who may not press. */}
+      {/* Who looked, and when: for the 公司管理员 and whoever reads the
+          operation log (contract §1.5); anyone else is told who can. */}
       <div className="surface-panel rounded-xl p-4 sm:p-6">
-        <PlatformAccessRecords audience="customer" />
+        {status.data && (status.data.can_change || can("audit.view")) ? (
+          <PlatformAccessRecords audience="customer" />
+        ) : status.data ? (
+          <p className="text-sm text-muted-foreground" data-access-records-not-allowed>{t("records.notAllowed")}</p>
+        ) : null}
       </div>
 
       {opening && status.data && (
@@ -369,7 +376,11 @@ function AccessCard({
 }) {
   const t = useTranslations("mseAccess");
   const df = useDateFormat();
-  const words = kind === "VIEW_RECORDS" ? "view" : "accounts";
+  // Each key written out, so the message check can see every one.
+  const words =
+    kind === "VIEW_RECORDS"
+      ? { name: t("view.name"), help: t("view.help"), closed: t("view.closed"), open: (until: string) => t("view.open", { until }) }
+      : { name: t("accounts.name"), help: t("accounts.help"), closed: t("accounts.closed"), open: (until: string) => t("accounts.open", { until }) };
   const open = window.open && Boolean(window.until);
   const Icon = kind === "VIEW_RECORDS" ? (open ? LockOpen : Lock) : UserCog;
   const notAdmin = canChange ? undefined : t("adminOnly");
@@ -395,14 +406,14 @@ function AccessCard({
         </span>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <h3 className="font-semibold text-foreground">{t(`${words}.name`)}</h3>
+            <h3 className="font-semibold text-foreground">{words.name}</h3>
             <StatusBadge label={t(open ? "state.open" : "state.closed")} tone={open ? "warning" : "neutral"} />
           </div>
           <p className={cn("mt-1 text-sm leading-6", open ? "font-semibold text-foreground" : "text-foreground")} data-access-sentence>
-            {open ? t(`${words}.open`, { until: df.dateTime(window.until) }) : t(`${words}.closed`)}
+            {open ? words.open(df.dateTime(window.until)) : words.closed}
           </p>
           {opened && <p className="mt-1 break-words text-xs text-muted-foreground">{opened}</p>}
-          <p className="mt-1 text-xs text-muted-foreground">{t(`${words}.help`)}</p>
+          <p className="mt-1 text-xs text-muted-foreground">{words.help}</p>
         </div>
       </div>
       <div className="flex flex-wrap gap-2 sm:justify-end">
@@ -419,7 +430,7 @@ function AccessCard({
         ) : (
           <Button className="w-full sm:w-auto" disabled={!canChange} disabledReason={notAdmin} onClick={() => onOpen(kind)}>
             <LockOpen />
-            {t(`${words}.name`)}
+            {words.name}
           </Button>
         )}
       </div>

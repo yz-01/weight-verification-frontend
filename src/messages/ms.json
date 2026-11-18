@@ -22466,6 +22466,7 @@
       "emptyMse": "Pelanggan ini belum ada rekod akses MSE.",
       "emptyFiltered": "Tiada rekod sebegini dalam tempoh itu. Cuba tarikh lain, atau pilih “Semua”.",
       "loading": "Memuatkan rekod…",
+      "notAllowed": "Rekod akses MSE boleh dibaca oleh pentadbir syarikat dan rakan yang boleh membaca log aktiviti. Untuk membacanya, minta pentadbir syarikat anda.",
       "page": "Halaman {page} daripada {pages} · {count} semuanya",
       "previous": "Sebelum",
       "next": "Seterusnya"

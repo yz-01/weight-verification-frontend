@@ -47,8 +47,13 @@ type Words = ReturnType<typeof useTranslations<"mseAccess">>;
 export function recordWhere(row: PlatformAccessRecord, t: Words): string {
   const kindName = (kind: string) =>
     kind === "MANAGE_ACCOUNTS" ? t("accounts.name") : kind === "VIEW_RECORDS" ? t("view.name") : "";
-  if (row.outcome === "GRANT_OPENED" || row.outcome === "GRANT_CLOSED" || row.outcome === "REQUESTED") {
+  if (row.outcome === "GRANT_OPENED" || row.outcome === "GRANT_CLOSED") {
     return kindName(row.detail) || moduleWords(row.module, t);
+  }
+  // A request carries the reason MSE typed (contract §1.5 (c)), which the
+  // customer reads beside what was asked for.
+  if (row.outcome === "REQUESTED") {
+    return [kindName(row.detail) || moduleWords(row.module, t), row.record_label].filter(Boolean).join(" · ");
   }
   if (row.outcome === "ACCOUNT_CHANGED") {
     const operation = t.has(`operation.${row.detail}`) ? t(`operation.${row.detail}`) : t("operation.other");
