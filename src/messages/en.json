@@ -4022,7 +4022,11 @@
       "exit_pass_external_paper_recorded": "Signed external approval copy registered",
       "exit_pass_sent": "Exit pass sent",
       "exit_pass_released": "Gate confirmed the release",
-      "exit_pass_external_paper_corrected": "Signed external approval copy replaced"
+      "exit_pass_external_paper_corrected": "Signed external approval copy replaced",
+      "permit_form_saved": "E-permit saved",
+      "permit_work_type_added": "Type of work added",
+      "permit_work_type_renamed": "Type of work renamed",
+      "permit_work_type_removed": "Type of work removed"
     },
     "objectType": {
       "SignOffAssistant": "Assistant PIN",
@@ -4838,7 +4842,8 @@
         "ehs": "Rectification / EHS categories",
         "claim": "Progress Claim categories",
         "equipmentName": "Equipment names",
-        "recycle": "Recyclable material outgoing categories"
+        "recycle": "Recyclable material outgoing categories",
+        "permitWorkType": "Permit to work · Types of work"
       },
       "moduleHelp": {
         "material": "Materials and the specifications under them. A new project gets them together.",
@@ -4846,7 +4851,8 @@
         "ehs": "Rectification / EHS categories. The work permit category is the system's.",
         "claim": "Progress Claim categories.",
         "equipmentName": "Equipment names are shared by the whole company: every project picks from this list when registering equipment.",
-        "recycle": "Recyclable material outgoing categories have always been shared by the whole company."
+        "recycle": "Recyclable material outgoing categories have always been shared by the whole company.",
+        "permitWorkType": "The choices under \"Type of work\" when an e-permit is filled in. Add, rename or remove them; renaming or removing never changes an e-permit already filled in. \"Other (write it in)\" is always there."
       },
       "create": "Add category",
       "createTitle": "Add · {module}",
@@ -9518,7 +9524,10 @@
       "exit_pass_release_phone_only": "A release is confirmed by the gate guard on the phone after taking photos; the office system cannot release. Use the gate phone.",
       "exit_pass_external_pending": "This is still waiting for the external approval, so it cannot be confirmed and archived now. Register the signed copy, ask the approver to sign online, or change it to no external approval, then confirm and archive.",
       "role_kind_fixed": "The Company Administrator is always a head-office role, and a phone account's role cannot become one.",
-      "role_self_lockout": "You hold this role yourself, so saving this would switch off your own user management. Keep “View users” and “Edit users” ticked, or ask the Company Administrator to make the change."
+      "role_self_lockout": "You hold this role yourself, so saving this would switch off your own user management. Keep “View users” and “Edit users” ticked, or ask the Company Administrator to make the change.",
+      "permit_form_office_only": "The e-permit is filled in on the office computer. Please sign in on a computer to fill it in.",
+      "permit_work_type_exists": "\"{name}\" is already on the list.",
+      "permit_form_changed": "{name} saved this e-permit after you opened it. Close it, open it again, read the latest and then change it."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -12672,7 +12681,15 @@
       "report_records": "Records taken in",
       "report_photos": "Photos",
       "document_title": "Document name",
-      "rain_remark": "Remarks"
+      "rain_remark": "Remarks",
+      "last_return_reason": "Last reason for return",
+      "permit_work_type": "Type of work",
+      "permit_location": "Work location",
+      "permit_work_content": "Work description",
+      "permit_work_period": "Requested period",
+      "permit_safety_measures": "Risks and safety measures",
+      "permit_conditions": "Conditions of approval",
+      "permit_valid_period": "Approved period"
     },
     "detailTitle": "What I sent",
     "photos": "Photographs",
@@ -13860,10 +13877,10 @@
       "trouble": "Permissions, QR rules, notifications, GPS, security and record keeping are managed by MSE and cannot be changed here; contact MSE to change them."
     },
     "permits": {
-      "what": "Permits to work: upload your company's own permit form (Word, PDF or a photo) and send it to a named safety manager, who signs to approve it or returns it; an approved permit is archived. Every permit can be found again by project, approval status, applicant and date, and its files previewed, printed or downloaded.",
+      "what": "Permits to work: upload your company's own permit form (Word, PDF or a photo) and send it to a named safety manager, who signs to approve it or returns it; an approved permit is archived. Every permit can be found again by project, approval status, applicant and date, and its files previewed, printed or downloaded. The approver can press \"Fill in e-permit\" in the window to turn the application into an e-permit, printed as the first page of the complete evidence PDF.",
       "who": "People with “View hazards / EHS and permits to work” can read and download; with “Report and assign hazards, apply for permits to work” they apply with “New application”. Approving needs “Safety verification (can approve permits to work)” and is done by the safety manager the applicant chose, or a company administrator. Nobody approves their own permit.",
-      "need": "A new application needs the project, the permit files (Word, PDF or photos of the form; several pages, at most 10 at a time) and the approving safety manager; a remark is optional. Approving needs a signature; returning needs the reason.",
-      "then": "The chosen safety manager (and the company administrators) get a to-do notice. Once approved, the original files, the decision, the signature, the approver's position and the time are archived together and can no longer change. A returned permit is corrected by the applicant and resubmitted with new files; the earlier files are kept. The applicant is told either way.",
+      "need": "A new application needs the project, the permit files (Word, PDF or photos of the form; several pages, at most 10 at a time) and the approving safety manager; a remark is optional. Approving needs a signature; returning needs the reason. The e-permit is optional; if it is filled in, the work description, location and requested times are needed. The types of work are set in Category management → Company categories → Permit to work · Types of work.",
+      "then": "The chosen safety manager (and the company administrators) get a to-do notice. Once approved, the original files, the decision, the signature, the approver's position and the time are archived together and can no longer change. A returned permit is corrected by the applicant and resubmitted with new files; the earlier files are kept. The applicant is told either way. Only the permit's approver can fill in the e-permit, on a computer; the applicant can only read it. Once signed it is archived with the permit and can no longer change.",
       "trouble": "If no safety manager can be chosen, nobody on this project can approve permits yet: the approver's account needs “Safety verification” and “View projects” (on by default for a project role), and the person must be on this project's staff list. The “New application” window lists these three steps."
     },
     "billing_customer": {
@@ -20935,7 +20952,8 @@
       "reviewNote": "Approval note / reason for return",
       "signature": "Approver's signature",
       "returnedBy": "Returned by",
-      "approvedBy": "Approved by"
+      "approvedBy": "Approved by",
+      "lastReturnReason": "Last reason for return"
     },
     "status": {
       "RECTIFICATION_SUBMITTED": "Waiting for approval",
@@ -20997,7 +21015,8 @@
       "submitted": "{reference} sent for approval",
       "resubmitted": "{reference} resubmitted",
       "approved": "{reference} approved and archived",
-      "returned": "{reference} returned to the applicant"
+      "returned": "{reference} returned to the applicant",
+      "formSaved": "E-permit {reference} saved. Now write the approval note and sign on the right."
     },
     "openInModule": "Open under Permit to work",
     "openProjectTeam": "Add people to the project team",
@@ -21005,6 +21024,91 @@
       "role": "Permissions: the approver's account needs “Safety verification” and “View projects”. A project role's people have both on by default; if one was switched off, switch it on for them in Edit user or on the project's Project permissions.",
       "user": "Users: the approver needs an office account (added under Users). A new account becomes active once its owner sets a password from the email.",
       "team": "Project team: add them under “Project staff list” on this project (not needed for head-office staff who see every project in the company)."
+    },
+    "eForm": {
+      "fill": "Fill in e-permit",
+      "view": "View e-permit",
+      "title": "Permit to work",
+      "intro": "This application's details, photos and attachments are already filled in. Add the work, location, times, safety measures and conditions and press [Save]; then finish with the approval note, signature and [Sign and approve] on the right.",
+      "viewIntro": "Only the person who approves this permit can fill it in; here you can only read it.",
+      "tile": "E-permit {no} · filled in by {name} · {time}",
+      "permitNo": "Permit no.",
+      "applicationNo": "Related application no.",
+      "project": "Project",
+      "appliedOn": "Date applied",
+      "applicant": "Applicant",
+      "subcontractor": "Subcontractor",
+      "workLead": "Person in charge of the work",
+      "contactPhone": "Contact number",
+      "workType": "Type of work",
+      "workTypeOther": "Other type of work (write it in)",
+      "chooseType": "Choose the type of work",
+      "other": "Other (write it in)",
+      "manageTypes": "Manage types of work",
+      "typesEmpty": "Your company has no types of work yet: choose \"Other (write it in)\" and write it.",
+      "location": "Work location",
+      "workContent": "Work description",
+      "workStart": "Requested start",
+      "workEnd": "Requested end",
+      "photos": "Site photos and attachments",
+      "photoN": "Photo {n}",
+      "noPhotos": "This application has no photos.",
+      "otherFiles": "Other attachments",
+      "none": "None",
+      "measures": "Risks and safety measures",
+      "approvalSection": "Safety manager's approval",
+      "opinion": "Approval note",
+      "returnReason": "Reason for return",
+      "lastReturnReason": "Last reason for return",
+      "opinionWhere": "Written in \"Approval note\" on the right; it is printed here once signed.",
+      "conditions": "Conditions of approval",
+      "result": "Decision",
+      "validFrom": "Approved from",
+      "validUntil": "Approved until",
+      "validHint": "Left empty, the requested times are used.",
+      "manager": "Safety manager",
+      "decidedAt": "Date / time of decision",
+      "signature": "Safety manager's signature",
+      "afterSigning": "Filled in when the permit is signed.",
+      "autoNumber": "Numbered when saved",
+      "endBeforeStart": "The end is before the start. Please correct it.",
+      "save": "Save",
+      "cancel": "Cancel",
+      "close": "Close",
+      "failed": "That did not save. Please try again.",
+      "filledHint": "The e-permit is filled in ({no}). Once signed, it is archived with the approval note, the signature and the time.",
+      "fillHint": "Need an e-permit? Press \"Fill in e-permit\" beside \"Permit documents\" first, save it, then sign to approve.",
+      "photosOnly": "The permit form came as photos: see the photos above.",
+      "what": {
+        "workTypes": "the types of work",
+        "attachments": "the attachments"
+      }
+    },
+    "workTypes": {
+      "title": "Permit to work · Types of work",
+      "help": "The choices under \"Type of work\" when an e-permit is filled in. Add, rename or remove them; renaming or removing never changes an e-permit already filled in. \"Other (write it in)\" is always there.",
+      "add": "Add type of work",
+      "editTitle": "Edit \"{name}\"",
+      "name": "Name",
+      "other": "Other (write it in)",
+      "otherHelp": "Always there and cannot be removed: for anything not on the list, choose it and write it in.",
+      "system": "System",
+      "empty": "No types of work yet. \"Other (write it in)\" is still offered on the e-permit.",
+      "armRemove": "Yes, remove \"{name}\"",
+      "removeHint": "Once removed, new e-permits no longer offer it; e-permits already filled in are not changed.",
+      "remove": "Remove",
+      "armFirst": "Turn on the switch beside it first to confirm.",
+      "edit": "Edit",
+      "save": "Save",
+      "cancel": "Cancel",
+      "failed": "That did not save. Please try again.",
+      "what": "the types of work",
+      "toast": {
+        "added": "Added \"{name}\"",
+        "renamed": "Renamed to \"{name}\"",
+        "removed": "Removed \"{name}\""
+      },
+      "readOnly": "Only people who manage categories can add, rename or remove these; ask your company administrator to change them."
     }
   },
   "gateCard": {

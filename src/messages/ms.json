@@ -4022,7 +4022,11 @@
       "exit_pass_external_paper_recorded": "Salinan kelulusan luar bertandatangan didaftarkan",
       "exit_pass_sent": "Pas keluar dihantar",
       "exit_pass_released": "Pintu mengesahkan pelepasan",
-      "exit_pass_external_paper_corrected": "Salinan kelulusan luar bertandatangan diganti"
+      "exit_pass_external_paper_corrected": "Salinan kelulusan luar bertandatangan diganti",
+      "permit_form_saved": "E-permit disimpan",
+      "permit_work_type_added": "Jenis kerja ditambah",
+      "permit_work_type_renamed": "Jenis kerja ditukar nama",
+      "permit_work_type_removed": "Jenis kerja dibuang"
     },
     "objectType": {
       "SignOffAssistant": "PIN pembantu",
@@ -4838,7 +4842,8 @@
         "ehs": "Kategori pembetulan / EHS",
         "claim": "Kategori Progress Claim",
         "equipmentName": "Nama peralatan",
-        "recycle": "Kategori bahan kitar semula keluar"
+        "recycle": "Kategori bahan kitar semula keluar",
+        "permitWorkType": "Permit kerja · Jenis kerja"
       },
       "moduleHelp": {
         "material": "Bahan dan spesifikasinya. Projek baharu mendapat kedua-duanya.",
@@ -4846,7 +4851,8 @@
         "ehs": "Kategori pembetulan / EHS. Kategori permit kerja milik sistem.",
         "claim": "Kategori Progress Claim.",
         "equipmentName": "Nama peralatan dikongsi seluruh syarikat: setiap projek memilih dari senarai ini semasa mendaftar peralatan.",
-        "recycle": "Kategori bahan kitar semula keluar sentiasa dikongsi seluruh syarikat."
+        "recycle": "Kategori bahan kitar semula keluar sentiasa dikongsi seluruh syarikat.",
+        "permitWorkType": "Pilihan di bawah \"Jenis kerja\" semasa e-permit diisi. Tambah, tukar nama atau buang; menukar nama atau membuang tidak mengubah e-permit yang sudah diisi. \"Lain-lain (tulis)\" sentiasa ada."
       },
       "create": "Tambah kategori",
       "createTitle": "Tambah · {module}",
@@ -9518,7 +9524,10 @@
       "exit_pass_release_phone_only": "Pelepasan disahkan oleh pengawal pintu di telefon selepas mengambil gambar; sistem pejabat tidak boleh melepaskan. Gunakan telefon pengawal pintu.",
       "exit_pass_external_pending": "Ini masih menunggu kelulusan luar, jadi ia tidak boleh disahkan dan diarkibkan sekarang. Daftar salinan bertandatangan, minta pelulus menandatangani dalam talian, atau tukar kepada tidak perlu kelulusan luar, kemudian sahkan dan arkibkan.",
       "role_kind_fixed": "Pentadbir Syarikat sentiasa peranan ibu pejabat, dan peranan akaun telefon tidak boleh menjadi peranan ibu pejabat.",
-      "role_self_lockout": "Anda sendiri memegang peranan ini, jadi menyimpan ini akan mematikan pengurusan pengguna anda sendiri. Kekalkan tanda “Lihat pengguna” dan “Edit pengguna”, atau minta Pentadbir Syarikat membuat perubahan."
+      "role_self_lockout": "Anda sendiri memegang peranan ini, jadi menyimpan ini akan mematikan pengurusan pengguna anda sendiri. Kekalkan tanda “Lihat pengguna” dan “Edit pengguna”, atau minta Pentadbir Syarikat membuat perubahan.",
+      "permit_form_office_only": "E-permit diisi di komputer pejabat. Sila log masuk di komputer untuk mengisinya.",
+      "permit_work_type_exists": "\"{name}\" sudah ada dalam senarai.",
+      "permit_form_changed": "{name} menyimpan e-permit ini selepas anda membukanya. Tutup, buka semula, baca yang terkini dan kemudian ubah."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -12672,7 +12681,15 @@
       "report_records": "Rekod yang dimasukkan",
       "report_photos": "Foto",
       "document_title": "Nama dokumen",
-      "rain_remark": "Catatan"
+      "rain_remark": "Catatan",
+      "last_return_reason": "Sebab dipulangkan sebelum ini",
+      "permit_work_type": "Jenis kerja",
+      "permit_location": "Lokasi kerja",
+      "permit_work_content": "Butiran kerja",
+      "permit_work_period": "Tempoh dipohon",
+      "permit_safety_measures": "Risiko dan langkah keselamatan",
+      "permit_conditions": "Syarat kelulusan",
+      "permit_valid_period": "Tempoh diluluskan"
     },
     "detailTitle": "Apa yang saya hantar",
     "photos": "Gambar",
@@ -13860,10 +13877,10 @@
       "trouble": "Kebenaran, peraturan QR, pemberitahuan, GPS, keselamatan dan penyimpanan rekod diurus oleh MSE dan tidak boleh diubah di sini; hubungi MSE untuk mengubahnya."
     },
     "permits": {
-      "what": "Permit kerja: muat naik borang permit syarikat anda sendiri (Word, PDF atau foto) dan hantar kepada pengurus keselamatan yang dinamakan, yang menandatangan untuk meluluskannya atau memulangkannya; permit yang diluluskan diarkibkan. Setiap permit boleh dicari semula mengikut projek, status kelulusan, pemohon dan tarikh, dan failnya boleh dipratonton, dicetak atau dimuat turun.",
+      "what": "Permit kerja: muat naik borang permit syarikat anda sendiri (Word, PDF atau foto) dan hantar kepada pengurus keselamatan yang dinamakan, yang menandatangan untuk meluluskannya atau memulangkannya; permit yang diluluskan diarkibkan. Setiap permit boleh dicari semula mengikut projek, status kelulusan, pemohon dan tarikh, dan failnya boleh dipratonton, dicetak atau dimuat turun. Pelulus boleh menekan \"Isi e-permit\" dalam tetingkap untuk menjadikan permohonan ini e-permit, dicetak sebagai halaman pertama PDF bukti lengkap.",
       "who": "Orang yang ada “Lihat bahaya / EHS dan permit kerja” boleh melihat dan memuat turun; dengan “Lapor dan tugaskan bahaya, mohon permit kerja” mereka memohon dengan “Permohonan baharu”. Meluluskan memerlukan “Pengesahan keselamatan (boleh lulus permit kerja)” dan dibuat oleh pengurus keselamatan yang dipilih pemohon, atau pentadbir syarikat. Tiada sesiapa meluluskan permit sendiri.",
-      "need": "Permohonan baharu memerlukan projek, fail permit (Word, PDF atau foto borang; beberapa halaman, paling banyak 10 sekali gus) dan pengurus keselamatan pelulus; catatan adalah pilihan. Meluluskan memerlukan tandatangan; memulangkan memerlukan sebabnya.",
-      "then": "Pengurus keselamatan yang dipilih (dan pentadbir syarikat) menerima notis tugasan. Selepas diluluskan, fail asal, keputusan, tandatangan, jawatan pelulus dan masa diarkibkan bersama dan tidak boleh diubah lagi. Permit yang dipulangkan dibetulkan oleh pemohon dan dihantar semula dengan fail baharu; fail terdahulu disimpan. Pemohon dimaklumkan dalam kedua-dua keadaan.",
+      "need": "Permohonan baharu memerlukan projek, fail permit (Word, PDF atau foto borang; beberapa halaman, paling banyak 10 sekali gus) dan pengurus keselamatan pelulus; catatan adalah pilihan. Meluluskan memerlukan tandatangan; memulangkan memerlukan sebabnya. E-permit adalah pilihan; jika diisi, butiran kerja, lokasi dan masa dipohon diperlukan. Jenis kerja ditetapkan dalam Pengurusan kategori → Kategori syarikat → Permit kerja · Jenis kerja.",
+      "then": "Pengurus keselamatan yang dipilih (dan pentadbir syarikat) menerima notis tugasan. Selepas diluluskan, fail asal, keputusan, tandatangan, jawatan pelulus dan masa diarkibkan bersama dan tidak boleh diubah lagi. Permit yang dipulangkan dibetulkan oleh pemohon dan dihantar semula dengan fail baharu; fail terdahulu disimpan. Pemohon dimaklumkan dalam kedua-dua keadaan. Hanya pelulus permit boleh mengisi e-permit, di komputer; pemohon hanya boleh membacanya. Selepas ditandatangani ia diarkibkan bersama permit dan tidak boleh diubah lagi.",
       "trouble": "Jika tiada pengurus keselamatan boleh dipilih, belum ada sesiapa dalam projek ini yang boleh meluluskan permit: akaun pelulus memerlukan “Pengesahan keselamatan” dan “Lihat projek” (hidup secara lalai bagi peranan projek), dan orang itu mesti ada dalam senarai kakitangan projek ini. Tetingkap “Permohonan baharu” menyenaraikan tiga langkah ini."
     },
     "billing_customer": {
@@ -20935,7 +20952,8 @@
       "reviewNote": "Catatan kelulusan / sebab dipulangkan",
       "signature": "Tandatangan pelulus",
       "returnedBy": "Dipulangkan oleh",
-      "approvedBy": "Diluluskan oleh"
+      "approvedBy": "Diluluskan oleh",
+      "lastReturnReason": "Sebab dipulangkan sebelum ini"
     },
     "status": {
       "RECTIFICATION_SUBMITTED": "Menunggu kelulusan",
@@ -20997,7 +21015,8 @@
       "submitted": "{reference} dihantar untuk kelulusan",
       "resubmitted": "{reference} dihantar semula",
       "approved": "{reference} diluluskan dan diarkibkan",
-      "returned": "{reference} dipulangkan kepada pemohon"
+      "returned": "{reference} dipulangkan kepada pemohon",
+      "formSaved": "E-permit {reference} disimpan. Sekarang tulis catatan kelulusan dan tandatangan di sebelah kanan."
     },
     "openInModule": "Buka di bawah Permit kerja",
     "openProjectTeam": "Tambah orang ke pasukan projek",
@@ -21005,6 +21024,91 @@
       "role": "Kebenaran: akaun pelulus memerlukan “Pengesahan keselamatan” dan “Lihat projek”. Orang dalam peranan projek mempunyai kedua-duanya secara lalai; jika satu dimatikan, hidupkannya untuk mereka dalam Edit pengguna atau Kebenaran projek di projek itu.",
       "user": "Pengguna: pelulus memerlukan akaun pejabat (ditambah di bawah Pengguna). Akaun baharu aktif selepas pemiliknya menetapkan kata laluan daripada e-mel.",
       "team": "Pasukan projek: tambah mereka di bawah “Senarai kakitangan projek” pada projek ini (tidak perlu bagi kakitangan ibu pejabat yang melihat setiap projek dalam syarikat)."
+    },
+    "eForm": {
+      "fill": "Isi e-permit",
+      "view": "Lihat e-permit",
+      "title": "Permit kerja (Permit to work)",
+      "intro": "Butiran, foto dan lampiran permohonan ini sudah diisi. Tambah kerja, lokasi, masa, langkah keselamatan dan syarat, kemudian tekan [Simpan]; selepas itu selesaikan dengan catatan kelulusan, tandatangan dan [Tandatangan dan luluskan] di sebelah kanan.",
+      "viewIntro": "Hanya orang yang meluluskan permit ini boleh mengisinya; di sini anda hanya boleh membacanya.",
+      "tile": "E-permit {no} · diisi oleh {name} · {time}",
+      "permitNo": "No. permit",
+      "applicationNo": "No. permohonan berkaitan",
+      "project": "Projek",
+      "appliedOn": "Tarikh mohon",
+      "applicant": "Pemohon",
+      "subcontractor": "Subkontraktor",
+      "workLead": "Penyelia kerja",
+      "contactPhone": "No. telefon",
+      "workType": "Jenis kerja",
+      "workTypeOther": "Jenis kerja lain (tulis)",
+      "chooseType": "Pilih jenis kerja",
+      "other": "Lain-lain (tulis)",
+      "manageTypes": "Urus jenis kerja",
+      "typesEmpty": "Syarikat anda belum ada jenis kerja: pilih \"Lain-lain (tulis)\" dan tulis sendiri.",
+      "location": "Lokasi kerja",
+      "workContent": "Butiran kerja",
+      "workStart": "Mula dipohon",
+      "workEnd": "Tamat dipohon",
+      "photos": "Foto tapak dan lampiran",
+      "photoN": "Foto {n}",
+      "noPhotos": "Permohonan ini tiada foto.",
+      "otherFiles": "Lampiran lain",
+      "none": "Tiada",
+      "measures": "Risiko dan langkah keselamatan",
+      "approvalSection": "Kelulusan pengurus keselamatan",
+      "opinion": "Catatan kelulusan",
+      "returnReason": "Sebab dipulangkan",
+      "lastReturnReason": "Sebab dipulangkan sebelum ini",
+      "opinionWhere": "Ditulis dalam \"Catatan kelulusan\" di sebelah kanan; dicetak di sini selepas ditandatangani.",
+      "conditions": "Syarat kelulusan",
+      "result": "Keputusan",
+      "validFrom": "Diluluskan dari",
+      "validUntil": "Diluluskan hingga",
+      "validHint": "Jika dibiarkan kosong, masa yang dipohon digunakan.",
+      "manager": "Pengurus keselamatan",
+      "decidedAt": "Tarikh / masa keputusan",
+      "signature": "Tandatangan pengurus keselamatan",
+      "afterSigning": "Diisi apabila permit ditandatangani.",
+      "autoNumber": "Dinomborkan apabila disimpan",
+      "endBeforeStart": "Masa tamat lebih awal daripada masa mula. Sila betulkan.",
+      "save": "Simpan",
+      "cancel": "Batal",
+      "close": "Tutup",
+      "failed": "Tidak berjaya disimpan. Sila cuba lagi.",
+      "filledHint": "E-permit sudah diisi ({no}). Selepas ditandatangani, ia diarkibkan bersama catatan kelulusan, tandatangan dan masa.",
+      "fillHint": "Perlukan e-permit? Tekan \"Isi e-permit\" di sebelah \"Dokumen permit\" dahulu, simpan, kemudian tandatangan untuk meluluskan.",
+      "photosOnly": "Borang permit dihantar sebagai foto: lihat foto di atas.",
+      "what": {
+        "workTypes": "senarai jenis kerja",
+        "attachments": "senarai lampiran"
+      }
+    },
+    "workTypes": {
+      "title": "Permit kerja · Jenis kerja",
+      "help": "Pilihan di bawah \"Jenis kerja\" semasa e-permit diisi. Tambah, tukar nama atau buang; menukar nama atau membuang tidak mengubah e-permit yang sudah diisi. \"Lain-lain (tulis)\" sentiasa ada.",
+      "add": "Tambah jenis kerja",
+      "editTitle": "Sunting \"{name}\"",
+      "name": "Nama",
+      "other": "Lain-lain (tulis)",
+      "otherHelp": "Sentiasa ada dan tidak boleh dibuang: untuk apa-apa yang tiada dalam senarai, pilih dan tulis sendiri.",
+      "system": "Sistem",
+      "empty": "Belum ada jenis kerja. \"Lain-lain (tulis)\" masih ditawarkan pada e-permit.",
+      "armRemove": "Ya, buang \"{name}\"",
+      "removeHint": "Selepas dibuang, e-permit baharu tidak lagi menawarkannya; e-permit yang sudah diisi tidak berubah.",
+      "remove": "Buang",
+      "armFirst": "Hidupkan suis di sebelahnya dahulu untuk mengesahkan.",
+      "edit": "Sunting",
+      "save": "Simpan",
+      "cancel": "Batal",
+      "failed": "Tidak berjaya disimpan. Sila cuba lagi.",
+      "what": "senarai jenis kerja",
+      "toast": {
+        "added": "\"{name}\" ditambah",
+        "renamed": "Ditukar nama kepada \"{name}\"",
+        "removed": "\"{name}\" dibuang"
+      },
+      "readOnly": "Hanya orang yang mengurus kategori boleh menambah, menukar nama atau membuang; minta pentadbir syarikat anda untuk mengubahnya."
     }
   },
   "gateCard": {

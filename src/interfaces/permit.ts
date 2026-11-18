@@ -75,6 +75,52 @@ export interface Permit extends RecordedBy {
   is_closed: boolean;
   /** Waits for this reader's decision (the list's 「待处理」). */
   needs_action?: boolean;
+  /** The 电子准证 (JB216), or null until somebody saved one. */
+  work_form?: PermitWorkForm | null;
+  /** Whether this reader may fill it now: who may 签名批准 it, in the office. */
+  can_fill_work_form?: boolean;
+}
+
+/**
+ * The 电子准证 (JB216, 客户 11-18 事项 1, 图 2): only what the application does
+ * not hold. The project, applicant, date, photos, files, 审批意见, signature
+ * and time are read from the permit itself.
+ */
+export interface PermitWorkForm {
+  /** 准证编号, `PTW-<project>-NNN`, given on the first save. */
+  permit_no: string;
+  subcontractor: string;
+  work_lead: string;
+  contact_phone: string;
+  /** 施工类别: the words chosen, kept as they were saved. */
+  work_type: string;
+  location: string;
+  work_content: string;
+  work_start: string | null;
+  work_end: string | null;
+  safety_measures: string;
+  approval_conditions: string;
+  valid_from: string | null;
+  valid_until: string | null;
+  filled_by_name: string | null;
+  filled_at: string | null;
+}
+
+export type PermitWorkFormInput = Omit<PermitWorkForm, "permit_no" | "filled_by_name" | "filled_at"> & {
+  /**
+   * When the e-permit this screen opened was last saved (null: none yet).
+   * Somebody else saving in between is told, never silently overwritten.
+   */
+  seen_saved_at?: string | null;
+};
+
+/** One of the company's 施工类别 (分类管理 → 施工准证 · 施工类别). */
+export interface PermitWorkType {
+  id: string;
+  /** In the reader's language while it is still a starting type nobody renamed. */
+  name: string;
+  is_preset_name: boolean;
+  sort_order: number;
 }
 
 export interface PermitPerson {
