@@ -5423,7 +5423,9 @@
         "confirmOffTitle": "Unlock “{project}”?",
         "confirmOffBody": "Once off, this project’s archived records can be changed in the office with the 6-digit PIN, and every change is logged.",
         "confirmOff": "Unlock"
-      }
+      },
+      "noRole": "Not set (everyone who may approve)",
+      "roleMissing": "{name} (this company has no such role)"
     },
     "trialDaysHint": "This plan gives {days} free days by default. No bill during the trial; billing starts only when you press Extend or renew in Subscriptions. Enter 0 for no trial.",
     "trialNote": "No bill during the trial. Billing starts only when you press Extend or renew in Subscriptions.",
@@ -9490,7 +9492,9 @@
       "consultant_read_only": "A consultant account can only view this, not change it.",
       "consultant_module_not_granted": "Head office has not opened this module to you on this project. Ask head office if you need it.",
       "consultant_no_permit": "A work permit is applied for by the contractor, not a consultant. You can raise a rectification instead.",
-      "consultant_export_not_granted": "Head office has not given you Export on this project, so you cannot export or send. You can preview and print."
+      "consultant_export_not_granted": "Head office has not given you Export on this project, so you cannot export or send. You can preview and print.",
+      "role_kind_fixed": "The Company Administrator is always a head-office role, and a phone account's role cannot become one.",
+      "role_self_lockout": "You hold this role yourself, so saving this would switch off your own user management. Keep “View users” and “Edit users” ticked, or ask the Company Administrator to make the change."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -13656,8 +13660,8 @@
     "roles": {
       "what": "What each role in your company is allowed to see and do.",
       "who": "Holders of role.view; editing needs role.update.",
-      "need": "A role needs a code, a name and at least one permission.",
-      "then": "Permission changes take effect the next time that person loads a page. They may need to refresh.",
+      "need": "A new role needs a name and a type: a head-office role, where you tick group A and group B, or a project role, where you tick group B and project permissions are all on by default. The role code is numbered by the system.",
+      "then": "When you save, this role's people change with it; it takes effect the next time they load a page. They may need to refresh.",
       "trouble": "Someone sees an empty sidebar: their role has no module permissions at all."
     },
     "safety": {
@@ -13836,7 +13840,7 @@
       "who": "People with “View hazards / EHS and permits to work” can read and download; with “Report and assign hazards, apply for permits to work” they apply with “New application”. Approving needs “Safety verification (can approve permits to work)” and is done by the safety manager the applicant chose, or a company administrator. Nobody approves their own permit.",
       "need": "A new application needs the project, the permit files (Word, PDF or photos of the form; several pages, at most 10 at a time) and the approving safety manager; a remark is optional. Approving needs a signature; returning needs the reason.",
       "then": "The chosen safety manager (and the company administrators) get a to-do notice. Once approved, the original files, the decision, the signature, the approver's position and the time are archived together and can no longer change. A returned permit is corrected by the applicant and resubmitted with new files; the earlier files are kept. The applicant is told either way.",
-      "trouble": "If no safety manager can be chosen, nobody on this project can approve permits yet: the approver's role needs “Safety verification” and “View projects”, and the person must be on this project's staff list. The “New application” window lists these three steps."
+      "trouble": "If no safety manager can be chosen, nobody on this project can approve permits yet: the approver's account needs “Safety verification” and “View projects” (on by default for a project role), and the person must be on this project's staff list. The “New application” window lists these three steps."
     },
     "billing_customer": {
       "what": "The bills MSE sends your company: the SaaS subscription and, on the partnership plan, the platform commission. Each shows its period, the amount, what has been paid and what is still owed.",
@@ -15680,7 +15684,8 @@
       "description": "Description",
       "name": "Role name",
       "permissions": "Permissions",
-      "userCount": "People"
+      "userCount": "People",
+      "kind": "Type"
     },
     "new": "New role",
     "permissionCount": "{count, plural, =0 {No permissions} one {# permission} other {# permissions}}",
@@ -15769,14 +15774,35 @@
       "label": "Permission pages",
       "hq": "Head office",
       "project": "Project",
-      "hqHelp": "Group A is head office's only; head office decides which project users get group B.",
-      "hqHelpProjectRole": "This is a project role: group A is head office's only and cannot be ticked; group B is off by default, and ticked here the role's people get it. Head office can also switch it on for one person in Edit user.",
+      "hqHelp": "This is a head-office role: you tick group A and group B. Ticked, this role's people have it; unticked, they do not.",
+      "hqHelpProjectRole": "This is a project role: group A is head office's only and cannot be ticked; you tick group B, and ticked, this role's people have it. Head office can also switch it on for one person in Edit user.",
       "projectHelp": "What people do inside projects.",
       "sectionA": "Group A · head office only (never project users)",
       "sectionB": "Group B · head office may give to project users",
       "projectDefaultOn": "Project permissions: all on by default for this role's people, nothing to tick. Later one can be switched off for a person in Edit user or on the project's Project permissions.",
-      "defaultOn": "On by default"
-    }
+      "defaultOn": "On by default",
+      "projectDefaultOnHeadOffice": "Project permissions: all on by default for this role's people, nothing to tick. Later one can be switched off for a person in Edit user."
+    },
+    "kind": {
+      "label": "Role type",
+      "headOffice": "Head-office role",
+      "headOfficeHelp": "Works at head office and runs the whole company. You tick group A and group B.",
+      "project": "Project role",
+      "projectHelp": "Works only on the projects it is given. Group A cannot be given; you tick group B; project permissions are all on by default.",
+      "phone": "Phone account",
+      "required": "Choose “Head-office role” or “Project role” first.",
+      "chooseFirst": "Choose the role type above first: head-office role or project role. The permissions to tick are listed here once it is chosen.",
+      "changeHolders": "{count, plural, one {This role has # person now.} other {This role has # people now.}} After the type changes, their head-office permissions are set again from this role; project permissions switched off for one of them stay off.",
+      "adminFixed": "Head-office role. The Company Administrator is always a head-office role; this cannot be changed."
+    },
+    "followers": "{count, plural, one {This role has # person now.} other {This role has # people now.}} When you save, the ticks you changed this time reach them; anything opened or switched off for one of them separately stays as it is.",
+    "adminLocked": "The Company Administrator has every permission; this cannot be changed.",
+    "phoneRole": "This is a phone account's role (site staff, equipment operator, gate guard). It is made and managed in Field staff; here its permissions can only be viewed.",
+    "phoneRoleLink": "Open Field staff",
+    "hqCount": "{count, plural, =0 {No head-office permissions ticked} one {# head-office permission} other {# head-office permissions}}",
+    "allPermissions": "Every permission",
+    "phoneHere": "Phone accounts (site staff, equipment operator, gate guard) are made in Field staff, not here.",
+    "onlyAdmin": "The Company Administrator already has every permission. For any other job, press “New role” at the top right, give it your own name, choose head-office role or project role, and tick its permissions."
   },
   "safety": {
     "officeCreate": {
@@ -18485,7 +18511,10 @@
       "role": "Role",
       "roleHint": "Without a role, this account sees nothing after signing in.",
       "status": "Status",
-      "timezone": "Time zone"
+      "timezone": "Time zone",
+      "roleRequired": "Choose a role.",
+      "noOwnRoles": "The company has not made any roles of its own yet. To give this person less than the Company Administrator, first go to Users › Roles and permissions and press “New role”.",
+      "noOwnRolesLink": "Go to Roles and permissions"
     },
     "filter": {
       "allAudiences": "All user categories",
@@ -20948,9 +20977,9 @@
     "openInModule": "Open under Permit to work",
     "openProjectTeam": "Add people to the project team",
     "noApproverSteps": {
-      "role": "Roles: give the approver's role “Safety verification” and “View projects” (the preset “Safety Manager” has both).",
-      "user": "Users: set the approver's account to that role. A new account becomes active once its owner sets a password from the email.",
-      "team": "Project team: add them under “Project staff list” on this project (not needed if the role has “See every project in the company”)."
+      "role": "Permissions: the approver's account needs “Safety verification” and “View projects”. A project role's people have both on by default; if one was switched off, switch it on for them in Edit user or on the project's Project permissions.",
+      "user": "Users: the approver needs an office account (added under Users). A new account becomes active once its owner sets a password from the email.",
+      "team": "Project team: add them under “Project staff list” on this project (not needed for head-office staff who see every project in the company)."
     }
   },
   "gateCard": {
@@ -21423,7 +21452,7 @@
   "materialTargets": {
     "title": "Material targets",
     "count": "{count, plural, =0 {No targets} one {# target} other {# targets}}",
-    "basis": "Net received = deliveries (rejected loads left out) less the returns confirmed complete, per material, specification and unit; other units are not converted. Near, at and over a target, the project's project manager, QS and whoever set it are told.",
+    "basis": "Net received = deliveries (rejected loads left out) less the returns confirmed complete, per material, specification and unit; other units are not converted. Near, at and over a target, the people on the project who may set material targets, and whoever set it, are told.",
     "loading": "Loading…",
     "empty": "This project has no material targets yet.",
     "emptyAll": "No material targets yet. Choose a project above, then add one.",
@@ -21471,7 +21500,7 @@
     "quantityRule": "Above 0, up to three decimal places",
     "alertsHint": "e.g. 80, 100: at 80% 「near」, at 100% 「reached」; above 100% 「over」 is always said.",
     "alertsInvalid": "Use whole numbers from 1 to 100, separated by commas.",
-    "recipients": "Who is told: the project's project manager and QS (whoever may set material targets) and whoever set this one, with a sound.",
+    "recipients": "Who is told: the people on the project who may set material targets (not the Company Administrator) and whoever set this one, with a sound.",
     "cancel": "Cancel",
     "save": "Save",
     "toast": {

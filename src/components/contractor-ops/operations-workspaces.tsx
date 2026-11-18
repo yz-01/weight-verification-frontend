@@ -91,6 +91,7 @@ import { returnNeedsSupplier } from "@/lib/return-supplier";
 import { useDateFormat } from "@/lib/dates";
 import { isSignOffCancelled } from "@/lib/sign-off";
 import { parseRecordNo } from "@/lib/record-no";
+import { roleName } from "@/lib/role-labels";
 import { cn } from "@/lib/utils";
 import { NEW_PHASE_OPTION, NewPhaseDialog } from "@/components/progress/new-phase-dialog";
 import {
@@ -758,7 +759,8 @@ export function CategoryDialog({
                           toggle("allowed_roles", role.id, checked === true)
                         }
                       />
-                      <span className="text-sm font-medium">{role.name}</span>
+                      {/* In the reader's language, as everywhere else (JB219 sibling). */}
+                      <span className="text-sm font-medium">{roleName(role, tRoot)}</span>
                     </label>
                   ))}
                   {!roles.isLoading && !roles.isError && !roles.data?.results.length && (
