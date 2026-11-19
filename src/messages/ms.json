@@ -13290,6 +13290,7 @@
     },
     "synced": "{count} rekod yang disimpan telah dimuat naik",
     "filesFollow": "Dihantar ke pejabat. {count} fail masih dimuat naik di latar belakang.",
+    "filesFollowOffice": "Item pembetulan telah dicipta. {count} fail sedang dimuat naik.",
     "alreadyQueued": "Tindakan ini sudah menunggu untuk disegerakkan. Ia tidak akan dihantar dua kali.",
     "state": {
       "waiting": "Menunggu segerak",
@@ -15848,12 +15849,16 @@
   "safety": {
     "officeCreate": {
       "title": "Cipta item pembetulan",
-      "description": "Pilih kategori pembetulan, nyatakan apa yang perlu dibetulkan, lampirkan foto, dan namakan orang yang bertanggungjawab jika ada.",
+      "description": "Pilih kategori pembetulan dan nyatakan apa yang perlu dibetulkan; lampirkan foto atau fail pembetulan jika ada (pilihan), dan namakan orang yang bertanggungjawab jika ada.",
       "confirm": "Cipta item pembetulan",
-      "photoPlace": "1. Lokasi yang perlu dibetulkan",
-      "photoDetail": "2. Butiran masalah",
-      "photoScope": "3. Peralatan atau kawasan terlibat",
-      "photoOther": "4. Lain-lain"
+      "files": "Foto dan fail pembetulan",
+      "filesHint": "Foto, PDF, Word atau Excel dalam komputer ini: tekan [Pilih foto atau fail]. Foto WhatsApp atau tangkapan skrin: salin dahulu, kemudian tekan [Tampal tangkapan skrin] atau Ctrl+V. Item boleh dicipta tanpa foto.",
+      "chooseFiles": "Pilih foto atau fail",
+      "webcam": "Ambil foto dengan kamera komputer",
+      "limits": "Sehingga {photos} foto dan {documents} fail, setiap satu tidak melebihi {limit} MB.",
+      "attached": "Dilampirkan: {photos} foto, {documents} fail.",
+      "tooManyPhotos": "{name} tidak ditambah: paling banyak {limit} foto.",
+      "tooManyDocuments": "{name} tidak ditambah: paling banyak {limit} fail."
     },
     "action": {
       "updateStatus": "Kemas kini status"
@@ -15887,7 +15892,6 @@
       "detail": "2. Butiran bahaya atau kerosakan",
       "overview": "1. Gambaran kawasan insiden",
       "progress": "{current} foto telah diambil. Semua {required} foto wajib pertama mesti lengkap; foto tambahan boleh ditambah.",
-      "progressOffice": "{current} dilampirkan. Satu sudah cukup; tambah yang lain di atas jika ada, atau lebih.",
       "risk": "3. Peralatan, orang atau laluan terjejas",
       "surroundings": "4. Keadaan sekeliling tapak"
     },
@@ -20284,7 +20288,13 @@
     "phoneTooBig": "{name}: fail terlalu besar. Sila muat naik dari komputer pejabat. Di telefon, setiap fail paling banyak 20 MB, dan 50 MB semuanya.",
     "tooMany": "Hantar paling banyak {limit} fail pada satu masa.",
     "notAFile": "Yang anda tampal bukan fail atau gambar. Salin gambar itu sendiri dan cuba lagi.",
-    "photoUseCamera": "{name}: di telefon, ambil foto dengan butang Ambil foto di atas, bukan dari galeri."
+    "photoUseCamera": "{name}: di telefon, ambil foto dengan butang Ambil foto di atas, bukan dari galeri.",
+    "pasteScreenshot": "Tampal tangkapan skrin",
+    "pastedPictures": "{count} gambar ditampal; ada dalam senarai di bawah.",
+    "pastedFiles": "{count} fail ditampal; ada dalam senarai di bawah.",
+    "clipboardEmpty": "Tiada gambar dalam papan keratan. Dalam WhatsApp, klik kanan gambar, pilih \"Salin imej\", kemudian tekan [Tampal tangkapan skrin].",
+    "clipboardRefused": "Pelayar ini tidak membenarkan halaman membaca papan keratan. Klik tetingkap ini, kemudian tekan Ctrl+V pada papan kekunci.",
+    "screenshotName": "Tangkapan skrin"
   },
   "supplierDateFilter": {
     "allSuppliers": "Semua pembekal",

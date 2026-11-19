@@ -179,11 +179,18 @@ async function queueHazardFiles(jobs: readonly HazardFileJob[]): Promise<void> {
   await requestBackgroundSync();
 }
 
-/** Queue a report's files after it, and say they are still on their way. */
-async function followWithFiles(jobs: readonly HazardFileJob[]): Promise<void> {
+/**
+ * Queue a report's files after it, and say they are still on their way: the
+ * phone's 「已送到办公室」, or - from the office form, whose sender is the
+ * office (JB223) - 「整改事项已建立」.
+ */
+async function followWithFiles(
+  jobs: readonly HazardFileJob[],
+  message: "offline.filesFollow" | "offline.filesFollowOffice" = "offline.filesFollow",
+): Promise<void> {
   if (jobs.length === 0) return;
   await queueHazardFiles(jobs);
-  toastOutcome("offline.filesFollow", { count: jobs.length });
+  toastOutcome(message, { count: jobs.length });
 }
 
 export type SafetyIncidentSubmission =
@@ -1386,6 +1393,8 @@ export async function submitSafetyIncidentOfflineAware(
   draft: SafetyIncidentPayload & { client_event_id: string },
   /** An office item's sign-off PIN, checked before the upload (I29). */
   signOffPin?: string,
+  /** Raised on the office form (JB223): the files-still-going-up line is the office's. */
+  { fromOffice = false }: { fromOffice?: boolean } = {},
 ): Promise<SafetyIncidentSubmission> {
   const job: Extract<OfflineJob, { kind: "SAFETY_INCIDENT" }> = {
     id: newId("safety-incident-job"),
@@ -1426,6 +1435,7 @@ export async function submitSafetyIncidentOfflineAware(
           job.payload.attachments ?? [],
           job.queuedAt,
         ),
+        fromOffice ? "offline.filesFollowOffice" : "offline.filesFollow",
       );
       return { status: "uploaded", incident };
     } catch (error) {

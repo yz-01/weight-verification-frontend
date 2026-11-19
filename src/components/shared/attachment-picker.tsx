@@ -20,11 +20,16 @@
  * gallery; the phone's file chooser offers documents only (`phoneFileAccept`),
  * and a picture that still arrives through it is turned away with a word to
  * use the camera.
+ *
+ * `pasteAnywhere` (JB223, 客户 11-19 事项 3: 「支持粘贴 WhatsApp 照片及截图」) is
+ * for a form somebody fills at a desk: a 【粘贴截图】 button, Ctrl+V of a
+ * picture anywhere on the page (words pasted into a text box stay words), and
+ * a line saying what was pasted - or why nothing was. Off by default.
  */
 
-import { FileText, FileUp, ImageIcon, X } from "lucide-react";
+import { ClipboardPaste, FileText, FileUp, ImageIcon, X } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
 
 import { FieldCamera } from "@/components/shared/field-camera";
 import { Button } from "@/components/ui/button";
@@ -38,8 +43,20 @@ import {
   type AttachmentRule,
   type Refusal,
 } from "@/lib/attachment-picker";
+import {
+  canReadClipboardPictures,
+  nameScreenshots,
+  pastedForTheBox,
+  pastedLineKey,
+  readClipboardPictures,
+} from "@/lib/clipboard-pictures";
 import { cn } from "@/lib/utils";
 import { carriesFiles } from "@/lib/voucher-sources";
+
+/** What the last paste did, said under the box (JB223). */
+type PasteLine =
+  | { key: "pastedPictures" | "pastedFiles"; count: number }
+  | { key: "clipboardEmpty" | "clipboardRefused" };
 
 function size(bytes: number) {
   if (bytes < 1024) return `${bytes} B`;
@@ -82,12 +99,33 @@ export function AttachmentPicker({
   refusalText,
   disabled = false,
   className,
+  pasteAnywhere = false,
+  hint,
+  chooseLabel,
+  cameraLabel,
+  fit,
 }: {
   files: File[];
   onChange: (files: File[]) => void;
   rule: AttachmentRule;
   /** Off for an archive of documents, which needs no photograph. */
   camera?: boolean;
+  /**
+   * JB223: 【粘贴截图】, Ctrl+V anywhere on the page, and the line saying what
+   * was pasted. The buttons then read 选择 → 粘贴 → 摄像头, the camera last.
+   */
+  pasteAnywhere?: boolean;
+  /** A page's own one-line hint in place of the standard one. */
+  hint?: string;
+  /** A page's own words on the file chooser and the camera button. */
+  chooseLabel?: string;
+  cameraLabel?: string;
+  /**
+   * A page's own ceilings beyond `rule` (JB223: ten photos and ten files in
+   * one box): what the box keeps of a new list, and what it turns away -
+   * said with the rule's refusals, through `refusalText`.
+   */
+  fit?: (files: File[]) => { files: File[]; refused: Refusal[] };
   /** Off when the page already says its limits in its own hint. */
   showLimits?: boolean;
   /** The first this many files are already sent (a batch in progress): drawn green. */
@@ -108,20 +146,28 @@ export function AttachmentPicker({
   const [notFiles, setNotFiles] = useState(false);
   // Pictures a phone tried to bring in from its gallery (J45).
   const [photosRefused, setPhotosRefused] = useState<string[]>([]);
+  const [pasteLine, setPasteLine] = useState<PasteLine | null>(null);
   const phoneAccept = phoneFileAccept(rule.accept);
   const showChooser = !mobile || phoneAccept !== null;
+  // Read during render, like the hazard form's GPS support: it does not
+  // change while the form is open, and a phone never gets the button.
+  const showPasteButton = pasteAnywhere && !mobile && canReadClipboardPictures();
 
   const limit = rule.maxBytes === undefined ? "" : megabytes(rule.maxBytes);
 
+  /** Offer files to the box; how many it took. */
   const add = (incoming: File[]) => {
-    if (disabled || incoming.length === 0) return;
-    const result = acceptFiles(files, incoming, rule);
-    setRefused(result.refused);
+    if (disabled || incoming.length === 0) return 0;
+    const accepted = acceptFiles(files, incoming, rule);
+    const fitted = fit ? fit(accepted.files) : { files: accepted.files, refused: [] };
+    setRefused([...accepted.refused, ...fitted.refused]);
     setNotFiles(false);
     setPhotosRefused([]);
-    if (result.files.length !== files.length || result.files.some((file, at) => file !== files[at])) {
-      onChange(result.files);
+    setPasteLine(null);
+    if (fitted.files.length !== files.length || fitted.files.some((file, at) => file !== files[at])) {
+      onChange(fitted.files);
     }
+    return Math.max(0, fitted.files.length - files.length);
   };
 
   const say = (item: Refusal) => {
@@ -139,13 +185,87 @@ export function AttachmentPicker({
   const offerPicker = (list: FileList | File[] | null) => {
     const incoming = Array.from(list ?? []);
     if (!mobile) {
-      add(incoming);
-      return;
+      return add(incoming);
     }
     const pictures = incoming.filter(isPhotoFile);
-    add(incoming.filter((file) => !isPhotoFile(file)));
+    const taken = add(incoming.filter((file) => !isPhotoFile(file)));
     setPhotosRefused(pictures.map((file) => file.name));
+    return taken;
   };
+
+  /** A paste, from Ctrl+V or 【粘贴截图】; with `pasteAnywhere` it is named and said. */
+  const takePasted = (incoming: File[]) => {
+    if (!pasteAnywhere) {
+      offerPicker(incoming);
+      return;
+    }
+    const named = nameScreenshots(incoming, t("screenshotName"), new Date());
+    const taken = offerPicker(named);
+    setPasteLine(taken > 0 ? { key: pastedLineKey(named), count: taken } : null);
+  };
+
+  const pasteFromClipboard = async () => {
+    const found = await readClipboardPictures(
+      typeof navigator === "undefined" ? undefined : navigator.clipboard,
+      t("screenshotName"),
+    );
+    if (found.kind === "ok") takePasted(found.files);
+    else setPasteLine({ key: found.kind === "empty" ? "clipboardEmpty" : "clipboardRefused" });
+  };
+
+  // Ctrl+V anywhere on the page. A paste the box itself took (focus inside
+  // it) is already prevented and is not taken twice.
+  const onWindowPaste = useEffectEvent((event: ClipboardEvent) => {
+    if (event.defaultPrevented) return;
+    const pasted = pastedForTheBox(event.target, event.clipboardData);
+    if (pasted.length === 0) return;
+    event.preventDefault();
+    takePasted(pasted);
+  });
+  useEffect(() => {
+    if (!pasteAnywhere || disabled) return;
+    const listener = (event: ClipboardEvent) => onWindowPaste(event);
+    window.addEventListener("paste", listener);
+    return () => window.removeEventListener("paste", listener);
+  }, [pasteAnywhere, disabled]);
+
+  const chooser = showChooser && (
+    <Button
+      key="choose"
+      type="button"
+      variant="outline"
+      className="min-h-11"
+      disabled={disabled}
+      onClick={() => picker.current?.click()}
+    >
+      <FileUp />
+      {chooseLabel ?? t("chooseFile")}
+    </Button>
+  );
+  const cameraButton = camera && (
+    <FieldCamera
+      key="camera"
+      trigger="button"
+      label={cameraLabel ?? t("takePhoto")}
+      className="min-h-11"
+      disabled={disabled}
+      onCapture={(photo) => add([photo])}
+    />
+  );
+  const pasteButton = showPasteButton && (
+    <Button
+      key="paste"
+      type="button"
+      variant="outline"
+      className="min-h-11"
+      disabled={disabled}
+      onClick={() => void pasteFromClipboard()}
+    >
+      <ClipboardPaste />
+      {t("pasteScreenshot")}
+    </Button>
+  );
+  const buttons = (pasteAnywhere ? [chooser, pasteButton, cameraButton] : [cameraButton, chooser]).filter(Boolean);
 
   return (
     <div
@@ -156,7 +276,7 @@ export function AttachmentPicker({
         const pasted = transferFiles(event.clipboardData);
         if (pasted.length > 0) {
           event.preventDefault();
-          offerPicker(pasted);
+          takePasted(pasted);
         } else if (carriesFiles(event.clipboardData)) {
           setNotFiles(true);
         }
@@ -164,7 +284,7 @@ export function AttachmentPicker({
     >
       <div
         tabIndex={disabled ? -1 : 0}
-        aria-label={t(dropHintKey(camera, false))}
+        aria-label={hint ?? t(dropHintKey(camera, false))}
         className={cn(
           "space-y-2 rounded-lg border border-dashed border-panel-border p-3 outline-none focus-visible:ring-2 focus-visible:ring-ring",
           dragging && "border-primary bg-primary/5",
@@ -182,30 +302,15 @@ export function AttachmentPicker({
       >
         <p className="flex items-start gap-1.5 text-xs text-muted-foreground">
           <ImageIcon className="mt-0.5 size-3.5 shrink-0" />
-          {t(mobile && camera && !showChooser ? "dropHintPhoneCameraOnly" : dropHintKey(camera, mobile))}
+          {hint ?? t(mobile && camera && !showChooser ? "dropHintPhoneCameraOnly" : dropHintKey(camera, mobile))}
         </p>
-        <div className={cn("grid gap-2", camera && showChooser ? "grid-cols-2" : "grid-cols-1")}>
-          {camera && (
-            <FieldCamera
-              trigger="button"
-              label={t("takePhoto")}
-              className="min-h-11"
-              disabled={disabled}
-              onCapture={(photo) => add([photo])}
-            />
+        <div
+          className={cn(
+            "grid gap-2",
+            buttons.length >= 3 ? "grid-cols-1 sm:grid-cols-3" : buttons.length === 2 ? "grid-cols-2" : "grid-cols-1",
           )}
-          {showChooser && (
-            <Button
-              type="button"
-              variant="outline"
-              className="min-h-11"
-              disabled={disabled}
-              onClick={() => picker.current?.click()}
-            >
-              <FileUp />
-              {t("chooseFile")}
-            </Button>
-          )}
+        >
+          {buttons}
         </div>
         {showLimits && ((rule.multiple && rule.maxFiles !== undefined) || limit) ? (
           <p className="text-2xs text-muted-foreground">
@@ -224,7 +329,7 @@ export function AttachmentPicker({
             multiple={rule.multiple}
             accept={mobile ? (phoneAccept ?? undefined) : rule.accept}
             className="hidden"
-            aria-label={t("chooseFile")}
+            aria-label={chooseLabel ?? t("chooseFile")}
             onChange={(event) => {
               offerPicker(event.target.files);
               event.target.value = "";
@@ -248,6 +353,16 @@ export function AttachmentPicker({
       {notFiles && (
         <p role="alert" className="text-xs text-destructive">
           {t("notAFile")}
+        </p>
+      )}
+      {pasteLine && "count" in pasteLine && (
+        <p role="status" className="text-sm font-medium text-success">
+          {t(pasteLine.key, { count: pasteLine.count })}
+        </p>
+      )}
+      {pasteLine && !("count" in pasteLine) && (
+        <p role="alert" className="text-sm text-destructive">
+          {t(pasteLine.key)}
         </p>
       )}
 
@@ -275,6 +390,7 @@ export function AttachmentPicker({
                 disabled={disabled}
                 onClick={() => {
                   setRefused([]);
+                  setPasteLine(null);
                   onChange(files.filter((_, at) => at !== index));
                 }}
               >

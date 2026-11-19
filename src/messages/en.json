@@ -13290,6 +13290,7 @@
     },
     "synced": "Uploaded {count, plural, one {# saved record} other {# saved records}}",
     "filesFollow": "Sent to the office. {count, plural, one {# file is} other {# files are}} still uploading in the background.",
+    "filesFollowOffice": "Rectification item created. {count, plural, one {# file is} other {# files are}} uploading.",
     "alreadyQueued": "This action is already waiting to sync. It will not be sent twice.",
     "state": {
       "waiting": "Waiting to sync",
@@ -15848,12 +15849,16 @@
   "safety": {
     "officeCreate": {
       "title": "Create a rectification item",
-      "description": "Choose the rectification category, say what needs fixing, attach photos, and name who is responsible if you know.",
+      "description": "Choose the rectification category and say what needs fixing; attach photos or rectification files if you have them (optional), and name who is responsible if you know.",
       "confirm": "Create rectification item",
-      "photoPlace": "1. Where it needs fixing",
-      "photoDetail": "2. Close-up of the problem",
-      "photoScope": "3. Equipment or area involved",
-      "photoOther": "4. Anything else"
+      "files": "Photos and rectification files",
+      "filesHint": "Photos, PDF, Word or Excel on this computer: press [Choose photos or files]. A WhatsApp photo or a screenshot: copy it, then press [Paste screenshot] or Ctrl+V. You can create the item without a photo.",
+      "chooseFiles": "Choose photos or files",
+      "webcam": "Take a photo with the computer camera",
+      "limits": "Up to {photos} photos and {documents} files, each up to {limit} MB.",
+      "attached": "Attached: {photos, plural, one {# photo} other {# photos}} and {documents, plural, one {# file} other {# files}}.",
+      "tooManyPhotos": "{name} was not added: at most {limit} photos.",
+      "tooManyDocuments": "{name} was not added: at most {limit} files."
     },
     "action": {
       "updateStatus": "Update status"
@@ -15887,7 +15892,6 @@
       "detail": "2. Hazard or damage detail",
       "overview": "1. Incident area overview",
       "progress": "Completed {current} photo(s). The first {required} required photos must all be taken; more photos may be added.",
-      "progressOffice": "{current} attached. One is enough; add the others above if you have them, or more.",
       "risk": "3. Affected equipment, person or access",
       "surroundings": "4. Surrounding site condition"
     },
@@ -20284,7 +20288,13 @@
     "phoneTooBig": "{name}: the file is too big. Please upload it from the office computer. On the phone each file can be up to 20 MB, and 50 MB in all.",
     "tooMany": "Send at most {limit} files at a time.",
     "notAFile": "What you pasted is not a file or a picture. Copy the picture itself and try again.",
-    "photoUseCamera": "{name}: on the phone, take photos with the Take photo button above, not from the gallery."
+    "photoUseCamera": "{name}: on the phone, take photos with the Take photo button above, not from the gallery.",
+    "pasteScreenshot": "Paste screenshot",
+    "pastedPictures": "{count, plural, one {# picture pasted; it is in the list below.} other {# pictures pasted; they are in the list below.}}",
+    "pastedFiles": "{count, plural, one {# file pasted; it is in the list below.} other {# files pasted; they are in the list below.}}",
+    "clipboardEmpty": "There is no picture on the clipboard. In WhatsApp, right-click the picture, choose \"Copy image\", then press [Paste screenshot].",
+    "clipboardRefused": "This browser does not let the page read the clipboard. Click this window, then press Ctrl+V on the keyboard.",
+    "screenshotName": "Screenshot"
   },
   "supplierDateFilter": {
     "allSuppliers": "All suppliers",

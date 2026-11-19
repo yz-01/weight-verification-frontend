@@ -62,28 +62,34 @@ describe("the hazard form's photographs", () => {
     expect(code).not.toContain("photos: [photo]");
   });
 
-  it("uses the same multi-photo grid in the office as on site", () => {
+  it("uses the multi-photo grid on the phone, and no camera tiles in the office", () => {
     const field = photoField();
     expect(field).toContain("<FieldEvidenceGrid");
     expect(
       field,
       "a single camera here is how the office lost three photographs",
     ).not.toContain("<FieldCamera");
+    // JB223 (客户 11-19 事项 3): 「顾问在办公室使用电脑后台要求整改，怎么可能到现场
+    // 拍照？」 - the office takes what is on the computer in one box instead.
+    const form = code.slice(
+      code.indexOf("function SafetyCreateDialog("),
+      code.indexOf("function HazardCategoryControl("),
+    );
+    expect(form.match(/<FieldEvidenceGrid/g)).toHaveLength(1);
+    expect(code).not.toContain("safety.fieldEvidence.progressOffice");
   });
 
-  it("still asks the office for one and the site for four", () => {
-    // D-171: what changed is how many *can* be taken, not how many must be.
-    // Somebody filing a hazard after the fact may hold only one photograph.
-    // A permit is not raised here any more: it is applied for under 施工准证
-    // (2026-10-10), with one slot for the company's own form.
-    expect(code).toContain(
-      "const requiredPhotos = fieldMode ? FIELD_EVIDENCE_PHOTO_COUNT : 1;",
-    );
-    const ready = code.slice(code.indexOf("const photosReady"), code.indexOf("const confirmerId"));
-    expect(ready).toContain("completedPhotos.length >= requiredPhotos");
+  it("asks the site for four and the office for none", () => {
+    // D-171 kept the office at one; the client lifted it (JB223, 11-19:
+    // 「照片改为选填，不应强制拍照」). The phone's four (ID12) are unchanged.
+    const ready = code.slice(code.indexOf("const photosReady"), code.indexOf("const fieldEvidenceLabels"));
     expect(ready).toContain("completedPhotos.length >= FIELD_EVIDENCE_PHOTO_COUNT");
+    expect(ready).not.toContain("? FIELD_EVIDENCE_PHOTO_COUNT : 1");
     const submit = code.slice(code.indexOf("<Button requires={["));
-    expect(submit).toContain('[photosReady, t("safety.field.photo")]');
+    const phone = submit.slice(submit.indexOf("? [["), submit.indexOf(": [["));
+    const office = submit.slice(submit.indexOf(": [["), submit.indexOf("]),"));
+    expect(phone).toContain('[photosReady, t("safety.field.photo")]');
+    expect(office).not.toContain("photosReady");
   });
 });
 
@@ -112,8 +118,8 @@ describe("four slots keep four photographs", () => {
     slots[0] = new File(["a"], "a.jpg", { type: "image/jpeg" });
     slots[2] = new File(["c"], "c.jpg", { type: "image/jpeg" });
 
-    // The office case: two taken, both uploaded, and the site's four-photo
-    // rule correctly not satisfied.
+    // Two taken, both uploaded, and the site's four-photo rule correctly
+    // not satisfied.
     expect(completedFieldEvidence(slots)).toHaveLength(2);
     expect(hasRequiredFieldEvidence(slots)).toBe(false);
   });
