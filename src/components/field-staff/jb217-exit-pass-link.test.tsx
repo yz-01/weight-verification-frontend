@@ -65,8 +65,13 @@ describe("the 出门条 link (JB217)", () => {
       const code = read(file);
       expect(code, file).toContain('parseExitPassParam(searchParams.get("exit_pass"))');
       expect(code, file).toContain('useClearSearchParam("exit_pass")');
-      expect(code, file).toContain("<ExitPassWindow kind={exitPass.kind} record={exitPass.record} onClose={clearExitPass} />");
+      expect(code, file).toMatch(/<ExitPassWindow\s+kind=\{exitPass\.kind\}\s+record=\{exitPass\.record\}/);
     }
+  });
+
+  it("audit F1: only the gate's link (`record=gate`) opens the window with the release step", () => {
+    const code = read("components/field-staff/field-staff-workspace.tsx");
+    expect(code).toContain('mayRelease={searchParams.get("record") === "gate"}');
   });
 
   it("the window opens over any tab: it is outside the workspace's tabs, beside 访客到访", () => {
@@ -231,6 +236,12 @@ describe("the words the backend's tests read (contract §6), in all four languag
     "exit_pass_already_released",
     "exit_pass_release_phone_only",
     "exit_pass_external_pending",
+    // Audit F1 (contract v3): the applicant, and a phone that is not the gate's.
+    "exit_pass_own_release",
+    "exit_pass_gate_release_only",
+    // Audit round 2 (contract v4 F6): online signing is head office's; who may waive.
+    "exit_pass_online_head_office_only",
+    "exit_pass_waive_not_allowed",
   ];
   const ACTIONS = ["exit_pass_approve", "exit_pass_external", "exit_pass_waive_external"];
   const OPERATIONS = [
@@ -265,6 +276,16 @@ describe("the words the backend's tests read (contract §6), in all four languag
       "这张出门条还没有发出，现在不能放行；请车辆先等候，并联系申请人或安全经理先签出门条。",
     );
     expect(zh.audit.operation.exit_pass_external_paper_corrected).toBe("更换签回的外部审批文件");
+    expect(zh.errors.api.exit_pass_own_release).toBe("这是你自己申请出场的东西，要由门岗检查车辆和货物后放行。");
+    expect(zh.errors.api.exit_pass_gate_release_only).toBe(
+      "这个项目有门岗手机，出门条要由门岗检查放行。请让门岗在手机上打开出门条，拍照核查后按【确认放行】。",
+    );
+    expect(zh.errors.api.exit_pass_online_head_office_only).toBe(
+      "在线签名要由总部的人做（总部角色或公司管理员，并有这类记录的审批权限）；签这张出门条的安全经理、批准这笔申请的人和申请人都不能在线签。请把出门条打印或用 Email 发给对方，签回后按【登记签回的文件】上传。",
+    );
+    expect(zh.errors.api.exit_pass_waive_not_allowed).toBe(
+      "你不能改为不需要外部审批：只有签这张出门条的安全经理、公司管理员，或没有批准这笔申请的总部人员可以改。请联系他们处理。",
+    );
     expect(zh.signOff.action.exit_pass_approve).toBe("出门条批准（安全经理）签名");
     expect(zh.siteControl.gateCategory.EXIT_RELEASE).toBe("出场放行");
   });

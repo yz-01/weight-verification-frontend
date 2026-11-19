@@ -60,6 +60,27 @@ export function holdersNotice({
   return headOffice(before) === headOffice(after) ? null : "ticks";
 }
 
+/**
+ * The name and description a role save sends (JB219 audit F6, F7). A new role
+ * sends both. An existing one sends a field only when it was changed from what
+ * the window showed: a kept preset is shown in the reader's language, and
+ * saving only a tick must not store 「项目经理」 for good - a Malay- or
+ * English-language colleague would then read Chinese. 公司管理员's are the
+ * system's and never sent.
+ */
+export function rolePayloadFields(
+  value: { code: string; name: string; description: string },
+  shown: { name: string; description: string } | null,
+  isSystem: boolean,
+): { code: string; name?: string; description?: string } {
+  if (shown === null) return value;
+  const fields: { code: string; name?: string; description?: string } = { code: value.code };
+  if (isSystem) return fields;
+  if (value.name !== shown.name) fields.name = value.name;
+  if (value.description !== shown.description) fields.description = value.description;
+  return fields;
+}
+
 /** The role form, shared by create and edit. */
 export function CreateRole({ role }: { role?: Role }) {
   const t = useTranslations();
@@ -107,8 +128,8 @@ export function CreateRole({ role }: { role?: Role }) {
       : null;
 
   const mutation = useMutation({
-    mutationFn: (values: RolePayload) =>
-      isEdit ? updateRole(role.id, values) : createRole(values),
+    mutationFn: (values: Partial<RolePayload>) =>
+      isEdit ? updateRole(role.id, values) : createRole(values as RolePayload),
     onSuccess: async (saved) => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["roles"] }),
@@ -119,13 +140,15 @@ export function CreateRole({ role }: { role?: Role }) {
     },
   });
 
+  // Every role is shown in the reader's language - 公司管理员 too (JB219 audit
+  // F6: it showed 「Company Administrator」 in an editable box).
+  const shown = role ? { name: roleName(role, t), description: roleDescription(role, t) } : null;
+
   const form = useForm({
     defaultValues: {
       code: role?.code ?? "",
-      // A preset is shown in the reader's language; saving it keeps that
-      // name as the company's own (JB219: 「由建筑公司自行创建及命名」).
-      name: role ? (role.is_system ? role.name : roleName(role, t)) : "",
-      description: role ? (role.is_system ? role.description : roleDescription(role, t)) : "",
+      name: shown?.name ?? "",
+      description: shown?.description ?? "",
     },
     onSubmit: async ({ value }) => {
       setFormError(null);
@@ -135,7 +158,7 @@ export function CreateRole({ role }: { role?: Role }) {
       }
       try {
         await mutation.mutateAsync({
-          ...value,
+          ...rolePayloadFields(value, shown, Boolean(role?.is_system)),
           permissions,
           ...(builder && !kindFixed ? { head_office: headOffice === true } : {}),
         });
@@ -160,6 +183,21 @@ export function CreateRole({ role }: { role?: Role }) {
   }
 
   const matrixKind = !builder ? "plain" : headOffice ? "head_office" : "project";
+
+  // JB219 audit F1 (「A组及B组权限由公司管理员自行勾选及分配」): a box the editor
+  // does not hold himself is greyed - the server refuses the tick. A tick the
+  // role already has stays his to keep or take off. A builder office role
+  // gives only its 总部权限 (its people hold every 项目权限 anyway), and a
+  // 项目角色 never its A.
+  const notYours = useMemo(() => {
+    const ticked = new Set(role?.permissions ?? []);
+    const gives = (code: string) => {
+      if (!builder) return true;
+      const page = pageByCode.get(code) ?? "project";
+      return page === "hq_grantable" || (page === "hq_reserved" && headOffice === true);
+    };
+    return new Set((me?.cannot_give ?? []).filter((code) => !ticked.has(code) && gives(code)));
+  }, [me?.cannot_give, role?.permissions, builder, pageByCode, headOffice]);
 
   return (
     <FormShell
@@ -193,6 +231,9 @@ export function CreateRole({ role }: { role?: Role }) {
               field={field as unknown as BoundField}
               label={t("roles.field.name")}
               required
+              // 公司管理员 is the system's: shown, not renamed (F6).
+              disabled={role?.is_system}
+              hint={role?.is_system ? t("roles.adminNameFixed") : undefined}
             />
           )}
         </form.Field>
@@ -214,14 +255,23 @@ export function CreateRole({ role }: { role?: Role }) {
         )}
 
         <form.Field name="description">
-          {(field) => (
-            <TextAreaField
-              field={field as unknown as BoundField}
-              label={t("roles.field.description")}
-              optional
-              className="md:col-span-2"
-            />
-          )}
+          {(field) =>
+            role?.is_system ? (
+              <TextField
+                field={field as unknown as BoundField}
+                label={t("roles.field.description")}
+                disabled
+                className="md:col-span-2"
+              />
+            ) : (
+              <TextAreaField
+                field={field as unknown as BoundField}
+                label={t("roles.field.description")}
+                optional
+                className="md:col-span-2"
+              />
+            )
+          }
         </form.Field>
       </FormSection>
 
@@ -331,13 +381,21 @@ export function CreateRole({ role }: { role?: Role }) {
             <PermissionMatrix selected={permissions} readOnly kind={matrixKind} />
           </div>
         ) : (
-          <PermissionMatrix
-            // A fresh matrix for a new type: 总部角色 and 项目角色 open on 总部权限.
-            key={matrixKind}
-            selected={permissions}
-            onChange={setPermissions}
-            kind={matrixKind}
-          />
+          <>
+            {notYours.size > 0 && (
+              <p className="mb-3 text-sm font-medium text-foreground" data-role-not-yours>
+                {t("roles.notYours")}
+              </p>
+            )}
+            <PermissionMatrix
+              // A fresh matrix for a new type: 总部角色 and 项目角色 open on 总部权限.
+              key={matrixKind}
+              selected={permissions}
+              onChange={setPermissions}
+              kind={matrixKind}
+              notYours={notYours}
+            />
+          </>
         )}
 
         {formError && (

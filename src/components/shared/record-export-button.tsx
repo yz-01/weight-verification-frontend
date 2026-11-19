@@ -62,6 +62,7 @@ function RecordExportButtons({
   href: givenHref,
   blockedReason,
   layout = "buttons",
+  platformCompany,
 }: {
   kind: RecordPdfKind;
   recordId: string | null | undefined;
@@ -76,6 +77,8 @@ function RecordExportButtons({
    * actions (JB29). The record detail keeps its four buttons.
    */
   layout?: "buttons" | "menu";
+  /** JB220: on an MSE screen, the customer the record belongs to (`X-MSE-Company`). */
+  platformCompany?: string;
 }) {
   const t = useTranslations("fileActions");
   // The same history the detail's 修改记录 reads (one cached request): a
@@ -104,7 +107,7 @@ function RecordExportButtons({
       blockedReason={blockedReason}
       ownWork={ownWork}
       source={{
-        load: () => recordPdfFile(kind, recordId, reference),
+        load: () => recordPdfFile(kind, recordId, reference, undefined, platformCompany),
         title: t("completeEvidenceTitle", { reference }),
         link: absoluteUrl(href),
         // The log row names the record (JB27).
@@ -126,7 +129,7 @@ function RecordExportButtons({
       labelHint={t("originalVersionHint")}
       ownWork={ownWork}
       source={{
-        load: () => recordPdfFile(kind, recordId, reference, 1),
+        load: () => recordPdfFile(kind, recordId, reference, 1, platformCompany),
         title: t("originalVersionTitle", { reference }),
         link: absoluteUrl(href),
         // The log row names the record (JB27).

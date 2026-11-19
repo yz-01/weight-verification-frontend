@@ -2,6 +2,7 @@
 
 import type { EmailCopy } from "@/interfaces/auth";
 import type { Locale } from "@/i18n/config";
+import type { CompanyPlatformAccess } from "@/interfaces/platform-access";
 
 export type CompanyType = "CONTRACTOR" | "RECYCLER";
 
@@ -153,6 +154,8 @@ export interface CompanyRow {
   subscription_expiry_is_custom: boolean | null;
   review_status: CompanyReviewStatus;
   created_at: string;
+  /** JB220, MSE callers only: what the customer has opened, and until when. */
+  platform_access?: CompanyPlatformAccess;
 }
 
 export interface CompanyDetail {
@@ -254,6 +257,8 @@ export interface CompanyDetail {
   } | null;
   created_at: string;
   updated_at: string;
+  /** JB220, MSE callers only: what the customer has opened, and until when. */
+  platform_access?: CompanyPlatformAccess;
 }
 
 export interface CompanyPayload {

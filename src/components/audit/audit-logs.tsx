@@ -7,6 +7,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 import { AuditEntryDialog } from "@/components/audit/audit-entry-dialog";
+import { PlatformReasonLine } from "@/components/platform-access/closed";
 import { useAuth } from "@/components/providers/auth-provider";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import { ExportButton } from "@/components/shared/export-button";
@@ -511,6 +512,13 @@ export function AuditLogs({
         </>
       )}
       </FilterBar>
+      )}
+
+      {/* JB220 (客户 11-18): a customer's own people's operations are listed
+          for MSE only while that customer has opened 「允许 MSE 查看」; MSE's
+          own staff, platform rows and sign-ins always are. */}
+      {user?.is_platform_staff && (data as unknown as { hidden_customer_rows?: boolean } | undefined)?.hidden_customer_rows && (
+        <PlatformReasonLine text={t("mseAccess.closed.auditHidden")} />
       )}
 
       <DataTable

@@ -114,7 +114,9 @@ export function officeNotificationHref(
       return project ? `${proofs}&project=${encodeURIComponent(project)}` : proofs;
     }
 
-    return `${parsed.pathname}${parsed.search}`;
+    // The section the notice is about (`/company-settings#mse-access`, JB220)
+    // is kept: without it the notice opened the top of a long page.
+    return `${parsed.pathname}${parsed.search}${parsed.hash}`;
   }
 
   // A message on a record (2026-10-09): its kind and id say which page.

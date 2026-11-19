@@ -5,6 +5,7 @@ import { Loader2, Send, ShieldAlert } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
+import { useAuth } from "@/components/providers/auth-provider";
 import { FormSection } from "@/components/shared/form-shell";
 import { FieldWrapper, LoadFailed } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
@@ -32,6 +33,7 @@ import {
  */
 export function OwnerAccountPanel({ companyId }: { companyId: string }) {
   const t = useTranslations();
+  const { user } = useAuth();
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [error, setError] = useState("");
@@ -160,8 +162,13 @@ export function OwnerAccountPanel({ companyId }: { companyId: string }) {
               </Button>
             </>
           ) : (
-            <p className="text-xs text-muted-foreground">
-              {t("companies.owner.account.readOnly")}
+            <p className="text-xs text-muted-foreground" data-owner-read-only>
+              {/* JB220 (PO-2 = A): to a superadmin the only reason left is that
+                  the customer has started using the account - its login
+                  e-mail is changed on the customer's written request. */}
+              {user?.is_superuser
+                ? t("errors.api.platform_owner_locked")
+                : t("companies.owner.account.readOnly")}
             </p>
           )}
 

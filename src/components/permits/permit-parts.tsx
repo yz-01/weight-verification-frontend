@@ -617,9 +617,18 @@ function DecisionPanel({ permit }: { permit: Permit }) {
     void queryClient.invalidateQueries({ queryKey: ["hazard-conversation", permit.id] });
   };
   const approve = useMutation({
-    mutationFn: () => approvePermit(permit.id, signature!, note.trim()),
+    // JB216 audit F5: says which e-permit this window shows, so one changed
+    // since is not signed unseen.
+    mutationFn: () => approvePermit(permit.id, signature!, note.trim(), permit.work_form?.filled_at ?? null),
     onSuccess: settle,
-    onError: (reasonError) => setError(failure(reasonError, t("failed"))),
+    onError: (reasonError) => {
+      setError(failure(reasonError, t("failed")));
+      // 「电子准证刚被修改过，请先看一遍再签名批准。」: read it again, so the
+      // window shows what will be signed (the signature stays drawn).
+      if (reasonError instanceof ApiError && reasonError.code === "permit_form_changed_before_signing") {
+        void queryClient.invalidateQueries({ queryKey: permitKeys() });
+      }
+    },
   });
   const sendBack = useMutation({
     mutationFn: () => returnPermit(permit.id, reason.trim()),

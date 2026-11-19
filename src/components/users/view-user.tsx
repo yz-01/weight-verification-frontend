@@ -7,6 +7,8 @@ import Link from "next/link";
 import { useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { PlatformReasonLine } from "@/components/platform-access/closed";
+import { MseAddedBadge } from "@/components/platform-access/mse-access-section";
 import {
   FormSection,
   FormSkeleton,
@@ -25,6 +27,7 @@ import type { UserDetail, UserStatus } from "@/interfaces/auth";
 import { resetUserSignOffPin } from "@/services/sign-off.service";
 import { getUser } from "@/services/users.service";
 import { useDateFormat } from "@/lib/dates";
+import { accountWritesClosed } from "@/lib/platform-access";
 import { useRoleLabel } from "@/lib/role-labels";
 import { isPlaceholderEmail } from "@/lib/team-contact";
 
@@ -39,7 +42,7 @@ export function ViewUser({ id }: { id: string }) {
   const t = useTranslations();
   const roleOf = useRoleLabel();
   const df = useDateFormat();
-  const { can } = useAuth();
+  const { can, user: me } = useAuth();
 
   const { data, isLoading, isLoadingError } = useQuery({
     queryKey: ["users", "detail", id],
@@ -51,6 +54,9 @@ export function ViewUser({ id }: { id: string }) {
     return <LoadErrorCard backHref="/users" backLabel={t("users.title")} />;
   }
 
+  // JB220 (客户 11-18): a customer's account waits for its 「允许 MSE 管理账号」.
+  const accountsReason = accountWritesClosed(me, data) ? t("mseAccess.reason.accounts") : undefined;
+
   return (
     <div className="space-y-4">
       <DetailHeader
@@ -58,7 +64,12 @@ export function ViewUser({ id }: { id: string }) {
         backLabel={t("users.title")}
         action={
           // A deleted account is kept for its records only (JB164).
-          can("user.update") && data.status !== "REMOVED" ? (
+          can("user.update") && data.status !== "REMOVED" ? accountsReason ? (
+            <Button size="sm" disabled disabledReason={accountsReason} showReason>
+              <Pencil className="h-4 w-4" />
+              {t("common.edit")}
+            </Button>
+          ) : (
             <Button asChild size="sm">
               <Link href={`/users/${data.id}/edit`}>
                 <Pencil className="h-4 w-4" />
@@ -68,6 +79,7 @@ export function ViewUser({ id }: { id: string }) {
           ) : undefined
         }
       />
+      <PlatformReasonLine text={accountsReason} />
 
       <div className="surface-panel rounded-xl">
         <div className="flex flex-wrap items-center gap-3 px-6 py-5">
@@ -75,6 +87,8 @@ export function ViewUser({ id }: { id: string }) {
             {data.full_name}
           </h2>
           {data.role_name && <TypeBadge label={roleOf(data.role_code, data.role_name)} />}
+          {/* JB220: the customer lands here from 「MSE 加的账号」 to stop it. */}
+          <MseAddedBadge kind={data.mse_added} />
           <StatusBadge
             label={t(`users.status.${data.status}`)}
             tone={STATUS_TONE[data.status]}
@@ -109,7 +123,7 @@ export function ViewUser({ id }: { id: string }) {
           {data.projects && <UserProjectsSection projects={data.projects} />}
 
           {data.sign_off_pin && !data.sign_off_pin.exempt && (
-            <SignOffPinSection user={data} canReset={can("user.update")} />
+            <SignOffPinSection user={data} canReset={can("user.update")} closedReason={accountsReason} />
           )}
 
           <FormSection title={t("users.section.activity")}>
@@ -177,7 +191,16 @@ export function UserProjectsSection({ projects }: { projects: NonNullable<UserDe
  * administrator's 「重设签核密码」 (IB17) - behind a switch, not a confirm.
  * The administrator never sees or chooses the PIN; the person sets a new one.
  */
-function SignOffPinSection({ user, canReset }: { user: UserDetail; canReset: boolean }) {
+function SignOffPinSection({
+  user,
+  canReset,
+  closedReason,
+}: {
+  user: UserDetail;
+  canReset: boolean;
+  /** JB220: MSE, before the customer opens 「允许 MSE 管理账号」. */
+  closedReason?: string;
+}) {
   const t = useTranslations("signOff");
   const df = useDateFormat();
   const queryClient = useQueryClient();
@@ -204,15 +227,15 @@ function SignOffPinSection({ user, canReset }: { user: UserDetail; canReset: boo
       {canReset && (pin.has_pin || pin.locked_until) && (
         <div className="flex flex-wrap items-center gap-3">
           <label className="flex items-center gap-2 text-sm">
-            <Switch tone="danger" checked={armed} onCheckedChange={setArmed} />
+            <Switch tone="danger" checked={armed} disabled={Boolean(closedReason)} onCheckedChange={setArmed} />
             {t("resetArm")}
           </label>
           <Button
             type="button"
             variant="outline-destructive"
             size="sm"
-            disabledReason={!armed ? t("resetArmFirst") : undefined}
-            disabled={!armed || reset.isPending}
+            disabledReason={closedReason ?? (!armed ? t("resetArmFirst") : undefined)}
+            disabled={Boolean(closedReason) || !armed || reset.isPending}
             onClick={() => reset.mutate()}
           >
             {reset.isPending ? <Loader2 className="size-4 animate-spin" /> : <KeyRound className="size-4" />}

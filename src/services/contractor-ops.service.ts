@@ -2027,13 +2027,21 @@ export function recordPdfKindFor(kind: string): RecordPdfKind | null {
  * `version` (J1-21, Q1-6): 1 is the record as first filed (修改前原单),
  * left out it is the latest, its changed fields marked 「已修改」.
  */
-export const recordPdfFile = (kind: RecordPdfKind, recordId: string, reference: string, version?: number) =>
+export const recordPdfFile = (
+  kind: RecordPdfKind,
+  recordId: string,
+  reference: string,
+  version?: number,
+  /** JB220: MSE names the customer whose record it previews (`X-MSE-Company`). */
+  platformCompany?: string,
+) =>
   fetchAsFile("/api/record-exports/download/", {
     query: { kind, record: recordId, ...(version ? { version: String(version) } : {}) },
     // Only used when the server sends no filename. Some references are
     // labels rather than numbers (a progress record's 「phase / 40%」), so
     // the characters a filename cannot hold become dashes.
     fallbackFilename: `${(reference || "record").replace(/[\\/:*?"<>|]+/g, "-")}.pdf`,
+    platformCompany,
   });
 
 /** The same PDF, fetched to read or print in the page (D12); the caller revokes it. */

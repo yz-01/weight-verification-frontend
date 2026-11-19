@@ -4,6 +4,9 @@
  * each says what happened and what comes next, and no button is drawn that
  * the reader may not press.
  */
+import { readFileSync } from "node:fs";
+import path from "node:path";
+
 import { describe, expect, it, vi } from "vitest";
 
 import type { ExitPass } from "@/interfaces/exit-pass";
@@ -137,6 +140,28 @@ describe("出门条批准（安全经理）, 外部审批, 门岗放行 (JB217)"
     expect(html).not.toContain("等待门岗放行");
   });
 
+  it("audit round 2 (F8): a 工地清运 that ended with no lorry released reads 「本清运已结束」 - no waiting line, no badge", () => {
+    const html = part(
+      sections(
+        exitPass({
+          kind: "DISPOSAL_REQUEST",
+          multi_release: true,
+          state: "sent",
+          approval: APPROVAL,
+          sent: SENT,
+          can_release: false,
+          release_ended: true,
+        }),
+      ),
+      "release",
+    );
+    expect(html).toContain("data-exit-pass-release-ended");
+    expect(html).toContain("本清运已结束");
+    expect(html).not.toContain("等待门岗放行");
+    expect(html).not.toContain("等待放行");
+    expect(html).not.toContain("<button");
+  });
+
   it("工地清运: one release per lorry, counted", () => {
     const html = part(
       sections(
@@ -218,6 +243,53 @@ describe("出门条批准（安全经理）, 外部审批, 门岗放行 (JB217)"
     );
     expect(reader).not.toContain('data-exit-pass-online="');
     expect(reader).toContain("签回的文件由有这类记录审批权限的后台人员或安全经理在电脑上登记");
+  });
+
+  it("audit round 2 (F6): 【在线签名】 / 【不需要…】 only on their flags; the words name head office for online signing", () => {
+    const base = { state: "awaiting_external" as const, approval: APPROVAL };
+    // The project's approver: registers the paper, signs nothing online, waives nothing.
+    const project = part(
+      sections(exitPass({ ...base, external: external({ status: "waiting", required: true, can_record_paper: true }) })),
+      "external",
+    );
+    expect(project).toContain('data-exit-pass-paper="');
+    expect(project).not.toContain('data-exit-pass-online="');
+    expect(project).not.toContain("data-exit-pass-waive");
+    // Head office, not involved: online, and may waive.
+    const head = part(
+      sections(
+        exitPass({
+          ...base,
+          external: external({ status: "waiting", required: true, can_sign_online: true, can_waive: true }),
+        }),
+      ),
+      "external",
+    );
+    expect(head).toContain('data-exit-pass-online="');
+    expect(head).toContain("data-exit-pass-waive");
+    expect(head).not.toContain('data-exit-pass-paper="');
+    expect(head).toContain(
+      "总部的人（总部角色或公司管理员）有这类记录的审批权限、又没有参与这笔记录的，可以自己打开这笔记录按【在线签名】。",
+    );
+    // Neither: whose move it is, online signing named as head office's.
+    const reader = part(
+      sections(exitPass({ ...base, external: external({ status: "waiting", required: true }) })),
+      "external",
+    );
+    expect(reader).toContain(
+      "签回的文件由有这类记录审批权限的后台人员或安全经理在电脑上登记；在线签名要由没有参与这笔记录的总部的人（总部角色或公司管理员，并有这类记录的审批权限）在电脑上打开这笔记录签。",
+    );
+    expect(reader).not.toContain("对方在本系统有审批权限的");
+  });
+
+  it("audit round 2 (F7): 「见附件：…」 opens through the 出门条's own file address, not the record's 附件", () => {
+    const source = readFileSync(path.join(__dirname, "exit-pass-panel.tsx"), "utf8");
+    const start = source.indexOf("function PaperCopyLink");
+    const link = source.slice(start, source.indexOf("\nfunction ", start + 10));
+    expect(link).toContain("load={() => exitPassPaperCopyObjectUrl(pass.kind, pass.record)}");
+    expect(link).toContain("onDownload={() => downloadExitPassPaperCopy(pass.kind, pass.record, file.name)}");
+    expect(link).not.toContain("recordAttachmentObjectUrl");
+    expect(link).not.toContain("downloadRecordAttachment");
   });
 
   it("外部审批 done online: the five values and the drawn signature on white", () => {
