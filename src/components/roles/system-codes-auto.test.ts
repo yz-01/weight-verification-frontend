@@ -14,7 +14,8 @@ const read = (file: string) => readFileSync(path.join(process.cwd(), "src/compon
 describe("system codes are not typed on a new record", () => {
   it("role: code only when editing, and not editable", () => {
     const form = read("roles/create-role.tsx");
-    expect(form).toMatch(/\{isEdit && \(\s*<form\.Field name="code">/);
+    // Walk 11-18: and not on a builder's role at all (a raw 「project_manager」).
+    expect(form).toMatch(/\{isEdit && !builder && \(\s*<form\.Field name="code">/);
     expect(form).not.toMatch(/name="code"\s*validators=/);
     expect(form).toMatch(/label=\{t\("roles\.field\.code"\)\}\s*disabled\b/);
   });

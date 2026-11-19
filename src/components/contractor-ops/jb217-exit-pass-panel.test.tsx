@@ -7,9 +7,14 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 
+import { QueryClient } from "@tanstack/react-query";
 import { describe, expect, it, vi } from "vitest";
 
 import type { ExitPass } from "@/interfaces/exit-pass";
+import en from "@/messages/en.json";
+import ms from "@/messages/ms.json";
+import zhTW from "@/messages/zh-TW.json";
+import zh from "@/messages/zh.json";
 
 vi.mock("@/components/ui/dialog", async () =>
   (await import("@/components/shared/record-detail-test-kit")).inlineDialogModule(),
@@ -28,8 +33,16 @@ vi.mock("@/components/providers/auth-provider", () => ({
 }));
 
 const { renderDetail } = await import("@/components/shared/record-detail-test-kit");
-const { ExitPassPanel, ExitPassSections, SignDialog, PaperExternalDialog, WaiveExternalDialog, exitPassKey } =
-  await import("@/components/contractor-ops/exit-pass-panel");
+const {
+  ExitPassPanel,
+  ExitPassSections,
+  SignDialog,
+  PaperExternalDialog,
+  WaiveExternalDialog,
+  exitPassKey,
+  refreshPassAfterWrites,
+} = await import("@/components/contractor-ops/exit-pass-panel");
+const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
 const { APPROVAL, RELEASE, SENT, exitPass, external } = await import(
   "@/components/contractor-ops/jb217-exit-pass-fixtures"
 );
@@ -224,12 +237,13 @@ describe("出门条批准（安全经理）, 外部审批, 门岗放行 (JB217)"
         can_waive: true,
       }),
     });
-    const html = part(sections(pass), "external");
+    // In the record's own window, where 【打印】 / 【发送】 sit at the top.
+    const html = part(renderDetail(<ExitPassSections pass={pass} printHere />), "external");
     for (const label of ["所属公司／部门", "审批人姓名", "审批意见", "签名", "日期"]) {
       expect(html, label).toContain(label);
     }
     expect(html).toContain("等待外部审批");
-    expect(html).toContain("【打印】或【发送】");
+    expect(html).toContain("按窗口上方的【打印】或【发送】");
     expect(html).toContain('data-exit-pass-online="');
     expect(html).toContain('data-exit-pass-paper="');
     expect(html).toContain("data-exit-pass-waive");
@@ -457,6 +471,103 @@ describe("出门条批准（安全经理）, 外部审批, 门岗放行 (JB217)"
     // Released, or no right to: no button.
     const later = part(sections({ ...pass, external: { ...pass.external, can_correct_paper: false } }), "external");
     expect(later).not.toContain("换一个签回的文件");
+  });
+
+  it("walk 11-18 F-A2: 「按窗口上方的【打印】或【发送】」 only where they are - elsewhere, where they are and the way there", () => {
+    const pass = exitPass({
+      state: "awaiting_external",
+      approval: APPROVAL,
+      external: external({ status: "waiting", required: true, can_record_paper: true, can_waive: true }),
+    });
+    // The record's own window (the office panel): 打印 / 发送 at its top.
+    const record = part(
+      renderDetail(<ExitPassPanel kind="MATERIAL_OUTGOING" recordId="mo-1" />, (client) =>
+        client.setQueryData(exitPassKey("MATERIAL_OUTGOING", "mo-1"), pass),
+      ),
+      "external",
+    );
+    expect(record).toContain("按窗口上方的【打印】或【发送】");
+    expect(record).not.toContain("data-exit-pass-how-to-open");
+    // The 出门条 window from the bell, for a reader who may open the record:
+    // this window has none - 【打开原记录】, then 打印 / 发送 up there.
+    const opener = part(renderDetail(<ExitPassSections pass={pass} openRecord={() => {}} />), "external");
+    expect(opener).not.toContain("按窗口上方");
+    expect(opener).toContain(
+      "这个窗口没有【打印】和【发送】：请按下面的【打开原记录】，在这笔记录的窗口上方按【打印】或【发送】",
+    );
+    expect(opener).toContain("data-exit-pass-how-to-open");
+    expect(opener).toContain("打开原记录");
+    // A reader who cannot open it (林安全 in the walk), a phone, a read-only sheet.
+    for (const html of [
+      part(sections(pass), "external"),
+      part(
+        renderDetail(<ExitPassPanel kind="MATERIAL_OUTGOING" recordId="mo-1" readOnly />, (client) =>
+          client.setQueryData(exitPassKey("MATERIAL_OUTGOING", "mo-1"), pass),
+        ),
+        "external",
+      ),
+    ]) {
+      expect(html).not.toContain("按窗口上方");
+      expect(html).toContain("【打印】和【发送】在电脑上这笔记录自己的窗口上方");
+      expect(html).not.toContain("data-exit-pass-how-to-open");
+    }
+    // Every language has all three, none of them the record window's sentence.
+    for (const catalogue of [zh, zhTW, en, ms]) {
+      const words = catalogue.exitPass.external;
+      expect(words.howToOpenRecord).toBeTruthy();
+      expect(words.howToElsewhere).toBeTruthy();
+      expect(words.howToOpenRecord).not.toBe(words.howTo);
+    }
+  });
+
+  it("walk 11-18: an archived or cancelled record never released has no 「等待放行」 beside 「…门岗没有放行记录。」", () => {
+    for (const closed of ["archived", "cancelled", "rejected"] as const) {
+      const html = part(
+        sections(exitPass({ state: "sent", record_closed: closed, approval: APPROVAL, sent: SENT })),
+        "release",
+      );
+      expect(html, closed).toContain("这笔记录已经结束，门岗没有放行记录。");
+      expect(html, closed).not.toContain("等待放行");
+    }
+    // Still running: the badge waits.
+    expect(part(sections(exitPass({ state: "sent", approval: APPROVAL, sent: SENT })), "release")).toContain(
+      "等待放行",
+    );
+  });
+
+  it("walk 11-18 F-A1: a write in the record's window - 批准 with its PIN, 退回, 改正, 确认退场完成, 确认归档 - reads the pass again", async () => {
+    const client = new QueryClient({
+      defaultOptions: {
+        queries: { retry: false, staleTime: Infinity },
+        mutations: { retry: false, networkMode: "always" },
+      },
+    });
+    const key = exitPassKey("MATERIAL_OUTGOING", "mo-1");
+    client.setQueryData(key, exitPass({ state: "not_ready" }));
+    const stop = refreshPassAfterWrites(client, "MATERIAL_OUTGOING", "mo-1");
+    // A refused write changes nothing.
+    await client
+      .getMutationCache()
+      .build(client, { mutationFn: () => Promise.reject(new Error("refused")) })
+      .execute(undefined)
+      .catch(() => {});
+    await tick();
+    expect(client.getQueryState(key)?.isInvalidated).toBe(false);
+    // 批准 goes through: the open window's 出门条 is read again.
+    await client.getMutationCache().build(client, { mutationFn: () => Promise.resolve("approved") }).execute(undefined);
+    await tick();
+    expect(client.getQueryState(key)?.isInvalidated).toBe(true);
+    // Closed window: nothing listens any more.
+    stop();
+    client.setQueryData(key, exitPass({ state: "awaiting_signature" }));
+    await client.getMutationCache().build(client, { mutationFn: () => Promise.resolve("again") }).execute(undefined);
+    await tick();
+    expect(client.getQueryState(key)?.isInvalidated).toBe(false);
+    // The record window's panel listens while it is open.
+    const source = readFileSync(path.join(__dirname, "exit-pass-panel.tsx"), "utf8");
+    expect(source).toContain(
+      "useEffect(() => refreshPassAfterWrites(queryClient, kind, recordId), [queryClient, kind, recordId]);",
+    );
   });
 
   it("the panel draws nothing for a record with no 出门条 (a 材料领用, a machine's entry)", () => {

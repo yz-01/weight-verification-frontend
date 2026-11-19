@@ -47,7 +47,16 @@ import { getCompanySiteSettings, updateCompanySiteSettings } from "@/services/co
  * settings. The server checks the same and has the last word.
  */
 /** 「不指定」 in the 默认审批角色 select (saved as a blank code, JB219). */
-const NO_ROLE = "__no_role__";
+export const NO_ROLE = "__no_role__";
+
+/**
+ * 新用户默认角色's select (walk 11-18): 「不指定」 first, and a blank code - what a
+ * new builder starts with now, not the phone's 工地人员 - shown as 不指定. A
+ * stored code is shown as it was.
+ */
+export function defaultUserRoleChoice(stored: string, roleOptions: string[]): { value: string; options: string[] } {
+  return { value: stored || NO_ROLE, options: [NO_ROLE, ...roleOptions] };
+}
 
 export function qrPrefixProblem(value: string, reserved: string[] | undefined): "format" | "taken" | null {
   if (!/^[A-Z]{2,6}$/.test(value)) return "format";
@@ -94,6 +103,7 @@ export function CompanyLockedSettingsPanel({ companyId }: { companyId: string })
   // A select item cannot carry an empty value, so 不指定 travels as NO_ROLE.
   const approvalOptions = [NO_ROLE, ...companyRoles];
   const approvalValue = companyRoles.includes(form.default_approval_role_code) ? form.default_approval_role_code : NO_ROLE;
+  const userRole = defaultUserRoleChoice(form.default_user_role_code, roleOptions);
   // Seeded roles are stored with an English name; roleName reads the catalogue.
   const roleLabel = (code: string) => {
     if (!code || code === NO_ROLE) return tLocked("noRole");
@@ -101,6 +111,7 @@ export function CompanyLockedSettingsPanel({ companyId }: { companyId: string })
     const name = roleName({ code, name: row?.name ?? code }, tAll);
     return row ? name : tLocked("roleMissing", { name });
   };
+  const userRoleLabel = (code: string) => (!code || code === NO_ROLE ? tLocked("noUserRole") : roleLabel(code));
   const rule = (field: "default_archive_rules" | "default_notification_rules", key: string, value: boolean) =>
     set({ [field]: { ...(form[field] ?? {}), [key]: value } });
   const off = !canManage;
@@ -132,7 +143,7 @@ export function CompanyLockedSettingsPanel({ companyId }: { companyId: string })
     <div className="space-y-3" data-locked="permissions">
       <SectionTitle icon={Settings2} title={t("permissionDefaults.title")} description={tLocked("permissionsHelp")} />
       <div className="grid gap-4 sm:grid-cols-2">
-        <ChoiceField label={t("field.defaultUserRole")} value={form.default_user_role_code} disabled={off} options={roleOptions} optionLabel={roleLabel} onChange={(value) => set({ default_user_role_code: value })} />
+        <ChoiceField label={t("field.defaultUserRole")} value={userRole.value} disabled={off} options={userRole.options} optionLabel={userRoleLabel} onChange={(value) => set({ default_user_role_code: value === NO_ROLE ? "" : value })} />
         <ChoiceField label={t("field.defaultApprovalRole")} value={approvalValue} disabled={off} options={approvalOptions} optionLabel={roleLabel} onChange={(value) => set({ default_approval_role_code: value === NO_ROLE ? "" : value })} />
       </div>
       <p className="text-sm font-medium">{t("permissionDefaults.consultant")}</p>

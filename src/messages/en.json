@@ -5041,7 +5041,8 @@
       "byLetter": "Filter by first letter"
     },
     "loadOffline": "No network - {what} will load when the connection is back.",
-    "pageNotOpen": "Your account cannot open that page, so you have been brought back. To use it, ask your company's administrator to switch it on for you."
+    "pageNotOpen": "Your account cannot open that page, so you have been brought back. To use it, ask your company's administrator to switch it on for you.",
+    "saveFailed": "This was not saved (the server did not finish it). What you entered is still here. Please try again."
   },
   "companies": {
     "owner": {
@@ -5445,7 +5446,8 @@
         "confirmOff": "Unlock"
       },
       "noRole": "Not set (everyone who may approve)",
-      "roleMissing": "{name} (this company has no such role)"
+      "roleMissing": "{name} (this company has no such role)",
+      "noUserRole": "Not set (choose a role when adding a user)"
     },
     "trialDaysHint": "This plan gives {days} free days by default. No bill during the trial; billing starts only when you press Extend or renew in Subscriptions. Enter 0 for no trial.",
     "trialNote": "No bill during the trial. Billing starts only when you press Extend or renew in Subscriptions.",
@@ -9554,7 +9556,9 @@
       "platform_qr_customer_only": "QR codes for delivery notes and suppliers are issued by the customer itself; MSE cannot see these records.",
       "platform_access_view_only": "The customer opened viewing only. MSE can preview on screen but cannot change, download or export the customer's records.",
       "platform_accounts_closed": "Changing this customer's accounts needs the customer's consent. Ask the customer's administrator to press “Allow MSE to manage accounts” in Company settings, then try again.",
-      "platform_owner_locked": "The customer already uses this administrator account, so MSE cannot change its sign-in e-mail. Tell the customer: their own company administrator changes it in User management, or the customer writes in and a colleague who runs the server handles it."
+      "platform_owner_locked": "The customer already uses this administrator account, so MSE cannot change its sign-in e-mail. Tell the customer: their own company administrator changes it in User management, or the customer writes in and a colleague who runs the server handles it.",
+      "exit_pass_busy": "The system was busy and this was not saved. Wait a few seconds and press again.",
+      "phone_role_office_account": "Phone accounts are made in Field staff. An office account cannot be given a phone role (site staff, equipment operator, gate guard) here. Please choose another role."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -9598,7 +9602,8 @@
       "invalid_birth_date": "The date of birth must be before today",
       "site_worker_passport_taken": "This passport is already on the roster",
       "supplier_not_on_project": "This supplier is not on this project's supplier list. Ask head office or the project manager to add it to the project first.",
-      "field_one_project": "A phone account can be on one project at a time. Choose one project."
+      "field_one_project": "A phone account can be on one project at a time. Choose one project.",
+      "phone_role_office_account": "Phone accounts are made in Field staff. An office account cannot be given a phone role (site staff, equipment operator, gate guard) here. Please choose another role."
     },
     "forbidden": "You do not have access to this.",
     "forbiddenBody": "Ask your administrator if you need it.",
@@ -15877,7 +15882,9 @@
     "phoneHere": "Phone accounts (site staff, equipment operator, gate guard) are made in Field staff, not here.",
     "onlyAdmin": "The Company Administrator already has every permission. For any other job, press “New role” at the top right, give it your own name, choose head-office role or project role, and tick its permissions.",
     "adminNameFixed": "The Company Administrator's name and description are set by the system and cannot be changed.",
-    "notYours": "A greyed box is a permission you do not have yourself, so you cannot tick it for this role. Please ask the Company Administrator."
+    "notYours": "A greyed box is a permission you do not have yourself, so you cannot tick it for this role. Please ask the Company Administrator.",
+    "createHelp": "Give it a name, choose Head-office role or Project role, tick what this role may do, then press “Create”.",
+    "editHelp": "The name, role type and permission ticks are below; press “Save” when you are done."
   },
   "safety": {
     "officeCreate": {
@@ -18733,7 +18740,8 @@
       "scopeProjectUser": "A project user sees only the projects chosen here.",
       "projectDefaultOn": "Project permissions are all on by default; you can switch one off for this person, and back on later.",
       "notMine": "A greyed switch is a permission you do not have yourself: you cannot switch it on, for anyone or for yourself. Please ask the Company Administrator.",
-      "adminAccount": "This is a Company Administrator's account. Only a Company Administrator can change its permissions."
+      "adminAccount": "This is a Company Administrator's account. Only a Company Administrator can change its permissions.",
+      "partSavedWhy": "The user's details are saved; the permissions are not saved yet: {reason}"
     },
     "projectsView": {
       "projectsAll": "Can see every company project",
@@ -22643,7 +22651,9 @@
       "recordPaper": "Register the signed copy",
       "waive": "No external approval needed, send the exit pass now",
       "correctPaper": "Use another signed copy",
-      "correctHelp": "Chose the wrong file? Choose or upload the right signed copy; the old file stays in the attachments."
+      "correctHelp": "Chose the wrong file? Choose or upload the right signed copy; the old file stays in the attachments.",
+      "howToOpenRecord": "This window has no 【Print】 or 【Send】: press 【Open the original record】 below, then use 【Print】 or 【Send】 at the top of the record's window to send it (with the blank external approval box) to the owner / higher office to sign; when it comes back signed, register it with 【Register the signed copy】.Head office staff (a head-office role or the company administrator) with approval rights for this kind of record who took no part in this record can open it and press 【Sign online】.",
+      "howToElsewhere": "【Print】 and 【Send】 are at the top of this record's own window on a computer: ask a colleague who can open the record (for example, whoever approved the application) to send it (with the blank external approval box) to the owner / higher office to sign; when it comes back signed, register it on a computer with 【Register the signed copy】.Head office staff (a head-office role or the company administrator) with approval rights for this kind of record who took no part in this record can open it and press 【Sign online】."
     },
     "waiveDialog": {
       "body": "No external approval for this one? The exit pass goes to the applicant and the gate at once, and it cannot be changed back to needing external approval.",
@@ -22749,7 +22759,11 @@
       "signedWaitExternal": "Signed. Waiting for the external approval: {reference}",
       "externalDone": "External approval done; the exit pass was sent: {reference}",
       "waived": "Changed to no external approval; the exit pass was sent: {reference}",
-      "released": "Release confirmed and filed as a gate item: {reference}"
+      "released": "Release confirmed and filed as a gate item: {reference}",
+      "signedSentApplicant": "Signed. The exit pass went to the applicant only; no gate phone received it: {reference}",
+      "signedSentGate": "Signed. The exit pass was sent to the gate: {reference}",
+      "signedSentNobody": "Signed: {reference}",
+      "paperReplaced": "The signed copy was replaced. The exit pass had already been sent and was not sent again: {reference}"
     },
     "correctedAfter": "After the exit pass was signed, this record was corrected by {by} at {when}; what you see here is the corrected record."
   },

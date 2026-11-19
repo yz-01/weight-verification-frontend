@@ -42,8 +42,13 @@ describe("the 角色 field on 新增用户", () => {
     const office = role("ROLE-0001", { kind: "head_office", head_office: true });
     const offered = invitableRoles([ADMIN, ...PHONES, office], false).map((row) => row.code);
     expect(offered).toEqual(["company_admin", "ROLE-0001"]);
-    // Editing someone who holds one still shows it.
-    expect(invitableRoles([ADMIN, ...PHONES], true)).toHaveLength(4);
+    // Editing a phone account, or an account that holds one, still shows it
+    // (walk 11-18: an office account is offered office roles only).
+    expect(invitableRoles([ADMIN, ...PHONES], true, { phone: true, role: "site_staff" })).toHaveLength(4);
+    expect(invitableRoles([ADMIN, ...PHONES], true, { phone: false, role: "gate_guard" }).map((row) => row.code)).toEqual([
+      "company_admin",
+      "gate_guard",
+    ]);
   });
 
   it("says how to make a role when a builder has only 公司管理员 (a new company)", () => {
