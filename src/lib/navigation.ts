@@ -229,13 +229,6 @@ export interface NavGroup {
 }
 
 /**
- * Requirement-ordered feature registry.
- *
- * The arrays deliberately mirror `accounts.portal_features.FEATURES_BY_PORTAL`
- * in the backend. Permissions and audiences do not belong here: the backend
- * has already applied them before returning `CurrentUser.features`.
- */
-/**
  * A consultant's 材料管理: the client's five items (JB225, 客户 11-19 事项 5), each
  * opening the page it lives on. 材料退场 is the 材料出场 page's 供应商退货 side
  * (its 退货核对 tab too), 材料领用 its other side; 按供应商统计 is 材料进场's
@@ -267,6 +260,13 @@ const CONSULTANT_PROGRESS_ITEMS: readonly FeatureNavChild[] = [
   { ...child("7.2.c5", "nav.submodule.schedulePlanning", "/schedule", "item_progress_schedule"), menuHidden: true },
 ];
 
+/**
+ * Requirement-ordered feature registry.
+ *
+ * The arrays deliberately mirror `accounts.portal_features.FEATURES_BY_PORTAL`
+ * in the backend. Permissions and audiences do not belong here: the backend
+ * has already applied them before returning `CurrentUser.features`.
+ */
 export const PORTAL_NAVIGATION = {
   MSE_ADMIN: [
     {
