@@ -41,7 +41,7 @@ import {
   useFollowRecordProject,
   usePageProject,
 } from "@/components/providers/current-project-provider";
-import { FieldWrapper, ListHeader, QueryFailedNote } from "@/components/shared/page-primitives";
+import { FieldWrapper, ListHeader, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { RecordConversationPanel } from "@/components/shared/record-conversation";
 import { ConsultantFieldChats } from "@/components/site-access/field-chats-consultant";
 import { OFFICE_FIELD_CHATS_KEY, OfficeFindPeople } from "@/components/site-access/field-chats-find";
@@ -286,7 +286,16 @@ function ChatRow({
           <span className="min-w-0 break-words text-sm font-semibold">{row.title}</span>
           <span className="shrink-0 text-2xs text-muted-foreground">{when}</span>
         </span>
-        <span className="block break-words text-xs text-muted-foreground">{row.project_name}</span>
+        <span className="flex flex-wrap items-center gap-1.5 break-words text-xs text-muted-foreground">
+          {/* JB224: a conversation with the project's consultant says so - his
+              name alone does not tell the office who he is. */}
+          {row.people.some((person) => person.phone_role === "consultant") ? (
+            <span data-with-consultant>
+              <StatusBadge label={t("find.kind.consultant")} tone="neutral" />
+            </span>
+          ) : null}
+          {row.project_name}
+        </span>
         <span className="block truncate text-xs">
           {last ? `${last.author_name}：${last.body || t("attachment")}` : t("noMessages")}
         </span>

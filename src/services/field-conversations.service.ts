@@ -104,13 +104,14 @@ export interface OfficeFieldChat {
   id: string;
   /**
    * A consultant's rows only (JB210): what the conversation is about -
-   * `FIELD_TASK`, `CONSULTANT_APPLICATION`, `HAZARD` or `PACKAGE`.
+   * `FIELD_TASK`, `CONSULTANT_APPLICATION`, `HAZARD`, `PACKAGE` or (JB224)
+   * `DIRECT`, his conversation with the project office.
    */
   kind?: string;
   title: string;
   project: string;
   project_name: string;
-  /** `phone_role`: a phone role, `office` or (JB158) `head_office`. */
+  /** `phone_role`: a phone role, `office`, (JB158) `head_office` or (JB224) `consultant`. */
   people: { id: string; name: string; phone_role: string }[];
   /** Whether this office reader is one of its people (and may answer). */
   member: boolean;
@@ -128,14 +129,16 @@ export function getOfficeFieldChats(
 
 /**
  * What a person on the office's 找人沟通 is (JB158): a phone role, a project
- * office person or head office.
+ * office person or head office - or (JB224) one of the project's consultants.
  */
-export type OfficeChatPersonKind = PhoneRole | "office" | "head_office";
+export type OfficeChatPersonKind = PhoneRole | "office" | "head_office" | "consultant";
 
 export interface OfficeChatPerson {
   id: string;
   full_name: string;
   kind: OfficeChatPersonKind;
+  /** A consultant's firm (JB224); "" for everybody else. */
+  organization?: string;
   avatar: string | null;
 }
 

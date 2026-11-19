@@ -19331,6 +19331,7 @@
     "closedReadonly": "Anda boleh membaca perbualan ini tetapi bukan ahlinya, jadi tidak boleh menghantar.",
     "closedHeadOffice": "Ibu pejabat hanya boleh membaca perbualan yang ada kakitangan telefon di dalamnya, jadi anda tidak boleh menghantar di sini.",
     "closedMoved": "Seseorang di dalamnya sudah tiada dalam projek ini, jadi ia hanya boleh dibaca. Mulakan perbualan baharu.",
+    "closedConsultantOff": "Rekod perbualan perunding dalam projek ini telah ditutup (atau aksesnya tamat), jadi perbualan ini hanya boleh dibaca.",
     "closedTaskDone": "Tugasan ini telah selesai (atau dibatalkan), jadi sembang ditutup. Mesej masih boleh dibaca."
   },
   "exportTotals": {
@@ -22085,7 +22086,7 @@
   },
   "fieldChats": {
     "title": "Rekod perbualan",
-    "subtitle": "Semua perbualan di telefon (kakitangan tapak, pengawal, pengendali peralatan) dan di pejabat (pejabat projek, ibu pejabat), disimpan mengikut projek. Anda boleh membalas perbualan yang anda sertai; Mesej seseorang memulakan perbualan baharu.",
+    "subtitle": "Semua perbualan di telefon (kakitangan tapak, pengawal, pengendali peralatan), di pejabat (pejabat projek, ibu pejabat) dan dengan perunding, disimpan mengikut projek. Anda boleh membalas perbualan yang anda sertai; Mesej seseorang memulakan perbualan baharu.",
     "project": "Projek",
     "allProjects": "Semua projek",
     "loading": "Memuatkan…",
@@ -22097,22 +22098,28 @@
     "conversation": "Perbualan",
     "find": {
       "title": "Mesej seseorang",
-      "hint": "Hanya orang yang boleh anda hubungi: pejabat projek boleh menghubungi orang telefon projeknya, pejabatnya sendiri dan ibu pejabat; ibu pejabat boleh menghubungi pejabat setiap projek. Orang telefon dan ibu pejabat tidak berada dalam perbualan yang sama.",
+      "hint": "Hanya orang yang boleh anda hubungi: pejabat projek boleh menghubungi orang telefon projeknya, pejabatnya sendiri, ibu pejabat, dan perunding projek yang diberi Rekod perbualan oleh ibu pejabat; ibu pejabat boleh menghubungi pejabat setiap projek. Orang telefon dan ibu pejabat tidak berada dalam perbualan yang sama; perunding hanya bersama pejabat projek.",
+      "hintConsultant": "Hanya orang pejabat projek ini disenaraikan. Perbualan disimpan dalam projek ini, dan ibu pejabat kontraktor juga boleh membacanya.",
       "back": "Kembali",
       "search": "Cari nama",
       "choose": "orang untuk dimesej",
       "group": {
         "phone": "Orang telefon",
         "office": "Pejabat projek",
-        "head_office": "Ibu pejabat"
+        "head_office": "Ibu pejabat",
+        "consultant": "Perunding"
       },
       "kind": {
         "office": "Pejabat projek",
-        "head_office": "Ibu pejabat"
+        "head_office": "Ibu pejabat",
+        "consultant": "Perunding"
       },
       "mix": {
         "phoneChosen": "Orang telefon telah dipilih, jadi ibu pejabat tidak boleh menyertai perbualan ini.",
-        "headOfficeChosen": "Ibu pejabat telah dipilih, jadi orang telefon tidak boleh menyertai perbualan ini."
+        "headOfficeChosen": "Ibu pejabat telah dipilih, jadi orang telefon tidak boleh menyertai perbualan ini.",
+        "consultantChosen": "Perunding telah dipilih, jadi hanya orang pejabat projek ini boleh menyertai.",
+        "notWithConsultant": "Orang telefon atau ibu pejabat telah dipilih, jadi perunding tidak boleh menyertai perbualan ini.",
+        "oneConsultant": "Hanya seorang perunding boleh berada dalam satu perbualan."
       },
       "groupTitle": "Nama kumpulan (pilihan)",
       "start": "{count, plural, =0 {Mula} one {Mula dengan 1 orang} other {Mula dengan # orang}}",
@@ -22123,6 +22130,7 @@
       "pickProject": "Pilih satu projek di bahagian atas dahulu, kemudian cari orang untuk dihubungi.",
       "noPeople": "Tiada sesiapa dijumpai.",
       "noPeopleOnProject": "Belum ada sesiapa dalam projek ini yang boleh dihubungi: tambah orang dalam \"Senarai kakitangan projek\" dahulu.",
+      "noOfficeForConsultant": "Projek ini belum ada orang pejabat untuk dihubungi. Minta kontraktor menambah pejabat projek ke dalam pasukan projek.",
       "whatProjects": "senarai projek",
       "whatPeople": "senarai orang"
     },
@@ -22130,13 +22138,14 @@
     "packageKind": "Pakej",
     "packageGone": "Perbualan pakej ini tidak dijumpai, atau anda tiada kebenaran untuk melihatnya.",
     "consultant": {
-      "subtitle": "Perbualan dalam projek ini yang dihantar kepada anda atau yang anda sertai: pakej, permohonan perunding, tugas tapak dan pembetulan.",
-      "empty": "Belum ada perbualan anda dalam projek ini.",
+      "subtitle": "Perbualan dalam projek ini yang dihantar kepada anda atau yang anda sertai: pakej, permohonan perunding, tugas tapak, pembetulan, dan perbualan anda dengan pejabat projek. Tekan Mesej seseorang untuk menghubungi pejabat projek.",
+      "empty": "Belum ada perbualan anda dalam projek ini. Tekan Mesej seseorang di kanan atas untuk menghubungi pejabat projek.",
       "kind": {
         "FIELD_TASK": "Tugas tapak",
         "CONSULTANT_APPLICATION": "Permohonan perunding",
         "HAZARD": "Pembetulan",
-        "PACKAGE": "Pakej"
+        "PACKAGE": "Pakej",
+        "DIRECT": "Perbualan"
       }
     }
   },

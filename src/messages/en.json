@@ -19331,6 +19331,7 @@
     "closedReadonly": "You can read this conversation but you are not in it, so you cannot send.",
     "closedHeadOffice": "Head office can only read conversations that have phone staff in them, so you cannot send here.",
     "closedMoved": "Someone in it is no longer on this project, so it can only be read now. Start a new conversation.",
+    "closedConsultantOff": "The consultant's Conversations on this project were switched off (or his access ended), so this conversation can only be read now.",
     "closedTaskDone": "This task is finished (or cancelled), so the chat is closed. The messages can still be read."
   },
   "exportTotals": {
@@ -22085,7 +22086,7 @@
   },
   "fieldChats": {
     "title": "Conversations",
-    "subtitle": "Every conversation on the phone (site staff, guards, equipment operators) and in the back office (project office, head office), kept by project. You can answer the ones you are in; Message someone starts a new one.",
+    "subtitle": "Every conversation on the phone (site staff, guards, equipment operators), in the back office (project office, head office) and with consultants, kept by project. You can answer the ones you are in; Message someone starts a new one.",
     "project": "Project",
     "allProjects": "All projects",
     "loading": "Loading…",
@@ -22097,22 +22098,28 @@
     "conversation": "Conversation",
     "find": {
       "title": "Message someone",
-      "hint": "Only the people you may contact: a project office reaches its project's phone people, its own office and head office; head office reaches every project's office. Phone people and head office are never in the same conversation.",
+      "hint": "Only the people you may contact: a project office reaches its project's phone people, its own office, head office, and the project's consultants whom head office gave Conversations; head office reaches every project's office. Phone people and head office are never in the same conversation; a consultant is only ever with the project office.",
+      "hintConsultant": "Only this project's office people are listed. The conversation is kept on this project, and the builder's head office can read it too.",
       "back": "Back",
       "search": "Search by name",
       "choose": "the people to message",
       "group": {
         "phone": "Phone people",
         "office": "Project office",
-        "head_office": "Head office"
+        "head_office": "Head office",
+        "consultant": "Consultants"
       },
       "kind": {
         "office": "Project office",
-        "head_office": "Head office"
+        "head_office": "Head office",
+        "consultant": "Consultant"
       },
       "mix": {
         "phoneChosen": "A phone person is chosen, so head office cannot join this conversation.",
-        "headOfficeChosen": "Head office is chosen, so phone people cannot join this conversation."
+        "headOfficeChosen": "Head office is chosen, so phone people cannot join this conversation.",
+        "consultantChosen": "A consultant is chosen, so only this project's office people can join.",
+        "notWithConsultant": "A phone person or head office is chosen, so a consultant cannot join this conversation.",
+        "oneConsultant": "Only one consultant can be in a conversation."
       },
       "groupTitle": "Group name (optional)",
       "start": "{count, plural, =0 {Start a chat} one {Start with 1 person} other {Start with # people}}",
@@ -22123,6 +22130,7 @@
       "pickProject": "Choose a project at the top first, then find someone to message.",
       "noPeople": "Nobody found.",
       "noPeopleOnProject": "Nobody on this project can be messaged yet: add people on its \"Project staff list\" first.",
+      "noOfficeForConsultant": "This project has no office people to contact yet. Ask the builder to add its project office to the project team.",
       "whatProjects": "the projects",
       "whatPeople": "the people"
     },
@@ -22130,13 +22138,14 @@
     "packageKind": "Package",
     "packageGone": "This package conversation cannot be found, or you may not see it.",
     "consultant": {
-      "subtitle": "Conversations on this project sent to you or that you took part in: packages, consultant applications, site tasks and rectifications.",
-      "empty": "No conversation of yours on this project yet.",
+      "subtitle": "Conversations on this project sent to you or that you took part in: packages, consultant applications, site tasks, rectifications, and your conversations with the project office. Press Message someone to contact the project office.",
+      "empty": "No conversation of yours on this project yet. Press Message someone at the top right to contact the project office.",
       "kind": {
         "FIELD_TASK": "Site task",
         "CONSULTANT_APPLICATION": "Consultant application",
         "HAZARD": "Rectification",
-        "PACKAGE": "Package"
+        "PACKAGE": "Package",
+        "DIRECT": "Conversation"
       }
     }
   },

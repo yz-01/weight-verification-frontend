@@ -152,7 +152,8 @@ describe("沟通记录 · 找人沟通 for the office (JB158)", () => {
     expect(html).not.toContain(zh.fieldChats.find.noPeople);
     expect(zh.fieldChats.find.noPeople).toBe("找不到人。");
     const finder = read("field-chats-find.tsx");
-    expect(finder).toMatch(/\{search\.trim\(\) \? t\("noPeople"\) : t\("noPeopleOnProject"\)\}/);
+    // A consultant's own sentence sits between the two (JB224).
+    expect(finder).toMatch(/\{search\.trim\(\) \? t\("noPeople"\) : consultant \? t\("noOfficeForConsultant"\) : t\("noPeopleOnProject"\)\}/);
   });
 
   it("writes why a group is grey under its heading, where it can be read (JB159, shot c03)", () => {

@@ -145,9 +145,11 @@ export function toggleModule(
  * 「任务和沟通只显示顾问参与的记录」; Lucas 11-16 Q2 = A): the 顾问申请 sent to
  * him and the tasks sent to him to 验收. The contractor's own talk on a
  * delivery, a progress record or a document is not shown to him. Mirrors
- * `record_chat.CONSULTANT_CHAT_KINDS`; 整改 keeps its own room.
+ * `record_chat.CONSULTANT_CHAT_KINDS`; 整改 keeps its own room. JB224 (客户 11-19
+ * 事项 4): `DIRECT` too - his own conversations with the project office; the
+ * server answers him only in the ones he is in.
  */
-export const CONSULTANT_CHAT_KINDS: readonly string[] = ["CONSULTANT_APPLICATION", "FIELD_TASK"];
+export const CONSULTANT_CHAT_KINDS: readonly string[] = ["CONSULTANT_APPLICATION", "FIELD_TASK", "DIRECT"];
 
 export function consultantSeesConversation(accountType: string | undefined, kind: string): boolean {
   return accountType !== "CONSULTANT" || CONSULTANT_CHAT_KINDS.includes(kind);

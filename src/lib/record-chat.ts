@@ -153,7 +153,8 @@ export type ConversationClosedLine =
   | "recordChat.closedCancelled"
   | "recordChat.closedReadonly"
   | "recordChat.closedHeadOffice"
-  | "recordChat.closedMoved";
+  | "recordChat.closedMoved"
+  | "recordChat.closedConsultantOff";
 
 /**
  * The line shown instead of the composer, or `null` while it is open.
@@ -182,5 +183,8 @@ export function conversationClosedLine(
   // Head office IS in it - 「没有在里面」 would be untrue (JB159).
   if (closed === "head_office") return "recordChat.closedHeadOffice";
   if (closed === "moved") return "recordChat.closedMoved";
+  // JB224: the consultant's 沟通记录 was unticked by head office, or his grant
+  // ended - read only for the builder until it is ticked again.
+  if (closed === "consultant_off") return "recordChat.closedConsultantOff";
   return "recordChat.closedArchived";
 }
