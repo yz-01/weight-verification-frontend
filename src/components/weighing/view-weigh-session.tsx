@@ -448,7 +448,10 @@ export function ViewWeighSession({ id }: { id: string }) {
                   </p>
                 )}
               </div>
-              {can("weighing.operate") && (
+              {/* 「添加证据」 is the recycler's own: MSE never adds to a customer's
+                  ticket, door open or not (the server refuses it), so it is not
+                  offered there (walk 11-18 P3). */}
+              {can("weighing.operate") && !mse && (
                 <div className="flex flex-wrap items-center gap-2">
                   <Select
                     value={attachmentKind}

@@ -48,11 +48,24 @@ export async function signExitPass(
   body.append("signature", signature);
   body.append("external_required", externalRequired ? "true" : "false");
   const pass = await api.post<ExitPass>(`${BASE}/sign/`, body);
-  toastSuccess(
-    pass.state === "awaiting_external" ? "exitPass.toast.signedWaitExternal" : "exitPass.toast.signedSent",
-    { reference: pass.reference },
-  );
+  toastSuccess(signedToast(pass), { reference: pass.reference });
   return pass;
+}
+
+/**
+ * What 【签名批准】 says it did - whom the 出门条 really reached, from the
+ * server's own sent-to list (walk 11-18: 「已发给申请人和门岗」 on a project
+ * with no gate phone).
+ */
+export function signedToast(pass: Pick<ExitPass, "state" | "sent">): string {
+  if (pass.state === "awaiting_external") return "exitPass.toast.signedWaitExternal";
+  const to = pass.sent?.to ?? [];
+  const applicant = to.some((one) => one.role === "applicant");
+  const gate = to.some((one) => one.role === "gate");
+  if (applicant && gate) return "exitPass.toast.signedSent";
+  if (applicant) return "exitPass.toast.signedSentApplicant";
+  if (gate) return "exitPass.toast.signedSentGate";
+  return "exitPass.toast.signedSentNobody";
 }
 
 /**
@@ -87,7 +100,11 @@ export async function signExitPassExternal(
   return pass;
 }
 
-/** 【登记签回的文件】: a file already in 附件, or one uploaded now (it goes into 附件 first). */
+/**
+ * 【登记签回的文件】: a file already in 附件, or one uploaded now (it goes into
+ * 附件 first). `correcting` - 【换一个签回的文件】: the pass went out already
+ * and is not sent again, so the toast does not say it was (walk 11-18).
+ */
 export async function recordExitPassExternalPaper(
   kind: ExitPassKind,
   record: string,
@@ -99,6 +116,7 @@ export async function recordExitPassExternalPaper(
     attachment?: string;
     file?: File;
   },
+  correcting = false,
 ): Promise<ExitPass> {
   const body = new FormData();
   body.append("kind", kind);
@@ -110,7 +128,9 @@ export async function recordExitPassExternalPaper(
   if (fields.attachment) body.append("attachment", fields.attachment);
   if (fields.file) body.append("file", fields.file);
   const pass = await api.post<ExitPass>(`${BASE}/record_external_paper/`, body);
-  toastSuccess("exitPass.toast.externalDone", { reference: pass.reference });
+  toastSuccess(correcting ? "exitPass.toast.paperReplaced" : "exitPass.toast.externalDone", {
+    reference: pass.reference,
+  });
   return pass;
 }
 

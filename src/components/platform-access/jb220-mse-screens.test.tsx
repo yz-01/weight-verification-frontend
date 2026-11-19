@@ -136,3 +136,27 @@ describe("MSE's project pickers use the project directory (contract §9)", () =>
     expect(read(file)).toContain("getCompanyProjectArchiveLocks(");
   });
 });
+
+describe("walk 11-18, small things on MSE's screens (P3)", () => {
+  it("公司目录's 「客户开放」 keeps its own lines: 「还在开户，可直接开账号」 is not cut to 「还在开户，可…」", () => {
+    expect(read("src/components/companies/companies.tsx")).toContain(
+      'meta: { label: t("mseAccess.directory.column"), unclamped: true }',
+    );
+  });
+
+  it("a greyed 「打印地磅单」 is drawn as greyed buttons are (a faded outline)", () => {
+    expect(read("src/components/weighing/print-ticket-button.tsx")).toContain(
+      'variant={disabledReason ? "outline" : "default"}',
+    );
+  });
+
+  it("「添加证据」 is not offered to MSE on a customer's ticket", () => {
+    expect(read("src/components/weighing/view-weigh-session.tsx")).toContain('{can("weighing.operate") && !mse && (');
+  });
+
+  it("报表历史记录 greys a customer's file by its scope, which the server now sends (F3)", () => {
+    const source = read("src/components/reports/admin-report-workspace.tsx");
+    expect(source).toContain('row.scope && row.scope !== "PLATFORM" ? root("errors.api.platform_access_view_only") : undefined');
+    expect(zh.errors.api.platform_access_view_only.startsWith("客户只开放了查看")).toBe(true);
+  });
+});

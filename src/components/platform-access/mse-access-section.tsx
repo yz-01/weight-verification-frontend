@@ -24,7 +24,7 @@
  */
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Eye, EyeOff, Link2, Lock, LockOpen, ShieldCheck, UserCog, UserRoundCheck } from "lucide-react";
+import { Ban, Eye, EyeOff, Link2, Lock, LockOpen, ShieldCheck, UserCog, UserRoundCheck } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -49,13 +49,16 @@ import {
   type PlatformAccessKind,
   type PlatformAccessStatus,
   type PlatformAccessWindow,
+  type PlatformIssuedLink,
 } from "@/interfaces/platform-access";
 import { useDateFormat } from "@/lib/dates";
+import { useRoleLabel } from "@/lib/role-labels";
 import { cn } from "@/lib/utils";
 import {
   closePlatformAccess,
   getPlatformAccessStatus,
   openPlatformAccess,
+  revokePlatformLink,
 } from "@/services/platform-access.service";
 
 export const MSE_ACCESS_ANCHOR = "mse-access";
@@ -218,33 +221,85 @@ export function MseAccessBody({
 
       <MseAddedAccounts rows={status.mse_added_accounts ?? []} />
 
-      <div className="surface-panel rounded-xl p-4 sm:p-5" data-mse-links>
-        <h3 className="flex items-center gap-2 font-semibold text-foreground"><Link2 className="size-4 text-primary" aria-hidden />{t("links.title")}</h3>
-        {links.length === 0 ? (
-          <p className="mt-2 text-sm text-muted-foreground" data-mse-links-empty>{t("links.empty")}</p>
-        ) : (
-        <>
-          <p className="mt-0.5 text-xs text-muted-foreground">{t("links.help")}</p>
-          <ul className="mt-3 divide-y text-sm">
-            {links.map((link) => {
-              const expired = Boolean(link.expires_at && new Date(link.expires_at).getTime() <= now);
-              return (
-                <li key={link.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
-                  <span className="min-w-0">
-                    <span className="block font-medium">{link.name} · {link.project_name || t("links.wholeCompany")}</span>
-                    {link.created_by_name && <span className="block text-xs text-muted-foreground">{t("links.by", { name: link.created_by_name, at: df.dateTime(link.created_at) })}</span>}
-                  </span>
+      <MseIssuedLinks links={links} canChange={status.can_change} now={now} />
+    </div>
+  );
+}
+
+/**
+ * 「MSE 帮您开的外部访问链接」. A link reads the customer's own records, so its
+ * 公司管理员 may 撤销 a working one here himself (walk 11-18 F5: the section
+ * said 「要撤销，请联系 MSE。」 and nobody could). The server asks for his PIN
+ * through the shared dialog, as when he opens the door.
+ */
+function MseIssuedLinks({ links, canChange, now }: { links: PlatformIssuedLink[]; canChange: boolean; now: number }) {
+  const t = useTranslations("mseAccess");
+  const df = useDateFormat();
+  const queryClient = useQueryClient();
+  const [revoking, setRevoking] = useState<PlatformIssuedLink | null>(null);
+  const revoke = useMutation({
+    mutationFn: (link: PlatformIssuedLink) => revokePlatformLink(link.id),
+    onSuccess: (next) => {
+      setRevoking(null);
+      queryClient.setQueryData(OWN_STATUS_KEY, next);
+    },
+  });
+  const notAdmin = canChange ? undefined : t("links.adminOnly");
+
+  return (
+    <div className="surface-panel rounded-xl p-4 sm:p-5" data-mse-links>
+      <h3 className="flex items-center gap-2 font-semibold text-foreground"><Link2 className="size-4 text-primary" aria-hidden />{t("links.title")}</h3>
+      {links.length === 0 ? (
+        <p className="mt-2 text-sm text-muted-foreground" data-mse-links-empty>{t("links.empty")}</p>
+      ) : (
+      <>
+        <p className="mt-0.5 text-xs text-muted-foreground">{t("links.help")}</p>
+        <ul className="mt-3 divide-y text-sm">
+          {links.map((link) => {
+            const expired = Boolean(link.expires_at && new Date(link.expires_at).getTime() <= now);
+            const working = !link.revoked_at && !expired;
+            return (
+              <li key={link.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
+                <span className="min-w-0">
+                  <span className="block font-medium">{link.name} · {link.project_name || t("links.wholeCompany")}</span>
+                  {link.created_by_name && <span className="block text-xs text-muted-foreground">{t("links.by", { name: link.created_by_name, at: df.dateTime(link.created_at) })}</span>}
+                </span>
+                <span className="flex flex-wrap items-center gap-2">
                   <StatusBadge
                     label={link.revoked_at ? t("links.revoked") : expired ? t("links.expired") : t("links.valid", { at: df.dateTime(link.expires_at) })}
                     tone={link.revoked_at ? "danger" : expired ? "neutral" : "positive"}
                   />
-                </li>
-              );
-            })}
-          </ul>
-        </>
-        )}
-      </div>
+                  {working && (
+                    <Button
+                      size="sm"
+                      variant="outline-destructive"
+                      data-mse-link-revoke={link.id}
+                      disabled={!canChange}
+                      disabledReason={notAdmin}
+                      showReason
+                      onClick={() => setRevoking(link)}
+                    >
+                      <Ban />
+                      {t("links.revoke")}
+                    </Button>
+                  )}
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+      </>
+      )}
+      <ConfirmDialog
+        open={revoking !== null}
+        onOpenChange={(next) => !next && setRevoking(null)}
+        title={t("links.revokeTitle", { name: revoking?.name ?? "" })}
+        description={t("links.revokeBody")}
+        confirmLabel={t("links.revoke")}
+        confirmIcon={Ban}
+        isPending={revoke.isPending}
+        onConfirm={() => revoking && revoke.mutate(revoking)}
+      />
     </div>
   );
 }
@@ -302,6 +357,8 @@ export function MseAddedAccounts({ rows }: { rows: NonNullable<PlatformAccessSta
   const t = useTranslations("mseAccess.added");
   const users = useTranslations("users");
   const df = useDateFormat();
+  // A seeded role in the reader's words (walk 11-18 P3: 「Project Manager」).
+  const roleLabel = useRoleLabel();
   return (
     <section className="surface-panel rounded-xl p-4 sm:p-5" data-mse-added aria-label={t("title")}>
       <h3 className="flex items-center gap-2 font-semibold text-foreground">
@@ -324,7 +381,7 @@ export function MseAddedAccounts({ rows }: { rows: NonNullable<PlatformAccessSta
                   />
                 </div>
                 <p className="break-all text-muted-foreground">
-                  {[row.email, row.role_name].filter(Boolean).join(" · ")}
+                  {[row.email, roleLabel(row.role_code, row.role_name)].filter(Boolean).join(" · ")}
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {row.added_by_name ? t("addedBy", { name: row.added_by_name, at: df.dateTime(row.added_at) }) : df.dateTime(row.added_at)}

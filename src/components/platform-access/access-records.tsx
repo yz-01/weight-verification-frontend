@@ -62,10 +62,25 @@ export function recordWhere(row: PlatformAccessRecord, t: Words): string {
   return [moduleWords(row.module, t), row.record_label].filter(Boolean).join(" · ");
 }
 
-/** The small line under 「看了哪里」: how it was looked at, or what was not open. */
+/**
+ * 「做了什么」 in words. A refusal says why it was stopped (walk 11-18 F1): the
+ * door was not open (「您」 to the customer, 「客户」 to MSE), the record is one
+ * MSE never sees whatever is opened, the accounts door was shut, or the
+ * administrator's login e-mail is locked. Something MSE made under an open
+ * door is said as that (P3: 「开了外部链接」), not as a look.
+ */
+export function recordOutcome(row: PlatformAccessRecord, t: Words, audience: "customer" | "mse"): string {
+  if (row.outcome === "REFUSED") {
+    const key = `${audience === "customer" ? "records.refused" : "records.refusedMse"}.${row.detail}`;
+    return t.has(key) ? t(key) : t("records.outcome.REFUSED");
+  }
+  if (row.outcome === "OPENED" && row.detail && t.has(`records.made.${row.detail}`)) return t(`records.made.${row.detail}`);
+  return t(`records.outcome.${row.outcome}`);
+}
+
+/** The small line under 「看了哪里」: how it was looked at (the outcome already says why a refusal was stopped). */
 export function recordHow(row: PlatformAccessRecord, t: Words): string {
-  if (row.outcome === "OPENED" && t.has(`records.lookedAt.${row.kind}`)) return t(`records.lookedAt.${row.kind}`);
-  if (row.outcome === "REFUSED" && t.has(`records.refused.${row.detail}`)) return t(`records.refused.${row.detail}`);
+  if (row.outcome === "OPENED" && !row.detail && t.has(`records.lookedAt.${row.kind}`)) return t(`records.lookedAt.${row.kind}`);
   return "";
 }
 
@@ -171,7 +186,7 @@ export function PlatformAccessRecords({
               {rows.map((row) => (
                 <li key={row.id} className="space-y-1 px-4 py-3 text-sm" data-access-record-card>
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <StatusBadge label={t(`records.outcome.${row.outcome}`)} tone={OUTCOME_TONE[row.outcome] ?? "neutral"} />
+                    <StatusBadge label={recordOutcome(row, t, audience)} tone={OUTCOME_TONE[row.outcome] ?? "neutral"} />
                     <span className="tabular text-xs text-muted-foreground">{df.dateTime(row.occurred_at)}</span>
                   </div>
                   <p className="font-medium text-foreground">{recordWhere(row, t)}</p>
@@ -197,8 +212,8 @@ export function PlatformAccessRecords({
                       <TableCell>
                         <span className="block max-w-56 truncate font-medium" title={row.actor_email || undefined}>{actor(row)}</span>
                       </TableCell>
-                      <TableCell>
-                        <StatusBadge label={t(`records.outcome.${row.outcome}`)} tone={OUTCOME_TONE[row.outcome] ?? "neutral"} />
+                      <TableCell className="max-w-72 whitespace-normal">
+                        <StatusBadge label={recordOutcome(row, t, audience)} tone={OUTCOME_TONE[row.outcome] ?? "neutral"} />
                       </TableCell>
                       <TableCell>
                         <span className="block">{recordWhere(row, t)}</span>

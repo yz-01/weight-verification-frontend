@@ -29,10 +29,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
-import { ApiError } from "@/interfaces/api";
 import type { PermissionEntry, PermissionSwitchState, Role } from "@/interfaces/auth";
 import { permissionGroupLabel, permissionLabel } from "@/lib/permission-labels";
 import { roleName } from "@/lib/role-labels";
+import { saveRefusalLine } from "@/lib/save-refusal";
 import { isSignOffCancelled } from "@/lib/sign-off";
 import { cn } from "@/lib/utils";
 import { getPermissionCatalogue } from "@/services/auth.service";
@@ -69,8 +69,11 @@ function groups(entries: PermissionEntry[]): Group[] {
  * saves the switches too (Lucas, 10-29: 「我已经更改权限了为什么还是不会变」).
  */
 export interface PermissionSwitchesHandle {
-  /** Saves the switches when they changed. ``true`` when clean or saved. */
-  saveIfDirty: () => Promise<boolean>;
+  /**
+   * Saves the switches when they changed. ``true`` when clean or saved;
+   * otherwise the sentence that says why (``false`` with nothing to say).
+   */
+  saveIfDirty: () => Promise<boolean | string>;
 }
 
 /**
@@ -114,18 +117,34 @@ export function isSwitchesDirty(
   return [...chosen].sort().join(",") !== [...state.projects.chosen].sort().join(",");
 }
 
-/** Runs ``save`` only when there is something to save; ``false`` when it failed. */
+/**
+ * Runs ``save`` only when there is something to save; ``false`` when it
+ * failed - or, given ``refusal``, the sentence that says why (walk 11-18).
+ */
 export async function saveSwitchesIfDirty(
   dirty: boolean,
   save: () => Promise<unknown>,
-): Promise<boolean> {
+  refusal?: (error: unknown) => string | null,
+): Promise<boolean | string> {
   if (!dirty) return true;
   try {
     await save();
     return true;
-  } catch {
-    return false;
+  } catch (error) {
+    return refusal?.(error) ?? false;
   }
+}
+
+/**
+ * The 项目权限 a person keeps switched off across a change of role, as the
+ * server keeps them (``starting_switches_off(keep_off=…)``): those stored as
+ * switched off. An account still on its role alone (``uses_switches`` false -
+ * made before J17, or by a script) has none stored: what its old role did not
+ * tick is not a decision about the person, and the server opens it all (walk
+ * 11-18: 「已打开 20 / 123」 before 保存, 86 after).
+ */
+export function keptOff(state: Pick<PermissionSwitchState, "uses_switches">, off: Set<string>): Set<string> {
+  return state.uses_switches === false ? new Set() : off;
 }
 
 /** The line at the top while the switches have unsaved changes. */
@@ -342,7 +361,8 @@ function SwitchForm({
         setError("");
         return;
       }
-      setError(reason instanceof ApiError && reason.message ? reason.message : t("failed"));
+      // A refusal in its words; a server fault (5xx) - not saved, try again.
+      setError(saveRefusalLine(reason, t("failed")) ?? t("failed"));
     },
   });
 
@@ -351,9 +371,9 @@ function SwitchForm({
   // ticks; head office - A and B as the role ticks (公司管理员: everything).
   // Either way a 项目权限 switched off for this person stays off: project
   // permissions are on by default and not the role's.
-  const applyRole = (role: Role, asProjectUser: boolean) => {
+  const applyRole = (role: Role, asProjectUser: boolean, from: Set<string> = off) => {
     if (readOnly) return;
-    const next = switchesForRole(entries, role, off, asProjectUser);
+    const next = switchesForRole(entries, role, from, asProjectUser);
     for (const code of serverOff) if (locked(code)) next.off.add(code);
     setOff(next.off);
     setAllProjects(next.allProjects && !locked(SCOPE_CODE));
@@ -363,7 +383,9 @@ function SwitchForm({
     const role = roles.data.results.find((row) => row.id === roleId);
     setFollowedRole(roleId);
     if (role) {
-      applyRole(role, role.kind ? role.kind === "project" : projectUser);
+      // The 角色 changed on the form: what 保存 will hold (the server's change
+      // of role), so the count is right before saving (walk 11-18).
+      applyRole(role, role.kind ? role.kind === "project" : projectUser, keptOff(state, off));
       setFollowedName(roleName(role, tRoot));
     }
   }
@@ -381,10 +403,12 @@ function SwitchForm({
         if (needsProject) {
           setError(t("needOneProject"));
           setNotSaved(true);
-          return false;
+          return t("needOneProject");
         }
-        const saved = await saveSwitchesIfDirty(dirty, () => save.mutateAsync());
-        setNotSaved(!saved);
+        const saved = await saveSwitchesIfDirty(dirty, () => save.mutateAsync(), (reason) =>
+          saveRefusalLine(reason, t("failed")),
+        );
+        setNotSaved(saved !== true);
         return saved;
       },
     }),

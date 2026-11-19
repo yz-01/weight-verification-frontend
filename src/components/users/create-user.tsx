@@ -27,6 +27,7 @@ import { LOCALES, LOCALE_LABELS } from "@/i18n/config";
 import { roleName } from "@/lib/role-labels";
 import { ApiError } from "@/interfaces/api";
 import type { Role, UserDetail, UserPayload } from "@/interfaces/auth";
+import { saveRefusalLine } from "@/lib/save-refusal";
 import { toastSuccess } from "@/services/api-client";
 import { createUser, getRoles, updateUser } from "@/services/users.service";
 
@@ -59,10 +60,21 @@ function isPhoneRole(role: Role): boolean {
 /**
  * The roles the 角色 field offers. A new person: never a phone role (every
  * one, not only 工地人员 - JB219 sibling: 设备操作人员 and 门岗保安 were offered
- * and then refused) and never the driver's. Editing: whatever they hold too.
+ * and then refused) and never the driver's. Editing: an office account is
+ * offered office roles only, as 新增用户 (walk 11-18 FAIL 4: 门岗保安 was
+ * offered and refused in English); the role it holds stays in the list. A
+ * phone account (``phone``) keeps every role, as before.
  */
-export function invitableRoles(roles: Role[], isEdit: boolean): Role[] {
-  return roles.filter((role) => isEdit || (!isPhoneRole(role) && !isDriverRole(role)));
+export function invitableRoles(
+  roles: Role[],
+  isEdit: boolean,
+  editing?: { phone: boolean; role?: string | null },
+): Role[] {
+  return roles.filter((role) => {
+    if (!isEdit) return !isPhoneRole(role) && !isDriverRole(role);
+    if (!isPhoneRole(role) || editing?.phone) return true;
+    return editing !== undefined && role.id === editing.role;
+  });
 }
 
 /**
@@ -97,7 +109,8 @@ export function hasNoOwnRoles(roles: Role[]): boolean {
 /**
  * The dialog's one 「保存」: the user's fields first, then whatever the panel
  * below them holds (the 权限开关), then close. ``false`` - and the dialog
- * stays open - when the second part did not save; the first part did.
+ * stays open - when the second part did not save; the first part did. A
+ * sentence instead of ``false`` says why (walk 11-18: said beside 「保存」).
  */
 export async function saveUserThenAfter({
   saveUser,
@@ -105,11 +118,14 @@ export async function saveUserThenAfter({
   finish,
 }: {
   saveUser: () => Promise<unknown>;
-  saveAfter?: () => Promise<boolean>;
+  saveAfter?: () => Promise<boolean | string>;
   finish: () => void;
-}): Promise<boolean> {
+}): Promise<boolean | string> {
   await saveUser();
-  if (saveAfter && !(await saveAfter())) return false;
+  if (saveAfter) {
+    const after = await saveAfter();
+    if (after !== true) return after;
+  }
   finish();
   return true;
 }
@@ -128,9 +144,10 @@ export function CreateUser({
   after?: React.ReactNode | ((role: string) => React.ReactNode);
   /**
    * Saves the ``after`` panel once the fields have saved (the 权限开关's
-   * changes). ``false`` keeps the dialog open; the panel says why.
+   * changes). ``false`` - or the sentence that says why - keeps the dialog
+   * open; the panel says it too.
    */
-  saveAfter?: () => Promise<boolean>;
+  saveAfter?: () => Promise<boolean | string>;
 }) {
   const t = useTranslations();
   const finish = useFinishForm();
@@ -202,7 +219,7 @@ export function CreateUser({
       // values is harmless, and a dialog where only the switches changed
       // must still save them.
       try {
-        await saveUserThenAfter({
+        const saved = await saveUserThenAfter({
           saveUser: () =>
             mutation.mutateAsync({
               ...value,
@@ -224,13 +241,27 @@ export function CreateUser({
             finish(companyReturnHref ?? userListHref);
           },
         });
+        // The details saved, the 权限开关 did not: said beside 「保存」 too,
+        // with the reason (walk 11-18) - the panel's own line is far below.
+        if (saved !== true) {
+          setFormError(
+            typeof saved === "string" && saved
+              ? t("users.switches.partSavedWhy", { reason: saved })
+              : t("users.switches.partSaved"),
+          );
+        }
       } catch (error) {
-        if (error instanceof ApiError && error.isValidation) {
+        if (error instanceof ApiError && error.isValidation && Object.keys(error.errors).length > 0) {
           const leftover = applyServerErrors(
             error.errors,
             form as unknown as Parameters<typeof applyServerErrors>[1],
           );
           if (leftover.length > 0) setFormError(leftover[0]);
+        } else {
+          // A refusal of the role (「你自己没有这项权限…」, 「只有公司管理员可以…」)
+          // or a server fault, in the window beside 「保存」 (walk 11-18): it
+          // was a toast only, unseen behind the dialog.
+          setFormError(saveRefusalLine(error, t("common.saveFailed")));
         }
       }
     },
@@ -242,7 +273,13 @@ export function CreateUser({
   // both here, so neither is offered: a role that can only ever come back as
   // an error is not a choice.
   const roleOptions = roleChoices(
-    roles ? invitableRoles(roles.results, isEdit) : [],
+    roles
+      ? invitableRoles(
+          roles.results,
+          isEdit,
+          user ? { phone: Boolean(user.is_field_staff || user.mobile_access_only), role: user.role } : undefined,
+        )
+      : [],
     (role) => roleName(role, t),
     t("users.field.roleNotYours"),
     user?.role,
@@ -273,6 +310,8 @@ export function CreateUser({
       submitLabel={isEdit ? t("common.save") : t("users.new")}
       submitIcon={isEdit ? Save : UserPlus}
       onSubmit={() => void form.handleSubmit()}
+      // In the dialog's footer, beside 「保存」: it never scrolls away.
+      footerError={formError}
       after={
         typeof after === "function" ? (
           <form.Subscribe selector={(state) => state.values.role}>
@@ -406,12 +445,6 @@ export function CreateUser({
             />
           )}
         </form.Field>
-
-        {formError && (
-          <p className="text-sm font-medium text-destructive md:col-span-2">
-            {formError}
-          </p>
-        )}
       </FormSection>
     </FormShell>
   );

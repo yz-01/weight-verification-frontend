@@ -45,7 +45,7 @@ vi.mock("@/components/shared/record-export-button", () => ({
 vi.mock("@/components/site-access/gate-qr-scanner", () => ({ GateQrScanner: () => null }));
 
 const { RECORDER, renderDetail } = await import("@/components/shared/record-detail-test-kit");
-const { ExitPassWaitingList, ExitPassWindow, ReleaseCaptureView } = await import(
+const { ExitPassWaitingList, ExitPassWindow, ReleaseCaptureView, ReleasedNowLine, gateStep } = await import(
   "@/components/site-access/exit-pass-window"
 );
 const { GateRecordsPanel } = await import("@/components/site-access/gate-records");
@@ -290,6 +290,56 @@ describe("the 出门条 window (JB217-6, -7)", () => {
     );
     expect(html).not.toContain("data-exit-pass-release-capture");
     expect(html).not.toContain("确认放行</button>");
+  });
+
+  it("walk 11-18 #5: the guard who just released keeps the green 「已放行，记入门岗事项 GT-…。」, not 「…不用再放行」", () => {
+    const released = exitPass({ state: "released", approval: APPROVAL, sent: SENT, releases: [RELEASE], can_release: false });
+    const now = { number: "GT-PRJ-0001-045", count: 1 };
+    const options = { readOnly: false, mayRelease: true };
+    // Once the pass reads 已放行 the gate step goes - its success stays in its place.
+    expect(gateStep(released, { ...options, releasedNow: now })).toBe("releasedNow");
+    // Another guard opening it later: who released it and when.
+    expect(gateStep(released, { ...options, releasedNow: null })).toBe("note");
+    // Before the release, and a clearance's next lorry: the step itself (it keeps its own line).
+    expect(gateStep(exitPass({ state: "sent", sent: SENT, can_release: true }), { ...options, releasedNow: now })).toBe(
+      "capture",
+    );
+    expect(gateStep(released, { ...options, readOnly: true, releasedNow: now })).toBe("note");
+    const line = renderDetail(<ReleasedNowLine done={now} multi={false} />);
+    expect(line).toContain("data-exit-pass-released-now");
+    expect(line).toContain("已放行，记入门岗事项 GT-PRJ-0001-045。");
+    const source = readFileSync(path.join(__dirname, "exit-pass-window.tsx"), "utf8");
+    // The window keeps it, and a second tap before the button turns off sends nothing.
+    expect(source).toContain("<ReleaseCapture pass={pass} onReleased={setReleasedNow} />");
+    expect(source).toContain("if (sending.current) return;");
+  });
+
+  it("walk 11-18: an archived or cancelled record never released - no 「等待放行」 at the window's top either", () => {
+    for (const closed of ["archived", "cancelled"] as const) {
+      const html = renderDetail(<ExitPassWindow kind="MATERIAL_OUTGOING" record="mo-1" onClose={() => {}} />, (client) =>
+        client.setQueryData(
+          exitPassKey("MATERIAL_OUTGOING", "mo-1"),
+          exitPass({ state: "sent", record_closed: closed, approval: APPROVAL, sent: SENT }),
+        ),
+      );
+      expect(html, closed).toContain("这笔记录已经结束，门岗没有放行记录。");
+      expect(html, closed).not.toContain("等待放行");
+    }
+  });
+
+  it("walk 11-18 F-A2: the 出门条 window says where 【打印】 / 【发送】 really are, not 「按窗口上方的…」", () => {
+    const html = renderDetail(<ExitPassWindow kind="MATERIAL_OUTGOING" record="mo-1" onClose={() => {}} />, (client) =>
+      client.setQueryData(
+        exitPassKey("MATERIAL_OUTGOING", "mo-1"),
+        exitPass({ state: "awaiting_external", approval: APPROVAL, external: { ...exitPass().external, status: "waiting", required: true } }),
+      ),
+    );
+    expect(html).toContain("data-exit-pass-how-to");
+    expect(html).not.toContain("按窗口上方");
+    expect(html).toContain("【打印】和【发送】在电脑上这笔记录自己的窗口上方");
+    const source = readFileSync(path.join(__dirname, "exit-pass-window.tsx"), "utf8");
+    expect(source).toContain("openRecord={mayOpen ? () => setOpenRecord(true) : null}");
+    expect(source).toContain("<ExitPassSections pass={pass} readOnly={readOnly} openRecord={openRecord} />");
   });
 
   it("a record with no 出门条 says so", () => {
