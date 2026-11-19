@@ -4028,7 +4028,9 @@
       "permit_work_type_renamed": "Jenis kerja ditukar nama",
       "permit_work_type_removed": "Jenis kerja dibuang",
       "equipment_driver_binding_set": "Pemandu mesin ditetapkan",
-      "jb227_seed_driver_bindings": "Pemandu diikat daripada rekod masa terkini"
+      "jb227_seed_driver_bindings": "Pemandu diikat daripada rekod masa terkini",
+      "role_followed": "Kebenaran peranan diubah, diteruskan kepada orang dalam peranan itu",
+      "jb219_head_office_roles": "Kemas kini sistem: peranan dikemas kini (peranan ibu pejabat, pratetap yang tidak digunakan dibuang)"
     },
     "objectType": {
       "SignOffAssistant": "PIN pembantu",
@@ -9532,7 +9534,16 @@
       "permit_form_changed": "{name} menyimpan e-permit ini selepas anda membukanya. Tutup, buka semula, baca yang terkini dan kemudian ubah.",
       "equipment_hours_driver_only": "Jam mesin hanya boleh direkod oleh pemandu yang diikat pada mesin itu, menggunakan telefonnya sendiri. Kakitangan tapak tidak boleh merekod bagi pihak pemandu.",
       "equipment_hours_not_bound": "Mesin ini tidak diikat pada telefon anda, jadi anda tidak boleh merekod masa. Untuk menukar mesin, hubungi pejabat projek.",
-      "equipment_binding_driver_invalid": "Hanya pautan pemandu atau operator peralatan projek ini boleh diikat. Tutup, buka semula dan tanda sekali lagi."
+      "equipment_binding_driver_invalid": "Hanya pautan pemandu atau operator peralatan projek ini boleh diikat. Tutup, buka semula dan tanda sekali lagi.",
+      "exit_pass_own_release": "Anda sendiri yang memohon untuk membawa barang ini keluar, jadi pengawal pintu perlu memeriksa kenderaan dan barang sebelum melepaskannya.",
+      "exit_pass_gate_release_only": "Projek ini ada telefon pengawal pintu, jadi pas keluar diperiksa dan dilepaskan oleh pengawal pintu. Minta pengawal pintu membuka pas keluar di telefon, ambil gambar semakan, kemudian tekan 【Sahkan pelepasan】.",
+      "exit_pass_online_head_office_only": "Tandatangan dalam talian adalah untuk ibu pejabat (peranan ibu pejabat atau pentadbir syarikat, dengan hak kelulusan untuk jenis rekod ini). Pengurus keselamatan yang menandatangani pas keluar ini, orang yang meluluskan permohonan dan pemohon tidak boleh menandatanganinya dalam talian. Cetak atau e-melkan pas keluar kepada pihak berkenaan; apabila ia dikembalikan bertandatangan, tekan 【Daftar salinan bertandatangan】 untuk memuat naiknya.",
+      "exit_pass_waive_not_allowed": "Anda tidak boleh menukar kepada tidak perlu kelulusan luar: hanya pengurus keselamatan yang menandatangani pas keluar ini, pentadbir syarikat, atau kakitangan ibu pejabat yang tidak meluluskan permohonan ini boleh. Sila minta salah seorang daripada mereka.",
+      "role_self_lockout_type": "Anda sendiri memegang peranan ini, jadi menjadikannya peranan projek akan mematikan pengurusan pengguna anda sendiri. Kekalkan sebagai peranan ibu pejabat, atau minta Pentadbir Syarikat membuat perubahan.",
+      "grant_not_held": "Anda sendiri tidak mempunyai kebenaran ini, jadi anda tidak boleh memberikannya kepada orang lain atau kepada diri sendiri. Sila minta Pentadbir Syarikat melakukannya.",
+      "grant_admin_role_only_admin": "Hanya Pentadbir Syarikat boleh menjadikan seseorang Pentadbir Syarikat. Sila minta Pentadbir Syarikat melakukannya.",
+      "grant_admin_account_only_admin": "Hanya Pentadbir Syarikat boleh mengubah peranan atau kebenaran Pentadbir Syarikat. Sila minta Pentadbir Syarikat melakukannya.",
+      "permit_form_changed_before_signing": "E-permit baru sahaja diubah. Sila bacanya semula sebelum menandatangani dan meluluskan."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -12694,7 +12705,10 @@
       "permit_work_period": "Tempoh dipohon",
       "permit_safety_measures": "Risiko dan langkah keselamatan",
       "permit_conditions": "Syarat kelulusan",
-      "permit_valid_period": "Tempoh diluluskan"
+      "permit_valid_period": "Tempoh diluluskan",
+      "permit_subcontractor": "Subkontraktor",
+      "permit_work_lead": "Penyelia kerja",
+      "permit_contact_phone": "No. telefon"
     },
     "detailTitle": "Apa yang saya hantar",
     "photos": "Gambar",
@@ -14725,7 +14739,8 @@
       "suspended": "Digantung",
       "headOffice": "Akaun ibu pejabat: kebenarannya ditetapkan oleh ibu pejabat dalam Pengurusan pengguna dan hanya dipaparkan di sini.",
       "setInUsers": "Kebenaran orang ini ditetapkan oleh ibu pejabat dalam Pengurusan pengguna dan hanya dipaparkan di sini.",
-      "openUser": "Buka halaman pengguna"
+      "openUser": "Buka halaman pengguna",
+      "notMine": "Suis berwarna kelabu ialah kebenaran yang anda sendiri tiada, jadi anda tidak boleh menghidupkannya. Sila minta Pentadbir Syarikat."
     }
   },
   "qrCodes": {
@@ -15848,7 +15863,9 @@
     "hqCount": "{count, plural, =0 {Tiada kebenaran ibu pejabat ditanda} other {# kebenaran ibu pejabat}}",
     "allPermissions": "Semua kebenaran",
     "phoneHere": "Akaun telefon (kakitangan tapak, operator jentera, pengawal pintu) dibuat dalam Kakitangan tapak, bukan di sini.",
-    "onlyAdmin": "Pentadbir Syarikat sudah mempunyai semua kebenaran. Untuk kerja lain, tekan “Peranan baharu” di kanan atas, beri nama anda sendiri, pilih peranan ibu pejabat atau peranan projek, dan tanda kebenarannya."
+    "onlyAdmin": "Pentadbir Syarikat sudah mempunyai semua kebenaran. Untuk kerja lain, tekan “Peranan baharu” di kanan atas, beri nama anda sendiri, pilih peranan ibu pejabat atau peranan projek, dan tanda kebenarannya.",
+    "adminNameFixed": "Nama dan keterangan Pentadbir Syarikat ditetapkan oleh sistem dan tidak boleh diubah.",
+    "notYours": "Kotak berwarna kelabu ialah kebenaran yang anda sendiri tiada, jadi anda tidak boleh menandakannya untuk peranan ini. Sila minta Pentadbir Syarikat."
   },
   "safety": {
     "officeCreate": {
@@ -18561,7 +18578,10 @@
       "timezone": "Zon waktu",
       "roleRequired": "Pilih peranan.",
       "noOwnRoles": "Syarikat belum membuat peranannya sendiri. Untuk memberi orang ini kurang daripada Pentadbir Syarikat, pergi dahulu ke Pengguna › Peranan dan kebenaran dan tekan “Peranan baharu”.",
-      "noOwnRolesLink": "Pergi ke Peranan dan kebenaran"
+      "noOwnRolesLink": "Pergi ke Peranan dan kebenaran",
+      "roleNotYours": "(minta Pentadbir Syarikat)",
+      "rolesNotYours": "Peranan berwarna kelabu mempunyai kebenaran yang anda sendiri tiada (atau ialah Pentadbir Syarikat), jadi anda tidak boleh memberikannya. Sila minta Pentadbir Syarikat.",
+      "adminRoleFixed": "Ini akaun Pentadbir Syarikat. Hanya Pentadbir Syarikat boleh mengubah peranannya."
     },
     "filter": {
       "allAudiences": "Semua kategori pengguna",
@@ -18699,7 +18719,9 @@
       "hqHintProjectUser": "Kumpulan B · ibu pejabat boleh beri: mati secara lalai; orang ini boleh menggunakannya selepas ibu pejabat menghidupkannya.",
       "reservedNote": "Kebenaran kumpulan A ibu pejabat (pengguna dan peranan, log audit, templat kelulusan, jabatan, pengurusan projek, pengurusan papan pemuka, tetapan syarikat, bil, langganan, integrasi) hanya untuk akaun ibu pejabat dan tidak boleh dihidupkan untuk pengguna projek.",
       "scopeProjectUser": "Pengguna projek hanya melihat projek yang dipilih di sini.",
-      "projectDefaultOn": "Kebenaran projek semuanya hidup secara lalai; anda boleh mematikan satu untuk orang ini, dan menghidupkannya semula kemudian."
+      "projectDefaultOn": "Kebenaran projek semuanya hidup secara lalai; anda boleh mematikan satu untuk orang ini, dan menghidupkannya semula kemudian.",
+      "notMine": "Suis berwarna kelabu ialah kebenaran yang anda sendiri tiada: anda tidak boleh menghidupkannya, untuk sesiapa atau untuk diri sendiri. Sila minta Pentadbir Syarikat.",
+      "adminAccount": "Ini akaun Pentadbir Syarikat. Hanya Pentadbir Syarikat boleh mengubah kebenarannya."
     },
     "projectsView": {
       "projectsAll": "Boleh melihat semua projek syarikat",
@@ -21093,7 +21115,14 @@
       "what": {
         "workTypes": "senarai jenis kerja",
         "attachments": "senarai lampiran"
-      }
+      },
+      "viewIntroCanFill": "Di sini anda hanya boleh membacanya; untuk mengubahnya, tekan \"Isi e-permit\" di sebelah \"Dokumen permit\".",
+      "viewIntroApproved": "Telah ditandatangani, diluluskan dan diarkibkan; tidak boleh diubah lagi.",
+      "viewIntroReturned": "Dikembalikan; boleh diisi semula selepas pemohon menghantar semula.",
+      "validFromAfterWorkEnd": "Masa mula diluluskan selepas masa tamat dipohon. Isi masa tamat diluluskan, atau awalkan masa mula diluluskan.",
+      "validUntilBeforeWorkStart": "Masa tamat diluluskan sebelum masa mula dipohon. Isi masa mula diluluskan, atau lewatkan masa tamat diluluskan.",
+      "draftOutdated": "{name} menyimpan e-permit ini selepas anda kali terakhir mengisinya. Di bawah ialah yang terkini; apa yang anda taip dan tidak simpan tidak dikekalkan.",
+      "someone": "Orang lain"
     },
     "workTypes": {
       "title": "Permit kerja · Jenis kerja",
@@ -22586,8 +22615,8 @@
       "off": "Perkara ini tidak perlu kelulusan luar; kelulusan dalaman sudah memadai.",
       "waivedBy": "Ditukar kepada tidak perlu kelulusan luar ({name} · {when})",
       "afterSignature": "Perlu kelulusan luar: selepas pengurus keselamatan menandatangani, cetak atau guna 【Hantar】 untuk menghantarnya kepada pemilik / pejabat atasan untuk ditandatangani.",
-      "howTo": "Guna 【Cetak】 atau 【Hantar】 di bahagian atas tetingkap untuk menghantar rekod ini (dengan ruang kelulusan luar yang kosong) kepada pemilik / pejabat atasan untuk ditandatangani; apabila salinan bertandatangan kembali, daftarkannya dengan 【Daftar salinan bertandatangan】. Orang yang ada hak kelulusan dalam sistem ini boleh membuka rekod ini dan menekan 【Tandatangan dalam talian】.",
-      "whoActs": "Salinan bertandatangan didaftarkan di komputer oleh kakitangan pejabat yang meluluskan rekod jenis ini, atau oleh pengurus keselamatan; orang yang ada hak kelulusan dalam sistem ini boleh membuka rekod ini di komputer dan menandatangani dalam talian.",
+      "howTo": "Guna 【Cetak】 atau 【Hantar】 di bahagian atas tetingkap untuk menghantar rekod ini (dengan ruang kelulusan luar yang kosong) kepada pemilik / pejabat atasan untuk ditandatangani; apabila salinan bertandatangan kembali, daftarkannya dengan 【Daftar salinan bertandatangan】. Kakitangan ibu pejabat (peranan ibu pejabat atau pentadbir syarikat) yang ada hak kelulusan untuk rekod jenis ini dan tidak terlibat dalam rekod ini boleh membukanya dan menekan 【Tandatangan dalam talian】.",
+      "whoActs": "Salinan bertandatangan didaftarkan di komputer oleh kakitangan pejabat yang meluluskan rekod jenis ini, atau oleh pengurus keselamatan; tandatangan dalam talian dibuat di komputer oleh kakitangan ibu pejabat (peranan ibu pejabat atau pentadbir syarikat, dengan hak kelulusan untuk rekod jenis ini) yang tidak terlibat dalam rekod ini.",
       "closedWaiting": "Rekod ini telah tamat; kelulusan luar tidak diperlukan lagi.",
       "company": "Syarikat / jabatan",
       "name": "Nama pelulus",
@@ -22641,7 +22670,8 @@
       "waiting": "Menunggu pengawal pintu: dia membuka pas keluar di telefon, mengambil gambar semakan dan menekan 【Sahkan pelepasan】.",
       "closedUnreleased": "Rekod ini telah tamat. Tiada pelepasan di pintu padanya.",
       "done": "Dilepaskan · {name} · {when} · {count} gambar semakan",
-      "open": "Buka"
+      "open": "Buka",
+      "ended": "Pembersihan tapak ini telah tamat"
     },
     "gate": {
       "title": "Ambil gambar semakan, sahkan pelepasan",
@@ -22686,7 +22716,8 @@
       "applicant": "Pemohon"
     },
     "archive": {
-      "externalPending": "Ini masih menunggu kelulusan luar, jadi ia tidak boleh disahkan dan diarkibkan sekarang. Daftar salinan bertandatangan, minta pelulus menandatangani dalam talian, atau tukar kepada tidak perlu kelulusan luar, kemudian sahkan dan arkibkan."
+      "pendingPress": "Ini masih menunggu kelulusan luar, jadi ia tidak boleh disahkan dan diarkibkan sekarang. Tekan dahulu {buttons} di bawah; selepas selesai, tekan 【Sahkan dan arkibkan】.",
+      "pendingWho": "Ini masih menunggu kelulusan luar, jadi ia tidak boleh disahkan dan diarkibkan sekarang. Salinan bertandatangan didaftarkan di komputer oleh pengguna pejabat yang ada hak kelulusan untuk rekod jenis ini atau oleh pengurus keselamatan; tandatangan dalam talian dibuat oleh kakitangan ibu pejabat atau pentadbir syarikat yang tidak terlibat dalam rekod ini. Selepas selesai, sahkan dan arkibkan."
     },
     "gateRecord": {
       "linked": "Permohonan asal",

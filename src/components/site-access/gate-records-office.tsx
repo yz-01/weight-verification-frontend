@@ -310,6 +310,8 @@ export function GateRecordsOffice() {
               { key: "guard_name", label: t("field.photographer") },
               { key: "occurred_at", label: t("field.time") },
               { key: "issue_note", label: t("field.note") },
+              // A 门岗放行's 「关联原申请」 (contract §7, audit F3): MO-… / EO-… / WO-… / DISP-….
+              { key: "exit_record_no", label: tRoot("exitPass.gateRecord.linked") },
               { key: "member_names", label: t("field.assignees") },
               {
                 key: "issue_status",

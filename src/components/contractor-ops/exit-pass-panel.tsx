@@ -37,7 +37,7 @@ import {
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { FieldSignaturePad } from "@/components/field-staff/field-signature-pad";
@@ -66,22 +66,19 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { ApiError } from "@/interfaces/api";
 import type { ExitPass, ExitPassKind } from "@/interfaces/exit-pass";
-import type { RecordAttachment } from "@/interfaces/record-attachment";
 import { useDateFormat } from "@/lib/dates";
 import { localToday } from "@/lib/local-date";
 import { cn } from "@/lib/utils";
 import {
+  downloadExitPassPaperCopy,
+  exitPassPaperCopyObjectUrl,
   getExitPass,
   recordExitPassExternalPaper,
   setExitPassExternalRequired,
   signExitPass,
   signExitPassExternal,
 } from "@/services/exit-pass.service";
-import {
-  downloadRecordAttachment,
-  getRecordAttachments,
-  recordAttachmentObjectUrl,
-} from "@/services/record-attachment.service";
+import { getRecordAttachments } from "@/services/record-attachment.service";
 
 // The 门岗事项 a release made, opened over the record (the gate's own window).
 const GateIncidentDetailDialog = dynamic(
@@ -105,23 +102,48 @@ export function useExitPass(kind: ExitPassKind, record: string, enabled = true) 
 
 /**
  * Why 【确认归档】 is off for this record, or null (plan D11, contract §8):
- * while 外部审批 is owed, 归档 would close the 附件 slot the signed copy goes
- * into, and the client wants 「所有签批资料保存在同一笔事项内」. Said beside
- * the button, as JB169's missing supplier is; the server refuses it too.
+ * while a signed 出门条 owes its 外部审批, 归档 would close the 附件 slot the
+ * signed copy goes into, and the client wants 「所有签批资料保存在同一笔事项内」.
+ * Said beside the button, as JB169's missing supplier is; the server refuses
+ * it too - and only then (audit F2): 「需要外部审批」 switched on before the
+ * safety manager signs blocks nothing, as the server's `archive_refusal`.
  */
 export function useExitPassArchiveBlock(
   target: { kind: ExitPassKind; recordId: string } | null | undefined,
 ): { reason: string; action?: React.ReactNode } | null {
   const t = useTranslations("exitPass");
+  const locale = useLocale();
+  const { user } = useAuth();
   // query-failure: only words why 确认归档 is off; the server refuses it either way (409 exit_pass_external_pending)
   const state = useQuery({
     queryKey: exitPassKey(target?.kind ?? "MATERIAL_OUTGOING", target?.recordId ?? ""),
     queryFn: () => getExitPass(target!.kind, target!.recordId),
     enabled: Boolean(target?.recordId),
   });
-  if (!target || !state.data || state.data.external.status !== "waiting") return null;
-  // What to do about it, right there (contract v2 §11): the 外部审批 part's own buttons.
-  return { reason: t("archive.externalPending"), action: <ExternalActions pass={state.data} /> };
+  const pass = state.data;
+  if (!target || !pass || pass.state !== "awaiting_external") return null;
+  // What to do about it, right there (contract v2 §11): the 外部审批 part's own
+  // buttons, drawn under 【确认归档】 - named only when this reader has them.
+  const buttons = waitingExternalButtons(pass, Boolean(user?.is_field_staff)).map((key) => `【${t(key)}】`);
+  if (buttons.length === 0) return { reason: t("archive.pendingWho") };
+  const either = new Intl.ListFormat(locale, { type: "disjunction" }).format(buttons);
+  return { reason: t("archive.pendingPress", { buttons: either }), action: <ExternalActions pass={pass} /> };
+}
+
+/** The 外部审批 buttons `ExternalActions` draws for a pass waiting on it, in its order. */
+function waitingExternalButtons(
+  pass: ExitPass,
+  fieldStaff: boolean,
+): ("external.signOnline" | "external.recordPaper" | "external.waive")[] {
+  const external = pass.external;
+  if (fieldStaff || pass.record_closed || pass.state !== "awaiting_external" || external.status !== "waiting") {
+    return [];
+  }
+  return [
+    ...(external.can_sign_online ? (["external.signOnline"] as const) : []),
+    ...(external.can_record_paper ? (["external.recordPaper"] as const) : []),
+    ...(external.can_waive ? (["external.waive"] as const) : []),
+  ];
 }
 
 /**
@@ -590,15 +612,17 @@ export function ExternalActions({ pass }: { pass: ExitPass }) {
   );
 }
 
-/** The paper copy, as it sits in the record's 附件: 「见附件：signed.pdf」, opened in place. */
+/**
+ * The paper copy, as it sits in the record's 附件: 「见附件：signed.pdf」, opened
+ * in place - through the 出门条's own address (contract v4 F7), so the guard
+ * and a safety manager without the record's page open it too.
+ */
 function PaperCopyLink({ pass }: { pass: ExitPass }) {
   const t = useTranslations("exitPass");
   const df = useDateFormat();
   const [open, setOpen] = useState(false);
   const file = pass.external.attachment;
   if (!file) return null;
-  // Enough of an attachment row for the download endpoint (it reads the id).
-  const row = { id: file.id, original_name: file.name } as RecordAttachment;
   const previewType = /\.pdf$/i.test(file.name)
     ? "application/pdf"
     : /\.(jpe?g|png|webp|gif)$/i.test(file.name)
@@ -621,10 +645,10 @@ function PaperCopyLink({ pass }: { pass: ExitPass }) {
           description={
             pass.external.recorded_at ? df.dateTime(pass.external.recorded_at) : pass.reference
           }
-          load={() => recordAttachmentObjectUrl(pass.kind, pass.record, row)}
+          load={() => exitPassPaperCopyObjectUrl(pass.kind, pass.record)}
           previewType={previewType}
           filename={file.name}
-          onDownload={() => downloadRecordAttachment(pass.kind, pass.record, row)}
+          onDownload={() => downloadExitPassPaperCopy(pass.kind, pass.record, file.name)}
           recordKind={pass.kind}
           recordId={pass.record}
           onClose={() => setOpen(false)}
@@ -918,7 +942,9 @@ function ReleasePart({ pass }: { pass: ExitPass }) {
   const [opened, setOpened] = useState<string | null>(null);
   const sent = pass.sent;
   const released = pass.releases.length > 0;
-  const badge = !sent ? null : released && !pass.multi_release ? (
+  // A 工地清运 that ended with no lorry released waits for nothing (contract v4 F8).
+  const ended = pass.release_ended && !released;
+  const badge = !sent || ended ? null : released && !pass.multi_release ? (
     <StatusBadge label={t("release.released")} tone="positive" />
   ) : released ? (
     <StatusBadge label={t("release.trips", { count: pass.releases.length })} tone="positive" />
@@ -986,6 +1012,10 @@ function ReleasePart({ pass }: { pass: ExitPass }) {
           ) : null}
           {released ? null : pass.record_closed ? (
             <p className="text-muted-foreground">{t("release.closedUnreleased")}</p>
+          ) : ended ? (
+            <p className="text-muted-foreground" data-exit-pass-release-ended>
+              {t("release.ended")}
+            </p>
           ) : (
             <p className="text-muted-foreground">{t("release.waiting")}</p>
           )}
