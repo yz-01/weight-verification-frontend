@@ -8,6 +8,8 @@ import Link from "next/link";
 import { useAuth } from "@/components/providers/auth-provider";
 import { CompanyLockedSettingsPanel } from "@/components/companies/company-locked-settings";
 import { CompanyOnboarding } from "@/components/companies/company-onboarding";
+import { PlatformReasonLine } from "@/components/platform-access/closed";
+import { CompanyAccessPanel } from "@/components/platform-access/company-access-panel";
 import { ExternalAccessManagement } from "@/components/external-access/external-access-management";
 import { ServerOriginals } from "@/components/technical/technical-management";
 import { FormSection, FormSkeleton, LoadErrorCard } from "@/components/shared/form-shell";
@@ -22,6 +24,7 @@ import { LOCALE_LABELS, resolveLocale } from "@/i18n/config";
 import type { CompanyStatus } from "@/interfaces/company";
 import { getCompany } from "@/services/companies.service";
 import { useDateFormat } from "@/lib/dates";
+import { companyAccountsOpen, companyViewOpen } from "@/lib/platform-access";
 
 const STATUS_TONE: Record<
   CompanyStatus,
@@ -58,6 +61,12 @@ export function ViewCompany({ id }: { id: string }) {
     data.type === "CONTRACTOR"
       ? "/companies/admin/directory"
       : "/companies/admin/recyclers";
+  // JB220 (客户 11-18): adding this customer's accounts waits for its
+  // 「允许 MSE 管理账号」 (free while it is still onboarding); a link that
+  // reads into its projects waits for 「允许 MSE 查看」. Unknown (an older
+  // server) greys nothing: the server's refusal then says it.
+  const accountsClosed = companyAccountsOpen(data.platform_access) === false;
+  const viewClosed = companyViewOpen(data.platform_access) === false;
 
   return (
     <div className="space-y-4">
@@ -71,16 +80,29 @@ export function ViewCompany({ id }: { id: string }) {
         action={
           <div className="flex items-center gap-2">
             {can("user.create") ? (
-              <Button
-                asChild
-                variant="outline"
-                size="sm"
-              >
-                <Link href={`/users/create?company=${data.id}`}>
+              accountsClosed ? (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled
+                  disabledReason={t("mseAccess.reason.accounts")}
+                  showReason
+                >
                   <UserPlus className="h-4 w-4" />
                   {t("companies.addUser")}
-                </Link>
-              </Button>
+                </Button>
+              ) : (
+                <Button
+                  asChild
+                  variant="outline"
+                  size="sm"
+                >
+                  <Link href={`/users/create?company=${data.id}`}>
+                    <UserPlus className="h-4 w-4" />
+                    {t("companies.addUser")}
+                  </Link>
+                </Button>
+              )
             ) : null}
             {can("company.update") ? (
               <Button asChild size="sm">
@@ -94,6 +116,7 @@ export function ViewCompany({ id }: { id: string }) {
         }
       />
 
+      {can("user.create") && accountsClosed && <PlatformReasonLine text={t("mseAccess.reason.accounts")} />}
       <div className="surface-panel rounded-xl">
         <div className="flex flex-wrap items-center gap-3 px-6 py-5">
           <h2 className="text-base font-semibold text-foreground">{data.name}</h2>
@@ -275,13 +298,16 @@ export function ViewCompany({ id }: { id: string }) {
             />
           </FormSection>
         </div>
+        {/* 客户开放情况 (JB220, 客户 11-18): whether this customer lets MSE look
+            at its records or change its accounts, the asking, and the record. */}
+        <CompanyAccessPanel companyId={data.id} />
         {/* 锁起来的设定 (JB99): the contractor's own page no longer has them. */}
         {data.type === "CONTRACTOR" && <CompanyLockedSettingsPanel companyId={data.id} />}
         {/* 外部访问链接 and 技术管理 left the contractor's back office; MSE runs
             them here, for this company (JB99, 客户 11-05 事项 4 第 5、8 点). */}
         {data.type === "CONTRACTOR" && can("external_access.manage") && (
           <section id="company-external-access" className="scroll-mt-20 border-t p-4 sm:p-6">
-            <ExternalAccessManagement companyId={data.id} />
+            <ExternalAccessManagement companyId={data.id} createClosedReason={viewClosed ? t("mseAccess.reason.externalLink") : undefined} />
           </section>
         )}
         {data.type === "CONTRACTOR" && can("platform.monitor") && (

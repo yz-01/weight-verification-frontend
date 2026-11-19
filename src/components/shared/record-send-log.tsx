@@ -19,6 +19,7 @@ import { useTranslations } from "next-intl";
 import { createContext, useContext } from "react";
 import { toast } from "sonner";
 
+import { PlatformClosedNote } from "@/components/platform-access/closed";
 import { QueryFailedNote } from "@/components/shared/page-primitives";
 import { FILE_SHARES_KEY } from "@/components/shared/send-recipient";
 import { SendStates } from "@/components/shared/send-states";
@@ -119,24 +120,33 @@ export function RecordSendLog({
   recordKind,
   recordId,
   className,
+  platformHidden = false,
 }: {
   recordKind: string;
   recordId: string | null | undefined;
   className?: string;
+  /**
+   * JB220: on an MSE screen, the customer has not opened 「允许 MSE 查看」, so
+   * only MSE's own sends are listed - said, so an empty log is not read as
+   * 「从来没发过」.
+   */
+  platformHidden?: boolean;
 }) {
   const office = signsFileActions();
   if (!recordId || !office) return null;
-  return <RecordSendLogPanel recordKind={recordKind} recordId={recordId} className={className} />;
+  return <RecordSendLogPanel recordKind={recordKind} recordId={recordId} className={className} platformHidden={platformHidden} />;
 }
 
 function RecordSendLogPanel({
   recordKind,
   recordId,
   className,
+  platformHidden,
 }: {
   recordKind: string;
   recordId: string;
   className?: string;
+  platformHidden: boolean;
 }) {
   const t = useTranslations("fileActions.send");
   const shares = useQuery({
@@ -152,6 +162,7 @@ function RecordSendLogPanel({
       data-record-send-log
     >
       <h3 className="panel-title mb-3">{t("log.title")}</h3>
+      <PlatformClosedNote hidden={platformHidden} className="mb-3" />
       <QueryFailedNote query={shares} what={t("log.what")} />
       {shares.isSuccess && rows.length === 0 ? (
         <p className="text-sm text-muted-foreground">{t("log.empty")}</p>

@@ -83,6 +83,8 @@ export function exitPass(overrides: Partial<ExitPass> = {}): ExitPass {
     sent: null,
     releases: [],
     can_release: false,
+    release_blocked: null,
+    release_ended: false,
     record_view: {
       kind: "MATERIAL_OUTGOING",
       id: "mo-1",

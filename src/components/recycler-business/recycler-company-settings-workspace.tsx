@@ -24,6 +24,7 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useState } from "react";
 
+import { MseAccessSection } from "@/components/platform-access/mse-access-section";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import {
@@ -320,6 +321,9 @@ export function RecyclerCompanySettingsWorkspace() {
           ))}
         </div>
       </section>
+
+      {/* MSE 查看权限 (JB220, 客户 11-18): the same section as the builder's. */}
+      <MseAccessSection />
       {bankEditing !== undefined && <BankAccountDialog account={bankEditing} onClose={() => setBankEditing(undefined)} onSaved={() => { setBankEditing(undefined); void queryClient.invalidateQueries({ queryKey: ["recycler-company-bank-accounts"] }); }} />}
       <ConfirmDialog
         open={bankRemoving !== null}

@@ -34,6 +34,7 @@ import {
 } from "recharts";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { PlatformHiddenPins } from "@/components/platform-access/closed";
 import {
   LocationMap,
   type LocationMapMarker,
@@ -658,6 +659,9 @@ export function AdminDashboard({
               <p className="font-medium text-warning">{t("map.noMatches")}</p>
             )}
           </div>
+          {/* JB220 (客户 11-18, PO-1 = A): a customer's sites are on the map
+              only while it has opened 「允许 MSE 查看」 - the count says so. */}
+          <PlatformHiddenPins count={data.map.hidden_project_pins} className="border-t px-4 py-3" />
           {missingLocations > 0 && coverage && (
             <div className="border-t border-warning/25 bg-warning/10 px-4 py-3 text-xs text-foreground">
               <div className="flex items-start gap-2">

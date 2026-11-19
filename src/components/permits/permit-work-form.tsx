@@ -24,7 +24,7 @@ import { FileSignature, Loader2, Save } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { FieldDraft, useClearDraft, useDraftState } from "@/components/field-staff/field-draft";
 import { useAuth } from "@/components/providers/auth-provider";
@@ -90,6 +90,13 @@ interface Draft {
   approval_conditions: string;
   valid_from: string;
   valid_until: string;
+  /**
+   * When the e-permit this form opened was last saved (``null``: none yet) -
+   * kept with the typing (audit F1), so the window reading the permit again
+   * (the browser back in focus) never moves it, and a draft brought back the
+   * next day still says which save it was typed over.
+   */
+  seen_saved_at: string | null;
 }
 
 /** Where the form starts: what was saved, else what the application holds. */
@@ -109,16 +116,18 @@ export function startingDraft(permit: Permit): Draft {
     approval_conditions: form?.approval_conditions ?? "",
     valid_from: toLocalInput(form?.valid_from ?? ""),
     valid_until: toLocalInput(form?.valid_until ?? ""),
+    seen_saved_at: form?.filled_at ?? null,
   };
 }
 
 /**
- * What 【保存】 sends. Times go as the moment they name; ``seenSavedAt`` is the
- * save this screen opened, so somebody else's later save is not overwritten.
+ * What 【保存】 sends. Times go as the moment they name; ``seen_saved_at`` is
+ * the save this form opened, so somebody else's later save is not overwritten.
  */
-export function formInput(draft: Draft, seenSavedAt: string | null = null): PermitWorkFormInput {
+export function formInput(draft: Draft): PermitWorkFormInput {
   return {
-    seen_saved_at: seenSavedAt,
+    // A draft kept before this field existed says nothing: "none seen".
+    seen_saved_at: draft.seen_saved_at ?? null,
     subcontractor: draft.subcontractor.trim(),
     work_lead: draft.work_lead.trim(),
     contact_phone: draft.contact_phone.trim(),
@@ -133,6 +142,40 @@ export function formInput(draft: Draft, seenSavedAt: string | null = null): Perm
     valid_until: fromLocalInput(draft.valid_until) || null,
   };
 }
+
+/**
+ * A draft kept on this computer that was typed over an older save than the
+ * permit now has (audit F1): somebody saved the e-permit since.
+ */
+export function draftIsOutdated(draft: Pick<Draft, "seen_saved_at">, permit: Permit) {
+  return (draft.seen_saved_at ?? null) !== (permit.work_form?.filled_at ?? null);
+}
+
+type TimeField = "work_end" | "valid_from" | "valid_until";
+export type TimeProblem = "endBeforeStart" | "validFromAfterWorkEnd" | "validUntilBeforeWorkStart";
+
+/**
+ * The times the server would refuse, by the field to correct (audit F6) -
+ * checked as the server checks them: an empty 批准 time is the 申请 one.
+ */
+export function timeProblems(
+  draft: Pick<Draft, "work_start" | "work_end" | "valid_from" | "valid_until">,
+): Partial<Record<TimeField, TimeProblem>> {
+  const { work_start, work_end, valid_from, valid_until } = draft;
+  const problems: Partial<Record<TimeField, TimeProblem>> = {};
+  if (work_start && work_end && work_end < work_start) problems.work_end = "endBeforeStart";
+  const from = valid_from || work_start;
+  const until = valid_until || work_end;
+  if (from && until && until < from) {
+    if (valid_from && valid_until) problems.valid_until = "endBeforeStart";
+    else if (valid_from) problems.valid_from = "validFromAfterWorkEnd";
+    else if (valid_until) problems.valid_until = "validUntilBeforeWorkStart";
+    // Neither typed: the 申请 times themselves, said under 申请结束时间.
+  }
+  return problems;
+}
+
+const TIME_FIELDS: readonly string[] = ["work_start", "work_end", "valid_from", "valid_until"];
 
 /** The drop-down's value: a name on the list, 「其他」, or nothing yet. */
 export function typeChoice(draft: Pick<Draft, "work_type" | "type_other">, names: readonly string[]) {
@@ -298,42 +341,82 @@ export function PermitWorkFormFields({ permit, onClose }: { permit: Permit; onCl
   const { can } = useAuth();
   const queryClient = useQueryClient();
   const clearDraft = useClearDraft();
-  const [draft, setDraft] = useDraftState<Draft>("form", () => startingDraft(permit));
+  // Where the form starts, read once when it opens: the save it was opened
+  // over goes with the typing (audit F1).
+  const [start] = useState(() => startingDraft(permit));
+  const [kept, setDraft] = useDraftState<Draft>("form", start);
+  // Typing kept on this computer from before somebody else's 【保存】 is not
+  // shown over their e-permit: the latest is, with one sentence saying so.
+  const [outdatedBy] = useState(() =>
+    draftIsOutdated(kept, permit) ? permit.work_form?.filled_by_name || t("someone") : "",
+  );
+  useEffect(() => {
+    if (outdatedBy) clearDraft();
+  }, [outdatedBy, clearDraft]);
+  const draft = outdatedBy && kept.seen_saved_at !== start.seen_saved_at ? start : kept;
   const [error, setError] = useState("");
+  // What the server said about a field, until that field is changed (F6).
+  const [serverErrors, setServerErrors] = useState<Record<string, string>>({});
   const types = useQuery({ queryKey: PERMIT_WORK_TYPES_KEY, queryFn: getPermitWorkTypes });
   const names = (types.data ?? []).map((row) => row.name);
   const choice = typeChoice(draft, names);
-  const set = <K extends keyof Draft>(key: K, value: Draft[K]) => setDraft((current) => ({ ...current, [key]: value }));
+  const set = <K extends keyof Draft>(key: K, value: Draft[K]) => {
+    setServerErrors({});
+    setDraft((current) => ({ ...current, [key]: value }));
+  };
   // The list is head office's page (公司通用分类): offered to whoever keeps it.
   const mayManageTypes = can("category.manage") && can("project.view_all");
-  const backwards =
-    Boolean(draft.work_start && draft.work_end && draft.work_end < draft.work_start) ||
-    Boolean(draft.valid_from && draft.valid_until && draft.valid_until < draft.valid_from);
+  const problems = timeProblems(draft);
+  const problem = problems.work_end ?? problems.valid_from ?? problems.valid_until;
+  const backwards = Boolean(problem);
+  /** The red line under a field: the times as checked here, else the server's word. */
+  const errorOf = (field: keyof PermitWorkFormInput) => {
+    const own = problems[field as TimeField];
+    if (own) return t(own);
+    const said = serverErrors[field];
+    if (!said) return undefined;
+    // The server's sentence about a time is its own; the screen says it plainly.
+    return TIME_FIELDS.includes(field) ? t("endBeforeStart") : said;
+  };
   const save = useMutation({
-    mutationFn: () => saveWorkForm(permit.id, formInput(draft, permit.work_form?.filled_at ?? null)),
+    mutationFn: () => saveWorkForm(permit.id, formInput(draft)),
     onSuccess: () => {
       setError("");
+      setServerErrors({});
       clearDraft();
       void queryClient.invalidateQueries({ queryKey: ["permits"] });
       onClose();
     },
-    onError: (reason) => setError(reason instanceof ApiError ? reason.message : t("failed")),
+    onError: (reason) => {
+      setError(reason instanceof ApiError ? reason.message : t("failed"));
+      setServerErrors(reason instanceof ApiError ? reason.errors : {});
+      // Somebody else saved first: the window reads the permit again, so
+      // closing and reopening shows their e-permit (the refusal says so).
+      if (reason instanceof ApiError && reason.code === "permit_form_changed") {
+        void queryClient.invalidateQueries({ queryKey: ["permits"] });
+      }
+    },
   });
 
   return (
     <div className="space-y-4">
+      {outdatedBy && (
+        <p role="status" className="rounded-md bg-warning/10 px-3 py-2 text-sm" data-slot="permit-form-draft-outdated">
+          {t("draftOutdated", { name: outdatedBy })}
+        </p>
+      )}
       <ApplicationFacts permit={permit} />
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <FieldWrapper label={t("subcontractor")}>
+        <FieldWrapper label={t("subcontractor")} error={errorOf("subcontractor")}>
           <Input value={draft.subcontractor} maxLength={200} onChange={(event) => set("subcontractor", event.target.value)} />
         </FieldWrapper>
-        <FieldWrapper label={t("workLead")}>
+        <FieldWrapper label={t("workLead")} error={errorOf("work_lead")}>
           <Input value={draft.work_lead} maxLength={150} onChange={(event) => set("work_lead", event.target.value)} />
         </FieldWrapper>
-        <FieldWrapper label={t("contactPhone")}>
+        <FieldWrapper label={t("contactPhone")} error={errorOf("contact_phone")}>
           <Input value={draft.contact_phone} maxLength={50} inputMode="tel" onChange={(event) => set("contact_phone", event.target.value)} />
         </FieldWrapper>
-        <FieldWrapper label={t("workType")}>
+        <FieldWrapper label={t("workType")} error={errorOf("work_type")}>
           <Select
             value={choice || undefined}
             onValueChange={(value) =>
@@ -377,17 +460,17 @@ export function PermitWorkFormFields({ permit, onClose }: { permit: Permit; onCl
           <Input value={draft.work_type} maxLength={100} onChange={(event) => set("work_type", event.target.value)} />
         </FieldWrapper>
       )}
-      <FieldWrapper label={t("location")} required>
+      <FieldWrapper label={t("location")} required error={errorOf("location")}>
         <Input value={draft.location} maxLength={300} onChange={(event) => set("location", event.target.value)} />
       </FieldWrapper>
-      <FieldWrapper label={t("workContent")} required>
-        <Textarea rows={3} value={draft.work_content} onChange={(event) => set("work_content", event.target.value)} />
+      <FieldWrapper label={t("workContent")} required error={errorOf("work_content")}>
+        <Textarea rows={3} maxLength={5000} value={draft.work_content} onChange={(event) => set("work_content", event.target.value)} />
       </FieldWrapper>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <FieldWrapper label={t("workStart")} required>
+        <FieldWrapper label={t("workStart")} required error={errorOf("work_start")}>
           <Input type="datetime-local" value={draft.work_start} onChange={(event) => set("work_start", event.target.value)} />
         </FieldWrapper>
-        <FieldWrapper label={t("workEnd")} required>
+        <FieldWrapper label={t("workEnd")} required error={errorOf("work_end")}>
           <Input
             type="datetime-local"
             min={draft.work_start || undefined}
@@ -397,18 +480,18 @@ export function PermitWorkFormFields({ permit, onClose }: { permit: Permit; onCl
         </FieldWrapper>
       </div>
       <BroughtIn permit={permit} />
-      <FieldWrapper label={t("measures")}>
-        <Textarea rows={3} value={draft.safety_measures} onChange={(event) => set("safety_measures", event.target.value)} />
+      <FieldWrapper label={t("measures")} error={errorOf("safety_measures")}>
+        <Textarea rows={3} maxLength={5000} value={draft.safety_measures} onChange={(event) => set("safety_measures", event.target.value)} />
       </FieldWrapper>
       <SectionBand>{t("approvalSection")}</SectionBand>
-      <FieldWrapper label={t("conditions")}>
-        <Textarea rows={2} value={draft.approval_conditions} onChange={(event) => set("approval_conditions", event.target.value)} />
+      <FieldWrapper label={t("conditions")} error={errorOf("approval_conditions")}>
+        <Textarea rows={2} maxLength={5000} value={draft.approval_conditions} onChange={(event) => set("approval_conditions", event.target.value)} />
       </FieldWrapper>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <FieldWrapper label={t("validFrom")} hint={t("validHint")}>
+        <FieldWrapper label={t("validFrom")} hint={t("validHint")} error={errorOf("valid_from")}>
           <Input type="datetime-local" value={draft.valid_from} onChange={(event) => set("valid_from", event.target.value)} />
         </FieldWrapper>
-        <FieldWrapper label={t("validUntil")} hint={t("validHint")}>
+        <FieldWrapper label={t("validUntil")} hint={t("validHint")} error={errorOf("valid_until")}>
           <Input
             type="datetime-local"
             min={draft.valid_from || undefined}
@@ -418,9 +501,9 @@ export function PermitWorkFormFields({ permit, onClose }: { permit: Permit; onCl
         </FieldWrapper>
       </div>
       <ApprovalFacts permit={permit} />
-      {backwards && (
+      {problem && (
         <p role="alert" className="rounded-md bg-warning/10 px-3 py-2 text-sm">
-          {t("endBeforeStart")}
+          {t(problem)}
         </p>
       )}
       {error && (
@@ -443,7 +526,7 @@ export function PermitWorkFormFields({ permit, onClose }: { permit: Permit; onCl
             [draft.work_end, t("workEnd")],
           ]}
           disabled={save.isPending || backwards}
-          disabledReason={backwards ? t("endBeforeStart") : undefined}
+          disabledReason={problem ? t(problem) : undefined}
           onClick={() => save.mutate()}
         >
           {save.isPending ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}
@@ -463,12 +546,21 @@ export function PermitWorkFormView({ permit, onClose }: { permit: Permit; onClos
   const df = useDateFormat();
   const form = permit.work_form;
   const when = (value: string | null | undefined) => (value ? df.dateTime(value) : "");
+  // One line that fits where the permit is (audit F10).
+  const intro =
+    permit.status === "VERIFIED" || permit.status === "RESOLVED"
+      ? t("viewIntroApproved")
+      : permit.status === "RETURNED"
+        ? t("viewIntroReturned")
+        : permit.can_fill_work_form
+          ? t("viewIntroCanFill")
+          : t("viewIntro");
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-h-[92dvh] overflow-y-auto sm:max-w-3xl" data-slot="permit-work-form-view">
         <DialogHeader>
           <DialogTitle>{t("title")}</DialogTitle>
-          <DialogDescription>{t("viewIntro")}</DialogDescription>
+          <DialogDescription>{intro}</DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <ApplicationFacts permit={permit} />

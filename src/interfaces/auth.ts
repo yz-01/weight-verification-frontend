@@ -182,6 +182,16 @@ export interface UserRow {
   language: Locale;
   last_login_at: string | null;
   created_at: string;
+  /**
+   * JB220, MSE callers only: MSE may change this account now - true for MSE's
+   * own staff, a company still onboarding, or an open 「允许 MSE 管理账号」.
+   */
+  company_accounts_open?: boolean;
+  /**
+   * JB220, every caller: an MSE staff member made this account - `owner` the
+   * first 公司管理员 at onboarding, `added` any other. Shown as a plain badge.
+   */
+  mse_added?: "owner" | "added" | null;
 }
 
 export interface UserDetail extends UserRow {

@@ -216,7 +216,12 @@ describe("JB181-8, JB181-9 【加到现有项目】 says what it does, and count
 describe("JB181-6 the project side has no 「公司通用分类」 (追加 5 第 6 点)", () => {
   it("shows the tabs only to head office on 「全部项目」; one project - its own categories, no tabs", () => {
     expect(MANAGEMENT).toContain('const headOffice = can("project.view_all");');
-    expect(MANAGEMENT).toContain("const showsCompany = headOffice && !(topBar.active && topBar.projectId);");
+    // JB216 audit F7: the one exception - an address that asks for a company
+    // list by name (`?company=`, the e-permit's 「管理施工类别」) gets it.
+    expect(MANAGEMENT).toContain('const askedCompany = Boolean(searchParams.get("company"));');
+    expect(MANAGEMENT).toContain(
+      "const showsCompany = headOffice && (askedCompany || !(topBar.active && topBar.projectId));",
+    );
     expect(MANAGEMENT).toContain('const tab = showsCompany ? chosenTab : "project";');
     expect(MANAGEMENT).toMatch(/\{showsCompany && \(\s*<div role="tablist"/);
     expect(MANAGEMENT).toMatch(/\{headOffice && !showsCompany && \(\s*<p className="text-xs text-muted-foreground">\{t\("tabs\.companyWhere"\)\}<\/p>/);

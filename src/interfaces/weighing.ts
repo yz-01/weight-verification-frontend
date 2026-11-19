@@ -299,6 +299,12 @@ export interface WeighSessionRow {
   net_weight_kg: string | null;
   reading_count: number;
   anomaly_count?: number;
+  /**
+   * JB220, MSE callers only: the customer has not opened 「允许 MSE 查看」, so
+   * its fields (plate, names, notes, project, dispatch; attachments on the
+   * detail) came back `null`.
+   */
+  platform_closed?: boolean;
 }
 
 export interface WeighSessionDetail extends WeighSessionRow {

@@ -59,6 +59,8 @@ export interface QRCode {
   scan_count: number;
   notes: string;
   created_at: string;
+  /** JB220, MSE callers only: the customer has not opened 「允许 MSE 查看」 - subject, project and notes withheld. */
+  platform_closed?: boolean;
 }
 
 export interface QRCodeIssue extends QRCode {
@@ -88,6 +90,8 @@ export interface QRScanRecord {
   longitude: string | null;
   device_id: string;
   note: string;
+  /** JB220, MSE callers only: who, where and what were withheld. */
+  platform_closed?: boolean;
 }
 
 export interface QRCodeSummary {

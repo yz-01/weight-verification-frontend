@@ -221,11 +221,75 @@ describe("the 出门条 window (JB217-6, -7)", () => {
     expect(html).toContain("（GT-PRJ-0001-045），不用再放行。");
   });
 
+  it("audit round 2 (F8): a 工地清运 that ended with no lorry: 「本清运已结束」, not 「等待放行」, nothing to press", () => {
+    const html = renderDetail(<ExitPassWindow kind="DISPOSAL_REQUEST" record="disp-1" onClose={() => {}} />, (client) =>
+      client.setQueryData(
+        exitPassKey("DISPOSAL_REQUEST", "disp-1"),
+        exitPass({
+          kind: "DISPOSAL_REQUEST",
+          record: "disp-1",
+          multi_release: true,
+          state: "sent",
+          approval: APPROVAL,
+          sent: SENT,
+          can_release: false,
+          release_ended: true,
+        }),
+      ),
+    );
+    expect(html).toContain("本清运已结束");
+    expect(html).not.toContain("等待放行");
+    expect(html).not.toContain("等待门岗放行");
+    expect(html).not.toContain("data-exit-pass-release-capture");
+  });
+
   it("a guard opening one not sent yet: why it cannot be released now", () => {
     const html = renderDetail(<ExitPassWindow kind="MATERIAL_OUTGOING" record="mo-1" onClose={() => {}} />, (client) =>
       client.setQueryData(exitPassKey("MATERIAL_OUTGOING", "mo-1"), exitPass()),
     );
     expect(html).toContain("这张出门条还没有发出，现在不能放行；请车辆先等候，并联系申请人或安全经理先签出门条。");
+  });
+
+  it("audit F1: the applicant's own 出门条 - one plain sentence, never 【核查拍照】 / 【确认放行】", () => {
+    const html = renderDetail(<ExitPassWindow kind="MATERIAL_OUTGOING" record="mo-1" onClose={() => {}} />, (client) =>
+      client.setQueryData(
+        exitPassKey("MATERIAL_OUTGOING", "mo-1"),
+        // Even were the server to say `can_release`, `release_blocked` wins.
+        exitPass({ state: "sent", approval: APPROVAL, sent: SENT, can_release: true, release_blocked: "exit_pass_own_release" }),
+      ),
+    );
+    expect(html).not.toContain("data-exit-pass-release-capture");
+    expect(html).not.toContain("data-exit-pass-release=");
+    expect(html).toContain("data-exit-pass-release-blocked");
+    expect(html).toContain("这是你自己申请出场的东西，要由门岗检查车辆和货物后放行。");
+  });
+
+  it("audit F1: a project with gate phones - another phone is told to let the gate release it", () => {
+    const html = renderDetail(<ExitPassWindow kind="MATERIAL_OUTGOING" record="mo-1" onClose={() => {}} />, (client) =>
+      client.setQueryData(
+        exitPassKey("MATERIAL_OUTGOING", "mo-1"),
+        exitPass({ state: "sent", approval: APPROVAL, sent: SENT, can_release: false, release_blocked: "exit_pass_gate_release_only" }),
+      ),
+    );
+    expect(html).not.toContain("data-exit-pass-release-capture");
+    expect(html).toContain(
+      "这个项目有门岗手机，出门条要由门岗检查放行。请让门岗在手机上打开出门条，拍照核查后按【确认放行】。",
+    );
+    // One sentence in that place, not the gate note as well.
+    expect(html).not.toContain("data-exit-pass-gate-note");
+  });
+
+  it("audit F1: a window the gate did not open (the applicant's 「出门条已批准」) never draws the release step", () => {
+    const html = renderDetail(
+      <ExitPassWindow kind="MATERIAL_OUTGOING" record="mo-1" mayRelease={false} onClose={() => {}} />,
+      (client) =>
+        client.setQueryData(
+          exitPassKey("MATERIAL_OUTGOING", "mo-1"),
+          exitPass({ state: "sent", approval: APPROVAL, sent: SENT, can_release: true }),
+        ),
+    );
+    expect(html).not.toContain("data-exit-pass-release-capture");
+    expect(html).not.toContain("确认放行</button>");
   });
 
   it("a record with no 出门条 says so", () => {
@@ -327,5 +391,14 @@ describe("the 门岗事项 a release becomes (JB217-8)", () => {
     const source = readFileSync(path.join(__dirname, "gate-records-office.tsx"), "utf8");
     expect(source).toContain('tRoot("exitPass.gateRecord.listNote"');
     expect(source).toContain("row.original.exit_record");
+  });
+
+  it("audit F3: the 门岗事项 export carries 「关联原申请」 (contract §7 `exit_record_no`), on the issues tab only", () => {
+    const source = readFileSync(path.join(__dirname, "gate-records-office.tsx"), "utf8");
+    const exporting = source.slice(source.indexOf("const runExport"), source.indexOf("const above"));
+    const photos = exporting.slice(0, exporting.indexOf(": ["));
+    const issues = exporting.slice(exporting.indexOf(": ["));
+    expect(issues).toContain('{ key: "exit_record_no", label: tRoot("exitPass.gateRecord.linked") }');
+    expect(photos).not.toContain("exit_record_no");
   });
 });

@@ -7,6 +7,9 @@
  * 位置及「签名批准」按钮完成审批，不另建申请。」 - and 施工类别 is the company's own
  * list (分类管理 → 施工准证 · 施工类别), plus 「其他（写明）」.
  */
+import { readFileSync } from "node:fs";
+import path from "node:path";
+
 import { describe, expect, it, vi } from "vitest";
 
 import type { Permit, PermitFile, PermitWorkForm, PermitWorkType } from "@/interfaces/permit";
@@ -47,6 +50,20 @@ vi.mock("@/components/site-operations/hazard-conversation", () => ({
 vi.mock("@/components/shared/record-export-button", () => ({
   RecordExportButton: ({ kind }: { kind: string }) => <div data-stub="export" data-kind={kind} />,
 }));
+// What this computer kept of an earlier, unsaved 「填写电子准证」 (FieldDraft);
+// nothing unless a test sets it.
+const kept = vi.hoisted(() => ({ form: undefined as unknown }));
+vi.mock("@/components/field-staff/field-draft", async (original) => {
+  const real = await original<typeof import("@/components/field-staff/field-draft")>();
+  const { useState } = await import("react");
+  return {
+    ...real,
+    useDraftState: <T,>(key: string, initial: T | (() => T)) => {
+      const [fallback, setFallback] = useState(initial);
+      return [key === "form" && kept.form !== undefined ? (kept.form as T) : fallback, setFallback] as const;
+    },
+  };
+});
 const posted = vi.hoisted(() => ({ calls: [] as [string, unknown][] }));
 vi.mock("@/services/api-client", async (original) => ({
   ...(await original<typeof import("@/services/api-client")>()),
@@ -63,10 +80,22 @@ vi.mock("@/services/api-client", async (original) => ({
 
 const { renderDetail } = await import("@/components/shared/record-detail-test-kit");
 const { PermitDetail, PermitDocuments, permitKeys } = await import("@/components/permits/permit-parts");
-const { PermitWorkFormFields, PermitWorkFormView, formInput, startingDraft, typeChoice, OTHER_WORK_TYPE, MANAGE_WORK_TYPES_HREF } =
-  await import("@/components/permits/permit-work-form");
+const {
+  PermitWorkFormFields,
+  PermitWorkFormView,
+  formInput,
+  startingDraft,
+  typeChoice,
+  draftIsOutdated,
+  timeProblems,
+  OTHER_WORK_TYPE,
+  MANAGE_WORK_TYPES_HREF,
+} = await import("@/components/permits/permit-work-form");
 const { PermitWorkTypesPanel } = await import("@/components/contractor-ops/permit-work-types");
-const { saveWorkForm, PERMIT_WORK_TYPES_KEY } = await import("@/services/permit.service");
+const { saveWorkForm, approvePermit, PERMIT_WORK_TYPES_KEY } = await import("@/services/permit.service");
+const read = (file: string) => readFileSync(path.join(process.cwd(), file), "utf8").replace(/\r\n/g, "\n");
+const FORM_SOURCE = read("src/components/permits/permit-work-form.tsx");
+const PARTS_SOURCE = read("src/components/permits/permit-parts.tsx");
 const { recordAttachmentsKey } = await import("@/components/shared/record-attachments");
 
 const PHOTO: PermitFile = {
@@ -259,12 +288,109 @@ describe("JB216-3/4/5 the form: the application brought in, the rest to fill (�
   });
 
   it("says which save it opened, so somebody else's later save is told, not overwritten", () => {
-    expect(formInput(startingDraft(permit()), null).seen_saved_at).toBeNull();
+    expect(formInput(startingDraft(permit())).seen_saved_at).toBeNull();
     const reopened = permit({ work_form: SAVED });
-    expect(formInput(startingDraft(reopened), SAVED.filled_at).seen_saved_at).toBe(SAVED.filled_at);
+    expect(formInput(startingDraft(reopened)).seen_saved_at).toBe(SAVED.filled_at);
     // The refusal is a plain sentence naming who saved, and what to do.
     expect(zh.errors.api.permit_form_changed).toContain("{name}");
     expect(zh.errors.api.permit_form_changed).toContain("重新打开");
+  });
+});
+
+describe("F1 the save the form opened, not the one the window re-read", () => {
+  const NEWER: PermitWorkForm = {
+    ...SAVED,
+    location: "管理员改的位置",
+    filled_by_name: "公司 管理员",
+    filled_at: "2026-11-18T05:00:00Z",
+  };
+
+  it("keeps the opened save's time with the typing, and sends that time", () => {
+    const opened = startingDraft(permit({ work_form: SAVED }));
+    expect(opened.seen_saved_at).toBe(SAVED.filled_at);
+    // The window re-reads the permit when the browser comes back into focus;
+    // what is sent is still the save this form opened.
+    expect(formInput({ ...opened, location: "改过" }).seen_saved_at).toBe(SAVED.filled_at);
+    expect(FORM_SOURCE).toMatch(/saveWorkForm\(permit\.id, formInput\(draft\)\)/);
+    expect(FORM_SOURCE).not.toMatch(/formInput\(draft, permit/);
+  });
+
+  it("tells a draft kept from before somebody else's save from one that is still current", () => {
+    const yesterday = { ...startingDraft(permit({ work_form: SAVED })), location: "我昨天打的字" };
+    expect(draftIsOutdated(yesterday, permit({ work_form: NEWER }))).toBe(true);
+    expect(draftIsOutdated(yesterday, permit({ work_form: SAVED }))).toBe(false);
+    // Typed before anybody saved one, and somebody has since.
+    expect(draftIsOutdated(startingDraft(permit()), permit({ work_form: NEWER }))).toBe(true);
+    expect(draftIsOutdated(startingDraft(permit()), permit())).toBe(false);
+  });
+
+  it("shows the latest e-permit, not the old typing, and says who saved it", () => {
+    kept.form = { ...startingDraft(permit({ work_form: SAVED })), location: "我昨天打的字" };
+    const html = form(permit({ work_form: NEWER }));
+    kept.form = undefined;
+    expect(html).toContain(e.draftOutdated.replace("{name}", "公司 管理员"));
+    expect(html).toContain('value="管理员改的位置"');
+    expect(html).not.toContain("我昨天打的字");
+    // A draft that is still current is simply back.
+    kept.form = { ...startingDraft(permit({ work_form: SAVED })), location: "我刚才打的字" };
+    const current = form(permit({ work_form: SAVED }));
+    kept.form = undefined;
+    expect(current).toContain('value="我刚才打的字"');
+    expect(current).not.toContain(e.draftOutdated.replace("{name}", ""));
+  });
+});
+
+describe("F6 a time the server would refuse is red on the screen, and says which", () => {
+  const draft = (over: Partial<ReturnType<typeof startingDraft>>) => ({
+    ...startingDraft(permit()),
+    work_start: "2026-11-19T09:00",
+    work_end: "2026-11-19T17:00",
+    ...over,
+  });
+
+  it("checks the 批准 times as the server does: an empty one is the 申请 time", () => {
+    expect(timeProblems(draft({}))).toEqual({});
+    expect(timeProblems(draft({ valid_from: "2026-11-19T18:00" }))).toEqual({ valid_from: "validFromAfterWorkEnd" });
+    expect(timeProblems(draft({ valid_until: "2026-11-19T08:00" }))).toEqual({ valid_until: "validUntilBeforeWorkStart" });
+    expect(timeProblems(draft({ valid_from: "2026-11-19T12:00", valid_until: "2026-11-19T11:00" }))).toEqual({
+      valid_until: "endBeforeStart",
+    });
+    expect(timeProblems(draft({ work_end: "2026-11-19T08:00" }))).toEqual({ work_end: "endBeforeStart" });
+    // Within the 申请 times, or the same moment: fine.
+    expect(timeProblems(draft({ valid_from: "2026-11-19T17:00" }))).toEqual({});
+  });
+
+  it("marks 批准开始时间 red with the sentence, and greys 【保存】", () => {
+    const html = form(
+      permit({ work_form: { ...SAVED, valid_from: "2026-11-19T10:00:00Z", valid_until: null } }),
+    );
+    expect(html).toMatch(new RegExp(`<label[^>]*text-destructive[^>]*>${e.validFrom}</label>`));
+    expect(html).not.toMatch(new RegExp(`<label[^>]*text-destructive[^>]*>${e.validUntil}</label>`));
+    expect(html).toContain(e.validFromAfterWorkEnd);
+    expect(html).toMatch(new RegExp(`disabled=""[^>]*>(?:(?!</button>).)*${e.save}</button>`));
+  });
+
+  it("cannot take more than the server keeps in a box", () => {
+    const html = form(permit());
+    expect(html.match(/<textarea[^>]*maxLength="5000"/gi)?.length).toBe(3);
+  });
+});
+
+describe("F5 签名批准 says which e-permit the signer saw", () => {
+  it("sends the e-permit's save time with the signature", async () => {
+    const signature = new File(["x"], "sign.png", { type: "image/png" });
+    await approvePermit("p1", signature, "同意", SAVED.filled_at);
+    const sent = posted.calls.at(-1)?.[1] as FormData;
+    expect(posted.calls.at(-1)?.[0]).toBe("/api/permits/p1/approve_permit/");
+    expect(sent.get("seen_form_at")).toBe(SAVED.filled_at);
+    await approvePermit("p1", signature, "同意", null);
+    expect((posted.calls.at(-1)?.[1] as FormData).get("seen_form_at")).toBe("");
+    expect(PARTS_SOURCE).toMatch(/approvePermit\(permit\.id, signature!, note\.trim\(\), permit\.work_form\?\.filled_at \?\? null\)/);
+  });
+
+  it("says plainly to look again, and reads the permit again", () => {
+    expect(zh.errors.api.permit_form_changed_before_signing).toBe("电子准证刚被修改过，请先看一遍再签名批准。");
+    expect(PARTS_SOURCE).toMatch(/code === "permit_form_changed_before_signing"/);
   });
 });
 
@@ -313,6 +439,20 @@ describe("JB216-2 the applicant and readers see it, never change it", () => {
     expect(html).not.toMatch(/<input|<textarea/);
     expect(html).not.toContain(`>${e.save}<`);
     expect(html).toContain(e.viewIntro);
+  });
+
+  it("F10: its one line fits the permit's state", () => {
+    const line = (row: Permit) => {
+      const html = view(row);
+      return [e.viewIntro, e.viewIntroCanFill, e.viewIntroApproved, e.viewIntroReturned].filter((words) =>
+        html.includes(words),
+      );
+    };
+    expect(line(permit({ work_form: SAVED, can_fill_work_form: false }))).toEqual([e.viewIntro]);
+    expect(line(permit({ work_form: SAVED, can_fill_work_form: true }))).toEqual([e.viewIntroCanFill]);
+    expect(line(permit({ work_form: SAVED, status: "VERIFIED", can_fill_work_form: false }))).toEqual([e.viewIntroApproved]);
+    expect(line(permit({ work_form: SAVED, status: "RESOLVED", can_fill_work_form: false }))).toEqual([e.viewIntroApproved]);
+    expect(line(permit({ work_form: SAVED, status: "RETURNED", can_fill_work_form: false }))).toEqual([e.viewIntroReturned]);
   });
 
   it("shows who signed and when once approved", () => {

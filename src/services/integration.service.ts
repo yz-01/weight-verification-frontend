@@ -167,11 +167,18 @@ export async function deleteIntegrationDevice(
 export function getDeviceMedia(
   sourceModel: string,
   sourceId: string,
+  /**
+   * JB220: on MSE's ticket page, the customer whose photos these are
+   * (`X-MSE-Company`), and `silent` - a closed door is said in place of the
+   * photos, not toasted.
+   */
+  options: { platformCompany?: string; silent?: boolean } = {},
 ): Promise<Paginated<DeviceMedia>> {
-  return api.list<DeviceMedia>("/api/device-media/get_media/", {
-    source_model: sourceModel,
-    source_id: sourceId,
-  });
+  return api.list<DeviceMedia>(
+    "/api/device-media/get_media/",
+    { source_model: sourceModel, source_id: sourceId },
+    options,
+  );
 }
 
 /** The estate-wide feed, newest first. */

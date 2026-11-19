@@ -60,6 +60,7 @@ export function ExportButton({
   size,
   variant = "outline",
   ownWork,
+  blockedReason,
 }: {
   onExport: (format: ExportFormat) => Promise<unknown>;
   disabled?: boolean;
@@ -89,6 +90,12 @@ export function ExportButton({
    * 「导出」 ticked or not.
    */
   ownWork?: boolean;
+  /**
+   * 预览 only, the other three greyed with this sentence - as
+   * `FileActionButtons` does. JB220: MSE may only look at a customer's ticket
+   * (「允许 MSE 查看」 is look and preview, no print, export or send).
+   */
+  blockedReason?: string;
 }) {
   const t = useTranslations();
   const { busy, run, element } = useFileActions();
@@ -111,7 +118,7 @@ export function ExportButton({
         exportedOnServer: true,
         ownWork,
       },
-      { key: `${format}-${action}`, allowSave },
+      { key: `${format}-${action}`, allowSave, blockedReason },
     );
 
   // Files are the office's (Lucas 11-05): never offered on the phone.
@@ -146,11 +153,14 @@ export function ExportButton({
                 <div className="grid grid-cols-4 gap-1">
                   {actions.map((action) => {
                     const Icon = FILE_ACTION_ICONS[action];
+                    const blocked = Boolean(blockedReason) && action !== "preview";
                     return (
                       <DropdownMenuItem
                         key={action}
                         data-slot={`export-${format}-${action}`}
                         className="flex-col justify-center gap-1 px-1 text-xs"
+                        disabled={blocked}
+                        title={blocked ? blockedReason : undefined}
                         onSelect={() => start(format, action)}
                       >
                         <Icon className="size-4" />
@@ -164,7 +174,7 @@ export function ExportButton({
           })}
           <DropdownMenuSeparator />
           <p className="px-2 pb-1 text-xs leading-snug text-muted-foreground">
-            {t("fileActions.shareHint")}
+            {blockedReason ?? t("fileActions.shareHint")}
           </p>
         </DropdownMenuContent>
       </DropdownMenu>
