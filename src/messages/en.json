@@ -9527,6 +9527,10 @@
       "exit_pass_external_pending": "This is still waiting for the external approval, so it cannot be confirmed and archived now. Register the signed copy, ask the approver to sign online, or change it to no external approval, then confirm and archive.",
       "role_kind_fixed": "The Company Administrator is always a head-office role, and a phone account's role cannot become one.",
       "role_self_lockout": "You hold this role yourself, so saving this would switch off your own user management. Keep “View users” and “Edit users” ticked, or ask the Company Administrator to make the change.",
+      "role_self_lockout_type": "You hold this role yourself, so making it a project role would switch off your own user management. Keep it a head-office role, or ask the Company Administrator to make the change.",
+      "grant_not_held": "You do not have this permission yourself, so you cannot give it to anyone else or to yourself. Please ask the Company Administrator to do it.",
+      "grant_admin_role_only_admin": "Only a Company Administrator can make someone a Company Administrator. Please ask the Company Administrator to do it.",
+      "grant_admin_account_only_admin": "Only a Company Administrator can change a Company Administrator's role or permissions. Please ask the Company Administrator to do it.",
       "permit_form_office_only": "The e-permit is filled in on the office computer. Please sign in on a computer to fill it in.",
       "permit_work_type_exists": "\"{name}\" is already on the list.",
       "permit_form_changed": "{name} saved this e-permit after you opened it. Close it, open it again, read the latest and then change it."
@@ -14715,6 +14719,7 @@
       "nothingChanged": "Nothing changed yet.",
       "saved": "Project permissions saved",
       "projectNote": "Project permissions: all on by default. One switched off is off for this person on every project they work on.",
+      "notMine": "A greyed switch is a permission you do not have yourself, so you cannot switch it on. Please ask the Company Administrator.",
       "allOn": "All project permissions on",
       "someOff": "{count} switched off",
       "grantedCount": "{count} group B permissions from head office",
@@ -15840,6 +15845,8 @@
     },
     "followers": "{count, plural, one {This role has # person now.} other {This role has # people now.}} When you save, the ticks you changed this time reach them; anything opened or switched off for one of them separately stays as it is.",
     "adminLocked": "The Company Administrator has every permission; this cannot be changed.",
+    "adminNameFixed": "The Company Administrator's name and description are set by the system and cannot be changed.",
+    "notYours": "A greyed box is a permission you do not have yourself, so you cannot tick it for this role. Please ask the Company Administrator.",
     "phoneRole": "This is a phone account's role (site staff, equipment operator, gate guard). It is made and managed in Field staff; here its permissions can only be viewed.",
     "phoneRoleLink": "Open Field staff",
     "hqCount": "{count, plural, =0 {No head-office permissions ticked} one {# head-office permission} other {# head-office permissions}}",
@@ -18558,7 +18565,10 @@
       "timezone": "Time zone",
       "roleRequired": "Choose a role.",
       "noOwnRoles": "The company has not made any roles of its own yet. To give this person less than the Company Administrator, first go to Users › Roles and permissions and press “New role”.",
-      "noOwnRolesLink": "Go to Roles and permissions"
+      "noOwnRolesLink": "Go to Roles and permissions",
+      "roleNotYours": "(ask the Company Administrator)",
+      "rolesNotYours": "A greyed role has permissions you do not have yourself (or is Company Administrator), so you cannot give it. Please ask the Company Administrator.",
+      "adminRoleFixed": "This is a Company Administrator's account. Only a Company Administrator can change its role."
     },
     "filter": {
       "allAudiences": "All user categories",
@@ -18677,6 +18687,8 @@
       "chosenProjects": "Chosen projects",
       "noProjects": "The company has no projects yet.",
       "needOneProject": "Choose at least one project, or all projects.",
+      "notMine": "A greyed switch is a permission you do not have yourself: you cannot switch it on, for anyone or for yourself. Please ask the Company Administrator.",
+      "adminAccount": "This is a Company Administrator's account. Only a Company Administrator can change its permissions.",
       "amounts": "See amounts",
       "amountsHint": "Material cost, unit price, budgets, claims and sundry claim amounts. Off: shown as —, and left out of exports.",
       "operate": "Everyday work",

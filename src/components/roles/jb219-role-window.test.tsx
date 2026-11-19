@@ -204,7 +204,8 @@ describe("the people already in a role (lead 11-18)", () => {
       holdersNotice({ holders: 3, typeChanged: false, before: ["user.view"], after: [], pageOf }),
     ).toBe("ticks");
     expect(zh.roles.followers).toContain("同步给他们");
-    expect(zh.roles.followers).toContain("其他项目不变");
+    // Audit F5: 「项目」 on this page means a building project - 「其他权限不变」.
+    expect(zh.roles.followers).toContain("其他权限不变");
   });
 
   it("says nothing when only project codes, the name or nobody is involved", () => {
