@@ -5039,7 +5039,8 @@
       "byLetter": "Tapis ikut huruf pertama"
     },
     "loadOffline": "Tiada rangkaian - {what} akan dimuatkan apabila sambungan pulih.",
-    "pageNotOpen": "Akaun anda tidak boleh membuka halaman itu, jadi anda dibawa kembali. Untuk menggunakannya, minta pentadbir syarikat anda membukanya untuk anda."
+    "pageNotOpen": "Akaun anda tidak boleh membuka halaman itu, jadi anda dibawa kembali. Untuk menggunakannya, minta pentadbir syarikat anda membukanya untuk anda.",
+    "saveFailed": "Ini tidak disimpan (pelayan tidak menyelesaikannya). Maklumat yang anda isi masih ada. Sila cuba lagi."
   },
   "companies": {
     "owner": {
@@ -5443,7 +5444,8 @@
         "confirmOff": "Buka kunci"
       },
       "noRole": "Tidak ditetapkan (semua yang boleh meluluskan)",
-      "roleMissing": "{name} (syarikat ini tiada peranan ini)"
+      "roleMissing": "{name} (syarikat ini tiada peranan ini)",
+      "noUserRole": "Tidak ditetapkan (pilih peranan semasa menambah pengguna)"
     },
     "trialDaysHint": "Pakej ini memberi {days} hari percuma secara lalai. Tiada bil semasa percubaan; bil bermula hanya apabila anda tekan Lanjut atau perbaharui di Langganan. Masukkan 0 untuk tiada percubaan.",
     "trialNote": "Tiada bil semasa percubaan. Bil bermula hanya apabila anda tekan Lanjut atau perbaharui di Langganan.",
@@ -9549,7 +9551,8 @@
       "platform_qr_customer_only": "Kod QR untuk nota hantar dan pembekal dikeluarkan oleh pelanggan sendiri; MSE tidak dapat melihat rekod ini.",
       "platform_access_view_only": "Pelanggan hanya membuka paparan. MSE boleh pratonton di skrin tetapi tidak boleh mengubah, memuat turun atau mengeksport rekod pelanggan.",
       "platform_accounts_closed": "Mengubah akaun pelanggan ini memerlukan persetujuan pelanggan. Minta pentadbir pelanggan tekan “Benarkan MSE mengurus akaun” dalam Tetapan syarikat, kemudian cuba lagi.",
-      "platform_owner_locked": "Pelanggan sudah menggunakan akaun pentadbir ini, jadi MSE tidak boleh mengubah e-mel log masuknya. Beritahu pelanggan: pentadbir syarikat mereka sendiri mengubahnya dalam Pengurusan pengguna, atau pelanggan menghantar surat dan rakan yang menjaga pelayan akan menguruskannya."
+      "platform_owner_locked": "Pelanggan sudah menggunakan akaun pentadbir ini, jadi MSE tidak boleh mengubah e-mel log masuknya. Beritahu pelanggan: pentadbir syarikat mereka sendiri mengubahnya dalam Pengurusan pengguna, atau pelanggan menghantar surat dan rakan yang menjaga pelayan akan menguruskannya.",
+      "phone_role_office_account": "Akaun telefon dibuat dalam Kakitangan tapak. Akaun pejabat tidak boleh diberi peranan telefon (kakitangan tapak, operator jentera, pengawal pintu) di sini. Sila pilih peranan lain."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -9593,7 +9596,8 @@
       "invalid_birth_date": "Tarikh lahir mesti sebelum hari ini",
       "site_worker_passport_taken": "Pasport ini sudah ada dalam senarai",
       "supplier_not_on_project": "Pembekal ini tiada dalam senarai pembekal projek ini. Minta ibu pejabat atau pengurus projek menambahnya dahulu.",
-      "field_one_project": "Akaun telefon hanya boleh berada di satu projek pada satu masa. Pilih satu projek."
+      "field_one_project": "Akaun telefon hanya boleh berada di satu projek pada satu masa. Pilih satu projek.",
+      "phone_role_office_account": "Akaun telefon dibuat dalam Kakitangan tapak. Akaun pejabat tidak boleh diberi peranan telefon (kakitangan tapak, operator jentera, pengawal pintu) di sini. Sila pilih peranan lain."
     },
     "forbidden": "Anda tiada akses kepada ini.",
     "forbiddenBody": "Tanya pentadbir anda jika anda memerlukannya.",
@@ -15872,7 +15876,9 @@
     "hqCount": "{count, plural, =0 {Tiada kebenaran ibu pejabat ditanda} other {# kebenaran ibu pejabat}}",
     "allPermissions": "Semua kebenaran",
     "phoneHere": "Akaun telefon (kakitangan tapak, operator jentera, pengawal pintu) dibuat dalam Kakitangan tapak, bukan di sini.",
-    "onlyAdmin": "Pentadbir Syarikat sudah mempunyai semua kebenaran. Untuk kerja lain, tekan “Peranan baharu” di kanan atas, beri nama anda sendiri, pilih peranan ibu pejabat atau peranan projek, dan tanda kebenarannya."
+    "onlyAdmin": "Pentadbir Syarikat sudah mempunyai semua kebenaran. Untuk kerja lain, tekan “Peranan baharu” di kanan atas, beri nama anda sendiri, pilih peranan ibu pejabat atau peranan projek, dan tanda kebenarannya.",
+    "createHelp": "Beri nama, pilih Peranan ibu pejabat atau Peranan projek, tandakan apa yang boleh dibuat oleh peranan ini, kemudian tekan “Cipta”.",
+    "editHelp": "Nama, jenis peranan dan tanda kebenaran ada di bawah; tekan “Simpan” apabila selesai."
   },
   "safety": {
     "officeCreate": {
@@ -18728,7 +18734,8 @@
       "hqHintProjectUser": "Kumpulan B · ibu pejabat boleh beri: mati secara lalai; orang ini boleh menggunakannya selepas ibu pejabat menghidupkannya.",
       "reservedNote": "Kebenaran kumpulan A ibu pejabat (pengguna dan peranan, log audit, templat kelulusan, jabatan, pengurusan projek, pengurusan papan pemuka, tetapan syarikat, bil, langganan, integrasi) hanya untuk akaun ibu pejabat dan tidak boleh dihidupkan untuk pengguna projek.",
       "scopeProjectUser": "Pengguna projek hanya melihat projek yang dipilih di sini.",
-      "projectDefaultOn": "Kebenaran projek semuanya hidup secara lalai; anda boleh mematikan satu untuk orang ini, dan menghidupkannya semula kemudian."
+      "projectDefaultOn": "Kebenaran projek semuanya hidup secara lalai; anda boleh mematikan satu untuk orang ini, dan menghidupkannya semula kemudian.",
+      "partSavedWhy": "Butiran pengguna telah disimpan; kebenaran belum disimpan lagi: {reason}"
     },
     "projectsView": {
       "projectsAll": "Boleh melihat semua projek syarikat",

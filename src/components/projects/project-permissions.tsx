@@ -33,6 +33,7 @@ import { Switch } from "@/components/ui/switch";
 import type { PermissionEntry } from "@/interfaces/auth";
 import { permissionGroupLabel, permissionLabel } from "@/lib/permission-labels";
 import { roleName } from "@/lib/role-labels";
+import { saveRefusalLine } from "@/lib/save-refusal";
 import { cn } from "@/lib/utils";
 import { getPermissionCatalogue } from "@/services/auth.service";
 import {
@@ -43,6 +44,7 @@ import {
 
 export function ProjectPermissions({ projectId }: { projectId: string }) {
   const t = useTranslations("projects.permissions");
+  const all = useTranslations();
   const queryClient = useQueryClient();
   const key = ["projects", "permissions", projectId] as const;
   const state = useQuery({ queryKey: key, queryFn: () => getProjectPermissions(projectId) });
@@ -87,6 +89,12 @@ export function ProjectPermissions({ projectId }: { projectId: string }) {
               entries={entries}
               saving={save.isPending}
               onSave={(on) => save.mutate({ member: member.id, on })}
+              // This person's save refused: said under its 「保存」 (walk 11-18).
+              refusal={
+                save.isError && save.variables?.member === member.id
+                  ? saveRefusalLine(save.error, all("common.saveFailed"))
+                  : null
+              }
             />
           ))}
         </ul>
@@ -101,12 +109,15 @@ function MemberRow({
   entries,
   saving,
   onSave,
+  refusal = null,
 }: {
   member: ProjectPermissionsState["members"][number];
   data: ProjectPermissionsState;
   entries: Map<string, PermissionEntry>;
   saving: boolean;
   onSave: (on: string[]) => void;
+  /** Why this person's last save did not go through, in the reader's words. */
+  refusal?: string | null;
 }) {
   const t = useTranslations("projects.permissions");
   const all = useTranslations();
@@ -210,6 +221,11 @@ function MemberRow({
               ))}
             </div>
           )}
+          {editable && refusal ? (
+            <p role="alert" data-member-refusal className="text-sm font-medium text-destructive">
+              {refusal}
+            </p>
+          ) : null}
           {editable && (
             <div className="flex justify-end">
               <Button
