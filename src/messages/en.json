@@ -9528,7 +9528,9 @@
       "permit_form_office_only": "The e-permit is filled in on the office computer. Please sign in on a computer to fill it in.",
       "permit_work_type_exists": "\"{name}\" is already on the list.",
       "permit_form_changed": "{name} saved this e-permit after you opened it. Close it, open it again, read the latest and then change it.",
-      "permit_form_changed_before_signing": "The e-permit was just changed. Please read it again before you sign and approve."
+      "permit_form_changed_before_signing": "The e-permit was just changed. Please read it again before you sign and approve.",
+      "permit_work_name_required": "Write the work name first, then sign and approve.",
+      "permit_formal_permit_required": "There is no formal permit yet. Upload the company's filled permit form with \"Attach files\", or fill in the e-permit, then sign and approve."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -12693,7 +12695,8 @@
       "permit_work_period": "Requested period",
       "permit_safety_measures": "Risks and safety measures",
       "permit_conditions": "Conditions of approval",
-      "permit_valid_period": "Approved period"
+      "permit_valid_period": "Approved period",
+      "permit_work_name": "Work name"
     },
     "detailTitle": "What I sent",
     "photos": "Photographs",
@@ -13883,7 +13886,7 @@
     "permits": {
       "what": "Permits to work: upload your company's own permit form (Word, PDF or a photo) and send it to a named safety manager, who signs to approve it or returns it; an approved permit is archived. Every permit can be found again by project, approval status, applicant and date, and its files previewed, printed or downloaded. The approver can press \"Fill in e-permit\" in the window to turn the application into an e-permit, printed as the first page of the complete evidence PDF.",
       "who": "People with “View hazards / EHS and permits to work” can read and download; with “Report and assign hazards, apply for permits to work” they apply with “New application”. Approving needs “Safety verification (can approve permits to work)” and is done by the safety manager the applicant chose, or a company administrator. Nobody approves their own permit.",
-      "need": "A new application needs the project, the permit files (Word, PDF or photos of the form; several pages, at most 10 at a time) and the approving safety manager; a remark is optional. Approving needs a signature; returning needs the reason. The e-permit is optional; if it is filled in, the work description, location and requested times are needed. The types of work are set in Category management → Company categories → Permit to work · Types of work.",
+      "need": "A new application needs the project, the permit files (Word, PDF or photos of the form; several pages, at most 10 at a time) and the approving safety manager; a remark is optional. Approving needs a signature; returning needs the reason. Signing to approve also needs the work name and the formal permit: the company's filled permit form uploaded with \"Attach files\" (Word, PDF, Excel or a photo; the applicant's own files do not count), or the e-permit (work description, location and requested times needed). The types of work are set in Category management → Company categories → Permit to work · Types of work.",
       "then": "The chosen safety manager (and the company administrators) get a to-do notice. Once approved, the original files, the decision, the signature, the approver's position and the time are archived together and can no longer change. A returned permit is corrected by the applicant and resubmitted with new files; the earlier files are kept. The applicant is told either way. Only the permit's approver can fill in the e-permit, on a computer; the applicant can only read it. Once signed it is archived with the permit and can no longer change.",
       "trouble": "If no safety manager can be chosen, nobody on this project can approve permits yet: the approver's account needs “Safety verification” and “View projects” (on by default for a project role), and the person must be on this project's staff list. The “New application” window lists these three steps."
     },
@@ -20926,7 +20929,11 @@
   },
   "permits": {
     "title": "Permit to work",
-    "subtitle": "Upload your company's own permit form (Word, PDF or a photo) and send it to a named safety manager. Once approved, the original files, the decision, the signature and the time are archived together.",
+    "subtitle": "Upload your company's own permit form (Word, PDF or a photo) and send it to a named safety manager. Once approved, the original files, the decision, the signature and the time are archived together. Before approving, the safety manager writes the work name and uploads the formal permit (or fills in the e-permit).",
+    "searchPlaceholder": "Search work name, number, applicant, file name or any keyword",
+    "fileCount": "{count, plural, one {# file} other {# files}}",
+    "workNameHint": "Written by the safety manager, e.g. \"Level 3 zone B steel beam welding\". Once approved it shows in the permit list and can be searched.",
+    "workNamePending": "Written by the safety manager when approving",
     "new": "New application",
     "newTitle": "New permit-to-work application",
     "newHelp": "Use your company's own permit form, fill it in and upload it - there is no form to fill in here. Add a remark, choose the safety manager who approves it, and submit.",
@@ -20942,6 +20949,7 @@
     "field": {
       "no": "No.",
       "project": "Project",
+      "workName": "Work name",
       "files": "Permit files",
       "note": "Remark",
       "approver": "Approving safety manager",
@@ -20994,6 +21002,15 @@
       "list": "the permits"
     },
     "approveHelp": "Read the files first; ask in the conversation below if anything is unclear. Approval is signed. Once approved, the original files, the decision, the signature and the time are archived and cannot be changed.",
+    "formal": {
+      "label": "Formal permit",
+      "missing": "There is no formal permit yet. Fill in your company's own permit form on the computer and upload it with \"Attach files\" under \"Attachments\", or press \"Fill in e-permit\" beside \"Permit documents\" and save it.",
+      "missingPhone": "There is no formal permit yet. It is uploaded (\"Attach files\") or filled in as an e-permit on the computer; once it is there, you can sign and approve here.",
+      "uploaded": "Formal permit: {file} ({name} · {time})",
+      "ePermit": "E-permit {no} · filled in by {name}",
+      "archivedWith": "Once signed, the formal permit is archived with the approval note, the signature and the time.",
+      "attachHint": "Upload the formal permit here: fill in your company's own permit form on the computer, press \"Attach files\" (Word, PDF, Excel or a photo), then sign and approve."
+    },
     "clearSignature": "Sign again",
     "approve": "Sign and approve",
     "armReturn": "Return",
@@ -21044,6 +21061,8 @@
       "project": "Project",
       "appliedOn": "Date applied",
       "applicant": "Applicant",
+      "workName": "Work name",
+      "workNameWhere": "Written in \"Work name\" on the right; it is printed here once signed.",
       "subcontractor": "Subcontractor",
       "workLead": "Person in charge of the work",
       "contactPhone": "Contact number",
@@ -21087,8 +21106,6 @@
       "failed": "That did not save. Please try again.",
       "draftOutdated": "{name} saved this e-permit after you last filled it in. Below is the latest; what you typed and did not save was not kept.",
       "someone": "Someone else",
-      "filledHint": "The e-permit is filled in ({no}). Once signed, it is archived with the approval note, the signature and the time.",
-      "fillHint": "Need an e-permit? Press \"Fill in e-permit\" beside \"Permit documents\" first, save it, then sign to approve.",
       "photosOnly": "The permit form came as photos: see the photos above.",
       "what": {
         "workTypes": "the types of work",

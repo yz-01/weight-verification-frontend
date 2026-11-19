@@ -183,12 +183,15 @@ export const LIST_FITS = {
   },
   /** 施工准证 */
   permits: {
-    storageKey: "permits.v1",
+    // `.v2` (JB221, 客户 11-19): 施工事项名称 between 项目 and 准证文件, the files
+    // down to one 48 px picture and its count; 已打包 under 「字段」 for the room.
+    storageKey: "permits.v2",
     file: "src/components/permits/permits-office.tsx",
     columns: {
       incident_no: "recno",
       pack: "pack",
       project_name: "text",
+      work_name: "name",
       files: "thumb",
       applicant_name: "person",
       occurred_at: "datetime",
@@ -198,7 +201,7 @@ export const LIST_FITS = {
       needs_action: "marker",
       actions: "actions",
     },
-    hidden: [],
+    hidden: ["pack"],
   },
   /** 门岗记录 → 照片 */
   gatePhotos: {

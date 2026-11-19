@@ -79,6 +79,22 @@ export interface Permit extends RecordedBy {
   work_form?: PermitWorkForm | null;
   /** Whether this reader may fill it now: who may 签名批准 it, in the office. */
   can_fill_work_form?: boolean;
+  /** 「施工事项名称」 (JB221): written by the safety manager; "" until then. */
+  work_name?: string;
+  /**
+   * The 「附件」 that count as the 正式施工准证 (JB221): uploaded in the office
+   * by anybody but the applicant, a Word / Excel / PDF / photo. On the
+   * permit's own window; `null` on the list.
+   */
+  formal_permit_files?: PermitFormalFile[] | null;
+}
+
+/** One 「附件」 that is the formal permit (JB221). */
+export interface PermitFormalFile {
+  id: string;
+  original_name: string;
+  uploaded_by_name: string | null;
+  uploaded_at: string;
 }
 
 /**

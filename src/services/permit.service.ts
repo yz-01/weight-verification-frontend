@@ -60,25 +60,28 @@ export async function resubmitPermit(id: string, files: File[], note: string): P
 /**
  * 签名批准. ``seenFormAt``: the save time of the e-permit the signer's window
  * shows (``null``: none) - one changed since is refused, not signed (JB216
- * audit F5).
+ * audit F5). ``workName``: 「施工事项名称」, required since JB221.
  */
 export async function approvePermit(
   id: string,
   signature: File,
   note: string,
   seenFormAt: string | null = null,
+  workName = "",
 ): Promise<Permit> {
   const body = new FormData();
   body.append("signature", signature);
   body.append("note", note);
   body.append("seen_form_at", seenFormAt ?? "");
+  body.append("work_name", workName);
   const permit = await api.post<Permit>(`${BASE}/${id}/approve_permit/`, body);
   toastSuccess("permits.toast.approved", { reference: permit.incident_no });
   return permit;
 }
 
-export async function returnPermit(id: string, reason: string): Promise<Permit> {
-  const permit = await api.post<Permit>(`${BASE}/${id}/return_permit/`, { reason });
+/** 退回. A 「施工事项名称」 already typed goes along and is kept (JB221). */
+export async function returnPermit(id: string, reason: string, workName = ""): Promise<Permit> {
+  const permit = await api.post<Permit>(`${BASE}/${id}/return_permit/`, { reason, work_name: workName });
   toastSuccess("permits.toast.returned", { reference: permit.incident_no });
   return permit;
 }

@@ -69,10 +69,13 @@ export function ModuleRecordsTable<T extends { id: string } & NeedsActionRow>({
   defaultHidden,
   corrected,
   phoneCard,
+  searchPlaceholder,
 }: {
   title: string;
   /** "12 records", already in the reader's language. */
   countLabel: string;
+  /** What the search box finds, in its placeholder; the plain 「搜索」 otherwise (JB221). */
+  searchPlaceholder?: string;
   /** The create button, top right, as on the receipt list. */
   headerAction?: React.ReactNode;
   /** Anything between the header and the table (a tab switch, a notice). */
@@ -189,6 +192,7 @@ export function ModuleRecordsTable<T extends { id: string } & NeedsActionRow>({
         rowClassName={rowClassName}
         corrected={corrected}
         phoneCard={phoneCard}
+        searchPlaceholder={searchPlaceholder}
         pack={pack ? { kind: pack } : undefined}
         onSearchChange={list.setSearch}
         onSortChange={list.setSort}

@@ -9528,7 +9528,9 @@
       "permit_form_office_only": "E-permit diisi di komputer pejabat. Sila log masuk di komputer untuk mengisinya.",
       "permit_work_type_exists": "\"{name}\" sudah ada dalam senarai.",
       "permit_form_changed": "{name} menyimpan e-permit ini selepas anda membukanya. Tutup, buka semula, baca yang terkini dan kemudian ubah.",
-      "permit_form_changed_before_signing": "E-permit baru sahaja diubah. Sila bacanya semula sebelum menandatangani dan meluluskan."
+      "permit_form_changed_before_signing": "E-permit baru sahaja diubah. Sila bacanya semula sebelum menandatangani dan meluluskan.",
+      "permit_work_name_required": "Tulis nama kerja dahulu, kemudian tandatangan dan luluskan.",
+      "permit_formal_permit_required": "Belum ada permit rasmi. Muat naik borang permit syarikat yang telah diisi dengan \"Lampirkan fail\", atau isi e-permit, kemudian tandatangan dan luluskan."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -12693,7 +12695,8 @@
       "permit_work_period": "Tempoh dipohon",
       "permit_safety_measures": "Risiko dan langkah keselamatan",
       "permit_conditions": "Syarat kelulusan",
-      "permit_valid_period": "Tempoh diluluskan"
+      "permit_valid_period": "Tempoh diluluskan",
+      "permit_work_name": "Nama kerja"
     },
     "detailTitle": "Apa yang saya hantar",
     "photos": "Gambar",
@@ -13883,7 +13886,7 @@
     "permits": {
       "what": "Permit kerja: muat naik borang permit syarikat anda sendiri (Word, PDF atau foto) dan hantar kepada pengurus keselamatan yang dinamakan, yang menandatangan untuk meluluskannya atau memulangkannya; permit yang diluluskan diarkibkan. Setiap permit boleh dicari semula mengikut projek, status kelulusan, pemohon dan tarikh, dan failnya boleh dipratonton, dicetak atau dimuat turun. Pelulus boleh menekan \"Isi e-permit\" dalam tetingkap untuk menjadikan permohonan ini e-permit, dicetak sebagai halaman pertama PDF bukti lengkap.",
       "who": "Orang yang ada “Lihat bahaya / EHS dan permit kerja” boleh melihat dan memuat turun; dengan “Lapor dan tugaskan bahaya, mohon permit kerja” mereka memohon dengan “Permohonan baharu”. Meluluskan memerlukan “Pengesahan keselamatan (boleh lulus permit kerja)” dan dibuat oleh pengurus keselamatan yang dipilih pemohon, atau pentadbir syarikat. Tiada sesiapa meluluskan permit sendiri.",
-      "need": "Permohonan baharu memerlukan projek, fail permit (Word, PDF atau foto borang; beberapa halaman, paling banyak 10 sekali gus) dan pengurus keselamatan pelulus; catatan adalah pilihan. Meluluskan memerlukan tandatangan; memulangkan memerlukan sebabnya. E-permit adalah pilihan; jika diisi, butiran kerja, lokasi dan masa dipohon diperlukan. Jenis kerja ditetapkan dalam Pengurusan kategori → Kategori syarikat → Permit kerja · Jenis kerja.",
+      "need": "Permohonan baharu memerlukan projek, fail permit (Word, PDF atau foto borang; beberapa halaman, paling banyak 10 sekali gus) dan pengurus keselamatan pelulus; catatan adalah pilihan. Meluluskan memerlukan tandatangan; memulangkan memerlukan sebabnya. Menandatangan untuk meluluskan juga memerlukan nama kerja dan permit rasmi: borang permit syarikat yang telah diisi dan dimuat naik dengan \"Lampirkan fail\" (Word, PDF, Excel atau foto; fail pemohon sendiri tidak dikira), atau e-permit (butiran kerja, lokasi dan masa dipohon diperlukan). Jenis kerja ditetapkan dalam Pengurusan kategori → Kategori syarikat → Permit kerja · Jenis kerja.",
       "then": "Pengurus keselamatan yang dipilih (dan pentadbir syarikat) menerima notis tugasan. Selepas diluluskan, fail asal, keputusan, tandatangan, jawatan pelulus dan masa diarkibkan bersama dan tidak boleh diubah lagi. Permit yang dipulangkan dibetulkan oleh pemohon dan dihantar semula dengan fail baharu; fail terdahulu disimpan. Pemohon dimaklumkan dalam kedua-dua keadaan. Hanya pelulus permit boleh mengisi e-permit, di komputer; pemohon hanya boleh membacanya. Selepas ditandatangani ia diarkibkan bersama permit dan tidak boleh diubah lagi.",
       "trouble": "Jika tiada pengurus keselamatan boleh dipilih, belum ada sesiapa dalam projek ini yang boleh meluluskan permit: akaun pelulus memerlukan “Pengesahan keselamatan” dan “Lihat projek” (hidup secara lalai bagi peranan projek), dan orang itu mesti ada dalam senarai kakitangan projek ini. Tetingkap “Permohonan baharu” menyenaraikan tiga langkah ini."
     },
@@ -20926,7 +20929,11 @@
   },
   "permits": {
     "title": "Permit kerja",
-    "subtitle": "Muat naik borang permit syarikat anda sendiri (Word, PDF atau foto) dan hantar kepada pengurus keselamatan yang dinamakan. Selepas diluluskan, fail asal, keputusan, tandatangan dan masa diarkibkan bersama.",
+    "subtitle": "Muat naik borang permit syarikat anda sendiri (Word, PDF atau foto) dan hantar kepada pengurus keselamatan yang dinamakan. Selepas diluluskan, fail asal, keputusan, tandatangan dan masa diarkibkan bersama. Sebelum meluluskan, pengurus keselamatan menulis nama kerja dan memuat naik permit rasmi (atau mengisi e-permit).",
+    "searchPlaceholder": "Cari nama kerja, nombor, pemohon, nama fail atau apa-apa kata kunci",
+    "fileCount": "{count} fail",
+    "workNameHint": "Diisi oleh pengurus keselamatan, cth. \"Kimpalan rasuk keluli aras 3 zon B\". Selepas diluluskan ia dipaparkan dalam senarai permit dan boleh dicari.",
+    "workNamePending": "Diisi oleh pengurus keselamatan semasa meluluskan",
     "new": "Permohonan baharu",
     "newTitle": "Permohonan permit kerja baharu",
     "newHelp": "Gunakan borang permit syarikat anda sendiri, isi dan muat naik - tiada borang untuk diisi di sini. Tambah catatan, pilih pengurus keselamatan yang meluluskan, dan hantar.",
@@ -20942,6 +20949,7 @@
     "field": {
       "no": "No.",
       "project": "Projek",
+      "workName": "Nama kerja",
       "files": "Fail permit",
       "note": "Catatan",
       "approver": "Pengurus keselamatan pelulus",
@@ -20994,6 +21002,15 @@
       "list": "senarai permit"
     },
     "approveHelp": "Baca fail dahulu; tanya dalam perbualan di bawah jika ada yang kurang jelas. Kelulusan ditandatangani. Selepas diluluskan, fail asal, keputusan, tandatangan dan masa diarkibkan dan tidak boleh diubah.",
+    "formal": {
+      "label": "Permit rasmi",
+      "missing": "Belum ada permit rasmi. Isi borang permit syarikat anda di komputer dan muat naik dengan \"Lampirkan fail\" di bawah \"Lampiran\", atau tekan \"Isi e-permit\" di sebelah \"Dokumen permit\" dan simpan.",
+      "missingPhone": "Belum ada permit rasmi. Ia dimuat naik (\"Lampirkan fail\") atau diisi sebagai e-permit di komputer; selepas itu anda boleh menandatangan dan meluluskan di sini.",
+      "uploaded": "Permit rasmi: {file} ({name} · {time})",
+      "ePermit": "E-permit {no} · diisi oleh {name}",
+      "archivedWith": "Selepas ditandatangani, permit rasmi diarkibkan bersama catatan kelulusan, tandatangan dan masa.",
+      "attachHint": "Muat naik permit rasmi di sini: isi borang permit syarikat anda di komputer, tekan \"Lampirkan fail\" (Word, PDF, Excel atau foto), kemudian tandatangan dan luluskan."
+    },
     "clearSignature": "Tandatangan semula",
     "approve": "Tandatangan dan luluskan",
     "armReturn": "Pulangkan",
@@ -21044,6 +21061,8 @@
       "project": "Projek",
       "appliedOn": "Tarikh mohon",
       "applicant": "Pemohon",
+      "workName": "Nama kerja",
+      "workNameWhere": "Ditulis dalam \"Nama kerja\" di sebelah kanan; dicetak di sini selepas ditandatangani.",
       "subcontractor": "Subkontraktor",
       "workLead": "Penyelia kerja",
       "contactPhone": "No. telefon",
@@ -21087,8 +21106,6 @@
       "failed": "Tidak berjaya disimpan. Sila cuba lagi.",
       "draftOutdated": "{name} menyimpan e-permit ini selepas anda kali terakhir mengisinya. Di bawah ialah yang terkini; apa yang anda taip dan tidak simpan tidak dikekalkan.",
       "someone": "Orang lain",
-      "filledHint": "E-permit sudah diisi ({no}). Selepas ditandatangani, ia diarkibkan bersama catatan kelulusan, tandatangan dan masa.",
-      "fillHint": "Perlukan e-permit? Tekan \"Isi e-permit\" di sebelah \"Dokumen permit\" dahulu, simpan, kemudian tandatangan untuk meluluskan.",
       "photosOnly": "Borang permit dihantar sebagai foto: lihat foto di atas.",
       "what": {
         "workTypes": "senarai jenis kerja",

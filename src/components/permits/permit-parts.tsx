@@ -62,6 +62,7 @@ import {
 import { HazardConversationPanel } from "@/components/site-operations/hazard-conversation";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -603,9 +604,61 @@ function NoApproversHelp({ project }: { project: string }) {
 
 /* ---------------------------------------------------------------- decide */
 
+/** The longest 「施工事项名称」 the server keeps (JB221). */
+export const WORK_NAME_MAX = 200;
+
+/** Whether 签名批准 has its formal permit (JB221): an office upload, or the e-permit. */
+export function hasFormalPermit(permit: Permit): boolean {
+  return Boolean(permit.work_form) || (permit.formal_permit_files?.length ?? 0) > 0;
+}
+
+/**
+ * 「正式施工准证」 under the name (JB221, 客户 11-19 事项 1): 「安全经理使用公司原有的
+ * 施工准证表格，在电脑上填写完成后，通过现有的上传附件按钮上传至系统，再签名批准。
+ * 未上传正式施工准证，不允许签名批准。」 Missing, it says what to do (the phone:
+ * that it is done on the computer); there, it names the file - who, when - or
+ * the e-permit (JB216 stays one way, Lucas 「按1做」).
+ */
+function FormalPermitStatus({ permit }: { permit: Permit }) {
+  const t = useTranslations("permits.formal");
+  const df = useDateFormat();
+  const { user } = useAuth();
+  const files = permit.formal_permit_files ?? [];
+  const form = permit.work_form;
+  if (!hasFormalPermit(permit)) {
+    return (
+      <p
+        role="status"
+        className="rounded-md border border-warning/40 bg-warning/10 px-2 py-1.5 text-xs"
+        data-slot="permit-formal-missing"
+      >
+        {t(user?.is_field_staff ? "missingPhone" : "missing")}
+      </p>
+    );
+  }
+  return (
+    <div className="space-y-1 rounded-md border border-success/30 bg-success/5 px-2 py-1.5 text-xs" data-slot="permit-formal-present">
+      {files.map((file) => (
+        <p key={file.id} className="break-words">
+          {t("uploaded", {
+            file: file.original_name,
+            name: file.uploaded_by_name ?? "—",
+            time: df.dateTime(file.uploaded_at),
+          })}
+        </p>
+      ))}
+      {form && <p>{t("ePermit", { no: form.permit_no, name: form.filled_by_name ?? "—" })}</p>}
+      <p className="text-muted-foreground">{t("archivedWith")}</p>
+    </div>
+  );
+}
+
 function DecisionPanel({ permit }: { permit: Permit }) {
   const t = useTranslations("permits");
   const queryClient = useQueryClient();
+  // 「设置「施工事项名称」必填栏，由安全经理填写」 (JB221): sent with 签名批准,
+  // and kept by a 退回; a returned and resubmitted permit starts from it.
+  const [workName, setWorkName] = useState(permit.work_name ?? "");
   const [signature, setSignature] = useState<File | undefined>();
   const [note, setNote] = useState("");
   const [returnArmed, setReturnArmed] = useState(false);
@@ -619,19 +672,25 @@ function DecisionPanel({ permit }: { permit: Permit }) {
   const approve = useMutation({
     // JB216 audit F5: says which e-permit this window shows, so one changed
     // since is not signed unseen.
-    mutationFn: () => approvePermit(permit.id, signature!, note.trim(), permit.work_form?.filled_at ?? null),
+    mutationFn: () =>
+      approvePermit(permit.id, signature!, note.trim(), permit.work_form?.filled_at ?? null, workName.trim()),
     onSuccess: settle,
     onError: (reasonError) => {
       setError(failure(reasonError, t("failed")));
       // 「电子准证刚被修改过，请先看一遍再签名批准。」: read it again, so the
-      // window shows what will be signed (the signature stays drawn).
-      if (reasonError instanceof ApiError && reasonError.code === "permit_form_changed_before_signing") {
+      // window shows what will be signed (the signature stays drawn). The same
+      // when the formal permit is not there after all (JB221).
+      if (
+        reasonError instanceof ApiError &&
+        (reasonError.code === "permit_form_changed_before_signing" ||
+          reasonError.code === "permit_formal_permit_required")
+      ) {
         void queryClient.invalidateQueries({ queryKey: permitKeys() });
       }
     },
   });
   const sendBack = useMutation({
-    mutationFn: () => returnPermit(permit.id, reason.trim()),
+    mutationFn: () => returnPermit(permit.id, reason.trim(), workName.trim()),
     onSuccess: () => {
       setReturnArmed(false);
       setReason("");
@@ -648,17 +707,18 @@ function DecisionPanel({ permit }: { permit: Permit }) {
         </p>
       )}
       <p className="text-xs text-muted-foreground">{t("approveHelp")}</p>
-      {/* JB216: 「保存后，使用右侧原有的审批意见、签名位置及「签名批准」按钮完成
-          审批」 - the order said where the approver is about to sign. */}
-      {permit.work_form ? (
-        <p className="rounded-md border border-primary/25 bg-primary/5 px-2 py-1.5 text-xs" data-slot="permit-form-filled-hint">
-          {t("eForm.filledHint", { no: permit.work_form.permit_no })}
-        </p>
-      ) : permit.can_fill_work_form ? (
-        <p className="text-xs text-muted-foreground" data-slot="permit-form-fill-hint">
-          {t("eForm.fillHint")}
-        </p>
-      ) : null}
+      <FieldWrapper label={t("field.workName")} required hint={t("workNameHint")}>
+        <Input
+          value={workName}
+          maxLength={WORK_NAME_MAX}
+          onChange={(event) => setWorkName(event.target.value)}
+          data-permit-work-name
+        />
+      </FieldWrapper>
+      {/* JB216's 「填写电子准证」 is one way to it, the 「上传附件」 the other. */}
+      <FieldWrapper label={t("formal.label")} required>
+        <FormalPermitStatus permit={permit} />
+      </FieldWrapper>
       <FieldWrapper label={t("field.approvalNote")} optional={t("optional")}>
         <Textarea rows={2} value={note} onChange={(event) => setNote(event.target.value)} />
       </FieldWrapper>
@@ -671,7 +731,12 @@ function DecisionPanel({ permit }: { permit: Permit }) {
       />
       <Button
         className="min-h-11 w-full"
-        requires={[[signature, t("field.signature")]]}
+        // 「未上传正式施工准证，不允许签名批准」: greyed, naming what is missing.
+        requires={[
+          [workName.trim(), t("field.workName")],
+          [hasFormalPermit(permit), t("formal.label")],
+          [signature, t("field.signature")],
+        ]}
         disabled={busy}
         onClick={() => approve.mutate()}
       >
@@ -811,6 +876,7 @@ export function PermitDetail({
 }) {
   const t = useTranslations("permits");
   const df = useDateFormat();
+  const queryClient = useQueryClient();
   const detail = useQuery({ queryKey: permitKeys(id), queryFn: () => getPermit(id) });
   const permit = detail.data;
   let body: React.ReactNode;
@@ -824,9 +890,21 @@ export function PermitDetail({
     );
   } else {
     const decided = permit.status !== "RECTIFICATION_SUBMITTED" && Boolean(permit.decided_by_name);
+    const approved = permit.status === "VERIFIED" || permit.status === "RESOLVED";
+    // 「施工事项名称」 (JB221) after 项目, as on the list. A permit approved
+    // before it existed has none, and shows no empty row.
+    const nameFact: ShellFact[] = permit.work_name
+      ? [{ label: t("field.workName"), value: permit.work_name, wide: true }]
+      : approved
+        ? []
+        : [{ label: t("field.workName"), value: t("workNamePending"), wide: true }];
+    // While the permit waits for this reader's decision, 「附件」 is where the
+    // formal permit goes (「通过现有的上传附件按钮上传」).
+    const formalHere = permit.can_decide && permit.status === "RECTIFICATION_SUBMITTED" && presentation !== "inline";
     const facts: ShellFact[] = [
       { label: t("field.status"), value: <PermitStatusBadge status={permit.status} /> },
       { label: t("field.project"), value: permit.project_name },
+      ...nameFact,
       {
         label: t("field.applicant"),
         value: [permit.applicant_name, permit.applicant_title].filter(Boolean).join(" · ") || "—",
@@ -888,6 +966,10 @@ export function PermitDetail({
             kind="HAZARD"
             recordId={permit.id}
             readOnly={presentation === "inline"}
+            hint={formalHere ? t("formal.attachHint") : undefined}
+            // A new file may be the formal permit (JB221): the decision panel
+            // reads the permit again and 签名批准 lights up.
+            onChanged={() => void queryClient.invalidateQueries({ queryKey: permitKeys() })}
           />
         }
         signatures={

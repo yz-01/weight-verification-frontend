@@ -272,6 +272,16 @@ function ApplicationFacts({ permit }: { permit: Permit }) {
         value={[permit.applicant_name, permit.applicant_title].filter(Boolean).join(" · ")}
         wide
       />
+      {/* JB221: the safety manager's 「施工事项名称」, written beside 签名批准
+          (like the 审批意见), and printed on the e-permit. */}
+      <Shown
+        label={t("workName")}
+        value={
+          permit.work_name ||
+          (permit.status === "VERIFIED" || permit.status === "RESOLVED" ? "" : t("workNameWhere"))
+        }
+        wide
+      />
     </dl>
   );
 }

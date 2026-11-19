@@ -153,6 +153,8 @@ interface DataTableProps<T> {
   pack?: PackListConfig<T>;
   /** Cards instead of the table on a phone (J34-2). */
   phoneCard?: PhoneCard;
+  /** What the search box finds, in its placeholder; the plain 「搜索」 otherwise (JB221). */
+  searchPlaceholder?: string;
   onSearchChange: (value: string) => void;
   onSortChange: (field: string, order: "asc" | "desc") => void;
   onPageChange: (page: number) => void;
@@ -272,6 +274,7 @@ function TableFrame<T>({
   rowClassName,
   corrected,
   phoneCard,
+  searchPlaceholder,
   onSearchChange,
   onSortChange,
   onPageChange,
@@ -410,7 +413,7 @@ function TableFrame<T>({
             <Input
               value={searchDraft}
               onChange={(event) => setSearchDraft(event.target.value)}
-              placeholder={t("common.searchPlaceholder")}
+              placeholder={searchPlaceholder || t("common.searchPlaceholder")}
               className="bg-card pl-9"
             />
           </div>
