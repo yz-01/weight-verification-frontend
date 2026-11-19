@@ -4026,7 +4026,9 @@
       "permit_form_saved": "E-permit disimpan",
       "permit_work_type_added": "Jenis kerja ditambah",
       "permit_work_type_renamed": "Jenis kerja ditukar nama",
-      "permit_work_type_removed": "Jenis kerja dibuang"
+      "permit_work_type_removed": "Jenis kerja dibuang",
+      "role_followed": "Kebenaran peranan diubah, diteruskan kepada orang dalam peranan itu",
+      "jb219_head_office_roles": "Kemas kini sistem: peranan dikemas kini (peranan ibu pejabat, pratetap yang tidak digunakan dibuang)"
     },
     "objectType": {
       "SignOffAssistant": "PIN pembantu",
@@ -9529,6 +9531,10 @@
       "exit_pass_waive_not_allowed": "Anda tidak boleh menukar kepada tidak perlu kelulusan luar: hanya pengurus keselamatan yang menandatangani pas keluar ini, pentadbir syarikat, atau kakitangan ibu pejabat yang tidak meluluskan permohonan ini boleh. Sila minta salah seorang daripada mereka.",
       "role_kind_fixed": "Pentadbir Syarikat sentiasa peranan ibu pejabat, dan peranan akaun telefon tidak boleh menjadi peranan ibu pejabat.",
       "role_self_lockout": "Anda sendiri memegang peranan ini, jadi menyimpan ini akan mematikan pengurusan pengguna anda sendiri. Kekalkan tanda “Lihat pengguna” dan “Edit pengguna”, atau minta Pentadbir Syarikat membuat perubahan.",
+      "role_self_lockout_type": "Anda sendiri memegang peranan ini, jadi menjadikannya peranan projek akan mematikan pengurusan pengguna anda sendiri. Kekalkan sebagai peranan ibu pejabat, atau minta Pentadbir Syarikat membuat perubahan.",
+      "grant_not_held": "Anda sendiri tidak mempunyai kebenaran ini, jadi anda tidak boleh memberikannya kepada orang lain atau kepada diri sendiri. Sila minta Pentadbir Syarikat melakukannya.",
+      "grant_admin_role_only_admin": "Hanya Pentadbir Syarikat boleh menjadikan seseorang Pentadbir Syarikat. Sila minta Pentadbir Syarikat melakukannya.",
+      "grant_admin_account_only_admin": "Hanya Pentadbir Syarikat boleh mengubah peranan atau kebenaran Pentadbir Syarikat. Sila minta Pentadbir Syarikat melakukannya.",
       "permit_form_office_only": "E-permit diisi di komputer pejabat. Sila log masuk di komputer untuk mengisinya.",
       "permit_work_type_exists": "\"{name}\" sudah ada dalam senarai.",
       "permit_form_changed": "{name} menyimpan e-permit ini selepas anda membukanya. Tutup, buka semula, baca yang terkini dan kemudian ubah."
@@ -14717,6 +14723,7 @@
       "nothingChanged": "Belum ada perubahan.",
       "saved": "Kebenaran projek disimpan",
       "projectNote": "Kebenaran projek: semuanya hidup secara lalai. Yang dimatikan tidak boleh digunakan oleh orang ini dalam semua projeknya.",
+      "notMine": "Suis berwarna kelabu ialah kebenaran yang anda sendiri tiada, jadi anda tidak boleh menghidupkannya. Sila minta Pentadbir Syarikat.",
       "allOn": "Semua kebenaran projek hidup",
       "someOff": "{count} dimatikan",
       "grantedCount": "{count} kebenaran kumpulan B daripada ibu pejabat",
@@ -15842,6 +15849,8 @@
     },
     "followers": "Peranan ini kini ada {count} orang. Apabila disimpan, tanda yang anda ubah kali ini sampai kepada mereka; apa-apa yang dihidupkan atau dimatikan untuk seseorang secara berasingan kekal seperti sedia ada.",
     "adminLocked": "Pentadbir Syarikat mempunyai semua kebenaran; ini tidak boleh diubah.",
+    "adminNameFixed": "Nama dan keterangan Pentadbir Syarikat ditetapkan oleh sistem dan tidak boleh diubah.",
+    "notYours": "Kotak berwarna kelabu ialah kebenaran yang anda sendiri tiada, jadi anda tidak boleh menandakannya untuk peranan ini. Sila minta Pentadbir Syarikat.",
     "phoneRole": "Ini peranan akaun telefon (kakitangan tapak, operator jentera, pengawal pintu). Ia dibuat dan diurus dalam Kakitangan tapak; di sini kebenarannya hanya boleh dilihat.",
     "phoneRoleLink": "Buka Kakitangan tapak",
     "hqCount": "{count, plural, =0 {Tiada kebenaran ibu pejabat ditanda} other {# kebenaran ibu pejabat}}",
@@ -18560,7 +18569,10 @@
       "timezone": "Zon waktu",
       "roleRequired": "Pilih peranan.",
       "noOwnRoles": "Syarikat belum membuat peranannya sendiri. Untuk memberi orang ini kurang daripada Pentadbir Syarikat, pergi dahulu ke Pengguna › Peranan dan kebenaran dan tekan “Peranan baharu”.",
-      "noOwnRolesLink": "Pergi ke Peranan dan kebenaran"
+      "noOwnRolesLink": "Pergi ke Peranan dan kebenaran",
+      "roleNotYours": "(minta Pentadbir Syarikat)",
+      "rolesNotYours": "Peranan berwarna kelabu mempunyai kebenaran yang anda sendiri tiada (atau ialah Pentadbir Syarikat), jadi anda tidak boleh memberikannya. Sila minta Pentadbir Syarikat.",
+      "adminRoleFixed": "Ini akaun Pentadbir Syarikat. Hanya Pentadbir Syarikat boleh mengubah peranannya."
     },
     "filter": {
       "allAudiences": "Semua kategori pengguna",
@@ -18679,6 +18691,8 @@
       "chosenProjects": "Projek dipilih",
       "noProjects": "Syarikat belum ada projek.",
       "needOneProject": "Pilih sekurang-kurangnya satu projek, atau semua projek.",
+      "notMine": "Suis berwarna kelabu ialah kebenaran yang anda sendiri tiada: anda tidak boleh menghidupkannya, untuk sesiapa atau untuk diri sendiri. Sila minta Pentadbir Syarikat.",
+      "adminAccount": "Ini akaun Pentadbir Syarikat. Hanya Pentadbir Syarikat boleh mengubah kebenarannya.",
       "amounts": "Lihat jumlah wang",
       "amountsHint": "Kos bahan, harga seunit, bajet, tuntutan dan jumlah tuntutan pelbagai. Mati: ditunjukkan sebagai —, dan tidak dieksport.",
       "operate": "Kerja harian",

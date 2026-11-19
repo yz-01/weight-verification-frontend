@@ -4026,7 +4026,9 @@
       "permit_form_saved": "保存電子准證",
       "permit_work_type_added": "新增施工類別",
       "permit_work_type_renamed": "施工類別改名",
-      "permit_work_type_removed": "刪除施工類別"
+      "permit_work_type_removed": "刪除施工類別",
+      "role_followed": "角色權限改動，同步給這個角色的人",
+      "jb219_head_office_roles": "系統更新：整理角色（總部角色、取消沒人用的預設角色）"
     },
     "objectType": {
       "SignOffAssistant": "助理副密碼",
@@ -9529,6 +9531,10 @@
       "exit_pass_waive_not_allowed": "你不能改為不需要外部審批：只有簽這張出門條的安全經理、公司管理員，或沒有批准這筆申請的總部人員可以改。請聯繫他們處理。",
       "role_kind_fixed": "公司管理員一定是總部角色；手機賬號的角色不能改成總部角色。",
       "role_self_lockout": "你自己也是這個角色的人，這樣保存會關掉你自己的「用戶管理」。請保留「查看用戶」和「編輯用戶」的勾，或請公司管理員來改。",
+      "role_self_lockout_type": "你自己也是這個角色的人，改成項目角色會關掉你自己的「用戶管理」。請保留總部角色，或請公司管理員來改。",
+      "grant_not_held": "你自己沒有這項權限，不能給別人，也不能給自己。請公司管理員來做。",
+      "grant_admin_role_only_admin": "只有公司管理員可以把人設為「公司管理員」。請公司管理員來做。",
+      "grant_admin_account_only_admin": "公司管理員的角色和權限，只有公司管理員可以改。請公司管理員來做。",
       "permit_form_office_only": "電子准證要在電腦後台填寫。請用電腦登入後再填。",
       "permit_work_type_exists": "已經有「{name}」了，不用再加。",
       "permit_form_changed": "{name} 在你打開之後也保存了這張電子准證。請關閉後重新打開，看過最新內容再改。"
@@ -14717,6 +14723,7 @@
       "nothingChanged": "還沒有改動。",
       "saved": "項目權限已保存",
       "projectNote": "項目權限：默認全部打開。關掉的那一項，這個人在他所有的項目都不能用。",
+      "notMine": "灰色的開關是你自己沒有的權限，你不能打開。請公司管理員來做。",
       "allOn": "項目權限全部打開",
       "someOff": "關掉了 {count} 項",
       "grantedCount": "總部開了 {count} 項 B 組權限",
@@ -15840,8 +15847,10 @@
       "changeHolders": "這個角色現在有 {count} 人。改類型後，他們的總部權限會按這個角色重新設定；他們各自被關掉的項目權限不變。",
       "adminFixed": "總部角色。公司管理員一定是總部角色，不能改。"
     },
-    "followers": "這個角色現在有 {count} 人。保存後，這次改動的勾選會同步給他們；他們各自被單獨打開或關掉的其他項目不變。",
+    "followers": "這個角色現在有 {count} 人。保存後，這次改動的勾選會同步給他們；他們各自被單獨打開或關掉的其他權限不變。",
     "adminLocked": "公司管理員有全部權限，不能修改。",
+    "adminNameFixed": "公司管理員的名稱和說明由系統設定，不能修改。",
+    "notYours": "灰色的格子是你自己沒有的權限，你不能勾給這個角色。請公司管理員來做。",
     "phoneRole": "這是手機賬號的角色（工地人員、設備操作人員、門崗保安），在「現場人員管理」生成和管理，這裡只能查看它的權限。",
     "phoneRoleLink": "打開現場人員管理",
     "hqCount": "{count, plural, =0 {沒有勾總部權限} other {總部權限 # 項}}",
@@ -18560,7 +18569,10 @@
       "timezone": "時區",
       "roleRequired": "請選角色。",
       "noOwnRoles": "公司還沒有自己建立的角色。要給這個人比公司管理員少的權限，請先到「用戶 › 角色與權限」按「新增角色」。",
-      "noOwnRolesLink": "去角色與權限"
+      "noOwnRolesLink": "去角色與權限",
+      "roleNotYours": "（請公司管理員來給）",
+      "rolesNotYours": "灰色的角色有你自己沒有的權限（或是公司管理員），不能由你來給。請公司管理員來做。",
+      "adminRoleFixed": "這是公司管理員的賬號，角色只有公司管理員可以改。"
     },
     "filter": {
       "allAudiences": "全部用戶類別",
@@ -18679,6 +18691,8 @@
       "chosenProjects": "指定項目",
       "noProjects": "公司還沒有項目。",
       "needOneProject": "至少選一個項目，或選全部項目。",
+      "notMine": "灰色的開關是你自己沒有的權限，你不能打開，也不能給自己。請公司管理員來做。",
+      "adminAccount": "這是公司管理員的賬號，權限只有公司管理員可以改。",
       "amounts": "金額查看",
       "amountsHint": "材料成本、單價、預算、Claim、雜費報銷金額；關掉後顯示「—」，匯出也拿掉。",
       "operate": "業務操作",
