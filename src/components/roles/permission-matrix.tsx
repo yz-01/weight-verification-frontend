@@ -30,10 +30,16 @@ export function PermissionMatrix({
   readOnly = false,
   kind = "plain",
   initialPage,
+  notYours,
 }: {
   selected: string[];
   onChange?: (codes: string[]) => void;
   readOnly?: boolean;
+  /**
+   * JB219 audit F1: boxes the editor may not tick - codes he does not hold
+   * himself (「A组及B组权限由公司管理员自行勾选及分配」). Shown greyed.
+   */
+  notYours?: ReadonlySet<string>;
   /**
    * Whose role it is (JB139, JB218/JB219 客户 11-18 事项 3、4).
    * ``head_office`` (总部角色): A and B both ticked by the company, nothing
@@ -86,7 +92,9 @@ export function PermissionMatrix({
   );
   const groups = useMemo(() => groupByDomain(shownEntries), [shownEntries]);
   const locked = (entry: PermissionEntry) =>
-    (reservedLocked && pageOf(entry) === "hq_reserved") || (projectDefaultOn && pageOf(entry) === "project");
+    (reservedLocked && pageOf(entry) === "hq_reserved") ||
+    (projectDefaultOn && pageOf(entry) === "project") ||
+    Boolean(notYours?.has(entry.code));
   const chosen = useMemo(() => new Set(selected), [selected]);
   // The count is of what the role itself decides: its 总部权限 on a builder
   // office role (a kept 总部 preset also stores project codes, which are on

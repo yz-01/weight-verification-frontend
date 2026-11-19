@@ -25,6 +25,12 @@ import { useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import {
+  ClosedOr,
+  isPlatformClosed,
+  PlatformClosedCell,
+  PlatformClosedNote,
+} from "@/components/platform-access/closed";
+import {
   EmptyState,
   FieldWrapper,
   FilterBar,
@@ -1693,6 +1699,9 @@ function EventLedger({ exceptionsOnly }: { exceptionsOnly: boolean }) {
           }))}
         />
       </FilterBar>
+      {/* JB220 (客户 11-18): a customer's own business events, while it has
+          not opened 「允许 MSE 查看」, keep their type, severity and time only. */}
+      <PlatformClosedNote rows={query.data?.results} />
       <div className="surface-panel overflow-hidden rounded-xl">
         <Table>
           <TableHeader>
@@ -1715,8 +1724,8 @@ function EventLedger({ exceptionsOnly }: { exceptionsOnly: boolean }) {
                   {/* JB205-10 (Lucas 11-16 audit): what happened first, in
                       words; the code (weighing.gateway_offline) small
                       underneath for whoever looks it up. */}
-                  <p className="font-medium">{event.message || event.event_type}</p>
-                  {event.message && (
+                  <p className="font-medium">{event.message || (isPlatformClosed(event) ? <PlatformClosedCell /> : event.event_type)}</p>
+                  {(event.message || isPlatformClosed(event)) && (
                     <p className="font-mono text-xs text-muted-foreground">
                       {event.event_type}
                     </p>
@@ -1946,6 +1955,10 @@ function RecentCapturesPanel() {
       ) : rows.length === 0 ? (
         <EmptyState icon={Camera} title={t("captures.none")} />
       ) : (
+        <>
+        {/* JB220 (客户 11-18): which camera sent what and when stays; the
+            picture of a customer who has not opened 「允许 MSE 查看」 does not. */}
+        <PlatformClosedNote rows={rows} />
         <div className="surface-panel overflow-hidden rounded-xl">
           <Table>
             <TableHeader>
@@ -1996,6 +2009,8 @@ function RecentCapturesPanel() {
                           {t("captures.view")}
                         </a>
                       </Button>
+                    ) : isPlatformClosed(row) ? (
+                      <PlatformClosedCell />
                     ) : (
                       <span className="text-xs text-muted-foreground">
                         {t("captures.unavailable")}
@@ -2007,6 +2022,7 @@ function RecentCapturesPanel() {
             </TableBody>
           </Table>
         </div>
+        </>
       )}
     </div>
   );
@@ -2058,6 +2074,8 @@ function PlateReadsPanel() {
               ["plateReads.denied", denied],
             ]}
           />
+          {/* JB220: the reader's health stays; whose plate or card it read does not. */}
+          <PlatformClosedNote rows={rows} />
           <div className="surface-panel overflow-hidden rounded-xl">
             <Table>
               <TableHeader>
@@ -2076,7 +2094,7 @@ function PlateReadsPanel() {
                     <TableCell>{df.dateTime(row.occurred_at)}</TableCell>
                     <TableCell>{row.gate_name || row.device_id}</TableCell>
                     <TableCell className="font-mono text-xs">
-                      {row.credential_hint || "-"}
+                      <ClosedOr row={row} value={row.credential_hint} empty="-" />
                     </TableCell>
                     <TableCell>
                       <TypeBadge

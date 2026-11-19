@@ -141,7 +141,8 @@ export function FieldStaffWorkspace() {
   const clearVisitorArrival = useClearSearchParam("visitor_arrival");
   // JB217: the 出门条 a notice names (`exit_pass=<KIND>:<id>`) - the guard's
   // 「待放行」 card, a phone safety manager's 「出门条待你批准」, the
-  // applicant's 「出门条已批准」 - opens over whatever tab the link names.
+  // applicant's 「出门条已批准」 - opens over whatever tab the link names. Only
+  // the gate's card (`record=gate`) offers 【核查拍照】 / 【确认放行】 (audit F1).
   const exitPass = parseExitPassParam(searchParams.get("exit_pass"));
   const clearExitPass = useClearSearchParam("exit_pass");
   // JB97: one of the worker's own submissions a notice names - a record
@@ -164,7 +165,12 @@ export function FieldStaffWorkspace() {
       <VisitorArrivalDialog id={visitorArrival} onClose={clearVisitorArrival} />
     )}
     {exitPass && (
-      <ExitPassWindow kind={exitPass.kind} record={exitPass.record} onClose={clearExitPass} />
+      <ExitPassWindow
+        kind={exitPass.kind}
+        record={exitPass.record}
+        mayRelease={searchParams.get("record") === "gate"}
+        onClose={clearExitPass}
+      />
     )}
     {notice && (
       <NoticeOpener

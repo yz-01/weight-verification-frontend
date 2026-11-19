@@ -81,11 +81,14 @@ export function getQRAnomalies(
 export function getQRSubjectOptions(
   subjectType: QRSubjectType,
   company?: string,
+  /** JB220: `silent` where the screen says a closed customer in place. */
+  options: { silent?: boolean } = {},
 ): Promise<QRSubjectOptions> {
-  return api.get<QRSubjectOptions>("/api/qr-codes/get_subject_options/", {
-    subject_type: subjectType,
-    company,
-  });
+  return api.get<QRSubjectOptions>(
+    "/api/qr-codes/get_subject_options/",
+    { subject_type: subjectType, company },
+    options,
+  );
 }
 
 export function scanQRCode(payload: QRScanPayload): Promise<QRScanResult> {

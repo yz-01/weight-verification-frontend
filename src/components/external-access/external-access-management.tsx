@@ -5,6 +5,7 @@ import { Check, Copy, Link2, Loader2, Plus, ShieldX } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
+import { PlatformReasonLine } from "@/components/platform-access/closed";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import {
   FieldWrapper,
@@ -30,13 +31,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import type { Project } from "@/interfaces/contractor";
 import type {
   ExternalAccessField,
   ExternalAccessGrant,
   IssuedExternalAccessGrant,
 } from "@/interfaces/external-access";
 import { useDateFormat } from "@/lib/dates";
-import { getProjects } from "@/services/contractor.service";
+import { getCompanyProjectArchiveLocks } from "@/services/project-archive-lock.service";
 import {
   createExternalAccessGrant,
   getExternalAccessGrants,
@@ -66,7 +68,18 @@ function localInput(at: Date): string {
  * it, so the whole end was unreachable. A link is read-only, scoped to one
  * project, limited to the sections chosen here, expires, and can be revoked.
  */
-export function ExternalAccessManagement({ companyId }: { companyId?: string } = {}) {
+export function ExternalAccessManagement({
+  companyId,
+  createClosedReason,
+}: {
+  companyId?: string;
+  /**
+   * JB220 (D14, 客户 11-18): on MSE's company page, a new link reads into the
+   * customer's project, so it waits for the customer's 「允许 MSE 查看」 -
+   * 「新增链接」 is greyed with this sentence. The list and 撤销 stay.
+   */
+  createClosedReason?: string;
+} = {}) {
   const t = useTranslations("externalAccess");
   const common = useTranslations("common");
   const df = useDateFormat();
@@ -104,12 +117,18 @@ export function ExternalAccessManagement({ companyId }: { companyId?: string } =
         title={t("title")}
         subtitle={t("help")}
         action={
-          <Button onClick={() => setCreating(true)}>
+          <Button
+            disabled={Boolean(createClosedReason)}
+            disabledReason={createClosedReason}
+            showReason
+            onClick={() => setCreating(true)}
+          >
             <Plus />
             {t("action.create")}
           </Button>
         }
       />
+      <PlatformReasonLine text={createClosedReason} />
 
       <div className="surface-panel overflow-hidden rounded-xl">
         {grants.isLoading ? (
@@ -286,10 +305,12 @@ function GrantDialog({
         : [...current, field],
     );
 
-  // MSE picks among the company's projects, not its own.
+  // MSE picks among the company's projects, not its own - from the project
+  // directory (code, name, status), the one project list MSE reads (JB220 D5;
+  // the projects list itself is the customer's).
   const companyProjects = useQuery({
     queryKey: ["projects", "external-access", companyId],
-    queryFn: () => getProjects({ company: companyId, page_size: 100 }),
+    queryFn: () => getCompanyProjectArchiveLocks(companyId ?? ""),
     enabled: Boolean(companyId),
   });
   const save = useMutation({
@@ -325,7 +346,8 @@ function GrantDialog({
             scope="own"
             {...(companyId
               ? {
-                  projects: companyProjects.data?.results ?? [],
+                  // The picker reads only id, code and name.
+                  projects: (companyProjects.data ?? []) as unknown as Project[],
                   projectsLoading: companyProjects.isLoading,
                   projectsError: companyProjects.isError,
                 }
