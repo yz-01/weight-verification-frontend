@@ -9590,7 +9590,7 @@
       "platform_access_not_available": "Ini rekod perniagaan pelanggan sendiri dan tidak boleh dibuka dari pejabat MSE. Untuk membantu pelanggan melihat, minta mereka membuka “Benarkan MSE mengurus akaun”; MSE kemudian menambah akaun sokongan yang pelanggan boleh lihat dan padam bila-bila masa.",
       "platform_access_request_sent": "Pelanggan ini sudah dimaklumkan dalam sejam ini. Sila hantar semula selepas {minutes} minit.",
       "platform_qr_customer_only": "Kod QR untuk nota hantar dan pembekal dikeluarkan oleh pelanggan sendiri; MSE tidak dapat melihat rekod ini.",
-      "platform_access_view_only": "Pelanggan hanya membuka paparan. MSE boleh pratonton di skrin tetapi tidak boleh mengubah, memuat turun atau mengeksport rekod pelanggan.",
+      "platform_access_view_only": "Pelanggan hanya membuka paparan: MSE boleh membuka pratonton untuk melihat, dan sistem tidak memberi MSE cara untuk mengubah, mengeksport, menghantar atau mencetak rekod pelanggan.",
       "platform_accounts_closed": "Mengubah akaun pelanggan ini memerlukan persetujuan pelanggan. Minta pentadbir pelanggan tekan “Benarkan MSE mengurus akaun” dalam Tetapan syarikat, kemudian cuba lagi.",
       "platform_owner_locked": "Pelanggan sudah menggunakan akaun pentadbir ini, jadi MSE tidak boleh mengubah e-mel log masuknya. Beritahu pelanggan: pentadbir syarikat mereka sendiri mengubahnya dalam Pengurusan pengguna, atau pelanggan menghantar surat dan rakan yang menjaga pelayan akan menguruskannya.",
       "consultant_sub_module_not_granted": "Ibu pejabat belum membuka item ini untuk anda dalam projek ini. Hubungi ibu pejabat jika anda perlu melihatnya.",
@@ -21859,7 +21859,8 @@
       "exit_pass_approve": "Tandatangan kelulusan pas keluar (pengurus keselamatan)",
       "exit_pass_external": "Kelulusan luar",
       "exit_pass_waive_external": "Batalkan kelulusan luar dan hantar pas keluar",
-      "platform_access_open": "Buka akses MSE"
+      "platform_access_open": "Buka akses MSE",
+      "platform_access_revoke_link": "Batalkan pautan luar yang dibuka MSE"
     },
     "firstTitle": "Tetapkan PIN pengesahan buat kali pertama",
     "firstBanner": "Ini kali pertama anda menggunakan PIN pengesahan",
@@ -22777,8 +22778,8 @@
     "view": {
       "name": "Benarkan MSE melihat",
       "closed": "MSE (penyedia sistem) tidak boleh melihat rekod dalam senarai 2 di bawah sekarang. Jika anda perlukan MSE melihat, tekan “Benarkan MSE melihat”.",
-      "open": "MSE kini boleh melihat rekod dalam senarai 2 di bawah (lihat sahaja: tiada perubahan, tiada muat turun). Ia ditutup sendiri pada {until}; untuk menutup lebih awal, tekan “Tutup sekarang”.",
-      "help": "Semasa dibuka, MSE hanya boleh melihat dan pratonton di skrin. MSE tidak boleh mengubah, mengeksport, memuat turun, mencetak atau menghantar apa-apa."
+      "open": "MSE kini boleh melihat rekod dalam senarai 2 di bawah (boleh melihat, dan membuka pratonton fail untuk membaca semuanya, tetapi tidak boleh mengubah). Ia ditutup sendiri pada {until}; apabila tidak diperlukan lagi, tekan “Tutup sekarang”.",
+      "help": "Selepas dibuka, MSE boleh membuka pratonton fail dan melihat seluruh kandungannya. Sistem tidak memberi MSE fungsi eksport, hantar atau cetak; tetapi apa yang dipaparkan di skrin boleh disimpan oleh orang yang melihatnya. Jadi bukalah hanya apabila perlu, dan tutup selepas selesai."
     },
     "accounts": {
       "name": "Benarkan MSE mengurus akaun",
@@ -22823,7 +22824,8 @@
       "closedView": "Ditutup. MSE tidak boleh melihatnya sekarang.",
       "closedAccounts": "Ditutup. MSE tidak boleh menambah atau mengubah akaun syarikat anda sekarang.",
       "requested": "Pentadbir pelanggan telah dimaklumkan. Selepas pelanggan membukanya, masa tutup ditunjukkan di sini.",
-      "requestedNone": "Pelanggan ini tiada pentadbir syarikat yang boleh dimaklumkan. Sila hubungi pelanggan terus."
+      "requestedNone": "Pelanggan ini tiada pentadbir syarikat yang boleh dimaklumkan. Sila hubungi pelanggan terus.",
+      "linkRevoked": "Dibatalkan. Pautan itu tidak berfungsi lagi."
     },
     "lists": {
       "alwaysTitle": "MSE sentiasa boleh lihat (diperlukan untuk membuka akaun, membuat bil dan menjaga peranti)",
@@ -22848,14 +22850,14 @@
         "mse_staff_actions": "Tindakan kakitangan MSE sendiri",
         "visitor_photo_counts": "Bilangan foto pelawat yang tamat tempoh, nombor pas dan nama projek (untuk dipadam tepat pada masanya)",
         "weighing_details": "Nombor plat, nota pengesahan dan pembatalan serta nama pengendali pada rekod timbangan, dan nombor pesanan kutipan serta projek yang berkaitan",
-        "weighing_photos_ticket": "Foto, lampiran, pembetulan dan PDF tiket timbangan (di skrin sahaja, tiada muat turun)",
+        "weighing_photos_ticket": "Foto, lampiran, pembetulan dan PDF tiket timbangan (MSE boleh membuka pratonton dan melihat semuanya)",
         "staff_operations": "Log aktiviti kakitangan anda dalam sistem",
         "notice_words": "Isi notis dan peristiwa sistem yang dihantar kepada syarikat anda",
         "qr_subjects_scans": "Orang, kenderaan dan projek di sebalik kod QR, serta di mana dan oleh siapa ia diimbas",
         "camera_pictures": "Gambar yang diambil oleh kamera",
         "plate_card_reads": "Nombor plat, nombor kad dan projek yang dibaca di pintu",
         "pushed_data": "Data yang dihantar ke sistem syarikat anda sendiri",
-        "report_files": "Fail laporan yang dieksport oleh syarikat anda (di skrin sahaja, tiada muat turun)",
+        "report_files": "Fail laporan yang dieksport oleh syarikat anda (MSE boleh membuka pratonton dan melihat semuanya)",
         "print_send_log": "Rekod cetak, muat turun dan hantar syarikat anda",
         "sites_on_map": "Lokasi tapak anda di peta",
         "visitor_names": "Nama pelawat pada foto yang tamat tempoh",
@@ -22888,13 +22890,17 @@
     },
     "links": {
       "title": "Pautan akses luar yang dibuka oleh MSE untuk anda",
-      "help": "MSE membuka pautan ini atas permintaan syarikat anda. Ia berfungsi sehingga tamat tempoh atau dibatalkan. Untuk membatalkan, hubungi MSE.",
+      "help": "MSE membuka pautan ini atas permintaan syarikat anda. Ia berfungsi sehingga tamat tempoh atau dibatalkan. Apabila tidak diperlukan lagi, pentadbir syarikat boleh menekan “Batalkan” di sini dan pautan itu berhenti serta-merta.",
       "valid": "Berfungsi sehingga {at}",
       "expired": "Tamat tempoh",
       "revoked": "Dibatalkan",
       "by": "Dibuka oleh {name} pada {at}",
       "wholeCompany": "Seluruh syarikat",
-      "empty": "MSE belum membuka sebarang pautan akses luar untuk anda."
+      "empty": "MSE belum membuka sebarang pautan akses luar untuk anda.",
+      "revoke": "Batalkan",
+      "adminOnly": "Hanya pentadbir syarikat boleh membatalkan pautan. Sila minta pentadbir syarikat anda.",
+      "revokeTitle": "Batalkan pautan akses luar “{name}”?",
+      "revokeBody": "Selepas dibatalkan, sesiapa yang memegang pautan ini tidak lagi boleh membukanya. Ia tidak boleh dipulihkan; jika perlu lagi kemudian, minta MSE membuka yang baharu. Selepas anda menekan “Batalkan”, anda akan diminta PIN pengesahan anda."
     },
     "records": {
       "title": "Rekod akses MSE",
@@ -22909,7 +22915,7 @@
       },
       "outcome": {
         "OPENED": "Dilihat",
-        "REFUSED": "Disekat (tidak dibuka)",
+        "REFUSED": "Disekat",
         "ACCOUNT_CHANGED": "Mengubah akaun",
         "REQUESTED": "Minta dibuka",
         "GRANT_OPENED": "Dibuka",
@@ -22923,8 +22929,11 @@
         "FILE": "pratonton fail"
       },
       "refused": {
-        "closed": "paparan tidak dibuka",
-        "accounts_closed": "pengurusan akaun tidak dibuka"
+        "closed": "Disekat (anda belum membukanya)",
+        "accounts_closed": "Disekat (anda belum membuka “Benarkan MSE mengurus akaun”)",
+        "not_available": "Disekat (MSE tidak boleh melihat rekod jenis ini, walaupun anda membuka akses)",
+        "owner_locked": "Disekat (akaun pentadbir ini sedang digunakan; MSE tidak boleh menukar e-mel log masuknya)",
+        "no_changes": "Disekat (MSE tidak boleh mengubah rekod syarikat anda)"
       },
       "filter": {
         "from": "Dari",
@@ -22941,7 +22950,18 @@
       "notAllowed": "Rekod akses MSE boleh dibaca oleh pentadbir syarikat dan rakan yang boleh membaca log aktiviti. Untuk membacanya, minta pentadbir syarikat anda.",
       "page": "Halaman {page} daripada {pages} · {count} semuanya",
       "previous": "Sebelum",
-      "next": "Seterusnya"
+      "next": "Seterusnya",
+      "refusedMse": {
+        "closed": "Disekat (pelanggan belum membukanya)",
+        "accounts_closed": "Disekat (pelanggan belum membuka “Benarkan MSE mengurus akaun”)",
+        "not_available": "Disekat (MSE tidak boleh melihat rekod jenis ini, walaupun pelanggan membuka akses)",
+        "owner_locked": "Disekat (pelanggan menggunakan akaun pentadbir ini; MSE tidak boleh menukar e-mel log masuknya)",
+        "no_changes": "Disekat (MSE tidak boleh mengubah rekod pelanggan)"
+      },
+      "made": {
+        "create_grant": "Membuka pautan luar",
+        "issue_code": "Mengeluarkan kod QR"
+      }
     },
     "module": {
       "weighing": "Rekod timbangan",
@@ -22963,7 +22983,28 @@
       "external_links": "Pautan akses luar",
       "accounts": "Akaun",
       "platform_access": "Akses MSE",
-      "other": "Rekod perniagaan lain"
+      "other": "Rekod perniagaan lain",
+      "project_details": "Butiran projek",
+      "own_settings": "Tetapan syarikat anda sendiri (cawangan, tapak, kategori)",
+      "partnerships": "Perkongsian syarikat anda dengan syarikat lain",
+      "receipts_materials": "Resit penerimaan, nota penghantaran, bahan dan pembekal",
+      "waste_haulage": "Pesanan kutipan, lori dan pemandu",
+      "deductions": "Potongan dan penyelesaian",
+      "documents_approvals": "Dokumen dan kelulusan",
+      "site_records": "Rekod tapak, permohonan dan lampiran",
+      "evidence": "Foto tapak dan bukti",
+      "workers_visitors": "Maklumat pekerja dan rekod pelawat",
+      "gate": "Pintu pagar, pas dan pas keluar",
+      "staff_presence": "Daftar masuk dan lokasi kakitangan tapak",
+      "schedule_progress": "Jadual kerja dan kemajuan",
+      "safety_equipment": "Rekod keselamatan dan peralatan",
+      "daily_reports": "Laporan harian",
+      "consultant_applications": "Permohonan perunding dan akses perunding",
+      "chat": "Sembang dan pengumuman",
+      "own_reports": "Laporan dan papan pemuka syarikat anda sendiri",
+      "recycler_business": "Pelanggan, penerimaan, stok dan penghantaran limbungan",
+      "project_notice": "Notis kepada projek syarikat anda",
+      "qr_customer_only": "Kod QR untuk nota penghantaran dan pembekal"
     },
     "operation": {
       "create_user": "Menambah akaun",

@@ -201,9 +201,11 @@ export function Companies({
       },
       {
         // 客户开放 (JB220, 客户 11-18): whether this customer lets MSE look at
-        // its records or change its accounts right now, in words.
+        // its records or change its accounts right now, in words. Its own
+        // lines, not the table's two-line clamp: a badge and 「还在开户，可直接
+        // 开账号」 under it read 「还在开户，可…」 (walk 11-18 P3).
         id: "platform_access",
-        meta: { label: t("mseAccess.directory.column") },
+        meta: { label: t("mseAccess.directory.column"), unclamped: true },
         header: () => t("mseAccess.directory.column"),
         cell: ({ row }) => <CompanyAccessCell access={row.original.platform_access} />,
       },

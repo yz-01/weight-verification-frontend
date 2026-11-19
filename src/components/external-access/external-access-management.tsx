@@ -101,7 +101,7 @@ export function ExternalAccessManagement({
 
   const revoke = useMutation({
     mutationFn: (grant: ExternalAccessGrant) =>
-      revokeExternalAccessGrant(grant.id, reason),
+      revokeExternalAccessGrant(grant.id, reason, companyId),
     onSuccess: async () => {
       setRevoking(null);
       setReason("");
