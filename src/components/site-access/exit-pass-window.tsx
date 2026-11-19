@@ -48,7 +48,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { usePhoneOffline } from "@/hooks/use-phone-offline";
 import { ApiError } from "@/interfaces/api";
-import type { ExitPass, ExitPassKind, ExitPassWaiting } from "@/interfaces/exit-pass";
+import type { ExitPass, ExitPassKind, ExitPassReleaseBlock, ExitPassWaiting } from "@/interfaces/exit-pass";
 import { useDateFormat } from "@/lib/dates";
 import { isRouteAllowed } from "@/lib/navigation";
 import { photoMeta } from "@/lib/photo-meta";
@@ -80,17 +80,24 @@ function newEventId() {
   return `exit-${crypto.randomUUID()}`;
 }
 
-/** The 出门条 window. `readOnly`: opened from a finished 门岗事项 - reading only. */
+/**
+ * The 出门条 window. `readOnly`: opened from a finished 门岗事项 - reading only.
+ * `mayRelease` false: opened from a notice that is not the gate's (the
+ * applicant's 「出门条已批准」, a phone safety manager's 「出门条待你批准」) -
+ * never 【核查拍照】 / 【确认放行】 there (audit F1: 「门岗收到后…再确认放行」).
+ */
 export function ExitPassWindow({
   kind,
   record,
   onClose,
   readOnly = false,
+  mayRelease = true,
 }: {
   kind: ExitPassKind;
   record: string;
   onClose: () => void;
   readOnly?: boolean;
+  mayRelease?: boolean;
 }) {
   const t = useTranslations("exitPass");
   const pass = useExitPass(kind, record);
@@ -123,7 +130,7 @@ export function ExitPassWindow({
         ) : data.state === "not_applicable" ? (
           <p className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground">{t("window.none")}</p>
         ) : (
-          <ExitPassWindowBody pass={data} readOnly={readOnly} />
+          <ExitPassWindowBody pass={data} readOnly={readOnly} mayRelease={mayRelease} />
         )}
       </RecordDetailDialog>
       {openRecord ? <InPlaceRecord kind={kind} id={record} onClose={() => setOpenRecord(false)} /> : null}
@@ -157,7 +164,15 @@ function WindowStatus({ pass }: { pass: ExitPass }) {
  * goes (the record's own facts, as 我提交过的 shows them), who applied, then
  * 出门条批准（安全经理） · 外部审批 · 门岗放行, then the gate's own step.
  */
-export function ExitPassWindowBody({ pass, readOnly = false }: { pass: ExitPass; readOnly?: boolean }) {
+export function ExitPassWindowBody({
+  pass,
+  readOnly = false,
+  mayRelease = true,
+}: {
+  pass: ExitPass;
+  readOnly?: boolean;
+  mayRelease?: boolean;
+}) {
   const t = useTranslations("exitPass");
   const tRoot = useTranslations();
   const view = pass.record_view;
@@ -219,7 +234,16 @@ export function ExitPassWindowBody({ pass, readOnly = false }: { pass: ExitPass;
       aside={
         <div className="space-y-4" data-exit-pass-window-parts>
           <ExitPassSections pass={pass} readOnly={readOnly} />
-          {pass.can_release && !readOnly ? <ReleaseCapture pass={pass} /> : <GateNote pass={pass} />}
+          {readOnly ? (
+            <GateNote pass={pass} />
+          ) : pass.release_blocked ? (
+            // Audit F1: the applicant, or not the gate's phone - one sentence, no release step.
+            <ReleaseBlockedNote code={pass.release_blocked} />
+          ) : pass.can_release && mayRelease ? (
+            <ReleaseCapture pass={pass} />
+          ) : (
+            <GateNote pass={pass} />
+          )}
         </div>
       }
     />
@@ -254,6 +278,24 @@ export function GateNote({ pass }: { pass: ExitPass }) {
       className="rounded-lg border bg-muted/40 px-3 py-2 text-sm leading-6 text-foreground"
     >
       {sentence}
+    </p>
+  );
+}
+
+/**
+ * Why this phone does not release this one (contract v3, audit F1), in the
+ * words the release itself would refuse with: 「这是你自己申请出场的东西…」 or
+ * 「这个项目有门岗手机，出门条要由门岗检查放行…」. Where 【确认放行】 would be.
+ */
+export function ReleaseBlockedNote({ code }: { code: ExitPassReleaseBlock }) {
+  const tRoot = useTranslations();
+  return (
+    <p
+      role="status"
+      data-exit-pass-release-blocked={code}
+      className="rounded-lg border bg-muted/40 px-3 py-2 text-sm leading-6 text-foreground"
+    >
+      {tRoot(`errors.api.${code}`)}
     </p>
   );
 }

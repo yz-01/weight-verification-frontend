@@ -9523,6 +9523,8 @@
       "exit_pass_already_released": "Pas keluar ini sudah dilepaskan oleh pintu (atau pembersihan ini sudah tamat), jadi tiada apa lagi perlu dibuat. Halaman telah dimuat semula.",
       "exit_pass_release_phone_only": "Pelepasan disahkan oleh pengawal pintu di telefon selepas mengambil gambar; sistem pejabat tidak boleh melepaskan. Gunakan telefon pengawal pintu.",
       "exit_pass_external_pending": "Ini masih menunggu kelulusan luar, jadi ia tidak boleh disahkan dan diarkibkan sekarang. Daftar salinan bertandatangan, minta pelulus menandatangani dalam talian, atau tukar kepada tidak perlu kelulusan luar, kemudian sahkan dan arkibkan.",
+      "exit_pass_own_release": "Anda sendiri yang memohon untuk membawa barang ini keluar, jadi pengawal pintu perlu memeriksa kenderaan dan barang sebelum melepaskannya.",
+      "exit_pass_gate_release_only": "Projek ini ada telefon pengawal pintu, jadi pas keluar diperiksa dan dilepaskan oleh pengawal pintu. Minta pengawal pintu membuka pas keluar di telefon, ambil gambar semakan, kemudian tekan 【Sahkan pelepasan】.",
       "role_kind_fixed": "Pentadbir Syarikat sentiasa peranan ibu pejabat, dan peranan akaun telefon tidak boleh menjadi peranan ibu pejabat.",
       "role_self_lockout": "Anda sendiri memegang peranan ini, jadi menyimpan ini akan mematikan pengurusan pengguna anda sendiri. Kekalkan tanda “Lihat pengguna” dan “Edit pengguna”, atau minta Pentadbir Syarikat membuat perubahan.",
       "permit_form_office_only": "E-permit diisi di komputer pejabat. Sila log masuk di komputer untuk mengisinya.",
@@ -22645,7 +22647,8 @@
       "applicant": "Pemohon"
     },
     "archive": {
-      "externalPending": "Ini masih menunggu kelulusan luar, jadi ia tidak boleh disahkan dan diarkibkan sekarang. Daftar salinan bertandatangan, minta pelulus menandatangani dalam talian, atau tukar kepada tidak perlu kelulusan luar, kemudian sahkan dan arkibkan."
+      "pendingPress": "Ini masih menunggu kelulusan luar, jadi ia tidak boleh disahkan dan diarkibkan sekarang. Tekan dahulu {buttons} di bawah; selepas selesai, tekan 【Sahkan dan arkibkan】.",
+      "pendingWho": "Ini masih menunggu kelulusan luar, jadi ia tidak boleh disahkan dan diarkibkan sekarang. Salinan bertandatangan didaftarkan di komputer oleh pengguna pejabat yang ada hak kelulusan untuk rekod jenis ini atau oleh pengurus keselamatan, atau pelulus menandatangani dalam talian; selepas selesai, sahkan dan arkibkan."
     },
     "gateRecord": {
       "linked": "Permohonan asal",

@@ -107,15 +107,52 @@ describe("the shell's 出门条 slot (JB217)", () => {
     expect(orderNear(html, 'data-stub="attachments"')).toBe(9);
   });
 
-  it("keeps 【确认归档】 off with the reason while 外部审批 is owed (D11), and on otherwise", () => {
+  it("keeps 【确认归档】 off while a signed 出门条 owes its 外部审批, naming the buttons that are there (D11, audit F2)", () => {
+    const owed = render(true, {
+      state: "awaiting_external",
+      approval: APPROVAL,
+      external: external({ status: "waiting", required: true, can_record_paper: true, can_waive: true }),
+    });
+    expect(owed).toContain(
+      'data-blocked="这笔还在等外部审批，现在不能确认归档。请先按下面的【登记签回的文件】或【不需要外部审批，直接发出门条】，办好后再按【确认归档】。"',
+    );
+    expect(render(true)).toContain('data-blocked=""');
+  });
+
+  it("audit F2: a reader with none of those buttons is told who does it, not sent to a button he cannot see", () => {
     const owed = render(true, {
       state: "awaiting_external",
       approval: APPROVAL,
       external: external({ status: "waiting", required: true }),
     });
     expect(owed).toContain(
-      'data-blocked="这笔还在等外部审批，现在不能确认归档；请先登记签回的文件或请对方在线签名，或改为不需要外部审批，再确认归档。"',
+      'data-blocked="这笔还在等外部审批，现在不能确认归档。签回的文件要由有这类记录审批权限的后台人员或安全经理在电脑上登记，或请对方在线签名；办好后再确认归档。"',
     );
-    expect(render(true)).toContain('data-blocked=""');
+    expect(owed).not.toMatch(/data-blocked="[^"]*请先按下面的/);
+  });
+
+  it("audit F2: an approver with all three buttons is told all three, in the order they are drawn", () => {
+    const owed = render(true, {
+      state: "awaiting_external",
+      approval: APPROVAL,
+      external: external({
+        status: "waiting",
+        required: true,
+        can_sign_online: true,
+        can_record_paper: true,
+        can_waive: true,
+      }),
+    });
+    expect(owed).toContain(
+      "请先按下面的【在线签名】、【登记签回的文件】或【不需要外部审批，直接发出门条】，办好后再按【确认归档】。",
+    );
+  });
+
+  it("audit F2: 「需要外部审批」 on but not signed yet does not block 【确认归档】 - the server allows it (D11)", () => {
+    const unsigned = render(true, {
+      state: "awaiting_signature",
+      external: external({ status: "waiting", required: true, can_set: true }),
+    });
+    expect(unsigned).toContain('data-blocked=""');
   });
 });

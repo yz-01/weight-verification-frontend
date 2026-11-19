@@ -150,8 +150,17 @@ export interface ExitPass {
   sent: ExitPassSent | null;
   releases: ExitPassRelease[];
   can_release: boolean;
+  /**
+   * Why this phone may not 【确认放行】 although it otherwise could (contract v3, audit F1):
+   * the record's own applicant, or - on a project with 门岗 phones - a phone that is not one.
+   * The window shows `errors.api.<code>` where 【确认放行】 would be.
+   */
+  release_blocked: ExitPassReleaseBlock | null;
   record_view?: ExitPassRecordView | null;
 }
+
+/** `release_blocked` (contract v3): the same codes the release refuses with. */
+export type ExitPassReleaseBlock = "exit_pass_own_release" | "exit_pass_gate_release_only";
 
 /** One row of the guard's 「待放行」 (contract §4.1). */
 export interface ExitPassWaiting {
