@@ -59,6 +59,7 @@ import { useListQuery } from "@/hooks/use-list-query";
 import { useMaterialUnits, useUnitName } from "@/hooks/use-material-units";
 import { ApiError } from "@/interfaces/api";
 import type { MaterialTarget } from "@/interfaces/material-target";
+import { consultantLacks } from "@/lib/consultant-modules";
 import { offeredSpecs } from "@/lib/material-catalogue";
 import {
   isValidTargetQuantity,
@@ -94,6 +95,10 @@ export function MaterialTargets() {
   // raises the contractor's target - not a consultant's (the server refuses it).
   const { user } = useAuth();
   const mayAppend = user?.account_type !== "CONSULTANT";
+  // JB225 Decision 5: 材料目标 shows its numbers with its own tick; its
+  // deliveries / returns open only with 材料进场 / 材料退场.
+  const opensDeliveries = !consultantLacks(user?.features, "materials.in");
+  const opensReturns = !consultantLacks(user?.features, "materials.returns");
   const [editing, setEditing] = useState<MaterialTarget | "new" | null>(null);
   const [appending, setAppending] = useState<MaterialTarget | null>(null);
   const [armed, setArmed] = useState<string | null>(null);
@@ -213,12 +218,16 @@ export function MaterialTargets() {
                       </TableCell>
                       <TableCell>
                         <div className="flex flex-wrap gap-1">
-                          <Button size="sm" variant="outline" className="h-7" onClick={() => router.push(links.deliveries)}>
-                            {t("deliveries")}
-                          </Button>
-                          <Button size="sm" variant="outline" className="h-7" onClick={() => router.push(links.returns)}>
-                            {t("returns")}
-                          </Button>
+                          {opensDeliveries && (
+                            <Button size="sm" variant="outline" className="h-7" onClick={() => router.push(links.deliveries)}>
+                              {t("deliveries")}
+                            </Button>
+                          )}
+                          {opensReturns && (
+                            <Button size="sm" variant="outline" className="h-7" onClick={() => router.push(links.returns)}>
+                              {t("returns")}
+                            </Button>
+                          )}
                         </div>
                       </TableCell>
                       <TableCell pin="end">

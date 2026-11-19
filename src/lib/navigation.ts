@@ -1974,7 +1974,7 @@ const CONSULTANT_REGISTRY = new Map<Portal, readonly FeatureNavItem[]>();
 
 function asConsultant<T extends FeatureNavItem | FeatureNavChild>(entry: T): T {
   // JB225: 材料管理 / 工程进度 list the consultant's items instead.
-  const own = "consultantChildren" in entry ? entry.consultantChildren : undefined;
+  const own: readonly FeatureNavChild[] | undefined = (entry as FeatureNavItem).consultantChildren;
   const children = (own ?? entry.children)?.map((childItem) => asConsultant(childItem));
   return {
     ...entry,
