@@ -12,10 +12,11 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 
+import { createTable, getCoreRowModel } from "@tanstack/react-table";
 import { describe, expect, it, vi } from "vitest";
 
 import type { Permit, PermitFile, PermitWorkForm } from "@/interfaces/permit";
-import { FIT_TABLE_PX, fitWidth } from "@/lib/table-fit";
+import { FIT_TABLE_PX, fitWidth, initialVisibility } from "@/lib/table-fit";
 import en from "@/messages/en.json";
 import ms from "@/messages/ms.json";
 import zh from "@/messages/zh.json";
@@ -54,7 +55,9 @@ vi.mock("@/services/api-client", async (original) => ({
 }));
 
 const { renderDetail } = await import("@/components/shared/record-detail-test-kit");
-const { PermitDetail, permitKeys, hasFormalPermit } = await import("@/components/permits/permit-parts");
+const { PermitDetail, permitKeys, hasFormalPermit, standingRefusal } = await import(
+  "@/components/permits/permit-parts"
+);
 const { PermitWorkFormView } = await import("@/components/permits/permit-work-form");
 const { PermitFilesCell } = await import("@/components/permits/permits-office");
 const { approvePermit, returnPermit } = await import("@/services/permit.service");
@@ -194,6 +197,10 @@ describe("JB221-1 「施工事项名称」必填，由安全经理填写", () =>
     const signed = view(permit({ work_form: SAVED, status: "VERIFIED", work_name: "3楼 B区钢梁焊接" }));
     expect(signed).toContain("3楼 B区钢梁焊接");
     expect(signed).not.toContain(p.eForm.workNameWhere);
+    // Audit F4: one signed before the name existed shows no empty row, as its PDF.
+    const old = view(permit({ work_form: SAVED, status: "VERIFIED", is_closed: true, can_decide: false }));
+    expect(old).toContain(p.eForm.permitNo);
+    expect(old).not.toContain(p.eForm.workName);
   });
 });
 
@@ -220,12 +227,54 @@ describe("JB221-2/3 no 正式施工准证, no 签名批准", () => {
   it("names the uploaded file - who, when - and then only the signature is missing", () => {
     const html = detail(permit({ work_name: "3楼 B区钢梁焊接", formal_permit_files: [UPLOADED] }));
     expect(html).toContain("准证-3楼焊接.docx");
-    expect(html).toContain(p.formal.uploaded.split("{file}")[0]);
+    expect(html).toContain(p.formal.uploaded.split("{files}")[0]);
     expect(html).toContain("示范 项目经理");
     expect(html).toContain(p.formal.archivedWith);
     expect(html).not.toContain(p.formal.missing);
     expect(html).toContain(missing(p.field.signature));
     expect(hasFormalPermit(permit({ formal_permit_files: [UPLOADED] }))).toBe(true);
+  });
+
+  it("does not call an uploaded file the formal permit; it asks the approver to confirm it (audit F8)", () => {
+    const box = (html: string) => html.slice(html.indexOf('data-slot="permit-formal-present"'));
+    const one = box(detail(permit({ formal_permit_files: [UPLOADED] })));
+    expect(one).toMatch(/已上传：准证-3楼焊接\.docx（示范 项目经理 · [^）]+）。请确认这就是正式施工准证，再签名批准。/);
+    expect(one).not.toContain("正式施工准证：");
+    const four = [
+      UPLOADED,
+      { ...UPLOADED, id: "a2", original_name: "site.jpg", uploaded_by_name: "mike" },
+      { ...UPLOADED, id: "a3", original_name: "method.pdf" },
+      { ...UPLOADED, id: "a4", original_name: "extra.pdf" },
+    ];
+    const many = box(detail(permit({ formal_permit_files: four })));
+    expect(many).toMatch(/已上传：准证-3楼焊接\.docx（[^）]+）、site\.jpg（mike · [^）]+） 等 4 个。请确认这就是正式施工准证/);
+    expect(many).not.toContain("method.pdf");
+    expect(many).not.toContain("extra.pdf");
+    // The rule itself is unchanged: any of them opens 签名批准.
+    expect(hasFormalPermit(permit({ formal_permit_files: four }))).toBe(true);
+    for (const messages of [zh, zhTW, en, ms]) {
+      const f = messages.permits.formal;
+      expect(f.uploaded).toContain("{files}");
+      expect(f.uploadedFile).toContain("{file}");
+      expect(f.uploadedMore).toContain("{count}");
+    }
+  });
+
+  it("takes a refusal off the screen once what it named is put right (audit F6)", () => {
+    const formalRefusal = { text: zh.errors.api.permit_formal_permit_required, code: "permit_formal_permit_required" };
+    expect(standingRefusal(formalRefusal, permit(), "3楼")).toBe(formalRefusal.text);
+    expect(standingRefusal(formalRefusal, permit({ formal_permit_files: [UPLOADED] }), "3楼")).toBe("");
+    expect(standingRefusal(formalRefusal, permit({ work_form: SAVED }), "")).toBe("");
+    const nameRefusal = { text: zh.errors.api.permit_work_name_required, code: "permit_work_name_required" };
+    expect(standingRefusal(nameRefusal, permit(), "  ")).toBe(nameRefusal.text);
+    expect(standingRefusal(nameRefusal, permit(), "3楼 焊接")).toBe("");
+    // Anything else stays until the next try; none, nothing.
+    const other = { text: "电子准证刚被修改过", code: "permit_form_changed_before_signing" };
+    expect(standingRefusal(other, permit({ formal_permit_files: [UPLOADED] }), "3楼")).toBe(other.text);
+    expect(standingRefusal(null, permit(), "")).toBe("");
+    // The panel shows what is still standing, read on every render.
+    expect(PARTS_SOURCE).toMatch(/const error = standingRefusal\(refusal, permit, workName\);/);
+    expect(PARTS_SOURCE).not.toMatch(/function DecisionPanel[\s\S]*?setError\([\s\S]*?function ResubmitPanel/);
   });
 
   it("takes a saved e-permit as the formal permit too (JB216 stays one way)", () => {
@@ -271,19 +320,63 @@ describe("JB221-4…7 the list", () => {
     expect(renderDetail(<PermitFilesCell files={[]} />)).toContain("—");
   });
 
-  it("fits 1366 px with 已打包 under 「字段」, under a new column key", () => {
+  it("keeps 已打包 on and the readers' saved column choice (audit F3)", () => {
     const fit = LIST_FITS.permits;
     expect(fit.columns.work_name).toBe("name");
     expect(Object.keys(fit.columns).indexOf("work_name")).toBe(Object.keys(fit.columns).indexOf("project_name") + 1);
-    expect(fit.hidden).toEqual(["pack"]);
-    expect(fit.storageKey).toBe("permits.v2");
-    expect(fitWidth(fit.columns, fit.hidden)).toBeLessThanOrEqual(FIT_TABLE_PX);
+    // As before JB221: nothing hidden by default, the same key for what readers saved.
+    expect(fit.hidden as readonly string[]).toEqual([]);
+    expect(fit.storageKey).toBe("permits.v1");
+    // Without 已打包 (drawn only when a permit on the page is in a 资料包) it fits.
+    expect(fitWidth(fit.columns, ["pack"])).toBeLessThanOrEqual(FIT_TABLE_PX);
   });
 
-  it("says in the search box what it finds, and exports the name after 项目", () => {
+  it("shows 施工事项名称 to a reader whose saved choice is from before it, once (audit F3)", () => {
+    const fit = LIST_FITS.permits;
+    const shownWith = (stored: string | null) => {
+      const { visibility } = initialVisibility(stored, fit.hidden);
+      const table = createTable<Record<string, unknown>>({
+        data: [],
+        columns: Object.keys(fit.columns).map((id) => ({ id })),
+        getCoreRowModel: getCoreRowModel(),
+        state: {},
+        onStateChange: () => undefined,
+        renderFallbackValue: null,
+      });
+      table.setOptions((previous) => ({ ...previous, state: { ...table.initialState, columnVisibility: visibility } }));
+      return (id: string) => table.getColumn(id)?.getIsVisible();
+    };
+    // Saved under the same key before JB221: 申请人 off, 已打包 on - never saw the name.
+    const before = shownWith(JSON.stringify({ applicant_name: false, pack: true, files: true }));
+    expect(before("work_name")).toBe(true);
+    expect(before("applicant_name")).toBe(false);
+    expect(before("pack")).toBe(true);
+    // Nothing saved: every column on, 已打包 included.
+    const fresh = shownWith(null);
+    expect(fresh("work_name")).toBe(true);
+    expect(fresh("pack")).toBe(true);
+    // Once the reader turns it off, that choice is kept.
+    expect(shownWith(JSON.stringify({ applicant_name: false, work_name: false }))("work_name")).toBe(false);
+  });
+
+  it("says in the search box what it finds, short enough for 1366 px, and how to type several words (audit F5)", () => {
     expect(OFFICE_SOURCE).toContain('searchPlaceholder={t("searchPlaceholder")}');
     expect(TABLE_SOURCE).toContain('placeholder={searchPlaceholder || t("common.searchPlaceholder")}');
     expect(p.searchPlaceholder).toContain("施工事项名称");
+    // The box is at least 208 px (sm:min-w-52) less the icon's 36 px (pl-9),
+    // 12 px right padding and the border: 158 px of text at 14 px.
+    expect(TABLE_SOURCE).toMatch(/sm:min-w-52[^"]*"/);
+    expect(TABLE_SOURCE).toMatch(/className="bg-card pl-9"/);
+    const width = (text: string) =>
+      [...text].reduce((sum, ch) => sum + (/[⺀-￯]/.test(ch) ? 14 : 7.5), 0);
+    for (const messages of [zh, zhTW, en, ms]) {
+      expect(width(messages.permits.searchPlaceholder), messages.permits.searchPlaceholder).toBeLessThanOrEqual(158);
+      expect(messages.permits.searchHint).toBeTruthy();
+    }
+    expect(p.searchHint).toContain("几个词之间空一格");
+    expect(zhTW.permits.searchHint).toContain("幾個詞之間空一格");
+    // On the page, under the list's own sentence, above the search box.
+    expect(OFFICE_SOURCE).toMatch(/<p>\{t\("subtitle"\)\}<\/p>\s*<p data-slot="permit-search-hint">\{t\("searchHint"\)\}<\/p>/);
     expect(OFFICE_SOURCE).toMatch(
       /\{ key: "project_name", label: t\("field\.project"\) \},\n\s*\{ key: "work_name", label: t\("field\.workName"\) \},/,
     );

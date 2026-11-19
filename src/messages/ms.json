@@ -20968,7 +20968,8 @@
   "permits": {
     "title": "Permit kerja",
     "subtitle": "Muat naik borang permit syarikat anda sendiri (Word, PDF atau foto) dan hantar kepada pengurus keselamatan yang dinamakan. Selepas diluluskan, fail asal, keputusan, tandatangan dan masa diarkibkan bersama. Sebelum meluluskan, pengurus keselamatan menulis nama kerja dan memuat naik permit rasmi (atau mengisi e-permit).",
-    "searchPlaceholder": "Cari nama kerja, nombor, pemohon, nama fail atau apa-apa kata kunci",
+    "searchPlaceholder": "Nama atau kata kunci",
+    "searchHint": "Carian mencari nama kerja, nombor, pemohon atau nama fail. Letakkan satu ruang antara beberapa perkataan, cth. \"aras 3 kimpalan\".",
     "fileCount": "{count} fail",
     "workNameHint": "Diisi oleh pengurus keselamatan, cth. \"Kimpalan rasuk keluli aras 3 zon B\". Selepas diluluskan ia dipaparkan dalam senarai permit dan boleh dicari.",
     "workNamePending": "Diisi oleh pengurus keselamatan semasa meluluskan",
@@ -21044,7 +21045,9 @@
       "label": "Permit rasmi",
       "missing": "Belum ada permit rasmi. Isi borang permit syarikat anda di komputer dan muat naik dengan \"Lampirkan fail\" di bawah \"Lampiran\", atau tekan \"Isi e-permit\" di sebelah \"Dokumen permit\" dan simpan.",
       "missingPhone": "Belum ada permit rasmi. Ia dimuat naik (\"Lampirkan fail\") atau diisi sebagai e-permit di komputer; selepas itu anda boleh menandatangan dan meluluskan di sini.",
-      "uploaded": "Permit rasmi: {file} ({name} · {time})",
+      "uploaded": "Dimuat naik: {files}. Pastikan ini permit rasmi, kemudian tandatangan dan luluskan.",
+      "uploadedFile": "{file} ({name} · {time})",
+      "uploadedMore": "{files} dan lain-lain, {count} kesemuanya",
       "ePermit": "E-permit {no} · diisi oleh {name}",
       "archivedWith": "Selepas ditandatangani, permit rasmi diarkibkan bersama catatan kelulusan, tandatangan dan masa.",
       "attachHint": "Muat naik permit rasmi di sini: isi borang permit syarikat anda di komputer, tekan \"Lampirkan fail\" (Word, PDF, Excel atau foto), kemudian tandatangan dan luluskan."

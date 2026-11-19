@@ -183,9 +183,13 @@ export const LIST_FITS = {
   },
   /** 施工准证 */
   permits: {
-    // `.v2` (JB221, 客户 11-19): 施工事项名称 between 项目 and 准证文件, the files
-    // down to one 48 px picture and its count; 已打包 under 「字段」 for the room.
-    storageKey: "permits.v2",
+    // JB221 (客户 11-19): 施工事项名称 between 项目 and 准证文件, the room taken
+    // from the files (one 48 px picture and its count). 已打包 stays on and the
+    // readers' saved choice stays (audit F3, 11-20): the client asked neither.
+    // A choice saved before has never seen 施工事项名称, so it shows for them
+    // too; drawn only when a permit on the page is in a 资料包, 已打包 is
+    // checked at 1366 px in the walk (`table-fit.test.ts`).
+    storageKey: "permits.v1",
     file: "src/components/permits/permits-office.tsx",
     columns: {
       incident_no: "recno",
@@ -201,7 +205,7 @@ export const LIST_FITS = {
       needs_action: "marker",
       actions: "actions",
     },
-    hidden: ["pack"],
+    hidden: [],
   },
   /** 门岗记录 → 照片 */
   gatePhotos: {

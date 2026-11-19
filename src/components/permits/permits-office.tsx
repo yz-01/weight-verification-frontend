@@ -189,7 +189,9 @@ export function PermitsOffice() {
       <ModuleRecordsTable
         title={title}
         countLabel={tRoot("moduleTable.count", { count: total })}
-        // 「搜索栏必须支持施工事项名称及关键词搜索」 (JB221): said in the box.
+        // 「搜索栏必须支持施工事项名称及关键词搜索」 (JB221): said in the box,
+        // short enough not to be cut at 1366 px; the line above says what
+        // it finds and that several words take a space between (audit F5).
         searchPlaceholder={t("searchPlaceholder")}
         headerAction={
           can("safety.manage") ? (
@@ -199,7 +201,12 @@ export function PermitsOffice() {
             </Button>
           ) : undefined
         }
-        above={<p className="text-sm text-muted-foreground">{t("subtitle")}</p>}
+        above={
+          <div className="space-y-1 text-sm text-muted-foreground">
+            <p>{t("subtitle")}</p>
+            <p data-slot="permit-search-hint">{t("searchHint")}</p>
+          </div>
+        }
         list={list}
         columns={columns}
         rows={rows.data?.results ?? []}

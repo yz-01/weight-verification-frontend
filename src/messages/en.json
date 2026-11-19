@@ -20968,7 +20968,8 @@
   "permits": {
     "title": "Permit to work",
     "subtitle": "Upload your company's own permit form (Word, PDF or a photo) and send it to a named safety manager. Once approved, the original files, the decision, the signature and the time are archived together. Before approving, the safety manager writes the work name and uploads the formal permit (or fills in the e-permit).",
-    "searchPlaceholder": "Search work name, number, applicant, file name or any keyword",
+    "searchPlaceholder": "Work name or keyword",
+    "searchHint": "Search finds the work name, number, applicant or file name. Put a space between several words, e.g. \"level 3 welding\".",
     "fileCount": "{count, plural, one {# file} other {# files}}",
     "workNameHint": "Written by the safety manager, e.g. \"Level 3 zone B steel beam welding\". Once approved it shows in the permit list and can be searched.",
     "workNamePending": "Written by the safety manager when approving",
@@ -21044,7 +21045,9 @@
       "label": "Formal permit",
       "missing": "There is no formal permit yet. Fill in your company's own permit form on the computer and upload it with \"Attach files\" under \"Attachments\", or press \"Fill in e-permit\" beside \"Permit documents\" and save it.",
       "missingPhone": "There is no formal permit yet. It is uploaded (\"Attach files\") or filled in as an e-permit on the computer; once it is there, you can sign and approve here.",
-      "uploaded": "Formal permit: {file} ({name} · {time})",
+      "uploaded": "Uploaded: {files}. Check that this is the formal permit, then sign and approve.",
+      "uploadedFile": "{file} ({name} · {time})",
+      "uploadedMore": "{files} and others, {count} in all",
       "ePermit": "E-permit {no} · filled in by {name}",
       "archivedWith": "Once signed, the formal permit is archived with the approval note, the signature and the time.",
       "attachHint": "Upload the formal permit here: fill in your company's own permit form on the computer, press \"Attach files\" (Word, PDF, Excel or a photo), then sign and approve."

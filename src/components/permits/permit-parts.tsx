@@ -621,10 +621,24 @@ export function hasFormalPermit(permit: Permit): boolean {
  */
 function FormalPermitStatus({ permit }: { permit: Permit }) {
   const t = useTranslations("permits.formal");
+  const common = useTranslations("common");
   const df = useDateFormat();
   const { user } = useAuth();
   const files = permit.formal_permit_files ?? [];
   const form = permit.work_form;
+  // Audit F8 (11-20): any office file in 附件 opens 签名批准, so the box names
+  // what was uploaded and asks the approver to confirm it is the formal
+  // permit - it never calls a file that by itself. Two named, then 「等 N 个」.
+  const named = files
+    .slice(0, 2)
+    .map((file) =>
+      t("uploadedFile", {
+        file: file.original_name,
+        name: file.uploaded_by_name ?? "—",
+        time: df.dateTime(file.uploaded_at),
+      }),
+    )
+    .join(common("listSeparator"));
   if (!hasFormalPermit(permit)) {
     return (
       <p
@@ -638,19 +652,36 @@ function FormalPermitStatus({ permit }: { permit: Permit }) {
   }
   return (
     <div className="space-y-1 rounded-md border border-success/30 bg-success/5 px-2 py-1.5 text-xs" data-slot="permit-formal-present">
-      {files.map((file) => (
-        <p key={file.id} className="break-words">
+      {files.length > 0 && (
+        <p className="break-words" data-slot="permit-formal-uploaded">
           {t("uploaded", {
-            file: file.original_name,
-            name: file.uploaded_by_name ?? "—",
-            time: df.dateTime(file.uploaded_at),
+            files: files.length > 2 ? t("uploadedMore", { files: named, count: files.length }) : named,
           })}
         </p>
-      ))}
+      )}
       {form && <p>{t("ePermit", { no: form.permit_no, name: form.filled_by_name ?? "—" })}</p>}
       <p className="text-muted-foreground">{t("archivedWith")}</p>
     </div>
   );
+}
+
+/** A refusal of 签名批准 / 退回: the sentence on screen, and the server's code. */
+export interface Refusal {
+  text: string;
+  code?: string;
+}
+
+/**
+ * The refusal still to show (audit F6, 11-20): one that said the name or
+ * the formal permit was missing goes as soon as it is there - the name
+ * typed, the 「正式施工准证」 box green - and every other stays until the
+ * next try.
+ */
+export function standingRefusal(refusal: Refusal | null, permit: Permit, workName: string): string {
+  if (!refusal) return "";
+  if (refusal.code === "permit_formal_permit_required" && hasFormalPermit(permit)) return "";
+  if (refusal.code === "permit_work_name_required" && workName.trim()) return "";
+  return refusal.text;
 }
 
 function DecisionPanel({ permit }: { permit: Permit }) {
@@ -663,9 +694,15 @@ function DecisionPanel({ permit }: { permit: Permit }) {
   const [note, setNote] = useState("");
   const [returnArmed, setReturnArmed] = useState(false);
   const [reason, setReason] = useState("");
-  const [error, setError] = useState("");
+  const [refusal, setRefusal] = useState<Refusal | null>(null);
+  const refuse = (reasonError: unknown) =>
+    setRefusal({
+      text: failure(reasonError, t("failed")),
+      code: reasonError instanceof ApiError ? reasonError.code : undefined,
+    });
+  const error = standingRefusal(refusal, permit, workName);
   const settle = () => {
-    setError("");
+    setRefusal(null);
     void queryClient.invalidateQueries({ queryKey: permitKeys() });
     void queryClient.invalidateQueries({ queryKey: ["hazard-conversation", permit.id] });
   };
@@ -676,7 +713,7 @@ function DecisionPanel({ permit }: { permit: Permit }) {
       approvePermit(permit.id, signature!, note.trim(), permit.work_form?.filled_at ?? null, workName.trim()),
     onSuccess: settle,
     onError: (reasonError) => {
-      setError(failure(reasonError, t("failed")));
+      refuse(reasonError);
       // 「电子准证刚被修改过，请先看一遍再签名批准。」: read it again, so the
       // window shows what will be signed (the signature stays drawn). The same
       // when the formal permit is not there after all (JB221).
@@ -696,7 +733,7 @@ function DecisionPanel({ permit }: { permit: Permit }) {
       setReason("");
       settle();
     },
-    onError: (reasonError) => setError(failure(reasonError, t("failed"))),
+    onError: refuse,
   });
   const busy = approve.isPending || sendBack.isPending;
   return (
