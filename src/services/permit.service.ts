@@ -57,10 +57,21 @@ export async function resubmitPermit(id: string, files: File[], note: string): P
   return permit;
 }
 
-export async function approvePermit(id: string, signature: File, note: string): Promise<Permit> {
+/**
+ * 签名批准. ``seenFormAt``: the save time of the e-permit the signer's window
+ * shows (``null``: none) - one changed since is refused, not signed (JB216
+ * audit F5).
+ */
+export async function approvePermit(
+  id: string,
+  signature: File,
+  note: string,
+  seenFormAt: string | null = null,
+): Promise<Permit> {
   const body = new FormData();
   body.append("signature", signature);
   body.append("note", note);
+  body.append("seen_form_at", seenFormAt ?? "");
   const permit = await api.post<Permit>(`${BASE}/${id}/approve_permit/`, body);
   toastSuccess("permits.toast.approved", { reference: permit.incident_no });
   return permit;

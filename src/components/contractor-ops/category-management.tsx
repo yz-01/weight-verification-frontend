@@ -356,7 +356,11 @@ export function CategoryManagement() {
   // 「全部项目」. With one project in force, or for a project's own account,
   // the page is that project's categories only, with no tabs.
   const headOffice = can("project.view_all");
-  const showsCompany = headOffice && !(topBar.active && topBar.projectId);
+  // JB216 audit F7: an address that asks for a company list by name
+  // (`?company=…`, the e-permit's 「管理施工类别」) opens it even with one
+  // project in the top bar - it is the list the person came for.
+  const askedCompany = Boolean(searchParams.get("company"));
+  const showsCompany = headOffice && (askedCompany || !(topBar.active && topBar.projectId));
   const tab = showsCompany ? chosenTab : "project";
   const [project, setProject] = usePageProject(initialProject);
   const [editing, setEditing] = useState<Row | "new" | { parent: Row } | null>(
