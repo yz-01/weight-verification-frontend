@@ -4030,7 +4030,9 @@
       "equipment_driver_binding_set": "Machine's drivers set",
       "jb227_seed_driver_bindings": "Drivers bound from recent clock-ins",
       "role_followed": "Role permissions changed, passed on to the role's people",
-      "jb219_head_office_roles": "System update: roles tidied (head-office roles, unused presets removed)"
+      "jb219_head_office_roles": "System update: roles tidied (head-office roles, unused presets removed)",
+      "platform_access_opened": "Opened access for MSE",
+      "platform_access_closed": "Closed access for MSE"
     },
     "objectType": {
       "SignOffAssistant": "Assistant PIN",
@@ -9543,7 +9545,16 @@
       "grant_not_held": "You do not have this permission yourself, so you cannot give it to anyone else or to yourself. Please ask the Company Administrator to do it.",
       "grant_admin_role_only_admin": "Only a Company Administrator can make someone a Company Administrator. Please ask the Company Administrator to do it.",
       "grant_admin_account_only_admin": "Only a Company Administrator can change a Company Administrator's role or permissions. Please ask the Company Administrator to do it.",
-      "permit_form_changed_before_signing": "The e-permit was just changed. Please read it again before you sign and approve."
+      "permit_form_changed_before_signing": "The e-permit was just changed. Please read it again before you sign and approve.",
+      "platform_access_admin_only": "Only the company administrator can open or close MSE access. Please ask your company administrator.",
+      "platform_access_closed": "This customer has not opened viewing. Ask the customer's administrator to press “Allow MSE to view” in Company settings, then open it again.",
+      "platform_access_company_required": "It does not say which customer's records these are. Open them again from that customer's company page or weighing ticket.",
+      "platform_access_not_available": "These are the customer's own business records and cannot be opened from the MSE back office. To help the customer look, ask them to open “Allow MSE to manage accounts”; MSE then adds a support account the customer can see and delete at any time.",
+      "platform_access_request_sent": "This customer was already told within the hour. Please send again in {minutes} minutes.",
+      "platform_qr_customer_only": "QR codes for delivery notes and suppliers are issued by the customer itself; MSE cannot see these records.",
+      "platform_access_view_only": "The customer opened viewing only. MSE can preview on screen but cannot change, download or export the customer's records.",
+      "platform_accounts_closed": "Changing this customer's accounts needs the customer's consent. Ask the customer's administrator to press “Allow MSE to manage accounts” in Company settings, then try again.",
+      "platform_owner_locked": "The customer already uses this administrator account, so MSE cannot change its sign-in e-mail. Tell the customer: their own company administrator changes it in User management, or the customer writes in and a colleague who runs the server handles it."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -13178,7 +13189,8 @@
       "SAFETY": "Safety",
       "SUBSCRIPTION": "Subscription",
       "SYSTEM": "System",
-      "WEIGHING": "Weighing"
+      "WEIGHING": "Weighing",
+      "PLATFORM_ACCESS": "MSE access"
     },
     "listFailed": "Your notifications could not be loaded. This is not the same as having none - try again.",
     "push": {
@@ -21808,7 +21820,8 @@
       "rain_record_void": "Void rain record",
       "exit_pass_approve": "Exit pass approval (safety manager) signature",
       "exit_pass_external": "External approval",
-      "exit_pass_waive_external": "Drop the external approval and send the exit pass"
+      "exit_pass_waive_external": "Drop the external approval and send the exit pass",
+      "platform_access_open": "Open MSE access"
     },
     "firstTitle": "Set your sign-off PIN for the first time",
     "firstBanner": "This is your first time using a sign-off PIN",
@@ -22739,5 +22752,263 @@
       "released": "Release confirmed and filed as a gate item: {reference}"
     },
     "correctedAfter": "After the exit pass was signed, this record was corrected by {by} at {when}; what you see here is the corrected record."
+  },
+  "mseAccess": {
+    "section": {
+      "title": "MSE access",
+      "subtitle": "MSE (the system provider) sees your company's business records only when you open access. Every look, and every time MSE was stopped, is listed below.",
+      "loading": "Loading MSE access…",
+      "what": "MSE access"
+    },
+    "view": {
+      "name": "Allow MSE to view",
+      "closed": "MSE (the system provider) cannot see the records in list 2 below now. If you need MSE to look, press “Allow MSE to view”.",
+      "open": "MSE can now see the records in list 2 below (look only: no changes, no downloads). It closes by itself at {until}; to close it sooner, press “Close now”.",
+      "help": "While it is open, MSE can only look and preview on screen. It cannot change, export, download, print or send anything."
+    },
+    "accounts": {
+      "name": "Allow MSE to manage accounts",
+      "closed": "MSE cannot add or change your company's accounts now. If you need MSE to set up an account, press “Allow MSE to manage accounts”.",
+      "open": "MSE can add and change your company's accounts now, and you are told each time. It closes by itself at {until}.",
+      "help": "Before MSE adds or changes an account for you, open this here first."
+    },
+    "state": {
+      "open": "Open",
+      "closed": "Not open"
+    },
+    "openedBy": "Opened by {name} on {at}.",
+    "openedByReason": "Opened by {name} on {at}. Reason: {reason}",
+    "action": {
+      "change": "Change how long",
+      "closeNow": "Close now"
+    },
+    "adminOnly": "Only the company administrator can open or close this. Please ask your company administrator.",
+    "openDialog": {
+      "howLong": "Open for how long? It closes by itself when the time is up.",
+      "reason": "Reason (optional)",
+      "reasonPlaceholder": "e.g. Please help us check the weighing photos",
+      "replace": "It is open until {until} now. Choosing again starts the time again from now.",
+      "pin": "After you press “Open”, enter your sign-off PIN. If you have not set one yet, you will be asked to set one first.",
+      "confirm": "Open"
+    },
+    "duration": {
+      "24": "24 hours",
+      "168": "7 days",
+      "720": "30 days"
+    },
+    "closeDialog": {
+      "viewTitle": "Close MSE viewing now?",
+      "viewBody": "Once closed, MSE can no longer see your company's business records.",
+      "accountsTitle": "Close MSE account management now?",
+      "accountsBody": "Once closed, MSE can no longer add or change your accounts.",
+      "confirm": "Close now"
+    },
+    "toast": {
+      "openedView": "Opened. MSE can view until {until}.",
+      "openedAccounts": "Opened. MSE can add and change your accounts until {until}.",
+      "closedView": "Closed. MSE cannot see it now.",
+      "closedAccounts": "Closed. MSE cannot add or change your company's accounts now.",
+      "requested": "The customer's administrators have been told. Once the customer opens it, the closing time shows here.",
+      "requestedNone": "This customer has no company administrator who can be told. Please contact the customer directly."
+    },
+    "lists": {
+      "alwaysTitle": "MSE can always see (needed to open your account, bill you and look after devices)",
+      "openTitle": "MSE sees these only after you press “Allow MSE to view”",
+      "neverTitle": "MSE never sees (even when you open viewing)",
+      "neverNote1": "While viewing is open, MSE can see record numbers and quantities written in notices and in the activity log.",
+      "neverNote2": "If you need MSE to come in and help with these, press “Allow MSE to manage accounts”. MSE adds a support account in your company; it is listed under “Accounts added by MSE” below, and you can suspend it at any time.",
+      "neverNote3": "What MSE does with a support account is written in your company's own sign-in records and activity log.",
+      "item": {
+        "company_profile": "Company details (name, address, contacts, SSM and bank accounts)",
+        "package_billing": "Package, invoices and payment records",
+        "users_logins": "User list (name, e-mail, role, status, project names) and sign-in records",
+        "weighing_figures": "Each weighing's number, time, weighbridge, weights and check result",
+        "commission_settlements": "Settlement numbers, weights and amounts listed on commission invoices",
+        "devices": "The status of weighbridges, cameras, gate readers and other devices, and when they weighed, took pictures or read (not the pictures or plates)",
+        "integration_settings": "Integration settings (which system, how it connects)",
+        "project_directory": "Project names, codes and status (for archive locks, devices and report figures)",
+        "yards_on_map": "Where your head office, yards and weighbridges are on the map",
+        "qr_code_list": "QR code numbers, types and status, and when scans happened and their result",
+        "notice_delivery": "Who notices were sent to and whether they arrived (not what they say)",
+        "external_link_list": "External access links MSE opened for you (name, project, expiry)",
+        "mse_staff_actions": "What MSE's own staff did",
+        "visitor_photo_counts": "How many visitor photos are due, their pass numbers and project names (to clear them on time)",
+        "weighing_details": "Plates, confirmation and void notes and handlers' names on weighing records, and the linked collection order numbers and projects",
+        "weighing_photos_ticket": "Photos, attachments, corrections and the ticket PDF of a weighing (on screen only, no download)",
+        "staff_operations": "Your staff's activity in the system",
+        "notice_words": "What the notices and system events sent to your company say",
+        "qr_subjects_scans": "The people, vehicles and projects behind QR codes, and where and by whom they were scanned",
+        "camera_pictures": "Pictures taken by cameras",
+        "plate_card_reads": "Plates, card numbers and projects read at the gate",
+        "pushed_data": "The data pushed into your company's own systems",
+        "report_files": "Report files your company exported (on screen only, no download)",
+        "print_send_log": "Your company's print, download and send records",
+        "sites_on_map": "Where your sites are on the map",
+        "visitor_names": "Visitors' names on photos due to be cleared",
+        "external_link_create": "MSE opening a new external access link for you",
+        "qr_issue": "MSE issuing QR codes to your people, vehicles and projects",
+        "receipts_materials": "Receipts, material requests, issues and returns",
+        "documents_approvals": "Documents and approvals",
+        "deductions": "Deductions",
+        "workers_visitors": "Worker details and visitor records",
+        "schedule_progress": "Work schedules and progress",
+        "safety_equipment": "Safety and equipment records",
+        "daily_reports": "Daily reports",
+        "consultant_applications": "Consultant applications",
+        "chat": "Chats",
+        "project_details": "A project's details (address, budget, team)",
+        "other": "Other business records"
+      }
+    },
+    "added": {
+      "title": "Accounts added by MSE",
+      "empty": "MSE has not added any account in your company.",
+      "owner": "Owner account made by MSE at sign-up",
+      "added": "Added by MSE",
+      "open": "View or suspend in User management",
+      "note": "Suspend an account you do not need in User management; once suspended, MSE can no longer sign in with it.",
+      "addedBy": "Added by {name} on {at}",
+      "lastLogin": "Last signed in {at}",
+      "neverLoggedIn": "Never signed in",
+      "loading": "Loading accounts added by MSE…"
+    },
+    "links": {
+      "title": "External access links MSE opened for you",
+      "help": "MSE opened these links at your company's request. They work until they expire or are revoked. To revoke one, contact MSE.",
+      "valid": "Works until {at}",
+      "expired": "Expired",
+      "revoked": "Revoked",
+      "by": "Opened by {name} on {at}",
+      "wholeCompany": "Whole company",
+      "empty": "MSE has not opened any external access link for you."
+    },
+    "records": {
+      "title": "MSE access record",
+      "help": "Every time someone at MSE looked, was stopped, changed an account or asked you to open access is written down here. Come back and read it at any time.",
+      "helpMse": "This customer's MSE access record. The customer sees the same list in Company settings.",
+      "what": "the MSE access record",
+      "column": {
+        "time": "Time",
+        "actor": "MSE staff",
+        "outcome": "What happened",
+        "where": "Where"
+      },
+      "outcome": {
+        "OPENED": "Viewed",
+        "REFUSED": "Stopped (not open)",
+        "ACCOUNT_CHANGED": "Changed an account",
+        "REQUESTED": "Asked to open",
+        "GRANT_OPENED": "Opened",
+        "GRANT_CLOSED": "Closed"
+      },
+      "customerActor": "{name} (your company)",
+      "customerActorMse": "{name} (customer)",
+      "lookedAt": {
+        "LIST": "looked at a list",
+        "RECORD": "looked at one record",
+        "FILE": "previewed a file"
+      },
+      "refused": {
+        "closed": "viewing not open",
+        "accounts_closed": "account management not open"
+      },
+      "filter": {
+        "from": "From",
+        "to": "To",
+        "outcome": "What happened",
+        "all": "All",
+        "clear": "Clear filters",
+        "nothingToClear": "No filters set"
+      },
+      "empty": "Nothing yet: MSE has not looked at your company's records, and has not been stopped.",
+      "emptyMse": "This customer has no MSE access record yet.",
+      "emptyFiltered": "Nothing like this in that period. Try other dates, or choose “All”.",
+      "loading": "Loading the record…",
+      "notAllowed": "The MSE access record can be read by the company administrator and colleagues who can read the activity log. To read it, ask your company administrator.",
+      "page": "Page {page} of {pages} · {count} in all",
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "module": {
+      "weighing": "Weighing records",
+      "weighing_photos": "Weighing photos",
+      "weighing_ticket": "Weighing ticket PDF",
+      "weighing_corrections": "Weighing corrections",
+      "audit_log": "Activity log",
+      "notifications": "Notices",
+      "report_files": "Report files",
+      "qr_codes": "QR codes",
+      "qr_scans": "QR scans",
+      "integration_deliveries": "Integration push records",
+      "monitoring_events": "System events",
+      "monitoring_cctv": "Camera captures",
+      "monitoring_anpr": "Plate / gate reads",
+      "dashboard_map": "Sites on the map",
+      "visitor_photos": "Visitor photo list",
+      "file_actions": "Print / download / send records",
+      "external_links": "External access links",
+      "accounts": "Accounts",
+      "platform_access": "MSE access",
+      "other": "Other business records"
+    },
+    "operation": {
+      "create_user": "Added an account",
+      "update_user": "Changed account details",
+      "update_user_status": "Suspended / restored an account",
+      "delete_user": "Deleted an account",
+      "send_password_reset": "Re-sent the sign-in e-mail",
+      "replace_user": "Handed over to another person",
+      "reset_sign_off_pin": "Reset the sign-off PIN",
+      "set_permission_switches": "Changed permission switches",
+      "force_logout": "Signed out on all devices",
+      "create_role": "Added a role",
+      "update_role": "Changed a role",
+      "delete_role": "Deleted a role",
+      "create_department": "Added a department",
+      "update_department": "Changed a department",
+      "delete_department": "Deleted a department",
+      "reissue_invitation": "Re-sent the phone sign-in link",
+      "reset_device": "Reset the phone",
+      "remove_field_staff": "Removed a site worker",
+      "other": "Changed an account"
+    },
+    "mse": {
+      "title": "Customer access",
+      "help": "MSE can see this customer's business records, or change its accounts, only after the customer's company administrator opens access in Company settings.",
+      "viewClosed": "This customer has not opened viewing, so its project records, photos and plates are not shown. If you need them, press “Ask the customer to open viewing”.",
+      "viewOpen": "This customer has opened viewing until {until} (look only, no changes; every look is recorded for the customer).",
+      "accountsClosed": "This customer has not opened account management, so its accounts cannot be added or changed. If you need to, press “Ask the customer to open account management”.",
+      "accountsOpen": "This customer has opened account management until {until}; the customer is told of every change.",
+      "accountsOnboarding": "This customer's administrator has not signed in yet, so you can set up its accounts first.",
+      "askView": "Ask the customer to open viewing",
+      "askAccounts": "Ask the customer to open account management",
+      "askHelp": "The customer's company administrators get a notice with your reason. The same request can be sent once an hour.",
+      "reason": "Reason (the customer sees it)",
+      "reasonPlaceholder": "e.g. The customer reported a weighing problem; we need to see the photos",
+      "send": "Send",
+      "alreadyOpen": "The customer has already opened this.",
+      "onboardingNoAsk": "The customer's administrator has not signed in yet, so there is no need to ask: you can set up accounts now."
+    },
+    "directory": {
+      "column": "Customer access",
+      "closed": "Not open",
+      "view": "Can view until {until}",
+      "accounts": "Can change accounts until {until}",
+      "onboarding": "Still onboarding: accounts can be set up"
+    },
+    "closed": {
+      "cell": "Not opened by customer",
+      "note": "The customer has not opened these records, so only counts and statuses are shown. If you need them, ask the customer's administrator to press “Allow MSE to view” in Company settings.",
+      "hiddenRows": "Records of customers who have not opened viewing are not listed here. If you need them, ask the customer's administrator to press “Allow MSE to view” in Company settings.",
+      "auditHidden": "Only MSE colleagues' actions, sign-ins and the actions of customers who have opened viewing are shown here. A customer's own staff's actions show once that customer opens viewing.",
+      "photos": "This customer has not opened viewing, so photos, attachments, corrections and the ticket cannot be shown. If you need them, ask the customer's administrator to press “Allow MSE to view” in Company settings.",
+      "mapPins": "{count} sites are not shown because their customers have not opened viewing yet."
+    },
+    "reason": {
+      "view": "The customer has to open viewing first: ask the customer's administrator to press “Allow MSE to view” in Company settings, then try again.",
+      "accounts": "Changing this customer's accounts needs the customer's consent. Ask the customer's administrator to press “Allow MSE to manage accounts” in Company settings.",
+      "externalLink": "To open an external access link for a customer, the customer has to open “Allow MSE to view” first.",
+      "accountsList": "Greyed buttons belong to accounts whose customer has not opened “Allow MSE to manage accounts”. To change one, ask that customer's administrator to press it in Company settings. Signing an account out still works at any time."
+    }
   }
 }

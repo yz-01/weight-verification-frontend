@@ -15,6 +15,7 @@ import { ImageOff, Loader2, ShieldCheck, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
+import { ClosedOr, PlatformClosedNote } from "@/components/platform-access/closed";
 import { EmptyState, FieldWrapper, LoadFailed } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import {
@@ -150,11 +151,14 @@ export function ExpiredVisitorPhotosDialog({ onClose, companyId }: { onClose: ()
         ) : (
           <div className="space-y-2">
             <p className="text-sm font-medium">{t("count", { count: data.count })}</p>
+            {/* JB220 (客户 11-18): on MSE's company page the visitors' names
+                wait for the customer's 「允许 MSE 查看」; 清除 works either way. */}
+            <PlatformClosedNote rows={data.photos} />
             <ul className="max-h-72 divide-y overflow-y-auto rounded-lg border text-sm">
               {data.photos.map((row) => (
                 <li key={`${row.source}:${row.id}`} className="flex flex-wrap items-center justify-between gap-2 px-3 py-2">
                   <span className="min-w-0 truncate">
-                    {row.pass_no} · {row.visitor} · {row.project_name}
+                    {row.pass_no} · <ClosedOr row={row} value={row.visitor} /> · {row.project_name}
                   </span>
                   <span className="shrink-0 text-xs text-muted-foreground">
                     {t(`direction.${row.direction}`)} · {df.dateTime(row.taken_at)}
