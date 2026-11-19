@@ -4026,7 +4026,9 @@
       "permit_form_saved": "保存电子准证",
       "permit_work_type_added": "新增施工类别",
       "permit_work_type_renamed": "施工类别改名",
-      "permit_work_type_removed": "删除施工类别"
+      "permit_work_type_removed": "删除施工类别",
+      "platform_access_opened": "开放 MSE 查看权限",
+      "platform_access_closed": "关闭 MSE 查看权限"
     },
     "objectType": {
       "SignOffAssistant": "助理副密码",
@@ -9081,6 +9083,7 @@
       "platform_access_company_required": "没有说明是哪一家客户的资料，请从这家客户的公司页面或称重单重新打开。",
       "platform_access_not_available": "这是客户自己的业务资料，MSE 后台不能打开；需要帮客户看时，请客户开放「允许 MSE 管理账号」，由 MSE 给客户加一个客户看得到、随时可删的支持账号。",
       "platform_access_request_sent": "一小时内已经通知过这家客户，请 {minutes} 分钟后再发。",
+      "platform_qr_customer_only": "送货单和供应商的二维码由客户自己签发，MSE 看不到这些资料。",
       "platform_access_view_only": "客户只开放了查看，MSE 只能在页面上预览，不能修改、下载或导出客户的资料。",
       "platform_accounts_closed": "改这家客户的账号要客户同意，请客户管理员在「公司设置」里点「允许 MSE 管理账号」后再试。",
       "platform_owner_locked": "客户已经开始用这个管理员账号，MSE 不能改它的登录邮箱；请告诉客户：由客户自己的公司管理员在「用户管理」里修改，或者客户来函，由管服务器的同事处理。",

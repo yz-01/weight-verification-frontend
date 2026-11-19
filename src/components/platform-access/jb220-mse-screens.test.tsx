@@ -117,6 +117,14 @@ describe("the QR 签发 dialog", () => {
     expect(source).toContain("disabledReason={subjectsClosed ? closedReason : undefined}");
     expect(source).toContain("data-qr-subject-closed");
   });
+
+  it("never lists a customer's delivery notes or suppliers, door open or not (list 3)", () => {
+    const source = read("src/components/qrcodes/admin-qr-workspace.tsx");
+    expect(source).toContain('["SUPPLIER", "DELIVERY_NOTE"].includes(form.subject_type)');
+    expect(source).toContain("enabled: open && !viewClosed && !customerOnly");
+    expect(source).toContain('tApi("platform_qr_customer_only")');
+    expect(zh.errors.api.platform_qr_customer_only).toBe("送货单和供应商的二维码由客户自己签发，MSE 看不到这些资料。");
+  });
 });
 
 describe("MSE's project pickers use the project directory (contract §9)", () => {

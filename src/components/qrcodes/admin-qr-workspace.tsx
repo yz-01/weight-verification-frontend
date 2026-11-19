@@ -346,16 +346,21 @@ function IssueDialog({ open, onClose, onIssued }: { open: boolean; onClose: () =
   // after the press. The company list says which are open (MSE callers).
   const chosen = companies.find((row) => row.id === form.company);
   const viewClosed = !isVisitor && !isCompanySubject && companyViewOpen(chosen?.platform_access) === false;
+  // JB220 (list 3, 「MSE 一直看不到」): a customer's delivery notes and suppliers
+  // are never MSE's to list, door open or not - those codes the customer issues.
+  const { user } = useAuth();
+  const customerOnly = Boolean(user?.is_platform_staff) && ["SUPPLIER", "DELIVERY_NOTE"].includes(form.subject_type);
   const options = useQuery({
     queryKey: ["admin-qr", "subject-options", form.subject_type, form.company],
     // Silent: a closed door is said under the field (below), not toasted.
     queryFn: () => getQRSubjectOptions(form.subject_type, form.company, { silent: true }),
-    enabled: open && !viewClosed && (form.subject_type === "VISITOR" || Boolean(form.company)),
+    enabled: open && !viewClosed && !customerOnly && (form.subject_type === "VISITOR" || Boolean(form.company)),
   });
   const optionsClosed = options.error instanceof ApiError && options.error.code === "platform_access_closed";
-  const subjectsClosed = viewClosed || (optionsClosed && !isVisitor && !isCompanySubject);
+  const subjectsClosed = customerOnly || viewClosed || (optionsClosed && !isVisitor && !isCompanySubject);
   const access = useTranslations("mseAccess");
-  const closedReason = access("reason.view");
+  const tApi = useTranslations("errors.api");
+  const closedReason = customerOnly ? tApi("platform_qr_customer_only") : access("reason.view");
   const issue = useMutation({ mutationFn: () => issueQRCode(form), onSuccess: onIssued });
   const availableCompanies = isCompanySubject
     ? companies.filter((company) => company.type === form.subject_type)

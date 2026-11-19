@@ -4026,7 +4026,9 @@
       "permit_form_saved": "E-permit disimpan",
       "permit_work_type_added": "Jenis kerja ditambah",
       "permit_work_type_renamed": "Jenis kerja ditukar nama",
-      "permit_work_type_removed": "Jenis kerja dibuang"
+      "permit_work_type_removed": "Jenis kerja dibuang",
+      "platform_access_opened": "Membuka akses untuk MSE",
+      "platform_access_closed": "Menutup akses untuk MSE"
     },
     "objectType": {
       "SignOffAssistant": "PIN pembantu",
@@ -9081,6 +9083,7 @@
       "platform_access_company_required": "Tidak dinyatakan rekod pelanggan mana. Buka semula dari halaman syarikat pelanggan itu atau tiket timbangan.",
       "platform_access_not_available": "Ini rekod perniagaan pelanggan sendiri dan tidak boleh dibuka dari pejabat MSE. Untuk membantu pelanggan melihat, minta mereka membuka “Benarkan MSE mengurus akaun”; MSE kemudian menambah akaun sokongan yang pelanggan boleh lihat dan padam bila-bila masa.",
       "platform_access_request_sent": "Pelanggan ini sudah dimaklumkan dalam sejam ini. Sila hantar semula selepas {minutes} minit.",
+      "platform_qr_customer_only": "Kod QR untuk nota hantar dan pembekal dikeluarkan oleh pelanggan sendiri; MSE tidak dapat melihat rekod ini.",
       "platform_access_view_only": "Pelanggan hanya membuka paparan. MSE boleh pratonton di skrin tetapi tidak boleh mengubah, memuat turun atau mengeksport rekod pelanggan.",
       "platform_accounts_closed": "Mengubah akaun pelanggan ini memerlukan persetujuan pelanggan. Minta pentadbir pelanggan tekan “Benarkan MSE mengurus akaun” dalam Tetapan syarikat, kemudian cuba lagi.",
       "platform_owner_locked": "Pelanggan sudah menggunakan akaun pentadbir ini, jadi MSE tidak boleh mengubah e-mel log masuknya. Beritahu pelanggan: pentadbir syarikat mereka sendiri mengubahnya dalam Pengurusan pengguna, atau pelanggan menghantar surat dan rakan yang menjaga pelayan akan menguruskannya.",

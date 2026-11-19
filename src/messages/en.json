@@ -4026,7 +4026,9 @@
       "permit_form_saved": "E-permit saved",
       "permit_work_type_added": "Type of work added",
       "permit_work_type_renamed": "Type of work renamed",
-      "permit_work_type_removed": "Type of work removed"
+      "permit_work_type_removed": "Type of work removed",
+      "platform_access_opened": "Opened access for MSE",
+      "platform_access_closed": "Closed access for MSE"
     },
     "objectType": {
       "SignOffAssistant": "Assistant PIN",
@@ -9081,6 +9083,7 @@
       "platform_access_company_required": "It does not say which customer's records these are. Open them again from that customer's company page or weighing ticket.",
       "platform_access_not_available": "These are the customer's own business records and cannot be opened from the MSE back office. To help the customer look, ask them to open “Allow MSE to manage accounts”; MSE then adds a support account the customer can see and delete at any time.",
       "platform_access_request_sent": "This customer was already told within the hour. Please send again in {minutes} minutes.",
+      "platform_qr_customer_only": "QR codes for delivery notes and suppliers are issued by the customer itself; MSE cannot see these records.",
       "platform_access_view_only": "The customer opened viewing only. MSE can preview on screen but cannot change, download or export the customer's records.",
       "platform_accounts_closed": "Changing this customer's accounts needs the customer's consent. Ask the customer's administrator to press “Allow MSE to manage accounts” in Company settings, then try again.",
       "platform_owner_locked": "The customer already uses this administrator account, so MSE cannot change its sign-in e-mail. Tell the customer: their own company administrator changes it in User management, or the customer writes in and a colleague who runs the server handles it.",

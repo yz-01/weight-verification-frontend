@@ -4026,7 +4026,9 @@
       "permit_form_saved": "保存電子准證",
       "permit_work_type_added": "新增施工類別",
       "permit_work_type_renamed": "施工類別改名",
-      "permit_work_type_removed": "刪除施工類別"
+      "permit_work_type_removed": "刪除施工類別",
+      "platform_access_opened": "開放 MSE 查看權限",
+      "platform_access_closed": "關閉 MSE 查看權限"
     },
     "objectType": {
       "SignOffAssistant": "助理副密碼",
@@ -9081,6 +9083,7 @@
       "platform_access_company_required": "沒有說明是哪一家客戶的資料，請從這家客戶的公司頁面或稱重單重新打開。",
       "platform_access_not_available": "這是客戶自己的業務資料，MSE 後台不能打開；需要幫客戶看時，請客戶開放「允許 MSE 管理賬號」，由 MSE 給客戶加一個客戶看得到、隨時可刪的支援賬號。",
       "platform_access_request_sent": "一小時內已經通知過這家客戶，請 {minutes} 分鐘後再發。",
+      "platform_qr_customer_only": "送貨單和供應商的二維碼由客戶自己簽發，MSE 看不到這些資料。",
       "platform_access_view_only": "客戶只開放了查看，MSE 只能在頁面上預覽，不能修改、下載或匯出客戶的資料。",
       "platform_accounts_closed": "改這家客戶的賬號要客戶同意，請客戶管理員在「公司設置」裡點「允許 MSE 管理賬號」後再試。",
       "platform_owner_locked": "客戶已經開始用這個管理員賬號，MSE 不能改它的登入郵箱；請告訴客戶：由客戶自己的公司管理員在「用戶管理」裡修改，或者客戶來函，由管伺服器的同事處理。",
