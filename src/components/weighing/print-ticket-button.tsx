@@ -26,9 +26,18 @@ import { printWeighTicket } from "@/services/weighing.service";
 export function PrintTicketButton({
   sessionId,
   sessionNo,
+  platformCompany,
+  blockedReason,
+  disabledReason,
 }: {
   sessionId: string;
   sessionNo: string;
+  /** JB220: MSE names the customer (`X-MSE-Company`); its open 「允许 MSE 查看」 lets it preview. */
+  platformCompany?: string;
+  /** JB220: 预览 only, the rest greyed with this sentence. */
+  blockedReason?: string;
+  /** JB220: the whole button greyed with this sentence (the customer has not opened). */
+  disabledReason?: string;
 }) {
   const t = useTranslations();
 
@@ -40,7 +49,10 @@ export function PrintTicketButton({
       label={t("ticket.action")}
       title={sessionNo}
       record={{ kind: "WEIGH_SESSION", id: sessionId }}
-      onExport={() => printWeighTicket(sessionId, sessionNo, ticketLabels(t))}
+      blockedReason={blockedReason}
+      disabled={Boolean(disabledReason)}
+      disabledReason={disabledReason}
+      onExport={() => printWeighTicket(sessionId, sessionNo, ticketLabels(t), { platformCompany })}
     />
   );
 }

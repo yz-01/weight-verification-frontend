@@ -23,6 +23,11 @@ import {
 } from "@/components/shared/form-shell";
 import { useDismissDialog } from "@/components/shared/dialog-navigation";
 import { RecordExportButton } from "@/components/shared/record-export-button";
+import {
+  closedValue,
+  isPlatformClosed,
+  PlatformClosedPhotos,
+} from "@/components/platform-access/closed";
 import { useAuth } from "@/components/providers/auth-provider";
 import { PrintTicketButton } from "@/components/weighing/print-ticket-button";
 import {
@@ -45,6 +50,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { WeightTrace } from "@/components/weighing/weight-trace";
+import { ApiError } from "@/interfaces/api";
 import type {
   SessionVerdict,
   WeighSessionAttachment,
@@ -81,7 +87,7 @@ export function ViewWeighSession({ id }: { id: string }) {
   const df = useDateFormat();
   const formatter = useFormatter();
   const queryClient = useQueryClient();
-  const { can } = useAuth();
+  const { can, user } = useAuth();
   // 「返回」 goes back to the list this session was opened from - 实时称重,
   // 异常, 查询… - when there is one (JB205-10, Lucas 11-16 audit). /weighing
   // lands MSE staff on 地磅登记, which is where it always sent them; it is
@@ -157,6 +163,17 @@ export function ViewWeighSession({ id }: { id: string }) {
   const record = session.data;
   const params =
     trace.data?.params ?? record.ruleset_snapshot.params ?? {};
+  // JB220 (客户 11-18 「MSE 管理人员……是否必须经过客户授权」): MSE opens a
+  // customer's ticket only as far as the customer allows. The weights, the
+  // trace and the chain are the platform's; the photos, attachments and PDF
+  // are the recycler's, asked for in its name (`X-MSE-Company`) and only
+  // previewed. A recycler that has not opened 「允许 MSE 查看」 comes back with
+  // its attachments withheld (`null`): one sentence stands where they were.
+  const mse = Boolean(user?.is_platform_staff);
+  const platformCompany = mse ? record.company : undefined;
+  const recyclerClosed = mse && isPlatformClosed(record) && record.attachments == null;
+  const previewOnly = mse ? t("errors.api.platform_access_view_only") : undefined;
+  const closedReason = recyclerClosed ? t("mseAccess.reason.view") : undefined;
 
   return (
     <div className="space-y-4">
@@ -170,6 +187,9 @@ export function ViewWeighSession({ id }: { id: string }) {
               <PrintTicketButton
                 sessionId={record.id}
                 sessionNo={record.session_no}
+                platformCompany={platformCompany}
+                blockedReason={previewOnly}
+                disabledReason={closedReason}
               />
             ) : (
               // Before the official ticket (H16): the record, marked 未确认,
@@ -179,6 +199,8 @@ export function ViewWeighSession({ id }: { id: string }) {
                 recordId={record.id}
                 reference={record.session_no}
                 href={`/weighing/${record.id}`}
+                platformCompany={platformCompany}
+                blockedReason={closedReason ?? previewOnly}
               />
             )}
             {/* Only when there is a load to claim against, and only for the
@@ -302,7 +324,7 @@ export function ViewWeighSession({ id }: { id: string }) {
             <ReadField label={t("weighing.field.site")} value={record.site_name} />
             <ReadField
               label={t("weighing.field.vehiclePlate")}
-              value={record.vehicle_plate}
+              value={closedValue(record, record.vehicle_plate)}
             />
             <ReadField
               label={t("weighing.field.attemptNo")}
@@ -342,10 +364,10 @@ export function ViewWeighSession({ id }: { id: string }) {
                 value={df.precise(record.confirmed_at)}
               />
             )}
-            {record.confirmed_by_name && (
+            {(record.confirmed_by_name || (record.confirmed_at && isPlatformClosed(record))) && (
               <ReadField
                 label={t("weighing.field.confirmedBy")}
-                value={record.confirmed_by_name}
+                value={closedValue(record, record.confirmed_by_name)}
               />
             )}
             {record.confirmation_note && (
@@ -354,10 +376,10 @@ export function ViewWeighSession({ id }: { id: string }) {
                 value={record.confirmation_note}
               />
             )}
-            {record.void_reason && (
+            {(record.void_reason || (record.voided_at && isPlatformClosed(record))) && (
               <ReadField
                 label={t("weighing.field.voidReason")}
-                value={record.void_reason}
+                value={closedValue(record, record.void_reason)}
               />
             )}
             {record.reweigh_of_session_no && (
@@ -418,11 +440,13 @@ export function ViewWeighSession({ id }: { id: string }) {
                 <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   {t("weighing.attachment.title")}
                 </h3>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {record.attachments?.length
-                    ? t("weighing.field.attachmentCount") + `: ${record.attachments.length}`
-                    : t("weighing.attachment.empty")}
-                </p>
+                {!recyclerClosed && (
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {record.attachments?.length
+                      ? t("weighing.field.attachmentCount") + `: ${record.attachments.length}`
+                      : t("weighing.attachment.empty")}
+                  </p>
+                )}
               </div>
               {can("weighing.operate") && (
                 <div className="flex flex-wrap items-center gap-2">
@@ -502,7 +526,8 @@ export function ViewWeighSession({ id }: { id: string }) {
               </div>
             )}
 
-            <DeviceMediaList sessionId={id} />
+            {recyclerClosed && <PlatformClosedPhotos />}
+            <DeviceMediaList sessionId={id} platformCompany={platformCompany} closedShown={recyclerClosed} />
           </section>
 
           <section className="px-6 py-5">
@@ -634,7 +659,7 @@ export function ViewWeighSession({ id }: { id: string }) {
         onConfirm={() => voidMutation.mutate()}
       />
       {/* 发送记录 (JB65): every send of this record, to whom and whether it went. */}
-      <RecordSendLog recordKind="WEIGH_SESSION" recordId={record.id} />
+      <RecordSendLog recordKind="WEIGH_SESSION" recordId={record.id} platformHidden={recyclerClosed} />
     </div>
   );
 }
@@ -649,15 +674,35 @@ export function ViewWeighSession({ id }: { id: string }) {
  * weighing, hashed on arrival, is evidence. Merging them into one list would
  * quietly level that difference.
  */
-function DeviceMediaList({ sessionId }: { sessionId: string }) {
+export function DeviceMediaList({
+  sessionId,
+  platformCompany,
+  closedShown = false,
+}: {
+  sessionId: string;
+  /** JB220: MSE asks in the customer's name; a closed door is said, not toasted. */
+  platformCompany?: string;
+  /** The page already says the customer has not opened: no second sentence. */
+  closedShown?: boolean;
+}) {
   const t = useTranslations();
   const df = useDateFormat();
   const media = useQuery({
     queryKey: ["device-media", "weighsession", sessionId],
-    queryFn: () => getDeviceMedia("weighing.weighsession", sessionId),
+    queryFn: () =>
+      getDeviceMedia(
+        "weighing.weighsession",
+        sessionId,
+        platformCompany ? { platformCompany, silent: true } : {},
+      ),
   });
 
   const rows = media.data?.results ?? [];
+  // JB220: the customer has not opened 「允许 MSE 查看」 (or closed it while
+  // this page was open) - that sentence, never 「加载失败」.
+  if (media.isError && media.error instanceof ApiError && media.error.code === "platform_access_closed") {
+    return closedShown ? null : <PlatformClosedPhotos className="mt-4" />;
+  }
   // A failed request is not "the cameras sent nothing" - say so where the list would be.
   if (media.isError) {
     return (

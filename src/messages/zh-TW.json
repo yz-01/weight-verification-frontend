@@ -4028,7 +4028,9 @@
       "permit_work_type_renamed": "施工類別改名",
       "permit_work_type_removed": "刪除施工類別",
       "role_followed": "角色權限改動，同步給這個角色的人",
-      "jb219_head_office_roles": "系統更新：整理角色（總部角色、取消沒人用的預設角色）"
+      "jb219_head_office_roles": "系統更新：整理角色（總部角色、取消沒人用的預設角色）",
+      "platform_access_opened": "開放 MSE 查看權限",
+      "platform_access_closed": "關閉 MSE 查看權限"
     },
     "objectType": {
       "SignOffAssistant": "助理副密碼",
@@ -9538,7 +9540,16 @@
       "permit_form_office_only": "電子准證要在電腦後台填寫。請用電腦登入後再填。",
       "permit_work_type_exists": "已經有「{name}」了，不用再加。",
       "permit_form_changed": "{name} 在你打開之後也保存了這張電子准證。請關閉後重新打開，看過最新內容再改。",
-      "permit_form_changed_before_signing": "電子准證剛被修改過，請先看一遍再簽名批准。"
+      "permit_form_changed_before_signing": "電子准證剛被修改過，請先看一遍再簽名批准。",
+      "platform_access_admin_only": "只有公司管理員可以開放或關閉 MSE 查看權限，請找貴公司的管理員。",
+      "platform_access_closed": "這家客戶現在沒有開放查看，請客戶管理員在「公司設置」裡點「允許 MSE 查看」後再打開。",
+      "platform_access_company_required": "沒有說明是哪一家客戶的資料，請從這家客戶的公司頁面或稱重單重新打開。",
+      "platform_access_not_available": "這是客戶自己的業務資料，MSE 後台不能打開；需要幫客戶看時，請客戶開放「允許 MSE 管理賬號」，由 MSE 給客戶加一個客戶看得到、隨時可刪的支援賬號。",
+      "platform_access_request_sent": "一小時內已經通知過這家客戶，請 {minutes} 分鐘後再發。",
+      "platform_qr_customer_only": "送貨單和供應商的二維碼由客戶自己簽發，MSE 看不到這些資料。",
+      "platform_access_view_only": "客戶只開放了查看，MSE 只能在頁面上預覽，不能修改、下載或匯出客戶的資料。",
+      "platform_accounts_closed": "改這家客戶的賬號要客戶同意，請客戶管理員在「公司設置」裡點「允許 MSE 管理賬號」後再試。",
+      "platform_owner_locked": "客戶已經開始用這個管理員賬號，MSE 不能改它的登入郵箱；請告訴客戶：由客戶自己的公司管理員在「用戶管理」裡修改，或者客戶來函，由管伺服器的同事處理。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -13173,7 +13184,8 @@
       "SAFETY": "安全",
       "SUBSCRIPTION": "訂閱",
       "SYSTEM": "系統",
-      "WEIGHING": "稱重"
+      "WEIGHING": "稱重",
+      "PLATFORM_ACCESS": "MSE 查看權限"
     },
     "listFailed": "無法載入你的通知。這和「沒有通知」不是一回事 —— 請重試。",
     "push": {
@@ -21797,7 +21809,8 @@
       "rain_record_void": "作廢雨天記錄",
       "exit_pass_approve": "出門條批准（安全經理）簽名",
       "exit_pass_external": "外部審批",
-      "exit_pass_waive_external": "改為不需要外部審批並發出門條"
+      "exit_pass_waive_external": "改為不需要外部審批並發出門條",
+      "platform_access_open": "開放 MSE 查看權限"
     },
     "firstTitle": "第一次設定簽核密碼",
     "firstBanner": "這是你第一次使用簽核密碼",
@@ -22698,5 +22711,263 @@
       "released": "已確認放行，記入門崗事項：{reference}"
     },
     "correctedAfter": "出門條簽名後，這筆記錄在 {when} 由 {by} 改正過；這裡顯示的是改正後的資料。"
+  },
+  "mseAccess": {
+    "section": {
+      "title": "MSE 查看權限",
+      "subtitle": "貴公司的業務資料，MSE（系統方）要您開放才看得到；MSE 每一次看、每一次被擋住，都記在下面。",
+      "loading": "正在讀取 MSE 查看權限……",
+      "what": "MSE 查看權限"
+    },
+    "view": {
+      "name": "允許 MSE 查看",
+      "closed": "MSE（系統方）現在看不到下面第 2 欄的資料；需要 MSE 幫忙查看時，點「允許 MSE 查看」。",
+      "open": "MSE 現在可以看到下面第 2 欄的資料（只能看，不能改，不能下載），到 {until} 自動關閉；不想等可以點「馬上關閉」。",
+      "help": "開放以後，MSE 只能在頁面上看、預覽，不能改，也不能匯出、下載、列印或發送。"
+    },
+    "accounts": {
+      "name": "允許 MSE 管理賬號",
+      "closed": "MSE 現在不能加或改貴公司的賬號；需要 MSE 幫忙開賬號時，點「允許 MSE 管理賬號」。",
+      "open": "MSE 現在可以幫貴公司加賬號、改賬號，每一次都會通知您，到 {until} 自動關閉。",
+      "help": "MSE 幫您加賬號、改賬號之前，要您先在這裡開放。"
+    },
+    "state": {
+      "open": "開放中",
+      "closed": "沒有開放"
+    },
+    "openedBy": "由 {name} 在 {at} 開放。",
+    "openedByReason": "由 {name} 在 {at} 開放，原因：{reason}",
+    "action": {
+      "change": "改開放時間",
+      "closeNow": "馬上關閉"
+    },
+    "adminOnly": "只有公司管理員可以開放或關閉，請找貴公司的管理員。",
+    "openDialog": {
+      "howLong": "開放多久？時間到了會自動關閉。",
+      "reason": "原因（可以不填）",
+      "reasonPlaceholder": "例如：請 MSE 幫忙看稱重照片",
+      "replace": "現在已經開放到 {until}。重新選擇以後，從現在起重新計時。",
+      "pin": "按「開放」以後，要輸入您的簽核密碼；還沒設定過的，會先請您設定一個。",
+      "confirm": "開放"
+    },
+    "duration": {
+      "24": "24 小時",
+      "168": "7 天",
+      "720": "30 天"
+    },
+    "closeDialog": {
+      "viewTitle": "馬上關閉 MSE 查看？",
+      "viewBody": "關閉以後，MSE 馬上看不到貴公司的業務資料。",
+      "accountsTitle": "馬上關閉 MSE 管理賬號？",
+      "accountsBody": "關閉以後，MSE 馬上不能幫您加賬號、改賬號。",
+      "confirm": "馬上關閉"
+    },
+    "toast": {
+      "openedView": "已開放，MSE 可以查看到 {until}。",
+      "openedAccounts": "已開放，MSE 可以幫貴公司加賬號、改賬號到 {until}。",
+      "closedView": "已關閉，MSE 現在看不到了。",
+      "closedAccounts": "已關閉，MSE 現在不能加或改貴公司的賬號了。",
+      "requested": "已通知這家客戶的管理員；客戶開放後這裡會顯示到期時間。",
+      "requestedNone": "這家客戶現在沒有可以通知的公司管理員，請直接聯絡客戶。"
+    },
+    "lists": {
+      "alwaysTitle": "MSE 一直看得到（開戶、收費、管設備要用）",
+      "openTitle": "您按「允許 MSE 查看」後，MSE 才看得到",
+      "neverTitle": "MSE 一直看不到（就算您開放了查看）",
+      "neverNote1": "開放查看時，通知內容和操作記錄裡寫到的單號和數量，MSE 會看得到。",
+      "neverNote2": "需要 MSE 進來幫忙看這些時，請按「允許 MSE 管理賬號」。MSE 會在貴公司加一個協助賬號；它會列在下面「MSE 加的賬號」裡，您隨時可以停用。",
+      "neverNote3": "MSE 用協助賬號做的事，記在貴公司自己的登入記錄和操作記錄裡。",
+      "item": {
+        "company_profile": "公司資料（名稱、地址、聯絡人、SSM 和銀行賬戶）",
+        "package_billing": "配套、賬單和付款記錄",
+        "users_logins": "用戶名單（姓名、郵箱、角色、狀態、負責的項目名稱）和登入記錄",
+        "weighing_figures": "每一筆稱重的單號、時間、地磅、重量和檢測結果",
+        "commission_settlements": "抽佣賬單上列出的結算單號、重量和金額",
+        "devices": "地磅、攝像頭、門禁等設備的狀態，以及什麼時候稱重、拍照、識別（不看照片和車牌）",
+        "integration_settings": "系統集成的設定（接哪個系統、怎麼接）",
+        "project_directory": "項目名稱、編號和狀態（用來鎖檔案、接設備、看報表數字）",
+        "yards_on_map": "總部、回收場和地磅在地圖上的位置",
+        "qr_code_list": "二維碼的編號、類型和狀態，掃碼的時間和結果",
+        "notice_delivery": "通知發給了誰、有沒有送到（不看內容）",
+        "external_link_list": "MSE 幫您開的外部訪問鏈接（名稱、項目、期限）",
+        "mse_staff_actions": "MSE 同事自己做過的操作",
+        "visitor_photo_counts": "到期訪客照片的數量、通行證號碼和項目名稱（用來按時清除）",
+        "weighing_details": "稱重記錄裡的車牌、確認和作廢的說明、經手人名字，以及連著的清運單號和項目",
+        "weighing_photos_ticket": "稱重單的照片、附件、更正記錄和磅單 PDF（只能在頁面上看，不能下載）",
+        "staff_operations": "貴公司同事在系統裡的操作記錄",
+        "notice_words": "發給貴公司的通知和系統事件的內容",
+        "qr_subjects_scans": "二維碼對應的人、車、項目，以及掃碼的地點和掃碼人",
+        "camera_pictures": "攝像頭拍到的照片",
+        "plate_card_reads": "門口識別到的車牌、卡號和項目",
+        "pushed_data": "推送到貴公司自己系統裡的資料內容",
+        "report_files": "貴公司自己匯出的報表文件（只能在頁面上看，不能下載）",
+        "print_send_log": "貴公司的列印、下載、發送記錄",
+        "sites_on_map": "貴公司工地在地圖上的位置",
+        "visitor_names": "到期訪客照片上的訪客名字",
+        "external_link_create": "MSE 幫您開新的外部訪問鏈接",
+        "qr_issue": "MSE 幫您給貴公司的人、車、項目開二維碼",
+        "receipts_materials": "收貨單、材料申請、領用和退貨",
+        "documents_approvals": "文件和審批",
+        "deductions": "扣款單",
+        "workers_visitors": "工人資料和訪客記錄",
+        "schedule_progress": "施工計劃和進度",
+        "safety_equipment": "安全和設備記錄",
+        "daily_reports": "日報",
+        "consultant_applications": "顧問申請",
+        "chat": "聊天",
+        "project_details": "項目裡面的詳細資料（地址、預算、團隊）",
+        "other": "其他業務資料"
+      }
+    },
+    "added": {
+      "title": "MSE 加的賬號",
+      "empty": "MSE 沒有在貴公司加過賬號。",
+      "owner": "開戶時由 MSE 建立的負責人賬號",
+      "added": "MSE 加的",
+      "open": "到「用戶管理」查看或停用",
+      "note": "不需要的賬號，請到「用戶管理」把它停用；停用後 MSE 就不能再用它登入。",
+      "addedBy": "{name} 在 {at} 加的",
+      "lastLogin": "最近登入 {at}",
+      "neverLoggedIn": "還沒登入過",
+      "loading": "正在讀取 MSE 加的賬號……"
+    },
+    "links": {
+      "title": "MSE 幫您開的外部訪問鏈接",
+      "help": "這些鏈接是 MSE 按貴公司的要求開的，到期或撤銷以前都能用。要撤銷，請聯絡 MSE。",
+      "valid": "有效到 {at}",
+      "expired": "已經到期",
+      "revoked": "已經撤銷",
+      "by": "{name} 在 {at} 開的",
+      "wholeCompany": "整個公司",
+      "empty": "MSE 沒有幫您開過外部訪問鏈接。"
+    },
+    "records": {
+      "title": "MSE 查看記錄",
+      "help": "這裡記下 MSE 的人每一次查看、被擋住、改賬號和請求開放，您隨時可以回來看。",
+      "helpMse": "這家客戶的「MSE 查看記錄」，客戶自己在「公司設置」裡也看得到同樣的內容。",
+      "what": "MSE 查看記錄",
+      "column": {
+        "time": "時間",
+        "actor": "MSE 人員",
+        "outcome": "做了什麼",
+        "where": "看了哪裡"
+      },
+      "outcome": {
+        "OPENED": "查看",
+        "REFUSED": "被擋住（沒有開放）",
+        "ACCOUNT_CHANGED": "改了賬號",
+        "REQUESTED": "請求開放",
+        "GRANT_OPENED": "開放",
+        "GRANT_CLOSED": "關閉"
+      },
+      "customerActor": "{name}（貴公司）",
+      "customerActorMse": "{name}（客戶）",
+      "lookedAt": {
+        "LIST": "看了列表",
+        "RECORD": "看了一筆資料",
+        "FILE": "預覽了文件"
+      },
+      "refused": {
+        "closed": "沒有開放查看",
+        "accounts_closed": "沒有開放管理賬號"
+      },
+      "filter": {
+        "from": "從哪天",
+        "to": "到哪天",
+        "outcome": "做了什麼",
+        "all": "全部",
+        "clear": "清除篩選",
+        "nothingToClear": "還沒有設篩選"
+      },
+      "empty": "還沒有記錄：MSE 沒有看過貴公司的資料，也沒有被擋住過。",
+      "emptyMse": "這家客戶還沒有任何 MSE 查看記錄。",
+      "emptyFiltered": "這段時間沒有這樣的記錄，可以換一個日期，或選「全部」再看。",
+      "loading": "正在讀取記錄……",
+      "notAllowed": "「MSE 查看記錄」只有公司管理員和能看操作記錄的同事看得到；需要看時，請找貴公司的管理員。",
+      "page": "第 {page} / {pages} 頁 · 共 {count} 條",
+      "previous": "上一頁",
+      "next": "下一頁"
+    },
+    "module": {
+      "weighing": "稱重記錄",
+      "weighing_photos": "稱重照片",
+      "weighing_ticket": "稱重單 PDF",
+      "weighing_corrections": "稱重更正記錄",
+      "audit_log": "操作記錄",
+      "notifications": "通知",
+      "report_files": "報表文件",
+      "qr_codes": "二維碼",
+      "qr_scans": "掃碼記錄",
+      "integration_deliveries": "系統集成推送記錄",
+      "monitoring_events": "系統事件",
+      "monitoring_cctv": "攝像頭畫面",
+      "monitoring_anpr": "車牌 / 門禁識別",
+      "dashboard_map": "地圖上的工地",
+      "visitor_photos": "訪客照片名單",
+      "file_actions": "列印 / 下載 / 發送記錄",
+      "external_links": "外部訪問鏈接",
+      "accounts": "賬號",
+      "platform_access": "MSE 查看權限",
+      "other": "其他業務資料"
+    },
+    "operation": {
+      "create_user": "新增賬號",
+      "update_user": "修改賬號資料",
+      "update_user_status": "停用 / 恢復賬號",
+      "delete_user": "刪除賬號",
+      "send_password_reset": "重發登入郵件",
+      "replace_user": "人員交接",
+      "reset_sign_off_pin": "重設簽核密碼",
+      "set_permission_switches": "修改權限開關",
+      "force_logout": "強制下線",
+      "create_role": "新增角色",
+      "update_role": "修改角色",
+      "delete_role": "刪除角色",
+      "create_department": "新增部門",
+      "update_department": "修改部門",
+      "delete_department": "刪除部門",
+      "reissue_invitation": "重發手機登入鏈接",
+      "reset_device": "重置手機",
+      "remove_field_staff": "移除現場人員",
+      "other": "修改賬號"
+    },
+    "mse": {
+      "title": "客戶開放情況",
+      "help": "這家客戶的業務資料和賬號，要客戶的公司管理員在「公司設置」裡開放，MSE 才能看、才能改。",
+      "viewClosed": "這家客戶沒有開放查看，項目裡的資料、照片和車牌都不顯示；需要時點「請客戶開放查看」。",
+      "viewOpen": "這家客戶開放查看到 {until}（只能看，不能改，每一次查看都會記錄給客戶看）。",
+      "accountsClosed": "這家客戶沒有開放賬號管理，不能加或改它的賬號；需要時點「請客戶開放賬號管理」。",
+      "accountsOpen": "這家客戶開放賬號管理到 {until}，每一次修改都會通知客戶。",
+      "accountsOnboarding": "這家客戶的管理員還沒有登入過，可以先幫它開好賬號。",
+      "askView": "請客戶開放查看",
+      "askAccounts": "請客戶開放賬號管理",
+      "askHelp": "客戶的公司管理員會收到通知，通知裡有您寫的原因。同一件事一小時內只能發一次。",
+      "reason": "原因（客戶會看到）",
+      "reasonPlaceholder": "例如：客戶報稱重異常，需要看照片",
+      "send": "發送",
+      "alreadyOpen": "客戶已經開放了，不用再請。",
+      "onboardingNoAsk": "客戶的管理員還沒登入過，現在不用請，可以直接幫客戶開賬號。"
+    },
+    "directory": {
+      "column": "客戶開放",
+      "closed": "未開放",
+      "view": "可查看，到 {until}",
+      "accounts": "可改賬號，到 {until}",
+      "onboarding": "還在開戶，可直接開賬號"
+    },
+    "closed": {
+      "cell": "客戶未開放",
+      "note": "客戶沒有開放查看的資料，這裡只顯示數量和狀態；需要時請客戶管理員在「公司設置」裡點「允許 MSE 查看」。",
+      "hiddenRows": "客戶沒有開放查看的記錄，這裡沒有列出來。需要時請客戶管理員在「公司設置」裡點「允許 MSE 查看」。",
+      "auditHidden": "這裡只顯示 MSE 同事的操作、登入記錄和已開放客戶的操作；客戶自己同事的操作要客戶開放查看後才顯示。",
+      "photos": "這家客戶現在沒有開放查看，照片、附件、更正記錄和稱重單都看不到。需要時請客戶管理員在「公司設置」裡點「允許 MSE 查看」。",
+      "mapPins": "有 {count} 個工地沒有顯示，因為客戶還沒有開放查看。"
+    },
+    "reason": {
+      "view": "要客戶先開放查看：請客戶管理員在「公司設置」裡點「允許 MSE 查看」，然後再試。",
+      "accounts": "改這家客戶的賬號要客戶同意，請客戶管理員在「公司設置」裡點「允許 MSE 管理賬號」。",
+      "externalLink": "幫客戶開外部訪問鏈接要客戶先開放「允許 MSE 查看」。",
+      "accountsList": "灰色的按鈕是客戶還沒開放「允許 MSE 管理賬號」的賬號；要改，請那家客戶的管理員在「公司設置」裡點「允許 MSE 管理賬號」。強制下線隨時可以用。"
+    }
   }
 }
