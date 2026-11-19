@@ -54,6 +54,8 @@ export interface AdminReportFilterOptions {
 
 export interface ReportExportRecord extends ArchivedReportFile {
   id: string;
+  /** Whose file: MSE's own (`PLATFORM`) or a customer's (JB220: preview only for MSE). */
+  scope?: "PLATFORM" | "CONTRACTOR" | "RECYCLER";
   report_type: AdminReportType;
   export_format: "PDF" | "EXCEL";
   date_from: string;

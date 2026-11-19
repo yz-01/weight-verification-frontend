@@ -15,6 +15,7 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
+import { ClosedOr, closedValue, PlatformClosedNote } from "@/components/platform-access/closed";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { clickOpensRow } from "@/components/shared/inside-row-control";
 import {
@@ -270,6 +271,9 @@ function AdminNotificationList({
           <DateFilter label={t("filter.dateTo")} value={dateTo} onChange={setDateTo} />
         </div>
       )}
+      {/* JB220 (客户 11-18): a customer's business notices keep who, kind and
+          delivery; their wording waits for the customer's 「允许 MSE 查看」. */}
+      <PlatformClosedNote rows={notifications.data?.results} />
       <div className="overflow-auto surface-panel rounded-xl">
         <Table>
           <TableHeader>
@@ -293,8 +297,8 @@ function AdminNotificationList({
                 }}
               >
                 <TableCell className="max-w-md">
-                  <p className="font-medium">{row.title}</p>
-                  <p className="line-clamp-2 text-xs text-muted-foreground">{row.message}</p>
+                  <p className="font-medium"><ClosedOr row={row} value={row.title} /></p>
+                  {row.message && <p className="line-clamp-2 text-xs text-muted-foreground">{row.message}</p>}
                 </TableCell>
                 <TableCell>
                   <p>{row.recipient_name}</p>
@@ -398,7 +402,7 @@ function NotificationDetails({
         {row && (
           <>
             <DialogHeader>
-              <DialogTitle>{row.title}</DialogTitle>
+              <DialogTitle>{closedValue(row, row.title)}</DialogTitle>
               <DialogDescription>{df.dateTime(row.created_at)}</DialogDescription>
             </DialogHeader>
             <dl className="grid gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
@@ -421,7 +425,7 @@ function NotificationDetails({
             </dl>
             <div className="space-y-1 border-t pt-4">
               <p className="text-xs text-muted-foreground">{t("field.message")}</p>
-              <p className="whitespace-pre-wrap text-sm">{row.message}</p>
+              <p className="whitespace-pre-wrap text-sm">{closedValue(row, row.message)}</p>
             </div>
             {Object.keys(row.latest_delivery_status).length > 0 && (
               <div className="space-y-2 border-t pt-4">
@@ -726,6 +730,7 @@ function NotificationRecords() {
         <Button variant={recordType === "DELIVERY" ? "default" : "outline"} onClick={() => showRecords("DELIVERY")}>{t("record.delivery")}</Button>
         <Button variant={recordType === "STATUS" ? "default" : "outline"} onClick={() => showRecords("STATUS")}>{t("record.status")}</Button>
       </div>
+      <PlatformClosedNote rows={recordType === "DELIVERY" ? delivery.data?.results : statuses.data?.results} />
       <div className="overflow-auto surface-panel rounded-xl">
         <Table>
           <TableHeader>
@@ -750,7 +755,7 @@ function NotificationRecords() {
             {recordType === "DELIVERY"
               ? (delivery.data?.results ?? []).map((row) => (
                   <TableRow key={row.id}>
-                    <TableCell>{row.notification_title}</TableCell>
+                    <TableCell><ClosedOr row={row} value={row.notification_title} /></TableCell>
                     <TableCell>{row.recipient_email}</TableCell>
                     <TableCell>
                       <span className="inline-flex flex-wrap gap-2">
@@ -771,7 +776,7 @@ function NotificationRecords() {
                 ))
               : (statuses.data?.results ?? []).map((row) => (
                   <TableRow key={row.id}>
-                    <TableCell>{row.notification_title}</TableCell>
+                    <TableCell><ClosedOr row={row} value={row.notification_title} /></TableCell>
                     <TableCell>{row.recipient_email}</TableCell>
                     <TableCell><StatusBadge label={t(`status.${row.status}`)} /></TableCell>
                     <TableCell>{df.dateTime(row.changed_at)}</TableCell>

@@ -14,12 +14,25 @@ import type {
   ExitPassWaiting,
 } from "@/interfaces/exit-pass";
 import type { GateIncidentDetail, GatePhotoDraft } from "@/interfaces/site-access";
-import { api, toastSuccess } from "@/services/api-client";
+import { api, download, fetchObjectUrl, toastSuccess } from "@/services/api-client";
 
 const BASE = "/api/exit-passes";
 
 export function getExitPass(kind: ExitPassKind, record: string): Promise<ExitPass> {
   return api.get<ExitPass>(`${BASE}/get_pass/`, { kind, record });
+}
+
+/**
+ * 「见附件：…」 - the registered signed copy, read by whoever reads the 出门条
+ * (contract v4 F7: the guard, a safety manager without the record's page),
+ * not through the record's 附件 download, which asks for the record's page.
+ */
+export function exitPassPaperCopyObjectUrl(kind: ExitPassKind, record: string): Promise<string> {
+  return fetchObjectUrl(`${BASE}/get_paper_copy/`, { query: { kind, record, inline: "1" } });
+}
+
+export function downloadExitPassPaperCopy(kind: ExitPassKind, record: string, filename: string): Promise<void> {
+  return download(`${BASE}/get_paper_copy/`, { query: { kind, record }, fallbackFilename: filename });
 }
 
 /** 【签名批准】: the safety manager's drawn signature (and the 「需要外部审批」 switch). */

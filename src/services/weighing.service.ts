@@ -328,11 +328,14 @@ export function printWeighTicket(
   sessionId: string,
   sessionNo: string,
   labels: Record<string, string>,
+  /** JB220: MSE names the customer whose ticket it previews (`X-MSE-Company`). */
+  options: { platformCompany?: string } = {},
 ): Promise<void> {
   return download(`/api/weigh-sessions/${sessionId}/print_ticket/`, {
     method: "POST",
     body: { labels },
     fallbackFilename: `${sessionNo}.pdf`,
+    platformCompany: options.platformCompany,
   });
 }
 
