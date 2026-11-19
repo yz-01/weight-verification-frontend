@@ -49,10 +49,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { useMissingFields } from "@/hooks/use-missing-fields";
 import { ApiError } from "@/interfaces/api";
 import type { Permit, PermitWorkFormInput } from "@/interfaces/permit";
 import { useDateFormat } from "@/lib/dates";
 import { fromLocalInput, toLocalInput } from "@/lib/record-correction";
+import { titleLabel } from "@/lib/role-labels";
 import { PERMIT_WORK_TYPES_KEY, getPermitWorkTypes, saveWorkForm } from "@/services/permit.service";
 import { getRecordAttachments } from "@/services/record-attachment.service";
 
@@ -205,6 +207,7 @@ function SectionBand({ children }: { children: React.ReactNode }) {
 /** What the record's own approval says, for 图 2's 「安全经理审批」 rows. */
 function useApprovalWords(permit: Permit) {
   const t = useTranslations("permits");
+  const all = useTranslations();
   const df = useDateFormat();
   const approved = permit.status === "VERIFIED" || permit.status === "RESOLVED";
   const returned = permit.status === "RETURNED";
@@ -213,7 +216,10 @@ function useApprovalWords(permit: Permit) {
     approved,
     returned,
     decided,
-    manager: decided ? [permit.decided_by_name, permit.decided_by_title].filter(Boolean).join(" · ") : "",
+    // Walk 11-18: the platform's role names in the reader's words.
+    manager: decided
+      ? [permit.decided_by_name, titleLabel(permit.decided_by_title, all)].filter(Boolean).join(" · ")
+      : "",
     decidedAt: decided && permit.decided_at ? df.dateTime(permit.decided_at) : "",
     result: t(`status.${permit.status}`),
   };
@@ -260,6 +266,7 @@ function BroughtIn({ permit }: { permit: Permit }) {
 /** 图 2's top rows: what the application already holds. */
 function ApplicationFacts({ permit }: { permit: Permit }) {
   const t = useTranslations("permits.eForm");
+  const all = useTranslations();
   const df = useDateFormat();
   return (
     <dl className="grid grid-cols-1 gap-x-6 gap-y-3 rounded-lg border p-3 sm:grid-cols-2">
@@ -269,7 +276,7 @@ function ApplicationFacts({ permit }: { permit: Permit }) {
       <Shown label={t("appliedOn")} value={df.date(permit.applied_at)} />
       <Shown
         label={t("applicant")}
-        value={[permit.applicant_name, permit.applicant_title].filter(Boolean).join(" · ")}
+        value={[permit.applicant_name, titleLabel(permit.applicant_title, all)].filter(Boolean).join(" · ")}
         wide
       />
     </dl>
@@ -369,6 +376,18 @@ export function PermitWorkFormFields({ permit, onClose }: { permit: Permit; onCl
   const problems = timeProblems(draft);
   const problem = problems.work_end ?? problems.valid_from ?? problems.valid_until;
   const backwards = Boolean(problem);
+  // What 【保存】 still waits for, said on screen above it (walk 11-18: the
+  // button's tip opened behind this window, so a desk saw a grey button and
+  // nothing else).
+  const stillMissing = useMissingFields();
+  const need = stillMissing([
+    // Only asked once 「其他（写明）」 is chosen; its field shows then.
+    [choice !== OTHER_WORK_TYPE || draft.work_type.trim(), t("workTypeOther")],
+    [draft.location.trim(), t("location")],
+    [draft.work_content.trim(), t("workContent")],
+    [draft.work_start, t("workStart")],
+    [draft.work_end, t("workEnd")],
+  ]);
   /** The red line under a field: the times as checked here, else the server's word. */
   const errorOf = (field: keyof PermitWorkFormInput) => {
     const own = problems[field as TimeField];
@@ -506,6 +525,11 @@ export function PermitWorkFormFields({ permit, onClose }: { permit: Permit; onCl
           {t(problem)}
         </p>
       )}
+      {need.reason && (
+        <p className="rounded-md bg-warning/10 px-3 py-2 text-sm" data-slot="permit-form-missing">
+          {need.reason}
+        </p>
+      )}
       {error && (
         <p role="alert" className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
           {error}
@@ -517,16 +541,9 @@ export function PermitWorkFormFields({ permit, onClose }: { permit: Permit; onCl
         </Button>
         <Button
           className="min-h-11"
-          requires={[
-            // Only asked once 「其他（写明）」 is chosen; its field shows then.
-            [choice !== OTHER_WORK_TYPE || draft.work_type.trim(), t("workTypeOther")],
-            [draft.location.trim(), t("location")],
-            [draft.work_content.trim(), t("workContent")],
-            [draft.work_start, t("workStart")],
-            [draft.work_end, t("workEnd")],
-          ]}
-          disabled={save.isPending || backwards}
-          disabledReason={problem ? t(problem) : undefined}
+          // The reasons are the lines above; the tip only repeats them.
+          disabled={save.isPending || backwards || need.blocked}
+          disabledReason={problem ? t(problem) : need.reason}
           onClick={() => save.mutate()}
         >
           {save.isPending ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}

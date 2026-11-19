@@ -66,6 +66,20 @@ export function roleLabel(
 }
 
 /**
+ * A stamped 身份 / 职位 line - 「Site Staff」, 「Site Staff · Stores」 - with the
+ * platform's own role names in the reader's language, the same rule as the
+ * backend's `core.step_up.title_label` (walk 11-18: 「申请人 阿明 · Site
+ * Staff」 on a Chinese permit, while its PDF's 审批记录 said 工地人员). A
+ * department, a job title and a role the company named stay as typed.
+ */
+export function titleLabel(title: string | null | undefined, t: Translate): string {
+  return (title ?? "")
+    .split(" · ")
+    .map((part) => roleLabel(null, part, t))
+    .join(" · ");
+}
+
+/**
  * Some payloads (the signed-in user, a gate record's members) carry only the
  * stored role name. Seeded roles keep the platform's English template name, so
  * that name identifies the preset. A tenant role with a different name is left

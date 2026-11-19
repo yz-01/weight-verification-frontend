@@ -122,7 +122,11 @@ describe("the requests (contract §2-§4)", () => {
   });
 
   it("signs with the drawn signature and the switch", async () => {
-    api.post.mockResolvedValueOnce({ state: "sent", reference: "MO-1" });
+    api.post.mockResolvedValueOnce({
+      state: "sent",
+      reference: "MO-1",
+      sent: { to: [{ name: "ah ong", role: "applicant" }, { name: "示范门岗", role: "gate" }] },
+    });
     await service.signExitPass("MATERIAL_OUTGOING", "mo-1", new File(["x"], "sig.png"), false);
     const [url, body] = api.post.mock.lastCall!;
     expect(url).toBe("/api/exit-passes/sign/");
@@ -203,6 +207,38 @@ describe("the requests (contract §2-§4)", () => {
     expect(toastSuccess).toHaveBeenLastCalledWith("exitPass.toast.released", { reference: "GT-1" });
   });
 
+  it("walk 11-18: the signing toast names whom the 出门条 really reached (the server's sent-to list)", () => {
+    const to = (...roles: ("applicant" | "gate")[]) => ({
+      state: "sent" as const,
+      sent: {
+        at: "2026-11-18T06:02:11Z",
+        to: roles.map((role) => ({ name: role, role })),
+        no_gate_phones: !roles.includes("gate"),
+      },
+    });
+    expect(service.signedToast(to("applicant", "gate"))).toBe("exitPass.toast.signedSent");
+    expect(service.signedToast(to("applicant"))).toBe("exitPass.toast.signedSentApplicant");
+    expect(service.signedToast(to("gate"))).toBe("exitPass.toast.signedSentGate");
+    expect(service.signedToast(to())).toBe("exitPass.toast.signedSentNobody");
+    expect(service.signedToast({ state: "awaiting_external", sent: null })).toBe("exitPass.toast.signedWaitExternal");
+    // A project with no gate phone: never 「…发给申请人和门岗」.
+    expect(zh.exitPass.toast.signedSentApplicant).toBe("已签名批准，出门条只发给了申请人，没有门岗手机收到：{reference}");
+  });
+
+  it("walk 11-18: 【换一个签回的文件】 does not say the 出门条 was sent again", async () => {
+    api.post.mockResolvedValue({ reference: "MO-1" });
+    const fields = { company: "业主 ABC", name: "Mr Lim", opinion: "", date: "2026-11-17", attachment: "att-2" };
+    await service.recordExitPassExternalPaper("MATERIAL_OUTGOING", "mo-1", fields, true);
+    expect(toastSuccess).toHaveBeenLastCalledWith("exitPass.toast.paperReplaced", { reference: "MO-1" });
+    expect(zh.exitPass.toast.paperReplaced).toBe("已换成新的签回文件；出门条之前已经发过，这次没有再发：{reference}");
+    await service.recordExitPassExternalPaper("MATERIAL_OUTGOING", "mo-1", fields);
+    expect(toastSuccess).toHaveBeenLastCalledWith("exitPass.toast.externalDone", { reference: "MO-1" });
+    // The dialog says which it is.
+    expect(read("components/contractor-ops/exit-pass-panel.tsx")).toMatch(
+      /nothing is sent again, and the toast says so\.\s+correcting,\s+\),/,
+    );
+  });
+
   it("reads the gate's 待放行, for one project or the phone's own", () => {
     service.getExitPassesWaiting("p-1");
     expect(api.get).toHaveBeenLastCalledWith("/api/exit-passes/get_waiting/", { project: "p-1" });
@@ -242,6 +278,8 @@ describe("the words the backend's tests read (contract §6), in all four languag
     // Audit round 2 (contract v4 F6): online signing is head office's; who may waive.
     "exit_pass_online_head_office_only",
     "exit_pass_waive_not_allowed",
+    // Walk 11-18 point 9: a write that met a busy database on every try.
+    "exit_pass_busy",
   ];
   const ACTIONS = ["exit_pass_approve", "exit_pass_external", "exit_pass_waive_external"];
   const OPERATIONS = [

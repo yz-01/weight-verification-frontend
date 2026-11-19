@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import { useMissingFields } from "@/hooks/use-missing-fields";
 import {
   Table,
   TableBody,
@@ -127,10 +128,14 @@ export function PermitWorkTypesPanel({ canManage }: { canManage: boolean }) {
   );
 }
 
-function PermitWorkTypeDialog({ row, onClose }: { row: PermitWorkType | null; onClose: () => void }) {
+export function PermitWorkTypeDialog({ row, onClose }: { row: PermitWorkType | null; onClose: () => void }) {
   const t = useTranslations("permits.workTypes");
   const queryClient = useQueryClient();
   const [name, setName] = useState(row?.name ?? "");
+  // Why 【保存】 is grey, said on screen (walk 11-18: a tip on a button in a
+  // window opens behind it).
+  const stillMissing = useMissingFields();
+  const need = stillMissing([[name.trim(), t("name")]]);
   const [armed, setArmed] = useState(false);
   const [error, setError] = useState("");
   const done = () => {
@@ -170,6 +175,11 @@ function PermitWorkTypeDialog({ row, onClose }: { row: PermitWorkType | null; on
                 <span>{t("armRemove", { name: row.name })}</span>
               </label>
               <p className="text-xs text-muted-foreground">{t("removeHint")}</p>
+              {!armed && (
+                <p className="text-xs font-medium text-warning" data-slot="permit-work-type-arm-first">
+                  {t("armFirst")}
+                </p>
+              )}
               <Button
                 variant="outline-destructive"
                 disabled={!armed || removal.isPending}
@@ -186,12 +196,21 @@ function PermitWorkTypeDialog({ row, onClose }: { row: PermitWorkType | null; on
               {error}
             </p>
           )}
+          {need.reason && (
+            <p className="text-sm font-medium text-warning" data-slot="permit-work-type-missing">
+              {need.reason}
+            </p>
+          )}
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
             {t("cancel")}
           </Button>
-          <Button requires={[[name.trim(), t("name")]]} disabled={save.isPending} onClick={() => save.mutate()}>
+          <Button
+            disabled={save.isPending || need.blocked}
+            disabledReason={need.reason}
+            onClick={() => save.mutate()}
+          >
             {save.isPending ? <Loader2 className="animate-spin" /> : <Save />}
             {t("save")}
           </Button>

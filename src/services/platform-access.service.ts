@@ -46,6 +46,17 @@ export async function closePlatformAccess(kind: PlatformAccessKind): Promise<Pla
   return status;
 }
 
+/**
+ * 撤销 a link MSE opened on the customer's company, by its 公司管理员 (walk
+ * 11-18 F5). The server asks for his PIN (`platform_access.revoke_link`); the
+ * shared dialog answers it and the request goes again.
+ */
+export async function revokePlatformLink(link: string): Promise<PlatformAccessStatus> {
+  const status = await api.post<PlatformAccessStatus>(`${BASE}/revoke_link/`, { link });
+  toastSuccess("mseAccess.toast.linkRevoked");
+  return status;
+}
+
 /** MSE: 「请客户开放查看」 / 「请客户开放账号管理」 - a notice to the customer's 公司管理员. */
 export async function requestPlatformAccess(
   body: { company: string; kind: PlatformAccessKind; reason: string },
