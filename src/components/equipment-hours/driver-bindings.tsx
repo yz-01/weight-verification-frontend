@@ -31,11 +31,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ApiError } from "@/interfaces/api";
+import { useDateFormat } from "@/lib/dates";
 import {
   listDriverBindings,
   setMachineDrivers,
   type BindingDriverKind,
   type BindingMachine,
+  type BindingRunning,
 } from "@/services/driver-clock.service";
 
 export const DRIVER_BINDINGS_KEY = "driver-bindings";
@@ -62,6 +64,39 @@ export function ticksChanged(machine: Pick<BindingMachine, "drivers">, ticked: r
 /** Whether a machine still has a driver the release bound, not yet checked. */
 export function hasSeeded(machine: Pick<BindingMachine, "drivers">): boolean {
   return machine.drivers.some((driver) => driver.source === "SEEDED");
+}
+
+/**
+ * The driver these ticks would untick while his 开工 on this machine is still
+ * open (audit F1) - his phone could no longer take the 收工 - or null.
+ */
+export function strandedDriver(
+  machine: Pick<BindingMachine, "drivers" | "running">,
+  ticked: readonly string[],
+): BindingRunning | null {
+  const running = machine.running;
+  if (!running) return null;
+  const key = driverKey(running);
+  const boundNow = machine.drivers.some((driver) => driverKey(driver) === key);
+  return boundNow && !ticked.includes(key) ? running : null;
+}
+
+/**
+ * Said under the tick list before 【保存】 when the save would untick the
+ * driver who is running the machine: who, since when, and what will happen.
+ */
+export function RunningUnbindWarning({ running }: { running: BindingRunning }) {
+  const t = useTranslations("driverBinding");
+  const df = useDateFormat();
+  return (
+    <p
+      role="alert"
+      data-testid="binding-running-warning"
+      className="rounded-md border border-warning/40 bg-warning/10 px-3 py-2 text-sm font-medium"
+    >
+      {t("runningWarn", { name: running.name, time: df.dateTime(running.since) })}
+    </p>
+  );
 }
 
 function useDriverBindings(project: string) {
@@ -130,15 +165,27 @@ export function DriverBindingsBody({ project }: { project: string }) {
   const [error, setError] = useState("");
 
   const save = useMutation({
-    mutationFn: ({ machine, keys }: { machine: BindingMachine; keys: string[] }) =>
-      setMachineDrivers({ project, equipment: machine.id, drivers: driversOf(keys) }),
+    mutationFn: ({ machine, keys, confirmRunning }: { machine: BindingMachine; keys: string[]; confirmRunning?: boolean }) =>
+      setMachineDrivers({
+        project,
+        equipment: machine.id,
+        drivers: driversOf(keys),
+        ...(confirmRunning ? { confirm_running: true } : {}),
+      }),
     onSuccess: () => {
       setEditing(null);
       setError("");
       void queryClient.invalidateQueries({ queryKey: [DRIVER_BINDINGS_KEY] });
       void queryClient.invalidateQueries({ queryKey: ["driver-clock-links"] });
     },
-    onError: (reason) => setError(reason instanceof ApiError ? reason.message : t("failed")),
+    onError: (reason) => {
+      setError(reason instanceof ApiError ? reason.message : t("failed"));
+      // He started the machine after this list was read: read it again, so
+      // the warning and its 【确定取消绑定并保存】 show under the ticks.
+      if (reason instanceof ApiError && reason.code === "equipment_binding_driver_running") {
+        void queryClient.invalidateQueries({ queryKey: [DRIVER_BINDINGS_KEY] });
+      }
+    },
   });
 
   const data = query.data;
@@ -168,104 +215,111 @@ export function DriverBindingsBody({ project }: { project: string }) {
 
       {data && data.machines.length > 0 ? (
         <ul className="divide-y rounded-lg border">
-          {data.machines.map((machine) => (
-            <li key={machine.id} className="space-y-2 p-3" data-testid="binding-machine">
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-start">
-                <div className="min-w-0 flex-1">
-                  <p className="font-medium">{machineTitle(machine)}</p>
-                  {machine.drivers.length === 0 ? (
-                    <p className="text-sm font-medium text-warning">{t("nobody")}</p>
-                  ) : (
-                    <ul className="mt-1 flex flex-wrap gap-1.5">
-                      {machine.drivers.map((driver) => (
-                        <li
-                          key={driver.binding}
-                          className="flex flex-wrap items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-sm"
+          {data.machines.map((machine) => {
+            const stranded = editing === machine.id ? strandedDriver(machine, ticked) : null;
+            return (
+              <li key={machine.id} className="space-y-2 p-3" data-testid="binding-machine">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-start">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium">{machineTitle(machine)}</p>
+                    {machine.drivers.length === 0 ? (
+                      <p className="text-sm font-medium text-warning">{t("nobody")}</p>
+                    ) : (
+                      <ul className="mt-1 flex flex-wrap gap-1.5">
+                        {machine.drivers.map((driver) => (
+                          <li
+                            key={driver.binding}
+                            className="flex flex-wrap items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-sm"
+                          >
+                            <span className="font-medium">{driver.name}</span>
+                            <span className="text-muted-foreground">{t(`kind.${driver.kind}`)}</span>
+                            {driver.source === "SEEDED" ? <StatusBadge label={t("seeded")} tone="warning" /> : null}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                  {editing !== machine.id ? (
+                    <div className="flex shrink-0 flex-wrap gap-2">
+                      {hasSeeded(machine) ? (
+                        <Button
+                          size="sm"
+                          disabled={save.isPending}
+                          onClick={() => save.mutate({ machine, keys: machine.drivers.map(driverKey) })}
                         >
-                          <span className="font-medium">{driver.name}</span>
-                          <span className="text-muted-foreground">{t(`kind.${driver.kind}`)}</span>
-                          {driver.source === "SEEDED" ? <StatusBadge label={t("seeded")} tone="warning" /> : null}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-                {editing !== machine.id ? (
-                  <div className="flex shrink-0 flex-wrap gap-2">
-                    {hasSeeded(machine) ? (
+                          <Check />
+                          {t("confirm")}
+                        </Button>
+                      ) : null}
                       <Button
                         size="sm"
-                        disabled={save.isPending}
-                        onClick={() => save.mutate({ machine, keys: machine.drivers.map(driverKey) })}
+                        variant="outline"
+                        disabled={drivers.length === 0}
+                        disabledReason={t("noDrivers")}
+                        onClick={() => {
+                          setEditing(machine.id);
+                          setTicked(machine.drivers.map(driverKey));
+                          setError("");
+                        }}
                       >
-                        <Check />
-                        {t("confirm")}
+                        <Pencil />
+                        {t("edit")}
                       </Button>
-                    ) : null}
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      disabled={drivers.length === 0}
-                      disabledReason={t("noDrivers")}
-                      onClick={() => {
-                        setEditing(machine.id);
-                        setTicked(machine.drivers.map(driverKey));
-                        setError("");
-                      }}
-                    >
-                      <Pencil />
-                      {t("edit")}
-                    </Button>
-                  </div>
-                ) : null}
-              </div>
+                    </div>
+                  ) : null}
+                </div>
 
-              {editing === machine.id ? (
-                <fieldset className="space-y-1 rounded-lg border bg-muted/30 p-3">
-                  <legend className="sr-only">{t("edit")}</legend>
-                  <p className="text-xs text-muted-foreground">{t("pickHelp")}</p>
-                  {drivers.map((driver) => {
-                    const key = driverKey(driver);
-                    return (
-                      <label key={key} className="flex min-h-11 cursor-pointer items-center gap-3 text-sm">
-                        <Checkbox
-                          checked={ticked.includes(key)}
-                          onCheckedChange={(on) =>
-                            setTicked((current) =>
-                              on === true ? [...current.filter((item) => item !== key), key] : current.filter((item) => item !== key),
-                            )
-                          }
-                        />
-                        <span className="min-w-0 flex-1">
-                          <span className="font-medium">{driver.name}</span>
-                          <span className="text-muted-foreground">
-                            {" · "}
-                            {[t(`kind.${driver.kind}`), driver.cidb_no ? `CIDB ${driver.cidb_no}` : "", driver.company_name]
-                              .filter(Boolean)
-                              .join(" · ")}
+                {editing === machine.id ? (
+                  <fieldset className="space-y-1 rounded-lg border bg-muted/30 p-3">
+                    <legend className="sr-only">{t("edit")}</legend>
+                    <p className="text-xs text-muted-foreground">{t("pickHelp")}</p>
+                    {drivers.map((driver) => {
+                      const key = driverKey(driver);
+                      return (
+                        <label key={key} className="flex min-h-11 cursor-pointer items-center gap-3 text-sm">
+                          <Checkbox
+                            checked={ticked.includes(key)}
+                            onCheckedChange={(on) =>
+                              setTicked((current) =>
+                                on === true ? [...current.filter((item) => item !== key), key] : current.filter((item) => item !== key),
+                              )
+                            }
+                          />
+                          <span className="min-w-0 flex-1">
+                            <span className="font-medium">{driver.name}</span>
+                            <span className="text-muted-foreground">
+                              {" · "}
+                              {[t(`kind.${driver.kind}`), driver.cidb_no ? `CIDB ${driver.cidb_no}` : "", driver.company_name]
+                                .filter(Boolean)
+                                .join(" · ")}
+                            </span>
                           </span>
-                        </span>
-                      </label>
-                    );
-                  })}
-                  <div className="flex flex-wrap gap-2 pt-1">
-                    <Button
-                      size="sm"
-                      disabled={save.isPending || !ticksChanged(machine, ticked)}
-                      disabledReason={!ticksChanged(machine, ticked) ? t("unchanged") : undefined}
-                      onClick={() => save.mutate({ machine, keys: ticked })}
-                    >
-                      {save.isPending ? <Loader2 className="animate-spin" /> : <Check />}
-                      {t("save")}
-                    </Button>
-                    <Button size="sm" variant="outline" onClick={() => setEditing(null)}>
-                      {t("cancel")}
-                    </Button>
-                  </div>
-                </fieldset>
-              ) : null}
-            </li>
-          ))}
+                        </label>
+                      );
+                    })}
+                    {stranded ? <RunningUnbindWarning running={stranded} /> : null}
+                    <div className="flex flex-wrap gap-2 pt-1">
+                      {/* Unticking the driver who is running it: the explicit
+                          「确定」 of a risky save (audit F1), not the plain 保存. */}
+                      <Button
+                        size="sm"
+                        variant={stranded ? "destructive" : "default"}
+                        disabled={save.isPending || !ticksChanged(machine, ticked)}
+                        disabledReason={!ticksChanged(machine, ticked) ? t("unchanged") : undefined}
+                        onClick={() => save.mutate({ machine, keys: ticked, confirmRunning: Boolean(stranded) })}
+                      >
+                        {save.isPending ? <Loader2 className="animate-spin" /> : <Check />}
+                        {stranded ? t("saveUnbindRunning") : t("save")}
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => setEditing(null)}>
+                        {t("cancel")}
+                      </Button>
+                    </div>
+                  </fieldset>
+                ) : null}
+              </li>
+              );
+          })}
         </ul>
       ) : null}
     </div>

@@ -9536,9 +9536,11 @@
       "permit_form_office_only": "E-permit diisi di komputer pejabat. Sila log masuk di komputer untuk mengisinya.",
       "permit_work_type_exists": "\"{name}\" sudah ada dalam senarai.",
       "permit_form_changed": "{name} menyimpan e-permit ini selepas anda membukanya. Tutup, buka semula, baca yang terkini dan kemudian ubah.",
-      "equipment_hours_driver_only": "Jam mesin hanya boleh direkod oleh pemandu yang diikat pada mesin itu, menggunakan telefonnya sendiri. Kakitangan tapak tidak boleh merekod bagi pihak pemandu.",
+      "equipment_hours_driver_only": "Jam mesin hanya boleh direkod oleh pemandu yang diikat pada mesin itu, menggunakan telefonnya sendiri. Kakitangan tapak tidak boleh merekod bagi pihak pemandu. Minta pemandu yang diikat pada mesin ini merekod dengan telefonnya sendiri; jika mesin belum ada pemandu, minta pejabat mengikat seorang di \"Jam operator peralatan › Ikat pemandu pada mesin\".",
       "equipment_hours_not_bound": "Mesin ini tidak diikat pada telefon anda, jadi anda tidak boleh merekod masa. Untuk menukar mesin, hubungi pejabat projek.",
+      "equipment_hours_no_longer_bound": "Anda bukan lagi pemandu yang diikat pada mesin ini, jadi anda tidak boleh merekod tamat kerjanya. Minta pejabat menambah masa tamat untuk anda.",
       "equipment_binding_driver_invalid": "Hanya pautan pemandu atau operator peralatan projek ini boleh diikat. Tutup, buka semula dan tanda sekali lagi.",
+      "equipment_binding_driver_running": "{name} sedang menjalankan mesin ini (mula {time}). Selepas ikatan dibuang, telefonnya tidak boleh merekod tamat kerja. Tunggu sehingga dia menamatkannya; jika perlu sekarang, tekan \"Buang ikatan dan simpan\", kemudian tambah masa tamat untuknya dalam jam mesin (\"Tambah masa tamat\").",
       "exit_pass_own_release": "Anda sendiri yang memohon untuk membawa barang ini keluar, jadi pengawal pintu perlu memeriksa kenderaan dan barang sebelum melepaskannya.",
       "exit_pass_gate_release_only": "Projek ini ada telefon pengawal pintu, jadi pas keluar diperiksa dan dilepaskan oleh pengawal pintu. Minta pengawal pintu membuka pas keluar di telefon, ambil gambar semakan, kemudian tekan 【Sahkan pelepasan】.",
       "exit_pass_online_head_office_only": "Tandatangan dalam talian adalah untuk ibu pejabat (peranan ibu pejabat atau pentadbir syarikat, dengan hak kelulusan untuk jenis rekod ini). Pengurus keselamatan yang menandatangani pas keluar ini, orang yang meluluskan permohonan dan pemohon tidak boleh menandatanganinya dalam talian. Cetak atau e-melkan pas keluar kepada pihak berkenaan; apabila ia dikembalikan bertandatangan, tekan 【Daftar salinan bertandatangan】 untuk memuat naiknya.",
@@ -14206,7 +14208,7 @@
       "equipment": {
         "view": "Lihat peralatan dan jam operasi",
         "manage": "Urus peralatan, terima masuk dan keluar, laras jam",
-        "capture": "Rekod peralatan masuk, keluar dan jam di tapak",
+        "capture": "Rekod peralatan masuk dan keluar di tapak; lihat jam operasi",
         "operate": "Merekod mula dan tamat kerja jentera sebagai operatornya, dari telefon"
       },
       "field_task": {
@@ -20779,7 +20781,8 @@
       "boundMore": "Mesin yang boleh anda rekod: {machines} ({count} semuanya)",
       "boundJoin": ", ",
       "notBound": "Telefon anda belum diikat pada mana-mana mesin, jadi anda belum boleh merekod masa. Minta pejabat projek mengikat anda pada mesin anda di komputer, di \"Jam operator peralatan › Ikat pemandu pada mesin\".",
-      "notYourMachine": "Mesin yang anda imbas tidak diikat pada anda, jadi anda tidak boleh merekod masa. Untuk menukar mesin, hubungi pejabat projek.",
+      "notYourMachine": "Mesin ini bukan mesin yang boleh anda rekod. Semak nombor mesin; jika pejabat baru sahaja mengikat anda padanya, buka semula halaman ini di tempat yang ada isyarat. Jika masih tidak boleh, hubungi pejabat projek.",
+      "qrUnknown": "Tidak dapat mengenal pasti mesin bagi kod QR ini (diimbas: {text}). Mungkin ia bukan kod QR mesin projek ini, atau tidak diimbas dengan jelas. Imbas semula kod QR pada mesin; jika masih tidak boleh, tekan \"QR rosak? Taip nombor\" dan taip nombor mesin.",
       "staffViewOnly": "Jam mesin direkod oleh pemandu yang diikat pada mesin itu, menggunakan telefonnya sendiri. Kakitangan tapak tidak boleh merekod bagi pihak pemandu. Anda boleh melihat jam terkini di sini; untuk menambah atau membetulkan masa, hubungi pejabat projek."
     },
     "siteNo": {
@@ -21978,9 +21981,11 @@
     "edit": "Tetapkan pemandu",
     "confirm": "Sahkan",
     "save": "Simpan",
+    "saveUnbindRunning": "Buang ikatan dan simpan",
     "cancel": "Batal",
     "close": "Tutup",
     "pickHelp": "Tandakan pemandu yang boleh merekod mesin ini, kemudian tekan \"Simpan\". Jika tiada yang ditanda, tiada sesiapa boleh merekod mesin ini.",
+    "runningWarn": "{name} sedang menjalankan mesin ini (mula {time}). Selepas ikatan dibuang, telefonnya tidak boleh merekod tamat kerja. Tunggu sehingga dia menamatkannya sebelum membuang ikatan; jika perlu sekarang, selepas simpan tambah masa tamat untuknya dalam jam mesin (\"Tambah masa tamat\").",
     "unchanged": "Belum ada perubahan",
     "failed": "Tidak disimpan. Sila cuba lagi.",
     "kind": {

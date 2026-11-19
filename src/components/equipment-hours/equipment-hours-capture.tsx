@@ -22,7 +22,7 @@ import { useDateFormat } from "@/lib/dates";
 import { asFix, type LocationFix } from "@/lib/field-location";
 import { getOfflineJobs } from "@/lib/offline-db";
 import { photoTakenAt } from "@/lib/photo-meta";
-import { matchScanned, squashCode } from "@/lib/machine-scan";
+import { isSystemMachineQr, matchScanned, squashCode } from "@/lib/machine-scan";
 import { cn } from "@/lib/utils";
 import { getDriverMachines } from "@/services/driver-clock.service";
 import { loadEquipmentHoursMachines } from "@/services/equipment-hours.service";
@@ -55,6 +55,18 @@ export function boundMachinesLine(
   return rows.length > 3
     ? t("phone.boundMore", { machines: names, count: rows.length })
     : t("phone.boundLine", { machines: names });
+}
+
+/**
+ * Which sentence a scan that names none of this phone's machines gets (JB227
+ * audit F7). A driver phone holds only its bound machines, so the system's
+ * own code of another machine is 「不在你可以打卡的设备里」 (`notYourMachine`),
+ * while another company's sticker or a bad read is 「认不出是哪台设备」
+ * (`qrUnknown`) - two different things to do. Any other phone: `qrNoMatch`.
+ */
+export function scanMissKind(text: string, bound: boolean): "qrNoMatch" | "notYourMachine" | "qrUnknown" {
+  if (!bound) return "qrNoMatch";
+  return isSystemMachineQr(text) ? "notYourMachine" : "qrUnknown";
 }
 
 /** The number the phone shows to check a scan: the 设备编号, else the code. */
@@ -315,10 +327,38 @@ export function EquipmentHoursCapture({
     setTyped("");
   };
 
+  /**
+   * A scan or a number that names none of this phone's machines (audit F7).
+   * A driver phone's list may be older than a binding the office has just
+   * made (no signal at the time), so it reads its machines again once
+   * before saying so.
+   */
+  const missed = (find: (list: EquipmentHoursMachine[]) => EquipmentHoursMachine | null, say: () => string) => {
+    if (!bound) {
+      setError(say());
+      return;
+    }
+    void machines.refetch().then((result) => {
+      const again = find(result.data ?? []);
+      if (again) pick(again);
+      else setError(say());
+    });
+  };
+
   const typedMatch = typed.trim() ? matchTypedMachine(typed, rows) : null;
   const takeTyped = () => {
     if (typedMatch) pick(typedMatch);
-    else setError(t(bound ? "phone.notYourMachine" : "phone.typedNoMatch"));
+    else
+      missed(
+        (list) => matchTypedMachine(typed, list),
+        () => t(bound ? "phone.notYourMachine" : "phone.typedNoMatch"),
+      );
+  };
+  const sayScanMiss = (text: string) => {
+    const kind = scanMissKind(text, bound);
+    if (kind === "notYourMachine") return t("phone.notYourMachine");
+    if (kind === "qrUnknown") return t("phone.qrUnknown", { text: text.slice(0, 60) });
+    return t("phone.qrNoMatch", { text: text.slice(0, 60) });
   };
 
   const send = useMutation({
@@ -354,8 +394,17 @@ export function EquipmentHoursCapture({
       void queryClient.invalidateQueries({ queryKey: ["equipment-hours", "phone-records"] });
       void queryClient.invalidateQueries({ queryKey: ["equipment-hours", "driver-records"] });
     },
-    onError: (reason) =>
-      setError(reason instanceof ApiError ? reason.message : t("phone.failed")),
+    onError: (reason) => {
+      setError(reason instanceof ApiError ? reason.message : t("phone.failed"));
+      // Refused as not (or no longer) bound: read this phone's machines again,
+      // so the list shows what the office has bound now (audit F7).
+      if (
+        reason instanceof ApiError &&
+        (reason.code === "equipment_hours_not_bound" || reason.code === "equipment_hours_no_longer_bound")
+      ) {
+        void queryClient.invalidateQueries({ queryKey: ["equipment-hours", "machines"] });
+      }
+    },
   });
 
   return (
@@ -555,7 +604,7 @@ export function EquipmentHoursCapture({
           setScanning(false);
           const found = matchScannedMachine(text, rows);
           if (!found) {
-            setError(bound ? t("phone.notYourMachine") : t("phone.qrNoMatch", { text: text.slice(0, 60) }));
+            missed((list) => matchScannedMachine(text, list), () => sayScanMiss(text));
             return;
           }
           pick(found);

@@ -89,6 +89,14 @@ export interface BoundDriver extends BindingDriver {
   source: "OFFICE" | "SEEDED";
 }
 
+/** Who started a machine's running session (its open 开工), and when. */
+export interface BindingRunning {
+  kind: BindingDriverKind;
+  id: string;
+  name: string;
+  since: string;
+}
+
 export interface BindingMachine {
   id: string;
   number: string;
@@ -97,6 +105,8 @@ export interface BindingMachine {
   name: string;
   plate: string;
   drivers: BoundDriver[];
+  /** Its running session's driver (audit F1): unticking him strands the 收工. */
+  running?: BindingRunning | null;
 }
 
 export interface DriverBindings {
@@ -111,11 +121,16 @@ export function listDriverBindings(project: string): Promise<DriverBindings> {
   return api.get<DriverBindings>("/api/equipment-driver-bindings/list_bindings/", { project });
 }
 
-/** One machine's drivers as ticked: unticked ones end, new ones bind. */
+/**
+ * One machine's drivers as ticked: unticked ones end, new ones bind. Unticking
+ * the driver whose 开工 is still open needs `confirm_running` (the office has
+ * read who and since when, and enters the end time itself).
+ */
 export async function setMachineDrivers(payload: {
   project: string;
   equipment: string;
   drivers: { kind: BindingDriverKind; id: string }[];
+  confirm_running?: boolean;
 }): Promise<BindingMachine> {
   const row = await api.post<BindingMachine>("/api/equipment-driver-bindings/set_drivers/", payload);
   toastSuccess("driverClock.toast.bindingSaved");

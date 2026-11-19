@@ -31,13 +31,20 @@ vi.mock("@/components/providers/auth-provider", () => ({
   useAuth: () => ({ user: { id: "user-1" }, can: () => true }),
 }));
 
-const { EquipmentHoursCapture, boundMachinesLine } = await import(
+const { EquipmentHoursCapture, boundMachinesLine, scanMissKind } = await import(
   "@/components/equipment-hours/equipment-hours-capture"
 );
+const { isSystemMachineQr } = await import("@/lib/machine-scan");
 const { SiteStaffHoursView } = await import("@/components/equipment-hours/site-staff-hours-view");
-const { DriverBindingHints, DriverBindingsBody, driversOf, hasSeeded, ticksChanged } = await import(
-  "@/components/equipment-hours/driver-bindings"
-);
+const {
+  DriverBindingHints,
+  DriverBindingsBody,
+  RunningUnbindWarning,
+  driversOf,
+  hasSeeded,
+  strandedDriver,
+  ticksChanged,
+} = await import("@/components/equipment-hours/driver-bindings");
 const { TooltipProvider } = await import("@/components/ui/tooltip");
 
 const phone = zh.equipmentHours.phone;
@@ -113,9 +120,44 @@ describe("a driver phone is offered only its bound machines (JB227-3 / -4)", () 
       path.join(process.cwd(), "src/components/equipment-hours/equipment-hours-capture.tsx"),
       "utf8",
     );
-    expect(capture).toMatch(/bound \? t\("phone\.notYourMachine"\)/);
+    expect(capture).toMatch(/if \(kind === "notYourMachine"\) return t\("phone\.notYourMachine"\)/);
     expect(capture).toMatch(/t\(bound \? "phone\.notYourMachine" : "phone\.typedNoMatch"\)/);
-    expect(phone.notYourMachine).toBe("扫到的设备不是绑定给你的设备，不能打卡。要换设备，请联系项目办公室。");
+    expect(phone.notYourMachine).toBe(
+      "这台设备不在你可以打卡的设备里。看看设备号码对不对；办公室刚为你绑定的话，到有信号的地方重新打开这一页。还是不行，请联系项目办公室。",
+    );
+  });
+});
+
+describe("audit fix round (11-20): a scan that names none of the driver's machines (F7)", () => {
+  const ID = "3f2b8c1e-5a4d-4e6f-9a7b-0c1d2e3f4a5b";
+
+  it("tells the system's code of another machine from a sticker or a bad read", () => {
+    expect(isSystemMachineQr(`https://mse-trace.example/scan/equipment?equipment=${ID}`)).toBe(true);
+    expect(isSystemMachineQr(ID)).toBe(true);
+    expect(isSystemMachineQr("https://supplier.example/fleet?code=EX-12")).toBe(false);
+    expect(isSystemMachineQr("WXY 1234")).toBe(false);
+    expect(isSystemMachineQr("%%#garbled")).toBe(false);
+
+    expect(scanMissKind(`https://mse-trace.example/scan/equipment?equipment=${ID}`, true)).toBe("notYourMachine");
+    expect(scanMissKind("https://supplier.example/fleet?code=EX-12", true)).toBe("qrUnknown");
+    expect(scanMissKind("%%#garbled", true)).toBe("qrUnknown");
+    // Not a driver phone: the old sentence.
+    expect(scanMissKind("%%#garbled", false)).toBe("qrNoMatch");
+    expect(phone.qrUnknown).toContain("{text}");
+    expect(phone.qrUnknown).toContain(phone.brokenQr);
+    expect(phone.qrUnknown).not.toBe(phone.notYourMachine);
+  });
+
+  it("reads its machines again before saying a machine is not his, and after a refusal", () => {
+    const capture = readFileSync(
+      path.join(process.cwd(), "src/components/equipment-hours/equipment-hours-capture.tsx"),
+      "utf8",
+    );
+    // A binding the office made while the phone had no signal.
+    expect(capture).toMatch(/void machines\.refetch\(\)\.then/);
+    expect(capture).toMatch(/missed\(\(list\) => matchScannedMachine\(text, list\), \(\) => sayScanMiss\(text\)\)/);
+    expect(capture).toMatch(/missed\(\s*\(list\) => matchTypedMachine\(typed, list\)/);
+    expect(capture).toMatch(/reason\.code === "equipment_hours_not_bound" \|\| reason\.code === "equipment_hours_no_longer_bound"/);
   });
 });
 
@@ -267,19 +309,84 @@ describe("【设备绑定司机】 on the office page (JB227-3)", () => {
   });
 });
 
+describe("audit fix round (11-20): the office does not strand a running machine without knowing (F1)", () => {
+  const running = { kind: "link" as const, id: "l1", name: "Muthu", since: "2026-11-20T00:00:00Z" };
+
+  it("knows when the ticks would untick the driver who is running the machine", () => {
+    const row = { ...overview().machines[1], running };
+
+    expect(strandedDriver(row, ["account:u1"])).toEqual(running);
+    expect(strandedDriver(row, ["account:u1", "link:l1"])).toBeNull();
+    // Nobody running it, or started by someone who is not bound (site staff
+    // before the update): nothing to warn about.
+    expect(strandedDriver({ ...row, running: null }, [])).toBeNull();
+    expect(strandedDriver({ ...row, running: { ...running, kind: "account", id: "staff-1" } }, [])).toBeNull();
+  });
+
+  it("says who started it, since when and what happens, before 【保存】", () => {
+    const html = render(<RunningUnbindWarning running={running} />);
+
+    expect(html).toContain('data-testid="binding-running-warning"');
+    expect(html).toContain("Muthu 现在正开着这台设备（");
+    expect(html).toContain("开工）。取消绑定后他的手机不能收工。请等他收工后再取消；一定要现在取消的，保存后请在工时记录里替他【补结束时间】。");
+    expect(office.runningWarn).toContain(zh.equipmentHours.adjust.add);
+  });
+
+  it("asks for the explicit 「确定」 and sends it; a refusal reads the list again", () => {
+    const dialog = readFileSync(path.join(process.cwd(), "src/components/equipment-hours/driver-bindings.tsx"), "utf8");
+
+    expect(dialog).toMatch(/stranded \? <RunningUnbindWarning running=\{stranded\} \/> : null/);
+    expect(dialog).toMatch(/stranded \? t\("saveUnbindRunning"\) : t\("save"\)/);
+    expect(dialog).toMatch(/confirmRunning: Boolean\(stranded\)/);
+    expect(dialog).toMatch(/confirmRunning \? \{ confirm_running: true \} : \{\}/);
+    expect(dialog).toMatch(/reason\.code === "equipment_binding_driver_running"/);
+    expect(zh.errors.api.equipment_binding_driver_running).toContain(office.saveUnbindRunning);
+  });
+
+  it("the unbound driver's refused 收工 says whom to ask", () => {
+    expect(zh.errors.api.equipment_hours_no_longer_bound).toBe(
+      "你已经不是这台设备的绑定司机，不能收工。请联系后台替你补结束时间。",
+    );
+  });
+});
+
 describe("the words are there in all four languages", () => {
   it("has every new sentence in 中文, 繁體, English and Malay", () => {
     for (const messages of [zh, zhTW, en, ms]) {
-      for (const code of ["equipment_hours_driver_only", "equipment_hours_not_bound", "equipment_binding_driver_invalid"]) {
+      for (const code of [
+        "equipment_hours_driver_only",
+        "equipment_hours_not_bound",
+        "equipment_binding_driver_invalid",
+        "equipment_hours_no_longer_bound",
+        "equipment_binding_driver_running",
+      ]) {
         expect((messages.errors.api as Record<string, string>)[code]).toBeTruthy();
       }
-      for (const key of ["notBound", "notYourMachine", "staffViewOnly", "boundLine", "boundMore"]) {
+      for (const key of ["notBound", "notYourMachine", "qrUnknown", "staffViewOnly", "boundLine", "boundMore"]) {
         expect((messages.equipmentHours.phone as Record<string, string>)[key]).toBeTruthy();
       }
       expect(messages.driverBinding.open).toBeTruthy();
+      expect(messages.driverBinding.runningWarn).toMatch(/\{name\}[\s\S]*\{time\}/);
+      expect(messages.errors.api.equipment_binding_driver_running).toMatch(/\{name\}[\s\S]*\{time\}/);
+      expect(messages.driverBinding.saveUnbindRunning).toBeTruthy();
       expect(messages.audit.operation.equipment_driver_binding_set).toBeTruthy();
     }
     expect(zhTW.equipmentHours.phone.notBound).toContain("綁定");
+    expect(zhTW.errors.api.equipment_hours_no_longer_bound).toContain("綁定司機");
     expect(en.driverBinding.open).toBe("Bind drivers to machines");
+  });
+
+  it("the site staff's refusal says who clocks and whom to ask (F6)", () => {
+    expect(zh.errors.api.equipment_hours_driver_only).toContain("请让这台设备的绑定司机用他自己的手机打卡");
+    expect(zh.errors.api.equipment_hours_driver_only).toContain("「设备操作员工时 › 设备绑定司机」");
+    expect(zhTW.errors.api.equipment_hours_driver_only).toContain("「設備操作員工時 › 設備綁定司機」");
+    expect(en.errors.api.equipment_hours_driver_only).toContain(en.driverBinding.open);
+  });
+
+  it("the permission now says what it gives (F5), the code unchanged", () => {
+    expect(zh.permissions.code.equipment.capture).toBe("现场登记设备进退场，查看设备工时");
+    expect(zhTW.permissions.code.equipment.capture).toBe("現場登記設備進退場，查看設備工時");
+    expect(en.permissions.code.equipment.capture).not.toMatch(/hours on site/);
+    expect(ms.permissions.code.equipment.capture).toMatch(/lihat jam/);
   });
 });

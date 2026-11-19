@@ -9536,9 +9536,11 @@
       "permit_form_office_only": "The e-permit is filled in on the office computer. Please sign in on a computer to fill it in.",
       "permit_work_type_exists": "\"{name}\" is already on the list.",
       "permit_form_changed": "{name} saved this e-permit after you opened it. Close it, open it again, read the latest and then change it.",
-      "equipment_hours_driver_only": "Machine hours can only be clocked by the driver bound to the machine, on his own phone. Site staff cannot clock for a driver.",
+      "equipment_hours_driver_only": "Machine hours can only be clocked by the driver bound to the machine, on his own phone. Site staff cannot clock for a driver. Ask the machine's bound driver to clock on his own phone; if it has no driver yet, ask the office to bind one under \"Equipment operator hours › Bind drivers to machines\".",
       "equipment_hours_not_bound": "This machine is not bound to your phone, so you cannot clock it. To change machines, contact the project office.",
+      "equipment_hours_no_longer_bound": "You are no longer the driver bound to this machine, so you cannot clock its stop. Ask the office to add the end time for you.",
       "equipment_binding_driver_invalid": "Only this project's driver links or equipment operators can be bound. Close this, open it again and tick again.",
+      "equipment_binding_driver_running": "{name} is running this machine now (started {time}). Once unbound, his phone cannot clock its stop. Wait until he has stopped it; if it must be now, press \"Unbind and save\", then add the end time for him in the machine hours (\"Add end time\").",
       "exit_pass_own_release": "You applied to take this out yourself, so the gate guard has to check the vehicle and the goods and release it.",
       "exit_pass_gate_release_only": "This project has a gate phone, so exit passes are checked and released by the gate guard. Ask the gate guard to open the exit pass on the phone, take check photos, then press 【Confirm release】.",
       "exit_pass_online_head_office_only": "Online signing is for head office (a head-office role or the company administrator, with approval rights for this kind of record). The safety manager who signed this exit pass, the person who approved the application and the applicant cannot sign it online. Print or email the exit pass to the other party; when it comes back signed, press 【Register the signed copy】 to upload it.",
@@ -14206,7 +14208,7 @@
       "equipment": {
         "view": "View equipment and operating hours",
         "manage": "Manage equipment, accept entry and exit, adjust hours",
-        "capture": "Record equipment entry, exit and hours on site",
+        "capture": "Record equipment entry and exit on site; view operating hours",
         "operate": "Clock machines on and off as their operator, from the phone"
       },
       "field_task": {
@@ -20779,7 +20781,8 @@
       "boundMore": "Machines you can clock: {machines} ({count} in all)",
       "boundJoin": ", ",
       "notBound": "Your phone is not bound to any machine yet, so you cannot clock. Ask the project office to bind you to your machine on the computer, under \"Equipment operator hours › Bind drivers to machines\".",
-      "notYourMachine": "The machine you scanned is not bound to you, so you cannot clock it. To change machines, contact the project office.",
+      "notYourMachine": "This machine is not one you can clock. Check the machine number; if the office has just bound you to it, reopen this page where there is signal. If it still does not work, contact the project office.",
+      "qrUnknown": "Cannot tell which machine this QR code is for (scanned: {text}). It may not be the QR code of a machine on this project, or it was not read clearly. Scan the QR code on the machine again; if that does not work, press \"QR damaged? Type the number\" and type the machine number.",
       "staffViewOnly": "Machine hours are clocked by the driver bound to the machine, on his own phone. Site staff cannot clock for a driver. You can see the recent hours here; to add or correct a time, contact the project office."
     },
     "siteNo": {
@@ -21978,9 +21981,11 @@
     "edit": "Set drivers",
     "confirm": "Confirm",
     "save": "Save",
+    "saveUnbindRunning": "Unbind and save",
     "cancel": "Cancel",
     "close": "Close",
     "pickHelp": "Tick the drivers who may clock this machine, then press \"Save\". With nothing ticked, no one can clock it.",
+    "runningWarn": "{name} is running this machine now (started {time}). Once unbound, his phone cannot clock its stop. Wait until he has stopped it before unbinding; if it must be now, after saving add the end time for him in the machine hours (\"Add end time\").",
     "unchanged": "Nothing changed yet",
     "failed": "Not saved. Please try again.",
     "kind": {
