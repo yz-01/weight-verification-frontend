@@ -149,6 +149,9 @@ function WindowStatus({ pass }: { pass: ExitPass }) {
     case "sent":
       return pass.releases.length > 0 ? (
         <StatusBadge label={t("release.trips", { count: pass.releases.length })} tone="positive" />
+      ) : pass.release_ended ? (
+        // A 工地清运 over with no lorry released (contract v4 F8): nothing to wait for.
+        <StatusBadge label={t("release.ended")} tone="neutral" />
       ) : (
         <StatusBadge label={t("release.waitingBadge")} tone="warning" />
       );

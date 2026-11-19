@@ -9525,6 +9525,8 @@
       "exit_pass_external_pending": "This is still waiting for the external approval, so it cannot be confirmed and archived now. Register the signed copy, ask the approver to sign online, or change it to no external approval, then confirm and archive.",
       "exit_pass_own_release": "You applied to take this out yourself, so the gate guard has to check the vehicle and the goods and release it.",
       "exit_pass_gate_release_only": "This project has a gate phone, so exit passes are checked and released by the gate guard. Ask the gate guard to open the exit pass on the phone, take check photos, then press 【Confirm release】.",
+      "exit_pass_online_head_office_only": "Online signing is for head office (a head-office role or the company administrator, with approval rights for this kind of record). The safety manager who signed this exit pass, the person who approved the application and the applicant cannot sign it online. Print or email the exit pass to the other party; when it comes back signed, press 【Register the signed copy】 to upload it.",
+      "exit_pass_waive_not_allowed": "You cannot change this to no external approval: only the safety manager who signed this exit pass, the company administrator, or head office staff who did not approve the application can. Please ask one of them.",
       "role_kind_fixed": "The Company Administrator is always a head-office role, and a phone account's role cannot become one.",
       "role_self_lockout": "You hold this role yourself, so saving this would switch off your own user management. Keep “View users” and “Edit users” ticked, or ask the Company Administrator to make the change.",
       "permit_form_office_only": "The e-permit is filled in on the office computer. Please sign in on a computer to fill it in.",
@@ -22547,8 +22549,8 @@
       "off": "This item needs no external approval; the internal approval is all it needs.",
       "waivedBy": "Changed to no external approval ({name} · {when})",
       "afterSignature": "Needs external approval: once the safety manager has signed, print it or use 【Send】 to send it to the owner / higher office to sign.",
-      "howTo": "Use 【Print】 or 【Send】 at the top of the window to send this record (with the blank external approval box) to the owner / higher office to sign; when it comes back signed, register it with 【Register the signed copy】. Someone with approval rights in this system can open this record and press 【Sign online】.",
-      "whoActs": "The signed copy is registered on a computer by office staff who approve this kind of record, or by a safety manager; someone with approval rights in this system can open this record on a computer and sign online.",
+      "howTo": "Use 【Print】 or 【Send】 at the top of the window to send this record (with the blank external approval box) to the owner / higher office to sign; when it comes back signed, register it with 【Register the signed copy】. Head office staff (a head-office role or the company administrator) with approval rights for this kind of record who took no part in this record can open it and press 【Sign online】.",
+      "whoActs": "The signed copy is registered on a computer by office staff who approve this kind of record, or by a safety manager; online signing is done on a computer by head office staff (a head-office role or the company administrator, with approval rights for this kind of record) who took no part in this record.",
       "closedWaiting": "This record has ended; no external approval is needed any more.",
       "company": "Company / department",
       "name": "Approver's name",
@@ -22601,6 +22603,7 @@
       "noGatePhones": "This project has no gate phone account yet, so the exit pass went to the applicant only. Open a phone account for the gate under 「Field staff」.",
       "waiting": "Waiting for the gate: the guard opens the exit pass on the phone, takes check photos and presses 【Confirm release】.",
       "closedUnreleased": "This record has ended. There is no gate release on it.",
+      "ended": "This site clearance has ended",
       "done": "{count, plural, one {Released · {name} · {when} · # check photo} other {Released · {name} · {when} · # check photos}}",
       "open": "Open"
     },
@@ -22648,7 +22651,7 @@
     },
     "archive": {
       "pendingPress": "This is still waiting for the external approval, so it cannot be confirmed and archived now. First press {buttons} below; once that is done, press 【Confirm and archive】.",
-      "pendingWho": "This is still waiting for the external approval, so it cannot be confirmed and archived now. The signed copy is registered on a computer by an office user with approval rights for this kind of record or by the safety manager, or the approver signs online; once that is done, confirm and archive."
+      "pendingWho": "This is still waiting for the external approval, so it cannot be confirmed and archived now. The signed copy is registered on a computer by an office user with approval rights for this kind of record or by the safety manager; online signing is done by head office staff or the company administrator who took no part in this record. Once that is done, confirm and archive."
     },
     "gateRecord": {
       "linked": "Original request",

@@ -221,6 +221,28 @@ describe("the 出门条 window (JB217-6, -7)", () => {
     expect(html).toContain("（GT-PRJ-0001-045），不用再放行。");
   });
 
+  it("audit round 2 (F8): a 工地清运 that ended with no lorry: 「本清运已结束」, not 「等待放行」, nothing to press", () => {
+    const html = renderDetail(<ExitPassWindow kind="DISPOSAL_REQUEST" record="disp-1" onClose={() => {}} />, (client) =>
+      client.setQueryData(
+        exitPassKey("DISPOSAL_REQUEST", "disp-1"),
+        exitPass({
+          kind: "DISPOSAL_REQUEST",
+          record: "disp-1",
+          multi_release: true,
+          state: "sent",
+          approval: APPROVAL,
+          sent: SENT,
+          can_release: false,
+          release_ended: true,
+        }),
+      ),
+    );
+    expect(html).toContain("本清运已结束");
+    expect(html).not.toContain("等待放行");
+    expect(html).not.toContain("等待门岗放行");
+    expect(html).not.toContain("data-exit-pass-release-capture");
+  });
+
   it("a guard opening one not sent yet: why it cannot be released now", () => {
     const html = renderDetail(<ExitPassWindow kind="MATERIAL_OUTGOING" record="mo-1" onClose={() => {}} />, (client) =>
       client.setQueryData(exitPassKey("MATERIAL_OUTGOING", "mo-1"), exitPass()),

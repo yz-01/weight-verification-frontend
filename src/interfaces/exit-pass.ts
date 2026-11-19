@@ -156,6 +156,12 @@ export interface ExitPass {
    * The window shows `errors.api.<code>` where 【确认放行】 would be.
    */
   release_blocked: ExitPassReleaseBlock | null;
+  /**
+   * A 工地清运 whose 出门条 was sent, no lorry released, and the job is over
+   * (contract v4 F8): `state` stays `"sent"`, `can_release` false; the
+   * 门岗放行 part reads 「本清运已结束」, not 「等待门岗放行」.
+   */
+  release_ended: boolean;
   record_view?: ExitPassRecordView | null;
 }
 

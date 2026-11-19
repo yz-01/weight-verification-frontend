@@ -126,7 +126,8 @@ describe("the shell's 出门条 slot (JB217)", () => {
       external: external({ status: "waiting", required: true }),
     });
     expect(owed).toContain(
-      'data-blocked="这笔还在等外部审批，现在不能确认归档。签回的文件要由有这类记录审批权限的后台人员或安全经理在电脑上登记，或请对方在线签名；办好后再确认归档。"',
+      // Audit round 2 (F6): online signing is head office's, not 「对方」's.
+      'data-blocked="这笔还在等外部审批，现在不能确认归档。签回的文件要由有这类记录审批权限的后台人员或安全经理在电脑上登记；在线签名要由没有参与这笔记录的总部的人或公司管理员做。办好后再确认归档。"',
     );
     expect(owed).not.toMatch(/data-blocked="[^"]*请先按下面的/);
   });
