@@ -24,9 +24,10 @@
  * The PIN on the web is the api-client's own sign-off box; a phone never asks.
  */
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { type QueryClient, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   CheckCircle2,
+  ExternalLink,
   Eye,
   FileCheck2,
   Loader2,
@@ -38,7 +39,7 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { FieldSignaturePad } from "@/components/field-staff/field-signature-pad";
 import { useAuth } from "@/components/providers/auth-provider";
@@ -97,6 +98,22 @@ export function useExitPass(kind: ExitPassKind, record: string, enabled = true) 
     queryKey: exitPassKey(kind, record),
     queryFn: () => getExitPass(kind, record),
     enabled: enabled && Boolean(record),
+  });
+}
+
+/**
+ * Read the pass again after every write that goes through (walk 11-18 F-A1):
+ * the record window's own buttons - 批准 (with its PIN), 退回, 改正, 确认退场
+ * 完成, 确认归档 - change what its 出门条 says, and the window showed 「申请批准
+ * 后，由安全经理在这里签出门条。」 with no 【签名批准】 until it was reopened.
+ * Any successful write while the window is open marks the pass stale; the
+ * open panel reads it again. Returns the unsubscribe.
+ */
+export function refreshPassAfterWrites(client: QueryClient, kind: ExitPassKind, record: string) {
+  return client.getMutationCache().subscribe((event) => {
+    if (event.type === "updated" && event.action.type === "success") {
+      void client.invalidateQueries({ queryKey: exitPassKey(kind, record) });
+    }
   });
 }
 
@@ -161,6 +178,8 @@ export function ExitPassPanel({
 }) {
   const t = useTranslations("exitPass");
   const pass = useExitPass(kind, recordId);
+  const queryClient = useQueryClient();
+  useEffect(() => refreshPassAfterWrites(queryClient, kind, recordId), [queryClient, kind, recordId]);
   if (pass.isLoading) {
     // A read-only sheet may hold a record with no 出门条 (a 材料领用): it
     // shows nothing until the server says, rather than a heading that goes.
@@ -182,7 +201,9 @@ export function ExitPassPanel({
     );
   }
   if (pass.data.state === "not_applicable") return null;
-  return <ExitPassSections pass={pass.data} readOnly={readOnly} />;
+  // The record's own window: 【打印】 / 【发送】 are at its top - except on a
+  // read-only sheet, which says where they are instead.
+  return <ExitPassSections pass={pass.data} readOnly={readOnly} printHere={!readOnly} />;
 }
 
 /** Writes answer the whole pass again: show it, and what hangs off it. */
@@ -224,9 +245,18 @@ export function useSignerLine() {
 export function ExitPassSections({
   pass,
   readOnly = false,
+  printHere = false,
+  openRecord,
 }: {
   pass: ExitPass;
   readOnly?: boolean;
+  /**
+   * Drawn in the record's own window, where 【打印】 and 【发送】 sit at the
+   * top (walk 11-18 F-A2): the 外部审批 step says 「按窗口上方的…」 only there.
+   */
+  printHere?: boolean;
+  /** Elsewhere (the 出门条 window): opens the record's window, where they are. */
+  openRecord?: (() => void) | null;
 }) {
   const t = useTranslations("exitPass");
   const df = useDateFormat();
@@ -261,7 +291,9 @@ export function ExitPassSections({
         </p>
       ) : null}
       <ApprovalPart pass={pass} readOnly={readOnly} />
-      {legacy ? null : <ExternalPart pass={pass} readOnly={readOnly} />}
+      {legacy ? null : (
+        <ExternalPart pass={pass} readOnly={readOnly} printHere={printHere} openRecord={openRecord ?? null} />
+      )}
       {legacy ? null : <ReleasePart pass={pass} />}
     </div>
   );
@@ -453,7 +485,17 @@ export function SignDialog({ pass, onClose }: { pass: ExitPass; onClose: () => v
 
 /* ---------------------------------------------------------- 外部审批 */
 
-function ExternalPart({ pass, readOnly }: { pass: ExitPass; readOnly: boolean }) {
+function ExternalPart({
+  pass,
+  readOnly,
+  printHere,
+  openRecord,
+}: {
+  pass: ExitPass;
+  readOnly: boolean;
+  printHere: boolean;
+  openRecord: (() => void) | null;
+}) {
   const t = useTranslations("exitPass");
   const df = useDateFormat();
   const { user } = useAuth();
@@ -550,7 +592,27 @@ function ExternalPart({ pass, readOnly }: { pass: ExitPass; readOnly: boolean })
           <p className="text-xs text-muted-foreground">{t("external.closedWaiting")}</p>
         ) : waitingNow ? (
           <div className="space-y-2">
-            <p className="text-xs leading-5 text-muted-foreground">{t("external.howTo")}</p>
+            {/* Where 【打印】 / 【发送】 really are (walk 11-18 F-A2): at the top of
+                the record's own window; from anywhere else, the way there. */}
+            <p className="text-xs leading-5 text-muted-foreground" data-exit-pass-how-to>
+              {printHere
+                ? t("external.howTo")
+                : openRecord
+                  ? t("external.howToOpenRecord")
+                  : t("external.howToElsewhere")}
+            </p>
+            {!printHere && openRecord ? (
+              <Button
+                size="sm"
+                variant="outline"
+                className="min-h-11 w-full"
+                data-exit-pass-how-to-open
+                onClick={openRecord}
+              >
+                <ExternalLink />
+                {t("window.openRecord")}
+              </Button>
+            ) : null}
             {mayAct ? (
               <ExternalActions pass={pass} />
             ) : (
@@ -767,13 +829,19 @@ export function PaperExternalDialog({ pass, onClose }: { pass: ExitPass; onClose
   const chosen = uploading ? files.length > 0 : existing.some((row) => row.id === source);
   const save = useMutation({
     mutationFn: () =>
-      recordExitPassExternalPaper(pass.kind, pass.record, {
-        company: company.trim(),
-        name: name.trim(),
-        opinion: opinion.trim(),
-        date,
-        ...(uploading ? { file: files[0] } : { attachment: source }),
-      }),
+      recordExitPassExternalPaper(
+        pass.kind,
+        pass.record,
+        {
+          company: company.trim(),
+          name: name.trim(),
+          opinion: opinion.trim(),
+          date,
+          ...(uploading ? { file: files[0] } : { attachment: source }),
+        },
+        // 【换一个签回的文件】: nothing is sent again, and the toast says so.
+        correcting,
+      ),
     onSuccess: (next) => {
       settle.done(next);
       settle.attachments();
@@ -944,7 +1012,10 @@ function ReleasePart({ pass }: { pass: ExitPass }) {
   const released = pass.releases.length > 0;
   // A 工地清运 that ended with no lorry released waits for nothing (contract v4 F8).
   const ended = pass.release_ended && !released;
-  const badge = !sent || ended ? null : released && !pass.multi_release ? (
+  // Nor does a record that ended unreleased (archived, returned, cancelled):
+  // no 「等待放行」 beside 「这笔记录已经结束，门岗没有放行记录。」 (walk 11-18).
+  const over = Boolean(pass.record_closed) && !released;
+  const badge = !sent || ended || over ? null : released && !pass.multi_release ? (
     <StatusBadge label={t("release.released")} tone="positive" />
   ) : released ? (
     <StatusBadge label={t("release.trips", { count: pass.releases.length })} tone="positive" />
