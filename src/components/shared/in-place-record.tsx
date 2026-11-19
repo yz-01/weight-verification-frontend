@@ -30,6 +30,7 @@ import { DisposalInPlace } from "@/components/contractor-ops/site-disposal-works
 import { ClaimInPlace } from "@/components/contractor-ops/claim-engine";
 import { EquipmentMovementInPlace, ProgressInPlace } from "@/components/contractor-ops/office-module-lists";
 import { DailyReportBook } from "@/components/progress/daily-reports";
+import { PermitDetail } from "@/components/permits/permit-parts";
 
 const IN_PLACE_KINDS = new Set([
   "MATERIAL_RECEIPT",
@@ -55,6 +56,9 @@ const IN_PLACE_KINDS = new Set([
   // A daily report in a Multi Engine package (JB193 五 2: 「点它可以打开原来的
   // 记录」): the report's own book, as its list opens it.
   "DAILY_REPORT",
+  // A 施工准证 pressed on the project dashboard's map (JB222-7): its own
+  // window, as 施工准证's list opens it.
+  "PERMIT",
 ]);
 
 /** Whether a record of this kind opens in a popup over the current page. */
@@ -111,6 +115,8 @@ export function InPlaceRecord({
       return <ProgressInPlace id={id} onClose={onClose} />;
     case "DAILY_REPORT":
       return <DailyReportBook report={id} onClose={onClose} />;
+    case "PERMIT":
+      return <PermitDetail id={id} presentation="dialog" onClose={onClose} />;
     default:
       return null;
   }

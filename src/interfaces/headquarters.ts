@@ -162,7 +162,6 @@ export interface ProjectOverview {
     unit: string;
     acceptance_status: string;
   }>;
-  map_points: Array<{ kind: "RECEIPT" | "WASTE" | "EQUIPMENT"; id: string; label: string; latitude: string; longitude: string }>;
   material_mix: Array<{ name: string; tonnes: string; other?: boolean }>;
   waste_mix: Array<{ name: string; tonnes: string; other?: boolean }>;
   pending: Array<{ feature: string; count: number }>;
@@ -269,4 +268,76 @@ export interface AnnouncementReader {
   full_name: string;
   role_name: string;
   read_at: string | null;
+}
+
+/** One point of the project dashboard's map (JB222): a record, a delivery or a machine. */
+export interface ProjectMapRow {
+  kind: string;
+  id: string;
+  reference: string;
+  label: string;
+  at: string | null;
+  latitude: string;
+  longitude: string;
+  /** 设备进退场: ENTRY / EXIT. */
+  direction?: string;
+  /** Machines: where its place came from, and the entry record to open. */
+  source?: "MOVEMENT" | "OPERATING_LOG";
+  movement_id?: string | null;
+  registration_no?: string;
+  site_no?: string;
+  supplier?: string;
+}
+
+/** A person on site now (JB222-3): an app account or a roster worker. */
+export interface ProjectMapPerson {
+  kind: "APP" | "ROSTER";
+  id: string;
+  name: string;
+  trade: string;
+  department: string;
+  latitude: string;
+  longitude: string;
+  /** 最新定位时间. */
+  at: string | null;
+  since: string | null;
+  stale: boolean;
+}
+
+export interface ProjectMapFence {
+  id: string;
+  name: string;
+  shape: "CIRCLE" | "POLYGON";
+  latitude: string | null;
+  longitude: string | null;
+  radius_m: number | null;
+  polygon: Array<[number, number]>;
+  is_primary: boolean;
+}
+
+export type ProjectMapWindow = "today" | "week";
+
+/**
+ * 项目仪表板的地图 (JB222, 客户 11-19 事项 2). Every layer is the reader's own:
+ * the server leaves out what his permissions do not give and says so in
+ * `allowed`, so the map only offers what can be opened.
+ */
+export interface ProjectMap {
+  project: { id: string; code: string; name: string };
+  window: ProjectMapWindow;
+  from: string;
+  to: string;
+  cap: number;
+  site: {
+    fences: ProjectMapFence[];
+    radius_circle: { latitude: string; longitude: string; radius_m: number } | null;
+    location: { latitude: string; longitude: string } | null;
+  };
+  layers: {
+    people: { allowed: boolean; app_allowed: boolean; roster_allowed: boolean; rows: ProjectMapPerson[] };
+    receipts: { allowed: boolean; rows: ProjectMapRow[]; capped: boolean };
+    machines: { allowed: boolean; rows: ProjectMapRow[]; without_position: number };
+    records: { allowed: boolean; kinds: string[]; rows: ProjectMapRow[]; capped: boolean };
+  };
+  generated_at: string;
 }

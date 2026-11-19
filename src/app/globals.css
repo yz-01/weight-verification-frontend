@@ -767,6 +767,24 @@
   box-shadow: 0 1px 6px rgb(15 23 42 / 35%), 0 0 12px var(--marker-color);
 }
 
+/* JB222: how many things stand at one spot, on the icon's corner. */
+.mse-map-count {
+  position: absolute;
+  top: -8px;
+  right: -10px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 4px;
+  border-radius: 999px;
+  border: 2px solid white;
+  background: var(--foreground);
+  color: var(--background);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+}
+
 /* Leaflet gives its internal panes z-index values from 200 to 700. Without a
  * stacking context on the map root, those values can escape a card or dialog
  * and cover unrelated content elsewhere on the page. Every map is a contained

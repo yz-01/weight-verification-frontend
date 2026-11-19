@@ -138,3 +138,44 @@ export function lockMapToBox(map: LeafletMap, L: Leaflet, box: Box | null): void
   if (size.x === 0 || size.y === 0) return;
   map.setMinZoom(Math.min(map.getBoundsZoom(bounds, false), map.getMaxZoom()));
 }
+
+/**
+ * The padding that makes a fence fill `fill` of the map (JB222-2, 客户 11-19:
+ * 「让整个工地占据地图约80%的空间」): a tenth of the map's width on the left
+ * and right and of its height above and below, for 0.8. Leaflet applies it to
+ * both sides of each axis.
+ */
+export function sitePadding(width: number, height: number, fill: number): [number, number] {
+  const share = (1 - Math.min(1, Math.max(0, fill))) / 2;
+  return [Math.round(width * share), Math.round(height * share)];
+}
+
+/** Metres between two points - near enough for a few hundred metres of site. */
+export function metresApart(a: LatLng, b: LatLng): number {
+  const middle = ((a[0] + b[0]) / 2) * (Math.PI / 180);
+  const dLat = (a[0] - b[0]) * METRES_PER_DEGREE;
+  const dLng = (a[1] - b[1]) * METRES_PER_DEGREE * Math.cos(middle);
+  return Math.sqrt(dLat * dLat + dLng * dLng);
+}
+
+/**
+ * Points of one layer that stand within `metres` of each other, as one group
+ * (JB222, D8): thirty deliveries recorded at the gate are one icon with 30 on
+ * it, not thirty icons hiding each other. Each group stands at its first
+ * point; the order of `items` is kept inside each group and between groups.
+ */
+export function groupNearby<T>(
+  items: T[],
+  place: (item: T) => LatLng,
+  metres = 8,
+): Array<{ at: LatLng; items: T[] }> {
+  const groups: Array<{ at: LatLng; items: T[] }> = [];
+  for (const item of items) {
+    const point = place(item);
+    if (!valid(point)) continue;
+    const near = groups.find((group) => metresApart(group.at, point) <= metres);
+    if (near) near.items.push(item);
+    else groups.push({ at: point, items: [item] });
+  }
+  return groups;
+}

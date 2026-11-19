@@ -12918,7 +12918,7 @@
       "fieldTasks": "现场任务",
       "financialReports": "财务报表",
       "gateScanning": "访客扫码",
-      "geofenceSettings": "Geofence 设置",
+      "geofenceSettings": "电子围栏设置",
       "hazardRectifications": "整改 / EHS",
       "immutableAudit": "永久记录",
       "incidentReports": "事故上报",
@@ -21914,12 +21914,6 @@
     "seeAll": "查看全部",
     "noReceipts": "还没有材料进场记录。",
     "map": "项目现场地图",
-    "point": {
-      "RECEIPT": "物料收货点",
-      "WASTE": "废料处理点",
-      "EQUIPMENT": "设备位置"
-    },
-    "noPoints": "最近 30 天没有带 GPS 的记录。",
     "materialMix": "物料分类统计（本月）",
     "wasteMix": "废料分类统计（本月）",
     "noMix": "本月还没有称重的数量。",
@@ -22667,5 +22661,59 @@
       "released": "已确认放行，记入门岗事项：{reference}"
     },
     "correctedAfter": "出门条签名后，这笔记录在 {when} 由 {by} 改正过；这里显示的是改正后的资料。"
+  },
+  "projectSiteMap": {
+    "windowLabel": "记录的日期",
+    "window": {
+      "today": "今天",
+      "week": "最近 7 天"
+    },
+    "layersLabel": "地图上显示",
+    "layer": {
+      "people": "人员",
+      "receipts": "材料卸货",
+      "machines": "机械设备",
+      "records": "现场记录"
+    },
+    "shown": "（已显示，按一下隐藏）",
+    "notShown": "（已隐藏，按一下显示）",
+    "backToSite": "回到工地范围",
+    "here": "这个位置有 {count} 项",
+    "close": "关闭",
+    "openRecord": "查看完整记录",
+    "openRoute": "查看今天的位置记录",
+    "openWorker": "查看人员资料",
+    "openEntry": "查看进场记录",
+    "lastSeen": "最新定位 {at}",
+    "since": "进场 {at}",
+    "stale": "超过 10 分钟没有更新：手机上的现场 App 可能已关掉。",
+    "machineSeen": "最新定位 {at} · 来自{source, select, OPERATING_LOG {设备操作员工时} other {设备进场记录}}",
+    "recordedAt": "记录时间 {at}",
+    "personKind": {
+      "APP": "现场 App",
+      "ROSTER": "人员名单（定位链接）"
+    },
+    "kind": {
+      "MATERIAL_RECEIPT": "材料进场",
+      "MATERIAL_OUTGOING": "材料出场",
+      "EQUIPMENT_MOVEMENT": "设备进退场",
+      "SITE_PROGRESS": "工程进度",
+      "SAFETY_INCIDENT": "整改 / EHS",
+      "PERMIT": "施工准证",
+      "FIELD_TASK": "现场任务",
+      "DISPOSAL": "工地清运",
+      "WASTE_OUTGOING": "环保材料出场",
+      "SUNDRY_CLAIM": "杂费报销",
+      "GATE_INCIDENT": "门岗拍照记录"
+    },
+    "legendNote": "人员和机械设备是现在的位置；材料卸货和现场记录是{window, select, today {今天} other {最近 7 天}}的，只画出有定位的记录。",
+    "outside": "另有 {count} 个位置在工地范围以外，没有画在地图上。",
+    "machinesWithout": "另有 {count} 台在场设备没有定位记录。",
+    "capped": "{layer}只显示最新 {cap} 条，更早的请到各模块的列表查看。",
+    "nothingYet": "{window, select, today {今天} other {最近 7 天}}还没有可以画在地图上的人员、设备或记录。",
+    "noFence": "这个项目还没有画电子围栏，地图不能按工地范围显示。",
+    "noPlace": "这个项目还没有设定位置，也还没有画电子围栏，地图不能显示。",
+    "drawFence": "去画电子围栏",
+    "askAdmin": "请公司管理员到「电子围栏设置」画出工地范围。"
   }
 }

@@ -21914,12 +21914,6 @@
     "seeAll": "Lihat semua",
     "noReceipts": "Belum ada penghantaran.",
     "map": "Peta tapak projek",
-    "point": {
-      "RECEIPT": "Bahan masuk",
-      "WASTE": "Sisa keluar",
-      "EQUIPMENT": "Mesin"
-    },
-    "noPoints": "Tiada rekod ber-GPS dalam 30 hari.",
     "materialMix": "Bahan ikut kategori (bulan ini)",
     "wasteMix": "Sisa ikut kategori (bulan ini)",
     "noMix": "Tiada yang ditimbang bulan ini.",
@@ -22667,5 +22661,59 @@
       "released": "Pelepasan disahkan dan difailkan sebagai perkara pintu: {reference}"
     },
     "correctedAfter": "Selepas pas keluar ditandatangani, rekod ini dibetulkan oleh {by} pada {when}; yang dipaparkan di sini ialah rekod yang telah dibetulkan."
+  },
+  "projectSiteMap": {
+    "windowLabel": "Hari yang mana",
+    "window": {
+      "today": "Hari ini",
+      "week": "7 hari lalu"
+    },
+    "layersLabel": "Dipaparkan pada peta",
+    "layer": {
+      "people": "Pekerja",
+      "receipts": "Bahan dipunggah",
+      "machines": "Jentera",
+      "records": "Rekod tapak"
+    },
+    "shown": "(dipaparkan, tekan untuk sembunyi)",
+    "notShown": "(disembunyikan, tekan untuk papar)",
+    "backToSite": "Kembali ke tapak",
+    "here": "{count} perkara di tempat ini",
+    "close": "Tutup",
+    "openRecord": "Buka rekod penuh",
+    "openRoute": "Lihat kedudukan hari ini",
+    "openWorker": "Lihat butiran pekerja",
+    "openEntry": "Buka rekod masuk",
+    "lastSeen": "Lokasi terkini {at}",
+    "since": "Masuk tapak {at}",
+    "stale": "Tidak dikemas kini lebih 10 minit: aplikasi tapak pada telefon mungkin ditutup.",
+    "machineSeen": "Lokasi terkini {at} · daripada {source, select, OPERATING_LOG {jam kerja pengendali} other {rekod masuk}}",
+    "recordedAt": "Direkod {at}",
+    "personKind": {
+      "APP": "Aplikasi tapak",
+      "ROSTER": "Senarai pekerja (pautan lokasi)"
+    },
+    "kind": {
+      "MATERIAL_RECEIPT": "Bahan masuk",
+      "MATERIAL_OUTGOING": "Bahan keluar",
+      "EQUIPMENT_MOVEMENT": "Peralatan masuk / keluar",
+      "SITE_PROGRESS": "Kemajuan tapak",
+      "SAFETY_INCIDENT": "Pembetulan / EHS",
+      "PERMIT": "Permit kerja",
+      "FIELD_TASK": "Tugasan tapak",
+      "DISPOSAL": "Pembersihan tapak",
+      "WASTE_OUTGOING": "Bahan kitar semula keluar",
+      "SUNDRY_CLAIM": "Tuntutan pelbagai",
+      "GATE_INCIDENT": "Rekod foto pintu"
+    },
+    "legendNote": "Pekerja dan jentera ialah kedudukan sekarang; bahan dipunggah dan rekod tapak ialah {window, select, today {hari ini} other {7 hari lalu}}, hanya yang mempunyai lokasi.",
+    "outside": "{count} lagi lokasi berada di luar tapak dan tidak dilukis pada peta.",
+    "machinesWithout": "{count} lagi jentera di tapak tiada rekod lokasi.",
+    "capped": "{layer}: hanya {cap} terbaharu dipaparkan; lihat senarai modul untuk yang lebih lama.",
+    "nothingYet": "Belum ada pekerja, jentera atau rekod berlokasi untuk dipaparkan {window, select, today {hari ini} other {dalam 7 hari lalu}}.",
+    "noFence": "Projek ini belum ada geofence, jadi peta tidak dapat menunjukkan kawasan tapak.",
+    "noPlace": "Projek ini belum ada lokasi dan geofence, jadi tiada peta untuk dipaparkan.",
+    "drawFence": "Lukis geofence",
+    "askAdmin": "Minta pentadbir syarikat melukis kawasan tapak di Tetapan geofence."
   }
 }
