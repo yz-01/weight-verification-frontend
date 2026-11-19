@@ -78,7 +78,10 @@ function useDriverBindings(project: string) {
  */
 export function DriverBindingHints({ project }: { project: string }) {
   const t = useTranslations("driverBinding");
-  const data = useDriverBindings(project).data;
+  const query = useDriverBindings(project);
+  const data = query.data;
+  // A failed read says so: no line would read as "every machine has a driver".
+  if (project && query.isError) return <QueryFailedNote query={query} what={t("title")} />;
   if (!project || !data || (!data.unbound_machines && !data.seeded_machines)) return null;
   return (
     <div className="space-y-1 rounded-lg border border-warning/40 bg-warning/10 px-3 py-2" data-testid="driver-binding-hints">

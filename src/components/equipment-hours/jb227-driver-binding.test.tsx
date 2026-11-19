@@ -222,6 +222,24 @@ describe("【设备绑定司机】 on the office page (JB227-3)", () => {
     expect(done).toBe("");
   });
 
+  it("says so when the overview cannot be read, instead of no line", () => {
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false, retryOnMount: false, staleTime: Infinity } },
+    });
+    const query = client.getQueryCache().build(client, { queryKey: [...BINDINGS_KEY] });
+    query.setState({ ...query.state, status: "error", error: new Error("down") });
+
+    const html = renderToStaticMarkup(
+      <QueryClientProvider client={client}>
+        <NextIntlClientProvider locale="zh" messages={zh} timeZone="Asia/Kuala_Lumpur">
+          <DriverBindingHints project="project-1" />
+        </NextIntlClientProvider>
+      </QueryClientProvider>,
+    );
+
+    expect(html).toContain(zh.common.loadFailed.replace("{what}", office.title));
+  });
+
   it("knows a changed tick list, and sends what the server takes", () => {
     const row = overview().machines[1];
 
