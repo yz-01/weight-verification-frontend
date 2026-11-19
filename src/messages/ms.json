@@ -5039,7 +5039,8 @@
       "byLetter": "Tapis ikut huruf pertama"
     },
     "loadOffline": "Tiada rangkaian - {what} akan dimuatkan apabila sambungan pulih.",
-    "pageNotOpen": "Akaun anda tidak boleh membuka halaman itu, jadi anda dibawa kembali. Untuk menggunakannya, minta pentadbir syarikat anda membukanya untuk anda."
+    "pageNotOpen": "Akaun anda tidak boleh membuka halaman itu, jadi anda dibawa kembali. Untuk menggunakannya, minta pentadbir syarikat anda membukanya untuk anda.",
+    "saveFailed": "Ini tidak disimpan (pelayan tidak menyelesaikannya). Maklumat yang anda isi masih ada. Sila cuba lagi."
   },
   "companies": {
     "owner": {
@@ -5443,7 +5444,8 @@
         "confirmOff": "Buka kunci"
       },
       "noRole": "Tidak ditetapkan (semua yang boleh meluluskan)",
-      "roleMissing": "{name} (syarikat ini tiada peranan ini)"
+      "roleMissing": "{name} (syarikat ini tiada peranan ini)",
+      "noUserRole": "Tidak ditetapkan (pilih peranan semasa menambah pengguna)"
     },
     "trialDaysHint": "Pakej ini memberi {days} hari percuma secara lalai. Tiada bil semasa percubaan; bil bermula hanya apabila anda tekan Lanjut atau perbaharui di Langganan. Masukkan 0 untuk tiada percubaan.",
     "trialNote": "Tiada bil semasa percubaan. Bil bermula hanya apabila anda tekan Lanjut atau perbaharui di Langganan.",
@@ -9551,7 +9553,9 @@
       "platform_qr_customer_only": "Kod QR untuk nota hantar dan pembekal dikeluarkan oleh pelanggan sendiri; MSE tidak dapat melihat rekod ini.",
       "platform_access_view_only": "Pelanggan hanya membuka paparan. MSE boleh pratonton di skrin tetapi tidak boleh mengubah, memuat turun atau mengeksport rekod pelanggan.",
       "platform_accounts_closed": "Mengubah akaun pelanggan ini memerlukan persetujuan pelanggan. Minta pentadbir pelanggan tekan “Benarkan MSE mengurus akaun” dalam Tetapan syarikat, kemudian cuba lagi.",
-      "platform_owner_locked": "Pelanggan sudah menggunakan akaun pentadbir ini, jadi MSE tidak boleh mengubah e-mel log masuknya. Beritahu pelanggan: pentadbir syarikat mereka sendiri mengubahnya dalam Pengurusan pengguna, atau pelanggan menghantar surat dan rakan yang menjaga pelayan akan menguruskannya."
+      "platform_owner_locked": "Pelanggan sudah menggunakan akaun pentadbir ini, jadi MSE tidak boleh mengubah e-mel log masuknya. Beritahu pelanggan: pentadbir syarikat mereka sendiri mengubahnya dalam Pengurusan pengguna, atau pelanggan menghantar surat dan rakan yang menjaga pelayan akan menguruskannya.",
+      "exit_pass_busy": "Sistem sedang sibuk dan ini tidak disimpan. Tunggu beberapa saat dan tekan sekali lagi.",
+      "phone_role_office_account": "Akaun telefon dibuat dalam Kakitangan tapak. Akaun pejabat tidak boleh diberi peranan telefon (kakitangan tapak, operator jentera, pengawal pintu) di sini. Sila pilih peranan lain."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -9595,7 +9599,8 @@
       "invalid_birth_date": "Tarikh lahir mesti sebelum hari ini",
       "site_worker_passport_taken": "Pasport ini sudah ada dalam senarai",
       "supplier_not_on_project": "Pembekal ini tiada dalam senarai pembekal projek ini. Minta ibu pejabat atau pengurus projek menambahnya dahulu.",
-      "field_one_project": "Akaun telefon hanya boleh berada di satu projek pada satu masa. Pilih satu projek."
+      "field_one_project": "Akaun telefon hanya boleh berada di satu projek pada satu masa. Pilih satu projek.",
+      "phone_role_office_account": "Akaun telefon dibuat dalam Kakitangan tapak. Akaun pejabat tidak boleh diberi peranan telefon (kakitangan tapak, operator jentera, pengawal pintu) di sini. Sila pilih peranan lain."
     },
     "forbidden": "Anda tiada akses kepada ini.",
     "forbiddenBody": "Tanya pentadbir anda jika anda memerlukannya.",
@@ -15875,7 +15880,9 @@
     "phoneHere": "Akaun telefon (kakitangan tapak, operator jentera, pengawal pintu) dibuat dalam Kakitangan tapak, bukan di sini.",
     "onlyAdmin": "Pentadbir Syarikat sudah mempunyai semua kebenaran. Untuk kerja lain, tekan “Peranan baharu” di kanan atas, beri nama anda sendiri, pilih peranan ibu pejabat atau peranan projek, dan tanda kebenarannya.",
     "adminNameFixed": "Nama dan keterangan Pentadbir Syarikat ditetapkan oleh sistem dan tidak boleh diubah.",
-    "notYours": "Kotak berwarna kelabu ialah kebenaran yang anda sendiri tiada, jadi anda tidak boleh menandakannya untuk peranan ini. Sila minta Pentadbir Syarikat."
+    "notYours": "Kotak berwarna kelabu ialah kebenaran yang anda sendiri tiada, jadi anda tidak boleh menandakannya untuk peranan ini. Sila minta Pentadbir Syarikat.",
+    "createHelp": "Beri nama, pilih Peranan ibu pejabat atau Peranan projek, tandakan apa yang boleh dibuat oleh peranan ini, kemudian tekan “Cipta”.",
+    "editHelp": "Nama, jenis peranan dan tanda kebenaran ada di bawah; tekan “Simpan” apabila selesai."
   },
   "safety": {
     "officeCreate": {
@@ -18731,7 +18738,8 @@
       "scopeProjectUser": "Pengguna projek hanya melihat projek yang dipilih di sini.",
       "projectDefaultOn": "Kebenaran projek semuanya hidup secara lalai; anda boleh mematikan satu untuk orang ini, dan menghidupkannya semula kemudian.",
       "notMine": "Suis berwarna kelabu ialah kebenaran yang anda sendiri tiada: anda tidak boleh menghidupkannya, untuk sesiapa atau untuk diri sendiri. Sila minta Pentadbir Syarikat.",
-      "adminAccount": "Ini akaun Pentadbir Syarikat. Hanya Pentadbir Syarikat boleh mengubah kebenarannya."
+      "adminAccount": "Ini akaun Pentadbir Syarikat. Hanya Pentadbir Syarikat boleh mengubah kebenarannya.",
+      "partSavedWhy": "Butiran pengguna telah disimpan; kebenaran belum disimpan lagi: {reason}"
     },
     "projectsView": {
       "projectsAll": "Boleh melihat semua projek syarikat",
@@ -22619,7 +22627,9 @@
       "recordPaper": "Daftar salinan bertandatangan",
       "waive": "Tidak perlu kelulusan luar, hantar pas keluar sekarang",
       "correctPaper": "Guna salinan bertandatangan lain",
-      "correctHelp": "Tersalah pilih fail? Pilih atau muat naik salinan bertandatangan yang betul; fail lama kekal dalam lampiran."
+      "correctHelp": "Tersalah pilih fail? Pilih atau muat naik salinan bertandatangan yang betul; fail lama kekal dalam lampiran.",
+      "howToOpenRecord": "Tetingkap ini tiada 【Cetak】 atau 【Hantar】: tekan 【Buka rekod asal】 di bawah, kemudian guna 【Cetak】 atau 【Hantar】 di bahagian atas tetingkap rekod untuk menghantarnya (dengan ruang kelulusan luar yang kosong) kepada pemilik / pejabat atasan untuk ditandatangani; apabila salinan bertandatangan kembali, daftarkannya dengan 【Daftar salinan bertandatangan】.Kakitangan ibu pejabat (peranan ibu pejabat atau pentadbir syarikat) yang ada hak kelulusan untuk rekod jenis ini dan tidak terlibat dalam rekod ini boleh membukanya dan menekan 【Tandatangan dalam talian】.",
+      "howToElsewhere": "【Cetak】 dan 【Hantar】 berada di bahagian atas tetingkap rekod ini sendiri di komputer: minta rakan sekerja yang boleh membuka rekod ini (contohnya orang yang meluluskan permohonan) menghantarnya (dengan ruang kelulusan luar yang kosong) kepada pemilik / pejabat atasan untuk ditandatangani; apabila salinan bertandatangan kembali, daftarkannya di komputer dengan 【Daftar salinan bertandatangan】.Kakitangan ibu pejabat (peranan ibu pejabat atau pentadbir syarikat) yang ada hak kelulusan untuk rekod jenis ini dan tidak terlibat dalam rekod ini boleh membukanya dan menekan 【Tandatangan dalam talian】."
     },
     "waiveDialog": {
       "body": "Pasti perkara ini tidak perlu kelulusan luar? Pas keluar akan terus dihantar kepada pemohon dan pengawal pintu, dan tidak boleh ditukar balik kepada perlu kelulusan luar.",
@@ -22725,7 +22735,11 @@
       "signedWaitExternal": "Ditandatangani. Menunggu kelulusan luar: {reference}",
       "externalDone": "Kelulusan luar selesai; pas keluar dihantar: {reference}",
       "waived": "Ditukar kepada tidak perlu kelulusan luar; pas keluar dihantar: {reference}",
-      "released": "Pelepasan disahkan dan difailkan sebagai perkara pintu: {reference}"
+      "released": "Pelepasan disahkan dan difailkan sebagai perkara pintu: {reference}",
+      "signedSentApplicant": "Ditandatangani. Pas keluar dihantar kepada pemohon sahaja; tiada telefon pengawal pintu menerimanya: {reference}",
+      "signedSentGate": "Ditandatangani. Pas keluar dihantar kepada pengawal pintu: {reference}",
+      "signedSentNobody": "Ditandatangani: {reference}",
+      "paperReplaced": "Salinan bertandatangan telah diganti. Pas keluar sudah dihantar sebelum ini dan tidak dihantar lagi: {reference}"
     },
     "correctedAfter": "Selepas pas keluar ditandatangani, rekod ini dibetulkan oleh {by} pada {when}; yang dipaparkan di sini ialah rekod yang telah dibetulkan."
   },

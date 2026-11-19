@@ -130,7 +130,12 @@ export function ExitPassWindow({
         ) : data.state === "not_applicable" ? (
           <p className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground">{t("window.none")}</p>
         ) : (
-          <ExitPassWindowBody pass={data} readOnly={readOnly} mayRelease={mayRelease} />
+          <ExitPassWindowBody
+            pass={data}
+            readOnly={readOnly}
+            mayRelease={mayRelease}
+            openRecord={mayOpen ? () => setOpenRecord(true) : null}
+          />
         )}
       </RecordDetailDialog>
       {openRecord ? <InPlaceRecord kind={kind} id={record} onClose={() => setOpenRecord(false)} /> : null}
@@ -152,6 +157,10 @@ function WindowStatus({ pass }: { pass: ExitPass }) {
       ) : pass.release_ended ? (
         // A 工地清运 over with no lorry released (contract v4 F8): nothing to wait for.
         <StatusBadge label={t("release.ended")} tone="neutral" />
+      ) : pass.record_closed ? (
+        // Archived, returned or cancelled unreleased (walk 11-18): the window
+        // says the record is over; nothing waits for the gate.
+        null
       ) : (
         <StatusBadge label={t("release.waitingBadge")} tone="warning" />
       );
@@ -171,13 +180,20 @@ export function ExitPassWindowBody({
   pass,
   readOnly = false,
   mayRelease = true,
+  openRecord = null,
 }: {
   pass: ExitPass;
   readOnly?: boolean;
   mayRelease?: boolean;
+  /** Opens the record's own window (an office reader who may open it). */
+  openRecord?: (() => void) | null;
 }) {
   const t = useTranslations("exitPass");
   const tRoot = useTranslations();
+  // The release this phone has just made: its green line outlives the gate
+  // step, which goes once the pass reads 已放行 (walk 11-18 #5).
+  const [releasedNow, setReleasedNow] = useState<ReleasedNow | null>(null);
+  const step = gateStep(pass, { readOnly, mayRelease, releasedNow });
   const view = pass.record_view;
   const fieldLabel = (key: string) =>
     tRoot.has(`mySubmissions.field.${key}`) ? tRoot(`mySubmissions.field.${key}`) : null;
@@ -236,20 +252,60 @@ export function ExitPassWindowBody({
       }
       aside={
         <div className="space-y-4" data-exit-pass-window-parts>
-          <ExitPassSections pass={pass} readOnly={readOnly} />
-          {readOnly ? (
-            <GateNote pass={pass} />
-          ) : pass.release_blocked ? (
+          {/* Not the record's own window: 【打印】 / 【发送】 are not at this
+              window's top (walk 11-18 F-A2) - the 外部审批 step says where. */}
+          <ExitPassSections pass={pass} readOnly={readOnly} openRecord={openRecord} />
+          {step === "blocked" && pass.release_blocked ? (
             // Audit F1: the applicant, or not the gate's phone - one sentence, no release step.
             <ReleaseBlockedNote code={pass.release_blocked} />
-          ) : pass.can_release && mayRelease ? (
-            <ReleaseCapture pass={pass} />
+          ) : step === "capture" ? (
+            <ReleaseCapture pass={pass} onReleased={setReleasedNow} />
+          ) : step === "releasedNow" && releasedNow ? (
+            <ReleasedNowLine done={releasedNow} multi={pass.multi_release} />
           ) : (
             <GateNote pass={pass} />
           )}
         </div>
       }
     />
+  );
+}
+
+/** The release this phone has just made: the 门岗事项 number, and which lorry. */
+export interface ReleasedNow {
+  number: string;
+  count: number;
+}
+
+/**
+ * What stands where 【确认放行】 would be. After this phone's own release the
+ * pass reads 已放行 and the gate step goes; its success - 「已放行，记入门岗事项
+ * GT-…。」 - stays in its place for as long as the window is open, rather than
+ * the other guard's 「…不用再放行」 (walk 11-18 #5).
+ */
+export function gateStep(
+  pass: ExitPass,
+  { readOnly, mayRelease, releasedNow }: { readOnly: boolean; mayRelease: boolean; releasedNow: ReleasedNow | null },
+): "note" | "blocked" | "capture" | "releasedNow" {
+  if (readOnly) return "note";
+  if (pass.release_blocked) return "blocked";
+  if (pass.can_release && mayRelease) return "capture";
+  if (releasedNow) return "releasedNow";
+  return "note";
+}
+
+/** 「已放行，记入门岗事项 GT-…。」 - green, with the number to find it by. */
+export function ReleasedNowLine({ done, multi }: { done: ReleasedNow; multi: boolean }) {
+  const t = useTranslations("exitPass");
+  return (
+    <p
+      role="status"
+      data-exit-pass-released-now
+      className="flex items-start gap-2 rounded-lg border border-success/30 bg-success/5 px-3 py-2 text-sm text-success"
+    >
+      <CheckCircle2 className="mt-0.5 size-4 shrink-0" />
+      {multi ? t("gate.doneTrip", { count: done.count, number: done.number }) : t("gate.done", { number: done.number })}
+    </p>
   );
 }
 
@@ -323,7 +379,14 @@ function releaseFailure(error: unknown, words: { network: string; unknown: strin
  * and tray, each photo with its time and GPS. 【确认放行】 stays off, saying
  * why, until there is a photo and while the phone has no network.
  */
-export function ReleaseCapture({ pass }: { pass: ExitPass }) {
+export function ReleaseCapture({
+  pass,
+  onReleased,
+}: {
+  pass: ExitPass;
+  /** Told the 门岗事项 the release became, so the window keeps saying so. */
+  onReleased?: (done: ReleasedNow) => void;
+}) {
   const t = useTranslations("exitPass");
   const queryClient = useQueryClient();
   const offline = usePhoneOffline();
@@ -331,7 +394,10 @@ export function ReleaseCapture({ pass }: { pass: ExitPass }) {
   const camera = useContinuousCamera(fix);
   // One id per release, kept across 【重试】 (a resend is the same release).
   const eventId = useRef(newEventId());
-  const [done, setDone] = useState<{ number: string; count: number } | null>(null);
+  // A second tap before the button turns off sends nothing (walk 11-18
+  // point 9: two taps sent two requests; the server answers both the same).
+  const sending = useRef(false);
+  const [done, setDone] = useState<ReleasedNow | null>(null);
   const release = useMutation({
     mutationFn: () =>
       releaseExit({
@@ -342,7 +408,9 @@ export function ReleaseCapture({ pass }: { pass: ExitPass }) {
         fix: fix ? { latitude: fix.latitude, longitude: fix.longitude, accuracy_m: fix.accuracy } : undefined,
       }),
     onSuccess: (row) => {
-      setDone({ number: row.incident_no, count: pass.releases.length + 1 });
+      const released = { number: row.incident_no, count: pass.releases.length + 1 };
+      setDone(released);
+      onReleased?.(released);
       camera.clear();
       eventId.current = newEventId();
       void queryClient.invalidateQueries({ queryKey: exitPassKey(pass.kind, pass.record) });
@@ -356,6 +424,9 @@ export function ReleaseCapture({ pass }: { pass: ExitPass }) {
       if (error instanceof ApiError && !error.isNetwork) {
         void queryClient.invalidateQueries({ queryKey: exitPassKey(pass.kind, pass.record) });
       }
+    },
+    onSettled: () => {
+      sending.current = false;
     },
   });
   return (
@@ -387,7 +458,11 @@ export function ReleaseCapture({ pass }: { pass: ExitPass }) {
           </div>
         </FieldWrapper>
       }
-      onRelease={() => release.mutate()}
+      onRelease={() => {
+        if (sending.current) return;
+        sending.current = true;
+        release.mutate();
+      }}
     />
   );
 }
@@ -424,16 +499,7 @@ export function ReleaseCaptureView({
       <div className="space-y-3">
         <p className="text-sm leading-6 text-muted-foreground">{t("gate.help")}</p>
         {camera}
-        {done ? (
-          <p
-            role="status"
-            data-exit-pass-released-now
-            className="flex items-start gap-2 rounded-lg border border-success/30 bg-success/5 px-3 py-2 text-sm text-success"
-          >
-            <CheckCircle2 className="mt-0.5 size-4 shrink-0" />
-            {multi ? t("gate.doneTrip", { count: done.count, number: done.number }) : t("gate.done", { number: done.number })}
-          </p>
-        ) : null}
+        {done ? <ReleasedNowLine done={done} multi={multi} /> : null}
         {error ? (
           <div
             role="alert"

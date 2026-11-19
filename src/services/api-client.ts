@@ -924,6 +924,9 @@ const CATALOGUE_WINS = new Set([
   "line_listed_twice",
   "first_line_kept",
   "receipt_line_returned",
+  // A phone role given to an office account (walk 11-18): 「Create field staff
+  // from the field login link screen instead.」 reached 编辑用户 in English.
+  "phone_role_office_account",
 ]);
 
 /**

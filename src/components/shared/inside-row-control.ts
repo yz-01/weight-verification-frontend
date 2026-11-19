@@ -19,9 +19,15 @@ export const InsideRowControl = createContext(false);
  */
 export const StripFillsWidth = createContext(false);
 
-/** What inside a row has a click of its own (a copy icon, a link, a tick box). */
+/**
+ * What inside a row has a click of its own (a copy icon, a link, a tick box).
+ * A greyed button's reason (`data-slot="reason-tip"`, `Button`'s
+ * `disabledReason`) too: a tap on it opens the reason - on 角色与权限 the
+ * grey 【删除】's tap opened the role instead, so 「此角色仍有人在使用…」 was
+ * readable only with a mouse hovering (walk 11-18).
+ */
 const INNER_CONTROLS =
-  'button, a[href], input, select, textarea, label, [role="checkbox"], [role="menuitem"], [role="link"], [data-own-click]';
+  'button, a[href], input, select, textarea, label, [role="checkbox"], [role="menuitem"], [role="link"], [data-own-click], [data-slot="reason-tip"]';
 
 /**
  * Whether a click on a row (or a phone card) should open its record (Lucas

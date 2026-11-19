@@ -77,7 +77,7 @@ import type { Permit, PermitFile, PermitStatus } from "@/interfaces/permit";
 import { useDateFormat } from "@/lib/dates";
 import { printFile } from "@/lib/file-actions";
 import { photoMeta } from "@/lib/photo-meta";
-import { roleLabel } from "@/lib/role-labels";
+import { roleLabel, titleLabel } from "@/lib/role-labels";
 import {
   approvePermit,
   createPermit,
@@ -875,6 +875,7 @@ export function PermitDetail({
   onClose?: () => void;
 }) {
   const t = useTranslations("permits");
+  const tRoot = useTranslations();
   const df = useDateFormat();
   const queryClient = useQueryClient();
   const detail = useQuery({ queryKey: permitKeys(id), queryFn: () => getPermit(id) });
@@ -901,13 +902,17 @@ export function PermitDetail({
     // While the permit waits for this reader's decision, 「附件」 is where the
     // formal permit goes (「通过现有的上传附件按钮上传」).
     const formalHere = permit.can_decide && permit.status === "RECTIFICATION_SUBMITTED" && presentation !== "inline";
+    // Walk 11-18: 「申请人 阿明 · Site Staff」 on a Chinese window - the
+    // platform's role names in the reader's words; a company's own stay.
+    const named = (name: string | null | undefined, title: string | null | undefined) =>
+      [name, titleLabel(title, tRoot)].filter(Boolean).join(" · ");
     const facts: ShellFact[] = [
       { label: t("field.status"), value: <PermitStatusBadge status={permit.status} /> },
       { label: t("field.project"), value: permit.project_name },
       ...nameFact,
       {
         label: t("field.applicant"),
-        value: [permit.applicant_name, permit.applicant_title].filter(Boolean).join(" · ") || "—",
+        value: named(permit.applicant_name, permit.applicant_title) || "—",
       },
       { label: t("field.appliedAt"), value: df.dateTime(permit.applied_at) },
       { label: t("field.approver"), value: permit.approver_name || t("legacyApprover") },
@@ -915,7 +920,7 @@ export function PermitDetail({
         ? [
             {
               label: t(permit.status === "RETURNED" ? "field.returnedBy" : "field.approvedBy"),
-              value: [permit.decided_by_name, permit.decided_by_title].filter(Boolean).join(" · "),
+              value: named(permit.decided_by_name, permit.decided_by_title),
             },
             {
               label: t("field.decidedAt"),
