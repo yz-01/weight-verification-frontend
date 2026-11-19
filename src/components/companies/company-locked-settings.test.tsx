@@ -25,7 +25,9 @@ vi.mock("@/services/api-client", () => ({
   download: vi.fn(),
 }));
 
-const { CompanyLockedSettingsPanel } = await import("@/components/companies/company-locked-settings");
+const { CompanyLockedSettingsPanel, NO_ROLE, defaultUserRoleChoice } = await import(
+  "@/components/companies/company-locked-settings"
+);
 const { getCompanySiteSettings, updateCompanySiteSettings } = await import("@/services/companies.service");
 
 const SETTINGS = {
@@ -91,6 +93,20 @@ describe("锁定设定 (JB99)", () => {
     expect(html).not.toContain("Project Manager");
     expect(html).toContain(zh.roles.system_.site_staff);
     expect(html).not.toContain("project.view");
+  });
+
+  it("shows 不指定 for a new builder's 新用户默认角色, not the phone's 工地人员 (walk 11-18)", () => {
+    // A new builder's row names no role: 不指定 is chosen, and offered first.
+    const fresh = defaultUserRoleChoice("", ["site_staff"]);
+    expect(fresh.value).toBe(NO_ROLE);
+    expect(fresh.options[0]).toBe(NO_ROLE);
+    expect(fresh.options).toContain("site_staff");
+    // An existing company keeps what it has stored.
+    expect(defaultUserRoleChoice("site_staff", ["site_staff"]).value).toBe("site_staff");
+    for (const messages of [zh, zhTW, en, ms]) {
+      expect(messages.companies.lockedSettings.noUserRole).toBeTruthy();
+    }
+    expect(zh.companies.lockedSettings.noUserRole).toContain("不指定");
   });
 
   it("is read-only for platform staff who may not update companies", () => {

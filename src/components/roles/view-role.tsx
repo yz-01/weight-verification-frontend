@@ -89,7 +89,10 @@ export function ViewRole({ id }: { id: string }) {
 
         <div className="divide-y border-t">
           <FormSection title={t("roles.section.identity")}>
-            <ReadField label={t("roles.field.code")} value={data.code} />
+            {/* No raw code on a builder's role (walk 11-18: 「代号 project_manager」;
+                事项 4 「取消目前系统预设的其他角色名称」, a simpler page) - its
+                list has no 代号 column either (JB219). */}
+            {officeRole || phone ? null : <ReadField label={t("roles.field.code")} value={data.code} />}
             {typeLabel ? <ReadField label={t("roles.kind.label")} value={typeLabel} /> : null}
             <ReadField
               label={t("roles.field.userCount")}
