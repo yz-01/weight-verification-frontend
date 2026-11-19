@@ -4026,7 +4026,9 @@
       "permit_form_saved": "E-permit saved",
       "permit_work_type_added": "Type of work added",
       "permit_work_type_renamed": "Type of work renamed",
-      "permit_work_type_removed": "Type of work removed"
+      "permit_work_type_removed": "Type of work removed",
+      "role_followed": "Role permissions changed, passed on to the role's people",
+      "jb219_head_office_roles": "System update: roles tidied (head-office roles, unused presets removed)"
     },
     "objectType": {
       "SignOffAssistant": "Assistant PIN",

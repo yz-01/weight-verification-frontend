@@ -4026,7 +4026,9 @@
       "permit_form_saved": "E-permit disimpan",
       "permit_work_type_added": "Jenis kerja ditambah",
       "permit_work_type_renamed": "Jenis kerja ditukar nama",
-      "permit_work_type_removed": "Jenis kerja dibuang"
+      "permit_work_type_removed": "Jenis kerja dibuang",
+      "role_followed": "Kebenaran peranan diubah, diteruskan kepada orang dalam peranan itu",
+      "jb219_head_office_roles": "Kemas kini sistem: peranan dikemas kini (peranan ibu pejabat, pratetap yang tidak digunakan dibuang)"
     },
     "objectType": {
       "SignOffAssistant": "PIN pembantu",

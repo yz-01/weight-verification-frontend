@@ -4026,7 +4026,9 @@
       "permit_form_saved": "保存電子准證",
       "permit_work_type_added": "新增施工類別",
       "permit_work_type_renamed": "施工類別改名",
-      "permit_work_type_removed": "刪除施工類別"
+      "permit_work_type_removed": "刪除施工類別",
+      "role_followed": "角色權限改動，同步給這個角色的人",
+      "jb219_head_office_roles": "系統更新：整理角色（總部角色、取消沒人用的預設角色）"
     },
     "objectType": {
       "SignOffAssistant": "助理副密碼",
