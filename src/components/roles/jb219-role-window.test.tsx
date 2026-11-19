@@ -88,6 +88,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 const { CreateRole, holdersNotice } = await import("@/components/roles/create-role");
 const { Roles } = await import("@/components/roles/roles");
 const { rolePermissionSummary, roleTypeLabel } = await import("@/components/roles/role-summary");
+const { PermissionMatrix } = await import("@/components/roles/permission-matrix");
+const { ViewRole } = await import("@/components/roles/view-role");
+const { clickOpensRow } = await import("@/components/shared/inside-row-control");
 
 const entry = (group: string, code: string, page: PermissionEntry["page"]): PermissionEntry => ({
   group,
@@ -290,5 +293,112 @@ describe("what the list and card say about a role", () => {
     expect(rolePermissionSummary(role({ kind: "plain", hq_permission_count: null, permissions: ["a"] }), translate)).toBe(
       'roles.permissionCount{"count":1}',
     );
+  });
+});
+
+/**
+ * Walk 11-18 (Walker B) P3s on the role window and pages. The refusals said in
+ * the window (FAIL 1, 2, the silent 500) are `lib/save-refusal.test.ts`.
+ */
+describe("walk 11-18: the role window and pages say what they are", () => {
+  it("greys the A boxes a 项目角色 cannot tick, unlike the boxes it can", () => {
+    auth.portal = "MSE_TRACE";
+    const html = render(<CreateRole role={role({ kind: "project" })} />);
+    const labels = html.match(/<label[^>]*>/g) ?? [];
+    const locked = labels.filter((label) => label.includes("data-locked"));
+    const free = labels.filter((label) => !label.includes("data-locked") && label.includes("cursor-pointer"));
+    expect(locked).toHaveLength(1);
+    expect(locked[0]).toMatch(/(^|\s|")bg-muted\/50/);
+    expect(locked[0]).toContain("cursor-not-allowed");
+    expect(free).toHaveLength(1);
+    expect(free[0]).not.toMatch(/(\s|")bg-muted\/50/);
+  });
+
+  it("locks nothing on a 总部角色", () => {
+    auth.portal = "MSE_TRACE";
+    const html = render(<CreateRole role={role({ kind: "head_office", head_office: true })} />);
+    expect(html).not.toContain("data-locked");
+  });
+
+  it("shows no empty group headings on a role's read-only page", () => {
+    // A 项目角色 ticking B only: the A group (all locked) has nothing to show.
+    const html = render(<PermissionMatrix selected={["disposal.view"]} readOnly kind="project" />);
+    expect(html.match(/<h4/g)).toHaveLength(1);
+    const none = render(<PermissionMatrix selected={[]} readOnly kind="project" />);
+    expect(none).not.toContain("<h4");
+  });
+
+  it("puts no raw code on a builder role's page (代号 project_manager)", () => {
+    auth.portal = "MSE_TRACE";
+    const manager = role({ id: "pm", code: "project_manager", name: "Project Manager", kind: "project" });
+    const html = render(<ViewRole id="pm" />, (client) => client.setQueryData(["roles", "detail", "pm"], manager));
+    expect(html).not.toContain("project_manager");
+    expect(html).not.toContain(zh.roles.field.code);
+    expect(html).toContain(zh.roles.system_.project_manager);
+    const guard = role({ id: "gg", code: "gate_guard", name: "Gate Guard", kind: "phone" });
+    const phone = render(<ViewRole id="gg" />, (client) => client.setQueryData(["roles", "detail", "gg"], guard));
+    expect(phone).not.toContain("gate_guard");
+  });
+
+  it("keeps the code on a recycler's role page", () => {
+    auth.portal = "MSE_SCRAP";
+    const dispatcher = role({ id: "d", code: "dispatcher", name: "Dispatcher", kind: "plain", permissions: ["receipt.view"] });
+    const html = render(<ViewRole id="d" />, (client) => client.setQueryData(["roles", "detail", "d"], dispatcher));
+    expect(html).toContain(zh.roles.field.code);
+    expect(html).toContain("dispatcher");
+    auth.portal = "MSE_TRACE";
+  });
+
+  it("has no raw code in the edit window of a builder role either", () => {
+    auth.portal = "MSE_TRACE";
+    const html = render(<CreateRole role={role({ code: "project_manager", name: "Project Manager", kind: "project" })} />);
+    expect(html).not.toContain("project_manager");
+    expect(html).not.toContain(zh.roles.field.code);
+  });
+
+  it("says what the window is for under its title, not the title again", () => {
+    auth.portal = "MSE_TRACE";
+    const create = render(<CreateRole />);
+    expect(create).toContain(zh.roles.createHelp);
+    expect(zh.roles.createHelp).not.toBe(zh.roles.createTitle);
+    const edit = render(<CreateRole role={role({ kind: "project" })} />);
+    expect(edit).toContain(zh.roles.editHelp);
+  });
+
+  it("opens the grey 【删除】's reason on a tap, not the role behind it", () => {
+    class FakeElement {
+      constructor(
+        readonly tag: string,
+        readonly attrs: Record<string, string> = {},
+        readonly parent: FakeElement | null = null,
+      ) {}
+      matches(selector: string) {
+        return selector.split(",").some((one) => {
+          const attr = one.trim().match(/^\[([\w-]+)(?:="([^"]*)")?\]$/);
+          if (attr) return attr[1] in this.attrs && (attr[2] === undefined || this.attrs[attr[1]] === attr[2]);
+          return one.trim() === this.tag;
+        });
+      }
+      closest(selector: string): FakeElement | null {
+        return this.matches(selector) ? this : (this.parent?.closest(selector) ?? null);
+      }
+      contains(other: FakeElement | null) {
+        for (let node = other; node; node = node.parent) if (node === this) return true;
+        return false;
+      }
+    }
+    vi.stubGlobal("Element", FakeElement);
+    vi.stubGlobal("window", { getSelection: () => ({ toString: () => "" }) });
+    try {
+      const row = new FakeElement("div", { role: "button" });
+      const cell = new FakeElement("div", {}, row);
+      const reason = new FakeElement("span", { "data-slot": "reason-tip" }, cell);
+      const icon = new FakeElement("svg", {}, reason);
+      const asRow = row as unknown as Element;
+      expect(clickOpensRow({ target: icon as unknown as Element, currentTarget: asRow })).toBe(false);
+      expect(clickOpensRow({ target: cell as unknown as Element, currentTarget: asRow })).toBe(true);
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 });

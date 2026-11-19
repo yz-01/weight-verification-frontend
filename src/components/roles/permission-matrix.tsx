@@ -227,7 +227,10 @@ export function PermissionMatrix({
 
         // In read-only mode a group with nothing granted is a heading over
         // empty space. Showing twenty of them buries the handful that matter.
-        if (readOnly && !allOn && !someOn) return null;
+        // Read from the boxes themselves (walk 11-18): a group whose boxes are
+        // all locked - A on a 项目角色 - has none to count, and `[].every`
+        // showed eleven empty headings on 项目经理's page.
+        if (readOnly && !group.entries.some((entry) => chosen.has(entry.code))) return null;
 
         return (
           <div key={`${section}:${group.key}`}>
@@ -277,16 +280,22 @@ export function PermissionMatrix({
                     </div>
                   );
                 }
+                // A box that cannot be ticked looks it (walk 11-18: A on a 项目角色
+                // was as white as the boxes beside it; only the line said so).
+                const lockedBox = !readOnly && locked(entry);
                 return (
                   <label
                     key={entry.code}
+                    data-locked={lockedBox ? "" : undefined}
                     className={cn(
                       "flex min-w-0 items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors",
                       readOnly
                         ? "border-transparent bg-muted/40"
-                        : isOn
-                          ? "cursor-pointer border-primary/30 bg-primary/8"
-                          : "cursor-pointer border-border bg-card hover:bg-muted/50",
+                        : lockedBox
+                          ? "cursor-not-allowed border-border bg-muted/50 text-muted-foreground"
+                          : isOn
+                            ? "cursor-pointer border-primary/30 bg-primary/8"
+                            : "cursor-pointer border-border bg-card hover:bg-muted/50",
                     )}
                   >
                     {!readOnly && (

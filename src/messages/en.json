@@ -5042,7 +5042,8 @@
       "byLetter": "Filter by first letter"
     },
     "loadOffline": "No network - {what} will load when the connection is back.",
-    "pageNotOpen": "Your account cannot open that page, so you have been brought back. To use it, ask your company's administrator to switch it on for you."
+    "pageNotOpen": "Your account cannot open that page, so you have been brought back. To use it, ask your company's administrator to switch it on for you.",
+    "saveFailed": "This was not saved (the server did not finish it). What you entered is still here. Please try again."
   },
   "companies": {
     "owner": {
@@ -5446,7 +5447,8 @@
         "confirmOff": "Unlock"
       },
       "noRole": "Not set (everyone who may approve)",
-      "roleMissing": "{name} (this company has no such role)"
+      "roleMissing": "{name} (this company has no such role)",
+      "noUserRole": "Not set (choose a role when adding a user)"
     },
     "trialDaysHint": "This plan gives {days} free days by default. No bill during the trial; billing starts only when you press Extend or renew in Subscriptions. Enter 0 for no trial.",
     "trialNote": "No bill during the trial. Billing starts only when you press Extend or renew in Subscriptions.",
@@ -9591,7 +9593,8 @@
       "platform_access_view_only": "The customer opened viewing only. MSE can preview on screen but cannot change, download or export the customer's records.",
       "platform_accounts_closed": "Changing this customer's accounts needs the customer's consent. Ask the customer's administrator to press “Allow MSE to manage accounts” in Company settings, then try again.",
       "platform_owner_locked": "The customer already uses this administrator account, so MSE cannot change its sign-in e-mail. Tell the customer: their own company administrator changes it in User management, or the customer writes in and a colleague who runs the server handles it.",
-      "consultant_sub_module_not_granted": "Head office has not opened this item to you on this project. Ask head office if you need to see it."
+      "consultant_sub_module_not_granted": "Head office has not opened this item to you on this project. Ask head office if you need to see it.",
+      "phone_role_office_account": "Phone accounts are made in Field staff. An office account cannot be given a phone role (site staff, equipment operator, gate guard) here. Please choose another role."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -9635,7 +9638,8 @@
       "invalid_birth_date": "The date of birth must be before today",
       "site_worker_passport_taken": "This passport is already on the roster",
       "supplier_not_on_project": "This supplier is not on this project's supplier list. Ask head office or the project manager to add it to the project first.",
-      "field_one_project": "A phone account can be on one project at a time. Choose one project."
+      "field_one_project": "A phone account can be on one project at a time. Choose one project.",
+      "phone_role_office_account": "Phone accounts are made in Field staff. An office account cannot be given a phone role (site staff, equipment operator, gate guard) here. Please choose another role."
     },
     "forbidden": "You do not have access to this.",
     "forbiddenBody": "Ask your administrator if you need it.",
@@ -15914,7 +15918,9 @@
     "hqCount": "{count, plural, =0 {No head-office permissions ticked} one {# head-office permission} other {# head-office permissions}}",
     "allPermissions": "Every permission",
     "phoneHere": "Phone accounts (site staff, equipment operator, gate guard) are made in Field staff, not here.",
-    "onlyAdmin": "The Company Administrator already has every permission. For any other job, press “New role” at the top right, give it your own name, choose head-office role or project role, and tick its permissions."
+    "onlyAdmin": "The Company Administrator already has every permission. For any other job, press “New role” at the top right, give it your own name, choose head-office role or project role, and tick its permissions.",
+    "createHelp": "Give it a name, choose Head-office role or Project role, tick what this role may do, then press “Create”.",
+    "editHelp": "The name, role type and permission ticks are below; press “Save” when you are done."
   },
   "safety": {
     "officeCreate": {
@@ -18770,7 +18776,8 @@
       "hqHintProjectUser": "Group B · head office may give: off by default; this person can use one once head office switches it on.",
       "reservedNote": "Group A head-office permissions (users and roles, audit log, approval templates, departments, project management, dashboard management, company settings, billing, subscription, integrations) are for head-office accounts only and cannot be switched on for a project user.",
       "scopeProjectUser": "A project user sees only the projects chosen here.",
-      "projectDefaultOn": "Project permissions are all on by default; you can switch one off for this person, and back on later."
+      "projectDefaultOn": "Project permissions are all on by default; you can switch one off for this person, and back on later.",
+      "partSavedWhy": "The user's details are saved; the permissions are not saved yet: {reason}"
     },
     "projectsView": {
       "projectsAll": "Can see every company project",
