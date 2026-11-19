@@ -4026,7 +4026,9 @@
       "permit_form_saved": "保存电子准证",
       "permit_work_type_added": "新增施工类别",
       "permit_work_type_renamed": "施工类别改名",
-      "permit_work_type_removed": "删除施工类别"
+      "permit_work_type_removed": "删除施工类别",
+      "equipment_driver_binding_set": "设定设备绑定的司机",
+      "jb227_seed_driver_bindings": "按最近打卡先绑定司机"
     },
     "objectType": {
       "SignOffAssistant": "助理副密码",
@@ -9527,7 +9529,10 @@
       "role_self_lockout": "你自己也是这个角色的人，这样保存会关掉你自己的「用户管理」。请保留「查看用户」和「编辑用户」的勾，或请公司管理员来改。",
       "permit_form_office_only": "电子准证要在电脑后台填写。请用电脑登录后再填。",
       "permit_work_type_exists": "已经有「{name}」了，不用再加。",
-      "permit_form_changed": "{name} 在你打开之后也保存了这张电子准证。请关闭后重新打开，看过最新内容再改。"
+      "permit_form_changed": "{name} 在你打开之后也保存了这张电子准证。请关闭后重新打开，看过最新内容再改。",
+      "equipment_hours_driver_only": "设备工时只能由绑定了这台设备的司机用自己的手机打卡，现场人员不能代替司机打卡。",
+      "equipment_hours_not_bound": "这台设备没有绑定给你的手机，不能打卡。要换设备，请联系项目办公室。",
+      "equipment_binding_driver_invalid": "只能绑定本项目的司机链接或设备操作人员。请关闭后重新打开，再勾选一次。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -20727,7 +20732,13 @@
       "signatureHint": "请司机在这里签名。",
       "clearSignature": "重签",
       "sent": "已提交：{number} 号 {kind} {time}",
-      "sentQueued": "已存在手机，有网络会自动上传：{number} 号 {kind} {time}"
+      "sentQueued": "已存在手机，有网络会自动上传：{number} 号 {kind} {time}",
+      "boundLine": "你可以打卡的设备：{machines}",
+      "boundMore": "你可以打卡的设备：{machines} 等 {count} 台",
+      "boundJoin": "、",
+      "notBound": "你的手机还没有绑定设备，现在不能打卡。请联系项目办公室，在电脑「设备操作员工时 › 设备绑定司机」为你绑定设备。",
+      "notYourMachine": "扫到的设备不是绑定给你的设备，不能打卡。要换设备，请联系项目办公室。",
+      "staffViewOnly": "设备工时由绑定了这台设备的司机用自己的手机打卡，现场人员不能代替司机打卡。这里可以查看最近的工时；要补时间或更正，请联系项目办公室。"
     },
     "siteNo": {
       "open": "设备编号一览",
@@ -21859,7 +21870,8 @@
     "toast": {
       "created": "链接已建立",
       "reissued": "已建立新链接，旧链接不能再用",
-      "stopped": "链接已停用"
+      "stopped": "链接已停用",
+      "bindingSaved": "已保存"
     },
     "office": {
       "title": "司机打卡链接",
@@ -21890,11 +21902,40 @@
       "askStop": "停用后，这个司机就不能再用这个链接打卡。确定停用吗？",
       "confirmReissue": "确定重新发送",
       "confirmStop": "确定停用",
-      "working": "正在处理，请稍等。"
+      "working": "正在处理，请稍等。",
+      "machines": "绑定设备：{machines}",
+      "noMachines": "还没有绑定设备，暂时不能打卡。",
+      "nextStep": "下一步：按【设备绑定司机】为他勾选设备，没有绑定设备不能打卡。"
     },
     "tabs": {
       "clock": "开工 / 收工",
       "records": "我的记录"
+    }
+  },
+  "driverBinding": {
+    "open": "设备绑定司机",
+    "title": "设备绑定司机",
+    "help": "只有在这里绑定了设备的司机手机，才可以为这台设备打卡（开工 / 收工）。现场人员不能代替司机打卡。一台设备可以绑定几位司机（轮班），一位司机也可以绑定几台设备。",
+    "chooseProject": "先在页面上方选一个项目，才能绑定司机。",
+    "unboundLine": "有 {count} 台设备还没有绑定司机，司机现在不能为它们打卡。",
+    "seededLine": "系统已按最近 30 天的打卡记录先绑好 {count} 台设备，请按【设备绑定司机】检查一遍。",
+    "seededHelp": "系统已按最近 30 天的打卡记录先绑好 {count} 台设备（标着「按最近打卡先绑」）。请逐台检查：没问题按【确认】；不对就按【设定司机】修改。",
+    "noDrivers": "这个项目还没有司机。先按【司机打卡链接】为司机建立链接，或在「现场人员管理」生成设备操作人员手机账号，再回来绑定。",
+    "noMachines": "这个项目还没有在用的设备。",
+    "machineLine": "{number} 号 · {name}",
+    "nobody": "还没有绑定司机——现在没有人可以为这台设备打卡。",
+    "seeded": "按最近打卡先绑",
+    "edit": "设定司机",
+    "confirm": "确认",
+    "save": "保存",
+    "cancel": "取消",
+    "close": "关闭",
+    "pickHelp": "勾选可以为这台设备打卡的司机，再按【保存】。全部不勾，就没有人可以为这台设备打卡。",
+    "unchanged": "还没有改动",
+    "failed": "没有保存成功，请再试一次。",
+    "kind": {
+      "link": "司机链接",
+      "account": "设备操作人员"
     }
   },
   "projectReference": {

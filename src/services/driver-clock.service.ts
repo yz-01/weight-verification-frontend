@@ -34,6 +34,8 @@ export interface DriverClockLink {
   deactivated_at: string | null;
   /** Only in the answer that made the link: shown once, never kept. */
   url?: string;
+  /** The machines bound to this driver (JB227) - in the list only. */
+  machines?: { id: string; number: string; name: string }[];
 }
 
 export interface DriverLinkPayload {
@@ -64,6 +66,59 @@ export async function reissueDriverLink(link: string): Promise<DriverClockLink> 
 export async function stopDriverLink(link: string): Promise<DriverClockLink> {
   const row = await api.post<DriverClockLink>("/api/driver-clock-links/stop_link/", { link });
   toastSuccess("driverClock.toast.stopped");
+  return row;
+}
+
+// -- 设备绑定司机 (JB227, 客户 11-19 事项 7) ------------------------------------
+
+/** A driver phone: a driver's link, or a 设备操作人员 account. */
+export type BindingDriverKind = "link" | "account";
+
+export interface BindingDriver {
+  kind: BindingDriverKind;
+  id: string;
+  name: string;
+  cidb_no: string;
+  company_name: string;
+}
+
+export interface BoundDriver extends BindingDriver {
+  binding: string;
+  bound_at: string;
+  /** SEEDED: put in by the release from recent clock-ins, for the office to check. */
+  source: "OFFICE" | "SEEDED";
+}
+
+export interface BindingMachine {
+  id: string;
+  number: string;
+  site_no: string;
+  code: string;
+  name: string;
+  plate: string;
+  drivers: BoundDriver[];
+}
+
+export interface DriverBindings {
+  /** Machines nobody can clock first. */
+  machines: BindingMachine[];
+  drivers: (BindingDriver & { machines: string[] })[];
+  unbound_machines: number;
+  seeded_machines: number;
+}
+
+export function listDriverBindings(project: string): Promise<DriverBindings> {
+  return api.get<DriverBindings>("/api/equipment-driver-bindings/list_bindings/", { project });
+}
+
+/** One machine's drivers as ticked: unticked ones end, new ones bind. */
+export async function setMachineDrivers(payload: {
+  project: string;
+  equipment: string;
+  drivers: { kind: BindingDriverKind; id: string }[];
+}): Promise<BindingMachine> {
+  const row = await api.post<BindingMachine>("/api/equipment-driver-bindings/set_drivers/", payload);
+  toastSuccess("driverClock.toast.bindingSaved");
   return row;
 }
 

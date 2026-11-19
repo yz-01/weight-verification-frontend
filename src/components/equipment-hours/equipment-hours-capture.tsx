@@ -40,6 +40,23 @@ export function machineLabel(
   return [machine.site_no || machine.code, machine.name, machine.plate].filter(Boolean).join(" · ");
 }
 
+/**
+ * 「你可以打卡的设备：12 号 · 挖土机、15 号 · 吊车」 (JB227): the machines bound to
+ * this driver phone, the first three by name, then how many in all.
+ */
+export function boundMachinesLine(
+  rows: readonly { name: string; code?: string; site_no?: string }[],
+  t: (key: string, values?: Record<string, string | number>) => string,
+): string {
+  const names = rows
+    .slice(0, 3)
+    .map((row) => t("phone.machineLine", { number: machineNumber(row), name: row.name }))
+    .join(t("phone.boundJoin"));
+  return rows.length > 3
+    ? t("phone.boundMore", { machines: names, count: rows.length })
+    : t("phone.boundLine", { machines: names });
+}
+
 /** The number the phone shows to check a scan: the 设备编号, else the code. */
 export function machineNumber(machine: { code?: string; site_no?: string }): string {
   return machine.site_no || machine.code || "";
@@ -268,6 +285,11 @@ export function EquipmentHoursCapture({
     staleTime: 60_000,
   });
   const rows = machines.data ?? [];
+  // JB227 (客户 11-19 事项 7): a driver phone - the operator's 设备操作 or a
+  // driver's link - is offered only the machines bound to it; with none it
+  // cannot clock, and says whom to ask.
+  const bound = Boolean(driver || operator);
+  const notBound = bound && machines.isSuccess && rows.length === 0;
 
   const pick = (found: EquipmentHoursMachine) => {
     setMachine(found);
@@ -296,7 +318,7 @@ export function EquipmentHoursCapture({
   const typedMatch = typed.trim() ? matchTypedMachine(typed, rows) : null;
   const takeTyped = () => {
     if (typedMatch) pick(typedMatch);
-    else setError(t("phone.typedNoMatch"));
+    else setError(t(bound ? "phone.notYourMachine" : "phone.typedNoMatch"));
   };
 
   const send = useMutation({
@@ -355,9 +377,22 @@ export function EquipmentHoursCapture({
 
       {last && <LastSentNote last={last} />}
 
-      {!machine ? (
+      {!machine && notBound ? (
+        <p
+          role="status"
+          data-testid="hours-not-bound"
+          className="rounded-lg border border-warning/50 bg-warning/10 px-3 py-3 text-base font-medium leading-6"
+        >
+          {t("phone.notBound")}
+        </p>
+      ) : !machine ? (
         <section className="space-y-3">
           <p className="text-sm leading-5 text-muted-foreground">{t("phone.howTo")}</p>
+          {bound && rows.length > 0 ? (
+            <p data-testid="hours-bound-machines" className="text-sm font-medium">
+              {boundMachinesLine(rows, t)}
+            </p>
+          ) : null}
           <Button
             type="button"
             className="h-16 w-full text-base"
@@ -396,7 +431,7 @@ export function EquipmentHoursCapture({
               </div>
               {typed.trim() && machines.isSuccess && !typedMatch ? (
                 <p className="text-xs font-medium text-destructive" aria-live="polite">
-                  {t("phone.typedNoMatch")}
+                  {t(bound ? "phone.notYourMachine" : "phone.typedNoMatch")}
                 </p>
               ) : null}
             </div>
@@ -520,7 +555,7 @@ export function EquipmentHoursCapture({
           setScanning(false);
           const found = matchScannedMachine(text, rows);
           if (!found) {
-            setError(t("phone.qrNoMatch", { text: text.slice(0, 60) }));
+            setError(bound ? t("phone.notYourMachine") : t("phone.qrNoMatch", { text: text.slice(0, 60) }));
             return;
           }
           pick(found);

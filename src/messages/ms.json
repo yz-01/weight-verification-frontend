@@ -4026,7 +4026,9 @@
       "permit_form_saved": "E-permit disimpan",
       "permit_work_type_added": "Jenis kerja ditambah",
       "permit_work_type_renamed": "Jenis kerja ditukar nama",
-      "permit_work_type_removed": "Jenis kerja dibuang"
+      "permit_work_type_removed": "Jenis kerja dibuang",
+      "equipment_driver_binding_set": "Pemandu mesin ditetapkan",
+      "jb227_seed_driver_bindings": "Pemandu diikat daripada rekod masa terkini"
     },
     "objectType": {
       "SignOffAssistant": "PIN pembantu",
@@ -9527,7 +9529,10 @@
       "role_self_lockout": "Anda sendiri memegang peranan ini, jadi menyimpan ini akan mematikan pengurusan pengguna anda sendiri. Kekalkan tanda “Lihat pengguna” dan “Edit pengguna”, atau minta Pentadbir Syarikat membuat perubahan.",
       "permit_form_office_only": "E-permit diisi di komputer pejabat. Sila log masuk di komputer untuk mengisinya.",
       "permit_work_type_exists": "\"{name}\" sudah ada dalam senarai.",
-      "permit_form_changed": "{name} menyimpan e-permit ini selepas anda membukanya. Tutup, buka semula, baca yang terkini dan kemudian ubah."
+      "permit_form_changed": "{name} menyimpan e-permit ini selepas anda membukanya. Tutup, buka semula, baca yang terkini dan kemudian ubah.",
+      "equipment_hours_driver_only": "Jam mesin hanya boleh direkod oleh pemandu yang diikat pada mesin itu, menggunakan telefonnya sendiri. Kakitangan tapak tidak boleh merekod bagi pihak pemandu.",
+      "equipment_hours_not_bound": "Mesin ini tidak diikat pada telefon anda, jadi anda tidak boleh merekod masa. Untuk menukar mesin, hubungi pejabat projek.",
+      "equipment_binding_driver_invalid": "Hanya pautan pemandu atau operator peralatan projek ini boleh diikat. Tutup, buka semula dan tanda sekali lagi."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -20727,7 +20732,13 @@
       "signatureHint": "Pemandu tandatangan di sini.",
       "clearSignature": "Tandatangan semula",
       "sent": "Dihantar: no. {number} {kind} {time}",
-      "sentQueued": "Disimpan dalam telefon, dihantar bila ada talian: no. {number} {kind} {time}"
+      "sentQueued": "Disimpan dalam telefon, dihantar bila ada talian: no. {number} {kind} {time}",
+      "boundLine": "Mesin yang boleh anda rekod: {machines}",
+      "boundMore": "Mesin yang boleh anda rekod: {machines} ({count} semuanya)",
+      "boundJoin": ", ",
+      "notBound": "Telefon anda belum diikat pada mana-mana mesin, jadi anda belum boleh merekod masa. Minta pejabat projek mengikat anda pada mesin anda di komputer, di \"Jam operator peralatan › Ikat pemandu pada mesin\".",
+      "notYourMachine": "Mesin yang anda imbas tidak diikat pada anda, jadi anda tidak boleh merekod masa. Untuk menukar mesin, hubungi pejabat projek.",
+      "staffViewOnly": "Jam mesin direkod oleh pemandu yang diikat pada mesin itu, menggunakan telefonnya sendiri. Kakitangan tapak tidak boleh merekod bagi pihak pemandu. Anda boleh melihat jam terkini di sini; untuk menambah atau membetulkan masa, hubungi pejabat projek."
     },
     "siteNo": {
       "open": "Senarai nombor peralatan",
@@ -21859,7 +21870,8 @@
     "toast": {
       "created": "Pautan dibuat",
       "reissued": "Pautan baharu dibuat; pautan lama tidak berfungsi lagi",
-      "stopped": "Pautan dihentikan"
+      "stopped": "Pautan dihentikan",
+      "bindingSaved": "Disimpan"
     },
     "office": {
       "title": "Pautan pemandu",
@@ -21890,11 +21902,40 @@
       "askStop": "Selepas dihentikan, pemandu ini tidak lagi boleh merekod masa dengan pautan ini. Hentikan?",
       "confirmReissue": "Ya, hantar semula",
       "confirmStop": "Ya, hentikan",
-      "working": "Sedang diproses, sila tunggu."
+      "working": "Sedang diproses, sila tunggu.",
+      "machines": "Mesin diikat: {machines}",
+      "noMachines": "Belum diikat pada mana-mana mesin, jadi pemandu ini belum boleh merekod masa.",
+      "nextStep": "Seterusnya: tekan \"Ikat pemandu pada mesin\" dan tandakan mesinnya. Tanpa mesin dia tidak boleh merekod masa."
     },
     "tabs": {
       "clock": "Mula / tamat kerja",
       "records": "Rekod saya"
+    }
+  },
+  "driverBinding": {
+    "open": "Ikat pemandu pada mesin",
+    "title": "Ikat pemandu pada mesin",
+    "help": "Hanya telefon pemandu yang diikat pada mesin di sini boleh merekod mesin itu (mula / tamat). Kakitangan tapak tidak boleh merekod bagi pihak pemandu. Satu mesin boleh ada beberapa pemandu (syif), dan seorang pemandu boleh ada beberapa mesin.",
+    "chooseProject": "Pilih projek di bahagian atas halaman untuk mengikat pemandu.",
+    "unboundLine": "Mesin yang belum ada pemandu diikat: {count}. Tiada sesiapa boleh merekod mesin itu sekarang.",
+    "seededLine": "Sistem telah mengikat {count} mesin berdasarkan rekod masa 30 hari lepas. Sila semak di \"Ikat pemandu pada mesin\".",
+    "seededHelp": "Sistem telah mengikat {count} mesin berdasarkan rekod masa 30 hari lepas (bertanda \"Daripada rekod masa terkini\"). Semak satu demi satu: jika betul, tekan \"Sahkan\"; jika tidak, tekan \"Tetapkan pemandu\" dan ubah.",
+    "noDrivers": "Projek ini belum ada pemandu. Mula-mula buat pautan pemandu di \"Pautan pemandu\", atau cipta akaun telefon operator peralatan di \"Kakitangan tapak\", kemudian kembali untuk mengikat.",
+    "noMachines": "Projek ini belum ada mesin yang sedang digunakan.",
+    "machineLine": "No. {number} · {name}",
+    "nobody": "Belum ada pemandu diikat — tiada sesiapa boleh merekod mesin ini sekarang.",
+    "seeded": "Daripada rekod masa terkini",
+    "edit": "Tetapkan pemandu",
+    "confirm": "Sahkan",
+    "save": "Simpan",
+    "cancel": "Batal",
+    "close": "Tutup",
+    "pickHelp": "Tandakan pemandu yang boleh merekod mesin ini, kemudian tekan \"Simpan\". Jika tiada yang ditanda, tiada sesiapa boleh merekod mesin ini.",
+    "unchanged": "Belum ada perubahan",
+    "failed": "Tidak disimpan. Sila cuba lagi.",
+    "kind": {
+      "link": "Pautan pemandu",
+      "account": "Operator peralatan"
     }
   },
   "projectReference": {

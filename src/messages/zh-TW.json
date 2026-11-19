@@ -4026,7 +4026,9 @@
       "permit_form_saved": "保存電子准證",
       "permit_work_type_added": "新增施工類別",
       "permit_work_type_renamed": "施工類別改名",
-      "permit_work_type_removed": "刪除施工類別"
+      "permit_work_type_removed": "刪除施工類別",
+      "equipment_driver_binding_set": "設定設備綁定的司機",
+      "jb227_seed_driver_bindings": "按最近打卡先綁定司機"
     },
     "objectType": {
       "SignOffAssistant": "助理副密碼",
@@ -9527,7 +9529,10 @@
       "role_self_lockout": "你自己也是這個角色的人，這樣保存會關掉你自己的「用戶管理」。請保留「查看用戶」和「編輯用戶」的勾，或請公司管理員來改。",
       "permit_form_office_only": "電子准證要在電腦後台填寫。請用電腦登入後再填。",
       "permit_work_type_exists": "已經有「{name}」了，不用再加。",
-      "permit_form_changed": "{name} 在你打開之後也保存了這張電子准證。請關閉後重新打開，看過最新內容再改。"
+      "permit_form_changed": "{name} 在你打開之後也保存了這張電子准證。請關閉後重新打開，看過最新內容再改。",
+      "equipment_hours_driver_only": "設備工時只能由綁定了這台設備的司機用自己的手機打卡，現場人員不能代替司機打卡。",
+      "equipment_hours_not_bound": "這台設備沒有綁定給你的手機，不能打卡。要換設備，請聯繫項目辦公室。",
+      "equipment_binding_driver_invalid": "只能綁定本項目的司機連結或設備操作人員。請關閉後重新打開，再勾選一次。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -20727,7 +20732,13 @@
       "signatureHint": "請司機在這裡簽名。",
       "clearSignature": "重簽",
       "sent": "已提交：{number} 號 {kind} {time}",
-      "sentQueued": "已存在手機，有網路會自動上傳：{number} 號 {kind} {time}"
+      "sentQueued": "已存在手機，有網路會自動上傳：{number} 號 {kind} {time}",
+      "boundLine": "你可以打卡的設備：{machines}",
+      "boundMore": "你可以打卡的設備：{machines} 等 {count} 台",
+      "boundJoin": "、",
+      "notBound": "你的手機還沒有綁定設備，現在不能打卡。請聯繫項目辦公室，在電腦「設備操作員工時 › 設備綁定司機」為你綁定設備。",
+      "notYourMachine": "掃到的設備不是綁定給你的設備，不能打卡。要換設備，請聯繫項目辦公室。",
+      "staffViewOnly": "設備工時由綁定了這台設備的司機用自己的手機打卡，現場人員不能代替司機打卡。這裡可以查看最近的工時；要補時間或更正，請聯繫項目辦公室。"
     },
     "siteNo": {
       "open": "設備編號一覽",
@@ -21859,7 +21870,8 @@
     "toast": {
       "created": "連結已建立",
       "reissued": "已建立新連結，舊連結不能再用",
-      "stopped": "連結已停用"
+      "stopped": "連結已停用",
+      "bindingSaved": "已儲存"
     },
     "office": {
       "title": "司機打卡連結",
@@ -21890,11 +21902,40 @@
       "askStop": "停用後，這個司機就不能再用這個連結打卡。確定停用嗎？",
       "confirmReissue": "確定重新發送",
       "confirmStop": "確定停用",
-      "working": "正在處理，請稍等。"
+      "working": "正在處理，請稍等。",
+      "machines": "綁定設備：{machines}",
+      "noMachines": "還沒有綁定設備，暫時不能打卡。",
+      "nextStep": "下一步：按【設備綁定司機】為他勾選設備，沒有綁定設備不能打卡。"
     },
     "tabs": {
       "clock": "開工 / 收工",
       "records": "我的記錄"
+    }
+  },
+  "driverBinding": {
+    "open": "設備綁定司機",
+    "title": "設備綁定司機",
+    "help": "只有在這裡綁定了設備的司機手機，才可以為這台設備打卡（開工 / 收工）。現場人員不能代替司機打卡。一台設備可以綁定幾位司機（輪班），一位司機也可以綁定幾台設備。",
+    "chooseProject": "先在頁面上方選一個項目，才能綁定司機。",
+    "unboundLine": "有 {count} 台設備還沒有綁定司機，司機現在不能為它們打卡。",
+    "seededLine": "系統已按最近 30 天的打卡記錄先綁好 {count} 台設備，請按【設備綁定司機】檢查一遍。",
+    "seededHelp": "系統已按最近 30 天的打卡記錄先綁好 {count} 台設備（標著「按最近打卡先綁」）。請逐台檢查：沒問題按【確認】；不對就按【設定司機】修改。",
+    "noDrivers": "這個項目還沒有司機。先按【司機打卡連結】為司機建立連結，或在「現場人員管理」生成設備操作人員手機帳號，再回來綁定。",
+    "noMachines": "這個項目還沒有在用的設備。",
+    "machineLine": "{number} 號 · {name}",
+    "nobody": "還沒有綁定司機——現在沒有人可以為這台設備打卡。",
+    "seeded": "按最近打卡先綁",
+    "edit": "設定司機",
+    "confirm": "確認",
+    "save": "儲存",
+    "cancel": "取消",
+    "close": "關閉",
+    "pickHelp": "勾選可以為這台設備打卡的司機，再按【儲存】。全部不勾，就沒有人可以為這台設備打卡。",
+    "unchanged": "還沒有改動",
+    "failed": "沒有儲存成功，請再試一次。",
+    "kind": {
+      "link": "司機連結",
+      "account": "設備操作人員"
     }
   },
   "projectReference": {

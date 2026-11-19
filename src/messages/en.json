@@ -4026,7 +4026,9 @@
       "permit_form_saved": "E-permit saved",
       "permit_work_type_added": "Type of work added",
       "permit_work_type_renamed": "Type of work renamed",
-      "permit_work_type_removed": "Type of work removed"
+      "permit_work_type_removed": "Type of work removed",
+      "equipment_driver_binding_set": "Machine's drivers set",
+      "jb227_seed_driver_bindings": "Drivers bound from recent clock-ins"
     },
     "objectType": {
       "SignOffAssistant": "Assistant PIN",
@@ -9527,7 +9529,10 @@
       "role_self_lockout": "You hold this role yourself, so saving this would switch off your own user management. Keep “View users” and “Edit users” ticked, or ask the Company Administrator to make the change.",
       "permit_form_office_only": "The e-permit is filled in on the office computer. Please sign in on a computer to fill it in.",
       "permit_work_type_exists": "\"{name}\" is already on the list.",
-      "permit_form_changed": "{name} saved this e-permit after you opened it. Close it, open it again, read the latest and then change it."
+      "permit_form_changed": "{name} saved this e-permit after you opened it. Close it, open it again, read the latest and then change it.",
+      "equipment_hours_driver_only": "Machine hours can only be clocked by the driver bound to the machine, on his own phone. Site staff cannot clock for a driver.",
+      "equipment_hours_not_bound": "This machine is not bound to your phone, so you cannot clock it. To change machines, contact the project office.",
+      "equipment_binding_driver_invalid": "Only this project's driver links or equipment operators can be bound. Close this, open it again and tick again."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -20727,7 +20732,13 @@
       "signatureHint": "The driver signs here.",
       "clearSignature": "Sign again",
       "sent": "Sent: no. {number} {kind} {time}",
-      "sentQueued": "Saved on the phone, sends when online: no. {number} {kind} {time}"
+      "sentQueued": "Saved on the phone, sends when online: no. {number} {kind} {time}",
+      "boundLine": "Machines you can clock: {machines}",
+      "boundMore": "Machines you can clock: {machines} ({count} in all)",
+      "boundJoin": ", ",
+      "notBound": "Your phone is not bound to any machine yet, so you cannot clock. Ask the project office to bind you to your machine on the computer, under \"Equipment operator hours › Bind drivers to machines\".",
+      "notYourMachine": "The machine you scanned is not bound to you, so you cannot clock it. To change machines, contact the project office.",
+      "staffViewOnly": "Machine hours are clocked by the driver bound to the machine, on his own phone. Site staff cannot clock for a driver. You can see the recent hours here; to add or correct a time, contact the project office."
     },
     "siteNo": {
       "open": "Equipment number list",
@@ -21859,7 +21870,8 @@
     "toast": {
       "created": "Link made",
       "reissued": "New link made; the old one no longer works",
-      "stopped": "Link stopped"
+      "stopped": "Link stopped",
+      "bindingSaved": "Saved"
     },
     "office": {
       "title": "Driver links",
@@ -21890,11 +21902,40 @@
       "askStop": "Once stopped, this driver can no longer clock on or off with this link. Stop it?",
       "confirmReissue": "Yes, send again",
       "confirmStop": "Yes, stop it",
-      "working": "Working on it, please wait."
+      "working": "Working on it, please wait.",
+      "machines": "Bound machines: {machines}",
+      "noMachines": "Not bound to any machine yet, so this driver cannot clock.",
+      "nextStep": "Next: press \"Bind drivers to machines\" and tick his machine. Without a machine he cannot clock."
     },
     "tabs": {
       "clock": "Clock in / out",
       "records": "My records"
+    }
+  },
+  "driverBinding": {
+    "open": "Bind drivers to machines",
+    "title": "Bind drivers to machines",
+    "help": "Only a driver's phone bound to a machine here can clock that machine (start / stop). Site staff cannot clock for a driver. A machine can have several drivers (shifts), and a driver several machines.",
+    "chooseProject": "Choose a project at the top of the page to bind drivers.",
+    "unboundLine": "Machines with no driver bound yet: {count}. No one can clock them now.",
+    "seededLine": "The system has already bound {count} machines from the last 30 days of clock-ins. Please check them under \"Bind drivers to machines\".",
+    "seededHelp": "The system has bound {count} machines from the last 30 days of clock-ins (marked \"From recent clock-ins\"). Check each one: if it is right, press \"Confirm\"; if not, press \"Set drivers\" and change it.",
+    "noDrivers": "This project has no drivers yet. First make a driver link under \"Driver links\", or create an equipment operator phone account in \"Field staff\", then come back to bind.",
+    "noMachines": "This project has no working machines yet.",
+    "machineLine": "No. {number} · {name}",
+    "nobody": "No driver bound yet — no one can clock this machine now.",
+    "seeded": "From recent clock-ins",
+    "edit": "Set drivers",
+    "confirm": "Confirm",
+    "save": "Save",
+    "cancel": "Cancel",
+    "close": "Close",
+    "pickHelp": "Tick the drivers who may clock this machine, then press \"Save\". With nothing ticked, no one can clock it.",
+    "unchanged": "Nothing changed yet",
+    "failed": "Not saved. Please try again.",
+    "kind": {
+      "link": "Driver link",
+      "account": "Equipment operator"
     }
   },
   "projectReference": {
