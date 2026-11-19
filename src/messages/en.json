@@ -4030,7 +4030,10 @@
       "role_followed": "Role permissions changed, passed on to the role's people",
       "jb219_head_office_roles": "System update: roles tidied (head-office roles, unused presets removed)",
       "platform_access_opened": "Opened access for MSE",
-      "platform_access_closed": "Closed access for MSE"
+      "platform_access_closed": "Closed access for MSE",
+      "project_grant_updated": "Changed project access",
+      "jb225_sub_modules": "Materials / progress items ticked separately (system upgrade)",
+      "jb225_default_sub_modules": "Consultant default items ticked separately (system upgrade)"
     },
     "objectType": {
       "SignOffAssistant": "Assistant PIN",
@@ -5522,7 +5525,10 @@
       "optionsTitle": "Other permissions",
       "selectAll": "Select all",
       "selectNone": "Select none",
-      "noModules": "No module ticked"
+      "noModules": "No module ticked",
+      "partialCount": "{held} of {total} ticked",
+      "partialModule": "{module} ({items})",
+      "itemSeparator": ", "
     },
     "organization": {
       "activeHelp": "Deactivating the firm immediately stops all of its project access.",
@@ -5605,8 +5611,8 @@
       "dashboard": "Home page, showing only the modules ticked below",
       "projects": "Project basics (no staff phone numbers, emails or permissions)",
       "fieldTasks": "Only tasks sent to the consultant to check, or that he took part in",
-      "materials": "Material in, material out, material targets - view only, no amounts",
-      "progress": "Progress updates, daily reports, rain records, schedule - view only, may add remarks",
+      "materials": "View only, no amounts shown. Each item below can be ticked on its own",
+      "progress": "View only; remarks allowed. Each item below can be ticked on its own",
       "safety": "Sees rectifications and work permits; may raise a rectification and follow up his own",
       "documents": "This project's confirmed and archived files - view and download",
       "recordCentre": "Records of the modules ticked above - view only",
@@ -5622,6 +5628,39 @@
     "optionHint": {
       "approvalReview": "Ticking this also ticks \"view\"",
       "export": "Reports and each module's lists can be exported"
+    },
+    "item": {
+      "materialsIn": "Material In",
+      "materialsReturns": "Material returns",
+      "materialsIssues": "Material issue",
+      "materialsSupplierTotals": "Totals by supplier",
+      "materialsTargets": "Material targets",
+      "progressRecords": "Construction progress",
+      "progressDailyReports": "Daily site reports",
+      "progressRain": "Rainy weather records",
+      "progressSchedule": "Construction schedule"
+    },
+    "itemHint": {
+      "materialsIn": "Material delivered to site, rejected loads included (under Material in)",
+      "materialsReturns": "Material returned to the supplier, with return checks (Material out → Returns to supplier)",
+      "materialsIssues": "Material handed to machines or workers (Material out → Material issue)",
+      "materialsSupplierTotals": "Each supplier's total delivered and returned (Material in → Totals by supplier)",
+      "materialsTargets": "Target quantities and how much has arrived (under Material targets)",
+      "progressRecords": "Progress records, timeline photos, work categories and the progress summary (under Progress)",
+      "progressDailyReports": "Each day's site report (Progress → Daily reports)",
+      "progressRain": "Rain stoppages and their monthly figures (Progress → Rain records)",
+      "progressSchedule": "The construction schedule and actual progress (Progress → Schedule)"
+    },
+    "itemShort": {
+      "materialsIn": "in",
+      "materialsReturns": "returns",
+      "materialsIssues": "issue",
+      "materialsSupplierTotals": "totals by supplier",
+      "materialsTargets": "targets",
+      "progressRecords": "progress",
+      "progressDailyReports": "daily reports",
+      "progressRain": "rain",
+      "progressSchedule": "schedule"
     }
   },
   "consultantDashboard": {
@@ -8651,7 +8690,8 @@
     "recordLinks": {
       "title": "Whole records",
       "allPdf": "All records as one PDF",
-      "gone": "The original record has been deleted."
+      "gone": "The original record has been deleted.",
+      "notGranted": "Head office has not opened this item to you"
     },
     "inspection": {
       "needs": "Needs inspection fields",
@@ -9549,7 +9589,8 @@
       "platform_qr_customer_only": "QR codes for delivery notes and suppliers are issued by the customer itself; MSE cannot see these records.",
       "platform_access_view_only": "The customer opened viewing only. MSE can preview on screen but cannot change, download or export the customer's records.",
       "platform_accounts_closed": "Changing this customer's accounts needs the customer's consent. Ask the customer's administrator to press “Allow MSE to manage accounts” in Company settings, then try again.",
-      "platform_owner_locked": "The customer already uses this administrator account, so MSE cannot change its sign-in e-mail. Tell the customer: their own company administrator changes it in User management, or the customer writes in and a colleague who runs the server handles it."
+      "platform_owner_locked": "The customer already uses this administrator account, so MSE cannot change its sign-in e-mail. Tell the customer: their own company administrator changes it in User management, or the customer writes in and a colleague who runs the server handles it.",
+      "consultant_sub_module_not_granted": "Head office has not opened this item to you on this project. Ask head office if you need to see it."
     },
     "backToDashboard": "Back to dashboard",
     "field": {

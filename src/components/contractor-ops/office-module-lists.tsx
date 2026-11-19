@@ -56,6 +56,7 @@ import { movementStatusKey } from "@/lib/equipment-exit";
 import { useArchiveLocksChanges } from "@/lib/archive-policy";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { MaterialIssueList, OutgoingKindSwitch } from "@/components/contractor-ops/material-issue";
+import { outgoingKindsFor } from "@/lib/consultant-modules";
 import {
   ReturnCheckButton,
   ReturnCheckTabs,
@@ -244,7 +245,7 @@ export function MaterialOutgoingOffice() {
   const t = useTranslations("contractorOps");
   const tRoot = useTranslations();
   const df = useDateFormat();
-  const { can } = useAuth();
+  const { can, user } = useAuth();
   const qc = useQueryClient();
   const list = useListQuery([
     "project",
@@ -266,7 +267,11 @@ export function MaterialOutgoingOffice() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  const view: "RETURN" | "ISSUE" = searchParams.get("kind") === "ISSUE" ? "ISSUE" : "RETURN";
+  // JB225 (客户 11-19 事项 5): a consultant sees the side(s) head office
+  // ticked - 材料退场 = 供应商退货, 材料领用 = 材料领用 - and opens on his.
+  const kinds = outgoingKindsFor(user?.features);
+  const asked: "RETURN" | "ISSUE" = searchParams.get("kind") === "ISSUE" ? "ISSUE" : "RETURN";
+  const view: "RETURN" | "ISSUE" = kinds.includes(asked) ? asked : kinds[0] ?? asked;
   const switchView = (next: "RETURN" | "ISSUE") => {
     const params = new URLSearchParams();
     const keep = searchParams.get("project");
@@ -539,7 +544,7 @@ export function MaterialOutgoingOffice() {
       <div className="space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h1 className="text-xl font-semibold">{title}</h1>
-          <OutgoingKindSwitch value={view} onChange={switchView} />
+          <OutgoingKindSwitch value={view} onChange={switchView} kinds={kinds} />
         </div>
         <MaterialIssueList onOpen={(id) => setViewing(id)} />
         {detailAndDialogs}
@@ -552,7 +557,7 @@ export function MaterialOutgoingOffice() {
     return (
       <>
         <div className="mb-2 flex justify-end">
-          <OutgoingKindSwitch value={view} onChange={switchView} />
+          <OutgoingKindSwitch value={view} onChange={switchView} kinds={kinds} />
         </div>
         <ReturnChecksList
           title={title}
@@ -567,7 +572,7 @@ export function MaterialOutgoingOffice() {
   return (
     <>
       <div className="mb-2 flex justify-end">
-        <OutgoingKindSwitch value={view} onChange={switchView} />
+        <OutgoingKindSwitch value={view} onChange={switchView} kinds={kinds} />
       </div>
       <ModuleRecordsTable
         corrected={{ kind: "MATERIAL_OUTGOING" }}

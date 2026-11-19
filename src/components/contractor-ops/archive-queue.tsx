@@ -19,6 +19,7 @@ import { ProjectFilter } from "@/components/contractor-ops/operations-workspaces
 import { usePackList } from "@/components/contractor-ops/pack-collect";
 import { useOnProjectChange, usePageProject } from "@/components/providers/current-project-provider";
 import { useAuth } from "@/components/providers/auth-provider";
+import { outgoingKindsFor } from "@/lib/consultant-modules";
 import { DrillNote } from "@/components/shared/drill-note";
 import { PermitDetail } from "@/components/permits/permit-parts";
 import { useRecordOpener } from "@/components/shared/record-opener";
@@ -146,15 +147,18 @@ export function OutgoingChips({
   value,
   counts,
   onPress,
+  kinds = OUTGOING_KINDS,
 }: {
   value: ArchiveOutgoingKind | "";
   counts: Partial<Record<ArchiveOutgoingKind, number>>;
   onPress: (pressed: ArchiveOutgoingKind) => void;
+  /** The sub-categories shown: a consultant's ticked ones (JB225). */
+  kinds?: readonly ArchiveOutgoingKind[];
 }) {
   const t = useTranslations("archiveQueue");
   return (
     <nav aria-label={t("outgoing.label")} className="flex w-full flex-wrap gap-1.5">
-      {OUTGOING_KINDS.map((row) => (
+      {kinds.map((row) => (
         <button
           key={row}
           type="button"
@@ -419,6 +423,8 @@ export function ArchiveQueue() {
       {kind === "MATERIAL_OUTGOING" && available.includes("MATERIAL_OUTGOING") && (
         <OutgoingChips
           value={outgoing}
+          // JB225: 材料出场 shows 领用 without 材料退场 for a consultant, and so on.
+          kinds={outgoingKindsFor(user?.features)}
           counts={query.data?.outgoing_counts ?? {}}
           onPress={(pressed) => reset(() => setOutgoing((current) => nextOutgoing(current, pressed)))}
         />

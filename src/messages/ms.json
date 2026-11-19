@@ -4030,7 +4030,10 @@
       "role_followed": "Kebenaran peranan diubah, diteruskan kepada orang dalam peranan itu",
       "jb219_head_office_roles": "Kemas kini sistem: peranan dikemas kini (peranan ibu pejabat, pratetap yang tidak digunakan dibuang)",
       "platform_access_opened": "Membuka akses untuk MSE",
-      "platform_access_closed": "Menutup akses untuk MSE"
+      "platform_access_closed": "Menutup akses untuk MSE",
+      "project_grant_updated": "Ubah akses projek",
+      "jb225_sub_modules": "Item bahan / kemajuan ditanda berasingan (naik taraf sistem)",
+      "jb225_default_sub_modules": "Item lalai perunding ditanda berasingan (naik taraf sistem)"
     },
     "objectType": {
       "SignOffAssistant": "PIN pembantu",
@@ -5522,7 +5525,10 @@
       "optionsTitle": "Kebenaran lain",
       "selectAll": "Pilih semua",
       "selectNone": "Kosongkan semua",
-      "noModules": "Tiada modul ditanda"
+      "noModules": "Tiada modul ditanda",
+      "partialCount": "{held} daripada {total} ditanda",
+      "partialModule": "{module} ({items})",
+      "itemSeparator": ", "
     },
     "organization": {
       "activeHelp": "Menyahaktifkan firma akan menghentikan semua akses projeknya serta-merta.",
@@ -5605,8 +5611,8 @@
       "dashboard": "Halaman utama, hanya modul yang ditanda di bawah",
       "projects": "Maklumat asas projek (tiada telefon, e-mel atau kebenaran kakitangan)",
       "fieldTasks": "Hanya tugas yang dihantar kepada perunding untuk disemak, atau yang dia sertai",
-      "materials": "Bahan masuk, bahan keluar, sasaran bahan - lihat sahaja, tanpa amaun",
-      "progress": "Kemajuan projek, laporan harian, rekod hujan, jadual - lihat sahaja, boleh menulis catatan",
+      "materials": "Lihat sahaja, tiada amaun. Setiap item di bawah boleh ditanda sendiri",
+      "progress": "Lihat sahaja; boleh tulis catatan. Setiap item di bawah boleh ditanda sendiri",
       "safety": "Lihat pembetulan dan permit kerja; boleh membuka pembetulan dan menyusul yang dibukanya",
       "documents": "Fail projek ini yang telah disahkan dan diarkibkan - lihat dan muat turun",
       "recordCentre": "Rekod modul yang ditanda di atas - lihat sahaja",
@@ -5622,6 +5628,39 @@
     "optionHint": {
       "approvalReview": "Menanda ini turut menanda \"lihat\"",
       "export": "Laporan dan senarai setiap modul boleh dieksport"
+    },
+    "item": {
+      "materialsIn": "Bahan masuk",
+      "materialsReturns": "Pemulangan bahan",
+      "materialsIssues": "Pengeluaran bahan",
+      "materialsSupplierTotals": "Jumlah mengikut pembekal",
+      "materialsTargets": "Sasaran bahan",
+      "progressRecords": "Kemajuan pembinaan",
+      "progressDailyReports": "Laporan harian tapak",
+      "progressRain": "Rekod hujan",
+      "progressSchedule": "Jadual pembinaan"
+    },
+    "itemHint": {
+      "materialsIn": "Bahan yang dihantar ke tapak, termasuk muatan yang ditolak (di Bahan masuk)",
+      "materialsReturns": "Bahan yang dipulangkan kepada pembekal, dengan semakan pemulangan (Bahan keluar → Pemulangan kepada pembekal)",
+      "materialsIssues": "Bahan yang diberikan kepada mesin atau pekerja (Bahan keluar → Pengeluaran bahan)",
+      "materialsSupplierTotals": "Jumlah masuk dan dipulangkan bagi setiap pembekal (Bahan masuk → Jumlah ikut pembekal)",
+      "materialsTargets": "Kuantiti sasaran dan jumlah yang sudah tiba (di Sasaran bahan)",
+      "progressRecords": "Rekod kemajuan, foto garis masa, kategori kerja dan ringkasan kemajuan (di Kemajuan)",
+      "progressDailyReports": "Laporan tapak setiap hari (Kemajuan → Laporan harian)",
+      "progressRain": "Rekod henti kerja kerana hujan dan angka bulanannya (Kemajuan → Rekod hari hujan)",
+      "progressSchedule": "Jadual pembinaan dan kemajuan sebenar (Kemajuan → Jadual)"
+    },
+    "itemShort": {
+      "materialsIn": "masuk",
+      "materialsReturns": "pemulangan",
+      "materialsIssues": "pengeluaran",
+      "materialsSupplierTotals": "jumlah mengikut pembekal",
+      "materialsTargets": "sasaran",
+      "progressRecords": "kemajuan",
+      "progressDailyReports": "laporan harian",
+      "progressRain": "hujan",
+      "progressSchedule": "jadual"
     }
   },
   "consultantDashboard": {
@@ -8651,7 +8690,8 @@
     "recordLinks": {
       "title": "Rekod penuh",
       "allPdf": "Semua rekod sebagai satu PDF",
-      "gone": "Rekod asal telah dipadam."
+      "gone": "Rekod asal telah dipadam.",
+      "notGranted": "Ibu pejabat belum membuka item ini kepada anda"
     },
     "inspection": {
       "needs": "Perlu medan pemeriksaan",
@@ -9549,7 +9589,8 @@
       "platform_qr_customer_only": "Kod QR untuk nota hantar dan pembekal dikeluarkan oleh pelanggan sendiri; MSE tidak dapat melihat rekod ini.",
       "platform_access_view_only": "Pelanggan hanya membuka paparan. MSE boleh pratonton di skrin tetapi tidak boleh mengubah, memuat turun atau mengeksport rekod pelanggan.",
       "platform_accounts_closed": "Mengubah akaun pelanggan ini memerlukan persetujuan pelanggan. Minta pentadbir pelanggan tekan “Benarkan MSE mengurus akaun” dalam Tetapan syarikat, kemudian cuba lagi.",
-      "platform_owner_locked": "Pelanggan sudah menggunakan akaun pentadbir ini, jadi MSE tidak boleh mengubah e-mel log masuknya. Beritahu pelanggan: pentadbir syarikat mereka sendiri mengubahnya dalam Pengurusan pengguna, atau pelanggan menghantar surat dan rakan yang menjaga pelayan akan menguruskannya."
+      "platform_owner_locked": "Pelanggan sudah menggunakan akaun pentadbir ini, jadi MSE tidak boleh mengubah e-mel log masuknya. Beritahu pelanggan: pentadbir syarikat mereka sendiri mengubahnya dalam Pengurusan pengguna, atau pelanggan menghantar surat dan rakan yang menjaga pelayan akan menguruskannya.",
+      "consultant_sub_module_not_granted": "Ibu pejabat belum membuka item ini untuk anda dalam projek ini. Hubungi ibu pejabat jika anda perlu melihatnya."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {

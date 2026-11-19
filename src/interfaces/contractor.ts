@@ -106,17 +106,21 @@ export interface ProjectStatistics {
   start: string | null;
   end: string | null;
   total_records: number;
+  /**
+   * JB225 (客户 11-19 事项 5): `null` for a count a consultant is not granted -
+   * the server leaves it out and the page shows no tile for it.
+   */
   totals: {
-    material_receipts: number;
-    equipment_movements: number;
-    progress_records: number;
-    safety_incidents: number;
-    attendance_events: number;
-    waste_dispatches: number;
-    consultant_applications: number;
-    field_tasks: number;
-    photos: number;
-    documents: number;
+    material_receipts: number | null;
+    equipment_movements: number | null;
+    progress_records: number | null;
+    safety_incidents: number | null;
+    attendance_events: number | null;
+    waste_dispatches: number | null;
+    consultant_applications: number | null;
+    field_tasks: number | null;
+    photos: number | null;
+    documents: number | null;
   };
 }
 

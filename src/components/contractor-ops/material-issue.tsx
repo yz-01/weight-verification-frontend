@@ -989,14 +989,18 @@ export function useIssueFacts() {
 export function OutgoingKindSwitch({
   value,
   onChange,
+  kinds = ["RETURN", "ISSUE"],
 }: {
   value: "RETURN" | "ISSUE";
   onChange: (next: "RETURN" | "ISSUE") => void;
+  /** The sides shown (JB225); one side alone shows no switch. */
+  kinds?: readonly ("RETURN" | "ISSUE")[];
 }) {
   const t = useTranslations("contractorOps");
+  if (kinds.length < 2) return null;
   return (
     <div role="tablist" className="inline-flex rounded-lg border bg-muted/40 p-1" data-testid="outgoing-kind-switch">
-      {(["RETURN", "ISSUE"] as const).map((kind) => (
+      {kinds.map((kind) => (
         <Button
           key={kind}
           role="tab"

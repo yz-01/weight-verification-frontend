@@ -200,6 +200,12 @@ export interface DocumentRecordLinkInfo {
   status_label: string;
   /** False when the record is gone, or out of this reader's reach. */
   exists: boolean;
+  /**
+   * JB225 (客户 11-19 事项 5): a consultant's link to a record of an item head
+   * office has not ticked for him - shown as 「总部没有为您开通这一项」, never its
+   * number. Absent before JB225.
+   */
+  not_granted?: boolean;
   /** The gold 「已修改」 (Q12-3). */
   was_corrected: boolean;
 }

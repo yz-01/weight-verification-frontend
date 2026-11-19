@@ -4030,7 +4030,10 @@
       "role_followed": "角色權限改動，同步給這個角色的人",
       "jb219_head_office_roles": "系統更新：整理角色（總部角色、取消沒人用的預設角色）",
       "platform_access_opened": "開放 MSE 查看權限",
-      "platform_access_closed": "關閉 MSE 查看權限"
+      "platform_access_closed": "關閉 MSE 查看權限",
+      "project_grant_updated": "修改項目權限",
+      "jb225_sub_modules": "材料管理 / 工程進度分項勾選（系統升級）",
+      "jb225_default_sub_modules": "顧問默認權限分項勾選（系統升級）"
     },
     "objectType": {
       "SignOffAssistant": "助理副密碼",
@@ -5522,7 +5525,10 @@
       "optionsTitle": "其他權限",
       "selectAll": "全選",
       "selectNone": "全不選",
-      "noModules": "沒有勾選模組"
+      "noModules": "沒有勾選模組",
+      "partialCount": "已勾 {held} 項，共 {total} 項",
+      "partialModule": "{module}（{items}）",
+      "itemSeparator": "、"
     },
     "organization": {
       "activeHelp": "停用後，該單位的所有項目授權會立即失效。",
@@ -5605,8 +5611,8 @@
       "dashboard": "首頁，只顯示下面勾了的模組",
       "projects": "項目基本資料（不顯示人員電話、電郵和權限）",
       "fieldTasks": "只顯示發給顧問驗收的、他參與過的任務",
-      "materials": "材料進場、材料出場、材料目標——只能看，不顯示金額",
-      "progress": "進度記錄、日報告、雨天記錄、施工計劃——只能看，可以寫備註",
+      "materials": "只能看，不顯示金額。下面每一項可以分開勾",
+      "progress": "只能看，可以寫備註。下面每一項可以分開勾",
       "safety": "看整改和施工准證；可以發起整改，跟進自己發起的",
       "documents": "本項目已確認歸檔的文件——看和下載",
       "recordCentre": "上面勾了的模組的記錄——只能看",
@@ -5622,6 +5628,39 @@
     "optionHint": {
       "approvalReview": "勾這一項會同時勾上「查看」",
       "export": "報表和各模組清單可以導出"
+    },
+    "item": {
+      "materialsIn": "材料進場",
+      "materialsReturns": "材料退場",
+      "materialsIssues": "材料領用",
+      "materialsSupplierTotals": "按供應商統計",
+      "materialsTargets": "材料目標",
+      "progressRecords": "施工進度",
+      "progressDailyReports": "施工日報告",
+      "progressRain": "雨天記錄",
+      "progressSchedule": "施工計劃"
+    },
+    "itemHint": {
+      "materialsIn": "送到工地的材料，含驗收不合格的（在「材料進場」）",
+      "materialsReturns": "退回供應商的材料，含退貨核對（在「材料出場」→「供應商退貨」）",
+      "materialsIssues": "發給設備或工人的材料（在「材料出場」→「材料領用」）",
+      "materialsSupplierTotals": "每個供應商累計進場、已退場的數量（在「材料進場」→「按供應商看總數」）",
+      "materialsTargets": "目標數量和已到數量（在「材料目標」）",
+      "progressRecords": "進度記錄、工程時間軸照片、施工分類、項目進度摘要（在「工程進度」）",
+      "progressDailyReports": "每天的施工日報告（在「工程進度」→「日報告」）",
+      "progressRain": "下雨停工的記錄和每月統計（在「工程進度」→「雨天記錄」）",
+      "progressSchedule": "施工計劃和實際進度（在「工程進度」→「施工計劃」）"
+    },
+    "itemShort": {
+      "materialsIn": "進場",
+      "materialsReturns": "退場",
+      "materialsIssues": "領用",
+      "materialsSupplierTotals": "按供應商統計",
+      "materialsTargets": "目標",
+      "progressRecords": "施工進度",
+      "progressDailyReports": "日報告",
+      "progressRain": "雨天",
+      "progressSchedule": "施工計劃"
     }
   },
   "consultantDashboard": {
@@ -8651,7 +8690,8 @@
     "recordLinks": {
       "title": "整條記錄",
       "allPdf": "全部記錄合成一份 PDF",
-      "gone": "原記錄已刪除。"
+      "gone": "原記錄已刪除。",
+      "notGranted": "總部沒有為您開通這一項"
     },
     "inspection": {
       "needs": "需要檢驗欄位",
@@ -9549,7 +9589,8 @@
       "platform_qr_customer_only": "送貨單和供應商的二維碼由客戶自己簽發，MSE 看不到這些資料。",
       "platform_access_view_only": "客戶只開放了查看，MSE 只能在頁面上預覽，不能修改、下載或匯出客戶的資料。",
       "platform_accounts_closed": "改這家客戶的賬號要客戶同意，請客戶管理員在「公司設置」裡點「允許 MSE 管理賬號」後再試。",
-      "platform_owner_locked": "客戶已經開始用這個管理員賬號，MSE 不能改它的登入郵箱；請告訴客戶：由客戶自己的公司管理員在「用戶管理」裡修改，或者客戶來函，由管伺服器的同事處理。"
+      "platform_owner_locked": "客戶已經開始用這個管理員賬號，MSE 不能改它的登入郵箱；請告訴客戶：由客戶自己的公司管理員在「用戶管理」裡修改，或者客戶來函，由管伺服器的同事處理。",
+      "consultant_sub_module_not_granted": "總部沒有為您在這個項目開通這一項。如需查看，請聯絡總部。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
