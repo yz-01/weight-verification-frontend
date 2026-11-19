@@ -9548,7 +9548,7 @@
       "platform_access_not_available": "這是客戶自己的業務資料，MSE 後台不能打開；需要幫客戶看時，請客戶開放「允許 MSE 管理賬號」，由 MSE 給客戶加一個客戶看得到、隨時可刪的支援賬號。",
       "platform_access_request_sent": "一小時內已經通知過這家客戶，請 {minutes} 分鐘後再發。",
       "platform_qr_customer_only": "送貨單和供應商的二維碼由客戶自己簽發，MSE 看不到這些資料。",
-      "platform_access_view_only": "客戶只開放了查看，MSE 只能在頁面上預覽，不能修改、下載或匯出客戶的資料。",
+      "platform_access_view_only": "客戶只開放了查看：MSE 可以打開預覽來看，系統不給 MSE 修改、匯出、發送或列印客戶的資料。",
       "platform_accounts_closed": "改這家客戶的賬號要客戶同意，請客戶管理員在「公司設置」裡點「允許 MSE 管理賬號」後再試。",
       "platform_owner_locked": "客戶已經開始用這個管理員賬號，MSE 不能改它的登入郵箱；請告訴客戶：由客戶自己的公司管理員在「用戶管理」裡修改，或者客戶來函，由管伺服器的同事處理。"
     },
@@ -21811,7 +21811,8 @@
       "exit_pass_approve": "出門條批准（安全經理）簽名",
       "exit_pass_external": "外部審批",
       "exit_pass_waive_external": "改為不需要外部審批並發出門條",
-      "platform_access_open": "開放 MSE 查看權限"
+      "platform_access_open": "開放 MSE 查看權限",
+      "platform_access_revoke_link": "撤銷 MSE 開的外部訪問鏈接"
     },
     "firstTitle": "第一次設定簽核密碼",
     "firstBanner": "這是你第一次使用簽核密碼",
@@ -22729,8 +22730,8 @@
     "view": {
       "name": "允許 MSE 查看",
       "closed": "MSE（系統方）現在看不到下面第 2 欄的資料；需要 MSE 幫忙查看時，點「允許 MSE 查看」。",
-      "open": "MSE 現在可以看到下面第 2 欄的資料（只能看，不能改，不能下載），到 {until} 自動關閉；不想等可以點「馬上關閉」。",
-      "help": "開放以後，MSE 只能在頁面上看、預覽，不能改，也不能匯出、下載、列印或發送。"
+      "open": "MSE 現在可以看到下面第 2 欄的資料（可以看，也可以打開文件預覽看全文，不能改），到 {until} 自動關閉；用完了可以點「馬上關閉」。",
+      "help": "開放後，MSE 可以打開文件預覽，看得到全文。系統不給 MSE 匯出、發送和列印的功能；但能看到的內容，看的人是可以留下來的。所以請只在需要時開放，用完就關。"
     },
     "accounts": {
       "name": "允許 MSE 管理賬號",
@@ -22775,7 +22776,8 @@
       "closedView": "已關閉，MSE 現在看不到了。",
       "closedAccounts": "已關閉，MSE 現在不能加或改貴公司的賬號了。",
       "requested": "已通知這家客戶的管理員；客戶開放後這裡會顯示到期時間。",
-      "requestedNone": "這家客戶現在沒有可以通知的公司管理員，請直接聯絡客戶。"
+      "requestedNone": "這家客戶現在沒有可以通知的公司管理員，請直接聯絡客戶。",
+      "linkRevoked": "已撤銷，這個鏈接馬上不能再用。"
     },
     "lists": {
       "alwaysTitle": "MSE 一直看得到（開戶、收費、管設備要用）",
@@ -22800,14 +22802,14 @@
         "mse_staff_actions": "MSE 同事自己做過的操作",
         "visitor_photo_counts": "到期訪客照片的數量、通行證號碼和項目名稱（用來按時清除）",
         "weighing_details": "稱重記錄裡的車牌、確認和作廢的說明、經手人名字，以及連著的清運單號和項目",
-        "weighing_photos_ticket": "稱重單的照片、附件、更正記錄和磅單 PDF（只能在頁面上看，不能下載）",
+        "weighing_photos_ticket": "稱重單的照片、附件、更正記錄和磅單 PDF（MSE 可以打開預覽，看得到全文）",
         "staff_operations": "貴公司同事在系統裡的操作記錄",
         "notice_words": "發給貴公司的通知和系統事件的內容",
         "qr_subjects_scans": "二維碼對應的人、車、項目，以及掃碼的地點和掃碼人",
         "camera_pictures": "攝像頭拍到的照片",
         "plate_card_reads": "門口識別到的車牌、卡號和項目",
         "pushed_data": "推送到貴公司自己系統裡的資料內容",
-        "report_files": "貴公司自己匯出的報表文件（只能在頁面上看，不能下載）",
+        "report_files": "貴公司自己匯出的報表文件（MSE 可以打開預覽，看得到全文）",
         "print_send_log": "貴公司的列印、下載、發送記錄",
         "sites_on_map": "貴公司工地在地圖上的位置",
         "visitor_names": "到期訪客照片上的訪客名字",
@@ -22840,13 +22842,17 @@
     },
     "links": {
       "title": "MSE 幫您開的外部訪問鏈接",
-      "help": "這些鏈接是 MSE 按貴公司的要求開的，到期或撤銷以前都能用。要撤銷，請聯絡 MSE。",
+      "help": "這些鏈接是 MSE 按貴公司的要求開的，到期或撤銷以前都能用。不再需要時，公司管理員可以在這裡按「撤銷」，鏈接馬上停用。",
       "valid": "有效到 {at}",
       "expired": "已經到期",
       "revoked": "已經撤銷",
       "by": "{name} 在 {at} 開的",
       "wholeCompany": "整個公司",
-      "empty": "MSE 沒有幫您開過外部訪問鏈接。"
+      "empty": "MSE 沒有幫您開過外部訪問鏈接。",
+      "revoke": "撤銷",
+      "adminOnly": "只有公司管理員可以撤銷，請找貴公司的管理員。",
+      "revokeTitle": "撤銷「{name}」這個外部訪問鏈接？",
+      "revokeBody": "撤銷以後，拿著這個鏈接的人馬上打不開。撤銷了不能恢復；以後還需要，請 MSE 重新開一個。按「撤銷」以後要輸入您的簽核密碼。"
     },
     "records": {
       "title": "MSE 查看記錄",
@@ -22861,7 +22867,7 @@
       },
       "outcome": {
         "OPENED": "查看",
-        "REFUSED": "被擋住（沒有開放）",
+        "REFUSED": "被擋住",
         "ACCOUNT_CHANGED": "改了賬號",
         "REQUESTED": "請求開放",
         "GRANT_OPENED": "開放",
@@ -22875,8 +22881,11 @@
         "FILE": "預覽了文件"
       },
       "refused": {
-        "closed": "沒有開放查看",
-        "accounts_closed": "沒有開放管理賬號"
+        "closed": "被擋住（您沒有開放）",
+        "accounts_closed": "被擋住（您沒有開放「允許 MSE 管理賬號」）",
+        "not_available": "被擋住（這類資料 MSE 永遠看不到，開放了也看不到）",
+        "owner_locked": "被擋住（這個管理員賬號已經在用，MSE 不能改它的登錄郵箱）",
+        "no_changes": "被擋住（MSE 不能改貴公司的資料）"
       },
       "filter": {
         "from": "從哪天",
@@ -22893,7 +22902,18 @@
       "notAllowed": "「MSE 查看記錄」只有公司管理員和能看操作記錄的同事看得到；需要看時，請找貴公司的管理員。",
       "page": "第 {page} / {pages} 頁 · 共 {count} 條",
       "previous": "上一頁",
-      "next": "下一頁"
+      "next": "下一頁",
+      "refusedMse": {
+        "closed": "被擋住（客戶沒有開放）",
+        "accounts_closed": "被擋住（客戶沒有開放「允許 MSE 管理賬號」）",
+        "not_available": "被擋住（這類資料 MSE 永遠看不到，客戶開放了也看不到）",
+        "owner_locked": "被擋住（這個管理員賬號客戶已經在用，MSE 不能改它的登錄郵箱）",
+        "no_changes": "被擋住（MSE 不能改客戶的資料）"
+      },
+      "made": {
+        "create_grant": "開了外部鏈接",
+        "issue_code": "開了二維碼"
+      }
     },
     "module": {
       "weighing": "稱重記錄",
@@ -22915,7 +22935,28 @@
       "external_links": "外部訪問鏈接",
       "accounts": "賬號",
       "platform_access": "MSE 查看權限",
-      "other": "其他業務資料"
+      "other": "其他業務資料",
+      "project_details": "項目裡面的詳細資料",
+      "own_settings": "貴公司自己的設定（分公司、工地、類別）",
+      "partnerships": "貴公司和其他公司的合作關係",
+      "receipts_materials": "收貨單、送貨單、材料和供應商",
+      "waste_haulage": "清運單、車輛和司機",
+      "deductions": "扣款單和結算單",
+      "documents_approvals": "文件和審批",
+      "site_records": "現場記錄、申請和附件",
+      "evidence": "現場照片和證據",
+      "workers_visitors": "工人資料和訪客記錄",
+      "gate": "門崗、通行證和出門條",
+      "staff_presence": "現場人員的打卡和位置",
+      "schedule_progress": "施工計劃和進度",
+      "safety_equipment": "安全和設備記錄",
+      "daily_reports": "日報",
+      "consultant_applications": "顧問申請和顧問權限",
+      "chat": "聊天和公告",
+      "own_reports": "貴公司自己的報表和儀表板",
+      "recycler_business": "回收場的客戶、進貨、庫存和出貨",
+      "project_notice": "發給貴公司項目的通知",
+      "qr_customer_only": "送貨單和供應商的二維碼"
     },
     "operation": {
       "create_user": "新增賬號",
