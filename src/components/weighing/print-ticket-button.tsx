@@ -42,9 +42,12 @@ export function PrintTicketButton({
   const t = useTranslations();
 
   // 预览 · 打印 · 导出 · 发送, as every exported file (PDF 统一操作规则).
+  // Greyed, it is drawn as every other greyed button on the page (faded
+  // outline): the filled button's flat grey still read as pressable, in full
+  // dark letters (walk 11-18 P3, MSE on a closed customer's ticket).
   return (
     <ExportButton
-      variant="default"
+      variant={disabledReason ? "outline" : "default"}
       formats={["pdf"]}
       label={t("ticket.action")}
       title={sessionNo}

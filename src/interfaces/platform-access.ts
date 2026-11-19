@@ -47,6 +47,8 @@ export interface MseAddedAccount {
   full_name: string;
   email: string;
   role_name: string | null;
+  /** The role's code, so a seeded role is named in the reader's language. */
+  role_code?: string | null;
   status: string;
   /** `owner`: the first 公司管理员, made with the company at onboarding. */
   kind: "owner" | "added";

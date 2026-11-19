@@ -9550,7 +9550,7 @@
       "platform_access_not_available": "These are the customer's own business records and cannot be opened from the MSE back office. To help the customer look, ask them to open “Allow MSE to manage accounts”; MSE then adds a support account the customer can see and delete at any time.",
       "platform_access_request_sent": "This customer was already told within the hour. Please send again in {minutes} minutes.",
       "platform_qr_customer_only": "QR codes for delivery notes and suppliers are issued by the customer itself; MSE cannot see these records.",
-      "platform_access_view_only": "The customer opened viewing only. MSE can preview on screen but cannot change, download or export the customer's records.",
+      "platform_access_view_only": "The customer opened viewing only: MSE can open the preview to look, and the system gives MSE no way to change, export, send or print the customer's records.",
       "platform_accounts_closed": "Changing this customer's accounts needs the customer's consent. Ask the customer's administrator to press “Allow MSE to manage accounts” in Company settings, then try again.",
       "platform_owner_locked": "The customer already uses this administrator account, so MSE cannot change its sign-in e-mail. Tell the customer: their own company administrator changes it in User management, or the customer writes in and a colleague who runs the server handles it.",
       "phone_role_office_account": "Phone accounts are made in Field staff. An office account cannot be given a phone role (site staff, equipment operator, gate guard) here. Please choose another role."
@@ -21818,7 +21818,8 @@
       "exit_pass_approve": "Exit pass approval (safety manager) signature",
       "exit_pass_external": "External approval",
       "exit_pass_waive_external": "Drop the external approval and send the exit pass",
-      "platform_access_open": "Open MSE access"
+      "platform_access_open": "Open MSE access",
+      "platform_access_revoke_link": "Revoke an external link MSE opened"
     },
     "firstTitle": "Set your sign-off PIN for the first time",
     "firstBanner": "This is your first time using a sign-off PIN",
@@ -22736,8 +22737,8 @@
     "view": {
       "name": "Allow MSE to view",
       "closed": "MSE (the system provider) cannot see the records in list 2 below now. If you need MSE to look, press “Allow MSE to view”.",
-      "open": "MSE can now see the records in list 2 below (look only: no changes, no downloads). It closes by itself at {until}; to close it sooner, press “Close now”.",
-      "help": "While it is open, MSE can only look and preview on screen. It cannot change, export, download, print or send anything."
+      "open": "MSE can now see the records in list 2 below (it can look, and open a file's preview to read all of it, but not change anything). It closes by itself at {until}; when it is no longer needed, press “Close now”.",
+      "help": "Once it is open, MSE can open a file's preview and so sees the whole file. The system gives MSE no export, send or print; but whatever is shown on a screen can be kept by the person looking at it. So open it only when needed, and close it when done."
     },
     "accounts": {
       "name": "Allow MSE to manage accounts",
@@ -22782,7 +22783,8 @@
       "closedView": "Closed. MSE cannot see it now.",
       "closedAccounts": "Closed. MSE cannot add or change your company's accounts now.",
       "requested": "The customer's administrators have been told. Once the customer opens it, the closing time shows here.",
-      "requestedNone": "This customer has no company administrator who can be told. Please contact the customer directly."
+      "requestedNone": "This customer has no company administrator who can be told. Please contact the customer directly.",
+      "linkRevoked": "Revoked. The link no longer works."
     },
     "lists": {
       "alwaysTitle": "MSE can always see (needed to open your account, bill you and look after devices)",
@@ -22807,14 +22809,14 @@
         "mse_staff_actions": "What MSE's own staff did",
         "visitor_photo_counts": "How many visitor photos are due, their pass numbers and project names (to clear them on time)",
         "weighing_details": "Plates, confirmation and void notes and handlers' names on weighing records, and the linked collection order numbers and projects",
-        "weighing_photos_ticket": "Photos, attachments, corrections and the ticket PDF of a weighing (on screen only, no download)",
+        "weighing_photos_ticket": "Photos, attachments, corrections and the ticket PDF of a weighing (MSE can open the preview and see all of it)",
         "staff_operations": "Your staff's activity in the system",
         "notice_words": "What the notices and system events sent to your company say",
         "qr_subjects_scans": "The people, vehicles and projects behind QR codes, and where and by whom they were scanned",
         "camera_pictures": "Pictures taken by cameras",
         "plate_card_reads": "Plates, card numbers and projects read at the gate",
         "pushed_data": "The data pushed into your company's own systems",
-        "report_files": "Report files your company exported (on screen only, no download)",
+        "report_files": "Report files your company exported (MSE can open the preview and see all of it)",
         "print_send_log": "Your company's print, download and send records",
         "sites_on_map": "Where your sites are on the map",
         "visitor_names": "Visitors' names on photos due to be cleared",
@@ -22847,13 +22849,17 @@
     },
     "links": {
       "title": "External access links MSE opened for you",
-      "help": "MSE opened these links at your company's request. They work until they expire or are revoked. To revoke one, contact MSE.",
+      "help": "MSE opened these links at your company's request. They work until they expire or are revoked. When one is no longer needed, the company administrator can press “Revoke” here and it stops at once.",
       "valid": "Works until {at}",
       "expired": "Expired",
       "revoked": "Revoked",
       "by": "Opened by {name} on {at}",
       "wholeCompany": "Whole company",
-      "empty": "MSE has not opened any external access link for you."
+      "empty": "MSE has not opened any external access link for you.",
+      "revoke": "Revoke",
+      "adminOnly": "Only the company administrator can revoke a link. Please ask your company administrator.",
+      "revokeTitle": "Revoke the external access link “{name}”?",
+      "revokeBody": "Once revoked, anyone holding this link can no longer open it. It cannot be undone; if you need one again later, ask MSE to open a new one. After you press “Revoke” you will be asked for your sign-off PIN."
     },
     "records": {
       "title": "MSE access record",
@@ -22868,7 +22874,7 @@
       },
       "outcome": {
         "OPENED": "Viewed",
-        "REFUSED": "Stopped (not open)",
+        "REFUSED": "Stopped",
         "ACCOUNT_CHANGED": "Changed an account",
         "REQUESTED": "Asked to open",
         "GRANT_OPENED": "Opened",
@@ -22882,8 +22888,11 @@
         "FILE": "previewed a file"
       },
       "refused": {
-        "closed": "viewing not open",
-        "accounts_closed": "account management not open"
+        "closed": "Stopped (you have not opened it)",
+        "accounts_closed": "Stopped (you have not opened “Allow MSE to manage accounts”)",
+        "not_available": "Stopped (MSE can never see this kind of record, not even when you open access)",
+        "owner_locked": "Stopped (this administrator account is in use; MSE cannot change its sign-in e-mail)",
+        "no_changes": "Stopped (MSE cannot change your company's records)"
       },
       "filter": {
         "from": "From",
@@ -22900,7 +22909,18 @@
       "notAllowed": "The MSE access record can be read by the company administrator and colleagues who can read the activity log. To read it, ask your company administrator.",
       "page": "Page {page} of {pages} · {count} in all",
       "previous": "Previous",
-      "next": "Next"
+      "next": "Next",
+      "refusedMse": {
+        "closed": "Stopped (the customer has not opened it)",
+        "accounts_closed": "Stopped (the customer has not opened “Allow MSE to manage accounts”)",
+        "not_available": "Stopped (MSE can never see this kind of record, not even when the customer opens access)",
+        "owner_locked": "Stopped (the customer uses this administrator account; MSE cannot change its sign-in e-mail)",
+        "no_changes": "Stopped (MSE cannot change the customer's records)"
+      },
+      "made": {
+        "create_grant": "Opened an external link",
+        "issue_code": "Issued a QR code"
+      }
     },
     "module": {
       "weighing": "Weighing records",
@@ -22922,7 +22942,28 @@
       "external_links": "External access links",
       "accounts": "Accounts",
       "platform_access": "MSE access",
-      "other": "Other business records"
+      "other": "Other business records",
+      "project_details": "A project's details",
+      "own_settings": "Your company's own settings (branches, sites, categories)",
+      "partnerships": "Your company's partnerships with other companies",
+      "receipts_materials": "Receipts, delivery notes, materials and suppliers",
+      "waste_haulage": "Collection orders, lorries and drivers",
+      "deductions": "Deductions and settlements",
+      "documents_approvals": "Documents and approvals",
+      "site_records": "Site records, requests and attachments",
+      "evidence": "Site photos and evidence",
+      "workers_visitors": "Worker details and visitor records",
+      "gate": "Gate, passes and exit passes",
+      "staff_presence": "Site staff clock-ins and locations",
+      "schedule_progress": "Work schedules and progress",
+      "safety_equipment": "Safety and equipment records",
+      "daily_reports": "Daily reports",
+      "consultant_applications": "Consultant applications and consultant access",
+      "chat": "Chats and announcements",
+      "own_reports": "Your company's own reports and dashboard",
+      "recycler_business": "The yard's customers, intake, stock and shipments",
+      "project_notice": "Notices to your company's projects",
+      "qr_customer_only": "QR codes for delivery notes and suppliers"
     },
     "operation": {
       "create_user": "Added an account",

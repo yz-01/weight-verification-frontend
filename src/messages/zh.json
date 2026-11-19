@@ -9550,7 +9550,7 @@
       "platform_access_not_available": "这是客户自己的业务资料，MSE 后台不能打开；需要帮客户看时，请客户开放「允许 MSE 管理账号」，由 MSE 给客户加一个客户看得到、随时可删的支持账号。",
       "platform_access_request_sent": "一小时内已经通知过这家客户，请 {minutes} 分钟后再发。",
       "platform_qr_customer_only": "送货单和供应商的二维码由客户自己签发，MSE 看不到这些资料。",
-      "platform_access_view_only": "客户只开放了查看，MSE 只能在页面上预览，不能修改、下载或导出客户的资料。",
+      "platform_access_view_only": "客户只开放了查看：MSE 可以打开预览来看，系统不给 MSE 修改、导出、发送或打印客户的资料。",
       "platform_accounts_closed": "改这家客户的账号要客户同意，请客户管理员在「公司设置」里点「允许 MSE 管理账号」后再试。",
       "platform_owner_locked": "客户已经开始用这个管理员账号，MSE 不能改它的登录邮箱；请告诉客户：由客户自己的公司管理员在「用户管理」里修改，或者客户来函，由管服务器的同事处理。",
       "phone_role_office_account": "手机账号要在「现场人员管理」里开，这里不能把后台账号设为手机角色（工地人员、设备操作人员、门岗保安）。请选别的角色。"
@@ -21818,7 +21818,8 @@
       "exit_pass_approve": "出门条批准（安全经理）签名",
       "exit_pass_external": "外部审批",
       "exit_pass_waive_external": "改为不需要外部审批并发出门条",
-      "platform_access_open": "开放 MSE 查看权限"
+      "platform_access_open": "开放 MSE 查看权限",
+      "platform_access_revoke_link": "撤销 MSE 开的外部访问链接"
     },
     "firstTitle": "第一次设定签核密码",
     "firstBanner": "这是你第一次使用签核密码",
@@ -22736,8 +22737,8 @@
     "view": {
       "name": "允许 MSE 查看",
       "closed": "MSE（系统方）现在看不到下面第 2 栏的资料；需要 MSE 帮忙查看时，点「允许 MSE 查看」。",
-      "open": "MSE 现在可以看到下面第 2 栏的资料（只能看，不能改，不能下载），到 {until} 自动关闭；不想等可以点「马上关闭」。",
-      "help": "开放以后，MSE 只能在页面上看、预览，不能改，也不能导出、下载、打印或发送。"
+      "open": "MSE 现在可以看到下面第 2 栏的资料（可以看，也可以打开文件预览看全文，不能改），到 {until} 自动关闭；用完了可以点「马上关闭」。",
+      "help": "开放后，MSE 可以打开文件预览，看得到全文。系统不给 MSE 导出、发送和打印的功能；但能看到的内容，看的人是可以留下来的。所以请只在需要时开放，用完就关。"
     },
     "accounts": {
       "name": "允许 MSE 管理账号",
@@ -22782,7 +22783,8 @@
       "closedView": "已关闭，MSE 现在看不到了。",
       "closedAccounts": "已关闭，MSE 现在不能加或改贵公司的账号了。",
       "requested": "已通知这家客户的管理员；客户开放后这里会显示到期时间。",
-      "requestedNone": "这家客户现在没有可以通知的公司管理员，请直接联系客户。"
+      "requestedNone": "这家客户现在没有可以通知的公司管理员，请直接联系客户。",
+      "linkRevoked": "已撤销，这个链接马上不能再用。"
     },
     "lists": {
       "alwaysTitle": "MSE 一直看得到（开户、收费、管设备要用）",
@@ -22807,14 +22809,14 @@
         "mse_staff_actions": "MSE 同事自己做过的操作",
         "visitor_photo_counts": "到期访客照片的数量、通行证号码和项目名称（用来按时清除）",
         "weighing_details": "称重记录里的车牌、确认和作废的说明、经手人名字，以及连着的清运单号和项目",
-        "weighing_photos_ticket": "称重单的照片、附件、更正记录和磅单 PDF（只能在页面上看，不能下载）",
+        "weighing_photos_ticket": "称重单的照片、附件、更正记录和磅单 PDF（MSE 可以打开预览，看得到全文）",
         "staff_operations": "贵公司同事在系统里的操作记录",
         "notice_words": "发给贵公司的通知和系统事件的内容",
         "qr_subjects_scans": "二维码对应的人、车、项目，以及扫码的地点和扫码人",
         "camera_pictures": "摄像头拍到的照片",
         "plate_card_reads": "门口识别到的车牌、卡号和项目",
         "pushed_data": "推送到贵公司自己系统里的资料内容",
-        "report_files": "贵公司自己导出的报表文件（只能在页面上看，不能下载）",
+        "report_files": "贵公司自己导出的报表文件（MSE 可以打开预览，看得到全文）",
         "print_send_log": "贵公司的打印、下载、发送记录",
         "sites_on_map": "贵公司工地在地图上的位置",
         "visitor_names": "到期访客照片上的访客名字",
@@ -22847,13 +22849,17 @@
     },
     "links": {
       "title": "MSE 帮您开的外部访问链接",
-      "help": "这些链接是 MSE 按贵公司的要求开的，到期或撤销以前都能用。要撤销，请联系 MSE。",
+      "help": "这些链接是 MSE 按贵公司的要求开的，到期或撤销以前都能用。不再需要时，公司管理员可以在这里按「撤销」，链接马上停用。",
       "valid": "有效到 {at}",
       "expired": "已经到期",
       "revoked": "已经撤销",
       "by": "{name} 在 {at} 开的",
       "wholeCompany": "整个公司",
-      "empty": "MSE 没有帮您开过外部访问链接。"
+      "empty": "MSE 没有帮您开过外部访问链接。",
+      "revoke": "撤销",
+      "adminOnly": "只有公司管理员可以撤销，请找贵公司的管理员。",
+      "revokeTitle": "撤销「{name}」这个外部访问链接？",
+      "revokeBody": "撤销以后，拿着这个链接的人马上打不开。撤销了不能恢复；以后还需要，请 MSE 重新开一个。按「撤销」以后要输入您的签核密码。"
     },
     "records": {
       "title": "MSE 查看记录",
@@ -22868,7 +22874,7 @@
       },
       "outcome": {
         "OPENED": "查看",
-        "REFUSED": "被挡住（没有开放）",
+        "REFUSED": "被挡住",
         "ACCOUNT_CHANGED": "改了账号",
         "REQUESTED": "请求开放",
         "GRANT_OPENED": "开放",
@@ -22882,8 +22888,11 @@
         "FILE": "预览了文件"
       },
       "refused": {
-        "closed": "没有开放查看",
-        "accounts_closed": "没有开放管理账号"
+        "closed": "被挡住（您没有开放）",
+        "accounts_closed": "被挡住（您没有开放「允许 MSE 管理账号」）",
+        "not_available": "被挡住（这类资料 MSE 永远看不到，开放了也看不到）",
+        "owner_locked": "被挡住（这个管理员账号已经在用，MSE 不能改它的登录邮箱）",
+        "no_changes": "被挡住（MSE 不能改贵公司的资料）"
       },
       "filter": {
         "from": "从哪天",
@@ -22900,7 +22909,18 @@
       "notAllowed": "「MSE 查看记录」只有公司管理员和能看操作记录的同事看得到；需要看时，请找贵公司的管理员。",
       "page": "第 {page} / {pages} 页 · 共 {count} 条",
       "previous": "上一页",
-      "next": "下一页"
+      "next": "下一页",
+      "refusedMse": {
+        "closed": "被挡住（客户没有开放）",
+        "accounts_closed": "被挡住（客户没有开放「允许 MSE 管理账号」）",
+        "not_available": "被挡住（这类资料 MSE 永远看不到，客户开放了也看不到）",
+        "owner_locked": "被挡住（这个管理员账号客户已经在用，MSE 不能改它的登录邮箱）",
+        "no_changes": "被挡住（MSE 不能改客户的资料）"
+      },
+      "made": {
+        "create_grant": "开了外部链接",
+        "issue_code": "开了二维码"
+      }
     },
     "module": {
       "weighing": "称重记录",
@@ -22922,7 +22942,28 @@
       "external_links": "外部访问链接",
       "accounts": "账号",
       "platform_access": "MSE 查看权限",
-      "other": "其他业务资料"
+      "other": "其他业务资料",
+      "project_details": "项目里面的详细资料",
+      "own_settings": "贵公司自己的设定（分公司、工地、类别）",
+      "partnerships": "贵公司和其他公司的合作关系",
+      "receipts_materials": "收货单、送货单、材料和供应商",
+      "waste_haulage": "清运单、车辆和司机",
+      "deductions": "扣款单和结算单",
+      "documents_approvals": "文件和审批",
+      "site_records": "现场记录、申请和附件",
+      "evidence": "现场照片和证据",
+      "workers_visitors": "工人资料和访客记录",
+      "gate": "门岗、通行证和出门条",
+      "staff_presence": "现场人员的打卡和位置",
+      "schedule_progress": "施工计划和进度",
+      "safety_equipment": "安全和设备记录",
+      "daily_reports": "日报",
+      "consultant_applications": "顾问申请和顾问权限",
+      "chat": "聊天和公告",
+      "own_reports": "贵公司自己的报表和仪表板",
+      "recycler_business": "回收场的客户、进货、库存和出货",
+      "project_notice": "发给贵公司项目的通知",
+      "qr_customer_only": "送货单和供应商的二维码"
     },
     "operation": {
       "create_user": "新增账号",
