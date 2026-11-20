@@ -62,6 +62,7 @@ import {
   materialOptions,
 } from "@/lib/report-menu";
 import { UNFILLED_SUPPLIER, supplierShown } from "@/lib/receipt-supplier";
+import { consultantLacks } from "@/lib/consultant-modules";
 import { cn } from "@/lib/utils";
 import {
   exportMaterialReportReturns,
@@ -113,7 +114,11 @@ function currentPage(): string {
 
 export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
   const t = useTranslations();
-  const { can } = useAuth();
+  const { can, user } = useAuth();
+  // JB225 (客户 11-19 事项 5): a consultant's 进场 / 不合格 views need 材料进场,
+  // its 退货 view 材料退场 - the server refuses the rest.
+  const noDeliveries = consultantLacks(user?.features, "materials.in");
+  const noReturns = consultantLacks(user?.features, "materials.returns");
   // `category` and `supplier` are the 【选择报表】 levels under the report
   // (B04): the figures, the records, their photos and the export all read
   // them from the address, so one choice updates all four together.
@@ -123,7 +128,7 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
   const list = useListQuery([
     "project", "date_from", "date_to", "category", "spec_category", "supplier", "report_mode",
   ]);
-  const view = reportModeParam(mode, list.filters.report_mode);
+  const view = mode === "quantity" && noDeliveries ? "returns" : reportModeParam(mode, list.filters.report_mode);
   const topBar = useCurrentProject();
   const projectBoxShown = can("project.view") && !topBar.active;
   const filters = {
@@ -405,10 +410,12 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
             label={t("materialReports.view.label")}
             value={view === "normal" ? undefined : view}
             allLabel={t("materialReports.view.normal")}
-            options={(["rejected", "returns"] as const).map((code) => ({
-              value: code,
-              label: t(`materialReports.view.${code}`),
-            }))}
+            options={(["rejected", "returns"] as const)
+              .filter((code) => (code === "returns" ? !noReturns : !noDeliveries))
+              .map((code) => ({
+                value: code,
+                label: t(`materialReports.view.${code}`),
+              }))}
             onChange={(next) => list.setFilter("report_mode", next)}
           />
         )}

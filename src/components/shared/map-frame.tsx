@@ -3,7 +3,9 @@
 import { GripHorizontal, LocateFixed, Maximize2, Minimize2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
+  createContext,
   useCallback,
+  useContext,
   useEffect,
   useLayoutEffect,
   useMemo,
@@ -38,6 +40,22 @@ const inFullscreen = () => {
   return api.fullscreenElement ?? api.webkitFullscreenElement ?? null;
 };
 const noSubscription = () => () => {};
+
+/**
+ * What a map's own overlay may ask of its frame (JB222): whether it is full
+ * screen, and to leave it - a record window opened over a full-screen map
+ * would be hidden behind it, so the card leaves full screen first.
+ */
+interface MapFrameState {
+  full: boolean;
+  leave: () => void;
+}
+const MapFrameContext = createContext<MapFrameState | null>(null);
+
+/** The frame around the caller, or `null` outside one. */
+export function useMapFrame(): MapFrameState | null {
+  return useContext(MapFrameContext);
+}
 
 /**
  * Any map, made to fill the screen (I7, ID23: 「可以把这个地图框架放大到整个
@@ -79,6 +97,7 @@ export function MapFrame({
   fitLabel,
   onFit,
   sizeKey,
+  overlay,
   children,
 }: {
   className?: string;
@@ -92,6 +111,11 @@ export function MapFrame({
   sizeKey?: string;
   /** The map's own container, which fills the frame. */
   children: ReactNode;
+  /**
+   * Drawn over the map and taken to full screen with it (JB222): a map's
+   * layer switches and the card of what was pressed. Off unless given.
+   */
+  overlay?: ReactNode;
 }) {
   const t = useTranslations("mapFrame");
   const slotRef = useRef<HTMLDivElement>(null);
@@ -224,6 +248,7 @@ export function MapFrame({
     }
     setMode("off");
   }, [holder]);
+  const frameState = useMemo(() => ({ full, leave }), [full, leave]);
 
   // Esc leaves full screen, and is not passed on to a dialog under the map.
   useEffect(() => {
@@ -249,6 +274,7 @@ export function MapFrame({
         createPortal(
           <div className={cn("absolute inset-0", full && "bg-background")}>
             {children}
+            {overlay ? <MapFrameContext.Provider value={frameState}>{overlay}</MapFrameContext.Provider> : null}
             <div className="absolute top-2 right-2 z-10 flex flex-wrap items-center justify-end gap-1.5">
               {onFit && fitLabel ? (
                 <Button

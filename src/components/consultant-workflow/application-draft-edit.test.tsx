@@ -223,3 +223,53 @@ describe("the detail page wires it in (E6)", () => {
     }
   });
 });
+
+describe("a record's complete-evidence copy, as a consultant is served it (JB228)", () => {
+  // 客户 11-19: 「顾问不能查看建筑商内部的沟通记录」. For a consultant the server
+  // sends no stored link for a J22 copy - only ``api_file``: the record's
+  // 完整证据 made now, without the builder's internal talk.
+  const served = {
+    ...application,
+    attachments: [
+      { ...attachment("att-9", "MI-J22-001.pdf"), file: null, api_file: "/api/consultant-applications/app-1/open_attachment/?attachment=att-9" },
+      attachment("att-1", "checklist.pdf"),
+    ],
+  } as unknown as ConsultantApplication;
+
+  it("opens the copy through the signed-in download, never a stored link", () => {
+    const html = render(<AttachmentRows application={served} editable={false} armed={false} onChanged={noop} />);
+    const [copy, ordinary] = html.split("data-attachment=").slice(1);
+    expect(copy).toContain("MI-J22-001.pdf");
+    expect(copy).toContain("data-api-file");
+    expect(copy).not.toContain("href=");
+    // Any other attachment is the link it always was.
+    expect(ordinary).toContain('href="/media/checklist.pdf"');
+    expect(ordinary).not.toContain("data-api-file");
+  });
+
+  it("opens it in the in-app preview with 「正在生成…」, not a tab after the wait (audit 11-20 F4)", () => {
+    // Making the copy takes seconds; a tab opened after that wait is blocked
+    // by the browser without a word. The house way: fetch, then the preview.
+    const read = (file: string) => readFileSync(path.join(process.cwd(), file), "utf8");
+    const editor = read("src/components/consultant-workflow/application-draft-edit.tsx");
+    const opener = editor.slice(editor.indexOf("export function useMadeNowCopy"), editor.indexOf("export function AttachmentLink"));
+    expect(opener).toMatch(/run\(\s*"preview",\s*\{ load: \(\) => applicationAttachmentFile\(attachment\)/);
+    const link = editor.slice(editor.indexOf("export function AttachmentLink"), editor.indexOf("export function AttachmentRows"));
+    expect(link).toContain('t("attachmentCopyMaking")');
+    expect(link).toContain("{copy.element}");
+    const tile = read("src/components/consultant-workflow/attachment-slots.tsx");
+    expect(tile).toContain("onOpen: () => copy.open(attachment)");
+    expect(tile).toContain("{copy.element}");
+    const service = read("src/services/consultant-workflow.service.ts");
+    const fetcher = service.slice(service.indexOf("export const applicationAttachmentFile"));
+    expect(fetcher.slice(0, 240)).toContain('fetchAsFile(attachment.api_file ?? "", {');
+    expect(fetcher.slice(0, 240)).toContain('query: { inline: "1" }');
+    expect(service).not.toContain("openApplicationAttachment");
+    for (const locale of ["zh", "zh-TW", "en", "ms"]) {
+      const catalogue = JSON.parse(read(`src/messages/${locale}.json`));
+      expect(catalogue.consultantWorkflow.attachmentCopyMaking, locale).toBeTruthy();
+      expect(catalogue.errors.api.application_record_copy_unavailable, locale).toBeTruthy();
+    }
+    expect(messages.consultantWorkflow.attachmentCopyMaking).toBe("正在生成…");
+  });
+});

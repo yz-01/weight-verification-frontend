@@ -39,6 +39,7 @@ const TONE = { NOT_OPENED: "warning", IN_USE: "positive", STOPPED: "neutral" } a
 
 export function DriverClockLinksDialog({ project, onClose }: { project: string; onClose: () => void }) {
   const t = useTranslations("driverClock");
+  const tRoot = useTranslations();
   const df = useDateFormat();
   const queryClient = useQueryClient();
   const key = ["driver-clock-links", project] as const;
@@ -78,6 +79,8 @@ export function DriverClockLinksDialog({ project, onClose }: { project: string; 
             <p className="text-sm font-medium">{t("office.linkFor", { name: shown.name })}</p>
             <p className="break-all rounded bg-background px-2 py-1 font-mono text-xs">{shown.url}</p>
             <p className="text-xs text-muted-foreground">{t("office.shownOnce")}</p>
+            {/* JB227: a link clocks only the machines bound to it. */}
+            <p className="text-sm font-medium text-warning">{t("office.nextStep")}</p>
             <Button
               size="sm"
               variant="outline"
@@ -129,6 +132,22 @@ export function DriverClockLinksDialog({ project, onClose }: { project: string; 
                   <p className="truncate text-xs text-muted-foreground">
                     {[row.cidb_no ? `CIDB ${row.cidb_no}` : "", row.company_name, row.phone].filter(Boolean).join(" · ")}
                   </p>
+                  {/* JB227: what this driver may clock (bound in 【设备绑定司机】). */}
+                  {row.is_active ? (
+                    row.machines?.length ? (
+                      <p className="text-xs text-muted-foreground">
+                        {t("office.machines", {
+                          machines: row.machines
+                            .map((machine) =>
+                              tRoot("equipmentHours.phone.machineLine", { number: machine.number, name: machine.name }),
+                            )
+                            .join(tRoot("equipmentHours.phone.boundJoin")),
+                        })}
+                      </p>
+                    ) : (
+                      <p className="text-xs font-medium text-warning">{t("office.noMachines")}</p>
+                    )
+                  ) : null}
                   {row.last_used_at ? (
                     <p className="text-xs text-muted-foreground">
                       {t("office.lastUsed", { at: df.dateTime(row.last_used_at) })}

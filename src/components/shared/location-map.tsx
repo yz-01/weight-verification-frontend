@@ -2,20 +2,23 @@
 
 import {
   Building2,
+  ClipboardList,
+  Construction,
   FolderKanban,
   Recycle,
   Scale,
   Truck,
   UserRound,
 } from "lucide-react";
-import { createElement, useEffect, useRef, useState } from "react";
+import { createElement, useEffect, useRef, useState, type ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
 import { MapFrame } from "@/components/shared/map-frame";
 import { MAP_PRIMARY } from "@/lib/map-palette";
-import { lockMapToBox, siteViewBox } from "@/lib/site-view";
+import { lockMapToBox, sitePadding, siteViewBox } from "@/lib/site-view";
 
 import {
+  MAP_TILE_MAX_ZOOM,
   MAP_TILE_OPTIONS,
   MAP_TILE_URL,
   warnIfFallbackTiles,
@@ -27,9 +30,20 @@ export interface LocationMapMarker {
   longitude: number;
   label: string;
   detail?: string;
-  tone?: "primary" | "positive" | "warning" | "danger";
+  /**
+   * `info` (purple) is the project map's 现场记录 layer (JB222); `neutral`
+   * (grey) its people last located on an earlier day (audit 11-20 F4).
+   */
+  tone?: "primary" | "positive" | "warning" | "danger" | "info" | "neutral";
   stale?: boolean;
-  icon?: "person" | "truck" | "project" | "recycler" | "scale" | "building";
+  icon?: "person" | "truck" | "project" | "recycler" | "scale" | "building" | "machine" | "record";
+  /** More than one thing at this spot (JB222): the number on the icon. */
+  count?: number;
+  /**
+   * A few words always shown under the icon, without a press (the project
+   * map's 最新定位 time, audit 11-20 F4). No other map sets it.
+   */
+  caption?: string;
 }
 
 export interface LocationMapPath {
@@ -89,6 +103,25 @@ interface LocationMapProps {
    * office, a driver's route) leave it off.
    */
   lockToSite?: boolean;
+  /**
+   * With `lockToSite`: the share of the map the fence fills when it opens
+   * (JB222-2, 客户 11-19: 「让整个工地占据地图约80%的空间」), in between zoom
+   * steps, and again whenever the map changes size until the reader moves it.
+   * Off: the fence fits with 24 px around it, as every site map before.
+   */
+  siteFill?: number;
+  /**
+   * What the first view fits: everything drawn (default), or the markers
+   * only - the head-office map opens on its pins, its fences drawn but not
+   * pulling the view down to one street (JB222-1).
+   */
+  fitTo?: "all" | "markers";
+  /** The closest a fit of several points zooms (default 16). */
+  fitMaxZoom?: number;
+  /** A Leaflet popup on each marker (default). Off when the caller shows its own card. */
+  popups?: boolean;
+  /** Drawn over the map inside its frame, full screen too (JB222). */
+  overlay?: ReactNode;
 }
 
 const DEFAULT_CENTER: [number, number] = [3.139, 101.6869];
@@ -108,6 +141,11 @@ export function LocationMap({
   singlePointZoom = 16,
   fitLabel,
   lockToSite = false,
+  siteFill,
+  fitTo = "all",
+  fitMaxZoom = 16,
+  popups = true,
+  overlay,
 }: LocationMapProps) {
   // The map's node, inside the frame that can fill the screen (I7). Held as
   // state so the map is made once the node exists.
@@ -122,6 +160,11 @@ export function LocationMap({
   const [ready, setReady] = useState(false);
   // The site's box, kept for the resize below (JB111).
   const lockRef = useRef<() => void>(() => {});
+  // A fill-to-share map (JB222): made with in-between zoom steps, and
+  // fitted again on a resize until the reader has moved it himself.
+  const siteFillRef = useRef(siteFill);
+  const touchedRef = useRef(false);
+  const fittingRef = useRef(false);
   // Read through a ref so a new callback each render does not redraw markers.
   const onMarkerClickRef = useRef(onMarkerClick);
   useEffect(() => {
@@ -144,7 +187,14 @@ export function LocationMap({
         fadeAnimation: false,
         markerZoomAnimation: false,
         zoomAnimation: false,
+        ...(siteFillRef.current ? { zoomSnap: 0.25 } : {}),
       });
+      if (siteFillRef.current) {
+        // Any move the map did not make itself is the reader's.
+        map.on("movestart zoomstart", () => {
+          if (!fittingRef.current) touchedRef.current = true;
+        });
+      }
       warnIfFallbackTiles();
       L.tileLayer(MAP_TILE_URL, { ...MAP_TILE_OPTIONS }).addTo(map);
       mapRef.current = map;
@@ -154,8 +204,13 @@ export function LocationMap({
       // the view stays where it was.
       if (typeof ResizeObserver !== "undefined") {
         observer = new ResizeObserver(() => {
+          fittingRef.current = true;
           map.invalidateSize({ animate: false });
           lockRef.current();
+          fittingRef.current = false;
+          // Full screen, a taller frame, a phone turned: the site fills the
+          // new size too, while the reader has not moved the map (JB222-2).
+          if (siteFillRef.current && !touchedRef.current) fitRef.current?.();
         });
         observer.observe(container);
       }
@@ -234,24 +289,32 @@ export function LocationMap({
               ? "var(--tone-amber)"
               : marker.tone === "positive"
                 ? "var(--tone-green)"
-                : "var(--tone-cyan)";
+                : marker.tone === "info"
+                  ? "var(--tone-purple)"
+                  : marker.tone === "neutral"
+                    ? "var(--tone-slate)"
+                    : "var(--tone-cyan)";
         const icon = L.divIcon({
           className: "mse-map-marker",
-          html: `<span style="--marker-color:${color};${marker.stale ? "opacity:.5;" : ""}">${renderToStaticMarkup(
+          html: `<span style="--marker-color:${color};${marker.stale ? "opacity:.5;" : ""}${markerCount(marker) ? "position:relative;" : ""}">${renderToStaticMarkup(
             createElement(markerIcon(marker.icon), {
               size: 17,
               strokeWidth: 2.5,
               "aria-hidden": true,
             }),
-          )}</span>`,
+          )}${markerCount(marker)}</span>${markerCaption(marker)}`,
           iconSize: [30, 30],
           iconAnchor: [15, 15],
         });
-        const point = L.marker([marker.latitude, marker.longitude], { icon })
-          .addTo(layers)
-          .bindPopup(
+        const point = L.marker([marker.latitude, marker.longitude], {
+          icon,
+          ...(popups ? {} : { title: marker.label, alt: marker.label }),
+        }).addTo(layers);
+        if (popups) {
+          point.bindPopup(
             `<strong>${escapeHtml(marker.label)}</strong>${marker.detail ? `<br>${escapeHtml(marker.detail)}` : ""}`,
           );
+        }
         point.on("click", () => onMarkerClickRef.current?.(marker.id));
         bounds.extend(point.getLatLng());
       });
@@ -262,9 +325,14 @@ export function LocationMap({
         ? siteViewBox(visibleZones.map((zone) => ({ points: zone.points, center: zone.center, radiusM: zone.radiusM })))
         : null;
       lockRef.current = lockToSite ? () => lockMapToBox(map, L, siteBox) : () => {};
+      fittingRef.current = true;
       lockRef.current();
+      fittingRef.current = false;
 
-      const fit = () => {
+      const markerBounds = L.latLngBounds([]);
+      markers.forEach((marker) => markerBounds.extend([marker.latitude, marker.longitude]));
+
+      const fitOnce = () => {
         if (siteBox) {
           // The whole fence, and only the fence (「整个图框必须完整显示已设定的工地电子围栏范围」).
           const fence = L.latLngBounds([]);
@@ -273,17 +341,35 @@ export function LocationMap({
             else if (zone.center && zone.radiusM) fence.extend(L.latLng(zone.center).toBounds(zone.radiusM * 2));
           });
           if (fence.isValid()) {
-            map.fitBounds(fence, { maxZoom: 17, animate: false, padding: [24, 24] });
+            const size = map.getSize();
+            if (siteFill && size.x > 0 && size.y > 0) {
+              map.fitBounds(fence, {
+                maxZoom: MAP_TILE_MAX_ZOOM,
+                animate: false,
+                padding: sitePadding(size.x, size.y, siteFill),
+              });
+            } else {
+              map.fitBounds(fence, { maxZoom: 17, animate: false, padding: [24, 24] });
+            }
             return;
           }
         }
-        if (!bounds.isValid()) return;
-        const southWest = bounds.getSouthWest();
-        const northEast = bounds.getNorthEast();
+        const target = fitTo === "markers" && markerBounds.isValid() ? markerBounds : bounds;
+        if (!target.isValid()) return;
+        const southWest = target.getSouthWest();
+        const northEast = target.getNorthEast();
         if (southWest.equals(northEast)) {
           map.setView(southWest, singlePointZoom, { animate: false });
         } else {
-          map.fitBounds(bounds.pad(0.15), { maxZoom: 16, animate: false });
+          map.fitBounds(target.pad(0.15), { maxZoom: fitMaxZoom, animate: false });
+        }
+      };
+      const fit = () => {
+        fittingRef.current = true;
+        try {
+          fitOnce();
+        } finally {
+          fittingRef.current = false;
         }
       };
       fitRef.current = fit;
@@ -306,13 +392,17 @@ export function LocationMap({
   }, [
     center,
     fitBoundsKey,
+    fitMaxZoom,
+    fitTo,
     lockToSite,
     markers,
     paths,
+    popups,
     preserveViewOnDataUpdate,
     radiusM,
     ready,
     singlePointZoom,
+    siteFill,
     zones,
   ]);
 
@@ -321,7 +411,16 @@ export function LocationMap({
       className={`min-h-[22rem] w-full overflow-hidden border bg-muted/20 ${className}`}
       sizeKey={sizeKey}
       fitLabel={fitLabel}
-      onFit={fitLabel ? () => fitRef.current?.() : undefined}
+      onFit={
+        fitLabel
+          ? () => {
+              // 「回到工地范围」: and from now on the map follows its size again.
+              touchedRef.current = false;
+              fitRef.current?.();
+            }
+          : undefined
+      }
+      overlay={overlay}
     >
       <div ref={setContainer} className="h-full w-full" aria-label={ariaLabel} />
     </MapFrame>
@@ -334,7 +433,22 @@ function markerIcon(icon: LocationMapMarker["icon"]) {
   if (icon === "recycler") return Recycle;
   if (icon === "scale") return Scale;
   if (icon === "building") return Building2;
+  if (icon === "machine") return Construction;
+  if (icon === "record") return ClipboardList;
   return UserRound;
+}
+
+/** The number on a merged icon (JB222), or nothing for a single thing. */
+function markerCount(marker: LocationMapMarker): string {
+  if (!marker.count || marker.count < 2) return "";
+  return `<b class="mse-map-count">${marker.count > 99 ? "99+" : marker.count}</b>`;
+}
+
+/** The words under an icon (audit 11-20 F4), or nothing. Not a span: those are the icon. */
+// A plain type on purpose: location-map-defaults.test.ts finds the maps that use the component by its tag text.
+export function markerCaption(marker: { caption?: string }): string {
+  if (!marker.caption) return "";
+  return `<em class="mse-map-caption">${escapeHtml(marker.caption)}</em>`;
 }
 
 function escapeHtml(value: string): string {

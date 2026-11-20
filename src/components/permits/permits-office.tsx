@@ -41,7 +41,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useListQuery } from "@/hooks/use-list-query";
 import { useUrlSelection } from "@/hooks/use-url-selection";
-import { PERMIT_STATUSES, type Permit } from "@/interfaces/permit";
+import { PERMIT_STATUSES, type Permit, type PermitFile } from "@/interfaces/permit";
 import { useDateFormat } from "@/lib/dates";
 import { exportPermits, getPermitApplicants, getPermits } from "@/services/permit.service";
 import { LIST_FITS } from "@/lib/list-fits";
@@ -81,17 +81,30 @@ export function PermitsOffice() {
         cell: ({ row }) => row.original.project_name,
       },
       {
+        // 「在「项目」与「准证文件」之间显示「施工事项名称」」 and 「名称过长时自动换行，
+        // 最多显示两行，鼠标移上去可查看完整名称」 (JB221): two lines, the whole
+        // name as the fitted cell's hover tip; the permit's window shows it
+        // whole too (a tap, or Tab + Enter on the row).
+        accessorKey: "work_name",
+        meta: { label: t("field.workName") },
+        header: () => <PlainHeader label={t("field.workName")} />,
+        cell: ({ row }) =>
+          row.original.work_name ? (
+            <span className="line-clamp-2 min-w-20 max-w-56 whitespace-normal break-words" data-slot="permit-work-name">
+              {row.original.work_name}
+            </span>
+          ) : (
+            <span className="text-muted-foreground">—</span>
+          ),
+      },
+      {
         id: "files",
-        meta: { label: t("field.files") },
+        // Its own height: the count sits under the picture, not clamped away.
+        meta: { label: t("field.files"), unclamped: true },
         header: () => <PlainHeader label={t("field.files")} />,
-        // The files as pictures, never their names (J34-10, 图 c09).
-        cell: ({ row }) => (
-          <FileThumbs
-            files={row.original.files
-              .filter((file) => file.is_current)
-              .map((file) => ({ id: file.id, name: file.original_name, thumbnail_url: file.thumbnail_url }))}
-          />
-        ),
+        // 「缩小准证文件栏，只显示一张缩略图及附件数量」 (JB221): the first file as
+        // a picture (J34-10: never its name), and how many there are.
+        cell: ({ row }) => <PermitFilesCell files={row.original.files.filter((file) => file.is_current)} />,
       },
       {
         accessorKey: "applicant_name",
@@ -147,6 +160,7 @@ export function PermitsOffice() {
       columns: [
         { key: "incident_no", label: t("field.no") },
         { key: "project_name", label: t("field.project") },
+        { key: "work_name", label: t("field.workName") },
         { key: "applicant_name", label: t("field.applicant") },
         { key: "applicant_title", label: t("field.position") },
         { key: "applied_at", label: t("field.appliedAt") },
@@ -175,6 +189,10 @@ export function PermitsOffice() {
       <ModuleRecordsTable
         title={title}
         countLabel={tRoot("moduleTable.count", { count: total })}
+        // 「搜索栏必须支持施工事项名称及关键词搜索」 (JB221): said in the box,
+        // short enough not to be cut at 1366 px; the line above says what
+        // it finds and that several words take a space between (audit F5).
+        searchPlaceholder={t("searchPlaceholder")}
         headerAction={
           can("safety.manage") ? (
             <Button onClick={() => setCreating(true)}>
@@ -183,7 +201,12 @@ export function PermitsOffice() {
             </Button>
           ) : undefined
         }
-        above={<p className="text-sm text-muted-foreground">{t("subtitle")}</p>}
+        above={
+          <div className="space-y-1 text-sm text-muted-foreground">
+            <p>{t("subtitle")}</p>
+            <p data-slot="permit-search-hint">{t("searchHint")}</p>
+          </div>
+        }
         list={list}
         columns={columns}
         rows={rows.data?.results ?? []}
@@ -253,5 +276,28 @@ export function PermitsOffice() {
         </Dialog>
       )}
     </>
+  );
+}
+
+/**
+ * The 准证文件 cell (JB221): one picture - the first file of the current
+ * submission, at the list's 48 px - and 「共 N 个」 under it, so the name
+ * beside it has the room.
+ */
+export function PermitFilesCell({ files }: { files: readonly PermitFile[] }) {
+  const t = useTranslations("permits");
+  const first = files[0];
+  if (!first) return <span className="text-muted-foreground">—</span>;
+  return (
+    <span className="inline-flex flex-col items-center gap-0.5" data-slot="permit-files-cell">
+      <FileThumbs
+        className="[&_[data-file-thumb]]:size-12"
+        files={[{ id: first.id, name: first.original_name, thumbnail_url: first.thumbnail_url }]}
+      />
+      {/* The fitted table's own 13 px (globals.css `[data-fit]`), not typed here. */}
+      <span className="whitespace-nowrap tabular-nums text-muted-foreground">
+        {t("fileCount", { count: files.length })}
+      </span>
+    </span>
   );
 }

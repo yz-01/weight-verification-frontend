@@ -5,7 +5,7 @@ import { CheckCircle2, ClipboardCheck, Loader2, Paperclip } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRef, useState } from "react";
 
-import { ATTACHMENT_TYPES } from "@/components/consultant-workflow/application-draft-edit";
+import { ATTACHMENT_TYPES, useMadeNowCopy } from "@/components/consultant-workflow/application-draft-edit";
 import { AttachmentPicker } from "@/components/shared/attachment-picker";
 import { useAllowedTypeRefusal } from "@/components/shared/attachment-refusal";
 import { FieldWrapper, LoadFailed } from "@/components/shared/page-primitives";
@@ -74,6 +74,7 @@ export function RequiredAttachmentTile({
   const refusalText = useAllowedTypeRefusal(ATTACHMENT_ACCEPT);
   const zone = useRef<HTMLDivElement>(null);
   const [queue, setQueue] = useState<File[]>([]);
+  const copy = useMadeNowCopy();
   const mine = application.attachments.filter((attachment) => attachment.category === code);
   const attached = mine.length > 0;
   const upload = useMutation({
@@ -95,17 +96,35 @@ export function RequiredAttachmentTile({
         <span className="font-medium">{t(`attachmentType.${code}`)}</span>
         <span className="ml-auto text-xs">{attached ? t("attachment.uploadedCount", { count: mine.length }) : t("attachment.required")}</span>
       </button>
+      {mine.some((attachment) => copy.making(attachment)) ? (
+        <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground" data-slot="copy-making">
+          <Loader2 className="size-3.5 animate-spin" aria-hidden />
+          {t("attachmentCopyMaking")}
+        </p>
+      ) : null}
+      {copy.element}
       {attached && (
         // What is in the slot as pictures, never names (J34-11).
         <FileThumbs
           all
           className="mt-1"
-          files={mine.map((attachment) => ({
-            id: attachment.id,
-            name: attachment.original_name,
-            thumbnail_url: stampedPicture(attachment.content_type, attachment.watermarked_file),
-            href: attachment.watermarked_file || attachment.file,
-          }))}
+          files={mine.map((attachment) =>
+            attachment.api_file
+              ? {
+                  // JB228: a consultant's old copy of a record's 完整证据
+                  // (J22), made now by the server - in the in-app preview.
+                  id: attachment.id,
+                  name: attachment.original_name,
+                  thumbnail_url: null,
+                  onOpen: () => copy.open(attachment),
+                }
+              : {
+                  id: attachment.id,
+                  name: attachment.original_name,
+                  thumbnail_url: stampedPicture(attachment.content_type, attachment.watermarked_file),
+                  href: attachment.watermarked_file || attachment.file,
+                },
+          )}
         />
       )}
       {editable && (

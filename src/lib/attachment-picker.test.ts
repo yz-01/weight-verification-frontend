@@ -99,6 +99,9 @@ describe("the phone's file chooser takes no pictures (J45)", () => {
   it("drops every image type from the page's accept", () => {
     expect(phoneFileAccept("image/*,application/pdf,.doc,.docx,.xls,.xlsx")).toBe("application/pdf,.doc,.docx,.xls,.xlsx");
     expect(phoneFileAccept(".pdf, .JPG, .png, image/heic")).toBe(".pdf");
+    // JB223: `.jfif` is a JPEG (how Chrome on Windows saves one) - a picture, not a document.
+    expect(phoneFileAccept(".pdf,.jfif")).toBe(".pdf");
+    expect(isPhotoFile({ name: "WhatsApp Image.jfif", type: "" })).toBe(true);
   });
 
   it("offers documents when the page takes any file", () => {

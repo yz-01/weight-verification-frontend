@@ -60,6 +60,7 @@ export function IncidentThreadDetail({
   onClose: () => void;
 }) {
   const t = useTranslations("incidentReporting");
+  const tHazard = useTranslations("hazard");
   const pathname = usePathname();
   const fieldMode = pathname.startsWith("/field-staff");
   const { can, user } = useAuth();
@@ -197,6 +198,9 @@ export function IncidentThreadDetail({
 
   const participants = thread.data?.participants ?? [];
   const canResolve = !thread.isError && !record.is_resolved && can("safety.verify");
+  // JB228 (客户 11-19: 「顾问不能查看建筑商内部的沟通记录」): a consultant reads
+  // the report, not the builder's talk on it - one line, no message box.
+  const withheld = Boolean(thread.data?.chat_withheld);
 
   return (
     <RecordDetailDialog
@@ -245,6 +249,14 @@ export function IncidentThreadDetail({
           ) : undefined
         }
         chat={
+          withheld ? (
+            <p
+              className="rounded-lg border border-dashed border-panel-border p-3 text-sm text-muted-foreground"
+              data-chat-withheld
+            >
+              {tHazard("chatWithheld")}
+            </p>
+          ) : (
           <div className="flex min-w-0 flex-col gap-3" data-incident-thread>
             <div
               className={
@@ -333,6 +345,7 @@ export function IncidentThreadDetail({
             )}
             {photoViewer.viewer}
           </div>
+          )
         }
       />
     </RecordDetailDialog>

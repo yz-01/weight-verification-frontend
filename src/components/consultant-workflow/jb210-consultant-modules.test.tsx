@@ -251,7 +251,9 @@ describe("conversations a consultant does not take part in (Lucas 11-16 Q2 = A)"
     expect(consultantSeesConversation("TENANT", "MATERIAL_RECEIPT")).toBe(true);
   });
 
-  it("lists his own conversations on 「沟通记录」, with no 找人沟通", () => {
+  // JB224 (客户 11-19 事项 4: 「顾问端却没有「找人沟通」按钮」) changed the rule:
+  // with 「沟通记录」 ticked he has 【找人沟通】 to reach the project office.
+  it("lists his own conversations on 「沟通记录」, with 找人沟通 to the project office (JB224)", () => {
     auth.user = { id: "c1", account_type: "CONSULTANT", full_name: "Resident Engineer" };
     try {
       const html = render(<FieldChatsOffice />, (client) =>
@@ -291,7 +293,7 @@ describe("conversations a consultant does not take part in (Lucas 11-16 Q2 = A)"
       expect(html).toContain('data-consultant-chat-row="FIELD_TASK"');
       // 整改 keeps its own room: the row opens it.
       expect(html).toContain('href="/hazard-rectifications?incident=h1"');
-      expect(text(html)).not.toContain(zh.fieldChats.find.title);
+      expect(text(html)).toContain(zh.fieldChats.find.title);
       expect(text(html)).toContain(zh.fieldChats.consultant.kind.FIELD_TASK);
     } finally {
       auth.user = { id: "u1", account_type: "TENANT", full_name: "Someone" };

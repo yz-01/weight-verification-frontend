@@ -106,10 +106,17 @@ export async function createSafetyIncident(
   payload: SafetyIncidentPayload,
   /** Checked before the photos went (I29): sent with them, asked once. */
   signOffPin?: string,
+  /**
+   * Off for the office form (11-19 audit JB223 F2): its pictures come from
+   * the computer, whose file dates say when a file was saved, not when the
+   * hazard was seen - left empty, the server records now.
+   */
+  { dateFromPhotos = true }: { dateFromPhotos?: boolean } = {},
 ): Promise<SafetyIncident> {
   // Left empty, when it happened is when its first photo was taken - not
-  // when a queued report reached the server (2026-10-09 audit).
-  const occurredAt = payload.occurred_at || earliestTakenAt(payload.photos ?? []);
+  // when a queued report reached the server (2026-10-09 audit). The phone's
+  // photos come from the app's own camera, so their time is the shutter's.
+  const occurredAt = payload.occurred_at || (dateFromPhotos ? earliestTakenAt(payload.photos ?? []) : undefined);
   const data = multipart({ ...payload, occurred_at: occurredAt } as unknown as Record<string, unknown>);
   const incident = await api.post<SafetyIncident>(
     "/api/safety-incidents/create_safety_incident/",

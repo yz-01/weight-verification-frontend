@@ -110,14 +110,16 @@ export function foldLegacyCodes(codes: readonly string[] | null | undefined): {
 export function startingGrant(
   companyModules: readonly string[] | null | undefined,
   companyOptions: readonly string[] | null | undefined,
-): { modules: ConsultantModule[]; options: ConsultantOption[] } {
+  companyItems?: readonly string[] | null,
+): { modules: ConsultantModule[]; options: ConsultantOption[]; items: ConsultantItem[] } {
   const folded = foldLegacyCodes(companyOptions);
   const modules = orderedModules([...(companyModules ?? []), ...folded.modules]);
   const options = folded.options;
   if (!modules.length && !options.length) {
-    return { modules: [...DEFAULT_CONSULTANT_MODULES], options: [...DEFAULT_CONSULTANT_OPTIONS] };
+    return { modules: [...DEFAULT_CONSULTANT_MODULES], options: [...DEFAULT_CONSULTANT_OPTIONS], items: [] };
   }
-  return { modules, options };
+  // JB225: the default's items of 材料管理 / 工程进度 (all of a module saved without them).
+  return { modules, options, items: normaliseTicks(modules, companyItems).items };
 }
 
 /** Tick or untick one option: 审批 brings 查看; dropping 查看 drops 审批 too. */
@@ -140,15 +142,189 @@ export function toggleModule(
   return orderedModules(checked ? [...modules, key] : modules.filter((item) => item !== key));
 }
 
+// ── The nine items under 材料管理 and 工程进度 (JB225) ─────────────────────
+//
+// 客户 11-19 事项 5: 「材料管理：材料进场、材料退场、材料领用、按供应商统计、材料目标。
+// 工程进度：施工进度、施工日报告、雨天记录、施工计划。以上各项请设置独立的勾选权限，
+// 由建筑商总部自行决定开放哪些内容给顾问。」 Mirrors `accounts.consultant_access.ITEMS`
+// and `normalise`: a module counts as ticked when one of its items is.
+
+/** The client's nine, in his order. */
+export const CONSULTANT_ITEMS = [
+  "materials.in",
+  "materials.returns",
+  "materials.issues",
+  "materials.supplier_totals",
+  "materials.targets",
+  "progress.records",
+  "progress.daily_reports",
+  "progress.rain",
+  "progress.schedule",
+] as const;
+
+export type ConsultantItem = (typeof CONSULTANT_ITEMS)[number];
+
+/** The two modules that have items, and their items in the client's order. */
+export const ITEMS_OF_MODULE: Readonly<Partial<Record<ConsultantModule, readonly ConsultantItem[]>>> = {
+  materials: CONSULTANT_ITEMS.filter((key) => key.startsWith("materials.")),
+  progress: CONSULTANT_ITEMS.filter((key) => key.startsWith("progress.")),
+};
+
+/** Message key under `consultantAccess.item` / `itemHint` / `itemShort`. */
+export const ITEM_MESSAGE_KEYS: Readonly<Record<ConsultantItem, string>> = {
+  "materials.in": "materialsIn",
+  "materials.returns": "materialsReturns",
+  "materials.issues": "materialsIssues",
+  "materials.supplier_totals": "materialsSupplierTotals",
+  "materials.targets": "materialsTargets",
+  "progress.records": "progressRecords",
+  "progress.daily_reports": "progressDailyReports",
+  "progress.rain": "progressRain",
+  "progress.schedule": "progressSchedule",
+};
+
+/** The consultant's menu key for each item (`consultant_access.Item.features[0]`). */
+export const ITEM_FEATURES: Readonly<Record<ConsultantItem, string>> = {
+  "materials.in": "item_materials_in",
+  "materials.returns": "item_materials_returns",
+  "materials.issues": "item_materials_issues",
+  "materials.supplier_totals": "item_materials_supplier_totals",
+  "materials.targets": "item_materials_targets",
+  "progress.records": "item_progress_records",
+  "progress.daily_reports": "item_progress_daily_reports",
+  "progress.rain": "item_progress_rain",
+  "progress.schedule": "item_progress_schedule",
+};
+
+export const isConsultantItem = (value: string): value is ConsultantItem =>
+  (CONSULTANT_ITEMS as readonly string[]).includes(value);
+
+const moduleOfItem = (item: ConsultantItem): ConsultantModule =>
+  item.split(".", 1)[0] as ConsultantModule;
+
+/** Known item keys only, once each, in the client's order. */
+export function orderedItems(values: readonly string[] | null | undefined): ConsultantItem[] {
+  const chosen = new Set(values ?? []);
+  return CONSULTANT_ITEMS.filter((key) => chosen.has(key));
+}
+
+/** A grant's (or the company default's) module ticks with their items. */
+export interface ConsultantTicks {
+  modules: ConsultantModule[];
+  items: ConsultantItem[];
+}
+
+/**
+ * The backend's `normalise`: with `itemsSent` an item brings its module; a
+ * module with none of its items gets all of them (a grant saved before
+ * JB225); items of a module not ticked are dropped.
+ */
+export function normaliseTicks(
+  modules: readonly string[] | null | undefined,
+  items: readonly string[] | null | undefined,
+  itemsSent = false,
+): ConsultantTicks {
+  const ticked = new Set<string>(orderedModules(modules));
+  let chosen = orderedItems(items);
+  if (itemsSent) for (const item of chosen) ticked.add(moduleOfItem(item));
+  chosen = chosen.filter((item) => ticked.has(moduleOfItem(item)));
+  const all = new Set<ConsultantItem>(chosen);
+  for (const [module, keys] of Object.entries(ITEMS_OF_MODULE)) {
+    if (ticked.has(module) && !(keys ?? []).some((key) => all.has(key))) {
+      for (const key of keys ?? []) all.add(key);
+    }
+  }
+  return { modules: orderedModules([...ticked]), items: orderedItems([...all]) };
+}
+
+/** 「全部」, 「部分」 or 「没有」 of a module's items - its checkbox's three states. */
+export function moduleItemState(ticks: ConsultantTicks, module: ConsultantModule): "all" | "some" | "none" {
+  const keys = ITEMS_OF_MODULE[module];
+  if (!keys) return ticks.modules.includes(module) ? "all" : "none";
+  const held = keys.filter((key) => ticks.items.includes(key)).length;
+  if (held === 0) return "none";
+  return held === keys.length ? "all" : "some";
+}
+
+/** Tick or untick a module: its items follow (all on, all off). */
+export function toggleModuleTicks(
+  ticks: ConsultantTicks,
+  module: ConsultantModule,
+  checked: boolean,
+): ConsultantTicks {
+  const keys = ITEMS_OF_MODULE[module] ?? [];
+  const items = checked
+    ? orderedItems([...ticks.items, ...keys])
+    : ticks.items.filter((item) => !keys.includes(item));
+  return { modules: toggleModule(ticks.modules, module, checked), items };
+}
+
+/** Tick or untick one item: the first ticks its module, the last unticks it. */
+export function toggleItem(ticks: ConsultantTicks, item: ConsultantItem, checked: boolean): ConsultantTicks {
+  // Not `module`: Next's lint refuses that name for a variable.
+  const owner = moduleOfItem(item);
+  const items = checked ? orderedItems([...ticks.items, item]) : ticks.items.filter((key) => key !== item);
+  const anyLeft = (ITEMS_OF_MODULE[owner] ?? []).some((key) => items.includes(key));
+  return { modules: toggleModule(ticks.modules, owner, anyLeft), items };
+}
+
+/** 「全选」: every module and every item. */
+export function allTicks(): ConsultantTicks {
+  return { modules: [...CONSULTANT_MODULES], items: [...CONSULTANT_ITEMS] };
+}
+
 /**
  * The record conversations a consultant takes part in (JB210, 客户 11-16:
  * 「任务和沟通只显示顾问参与的记录」; Lucas 11-16 Q2 = A): the 顾问申请 sent to
  * him and the tasks sent to him to 验收. The contractor's own talk on a
  * delivery, a progress record or a document is not shown to him. Mirrors
- * `record_chat.CONSULTANT_CHAT_KINDS`; 整改 keeps its own room.
+ * `record_chat.CONSULTANT_CHAT_KINDS`; 整改 keeps its own room. JB224 (客户 11-19
+ * 事项 4): `DIRECT` too - his own conversations with the project office; the
+ * server answers him only in the ones he is in.
  */
-export const CONSULTANT_CHAT_KINDS: readonly string[] = ["CONSULTANT_APPLICATION", "FIELD_TASK"];
+export const CONSULTANT_CHAT_KINDS: readonly string[] = ["CONSULTANT_APPLICATION", "FIELD_TASK", "DIRECT"];
 
 export function consultantSeesConversation(accountType: string | undefined, kind: string): boolean {
   return accountType !== "CONSULTANT" || CONSULTANT_CHAT_KINDS.includes(kind);
+}
+
+/** The marker a consultant's feature list carries (`navigation.CONSULTANT_MENU`). */
+const CONSULTANT_MENU_KEY = "consultant_menu";
+
+/** What every item's menu key starts with (`item_materials_in` …). */
+export const ITEM_FEATURE_PREFIX = "item_";
+
+/**
+ * Whether a feature list names a consultant's items at all. A backend from
+ * before JB225 sends none: its consultant opens whole modules (audit 11-19 F3).
+ */
+export function featuresCarryItems(features: Iterable<string> | null | undefined): boolean {
+  for (const key of features ?? []) {
+    if (key.startsWith(ITEM_FEATURE_PREFIX)) return true;
+  }
+  return false;
+}
+
+/**
+ * Whether this reader is a consultant without item `item` on his project
+ * (JB225, 「未勾选的事项，顾问不得查看」). Always false for anyone else: a
+ * contractor's pages are decided by his codes, as before. False too when the
+ * list names no item at all - an older backend, whose consultant has whole
+ * modules (the screen must not empty 材料管理 / 工程进度 before it is updated).
+ */
+export function consultantLacks(features: readonly string[] | null | undefined, item: ConsultantItem): boolean {
+  const list = features ?? [];
+  if (!list.includes(CONSULTANT_MENU_KEY) || !featuresCarryItems(list)) return false;
+  return !list.includes(ITEM_FEATURES[item]);
+}
+
+/**
+ * The sides of 材料出场 this reader sees (JB225): both for anyone but a
+ * consultant; for a consultant, 供应商退货 with 材料退场 ticked and 材料领用 with
+ * 材料领用.
+ */
+export function outgoingKindsFor(features: readonly string[] | null | undefined): ("RETURN" | "ISSUE")[] {
+  return (["RETURN", "ISSUE"] as const).filter(
+    (kind) => !consultantLacks(features, kind === "RETURN" ? "materials.returns" : "materials.issues"),
+  );
 }

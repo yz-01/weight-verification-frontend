@@ -69,6 +69,15 @@ export function isIosEnvironment(environment: InstallEnvironment): boolean {
 }
 
 /**
+ * A phone or a tablet (iOS, Android) - the device itself, whatever the width
+ * of its window. A laptop's browser snapped to half the screen, or zoomed to
+ * 175 %, is narrow and still a computer (11-19 audit JB223 F3).
+ */
+export function isHandheldEnvironment(environment: InstallEnvironment): boolean {
+  return isIosEnvironment(environment) || environment === "android";
+}
+
+/**
  * The page to add to the Home Screen from: its address carries the token, and
  * its server-rendered manifest starts the app at the token too.
  */

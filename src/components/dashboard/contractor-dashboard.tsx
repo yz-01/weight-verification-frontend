@@ -746,7 +746,8 @@ export function QuickActions({ project }: { project: string }) {
   );
 }
 
-function ScheduleSummary({ schedule }: { schedule: DashboardOverview["schedule"] }) {
+/** 施工计划进度. Also drawn on a consultant's 仪表板 (JB226), from the same figures. */
+export function ScheduleSummary({ schedule }: { schedule: DashboardOverview["schedule"] }) {
   const t = useTranslations("contractorDashboard.scheduleSummary");
   const format = useFormatter();
   const planned = Math.max(0, Math.min(100, Number(schedule.planned_progress) || 0));

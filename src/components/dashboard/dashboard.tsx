@@ -38,6 +38,12 @@ const RecyclerDashboard = dynamic(
     ),
   { loading: () => <Skeleton className="h-64 w-full" /> },
 );
+// The consultant's (JB226): the project dashboard, its map and its panels.
+const ConsultantHome = dynamic(
+  () => import("@/components/dashboard/consultant-home").then((module) => module.ConsultantHome),
+  { loading: () => <Skeleton className="h-64 w-full" /> },
+);
+import { consultantLacks } from "@/lib/consultant-modules";
 import type { AdminDashboardSection } from "@/lib/admin-dashboard";
 import {
   getDispatches,
@@ -92,6 +98,12 @@ export function Dashboard({
   if (user.portal === "MSE_TRACE" && can("dashboard.view")) {
     return <HeadquartersHome />;
   }
+  // A consultant's 仪表板 is the project manager's 项目仪表板 on his project,
+  // cut to what head office gave him (JB226, 客户 11-19 事项 6) - not the
+  // count tiles below, which he called 「只有几个数字卡片，页面过于简单」.
+  if (user.portal === "MSE_TRACE" && user.account_type === "CONSULTANT") {
+    return <ConsultantHome />;
+  }
 
   const subtitleKey =
     user.portal === "MSE_ADMIN"
@@ -127,12 +139,14 @@ export function Dashboard({
 
 function TraceDashboard({ features }: { features: string[] }) {
   const projectsEnabled = features.includes("projects");
-  const receiptsEnabled = features.includes("material_receipts");
+  // JB225 (客户 11-19 事项 5): a consultant's tiles follow his items - deliveries
+  // with 材料进场, progress records with 施工进度 (the server narrows the counts).
+  const receiptsEnabled = features.includes("material_receipts") && !consultantLacks(features, "materials.in");
   const dispatchesEnabled = features.includes("waste_dispatches");
   const attendanceEnabled = features.includes("attendance");
   const tasksEnabled = features.includes("field_tasks");
   const equipmentEnabled = features.includes("equipment");
-  const progressEnabled = features.includes("progress");
+  const progressEnabled = features.includes("progress") && !consultantLacks(features, "progress.records");
   const safetyEnabled = features.includes("safety");
   const disposalEnabled = features.includes("site_disposals");
 

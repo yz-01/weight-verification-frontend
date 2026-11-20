@@ -34,7 +34,14 @@ import { useBellRefreshOnRead } from "@/hooks/use-bell-refresh-on-read";
 import { useNewMessageTone } from "@/hooks/use-new-message-tone";
 import { ApiError } from "@/interfaces/api";
 import { consultantSeesConversation } from "@/lib/consultant-modules";
-import { conversationClosedLine, recordConversationKey, type ChatRecordKind } from "@/lib/record-chat";
+import {
+  consultantChatClosed,
+  consultantChatPoll,
+  conversationClosedLine,
+  listReadAfter,
+  recordConversationKey,
+  type ChatRecordKind,
+} from "@/lib/record-chat";
 import {
   getRecordConversation,
   postRecordMessage,
@@ -105,16 +112,29 @@ function RecordConversationContent({
   const clearDraft = useClearDraft();
   // 「需要继续整改」 (ID11): never kept in the draft - it is armed for one send.
   const [moreWork, setMoreWork] = useState(false);
+  const { user } = useAuth();
+  // JB224 audit F4: a send refused because head office closed the
+  // consultant's conversations here - its sentence, kept; nothing is read again.
+  const [shutOut, setShutOut] = useState<string | null>(null);
 
-  const { data, isLoading, isLoadingError } = useQuery({
+  const { data, isLoading, isLoadingError, error } = useQuery({
     queryKey: recordConversationKey(kind, recordId),
     queryFn: () => getRecordConversation(kind, recordId),
+    enabled: shutOut === null,
+    // JB224 audit F7: a reply reaches a consultant waiting on it.
+    refetchInterval: (query) => consultantChatPoll(user?.account_type, Boolean(query.state.error)),
   });
   // Reading the conversation settles this reader's chat notice for it on the
   // server (2026-10-09); the red dot is re-read when it did.
   useBellRefreshOnRead(data);
+  // JB224 audit F6: and it is marked read - 「沟通记录」's red number for it is
+  // re-read at once (opened, or a new message).
+  const count = data?.messages.length;
+  useEffect(() => {
+    const list = listReadAfter(kind);
+    if (list && count !== undefined) void queryClient.invalidateQueries({ queryKey: list });
+  }, [kind, recordId, count, queryClient]);
   // Somebody else's new message rings while the chat is open (JB36).
-  const { user } = useAuth();
   useNewMessageTone(data?.messages, user?.id);
 
   const limit = data?.audio_seconds_limit ?? FALLBACK_AUDIO_LIMIT;
@@ -141,14 +161,35 @@ function RecordConversationContent({
     },
     // Finished by somebody else while this screen was open (D-278): refetch,
     // so the composer is replaced by the reason instead of refusing again.
+    // JB224 audit F4: the same when the consultant's 「沟通记录」 closed.
     onError: (reason) => {
-      if (reason instanceof ApiError && reason.code === "conversation_closed") {
+      const closed = consultantChatClosed(reason);
+      if (closed) {
+        setShutOut(closed);
+        return;
+      }
+      if (
+        reason instanceof ApiError &&
+        (reason.code === "conversation_closed" || reason.code === "chat_consultant_off")
+      ) {
         void queryClient.invalidateQueries({
           queryKey: recordConversationKey(kind, recordId),
         });
       }
     },
   });
+
+  // JB224 audit F4: the consultant's own conversation, closed by head office
+  // or an ended grant - who closed it and whom to ask, not 「请重试」; the
+  // builder keeps it.
+  const closedForMe = shutOut ?? consultantChatClosed(error);
+  if (closedForMe) {
+    return (
+      <p role="alert" className="rounded-md border p-4 text-sm text-destructive" data-chat-shut>
+        {closedForMe}
+      </p>
+    );
+  }
 
   if (isLoading) {
     return (

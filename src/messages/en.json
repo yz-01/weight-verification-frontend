@@ -4027,10 +4027,15 @@
       "permit_work_type_added": "Type of work added",
       "permit_work_type_renamed": "Type of work renamed",
       "permit_work_type_removed": "Type of work removed",
+      "equipment_driver_binding_set": "Machine's drivers set",
+      "jb227_seed_driver_bindings": "Drivers bound from recent clock-ins",
       "role_followed": "Role permissions changed, passed on to the role's people",
       "jb219_head_office_roles": "System update: roles tidied (head-office roles, unused presets removed)",
       "platform_access_opened": "Opened access for MSE",
-      "platform_access_closed": "Closed access for MSE"
+      "platform_access_closed": "Closed access for MSE",
+      "project_grant_updated": "Changed project access",
+      "jb225_sub_modules": "Materials / progress items ticked separately (system upgrade)",
+      "jb225_default_sub_modules": "Consultant default items ticked separately (system upgrade)"
     },
     "objectType": {
       "SignOffAssistant": "Assistant PIN",
@@ -5524,7 +5529,10 @@
       "optionsTitle": "Other permissions",
       "selectAll": "Select all",
       "selectNone": "Select none",
-      "noModules": "No module ticked"
+      "noModules": "No module ticked",
+      "partialCount": "{held} of {total} ticked",
+      "partialModule": "{module} ({items})",
+      "itemSeparator": ", "
     },
     "organization": {
       "activeHelp": "Deactivating the firm immediately stops all of its project access.",
@@ -5607,14 +5615,14 @@
       "dashboard": "Home page, showing only the modules ticked below",
       "projects": "Project basics (no staff phone numbers, emails or permissions)",
       "fieldTasks": "Only tasks sent to the consultant to check, or that he took part in",
-      "materials": "Material in, material out, material targets - view only, no amounts",
-      "progress": "Progress updates, daily reports, rain records, schedule - view only, may add remarks",
+      "materials": "View only, no amounts shown. Each item below can be ticked on its own",
+      "progress": "View only; remarks allowed. Each item below can be ticked on its own",
       "safety": "Sees rectifications and work permits; may raise a rectification and follow up his own",
       "documents": "This project's confirmed and archived files - view and download",
       "recordCentre": "Records of the modules ticked above - view only",
       "reports": "Reports of the modules ticked above",
       "notifications": "Notifications sent to him on this project",
-      "conversations": "Conversations he takes part in"
+      "conversations": "Conversations he takes part in; he and this project's office can start conversations with each other (Message someone: text, photos, voice, files). Untick it and neither side can send any more; the history is kept for the builder to read"
     },
     "option": {
       "approvalView": "Consultant applications: view",
@@ -5624,6 +5632,39 @@
     "optionHint": {
       "approvalReview": "Ticking this also ticks \"view\"",
       "export": "Reports and each module's lists can be exported"
+    },
+    "item": {
+      "materialsIn": "Material In",
+      "materialsReturns": "Material returns",
+      "materialsIssues": "Material issue",
+      "materialsSupplierTotals": "Totals by supplier",
+      "materialsTargets": "Material targets",
+      "progressRecords": "Construction progress",
+      "progressDailyReports": "Daily site reports",
+      "progressRain": "Rainy weather records",
+      "progressSchedule": "Construction schedule"
+    },
+    "itemHint": {
+      "materialsIn": "Material delivered to site, rejected loads included (under Material in)",
+      "materialsReturns": "Material returned to the supplier, with return checks (Material out → Returns to supplier)",
+      "materialsIssues": "Material handed to machines or workers (Material out → Material issue)",
+      "materialsSupplierTotals": "Each supplier's total delivered and returned (Material in → Totals by supplier)",
+      "materialsTargets": "Target quantities and how much has arrived (under Material targets)",
+      "progressRecords": "Progress updates, timeline photos, work categories and the progress summary (under Progress)",
+      "progressDailyReports": "Each day's site report (Progress → Daily reports)",
+      "progressRain": "Rain stoppages and their monthly figures (Progress → Rain records)",
+      "progressSchedule": "The construction schedule and actual progress (Progress → Schedule)"
+    },
+    "itemShort": {
+      "materialsIn": "in",
+      "materialsReturns": "returns",
+      "materialsIssues": "issue",
+      "materialsSupplierTotals": "totals by supplier",
+      "materialsTargets": "targets",
+      "progressRecords": "progress",
+      "progressDailyReports": "daily reports",
+      "progressRain": "rain",
+      "progressSchedule": "schedule"
     }
   },
   "consultantDashboard": {
@@ -6399,7 +6440,8 @@
       "close": "Close"
     },
     "backToSettings": "Back to consultant settings",
-    "backToDashboard": "Back to consultant dashboard"
+    "backToDashboard": "Back to consultant dashboard",
+    "attachmentCopyMaking": "Making it now…"
   },
   "contractorDashboard": {
     "activity": {
@@ -8653,7 +8695,8 @@
     "recordLinks": {
       "title": "Whole records",
       "allPdf": "All records as one PDF",
-      "gone": "The original record has been deleted."
+      "gone": "The original record has been deleted.",
+      "notGranted": "Head office has not opened this item to you. Ask head office if you need to see it."
     },
     "inspection": {
       "needs": "Needs inspection fields",
@@ -9004,6 +9047,7 @@
     "api": {
       "account_inactive": "This account is no longer active.",
       "announcement_not_found": "That announcement could not be found.",
+      "application_record_copy_unavailable": "This 'complete evidence of the original record' was made before the system update; the original record can no longer be found, so it cannot be shown. If you need it, ask the project office to attach it again.",
       "approval_action_not_found": "That approval action could not be found.",
       "approval_actor_forbidden": "You cannot perform this approval action.",
       "approval_invalid_transition": "This approval cannot move to that status.",
@@ -9296,6 +9340,10 @@
       "permit_too_many_files": "Send at most {limit} files at a time.",
       "permit_file_type": "{name} is not a Word, Excel, PDF or photo file.",
       "attachment_file_type": "{name} cannot be uploaded. Allowed: {allowed}.",
+      "attachment_content_mismatch": "{name} cannot be uploaded: its content does not match its file type (it may be damaged or renamed). Open it in its own program, save a copy, then upload that. Allowed: {allowed}.",
+      "attachment_empty": "{name} is an empty file (0 KB) and cannot be uploaded. Open it to check it has content, save it, then choose it again.",
+      "hazard_photo_unreadable": "{name} is not a photo that can be opened (it may be damaged or renamed) and cannot be uploaded. Photos can be JPG, PNG or WebP; add PDF, Word or Excel as files.",
+      "hazard_too_many_photos": "At most {limit} photos. Remove some, then create the item.",
       "permit_file_too_large": "{name} is larger than {limit} MB.",
       "permit_approver_unavailable": "Choose a safety manager on this project who can approve permits.",
       "permit_own_application": "You applied for {incident_no}, so somebody else approves or returns it.",
@@ -9423,6 +9471,8 @@
       "company_material_supplier_not_found": "A supplier is not on the company's supplier list. Choose again.",
       "phone_page_not_yours": "This page is not on your phone.",
       "chat_people_invalid": "Choose people from the list.",
+      "consultant_chat_closed": "The builder's head office has closed your Conversations on this project (or your access has ended), so this conversation cannot be opened or sent to now. To keep talking, contact the builder's head office.",
+      "chat_consultant_off": "The consultant's Conversations on this project were switched off (or his access ended), so this conversation can only be read now.",
       "user_removed": "This account was deleted and cannot be turned back on. Create a new account instead.",
       "supplier_not_on_project": "This supplier is not on this project's supplier list. Ask head office or the project manager to add it to the project first.",
       "file_share_link_not_found": "This file link was not found.",
@@ -9529,20 +9579,24 @@
       "exit_pass_already_released": "This exit pass has already been released by the gate (or this clearance has ended), so nothing more is needed. The page has been refreshed.",
       "exit_pass_release_phone_only": "A release is confirmed by the gate guard on the phone after taking photos; the office system cannot release. Use the gate phone.",
       "exit_pass_external_pending": "This is still waiting for the external approval, so it cannot be confirmed and archived now. Register the signed copy, ask the approver to sign online, or change it to no external approval, then confirm and archive.",
+      "role_kind_fixed": "The Company Administrator is always a head-office role, and a phone account's role cannot become one.",
+      "role_self_lockout": "You hold this role yourself, so saving this would switch off your own user management. Keep “View users” and “Edit users” ticked, or ask the Company Administrator to make the change.",
+      "permit_form_office_only": "The e-permit is filled in on the office computer. Please sign in on a computer to fill it in.",
+      "permit_work_type_exists": "\"{name}\" is already on the list.",
+      "permit_form_changed": "{name} saved this e-permit after you opened it. Close it, open it again, read the latest and then change it.",
+      "equipment_hours_driver_only": "Machine hours can only be clocked by the driver bound to the machine, on his own phone. Site staff cannot clock for a driver. Ask the machine's bound driver to clock on his own phone; if it has no driver yet, ask the office to bind one under \"Equipment operator hours › Bind drivers to machines\".",
+      "equipment_hours_not_bound": "This machine is not bound to your phone, so you cannot clock it. To change machines, contact the project office.",
+      "equipment_hours_no_longer_bound": "You are no longer the driver bound to this machine, so you cannot clock its stop. Ask the office to add the end time for you.",
+      "equipment_binding_driver_invalid": "Only this project's driver links or equipment operators can be bound. Close this, open it again and tick again.",
+      "equipment_binding_driver_running": "{name} is running this machine now (started {time}). Once unbound, his phone cannot clock its stop. Wait until he has stopped it; if it must be now, press \"Unbind and save\", then add the end time for him in the machine hours (\"Add end time\").",
       "exit_pass_own_release": "You applied to take this out yourself, so the gate guard has to check the vehicle and the goods and release it.",
       "exit_pass_gate_release_only": "This project has a gate phone, so exit passes are checked and released by the gate guard. Ask the gate guard to open the exit pass on the phone, take check photos, then press 【Confirm release】.",
       "exit_pass_online_head_office_only": "Online signing is for head office (a head-office role or the company administrator, with approval rights for this kind of record). The safety manager who signed this exit pass, the person who approved the application and the applicant cannot sign it online. Print or email the exit pass to the other party; when it comes back signed, press 【Register the signed copy】 to upload it.",
       "exit_pass_waive_not_allowed": "You cannot change this to no external approval: only the safety manager who signed this exit pass, the company administrator, or head office staff who did not approve the application can. Please ask one of them.",
-      "exit_pass_busy": "The system was busy and this was not saved. Wait a few seconds and press again.",
-      "role_kind_fixed": "The Company Administrator is always a head-office role, and a phone account's role cannot become one.",
-      "role_self_lockout": "You hold this role yourself, so saving this would switch off your own user management. Keep “View users” and “Edit users” ticked, or ask the Company Administrator to make the change.",
       "role_self_lockout_type": "You hold this role yourself, so making it a project role would switch off your own user management. Keep it a head-office role, or ask the Company Administrator to make the change.",
       "grant_not_held": "You do not have this permission yourself, so you cannot give it to anyone else or to yourself. Please ask the Company Administrator to do it.",
       "grant_admin_role_only_admin": "Only a Company Administrator can make someone a Company Administrator. Please ask the Company Administrator to do it.",
       "grant_admin_account_only_admin": "Only a Company Administrator can change a Company Administrator's role or permissions. Please ask the Company Administrator to do it.",
-      "permit_form_office_only": "The e-permit is filled in on the office computer. Please sign in on a computer to fill it in.",
-      "permit_work_type_exists": "\"{name}\" is already on the list.",
-      "permit_form_changed": "{name} saved this e-permit after you opened it. Close it, open it again, read the latest and then change it.",
       "permit_form_changed_before_signing": "The e-permit was just changed. Please read it again before you sign and approve.",
       "platform_access_admin_only": "Only the company administrator can open or close MSE access. Please ask your company administrator.",
       "platform_access_closed": "This customer has not opened viewing. Ask the customer's administrator to press “Allow MSE to view” in Company settings, then open it again.",
@@ -9553,7 +9607,13 @@
       "platform_access_view_only": "The customer opened viewing only: MSE can open the preview to look, and the system gives MSE no way to change, export, send or print the customer's records.",
       "platform_accounts_closed": "Changing this customer's accounts needs the customer's consent. Ask the customer's administrator to press “Allow MSE to manage accounts” in Company settings, then try again.",
       "platform_owner_locked": "The customer already uses this administrator account, so MSE cannot change its sign-in e-mail. Tell the customer: their own company administrator changes it in User management, or the customer writes in and a colleague who runs the server handles it.",
-      "phone_role_office_account": "Phone accounts are made in Field staff. An office account cannot be given a phone role (site staff, equipment operator, gate guard) here. Please choose another role."
+      "exit_pass_busy": "The system was busy and this was not saved. Wait a few seconds and press again.",
+      "phone_role_office_account": "Phone accounts are made in Field staff. An office account cannot be given a phone role (site staff, equipment operator, gate guard) here. Please choose another role.",
+      "consultant_sub_module_not_granted": "Head office has not opened this item to you on this project. Ask head office if you need to see it.",
+      "permit_work_name_required": "Write the work name first, then sign and approve.",
+      "permit_formal_permit_required": "There is no formal permit yet. Upload the company's filled permit form with \"Attach files\", or fill in the e-permit, then sign and approve.",
+      "hazard_room_not_for_consultant": "This is the contractor's internal conversation; a consultant cannot post here. To talk to the project office, use 'Message someone'.",
+      "report_export_made_before_update": "This file was made before the system update. Please export it again."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -10538,6 +10598,7 @@
     "takePhoto": "Take a photo",
     "photo": "Photo",
     "closed": "This hazard has been archived. The record stays readable, but it takes no new messages.",
+    "chatWithheld": "The contractor's internal conversation is not shown to consultants.",
     "participants": "In this conversation",
     "reporter": "Reported it",
     "responsible": "Responsible",
@@ -12510,7 +12571,8 @@
     "layoutLetter": "Letter",
     "previewDraft": "Preview the whole package",
     "draftPreviewOnly": "This is a preview before confirming. Print, export and send open once it is confirmed.",
-    "fixedPart": "Always goes into the package"
+    "fixedPart": "Always goes into the package",
+    "reviewNothingWaiting": "No package is waiting for your review or signature right now."
   },
   "mySubmissions": {
     "title": "What I sent",
@@ -12710,16 +12772,17 @@
       "document_title": "Document name",
       "rain_remark": "Remarks",
       "last_return_reason": "Last reason for return",
-      "permit_subcontractor": "Subcontractor",
-      "permit_work_lead": "Person in charge of the work",
-      "permit_contact_phone": "Contact number",
       "permit_work_type": "Type of work",
       "permit_location": "Work location",
       "permit_work_content": "Work description",
       "permit_work_period": "Requested period",
       "permit_safety_measures": "Risks and safety measures",
       "permit_conditions": "Conditions of approval",
-      "permit_valid_period": "Approved period"
+      "permit_valid_period": "Approved period",
+      "permit_subcontractor": "Subcontractor",
+      "permit_work_lead": "Person in charge of the work",
+      "permit_contact_phone": "Contact number",
+      "permit_work_name": "Work name"
     },
     "detailTitle": "What I sent",
     "photos": "Photographs",
@@ -13910,7 +13973,7 @@
     "permits": {
       "what": "Permits to work: upload your company's own permit form (Word, PDF or a photo) and send it to a named safety manager, who signs to approve it or returns it; an approved permit is archived. Every permit can be found again by project, approval status, applicant and date, and its files previewed, printed or downloaded. The approver can press \"Fill in e-permit\" in the window to turn the application into an e-permit, printed as the first page of the complete evidence PDF.",
       "who": "People with “View hazards / EHS and permits to work” can read and download; with “Report and assign hazards, apply for permits to work” they apply with “New application”. Approving needs “Safety verification (can approve permits to work)” and is done by the safety manager the applicant chose, or a company administrator. Nobody approves their own permit.",
-      "need": "A new application needs the project, the permit files (Word, PDF or photos of the form; several pages, at most 10 at a time) and the approving safety manager; a remark is optional. Approving needs a signature; returning needs the reason. The e-permit is optional; if it is filled in, the work description, location and requested times are needed. The types of work are set in Category management → Company categories → Permit to work · Types of work.",
+      "need": "A new application needs the project, the permit files (Word, PDF or photos of the form; several pages, at most 10 at a time) and the approving safety manager; a remark is optional. Approving needs a signature; returning needs the reason. Signing to approve also needs the work name and the formal permit: the company's filled permit form uploaded with \"Attach files\" (Word, PDF, Excel or a photo; the applicant's own files do not count), or the e-permit (work description, location and requested times needed). The types of work are set in Category management → Company categories → Permit to work · Types of work.",
       "then": "The chosen safety manager (and the company administrators) get a to-do notice. Once approved, the original files, the decision, the signature, the approver's position and the time are archived together and can no longer change. A returned permit is corrected by the applicant and resubmitted with new files; the earlier files are kept. The applicant is told either way. Only the permit's approver can fill in the e-permit, on a computer; the applicant can only read it. Once signed it is archived with the permit and can no longer change.",
       "trouble": "If no safety manager can be chosen, nobody on this project can approve permits yet: the approver's account needs “Safety verification” and “View projects” (on by default for a project role), and the person must be on this project's staff list. The “New application” window lists these three steps."
     },
@@ -14201,7 +14264,7 @@
       "equipment": {
         "view": "View equipment and operating hours",
         "manage": "Manage equipment, accept entry and exit, adjust hours",
-        "capture": "Record equipment entry, exit and hours on site",
+        "capture": "Record equipment entry and exit on site; view operating hours",
         "operate": "Clock machines on and off as their operator, from the phone"
       },
       "field_task": {
@@ -14744,7 +14807,6 @@
       "nothingChanged": "Nothing changed yet.",
       "saved": "Project permissions saved",
       "projectNote": "Project permissions: all on by default. One switched off is off for this person on every project they work on.",
-      "notMine": "A greyed switch is a permission you do not have yourself, so you cannot switch it on. Please ask the Company Administrator.",
       "allOn": "All project permissions on",
       "someOff": "{count} switched off",
       "grantedCount": "{count} group B permissions from head office",
@@ -14752,7 +14814,8 @@
       "suspended": "Suspended",
       "headOffice": "Head-office account: its permissions are set by head office in User management and only shown here.",
       "setInUsers": "This person's permissions are set by head office in User management and only shown here.",
-      "openUser": "Open user page"
+      "openUser": "Open user page",
+      "notMine": "A greyed switch is a permission you do not have yourself, so you cannot switch it on. Please ask the Company Administrator."
     }
   },
   "qrCodes": {
@@ -15685,7 +15748,8 @@
     "format": "Format",
     "size": "File size",
     "bytes": "{count} bytes",
-    "sha256Hint": "SHA-256 is the fingerprint recorded when the file was generated. It is checked every time the file is opened, and a file that no longer matches is not opened."
+    "sha256Hint": "SHA-256 is the fingerprint recorded when the file was generated. It is checked every time the file is opened, and a file that no longer matches is not opened.",
+    "madeBeforeUpdate": "This file was made before the system update. Please export it again."
   },
   "reports": {
     "dispatches": {
@@ -15870,26 +15934,35 @@
     },
     "followers": "{count, plural, one {This role has # person now.} other {This role has # people now.}} When you save, the ticks you changed this time reach them; anything opened or switched off for one of them separately stays as it is.",
     "adminLocked": "The Company Administrator has every permission; this cannot be changed.",
-    "adminNameFixed": "The Company Administrator's name and description are set by the system and cannot be changed.",
-    "notYours": "A greyed box is a permission you do not have yourself, so you cannot tick it for this role. Please ask the Company Administrator.",
     "phoneRole": "This is a phone account's role (site staff, equipment operator, gate guard). It is made and managed in Field staff; here its permissions can only be viewed.",
     "phoneRoleLink": "Open Field staff",
     "hqCount": "{count, plural, =0 {No head-office permissions ticked} one {# head-office permission} other {# head-office permissions}}",
     "allPermissions": "Every permission",
     "phoneHere": "Phone accounts (site staff, equipment operator, gate guard) are made in Field staff, not here.",
     "onlyAdmin": "The Company Administrator already has every permission. For any other job, press “New role” at the top right, give it your own name, choose head-office role or project role, and tick its permissions.",
+    "adminNameFixed": "The Company Administrator's name and description are set by the system and cannot be changed.",
+    "notYours": "A greyed box is a permission you do not have yourself, so you cannot tick it for this role. Please ask the Company Administrator.",
     "createHelp": "Give it a name, choose Head-office role or Project role, tick what this role may do, then press “Create”.",
     "editHelp": "The name, role type and permission ticks are below; press “Save” when you are done."
   },
   "safety": {
     "officeCreate": {
       "title": "Create a rectification item",
-      "description": "Choose the rectification category, say what needs fixing, attach photos, and name who is responsible if you know.",
+      "description": "Choose the rectification category and say what needs fixing; attach photos or rectification files if you have them (optional), and name who is responsible if you know.",
       "confirm": "Create rectification item",
-      "photoPlace": "1. Where it needs fixing",
-      "photoDetail": "2. Close-up of the problem",
-      "photoScope": "3. Equipment or area involved",
-      "photoOther": "4. Anything else"
+      "files": "Photos and rectification files",
+      "filesHint": "Photos, PDF, Word or Excel on this computer: press [Choose photos or files]. A WhatsApp photo or a screenshot: copy it, then press [Paste screenshot] or Ctrl+V. You can create the item without a photo.",
+      "filesHintNoPasteButton": "Photos, PDF, Word or Excel on this computer: press [Choose photos or files]. A WhatsApp photo or a screenshot: copy it, then press Ctrl+V on the keyboard in this window. You can create the item without a photo.",
+      "filesHintPhone": "Photos: press [Take photo]. PDF, Word or Excel: press [Choose file]. You can create the item without a photo.",
+      "photoTimeNote": "A photo is recorded at the time in \"{when}\" above; left empty, at the time you create this item (the date saved in the photo file is not used).",
+      "chooseFiles": "Choose photos or files",
+      "webcam": "Take a photo with the computer camera",
+      "limits": "Up to {photos} photos and {documents} files, each up to {limit} MB.",
+      "attached": "Attached: {photos, plural, one {# photo} other {# photos}} and {documents, plural, one {# file} other {# files}}.",
+      "tooManyPhotos": "{name} was not added: at most {limit} photos.",
+      "tooManyDocuments": "{name} was not added: at most {limit} files.",
+      "uploading": "Uploading {count, plural, one {# file} other {# files}}. Please do not close this page…",
+      "created": "{count, plural, =0 {Rectification item created.} one {Rectification item created; its file is saved.} other {Rectification item created; all # files are saved.}}"
     },
     "action": {
       "updateStatus": "Update status"
@@ -15923,7 +15996,6 @@
       "detail": "2. Hazard or damage detail",
       "overview": "1. Incident area overview",
       "progress": "Completed {current} photo(s). The first {required} required photos must all be taken; more photos may be added.",
-      "progressOffice": "{current} attached. One is enough; add the others above if you have them, or more.",
       "risk": "3. Affected equipment, person or access",
       "surroundings": "4. Surrounding site condition"
     },
@@ -18714,8 +18786,6 @@
       "chosenProjects": "Chosen projects",
       "noProjects": "The company has no projects yet.",
       "needOneProject": "Choose at least one project, or all projects.",
-      "notMine": "A greyed switch is a permission you do not have yourself: you cannot switch it on, for anyone or for yourself. Please ask the Company Administrator.",
-      "adminAccount": "This is a Company Administrator's account. Only a Company Administrator can change its permissions.",
       "amounts": "See amounts",
       "amountsHint": "Material cost, unit price, budgets, claims and sundry claim amounts. Off: shown as —, and left out of exports.",
       "operate": "Everyday work",
@@ -18736,6 +18806,8 @@
       "reservedNote": "Group A head-office permissions (users and roles, audit log, approval templates, departments, project management, dashboard management, company settings, billing, subscription, integrations) are for head-office accounts only and cannot be switched on for a project user.",
       "scopeProjectUser": "A project user sees only the projects chosen here.",
       "projectDefaultOn": "Project permissions are all on by default; you can switch one off for this person, and back on later.",
+      "notMine": "A greyed switch is a permission you do not have yourself: you cannot switch it on, for anyone or for yourself. Please ask the Company Administrator.",
+      "adminAccount": "This is a Company Administrator's account. Only a Company Administrator can change its permissions.",
       "partSavedWhy": "The user's details are saved; the permissions are not saved yet: {reason}"
     },
     "projectsView": {
@@ -19359,6 +19431,7 @@
     "closedReadonly": "You can read this conversation but you are not in it, so you cannot send.",
     "closedHeadOffice": "Head office can only read conversations that have phone staff in them, so you cannot send here.",
     "closedMoved": "Someone in it is no longer on this project, so it can only be read now. Start a new conversation.",
+    "closedConsultantOff": "The consultant's Conversations on this project were switched off (or his access ended), so this conversation can only be read now.",
     "closedTaskDone": "This task is finished (or cancelled), so the chat is closed. The messages can still be read."
   },
   "exportTotals": {
@@ -20323,10 +20396,17 @@
     "wrongType": "{name} cannot be attached: this kind of file is not accepted here.",
     "tooBig": "{name} is larger than {limit} MB.",
     "tooBigTotal": "{name} would take the files over {limit} MB in all.",
+    "emptyFile": "{name} is an empty file (0 KB) and cannot be uploaded. Open it to check it has content, save it, then choose it again.",
     "phoneTooBig": "{name}: the file is too big. Please upload it from the office computer. On the phone each file can be up to 20 MB, and 50 MB in all.",
     "tooMany": "Send at most {limit} files at a time.",
     "notAFile": "What you pasted is not a file or a picture. Copy the picture itself and try again.",
-    "photoUseCamera": "{name}: on the phone, take photos with the Take photo button above, not from the gallery."
+    "photoUseCamera": "{name}: on the phone, take photos with the Take photo button above, not from the gallery.",
+    "pasteScreenshot": "Paste screenshot",
+    "pastedPictures": "{count, plural, one {# picture pasted; it is in the list below.} other {# pictures pasted; they are in the list below.}}",
+    "pastedFiles": "{count, plural, one {# file pasted; it is in the list below.} other {# files pasted; they are in the list below.}}",
+    "clipboardEmpty": "There is no picture on the clipboard. In WhatsApp, right-click the picture, choose \"Copy image\", then press [Paste screenshot].",
+    "clipboardRefused": "This browser does not let the page read the clipboard. Click this window, then press Ctrl+V on the keyboard.",
+    "screenshotName": "Screenshot"
   },
   "supplierDateFilter": {
     "allSuppliers": "All suppliers",
@@ -20769,7 +20849,15 @@
       "signatureHint": "The driver signs here.",
       "clearSignature": "Sign again",
       "sent": "Sent: no. {number} {kind} {time}",
-      "sentQueued": "Saved on the phone, sends when online: no. {number} {kind} {time}"
+      "sentQueued": "Saved on the phone, sends when online: no. {number} {kind} {time}",
+      "boundLine": "Machines you can clock: {machines}",
+      "boundMore": "Machines you can clock: {machines} ({count} in all)",
+      "boundJoin": ", ",
+      "notBound": "Your phone is not bound to any machine yet, so you cannot clock. Ask the project office to bind you to your machine on the computer, under \"Equipment operator hours › Bind drivers to machines\".",
+      "notYourMachine": "This machine is not one you can clock. Check the machine number; if the office has just bound you to it, reopen this page where there is signal. If it still does not work, contact the project office.",
+      "qrUnknown": "Cannot tell which machine this QR code is for (scanned: {text}). It may not be the QR code of a machine on this project, or it was not read clearly. Scan the QR code on the machine again; if that does not work, press \"QR damaged? Type the number\" and type the machine number.",
+      "noLongerBound": "You started {machines} and it has not been stopped, but you are no longer its bound driver, so you cannot clock its stop. Ask the office to add the end time for you.",
+      "staffViewOnly": "Machine hours are clocked by the driver bound to the machine, on his own phone. Site staff cannot clock for a driver. You can see the recent hours here; to add or correct a time, contact the project office."
     },
     "siteNo": {
       "open": "Equipment number list",
@@ -20964,7 +21052,7 @@
   },
   "permits": {
     "title": "Permit to work",
-    "subtitle": "Upload your company's own permit form (Word, PDF or a photo) and send it to a named safety manager. Once approved, the original files, the decision, the signature and the time are archived together.",
+    "subtitle": "Upload your company's own permit form (Word, PDF or a photo) and send it to a named safety manager. Once approved, the original files, the decision, the signature and the time are archived together. Before approving, the safety manager writes the work name and uploads the formal permit (or fills in the e-permit).",
     "new": "New application",
     "newTitle": "New permit-to-work application",
     "newHelp": "Use your company's own permit form, fill it in and upload it - there is no form to fill in here. Add a remark, choose the safety manager who approves it, and submit.",
@@ -20995,7 +21083,8 @@
       "signature": "Approver's signature",
       "returnedBy": "Returned by",
       "approvedBy": "Approved by",
-      "lastReturnReason": "Last reason for return"
+      "lastReturnReason": "Last reason for return",
+      "workName": "Work name"
     },
     "status": {
       "RECTIFICATION_SUBMITTED": "Waiting for approval",
@@ -21073,9 +21162,6 @@
       "title": "Permit to work",
       "intro": "This application's details, photos and attachments are already filled in. Add the work, location, times, safety measures and conditions and press [Save]; then finish with the approval note, signature and [Sign and approve] on the right.",
       "viewIntro": "Only the person who approves this permit can fill it in; here you can only read it.",
-      "viewIntroCanFill": "Here you can only read it; to change it, press \"Fill in e-permit\" beside \"Permit documents\".",
-      "viewIntroApproved": "Signed, approved and archived; it can no longer be changed.",
-      "viewIntroReturned": "Returned; it can be filled in again once the applicant resubmits.",
       "tile": "E-permit {no} · filled in by {name} · {time}",
       "permitNo": "Permit no.",
       "applicationNo": "Related application no.",
@@ -21117,21 +21203,24 @@
       "afterSigning": "Filled in when the permit is signed.",
       "autoNumber": "Numbered when saved",
       "endBeforeStart": "The end is before the start. Please correct it.",
-      "validFromAfterWorkEnd": "The approved start is after the requested end. Fill in the approved end, or make the approved start earlier.",
-      "validUntilBeforeWorkStart": "The approved end is before the requested start. Fill in the approved start, or make the approved end later.",
       "save": "Save",
       "cancel": "Cancel",
       "close": "Close",
       "failed": "That did not save. Please try again.",
-      "draftOutdated": "{name} saved this e-permit after you last filled it in. Below is the latest; what you typed and did not save was not kept.",
-      "someone": "Someone else",
-      "filledHint": "The e-permit is filled in ({no}). Once signed, it is archived with the approval note, the signature and the time.",
-      "fillHint": "Need an e-permit? Press \"Fill in e-permit\" beside \"Permit documents\" first, save it, then sign to approve.",
       "photosOnly": "The permit form came as photos: see the photos above.",
       "what": {
         "workTypes": "the types of work",
         "attachments": "the attachments"
-      }
+      },
+      "viewIntroCanFill": "Here you can only read it; to change it, press \"Fill in e-permit\" beside \"Permit documents\".",
+      "viewIntroApproved": "Signed, approved and archived; it can no longer be changed.",
+      "viewIntroReturned": "Returned; it can be filled in again once the applicant resubmits.",
+      "validFromAfterWorkEnd": "The approved start is after the requested end. Fill in the approved end, or make the approved start earlier.",
+      "validUntilBeforeWorkStart": "The approved end is before the requested start. Fill in the approved start, or make the approved end later.",
+      "draftOutdated": "{name} saved this e-permit after you last filled it in. Below is the latest; what you typed and did not save was not kept.",
+      "someone": "Someone else",
+      "workName": "Work name",
+      "workNameWhere": "Written in \"Work name\" on the right; it is printed here once signed."
     },
     "workTypes": {
       "title": "Permit to work · Types of work",
@@ -21158,6 +21247,22 @@
         "removed": "Removed \"{name}\""
       },
       "readOnly": "Only people who manage categories can add, rename or remove these; ask your company administrator to change them."
+    },
+    "searchPlaceholder": "Work name or keyword",
+    "searchHint": "Search finds the work name, number, applicant or file name. Put a space between several words, e.g. \"level 3 welding\".",
+    "fileCount": "{count, plural, one {# file} other {# files}}",
+    "workNameHint": "Written by the safety manager, e.g. \"Level 3 zone B steel beam welding\". Once approved it shows in the permit list and can be searched.",
+    "workNamePending": "Written by the safety manager when approving",
+    "formal": {
+      "label": "Formal permit",
+      "missing": "There is no formal permit yet. Fill in your company's own permit form on the computer and upload it with \"Attach files\" under \"Attachments\", or press \"Fill in e-permit\" beside \"Permit documents\" and save it.",
+      "missingPhone": "There is no formal permit yet. It is uploaded (\"Attach files\") or filled in as an e-permit on the computer; once it is there, you can sign and approve here.",
+      "uploaded": "Uploaded: {files}. Check that this is the formal permit, then sign and approve.",
+      "uploadedFile": "{file} ({name} · {time})",
+      "uploadedMore": "{files} and others, {count} in all",
+      "ePermit": "E-permit {no} · filled in by {name}",
+      "archivedWith": "Once signed, the formal permit is archived with the approval note, the signature and the time.",
+      "attachHint": "Upload the formal permit here: fill in your company's own permit form on the computer, press \"Attach files\" (Word, PDF, Excel or a photo), then sign and approve."
     }
   },
   "gateCard": {
@@ -21910,7 +22015,8 @@
     "toast": {
       "created": "Link made",
       "reissued": "New link made; the old one no longer works",
-      "stopped": "Link stopped"
+      "stopped": "Link stopped",
+      "bindingSaved": "Saved"
     },
     "office": {
       "title": "Driver links",
@@ -21941,11 +22047,42 @@
       "askStop": "Once stopped, this driver can no longer clock on or off with this link. Stop it?",
       "confirmReissue": "Yes, send again",
       "confirmStop": "Yes, stop it",
-      "working": "Working on it, please wait."
+      "working": "Working on it, please wait.",
+      "machines": "Bound machines: {machines}",
+      "noMachines": "Not bound to any machine yet, so this driver cannot clock.",
+      "nextStep": "Next: press \"Bind drivers to machines\" and tick his machine. Without a machine he cannot clock."
     },
     "tabs": {
       "clock": "Clock in / out",
       "records": "My records"
+    }
+  },
+  "driverBinding": {
+    "open": "Bind drivers to machines",
+    "title": "Bind drivers to machines",
+    "help": "Only a driver's phone bound to a machine here can clock that machine (start / stop). Site staff cannot clock for a driver. A machine can have several drivers (shifts), and a driver several machines.",
+    "chooseProject": "Choose a project at the top of the page to bind drivers.",
+    "unboundLine": "Machines with no driver bound yet: {count}. No one can clock them now.",
+    "seededLine": "The system has already bound {count} machines from the last 30 days of clock-ins. Please check them under \"Bind drivers to machines\".",
+    "seededHelp": "The system has bound {count} machines from the last 30 days of clock-ins (marked \"From recent clock-ins\"). Check each one: if it is right, press \"Confirm\"; if not, press \"Set drivers\" and change it.",
+    "noDrivers": "This project has no drivers yet. First make a driver link under \"Driver links\", or create an equipment operator phone account in \"Field staff\", then come back to bind.",
+    "noMachines": "This project has no working machines yet.",
+    "machineLine": "No. {number} · {name}",
+    "nobody": "No driver bound yet — no one can clock this machine now.",
+    "seeded": "From recent clock-ins",
+    "edit": "Set drivers",
+    "confirm": "Confirm",
+    "save": "Save",
+    "saveUnbindRunning": "Unbind and save",
+    "cancel": "Cancel",
+    "close": "Close",
+    "pickHelp": "Tick the drivers who may clock this machine, then press \"Save\". With nothing ticked, no one can clock it.",
+    "runningWarn": "{name} is running this machine now (started {time}). Once unbound, his phone cannot clock its stop. Wait until he has stopped it before unbinding; if it must be now, after saving add the end time for him in the machine hours (\"Add end time\").",
+    "unchanged": "Nothing changed yet",
+    "failed": "Not saved. Please try again.",
+    "kind": {
+      "link": "Driver link",
+      "account": "Equipment operator"
     }
   },
   "projectReference": {
@@ -21965,12 +22102,6 @@
     "seeAll": "See all",
     "noReceipts": "No deliveries yet.",
     "map": "Project site map",
-    "point": {
-      "RECEIPT": "Material in",
-      "WASTE": "Waste out",
-      "EQUIPMENT": "Machine"
-    },
-    "noPoints": "Nothing with GPS in the last 30 days.",
     "materialMix": "Materials by category (this month)",
     "wasteMix": "Waste by category (this month)",
     "noMix": "Nothing weighed this month.",
@@ -21979,7 +22110,20 @@
     "pending": "Waiting",
     "noPending": "Nothing waiting.",
     "photos": "Latest site photos",
-    "noPhotos": "No site photos yet."
+    "noPhotos": "No site photos yet.",
+    "noPendingMine": "Nothing is waiting for you right now.",
+    "safety": "Hazard rectification / EHS",
+    "progress": "Construction progress",
+    "progressRecords": "Progress updates",
+    "rainRecords": "Rainy weather records",
+    "progressToday": "Today",
+    "progressMonth": "This month",
+    "progressTotal": "All records",
+    "overall": "Overall progress",
+    "percent": "{value}%",
+    "schedule": "Construction schedule",
+    "consultantRefused": "Head office has changed or ended your access to this project, so nothing can be shown here. Press “Reload”; if you still see nothing, please contact head office.",
+    "reload": "Reload"
   },
   "draftRecords": {
     "delete": "Delete",
@@ -22122,44 +22266,53 @@
   },
   "fieldChats": {
     "title": "Conversations",
-    "subtitle": "Every conversation on the phone (site staff, guards, equipment operators) and in the back office (project office, head office), kept by project. You can answer the ones you are in; Message someone starts a new one.",
+    "subtitle": "Every conversation on the phone (site staff, guards, equipment operators), in the back office (project office, head office) and with consultants, kept by project. You can answer the ones you are in; Message someone starts a new one.",
     "project": "Project",
     "allProjects": "All projects",
     "loading": "Loading…",
     "empty": "No conversations on this project yet.",
     "pick": "Choose a conversation on the left.",
+    "backToList": "Back to conversations",
     "people": "People: {names}",
     "noMessages": "No messages yet.",
     "attachment": "[photo / voice / file]",
     "conversation": "Conversation",
     "find": {
       "title": "Message someone",
-      "hint": "Only the people you may contact: a project office reaches its project's phone people, its own office and head office; head office reaches every project's office. Phone people and head office are never in the same conversation.",
+      "hint": "Only the people you may contact: a project office reaches its project's phone people, its own office, head office, and the project's consultants whom head office gave Conversations; head office reaches every project's office. Phone people and head office are never in the same conversation; a consultant is only ever with the project office.",
+      "hintConsultant": "Only this project's office people are listed. The conversation is kept on this project; the people in it, this project's office and the builder's head office can all read it.",
       "back": "Back",
       "search": "Search by name",
       "choose": "the people to message",
       "group": {
         "phone": "Phone people",
         "office": "Project office",
-        "head_office": "Head office"
+        "head_office": "Head office",
+        "consultant": "Consultants"
       },
       "kind": {
         "office": "Project office",
-        "head_office": "Head office"
+        "head_office": "Head office",
+        "consultant": "Consultant"
       },
       "mix": {
         "phoneChosen": "A phone person is chosen, so head office cannot join this conversation.",
-        "headOfficeChosen": "Head office is chosen, so phone people cannot join this conversation."
+        "headOfficeChosen": "Head office is chosen, so phone people cannot join this conversation.",
+        "consultantChosen": "A consultant is chosen, so only this project's office people can join.",
+        "notWithConsultant": "A phone person or head office is chosen, so a consultant cannot join this conversation.",
+        "oneConsultant": "Only one consultant can be in a conversation."
       },
       "groupTitle": "Group name (optional)",
       "start": "{count, plural, =0 {Start a chat} one {Start with 1 person} other {Start with # people}}",
       "startFailed": "The conversation could not be started. Try again.",
+      "listChanged": "The list of people has changed. Go back and choose again.",
       "noProject": "You have no open project to talk on yet.",
       "projectClosed": "This project has ended, so no new conversation can start here.",
       "notOnTeam": "You are not on this project's team, so you cannot start a conversation here.",
       "pickProject": "Choose a project at the top first, then find someone to message.",
       "noPeople": "Nobody found.",
       "noPeopleOnProject": "Nobody on this project can be messaged yet: add people on its \"Project staff list\" first.",
+      "noOfficeForConsultant": "This project has no office people to contact yet. Ask the builder to add its project office to the project team.",
       "whatProjects": "the projects",
       "whatPeople": "the people"
     },
@@ -22167,13 +22320,14 @@
     "packageKind": "Package",
     "packageGone": "This package conversation cannot be found, or you may not see it.",
     "consultant": {
-      "subtitle": "Conversations on this project sent to you or that you took part in: packages, consultant applications, site tasks and rectifications.",
-      "empty": "No conversation of yours on this project yet.",
+      "subtitle": "Conversations on this project sent to you or that you took part in: packages, consultant applications, site tasks, rectifications, and your conversations with the project office. Press Message someone to contact the project office.",
+      "empty": "No conversation of yours on this project yet. Press Message someone at the top right to contact the project office.",
       "kind": {
         "FIELD_TASK": "Site task",
         "CONSULTANT_APPLICATION": "Consultant application",
         "HAZARD": "Rectification",
-        "PACKAGE": "Package"
+        "PACKAGE": "Package",
+        "DIRECT": "Conversation"
       }
     }
   },
@@ -22223,7 +22377,9 @@
       "empty": "No photos yet.",
       "end": "You have reached the earliest photo.",
       "dayCount": "{count} photos",
-      "noDate": "No date"
+      "noDate": "No date",
+      "subtitleConsultant": "Photos of the parts of this project head office opened for you, in the order taken, from the first day of work to completion.",
+      "emptyConsultant": "There are no photos yet in the parts head office opened for you."
     },
     "positionOpen": "Photo {number}"
   },
@@ -22597,8 +22753,6 @@
       "waivedBy": "Changed to no external approval ({name} · {when})",
       "afterSignature": "Needs external approval: once the safety manager has signed, print it or use 【Send】 to send it to the owner / higher office to sign.",
       "howTo": "Use 【Print】 or 【Send】 at the top of the window to send this record (with the blank external approval box) to the owner / higher office to sign; when it comes back signed, register it with 【Register the signed copy】. Head office staff (a head-office role or the company administrator) with approval rights for this kind of record who took no part in this record can open it and press 【Sign online】.",
-      "howToOpenRecord": "This window has no 【Print】 or 【Send】: press 【Open the original record】 below, then use 【Print】 or 【Send】 at the top of the record's window to send it (with the blank external approval box) to the owner / higher office to sign; when it comes back signed, register it with 【Register the signed copy】.Head office staff (a head-office role or the company administrator) with approval rights for this kind of record who took no part in this record can open it and press 【Sign online】.",
-      "howToElsewhere": "【Print】 and 【Send】 are at the top of this record's own window on a computer: ask a colleague who can open the record (for example, whoever approved the application) to send it (with the blank external approval box) to the owner / higher office to sign; when it comes back signed, register it on a computer with 【Register the signed copy】.Head office staff (a head-office role or the company administrator) with approval rights for this kind of record who took no part in this record can open it and press 【Sign online】.",
       "whoActs": "The signed copy is registered on a computer by office staff who approve this kind of record, or by a safety manager; online signing is done on a computer by head office staff (a head-office role or the company administrator, with approval rights for this kind of record) who took no part in this record.",
       "closedWaiting": "This record has ended; no external approval is needed any more.",
       "company": "Company / department",
@@ -22613,7 +22767,9 @@
       "recordPaper": "Register the signed copy",
       "waive": "No external approval needed, send the exit pass now",
       "correctPaper": "Use another signed copy",
-      "correctHelp": "Chose the wrong file? Choose or upload the right signed copy; the old file stays in the attachments."
+      "correctHelp": "Chose the wrong file? Choose or upload the right signed copy; the old file stays in the attachments.",
+      "howToOpenRecord": "This window has no 【Print】 or 【Send】: press 【Open the original record】 below, then use 【Print】 or 【Send】 at the top of the record's window to send it (with the blank external approval box) to the owner / higher office to sign; when it comes back signed, register it with 【Register the signed copy】.Head office staff (a head-office role or the company administrator) with approval rights for this kind of record who took no part in this record can open it and press 【Sign online】.",
+      "howToElsewhere": "【Print】 and 【Send】 are at the top of this record's own window on a computer: ask a colleague who can open the record (for example, whoever approved the application) to send it (with the blank external approval box) to the owner / higher office to sign; when it comes back signed, register it on a computer with 【Register the signed copy】.Head office staff (a head-office role or the company administrator) with approval rights for this kind of record who took no part in this record can open it and press 【Sign online】."
     },
     "waiveDialog": {
       "body": "No external approval for this one? The exit pass goes to the applicant and the gate at once, and it cannot be changed back to needing external approval.",
@@ -22652,9 +22808,9 @@
       "noGatePhones": "This project has no gate phone account yet, so the exit pass went to the applicant only. Open a phone account for the gate under 「Field staff」.",
       "waiting": "Waiting for the gate: the guard opens the exit pass on the phone, takes check photos and presses 【Confirm release】.",
       "closedUnreleased": "This record has ended. There is no gate release on it.",
-      "ended": "This site clearance has ended",
       "done": "{count, plural, one {Released · {name} · {when} · # check photo} other {Released · {name} · {when} · # check photos}}",
-      "open": "Open"
+      "open": "Open",
+      "ended": "This site clearance has ended"
     },
     "gate": {
       "title": "Check photos, then confirm release",
@@ -22716,14 +22872,14 @@
     },
     "toast": {
       "signedSent": "Signed. The exit pass was sent to the applicant and the gate: {reference}",
+      "signedWaitExternal": "Signed. Waiting for the external approval: {reference}",
+      "externalDone": "External approval done; the exit pass was sent: {reference}",
+      "waived": "Changed to no external approval; the exit pass was sent: {reference}",
+      "released": "Release confirmed and filed as a gate item: {reference}",
       "signedSentApplicant": "Signed. The exit pass went to the applicant only; no gate phone received it: {reference}",
       "signedSentGate": "Signed. The exit pass was sent to the gate: {reference}",
       "signedSentNobody": "Signed: {reference}",
-      "signedWaitExternal": "Signed. Waiting for the external approval: {reference}",
-      "externalDone": "External approval done; the exit pass was sent: {reference}",
-      "paperReplaced": "The signed copy was replaced. The exit pass had already been sent and was not sent again: {reference}",
-      "waived": "Changed to no external approval; the exit pass was sent: {reference}",
-      "released": "Release confirmed and filed as a gate item: {reference}"
+      "paperReplaced": "The signed copy was replaced. The exit pass had already been sent and was not sent again: {reference}"
     },
     "correctedAfter": "After the exit pass was signed, this record was corrected by {by} at {when}; what you see here is the corrected record."
   },
@@ -23024,5 +23180,76 @@
       "externalLink": "To open an external access link for a customer, the customer has to open “Allow MSE to view” first.",
       "accountsList": "Greyed buttons belong to accounts whose customer has not opened “Allow MSE to manage accounts”. To change one, ask that customer's administrator to press it in Company settings. Signing an account out still works at any time."
     }
+  },
+  "projectSiteMap": {
+    "windowLabel": "Which days",
+    "window": {
+      "today": "Today",
+      "week": "Last 7 days"
+    },
+    "layersLabel": "Shown on the map",
+    "layer": {
+      "people": "People",
+      "receipts": "Deliveries",
+      "machines": "Machines",
+      "records": "Site records"
+    },
+    "shown": "(shown, press to hide)",
+    "notShown": "(hidden, press to show)",
+    "backToSite": "Back to the site",
+    "here": "{count} items at this spot",
+    "close": "Close",
+    "openRecord": "Open the full record",
+    "openRoute": "See today's positions",
+    "openWorker": "See the worker's details",
+    "openEntry": "Open the entry record",
+    "lastSeen": "Last located {at}",
+    "since": "On site since {at}",
+    "stale": "Not updated for over 10 minutes: the site app on the phone may be closed.",
+    "machineSeen": "Last located {at} · from the {source, select, OPERATING_LOG {operator's clock-in} EXIT {exit application} other {entry record}}",
+    "recordedAt": "Recorded {at}",
+    "personKind": {
+      "APP": "Site app",
+      "ROSTER": "Worker roster (location link)"
+    },
+    "kind": {
+      "MATERIAL_RECEIPT": "Material in",
+      "MATERIAL_OUTGOING": "Material out",
+      "EQUIPMENT_MOVEMENT": "Equipment in / out",
+      "SITE_PROGRESS": "Site progress",
+      "SAFETY_INCIDENT": "Rectification / EHS",
+      "PERMIT": "Work permit",
+      "FIELD_TASK": "Field task",
+      "DISPOSAL": "Site clearance",
+      "WASTE_OUTGOING": "Recyclable material out",
+      "SUNDRY_CLAIM": "Sundry claim",
+      "GATE_INCIDENT": "Gate photo record"
+    },
+    "legendNote": "People and machines are where they are now; deliveries and site records are {window, select, today {today's} other {the last 7 days'}}, only those with a location.",
+    "outside": "{count, plural, one {# more place is} other {# more places are}} outside the site and not drawn on the map.",
+    "machinesWithout": "{count, plural, one {# more machine on site has} other {# more machines on site have}} no location on record.",
+    "capped": "{layer}: only the newest {cap} are shown; see the module's list for older ones.",
+    "nothingYet": "Nothing with a location to show {window, select, today {for today} other {for the last 7 days}} yet: no people, machines or records.",
+    "noFence": "This project has no geofence yet, so the map cannot show the site's extent.",
+    "noPlace": "This project has no location and no geofence yet, so there is no map to show.",
+    "drawFence": "Draw the geofence",
+    "askAdmin": "Ask the company administrator to draw the site's extent under Geofence settings.",
+    "openExit": "Open the exit application",
+    "machineFromClock": "This place is where the operator clocked in; see the hours under Equipment operator hours.",
+    "legendNow": "{layers}: where they are now.",
+    "legendDay": "{layers}: {window, select, today {today's} other {the last 7 days'}}, only those with a location.",
+    "legendPeople": "The time under a person is when they were last located{app, select, yes {; faded: not updated for over 10 minutes} other {}}; grey: last located on an earlier day, with the date under it.",
+    "noLayers": "Your role cannot see people, deliveries, machines or site records, so the map shows only the site's extent. To see them, ask the company administrator to turn them on under Roles and permissions.",
+    "notUpdating": "The map is not updating: it shows the site as it was at {at}. Please check the network; it will try again by itself.",
+    "retry": "Try again",
+    "consultantLegend": "The map shows {window, select, today {today's} other {the last 7 days'}} records of the parts head office opened for you, only those with a location.",
+    "consultantNothingYet": "Nothing with a location to show {window, select, today {for today} other {for the last 7 days}} yet.",
+    "consultantNoLayers": "Head office has not opened anything on this project that can be drawn on the map for you, so the map shows only the site's extent. To see records here, please contact the contractor's head office.",
+    "askHeadOffice": "Please ask the contractor's head office to draw the site's extent."
+  },
+  "consultantHome": {
+    "noProjects": "You have not been given access to any project yet. Please ask the contractor's head office to open one for you.",
+    "chooseProject": "First choose a project in the project box at the top of the page; that project's dashboard will then show here.",
+    "onlyOpened": "Head office has opened only these parts for you. To see anything else, please contact the contractor's head office."
   }
 }

@@ -15,4 +15,9 @@ export interface ArchivedReportFile {
   file_size: number;
   /** The SHA-256 recorded when the file was generated; checked on every open. */
   file_sha256: string;
+  /**
+   * JB228 (audit 11-20 F9 c): a consultant's own file made before the 11-20
+   * update - not opened for him; the row says to export it again.
+   */
+  made_before_update?: boolean;
 }

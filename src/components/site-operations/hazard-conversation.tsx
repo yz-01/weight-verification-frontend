@@ -108,6 +108,20 @@ function HazardConversationContent({ incidentId }: { incidentId: string }) {
     );
   }
 
+  if (data.chat_withheld) {
+    // JB228 (客户 11-19: 「顾问不能查看建筑商内部的沟通记录」): a consultant who is
+    // not one of this room's people. The server sent no messages and no
+    // people; one plain line stands in the panel's place, and no message box.
+    return (
+      <div className="space-y-3" data-chat-withheld>
+        <h3 className="panel-title">{t("hazard.conversationTitle")}</h3>
+        <p className="rounded-lg border border-dashed border-panel-border p-3 text-sm text-muted-foreground">
+          {t("hazard.chatWithheld")}
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-baseline justify-between gap-2">

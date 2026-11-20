@@ -1,11 +1,17 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  CONSULTANT_ITEMS,
   CONSULTANT_MODULES,
+  allTicks,
   foldLegacyCodes,
+  moduleItemState,
+  normaliseTicks,
   orderedModules,
   startingGrant,
+  toggleItem,
   toggleModule,
+  toggleModuleTicks,
   toggleOption,
 } from "./consultant-modules";
 
@@ -52,16 +58,21 @@ describe("consultant modules", () => {
     expect(startingGrant(["materials"], ["report.export"])).toEqual({
       modules: ["materials"],
       options: ["report.export"],
+      // JB225: a module saved without items opens all of them.
+      items: ["materials.in", "materials.returns", "materials.issues", "materials.supplier_totals", "materials.targets"],
     });
     // A default saved as the seven codes counts as its ticks.
     expect(startingGrant([], ["safety.view", "approval.view"])).toEqual({
       modules: ["safety"],
       options: ["approval.view"],
+      items: [],
     });
     expect(startingGrant(null, null)).toEqual({
       modules: ["dashboard", "projects", "safety", "notifications"],
       options: ["approval.view", "approval.review"],
+      items: [],
     });
+    expect(startingGrant(["progress"], [], ["progress.schedule"]).items).toEqual(["progress.schedule"]);
   });
 
   it("ticks 查看 with 审批 and drops 审批 with 查看", () => {
@@ -76,5 +87,49 @@ describe("consultant modules", () => {
   it("toggles one module and keeps the order", () => {
     expect(toggleModule(["reports"], "dashboard", true)).toEqual(["dashboard", "reports"]);
     expect(toggleModule(["dashboard", "reports"], "reports", false)).toEqual(["dashboard"]);
+  });
+});
+
+// JB225 (客户 11-19 事项 5): 「以上各项请设置独立的勾选权限，由建筑商总部自行决定开放哪些内容给顾问」.
+describe("consultant items", () => {
+  const MATERIALS = ["materials.in", "materials.returns", "materials.issues", "materials.supplier_totals", "materials.targets"];
+
+  it("are the client's nine in the client's order", () => {
+    expect(CONSULTANT_ITEMS).toEqual([...MATERIALS, "progress.records", "progress.daily_reports", "progress.rain", "progress.schedule"]);
+  });
+
+  it("follow the backend's rule between a module and its items", () => {
+    // A module alone (a grant from before JB225) holds all its items.
+    expect(normaliseTicks(["dashboard", "materials"], [])).toEqual({ modules: ["dashboard", "materials"], items: MATERIALS });
+    // An item sent brings its module.
+    expect(normaliseTicks(["dashboard"], ["progress.schedule"], true)).toEqual({
+      modules: ["dashboard", "progress"],
+      items: ["progress.schedule"],
+    });
+    // Items of a module not ticked go.
+    expect(normaliseTicks(["dashboard"], MATERIALS)).toEqual({ modules: ["dashboard"], items: [] });
+  });
+
+  it("ticks a parent's items with it and shows some / all / none", () => {
+    let ticks = toggleModuleTicks({ modules: [], items: [] }, "materials", true);
+    expect(ticks.items).toEqual(MATERIALS);
+    expect(moduleItemState(ticks, "materials")).toBe("all");
+    ticks = toggleItem(ticks, "materials.returns", false);
+    expect(moduleItemState(ticks, "materials")).toBe("some");
+    expect(ticks.modules).toEqual(["materials"]);
+    for (const item of ["materials.in", "materials.issues", "materials.supplier_totals", "materials.targets"] as const) {
+      ticks = toggleItem(ticks, item, false);
+    }
+    // The last item off takes the module off.
+    expect(ticks).toEqual({ modules: [], items: [] });
+    expect(moduleItemState(ticks, "materials")).toBe("none");
+    // One item on brings the module back.
+    expect(toggleItem(ticks, "materials.targets", true)).toEqual({ modules: ["materials"], items: ["materials.targets"] });
+    // Unticking the parent unticks every item.
+    expect(toggleModuleTicks(allTicks(), "progress", false).items).toEqual(MATERIALS);
+  });
+
+  it("「全选」 includes every item", () => {
+    expect(allTicks().items).toEqual([...CONSULTANT_ITEMS]);
   });
 });

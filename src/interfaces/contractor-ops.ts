@@ -2024,6 +2024,11 @@ export interface EvidencePackageRow {
    * error.
    */
   can_return: boolean;
+  /**
+   * A consultant's 待审阅资料包 (JB226 audit F1): one his 仪表板's
+   * 「待审阅资料包 N」 counts - a record left to answer, or his signature due.
+   */
+  needs_action?: boolean;
 }
 
 export interface EvidencePackageDetail extends EvidencePackageRow {

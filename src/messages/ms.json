@@ -4027,10 +4027,15 @@
       "permit_work_type_added": "Jenis kerja ditambah",
       "permit_work_type_renamed": "Jenis kerja ditukar nama",
       "permit_work_type_removed": "Jenis kerja dibuang",
+      "equipment_driver_binding_set": "Pemandu mesin ditetapkan",
+      "jb227_seed_driver_bindings": "Pemandu diikat daripada rekod masa terkini",
       "role_followed": "Kebenaran peranan diubah, diteruskan kepada orang dalam peranan itu",
       "jb219_head_office_roles": "Kemas kini sistem: peranan dikemas kini (peranan ibu pejabat, pratetap yang tidak digunakan dibuang)",
       "platform_access_opened": "Membuka akses untuk MSE",
-      "platform_access_closed": "Menutup akses untuk MSE"
+      "platform_access_closed": "Menutup akses untuk MSE",
+      "project_grant_updated": "Ubah akses projek",
+      "jb225_sub_modules": "Item bahan / kemajuan ditanda berasingan (naik taraf sistem)",
+      "jb225_default_sub_modules": "Item lalai perunding ditanda berasingan (naik taraf sistem)"
     },
     "objectType": {
       "SignOffAssistant": "PIN pembantu",
@@ -5524,7 +5529,10 @@
       "optionsTitle": "Kebenaran lain",
       "selectAll": "Pilih semua",
       "selectNone": "Kosongkan semua",
-      "noModules": "Tiada modul ditanda"
+      "noModules": "Tiada modul ditanda",
+      "partialCount": "{held} daripada {total} ditanda",
+      "partialModule": "{module} ({items})",
+      "itemSeparator": ", "
     },
     "organization": {
       "activeHelp": "Menyahaktifkan firma akan menghentikan semua akses projeknya serta-merta.",
@@ -5607,14 +5615,14 @@
       "dashboard": "Halaman utama, hanya modul yang ditanda di bawah",
       "projects": "Maklumat asas projek (tiada telefon, e-mel atau kebenaran kakitangan)",
       "fieldTasks": "Hanya tugas yang dihantar kepada perunding untuk disemak, atau yang dia sertai",
-      "materials": "Bahan masuk, bahan keluar, sasaran bahan - lihat sahaja, tanpa amaun",
-      "progress": "Kemajuan projek, laporan harian, rekod hujan, jadual - lihat sahaja, boleh menulis catatan",
+      "materials": "Lihat sahaja, tiada amaun. Setiap item di bawah boleh ditanda sendiri",
+      "progress": "Lihat sahaja; boleh tulis catatan. Setiap item di bawah boleh ditanda sendiri",
       "safety": "Lihat pembetulan dan permit kerja; boleh membuka pembetulan dan menyusul yang dibukanya",
       "documents": "Fail projek ini yang telah disahkan dan diarkibkan - lihat dan muat turun",
       "recordCentre": "Rekod modul yang ditanda di atas - lihat sahaja",
       "reports": "Laporan bagi modul yang ditanda di atas",
       "notifications": "Pemberitahuan yang dihantar kepadanya dalam projek ini",
-      "conversations": "Perbualan yang dia sertai"
+      "conversations": "Perbualan yang dia sertai; dia dan pejabat projek ini boleh memulakan perbualan antara satu sama lain (Mesej seseorang: teks, foto, suara, fail). Jika dinyahtanda, kedua-dua pihak tidak boleh menghantar lagi; sejarahnya disimpan untuk dibaca oleh kontraktor"
     },
     "option": {
       "approvalView": "Permohonan perunding: lihat",
@@ -5624,6 +5632,39 @@
     "optionHint": {
       "approvalReview": "Menanda ini turut menanda \"lihat\"",
       "export": "Laporan dan senarai setiap modul boleh dieksport"
+    },
+    "item": {
+      "materialsIn": "Bahan masuk",
+      "materialsReturns": "Pemulangan bahan",
+      "materialsIssues": "Pengeluaran bahan",
+      "materialsSupplierTotals": "Jumlah mengikut pembekal",
+      "materialsTargets": "Sasaran bahan",
+      "progressRecords": "Kemajuan pembinaan",
+      "progressDailyReports": "Laporan harian tapak",
+      "progressRain": "Rekod hujan",
+      "progressSchedule": "Jadual pembinaan"
+    },
+    "itemHint": {
+      "materialsIn": "Bahan yang dihantar ke tapak, termasuk muatan yang ditolak (di Bahan masuk)",
+      "materialsReturns": "Bahan yang dipulangkan kepada pembekal, dengan semakan pemulangan (Bahan keluar → Pemulangan kepada pembekal)",
+      "materialsIssues": "Bahan yang diberikan kepada mesin atau pekerja (Bahan keluar → Pengeluaran bahan)",
+      "materialsSupplierTotals": "Jumlah masuk dan dipulangkan bagi setiap pembekal (Bahan masuk → Jumlah ikut pembekal)",
+      "materialsTargets": "Kuantiti sasaran dan jumlah yang sudah tiba (di Sasaran bahan)",
+      "progressRecords": "Kemas kini kemajuan, foto garis masa, kategori kerja dan ringkasan kemajuan (di Kemajuan)",
+      "progressDailyReports": "Laporan tapak setiap hari (Kemajuan → Laporan harian)",
+      "progressRain": "Rekod henti kerja kerana hujan dan angka bulanannya (Kemajuan → Rekod hari hujan)",
+      "progressSchedule": "Jadual pembinaan dan kemajuan sebenar (Kemajuan → Jadual)"
+    },
+    "itemShort": {
+      "materialsIn": "masuk",
+      "materialsReturns": "pemulangan",
+      "materialsIssues": "pengeluaran",
+      "materialsSupplierTotals": "jumlah mengikut pembekal",
+      "materialsTargets": "sasaran",
+      "progressRecords": "kemajuan",
+      "progressDailyReports": "laporan harian",
+      "progressRain": "hujan",
+      "progressSchedule": "jadual"
     }
   },
   "consultantDashboard": {
@@ -6399,7 +6440,8 @@
       "close": "Tutup"
     },
     "backToSettings": "Kembali ke tetapan perunding",
-    "backToDashboard": "Kembali ke papan pemuka perunding"
+    "backToDashboard": "Kembali ke papan pemuka perunding",
+    "attachmentCopyMaking": "Sedang dijana…"
   },
   "contractorDashboard": {
     "activity": {
@@ -8653,7 +8695,8 @@
     "recordLinks": {
       "title": "Rekod penuh",
       "allPdf": "Semua rekod sebagai satu PDF",
-      "gone": "Rekod asal telah dipadam."
+      "gone": "Rekod asal telah dipadam.",
+      "notGranted": "Ibu pejabat belum membuka item ini kepada anda. Hubungi ibu pejabat jika anda perlu melihatnya."
     },
     "inspection": {
       "needs": "Perlu medan pemeriksaan",
@@ -9004,6 +9047,7 @@
     "api": {
       "account_inactive": "Akaun ini tidak lagi aktif.",
       "announcement_not_found": "Pengumuman itu tidak dijumpai.",
+      "application_record_copy_unavailable": "'Bukti lengkap rekod asal' ini dibuat sebelum kemas kini sistem; rekod asal tidak dapat dijumpai lagi, jadi ia tidak dapat dipaparkan. Jika perlu, minta pejabat projek melampirkannya semula.",
       "approval_action_not_found": "Tindakan kelulusan itu tidak dijumpai.",
       "approval_actor_forbidden": "Anda tidak dibenarkan melakukan tindakan kelulusan ini.",
       "approval_invalid_transition": "Kelulusan ini tidak boleh beralih ke status tersebut.",
@@ -9296,6 +9340,10 @@
       "permit_too_many_files": "Hantar paling banyak {limit} fail sekali gus.",
       "permit_file_type": "{name} bukan fail Word, Excel, PDF atau foto.",
       "attachment_file_type": "{name} tidak boleh dimuat naik. Dibenarkan: {allowed}.",
+      "attachment_content_mismatch": "{name} tidak boleh dimuat naik: kandungannya tidak sepadan dengan jenis failnya (mungkin rosak atau ditukar nama). Buka dengan program asalnya, simpan satu salinan, kemudian muat naik salinan itu. Dibenarkan: {allowed}.",
+      "attachment_empty": "{name} ialah fail kosong (0 KB) dan tidak boleh dimuat naik. Buka fail itu untuk memastikan ada kandungan, simpan, kemudian pilih semula.",
+      "hazard_photo_unreadable": "{name} bukan foto yang boleh dibuka (mungkin rosak atau ditukar nama) dan tidak boleh dimuat naik. Foto boleh dalam JPG, PNG atau WebP; masukkan PDF, Word atau Excel sebagai fail.",
+      "hazard_too_many_photos": "Paling banyak {limit} foto. Buang beberapa, kemudian cipta item.",
       "permit_file_too_large": "{name} melebihi {limit} MB.",
       "permit_approver_unavailable": "Pilih pengurus keselamatan projek ini yang boleh meluluskan permit.",
       "permit_own_application": "Anda yang memohon {incident_no}, jadi orang lain perlu meluluskan atau memulangkannya.",
@@ -9423,6 +9471,8 @@
       "company_material_supplier_not_found": "Satu pembekal tiada dalam senarai pembekal syarikat. Pilih semula.",
       "phone_page_not_yours": "Halaman ini tiada pada telefon anda.",
       "chat_people_invalid": "Pilih orang daripada senarai.",
+      "consultant_chat_closed": "Ibu pejabat kontraktor telah menutup Rekod perbualan anda dalam projek ini (atau akses anda telah tamat), jadi perbualan ini tidak boleh dibuka atau dihantar sekarang. Untuk terus berbincang, hubungi ibu pejabat kontraktor.",
+      "chat_consultant_off": "Rekod perbualan perunding dalam projek ini telah ditutup (atau aksesnya tamat), jadi perbualan ini hanya boleh dibaca.",
       "user_removed": "Akaun ini telah dipadam dan tidak boleh diaktifkan semula. Sila cipta akaun baharu.",
       "supplier_not_on_project": "Pembekal ini tiada dalam senarai pembekal projek ini. Minta ibu pejabat atau pengurus projek menambahnya dahulu.",
       "file_share_link_not_found": "Pautan fail ini tidak dijumpai.",
@@ -9529,20 +9579,24 @@
       "exit_pass_already_released": "Pas keluar ini sudah dilepaskan oleh pintu (atau pembersihan ini sudah tamat), jadi tiada apa lagi perlu dibuat. Halaman telah dimuat semula.",
       "exit_pass_release_phone_only": "Pelepasan disahkan oleh pengawal pintu di telefon selepas mengambil gambar; sistem pejabat tidak boleh melepaskan. Gunakan telefon pengawal pintu.",
       "exit_pass_external_pending": "Ini masih menunggu kelulusan luar, jadi ia tidak boleh disahkan dan diarkibkan sekarang. Daftar salinan bertandatangan, minta pelulus menandatangani dalam talian, atau tukar kepada tidak perlu kelulusan luar, kemudian sahkan dan arkibkan.",
+      "role_kind_fixed": "Pentadbir Syarikat sentiasa peranan ibu pejabat, dan peranan akaun telefon tidak boleh menjadi peranan ibu pejabat.",
+      "role_self_lockout": "Anda sendiri memegang peranan ini, jadi menyimpan ini akan mematikan pengurusan pengguna anda sendiri. Kekalkan tanda “Lihat pengguna” dan “Edit pengguna”, atau minta Pentadbir Syarikat membuat perubahan.",
+      "permit_form_office_only": "E-permit diisi di komputer pejabat. Sila log masuk di komputer untuk mengisinya.",
+      "permit_work_type_exists": "\"{name}\" sudah ada dalam senarai.",
+      "permit_form_changed": "{name} menyimpan e-permit ini selepas anda membukanya. Tutup, buka semula, baca yang terkini dan kemudian ubah.",
+      "equipment_hours_driver_only": "Jam mesin hanya boleh direkod oleh pemandu yang diikat pada mesin itu, menggunakan telefonnya sendiri. Kakitangan tapak tidak boleh merekod bagi pihak pemandu. Minta pemandu yang diikat pada mesin ini merekod dengan telefonnya sendiri; jika mesin belum ada pemandu, minta pejabat mengikat seorang di \"Jam operator peralatan › Ikat pemandu pada mesin\".",
+      "equipment_hours_not_bound": "Mesin ini tidak diikat pada telefon anda, jadi anda tidak boleh merekod masa. Untuk menukar mesin, hubungi pejabat projek.",
+      "equipment_hours_no_longer_bound": "Anda bukan lagi pemandu yang diikat pada mesin ini, jadi anda tidak boleh merekod tamat kerjanya. Minta pejabat menambah masa tamat untuk anda.",
+      "equipment_binding_driver_invalid": "Hanya pautan pemandu atau operator peralatan projek ini boleh diikat. Tutup, buka semula dan tanda sekali lagi.",
+      "equipment_binding_driver_running": "{name} sedang menjalankan mesin ini (mula {time}). Selepas ikatan dibuang, telefonnya tidak boleh merekod tamat kerja. Tunggu sehingga dia menamatkannya; jika perlu sekarang, tekan \"Buang ikatan dan simpan\", kemudian tambah masa tamat untuknya dalam jam mesin (\"Tambah masa tamat\").",
       "exit_pass_own_release": "Anda sendiri yang memohon untuk membawa barang ini keluar, jadi pengawal pintu perlu memeriksa kenderaan dan barang sebelum melepaskannya.",
       "exit_pass_gate_release_only": "Projek ini ada telefon pengawal pintu, jadi pas keluar diperiksa dan dilepaskan oleh pengawal pintu. Minta pengawal pintu membuka pas keluar di telefon, ambil gambar semakan, kemudian tekan 【Sahkan pelepasan】.",
       "exit_pass_online_head_office_only": "Tandatangan dalam talian adalah untuk ibu pejabat (peranan ibu pejabat atau pentadbir syarikat, dengan hak kelulusan untuk jenis rekod ini). Pengurus keselamatan yang menandatangani pas keluar ini, orang yang meluluskan permohonan dan pemohon tidak boleh menandatanganinya dalam talian. Cetak atau e-melkan pas keluar kepada pihak berkenaan; apabila ia dikembalikan bertandatangan, tekan 【Daftar salinan bertandatangan】 untuk memuat naiknya.",
       "exit_pass_waive_not_allowed": "Anda tidak boleh menukar kepada tidak perlu kelulusan luar: hanya pengurus keselamatan yang menandatangani pas keluar ini, pentadbir syarikat, atau kakitangan ibu pejabat yang tidak meluluskan permohonan ini boleh. Sila minta salah seorang daripada mereka.",
-      "exit_pass_busy": "Sistem sedang sibuk dan ini tidak disimpan. Tunggu beberapa saat dan tekan sekali lagi.",
-      "role_kind_fixed": "Pentadbir Syarikat sentiasa peranan ibu pejabat, dan peranan akaun telefon tidak boleh menjadi peranan ibu pejabat.",
-      "role_self_lockout": "Anda sendiri memegang peranan ini, jadi menyimpan ini akan mematikan pengurusan pengguna anda sendiri. Kekalkan tanda “Lihat pengguna” dan “Edit pengguna”, atau minta Pentadbir Syarikat membuat perubahan.",
       "role_self_lockout_type": "Anda sendiri memegang peranan ini, jadi menjadikannya peranan projek akan mematikan pengurusan pengguna anda sendiri. Kekalkan sebagai peranan ibu pejabat, atau minta Pentadbir Syarikat membuat perubahan.",
       "grant_not_held": "Anda sendiri tidak mempunyai kebenaran ini, jadi anda tidak boleh memberikannya kepada orang lain atau kepada diri sendiri. Sila minta Pentadbir Syarikat melakukannya.",
       "grant_admin_role_only_admin": "Hanya Pentadbir Syarikat boleh menjadikan seseorang Pentadbir Syarikat. Sila minta Pentadbir Syarikat melakukannya.",
       "grant_admin_account_only_admin": "Hanya Pentadbir Syarikat boleh mengubah peranan atau kebenaran Pentadbir Syarikat. Sila minta Pentadbir Syarikat melakukannya.",
-      "permit_form_office_only": "E-permit diisi di komputer pejabat. Sila log masuk di komputer untuk mengisinya.",
-      "permit_work_type_exists": "\"{name}\" sudah ada dalam senarai.",
-      "permit_form_changed": "{name} menyimpan e-permit ini selepas anda membukanya. Tutup, buka semula, baca yang terkini dan kemudian ubah.",
       "permit_form_changed_before_signing": "E-permit baru sahaja diubah. Sila bacanya semula sebelum menandatangani dan meluluskan.",
       "platform_access_admin_only": "Hanya pentadbir syarikat boleh membuka atau menutup akses MSE. Sila minta pentadbir syarikat anda.",
       "platform_access_closed": "Pelanggan ini belum membuka paparan. Minta pentadbir pelanggan tekan “Benarkan MSE melihat” dalam Tetapan syarikat, kemudian buka semula.",
@@ -9553,7 +9607,13 @@
       "platform_access_view_only": "Pelanggan hanya membuka paparan: MSE boleh membuka pratonton untuk melihat, dan sistem tidak memberi MSE cara untuk mengubah, mengeksport, menghantar atau mencetak rekod pelanggan.",
       "platform_accounts_closed": "Mengubah akaun pelanggan ini memerlukan persetujuan pelanggan. Minta pentadbir pelanggan tekan “Benarkan MSE mengurus akaun” dalam Tetapan syarikat, kemudian cuba lagi.",
       "platform_owner_locked": "Pelanggan sudah menggunakan akaun pentadbir ini, jadi MSE tidak boleh mengubah e-mel log masuknya. Beritahu pelanggan: pentadbir syarikat mereka sendiri mengubahnya dalam Pengurusan pengguna, atau pelanggan menghantar surat dan rakan yang menjaga pelayan akan menguruskannya.",
-      "phone_role_office_account": "Akaun telefon dibuat dalam Kakitangan tapak. Akaun pejabat tidak boleh diberi peranan telefon (kakitangan tapak, operator jentera, pengawal pintu) di sini. Sila pilih peranan lain."
+      "exit_pass_busy": "Sistem sedang sibuk dan ini tidak disimpan. Tunggu beberapa saat dan tekan sekali lagi.",
+      "phone_role_office_account": "Akaun telefon dibuat dalam Kakitangan tapak. Akaun pejabat tidak boleh diberi peranan telefon (kakitangan tapak, operator jentera, pengawal pintu) di sini. Sila pilih peranan lain.",
+      "consultant_sub_module_not_granted": "Ibu pejabat belum membuka item ini untuk anda dalam projek ini. Hubungi ibu pejabat jika anda perlu melihatnya.",
+      "permit_work_name_required": "Tulis nama kerja dahulu, kemudian tandatangan dan luluskan.",
+      "permit_formal_permit_required": "Belum ada permit rasmi. Muat naik borang permit syarikat yang telah diisi dengan \"Lampirkan fail\", atau isi e-permit, kemudian tandatangan dan luluskan.",
+      "hazard_room_not_for_consultant": "Ini perbualan dalaman kontraktor; perunding tidak boleh menghantar mesej di sini. Untuk berbincang dengan pejabat projek, gunakan 'Mesej seseorang'.",
+      "report_export_made_before_update": "Fail ini dibuat sebelum kemas kini sistem. Sila eksport semula."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -10538,6 +10598,7 @@
     "takePhoto": "Ambil foto",
     "photo": "Foto",
     "closed": "Bahaya ini telah diarkibkan. Rekodnya kekal boleh dibaca, tetapi tidak menerima mesej baharu.",
+    "chatWithheld": "Rekod komunikasi dalaman kontraktor tidak dipaparkan kepada perunding.",
     "participants": "Dalam perbualan ini",
     "reporter": "Melaporkannya",
     "responsible": "Bertanggungjawab",
@@ -12510,7 +12571,8 @@
     "layoutLetter": "Surat",
     "previewDraft": "Pratonton seluruh pakej",
     "draftPreviewOnly": "Ini pratonton sebelum disahkan. Cetak, eksport dan hantar dibuka selepas disahkan.",
-    "fixedPart": "Sentiasa dimasukkan ke dalam pakej"
+    "fixedPart": "Sentiasa dimasukkan ke dalam pakej",
+    "reviewNothingWaiting": "Tiada pakej yang menunggu semakan atau tandatangan anda sekarang."
   },
   "mySubmissions": {
     "title": "Apa yang saya hantar",
@@ -12710,16 +12772,17 @@
       "document_title": "Nama dokumen",
       "rain_remark": "Catatan",
       "last_return_reason": "Sebab dipulangkan sebelum ini",
-      "permit_subcontractor": "Subkontraktor",
-      "permit_work_lead": "Penyelia kerja",
-      "permit_contact_phone": "No. telefon",
       "permit_work_type": "Jenis kerja",
       "permit_location": "Lokasi kerja",
       "permit_work_content": "Butiran kerja",
       "permit_work_period": "Tempoh dipohon",
       "permit_safety_measures": "Risiko dan langkah keselamatan",
       "permit_conditions": "Syarat kelulusan",
-      "permit_valid_period": "Tempoh diluluskan"
+      "permit_valid_period": "Tempoh diluluskan",
+      "permit_subcontractor": "Subkontraktor",
+      "permit_work_lead": "Penyelia kerja",
+      "permit_contact_phone": "No. telefon",
+      "permit_work_name": "Nama kerja"
     },
     "detailTitle": "Apa yang saya hantar",
     "photos": "Gambar",
@@ -13910,7 +13973,7 @@
     "permits": {
       "what": "Permit kerja: muat naik borang permit syarikat anda sendiri (Word, PDF atau foto) dan hantar kepada pengurus keselamatan yang dinamakan, yang menandatangan untuk meluluskannya atau memulangkannya; permit yang diluluskan diarkibkan. Setiap permit boleh dicari semula mengikut projek, status kelulusan, pemohon dan tarikh, dan failnya boleh dipratonton, dicetak atau dimuat turun. Pelulus boleh menekan \"Isi e-permit\" dalam tetingkap untuk menjadikan permohonan ini e-permit, dicetak sebagai halaman pertama PDF bukti lengkap.",
       "who": "Orang yang ada “Lihat bahaya / EHS dan permit kerja” boleh melihat dan memuat turun; dengan “Lapor dan tugaskan bahaya, mohon permit kerja” mereka memohon dengan “Permohonan baharu”. Meluluskan memerlukan “Pengesahan keselamatan (boleh lulus permit kerja)” dan dibuat oleh pengurus keselamatan yang dipilih pemohon, atau pentadbir syarikat. Tiada sesiapa meluluskan permit sendiri.",
-      "need": "Permohonan baharu memerlukan projek, fail permit (Word, PDF atau foto borang; beberapa halaman, paling banyak 10 sekali gus) dan pengurus keselamatan pelulus; catatan adalah pilihan. Meluluskan memerlukan tandatangan; memulangkan memerlukan sebabnya. E-permit adalah pilihan; jika diisi, butiran kerja, lokasi dan masa dipohon diperlukan. Jenis kerja ditetapkan dalam Pengurusan kategori → Kategori syarikat → Permit kerja · Jenis kerja.",
+      "need": "Permohonan baharu memerlukan projek, fail permit (Word, PDF atau foto borang; beberapa halaman, paling banyak 10 sekali gus) dan pengurus keselamatan pelulus; catatan adalah pilihan. Meluluskan memerlukan tandatangan; memulangkan memerlukan sebabnya. Menandatangan untuk meluluskan juga memerlukan nama kerja dan permit rasmi: borang permit syarikat yang telah diisi dan dimuat naik dengan \"Lampirkan fail\" (Word, PDF, Excel atau foto; fail pemohon sendiri tidak dikira), atau e-permit (butiran kerja, lokasi dan masa dipohon diperlukan). Jenis kerja ditetapkan dalam Pengurusan kategori → Kategori syarikat → Permit kerja · Jenis kerja.",
       "then": "Pengurus keselamatan yang dipilih (dan pentadbir syarikat) menerima notis tugasan. Selepas diluluskan, fail asal, keputusan, tandatangan, jawatan pelulus dan masa diarkibkan bersama dan tidak boleh diubah lagi. Permit yang dipulangkan dibetulkan oleh pemohon dan dihantar semula dengan fail baharu; fail terdahulu disimpan. Pemohon dimaklumkan dalam kedua-dua keadaan. Hanya pelulus permit boleh mengisi e-permit, di komputer; pemohon hanya boleh membacanya. Selepas ditandatangani ia diarkibkan bersama permit dan tidak boleh diubah lagi.",
       "trouble": "Jika tiada pengurus keselamatan boleh dipilih, belum ada sesiapa dalam projek ini yang boleh meluluskan permit: akaun pelulus memerlukan “Pengesahan keselamatan” dan “Lihat projek” (hidup secara lalai bagi peranan projek), dan orang itu mesti ada dalam senarai kakitangan projek ini. Tetingkap “Permohonan baharu” menyenaraikan tiga langkah ini."
     },
@@ -14201,7 +14264,7 @@
       "equipment": {
         "view": "Lihat peralatan dan jam operasi",
         "manage": "Urus peralatan, terima masuk dan keluar, laras jam",
-        "capture": "Rekod peralatan masuk, keluar dan jam di tapak",
+        "capture": "Rekod peralatan masuk dan keluar di tapak; lihat jam operasi",
         "operate": "Merekod mula dan tamat kerja jentera sebagai operatornya, dari telefon"
       },
       "field_task": {
@@ -14744,7 +14807,6 @@
       "nothingChanged": "Belum ada perubahan.",
       "saved": "Kebenaran projek disimpan",
       "projectNote": "Kebenaran projek: semuanya hidup secara lalai. Yang dimatikan tidak boleh digunakan oleh orang ini dalam semua projeknya.",
-      "notMine": "Suis berwarna kelabu ialah kebenaran yang anda sendiri tiada, jadi anda tidak boleh menghidupkannya. Sila minta Pentadbir Syarikat.",
       "allOn": "Semua kebenaran projek hidup",
       "someOff": "{count} dimatikan",
       "grantedCount": "{count} kebenaran kumpulan B daripada ibu pejabat",
@@ -14752,7 +14814,8 @@
       "suspended": "Digantung",
       "headOffice": "Akaun ibu pejabat: kebenarannya ditetapkan oleh ibu pejabat dalam Pengurusan pengguna dan hanya dipaparkan di sini.",
       "setInUsers": "Kebenaran orang ini ditetapkan oleh ibu pejabat dalam Pengurusan pengguna dan hanya dipaparkan di sini.",
-      "openUser": "Buka halaman pengguna"
+      "openUser": "Buka halaman pengguna",
+      "notMine": "Suis berwarna kelabu ialah kebenaran yang anda sendiri tiada, jadi anda tidak boleh menghidupkannya. Sila minta Pentadbir Syarikat."
     }
   },
   "qrCodes": {
@@ -15685,7 +15748,8 @@
     "format": "Format",
     "size": "Saiz fail",
     "bytes": "{count} bait",
-    "sha256Hint": "SHA-256 ialah cap jari yang direkodkan semasa fail dijana. Ia disemak setiap kali fail dibuka, dan fail yang tidak lagi sepadan tidak akan dibuka."
+    "sha256Hint": "SHA-256 ialah cap jari yang direkodkan semasa fail dijana. Ia disemak setiap kali fail dibuka, dan fail yang tidak lagi sepadan tidak akan dibuka.",
+    "madeBeforeUpdate": "Fail ini dibuat sebelum kemas kini sistem. Sila eksport semula."
   },
   "reports": {
     "dispatches": {
@@ -15870,26 +15934,35 @@
     },
     "followers": "Peranan ini kini ada {count} orang. Apabila disimpan, tanda yang anda ubah kali ini sampai kepada mereka; apa-apa yang dihidupkan atau dimatikan untuk seseorang secara berasingan kekal seperti sedia ada.",
     "adminLocked": "Pentadbir Syarikat mempunyai semua kebenaran; ini tidak boleh diubah.",
-    "adminNameFixed": "Nama dan keterangan Pentadbir Syarikat ditetapkan oleh sistem dan tidak boleh diubah.",
-    "notYours": "Kotak berwarna kelabu ialah kebenaran yang anda sendiri tiada, jadi anda tidak boleh menandakannya untuk peranan ini. Sila minta Pentadbir Syarikat.",
     "phoneRole": "Ini peranan akaun telefon (kakitangan tapak, operator jentera, pengawal pintu). Ia dibuat dan diurus dalam Kakitangan tapak; di sini kebenarannya hanya boleh dilihat.",
     "phoneRoleLink": "Buka Kakitangan tapak",
     "hqCount": "{count, plural, =0 {Tiada kebenaran ibu pejabat ditanda} other {# kebenaran ibu pejabat}}",
     "allPermissions": "Semua kebenaran",
     "phoneHere": "Akaun telefon (kakitangan tapak, operator jentera, pengawal pintu) dibuat dalam Kakitangan tapak, bukan di sini.",
     "onlyAdmin": "Pentadbir Syarikat sudah mempunyai semua kebenaran. Untuk kerja lain, tekan “Peranan baharu” di kanan atas, beri nama anda sendiri, pilih peranan ibu pejabat atau peranan projek, dan tanda kebenarannya.",
+    "adminNameFixed": "Nama dan keterangan Pentadbir Syarikat ditetapkan oleh sistem dan tidak boleh diubah.",
+    "notYours": "Kotak berwarna kelabu ialah kebenaran yang anda sendiri tiada, jadi anda tidak boleh menandakannya untuk peranan ini. Sila minta Pentadbir Syarikat.",
     "createHelp": "Beri nama, pilih Peranan ibu pejabat atau Peranan projek, tandakan apa yang boleh dibuat oleh peranan ini, kemudian tekan “Cipta”.",
     "editHelp": "Nama, jenis peranan dan tanda kebenaran ada di bawah; tekan “Simpan” apabila selesai."
   },
   "safety": {
     "officeCreate": {
       "title": "Cipta item pembetulan",
-      "description": "Pilih kategori pembetulan, nyatakan apa yang perlu dibetulkan, lampirkan foto, dan namakan orang yang bertanggungjawab jika ada.",
+      "description": "Pilih kategori pembetulan dan nyatakan apa yang perlu dibetulkan; lampirkan foto atau fail pembetulan jika ada (pilihan), dan namakan orang yang bertanggungjawab jika ada.",
       "confirm": "Cipta item pembetulan",
-      "photoPlace": "1. Lokasi yang perlu dibetulkan",
-      "photoDetail": "2. Butiran masalah",
-      "photoScope": "3. Peralatan atau kawasan terlibat",
-      "photoOther": "4. Lain-lain"
+      "files": "Foto dan fail pembetulan",
+      "filesHint": "Foto, PDF, Word atau Excel dalam komputer ini: tekan [Pilih foto atau fail]. Foto WhatsApp atau tangkapan skrin: salin dahulu, kemudian tekan [Tampal tangkapan skrin] atau Ctrl+V. Item boleh dicipta tanpa foto.",
+      "filesHintNoPasteButton": "Foto, PDF, Word atau Excel dalam komputer ini: tekan [Pilih foto atau fail]. Foto WhatsApp atau tangkapan skrin: salin dahulu, kemudian tekan Ctrl+V pada papan kekunci dalam tetingkap ini. Item boleh dicipta tanpa foto.",
+      "filesHintPhone": "Foto: tekan [Ambil foto]. PDF, Word atau Excel: tekan [Pilih fail]. Item boleh dicipta tanpa foto.",
+      "photoTimeNote": "Foto direkodkan pada masa \"{when}\" di atas; jika kosong, pada masa anda mencipta item ini (tarikh yang tersimpan dalam fail foto tidak digunakan).",
+      "chooseFiles": "Pilih foto atau fail",
+      "webcam": "Ambil foto dengan kamera komputer",
+      "limits": "Sehingga {photos} foto dan {documents} fail, setiap satu tidak melebihi {limit} MB.",
+      "attached": "Dilampirkan: {photos} foto, {documents} fail.",
+      "tooManyPhotos": "{name} tidak ditambah: paling banyak {limit} foto.",
+      "tooManyDocuments": "{name} tidak ditambah: paling banyak {limit} fail.",
+      "uploading": "Sedang memuat naik {count} fail. Jangan tutup halaman ini…",
+      "created": "{count, plural, =0 {Item pembetulan telah dicipta.} other {Item pembetulan telah dicipta; kesemua # fail telah disimpan.}}"
     },
     "action": {
       "updateStatus": "Kemas kini status"
@@ -15923,7 +15996,6 @@
       "detail": "2. Butiran bahaya atau kerosakan",
       "overview": "1. Gambaran kawasan insiden",
       "progress": "{current} foto telah diambil. Semua {required} foto wajib pertama mesti lengkap; foto tambahan boleh ditambah.",
-      "progressOffice": "{current} dilampirkan. Satu sudah cukup; tambah yang lain di atas jika ada, atau lebih.",
       "risk": "3. Peralatan, orang atau laluan terjejas",
       "surroundings": "4. Keadaan sekeliling tapak"
     },
@@ -18714,8 +18786,6 @@
       "chosenProjects": "Projek dipilih",
       "noProjects": "Syarikat belum ada projek.",
       "needOneProject": "Pilih sekurang-kurangnya satu projek, atau semua projek.",
-      "notMine": "Suis berwarna kelabu ialah kebenaran yang anda sendiri tiada: anda tidak boleh menghidupkannya, untuk sesiapa atau untuk diri sendiri. Sila minta Pentadbir Syarikat.",
-      "adminAccount": "Ini akaun Pentadbir Syarikat. Hanya Pentadbir Syarikat boleh mengubah kebenarannya.",
       "amounts": "Lihat jumlah wang",
       "amountsHint": "Kos bahan, harga seunit, bajet, tuntutan dan jumlah tuntutan pelbagai. Mati: ditunjukkan sebagai —, dan tidak dieksport.",
       "operate": "Kerja harian",
@@ -18736,6 +18806,8 @@
       "reservedNote": "Kebenaran kumpulan A ibu pejabat (pengguna dan peranan, log audit, templat kelulusan, jabatan, pengurusan projek, pengurusan papan pemuka, tetapan syarikat, bil, langganan, integrasi) hanya untuk akaun ibu pejabat dan tidak boleh dihidupkan untuk pengguna projek.",
       "scopeProjectUser": "Pengguna projek hanya melihat projek yang dipilih di sini.",
       "projectDefaultOn": "Kebenaran projek semuanya hidup secara lalai; anda boleh mematikan satu untuk orang ini, dan menghidupkannya semula kemudian.",
+      "notMine": "Suis berwarna kelabu ialah kebenaran yang anda sendiri tiada: anda tidak boleh menghidupkannya, untuk sesiapa atau untuk diri sendiri. Sila minta Pentadbir Syarikat.",
+      "adminAccount": "Ini akaun Pentadbir Syarikat. Hanya Pentadbir Syarikat boleh mengubah kebenarannya.",
       "partSavedWhy": "Butiran pengguna telah disimpan; kebenaran belum disimpan lagi: {reason}"
     },
     "projectsView": {
@@ -19359,6 +19431,7 @@
     "closedReadonly": "Anda boleh membaca perbualan ini tetapi bukan ahlinya, jadi tidak boleh menghantar.",
     "closedHeadOffice": "Ibu pejabat hanya boleh membaca perbualan yang ada kakitangan telefon di dalamnya, jadi anda tidak boleh menghantar di sini.",
     "closedMoved": "Seseorang di dalamnya sudah tiada dalam projek ini, jadi ia hanya boleh dibaca. Mulakan perbualan baharu.",
+    "closedConsultantOff": "Rekod perbualan perunding dalam projek ini telah ditutup (atau aksesnya tamat), jadi perbualan ini hanya boleh dibaca.",
     "closedTaskDone": "Tugasan ini telah selesai (atau dibatalkan), jadi sembang ditutup. Mesej masih boleh dibaca."
   },
   "exportTotals": {
@@ -20323,10 +20396,17 @@
     "wrongType": "{name} tidak boleh dilampirkan: jenis fail ini tidak diterima di sini.",
     "tooBig": "{name} melebihi {limit} MB.",
     "tooBigTotal": "{name} akan menjadikan jumlah fail melebihi {limit} MB.",
+    "emptyFile": "{name} ialah fail kosong (0 KB) dan tidak boleh dimuat naik. Buka fail itu untuk memastikan ada kandungan, simpan, kemudian pilih semula.",
     "phoneTooBig": "{name}: fail terlalu besar. Sila muat naik dari komputer pejabat. Di telefon, setiap fail paling banyak 20 MB, dan 50 MB semuanya.",
     "tooMany": "Hantar paling banyak {limit} fail pada satu masa.",
     "notAFile": "Yang anda tampal bukan fail atau gambar. Salin gambar itu sendiri dan cuba lagi.",
-    "photoUseCamera": "{name}: di telefon, ambil foto dengan butang Ambil foto di atas, bukan dari galeri."
+    "photoUseCamera": "{name}: di telefon, ambil foto dengan butang Ambil foto di atas, bukan dari galeri.",
+    "pasteScreenshot": "Tampal tangkapan skrin",
+    "pastedPictures": "{count} gambar ditampal; ada dalam senarai di bawah.",
+    "pastedFiles": "{count} fail ditampal; ada dalam senarai di bawah.",
+    "clipboardEmpty": "Tiada gambar dalam papan keratan. Dalam WhatsApp, klik kanan gambar, pilih \"Salin imej\", kemudian tekan [Tampal tangkapan skrin].",
+    "clipboardRefused": "Pelayar ini tidak membenarkan halaman membaca papan keratan. Klik tetingkap ini, kemudian tekan Ctrl+V pada papan kekunci.",
+    "screenshotName": "Tangkapan skrin"
   },
   "supplierDateFilter": {
     "allSuppliers": "Semua pembekal",
@@ -20769,7 +20849,15 @@
       "signatureHint": "Pemandu tandatangan di sini.",
       "clearSignature": "Tandatangan semula",
       "sent": "Dihantar: no. {number} {kind} {time}",
-      "sentQueued": "Disimpan dalam telefon, dihantar bila ada talian: no. {number} {kind} {time}"
+      "sentQueued": "Disimpan dalam telefon, dihantar bila ada talian: no. {number} {kind} {time}",
+      "boundLine": "Mesin yang boleh anda rekod: {machines}",
+      "boundMore": "Mesin yang boleh anda rekod: {machines} ({count} semuanya)",
+      "boundJoin": ", ",
+      "notBound": "Telefon anda belum diikat pada mana-mana mesin, jadi anda belum boleh merekod masa. Minta pejabat projek mengikat anda pada mesin anda di komputer, di \"Jam operator peralatan › Ikat pemandu pada mesin\".",
+      "notYourMachine": "Mesin ini bukan mesin yang boleh anda rekod. Semak nombor mesin; jika pejabat baru sahaja mengikat anda padanya, buka semula halaman ini di tempat yang ada isyarat. Jika masih tidak boleh, hubungi pejabat projek.",
+      "qrUnknown": "Tidak dapat mengenal pasti mesin bagi kod QR ini (diimbas: {text}). Mungkin ia bukan kod QR mesin projek ini, atau tidak diimbas dengan jelas. Imbas semula kod QR pada mesin; jika masih tidak boleh, tekan \"QR rosak? Taip nombor\" dan taip nombor mesin.",
+      "noLongerBound": "Anda telah memulakan {machines} dan ia belum ditamatkan, tetapi anda bukan lagi pemandu yang diikat padanya, jadi anda tidak boleh merekod tamat kerjanya. Minta pejabat menambah masa tamat untuk anda.",
+      "staffViewOnly": "Jam mesin direkod oleh pemandu yang diikat pada mesin itu, menggunakan telefonnya sendiri. Kakitangan tapak tidak boleh merekod bagi pihak pemandu. Anda boleh melihat jam terkini di sini; untuk menambah atau membetulkan masa, hubungi pejabat projek."
     },
     "siteNo": {
       "open": "Senarai nombor peralatan",
@@ -20964,7 +21052,7 @@
   },
   "permits": {
     "title": "Permit kerja",
-    "subtitle": "Muat naik borang permit syarikat anda sendiri (Word, PDF atau foto) dan hantar kepada pengurus keselamatan yang dinamakan. Selepas diluluskan, fail asal, keputusan, tandatangan dan masa diarkibkan bersama.",
+    "subtitle": "Muat naik borang permit syarikat anda sendiri (Word, PDF atau foto) dan hantar kepada pengurus keselamatan yang dinamakan. Selepas diluluskan, fail asal, keputusan, tandatangan dan masa diarkibkan bersama. Sebelum meluluskan, pengurus keselamatan menulis nama kerja dan memuat naik permit rasmi (atau mengisi e-permit).",
     "new": "Permohonan baharu",
     "newTitle": "Permohonan permit kerja baharu",
     "newHelp": "Gunakan borang permit syarikat anda sendiri, isi dan muat naik - tiada borang untuk diisi di sini. Tambah catatan, pilih pengurus keselamatan yang meluluskan, dan hantar.",
@@ -20995,7 +21083,8 @@
       "signature": "Tandatangan pelulus",
       "returnedBy": "Dipulangkan oleh",
       "approvedBy": "Diluluskan oleh",
-      "lastReturnReason": "Sebab dipulangkan sebelum ini"
+      "lastReturnReason": "Sebab dipulangkan sebelum ini",
+      "workName": "Nama kerja"
     },
     "status": {
       "RECTIFICATION_SUBMITTED": "Menunggu kelulusan",
@@ -21073,9 +21162,6 @@
       "title": "Permit kerja (Permit to work)",
       "intro": "Butiran, foto dan lampiran permohonan ini sudah diisi. Tambah kerja, lokasi, masa, langkah keselamatan dan syarat, kemudian tekan [Simpan]; selepas itu selesaikan dengan catatan kelulusan, tandatangan dan [Tandatangan dan luluskan] di sebelah kanan.",
       "viewIntro": "Hanya orang yang meluluskan permit ini boleh mengisinya; di sini anda hanya boleh membacanya.",
-      "viewIntroCanFill": "Di sini anda hanya boleh membacanya; untuk mengubahnya, tekan \"Isi e-permit\" di sebelah \"Dokumen permit\".",
-      "viewIntroApproved": "Telah ditandatangani, diluluskan dan diarkibkan; tidak boleh diubah lagi.",
-      "viewIntroReturned": "Dikembalikan; boleh diisi semula selepas pemohon menghantar semula.",
       "tile": "E-permit {no} · diisi oleh {name} · {time}",
       "permitNo": "No. permit",
       "applicationNo": "No. permohonan berkaitan",
@@ -21117,21 +21203,24 @@
       "afterSigning": "Diisi apabila permit ditandatangani.",
       "autoNumber": "Dinomborkan apabila disimpan",
       "endBeforeStart": "Masa tamat lebih awal daripada masa mula. Sila betulkan.",
-      "validFromAfterWorkEnd": "Masa mula diluluskan selepas masa tamat dipohon. Isi masa tamat diluluskan, atau awalkan masa mula diluluskan.",
-      "validUntilBeforeWorkStart": "Masa tamat diluluskan sebelum masa mula dipohon. Isi masa mula diluluskan, atau lewatkan masa tamat diluluskan.",
       "save": "Simpan",
       "cancel": "Batal",
       "close": "Tutup",
       "failed": "Tidak berjaya disimpan. Sila cuba lagi.",
-      "draftOutdated": "{name} menyimpan e-permit ini selepas anda kali terakhir mengisinya. Di bawah ialah yang terkini; apa yang anda taip dan tidak simpan tidak dikekalkan.",
-      "someone": "Orang lain",
-      "filledHint": "E-permit sudah diisi ({no}). Selepas ditandatangani, ia diarkibkan bersama catatan kelulusan, tandatangan dan masa.",
-      "fillHint": "Perlukan e-permit? Tekan \"Isi e-permit\" di sebelah \"Dokumen permit\" dahulu, simpan, kemudian tandatangan untuk meluluskan.",
       "photosOnly": "Borang permit dihantar sebagai foto: lihat foto di atas.",
       "what": {
         "workTypes": "senarai jenis kerja",
         "attachments": "senarai lampiran"
-      }
+      },
+      "viewIntroCanFill": "Di sini anda hanya boleh membacanya; untuk mengubahnya, tekan \"Isi e-permit\" di sebelah \"Dokumen permit\".",
+      "viewIntroApproved": "Telah ditandatangani, diluluskan dan diarkibkan; tidak boleh diubah lagi.",
+      "viewIntroReturned": "Dikembalikan; boleh diisi semula selepas pemohon menghantar semula.",
+      "validFromAfterWorkEnd": "Masa mula diluluskan selepas masa tamat dipohon. Isi masa tamat diluluskan, atau awalkan masa mula diluluskan.",
+      "validUntilBeforeWorkStart": "Masa tamat diluluskan sebelum masa mula dipohon. Isi masa mula diluluskan, atau lewatkan masa tamat diluluskan.",
+      "draftOutdated": "{name} menyimpan e-permit ini selepas anda kali terakhir mengisinya. Di bawah ialah yang terkini; apa yang anda taip dan tidak simpan tidak dikekalkan.",
+      "someone": "Orang lain",
+      "workName": "Nama kerja",
+      "workNameWhere": "Ditulis dalam \"Nama kerja\" di sebelah kanan; dicetak di sini selepas ditandatangani."
     },
     "workTypes": {
       "title": "Permit kerja · Jenis kerja",
@@ -21158,6 +21247,22 @@
         "removed": "\"{name}\" dibuang"
       },
       "readOnly": "Hanya orang yang mengurus kategori boleh menambah, menukar nama atau membuang; minta pentadbir syarikat anda untuk mengubahnya."
+    },
+    "searchPlaceholder": "Nama atau kata kunci",
+    "searchHint": "Carian mencari nama kerja, nombor, pemohon atau nama fail. Letakkan satu ruang antara beberapa perkataan, cth. \"aras 3 kimpalan\".",
+    "fileCount": "{count} fail",
+    "workNameHint": "Diisi oleh pengurus keselamatan, cth. \"Kimpalan rasuk keluli aras 3 zon B\". Selepas diluluskan ia dipaparkan dalam senarai permit dan boleh dicari.",
+    "workNamePending": "Diisi oleh pengurus keselamatan semasa meluluskan",
+    "formal": {
+      "label": "Permit rasmi",
+      "missing": "Belum ada permit rasmi. Isi borang permit syarikat anda di komputer dan muat naik dengan \"Lampirkan fail\" di bawah \"Lampiran\", atau tekan \"Isi e-permit\" di sebelah \"Dokumen permit\" dan simpan.",
+      "missingPhone": "Belum ada permit rasmi. Ia dimuat naik (\"Lampirkan fail\") atau diisi sebagai e-permit di komputer; selepas itu anda boleh menandatangan dan meluluskan di sini.",
+      "uploaded": "Dimuat naik: {files}. Pastikan ini permit rasmi, kemudian tandatangan dan luluskan.",
+      "uploadedFile": "{file} ({name} · {time})",
+      "uploadedMore": "{files} dan lain-lain, {count} kesemuanya",
+      "ePermit": "E-permit {no} · diisi oleh {name}",
+      "archivedWith": "Selepas ditandatangani, permit rasmi diarkibkan bersama catatan kelulusan, tandatangan dan masa.",
+      "attachHint": "Muat naik permit rasmi di sini: isi borang permit syarikat anda di komputer, tekan \"Lampirkan fail\" (Word, PDF, Excel atau foto), kemudian tandatangan dan luluskan."
     }
   },
   "gateCard": {
@@ -21910,7 +22015,8 @@
     "toast": {
       "created": "Pautan dibuat",
       "reissued": "Pautan baharu dibuat; pautan lama tidak berfungsi lagi",
-      "stopped": "Pautan dihentikan"
+      "stopped": "Pautan dihentikan",
+      "bindingSaved": "Disimpan"
     },
     "office": {
       "title": "Pautan pemandu",
@@ -21941,11 +22047,42 @@
       "askStop": "Selepas dihentikan, pemandu ini tidak lagi boleh merekod masa dengan pautan ini. Hentikan?",
       "confirmReissue": "Ya, hantar semula",
       "confirmStop": "Ya, hentikan",
-      "working": "Sedang diproses, sila tunggu."
+      "working": "Sedang diproses, sila tunggu.",
+      "machines": "Mesin diikat: {machines}",
+      "noMachines": "Belum diikat pada mana-mana mesin, jadi pemandu ini belum boleh merekod masa.",
+      "nextStep": "Seterusnya: tekan \"Ikat pemandu pada mesin\" dan tandakan mesinnya. Tanpa mesin dia tidak boleh merekod masa."
     },
     "tabs": {
       "clock": "Mula / tamat kerja",
       "records": "Rekod saya"
+    }
+  },
+  "driverBinding": {
+    "open": "Ikat pemandu pada mesin",
+    "title": "Ikat pemandu pada mesin",
+    "help": "Hanya telefon pemandu yang diikat pada mesin di sini boleh merekod mesin itu (mula / tamat). Kakitangan tapak tidak boleh merekod bagi pihak pemandu. Satu mesin boleh ada beberapa pemandu (syif), dan seorang pemandu boleh ada beberapa mesin.",
+    "chooseProject": "Pilih projek di bahagian atas halaman untuk mengikat pemandu.",
+    "unboundLine": "Mesin yang belum ada pemandu diikat: {count}. Tiada sesiapa boleh merekod mesin itu sekarang.",
+    "seededLine": "Sistem telah mengikat {count} mesin berdasarkan rekod masa 30 hari lepas. Sila semak di \"Ikat pemandu pada mesin\".",
+    "seededHelp": "Sistem telah mengikat {count} mesin berdasarkan rekod masa 30 hari lepas (bertanda \"Daripada rekod masa terkini\"). Semak satu demi satu: jika betul, tekan \"Sahkan\"; jika tidak, tekan \"Tetapkan pemandu\" dan ubah.",
+    "noDrivers": "Projek ini belum ada pemandu. Mula-mula buat pautan pemandu di \"Pautan pemandu\", atau cipta akaun telefon operator peralatan di \"Kakitangan tapak\", kemudian kembali untuk mengikat.",
+    "noMachines": "Projek ini belum ada mesin yang sedang digunakan.",
+    "machineLine": "No. {number} · {name}",
+    "nobody": "Belum ada pemandu diikat — tiada sesiapa boleh merekod mesin ini sekarang.",
+    "seeded": "Daripada rekod masa terkini",
+    "edit": "Tetapkan pemandu",
+    "confirm": "Sahkan",
+    "save": "Simpan",
+    "saveUnbindRunning": "Buang ikatan dan simpan",
+    "cancel": "Batal",
+    "close": "Tutup",
+    "pickHelp": "Tandakan pemandu yang boleh merekod mesin ini, kemudian tekan \"Simpan\". Jika tiada yang ditanda, tiada sesiapa boleh merekod mesin ini.",
+    "runningWarn": "{name} sedang menjalankan mesin ini (mula {time}). Selepas ikatan dibuang, telefonnya tidak boleh merekod tamat kerja. Tunggu sehingga dia menamatkannya sebelum membuang ikatan; jika perlu sekarang, selepas simpan tambah masa tamat untuknya dalam jam mesin (\"Tambah masa tamat\").",
+    "unchanged": "Belum ada perubahan",
+    "failed": "Tidak disimpan. Sila cuba lagi.",
+    "kind": {
+      "link": "Pautan pemandu",
+      "account": "Operator peralatan"
     }
   },
   "projectReference": {
@@ -21965,12 +22102,6 @@
     "seeAll": "Lihat semua",
     "noReceipts": "Belum ada penghantaran.",
     "map": "Peta tapak projek",
-    "point": {
-      "RECEIPT": "Bahan masuk",
-      "WASTE": "Sisa keluar",
-      "EQUIPMENT": "Mesin"
-    },
-    "noPoints": "Tiada rekod ber-GPS dalam 30 hari.",
     "materialMix": "Bahan ikut kategori (bulan ini)",
     "wasteMix": "Sisa ikut kategori (bulan ini)",
     "noMix": "Tiada yang ditimbang bulan ini.",
@@ -21979,7 +22110,20 @@
     "pending": "Menunggu",
     "noPending": "Tiada yang menunggu.",
     "photos": "Foto tapak terkini",
-    "noPhotos": "Belum ada foto tapak."
+    "noPhotos": "Belum ada foto tapak.",
+    "noPendingMine": "Tiada apa-apa yang menunggu tindakan anda sekarang.",
+    "safety": "Pembetulan bahaya / EHS",
+    "progress": "Kemajuan pembinaan",
+    "progressRecords": "Kemas kini kemajuan",
+    "rainRecords": "Rekod hujan",
+    "progressToday": "Hari ini",
+    "progressMonth": "Bulan ini",
+    "progressTotal": "Semua rekod",
+    "overall": "Kemajuan keseluruhan",
+    "percent": "{value}%",
+    "schedule": "Jadual pembinaan",
+    "consultantRefused": "Ibu pejabat telah mengubah atau menamatkan akses anda kepada projek ini, jadi tiada apa-apa boleh dipaparkan di sini. Tekan “Muat semula”; jika masih tiada, sila hubungi ibu pejabat.",
+    "reload": "Muat semula"
   },
   "draftRecords": {
     "delete": "Padam",
@@ -22122,44 +22266,53 @@
   },
   "fieldChats": {
     "title": "Rekod perbualan",
-    "subtitle": "Semua perbualan di telefon (kakitangan tapak, pengawal, pengendali peralatan) dan di pejabat (pejabat projek, ibu pejabat), disimpan mengikut projek. Anda boleh membalas perbualan yang anda sertai; Mesej seseorang memulakan perbualan baharu.",
+    "subtitle": "Semua perbualan di telefon (kakitangan tapak, pengawal, pengendali peralatan), di pejabat (pejabat projek, ibu pejabat) dan dengan perunding, disimpan mengikut projek. Anda boleh membalas perbualan yang anda sertai; Mesej seseorang memulakan perbualan baharu.",
     "project": "Projek",
     "allProjects": "Semua projek",
     "loading": "Memuatkan…",
     "empty": "Belum ada perbualan dalam projek ini.",
     "pick": "Pilih satu perbualan di sebelah kiri.",
+    "backToList": "Kembali ke senarai perbualan",
     "people": "Ahli: {names}",
     "noMessages": "Belum ada mesej.",
     "attachment": "[foto / suara / fail]",
     "conversation": "Perbualan",
     "find": {
       "title": "Mesej seseorang",
-      "hint": "Hanya orang yang boleh anda hubungi: pejabat projek boleh menghubungi orang telefon projeknya, pejabatnya sendiri dan ibu pejabat; ibu pejabat boleh menghubungi pejabat setiap projek. Orang telefon dan ibu pejabat tidak berada dalam perbualan yang sama.",
+      "hint": "Hanya orang yang boleh anda hubungi: pejabat projek boleh menghubungi orang telefon projeknya, pejabatnya sendiri, ibu pejabat, dan perunding projek yang diberi Rekod perbualan oleh ibu pejabat; ibu pejabat boleh menghubungi pejabat setiap projek. Orang telefon dan ibu pejabat tidak berada dalam perbualan yang sama; perunding hanya bersama pejabat projek.",
+      "hintConsultant": "Hanya orang pejabat projek ini disenaraikan. Perbualan disimpan dalam projek ini; orang di dalamnya, pejabat projek ini dan ibu pejabat kontraktor boleh membacanya.",
       "back": "Kembali",
       "search": "Cari nama",
       "choose": "orang untuk dimesej",
       "group": {
         "phone": "Orang telefon",
         "office": "Pejabat projek",
-        "head_office": "Ibu pejabat"
+        "head_office": "Ibu pejabat",
+        "consultant": "Perunding"
       },
       "kind": {
         "office": "Pejabat projek",
-        "head_office": "Ibu pejabat"
+        "head_office": "Ibu pejabat",
+        "consultant": "Perunding"
       },
       "mix": {
         "phoneChosen": "Orang telefon telah dipilih, jadi ibu pejabat tidak boleh menyertai perbualan ini.",
-        "headOfficeChosen": "Ibu pejabat telah dipilih, jadi orang telefon tidak boleh menyertai perbualan ini."
+        "headOfficeChosen": "Ibu pejabat telah dipilih, jadi orang telefon tidak boleh menyertai perbualan ini.",
+        "consultantChosen": "Perunding telah dipilih, jadi hanya orang pejabat projek ini boleh menyertai.",
+        "notWithConsultant": "Orang telefon atau ibu pejabat telah dipilih, jadi perunding tidak boleh menyertai perbualan ini.",
+        "oneConsultant": "Hanya seorang perunding boleh berada dalam satu perbualan."
       },
       "groupTitle": "Nama kumpulan (pilihan)",
       "start": "{count, plural, =0 {Mula} one {Mula dengan 1 orang} other {Mula dengan # orang}}",
       "startFailed": "Perbualan tidak dapat dimulakan. Cuba lagi.",
+      "listChanged": "Senarai orang telah berubah. Sila kembali dan pilih semula.",
       "noProject": "Anda belum ada projek terbuka untuk berbual.",
       "projectClosed": "Projek ini sudah tamat, jadi perbualan baharu tidak boleh dimulakan di sini.",
       "notOnTeam": "Anda bukan dalam pasukan projek ini, jadi anda tidak boleh memulakan perbualan di sini.",
       "pickProject": "Pilih satu projek di bahagian atas dahulu, kemudian cari orang untuk dihubungi.",
       "noPeople": "Tiada sesiapa dijumpai.",
       "noPeopleOnProject": "Belum ada sesiapa dalam projek ini yang boleh dihubungi: tambah orang dalam \"Senarai kakitangan projek\" dahulu.",
+      "noOfficeForConsultant": "Projek ini belum ada orang pejabat untuk dihubungi. Minta kontraktor menambah pejabat projek ke dalam pasukan projek.",
       "whatProjects": "senarai projek",
       "whatPeople": "senarai orang"
     },
@@ -22167,13 +22320,14 @@
     "packageKind": "Pakej",
     "packageGone": "Perbualan pakej ini tidak dijumpai, atau anda tiada kebenaran untuk melihatnya.",
     "consultant": {
-      "subtitle": "Perbualan dalam projek ini yang dihantar kepada anda atau yang anda sertai: pakej, permohonan perunding, tugas tapak dan pembetulan.",
-      "empty": "Belum ada perbualan anda dalam projek ini.",
+      "subtitle": "Perbualan dalam projek ini yang dihantar kepada anda atau yang anda sertai: pakej, permohonan perunding, tugas tapak, pembetulan, dan perbualan anda dengan pejabat projek. Tekan Mesej seseorang untuk menghubungi pejabat projek.",
+      "empty": "Belum ada perbualan anda dalam projek ini. Tekan Mesej seseorang di kanan atas untuk menghubungi pejabat projek.",
       "kind": {
         "FIELD_TASK": "Tugas tapak",
         "CONSULTANT_APPLICATION": "Permohonan perunding",
         "HAZARD": "Pembetulan",
-        "PACKAGE": "Pakej"
+        "PACKAGE": "Pakej",
+        "DIRECT": "Perbualan"
       }
     }
   },
@@ -22223,7 +22377,9 @@
       "empty": "Belum ada foto.",
       "end": "Anda sudah sampai ke foto yang paling awal.",
       "dayCount": "{count} foto",
-      "noDate": "Tiada tarikh"
+      "noDate": "Tiada tarikh",
+      "subtitleConsultant": "Foto bahagian projek ini yang dibuka oleh ibu pejabat untuk anda, mengikut masa diambil, dari hari pertama kerja hingga siap.",
+      "emptyConsultant": "Belum ada foto dalam bahagian yang dibuka oleh ibu pejabat untuk anda."
     },
     "positionOpen": "Foto {number}"
   },
@@ -22597,8 +22753,6 @@
       "waivedBy": "Ditukar kepada tidak perlu kelulusan luar ({name} · {when})",
       "afterSignature": "Perlu kelulusan luar: selepas pengurus keselamatan menandatangani, cetak atau guna 【Hantar】 untuk menghantarnya kepada pemilik / pejabat atasan untuk ditandatangani.",
       "howTo": "Guna 【Cetak】 atau 【Hantar】 di bahagian atas tetingkap untuk menghantar rekod ini (dengan ruang kelulusan luar yang kosong) kepada pemilik / pejabat atasan untuk ditandatangani; apabila salinan bertandatangan kembali, daftarkannya dengan 【Daftar salinan bertandatangan】. Kakitangan ibu pejabat (peranan ibu pejabat atau pentadbir syarikat) yang ada hak kelulusan untuk rekod jenis ini dan tidak terlibat dalam rekod ini boleh membukanya dan menekan 【Tandatangan dalam talian】.",
-      "howToOpenRecord": "Tetingkap ini tiada 【Cetak】 atau 【Hantar】: tekan 【Buka rekod asal】 di bawah, kemudian guna 【Cetak】 atau 【Hantar】 di bahagian atas tetingkap rekod untuk menghantarnya (dengan ruang kelulusan luar yang kosong) kepada pemilik / pejabat atasan untuk ditandatangani; apabila salinan bertandatangan kembali, daftarkannya dengan 【Daftar salinan bertandatangan】.Kakitangan ibu pejabat (peranan ibu pejabat atau pentadbir syarikat) yang ada hak kelulusan untuk rekod jenis ini dan tidak terlibat dalam rekod ini boleh membukanya dan menekan 【Tandatangan dalam talian】.",
-      "howToElsewhere": "【Cetak】 dan 【Hantar】 berada di bahagian atas tetingkap rekod ini sendiri di komputer: minta rakan sekerja yang boleh membuka rekod ini (contohnya orang yang meluluskan permohonan) menghantarnya (dengan ruang kelulusan luar yang kosong) kepada pemilik / pejabat atasan untuk ditandatangani; apabila salinan bertandatangan kembali, daftarkannya di komputer dengan 【Daftar salinan bertandatangan】.Kakitangan ibu pejabat (peranan ibu pejabat atau pentadbir syarikat) yang ada hak kelulusan untuk rekod jenis ini dan tidak terlibat dalam rekod ini boleh membukanya dan menekan 【Tandatangan dalam talian】.",
       "whoActs": "Salinan bertandatangan didaftarkan di komputer oleh kakitangan pejabat yang meluluskan rekod jenis ini, atau oleh pengurus keselamatan; tandatangan dalam talian dibuat di komputer oleh kakitangan ibu pejabat (peranan ibu pejabat atau pentadbir syarikat, dengan hak kelulusan untuk rekod jenis ini) yang tidak terlibat dalam rekod ini.",
       "closedWaiting": "Rekod ini telah tamat; kelulusan luar tidak diperlukan lagi.",
       "company": "Syarikat / jabatan",
@@ -22613,7 +22767,9 @@
       "recordPaper": "Daftar salinan bertandatangan",
       "waive": "Tidak perlu kelulusan luar, hantar pas keluar sekarang",
       "correctPaper": "Guna salinan bertandatangan lain",
-      "correctHelp": "Tersalah pilih fail? Pilih atau muat naik salinan bertandatangan yang betul; fail lama kekal dalam lampiran."
+      "correctHelp": "Tersalah pilih fail? Pilih atau muat naik salinan bertandatangan yang betul; fail lama kekal dalam lampiran.",
+      "howToOpenRecord": "Tetingkap ini tiada 【Cetak】 atau 【Hantar】: tekan 【Buka rekod asal】 di bawah, kemudian guna 【Cetak】 atau 【Hantar】 di bahagian atas tetingkap rekod untuk menghantarnya (dengan ruang kelulusan luar yang kosong) kepada pemilik / pejabat atasan untuk ditandatangani; apabila salinan bertandatangan kembali, daftarkannya dengan 【Daftar salinan bertandatangan】.Kakitangan ibu pejabat (peranan ibu pejabat atau pentadbir syarikat) yang ada hak kelulusan untuk rekod jenis ini dan tidak terlibat dalam rekod ini boleh membukanya dan menekan 【Tandatangan dalam talian】.",
+      "howToElsewhere": "【Cetak】 dan 【Hantar】 berada di bahagian atas tetingkap rekod ini sendiri di komputer: minta rakan sekerja yang boleh membuka rekod ini (contohnya orang yang meluluskan permohonan) menghantarnya (dengan ruang kelulusan luar yang kosong) kepada pemilik / pejabat atasan untuk ditandatangani; apabila salinan bertandatangan kembali, daftarkannya di komputer dengan 【Daftar salinan bertandatangan】.Kakitangan ibu pejabat (peranan ibu pejabat atau pentadbir syarikat) yang ada hak kelulusan untuk rekod jenis ini dan tidak terlibat dalam rekod ini boleh membukanya dan menekan 【Tandatangan dalam talian】."
     },
     "waiveDialog": {
       "body": "Pasti perkara ini tidak perlu kelulusan luar? Pas keluar akan terus dihantar kepada pemohon dan pengawal pintu, dan tidak boleh ditukar balik kepada perlu kelulusan luar.",
@@ -22652,9 +22808,9 @@
       "noGatePhones": "Projek ini belum ada akaun telefon pengawal pintu, jadi pas keluar dihantar kepada pemohon sahaja. Buka akaun telefon untuk pengawal pintu di 「Kakitangan tapak」.",
       "waiting": "Menunggu pengawal pintu: dia membuka pas keluar di telefon, mengambil gambar semakan dan menekan 【Sahkan pelepasan】.",
       "closedUnreleased": "Rekod ini telah tamat. Tiada pelepasan di pintu padanya.",
-      "ended": "Pembersihan tapak ini telah tamat",
       "done": "Dilepaskan · {name} · {when} · {count} gambar semakan",
-      "open": "Buka"
+      "open": "Buka",
+      "ended": "Pembersihan tapak ini telah tamat"
     },
     "gate": {
       "title": "Ambil gambar semakan, sahkan pelepasan",
@@ -22716,14 +22872,14 @@
     },
     "toast": {
       "signedSent": "Ditandatangani. Pas keluar dihantar kepada pemohon dan pengawal pintu: {reference}",
+      "signedWaitExternal": "Ditandatangani. Menunggu kelulusan luar: {reference}",
+      "externalDone": "Kelulusan luar selesai; pas keluar dihantar: {reference}",
+      "waived": "Ditukar kepada tidak perlu kelulusan luar; pas keluar dihantar: {reference}",
+      "released": "Pelepasan disahkan dan difailkan sebagai perkara pintu: {reference}",
       "signedSentApplicant": "Ditandatangani. Pas keluar dihantar kepada pemohon sahaja; tiada telefon pengawal pintu menerimanya: {reference}",
       "signedSentGate": "Ditandatangani. Pas keluar dihantar kepada pengawal pintu: {reference}",
       "signedSentNobody": "Ditandatangani: {reference}",
-      "signedWaitExternal": "Ditandatangani. Menunggu kelulusan luar: {reference}",
-      "externalDone": "Kelulusan luar selesai; pas keluar dihantar: {reference}",
-      "paperReplaced": "Salinan bertandatangan telah diganti. Pas keluar sudah dihantar sebelum ini dan tidak dihantar lagi: {reference}",
-      "waived": "Ditukar kepada tidak perlu kelulusan luar; pas keluar dihantar: {reference}",
-      "released": "Pelepasan disahkan dan difailkan sebagai perkara pintu: {reference}"
+      "paperReplaced": "Salinan bertandatangan telah diganti. Pas keluar sudah dihantar sebelum ini dan tidak dihantar lagi: {reference}"
     },
     "correctedAfter": "Selepas pas keluar ditandatangani, rekod ini dibetulkan oleh {by} pada {when}; yang dipaparkan di sini ialah rekod yang telah dibetulkan."
   },
@@ -23024,5 +23180,76 @@
       "externalLink": "Untuk membuka pautan akses luar bagi pelanggan, pelanggan perlu membuka “Benarkan MSE melihat” dahulu.",
       "accountsList": "Butang kelabu ialah akaun yang pelanggannya belum membuka “Benarkan MSE mengurus akaun”. Untuk mengubah, minta pentadbir pelanggan itu menekannya dalam Tetapan syarikat. Log keluar paksa masih boleh digunakan bila-bila masa."
     }
+  },
+  "projectSiteMap": {
+    "windowLabel": "Hari yang mana",
+    "window": {
+      "today": "Hari ini",
+      "week": "7 hari lalu"
+    },
+    "layersLabel": "Dipaparkan pada peta",
+    "layer": {
+      "people": "Pekerja",
+      "receipts": "Bahan dipunggah",
+      "machines": "Jentera",
+      "records": "Rekod tapak"
+    },
+    "shown": "(dipaparkan, tekan untuk sembunyi)",
+    "notShown": "(disembunyikan, tekan untuk papar)",
+    "backToSite": "Kembali ke tapak",
+    "here": "{count} perkara di tempat ini",
+    "close": "Tutup",
+    "openRecord": "Buka rekod penuh",
+    "openRoute": "Lihat kedudukan hari ini",
+    "openWorker": "Lihat butiran pekerja",
+    "openEntry": "Buka rekod masuk",
+    "lastSeen": "Lokasi terkini {at}",
+    "since": "Masuk tapak {at}",
+    "stale": "Tidak dikemas kini lebih 10 minit: aplikasi tapak pada telefon mungkin ditutup.",
+    "machineSeen": "Lokasi terkini {at} · daripada {source, select, OPERATING_LOG {daftar masuk pengendali} EXIT {permohonan keluar} other {rekod masuk}}",
+    "recordedAt": "Direkod {at}",
+    "personKind": {
+      "APP": "Aplikasi tapak",
+      "ROSTER": "Senarai pekerja (pautan lokasi)"
+    },
+    "kind": {
+      "MATERIAL_RECEIPT": "Bahan masuk",
+      "MATERIAL_OUTGOING": "Bahan keluar",
+      "EQUIPMENT_MOVEMENT": "Peralatan masuk / keluar",
+      "SITE_PROGRESS": "Kemajuan tapak",
+      "SAFETY_INCIDENT": "Pembetulan / EHS",
+      "PERMIT": "Permit kerja",
+      "FIELD_TASK": "Tugasan tapak",
+      "DISPOSAL": "Pembersihan tapak",
+      "WASTE_OUTGOING": "Bahan kitar semula keluar",
+      "SUNDRY_CLAIM": "Tuntutan pelbagai",
+      "GATE_INCIDENT": "Rekod foto pintu"
+    },
+    "legendNote": "Pekerja dan jentera ialah kedudukan sekarang; bahan dipunggah dan rekod tapak ialah {window, select, today {hari ini} other {7 hari lalu}}, hanya yang mempunyai lokasi.",
+    "outside": "{count} lagi lokasi berada di luar tapak dan tidak dilukis pada peta.",
+    "machinesWithout": "{count} lagi jentera di tapak tiada rekod lokasi.",
+    "capped": "{layer}: hanya {cap} terbaharu dipaparkan; lihat senarai modul untuk yang lebih lama.",
+    "nothingYet": "Belum ada pekerja, jentera atau rekod berlokasi untuk dipaparkan {window, select, today {hari ini} other {dalam 7 hari lalu}}.",
+    "noFence": "Projek ini belum ada geofence, jadi peta tidak dapat menunjukkan kawasan tapak.",
+    "noPlace": "Projek ini belum ada lokasi dan geofence, jadi tiada peta untuk dipaparkan.",
+    "drawFence": "Lukis geofence",
+    "askAdmin": "Minta pentadbir syarikat melukis kawasan tapak di Tetapan geofence.",
+    "openExit": "Buka permohonan keluar",
+    "machineFromClock": "Lokasi ini ialah tempat pengendali mendaftar masuk; lihat jam kerja di Jam operator peralatan.",
+    "legendNow": "{layers}: kedudukan sekarang.",
+    "legendDay": "{layers}: {window, select, today {hari ini} other {7 hari lalu}}, hanya yang mempunyai lokasi.",
+    "legendPeople": "Masa di bawah ikon pekerja ialah lokasi terkini{app, select, yes {; pudar: tidak dikemas kini lebih 10 minit} other {}}; kelabu: lokasi terkini bukan hari ini, dengan tarikh di bawahnya.",
+    "noLayers": "Peranan anda tidak boleh melihat pekerja, bahan dipunggah, jentera atau rekod tapak, jadi peta hanya menunjukkan kawasan tapak. Untuk melihatnya, minta pentadbir syarikat membukanya di Peranan dan kebenaran.",
+    "notUpdating": "Peta tidak dikemas kini: ia menunjukkan keadaan tapak pada {at}. Sila semak rangkaian; ia akan mencuba semula sendiri.",
+    "retry": "Cuba lagi",
+    "consultantLegend": "Peta menunjukkan rekod {window, select, today {hari ini} other {7 hari lalu}} bagi bahagian yang dibuka oleh ibu pejabat untuk anda, hanya yang mempunyai lokasi.",
+    "consultantNothingYet": "Belum ada rekod berlokasi untuk dipaparkan {window, select, today {hari ini} other {dalam 7 hari lalu}}.",
+    "consultantNoLayers": "Ibu pejabat belum membuka apa-apa dalam projek ini yang boleh dipaparkan pada peta untuk anda, jadi peta hanya menunjukkan kawasan tapak. Untuk melihat rekod di sini, sila hubungi ibu pejabat kontraktor.",
+    "askHeadOffice": "Sila minta ibu pejabat kontraktor melukis kawasan tapak."
+  },
+  "consultantHome": {
+    "noProjects": "Anda belum diberi akses kepada mana-mana projek. Sila minta ibu pejabat kontraktor membukanya untuk anda.",
+    "chooseProject": "Pilih projek dahulu dalam kotak projek di bahagian atas halaman; papan pemuka projek itu akan dipaparkan di sini.",
+    "onlyOpened": "Ibu pejabat hanya membuka bahagian ini untuk anda. Untuk melihat yang lain, sila hubungi ibu pejabat kontraktor."
   }
 }

@@ -223,6 +223,11 @@ export interface SafetyIncident extends RecordedBy {
     before: HazardPhoto[];
     during: HazardPhoto[];
     after: HazardPhoto[];
+    /**
+     * JB228 (audit 11-20 F6): a consultant not in its room - its photographs
+     * are not his, which is not "none were taken": no 整改中 row.
+     */
+    during_withheld?: boolean;
   };
   created_at: string;
   updated_at: string;
@@ -295,6 +300,10 @@ export interface HazardConversation {
   /** The 「需要继续整改」 switch beside the box (ID11): this reader may
    *  confirm it, and it is waiting for that. */
   can_request_more_work?: boolean;
+  /** JB228 (客户 11-19: 「顾问不能查看建筑商内部的沟通记录」): a consultant who
+   *  is not one of this room's people. No messages and no participants come
+   *  with it; the panel says one line instead and offers no message box. */
+  chat_withheld?: boolean;
 }
 
 export interface SafetyIncidentPayload {

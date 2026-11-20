@@ -35,11 +35,10 @@ vi.mock("next/navigation", () => ({
   usePathname: () => "/photo-timeline",
   useSearchParams: () => new URLSearchParams(),
 }));
+const OFFICE_USER = { id: "u1", portal: "MSE_TRACE", company_name: "Alpha Builders", branding: null };
+const auth: { user: Record<string, unknown>; can: () => boolean } = { user: OFFICE_USER, can: () => true };
 vi.mock("@/components/providers/auth-provider", () => ({
-  useAuth: () => ({
-    user: { id: "u1", portal: "MSE_TRACE", company_name: "Alpha Builders", branding: null },
-    can: () => true,
-  }),
+  useAuth: () => auth,
 }));
 vi.mock("@/components/shared/record-opener", () => ({
   useRecordOpener: () => ({ open: vi.fn(), sheet: null }),
@@ -218,6 +217,32 @@ describe("the timeline reads by day", () => {
     expect(html).toContain(wall.filter.dateFrom);
     expect(html).toContain(wall.filter.timeFrom);
     expect(html).not.toContain('type="time"');
+  });
+
+  it("tells a consultant it is what head office opened for him, also when there is nothing (JB226 audit F3)", () => {
+    auth.user = {
+      ...OFFICE_USER,
+      account_type: "CONSULTANT",
+      active_project: { project_id: "p1", project_name: "Alpha Tower", company_id: "c1", company_name: "Alpha Builders" },
+    };
+    try {
+      const html = render(<PhotoTimeline />, (client) => {
+        client.setQueryData(["contractor-dashboard", "photo-timeline", { project: "p1", timeline: true }], page([]));
+      });
+      expect(html).toContain(wall.timeline.subtitleConsultant);
+      expect(html).toContain(wall.timeline.emptyConsultant);
+      expect(html).not.toContain(wall.timeline.subtitle);
+      expect(html).not.toContain(`>${wall.timeline.empty}<`);
+    } finally {
+      auth.user = OFFICE_USER;
+    }
+    // The office's wall keeps its words.
+    const office = render(<PhotoTimeline />, (client) => {
+      client.setQueryData(["contractor-dashboard", "photo-timeline", { timeline: true }], page([]));
+    });
+    expect(office).toContain(wall.timeline.subtitle);
+    expect(office).toContain(`>${wall.timeline.empty}<`);
+    expect(office).not.toContain(wall.timeline.emptyConsultant);
   });
 });
 

@@ -13,6 +13,8 @@ import type {
   HeadquartersOverview,
   HeadquartersPhoto,
   HeadquartersWallExtras,
+  ProjectMap,
+  ProjectMapWindow,
   ProjectOverview,
 } from "@/interfaces/headquarters";
 import { api, download } from "@/services/api-client";
@@ -106,6 +108,11 @@ export function getHeadquarters(): Promise<HeadquartersOverview> {
 /** 项目仪表板 as the client's picture (J34-5): one project's real figures. */
 export function getProjectOverview(project: string): Promise<ProjectOverview> {
   return api.get<ProjectOverview>("/api/contractor-dashboard/get_project_overview/", { project });
+}
+
+/** 项目仪表板的地图 (JB222): the fence and what the reader may see on it. */
+export function getProjectMap(project: string, window: ProjectMapWindow): Promise<ProjectMap> {
+  return api.get<ProjectMap>("/api/contractor-dashboard/get_project_map/", { project, window });
 }
 
 /** Today's weather for the head-office banner (J32), or null - never made up. */

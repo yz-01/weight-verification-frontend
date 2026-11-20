@@ -71,18 +71,23 @@ import type {
 import { ApiError } from "@/interfaces/api";
 import { setsUpConsultants } from "@/lib/consultant-access";
 import {
-  CONSULTANT_MODULES,
   CONSULTANT_OPTIONS,
+  ITEMS_OF_MODULE,
+  ITEM_MESSAGE_KEYS,
   MODULE_MESSAGE_KEYS,
   OPTION_MESSAGE_KEYS,
-  orderedModules,
+  allTicks,
+  moduleItemState,
+  normaliseTicks,
   orderedOptions,
   startingGrant,
-  toggleModule,
   toggleOption,
+  type ConsultantItem,
   type ConsultantModule,
   type ConsultantOption,
+  type ConsultantTicks,
 } from "@/lib/consultant-modules";
+import { ConsultantModuleTicks } from "@/components/consultant-workflow/consultant-module-ticks";
 import { useDateFormat } from "@/lib/dates";
 import { getProjects } from "@/services/contractor.service";
 import {
@@ -110,10 +115,20 @@ export { startingGrant } from "@/lib/consultant-modules";
 
 /** One grant's ticks and options as words, for its row in the list. */
 function grantSummary(
-  row: Pick<ConsultantProjectAccessGrant, "modules" | "permissions">,
-  t: (key: string) => string,
+  row: Pick<ConsultantProjectAccessGrant, "modules" | "permissions" | "sub_modules">,
+  t: (key: string, values?: Record<string, string>) => string,
 ): string {
-  const modules = orderedModules(row.modules).map((key) => t(`module.${MODULE_MESSAGE_KEYS[key]}`));
+  // JB225: 「材料管理（进场、领用、目标）」 when only some of its items are ticked.
+  const ticks = normaliseTicks(row.modules, row.sub_modules);
+  const modules = ticks.modules.map((key) => {
+    const name = t(`module.${MODULE_MESSAGE_KEYS[key]}`);
+    if (moduleItemState(ticks, key) !== "some") return name;
+    const items = (ITEMS_OF_MODULE[key] ?? [])
+      .filter((item) => ticks.items.includes(item))
+      .map((item) => t(`itemShort.${ITEM_MESSAGE_KEYS[item]}`))
+      .join(t("grant.itemSeparator"));
+    return t("grant.partialModule", { module: name, items });
+  });
   const options = orderedOptions(row.permissions).map((code) => t(`option.${OPTION_MESSAGE_KEYS[code]}`));
   return [...(modules.length ? modules : [t("grant.noModules")]), ...options].join(" · ");
 }
@@ -1058,19 +1073,25 @@ export function GrantDialog({
     enabled: !row && can("company_settings.view"),
     retry: false,
   });
-  // JB210 (客户 11-16): 11 module ticks + 3 options, one grant per project.
-  const [chosen, setChosen] = useState<{ modules: ConsultantModule[]; options: ConsultantOption[] } | null>(
-    row ? { modules: orderedModules(row.modules), options: orderedOptions(row.permissions) } : null,
+  // JB210 (客户 11-16): 11 module ticks + 3 options, one grant per project;
+  // JB225 (客户 11-19 事项 5): with the items of 材料管理 / 工程进度.
+  const [chosen, setChosen] = useState<
+    { modules: ConsultantModule[]; options: ConsultantOption[]; items: ConsultantItem[] } | null
+  >(
+    row
+      ? { ...normaliseTicks(row.modules, row.sub_modules), options: orderedOptions(row.permissions) }
+      : null,
   );
-  const { modules, options } =
+  const { modules, options, items } =
     chosen ??
     startingGrant(
       companySettings.data?.default_consultant_modules,
       companySettings.data?.default_consultant_permissions,
+      companySettings.data?.default_consultant_sub_modules,
     );
   const [active, setActive] = useState(row?.is_active ?? true);
-  const setModules = (next: ConsultantModule[]) => setChosen({ modules: next, options });
-  const setOptions = (next: ConsultantOption[]) => setChosen({ modules, options: next });
+  const setTicks = (next: ConsultantTicks) => setChosen({ ...next, options });
+  const setOptions = (next: ConsultantOption[]) => setChosen({ modules, items, options: next });
   const save = useMutation({
     mutationFn: () => {
       const payload = {
@@ -1078,6 +1099,7 @@ export function GrantDialog({
         consultant,
         project,
         modules,
+        sub_modules: items,
         permissions: options,
         valid_from: toIso(validFrom) ?? new Date().toISOString(),
         valid_until: noExpiry ? null : toIso(validUntil),
@@ -1096,7 +1118,7 @@ export function GrantDialog({
           <DialogTitle>{t(row ? "grant.editTitle" : "grant.createTitle")}</DialogTitle>
           <DialogDescription>{t("grant.formHelp")}</DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <FieldWrapper label={t("field.organization")} required hint={row ? t("grant.organizationEditHint") : undefined}>
             <Select value={organizationId} onValueChange={(value) => { setOrganizationId(value); if (!row) setConsultant(""); }}>
               <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
@@ -1134,30 +1156,15 @@ export function GrantDialog({
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <p className="text-sm font-medium">{t("grant.modulesTitle")}</p>
                   <div className="flex gap-2">
-                    <Button type="button" size="sm" variant="outline" onClick={() => setModules([...CONSULTANT_MODULES])}>
+                    <Button type="button" size="sm" variant="outline" onClick={() => setTicks(allTicks())}>
                       {t("grant.selectAll")}
                     </Button>
-                    <Button type="button" size="sm" variant="outline" onClick={() => setModules([])}>
+                    <Button type="button" size="sm" variant="outline" onClick={() => setTicks({ modules: [], items: [] })}>
                       {t("grant.selectNone")}
                     </Button>
                   </div>
                 </div>
-                <div className="grid gap-2 sm:grid-cols-2">
-                  {CONSULTANT_MODULES.map((key) => (
-                    <label key={key} className="flex items-start gap-3 rounded-lg border p-3" data-module={key}>
-                      <Checkbox
-                        checked={modules.includes(key)}
-                        onCheckedChange={(value) => setModules(toggleModule(modules, key, value === true))}
-                      />
-                      <span className="min-w-0 text-sm">
-                        <span className="block font-medium">{t(`module.${MODULE_MESSAGE_KEYS[key]}`)}</span>
-                        <span className="block text-xs text-muted-foreground">
-                          {t(`moduleHint.${MODULE_MESSAGE_KEYS[key]}`)}
-                        </span>
-                      </span>
-                    </label>
-                  ))}
-                </div>
+                <ConsultantModuleTicks ticks={{ modules, items }} onChange={setTicks} />
               </div>
               <div className="space-y-2">
                 <p className="text-sm font-medium">{t("grant.optionsTitle")}</p>

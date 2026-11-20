@@ -10,6 +10,7 @@ import { DASHBOARD_SCOPES } from "@/lib/dashboard-scopes";
 import { useDateFormat } from "@/lib/dates";
 import { cn } from "@/lib/utils";
 import { getContractorDashboard } from "@/services/contractor-dashboard.service";
+import { getOutstandingNotificationCount } from "@/services/platform-ops.service";
 import { useRoleLabel } from "@/lib/role-labels";
 
 /**
@@ -43,6 +44,12 @@ export function CompanyBanner({
   const format = useFormatter();
   const df = useDateFormat();
   const { user } = useAuth();
+  // A consultant (JB226, 客户 11-19 事项 6) reads the project manager's banner
+  // without what is not his: no 「公司总部 / 项目」 switch (公司总部 is head
+  // office's), and 通知 only with 通知中心 ticked - his own count, from the
+  // notification centre itself (the contractor dashboard's is refused to him).
+  const consultant = user?.account_type === "CONSULTANT";
+  const consultantNotices = consultant && (user?.features ?? []).includes("notifications");
   // The reader's own outstanding notices - the same count the notification
   // centre leads with (今天新增 + 之前未完成).
   const notices = useQuery({
@@ -50,11 +57,23 @@ export function CompanyBanner({
     queryFn: () =>
       getContractorDashboard({ sections: ["notifications"], silent: true, covers: false }),
     refetchInterval: 60_000,
+    enabled: !consultant,
+  });
+  // The bell's own query (same key), so the banner and the bell are one answer.
+  const mine = useQuery({
+    queryKey: ["notifications", "outstanding-count"],
+    queryFn: () => getOutstandingNotificationCount({ silent: true }),
+    refetchInterval: 60_000,
+    enabled: consultantNotices,
   });
   // A failed count shows the plain link rather than a number it never read.
-  const outstanding = notices.isError
-    ? undefined
-    : notices.data?.notifications?.total;
+  const outstanding = consultant
+    ? mine.isError
+      ? undefined
+      : mine.data?.total
+    : notices.isError
+      ? undefined
+      : notices.data?.notifications?.total;
   if (!user) return null;
   const branding = user.branding;
   const companyName = branding?.company_name || user.company_name || "";
@@ -144,6 +163,7 @@ export function CompanyBanner({
               </span>
             )}
           </span>
+          {(!consultant || consultantNotices) && (
           <Link
             href="/notifications"
             className={cn(
@@ -156,7 +176,8 @@ export function CompanyBanner({
               ? t("notifications")
               : t("notificationsCount", { count: format.number(outstanding) })}
           </Link>
-          {scope !== "reports" && (
+          )}
+          {scope !== "reports" && !consultant && (
           <nav
             aria-label={levels("label")}
             className="flex rounded-xl border border-panel-border bg-muted p-1 text-foreground"

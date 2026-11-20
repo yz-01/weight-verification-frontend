@@ -1,6 +1,7 @@
 import type { ListQuery, Paginated } from "@/interfaces/api";
 import { exportBody, exportQuery, type ExportRequest } from "@/services/contractor.service";
 import type {
+  ApplicationAttachment,
   ApprovalCredential,
   ApplicationTemplate,
   ApplicationTemplatePayload,
@@ -43,7 +44,7 @@ export interface ApplicationDocumentCandidate {
   system_files: DocumentSystemFileInfo[];
 }
 import { uploadEach, type BatchResult } from "@/lib/attachment-batch";
-import { api, download, fetchObjectUrl, toastSuccess } from "@/services/api-client";
+import { api, download, fetchAsFile, fetchObjectUrl, toastSuccess } from "@/services/api-client";
 
 export const getApplicationOptions = (
   project: string,
@@ -653,6 +654,20 @@ export const retryApplicationFinalReport = async (id: string) => {
   toastSuccess("consultantWorkflow.toast.reportRebuilt");
   return row;
 };
+
+/**
+ * JB228 (客户 11-19: 「顾问不能查看建筑商内部的沟通记录」): a record's 完整证据
+ * copy (J22) made before the 11-20 update, as a consultant is served it - the
+ * record as it is now, made by the server without the builder's internal talk.
+ * An API file, so it is fetched signed in; a plain link would arrive without.
+ * Shown in the in-app preview (`useFileActions`), not a new tab: making it
+ * takes seconds, and a tab opened after the wait is blocked (audit 11-20 F4).
+ */
+export const applicationAttachmentFile = (attachment: ApplicationAttachment) =>
+  fetchAsFile(attachment.api_file ?? "", {
+    query: { inline: "1" },
+    fallbackFilename: attachment.original_name,
+  });
 
 export const downloadApplicationFinalReport = (id: string, applicationNo: string) =>
   download(

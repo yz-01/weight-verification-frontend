@@ -41,7 +41,7 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { FieldDraft, useClearDraft, useDraftEventId, useDraftState } from "@/components/field-staff/field-draft";
 import { FieldSlots } from "@/components/field-staff/field-slots";
 import { SundryClaimCapture } from "@/components/field-staff/sundry-claim-capture";
-import { EquipmentHoursCapture } from "@/components/equipment-hours/equipment-hours-capture";
+import { SiteStaffHoursView } from "@/components/equipment-hours/site-staff-hours-view";
 import { RainInProgressMark, RainyWeatherCapture } from "@/components/field-staff/rainy-weather-capture";
 import { MaterialRequestForm } from "@/components/material-requests/request-form";
 import { GateRecordsPanel } from "@/components/site-access/gate-records";
@@ -136,8 +136,9 @@ interface RecordOption {
 const RECORD_OPTIONS: RecordOption[] = [
   { key: "material", permission: "receipt.create", icon: ClipboardList, tone: "bg-info/10 text-info" },
   { key: "equipment", permission: "equipment.capture", icon: HardHat, tone: "bg-warning/15 text-warning" },
-  // 设备操作员工时 (2026-10 B15): a photo when the machine starts, one when
-  // it stops. Same permission as the equipment entry - it is the same people.
+  // 设备操作员工时 (2026-10 B15): the project's recent machine hours. Since
+  // JB227 (客户 11-19 事项 7, 「现场人员不能代替设备司机打卡」) only to read:
+  // the bound driver clocks on his own phone. Same permission as before.
   { key: "operatorHours", permission: "equipment.capture", icon: Timer, tone: "bg-info/10 text-info" },
   { key: "progress", permission: "progress.manage", icon: ListChecks, tone: "bg-primary/10 text-primary" },
   // Rainy Weather 雨天记录 (JB192, 客户 11-13 晚上): a photo when the rain
@@ -201,7 +202,7 @@ export function FieldRecordsPanel({
     return <RecordFrame title={t("records.equipment")} onBack={() => chooseMode(null)}><FieldSlots scope={`equipment:${task?.id ?? "new"}`} jobKinds={["EQUIPMENT_MOVEMENT"]}><SiteEquipmentWorkspace initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></FieldSlots></RecordFrame>;
   }
   if (mode === "operatorHours") {
-    return <RecordFrame title={t("records.operatorHours")} onBack={() => chooseMode(null)}><EquipmentHoursCapture initialProject={task?.project ?? boundProject} /></RecordFrame>;
+    return <RecordFrame title={t("records.operatorHours")} onBack={() => chooseMode(null)}><SiteStaffHoursView initialProject={task?.project ?? boundProject} /></RecordFrame>;
   }
   if (mode === "progress") {
     return <RecordFrame title={t("records.progress")} onBack={() => chooseMode(null)}><FieldDraft scope={`progress:${task?.id ?? "new"}`}><SiteProgressWorkspace initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} onClose={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
