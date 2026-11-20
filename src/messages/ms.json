@@ -5650,7 +5650,7 @@
       "materialsIssues": "Bahan yang diberikan kepada mesin atau pekerja (Bahan keluar → Pengeluaran bahan)",
       "materialsSupplierTotals": "Jumlah masuk dan dipulangkan bagi setiap pembekal (Bahan masuk → Jumlah ikut pembekal)",
       "materialsTargets": "Kuantiti sasaran dan jumlah yang sudah tiba (di Sasaran bahan)",
-      "progressRecords": "Rekod kemajuan, foto garis masa, kategori kerja dan ringkasan kemajuan (di Kemajuan)",
+      "progressRecords": "Kemas kini kemajuan, foto garis masa, kategori kerja dan ringkasan kemajuan (di Kemajuan)",
       "progressDailyReports": "Laporan tapak setiap hari (Kemajuan → Laporan harian)",
       "progressRain": "Rekod henti kerja kerana hujan dan angka bulanannya (Kemajuan → Rekod hari hujan)",
       "progressSchedule": "Jadual pembinaan dan kemajuan sebenar (Kemajuan → Jadual)"
@@ -22114,7 +22114,7 @@
     "noPendingMine": "Tiada apa-apa yang menunggu tindakan anda sekarang.",
     "safety": "Pembetulan bahaya / EHS",
     "progress": "Kemajuan pembinaan",
-    "progressRecords": "Rekod kemajuan",
+    "progressRecords": "Kemas kini kemajuan",
     "rainRecords": "Rekod hujan",
     "progressToday": "Hari ini",
     "progressMonth": "Bulan ini",

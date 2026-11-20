@@ -71,6 +71,8 @@ const BUSINESS_DETAILS: Array<[string, string, boolean]> = [
 const NOT_BUSINESS_RECORDS: Record<string, string> = {
   // Admin / master data: a company, a person, a role, a project, a machine of the fleet.
   "src/components/projects/view-project.tsx#ViewProject": "master data: a project",
+  "src/components/dashboard/project-site-map.tsx#ItemDetail":
+    "项目现场地图 (JB222): the few lines of the map's own card for the icon pressed; 「查看完整记录」 opens the module's detail window, which is on the shell",
   "src/components/users/view-user.tsx#ViewUser": "master data: a user account",
   "src/components/roles/view-role.tsx#ViewRole": "master data: a role",
   "src/components/companies/view-company.tsx#ViewCompany": "master data: a company",

@@ -386,11 +386,24 @@ function strings(node: unknown, path = "", out: Array<[string, string]> = []) {
   return out;
 }
 
+// 「施工进度」 came back on 2026-11-19 as the client's own name for ONE sub-item under
+// 工程进度 (事项 5: 「工程进度：施工进度、施工日报告、雨天记录、施工计划」). The tick that opens
+// that sub-item to a consultant (JB225) and the dashboard line that counts its records
+// (JB226) carry his word; the module itself stays 「工程进度」 everywhere else.
+const CLIENT_SUB_ITEM = ["施工进度", "施工進度"];
+const SUB_ITEM_KEYS = new Set([
+  "consultantAccess.item.progressRecords",
+  "consultantAccess.itemShort.progressRecords",
+  "projectReference.progressRecords",
+]);
+
 describe("no retired module name is left anywhere (T-367)", () => {
   for (const locale of LOCALES) {
     it(`${locale}.json`, () => {
-      const offenders = strings(messages(locale)).filter(([, value]) =>
-        RETIRED[locale].some((name) => value.includes(name)),
+      const offenders = strings(messages(locale)).filter(([key, value]) =>
+        RETIRED[locale].some(
+          (name) => value.includes(name) && !(SUB_ITEM_KEYS.has(key) && CLIENT_SUB_ITEM.includes(name)),
+        ),
       );
       expect(offenders).toEqual([]);
     });

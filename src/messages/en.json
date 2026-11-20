@@ -5650,7 +5650,7 @@
       "materialsIssues": "Material handed to machines or workers (Material out → Material issue)",
       "materialsSupplierTotals": "Each supplier's total delivered and returned (Material in → Totals by supplier)",
       "materialsTargets": "Target quantities and how much has arrived (under Material targets)",
-      "progressRecords": "Progress records, timeline photos, work categories and the progress summary (under Progress)",
+      "progressRecords": "Progress updates, timeline photos, work categories and the progress summary (under Progress)",
       "progressDailyReports": "Each day's site report (Progress → Daily reports)",
       "progressRain": "Rain stoppages and their monthly figures (Progress → Rain records)",
       "progressSchedule": "The construction schedule and actual progress (Progress → Schedule)"
@@ -22114,7 +22114,7 @@
     "noPendingMine": "Nothing is waiting for you right now.",
     "safety": "Hazard rectification / EHS",
     "progress": "Construction progress",
-    "progressRecords": "Progress records",
+    "progressRecords": "Progress updates",
     "rainRecords": "Rainy weather records",
     "progressToday": "Today",
     "progressMonth": "This month",
