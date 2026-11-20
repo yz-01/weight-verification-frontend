@@ -9602,7 +9602,9 @@
       "platform_owner_locked": "The customer already uses this administrator account, so MSE cannot change its sign-in e-mail. Tell the customer: their own company administrator changes it in User management, or the customer writes in and a colleague who runs the server handles it.",
       "exit_pass_busy": "The system was busy and this was not saved. Wait a few seconds and press again.",
       "phone_role_office_account": "Phone accounts are made in Field staff. An office account cannot be given a phone role (site staff, equipment operator, gate guard) here. Please choose another role.",
-      "consultant_sub_module_not_granted": "Head office has not opened this item to you on this project. Ask head office if you need to see it."
+      "consultant_sub_module_not_granted": "Head office has not opened this item to you on this project. Ask head office if you need to see it.",
+      "permit_work_name_required": "Write the work name first, then sign and approve.",
+      "permit_formal_permit_required": "There is no formal permit yet. Upload the company's filled permit form with \"Attach files\", or fill in the e-permit, then sign and approve."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -12769,7 +12771,8 @@
       "permit_valid_period": "Approved period",
       "permit_subcontractor": "Subcontractor",
       "permit_work_lead": "Person in charge of the work",
-      "permit_contact_phone": "Contact number"
+      "permit_contact_phone": "Contact number",
+      "permit_work_name": "Work name"
     },
     "detailTitle": "What I sent",
     "photos": "Photographs",
@@ -13960,7 +13963,7 @@
     "permits": {
       "what": "Permits to work: upload your company's own permit form (Word, PDF or a photo) and send it to a named safety manager, who signs to approve it or returns it; an approved permit is archived. Every permit can be found again by project, approval status, applicant and date, and its files previewed, printed or downloaded. The approver can press \"Fill in e-permit\" in the window to turn the application into an e-permit, printed as the first page of the complete evidence PDF.",
       "who": "People with “View hazards / EHS and permits to work” can read and download; with “Report and assign hazards, apply for permits to work” they apply with “New application”. Approving needs “Safety verification (can approve permits to work)” and is done by the safety manager the applicant chose, or a company administrator. Nobody approves their own permit.",
-      "need": "A new application needs the project, the permit files (Word, PDF or photos of the form; several pages, at most 10 at a time) and the approving safety manager; a remark is optional. Approving needs a signature; returning needs the reason. The e-permit is optional; if it is filled in, the work description, location and requested times are needed. The types of work are set in Category management → Company categories → Permit to work · Types of work.",
+      "need": "A new application needs the project, the permit files (Word, PDF or photos of the form; several pages, at most 10 at a time) and the approving safety manager; a remark is optional. Approving needs a signature; returning needs the reason. Signing to approve also needs the work name and the formal permit: the company's filled permit form uploaded with \"Attach files\" (Word, PDF, Excel or a photo; the applicant's own files do not count), or the e-permit (work description, location and requested times needed). The types of work are set in Category management → Company categories → Permit to work · Types of work.",
       "then": "The chosen safety manager (and the company administrators) get a to-do notice. Once approved, the original files, the decision, the signature, the approver's position and the time are archived together and can no longer change. A returned permit is corrected by the applicant and resubmitted with new files; the earlier files are kept. The applicant is told either way. Only the permit's approver can fill in the e-permit, on a computer; the applicant can only read it. Once signed it is archived with the permit and can no longer change.",
       "trouble": "If no safety manager can be chosen, nobody on this project can approve permits yet: the approver's account needs “Safety verification” and “View projects” (on by default for a project role), and the person must be on this project's staff list. The “New application” window lists these three steps."
     },
@@ -21022,7 +21025,7 @@
   },
   "permits": {
     "title": "Permit to work",
-    "subtitle": "Upload your company's own permit form (Word, PDF or a photo) and send it to a named safety manager. Once approved, the original files, the decision, the signature and the time are archived together.",
+    "subtitle": "Upload your company's own permit form (Word, PDF or a photo) and send it to a named safety manager. Once approved, the original files, the decision, the signature and the time are archived together. Before approving, the safety manager writes the work name and uploads the formal permit (or fills in the e-permit).",
     "new": "New application",
     "newTitle": "New permit-to-work application",
     "newHelp": "Use your company's own permit form, fill it in and upload it - there is no form to fill in here. Add a remark, choose the safety manager who approves it, and submit.",
@@ -21053,7 +21056,8 @@
       "signature": "Approver's signature",
       "returnedBy": "Returned by",
       "approvedBy": "Approved by",
-      "lastReturnReason": "Last reason for return"
+      "lastReturnReason": "Last reason for return",
+      "workName": "Work name"
     },
     "status": {
       "RECTIFICATION_SUBMITTED": "Waiting for approval",
@@ -21176,8 +21180,6 @@
       "cancel": "Cancel",
       "close": "Close",
       "failed": "That did not save. Please try again.",
-      "filledHint": "The e-permit is filled in ({no}). Once signed, it is archived with the approval note, the signature and the time.",
-      "fillHint": "Need an e-permit? Press \"Fill in e-permit\" beside \"Permit documents\" first, save it, then sign to approve.",
       "photosOnly": "The permit form came as photos: see the photos above.",
       "what": {
         "workTypes": "the types of work",
@@ -21189,7 +21191,9 @@
       "validFromAfterWorkEnd": "The approved start is after the requested end. Fill in the approved end, or make the approved start earlier.",
       "validUntilBeforeWorkStart": "The approved end is before the requested start. Fill in the approved start, or make the approved end later.",
       "draftOutdated": "{name} saved this e-permit after you last filled it in. Below is the latest; what you typed and did not save was not kept.",
-      "someone": "Someone else"
+      "someone": "Someone else",
+      "workName": "Work name",
+      "workNameWhere": "Written in \"Work name\" on the right; it is printed here once signed."
     },
     "workTypes": {
       "title": "Permit to work · Types of work",
@@ -21216,6 +21220,22 @@
         "removed": "Removed \"{name}\""
       },
       "readOnly": "Only people who manage categories can add, rename or remove these; ask your company administrator to change them."
+    },
+    "searchPlaceholder": "Work name or keyword",
+    "searchHint": "Search finds the work name, number, applicant or file name. Put a space between several words, e.g. \"level 3 welding\".",
+    "fileCount": "{count, plural, one {# file} other {# files}}",
+    "workNameHint": "Written by the safety manager, e.g. \"Level 3 zone B steel beam welding\". Once approved it shows in the permit list and can be searched.",
+    "workNamePending": "Written by the safety manager when approving",
+    "formal": {
+      "label": "Formal permit",
+      "missing": "There is no formal permit yet. Fill in your company's own permit form on the computer and upload it with \"Attach files\" under \"Attachments\", or press \"Fill in e-permit\" beside \"Permit documents\" and save it.",
+      "missingPhone": "There is no formal permit yet. It is uploaded (\"Attach files\") or filled in as an e-permit on the computer; once it is there, you can sign and approve here.",
+      "uploaded": "Uploaded: {files}. Check that this is the formal permit, then sign and approve.",
+      "uploadedFile": "{file} ({name} · {time})",
+      "uploadedMore": "{files} and others, {count} in all",
+      "ePermit": "E-permit {no} · filled in by {name}",
+      "archivedWith": "Once signed, the formal permit is archived with the approval note, the signature and the time.",
+      "attachHint": "Upload the formal permit here: fill in your company's own permit form on the computer, press \"Attach files\" (Word, PDF, Excel or a photo), then sign and approve."
     }
   },
   "gateCard": {

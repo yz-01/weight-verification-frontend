@@ -119,6 +119,12 @@ export function FieldPermits({ initialProject }: { initialProject?: string }) {
                     </span>
                   )}
                 </span>
+                {/* 「施工事项名称」 (JB221): two lines at most; the whole name in the permit. */}
+                {permit.work_name ? (
+                  <span className="mt-0.5 line-clamp-2 break-words text-sm font-medium" data-slot="permit-work-name">
+                    {permit.work_name}
+                  </span>
+                ) : null}
                 <span className="mt-0.5 block truncate text-xs text-muted-foreground">
                   {permit.project_name} · {df.dateTime(permit.applied_at)}
                 </span>

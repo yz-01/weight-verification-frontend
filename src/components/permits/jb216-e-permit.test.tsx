@@ -415,7 +415,8 @@ describe("F5 签名批准 says which e-permit the signer saw", () => {
     expect(sent.get("seen_form_at")).toBe(SAVED.filled_at);
     await approvePermit("p1", signature, "同意", null);
     expect((posted.calls.at(-1)?.[1] as FormData).get("seen_form_at")).toBe("");
-    expect(PARTS_SOURCE).toMatch(/approvePermit\(permit\.id, signature!, note\.trim\(\), permit\.work_form\?\.filled_at \?\? null\)/);
+    // (JB221 adds the 施工事项名称 after it.)
+    expect(PARTS_SOURCE).toMatch(/approvePermit\(permit\.id, signature!, note\.trim\(\), permit\.work_form\?\.filled_at \?\? null, workName\.trim\(\)\)/);
   });
 
   it("says plainly to look again, and reads the permit again", () => {
@@ -537,9 +538,13 @@ describe("JB216-6 and S2 in the permit window", () => {
     });
 
   it("tells the approver to fill the e-permit first, then sign; once filled, that it is archived with the signature", () => {
-    expect(detail(permit())).toContain(e.fillHint);
+    // Since JB221 the e-permit is one of two ways to the 正式施工准证 (the
+    // other is 「上传附件」); the box says both, then names the e-permit.
+    const f = zh.permits.formal;
+    expect(detail(permit())).toContain(f.missing);
     const filled = detail(permit({ work_form: SAVED }));
-    expect(filled).toContain(e.filledHint.replace("{no}", "PTW-PRJ-0001-001"));
+    expect(filled).toContain(f.ePermit.replace("{no}", "PTW-PRJ-0001-001").replace("{name}", "示范 项目经理"));
+    expect(filled).toContain(f.archivedWith);
     // The approval is still the right-hand one: note, signature, 签名批准.
     expect(filled).toContain(zh.permits.approve);
     expect(filled).toContain(zh.permits.field.approvalNote);
