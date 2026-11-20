@@ -785,6 +785,25 @@
   text-align: center;
 }
 
+/* Audit 11-20 F4: a person's 最新定位 time under the icon, read without a press. */
+.mse-map-caption {
+  position: absolute;
+  top: 31px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0 4px;
+  border-radius: 4px;
+  background: var(--card);
+  color: var(--foreground);
+  box-shadow: 0 1px 3px rgb(15 23 42 / 25%);
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 15px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
 /* Leaflet gives its internal panes z-index values from 200 to 700. Without a
  * stacking context on the map root, those values can escape a card or dialog
  * and cover unrelated content elsewhere on the page. Every map is a contained

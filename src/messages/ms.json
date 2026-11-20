@@ -23101,7 +23101,7 @@
     "lastSeen": "Lokasi terkini {at}",
     "since": "Masuk tapak {at}",
     "stale": "Tidak dikemas kini lebih 10 minit: aplikasi tapak pada telefon mungkin ditutup.",
-    "machineSeen": "Lokasi terkini {at} · daripada {source, select, OPERATING_LOG {jam kerja pengendali} other {rekod masuk}}",
+    "machineSeen": "Lokasi terkini {at} · daripada {source, select, OPERATING_LOG {daftar masuk pengendali} EXIT {permohonan keluar} other {rekod masuk}}",
     "recordedAt": "Direkod {at}",
     "personKind": {
       "APP": "Aplikasi tapak",
@@ -23132,7 +23132,15 @@
     "consultantLegend": "Peta menunjukkan rekod {window, select, today {hari ini} other {7 hari lalu}} bagi bahagian yang dibuka oleh ibu pejabat untuk anda, hanya yang mempunyai lokasi.",
     "consultantNothingYet": "Belum ada rekod berlokasi untuk dipaparkan {window, select, today {hari ini} other {dalam 7 hari lalu}}.",
     "consultantNoLayers": "Ibu pejabat belum membuka apa-apa dalam projek ini yang boleh dipaparkan pada peta untuk anda, jadi peta hanya menunjukkan kawasan tapak. Untuk melihat rekod di sini, sila hubungi ibu pejabat kontraktor.",
-    "askHeadOffice": "Sila minta ibu pejabat kontraktor melukis kawasan tapak."
+    "askHeadOffice": "Sila minta ibu pejabat kontraktor melukis kawasan tapak.",
+    "openExit": "Buka permohonan keluar",
+    "machineFromClock": "Lokasi ini ialah tempat pengendali mendaftar masuk; lihat jam kerja di Jam operator peralatan.",
+    "legendNow": "{layers}: kedudukan sekarang.",
+    "legendDay": "{layers}: {window, select, today {hari ini} other {7 hari lalu}}, hanya yang mempunyai lokasi.",
+    "legendPeople": "Masa di bawah ikon pekerja ialah lokasi terkini{app, select, yes {; pudar: tidak dikemas kini lebih 10 minit} other {}}; kelabu: lokasi terkini bukan hari ini, dengan tarikh di bawahnya.",
+    "noLayers": "Peranan anda tidak boleh melihat pekerja, bahan dipunggah, jentera atau rekod tapak, jadi peta hanya menunjukkan kawasan tapak. Untuk melihatnya, minta pentadbir syarikat membukanya di Peranan dan kebenaran.",
+    "notUpdating": "Peta tidak dikemas kini: ia menunjukkan keadaan tapak pada {at}. Sila semak rangkaian; ia akan mencuba semula sendiri.",
+    "retry": "Cuba lagi"
   },
   "consultantHome": {
     "noProjects": "Anda belum diberi akses kepada mana-mana projek. Sila minta ibu pejabat kontraktor membukanya untuk anda.",

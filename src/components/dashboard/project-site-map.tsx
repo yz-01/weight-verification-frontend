@@ -17,6 +17,10 @@
  *   says how many.
  * - A press on an icon shows its card inside the map (full screen too);
  *   「查看完整记录」 opens the record's own window over the dashboard.
+ * - Audit 11-20: a person's 最新定位 time stands under the icon (grey with the
+ *   date when it is not today, faded after ten minutes); the legend names only
+ *   the reader's layers, or says why there are none; a card stays open through
+ *   the refresh; a refresh that failed says so with the time of the last one.
  *
  * **The boundary JB226 mounts:** this component reads no role. Every layer
  * comes from the server's `allowed` flags (`get_project_map`, which cuts each
@@ -30,6 +34,7 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import {
   ClipboardList,
+  CloudOff,
   Construction,
   MapPinned,
   MapPinOff,
@@ -39,7 +44,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
@@ -141,39 +146,88 @@ export function mapItems(data: ProjectMap): Record<MapLayer, MapItem[]> {
 }
 
 /**
+ * How a person's icon looks (audit 11-20 F4): `live` green; `quiet` faded
+ * green - an app account not heard from for ten minutes, never the machines'
+ * amber; `earlier` grey - last located on an earlier day (company clock),
+ * whichever kind, so a link that last reported yesterday is never drawn as
+ * live. Without `df` the day is not judged.
+ */
+export type PersonFreshness = "live" | "quiet" | "earlier";
+
+export function personFreshness(person: ProjectMapPerson, df?: DateFormatter, now: Date = new Date()): PersonFreshness {
+  if (df && person.at && df.date(person.at) !== df.date(now)) return "earlier";
+  return person.stale ? "quiet" : "live";
+}
+
+const FRESHER: readonly PersonFreshness[] = ["live", "quiet", "earlier"];
+
+/**
  * The icons drawn: each layer that is switched on, with what stands within
  * 8 m of each other as one icon carrying their number (D8). `byId` gives the
- * card its items when an icon is pressed.
+ * card its items when an icon is pressed. With `df`, a person's icon carries
+ * the 最新定位 time under it - the date when it is not today - and in its
+ * hover, and greys when it is from an earlier day (audit 11-20 F4).
  */
 export function siteMarkers(
   kept: Record<MapLayer, MapItem[]>,
   hidden: ReadonlySet<MapLayer>,
   t: Translate,
+  df?: DateFormatter,
 ): { byId: Map<string, MapItem[]>; markers: LocationMapMarker[] } {
   const byId = new Map<string, MapItem[]>();
   const markers: LocationMapMarker[] = [];
+  const now = new Date();
   for (const layer of MAP_LAYERS) {
     if (hidden.has(layer)) continue;
     const look = LAYER_LOOK[layer];
     for (const group of groupNearby(kept[layer], place, SAME_SPOT_M)) {
-      // Each item is in one group only, so its first item names it - and an
-      // open card stays open through the minute's refresh.
+      // Each item is in one group only, so its first item names it. A card
+      // remembers the item pressed, not this name (`groupHolding`).
       const id = itemKey(group.items[0]);
       byId.set(id, group.items);
-      const stale = group.items.every((item) => item.layer === "people" && item.person.stale);
-      markers.push({
+      const single = group.items.length === 1;
+      const marker: LocationMapMarker = {
         id,
         latitude: group.at[0],
         longitude: group.at[1],
-        label: group.items.length > 1 ? t("here", { count: group.items.length }) : itemTitle(group.items[0], t),
-        tone: stale ? "warning" : look.tone,
-        stale,
+        label: single ? itemTitle(group.items[0], t) : t("here", { count: group.items.length }),
+        tone: look.tone,
+        stale: false,
         icon: look.marker,
         count: group.items.length,
-      });
+      };
+      const people = group.items.flatMap((item) => (item.layer === "people" ? [item.person] : []));
+      if (people.length > 0) {
+        // The freshest person at the spot decides its look and its time.
+        const looks = people.map((person) => personFreshness(person, df, now));
+        const freshest = FRESHER.find((value) => looks.includes(value)) ?? "live";
+        const newest = people.reduce((best, person) => ((person.at ?? "") > (best.at ?? "") ? person : best));
+        marker.tone = freshest === "earlier" ? "neutral" : look.tone;
+        marker.stale = freshest === "quiet";
+        if (df && newest.at) {
+          marker.caption = freshest === "earlier" ? df.date(newest.at) : df.time(newest.at);
+          if (single) marker.label = `${people[0].name} · ${t("lastSeen", { at: when(df, people[0].at) })}`;
+        }
+      }
+      markers.push(marker);
     }
   }
   return { byId, markers };
+}
+
+/**
+ * The group that holds the item a reader pressed (audit 11-20 F6). A group
+ * is named by its first item, and a newer thing at the same spot comes first
+ * after the minute's refresh - so the open card follows the item, not the name.
+ */
+export function groupHolding(byId: ReadonlyMap<string, MapItem[]>, key: string | null): MapItem[] | null {
+  if (!key) return null;
+  const named = byId.get(key);
+  if (named) return named;
+  for (const items of byId.values()) {
+    if (items.some((item) => itemKey(item) === key)) return items;
+  }
+  return null;
 }
 
 export function ProjectSiteMap({
@@ -190,6 +244,7 @@ export function ProjectSiteMap({
 }) {
   const t = useTranslations("projectSiteMap");
   const title = useTranslations("projectReference");
+  const locale = useLocale();
   const df = useDateFormat();
   const router = useRouter();
   const opener = useRecordOpener();
@@ -227,7 +282,7 @@ export function ProjectSiteMap({
     }
     return { kept, outside };
   }, [box, items]);
-  const groups = useMemo(() => siteMarkers(onSite.kept, hidden, t), [hidden, onSite, t]);
+  const groups = useMemo(() => siteMarkers(onSite.kept, hidden, t, df), [df, hidden, onSite, t]);
   const placeMarker = useMemo<LocationMapMarker[]>(() => {
     if (!data || data.site.fences.length > 0 || data.site.radius_circle || !data.site.location) return [];
     return [
@@ -241,7 +296,8 @@ export function ProjectSiteMap({
     ];
   }, [data]);
   const markers = useMemo(() => [...placeMarker, ...groups.markers], [groups.markers, placeMarker]);
-  const chosen = selected ? groups.byId.get(selected) ?? null : null;
+  // The item pressed, so the card stays open through the refresh (audit 11-20 F6).
+  const chosen = groupHolding(groups.byId, selected);
 
   if (!project) return null;
 
@@ -253,6 +309,20 @@ export function ProjectSiteMap({
   };
   const offered = data ? MAP_LAYERS.filter((layer) => data.layers[layer].allowed) : [];
   const fenced = data ? data.site.fences.length > 0 || Boolean(data.site.radius_circle) : false;
+  // The legend names only the layers this reader is given (audit 11-20 F2).
+  const named = (layers: MapLayer[]) =>
+    new Intl.ListFormat(locale, { type: "conjunction" }).format(layers.map((layer) => t(`layer.${layer}`)));
+  const nowLayers = offered.filter((layer) => layer === "people" || layer === "machines");
+  const dayLayers = offered.filter((layer) => layer === "receipts" || layer === "records");
+  const legend =
+    offered.length === MAP_LAYERS.length
+      ? [t("legendNote", { window: range })]
+      : [
+          ...(nowLayers.length > 0 ? [t("legendNow", { layers: named(nowLayers) })] : []),
+          ...(dayLayers.length > 0 ? [t("legendDay", { layers: named(dayLayers), window: range })] : []),
+        ];
+  // A refresh that failed leaves the last map up; it says so, and when that was (audit 11-20 F7).
+  const lastUpdate = query.dataUpdatedAt ? new Date(query.dataUpdatedAt).toISOString() : data?.generated_at ?? null;
   const toggle = (layer: MapLayer) => {
     setSelected(null);
     setHidden((current) => {
@@ -342,6 +412,15 @@ export function ProjectSiteMap({
             }
           />
           <ul className="space-y-1 text-xs text-muted-foreground" data-map-notes>
+            {query.isError ? (
+              <li className="flex flex-wrap items-center gap-2 text-sm text-foreground" role="status" data-map-not-updating>
+                <CloudOff className="size-4 text-warning" aria-hidden />
+                {t("notUpdating", { at: when(df, lastUpdate) })}
+                <Button type="button" size="sm" variant="outline" className="h-8" onClick={() => void query.refetch()}>
+                  {t("retry")}
+                </Button>
+              </li>
+            ) : null}
             {!fenced ? (
               <li className="flex flex-wrap items-center gap-2 text-sm text-foreground" data-map-no-fence>
                 <MapPinOff className="size-4 text-warning" aria-hidden />
@@ -349,14 +428,34 @@ export function ProjectSiteMap({
                 <FenceAction project={project} consultant={consultant} />
               </li>
             ) : null}
-            {consultant && offered.length === 0 ? (
-              // Nothing of the map opened to him: why it is bare, and whom to ask.
-              <li className="text-sm text-foreground" data-map-consultant-none>
-                {t("consultantNoLayers")}
+            {consultant ? (
+              // A consultant (JB226 audit F2): his own words - what head office opened for him, or,
+              // with nothing of the map opened, why it is bare and that 建筑商总部 opens it. Never the
+              // role sentence (he has no role) and never the people lines (people are never his).
+              offered.length === 0 ? (
+                <li className="text-sm text-foreground" data-map-consultant-none>
+                  {t("consultantNoLayers")}
+                </li>
+              ) : (
+                <li data-map-legend>{t("consultantLegend", { window: range })}</li>
+              )
+            ) : offered.length === 0 ? (
+              // 仪表板 but none of the layers' codes: why the map is bare, and whom to ask (audit 11-20 F2).
+              <li className="text-sm text-foreground" data-map-no-layers>
+                {t("noLayers")}
               </li>
             ) : (
-              <li>{t(consultant ? "consultantLegend" : "legendNote", { window: range })}</li>
+              legend.map((line) => (
+                <li key={line} data-map-legend>
+                  {line}
+                </li>
+              ))
             )}
+            {!consultant && offered.includes("people") ? (
+              <li data-map-people-legend>
+                {t("legendPeople", { app: data.layers.people.app_allowed ? "yes" : "no" })}
+              </li>
+            ) : null}
             {onSite.outside > 0 ? <li data-map-outside>{t("outside", { count: onSite.outside })}</li> : null}
             {data.layers.machines.without_position > 0 ? (
               <li>{t("machinesWithout", { count: data.layers.machines.without_position })}</li>
@@ -407,6 +506,12 @@ function itemTitle(item: MapItem, t: Translate): string {
   if (item.layer === "people") return item.person.name;
   if (item.layer === "machines") return item.row.label;
   return [t(`kind.${item.row.kind}` as "kind.MATERIAL_RECEIPT"), item.row.reference].filter(Boolean).join(" · ");
+}
+
+/** What a machine's place came from: an operator's clock-in, an exit application or its entry. */
+function machineSource(row: ProjectMapRow): "OPERATING_LOG" | "EXIT" | "ENTRY" {
+  if (row.source === "OPERATING_LOG") return "OPERATING_LOG";
+  return row.movement_direction === "EXIT" ? "EXIT" : "ENTRY";
 }
 
 /** A time on the card: the hour today, with the date otherwise - both in the company's clock. */
@@ -540,8 +645,14 @@ function ItemDetail({ item, df, single }: { item: MapItem; df: DateFormatter; si
           {[row.reference, row.registration_no, row.site_no, row.supplier].filter(Boolean).join(" · ")}
         </p>
         <p className="text-xs font-medium">
-          {t("machineSeen", { at: when(df, row.at), source: row.source ?? "MOVEMENT" })}
+          {t("machineSeen", { at: when(df, row.at), source: machineSource(row) })}
         </p>
+        {row.source === "OPERATING_LOG" ? (
+          // A clock-in has no window to open: where the place came from (audit 11-20 F3).
+          <p className="text-xs text-muted-foreground" data-map-machine-clock>
+            {t("machineFromClock")}
+          </p>
+        ) : null}
       </div>
     );
   }
@@ -591,15 +702,18 @@ function ItemAction({
   const row = item.row;
   if (item.layer === "machines") {
     if (!row.movement_id) return null;
+    // The record the place came from - an entry or an exit application - or,
+    // for a clock-in, the stay's entry; named for what it is (audit 11-20 F3).
     return (
       <Button
         type="button"
         size="sm"
         variant="outline"
         className="h-8"
+        data-map-opens={row.movement_direction === "EXIT" ? "EXIT" : "ENTRY"}
         onClick={() => onOpenRecord("EQUIPMENT_MOVEMENT", row.movement_id as string, row.reference, row.at)}
       >
-        {t("openEntry")}
+        {row.movement_direction === "EXIT" ? t("openExit") : t("openEntry")}
       </Button>
     );
   }

@@ -11,9 +11,10 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { NextIntlClientProvider } from "next-intl";
 import { renderToStaticMarkup } from "react-dom/server";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { ProjectMap, ProjectMapPerson, ProjectMapRow } from "@/interfaces/headquarters";
+import type { DateFormatter } from "@/lib/dates";
 import messages from "@/messages/zh.json";
 
 const auth = { can: (code: string) => Boolean(code) };
@@ -40,7 +41,9 @@ vi.mock("@/components/shared/location-map", () => ({
 const apiGet = vi.fn((..._args: unknown[]) => Promise.resolve({}));
 vi.mock("@/services/api-client", () => ({ api: { get: (...args: unknown[]) => apiGet(...args) }, download: vi.fn() }));
 
-const { ProjectSiteMap, MapOverlay, siteZones, siteMarkers, mapItems } = await import("@/components/dashboard/project-site-map");
+const { ProjectSiteMap, MapOverlay, siteZones, siteMarkers, mapItems, groupHolding, personFreshness } = await import(
+  "@/components/dashboard/project-site-map"
+);
 const { useDateFormat } = await import("@/lib/dates");
 const { getProjectMap } = await import("@/services/contractor-dashboard.service");
 
@@ -78,9 +81,17 @@ function mapData(overrides: Partial<ProjectMap> = {}, layers: Partial<ProjectMap
   };
 }
 
-function render(data: ProjectMap, consultant = false) {
+function render(
+  data: ProjectMap,
+  { failed = false, consultant = false }: { failed?: boolean; consultant?: boolean } = {},
+) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: Infinity } } });
   client.setQueryData(["contractor-dashboard", "project-map", "p1", "today"], data);
+  const cached = client.getQueryCache().find({ queryKey: ["contractor-dashboard", "project-map", "p1", "today"] });
+  if (failed && cached) {
+    // The minute's refresh failed after a good load: the data stays, the query is in error.
+    cached.setState({ ...cached.state, status: "error", error: new Error("offline"), fetchStatus: "idle" });
+  }
   return renderToStaticMarkup(
     <QueryClientProvider client={client}>
       <NextIntlClientProvider locale="zh" messages={messages} timeZone="Asia/Kuala_Lumpur">
@@ -99,6 +110,13 @@ const words = messages.projectSiteMap;
 
 beforeEach(() => {
   auth.can = (code: string) => Boolean(code);
+  // The fixtures are from 19 Nov, at noon in Kuala Lumpur: "today" for every test.
+  vi.useFakeTimers({ toFake: ["Date"] });
+  vi.setSystemTime(new Date("2026-11-19T04:00:00Z"));
+});
+
+afterEach(() => {
+  vi.useRealTimers();
 });
 
 describe("the map is about the site, not the city (JB222-2, JB222-8)", () => {
@@ -123,8 +141,17 @@ describe("the map is about the site, not the city (JB222-2, JB222-8)", () => {
     const markers = JSON.parse(attr(render(mapData()), "data-markers")) as Array<{ count: number; icon: string; stale: boolean }>;
     const truck = markers.find((marker) => marker.icon === "truck");
     expect(truck?.count).toBe(2);
-    // A person not heard from for ten minutes is greyed.
+    // A person not heard from for ten minutes is faded.
     expect(markers.find((marker) => marker.icon === "person")?.stale).toBe(true);
+  });
+
+  it("a person's latest time stands under the icon and in its hover (audit 11-20 F4)", () => {
+    const markers = JSON.parse(attr(render(mapData()), "data-markers")) as Array<{ icon: string; caption?: string; label: string }>;
+    const icon = markers.find((marker) => marker.icon === "person");
+    // 03:00 UTC is 11:00 in the company's clock.
+    expect(icon?.caption).toBe("11:00");
+    expect(icon?.label).toBe("阿华 · 最新定位 11:00");
+    expect(markers.find((marker) => marker.icon === "truck")?.caption).toBeUndefined();
   });
 });
 
@@ -135,7 +162,37 @@ describe("the layers are the reader's own (JB222-7)", () => {
     expect(html).toMatch(/data-map-layer="receipts"[^>]*>[\s\S]*?材料卸货[\s\S]*?>2</);
     expect(html).toContain('data-map-layer="machines"');
     expect(html).toContain('data-map-layer="records"');
+    // The legend names only the layers he has (audit 11-20 F2).
+    expect(html).toContain("机械设备是现在的位置。");
+    expect(html).toContain("材料卸货和现场记录是今天的，只画出有定位的记录。");
+    expect(html).not.toContain("人员和机械设备");
+    expect(html).not.toContain("data-map-people-legend");
+  });
+
+  it("with every layer, the one legend sentence, and how people's icons read", () => {
+    const html = render(mapData());
     expect(html).toContain(words.legendNote.replace(/\{window, select, today \{(.+?)\} other \{.+?\}\}/, "$1"));
+    expect(html).toContain("人员图标下是最新定位时间；淡色的人员：超过 10 分钟没有更新；灰色的人员：最新定位不是今天，图标下写的是日期。");
+    // Roster only: no phone app, so no ten-minute fade to explain.
+    const roster = render(mapData({}, { people: { allowed: true, app_allowed: false, roster_allowed: true, rows: [] } }));
+    expect(roster).toContain("人员图标下是最新定位时间；灰色的人员：");
+  });
+
+  it("仪表板 but none of the layers: why the map is bare and whom to ask (audit 11-20 F2)", () => {
+    const none = { allowed: false, rows: [] };
+    const html = render(
+      mapData({}, {
+        people: { ...none, app_allowed: false, roster_allowed: false },
+        receipts: { ...none, capped: false },
+        machines: { ...none, without_position: 0 },
+        records: { ...none, kinds: [], capped: false },
+      }),
+    );
+    expect(html).toContain(words.noLayers);
+    expect(html).toContain("公司管理员");
+    expect(html).not.toContain("data-map-legend");
+    expect(html).not.toContain("现在的位置");
+    expect(html).not.toContain("data-map-nothing");
   });
 
   it("offers no switch at all to a reader the server gave nothing", () => {
@@ -232,7 +289,7 @@ describe("a consultant's notes (JB226 audit F2): his layers, and 建筑商总部
   it("never speaks of people or machines; says what the map holds for him", () => {
     const html = render(
       mapData({}, { ...his, receipts: { allowed: true, rows: [], capped: false }, records: { allowed: true, kinds: ["SAFETY_INCIDENT"], rows: [], capped: false } }),
-      true,
+      { consultant: true },
     );
     const said = notes(html);
     expect(said).toContain("地图上是总部为您开通的、今天的记录，只画出有定位的。");
@@ -245,21 +302,24 @@ describe("a consultant's notes (JB226 audit F2): his layers, and 建筑商总部
   it("with nothing of the map opened: why it is bare, and whom to ask", () => {
     const html = render(
       mapData({}, { ...his, receipts: { allowed: false, rows: [], capped: false }, records: { allowed: false, kinds: [], rows: [], capped: false } }),
-      true,
+      { consultant: true },
     );
     const said = notes(html);
     expect(said).toContain(words.consultantNoLayers);
     expect(said).toContain("建筑商总部");
     expect(said).not.toContain("人员");
     expect(said).not.toContain("公司管理员");
+    // Never the role sentence of JB222's fix round - he has no role.
+    expect(said).not.toContain(words.noLayers);
+    expect(html).not.toContain("data-map-people-legend");
   });
 
   it("a missing fence is 建筑商总部's to draw, not 公司管理员's", () => {
-    const html = render(mapData({ site: { fences: [], radius_circle: null, location: CENTRE } }, his), true);
+    const html = render(mapData({ site: { fences: [], radius_circle: null, location: CENTRE } }, his), { consultant: true });
     expect(html).toContain(words.askHeadOffice);
     expect(html).not.toContain(words.askAdmin);
     expect(html).not.toContain(words.drawFence);
-    const bare = render(mapData({ site: { fences: [], radius_circle: null, location: null } }, his), true);
+    const bare = render(mapData({ site: { fences: [], radius_circle: null, location: null } }, his), { consultant: true });
     expect(bare).toContain(words.askHeadOffice);
     expect(bare).not.toContain(words.askAdmin);
   });
@@ -332,6 +392,45 @@ describe("a press shows the card, and the card opens the record (JB222-7)", () =
     expect(html).toContain(words.openEntry);
   });
 
+  const machine = (extra: Partial<ProjectMapRow>): ProjectMapRow => ({
+    ...receipt("m1"), kind: "MACHINE", reference: "EQ-1", label: "Tower crane", ...extra,
+  });
+
+  it("a machine placed by its exit application says so, and the button opens that application (audit 11-20 F3)", () => {
+    const html = renderCard([
+      { layer: "machines", row: machine({ source: "MOVEMENT", movement_id: "out1", movement_direction: "EXIT" }) },
+    ]);
+    expect(html).toContain("来自设备退场申请");
+    expect(html).toContain(words.openExit);
+    expect(html).toContain('data-map-opens="EXIT"');
+    expect(html).not.toContain(words.openEntry);
+    expect(html).not.toContain("进场记录");
+  });
+
+  it("a machine placed by its entry: 进场记录, and the entry opens", () => {
+    const html = renderCard([
+      { layer: "machines", row: machine({ source: "MOVEMENT", movement_id: "in1", movement_direction: "ENTRY" }) },
+    ]);
+    expect(html).toContain("来自设备进场记录");
+    expect(html).toContain(words.openEntry);
+    expect(html).not.toContain(words.machineFromClock);
+  });
+
+  it("a machine placed by a clock-in: the words say so; its stay's entry opens, or nothing", () => {
+    const withEntry = renderCard([
+      { layer: "machines", row: machine({ source: "OPERATING_LOG", movement_id: "in1", movement_direction: "ENTRY" }) },
+    ]);
+    expect(withEntry).toContain("来自设备操作员打卡");
+    expect(withEntry).toContain(words.machineFromClock);
+    expect(withEntry).toContain(words.openEntry);
+    const byHand = renderCard([
+      { layer: "machines", row: machine({ source: "OPERATING_LOG", movement_id: null, movement_direction: null }) },
+    ]);
+    expect(byHand).toContain(words.machineFromClock);
+    expect(byHand).not.toContain(words.openEntry);
+    expect(byHand).not.toContain(words.openExit);
+  });
+
   it("several at one spot: a list, each with its own button", () => {
     const html = renderCard([
       { layer: "receipts", row: receipt("1") },
@@ -341,5 +440,87 @@ describe("a press shows the card, and the card opens the record (JB222-7)", () =
     expect(html.match(new RegExp(words.openRecord, "g"))).toHaveLength(2);
     // The card replaces the switches while it is open.
     expect(html).not.toContain("data-map-layers");
+  });
+});
+
+/** A plain formatter in UTC, so the pure helpers can be read without a provider. */
+const iso = (value: unknown) => (value instanceof Date ? value : new Date(String(value))).toISOString();
+const utc = {
+  date: (value) => iso(value).slice(0, 10),
+  dateTime: (value) => iso(value).slice(0, 16).replace("T", " "),
+  time: (value) => iso(value).slice(11, 16),
+  precise: (value) => iso(value),
+  relative: () => "",
+} as DateFormatter;
+const label = ((key: string, values?: Record<string, unknown>) =>
+  values?.at ? `${key} ${String(values.at)}` : key) as unknown as Parameters<typeof siteMarkers>[2];
+const people = (...rows: ProjectMapPerson[]) => ({
+  people: rows.map((row) => ({ layer: "people" as const, person: row })),
+  receipts: [],
+  machines: [],
+  records: [],
+});
+
+describe("a person's icon tells how fresh the place is (audit 11-20 F4)", () => {
+  const live = { ...person, id: "u2", name: "阿明", stale: false, at: "2026-11-19T03:55:00Z" };
+  const yesterday = { ...person, id: "w1", kind: "ROSTER" as const, name: "Ali", stale: false, at: "2026-11-18T09:40:00Z" };
+
+  it("live green, quiet faded green - never the machines' amber - and an earlier day grey with its date", () => {
+    expect(personFreshness(live, utc)).toBe("live");
+    expect(personFreshness(person, utc)).toBe("quiet");
+    expect(personFreshness(yesterday, utc)).toBe("earlier");
+    const [now] = siteMarkers(people(live), new Set(), label, utc).markers;
+    expect(now).toMatchObject({ tone: "positive", stale: false, caption: "03:55", label: "阿明 · lastSeen 03:55" });
+    const [quiet] = siteMarkers(people(person), new Set(), label, utc).markers;
+    expect(quiet).toMatchObject({ tone: "positive", stale: true, caption: "03:00" });
+    expect(quiet.tone).not.toBe("warning");
+    const [old] = siteMarkers(people(yesterday), new Set(), label, utc).markers;
+    expect(old).toMatchObject({ tone: "neutral", stale: false, caption: "2026-11-18" });
+    expect(old.label).toBe("Ali · lastSeen 2026-11-18 09:40");
+  });
+
+  it("several at one spot: the freshest decides, with the newest time", () => {
+    const [group] = siteMarkers(people(yesterday, { ...live, latitude: yesterday.latitude }), new Set(), label, utc).markers;
+    expect(group).toMatchObject({ count: 2, tone: "positive", stale: false, caption: "03:55" });
+  });
+
+  it("without a formatter (another caller) no caption and no day judged", () => {
+    const [plain] = siteMarkers(people(yesterday), new Set(), label).markers;
+    expect(plain.caption).toBeUndefined();
+    expect(plain.tone).toBe("positive");
+  });
+});
+
+describe("an open card stays open through the minute's refresh (audit 11-20 F6)", () => {
+  it("follows the item pressed when a newer one at the same spot comes first", () => {
+    const before = siteMarkers(mapItems(mapData()), new Set(), label);
+    const pressed = before.markers.find((marker) => marker.icon === "truck")?.id ?? "";
+    expect(groupHolding(before.byId, pressed)).toHaveLength(2);
+    // A third delivery at the gate, newest first: the group's name changes.
+    const after = siteMarkers(
+      mapItems(mapData({}, { receipts: { allowed: true, rows: [receipt("3"), receipt("1"), receipt("2")], capped: false } })),
+      new Set(),
+      label,
+    );
+    expect(after.byId.has(pressed)).toBe(false);
+    expect(groupHolding(after.byId, pressed)?.map((item) => (item.layer === "receipts" ? item.row.id : ""))).toEqual(["3", "1", "2"]);
+    // Gone from the map: the card closes.
+    const gone = siteMarkers(mapItems(mapData({}, { receipts: { allowed: true, rows: [], capped: false } })), new Set(), label);
+    expect(groupHolding(gone.byId, pressed)).toBeNull();
+    expect(groupHolding(gone.byId, null)).toBeNull();
+  });
+});
+
+describe("a refresh that failed says so (audit 11-20 F7)", () => {
+  it("the last map stays, with a line saying it is not updating, since when, and 「重试」", () => {
+    const html = render(mapData(), { failed: true });
+    expect(html).toContain('data-stub="map"');
+    expect(html).toContain("data-map-not-updating");
+    expect(html).toMatch(/地图暂时没有更新，现在显示的是 \d{2}:\d{2} 的情况。/);
+    expect(html).toContain(words.retry);
+  });
+
+  it("a good refresh shows no such line", () => {
+    expect(render(mapData())).not.toContain("data-map-not-updating");
   });
 });
