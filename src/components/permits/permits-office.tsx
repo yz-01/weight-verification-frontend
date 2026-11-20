@@ -294,7 +294,8 @@ export function PermitFilesCell({ files }: { files: readonly PermitFile[] }) {
         className="[&_[data-file-thumb]]:size-12"
         files={[{ id: first.id, name: first.original_name, thumbnail_url: first.thumbnail_url }]}
       />
-      <span className="whitespace-nowrap text-[13px] tabular-nums text-muted-foreground">
+      {/* The fitted table's own 13 px (globals.css `[data-fit]`), not typed here. */}
+      <span className="whitespace-nowrap tabular-nums text-muted-foreground">
         {t("fileCount", { count: files.length })}
       </span>
     </span>
