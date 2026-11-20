@@ -16,7 +16,7 @@ import { createTable, getCoreRowModel } from "@tanstack/react-table";
 import { describe, expect, it, vi } from "vitest";
 
 import type { Permit, PermitFile, PermitWorkForm } from "@/interfaces/permit";
-import { FIT_TABLE_PX, fitWidth, initialVisibility } from "@/lib/table-fit";
+import { FIT_KIND_PX, FIT_TABLE_PX, fitWidth, initialVisibility } from "@/lib/table-fit";
 import en from "@/messages/en.json";
 import ms from "@/messages/ms.json";
 import zh from "@/messages/zh.json";
@@ -320,15 +320,33 @@ describe("JB221-4…7 the list", () => {
     expect(renderDetail(<PermitFilesCell files={[]} />)).toContain("—");
   });
 
-  it("keeps 已打包 on and the readers' saved column choice (audit F3)", () => {
+  it("keeps 已打包 on and the readers' saved column choice, and fits 1366 px with 已打包 drawn (audit F3)", () => {
     const fit = LIST_FITS.permits;
-    expect(fit.columns.work_name).toBe("name");
+    expect(fit.columns.work_name).toBe("twoLineName");
     expect(Object.keys(fit.columns).indexOf("work_name")).toBe(Object.keys(fit.columns).indexOf("project_name") + 1);
     // As before JB221: nothing hidden by default, the same key for what readers saved.
     expect(fit.hidden as readonly string[]).toEqual([]);
     expect(fit.storageKey).toBe("permits.v1");
-    // Without 已打包 (drawn only when a permit on the page is in a 资料包) it fits.
-    expect(fitWidth(fit.columns, ["pack"])).toBeLessThanOrEqual(FIT_TABLE_PX);
+    // Every column, 已打包 included: within the table's 1048 px.
+    expect(fitWidth(fit.columns)).toBeLessThanOrEqual(FIT_TABLE_PX);
+    // No column made unreadable. Headers are one line of 12 px characters (a
+    // sortable one 16 px more for its arrow); a status pill is 10 px a side, a
+    // 6 px dot and gap, 12 px a character; the name keeps six 13 px characters
+    // a line; its cell may narrow to 80 px (min-w-20), no longer held at 112.
+    const px = (text: string) => [...text].length * 12;
+    for (const m of [zh.permits, zhTW.permits]) {
+      expect(px(m.field.workName)).toBeLessThanOrEqual(FIT_KIND_PX[fit.columns.work_name]);
+      expect(px(m.field.files)).toBeLessThanOrEqual(FIT_KIND_PX[fit.columns.files]);
+      expect(px(m.field.approver)).toBeLessThanOrEqual(FIT_KIND_PX[fit.columns.approver_name]);
+      expect(px(m.field.status) + 16).toBeLessThanOrEqual(FIT_KIND_PX[fit.columns.status]);
+      expect(px(m.field.appliedAt) + 16).toBeLessThanOrEqual(FIT_KIND_PX[fit.columns.occurred_at]);
+      expect(px(m.field.decidedAt) + 16).toBeLessThanOrEqual(FIT_KIND_PX[fit.columns.verified_at]);
+      for (const label of Object.values(m.status)) {
+        expect(32 + px(label), label).toBeLessThanOrEqual(FIT_KIND_PX[fit.columns.status]);
+      }
+    }
+    expect(Math.floor(FIT_KIND_PX.twoLineName / 13)).toBeGreaterThanOrEqual(6);
+    expect(OFFICE_SOURCE).toMatch(/line-clamp-2 block min-w-20 max-w-56[^"]*" data-slot="permit-work-name"/);
   });
 
   it("shows 施工事项名称 to a reader whose saved choice is from before it, once (audit F3)", () => {

@@ -187,21 +187,22 @@ export const LIST_FITS = {
     // from the files (one 48 px picture and its count). 已打包 stays on and the
     // readers' saved choice stays (audit F3, 11-20): the client asked neither.
     // A choice saved before has never seen 施工事项名称, so it shows for them
-    // too; drawn only when a permit on the page is in a 资料包, 已打包 is
-    // checked at 1366 px in the walk (`table-fit.test.ts`).
+    // too. It fits 1366 px with 已打包 drawn (1048 px): the name on two lines
+    // at about six characters a line, the status a one-word pill, each time
+    // as wide as its date line (「19/11/2026」 over 「01:19 下午」).
     storageKey: "permits.v1",
     file: "src/components/permits/permits-office.tsx",
     columns: {
       incident_no: "recno",
       pack: "pack",
       project_name: "text",
-      work_name: "name",
+      work_name: "twoLineName",
       files: "thumb",
       applicant_name: "person",
-      occurred_at: "datetime",
+      occurred_at: "date",
       approver_name: "person",
-      status: "status",
-      verified_at: "datetime",
+      status: "shortStatus",
+      verified_at: "date",
       needs_action: "marker",
       actions: "actions",
     },

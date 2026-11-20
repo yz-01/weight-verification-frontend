@@ -29,15 +29,6 @@ const FITS = Object.entries(LIST_FITS) as Array<[string, ListFit]>;
 /** Columns the shared frame adds rather than the list's own source. */
 const FRAME_COLUMNS = new Set(["pack", "needs_action", "actions", "cover_photo"]);
 
-/**
- * 「已打包」 is drawn only when a row on the page is in a 资料包. On 施工准证 it
- * stays on by default although, drawn, the list is wider than 1366 px
- * (JB221 audit F3, 11-20: the client asked for the name's room from the
- * files column, not for 已打包 to go, nor for saved column choices to reset).
- * The walk looks at that page with a packed permit on it.
- */
-const PACK_ON_ALTHOUGH_WIDE = new Set(["permits"]);
-
 /** The keys before I39, so a list whose defaults changed can be seen to bump. */
 const KEYS_BEFORE_I39: Record<string, string> = {
   materialReceipts: "receipts.v4",
@@ -63,17 +54,8 @@ describe("every back-office list fits 1366 px (I39-3, I39-5)", () => {
     expect(FIT_TABLE_PX).toBe(1048);
   });
 
-  it.each(FITS)("%s: its default columns fit", (name, fit) => {
-    const hidden = PACK_ON_ALTHOUGH_WIDE.has(name) ? [...fit.hidden, "pack"] : fit.hidden;
-    expect(fitWidth(fit.columns, hidden)).toBeLessThanOrEqual(FIT_TABLE_PX);
-  });
-
-  it("names the one list whose 已打包 stays on although, drawn, it is wider", () => {
-    // 施工准证 with 施工事项名称 (JB221): 1044 px without 已打包, 1144 with it.
-    expect(fitWidth(LIST_FITS.permits.columns, ["pack"])).toBe(1044);
-    expect(fitWidth(LIST_FITS.permits.columns)).toBe(1144);
-    expect(LIST_FITS.permits.hidden as readonly string[]).not.toContain("pack");
-    expect([...PACK_ON_ALTHOUGH_WIDE]).toEqual(["permits"]);
+  it.each(FITS)("%s: its default columns fit", (_, fit) => {
+    expect(fitWidth(fit.columns, fit.hidden)).toBeLessThanOrEqual(FIT_TABLE_PX);
   });
 
   it("covers the lists the client named", () => {

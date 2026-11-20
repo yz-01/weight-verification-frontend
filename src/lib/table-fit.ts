@@ -56,8 +56,19 @@ export const FIT_KIND_PX = {
   badge: 60,
   /** A status pill, one line, up to 「已批准，待交接签名」. */
   status: 128,
+  /**
+   * A pill of one short word, 「待审批」 / 「已退回」 / 「已批准」 (68 px at 12 px
+   * with its dot), under a sortable header of four characters (64 px).
+   */
+  shortStatus: 72,
   /** The main name, wrapping, with its code or plate under it. */
   name: 112,
+  /**
+   * A name kept to two lines, the whole of it on hover (JB221 施工事项名称:
+   * 「名称过长时自动换行，最多显示两行，鼠标移上去可查看完整名称」): about six
+   * characters a line, and as wide as a six-character header (72 px).
+   */
+  twoLineName: 80,
   /** Other free text: supplier, project, remarks, wrapping. */
   text: 96,
   /** A quantity with its unit, an amount, a percentage. */
