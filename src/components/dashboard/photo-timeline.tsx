@@ -24,6 +24,7 @@ import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { usePhotoOpener } from "@/components/dashboard/headquarters-photos";
+import { useAuth } from "@/components/providers/auth-provider";
 import { useProjectBoxShown, usePageProject } from "@/components/providers/current-project-provider";
 import { useCompanyTimeZone } from "@/components/shared/date-time-range-filter";
 import { FieldWrapper, FilterBar, ListHeader, LoadFailed } from "@/components/shared/page-primitives";
@@ -59,8 +60,14 @@ export function PhotoTimeline() {
   const timeZone = useCompanyTimeZone();
   const today = wallClock(new Date(), timeZone).date;
   // The top bar's 「当前项目」 when it is in force (B13); 全部项目 otherwise.
-  const [project, setProject] = usePageProject("", { all: "all" });
-  const projectBoxShown = useProjectBoxShown("filter");
+  const [chosen, setProject] = usePageProject("", { all: "all" });
+  // A consultant's wall (JB226) is the project in his top-bar box - the
+  // server holds him to it - so the page has no project box of its own.
+  const { user } = useAuth();
+  const consultantProject =
+    user?.account_type === "CONSULTANT" ? (user.active_project?.project_id ?? "") : null;
+  const project = consultantProject ?? chosen;
+  const projectBoxShown = useProjectBoxShown("filter") && consultantProject === null;
   const [range, setRange] = useState<PhotoWallFilters>({});
   const request = photoWallQuery({ ...range, project }, { timeline: true });
   const query = useInfiniteQuery({
@@ -110,7 +117,11 @@ export function PhotoTimeline() {
 
   return (
     <div className="flex flex-col gap-4" data-photo-timeline>
-      <ListHeader title={t("timeline.title")} subtitle={t("timeline.subtitle")} />
+      {/* A consultant's wall holds only the kinds head office opened for him (JB226 audit F3). */}
+      <ListHeader
+        title={t("timeline.title")}
+        subtitle={t(consultantProject !== null ? "timeline.subtitleConsultant" : "timeline.subtitle")}
+      />
       <FilterBar>
         {projectBoxShown && (
           <FieldWrapper label={t("filter.project")} className="min-w-64 flex-1 sm:flex-none">
@@ -145,7 +156,9 @@ export function PhotoTimeline() {
           </div>
         ) : photos.length === 0 ? (
           <p className="rounded-xl border border-dashed border-panel-border py-8 text-center text-sm text-muted-foreground">
-            {filtered ? t("emptyFiltered") : t("timeline.empty")}
+            {filtered
+              ? t("emptyFiltered")
+              : t(consultantProject !== null ? "timeline.emptyConsultant" : "timeline.empty")}
           </p>
         ) : (
           <ol className="space-y-5">

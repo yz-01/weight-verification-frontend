@@ -12568,7 +12568,8 @@
     "layoutLetter": "书信",
     "previewDraft": "预览完整资料",
     "draftPreviewOnly": "这是确认前的预览。确认后才能打印、导出和发送。",
-    "fixedPart": "一定会放进资料包"
+    "fixedPart": "一定会放进资料包",
+    "reviewNothingWaiting": "目前没有等你审阅或签署的资料包。"
   },
   "mySubmissions": {
     "title": "我提交过的",
@@ -22105,7 +22106,20 @@
     "pending": "待处理事项",
     "noPending": "没有待处理事项。",
     "photos": "最新现场照片记录",
-    "noPhotos": "还没有现场照片。"
+    "noPhotos": "还没有现场照片。",
+    "noPendingMine": "目前没有需要您处理的事项。",
+    "safety": "整改 / EHS",
+    "progress": "工程进度",
+    "progressRecords": "施工进度记录",
+    "rainRecords": "雨天记录",
+    "progressToday": "今日记录",
+    "progressMonth": "本月记录",
+    "progressTotal": "累计记录",
+    "overall": "整体进度",
+    "percent": "{value}%",
+    "schedule": "施工计划进度",
+    "consultantRefused": "总部已更改或停止您在这个项目的权限，这里暂时看不到内容。请按「重新载入」；如仍看不到，请联系总部。",
+    "reload": "重新载入"
   },
   "draftRecords": {
     "delete": "删除",
@@ -22359,7 +22373,9 @@
       "empty": "还没有照片。",
       "end": "已经到最早的照片了。",
       "dayCount": "{count} 张",
-      "noDate": "没有日期"
+      "noDate": "没有日期",
+      "subtitleConsultant": "这个项目里总部为您开通的内容的照片，按拍摄时间排好，从开工到竣工都在这里。",
+      "emptyConsultant": "总部为您开通的内容里还没有照片。"
     },
     "positionOpen": "第 {number} 张"
   },
@@ -23221,6 +23237,15 @@
     "legendPeople": "人员图标下是最新定位时间{app, select, yes {；淡色的人员：超过 10 分钟没有更新} other {}}；灰色的人员：最新定位不是今天，图标下写的是日期。",
     "noLayers": "你的角色没有查看人员、材料卸货、机械设备或现场记录的权限，所以地图只显示工地范围。需要查看的话，请公司管理员在「角色与权限」里开通。",
     "notUpdating": "地图暂时没有更新，现在显示的是 {at} 的情况。请检查网络，系统会自动再试。",
-    "retry": "重试"
+    "retry": "重试",
+    "consultantLegend": "地图上是总部为您开通的、{window, select, today {今天} other {最近 7 天}}的记录，只画出有定位的。",
+    "consultantNothingYet": "{window, select, today {今天} other {最近 7 天}}还没有可以画在地图上的记录。",
+    "consultantNoLayers": "总部还没有为您在这个项目开通可以画在地图上的记录，所以地图只显示工地范围。要看这些记录，请联系建筑商总部。",
+    "askHeadOffice": "请联系建筑商总部画出工地范围。"
+  },
+  "consultantHome": {
+    "noProjects": "您目前没有获授权的项目。请联系建筑商总部开通。",
+    "chooseProject": "请先在页面上方的项目框选一个项目，这里就会显示那个项目的仪表板。",
+    "onlyOpened": "总部目前只为您开通了这些内容。要看其他内容，请联系建筑商总部。"
   }
 }

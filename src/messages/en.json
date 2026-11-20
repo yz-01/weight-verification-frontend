@@ -12568,7 +12568,8 @@
     "layoutLetter": "Letter",
     "previewDraft": "Preview the whole package",
     "draftPreviewOnly": "This is a preview before confirming. Print, export and send open once it is confirmed.",
-    "fixedPart": "Always goes into the package"
+    "fixedPart": "Always goes into the package",
+    "reviewNothingWaiting": "No package is waiting for your review or signature right now."
   },
   "mySubmissions": {
     "title": "What I sent",
@@ -22105,7 +22106,20 @@
     "pending": "Waiting",
     "noPending": "Nothing waiting.",
     "photos": "Latest site photos",
-    "noPhotos": "No site photos yet."
+    "noPhotos": "No site photos yet.",
+    "noPendingMine": "Nothing is waiting for you right now.",
+    "safety": "Hazard rectification / EHS",
+    "progress": "Construction progress",
+    "progressRecords": "Progress records",
+    "rainRecords": "Rainy weather records",
+    "progressToday": "Today",
+    "progressMonth": "This month",
+    "progressTotal": "All records",
+    "overall": "Overall progress",
+    "percent": "{value}%",
+    "schedule": "Construction schedule",
+    "consultantRefused": "Head office has changed or ended your access to this project, so nothing can be shown here. Press “Reload”; if you still see nothing, please contact head office.",
+    "reload": "Reload"
   },
   "draftRecords": {
     "delete": "Delete",
@@ -22359,7 +22373,9 @@
       "empty": "No photos yet.",
       "end": "You have reached the earliest photo.",
       "dayCount": "{count} photos",
-      "noDate": "No date"
+      "noDate": "No date",
+      "subtitleConsultant": "Photos of the parts of this project head office opened for you, in the order taken, from the first day of work to completion.",
+      "emptyConsultant": "There are no photos yet in the parts head office opened for you."
     },
     "positionOpen": "Photo {number}"
   },
@@ -23221,6 +23237,15 @@
     "legendPeople": "The time under a person is when they were last located{app, select, yes {; faded: not updated for over 10 minutes} other {}}; grey: last located on an earlier day, with the date under it.",
     "noLayers": "Your role cannot see people, deliveries, machines or site records, so the map shows only the site's extent. To see them, ask the company administrator to turn them on under Roles and permissions.",
     "notUpdating": "The map is not updating: it shows the site as it was at {at}. Please check the network; it will try again by itself.",
-    "retry": "Try again"
+    "retry": "Try again",
+    "consultantLegend": "The map shows {window, select, today {today's} other {the last 7 days'}} records of the parts head office opened for you, only those with a location.",
+    "consultantNothingYet": "Nothing with a location to show {window, select, today {for today} other {for the last 7 days}} yet.",
+    "consultantNoLayers": "Head office has not opened anything on this project that can be drawn on the map for you, so the map shows only the site's extent. To see records here, please contact the contractor's head office.",
+    "askHeadOffice": "Please ask the contractor's head office to draw the site's extent."
+  },
+  "consultantHome": {
+    "noProjects": "You have not been given access to any project yet. Please ask the contractor's head office to open one for you.",
+    "chooseProject": "First choose a project in the project box at the top of the page; that project's dashboard will then show here.",
+    "onlyOpened": "Head office has opened only these parts for you. To see anything else, please contact the contractor's head office."
   }
 }

@@ -26,7 +26,9 @@
  * comes from the server's `allowed` flags (`get_project_map`, which cuts each
  * layer and kind to the reader's own list permissions), so the same component
  * shows a consultant only what head office opened to him. The one permission
- * read here is `geofence.manage`, for the 「去画电子围栏」 button.
+ * read here is `geofence.manage`, for the 「去画电子围栏」 button. The
+ * `consultant` prop changes words only (JB226 audit F2): his notes never speak
+ * of people or machines, and send him to 建筑商总部.
  */
 
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
@@ -228,7 +230,18 @@ export function groupHolding(byId: ReadonlyMap<string, MapItem[]>, key: string |
   return null;
 }
 
-export function ProjectSiteMap({ project }: { project: string }) {
+export function ProjectSiteMap({
+  project,
+  consultant = false,
+}: {
+  project: string;
+  /**
+   * Read by a consultant (JB226 audit F2): people and machines are never his,
+   * so the notes speak only of the records head office opened for him, and a
+   * missing fence is 建筑商总部's to draw, not 「公司管理员」's.
+   */
+  consultant?: boolean;
+}) {
   const t = useTranslations("projectSiteMap");
   const title = useTranslations("projectReference");
   const locale = useLocale();
@@ -365,7 +378,7 @@ export function ProjectSiteMap({ project }: { project: string }) {
           <div className="space-y-3">
             <MapPinOff className="mx-auto size-8 text-warning" aria-hidden />
             <p className="text-sm font-medium">{t("noPlace")}</p>
-            <FenceAction project={project} />
+            <FenceAction project={project} consultant={consultant} />
           </div>
         </div>
       ) : (
@@ -412,10 +425,21 @@ export function ProjectSiteMap({ project }: { project: string }) {
               <li className="flex flex-wrap items-center gap-2 text-sm text-foreground" data-map-no-fence>
                 <MapPinOff className="size-4 text-warning" aria-hidden />
                 {t("noFence")}
-                <FenceAction project={project} />
+                <FenceAction project={project} consultant={consultant} />
               </li>
             ) : null}
-            {offered.length === 0 ? (
+            {consultant ? (
+              // A consultant (JB226 audit F2): his own words - what head office opened for him, or,
+              // with nothing of the map opened, why it is bare and that 建筑商总部 opens it. Never the
+              // role sentence (he has no role) and never the people lines (people are never his).
+              offered.length === 0 ? (
+                <li className="text-sm text-foreground" data-map-consultant-none>
+                  {t("consultantNoLayers")}
+                </li>
+              ) : (
+                <li data-map-legend>{t("consultantLegend", { window: range })}</li>
+              )
+            ) : offered.length === 0 ? (
               // 仪表板 but none of the layers' codes: why the map is bare, and whom to ask (audit 11-20 F2).
               <li className="text-sm text-foreground" data-map-no-layers>
                 {t("noLayers")}
@@ -427,7 +451,7 @@ export function ProjectSiteMap({ project }: { project: string }) {
                 </li>
               ))
             )}
-            {offered.includes("people") ? (
+            {!consultant && offered.includes("people") ? (
               <li data-map-people-legend>
                 {t("legendPeople", { app: data.layers.people.app_allowed ? "yes" : "no" })}
               </li>
@@ -439,7 +463,7 @@ export function ProjectSiteMap({ project }: { project: string }) {
             {data.layers.receipts.capped ? <li>{t("capped", { layer: t("layer.receipts"), cap: data.cap })}</li> : null}
             {data.layers.records.capped ? <li>{t("capped", { layer: t("layer.records"), cap: data.cap })}</li> : null}
             {offered.length > 0 && MAP_LAYERS.every((layer) => counts[layer] === 0) ? (
-              <li data-map-nothing>{t("nothingYet", { window: range })}</li>
+              <li data-map-nothing>{t(consultant ? "consultantNothingYet" : "nothingYet", { window: range })}</li>
             ) : null}
           </ul>
         </>
@@ -459,10 +483,15 @@ export function ProjectSiteMap({ project }: { project: string }) {
   );
 }
 
-/** 「去画电子围栏」 for whoever may draw one; the others are told whom to ask (D11). */
-function FenceAction({ project }: { project: string }) {
+/**
+ * 「去画电子围栏」 for whoever may draw one; the others are told whom to ask
+ * (D11) - a consultant the builder's head office, not his own firm's
+ * administrator (JB226 audit F2).
+ */
+function FenceAction({ project, consultant = false }: { project: string; consultant?: boolean }) {
   const t = useTranslations("projectSiteMap");
   const { can } = useAuth();
+  if (consultant) return <span className="text-sm text-muted-foreground">{t("askHeadOffice")}</span>;
   if (!can("geofence.manage")) return <span className="text-sm text-muted-foreground">{t("askAdmin")}</span>;
   return (
     <Button asChild size="sm" variant="outline">

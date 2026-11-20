@@ -12568,7 +12568,8 @@
     "layoutLetter": "Surat",
     "previewDraft": "Pratonton seluruh pakej",
     "draftPreviewOnly": "Ini pratonton sebelum disahkan. Cetak, eksport dan hantar dibuka selepas disahkan.",
-    "fixedPart": "Sentiasa dimasukkan ke dalam pakej"
+    "fixedPart": "Sentiasa dimasukkan ke dalam pakej",
+    "reviewNothingWaiting": "Tiada pakej yang menunggu semakan atau tandatangan anda sekarang."
   },
   "mySubmissions": {
     "title": "Apa yang saya hantar",
@@ -22105,7 +22106,20 @@
     "pending": "Menunggu",
     "noPending": "Tiada yang menunggu.",
     "photos": "Foto tapak terkini",
-    "noPhotos": "Belum ada foto tapak."
+    "noPhotos": "Belum ada foto tapak.",
+    "noPendingMine": "Tiada apa-apa yang menunggu tindakan anda sekarang.",
+    "safety": "Pembetulan bahaya / EHS",
+    "progress": "Kemajuan pembinaan",
+    "progressRecords": "Rekod kemajuan",
+    "rainRecords": "Rekod hujan",
+    "progressToday": "Hari ini",
+    "progressMonth": "Bulan ini",
+    "progressTotal": "Semua rekod",
+    "overall": "Kemajuan keseluruhan",
+    "percent": "{value}%",
+    "schedule": "Jadual pembinaan",
+    "consultantRefused": "Ibu pejabat telah mengubah atau menamatkan akses anda kepada projek ini, jadi tiada apa-apa boleh dipaparkan di sini. Tekan “Muat semula”; jika masih tiada, sila hubungi ibu pejabat.",
+    "reload": "Muat semula"
   },
   "draftRecords": {
     "delete": "Padam",
@@ -22359,7 +22373,9 @@
       "empty": "Belum ada foto.",
       "end": "Anda sudah sampai ke foto yang paling awal.",
       "dayCount": "{count} foto",
-      "noDate": "Tiada tarikh"
+      "noDate": "Tiada tarikh",
+      "subtitleConsultant": "Foto bahagian projek ini yang dibuka oleh ibu pejabat untuk anda, mengikut masa diambil, dari hari pertama kerja hingga siap.",
+      "emptyConsultant": "Belum ada foto dalam bahagian yang dibuka oleh ibu pejabat untuk anda."
     },
     "positionOpen": "Foto {number}"
   },
@@ -23221,6 +23237,15 @@
     "legendPeople": "Masa di bawah ikon pekerja ialah lokasi terkini{app, select, yes {; pudar: tidak dikemas kini lebih 10 minit} other {}}; kelabu: lokasi terkini bukan hari ini, dengan tarikh di bawahnya.",
     "noLayers": "Peranan anda tidak boleh melihat pekerja, bahan dipunggah, jentera atau rekod tapak, jadi peta hanya menunjukkan kawasan tapak. Untuk melihatnya, minta pentadbir syarikat membukanya di Peranan dan kebenaran.",
     "notUpdating": "Peta tidak dikemas kini: ia menunjukkan keadaan tapak pada {at}. Sila semak rangkaian; ia akan mencuba semula sendiri.",
-    "retry": "Cuba lagi"
+    "retry": "Cuba lagi",
+    "consultantLegend": "Peta menunjukkan rekod {window, select, today {hari ini} other {7 hari lalu}} bagi bahagian yang dibuka oleh ibu pejabat untuk anda, hanya yang mempunyai lokasi.",
+    "consultantNothingYet": "Belum ada rekod berlokasi untuk dipaparkan {window, select, today {hari ini} other {dalam 7 hari lalu}}.",
+    "consultantNoLayers": "Ibu pejabat belum membuka apa-apa dalam projek ini yang boleh dipaparkan pada peta untuk anda, jadi peta hanya menunjukkan kawasan tapak. Untuk melihat rekod di sini, sila hubungi ibu pejabat kontraktor.",
+    "askHeadOffice": "Sila minta ibu pejabat kontraktor melukis kawasan tapak."
+  },
+  "consultantHome": {
+    "noProjects": "Anda belum diberi akses kepada mana-mana projek. Sila minta ibu pejabat kontraktor membukanya untuk anda.",
+    "chooseProject": "Pilih projek dahulu dalam kotak projek di bahagian atas halaman; papan pemuka projek itu akan dipaparkan di sini.",
+    "onlyOpened": "Ibu pejabat hanya membuka bahagian ini untuk anda. Untuk melihat yang lain, sila hubungi ibu pejabat kontraktor."
   }
 }

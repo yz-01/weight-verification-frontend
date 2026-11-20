@@ -38,6 +38,11 @@ const RecyclerDashboard = dynamic(
     ),
   { loading: () => <Skeleton className="h-64 w-full" /> },
 );
+// The consultant's (JB226): the project dashboard, its map and its panels.
+const ConsultantHome = dynamic(
+  () => import("@/components/dashboard/consultant-home").then((module) => module.ConsultantHome),
+  { loading: () => <Skeleton className="h-64 w-full" /> },
+);
 import { consultantLacks } from "@/lib/consultant-modules";
 import type { AdminDashboardSection } from "@/lib/admin-dashboard";
 import {
@@ -92,6 +97,12 @@ export function Dashboard({
   // banner is the page's header, so the greeting below is not repeated.
   if (user.portal === "MSE_TRACE" && can("dashboard.view")) {
     return <HeadquartersHome />;
+  }
+  // A consultant's 仪表板 is the project manager's 项目仪表板 on his project,
+  // cut to what head office gave him (JB226, 客户 11-19 事项 6) - not the
+  // count tiles below, which he called 「只有几个数字卡片，页面过于简单」.
+  if (user.portal === "MSE_TRACE" && user.account_type === "CONSULTANT") {
+    return <ConsultantHome />;
   }
 
   const subtitleKey =

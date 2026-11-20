@@ -81,7 +81,10 @@ function mapData(overrides: Partial<ProjectMap> = {}, layers: Partial<ProjectMap
   };
 }
 
-function render(data: ProjectMap, { failed = false }: { failed?: boolean } = {}) {
+function render(
+  data: ProjectMap,
+  { failed = false, consultant = false }: { failed?: boolean; consultant?: boolean } = {},
+) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: Infinity } } });
   client.setQueryData(["contractor-dashboard", "project-map", "p1", "today"], data);
   const cached = client.getQueryCache().find({ queryKey: ["contractor-dashboard", "project-map", "p1", "today"] });
@@ -92,7 +95,7 @@ function render(data: ProjectMap, { failed = false }: { failed?: boolean } = {})
   return renderToStaticMarkup(
     <QueryClientProvider client={client}>
       <NextIntlClientProvider locale="zh" messages={messages} timeZone="Asia/Kuala_Lumpur">
-        <ProjectSiteMap project="p1" />
+        <ProjectSiteMap project="p1" consultant={consultant} />
       </NextIntlClientProvider>
     </QueryClientProvider>,
   );
@@ -268,6 +271,63 @@ describe("a project with no fence (D11)", () => {
   it("the project's own radius stands in for a fence", () => {
     const zones = siteZones({ fences: [], radius_circle: { ...CENTRE, radius_m: 150 }, location: CENTRE });
     expect(zones).toEqual([{ id: "project-radius", center: [3.1425, 101.7183], radiusM: 150 }]);
+  });
+});
+
+/** The notes under the map, where the sentences are. */
+function notes(html: string): string {
+  return html.slice(html.indexOf("data-map-notes"), html.indexOf("</ul>", html.indexOf("data-map-notes")));
+}
+
+describe("a consultant's notes (JB226 audit F2): his layers, and 建筑商总部", () => {
+  // People and machines are never sent to a consultant (CONSULTANT_MAP_KINDS).
+  const his = {
+    people: { allowed: false, app_allowed: false, roster_allowed: false, rows: [] },
+    machines: { allowed: false, rows: [], without_position: 0 },
+  };
+
+  it("never speaks of people or machines; says what the map holds for him", () => {
+    const html = render(
+      mapData({}, { ...his, receipts: { allowed: true, rows: [], capped: false }, records: { allowed: true, kinds: ["SAFETY_INCIDENT"], rows: [], capped: false } }),
+      { consultant: true },
+    );
+    const said = notes(html);
+    expect(said).toContain("地图上是总部为您开通的、今天的记录，只画出有定位的。");
+    expect(said).toContain("今天还没有可以画在地图上的记录。");
+    for (const word of ["人员", "机械设备", "设备"]) {
+      expect(said).not.toContain(word);
+    }
+  });
+
+  it("with nothing of the map opened: why it is bare, and whom to ask", () => {
+    const html = render(
+      mapData({}, { ...his, receipts: { allowed: false, rows: [], capped: false }, records: { allowed: false, kinds: [], rows: [], capped: false } }),
+      { consultant: true },
+    );
+    const said = notes(html);
+    expect(said).toContain(words.consultantNoLayers);
+    expect(said).toContain("建筑商总部");
+    expect(said).not.toContain("人员");
+    expect(said).not.toContain("公司管理员");
+    // Never the role sentence of JB222's fix round - he has no role.
+    expect(said).not.toContain(words.noLayers);
+    expect(html).not.toContain("data-map-people-legend");
+  });
+
+  it("a missing fence is 建筑商总部's to draw, not 公司管理员's", () => {
+    const html = render(mapData({ site: { fences: [], radius_circle: null, location: CENTRE } }, his), { consultant: true });
+    expect(html).toContain(words.askHeadOffice);
+    expect(html).not.toContain(words.askAdmin);
+    expect(html).not.toContain(words.drawFence);
+    const bare = render(mapData({ site: { fences: [], radius_circle: null, location: null } }, his), { consultant: true });
+    expect(bare).toContain(words.askHeadOffice);
+    expect(bare).not.toContain(words.askAdmin);
+  });
+
+  it("the office's notes are as before", () => {
+    const said = notes(render(mapData()));
+    expect(said).toContain("人员和机械设备是现在的位置");
+    expect(said).not.toContain(words.consultantNoLayers);
   });
 });
 

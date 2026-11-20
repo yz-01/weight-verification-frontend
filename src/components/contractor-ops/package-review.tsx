@@ -12,6 +12,11 @@ import { PackageItemPictures } from "@/components/contractor-ops/package-item-pi
 import { ExportButton } from "@/components/shared/export-button";
 import { FileActionButtons } from "@/components/shared/file-actions";
 import {
+  NeedsActionChip,
+  NeedsActionMarker,
+  useNeedsActionParam,
+} from "@/components/shared/needs-action";
+import {
   ArmRow,
   EmptyState,
   FieldWrapper,
@@ -60,10 +65,15 @@ export function PackageReviewWorkspace() {
   const clearLinked = useClearSearchParam("package");
   const [chosen, setOpenId] = useState<string | null>(null);
   const openId = chosen ?? linked;
+  // 「待处理 N」 (JB226 audit F1): the packages his 仪表板's 「待审阅资料包」
+  // counts - a record left to answer, or his signature due. Its link opens
+  // this page with `needs_action=1`: only those.
+  const [waitingOnly, setWaitingOnly] = useNeedsActionParam();
 
   const query = useQuery({
-    queryKey: ["package-reviews"],
-    queryFn: () => getPackagesToReview({ page: 1, page_size: PAGE_SIZE }),
+    queryKey: ["package-reviews", "list", waitingOnly],
+    queryFn: () =>
+      getPackagesToReview({ page: 1, page_size: PAGE_SIZE, needs_action: waitingOnly ? "1" : undefined }),
   });
   const rows = query.data?.results ?? [];
 
@@ -73,39 +83,42 @@ export function PackageReviewWorkspace() {
         title={t("reviewTitle")}
         subtitle={t("reviewSubtitle")}
         action={
-          /* The queue as a file (H16): this consultant's own state and returns. */
-          <ExportButton
-            // His own 顾问申请 / 资料包 work: as before, 「导出」 or not (JB210).
-            ownWork
-            disabled={rows.length === 0}
-            disabledReason={t("reviewEmpty")}
-            title={t("reviewTitle")}
-            onExport={(format) =>
-              exportPackagesToReview({
-                format,
-                title: t("reviewTitle"),
-                query: {},
-                columns: [
-                  { key: "package_no", label: t("export.number") },
-                  { key: "name", label: t("column.name") },
-                  { key: "project_name", label: t("column.project") },
-                  { key: "item_count", label: t("column.items") },
-                  { key: "current_round", label: t("export.round") },
-                  {
-                    key: "review_state",
-                    label: t("column.review"),
-                    values: {
-                      NOT_SENT: t("reviewMine.NOT_SENT"),
-                      SENT: t("reviewMine.SENT"),
-                      REVIEWED: t("reviewMine.REVIEWED"),
+          <div className="flex flex-wrap justify-end gap-2">
+            <NeedsActionChip count={query.data?.needs_action_count} active={waitingOnly} onToggle={setWaitingOnly} />
+            {/* The queue as a file (H16): this consultant's own state and returns. */}
+            <ExportButton
+              // His own 顾问申请 / 资料包 work: as before, 「导出」 or not (JB210).
+              ownWork
+              disabled={rows.length === 0}
+              disabledReason={t("reviewEmpty")}
+              title={t("reviewTitle")}
+              onExport={(format) =>
+                exportPackagesToReview({
+                  format,
+                  title: t("reviewTitle"),
+                  query: {},
+                  columns: [
+                    { key: "package_no", label: t("export.number") },
+                    { key: "name", label: t("column.name") },
+                    { key: "project_name", label: t("column.project") },
+                    { key: "item_count", label: t("column.items") },
+                    { key: "current_round", label: t("export.round") },
+                    {
+                      key: "review_state",
+                      label: t("column.review"),
+                      values: {
+                        NOT_SENT: t("reviewMine.NOT_SENT"),
+                        SENT: t("reviewMine.SENT"),
+                        REVIEWED: t("reviewMine.REVIEWED"),
+                      },
                     },
-                  },
-                  { key: "returned_count", label: t("export.returned") },
-                  { key: "confirmed_at", label: t("export.confirmedAt") },
-                ],
-              })
-            }
-          />
+                    { key: "returned_count", label: t("export.returned") },
+                    { key: "confirmed_at", label: t("export.confirmedAt") },
+                  ],
+                })
+              }
+            />
+          </div>
         }
       />
 
@@ -114,7 +127,8 @@ export function PackageReviewWorkspace() {
       ) : query.isError ? (
         <LoadFailed what={t("what.packagesToReview")} onRetry={() => void query.refetch()} />
       ) : rows.length === 0 ? (
-        <EmptyState icon={Inbox} title={t("reviewEmpty")} />
+        // With 「待处理」 on, the empty list is "nothing waits for you", not "nothing sent".
+        <EmptyState icon={Inbox} title={t(waitingOnly ? "reviewNothingWaiting" : "reviewEmpty")} />
       ) : (
         <ul className="surface-panel divide-y divide-panel-border overflow-hidden rounded-xl">
           {rows.map((row: EvidencePackageRow) => (
@@ -137,6 +151,7 @@ export function PackageReviewWorkspace() {
                   {formatter.dateTime(row.sent_at ?? row.created_at)}
                 </p>
               </div>
+              <NeedsActionMarker show={row.needs_action} />
               <StatusBadge
                 label={t(`reviewMine.${row.review_state}`)}
                 tone={row.review_state === "REVIEWED" ? "positive" : "warning"}
