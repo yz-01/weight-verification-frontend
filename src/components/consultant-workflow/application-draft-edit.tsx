@@ -37,6 +37,7 @@ import { useState, type ReactNode } from "react";
 
 import { FieldWrapper } from "@/components/shared/page-primitives";
 import { AttachmentPicker } from "@/components/shared/attachment-picker";
+import { useFileActions } from "@/components/shared/file-actions";
 import { PhotoViewer, type ShellPhoto } from "@/components/shared/record-detail-shell";
 import { Button } from "@/components/ui/button";
 import {
@@ -63,7 +64,7 @@ import type {
   ConsultantApplication,
 } from "@/interfaces/consultant-workflow";
 import {
-  openApplicationAttachment,
+  applicationAttachmentFile,
   removeApplicationAttachment,
   reorderApplicationEvidence,
   unlinkApplicationEvidence,
@@ -342,9 +343,29 @@ export function RelatedRecordRemove({
 }
 
 /**
- * One attachment's file: its stored link - or, for a consultant, a record's
- * 完整证据 copy (J22) the server makes now without the builder's internal
- * talk (JB228, 客户 11-19), fetched signed in and opened in a new tab.
+ * JB228 (客户 11-19: 「顾问不能查看建筑商内部的沟通记录」): a consultant's
+ * 「原记录完整证据」 copy (J22) made before the 11-20 update is made again by
+ * the server, without the builder's internal talk - that takes seconds. It
+ * opens in the in-app preview, the way the system's other PDFs open: a tab
+ * opened after the wait is blocked by the browser without a word (audit 11-20
+ * F4). While it is made, 「正在生成…」; a failure is said in a sentence (the
+ * server's refusal, or 「文件没有准备好，请再试一次。」). Render `element` once.
+ */
+export function useMadeNowCopy() {
+  const { busy, run, element } = useFileActions();
+  const open = (attachment: ApplicationAttachment) =>
+    void run(
+      "preview",
+      { load: () => applicationAttachmentFile(attachment), title: attachment.original_name },
+      { key: `copy:${attachment.id}` },
+    );
+  const making = (attachment: ApplicationAttachment) => busy === `copy:${attachment.id}`;
+  return { busy, open, making, element };
+}
+
+/**
+ * One attachment's file: its stored link - or, for a consultant, an old
+ * record's 完整证据 copy (J22) the server makes now (`useMadeNowCopy`).
  */
 export function AttachmentLink({
   attachment,
@@ -353,18 +374,31 @@ export function AttachmentLink({
   attachment: ApplicationAttachment;
   children: ReactNode;
 }) {
+  const t = useTranslations("consultantWorkflow");
+  const copy = useMadeNowCopy();
   const className = "flex min-w-0 flex-1 items-center gap-3 transition-colors hover:text-primary";
   if (attachment.api_file) {
+    const making = copy.making(attachment);
     return (
-      <button
-        type="button"
-        className={`${className} text-left`}
-        data-api-file
-        // A failure is toasted by the download itself.
-        onClick={() => void openApplicationAttachment(attachment).catch(() => undefined)}
-      >
-        {children}
-      </button>
+      <>
+        <button
+          type="button"
+          className={`${className} text-left disabled:cursor-wait`}
+          data-api-file
+          disabled={Boolean(copy.busy)}
+          aria-busy={making}
+          onClick={() => copy.open(attachment)}
+        >
+          {children}
+          {making ? (
+            <span className="flex shrink-0 items-center gap-1 text-xs text-muted-foreground" data-slot="copy-making">
+              <Loader2 className="size-3.5 animate-spin" aria-hidden />
+              {t("attachmentCopyMaking")}
+            </span>
+          ) : null}
+        </button>
+        {copy.element}
+      </>
     );
   }
   return (

@@ -6438,7 +6438,8 @@
       "close": "关闭"
     },
     "backToSettings": "返回顾问设定",
-    "backToDashboard": "返回顾问首页"
+    "backToDashboard": "返回顾问首页",
+    "attachmentCopyMaking": "正在生成…"
   },
   "contractorDashboard": {
     "activity": {
@@ -9044,7 +9045,7 @@
     "api": {
       "account_inactive": "此账号已不再有效。",
       "announcement_not_found": "找不到该公告。",
-      "application_record_copy_unavailable": "这份原记录完整证据现在打不开。请联系项目后台，把这条记录重新附到申请上。",
+      "application_record_copy_unavailable": "这份「原记录完整证据」是系统更新前生成的，原记录已经找不到，不能显示。如需要，请联系项目后台重新附上。",
       "approval_action_not_found": "找不到这条审批操作记录。",
       "approval_actor_forbidden": "你无权执行此审批操作。",
       "approval_invalid_transition": "此审批不能切换到该状态。",
@@ -9595,7 +9596,9 @@
       "platform_accounts_closed": "改这家客户的账号要客户同意，请客户管理员在「公司设置」里点「允许 MSE 管理账号」后再试。",
       "platform_owner_locked": "客户已经开始用这个管理员账号，MSE 不能改它的登录邮箱；请告诉客户：由客户自己的公司管理员在「用户管理」里修改，或者客户来函，由管服务器的同事处理。",
       "consultant_sub_module_not_granted": "总部没有为您在这个项目开通这一项。如需查看，请联系总部。",
-      "phone_role_office_account": "手机账号要在「现场人员管理」里开，这里不能把后台账号设为手机角色（工地人员、设备操作人员、门岗保安）。请选别的角色。"
+      "phone_role_office_account": "手机账号要在「现场人员管理」里开，这里不能把后台账号设为手机角色（工地人员、设备操作人员、门岗保安）。请选别的角色。",
+      "hazard_room_not_for_consultant": "这是建筑商内部的沟通，顾问不能在这里发言。要和项目后台沟通，请用「找人沟通」。",
+      "report_export_made_before_update": "这份文件是系统更新前生成的，请重新导出。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -15728,7 +15731,8 @@
     "format": "格式",
     "size": "文件大小",
     "bytes": "{count} 字节",
-    "sha256Hint": "SHA-256 是文件生成时记录的指纹。每次打开都会先核对，和生成时不一致的文件不会被打开。"
+    "sha256Hint": "SHA-256 是文件生成时记录的指纹。每次打开都会先核对，和生成时不一致的文件不会被打开。",
+    "madeBeforeUpdate": "这份文件是系统更新前生成的，请重新导出。"
   },
   "reports": {
     "dispatches": {

@@ -1438,7 +1438,11 @@ function hazardPhotoRows(
     ["after", groups.after],
   ];
   return rows.filter(
-    ([key, photos]) => !(isPermit(incident) && key !== "before" && photos.length === 0),
+    ([key, photos]) =>
+      !(isPermit(incident) && key !== "before" && photos.length === 0) &&
+      // JB228 (audit 11-20 F6): not 「整改中 0 · 暂无照片」 for a consultant
+      // outside the room - the room's photographs are withheld, not missing.
+      !(key === "during" && groups.during_withheld),
   );
 }
 

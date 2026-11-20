@@ -6438,7 +6438,8 @@
       "close": "Close"
     },
     "backToSettings": "Back to consultant settings",
-    "backToDashboard": "Back to consultant dashboard"
+    "backToDashboard": "Back to consultant dashboard",
+    "attachmentCopyMaking": "Making it now…"
   },
   "contractorDashboard": {
     "activity": {
@@ -9044,7 +9045,7 @@
     "api": {
       "account_inactive": "This account is no longer active.",
       "announcement_not_found": "That announcement could not be found.",
-      "application_record_copy_unavailable": "This copy of the record's complete evidence cannot be opened now. Ask the project office to attach the record to the application again.",
+      "application_record_copy_unavailable": "This 'complete evidence of the original record' was made before the system update; the original record can no longer be found, so it cannot be shown. If you need it, ask the project office to attach it again.",
       "approval_action_not_found": "That approval action could not be found.",
       "approval_actor_forbidden": "You cannot perform this approval action.",
       "approval_invalid_transition": "This approval cannot move to that status.",
@@ -9595,7 +9596,9 @@
       "platform_accounts_closed": "Changing this customer's accounts needs the customer's consent. Ask the customer's administrator to press “Allow MSE to manage accounts” in Company settings, then try again.",
       "platform_owner_locked": "The customer already uses this administrator account, so MSE cannot change its sign-in e-mail. Tell the customer: their own company administrator changes it in User management, or the customer writes in and a colleague who runs the server handles it.",
       "consultant_sub_module_not_granted": "Head office has not opened this item to you on this project. Ask head office if you need to see it.",
-      "phone_role_office_account": "Phone accounts are made in Field staff. An office account cannot be given a phone role (site staff, equipment operator, gate guard) here. Please choose another role."
+      "phone_role_office_account": "Phone accounts are made in Field staff. An office account cannot be given a phone role (site staff, equipment operator, gate guard) here. Please choose another role.",
+      "hazard_room_not_for_consultant": "This is the contractor's internal conversation; a consultant cannot post here. To talk to the project office, use 'Message someone'.",
+      "report_export_made_before_update": "This file was made before the system update. Please export it again."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -15728,7 +15731,8 @@
     "format": "Format",
     "size": "File size",
     "bytes": "{count} bytes",
-    "sha256Hint": "SHA-256 is the fingerprint recorded when the file was generated. It is checked every time the file is opened, and a file that no longer matches is not opened."
+    "sha256Hint": "SHA-256 is the fingerprint recorded when the file was generated. It is checked every time the file is opened, and a file that no longer matches is not opened.",
+    "madeBeforeUpdate": "This file was made before the system update. Please export it again."
   },
   "reports": {
     "dispatches": {

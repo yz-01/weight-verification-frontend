@@ -178,4 +178,14 @@ describe("the hazard detail (E8)", () => {
     expect(html).toContain('data-photo-group="before"');
     expect(html).not.toContain('data-photo-group="after"');
   });
+
+  it("draws no 「整改中 0 · 暂无照片」 for a consultant outside the room (JB228 audit F6)", () => {
+    // Withheld is not "none taken": the 整改中 row is left out for him.
+    const html = render({
+      photo_groups: { before: [], during: [], after: [], during_withheld: true },
+    });
+    expect(html).toContain('data-photo-group="before"');
+    expect(html).not.toContain('data-photo-group="during"');
+    expect(html).toContain('data-photo-group="after"');
+  });
 });

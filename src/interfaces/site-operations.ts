@@ -223,6 +223,11 @@ export interface SafetyIncident extends RecordedBy {
     before: HazardPhoto[];
     during: HazardPhoto[];
     after: HazardPhoto[];
+    /**
+     * JB228 (audit 11-20 F6): a consultant not in its room - its photographs
+     * are not his, which is not "none were taken": no 整改中 row.
+     */
+    during_withheld?: boolean;
   };
   created_at: string;
   updated_at: string;
