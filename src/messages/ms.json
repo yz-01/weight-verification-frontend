@@ -9004,6 +9004,7 @@
     "api": {
       "account_inactive": "Akaun ini tidak lagi aktif.",
       "announcement_not_found": "Pengumuman itu tidak dijumpai.",
+      "application_record_copy_unavailable": "Salinan bukti lengkap rekod ini tidak dapat dibuka sekarang. Minta pejabat projek melampirkan rekod itu semula pada permohonan.",
       "approval_action_not_found": "Tindakan kelulusan itu tidak dijumpai.",
       "approval_actor_forbidden": "Anda tidak dibenarkan melakukan tindakan kelulusan ini.",
       "approval_invalid_transition": "Kelulusan ini tidak boleh beralih ke status tersebut.",
@@ -10538,6 +10539,7 @@
     "takePhoto": "Ambil foto",
     "photo": "Foto",
     "closed": "Bahaya ini telah diarkibkan. Rekodnya kekal boleh dibaca, tetapi tidak menerima mesej baharu.",
+    "chatWithheld": "Rekod komunikasi dalaman kontraktor tidak dipaparkan kepada perunding.",
     "participants": "Dalam perbualan ini",
     "reporter": "Melaporkannya",
     "responsible": "Bertanggungjawab",

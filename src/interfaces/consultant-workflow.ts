@@ -174,7 +174,12 @@ export type ConsultantApplicationStatus =
 export interface ApplicationAttachment {
   id: string;
   category: string;
-  file: string;
+  /** ``null`` when ``api_file`` is set (JB228): see there. */
+  file: string | null;
+  /** JB228: for a consultant, a record's 完整证据 copy (J22) is served by the
+   *  API - the record as it is now, without the builder's internal talk - so
+   *  it opens through the signed-in download, never a stored link. */
+  api_file?: string;
   watermarked_file?: string | null;
   original_name: string;
   content_type: string;

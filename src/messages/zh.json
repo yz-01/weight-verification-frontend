@@ -9004,6 +9004,7 @@
     "api": {
       "account_inactive": "此账号已不再有效。",
       "announcement_not_found": "找不到该公告。",
+      "application_record_copy_unavailable": "这份原记录完整证据现在打不开。请联系项目后台，把这条记录重新附到申请上。",
       "approval_action_not_found": "找不到这条审批操作记录。",
       "approval_actor_forbidden": "你无权执行此审批操作。",
       "approval_invalid_transition": "此审批不能切换到该状态。",
@@ -10538,6 +10539,7 @@
     "takePhoto": "拍照",
     "photo": "照片",
     "closed": "这条整改已归档。记录仍可查看，但不能再发新消息。",
+    "chatWithheld": "建筑商内部的沟通记录不显示给顾问。",
     "participants": "本次参与的人",
     "reporter": "上报人",
     "responsible": "责任人",

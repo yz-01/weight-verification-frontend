@@ -31,6 +31,7 @@ import {
   addApplicationAttachments,
   getApplicationDocumentCandidates,
   linkApplicationDocuments,
+  openApplicationAttachment,
 } from "@/services/consultant-workflow.service";
 import { FileThumbs, stampedPicture } from "@/components/shared/file-thumbs";
 
@@ -100,12 +101,23 @@ export function RequiredAttachmentTile({
         <FileThumbs
           all
           className="mt-1"
-          files={mine.map((attachment) => ({
-            id: attachment.id,
-            name: attachment.original_name,
-            thumbnail_url: stampedPicture(attachment.content_type, attachment.watermarked_file),
-            href: attachment.watermarked_file || attachment.file,
-          }))}
+          files={mine.map((attachment) =>
+            attachment.api_file
+              ? {
+                  // JB228: a consultant's copy of a record's 完整证据 (J22),
+                  // made now by the server - fetched signed in, not linked.
+                  id: attachment.id,
+                  name: attachment.original_name,
+                  thumbnail_url: null,
+                  onOpen: () => void openApplicationAttachment(attachment).catch(() => undefined),
+                }
+              : {
+                  id: attachment.id,
+                  name: attachment.original_name,
+                  thumbnail_url: stampedPicture(attachment.content_type, attachment.watermarked_file),
+                  href: attachment.watermarked_file || attachment.file,
+                },
+          )}
         />
       )}
       {editable && (

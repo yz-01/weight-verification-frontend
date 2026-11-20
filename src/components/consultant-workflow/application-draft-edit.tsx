@@ -33,7 +33,7 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 
 import { FieldWrapper } from "@/components/shared/page-primitives";
 import { AttachmentPicker } from "@/components/shared/attachment-picker";
@@ -63,6 +63,7 @@ import type {
   ConsultantApplication,
 } from "@/interfaces/consultant-workflow";
 import {
+  openApplicationAttachment,
   removeApplicationAttachment,
   reorderApplicationEvidence,
   unlinkApplicationEvidence,
@@ -340,6 +341,39 @@ export function RelatedRecordRemove({
   );
 }
 
+/**
+ * One attachment's file: its stored link - or, for a consultant, a record's
+ * 完整证据 copy (J22) the server makes now without the builder's internal
+ * talk (JB228, 客户 11-19), fetched signed in and opened in a new tab.
+ */
+export function AttachmentLink({
+  attachment,
+  children,
+}: {
+  attachment: ApplicationAttachment;
+  children: ReactNode;
+}) {
+  const className = "flex min-w-0 flex-1 items-center gap-3 transition-colors hover:text-primary";
+  if (attachment.api_file) {
+    return (
+      <button
+        type="button"
+        className={`${className} text-left`}
+        data-api-file
+        // A failure is toasted by the download itself.
+        onClick={() => void openApplicationAttachment(attachment).catch(() => undefined)}
+      >
+        {children}
+      </button>
+    );
+  }
+  return (
+    <a href={attachment.file ?? undefined} target="_blank" rel="noreferrer" className={className}>
+      {children}
+    </a>
+  );
+}
+
 export function AttachmentRows({
   application,
   editable,
@@ -367,12 +401,7 @@ export function AttachmentRows({
       <div className="divide-y rounded-lg border">
         {application.attachments.map((attachment) => (
           <div key={attachment.id} className="flex min-w-0 flex-wrap items-center gap-3 p-3" data-attachment={attachment.id}>
-            <a
-              href={attachment.file}
-              target="_blank"
-              rel="noreferrer"
-              className="flex min-w-0 flex-1 items-center gap-3 transition-colors hover:text-primary"
-            >
+            <AttachmentLink attachment={attachment}>
               {/* The file as a picture (J34-11): the stamped copy, else its type. */}
               <FileThumbs
                 files={[
@@ -392,7 +421,7 @@ export function AttachmentRows({
                   <p className="truncate text-xs text-muted-foreground">{attachment.note}</p>
                 )}
               </div>
-            </a>
+            </AttachmentLink>
             {editable && (
               <div className="flex shrink-0 items-center gap-1" data-draft-controls>
                 <Button

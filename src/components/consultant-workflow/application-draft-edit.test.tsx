@@ -223,3 +223,27 @@ describe("the detail page wires it in (E6)", () => {
     }
   });
 });
+
+describe("a record's complete-evidence copy, as a consultant is served it (JB228)", () => {
+  // 客户 11-19: 「顾问不能查看建筑商内部的沟通记录」. For a consultant the server
+  // sends no stored link for a J22 copy - only ``api_file``: the record's
+  // 完整证据 made now, without the builder's internal talk.
+  const served = {
+    ...application,
+    attachments: [
+      { ...attachment("att-9", "MI-J22-001.pdf"), file: null, api_file: "/api/consultant-applications/app-1/open_attachment/?attachment=att-9" },
+      attachment("att-1", "checklist.pdf"),
+    ],
+  } as unknown as ConsultantApplication;
+
+  it("opens the copy through the signed-in download, never a stored link", () => {
+    const html = render(<AttachmentRows application={served} editable={false} armed={false} onChanged={noop} />);
+    const [copy, ordinary] = html.split("data-attachment=").slice(1);
+    expect(copy).toContain("MI-J22-001.pdf");
+    expect(copy).toContain("data-api-file");
+    expect(copy).not.toContain("href=");
+    // Any other attachment is the link it always was.
+    expect(ordinary).toContain('href="/media/checklist.pdf"');
+    expect(ordinary).not.toContain("data-api-file");
+  });
+});
