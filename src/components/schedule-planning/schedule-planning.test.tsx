@@ -275,6 +275,23 @@ describe("the task list", () => {
     // No actions this person may take: no empty 操作 column.
     expect(backed).not.toContain(sp.field.actions);
   });
+
+  it("counts the linked records from the server's number when the records are withheld (JB225 F2)", () => {
+    // A consultant without 施工进度: no linked record, only how many.
+    const counted = render(
+      <ScheduleTaskTable
+        rows={[task("2.2", { actual_progress: "40.00", schedule_status: "IN_PROGRESS", progress_link_count: 2 })]}
+        revision={revision}
+        canManage={false}
+        canConfirm={false}
+        emptyText={sp.state.noTasks}
+        onEdit={() => {}}
+        onProgress={() => {}}
+        onRemove={() => {}}
+      />,
+    );
+    expect(counted).toContain("附 2 条现场记录");
+  });
 });
 
 describe("the Gantt chart", () => {

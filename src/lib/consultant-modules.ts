@@ -261,10 +261,11 @@ export function toggleModuleTicks(
 
 /** Tick or untick one item: the first ticks its module, the last unticks it. */
 export function toggleItem(ticks: ConsultantTicks, item: ConsultantItem, checked: boolean): ConsultantTicks {
-  const module = moduleOfItem(item);
+  // Not `module`: Next's lint refuses that name for a variable.
+  const owner = moduleOfItem(item);
   const items = checked ? orderedItems([...ticks.items, item]) : ticks.items.filter((key) => key !== item);
-  const anyLeft = (ITEMS_OF_MODULE[module] ?? []).some((key) => items.includes(key));
-  return { modules: toggleModule(ticks.modules, module, anyLeft), items };
+  const anyLeft = (ITEMS_OF_MODULE[owner] ?? []).some((key) => items.includes(key));
+  return { modules: toggleModule(ticks.modules, owner, anyLeft), items };
 }
 
 /** 「全选」: every module and every item. */
@@ -288,14 +289,31 @@ export function consultantSeesConversation(accountType: string | undefined, kind
 /** The marker a consultant's feature list carries (`navigation.CONSULTANT_MENU`). */
 const CONSULTANT_MENU_KEY = "consultant_menu";
 
+/** What every item's menu key starts with (`item_materials_in` …). */
+export const ITEM_FEATURE_PREFIX = "item_";
+
+/**
+ * Whether a feature list names a consultant's items at all. A backend from
+ * before JB225 sends none: its consultant opens whole modules (audit 11-19 F3).
+ */
+export function featuresCarryItems(features: Iterable<string> | null | undefined): boolean {
+  for (const key of features ?? []) {
+    if (key.startsWith(ITEM_FEATURE_PREFIX)) return true;
+  }
+  return false;
+}
+
 /**
  * Whether this reader is a consultant without item `item` on his project
  * (JB225, 「未勾选的事项，顾问不得查看」). Always false for anyone else: a
- * contractor's pages are decided by his codes, as before.
+ * contractor's pages are decided by his codes, as before. False too when the
+ * list names no item at all - an older backend, whose consultant has whole
+ * modules (the screen must not empty 材料管理 / 工程进度 before it is updated).
  */
 export function consultantLacks(features: readonly string[] | null | undefined, item: ConsultantItem): boolean {
   const list = features ?? [];
-  return list.includes(CONSULTANT_MENU_KEY) && !list.includes(ITEM_FEATURES[item]);
+  if (!list.includes(CONSULTANT_MENU_KEY) || !featuresCarryItems(list)) return false;
+  return !list.includes(ITEM_FEATURES[item]);
 }
 
 /**

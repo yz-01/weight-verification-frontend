@@ -40,6 +40,7 @@ import {
 } from "lucide-react";
 
 import type { Portal } from "@/interfaces/auth";
+import { featuresCarryItems } from "@/lib/consultant-modules";
 
 export type PortalFeatureKey =
   | "dashboard"
@@ -245,6 +246,12 @@ const CONSULTANT_MATERIAL_ITEMS: readonly FeatureNavChild[] = [
     "item_materials_supplier_totals",
   ),
   child("5.2.c5", "consultantAccess.item.materialsTargets", "/material-targets", "item_materials_targets"),
+  // Returns typed on the receipt form before 10-02 are 材料退场's (Decision 3):
+  // the 材料出场 page's 「10-02 前的退场记录」 link opens them, off the menu.
+  {
+    ...child("5.2.c6", "receipts.tabs.legacyReturns", "/receipts?direction=OUT", "item_materials_returns"),
+    menuHidden: true,
+  },
 ];
 
 /**
@@ -1971,6 +1978,8 @@ export function navLeaves(
 export const CONSULTANT_MENU = "consultant_menu";
 
 const CONSULTANT_REGISTRY = new Map<Portal, readonly FeatureNavItem[]>();
+/** The consultant's menu when the backend names no items (before JB225). */
+const CONSULTANT_WHOLE_MODULE_REGISTRY = new Map<Portal, readonly FeatureNavItem[]>();
 
 /**
  * Pages a consultant opens with their feature alone (JB226, 客户 11-19 事项 6:
@@ -1981,10 +1990,11 @@ const CONSULTANT_REGISTRY = new Map<Portal, readonly FeatureNavItem[]>();
  */
 const CONSULTANT_OPEN_PATHS: readonly string[] = ["/photo-timeline"];
 
-function asConsultant<T extends FeatureNavItem | FeatureNavChild>(entry: T): T {
-  // JB225: 材料管理 / 工程进度 list the consultant's items instead.
-  const own: readonly FeatureNavChild[] | undefined = (entry as FeatureNavItem).consultantChildren;
-  const children = (own ?? entry.children)?.map((childItem) => asConsultant(childItem));
+function asConsultant<T extends FeatureNavItem | FeatureNavChild>(entry: T, items = true): T {
+  // JB225: 材料管理 / 工程进度 list the consultant's items instead - when the
+  // backend sends them (audit 11-19 F3: an older one opens whole modules).
+  const own: readonly FeatureNavChild[] | undefined = items ? (entry as FeatureNavItem).consultantChildren : undefined;
+  const children = (own ?? entry.children)?.map((childItem) => asConsultant(childItem, items));
   return {
     ...entry,
     ...(entry.consultantFeature ? { feature: entry.consultantFeature } : {}),
@@ -2034,10 +2044,12 @@ function consultantPageOpen(portal: Portal, enabled: ReadonlySet<string>, pathna
 function registryFor(portal: Portal, features: ReadonlySet<string>): readonly FeatureNavItem[] {
   const registry = PORTAL_NAVIGATION[portal] as readonly FeatureNavItem[];
   if (!features.has(CONSULTANT_MENU)) return registry;
-  let mapped = CONSULTANT_REGISTRY.get(portal);
+  const items = featuresCarryItems(features);
+  const cache = items ? CONSULTANT_REGISTRY : CONSULTANT_WHOLE_MODULE_REGISTRY;
+  let mapped = cache.get(portal);
   if (!mapped) {
-    mapped = registry.map((navItem) => asConsultant(navItem));
-    CONSULTANT_REGISTRY.set(portal, mapped);
+    mapped = registry.map((navItem) => asConsultant(navItem, items));
+    cache.set(portal, mapped);
   }
   return mapped;
 }

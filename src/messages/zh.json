@@ -8693,7 +8693,7 @@
       "title": "整条记录",
       "allPdf": "全部记录合成一份 PDF",
       "gone": "原记录已删除。",
-      "notGranted": "总部没有为您开通这一项"
+      "notGranted": "总部没有为您开通这一项。如需查看，请联系总部。"
     },
     "inspection": {
       "needs": "需要检验栏位",

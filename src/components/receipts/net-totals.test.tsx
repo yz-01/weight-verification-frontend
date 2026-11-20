@@ -248,8 +248,12 @@ describe("每个数字点进去 (client, 2026-10-09)", () => {
   });
 
   it("presses each number into the dialog on its own tab, and the dialog into the page's filters", () => {
-    for (const focus of ["received", "returned"]) {
-      expect(source).toMatch(new RegExp(`onOpen=\\{\\(\\) => setDrill\\(\\{ row, focus: "${focus}" \\}\\)\\}`));
+    // JB225 Decision 5: for a consultant the number opens the records only
+    // with 材料进场 (累计进场) / 材料退场 (已退场) ticked; for anyone else always.
+    for (const [focus, opens] of [["received", "opensDeliveries"], ["returned", "opensReturns"]]) {
+      expect(source).toMatch(
+        new RegExp(`onOpen=\\{${opens} \\? \\(\\) => setDrill\\(\\{ row, focus: "${focus}" \\}\\) : undefined\\}`),
+      );
     }
     expect(source).toMatch(/<NetBreakdownDialog[\s\S]{0,200}row=\{drill\.row\}[\s\S]{0,40}query=\{query\}[\s\S]{0,40}focus=\{drill\.focus\}/);
   });

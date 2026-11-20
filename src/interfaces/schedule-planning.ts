@@ -99,6 +99,12 @@ export interface ScheduleTask {
   progress_confirmed_by_name: string | null;
   progress_confirmed_at: string | null;
   progress_links: ScheduleProgressLink[];
+  /**
+   * How many 施工进度 records the task is linked to (「已关联 N 条记录」). A
+   * consultant without 施工进度 gets this number and no `progress_links`
+   * (JB225, audit 11-19 F2); absent from an older backend.
+   */
+  progress_link_count?: number;
   created_at: string;
   updated_at: string;
 }

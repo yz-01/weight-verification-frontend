@@ -18,6 +18,7 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { useUnitExportValues, useUnitName } from "@/hooks/use-material-units";
 import { consultantLacks } from "@/lib/consultant-modules";
 import { formatNetQuantity } from "@/lib/net-quantity";
+import { cn } from "@/lib/utils";
 import {
   exportReceiptNetTotals,
   getReceiptNetTotals,
@@ -56,6 +57,35 @@ export function materialTabHref(tab: MaterialTab, features: readonly string[] | 
 /** The first view this reader may open, in the dropdown's order (or none). */
 export function firstOpenMaterialTab(features: readonly string[] | undefined): MaterialTab | null {
   return (["in", "out", "reject", "totals", "targets"] as const).find((tab) => !materialTabClosed(tab, features)) ?? null;
+}
+
+/** The mark a material page's address carries when the view asked for was not his. */
+export const ITEM_REFUSED_PARAM = "refused";
+
+/** `href` marked as the place a consultant was sent instead of a view not ticked for him. */
+export function withItemRefused(href: string): string {
+  return `${href}${href.includes("?") ? "&" : "?"}${ITEM_REFUSED_PARAM}=1`;
+}
+
+/**
+ * 「总部没有为您在这个项目开通这一项。如需查看，请联系总部。」 over a material page
+ * when the view a consultant asked for is not ticked for him (JB225, audit
+ * 11-19 F8) - the 工程进度 page's yellow line, so he is never moved without a
+ * word. `shown` for a page that knows it itself; else the address's mark.
+ */
+export function MaterialItemRefusedNote({ shown = false, className }: { shown?: boolean; className?: string }) {
+  const t = useTranslations();
+  const params = useSearchParams();
+  if (!shown && params.get(ITEM_REFUSED_PARAM) !== "1") return null;
+  return (
+    <p
+      role="alert"
+      className={cn("rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-sm", className)}
+      data-slot="item-refused"
+    >
+      {t("errors.api.consultant_sub_module_not_granted")}
+    </p>
+  );
 }
 
 /**

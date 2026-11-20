@@ -99,6 +99,9 @@ export function ScheduleTaskTable({
             const status = taskStatusView(row);
             const lateKey = lateLabelKey(status);
             const weight = Number(row.weight);
+            // The server's number (JB225: a consultant without 施工进度 gets no
+            // linked records, only how many); an older backend sends the list.
+            const linked = row.progress_link_count ?? row.progress_links.length;
             return (
               <TableRow key={row.id} data-status={status.key}>
                 <TableCell>
@@ -123,9 +126,9 @@ export function ScheduleTaskTable({
                     value={Number(row.actual_progress)}
                     title={t("field.plannedToday", { value: row.planned_progress })}
                   />
-                  {row.progress_links.length > 0 && (
+                  {linked > 0 && (
                     <p className="mt-1 text-xs text-muted-foreground">
-                      {t("field.linkedRecords", { count: row.progress_links.length })}
+                      {t("field.linkedRecords", { count: linked })}
                     </p>
                   )}
                 </TableCell>
