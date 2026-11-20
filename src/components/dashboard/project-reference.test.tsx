@@ -31,7 +31,6 @@ const empty: ProjectOverview = {
     equipment_total: 0, equipment_on_site: 0, equipment_off_site: 0, pending_total: 0,
   },
   latest_receipts: [],
-  map_points: [],
   material_mix: [],
   waste_mix: [],
   pending: [],
