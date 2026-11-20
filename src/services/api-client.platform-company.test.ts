@@ -94,7 +94,8 @@ describe("X-MSE-Company (JB220)", () => {
     const contractZh: Record<(typeof REFUSALS)[number], string> = {
       platform_access_closed: "这家客户现在没有开放查看，请客户管理员在「公司设置」里点「允许 MSE 查看」后再打开。",
       platform_access_company_required: "没有说明是哪一家客户的资料，请从这家客户的公司页面或称重单重新打开。",
-      platform_access_view_only: "客户只开放了查看，MSE 只能在页面上预览，不能修改、下载或导出客户的资料。",
+      // Walk 11-18 F2: a preview hands over the whole file, so no 「不能下载」.
+      platform_access_view_only: "客户只开放了查看：MSE 可以打开预览来看，系统不给 MSE 修改、导出、发送或打印客户的资料。",
       platform_access_not_available:
         "这是客户自己的业务资料，MSE 后台不能打开；需要帮客户看时，请客户开放「允许 MSE 管理账号」，由 MSE 给客户加一个客户看得到、随时可删的支持账号。",
       platform_accounts_closed: "改这家客户的账号要客户同意，请客户管理员在「公司设置」里点「允许 MSE 管理账号」后再试。",
