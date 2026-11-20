@@ -48,6 +48,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ExportButton } from "@/components/shared/export-button";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useListQuery } from "@/hooks/use-list-query";
+import { consultantLacks, type ConsultantItem } from "@/lib/consultant-modules";
 import { cn } from "@/lib/utils";
 import { exportProgressPhotos, getConstructionPhases } from "@/services/contractor-ops.service";
 import { getProgressPhotos } from "@/services/progress-reports.service";
@@ -58,10 +59,28 @@ export type ProgressTab = (typeof PROGRESS_TABS)[number];
 /** The tab a reader opens on: the photographs, as `/progress` always did. */
 export const DEFAULT_PROGRESS_TAB: ProgressTab = "photos";
 
-/** The tabs this reader has: 施工计划 only with the schedule feature. */
+/**
+ * The item of 工程进度 each tab belongs to, for a consultant (JB225, 客户 11-19
+ * 事项 5): 施工分类, 工程时间轴 and 项目进度摘要 go with 施工进度 (Decision 3).
+ */
+const CONSULTANT_TAB_ITEMS: Readonly<Record<ProgressTab, ConsultantItem>> = {
+  phases: "progress.records",
+  photos: "progress.records",
+  reports: "progress.daily_reports",
+  schedule: "progress.schedule",
+  summary: "progress.records",
+  rain: "progress.rain",
+};
+
+/**
+ * The tabs this reader has: 施工计划 only with the schedule feature; a
+ * consultant only the tabs of the items head office ticked for him (JB225).
+ */
 export function progressTabsFor(features: readonly string[] | undefined): ProgressTab[] {
   return PROGRESS_TABS.filter(
-    (tab) => tab !== "schedule" || (features ?? []).includes("schedule"),
+    (tab) =>
+      (tab !== "schedule" || (features ?? []).includes("schedule")) &&
+      !consultantLacks(features, CONSULTANT_TAB_ITEMS[tab]),
   );
 }
 
@@ -79,9 +98,16 @@ function useProgressTab() {
   const params = useSearchParams();
   const tabs = progressTabsFor(user?.features);
   const asked = params.get("tab") as ProgressTab | null;
-  const active: ProgressTab =
-    asked && tabs.includes(asked) ? asked : DEFAULT_PROGRESS_TAB;
-  return { tabs, active, params };
+  // A consultant lands on the first tab he has (JB225: only 雨天记录 opens on
+  // 雨天记录).
+  const fallback = tabs.includes(DEFAULT_PROGRESS_TAB) ? DEFAULT_PROGRESS_TAB : (tabs[0] ?? DEFAULT_PROGRESS_TAB);
+  const active: ProgressTab = asked && tabs.includes(asked) ? asked : fallback;
+  // A tab typed in or linked to that head office has not opened to him.
+  const refused = Boolean(
+    asked && (PROGRESS_TABS as readonly string[]).includes(asked) && !tabs.includes(asked) &&
+      consultantLacks(user?.features, CONSULTANT_TAB_ITEMS[asked]),
+  );
+  return { tabs, active, params, refused };
 }
 
 /** The five tabs, under the page title. Scrolls sideways on a phone. */
@@ -113,8 +139,15 @@ export function ProgressTabStrip() {
 export function ProgressPage() {
   const tNav = useTranslations("nav.submodule");
   const t = useTranslations("progressPage");
-  const { active, params } = useProgressTab();
+  const tRoot = useTranslations();
+  const { active, params, refused } = useProgressTab();
   const title = tNav("progressRecords");
+  // JB225: 「总部没有为您在这个项目开通这一项。如需查看，请联系总部。」
+  const refusedNote = refused ? (
+    <p role="alert" className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-sm" data-slot="item-refused">
+      {tRoot("errors.api.consultant_sub_module_not_granted")}
+    </p>
+  ) : null;
 
   // The record list keeps its own header (title, count, add, export); the
   // tabs and the photo / record switch sit under it.
@@ -123,6 +156,7 @@ export function ProgressPage() {
       <SiteProgressOffice
         above={
           <>
+            {refusedNote}
             <ProgressTabStrip />
             <PhotoViewSwitch />
           </>
@@ -134,6 +168,7 @@ export function ProgressPage() {
   return (
     <div className="space-y-4">
       <ListHeader title={title} subtitle={t(`subtitle.${active}`)} />
+      {refusedNote}
       <ProgressTabStrip />
       {active === "phases" && <PhaseTab />}
       {active === "photos" && <SitePhotosTab />}

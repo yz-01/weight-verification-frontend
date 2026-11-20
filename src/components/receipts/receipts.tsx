@@ -6,7 +6,7 @@ import { ClipboardList, Eye, Pencil } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { MaterialLinesChip } from "@/components/shared/material-lines";
@@ -33,7 +33,16 @@ import {
   exportReceipts,
   type ExportFormat,
 } from "@/services/contractor.service";
-import { MaterialTabs, NetTotalsView, useMaterialTab } from "@/components/receipts/material-tabs";
+import {
+  MaterialItemRefusedNote,
+  MaterialTabs,
+  NetTotalsView,
+  firstOpenMaterialTab,
+  materialTabClosed,
+  materialTabHref,
+  useMaterialTab,
+  withItemRefused,
+} from "@/components/receipts/material-tabs";
 import { SpecCell } from "@/components/receipts/spec-pending-tag";
 import { LIST_FITS } from "@/lib/list-fits";
 
@@ -47,7 +56,7 @@ const ALL_STATES = "__any__";
 export function Receipts() {
   const router = useRouter();
   const t = useTranslations();
-  const { can } = useAuth();
+  const { can, user } = useAuth();
   const list = useListQuery([
     "project",
     "supplier",
@@ -67,6 +76,14 @@ export function Receipts() {
   // rejected; Reject is the rejected ones; a return typed 退场 before 10-02
   // shows under Material Out (direction=OUT).
   const tab = useMaterialTab();
+  // JB225 (客户 11-19 事项 5): a consultant without this view's item lands on
+  // the first one he has (/receipts without 材料进场 opens 按供应商看总数),
+  // which says why in the 工程进度 page's words (audit 11-19 F8).
+  const closed = materialTabClosed(tab, user?.features);
+  const landing = closed ? firstOpenMaterialTab(user?.features) : null;
+  useEffect(() => {
+    if (closed && landing) router.replace(withItemRefused(materialTabHref(landing, user?.features)));
+  }, [closed, landing, router, user?.features]);
   const query = useMemo(() => {
     const { view, ...rest } = list.query as Record<string, string | number | undefined>;
     void view;
@@ -78,7 +95,7 @@ export function Receipts() {
   const { data, isLoading, isError } = useQuery({
     queryKey: ["receipts", query],
     queryFn: () => getReceipts(query),
-    enabled: tab !== "totals",
+    enabled: tab !== "totals" && !closed,
   });
   const categories = useQuery({
     queryKey: ["project-categories", "receipt-columns", list.filters.project],
@@ -465,6 +482,7 @@ export function Receipts() {
         action={<ListNeedsActionChip list={list} count={data?.needs_action_count} />}
       />
 
+      <MaterialItemRefusedNote shown={closed && !landing} />
       <MaterialTabs>
         <SupplierDateListFilter list={list} showManufacturer showUnfilled />
       </MaterialTabs>

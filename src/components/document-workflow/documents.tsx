@@ -2350,14 +2350,17 @@ export function DocumentDetailBody({
                     {link.was_corrected ? (
                       <CorrectedTag kind={link.kind as CorrectionHistoryKind} recordId={link.record_id} />
                     ) : null}
-                    {link.reference}
+                    {link.not_granted ? t(`archiveQueue.kind.${link.kind}`) : link.reference}
                   </p>
-                  <p className="truncate text-xs text-muted-foreground">
-                    {link.exists
-                      ? [t(`archiveQueue.kind.${link.kind}`), link.detail, link.project_name, link.status_label]
-                          .filter(Boolean)
-                          .join(" · ")
-                      : t("documents.recordLinks.gone")}
+                  {/* The refusal is read whole (whom to ask), never cut off. */}
+                  <p className={cn("text-xs text-muted-foreground", !link.not_granted && "truncate")}>
+                    {link.not_granted
+                      ? t("documents.recordLinks.notGranted")
+                      : link.exists
+                        ? [t(`archiveQueue.kind.${link.kind}`), link.detail, link.project_name, link.status_label]
+                            .filter(Boolean)
+                            .join(" · ")
+                        : t("documents.recordLinks.gone")}
                   </p>
                 </div>
                 {link.exists ? (

@@ -310,10 +310,12 @@ describe("JB203-9 a new consultant grant", () => {
     expect(startingGrant(["projects", "reports"], ["report.export"])).toEqual({
       modules: ["projects", "reports"],
       options: ["report.export"],
+      items: [],
     });
     expect(startingGrant([], ["project.view", "report.view", "document.view"])).toEqual({
       modules: ["projects", "reports"],
       options: [],
+      items: [],
     });
   });
   it("falls back to the usual default when the company has none", () => {

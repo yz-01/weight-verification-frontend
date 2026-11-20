@@ -16,7 +16,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useUnitExportValues, useUnitName } from "@/hooks/use-material-units";
+import { consultantLacks } from "@/lib/consultant-modules";
 import { formatNetQuantity } from "@/lib/net-quantity";
+import { cn } from "@/lib/utils";
 import {
   exportReceiptNetTotals,
   getReceiptNetTotals,
@@ -26,6 +28,65 @@ import {
 const EMPTY_KEYS: ReadonlySet<string> = new Set();
 
 export type MaterialTab = "in" | "out" | "reject" | "totals" | "targets";
+
+/**
+ * Whether a consultant's ticks close this view (JB225, 客户 11-19 事项 5):
+ * 进场 and 验收不合格 need 材料进场, 按供应商看总数 按供应商统计, 材料目标 its own
+ * item, and the 材料出场 page 材料退场 or 材料领用. Never for anyone else.
+ */
+export function materialTabClosed(tab: MaterialTab, features: readonly string[] | undefined): boolean {
+  if (tab === "in" || tab === "reject") return consultantLacks(features, "materials.in");
+  if (tab === "totals") return consultantLacks(features, "materials.supplier_totals");
+  if (tab === "targets") return consultantLacks(features, "materials.targets");
+  return consultantLacks(features, "materials.returns") && consultantLacks(features, "materials.issues");
+}
+
+/** Where a view opens; 材料出场 on 材料领用 for a consultant without 材料退场. */
+export function materialTabHref(tab: MaterialTab, features: readonly string[] | undefined): string {
+  if (tab === "out") {
+    return consultantLacks(features, "materials.returns") ? "/material-outgoing?kind=ISSUE" : "/material-outgoing";
+  }
+  return {
+    in: "/receipts",
+    reject: "/receipts?acceptance=REJECTED",
+    totals: "/receipts?view=totals",
+    targets: "/material-targets",
+  }[tab];
+}
+
+/** The first view this reader may open, in the dropdown's order (or none). */
+export function firstOpenMaterialTab(features: readonly string[] | undefined): MaterialTab | null {
+  return (["in", "out", "reject", "totals", "targets"] as const).find((tab) => !materialTabClosed(tab, features)) ?? null;
+}
+
+/** The mark a material page's address carries when the view asked for was not his. */
+export const ITEM_REFUSED_PARAM = "refused";
+
+/** `href` marked as the place a consultant was sent instead of a view not ticked for him. */
+export function withItemRefused(href: string): string {
+  return `${href}${href.includes("?") ? "&" : "?"}${ITEM_REFUSED_PARAM}=1`;
+}
+
+/**
+ * 「总部没有为您在这个项目开通这一项。如需查看，请联系总部。」 over a material page
+ * when the view a consultant asked for is not ticked for him (JB225, audit
+ * 11-19 F8) - the 工程进度 page's yellow line, so he is never moved without a
+ * word. `shown` for a page that knows it itself; else the address's mark.
+ */
+export function MaterialItemRefusedNote({ shown = false, className }: { shown?: boolean; className?: string }) {
+  const t = useTranslations();
+  const params = useSearchParams();
+  if (!shown && params.get(ITEM_REFUSED_PARAM) !== "1") return null;
+  return (
+    <p
+      role="alert"
+      className={cn("rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-sm", className)}
+      data-slot="item-refused"
+    >
+      {t("errors.api.consultant_sub_module_not_granted")}
+    </p>
+  );
+}
 
 /**
  * 材料管理's one set of tabs (10-02 A01, B09, E01): Material In, Material
@@ -62,6 +123,7 @@ export function MaterialTabs({ children }: { children?: React.ReactNode }) {
   const active = useMaterialTab();
   const params = useSearchParams();
   const router = useRouter();
+  const { user } = useAuth();
   // The project, supplier and dates the reader was looking at travel with
   // them between the views; each list reads the same parameters.
   const carried = ["project", "supplier", "date_from", "date_to"]
@@ -73,13 +135,10 @@ export function MaterialTabs({ children }: { children?: React.ReactNode }) {
         `${target}${target.includes("?") ? "&" : "?"}${key}=${encodeURIComponent(value ?? "")}`,
       href,
     );
-  const tabs: Array<[MaterialTab, string]> = [
-    ["in", "/receipts"],
-    ["out", "/material-outgoing"],
-    ["reject", "/receipts?acceptance=REJECTED"],
-    ["totals", "/receipts?view=totals"],
-    ["targets", "/material-targets"],
-  ];
+  // JB225: a consultant's dropdown lists the views of his ticked items only.
+  const tabs: Array<[MaterialTab, string]> = (["in", "out", "reject", "totals", "targets"] as const)
+    .filter((key) => !materialTabClosed(key, user?.features))
+    .map((key) => [key, materialTabHref(key, user?.features)]);
   const hrefs = Object.fromEntries(tabs) as Record<MaterialTab, string>;
   return (
     <FilterBar>
@@ -135,7 +194,11 @@ export function NetTotalsView({
   filters?: Record<string, string | undefined>;
 }) {
   const t = useTranslations();
-  const { can } = useAuth();
+  const { can, user } = useAuth();
+  // JB225 Decision 5: 按供应商统计 shows its numbers with its own tick; they
+  // open the deliveries / returns behind them only with 材料进场 / 材料退场.
+  const opensDeliveries = !consultantLacks(user?.features, "materials.in");
+  const opensReturns = !consultantLacks(user?.features, "materials.returns");
   const unitName = useUnitName();
   const unitValues = useUnitExportValues();
   // Three independent filters (J5-1, Q5-1): the material's name (across every
@@ -274,7 +337,7 @@ export function NetTotalsView({
                             count: group.rows.length,
                           })}
                         </button>
-                        {group.supplier ? (
+                        {group.supplier && opensReturns ? (
                           <SupplierReturnBadge
                             supplier={{
                               id: group.supplier,
@@ -296,7 +359,7 @@ export function NetTotalsView({
                             ? row.material_name
                             : null}
                           {/* Only returns not yet checked (JB188): all checked, no mark. */}
-                          {(row.unchecked_return_count ?? 0) > 0 ? (
+                          {opensReturns && (row.unchecked_return_count ?? 0) > 0 ? (
                             <button
                               type="button"
                               data-slot="net-return-tag"
@@ -324,10 +387,10 @@ export function NetTotalsView({
                       </TableCell>
                       <TableCell>{unitName(row.unit)}</TableCell>
                       <TableCell className="tabular text-right">
-                        <NetNumber label={t("receipts.net.received")} value={row.received} onOpen={() => setDrill({ row, focus: "received" })} />
+                        <NetNumber label={t("receipts.net.received")} value={row.received} onOpen={opensDeliveries ? () => setDrill({ row, focus: "received" }) : undefined} />
                       </TableCell>
                       <TableCell className="tabular text-right">
-                        <NetNumber label={t("receipts.net.returned")} value={row.returned} onOpen={() => setDrill({ row, focus: "returned" })} />
+                        <NetNumber label={t("receipts.net.returned")} value={row.returned} onOpen={opensReturns ? () => setDrill({ row, focus: "returned" }) : undefined} />
                       </TableCell>
                       <TableCell className="tabular text-right text-muted-foreground">{formatNetQuantity(row.rejected)}</TableCell>
                       <TableCell className="text-muted-foreground">{row.project_name}</TableCell>
@@ -354,9 +417,11 @@ export function NetTotalsView({
 }
 
 /** A number of the totals that opens the records behind it (2026-10-09). */
-function NetNumber({ label, value, onOpen }: { label: string; value: string; onOpen: () => void }) {
+function NetNumber({ label, value, onOpen }: { label: string; value: string; onOpen?: () => void }) {
   const t = useTranslations();
   const shown = formatNetQuantity(value);
+  // JB225: a number whose records are not open to this consultant is just a number.
+  if (!onOpen) return <span data-slot="net-number-plain">{shown}</span>;
   // A zero reads 「—」 on screen but is still said as a number to a screen reader.
   const name = t("receipts.net.openNumber", { label, value: shown === "—" ? "0" : shown });
   return (

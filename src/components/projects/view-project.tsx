@@ -400,7 +400,9 @@ function ProjectStatistics({ projectId }: { projectId: string }) {
         </p>
       ) : (
         <div className="grid border-t sm:grid-cols-2 lg:grid-cols-5">
-          {rows.map(([key, value, Icon, href]) => (
+          {/* JB225: a count the server leaves out (a consultant's unticked
+              module) has no tile. */}
+          {rows.filter(([, value]) => value !== null && value !== undefined).map(([key, value, Icon, href]) => (
             <Link
               key={key}
               href={`${href}?project=${projectId}`}
