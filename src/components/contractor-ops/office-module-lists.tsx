@@ -39,7 +39,7 @@ import {
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 
-import { MaterialItemRefusedNote, MaterialTabs } from "@/components/receipts/material-tabs";
+import { MaterialItemRefusedNote, MaterialTabs, isItemRefusal } from "@/components/receipts/material-tabs";
 import { SpecCell } from "@/components/receipts/spec-pending-tag";
 import { ReturnSupplierCell } from "@/components/contractor-ops/return-supplier";
 import {
@@ -2721,7 +2721,13 @@ export function ProgressInPlace({ id, onClose }: { id: string; onClose: () => vo
       <RecordDetailDialog title={tRoot("nav.submodule.progressRecords")} onClose={onClose}>
         <div className="flex min-h-40 items-center justify-center">
           {record.isError ? (
-            <p className="text-sm text-destructive">{t("state.loadError")}</p>
+            // Walk 11-20 (E225): 施工进度 not ticked for this consultant - its
+            // own words, not a network fault. Any other failure as before.
+            isItemRefusal(record.error) ? (
+              <MaterialItemRefusedNote shown />
+            ) : (
+              <p className="text-sm text-destructive">{t("state.loadError")}</p>
+            )
           ) : (
             <Loader2 className="size-7 animate-spin text-primary" />
           )}

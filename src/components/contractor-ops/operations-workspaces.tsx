@@ -187,6 +187,7 @@ import { MaterialSpecsEditor } from "@/components/contractor-ops/material-specs-
 import { isOtherMaterial, offeredSpecs, specChoice } from "@/lib/material-catalogue";
 import { OutgoingSupplierField } from "@/components/contractor-ops/outgoing-supplier-field";
 import { ReturnNoteDialog, ReturnNotePanel } from "@/components/contractor-ops/return-note";
+import { MaterialItemRefusedNote, isItemRefusal } from "@/components/receipts/material-tabs";
 import {
   EquipmentExitApplyDialog,
   EquipmentExitHandoverDialog,
@@ -4841,7 +4842,14 @@ export function OutgoingDetailDialog({
       onClose={onClose}
     >
       {detail.isError ? (
-        <LoadFailed what={t("what.outgoingRecord")} onRetry={() => void detail.refetch()} />
+        // Walk 11-20 (E225): an item head office did not tick for this
+        // consultant is said in its own words, nothing to retry. Any other
+        // failure as before.
+        isItemRefusal(detail.error) ? (
+          <MaterialItemRefusedNote shown />
+        ) : (
+          <LoadFailed what={t("what.outgoingRecord")} onRetry={() => void detail.refetch()} />
+        )
       ) : detail.isLoading || !row ? (
         <div className="grid min-h-32 place-items-center">
           <Loader2 className="size-7 animate-spin text-primary" />

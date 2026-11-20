@@ -16,7 +16,7 @@ import { createTable, getCoreRowModel } from "@tanstack/react-table";
 import { describe, expect, it, vi } from "vitest";
 
 import type { Permit, PermitFile, PermitWorkForm } from "@/interfaces/permit";
-import { FIT_KIND_PX, FIT_TABLE_PX, fitWidth, initialVisibility } from "@/lib/table-fit";
+import { FIT_KIND_PX, FIT_TABLE_PX, clippedText, fitWidth, initialVisibility } from "@/lib/table-fit";
 import en from "@/messages/en.json";
 import ms from "@/messages/ms.json";
 import zh from "@/messages/zh.json";
@@ -311,6 +311,32 @@ describe("JB221-4…7 the list", () => {
     expect(PHONE_SOURCE).toMatch(/line-clamp-2[^"]*" data-slot="permit-work-name"/);
   });
 
+  it("cuts a long name at two lines with 「…」 and offers the whole name on hover (walk 11-20 W5)", () => {
+    // 「名称过长时自动换行，最多显示两行，鼠标移上去可查看完整名称」. The clamp is
+    // `line-clamp-2` (display: -webkit-box); a display class beside it (`block`)
+    // replaced that display and the span's overflow kept the cell's own clamp
+    // out, so a 56-character name ran to 4-5 lines, nothing cut, no tip.
+    const DISPLAY = /^(block|inline|inline-block|flex|inline-flex|grid|inline-grid|flow-root|contents|table|list-item|hidden)$/;
+    for (const [where, source] of [["office", OFFICE_SOURCE], ["phone", PHONE_SOURCE]] as const) {
+      const classes = source.match(/className="([^"]*)" data-slot="permit-work-name"/)?.[1].split(/\s+/) ?? [];
+      expect(classes, where).toContain("line-clamp-2");
+      expect(classes.filter((name) => DISPLAY.test(name)), where).toEqual([]);
+    }
+    // The office column is drawn in the shared fitted cell (it is not
+    // `unclamped`), whose hover tip is the whole text once anything in it is cut.
+    const column = OFFICE_SOURCE.slice(OFFICE_SOURCE.indexOf('accessorKey: "work_name"'), OFFICE_SOURCE.indexOf('id: "files"'));
+    expect(column).toContain('data-slot="permit-work-name"');
+    expect(column).not.toContain("unclamped");
+    expect(TABLE_SOURCE).toMatch(/columnUnclamped\(cell\.column\.columnDef\.meta\) \? \([\s\S]*?<CellFit>/);
+    const name = "3楼 B区钢梁焊接及临时支撑拆除，含吊装作业、动火作业和高空作业许可，夜间施工须另行申请";
+    const clamped = { scrollWidth: 224, clientWidth: 224, scrollHeight: 72, clientHeight: 36, textContent: name };
+    const cell = {
+      scrollWidth: 224, clientWidth: 224, scrollHeight: 36, clientHeight: 36,
+      innerText: name, textContent: name, querySelectorAll: () => [clamped],
+    };
+    expect(clippedText(cell)).toBe(name);
+  });
+
   it("shows one picture of the 准证文件 and how many there are", () => {
     const three = [FILE, { ...FILE, id: "f2" }, { ...FILE, id: "f3" }];
     const html = renderDetail(<PermitFilesCell files={three} />);
@@ -346,7 +372,7 @@ describe("JB221-4…7 the list", () => {
       }
     }
     expect(Math.floor(FIT_KIND_PX.twoLineName / 13)).toBeGreaterThanOrEqual(6);
-    expect(OFFICE_SOURCE).toMatch(/line-clamp-2 block min-w-20 max-w-56[^"]*" data-slot="permit-work-name"/);
+    expect(OFFICE_SOURCE).toMatch(/line-clamp-2 min-w-20 max-w-56[^"]*" data-slot="permit-work-name"/);
   });
 
   it("shows 施工事项名称 to a reader whose saved choice is from before it, once (audit F3)", () => {

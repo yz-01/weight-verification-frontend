@@ -90,7 +90,7 @@ export function PermitsOffice() {
         header: () => <PlainHeader label={t("field.workName")} />,
         cell: ({ row }) =>
           row.original.work_name ? (
-            <span className="line-clamp-2 block min-w-20 max-w-56 whitespace-normal break-words" data-slot="permit-work-name">
+            <span className="line-clamp-2 min-w-20 max-w-56 whitespace-normal break-words" data-slot="permit-work-name">
               {row.original.work_name}
             </span>
           ) : (

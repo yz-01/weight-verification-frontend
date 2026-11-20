@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useDebounce } from "@/hooks/use-debounce";
+import { ApiError } from "@/interfaces/api";
 import { useUnitExportValues, useUnitName } from "@/hooks/use-material-units";
 import { consultantLacks } from "@/lib/consultant-modules";
 import { formatNetQuantity } from "@/lib/net-quantity";
@@ -65,6 +66,16 @@ export const ITEM_REFUSED_PARAM = "refused";
 /** `href` marked as the place a consultant was sent instead of a view not ticked for him. */
 export function withItemRefused(href: string): string {
   return `${href}${href.includes("?") ? "&" : "?"}${ITEM_REFUSED_PARAM}=1`;
+}
+
+/**
+ * Whether the server refused a read because head office did not tick that item
+ * for this consultant (JB225 `consultant_sub_module_not_granted`) - a record's
+ * window then says so with `MaterialItemRefusedNote shown`, nothing to retry
+ * (walk 11-20 E225). Any other failure is not this.
+ */
+export function isItemRefusal(error: unknown): boolean {
+  return error instanceof ApiError && error.code === "consultant_sub_module_not_granted";
 }
 
 /**
