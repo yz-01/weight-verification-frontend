@@ -8693,7 +8693,7 @@
       "title": "整條記錄",
       "allPdf": "全部記錄合成一份 PDF",
       "gone": "原記錄已刪除。",
-      "notGranted": "總部沒有為您開通這一項"
+      "notGranted": "總部沒有為您開通這一項。如需查看，請聯絡總部。"
     },
     "inspection": {
       "needs": "需要檢驗欄位",

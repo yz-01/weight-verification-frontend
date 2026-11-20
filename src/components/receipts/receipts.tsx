@@ -34,12 +34,14 @@ import {
   type ExportFormat,
 } from "@/services/contractor.service";
 import {
+  MaterialItemRefusedNote,
   MaterialTabs,
   NetTotalsView,
   firstOpenMaterialTab,
   materialTabClosed,
   materialTabHref,
   useMaterialTab,
+  withItemRefused,
 } from "@/components/receipts/material-tabs";
 import { SpecCell } from "@/components/receipts/spec-pending-tag";
 import { LIST_FITS } from "@/lib/list-fits";
@@ -75,11 +77,12 @@ export function Receipts() {
   // shows under Material Out (direction=OUT).
   const tab = useMaterialTab();
   // JB225 (客户 11-19 事项 5): a consultant without this view's item lands on
-  // the first one he has (/receipts without 材料进场 opens 按供应商看总数).
+  // the first one he has (/receipts without 材料进场 opens 按供应商看总数),
+  // which says why in the 工程进度 page's words (audit 11-19 F8).
   const closed = materialTabClosed(tab, user?.features);
   const landing = closed ? firstOpenMaterialTab(user?.features) : null;
   useEffect(() => {
-    if (closed && landing) router.replace(materialTabHref(landing, user?.features));
+    if (closed && landing) router.replace(withItemRefused(materialTabHref(landing, user?.features)));
   }, [closed, landing, router, user?.features]);
   const query = useMemo(() => {
     const { view, ...rest } = list.query as Record<string, string | number | undefined>;
@@ -479,6 +482,7 @@ export function Receipts() {
         action={<ListNeedsActionChip list={list} count={data?.needs_action_count} />}
       />
 
+      <MaterialItemRefusedNote shown={closed && !landing} />
       <MaterialTabs>
         <SupplierDateListFilter list={list} showManufacturer showUnfilled />
       </MaterialTabs>

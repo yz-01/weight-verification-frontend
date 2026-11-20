@@ -8693,7 +8693,7 @@
       "title": "Whole records",
       "allPdf": "All records as one PDF",
       "gone": "The original record has been deleted.",
-      "notGranted": "Head office has not opened this item to you"
+      "notGranted": "Head office has not opened this item to you. Ask head office if you need to see it."
     },
     "inspection": {
       "needs": "Needs inspection fields",

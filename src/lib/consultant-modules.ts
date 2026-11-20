@@ -288,14 +288,31 @@ export function consultantSeesConversation(accountType: string | undefined, kind
 /** The marker a consultant's feature list carries (`navigation.CONSULTANT_MENU`). */
 const CONSULTANT_MENU_KEY = "consultant_menu";
 
+/** What every item's menu key starts with (`item_materials_in` …). */
+export const ITEM_FEATURE_PREFIX = "item_";
+
+/**
+ * Whether a feature list names a consultant's items at all. A backend from
+ * before JB225 sends none: its consultant opens whole modules (audit 11-19 F3).
+ */
+export function featuresCarryItems(features: Iterable<string> | null | undefined): boolean {
+  for (const key of features ?? []) {
+    if (key.startsWith(ITEM_FEATURE_PREFIX)) return true;
+  }
+  return false;
+}
+
 /**
  * Whether this reader is a consultant without item `item` on his project
  * (JB225, 「未勾选的事项，顾问不得查看」). Always false for anyone else: a
- * contractor's pages are decided by his codes, as before.
+ * contractor's pages are decided by his codes, as before. False too when the
+ * list names no item at all - an older backend, whose consultant has whole
+ * modules (the screen must not empty 材料管理 / 工程进度 before it is updated).
  */
 export function consultantLacks(features: readonly string[] | null | undefined, item: ConsultantItem): boolean {
   const list = features ?? [];
-  return list.includes(CONSULTANT_MENU_KEY) && !list.includes(ITEM_FEATURES[item]);
+  if (!list.includes(CONSULTANT_MENU_KEY) || !featuresCarryItems(list)) return false;
+  return !list.includes(ITEM_FEATURES[item]);
 }
 
 /**

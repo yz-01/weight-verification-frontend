@@ -31,6 +31,7 @@ const auth = vi.hoisted(() => ({
   user: { id: "u1", account_type: "TENANT" as string, full_name: "Someone" },
   codes: new Set<string>(["company_settings.view", "project.assign", "user.view", "project.view"]),
 }));
+const address = vi.hoisted(() => ({ params: new URLSearchParams() }));
 
 vi.mock("@/components/ui/dialog", async () =>
   (await import("@/components/shared/record-detail-test-kit")).inlineDialogModule(),
@@ -38,16 +39,15 @@ vi.mock("@/components/ui/dialog", async () =>
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), back: vi.fn(), replace: vi.fn() }),
   usePathname: () => "/consultant-access",
-  useSearchParams: () => new URLSearchParams(),
+  useSearchParams: () => address.params,
 }));
 vi.mock("@/components/providers/auth-provider", () => ({
   useAuth: () => ({ user: auth.user, can: (code: string) => auth.codes.has(code) }),
 }));
 
 const { GrantDialog } = await import("@/components/consultant-workflow/consultant-access-management");
-const { materialTabClosed, materialTabHref, firstOpenMaterialTab } = await import(
-  "@/components/receipts/material-tabs"
-);
+const { materialTabClosed, materialTabHref, firstOpenMaterialTab, MaterialItemRefusedNote, withItemRefused } =
+  await import("@/components/receipts/material-tabs");
 const { progressTabsFor } = await import("@/components/progress/progress-page");
 
 function render(node: React.ReactNode) {
@@ -133,6 +133,14 @@ describe("the tick screen: nine items under 材料管理 and 工程进度 (以�
     const html = dialog(GRANT);
     expect(state(html, "data-module", "materials")).toBe("mixed");
     expect(text(html)).toContain("已勾 3 项，共 5 项");
+    // A dash in the box, never a ✓ an older reader takes for "all" (audit 11-19 F8).
+    const parent = (key: string) => {
+      const start = html.indexOf(`data-module="${key}"`);
+      return html.slice(start, html.indexOf("</label>", start));
+    };
+    expect(parent("materials")).toContain("lucide-minus");
+    expect(parent("materials")).not.toContain("lucide-check");
+    expect(parent("progress")).toContain("lucide-check");
     expect(state(html, "data-item", "materials.in")).toBe("true");
     expect(state(html, "data-item", "materials.returns")).toBe("false");
     expect(state(html, "data-module", "progress")).toBe("true");
@@ -283,5 +291,58 @@ describe("the pages follow the items", () => {
     expect(refusedPageNotice("/material-targets", only("materials.in"))).toBe("errors.api.consultant_sub_module_not_granted");
     expect(refusedPageNotice("/progress", only("materials.in"))).toBe("errors.api.consultant_module_not_granted");
     expect(refusedPageNotice("/receipts", ["material_receipts"])).toBe("common.pageNotOpen");
+  });
+
+  it("says why when a material view he asked for is not his, as 工程进度 does (audit 11-19 F8)", () => {
+    const sentence = "总部没有为您在这个项目开通这一项。如需查看，请联系总部。";
+    expect(withItemRefused("/receipts?view=totals")).toBe("/receipts?view=totals&refused=1");
+    expect(withItemRefused("/material-targets")).toBe("/material-targets?refused=1");
+    expect(text(render(<MaterialItemRefusedNote shown />))).toContain(sentence);
+    expect(render(<MaterialItemRefusedNote />)).not.toContain("item-refused");
+    address.params = new URLSearchParams("view=totals&refused=1");
+    try {
+      expect(text(render(<MaterialItemRefusedNote />))).toContain(sentence);
+    } finally {
+      address.params = new URLSearchParams();
+    }
+    // 文件档案's linked record of an unticked item says whom to ask, in all four.
+    expect(zh.documents.recordLinks.notGranted).toBe("总部没有为您开通这一项。如需查看，请联系总部。");
+    expect(zhTW.documents.recordLinks.notGranted).toContain("請聯絡總部");
+    expect(en.documents.recordLinks.notGranted).toContain("Ask head office");
+    expect(ms.documents.recordLinks.notGranted).toContain("Hubungi ibu pejabat");
+  });
+
+  it("opens the returns typed on the receipt form before 10-02 with 材料退场 alone (Decision 3)", () => {
+    const returnsOnly = [...only("materials.returns"), "material_outgoing"];
+    expect(isRouteAllowed("MSE_TRACE", returnsOnly, "/receipts")).toBe(true);
+    // ... as the 材料出场 view of /receipts (?direction=OUT), never the deliveries.
+    expect(materialTabClosed("out", returnsOnly)).toBe(false);
+    expect(materialTabClosed("in", returnsOnly)).toBe(true);
+    const labels = menuPages(returnsOnly).map((leaf) => leaf.labelKey);
+    expect(labels).not.toContain("consultantAccess.item.materialsIn");
+    expect(labels).not.toContain("receipts.tabs.legacyReturns");
+    // Without 材料退场 the address stays closed.
+    expect(isRouteAllowed("MSE_TRACE", [...only("materials.issues"), "material_outgoing"], "/receipts")).toBe(false);
+  });
+});
+
+describe("a backend from before JB225 sends no item keys: whole modules, as JB210 (audit 11-19 F3)", () => {
+  // What JB210's `consultant_features` sends with 材料管理 and 工程进度 ticked.
+  const older = ["dashboard", "material_receipts", "material_outgoing", "progress", "schedule", "consultant_menu"];
+
+  it("lacks no item, so no view or tab is emptied", () => {
+    expect(materialTabClosed("in", older)).toBe(false);
+    expect(materialTabClosed("totals", older)).toBe(false);
+    expect(materialTabClosed("targets", older)).toBe(false);
+    expect(outgoingKindsFor(older)).toEqual(["RETURN", "ISSUE"]);
+    expect(progressTabsFor(older)).toEqual(["phases", "photos", "reports", "schedule", "summary", "rain"]);
+  });
+
+  it("keeps 材料管理 and 工程进度 in his menu and their pages open", () => {
+    expect(isRouteAllowed("MSE_TRACE", older, "/receipts")).toBe(true);
+    expect(isRouteAllowed("MSE_TRACE", older, "/material-outgoing")).toBe(true);
+    expect(isRouteAllowed("MSE_TRACE", older, "/progress")).toBe(true);
+    const hrefs = menuPages(older).map((leaf) => leaf.href);
+    expect(hrefs).toEqual(expect.arrayContaining(["/receipts", "/material-outgoing"]));
   });
 });

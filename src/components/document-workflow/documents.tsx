@@ -2352,7 +2352,8 @@ export function DocumentDetailBody({
                     ) : null}
                     {link.not_granted ? t(`archiveQueue.kind.${link.kind}`) : link.reference}
                   </p>
-                  <p className="truncate text-xs text-muted-foreground">
+                  {/* The refusal is read whole (whom to ask), never cut off. */}
+                  <p className={cn("text-xs text-muted-foreground", !link.not_granted && "truncate")}>
                     {link.not_granted
                       ? t("documents.recordLinks.notGranted")
                       : link.exists

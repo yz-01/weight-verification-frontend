@@ -31,7 +31,7 @@ import { Fragment, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { AppendTargetDialog } from "@/components/receipts/material-target-append";
-import { MaterialTabs } from "@/components/receipts/material-tabs";
+import { MaterialItemRefusedNote, MaterialTabs } from "@/components/receipts/material-tabs";
 import { ProjectListFilter } from "@/components/shared/module-records-table";
 import {
   EmptyState,
@@ -135,6 +135,7 @@ export function MaterialTargets() {
         subtitle={targets.isLoading ? "—" : t("count", { count: rows.length })}
         action={addButton || undefined}
       />
+      <MaterialItemRefusedNote />
       <MaterialTabs>
         <ProjectListFilter list={list} />
       </MaterialTabs>

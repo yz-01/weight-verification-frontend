@@ -39,7 +39,7 @@ import {
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 
-import { MaterialTabs } from "@/components/receipts/material-tabs";
+import { MaterialItemRefusedNote, MaterialTabs } from "@/components/receipts/material-tabs";
 import { SpecCell } from "@/components/receipts/spec-pending-tag";
 import { ReturnSupplierCell } from "@/components/contractor-ops/return-supplier";
 import {
@@ -272,6 +272,16 @@ export function MaterialOutgoingOffice() {
   const kinds = outgoingKindsFor(user?.features);
   const asked: "RETURN" | "ISSUE" = searchParams.get("kind") === "ISSUE" ? "ISSUE" : "RETURN";
   const view: "RETURN" | "ISSUE" = kinds.includes(asked) ? asked : kinds[0] ?? asked;
+  // A side named in the address that is not ticked for him is said, not
+  // swapped in silence (audit 11-19 F8); so is a view of /receipts he was
+  // sent here from (the address's mark, ``MaterialItemRefusedNote``).
+  const named = searchParams.get("kind");
+  const refusedNote = (
+    <MaterialItemRefusedNote
+      className="mb-2"
+      shown={(named === "RETURN" || named === "ISSUE") && !kinds.includes(named)}
+    />
+  );
   const switchView = (next: "RETURN" | "ISSUE") => {
     const params = new URLSearchParams();
     const keep = searchParams.get("project");
@@ -546,6 +556,7 @@ export function MaterialOutgoingOffice() {
           <h1 className="text-xl font-semibold">{title}</h1>
           <OutgoingKindSwitch value={view} onChange={switchView} kinds={kinds} />
         </div>
+        {refusedNote}
         <MaterialIssueList onOpen={(id) => setViewing(id)} />
         {detailAndDialogs}
       </div>
@@ -556,6 +567,7 @@ export function MaterialOutgoingOffice() {
     // 「已核对」: one line per 核对, newest first (JB188 做法 1).
     return (
       <>
+        {refusedNote}
         <div className="mb-2 flex justify-end">
           <OutgoingKindSwitch value={view} onChange={switchView} kinds={kinds} />
         </div>
@@ -571,6 +583,7 @@ export function MaterialOutgoingOffice() {
 
   return (
     <>
+      {refusedNote}
       <div className="mb-2 flex justify-end">
         <OutgoingKindSwitch value={view} onChange={switchView} kinds={kinds} />
       </div>
