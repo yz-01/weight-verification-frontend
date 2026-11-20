@@ -53,6 +53,17 @@ import { FieldCamera } from "@/components/shared/field-camera";
 import { useAllowedTypeRefusal } from "@/components/shared/attachment-refusal";
 import { HAZARD_ATTACHMENT_ACCEPT, hazardAttachmentRule } from "@/lib/hazard-attachments";
 import {
+  OFFICE_HAZARD_ACCEPT,
+  OFFICE_HAZARD_FILE_BYTES,
+  OFFICE_HAZARD_FILE_RULE,
+  OFFICE_HAZARD_MAX_DOCUMENTS,
+  OFFICE_HAZARD_MAX_PHOTOS,
+  capOfficeHazardFiles,
+  officeCeilingKey,
+  splitOfficeHazardFiles,
+  type OfficeRefusal,
+} from "@/lib/office-hazard-files";
+import {
   FieldWrapper,
   FilterBar,
   ListHeader,
@@ -204,7 +215,11 @@ interface SafetyDraft {
   latitude?: string;
   longitude?: string;
   photos: Array<File | undefined>;
-  /** PDF / Word / Excel that go with the report (I37); the photos stay the evidence. */
+  /**
+   * PDF / Word / Excel that go with the report (I37). On the office form
+   * (JB223) its one box: pictures too, sorted out as the item's photos when
+   * it is sent (`splitOfficeHazardFiles`).
+   */
   attachments?: File[];
   notifyUsers: string[];
   /** 上报 → 指派 in one step (B22); empty leaves it 待分配. */
@@ -1558,26 +1573,43 @@ function SafetyCreateDialog({
   });
   const selectableWorkers = team.data ?? [];
   const completedPhotos = completedFieldEvidence(draft.photos);
-  // The phone's four and the office's one.
-  const requiredPhotos = fieldMode ? FIELD_EVIDENCE_PHOTO_COUNT : 1;
-  const photosReady = !fieldMode
-    ? completedPhotos.length >= requiredPhotos
-    : completedPhotos.length >= FIELD_EVIDENCE_PHOTO_COUNT && hasRequiredFieldEvidence(draft.photos);
-  // JB76 (客户 10-29 晚 事项 4): 「我是后台办公室里怎么可能会去上报隐患」 - the
-  // office 建立整改事项; the accident wording is the phone's.
-  const fieldEvidenceLabels = fieldMode
-    ? [
-        t("safety.fieldEvidence.overview"),
-        t("safety.fieldEvidence.detail"),
-        t("safety.fieldEvidence.risk"),
-        t("safety.fieldEvidence.surroundings"),
-      ]
-    : [
-        t("safety.officeCreate.photoPlace"),
-        t("safety.officeCreate.photoDetail"),
-        t("safety.officeCreate.photoScope"),
-        t("safety.officeCreate.photoOther"),
-      ];
+  // The phone's four camera photos (ID12). The office form asks for none:
+  // JB223 (客户 11-19 事项 3) 「照片改为选填，不应强制拍照。顾问即使没有照片，
+  // 也应该能够发出整改指令。」 - the one-photo floor it had was ours (D-171).
+  const photosReady = completedPhotos.length >= FIELD_EVIDENCE_PHOTO_COUNT && hasRequiredFieldEvidence(draft.photos);
+  const fieldEvidenceLabels = [
+    t("safety.fieldEvidence.overview"),
+    t("safety.fieldEvidence.detail"),
+    t("safety.fieldEvidence.risk"),
+    t("safety.fieldEvidence.surroundings"),
+  ];
+  // The office box (JB223): what is in it, and the sentence for a file over
+  // its ten photos / ten files - the ceiling the file was sorted under (11-19
+  // audit F8) - or of a kind it does not take, naming what it does (F4).
+  const officeFiles = splitOfficeHazardFiles(draft.attachments ?? []);
+  const officeTypeRefusal = useAllowedTypeRefusal(OFFICE_HAZARD_ACCEPT);
+  const officeRefusal = (item: OfficeRefusal) =>
+    item.kind === "count"
+      ? t(`safety.officeCreate.${officeCeilingKey(item)}`, {
+          name: item.name,
+          limit: officeCeilingKey(item) === "tooManyPhotos" ? OFFICE_HAZARD_MAX_PHOTOS : OFFICE_HAZARD_MAX_DOCUMENTS,
+        })
+      : officeTypeRefusal(item);
+  // F1: the office's files go up inside the item's own request. While they
+  // do, the window stays open and says so; 【建立整改事项】 waits.
+  const officeFileCount = fieldMode ? 0 : (draft.attachments ?? []).length;
+  const [uploading, setUploading] = useState(false);
+  const uploadingLine = uploading ? t("safety.officeCreate.uploading", { count: officeFileCount }) : "";
+  // Closing the browser now would cut the files off: it asks first.
+  useEffect(() => {
+    if (!uploading) return;
+    const warn = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [uploading]);
 
   function toggleRecipient(userId: string, checked: boolean) {
     setDraft((value) => ({
@@ -1603,6 +1635,13 @@ function SafetyCreateDialog({
       }
       const eventId = draft.clientEventId || newClientEventId("safety-incident");
       if (!draft.clientEventId) setDraft((value) => ({ ...value, clientEventId: eventId }));
+      // The PIN is given: from here the office's files are on their way (F1).
+      if (officeFileCount > 0) setUploading(true);
+      // The phone: its four camera photos and its files. The office: its one
+      // box, pictures as the item's photos and documents to its room (JB223).
+      const uploads = fieldMode
+        ? { photos: completedPhotos, attachments: draft.attachments ?? [] }
+        : splitOfficeHazardFiles(draft.attachments ?? []);
       const payload: SafetyIncidentPayload & { client_event_id: string } = {
         project: draft.project,
         // None from the phone (ID12): the server files it as 「未分类」.
@@ -1615,8 +1654,8 @@ function SafetyCreateDialog({
           : undefined,
         latitude: draft.latitude,
         longitude: draft.longitude,
-        photos: completedPhotos,
-        attachments: draft.attachments ?? [],
+        photos: uploads.photos,
+        attachments: uploads.attachments,
         notify_users: draft.notifyUsers,
         client_event_id: eventId,
         field_task: fieldTaskId,
@@ -1626,8 +1665,9 @@ function SafetyCreateDialog({
             ? new Date(draft.rectifierDueAt).toISOString()
             : undefined,
       };
-      return submitSafetyIncidentOfflineAware(user.id, payload, signOffPin);
+      return submitSafetyIncidentOfflineAware(user.id, payload, signOffPin, { fromOffice: !fieldMode });
     },
+    onSettled: () => setUploading(false),
     onSuccess: (result) => {
       void queryClient.invalidateQueries({ queryKey: ["safety"] });
       clearDraft();
@@ -1689,7 +1729,9 @@ function SafetyCreateDialog({
   }, []);
 
   return (
-    <Dialog open onOpenChange={(next) => !next && onClose()}>
+    // Not closed while the office's files go up (F1): closing it would not
+    // stop them, and would leave nothing on screen to say whether they made it.
+    <Dialog open onOpenChange={(next) => !next && !uploading && onClose()}>
       <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-xl">
         <DialogHeader>
           <DialogTitle>{t(fieldMode ? "safety.createTitle" : "safety.officeCreate.title")}</DialogTitle>
@@ -1813,50 +1855,92 @@ function SafetyCreateDialog({
               }
             />
           </FieldWrapper>}
-          <FieldWrapper label={t("safety.field.photo")} required className="sm:col-span-2">
-            {/*
-              One grid for both modes (D-171).
+          {fieldMode ? (
+            <>
+              <FieldWrapper label={t("safety.field.photo")} required className="sm:col-span-2">
+                {/*
+                  The phone's four camera tiles (ID12).
 
-              The office form used to be a single camera whose handler wrote
-              `photos: [photo]`, so the second photograph replaced the first
-              and a hazard raised from the office reached its conversation with
-              exactly one picture no matter how many were taken (F-379). The
-              customer saw one photograph in a room where four had been taken
-              and reported it as a chat-room bug; the backend had been writing
-              one message per photograph all along.
-
-              What does not change is how many are *required*: field mode still
-              asks for all four, the office for one. Somebody entering a hazard
-              after the fact may only have the one photograph that was sent to
-              them, and raising the floor here would close that door.
-            */}
-            <FieldEvidenceGrid
-              labels={fieldEvidenceLabels}
-              files={draft.photos}
-              progressLabel={t(
-                fieldMode
-                  ? "safety.fieldEvidence.progress"
-                  : "safety.fieldEvidence.progressOffice",
-                {
-                  current: completedPhotos.length,
-                  required: requiredPhotos,
-                },
+                  One grid, not a single camera: a single camera whose handler
+                  wrote `photos: [photo]` replaced each photograph with the
+                  next, and a hazard reached its conversation with one picture
+                  however many were taken (F-379).
+                */}
+                <FieldEvidenceGrid
+                  labels={fieldEvidenceLabels}
+                  files={draft.photos}
+                  progressLabel={t("safety.fieldEvidence.progress", {
+                    current: completedPhotos.length,
+                    required: FIELD_EVIDENCE_PHOTO_COUNT,
+                  })}
+                  onChange={(photos) => setDraft((value) => ({ ...value, photos }))}
+                />
+              </FieldWrapper>
+              {/* PDF / Word / Excel beside the photos (I37). Never instead of
+                  them on the phone: its photo rule above is unchanged. Its
+                  picker has no camera here - the grid above is the camera. */}
+              <FieldWrapper label={t("safety.field.attachments")} optional={t("common.optional")} className="sm:col-span-2">
+                <AttachmentPicker
+                  files={draft.attachments ?? []}
+                  onChange={(attachments) => setDraft((value) => ({ ...value, attachments }))}
+                  rule={hazardAttachmentRule(fieldMode)}
+                  camera={false}
+                  refusalText={attachmentRefusal}
+                />
+              </FieldWrapper>
+            </>
+          ) : (
+            /*
+              JB223 (客户 11-19 事项 3, 图 4): 「顾问在办公室使用电脑后台要求整改，
+              怎么可能到现场拍照？」 The office form - consultant, project office
+              and head office alike - is no camera form: one optional box for
+              what is already on the computer (photos, WhatsApp pictures and
+              screenshots, PDF / Word / Excel), sorted when it is sent. The
+              computer's camera stays, last.
+            */
+            <FieldWrapper label={t("safety.officeCreate.files")} optional={t("common.optional")} className="sm:col-span-2">
+              <AttachmentPicker
+                files={draft.attachments ?? []}
+                onChange={(attachments) => setDraft((value) => ({ ...value, attachments }))}
+                rule={OFFICE_HAZARD_FILE_RULE}
+                fit={capOfficeHazardFiles}
+                pasteAnywhere
+                showLimits={false}
+                disabled={uploading}
+                // Words for what is on screen (F7): no 【粘贴截图】 named where
+                // the browser shows none; on a phone, the phone's buttons.
+                hint={({ phone, pasteButton }) =>
+                  t(
+                    phone
+                      ? "safety.officeCreate.filesHintPhone"
+                      : pasteButton
+                        ? "safety.officeCreate.filesHint"
+                        : "safety.officeCreate.filesHintNoPasteButton",
+                  )
+                }
+                chooseLabel={({ phone }) => (phone ? undefined : t("safety.officeCreate.chooseFiles"))}
+                cameraLabel={({ phone }) => (phone ? undefined : t("safety.officeCreate.webcam"))}
+                // F2: the time a picture is recorded under, as it now is.
+                note={t("safety.officeCreate.photoTimeNote", { when: t("safety.field.occurredAt") })}
+                refusalText={officeRefusal}
+              />
+              <p className="mt-1 text-2xs text-muted-foreground">
+                {t("safety.officeCreate.limits", {
+                  photos: OFFICE_HAZARD_MAX_PHOTOS,
+                  documents: OFFICE_HAZARD_MAX_DOCUMENTS,
+                  limit: OFFICE_HAZARD_FILE_BYTES / (1024 * 1024),
+                })}
+              </p>
+              {(draft.attachments ?? []).length > 0 && (
+                <p className="mt-1 text-sm">
+                  {t("safety.officeCreate.attached", {
+                    photos: officeFiles.photos.length,
+                    documents: officeFiles.attachments.length,
+                  })}
+                </p>
               )}
-              onChange={(photos) => setDraft((value) => ({ ...value, photos }))}
-            />
-          </FieldWrapper>
-          {/* PDF / Word / Excel beside the photos (I37). Never instead of them:
-              the photo rule above is unchanged. The phone's picker has no
-              camera here - the grid above is the camera - so it is 「选文件」. */}
-          <FieldWrapper label={t("safety.field.attachments")} optional={t("common.optional")} className="sm:col-span-2">
-            <AttachmentPicker
-              files={draft.attachments ?? []}
-              onChange={(attachments) => setDraft((value) => ({ ...value, attachments }))}
-              rule={hazardAttachmentRule(fieldMode)}
-              camera={false}
-              refusalText={attachmentRefusal}
-            />
-          </FieldWrapper>
+            </FieldWrapper>
+          )}
           {/* 上报 → 指派 in one step (B22), and who confirms it (B21). */}
           <FieldWrapper label={t("ehs.form.rectifier")} optional={t("common.optional")} className="sm:col-span-2">
             <Select
@@ -1960,8 +2044,16 @@ function SafetyCreateDialog({
           </FieldWrapper>
         </div>
 
+        {/* F1: the office's files go up with the item; until the server has
+            them all, this says so and the window stays. */}
+        {uploadingLine && (
+          <p role="status" className="flex items-center gap-2 text-sm font-medium">
+            <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
+            {uploadingLine}
+          </p>
+        )}
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
+          <Button variant="outline" onClick={onClose} disabled={uploading} disabledReason={uploadingLine || undefined}>
             {t("common.cancel")}
           </Button>
           {/* On the phone the list is two long: the photos, and the GPS the
@@ -1971,9 +2063,9 @@ function SafetyCreateDialog({
           <Button requires={[
             ...(fieldMode
               ? [[photosReady, t("safety.field.photo")], [draft.project, t("safety.field.project")], [draft.latitude && draft.longitude, t("safety.field.location")]]
-              : [[draft.project, t("safety.field.project")], [category, t("safety.field.category")], [draft.title, t("safety.field.title")], [photosReady, t("safety.field.photo")]]),
+              : [[draft.project, t("safety.field.project")], [category, t("safety.field.category")], [draft.title, t("safety.field.title")]]),
             [!draft.rectifier || draft.rectifierDueAt, t("safetyRectification.field.dueAt")],
-          ] as Array<[unknown, string]>} disabled={create.isPending} onClick={() => create.mutate()}>
+          ] as Array<[unknown, string]>} disabled={create.isPending} disabledReason={uploadingLine || undefined} onClick={() => create.mutate()}>
 
             {create.isPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />

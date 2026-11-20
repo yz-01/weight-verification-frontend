@@ -9339,6 +9339,10 @@
       "permit_too_many_files": "一次最多上傳 {limit} 個檔案。",
       "permit_file_type": "{name} 不是 Word、Excel、PDF 或照片檔案。",
       "attachment_file_type": "{name} 這種檔案不能上傳。可以上傳：{allowed}。",
+      "attachment_content_mismatch": "{name} 不能上傳：檔案內容和它的類型對不上（可能已損壞，或被改過名字）。請用原來的軟體打開，另存一份再上傳。可以上傳：{allowed}。",
+      "attachment_empty": "{name} 是空檔案（0 KB），不能上傳。請打開它確認有內容，儲存後再選一次。",
+      "hazard_photo_unreadable": "{name} 不是能打開的照片（可能已損壞，或被改過名字），不能上傳。照片可以是 JPG、PNG、WebP；PDF、Word、Excel 請作為檔案放進來。",
+      "hazard_too_many_photos": "照片最多 {limit} 張。請移除幾張，再建立整改事項。",
       "permit_file_too_large": "{name} 超過 {limit} MB。",
       "permit_approver_unavailable": "請選擇這個專案裡能審批准證的安全經理。",
       "permit_own_application": "{incident_no} 是你申請的，需要由別人批准或退回。",
@@ -15937,12 +15941,21 @@
   "safety": {
     "officeCreate": {
       "title": "建立整改事項",
-      "description": "選擇整改分類，寫清楚要整改什麼，附上照片，並可指定負責人。",
+      "description": "選擇整改分類，寫清楚要整改什麼；有照片或整改文件就附上（選填），並可指定負責人。",
       "confirm": "建立整改事項",
-      "photoPlace": "1. 要整改的位置",
-      "photoDetail": "2. 問題細節",
-      "photoScope": "3. 相關設備或範圍",
-      "photoOther": "4. 其他補充"
+      "files": "照片和整改文件",
+      "filesHint": "電腦裡的照片、PDF、Word、Excel 按【選擇照片或檔案】；WhatsApp 的照片或截圖，複製後按【貼上截圖】或 Ctrl+V。沒有照片也可以建立。",
+      "filesHintNoPasteButton": "電腦裡的照片、PDF、Word、Excel 按【選擇照片或檔案】；WhatsApp 的照片或截圖，複製後在這個視窗裡按鍵盤 Ctrl+V。沒有照片也可以建立。",
+      "filesHintPhone": "照片按【拍照】拍；PDF、Word、Excel 按【選擇檔案】。沒有照片也可以建立。",
+      "photoTimeNote": "照片記錄的時間就是上面的「{when}」；沒有填，就是您建立這個整改事項的時間（不看照片檔案自己的日期）。",
+      "chooseFiles": "選擇照片或檔案",
+      "webcam": "用電腦攝影機拍照",
+      "limits": "照片最多 {photos} 張，檔案最多 {documents} 個，每個不超過 {limit} MB。",
+      "attached": "已附上 {photos} 張照片、{documents} 個檔案。",
+      "tooManyPhotos": "{name} 沒有加入：照片最多 {limit} 張。",
+      "tooManyDocuments": "{name} 沒有加入：檔案最多 {limit} 個。",
+      "uploading": "正在上傳 {count} 個檔案，請不要關閉網頁…",
+      "created": "{count, plural, =0 {整改事項已建立。} other {整改事項已建立，# 個檔案已全部儲存。}}"
     },
     "action": {
       "updateStatus": "更新狀態"
@@ -15976,7 +15989,6 @@
       "detail": "2. 問題或損壞細節",
       "overview": "1. 事故區域全景",
       "progress": "已拍攝 {current} 張。前 {required} 張必拍照片缺一不可，也可以繼續新增其他照片。",
-      "progressOffice": "已附上 {current} 張。至少附一張，上面的提示有就附，也可以繼續新增。",
       "risk": "3. 涉及的設備、人員或通道",
       "surroundings": "4. 工地周邊狀況"
     },
@@ -20376,10 +20388,17 @@
     "wrongType": "{name} 不能上傳：這裡不接受這種檔案。",
     "tooBig": "{name} 超過 {limit} MB。",
     "tooBigTotal": "{name} 加上去超過合計 {limit} MB。",
+    "emptyFile": "{name} 是空檔案（0 KB），不能上傳。請打開它確認有內容，儲存後再選一次。",
     "phoneTooBig": "{name}：檔案太大，請在電腦後台上傳。手機上每個檔案最多 20 MB，合計最多 50 MB。",
     "tooMany": "一次最多上傳 {limit} 個檔案。",
     "notAFile": "貼上的內容不是檔案或圖片。請複製圖片本身再試一次。",
-    "photoUseCamera": "{name}：手機上的照片請用上面的「拍照」按鈕拍，不能從相簿選。"
+    "photoUseCamera": "{name}：手機上的照片請用上面的「拍照」按鈕拍，不能從相簿選。",
+    "pasteScreenshot": "貼上截圖",
+    "pastedPictures": "已貼上 {count} 張圖片，在下面的清單裡。",
+    "pastedFiles": "已貼上 {count} 個檔案，在下面的清單裡。",
+    "clipboardEmpty": "剪貼簿裡沒有圖片。請先在 WhatsApp 裡右鍵點圖片，選「複製圖片」，再按【貼上截圖】。",
+    "clipboardRefused": "這個瀏覽器不讓網頁讀取剪貼簿。請點一下這個視窗，再按鍵盤 Ctrl+V。",
+    "screenshotName": "截圖"
   },
   "supplierDateFilter": {
     "allSuppliers": "全部供應商",

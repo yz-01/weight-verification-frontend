@@ -446,6 +446,13 @@ export interface SafetyIncidentOfflineJob extends OfflineJobBase {
     responsible_person?: string;
     due_at?: string;
     attachments?: StoredFile[];
+    /**
+     * Raised on the office form (11-19 audit JB223 F1): its files go up
+     * inside the item's own request, never as jobs of their own, so the item
+     * never exists without them; and an empty 发生时间 is the moment it was
+     * pressed, never a file's date (F2).
+     */
+    filesWithItem?: boolean;
   };
 }
 

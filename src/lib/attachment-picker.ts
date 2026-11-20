@@ -22,7 +22,8 @@ export interface AttachmentRule {
   multiple?: boolean;
 }
 
-export type RefusalKind = "type" | "size" | "count" | "total";
+/** `empty`: a file of 0 bytes - only where a page's own `fit` says so (JB223 audit F4). */
+export type RefusalKind = "type" | "size" | "count" | "total" | "empty";
 
 export interface Refusal {
   kind: RefusalKind;
@@ -127,7 +128,7 @@ export function megabytes(bytes: number): string {
  * for documents - a PDF, a spreadsheet - so it is offered without image
  * types. Office desktops keep choosing any file as before.
  */
-const IMAGE_TOKEN = /^(image\/.*|\.(jpe?g|png|gif|webp|heic|heif|bmp|tiff?|avif))$/i;
+const IMAGE_TOKEN = /^(image\/.*|\.(jpe?g|jfif|png|gif|webp|heic|heif|bmp|tiff?|avif))$/i;
 
 /** What a page that takes any file lets a phone choose: documents. */
 export const PHONE_DOCUMENT_ACCEPT =

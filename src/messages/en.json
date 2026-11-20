@@ -9339,6 +9339,10 @@
       "permit_too_many_files": "Send at most {limit} files at a time.",
       "permit_file_type": "{name} is not a Word, Excel, PDF or photo file.",
       "attachment_file_type": "{name} cannot be uploaded. Allowed: {allowed}.",
+      "attachment_content_mismatch": "{name} cannot be uploaded: its content does not match its file type (it may be damaged or renamed). Open it in its own program, save a copy, then upload that. Allowed: {allowed}.",
+      "attachment_empty": "{name} is an empty file (0 KB) and cannot be uploaded. Open it to check it has content, save it, then choose it again.",
+      "hazard_photo_unreadable": "{name} is not a photo that can be opened (it may be damaged or renamed) and cannot be uploaded. Photos can be JPG, PNG or WebP; add PDF, Word or Excel as files.",
+      "hazard_too_many_photos": "At most {limit} photos. Remove some, then create the item.",
       "permit_file_too_large": "{name} is larger than {limit} MB.",
       "permit_approver_unavailable": "Choose a safety manager on this project who can approve permits.",
       "permit_own_application": "You applied for {incident_no}, so somebody else approves or returns it.",
@@ -15937,12 +15941,21 @@
   "safety": {
     "officeCreate": {
       "title": "Create a rectification item",
-      "description": "Choose the rectification category, say what needs fixing, attach photos, and name who is responsible if you know.",
+      "description": "Choose the rectification category and say what needs fixing; attach photos or rectification files if you have them (optional), and name who is responsible if you know.",
       "confirm": "Create rectification item",
-      "photoPlace": "1. Where it needs fixing",
-      "photoDetail": "2. Close-up of the problem",
-      "photoScope": "3. Equipment or area involved",
-      "photoOther": "4. Anything else"
+      "files": "Photos and rectification files",
+      "filesHint": "Photos, PDF, Word or Excel on this computer: press [Choose photos or files]. A WhatsApp photo or a screenshot: copy it, then press [Paste screenshot] or Ctrl+V. You can create the item without a photo.",
+      "filesHintNoPasteButton": "Photos, PDF, Word or Excel on this computer: press [Choose photos or files]. A WhatsApp photo or a screenshot: copy it, then press Ctrl+V on the keyboard in this window. You can create the item without a photo.",
+      "filesHintPhone": "Photos: press [Take photo]. PDF, Word or Excel: press [Choose file]. You can create the item without a photo.",
+      "photoTimeNote": "A photo is recorded at the time in \"{when}\" above; left empty, at the time you create this item (the date saved in the photo file is not used).",
+      "chooseFiles": "Choose photos or files",
+      "webcam": "Take a photo with the computer camera",
+      "limits": "Up to {photos} photos and {documents} files, each up to {limit} MB.",
+      "attached": "Attached: {photos, plural, one {# photo} other {# photos}} and {documents, plural, one {# file} other {# files}}.",
+      "tooManyPhotos": "{name} was not added: at most {limit} photos.",
+      "tooManyDocuments": "{name} was not added: at most {limit} files.",
+      "uploading": "Uploading {count, plural, one {# file} other {# files}}. Please do not close this page…",
+      "created": "{count, plural, =0 {Rectification item created.} one {Rectification item created; its file is saved.} other {Rectification item created; all # files are saved.}}"
     },
     "action": {
       "updateStatus": "Update status"
@@ -15976,7 +15989,6 @@
       "detail": "2. Hazard or damage detail",
       "overview": "1. Incident area overview",
       "progress": "Completed {current} photo(s). The first {required} required photos must all be taken; more photos may be added.",
-      "progressOffice": "{current} attached. One is enough; add the others above if you have them, or more.",
       "risk": "3. Affected equipment, person or access",
       "surroundings": "4. Surrounding site condition"
     },
@@ -20376,10 +20388,17 @@
     "wrongType": "{name} cannot be attached: this kind of file is not accepted here.",
     "tooBig": "{name} is larger than {limit} MB.",
     "tooBigTotal": "{name} would take the files over {limit} MB in all.",
+    "emptyFile": "{name} is an empty file (0 KB) and cannot be uploaded. Open it to check it has content, save it, then choose it again.",
     "phoneTooBig": "{name}: the file is too big. Please upload it from the office computer. On the phone each file can be up to 20 MB, and 50 MB in all.",
     "tooMany": "Send at most {limit} files at a time.",
     "notAFile": "What you pasted is not a file or a picture. Copy the picture itself and try again.",
-    "photoUseCamera": "{name}: on the phone, take photos with the Take photo button above, not from the gallery."
+    "photoUseCamera": "{name}: on the phone, take photos with the Take photo button above, not from the gallery.",
+    "pasteScreenshot": "Paste screenshot",
+    "pastedPictures": "{count, plural, one {# picture pasted; it is in the list below.} other {# pictures pasted; they are in the list below.}}",
+    "pastedFiles": "{count, plural, one {# file pasted; it is in the list below.} other {# files pasted; they are in the list below.}}",
+    "clipboardEmpty": "There is no picture on the clipboard. In WhatsApp, right-click the picture, choose \"Copy image\", then press [Paste screenshot].",
+    "clipboardRefused": "This browser does not let the page read the clipboard. Click this window, then press Ctrl+V on the keyboard.",
+    "screenshotName": "Screenshot"
   },
   "supplierDateFilter": {
     "allSuppliers": "All suppliers",
