@@ -128,7 +128,7 @@ export function megabytes(bytes: number): string {
  * for documents - a PDF, a spreadsheet - so it is offered without image
  * types. Office desktops keep choosing any file as before.
  */
-const IMAGE_TOKEN = /^(image\/.*|\.(jpe?g|png|gif|webp|heic|heif|bmp|tiff?|avif))$/i;
+const IMAGE_TOKEN = /^(image\/.*|\.(jpe?g|jfif|png|gif|webp|heic|heif|bmp|tiff?|avif))$/i;
 
 /** What a page that takes any file lets a phone choose: documents. */
 export const PHONE_DOCUMENT_ACCEPT =
