@@ -194,6 +194,9 @@ export function ContractorLocationMap({
               zones={zoneRows}
               preserveViewOnDataUpdate
               fitBoundsKey={project || "all"}
+              // JB222-8 (客户 11-19: 「项目仪表板的地图是用来管理工地现场，而不是
+              // 查看整个城市的道路分布」): one project's map stays on its site.
+              lockToSite={Boolean(project)}
               ariaLabel={t("mapLabel")}
               className="h-[16rem] min-h-[16rem] rounded-md sm:h-[18rem] sm:min-h-[18rem]"
             />

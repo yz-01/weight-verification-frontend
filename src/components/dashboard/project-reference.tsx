@@ -20,7 +20,6 @@ import {
   ClipboardCheck,
   Cpu,
   Images,
-  MapPinned,
   PackageCheck,
   PieChart,
   Recycle,
@@ -33,8 +32,8 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { Delta } from "@/components/dashboard/headquarters-reference";
+import { ProjectSiteMap } from "@/components/dashboard/project-site-map";
 import { KpiCard } from "@/components/shared/kpi-card";
-import { LocationMap, type LocationMapMarker } from "@/components/shared/location-map";
 import { LoadFailed } from "@/components/shared/page-primitives";
 import { useRecordOpener } from "@/components/shared/record-opener";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -60,12 +59,6 @@ const PENDING_LINKS: Record<string, { labelKey: string; href: string }> = {
   safety: { labelKey: "nav.submodule.hazardRectifications", href: "/hazard-rectifications" },
 };
 
-const POINT_TONE: Record<string, LocationMapMarker["tone"]> = {
-  RECEIPT: "positive",
-  WASTE: "primary",
-  EQUIPMENT: "warning",
-};
-
 export function ProjectReference({ project }: { project: string }) {
   const overview = useQuery({
     queryKey: ["contractor-dashboard", "project-overview", project],
@@ -84,7 +77,8 @@ export function ProjectReference({ project }: { project: string }) {
       <ProjectKpis data={data} project={project} />
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
         <LatestReceipts data={data} project={project} />
-        <ProjectMap data={data} />
+        {/* 项目现场地图 (JB222): the site, its people, deliveries, machines and records. */}
+        <ProjectSiteMap project={project} />
       </div>
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <Mix titleKey="materialMix" icon={PieChart} rows={data.material_mix} />
@@ -236,52 +230,6 @@ function LatestReceipts({ data, project }: { data: ProjectOverview; project: str
           ))}
         </ul>
       )}
-    </Panel>
-  );
-}
-
-function ProjectMap({ data }: { data: ProjectOverview }) {
-  const t = useTranslations("projectReference");
-  const markers: LocationMapMarker[] = [
-    ...(data.project.latitude && data.project.longitude
-      ? [
-          {
-            id: `project-${data.project.id}`,
-            latitude: Number(data.project.latitude),
-            longitude: Number(data.project.longitude),
-            label: `${data.project.code} · ${data.project.name}`,
-            icon: "project" as const,
-          },
-        ]
-      : []),
-    ...data.map_points.map((point) => ({
-      id: `${point.kind}-${point.id}`,
-      latitude: Number(point.latitude),
-      longitude: Number(point.longitude),
-      label: point.label || t(`point.${point.kind}`),
-      detail: t(`point.${point.kind}`),
-      tone: POINT_TONE[point.kind],
-      icon: point.kind === "EQUIPMENT" ? ("truck" as const) : ("building" as const),
-    })),
-  ];
-  return (
-    <Panel title={t("map")} icon={MapPinned}>
-      <LocationMap
-        markers={markers}
-        sizeKey="project-dashboard-map"
-        className="min-h-[18rem] rounded-lg"
-        ariaLabel={t("map")}
-        fitBoundsKey={data.project.id}
-      />
-      <ul className="flex flex-wrap gap-3 text-xs text-muted-foreground">
-        {(["RECEIPT", "WASTE", "EQUIPMENT"] as const).map((kind) => (
-          <li key={kind} className="inline-flex items-center gap-1">
-            <span className={cn("size-2 rounded-full", kind === "RECEIPT" ? TONES.green.dot : kind === "WASTE" ? TONES.cyan.dot : TONES.amber.dot)} aria-hidden />
-            {t(`point.${kind}`)}
-          </li>
-        ))}
-      </ul>
-      {markers.length === 0 ? <p className="text-xs text-muted-foreground">{t("noPoints")}</p> : null}
     </Panel>
   );
 }

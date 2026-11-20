@@ -12998,7 +12998,7 @@
       "fieldTasks": "現場任務",
       "financialReports": "財務報表",
       "gateScanning": "訪客掃碼",
-      "geofenceSettings": "Geofence 設置",
+      "geofenceSettings": "電子圍欄設置",
       "hazardRectifications": "整改 / EHS",
       "immutableAudit": "永久記錄",
       "incidentReports": "事故上報",
@@ -22055,12 +22055,6 @@
     "seeAll": "查看全部",
     "noReceipts": "還沒有材料進場記錄。",
     "map": "項目現場地圖",
-    "point": {
-      "RECEIPT": "物料收貨點",
-      "WASTE": "廢料處理點",
-      "EQUIPMENT": "設備位置"
-    },
-    "noPoints": "最近 30 天沒有帶 GPS 的記錄。",
     "materialMix": "物料分類統計（本月）",
     "wasteMix": "廢料分類統計（本月）",
     "noMix": "本月還沒有稱重的數量。",
@@ -23114,5 +23108,67 @@
       "externalLink": "幫客戶開外部訪問鏈接要客戶先開放「允許 MSE 查看」。",
       "accountsList": "灰色的按鈕是客戶還沒開放「允許 MSE 管理賬號」的賬號；要改，請那家客戶的管理員在「公司設置」裡點「允許 MSE 管理賬號」。強制下線隨時可以用。"
     }
+  },
+  "projectSiteMap": {
+    "windowLabel": "記錄的日期",
+    "window": {
+      "today": "今天",
+      "week": "最近 7 天"
+    },
+    "layersLabel": "地圖上顯示",
+    "layer": {
+      "people": "人員",
+      "receipts": "材料卸貨",
+      "machines": "機械設備",
+      "records": "現場記錄"
+    },
+    "shown": "（已顯示，按一下隱藏）",
+    "notShown": "（已隱藏，按一下顯示）",
+    "backToSite": "回到工地範圍",
+    "here": "這個位置有 {count} 項",
+    "close": "關閉",
+    "openRecord": "查看完整記錄",
+    "openRoute": "查看今天的位置記錄",
+    "openWorker": "查看人員資料",
+    "openEntry": "查看進場記錄",
+    "lastSeen": "最新定位 {at}",
+    "since": "進場 {at}",
+    "stale": "超過 10 分鐘沒有更新：手機上的現場 App 可能已關掉。",
+    "machineSeen": "最新定位 {at} · 來自{source, select, OPERATING_LOG {設備操作員打卡} EXIT {設備退場申請} other {設備進場記錄}}",
+    "recordedAt": "記錄時間 {at}",
+    "personKind": {
+      "APP": "現場 App",
+      "ROSTER": "人員名單（定位連結）"
+    },
+    "kind": {
+      "MATERIAL_RECEIPT": "材料進場",
+      "MATERIAL_OUTGOING": "材料出場",
+      "EQUIPMENT_MOVEMENT": "設備進退場",
+      "SITE_PROGRESS": "工程進度",
+      "SAFETY_INCIDENT": "整改 / EHS",
+      "PERMIT": "施工準證",
+      "FIELD_TASK": "現場任務",
+      "DISPOSAL": "工地清運",
+      "WASTE_OUTGOING": "環保材料出場",
+      "SUNDRY_CLAIM": "雜費報銷",
+      "GATE_INCIDENT": "門崗拍照記錄"
+    },
+    "legendNote": "人員和機械設備是現在的位置；材料卸貨和現場記錄是{window, select, today {今天} other {最近 7 天}}的，只畫出有定位的記錄。",
+    "outside": "另有 {count} 個位置在工地範圍以外，沒有畫在地圖上。",
+    "machinesWithout": "另有 {count} 台在場設備沒有定位記錄。",
+    "capped": "{layer}只顯示最新 {cap} 條，更早的請到各模組的列表查看。",
+    "nothingYet": "{window, select, today {今天} other {最近 7 天}}還沒有可以畫在地圖上的人員、設備或記錄。",
+    "noFence": "這個項目還沒有畫電子圍欄，地圖不能按工地範圍顯示。",
+    "noPlace": "這個項目還沒有設定位置，也還沒有畫電子圍欄，地圖不能顯示。",
+    "drawFence": "去畫電子圍欄",
+    "askAdmin": "請公司管理員到「電子圍欄設置」畫出工地範圍。",
+    "openExit": "查看退場申請",
+    "machineFromClock": "這個位置是設備操作員打卡時的定位；工時請到「設備操作員工時」查看。",
+    "legendNow": "{layers}是現在的位置。",
+    "legendDay": "{layers}是{window, select, today {今天} other {最近 7 天}}的，只畫出有定位的記錄。",
+    "legendPeople": "人員圖標下是最新定位時間{app, select, yes {；淡色的人員：超過 10 分鐘沒有更新} other {}}；灰色的人員：最新定位不是今天，圖標下寫的是日期。",
+    "noLayers": "你的角色沒有查看人員、材料卸貨、機械設備或現場記錄的權限，所以地圖只顯示工地範圍。需要查看的話，請公司管理員在「角色與權限」裡開通。",
+    "notUpdating": "地圖暫時沒有更新，現在顯示的是 {at} 的情況。請檢查網路，系統會自動再試。",
+    "retry": "重試"
   }
 }

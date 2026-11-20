@@ -182,6 +182,11 @@ export function HeadquartersMap({
             preserveViewOnDataUpdate
             fitBoundsKey={placed.map((row) => row.id).join(",")}
             onMarkerClick={setSelectedId}
+            // 「显示所有建筑项目的地理分布」 (JB222-1): it opens on the pins - one
+            // project at city level, several at most at district level - with
+            // every fence drawn but not pulling the view down to one street.
+            fitTo="markers"
+            fitMaxZoom={14}
             singlePointZoom={12}
           />
           {placed.length === 0 && (

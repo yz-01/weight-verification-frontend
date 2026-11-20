@@ -40,6 +40,11 @@ vi.mock("@/components/dashboard/field-task-sheet", () => ({
 vi.mock("@/components/document-workflow/documents", () => ({
   DocumentInPlace: ({ id }: { id: string }) => <div data-stub="document" data-id={id} />,
 }));
+vi.mock("@/components/permits/permit-parts", () => ({
+  PermitDetail: ({ id, presentation }: { id: string; presentation: string }) => (
+    <div data-stub="permit" data-id={id} data-presentation={presentation} />
+  ),
+}));
 
 const { InPlaceRecord, opensInPlace } = await import("@/components/shared/in-place-record");
 const { recordTarget } = await import("@/lib/record-routes");
@@ -91,6 +96,14 @@ describe("a record opens over the page it was pressed on", () => {
       expect(opensInPlace(kind), kind).toBe(true);
       expect(recordTarget(kind, "x"), kind).not.toBeNull();
     }
+  });
+
+  it("opens a 施工准证 pressed on the project dashboard's map in its own window (JB222-7)", () => {
+    expect(opensInPlace("PERMIT")).toBe(true);
+    const html = renderToStaticMarkup(<InPlaceRecord kind="PERMIT" id="pm-1" onClose={() => {}} />);
+    expect(html).toContain('data-stub="permit"');
+    expect(html).toContain('data-id="pm-1"');
+    expect(html).toContain('data-presentation="dialog"');
   });
 
   it("covers only kinds the shared record route already opens", () => {
