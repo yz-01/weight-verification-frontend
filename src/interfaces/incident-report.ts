@@ -36,6 +36,9 @@ export interface IncidentReportThreadDetail {
   participants: IncidentReportRecipient[];
   /** This reader's chat notices the read settled (see `clearedNotices`). */
   cleared_notices?: number;
+  /** JB228: a consultant reads the report, not the builder's talk on it -
+   *  no messages, no participants; one line in their place. */
+  chat_withheld?: boolean;
 }
 
 export interface IncidentReportMessage {

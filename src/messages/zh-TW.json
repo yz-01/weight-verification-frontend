@@ -9006,6 +9006,7 @@
     "api": {
       "account_inactive": "此賬號已不再有效。",
       "announcement_not_found": "找不到該公告。",
+      "application_record_copy_unavailable": "這份原記錄完整證據現在打不開。請聯絡專案後台，把這條記錄重新附到申請上。",
       "approval_action_not_found": "找不到這條審批操作記錄。",
       "approval_actor_forbidden": "你無權執行此審批操作。",
       "approval_invalid_transition": "此審批不能切換到該狀態。",
@@ -10545,6 +10546,7 @@
     "takePhoto": "拍照",
     "photo": "照片",
     "closed": "這條整改已歸檔。記錄仍可查看，但不能再傳新訊息。",
+    "chatWithheld": "建築商內部的溝通記錄不顯示給顧問。",
     "participants": "本次參與的人",
     "reporter": "上報人",
     "responsible": "責任人",

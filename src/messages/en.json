@@ -9006,6 +9006,7 @@
     "api": {
       "account_inactive": "This account is no longer active.",
       "announcement_not_found": "That announcement could not be found.",
+      "application_record_copy_unavailable": "This copy of the record's complete evidence cannot be opened now. Ask the project office to attach the record to the application again.",
       "approval_action_not_found": "That approval action could not be found.",
       "approval_actor_forbidden": "You cannot perform this approval action.",
       "approval_invalid_transition": "This approval cannot move to that status.",
@@ -10545,6 +10546,7 @@
     "takePhoto": "Take a photo",
     "photo": "Photo",
     "closed": "This hazard has been archived. The record stays readable, but it takes no new messages.",
+    "chatWithheld": "The contractor's internal conversation is not shown to consultants.",
     "participants": "In this conversation",
     "reporter": "Reported it",
     "responsible": "Responsible",

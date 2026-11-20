@@ -137,6 +137,25 @@ describe("an incident report (E8)", () => {
     }
   });
 
+  it("shows a consultant one line instead of the builder's talk (JB228)", () => {
+    // 客户 11-19: 「顾问不能查看建筑商内部的沟通记录」 - the server sends no
+    // messages and no people, and says so.
+    const html = renderDetail(<IncidentThreadDetail threadId="t1" onClose={() => {}} />, (client) =>
+      client.setQueryData(["incident-thread", "t1"], {
+        ...detail(),
+        messages: [],
+        participants: [],
+        chat_withheld: true,
+      }),
+    );
+    expect(html).toContain("IR-P1-261008-001");
+    expect(html).toContain("data-chat-withheld");
+    expect(html).toContain(messages.hazard.chatWithheld);
+    expect(html).toContain("建筑商内部的沟通记录不显示给顾问。");
+    expect(html).not.toContain("data-incident-thread");
+    expect(html).not.toContain(words.field.messagePlaceholder);
+  });
+
   it("shows the popup while the report loads", () => {
     const html = renderDetail(<IncidentThreadDetail threadId="t2" onClose={() => {}} />);
     expect(html).toContain('data-record-detail="dialog"');
