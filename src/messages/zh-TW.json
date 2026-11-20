@@ -22932,7 +22932,7 @@
         "closed": "被擋住（您沒有開放）",
         "accounts_closed": "被擋住（您沒有開放「允許 MSE 管理賬號」）",
         "not_available": "被擋住（這類資料 MSE 永遠看不到，開放了也看不到）",
-        "owner_locked": "被擋住（這個管理員賬號已經在用，MSE 不能改它的登錄郵箱）",
+        "owner_locked": "被擋住（這個管理員賬號已經在用，MSE 不能改它的登入郵箱）",
         "no_changes": "被擋住（MSE 不能改貴公司的資料）"
       },
       "filter": {
@@ -22955,7 +22955,7 @@
         "closed": "被擋住（客戶沒有開放）",
         "accounts_closed": "被擋住（客戶沒有開放「允許 MSE 管理賬號」）",
         "not_available": "被擋住（這類資料 MSE 永遠看不到，客戶開放了也看不到）",
-        "owner_locked": "被擋住（這個管理員賬號客戶已經在用，MSE 不能改它的登錄郵箱）",
+        "owner_locked": "被擋住（這個管理員賬號客戶已經在用，MSE 不能改它的登入郵箱）",
         "no_changes": "被擋住（MSE 不能改客戶的資料）"
       },
       "made": {
