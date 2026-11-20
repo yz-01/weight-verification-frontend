@@ -1,13 +1,14 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Camera, Eye, Hash, Link2, Loader2, PencilLine, RotateCcw, ScanLine, Search, UserRound } from "lucide-react";
+import { Camera, Eye, Hash, Link2, Loader2, PencilLine, RotateCcw, ScanLine, Search, UserRound, UsersRound } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { matchScannedMachine } from "@/components/equipment-hours/equipment-hours-capture";
 import { OperatorDialog, OperatorHistory } from "@/components/equipment-hours/equipment-session-operator";
+import { DriverBindingHints, DriverBindingsDialog } from "@/components/equipment-hours/driver-bindings";
 import { DriverClockLinksDialog } from "@/components/equipment-hours/driver-clock-links";
 import { EquipmentNormalHoursButton } from "@/components/equipment-hours/equipment-normal-hours";
 import { EquipmentSiteNumbersDialog } from "@/components/equipment-hours/equipment-site-numbers";
@@ -290,6 +291,8 @@ export function EquipmentOperatorHours() {
   }
   // 司机打卡链接 (J26): the drivers' own clock-in links.
   const [driverLinks, setDriverLinks] = useState(false);
+  // 设备绑定司机 (JB227): which driver phone may clock which machine.
+  const [driverBindings, setDriverBindings] = useState(false);
   // 操作人员 / CIDB 卡号 being written for this row (I4, ID19).
   const [naming, setNaming] = useState<EquipmentHoursSession | null>(null);
   // 「设备编号 / 扫描二维码」 in the filters (I4): a webcam or a scanner gun.
@@ -434,6 +437,12 @@ export function EquipmentOperatorHours() {
                   {tRoot("driverClock.office.title")}
                 </Button>
               )}
+              {canAdjust && (
+                <Button variant="outline" onClick={() => setDriverBindings(true)}>
+                  <UsersRound />
+                  {tRoot("driverBinding.open")}
+                </Button>
+              )}
               {view === "day" && canExport && (
                 <ExportButton onExport={exportDays} disabled={rows.length === 0} />
               )}
@@ -471,6 +480,9 @@ export function EquipmentOperatorHours() {
           ) : undefined
         }
       />
+
+      {/* JB227: machines nobody can clock, and the release's pre-bound ones to check. */}
+      {canAdjust ? <DriverBindingHints project={projectFilterValue(project)} /> : null}
 
       <FilterBar>
         <Tabs value={view} onValueChange={(value) => setView(value as View)}>
@@ -920,6 +932,10 @@ export function EquipmentOperatorHours() {
 
       {driverLinks && (
         <DriverClockLinksDialog project={projectFilterValue(project)} onClose={() => setDriverLinks(false)} />
+      )}
+
+      {driverBindings && (
+        <DriverBindingsDialog project={projectFilterValue(project)} onClose={() => setDriverBindings(false)} />
       )}
 
       {opened && (

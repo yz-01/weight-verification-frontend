@@ -555,7 +555,7 @@
     {
       "code": "equipment.capture",
       "group": "equipment",
-      "label": "Record equipment entry, exit and hours on site"
+      "label": "Record equipment entry and exit on site; view operating hours"
     },
     {
       "code": "equipment.operate",

@@ -123,6 +123,26 @@ export function registerScanKeys(machine: {
   };
 }
 
+const MACHINE_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * Whether a scanned text is the system's own machine code - the
+ * `/scan/equipment?equipment=<id>` link, or a machine's id alone. Such a
+ * code names a machine for certain; anything else that matches nothing may
+ * be another company's sticker or a bad read (JB227 audit F7).
+ */
+export function isSystemMachineQr(text: string): boolean {
+  const raw = text.trim();
+  if (MACHINE_ID.test(raw)) return true;
+  try {
+    const url = new URL(raw);
+    const id = url.searchParams.get("equipment") ?? "";
+    return url.pathname.replace(/\/+$/, "").endsWith(EQUIPMENT_SCAN_PATH) && MACHINE_ID.test(id);
+  } catch {
+    return false;
+  }
+}
+
 /** The link a machine's QR code carries, on this site. */
 export function equipmentScanLink(origin: string, machineId: string): string {
   return `${origin.replace(/\/+$/, "")}${EQUIPMENT_SCAN_PATH}?equipment=${encodeURIComponent(machineId)}`;

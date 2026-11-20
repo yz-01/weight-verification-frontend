@@ -17,15 +17,15 @@ import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ApiError } from "@/interfaces/api";
-import type { EquipmentHoursMachine, EquipmentPhotoKind } from "@/interfaces/equipment-hours";
+import type { EquipmentHoursMachine, EquipmentPhoneRecord, EquipmentPhotoKind } from "@/interfaces/equipment-hours";
 import { useDateFormat } from "@/lib/dates";
 import { asFix, type LocationFix } from "@/lib/field-location";
 import { getOfflineJobs } from "@/lib/offline-db";
 import { photoTakenAt } from "@/lib/photo-meta";
-import { matchScanned, squashCode } from "@/lib/machine-scan";
+import { isSystemMachineQr, matchScanned, squashCode } from "@/lib/machine-scan";
 import { cn } from "@/lib/utils";
-import { getDriverMachines } from "@/services/driver-clock.service";
-import { loadEquipmentHoursMachines } from "@/services/equipment-hours.service";
+import { getDriverMachines, getDriverMyRecords } from "@/services/driver-clock.service";
+import { getOperatorToday, loadEquipmentHoursMachines } from "@/services/equipment-hours.service";
 import { submitEquipmentHoursPhotoOfflineAware } from "@/services/offline-sync.service";
 
 /**
@@ -40,9 +40,58 @@ export function machineLabel(
   return [machine.site_no || machine.code, machine.name, machine.plate].filter(Boolean).join(" · ");
 }
 
+/**
+ * 「你可以打卡的设备：12 号 · 挖土机、15 号 · 吊车」 (JB227): the machines bound to
+ * this driver phone, the first three by name, then how many in all.
+ */
+export function boundMachinesLine(
+  rows: readonly { name: string; code?: string; site_no?: string }[],
+  t: (key: string, values?: Record<string, string | number>) => string,
+): string {
+  const names = rows
+    .slice(0, 3)
+    .map((row) => t("phone.machineLine", { number: machineNumber(row), name: row.name }))
+    .join(t("phone.boundJoin"));
+  return rows.length > 3
+    ? t("phone.boundMore", { machines: names, count: rows.length })
+    : t("phone.boundLine", { machines: names });
+}
+
+/**
+ * Which sentence a scan that names none of this phone's machines gets (JB227
+ * audit F7). A driver phone holds only its bound machines, so the system's
+ * own code of another machine is 「不在你可以打卡的设备里」 (`notYourMachine`),
+ * while another company's sticker or a bad read is 「认不出是哪台设备」
+ * (`qrUnknown`) - two different things to do. Any other phone: `qrNoMatch`.
+ */
+export function scanMissKind(text: string, bound: boolean): "qrNoMatch" | "notYourMachine" | "qrUnknown" {
+  if (!bound) return "qrNoMatch";
+  return isSystemMachineQr(text) ? "notYourMachine" : "qrUnknown";
+}
+
 /** The number the phone shows to check a scan: the 设备编号, else the code. */
 export function machineNumber(machine: { code?: string; site_no?: string }): string {
   return machine.site_no || machine.code || "";
+}
+
+/**
+ * JB227 audit F1: the machines this driver started (his own running record)
+ * that his phone no longer lists - the office has unbound him while they ran,
+ * so he cannot take their 收工 and the office enters the end time. One per
+ * machine.
+ */
+export function strandedRecords(
+  records: readonly EquipmentPhoneRecord[],
+  machines: readonly { code?: string; site_no?: string }[],
+): EquipmentPhoneRecord[] {
+  const listed = new Set(machines.map(machineNumber));
+  const seen = new Set<string>();
+  return records.filter((row) => {
+    const number = row.site_no || row.equipment_code;
+    if (row.end_at || listed.has(number) || seen.has(number)) return false;
+    seen.add(number);
+    return true;
+  });
 }
 
 /**
@@ -268,6 +317,25 @@ export function EquipmentHoursCapture({
     staleTime: 60_000,
   });
   const rows = machines.data ?? [];
+  // JB227 (客户 11-19 事项 7): a driver phone - the operator's 设备操作 or a
+  // driver's link - is offered only the machines bound to it; with none it
+  // cannot clock, and says whom to ask.
+  const bound = Boolean(driver || operator);
+  const notBound = bound && machines.isSuccess && rows.length === 0;
+  // Audit F1: a machine he started that the office has since unbound him
+  // from is not on his list, so a scan never reaches the server's refusal -
+  // the page says it from his own running record (the same records the page
+  // lists, one cache).
+  // query-failure: an extra line; on a failed read the records list shows its own note and a 收工 still gets the server's refusal
+  const own = useQuery({
+    queryKey: driver
+      ? ["equipment-hours", "driver-records", driver.token]
+      : ["equipment-hours", "phone-records", "operator-today"],
+    queryFn: (): Promise<{ rows: EquipmentPhoneRecord[] }> =>
+      driver ? getDriverMyRecords(driver.token, driver.device) : getOperatorToday(),
+    enabled: bound && machines.isSuccess,
+  });
+  const stranded = bound && machines.isSuccess ? strandedRecords(own.data?.rows ?? [], rows) : [];
 
   const pick = (found: EquipmentHoursMachine) => {
     setMachine(found);
@@ -293,10 +361,38 @@ export function EquipmentHoursCapture({
     setTyped("");
   };
 
+  /**
+   * A scan or a number that names none of this phone's machines (audit F7).
+   * A driver phone's list may be older than a binding the office has just
+   * made (no signal at the time), so it reads its machines again once
+   * before saying so.
+   */
+  const missed = (find: (list: EquipmentHoursMachine[]) => EquipmentHoursMachine | null, say: () => string) => {
+    if (!bound) {
+      setError(say());
+      return;
+    }
+    void machines.refetch().then((result) => {
+      const again = find(result.data ?? []);
+      if (again) pick(again);
+      else setError(say());
+    });
+  };
+
   const typedMatch = typed.trim() ? matchTypedMachine(typed, rows) : null;
   const takeTyped = () => {
     if (typedMatch) pick(typedMatch);
-    else setError(t("phone.typedNoMatch"));
+    else
+      missed(
+        (list) => matchTypedMachine(typed, list),
+        () => t(bound ? "phone.notYourMachine" : "phone.typedNoMatch"),
+      );
+  };
+  const sayScanMiss = (text: string) => {
+    const kind = scanMissKind(text, bound);
+    if (kind === "notYourMachine") return t("phone.notYourMachine");
+    if (kind === "qrUnknown") return t("phone.qrUnknown", { text: text.slice(0, 60) });
+    return t("phone.qrNoMatch", { text: text.slice(0, 60) });
   };
 
   const send = useMutation({
@@ -332,8 +428,17 @@ export function EquipmentHoursCapture({
       void queryClient.invalidateQueries({ queryKey: ["equipment-hours", "phone-records"] });
       void queryClient.invalidateQueries({ queryKey: ["equipment-hours", "driver-records"] });
     },
-    onError: (reason) =>
-      setError(reason instanceof ApiError ? reason.message : t("phone.failed")),
+    onError: (reason) => {
+      setError(reason instanceof ApiError ? reason.message : t("phone.failed"));
+      // Refused as not (or no longer) bound: read this phone's machines again,
+      // so the list shows what the office has bound now (audit F7).
+      if (
+        reason instanceof ApiError &&
+        (reason.code === "equipment_hours_not_bound" || reason.code === "equipment_hours_no_longer_bound")
+      ) {
+        void queryClient.invalidateQueries({ queryKey: ["equipment-hours", "machines"] });
+      }
+    },
   });
 
   return (
@@ -355,9 +460,38 @@ export function EquipmentHoursCapture({
 
       {last && <LastSentNote last={last} />}
 
-      {!machine ? (
+      {!machine && stranded.length > 0 ? (
+        <p
+          role="status"
+          data-testid="hours-no-longer-bound"
+          className="rounded-lg border border-warning/50 bg-warning/10 px-3 py-3 text-base font-medium leading-6"
+        >
+          {t("phone.noLongerBound", {
+            machines: stranded
+              .map((row) =>
+                t("phone.machineLine", { number: row.site_no || row.equipment_code, name: row.equipment_name }),
+              )
+              .join(t("phone.boundJoin")),
+          })}
+        </p>
+      ) : null}
+
+      {!machine && notBound ? (
+        <p
+          role="status"
+          data-testid="hours-not-bound"
+          className="rounded-lg border border-warning/50 bg-warning/10 px-3 py-3 text-base font-medium leading-6"
+        >
+          {t("phone.notBound")}
+        </p>
+      ) : !machine ? (
         <section className="space-y-3">
           <p className="text-sm leading-5 text-muted-foreground">{t("phone.howTo")}</p>
+          {bound && rows.length > 0 ? (
+            <p data-testid="hours-bound-machines" className="text-sm font-medium">
+              {boundMachinesLine(rows, t)}
+            </p>
+          ) : null}
           <Button
             type="button"
             className="h-16 w-full text-base"
@@ -396,7 +530,7 @@ export function EquipmentHoursCapture({
               </div>
               {typed.trim() && machines.isSuccess && !typedMatch ? (
                 <p className="text-xs font-medium text-destructive" aria-live="polite">
-                  {t("phone.typedNoMatch")}
+                  {t(bound ? "phone.notYourMachine" : "phone.typedNoMatch")}
                 </p>
               ) : null}
             </div>
@@ -520,7 +654,7 @@ export function EquipmentHoursCapture({
           setScanning(false);
           const found = matchScannedMachine(text, rows);
           if (!found) {
-            setError(t("phone.qrNoMatch", { text: text.slice(0, 60) }));
+            missed((list) => matchScannedMachine(text, list), () => sayScanMiss(text));
             return;
           }
           pick(found);
