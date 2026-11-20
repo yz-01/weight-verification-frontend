@@ -14,10 +14,12 @@
  * give him; what comes back is drawn. Choosing another project in the top bar
  * reads that project's ticks (the box reloads the account), and this page
  * follows. Before that there are only the two sentences below: no project
- * granted at all, or several and none chosen yet.
+ * granted at all, or several and none chosen yet. Under the banner one line
+ * says that only what head office opened is here, and whom to ask for more
+ * (audit F2: with few ticks the page is nearly empty, and should say why).
  */
 
-import { FolderKanban } from "lucide-react";
+import { FolderKanban, Info } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { CompanyBanner } from "@/components/dashboard/company-banner";
@@ -46,6 +48,11 @@ export function ConsultantHome() {
   return (
     <div className="space-y-4" data-consultant-home="project">
       <CompanyBanner scope="project" projectName={code ? `${code} · ${active.project_name}` : active.project_name} />
+      {/* Why parts of the project manager's page are not here, and whom to ask (JB226 audit F2). */}
+      <p className="flex items-start gap-2 text-sm" data-consultant-scope role="note">
+        <Info className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
+        {t("onlyOpened")}
+      </p>
       <ProjectReference project={active.project_id} consultant />
     </div>
   );

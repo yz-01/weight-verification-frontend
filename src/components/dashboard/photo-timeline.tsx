@@ -117,7 +117,11 @@ export function PhotoTimeline() {
 
   return (
     <div className="flex flex-col gap-4" data-photo-timeline>
-      <ListHeader title={t("timeline.title")} subtitle={t("timeline.subtitle")} />
+      {/* A consultant's wall holds only the kinds head office opened for him (JB226 audit F3). */}
+      <ListHeader
+        title={t("timeline.title")}
+        subtitle={t(consultantProject !== null ? "timeline.subtitleConsultant" : "timeline.subtitle")}
+      />
       <FilterBar>
         {projectBoxShown && (
           <FieldWrapper label={t("filter.project")} className="min-w-64 flex-1 sm:flex-none">
@@ -152,7 +156,9 @@ export function PhotoTimeline() {
           </div>
         ) : photos.length === 0 ? (
           <p className="rounded-xl border border-dashed border-panel-border py-8 text-center text-sm text-muted-foreground">
-            {filtered ? t("emptyFiltered") : t("timeline.empty")}
+            {filtered
+              ? t("emptyFiltered")
+              : t(consultantProject !== null ? "timeline.emptyConsultant" : "timeline.empty")}
           </p>
         ) : (
           <ol className="space-y-5">

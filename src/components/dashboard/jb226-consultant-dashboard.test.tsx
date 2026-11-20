@@ -15,6 +15,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 
 import { ApiError } from "@/interfaces/api";
+import type { EvidencePackageRow } from "@/interfaces/contractor-ops";
 import type { ProjectOverview } from "@/interfaces/headquarters";
 import { isRouteAllowed, visibleNavigation } from "@/lib/navigation";
 import en from "@/messages/en.json";
@@ -22,8 +23,9 @@ import ms from "@/messages/ms.json";
 import zhTW from "@/messages/zh-TW.json";
 import messages from "@/messages/zh.json";
 
+const nav = { search: "" };
 vi.mock("next/navigation", () => ({
-  useSearchParams: () => new URLSearchParams(""),
+  useSearchParams: () => new URLSearchParams(nav.search),
   useRouter: () => ({ push: () => {}, replace: () => {} }),
   usePathname: () => "/dashboard",
 }));
@@ -36,6 +38,7 @@ vi.mock("@/components/providers/auth-provider", () => ({
 const { ProjectReference } = await import("@/components/dashboard/project-reference");
 const { CompanyBanner } = await import("@/components/dashboard/company-banner");
 const { ConsultantHome } = await import("@/components/dashboard/consultant-home");
+const { PackageReviewWorkspace } = await import("@/components/contractor-ops/package-review");
 
 const PROJECT = { id: "p1", code: "PRJ-0001", name: "示范商业大厦一期", latitude: null, longitude: null };
 
@@ -234,6 +237,10 @@ describe("the banner and the page around it", () => {
     const html = render(<ConsultantHome />, dashboardOnly);
     expect(html).toContain('data-consultant-home="project"');
     expect(html).toContain("当前项目：PRJ-0001 · 示范商业大厦一期");
+    // Audit F2: with so little on the page, one line says why and whom to ask - under the banner.
+    expect(html).toContain("总部目前只为您开通了这些内容。要看其他内容，请联系建筑商总部。");
+    expect(html.indexOf("data-consultant-scope")).toBeGreaterThan(html.indexOf("当前项目："));
+    expect(html.indexOf("data-consultant-scope")).toBeLessThan(html.indexOf("data-project-reference"));
   });
 
   it("opens 工程照片墙 to a consultant under 仪表板, and to nobody else without dashboard.view", () => {
@@ -252,8 +259,67 @@ describe("the banner and the page around it", () => {
       for (const key of ["noPendingMine", "progress", "progressRecords", "rainRecords", "overall", "schedule", "consultantRefused", "reload", "safety"] as const) {
         expect(catalogue.projectReference[key]).toBeTruthy();
       }
+      // Audit fix round (11-20): F1 - F3.
+      for (const key of ["consultantLegend", "consultantNothingYet", "consultantNoLayers", "askHeadOffice"] as const) {
+        expect(catalogue.projectSiteMap[key]).toBeTruthy();
+      }
+      expect(catalogue.photoWall.timeline.subtitleConsultant).toBeTruthy();
+      expect(catalogue.photoWall.timeline.emptyConsultant).toBeTruthy();
+      expect(catalogue.multiEngine.reviewNothingWaiting).toBeTruthy();
     }
     expect(zhTW.consultantHome.noProjects).toContain("獲授權");
     expect(zhTW.projectReference.consultantRefused).toContain("總部");
+    expect(zhTW.consultantHome.onlyOpened).toContain("總部");
+    expect(zhTW.projectSiteMap.consultantNoLayers).toContain("聯絡建築商總部");
+    expect(zhTW.photoWall.timeline.emptyConsultant).toContain("還沒有照片");
+  });
+});
+
+/** A row of 待审阅资料包 as the server sends it to a consultant. */
+function packageRow(id: string, needsAction: boolean): EvidencePackageRow {
+  return {
+    id, package_no: `PKG-${id}`, name: `资料包 ${id}`, remarks: "", state: "CONFIRMED", project: "p1",
+    project_name: "示范商业大厦一期", created_at: "2026-11-19T02:00:00Z", created_by_name: "PM", current_round: 1,
+    confirmed_at: "2026-11-19T02:00:00Z", pdf_sha256: "", pdf_bytes: 0, merge_report: [], review_state: needsAction ? "SENT" : "REVIEWED",
+    sent_at: "2026-11-19T02:00:00Z", sent_to: null, sent_to_name: "", exported_at: null, item_count: 2, returned_count: needsAction ? 0 : 1,
+    can_delete: false, can_return: true, needs_action: needsAction,
+  } as EvidencePackageRow;
+}
+
+function renderReviews(waitingOnly: boolean, results: EvidencePackageRow[], waiting: number) {
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: Infinity } } });
+  client.setQueryData(["package-reviews", "list", waitingOnly], {
+    count: results.length, page: 1, page_size: 20, total_pages: 1, results, needs_action_count: waiting,
+  });
+  nav.search = waitingOnly ? "project=p1&needs_action=1" : "";
+  try {
+    return renderToStaticMarkup(
+      <QueryClientProvider client={client}>
+        <NextIntlClientProvider locale="zh" messages={messages} timeZone="Asia/Kuala_Lumpur">
+          <PackageReviewWorkspace />
+        </NextIntlClientProvider>
+      </QueryClientProvider>,
+    );
+  } finally {
+    nav.search = "";
+  }
+}
+
+describe("「待审阅资料包」 on his 仪表板 opens on the packages it counted (audit F1)", () => {
+  it("marks the packages waiting for him, and says how many", () => {
+    auth.user = consultant(["dashboard"]);
+    const html = renderReviews(false, [packageRow("a", true), packageRow("b", false)], 1);
+    expect(html.match(/data-needs-action="true"/g)).toHaveLength(1);
+    expect(html).toContain("待处理 1");
+    expect(html).toContain("PKG-b");
+  });
+
+  it("the dashboard's link (needs_action=1) shows only them, and an empty pile says nothing waits", () => {
+    auth.user = consultant(["dashboard"]);
+    const html = renderReviews(true, [packageRow("a", true)], 1);
+    expect(html).toContain("PKG-a");
+    expect(html).toContain('aria-pressed="true"');
+    const none = renderReviews(true, [], 0);
+    expect(none).toContain(messages.multiEngine.reviewNothingWaiting);
   });
 });

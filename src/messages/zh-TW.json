@@ -12551,7 +12551,8 @@
     "layoutLetter": "書信",
     "previewDraft": "預覽完整資料",
     "draftPreviewOnly": "這是確認前的預覽。確認後才能列印、匯出和發送。",
-    "fixedPart": "一定會放進資料包"
+    "fixedPart": "一定會放進資料包",
+    "reviewNothingWaiting": "目前沒有等你審閱或簽署的資料包。"
   },
   "mySubmissions": {
     "title": "我提交過的",
@@ -22271,7 +22272,9 @@
       "empty": "還沒有照片。",
       "end": "已經到最早的照片了。",
       "dayCount": "{count} 張",
-      "noDate": "沒有日期"
+      "noDate": "沒有日期",
+      "subtitleConsultant": "這個項目裡總部為您開通的內容的照片，按拍攝時間排好，從開工到竣工都在這裡。",
+      "emptyConsultant": "總部為您開通的內容裡還沒有照片。"
     },
     "positionOpen": "第 {number} 張"
   },
@@ -23125,10 +23128,15 @@
     "noFence": "這個項目還沒有畫電子圍欄，地圖不能按工地範圍顯示。",
     "noPlace": "這個項目還沒有設定位置，也還沒有畫電子圍欄，地圖不能顯示。",
     "drawFence": "去畫電子圍欄",
-    "askAdmin": "請公司管理員到「電子圍欄設置」畫出工地範圍。"
+    "askAdmin": "請公司管理員到「電子圍欄設置」畫出工地範圍。",
+    "consultantLegend": "地圖上是總部為您開通的、{window, select, today {今天} other {最近 7 天}}的記錄，只畫出有定位的。",
+    "consultantNothingYet": "{window, select, today {今天} other {最近 7 天}}還沒有可以畫在地圖上的記錄。",
+    "consultantNoLayers": "總部還沒有為您在這個項目開通可以畫在地圖上的記錄，所以地圖只顯示工地範圍。要看這些記錄，請聯絡建築商總部。",
+    "askHeadOffice": "請聯絡建築商總部畫出工地範圍。"
   },
   "consultantHome": {
     "noProjects": "您目前沒有獲授權的項目。請聯絡建築商總部開通。",
-    "chooseProject": "請先在頁面上方的項目框選一個項目，這裡就會顯示那個項目的儀表板。"
+    "chooseProject": "請先在頁面上方的項目框選一個項目，這裡就會顯示那個項目的儀表板。",
+    "onlyOpened": "總部目前只為您開通了這些內容。要看其他內容，請聯絡建築商總部。"
   }
 }

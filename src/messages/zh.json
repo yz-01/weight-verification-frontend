@@ -12551,7 +12551,8 @@
     "layoutLetter": "书信",
     "previewDraft": "预览完整资料",
     "draftPreviewOnly": "这是确认前的预览。确认后才能打印、导出和发送。",
-    "fixedPart": "一定会放进资料包"
+    "fixedPart": "一定会放进资料包",
+    "reviewNothingWaiting": "目前没有等你审阅或签署的资料包。"
   },
   "mySubmissions": {
     "title": "我提交过的",
@@ -22271,7 +22272,9 @@
       "empty": "还没有照片。",
       "end": "已经到最早的照片了。",
       "dayCount": "{count} 张",
-      "noDate": "没有日期"
+      "noDate": "没有日期",
+      "subtitleConsultant": "这个项目里总部为您开通的内容的照片，按拍摄时间排好，从开工到竣工都在这里。",
+      "emptyConsultant": "总部为您开通的内容里还没有照片。"
     },
     "positionOpen": "第 {number} 张"
   },
@@ -23125,10 +23128,15 @@
     "noFence": "这个项目还没有画电子围栏，地图不能按工地范围显示。",
     "noPlace": "这个项目还没有设定位置，也还没有画电子围栏，地图不能显示。",
     "drawFence": "去画电子围栏",
-    "askAdmin": "请公司管理员到「电子围栏设置」画出工地范围。"
+    "askAdmin": "请公司管理员到「电子围栏设置」画出工地范围。",
+    "consultantLegend": "地图上是总部为您开通的、{window, select, today {今天} other {最近 7 天}}的记录，只画出有定位的。",
+    "consultantNothingYet": "{window, select, today {今天} other {最近 7 天}}还没有可以画在地图上的记录。",
+    "consultantNoLayers": "总部还没有为您在这个项目开通可以画在地图上的记录，所以地图只显示工地范围。要看这些记录，请联系建筑商总部。",
+    "askHeadOffice": "请联系建筑商总部画出工地范围。"
   },
   "consultantHome": {
     "noProjects": "您目前没有获授权的项目。请联系建筑商总部开通。",
-    "chooseProject": "请先在页面上方的项目框选一个项目，这里就会显示那个项目的仪表板。"
+    "chooseProject": "请先在页面上方的项目框选一个项目，这里就会显示那个项目的仪表板。",
+    "onlyOpened": "总部目前只为您开通了这些内容。要看其他内容，请联系建筑商总部。"
   }
 }

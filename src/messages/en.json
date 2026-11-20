@@ -12551,7 +12551,8 @@
     "layoutLetter": "Letter",
     "previewDraft": "Preview the whole package",
     "draftPreviewOnly": "This is a preview before confirming. Print, export and send open once it is confirmed.",
-    "fixedPart": "Always goes into the package"
+    "fixedPart": "Always goes into the package",
+    "reviewNothingWaiting": "No package is waiting for your review or signature right now."
   },
   "mySubmissions": {
     "title": "What I sent",
@@ -22271,7 +22272,9 @@
       "empty": "No photos yet.",
       "end": "You have reached the earliest photo.",
       "dayCount": "{count} photos",
-      "noDate": "No date"
+      "noDate": "No date",
+      "subtitleConsultant": "Photos of the parts of this project head office opened for you, in the order taken, from the first day of work to completion.",
+      "emptyConsultant": "There are no photos yet in the parts head office opened for you."
     },
     "positionOpen": "Photo {number}"
   },
@@ -23125,10 +23128,15 @@
     "noFence": "This project has no geofence yet, so the map cannot show the site's extent.",
     "noPlace": "This project has no location and no geofence yet, so there is no map to show.",
     "drawFence": "Draw the geofence",
-    "askAdmin": "Ask the company administrator to draw the site's extent under Geofence settings."
+    "askAdmin": "Ask the company administrator to draw the site's extent under Geofence settings.",
+    "consultantLegend": "The map shows {window, select, today {today's} other {the last 7 days'}} records of the parts head office opened for you, only those with a location.",
+    "consultantNothingYet": "Nothing with a location to show {window, select, today {for today} other {for the last 7 days}} yet.",
+    "consultantNoLayers": "Head office has not opened anything on this project that can be drawn on the map for you, so the map shows only the site's extent. To see records here, please contact the contractor's head office.",
+    "askHeadOffice": "Please ask the contractor's head office to draw the site's extent."
   },
   "consultantHome": {
     "noProjects": "You have not been given access to any project yet. Please ask the contractor's head office to open one for you.",
-    "chooseProject": "First choose a project in the project box at the top of the page; that project's dashboard will then show here."
+    "chooseProject": "First choose a project in the project box at the top of the page; that project's dashboard will then show here.",
+    "onlyOpened": "Head office has opened only these parts for you. To see anything else, please contact the contractor's head office."
   }
 }

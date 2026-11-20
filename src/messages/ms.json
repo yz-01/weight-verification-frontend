@@ -12551,7 +12551,8 @@
     "layoutLetter": "Surat",
     "previewDraft": "Pratonton seluruh pakej",
     "draftPreviewOnly": "Ini pratonton sebelum disahkan. Cetak, eksport dan hantar dibuka selepas disahkan.",
-    "fixedPart": "Sentiasa dimasukkan ke dalam pakej"
+    "fixedPart": "Sentiasa dimasukkan ke dalam pakej",
+    "reviewNothingWaiting": "Tiada pakej yang menunggu semakan atau tandatangan anda sekarang."
   },
   "mySubmissions": {
     "title": "Apa yang saya hantar",
@@ -22271,7 +22272,9 @@
       "empty": "Belum ada foto.",
       "end": "Anda sudah sampai ke foto yang paling awal.",
       "dayCount": "{count} foto",
-      "noDate": "Tiada tarikh"
+      "noDate": "Tiada tarikh",
+      "subtitleConsultant": "Foto bahagian projek ini yang dibuka oleh ibu pejabat untuk anda, mengikut masa diambil, dari hari pertama kerja hingga siap.",
+      "emptyConsultant": "Belum ada foto dalam bahagian yang dibuka oleh ibu pejabat untuk anda."
     },
     "positionOpen": "Foto {number}"
   },
@@ -23125,10 +23128,15 @@
     "noFence": "Projek ini belum ada geofence, jadi peta tidak dapat menunjukkan kawasan tapak.",
     "noPlace": "Projek ini belum ada lokasi dan geofence, jadi tiada peta untuk dipaparkan.",
     "drawFence": "Lukis geofence",
-    "askAdmin": "Minta pentadbir syarikat melukis kawasan tapak di Tetapan geofence."
+    "askAdmin": "Minta pentadbir syarikat melukis kawasan tapak di Tetapan geofence.",
+    "consultantLegend": "Peta menunjukkan rekod {window, select, today {hari ini} other {7 hari lalu}} bagi bahagian yang dibuka oleh ibu pejabat untuk anda, hanya yang mempunyai lokasi.",
+    "consultantNothingYet": "Belum ada rekod berlokasi untuk dipaparkan {window, select, today {hari ini} other {dalam 7 hari lalu}}.",
+    "consultantNoLayers": "Ibu pejabat belum membuka apa-apa dalam projek ini yang boleh dipaparkan pada peta untuk anda, jadi peta hanya menunjukkan kawasan tapak. Untuk melihat rekod di sini, sila hubungi ibu pejabat kontraktor.",
+    "askHeadOffice": "Sila minta ibu pejabat kontraktor melukis kawasan tapak."
   },
   "consultantHome": {
     "noProjects": "Anda belum diberi akses kepada mana-mana projek. Sila minta ibu pejabat kontraktor membukanya untuk anda.",
-    "chooseProject": "Pilih projek dahulu dalam kotak projek di bahagian atas halaman; papan pemuka projek itu akan dipaparkan di sini."
+    "chooseProject": "Pilih projek dahulu dalam kotak projek di bahagian atas halaman; papan pemuka projek itu akan dipaparkan di sini.",
+    "onlyOpened": "Ibu pejabat hanya membuka bahagian ini untuk anda. Untuk melihat yang lain, sila hubungi ibu pejabat kontraktor."
   }
 }

@@ -136,8 +136,9 @@ export function ProjectReference({
         )}
       >
         {data.latest_receipts ? <LatestReceipts data={data} project={project} /> : null}
-        {/* 项目现场地图 (JB222): the site, its people, deliveries, machines and records. */}
-        <ProjectSiteMap project={project} />
+        {/* 项目现场地图 (JB222): the site, its people, deliveries, machines and records;
+            a consultant's notes speak of his layers and of 建筑商总部 (JB226 audit F2). */}
+        <ProjectSiteMap project={project} consultant={consultant} />
       </div>
       {middle.length > 0 ? (
         <div className={cn("grid grid-cols-1 gap-4", MIDDLE_COLUMNS[middle.length] ?? "lg:grid-cols-3")}>{middle}</div>
