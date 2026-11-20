@@ -215,16 +215,18 @@ describe("沟通记录 · 找人沟通 for the office (JB158)", () => {
     await getOfficeChatPeople("p-tower");
     expect(api.get).toHaveBeenLastCalledWith("/api/field-chats/people/", { project: "p-tower" });
     await startOfficeConversation(["u-pm", "u-hq"], "水泥", "p-tower");
-    expect(api.post).toHaveBeenLastCalledWith("/api/field-chats/start_conversation/", {
-      people: ["u-pm", "u-hq"],
-      project: "p-tower",
-      title: "水泥",
-    });
+    // Silent: the finder says a refusal itself, once (JB224 audit F10).
+    expect(api.post).toHaveBeenLastCalledWith(
+      "/api/field-chats/start_conversation/",
+      { people: ["u-pm", "u-hq"], project: "p-tower", title: "水泥" },
+      { silent: true },
+    );
     await startOfficeConversation(["u-pm"], undefined, "p-tower");
-    expect(api.post).toHaveBeenLastCalledWith("/api/field-chats/start_conversation/", {
-      people: ["u-pm"],
-      project: "p-tower",
-    });
+    expect(api.post).toHaveBeenLastCalledWith(
+      "/api/field-chats/start_conversation/",
+      { people: ["u-pm"], project: "p-tower" },
+      { silent: true },
+    );
   });
 
   it("is 「沟通记录」 with 找人沟通 for a builder office account", () => {

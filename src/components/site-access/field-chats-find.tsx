@@ -26,13 +26,14 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Check, Loader2, MessageSquarePlus, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { Fragment, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { useCurrentProject } from "@/components/providers/current-project-provider";
 import { FieldWrapper, QueryFailedNote } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { OFFICE_FIELD_CHATS_KEY } from "@/lib/record-chat";
 import { cn } from "@/lib/utils";
 import {
   getOfficeChatPeople,
@@ -42,8 +43,77 @@ import {
   type OfficeChatPerson,
 } from "@/services/field-conversations.service";
 
-/** The office list's queries: refreshed when a conversation starts. */
-export const OFFICE_FIELD_CHATS_KEY = ["record-conversation", "office-field-chats"] as const;
+/** The office list's queries: refreshed when a conversation starts (kept in `lib/record-chat`). */
+export { OFFICE_FIELD_CHATS_KEY };
+
+/** Below Tailwind's `lg`: the list and the right-hand panel share one column. */
+const NARROW = "(max-width: 1023px)";
+
+/**
+ * 「沟通记录」 on a phone (JB224 audit 11-19 F2). Below `lg` the list and the
+ * right-hand panel were one column, so 【找人沟通】 or a row opened its panel
+ * under the list, out of sight, and the page seemed not to change - the
+ * consultant, who has no phone app, pressed again and gave up. Narrow, one
+ * shows at a time: the list until something opens, then the finder or the
+ * conversation, with 【返回沟通列表】. Wide, both stand side by side as before.
+ */
+export function narrowChatLayout(open: boolean): { list: string; panel: string } {
+  return open ? { list: "hidden lg:block", panel: "" } : { list: "", panel: "hidden lg:block" };
+}
+
+/**
+ * The grid's top, brought back on screen when a phone changes between the list
+ * and what opened (F2): a row pressed far down the list would otherwise leave
+ * the page scrolled past the conversation's start. Nothing moves when it shows
+ * already, or on a wide screen.
+ */
+export function useNarrowChatTop(openKey: string) {
+  const top = useRef<HTMLDivElement>(null);
+  // What showed last: the page's first paint moves nothing.
+  const shown = useRef(openKey);
+  useEffect(() => {
+    if (shown.current === openKey) return;
+    shown.current = openKey;
+    const node = top.current;
+    if (!node || !window.matchMedia(NARROW).matches) return;
+    if (node.getBoundingClientRect().top < scrollerTop(node)) node.scrollIntoView({ block: "start" });
+  }, [openKey]);
+  return top;
+}
+
+/** Where the scrolling box around `node` starts on screen (the page's own, or 0). */
+function scrollerTop(node: HTMLElement): number {
+  for (let box = node.parentElement; box; box = box.parentElement) {
+    const { overflowY } = window.getComputedStyle(box);
+    if (overflowY === "auto" || overflowY === "scroll") return box.getBoundingClientRect().top;
+  }
+  return 0;
+}
+
+/** 【返回沟通列表】 above the finder or a conversation, on a phone only (F2). */
+export function ChatBackToList({ onBack }: { onBack: () => void }) {
+  const t = useTranslations("fieldChats");
+  return (
+    <Button type="button" variant="outline" className="h-11 lg:hidden" onClick={onBack} data-chat-back>
+      <ArrowLeft />
+      {t("backToList")}
+    </Button>
+  );
+}
+
+/**
+ * What the finder says when a start was refused (JB224 audit 11-19 F10): the
+ * true reason, once - the server's sentence was toasted while the panel said
+ * 「请再试一次」, which never helps when the list changed or 「沟通记录」 closed.
+ * `listChanged`: somebody chosen left the team meanwhile (the list is read
+ * again); a refusal: the server's own sentence; no answer: try again.
+ */
+export function startRefusal(error: unknown): { key: "listChanged" | "startFailed" } | { message: string } {
+  const { code, status, message } = (error ?? {}) as { code?: unknown; status?: unknown; message?: unknown };
+  if (code === "chat_people_invalid") return { key: "listChanged" };
+  if (typeof status === "number" && status > 0 && typeof message === "string" && message) return { message };
+  return { key: "startFailed" };
+}
 
 export type PersonGroup = "phone" | "office" | "head_office" | "consultant";
 
@@ -155,11 +225,23 @@ export function OfficeFindPeople({
       void queryClient.invalidateQueries({ queryKey: OFFICE_FIELD_CHATS_KEY });
       onStarted(result.id);
     },
+    // F10: the list changed under the reader - read it again, choose again.
+    onError: (error) => {
+      const said = startRefusal(error);
+      if ("key" in said && said.key === "listChanged") {
+        setChosen([]);
+        void queryClient.invalidateQueries({ queryKey: ["field-chats", "people", project] });
+      }
+    },
   });
-  const toggle = (person: OfficeChatPerson) =>
+  const refusal = start.isError ? startRefusal(start.error) : null;
+  const toggle = (person: OfficeChatPerson) => {
+    // A new choice answers the refusal: its sentence goes.
+    if (start.isError) start.reset();
     setChosen((current) =>
       current.includes(person.id) ? current.filter((id) => id !== person.id) : [...current, person.id],
     );
+  };
 
   const group = (name: PersonGroup) => (
     <OfficePersonGroup
@@ -173,8 +255,17 @@ export function OfficeFindPeople({
 
   return (
     <section className="space-y-4" data-office-find>
+      {/* F2: on a phone the finder has the screen; this takes it back to the list. */}
+      <ChatBackToList onBack={onBack} />
       <div className="flex min-w-0 items-center gap-3 border-b pb-3">
-        <Button size="icon" variant="outline" title={t("back")} aria-label={t("back")} onClick={onBack}>
+        <Button
+          size="icon"
+          variant="outline"
+          className="hidden lg:inline-flex"
+          title={t("back")}
+          aria-label={t("back")}
+          onClick={onBack}
+        >
           <ArrowLeft />
         </Button>
         <div className="min-w-0">
@@ -225,9 +316,9 @@ export function OfficeFindPeople({
           aria-label={t("groupTitle")}
         />
       ) : null}
-      {start.isError ? (
-        <p role="alert" className="text-sm text-destructive">
-          {t("startFailed")}
+      {refusal ? (
+        <p role="alert" className="text-sm text-destructive" data-start-refusal>
+          {"message" in refusal ? refusal.message : t(refusal.key)}
         </p>
       ) : null}
       <Button

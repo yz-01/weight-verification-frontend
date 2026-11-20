@@ -29,7 +29,13 @@ import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ListHeader, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { RecordConversationPanel } from "@/components/shared/record-conversation";
-import { OFFICE_FIELD_CHATS_KEY, OfficeFindPeople } from "@/components/site-access/field-chats-find";
+import {
+  ChatBackToList,
+  narrowChatLayout,
+  OFFICE_FIELD_CHATS_KEY,
+  OfficeFindPeople,
+  useNarrowChatTop,
+} from "@/components/site-access/field-chats-find";
 import { Button } from "@/components/ui/button";
 import { useDateFormat } from "@/lib/dates";
 import { setActiveProjectId } from "@/lib/project-context";
@@ -103,9 +109,16 @@ export function ConsultantFieldChats() {
   const chats = useQuery({
     queryKey: [...OFFICE_FIELD_CHATS_KEY, "consultant"],
     queryFn: () => getOfficeFieldChats(),
+    // JB224 audit F7: no live stream serves him (`consultantChatPoll`) - a
+    // new conversation or a reply shows on his list within half a minute.
+    refetchInterval: 30_000,
   });
   const rows = chats.data?.results ?? [];
   const open = picked ? (rows.find((row) => row.kind === picked.kind && row.id === picked.id) ?? null) : null;
+  // JB224 audit F2: on a phone the list or what opened, one at a time.
+  const openKey = finding ? "find" : picked ? `${picked.kind}:${picked.id}` : "";
+  const narrow = narrowChatLayout(Boolean(openKey));
+  const top = useNarrowChatTop(openKey);
 
   return (
     <div className="space-y-4" data-consultant-chats>
@@ -120,8 +133,8 @@ export function ConsultantFieldChats() {
         }
       />
       <QueryFailedNote query={chats} what={t("title")} />
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]">
-        <ul className="space-y-2" data-field-chats>
+      <div ref={top} className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]">
+        <ul className={cn("space-y-2", narrow.list)} data-field-chats>
           {chats.isLoading ? (
             <li className="text-sm text-muted-foreground">{t("loading")}</li>
           ) : rows.length === 0 ? (
@@ -188,7 +201,7 @@ export function ConsultantFieldChats() {
             })
           )}
         </ul>
-        <div className="surface-panel min-h-64 rounded-xl p-4">
+        <div className={cn("surface-panel min-h-64 rounded-xl p-4", narrow.panel)}>
           {finding ? (
             // The project he is on; the server lists its office team only.
             <OfficeFindPeople
@@ -202,6 +215,7 @@ export function ConsultantFieldChats() {
             />
           ) : picked ? (
             <div className="space-y-3">
+              <ChatBackToList onBack={() => setPicked(null)} />
               {open?.kind === "DIRECT" && open.people.length > 0 ? (
                 <div className="text-xs text-muted-foreground">
                   {open.project_name} · {t("people", { names: open.people.map((person) => person.name).join("、") })}

@@ -42,11 +42,25 @@ vi.mock("@/components/shared/record-conversation", () => ({
 
 const { renderDetail } = await import("@/components/shared/record-detail-test-kit");
 const { FieldChatsOffice } = await import("@/components/site-access/field-chats-office");
-const { OfficeFindPeople, OfficePersonGroup, mixBlock, personGroup, OFFICE_FIELD_CHATS_KEY } = await import(
-  "@/components/site-access/field-chats-find"
-);
+const {
+  OfficeFindPeople,
+  OfficePersonGroup,
+  mixBlock,
+  personGroup,
+  narrowChatLayout,
+  startRefusal,
+  OFFICE_FIELD_CHATS_KEY,
+} = await import("@/components/site-access/field-chats-find");
 const { OFFICE_CHAT_PROJECTS_KEY } = await import("@/services/field-conversations.service");
-const { conversationClosedLine } = await import("@/lib/record-chat");
+const {
+  conversationClosedLine,
+  consultantChatClosed,
+  consultantChatPoll,
+  listReadAfter,
+  CLOSED_WHILE_OPEN_CODES,
+  CONSULTANT_CHAT_POLL_MS,
+} = await import("@/lib/record-chat");
+const { ApiError } = await import("@/interfaces/api");
 const { consultantSeesConversation } = await import("@/lib/consultant-modules");
 const { isRouteAllowed } = await import("@/lib/navigation");
 type Person = import("@/services/field-conversations.service").OfficeChatPerson;
@@ -233,5 +247,115 @@ describe("JB224 · 项目后台的联系人名单有顾问 (事项 4)", () => {
       expect(messages.fieldChats.find.mix.oneConsultant).toBeTruthy();
       expect(messages.fieldChats.consultant.kind.DIRECT).toBeTruthy();
     }
+  });
+});
+
+describe("JB224 audit 11-19 fixes", () => {
+  afterEach(() => {
+    nav.search = "";
+    reader.user = null;
+  });
+  const listClass = (html: string) => /<ul class="([^"]*)" data-field-chats/.exec(html)?.[1];
+  const OFFICE = { company_type: "CONTRACTOR", is_field_staff: false };
+
+  it("F2: on a phone 【找人沟通】 or a row takes the screen, with 【返回沟通列表】; wide, side by side as before", () => {
+    expect(narrowChatLayout(false)).toEqual({ list: "", panel: "hidden lg:block" });
+    expect(narrowChatLayout(true)).toEqual({ list: "hidden lg:block", panel: "" });
+    // Nothing open: the list shows on a phone, the empty right-hand panel does not.
+    reader.user = CONSULTANT;
+    const list = renderDetail(<FieldChatsOffice />, seeded([], [chat({})]));
+    expect(listClass(list)).toBe("space-y-2");
+    expect(list).toContain('class="surface-panel min-h-64 rounded-xl p-4 hidden lg:block"');
+    expect(list).not.toContain("data-chat-back");
+    // A conversation open (a row, or a notice's link): it has the screen.
+    nav.search = "chat=c-1&project=p-tower";
+    const opened = renderDetail(<FieldChatsOffice />, seeded([], [chat({})]));
+    expect(listClass(opened)).toBe("space-y-2 hidden lg:block");
+    expect(opened).toContain('class="surface-panel min-h-64 rounded-xl p-4"');
+    expect(opened).toContain("data-chat-back");
+    expect(opened).toContain(zh.fieldChats.backToList);
+    expect(opened).toContain('data-stub="conversation"');
+    // The office page had the same fault: the same cure.
+    reader.user = OFFICE;
+    nav.search = "chat=c-1";
+    const office = renderDetail(
+      <FieldChatsOffice />,
+      seeded([], [chat({ kind: undefined })], [...OFFICE_FIELD_CHATS_KEY, "all"]),
+    );
+    expect(listClass(office)).toBe("space-y-2 hidden lg:block");
+    expect(office).toContain(zh.fieldChats.backToList);
+    // The finder: the same 【返回沟通列表】 on a phone, its arrow on a wide screen.
+    reader.user = CONSULTANT;
+    const finder = renderDetail(
+      <OfficeFindPeople project="p-tower" onBack={() => {}} onStarted={() => {}} />,
+      seeded([PM]),
+    );
+    expect(finder).toContain("data-chat-back");
+    expect(finder).toContain(zh.fieldChats.backToList);
+    expect(finder).toContain("hidden lg:inline-flex");
+    for (const messages of [zhTW, en, ms]) expect(messages.fieldChats.backToList).toBeTruthy();
+  });
+
+  it("F3: head office's 「沟通记录」 tick says it opens 找人沟通 both ways, and what unticking does", () => {
+    const hint = zh.consultantAccess.moduleHint.conversations;
+    expect(hint).toContain("他和本项目后台可以互相「找人沟通」");
+    expect(hint).toContain("文字、照片、语音、文件");
+    expect(hint).toContain("取消勾选后双方都不能再发送，记录保留");
+    expect(zhTW.consultantAccess.moduleHint.conversations).toContain("找人溝通");
+    expect(en.consultantAccess.moduleHint.conversations).toContain("each other");
+    expect(ms.consultantAccess.moduleHint.conversations).toContain("antara satu sama lain");
+  });
+
+  it("F4: his own conversation closed by head office says so and whom to ask; the PM's race says the consultant's line", () => {
+    const shut = new ApiError(zh.errors.api.consultant_chat_closed, 403, {}, "consultant_chat_closed");
+    expect(consultantChatClosed(shut)).toBe(zh.errors.api.consultant_chat_closed);
+    expect(consultantChatClosed(new ApiError(zh.errors.api.record_not_found, 404, {}, "record_not_found"))).toBeNull();
+    expect(consultantChatClosed(undefined)).toBeNull();
+    expect(zh.errors.api.consultant_chat_closed).toContain("建筑商总部已经关闭了您在这个项目的「沟通记录」");
+    expect(zh.errors.api.consultant_chat_closed).toContain("请联系建筑商总部");
+    expect(zh.errors.api.consultant_chat_closed).not.toContain("重试");
+    // The PM sending in the same moment: re-read, so the composer gives way
+    // to the 「顾问…已经关闭」 line - and the toast says that line too.
+    expect(CLOSED_WHILE_OPEN_CODES).toEqual(["conversation_closed", "chat_consultant_off"]);
+    expect(zh.errors.api.chat_consultant_off).toBe(zh.recordChat.closedConsultantOff);
+    for (const messages of [zhTW, en, ms]) {
+      expect(messages.errors.api.consultant_chat_closed).toBeTruthy();
+      expect(messages.errors.api.chat_consultant_off).toBe(messages.recordChat.closedConsultantOff);
+    }
+  });
+
+  it("F5: his finder says who reads his conversation - the people in it, this project's office, head office", () => {
+    expect(zh.fieldChats.find.hintConsultant).toBe(
+      "只列出本项目的项目后台人员。对话保存在这个项目里；对话里的人、本项目后台和建筑商总部都可以查看。",
+    );
+    expect(en.fieldChats.find.hintConsultant).toContain("this project's office");
+  });
+
+  it("F6: reading a conversation re-reads 「沟通记录」's red numbers at once", () => {
+    expect(listReadAfter("DIRECT")).toEqual(OFFICE_FIELD_CHATS_KEY);
+    expect(listReadAfter("FIELD_TASK")).toEqual(OFFICE_FIELD_CHATS_KEY);
+    expect(listReadAfter("CONSULTANT_APPLICATION")).toEqual(OFFICE_FIELD_CHATS_KEY);
+    expect(listReadAfter("MATERIAL_RECEIPT")).toBeNull();
+  });
+
+  it("F7: an open conversation is read again for a consultant, whom no live stream serves", () => {
+    expect(consultantChatPoll("CONSULTANT", false)).toBe(CONSULTANT_CHAT_POLL_MS);
+    expect(CONSULTANT_CHAT_POLL_MS).toBeLessThanOrEqual(15_000);
+    // A refusal is not asked again every few seconds; the office keeps its stream.
+    expect(consultantChatPoll("CONSULTANT", true)).toBe(false);
+    expect(consultantChatPoll("TENANT", false)).toBe(false);
+  });
+
+  it("F10: a refused start says the true reason, once", () => {
+    expect(startRefusal(new ApiError(zh.errors.api.chat_people_invalid, 400, {}, "chat_people_invalid"))).toEqual({
+      key: "listChanged",
+    });
+    expect(zh.fieldChats.find.listChanged).toBe("名单已经变了，请返回重新选人。");
+    const off = new ApiError(zh.errors.api.consultant_module_not_granted, 403, {}, "consultant_module_not_granted");
+    expect(startRefusal(off)).toEqual({ message: zh.errors.api.consultant_module_not_granted });
+    // 「请再试一次」 only when the server never answered.
+    expect(startRefusal(new ApiError("无法连接服务器。", 0))).toEqual({ key: "startFailed" });
+    expect(startRefusal(new Error("boom"))).toEqual({ key: "startFailed" });
+    for (const messages of [zhTW, en, ms]) expect(messages.fieldChats.find.listChanged).toBeTruthy();
   });
 });

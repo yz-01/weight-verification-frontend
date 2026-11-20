@@ -5614,7 +5614,7 @@
       "recordCentre": "Rekod modul yang ditanda di atas - lihat sahaja",
       "reports": "Laporan bagi modul yang ditanda di atas",
       "notifications": "Pemberitahuan yang dihantar kepadanya dalam projek ini",
-      "conversations": "Perbualan yang dia sertai"
+      "conversations": "Perbualan yang dia sertai; dia dan pejabat projek ini boleh memulakan perbualan antara satu sama lain (Mesej seseorang: teks, foto, suara, fail). Jika dinyahtanda, kedua-dua pihak tidak boleh menghantar lagi; sejarahnya disimpan untuk dibaca oleh kontraktor"
     },
     "option": {
       "approvalView": "Permohonan perunding: lihat",
@@ -9423,6 +9423,8 @@
       "company_material_supplier_not_found": "Satu pembekal tiada dalam senarai pembekal syarikat. Pilih semula.",
       "phone_page_not_yours": "Halaman ini tiada pada telefon anda.",
       "chat_people_invalid": "Pilih orang daripada senarai.",
+      "consultant_chat_closed": "Ibu pejabat kontraktor telah menutup Rekod perbualan anda dalam projek ini (atau akses anda telah tamat), jadi perbualan ini tidak boleh dibuka atau dihantar sekarang. Untuk terus berbincang, hubungi ibu pejabat kontraktor.",
+      "chat_consultant_off": "Rekod perbualan perunding dalam projek ini telah ditutup (atau aksesnya tamat), jadi perbualan ini hanya boleh dibaca.",
       "user_removed": "Akaun ini telah dipadam dan tidak boleh diaktifkan semula. Sila cipta akaun baharu.",
       "supplier_not_on_project": "Pembekal ini tiada dalam senarai pembekal projek ini. Minta ibu pejabat atau pengurus projek menambahnya dahulu.",
       "file_share_link_not_found": "Pautan fail ini tidak dijumpai.",
@@ -22129,6 +22131,7 @@
     "loading": "Memuatkan…",
     "empty": "Belum ada perbualan dalam projek ini.",
     "pick": "Pilih satu perbualan di sebelah kiri.",
+    "backToList": "Kembali ke senarai perbualan",
     "people": "Ahli: {names}",
     "noMessages": "Belum ada mesej.",
     "attachment": "[foto / suara / fail]",
@@ -22136,7 +22139,7 @@
     "find": {
       "title": "Mesej seseorang",
       "hint": "Hanya orang yang boleh anda hubungi: pejabat projek boleh menghubungi orang telefon projeknya, pejabatnya sendiri, ibu pejabat, dan perunding projek yang diberi Rekod perbualan oleh ibu pejabat; ibu pejabat boleh menghubungi pejabat setiap projek. Orang telefon dan ibu pejabat tidak berada dalam perbualan yang sama; perunding hanya bersama pejabat projek.",
-      "hintConsultant": "Hanya orang pejabat projek ini disenaraikan. Perbualan disimpan dalam projek ini, dan ibu pejabat kontraktor juga boleh membacanya.",
+      "hintConsultant": "Hanya orang pejabat projek ini disenaraikan. Perbualan disimpan dalam projek ini; orang di dalamnya, pejabat projek ini dan ibu pejabat kontraktor boleh membacanya.",
       "back": "Kembali",
       "search": "Cari nama",
       "choose": "orang untuk dimesej",
@@ -22161,6 +22164,7 @@
       "groupTitle": "Nama kumpulan (pilihan)",
       "start": "{count, plural, =0 {Mula} one {Mula dengan 1 orang} other {Mula dengan # orang}}",
       "startFailed": "Perbualan tidak dapat dimulakan. Cuba lagi.",
+      "listChanged": "Senarai orang telah berubah. Sila kembali dan pilih semula.",
       "noProject": "Anda belum ada projek terbuka untuk berbual.",
       "projectClosed": "Projek ini sudah tamat, jadi perbualan baharu tidak boleh dimulakan di sini.",
       "notOnTeam": "Anda bukan dalam pasukan projek ini, jadi anda tidak boleh memulakan perbualan di sini.",

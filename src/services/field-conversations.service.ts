@@ -158,14 +158,22 @@ export function getOfficeChatPeople(project: string): Promise<OfficeChatPerson[]
   return api.get<OfficeChatPerson[]>("/api/field-chats/people/", { project });
 }
 
+/**
+ * Silent (JB224 audit 11-19 F10): the finder says why a start was refused,
+ * once, beside its button (`startRefusal`) - a toast as well said it twice.
+ */
 export function startOfficeConversation(
   people: string[],
   title: string | undefined,
   project: string,
 ): Promise<{ kind: "DIRECT"; id: string; created: boolean }> {
-  return api.post("/api/field-chats/start_conversation/", {
-    people,
-    project,
-    ...(title ? { title } : {}),
-  });
+  return api.post(
+    "/api/field-chats/start_conversation/",
+    {
+      people,
+      project,
+      ...(title ? { title } : {}),
+    },
+    { silent: true },
+  );
 }
