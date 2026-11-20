@@ -15,24 +15,36 @@
  */
 
 import type { AttachmentRule, Refusal } from "@/lib/attachment-picker";
-import { HAZARD_ATTACHMENT_ACCEPT } from "@/lib/hazard-attachments";
 
-/** Photos on one item from the office: a sane upload, our number. */
+/** Photos on one item from the office: a sane upload, our number (the server keeps it too). */
 export const OFFICE_HAZARD_MAX_PHOTOS = 10;
 /** The server's own ceiling for files with one report (MAX_RECORD_ATTACHMENTS). */
 export const OFFICE_HAZARD_MAX_DOCUMENTS = 10;
 export const OFFICE_HAZARD_FILE_BYTES = 50 * 1024 * 1024;
 
+/**
+ * What the box offers: exactly what the server takes from it (11-19 audit F4),
+ * by ending, as the server judges. PDF, Word, Excel; pictures sent as photos
+ * (JPEG - `.jfif` is how Chrome on Windows saves one -, PNG, WebP); pictures
+ * sent as files (GIF, BMP, HEIC). Not `image/*`: a scanner's TIFF, an SVG or
+ * an AVIF passed the box and was refused by the server afterwards.
+ */
+export const OFFICE_HAZARD_ACCEPT =
+  ".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.jfif,.png,.webp,.gif,.bmp,.heic,.heif";
+
 /** The box as a whole; the two ceilings above are kept by `capOfficeHazardFiles`. */
 export const OFFICE_HAZARD_FILE_RULE: AttachmentRule = {
-  accept: HAZARD_ATTACHMENT_ACCEPT,
+  accept: OFFICE_HAZARD_ACCEPT,
   maxFiles: OFFICE_HAZARD_MAX_PHOTOS + OFFICE_HAZARD_MAX_DOCUMENTS,
   maxBytes: OFFICE_HAZARD_FILE_BYTES,
   multiple: true,
 };
 
 const PHOTO_TYPE = /^image\/(jpe?g|png|webp)$/i;
-const PHOTO_NAME = /\.(jpe?g|png|webp)$/i;
+const PHOTO_NAME = /\.(jpe?g|jfif|png|webp)$/i;
+
+/** A refusal from the office box: `photo` says which ceiling a `count` one met (F8). */
+export type OfficeRefusal = Refusal & { photo?: boolean };
 
 /** One of the item's own photos, rather than a file in its room. */
 export function isItemPhoto(file: Pick<File, "name" | "type">): boolean {
@@ -51,18 +63,24 @@ export function splitOfficeHazardFiles(files: readonly File[]): { photos: File[]
 /**
  * The box within its two ceilings (the picker's `fit`): what it keeps, in
  * order, and each file that did not fit - always the newest, since what was
- * already in the box was within them.
+ * already in the box was within them. An empty file (0 bytes) is turned
+ * away at once (11-19 audit F4): the server refuses it, by name, anyway.
  */
-export function capOfficeHazardFiles(files: readonly File[]): { files: File[]; refused: Refusal[] } {
+export function capOfficeHazardFiles(files: readonly File[]): { files: File[]; refused: OfficeRefusal[] } {
   let photos = 0;
   let documents = 0;
   const kept: File[] = [];
-  const refused: Refusal[] = [];
+  const refused: OfficeRefusal[] = [];
   for (const file of files) {
+    if (file.size === 0) {
+      refused.push({ kind: "empty", name: file.name });
+      continue;
+    }
     const photo = isItemPhoto(file);
     const room = photo ? photos < OFFICE_HAZARD_MAX_PHOTOS : documents < OFFICE_HAZARD_MAX_DOCUMENTS;
     if (!room) {
-      refused.push({ kind: "count", name: file.name });
+      // The same decision that sorted it, carried to the sentence (F8).
+      refused.push({ kind: "count", name: file.name, photo });
       continue;
     }
     if (photo) photos += 1;
@@ -73,6 +91,7 @@ export function capOfficeHazardFiles(files: readonly File[]): { files: File[]; r
 }
 
 /** Which ceiling a file met: the sentence that says so. */
-export function officeCeilingKey(item: Refusal): "tooManyPhotos" | "tooManyDocuments" {
-  return isItemPhoto({ name: item.name, type: "" }) ? "tooManyPhotos" : "tooManyDocuments";
+export function officeCeilingKey(item: OfficeRefusal): "tooManyPhotos" | "tooManyDocuments" {
+  const photo = item.photo ?? isItemPhoto({ name: item.name, type: "" });
+  return photo ? "tooManyPhotos" : "tooManyDocuments";
 }

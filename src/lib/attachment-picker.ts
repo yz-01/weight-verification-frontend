@@ -22,7 +22,8 @@ export interface AttachmentRule {
   multiple?: boolean;
 }
 
-export type RefusalKind = "type" | "size" | "count" | "total";
+/** `empty`: a file of 0 bytes - only where a page's own `fit` says so (JB223 audit F4). */
+export type RefusalKind = "type" | "size" | "count" | "total" | "empty";
 
 export interface Refusal {
   kind: RefusalKind;

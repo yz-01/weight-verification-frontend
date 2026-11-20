@@ -20,9 +20,10 @@ import ms from "@/messages/ms.json";
 import zhTW from "@/messages/zh-TW.json";
 import zh from "@/messages/zh.json";
 
-const state = vi.hoisted(() => ({ mobile: false, toasts: [] as Array<[string, unknown]> }));
+const state = vi.hoisted(() => ({ mobile: false, handheld: false }));
 
 vi.mock("@/hooks/use-mobile", () => ({ useIsMobile: () => state.mobile }));
+vi.mock("@/hooks/use-handheld", () => ({ useIsHandheldDevice: () => state.handheld }));
 vi.mock("@/components/shared/field-camera", () => ({
   FieldCamera: (props: { label: string }) => <button data-stub="field-camera">{props.label}</button>,
 }));
@@ -36,7 +37,10 @@ import {
   readClipboardPictures,
   screenshotName,
 } from "@/lib/clipboard-pictures";
+import { acceptFiles, matchesAccept, phoneFileAccept } from "@/lib/attachment-picker";
+import { isHandheldEnvironment } from "@/lib/field-install";
 import {
+  OFFICE_HAZARD_ACCEPT,
   OFFICE_HAZARD_FILE_RULE,
   OFFICE_HAZARD_MAX_DOCUMENTS,
   OFFICE_HAZARD_MAX_PHOTOS,
@@ -70,7 +74,7 @@ const CREATE = SAFETY.slice(SAFETY.indexOf("function SafetyCreateDialog("), SAFE
 
 beforeEach(() => {
   state.mobile = false;
-  state.toasts = [];
+  state.handheld = false;
 });
 
 afterEach(() => {
@@ -97,18 +101,76 @@ describe("JB223-1 / JB223-3: one box, sorted when it is sent", () => {
     expect(splitOfficeHazardFiles(capped.files).photos).toHaveLength(OFFICE_HAZARD_MAX_PHOTOS);
     expect(splitOfficeHazardFiles(capped.files).attachments).toHaveLength(OFFICE_HAZARD_MAX_DOCUMENTS);
     expect(capped.refused).toEqual([
-      { kind: "count", name: "p10.png" },
-      { kind: "count", name: "p11.png" },
-      { kind: "count", name: "d10.pdf" },
+      { kind: "count", name: "p10.png", photo: true },
+      { kind: "count", name: "p11.png", photo: true },
+      { kind: "count", name: "d10.pdf", photo: false },
     ]);
     expect(capped.refused.map(officeCeilingKey)).toEqual(["tooManyPhotos", "tooManyPhotos", "tooManyDocuments"]);
     expect(zh.safety.officeCreate.tooManyPhotos).toBe("{name} 没有加入：照片最多 {limit} 张。");
   });
 
+  it("F8: a .jfif photo over the ten is told about photos, as it was sorted", () => {
+    const jfif = (name: string) => new File(["jpg"], name, { type: "image/jpeg" });
+    const pictures = Array.from({ length: 10 }, (_, at) => png(`p${at}.png`));
+    const capped = capOfficeHazardFiles([...pictures, jfif("WhatsApp Image.jfif")]);
+    expect(capped.refused).toEqual([{ kind: "count", name: "WhatsApp Image.jfif", photo: true }]);
+    expect(capped.refused.map(officeCeilingKey)).toEqual(["tooManyPhotos"]);
+    // Sorted as a photo by its type, and by its name when the browser gives none.
+    expect(isItemPhoto({ name: "WhatsApp Image.jfif", type: "" })).toBe(true);
+  });
+
   it("takes pictures, PDF, Word and Excel, 50 MB each", () => {
-    expect(OFFICE_HAZARD_FILE_RULE.accept).toBe(".pdf,.doc,.docx,.xls,.xlsx,image/*");
+    expect(OFFICE_HAZARD_FILE_RULE.accept).toBe(OFFICE_HAZARD_ACCEPT);
     expect(OFFICE_HAZARD_FILE_RULE.maxBytes).toBe(50 * 1024 * 1024);
     expect(OFFICE_HAZARD_FILE_RULE.multiple).toBe(true);
+  });
+});
+
+describe("F4: the box offers what the server takes, and says what it refuses", () => {
+  const named = (name: string, type = "") => new File(["x"], name, { type });
+
+  it("offers PDF, Word, Excel and the pictures the server takes - no image/*", () => {
+    expect(OFFICE_HAZARD_ACCEPT).toBe(".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.jfif,.png,.webp,.gif,.bmp,.heic,.heif");
+    expect(OFFICE_HAZARD_ACCEPT).not.toContain("image/*");
+    for (const name of ["整改要求.pdf", "a.doc", "a.docx", "a.xls", "a.xlsx", "a.JPG", "a.jfif", "a.png", "a.webp", "a.gif", "a.bmp", "IMG_0042.HEIC"]) {
+      expect(matchesAccept(named(name), OFFICE_HAZARD_ACCEPT), name).toBe(true);
+    }
+  });
+
+  it("refuses a scanner's TIFF, an SVG, an AVIF at the box, by name - not after the item exists", () => {
+    const offered = [named("scan.tif", "image/tiff"), named("plan.svg", "image/svg+xml"), named("a.avif", "image/avif")];
+    const taken = acceptFiles([], offered, OFFICE_HAZARD_FILE_RULE);
+    expect(taken.files).toEqual([]);
+    expect(taken.refused).toEqual([
+      { kind: "type", name: "scan.tif" },
+      { kind: "type", name: "plan.svg" },
+      { kind: "type", name: "a.avif" },
+    ]);
+  });
+
+  it("turns an empty file away at once, by name", () => {
+    const empty = new File([], "空白.pdf", { type: "application/pdf" });
+    const capped = capOfficeHazardFiles([pdf(), empty]);
+    expect(capped.files.map((file) => file.name)).toEqual(["整改要求.pdf"]);
+    expect(capped.refused).toEqual([{ kind: "empty", name: "空白.pdf" }]);
+    expect(zh.attachmentPicker.emptyFile).toContain("{name}");
+  });
+
+  it("names the file and what is taken when a kind is refused (the form's own list)", () => {
+    const form = SAFETY.slice(SAFETY.indexOf("function SafetyCreateDialog("));
+    expect(form).toContain("useAllowedTypeRefusal(OFFICE_HAZARD_ACCEPT)");
+    expect(form).toMatch(/: officeTypeRefusal\(item\)/);
+  });
+
+  it("the server's refusals read in all four languages", () => {
+    for (const catalogue of [zh, zhTW, en, ms]) {
+      const api = catalogue.errors.api as Record<string, string>;
+      expect(api.attachment_content_mismatch).toContain("{name}");
+      expect(api.attachment_content_mismatch).toContain("{allowed}");
+      expect(api.attachment_empty).toContain("{name}");
+      expect(api.hazard_photo_unreadable).toContain("{name}");
+      expect(api.hazard_too_many_photos).toContain("{limit}");
+    }
   });
 });
 
@@ -122,6 +184,29 @@ describe("JB223-2: 粘贴 WhatsApp 照片及截图", () => {
     expect(renamed.name).toBe("截图 19-11 14:05.png");
     expect(renamed.type).toBe("image/png");
     expect(kept.name).toBe("整改要求.pdf");
+  });
+
+  it("F6: a second paste in the same minute never takes a name already in the box", async () => {
+    const inBox = ["截图 19-11 14:05.png"];
+    const [second] = nameScreenshots([png("image.png")], "截图", at, inBox);
+    expect(second.name).toBe("截图 19-11 14:05 (2).png");
+    const [third, fourth] = nameScreenshots([png("image.png"), png("pasted-x.png")], "截图", at, [
+      ...inBox,
+      second.name,
+    ]);
+    expect([third.name, fourth.name]).toEqual(["截图 19-11 14:05 (3).png", "截图 19-11 14:05 (4).png"]);
+    // 【粘贴截图】 the same way.
+    const clipboard = {
+      read: async () => [{ types: ["image/png"], getType: async () => new Blob(["png"], { type: "image/png" }) }],
+    };
+    const found = await readClipboardPictures(clipboard, "截图", at, inBox);
+    if (found.kind !== "ok") throw new Error("no picture");
+    expect(found.files.map((file) => file.name)).toEqual(["截图 19-11 14:05 (2).png"]);
+  });
+
+  it("F6: the picker hands the names already in the box to both ways of pasting", () => {
+    const picker = readFileSync("src/components/shared/attachment-picker.tsx", "utf8");
+    expect(picker.match(/files\.map\(\(file\) => file\.name\)/g)).toHaveLength(2);
   });
 
   it("【粘贴截图】 takes every picture on the clipboard", async () => {
@@ -211,7 +296,74 @@ describe("the box on the office form (AttachmentPicker with pasteAnywhere)", () 
     expect(camera).toBeGreaterThan(paste);
     expect(out).toContain(zh.safety.officeCreate.filesHint);
     expect(out).toContain('type="file"');
-    expect(out).toContain('accept=".pdf,.doc,.docx,.xls,.xlsx,image/*"');
+    expect(out).toContain(`accept="${OFFICE_HAZARD_ACCEPT}"`);
+  });
+
+  // The office form's own words, chosen by what the box shows (F7).
+  const officeWords = {
+    hint: ({ phone, pasteButton }: { phone: boolean; pasteButton: boolean }) =>
+      phone
+        ? zh.safety.officeCreate.filesHintPhone
+        : pasteButton
+          ? zh.safety.officeCreate.filesHint
+          : zh.safety.officeCreate.filesHintNoPasteButton,
+    chooseLabel: ({ phone }: { phone: boolean }) => (phone ? undefined : zh.safety.officeCreate.chooseFiles),
+    cameraLabel: ({ phone }: { phone: boolean }) => (phone ? undefined : zh.safety.officeCreate.webcam),
+  };
+
+  it("F3: a narrow or zoomed window on a computer keeps the computer's box", () => {
+    vi.stubGlobal("navigator", { clipboard: { read: async () => [] } });
+    state.mobile = true; // the window is under 768 px
+    state.handheld = false; // the device is a laptop
+    const out = box(officeWords);
+    expect(out).toContain("粘贴截图</");
+    expect(out).toContain("选择照片或文件</");
+    expect(out).toContain(`accept="${OFFICE_HAZARD_ACCEPT}"`);
+    expect(out).toContain(zh.safety.officeCreate.filesHint);
+  });
+
+  it("F3: decides 'phone' by the device: iOS and Android, not a Windows laptop", () => {
+    expect(isHandheldEnvironment("android")).toBe(true);
+    expect(isHandheldEnvironment("ios-safari")).toBe(true);
+    expect(isHandheldEnvironment("ios-in-app")).toBe(true);
+    expect(isHandheldEnvironment("desktop-chromium")).toBe(false);
+    expect(isHandheldEnvironment("other")).toBe(false);
+    const picker = readFileSync("src/components/shared/attachment-picker.tsx", "utf8");
+    expect(picker).toContain("const mobile = pasteAnywhere ? handheld : narrow;");
+  });
+
+  it("F7: on a phone the box uses the phone's buttons and words - camera first, 「拍照」, documents to choose", () => {
+    vi.stubGlobal("navigator", { clipboard: { read: async () => [] } });
+    state.handheld = true;
+    const out = box(officeWords);
+    expect(out).not.toContain("粘贴截图</");
+    expect(out).not.toContain("用电脑摄像头拍照");
+    expect(out).not.toContain("选择照片或文件</");
+    const camera = out.indexOf(`${zh.attachmentPicker.takePhoto}</`);
+    const choose = out.indexOf(`${zh.attachmentPicker.chooseFile}</`);
+    expect(camera).toBeGreaterThan(-1);
+    expect(choose).toBeGreaterThan(camera);
+    expect(out).toContain(zh.safety.officeCreate.filesHintPhone);
+    expect(out).toContain(`accept="${phoneFileAccept(OFFICE_HAZARD_ACCEPT)}"`);
+    expect(phoneFileAccept(OFFICE_HAZARD_ACCEPT)).toBe(".pdf,.doc,.docx,.xls,.xlsx");
+  });
+
+  it("F7: where the browser shows no 【粘贴截图】, the hint does not name it", () => {
+    vi.stubGlobal("navigator", {});
+    const out = box(officeWords);
+    expect(out).not.toContain("粘贴截图</");
+    expect(out).toContain(zh.safety.officeCreate.filesHintNoPasteButton);
+    expect(zh.safety.officeCreate.filesHintNoPasteButton).not.toContain("【粘贴截图】");
+    expect(zh.safety.officeCreate.filesHintNoPasteButton).toContain("Ctrl+V");
+  });
+
+  it("F2: the small print says the time a photo is recorded under, as it now is", () => {
+    vi.stubGlobal("navigator", {});
+    const note = "照片记录的时间就是上面的「发生时间」；没有填，就是您建立这个整改事项的时间（不看照片文件自己的日期）。";
+    expect(zh.safety.officeCreate.photoTimeNote.replace("{when}", zh.safety.field.occurredAt)).toBe(note);
+    const out = box({ note });
+    expect(out).toContain(note);
+    expect(out).not.toContain(zh.attachmentPicker.copiedNote);
   });
 
   it("hides 【粘贴截图】 where the browser cannot read pictures; Ctrl+V still works", () => {
@@ -270,9 +422,44 @@ describe("JB223-0 / JB223-4: the office form stops being a camera form; photos o
     expect(CREATE).toContain("completedPhotos.length >= FIELD_EVIDENCE_PHOTO_COUNT && hasRequiredFieldEvidence(draft.photos)");
   });
 
-  it("sends the box sorted, and says the office's own sentence about files still going up", () => {
+  it("sends the box sorted, as the office's (its files inside the item's own request)", () => {
     expect(CREATE).toContain("splitOfficeHazardFiles(draft.attachments ?? [])");
     expect(CREATE).toMatch(/submitSafetyIncidentOfflineAware\(user\.id, payload, signOffPin, \{ fromOffice: !fieldMode \}\)/);
+  });
+});
+
+describe("F1: while the office's files go up, the window stays and says so", () => {
+  it("says 「正在上传 N 个文件，请不要关闭网页…」 and holds 【建立整改事项】 and 【取消】 with that reason", () => {
+    expect(zh.safety.officeCreate.uploading).toBe("正在上传 {count} 个文件，请不要关闭网页…");
+    expect(CREATE).toContain('t("safety.officeCreate.uploading", { count: officeFileCount })');
+    expect(CREATE).toMatch(/\{uploadingLine && \(\s*<p role="status"/);
+    expect(CREATE).toContain("disabled={create.isPending} disabledReason={uploadingLine || undefined}");
+    expect(CREATE).toContain("onClick={onClose} disabled={uploading} disabledReason={uploadingLine || undefined}");
+  });
+
+  it("is not closed by ✕ / Esc / a click outside, and the browser asks before the tab closes", () => {
+    expect(CREATE).toContain("onOpenChange={(next) => !next && !uploading && onClose()}");
+    expect(CREATE).toContain('window.addEventListener("beforeunload", warn)');
+    expect(CREATE).toContain("if (officeFileCount > 0) setUploading(true);");
+    expect(CREATE).toContain("onSettled: () => setUploading(false)");
+  });
+
+  it("the phone's form never shows it (its files still follow on their own)", () => {
+    expect(CREATE).toContain("const officeFileCount = fieldMode ? 0 : (draft.attachments ?? []).length;");
+  });
+});
+
+describe("F7 / F2: the office box's words are chosen by what it shows", () => {
+  it("passes the three hints, the phone's own labels and the time note", () => {
+    const office = CREATE.slice(CREATE.indexOf('label={t("safety.officeCreate.files")}'));
+    const picker = office.slice(0, office.indexOf("</FieldWrapper>"));
+    expect(picker).toContain('"safety.officeCreate.filesHintPhone"');
+    expect(picker).toContain('"safety.officeCreate.filesHint"');
+    expect(picker).toContain('"safety.officeCreate.filesHintNoPasteButton"');
+    expect(picker).toContain('chooseLabel={({ phone }) => (phone ? undefined : t("safety.officeCreate.chooseFiles"))}');
+    expect(picker).toContain('cameraLabel={({ phone }) => (phone ? undefined : t("safety.officeCreate.webcam"))}');
+    expect(picker).toContain('note={t("safety.officeCreate.photoTimeNote", { when: t("safety.field.occurredAt") })}');
+    expect(picker).toContain("disabled={uploading}");
   });
 });
 
@@ -282,14 +469,19 @@ describe("the words, in all four languages", () => {
   it("has every new sentence in zh, zh-TW, en and ms", () => {
     for (const [name, catalogue] of Object.entries(catalogues)) {
       const office = catalogue.safety.officeCreate as Record<string, string>;
-      for (const key of ["files", "filesHint", "chooseFiles", "webcam", "limits", "attached", "tooManyPhotos", "tooManyDocuments"]) {
+      for (const key of [
+        "files", "filesHint", "filesHintNoPasteButton", "filesHintPhone", "photoTimeNote", "chooseFiles", "webcam",
+        "limits", "attached", "tooManyPhotos", "tooManyDocuments", "uploading", "created",
+      ]) {
         expect(typeof office[key], `${name} safety.officeCreate.${key}`).toBe("string");
       }
+      expect(office.photoTimeNote, `${name} photoTimeNote`).toContain("{when}");
       const picker = catalogue.attachmentPicker as Record<string, string>;
-      for (const key of ["pasteScreenshot", "pastedPictures", "pastedFiles", "clipboardEmpty", "clipboardRefused", "screenshotName"]) {
+      for (const key of ["pasteScreenshot", "pastedPictures", "pastedFiles", "clipboardEmpty", "clipboardRefused", "screenshotName", "emptyFile"]) {
         expect(typeof picker[key], `${name} attachmentPicker.${key}`).toBe("string");
       }
-      expect(typeof (catalogue.offline as Record<string, unknown>).filesFollowOffice, `${name} offline.filesFollowOffice`).toBe("string");
+      // F1: no office files are left "going up" after the item any more.
+      expect((catalogue.offline as Record<string, unknown>).filesFollowOffice, `${name} offline.filesFollowOffice`).toBeUndefined();
     }
   });
 
@@ -300,7 +492,8 @@ describe("the words, in all four languages", () => {
     expect(zh.safety.officeCreate.webcam).toBe("用电脑摄像头拍照");
     expect(zh.safety.officeCreate.description).not.toContain("附上照片，");
     expect(zh.safety.officeCreate.filesHint).toContain("没有照片也可以建立");
-    expect(zh.offline.filesFollowOffice).not.toContain("办公室");
+    expect(zh.safety.officeCreate.created).not.toContain("安全事故");
+    expect(zh.safety.officeCreate.created).not.toContain("办公室");
   });
 
   it("writes zh-TW in traditional characters", () => {
@@ -308,47 +501,5 @@ describe("the words, in all four languages", () => {
     const picker = zhTW.attachmentPicker as Record<string, string>;
     const all = [...Object.values(office), picker.pasteScreenshot, picker.clipboardEmpty, picker.clipboardRefused].join("");
     expect(all).not.toMatch(/[选择张让贴图这没传电脑摄头读视览单个复]/);
-  });
-});
-
-describe("the office's sentence when files are still going up", () => {
-  it("is not the phone's 「已送到办公室」", async () => {
-    vi.resetModules();
-    const post = vi.fn(async () => ({ id: "inc-1" }));
-    vi.doMock("@/lib/offline-db", async (importOriginal) => ({
-      ...(await importOriginal<typeof import("@/lib/offline-db")>()),
-      getOfflineJobs: async () => [],
-      putOfflineJob: async () => undefined,
-      deleteOfflineJob: async () => undefined,
-      countOfflineJobs: async () => 0,
-    }));
-    vi.doMock("@/services/api-client", async (importOriginal) => ({
-      ...(await importOriginal<typeof import("@/services/api-client")>()),
-      api: { post },
-      toastSuccess: () => undefined,
-      toastOutcome: (key: string, values: unknown) => {
-        state.toasts.push([key, values]);
-      },
-      withOfflineProvenance: async <T,>(_createdAt: string, run: () => Promise<T>) => run(),
-    }));
-    vi.stubGlobal("navigator", { onLine: true });
-    const queue = await import("@/services/offline-sync.service");
-    const report = () => ({
-      project: "p1",
-      title: "三楼临边护栏缺失",
-      description: "",
-      photos: [],
-      attachments: [pdf(), xlsx()],
-      client_event_id: "jb223-1",
-    });
-    const followed = () => state.toasts.filter(([key]) => key.startsWith("offline.filesFollow"));
-    const office = await queue.submitSafetyIncidentOfflineAware("lily", report(), undefined, { fromOffice: true });
-    expect(office.status).toBe("uploaded");
-    expect(followed()).toEqual([["offline.filesFollowOffice", { count: 2 }]]);
-    state.toasts = [];
-    await queue.submitSafetyIncidentOfflineAware("worker", { ...report(), client_event_id: "jb223-2" });
-    expect(followed()).toEqual([["offline.filesFollow", { count: 2 }]]);
-    vi.doUnmock("@/lib/offline-db");
-    vi.doUnmock("@/services/api-client");
   });
 });

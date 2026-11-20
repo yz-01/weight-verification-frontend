@@ -9296,6 +9296,10 @@
       "permit_too_many_files": "一次最多上传 {limit} 个文件。",
       "permit_file_type": "{name} 不是 Word、Excel、PDF 或照片文件。",
       "attachment_file_type": "{name} 这种文件不能上传。可以上传：{allowed}。",
+      "attachment_content_mismatch": "{name} 不能上传：文件内容和它的类型对不上（可能已损坏，或被改过名字）。请用原来的软件打开，另存一份再上传。可以上传：{allowed}。",
+      "attachment_empty": "{name} 是空文件（0 KB），不能上传。请打开它确认有内容，保存后再选一次。",
+      "hazard_photo_unreadable": "{name} 不是能打开的照片（可能已损坏，或被改过名字），不能上传。照片可以是 JPG、PNG、WebP；PDF、Word、Excel 请作为文件放进来。",
+      "hazard_too_many_photos": "照片最多 {limit} 张。请移除几张，再建立整改事项。",
       "permit_file_too_large": "{name} 超过 {limit} MB。",
       "permit_approver_unavailable": "请选择这个项目里能审批准证的安全经理。",
       "permit_own_application": "{incident_no} 是你申请的，需要由别人批准或退回。",
@@ -13321,7 +13325,6 @@
     },
     "synced": "已上传 {count} 条暂存的记录",
     "filesFollow": "已送到办公室。{count} 个附件正在后台上传。",
-    "filesFollowOffice": "整改事项已建立。{count} 个文件正在上传。",
     "alreadyQueued": "这条动作已经在等待同步，不会重复送出。",
     "state": {
       "waiting": "待同步",
@@ -15889,12 +15892,17 @@
       "confirm": "建立整改事项",
       "files": "照片和整改文件",
       "filesHint": "电脑里的照片、PDF、Word、Excel 按【选择照片或文件】；WhatsApp 的照片或截图，复制后按【粘贴截图】或 Ctrl+V。没有照片也可以建立。",
+      "filesHintNoPasteButton": "电脑里的照片、PDF、Word、Excel 按【选择照片或文件】；WhatsApp 的照片或截图，复制后在这个窗口里按键盘 Ctrl+V。没有照片也可以建立。",
+      "filesHintPhone": "照片按【拍照】拍；PDF、Word、Excel 按【选择文件】。没有照片也可以建立。",
+      "photoTimeNote": "照片记录的时间就是上面的「{when}」；没有填，就是您建立这个整改事项的时间（不看照片文件自己的日期）。",
       "chooseFiles": "选择照片或文件",
       "webcam": "用电脑摄像头拍照",
       "limits": "照片最多 {photos} 张，文件最多 {documents} 个，每个不超过 {limit} MB。",
       "attached": "已附上 {photos} 张照片、{documents} 个文件。",
       "tooManyPhotos": "{name} 没有加入：照片最多 {limit} 张。",
-      "tooManyDocuments": "{name} 没有加入：文件最多 {limit} 个。"
+      "tooManyDocuments": "{name} 没有加入：文件最多 {limit} 个。",
+      "uploading": "正在上传 {count} 个文件，请不要关闭网页…",
+      "created": "{count, plural, =0 {整改事项已建立。} other {整改事项已建立，# 个文件已全部保存。}}"
     },
     "action": {
       "updateStatus": "更新状态"
@@ -20327,6 +20335,7 @@
     "wrongType": "{name} 不能上传：这里不接受这种文件。",
     "tooBig": "{name} 超过 {limit} MB。",
     "tooBigTotal": "{name} 加上去超过合计 {limit} MB。",
+    "emptyFile": "{name} 是空文件（0 KB），不能上传。请打开它确认有内容，保存后再选一次。",
     "phoneTooBig": "{name}：文件太大，请在电脑后台上传。手机上每个文件最多 20 MB，合计最多 50 MB。",
     "tooMany": "一次最多上传 {limit} 个文件。",
     "notAFile": "粘贴的内容不是文件或图片。请复制图片本身再试一次。",

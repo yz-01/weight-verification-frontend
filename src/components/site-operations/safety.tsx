@@ -53,6 +53,7 @@ import { FieldCamera } from "@/components/shared/field-camera";
 import { useAllowedTypeRefusal } from "@/components/shared/attachment-refusal";
 import { HAZARD_ATTACHMENT_ACCEPT, hazardAttachmentRule } from "@/lib/hazard-attachments";
 import {
+  OFFICE_HAZARD_ACCEPT,
   OFFICE_HAZARD_FILE_BYTES,
   OFFICE_HAZARD_FILE_RULE,
   OFFICE_HAZARD_MAX_DOCUMENTS,
@@ -60,8 +61,8 @@ import {
   capOfficeHazardFiles,
   officeCeilingKey,
   splitOfficeHazardFiles,
+  type OfficeRefusal,
 } from "@/lib/office-hazard-files";
-import type { Refusal } from "@/lib/attachment-picker";
 import {
   FieldWrapper,
   FilterBar,
@@ -1583,15 +1584,32 @@ function SafetyCreateDialog({
     t("safety.fieldEvidence.surroundings"),
   ];
   // The office box (JB223): what is in it, and the sentence for a file over
-  // its ten photos / ten files.
+  // its ten photos / ten files - the ceiling the file was sorted under (11-19
+  // audit F8) - or of a kind it does not take, naming what it does (F4).
   const officeFiles = splitOfficeHazardFiles(draft.attachments ?? []);
-  const officeRefusal = (item: Refusal) =>
+  const officeTypeRefusal = useAllowedTypeRefusal(OFFICE_HAZARD_ACCEPT);
+  const officeRefusal = (item: OfficeRefusal) =>
     item.kind === "count"
       ? t(`safety.officeCreate.${officeCeilingKey(item)}`, {
           name: item.name,
           limit: officeCeilingKey(item) === "tooManyPhotos" ? OFFICE_HAZARD_MAX_PHOTOS : OFFICE_HAZARD_MAX_DOCUMENTS,
         })
-      : attachmentRefusal(item);
+      : officeTypeRefusal(item);
+  // F1: the office's files go up inside the item's own request. While they
+  // do, the window stays open and says so; 【建立整改事项】 waits.
+  const officeFileCount = fieldMode ? 0 : (draft.attachments ?? []).length;
+  const [uploading, setUploading] = useState(false);
+  const uploadingLine = uploading ? t("safety.officeCreate.uploading", { count: officeFileCount }) : "";
+  // Closing the browser now would cut the files off: it asks first.
+  useEffect(() => {
+    if (!uploading) return;
+    const warn = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [uploading]);
 
   function toggleRecipient(userId: string, checked: boolean) {
     setDraft((value) => ({
@@ -1617,6 +1635,8 @@ function SafetyCreateDialog({
       }
       const eventId = draft.clientEventId || newClientEventId("safety-incident");
       if (!draft.clientEventId) setDraft((value) => ({ ...value, clientEventId: eventId }));
+      // The PIN is given: from here the office's files are on their way (F1).
+      if (officeFileCount > 0) setUploading(true);
       // The phone: its four camera photos and its files. The office: its one
       // box, pictures as the item's photos and documents to its room (JB223).
       const uploads = fieldMode
@@ -1647,6 +1667,7 @@ function SafetyCreateDialog({
       };
       return submitSafetyIncidentOfflineAware(user.id, payload, signOffPin, { fromOffice: !fieldMode });
     },
+    onSettled: () => setUploading(false),
     onSuccess: (result) => {
       void queryClient.invalidateQueries({ queryKey: ["safety"] });
       clearDraft();
@@ -1708,7 +1729,9 @@ function SafetyCreateDialog({
   }, []);
 
   return (
-    <Dialog open onOpenChange={(next) => !next && onClose()}>
+    // Not closed while the office's files go up (F1): closing it would not
+    // stop them, and would leave nothing on screen to say whether they made it.
+    <Dialog open onOpenChange={(next) => !next && !uploading && onClose()}>
       <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-xl">
         <DialogHeader>
           <DialogTitle>{t(fieldMode ? "safety.createTitle" : "safety.officeCreate.title")}</DialogTitle>
@@ -1883,9 +1906,22 @@ function SafetyCreateDialog({
                 fit={capOfficeHazardFiles}
                 pasteAnywhere
                 showLimits={false}
-                hint={t("safety.officeCreate.filesHint")}
-                chooseLabel={t("safety.officeCreate.chooseFiles")}
-                cameraLabel={t("safety.officeCreate.webcam")}
+                disabled={uploading}
+                // Words for what is on screen (F7): no 【粘贴截图】 named where
+                // the browser shows none; on a phone, the phone's buttons.
+                hint={({ phone, pasteButton }) =>
+                  t(
+                    phone
+                      ? "safety.officeCreate.filesHintPhone"
+                      : pasteButton
+                        ? "safety.officeCreate.filesHint"
+                        : "safety.officeCreate.filesHintNoPasteButton",
+                  )
+                }
+                chooseLabel={({ phone }) => (phone ? undefined : t("safety.officeCreate.chooseFiles"))}
+                cameraLabel={({ phone }) => (phone ? undefined : t("safety.officeCreate.webcam"))}
+                // F2: the time a picture is recorded under, as it now is.
+                note={t("safety.officeCreate.photoTimeNote", { when: t("safety.field.occurredAt") })}
                 refusalText={officeRefusal}
               />
               <p className="mt-1 text-2xs text-muted-foreground">
@@ -2008,8 +2044,16 @@ function SafetyCreateDialog({
           </FieldWrapper>
         </div>
 
+        {/* F1: the office's files go up with the item; until the server has
+            them all, this says so and the window stays. */}
+        {uploadingLine && (
+          <p role="status" className="flex items-center gap-2 text-sm font-medium">
+            <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
+            {uploadingLine}
+          </p>
+        )}
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
+          <Button variant="outline" onClick={onClose} disabled={uploading} disabledReason={uploadingLine || undefined}>
             {t("common.cancel")}
           </Button>
           {/* On the phone the list is two long: the photos, and the GPS the
@@ -2021,7 +2065,7 @@ function SafetyCreateDialog({
               ? [[photosReady, t("safety.field.photo")], [draft.project, t("safety.field.project")], [draft.latitude && draft.longitude, t("safety.field.location")]]
               : [[draft.project, t("safety.field.project")], [category, t("safety.field.category")], [draft.title, t("safety.field.title")]]),
             [!draft.rectifier || draft.rectifierDueAt, t("safetyRectification.field.dueAt")],
-          ] as Array<[unknown, string]>} disabled={create.isPending} onClick={() => create.mutate()}>
+          ] as Array<[unknown, string]>} disabled={create.isPending} disabledReason={uploadingLine || undefined} onClick={() => create.mutate()}>
 
             {create.isPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />

@@ -9296,6 +9296,10 @@
       "permit_too_many_files": "Hantar paling banyak {limit} fail sekali gus.",
       "permit_file_type": "{name} bukan fail Word, Excel, PDF atau foto.",
       "attachment_file_type": "{name} tidak boleh dimuat naik. Dibenarkan: {allowed}.",
+      "attachment_content_mismatch": "{name} tidak boleh dimuat naik: kandungannya tidak sepadan dengan jenis failnya (mungkin rosak atau ditukar nama). Buka dengan program asalnya, simpan satu salinan, kemudian muat naik salinan itu. Dibenarkan: {allowed}.",
+      "attachment_empty": "{name} ialah fail kosong (0 KB) dan tidak boleh dimuat naik. Buka fail itu untuk memastikan ada kandungan, simpan, kemudian pilih semula.",
+      "hazard_photo_unreadable": "{name} bukan foto yang boleh dibuka (mungkin rosak atau ditukar nama) dan tidak boleh dimuat naik. Foto boleh dalam JPG, PNG atau WebP; masukkan PDF, Word atau Excel sebagai fail.",
+      "hazard_too_many_photos": "Paling banyak {limit} foto. Buang beberapa, kemudian cipta item.",
       "permit_file_too_large": "{name} melebihi {limit} MB.",
       "permit_approver_unavailable": "Pilih pengurus keselamatan projek ini yang boleh meluluskan permit.",
       "permit_own_application": "Anda yang memohon {incident_no}, jadi orang lain perlu meluluskan atau memulangkannya.",
@@ -13321,7 +13325,6 @@
     },
     "synced": "{count} rekod yang disimpan telah dimuat naik",
     "filesFollow": "Dihantar ke pejabat. {count} fail masih dimuat naik di latar belakang.",
-    "filesFollowOffice": "Item pembetulan telah dicipta. {count} fail sedang dimuat naik.",
     "alreadyQueued": "Tindakan ini sudah menunggu untuk disegerakkan. Ia tidak akan dihantar dua kali.",
     "state": {
       "waiting": "Menunggu segerak",
@@ -15889,12 +15892,17 @@
       "confirm": "Cipta item pembetulan",
       "files": "Foto dan fail pembetulan",
       "filesHint": "Foto, PDF, Word atau Excel dalam komputer ini: tekan [Pilih foto atau fail]. Foto WhatsApp atau tangkapan skrin: salin dahulu, kemudian tekan [Tampal tangkapan skrin] atau Ctrl+V. Item boleh dicipta tanpa foto.",
+      "filesHintNoPasteButton": "Foto, PDF, Word atau Excel dalam komputer ini: tekan [Pilih foto atau fail]. Foto WhatsApp atau tangkapan skrin: salin dahulu, kemudian tekan Ctrl+V pada papan kekunci dalam tetingkap ini. Item boleh dicipta tanpa foto.",
+      "filesHintPhone": "Foto: tekan [Ambil foto]. PDF, Word atau Excel: tekan [Pilih fail]. Item boleh dicipta tanpa foto.",
+      "photoTimeNote": "Foto direkodkan pada masa \"{when}\" di atas; jika kosong, pada masa anda mencipta item ini (tarikh yang tersimpan dalam fail foto tidak digunakan).",
       "chooseFiles": "Pilih foto atau fail",
       "webcam": "Ambil foto dengan kamera komputer",
       "limits": "Sehingga {photos} foto dan {documents} fail, setiap satu tidak melebihi {limit} MB.",
       "attached": "Dilampirkan: {photos} foto, {documents} fail.",
       "tooManyPhotos": "{name} tidak ditambah: paling banyak {limit} foto.",
-      "tooManyDocuments": "{name} tidak ditambah: paling banyak {limit} fail."
+      "tooManyDocuments": "{name} tidak ditambah: paling banyak {limit} fail.",
+      "uploading": "Sedang memuat naik {count} fail. Jangan tutup halaman ini…",
+      "created": "{count, plural, =0 {Item pembetulan telah dicipta.} other {Item pembetulan telah dicipta; kesemua # fail telah disimpan.}}"
     },
     "action": {
       "updateStatus": "Kemas kini status"
@@ -20327,6 +20335,7 @@
     "wrongType": "{name} tidak boleh dilampirkan: jenis fail ini tidak diterima di sini.",
     "tooBig": "{name} melebihi {limit} MB.",
     "tooBigTotal": "{name} akan menjadikan jumlah fail melebihi {limit} MB.",
+    "emptyFile": "{name} ialah fail kosong (0 KB) dan tidak boleh dimuat naik. Buka fail itu untuk memastikan ada kandungan, simpan, kemudian pilih semula.",
     "phoneTooBig": "{name}: fail terlalu besar. Sila muat naik dari komputer pejabat. Di telefon, setiap fail paling banyak 20 MB, dan 50 MB semuanya.",
     "tooMany": "Hantar paling banyak {limit} fail pada satu masa.",
     "notAFile": "Yang anda tampal bukan fail atau gambar. Salin gambar itu sendiri dan cuba lagi.",

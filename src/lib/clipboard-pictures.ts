@@ -46,25 +46,49 @@ export function screenshotName(prefix: string, at: Date, index: number, type: st
 }
 
 /**
- * A pasted picture comes in as `image.png` (`transferFiles` makes that
- * `pasted-<time>.png`): give it the screenshot name instead. Real files keep
- * their own names.
+ * The first screenshot name not already `taken`, and now taken (11-19 audit
+ * F6): a second paste in the same minute is 「截图 20-11 14:05 (2).png」, never
+ * a second 「截图 20-11 14:05.png」 an older user removes as "the duplicate".
  */
-export function nameScreenshots(files: readonly File[], prefix: string, at: Date): File[] {
+function freeScreenshotName(prefix: string, at: Date, type: string, taken: Set<string>): string {
   let index = 0;
+  let name = screenshotName(prefix, at, index, type);
+  while (taken.has(name)) {
+    index += 1;
+    name = screenshotName(prefix, at, index, type);
+  }
+  taken.add(name);
+  return name;
+}
+
+/**
+ * A pasted picture comes in as `image.png` (`transferFiles` makes that
+ * `pasted-<time>.png`): give it the screenshot name instead, one not among
+ * the names already in the box (`taken`). Real files keep their own names.
+ */
+export function nameScreenshots(
+  files: readonly File[],
+  prefix: string,
+  at: Date,
+  taken: readonly string[] = [],
+): File[] {
+  const used = new Set(taken);
   return files.map((file) => {
     if (!/^(image|pasted-[^.]*)\.(png|jpe?g|gif|webp)$/i.test(file.name)) return file;
-    const name = screenshotName(prefix, at, index, file.type);
-    index += 1;
+    const name = freeScreenshotName(prefix, at, file.type, used);
     return new File([file], name, { type: file.type, lastModified: file.lastModified });
   });
 }
 
-/** What 【粘贴截图】 found: every picture on the clipboard, or why there is none. */
+/**
+ * What 【粘贴截图】 found: every picture on the clipboard, or why there is none.
+ * Named like a Ctrl+V paste, clear of the names already in the box (`taken`).
+ */
 export async function readClipboardPictures(
   clipboard: ClipboardLike | undefined,
   prefix: string,
   at: Date = new Date(),
+  taken: readonly string[] = [],
 ): Promise<ClipboardPictures> {
   if (typeof clipboard?.read !== "function") return { kind: "refused" };
   let items: readonly ClipboardItemLike[];
@@ -76,12 +100,13 @@ export async function readClipboardPictures(
     return { kind: "refused" };
   }
   const files: File[] = [];
+  const used = new Set(taken);
   for (const item of items) {
     const type = item.types.find((candidate) => candidate.toLowerCase().startsWith("image/"));
     if (!type) continue;
     try {
       const blob = await item.getType(type);
-      files.push(new File([blob], screenshotName(prefix, at, files.length, type), { type, lastModified: at.getTime() }));
+      files.push(new File([blob], freeScreenshotName(prefix, at, type, used), { type, lastModified: at.getTime() }));
     } catch {
       // One picture the browser will not hand over is skipped, not the rest.
     }

@@ -181,16 +181,13 @@ async function queueHazardFiles(jobs: readonly HazardFileJob[]): Promise<void> {
 
 /**
  * Queue a report's files after it, and say they are still on their way: the
- * phone's 「已送到办公室」, or - from the office form, whose sender is the
- * office (JB223) - 「整改事项已建立」.
+ * phone's 「已送到办公室」. (The office form sends its files with the item and
+ * never comes here - 11-19 audit JB223 F1.)
  */
-async function followWithFiles(
-  jobs: readonly HazardFileJob[],
-  message: "offline.filesFollow" | "offline.filesFollowOffice" = "offline.filesFollow",
-): Promise<void> {
+async function followWithFiles(jobs: readonly HazardFileJob[]): Promise<void> {
   if (jobs.length === 0) return;
   await queueHazardFiles(jobs);
-  toastOutcome(message, { count: jobs.length });
+  toastOutcome("offline.filesFollow", { count: jobs.length });
 }
 
 export type SafetyIncidentSubmission =
@@ -624,8 +621,24 @@ async function sendJob(job: OfflineJob): Promise<void> {
     // A report queued before X8 may still name somebody to confirm it. The
     // raiser confirms now and the server refuses anyone else, so the old
     // choice is dropped rather than losing the report.
-    const payload = { ...job.payload };
+    const { filesWithItem, ...payload } = job.payload;
     delete payload.confirmer;
+    if (filesWithItem) {
+      // The office's (11-19 audit JB223 F1): its files in the same request,
+      // so the item never exists without them. Left empty, 发生时间 is the
+      // moment the button was pressed, not a file's date (F2).
+      await createSafetyIncident(
+        {
+          ...payload,
+          occurred_at: payload.occurred_at || job.queuedAt,
+          photos: job.payload.photos.map(restoreFile),
+          attachments: (job.payload.attachments ?? []).map(restoreFile),
+        },
+        undefined,
+        { dateFromPhotos: false },
+      );
+      return;
+    }
     // The report and its photos first, so the office hears of it now; its
     // files follow as jobs of their own (P-phonefix).
     const incident = await createSafetyIncident({
@@ -1393,7 +1406,13 @@ export async function submitSafetyIncidentOfflineAware(
   draft: SafetyIncidentPayload & { client_event_id: string },
   /** An office item's sign-off PIN, checked before the upload (I29). */
   signOffPin?: string,
-  /** Raised on the office form (JB223): the files-still-going-up line is the office's. */
+  /**
+   * Raised on the office form (JB223; 11-19 audit F1, F2, F5): its files go
+   * up inside the item's own request - a refused file is refused before the
+   * item exists, and closing the browser cannot leave the item without them;
+   * an empty 发生时间 is the server's now, never a file's date; and one toast
+   * says it when everything is saved.
+   */
   { fromOffice = false }: { fromOffice?: boolean } = {},
 ): Promise<SafetyIncidentSubmission> {
   const job: Extract<OfflineJob, { kind: "SAFETY_INCIDENT" }> = {
@@ -1407,9 +1426,24 @@ export async function submitSafetyIncidentOfflineAware(
       ...draft,
       photos: await storePhotos(draft.photos ?? []),
       attachments: await storePhotos(draft.attachments ?? []),
+      ...(fromOffice ? { filesWithItem: true } : {}),
     },
   };
-  if (typeof navigator !== "undefined" && navigator.onLine) {
+  if (typeof navigator !== "undefined" && navigator.onLine && fromOffice) {
+    try {
+      const photos = job.payload.photos.map(restoreFile);
+      const attachments = (job.payload.attachments ?? []).map(restoreFile);
+      const incident = await withoutSuccessToasts(() =>
+        withOfflineProvenance(job.queuedAt, () =>
+          createSafetyIncident({ ...draft, photos, attachments }, signOffPin, { dateFromPhotos: false }),
+        ),
+      );
+      toastOutcome("safety.officeCreate.created", { count: photos.length + attachments.length });
+      return { status: "uploaded", incident };
+    } catch (error) {
+      if (!isNetworkFailure(error)) throw error;
+    }
+  } else if (typeof navigator !== "undefined" && navigator.onLine) {
     try {
       // The job's copies, so the online attempt sends the compressed photos.
       // The report and its photos only: the office hears of it at once. Its
@@ -1435,7 +1469,6 @@ export async function submitSafetyIncidentOfflineAware(
           job.payload.attachments ?? [],
           job.queuedAt,
         ),
-        fromOffice ? "offline.filesFollowOffice" : "offline.filesFollow",
       );
       return { status: "uploaded", incident };
     } catch (error) {

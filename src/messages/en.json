@@ -9296,6 +9296,10 @@
       "permit_too_many_files": "Send at most {limit} files at a time.",
       "permit_file_type": "{name} is not a Word, Excel, PDF or photo file.",
       "attachment_file_type": "{name} cannot be uploaded. Allowed: {allowed}.",
+      "attachment_content_mismatch": "{name} cannot be uploaded: its content does not match its file type (it may be damaged or renamed). Open it in its own program, save a copy, then upload that. Allowed: {allowed}.",
+      "attachment_empty": "{name} is an empty file (0 KB) and cannot be uploaded. Open it to check it has content, save it, then choose it again.",
+      "hazard_photo_unreadable": "{name} is not a photo that can be opened (it may be damaged or renamed) and cannot be uploaded. Photos can be JPG, PNG or WebP; add PDF, Word or Excel as files.",
+      "hazard_too_many_photos": "At most {limit} photos. Remove some, then create the item.",
       "permit_file_too_large": "{name} is larger than {limit} MB.",
       "permit_approver_unavailable": "Choose a safety manager on this project who can approve permits.",
       "permit_own_application": "You applied for {incident_no}, so somebody else approves or returns it.",
@@ -13321,7 +13325,6 @@
     },
     "synced": "Uploaded {count, plural, one {# saved record} other {# saved records}}",
     "filesFollow": "Sent to the office. {count, plural, one {# file is} other {# files are}} still uploading in the background.",
-    "filesFollowOffice": "Rectification item created. {count, plural, one {# file is} other {# files are}} uploading.",
     "alreadyQueued": "This action is already waiting to sync. It will not be sent twice.",
     "state": {
       "waiting": "Waiting to sync",
@@ -15889,12 +15892,17 @@
       "confirm": "Create rectification item",
       "files": "Photos and rectification files",
       "filesHint": "Photos, PDF, Word or Excel on this computer: press [Choose photos or files]. A WhatsApp photo or a screenshot: copy it, then press [Paste screenshot] or Ctrl+V. You can create the item without a photo.",
+      "filesHintNoPasteButton": "Photos, PDF, Word or Excel on this computer: press [Choose photos or files]. A WhatsApp photo or a screenshot: copy it, then press Ctrl+V on the keyboard in this window. You can create the item without a photo.",
+      "filesHintPhone": "Photos: press [Take photo]. PDF, Word or Excel: press [Choose file]. You can create the item without a photo.",
+      "photoTimeNote": "A photo is recorded at the time in \"{when}\" above; left empty, at the time you create this item (the date saved in the photo file is not used).",
       "chooseFiles": "Choose photos or files",
       "webcam": "Take a photo with the computer camera",
       "limits": "Up to {photos} photos and {documents} files, each up to {limit} MB.",
       "attached": "Attached: {photos, plural, one {# photo} other {# photos}} and {documents, plural, one {# file} other {# files}}.",
       "tooManyPhotos": "{name} was not added: at most {limit} photos.",
-      "tooManyDocuments": "{name} was not added: at most {limit} files."
+      "tooManyDocuments": "{name} was not added: at most {limit} files.",
+      "uploading": "Uploading {count, plural, one {# file} other {# files}}. Please do not close this page…",
+      "created": "{count, plural, =0 {Rectification item created.} one {Rectification item created; its file is saved.} other {Rectification item created; all # files are saved.}}"
     },
     "action": {
       "updateStatus": "Update status"
@@ -20327,6 +20335,7 @@
     "wrongType": "{name} cannot be attached: this kind of file is not accepted here.",
     "tooBig": "{name} is larger than {limit} MB.",
     "tooBigTotal": "{name} would take the files over {limit} MB in all.",
+    "emptyFile": "{name} is an empty file (0 KB) and cannot be uploaded. Open it to check it has content, save it, then choose it again.",
     "phoneTooBig": "{name}: the file is too big. Please upload it from the office computer. On the phone each file can be up to 20 MB, and 50 MB in all.",
     "tooMany": "Send at most {limit} files at a time.",
     "notAFile": "What you pasted is not a file or a picture. Copy the picture itself and try again.",
