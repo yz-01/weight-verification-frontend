@@ -110,6 +110,45 @@ export function recordConversationKey(kind: ChatRecordKind, recordId: string) {
   return ["record-conversation", kind, recordId] as const;
 }
 
+/** 「沟通记录」's list (the office's and a consultant's): refreshed when a conversation starts. */
+export const OFFICE_FIELD_CHATS_KEY = ["record-conversation", "office-field-chats"] as const;
+
+/**
+ * The list to re-read when a conversation was read, or `null` (JB224 audit
+ * 11-19 F6). Reading a conversation marks it read on the server; 「沟通记录」's
+ * red number for it went only on the list's next poll, so the consultant saw
+ * 2 beside the conversation he had just read. The kinds that list opens.
+ */
+export function listReadAfter(kind: string): typeof OFFICE_FIELD_CHATS_KEY | null {
+  return kind === "DIRECT" || kind === "FIELD_TASK" || kind === "CONSULTANT_APPLICATION"
+    ? OFFICE_FIELD_CHATS_KEY
+    : null;
+}
+
+/**
+ * How often an open conversation is read again for a consultant, or `false`
+ * (JB224 audit 11-19 F7). The live stream never serves him (it carries no
+ * project), and with only 「沟通记录」 ticked his account has none of the
+ * codes the page's safety poll waits on - a reply reached him only when he
+ * clicked away and back. A failed read stops it, so a refusal is not
+ * repeated every few seconds.
+ */
+export const CONSULTANT_CHAT_POLL_MS = 15_000;
+export function consultantChatPoll(accountType: string | undefined, failed: boolean): number | false {
+  return accountType === "CONSULTANT" && !failed ? CONSULTANT_CHAT_POLL_MS : false;
+}
+
+/**
+ * The consultant's own conversation, closed by head office (「沟通记录」
+ * unticked) or an ended grant (JB224 audit 11-19 F4): the server's sentence -
+ * who closed it and whom to ask - or `null` for any other failure.
+ */
+export function consultantChatClosed(error: unknown): string | null {
+  if (!error || typeof error !== "object") return null;
+  const { code, message } = error as { code?: unknown; message?: unknown };
+  return code === "consultant_chat_closed" && typeof message === "string" && message ? message : null;
+}
+
 /**
  * The phone's link to one record's conversation: `?chat=<KIND>:<id>`
  * (2026-10-09). A chat notice for a field account carries it, and 我提交过的
@@ -153,7 +192,8 @@ export type ConversationClosedLine =
   | "recordChat.closedCancelled"
   | "recordChat.closedReadonly"
   | "recordChat.closedHeadOffice"
-  | "recordChat.closedMoved";
+  | "recordChat.closedMoved"
+  | "recordChat.closedConsultantOff";
 
 /**
  * The line shown instead of the composer, or `null` while it is open.
@@ -182,5 +222,8 @@ export function conversationClosedLine(
   // Head office IS in it - 「没有在里面」 would be untrue (JB159).
   if (closed === "head_office") return "recordChat.closedHeadOffice";
   if (closed === "moved") return "recordChat.closedMoved";
+  // JB224: the consultant's 沟通记录 was unticked by head office, or his grant
+  // ended - read only for the builder until it is ticked again.
+  if (closed === "consultant_off") return "recordChat.closedConsultantOff";
   return "recordChat.closedArchived";
 }

@@ -14,17 +14,26 @@
  * every open project of its company, a project office on the ones it is on.
  * A phone person and head office never share a conversation (第 1 点), so
  * choosing one greys the other out and says why.
+ *
+ * JB224 (客户 11-19 事项 4, 「实现顾问与项目后台的双向沟通」): the project office
+ * also finds the project's consultants (「顾问」, with the firm's name), and a
+ * consultant uses this same finder on the project he is on - the server lists
+ * him that project's office team only. A conversation with a consultant holds
+ * that one consultant and office people of the project, so choosing him greys
+ * the phone, head office and any other consultant out, and says why.
  */
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Check, Loader2, MessageSquarePlus, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 
+import { useAuth } from "@/components/providers/auth-provider";
 import { useCurrentProject } from "@/components/providers/current-project-provider";
 import { FieldWrapper, QueryFailedNote } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { OFFICE_FIELD_CHATS_KEY } from "@/lib/record-chat";
 import { cn } from "@/lib/utils";
 import {
   getOfficeChatPeople,
@@ -34,28 +43,118 @@ import {
   type OfficeChatPerson,
 } from "@/services/field-conversations.service";
 
-/** The office list's queries: refreshed when a conversation starts. */
-export const OFFICE_FIELD_CHATS_KEY = ["record-conversation", "office-field-chats"] as const;
+/** The office list's queries: refreshed when a conversation starts (kept in `lib/record-chat`). */
+export { OFFICE_FIELD_CHATS_KEY };
 
-export type PersonGroup = "phone" | "office" | "head_office";
+/** Below Tailwind's `lg`: the list and the right-hand panel share one column. */
+const NARROW = "(max-width: 1023px)";
 
-/** Which group of the list a person is in, in the list's order. */
-export function personGroup(person: Pick<OfficeChatPerson, "kind">): PersonGroup {
-  return person.kind === "office" || person.kind === "head_office" ? person.kind : "phone";
+/**
+ * 「沟通记录」 on a phone (JB224 audit 11-19 F2). Below `lg` the list and the
+ * right-hand panel were one column, so 【找人沟通】 or a row opened its panel
+ * under the list, out of sight, and the page seemed not to change - the
+ * consultant, who has no phone app, pressed again and gave up. Narrow, one
+ * shows at a time: the list until something opens, then the finder or the
+ * conversation, with 【返回沟通列表】. Wide, both stand side by side as before.
+ */
+export function narrowChatLayout(open: boolean): { list: string; panel: string } {
+  return open ? { list: "hidden lg:block", panel: "" } : { list: "", panel: "hidden lg:block" };
 }
 
 /**
+ * The grid's top, brought back on screen when a phone changes between the list
+ * and what opened (F2): a row pressed far down the list would otherwise leave
+ * the page scrolled past the conversation's start. Nothing moves when it shows
+ * already, or on a wide screen.
+ */
+export function useNarrowChatTop(openKey: string) {
+  const top = useRef<HTMLDivElement>(null);
+  // What showed last: the page's first paint moves nothing.
+  const shown = useRef(openKey);
+  useEffect(() => {
+    if (shown.current === openKey) return;
+    shown.current = openKey;
+    const node = top.current;
+    if (!node || !window.matchMedia(NARROW).matches) return;
+    if (node.getBoundingClientRect().top < scrollerTop(node)) node.scrollIntoView({ block: "start" });
+  }, [openKey]);
+  return top;
+}
+
+/** Where the scrolling box around `node` starts on screen (the page's own, or 0). */
+function scrollerTop(node: HTMLElement): number {
+  for (let box = node.parentElement; box; box = box.parentElement) {
+    const { overflowY } = window.getComputedStyle(box);
+    if (overflowY === "auto" || overflowY === "scroll") return box.getBoundingClientRect().top;
+  }
+  return 0;
+}
+
+/** 【返回沟通列表】 above the finder or a conversation, on a phone only (F2). */
+export function ChatBackToList({ onBack }: { onBack: () => void }) {
+  const t = useTranslations("fieldChats");
+  return (
+    <Button type="button" variant="outline" className="h-11 lg:hidden" onClick={onBack} data-chat-back>
+      <ArrowLeft />
+      {t("backToList")}
+    </Button>
+  );
+}
+
+/**
+ * What the finder says when a start was refused (JB224 audit 11-19 F10): the
+ * true reason, once - the server's sentence was toasted while the panel said
+ * 「请再试一次」, which never helps when the list changed or 「沟通记录」 closed.
+ * `listChanged`: somebody chosen left the team meanwhile (the list is read
+ * again); a refusal: the server's own sentence; no answer: try again.
+ */
+export function startRefusal(error: unknown): { key: "listChanged" | "startFailed" } | { message: string } {
+  const { code, status, message } = (error ?? {}) as { code?: unknown; status?: unknown; message?: unknown };
+  if (code === "chat_people_invalid") return { key: "listChanged" };
+  if (typeof status === "number" && status > 0 && typeof message === "string" && message) return { message };
+  return { key: "startFailed" };
+}
+
+export type PersonGroup = "phone" | "office" | "head_office" | "consultant";
+
+/** The list's groups, in its order. */
+const GROUPS: readonly PersonGroup[] = ["phone", "office", "head_office", "consultant"];
+
+/** Which group of the list a person is in, in the list's order. */
+export function personGroup(person: Pick<OfficeChatPerson, "kind">): PersonGroup {
+  return person.kind === "office" || person.kind === "head_office" || person.kind === "consultant"
+    ? person.kind
+    : "phone";
+}
+
+export type MixReason =
+  | ""
+  | "phoneChosen"
+  | "headOfficeChosen"
+  | "consultantChosen"
+  | "notWithConsultant"
+  | "oneConsultant";
+
+/**
  * Why `person` cannot join the people already chosen, or `""` (客户 11-10
- * 第七批 第 1 点: the phone never reaches head office). The server refuses
- * the mix as well; this says so before anybody presses start.
+ * 第七批 第 1 点: the phone never reaches head office; JB224: a consultant
+ * talks with the project's office people only, one consultant at a time).
+ * The server refuses the mix as well; this says so before anybody presses start.
  */
 export function mixBlock(
   person: Pick<OfficeChatPerson, "kind">,
   chosen: readonly Pick<OfficeChatPerson, "kind">[],
-): "" | "phoneChosen" | "headOfficeChosen" {
+): MixReason {
   const group = personGroup(person);
-  if (group === "head_office" && chosen.some((other) => personGroup(other) === "phone")) return "phoneChosen";
-  if (group === "phone" && chosen.some((other) => personGroup(other) === "head_office")) return "headOfficeChosen";
+  const has = (name: PersonGroup) => chosen.some((other) => personGroup(other) === name);
+  if (group === "consultant") {
+    if (has("consultant")) return "oneConsultant";
+    if (has("phone") || has("head_office")) return "notWithConsultant";
+    return "";
+  }
+  if ((group === "phone" || group === "head_office") && has("consultant")) return "consultantChosen";
+  if (group === "head_office" && has("phone")) return "phoneChosen";
+  if (group === "phone" && has("head_office")) return "headOfficeChosen";
   return "";
 }
 
@@ -91,6 +190,8 @@ export function OfficeFindPeople({
 }) {
   const t = useTranslations("fieldChats.find");
   const queryClient = useQueryClient();
+  // JB224: a consultant's finder lists the project office only - said so.
+  const consultant = useAuth().user?.account_type === "CONSULTANT";
   const [search, setSearch] = useState("");
   const [chosen, setChosen] = useState<string[]>([]);
   const [title, setTitle] = useState("");
@@ -124,11 +225,23 @@ export function OfficeFindPeople({
       void queryClient.invalidateQueries({ queryKey: OFFICE_FIELD_CHATS_KEY });
       onStarted(result.id);
     },
+    // F10: the list changed under the reader - read it again, choose again.
+    onError: (error) => {
+      const said = startRefusal(error);
+      if ("key" in said && said.key === "listChanged") {
+        setChosen([]);
+        void queryClient.invalidateQueries({ queryKey: ["field-chats", "people", project] });
+      }
+    },
   });
-  const toggle = (person: OfficeChatPerson) =>
+  const refusal = start.isError ? startRefusal(start.error) : null;
+  const toggle = (person: OfficeChatPerson) => {
+    // A new choice answers the refusal: its sentence goes.
+    if (start.isError) start.reset();
     setChosen((current) =>
       current.includes(person.id) ? current.filter((id) => id !== person.id) : [...current, person.id],
     );
+  };
 
   const group = (name: PersonGroup) => (
     <OfficePersonGroup
@@ -142,13 +255,22 @@ export function OfficeFindPeople({
 
   return (
     <section className="space-y-4" data-office-find>
+      {/* F2: on a phone the finder has the screen; this takes it back to the list. */}
+      <ChatBackToList onBack={onBack} />
       <div className="flex min-w-0 items-center gap-3 border-b pb-3">
-        <Button size="icon" variant="outline" title={t("back")} aria-label={t("back")} onClick={onBack}>
+        <Button
+          size="icon"
+          variant="outline"
+          className="hidden lg:inline-flex"
+          title={t("back")}
+          aria-label={t("back")}
+          onClick={onBack}
+        >
           <ArrowLeft />
         </Button>
         <div className="min-w-0">
           <h2 className="text-lg font-bold leading-tight">{t("title")}</h2>
-          <p className="text-xs text-muted-foreground">{t("hint")}</p>
+          <p className="text-xs text-muted-foreground">{t(consultant ? "hintConsultant" : "hint")}</p>
         </div>
       </div>
       <QueryFailedNote query={projects} what={t("whatProjects")} />
@@ -178,14 +300,10 @@ export function OfficeFindPeople({
           // Nobody on the project at all is said as such, with what to do
           // (JB159 J); 「找不到人。」 stays for a search that found nobody.
           <p className="text-sm text-muted-foreground" data-empty={search.trim() ? "search" : "project"}>
-            {search.trim() ? t("noPeople") : t("noPeopleOnProject")}
+            {search.trim() ? t("noPeople") : consultant ? t("noOfficeForConsultant") : t("noPeopleOnProject")}
           </p>
         ) : (
-          <div className="space-y-4">
-            {group("phone")}
-            {group("office")}
-            {group("head_office")}
-          </div>
+          <div className="space-y-4">{GROUPS.map((name) => <Fragment key={name}>{group(name)}</Fragment>)}</div>
         )}
       </FieldWrapper>
       {chosen.length > 1 ? (
@@ -198,9 +316,9 @@ export function OfficeFindPeople({
           aria-label={t("groupTitle")}
         />
       ) : null}
-      {start.isError ? (
-        <p role="alert" className="text-sm text-destructive">
-          {t("startFailed")}
+      {refusal ? (
+        <p role="alert" className="text-sm text-destructive" data-start-refusal>
+          {"message" in refusal ? refusal.message : t(refusal.key)}
         </p>
       ) : null}
       <Button
@@ -241,9 +359,10 @@ export function OfficePersonGroup({
   // 找人沟通 call them the same (JB159).
   const roleName = useTranslations("roles.system_");
   if (!rows.length) return null;
-  const groupBlock = rows.some((person) => chosen.includes(person.id))
-    ? ""
-    : mixBlock(rows[0], chosenPeople);
+  // Said for the rows still open to choose: with one consultant chosen, the
+  // others in his group grey out too (JB224), and say why here.
+  const open = rows.filter((person) => !chosen.includes(person.id));
+  const groupBlock = open.length ? mixBlock(open[0], chosenPeople) : "";
   return (
     <div className="space-y-2" data-person-group={name}>
       <p className="text-xs font-medium text-muted-foreground">{t(`group.${name}`)}</p>
@@ -278,7 +397,9 @@ export function OfficePersonGroup({
                     {name === "phone"
                       ? // MSE's own all-pages test phone has no role name: a site phone.
                         roleName(person.kind === "all_pages" ? "site_staff" : person.kind)
-                      : t(`kind.${person.kind}`)}
+                      : person.kind === "consultant" && person.organization
+                        ? `${t("kind.consultant")} · ${person.organization}`
+                        : t(`kind.${person.kind}`)}
                   </span>
                 </span>
                 <span

@@ -5622,7 +5622,7 @@
       "recordCentre": "上面勾了的模組的記錄——只能看",
       "reports": "上面勾了的模組的報表",
       "notifications": "這個項目發給他的通知",
-      "conversations": "他參與的溝通"
+      "conversations": "他參與的溝通；他和本項目後台可以互相「找人溝通」（文字、照片、語音、文件）。取消勾選後雙方都不能再發送，記錄保留，建築商仍可查看"
     },
     "option": {
       "approvalView": "顧問申請：查看",
@@ -9470,6 +9470,8 @@
       "company_material_supplier_not_found": "有一家供應商不在公司的供應商名單裡。請重新選。",
       "phone_page_not_yours": "你的手機沒有這個頁面。",
       "chat_people_invalid": "請從名單裡選人。",
+      "consultant_chat_closed": "建築商總部已經關閉了您在這個項目的「溝通記錄」（或授權已經結束），這個對話現在打不開，也不能發送。如需繼續溝通，請聯絡建築商總部。",
+      "chat_consultant_off": "顧問在這個項目的溝通權限已經關閉（或授權已經結束），這個對話只能查看，不能再發送。",
       "user_removed": "這個賬號已經刪除，不能再啟用。請重新建立一個新賬號。",
       "supplier_not_on_project": "這個供應商不在這個項目的「可用供應商」裡。請總部或項目經理先在項目裡加入。",
       "file_share_link_not_found": "找不到這個文件連結。",
@@ -19424,6 +19426,7 @@
     "closedReadonly": "你只能查看這個溝通，沒有在裡面，不能發送。",
     "closedHeadOffice": "總部只能查看有手機人員在裡面的溝通，不能在這裡發送。",
     "closedMoved": "裡面有人已經不在這個項目了，這個溝通只能查看，不能再發送。請重新找人溝通。",
+    "closedConsultantOff": "顧問在這個項目的溝通權限已經關閉（或授權已經結束），這個對話只能查看，不能再發送。",
     "closedTaskDone": "事項已完成（或已取消），聊天室已關閉。記錄仍可查看。"
   },
   "exportTotals": {
@@ -22245,44 +22248,53 @@
   },
   "fieldChats": {
     "title": "溝通記錄",
-    "subtitle": "手機端（現場人員、門崗、設備操作人員）和後台（項目後台、總部）的所有對話，按項目保存。你在裡面的對話可以直接回覆；用「找人溝通」開始新的對話。",
+    "subtitle": "手機端（現場人員、門崗、設備操作人員）、後台（項目後台、總部）和顧問的對話，按項目保存。你在裡面的對話可以直接回覆；用「找人溝通」開始新的對話。",
     "project": "項目",
     "allProjects": "全部項目",
     "loading": "正在載入…",
     "empty": "這個項目還沒有溝通記錄。",
     "pick": "在左邊選一個溝通查看。",
+    "backToList": "返回溝通列表",
     "people": "成員：{names}",
     "noMessages": "還沒有消息。",
     "attachment": "[照片 / 語音 / 文件]",
     "conversation": "溝通",
     "find": {
       "title": "找人溝通",
-      "hint": "只列出你可以聯繫的人：項目後台可以聯繫本項目的手機端人員、本項目後台和總部；總部可以聯繫各項目後台。手機端人員和總部不會在同一個對話裡。",
+      "hint": "只列出你可以聯繫的人：項目後台可以聯繫本項目的手機端人員、本項目後台、總部，以及總部開了「溝通記錄」的本項目顧問；總部可以聯繫各項目後台。手機端人員和總部不會在同一個對話裡；顧問只和本項目後台在同一個對話裡。",
+      "hintConsultant": "只列出本項目的項目後台人員。對話保存在這個項目裡；對話裡的人、本項目後台和建築商總部都可以查看。",
       "back": "返回",
       "search": "搜尋名字",
       "choose": "要溝通的人",
       "group": {
         "phone": "手機端人員",
         "office": "項目後台",
-        "head_office": "總部"
+        "head_office": "總部",
+        "consultant": "顧問"
       },
       "kind": {
         "office": "項目後台",
-        "head_office": "總部"
+        "head_office": "總部",
+        "consultant": "顧問"
       },
       "mix": {
         "phoneChosen": "已選了手機端人員，總部不能加入同一個對話。",
-        "headOfficeChosen": "已選了總部，手機端人員不能加入同一個對話。"
+        "headOfficeChosen": "已選了總部，手機端人員不能加入同一個對話。",
+        "consultantChosen": "已選了顧問，只能再選本項目後台人員。",
+        "notWithConsultant": "已選了手機端人員或總部，顧問不能加入同一個對話。",
+        "oneConsultant": "一個對話只能有一位顧問。"
       },
       "groupTitle": "群組名稱（可不填）",
       "start": "{count, plural, =0 {開始溝通} other {和 # 個人開始溝通}}",
       "startFailed": "無法開始對話，請再試一次。",
+      "listChanged": "名單已經變了，請返回重新選人。",
       "noProject": "你還沒有可以溝通的項目。",
       "projectClosed": "這個項目已經結束，不能在這裡開始新的溝通。",
       "notOnTeam": "你不在這個項目的團隊裡，不能在這裡開始溝通。",
       "pickProject": "請先在最上面選一個項目，再找人溝通。",
       "noPeople": "找不到人。",
       "noPeopleOnProject": "這個項目還沒有可以找的人：請先在「項目人員名單」加人。",
+      "noOfficeForConsultant": "這個項目還沒有項目後台人員可以聯繫。請建築商把項目後台人員加進項目團隊。",
       "whatProjects": "項目名單",
       "whatPeople": "人員名單"
     },
@@ -22290,13 +22302,14 @@
     "packageKind": "資料包",
     "packageGone": "找不到這個資料包的溝通，或者你沒有權限看。",
     "consultant": {
-      "subtitle": "這個項目上發給您、或您參與過的溝通：資料包、顧問申請、現場任務和整改。",
-      "empty": "這個項目還沒有您參與的溝通。",
+      "subtitle": "這個項目上發給您、或您參與過的溝通：資料包、顧問申請、現場任務、整改，以及您和本項目後台的對話。按「找人溝通」聯繫本項目後台。",
+      "empty": "這個項目還沒有您參與的溝通。按右上角「找人溝通」可以聯繫本項目後台。",
       "kind": {
         "FIELD_TASK": "現場任務",
         "CONSULTANT_APPLICATION": "顧問申請",
         "HAZARD": "整改",
-        "PACKAGE": "資料包"
+        "PACKAGE": "資料包",
+        "DIRECT": "對話"
       }
     }
   },

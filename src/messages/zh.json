@@ -5622,7 +5622,7 @@
       "recordCentre": "上面勾了的模块的记录——只能看",
       "reports": "上面勾了的模块的报表",
       "notifications": "这个项目发给他的通知",
-      "conversations": "他参与的沟通"
+      "conversations": "他参与的沟通；他和本项目后台可以互相「找人沟通」（文字、照片、语音、文件）。取消勾选后双方都不能再发送，记录保留，建筑商仍可查看"
     },
     "option": {
       "approvalView": "顾问申请：查看",
@@ -9470,6 +9470,8 @@
       "company_material_supplier_not_found": "有一家供应商不在公司的供应商名单里。请重新选。",
       "phone_page_not_yours": "你的手机没有这个页面。",
       "chat_people_invalid": "请从名单里选人。",
+      "consultant_chat_closed": "建筑商总部已经关闭了您在这个项目的「沟通记录」（或授权已经结束），这个对话现在打不开，也不能发送。如需继续沟通，请联系建筑商总部。",
+      "chat_consultant_off": "顾问在这个项目的沟通权限已经关闭（或授权已经结束），这个对话只能查看，不能再发送。",
       "user_removed": "这个账号已经删除，不能再启用。请重新建立一个新账号。",
       "supplier_not_on_project": "这个供应商不在这个项目的「可用供应商」里。请总部或项目经理先在项目里加入。",
       "file_share_link_not_found": "找不到这个文件链接。",
@@ -19424,6 +19426,7 @@
     "closedReadonly": "你只能查看这个沟通，没有在里面，不能发送。",
     "closedHeadOffice": "总部只能查看有手机人员在里面的沟通，不能在这里发送。",
     "closedMoved": "里面有人已经不在这个项目了，这个沟通只能查看，不能再发送。请重新找人沟通。",
+    "closedConsultantOff": "顾问在这个项目的沟通权限已经关闭（或授权已经结束），这个对话只能查看，不能再发送。",
     "closedTaskDone": "事项已完成（或已取消），聊天室已关闭。记录仍可查看。"
   },
   "exportTotals": {
@@ -22245,44 +22248,53 @@
   },
   "fieldChats": {
     "title": "沟通记录",
-    "subtitle": "手机端（现场人员、门岗、设备操作人员）和后台（项目后台、总部）的所有对话，按项目保存。你在里面的对话可以直接回复；用「找人沟通」开始新的对话。",
+    "subtitle": "手机端（现场人员、门岗、设备操作人员）、后台（项目后台、总部）和顾问的对话，按项目保存。你在里面的对话可以直接回复；用「找人沟通」开始新的对话。",
     "project": "项目",
     "allProjects": "全部项目",
     "loading": "正在载入…",
     "empty": "这个项目还没有沟通记录。",
     "pick": "在左边选一个沟通查看。",
+    "backToList": "返回沟通列表",
     "people": "成员：{names}",
     "noMessages": "还没有消息。",
     "attachment": "[照片 / 语音 / 文件]",
     "conversation": "沟通",
     "find": {
       "title": "找人沟通",
-      "hint": "只列出你可以联系的人：项目后台可以联系本项目的手机端人员、本项目后台和总部；总部可以联系各项目后台。手机端人员和总部不会在同一个对话里。",
+      "hint": "只列出你可以联系的人：项目后台可以联系本项目的手机端人员、本项目后台、总部，以及总部开了「沟通记录」的本项目顾问；总部可以联系各项目后台。手机端人员和总部不会在同一个对话里；顾问只和本项目后台在同一个对话里。",
+      "hintConsultant": "只列出本项目的项目后台人员。对话保存在这个项目里；对话里的人、本项目后台和建筑商总部都可以查看。",
       "back": "返回",
       "search": "搜索名字",
       "choose": "要沟通的人",
       "group": {
         "phone": "手机端人员",
         "office": "项目后台",
-        "head_office": "总部"
+        "head_office": "总部",
+        "consultant": "顾问"
       },
       "kind": {
         "office": "项目后台",
-        "head_office": "总部"
+        "head_office": "总部",
+        "consultant": "顾问"
       },
       "mix": {
         "phoneChosen": "已选了手机端人员，总部不能加入同一个对话。",
-        "headOfficeChosen": "已选了总部，手机端人员不能加入同一个对话。"
+        "headOfficeChosen": "已选了总部，手机端人员不能加入同一个对话。",
+        "consultantChosen": "已选了顾问，只能再选本项目后台人员。",
+        "notWithConsultant": "已选了手机端人员或总部，顾问不能加入同一个对话。",
+        "oneConsultant": "一个对话只能有一位顾问。"
       },
       "groupTitle": "群组名称（可不填）",
       "start": "{count, plural, =0 {开始沟通} other {和 # 个人开始沟通}}",
       "startFailed": "无法开始对话，请再试一次。",
+      "listChanged": "名单已经变了，请返回重新选人。",
       "noProject": "你还没有可以沟通的项目。",
       "projectClosed": "这个项目已经结束，不能在这里开始新的沟通。",
       "notOnTeam": "你不在这个项目的团队里，不能在这里开始沟通。",
       "pickProject": "请先在最上面选一个项目，再找人沟通。",
       "noPeople": "找不到人。",
       "noPeopleOnProject": "这个项目还没有可以找的人：请先在「项目人员名单」加人。",
+      "noOfficeForConsultant": "这个项目还没有项目后台人员可以联系。请建筑商把项目后台人员加进项目团队。",
       "whatProjects": "项目名单",
       "whatPeople": "人员名单"
     },
@@ -22290,13 +22302,14 @@
     "packageKind": "资料包",
     "packageGone": "找不到这个资料包的沟通，或者你没有权限看。",
     "consultant": {
-      "subtitle": "这个项目上发给您、或您参与过的沟通：资料包、顾问申请、现场任务和整改。",
-      "empty": "这个项目还没有您参与的沟通。",
+      "subtitle": "这个项目上发给您、或您参与过的沟通：资料包、顾问申请、现场任务、整改，以及您和本项目后台的对话。按「找人沟通」联系本项目后台。",
+      "empty": "这个项目还没有您参与的沟通。按右上角「找人沟通」可以联系本项目后台。",
       "kind": {
         "FIELD_TASK": "现场任务",
         "CONSULTANT_APPLICATION": "顾问申请",
         "HAZARD": "整改",
-        "PACKAGE": "资料包"
+        "PACKAGE": "资料包",
+        "DIRECT": "对话"
       }
     }
   },

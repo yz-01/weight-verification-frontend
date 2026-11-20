@@ -193,7 +193,9 @@ describe("沟通记录: the list fits a phone, names and numbers whole (JB202)",
 
   it("wraps who is in it, the project, and a PKG number", () => {
     wraps(classesBefore(source, "{row.title}</span>"));
-    wraps(classesBefore(source, "{row.project_name}</span>"));
+    // JB224 put the 「顾问」 badge in front of the project's name, in the same
+    // wrapping line - so the name closes that line on a line of its own.
+    wraps(classesBefore(source, /\{row\.project_name\}\s*<\/span>/));
     wraps(classesBefore(source, "{row.package_no}</span>"));
     wraps(classesBefore(source, '{t("packageThread"'));
   });

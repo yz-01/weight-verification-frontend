@@ -41,10 +41,16 @@ import {
   useFollowRecordProject,
   usePageProject,
 } from "@/components/providers/current-project-provider";
-import { FieldWrapper, ListHeader, QueryFailedNote } from "@/components/shared/page-primitives";
+import { FieldWrapper, ListHeader, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { RecordConversationPanel } from "@/components/shared/record-conversation";
 import { ConsultantFieldChats } from "@/components/site-access/field-chats-consultant";
-import { OFFICE_FIELD_CHATS_KEY, OfficeFindPeople } from "@/components/site-access/field-chats-find";
+import {
+  ChatBackToList,
+  narrowChatLayout,
+  OFFICE_FIELD_CHATS_KEY,
+  OfficeFindPeople,
+  useNarrowChatTop,
+} from "@/components/site-access/field-chats-find";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
 import type { PackageThreadRow } from "@/interfaces/contractor-ops";
@@ -142,6 +148,11 @@ function OfficeFieldChats() {
   const open =
     picked?.kind === "DIRECT" ? ((chats.data?.results ?? []).find((row) => row.id === picked.id) ?? null) : null;
   const isPicked = (entry: Entry) => !finding && picked?.kind === entry.kind && picked.id === entry.id;
+  // JB224 audit F2: on a phone the list or what opened, one at a time (the
+  // same fault as the consultant's page: it opened below the list, unseen).
+  const openKey = finding ? "find" : picked ? `${picked.kind}:${picked.id}` : "";
+  const narrow = narrowChatLayout(Boolean(openKey));
+  const top = useNarrowChatTop(openKey);
 
   return (
     <div className="space-y-4">
@@ -174,8 +185,8 @@ function OfficeFieldChats() {
           be narrower than its longest line) - without it the list took the
           width of its longest name and ran past a phone's edge, cutting the
           time off each row. */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]">
-        <ul className="space-y-2" data-field-chats>
+      <div ref={top} className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]">
+        <ul className={cn("space-y-2", narrow.list)} data-field-chats>
           {loading ? (
             <li className="text-sm text-muted-foreground">{t("loading")}</li>
           ) : entries.length === 0 ? (
@@ -210,7 +221,7 @@ function OfficeFieldChats() {
             ))
           )}
         </ul>
-        <div className="surface-panel min-h-64 rounded-xl p-4">
+        <div className={cn("surface-panel min-h-64 rounded-xl p-4", narrow.panel)}>
           {finding ? (
             // The top bar's project, as the list beside it (JB159 K); a new
             // project there starts the finder afresh.
@@ -226,9 +237,13 @@ function OfficeFieldChats() {
           ) : picked?.kind === "PACKAGE" ? (
             // The package and recipient's own thread (JB189): the same one as
             // the package window's 往来聊天.
-            <PackageThreadPanel key={picked.id} recipientId={picked.id} />
+            <div className="space-y-3">
+              <ChatBackToList onBack={() => setPicked(null)} />
+              <PackageThreadPanel key={picked.id} recipientId={picked.id} />
+            </div>
           ) : picked ? (
             <div className="space-y-3">
+              <ChatBackToList onBack={() => setPicked(null)} />
               {open ? (
                 <div className="text-xs text-muted-foreground">
                   {open.project_name} · {t("people", { names: open.people.map((person) => person.name).join("、") })}
@@ -286,7 +301,16 @@ function ChatRow({
           <span className="min-w-0 break-words text-sm font-semibold">{row.title}</span>
           <span className="shrink-0 text-2xs text-muted-foreground">{when}</span>
         </span>
-        <span className="block break-words text-xs text-muted-foreground">{row.project_name}</span>
+        <span className="flex flex-wrap items-center gap-1.5 break-words text-xs text-muted-foreground">
+          {/* JB224: a conversation with the project's consultant says so - his
+              name alone does not tell the office who he is. */}
+          {row.people.some((person) => person.phone_role === "consultant") ? (
+            <span data-with-consultant>
+              <StatusBadge label={t("find.kind.consultant")} tone="neutral" />
+            </span>
+          ) : null}
+          {row.project_name}
+        </span>
         <span className="block truncate text-xs">
           {last ? `${last.author_name}：${last.body || t("attachment")}` : t("noMessages")}
         </span>
