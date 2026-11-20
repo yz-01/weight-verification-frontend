@@ -9,6 +9,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { PlatformClosedNote } from "@/components/platform-access/closed";
 import { exportedReportName } from "@/components/reports/exported-report-name";
 import {
   ArchivedReportActions,
@@ -358,6 +359,9 @@ function ReportHistory() {
         title={t("section.history.title")}
         subtitle={t("section.history.subtitle")}
       />
+      {/* JB220 (客户 11-18): a customer's own report files are listed only
+          while it has opened 「允许 MSE 查看」; MSE's own always are. */}
+      <PlatformClosedNote hidden />
       <div className="surface-panel min-h-0 flex-1 overflow-auto rounded-xl">
         <Table>
           <TableHeader>
@@ -372,16 +376,22 @@ function ReportHistory() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {(history.data?.results ?? []).map((row) => (
+            {(history.data?.results ?? []).map((row) => {
+              // JB220 (客户 11-18): a customer's own report file, listed while
+              // it has opened 「允许 MSE 查看」, is looked at only - 查看, no
+              // 下载 / 打印 / 发送. MSE's own (PLATFORM) files are unchanged.
+              const previewOnly =
+                row.scope && row.scope !== "PLATFORM" ? root("errors.api.platform_access_view_only") : undefined;
+              return (
               <TableRow
                 key={row.id}
                 className="align-top cursor-pointer"
                 onClick={(event) => {
-                  if (clickOpensRow(event)) previewArchived(archive, row);
+                  if (clickOpensRow(event)) previewArchived(archive, row, undefined, previewOnly);
                 }}
               >
                 <TableCell className="min-w-64 whitespace-normal">
-                  <ArchivedReportName row={row} archive={archive} />
+                  <ArchivedReportName row={row} archive={archive} previewOnlyReason={previewOnly} />
                   <ArchivedReportNote row={row} className="pl-6" />
                 </TableCell>
                 <TableCell>{exportedReportName(root, row.report_type)}</TableCell>
@@ -397,10 +407,11 @@ function ReportHistory() {
                 </TableCell>
                 <TableCell>{df.dateTime(row.created_at)}</TableCell>
                 <TableCell>
-                  <ArchivedReportActions row={row} archive={archive} />
+                  <ArchivedReportActions row={row} archive={archive} previewOnlyReason={previewOnly} />
                 </TableCell>
               </TableRow>
-            ))}
+              );
+            })}
             {history.isError && (
               <TableRow>
                 <TableCell colSpan={7} className="whitespace-normal p-4">

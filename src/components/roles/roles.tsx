@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Eye, Layers, Lock, Pencil, Plus, Trash2 } from "lucide-react";
+import { Eye, Info, Layers, Lock, Pencil, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -10,6 +10,7 @@ import { useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { AddPresetRoleDialog } from "@/components/roles/add-preset-role";
+import { rolePermissionSummary, roleTypeLabel } from "@/components/roles/role-summary";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import { ListHeader, TypeBadge } from "@/components/shared/page-primitives";
@@ -22,16 +23,23 @@ import { deleteRole, getRoles } from "@/services/users.service";
 export function Roles() {
   const router = useRouter();
   const t = useTranslations();
-  const { can } = useAuth();
+  const { can, user: me } = useAuth();
   const queryClient = useQueryClient();
   const list = useListQuery();
+  // JB219 (客户 11-18 事项 4): a builder makes and names its own roles - no
+  // 「从预设新增」, no raw 代号 column, the type in the client's words instead.
+  // A recycler's page is unchanged.
+  const builder = me?.portal === "MSE_TRACE";
 
   const [removing, setRemoving] = useState<Role | null>(null);
   const [addingPreset, setAddingPreset] = useState(false);
 
+  // The phone's three roles are made and chosen in 现场人员管理 (客户 11-06),
+  // so this page lists the office roles only.
+  const query = useMemo(() => ({ ...list.query, kind: "office" }), [list.query]);
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["roles", list.query],
-    queryFn: () => getRoles(list.query),
+    queryKey: ["roles", query],
+    queryFn: () => getRoles(query),
   });
 
   const removal = useMutation({
@@ -71,22 +79,41 @@ export function Roles() {
           </div>
         ),
       },
-      {
-        accessorKey: "code",
-        meta: { label: t("roles.field.code") },
-        header: ({ column }) => (
-          <SortableHeader
-            label={t("roles.field.code")}
-            isSorted={column.getIsSorted()}
-            onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          />
-        ),
-        cell: ({ row }) => (
-          <span className="font-mono text-xs text-muted-foreground">
-            {row.original.code}
-          </span>
-        ),
-      },
+      ...(builder
+        ? [
+            {
+              id: "kind",
+              meta: { label: t("roles.field.kind") },
+              header: () => (
+                <span className="text-xs font-semibold text-muted-foreground">
+                  {t("roles.field.kind")}
+                </span>
+              ),
+              cell: ({ row }) => (
+                <span className="text-sm text-foreground">
+                  {roleTypeLabel(row.original, t) ?? t("common.emptyValue")}
+                </span>
+              ),
+            } satisfies ColumnDef<Role, unknown>,
+          ]
+        : [
+            {
+              accessorKey: "code",
+              meta: { label: t("roles.field.code") },
+              header: ({ column }) => (
+                <SortableHeader
+                  label={t("roles.field.code")}
+                  isSorted={column.getIsSorted()}
+                  onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                />
+              ),
+              cell: ({ row }) => (
+                <span className="font-mono text-xs text-muted-foreground">
+                  {row.original.code}
+                </span>
+              ),
+            } satisfies ColumnDef<Role, unknown>,
+          ]),
       {
         accessorKey: "permissions",
         meta: { label: t("roles.field.permissions") },
@@ -96,11 +123,7 @@ export function Roles() {
           </span>
         ),
         cell: ({ row }) => (
-          <TypeBadge
-            label={t("roles.permissionCount", {
-              count: row.original.permissions.length,
-            })}
-          />
+          <TypeBadge label={rolePermissionSummary(row.original, t)} />
         ),
       },
       {
@@ -194,10 +217,17 @@ export function Roles() {
         },
       },
     ],
-    [t, can],
+    [t, can, builder],
   );
 
   const totalCount = data?.count ?? 0;
+  // Nothing but 公司管理员 yet (a new builder): say what to do next.
+  const onlyAdmin =
+    !isLoading &&
+    !isError &&
+    !list.search &&
+    totalCount === 1 &&
+    data?.results.every((role) => role.is_system) === true;
 
   return (
     <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4">
@@ -207,10 +237,12 @@ export function Roles() {
         action={
           can("role.create") ? (
             <div className="flex flex-wrap items-center gap-2">
-              <Button variant="outline" onClick={() => setAddingPreset(true)}>
-                <Layers className="size-4" />
-                {t("roles.preset.open")}
-              </Button>
+              {!builder && (
+                <Button variant="outline" onClick={() => setAddingPreset(true)}>
+                  <Layers className="size-4" />
+                  {t("roles.preset.open")}
+                </Button>
+              )}
               <Button asChild>
                 <Link href="/roles/create">
                   <Plus className="size-4" />
@@ -221,6 +253,24 @@ export function Roles() {
           ) : undefined
         }
       />
+
+      {builder && (
+        <div className="space-y-2" data-roles-help>
+          <p className="flex gap-2 text-sm leading-6 text-muted-foreground">
+            <Info className="mt-1 size-4 shrink-0" />
+            <span>{t("roles.phoneHere")}</span>
+          </p>
+          {onlyAdmin && (
+            <p
+              role="status"
+              data-roles-only-admin
+              className="rounded-lg border border-info/25 bg-info/8 px-3 py-2 text-sm leading-6 text-foreground"
+            >
+              {t("roles.onlyAdmin")}
+            </p>
+          )}
+        </div>
+      )}
 
       <DataTable
         onRowClick={(row) => router.push(`/roles/${row.id}`)}

@@ -50,7 +50,8 @@ export function formatFileSize(bytes: number): string {
 export function useReportArchive() {
   const { busy, run, element } = useFileActions();
   const open = useCallback(
-    (row: ArchivedReportFile, action: FileAction, title?: string) => {
+    // `blockedReason` (JB220): the preview's own 打印 / 导出 / 发送 greyed with it.
+    (row: ArchivedReportFile, action: FileAction, title?: string, blockedReason?: string) => {
       if (!row.has_file) return;
       void run(
         action,
@@ -61,7 +62,7 @@ export function useReportArchive() {
           // Its print / download / send log rows point at this row (JB27).
           reportExport: row.id,
         },
-        { key: `${row.id}:${action}` },
+        { key: `${row.id}:${action}`, blockedReason },
       );
     },
     [run],
@@ -80,12 +81,18 @@ interface RowProps {
 }
 
 /** A click on the row: the file's preview, as the name's own link opens it. */
-export function previewArchived(archive: ReportArchive, row: ArchivedReportFile, title?: string) {
-  if (row.has_file && !archive.busy) archive.open(row, "preview", title);
+export function previewArchived(archive: ReportArchive, row: ArchivedReportFile, title?: string, previewOnlyReason?: string) {
+  if (row.has_file && !archive.busy) archive.open(row, "preview", title, previewOnlyReason);
 }
 
 /** The file name: a link to the stored file, or plain when none was kept. */
-export function ArchivedReportName({ row, archive, title, className }: RowProps) {
+export function ArchivedReportName({
+  row,
+  archive,
+  title,
+  className,
+  previewOnlyReason,
+}: RowProps & { previewOnlyReason?: string }) {
   const t = useTranslations("reportArchive");
   if (!row.has_file) {
     return (
@@ -109,7 +116,7 @@ export function ArchivedReportName({ row, archive, title, className }: RowProps)
       )}
       title={`${row.file_name}\n${t("viewHint")}`}
       disabled={Boolean(archive.busy)}
-      onClick={() => archive.open(row, "preview", title)}
+      onClick={() => archive.open(row, "preview", title, previewOnlyReason)}
       data-slot="report-archive-name"
     >
       {opening ? (
@@ -189,7 +196,19 @@ export function ArchivedReportNote({ row, className }: { row: ArchivedReportFile
  * 「查看」, then 打印 (PDF only) · 导出 · 发送 straight from the row - all on the
  * stored file.
  */
-export function ArchivedReportActions({ row, archive, title, className }: RowProps) {
+export function ArchivedReportActions({
+  row,
+  archive,
+  title,
+  className,
+  previewOnlyReason,
+}: RowProps & {
+  /**
+   * JB220 (客户 11-18): 查看 only, the rest greyed with this sentence - MSE
+   * reading a customer's own report file under its 「允许 MSE 查看」.
+   */
+  previewOnlyReason?: string;
+}) {
   const t = useTranslations("reportArchive");
   const files = useTranslations("fileActions");
   const busy = archive.busy;
@@ -207,7 +226,7 @@ export function ArchivedReportActions({ row, archive, title, className }: RowPro
         disabled={disabled}
         disabledReason={reason}
         title={row.has_file ? t("viewHint") : undefined}
-        onClick={() => archive.open(row, "preview", title)}
+        onClick={() => archive.open(row, "preview", title, previewOnlyReason)}
         data-slot="report-archive-view"
       >
         {busy === `${row.id}:preview` ? <Loader2 className="animate-spin" /> : <Eye />}
@@ -231,8 +250,8 @@ export function ArchivedReportActions({ row, archive, title, className }: RowPro
                     ? files("shareHint")
                     : files(action)
             }
-            disabled={disabled}
-            disabledReason={reason}
+            disabled={disabled || Boolean(previewOnlyReason)}
+            disabledReason={reason ?? previewOnlyReason}
             onClick={() => archive.open(row, action, title)}
             data-slot={`report-archive-${action}`}
           >

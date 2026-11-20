@@ -1084,6 +1084,12 @@ export interface ProjectPermissionsState {
   can_grant: boolean;
   can_edit: boolean;
   /**
+   * JB219 audit F1: options the reader does not hold himself - he may switch
+   * them off, never on (「A组及B组权限由公司管理员自行勾选及分配」). Missing
+   * from an older backend.
+   */
+  cannot_turn_on?: string[];
+  /**
    * Everyone on the project's back-office team (JB147, 客户 11-10 事项 3) -
    * the same people as 「项目人员名单」 but the phone. `kind`: a project user
    * switched here, or a head-office (总部) account whose permissions are set in

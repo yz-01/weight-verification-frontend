@@ -1,12 +1,13 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Lock, Pencil } from "lucide-react";
+import { Lock, Pencil, Smartphone } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { PermissionMatrix, roleKindOf } from "@/components/roles/permission-matrix";
+import { rolePermissionSummary, roleTypeLabel } from "@/components/roles/role-summary";
 import {
   FormSection,
   FormSkeleton,
@@ -36,6 +37,10 @@ export function ViewRole({ id }: { id: string }) {
   }
 
   const name = roleName(data, t);
+  const kind = roleKindOf(data);
+  const phone = kind === "phone";
+  const officeRole = kind === "head_office" || kind === "project";
+  const typeLabel = roleTypeLabel(data, t);
 
   return (
     <div className="space-y-4">
@@ -43,7 +48,8 @@ export function ViewRole({ id }: { id: string }) {
         backHref="/roles"
         backLabel={t("roles.title")}
         action={
-          can("role.update") ? (
+          // A phone role is managed in 现场人员管理 (JB219), not here.
+          can("role.update") && !phone ? (
             <Button asChild size="sm">
               <Link href={`/roles/${data.id}/edit`}>
                 <Pencil className="h-4 w-4" />
@@ -63,17 +69,31 @@ export function ViewRole({ id }: { id: string }) {
               {t("roles.system")}
             </span>
           )}
-          <TypeBadge
-            label={t("roles.permissionCount", {
-              count: data.permissions.length,
-            })}
-            className="ml-auto"
-          />
+          <TypeBadge label={rolePermissionSummary(data, t)} className="ml-auto" />
         </div>
+        {phone && (
+          <p
+            role="note"
+            data-phone-role
+            className="mx-6 mb-5 flex gap-2 rounded-lg border border-info/25 bg-info/8 p-3 text-sm leading-6 text-foreground"
+          >
+            <Smartphone className="mt-1 size-4 shrink-0 text-info" />
+            <span>
+              {t("roles.phoneRole")}{" "}
+              <Link href="/field-staff-management" className="font-medium text-primary underline-offset-4 hover:underline">
+                {t("roles.phoneRoleLink")}
+              </Link>
+            </span>
+          </p>
+        )}
 
         <div className="divide-y border-t">
           <FormSection title={t("roles.section.identity")}>
-            <ReadField label={t("roles.field.code")} value={data.code} />
+            {/* No raw code on a builder's role (walk 11-18: 「代号 project_manager」;
+                事项 4 「取消目前系统预设的其他角色名称」, a simpler page) - its
+                list has no 代号 column either (JB219). */}
+            {officeRole || phone ? null : <ReadField label={t("roles.field.code")} value={data.code} />}
+            {typeLabel ? <ReadField label={t("roles.kind.label")} value={typeLabel} /> : null}
             <ReadField
               label={t("roles.field.userCount")}
               value={String(data.user_count ?? 0)}
@@ -89,12 +109,12 @@ export function ViewRole({ id }: { id: string }) {
             <h3 className="mb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               {t("roles.section.permissions")}
             </h3>
-            {data.permissions.length === 0 ? (
+            {data.permissions.length === 0 && !officeRole ? (
               <p className="text-sm italic text-muted-foreground">
                 {t("roles.permissionCount", { count: 0 })}
               </p>
             ) : (
-              <PermissionMatrix selected={data.permissions} readOnly kind={roleKindOf(data)} />
+              <PermissionMatrix selected={data.permissions} readOnly kind={kind} />
             )}
           </section>
         </div>

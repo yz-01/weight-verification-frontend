@@ -23,17 +23,30 @@ import type { Role } from "@/interfaces/auth";
 
 type Translate = ReturnType<typeof useTranslations>;
 
+/**
+ * Whether a seeded role still carries the name it was seeded with. A preset
+ * the company renamed is its own role now (JB219, 客户 11-18 事项 4: 「由建筑公司
+ * 自行创建及命名」): its own name and description show, as the backend's
+ * ``core.step_up.role_label`` already does. Before, the preset's name showed
+ * whatever the company typed.
+ */
+function keepsSeededName(role: Pick<Role, "code" | "name">): boolean {
+  const seeded = SEEDED_NAME_BY_CODE[role.code];
+  return !role.name || seeded === undefined || role.name === seeded;
+}
+
 export function roleName(role: Pick<Role, "code" | "name">, t: Translate): string {
   const key = `roles.system_.${role.code}`;
-  return t.has(key) ? t(key) : role.name;
+  return t.has(key) && keepsSeededName(role) ? t(key) : role.name;
 }
 
 export function roleDescription(
-  role: Pick<Role, "code" | "description">,
+  role: Pick<Role, "code" | "description"> & Partial<Pick<Role, "name">>,
   t: Translate,
 ): string {
   const key = `roles.systemDescription.${role.code}`;
-  return t.has(key) ? t(key) : role.description;
+  const renamed = role.name !== undefined && !keepsSeededName({ code: role.code, name: role.name });
+  return t.has(key) && !renamed ? t(key) : role.description;
 }
 
 /**
@@ -50,6 +63,20 @@ export function roleLabel(
   const resolved = code || SEEDED_ROLE_CODE_BY_NAME[stored];
   if (!resolved) return stored;
   return roleName({ code: resolved, name: stored }, t);
+}
+
+/**
+ * A stamped 身份 / 职位 line - 「Site Staff」, 「Site Staff · Stores」 - with the
+ * platform's own role names in the reader's language, the same rule as the
+ * backend's `core.step_up.title_label` (walk 11-18: 「申请人 阿明 · Site
+ * Staff」 on a Chinese permit, while its PDF's 审批记录 said 工地人员). A
+ * department, a job title and a role the company named stay as typed.
+ */
+export function titleLabel(title: string | null | undefined, t: Translate): string {
+  return (title ?? "")
+    .split(" · ")
+    .map((part) => roleLabel(null, part, t))
+    .join(" · ");
 }
 
 /**
@@ -79,6 +106,11 @@ export const SEEDED_ROLE_CODE_BY_NAME: Record<string, string> = {
   "Weighbridge Operator": "weighbridge_operator",
   Driver: "driver",
 };
+
+/** The other way round: the English name each preset was seeded with. */
+const SEEDED_NAME_BY_CODE: Record<string, string> = Object.fromEntries(
+  Object.entries(SEEDED_ROLE_CODE_BY_NAME).map(([name, code]) => [code, name]),
+);
 
 /** Hook form of `roleLabel` for components that only need to show a name. */
 export function useRoleLabel() {

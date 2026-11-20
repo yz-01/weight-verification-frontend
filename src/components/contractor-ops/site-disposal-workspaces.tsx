@@ -1357,6 +1357,8 @@ function DisposalDetailDialog({
         // The conversation bound to this Record ID (T-316, C-014, D-233), on
         // the screen where the work is done rather than in the archive queue.
         conversation={{ kind: "DISPOSAL_REQUEST", recordId: row.id }}
+        // JB217: 出门条批准（安全经理） · 外部审批 · 门岗放行 (one release per lorry).
+        exitPass={{ kind: "DISPOSAL_REQUEST", recordId: row.id }}
         // 【确认归档】 once the disposal is completed (C4).
         closure={{ kind: "DISPOSAL_REQUEST", recordId: row.id }}
       />

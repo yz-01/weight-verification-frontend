@@ -33,6 +33,7 @@ import { Switch } from "@/components/ui/switch";
 import type { PermissionEntry } from "@/interfaces/auth";
 import { permissionGroupLabel, permissionLabel } from "@/lib/permission-labels";
 import { roleName } from "@/lib/role-labels";
+import { saveRefusalLine } from "@/lib/save-refusal";
 import { cn } from "@/lib/utils";
 import { getPermissionCatalogue } from "@/services/auth.service";
 import {
@@ -43,6 +44,7 @@ import {
 
 export function ProjectPermissions({ projectId }: { projectId: string }) {
   const t = useTranslations("projects.permissions");
+  const all = useTranslations();
   const queryClient = useQueryClient();
   const key = ["projects", "permissions", projectId] as const;
   const state = useQuery({ queryKey: key, queryFn: () => getProjectPermissions(projectId) });
@@ -87,6 +89,12 @@ export function ProjectPermissions({ projectId }: { projectId: string }) {
               entries={entries}
               saving={save.isPending}
               onSave={(on) => save.mutate({ member: member.id, on })}
+              // This person's save refused: said under its 「保存」 (walk 11-18).
+              refusal={
+                save.isError && save.variables?.member === member.id
+                  ? saveRefusalLine(save.error, all("common.saveFailed"))
+                  : null
+              }
             />
           ))}
         </ul>
@@ -101,12 +109,15 @@ function MemberRow({
   entries,
   saving,
   onSave,
+  refusal = null,
 }: {
   member: ProjectPermissionsState["members"][number];
   data: ProjectPermissionsState;
   entries: Map<string, PermissionEntry>;
   saving: boolean;
   onSave: (on: string[]) => void;
+  /** Why this person's last save did not go through, in the reader's words. */
+  refusal?: string | null;
 }) {
   const t = useTranslations("projects.permissions");
   const all = useTranslations();
@@ -127,6 +138,10 @@ function MemberRow({
   const grantable = useMemo(() => grouped(data.grantable, entries), [data.grantable, entries]);
   const toggle = (code: string, value: boolean) =>
     setOn((current) => (value ? [...current, code] : current.filter((item) => item !== code)));
+  // JB219 audit F1: what the reader does not hold himself he may switch off,
+  // never on - a box off for this person is greyed, with the line below.
+  const locked = useMemo(() => notMineFor(data.cannot_turn_on, member.on), [data.cannot_turn_on, member.on]);
+  const anyLocked = editable && [...data.project_codes, ...(data.can_grant ? data.grantable : [])].some(locked);
   return (
     <li className="rounded-lg border" data-project-member={member.id}>
       <button
@@ -170,6 +185,11 @@ function MemberRow({
         <div className="space-y-4 border-t p-3">
           <div className="space-y-3" data-member-part="project">
             <p className="text-xs text-muted-foreground">{t("projectNote")}</p>
+            {anyLocked && (
+              <p className="text-xs font-medium text-foreground" data-member-not-mine>
+                {t("notMine")}
+              </p>
+            )}
             {daily.map(([group, codes]) => (
               <SwitchGroup
                 key={group}
@@ -179,6 +199,7 @@ function MemberRow({
                 isOn={(code) => on.includes(code)}
                 onToggle={toggle}
                 disabled={!editable}
+                locked={locked}
               />
             ))}
           </div>
@@ -195,10 +216,16 @@ function MemberRow({
                   isOn={(code) => on.includes(code)}
                   onToggle={toggle}
                   disabled={!editable}
+                  locked={locked}
                 />
               ))}
             </div>
           )}
+          {editable && refusal ? (
+            <p role="alert" data-member-refusal className="text-sm font-medium text-destructive">
+              {refusal}
+            </p>
+          ) : null}
           {editable && (
             <div className="flex justify-end">
               <Button
@@ -218,6 +245,16 @@ function MemberRow({
   );
 }
 
+/**
+ * A box the reader may not switch on for this person (JB219 audit F1,
+ * 「A组及B组权限由公司管理员自行勾选及分配」): one he does not hold himself
+ * that is off for them. One that is on stays his to switch off.
+ */
+export function notMineFor(cannotTurnOn: string[] | undefined, memberOn: string[]) {
+  const notMine = new Set(cannotTurnOn ?? []);
+  return (code: string) => notMine.has(code) && !memberOn.includes(code);
+}
+
 function SwitchGroup({
   group,
   codes,
@@ -225,6 +262,7 @@ function SwitchGroup({
   isOn,
   onToggle,
   disabled,
+  locked,
 }: {
   group: string;
   codes: string[];
@@ -232,6 +270,8 @@ function SwitchGroup({
   isOn: (code: string) => boolean;
   onToggle: (code: string, value: boolean) => void;
   disabled: boolean;
+  /** A box the reader may not switch on (JB219 audit F1). */
+  locked?: (code: string) => boolean;
 }) {
   const t = useTranslations();
   return (
@@ -246,12 +286,16 @@ function SwitchGroup({
             <label
               key={code}
               data-project-switch={code}
-              className="flex items-center justify-between gap-2 rounded-md border px-3 py-1.5 text-sm"
+              data-not-mine={locked?.(code) ? "" : undefined}
+              className={cn(
+                "flex items-center justify-between gap-2 rounded-md border px-3 py-1.5 text-sm",
+                locked?.(code) && "bg-muted/50 text-muted-foreground",
+              )}
             >
               <span className="min-w-0 break-words">{text}</span>
               <Switch
                 checked={isOn(code)}
-                disabled={disabled}
+                disabled={disabled || Boolean(locked?.(code))}
                 aria-label={text}
                 onCheckedChange={(value) => onToggle(code, value)}
               />

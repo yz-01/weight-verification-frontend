@@ -4014,7 +4014,23 @@
       "rain_remark_set": "填寫雨天記錄的意見 / 備註",
       "rain_month_remark_set": "填寫雨天月報的意見 / 備註",
       "settings_reset_on_wiring": "維護模式、強制更新接通時重設",
-      "head_office_on_behalf": "總部代批"
+      "head_office_on_behalf": "總部代批",
+      "exit_pass_signed": "安全經理簽名批准出門條",
+      "exit_pass_external_set": "設定是否需要外部審批",
+      "exit_pass_external_waived": "改為不需要外部審批",
+      "exit_pass_external_signed": "外部審批在線簽名",
+      "exit_pass_external_paper_recorded": "登記簽回的外部審批文件",
+      "exit_pass_sent": "發出出門條",
+      "exit_pass_released": "門崗確認放行",
+      "exit_pass_external_paper_corrected": "更換簽回的外部審批文件",
+      "permit_form_saved": "保存電子准證",
+      "permit_work_type_added": "新增施工類別",
+      "permit_work_type_renamed": "施工類別改名",
+      "permit_work_type_removed": "刪除施工類別",
+      "role_followed": "角色權限改動，同步給這個角色的人",
+      "jb219_head_office_roles": "系統更新：整理角色（總部角色、取消沒人用的預設角色）",
+      "platform_access_opened": "開放 MSE 查看權限",
+      "platform_access_closed": "關閉 MSE 查看權限"
     },
     "objectType": {
       "SignOffAssistant": "助理副密碼",
@@ -4830,7 +4846,8 @@
         "ehs": "整改 / EHS 分類",
         "claim": "Progress Claim 分類",
         "equipmentName": "設備名稱",
-        "recycle": "環保材料出場分類"
+        "recycle": "環保材料出場分類",
+        "permitWorkType": "施工准證 · 施工類別"
       },
       "moduleHelp": {
         "material": "材料和它下面的規格。建立新項目時一起帶入。",
@@ -4838,7 +4855,8 @@
         "ehs": "整改 / EHS 的分類。施工准證申請是系統的。",
         "claim": "Progress Claim 的分類。",
         "equipmentName": "設備名稱全公司共用，所有項目登記設備時都從這裡選。",
-        "recycle": "環保材料出場分類本來就是全公司共用。"
+        "recycle": "環保材料出場分類本來就是全公司共用。",
+        "permitWorkType": "填寫電子准證時「施工類別」下拉裡的選項。可以新增、改名或刪除；改名或刪除不會改動已經填好的電子准證。「其他（寫明）」一直都有。"
       },
       "create": "新增分類",
       "createTitle": "新增 · {module}",
@@ -5021,7 +5039,8 @@
       "byLetter": "按首字母篩選"
     },
     "loadOffline": "沒有網路，{what}等有網路時再載入。",
-    "pageNotOpen": "你的賬號不能打開這個頁面，已帶你回到可以用的頁面。需要用這個頁面，請聯繫你們公司的管理員開通。"
+    "pageNotOpen": "你的賬號不能打開這個頁面，已帶你回到可以用的頁面。需要用這個頁面，請聯繫你們公司的管理員開通。",
+    "saveFailed": "這次沒有保存成功（伺服器沒有完成）。你填的內容都還在，請再試一次。"
   },
   "companies": {
     "owner": {
@@ -5423,7 +5442,10 @@
         "confirmOffTitle": "取消鎖定「{project}」？",
         "confirmOffBody": "關掉後，這個項目歸檔後的記錄可以在電腦後台修改，要 6 位密碼，並留下修改記錄。",
         "confirmOff": "確定取消鎖定"
-      }
+      },
+      "noRole": "不指定（能審批的人都可以）",
+      "roleMissing": "{name}（這個公司沒有這個角色）",
+      "noUserRole": "不指定（新增用戶時自己選角色）"
     },
     "trialDaysHint": "這個套餐預設試用 {days} 天。試用期間不出帳單；試用結束後要在訂閱管理按「延長或續費」才開始收費。填 0 = 不試用。",
     "trialNote": "試用期間不出帳單。試用結束後要在訂閱管理按「延長或續費」才開始收費。",
@@ -9490,7 +9512,48 @@
       "consultant_read_only": "顧問帳號只能查看這裡的資料，不能修改。",
       "consultant_module_not_granted": "總部沒有為您在這個項目開通這個模組。如需使用，請聯絡總部。",
       "consultant_no_permit": "施工准證由施工方申請，顧問不能提交。您可以發起整改。",
-      "consultant_export_not_granted": "總部沒有為您在這個項目開通「導出」，所以不能導出或發送。可以預覽和列印。"
+      "consultant_export_not_granted": "總部沒有為您在這個項目開通「導出」，所以不能導出或發送。可以預覽和列印。",
+      "exit_pass_not_applicable": "這筆記錄沒有出門條（材料領用、設備進場，或出門條功能啟用前已完成的記錄），不需要簽名或放行。",
+      "exit_pass_not_ready": "這筆申請還沒有批准，現在不能簽出門條；請等後台批准後再簽。",
+      "exit_pass_record_closed": "這筆記錄已經歸檔、退回或取消，出門條已經不能再簽名或放行；如有疑問請聯繫申請人或後台。",
+      "exit_pass_not_a_signer": "你不是這個項目的安全經理，不能簽出門條；請聯繫公司管理員給你「安全驗收」權限並把你加進這個項目。",
+      "exit_pass_own_application": "這是你自己的申請，不能自己簽出門條；請請這個項目的另一位安全經理簽名。",
+      "exit_pass_already_signed": "另一位安全經理剛剛已經簽了這張出門條，你不用再簽；頁面已刷新。",
+      "exit_pass_signature_required": "還沒有簽名；請先在簽名框裡簽名，再按「簽名批准」。",
+      "exit_pass_needs_signature_first": "安全經理還沒有簽出門條，現在不能做外部審批；請先請安全經理簽名批准。",
+      "exit_pass_external_not_waiting": "這筆現在不在等待外部審批（不需要外部審批，或已經完成，或門崗已經放行），不用再做；頁面已刷新。",
+      "exit_pass_external_not_allowed": "你不能做這一步：外部審批要在電腦後台、由有這類記錄審批權限的人做，申請人和簽出門條的安全經理不能做；請請總部或項目審批人處理。",
+      "exit_pass_external_fields_required": "還缺資料：請填寫所屬公司／部門、審批人姓名和日期，並選擇或上傳簽回的文件，再保存。",
+      "exit_pass_external_locked": "「需要外部審批」現在不能再改，因為外部審批已經完成或出門條已經發出；頁面已刷新。",
+      "exit_pass_not_sent": "這張出門條還沒有發出，現在不能放行；請車輛先等候，並聯繫申請人或安全經理先簽出門條。",
+      "exit_pass_already_released": "這張出門條已經由門崗放行過（或這筆清運已經結束），不用再放行；頁面已刷新。",
+      "exit_pass_release_phone_only": "放行要由門崗在手機上拍照後確認，電腦後台不能放行；請到門崗手機上操作。",
+      "exit_pass_external_pending": "這筆還在等外部審批，現在不能確認歸檔；請先登記簽回的文件或請對方在線簽名，或改為不需要外部審批，再確認歸檔。",
+      "exit_pass_own_release": "這是你自己申請出場的東西，要由門崗檢查車輛和貨物後放行。",
+      "exit_pass_gate_release_only": "這個項目有門崗手機，出門條要由門崗檢查放行。請讓門崗在手機上打開出門條，拍照核查後按【確認放行】。",
+      "exit_pass_online_head_office_only": "在線簽名要由總部的人做（總部角色或公司管理員，並有這類記錄的審批權限）；簽這張出門條的安全經理、批准這筆申請的人和申請人都不能在線簽。請把出門條列印或用 Email 發給對方，簽回後按【登記簽回的文件】上傳。",
+      "exit_pass_waive_not_allowed": "你不能改為不需要外部審批：只有簽這張出門條的安全經理、公司管理員，或沒有批准這筆申請的總部人員可以改。請聯繫他們處理。",
+      "exit_pass_busy": "系統正忙，剛才沒有存好。請等幾秒再按一次。",
+      "role_kind_fixed": "公司管理員一定是總部角色；手機賬號的角色不能改成總部角色。",
+      "role_self_lockout": "你自己也是這個角色的人，這樣保存會關掉你自己的「用戶管理」。請保留「查看用戶」和「編輯用戶」的勾，或請公司管理員來改。",
+      "role_self_lockout_type": "你自己也是這個角色的人，改成項目角色會關掉你自己的「用戶管理」。請保留總部角色，或請公司管理員來改。",
+      "grant_not_held": "你自己沒有這項權限，不能給別人，也不能給自己。請公司管理員來做。",
+      "grant_admin_role_only_admin": "只有公司管理員可以把人設為「公司管理員」。請公司管理員來做。",
+      "grant_admin_account_only_admin": "公司管理員的角色和權限，只有公司管理員可以改。請公司管理員來做。",
+      "permit_form_office_only": "電子准證要在電腦後台填寫。請用電腦登入後再填。",
+      "permit_work_type_exists": "已經有「{name}」了，不用再加。",
+      "permit_form_changed": "{name} 在你打開之後也保存了這張電子准證。請關閉後重新打開，看過最新內容再改。",
+      "permit_form_changed_before_signing": "電子准證剛被修改過，請先看一遍再簽名批准。",
+      "platform_access_admin_only": "只有公司管理員可以開放或關閉 MSE 查看權限，請找貴公司的管理員。",
+      "platform_access_closed": "這家客戶現在沒有開放查看，請客戶管理員在「公司設置」裡點「允許 MSE 查看」後再打開。",
+      "platform_access_company_required": "沒有說明是哪一家客戶的資料，請從這家客戶的公司頁面或稱重單重新打開。",
+      "platform_access_not_available": "這是客戶自己的業務資料，MSE 後台不能打開；需要幫客戶看時，請客戶開放「允許 MSE 管理賬號」，由 MSE 給客戶加一個客戶看得到、隨時可刪的支援賬號。",
+      "platform_access_request_sent": "一小時內已經通知過這家客戶，請 {minutes} 分鐘後再發。",
+      "platform_qr_customer_only": "送貨單和供應商的二維碼由客戶自己簽發，MSE 看不到這些資料。",
+      "platform_access_view_only": "客戶只開放了查看：MSE 可以打開預覽來看，系統不給 MSE 修改、匯出、發送或列印客戶的資料。",
+      "platform_accounts_closed": "改這家客戶的賬號要客戶同意，請客戶管理員在「公司設置」裡點「允許 MSE 管理賬號」後再試。",
+      "platform_owner_locked": "客戶已經開始用這個管理員賬號，MSE 不能改它的登入郵箱；請告訴客戶：由客戶自己的公司管理員在「用戶管理」裡修改，或者客戶來函，由管伺服器的同事處理。",
+      "phone_role_office_account": "手機賬號要在「現場人員管理」裡開，這裡不能把後台賬號設為手機角色（工地人員、設備操作人員、門崗保安）。請選別的角色。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -9534,7 +9597,8 @@
       "invalid_birth_date": "出生日期要在今天以前",
       "site_worker_passport_taken": "這本護照已經在名單裡",
       "supplier_not_on_project": "這個供應商不在這個項目的「可用供應商」裡。請總部或項目經理先在項目裡加入。",
-      "field_one_project": "手機賬號同一時間只能在一個項目，請只選一個項目。"
+      "field_one_project": "手機賬號同一時間只能在一個項目，請只選一個項目。",
+      "phone_role_office_account": "手機賬號要在「現場人員管理」裡開，這裡不能把後台賬號設為手機角色（工地人員、設備操作人員、門崗保安）。請選別的角色。"
     },
     "forbidden": "你沒有訪問權限。",
     "forbiddenBody": "如果確實需要，請聯繫管理員。",
@@ -12644,7 +12708,18 @@
       "report_records": "進度記錄",
       "report_photos": "照片數量",
       "document_title": "文件名稱",
-      "rain_remark": "意見 / 備註"
+      "rain_remark": "意見 / 備註",
+      "last_return_reason": "上次退回原因",
+      "permit_subcontractor": "分包商",
+      "permit_work_lead": "施工負責人",
+      "permit_contact_phone": "聯繫電話",
+      "permit_work_type": "施工類別",
+      "permit_location": "施工位置",
+      "permit_work_content": "施工內容",
+      "permit_work_period": "申請起止時間",
+      "permit_safety_measures": "風險及安全措施",
+      "permit_conditions": "批准條件",
+      "permit_valid_period": "批准起止時間"
     },
     "detailTitle": "我提交過的",
     "photos": "照片",
@@ -13114,7 +13189,8 @@
       "SAFETY": "安全",
       "SUBSCRIPTION": "訂閱",
       "SYSTEM": "系統",
-      "WEIGHING": "稱重"
+      "WEIGHING": "稱重",
+      "PLATFORM_ACCESS": "MSE 查看權限"
     },
     "listFailed": "無法載入你的通知。這和「沒有通知」不是一回事 —— 請重試。",
     "push": {
@@ -13656,8 +13732,8 @@
     "roles": {
       "what": "你們公司每個角色能看什麼、能做什麼。",
       "who": "持 role.view；修改要 role.update。",
-      "need": "建角色要代號、名稱，以及至少一項權限。",
-      "then": "權限改動在對方下次載入頁面時生效，可能需要讓他重新整理一下。",
+      "need": "新增角色要填名稱，再選「總部角色」或「項目角色」：總部角色由你勾 A 組和 B 組；項目角色由你勾 B 組，項目權限默認全部打開。角色編號由系統自動生成。",
+      "then": "保存後，這個角色的人跟著改；他們下次打開頁面就生效，可能需要重新整理一下。",
       "trouble": "有人的側邊欄是空的：他的角色一項模組權限都沒有。"
     },
     "safety": {
@@ -13832,11 +13908,11 @@
       "trouble": "權限、二維碼、通知、GPS、安全和資料保存由 MSE 統一管理，這裡不能改；需要修改請聯繫 MSE。"
     },
     "permits": {
-      "what": "施工准證：把公司原有的准證表格（Word、PDF 或照片）上傳，交給指定的安全經理簽名批准或退回，批准後歸檔。也能按項目、審批狀態、申請人和日期找回每一份准證，預覽、列印或下載文件。",
+      "what": "施工准證：把公司原有的准證表格（Word、PDF 或照片）上傳，交給指定的安全經理簽名批准或退回，批准後歸檔。也能按項目、審批狀態、申請人和日期找回每一份准證，預覽、列印或下載文件。審批人可以在窗口裡按「填寫電子准證」，把這份申請填成一張電子准證，它會印在完整證據 PDF 的第一頁。",
       "who": "有「查看整改 / EHS 與施工准證」權限的人可以查看和下載；有「上報及指派整改、申請施工准證」的人可以按【新申請】申請；審批要有「安全驗收（可審批施工准證）」，而且是申請人選的那位安全經理，或公司管理員。自己申請的准證要由別人審批。",
-      "need": "新申請要選項目、上傳准證文件（Word、PDF 或表格照片，可以多頁，一次最多 10 個），再選審批的安全經理；備註選填。批准要簽名；退回要寫原因。",
-      "then": "選中的安全經理（和公司管理員）會收到待審批的通知。批准後，原文件、審批記錄、簽名、審批人職位和時間一起歸檔，不能再修改；退回後，申請人按原因改好，上傳新文件重新提交，之前的文件保留備查。批准或退回，申請人都會收到通知。",
-      "trouble": "選不到安全經理，是因為這個項目還沒有能審批准證的人：審批人的角色要勾「安全驗收」和「查看項目」，還要加進這個項目的人員名單。【新申請】視窗裡寫著這三步。"
+      "need": "新申請要選項目、上傳准證文件（Word、PDF 或表格照片，可以多頁，一次最多 10 個），再選審批的安全經理；備註選填。批准要簽名；退回要寫原因。電子准證選填；填的話，施工內容、施工位置和申請起止時間必填。施工類別的選項在「分類管理 → 公司通用分類 → 施工准證 · 施工類別」設定。",
+      "then": "選中的安全經理（和公司管理員）會收到待審批的通知。批准後，原文件、審批記錄、簽名、審批人職位和時間一起歸檔，不能再修改；退回後，申請人按原因改好，上傳新文件重新提交，之前的文件保留備查。批准或退回，申請人都會收到通知。電子准證只有審批這份准證的人在電腦上可以填寫，申請人只能查看；簽名批准後跟准證一起歸檔，不能再修改。",
+      "trouble": "選不到安全經理，是因為這個項目還沒有能審批准證的人：審批人的賬號要有「安全驗收」和「查看項目」（項目角色默認打開），還要加進這個項目的人員名單。【新申請】視窗裡寫著這三步。"
     },
     "billing_customer": {
       "what": "MSE 發給你們公司的賬單：SaaS 訂閱費，合作版還有平臺佣金。每一張都看得到期間、金額、已付多少和還欠多少。",
@@ -14668,6 +14744,7 @@
       "nothingChanged": "還沒有改動。",
       "saved": "項目權限已保存",
       "projectNote": "項目權限：默認全部打開。關掉的那一項，這個人在他所有的項目都不能用。",
+      "notMine": "灰色的開關是你自己沒有的權限，你不能打開。請公司管理員來做。",
       "allOn": "項目權限全部打開",
       "someOff": "關掉了 {count} 項",
       "grantedCount": "總部開了 {count} 項 B 組權限",
@@ -15680,7 +15757,8 @@
       "description": "說明",
       "name": "角色名稱",
       "permissions": "權限",
-      "userCount": "人數"
+      "userCount": "人數",
+      "kind": "類型"
     },
     "new": "新增角色",
     "permissionCount": "{count, plural, =0 {沒有權限} other {# 項權限}}",
@@ -15769,14 +15847,39 @@
       "label": "權限頁面",
       "hq": "總部權限",
       "project": "項目權限",
-      "hqHelp": "A 組只有總部才有；B 組由總部決定開放給哪些項目用戶。",
-      "hqHelpProjectRole": "這是項目角色：A 組是總部專屬，不能勾選；B 組默認關掉，勾選後這個角色的人就有。總部也可以在「編輯用戶」為某個人單獨打開。",
+      "hqHelp": "這是總部角色：A 組和 B 組都由你勾選，勾了這個角色的人就有；取消勾選，他們就沒有。",
+      "hqHelpProjectRole": "這是項目角色：A 組是總部專屬，不能勾選；B 組由你勾選，勾了這個角色的人就有。也可以在「編輯用戶」為某一個人單獨打開。",
       "projectHelp": "項目裡做事用的權限。",
       "sectionA": "A 組 · 總部專屬（項目用戶沒有）",
       "sectionB": "B 組 · 總部可選擇授權給項目用戶",
       "projectDefaultOn": "項目權限：這個角色的人默認全部打開，不用勾選。以後可以在「編輯用戶」或項目的「項目權限」為某個人關掉某一項。",
-      "defaultOn": "默認打開"
-    }
+      "defaultOn": "默認打開",
+      "projectDefaultOnHeadOffice": "項目權限：這個角色的人默認全部打開，不用勾選。以後可以在「編輯用戶」為某個人關掉某一項。"
+    },
+    "kind": {
+      "label": "角色類型",
+      "headOffice": "總部角色",
+      "headOfficeHelp": "在總部辦公室，管理整個公司。A 組、B 組由你勾。",
+      "project": "項目角色",
+      "projectHelp": "只做被分配的項目。A 組不能給；B 組由你勾；項目權限默認全部打開。",
+      "phone": "手機賬號",
+      "required": "請先選「總部角色」或「項目角色」。",
+      "chooseFirst": "先選上面的角色類型：總部角色或項目角色。選好後，這裡會列出可以勾的權限。",
+      "changeHolders": "這個角色現在有 {count} 人。改類型後，他們的總部權限會按這個角色重新設定；他們各自被關掉的項目權限不變。",
+      "adminFixed": "總部角色。公司管理員一定是總部角色，不能改。"
+    },
+    "followers": "這個角色現在有 {count} 人。保存後，這次改動的勾選會同步給他們；他們各自被單獨打開或關掉的其他權限不變。",
+    "adminLocked": "公司管理員有全部權限，不能修改。",
+    "adminNameFixed": "公司管理員的名稱和說明由系統設定，不能修改。",
+    "notYours": "灰色的格子是你自己沒有的權限，你不能勾給這個角色。請公司管理員來做。",
+    "phoneRole": "這是手機賬號的角色（工地人員、設備操作人員、門崗保安），在「現場人員管理」生成和管理，這裡只能查看它的權限。",
+    "phoneRoleLink": "打開現場人員管理",
+    "hqCount": "{count, plural, =0 {沒有勾總部權限} other {總部權限 # 項}}",
+    "allPermissions": "全部權限",
+    "phoneHere": "手機賬號（工地人員、設備操作人員、門崗保安）在「現場人員管理」生成，不在這裡。",
+    "onlyAdmin": "公司管理員已經有全部權限。其他職位請按右上角「新增角色」，自己取名、選總部角色或項目角色、勾權限。",
+    "createHelp": "取一個名稱，選總部角色或項目角色，再勾這個角色要有的權限，然後按「創建」。",
+    "editHelp": "名稱、角色類型和權限勾選都在下面；改好後按「保存」。"
   },
   "safety": {
     "officeCreate": {
@@ -16886,7 +16989,8 @@
       "ABNORMAL_VEHICLE": "異常車輛",
       "ITEM_REMOVAL": "物品帶出",
       "DISPUTE": "糾紛",
-      "OTHER": "其他"
+      "OTHER": "其他",
+      "EXIT_RELEASE": "出場放行"
     },
     "gateRecords": {
       "title": "門崗記錄",
@@ -18485,7 +18589,13 @@
       "role": "角色",
       "roleHint": "不選角色，這個賬號登入後甚麼都看不到。",
       "status": "狀態",
-      "timezone": "時區"
+      "timezone": "時區",
+      "roleRequired": "請選角色。",
+      "noOwnRoles": "公司還沒有自己建立的角色。要給這個人比公司管理員少的權限，請先到「用戶 › 角色與權限」按「新增角色」。",
+      "noOwnRolesLink": "去角色與權限",
+      "roleNotYours": "（請公司管理員來給）",
+      "rolesNotYours": "灰色的角色有你自己沒有的權限（或是公司管理員），不能由你來給。請公司管理員來做。",
+      "adminRoleFixed": "這是公司管理員的賬號，角色只有公司管理員可以改。"
     },
     "filter": {
       "allAudiences": "全部用戶類別",
@@ -18604,6 +18714,8 @@
       "chosenProjects": "指定項目",
       "noProjects": "公司還沒有項目。",
       "needOneProject": "至少選一個項目，或選全部項目。",
+      "notMine": "灰色的開關是你自己沒有的權限，你不能打開，也不能給自己。請公司管理員來做。",
+      "adminAccount": "這是公司管理員的賬號，權限只有公司管理員可以改。",
       "amounts": "金額查看",
       "amountsHint": "材料成本、單價、預算、Claim、雜費報銷金額；關掉後顯示「—」，匯出也拿掉。",
       "operate": "業務操作",
@@ -18623,7 +18735,8 @@
       "hqHintProjectUser": "B 組 · 總部可選擇授權：默認關掉，總部打開後這個人才可以用。",
       "reservedNote": "A 組總部專屬權限（用戶及角色管理、審計日誌、審批流程模板、部門管理、項目管理、儀表板管理、公司設置、收費管理、訂閱管理、系統集成）只有總部賬號才有，項目用戶不能打開。",
       "scopeProjectUser": "項目用戶只能看指定的項目。",
-      "projectDefaultOn": "項目權限默認全部打開，可以為這個人關掉某一項，以後也可以再打開。"
+      "projectDefaultOn": "項目權限默認全部打開，可以為這個人關掉某一項，以後也可以再打開。",
+      "partSavedWhy": "基本資料已保存，權限還沒保存：{reason}"
     },
     "projectsView": {
       "projectsAll": "可以查看公司全部項目",
@@ -20881,7 +20994,8 @@
       "reviewNote": "審批意見 / 退回原因",
       "signature": "審批簽名",
       "returnedBy": "退回人",
-      "approvedBy": "批准人"
+      "approvedBy": "批准人",
+      "lastReturnReason": "上次退回原因"
     },
     "status": {
       "RECTIFICATION_SUBMITTED": "待審批",
@@ -20943,14 +21057,107 @@
       "submitted": "{reference} 已提交審批",
       "resubmitted": "{reference} 已重新提交",
       "approved": "{reference} 已批准並歸檔",
-      "returned": "{reference} 已退回給申請人"
+      "returned": "{reference} 已退回給申請人",
+      "formSaved": "{reference} 電子准證已保存。請在右邊寫審批意見、簽名批准。"
     },
     "openInModule": "在「施工准證」裡打開",
     "openProjectTeam": "去項目團隊添加",
     "noApproverSteps": {
-      "role": "角色權限：審批人的角色勾「安全驗收」和「查看項目」（系統已預設「安全經理」）。",
-      "user": "用戶：把審批人的角色設為這個角色；新賬號要本人從郵件設好密碼才會啟用。",
-      "team": "項目團隊：在這個項目的「項目人員名單」添加他（角色有「查看公司全部項目」的不用加）。"
+      "role": "權限：審批人的賬號要有「安全驗收」和「查看項目」。項目角色的人這兩項默認打開；如果被關掉了，在「編輯用戶」或項目的「項目權限」為他打開。",
+      "user": "用戶：審批人要有後台賬號（在「用戶」新增）；新賬號要本人從郵件設好密碼才會啟用。",
+      "team": "項目團隊：在這個項目的「項目人員名單」添加他（能看公司全部項目的總部人員不用加）。"
+    },
+    "eForm": {
+      "fill": "填寫電子准證",
+      "view": "查看電子准證",
+      "title": "安全施工准證 PERMIT TO WORK",
+      "intro": "這份申請的資料、照片和附件已經帶入。補填施工內容、地點、起止時間、安全措施和批准條件，按【保存】；然後用右邊的審批意見、簽名和【簽名批准】完成審批。",
+      "viewIntro": "只有審批這份准證的人可以填寫；這裡只能查看。",
+      "viewIntroCanFill": "這裡只能查看；要修改，請按「准證文件」旁的「填寫電子准證」。",
+      "viewIntroApproved": "已簽名批准並歸檔，不能再修改。",
+      "viewIntroReturned": "已退回，申請人重新提交後才能再填寫。",
+      "tile": "電子准證 {no} · 填寫人 {name} · {time}",
+      "permitNo": "准證編號",
+      "applicationNo": "關聯申請編號",
+      "project": "項目名稱",
+      "appliedOn": "申請日期",
+      "applicant": "申請人",
+      "subcontractor": "分包商",
+      "workLead": "施工負責人",
+      "contactPhone": "聯繫電話",
+      "workType": "施工類別",
+      "workTypeOther": "其他施工類別（寫明）",
+      "chooseType": "選擇施工類別",
+      "other": "其他（寫明）",
+      "manageTypes": "管理施工類別",
+      "typesEmpty": "公司還沒有設施工類別，可以選「其他（寫明）」自己寫。",
+      "location": "施工位置",
+      "workContent": "施工內容",
+      "workStart": "申請開始時間",
+      "workEnd": "申請結束時間",
+      "photos": "現場照片及附件",
+      "photoN": "照片 {n}",
+      "noPhotos": "這份申請沒有照片。",
+      "otherFiles": "其他附件名稱",
+      "none": "無",
+      "measures": "風險及安全措施",
+      "approvalSection": "安全經理審批",
+      "opinion": "審批意見",
+      "returnReason": "退回原因",
+      "lastReturnReason": "上次退回原因",
+      "opinionWhere": "在右邊「審批意見」填寫，簽名批准後印在電子准證上。",
+      "conditions": "批准條件",
+      "result": "審批結果",
+      "validFrom": "批准開始時間",
+      "validUntil": "批准截止時間",
+      "validHint": "不填就按申請的起止時間。",
+      "manager": "安全經理姓名",
+      "decidedAt": "審批日期／時間",
+      "signature": "安全經理簽名",
+      "afterSigning": "簽名批准後自動填上。",
+      "autoNumber": "保存後自動編號",
+      "endBeforeStart": "結束時間早於開始時間，請改正。",
+      "validFromAfterWorkEnd": "批准開始時間晚於申請結束時間。請填上批准截止時間，或把批准開始時間改早一點。",
+      "validUntilBeforeWorkStart": "批准截止時間早於申請開始時間。請填上批准開始時間，或把批准截止時間改晚一點。",
+      "save": "保存",
+      "cancel": "取消",
+      "close": "關閉",
+      "failed": "沒有保存成功，請再試一次。",
+      "draftOutdated": "{name} 在你上次填寫之後保存了這張電子准證，下面是最新的內容；你上次沒保存的填寫沒有保留。",
+      "someone": "其他人",
+      "filledHint": "電子准證已填寫（{no}）。簽名批准後，電子准證和審批意見、簽名、時間一起歸檔。",
+      "fillHint": "如需電子准證，先按「准證文件」旁的「填寫電子准證」，保存後再簽名批准。",
+      "photosOnly": "准證表格是照片，在上面的照片裡。",
+      "what": {
+        "workTypes": "施工類別名單",
+        "attachments": "附件名單"
+      }
+    },
+    "workTypes": {
+      "title": "施工准證 · 施工類別",
+      "help": "填寫電子准證時「施工類別」下拉裡的選項。可以新增、改名或刪除；改名或刪除不會改動已經填好的電子准證。「其他（寫明）」一直都有。",
+      "add": "新增施工類別",
+      "editTitle": "修改「{name}」",
+      "name": "名稱",
+      "other": "其他（寫明）",
+      "otherHelp": "一直都有，不能刪除：列表裡沒有的，填寫時選它自己寫。",
+      "system": "系統",
+      "empty": "還沒有施工類別。填寫電子准證時仍可選「其他（寫明）」。",
+      "armRemove": "確定刪除「{name}」",
+      "removeHint": "刪除後，新的電子准證不再提供這個類別；已經填好的電子准證不受影響。",
+      "remove": "刪除",
+      "armFirst": "先打開旁邊的開關，確認要刪除。",
+      "edit": "修改",
+      "save": "保存",
+      "cancel": "取消",
+      "failed": "沒有保存成功，請再試一次。",
+      "what": "施工類別名單",
+      "toast": {
+        "added": "已新增施工類別「{name}」",
+        "renamed": "已改名為「{name}」",
+        "removed": "已刪除施工類別「{name}」"
+      },
+      "readOnly": "只有能管理分類的人可以新增、改名或刪除；需要改的話請找公司管理員。"
     }
   },
   "gateCard": {
@@ -21423,7 +21630,7 @@
   "materialTargets": {
     "title": "材料目標",
     "count": "{count, plural, =0 {暫無目標} other {# 項目標}}",
-    "basis": "累計淨進場 = 進場（不含不合格）− 已完成的退場，按材料、規格、單位計算；單位不同的不換算。接近、達到、超出目標時，自動提醒這個項目的項目經理、QS 和設定人。",
+    "basis": "累計淨進場 = 進場（不含不合格）− 已完成的退場，按材料、規格、單位計算；單位不同的不換算。接近、達到、超出目標時，自動提醒這個項目裡有「設定材料目標」權限的人和設定人。",
     "loading": "載入中…",
     "empty": "這個項目還沒有材料目標。",
     "emptyAll": "還沒有材料目標。先在上方選擇項目，再新增。",
@@ -21471,7 +21678,7 @@
     "quantityRule": "須大於 0，最多三位小數",
     "alertsHint": "例如 80, 100：到 80% 提醒「接近」，到 100% 提醒「達到」；超過 100% 一定提醒「超出」。",
     "alertsInvalid": "請填 1 到 100 的整數，用逗號分開。",
-    "recipients": "提醒對象：這個項目的項目經理、QS（有「設定材料目標」權限的人）和設定人，帶提示音。",
+    "recipients": "提醒對象：這個項目裡有「設定材料目標」權限的人（公司管理員除外）和設定人，帶提示音。",
     "cancel": "取消",
     "save": "儲存",
     "toast": {
@@ -21607,7 +21814,12 @@
       "project_change_permissions": "修改項目權限",
       "material_price_set": "設定或調整材料單價",
       "material_return_check": "退貨核對",
-      "rain_record_void": "作廢雨天記錄"
+      "rain_record_void": "作廢雨天記錄",
+      "exit_pass_approve": "出門條批准（安全經理）簽名",
+      "exit_pass_external": "外部審批",
+      "exit_pass_waive_external": "改為不需要外部審批並發出門條",
+      "platform_access_open": "開放 MSE 查看權限",
+      "platform_access_revoke_link": "撤銷 MSE 開的外部訪問鏈接"
     },
     "firstTitle": "第一次設定簽核密碼",
     "firstBanner": "這是你第一次使用簽核密碼",
@@ -22323,5 +22535,494 @@
   "pagedList": {
     "shown": "已顯示 {shown} 筆，共 {total} 筆",
     "loadMore": "載入更多"
+  },
+  "exitPass": {
+    "what": "出門條",
+    "loading": "正在載入…",
+    "failed": "沒有成功，請再試一次。",
+    "cancel": "取消",
+    "optional": "選填",
+    "nameSeparator": "、",
+    "kind": {
+      "MATERIAL_OUTGOING": "材料出場",
+      "EQUIPMENT_MOVEMENT": "設備退場",
+      "WASTE_OUTGOING": "環保材料出場申請",
+      "DISPOSAL_REQUEST": "工地清運"
+    },
+    "closed": {
+      "archived": "這筆記錄已歸檔，出門條不能再簽名或放行。",
+      "rejected": "這筆申請已退回，出門條只能查看，不能再操作。",
+      "cancelled": "這筆記錄已取消，出門條只能查看，不能再操作。",
+      "voided": "這筆記錄已退回或已取消，出門條已失效，不能放行。"
+    },
+    "approval": {
+      "title": "出門條批准（安全經理）",
+      "notApproved": "未批准",
+      "approved": "已批准",
+      "legacy": "本記錄在出門條功能啟用前已完成，沒有出門條。",
+      "notReady": "申請批准後，由安全經理在這裡簽出門條。",
+      "notReadyClosed": "這筆申請沒有批准，沒有出門條。",
+      "closedUnsigned": "未批准：這筆記錄結束時，出門條還沒有安全經理簽名。",
+      "notSentYet": "還沒有發出門條：等安全經理簽名。",
+      "signers": "等待安全經理簽名批准（可以簽的人：{names}）",
+      "signersMore": "等待安全經理簽名批准（可以簽的人：{names} 等 {total} 人）",
+      "sign": "簽名批准",
+      "name": "安全經理",
+      "signature": "簽名",
+      "at": "批准時間"
+    },
+    "noSigners": {
+      "title": "這個項目還沒有能簽出門條的安全經理。請管理員照以下三步設置：",
+      "permission": "權限：給要簽出門條的人的帳號（或他的角色）打開「安全驗收」。",
+      "project": "項目：把他加進這個項目的「項目人員名單」（看得到全部項目的人不用加）。",
+      "account": "帳號：確認他的帳號已啟用（新帳號要本人從郵件設好密碼）。",
+      "openTeam": "去項目團隊添加",
+      "onlyApplicant": "這個項目只有申請人自己是安全經理，出門條要由另一位安全經理簽名。請管理員照以下三步再加一位："
+    },
+    "signDialog": {
+      "title": "簽名批准出門條",
+      "signature": "安全經理簽名",
+      "clear": "重簽",
+      "nextSend": "按【簽名批准】後，出門條馬上發給申請人和本項目門崗的手機。",
+      "nextExternal": "按【簽名批准】後，先等外部審批；外部審批完成後，才把出門條發給申請人和門崗。"
+    },
+    "external": {
+      "title": "外部審批",
+      "notRequired": "不需要",
+      "waiting": "等待外部審批",
+      "done": "外部審批已完成",
+      "switch": "需要外部審批",
+      "switchHelp": "要業主或上級部門也簽名的，打開這個開關；不打開就沿用內部批准流程。",
+      "off": "本事項不需要外部審批，沿用內部批准流程。",
+      "waivedBy": "已改為不需要外部審批（{name} · {when}）",
+      "afterSignature": "需要外部審批：安全經理簽名後，列印或用【發送】發給業主／上級部門簽署。",
+      "howTo": "按視窗上方的【列印】或【發送】，把這筆記錄（含空白的外部審批欄）發給業主／上級部門簽署；簽回後按【登記簽回的文件】登記。總部的人（總部角色或公司管理員）有這類記錄的審批權限、又沒有參與這筆記錄的，可以自己打開這筆記錄按【在線簽名】。",
+      "howToOpenRecord": "這個視窗沒有【列印】和【發送】：請按下面的【打開原記錄】，在這筆記錄的視窗上方按【列印】或【發送】，把這筆記錄（含空白的外部審批欄）發給業主／上級部門簽署；簽回後按【登記簽回的文件】登記。總部的人（總部角色或公司管理員）有這類記錄的審批權限、又沒有參與這筆記錄的，可以自己打開這筆記錄按【在線簽名】。",
+      "howToElsewhere": "【列印】和【發送】在電腦上這筆記錄自己的視窗上方：請能打開這筆記錄的同事（例如批准這筆申請的人）把這筆記錄（含空白的外部審批欄）發給業主／上級部門簽署；簽回後在電腦上按【登記簽回的文件】登記。總部的人（總部角色或公司管理員）有這類記錄的審批權限、又沒有參與這筆記錄的，可以自己打開這筆記錄按【在線簽名】。",
+      "whoActs": "簽回的文件由有這類記錄審批權限的後台人員或安全經理在電腦上登記；在線簽名要由沒有參與這筆記錄的總部的人（總部角色或公司管理員，並有這類記錄的審批權限）在電腦上打開這筆記錄簽。",
+      "closedWaiting": "這筆記錄已經結束，外部審批不用再做。",
+      "company": "所屬公司／部門",
+      "name": "審批人姓名",
+      "opinion": "審批意見",
+      "signature": "簽名",
+      "date": "日期",
+      "seeAttachment": "見附件：{name}",
+      "recordedBy": "登記人：{name} · {when}",
+      "signedBy": "在線簽名：{name} · {when}",
+      "signOnline": "在線簽名",
+      "recordPaper": "登記簽回的文件",
+      "waive": "不需要外部審批，直接發出門條",
+      "correctPaper": "換一個簽回的文件",
+      "correctHelp": "選錯了文件？選或上傳正確的簽回文件，原來的文件仍保留在附件裡。"
+    },
+    "waiveDialog": {
+      "body": "確定這一筆不需要外部審批？出門條會馬上發給申請人和門崗，之後不能再改回需要外部審批。",
+      "confirm": "確定，直接發出門條"
+    },
+    "onlineDialog": {
+      "title": "外部審批 · 在線簽名",
+      "today": "今天（{date}），以系統時間為準",
+      "next": "按【簽名】後，外部審批算完成，出門條馬上發給申請人和本項目門崗。",
+      "submit": "簽名"
+    },
+    "paperDialog": {
+      "title": "登記簽回的文件",
+      "help": "業主／上級部門簽回的文件登記在這裡。可以選附件裡已有的文件，也可以現在上傳（會放進這筆記錄的附件）。",
+      "file": "簽回的文件",
+      "noAttachments": "附件裡還沒有文件，請選「現在上傳」。",
+      "uploadNow": "現在上傳",
+      "whatAttachments": "附件",
+      "dateHint": "填文件上簽的日期。",
+      "next": "按【保存】後，外部審批算完成，出門條馬上發給申請人和本項目門崗。",
+      "submit": "保存",
+      "nextCorrect": "按【保存】後，外部審批改用新的文件；出門條已經發過，不會再發一次。"
+    },
+    "release": {
+      "title": "門崗放行",
+      "waitingBadge": "等待放行",
+      "released": "已放行",
+      "trips": "已放行 {count} 車",
+      "notSent": "還沒有發出門條：等安全經理簽名。",
+      "notSentExternal": "還沒有發出門條：等外部審批完成。",
+      "notSentClosed": "這筆記錄已經結束，出門條沒有發出，沒有門崗放行。",
+      "sentTo": "出門條已發送給：{to} · {when}",
+      "toApplicant": "申請人 {names}",
+      "toGate": "門崗 {names}",
+      "toSeparator": "；",
+      "noGatePhones": "這個項目還沒有門崗手機帳號，出門條只發給了申請人。請在「現場人員管理」為門崗開手機帳號。",
+      "waiting": "等待門崗放行：門崗在手機上打開出門條，拍照核查後按【確認放行】。",
+      "closedUnreleased": "這筆記錄已經結束，門崗沒有放行記錄。",
+      "ended": "本清運已結束",
+      "done": "已放行 · {name} · {when} · 核查照片 {count} 張",
+      "open": "打開"
+    },
+    "gate": {
+      "title": "核查拍照，確認放行",
+      "help": "檢查車輛及貨物，在這裡拍核查照片（可以拍幾張），再按【確認放行】。",
+      "photos": "核查照片",
+      "photosHint": "每張照片都記下拍照時間和位置。",
+      "takePhoto": "核查拍照",
+      "takeAnother": "再拍一張（已拍 {count} 張）",
+      "confirm": "確認放行",
+      "retry": "重試",
+      "needPhoto": "先拍至少一張核查照片",
+      "needNetwork": "確認放行要有網絡：請到有訊號的地方再按。照片會留著。",
+      "failed": "放行沒有提交成功：{reason}。照片還在，請檢查網絡後按「重試」。",
+      "failedNetwork": "手機沒有網絡",
+      "failedUnknown": "系統沒有回應",
+      "photosKept": "{count} 張核查照片還在。",
+      "done": "已放行，記入門崗事項 {number}。",
+      "doneTrip": "第 {count} 車已放行，記入門崗事項 {number}。下一車來時再拍照放行。",
+      "alreadyReleased": "這張出門條已經由 {name} 在 {when} 放行（{number}），不用再放行。",
+      "notSentYet": "這張出門條還沒有發出，現在不能放行；請車輛先等候，並聯繫申請人或安全經理先簽出門條。",
+      "refused": "放行沒有提交成功：{reason}"
+    },
+    "waiting": {
+      "title": "待放行 ({count})",
+      "what": "待放行的出門條",
+      "empty": "現在沒有待放行的出門條。車輛沒有出門條的，請先等候，並聯繫申請人或安全經理。",
+      "help": "安全經理已批准的出門條。按一下打開，檢查車輛及貨物，拍照後按【確認放行】。",
+      "plate": "車牌 {plate}",
+      "sentAt": "{when} 發出",
+      "open": "打開"
+    },
+    "window": {
+      "title": "出門條 · {reference}",
+      "titleBare": "出門條",
+      "none": "這筆記錄沒有出門條。",
+      "viewNote": "出門條顯示的是這筆記錄現在的資料。",
+      "openRecord": "打開原記錄",
+      "kind": "類別",
+      "goes": "出場物品",
+      "plate": "車牌",
+      "project": "項目",
+      "applicant": "申請人"
+    },
+    "archive": {
+      "pendingPress": "這筆還在等外部審批，現在不能確認歸檔。請先按下面的{buttons}，辦好後再按【確認歸檔】。",
+      "pendingWho": "這筆還在等外部審批，現在不能確認歸檔。簽回的文件要由有這類記錄審批權限的後台人員或安全經理在電腦上登記；在線簽名要由沒有參與這筆記錄的總部的人或公司管理員做。辦好後再確認歸檔。"
+    },
+    "gateRecord": {
+      "linked": "關聯原申請",
+      "linkedValue": "{reference}（{kind}）",
+      "openOriginal": "打開原記錄",
+      "releasedBy": "放行人員",
+      "releasedAt": "放行時間",
+      "checkPhotos": "核查照片",
+      "photoCount": "{count} 張",
+      "releaseTitle": "門崗放行",
+      "releaseDone": "{name} 在 {when} 拍了 {count} 張核查照片後確認放行。這條門崗事項已完成，只能查看。",
+      "listNote": "出場放行：{reference}（{kind}）"
+    },
+    "toast": {
+      "signedSent": "已簽名批准，出門條已發給申請人和門崗：{reference}",
+      "signedSentApplicant": "已簽名批准，出門條只發給了申請人，沒有門崗手機收到：{reference}",
+      "signedSentGate": "已簽名批准，出門條已發給門崗：{reference}",
+      "signedSentNobody": "已簽名批准：{reference}",
+      "signedWaitExternal": "已簽名批准，等外部審批：{reference}",
+      "externalDone": "外部審批已完成，出門條已發出：{reference}",
+      "paperReplaced": "已換成新的簽回文件；出門條之前已經發過，這次沒有再發：{reference}",
+      "waived": "已改為不需要外部審批，出門條已發出：{reference}",
+      "released": "已確認放行，記入門崗事項：{reference}"
+    },
+    "correctedAfter": "出門條簽名後，這筆記錄在 {when} 由 {by} 改正過；這裡顯示的是改正後的資料。"
+  },
+  "mseAccess": {
+    "section": {
+      "title": "MSE 查看權限",
+      "subtitle": "貴公司的業務資料，MSE（系統方）要您開放才看得到；MSE 每一次看、每一次被擋住，都記在下面。",
+      "loading": "正在讀取 MSE 查看權限……",
+      "what": "MSE 查看權限"
+    },
+    "view": {
+      "name": "允許 MSE 查看",
+      "closed": "MSE（系統方）現在看不到下面第 2 欄的資料；需要 MSE 幫忙查看時，點「允許 MSE 查看」。",
+      "open": "MSE 現在可以看到下面第 2 欄的資料（可以看，也可以打開文件預覽看全文，不能改），到 {until} 自動關閉；用完了可以點「馬上關閉」。",
+      "help": "開放後，MSE 可以打開文件預覽，看得到全文。系統不給 MSE 匯出、發送和列印的功能；但能看到的內容，看的人是可以留下來的。所以請只在需要時開放，用完就關。"
+    },
+    "accounts": {
+      "name": "允許 MSE 管理賬號",
+      "closed": "MSE 現在不能加或改貴公司的賬號；需要 MSE 幫忙開賬號時，點「允許 MSE 管理賬號」。",
+      "open": "MSE 現在可以幫貴公司加賬號、改賬號，每一次都會通知您，到 {until} 自動關閉。",
+      "help": "MSE 幫您加賬號、改賬號之前，要您先在這裡開放。"
+    },
+    "state": {
+      "open": "開放中",
+      "closed": "沒有開放"
+    },
+    "openedBy": "由 {name} 在 {at} 開放。",
+    "openedByReason": "由 {name} 在 {at} 開放，原因：{reason}",
+    "action": {
+      "change": "改開放時間",
+      "closeNow": "馬上關閉"
+    },
+    "adminOnly": "只有公司管理員可以開放或關閉，請找貴公司的管理員。",
+    "openDialog": {
+      "howLong": "開放多久？時間到了會自動關閉。",
+      "reason": "原因（可以不填）",
+      "reasonPlaceholder": "例如：請 MSE 幫忙看稱重照片",
+      "replace": "現在已經開放到 {until}。重新選擇以後，從現在起重新計時。",
+      "pin": "按「開放」以後，要輸入您的簽核密碼；還沒設定過的，會先請您設定一個。",
+      "confirm": "開放"
+    },
+    "duration": {
+      "24": "24 小時",
+      "168": "7 天",
+      "720": "30 天"
+    },
+    "closeDialog": {
+      "viewTitle": "馬上關閉 MSE 查看？",
+      "viewBody": "關閉以後，MSE 馬上看不到貴公司的業務資料。",
+      "accountsTitle": "馬上關閉 MSE 管理賬號？",
+      "accountsBody": "關閉以後，MSE 馬上不能幫您加賬號、改賬號。",
+      "confirm": "馬上關閉"
+    },
+    "toast": {
+      "openedView": "已開放，MSE 可以查看到 {until}。",
+      "openedAccounts": "已開放，MSE 可以幫貴公司加賬號、改賬號到 {until}。",
+      "closedView": "已關閉，MSE 現在看不到了。",
+      "closedAccounts": "已關閉，MSE 現在不能加或改貴公司的賬號了。",
+      "requested": "已通知這家客戶的管理員；客戶開放後這裡會顯示到期時間。",
+      "requestedNone": "這家客戶現在沒有可以通知的公司管理員，請直接聯絡客戶。",
+      "linkRevoked": "已撤銷，這個鏈接馬上不能再用。"
+    },
+    "lists": {
+      "alwaysTitle": "MSE 一直看得到（開戶、收費、管設備要用）",
+      "openTitle": "您按「允許 MSE 查看」後，MSE 才看得到",
+      "neverTitle": "MSE 一直看不到（就算您開放了查看）",
+      "neverNote1": "開放查看時，通知內容和操作記錄裡寫到的單號和數量，MSE 會看得到。",
+      "neverNote2": "需要 MSE 進來幫忙看這些時，請按「允許 MSE 管理賬號」。MSE 會在貴公司加一個協助賬號；它會列在下面「MSE 加的賬號」裡，您隨時可以停用。",
+      "neverNote3": "MSE 用協助賬號做的事，記在貴公司自己的登入記錄和操作記錄裡。",
+      "item": {
+        "company_profile": "公司資料（名稱、地址、聯絡人、SSM 和銀行賬戶）",
+        "package_billing": "配套、賬單和付款記錄",
+        "users_logins": "用戶名單（姓名、郵箱、角色、狀態、負責的項目名稱）和登入記錄",
+        "weighing_figures": "每一筆稱重的單號、時間、地磅、重量和檢測結果",
+        "commission_settlements": "抽佣賬單上列出的結算單號、重量和金額",
+        "devices": "地磅、攝像頭、門禁等設備的狀態，以及什麼時候稱重、拍照、識別（不看照片和車牌）",
+        "integration_settings": "系統集成的設定（接哪個系統、怎麼接）",
+        "project_directory": "項目名稱、編號和狀態（用來鎖檔案、接設備、看報表數字）",
+        "yards_on_map": "總部、回收場和地磅在地圖上的位置",
+        "qr_code_list": "二維碼的編號、類型和狀態，掃碼的時間和結果",
+        "notice_delivery": "通知發給了誰、有沒有送到（不看內容）",
+        "external_link_list": "MSE 幫您開的外部訪問鏈接（名稱、項目、期限）",
+        "mse_staff_actions": "MSE 同事自己做過的操作",
+        "visitor_photo_counts": "到期訪客照片的數量、通行證號碼和項目名稱（用來按時清除）",
+        "weighing_details": "稱重記錄裡的車牌、確認和作廢的說明、經手人名字，以及連著的清運單號和項目",
+        "weighing_photos_ticket": "稱重單的照片、附件、更正記錄和磅單 PDF（MSE 可以打開預覽，看得到全文）",
+        "staff_operations": "貴公司同事在系統裡的操作記錄",
+        "notice_words": "發給貴公司的通知和系統事件的內容",
+        "qr_subjects_scans": "二維碼對應的人、車、項目，以及掃碼的地點和掃碼人",
+        "camera_pictures": "攝像頭拍到的照片",
+        "plate_card_reads": "門口識別到的車牌、卡號和項目",
+        "pushed_data": "推送到貴公司自己系統裡的資料內容",
+        "report_files": "貴公司自己匯出的報表文件（MSE 可以打開預覽，看得到全文）",
+        "print_send_log": "貴公司的列印、下載、發送記錄",
+        "sites_on_map": "貴公司工地在地圖上的位置",
+        "visitor_names": "到期訪客照片上的訪客名字",
+        "external_link_create": "MSE 幫您開新的外部訪問鏈接",
+        "qr_issue": "MSE 幫您給貴公司的人、車、項目開二維碼",
+        "receipts_materials": "收貨單、材料申請、領用和退貨",
+        "documents_approvals": "文件和審批",
+        "deductions": "扣款單",
+        "workers_visitors": "工人資料和訪客記錄",
+        "schedule_progress": "施工計劃和進度",
+        "safety_equipment": "安全和設備記錄",
+        "daily_reports": "日報",
+        "consultant_applications": "顧問申請",
+        "chat": "聊天",
+        "project_details": "項目裡面的詳細資料（地址、預算、團隊）",
+        "other": "其他業務資料"
+      }
+    },
+    "added": {
+      "title": "MSE 加的賬號",
+      "empty": "MSE 沒有在貴公司加過賬號。",
+      "owner": "開戶時由 MSE 建立的負責人賬號",
+      "added": "MSE 加的",
+      "open": "到「用戶管理」查看或停用",
+      "note": "不需要的賬號，請到「用戶管理」把它停用；停用後 MSE 就不能再用它登入。",
+      "addedBy": "{name} 在 {at} 加的",
+      "lastLogin": "最近登入 {at}",
+      "neverLoggedIn": "還沒登入過",
+      "loading": "正在讀取 MSE 加的賬號……"
+    },
+    "links": {
+      "title": "MSE 幫您開的外部訪問鏈接",
+      "help": "這些鏈接是 MSE 按貴公司的要求開的，到期或撤銷以前都能用。不再需要時，公司管理員可以在這裡按「撤銷」，鏈接馬上停用。",
+      "valid": "有效到 {at}",
+      "expired": "已經到期",
+      "revoked": "已經撤銷",
+      "by": "{name} 在 {at} 開的",
+      "wholeCompany": "整個公司",
+      "empty": "MSE 沒有幫您開過外部訪問鏈接。",
+      "revoke": "撤銷",
+      "adminOnly": "只有公司管理員可以撤銷，請找貴公司的管理員。",
+      "revokeTitle": "撤銷「{name}」這個外部訪問鏈接？",
+      "revokeBody": "撤銷以後，拿著這個鏈接的人馬上打不開。撤銷了不能恢復；以後還需要，請 MSE 重新開一個。按「撤銷」以後要輸入您的簽核密碼。"
+    },
+    "records": {
+      "title": "MSE 查看記錄",
+      "help": "這裡記下 MSE 的人每一次查看、被擋住、改賬號和請求開放，您隨時可以回來看。",
+      "helpMse": "這家客戶的「MSE 查看記錄」，客戶自己在「公司設置」裡也看得到同樣的內容。",
+      "what": "MSE 查看記錄",
+      "column": {
+        "time": "時間",
+        "actor": "MSE 人員",
+        "outcome": "做了什麼",
+        "where": "看了哪裡"
+      },
+      "outcome": {
+        "OPENED": "查看",
+        "REFUSED": "被擋住",
+        "ACCOUNT_CHANGED": "改了賬號",
+        "REQUESTED": "請求開放",
+        "GRANT_OPENED": "開放",
+        "GRANT_CLOSED": "關閉"
+      },
+      "customerActor": "{name}（貴公司）",
+      "customerActorMse": "{name}（客戶）",
+      "lookedAt": {
+        "LIST": "看了列表",
+        "RECORD": "看了一筆資料",
+        "FILE": "預覽了文件"
+      },
+      "refused": {
+        "closed": "被擋住（您沒有開放）",
+        "accounts_closed": "被擋住（您沒有開放「允許 MSE 管理賬號」）",
+        "not_available": "被擋住（這類資料 MSE 永遠看不到，開放了也看不到）",
+        "owner_locked": "被擋住（這個管理員賬號已經在用，MSE 不能改它的登入郵箱）",
+        "no_changes": "被擋住（MSE 不能改貴公司的資料）"
+      },
+      "filter": {
+        "from": "從哪天",
+        "to": "到哪天",
+        "outcome": "做了什麼",
+        "all": "全部",
+        "clear": "清除篩選",
+        "nothingToClear": "還沒有設篩選"
+      },
+      "empty": "還沒有記錄：MSE 沒有看過貴公司的資料，也沒有被擋住過。",
+      "emptyMse": "這家客戶還沒有任何 MSE 查看記錄。",
+      "emptyFiltered": "這段時間沒有這樣的記錄，可以換一個日期，或選「全部」再看。",
+      "loading": "正在讀取記錄……",
+      "notAllowed": "「MSE 查看記錄」只有公司管理員和能看操作記錄的同事看得到；需要看時，請找貴公司的管理員。",
+      "page": "第 {page} / {pages} 頁 · 共 {count} 條",
+      "previous": "上一頁",
+      "next": "下一頁",
+      "refusedMse": {
+        "closed": "被擋住（客戶沒有開放）",
+        "accounts_closed": "被擋住（客戶沒有開放「允許 MSE 管理賬號」）",
+        "not_available": "被擋住（這類資料 MSE 永遠看不到，客戶開放了也看不到）",
+        "owner_locked": "被擋住（這個管理員賬號客戶已經在用，MSE 不能改它的登入郵箱）",
+        "no_changes": "被擋住（MSE 不能改客戶的資料）"
+      },
+      "made": {
+        "create_grant": "開了外部鏈接",
+        "issue_code": "開了二維碼"
+      }
+    },
+    "module": {
+      "weighing": "稱重記錄",
+      "weighing_photos": "稱重照片",
+      "weighing_ticket": "稱重單 PDF",
+      "weighing_corrections": "稱重更正記錄",
+      "audit_log": "操作記錄",
+      "notifications": "通知",
+      "report_files": "報表文件",
+      "qr_codes": "二維碼",
+      "qr_scans": "掃碼記錄",
+      "integration_deliveries": "系統集成推送記錄",
+      "monitoring_events": "系統事件",
+      "monitoring_cctv": "攝像頭畫面",
+      "monitoring_anpr": "車牌 / 門禁識別",
+      "dashboard_map": "地圖上的工地",
+      "visitor_photos": "訪客照片名單",
+      "file_actions": "列印 / 下載 / 發送記錄",
+      "external_links": "外部訪問鏈接",
+      "accounts": "賬號",
+      "platform_access": "MSE 查看權限",
+      "other": "其他業務資料",
+      "project_details": "項目裡面的詳細資料",
+      "own_settings": "貴公司自己的設定（分公司、工地、類別）",
+      "partnerships": "貴公司和其他公司的合作關係",
+      "receipts_materials": "收貨單、送貨單、材料和供應商",
+      "waste_haulage": "清運單、車輛和司機",
+      "deductions": "扣款單和結算單",
+      "documents_approvals": "文件和審批",
+      "site_records": "現場記錄、申請和附件",
+      "evidence": "現場照片和證據",
+      "workers_visitors": "工人資料和訪客記錄",
+      "gate": "門崗、通行證和出門條",
+      "staff_presence": "現場人員的打卡和位置",
+      "schedule_progress": "施工計劃和進度",
+      "safety_equipment": "安全和設備記錄",
+      "daily_reports": "日報",
+      "consultant_applications": "顧問申請和顧問權限",
+      "chat": "聊天和公告",
+      "own_reports": "貴公司自己的報表和儀表板",
+      "recycler_business": "回收場的客戶、進貨、庫存和出貨",
+      "project_notice": "發給貴公司項目的通知",
+      "qr_customer_only": "送貨單和供應商的二維碼"
+    },
+    "operation": {
+      "create_user": "新增賬號",
+      "update_user": "修改賬號資料",
+      "update_user_status": "停用 / 恢復賬號",
+      "delete_user": "刪除賬號",
+      "send_password_reset": "重發登入郵件",
+      "replace_user": "人員交接",
+      "reset_sign_off_pin": "重設簽核密碼",
+      "set_permission_switches": "修改權限開關",
+      "force_logout": "強制下線",
+      "create_role": "新增角色",
+      "update_role": "修改角色",
+      "delete_role": "刪除角色",
+      "create_department": "新增部門",
+      "update_department": "修改部門",
+      "delete_department": "刪除部門",
+      "reissue_invitation": "重發手機登入鏈接",
+      "reset_device": "重置手機",
+      "remove_field_staff": "移除現場人員",
+      "other": "修改賬號"
+    },
+    "mse": {
+      "title": "客戶開放情況",
+      "help": "這家客戶的業務資料和賬號，要客戶的公司管理員在「公司設置」裡開放，MSE 才能看、才能改。",
+      "viewClosed": "這家客戶沒有開放查看，項目裡的資料、照片和車牌都不顯示；需要時點「請客戶開放查看」。",
+      "viewOpen": "這家客戶開放查看到 {until}（只能看，不能改，每一次查看都會記錄給客戶看）。",
+      "accountsClosed": "這家客戶沒有開放賬號管理，不能加或改它的賬號；需要時點「請客戶開放賬號管理」。",
+      "accountsOpen": "這家客戶開放賬號管理到 {until}，每一次修改都會通知客戶。",
+      "accountsOnboarding": "這家客戶的管理員還沒有登入過，可以先幫它開好賬號。",
+      "askView": "請客戶開放查看",
+      "askAccounts": "請客戶開放賬號管理",
+      "askHelp": "客戶的公司管理員會收到通知，通知裡有您寫的原因。同一件事一小時內只能發一次。",
+      "reason": "原因（客戶會看到）",
+      "reasonPlaceholder": "例如：客戶報稱重異常，需要看照片",
+      "send": "發送",
+      "alreadyOpen": "客戶已經開放了，不用再請。",
+      "onboardingNoAsk": "客戶的管理員還沒登入過，現在不用請，可以直接幫客戶開賬號。"
+    },
+    "directory": {
+      "column": "客戶開放",
+      "closed": "未開放",
+      "view": "可查看，到 {until}",
+      "accounts": "可改賬號，到 {until}",
+      "onboarding": "還在開戶，可直接開賬號"
+    },
+    "closed": {
+      "cell": "客戶未開放",
+      "note": "客戶沒有開放查看的資料，這裡只顯示數量和狀態；需要時請客戶管理員在「公司設置」裡點「允許 MSE 查看」。",
+      "hiddenRows": "客戶沒有開放查看的記錄，這裡沒有列出來。需要時請客戶管理員在「公司設置」裡點「允許 MSE 查看」。",
+      "auditHidden": "這裡只顯示 MSE 同事的操作、登入記錄和已開放客戶的操作；客戶自己同事的操作要客戶開放查看後才顯示。",
+      "photos": "這家客戶現在沒有開放查看，照片、附件、更正記錄和稱重單都看不到。需要時請客戶管理員在「公司設置」裡點「允許 MSE 查看」。",
+      "mapPins": "有 {count} 個工地沒有顯示，因為客戶還沒有開放查看。"
+    },
+    "reason": {
+      "view": "要客戶先開放查看：請客戶管理員在「公司設置」裡點「允許 MSE 查看」，然後再試。",
+      "accounts": "改這家客戶的賬號要客戶同意，請客戶管理員在「公司設置」裡點「允許 MSE 管理賬號」。",
+      "externalLink": "幫客戶開外部訪問鏈接要客戶先開放「允許 MSE 查看」。",
+      "accountsList": "灰色的按鈕是客戶還沒開放「允許 MSE 管理賬號」的賬號；要改，請那家客戶的管理員在「公司設置」裡點「允許 MSE 管理賬號」。強制下線隨時可以用。"
+    }
   }
 }

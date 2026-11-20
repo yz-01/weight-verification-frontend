@@ -23,6 +23,8 @@ import { useMemo, useState } from "react";
 import { ExportButton } from "@/components/shared/export-button";
 import { useAuth } from "@/components/providers/auth-provider";
 import { FieldAccessManagementDialog } from "@/components/field-staff/field-access-management";
+import { PlatformReasonLine } from "@/components/platform-access/closed";
+import { MseAddedBadge } from "@/components/platform-access/mse-access-section";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import { KpiCard } from "@/components/shared/kpi-card";
@@ -33,6 +35,7 @@ import { Input } from "@/components/ui/input";
 import { useListQuery } from "@/hooks/use-list-query";
 import type { UserRow, UserStatus } from "@/interfaces/auth";
 import { useDateFormat } from "@/lib/dates";
+import { accountWritesClosed } from "@/lib/platform-access";
 import { roleLabel } from "@/lib/role-labels";
 import { isPlaceholderEmail } from "@/lib/team-contact";
 import {
@@ -177,6 +180,8 @@ export function Users({
             >
               {row.original.full_name}
             </p>
+            {/* JB220: an account MSE made says so (「MSE 加的」). */}
+            <MseAddedBadge kind={row.original.mse_added} />
             {/* A phone account's email is an internal placeholder
                 (field+…@mse.invalid, JB164): its number is in 电话. */}
             {!isPlaceholderEmail(row.original.email) && (
@@ -308,6 +313,11 @@ export function Users({
           // Deleted (JB109): its number may be someone else's now, so it is
           // never turned back on - it stays listed for its records only.
           const removed = target.status === "REMOVED";
+          // JB220 (客户 11-18): MSE changes a customer's account only while
+          // the customer has opened 「允许 MSE 管理账号」 (or is still
+          // onboarding); until then each write button says so. 强制下线 stays.
+          const accountsClosed = accountWritesClosed(me, target);
+          const accountsReason = accountsClosed ? t("mseAccess.reason.accounts") : undefined;
           return (
             <div className="flex items-center justify-end gap-0.5">
               <Button
@@ -324,7 +334,18 @@ export function Users({
 
               {/* A deleted account is kept for its records only: 查看, not
                   编辑 (JB164, screens 11-10 r10-s08). */}
-              {can("user.update") && !removed && (
+              {can("user.update") && !removed && (accountsClosed ? (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 text-info hover:bg-info/10"
+                  title={t("common.edit")}
+                  disabled
+                  disabledReason={accountsReason}
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                </Button>
+              ) : (
                 <Button
                   asChild
                   variant="ghost"
@@ -336,7 +357,7 @@ export function Users({
                     <Pencil className="h-3.5 w-3.5" />
                   </Link>
                 </Button>
-              )}
+              ))}
 
               {can("user.update") && !isSelf && !removed && target.is_field_staff && (
                 <Button
@@ -344,6 +365,8 @@ export function Users({
                   size="icon"
                   className="h-7 w-7 text-primary hover:bg-primary/10"
                   title={t("fieldAccessAdmin.reissue")}
+                  disabled={accountsClosed}
+                  disabledReason={accountsReason}
                   onClick={() => {
                     setFieldAccessUser(target);
                     setFieldAccessOpen(true);
@@ -359,7 +382,8 @@ export function Users({
                   size="icon"
                   className="h-7 w-7 text-muted-foreground hover:bg-muted hover:text-foreground"
                   title={t("users.resetPassword.action")}
-                  disabled={resetLink.isPending}
+                  disabled={resetLink.isPending || accountsClosed}
+                  disabledReason={accountsReason}
                   onClick={() => resetLink.mutate(target.id)}
                 >
                   <KeyRound className="h-3.5 w-3.5" />
@@ -376,6 +400,8 @@ export function Users({
                     size="icon"
                     className="h-7 w-7 text-primary hover:bg-primary/10"
                     title={t("userHandover.action.open")}
+                    disabled={accountsClosed}
+                    disabledReason={accountsReason}
                     onClick={() =>
                       setPending({ kind: "handover", user: target })
                     }
@@ -409,6 +435,8 @@ export function Users({
                     size="icon"
                     className="h-7 w-7 text-success hover:bg-success/10"
                     title={t("companies.reinstate.confirm")}
+                    disabled={accountsClosed}
+                    disabledReason={accountsReason}
                     onClick={() =>
                       setPending({ kind: "reinstate", user: target })
                     }
@@ -421,6 +449,8 @@ export function Users({
                     size="icon"
                     className="h-7 w-7 text-warning hover:bg-warning/10"
                     title={t("users.suspend.confirm")}
+                    disabled={accountsClosed}
+                    disabledReason={accountsReason}
                     onClick={() =>
                       setPending({ kind: "suspend", user: target })
                     }
@@ -443,6 +473,8 @@ export function Users({
                   size="icon"
                   className="h-7 w-7 text-destructive hover:bg-destructive/10"
                   title={t("common.remove")}
+                  disabled={accountsClosed}
+                  disabledReason={accountsReason}
                   onClick={() => setPending({ kind: "remove", user: target })}
                 >
                   <Trash2 className="h-3.5 w-3.5" />
@@ -453,7 +485,7 @@ export function Users({
         },
       },
     ],
-    [t, can, df, me?.id, resetLink],
+    [t, can, df, me, resetLink],
   );
 
   const filterPills = [
@@ -687,6 +719,11 @@ export function Users({
             />
           </FilterBar>
         </>
+      )}
+
+      {/* JB220: the greyed buttons on this page wait for their customer. */}
+      {(data?.results ?? []).some((row) => accountWritesClosed(me, row)) && (
+        <PlatformReasonLine text={t("mseAccess.reason.accountsList")} />
       )}
 
       <DataTable

@@ -56,6 +56,8 @@ const ITEM_PARAMS = [
   "permit",
   "submission",
   "notice",
+  // JB217: one 出门条 (`exit_pass=<KIND>:<id>`), the window over any tab.
+  "exit_pass",
 ];
 
 /**

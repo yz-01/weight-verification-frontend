@@ -4,6 +4,7 @@ import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Info, Save, UserPlus } from "lucide-react";
 import { useTranslations } from "next-intl";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 
@@ -26,6 +27,7 @@ import { LOCALES, LOCALE_LABELS } from "@/i18n/config";
 import { roleName } from "@/lib/role-labels";
 import { ApiError } from "@/interfaces/api";
 import type { Role, UserDetail, UserPayload } from "@/interfaces/auth";
+import { saveRefusalLine } from "@/lib/save-refusal";
 import { toastSuccess } from "@/services/api-client";
 import { createUser, getRoles, updateUser } from "@/services/users.service";
 
@@ -48,10 +50,67 @@ function isDriverRole(role: Role): boolean {
   return permissions.has("task.submit") && !permissions.has("task.view_all");
 }
 
+/** The phone's roles: made from 现场人员管理's link, never here (JB104 F7). */
+const PHONE_ROLE_CODES = ["site_staff", "gate_guard", "equipment_operator"];
+
+function isPhoneRole(role: Role): boolean {
+  return role.kind === "phone" || PHONE_ROLE_CODES.includes(role.code);
+}
+
+/**
+ * The roles the 角色 field offers. A new person: never a phone role (every
+ * one, not only 工地人员 - JB219 sibling: 设备操作人员 and 门岗保安 were offered
+ * and then refused) and never the driver's. Editing: an office account is
+ * offered office roles only, as 新增用户 (walk 11-18 FAIL 4: 门岗保安 was
+ * offered and refused in English); the role it holds stays in the list. A
+ * phone account (``phone``) keeps every role, as before.
+ */
+export function invitableRoles(
+  roles: Role[],
+  isEdit: boolean,
+  editing?: { phone: boolean; role?: string | null },
+): Role[] {
+  return roles.filter((role) => {
+    if (!isEdit) return !isPhoneRole(role) && !isDriverRole(role);
+    if (!isPhoneRole(role) || editing?.phone) return true;
+    return editing !== undefined && role.id === editing.role;
+  });
+}
+
+/**
+ * The 角色 field's options (JB219 audit F1, 「A组及B组权限由公司管理员自行勾选及
+ * 分配」): a role the editor may not give - 公司管理员 unless he is one, or a
+ * role with A / B he does not hold himself - is shown greyed, its name
+ * followed by ``notYours``, rather than offered and then refused. The role
+ * the person already holds (``keep``) is theirs: keeping it gives nothing.
+ */
+export function roleChoices(
+  roles: Role[],
+  name: (role: Role) => string,
+  notYours: string,
+  keep?: string | null,
+): { value: string; label: string; disabled?: boolean }[] {
+  return roles.map((role) =>
+    role.can_give === false && role.id !== keep
+      ? { value: role.id, label: `${name(role)} ${notYours}`, disabled: true }
+      : { value: role.id, label: name(role) },
+  );
+}
+
+/** Whether a builder has made no role of its own yet - 公司管理员 alone (JB219). */
+export function hasNoOwnRoles(roles: Role[]): boolean {
+  const builder = roles.some((role) => role.kind === "head_office" || role.kind === "project");
+  return (
+    builder &&
+    !roles.some((role) => !role.is_system && (role.kind === "head_office" || role.kind === "project"))
+  );
+}
+
 /**
  * The dialog's one 「保存」: the user's fields first, then whatever the panel
  * below them holds (the 权限开关), then close. ``false`` - and the dialog
- * stays open - when the second part did not save; the first part did.
+ * stays open - when the second part did not save; the first part did. A
+ * sentence instead of ``false`` says why (walk 11-18: said beside 「保存」).
  */
 export async function saveUserThenAfter({
   saveUser,
@@ -59,11 +118,14 @@ export async function saveUserThenAfter({
   finish,
 }: {
   saveUser: () => Promise<unknown>;
-  saveAfter?: () => Promise<boolean>;
+  saveAfter?: () => Promise<boolean | string>;
   finish: () => void;
-}): Promise<boolean> {
+}): Promise<boolean | string> {
   await saveUser();
-  if (saveAfter && !(await saveAfter())) return false;
+  if (saveAfter) {
+    const after = await saveAfter();
+    if (after !== true) return after;
+  }
   finish();
   return true;
 }
@@ -82,9 +144,10 @@ export function CreateUser({
   after?: React.ReactNode | ((role: string) => React.ReactNode);
   /**
    * Saves the ``after`` panel once the fields have saved (the 权限开关's
-   * changes). ``false`` keeps the dialog open; the panel says why.
+   * changes). ``false`` - or the sentence that says why - keeps the dialog
+   * open; the panel says it too.
    */
-  saveAfter?: () => Promise<boolean>;
+  saveAfter?: () => Promise<boolean | string>;
 }) {
   const t = useTranslations();
   const finish = useFinishForm();
@@ -156,7 +219,7 @@ export function CreateUser({
       // values is harmless, and a dialog where only the switches changed
       // must still save them.
       try {
-        await saveUserThenAfter({
+        const saved = await saveUserThenAfter({
           saveUser: () =>
             mutation.mutateAsync({
               ...value,
@@ -178,13 +241,27 @@ export function CreateUser({
             finish(companyReturnHref ?? userListHref);
           },
         });
+        // The details saved, the 权限开关 did not: said beside 「保存」 too,
+        // with the reason (walk 11-18) - the panel's own line is far below.
+        if (saved !== true) {
+          setFormError(
+            typeof saved === "string" && saved
+              ? t("users.switches.partSavedWhy", { reason: saved })
+              : t("users.switches.partSaved"),
+          );
+        }
       } catch (error) {
-        if (error instanceof ApiError && error.isValidation) {
+        if (error instanceof ApiError && error.isValidation && Object.keys(error.errors).length > 0) {
           const leftover = applyServerErrors(
             error.errors,
             form as unknown as Parameters<typeof applyServerErrors>[1],
           );
           if (leftover.length > 0) setFormError(leftover[0]);
+        } else {
+          // A refusal of the role (「你自己没有这项权限…」, 「只有公司管理员可以…」)
+          // or a server fault, in the window beside 「保存」 (walk 11-18): it
+          // was a toast only, unseen behind the dialog.
+          setFormError(saveRefusalLine(error, t("common.saveFailed")));
         }
       }
     },
@@ -195,17 +272,32 @@ export function CreateUser({
   // screen, and Drivers, which also requires the lorry. The server refuses
   // both here, so neither is offered: a role that can only ever come back as
   // an error is not a choice.
-  const roleOptions =
-    roles?.results
-      .filter(
-        (role) =>
-          isEdit ||
-          (role.code !== "site_staff" && !isDriverRole(role)),
-      )
-      .map((role) => ({
-        value: role.id,
-        label: roleName(role, t),
-      })) ?? [];
+  const roleOptions = roleChoices(
+    roles
+      ? invitableRoles(
+          roles.results,
+          isEdit,
+          user ? { phone: Boolean(user.is_field_staff || user.mobile_access_only), role: user.role } : undefined,
+        )
+      : [],
+    (role) => roleName(role, t),
+    t("users.field.roleNotYours"),
+    user?.role,
+  );
+  // JB219 audit F1: a role the editor may not give is greyed, with the reason
+  // under the field; a 公司管理员's own role only a 公司管理员 changes.
+  const anyNotYours = roleOptions.some((option) => option.disabled);
+  const currentRole = roles?.results.find((role) => role.id === user?.role);
+  const adminAccount = isEdit && currentRole?.code === "company_admin" && currentRole.can_give === false;
+  // JB219 (客户 11-18 事项 4): a builder starts with 公司管理员 alone and makes
+  // its own roles. A new person needs one chosen - left blank, the company's
+  // default is the phone's 工地人员, which an email invitation cannot be - and
+  // with only 公司管理员 to choose, the form says how to make a smaller one.
+  const builder = (roles?.results ?? []).some(
+    (role) => role.kind === "head_office" || role.kind === "project",
+  );
+  const noOwnRoles = hasNoOwnRoles(roles?.results ?? []);
+  const roleRequired = builder && !isEdit;
 
   return (
     <FormShell
@@ -218,6 +310,8 @@ export function CreateUser({
       submitLabel={isEdit ? t("common.save") : t("users.new")}
       submitIcon={isEdit ? Save : UserPlus}
       onSubmit={() => void form.handleSubmit()}
+      // In the dialog's footer, beside 「保存」: it never scrolls away.
+      footerError={formError}
       after={
         typeof after === "function" ? (
           <form.Subscribe selector={(state) => state.values.role}>
@@ -276,22 +370,47 @@ export function CreateUser({
       </FormSection>
 
       <FormSection title={t("users.section.access")}>
-        <form.Field name="role">
+        <form.Field
+          name="role"
+          validators={{
+            onSubmit: ({ value }) =>
+              roleRequired && !value ? t("users.field.roleRequired") : undefined,
+          }}
+        >
           {(field) => (
             <div className="space-y-1 md:col-span-2">
               <SelectField
                 field={field as unknown as BoundField}
                 label={t("users.field.role")}
+                required={roleRequired}
                 options={roleOptions}
+                disabled={adminAccount}
                 // JB208-12 (Lucas 11-16 audit): an MSE account saved with no
                 // role signs in to a dashboard that shows nothing.
                 hint={
-                  me?.portal === "MSE_ADMIN" && !companyId
-                    ? t("users.field.roleHint")
-                    : undefined
+                  adminAccount
+                    ? t("users.field.adminRoleFixed")
+                    : me?.portal === "MSE_ADMIN" && !companyId
+                      ? t("users.field.roleHint")
+                      : undefined
                 }
               />
+              {anyNotYours && !adminAccount && (
+                <p className="text-sm leading-6 text-muted-foreground" data-roles-not-yours>
+                  {t("users.field.rolesNotYours")}
+                </p>
+              )}
               <QueryFailedNote query={rolesQuery} what={t("users.what.roles")} />
+              {noOwnRoles && (
+                <p role="note" data-no-own-roles className="text-sm leading-6 text-muted-foreground">
+                  {t("users.field.noOwnRoles")}{" "}
+                  {me?.portal === "MSE_TRACE" ? (
+                    <Link href="/roles" className="font-medium text-primary underline-offset-4 hover:underline">
+                      {t("users.field.noOwnRolesLink")}
+                    </Link>
+                  ) : null}
+                </p>
+              )}
             </div>
           )}
         </form.Field>
@@ -326,12 +445,6 @@ export function CreateUser({
             />
           )}
         </form.Field>
-
-        {formError && (
-          <p className="text-sm font-medium text-destructive md:col-span-2">
-            {formError}
-          </p>
-        )}
       </FormSection>
     </FormShell>
   );

@@ -4014,7 +4014,23 @@
       "rain_remark_set": "填写雨天记录的意见 / 备注",
       "rain_month_remark_set": "填写雨天月报的意见 / 备注",
       "settings_reset_on_wiring": "维护模式、强制更新接通时重设",
-      "head_office_on_behalf": "总部代批"
+      "head_office_on_behalf": "总部代批",
+      "exit_pass_signed": "安全经理签名批准出门条",
+      "exit_pass_external_set": "设定是否需要外部审批",
+      "exit_pass_external_waived": "改为不需要外部审批",
+      "exit_pass_external_signed": "外部审批在线签名",
+      "exit_pass_external_paper_recorded": "登记签回的外部审批文件",
+      "exit_pass_sent": "发出出门条",
+      "exit_pass_released": "门岗确认放行",
+      "exit_pass_external_paper_corrected": "更换签回的外部审批文件",
+      "permit_form_saved": "保存电子准证",
+      "permit_work_type_added": "新增施工类别",
+      "permit_work_type_renamed": "施工类别改名",
+      "permit_work_type_removed": "删除施工类别",
+      "role_followed": "角色权限改动，同步给这个角色的人",
+      "jb219_head_office_roles": "系统更新：整理角色（总部角色、取消没人用的预设角色）",
+      "platform_access_opened": "开放 MSE 查看权限",
+      "platform_access_closed": "关闭 MSE 查看权限"
     },
     "objectType": {
       "SignOffAssistant": "助理副密码",
@@ -4830,7 +4846,8 @@
         "ehs": "整改 / EHS 分类",
         "claim": "Progress Claim 分类",
         "equipmentName": "设备名称",
-        "recycle": "环保材料出场分类"
+        "recycle": "环保材料出场分类",
+        "permitWorkType": "施工准证 · 施工类别"
       },
       "moduleHelp": {
         "material": "材料和它下面的规格。建立新项目时一起带入。",
@@ -4838,7 +4855,8 @@
         "ehs": "整改 / EHS 的分类。施工准证申请是系统的。",
         "claim": "Progress Claim 的分类。",
         "equipmentName": "设备名称全公司共用，所有项目登记设备时都从这里选。",
-        "recycle": "环保材料出场分类本来就是全公司共用。"
+        "recycle": "环保材料出场分类本来就是全公司共用。",
+        "permitWorkType": "填写电子准证时「施工类别」下拉里的选项。可以新增、改名或删除；改名或删除不会改动已经填好的电子准证。「其他（写明）」一直都有。"
       },
       "create": "新增分类",
       "createTitle": "新增 · {module}",
@@ -5021,7 +5039,8 @@
       "byLetter": "按首字母筛选"
     },
     "loadOffline": "没有网络，{what}等有网络时再载入。",
-    "pageNotOpen": "你的账号不能打开这个页面，已带你回到可以用的页面。需要用这个页面，请联系你们公司的管理员开通。"
+    "pageNotOpen": "你的账号不能打开这个页面，已带你回到可以用的页面。需要用这个页面，请联系你们公司的管理员开通。",
+    "saveFailed": "这次没有保存成功（服务器没有完成）。你填的内容都还在，请再试一次。"
   },
   "companies": {
     "owner": {
@@ -5423,7 +5442,10 @@
         "confirmOffTitle": "取消锁定「{project}」？",
         "confirmOffBody": "关掉后，这个项目归档后的记录可以在电脑后台修改，要 6 位密码，并留下修改记录。",
         "confirmOff": "确定取消锁定"
-      }
+      },
+      "noRole": "不指定（能审批的人都可以）",
+      "roleMissing": "{name}（这个公司没有这个角色）",
+      "noUserRole": "不指定（新增用户时自己选角色）"
     },
     "trialDaysHint": "这个套餐默认试用 {days} 天。试用期间不出账单；试用结束后要在订阅管理按「延长或续费」才开始收费。填 0 = 不试用。",
     "trialNote": "试用期间不出账单。试用结束后要在订阅管理按「延长或续费」才开始收费。",
@@ -9490,7 +9512,48 @@
       "consultant_read_only": "顾问账号只能查看这里的资料，不能修改。",
       "consultant_module_not_granted": "总部没有为您在这个项目开通这个模块。如需使用，请联系总部。",
       "consultant_no_permit": "施工准证由施工方申请，顾问不能提交。您可以发起整改。",
-      "consultant_export_not_granted": "总部没有为您在这个项目开通「导出」，所以不能导出或发送。可以预览和打印。"
+      "consultant_export_not_granted": "总部没有为您在这个项目开通「导出」，所以不能导出或发送。可以预览和打印。",
+      "exit_pass_not_applicable": "这笔记录没有出门条（材料领用、设备进场，或出门条功能启用前已完成的记录），不需要签名或放行。",
+      "exit_pass_not_ready": "这笔申请还没有批准，现在不能签出门条；请等后台批准后再签。",
+      "exit_pass_record_closed": "这笔记录已经归档、退回或取消，出门条已经不能再签名或放行；如有疑问请联系申请人或后台。",
+      "exit_pass_not_a_signer": "你不是这个项目的安全经理，不能签出门条；请联系公司管理员给你「安全验收」权限并把你加进这个项目。",
+      "exit_pass_own_application": "这是你自己的申请，不能自己签出门条；请请这个项目的另一位安全经理签名。",
+      "exit_pass_already_signed": "另一位安全经理刚刚已经签了这张出门条，你不用再签；页面已刷新。",
+      "exit_pass_signature_required": "还没有签名；请先在签名框里签名，再按「签名批准」。",
+      "exit_pass_needs_signature_first": "安全经理还没有签出门条，现在不能做外部审批；请先请安全经理签名批准。",
+      "exit_pass_external_not_waiting": "这笔现在不在等待外部审批（不需要外部审批，或已经完成，或门岗已经放行），不用再做；页面已刷新。",
+      "exit_pass_external_not_allowed": "你不能做这一步：外部审批要在电脑后台、由有这类记录审批权限的人做，申请人和签出门条的安全经理不能做；请请总部或项目审批人处理。",
+      "exit_pass_external_fields_required": "还缺资料：请填写所属公司／部门、审批人姓名和日期，并选择或上传签回的文件，再保存。",
+      "exit_pass_external_locked": "「需要外部审批」现在不能再改，因为外部审批已经完成或出门条已经发出；页面已刷新。",
+      "exit_pass_not_sent": "这张出门条还没有发出，现在不能放行；请车辆先等候，并联系申请人或安全经理先签出门条。",
+      "exit_pass_already_released": "这张出门条已经由门岗放行过（或这笔清运已经结束），不用再放行；页面已刷新。",
+      "exit_pass_release_phone_only": "放行要由门岗在手机上拍照后确认，电脑后台不能放行；请到门岗手机上操作。",
+      "exit_pass_external_pending": "这笔还在等外部审批，现在不能确认归档；请先登记签回的文件或请对方在线签名，或改为不需要外部审批，再确认归档。",
+      "exit_pass_own_release": "这是你自己申请出场的东西，要由门岗检查车辆和货物后放行。",
+      "exit_pass_gate_release_only": "这个项目有门岗手机，出门条要由门岗检查放行。请让门岗在手机上打开出门条，拍照核查后按【确认放行】。",
+      "exit_pass_online_head_office_only": "在线签名要由总部的人做（总部角色或公司管理员，并有这类记录的审批权限）；签这张出门条的安全经理、批准这笔申请的人和申请人都不能在线签。请把出门条打印或用 Email 发给对方，签回后按【登记签回的文件】上传。",
+      "exit_pass_waive_not_allowed": "你不能改为不需要外部审批：只有签这张出门条的安全经理、公司管理员，或没有批准这笔申请的总部人员可以改。请联系他们处理。",
+      "exit_pass_busy": "系统正忙，刚才没有存好。请等几秒再按一次。",
+      "role_kind_fixed": "公司管理员一定是总部角色；手机账号的角色不能改成总部角色。",
+      "role_self_lockout": "你自己也是这个角色的人，这样保存会关掉你自己的「用户管理」。请保留「查看用户」和「编辑用户」的勾，或请公司管理员来改。",
+      "role_self_lockout_type": "你自己也是这个角色的人，改成项目角色会关掉你自己的「用户管理」。请保留总部角色，或请公司管理员来改。",
+      "grant_not_held": "你自己没有这项权限，不能给别人，也不能给自己。请公司管理员来做。",
+      "grant_admin_role_only_admin": "只有公司管理员可以把人设为「公司管理员」。请公司管理员来做。",
+      "grant_admin_account_only_admin": "公司管理员的角色和权限，只有公司管理员可以改。请公司管理员来做。",
+      "permit_form_office_only": "电子准证要在电脑后台填写。请用电脑登录后再填。",
+      "permit_work_type_exists": "已经有「{name}」了，不用再加。",
+      "permit_form_changed": "{name} 在你打开之后也保存了这张电子准证。请关闭后重新打开，看过最新内容再改。",
+      "permit_form_changed_before_signing": "电子准证刚被修改过，请先看一遍再签名批准。",
+      "platform_access_admin_only": "只有公司管理员可以开放或关闭 MSE 查看权限，请找贵公司的管理员。",
+      "platform_access_closed": "这家客户现在没有开放查看，请客户管理员在「公司设置」里点「允许 MSE 查看」后再打开。",
+      "platform_access_company_required": "没有说明是哪一家客户的资料，请从这家客户的公司页面或称重单重新打开。",
+      "platform_access_not_available": "这是客户自己的业务资料，MSE 后台不能打开；需要帮客户看时，请客户开放「允许 MSE 管理账号」，由 MSE 给客户加一个客户看得到、随时可删的支持账号。",
+      "platform_access_request_sent": "一小时内已经通知过这家客户，请 {minutes} 分钟后再发。",
+      "platform_qr_customer_only": "送货单和供应商的二维码由客户自己签发，MSE 看不到这些资料。",
+      "platform_access_view_only": "客户只开放了查看：MSE 可以打开预览来看，系统不给 MSE 修改、导出、发送或打印客户的资料。",
+      "platform_accounts_closed": "改这家客户的账号要客户同意，请客户管理员在「公司设置」里点「允许 MSE 管理账号」后再试。",
+      "platform_owner_locked": "客户已经开始用这个管理员账号，MSE 不能改它的登录邮箱；请告诉客户：由客户自己的公司管理员在「用户管理」里修改，或者客户来函，由管服务器的同事处理。",
+      "phone_role_office_account": "手机账号要在「现场人员管理」里开，这里不能把后台账号设为手机角色（工地人员、设备操作人员、门岗保安）。请选别的角色。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -9534,7 +9597,8 @@
       "invalid_birth_date": "出生日期要在今天以前",
       "site_worker_passport_taken": "这本护照已经在名单里",
       "supplier_not_on_project": "这个供应商不在这个项目的「可用供应商」里。请总部或项目经理先在项目里加入。",
-      "field_one_project": "手机账号同一时间只能在一个项目，请只选一个项目。"
+      "field_one_project": "手机账号同一时间只能在一个项目，请只选一个项目。",
+      "phone_role_office_account": "手机账号要在「现场人员管理」里开，这里不能把后台账号设为手机角色（工地人员、设备操作人员、门岗保安）。请选别的角色。"
     },
     "forbidden": "你没有访问权限。",
     "forbiddenBody": "如果确实需要，请联系管理员。",
@@ -12644,7 +12708,18 @@
       "report_records": "进度记录",
       "report_photos": "照片数量",
       "document_title": "文件名称",
-      "rain_remark": "意见 / 备注"
+      "rain_remark": "意见 / 备注",
+      "last_return_reason": "上次退回原因",
+      "permit_subcontractor": "分包商",
+      "permit_work_lead": "施工负责人",
+      "permit_contact_phone": "联系电话",
+      "permit_work_type": "施工类别",
+      "permit_location": "施工位置",
+      "permit_work_content": "施工内容",
+      "permit_work_period": "申请起止时间",
+      "permit_safety_measures": "风险及安全措施",
+      "permit_conditions": "批准条件",
+      "permit_valid_period": "批准起止时间"
     },
     "detailTitle": "我提交过的",
     "photos": "照片",
@@ -13114,7 +13189,8 @@
       "SAFETY": "安全",
       "SUBSCRIPTION": "订阅",
       "SYSTEM": "系统",
-      "WEIGHING": "称重"
+      "WEIGHING": "称重",
+      "PLATFORM_ACCESS": "MSE 查看权限"
     },
     "listFailed": "无法载入你的通知。这和「没有通知」不是一回事 —— 请重试。",
     "push": {
@@ -13656,8 +13732,8 @@
     "roles": {
       "what": "你们公司每个角色能看什么、能做什么。",
       "who": "持 role.view；修改要 role.update。",
-      "need": "建角色要代号、名称，以及至少一项权限。",
-      "then": "权限改动在对方下次加载页面时生效，可能需要让他刷新一下。",
+      "need": "新增角色要填名称，再选「总部角色」或「项目角色」：总部角色由你勾 A 组和 B 组；项目角色由你勾 B 组，项目权限默认全部打开。角色编号由系统自动生成。",
+      "then": "保存后，这个角色的人跟着改；他们下次打开页面就生效，可能需要刷新一下。",
       "trouble": "有人的侧边栏是空的：他的角色一项模块权限都没有。"
     },
     "safety": {
@@ -13832,11 +13908,11 @@
       "trouble": "权限、二维码、通知、GPS、安全和资料保存由 MSE 统一管理，这里不能改；需要修改请联系 MSE。"
     },
     "permits": {
-      "what": "施工准证：把公司原有的准证表格（Word、PDF 或照片）上传，交给指定的安全经理签名批准或退回，批准后归档。也能按项目、审批状态、申请人和日期找回每一份准证，预览、打印或下载文件。",
+      "what": "施工准证：把公司原有的准证表格（Word、PDF 或照片）上传，交给指定的安全经理签名批准或退回，批准后归档。也能按项目、审批状态、申请人和日期找回每一份准证，预览、打印或下载文件。审批人可以在窗口里按「填写电子准证」，把这份申请填成一张电子准证，它会印在完整证据 PDF 的第一页。",
       "who": "有「查看整改 / EHS 与施工准证」权限的人可以查看和下载；有「上报及指派整改、申请施工准证」的人可以按【新申请】申请；审批要有「安全验收（可审批施工准证）」，而且是申请人选的那位安全经理，或公司管理员。自己申请的准证要由别人审批。",
-      "need": "新申请要选项目、上传准证文件（Word、PDF 或表格照片，可以多页，一次最多 10 个），再选审批的安全经理；备注选填。批准要签名；退回要写原因。",
-      "then": "选中的安全经理（和公司管理员）会收到待审批的通知。批准后，原文件、审批记录、签名、审批人职位和时间一起归档，不能再修改；退回后，申请人按原因改好，上传新文件重新提交，之前的文件保留备查。批准或退回，申请人都会收到通知。",
-      "trouble": "选不到安全经理，是因为这个项目还没有能审批准证的人：审批人的角色要勾「安全验收」和「查看项目」，还要加进这个项目的人员名单。【新申请】窗口里写着这三步。"
+      "need": "新申请要选项目、上传准证文件（Word、PDF 或表格照片，可以多页，一次最多 10 个），再选审批的安全经理；备注选填。批准要签名；退回要写原因。电子准证选填；填的话，施工内容、施工位置和申请起止时间必填。施工类别的选项在「分类管理 → 公司通用分类 → 施工准证 · 施工类别」设定。",
+      "then": "选中的安全经理（和公司管理员）会收到待审批的通知。批准后，原文件、审批记录、签名、审批人职位和时间一起归档，不能再修改；退回后，申请人按原因改好，上传新文件重新提交，之前的文件保留备查。批准或退回，申请人都会收到通知。电子准证只有审批这份准证的人在电脑上可以填写，申请人只能查看；签名批准后跟准证一起归档，不能再修改。",
+      "trouble": "选不到安全经理，是因为这个项目还没有能审批准证的人：审批人的账号要有「安全验收」和「查看项目」（项目角色默认打开），还要加进这个项目的人员名单。【新申请】窗口里写着这三步。"
     },
     "billing_customer": {
       "what": "MSE 发给你们公司的账单：SaaS 订阅费，合作版还有平台佣金。每一张都看得到期间、金额、已付多少和还欠多少。",
@@ -14668,6 +14744,7 @@
       "nothingChanged": "还没有改动。",
       "saved": "项目权限已保存",
       "projectNote": "项目权限：默认全部打开。关掉的那一项，这个人在他所有的项目都不能用。",
+      "notMine": "灰色的开关是你自己没有的权限，你不能打开。请公司管理员来做。",
       "allOn": "项目权限全部打开",
       "someOff": "关掉了 {count} 项",
       "grantedCount": "总部开了 {count} 项 B 组权限",
@@ -15680,7 +15757,8 @@
       "description": "说明",
       "name": "角色名称",
       "permissions": "权限",
-      "userCount": "人数"
+      "userCount": "人数",
+      "kind": "类型"
     },
     "new": "新增角色",
     "permissionCount": "{count, plural, =0 {没有权限} other {# 项权限}}",
@@ -15769,14 +15847,39 @@
       "label": "权限页面",
       "hq": "总部权限",
       "project": "项目权限",
-      "hqHelp": "A 组只有总部才有；B 组由总部决定开放给哪些项目用户。",
-      "hqHelpProjectRole": "这是项目角色：A 组是总部专属，不能勾选；B 组默认关掉，勾选后这个角色的人就有。总部也可以在「编辑用户」为某个人单独打开。",
+      "hqHelp": "这是总部角色：A 组和 B 组都由你勾选，勾了这个角色的人就有；取消勾选，他们就没有。",
+      "hqHelpProjectRole": "这是项目角色：A 组是总部专属，不能勾选；B 组由你勾选，勾了这个角色的人就有。也可以在「编辑用户」为某一个人单独打开。",
       "projectHelp": "项目里做事用的权限。",
       "sectionA": "A 组 · 总部专属（项目用户没有）",
       "sectionB": "B 组 · 总部可选择授权给项目用户",
       "projectDefaultOn": "项目权限：这个角色的人默认全部打开，不用勾选。以后可以在「编辑用户」或项目的「项目权限」为某个人关掉某一项。",
-      "defaultOn": "默认打开"
-    }
+      "defaultOn": "默认打开",
+      "projectDefaultOnHeadOffice": "项目权限：这个角色的人默认全部打开，不用勾选。以后可以在「编辑用户」为某个人关掉某一项。"
+    },
+    "kind": {
+      "label": "角色类型",
+      "headOffice": "总部角色",
+      "headOfficeHelp": "在总部办公室，管理整个公司。A 组、B 组由你勾。",
+      "project": "项目角色",
+      "projectHelp": "只做被分配的项目。A 组不能给；B 组由你勾；项目权限默认全部打开。",
+      "phone": "手机账号",
+      "required": "请先选「总部角色」或「项目角色」。",
+      "chooseFirst": "先选上面的角色类型：总部角色或项目角色。选好后，这里会列出可以勾的权限。",
+      "changeHolders": "这个角色现在有 {count} 人。改类型后，他们的总部权限会按这个角色重新设定；他们各自被关掉的项目权限不变。",
+      "adminFixed": "总部角色。公司管理员一定是总部角色，不能改。"
+    },
+    "followers": "这个角色现在有 {count} 人。保存后，这次改动的勾选会同步给他们；他们各自被单独打开或关掉的其他权限不变。",
+    "adminLocked": "公司管理员有全部权限，不能修改。",
+    "adminNameFixed": "公司管理员的名称和说明由系统设定，不能修改。",
+    "notYours": "灰色的格子是你自己没有的权限，你不能勾给这个角色。请公司管理员来做。",
+    "phoneRole": "这是手机账号的角色（工地人员、设备操作人员、门岗保安），在「现场人员管理」生成和管理，这里只能查看它的权限。",
+    "phoneRoleLink": "打开现场人员管理",
+    "hqCount": "{count, plural, =0 {没有勾总部权限} other {总部权限 # 项}}",
+    "allPermissions": "全部权限",
+    "phoneHere": "手机账号（工地人员、设备操作人员、门岗保安）在「现场人员管理」生成，不在这里。",
+    "onlyAdmin": "公司管理员已经有全部权限。其他职位请按右上角「新增角色」，自己取名、选总部角色或项目角色、勾权限。",
+    "createHelp": "取一个名称，选总部角色或项目角色，再勾这个角色要有的权限，然后按「创建」。",
+    "editHelp": "名称、角色类型和权限勾选都在下面；改好后按「保存」。"
   },
   "safety": {
     "officeCreate": {
@@ -16886,7 +16989,8 @@
       "ABNORMAL_VEHICLE": "异常车辆",
       "ITEM_REMOVAL": "物品带出",
       "DISPUTE": "纠纷",
-      "OTHER": "其他"
+      "OTHER": "其他",
+      "EXIT_RELEASE": "出场放行"
     },
     "gateRecords": {
       "title": "门岗记录",
@@ -18485,7 +18589,13 @@
       "role": "角色",
       "roleHint": "不选角色，这个账号登录后什么都看不到。",
       "status": "状态",
-      "timezone": "时区"
+      "timezone": "时区",
+      "roleRequired": "请选角色。",
+      "noOwnRoles": "公司还没有自己建立的角色。要给这个人比公司管理员少的权限，请先到「用户 › 角色与权限」按「新增角色」。",
+      "noOwnRolesLink": "去角色与权限",
+      "roleNotYours": "（请公司管理员来给）",
+      "rolesNotYours": "灰色的角色有你自己没有的权限（或是公司管理员），不能由你来给。请公司管理员来做。",
+      "adminRoleFixed": "这是公司管理员的账号，角色只有公司管理员可以改。"
     },
     "filter": {
       "allAudiences": "全部用户类别",
@@ -18604,6 +18714,8 @@
       "chosenProjects": "指定项目",
       "noProjects": "公司还没有项目。",
       "needOneProject": "至少选一个项目，或选全部项目。",
+      "notMine": "灰色的开关是你自己没有的权限，你不能打开，也不能给自己。请公司管理员来做。",
+      "adminAccount": "这是公司管理员的账号，权限只有公司管理员可以改。",
       "amounts": "金额查看",
       "amountsHint": "材料成本、单价、预算、Claim、杂费报销金额；关掉后显示「—」，导出也拿掉。",
       "operate": "业务操作",
@@ -18623,7 +18735,8 @@
       "hqHintProjectUser": "B 组 · 总部可选择授权：默认关掉，总部打开后这个人才可以用。",
       "reservedNote": "A 组总部专属权限（用户及角色管理、审计日志、审批流程模板、部门管理、项目管理、仪表板管理、公司设置、收费管理、订阅管理、系统集成）只有总部账号才有，项目用户不能打开。",
       "scopeProjectUser": "项目用户只能看指定的项目。",
-      "projectDefaultOn": "项目权限默认全部打开，可以为这个人关掉某一项，以后也可以再打开。"
+      "projectDefaultOn": "项目权限默认全部打开，可以为这个人关掉某一项，以后也可以再打开。",
+      "partSavedWhy": "基本资料已保存，权限还没保存：{reason}"
     },
     "projectsView": {
       "projectsAll": "可以查看公司全部项目",
@@ -20881,7 +20994,8 @@
       "reviewNote": "审批意见 / 退回原因",
       "signature": "审批签名",
       "returnedBy": "退回人",
-      "approvedBy": "批准人"
+      "approvedBy": "批准人",
+      "lastReturnReason": "上次退回原因"
     },
     "status": {
       "RECTIFICATION_SUBMITTED": "待审批",
@@ -20943,14 +21057,107 @@
       "submitted": "{reference} 已提交审批",
       "resubmitted": "{reference} 已重新提交",
       "approved": "{reference} 已批准并归档",
-      "returned": "{reference} 已退回给申请人"
+      "returned": "{reference} 已退回给申请人",
+      "formSaved": "{reference} 电子准证已保存。请在右边写审批意见、签名批准。"
     },
     "openInModule": "在「施工准证」里打开",
     "openProjectTeam": "去项目团队添加",
     "noApproverSteps": {
-      "role": "角色权限：审批人的角色勾「安全验收」和「查看项目」（系统已预设「安全经理」）。",
-      "user": "用户：把审批人的角色设为这个角色；新账号要本人从邮件设好密码才会启用。",
-      "team": "项目团队：在这个项目的「项目人员名单」添加他（角色有「查看公司全部项目」的不用加）。"
+      "role": "权限：审批人的账号要有「安全验收」和「查看项目」。项目角色的人这两项默认打开；如果被关掉了，在「编辑用户」或项目的「项目权限」为他打开。",
+      "user": "用户：审批人要有后台账号（在「用户」新增）；新账号要本人从邮件设好密码才会启用。",
+      "team": "项目团队：在这个项目的「项目人员名单」添加他（能看公司全部项目的总部人员不用加）。"
+    },
+    "eForm": {
+      "fill": "填写电子准证",
+      "view": "查看电子准证",
+      "title": "安全施工准证 PERMIT TO WORK",
+      "intro": "这份申请的资料、照片和附件已经带入。补填施工内容、地点、起止时间、安全措施和批准条件，按【保存】；然后用右边的审批意见、签名和【签名批准】完成审批。",
+      "viewIntro": "只有审批这份准证的人可以填写；这里只能查看。",
+      "viewIntroCanFill": "这里只能查看；要修改，请按「准证文件」旁的「填写电子准证」。",
+      "viewIntroApproved": "已签名批准并归档，不能再修改。",
+      "viewIntroReturned": "已退回，申请人重新提交后才能再填写。",
+      "tile": "电子准证 {no} · 填写人 {name} · {time}",
+      "permitNo": "准证编号",
+      "applicationNo": "关联申请编号",
+      "project": "项目名称",
+      "appliedOn": "申请日期",
+      "applicant": "申请人",
+      "subcontractor": "分包商",
+      "workLead": "施工负责人",
+      "contactPhone": "联系电话",
+      "workType": "施工类别",
+      "workTypeOther": "其他施工类别（写明）",
+      "chooseType": "选择施工类别",
+      "other": "其他（写明）",
+      "manageTypes": "管理施工类别",
+      "typesEmpty": "公司还没有设施工类别，可以选「其他（写明）」自己写。",
+      "location": "施工位置",
+      "workContent": "施工内容",
+      "workStart": "申请开始时间",
+      "workEnd": "申请结束时间",
+      "photos": "现场照片及附件",
+      "photoN": "照片 {n}",
+      "noPhotos": "这份申请没有照片。",
+      "otherFiles": "其他附件名称",
+      "none": "无",
+      "measures": "风险及安全措施",
+      "approvalSection": "安全经理审批",
+      "opinion": "审批意见",
+      "returnReason": "退回原因",
+      "lastReturnReason": "上次退回原因",
+      "opinionWhere": "在右边「审批意见」填写，签名批准后印在电子准证上。",
+      "conditions": "批准条件",
+      "result": "审批结果",
+      "validFrom": "批准开始时间",
+      "validUntil": "批准截止时间",
+      "validHint": "不填就按申请的起止时间。",
+      "manager": "安全经理姓名",
+      "decidedAt": "审批日期／时间",
+      "signature": "安全经理签名",
+      "afterSigning": "签名批准后自动填上。",
+      "autoNumber": "保存后自动编号",
+      "endBeforeStart": "结束时间早于开始时间，请改正。",
+      "validFromAfterWorkEnd": "批准开始时间晚于申请结束时间。请填上批准截止时间，或把批准开始时间改早一点。",
+      "validUntilBeforeWorkStart": "批准截止时间早于申请开始时间。请填上批准开始时间，或把批准截止时间改晚一点。",
+      "save": "保存",
+      "cancel": "取消",
+      "close": "关闭",
+      "failed": "没有保存成功，请再试一次。",
+      "draftOutdated": "{name} 在你上次填写之后保存了这张电子准证，下面是最新的内容；你上次没保存的填写没有保留。",
+      "someone": "其他人",
+      "filledHint": "电子准证已填写（{no}）。签名批准后，电子准证和审批意见、签名、时间一起归档。",
+      "fillHint": "如需电子准证，先按「准证文件」旁的「填写电子准证」，保存后再签名批准。",
+      "photosOnly": "准证表格是照片，在上面的照片里。",
+      "what": {
+        "workTypes": "施工类别名单",
+        "attachments": "附件名单"
+      }
+    },
+    "workTypes": {
+      "title": "施工准证 · 施工类别",
+      "help": "填写电子准证时「施工类别」下拉里的选项。可以新增、改名或删除；改名或删除不会改动已经填好的电子准证。「其他（写明）」一直都有。",
+      "add": "新增施工类别",
+      "editTitle": "修改「{name}」",
+      "name": "名称",
+      "other": "其他（写明）",
+      "otherHelp": "一直都有，不能删除：列表里没有的，填写时选它自己写。",
+      "system": "系统",
+      "empty": "还没有施工类别。填写电子准证时仍可选「其他（写明）」。",
+      "armRemove": "确定删除「{name}」",
+      "removeHint": "删除后，新的电子准证不再提供这个类别；已经填好的电子准证不受影响。",
+      "remove": "删除",
+      "armFirst": "先打开旁边的开关，确认要删除。",
+      "edit": "修改",
+      "save": "保存",
+      "cancel": "取消",
+      "failed": "没有保存成功，请再试一次。",
+      "what": "施工类别名单",
+      "toast": {
+        "added": "已新增施工类别「{name}」",
+        "renamed": "已改名为「{name}」",
+        "removed": "已删除施工类别「{name}」"
+      },
+      "readOnly": "只有能管理分类的人可以新增、改名或删除；需要改的话请找公司管理员。"
     }
   },
   "gateCard": {
@@ -21423,7 +21630,7 @@
   "materialTargets": {
     "title": "材料目标",
     "count": "{count, plural, =0 {暂无目标} other {# 项目标}}",
-    "basis": "累计净进场 = 进场（不含不合格）− 已完成的退场，按材料、规格、单位计算；单位不同的不换算。接近、达到、超出目标时，自动提醒这个项目的项目经理、QS 和设定人。",
+    "basis": "累计净进场 = 进场（不含不合格）− 已完成的退场，按材料、规格、单位计算；单位不同的不换算。接近、达到、超出目标时，自动提醒这个项目里有「设定材料目标」权限的人和设定人。",
     "loading": "加载中…",
     "empty": "这个项目还没有材料目标。",
     "emptyAll": "还没有材料目标。先在上方选择项目，再新增。",
@@ -21471,7 +21678,7 @@
     "quantityRule": "须大于 0，最多三位小数",
     "alertsHint": "例如 80, 100：到 80% 提醒「接近」，到 100% 提醒「达到」；超过 100% 一定提醒「超出」。",
     "alertsInvalid": "请填 1 到 100 的整数，用逗号分开。",
-    "recipients": "提醒对象：这个项目的项目经理、QS（有「设定材料目标」权限的人）和设定人，带提示音。",
+    "recipients": "提醒对象：这个项目里有「设定材料目标」权限的人（公司管理员除外）和设定人，带提示音。",
     "cancel": "取消",
     "save": "保存",
     "toast": {
@@ -21607,7 +21814,12 @@
       "project_change_permissions": "修改项目权限",
       "material_price_set": "设定或调整材料单价",
       "material_return_check": "退货核对",
-      "rain_record_void": "作废雨天记录"
+      "rain_record_void": "作废雨天记录",
+      "exit_pass_approve": "出门条批准（安全经理）签名",
+      "exit_pass_external": "外部审批",
+      "exit_pass_waive_external": "改为不需要外部审批并发出门条",
+      "platform_access_open": "开放 MSE 查看权限",
+      "platform_access_revoke_link": "撤销 MSE 开的外部访问链接"
     },
     "firstTitle": "第一次设定签核密码",
     "firstBanner": "这是你第一次使用签核密码",
@@ -22323,5 +22535,494 @@
   "pagedList": {
     "shown": "已显示 {shown} 笔，共 {total} 笔",
     "loadMore": "加载更多"
+  },
+  "exitPass": {
+    "what": "出门条",
+    "loading": "正在载入…",
+    "failed": "没有成功，请再试一次。",
+    "cancel": "取消",
+    "optional": "选填",
+    "nameSeparator": "、",
+    "kind": {
+      "MATERIAL_OUTGOING": "材料出场",
+      "EQUIPMENT_MOVEMENT": "设备退场",
+      "WASTE_OUTGOING": "环保材料出场申请",
+      "DISPOSAL_REQUEST": "工地清运"
+    },
+    "closed": {
+      "archived": "这笔记录已归档，出门条不能再签名或放行。",
+      "rejected": "这笔申请已退回，出门条只能查看，不能再操作。",
+      "cancelled": "这笔记录已取消，出门条只能查看，不能再操作。",
+      "voided": "这笔记录已退回或已取消，出门条已失效，不能放行。"
+    },
+    "approval": {
+      "title": "出门条批准（安全经理）",
+      "notApproved": "未批准",
+      "approved": "已批准",
+      "legacy": "本记录在出门条功能启用前已完成，没有出门条。",
+      "notReady": "申请批准后，由安全经理在这里签出门条。",
+      "notReadyClosed": "这笔申请没有批准，没有出门条。",
+      "closedUnsigned": "未批准：这笔记录结束时，出门条还没有安全经理签名。",
+      "notSentYet": "还没有发出门条：等安全经理签名。",
+      "signers": "等待安全经理签名批准（可以签的人：{names}）",
+      "signersMore": "等待安全经理签名批准（可以签的人：{names} 等 {total} 人）",
+      "sign": "签名批准",
+      "name": "安全经理",
+      "signature": "签名",
+      "at": "批准时间"
+    },
+    "noSigners": {
+      "title": "这个项目还没有能签出门条的安全经理。请管理员照以下三步设置：",
+      "permission": "权限：给要签出门条的人的账号（或他的角色）打开「安全验收」。",
+      "project": "项目：把他加进这个项目的「项目人员名单」（看得到全部项目的人不用加）。",
+      "account": "账号：确认他的账号已启用（新账号要本人从邮件设好密码）。",
+      "openTeam": "去项目团队添加",
+      "onlyApplicant": "这个项目只有申请人自己是安全经理，出门条要由另一位安全经理签名。请管理员照以下三步再加一位："
+    },
+    "signDialog": {
+      "title": "签名批准出门条",
+      "signature": "安全经理签名",
+      "clear": "重签",
+      "nextSend": "按【签名批准】后，出门条马上发给申请人和本项目门岗的手机。",
+      "nextExternal": "按【签名批准】后，先等外部审批；外部审批完成后，才把出门条发给申请人和门岗。"
+    },
+    "external": {
+      "title": "外部审批",
+      "notRequired": "不需要",
+      "waiting": "等待外部审批",
+      "done": "外部审批已完成",
+      "switch": "需要外部审批",
+      "switchHelp": "要业主或上级部门也签名的，打开这个开关；不打开就沿用内部批准流程。",
+      "off": "本事项不需要外部审批，沿用内部批准流程。",
+      "waivedBy": "已改为不需要外部审批（{name} · {when}）",
+      "afterSignature": "需要外部审批：安全经理签名后，打印或用【发送】发给业主／上级部门签署。",
+      "howTo": "按窗口上方的【打印】或【发送】，把这笔记录（含空白的外部审批栏）发给业主／上级部门签署；签回后按【登记签回的文件】登记。总部的人（总部角色或公司管理员）有这类记录的审批权限、又没有参与这笔记录的，可以自己打开这笔记录按【在线签名】。",
+      "howToOpenRecord": "这个窗口没有【打印】和【发送】：请按下面的【打开原记录】，在这笔记录的窗口上方按【打印】或【发送】，把这笔记录（含空白的外部审批栏）发给业主／上级部门签署；签回后按【登记签回的文件】登记。总部的人（总部角色或公司管理员）有这类记录的审批权限、又没有参与这笔记录的，可以自己打开这笔记录按【在线签名】。",
+      "howToElsewhere": "【打印】和【发送】在电脑上这笔记录自己的窗口上方：请能打开这笔记录的同事（例如批准这笔申请的人）把这笔记录（含空白的外部审批栏）发给业主／上级部门签署；签回后在电脑上按【登记签回的文件】登记。总部的人（总部角色或公司管理员）有这类记录的审批权限、又没有参与这笔记录的，可以自己打开这笔记录按【在线签名】。",
+      "whoActs": "签回的文件由有这类记录审批权限的后台人员或安全经理在电脑上登记；在线签名要由没有参与这笔记录的总部的人（总部角色或公司管理员，并有这类记录的审批权限）在电脑上打开这笔记录签。",
+      "closedWaiting": "这笔记录已经结束，外部审批不用再做。",
+      "company": "所属公司／部门",
+      "name": "审批人姓名",
+      "opinion": "审批意见",
+      "signature": "签名",
+      "date": "日期",
+      "seeAttachment": "见附件：{name}",
+      "recordedBy": "登记人：{name} · {when}",
+      "signedBy": "在线签名：{name} · {when}",
+      "signOnline": "在线签名",
+      "recordPaper": "登记签回的文件",
+      "waive": "不需要外部审批，直接发出门条",
+      "correctPaper": "换一个签回的文件",
+      "correctHelp": "选错了文件？选或上传正确的签回文件，原来的文件仍保留在附件里。"
+    },
+    "waiveDialog": {
+      "body": "确定这一笔不需要外部审批？出门条会马上发给申请人和门岗，之后不能再改回需要外部审批。",
+      "confirm": "确定，直接发出门条"
+    },
+    "onlineDialog": {
+      "title": "外部审批 · 在线签名",
+      "today": "今天（{date}），以系统时间为准",
+      "next": "按【签名】后，外部审批算完成，出门条马上发给申请人和本项目门岗。",
+      "submit": "签名"
+    },
+    "paperDialog": {
+      "title": "登记签回的文件",
+      "help": "业主／上级部门签回的文件登记在这里。可以选附件里已有的文件，也可以现在上传（会放进这笔记录的附件）。",
+      "file": "签回的文件",
+      "noAttachments": "附件里还没有文件，请选「现在上传」。",
+      "uploadNow": "现在上传",
+      "whatAttachments": "附件",
+      "dateHint": "填文件上签的日期。",
+      "next": "按【保存】后，外部审批算完成，出门条马上发给申请人和本项目门岗。",
+      "submit": "保存",
+      "nextCorrect": "按【保存】后，外部审批改用新的文件；出门条已经发过，不会再发一次。"
+    },
+    "release": {
+      "title": "门岗放行",
+      "waitingBadge": "等待放行",
+      "released": "已放行",
+      "trips": "已放行 {count} 车",
+      "notSent": "还没有发出门条：等安全经理签名。",
+      "notSentExternal": "还没有发出门条：等外部审批完成。",
+      "notSentClosed": "这笔记录已经结束，出门条没有发出，没有门岗放行。",
+      "sentTo": "出门条已发送给：{to} · {when}",
+      "toApplicant": "申请人 {names}",
+      "toGate": "门岗 {names}",
+      "toSeparator": "；",
+      "noGatePhones": "这个项目还没有门岗手机账号，出门条只发给了申请人。请在「现场人员管理」为门岗开手机账号。",
+      "waiting": "等待门岗放行：门岗在手机上打开出门条，拍照核查后按【确认放行】。",
+      "closedUnreleased": "这笔记录已经结束，门岗没有放行记录。",
+      "ended": "本清运已结束",
+      "done": "已放行 · {name} · {when} · 核查照片 {count} 张",
+      "open": "打开"
+    },
+    "gate": {
+      "title": "核查拍照，确认放行",
+      "help": "检查车辆及货物，在这里拍核查照片（可以拍几张），再按【确认放行】。",
+      "photos": "核查照片",
+      "photosHint": "每张照片都记下拍照时间和位置。",
+      "takePhoto": "核查拍照",
+      "takeAnother": "再拍一张（已拍 {count} 张）",
+      "confirm": "确认放行",
+      "retry": "重试",
+      "needPhoto": "先拍至少一张核查照片",
+      "needNetwork": "确认放行要有网络：请到有信号的地方再按。照片会留着。",
+      "failed": "放行没有提交成功：{reason}。照片还在，请检查网络后按「重试」。",
+      "failedNetwork": "手机没有网络",
+      "failedUnknown": "系统没有回应",
+      "photosKept": "{count} 张核查照片还在。",
+      "done": "已放行，记入门岗事项 {number}。",
+      "doneTrip": "第 {count} 车已放行，记入门岗事项 {number}。下一车来时再拍照放行。",
+      "alreadyReleased": "这张出门条已经由 {name} 在 {when} 放行（{number}），不用再放行。",
+      "notSentYet": "这张出门条还没有发出，现在不能放行；请车辆先等候，并联系申请人或安全经理先签出门条。",
+      "refused": "放行没有提交成功：{reason}"
+    },
+    "waiting": {
+      "title": "待放行 ({count})",
+      "what": "待放行的出门条",
+      "empty": "现在没有待放行的出门条。车辆没有出门条的，请先等候，并联系申请人或安全经理。",
+      "help": "安全经理已批准的出门条。按一下打开，检查车辆及货物，拍照后按【确认放行】。",
+      "plate": "车牌 {plate}",
+      "sentAt": "{when} 发出",
+      "open": "打开"
+    },
+    "window": {
+      "title": "出门条 · {reference}",
+      "titleBare": "出门条",
+      "none": "这笔记录没有出门条。",
+      "viewNote": "出门条显示的是这笔记录现在的资料。",
+      "openRecord": "打开原记录",
+      "kind": "类别",
+      "goes": "出场物品",
+      "plate": "车牌",
+      "project": "项目",
+      "applicant": "申请人"
+    },
+    "archive": {
+      "pendingPress": "这笔还在等外部审批，现在不能确认归档。请先按下面的{buttons}，办好后再按【确认归档】。",
+      "pendingWho": "这笔还在等外部审批，现在不能确认归档。签回的文件要由有这类记录审批权限的后台人员或安全经理在电脑上登记；在线签名要由没有参与这笔记录的总部的人或公司管理员做。办好后再确认归档。"
+    },
+    "gateRecord": {
+      "linked": "关联原申请",
+      "linkedValue": "{reference}（{kind}）",
+      "openOriginal": "打开原记录",
+      "releasedBy": "放行人员",
+      "releasedAt": "放行时间",
+      "checkPhotos": "核查照片",
+      "photoCount": "{count} 张",
+      "releaseTitle": "门岗放行",
+      "releaseDone": "{name} 在 {when} 拍了 {count} 张核查照片后确认放行。这条门岗事项已完成，只能查看。",
+      "listNote": "出场放行：{reference}（{kind}）"
+    },
+    "toast": {
+      "signedSent": "已签名批准，出门条已发给申请人和门岗：{reference}",
+      "signedSentApplicant": "已签名批准，出门条只发给了申请人，没有门岗手机收到：{reference}",
+      "signedSentGate": "已签名批准，出门条已发给门岗：{reference}",
+      "signedSentNobody": "已签名批准：{reference}",
+      "signedWaitExternal": "已签名批准，等外部审批：{reference}",
+      "externalDone": "外部审批已完成，出门条已发出：{reference}",
+      "paperReplaced": "已换成新的签回文件；出门条之前已经发过，这次没有再发：{reference}",
+      "waived": "已改为不需要外部审批，出门条已发出：{reference}",
+      "released": "已确认放行，记入门岗事项：{reference}"
+    },
+    "correctedAfter": "出门条签名后，这笔记录在 {when} 由 {by} 改正过；这里显示的是改正后的资料。"
+  },
+  "mseAccess": {
+    "section": {
+      "title": "MSE 查看权限",
+      "subtitle": "贵公司的业务资料，MSE（系统方）要您开放才看得到；MSE 每一次看、每一次被挡住，都记在下面。",
+      "loading": "正在读取 MSE 查看权限……",
+      "what": "MSE 查看权限"
+    },
+    "view": {
+      "name": "允许 MSE 查看",
+      "closed": "MSE（系统方）现在看不到下面第 2 栏的资料；需要 MSE 帮忙查看时，点「允许 MSE 查看」。",
+      "open": "MSE 现在可以看到下面第 2 栏的资料（可以看，也可以打开文件预览看全文，不能改），到 {until} 自动关闭；用完了可以点「马上关闭」。",
+      "help": "开放后，MSE 可以打开文件预览，看得到全文。系统不给 MSE 导出、发送和打印的功能；但能看到的内容，看的人是可以留下来的。所以请只在需要时开放，用完就关。"
+    },
+    "accounts": {
+      "name": "允许 MSE 管理账号",
+      "closed": "MSE 现在不能加或改贵公司的账号；需要 MSE 帮忙开账号时，点「允许 MSE 管理账号」。",
+      "open": "MSE 现在可以帮贵公司加账号、改账号，每一次都会通知您，到 {until} 自动关闭。",
+      "help": "MSE 帮您加账号、改账号之前，要您先在这里开放。"
+    },
+    "state": {
+      "open": "开放中",
+      "closed": "没有开放"
+    },
+    "openedBy": "由 {name} 在 {at} 开放。",
+    "openedByReason": "由 {name} 在 {at} 开放，原因：{reason}",
+    "action": {
+      "change": "改开放时间",
+      "closeNow": "马上关闭"
+    },
+    "adminOnly": "只有公司管理员可以开放或关闭，请找贵公司的管理员。",
+    "openDialog": {
+      "howLong": "开放多久？时间到了会自动关闭。",
+      "reason": "原因（可以不填）",
+      "reasonPlaceholder": "例如：请 MSE 帮忙看称重照片",
+      "replace": "现在已经开放到 {until}。重新选择以后，从现在起重新计时。",
+      "pin": "按「开放」以后，要输入您的签核密码；还没设定过的，会先请您设定一个。",
+      "confirm": "开放"
+    },
+    "duration": {
+      "24": "24 小时",
+      "168": "7 天",
+      "720": "30 天"
+    },
+    "closeDialog": {
+      "viewTitle": "马上关闭 MSE 查看？",
+      "viewBody": "关闭以后，MSE 马上看不到贵公司的业务资料。",
+      "accountsTitle": "马上关闭 MSE 管理账号？",
+      "accountsBody": "关闭以后，MSE 马上不能帮您加账号、改账号。",
+      "confirm": "马上关闭"
+    },
+    "toast": {
+      "openedView": "已开放，MSE 可以查看到 {until}。",
+      "openedAccounts": "已开放，MSE 可以帮贵公司加账号、改账号到 {until}。",
+      "closedView": "已关闭，MSE 现在看不到了。",
+      "closedAccounts": "已关闭，MSE 现在不能加或改贵公司的账号了。",
+      "requested": "已通知这家客户的管理员；客户开放后这里会显示到期时间。",
+      "requestedNone": "这家客户现在没有可以通知的公司管理员，请直接联系客户。",
+      "linkRevoked": "已撤销，这个链接马上不能再用。"
+    },
+    "lists": {
+      "alwaysTitle": "MSE 一直看得到（开户、收费、管设备要用）",
+      "openTitle": "您按「允许 MSE 查看」后，MSE 才看得到",
+      "neverTitle": "MSE 一直看不到（就算您开放了查看）",
+      "neverNote1": "开放查看时，通知内容和操作记录里写到的单号和数量，MSE 会看得到。",
+      "neverNote2": "需要 MSE 进来帮忙看这些时，请按「允许 MSE 管理账号」。MSE 会在贵公司加一个协助账号；它会列在下面「MSE 加的账号」里，您随时可以停用。",
+      "neverNote3": "MSE 用协助账号做的事，记在贵公司自己的登录记录和操作记录里。",
+      "item": {
+        "company_profile": "公司资料（名称、地址、联系人、SSM 和银行账户）",
+        "package_billing": "配套、账单和付款记录",
+        "users_logins": "用户名单（姓名、邮箱、角色、状态、负责的项目名称）和登录记录",
+        "weighing_figures": "每一笔称重的单号、时间、地磅、重量和检测结果",
+        "commission_settlements": "抽佣账单上列出的结算单号、重量和金额",
+        "devices": "地磅、摄像头、门禁等设备的状态，以及什么时候称重、拍照、识别（不看照片和车牌）",
+        "integration_settings": "系统集成的设定（接哪个系统、怎么接）",
+        "project_directory": "项目名称、编号和状态（用来锁档案、接设备、看报表数字）",
+        "yards_on_map": "总部、回收场和地磅在地图上的位置",
+        "qr_code_list": "二维码的编号、类型和状态，扫码的时间和结果",
+        "notice_delivery": "通知发给了谁、有没有送到（不看内容）",
+        "external_link_list": "MSE 帮您开的外部访问链接（名称、项目、期限）",
+        "mse_staff_actions": "MSE 同事自己做过的操作",
+        "visitor_photo_counts": "到期访客照片的数量、通行证号码和项目名称（用来按时清除）",
+        "weighing_details": "称重记录里的车牌、确认和作废的说明、经手人名字，以及连着的清运单号和项目",
+        "weighing_photos_ticket": "称重单的照片、附件、更正记录和磅单 PDF（MSE 可以打开预览，看得到全文）",
+        "staff_operations": "贵公司同事在系统里的操作记录",
+        "notice_words": "发给贵公司的通知和系统事件的内容",
+        "qr_subjects_scans": "二维码对应的人、车、项目，以及扫码的地点和扫码人",
+        "camera_pictures": "摄像头拍到的照片",
+        "plate_card_reads": "门口识别到的车牌、卡号和项目",
+        "pushed_data": "推送到贵公司自己系统里的资料内容",
+        "report_files": "贵公司自己导出的报表文件（MSE 可以打开预览，看得到全文）",
+        "print_send_log": "贵公司的打印、下载、发送记录",
+        "sites_on_map": "贵公司工地在地图上的位置",
+        "visitor_names": "到期访客照片上的访客名字",
+        "external_link_create": "MSE 帮您开新的外部访问链接",
+        "qr_issue": "MSE 帮您给贵公司的人、车、项目开二维码",
+        "receipts_materials": "收货单、材料申请、领用和退货",
+        "documents_approvals": "文件和审批",
+        "deductions": "扣款单",
+        "workers_visitors": "工人资料和访客记录",
+        "schedule_progress": "施工计划和进度",
+        "safety_equipment": "安全和设备记录",
+        "daily_reports": "日报",
+        "consultant_applications": "顾问申请",
+        "chat": "聊天",
+        "project_details": "项目里面的详细资料（地址、预算、团队）",
+        "other": "其他业务资料"
+      }
+    },
+    "added": {
+      "title": "MSE 加的账号",
+      "empty": "MSE 没有在贵公司加过账号。",
+      "owner": "开户时由 MSE 建立的负责人账号",
+      "added": "MSE 加的",
+      "open": "到「用户管理」查看或停用",
+      "note": "不需要的账号，请到「用户管理」把它停用；停用后 MSE 就不能再用它登录。",
+      "addedBy": "{name} 在 {at} 加的",
+      "lastLogin": "最近登录 {at}",
+      "neverLoggedIn": "还没登录过",
+      "loading": "正在读取 MSE 加的账号……"
+    },
+    "links": {
+      "title": "MSE 帮您开的外部访问链接",
+      "help": "这些链接是 MSE 按贵公司的要求开的，到期或撤销以前都能用。不再需要时，公司管理员可以在这里按「撤销」，链接马上停用。",
+      "valid": "有效到 {at}",
+      "expired": "已经到期",
+      "revoked": "已经撤销",
+      "by": "{name} 在 {at} 开的",
+      "wholeCompany": "整个公司",
+      "empty": "MSE 没有帮您开过外部访问链接。",
+      "revoke": "撤销",
+      "adminOnly": "只有公司管理员可以撤销，请找贵公司的管理员。",
+      "revokeTitle": "撤销「{name}」这个外部访问链接？",
+      "revokeBody": "撤销以后，拿着这个链接的人马上打不开。撤销了不能恢复；以后还需要，请 MSE 重新开一个。按「撤销」以后要输入您的签核密码。"
+    },
+    "records": {
+      "title": "MSE 查看记录",
+      "help": "这里记下 MSE 的人每一次查看、被挡住、改账号和请求开放，您随时可以回来看。",
+      "helpMse": "这家客户的「MSE 查看记录」，客户自己在「公司设置」里也看得到同样的内容。",
+      "what": "MSE 查看记录",
+      "column": {
+        "time": "时间",
+        "actor": "MSE 人员",
+        "outcome": "做了什么",
+        "where": "看了哪里"
+      },
+      "outcome": {
+        "OPENED": "查看",
+        "REFUSED": "被挡住",
+        "ACCOUNT_CHANGED": "改了账号",
+        "REQUESTED": "请求开放",
+        "GRANT_OPENED": "开放",
+        "GRANT_CLOSED": "关闭"
+      },
+      "customerActor": "{name}（贵公司）",
+      "customerActorMse": "{name}（客户）",
+      "lookedAt": {
+        "LIST": "看了列表",
+        "RECORD": "看了一笔资料",
+        "FILE": "预览了文件"
+      },
+      "refused": {
+        "closed": "被挡住（您没有开放）",
+        "accounts_closed": "被挡住（您没有开放「允许 MSE 管理账号」）",
+        "not_available": "被挡住（这类资料 MSE 永远看不到，开放了也看不到）",
+        "owner_locked": "被挡住（这个管理员账号已经在用，MSE 不能改它的登录邮箱）",
+        "no_changes": "被挡住（MSE 不能改贵公司的资料）"
+      },
+      "filter": {
+        "from": "从哪天",
+        "to": "到哪天",
+        "outcome": "做了什么",
+        "all": "全部",
+        "clear": "清除筛选",
+        "nothingToClear": "还没有设筛选"
+      },
+      "empty": "还没有记录：MSE 没有看过贵公司的资料，也没有被挡住过。",
+      "emptyMse": "这家客户还没有任何 MSE 查看记录。",
+      "emptyFiltered": "这段时间没有这样的记录，可以换一个日期，或选「全部」再看。",
+      "loading": "正在读取记录……",
+      "notAllowed": "「MSE 查看记录」只有公司管理员和能看操作记录的同事看得到；需要看时，请找贵公司的管理员。",
+      "page": "第 {page} / {pages} 页 · 共 {count} 条",
+      "previous": "上一页",
+      "next": "下一页",
+      "refusedMse": {
+        "closed": "被挡住（客户没有开放）",
+        "accounts_closed": "被挡住（客户没有开放「允许 MSE 管理账号」）",
+        "not_available": "被挡住（这类资料 MSE 永远看不到，客户开放了也看不到）",
+        "owner_locked": "被挡住（这个管理员账号客户已经在用，MSE 不能改它的登录邮箱）",
+        "no_changes": "被挡住（MSE 不能改客户的资料）"
+      },
+      "made": {
+        "create_grant": "开了外部链接",
+        "issue_code": "开了二维码"
+      }
+    },
+    "module": {
+      "weighing": "称重记录",
+      "weighing_photos": "称重照片",
+      "weighing_ticket": "称重单 PDF",
+      "weighing_corrections": "称重更正记录",
+      "audit_log": "操作记录",
+      "notifications": "通知",
+      "report_files": "报表文件",
+      "qr_codes": "二维码",
+      "qr_scans": "扫码记录",
+      "integration_deliveries": "系统集成推送记录",
+      "monitoring_events": "系统事件",
+      "monitoring_cctv": "摄像头画面",
+      "monitoring_anpr": "车牌 / 门禁识别",
+      "dashboard_map": "地图上的工地",
+      "visitor_photos": "访客照片名单",
+      "file_actions": "打印 / 下载 / 发送记录",
+      "external_links": "外部访问链接",
+      "accounts": "账号",
+      "platform_access": "MSE 查看权限",
+      "other": "其他业务资料",
+      "project_details": "项目里面的详细资料",
+      "own_settings": "贵公司自己的设定（分公司、工地、类别）",
+      "partnerships": "贵公司和其他公司的合作关系",
+      "receipts_materials": "收货单、送货单、材料和供应商",
+      "waste_haulage": "清运单、车辆和司机",
+      "deductions": "扣款单和结算单",
+      "documents_approvals": "文件和审批",
+      "site_records": "现场记录、申请和附件",
+      "evidence": "现场照片和证据",
+      "workers_visitors": "工人资料和访客记录",
+      "gate": "门岗、通行证和出门条",
+      "staff_presence": "现场人员的打卡和位置",
+      "schedule_progress": "施工计划和进度",
+      "safety_equipment": "安全和设备记录",
+      "daily_reports": "日报",
+      "consultant_applications": "顾问申请和顾问权限",
+      "chat": "聊天和公告",
+      "own_reports": "贵公司自己的报表和仪表板",
+      "recycler_business": "回收场的客户、进货、库存和出货",
+      "project_notice": "发给贵公司项目的通知",
+      "qr_customer_only": "送货单和供应商的二维码"
+    },
+    "operation": {
+      "create_user": "新增账号",
+      "update_user": "修改账号资料",
+      "update_user_status": "停用 / 恢复账号",
+      "delete_user": "删除账号",
+      "send_password_reset": "重发登录邮件",
+      "replace_user": "人员交接",
+      "reset_sign_off_pin": "重设签核密码",
+      "set_permission_switches": "修改权限开关",
+      "force_logout": "强制下线",
+      "create_role": "新增角色",
+      "update_role": "修改角色",
+      "delete_role": "删除角色",
+      "create_department": "新增部门",
+      "update_department": "修改部门",
+      "delete_department": "删除部门",
+      "reissue_invitation": "重发手机登录链接",
+      "reset_device": "重置手机",
+      "remove_field_staff": "移除现场人员",
+      "other": "修改账号"
+    },
+    "mse": {
+      "title": "客户开放情况",
+      "help": "这家客户的业务资料和账号，要客户的公司管理员在「公司设置」里开放，MSE 才能看、才能改。",
+      "viewClosed": "这家客户没有开放查看，项目里的资料、照片和车牌都不显示；需要时点「请客户开放查看」。",
+      "viewOpen": "这家客户开放查看到 {until}（只能看，不能改，每一次查看都会记录给客户看）。",
+      "accountsClosed": "这家客户没有开放账号管理，不能加或改它的账号；需要时点「请客户开放账号管理」。",
+      "accountsOpen": "这家客户开放账号管理到 {until}，每一次修改都会通知客户。",
+      "accountsOnboarding": "这家客户的管理员还没有登录过，可以先帮它开好账号。",
+      "askView": "请客户开放查看",
+      "askAccounts": "请客户开放账号管理",
+      "askHelp": "客户的公司管理员会收到通知，通知里有您写的原因。同一件事一小时内只能发一次。",
+      "reason": "原因（客户会看到）",
+      "reasonPlaceholder": "例如：客户报称重异常，需要看照片",
+      "send": "发送",
+      "alreadyOpen": "客户已经开放了，不用再请。",
+      "onboardingNoAsk": "客户的管理员还没登录过，现在不用请，可以直接帮客户开账号。"
+    },
+    "directory": {
+      "column": "客户开放",
+      "closed": "未开放",
+      "view": "可查看，到 {until}",
+      "accounts": "可改账号，到 {until}",
+      "onboarding": "还在开户，可直接开账号"
+    },
+    "closed": {
+      "cell": "客户未开放",
+      "note": "客户没有开放查看的资料，这里只显示数量和状态；需要时请客户管理员在「公司设置」里点「允许 MSE 查看」。",
+      "hiddenRows": "客户没有开放查看的记录，这里没有列出来。需要时请客户管理员在「公司设置」里点「允许 MSE 查看」。",
+      "auditHidden": "这里只显示 MSE 同事的操作、登录记录和已开放客户的操作；客户自己同事的操作要客户开放查看后才显示。",
+      "photos": "这家客户现在没有开放查看，照片、附件、更正记录和称重单都看不到。需要时请客户管理员在「公司设置」里点「允许 MSE 查看」。",
+      "mapPins": "有 {count} 个工地没有显示，因为客户还没有开放查看。"
+    },
+    "reason": {
+      "view": "要客户先开放查看：请客户管理员在「公司设置」里点「允许 MSE 查看」，然后再试。",
+      "accounts": "改这家客户的账号要客户同意，请客户管理员在「公司设置」里点「允许 MSE 管理账号」。",
+      "externalLink": "帮客户开外部访问链接要客户先开放「允许 MSE 查看」。",
+      "accountsList": "灰色的按钮是客户还没开放「允许 MSE 管理账号」的账号；要改，请那家客户的管理员在「公司设置」里点「允许 MSE 管理账号」。强制下线随时可以用。"
+    }
   }
 }

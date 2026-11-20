@@ -25,6 +25,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { AnnouncementDialog } from "@/components/announcements/announcement-dialog";
 import { PhotoLink } from "@/components/shared/photo-link";
 import { VisitorArrivalDialog } from "@/components/site-access/visitor-arrival";
+import { ExitPassWindow } from "@/components/site-access/exit-pass-window";
+import { parseExitPassParam } from "@/interfaces/exit-pass";
 import { useClearSearchParam } from "@/hooks/use-url-selection";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -137,6 +139,12 @@ export function FieldStaffWorkspace() {
   // 访客进场确认 (I26): the host's to-do opens 「确认接待」 over home.
   const visitorArrival = searchParams.get("visitor_arrival");
   const clearVisitorArrival = useClearSearchParam("visitor_arrival");
+  // JB217: the 出门条 a notice names (`exit_pass=<KIND>:<id>`) - the guard's
+  // 「待放行」 card, a phone safety manager's 「出门条待你批准」, the
+  // applicant's 「出门条已批准」 - opens over whatever tab the link names. Only
+  // the gate's card (`record=gate`) offers 【核查拍照】 / 【确认放行】 (audit F1).
+  const exitPass = parseExitPassParam(searchParams.get("exit_pass"));
+  const clearExitPass = useClearSearchParam("exit_pass");
   // JB97: one of the worker's own submissions a notice names - a record
   // corrected, a request decided, a claim paid - opens under 我提交过的 on
   // home (`my-submissions.tsx`), not the capture form, not the bare home.
@@ -155,6 +163,14 @@ export function FieldStaffWorkspace() {
     )}
     {visitorArrival && (
       <VisitorArrivalDialog id={visitorArrival} onClose={clearVisitorArrival} />
+    )}
+    {exitPass && (
+      <ExitPassWindow
+        kind={exitPass.kind}
+        record={exitPass.record}
+        mayRelease={searchParams.get("record") === "gate"}
+        onClose={clearExitPass}
+      />
     )}
     {notice && (
       <NoticeOpener

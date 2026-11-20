@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { CompanyAccessCell } from "@/components/platform-access/company-access-panel";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import {
@@ -197,6 +198,16 @@ export function Companies({
             tone={STATUS_TONE[row.original.status]}
           />
         ),
+      },
+      {
+        // 客户开放 (JB220, 客户 11-18): whether this customer lets MSE look at
+        // its records or change its accounts right now, in words. Its own
+        // lines, not the table's two-line clamp: a badge and 「还在开户，可直接
+        // 开账号」 under it read 「还在开户，可…」 (walk 11-18 P3).
+        id: "platform_access",
+        meta: { label: t("mseAccess.directory.column"), unclamped: true },
+        header: () => t("mseAccess.directory.column"),
+        cell: ({ row }) => <CompanyAccessCell access={row.original.platform_access} />,
       },
       {
         accessorKey: "state",
@@ -547,6 +558,7 @@ export function Companies({
         "name",
         "type",
         "status",
+        "platform_access",
         "state",
         "plan_name",
         "review_status",
@@ -579,6 +591,7 @@ export function Companies({
         "code",
         "name",
         "status",
+        "platform_access",
         "state",
         "plan_name",
         "recycler_service_contractors",

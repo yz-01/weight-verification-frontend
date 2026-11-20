@@ -39,6 +39,10 @@ import Link from "next/link";
 import { useRef, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import {
+  ExitPassPanel,
+  useExitPassArchiveBlock,
+} from "@/components/contractor-ops/exit-pass-panel";
 import { useDismissDialog } from "@/components/shared/dialog-navigation";
 import { EvidenceFileActions } from "@/components/shared/evidence-file-actions";
 import { RecordSendLog, RecordSendTargetProvider } from "@/components/shared/record-send-log";
@@ -66,6 +70,7 @@ import {
 } from "@/components/ui/dialog";
 import { useArrowKeys } from "@/hooks/use-arrow-keys";
 import type { ArchiveRecordKind } from "@/interfaces/contractor-ops";
+import type { ExitPassKind } from "@/interfaces/exit-pass";
 import type { RecordedBy } from "@/interfaces/recorder";
 import { consultantSeesConversation } from "@/lib/consultant-modules";
 import type { ChatRecordKind } from "@/lib/record-chat";
@@ -378,6 +383,7 @@ export function RecordDetailShell({
   aside,
   chat,
   heroFromThumbnail = false,
+  exitPass = null,
 }: {
   /** The record's own number, used on printed and downloaded copies. */
   reference: string;
@@ -442,6 +448,14 @@ export function RecordDetailShell({
    * full size; the small strip uses thumbnails everywhere.
    */
   heroFromThumbnail?: boolean;
+  /**
+   * JB217 (客户 11-18 事项 2): an exit record's 「出门条批准（安全经理）」,
+   * 「外部审批」 and 「门岗放行」, under 签名 and above 附件 (「在右侧现有签名
+   * 区域下方设置独立的「出门条批准（安全经理）」栏，上传附件区域往下移」). Drawn
+   * for a kind with no 签名 panel too. `readOnly`: shown, never acted on (现场
+   * 记录中心, the phone's 我提交过的).
+   */
+  exitPass?: { kind: ExitPassKind; recordId: string; readOnly?: boolean } | null;
 }) {
   const t = useTranslations("recordShell");
   const { user } = useAuth();
@@ -449,9 +463,13 @@ export function RecordDetailShell({
   // status read is the office's too - on the phone it said 「无法载入这条
   // 记录是否已归档」 (Lucas 11-05, 图2).
   if (user?.is_field_staff) closure = null;
+  // JB217 D11: 外部审批 still owed keeps 【确认归档】 off, with the reason
+  // beside it (the JB169 pattern); the module's own block comes first.
+  const exitPassBlock = useExitPassArchiveBlock(closure && !closure.blocked ? exitPass : null);
+  if (closure && !closure.blocked && exitPassBlock) closure = { ...closure, blocked: exitPassBlock };
   const [open, setOpen] = useState<number | null>(null);
   const hasAside = Boolean(
-    actions || closure || aside || signatures.length > 0 || conversation || chat,
+    actions || closure || aside || signatures.length > 0 || conversation || chat || exitPass,
   );
   // Which photograph sits in the large place (H8, HD16): pressing a
   // thumbnail swaps it there; pressing the large one opens the viewer from it.
@@ -623,14 +641,26 @@ export function RecordDetailShell({
                 </div>
               </ShellPanel>
             )}
+            {/* JB217: 出门条批准（安全经理） → 外部审批 → 门岗放行, one panel of
+                three parts so their order cannot drift (D15); 附件 and 沟通
+                move down one place, on a computer and on a phone. */}
+            {exitPass ? (
+              <div className="order-8 min-w-0" data-shell-exit-pass>
+                <ExitPassPanel
+                  kind={exitPass.kind}
+                  recordId={exitPass.recordId}
+                  readOnly={exitPass.readOnly}
+                />
+              </div>
+            ) : null}
             {conversation ? (
-              <div className="order-8 min-w-0">
+              <div className="order-9 min-w-0">
                 <RecordAttachmentsPanel kind={conversation.kind} recordId={conversation.recordId} />
               </div>
             ) : null}
             {/* JB210 (Lucas 11-16 Q2 = A): not the contractor's own talk for a consultant. */}
             {conversation && consultantSeesConversation(user?.account_type, conversation.kind) ? (
-              <ShellPanel title={t("conversation")} className="order-9">
+              <ShellPanel title={t("conversation")} className="order-10">
                 <RecordConversationPanel
                   kind={conversation.kind}
                   recordId={conversation.recordId}
@@ -638,7 +668,7 @@ export function RecordDetailShell({
               </ShellPanel>
             ) : null}
             {chat ? (
-              <ShellPanel title={t("conversation")} className="order-9">
+              <ShellPanel title={t("conversation")} className="order-10">
                 {chat}
               </ShellPanel>
             ) : null}

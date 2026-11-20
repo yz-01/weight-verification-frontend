@@ -13,6 +13,8 @@ import { useFormatter, useTranslations } from "next-intl";
 import { useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 
+import { PlatformReasonLine } from "@/components/platform-access/closed";
+import { useAuth } from "@/components/providers/auth-provider";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { FieldWrapper, QueryFailedNote } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
@@ -36,8 +38,10 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { detectInstallEnvironment } from "@/lib/field-install";
+import { accountWritesClosed } from "@/lib/platform-access";
 import { cn } from "@/lib/utils";
 import { getProjects } from "@/services/contractor.service";
+import { getCompanyProjectArchiveLocks } from "@/services/project-archive-lock.service";
 import {
   createFieldInvitation,
   getFieldAccessInfo,
@@ -66,7 +70,8 @@ export function FieldAccessManagementDialog({
   initialUser,
 }: {
   onClose: () => void;
-  initialUser?: Pick<UserRow, "id" | "full_name" | "phone">;
+  /** `company`: MSE opening one customer's phone account picks among that customer's projects (JB220). */
+  initialUser?: Pick<UserRow, "id" | "full_name" | "phone"> & { company?: string | null };
 }) {
   return <FieldDraft scope={`field-access:${initialUser?.id ?? "new"}`}>
     <FieldAccessManagementContent onClose={onClose} initialUser={initialUser} />
@@ -78,9 +83,14 @@ function FieldAccessManagementContent({
   initialUser,
 }: {
   onClose: () => void;
-  initialUser?: Pick<UserRow, "id" | "full_name" | "phone">;
+  initialUser?: Pick<UserRow, "id" | "full_name" | "phone"> & { company?: string | null };
 }) {
   const t = useTranslations("fieldAccessAdmin");
+  const access = useTranslations("mseAccess");
+  const { user: me } = useAuth();
+  // JB220 (D5): MSE picks among that customer's projects from the project
+  // directory (code, name, status); the projects list is the customer's own.
+  const platformCompany = me?.is_platform_staff ? initialUser?.company ?? undefined : undefined;
   const queryClient = useQueryClient();
   const [mode, setMode] = useDraftState<AccessMode>("mode", initialUser ? "existing" : "new");
   const [existingUserId, setExistingUserId] = useDraftState("existingUserId", initialUser?.id ?? "");
@@ -104,9 +114,14 @@ function FieldAccessManagementContent({
   const canonicalPhone = phoneDigits ? `+60${phoneDigits}` : "";
 
   const projects = useQuery({
-    queryKey: ["projects", "field-access-options"],
-    queryFn: () =>
-      getProjects({ page_size: 500, sort_by: "name", sort_order: "asc" }),
+    // The customer's own list keeps its key; MSE's reads one customer's directory.
+    queryKey: platformCompany
+      ? ["projects", "field-access-options", platformCompany]
+      : ["projects", "field-access-options"],
+    queryFn: (): Promise<{ results: Array<{ id: string; code: string; name: string; status: string }> }> =>
+      platformCompany
+        ? getCompanyProjectArchiveLocks(platformCompany).then((rows) => ({ results: rows }))
+        : getProjects({ page_size: 500, sort_by: "name", sort_order: "asc" }),
   });
 
   // The three phones and the people on them come from 现场人员管理's own
@@ -130,6 +145,11 @@ function FieldAccessManagementContent({
     queryFn: () => getFieldAccessInfo(existingUserId),
     enabled: mode === "existing" && Boolean(existingUserId),
   });
+  // JB220 (客户 11-18): a customer's phone account is re-sent, reset or
+  // removed by MSE only while the customer has opened 「允许 MSE 管理账号」.
+  const chosenStaff = fieldUsers.data?.results.find((row) => row.id === existingUserId);
+  const accountsReason =
+    mode === "existing" && accountWritesClosed(me, chosenStaff) ? access("reason.accounts") : undefined;
 
   // One project per phone account (JB148, 客户 11-10 事项 5 第 3 点: 「普通工地员工
   // 同一时间只能绑定一个项目，不允许同时挂在两个项目」): the choice is one project.
@@ -544,6 +564,8 @@ function FieldAccessManagementContent({
           </div>
         )}
 
+        {!result && <PlatformReasonLine text={accountsReason} />}
+
         {mode === "existing" && existingUserId && !result && (
           <div className="rounded-lg border border-destructive/25 bg-destructive/5 p-3">
             <p className="text-sm font-medium">{t("unbind.title")}</p>
@@ -560,7 +582,8 @@ function FieldAccessManagementContent({
               variant="outline"
               size="sm"
               className="mt-2"
-              disabled={unbind.isPending}
+              disabled={unbind.isPending || Boolean(accountsReason)}
+              disabledReason={accountsReason}
               onClick={() => setUnbinding(true)}
             >
               <Smartphone className="size-4" />
@@ -587,7 +610,7 @@ function FieldAccessManagementContent({
           </Button>
           {!result && (
             <Button requires={mode === "existing" ? [[existingUserId, t("existingStaff")], [selectedProjectIds.length, t("projects")]] : [[fullName, t("fullName")], [phone, t("phone")], [selectedProjectIds.length, t("projects")]]}
-                    disabled={create.isPending} onClick={() => create.mutate()}>
+                    disabled={create.isPending || Boolean(accountsReason)} disabledReason={accountsReason} onClick={() => create.mutate()}>
               {create.isPending ? (
                 <Smartphone />
               ) : mode === "existing" ? (

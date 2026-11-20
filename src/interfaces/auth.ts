@@ -107,6 +107,12 @@ export interface CurrentUser {
   audience: Audience;
   portal: Portal;
   permissions: string[];
+  /**
+   * JB219 audit F1: codes this person may not give - by role, switch or tick
+   * - because he does not hold them himself; empty for a 公司管理员 and MSE.
+   * Missing from an older backend.
+   */
+  cannot_give?: string[];
   features: string[];
   project_quota: ProjectQuota | null;
   consultant_projects: ConsultantProjectAccess[];
@@ -176,6 +182,16 @@ export interface UserRow {
   language: Locale;
   last_login_at: string | null;
   created_at: string;
+  /**
+   * JB220, MSE callers only: MSE may change this account now - true for MSE's
+   * own staff, a company still onboarding, or an open 「允许 MSE 管理账号」.
+   */
+  company_accounts_open?: boolean;
+  /**
+   * JB220, every caller: an MSE staff member made this account - `owner` the
+   * first 公司管理员 at onboarding, `added` any other. Shown as a plain badge.
+   */
+  mse_added?: "owner" | "added" | null;
 }
 
 export interface UserDetail extends UserRow {
@@ -263,11 +279,22 @@ export interface Role {
   description: string;
   permissions: string[];
   /**
-   * JB139: head office's role (公司管理员, 总部), a phone role, or a builder's
-   * project role - whose project permissions are on by default for its
-   * people. Missing from an older backend.
+   * A builder's 总部角色 (A and B ticked by the company, JB218/JB219), 项目角色
+   * (A never; project permissions on by default for its people) or phone
+   * role; ``plain`` for a recycler's or MSE's role, not split into A / B.
+   * Missing from an older backend.
    */
-  kind?: "head_office" | "phone" | "project";
+  kind?: "head_office" | "phone" | "project" | "plain";
+  /** JB219: the company marked it 总部角色 (公司管理员 always is). */
+  head_office?: boolean;
+  /** JB219: how many 总部权限 (A + B) it ticks; ``null`` outside a builder. */
+  hq_permission_count?: number | null;
+  /**
+   * JB219 audit F1: whether the reader may put somebody in this role - only
+   * a 公司管理员 gives 公司管理员, anybody else only a role whose A / B he
+   * holds. Missing from an older backend (treated as yes).
+   */
+  can_give?: boolean;
   is_system: boolean;
   user_count?: number;
   created_at: string;
@@ -279,6 +306,8 @@ export interface RolePayload {
   name: string;
   description?: string;
   permissions: string[];
+  /** A builder's role: 总部角色 (true) or 项目角色 (false) - JB219. */
+  head_office?: boolean;
 }
 
 /** One row of the permission matrix, as the registry defines it. */
@@ -318,6 +347,14 @@ export interface PermissionSwitchState {
   off: string[];
   projects: { all: boolean; chosen: string[] };
   available_projects: { id: string; code: string; name: string }[];
+  /**
+   * JB219 audit F1: codes the reader does not hold himself - he may switch
+   * them off, never on, for this person or himself. Missing from an older
+   * backend.
+   */
+  locked_on?: string[];
+  /** A 公司管理员's switches, opened by somebody who is not one: shown, not changed. */
+  admin_account?: boolean;
 }
 
 export interface PermissionSwitchPayload {

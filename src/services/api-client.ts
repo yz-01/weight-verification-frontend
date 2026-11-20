@@ -93,6 +93,14 @@ interface RequestOptions {
   noSignOffPrompt?: boolean;
   /** What a file is fetched for (JB27): set by `withFileFetch`, not by hand. */
   fileHeaders?: Record<string, string>;
+  /**
+   * JB220 (客户 11-18): the customer whose record an MSE screen is opening,
+   * sent as `X-MSE-Company`. The server reads it only on the few calls an MSE
+   * screen makes into a customer's records (the weighing ticket's photos and
+   * PDF), and only while that customer has opened 「允许 MSE 查看」; everywhere
+   * else, and for every customer login, it is ignored.
+   */
+  platformCompany?: string;
 }
 
 function buildUrl(path: string, query?: ListQuery): string {
@@ -360,6 +368,7 @@ async function send(path: string, options: RequestOptions): Promise<Response> {
     if (projectId) headers["X-MSE-Project"] = projectId;
     if (options.signOffPin) headers["X-Sign-Off-PIN"] = options.signOffPin;
     if (options.fileHeaders) Object.assign(headers, options.fileHeaders);
+    if (options.platformCompany) headers["X-MSE-Company"] = options.platformCompany;
   }
   // JB211 (11.2.9 强制更新): which build is asking, on every signed-in call and
   // every sign-in. A public read (a visitor page, a driver link, branding)
@@ -915,6 +924,9 @@ const CATALOGUE_WINS = new Set([
   "line_listed_twice",
   "first_line_kept",
   "receipt_line_returned",
+  // A phone role given to an office account (walk 11-18): 「Create field staff
+  // from the field login link screen instead.」 reached 编辑用户 in English.
+  "phone_role_office_account",
 ]);
 
 /**

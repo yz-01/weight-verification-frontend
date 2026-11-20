@@ -20,6 +20,7 @@ import {
   Check,
   Download,
   Eye,
+  FileSignature,
   FileText,
   Loader2,
   Lock,
@@ -53,6 +54,11 @@ import {
   type ShellPhoto,
   type ShellPhotoGroup,
 } from "@/components/shared/record-detail-shell";
+import {
+  PermitWorkFormDialog,
+  PermitWorkFormTile,
+  PermitWorkFormView,
+} from "@/components/permits/permit-work-form";
 import { HazardConversationPanel } from "@/components/site-operations/hazard-conversation";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
@@ -70,7 +76,7 @@ import type { Permit, PermitFile, PermitStatus } from "@/interfaces/permit";
 import { useDateFormat } from "@/lib/dates";
 import { printFile } from "@/lib/file-actions";
 import { photoMeta } from "@/lib/photo-meta";
-import { roleLabel } from "@/lib/role-labels";
+import { roleLabel, titleLabel } from "@/lib/role-labels";
 import {
   approvePermit,
   createPermit,
@@ -335,11 +341,12 @@ export function permitPhotos(permit: Permit, submissionLabel: (round: number) =>
  */
 export function PermitDocuments({ permit }: { permit: Permit }) {
   const t = useTranslations("permits.files");
+  const tForm = useTranslations("permits.eForm");
   const df = useDateFormat();
   const [previewing, setPreviewing] = useState<PermitFile | null>(null);
+  const [eForm, setEForm] = useState<"fill" | "view" | null>(null);
   const documents = permit.files.filter((file) => !isPermitPhoto(file));
   const hasPhotos = permit.files.some(isPermitPhoto);
-  if (documents.length === 0 && hasPhotos) return null;
   const current = documents.filter((file) => file.is_current);
   const earlier = documents.filter((file) => !file.is_current);
   const tiles = (files: PermitFile[]) => (
@@ -378,8 +385,24 @@ export function PermitDocuments({ permit }: { permit: Permit }) {
   );
   return (
     <section className="surface-panel space-y-3 rounded-xl p-4" data-slot="permit-file-list">
-      <h3 className="panel-title">{t("documents")}</h3>
-      {documents.length === 0 ? (
+      {/* 「在左侧「准证文件」标题右边设置「填写电子准证」按钮，仅后台获授权审批人员
+          可操作，申请人不能修改」 (JB216, 客户 11-18 事项 1, 图 1): the server
+          says who (`can_fill_work_form`: who may 签名批准 it, in the office). */}
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h3 className="panel-title">{t("documents")}</h3>
+        {permit.can_fill_work_form && (
+          <Button type="button" onClick={() => setEForm("fill")} data-slot="permit-fill-e-permit">
+            <FileSignature className="size-4" />
+            {tForm("fill")}
+          </Button>
+        )}
+      </div>
+      <PermitWorkFormTile permit={permit} onView={() => setEForm("view")} />
+      {/* JB216 S1: the form came only as photos - the panel used to vanish,
+          heading and all. It stays, and says where the form is. */}
+      {documents.length === 0 && hasPhotos ? (
+        <p className="text-xs text-muted-foreground">{tForm("photosOnly")}</p>
+      ) : documents.length === 0 ? (
         <p className="text-xs text-muted-foreground">{t("noneOnRecord")}</p>
       ) : (
         <>
@@ -408,6 +431,8 @@ export function PermitDocuments({ permit }: { permit: Permit }) {
           onClose={() => setPreviewing(null)}
         />
       )}
+      {eForm === "fill" && <PermitWorkFormDialog permit={permit} onClose={() => setEForm(null)} />}
+      {eForm === "view" && <PermitWorkFormView permit={permit} onClose={() => setEForm(null)} />}
     </section>
   );
 }
@@ -592,9 +617,18 @@ function DecisionPanel({ permit }: { permit: Permit }) {
     void queryClient.invalidateQueries({ queryKey: ["hazard-conversation", permit.id] });
   };
   const approve = useMutation({
-    mutationFn: () => approvePermit(permit.id, signature!, note.trim()),
+    // JB216 audit F5: says which e-permit this window shows, so one changed
+    // since is not signed unseen.
+    mutationFn: () => approvePermit(permit.id, signature!, note.trim(), permit.work_form?.filled_at ?? null),
     onSuccess: settle,
-    onError: (reasonError) => setError(failure(reasonError, t("failed"))),
+    onError: (reasonError) => {
+      setError(failure(reasonError, t("failed")));
+      // 「电子准证刚被修改过，请先看一遍再签名批准。」: read it again, so the
+      // window shows what will be signed (the signature stays drawn).
+      if (reasonError instanceof ApiError && reasonError.code === "permit_form_changed_before_signing") {
+        void queryClient.invalidateQueries({ queryKey: permitKeys() });
+      }
+    },
   });
   const sendBack = useMutation({
     mutationFn: () => returnPermit(permit.id, reason.trim()),
@@ -614,6 +648,17 @@ function DecisionPanel({ permit }: { permit: Permit }) {
         </p>
       )}
       <p className="text-xs text-muted-foreground">{t("approveHelp")}</p>
+      {/* JB216: 「保存后，使用右侧原有的审批意见、签名位置及「签名批准」按钮完成
+          审批」 - the order said where the approver is about to sign. */}
+      {permit.work_form ? (
+        <p className="rounded-md border border-primary/25 bg-primary/5 px-2 py-1.5 text-xs" data-slot="permit-form-filled-hint">
+          {t("eForm.filledHint", { no: permit.work_form.permit_no })}
+        </p>
+      ) : permit.can_fill_work_form ? (
+        <p className="text-xs text-muted-foreground" data-slot="permit-form-fill-hint">
+          {t("eForm.fillHint")}
+        </p>
+      ) : null}
       <FieldWrapper label={t("field.approvalNote")} optional={t("optional")}>
         <Textarea rows={2} value={note} onChange={(event) => setNote(event.target.value)} />
       </FieldWrapper>
@@ -765,6 +810,7 @@ export function PermitDetail({
   onClose?: () => void;
 }) {
   const t = useTranslations("permits");
+  const tRoot = useTranslations();
   const df = useDateFormat();
   const detail = useQuery({ queryKey: permitKeys(id), queryFn: () => getPermit(id) });
   const permit = detail.data;
@@ -779,12 +825,16 @@ export function PermitDetail({
     );
   } else {
     const decided = permit.status !== "RECTIFICATION_SUBMITTED" && Boolean(permit.decided_by_name);
+    // Walk 11-18: 「申请人 阿明 · Site Staff」 on a Chinese window - the
+    // platform's role names in the reader's words; a company's own stay.
+    const named = (name: string | null | undefined, title: string | null | undefined) =>
+      [name, titleLabel(title, tRoot)].filter(Boolean).join(" · ");
     const facts: ShellFact[] = [
       { label: t("field.status"), value: <PermitStatusBadge status={permit.status} /> },
       { label: t("field.project"), value: permit.project_name },
       {
         label: t("field.applicant"),
-        value: [permit.applicant_name, permit.applicant_title].filter(Boolean).join(" · ") || "—",
+        value: named(permit.applicant_name, permit.applicant_title) || "—",
       },
       { label: t("field.appliedAt"), value: df.dateTime(permit.applied_at) },
       { label: t("field.approver"), value: permit.approver_name || t("legacyApprover") },
@@ -792,7 +842,7 @@ export function PermitDetail({
         ? [
             {
               label: t(permit.status === "RETURNED" ? "field.returnedBy" : "field.approvedBy"),
-              value: [permit.decided_by_name, permit.decided_by_title].filter(Boolean).join(" · "),
+              value: named(permit.decided_by_name, permit.decided_by_title),
             },
             {
               label: t("field.decidedAt"),
@@ -804,7 +854,15 @@ export function PermitDetail({
       ...(permit.review_note
         ? [
             {
-              label: t(permit.status === "RETURNED" ? "field.returnReason" : "field.approvalNote"),
+              // JB216 S2: back in 待审批 after a return, the note is that
+              // return's reason - not a 审批意见 nobody has given yet.
+              label: t(
+                permit.status === "RETURNED"
+                  ? "field.returnReason"
+                  : permit.status === "RECTIFICATION_SUBMITTED"
+                    ? "field.lastReturnReason"
+                    : "field.approvalNote",
+              ),
               value: permit.review_note,
               wide: true,
             },

@@ -125,7 +125,8 @@ describe("the button and the endpoint (T-386)", () => {
     expect(button).toMatch(/if \(!recordId\) return null;/);
     // The four buttons on a detail; one menu per PDF in the photo viewer (JB29).
     expect(button).toMatch(/layout === "menu" \? FileActionMenu : FileActionButtons/);
-    expect(button).toMatch(/load: \(\) => recordPdfFile\(kind, recordId, reference\)/);
+    // JB220: on an MSE screen the record's customer goes with the fetch.
+    expect(button).toMatch(/load: \(\) => recordPdfFile\(kind, recordId, reference(?:, undefined, platformCompany)?\)/);
     // Cannot be pressed twice while a file is being fetched.
     const actions = read("src/components/shared/file-actions.tsx");
     // (JB25 adds the not-yet-confirmed hold after it.)

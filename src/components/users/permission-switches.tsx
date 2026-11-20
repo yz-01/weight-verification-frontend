@@ -29,10 +29,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
-import { ApiError } from "@/interfaces/api";
 import type { PermissionEntry, PermissionSwitchState, Role } from "@/interfaces/auth";
 import { permissionGroupLabel, permissionLabel } from "@/lib/permission-labels";
 import { roleName } from "@/lib/role-labels";
+import { saveRefusalLine } from "@/lib/save-refusal";
 import { isSignOffCancelled } from "@/lib/sign-off";
 import { cn } from "@/lib/utils";
 import { getPermissionCatalogue } from "@/services/auth.service";
@@ -69,8 +69,37 @@ function groups(entries: PermissionEntry[]): Group[] {
  * saves the switches too (Lucas, 10-29: 「我已经更改权限了为什么还是不会变」).
  */
 export interface PermissionSwitchesHandle {
-  /** Saves the switches when they changed. ``true`` when clean or saved. */
-  saveIfDirty: () => Promise<boolean>;
+  /**
+   * Saves the switches when they changed. ``true`` when clean or saved;
+   * otherwise the sentence that says why (``false`` with nothing to say).
+   */
+  saveIfDirty: () => Promise<boolean | string>;
+}
+
+/**
+ * A person's switches as their role sets them (按角色套用, and a 角色 changed on
+ * the form - JB126), as the server does on a change of role (JB139, JB218):
+ * a project user - A off, B as the role ticks; head office - A and B as the
+ * role ticks, 公司管理员 everything. A 项目权限 switched off for this person
+ * stays off either way: project permissions are on by default, not the role's.
+ * A project user sees chosen projects only; head office as the role ticks.
+ */
+export function switchesForRole(
+  entries: PermissionEntry[],
+  role: Pick<Role, "code" | "permissions">,
+  currentOff: Set<string>,
+  asProjectUser: boolean,
+): { off: Set<string>; allProjects: boolean } {
+  if (role.code === "company_admin") return { off: new Set(), allProjects: true };
+  const granted = new Set(role.permissions);
+  const off = new Set<string>();
+  for (const entry of entries) {
+    const page = pageOf(entry);
+    if (page === "hq_reserved" && (asProjectUser || !granted.has(entry.code))) off.add(entry.code);
+    if (page === "hq_grantable" && !granted.has(entry.code)) off.add(entry.code);
+    if (page === "project" && currentOff.has(entry.code)) off.add(entry.code);
+  }
+  return { off, allProjects: !asProjectUser && granted.has(SCOPE_CODE) };
 }
 
 /** Whether the draft differs from what the server holds. */
@@ -88,18 +117,34 @@ export function isSwitchesDirty(
   return [...chosen].sort().join(",") !== [...state.projects.chosen].sort().join(",");
 }
 
-/** Runs ``save`` only when there is something to save; ``false`` when it failed. */
+/**
+ * Runs ``save`` only when there is something to save; ``false`` when it
+ * failed - or, given ``refusal``, the sentence that says why (walk 11-18).
+ */
 export async function saveSwitchesIfDirty(
   dirty: boolean,
   save: () => Promise<unknown>,
-): Promise<boolean> {
+  refusal?: (error: unknown) => string | null,
+): Promise<boolean | string> {
   if (!dirty) return true;
   try {
     await save();
     return true;
-  } catch {
-    return false;
+  } catch (error) {
+    return refusal?.(error) ?? false;
   }
+}
+
+/**
+ * The 项目权限 a person keeps switched off across a change of role, as the
+ * server keeps them (``starting_switches_off(keep_off=…)``): those stored as
+ * switched off. An account still on its role alone (``uses_switches`` false -
+ * made before J17, or by a script) has none stored: what its old role did not
+ * tick is not a decision about the person, and the server opens it all (walk
+ * 11-18: 「已打开 20 / 123」 before 保存, 86 after).
+ */
+export function keptOff(state: Pick<PermissionSwitchState, "uses_switches">, off: Set<string>): Set<string> {
+  return state.uses_switches === false ? new Set() : off;
 }
 
 /** The line at the top while the switches have unsaved changes. */
@@ -238,15 +283,27 @@ function SwitchForm({
     queryFn: () => getRoles({ page_size: 100 }),
   });
 
+  // JB126 (Lucas 11-07: 「我已经选总部了……不是应该自动会选择角色的权限吗」):
+  // a different 角色 chosen on the form turns the switches into that role's.
+  // The role the form opened with is the starting point and changes nothing.
+  const [openedRole] = useState(roleId);
+  const [followedRole, setFollowedRole] = useState(roleId);
+  const [followedName, setFollowedName] = useState("");
+  const chosenRole =
+    followedRole && followedRole !== openedRole
+      ? roles.data?.results.find((row) => row.id === followedRole)
+      : undefined;
+
   // JB139 (客户 11-09 事项 3): a project user - 总部专属 A is never theirs,
   // 总部 B is off until head office switches it on here, and every 项目权限
   // is on unless switched off (Lucas: 「默认是全部打开，后续可以自行开关」).
-  const projectUser = state.project_user === true;
+  // Which kind the person is follows the 角色 chosen on the form (JB219
+  // sibling): moved from a 项目角色 to a 总部角色, they are head office as soon
+  // as it is chosen - the panel used to keep the old kind and save A off.
+  const projectUser = chosenRole?.kind
+    ? chosenRole.kind === "project"
+    : state.project_user === true;
   const entries = useMemo(() => catalogue.filter((entry) => entry.code !== SCOPE_CODE), [catalogue]);
-  const reserved = useMemo(
-    () => (projectUser ? entries.filter((entry) => pageOf(entry) === "hq_reserved").map((entry) => entry.code) : []),
-    [entries, projectUser],
-  );
   // What this page switches: for a project user, everything but A.
   const switchable = useMemo(
     () => (projectUser ? entries.filter((entry) => pageOf(entry) !== "hq_reserved") : entries),
@@ -265,10 +322,19 @@ function SwitchForm({
   }, [switchable, projectUser]);
 
   const isOn = (code: string) => !off.has(code);
+  // JB219 audit F1 (「A组及B组权限由公司管理员自行勾选及分配」): what the
+  // editor does not hold himself he may switch off for somebody, never on -
+  // a switch off for this person is greyed, with the line above the switches.
+  // A 公司管理员's switches are a 公司管理员's to change: all of them, shown only.
+  const readOnly = state.admin_account === true;
+  const lockedOn = useMemo(() => new Set(state.locked_on ?? []), [state.locked_on]);
+  const serverOff = useMemo(() => new Set(state.off), [state.off]);
+  const locked = (code: string) => readOnly || (lockedOn.has(code) && serverOff.has(code));
   const turn = (codes: string[], on: boolean) =>
     setOff((current) => {
       const next = new Set(current);
       for (const code of codes) {
+        if (locked(code)) continue;
         if (on) next.delete(code);
         else next.add(code);
       }
@@ -295,42 +361,31 @@ function SwitchForm({
         setError("");
         return;
       }
-      setError(reason instanceof ApiError && reason.message ? reason.message : t("failed"));
+      // A refusal in its words; a server fault (5xx) - not saved, try again.
+      setError(saveRefusalLine(reason, t("failed")) ?? t("failed"));
     },
   });
 
-  // 按角色套用: the role's codes ON, the rest OFF - a starting point. For a
-  // project user the role decides 总部 B only: A stays off, and a 项目权限
-  // switched off for this person stays off (JB139, as the server does when
-  // the role changes).
-  const applyRole = (role: Role) => {
-    const granted = new Set(role.permissions);
-    if (projectUser) {
-      setOff((current) => {
-        const next = new Set(reserved);
-        for (const entry of entries) {
-          const page = pageOf(entry);
-          if (page === "hq_grantable" && !granted.has(entry.code)) next.add(entry.code);
-          if (page === "project" && current.has(entry.code)) next.add(entry.code);
-        }
-        return next;
-      });
-      return;
-    }
-    setOff(new Set(entries.map((entry) => entry.code).filter((code) => !granted.has(code))));
-    setAllProjects(granted.has(SCOPE_CODE));
+  // 按角色套用: the role's 总部权限 as it ticks them, as the server does when
+  // the role changes (JB139, JB218): a project user - A off, B as the role
+  // ticks; head office - A and B as the role ticks (公司管理员: everything).
+  // Either way a 项目权限 switched off for this person stays off: project
+  // permissions are on by default and not the role's.
+  const applyRole = (role: Role, asProjectUser: boolean, from: Set<string> = off) => {
+    if (readOnly) return;
+    const next = switchesForRole(entries, role, from, asProjectUser);
+    for (const code of serverOff) if (locked(code)) next.off.add(code);
+    setOff(next.off);
+    setAllProjects(next.allProjects && !locked(SCOPE_CODE));
   };
 
-  // JB126 (Lucas 11-07: 「我已经选总部了……不是应该自动会选择角色的权限吗」):
-  // a different 角色 chosen on the form turns the switches into that role's.
-  // The role the form opened with is the starting point and changes nothing.
-  const [followedRole, setFollowedRole] = useState(roleId);
-  const [followedName, setFollowedName] = useState("");
   if (roleId && roleId !== followedRole && roles.data) {
     const role = roles.data.results.find((row) => row.id === roleId);
     setFollowedRole(roleId);
     if (role) {
-      applyRole(role);
+      // The 角色 changed on the form: what 保存 will hold (the server's change
+      // of role), so the count is right before saving (walk 11-18).
+      applyRole(role, role.kind ? role.kind === "project" : projectUser, keptOff(state, off));
       setFollowedName(roleName(role, tRoot));
     }
   }
@@ -348,10 +403,12 @@ function SwitchForm({
         if (needsProject) {
           setError(t("needOneProject"));
           setNotSaved(true);
-          return false;
+          return t("needOneProject");
         }
-        const saved = await saveSwitchesIfDirty(dirty, () => save.mutateAsync());
-        setNotSaved(!saved);
+        const saved = await saveSwitchesIfDirty(dirty, () => save.mutateAsync(), (reason) =>
+          saveRefusalLine(reason, t("failed")),
+        );
+        setNotSaved(saved !== true);
         return saved;
       },
     }),
@@ -373,14 +430,24 @@ function SwitchForm({
               {t("followedRole", { role: followedName })}
             </p>
           ) : null}
+          {readOnly ? (
+            <p className="text-sm font-medium text-foreground" data-switches-admin-account>
+              {t("adminAccount")}
+            </p>
+          ) : [...switchable.map((entry) => entry.code), SCOPE_CODE].some(locked) ? (
+            <p className="text-sm font-medium text-foreground" data-switches-not-mine>
+              {t("notMine")}
+            </p>
+          ) : null}
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-xs text-muted-foreground tabular-nums">{t("countOn", { on: onCount, total })}</span>
           <Select
             value=""
+            disabled={readOnly}
             onValueChange={(id) => {
               const role = roles.data?.results.find((row) => row.id === id);
-              if (role) applyRole(role);
+              if (role) applyRole(role, projectUser);
             }}
           >
             <SelectTrigger className="w-44 bg-card" aria-label={t("applyRole")} title={t("applyRoleHint")}>
@@ -388,15 +455,29 @@ function SwitchForm({
             </SelectTrigger>
             <SelectContent>
               {(roles.data?.results ?? [])
-                .filter((role) => role.code !== "site_staff")
+                // An office person takes an office role's permissions, never
+                // a phone's (JB219: all three phone roles, not only 工地人员).
+                .filter((role) => role.kind !== "phone" && role.code !== "site_staff")
                 .map((role) => (
-                  <SelectItem key={role.id} value={role.id}>
+                  // JB219 audit F1: a role the editor may not give, greyed.
+                  <SelectItem key={role.id} value={role.id} disabled={role.can_give === false}>
                     {roleName(role, tRoot)}
+                    {role.can_give === false ? ` ${tRoot("users.field.roleNotYours")}` : ""}
                   </SelectItem>
                 ))}
             </SelectContent>
           </Select>
           <QueryFailedNote query={roles} what={t("applyRole")} />
+          {/* Inside 编辑用户 the 角色 field above says it already. */}
+          {!embedded &&
+          roles.data &&
+          !roles.data.results.some(
+            (role) => !role.is_system && (role.kind === "head_office" || role.kind === "project"),
+          ) ? (
+            <p className="basis-full text-xs text-muted-foreground" data-no-own-roles>
+              {tRoot("users.field.noOwnRoles")}
+            </p>
+          ) : null}
         </div>
       </div>
 
@@ -411,7 +492,7 @@ function SwitchForm({
           </p>
         ) : null}
         {hq.map((group) => (
-          <SwitchGroup key={group.key} group={group} isOn={isOn} turn={turn} t={t} tRoot={tRoot} />
+          <SwitchGroup key={group.key} group={group} isOn={isOn} turn={turn} locked={locked} t={t} tRoot={tRoot} />
         ))}
       </section>
 
@@ -435,9 +516,10 @@ function SwitchForm({
                 type="button"
                 role="radio"
                 aria-checked={allProjects === all}
+                disabled={readOnly || (all && locked(SCOPE_CODE))}
                 onClick={() => setAllProjects(all)}
                 className={cn(
-                  "rounded-full border px-3 py-1.5 text-sm transition-colors",
+                  "rounded-full border px-3 py-1.5 text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-60",
                   allProjects === all
                     ? "border-primary/40 bg-primary/12 text-primary"
                     : "border-border bg-card text-muted-foreground hover:text-foreground",
@@ -486,13 +568,14 @@ function SwitchForm({
             onChange={(on) => turn([amounts.code], on)}
             hint={t("amountsHint")}
             label={t("amounts")}
+            locked={locked(amounts.code)}
           />
         ) : null}
 
         <div className="space-y-4" data-switch-part="operate">
           <p className="text-sm font-medium">{t("operate")}</p>
           {operate.map((group) => (
-            <SwitchGroup key={group.key} group={group} isOn={isOn} turn={turn} t={t} tRoot={tRoot} />
+            <SwitchGroup key={group.key} group={group} isOn={isOn} turn={turn} locked={locked} t={t} tRoot={tRoot} />
           ))}
         </div>
 
@@ -504,6 +587,7 @@ function SwitchForm({
             title={null}
             isOn={isOn}
             turn={turn}
+            locked={locked}
             t={t}
             tRoot={tRoot}
           />
@@ -520,8 +604,8 @@ function SwitchForm({
           <div className="flex justify-end">
             <Button
               onClick={() => save.mutate()}
-              disabled={save.isPending || needsProject}
-              disabledReason={needsProject ? t("needOneProject") : undefined}
+              disabled={save.isPending || needsProject || readOnly}
+              disabledReason={readOnly ? t("adminAccount") : needsProject ? t("needOneProject") : undefined}
             >
               {save.isPending ? <Loader2 className="animate-spin" /> : <Save />}
               {t("save")}
@@ -538,6 +622,7 @@ function SwitchGroup({
   title,
   isOn,
   turn,
+  locked,
   t,
   tRoot,
 }: {
@@ -546,24 +631,30 @@ function SwitchGroup({
   title?: string | null;
   isOn: (code: string) => boolean;
   turn: (codes: string[], on: boolean) => void;
+  /** A switch the editor may not change (JB219 audit F1). */
+  locked: (code: string) => boolean;
   t: ReturnType<typeof useTranslations>;
   tRoot: ReturnType<typeof useTranslations>;
 }) {
   const codes = group.entries.map((entry) => entry.code);
   if (codes.length === 0) return null;
-  const allOn = codes.every(isOn);
+  // 全部打开 / 全部关闭 work on the switches the editor may change.
+  const free = codes.filter((code) => !locked(code));
+  const allOn = free.every(isOn);
   const heading = title === undefined ? permissionGroupLabel(group.key, group.label, tRoot) : title;
   return (
     <div className="space-y-1.5" data-switch-group={group.key}>
       <div className="flex flex-wrap items-center gap-2">
         {heading ? <p className="text-xs font-semibold text-muted-foreground">{heading}</p> : null}
-        <button
-          type="button"
-          onClick={() => turn(codes, !allOn)}
-          className="rounded-full px-2 py-0.5 text-2xs font-medium text-primary hover:bg-primary/10"
-        >
-          {allOn ? t("allOff") : t("allOn")}
-        </button>
+        {free.length > 0 ? (
+          <button
+            type="button"
+            onClick={() => turn(free, !allOn)}
+            className="rounded-full px-2 py-0.5 text-2xs font-medium text-primary hover:bg-primary/10"
+          >
+            {allOn ? t("allOff") : t("allOn")}
+          </button>
+        ) : null}
       </div>
       <div className="grid gap-1.5 sm:grid-cols-2 lg:grid-cols-3">
         {group.entries.map((entry) => (
@@ -573,6 +664,7 @@ function SwitchGroup({
             on={isOn(entry.code)}
             onChange={(on) => turn([entry.code], on)}
             label={permissionLabel(entry, tRoot)}
+            locked={locked(entry.code)}
           />
         ))}
       </div>
@@ -586,26 +678,30 @@ function SwitchRow({
   onChange,
   label,
   hint,
+  locked = false,
 }: {
   entry: PermissionEntry;
   on: boolean;
   onChange: (on: boolean) => void;
   label: string;
   hint?: string;
+  locked?: boolean;
 }) {
   return (
     <label
       data-switch={entry.code}
+      data-switch-locked={locked ? "" : undefined}
       className={cn(
-        "flex min-w-0 cursor-pointer items-center justify-between gap-3 rounded-lg border px-3 py-2 text-sm transition-colors",
-        on ? "border-primary/30 bg-primary/8" : "border-border bg-card",
+        "flex min-w-0 items-center justify-between gap-3 rounded-lg border px-3 py-2 text-sm transition-colors",
+        locked ? "cursor-not-allowed text-muted-foreground" : "cursor-pointer",
+        on ? "border-primary/30 bg-primary/8" : locked ? "border-border bg-muted/50" : "border-border bg-card",
       )}
     >
       <span className="min-w-0">
         <span className="block leading-snug break-words">{label}</span>
         {hint ? <span className="block text-xs text-muted-foreground">{hint}</span> : null}
       </span>
-      <Switch checked={on} onCheckedChange={onChange} aria-label={label} />
+      <Switch checked={on} onCheckedChange={onChange} aria-label={label} disabled={locked} />
     </label>
   );
 }

@@ -43,6 +43,7 @@ import { canConfirmClosure, canDiscuss, isQueueKind } from "@/lib/record-chat";
 import { recordStatusLabel, recordStatusWords } from "@/lib/record-status";
 import { useDateFormat } from "@/lib/dates";
 import { photoMeta } from "@/lib/photo-meta";
+import { isExitPassKind } from "@/interfaces/exit-pass";
 import type {
   ArchiveOutgoingKind,
   ArchiveQueueDetail,
@@ -807,6 +808,8 @@ export function RecordSheet<K extends RecordSheetKind = ArchiveRecordKind>({
             <RecordConversationPanel kind={row.kind} recordId={row.id} />
           )
         }
+        // JB217: an exit's 出门条 parts, to read (现场记录中心 only reads).
+        exitPass={loaded && isExitPassKind(row.kind) ? { kind: row.kind, recordId: row.id, readOnly: true } : null}
       />
     </RecordDetailDialog>
     </RecordSendTargetProvider>

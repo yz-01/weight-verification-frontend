@@ -191,9 +191,18 @@ export function GateRecordsOffice() {
         accessorKey: "issue_note",
         meta: { label: t("field.note") },
         header: () => <PlainHeader label={t("field.note")} />,
-        cell: ({ row }) => (
-          <span className="line-clamp-2 max-w-72 whitespace-pre-wrap">{row.original.issue_note || "—"}</span>
-        ),
+        cell: ({ row }) =>
+          // JB217: a 门岗放行 says what it released (「关联原申请」).
+          row.original.exit_record ? (
+            <span className="line-clamp-2 max-w-72" data-exit-release-row={row.original.exit_record.reference}>
+              {tRoot("exitPass.gateRecord.listNote", {
+                reference: row.original.exit_record.reference,
+                kind: tRoot(`exitPass.kind.${row.original.exit_record.kind}`),
+              })}
+            </span>
+          ) : (
+            <span className="line-clamp-2 max-w-72 whitespace-pre-wrap">{row.original.issue_note || "—"}</span>
+          ),
       },
       {
         accessorKey: "member_names",
@@ -301,6 +310,8 @@ export function GateRecordsOffice() {
               { key: "guard_name", label: t("field.photographer") },
               { key: "occurred_at", label: t("field.time") },
               { key: "issue_note", label: t("field.note") },
+              // A 门岗放行's 「关联原申请」 (contract §7, audit F3): MO-… / EO-… / WO-… / DISP-….
+              { key: "exit_record_no", label: tRoot("exitPass.gateRecord.linked") },
               { key: "member_names", label: t("field.assignees") },
               {
                 key: "issue_status",

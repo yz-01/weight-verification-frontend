@@ -1,3 +1,4 @@
+import type { ExitRecordLink } from "@/interfaces/exit-pass";
 import type { PrintLetterhead } from "@/lib/print-letterhead";
 import type { RecordedBy } from "@/interfaces/recorder";
 
@@ -376,7 +377,9 @@ export type GateIncidentCategory =
   | "ABNORMAL_VEHICLE"
   | "ITEM_REMOVAL"
   | "DISPUTE"
-  | "OTHER";
+  | "OTHER"
+  // JB217: a 门岗放行 of an exit's 出门条 - made by 【确认放行】, never chosen.
+  | "EXIT_RELEASE";
 
 export const GATE_INCIDENT_CATEGORIES: readonly GateIncidentCategory[] = [
   "SUSPICIOUS_PERSON",
@@ -453,6 +456,8 @@ export interface GateIncident extends RecordedBy {
   /** The people asked in, as one line. */
   member_names: string;
   created_at: string;
+  /** JB217: 「关联原申请」 of a 门岗放行 (`EXIT_RELEASE`); null on every other row. */
+  exit_record?: ExitRecordLink | null;
 }
 
 export type GateIssueStatus = "OPEN" | "CLOSED";

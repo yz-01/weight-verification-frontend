@@ -108,6 +108,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { isExitPassKind } from "@/interfaces/exit-pass";
 import type {
   MySubmissionField,
   MySubmissionRow,
@@ -930,6 +931,9 @@ function StoredDetailSheet({
               <RecordConversationPanel kind={row.kind as ChatRecordKind} recordId={row.id} />
             )
           }
+          // JB217: 「预览、打印及手机端均须完整显示该栏」 - the applicant reads
+          // 出门条批准（安全经理） · 外部审批 · 门岗放行 on their own record.
+          exitPass={isExitPassKind(row.kind) ? { kind: row.kind, recordId: row.id, readOnly: true } : null}
         />
       )}
       {leaving && row.machine && (

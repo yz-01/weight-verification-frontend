@@ -1,7 +1,14 @@
 /** 施工准证 (Permit to Work): apply, decide, find and open the files. */
 
 import type { ListQuery, Paginated } from "@/interfaces/api";
-import type { Permit, PermitApplication, PermitFile, PermitPerson } from "@/interfaces/permit";
+import type {
+  Permit,
+  PermitApplication,
+  PermitFile,
+  PermitPerson,
+  PermitWorkFormInput,
+  PermitWorkType,
+} from "@/interfaces/permit";
 import {
   exportBody,
   exportQuery,
@@ -50,10 +57,21 @@ export async function resubmitPermit(id: string, files: File[], note: string): P
   return permit;
 }
 
-export async function approvePermit(id: string, signature: File, note: string): Promise<Permit> {
+/**
+ * 签名批准. ``seenFormAt``: the save time of the e-permit the signer's window
+ * shows (``null``: none) - one changed since is refused, not signed (JB216
+ * audit F5).
+ */
+export async function approvePermit(
+  id: string,
+  signature: File,
+  note: string,
+  seenFormAt: string | null = null,
+): Promise<Permit> {
   const body = new FormData();
   body.append("signature", signature);
   body.append("note", note);
+  body.append("seen_form_at", seenFormAt ?? "");
   const permit = await api.post<Permit>(`${BASE}/${id}/approve_permit/`, body);
   toastSuccess("permits.toast.approved", { reference: permit.incident_no });
   return permit;
@@ -63,6 +81,43 @@ export async function returnPermit(id: string, reason: string): Promise<Permit> 
   const permit = await api.post<Permit>(`${BASE}/${id}/return_permit/`, { reason });
   toastSuccess("permits.toast.returned", { reference: permit.incident_no });
   return permit;
+}
+
+/** 「填写电子准证」 → 【保存】 (JB216): the approver's e-permit, on the same record. */
+export async function saveWorkForm(id: string, form: PermitWorkFormInput): Promise<Permit> {
+  const permit = await api.post<Permit>(`${BASE}/${id}/save_work_form/`, form);
+  toastSuccess("permits.toast.formSaved", {
+    reference: permit.work_form?.permit_no || permit.incident_no,
+  });
+  return permit;
+}
+
+/* 施工准证 · 施工类别 (JB216): the company's own list, kept in 分类管理. */
+
+const WORK_TYPES = "/api/permit-work-types";
+
+/** One cached list for the e-permit's drop-down and 分类管理. */
+export const PERMIT_WORK_TYPES_KEY = ["permit-work-types"] as const;
+
+export function getPermitWorkTypes(): Promise<PermitWorkType[]> {
+  return api.get<PermitWorkType[]>(`${WORK_TYPES}/get_work_types/`);
+}
+
+export async function createPermitWorkType(name: string): Promise<PermitWorkType> {
+  const row = await api.post<PermitWorkType>(`${WORK_TYPES}/create_work_type/`, { name });
+  toastSuccess("permits.workTypes.toast.added", { name: row.name });
+  return row;
+}
+
+export async function updatePermitWorkType(id: string, name: string): Promise<PermitWorkType> {
+  const row = await api.post<PermitWorkType>(`${WORK_TYPES}/${id}/update_work_type/`, { name });
+  toastSuccess("permits.workTypes.toast.renamed", { name: row.name });
+  return row;
+}
+
+export async function deletePermitWorkType(id: string, name: string): Promise<void> {
+  await api.post(`${WORK_TYPES}/${id}/delete_work_type/`, {});
+  toastSuccess("permits.workTypes.toast.removed", { name });
 }
 
 function fileQuery(file: PermitFile, inline: boolean) {
