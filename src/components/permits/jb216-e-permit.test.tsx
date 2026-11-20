@@ -91,7 +91,7 @@ const {
   OTHER_WORK_TYPE,
   MANAGE_WORK_TYPES_HREF,
 } = await import("@/components/permits/permit-work-form");
-const { PermitWorkTypesPanel } = await import("@/components/contractor-ops/permit-work-types");
+const { PermitWorkTypesPanel, PermitWorkTypeDialog } = await import("@/components/contractor-ops/permit-work-types");
 const { saveWorkForm, approvePermit, PERMIT_WORK_TYPES_KEY } = await import("@/services/permit.service");
 const read = (file: string) => readFileSync(path.join(process.cwd(), file), "utf8").replace(/\r\n/g, "\n");
 const FORM_SOURCE = read("src/components/permits/permit-work-form.tsx");
@@ -199,6 +199,9 @@ const form = (row: Permit, types = TYPES) =>
 const view = (row: Permit) =>
   renderDetail(<PermitWorkFormView permit={row} onClose={() => undefined} />, (client) => seedLists(client));
 const e = zh.permits.eForm;
+/** 「还差这些没填：…」 naming `labels`, as the screen writes it. */
+const missingLine = (labels: string[]) =>
+  zh.common.missingFields.replace("{fields}", labels.join(zh.common.listSeparator));
 
 describe("JB216-1 the button sits right of 「准证文件」 (图 1)", () => {
   it("is in the panel's header, beside its title, for whoever may sign it", () => {
@@ -263,9 +266,36 @@ describe("JB216-3/4/5 the form: the application brought in, the rest to fill (�
 
   it("will not save without 施工位置, 施工内容 and the times, and says which", () => {
     const html = form(permit({ note: "" }));
-    expect(html).toContain('data-slot="button-reason"');
+    expect(html).toMatch(new RegExp(`disabled=""[^>]*>(?:(?!</button>).)*${e.save}</button>`));
+    expect(html).toContain(missingLine([e.location, e.workContent, e.workStart, e.workEnd]));
     for (const label of [e.location, e.workContent, e.workStart, e.workEnd]) {
       expect(html).toMatch(new RegExp(`${label}<span[^>]*>\\s*\\*`));
+    }
+  });
+
+  it("walk 11-18: why 【保存】 is grey is a line on screen above it, not a tip that opens behind the window", () => {
+    const html = form(permit({ note: "" }));
+    const line = missingLine([e.location, e.workContent, e.workStart, e.workEnd]);
+    // A plain line, shown on a desk too (not the phone-only `pointer-coarse`
+    // words), and before the button.
+    expect(html).toMatch(new RegExp(`<p class="(?![^"]*hidden)[^"]*" data-slot="permit-form-missing">${line}</p>`));
+    expect(html.indexOf(line)).toBeLessThan(html.lastIndexOf(`${e.save}</button>`));
+    // Said once: the button does not write it a second time on a phone.
+    expect(html).not.toContain('data-slot="button-reason"');
+    // Everything filled: no line, 【保存】 can be pressed.
+    const filled = form(permit({ work_form: SAVED }));
+    expect(filled).not.toContain('data-slot="permit-form-missing"');
+    expect(filled).not.toMatch(new RegExp(`disabled=""[^>]*>(?:(?!</button>).)*${e.save}</button>`));
+  });
+
+  it("walk 11-18: 「其他（写明）」 left empty is named in the line too", () => {
+    const html = form(permit({ work_form: { ...SAVED, work_type: "" } }), TYPES);
+    expect(html).not.toContain('data-slot="permit-form-missing"');
+    kept.form = { ...startingDraft(permit({ work_form: SAVED })), type_other: true, work_type: "" };
+    try {
+      expect(form(permit({ work_form: SAVED }))).toContain(missingLine([e.workTypeOther]));
+    } finally {
+      kept.form = undefined;
     }
   });
 
@@ -455,6 +485,28 @@ describe("JB216-2 the applicant and readers see it, never change it", () => {
     expect(line(permit({ work_form: SAVED, status: "RETURNED", can_fill_work_form: false }))).toEqual([e.viewIntroReturned]);
   });
 
+  it("walk 11-18: 申请人 and 安全经理姓名 name the platform's roles in the reader's words", () => {
+    const decided = {
+      status: "VERIFIED" as const,
+      is_closed: true,
+      can_fill_work_form: false,
+      work_form: SAVED,
+      applicant_title: "Site Staff",
+      decided_by_name: "示范 项目经理",
+      decided_by_title: "Project Manager",
+      decided_at: "2026-11-18T03:00:00Z",
+    };
+    const shown = view(permit(decided));
+    expect(shown).toContain("阿明（现场） · 工地人员");
+    expect(shown).toContain("示范 项目经理 · 项目经理");
+    const filling = form(permit({ applicant_title: "Site Staff" }));
+    expect(filling).toContain("阿明（现场） · 工地人员");
+    for (const html of [shown, filling]) {
+      expect(html).not.toContain("Site Staff");
+      expect(html).not.toContain("Project Manager");
+    }
+  });
+
   it("shows who signed and when once approved", () => {
     const html = view(
       permit({
@@ -493,6 +545,45 @@ describe("JB216-6 and S2 in the permit window", () => {
     expect(filled).toContain(zh.permits.field.approvalNote);
   });
 
+  it("walk 11-18: 申请人 / 退回人 / 批准人 name the platform's roles in the reader's words", () => {
+    const returned = detail(
+      permit({
+        status: "RETURNED",
+        applicant_title: "Site Staff",
+        decided_by: "u-admin",
+        decided_by_name: "示范 管理员",
+        decided_by_title: "Company Administrator",
+        decided_at: "2026-11-18T03:00:00Z",
+        review_note: "第 3 节没签名",
+      }),
+    );
+    expect(returned).toContain("阿明（现场） · 工地人员");
+    expect(returned).toContain("示范 管理员 · 公司管理员");
+    const approved = detail(
+      permit({
+        status: "VERIFIED",
+        applicant_title: "Site Staff · Stores",
+        decided_by: "u-pm",
+        decided_by_name: "示范 项目经理",
+        decided_by_title: "Project Manager",
+        decided_at: "2026-11-18T03:00:00Z",
+      }),
+    );
+    // A department is printed as it is; only the role's name is the platform's.
+    expect(approved).toContain("阿明（现场） · 工地人员 · Stores");
+    expect(approved).toContain("示范 项目经理 · 项目经理");
+    for (const html of [returned, approved]) {
+      for (const english of ["Site Staff", "Company Administrator", "Project Manager"]) {
+        expect(html).not.toContain(english);
+      }
+    }
+  });
+
+  it("walk 11-18: a role the company named itself stays as typed", () => {
+    const html = detail(permit({ applicant_title: "钢筋组长" }));
+    expect(html).toContain("阿明（现场） · 钢筋组长");
+  });
+
   it("calls a resubmitted permit's old reason 「上次退回原因」, never 「审批意见」", () => {
     const html = detail(permit({ review_note: "第 3 节没签名", submission: 2 }));
     expect(html).toContain(zh.permits.field.lastReturnReason);
@@ -524,6 +615,23 @@ describe("分类管理 → 施工准证 · 施工类别", () => {
 
   it("says plainly when the list is empty", () => {
     expect(list(true, [])).toContain(zh.permits.workTypes.empty);
+  });
+
+  it("walk 11-18: a grey 【保存】 / 【删除】 says why in a line on screen, not only in a tip", () => {
+    const w = zh.permits.workTypes;
+    const editor = (row: PermitWorkType | null) =>
+      renderDetail(<PermitWorkTypeDialog row={row} onClose={() => undefined} />);
+    const adding = editor(null);
+    expect(adding).toMatch(
+      new RegExp(`<p class="(?![^"]*hidden)[^"]*" data-slot="permit-work-type-missing">${missingLine([w.name])}</p>`),
+    );
+    expect(adding).not.toContain('data-slot="button-reason"');
+    const editing = editor(TYPES[2]);
+    // The name is there, so 【保存】 has nothing to say; 【删除】 waits for the switch.
+    expect(editing).not.toContain('data-slot="permit-work-type-missing"');
+    expect(editing).toMatch(
+      new RegExp(`<p class="(?![^"]*hidden)[^"]*" data-slot="permit-work-type-arm-first">${w.armFirst}</p>`),
+    );
   });
 });
 

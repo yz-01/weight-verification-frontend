@@ -12,7 +12,9 @@ vi.mock("@/services/api-client", () => ({
   download: vi.fn(),
 }));
 
-const { createExternalAccessGrant, getExternalAccessGrants } = await import("@/services/external-access.service");
+const { createExternalAccessGrant, getExternalAccessGrants, revokeExternalAccessGrant } = await import(
+  "@/services/external-access.service"
+);
 
 describe("external access for a named company", () => {
   it("passes the company through", async () => {
@@ -20,5 +22,15 @@ describe("external access for a named company", () => {
     expect(api.list).toHaveBeenCalledWith("/api/external-access-grants/get_grants/", { page_size: 100, company: "c1" });
     await createExternalAccessGrant({ company: "c1", name: "x", project: null, allowed_fields: ["project"], expires_at: "2026-12-01T00:00:00Z" });
     expect(api.post.mock.calls[0][1]).toMatchObject({ company: "c1" });
+  });
+
+  it("MSE's 撤销 names the company too; a tenant's own does not (walk 11-18 F5)", async () => {
+    api.post.mockClear();
+    await revokeExternalAccessGrant("g1", "", "c1");
+    expect(api.post).toHaveBeenCalledWith("/api/external-access-grants/g1/revoke_grant/", { reason: "" }, { query: { company: "c1" } });
+    await revokeExternalAccessGrant("g2", "");
+    expect(api.post).toHaveBeenLastCalledWith("/api/external-access-grants/g2/revoke_grant/", { reason: "" }, undefined);
+    const source = (await import("node:fs")).readFileSync("src/components/external-access/external-access-management.tsx", "utf8");
+    expect(source).toContain("revokeExternalAccessGrant(grant.id, reason, companyId)");
   });
 });

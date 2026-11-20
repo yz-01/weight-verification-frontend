@@ -38,13 +38,20 @@ export async function createExternalAccessGrant(
   return grant;
 }
 
+/**
+ * 撤销. MSE names the customer whose link it is (`?company=`, as its list
+ * does): without it the server found nothing and MSE's 撤销 did nothing
+ * (walk 11-18 F5).
+ */
 export async function revokeExternalAccessGrant(
   id: string,
   reason: string,
+  company?: string,
 ): Promise<ExternalAccessGrant> {
   const grant = await api.post<ExternalAccessGrant>(
     `/api/external-access-grants/${id}/revoke_grant/`,
     { reason },
+    company ? { query: { company } } : undefined,
   );
   toastSuccess("externalAccess.toast.revoked");
   return grant;

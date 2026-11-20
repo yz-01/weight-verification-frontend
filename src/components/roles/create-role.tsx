@@ -28,6 +28,7 @@ import {
   approvesPermitsWithoutSeeingProjects,
   withProjectView,
 } from "@/lib/role-permission-hints";
+import { saveRefusalLine } from "@/lib/save-refusal";
 import { cn } from "@/lib/utils";
 import { getPermissionCatalogue } from "@/services/auth.service";
 import { createRole, updateRole } from "@/services/users.service";
@@ -163,13 +164,18 @@ export function CreateRole({ role }: { role?: Role }) {
           ...(builder && !kindFixed ? { head_office: headOffice === true } : {}),
         });
       } catch (error) {
-        if (error instanceof ApiError && error.isValidation) {
+        if (error instanceof ApiError && error.isValidation && Object.keys(error.errors).length > 0) {
           const leftover = applyServerErrors(error.errors, form as unknown as Parameters<typeof applyServerErrors>[1]);
           // The backend rejects codes outside this account's audience. That is
           // a whole-form problem rather than one field's, so it surfaces here.
           if (leftover.length > 0) setFormError(leftover[0]);
           const permissionError = error.fieldError("permissions");
           if (permissionError) setFormError(permissionError);
+        } else {
+          // Every other refusal in its own words, beside 「保存」 (JB218 walk
+          // 11-18 FAIL 1 + 2: 「你自己也是这个角色的人…」 never appeared, and a
+          // 500 left the window open with nothing said).
+          setFormError(saveRefusalLine(error, t("common.saveFailed")));
         }
       }
     },
@@ -204,10 +210,14 @@ export function CreateRole({ role }: { role?: Role }) {
       backHref={isEdit ? `/roles/${role.id}` : "/roles"}
       backLabel={t("roles.title")}
       title={isEdit ? t("roles.editTitle") : t("roles.createTitle")}
+      // Its own line under the title, not the title said twice (walk 11-18).
+      description={t(isEdit ? "roles.editHelp" : "roles.createHelp")}
       isSubmitting={mutation.isPending}
       submitLabel={isEdit ? t("common.save") : t("common.create")}
       submitIcon={isEdit ? Save : Plus}
       onSubmit={() => void form.handleSubmit()}
+      // In the dialog's footer, beside 「保存」: it never scrolls away.
+      footerError={formError}
       after={
         notice === "ticks" ? (
           <p
@@ -240,8 +250,10 @@ export function CreateRole({ role }: { role?: Role }) {
 
         {/* 角色编号 is the system's: ROLE-0001 on for a new role (JB100, 客户 11-05
             事项 4 第 3 点), shown but not changed afterwards - permissions are
-            keyed to it in exports and the audit trail. */}
-        {isEdit && (
+            keyed to it in exports and the audit trail. Not on a builder's role
+            (walk 11-18): a kept preset's is a raw English code (project_manager),
+            and 「取消目前系统预设的其他角色名称」 / a simpler page (事项 4). */}
+        {isEdit && !builder && (
           <form.Field name="code">
             {(field) => (
               <TextField
@@ -396,10 +408,6 @@ export function CreateRole({ role }: { role?: Role }) {
               notYours={notYours}
             />
           </>
-        )}
-
-        {formError && (
-          <p className="mt-4 text-sm font-medium text-destructive">{formError}</p>
         )}
       </section>
     </FormShell>

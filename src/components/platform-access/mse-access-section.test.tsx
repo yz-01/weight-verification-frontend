@@ -87,7 +87,7 @@ describe("can MSE see my records right now?", () => {
     expect(view).toContain('data-open="true"');
     expect(view).toContain("bg-warning/10");
     expect(view).toContain(">开放中<");
-    expect(view).toContain("MSE 现在可以看到下面第 2 栏的资料（只能看，不能改，不能下载），到 2026-11-19 15:00 自动关闭；不想等可以点「马上关闭」。");
+    expect(view).toContain("MSE 现在可以看到下面第 2 栏的资料（可以看，也可以打开文件预览看全文，不能改），到 2026-11-19 15:00 自动关闭；用完了可以点「马上关闭」。");
     expect(view).toContain("由 陈经理 在 2026-11-18 15:00 开放，原因：客户报称重异常");
     expect(view).toContain(zh.mseAccess.action.closeNow);
     expect(view).toContain(zh.mseAccess.action.change);
@@ -169,7 +169,8 @@ describe("the three plain lists (JB220-5, contract §8.1a)", () => {
   it("word every key, and say how to let MSE in for hands-on help under list 3", () => {
     const html = body(status());
     expect(html).toContain("每一笔称重的单号、时间、地磅、重量和检测结果");
-    expect(html).toContain("称重单的照片、附件、更正记录和磅单 PDF（只能在页面上看，不能下载）");
+    expect(html).toContain("称重单的照片、附件、更正记录和磅单 PDF（MSE 可以打开预览，看得到全文）");
+    expect(html).toContain("贵公司自己导出的报表文件（MSE 可以打开预览，看得到全文）");
     expect(html).toContain("收货单、材料申请、领用和退货");
     expect(html).toContain("项目里面的详细资料（地址、预算、团队）");
     const never = slice(html, 'data-mse-list="never"', "</section>");
@@ -189,6 +190,30 @@ describe("the three plain lists (JB220-5, contract §8.1a)", () => {
   });
 });
 
+describe("what the customer is told about files is true (walk 11-18 F2)", () => {
+  // A preview hands MSE's browser the whole file, and a browser can keep it:
+  // 「不能下载」 was not true. Said as it is, with what to do about it.
+  it("says MSE sees a file whole once open, and to open only when needed", () => {
+    expect(zh.mseAccess.view.help).toBe(
+      "开放后，MSE 可以打开文件预览，看得到全文。系统不给 MSE 导出、发送和打印的功能；但能看到的内容，看的人是可以留下来的。所以请只在需要时开放，用完就关。",
+    );
+    const html = body(status({ view: OPEN_VIEW }));
+    expect(card(html, "VIEW_RECORDS")).toContain(zh.mseAccess.view.help);
+  });
+
+  it("never promises 不能下载 anywhere, in any language", () => {
+    const words = JSON.stringify({ access: zh.mseAccess, viewOnly: zh.errors.api.platform_access_view_only });
+    for (const untrue of ["不能下载", "只能在页面上看", "只能在页面上预览"]) expect(words).not.toContain(untrue);
+    for (const locale of ["zh-TW", "en", "ms"]) {
+      const other = JSON.parse(read(`src/messages/${locale}.json`)) as typeof zh;
+      const text = JSON.stringify({ access: other.mseAccess, viewOnly: other.errors.api.platform_access_view_only });
+      for (const untrue of ["不能下載", "no download", "tiada muat turun", "cannot change, download", "memuat turun atau"]) {
+        expect(text, `${locale}: ${untrue}`).not.toContain(untrue);
+      }
+    }
+  });
+});
+
 describe("「MSE 加的账号」 (contract §8.1b)", () => {
   it("lists each account MSE made, labelled, with the way to stop it in 用户管理", () => {
     const html = body(
@@ -196,9 +221,13 @@ describe("「MSE 加的账号」 (contract §8.1b)", () => {
         mse_added_accounts: [
           { id: "u-own", full_name: "陈经理", email: "boss@shifan.invalid", role_name: "公司管理员", status: "ACTIVE", kind: "owner", added_at: "2026-10-01T09:00:00+08:00", added_by_name: "MSE 张三", last_login_at: "2026-11-17T08:00:00+08:00" },
           { id: "u-sup", full_name: "MSE 协助", email: "support@shifan.invalid", role_name: "项目经理", status: "INVITED", kind: "added", added_at: "2026-11-18T10:00:00+08:00", added_by_name: "MSE 张三", last_login_at: null },
+          { id: "u-pm", full_name: "MSE 协助二", email: "pm@shifan.invalid", role_name: "Project Manager", role_code: "project_manager", status: "INVITED", kind: "added", added_at: "2026-11-18T11:00:00+08:00", added_by_name: "MSE 张三", last_login_at: null },
         ],
       }),
     );
+    // A seeded role in the reader's words (walk 11-18 P3: 「Project Manager」).
+    expect(slice(html, "data-mse-added", "</section>")).toContain("pm@shifan.invalid · 项目经理");
+    expect(html).not.toContain("Project Manager");
     const added = slice(html, "data-mse-added", "</section>");
     expect(added).toContain("MSE 加的账号");
     expect(added).toContain("开户时由 MSE 建立的负责人账号");
@@ -245,7 +274,34 @@ describe("the external links MSE opened", () => {
     expect(html).toContain("业主查看 · 示范商业大厦一期");
     expect(html).toContain("旧链接 · 整个公司");
     expect(html).toContain("已经撤销");
-    expect(html).not.toContain(">撤销</button>");
+    // Walk 11-18 F5: the 公司管理员 revokes a working link himself, here.
+    expect(html.match(/data-mse-link-revoke="l1"/g)?.length).toBe(1);
+    expect(html).not.toContain('data-mse-link-revoke="l2"');
+    expect(html).not.toContain("联系 MSE");
+    expect(html).toContain(zh.mseAccess.links.help);
+  });
+
+  it("a colleague who is not the 公司管理员 sees 撤销 greyed with whom to ask", () => {
+    const html = body(
+      status({
+        can_change: false,
+        external_links: [
+          { id: "l1", name: "业主查看", project_name: null, expires_at: "2099-12-01T00:00:00+08:00", revoked_at: null, created_by_name: "MSE 张三", created_at: "2026-11-01T10:00:00+08:00" },
+        ],
+      }),
+    );
+    const links = html.slice(html.indexOf("data-mse-links"));
+    expect(links).toContain('data-mse-link-revoke="l1"');
+    expect(links).toContain(`title="${zh.mseAccess.links.adminOnly}"`);
+  });
+
+  it("asks before revoking, says it cannot be undone and that the PIN follows", () => {
+    expect(zh.mseAccess.links.revokeBody).toContain("签核密码");
+    expect(zh.signOff.action.platform_access_revoke_link).toBe("撤销 MSE 开的外部访问链接");
+    const source = read("src/components/platform-access/mse-access-section.tsx");
+    expect(source).toContain('t("links.revokeTitle", { name:');
+    expect(source).toContain("revokePlatformLink(");
+    expect(read("src/services/platform-access.service.ts")).toContain("`${BASE}/revoke_link/`");
   });
 
   it("none is a sentence", () => {
@@ -259,6 +315,14 @@ const RECORDS: PlatformAccessRecord[] = [
   { id: "r3", occurred_at: "2026-11-18T14:00:00+08:00", company: "c-1", company_name: "示范建筑有限公司", actor_name: "MSE 张三", actor_email: "zhang@mse.invalid", actor_is_mse: true, outcome: "REFUSED", kind: "FILE", module: "weighing_photos", record_id: "s1", record_label: "WS-000123", detail: "closed" },
   { id: "r4", occurred_at: "2026-11-18T13:00:00+08:00", company: "c-1", company_name: "示范建筑有限公司", actor_name: "MSE 张三", actor_email: "zhang@mse.invalid", actor_is_mse: true, outcome: "REQUESTED", kind: "REQUEST", module: "platform_access", record_id: "", record_label: "客户报称重异常，需要看照片", detail: "VIEW_RECORDS" },
   { id: "r5", occurred_at: "2026-11-18T12:00:00+08:00", company: "c-1", company_name: "示范建筑有限公司", actor_name: "MSE 张三", actor_email: "zhang@mse.invalid", actor_is_mse: true, outcome: "ACCOUNT_CHANGED", kind: "ACCOUNT", module: "accounts", record_id: "u9", record_label: "new.user@shifan.invalid", detail: "create_user" },
+];
+
+/** Walk 11-18 F1: refused for other reasons than a closed door, and P3: a link MSE made. */
+const MORE_RECORDS: PlatformAccessRecord[] = [
+  { id: "r6", occurred_at: "2026-11-18T11:00:00+08:00", company: "c-1", company_name: "示范建筑有限公司", actor_name: "MSE 张三", actor_email: "zhang@mse.invalid", actor_is_mse: true, outcome: "REFUSED", kind: "RECORD", module: "project_details", record_id: "", record_label: "", detail: "not_available" },
+  { id: "r7", occurred_at: "2026-11-18T10:00:00+08:00", company: "c-1", company_name: "示范建筑有限公司", actor_name: "MSE 张三", actor_email: "zhang@mse.invalid", actor_is_mse: true, outcome: "REFUSED", kind: "ACCOUNT", module: "accounts", record_id: "", record_label: "helper@shifan.invalid", detail: "accounts_closed" },
+  { id: "r8", occurred_at: "2026-11-18T09:00:00+08:00", company: "c-1", company_name: "示范建筑有限公司", actor_name: "MSE 张三", actor_email: "zhang@mse.invalid", actor_is_mse: true, outcome: "REFUSED", kind: "ACCOUNT", module: "accounts", record_id: "", record_label: "boss@shifan.invalid", detail: "owner_locked" },
+  { id: "r9", occurred_at: "2026-11-18T08:00:00+08:00", company: "c-1", company_name: "示范建筑有限公司", actor_name: "MSE 张三", actor_email: "zhang@mse.invalid", actor_is_mse: true, outcome: "OPENED", kind: "RECORD", module: "external_links", record_id: "g1", record_label: "业主查看", detail: "create_grant" },
 ];
 
 const page = (results: PlatformAccessRecord[], count = results.length) => ({ count, page: 1, page_size: 20, total_pages: Math.max(1, Math.ceil(count / 20)), results });
@@ -275,9 +339,8 @@ describe("「MSE 查看记录」 (JB220-3)", () => {
     expect(html).toContain(zh.mseAccess.records.help);
     expect(html).toContain("称重记录 · WS-000123");
     expect(html).toContain("看了一笔资料");
-    expect(html).toContain("被挡住（没有开放）");
+    expect(html).toContain("被挡住（您没有开放）");
     expect(html).toContain("称重照片 · WS-000123");
-    expect(html).toContain("没有开放查看");
     expect(html).toContain("请求开放");
     // MSE's reason for asking is shown with the request (contract (c)).
     expect(html).toContain("允许 MSE 查看 · 客户报称重异常，需要看照片");
@@ -287,6 +350,41 @@ describe("「MSE 查看记录」 (JB220-3)", () => {
     expect(html).toContain("陈经理（贵公司）");
     expect(html).toContain(">开放<");
     expect(html).toContain("2026-11-18 16:05");
+  });
+
+  it("every refusal says what was tried and why it was stopped (walk 11-18 F1)", () => {
+    const html = records(MORE_RECORDS);
+    expect(html).toContain("项目里面的详细资料");
+    expect(html).toContain("被挡住（这类资料 MSE 永远看不到，开放了也看不到）");
+    expect(html).toContain("被挡住（您没有开放「允许 MSE 管理账号」）");
+    expect(html).toContain("账号 · helper@shifan.invalid");
+    expect(html).toContain("被挡住（这个管理员账号已经在用，MSE 不能改它的登录邮箱）");
+    expect(html).not.toContain("其他业务资料");
+    // A refused change is not 「看不到」: MSE never changes the company's records.
+    const write = records([{ ...MORE_RECORDS[0], id: "r10", module: "weighing", detail: "no_changes" }]);
+    expect(write).toContain("被挡住（MSE 不能改贵公司的资料）");
+    expect(write).not.toContain("永远看不到");
+  });
+
+  it("a link MSE opened is recorded as that, not as a look (walk 11-18 P3)", () => {
+    const html = records([MORE_RECORDS[3]]);
+    expect(html).toContain(">开了外部链接<");
+    expect(html).toContain("外部访问链接 · 业主查看");
+    expect(html).not.toContain("看了一笔资料");
+  });
+
+  it("MSE reads the same rows with 客户 in place of 您", () => {
+    const html = renderDetail(<PlatformAccessRecords audience="mse" company="c-1" />, (client) => {
+      client.setQueryData(["platform-access", "records", { company: "c-1", page: 1, page_size: 20 }], page([RECORDS[2], ...MORE_RECORDS]));
+    });
+    expect(html).toContain("被挡住（客户没有开放）");
+    expect(html).toContain("被挡住（客户没有开放「允许 MSE 管理账号」）");
+    expect(html).toContain("被挡住（这类资料 MSE 永远看不到，客户开放了也看不到）");
+    expect(html).not.toContain("您没有开放");
+  });
+
+  it("the filter offers 被挡住 as one choice, whatever the reason", () => {
+    expect(zh.mseAccess.records.outcome.REFUSED).toBe("被挡住");
   });
 
   it("an empty record is a sentence, not a blank table", () => {
