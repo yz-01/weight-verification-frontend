@@ -26,15 +26,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ApiError } from "@/interfaces/api";
 import type { CompanyLockedSettings, ContractorSiteSettings } from "@/interfaces/site-access";
+import { ConsultantModuleTicks } from "@/components/consultant-workflow/consultant-module-ticks";
 import {
-  CONSULTANT_MODULES,
   CONSULTANT_OPTIONS,
-  MODULE_MESSAGE_KEYS,
   OPTION_MESSAGE_KEYS,
   foldLegacyCodes,
+  normaliseTicks,
   orderedModules,
-  toggleModule,
   toggleOption,
+  type ConsultantTicks,
 } from "@/lib/consultant-modules";
 import { roleName } from "@/lib/role-labels";
 import { getCompanySiteSettings, updateCompanySiteSettings } from "@/services/companies.service";
@@ -133,8 +133,14 @@ export function CompanyLockedSettingsPanel({ companyId }: { companyId: string })
   const folded = foldLegacyCodes(form.default_consultant_permissions);
   const consultantModules = orderedModules([...(form.default_consultant_modules ?? []), ...folded.modules]);
   const consultantOptions = folded.options;
-  const setConsultant = (modules: string[], options: string[]) =>
-    set({ default_consultant_modules: modules, default_consultant_permissions: options });
+  // JB225 (客户 11-19 事项 5): with the items of 材料管理 / 工程进度.
+  const consultantTicks = normaliseTicks(consultantModules, form.default_consultant_sub_modules);
+  const setConsultant = (ticks: ConsultantTicks, options: string[]) =>
+    set({
+      default_consultant_modules: ticks.modules,
+      default_consultant_sub_modules: ticks.items,
+      default_consultant_permissions: options,
+    });
 
   return <section id="company-locked-settings" className="scroll-mt-20 space-y-5 border-t p-4 sm:p-6" data-testid="company-locked-settings">
     <SectionTitle icon={Lock} title={tLocked("title")} description={tLocked("subtitle")} action={canManage ? <Button disabled={save.isPending} onClick={() => save.mutate()}><Save />{t("action.saveSettings")}</Button> : undefined} />
@@ -148,9 +154,9 @@ export function CompanyLockedSettingsPanel({ companyId }: { companyId: string })
       </div>
       <p className="text-sm font-medium">{t("permissionDefaults.consultant")}</p>
       <p className="text-xs text-muted-foreground">{tConsultant("grant.modulesTitle")}</p>
-      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3" data-slot="consultant-default-modules">{CONSULTANT_MODULES.map((key) => <Toggle key={key} compact label={tConsultant(`module.${MODULE_MESSAGE_KEYS[key]}`)} checked={consultantModules.includes(key)} disabled={off} onChange={(checked) => setConsultant(toggleModule(consultantModules, key, checked), consultantOptions)} />)}</div>
+      <div data-slot="consultant-default-modules"><ConsultantModuleTicks compact ticks={consultantTicks} disabled={off} onChange={(ticks) => setConsultant(ticks, consultantOptions)} /></div>
       <p className="text-xs text-muted-foreground">{tConsultant("grant.optionsTitle")}</p>
-      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3" data-slot="consultant-default-options">{CONSULTANT_OPTIONS.map((code) => <Toggle key={code} compact label={tConsultant(`option.${OPTION_MESSAGE_KEYS[code]}`)} checked={consultantOptions.includes(code)} disabled={off} onChange={(checked) => setConsultant(consultantModules, toggleOption(consultantOptions, code, checked))} />)}</div>
+      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3" data-slot="consultant-default-options">{CONSULTANT_OPTIONS.map((code) => <Toggle key={code} compact label={tConsultant(`option.${OPTION_MESSAGE_KEYS[code]}`)} checked={consultantOptions.includes(code)} disabled={off} onChange={(checked) => setConsultant(consultantTicks, toggleOption(consultantOptions, code, checked))} />)}</div>
     </div>
 
     <div className="space-y-3" data-locked="qr">

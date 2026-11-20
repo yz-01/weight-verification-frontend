@@ -82,6 +82,8 @@ export interface ContractorSiteSettings {
   default_consultant_permissions: string[];
   /** The module ticks a new consultant grant starts with (JB210). */
   default_consultant_modules: string[];
+  /** JB225: and its items of 材料管理 / 工程进度. Absent before JB225. */
+  default_consultant_sub_modules?: string[];
   date_format: "DD/MM/YYYY" | "MM/DD/YYYY" | "YYYY-MM-DD";
   time_format: "12H" | "24H";
   language: "en" | "zh" | "zh-TW" | "ms";

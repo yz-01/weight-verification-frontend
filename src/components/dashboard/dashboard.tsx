@@ -38,6 +38,7 @@ const RecyclerDashboard = dynamic(
     ),
   { loading: () => <Skeleton className="h-64 w-full" /> },
 );
+import { consultantLacks } from "@/lib/consultant-modules";
 import type { AdminDashboardSection } from "@/lib/admin-dashboard";
 import {
   getDispatches,
@@ -127,12 +128,14 @@ export function Dashboard({
 
 function TraceDashboard({ features }: { features: string[] }) {
   const projectsEnabled = features.includes("projects");
-  const receiptsEnabled = features.includes("material_receipts");
+  // JB225 (客户 11-19 事项 5): a consultant's tiles follow his items - deliveries
+  // with 材料进场, progress records with 施工进度 (the server narrows the counts).
+  const receiptsEnabled = features.includes("material_receipts") && !consultantLacks(features, "materials.in");
   const dispatchesEnabled = features.includes("waste_dispatches");
   const attendanceEnabled = features.includes("attendance");
   const tasksEnabled = features.includes("field_tasks");
   const equipmentEnabled = features.includes("equipment");
-  const progressEnabled = features.includes("progress");
+  const progressEnabled = features.includes("progress") && !consultantLacks(features, "progress.records");
   const safetyEnabled = features.includes("safety");
   const disposalEnabled = features.includes("site_disposals");
 

@@ -143,6 +143,8 @@ export interface ConsultantProjectAccess {
   organization_name: string;
   /** JB210 (客户 11-16): the module ticks on this project. Absent before JB210. */
   modules?: string[];
+  /** JB225 (客户 11-19 事项 5): the ticked items of 材料管理 / 工程进度. Absent before JB225. */
+  sub_modules?: string[];
   permissions: string[];
   valid_from: string;
   valid_until: string | null;
@@ -156,6 +158,8 @@ export interface ActiveProject {
   company_name: string;
   /** JB210: what head office ticked on this project. Absent before JB210. */
   modules?: string[];
+  /** JB225: which items of 材料管理 / 工程进度. Absent before JB225. */
+  sub_modules?: string[];
 }
 
 export interface LoginResponse {

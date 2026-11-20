@@ -66,6 +66,8 @@ export interface ConsultantGrantOption {
   project_code: string;
   /** JB210 (客户 11-16): the module ticks head office chose on this project. */
   modules: string[];
+  /** JB225 (客户 11-19 事项 5): the ticked items of 材料管理 / 工程进度. Absent before JB225. */
+  sub_modules?: string[];
   /** The three options only: 顾问申请 查看 / 审批 and 导出 (JB210). */
   permissions: string[];
   /** What the ticks and options open, for display (JB210). */
@@ -151,6 +153,8 @@ export interface ConsultantGrantPayload {
   project: string;
   /** JB210: the module ticks; `permissions` carries the three options. */
   modules: string[];
+  /** JB225: the ticked items of 材料管理 / 工程进度. */
+  sub_modules: string[];
   permissions: string[];
   valid_from: string;
   valid_until?: string | null;

@@ -40,6 +40,7 @@ import {
 } from "lucide-react";
 
 import type { Portal } from "@/interfaces/auth";
+import { featuresCarryItems } from "@/lib/consultant-modules";
 
 export type PortalFeatureKey =
   | "dashboard"
@@ -80,6 +81,20 @@ export type PortalFeatureKey =
   | "report_documents"
   | "report_consultant"
   | "report_contractor"
+  // JB225 (客户 11-19 事项 5): one key per item of 材料管理 / 工程进度, and the
+  // reports that follow an item (a consultant's menu only).
+  | "item_materials_in"
+  | "item_materials_returns"
+  | "item_materials_issues"
+  | "item_materials_supplier_totals"
+  | "item_materials_targets"
+  | "item_progress_records"
+  | "item_progress_daily_reports"
+  | "item_progress_rain"
+  | "item_progress_schedule"
+  | "report_daily_report"
+  | "report_schedule"
+  | "report_material_rejections"
   | "users"
   | "roles"
   | "user_logs"
@@ -156,6 +171,13 @@ export interface FeatureNavItem {
   /** The feature a consultant's menu opens this entry with (JB210); see `CONSULTANT_MENU`. */
   consultantFeature?: PortalFeatureKey;
   /**
+   * The pages a consultant's menu lists under this entry instead of
+   * `children` (JB225, 客户 11-19 事项 5): 材料管理's five items and 工程进度's
+   * four, in the client's words, each opening the page or tab it lives on.
+   * A contractor's menu never reads it.
+   */
+  consultantChildren?: readonly FeatureNavChild[];
+  /**
    * The parent's own address is a real page, not a hub of cards. Without this
    * an entry with children opens its first child (A03: the card page that
    * only listed the children is gone; the address still leads somewhere).
@@ -206,6 +228,44 @@ export interface NavGroup {
   key: FeatureNavItem["group"];
   items: FeatureNavItem[];
 }
+
+/**
+ * A consultant's 材料管理: the client's five items (JB225, 客户 11-19 事项 5), each
+ * opening the page it lives on. 材料退场 is the 材料出场 page's 供应商退货 side
+ * (its 退货核对 tab too), 材料领用 its other side; 按供应商统计 is 材料进场's
+ * 「按供应商看总数」 view.
+ */
+const CONSULTANT_MATERIAL_ITEMS: readonly FeatureNavChild[] = [
+  child("5.2.c1", "consultantAccess.item.materialsIn", "/receipts", "item_materials_in"),
+  child("5.2.c2", "consultantAccess.item.materialsReturns", "/material-outgoing?kind=RETURN", "item_materials_returns"),
+  child("5.2.c3", "consultantAccess.item.materialsIssues", "/material-outgoing?kind=ISSUE", "item_materials_issues"),
+  child(
+    "5.2.c4",
+    "consultantAccess.item.materialsSupplierTotals",
+    "/receipts?view=totals",
+    "item_materials_supplier_totals",
+  ),
+  child("5.2.c5", "consultantAccess.item.materialsTargets", "/material-targets", "item_materials_targets"),
+  // Returns typed on the receipt form before 10-02 are 材料退场's (Decision 3):
+  // the 材料出场 page's 「10-02 前的退场记录」 link opens them, off the menu.
+  {
+    ...child("5.2.c6", "receipts.tabs.legacyReturns", "/receipts?direction=OUT", "item_materials_returns"),
+    menuHidden: true,
+  },
+];
+
+/**
+ * A consultant's 工程进度: the client's four items (JB225), each a tab of the
+ * 工程进度 page (施工进度 = 工程时间轴 with 施工分类 and 项目进度摘要).
+ */
+const CONSULTANT_PROGRESS_ITEMS: readonly FeatureNavChild[] = [
+  child("7.2.c1", "consultantAccess.item.progressRecords", "/progress?tab=photos", "item_progress_records"),
+  child("7.2.c2", "consultantAccess.item.progressDailyReports", "/progress?tab=reports", "item_progress_daily_reports"),
+  child("7.2.c3", "consultantAccess.item.progressRain", "/progress?tab=rain", "item_progress_rain"),
+  child("7.2.c4", "consultantAccess.item.progressSchedule", "/progress?tab=schedule", "item_progress_schedule"),
+  // The old 施工计划 address still opens, off the menu.
+  { ...child("7.2.c5", "nav.submodule.schedulePlanning", "/schedule", "item_progress_schedule"), menuHidden: true },
+];
 
 /**
  * Requirement-ordered feature registry.
@@ -855,42 +915,45 @@ export const PORTAL_NAVIGATION = {
     // 材料管理 (A01, B09, E01): one entry for material coming in and going
     // out. The unified page that tells Material In / Material Out / Reject
     // apart is Phase 3; until then the entry opens the two existing pages.
-    itemWithLabel(
-      "material_receipts",
-      "materialManagement",
-      "/modules/materials",
-      ClipboardList,
-      "operations",
-      // `/archive-queue` is here for the same reason (T-233): the queue lists
-      // deliveries among eight other kinds, the backend already answers each
-      // caller with only the kinds they may read, and refusing the route to
-      // somebody who holds material access but not the category feature would
-      // hide their own deliveries from them.
-      ["/archive-queue"],
-      false,
-      [
-        child(
-          "5.2.1",
-          "nav.submodule.materialReceipts",
-          "/receipts",
-          "material_receipts",
-        ),
-        child(
-          "5.2.2",
-          "nav.submodule.materialOutgoing",
-          "/material-outgoing",
-          "material_outgoing",
-        ),
-        // 材料目标 (I18-1): 「在材料管理页面没有看到设置入口」 - now it has one,
-        // here and in the page's own view list.
-        child(
-          "5.2.3",
-          "nav.submodule.materialTargets",
-          "/material-targets",
-          "material_receipts",
-        ),
-      ],
-    ),
+    {
+      ...itemWithLabel(
+        "material_receipts",
+        "materialManagement",
+        "/modules/materials",
+        ClipboardList,
+        "operations",
+        // `/archive-queue` is here for the same reason (T-233): the queue lists
+        // deliveries among eight other kinds, the backend already answers each
+        // caller with only the kinds they may read, and refusing the route to
+        // somebody who holds material access but not the category feature would
+        // hide their own deliveries from them.
+        ["/archive-queue"],
+        false,
+        [
+          child(
+            "5.2.1",
+            "nav.submodule.materialReceipts",
+            "/receipts",
+            "material_receipts",
+          ),
+          child(
+            "5.2.2",
+            "nav.submodule.materialOutgoing",
+            "/material-outgoing",
+            "material_outgoing",
+          ),
+          // 材料目标 (I18-1): 「在材料管理页面没有看到设置入口」 - now it has one,
+          // here and in the page's own view list.
+          child(
+            "5.2.3",
+            "nav.submodule.materialTargets",
+            "/material-targets",
+            "material_receipts",
+          ),
+        ],
+      ),
+      consultantChildren: CONSULTANT_MATERIAL_ITEMS,
+    },
     item(
       "equipment",
       "/modules/equipment",
@@ -914,33 +977,36 @@ export const PORTAL_NAVIGATION = {
         ),
       ],
     ),
-    item(
-      "progress",
-      "/modules/progress",
-      ChartNoAxesCombined,
-      "operations",
-      undefined,
-      false,
-      [
-        child(
-          "7.2.1",
-          "nav.submodule.progressRecords",
-          "/progress",
-          "progress",
-        ),
-        // 施工计划 is a tab of 工程进度 now (2026-10 B17, Q9): out of the
-        // menu, and `/schedule` still opens on its own.
-        {
-          ...child(
-            "7.2.14",
-            "nav.submodule.schedulePlanning",
-            "/schedule",
-            "schedule",
+    {
+      ...item(
+        "progress",
+        "/modules/progress",
+        ChartNoAxesCombined,
+        "operations",
+        undefined,
+        false,
+        [
+          child(
+            "7.2.1",
+            "nav.submodule.progressRecords",
+            "/progress",
+            "progress",
           ),
-          menuHidden: true,
-        },
-      ],
-    ),
+          // 施工计划 is a tab of 工程进度 now (2026-10 B17, Q9): out of the
+          // menu, and `/schedule` still opens on its own.
+          {
+            ...child(
+              "7.2.14",
+              "nav.submodule.schedulePlanning",
+              "/schedule",
+              "schedule",
+            ),
+            menuHidden: true,
+          },
+        ],
+      ),
+      consultantChildren: CONSULTANT_PROGRESS_ITEMS,
+    },
     item(
       "recyclers",
       "/modules/recycling",
@@ -1272,7 +1338,8 @@ export const PORTAL_NAVIGATION = {
             "report_center",
           ),
           menuHidden: true,
-          consultantFeature: "report_progress",
+          // JB225: 施工日报告 is its own item for a consultant.
+          consultantFeature: "report_daily_report",
         },
         {
           ...child(
@@ -1374,7 +1441,8 @@ export const PORTAL_NAVIGATION = {
           "/reports/contractor/material_rejections",
           "report_center",
           undefined,
-          "report_materials",
+          // JB225: 验收不合格 goes with 材料进场 for a consultant.
+          "report_material_rejections",
         ),
         // 施工计划 moved under 工程进度 (I8, ID24); the address stays.
         {
@@ -1385,7 +1453,8 @@ export const PORTAL_NAVIGATION = {
             "report_center",
           ),
           menuHidden: true,
-          consultantFeature: "report_progress",
+          // JB225: 施工计划 is its own item for a consultant.
+          consultantFeature: "report_schedule",
         },
         // 文件资料 (JB60, was 项目资料) is the document archive, by 文档大分类
         // → 子分类 (D6). The
@@ -1909,9 +1978,14 @@ export function navLeaves(
 export const CONSULTANT_MENU = "consultant_menu";
 
 const CONSULTANT_REGISTRY = new Map<Portal, readonly FeatureNavItem[]>();
+/** The consultant's menu when the backend names no items (before JB225). */
+const CONSULTANT_WHOLE_MODULE_REGISTRY = new Map<Portal, readonly FeatureNavItem[]>();
 
-function asConsultant<T extends FeatureNavItem | FeatureNavChild>(entry: T): T {
-  const children = entry.children?.map((childItem) => asConsultant(childItem));
+function asConsultant<T extends FeatureNavItem | FeatureNavChild>(entry: T, items = true): T {
+  // JB225: 材料管理 / 工程进度 list the consultant's items instead - when the
+  // backend sends them (audit 11-19 F3: an older one opens whole modules).
+  const own: readonly FeatureNavChild[] | undefined = items ? (entry as FeatureNavItem).consultantChildren : undefined;
+  const children = (own ?? entry.children)?.map((childItem) => asConsultant(childItem, items));
   return {
     ...entry,
     ...(entry.consultantFeature ? { feature: entry.consultantFeature } : {}),
@@ -1930,11 +2004,15 @@ function consultantPageOpen(portal: Portal, enabled: ReadonlySet<string>, pathna
   const consider = (href: string, feature: string | undefined, anyFeatures?: readonly string[]) => {
     const canonical = href.split("?", 1)[0];
     if (!matchesPrefix(pathname, canonical)) return;
-    if (best.length >= canonical.length) return;
-    best.length = canonical.length;
-    best.open =
+    if (best.length > canonical.length) return;
+    const open =
       (feature !== undefined && enabled.has(feature)) ||
       (anyFeatures ?? []).some((key) => enabled.has(key));
+    // JB225: several items live on one page (材料进场 and 按供应商统计 on
+    // `/receipts`, the four 工程进度 tabs on `/progress`): the page opens with
+    // any of them, and the page shows only the ticked parts.
+    best.open = best.length === canonical.length ? best.open || open : open;
+    best.length = canonical.length;
   };
   const walk = (children: readonly FeatureNavChild[] | undefined, parent: string) => {
     for (const childItem of children ?? []) {
@@ -1956,10 +2034,12 @@ function consultantPageOpen(portal: Portal, enabled: ReadonlySet<string>, pathna
 function registryFor(portal: Portal, features: ReadonlySet<string>): readonly FeatureNavItem[] {
   const registry = PORTAL_NAVIGATION[portal] as readonly FeatureNavItem[];
   if (!features.has(CONSULTANT_MENU)) return registry;
-  let mapped = CONSULTANT_REGISTRY.get(portal);
+  const items = featuresCarryItems(features);
+  const cache = items ? CONSULTANT_REGISTRY : CONSULTANT_WHOLE_MODULE_REGISTRY;
+  let mapped = cache.get(portal);
   if (!mapped) {
-    mapped = registry.map((navItem) => asConsultant(navItem));
-    CONSULTANT_REGISTRY.set(portal, mapped);
+    mapped = registry.map((navItem) => asConsultant(navItem, items));
+    cache.set(portal, mapped);
   }
   return mapped;
 }
