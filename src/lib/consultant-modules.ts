@@ -261,10 +261,11 @@ export function toggleModuleTicks(
 
 /** Tick or untick one item: the first ticks its module, the last unticks it. */
 export function toggleItem(ticks: ConsultantTicks, item: ConsultantItem, checked: boolean): ConsultantTicks {
-  const module = moduleOfItem(item);
+  // Not `module`: Next's lint refuses that name for a variable.
+  const owner = moduleOfItem(item);
   const items = checked ? orderedItems([...ticks.items, item]) : ticks.items.filter((key) => key !== item);
-  const anyLeft = (ITEMS_OF_MODULE[module] ?? []).some((key) => items.includes(key));
-  return { modules: toggleModule(ticks.modules, module, anyLeft), items };
+  const anyLeft = (ITEMS_OF_MODULE[owner] ?? []).some((key) => items.includes(key));
+  return { modules: toggleModule(ticks.modules, owner, anyLeft), items };
 }
 
 /** 「全选」: every module and every item. */
