@@ -6440,7 +6440,8 @@
       "close": "Tutup"
     },
     "backToSettings": "Kembali ke tetapan perunding",
-    "backToDashboard": "Kembali ke papan pemuka perunding"
+    "backToDashboard": "Kembali ke papan pemuka perunding",
+    "attachmentCopyMaking": "Sedang dijana…"
   },
   "contractorDashboard": {
     "activity": {
@@ -9046,7 +9047,7 @@
     "api": {
       "account_inactive": "Akaun ini tidak lagi aktif.",
       "announcement_not_found": "Pengumuman itu tidak dijumpai.",
-      "application_record_copy_unavailable": "Salinan bukti lengkap rekod ini tidak dapat dibuka sekarang. Minta pejabat projek melampirkan rekod itu semula pada permohonan.",
+      "application_record_copy_unavailable": "'Bukti lengkap rekod asal' ini dibuat sebelum kemas kini sistem; rekod asal tidak dapat dijumpai lagi, jadi ia tidak dapat dipaparkan. Jika perlu, minta pejabat projek melampirkannya semula.",
       "approval_action_not_found": "Tindakan kelulusan itu tidak dijumpai.",
       "approval_actor_forbidden": "Anda tidak dibenarkan melakukan tindakan kelulusan ini.",
       "approval_invalid_transition": "Kelulusan ini tidak boleh beralih ke status tersebut.",
@@ -9610,7 +9611,9 @@
       "phone_role_office_account": "Akaun telefon dibuat dalam Kakitangan tapak. Akaun pejabat tidak boleh diberi peranan telefon (kakitangan tapak, operator jentera, pengawal pintu) di sini. Sila pilih peranan lain.",
       "consultant_sub_module_not_granted": "Ibu pejabat belum membuka item ini untuk anda dalam projek ini. Hubungi ibu pejabat jika anda perlu melihatnya.",
       "permit_work_name_required": "Tulis nama kerja dahulu, kemudian tandatangan dan luluskan.",
-      "permit_formal_permit_required": "Belum ada permit rasmi. Muat naik borang permit syarikat yang telah diisi dengan \"Lampirkan fail\", atau isi e-permit, kemudian tandatangan dan luluskan."
+      "permit_formal_permit_required": "Belum ada permit rasmi. Muat naik borang permit syarikat yang telah diisi dengan \"Lampirkan fail\", atau isi e-permit, kemudian tandatangan dan luluskan.",
+      "hazard_room_not_for_consultant": "Ini perbualan dalaman kontraktor; perunding tidak boleh menghantar mesej di sini. Untuk berbincang dengan pejabat projek, gunakan 'Mesej seseorang'.",
+      "report_export_made_before_update": "Fail ini dibuat sebelum kemas kini sistem. Sila eksport semula."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -15745,7 +15748,8 @@
     "format": "Format",
     "size": "Saiz fail",
     "bytes": "{count} bait",
-    "sha256Hint": "SHA-256 ialah cap jari yang direkodkan semasa fail dijana. Ia disemak setiap kali fail dibuka, dan fail yang tidak lagi sepadan tidak akan dibuka."
+    "sha256Hint": "SHA-256 ialah cap jari yang direkodkan semasa fail dijana. Ia disemak setiap kali fail dibuka, dan fail yang tidak lagi sepadan tidak akan dibuka.",
+    "madeBeforeUpdate": "Fail ini dibuat sebelum kemas kini sistem. Sila eksport semula."
   },
   "reports": {
     "dispatches": {

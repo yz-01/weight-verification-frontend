@@ -87,6 +87,35 @@ beforeEach(() => {
   download.mockClear();
 });
 
+describe("a consultant's own file made before the 11-20 update (JB228 audit F9 c)", () => {
+  const BEFORE: ArchivedReportFile = { ...KEPT, made_before_update: true };
+
+  it("does not open; the row says to export it again", () => {
+    const archive = archiveFromRender();
+    const markup = html(
+      <>
+        <ArchivedReportName row={BEFORE} archive={archive} />
+        <ArchivedReportNote row={BEFORE} />
+        <ArchivedReportActions row={BEFORE} archive={archive} />
+      </>,
+    );
+    expect(markup).not.toMatch(/<button[^>]*data-slot="report-archive-name"/);
+    expect(markup).toContain("这份文件是系统更新前生成的，请重新导出。");
+    expect(markup).toMatch(/data-slot="report-archive-view"[^>]*disabled=""/);
+    archive.open(BEFORE, "preview");
+    expect(run).not.toHaveBeenCalled();
+  });
+
+  it("is said in all four catalogues, as the server's refusal is", () => {
+    for (const locale of ["zh", "zh-TW", "en", "ms"]) {
+      const catalogue = JSON.parse(read(`src/messages/${locale}.json`));
+      expect(catalogue.reportArchive.madeBeforeUpdate, locale).toBe(
+        catalogue.errors.api.report_export_made_before_update,
+      );
+    }
+  });
+});
+
 describe("a history row that kept its file", () => {
   it("makes the file name and 「查看」 open it, with 打印 · 导出 · 发送 beside", () => {
     const archive = archiveFromRender();

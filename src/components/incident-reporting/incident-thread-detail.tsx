@@ -162,7 +162,7 @@ export function IncidentThreadDetail({
   // 严重程度: gone from the system, 2026-10-10); its title under it; when it
   // was filed.
   const header = {
-    title: record?.thread_no ?? t("title"),
+    title: record?.thread_no ?? t("title"),
     description: record?.title,
     status: record?.is_resolved ? (
       <StatusBadge label={t("status.resolved")} tone="positive" />

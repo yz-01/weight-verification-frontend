@@ -33,6 +33,19 @@ import type { ArchivedReportFile } from "@/interfaces/report-archive";
 import { cn } from "@/lib/utils";
 import { archivedReportFile, previewArchivedReport } from "@/services/report-archive.service";
 
+/**
+ * Whether the row's stored file opens: kept, and - JB228 (audit 11-20 F9 c) -
+ * not a consultant's own file made before the 11-20 update.
+ */
+export function opensFile(row: ArchivedReportFile): boolean {
+  return row.has_file && !row.made_before_update;
+}
+
+/** Why a row's file does not open, in the reader's words. */
+function closedReason(row: ArchivedReportFile, t: (key: "madeBeforeUpdate" | "missing") => string): string {
+  return row.made_before_update ? t("madeBeforeUpdate") : t("missing");
+}
+
 /** 1.2 MB - the stored file's size, as the archive shows it. */
 export function formatFileSize(bytes: number): string {
   const value = Math.max(0, bytes || 0);
@@ -52,7 +65,7 @@ export function useReportArchive() {
   const open = useCallback(
     // `blockedReason` (JB220): the preview's own 打印 / 导出 / 发送 greyed with it.
     (row: ArchivedReportFile, action: FileAction, title?: string, blockedReason?: string) => {
-      if (!row.has_file) return;
+      if (!opensFile(row)) return;
       void run(
         action,
         {
@@ -82,7 +95,7 @@ interface RowProps {
 
 /** A click on the row: the file's preview, as the name's own link opens it. */
 export function previewArchived(archive: ReportArchive, row: ArchivedReportFile, title?: string, previewOnlyReason?: string) {
-  if (row.has_file && !archive.busy) archive.open(row, "preview", title, previewOnlyReason);
+  if (opensFile(row) && !archive.busy) archive.open(row, "preview", title, previewOnlyReason);
 }
 
 /** The file name: a link to the stored file, or plain when none was kept. */
@@ -94,11 +107,11 @@ export function ArchivedReportName({
   previewOnlyReason,
 }: RowProps & { previewOnlyReason?: string }) {
   const t = useTranslations("reportArchive");
-  if (!row.has_file) {
+  if (!opensFile(row)) {
     return (
       <span
         className={cn("flex min-w-0 items-start gap-2 text-muted-foreground", className)}
-        title={`${row.file_name}\n${t("missing")}`}
+        title={`${row.file_name}\n${closedReason(row, t)}`}
         data-slot="report-archive-name"
       >
         <FileClock className="mt-0.5 size-4 shrink-0" aria-hidden />
@@ -135,10 +148,10 @@ export function ArchivedReportName({
  */
 export function ArchivedReportNote({ row, className }: { row: ArchivedReportFile; className?: string }) {
   const t = useTranslations("reportArchive");
-  if (!row.has_file) {
+  if (!opensFile(row)) {
     return (
       <p className={cn("mt-1 text-xs leading-snug text-muted-foreground", className)} data-slot="report-archive-missing">
-        {t("missing")}
+        {closedReason(row, t)}
       </p>
     );
   }
@@ -212,8 +225,8 @@ export function ArchivedReportActions({
   const t = useTranslations("reportArchive");
   const files = useTranslations("fileActions");
   const busy = archive.busy;
-  const reason = !row.has_file ? t("missing") : busy ? files("preparing") : undefined;
-  const disabled = !row.has_file || Boolean(busy);
+  const reason = !opensFile(row) ? closedReason(row, t) : busy ? files("preparing") : undefined;
+  const disabled = !opensFile(row) || Boolean(busy);
   const others = fileActionsFor(row.export_format === "PDF" ? "pdf" : "sheet").filter(
     (action) => action !== "preview",
   );
@@ -225,7 +238,7 @@ export function ArchivedReportActions({
         variant="outline"
         disabled={disabled}
         disabledReason={reason}
-        title={row.has_file ? t("viewHint") : undefined}
+        title={opensFile(row) ? t("viewHint") : undefined}
         onClick={() => archive.open(row, "preview", title, previewOnlyReason)}
         data-slot="report-archive-view"
       >
@@ -242,7 +255,7 @@ export function ArchivedReportActions({
             variant="ghost"
             aria-label={files(action)}
             title={
-              !row.has_file
+              !opensFile(row)
                 ? undefined
                 : action === "save"
                   ? t("downloadAgain")
