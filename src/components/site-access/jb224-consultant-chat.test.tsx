@@ -10,6 +10,9 @@
  * (`contractor_ops/tests/test_jb224_consultant_chat.py`); these check what the
  * two screens show. Rendered to static markup: the runner has no DOM.
  */
+import { readFileSync } from "node:fs";
+import path from "node:path";
+
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 const nav = vi.hoisted(() => ({ search: "" }));
@@ -57,7 +60,6 @@ const {
   consultantChatClosed,
   consultantChatPoll,
   listReadAfter,
-  CLOSED_WHILE_OPEN_CODES,
   CONSULTANT_CHAT_POLL_MS,
 } = await import("@/lib/record-chat");
 const { ApiError } = await import("@/interfaces/api");
@@ -316,7 +318,10 @@ describe("JB224 audit 11-19 fixes", () => {
     expect(zh.errors.api.consultant_chat_closed).not.toContain("重试");
     // The PM sending in the same moment: re-read, so the composer gives way
     // to the 「顾问…已经关闭」 line - and the toast says that line too.
-    expect(CLOSED_WHILE_OPEN_CODES).toEqual(["conversation_closed", "chat_consultant_off"]);
+    const panel = readFileSync(path.join(process.cwd(), "src/components/shared/record-conversation.tsx"), "utf8");
+    expect(panel).toMatch(
+      /reason\.code === "chat_consultant_off"[\s\S]{0,120}invalidateQueries\(\{\s*queryKey: recordConversationKey\(kind, recordId\)/,
+    );
     expect(zh.errors.api.chat_consultant_off).toBe(zh.recordChat.closedConsultantOff);
     for (const messages of [zhTW, en, ms]) {
       expect(messages.errors.api.consultant_chat_closed).toBeTruthy();

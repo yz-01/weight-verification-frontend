@@ -35,7 +35,6 @@ import { useNewMessageTone } from "@/hooks/use-new-message-tone";
 import { ApiError } from "@/interfaces/api";
 import { consultantSeesConversation } from "@/lib/consultant-modules";
 import {
-  CLOSED_WHILE_OPEN_CODES,
   consultantChatClosed,
   consultantChatPoll,
   conversationClosedLine,
@@ -169,7 +168,10 @@ function RecordConversationContent({
         setShutOut(closed);
         return;
       }
-      if (reason instanceof ApiError && CLOSED_WHILE_OPEN_CODES.includes(reason.code)) {
+      if (
+        reason instanceof ApiError &&
+        (reason.code === "conversation_closed" || reason.code === "chat_consultant_off")
+      ) {
         void queryClient.invalidateQueries({
           queryKey: recordConversationKey(kind, recordId),
         });

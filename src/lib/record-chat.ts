@@ -167,13 +167,6 @@ export function parseChatParam(
   return { kind, recordId };
 }
 
-/**
- * Refusals of a message that mean the conversation closed while this screen
- * was open (D-278; JB224 audit F4: the consultant's 「沟通记录」 unticked): the
- * screen reads it again, so the composer gives way to the reason.
- */
-export const CLOSED_WHILE_OPEN_CODES: readonly string[] = ["conversation_closed", "chat_consultant_off"];
-
 /** Why a finished record's conversation takes no more messages (D-278). */
 /** `readonly`: the office reading a phone conversation it is not in; `moved`: its
  * people are no longer all on its project (JB127); `head_office`: head office
