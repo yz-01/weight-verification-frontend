@@ -30,12 +30,20 @@ export interface LocationMapMarker {
   longitude: number;
   label: string;
   detail?: string;
-  /** `info` (purple) is the project map's 现场记录 layer (JB222). */
-  tone?: "primary" | "positive" | "warning" | "danger" | "info";
+  /**
+   * `info` (purple) is the project map's 现场记录 layer (JB222); `neutral`
+   * (grey) its people last located on an earlier day (audit 11-20 F4).
+   */
+  tone?: "primary" | "positive" | "warning" | "danger" | "info" | "neutral";
   stale?: boolean;
   icon?: "person" | "truck" | "project" | "recycler" | "scale" | "building" | "machine" | "record";
   /** More than one thing at this spot (JB222): the number on the icon. */
   count?: number;
+  /**
+   * A few words always shown under the icon, without a press (the project
+   * map's 最新定位 time, audit 11-20 F4). No other map sets it.
+   */
+  caption?: string;
 }
 
 export interface LocationMapPath {
@@ -283,7 +291,9 @@ export function LocationMap({
                 ? "var(--tone-green)"
                 : marker.tone === "info"
                   ? "var(--tone-purple)"
-                  : "var(--tone-cyan)";
+                  : marker.tone === "neutral"
+                    ? "var(--tone-slate)"
+                    : "var(--tone-cyan)";
         const icon = L.divIcon({
           className: "mse-map-marker",
           html: `<span style="--marker-color:${color};${marker.stale ? "opacity:.5;" : ""}${markerCount(marker) ? "position:relative;" : ""}">${renderToStaticMarkup(
@@ -292,7 +302,7 @@ export function LocationMap({
               strokeWidth: 2.5,
               "aria-hidden": true,
             }),
-          )}${markerCount(marker)}</span>`,
+          )}${markerCount(marker)}</span>${markerCaption(marker)}`,
           iconSize: [30, 30],
           iconAnchor: [15, 15],
         });
@@ -432,6 +442,12 @@ function markerIcon(icon: LocationMapMarker["icon"]) {
 function markerCount(marker: LocationMapMarker): string {
   if (!marker.count || marker.count < 2) return "";
   return `<b class="mse-map-count">${marker.count > 99 ? "99+" : marker.count}</b>`;
+}
+
+/** The words under an icon (audit 11-20 F4), or nothing. Not a span: those are the icon. */
+export function markerCaption(marker: Pick<LocationMapMarker, "caption">): string {
+  if (!marker.caption) return "";
+  return `<em class="mse-map-caption">${escapeHtml(marker.caption)}</em>`;
 }
 
 function escapeHtml(value: string): string {

@@ -22746,7 +22746,7 @@
     "lastSeen": "最新定位 {at}",
     "since": "進場 {at}",
     "stale": "超過 10 分鐘沒有更新：手機上的現場 App 可能已關掉。",
-    "machineSeen": "最新定位 {at} · 來自{source, select, OPERATING_LOG {設備操作員工時} other {設備進場記錄}}",
+    "machineSeen": "最新定位 {at} · 來自{source, select, OPERATING_LOG {設備操作員打卡} EXIT {設備退場申請} other {設備進場記錄}}",
     "recordedAt": "記錄時間 {at}",
     "personKind": {
       "APP": "現場 App",
@@ -22773,7 +22773,15 @@
     "noFence": "這個項目還沒有畫電子圍欄，地圖不能按工地範圍顯示。",
     "noPlace": "這個項目還沒有設定位置，也還沒有畫電子圍欄，地圖不能顯示。",
     "drawFence": "去畫電子圍欄",
-    "askAdmin": "請公司管理員到「電子圍欄設置」畫出工地範圍。"
+    "askAdmin": "請公司管理員到「電子圍欄設置」畫出工地範圍。",
+    "openExit": "查看退場申請",
+    "machineFromClock": "這個位置是設備操作員打卡時的定位；工時請到「設備操作員工時」查看。",
+    "legendNow": "{layers}是現在的位置。",
+    "legendDay": "{layers}是{window, select, today {今天} other {最近 7 天}}的，只畫出有定位的記錄。",
+    "legendPeople": "人員圖標下是最新定位時間{app, select, yes {；淡色的人員：超過 10 分鐘沒有更新} other {}}；灰色的人員：最新定位不是今天，圖標下寫的是日期。",
+    "noLayers": "你的角色沒有查看人員、材料卸貨、機械設備或現場記錄的權限，所以地圖只顯示工地範圍。需要查看的話，請公司管理員在「角色與權限」裡開通。",
+    "notUpdating": "地圖暫時沒有更新，現在顯示的是 {at} 的情況。請檢查網路，系統會自動再試。",
+    "retry": "重試"
   },
   "mseAccess": {
     "section": {

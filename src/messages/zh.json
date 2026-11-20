@@ -22746,7 +22746,7 @@
     "lastSeen": "最新定位 {at}",
     "since": "进场 {at}",
     "stale": "超过 10 分钟没有更新：手机上的现场 App 可能已关掉。",
-    "machineSeen": "最新定位 {at} · 来自{source, select, OPERATING_LOG {设备操作员工时} other {设备进场记录}}",
+    "machineSeen": "最新定位 {at} · 来自{source, select, OPERATING_LOG {设备操作员打卡} EXIT {设备退场申请} other {设备进场记录}}",
     "recordedAt": "记录时间 {at}",
     "personKind": {
       "APP": "现场 App",
@@ -22773,7 +22773,15 @@
     "noFence": "这个项目还没有画电子围栏，地图不能按工地范围显示。",
     "noPlace": "这个项目还没有设定位置，也还没有画电子围栏，地图不能显示。",
     "drawFence": "去画电子围栏",
-    "askAdmin": "请公司管理员到「电子围栏设置」画出工地范围。"
+    "askAdmin": "请公司管理员到「电子围栏设置」画出工地范围。",
+    "openExit": "查看退场申请",
+    "machineFromClock": "这个位置是设备操作员打卡时的定位；工时请到「设备操作员工时」查看。",
+    "legendNow": "{layers}是现在的位置。",
+    "legendDay": "{layers}是{window, select, today {今天} other {最近 7 天}}的，只画出有定位的记录。",
+    "legendPeople": "人员图标下是最新定位时间{app, select, yes {；淡色的人员：超过 10 分钟没有更新} other {}}；灰色的人员：最新定位不是今天，图标下写的是日期。",
+    "noLayers": "你的角色没有查看人员、材料卸货、机械设备或现场记录的权限，所以地图只显示工地范围。需要查看的话，请公司管理员在「角色与权限」里开通。",
+    "notUpdating": "地图暂时没有更新，现在显示的是 {at} 的情况。请检查网络，系统会自动再试。",
+    "retry": "重试"
   },
   "mseAccess": {
     "section": {

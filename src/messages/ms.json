@@ -22746,7 +22746,7 @@
     "lastSeen": "Lokasi terkini {at}",
     "since": "Masuk tapak {at}",
     "stale": "Tidak dikemas kini lebih 10 minit: aplikasi tapak pada telefon mungkin ditutup.",
-    "machineSeen": "Lokasi terkini {at} · daripada {source, select, OPERATING_LOG {jam kerja pengendali} other {rekod masuk}}",
+    "machineSeen": "Lokasi terkini {at} · daripada {source, select, OPERATING_LOG {daftar masuk pengendali} EXIT {permohonan keluar} other {rekod masuk}}",
     "recordedAt": "Direkod {at}",
     "personKind": {
       "APP": "Aplikasi tapak",
@@ -22773,7 +22773,15 @@
     "noFence": "Projek ini belum ada geofence, jadi peta tidak dapat menunjukkan kawasan tapak.",
     "noPlace": "Projek ini belum ada lokasi dan geofence, jadi tiada peta untuk dipaparkan.",
     "drawFence": "Lukis geofence",
-    "askAdmin": "Minta pentadbir syarikat melukis kawasan tapak di Tetapan geofence."
+    "askAdmin": "Minta pentadbir syarikat melukis kawasan tapak di Tetapan geofence.",
+    "openExit": "Buka permohonan keluar",
+    "machineFromClock": "Lokasi ini ialah tempat pengendali mendaftar masuk; lihat jam kerja di Jam operator peralatan.",
+    "legendNow": "{layers}: kedudukan sekarang.",
+    "legendDay": "{layers}: {window, select, today {hari ini} other {7 hari lalu}}, hanya yang mempunyai lokasi.",
+    "legendPeople": "Masa di bawah ikon pekerja ialah lokasi terkini{app, select, yes {; pudar: tidak dikemas kini lebih 10 minit} other {}}; kelabu: lokasi terkini bukan hari ini, dengan tarikh di bawahnya.",
+    "noLayers": "Peranan anda tidak boleh melihat pekerja, bahan dipunggah, jentera atau rekod tapak, jadi peta hanya menunjukkan kawasan tapak. Untuk melihatnya, minta pentadbir syarikat membukanya di Peranan dan kebenaran.",
+    "notUpdating": "Peta tidak dikemas kini: ia menunjukkan keadaan tapak pada {at}. Sila semak rangkaian; ia akan mencuba semula sendiri.",
+    "retry": "Cuba lagi"
   },
   "mseAccess": {
     "section": {

@@ -281,9 +281,14 @@ export interface ProjectMapRow {
   longitude: string;
   /** 设备进退场: ENTRY / EXIT. */
   direction?: string;
-  /** Machines: where its place came from, and the entry record to open. */
+  /**
+   * Machines: where its place came from, and the movement record its card
+   * opens - the one the place came from, or for a clock-in the stay's entry.
+   */
   source?: "MOVEMENT" | "OPERATING_LOG";
   movement_id?: string | null;
+  /** Which way `movement_id` went: ENTRY 进场记录, EXIT 退场申请 (audit 11-20 F3). */
+  movement_direction?: "ENTRY" | "EXIT" | null;
   registration_no?: string;
   site_no?: string;
   supplier?: string;

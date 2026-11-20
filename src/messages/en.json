@@ -22746,7 +22746,7 @@
     "lastSeen": "Last located {at}",
     "since": "On site since {at}",
     "stale": "Not updated for over 10 minutes: the site app on the phone may be closed.",
-    "machineSeen": "Last located {at} · from the {source, select, OPERATING_LOG {operator's clock-in} other {entry record}}",
+    "machineSeen": "Last located {at} · from the {source, select, OPERATING_LOG {operator's clock-in} EXIT {exit application} other {entry record}}",
     "recordedAt": "Recorded {at}",
     "personKind": {
       "APP": "Site app",
@@ -22773,7 +22773,15 @@
     "noFence": "This project has no geofence yet, so the map cannot show the site's extent.",
     "noPlace": "This project has no location and no geofence yet, so there is no map to show.",
     "drawFence": "Draw the geofence",
-    "askAdmin": "Ask the company administrator to draw the site's extent under Geofence settings."
+    "askAdmin": "Ask the company administrator to draw the site's extent under Geofence settings.",
+    "openExit": "Open the exit application",
+    "machineFromClock": "This place is where the operator clocked in; see the hours under Equipment operator hours.",
+    "legendNow": "{layers}: where they are now.",
+    "legendDay": "{layers}: {window, select, today {today's} other {the last 7 days'}}, only those with a location.",
+    "legendPeople": "The time under a person is when they were last located{app, select, yes {; faded: not updated for over 10 minutes} other {}}; grey: last located on an earlier day, with the date under it.",
+    "noLayers": "Your role cannot see people, deliveries, machines or site records, so the map shows only the site's extent. To see them, ask the company administrator to turn them on under Roles and permissions.",
+    "notUpdating": "The map is not updating: it shows the site as it was at {at}. Please check the network; it will try again by itself.",
+    "retry": "Try again"
   },
   "mseAccess": {
     "section": {
