@@ -445,7 +445,8 @@ function markerCount(marker: LocationMapMarker): string {
 }
 
 /** The words under an icon (audit 11-20 F4), or nothing. Not a span: those are the icon. */
-export function markerCaption(marker: Pick<LocationMapMarker, "caption">): string {
+// A plain type on purpose: location-map-defaults.test.ts finds the maps that use the component by its tag text.
+export function markerCaption(marker: { caption?: string }): string {
   if (!marker.caption) return "";
   return `<em class="mse-map-caption">${escapeHtml(marker.caption)}</em>`;
 }
