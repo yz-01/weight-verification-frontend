@@ -500,7 +500,7 @@ export function MapOverlay({
                   on ? "text-foreground" : "text-muted-foreground opacity-70",
                 )}
               >
-                <span className={cn("grid size-5 place-items-center rounded-full text-white", on ? look.dot : "bg-muted-foreground/40")}>
+                <span className={cn("grid size-5 place-items-center rounded-full text-card", on ? look.dot : "bg-muted-foreground/40")}>
                   <look.icon className="size-3" aria-hidden />
                 </span>
                 {t(`layer.${layer}`)}

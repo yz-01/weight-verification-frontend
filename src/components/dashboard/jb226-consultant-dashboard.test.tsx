@@ -14,6 +14,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { ApiError } from "@/interfaces/api";
 import type { EvidencePackageRow } from "@/interfaces/contractor-ops";
 import type { ProjectOverview } from "@/interfaces/headquarters";
@@ -296,7 +297,10 @@ function renderReviews(waitingOnly: boolean, results: EvidencePackageRow[], wait
     return renderToStaticMarkup(
       <QueryClientProvider client={client}>
         <NextIntlClientProvider locale="zh" messages={messages} timeZone="Asia/Kuala_Lumpur">
-          <PackageReviewWorkspace />
+          {/* A disabled 导出 explains itself in a tooltip (the empty list). */}
+          <TooltipProvider>
+            <PackageReviewWorkspace />
+          </TooltipProvider>
         </NextIntlClientProvider>
       </QueryClientProvider>,
     );
