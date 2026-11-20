@@ -20783,6 +20783,7 @@
       "notBound": "Telefon anda belum diikat pada mana-mana mesin, jadi anda belum boleh merekod masa. Minta pejabat projek mengikat anda pada mesin anda di komputer, di \"Jam operator peralatan › Ikat pemandu pada mesin\".",
       "notYourMachine": "Mesin ini bukan mesin yang boleh anda rekod. Semak nombor mesin; jika pejabat baru sahaja mengikat anda padanya, buka semula halaman ini di tempat yang ada isyarat. Jika masih tidak boleh, hubungi pejabat projek.",
       "qrUnknown": "Tidak dapat mengenal pasti mesin bagi kod QR ini (diimbas: {text}). Mungkin ia bukan kod QR mesin projek ini, atau tidak diimbas dengan jelas. Imbas semula kod QR pada mesin; jika masih tidak boleh, tekan \"QR rosak? Taip nombor\" dan taip nombor mesin.",
+      "noLongerBound": "Anda telah memulakan {machines} dan ia belum ditamatkan, tetapi anda bukan lagi pemandu yang diikat padanya, jadi anda tidak boleh merekod tamat kerjanya. Minta pejabat menambah masa tamat untuk anda.",
       "staffViewOnly": "Jam mesin direkod oleh pemandu yang diikat pada mesin itu, menggunakan telefonnya sendiri. Kakitangan tapak tidak boleh merekod bagi pihak pemandu. Anda boleh melihat jam terkini di sini; untuk menambah atau membetulkan masa, hubungi pejabat projek."
     },
     "siteNo": {

@@ -31,7 +31,7 @@ vi.mock("@/components/providers/auth-provider", () => ({
   useAuth: () => ({ user: { id: "user-1" }, can: () => true }),
 }));
 
-const { EquipmentHoursCapture, boundMachinesLine, scanMissKind } = await import(
+const { EquipmentHoursCapture, boundMachinesLine, scanMissKind, strandedRecords } = await import(
   "@/components/equipment-hours/equipment-hours-capture"
 );
 const { isSystemMachineQr } = await import("@/lib/machine-scan");
@@ -348,6 +348,67 @@ describe("audit fix round (11-20): the office does not strand a running machine 
       "你已经不是这台设备的绑定司机，不能收工。请联系后台替你补结束时间。",
     );
   });
+
+  // His phone no longer lists the machine, so a scan never reaches the
+  // server's refusal: the page itself says it, from his own running record.
+  function record(siteNo: string, name: string, endAt: string | null) {
+    return {
+      key: `s-${siteNo}`,
+      work_date: "2026-11-20",
+      equipment_name: name,
+      equipment_code: `EQ-${siteNo}`,
+      site_no: siteNo,
+      operator_name: "Muthu",
+      start_at: "2026-11-20T00:00:00Z",
+      end_at: endAt,
+      hours: null,
+      normal_hours: null,
+      overtime_hours: null,
+      missing_end: false,
+    };
+  }
+  const totals = { normal_hours: "0", overtime_hours: "0", total_hours: "0", session_count: 0 };
+  const TODAY_KEY = ["equipment-hours", "phone-records", "operator-today"] as const;
+  const LINK_RECORDS_KEY = ["equipment-hours", "driver-records", "link-token"] as const;
+
+  it("knows which machines he started and may no longer stop", () => {
+    const bound = [machine("m15", "15", "吊车")];
+    const rows = [
+      record("12", "挖土机", null),
+      record("15", "吊车", null),
+      record("17", "压路机", "2026-11-20T03:00:00Z"),
+      { ...record("12", "挖土机", null), key: "s-12b" },
+    ];
+
+    expect(strandedRecords(rows, bound).map((row) => row.site_no)).toEqual(["12"]);
+    expect(strandedRecords([], bound)).toEqual([]);
+  });
+
+  it("the unbound driver's phone says it before he tries, on the operator's page and on a link", () => {
+    const sentence = "你开工的 12 号 · 挖土机 还没有收工，但你已经不是它的绑定司机，不能收工。请联系后台替你补结束时间。";
+
+    const operatorPage = render(<EquipmentHoursCapture initialProject="project-1" operator />, [
+      [OPERATOR_KEY, [machine("m15", "15", "吊车")]],
+      [TODAY_KEY, { date: "2026-11-20", rows: [record("12", "挖土机", null)], totals }],
+    ]);
+    expect(operatorPage).toContain('data-testid="hours-no-longer-bound"');
+    expect(operatorPage).toContain(sentence);
+    expect(operatorPage).toContain(phone.scanBig);
+
+    const link = render(<EquipmentHoursCapture driver={{ token: "link-token", device: "phone-1" }} />, [
+      [LINK_KEY, []],
+      [LINK_RECORDS_KEY, { days: 30, rows: [record("12", "挖土机", null)], month_totals: totals }],
+    ]);
+    expect(link).toContain(sentence);
+    expect(link).toContain(phone.notBound);
+
+    // Still bound, or already stopped: nothing to say.
+    const still = render(<EquipmentHoursCapture initialProject="project-1" operator />, [
+      [OPERATOR_KEY, [machine("m12", "12", "挖土机")]],
+      [TODAY_KEY, { date: "2026-11-20", rows: [record("12", "挖土机", null)], totals }],
+    ]);
+    expect(still).not.toContain('data-testid="hours-no-longer-bound"');
+  });
 });
 
 describe("the words are there in all four languages", () => {
@@ -362,7 +423,7 @@ describe("the words are there in all four languages", () => {
       ]) {
         expect((messages.errors.api as Record<string, string>)[code]).toBeTruthy();
       }
-      for (const key of ["notBound", "notYourMachine", "qrUnknown", "staffViewOnly", "boundLine", "boundMore"]) {
+      for (const key of ["notBound", "notYourMachine", "qrUnknown", "noLongerBound", "staffViewOnly", "boundLine", "boundMore"]) {
         expect((messages.equipmentHours.phone as Record<string, string>)[key]).toBeTruthy();
       }
       expect(messages.driverBinding.open).toBeTruthy();

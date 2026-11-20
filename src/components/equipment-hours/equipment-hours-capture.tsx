@@ -17,15 +17,15 @@ import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ApiError } from "@/interfaces/api";
-import type { EquipmentHoursMachine, EquipmentPhotoKind } from "@/interfaces/equipment-hours";
+import type { EquipmentHoursMachine, EquipmentPhoneRecord, EquipmentPhotoKind } from "@/interfaces/equipment-hours";
 import { useDateFormat } from "@/lib/dates";
 import { asFix, type LocationFix } from "@/lib/field-location";
 import { getOfflineJobs } from "@/lib/offline-db";
 import { photoTakenAt } from "@/lib/photo-meta";
 import { isSystemMachineQr, matchScanned, squashCode } from "@/lib/machine-scan";
 import { cn } from "@/lib/utils";
-import { getDriverMachines } from "@/services/driver-clock.service";
-import { loadEquipmentHoursMachines } from "@/services/equipment-hours.service";
+import { getDriverMachines, getDriverMyRecords } from "@/services/driver-clock.service";
+import { getOperatorToday, loadEquipmentHoursMachines } from "@/services/equipment-hours.service";
 import { submitEquipmentHoursPhotoOfflineAware } from "@/services/offline-sync.service";
 
 /**
@@ -72,6 +72,26 @@ export function scanMissKind(text: string, bound: boolean): "qrNoMatch" | "notYo
 /** The number the phone shows to check a scan: the 设备编号, else the code. */
 export function machineNumber(machine: { code?: string; site_no?: string }): string {
   return machine.site_no || machine.code || "";
+}
+
+/**
+ * JB227 audit F1: the machines this driver started (his own running record)
+ * that his phone no longer lists - the office has unbound him while they ran,
+ * so he cannot take their 收工 and the office enters the end time. One per
+ * machine.
+ */
+export function strandedRecords(
+  records: readonly EquipmentPhoneRecord[],
+  machines: readonly { code?: string; site_no?: string }[],
+): EquipmentPhoneRecord[] {
+  const listed = new Set(machines.map(machineNumber));
+  const seen = new Set<string>();
+  return records.filter((row) => {
+    const number = row.site_no || row.equipment_code;
+    if (row.end_at || listed.has(number) || seen.has(number)) return false;
+    seen.add(number);
+    return true;
+  });
 }
 
 /**
@@ -302,6 +322,20 @@ export function EquipmentHoursCapture({
   // cannot clock, and says whom to ask.
   const bound = Boolean(driver || operator);
   const notBound = bound && machines.isSuccess && rows.length === 0;
+  // Audit F1: a machine he started that the office has since unbound him
+  // from is not on his list, so a scan never reaches the server's refusal -
+  // the page says it from his own running record (the same records the page
+  // lists, one cache).
+  // query-failure: an extra line; on a failed read the records list shows its own note and a 收工 still gets the server's refusal
+  const own = useQuery({
+    queryKey: driver
+      ? ["equipment-hours", "driver-records", driver.token]
+      : ["equipment-hours", "phone-records", "operator-today"],
+    queryFn: (): Promise<{ rows: EquipmentPhoneRecord[] }> =>
+      driver ? getDriverMyRecords(driver.token, driver.device) : getOperatorToday(),
+    enabled: bound && machines.isSuccess,
+  });
+  const stranded = bound && machines.isSuccess ? strandedRecords(own.data?.rows ?? [], rows) : [];
 
   const pick = (found: EquipmentHoursMachine) => {
     setMachine(found);
@@ -425,6 +459,22 @@ export function EquipmentHoursCapture({
       )}
 
       {last && <LastSentNote last={last} />}
+
+      {!machine && stranded.length > 0 ? (
+        <p
+          role="status"
+          data-testid="hours-no-longer-bound"
+          className="rounded-lg border border-warning/50 bg-warning/10 px-3 py-3 text-base font-medium leading-6"
+        >
+          {t("phone.noLongerBound", {
+            machines: stranded
+              .map((row) =>
+                t("phone.machineLine", { number: row.site_no || row.equipment_code, name: row.equipment_name }),
+              )
+              .join(t("phone.boundJoin")),
+          })}
+        </p>
+      ) : null}
 
       {!machine && notBound ? (
         <p

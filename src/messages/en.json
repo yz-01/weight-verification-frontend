@@ -20783,6 +20783,7 @@
       "notBound": "Your phone is not bound to any machine yet, so you cannot clock. Ask the project office to bind you to your machine on the computer, under \"Equipment operator hours › Bind drivers to machines\".",
       "notYourMachine": "This machine is not one you can clock. Check the machine number; if the office has just bound you to it, reopen this page where there is signal. If it still does not work, contact the project office.",
       "qrUnknown": "Cannot tell which machine this QR code is for (scanned: {text}). It may not be the QR code of a machine on this project, or it was not read clearly. Scan the QR code on the machine again; if that does not work, press \"QR damaged? Type the number\" and type the machine number.",
+      "noLongerBound": "You started {machines} and it has not been stopped, but you are no longer its bound driver, so you cannot clock its stop. Ask the office to add the end time for you.",
       "staffViewOnly": "Machine hours are clocked by the driver bound to the machine, on his own phone. Site staff cannot clock for a driver. You can see the recent hours here; to add or correct a time, contact the project office."
     },
     "siteNo": {
