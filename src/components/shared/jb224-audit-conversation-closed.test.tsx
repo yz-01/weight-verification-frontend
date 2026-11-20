@@ -26,7 +26,8 @@ vi.mock("@/components/field-staff/field-draft", async () => {
   const React = await import("react");
   return {
     FieldDraft: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-    useDraftState: (_key: string, initial?: unknown) => React.useState(initial),
+    // (key, initial): the initial value, kept in plain state.
+    useDraftState: (...args: unknown[]) => React.useState(args[1]),
     useClearDraft: () => () => {},
   };
 });
