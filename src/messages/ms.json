@@ -22014,7 +22014,20 @@
     "pending": "Menunggu",
     "noPending": "Tiada yang menunggu.",
     "photos": "Foto tapak terkini",
-    "noPhotos": "Belum ada foto tapak."
+    "noPhotos": "Belum ada foto tapak.",
+    "noPendingMine": "Tiada apa-apa yang menunggu tindakan anda sekarang.",
+    "safety": "Pembetulan bahaya / EHS",
+    "progress": "Kemajuan pembinaan",
+    "progressRecords": "Rekod kemajuan",
+    "rainRecords": "Rekod hujan",
+    "progressToday": "Hari ini",
+    "progressMonth": "Bulan ini",
+    "progressTotal": "Semua rekod",
+    "overall": "Kemajuan keseluruhan",
+    "percent": "{value}%",
+    "schedule": "Jadual pembinaan",
+    "consultantRefused": "Ibu pejabat telah mengubah atau menamatkan akses anda kepada projek ini, jadi tiada apa-apa boleh dipaparkan di sini. Tekan “Muat semula”; jika masih tiada, sila hubungi ibu pejabat.",
+    "reload": "Muat semula"
   },
   "draftRecords": {
     "delete": "Padam",
@@ -23113,5 +23126,9 @@
     "noPlace": "Projek ini belum ada lokasi dan geofence, jadi tiada peta untuk dipaparkan.",
     "drawFence": "Lukis geofence",
     "askAdmin": "Minta pentadbir syarikat melukis kawasan tapak di Tetapan geofence."
+  },
+  "consultantHome": {
+    "noProjects": "Anda belum diberi akses kepada mana-mana projek. Sila minta ibu pejabat kontraktor membukanya untuk anda.",
+    "chooseProject": "Pilih projek dahulu dalam kotak projek di bahagian atas halaman; papan pemuka projek itu akan dipaparkan di sini."
   }
 }

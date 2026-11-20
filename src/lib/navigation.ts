@@ -1972,6 +1972,15 @@ export const CONSULTANT_MENU = "consultant_menu";
 
 const CONSULTANT_REGISTRY = new Map<Portal, readonly FeatureNavItem[]>();
 
+/**
+ * Pages a consultant opens with their feature alone (JB226, 客户 11-19 事项 6:
+ * 「请沿用现有项目经理仪表板的设计及布局，包括工程照片墙…」): 工程照片墙 rides on
+ * 「仪表板」 and needs `dashboard.view` for the office, which is head office's
+ * 公司总部 dashboard and never his. For him the 仪表板 tick opens it, locked to
+ * his project and to the kinds of photo his ticks open (server side).
+ */
+const CONSULTANT_OPEN_PATHS: readonly string[] = ["/photo-timeline"];
+
 function asConsultant<T extends FeatureNavItem | FeatureNavChild>(entry: T): T {
   // JB225: 材料管理 / 工程进度 list the consultant's items instead.
   const own: readonly FeatureNavChild[] | undefined = (entry as FeatureNavItem).consultantChildren;
@@ -1980,6 +1989,7 @@ function asConsultant<T extends FeatureNavItem | FeatureNavChild>(entry: T): T {
     ...entry,
     ...(entry.consultantFeature ? { feature: entry.consultantFeature } : {}),
     ...(children ? { children } : {}),
+    ...(CONSULTANT_OPEN_PATHS.includes(entry.href) ? { requiredPermission: undefined } : {}),
   };
 }
 
@@ -2285,6 +2295,9 @@ export function isRouteAllowed(
   });
 
   if (!owned) return false;
+
+  // JB226: 工程照片墙 is open to a consultant under 仪表板 (`CONSULTANT_OPEN_PATHS`).
+  if (enabled.has(CONSULTANT_MENU) && CONSULTANT_OPEN_PATHS.includes(pathname)) return true;
 
   return actionRuleAllows(pathname, permissions, isSuperuser);
 }

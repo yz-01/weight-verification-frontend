@@ -22014,7 +22014,20 @@
     "pending": "Waiting",
     "noPending": "Nothing waiting.",
     "photos": "Latest site photos",
-    "noPhotos": "No site photos yet."
+    "noPhotos": "No site photos yet.",
+    "noPendingMine": "Nothing is waiting for you right now.",
+    "safety": "Hazard rectification / EHS",
+    "progress": "Construction progress",
+    "progressRecords": "Progress records",
+    "rainRecords": "Rainy weather records",
+    "progressToday": "Today",
+    "progressMonth": "This month",
+    "progressTotal": "All records",
+    "overall": "Overall progress",
+    "percent": "{value}%",
+    "schedule": "Construction schedule",
+    "consultantRefused": "Head office has changed or ended your access to this project, so nothing can be shown here. Press “Reload”; if you still see nothing, please contact head office.",
+    "reload": "Reload"
   },
   "draftRecords": {
     "delete": "Delete",
@@ -23113,5 +23126,9 @@
     "noPlace": "This project has no location and no geofence yet, so there is no map to show.",
     "drawFence": "Draw the geofence",
     "askAdmin": "Ask the company administrator to draw the site's extent under Geofence settings."
+  },
+  "consultantHome": {
+    "noProjects": "You have not been given access to any project yet. Please ask the contractor's head office to open one for you.",
+    "chooseProject": "First choose a project in the project box at the top of the page; that project's dashboard will then show here."
   }
 }

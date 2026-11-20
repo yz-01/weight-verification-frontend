@@ -1,4 +1,4 @@
-import type { ApprovalRow } from "@/interfaces/contractor-dashboard";
+import type { ApprovalRow, DashboardOverview } from "@/interfaces/contractor-dashboard";
 import type { MaterialTargetSummary } from "@/interfaces/material-target";
 
 /** 公司总部 Dashboard (C11, C13–C15, C19). */
@@ -133,25 +133,40 @@ export interface HeadquartersTotals extends HeadquartersCounts {
   material_targets?: MaterialTargetSummary;
 }
 
-/** 项目仪表板 (J34-5): one project's figures, as the client's picture lays them out. */
+/**
+ * 项目仪表板 (J34-5): one project's figures, as the client's picture lays them out.
+ *
+ * JB226 (客户 11-19 事项 6, 「没有授权的模块、卡片及相关数据一律隐藏」): a
+ * consultant reads the same payload with only the parts head office gave him -
+ * a part he is not granted is absent, so every part is optional here and the
+ * screen draws what it receives. The project manager's always carries the
+ * eight parts it always had; `progress`, `schedule` and `safety` come only to
+ * a consultant (the project manager reads them in 今日概览 below).
+ */
 export interface ProjectOverview {
   date: string;
   project: { id: string; code: string; name: string; latitude: string | null; longitude: string | null };
   cards: {
-    receipts_today_t: string;
-    receipts_yesterday_t: string;
-    waste_today_t: string;
-    waste_yesterday_t: string;
-    receipts_month_t: string;
-    receipts_total_t: string;
-    waste_month_t: string;
-    waste_total_t: string;
-    equipment_total: number;
-    equipment_on_site: number;
-    equipment_off_site: number;
-    pending_total: number;
+    receipts_today_t?: string;
+    receipts_yesterday_t?: string;
+    waste_today_t?: string;
+    waste_yesterday_t?: string;
+    receipts_month_t?: string;
+    receipts_total_t?: string;
+    waste_month_t?: string;
+    waste_total_t?: string;
+    equipment_total?: number;
+    equipment_on_site?: number;
+    equipment_off_site?: number;
+    pending_total?: number;
   };
-  latest_receipts: Array<{
+  /** 工程进度 (JB226): 施工进度 / 雨天记录 counts; 整体进度 with 施工进度 only. */
+  progress?: { today: number; month: number; total: number; weighted_progress?: string | null };
+  /** 施工计划进度 (JB226): the project manager's 今日概览 figures for this project. */
+  schedule?: DashboardOverview["schedule"];
+  /** 整改／EHS (JB226): the project manager's 安全巡检与整改 figures for this project. */
+  safety?: Pick<DashboardOverview["safety"], "pending_rectification" | "in_progress" | "overdue" | "completed">;
+  latest_receipts?: Array<{
     id: string;
     receipt_no: string;
     business_at: string | null;
@@ -162,10 +177,10 @@ export interface ProjectOverview {
     unit: string;
     acceptance_status: string;
   }>;
-  material_mix: Array<{ name: string; tonnes: string; other?: boolean }>;
-  waste_mix: Array<{ name: string; tonnes: string; other?: boolean }>;
-  pending: Array<{ feature: string; count: number }>;
-  photos: Array<{
+  material_mix?: Array<{ name: string; tonnes: string; other?: boolean }>;
+  waste_mix?: Array<{ name: string; tonnes: string; other?: boolean }>;
+  pending?: Array<{ feature: string; count: number }>;
+  photos?: Array<{
     kind: string;
     record_id: string;
     reference: string;

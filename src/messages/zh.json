@@ -22014,7 +22014,20 @@
     "pending": "待处理事项",
     "noPending": "没有待处理事项。",
     "photos": "最新现场照片记录",
-    "noPhotos": "还没有现场照片。"
+    "noPhotos": "还没有现场照片。",
+    "noPendingMine": "目前没有需要您处理的事项。",
+    "safety": "整改 / EHS",
+    "progress": "工程进度",
+    "progressRecords": "施工进度记录",
+    "rainRecords": "雨天记录",
+    "progressToday": "今日记录",
+    "progressMonth": "本月记录",
+    "progressTotal": "累计记录",
+    "overall": "整体进度",
+    "percent": "{value}%",
+    "schedule": "施工计划进度",
+    "consultantRefused": "总部已更改或停止您在这个项目的权限，这里暂时看不到内容。请按「重新载入」；如仍看不到，请联系总部。",
+    "reload": "重新载入"
   },
   "draftRecords": {
     "delete": "删除",
@@ -23113,5 +23126,9 @@
     "noPlace": "这个项目还没有设定位置，也还没有画电子围栏，地图不能显示。",
     "drawFence": "去画电子围栏",
     "askAdmin": "请公司管理员到「电子围栏设置」画出工地范围。"
+  },
+  "consultantHome": {
+    "noProjects": "您目前没有获授权的项目。请联系建筑商总部开通。",
+    "chooseProject": "请先在页面上方的项目框选一个项目，这里就会显示那个项目的仪表板。"
   }
 }

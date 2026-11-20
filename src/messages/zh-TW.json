@@ -22014,7 +22014,20 @@
     "pending": "待處理事項",
     "noPending": "沒有待處理事項。",
     "photos": "最新現場照片記錄",
-    "noPhotos": "還沒有現場照片。"
+    "noPhotos": "還沒有現場照片。",
+    "noPendingMine": "目前沒有需要您處理的事項。",
+    "safety": "整改 / EHS",
+    "progress": "工程進度",
+    "progressRecords": "施工進度記錄",
+    "rainRecords": "雨天記錄",
+    "progressToday": "今日記錄",
+    "progressMonth": "本月記錄",
+    "progressTotal": "累計記錄",
+    "overall": "整體進度",
+    "percent": "{value}%",
+    "schedule": "施工計劃進度",
+    "consultantRefused": "總部已更改或停止您在這個項目的權限，這裡暫時看不到內容。請按「重新載入」；如仍看不到，請聯絡總部。",
+    "reload": "重新載入"
   },
   "draftRecords": {
     "delete": "刪除",
@@ -23113,5 +23126,9 @@
     "noPlace": "這個項目還沒有設定位置，也還沒有畫電子圍欄，地圖不能顯示。",
     "drawFence": "去畫電子圍欄",
     "askAdmin": "請公司管理員到「電子圍欄設置」畫出工地範圍。"
+  },
+  "consultantHome": {
+    "noProjects": "您目前沒有獲授權的項目。請聯絡建築商總部開通。",
+    "chooseProject": "請先在頁面上方的項目框選一個項目，這裡就會顯示那個項目的儀表板。"
   }
 }
