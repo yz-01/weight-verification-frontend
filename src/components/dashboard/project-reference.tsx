@@ -42,10 +42,16 @@ import {
 import { useFormatter, useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 
 import { ScheduleSummary } from "@/components/dashboard/contractor-dashboard";
 import { Delta } from "@/components/dashboard/headquarters-reference";
 import { ProjectSiteMap } from "@/components/dashboard/project-site-map";
+import {
+  ReceiptSignerWindow,
+  SignerButton,
+  type LatestReceiptRow,
+} from "@/components/dashboard/receipt-signer-window";
 import { useAuth } from "@/components/providers/auth-provider";
 import { KpiCard } from "@/components/shared/kpi-card";
 import { LoadFailed } from "@/components/shared/page-primitives";
@@ -290,6 +296,10 @@ function LatestReceipts({ data, project }: { data: ProjectOverview; project: str
   const units = useTranslations("receipts.unit");
   const df = useDateFormat();
   const rows = data.latest_receipts ?? [];
+  // 签收人 (JB234): the row whose window is open, and the delivery's own
+  // window behind 【打开这笔材料进场】.
+  const [signing, setSigning] = useState<LatestReceiptRow | null>(null);
+  const opener = useRecordOpener();
   return (
     <Panel
       title={t("latestReceipts")}
@@ -307,7 +317,8 @@ function LatestReceipts({ data, project }: { data: ProjectOverview; project: str
           {rows.map((row) => (
             <li key={row.id} className="flex flex-wrap items-center gap-x-4 gap-y-0.5 py-2 text-sm">
               {/* A phone wraps the row (J34-5): number and time, then
-                  supplier and material, then quantity and state. */}
+                  supplier and material, then quantity, state and 签收人
+                  (JB234), whose name wraps rather than being cut. */}
               <Link href={`/receipts/${row.id}`} className="shrink-0 font-medium text-primary hover:underline sm:w-32">
                 {row.receipt_no}
               </Link>
@@ -321,10 +332,28 @@ function LatestReceipts({ data, project }: { data: ProjectOverview; project: str
               <span className={cn("shrink-0 rounded-full px-2 py-0.5 text-2xs", row.acceptance_status === "ACCEPTED" ? TONES.green.soft : TONES.amber.soft)}>
                 {status.has(row.acceptance_status) ? status(row.acceptance_status) : row.acceptance_status}
               </span>
+              <SignerButton signer={row.signer} onOpen={() => setSigning(row)} />
             </li>
           ))}
         </ul>
       )}
+      {signing ? (
+        <ReceiptSignerWindow
+          row={signing}
+          onClose={() => setSigning(null)}
+          onOpenReceipt={() => {
+            const row = signing;
+            setSigning(null);
+            opener.open("MATERIAL_RECEIPT", row.id, {
+              reference: row.receipt_no,
+              project_id: data.project.id,
+              project_name: data.project.name,
+              submitted_at: row.business_at,
+            });
+          }}
+        />
+      ) : null}
+      {opener.sheet}
     </Panel>
   );
 }
