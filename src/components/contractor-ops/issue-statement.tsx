@@ -62,6 +62,7 @@ import type {
 } from "@/interfaces/contractor-ops";
 import { useDateFormat } from "@/lib/dates";
 import { issueMoney, statementLetterhead, type MoneyCell } from "@/lib/issue-money";
+import { materialLineLabel } from "@/lib/material-totals";
 import {
   exportMaterialIssueStatement,
   getMaterialIssueStatement,
@@ -73,15 +74,26 @@ export function useMoney() {
   return (value: string) => formatter.number(Number(value), { style: "currency", currency: "MYR" });
 }
 
-/** 「180.000 Liter；20.000 吨」: one figure per unit, never added across units. */
+/**
+ * 「柴油 180.000 Liter　液压油 ISO 46 40.000 Liter」: one figure per material +
+ * specification + unit (JB232, 客户 11-20 事项 4), never added across
+ * materials, specifications or units.
+ */
 function UnitQuantities({ quantities }: { quantities: readonly MaterialIssueUnitTotal[] }) {
   const unitName = useUnitName();
   if (!quantities.length) return <span className="text-muted-foreground">—</span>;
   return (
     <span className="inline-flex flex-wrap gap-x-3 gap-y-0.5">
       {quantities.map((row) => (
-        <span key={row.unit} className="tabular font-semibold">
-          {row.quantity} {unitName(row.unit)}
+        <span
+          key={`${row.material_name}|${row.material_specification}|${row.unit}`}
+          className="tabular"
+          data-issue-quantity
+        >
+          <span className="text-muted-foreground">{materialLineLabel(row)}</span>{" "}
+          <span className="font-semibold">
+            {row.quantity} {unitName(row.unit)}
+          </span>
         </span>
       ))}
     </span>

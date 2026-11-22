@@ -999,9 +999,17 @@ export interface MaterialIssueListRow {
 }
 
 /** One unit's total of the issues counted (never added across units). */
+/**
+ * One line of 领用数量: per material + specification + unit (JB232, 客户
+ * 11-20 事项 4) - 200 L of diesel and 50 L of hydraulic oil are two lines,
+ * never 250 L. `records`: the issues behind it.
+ */
 export interface MaterialIssueUnitTotal {
+  material_name: string;
+  material_specification: string;
   unit: string;
   quantity: string;
+  records?: number;
 }
 
 /**
@@ -1651,6 +1659,19 @@ export interface CategorySummary {
   } | null;
   /** How many suppliers delivered into it, or null where records have none. */
   suppliers: number | null;
+  /**
+   * JB232 (客户 11-20 事项 4): a material column holding more than one
+   * material + specification in its unit has no one quantity - `measure` is
+   * then `count` (deliveries) and each material line's own total is here.
+   */
+  materials?: Array<{
+    material_name: string;
+    material_specification: string;
+    unit: string;
+    unit_label: string | null;
+    quantity: string;
+    deliveries: number;
+  }>;
 }
 
 export interface ArchiveQueuePage {

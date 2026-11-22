@@ -156,6 +156,7 @@ import {
   getSiteProgressSummary,
   reviewMaterialOutgoing,
 } from "@/services/contractor-ops.service";
+import { materialUnitSummary } from "@/services/contractor.service";
 import { getEquipmentToday } from "@/services/equipment-hours.service";
 import { InspectionBadge } from "@/components/document-workflow/inspection";
 import { LIST_FITS } from "@/lib/list-fits";
@@ -511,13 +512,8 @@ export function MaterialOutgoingOffice() {
         { key: "return_note_no", label: t("returnNote.number") },
         { key: "approver_name", label: t("returnNote.approverName") },
       ],
-      summary: {
-        groupBy: "unit",
-        title: tRoot("exportTotals.title"),
-        unitLabel: t("field.unit"),
-        quantityLabel: tRoot("exportTotals.quantity"),
-        note: tRoot("exportTotals.note"),
-      },
+      // Per material + specification + unit, never per unit alone (JB232).
+      summary: materialUnitSummary(tRoot, t("field.unit")),
     });
 
   const detailAndDialogs = (

@@ -180,6 +180,7 @@ import { disposalTaskTitle } from "@/lib/field-task-title";
 import {
   getProjectAssignments,
   getSuppliers,
+  materialUnitSummary,
   scanSupplierQr,
 } from "@/services/contractor.service";
 import { getRoles } from "@/services/users.service";
@@ -3738,15 +3739,9 @@ export function MaterialOutgoingWorkspace({ initialProject = "", fieldTaskId, on
         { key: "submitted_by_name", label: t("outgoing.submittedBy") },
         { key: "captured_at", label: t("outgoing.capturedAt") },
       ],
-      // Per-unit totals at the foot of the PDF, never added across units -
-      // the same block the receipt export prints.
-      summary: {
-        groupBy: "unit",
-        title: tRoot("exportTotals.title"),
-        unitLabel: t("field.unit"),
-        quantityLabel: tRoot("exportTotals.quantity"),
-        note: tRoot("exportTotals.note"),
-      },
+      // Totals at the foot of the PDF per material + specification + unit
+      // (JB232, 客户 11-20 事项 4) - never added across materials or specs.
+      summary: materialUnitSummary(tRoot, t("field.unit")),
     });
   const reviewRow = (
     row: MaterialOutgoing,
