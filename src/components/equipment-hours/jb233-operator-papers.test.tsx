@@ -86,7 +86,6 @@ function papers(overrides: Partial<OperatorPapers> = {}): OperatorPapers {
             preview_type: "application/pdf",
             byte_size: 1000,
             is_image: false,
-            url: "https://api.test/media/excavator.pdf",
             uploaded_at: "2026-11-20T01:00:00Z",
             uploaded_by_name: "mike",
           },
@@ -113,7 +112,6 @@ function papers(overrides: Partial<OperatorPapers> = {}): OperatorPapers {
         preview_type: "image/jpeg",
         byte_size: 1000,
         is_image: true,
-        url: "https://api.test/media/cidb.jpg",
         uploaded_at: "2026-11-20T01:00:00Z",
         uploaded_by_name: "mike",
       },
@@ -190,9 +188,12 @@ describe("the 操作人员资料 window", () => {
     expect(html).toContain(papersWords.expiresOn.replace("{date}", "01/12/2026"));
     expect(html).toContain(papersWords.validTo.replace("{date}", "30/06/2027"));
     expect(html).toContain(papersWords.noDate);
-    // The files: a photo's picture, a PDF's tile.
-    expect(html).toContain("https://api.test/media/cidb.jpg");
+    // The files: each a tile named after the file. A photo's picture is
+    // fetched with the session afterwards (certificate_file) - never a bare
+    // storage address in the page.
+    expect(html).toContain('aria-label="cidb.jpg"');
     expect(html).toContain("excavator.pdf");
+    expect(html).not.toContain("/media/");
   });
 
   it("puts a red banner on top when a paper has expired", () => {

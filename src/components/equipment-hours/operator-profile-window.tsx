@@ -20,7 +20,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AlertTriangle, FileText, Loader2, PencilLine, Plus, Trash2, Upload, UserRound } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { FilePreviewDialog } from "@/components/shared/file-preview";
@@ -181,6 +181,45 @@ function Fact({ label, value }: { label: string; value: ReactNode }) {
   );
 }
 
+/** A PDF, an iPhone HEIC or a photo not loaded (yet): its type on a tile. */
+function FileTile({ name }: { name: string }) {
+  return (
+    <span className="flex flex-col items-center gap-1 text-xs text-muted-foreground">
+      <FileText className="size-6" />
+      {name.split(".").pop()?.toUpperCase()}
+    </span>
+  );
+}
+
+/**
+ * A photo's thumbnail, fetched with the session through `certificate_file`
+ * - the same permission check as the viewer, never a bare storage address.
+ * Until it arrives, or when it cannot be read, the file tile.
+ */
+function PaperThumb({ file }: { file: OperatorPaperFile }) {
+  const [url, setUrl] = useState<string | null>(null);
+  useEffect(() => {
+    let live = true;
+    let made: string | null = null;
+    operatorFileObjectUrl(file, { silent: true })
+      .then((objectUrl) => {
+        made = objectUrl;
+        if (live) setUrl(objectUrl);
+        else URL.revokeObjectURL(objectUrl);
+      })
+      .catch(() => {
+        // The tile stays: the viewer still offers the file and says why.
+      });
+    return () => {
+      live = false;
+      if (made) URL.revokeObjectURL(made);
+    };
+  }, [file]);
+  if (!url) return <FileTile name={file.original_name} />;
+  // eslint-disable-next-line @next/next/no-img-element
+  return <img src={url} alt={file.original_name} className="size-full object-cover" />;
+}
+
 /** The photos or PDFs of one card; a tap opens the in-page viewer. */
 export function PaperFiles({
   files,
@@ -207,15 +246,7 @@ export function PaperFiles({
               aria-label={file.original_name}
               onClick={() => setOpen(file)}
             >
-              {file.is_image && file.url ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={file.url} alt={file.original_name} className="size-full object-cover" />
-              ) : (
-                <span className="flex flex-col items-center gap-1 text-xs text-muted-foreground">
-                  <FileText className="size-6" />
-                  {file.original_name.split(".").pop()?.toUpperCase()}
-                </span>
-              )}
+              {file.is_image ? <PaperThumb file={file} /> : <FileTile name={file.original_name} />}
             </button>
             {canRemove && onRemove ? (
               <Button
@@ -450,8 +481,9 @@ export function PapersEdit({ papers, onDone }: { papers: OperatorPapers; onDone:
         licence_no: licenceNo.trim(),
         licence_class: licenceClass.trim(),
         licence_expires_on: licenceUntil || null,
-        certificates: certificates.map(({ key: _key, ...row }) => ({
-          ...row,
+        certificates: certificates.map((row) => ({
+          ...(row.id ? { id: row.id } : {}),
+          category: row.category,
           title: row.title.trim(),
           number: row.number.trim(),
           issued_on: row.issued_on || null,
