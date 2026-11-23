@@ -200,7 +200,6 @@ describe("the office page 设备操作员工时", () => {
       words.field.equipmentName,
       words.field.supplier,
       words.field.operator,
-      words.field.cidb,
       words.field.date,
       words.field.startTime,
       words.field.endTime,
@@ -209,6 +208,9 @@ describe("the office page 设备操作员工时", () => {
     ].map((label) => html.indexOf(`>${label}<`));
     expect(order.every((at) => at > 0)).toBe(true);
     expect([...order].sort((a, b) => a - b)).toEqual(order);
+    // JB233 (客户 11-20 事项 5): 「列表只需要显示操作人员姓名」 - the CIDB 卡号 is in
+    // the papers the name opens, not a column (the export keeps it).
+    expect(html).not.toContain(`>${words.field.cidb}<`);
     // The office fills the operator in the table (ID19).
     expect(page).toContain(words.operator.fill);
   });

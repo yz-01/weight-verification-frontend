@@ -12,8 +12,13 @@ import type {
   EquipmentPhoneTotals,
   EquipmentPhotoKind,
   EquipmentSessionOperatorPayload,
+  OperatorFileSection,
+  OperatorPaperFile,
+  OperatorPapers,
+  OperatorPapersPayload,
+  RegisteredOperator,
 } from "@/interfaces/equipment-hours";
-import { api, download, toastSuccess } from "@/services/api-client";
+import { api, download, fetchObjectUrl, toastSuccess } from "@/services/api-client";
 import {
   exportBody,
   exportQuery,
@@ -308,4 +313,57 @@ export interface EquipmentToday {
 
 export function getEquipmentToday(project?: string): Promise<EquipmentToday> {
   return api.get<EquipmentToday>("/api/equipment-hours/today_status/", project ? { project } : undefined);
+}
+
+// -- 操作人员资料 (JB233, 客户 11-20 事项 5) ------------------------------------
+
+const OPERATORS = "/api/equipment-operators";
+
+/** 「选择已登记的操作人员」: the project's driver links and operator accounts. */
+export function listRegisteredOperators(project: string): Promise<RegisteredOperator[]> {
+  return api.get<RegisteredOperator[]>(`${OPERATORS}/list_operators/`, { project });
+}
+
+/** One operator's papers, by his profile or by his driver link. */
+export function getOperatorPapers(by: { profile?: string; link?: string }): Promise<OperatorPapers> {
+  return api.get<OperatorPapers>(
+    `${OPERATORS}/get_operator/`,
+    by.profile ? { profile: by.profile } : { link: by.link ?? "" },
+  );
+}
+
+export async function saveOperatorPapers(payload: OperatorPapersPayload): Promise<OperatorPapers> {
+  const saved = await api.post<OperatorPapers>(`${OPERATORS}/save_operator/`, payload);
+  toastSuccess("equipmentHours.toast.operatorSaved");
+  return saved;
+}
+
+export function uploadOperatorFile(payload: {
+  profile: string;
+  section: OperatorFileSection;
+  certificate?: string;
+  file: File;
+}): Promise<OperatorPaperFile> {
+  const data = new FormData();
+  data.append("profile", payload.profile);
+  data.append("section", payload.section);
+  if (payload.certificate) data.append("certificate", payload.certificate);
+  data.append("file", payload.file);
+  return api.post<OperatorPaperFile>(`${OPERATORS}/upload_certificate_file/`, data);
+}
+
+export function removeOperatorFile(file: string): Promise<{ id: string }> {
+  return api.post<{ id: string }>(`${OPERATORS}/remove_certificate_file/`, { file });
+}
+
+/** The file itself, fetched with the session, for the in-page viewer. */
+export function operatorFileObjectUrl(file: Pick<OperatorPaperFile, "id">): Promise<string> {
+  return fetchObjectUrl(`${OPERATORS}/certificate_file/`, { query: { file: file.id, inline: "1" } });
+}
+
+export function downloadOperatorFile(file: Pick<OperatorPaperFile, "id" | "original_name">): Promise<void> {
+  return download(`${OPERATORS}/certificate_file/`, {
+    query: { file: file.id },
+    fallbackFilename: file.original_name,
+  });
 }
