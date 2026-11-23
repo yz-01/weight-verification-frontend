@@ -4654,7 +4654,10 @@
         "completion": "Kemajuan",
         "suppliers": "Pembekal",
         "suppliersNote": "yang menghantar ke sini",
-        "otherUnits": "Hanya penghantaran dalam {unit} dikira; unit lain tidak ditukar dan tidak dikira."
+        "otherUnits": "Hanya penghantaran dalam {unit} dikira; unit lain tidak ditukar dan tidak dikira.",
+        "materials": "Kuantiti terkumpul mengikut bahan, spesifikasi dan unit",
+        "materialsNote": "Kategori ini mempunyai bahan atau spesifikasi berbeza yang tidak boleh dijumlahkan: angka di atas mengira penghantaran, dan setiap bahan, spesifikasi dan unit mempunyai jumlahnya sendiri di sini.",
+        "materialsDeliveries": "{count} penghantaran"
       },
       "stage": {
         "label": "Ikut status",
@@ -11546,10 +11549,10 @@
       "returnsHint": "Kuantiti yang benar-benar dipulangkan sahaja, mengikut bahan dan spesifikasi. Tidak ditolak daripada yang diterima.",
       "byMaterial": "Kuantiti mengikut bahan",
       "deliveryCount": "{count} penghantaran",
-      "subtitle": "Kuantiti diterima dikumpulkan tanpa mencampurkan unit yang tidak serasi.",
+      "subtitle": "Kuantiti diterima mengikut bahan, spesifikasi dan unit.",
       "title": "Laporan kuantiti bahan",
       "totalDeliveries": "Jumlah penghantaran",
-      "unitNote": "Kuantiti kekal dikumpulkan mengikut unit; tan, unit dan muatan tidak dicampurkan.",
+      "unitNote": "Kuantiti dijumlahkan mengikut bahan, spesifikasi dan unit sahaja: bahan atau spesifikasi berbeza dalam unit yang sama tidak pernah dijumlahkan.",
       "cumulativeHint": "Kuantiti terkumpul = penghantaran yang dikira di sebelahnya dijumlahkan (tempoh dipilih, atau semua dari penghantaran pertama jika tiada tarikh). Muatan ditolak tidak dikira dan pemulangan tidak ditolak."
     },
     "records": {
@@ -15791,7 +15794,7 @@
       "title": "Bahan diterima",
       "totalReceipts": "Penghantaran",
       "unit": "Unit",
-      "unitNote": "Kuantiti dikumpulkan mengikut unit. Tan dan unit tidak pernah dicampur — satu jumlah merentas kedua-duanya nampak seperti jawapan tetapi bukan."
+      "unitNote": "Setiap bar ialah satu bahan dan spesifikasi; bar dikumpulkan mengikut unit supaya hanya yang sama dibandingkan. Tiada jumlah mengikut unit — bahan berbeza dalam unit yang sama tidak dijumlahkan."
     },
     "subtitle": "Bahan masuk dan sisa keluar, merentas projek yang anda boleh lihat.",
     "title": "Laporan",
@@ -19449,7 +19452,14 @@
     "title": "Jumlah terkumpul, mengikut unit",
     "quantity": "Jumlah kuantiti",
     "collections": "Bilangan kutipan",
-    "note": "Kuantiti dalam unit berbeza tidak boleh dijumlahkan, jadi setiap unit dikira berasingan dan tiada angka gabungan."
+    "note": "Kuantiti dalam unit berbeza tidak boleh dijumlahkan, jadi setiap unit dikira berasingan dan tiada angka gabungan.",
+    "materialTitle": "Jumlah terkumpul, mengikut bahan, spesifikasi dan unit",
+    "materialNote": "Hanya rekod dengan nama bahan, spesifikasi dan unit yang sama dijumlahkan; bahan atau spesifikasi berbeza disenaraikan berasingan, dan tiada jumlah mengikut unit.",
+    "material": "Bahan",
+    "specification": "Spesifikasi",
+    "records": "Bilangan rekod",
+    "noSpec": "(tiada spesifikasi)",
+    "noUnit": "(tiada unit)"
   },
   "recordClosure": {
     "title": "Sahkan dan arkibkan",

@@ -867,10 +867,19 @@ export interface DeliveryNoteOCRResult {
   proof: string;
 }
 
-/** One 「不合格」 / 「退货」 card (J36): how many records, and the quantity per unit. */
+/**
+ * One 「不合格」 / 「退货」 card (J36): how many records, and the quantity per
+ * material + specification + unit (JB232 - never per unit alone).
+ */
 export interface ReceiptSummaryCard {
   count: number;
-  by_unit: Array<{ unit: MaterialUnit; quantity: string; count: number }>;
+  by_material: Array<{
+    material_name: string;
+    material_specification: string;
+    unit: MaterialUnit;
+    quantity: string;
+    count: number;
+  }>;
 }
 
 export interface ReceiptSummary {
@@ -883,17 +892,12 @@ export interface ReceiptSummary {
   priced_receipts: number;
   unpriced_receipts: number;
   /**
+   * 「按材料统计数量」: per material, specification and unit (E5) - the only
+   * quantity figures (JB232: the per-unit ones added different materials).
    * 数量 is the filter period; 累计数量 runs from the first delivery to the
    * period's last day. Both count deliveries not rejected and never take a
    * return off (E5, Q24, Q4).
    */
-  by_unit: Array<{
-    unit: MaterialUnit;
-    quantity: string;
-    cumulative_quantity: string;
-    receipts: number;
-  }>;
-  /** 「按材料统计数量」: per material, specification and unit (E5). */
   quantity_by_material: Array<{
     material_name: string;
     material_specification: string;

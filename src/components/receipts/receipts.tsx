@@ -31,6 +31,7 @@ import { CategoryOptionItems } from "@/components/shared/category-options";
 import {
   getReceipts,
   exportReceipts,
+  materialUnitSummary,
   type ExportFormat,
 } from "@/services/contractor.service";
 import {
@@ -420,13 +421,9 @@ export function Receipts() {
               receivedLabel: t("receipts.net.received"),
               returnedLabel: t("receipts.net.returned"),
             }
-          : {
-              groupBy: "unit",
-              title: t("exportTotals.title"),
-              unitLabel: t("receipts.field.unit"),
-              quantityLabel: t("exportTotals.quantity"),
-              note: t("exportTotals.note"),
-            },
+          : // Per material + specification + unit, never per unit alone
+            // (JB232, 客户 11-20 事项 4).
+            materialUnitSummary(t, t("receipts.field.unit")),
       columns: [
         { key: "receipt_no", label: t("receipts.field.receiptNo") },
         { key: "business_at", label: t("receipts.field.businessAt") },

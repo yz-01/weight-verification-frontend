@@ -407,8 +407,8 @@ function totals(overrides: Partial<MaterialIssueTotals> = {}): MaterialIssueTota
     counted_lines: 50,
     waiting_lines: 2,
     quantities: [
-      { unit: "Liter", quantity: "9000.000" },
-      { unit: "TONNE", quantity: "2.000" },
+      { material_name: "Diesel", material_specification: "", unit: "Liter", quantity: "9000.000" },
+      { material_name: "Rebar", material_specification: "Y12", unit: "TONNE", quantity: "2.000" },
     ],
     amount_total: "31500.00",
     unpriced_lines: 1,
@@ -545,7 +545,7 @@ const STATEMENT: MaterialIssueStatement = {
   totals: {
     lines: 2,
     records: 2,
-    quantities: [{ unit: "Liter", quantity: "200.000" }],
+    quantities: [{ material_name: "Diesel", material_specification: "", unit: "Liter", quantity: "200.000" }],
     amount_total: "630.00",
     unpriced_lines: 1,
   },

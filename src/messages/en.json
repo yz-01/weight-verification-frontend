@@ -4654,7 +4654,10 @@
         "completion": "Completion",
         "suppliers": "Suppliers",
         "suppliersNote": "who delivered here",
-        "otherUnits": "Only deliveries in {unit} are counted; other units are not converted and are left out."
+        "otherUnits": "Only deliveries in {unit} are counted; other units are not converted and are left out.",
+        "materials": "Cumulative quantity by material, specification and unit",
+        "materialsNote": "This category holds different materials or specifications, which cannot be added together: the figures above count deliveries, and each material, specification and unit has its own total here.",
+        "materialsDeliveries": "{count, plural, one {# delivery} other {# deliveries}}"
       },
       "stage": {
         "label": "By state",
@@ -11546,10 +11549,10 @@
       "returnsHint": "Quantity actually returned only, by material and specification. Never taken off what was received.",
       "byMaterial": "Quantity by material",
       "deliveryCount": "{count, plural, one {# delivery} other {# deliveries}}",
-      "subtitle": "Received quantities grouped without mixing incompatible units.",
+      "subtitle": "Received quantities per material, specification and unit.",
       "title": "Material quantity report",
       "totalDeliveries": "Total deliveries",
-      "unitNote": "Quantities remain grouped by unit; tonnes, pieces and loads are never added together.",
+      "unitNote": "Quantities are totalled per material, specification and unit only: different materials or specifications in the same unit are never added together.",
       "cumulativeHint": "Cumulative quantity = the deliveries counted beside it, added up (the chosen period, or everything from the first delivery when no dates are set). Rejected loads never count and returns are not taken off."
     },
     "records": {
@@ -15791,7 +15794,7 @@
       "title": "Material received",
       "totalReceipts": "Deliveries",
       "unit": "Unit",
-      "unitNote": "Quantities are grouped by unit. Tonnes and pieces are never added together — a single total across both would look like an answer and would not be one."
+      "unitNote": "Each bar is one material and specification; bars are grouped by unit so only like is compared with like. Nothing is totalled per unit — different materials in the same unit are not added together."
     },
     "subtitle": "Material in and waste out, across the projects you can see.",
     "title": "Reports",
@@ -19449,7 +19452,14 @@
     "title": "Cumulative totals, per unit",
     "quantity": "Total quantity",
     "collections": "Collections",
-    "note": "Quantities in different units cannot be added, so each unit is totalled separately and there is no combined figure."
+    "note": "Quantities in different units cannot be added, so each unit is totalled separately and there is no combined figure.",
+    "materialTitle": "Cumulative totals, per material, specification and unit",
+    "materialNote": "Only records with the same material name, specification and unit are added together; different materials or specifications are listed separately, and nothing is totalled by unit.",
+    "material": "Material",
+    "specification": "Specification",
+    "records": "Records",
+    "noSpec": "(no specification)",
+    "noUnit": "(no unit)"
   },
   "recordClosure": {
     "title": "Confirm and archive",
