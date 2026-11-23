@@ -57,10 +57,10 @@ describe("MR table columns (D3)", () => {
     // `.v4` since the request type came back (I16); `.v3` brought the
     // manufacturer and supplier columns (2026-10 D1); `.v6` since the list
     // hides some columns by default to fit 1366 px (I39); `.v7` for the four
-    // 64 px photos a row (J34-2).
+    // 64 px photos a row (J34-2); `.v8` for 执行状态 (JB231).
     expect(source).toContain("storageKey={LIST_FITS.materialRequests.storageKey}");
     expect(source).toContain("defaultHidden={LIST_FITS.materialRequests.hidden}");
-    expect(LIST_FITS.materialRequests.storageKey).toBe("material-requests.v7");
+    expect(LIST_FITS.materialRequests.storageKey).toBe("material-requests.v8");
     expect(source).not.toMatch(/storageKey="material-requests/);
   });
 

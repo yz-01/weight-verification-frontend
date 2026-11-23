@@ -1,7 +1,8 @@
 "use client";
 
-import { useInfiniteQuery } from "@tanstack/react-query";
-import { ExternalLink, Loader2 } from "lucide-react";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { ClipboardCheck, ExternalLink, Loader2 } from "lucide-react";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
@@ -10,6 +11,7 @@ import {
   useApprovalOpener,
 } from "@/components/dashboard/approval-opener";
 import { WaitingFor } from "@/components/dashboard/contractor-dashboard";
+import { useAuth } from "@/components/providers/auth-provider";
 import { LoadFailed } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { useCurrentProject, usePageProject } from "@/components/providers/current-project-provider";
@@ -19,6 +21,7 @@ import type { ApprovalSource } from "@/interfaces/headquarters";
 import { useDateFormat } from "@/lib/dates";
 import { cn } from "@/lib/utils";
 import { getApprovalQueue } from "@/services/contractor-dashboard.service";
+import { getMaterialRequests } from "@/services/material-request.service";
 
 const PAGE_SIZE = 20;
 
@@ -93,6 +96,7 @@ export function HeadquartersApprovals({ initialProject = "" }: { initialProject?
           </span>
         )}
       </div>
+      <ApprovedOpenRequests project={project} />
       <div role="group" aria-label={t("kinds")} className="flex flex-wrap gap-1.5">
         <Chip active={source === ""} onClick={() => setSource("")}>
           {t("allKinds")} {all}
@@ -166,6 +170,45 @@ export function HeadquartersApprovals({ initialProject = "" }: { initialProject?
         </div>
       )}
       {opener.element}
+    </div>
+  );
+}
+
+/**
+ * 「已批准未完成」 (JB231, 客户 11-20 事项 3: 「总部可以随时查看哪些批准事项仍未
+ * 完成」): approved MR / 其他申请 whose project manager has not pressed
+ * 「确认完成」, counted by the list itself so the number and the list it opens
+ * cannot disagree.
+ */
+export function ApprovedOpenRequests({ project }: { project: string }) {
+  const t = useTranslations("headquarters.approvals");
+  const { can } = useAuth();
+  const allowed = can("material_request.view");
+  const open = useQuery({
+    queryKey: ["material-requests", "approved-open", project],
+    queryFn: () => getMaterialRequests({ execution_status: "OPEN", page_size: 1, ...(project ? { project } : {}) }),
+    enabled: allowed,
+  });
+  if (!allowed) return null;
+  if (open.isError) return <LoadFailed onRetry={() => void open.refetch()} />;
+  const count = open.data?.count;
+  const params = new URLSearchParams({ execution_status: "OPEN" });
+  if (project) params.set("project", project);
+  return (
+    <div
+      data-approved-open-requests
+      className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-warning/30 bg-warning/5 px-3 py-2"
+    >
+      <span className="min-w-0">
+        <span className="flex items-center gap-1.5 text-sm font-medium">
+          <ClipboardCheck className="size-4 text-warning" aria-hidden />
+          {t("openRequests", { count: count ?? "…" })}
+        </span>
+        <span className="block text-xs text-muted-foreground">{t("openRequestsHelp")}</span>
+      </span>
+      <Link href={`/material-requests?${params.toString()}`} className="shrink-0 text-xs font-medium text-primary underline-offset-4 hover:underline">
+        {t("openRequestsView")}
+      </Link>
     </div>
   );
 }
