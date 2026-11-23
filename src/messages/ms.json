@@ -9086,6 +9086,7 @@
   },
   "errors": {
     "api": {
+      "project_closed": "Projek ini telah tamat; ia tidak boleh diubah lagi.",
       "account_inactive": "Akaun ini tidak lagi aktif.",
       "announcement_not_found": "Pengumuman itu tidak dijumpai.",
       "application_record_copy_unavailable": "'Bukti lengkap rekod asal' ini dibuat sebelum kemas kini sistem; rekod asal tidak dapat dijumpai lagi, jadi ia tidak dapat dipaparkan. Jika perlu, minta pejabat projek melampirkannya semula.",

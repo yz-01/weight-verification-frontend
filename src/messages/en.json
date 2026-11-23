@@ -9086,6 +9086,7 @@
   },
   "errors": {
     "api": {
+      "project_closed": "This project has ended; it can no longer be changed.",
       "account_inactive": "This account is no longer active.",
       "announcement_not_found": "That announcement could not be found.",
       "application_record_copy_unavailable": "This 'complete evidence of the original record' was made before the system update; the original record can no longer be found, so it cannot be shown. If you need it, ask the project office to attach it again.",

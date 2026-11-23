@@ -9086,6 +9086,7 @@
   },
   "errors": {
     "api": {
+      "project_closed": "这个项目已经结束，不能再改动。",
       "account_inactive": "此账号已不再有效。",
       "announcement_not_found": "找不到该公告。",
       "application_record_copy_unavailable": "这份「原记录完整证据」是系统更新前生成的，原记录已经找不到，不能显示。如需要，请联系项目后台重新附上。",

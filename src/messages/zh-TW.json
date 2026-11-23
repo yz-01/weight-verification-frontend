@@ -9086,6 +9086,7 @@
   },
   "errors": {
     "api": {
+      "project_closed": "這個項目已經結束，不能再改動。",
       "account_inactive": "此賬號已不再有效。",
       "announcement_not_found": "找不到該公告。",
       "application_record_copy_unavailable": "這份「原記錄完整證據」是系統更新前生成的，原記錄已經找不到，不能顯示。如需要，請聯絡項目後台重新附上。",
