@@ -5783,6 +5783,7 @@
       "cancel": "取消",
       "createRevision": "建立新版本",
       "downloadReport": "下載最終報告",
+      "downloadReportBeforeReview": "下載簽署時的報告（整改複核前）",
       "edit": "編輯草稿",
       "receive": "標記為已接收",
       "remove": "移除",
@@ -5819,6 +5820,7 @@
       },
       "pending": "等待中",
       "recordOnly": "結構化歸檔記錄",
+      "beforeReview": "簽署時產生（整改複核前）",
       "reportMissing": "決定已經記錄在案，但 PDF 沒有產生成功。重新產生不會改動決定 —— 只是把同一個結果再寫一次。",
       "verify": "打開二維碼驗證"
     },
@@ -9090,6 +9092,7 @@
       "remedial_review_not_yours": "只有提出這條整改的顧問可以複核它。",
       "remedial_state_changed": "這條整改的狀態已經變了（可能已經提交或已經複核）。請重新打開這份申請再看。",
       "remedial_loop_closed": "這份申請的整改已經驗收通過並歸檔，不能再開整改。有新問題請另外建立記錄。",
+      "application_not_finished": "這份申請還沒有完成（顧問還沒確認全部整改合格），不能確認歸檔。",
       "approval_action_not_found": "找不到這條審批操作記錄。",
       "approval_actor_forbidden": "你無權執行此審批操作。",
       "approval_invalid_transition": "此審批不能切換到該狀態。",

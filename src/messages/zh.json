@@ -5783,6 +5783,7 @@
       "cancel": "取消",
       "createRevision": "建立新版本",
       "downloadReport": "下载最终报告",
+      "downloadReportBeforeReview": "下载签署时的报告（整改复核前）",
       "edit": "编辑草稿",
       "receive": "标记为已接收",
       "remove": "移除",
@@ -5819,6 +5820,7 @@
       },
       "pending": "等待中",
       "recordOnly": "结构化归档记录",
+      "beforeReview": "签署时生成（整改复核前）",
       "reportMissing": "决定已经记录在案，但 PDF 没有生成成功。重新生成不会改动决定 —— 只是把同一个结果再写一次。",
       "verify": "打开二维码验证"
     },
@@ -9090,6 +9092,7 @@
       "remedial_review_not_yours": "只有提出这条整改的顾问可以复核它。",
       "remedial_state_changed": "这条整改的状态已经变了（可能已经提交或已经复核）。请重新打开这份申请再看。",
       "remedial_loop_closed": "这份申请的整改已经验收通过并归档，不能再开整改。有新问题请另外建立记录。",
+      "application_not_finished": "这份申请还没有完成（顾问还没确认全部整改合格），不能确认归档。",
       "approval_action_not_found": "找不到这条审批操作记录。",
       "approval_actor_forbidden": "你无权执行此审批操作。",
       "approval_invalid_transition": "此审批不能切换到该状态。",

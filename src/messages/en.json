@@ -5783,6 +5783,7 @@
       "cancel": "Cancel",
       "createRevision": "Create new revision",
       "downloadReport": "Download final report",
+      "downloadReportBeforeReview": "Download the report made at signing (before the remedial review)",
       "edit": "Edit draft",
       "receive": "Mark as received",
       "remove": "Remove",
@@ -5819,6 +5820,7 @@
       },
       "pending": "Pending",
       "recordOnly": "Structured archive record",
+      "beforeReview": "Made at signing (before the remedial review)",
       "reportMissing": "The decision is on record but the PDF was never filed. Rebuilding it does not change the decision - it writes the same result out again.",
       "verify": "Open QR verification"
     },
@@ -9090,6 +9092,7 @@
       "remedial_review_not_yours": "Only the consultant who raised this remedial item can review it.",
       "remedial_state_changed": "This remedial item has changed (it may already be submitted or reviewed). Open the application again to see it.",
       "remedial_loop_closed": "The remedial works on this application were accepted and it is archived; no more items can be raised. Raise a new record for a new problem.",
+      "application_not_finished": "This application is not finished yet (the consultant has not accepted all remedial work), so it cannot be archived.",
       "approval_action_not_found": "That approval action could not be found.",
       "approval_actor_forbidden": "You cannot perform this approval action.",
       "approval_invalid_transition": "This approval cannot move to that status.",

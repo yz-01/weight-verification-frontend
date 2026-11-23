@@ -5783,6 +5783,7 @@
       "cancel": "Batal",
       "createRevision": "Cipta semakan baharu",
       "downloadReport": "Muat turun laporan akhir",
+      "downloadReportBeforeReview": "Muat turun laporan semasa menandatangani (sebelum semakan pembaikan)",
       "edit": "Edit draf",
       "receive": "Tanda sebagai diterima",
       "remove": "Alih keluar",
@@ -5819,6 +5820,7 @@
       },
       "pending": "Menunggu",
       "recordOnly": "Rekod arkib berstruktur",
+      "beforeReview": "Dibuat semasa menandatangani (sebelum semakan pembaikan)",
       "reportMissing": "Keputusan sudah direkodkan tetapi PDF tidak pernah difailkan. Membina semula tidak mengubah keputusan - ia menulis hasil yang sama sekali lagi.",
       "verify": "Buka pengesahan QR"
     },
@@ -9090,6 +9092,7 @@
       "remedial_review_not_yours": "Hanya perunding yang membuka perkara pembaikan ini boleh menyemaknya.",
       "remedial_state_changed": "Perkara pembaikan ini telah berubah (mungkin sudah dihantar atau disemak). Buka semula permohonan untuk melihatnya.",
       "remedial_loop_closed": "Kerja pembaikan permohonan ini telah diterima dan diarkibkan; tiada perkara baharu boleh dibuka. Buat rekod baharu untuk masalah baharu.",
+      "application_not_finished": "Permohonan ini belum selesai (perunding belum menerima semua kerja pembaikan), jadi ia tidak boleh diarkibkan.",
       "approval_action_not_found": "Tindakan kelulusan itu tidak dijumpai.",
       "approval_actor_forbidden": "Anda tidak dibenarkan melakukan tindakan kelulusan ini.",
       "approval_invalid_transition": "Kelulusan ini tidak boleh beralih ke status tersebut.",

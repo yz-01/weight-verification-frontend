@@ -420,4 +420,48 @@ describe("整改事项 badges, history and buttons", () => {
     expect(html).toContain(zh.remedial.oldReport);
     expect(html).toContain(zh.archive.kind.REMEDIAL_ACCEPTANCE);
   });
+
+  const ENTRY = (kind: string, snapshot: Record<string, unknown> = {}) => ({
+    id: kind, kind, title: kind, snapshot, file: "/media/x.pdf", sha256: "a".repeat(64), archived_at: "2026-11-20T15:20:00Z",
+  });
+  const MIGRATED = {
+    final_report: "/media/old.pdf",
+    remedial_items: [SUBMITTED],
+    archive_entries: [ENTRY("APPLICATION"), ENTRY("APPROVAL"), ENTRY("FINAL_REPORT")],
+  };
+
+  it("never calls what an old application archived at signing 「已完成」 while under review (audit)", () => {
+    as(OFFICE, OFFICE_PERMS);
+    const html = detail(MIGRATED);
+    expect(html).not.toContain('data-archive-state="done"');
+    expect(html.match(/data-archive-state="before-review"/g)).toHaveLength(3);
+    expect(text(html)).toContain(zh.archive.beforeReview);
+    // The header's download says which report it is.
+    expect(text(html)).toContain(zh.action.downloadReportBeforeReview);
+  });
+
+  it("offers the acceptance record again when it failed after acceptance (audit)", () => {
+    as(OFFICE, null);
+    const html = text(detail({ ...MIGRATED, status: "REMEDIAL_ACCEPTED", archived_at: null, remedial_items: [{ ...ITEM, status: "ACCEPTED" }] }));
+    expect(html).toContain(zh.action.retryReport);
+  });
+
+  it("files no acceptance record for a report made at acceptance", () => {
+    as(OFFICE, null);
+    const html = detail({
+      status: "REMEDIAL_ACCEPTED",
+      final_report: "/media/final.pdf",
+      archived_at: "2026-11-22T09:00:00Z",
+      remedial_items: [{ ...ITEM, status: "ACCEPTED" }],
+      archive_entries: [
+        ENTRY("APPLICATION", { application_status: "REMEDIAL_ACCEPTED" }),
+        ENTRY("APPROVAL", { application_status: "REMEDIAL_ACCEPTED" }),
+        ENTRY("FINAL_REPORT", { application_status: "REMEDIAL_ACCEPTED" }),
+      ],
+    });
+    expect(html.match(/data-archive-state="done"/g)).toHaveLength(3);
+    expect(html).not.toContain('data-archive-kind="REMEDIAL_ACCEPTANCE"');
+    expect(text(html)).not.toContain(zh.action.retryReport);
+    expect(text(html)).not.toContain(zh.action.downloadReportBeforeReview);
+  });
 });
