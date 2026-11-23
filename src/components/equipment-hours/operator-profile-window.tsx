@@ -481,8 +481,9 @@ export function PapersEdit({ papers, onDone }: { papers: OperatorPapers; onDone:
         licence_no: licenceNo.trim(),
         licence_class: licenceClass.trim(),
         licence_expires_on: licenceUntil || null,
-        certificates: certificates.map(({ key: _key, ...row }) => ({
-          ...row,
+        certificates: certificates.map((row) => ({
+          ...(row.id ? { id: row.id } : {}),
+          category: row.category,
           title: row.title.trim(),
           number: row.number.trim(),
           issued_on: row.issued_on || null,
