@@ -173,7 +173,9 @@ export type ConsultantApplicationStatus =
   | "APPROVED_WITH_REMEDIAL"
   | "REJECTED"
   | "REVISE_RESUBMIT"
-  | "ARCHIVED";
+  | "ARCHIVED"
+  /** JB236: the consultant accepted every remedial item - 「整改验收通过」. */
+  | "REMEDIAL_ACCEPTED";
 
 export interface ApplicationAttachment {
   id: string;
@@ -246,7 +248,7 @@ export interface ApplicationApprovalAction {
 
 export interface ApplicationArchiveEntry {
   id: string;
-  kind: "APPLICATION" | "APPROVAL" | "FINAL_REPORT" | "CONSULTANT_FORM";
+  kind: "APPLICATION" | "APPROVAL" | "FINAL_REPORT" | "CONSULTANT_FORM" | "REMEDIAL_ACCEPTANCE";
   title: string;
   /** For `CONSULTANT_FORM`: see `ConsultantFormArchiveSnapshot`. */
   snapshot?: Record<string, unknown>;
@@ -303,7 +305,12 @@ export interface RemedialItem {
   assigned_to: string | null;
   assigned_to_name: string | null;
   due_on: string | null;
-  status: "OPEN" | "CLOSED";
+  /**
+   * JB236: OPEN → SUBMITTED (待顾问复核) → ACCEPTED (整改合格), or RETURNED
+   * (退回继续整改) and SUBMITTED again. CLOSED: the old single step, kept on
+   * items outside a remedial approval.
+   */
+  status: RemedialItemStatus;
   is_overdue: boolean;
   closure_note: string;
   evidence: string[];
@@ -314,8 +321,29 @@ export interface RemedialItem {
   closed_by_name: string | null;
   /** Who listed it (JB200). */
   created_by_name: string | null;
+  created_by?: string | null;
+  /** JB236: every submission and review, oldest first. */
+  rounds?: RemedialRound[];
+  /** JB236: this reader is the one to press 整改合格 / 退回继续整改. */
+  can_review?: boolean;
+  /** JB236: who reviews it now (while it waits for review). */
+  reviewer_names?: string[];
   created_at: string;
   updated_at: string;
+}
+
+export type RemedialItemStatus = "OPEN" | "SUBMITTED" | "RETURNED" | "ACCEPTED" | "CLOSED";
+
+/** One submission or review of a remedial item, written once (JB236). */
+export interface RemedialRound {
+  id: string;
+  number: number;
+  event: "SUBMITTED" | "ACCEPTED" | "RETURNED";
+  note: string;
+  evidence_files: RemedialEvidenceFile[];
+  actor: string;
+  actor_name: string;
+  acted_at: string;
 }
 
 /** One file a remedial item was closed with: the photo, or a document. */

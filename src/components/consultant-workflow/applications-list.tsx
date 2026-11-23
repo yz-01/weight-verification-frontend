@@ -58,6 +58,7 @@ const tones: Record<
   SUBMITTED: "warning",
   APPROVED: "positive",
   APPROVED_WITH_REMEDIAL: "warning",
+  REMEDIAL_ACCEPTED: "positive",
   REJECTED: "danger",
   REVISE_RESUBMIT: "warning",
   ARCHIVED: "info",
@@ -160,7 +161,7 @@ export function ConsultantApplicationsList() {
                         key: "status",
                         label: tRoot("mySubmissions.field.approval_status"),
                         values: Object.fromEntries(
-                          (["DRAFT", "SUBMITTED", "APPROVED", "APPROVED_WITH_REMEDIAL", "REVISE_RESUBMIT", "REJECTED", "ARCHIVED"] as const).map(
+                          (["DRAFT", "SUBMITTED", "APPROVED", "APPROVED_WITH_REMEDIAL", "REMEDIAL_ACCEPTED", "REVISE_RESUBMIT", "REJECTED", "ARCHIVED"] as const).map(
                             (code) => [code, t(`status.${code}`)],
                           ),
                         ),

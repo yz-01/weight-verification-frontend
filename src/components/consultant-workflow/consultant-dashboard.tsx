@@ -374,7 +374,7 @@ function ApplicationList({
 }
 
 function statusTone(status: ConsultantDashboardRow["status"]) {
-  if (["APPROVED", "APPROVED_WITH_REMEDIAL", "ARCHIVED"].includes(status)) return "positive" as const;
+  if (["APPROVED", "APPROVED_WITH_REMEDIAL", "REMEDIAL_ACCEPTED", "ARCHIVED"].includes(status)) return "positive" as const;
   if (["REJECTED", "REVISE_RESUBMIT"].includes(status)) return "danger" as const;
   if (status === "SUBMITTED") return "warning" as const;
   return "neutral" as const;

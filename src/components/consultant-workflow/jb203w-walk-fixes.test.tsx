@@ -215,7 +215,7 @@ describe("F-4 / NOTE 32 下一步 for the reader it is shown to", () => {
     const said = nextStep(detail(remedial));
     expect(said).toContain("还有 1 条整改等建筑商完成");
     expect(said).toContain("【开一条整改】");
-    expect(said).not.toContain(zh.action.closeRemedial);
+    expect(said).not.toContain(zh.action.submitRemedial);
   });
 
   it("tells a reviewer who cannot raise more only that it is waiting", () => {
@@ -227,7 +227,7 @@ describe("F-4 / NOTE 32 下一步 for the reader it is shown to", () => {
 
   it("keeps the contractor's instruction for the contractor", () => {
     as(OFFICE, null);
-    expect(nextStep(detail(remedial))).toContain(`按「${zh.action.closeRemedial}」`);
+    expect(nextStep(detail(remedial))).toContain(`按「${zh.action.submitRemedial}」`);
   });
 
   it("tells the contractor a rejected application can be sent again as a new one", () => {
