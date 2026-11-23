@@ -4656,8 +4656,11 @@
         "suppliersNote": "累计供应商",
         "otherUnits": "只算单位是「{unit}」的收货；其他单位的没有换算，不在数字里。",
         "materials": "按材料、规格、单位累计数量",
-        "materialsNote": "这个分类里有不同的材料或规格，不能加在一起：上面的数字是收货记录数，每种材料、规格、单位的累计数量分别列在这里。",
-        "materialsDeliveries": "{count} 次收货"
+        "materialsNote": "这个分类里有不同的材料或规格，不能加在一起：上面的数字是收货次数，每种材料、规格、单位的累计数量分别列在这里。",
+        "materialsDeliveries": "{count} 次收货",
+        "columnTarget": "分类目标（本分类合计）",
+        "columnRemaining": "本分类合计还差 {value}",
+        "columnCompletion": "完成率（本分类合计）"
       },
       "stage": {
         "label": "按状态",

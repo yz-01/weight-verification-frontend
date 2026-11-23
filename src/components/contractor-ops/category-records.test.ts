@@ -267,9 +267,10 @@ describe("a category's records are looked at, not decided (2026-10 B3, B4)", () 
     expect(dialog).toMatch(/queryKey: \["category-records", moduleKey, column\.id, page, filters, search, spec, stage\]/);
     // 再选规格 (J7-5): one specification of the material.
     expect(dialog).toMatch(/spec_category: spec,/);
-    // The column's figure: one line per specification and unit (J7-4, J7-6).
+    // The column's figure: one line per material, specification and unit
+    // (J7-4, J7-6, JB232).
     expect(read("src/components/contractor-ops/category-management.tsx")).toMatch(
-      /key=\{`\$\{quantity\.material_specification \?\? ""\}\|\$\{quantity\.unit\}`\}/,
+      /key=\{`\$\{quantity\.material_name \?\? ""\}\|\$\{quantity\.material_specification \?\? ""\}\|\$\{quantity\.unit\}`\}/,
     );
     expect(dialog + functionBody(read(MANAGEMENT), "ColumnRecordInfo")).toMatch(/row\.delivery_note_no/);
     expect(dialog).toMatch(/row\.supplier_name/);

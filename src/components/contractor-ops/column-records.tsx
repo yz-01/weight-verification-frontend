@@ -120,22 +120,36 @@ export function ColumnSummary({ moduleKey, column }: { moduleKey: CategoryModule
       key: "total",
       label: t(`${words}.total`),
       value: figure(data.total),
-      detail: data.target?.percent != null ? t("ofTarget", { percent: data.target.percent }) : undefined,
+      // 「占项目目标」 beside a quantity only - never beside a count of deliveries.
+      detail: quantity && data.target?.percent != null ? t("ofTarget", { percent: data.target.percent }) : undefined,
       icon: Layers,
       tone: "purple",
     },
   ];
-  if (quantity) {
-    const target = data.target;
+  // The column's own target (JB232): kept when the column holds several
+  // materials or specifications, but then said to be the whole column's
+  // total - the one figure here that counts them together.
+  const target = data.target;
+  const columnTotal = Boolean(target?.column_total);
+  const targetUnit = target?.unit ? (target.unit_label ?? unitName(target.unit)) : unit;
+  const targetFigure = (value: string) => (
+    <>
+      {format.number(Number(value), { maximumFractionDigits: 3 })}{" "}
+      <span className="text-sm font-normal text-muted-foreground">{targetUnit}</span>
+    </>
+  );
+  if (quantity || target) {
     tiles.push(
       target
         ? {
             key: "target",
-            label: t("target"),
-            value: figure(target.target_quantity),
+            label: t(columnTotal ? "columnTarget" : "target"),
+            value: targetFigure(target.target_quantity),
             detail:
               Number(target.remaining) > 0
-                ? t("remaining", { value: format.number(Number(target.remaining), { maximumFractionDigits: 3 }) })
+                ? t(columnTotal ? "columnRemaining" : "remaining", {
+                    value: format.number(Number(target.remaining), { maximumFractionDigits: 3 }),
+                  })
                 : t("reached"),
             icon: Target,
             tone: "amber",
@@ -145,7 +159,7 @@ export function ColumnSummary({ moduleKey, column }: { moduleKey: CategoryModule
     if (target?.percent != null) {
       tiles.push({
         key: "completion",
-        label: t("completion"),
+        label: t(columnTotal ? "columnCompletion" : "completion"),
         value: format.number(target.percent / 100, { style: "percent", maximumFractionDigits: 1 }),
         icon: CircleCheck,
         tone: "green",

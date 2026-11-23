@@ -4657,7 +4657,10 @@
         "otherUnits": "Hanya penghantaran dalam {unit} dikira; unit lain tidak ditukar dan tidak dikira.",
         "materials": "Kuantiti terkumpul mengikut bahan, spesifikasi dan unit",
         "materialsNote": "Kategori ini mempunyai bahan atau spesifikasi berbeza yang tidak boleh dijumlahkan: angka di atas mengira penghantaran, dan setiap bahan, spesifikasi dan unit mempunyai jumlahnya sendiri di sini.",
-        "materialsDeliveries": "{count} penghantaran"
+        "materialsDeliveries": "{count} penghantaran",
+        "columnTarget": "Sasaran kategori (seluruh kategori)",
+        "columnRemaining": "Jumlah kategori: baki {value}",
+        "columnCompletion": "Siap (seluruh kategori)"
       },
       "stage": {
         "label": "Ikut status",
