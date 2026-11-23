@@ -34,7 +34,9 @@ describe("which line replaces the composer", () => {
     expect(conversationClosedLine("paid")).toBe("recordChat.closedPaid");
     // A field task is finished (JB129 确认完成), not "approved or returned".
     expect(conversationClosedLine("decided", "FIELD_TASK")).toBe("recordChat.closedTaskDone");
-    expect(conversationClosedLine("decided", "MATERIAL_REQUEST")).toBe("recordChat.closedDecided");
+    // Since JB231 an MR closes as "decided" only when returned.
+    expect(conversationClosedLine("decided", "MATERIAL_REQUEST")).toBe("recordChat.closedReturned");
+    expect(conversationClosedLine("decided", "APPROVAL")).toBe("recordChat.closedDecided");
   });
 
   it("closes a record its module ended outright (2026-10-10)", () => {

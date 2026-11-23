@@ -12670,7 +12670,7 @@
       "final_proof_submitted": "最终处理证明已提交（任务结束）",
       "legacy_confirmation": "后台验收（旧流程）",
       "remark": "备注",
-      "decided_by": "批准 / 退回人",
+      "decided_by": "审批人",
       "request_approved_by": "批准人",
       "request_returned_by": "退回人",
       "execution_status": "执行状态",
@@ -19437,6 +19437,7 @@
     "closedPaid": "已确认付款，聊天室已关闭。记录仍可查看。",
     "closedDecided": "已批准或已退回，聊天室已关闭。记录仍可查看。",
     "closedCompleted": "事项已确认完成，聊天室已关闭。记录仍可查看。",
+    "closedReturned": "已退回，聊天室已关闭。记录仍可查看。",
     "closedRejected": "已判不合格或已驳回，聊天室已关闭。记录仍可查看。",
     "closedCancelled": "已取消，聊天室已关闭。记录仍可查看。",
     "closedReadonly": "你只能查看这个沟通，没有在里面，不能发送。",
@@ -19998,7 +19999,11 @@
       "noteLabel": "完成说明（选填）",
       "notePlaceholder": "例如：已送到工地、已安排工人",
       "completedNotice": "{name} 于 {at} 确认完成。提醒已停止，事项沟通已关闭。",
-      "headOfficeView": "总部可以在这里查看，但由项目经理确认完成。"
+      "headOfficeView": "总部可以在这里查看，但由项目经理确认完成。",
+      "listSeparator": "、",
+      "waitingForApprover": "这个项目没有项目经理，由批准人 {names} 确认完成。",
+      "confirmedByManager": "由项目经理确认完成。",
+      "confirmedByApprover": "由批准人确认完成。"
     },
     "allTypes": "全部申请类型",
     "filter": {
@@ -20018,7 +20023,7 @@
       "date": "日期",
       "status": "状态",
       "view": "查看",
-      "decidedBy": "批准人 / 退回人",
+      "decidedBy": "审批人",
       "decidedAt": "审批时间",
       "approvedBy": "批准人",
       "returnedBy": "退回人",

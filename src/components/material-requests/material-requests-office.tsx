@@ -1190,7 +1190,11 @@ export function MaterialRequestDetail({
                 <p className="text-xs leading-5">{t("execution.explain")}</p>
                 {(row.execution_manager_names ?? []).length > 0 && (
                   <p className="text-xs text-muted-foreground">
-                    {t("execution.waitingFor", { names: (row.execution_manager_names ?? []).join("、") })}
+                    {/* The approver stands in on a project with no project
+                        manager - not called 「项目经理」 then. */}
+                    {t(row.execution_by_project_manager === false ? "execution.waitingForApprover" : "execution.waitingFor", {
+                      names: (row.execution_manager_names ?? []).join(t("execution.listSeparator")),
+                    })}
                   </p>
                 )}
                 {(row.reminder_count ?? 0) > 0 && row.reminded_at && (
@@ -1220,7 +1224,15 @@ export function MaterialRequestDetail({
                     </Button>
                   </div>
                 ) : (
-                  !user?.is_field_staff && <p className="text-xs text-muted-foreground">{t("execution.headOfficeView")}</p>
+                  !user?.is_field_staff && (
+                    <p className="text-xs text-muted-foreground">
+                      {row.execution_by_project_manager === false
+                        ? t("execution.confirmedByApprover")
+                        : can("project.view_all")
+                          ? t("execution.headOfficeView")
+                          : t("execution.confirmedByManager")}
+                    </p>
+                  )
                 )}
               </div>
             )}
