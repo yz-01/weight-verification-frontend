@@ -332,7 +332,7 @@ export function ConsultantApplicationDetail({
           ownWork
           size="sm"
           formats={["pdf"]}
-          label={t("action.downloadReport")}
+          label={t(reportMadeAtSigning(application) ? "action.downloadReportBeforeReview" : "action.downloadReport")}
           title={application.application_no}
           record={{ kind: "CONSULTANT_APPLICATION", id: application.id }}
           onExport={() => downloadApplicationFinalReport(application.id, application.application_no)}
@@ -760,6 +760,21 @@ export function underRemedialReview(application: Pick<ConsultantApplication, "st
 }
 
 /**
+ * A remedial approval whose report was made when it was signed (before
+ * JB236): its archive entry does not carry `application_status:
+ * REMEDIAL_ACCEPTED`, which a report made at acceptance does. Mirrors the
+ * backend's `report_made_at_signing`.
+ */
+export function reportMadeAtSigning(
+  application: Pick<ConsultantApplication, "final_decision" | "final_report" | "archive_entries">,
+) {
+  if (application.final_decision !== "APPROVED_WITH_REMEDIAL" || !application.final_report) return false;
+  const entry = application.archive_entries.find((row) => row.kind === "FINAL_REPORT");
+  const snapshot = (entry?.snapshot ?? {}) as { application_status?: string };
+  return Boolean(entry) && snapshot.application_status !== "REMEDIAL_ACCEPTED";
+}
+
+/**
  * 申请 / 审批 / 整改复核 / 最终报告 / 归档 (JB236, 客户 11-20 事项 8).
  *
  * 图10 showed four 「已完成」 for an application whose remedial work nobody
@@ -845,12 +860,17 @@ function ArchiveChecklist({ application }: { application: ConsultantApplication 
   // JB236: an old application signed before the remedial review keeps the
   // report made at signing; the acceptance is filed beside it.
   const acceptanceRecord = application.archive_entries.find((row) => row.kind === "REMEDIAL_ACCEPTANCE");
-  const remedial = underRemedialReview(application);
-  const reportBeforeReview =
-    remedial && Boolean(application.final_report) && (application.status !== "REMEDIAL_ACCEPTED" || Boolean(acceptanceRecord));
-  if (acceptanceRecord || (reportBeforeReview && application.status !== "REMEDIAL_ACCEPTED")) {
+  const reportBeforeReview = reportMadeAtSigning(application);
+  // JB236 audit: until the consultant accepts the work, what an old
+  // application archived at signing is not 「已完成」 - it was made before the
+  // remedial review.
+  const waitingReview = underRemedialReview(application) && application.status !== "REMEDIAL_ACCEPTED";
+  if (acceptanceRecord || reportBeforeReview) {
     kinds.push("REMEDIAL_ACCEPTANCE");
   }
+  // Accepted, but the 「整改验收记录」 beside the old report failed: offered
+  // again, as the backend's ``acceptance_record_owed``.
+  const acceptanceOwed = application.status === "REMEDIAL_ACCEPTED" && reportBeforeReview && !acceptanceRecord;
   const notAccepted = (application.remedial_items ?? []).filter((item) => item.status !== "ACCEPTED").length;
 
   /*
@@ -886,18 +906,34 @@ function ArchiveChecklist({ application }: { application: ConsultantApplication 
       )}
       {kinds.map((kind) => {
         const entry = application.archive_entries.find((row) => row.kind === kind);
+        const done = Boolean(entry) && !waitingReview;
+        const early = Boolean(entry) && waitingReview;
         return (
-          <div key={kind} className={`flex items-start gap-3 rounded-lg border p-3 ${entry ? "border-success/30 bg-success/5" : "bg-muted/10"}`}>
-            <span className={`grid size-9 shrink-0 place-items-center rounded-full ${entry ? "bg-success text-white" : "bg-muted text-muted-foreground"}`}>
-              {entry ? <CheckCircle2 className="size-5" /> : <CircleDashed className="size-5" />}
+          <div
+            key={kind}
+            data-archive-kind={kind}
+            data-archive-state={done ? "done" : early ? "before-review" : "pending"}
+            className={`flex items-start gap-3 rounded-lg border p-3 ${done ? "border-success/30 bg-success/5" : early ? "border-warning/30 bg-warning/5" : "bg-muted/10"}`}
+          >
+            <span className={`grid size-9 shrink-0 place-items-center rounded-full ${done ? "bg-success text-white" : "bg-muted text-muted-foreground"}`}>
+              {done ? <CheckCircle2 className="size-5" /> : <CircleDashed className="size-5" />}
             </span>
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <p className="font-medium">{t(`archive.kind.${kind}`)}</p>
-                <span className={`text-xs font-semibold ${entry ? "text-success" : "text-muted-foreground"}`}>
-                  {t(entry ? "archive.complete" : "archive.pending")}
+                <span className={`text-xs font-semibold ${done ? "text-success" : early ? "text-warning" : "text-muted-foreground"}`}>
+                  {t(done ? "archive.complete" : early ? "archive.beforeReview" : "archive.pending")}
                 </span>
               </div>
+              {kind === "REMEDIAL_ACCEPTANCE" && acceptanceOwed && can("approval.review") && (
+                <div className="mt-2 space-y-1">
+                  <p className="text-xs text-muted-foreground">{t("archive.reportMissing")}</p>
+                  <Button size="sm" variant="outline" disabled={retry.isPending} onClick={() => retry.mutate()}>
+                    {retry.isPending ? <Loader2 className="animate-spin" /> : <RotateCcw />}
+                    {t("action.retryReport")}
+                  </Button>
+                </div>
+              )}
               {kind === "FINAL_REPORT" && entry && reportBeforeReview && (
                 <p data-slot="report-before-review" className="mt-1 text-xs font-medium text-warning">{t("remedial.oldReport")}</p>
               )}
@@ -937,7 +973,7 @@ function ArchiveChecklist({ application }: { application: ConsultantApplication 
                     ownWork
                     size="sm"
                     formats={["pdf"]}
-                    label={t("action.downloadReport")}
+                    label={t(reportMadeAtSigning(application) ? "action.downloadReportBeforeReview" : "action.downloadReport")}
                     title={application.application_no}
                     record={{ kind: "CONSULTANT_APPLICATION", id: application.id }}
                     onExport={() => downloadApplicationFinalReport(application.id, application.application_no)}
