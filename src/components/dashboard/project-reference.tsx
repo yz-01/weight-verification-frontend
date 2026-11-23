@@ -327,7 +327,7 @@ function LatestReceipts({ data, project }: { data: ProjectOverview; project: str
               </span>
               <span className="min-w-0 basis-full truncate sm:basis-0 sm:flex-1">{[row.supplier, row.material].filter(Boolean).join(" · ")}</span>
               <span className="shrink-0 tabular-nums">
-                {Number(row.quantity)} {units.has(row.unit) ? units(row.unit) : row.unit}
+                {Number(row.quantity)} {row.unit_label || (units.has(row.unit) ? units(row.unit) : row.unit)}
               </span>
               <span className={cn("shrink-0 rounded-full px-2 py-0.5 text-2xs", row.acceptance_status === "ACCEPTED" ? TONES.green.soft : TONES.amber.soft)}>
                 {status.has(row.acceptance_status) ? status(row.acceptance_status) : row.acceptance_status}

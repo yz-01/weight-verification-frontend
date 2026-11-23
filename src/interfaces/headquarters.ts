@@ -190,6 +190,8 @@ export interface ProjectOverview {
     category: string;
     quantity: string;
     unit: string;
+    /** A unit the company added itself (e.g. 桶): its own label; null for a built-in code. */
+    unit_label?: string | null;
     acceptance_status: string;
     /** 签收人 (JB234): the receiver who signed; picture etc. only from the signing account. */
     signer?: ReceiptSigner;
