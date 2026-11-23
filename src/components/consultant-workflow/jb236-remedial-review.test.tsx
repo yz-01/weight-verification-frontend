@@ -417,7 +417,9 @@ describe("整改事项 badges, history and buttons", () => {
       }),
     );
     expect(html).toContain("还有 1 条整改未经顾问确认合格");
-    expect(html).toContain(zh.remedial.oldReport);
+    // One clear line on the row, not two near-identical ones (walk 11-23).
+    expect(html.split(zh.archive.beforeReview)).toHaveLength(2);
+    expect(html).not.toContain(zh.remedial.oldReport);
     expect(html).toContain(zh.archive.kind.REMEDIAL_ACCEPTANCE);
   });
 
@@ -444,6 +446,9 @@ describe("整改事项 badges, history and buttons", () => {
     as(OFFICE, null);
     const html = text(detail({ ...MIGRATED, status: "REMEDIAL_ACCEPTED", archived_at: null, remedial_items: [{ ...ITEM, status: "ACCEPTED" }] }));
     expect(html).toContain(zh.action.retryReport);
+    // Accepted: the old report says which one it is, once.
+    expect(html.split(zh.remedial.oldReport)).toHaveLength(2);
+    expect(html).not.toContain(zh.archive.beforeReview);
   });
 
   it("files no acceptance record for a report made at acceptance", () => {
