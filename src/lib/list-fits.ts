@@ -69,7 +69,8 @@ export const LIST_FITS = {
   /** MR 材料申请 */
   materialRequests: {
     // J34-2 (Lucas 10-21): four 64 px photos a row; supplier_name, submitted_by_name under 「字段」 for them.
-    storageKey: "material-requests.v7",
+    // `.v8`: 执行状态 beside 状态 (JB231, 客户 11-20 事项 3).
+    storageKey: "material-requests.v8",
     file: "src/components/material-requests/material-requests-office.tsx",
     columns: {
       request_no: "recno",
@@ -85,13 +86,17 @@ export const LIST_FITS = {
       submitted_by_name: "person",
       created_at: "datetime",
       status: "status",
+      execution_status: "status",
       view: "button",
       needs_action: "marker",
       actions: "actions",
     },
     // 材料编号 and the spec now read under the material, the unit beside
     // the quantity; 「查看」 is the pinned eye at the row's end as well.
-    hidden: ["category_code", "specification", "unit", "manufacturer_name", "view", "supplier_name", "submitted_by_name"],
+    // 执行状态 (JB231) reads under 状态 by default - 「已批准」 over 「待执行」 -
+    // so the list still fits; its own column is one click away for sorting
+    // the eye down a column.
+    hidden: ["category_code", "specification", "unit", "manufacturer_name", "view", "supplier_name", "submitted_by_name", "execution_status"],
     phoneCard: { title: ["request_no", "material_name", "status"], detail: ["created_at", "quantity", "submitted_by_name"], photo: "cover_photo" },
   },
   /** 设备进退场 (图 1 of I39) */

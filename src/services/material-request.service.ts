@@ -77,6 +77,23 @@ export async function managerDecideMaterialRequest(
   return row;
 }
 
+/** 「开始处理」 (JB231): the project manager marks an approved request 处理中. */
+export async function startMaterialRequestExecution(id: string) {
+  const row = await api.post<MaterialRequest>(`/api/material-requests/${id}/start_execution/`, {});
+  toastSuccess("materialRequest.execution.IN_PROGRESS");
+  return row;
+}
+
+/**
+ * 「确认完成」 (JB231): who and when are recorded, the 24-hour reminders stop
+ * and the request's conversation closes. The note is optional.
+ */
+export async function confirmMaterialRequestCompletion(id: string, note = "") {
+  const row = await api.post<MaterialRequest>(`/api/material-requests/${id}/confirm_completion/`, { note });
+  toastSuccess("materialRequest.execution.COMPLETED");
+  return row;
+}
+
 export async function reassignMaterialRequestToMe(id: string) {
   const row = await api.post<MaterialRequest>(`/api/material-requests/${id}/reassign/`, {});
   toastSuccess("materialRequest.toast.reassigned");

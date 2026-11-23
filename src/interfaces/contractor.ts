@@ -615,6 +615,11 @@ export interface MySubmissionRow {
    */
   movement_status?: string;
   /**
+   * An approved MR / 其他申请's 执行状态 (JB231): PENDING, IN_PROGRESS or
+   * COMPLETED; "" while pending or returned. The badge says both.
+   */
+  execution_status?: string;
+  /**
    * The machine an equipment movement is about: what the phone checks the
    * scanned QR against at the actual exit, with or without signal (ID60).
    */

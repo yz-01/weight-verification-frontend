@@ -187,6 +187,7 @@ export type ConversationClosedLine =
   | "recordChat.closedArchived"
   | "recordChat.closedPaid"
   | "recordChat.closedDecided"
+  | "recordChat.closedCompleted"
   | "recordChat.closedTaskDone"
   | "recordChat.closedRejected"
   | "recordChat.closedCancelled"
@@ -213,6 +214,8 @@ export function conversationClosedLine(
   if (closed === "decided" && kind === "FIELD_TASK") return "recordChat.closedTaskDone";
   // A material request, once approved or returned (C05).
   if (closed === "decided") return "recordChat.closedDecided";
+  // An approved MR / 其他申请 its project manager confirmed completed (JB231).
+  if (closed === "completed") return "recordChat.closedCompleted";
   // Ended outright by its module (2026-10-10, Lucas: 「我材料进场直接判不合格
   // 为什么还可以聊天的？」): judged 不合格, rejected, not accepted.
   if (closed === "rejected") return "recordChat.closedRejected";
