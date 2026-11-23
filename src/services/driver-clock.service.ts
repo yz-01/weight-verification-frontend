@@ -11,6 +11,7 @@ import type {
   EquipmentPhoneRecord,
   EquipmentPhoneTotals,
   EquipmentPhotoKind,
+  OperatorExpiry,
 } from "@/interfaces/equipment-hours";
 import { api, toastSuccess } from "@/services/api-client";
 
@@ -36,6 +37,9 @@ export interface DriverClockLink {
   url?: string;
   /** The machines bound to this driver (JB227) - in the list only. */
   machines?: { id: string; number: string; name: string }[];
+  /** 操作人员资料 (JB233) - in the list only. */
+  operator_profile_id?: string | null;
+  operator_expiry?: OperatorExpiry;
 }
 
 export interface DriverLinkPayload {

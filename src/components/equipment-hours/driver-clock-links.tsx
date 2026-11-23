@@ -9,10 +9,11 @@
  */
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Copy, Link2, Loader2, Plus, RefreshCw, Square } from "lucide-react";
+import { Copy, IdCard, Link2, Loader2, Plus, RefreshCw, Square } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
+import { OperatorExpiryTag, OperatorProfileWindow } from "@/components/equipment-hours/operator-profile-window";
 import { FieldWrapper, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { SupplierPicker } from "@/components/shared/supplier-picker";
 import { Button } from "@/components/ui/button";
@@ -37,7 +38,16 @@ import {
 
 const TONE = { NOT_OPENED: "warning", IN_USE: "positive", STOPPED: "neutral" } as const;
 
-export function DriverClockLinksDialog({ project, onClose }: { project: string; onClose: () => void }) {
+export function DriverClockLinksDialog({
+  project,
+  onClose,
+  prefill,
+}: {
+  project: string;
+  onClose: () => void;
+  /** 登记这位操作人员 (JB233): the new-link form opens with these words. */
+  prefill?: { name: string; cidb: string };
+}) {
   const t = useTranslations("driverClock");
   const tRoot = useTranslations();
   const df = useDateFormat();
@@ -47,7 +57,9 @@ export function DriverClockLinksDialog({ project, onClose }: { project: string; 
   // The address, shown once after making or sending again.
   const [shown, setShown] = useState<{ name: string; url: string } | null>(null);
   const [copied, setCopied] = useState(false);
-  const [adding, setAdding] = useState(false);
+  const [adding, setAdding] = useState(Boolean(prefill && project));
+  // 操作人员资料 (JB233): the link whose papers are open.
+  const [papersOf, setPapersOf] = useState<string | null>(null);
   const [error, setError] = useState("");
   // The row whose 重新发送 / 停用 is waiting for its 确定 (JB206-8).
   const [asking, setAsking] = useState<{ id: string; kind: DriverLinkAsk } | null>(null);
@@ -100,6 +112,7 @@ export function DriverClockLinksDialog({ project, onClose }: { project: string; 
         {adding ? (
           <NewLinkForm
             project={project}
+            prefill={prefill}
             onCancel={() => setAdding(false)}
             onMade={(row) => {
               setAdding(false);
@@ -128,6 +141,8 @@ export function DriverClockLinksDialog({ project, onClose }: { project: string; 
                   <p className="flex flex-wrap items-center gap-2 font-medium">
                     {row.driver_name}
                     <StatusBadge label={t(`status.${row.status}`)} tone={TONE[row.status]} />
+                    {/* JB233: a paper of his ran out. */}
+                    <OperatorExpiryTag expiry={row.operator_expiry} />
                   </p>
                   <p className="truncate text-xs text-muted-foreground">
                     {[row.cidb_no ? `CIDB ${row.cidb_no}` : "", row.company_name, row.phone].filter(Boolean).join(" · ")}
@@ -154,6 +169,10 @@ export function DriverClockLinksDialog({ project, onClose }: { project: string; 
                     </p>
                   ) : null}
                 </div>
+                <Button size="sm" variant="outline" onClick={() => setPapersOf(row.id)}>
+                  <IdCard />
+                  {tRoot("equipmentHours.papers.papersLink")}
+                </Button>
                 <DriverLinkActions
                   active={row.is_active}
                   asking={asking?.id === row.id ? asking.kind : null}
@@ -172,6 +191,7 @@ export function DriverClockLinksDialog({ project, onClose }: { project: string; 
             {t("office.close")}
           </Button>
         </DialogFooter>
+        {papersOf ? <OperatorProfileWindow link={papersOf} onClose={() => setPapersOf(null)} /> : null}
       </DialogContent>
     </Dialog>
   );
@@ -245,16 +265,18 @@ export function DriverLinkActions({
 
 function NewLinkForm({
   project,
+  prefill,
   onCancel,
   onMade,
 }: {
   project: string;
+  prefill?: { name: string; cidb: string };
   onCancel: () => void;
   onMade: (row: DriverClockLink) => void;
 }) {
   const t = useTranslations("driverClock");
-  const [name, setName] = useState("");
-  const [cidb, setCidb] = useState("");
+  const [name, setName] = useState(prefill?.name ?? "");
+  const [cidb, setCidb] = useState(prefill?.cidb ?? "");
   const [supplier, setSupplier] = useState("");
   const [company, setCompany] = useState("");
   const [phone, setPhone] = useState("");
