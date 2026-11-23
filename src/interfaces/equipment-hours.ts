@@ -270,7 +270,6 @@ export interface OperatorPaperFile {
   preview_type: string | null;
   byte_size: number;
   is_image: boolean;
-  url: string | null;
   uploaded_at: string | null;
   uploaded_by_name: string;
 }

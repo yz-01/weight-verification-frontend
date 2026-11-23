@@ -356,9 +356,15 @@ export function removeOperatorFile(file: string): Promise<{ id: string }> {
   return api.post<{ id: string }>(`${OPERATORS}/remove_certificate_file/`, { file });
 }
 
-/** The file itself, fetched with the session, for the in-page viewer. */
-export function operatorFileObjectUrl(file: Pick<OperatorPaperFile, "id">): Promise<string> {
-  return fetchObjectUrl(`${OPERATORS}/certificate_file/`, { query: { file: file.id, inline: "1" } });
+/**
+ * The file itself, fetched with the session - for the in-page viewer and,
+ * `silent`, for a thumbnail (a thumbnail that fails stays a tile, no toast).
+ */
+export function operatorFileObjectUrl(
+  file: Pick<OperatorPaperFile, "id">,
+  { silent = false }: { silent?: boolean } = {},
+): Promise<string> {
+  return fetchObjectUrl(`${OPERATORS}/certificate_file/`, { query: { file: file.id, inline: "1" }, silent });
 }
 
 export function downloadOperatorFile(file: Pick<OperatorPaperFile, "id" | "original_name">): Promise<void> {
