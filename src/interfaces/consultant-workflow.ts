@@ -513,6 +513,8 @@ export interface ConsultantDashboardData {
     approved: number;
     returned: number;
     due_soon: number;
+    /** JB236: applications with remedial results waiting for this reader's review. */
+    remedial_review?: number;
   };
   pending: ConsultantDashboardRow[];
   due_soon: ConsultantDashboardRow[];

@@ -5680,6 +5680,8 @@
       "applicationHelp": "填寫 RFI 資料，並關聯現場照片和必需附件。",
       "approval": "審批",
       "approvalHelp": "顧問按順序審核，並使用簽核密碼簽署每項決定。",
+      "remedialReview": "整改待複核",
+      "remedialReviewHelp": "建築商已提交整改結果和照片，等你選「整改合格」或「退回繼續整改」。",
       "archive": "歸檔",
       "archiveHelp": "確認申請、審批記錄和最終報告都已保存。",
       "final": "最終報告",
@@ -5793,6 +5795,7 @@
         "archive": "歸檔",
         "draft": "申請",
         "final": "最終報告",
+        "remedial_review": "整改待複核",
         "inbox": "待整理現場資料"
       },
       "stageLabel": "申請階段",

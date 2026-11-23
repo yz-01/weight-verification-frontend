@@ -20,10 +20,11 @@ vi.mock("@/services/api-client", async (original) => ({
 vi.mock("@/components/ui/dialog", async () =>
   (await import("@/components/shared/record-detail-test-kit")).inlineDialogModule(),
 );
+const nav = vi.hoisted(() => ({ query: "" }));
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), back: vi.fn(), replace: vi.fn() }),
   usePathname: () => "/consultant-applications",
-  useSearchParams: () => new URLSearchParams(),
+  useSearchParams: () => new URLSearchParams(nav.query),
 }));
 const auth = vi.hoisted(() => ({
   user: {} as Record<string, unknown>,
@@ -59,6 +60,51 @@ const { renderDetail, RECORDER } = await import("@/components/shared/record-deta
 const { ConsultantApplicationDetail, lifecycleStages, remedialBadge, remedialNextText } = await import(
   "@/components/consultant-workflow/application-detail"
 );
+const { ConsultantDashboard } = await import("@/components/consultant-workflow/consultant-dashboard");
+const { ConsultantApplicationsList } = await import("@/components/consultant-workflow/applications-list");
+
+describe("顾问首页 「整改待复核」 and the list it opens", () => {
+  function dashboard(remedialReview: number) {
+    return renderDetail(<ConsultantDashboard />, (client) => {
+      client.setQueryData(["consultant-dashboard", "p1"], {
+        generated_at: "2026-11-23T09:00:00Z",
+        summary: {
+          pending: 0, draft: 0, in_approval: 0, final_reports: 0, archived: 0, today: 0,
+          approved: 0, returned: 0, due_soon: 0, remedial_review: remedialReview,
+        },
+        pending: [],
+        due_soon: [],
+        recent_decisions: [],
+      });
+      client.setQueryData(["consultant-dashboard", "notifications"], { count: 0, next: null, previous: null, results: [] });
+    });
+  }
+
+  it("shows the count beside the other steps, opening the filtered list", () => {
+    auth.user = { id: "c1", role: null, account_type: "CONSULTANT", active_project: { project_id: "p1" }, consultant_projects: [] };
+    auth.perms = ["approval.view", "approval.review", "project.view", "notification.view"];
+    const html = dashboard(3);
+    const at = html.indexOf('href="/consultant-applications?stage=remedial_review"');
+    expect(at).toBeGreaterThan(-1);
+    const card = html.slice(at, html.indexOf("</a>", at));
+    expect(card).toContain(messages.consultantDashboard.flow.remedialReview);
+    expect(card).toContain(">3<");
+  });
+
+  it("opens that list with its own tab, which is not there otherwise", () => {
+    auth.user = { id: "c1", role: null, account_type: "CONSULTANT", active_project: { project_id: "p1" }, consultant_projects: [] };
+    auth.perms = ["approval.view", "approval.review", "project.view", "notification.view"];
+    nav.query = "stage=remedial_review";
+    const opened = renderDetail(<ConsultantApplicationsList />);
+    nav.query = "";
+    const plain = renderDetail(<ConsultantApplicationsList />);
+    const tab = 'href="/consultant-applications?stage=remedial_review"';
+    expect(opened).toContain(tab);
+    expect(opened.slice(opened.lastIndexOf("<a", opened.indexOf(tab)), opened.indexOf(">", opened.indexOf(tab)))).toContain('aria-current="page"');
+    expect(opened).toContain(messages.consultantWorkflow.applications.stage.remedial_review);
+    expect(plain).not.toContain(tab);
+  });
+});
 
 const zh = messages.consultantWorkflow;
 const text = (html: string) => html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();

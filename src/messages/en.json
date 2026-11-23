@@ -5680,6 +5680,8 @@
       "applicationHelp": "Prepare the RFI details, site evidence and required attachments.",
       "approval": "Approval",
       "approvalHelp": "Consultants review in order and sign each decision with their sign-off PIN.",
+      "remedialReview": "Remedial work to review",
+      "remedialReviewHelp": "The contractor submitted the result and photos; choose 「Remedial work accepted」 or 「Return for further work」.",
       "archive": "Archive",
       "archiveHelp": "Confirm the application, approval history and final report are stored.",
       "final": "Final report",
@@ -5793,6 +5795,7 @@
         "archive": "Archive",
         "draft": "Application",
         "final": "Final report",
+        "remedial_review": "Remedial work to review",
         "inbox": "Site submissions to organise"
       },
       "stageLabel": "Application stage",

@@ -47,7 +47,9 @@ import { exportFieldTasks, getFieldTasks } from "@/services/contractor-ops.servi
  * menu entry (「现场资料收件箱」); it is the first step of an application,
  * so it is a tab here - for the office that prepares applications.
  */
-const STAGES = ["inbox", "all", "draft", "approval", "final", "archive"] as const;
+// JB236: "remedial_review" is the dashboard's 「整改待复核」; its tab shows only
+// while it is the one open (a to-do, not a stage every application passes).
+const STAGES = ["inbox", "all", "draft", "approval", "final", "archive", "remedial_review"] as const;
 type ApplicationStage = (typeof STAGES)[number];
 
 const tones: Record<
@@ -89,7 +91,8 @@ export function ConsultantApplicationsList() {
   const stages = STAGES.filter(
     (value) =>
       (value !== "inbox" || canOrganize) &&
-      (value !== "draft" || user?.account_type !== "CONSULTANT"),
+      (value !== "draft" || user?.account_type !== "CONSULTANT") &&
+      (value !== "remedial_review" || stageParam === value),
   );
   const stage: ApplicationStage = stages.includes(stageParam as ApplicationStage)
     ? (stageParam as ApplicationStage)
@@ -276,7 +279,7 @@ export function ConsultantApplicationsList() {
               ? Images
               : value === "draft"
               ? FileText
-              : value === "approval"
+              : value === "approval" || value === "remedial_review"
                 ? ClipboardCheck
                 : value === "final"
                   ? FileCheck2

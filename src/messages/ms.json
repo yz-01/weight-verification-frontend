@@ -5680,6 +5680,8 @@
       "applicationHelp": "Sediakan butiran RFI, bukti tapak dan lampiran wajib.",
       "approval": "Kelulusan",
       "approvalHelp": "Perunding menyemak mengikut turutan dan menandatangani setiap keputusan dengan PIN pengesahan.",
+      "remedialReview": "Kerja pembaikan untuk disemak",
+      "remedialReviewHelp": "Kontraktor telah menghantar hasil dan foto; pilih 「Pembaikan diterima」 atau 「Kembalikan untuk pembaikan lanjut」.",
       "archive": "Arkib",
       "archiveHelp": "Pastikan permohonan, sejarah kelulusan dan laporan akhir telah disimpan.",
       "final": "Laporan akhir",
@@ -5793,6 +5795,7 @@
         "archive": "Arkib",
         "draft": "Permohonan",
         "final": "Laporan akhir",
+        "remedial_review": "Kerja pembaikan untuk disemak",
         "inbox": "Bahan tapak untuk disusun"
       },
       "stageLabel": "Peringkat permohonan",
