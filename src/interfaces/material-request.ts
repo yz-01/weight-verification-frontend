@@ -201,6 +201,8 @@ export interface MaterialRequest extends RecordedBy {
   reminder_hours?: number;
   /** The detail only: who carries it out, and whether the reader is one of them. */
   execution_manager_names?: string[];
+  /** False when the approver stands in for a project with no project manager. */
+  execution_by_project_manager?: boolean | null;
   can_execute?: boolean;
 }
 

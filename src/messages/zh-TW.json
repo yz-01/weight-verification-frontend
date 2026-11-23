@@ -12712,7 +12712,7 @@
       "final_proof_submitted": "最終處理證明已提交（任務結束）",
       "legacy_confirmation": "後台驗收（舊流程）",
       "remark": "備註",
-      "decided_by": "批准 / 退回人",
+      "decided_by": "審批人",
       "request_approved_by": "批准人",
       "request_returned_by": "退回人",
       "execution_status": "執行狀態",
@@ -19479,6 +19479,7 @@
     "closedPaid": "已確認付款，聊天室已關閉。記錄仍可查看。",
     "closedDecided": "已批准或已退回，聊天室已關閉。記錄仍可查看。",
     "closedCompleted": "事項已確認完成，聊天室已關閉。記錄仍可查看。",
+    "closedReturned": "已退回，聊天室已關閉。記錄仍可查看。",
     "closedRejected": "已判不合格或已駁回，聊天室已關閉。記錄仍可查看。",
     "closedCancelled": "已取消，聊天室已關閉。記錄仍可查看。",
     "closedReadonly": "你只能查看這個溝通，沒有在裡面，不能發送。",
@@ -20047,7 +20048,11 @@
       "noteLabel": "完成說明（選填）",
       "notePlaceholder": "例如：已送到工地、已安排工人",
       "completedNotice": "{name} 於 {at} 確認完成。提醒已停止，事項溝通已關閉。",
-      "headOfficeView": "總部可以在這裡查看，但由專案經理確認完成。"
+      "headOfficeView": "總部可以在這裡查看，但由專案經理確認完成。",
+      "listSeparator": "、",
+      "waitingForApprover": "這個專案沒有專案經理，由批准人 {names} 確認完成。",
+      "confirmedByManager": "由專案經理確認完成。",
+      "confirmedByApprover": "由批准人確認完成。"
     },
     "allTypes": "全部申請類型",
     "filter": {
@@ -20067,7 +20072,7 @@
       "date": "日期",
       "status": "狀態",
       "view": "查看",
-      "decidedBy": "批准人 / 退回人",
+      "decidedBy": "審批人",
       "decidedAt": "審批時間",
       "approvedBy": "批准人",
       "returnedBy": "退回人",

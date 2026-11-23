@@ -148,8 +148,37 @@ describe("an approved request on the office detail (JB231)", () => {
     expect(html).toContain("等待项目经理 mike 确认完成。");
   });
 
+  it("pending says 审批人, never the combined label", () => {
+    reader.id = HQ;
+    const html = detail(approved({ status: "SUBMITTED", execution_status: "", decided_by_name: null, decided_at: null }));
+    expect(html).toContain("<dt>审批人</dt>");
+    expect(html).not.toContain("批准人 / 退回人");
+    for (const catalogue of [messages, en, zhTW, ms]) {
+      expect(catalogue.materialRequest.field.decidedBy).not.toContain("/");
+    }
+  });
+
+  it("names several managers with the reader's separator, and the approver as approver", () => {
+    reader.id = HQ;
+    expect(detail(approved({ execution_manager_names: ["mike", "ali"] }))).toContain("等待项目经理 mike、ali 确认完成。");
+    expect(en.materialRequest.execution.listSeparator).toBe(", ");
+    expect(ms.materialRequest.execution.listSeparator).toBe(", ");
+    const fallback = detail(approved({ execution_by_project_manager: false, execution_manager_names: ["测试建筑商 1"] }));
+    expect(fallback).toContain("这个项目没有项目经理，由批准人 测试建筑商 1 确认完成。");
+    expect(fallback).not.toContain("等待项目经理");
+    expect(fallback).toContain("由批准人确认完成。");
+  });
+
+  it("only head office reads the head-office sentence", () => {
+    reader.id = "u-viewer";
+    const html = detail(approved());
+    expect(html).toContain("由项目经理确认完成。");
+    expect(html).not.toContain("总部可以在这里查看");
+  });
+
   it("head office sees it but has no 确认完成", () => {
     reader.id = HQ;
+    reader.codes = ["material_request.view", "project.view_all"];
     const html = detail(approved());
     expect(html).not.toMatch(COMPLETE);
     expect(html).not.toMatch(START);
@@ -220,7 +249,8 @@ describe("the list, the chat and the words (JB231)", () => {
     expect(conversationClosedLine("completed", "MATERIAL_REQUEST")).toBe("recordChat.closedCompleted");
     expect(messages.recordChat.closedCompleted).toBe("事项已确认完成，聊天室已关闭。记录仍可查看。");
     // Returned still closes as decided.
-    expect(conversationClosedLine("decided", "MATERIAL_REQUEST")).toBe("recordChat.closedDecided");
+    expect(conversationClosedLine("decided", "MATERIAL_REQUEST")).toBe("recordChat.closedReturned");
+    expect(messages.recordChat.closedReturned).toBe("已退回，聊天室已关闭。记录仍可查看。");
   });
 
   it("says the statuses in all four languages", () => {

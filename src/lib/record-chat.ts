@@ -176,6 +176,8 @@ export type ConversationClosed =
   | "archived"
   | "paid"
   | "decided"
+  // An approved MR / 其他申请 its project manager confirmed completed (JB231).
+  | "completed"
   | "rejected"
   | "cancelled"
   | "readonly"
@@ -188,6 +190,7 @@ export type ConversationClosedLine =
   | "recordChat.closedPaid"
   | "recordChat.closedDecided"
   | "recordChat.closedCompleted"
+  | "recordChat.closedReturned"
   | "recordChat.closedTaskDone"
   | "recordChat.closedRejected"
   | "recordChat.closedCancelled"
@@ -213,6 +216,9 @@ export function conversationClosedLine(
   // A field task is finished, not "approved or returned" (JB129: 确认完成).
   if (closed === "decided" && kind === "FIELD_TASK") return "recordChat.closedTaskDone";
   // A material request, once approved or returned (C05).
+  // An MR / 其他申请 closes as "decided" only when returned since JB231
+  // (approved, it stays open until 确认完成).
+  if (closed === "decided" && kind === "MATERIAL_REQUEST") return "recordChat.closedReturned";
   if (closed === "decided") return "recordChat.closedDecided";
   // An approved MR / 其他申请 its project manager confirmed completed (JB231).
   if (closed === "completed") return "recordChat.closedCompleted";
