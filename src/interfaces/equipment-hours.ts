@@ -151,6 +151,12 @@ export interface EquipmentHoursSession extends RecordedBy {
   cidb_no?: string;
   /** Every version, newest first. */
   operator_history?: EquipmentSessionOperatorEntry[];
+  /**
+   * 操作人员资料 (JB233): the registered operator the row names - null for a
+   * name typed by hand - and whether one of his papers ran out.
+   */
+  operator_profile_id?: string | null;
+  operator_expiry?: OperatorExpiry;
 }
 
 /** One machine of the chosen supplier and its hours over the range (I4). */
@@ -243,6 +249,94 @@ export interface EquipmentSessionOperatorPayload {
   operator_name: string;
   cidb_no: string;
   apply_to_day: boolean;
+  /** A registered operator picked from the list (JB233). */
+  profile?: string | null;
+}
+
+/** expired / expiring (within 30 days) / ok / none (no date filled in). */
+export type OperatorExpiry = "expired" | "expiring" | "ok" | "none";
+
+export type OperatorCertificateCategory = "CIDB" | "DRIVING_LICENCE" | "MACHINE_COMPETENCY" | "OTHER";
+
+export type OperatorFileSection = "CIDB" | "DRIVING_LICENCE" | "CERTIFICATE";
+
+/** A photo or PDF of a card or certificate (JB233). */
+export interface OperatorPaperFile {
+  id: string;
+  section: OperatorFileSection;
+  certificate: string | null;
+  original_name: string;
+  content_type: string;
+  preview_type: string | null;
+  byte_size: number;
+  is_image: boolean;
+  uploaded_at: string | null;
+  uploaded_by_name: string;
+}
+
+export interface OperatorCertificate {
+  id: string;
+  category: OperatorCertificateCategory;
+  title: string;
+  number: string;
+  issued_on: string | null;
+  expires_on: string | null;
+  expiry: OperatorExpiry;
+  files: OperatorPaperFile[];
+}
+
+/** One registered operator's papers, as the 操作人员资料 window shows them. */
+export interface OperatorPapers {
+  id: string;
+  kind: "link" | "account";
+  link: string | null;
+  user: string | null;
+  name: string;
+  company_name: string;
+  project_name: string;
+  is_active: boolean;
+  /** Only for those who manage the drivers. */
+  phone: string | null;
+  cidb_no: string;
+  cidb_expires_on: string | null;
+  cidb_expiry: OperatorExpiry;
+  licence_no: string;
+  licence_class: string;
+  licence_expires_on: string | null;
+  licence_expiry: OperatorExpiry;
+  certificates: OperatorCertificate[];
+  cidb_files: OperatorPaperFile[];
+  licence_files: OperatorPaperFile[];
+  expiry: OperatorExpiry;
+  can_edit: boolean;
+}
+
+/** One line of 「选择已登记的操作人员」. */
+export interface RegisteredOperator {
+  id: string;
+  kind: "link" | "account";
+  name: string;
+  cidb_no: string;
+  company_name: string;
+  expiry: OperatorExpiry;
+}
+
+/** What 编辑资料 sends: the card, the licence and the whole certificate list. */
+export interface OperatorPapersPayload {
+  profile: string;
+  cidb_no: string;
+  cidb_expires_on: string | null;
+  licence_no: string;
+  licence_class: string;
+  licence_expires_on: string | null;
+  certificates: Array<{
+    id?: string;
+    category: OperatorCertificateCategory;
+    title: string;
+    number: string;
+    issued_on: string | null;
+    expires_on: string | null;
+  }>;
 }
 
 /** The office's time for one session: the end, or the start - one of the two. */

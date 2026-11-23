@@ -44,6 +44,7 @@ import {
 } from "@/components/ui/table";
 import { useListQuery } from "@/hooks/use-list-query";
 import { DISPATCH_STATES, type DispatchState } from "@/interfaces/contractor";
+import { materialLineLabel, unitsOf } from "@/lib/material-totals";
 import {
   getDispatchSummary,
   getProjects,
@@ -345,6 +346,10 @@ function RankedBars({
  * true. Within tonnes, 24.75 against 18.5 is a comparison; across tonnes and
  * bags, bar length would compare two different things and read as if it
  * meant something.
+ *
+ * Each bar is one material + specification (JB232, 客户 11-20 事项 4), and a
+ * section has no total of its own: 「即使单位相同，只要材料名称或规格不同，也
+ * 不能直接相加」 - the old heading added G15 to G25 concrete.
  */
 function ReceiptsPanel({
   data,
@@ -360,12 +365,13 @@ function ReceiptsPanel({
   const t = useTranslations();
   const unitName = useUnitName();
 
-  const units = (data?.by_unit ?? []).map((unit) => ({
-    ...unit,
-    materials: (data?.by_material ?? [])
-      .filter((material) => material.unit === unit.unit)
+  const materials = data?.by_material ?? [];
+  const units = unitsOf(materials).map((unit) => ({
+    unit,
+    materials: materials
+      .filter((material) => material.unit === unit)
       .map((material) => ({
-        label: material.material_name,
+        label: materialLineLabel(material),
         value: Number(material.quantity),
         receipts: material.receipts,
       })),
@@ -392,12 +398,6 @@ function ReceiptsPanel({
                 <h4 className="panel-title">
                   {unitName(unit.unit)}
                 </h4>
-                <span className="tabular text-sm font-medium text-foreground">
-                  {unit.quantity}
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  {t("reports.receipts.deliveries")} · {unit.receipts}
-                </span>
               </div>
               <RankedBars data={unit.materials} valueKey="value" />
             </section>

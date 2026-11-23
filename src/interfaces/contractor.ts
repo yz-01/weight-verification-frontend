@@ -615,6 +615,11 @@ export interface MySubmissionRow {
    */
   movement_status?: string;
   /**
+   * An approved MR / 其他申请's 执行状态 (JB231): PENDING, IN_PROGRESS or
+   * COMPLETED; "" while pending or returned. The badge says both.
+   */
+  execution_status?: string;
+  /**
    * The machine an equipment movement is about: what the phone checks the
    * scanned QR against at the actual exit, with or without signal (ID60).
    */
@@ -862,10 +867,19 @@ export interface DeliveryNoteOCRResult {
   proof: string;
 }
 
-/** One 「不合格」 / 「退货」 card (J36): how many records, and the quantity per unit. */
+/**
+ * One 「不合格」 / 「退货」 card (J36): how many records, and the quantity per
+ * material + specification + unit (JB232 - never per unit alone).
+ */
 export interface ReceiptSummaryCard {
   count: number;
-  by_unit: Array<{ unit: MaterialUnit; quantity: string; count: number }>;
+  by_material: Array<{
+    material_name: string;
+    material_specification: string;
+    unit: MaterialUnit;
+    quantity: string;
+    count: number;
+  }>;
 }
 
 export interface ReceiptSummary {
@@ -878,17 +892,12 @@ export interface ReceiptSummary {
   priced_receipts: number;
   unpriced_receipts: number;
   /**
+   * 「按材料统计数量」: per material, specification and unit (E5) - the only
+   * quantity figures (JB232: the per-unit ones added different materials).
    * 数量 is the filter period; 累计数量 runs from the first delivery to the
    * period's last day. Both count deliveries not rejected and never take a
    * return off (E5, Q24, Q4).
    */
-  by_unit: Array<{
-    unit: MaterialUnit;
-    quantity: string;
-    cumulative_quantity: string;
-    receipts: number;
-  }>;
-  /** 「按材料统计数量」: per material, specification and unit (E5). */
   quantity_by_material: Array<{
     material_name: string;
     material_specification: string;

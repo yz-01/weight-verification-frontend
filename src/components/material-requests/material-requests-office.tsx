@@ -28,10 +28,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
   Check,
+  CheckCheck,
   Eye,
   FilePlus2,
   Loader2,
   Pencil,
+  Play,
   RotateCcw,
   Send,
   Settings2,
@@ -108,8 +110,10 @@ import { useListQuery } from "@/hooks/use-list-query";
 import { useUrlSelection } from "@/hooks/use-url-selection";
 import { ApiError } from "@/interfaces/api";
 import {
+  MATERIAL_REQUEST_EXECUTION_FILTERS,
   MATERIAL_REQUEST_STATUSES,
   type MaterialRequest,
+  type MaterialRequestExecutionStatus,
   type MaterialRequestStatus,
 } from "@/interfaces/material-request";
 import { awaitingFieldTasksAddress } from "@/lib/awaiting-field-tasks";
@@ -125,6 +129,8 @@ import {
   managerDecideMaterialRequest,
   getMaterialRequestReviewerOptions,
   reassignMaterialRequestToMe,
+  confirmMaterialRequestCompletion,
+  startMaterialRequestExecution,
   reviewMaterialRequest, exportMaterialRequestTotals, getRequestTypes } from "@/services/material-request.service";
 import { LIST_FITS } from "@/lib/list-fits";
 
@@ -134,6 +140,23 @@ const TONE: Record<MaterialRequestStatus, "warning" | "positive" | "neutral"> = 
   // Finished, not waiting and not an alarm (Q1): grey, with its reason.
   RETURNED: "neutral",
 };
+
+/**
+ * 执行状态 (JB231, 客户 11-20 事项 3): approved is not done - 待执行 and 处理中
+ * still wait for the project manager's 「确认完成」.
+ */
+const EXECUTION_TONE: Record<MaterialRequestExecutionStatus, "warning" | "positive" | "info"> = {
+  PENDING: "warning",
+  IN_PROGRESS: "info",
+  COMPLETED: "positive",
+};
+
+/** The 执行状态 badge, or a dash on a request not approved. */
+export function ExecutionBadge({ status }: { status?: MaterialRequestExecutionStatus | "" }) {
+  const t = useTranslations("materialRequest");
+  if (!status) return <span className="text-muted-foreground">—</span>;
+  return <StatusBadge label={t(`execution.${status}`)} tone={EXECUTION_TONE[status]} />;
+}
 
 type Tab = "requests" | "totals";
 
@@ -191,6 +214,8 @@ function RequestsTab() {
   const list = useListQuery([
     "project", "status", "request_type", "request_kind", "request_kind_name", "material", "specification",
     "unit", "supplier", "manufacturer", "date_from", "date_to",
+    // 执行状态 (JB231): 「已批准未完成」 is head office's dashboard line.
+    "execution_status",
   ]);
   // The type filter (ID37): the chosen project's own types, or on 全部项目
   // each name once (设备申请 on every site).
@@ -329,7 +354,24 @@ function RequestsTab() {
         id: "status",
         meta: { label: t("field.status") },
         header: () => <PlainHeader label={t("field.status")} />,
-        cell: ({ row }) => <StatusBadge label={t(`status.${row.original.status}`)} tone={TONE[row.original.status]} />,
+        // 审批状态, and an approved request's 执行状态 under it (JB231): the
+        // list fits 1366 px and still says 「已批准」 is not 「已完成」.
+        cell: ({ row }) => (
+          <span className="inline-flex flex-col items-start gap-1">
+            <StatusBadge label={t(`status.${row.original.status}`)} tone={TONE[row.original.status]} />
+            {row.original.status === "APPROVED" && row.original.execution_status ? (
+              <ExecutionBadge status={row.original.execution_status} />
+            ) : null}
+          </span>
+        ),
+      },
+      // 执行状态 (JB231): what became of an approved request, as its own
+      // column under 「字段」.
+      {
+        id: "execution_status",
+        meta: { label: t("field.executionStatus") },
+        header: () => <PlainHeader label={t("field.executionStatus")} />,
+        cell: ({ row }) => <ExecutionBadge status={row.original.execution_status} />,
       },
       {
         id: "view",
@@ -383,6 +425,18 @@ function RequestsTab() {
         { key: "decided_by_name", label: t("field.decidedBy") },
         { key: "decided_at", label: t("field.decidedAt") },
         { key: "decision_note", label: t("field.returnReason") },
+        // 执行状态, 确认完成人, 确认完成时间 (JB231).
+        {
+          key: "execution_status",
+          label: t("field.executionStatus"),
+          values: {
+            PENDING: t("execution.PENDING"),
+            IN_PROGRESS: t("execution.IN_PROGRESS"),
+            COMPLETED: t("execution.COMPLETED"),
+          },
+        },
+        { key: "completed_by_name", label: t("field.completedBy") },
+        { key: "completed_at", label: t("field.completedAt") },
         { key: "content", label: t("field.content") },
         { key: "remark", label: t("field.remark") },
       ],
@@ -439,6 +493,12 @@ function RequestsTab() {
               param="status"
               allLabel={tRoot("moduleTable.allStatuses")}
               options={MATERIAL_REQUEST_STATUSES.map((status) => ({ value: status, label: t(`status.${status}`) }))}
+            />
+            <FilterSelect
+              list={list}
+              param="execution_status"
+              allLabel={t("execution.all")}
+              options={MATERIAL_REQUEST_EXECUTION_FILTERS.map((status) => ({ value: status, label: t(`execution.${status}`) }))}
             />
             <TextFilter list={list} param="material" placeholder={t("filter.material")} />
             <TextFilter list={list} param="specification" placeholder={t("filter.specification")} />
@@ -709,6 +769,28 @@ export function MaterialRequestDetail({
     onError: (reasonError) => setError(reasonError instanceof ApiError ? reasonError.message : t("failed")),
   });
 
+  // 开始处理 / 确认完成 (JB231): the project manager's, after approval.
+  const [completionNote, setCompletionNote] = useState("");
+  const afterExecution = () => {
+    setError("");
+    void qc.invalidateQueries({ queryKey: ["material-requests"] });
+    // 确认完成 closes the conversation: refetch so the composer goes.
+    void qc.invalidateQueries({ queryKey: recordConversationKey("MATERIAL_REQUEST", id) });
+  };
+  const startExecution = useMutation({
+    mutationFn: () => startMaterialRequestExecution(id),
+    onSuccess: afterExecution,
+    onError: (reasonError) => setError(reasonError instanceof ApiError ? reasonError.message : t("failed")),
+  });
+  const confirmCompletion = useMutation({
+    mutationFn: () => confirmMaterialRequestCompletion(id, completionNote.trim()),
+    onSuccess: () => {
+      setCompletionNote("");
+      afterExecution();
+    },
+    onError: (reasonError) => setError(reasonError instanceof ApiError ? reasonError.message : t("failed")),
+  });
+
   // 「归档后锁定记录」 for the request's project (JB214-3d).
   const archiveLocks = useArchiveLocksChanges(detail.data?.project);
   const row = detail.data;
@@ -751,6 +833,9 @@ export function MaterialRequestDetail({
   const forwards = row.decisions.filter((entry) => entry.decision === "FORWARDED");
   // 「总部代批」 (JB206-13): head office decided it for an away manager.
   const onBehalf = row.decisions.filter((entry) => entry.on_behalf);
+  // 执行状态 (JB231): approved is not done until the project manager confirms it.
+  const execution = row.status === "APPROVED" ? row.execution_status || "" : "";
+  const executionOpen = execution === "PENDING" || execution === "IN_PROGRESS";
 
   return (
     <RecordDetailDialog title={row.request_no} description={`${row.project_name} · ${requestTypeName(row, t)}`} onClose={onClose}>
@@ -792,7 +877,12 @@ export function MaterialRequestDetail({
           ) : null
         }
         facts={[
-          { label: t("field.status"), value: <StatusBadge label={t(`status.${row.status}`)} tone={TONE[row.status]} /> },
+          // 审批状态 and 执行状态 apart (JB231, 「审批与事项完成分开」).
+          {
+            label: execution ? t("field.approvalStatus") : t("field.status"),
+            value: <StatusBadge label={t(`status.${row.status}`)} tone={TONE[row.status]} />,
+          },
+          ...(execution ? [{ label: t("field.executionStatus"), value: <ExecutionBadge status={execution} /> }] : []),
           { label: t("field.requestType"), value: requestTypeName(row, t) },
           { label: t("field.project"), value: `${row.project_code} - ${row.project_name}` },
           // The simple form (ID48): what is asked for, and the details.
@@ -827,6 +917,16 @@ export function MaterialRequestDetail({
             label: decided ? decidedLabel : t("field.decidedBy"),
             value: decided ? who(row.decided_by_name, row.decided_at) : t("pendingDecision"),
           },
+          // Who started it and who confirmed it completed, with the time (JB231).
+          ...(execution && row.execution_started_by_name
+            ? [{ label: t("field.executionStartedBy"), value: who(row.execution_started_by_name, row.execution_started_at ?? null) }]
+            : []),
+          ...(execution === "COMPLETED"
+            ? [
+                { label: t("field.completedBy"), value: who(row.completed_by_name ?? null, row.completed_at ?? null) },
+                ...(row.completion_note ? [{ label: t("field.completionNote"), value: row.completion_note, wide: true }] : []),
+              ]
+            : []),
           { label: t("field.remark"), value: row.remark || t("noRemark"), wide: true },
           ...(row.decision_note
             ? [{ label: row.status === "RETURNED" ? t("field.returnReason") : t("field.decisionNote"), value: row.decision_note, wide: true }]
@@ -1081,6 +1181,68 @@ export function MaterialRequestDetail({
                 </Button>
                 <p className="text-xs text-muted-foreground">{t("reassignHelp")}</p>
               </div>
+            )}
+            {/* 执行 (JB231): what approval does not finish. Everyone reading an
+                open one is told why it still waits; the project manager has
+                the two buttons. */}
+            {executionOpen && (
+              <div className="space-y-2 rounded-md border border-warning/25 bg-warning/5 p-2" data-slot="material-request-execution">
+                <p className="text-xs leading-5">{t("execution.explain")}</p>
+                {(row.execution_manager_names ?? []).length > 0 && (
+                  <p className="text-xs text-muted-foreground">
+                    {/* The approver stands in on a project with no project
+                        manager - not called 「项目经理」 then. */}
+                    {t(row.execution_by_project_manager === false ? "execution.waitingForApprover" : "execution.waitingFor", {
+                      names: (row.execution_manager_names ?? []).join(t("execution.listSeparator")),
+                    })}
+                  </p>
+                )}
+                {(row.reminder_count ?? 0) > 0 && row.reminded_at && (
+                  <p className="text-xs text-muted-foreground">
+                    {t("execution.reminded", { count: row.reminder_count ?? 0, at: df.dateTime(row.reminded_at) })}
+                  </p>
+                )}
+                {row.can_execute ? (
+                  <div className="space-y-2">
+                    {execution === "PENDING" && (
+                      <Button size="sm" variant="outline" disabled={startExecution.isPending} onClick={() => startExecution.mutate()}>
+                        <Play />
+                        {t("execution.start")}
+                      </Button>
+                    )}
+                    <p className="text-xs text-muted-foreground">{t("execution.completeHelp")}</p>
+                    <FieldWrapper label={t("execution.noteLabel")}>
+                      <Textarea
+                        value={completionNote}
+                        placeholder={t("execution.notePlaceholder")}
+                        onChange={(event) => setCompletionNote(event.target.value)}
+                      />
+                    </FieldWrapper>
+                    <Button size="sm" disabled={confirmCompletion.isPending} onClick={() => confirmCompletion.mutate()}>
+                      <CheckCheck />
+                      {t("execution.complete")}
+                    </Button>
+                  </div>
+                ) : (
+                  !user?.is_field_staff && (
+                    <p className="text-xs text-muted-foreground">
+                      {row.execution_by_project_manager === false
+                        ? t("execution.confirmedByApprover")
+                        : can("project.view_all")
+                          ? t("execution.headOfficeView")
+                          : t("execution.confirmedByManager")}
+                    </p>
+                  )
+                )}
+              </div>
+            )}
+            {execution === "COMPLETED" && (
+              <p className="rounded-md border bg-muted/40 px-2 py-1.5 text-xs" data-slot="material-request-completed">
+                {t("execution.completedNotice", {
+                  name: row.completed_by_name ?? "—",
+                  at: row.completed_at ? df.dateTime(row.completed_at) : "—",
+                })}
+              </p>
             )}
             {reviewView === "own" && (
               <p className="rounded-md border border-warning/25 bg-warning/5 px-2 py-1.5 text-xs">{waitingLine ?? t("ownRequestWaiting")}</p>

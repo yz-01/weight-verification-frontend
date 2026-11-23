@@ -69,7 +69,17 @@ export interface ExportSummary {
    * 「累计总数量」 - per material, specification and unit: the period, the
    * running total from the first delivery, and the deliveries (E5).
    */
-  groupBy: "unit" | "material" | "material_cumulative";
+  /**
+   * `material_unit` (JB232, 客户 11-20 事项 4): a material list's totals per
+   * material + specification + unit - 材料 / 规格 / 单位 / 累计数量 / 笔数.
+   * Only identical name, specification and unit add up. `unit` alone is for
+   * equipment and waste, which are not materials; a material list's server
+   * never answers it.
+   */
+  groupBy: "unit" | "material" | "material_cumulative" | "material_unit";
+  /** `material_unit`: the words of an empty specification and an empty unit. */
+  noSpecLabel?: string;
+  noUnitLabel?: string;
   title: string;
   unitLabel: string;
   quantityLabel: string;
@@ -155,9 +165,41 @@ export function exportBody(request: ExportRequest) {
                   cumulative_label: request.summary.cumulativeLabel ?? "",
                 }
               : {}),
+            ...(request.summary.groupBy === "material_unit"
+              ? {
+                  material_label: request.summary.materialLabel ?? "",
+                  specification_label: request.summary.specificationLabel ?? "",
+                  no_spec_label: request.summary.noSpecLabel ?? "",
+                  no_unit_label: request.summary.noUnitLabel ?? "",
+                }
+              : {}),
           },
         }
       : {}),
+  };
+}
+
+/**
+ * The totals block every material list prints under its rows (JB232): per
+ * material + specification + unit, worded from `exportTotals`. One place, so
+ * 材料退场, 材料出场 and the receipts' other tabs say the same thing.
+ * `t` is the root translator; `unitLabel` the list's own 单位 heading.
+ */
+export function materialUnitSummary(
+  t: (key: string) => string,
+  unitLabel: string,
+): ExportSummary {
+  return {
+    groupBy: "material_unit",
+    title: t("exportTotals.materialTitle"),
+    materialLabel: t("exportTotals.material"),
+    specificationLabel: t("exportTotals.specification"),
+    unitLabel,
+    quantityLabel: t("exportTotals.quantity"),
+    countLabel: t("exportTotals.records"),
+    noSpecLabel: t("exportTotals.noSpec"),
+    noUnitLabel: t("exportTotals.noUnit"),
+    note: t("exportTotals.materialNote"),
   };
 }
 

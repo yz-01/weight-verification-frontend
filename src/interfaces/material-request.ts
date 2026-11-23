@@ -16,6 +16,21 @@ export const MATERIAL_REQUEST_STATUSES: readonly MaterialRequestStatus[] = [
   "RETURNED",
 ];
 
+/**
+ * What became of an approved request (JB231, 客户 11-20 事项 3: 「审批与事项完成
+ * 分开」): 待执行, 处理中, 已完成. Empty while pending and on a returned one.
+ */
+export type MaterialRequestExecutionStatus = "PENDING" | "IN_PROGRESS" | "COMPLETED";
+
+export const MATERIAL_REQUEST_EXECUTION_STATUSES: readonly MaterialRequestExecutionStatus[] = [
+  "PENDING",
+  "IN_PROGRESS",
+  "COMPLETED",
+];
+
+/** The list's 执行状态 filter: the three, and `OPEN` - 「已批准未完成」 (head office's line). */
+export const MATERIAL_REQUEST_EXECUTION_FILTERS = ["OPEN", ...MATERIAL_REQUEST_EXECUTION_STATUSES] as const;
+
 export interface MaterialRequestAttachment {
   id: string;
   file: string;
@@ -172,6 +187,23 @@ export interface MaterialRequest extends RecordedBy {
   attachment_count: number;
   decisions: MaterialRequestDecision[];
   created_at: string;
+  /** 执行状态 (JB231): "" while pending or returned. */
+  execution_status?: MaterialRequestExecutionStatus | "";
+  execution_started_at?: string | null;
+  execution_started_by_name?: string | null;
+  /** 「确认完成」: who and when, and his optional note. */
+  completed_at?: string | null;
+  completed_by_name?: string | null;
+  completion_note?: string;
+  /** The 24-hour follow-up: when the last went out and how many have. */
+  reminded_at?: string | null;
+  reminder_count?: number;
+  reminder_hours?: number;
+  /** The detail only: who carries it out, and whether the reader is one of them. */
+  execution_manager_names?: string[];
+  /** False when the approver stands in for a project with no project manager. */
+  execution_by_project_manager?: boolean | null;
+  can_execute?: boolean;
 }
 
 /** One group of the totals (C04): approved and pending are never added. */

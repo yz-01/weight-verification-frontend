@@ -1,13 +1,21 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Camera, Eye, Hash, Link2, Loader2, PencilLine, RotateCcw, ScanLine, Search, UserRound, UsersRound } from "lucide-react";
+import { Camera, Eye, Hash, IdCard, Link2, Loader2, PencilLine, RotateCcw, ScanLine, Search, UserRound, UsersRound } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { matchScannedMachine } from "@/components/equipment-hours/equipment-hours-capture";
 import { OperatorDialog, OperatorHistory } from "@/components/equipment-hours/equipment-session-operator";
+import {
+  OperatorExpiryTag,
+  OperatorNameCell,
+  OperatorProfileWindow,
+  papersTargetOf,
+  type RegisterPrefill,
+  type OperatorPapersTarget,
+} from "@/components/equipment-hours/operator-profile-window";
 import { DriverBindingHints, DriverBindingsDialog } from "@/components/equipment-hours/driver-bindings";
 import { DriverClockLinksDialog } from "@/components/equipment-hours/driver-clock-links";
 import { EquipmentNormalHoursButton } from "@/components/equipment-hours/equipment-normal-hours";
@@ -291,10 +299,20 @@ export function EquipmentOperatorHours() {
   }
   // 司机打卡链接 (J26): the drivers' own clock-in links.
   const [driverLinks, setDriverLinks] = useState(false);
+  // 登记这位操作人员 (JB233): a new driver link with the typed name filled in.
+  const [registering, setRegistering] = useState<RegisterPrefill | null>(null);
   // 设备绑定司机 (JB227): which driver phone may clock which machine.
   const [driverBindings, setDriverBindings] = useState(false);
   // 操作人员 / CIDB 卡号 being written for this row (I4, ID19).
   const [naming, setNaming] = useState<EquipmentHoursSession | null>(null);
+  // 操作人员资料 (JB233): the papers the operator's name opens, and the row's project.
+  const [papers, setPapers] = useState<{ target: OperatorPapersTarget; project: string } | null>(null);
+  const register = (prefill: RegisterPrefill) => {
+    setPapers(null);
+    setOpened(null);
+    setRegistering(prefill);
+    setDriverLinks(true);
+  };
   // 「设备编号 / 扫描二维码」 in the filters (I4): a webcam or a scanner gun.
   const [scanning, setScanning] = useState(false);
   const [scanMiss, setScanMiss] = useState("");
@@ -645,7 +663,10 @@ export function EquipmentOperatorHours() {
           {/* The client's columns, in the client's order (2026-10 I4):
               设备编号｜设备名称｜供应商｜操作人员｜CIDB 卡号｜日期｜开工时间｜收工时间｜
               工时｜查看 - with 累计工时 (Lucas, 2026-10-10) before 查看.
-              Fits the page with 查看 pinned at the right (I39). */}
+              Fits the page with 查看 pinned at the right (I39). Since JB233
+              (客户 11-20 事项 5: 「列表只需要显示操作人员姓名」) the CIDB 卡号 is in
+              the operator's papers the name opens, not a column (the export
+              keeps it). */}
           <Table fit>
             <TableHeader>
               <TableRow>
@@ -656,7 +677,6 @@ export function EquipmentOperatorHours() {
                 <TableHead>{t("field.supplier")}</TableHead>
                 <TableHead>{t("field.inspection")}</TableHead>
                 <TableHead>{t("field.operator")}</TableHead>
-                <TableHead>{t("field.cidb")}</TableHead>
                 <TableHead>{t("field.date")}</TableHead>
                 <TableHead>{t("field.startTime")}</TableHead>
                 <TableHead>{t("field.endTime")}</TableHead>
@@ -674,13 +694,13 @@ export function EquipmentOperatorHours() {
             <TableBody>
               {days.isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={17} className="h-20 text-center text-muted-foreground">
+                  <TableCell colSpan={16} className="h-20 text-center text-muted-foreground">
                     <Loader2 className="size-4 animate-spin" />
                   </TableCell>
                 </TableRow>
               ) : rows.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={17} className="h-20 text-center text-muted-foreground">
+                  <TableCell colSpan={16} className="h-20 text-center text-muted-foreground">
                     {t("day.empty")}
                   </TableCell>
                 </TableRow>
@@ -723,30 +743,16 @@ export function EquipmentOperatorHours() {
                         <InspectionBadge inspection={row.inspection} />
                       </TableCell>
                       <TableCell>
-                        {canAdjust ? (
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="h-auto px-1.5 py-1 font-normal"
-                            onClick={(event) => {
-                              event.stopPropagation();
-                              setNaming(row);
-                            }}
-                          >
-                            {row.operator_name ? (
-                              row.operator_name
-                            ) : (
-                              <span className="inline-flex items-center gap-1 text-muted-foreground">
-                                <UserRound />
-                                {t("operator.fill")}
-                              </span>
-                            )}
-                          </Button>
-                        ) : (
-                          row.operator_name || ""
-                        )}
+                        {/* Only the name (JB233): it opens his papers; a red
+                            「证件过期」 when one ran out. Empty: 「填写」. */}
+                        <OperatorNameCell
+                          name={row.operator_name}
+                          expiry={row.operator_expiry}
+                          canFill={canAdjust}
+                          onOpen={() => setPapers({ target: papersTargetOf(row), project: row.project })}
+                          onFill={() => setNaming(row)}
+                        />
                       </TableCell>
-                      <TableCell>{row.cidb_no || ""}</TableCell>
                       <TableCell className="tabular whitespace-nowrap">{df.date(row.work_date)}</TableCell>
                       <TableCell className="tabular whitespace-nowrap">
                         {row.missing_start ? (
@@ -812,7 +818,6 @@ export function EquipmentOperatorHours() {
                   ))}
                   <TableRow>
                     <TableCell className="font-semibold">{t("month.total")}</TableCell>
-                    <TableCell />
                     <TableCell />
                     <TableCell />
                     <TableCell />
@@ -931,7 +936,23 @@ export function EquipmentOperatorHours() {
       )}
 
       {driverLinks && (
-        <DriverClockLinksDialog project={projectFilterValue(project)} onClose={() => setDriverLinks(false)} />
+        <DriverClockLinksDialog
+          project={registering?.project || projectFilterValue(project)}
+          prefill={registering ?? undefined}
+          onClose={() => {
+            setDriverLinks(false);
+            setRegistering(null);
+          }}
+        />
+      )}
+
+      {papers && (
+        <OperatorProfileWindow
+          profile={papers.target.profile}
+          typed={papers.target.typed}
+          onClose={() => setPapers(null)}
+          onRegister={(typed) => register({ ...typed, project: papers.project })}
+        />
       )}
 
       {driverBindings && (
@@ -943,6 +964,7 @@ export function EquipmentOperatorHours() {
           key={opened.key}
           day={opened}
           canAdjust={canAdjust}
+          onRegister={register}
           onClose={() => setOpened(null)}
           onSaved={setOpened}
           onOpenOther={openOther}
@@ -1064,6 +1086,7 @@ export function DayDialog({
   onClose,
   onSaved,
   onOpenOther,
+  onRegister,
 }: {
   day: EquipmentHoursSession;
   canAdjust: boolean;
@@ -1071,6 +1094,8 @@ export function DayDialog({
   onSaved: (day: EquipmentHoursSession) => void;
   /** Open the other entry a refusal named (the 「查看那一笔」 link). */
   onOpenOther?: (target: OtherSessionTarget) => void;
+  /** 登记这位操作人员 (JB233): a driver link for a name typed by hand. */
+  onRegister?: (prefill: RegisterPrefill) => void;
 }) {
   const t = useTranslations("equipmentHours");
   const df = useDateFormat();
@@ -1092,6 +1117,9 @@ export function DayDialog({
   const [error, setError] = useState("");
   const [otherEntry, setOtherEntry] = useState<OtherSessionTarget | null>(null);
   const [naming, setNaming] = useState(false);
+  // 操作人员资料 (JB233), from the 操作人员 fact.
+  const [papersOpen, setPapersOpen] = useState(false);
+  const papersTarget = papersTargetOf(day);
   const hint = earliestHint(day, t, df);
   const timeLabel = mode === "start" ? t("adjust.startAt") : t("adjust.endAt");
 
@@ -1164,7 +1192,21 @@ export function DayDialog({
           ...(day.taken_on_name ? [{ label: t("field.takenOn"), value: day.taken_on_name }] : []),
           { label: t("field.supplier"), value: day.supplier_name || "-" },
           // 操作人员 / CIDB 卡号 as the office wrote them (I4, ID19).
-          { label: t("field.operator"), value: day.operator_name || "-" },
+          // The name opens his papers (JB233), with the expiry tag.
+          {
+            label: t("field.operator"),
+            value: day.operator_name ? (
+              <OperatorNameCell
+                name={day.operator_name}
+                expiry={day.operator_expiry}
+                canFill={false}
+                onOpen={() => setPapersOpen(true)}
+                onFill={() => setNaming(true)}
+              />
+            ) : (
+              "-"
+            ),
+          },
           { label: t("field.cidb"), value: day.cidb_no || "-" },
           // A photo the older phone screen queued offline, before the
           // signature existed: said, not left as a gap.
@@ -1246,16 +1288,25 @@ export function DayDialog({
             <div className="space-y-4">
             <section className="space-y-3">
               <h3 className="panel-title">{t("operator.title")}</h3>
-              <p className="text-sm">
+              <p className="flex flex-wrap items-center gap-2 text-sm">
                 {day.operator_name
                   ? [day.operator_name, day.cidb_no ? `CIDB ${day.cidb_no}` : ""].filter(Boolean).join(" · ")
                   : t("operator.none")}
+                <OperatorExpiryTag expiry={day.operator_expiry} />
               </p>
               {/* The record panel's size, as every button on it (JB166). */}
-              <Button size="sm" variant="outline" onClick={() => setNaming(true)}>
-                <UserRound />
-                {day.operator_name ? t("operator.edit") : t("operator.fill")}
-              </Button>
+              <div className="flex flex-wrap gap-2">
+                <Button size="sm" variant="outline" onClick={() => setNaming(true)}>
+                  <UserRound />
+                  {day.operator_name ? t("operator.edit") : t("operator.fill")}
+                </Button>
+                {day.operator_name ? (
+                  <Button size="sm" variant="outline" onClick={() => setPapersOpen(true)}>
+                    <IdCard />
+                    {t("papers.papersLink")}
+                  </Button>
+                ) : null}
+              </div>
             </section>
             <section className="space-y-3">
               <h3 className="panel-title">{t(adjustLabelKey(day))}</h3>
@@ -1368,6 +1419,14 @@ export function DayDialog({
             const mine = rows.find((row) => row.key === day.key);
             if (mine) onSaved(mine);
           }}
+        />
+      )}
+      {papersOpen && (
+        <OperatorProfileWindow
+          profile={papersTarget.profile}
+          typed={papersTarget.typed}
+          onClose={() => setPapersOpen(false)}
+          onRegister={onRegister ? (typed) => onRegister({ ...typed, project: day.project }) : undefined}
         />
       )}
     </RecordDetailDialog>

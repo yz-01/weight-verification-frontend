@@ -92,7 +92,7 @@ const STATEMENT: MaterialIssueStatement = {
   totals: {
     lines: 1,
     records: 1,
-    quantities: [{ unit: "Liter", quantity: "250.000" }],
+    quantities: [{ material_name: "Diesel", material_specification: "", unit: "Liter", quantity: "250.000" }],
     amount_total: "1700.00",
     unpriced_lines: 0,
   },

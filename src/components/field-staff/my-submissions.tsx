@@ -60,6 +60,11 @@ function submissionStatusText(
   row: MySubmissionRow,
 ): string {
   const base = recordStatusLabel(t, row, PHONE_STATUS);
+  // 「已批准 · 待执行」 (JB231): approved is not done until the project
+  // manager confirms it completed.
+  if (row.kind === "MATERIAL_REQUEST" && row.status === "APPROVED" && row.execution_status) {
+    return `${base} · ${t(`materialRequest.execution.${row.execution_status}`)}`;
+  }
   if (row.kind !== "EQUIPMENT_MOVEMENT" || !row.movement_status) return base;
   return `${base} · ${t(`contractorOps.${movementStatusKey(row.status, row.movement_status)}`)}`;
 }
@@ -770,6 +775,15 @@ function StoredDetailSheet({
                   lastAt={detail.data.reminded_at}
                 />
               )}
+              {/* 已批准不等于已完成 (JB231): the applicant can still follow it up
+                  in the conversation below until the project manager confirms it. */}
+              {row.kind === "MATERIAL_REQUEST" &&
+                row.status === "APPROVED" &&
+                (row.execution_status === "PENDING" || row.execution_status === "IN_PROGRESS") && (
+                  <p className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-sm leading-6" data-slot="request-execution-note">
+                    {t("materialRequest.execution.explain")}
+                  </p>
+                )}
             </>
           }
           facts={detail.data.fields.filter((field) => !(sentBox && isReturnNoteField(field.key))).map((field) => ({

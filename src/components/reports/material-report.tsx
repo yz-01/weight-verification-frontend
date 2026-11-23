@@ -11,7 +11,7 @@ import {
   Package,
   ReceiptText,
 } from "lucide-react";
-import { useFormatter, useTranslations } from "next-intl";
+import { useFormatter, useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
 import { useState } from "react";
 
@@ -54,6 +54,7 @@ import { SupplierDateFilter } from "@/components/shared/supplier-date-filter";
 import { useUnitExportValues, useUnitName } from "@/hooks/use-material-units";
 import { useDateFormat } from "@/lib/dates";
 import { purchaseUnitPrice, reportMoneyHidden } from "@/lib/issue-money";
+import { cardQuantityText, listSeparator } from "@/lib/material-totals";
 import {
   chosenMaterial,
   chosenMaterialLabels,
@@ -774,17 +775,9 @@ function QuantityReport({
           )}
           value={formatter.number(data.total_receipts)}
         />
-        {data.by_unit.map((row) => (
-          <Metric
-            key={row.unit}
-            icon={Package}
-            label={unitName(row.unit)}
-            value={row.quantity}
-            detail={t("materialReports.quantity.deliveryCount", {
-              count: row.receipts,
-            })}
-          />
-        ))}
+        {/* No per-unit figures (JB232, 客户 11-20 事项 4): 「即使单位相同，只要
+            材料名称或规格不同，也不能直接相加」. The table below is the
+            report's quantity - one line per material + specification + unit. */}
       </MetricRow>
 
       <ReportTable title={t("materialReports.quantity.byMaterial")}>
@@ -1051,11 +1044,12 @@ function ModeCards({
   onPick: (next: "rejected" | "returns" | undefined) => void;
 }) {
   const t = useTranslations();
+  const locale = useLocale();
   const unitName = useUnitName();
+  // Per material + specification + unit (JB232): 「G15 2 m³，G25 3 m³」,
+  // never 「5 m³」 of two different concretes.
   const quantity = (card: (typeof cards)["rejected"]) =>
-    card.by_unit.length === 0
-      ? "0"
-      : card.by_unit.map((row) => `${row.quantity} ${unitName(row.unit)}`).join(", ");
+    cardQuantityText(card.by_material, unitName, listSeparator(locale));
   return (
     <div className="flex flex-wrap gap-2">
       {(["rejected", "returns"] as const).map((code) => {
@@ -1081,7 +1075,7 @@ function ModeCards({
             <span className="truncate text-xs text-muted-foreground">
               {t(`materialReports.cards.${code}`)}
             </span>
-            <span className="tabular font-semibold">
+            <span className="tabular truncate font-semibold" title={quantity(card)}>
               {t("materialReports.cards.times", { count: card.count })} / {quantity(card)}
             </span>
           </button>

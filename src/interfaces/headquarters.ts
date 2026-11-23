@@ -134,6 +134,21 @@ export interface HeadquartersTotals extends HeadquartersCounts {
 }
 
 /**
+ * 签收人 of one delivery (JB234, 客户 11-20 事项 6). `name` is the receiver's
+ * name on the record ("" = 未签收); `avatar`, `title`, `company` and `phone`
+ * come only from the account that signed (`user_id`), never anyone else's.
+ */
+export interface ReceiptSigner {
+  name: string;
+  user_id: string | null;
+  avatar: string | null;
+  title: string;
+  company: string;
+  phone: string;
+  signed_at: string | null;
+}
+
+/**
  * 项目仪表板 (J34-5): one project's figures, as the client's picture lays them out.
  *
  * JB226 (客户 11-19 事项 6, 「没有授权的模块、卡片及相关数据一律隐藏」): a
@@ -175,7 +190,15 @@ export interface ProjectOverview {
     category: string;
     quantity: string;
     unit: string;
+    /** A unit the company added itself (e.g. 桶): its own label; null for a built-in code. */
+    unit_label?: string | null;
     acceptance_status: string;
+    /** 签收人 (JB234): the receiver who signed; picture etc. only from the signing account. */
+    signer?: ReceiptSigner;
+    /** The receiver's signature image, or null. */
+    signature_url?: string | null;
+    accepted_by_name?: string;
+    accepted_at?: string | null;
   }>;
   material_mix?: Array<{ name: string; tonnes: string; other?: boolean }>;
   waste_mix?: Array<{ name: string; tonnes: string; other?: boolean }>;

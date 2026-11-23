@@ -32,6 +32,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useUnitName } from "@/hooks/use-material-units";
 import type { CategoryRecordStage, CategorySummary } from "@/interfaces/contractor-ops";
 import type { CategoryModuleKey } from "@/lib/category-modules";
+import { materialLineLabel } from "@/lib/material-totals";
 import { TONES, type Tone } from "@/lib/tones";
 import { cn } from "@/lib/utils";
 import { getCategorySummary } from "@/services/contractor-ops.service";
@@ -119,22 +120,36 @@ export function ColumnSummary({ moduleKey, column }: { moduleKey: CategoryModule
       key: "total",
       label: t(`${words}.total`),
       value: figure(data.total),
-      detail: data.target?.percent != null ? t("ofTarget", { percent: data.target.percent }) : undefined,
+      // 「占项目目标」 beside a quantity only - never beside a count of deliveries.
+      detail: quantity && data.target?.percent != null ? t("ofTarget", { percent: data.target.percent }) : undefined,
       icon: Layers,
       tone: "purple",
     },
   ];
-  if (quantity) {
-    const target = data.target;
+  // The column's own target (JB232): kept when the column holds several
+  // materials or specifications, but then said to be the whole column's
+  // total - the one figure here that counts them together.
+  const target = data.target;
+  const columnTotal = Boolean(target?.column_total);
+  const targetUnit = target?.unit ? (target.unit_label ?? unitName(target.unit)) : unit;
+  const targetFigure = (value: string) => (
+    <>
+      {format.number(Number(value), { maximumFractionDigits: 3 })}{" "}
+      <span className="text-sm font-normal text-muted-foreground">{targetUnit}</span>
+    </>
+  );
+  if (quantity || target) {
     tiles.push(
       target
         ? {
             key: "target",
-            label: t("target"),
-            value: figure(target.target_quantity),
+            label: t(columnTotal ? "columnTarget" : "target"),
+            value: targetFigure(target.target_quantity),
             detail:
               Number(target.remaining) > 0
-                ? t("remaining", { value: format.number(Number(target.remaining), { maximumFractionDigits: 3 }) })
+                ? t(columnTotal ? "columnRemaining" : "remaining", {
+                    value: format.number(Number(target.remaining), { maximumFractionDigits: 3 }),
+                  })
                 : t("reached"),
             icon: Target,
             tone: "amber",
@@ -144,7 +159,7 @@ export function ColumnSummary({ moduleKey, column }: { moduleKey: CategoryModule
     if (target?.percent != null) {
       tiles.push({
         key: "completion",
-        label: t("completion"),
+        label: t(columnTotal ? "columnCompletion" : "completion"),
         value: format.number(target.percent / 100, { style: "percent", maximumFractionDigits: 1 }),
         icon: CircleCheck,
         tone: "green",
@@ -185,6 +200,29 @@ export function ColumnSummary({ moduleKey, column }: { moduleKey: CategoryModule
         ))}
       </div>
       {quantity && data.other_units ? <p className="text-2xs text-muted-foreground">{t("otherUnits", { unit })}</p> : null}
+      {/* JB232 (客户 11-20 事项 4): different materials or specifications in
+          one column are never added - each material + specification + unit
+          keeps its own total, and the tiles above count deliveries. */}
+      {data.materials?.length ? (
+        <div className="rounded-lg border bg-card px-3 py-2 text-sm" data-column-materials>
+          <p className="font-medium">{t("materials")}</p>
+          <p className="text-2xs text-muted-foreground">{t("materialsNote")}</p>
+          <ul className="mt-1 flex flex-wrap gap-x-4 gap-y-1">
+            {data.materials.map((row) => (
+              <li key={`${row.material_name}|${row.material_specification}|${row.unit}`} className="tabular">
+                <span className="text-muted-foreground">{materialLineLabel(row)}</span>{" "}
+                <span className="font-semibold">
+                  {format.number(Number(row.quantity), { maximumFractionDigits: 3 })}{" "}
+                  {row.unit ? (row.unit_label ?? unitName(row.unit)) : ""}
+                </span>{" "}
+                <span className="text-2xs text-muted-foreground">
+                  · {t("materialsDeliveries", { count: row.deliveries })}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
     </section>
   );
 }

@@ -95,6 +95,7 @@ import type {
   ConsultantFormArchiveSnapshot,
   EvidenceCandidate,
   RemedialItem,
+  RemedialRound,
 } from "@/interfaces/consultant-workflow";
 import { ApiError } from "@/interfaces/api";
 import { builtinCategoryKey, groupModules, MODULE_LABEL_PATH, subcategoriesOf } from "@/lib/evidence-filters";
@@ -106,7 +107,8 @@ import { recordPdfObjectUrl } from "@/services/contractor-ops.service";
 import { signFileAction } from "@/services/file-action.service";
 import {
   addRemedialItem,
-  closeRemedialItem,
+  submitRemedialItem,
+  reviewRemedialItem,
   acknowledgeConsultantApplication,
   createApplicationRevision,
   downloadApplicationFinalReport,
@@ -330,7 +332,7 @@ export function ConsultantApplicationDetail({
           ownWork
           size="sm"
           formats={["pdf"]}
-          label={t("action.downloadReport")}
+          label={t(reportMadeAtSigning(application) ? "action.downloadReportBeforeReview" : "action.downloadReport")}
           title={application.application_no}
           record={{ kind: "CONSULTANT_APPLICATION", id: application.id }}
           onExport={() => downloadApplicationFinalReport(application.id, application.application_no)}
@@ -717,34 +719,13 @@ export function ConsultantApplicationDetail({
 
 function ApplicationLifecycle({ application }: { application: ConsultantApplication }) {
   const t = useTranslations("consultantWorkflow");
-  const submitted = application.status !== "DRAFT";
-  const hasFinalReport = Boolean(application.final_report);
-  const archived = Boolean(application.archived_at);
-  const stages = [
-    {
-      key: "application",
-      complete: submitted,
-      current: !submitted,
-    },
-    {
-      key: "approval",
-      complete: hasFinalReport,
-      current: submitted && !hasFinalReport,
-    },
-    {
-      key: "final",
-      complete: hasFinalReport,
-      current: hasFinalReport && !archived,
-    },
-    {
-      key: "archive",
-      complete: archived,
-      current: false,
-    },
-  ];
+  const stages = lifecycleStages(application);
 
   return (
-    <section aria-label={t("detail.lifecycle.title")} className="grid gap-2 sm:grid-cols-4">
+    <section
+      aria-label={t("detail.lifecycle.title")}
+      className={`grid gap-2 ${stages.length === 5 ? "sm:grid-cols-3 lg:grid-cols-5" : "sm:grid-cols-4"}`}
+    >
       {stages.map((stage, index) => (
         <div
           key={stage.key}
@@ -767,6 +748,58 @@ function ApplicationLifecycle({ application }: { application: ConsultantApplicat
       ))}
     </section>
   );
+}
+
+/** Whether the application went through 「批准并要求整改」 (JB236). */
+export function underRemedialReview(application: Pick<ConsultantApplication, "status" | "final_decision">) {
+  return (
+    application.final_decision === "APPROVED_WITH_REMEDIAL" ||
+    application.status === "APPROVED_WITH_REMEDIAL" ||
+    application.status === "REMEDIAL_ACCEPTED"
+  );
+}
+
+/**
+ * A remedial approval whose report was made when it was signed (before
+ * JB236): its archive entry does not carry `application_status:
+ * REMEDIAL_ACCEPTED`, which a report made at acceptance does. Mirrors the
+ * backend's `report_made_at_signing`.
+ */
+export function reportMadeAtSigning(
+  application: Pick<ConsultantApplication, "final_decision" | "final_report" | "archive_entries">,
+) {
+  if (application.final_decision !== "APPROVED_WITH_REMEDIAL" || !application.final_report) return false;
+  const entry = application.archive_entries.find((row) => row.kind === "FINAL_REPORT");
+  const snapshot = (entry?.snapshot ?? {}) as { application_status?: string };
+  return Boolean(entry) && snapshot.application_status !== "REMEDIAL_ACCEPTED";
+}
+
+/**
+ * 申请 / 审批 / 整改复核 / 最终报告 / 归档 (JB236, 客户 11-20 事项 8).
+ *
+ * 图10 showed four 「已完成」 for an application whose remedial work nobody
+ * had checked: the steps read the final report and `archived_at`, which the
+ * signing made at once. 「整改复核」 appears only for a remedial approval, and
+ * 最终报告 / 归档 are not done until the consultant accepted every item
+ * (REMEDIAL_ACCEPTED) - even for an old application that has a report made
+ * at signing.
+ */
+export function lifecycleStages(
+  application: Pick<ConsultantApplication, "status" | "final_decision" | "final_report" | "archived_at">,
+) {
+  const submitted = application.status !== "DRAFT";
+  const remedial = underRemedialReview(application);
+  const accepted = application.status === "REMEDIAL_ACCEPTED";
+  const decided = remedial || Boolean(application.final_report);
+  const hasFinalReport = Boolean(application.final_report) && (!remedial || accepted);
+  const archived = Boolean(application.archived_at) && (!remedial || accepted);
+  return [
+    { key: "application", complete: submitted, current: !submitted },
+    { key: "approval", complete: decided, current: submitted && !decided },
+    ...(remedial ? [{ key: "remedial", complete: accepted, current: !accepted }] : []),
+    { key: "final", complete: hasFinalReport, current: decided && (!remedial || accepted) && !hasFinalReport },
+    { key: "archive", complete: archived, current: hasFinalReport && !archived },
+  ];
 }
 
 function RevisionTimeline({ application }: { application: ConsultantApplication }) {
@@ -824,6 +857,21 @@ function ArchiveChecklist({ application }: { application: ConsultantApplication 
   const kinds: Array<ConsultantApplication["archive_entries"][number]["kind"]> = application.consultant_form
     ? ["APPLICATION", "APPROVAL", "FINAL_REPORT", "CONSULTANT_FORM"]
     : ["APPLICATION", "APPROVAL", "FINAL_REPORT"];
+  // JB236: an old application signed before the remedial review keeps the
+  // report made at signing; the acceptance is filed beside it.
+  const acceptanceRecord = application.archive_entries.find((row) => row.kind === "REMEDIAL_ACCEPTANCE");
+  const reportBeforeReview = reportMadeAtSigning(application);
+  // JB236 audit: until the consultant accepts the work, what an old
+  // application archived at signing is not 「已完成」 - it was made before the
+  // remedial review.
+  const waitingReview = underRemedialReview(application) && application.status !== "REMEDIAL_ACCEPTED";
+  if (acceptanceRecord || reportBeforeReview) {
+    kinds.push("REMEDIAL_ACCEPTANCE");
+  }
+  // Accepted, but the 「整改验收记录」 beside the old report failed: offered
+  // again, as the backend's ``acceptance_record_owed``.
+  const acceptanceOwed = application.status === "REMEDIAL_ACCEPTED" && reportBeforeReview && !acceptanceRecord;
+  const notAccepted = (application.remedial_items ?? []).filter((item) => item.status !== "ACCEPTED").length;
 
   /*
     The decision is the act; the PDF is only its record. When archiving fails
@@ -843,26 +891,61 @@ function ArchiveChecklist({ application }: { application: ConsultantApplication 
         }),
       ]),
   });
+  // JB236: a remedial approval owes its report only once accepted.
   const reportOwedButMissing =
-    !application.final_report && DECIDED.includes(application.final_decision);
+    !application.final_report &&
+    DECIDED.includes(application.final_decision) &&
+    (application.final_decision !== "APPROVED_WITH_REMEDIAL" || application.status === "REMEDIAL_ACCEPTED");
 
   return (
     <div className="space-y-2">
+      {application.status === "APPROVED_WITH_REMEDIAL" && (
+        <p data-slot="remedial-pending" className="rounded-lg border border-warning/30 bg-warning/5 p-3 text-sm">
+          {t("remedial.pendingItems", { count: notAccepted })}
+        </p>
+      )}
       {kinds.map((kind) => {
         const entry = application.archive_entries.find((row) => row.kind === kind);
+        const done = Boolean(entry) && !waitingReview;
+        const early = Boolean(entry) && waitingReview;
         return (
-          <div key={kind} className={`flex items-start gap-3 rounded-lg border p-3 ${entry ? "border-success/30 bg-success/5" : "bg-muted/10"}`}>
-            <span className={`grid size-9 shrink-0 place-items-center rounded-full ${entry ? "bg-success text-white" : "bg-muted text-muted-foreground"}`}>
-              {entry ? <CheckCircle2 className="size-5" /> : <CircleDashed className="size-5" />}
+          <div
+            key={kind}
+            data-archive-kind={kind}
+            data-archive-state={done ? "done" : early ? "before-review" : "pending"}
+            className={`flex items-start gap-3 rounded-lg border p-3 ${done ? "border-success/30 bg-success/5" : early ? "border-warning/30 bg-warning/5" : "bg-muted/10"}`}
+          >
+            <span className={`grid size-9 shrink-0 place-items-center rounded-full ${done ? "bg-success text-white" : "bg-muted text-muted-foreground"}`}>
+              {done ? <CheckCircle2 className="size-5" /> : <CircleDashed className="size-5" />}
             </span>
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <p className="font-medium">{t(`archive.kind.${kind}`)}</p>
-                <span className={`text-xs font-semibold ${entry ? "text-success" : "text-muted-foreground"}`}>
-                  {t(entry ? "archive.complete" : "archive.pending")}
+                <span className={`text-xs font-semibold ${done ? "text-success" : early ? "text-warning" : "text-muted-foreground"}`}>
+                  {t(done ? "archive.complete" : early ? "archive.beforeReview" : "archive.pending")}
                 </span>
               </div>
+              {kind === "REMEDIAL_ACCEPTANCE" && acceptanceOwed && can("approval.review") && (
+                <div className="mt-2 space-y-1">
+                  <p className="text-xs text-muted-foreground">{t("archive.reportMissing")}</p>
+                  <Button size="sm" variant="outline" disabled={retry.isPending} onClick={() => retry.mutate()}>
+                    {retry.isPending ? <Loader2 className="animate-spin" /> : <RotateCcw />}
+                    {t("action.retryReport")}
+                  </Button>
+                </div>
+              )}
+              {/* Under review the row's own status already says 「签署时生成
+                  （整改复核前）」; once accepted, this line says which report
+                  it is (walk 11-23: not both at once). */}
+              {kind === "FINAL_REPORT" && entry && reportBeforeReview && !waitingReview && (
+                <p data-slot="report-before-review" className="mt-1 text-xs font-medium text-warning">{t("remedial.oldReport")}</p>
+              )}
               {entry?.sha256 && <p className="mt-1 break-all font-mono text-[10px] text-muted-foreground">SHA-256: {entry.sha256}</p>}
+              {kind === "REMEDIAL_ACCEPTANCE" && entry?.file && (
+                <a href={entry.file} target="_blank" rel="noreferrer" className="mt-2 inline-block text-xs font-semibold text-primary hover:underline">
+                  {t("remedial.openRecord")}
+                </a>
+              )}
               {kind === "CONSULTANT_FORM" && entry?.snapshot ? (
                 <ConsultantFormArchiveLines snapshot={entry.snapshot as ConsultantFormArchiveSnapshot} />
               ) : null}
@@ -893,7 +976,7 @@ function ArchiveChecklist({ application }: { application: ConsultantApplication 
                     ownWork
                     size="sm"
                     formats={["pdf"]}
-                    label={t("action.downloadReport")}
+                    label={t(reportMadeAtSigning(application) ? "action.downloadReportBeforeReview" : "action.downloadReport")}
                     title={application.application_no}
                     record={{ kind: "CONSULTANT_APPLICATION", id: application.id }}
                     onExport={() => downloadApplicationFinalReport(application.id, application.application_no)}
@@ -970,21 +1053,44 @@ function nextActionText(
   if (application.status === "SUBMITTED" && currentStep) {
     return t("detail.next.waiting", { step: currentStep.name });
   }
-  // JB200: approved on condition and work still open - say what to do, not
-  // only that the paperwork is archived.
-  const openRemedial = (application.remedial_items ?? []).filter((item) => item.status === "OPEN").length;
-  if (application.status === "APPROVED_WITH_REMEDIAL" && openRemedial > 0) {
-    // JB203W (walk F-4): 【关闭这条整改】 is the contractor's; the reviewer
-    // was told to press it. They wait, and may raise another.
-    if (reader.canSubmit) return t("detail.next.remedialOpen", { count: openRemedial });
-    if (reader.canRaise) return t("detail.next.remedialOpenReviewer", { count: openRemedial });
-    return t("detail.next.remedialOpenWatching", { count: openRemedial });
+  // JB200 / JB236: approved on condition - say who must act now, and that
+  // nothing is finished or archived before the consultant accepts the work
+  // (客户 11-20 事项 8 第 5 点).
+  if (application.status === "APPROVED_WITH_REMEDIAL") {
+    return remedialNextText(application, t as unknown as Parameters<typeof remedialNextText>[1], reader);
+  }
+  if (application.status === "REMEDIAL_ACCEPTED") {
+    return application.archived_at ? t("detail.next.remedialAccepted") : t("detail.next.complete");
   }
   // JB203W (walk NOTE 32): rejected - nothing said the work may be sent again.
   if (application.status === "REJECTED" && reader.canSubmit) return t("detail.next.rejected");
   if (application.archived_at) return t("detail.next.archived");
   if (application.final_report) return t("detail.next.final");
   return t("detail.next.complete");
+}
+
+/**
+ * 下一步 while an application waits on its remedial work (JB236): the
+ * consultant's own reviews first, then the contractor's work, then the
+ * submissions waiting for somebody else - always with 「顾问确认整改合格前，
+ * 这份申请不会完成，也不会归档。」
+ */
+export function remedialNextText(
+  application: Pick<ConsultantApplication, "remedial_items">,
+  t: (key: string, values?: Record<string, string | number>) => string,
+  reader: { canSubmit: boolean; canRaise: boolean },
+) {
+  const items = application.remedial_items ?? [];
+  const toReview = items.filter((item) => item.status === "SUBMITTED" && item.can_review).length;
+  const owed = items.filter((item) => item.status === "OPEN" || item.status === "RETURNED").length;
+  const waiting = items.filter((item) => item.status === "SUBMITTED").length;
+  let first = "";
+  if (toReview > 0) first = t("detail.next.remedialReview", { count: toReview });
+  else if (owed > 0 && reader.canSubmit) first = t("detail.next.remedialOpen", { count: owed });
+  else if (owed > 0 && reader.canRaise) first = t("detail.next.remedialOpenReviewer", { count: owed });
+  else if (owed > 0) first = t("detail.next.remedialOpenWatching", { count: owed });
+  else if (waiting > 0) first = t("detail.next.remedialWaitingReview", { count: waiting });
+  return [first, t("detail.next.remedialHold")].filter(Boolean).join(" ");
 }
 
 /**
@@ -1005,11 +1111,14 @@ function RemedialSection({
   const t = useTranslations("consultantWorkflow");
   const { can, user } = useAuth();
   const [raising, setRaising] = useState(false);
-  const [closing, setClosing] = useState<RemedialItem | null>(null);
+  const [submitting, setSubmitting] = useState<RemedialItem | null>(null);
+  const [reviewing, setReviewing] = useState<{ item: RemedialItem; decision: "ACCEPT" | "RETURN" } | null>(null);
   const items = application.remedial_items ?? [];
   // JB200 (Lucas 11-16): the button used to need an unsent draft, which a
   // consultant never sees (`canRaiseRemedial`, which 下一步 asks too).
   const canRaise = canRaiseRemedial(application, user?.id, can);
+  // JB236: the contractor submits while the application is open for it.
+  const openForWork = application.status === "SUBMITTED" || application.status === "APPROVED_WITH_REMEDIAL";
 
   if (!items.length && !canRaise) return null;
 
@@ -1030,83 +1139,14 @@ function RemedialSection({
       ) : (
         <div className="space-y-3">
           {items.map((item) => (
-            <div key={item.id} className="rounded-lg border p-3">
-              <div className="flex items-start justify-between gap-3">
-                <p className="text-sm font-medium">{item.description}</p>
-                <StatusBadge
-                  label={
-                    item.status === "CLOSED"
-                      ? t("remedial.closed")
-                      : item.is_overdue
-                        ? t("remedial.overdue")
-                        : t("remedial.open")
-                  }
-                  tone={
-                    item.status === "CLOSED"
-                      ? "positive"
-                      : item.is_overdue
-                        ? "danger"
-                        : "warning"
-                  }
-                />
-              </div>
-              <p className="mt-1 text-xs text-muted-foreground">
-                {[
-                  item.assigned_to_name
-                    ? t("remedial.responsible", { name: item.assigned_to_name })
-                    : t("remedial.responsibleApplicant", { name: application.applicant_name }),
-                  item.due_on ? t("remedial.dueOn", { date: item.due_on }) : "",
-                  item.created_by_name ? t("remedial.raisedBy", { name: item.created_by_name }) : "",
-                ]
-                  .filter(Boolean)
-                  .join(" · ")}
-              </p>
-              {item.status === "CLOSED" && (
-                <>
-                  <p className="mt-2 text-sm">
-                    {item.closure_note}
-                    <span className="ml-2 text-xs text-muted-foreground">
-                      {t("remedial.closedBy", {
-                        name: item.closed_by_name ?? "",
-                        when: item.closed_at
-                          ? new Date(item.closed_at).toLocaleString()
-                          : "",
-                        count: item.evidence.length,
-                      })}
-                    </span>
-                  </p>
-                  {/* JB203W (walk F-8): the proof itself - the consultant told
-                      「整改已关闭」 could not see the photo that closed it. A
-                      photo opens in the viewer, a document in a new tab. */}
-                  {(item.evidence_files ?? []).length > 0 && (
-                    <div className="mt-2" data-slot="remedial-proof">
-                      <FileThumbs
-                        all
-                        files={(item.evidence_files ?? []).map((file) => ({
-                          id: file.id,
-                          name: file.original_filename,
-                          thumbnail_url: isImageFile(file.original_filename, file.content_type)
-                            ? file.watermarked_file || file.file
-                            : null,
-                          href: file.watermarked_file || file.file,
-                        }))}
-                      />
-                    </div>
-                  )}
-                </>
-              )}
-              {item.status === "OPEN" && can("consultant.submit") && (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="mt-3"
-                  onClick={() => setClosing(item)}
-                >
-                  <CheckCircle2 />
-                  {t("action.closeRemedial")}
-                </Button>
-              )}
-            </div>
+            <RemedialItemCard
+              key={`${item.id}-${item.status}`}
+              application={application}
+              item={item}
+              canSubmit={openForWork && can("consultant.submit")}
+              onSubmit={() => setSubmitting(item)}
+              onReview={(decision) => setReviewing({ item, decision })}
+            />
           ))}
         </div>
       )}
@@ -1120,18 +1160,191 @@ function RemedialSection({
           }}
         />
       )}
-      {closing && (
-        <CloseRemedialDialog
+      {submitting && (
+        <SubmitRemedialDialog
           application={application}
-          item={closing}
-          onClose={() => setClosing(null)}
+          item={submitting}
+          onClose={() => setSubmitting(null)}
           onSaved={() => {
-            setClosing(null);
+            setSubmitting(null);
+            onChanged();
+          }}
+        />
+      )}
+      {reviewing && (
+        <ReviewRemedialDialog
+          application={application}
+          item={reviewing.item}
+          decision={reviewing.decision}
+          onClose={() => setReviewing(null)}
+          onSaved={() => {
+            setReviewing(null);
             onChanged();
           }}
         />
       )}
     </Section>
+  );
+}
+
+/** An item's badge: 未完成 / 待顾问复核 / 退回继续整改 / 整改合格 / 已逾期 (JB236). */
+export function remedialBadge(item: Pick<RemedialItem, "status" | "is_overdue">): {
+  key: string;
+  tone: "neutral" | "positive" | "warning" | "danger" | "info";
+} {
+  if (item.status === "ACCEPTED") return { key: "remedial.accepted", tone: "positive" };
+  if (item.status === "CLOSED") return { key: "remedial.closed", tone: "positive" };
+  if (item.status === "SUBMITTED") return { key: "remedial.submitted", tone: "info" };
+  if (item.is_overdue) return { key: "remedial.overdue", tone: "danger" };
+  if (item.status === "RETURNED") return { key: "remedial.returned", tone: "danger" };
+  return { key: "remedial.open", tone: "warning" };
+}
+
+function proofThumbs(files: RemedialItem["evidence_files"]) {
+  return (files ?? []).map((file) => ({
+    id: file.id,
+    name: file.original_filename,
+    thumbnail_url: isImageFile(file.original_filename, file.content_type)
+      ? file.watermarked_file || file.file
+      : null,
+    href: file.watermarked_file || file.file,
+  }));
+}
+
+/** One remedial item: its state, its rounds, and the reader's buttons (JB236). */
+function RemedialItemCard({
+  application,
+  item,
+  canSubmit,
+  onSubmit,
+  onReview,
+}: {
+  application: ConsultantApplication;
+  item: RemedialItem;
+  canSubmit: boolean;
+  onSubmit: () => void;
+  onReview: (decision: "ACCEPT" | "RETURN") => void;
+}) {
+  const t = useTranslations("consultantWorkflow");
+  const rounds = item.rounds ?? [];
+  // What the consultant has to look at, open from the start: the submission
+  // waiting for him, or the reason it came back.
+  const [open, setOpen] = useState(item.status === "SUBMITTED" || item.status === "RETURNED");
+  const badge = remedialBadge(item);
+  const owed = item.status === "OPEN" || item.status === "RETURNED";
+
+  return (
+    <div className="rounded-lg border p-3" data-remedial-item={item.status}>
+      <div className="flex items-start justify-between gap-3">
+        <p className="text-sm font-medium">{item.description}</p>
+        <StatusBadge label={t(badge.key)} tone={badge.tone} />
+      </div>
+      <p className="mt-1 text-xs text-muted-foreground">
+        {[
+          item.assigned_to_name
+            ? t("remedial.responsible", { name: item.assigned_to_name })
+            : t("remedial.responsibleApplicant", { name: application.applicant_name }),
+          item.due_on ? t("remedial.dueOn", { date: item.due_on }) : "",
+          item.created_by_name ? t("remedial.raisedBy", { name: item.created_by_name }) : "",
+        ]
+          .filter(Boolean)
+          .join(" · ")}
+      </p>
+      {item.status === "CLOSED" && (
+        <>
+          <p className="mt-2 text-sm">
+            {item.closure_note}
+            <span className="ml-2 text-xs text-muted-foreground">
+              {t("remedial.closedBy", {
+                name: item.closed_by_name ?? "",
+                when: item.closed_at ? new Date(item.closed_at).toLocaleString() : "",
+                count: item.evidence.length,
+              })}
+            </span>
+          </p>
+          {/* JB203W (walk F-8): the proof itself. */}
+          {(item.evidence_files ?? []).length > 0 && (
+            <div className="mt-2" data-slot="remedial-proof">
+              <FileThumbs all files={proofThumbs(item.evidence_files)} />
+            </div>
+          )}
+        </>
+      )}
+      {rounds.length > 0 && (
+        <div className="mt-2">
+          <button
+            type="button"
+            className="flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
+            aria-expanded={open}
+            onClick={() => setOpen((value) => !value)}
+          >
+            {open ? <ChevronDown className="size-3.5" /> : <ChevronRight className="size-3.5" />}
+            {t("remedial.history", { count: rounds.length })}
+          </button>
+          {open && (
+            <ol className="mt-2 space-y-2 border-l-2 pl-3" data-slot="remedial-rounds">
+              {rounds.map((round) => (
+                <RemedialRoundLine key={round.id} round={round} />
+              ))}
+            </ol>
+          )}
+        </div>
+      )}
+      {item.status === "SUBMITTED" && !item.can_review && (item.reviewer_names ?? []).length > 0 && (
+        <p className="mt-2 text-xs text-muted-foreground" data-slot="remedial-waiting">
+          {t("remedial.waitingReviewer", { names: (item.reviewer_names ?? []).join("、") })}
+        </p>
+      )}
+      <div className="mt-3 flex flex-wrap gap-2">
+        {owed && canSubmit && (
+          <Button size="sm" variant="outline" onClick={onSubmit}>
+            <ClipboardCheck />
+            {t("action.submitRemedial")}
+          </Button>
+        )}
+        {item.status === "SUBMITTED" && item.can_review && (
+          <>
+            <Button size="sm" onClick={() => onReview("ACCEPT")}>
+              <CheckCircle2 />
+              {t("action.acceptRemedial")}
+            </Button>
+            <Button size="sm" variant="outline-destructive" onClick={() => onReview("RETURN")}>
+              <RotateCcw />
+              {t("action.returnRemedial")}
+            </Button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function RemedialRoundLine({ round }: { round: RemedialRound }) {
+  const t = useTranslations("consultantWorkflow");
+  const when = new Date(round.acted_at).toLocaleString();
+  const heading =
+    round.event === "SUBMITTED"
+      ? t("remedial.roundSubmitted", { number: round.number, name: round.actor_name, when })
+      : round.event === "ACCEPTED"
+        ? t("remedial.roundAccepted", { name: round.actor_name, when })
+        : t("remedial.roundReturned", { name: round.actor_name, when });
+  return (
+    <li data-round-event={round.event}>
+      <p
+        className={`text-xs font-semibold ${
+          round.event === "ACCEPTED" ? "text-success" : round.event === "RETURNED" ? "text-destructive" : "text-foreground"
+        }`}
+      >
+        {heading}
+      </p>
+      {round.note && <p className="mt-0.5 whitespace-pre-wrap break-words text-sm">{round.note}</p>}
+      {/* JB228: only the files attached to this submission - never chats. */}
+      {round.evidence_files.length > 0 && (
+        <div className="mt-1" data-slot="remedial-proof">
+          <FileThumbs all files={proofThumbs(round.evidence_files)} />
+        </div>
+      )}
+    </li>
   );
 }
 
@@ -1210,7 +1423,12 @@ function RaiseRemedialDialog({
   );
 }
 
-function CloseRemedialDialog({
+/**
+ * 「提交顾问复核」 (JB236): the result and the photos, back to the consultant
+ * who raised the item - was 「关闭这条整改」. Same rules as before: a note and
+ * at least one photo or file of this project.
+ */
+function SubmitRemedialDialog({
   application,
   item,
   onClose,
@@ -1231,7 +1449,7 @@ function CloseRemedialDialog({
   });
   const save = useMutation({
     mutationFn: () =>
-      closeRemedialItem(application.id, {
+      submitRemedialItem(application.id, {
         item: item.id,
         closure_note: note.trim(),
         evidence: chosen,
@@ -1249,8 +1467,8 @@ function CloseRemedialDialog({
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-xl">
         <DialogHeader>
-          <DialogTitle>{t("remedial.closeTitle")}</DialogTitle>
-          <DialogDescription>{t("remedial.closeHelp")}</DialogDescription>
+          <DialogTitle>{t("remedial.submitTitle")}</DialogTitle>
+          <DialogDescription>{t("remedial.submitHelp")}</DialogDescription>
         </DialogHeader>
         <div className="grid gap-4">
           <p className="rounded-md border bg-muted/30 p-3 text-sm">
@@ -1323,8 +1541,115 @@ function CloseRemedialDialog({
             disabled={save.isPending}
             onClick={() => save.mutate()}
           >
-            <CheckCircle2 />
-            {t("action.closeRemedial")}
+            <ClipboardCheck />
+            {t("action.submitRemedial")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/**
+ * 「整改合格」 / 「退回继续整改」 (JB236, 客户 11-20 事项 8): signed with the
+ * same signature and PIN as a decision. A return says why; the contractor
+ * works again and submits a new round, and every earlier round stays.
+ */
+function ReviewRemedialDialog({
+  application,
+  item,
+  decision,
+  onClose,
+  onSaved,
+}: {
+  application: ConsultantApplication;
+  item: RemedialItem;
+  decision: "ACCEPT" | "RETURN";
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const t = useTranslations("consultantWorkflow");
+  const common = useTranslations("common");
+  const queryClient = useQueryClient();
+  const [note, setNote] = useState("");
+  const [pin, setPin] = useState("");
+  const [error, setError] = useState("");
+  const credential = useQuery({ queryKey: ["approval-credential"], queryFn: getApprovalCredential });
+  const accept = decision === "ACCEPT";
+  const save = useMutation({
+    mutationFn: () =>
+      reviewRemedialItem(application.id, { item: item.id, decision, note: note.trim(), approval_pin: pin }),
+    onSuccess: () => {
+      // Accepting the last item archives the application, which closes its
+      // conversation (K09).
+      void queryClient.invalidateQueries({
+        queryKey: recordConversationKey("CONSULTANT_APPLICATION", application.id),
+      });
+      onSaved();
+    },
+    onError: (failure) =>
+      setError(
+        failure instanceof ApiError ? Object.values(failure.errors)[0] || failure.message : t("remedial.failed"),
+      ),
+  });
+  const signs = signsWithCredential(credential.data);
+
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-h-[92dvh] overflow-y-auto sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>{t(accept ? "remedial.acceptTitle" : "remedial.returnTitle")}</DialogTitle>
+          <DialogDescription>{t(accept ? "remedial.acceptHelp" : "remedial.returnHelp")}</DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4">
+          <p className="rounded-md border bg-muted/30 p-3 text-sm">{item.description}</p>
+          {accept ? (
+            <FieldWrapper label={t("remedial.acceptNote")} optional={common("optional")}>
+              <Textarea rows={3} value={note} onChange={(event) => setNote(event.target.value)} />
+            </FieldWrapper>
+          ) : (
+            <FieldWrapper label={t("remedial.returnReason")} required>
+              <Textarea rows={3} value={note} onChange={(event) => setNote(event.target.value)} />
+            </FieldWrapper>
+          )}
+          {credential.isError ? (
+            <LoadFailed what={t("what.credential")} onRetry={() => credential.refetch()} />
+          ) : credential.isSuccess && !signs ? (
+            <Button asChild className="min-h-11 w-full">
+              <Link href="/approval-credential"><KeyRound />{t("review.setupCredential")}</Link>
+            </Button>
+          ) : (
+            <FieldWrapper label={t("review.pin")} required hint={t("review.pinHint")}>
+              <Input
+                type="password"
+                inputMode="numeric"
+                maxLength={6}
+                value={pin}
+                onChange={(event) => setPin(event.target.value.replace(/\D/g, ""))}
+              />
+            </FieldWrapper>
+          )}
+          {error && (
+            <p role="alert" className="text-sm font-medium text-destructive">
+              {error}
+            </p>
+          )}
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>
+            {t("action.cancel")}
+          </Button>
+          <Button
+            variant={accept ? "default" : "destructive"}
+            requires={[
+              [accept || note.trim(), t("remedial.returnReason")],
+              [signs && pin.length === 6, t("review.pin")],
+            ]}
+            disabled={save.isPending}
+            onClick={() => save.mutate()}
+          >
+            {save.isPending ? <Loader2 className="animate-spin" /> : accept ? <CheckCircle2 /> : <RotateCcw />}
+            {t(accept ? "action.acceptRemedial" : "action.returnRemedial")}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -1630,7 +1955,7 @@ function reviewerLabel(step: ApplicationReviewStep, application: ConsultantAppli
 }
 
 function statusTone(status: ConsultantApplication["status"]): "neutral" | "positive" | "warning" | "danger" | "info" {
-  if (status === "APPROVED") return "positive";
+  if (status === "APPROVED" || status === "REMEDIAL_ACCEPTED") return "positive";
   if (status === "REJECTED") return "danger";
   if (status === "SUBMITTED" || status === "REVISE_RESUBMIT" || status === "APPROVED_WITH_REMEDIAL") return "warning";
   if (status === "ARCHIVED") return "info";

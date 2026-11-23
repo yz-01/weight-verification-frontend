@@ -52,7 +52,9 @@ describe("the driver's page", () => {
 describe("the office's links", () => {
   it("are made, sent again and stopped from the hours page", () => {
     const page = read("src/components/equipment-hours/equipment-operator-hours.tsx");
-    expect(page).toContain("<DriverClockLinksDialog project={projectFilterValue(project)}");
+    // The page's project - or, from 登记这位操作人员 (JB233), the row's.
+    expect(page).toContain("<DriverClockLinksDialog");
+    expect(page).toContain("project={registering?.project || projectFilterValue(project)}");
     const dialog = read("src/components/equipment-hours/driver-clock-links.tsx");
     expect(dialog).toContain("reissue.mutate(row.id)");
     expect(dialog).toContain("stop.mutate(row.id)");
