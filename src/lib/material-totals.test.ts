@@ -123,6 +123,23 @@ describe("no screen adds different materials because they share a unit", () => {
     expect(source).toContain("label: materialLineLabel(material)");
   });
 
+  it("the category list's 数量 keys and names each line by material, specification and unit", () => {
+    const source = read("src/components/contractor-ops/category-management.tsx");
+    const cell = source.slice(source.indexOf("export function QuantityCell("));
+    const body = cell.slice(0, cell.indexOf("\n}\n"));
+    expect(body).toContain("materialLineLabel({");
+    expect(body).toContain('key={`${quantity.material_name ?? ""}|${quantity.material_specification ?? ""}|${quantity.unit}`}');
+  });
+
+  it("a mixed column keeps its target, worded as the whole column's total", () => {
+    const column = read("src/components/contractor-ops/column-records.tsx");
+    expect(column).toContain('t(columnTotal ? "columnTarget" : "target")');
+    expect(column).toContain('t(columnTotal ? "columnCompletion" : "completion")');
+    // 「占项目目标」 never beside a count of deliveries.
+    expect(column).toContain('quantity && data.target?.percent != null ? t("ofTarget"');
+    expect(zh.categoryManagement.records.summary.columnTarget).toBe("分类目标（本分类合计）");
+  });
+
   it("the 材料领用 totals and a mixed category column list each material line", () => {
     expect(read("src/components/contractor-ops/issue-statement.tsx")).toContain("materialLineLabel(row)");
     const column = read("src/components/contractor-ops/column-records.tsx");

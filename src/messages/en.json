@@ -4657,7 +4657,10 @@
         "otherUnits": "Only deliveries in {unit} are counted; other units are not converted and are left out.",
         "materials": "Cumulative quantity by material, specification and unit",
         "materialsNote": "This category holds different materials or specifications, which cannot be added together: the figures above count deliveries, and each material, specification and unit has its own total here.",
-        "materialsDeliveries": "{count, plural, one {# delivery} other {# deliveries}}"
+        "materialsDeliveries": "{count, plural, one {# delivery} other {# deliveries}}",
+        "columnTarget": "Category target (whole category)",
+        "columnRemaining": "Category total: {value} to go",
+        "columnCompletion": "Completion (whole category)"
       },
       "stage": {
         "label": "By state",

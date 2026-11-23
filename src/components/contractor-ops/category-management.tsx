@@ -102,6 +102,7 @@ import {
 import { useDateFormat } from "@/lib/dates";
 import { categoryTree } from "@/lib/category-tree";
 import { useUnitName } from "@/hooks/use-material-units";
+import { materialLineLabel } from "@/lib/material-totals";
 import { recordStatusLabel } from "@/lib/record-status";
 import {
   createCategoryGroup,
@@ -1351,16 +1352,22 @@ export function QuantityCell({
   }
   return (
     <span className={inline ? "inline" : "block space-y-0.5"}>
-      {/* One line per specification and unit (J7-4, J7-6): never 「件」 and
-          「吨」 in one figure, never two specifications added up. */}
-      {quantities.map((quantity) => (
+      {/* One line per material, specification and unit (J7-4, J7-6, JB232):
+          never 「件」 and 「吨」 in one figure, never two specifications or two
+          materials added up. */}
+      {quantities.map((quantity) => {
+        const label = materialLineLabel({
+          material_name: quantity.material_name ?? "",
+          material_specification: quantity.material_specification,
+        });
+        return (
         <span
-          key={`${quantity.material_specification ?? ""}|${quantity.unit}`}
+          key={`${quantity.material_name ?? ""}|${quantity.material_specification ?? ""}|${quantity.unit}`}
           className={inline ? "inline" : "block"}
         >
-          {/* Inline, the line beside it already names the specification. */}
-          {quantity.material_specification && !inline ? (
-            <span className="text-muted-foreground">{quantity.material_specification}: </span>
+          {/* Inline, the line beside it already names the material. */}
+          {label && !inline ? (
+            <span className="text-muted-foreground">{label}: </span>
           ) : null}
           {quantity.received} {unitName(quantity.unit)}
           {/* In the column, 退场 on a line of its own: beside the figure it
@@ -1374,7 +1381,8 @@ export function QuantityCell({
             </span>
           )}
         </span>
-      ))}
+        );
+      })}
     </span>
   );
 }

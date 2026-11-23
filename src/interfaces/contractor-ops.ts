@@ -1600,6 +1600,11 @@ export interface ArchiveQueueDetail<K extends string = ArchiveRecordKind>
 
 /** The records filed in one column, newest first (T-396). */
 export interface ColumnQuantity {
+  /**
+   * The material this line counts (JB232: per material name too - "Paint"
+   * and "Thinner" in one column are two lines, never one figure).
+   */
+  material_name?: string;
   /** The specification this line counts (J7-4); blank for records with none. */
   material_specification?: string;
   unit: string;
@@ -1656,6 +1661,11 @@ export interface CategorySummary {
     remaining: string;
     percent: number | null;
     status: string;
+    /** The target's own unit (JB232), for a column whose tiles count deliveries. */
+    unit?: string;
+    unit_label?: string | null;
+    /** JB232: the column holds several materials or specifications - this compares their total. */
+    column_total?: boolean;
   } | null;
   /** How many suppliers delivered into it, or null where records have none. */
   suppliers: number | null;
