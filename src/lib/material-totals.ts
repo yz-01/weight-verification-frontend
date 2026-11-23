@@ -33,11 +33,17 @@ export function materialLineLabel(row: {
 export function cardQuantityText(
   rows: MaterialQuantity[],
   unitName: (unit: string) => string,
+  separator = ", ",
 ): string {
   if (rows.length === 0) return "0";
   return rows
     .map((row) => `${materialLineLabel(row)} ${row.quantity} ${unitName(row.unit)}`.trim())
-    .join(", ");
+    .join(separator);
+}
+
+/** The separator between card lines in the reader's language: 「，」 in Chinese, ", " otherwise. */
+export function listSeparator(locale: string): string {
+  return locale.startsWith("zh") ? "，" : ", ";
 }
 
 /** The distinct units of `rows`, in the order they first appear. */

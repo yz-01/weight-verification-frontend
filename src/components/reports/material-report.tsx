@@ -11,7 +11,7 @@ import {
   Package,
   ReceiptText,
 } from "lucide-react";
-import { useFormatter, useTranslations } from "next-intl";
+import { useFormatter, useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
 import { useState } from "react";
 
@@ -54,7 +54,7 @@ import { SupplierDateFilter } from "@/components/shared/supplier-date-filter";
 import { useUnitExportValues, useUnitName } from "@/hooks/use-material-units";
 import { useDateFormat } from "@/lib/dates";
 import { purchaseUnitPrice, reportMoneyHidden } from "@/lib/issue-money";
-import { cardQuantityText } from "@/lib/material-totals";
+import { cardQuantityText, listSeparator } from "@/lib/material-totals";
 import {
   chosenMaterial,
   chosenMaterialLabels,
@@ -1044,11 +1044,12 @@ function ModeCards({
   onPick: (next: "rejected" | "returns" | undefined) => void;
 }) {
   const t = useTranslations();
+  const locale = useLocale();
   const unitName = useUnitName();
-  // Per material + specification + unit (JB232): 「G15 2 m³, G25 3 m³」,
+  // Per material + specification + unit (JB232): 「G15 2 m³，G25 3 m³」,
   // never 「5 m³」 of two different concretes.
   const quantity = (card: (typeof cards)["rejected"]) =>
-    cardQuantityText(card.by_material, unitName);
+    cardQuantityText(card.by_material, unitName, listSeparator(locale));
   return (
     <div className="flex flex-wrap gap-2">
       {(["rejected", "returns"] as const).map((code) => {

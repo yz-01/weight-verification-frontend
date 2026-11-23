@@ -16,7 +16,7 @@ import en from "@/messages/en.json";
 import ms from "@/messages/ms.json";
 import zh from "@/messages/zh.json";
 import zhTW from "@/messages/zh-TW.json";
-import { cardQuantityText, materialLineLabel, unitsOf } from "@/lib/material-totals";
+import { cardQuantityText, listSeparator, materialLineLabel, unitsOf } from "@/lib/material-totals";
 import { exportBody, materialUnitSummary } from "@/services/contractor.service";
 
 function read(file: string) {
@@ -43,6 +43,16 @@ describe("material lines are worded with their specification", () => {
     expect(text).toBe("混凝土 G15 2 m³, 混凝土 G25 3 m³");
     expect(text).not.toContain("5 m³");
     expect(cardQuantityText([], unitName)).toBe("0");
+  });
+
+  it("joins card lines with the reader's comma (「，」 in Chinese)", () => {
+    const rows = [
+      { material_name: "油漆", material_specification: "", unit: "M3", quantity: "3" },
+      { material_name: "钢筋", material_specification: "Y12", unit: "M3", quantity: "5" },
+    ];
+    expect(cardQuantityText(rows, unitName, listSeparator("zh"))).toBe("油漆 3 m³，钢筋 Y12 5 m³");
+    expect(cardQuantityText(rows, unitName, listSeparator("zh-TW"))).toContain("，");
+    expect(cardQuantityText(rows, unitName, listSeparator("en"))).toBe("油漆 3 m³, 钢筋 Y12 5 m³");
   });
 
   it("groups bars by unit without a total of the unit", () => {
@@ -113,7 +123,7 @@ describe("no screen adds different materials because they share a unit", () => {
   it("the material report shows no per-unit figures and its cards name each material line", () => {
     const source = read("src/components/reports/material-report.tsx");
     expect(source).not.toContain("by_unit");
-    expect(source).toContain("cardQuantityText(card.by_material, unitName)");
+    expect(source).toContain("cardQuantityText(card.by_material, unitName, listSeparator(locale))");
   });
 
   it("the 报表 page's unit sections have no total, and each bar names its specification", () => {
