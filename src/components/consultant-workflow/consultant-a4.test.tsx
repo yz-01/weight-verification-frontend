@@ -196,7 +196,8 @@ describe("待整理现场资料 (C1, Q2)", () => {
     const old = read("src/app/(dashboard)/consultant-field-inbox/page.tsx");
     expect(old).toContain('new URLSearchParams({ stage: "inbox" })');
     const list = read("src/components/consultant-workflow/applications-list.tsx");
-    expect(list).toContain('const STAGES = ["inbox", "all", "draft", "approval", "final", "archive"] as const;');
+    // JB236 adds "remedial_review" (the dashboard's 「整改待复核」) at the end.
+    expect(list).toContain('const STAGES = ["inbox", "all", "draft", "approval", "final", "archive", "remedial_review"] as const;');
     expect(list).toContain("<ConsultantFieldInbox project={project}");
   });
 });

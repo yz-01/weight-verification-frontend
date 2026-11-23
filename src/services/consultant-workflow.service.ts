@@ -830,16 +830,37 @@ export const addRemedialItem = async (
   return item;
 };
 
-export const closeRemedialItem = async (
+/**
+ * 「提交顾问复核」 (JB236, 客户 11-20 事项 8): the result and photos go back to
+ * the consultant who raised the item. Was 「关闭这条整改」.
+ */
+export const submitRemedialItem = async (
   application: string,
   payload: { item: string; closure_note: string; evidence: string[] },
 ): Promise<RemedialItem> => {
   const item = await api.post<RemedialItem>(
-    `/api/consultant-applications/${application}/close_remedial_item/`,
+    `/api/consultant-applications/${application}/submit_remedial_item/`,
     payload,
   );
-  toastSuccess("consultantWorkflow.toast.remedialClosed");
+  toastSuccess("consultantWorkflow.toast.remedialSubmitted");
   return item;
+};
+
+/** 「整改合格」 or 「退回继续整改」, signed with the approval PIN (JB236). */
+export const reviewRemedialItem = async (
+  application: string,
+  payload: { item: string; decision: "ACCEPT" | "RETURN"; note: string; approval_pin: string },
+): Promise<ConsultantApplication> => {
+  const row = await api.post<ConsultantApplication>(
+    `/api/consultant-applications/${application}/review_remedial_item/`,
+    payload,
+  );
+  toastSuccess(
+    payload.decision === "ACCEPT"
+      ? "consultantWorkflow.toast.remedialAccepted"
+      : "consultantWorkflow.toast.remedialReturned",
+  );
+  return row;
 };
 
 /**

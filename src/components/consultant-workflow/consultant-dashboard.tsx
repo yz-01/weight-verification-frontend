@@ -221,7 +221,7 @@ export function ConsultantDashboard() {
             </div>
             {/* JB203-11 (Lucas 11-16 audit): a consultant never has drafts
                 (they are the contractor's), so no 「申请 0」 card for them. */}
-            <div className={`grid gap-3 md:grid-cols-2 ${isConsultant ? "xl:grid-cols-3" : "xl:grid-cols-4"}`}>
+            <div className={`grid gap-3 md:grid-cols-2 ${isConsultant ? "xl:grid-cols-4" : "xl:grid-cols-5"}`}>
               {!isConsultant && (
               <LifecycleStep
                 number={1}
@@ -242,8 +242,19 @@ export function ConsultantDashboard() {
                 icon={ClipboardCheck}
                 tone="warning"
               />
+              {/* JB236 (客户 11-20 事项 8): results and photos sent back for
+                  this reader's review - the list's ?stage=remedial_review. */}
               <LifecycleStep
                 number={step(3)}
+                label={t("flow.remedialReview")}
+                help={t("flow.remedialReviewHelp")}
+                value={data.summary.remedial_review ?? 0}
+                href="/consultant-applications?stage=remedial_review"
+                icon={ClipboardCheck}
+                tone="warning"
+              />
+              <LifecycleStep
+                number={step(4)}
                 label={t("flow.final")}
                 help={t("flow.finalHelp")}
                 value={data.summary.final_reports}
@@ -252,7 +263,7 @@ export function ConsultantDashboard() {
                 tone="positive"
               />
               <LifecycleStep
-                number={step(4)}
+                number={step(5)}
                 label={t("flow.archive")}
                 help={t("flow.archiveHelp")}
                 value={data.summary.archived}
@@ -374,7 +385,7 @@ function ApplicationList({
 }
 
 function statusTone(status: ConsultantDashboardRow["status"]) {
-  if (["APPROVED", "APPROVED_WITH_REMEDIAL", "ARCHIVED"].includes(status)) return "positive" as const;
+  if (["APPROVED", "APPROVED_WITH_REMEDIAL", "REMEDIAL_ACCEPTED", "ARCHIVED"].includes(status)) return "positive" as const;
   if (["REJECTED", "REVISE_RESUBMIT"].includes(status)) return "danger" as const;
   if (status === "SUBMITTED") return "warning" as const;
   return "neutral" as const;

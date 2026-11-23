@@ -112,8 +112,9 @@ describe("decisions and statuses (JB201)", () => {
     expect(zh.consultantWorkflow.applications.stage.final).toBe("最终报告");
   });
 
-  it("the remedial button is 关闭这条整改, as its dialog", () => {
-    sameName(["consultantWorkflow.action.closeRemedial", "consultantWorkflow.remedial.closeTitle"]);
+  it("the remedial button is 提交顾问复核, as its dialog (JB236)", () => {
+    sameName(["consultantWorkflow.action.submitRemedial", "consultantWorkflow.remedial.submitTitle"]);
+    expect(zh.consultantWorkflow.action.submitRemedial).toBe("提交顾问复核");
   });
 
   it("sending is 发送给顾问, the PIN prompt too", () => {
