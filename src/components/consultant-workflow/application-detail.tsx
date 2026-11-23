@@ -934,7 +934,10 @@ function ArchiveChecklist({ application }: { application: ConsultantApplication 
                   </Button>
                 </div>
               )}
-              {kind === "FINAL_REPORT" && entry && reportBeforeReview && (
+              {/* Under review the row's own status already says 「签署时生成
+                  （整改复核前）」; once accepted, this line says which report
+                  it is (walk 11-23: not both at once). */}
+              {kind === "FINAL_REPORT" && entry && reportBeforeReview && !waitingReview && (
                 <p data-slot="report-before-review" className="mt-1 text-xs font-medium text-warning">{t("remedial.oldReport")}</p>
               )}
               {entry?.sha256 && <p className="mt-1 break-all font-mono text-[10px] text-muted-foreground">SHA-256: {entry.sha256}</p>}
