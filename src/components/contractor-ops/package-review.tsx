@@ -1,12 +1,19 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Inbox, MessagesSquare, PenLine } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { useRef, useState } from "react";
 
 import { ThreadView } from "@/components/contractor-ops/package-exchange";
+import {
+  MoneyBlock,
+  ProgressBadge,
+  ReviewDialog,
+  SignaturesBlock,
+  type ReviewRecord,
+} from "@/components/contractor-ops/package-review-loop";
 import { Shell } from "@/components/contractor-ops/package-shell";
 import { PackageItemPictures } from "@/components/contractor-ops/package-item-pictures";
 import { ExportButton } from "@/components/shared/export-button";
@@ -17,16 +24,12 @@ import {
   useNeedsActionParam,
 } from "@/components/shared/needs-action";
 import {
-  ArmRow,
   EmptyState,
-  FieldWrapper,
   ListHeader,
   LoadFailed,
   StatusBadge,
 } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { Textarea } from "@/components/ui/textarea";
 import { useClearSearchParam } from "@/hooks/use-url-selection";
 import { useDateFormat } from "@/lib/dates";
 import { packageKindName } from "@/lib/package-items";
@@ -39,9 +42,8 @@ import {
   packageAttachmentFile,
   reviewPackageFile,
   reviewPackageItemFile,
-  reviewPackageItem,
   sendReviewMessage,
-  signReviewedPackage,
+  submitPackageReview,
 } from "@/services/contractor-ops.service";
 import { clickOpensRow } from "@/components/shared/inside-row-control";
 
@@ -152,10 +154,15 @@ export function PackageReviewWorkspace() {
                 </p>
               </div>
               <NeedsActionMarker show={row.needs_action} />
-              <StatusBadge
-                label={t(`reviewMine.${row.review_state}`)}
-                tone={row.review_state === "REVIEWED" ? "positive" : "warning"}
-              />
+              {/* JB252: his own 「审阅」 in the client's words. */}
+              {row.review_progress ? (
+                <ProgressBadge progress={row.review_progress} />
+              ) : (
+                <StatusBadge
+                  label={t(`reviewMine.${row.review_state}`)}
+                  tone={row.review_state === "REVIEWED" ? "positive" : "warning"}
+                />
+              )}
               <Button size="sm" variant="outline" onClick={() => setOpenId(row.id)}>
                 {t("open")}
               </Button>
@@ -179,12 +186,11 @@ export function PackageReviewWorkspace() {
 
 function ReviewSheet({ id, onClose }: { id: string; onClose: () => void }) {
   const t = useTranslations("multiEngine");
+  const loop = useTranslations("jb252");
   const formatter = useDateFormat();
   const queryClient = useQueryClient();
-  const [returning, setReturning] = useState<string | null>(null);
-  const [changing, setChanging] = useState<string | null>(null);
-  const [reason, setReason] = useState("");
-  const [armed, setArmed] = useState(false);
+  // JB252: confirm / approve / return in one signed review (opinion, signature, PIN).
+  const [reviewing, setReviewing] = useState(false);
   // The first load is the open the office sees (H17 四 5); a refetch is not.
   const opened = useRef(false);
   // JB189 「沟通」: this consultant's own thread with the office, below.
@@ -203,27 +209,17 @@ function ReviewSheet({ id, onClose }: { id: string; onClose: () => void }) {
     queryFn: () => getReviewMessages(id),
   });
   const refresh = () => queryClient.invalidateQueries({ queryKey: ["package-reviews"] });
-  const decide = useMutation({
-    mutationFn: (input: { item: string; decision: "ACCEPTED" | "RETURNED"; reason: string }) =>
-      reviewPackageItem(id, input.item, input.decision, input.reason),
-    onSuccess: () => {
-      refresh();
-      setReturning(null);
-      setChanging(null);
-      setReason("");
-    },
-  });
-  const sign = useMutation({
-    mutationFn: () => signReviewedPackage(id),
-    onSuccess: () => {
-      setArmed(false);
-      refresh();
-    },
-  });
 
   const data = detail.data;
   const mine = data?.recipient;
   const open = Boolean(data?.can_return);
+  const records: ReviewRecord[] = (data?.items ?? []).map((item) => ({
+    id: item.id,
+    label: item.reference || packageKindName(t, item),
+    detail: packageKindName(t, item),
+    mine: item.review_state,
+    reason: item.returned_reason,
+  }));
 
   return (
     <Shell title={data ? `${data.package_no ? `${data.package_no} · ` : ""}${data.name}` : t("reviewTitle")} onClose={onClose}>
@@ -268,11 +264,34 @@ function ReviewSheet({ id, onClose }: { id: string; onClose: () => void }) {
                 {t("exchange.talk")}
               </Button>
             </div>
+            {/* JB252: where his own review stands, in the list's words; 资料传阅
+                is read only. */}
+            <div className="flex flex-wrap items-center gap-2">
+              <ProgressBadge progress={data.review_progress} />
+              {data.purpose === "CIRCULATION" && (
+                <StatusBadge label={loop("purpose.CIRCULATION")} tone="neutral" />
+              )}
+            </div>
+            <MoneyBlock pkg={data} />
+            {data.can_review && (
+              <div
+                className="flex flex-wrap items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 p-3"
+                data-consultant-review
+              >
+                <p className="min-w-0 flex-1 text-sm">
+                  {loop("review.waiting", { count: records.filter((row) => row.mine === "PENDING").length })}
+                </p>
+                <Button size="sm" onClick={() => setReviewing(true)}>
+                  <PenLine className="size-4" />
+                  {loop("review.button")}
+                </Button>
+              </div>
+            )}
             {mine?.signed_at ? (
               <p className="rounded-lg border border-primary/30 bg-primary/5 p-3 text-sm">
                 {t("exchange.signedBy", { name: mine.signed_name, when: formatter.dateTime(mine.signed_at) })}
               </p>
-            ) : !open ? (
+            ) : !open && data.purpose !== "CIRCULATION" && !data.completed_at ? (
               /* D-148 / HD18: the package left the platform; reading and
                  the chat still work, an answer does not. */
               <p className="rounded-lg border border-dashed bg-muted/20 p-3 text-xs">
@@ -281,7 +300,6 @@ function ReviewSheet({ id, onClose }: { id: string; onClose: () => void }) {
             ) : null}
             <ul className="space-y-2">
               {data.items.map((item) => {
-                const answered = item.review_state !== "PENDING" && changing !== item.id;
                 return (
                   <li key={item.id} className="space-y-2 rounded-lg border p-3">
                     <div className="flex flex-wrap items-start gap-2">
@@ -316,88 +334,19 @@ function ReviewSheet({ id, onClose }: { id: string; onClose: () => void }) {
                         }}
                       />
                     </div>
-                    {answered ? (
-                      <div className="flex flex-wrap items-center gap-2">
-                        {item.review_state === "RETURNED" ? (
-                          <p className="min-w-0 flex-1 rounded border border-destructive/30 bg-destructive/5 p-2 text-xs text-destructive">
-                            {t("returnedWithReason", { reason: item.returned_reason })}
-                          </p>
-                        ) : (
-                          <p className="min-w-0 flex-1 text-xs text-primary">{t("itemAccepted")}</p>
-                        )}
-                        {open && (
-                          <Button size="sm" variant="ghost" onClick={() => setChanging(item.id)}>
-                            <PenLine className="size-4" />
-                            {t("exchange.changeAnswer")}
-                          </Button>
-                        )}
-                      </div>
-                    ) : returning === item.id ? (
-                      <div className="space-y-2">
-                        <FieldWrapper label={t("field.returnReason")} required hint={t("returnReasonHelp")}>
-                          <Textarea rows={2} value={reason} onChange={(event) => setReason(event.target.value)} />
-                        </FieldWrapper>
-                        <div className="flex gap-2">
-                          <Button size="sm" variant="outline" onClick={() => setReturning(null)}>
-                            {t("cancelReturn")}
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline-destructive"
-                            requires={[[reason.trim(), t("field.returnReason")]]}
-                            disabled={decide.isPending}
-                            onClick={() => decide.mutate({ item: item.id, decision: "RETURNED", reason })}
-                          >
-                            {t("returnItem")}
-                          </Button>
-                        </div>
-                      </div>
-                    ) : open ? (
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          disabled={decide.isPending}
-                          onClick={() => decide.mutate({ item: item.id, decision: "ACCEPTED", reason: "" })}
-                        >
-                          {t("acceptItem")}
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => {
-                            setReturning(item.id);
-                            setReason("");
-                          }}
-                        >
-                          {t("returnItem")}
-                        </Button>
-                      </div>
+                    {item.review_state === "RETURNED" ? (
+                      <p className="rounded border border-destructive/30 bg-destructive/5 p-2 text-xs text-destructive">
+                        {t("returnedWithReason", { reason: item.returned_reason })}
+                      </p>
+                    ) : item.review_state === "ACCEPTED" ? (
+                      <p className="text-xs text-primary">{t("itemAccepted")}</p>
                     ) : null}
                   </li>
                 );
               })}
             </ul>
 
-            {data.can_sign && (
-              /* 「签收」 is final: the switch first (规矩 8), then the button. */
-              <ArmRow className="border-primary/25 bg-primary/5">
-                <label className="flex min-w-0 flex-1 items-start gap-3">
-                  <Switch className="mt-0.5" checked={armed} onCheckedChange={setArmed} aria-label={t("exchange.sign")} />
-                  <span className="text-xs leading-5 text-muted-foreground">{t("exchange.signHelp")}</span>
-                </label>
-                <Button
-                  size="sm"
-                  disabled={!armed || sign.isPending}
-                  disabledReason={t("exchange.armFirst")}
-                  onClick={() => sign.mutate()}
-                >
-                  {t("exchange.sign")}
-                </Button>
-              </ArmRow>
-            )}
-            {open && !data.can_sign && !mine?.signed_at && (
-              <p className="text-xs text-muted-foreground">{t("exchange.signAfterResubmit")}</p>
-            )}
+            <SignaturesBlock signatures={data.signatures} />
 
             <section ref={chat} className="scroll-mt-4 space-y-2" data-package-chat>
               <h3 className="panel-title">{t("exchange.tab.chat")}</h3>
@@ -423,6 +372,15 @@ function ReviewSheet({ id, onClose }: { id: string; onClose: () => void }) {
           </>
         )}
       </div>
+      {reviewing && data && (
+        <ReviewDialog
+          pkg={data}
+          records={records}
+          onClose={() => setReviewing(false)}
+          submit={(payload) => submitPackageReview(id, payload)}
+          onDone={() => void refresh()}
+        />
+      )}
     </Shell>
   );
 }
