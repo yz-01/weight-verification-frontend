@@ -4043,7 +4043,14 @@
       "sign_off_pin_code_sent": "Sign-off PIN code sent",
       "sign_off_pin_code_failed": "Sign-off PIN code refused",
       "sign_off_pin_set_failed": "Sign-off PIN not set (refused)",
-      "login_email_changed": "Login e-mail changed"
+      "login_email_changed": "Login e-mail changed",
+      "equipment_operator_profile_saved": "Operator papers saved",
+      "equipment_operator_file_added": "Photo or file added to operator papers",
+      "equipment_operator_file_removed": "Photo or file removed from operator papers",
+      "remedial_item_submitted": "Remedial work submitted",
+      "remedial_item_accepted": "Remedial item accepted",
+      "remedial_item_returned": "Remedial item returned for more work",
+      "remedial_accepted": "All remedial items accepted"
     },
     "objectType": {
       "SignOffAssistant": "Assistant PIN",

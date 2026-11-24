@@ -4043,7 +4043,14 @@
       "sign_off_pin_code_sent": "Kod PIN pengesahan dihantar",
       "sign_off_pin_code_failed": "Kod PIN pengesahan ditolak",
       "sign_off_pin_set_failed": "PIN pengesahan tidak ditetapkan (ditolak)",
-      "login_email_changed": "E-mel log masuk ditukar"
+      "login_email_changed": "E-mel log masuk ditukar",
+      "equipment_operator_profile_saved": "Dokumen operator disimpan",
+      "equipment_operator_file_added": "Foto atau fail ditambah pada dokumen operator",
+      "equipment_operator_file_removed": "Foto atau fail dibuang daripada dokumen operator",
+      "remedial_item_submitted": "Kerja pembaikan dihantar",
+      "remedial_item_accepted": "Perkara pembaikan diterima",
+      "remedial_item_returned": "Perkara pembaikan dikembalikan untuk dibaiki lagi",
+      "remedial_accepted": "Semua perkara pembaikan diterima"
     },
     "objectType": {
       "SignOffAssistant": "PIN pembantu",

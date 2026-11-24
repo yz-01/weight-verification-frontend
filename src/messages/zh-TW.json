@@ -4043,7 +4043,14 @@
       "sign_off_pin_code_sent": "簽核密碼驗證碼已寄出",
       "sign_off_pin_code_failed": "簽核密碼驗證碼未通過",
       "sign_off_pin_set_failed": "設定簽核密碼未通過",
-      "login_email_changed": "更改登入郵箱"
+      "login_email_changed": "更改登入郵箱",
+      "equipment_operator_profile_saved": "儲存操作人員資料",
+      "equipment_operator_file_added": "上傳操作人員資料的照片或文件",
+      "equipment_operator_file_removed": "刪除操作人員資料的照片或文件",
+      "remedial_item_submitted": "提交整改",
+      "remedial_item_accepted": "整改驗收通過",
+      "remedial_item_returned": "退回繼續整改",
+      "remedial_accepted": "全部整改驗收通過"
     },
     "objectType": {
       "SignOffAssistant": "助理副密碼",
