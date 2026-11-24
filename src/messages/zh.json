@@ -9661,7 +9661,8 @@
       "permit_work_name_required": "请先填写施工事项名称，再签名批准。",
       "permit_formal_permit_required": "还没有正式施工准证。请用「上传附件」上传填好的公司准证表格，或填写电子准证，再签名批准。",
       "hazard_room_not_for_consultant": "这是建筑商内部的沟通，顾问不能在这里发言。要和项目后台沟通，请用「找人沟通」。",
-      "report_export_made_before_update": "这份文件是系统更新前生成的，请重新导出。"
+      "report_export_made_before_update": "这份文件是系统更新前生成的，请重新导出。",
+      "hazard_chat_ended": "{incident_no} 已结束，沟通已关闭。原有记录可以查看，但不能再发送文字、照片、文件或语音。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -10671,7 +10672,9 @@
       "open": "打开",
       "dismiss": "关闭"
     },
-    "recordFailed": "录音没有开始。请允许本 App 使用麦克风，或改用打字、拍照。"
+    "recordFailed": "录音没有开始。请允许本 App 使用麦克风，或改用打字、拍照。",
+    "ended": "这个事项已结束，沟通已关闭。原有的文字、照片、文件、语音，以及发送人和时间都保留，可以查看，不能再发送。",
+    "endedBadge": "已结束"
   },
   "headquarters": {
     "banner": {

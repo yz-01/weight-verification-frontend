@@ -9661,7 +9661,8 @@
       "permit_work_name_required": "Write the work name first, then sign and approve.",
       "permit_formal_permit_required": "There is no formal permit yet. Upload the company's filled permit form with \"Attach files\", or fill in the e-permit, then sign and approve.",
       "hazard_room_not_for_consultant": "This is the contractor's internal conversation; a consultant cannot post here. To talk to the project office, use 'Message someone'.",
-      "report_export_made_before_update": "This file was made before the system update. Please export it again."
+      "report_export_made_before_update": "This file was made before the system update. Please export it again.",
+      "hazard_chat_ended": "{incident_no} has ended and its discussion is closed. The record can still be read, but no more text, photos, files or voice notes can be sent."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -10671,7 +10672,9 @@
       "open": "Open",
       "dismiss": "Close"
     },
-    "recordFailed": "Recording did not start. Allow this app to use the microphone, or type or take a photo instead."
+    "recordFailed": "Recording did not start. Allow this app to use the microphone, or type or take a photo instead.",
+    "ended": "This item has ended and its discussion is closed. Every message, photo, file and voice note, with who sent it and when, stays here to read. Nothing more can be sent.",
+    "endedBadge": "Ended"
   },
   "headquarters": {
     "banner": {

@@ -9661,7 +9661,8 @@
       "permit_work_name_required": "Tulis nama kerja dahulu, kemudian tandatangan dan luluskan.",
       "permit_formal_permit_required": "Belum ada permit rasmi. Muat naik borang permit syarikat yang telah diisi dengan \"Lampirkan fail\", atau isi e-permit, kemudian tandatangan dan luluskan.",
       "hazard_room_not_for_consultant": "Ini perbualan dalaman kontraktor; perunding tidak boleh menghantar mesej di sini. Untuk berbincang dengan pejabat projek, gunakan 'Mesej seseorang'.",
-      "report_export_made_before_update": "Fail ini dibuat sebelum kemas kini sistem. Sila eksport semula."
+      "report_export_made_before_update": "Fail ini dibuat sebelum kemas kini sistem. Sila eksport semula.",
+      "hazard_chat_ended": "{incident_no} telah tamat dan perbincangannya ditutup. Rekod masih boleh dibaca, tetapi tiada lagi teks, foto, fail atau nota suara boleh dihantar."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -10671,7 +10672,9 @@
       "open": "Buka",
       "dismiss": "Tutup"
     },
-    "recordFailed": "Rakaman tidak bermula. Benarkan aplikasi ini menggunakan mikrofon, atau taip atau ambil gambar."
+    "recordFailed": "Rakaman tidak bermula. Benarkan aplikasi ini menggunakan mikrofon, atau taip atau ambil gambar.",
+    "ended": "Perkara ini telah tamat dan perbincangannya ditutup. Setiap mesej, foto, fail dan nota suara, berserta pengirim dan masanya, kekal di sini untuk dibaca. Tiada lagi yang boleh dihantar.",
+    "endedBadge": "Tamat"
   },
   "headquarters": {
     "banner": {
