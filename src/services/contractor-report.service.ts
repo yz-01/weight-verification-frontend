@@ -87,6 +87,10 @@ export function exportContractorReport(
     regenerated_from?: string;
     /** The report page, for a background report's 「重新导出」 (JB48). */
     return_to?: string;
+    /** 「不包含照片」 (JB257): `false` for the tables only; left out, as before. */
+    include_photos?: boolean;
+    /** 设备租赁费用报表 (JB257): the machine table's words in the file. */
+    rental_labels?: Record<string, unknown>;
   },
 ): Promise<void> {
   return download("/api/contractor-reports/export_report/", {

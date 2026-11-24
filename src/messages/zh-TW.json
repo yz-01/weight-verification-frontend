@@ -4055,7 +4055,10 @@
       "package_review_signed": "資料包簽名審核",
       "package_completed": "資料包確認完畢並歸檔",
       "package_claim_amount_set": "資料包申請金額修改",
-      "company_modules_by_platform": "MSE 開啟或關閉公司的業務模組"
+      "company_modules_by_platform": "MSE 開啟或關閉公司的業務模組",
+      "equipment_rental_terms_set": "設定設備租賃條件",
+      "equipment_rental_month_amounts_set": "填寫設備租賃的柴油費用或調整金額",
+      "equipment_rental_month_confirmed": "確認設備本月租賃金額"
     },
     "objectType": {
       "SignOffAssistant": "助理副密碼",
@@ -7788,7 +7791,7 @@
     "description": {
       "attendance": "查看人員進場證據、GPS 精度與圍欄結果。",
       "consultant": "查看顧問申請、證據與最終結果。",
-      "equipment": "查看設備進退場、文件、OCR 與照片。",
+      "equipment": "設備進退場記錄和每台設備的租賃費用、累計總金額。",
       "photos": "按項目、來源、上傳人、日期及 GPS 查詢永久照片證據賬本。",
       "progress": "查看項目進度、確認狀態與照片證據。",
       "recycling": "查看清運工作與回收訂單直至完成。",
@@ -7954,7 +7957,7 @@
     "type": {
       "attendance": "人員進場報表",
       "consultant": "顧問申請報表",
-      "equipment": "設備進退場報表",
+      "equipment": "設備租賃費用報表",
       "photos": "現場照片報表",
       "progress": "進度與照片報表",
       "recycling": "清運與回收報表",
@@ -9720,7 +9723,11 @@
       "package_amount_reason_required": "批准金額和申請金額不一樣，請填寫審批原因。",
       "package_not_approved": "要等全部審核通過，才能確認完畢並歸檔。",
       "package_completed": "這個資料包已經確認完畢並歸檔，不能再改動。",
-      "company_module_invalid": "請只勾選這家公司有的業務模組。"
+      "company_module_invalid": "請只勾選這家公司有的業務模組。",
+      "equipment_rental_no_terms": "先給這台設備設定租賃條件（【設備租賃設定】）。",
+      "equipment_rental_diesel_not_charged": "這台設備的柴油不是供應商另外收費，不能填柴油費用。",
+      "equipment_rental_month_confirmed": "這個月的租賃金額已經確認，不能再改。",
+      "equipment_rental_month_not_started": "這個月還沒開始，不能確認。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -13282,7 +13289,9 @@
       "fieldStaffManagement": "現場人員管理",
       "fieldChats": "溝通記錄",
       "photoTimeline": "工程照片牆",
-      "materialIssue": "材料領用（MIN）"
+      "materialIssue": "材料領用（MIN）",
+      "equipmentRentalReport": "設備租賃費用報表",
+      "siteCostOverview": "項目現場費用總覽"
     },
     "subscription_management": "訂閱管理",
     "suppliers": "供應商",
@@ -22184,7 +22193,10 @@
       "package_submit": "簽名提交資料包審批",
       "package_resubmit": "重新簽名提交資料包",
       "package_review": "簽名審核資料包",
-      "package_claim_amount": "填寫或修改申請金額"
+      "package_claim_amount": "填寫或修改申請金額",
+      "equipment_rental_terms": "設定設備租賃條件",
+      "equipment_rental_month_amounts": "填寫柴油費用或調整金額",
+      "equipment_rental_confirm": "確認本月租賃金額"
     },
     "firstTitle": "第一次設定簽核密碼",
     "firstBanner": "這是你第一次使用簽核密碼",
@@ -23730,5 +23742,169 @@
     "noChange": "還沒有改動。",
     "saved": "業務模組已儲存。",
     "saveFailed": "儲存失敗，請再試一次。"
+  },
+  "equipmentRental": {
+    "title": "設備租賃設定",
+    "help": "每台設備獨立設定租賃條件，設定一次後長期沿用。填寫或修改金額要輸入六位數密碼。",
+    "close": "關閉",
+    "chooseProject": "先在頁面上方選一個項目。",
+    "withoutTerms": "有 {count} 台設備還沒有設定租賃條件。",
+    "noMachines": "這個項目沒有設備。",
+    "noSupplier": "沒有供應商",
+    "machineLine": "{number} 號 · {name}",
+    "noTerms": "還沒有設定租賃條件",
+    "noTermsShort": "未設定租賃條件",
+    "history": "修改記錄（{count}）",
+    "open": "租賃條件",
+    "inForce": "現在用的",
+    "changedBy": "{name} · {time}",
+    "method": {
+      "HOURLY": "按小時",
+      "DAILY": "按天",
+      "MONTHLY": "按月",
+      "YEARLY": "按年",
+      "FIXED": "固定金額"
+    },
+    "diesel": {
+      "INCLUDED": "租金包含柴油",
+      "CONTRACTOR": "建築商自行提供柴油",
+      "SUPPLIER_CHARGED": "供應商提供柴油另外收費"
+    },
+    "summary": {
+      "price": "單價 RM {amount}",
+      "overtime": "超時 RM {amount}/小時",
+      "standardDays": "每月標準 {days} 天",
+      "period": "{from} 至 {to}",
+      "since": "{from} 起"
+    },
+    "field": {
+      "method": "租賃方式",
+      "unitPrice": {
+        "HOURLY": "租賃單價（RM / 小時）",
+        "DAILY": "租賃單價（RM / 天）",
+        "MONTHLY": "租賃單價（RM / 月）",
+        "YEARLY": "租賃單價（RM / 年）",
+        "FIXED": "固定金額（RM / 月）"
+      },
+      "standardDays": "每月標準工作天數",
+      "normalHours": "每天正常工作時數",
+      "overtimeRate": "超時工作每小時單價（RM）",
+      "extraDayRate": "超出標準工作天數的收費標準（RM / 天）",
+      "extraDayOnly": "只用於按月、按年",
+      "startDate": "租賃開始日期",
+      "endDate": "租賃結束日期（可以不填）",
+      "diesel": "柴油供應方式",
+      "stoppage": "停工及設備故障扣費條件",
+      "remarks": "其他租賃條款及備註"
+    },
+    "formula": {
+      "HOURLY": "基本租金 = 正常工時 × 單價。",
+      "DAILY": "基本租金 = 工作天數 × 單價。",
+      "MONTHLY": "基本租金 = 月租 × 這個月在租賃期內的天數 ÷ 這個月的天數；工作天數超過每月標準工作天數，每多一天加收「超出標準工作天數」的金額。",
+      "YEARLY": "基本租金 = 年租 ÷ 12 × 這個月在租賃期內的天數 ÷ 這個月的天數；超出標準工作天數和按月一樣加收。",
+      "FIXED": "基本租金 = 每月固定金額 × 這個月在租賃期內的天數 ÷ 這個月的天數，不看工時，沒有司機打卡也算。",
+      "common": "超時費用 = 超時工時 × 超時單價。柴油只有「供應商提供柴油另外收費」才算，金額在「按月」頁填。租賃總金額 = 基本租金 + 超時費用 + 柴油費用 ± 調整金額。正常工時和超時工時就是本頁的數字（按上面「正常工時」的設定分開）；「每天正常工作時數」照合同記錄，和本頁的設定不一樣時，請把本頁的設定也改好。"
+    },
+    "save": "儲存",
+    "cancel": "取消",
+    "failed": "儲存失敗，請再試一次。",
+    "needPriceAndStart": "先填租賃單價和租賃開始日期。",
+    "fee": {
+      "base_rent": "基本租金（RM）",
+      "overtime_fee": "超時費用（RM）",
+      "diesel_fee": "柴油費用（RM）",
+      "adjustment_amount": "調整金額（RM）",
+      "rental_total": "租賃總金額（RM）",
+      "state": "租賃金額"
+    },
+    "confirmed": "已確認",
+    "confirmedBy": "{name} · {time}",
+    "notConfirmed": "未確認",
+    "amounts": {
+      "open": "柴油 / 調整",
+      "title": "{name} · {month} 柴油費用和調整金額",
+      "help": "填寫或修改金額要輸入六位數密碼。確認本月金額後就不能再改。",
+      "diesel": "柴油費用（RM，供應商另外收取的）",
+      "noDiesel": "這台設備是「{supply}」，柴油不計入租賃費用。",
+      "adjustment": "調整金額（RM，要扣錢就填負數，例如 -500）",
+      "reason": "調整原因",
+      "reasonPlaceholder": "例如：設備故障停工 2 天，按合同扣 RM 500",
+      "needReason": "填了調整金額就要寫原因。"
+    },
+    "confirm": {
+      "open": "確認本月金額",
+      "title": "確認 {month} 的租賃金額",
+      "help": "{count} 台設備的租賃金額會按現在的數字保存。確認後這個月的金額不會再改，以後修改租賃條件也不會影響它。",
+      "incomplete": "還有 {count} 筆工時缺開工或缺收工。確認後再補這些工時，這個月的金額也不會改。",
+      "do": "確認",
+      "nothing": "這個月沒有要確認的金額（已經確認了，或者還沒有設定租賃條件）。"
+    },
+    "toast": {
+      "termsSaved": "租賃條件已儲存。",
+      "amountsSaved": "已儲存。",
+      "confirmed": "本月租賃金額已確認。"
+    }
+  },
+  "jb257": {
+    "title": "設備租賃費用",
+    "help": "每台設備的租賃費用，和「設備操作員工時 › 按月」用同一個計算。按項目、供應商、設備和日期範圍統計；方向和關鍵字只篩選下面的進退場記錄。",
+    "total": "累計總金額",
+    "empty": "這段時間沒有租賃費用。",
+    "confirmedMonths": "已確認：{months}",
+    "onSite": "在場",
+    "column": {
+      "equipment": "設備",
+      "supplier": "供應商",
+      "terms": "租賃條件",
+      "entry": "進場日期",
+      "exit": "退場日期",
+      "daysOnSite": "累計在場天數",
+      "daysWorked": "工作天數",
+      "normalHours": "正常工時（小時）",
+      "overtimeHours": "超時工時（小時）"
+    }
+  },
+  "jb259": {
+    "title": "項目現場費用總覽",
+    "subtitle": "關聯各業務模組的實際費用，彙總顯示項目總費用及各項佔比。",
+    "filter": {
+      "project": "項目",
+      "allProjects": "全部項目",
+      "dateFrom": "開始日期",
+      "dateTo": "結束日期"
+    },
+    "total": "項目總費用",
+    "totalShort": "總費用",
+    "share": "費用構成（佔比）",
+    "trend": "費用趨勢（按月份）",
+    "links": "快速進入關聯報表",
+    "detail": "查看明細",
+    "sum": "合計",
+    "empty": "這段時間沒有費用。",
+    "help": "每一項金額都和它自己的報表一樣（同一個項目、同一個日期範圍）；按「查看明細」打開那個報表，可以一筆一筆看到原始記錄。雜費報銷只算已批准的。",
+    "notAvailableShort": "暫時沒有金額",
+    "source": {
+      "material_cost": "材料成本",
+      "equipment_rental": "設備租賃費用",
+      "progress_claim": "Progress Claim（支出部分）",
+      "sundry_claims": "雜費報銷",
+      "disposal": "垃圾清運"
+    },
+    "report": {
+      "material_cost": "材料成本報表",
+      "equipment_rental": "設備租賃費用報表",
+      "progress_claim": "Progress Claim 報表（支出部分）",
+      "sundry_claims": "雜費報銷報表",
+      "disposal": "垃圾清運報表"
+    },
+    "column": {
+      "module": "業務模組（關聯來源）",
+      "amount": "金額 (RM)",
+      "share": "佔比"
+    },
+    "notAvailable": {
+      "progress_claim": "Progress Claim（支出部分）：Multi Engine 的批准金額還沒有上線，現在算 0。上線後自動算進來。",
+      "disposal": "垃圾清運：清運記錄沒有金額欄（只有重量、車次和清運公司），所以算 0，沒有自己估價。"
+    }
   }
 }

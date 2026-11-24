@@ -4055,7 +4055,10 @@
       "package_review_signed": "Semakan pakej ditandatangani",
       "package_completed": "Pakej diselesaikan dan diarkibkan",
       "package_claim_amount_set": "Jumlah tuntutan pakej diubah",
-      "company_modules_by_platform": "MSE menghidupkan atau mematikan modul perniagaan syarikat"
+      "company_modules_by_platform": "MSE menghidupkan atau mematikan modul perniagaan syarikat",
+      "equipment_rental_terms_set": "Tetapkan terma sewa peralatan",
+      "equipment_rental_month_amounts_set": "Masukkan caj diesel atau pelarasan sewa peralatan",
+      "equipment_rental_month_confirmed": "Sahkan amaun sewa peralatan sebulan"
     },
     "objectType": {
       "SignOffAssistant": "PIN pembantu",
@@ -7788,7 +7791,7 @@
     "description": {
       "attendance": "Semak bukti kemasukan tapak, ketepatan GPS dan geofence.",
       "consultant": "Semak permohonan perunding, bukti dan keputusan akhir.",
-      "equipment": "Semak keluar masuk peralatan, dokumen, OCR dan foto.",
+      "equipment": "Rekod masuk / keluar peralatan dengan caj sewa setiap mesin dan jumlah keseluruhan.",
       "photos": "Cari lejar bukti foto kekal mengikut projek, sumber, pemuat naik, tarikh dan GPS.",
       "progress": "Semak kemajuan projek, status pengesahan dan bukti foto.",
       "recycling": "Semak kerja pelupusan dan pesanan kitar semula hingga selesai.",
@@ -7954,7 +7957,7 @@
     "type": {
       "attendance": "Laporan kemasukan tapak dan tenaga kerja",
       "consultant": "Laporan permohonan perunding",
-      "equipment": "Laporan pergerakan peralatan",
+      "equipment": "Laporan caj sewa peralatan",
       "photos": "Laporan foto tapak",
       "progress": "Laporan kemajuan dan foto",
       "recycling": "Laporan pelupusan dan kitar semula",
@@ -9720,7 +9723,11 @@
       "package_amount_reason_required": "Jumlah diluluskan berbeza daripada jumlah tuntutan: tulis sebabnya.",
       "package_not_approved": "Ia boleh diselesaikan selepas semua penyemak meluluskannya.",
       "package_completed": "Pakej ini telah selesai dan diarkibkan; tiada lagi perubahan.",
-      "company_module_invalid": "Tanda hanya modul perniagaan yang ada pada syarikat ini."
+      "company_module_invalid": "Tanda hanya modul perniagaan yang ada pada syarikat ini.",
+      "equipment_rental_no_terms": "Tetapkan terma sewa mesin ini dahulu (Terma sewa peralatan).",
+      "equipment_rental_diesel_not_charged": "Diesel mesin ini tidak dicaj berasingan oleh pembekal, jadi caj diesel tidak boleh dimasukkan.",
+      "equipment_rental_month_confirmed": "Amaun sewa bulan ini sudah disahkan dan tidak boleh diubah lagi.",
+      "equipment_rental_month_not_started": "Bulan ini belum bermula dan tidak boleh disahkan."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -13282,7 +13289,9 @@
       "fieldStaffManagement": "Kakitangan tapak",
       "fieldChats": "Rekod perbualan",
       "photoTimeline": "Garis masa foto projek",
-      "materialIssue": "Pengeluaran bahan (MIN)"
+      "materialIssue": "Pengeluaran bahan (MIN)",
+      "equipmentRentalReport": "Laporan caj sewa peralatan",
+      "siteCostOverview": "Ringkasan kos tapak"
     },
     "subscription_management": "Pengurusan Langganan",
     "suppliers": "Pembekal",
@@ -22184,7 +22193,10 @@
       "package_submit": "Tandatangan dan hantar pakej untuk kelulusan",
       "package_resubmit": "Tandatangan dan hantar semula pakej",
       "package_review": "Tandatangan semakan pakej",
-      "package_claim_amount": "Isi atau ubah jumlah tuntutan"
+      "package_claim_amount": "Isi atau ubah jumlah tuntutan",
+      "equipment_rental_terms": "Tetapkan terma sewa mesin",
+      "equipment_rental_month_amounts": "Masukkan caj diesel atau pelarasan",
+      "equipment_rental_confirm": "Sahkan amaun sewa bulan ini"
     },
     "firstTitle": "Tetapkan PIN pengesahan buat kali pertama",
     "firstBanner": "Ini kali pertama anda menggunakan PIN pengesahan",
@@ -23730,5 +23742,169 @@
     "noChange": "Belum ada perubahan.",
     "saved": "Modul perniagaan disimpan.",
     "saveFailed": "Gagal menyimpan. Sila cuba lagi."
+  },
+  "equipmentRental": {
+    "title": "Terma sewa peralatan",
+    "help": "Setiap mesin ada terma sewanya sendiri, ditetapkan sekali dan digunakan seterusnya. Memasukkan atau mengubah amaun memerlukan PIN enam digit anda.",
+    "close": "Tutup",
+    "chooseProject": "Pilih projek di bahagian atas halaman dahulu.",
+    "withoutTerms": "{count} mesin belum ada terma sewa.",
+    "noMachines": "Projek ini tiada mesin.",
+    "noSupplier": "Tiada pembekal",
+    "machineLine": "No. {number} · {name}",
+    "noTerms": "Belum ada terma sewa",
+    "noTermsShort": "Tiada terma sewa",
+    "history": "Perubahan ({count})",
+    "open": "Terma sewa",
+    "inForce": "Digunakan sekarang",
+    "changedBy": "{name} · {time}",
+    "method": {
+      "HOURLY": "Sejam",
+      "DAILY": "Sehari",
+      "MONTHLY": "Sebulan",
+      "YEARLY": "Setahun",
+      "FIXED": "Amaun tetap"
+    },
+    "diesel": {
+      "INCLUDED": "Diesel termasuk dalam sewa",
+      "CONTRACTOR": "Kontraktor membekalkan diesel",
+      "SUPPLIER_CHARGED": "Pembekal membekalkan diesel, dicaj berasingan"
+    },
+    "summary": {
+      "price": "Kadar RM {amount}",
+      "overtime": "Lebih masa RM {amount}/jam",
+      "standardDays": "{days} hari standard sebulan",
+      "period": "{from} hingga {to}",
+      "since": "dari {from}"
+    },
+    "field": {
+      "method": "Cara sewa",
+      "unitPrice": {
+        "HOURLY": "Kadar (RM / jam)",
+        "DAILY": "Kadar (RM / hari)",
+        "MONTHLY": "Kadar (RM / bulan)",
+        "YEARLY": "Kadar (RM / tahun)",
+        "FIXED": "Amaun tetap (RM / bulan)"
+      },
+      "standardDays": "Hari bekerja standard sebulan",
+      "normalHours": "Jam bekerja biasa sehari",
+      "overtimeRate": "Kadar lebih masa (RM / jam)",
+      "extraDayRate": "Caj hari melebihi standard (RM / hari)",
+      "extraDayOnly": "Hanya untuk sebulan dan setahun",
+      "startDate": "Tarikh mula sewa",
+      "endDate": "Tarikh tamat sewa (pilihan)",
+      "diesel": "Bekalan diesel",
+      "stoppage": "Potongan untuk henti kerja dan kerosakan",
+      "remarks": "Terma lain dan catatan"
+    },
+    "formula": {
+      "HOURLY": "Sewa asas = jam biasa × kadar.",
+      "DAILY": "Sewa asas = hari bekerja × kadar.",
+      "MONTHLY": "Sewa asas = kadar bulanan × hari bulan ini dalam tempoh sewa ÷ hari dalam bulan; setiap hari bekerja melebihi hari standard menambah caj hari lebih.",
+      "YEARLY": "Sewa asas = kadar tahunan ÷ 12 × hari bulan ini dalam tempoh sewa ÷ hari dalam bulan; hari lebih dicaj seperti sebulan.",
+      "FIXED": "Sewa asas = amaun tetap bulanan × hari bulan ini dalam tempoh sewa ÷ hari dalam bulan, tanpa mengira jam, juga tanpa rekod masuk kerja.",
+      "common": "Caj lebih masa = jam lebih masa × kadar lebih masa. Diesel dikira hanya jika pembekal mengecaj berasingan; masukkan di halaman Bulanan. Jumlah sewa = sewa asas + caj lebih masa + caj diesel ± pelarasan. Jam biasa dan lebih masa ialah angka halaman ini (dibahagi mengikut tetapan \"Jam biasa\" di atas); \"Jam bekerja biasa sehari\" merekod kontrak - jika berbeza, ubah juga tetapan halaman ini."
+    },
+    "save": "Simpan",
+    "cancel": "Batal",
+    "failed": "Tidak dapat disimpan. Sila cuba lagi.",
+    "needPriceAndStart": "Masukkan kadar dan tarikh mula sewa dahulu.",
+    "fee": {
+      "base_rent": "Sewa asas (RM)",
+      "overtime_fee": "Caj lebih masa (RM)",
+      "diesel_fee": "Caj diesel (RM)",
+      "adjustment_amount": "Pelarasan (RM)",
+      "rental_total": "Jumlah sewa (RM)",
+      "state": "Amaun sewa"
+    },
+    "confirmed": "Disahkan",
+    "confirmedBy": "{name} · {time}",
+    "notConfirmed": "Belum disahkan",
+    "amounts": {
+      "open": "Diesel / pelarasan",
+      "title": "{name} · {month} caj diesel dan pelarasan",
+      "help": "Memasukkan atau mengubah amaun memerlukan PIN enam digit anda. Selepas bulan disahkan, ia tidak boleh diubah lagi.",
+      "diesel": "Caj diesel (RM, dicaj oleh pembekal)",
+      "noDiesel": "Mesin ini \"{supply}\": diesel tidak termasuk dalam caj sewa.",
+      "adjustment": "Pelarasan (RM, tolak dengan nombor negatif, cth. -500)",
+      "reason": "Sebab pelarasan",
+      "reasonPlaceholder": "cth. rosak 2 hari, tolak RM 500 mengikut kontrak",
+      "needReason": "Pelarasan perlukan sebab."
+    },
+    "confirm": {
+      "open": "Sahkan amaun bulan ini",
+      "title": "Sahkan amaun sewa {month}",
+      "help": "Amaun sewa {count} mesin disimpan seperti sekarang. Selepas disahkan, amaun bulan ini tidak berubah lagi, juga jika terma sewa diubah kemudian.",
+      "incomplete": "{count} rekod jam masih tiada mula atau tamat. Jam yang dimasukkan selepas pengesahan tidak mengubah amaun bulan ini.",
+      "do": "Sahkan",
+      "nothing": "Tiada apa untuk disahkan bulan ini (sudah disahkan, atau belum ada terma sewa)."
+    },
+    "toast": {
+      "termsSaved": "Terma sewa disimpan.",
+      "amountsSaved": "Disimpan.",
+      "confirmed": "Amaun sewa bulan ini telah disahkan."
+    }
+  },
+  "jb257": {
+    "title": "Caj sewa peralatan",
+    "help": "Caj sewa setiap mesin, dikira sama seperti di Jam mesin › Bulanan. Mengikut projek, pembekal, mesin dan tarikh; arah dan kata kunci hanya menapis rekod masuk / keluar di bawah.",
+    "total": "Jumlah keseluruhan",
+    "empty": "Tiada caj sewa dalam tarikh ini.",
+    "confirmedMonths": "Disahkan: {months}",
+    "onSite": "Di tapak",
+    "column": {
+      "equipment": "Mesin",
+      "supplier": "Pembekal",
+      "terms": "Terma sewa",
+      "entry": "Tarikh masuk",
+      "exit": "Tarikh keluar",
+      "daysOnSite": "Hari di tapak",
+      "daysWorked": "Hari bekerja",
+      "normalHours": "Jam biasa",
+      "overtimeHours": "Jam lebih masa"
+    }
+  },
+  "jb259": {
+    "title": "Ringkasan kos tapak",
+    "subtitle": "Kos sebenar setiap modul, dengan jumlah kos projek dan bahagian setiap satu.",
+    "filter": {
+      "project": "Projek",
+      "allProjects": "Semua projek",
+      "dateFrom": "Dari",
+      "dateTo": "Hingga"
+    },
+    "total": "Jumlah kos projek",
+    "totalShort": "Jumlah",
+    "share": "Pecahan kos (bahagian)",
+    "trend": "Trend kos (bulanan)",
+    "links": "Pergi ke laporan",
+    "detail": "Lihat butiran",
+    "sum": "Jumlah",
+    "empty": "Tiada kos dalam tarikh ini.",
+    "help": "Setiap amaun sama dengan laporannya sendiri untuk projek dan tarikh yang sama; \"Lihat butiran\" membuka laporan itu, di mana setiap rekod boleh dijejak. Tuntutan pelbagai dikira selepas diluluskan.",
+    "notAvailableShort": "Belum ada amaun",
+    "source": {
+      "material_cost": "Kos bahan",
+      "equipment_rental": "Sewa peralatan",
+      "progress_claim": "Progress Claim (perbelanjaan)",
+      "sundry_claims": "Tuntutan pelbagai",
+      "disposal": "Pembersihan sampah"
+    },
+    "report": {
+      "material_cost": "Laporan kos bahan",
+      "equipment_rental": "Laporan caj sewa peralatan",
+      "progress_claim": "Laporan Progress Claim (perbelanjaan)",
+      "sundry_claims": "Laporan tuntutan pelbagai",
+      "disposal": "Laporan pembersihan sampah"
+    },
+    "column": {
+      "module": "Modul (sumber)",
+      "amount": "Amaun (RM)",
+      "share": "Bahagian"
+    },
+    "notAvailable": {
+      "progress_claim": "Progress Claim (perbelanjaan): amaun lulus Multi Engine belum aktif, jadi dikira 0. Ia ditambah secara automatik apabila aktif.",
+      "disposal": "Pembersihan sampah: rekodnya tiada amaun (hanya berat, trip dan pengutip), jadi dikira 0; tiada harga diteka."
+    }
   }
 }

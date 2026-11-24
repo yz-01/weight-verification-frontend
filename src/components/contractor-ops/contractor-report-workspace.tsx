@@ -64,6 +64,7 @@ import { useListQuery } from "@/hooks/use-list-query";
 import { useDateFormat } from "@/lib/dates";
 import { isRouteAllowed } from "@/lib/navigation";
 import { useUnitExportValues } from "@/hooks/use-material-units";
+import { RentalFeeTable, rentalLabels } from "@/components/reports/rental-fee-table";
 import {
   REPORT_REFERENCE_COLUMNS,
   messageCodes,
@@ -278,11 +279,18 @@ export function ContractorReportWorkspace({
     enabled:
       Boolean(dateFrom && dateTo && dateFrom <= dateTo) && !wantsLatest && !asksDays,
   });
+  const tRentalReport = useTranslations("jb257");
+  const tRental = useTranslations("equipmentRental");
+  // 设备租赁费用报表 (JB257): 「可选择包含照片或不包含照片」, and the machine
+  // table printed in the screen's words.
+  const rentalReport = reportType === "equipment";
   const exportMutation = useMutation({
-    mutationFn: (format: "PDF" | "EXCEL") =>
+    mutationFn: ({ format, includePhotos }: { format: "PDF" | "EXCEL"; includePhotos: boolean }) =>
       exportContractorReport({
         ...filters,
         format,
+        ...(includePhotos ? {} : { include_photos: false }),
+        ...(rentalReport ? { rental_labels: rentalLabels(tRentalReport, tRental) } : {}),
         title: t(`type.${reportType}`),
         // The file says what it was narrowed to, as the screen does.
         subtitle: [t("period", { from: dateFrom, to: dateTo }), level.name]
@@ -417,7 +425,13 @@ export function ContractorReportWorkspace({
           {/* 预览 · 打印 · 导出 · 发送 (PDF 统一操作规则). */}
           {mayExport && (
             <ExportButton
-              onExport={(format) => exportMutation.mutateAsync(format === "pdf" ? "PDF" : "EXCEL")}
+              onExport={(format, choice) =>
+                exportMutation.mutateAsync({
+                  format: format === "pdf" ? "PDF" : "EXCEL",
+                  includePhotos: choice?.includePhotos ?? true,
+                })
+              }
+              photoChoice={rentalReport}
               disabled={!report.data}
               disabledReason={common("noReportYet")}
               title={t(`type.${reportType}`)}
@@ -437,6 +451,9 @@ export function ContractorReportWorkspace({
         <QueryFailedNote query={options} what={t("what.projects")} className="w-full" />
         <QueryFailedNote query={latest} what={t("what.latestDay")} className="w-full" />
       </section>
+
+      {/* JB257: each machine's rental fee and the 累计总金额, above the records. */}
+      {report.data?.rental ? <RentalFeeTable rental={report.data.rental} /> : null}
 
       <section className="surface-panel overflow-hidden rounded-xl">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-panel-border px-4 py-3 sm:px-6">

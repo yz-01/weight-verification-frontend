@@ -1371,7 +1371,8 @@ export const PORTAL_NAVIGATION = {
         ),
         child(
           "13.2.8",
-          "nav.submodule.siteEquipment",
+          // JB257 (客户 11-24b 事项 4): 「设备进退场报表」 → 「设备租赁费用报表」.
+          "nav.submodule.equipmentRentalReport",
           "/reports/contractor/equipment",
           "report_center",
           undefined,
@@ -1469,6 +1470,15 @@ export const PORTAL_NAVIGATION = {
           "report_center",
           undefined,
           "report_contractor",
+        ),
+        // 项目现场费用总览 (JB259, 客户 11-24b 事项 6): the five site costs
+        // side by side. The builder's own costs: no consultant menu.
+        child(
+          "13.2.11B",
+          "nav.submodule.siteCostOverview",
+          "/reports/site-cost-overview",
+          "report_center",
+          "report.view",
         ),
         child(
           "13.2.12",
