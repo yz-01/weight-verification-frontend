@@ -23451,7 +23451,8 @@
       "resend": "重新发送",
       "sent": "验证码已寄到 {email}，{minutes} 分钟内有效。",
       "code": "邮箱验证码（六位数）",
-      "needPassword": "先填账号密码"
+      "needPassword": "先填账号密码",
+      "proof": "旧签核密码或邮箱验证码"
     },
     "email": {
       "subject": "MSE Trace 签核密码验证码",

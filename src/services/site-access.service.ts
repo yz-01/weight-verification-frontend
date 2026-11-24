@@ -78,6 +78,19 @@ export async function deleteCompanyBranch(id: string) {
 export const getContractorSiteSettings = () =>
   api.get<ContractorSiteSettings>("/api/contractor-site-settings/get_settings/");
 
+/**
+ * The 顾问项目默认权限 a new consultant grant starts from (JB203-9), on their
+ * own (JB239): 顾问权限管理 reads them without opening 公司设置, which now asks
+ * for the sign-off PIN.
+ */
+export const getConsultantDefaults = () =>
+  api.get<
+    Pick<
+      ContractorSiteSettings,
+      "default_consultant_modules" | "default_consultant_permissions" | "default_consultant_sub_modules"
+    >
+  >("/api/contractor-site-settings/get_consultant_defaults/");
+
 export const getContractorCompanyProfile = () =>
   api.get<ContractorCompanyProfile>(
     "/api/contractor-site-settings/get_company_profile/",

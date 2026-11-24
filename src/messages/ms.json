@@ -23451,7 +23451,8 @@
       "resend": "Hantar semula",
       "sent": "Kod dihantar ke {email}. Sah selama {minutes} minit.",
       "code": "Kod e-mel (6 digit)",
-      "needPassword": "Isi kata laluan akaun dahulu"
+      "needPassword": "Isi kata laluan akaun dahulu",
+      "proof": "PIN lama atau kod e-mel"
     },
     "email": {
       "subject": "Kod PIN pengesahan MSE Trace",

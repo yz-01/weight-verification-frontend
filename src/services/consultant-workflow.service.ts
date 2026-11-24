@@ -45,6 +45,7 @@ export interface ApplicationDocumentCandidate {
 }
 import { uploadEach, type BatchResult } from "@/lib/attachment-batch";
 import { api, download, fetchAsFile, fetchObjectUrl, toastSuccess } from "@/services/api-client";
+import type { PinIdentity } from "@/services/sign-off.service";
 
 export const getApplicationOptions = (
   project: string,
@@ -685,10 +686,15 @@ export const setApprovalCredential = async (payload: {
   approvalPin: string;
   signature?: File;
   stamp?: File;
+  /** JB239: the old PIN or the e-mailed code, when a PIN once set is replaced. */
+  identity?: PinIdentity;
 }) => {
   const data = new FormData();
   data.append("current_password", payload.currentPassword);
   data.append("approval_pin", payload.approvalPin);
+  const identity = payload.identity ?? null;
+  if (identity && "currentPin" in identity) data.append("current_pin", identity.currentPin);
+  if (identity && "emailCode" in identity) data.append("email_code", identity.emailCode);
   if (payload.signature) data.append("signature", payload.signature);
   if (payload.stamp) data.append("stamp", payload.stamp);
   const row = await api.post<ApprovalCredential>(

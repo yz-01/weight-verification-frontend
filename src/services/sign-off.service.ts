@@ -22,6 +22,13 @@ export interface SignOffPinStatus {
   /** An account that works on the phone is never asked. */
   exempt: boolean;
   updated_at: string | null;
+  /**
+   * JB239: a PIN was once set - a new one needs the old PIN or the code
+   * mailed to the login e-mail, as well as the account password.
+   */
+  needs_identity?: boolean;
+  /** Where that code goes, half hidden: 「ad***@alpha.test」. */
+  email_hint?: string;
 }
 
 const BASE = "/api/approval-credentials";
@@ -31,13 +38,33 @@ const SIGN_OFF_REFUSALS: ReadonlySet<string> = new Set(Object.values(SIGN_OFF_CO
 export const getSignOffPinStatus = () =>
   api.get<SignOffPinStatus>(`${BASE}/get_sign_off_pin/`);
 
-/** Set or change my PIN, with my account password. */
-export async function setSignOffPin(payload: { currentPassword: string; pin: string }) {
+/**
+ * How a person proves it is him when a PIN once set is replaced (JB239):
+ * the old PIN, or the code mailed to his login e-mail.
+ */
+export type PinIdentity = { currentPin: string } | { emailCode: string } | null;
+
+/**
+ * Set or change my PIN, with my account password - and, for a PIN once set,
+ * the old PIN or the e-mailed code (JB239).
+ */
+export async function setSignOffPin(payload: {
+  currentPassword: string;
+  pin: string;
+  identity?: PinIdentity;
+}) {
+  const identity = payload.identity ?? null;
   const status = await api.post<SignOffPinStatus>(
     `${BASE}/set_sign_off_pin/`,
-    { current_password: payload.currentPassword, pin: payload.pin },
-    // The dialog and the profile form show the reason under the field.
-    { silent: true },
+    {
+      current_password: payload.currentPassword,
+      pin: payload.pin,
+      ...(identity && "currentPin" in identity ? { current_pin: identity.currentPin } : {}),
+      ...(identity && "emailCode" in identity ? { email_code: identity.emailCode } : {}),
+    },
+    // The dialog and the profile form show the reason under the field. A
+    // wrong old PIN is said there too, never by a second PIN dialog.
+    { silent: true, noSignOffPrompt: true },
   );
   toastSuccess("signOff.toast.saved");
   return status;
@@ -78,6 +105,35 @@ export async function signOffBeforeEditing(action: string): Promise<string | nul
       throw error;
     }
   }
+}
+
+/**
+ * 「忘记签核密码」 (JB239): with my account password, a one-time code to my
+ * own login e-mail. The e-mail's words are the reader's (`{code}` is filled
+ * in by the server, which alone knows it).
+ */
+export async function requestSignOffPinCode(payload: {
+  currentPassword: string;
+  emailCopy: { subject: string; body: string };
+}) {
+  return api.post<{ sent_to: string; minutes: number }>(
+    `${BASE}/request_sign_off_pin_code/`,
+    { current_password: payload.currentPassword, email_copy: payload.emailCopy },
+    { silent: true, noSignOffPrompt: true },
+  );
+}
+
+/**
+ * 「点击公司设置时，必须先输入六位数签核密码」 (JB239): the PIN in the shared
+ * dialog (or setting one first), and the pass 公司设置's calls then carry.
+ */
+export async function openCompanySettings(): Promise<string> {
+  const data = await api.post<{ pass: string; minutes: number }>(
+    `${BASE}/open_company_settings/`,
+    {},
+    { silent: true },
+  );
+  return data.pass;
 }
 
 /** 重设签核密码 (IB17): the person sets a new one before their next sign-off. */

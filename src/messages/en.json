@@ -23451,7 +23451,8 @@
       "resend": "Send again",
       "sent": "Code sent to {email}. It works for {minutes} minutes.",
       "code": "E-mail code (6 digits)",
-      "needPassword": "Fill in your account password first"
+      "needPassword": "Fill in your account password first",
+      "proof": "Old PIN or e-mail code"
     },
     "email": {
       "subject": "MSE Trace sign-off PIN code",

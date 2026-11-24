@@ -33,6 +33,12 @@ import {
   setTokens,
 } from "@/lib/auth-token";
 import { APP_VERSION } from "@/lib/app-version";
+import {
+  COMPANY_SETTINGS_PASS_HEADER,
+  COMPANY_SETTINGS_PIN_REQUIRED,
+  companySettingsPass,
+  renewCompanySettingsPass,
+} from "@/lib/company-settings-pass";
 import { portalLoginPath } from "@/lib/portal";
 import { t } from "@/lib/i18n-runtime";
 import { getActiveProjectId } from "@/lib/project-context";
@@ -101,6 +107,8 @@ interface RequestOptions {
    * else, and for every customer login, it is ignored.
    */
   platformCompany?: string;
+  /** JB239: a 公司设置 pass already renewed once for this request. */
+  companySettingsRenewed?: boolean;
 }
 
 function buildUrl(path: string, query?: ListQuery): string {
@@ -369,6 +377,9 @@ async function send(path: string, options: RequestOptions): Promise<Response> {
     if (options.signOffPin) headers["X-Sign-Off-PIN"] = options.signOffPin;
     if (options.fileHeaders) Object.assign(headers, options.fileHeaders);
     if (options.platformCompany) headers["X-MSE-Company"] = options.platformCompany;
+    // JB239: while 公司设置 is open, the pass its PIN gave it.
+    const settingsPass = companySettingsPass();
+    if (settingsPass) headers[COMPANY_SETTINGS_PASS_HEADER] = settingsPass;
   }
   // JB211 (11.2.9 强制更新): which build is asking, on every signed-in call and
   // every sign-in. A public read (a visitor page, a driver link, branding)
@@ -496,6 +507,13 @@ export async function request<T>(
         throw new ApiError(message, response.status, {}, code, values);
       }
 
+      // JB239: 公司设置's pass ran out (or the PIN changed) - ask the PIN
+      // again through the page's gate, and send the same request once more.
+      if (await renewsCompanySettings(response.status, code, attempt)) {
+        attempt = { ...attempt, companySettingsRenewed: true };
+        continue;
+      }
+
       // The sign-off PIN (I29): ask, and send the same request again.
       const pin = attempt.noSignOffPrompt
         ? undefined
@@ -538,6 +556,20 @@ export async function request<T>(
  */
 function signOffCancelled(status: number): ApiError {
   return new ApiError("", status, {}, SIGN_OFF_CANCELLED);
+}
+
+/**
+ * JB239: a 公司设置 call refused for want of a fresh PIN. True when the gate
+ * got a new pass and the request should go again - once per request.
+ */
+async function renewsCompanySettings(
+  status: number,
+  code: string,
+  attempt: RequestOptions,
+): Promise<boolean> {
+  if (status !== 403 || code !== COMPANY_SETTINGS_PIN_REQUIRED) return false;
+  if (attempt.companySettingsRenewed || attempt.auth === false) return false;
+  return renewCompanySettingsPass();
 }
 
 /** What one request's PIN dialog remembers between its retries. */
@@ -801,6 +833,10 @@ async function fetchFile(path: string, options: RequestOptions): Promise<Respons
       if (announcePlatformGate(response.status, code, path)) {
         if (attempt.signOffPin) settleSignOff();
         throw new ApiError(message, response.status, {}, code);
+      }
+      if (await renewsCompanySettings(response.status, code, attempt)) {
+        attempt = { ...attempt, companySettingsRenewed: true };
+        continue;
       }
       const pin = attempt.noSignOffPrompt
         ? undefined
