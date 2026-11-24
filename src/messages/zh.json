@@ -4035,7 +4035,8 @@
       "platform_access_closed": "关闭 MSE 查看权限",
       "project_grant_updated": "修改项目权限",
       "jb225_sub_modules": "材料管理 / 工程进度分项勾选（系统升级）",
-      "jb225_default_sub_modules": "顾问默认权限分项勾选（系统升级）"
+      "jb225_default_sub_modules": "顾问默认权限分项勾选（系统升级）",
+      "exit_pass_started": "启动出门条"
     },
     "objectType": {
       "SignOffAssistant": "助理副密码",
@@ -7060,10 +7061,10 @@
       "returnProcessing": "实际退场（双方签名）",
       "exitWaitingUpload": "这次实际退场已经保存在手机上，有网络时会自动上传，不用重做。可在「我提交过的」查看。",
       "exitUploading": "正在上传 {photos} 张照片和双方签名，请稍候，不要关闭这个窗口。",
-      "waitingForSite": "已批准 / 等待退场：等待现场实际退场并双方签名。",
+      "waitingForSite": "准备出门条：车辆到场后，现场人员拍车辆及货物出场照片并提交。照片到了，后台再按【启动出门条】。",
       "finalConfirm": "确认退场完成",
-      "waitingForOffice": "现场已退场，待后台确认。",
-      "returnHelp": "{reference} 已批准。材料实际退场时：拍照，填写实际退回数量、车牌，确认供应商（可扫码），现场人员与供应商 / 司机双方签名。提交后等待后台确认。",
+      "waitingForOffice": "现场照片已提交，待后台启动出门条和确认。",
+      "returnHelp": "{reference} 已批准，准备出门条。车辆到场后：拍车辆及货物出场照片，填写实际退回数量、车牌，确认供应商（可扫码），现场人员与供应商 / 司机双方签名，再提交。后台启动出门条、安全经理签名后，出门条才发给你和门岗。",
       "processingPhotos": "出场时的照片",
       "processingNote": "现场处理说明",
       "processingLocation": "定位",
@@ -7116,7 +7117,7 @@
       "materialNameHint": "不知道可以不填，后台会补上。"
     },
     "outgoingStatus": {
-      "APPROVED": "已批准 / 等待退场",
+      "APPROVED": "准备出门条",
       "PENDING": "等待审批",
       "REJECTED": "已退回（申请结束）",
       "RELEASED": "已放行（旧流程）",
@@ -9661,7 +9662,11 @@
       "permit_work_name_required": "请先填写施工事项名称，再签名批准。",
       "permit_formal_permit_required": "还没有正式施工准证。请用「上传附件」上传填好的公司准证表格，或填写电子准证，再签名批准。",
       "hazard_room_not_for_consultant": "这是建筑商内部的沟通，顾问不能在这里发言。要和项目后台沟通，请用「找人沟通」。",
-      "report_export_made_before_update": "这份文件是系统更新前生成的，请重新导出。"
+      "report_export_made_before_update": "这份文件是系统更新前生成的，请重新导出。",
+      "exit_pass_photos_missing": "现场还没有提交车辆及货物的出场照片，现在不能启动或签出门条。请等现场人员在车辆到场后拍照提交。",
+      "exit_pass_not_started": "后台还没有按【启动出门条】，现在不能签名。请等后台看过现场照片、按【启动出门条】后再签。",
+      "exit_pass_start_not_allowed": "你不能启动这张出门条：要由电脑后台、有这个项目「材料出场」批准权限的人按。请联系项目经理或总部。",
+      "exit_pass_already_started": "这张出门条已经启动了，不用再按；页面已刷新。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -23048,7 +23053,20 @@
       "signedSentNobody": "已签名批准：{reference}",
       "paperReplaced": "已换成新的签回文件；出门条之前已经发过，这次没有再发：{reference}"
     },
-    "correctedAfter": "出门条签名后，这笔记录在 {when} 由 {by} 改正过；这里显示的是改正后的资料。"
+    "correctedAfter": "出门条签名后，这笔记录在 {when} 由 {by} 改正过；这里显示的是改正后的资料。",
+    "start": {
+      "title": "启动出门条",
+      "button": "启动出门条",
+      "preparing": "准备出门条",
+      "waitingStart": "等待启动出门条",
+      "noPhotos": "申请已批准，但这还不是放行。车辆到场后，现场人员要拍车辆及货物出场照片并提交；照片到了，后台才能按【启动出门条】，安全经理才能签名。",
+      "lockedReason": "现场还没有提交出场照片，按钮锁定",
+      "photosIn": "现场照片已提交（{when}）。请看过照片后按【启动出门条】，安全经理才能签名。",
+      "waitingOffice": "现场照片已提交，等待后台按【启动出门条】；启动后安全经理才能签名。",
+      "started": "已启动：{name} · {when}",
+      "confirm": "确定启动出门条？启动后，项目上的安全经理会收到通知，可以签名批准。",
+      "done": "已启动出门条，已通知安全经理签名。"
+    }
   },
   "mseAccess": {
     "section": {

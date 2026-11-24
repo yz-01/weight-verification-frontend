@@ -4035,7 +4035,8 @@
       "platform_access_closed": "Closed access for MSE",
       "project_grant_updated": "Changed project access",
       "jb225_sub_modules": "Materials / progress items ticked separately (system upgrade)",
-      "jb225_default_sub_modules": "Consultant default items ticked separately (system upgrade)"
+      "jb225_default_sub_modules": "Consultant default items ticked separately (system upgrade)",
+      "exit_pass_started": "Started the exit pass"
     },
     "objectType": {
       "SignOffAssistant": "Assistant PIN",
@@ -7060,10 +7061,10 @@
       "returnProcessing": "Record the exit (both sign)",
       "exitWaitingUpload": "This exit is already saved on this phone and uploads by itself when there is signal - no need to do it again. Follow it in What I sent.",
       "exitUploading": "Uploading {photos} photos and both signatures - please wait and keep this window open.",
-      "waitingForSite": "Approved / waiting to leave site: the site records the exit with both signatures.",
+      "waitingForSite": "Preparing the exit pass: when the vehicle arrives, the site photographs the vehicle and the goods leaving and submits them. Once the photos are in, the office presses [Start exit pass].",
       "finalConfirm": "Confirm the exit",
-      "waitingForOffice": "The material has left. Waiting for the office to confirm.",
-      "returnHelp": "{reference} is approved. As the material actually leaves: take the photos, enter how much left, the lorry plate, confirm the supplier (scan its code if you can), and both the site person and the supplier / driver sign. The office then confirms it.",
+      "waitingForOffice": "Site photos are in - waiting for the office to start the exit pass and confirm.",
+      "returnHelp": "{reference} is approved - preparing the exit pass. When the vehicle arrives: photograph the vehicle and the goods leaving, fill in the quantity actually returned and the plate, confirm the supplier (scan its code) and sign on both sides (site staff and supplier / driver), then submit. The exit pass reaches you and the gate only after the office starts it and the safety manager signs.",
       "processingPhotos": "Photos at the handover",
       "processingNote": "Note from site",
       "processingLocation": "Location",
@@ -7116,7 +7117,7 @@
       "materialNameHint": "Not sure? Leave it - the office will fill it in."
     },
     "outgoingStatus": {
-      "APPROVED": "Approved / waiting to leave site",
+      "APPROVED": "Preparing exit pass",
       "PENDING": "Pending approval",
       "REJECTED": "Returned (closed)",
       "RELEASED": "Released (before the new flow)",
@@ -9661,7 +9662,11 @@
       "permit_work_name_required": "Write the work name first, then sign and approve.",
       "permit_formal_permit_required": "There is no formal permit yet. Upload the company's filled permit form with \"Attach files\", or fill in the e-permit, then sign and approve.",
       "hazard_room_not_for_consultant": "This is the contractor's internal conversation; a consultant cannot post here. To talk to the project office, use 'Message someone'.",
-      "report_export_made_before_update": "This file was made before the system update. Please export it again."
+      "report_export_made_before_update": "This file was made before the system update. Please export it again.",
+      "exit_pass_photos_missing": "The site has not submitted the exit photos of the vehicle and the goods yet, so the exit pass cannot be started or signed. Wait for the site staff to take and submit them when the vehicle arrives.",
+      "exit_pass_not_started": "The office has not pressed [Start exit pass] yet, so it cannot be signed. Sign after the office has checked the site photos and pressed [Start exit pass].",
+      "exit_pass_start_not_allowed": "You cannot start this exit pass: it is pressed in the office by someone who approves material exits on this project. Ask the project manager or head office.",
+      "exit_pass_already_started": "This exit pass has already been started - no need to press again. The page has been refreshed."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -23048,7 +23053,20 @@
       "signedSentNobody": "Signed: {reference}",
       "paperReplaced": "The signed copy was replaced. The exit pass had already been sent and was not sent again: {reference}"
     },
-    "correctedAfter": "After the exit pass was signed, this record was corrected by {by} at {when}; what you see here is the corrected record."
+    "correctedAfter": "After the exit pass was signed, this record was corrected by {by} at {when}; what you see here is the corrected record.",
+    "start": {
+      "title": "Start exit pass",
+      "button": "Start exit pass",
+      "preparing": "Preparing exit pass",
+      "waitingStart": "Waiting to start",
+      "noPhotos": "The application is approved, but that is not permission to leave. When the vehicle arrives, the site staff photograph the vehicle and the goods leaving and submit them; only then can the office press [Start exit pass] and the safety manager sign.",
+      "lockedReason": "Locked until the site submits the exit photos",
+      "photosIn": "Site photos submitted ({when}). Check them, then press [Start exit pass] so the safety manager can sign.",
+      "waitingOffice": "Site photos are in. Waiting for the office to press [Start exit pass]; the safety manager signs after that.",
+      "started": "Started by {name} · {when}",
+      "confirm": "Start the exit pass? The project's safety managers are then notified and can sign it.",
+      "done": "Exit pass started; the safety managers have been asked to sign."
+    }
   },
   "mseAccess": {
     "section": {

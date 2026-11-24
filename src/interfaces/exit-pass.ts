@@ -35,6 +35,10 @@ export type ExitPassState =
   | "not_applicable"
   | "not_ready"
   | "legacy"
+  /** JB237 (材料出场): approved - 「准备出门条」 - the site's exit photos not in yet. */
+  | "awaiting_photos"
+  /** JB237 (材料出场): photos in, the office has not pressed 【启动出门条】. */
+  | "awaiting_start"
   | "awaiting_signature"
   | "awaiting_external"
   | "sent"
@@ -146,6 +150,11 @@ export interface ExitPass {
   /** 改正 after the safety manager signed: when and by whom (contract v2 §11). */
   corrected_after_approval: { at: string; by: string } | null;
   can_sign: boolean;
+  /**
+   * JB237 (客户 11-23 事项 9, 材料出场 only): 准备出门条 → 现场出场照片 →
+   * 【启动出门条】 → the safety manager signs. Absent from a server before JB237.
+   */
+  start?: ExitPassStart;
   external: ExitPassExternal;
   sent: ExitPassSent | null;
   releases: ExitPassRelease[];
@@ -163,6 +172,21 @@ export interface ExitPass {
    */
   release_ended: boolean;
   record_view?: ExitPassRecordView | null;
+}
+
+/** 【启动出门条】 (JB237): the step between the site's photos and the signature. */
+export interface ExitPassStart {
+  /** This kind has the step (材料出场). */
+  needed: boolean;
+  /** The site's 实际退场 (photos of the vehicle and the goods) is in. */
+  photos_in: boolean;
+  photos_at: string | null;
+  started_by_name: string;
+  started_at: string | null;
+  /** The office approver of this project: the button is drawn (locked while no photos). */
+  may_start: boolean;
+  /** …and may be pressed now. */
+  can_start: boolean;
 }
 
 /** `release_blocked` (contract v3): the same codes the release refuses with. */

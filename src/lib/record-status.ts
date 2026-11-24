@@ -65,7 +65,13 @@ type Translate = {
  */
 export function recordStatusLabel(
   t: Translate,
-  row: { kind: string; status: string; status_label: string; record_type?: string | null },
+  row: {
+    kind: string;
+    status: string;
+    status_label: string;
+    record_type?: string | null;
+    outgoing_kind?: string | null;
+  },
   /** A screen that names some kinds its own way, e.g. the phone's words. */
   namespaces: Record<string, string> = {},
 ): string {
@@ -74,11 +80,15 @@ export function recordStatusLabel(
     return Number.isFinite(people) ? t("archiveQueue.people", { count: people }) : row.status_label;
   }
   // A 施工准证 is a HAZARD row: it reads in the permit's own words
-  // (待审批 / 已退回 / 已批准), not a hazard's 待验收 (2026-10-10).
+  // (待审批 / 已退回 / 已批准), not a hazard's 待验收 (2026-10-10). A 材料领用
+  // reads in its own words (「已批准 / 等待领用」): since JB237 a return's
+  // APPROVED is 「准备出门条」, and an issue has no 出门条.
   const namespace =
     row.kind === "HAZARD" && row.record_type === "PERMIT"
       ? "permits.status"
-      : (namespaces[row.kind] ?? RECORD_STATUS_NAMESPACE[row.kind]);
+      : row.kind === "MATERIAL_OUTGOING" && row.outgoing_kind === "ISSUE"
+        ? "contractorOps.issue.status"
+        : (namespaces[row.kind] ?? RECORD_STATUS_NAMESPACE[row.kind]);
   const key = namespace ? `${namespace}.${row.status}` : "";
   return key && t.has(key) ? t(key) : row.status_label;
 }

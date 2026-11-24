@@ -44,6 +44,7 @@ import { useEffect, useState } from "react";
 import { FieldSignaturePad } from "@/components/field-staff/field-signature-pad";
 import { useAuth } from "@/components/providers/auth-provider";
 import { AttachmentPicker } from "@/components/shared/attachment-picker";
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { FilePreviewDialog } from "@/components/shared/file-preview";
 import {
   FieldWrapper,
@@ -78,6 +79,7 @@ import {
   setExitPassExternalRequired,
   signExitPass,
   signExitPassExternal,
+  startExitPass,
 } from "@/services/exit-pass.service";
 import { getRecordAttachments } from "@/services/record-attachment.service";
 
@@ -310,11 +312,22 @@ function ApprovalPart({ pass, readOnly }: { pass: ExitPass; readOnly: boolean })
   const badge =
     pass.state === "legacy" || pass.state === "not_ready" ? null : signed ? (
       <StatusBadge label={t("approval.approved")} tone="positive" />
+    ) : pass.state === "awaiting_photos" ? (
+      <StatusBadge label={t("start.preparing")} tone="warning" />
+    ) : pass.state === "awaiting_start" ? (
+      <StatusBadge label={t("start.waitingStart")} tone="warning" />
     ) : (
       <StatusBadge label={t("approval.notApproved")} tone="warning" />
     );
+  const beforeStart = pass.state === "awaiting_photos" || pass.state === "awaiting_start";
   return (
     <ShellPanel title={t("approval.title")} aside={badge} data-exit-pass-part="approval">
+      {/* JB237: who pressed 【启动出门条】 and when - part of the evidence chain. */}
+      {pass.start?.started_at ? (
+        <p className="mb-2 text-sm text-muted-foreground" data-exit-pass-started>
+          {t("start.started", { name: pass.start.started_by_name, when: df.dateTime(pass.start.started_at) })}
+        </p>
+      ) : null}
       {pass.state === "legacy" ? (
         <p className="text-sm text-muted-foreground">{t("approval.legacy")}</p>
       ) : pass.state === "not_ready" ? (
@@ -339,6 +352,8 @@ function ApprovalPart({ pass, readOnly }: { pass: ExitPass; readOnly: boolean })
         </dl>
       ) : pass.record_closed ? (
         <p className="text-sm text-muted-foreground">{t("approval.closedUnsigned")}</p>
+      ) : beforeStart ? (
+        <StartStep pass={pass} readOnly={readOnly} />
       ) : (
         <div className="space-y-3">
           <p className="rounded-md bg-warning/10 px-2 py-1.5 text-sm font-medium text-warning" role="status">
@@ -361,6 +376,79 @@ function ApprovalPart({ pass, readOnly }: { pass: ExitPass; readOnly: boolean })
       )}
       {signing ? <SignDialog pass={pass} onClose={() => setSigning(false)} /> : null}
     </ShellPanel>
+  );
+}
+
+/**
+ * 【启动出门条】 (JB237, 客户 11-23 事项 9):
+ *
+ *   「1. 项目经理可以提前批准材料出场申请，批准后状态显示「准备出门条」。2. 现场人员
+ *   必须在车辆到场后，拍摄车辆及货物出场照片并提交后台。3. 后台设置「启动出门条」
+ *   按钮。现场照片未提交前，按钮锁定，不能操作。4. 收到现场照片后，授权人员点击
+ *   「启动出门条」，才开放安全经理签名批准。」
+ *
+ * The office approver sees the button: locked, with the reason, until the
+ * photos are in; then pressable (one confirmation). Everybody else reads
+ * which step it waits for. The server refuses every skip on its own.
+ */
+export function StartStep({ pass, readOnly = false }: { pass: ExitPass; readOnly?: boolean }) {
+  const t = useTranslations("exitPass");
+  const df = useDateFormat();
+  const settle = useSettle(pass);
+  const [confirming, setConfirming] = useState(false);
+  const start = useMutation({
+    mutationFn: () => startExitPass(pass.kind, pass.record),
+    onSuccess: (next) => {
+      settle.done(next);
+      setConfirming(false);
+    },
+    onError: settle.refresh,
+  });
+  const step = pass.start;
+  const photosIn = pass.state === "awaiting_start";
+  const showButton = Boolean(step?.may_start) && !readOnly;
+  return (
+    <div className="space-y-3" data-exit-pass-start={pass.state}>
+      <p className="rounded-md bg-warning/10 px-2 py-1.5 text-sm font-medium text-warning" role="status">
+        {t("approval.notSentYet")}
+      </p>
+      <p className="text-sm leading-6 text-muted-foreground" data-exit-pass-start-line>
+        {!photosIn
+          ? t("start.noPhotos")
+          : showButton && step?.photos_at
+            ? t("start.photosIn", { when: df.dateTime(step.photos_at) })
+            : t("start.waitingOffice")}
+      </p>
+      {showButton ? (
+        <Button
+          className="min-h-11 w-full"
+          data-exit-pass-start-button
+          disabled={!step?.can_start || start.isPending}
+          disabledReason={!photosIn ? t("start.lockedReason") : undefined}
+          showReason={!photosIn}
+          onClick={() => setConfirming(true)}
+        >
+          {start.isPending ? <Loader2 className="animate-spin" /> : <Send />}
+          {t("start.button")}
+        </Button>
+      ) : null}
+      {start.isError ? (
+        <p role="alert" className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+          {failure(start.error, t("failed"))}
+        </p>
+      ) : null}
+      <ConfirmDialog
+        open={confirming}
+        onOpenChange={setConfirming}
+        title={t("start.title")}
+        description={t("start.confirm")}
+        confirmLabel={t("start.button")}
+        confirmIcon={Send}
+        variant="default"
+        isPending={start.isPending}
+        onConfirm={() => start.mutate()}
+      />
+    </div>
   );
 }
 

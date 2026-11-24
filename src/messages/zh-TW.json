@@ -4035,7 +4035,8 @@
       "platform_access_closed": "關閉 MSE 查看權限",
       "project_grant_updated": "修改項目權限",
       "jb225_sub_modules": "材料管理 / 工程進度分項勾選（系統升級）",
-      "jb225_default_sub_modules": "顧問默認權限分項勾選（系統升級）"
+      "jb225_default_sub_modules": "顧問默認權限分項勾選（系統升級）",
+      "exit_pass_started": "啟動出門條"
     },
     "objectType": {
       "SignOffAssistant": "助理副密碼",
@@ -7060,10 +7061,10 @@
       "returnProcessing": "實際退場（雙方簽名）",
       "exitWaitingUpload": "這次實際退場已經保存在手機上，有網絡時會自動上傳，不用重做。可在「我提交過的」查看。",
       "exitUploading": "正在上傳 {photos} 張照片和雙方簽名，請稍候，不要關閉這個視窗。",
-      "waitingForSite": "已批准 / 等待退場：等待現場實際退場並雙方簽名。",
+      "waitingForSite": "準備出門條：車輛到場後，現場人員拍車輛及貨物出場照片並提交。照片到了，後台再按【啟動出門條】。",
       "finalConfirm": "確認退場完成",
-      "waitingForOffice": "現場已退場，待後台確認。",
-      "returnHelp": "{reference} 已批准。材料實際退場時：拍照，填寫實際退回數量、車牌，確認供應商（可掃碼），現場人員與供應商 / 司機雙方簽名。提交後等待後台確認。",
+      "waitingForOffice": "現場照片已提交，待後台啟動出門條和確認。",
+      "returnHelp": "{reference} 已批准，準備出門條。車輛到場後：拍車輛及貨物出場照片，填寫實際退回數量、車牌，確認供應商（可掃碼），現場人員與供應商 / 司機雙方簽名，再提交。後台啟動出門條、安全經理簽名後，出門條才發給你和門崗。",
       "processingPhotos": "出場時的照片",
       "processingNote": "現場處理說明",
       "processingLocation": "定位",
@@ -7116,7 +7117,7 @@
       "materialNameHint": "不知道可以不填，後台會補上。"
     },
     "outgoingStatus": {
-      "APPROVED": "已批准 / 等待退場",
+      "APPROVED": "準備出門條",
       "PENDING": "等待審批",
       "REJECTED": "已退回（申請結束）",
       "RELEASED": "已放行（舊流程）",
@@ -9661,7 +9662,11 @@
       "permit_work_name_required": "請先填寫施工事項名稱，再簽名批准。",
       "permit_formal_permit_required": "還沒有正式施工准證。請用「上傳附件」上傳填好的公司准證表格，或填寫電子准證，再簽名批准。",
       "hazard_room_not_for_consultant": "這是建築商內部的溝通，顧問不能在這裡發言。要和項目後台溝通，請用「找人溝通」。",
-      "report_export_made_before_update": "這份文件是系統更新前生成的，請重新導出。"
+      "report_export_made_before_update": "這份文件是系統更新前生成的，請重新導出。",
+      "exit_pass_photos_missing": "現場還沒有提交車輛及貨物的出場照片，現在不能啟動或簽出門條。請等現場人員在車輛到場後拍照提交。",
+      "exit_pass_not_started": "後台還沒有按【啟動出門條】，現在不能簽名。請等後台看過現場照片、按【啟動出門條】後再簽。",
+      "exit_pass_start_not_allowed": "你不能啟動這張出門條：要由電腦後台、有這個項目「材料出場」批准權限的人按。請聯絡項目經理或總部。",
+      "exit_pass_already_started": "這張出門條已經啟動了，不用再按；頁面已刷新。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -23048,7 +23053,20 @@
       "signedSentNobody": "已簽名批准：{reference}",
       "paperReplaced": "已換成新的簽回文件；出門條之前已經發過，這次沒有再發：{reference}"
     },
-    "correctedAfter": "出門條簽名後，這筆記錄在 {when} 由 {by} 改正過；這裡顯示的是改正後的資料。"
+    "correctedAfter": "出門條簽名後，這筆記錄在 {when} 由 {by} 改正過；這裡顯示的是改正後的資料。",
+    "start": {
+      "title": "啟動出門條",
+      "button": "啟動出門條",
+      "preparing": "準備出門條",
+      "waitingStart": "等待啟動出門條",
+      "noPhotos": "申請已批准，但這還不是放行。車輛到場後，現場人員要拍車輛及貨物出場照片並提交；照片到了，後台才能按【啟動出門條】，安全經理才能簽名。",
+      "lockedReason": "現場還沒有提交出場照片，按鈕鎖定",
+      "photosIn": "現場照片已提交（{when}）。請看過照片後按【啟動出門條】，安全經理才能簽名。",
+      "waitingOffice": "現場照片已提交，等待後台按【啟動出門條】；啟動後安全經理才能簽名。",
+      "started": "已啟動：{name} · {when}",
+      "confirm": "確定啟動出門條？啟動後，項目上的安全經理會收到通知，可以簽名批准。",
+      "done": "已啟動出門條，已通知安全經理簽名。"
+    }
   },
   "mseAccess": {
     "section": {
