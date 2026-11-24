@@ -4035,7 +4035,11 @@
       "platform_access_closed": "Menutup akses untuk MSE",
       "project_grant_updated": "Ubah akses projek",
       "jb225_sub_modules": "Item bahan / kemajuan ditanda berasingan (naik taraf sistem)",
-      "jb225_default_sub_modules": "Item lalai perunding ditanda berasingan (naik taraf sistem)"
+      "jb225_default_sub_modules": "Item lalai perunding ditanda berasingan (naik taraf sistem)",
+      "package_submit_signed": "Pakej ditandatangani dan dihantar",
+      "package_review_signed": "Semakan pakej ditandatangani",
+      "package_completed": "Pakej diselesaikan dan diarkibkan",
+      "package_claim_amount_set": "Jumlah tuntutan pakej diubah"
     },
     "objectType": {
       "SignOffAssistant": "PIN pembantu",
@@ -9661,7 +9665,20 @@
       "permit_work_name_required": "Tulis nama kerja dahulu, kemudian tandatangan dan luluskan.",
       "permit_formal_permit_required": "Belum ada permit rasmi. Muat naik borang permit syarikat yang telah diisi dengan \"Lampirkan fail\", atau isi e-permit, kemudian tandatangan dan luluskan.",
       "hazard_room_not_for_consultant": "Ini perbualan dalaman kontraktor; perunding tidak boleh menghantar mesej di sini. Untuk berbincang dengan pejabat projek, gunakan 'Mesej seseorang'.",
-      "report_export_made_before_update": "Fail ini dibuat sebelum kemas kini sistem. Sila eksport semula."
+      "report_export_made_before_update": "Fail ini dibuat sebelum kemas kini sistem. Sila eksport semula.",
+      "package_signature_required": "Tandatangan dalam kotak tandatangan dahulu.",
+      "package_opinion_required": "Tulis pendapat semakan.",
+      "package_review_needs_signature": "Sahkan atau pulangkan dalam tetingkap Semak: ia meminta pendapat, tandatangan dan PIN enam digit anda.",
+      "package_not_your_review": "Ibu pejabat menyemak pakej ini - bukan orang yang membungkus atau menghantarnya.",
+      "package_nothing_to_review": "Sahkan atau pulangkan sekurang-kurangnya satu rekod.",
+      "package_item_decided": "Anda sudah menyemak rekod ini dalam pusingan ini; rekod itu kekal.",
+      "package_circulation_only": "Ini diedarkan untuk dibaca sahaja; tiada semakan.",
+      "package_purpose": "Pilih Hantar untuk kelulusan atau Edarkan untuk dibaca.",
+      "package_amount_invalid": "Taip jumlah dalam RM.",
+      "package_approved_amount_required": "Isi jumlah diluluskan bagi tempoh ini.",
+      "package_amount_reason_required": "Jumlah diluluskan berbeza daripada jumlah tuntutan: tulis sebabnya.",
+      "package_not_approved": "Ia boleh diselesaikan selepas semua penyemak meluluskannya.",
+      "package_completed": "Pakej ini telah selesai dan diarkibkan; tiada lagi perubahan."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -12509,7 +12526,12 @@
         "REVOKED": "Dibatalkan",
         "EXTENDED": "Dilanjutkan",
         "LINK_REGENERATED": "Pautan baharu",
-        "REPORT": "Rekod surat-menyurat dijana"
+        "REPORT": "Rekod surat-menyurat dijana",
+        "SUBMIT_SIGNED": "Ditandatangani dan dihantar",
+        "REVIEW_SIGNED": "Semakan ditandatangani",
+        "APPROVED": "Diluluskan",
+        "COMPLETED": "Diselesaikan dan diarkibkan",
+        "CLAIM_AMOUNT": "Jumlah tuntutan diubah"
       },
       "ip": "IP {ip}",
       "writeFirst": "Tulis mesej atau pilih fail dahulu.",
@@ -22071,7 +22093,11 @@
       "exit_pass_external": "Kelulusan luar",
       "exit_pass_waive_external": "Batalkan kelulusan luar dan hantar pas keluar",
       "platform_access_open": "Buka akses MSE",
-      "platform_access_revoke_link": "Batalkan pautan luar yang dibuka MSE"
+      "platform_access_revoke_link": "Batalkan pautan luar yang dibuka MSE",
+      "package_submit": "Tandatangan dan hantar pakej untuk kelulusan",
+      "package_resubmit": "Tandatangan dan hantar semula pakej",
+      "package_review": "Tandatangan semakan pakej",
+      "package_claim_amount": "Isi atau ubah jumlah tuntutan"
     },
     "firstTitle": "Tetapkan PIN pengesahan buat kali pertama",
     "firstBanner": "Ini kali pertama anda menggunakan PIN pengesahan",
@@ -23418,5 +23444,106 @@
     "noProjects": "Anda belum diberi akses kepada mana-mana projek. Sila minta ibu pejabat kontraktor membukanya untuk anda.",
     "chooseProject": "Pilih projek dahulu dalam kotak projek di bahagian atas halaman; papan pemuka projek itu akan dipaparkan di sini.",
     "onlyOpened": "Ibu pejabat hanya membuka bahagian ini untuk anda. Untuk melihat yang lain, sila hubungi ibu pejabat kontraktor."
+  },
+  "jb252": {
+    "progress": {
+      "NOT_SENT": "Belum dihantar",
+      "SENT": "Dihantar, menunggu semakan",
+      "VIEWED": "Dilihat, menunggu semakan",
+      "IN_REVIEW": "Semakan sedang dijalankan",
+      "RETURNED": "Dipulangkan untuk bahan tambahan",
+      "APPROVED": "Diluluskan, menunggu pengesahan selesai",
+      "COMPLETED": "Semakan selesai"
+    },
+    "progressFilter": "Semakan",
+    "progressAll": "Semua status semakan",
+    "stateCompleted": "Selesai (diarkibkan)",
+    "purpose": {
+      "label": "Tujuan",
+      "APPROVAL": "Hantar untuk kelulusan",
+      "CIRCULATION": "Edarkan untuk dibaca",
+      "approvalHelp": "Mereka menyemak setiap rekod, menulis pendapat dan menandatangani. Jika dipulangkan, anda tambah bahan, tandatangan semula dan hantar semula.",
+      "circulationHelp": "Untuk dibaca sahaja: tiada semakan, tiada tandatangan."
+    },
+    "sign": {
+      "label": "Tandatangan elektronik",
+      "clear": "Tandatangan semula",
+      "hint": "Tandatangan dalam kotak dengan tetikus atau jari.",
+      "confirmHint": "Tandatangan sebelum mengesahkan. Selepas disahkan, pakej dikunci dan tidak boleh diubah.",
+      "sendHint": "Pusingan ini belum ditandatangani. Tandatangan sebelum menghantar untuk kelulusan.",
+      "resendHint": "Hantar semula ialah penghantaran baharu untuk kelulusan: tandatangan dahulu."
+    },
+    "review": {
+      "button": "Semak",
+      "title": "Semak pakej",
+      "help": "Pilih Sahkan atau Pulangkan bagi setiap rekod, atau tekan Sahkan semua. Kemudian tulis pendapat dan tandatangan; PIN enam digit diminta semasa menghantar.",
+      "accept": "Sahkan",
+      "return": "Pulangkan untuk bahan tambahan",
+      "allConfirm": "Sahkan semua",
+      "undecided": "Bukan sekarang",
+      "decided": "Sudah disemak",
+      "returnReason": "Apa yang perlu ditambah",
+      "opinion": "Pendapat semakan (nota)",
+      "opinionHint": "Untuk pengurus projek; disimpan bersama tandatangan anda.",
+      "submit": "Tandatangan dan hantar semakan",
+      "chooseOne": "Pilih sekurang-kurangnya satu rekod",
+      "nothingLeft": "Anda telah menyemak setiap rekod pusingan ini.",
+      "waiting": "{count} menunggu semakan"
+    },
+    "money": {
+      "title": "Jumlah",
+      "claim": "Jumlah tuntutan (RM)",
+      "approved": "Jumlah diluluskan tempoh ini (RM)",
+      "difference": "Perbezaan (RM)",
+      "reason": "Sebab kelulusan",
+      "reasonHint": "Wajib apabila jumlah diluluskan berbeza daripada jumlah tuntutan.",
+      "pinHint": "Mengisi atau mengubah jumlah memerlukan PIN enam digit anda.",
+      "locked": "Dikunci",
+      "notSet": "Belum diisi",
+      "save": "Simpan jumlah",
+      "placeholder": "cth. 12500.00",
+      "approvedOnly": "Isi jumlah diluluskan apabila anda mengesahkan semua."
+    },
+    "signatures": {
+      "title": "Tandatangan dan rekod semakan",
+      "none": "Belum ada tandatangan.",
+      "side": {
+        "SENDER": "Pengurus projek tandatangan dan hantar",
+        "REVIEWER": "Penyemak tandatangan"
+      },
+      "action": {
+        "SUBMITTED": "Ditandatangani dan dihantar",
+        "CONFIRMED": "Rekod disahkan",
+        "APPROVED": "Diluluskan",
+        "RETURNED": "Dipulangkan untuk bahan tambahan"
+      },
+      "by": "{name} · {when}",
+      "for": "Untuk: {name}",
+      "opinion": "Pendapat / nota: {text}",
+      "version": "Versi bahan: {digest}",
+      "picture": "Tandatangan",
+      "decision": {
+        "ACCEPTED": "Disahkan",
+        "RETURNED": "Dipulangkan",
+        "PENDING": "Menunggu"
+      }
+    },
+    "complete": {
+      "button": "Selesai dan arkibkan",
+      "help": "Semua telah diluluskan. Tekan Selesai dan arkibkan untuk menutupnya; bahan, rekod semakan, mesej dan garis masa disimpan.",
+      "done": "Diselesaikan dan diarkibkan oleh {name}, {when}"
+    },
+    "supplement": {
+      "title": "Tambah bahan untuk pusingan seterusnya",
+      "help": "Bahan dipulangkan. Tambah fail, foto atau rekod sistem di tempat biasa, kemudian tulis nota dan tekan Tandatangan dan hantar semula.",
+      "staged": "Untuk pusingan seterusnya (belum dihantar)",
+      "nextRoundFile": "Untuk pusingan seterusnya",
+      "resubmit": "Tandatangan dan hantar semula",
+      "addedCount": "{count} rekod tambahan dihantar bersama pusingan ini."
+    },
+    "toast": {
+      "reviewSigned": "Semakan ditandatangani dan dihantar",
+      "completed": "Diselesaikan dan diarkibkan"
+    }
   }
 }

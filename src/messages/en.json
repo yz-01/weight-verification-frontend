@@ -4035,7 +4035,11 @@
       "platform_access_closed": "Closed access for MSE",
       "project_grant_updated": "Changed project access",
       "jb225_sub_modules": "Materials / progress items ticked separately (system upgrade)",
-      "jb225_default_sub_modules": "Consultant default items ticked separately (system upgrade)"
+      "jb225_default_sub_modules": "Consultant default items ticked separately (system upgrade)",
+      "package_submit_signed": "Package signed and submitted",
+      "package_review_signed": "Package review signed",
+      "package_completed": "Package completed and archived",
+      "package_claim_amount_set": "Package claim amount changed"
     },
     "objectType": {
       "SignOffAssistant": "Assistant PIN",
@@ -9661,7 +9665,20 @@
       "permit_work_name_required": "Write the work name first, then sign and approve.",
       "permit_formal_permit_required": "There is no formal permit yet. Upload the company's filled permit form with \"Attach files\", or fill in the e-permit, then sign and approve.",
       "hazard_room_not_for_consultant": "This is the contractor's internal conversation; a consultant cannot post here. To talk to the project office, use 'Message someone'.",
-      "report_export_made_before_update": "This file was made before the system update. Please export it again."
+      "report_export_made_before_update": "This file was made before the system update. Please export it again.",
+      "package_signature_required": "Sign in the signature box first.",
+      "package_opinion_required": "Write the review opinion.",
+      "package_review_needs_signature": "Confirm or return in the Review window: it asks for your opinion, your signature and your six-digit PIN.",
+      "package_not_your_review": "Head office reviews this package - not the person who packed or sent it.",
+      "package_nothing_to_review": "Confirm or return at least one record.",
+      "package_item_decided": "You already reviewed this record in this round; the record is kept as it is.",
+      "package_circulation_only": "This was circulated to read only; there is nothing to review.",
+      "package_purpose": "Choose Submit for approval or Circulate to read.",
+      "package_amount_invalid": "Type an amount in RM.",
+      "package_approved_amount_required": "Fill in the approved amount for this period.",
+      "package_amount_reason_required": "The approved amount differs from the claim amount: write the reason.",
+      "package_not_approved": "It can be completed once every reviewer has approved it.",
+      "package_completed": "This package is completed and archived; nothing more changes."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -12509,7 +12526,12 @@
         "REVOKED": "Revoked",
         "EXTENDED": "Extended",
         "LINK_REGENERATED": "New link",
-        "REPORT": "Correspondence record made"
+        "REPORT": "Correspondence record made",
+        "SUBMIT_SIGNED": "Signed and submitted",
+        "REVIEW_SIGNED": "Review signed",
+        "APPROVED": "Approved",
+        "COMPLETED": "Completed and archived",
+        "CLAIM_AMOUNT": "Claim amount changed"
       },
       "ip": "IP {ip}",
       "writeFirst": "Write a message or choose a file first.",
@@ -22071,7 +22093,11 @@
       "exit_pass_external": "External approval",
       "exit_pass_waive_external": "Drop the external approval and send the exit pass",
       "platform_access_open": "Open MSE access",
-      "platform_access_revoke_link": "Revoke an external link MSE opened"
+      "platform_access_revoke_link": "Revoke an external link MSE opened",
+      "package_submit": "Sign and submit a package for approval",
+      "package_resubmit": "Sign and resubmit a package",
+      "package_review": "Sign a package review",
+      "package_claim_amount": "Fill in or change a claim amount"
     },
     "firstTitle": "Set your sign-off PIN for the first time",
     "firstBanner": "This is your first time using a sign-off PIN",
@@ -23418,5 +23444,106 @@
     "noProjects": "You have not been given access to any project yet. Please ask the contractor's head office to open one for you.",
     "chooseProject": "First choose a project in the project box at the top of the page; that project's dashboard will then show here.",
     "onlyOpened": "Head office has opened only these parts for you. To see anything else, please contact the contractor's head office."
+  },
+  "jb252": {
+    "progress": {
+      "NOT_SENT": "Not sent",
+      "SENT": "Sent, waiting for review",
+      "VIEWED": "Viewed, waiting for review",
+      "IN_REVIEW": "Review in progress",
+      "RETURNED": "Returned for more material",
+      "APPROVED": "Approved, waiting for completion",
+      "COMPLETED": "Review complete"
+    },
+    "progressFilter": "Review",
+    "progressAll": "All review states",
+    "stateCompleted": "Completed (archived)",
+    "purpose": {
+      "label": "What it is for",
+      "APPROVAL": "Submit for approval",
+      "CIRCULATION": "Circulate to read",
+      "approvalHelp": "They review each record, write an opinion and sign. If they return it, you add what is missing, sign again and resubmit.",
+      "circulationHelp": "For them to read only: no review, no signature."
+    },
+    "sign": {
+      "label": "Electronic signature",
+      "clear": "Sign again",
+      "hint": "Sign in the box with the mouse or a finger.",
+      "confirmHint": "Sign before confirming. Once confirmed the package is locked and cannot change.",
+      "sendHint": "This round has no signature yet. Sign before submitting it for approval.",
+      "resendHint": "A resend is a new submission for approval: sign first."
+    },
+    "review": {
+      "button": "Review",
+      "title": "Review the package",
+      "help": "Choose Confirm or Return for each record, or press Confirm all. Then write your opinion and sign; your six-digit PIN is asked when you submit.",
+      "accept": "Confirm",
+      "return": "Return for more material",
+      "allConfirm": "Confirm all",
+      "undecided": "Not now",
+      "decided": "Already reviewed",
+      "returnReason": "What must be added",
+      "opinion": "Review opinion (note)",
+      "opinionHint": "For the project manager; kept with your signature.",
+      "submit": "Sign and submit the review",
+      "chooseOne": "Choose at least one record",
+      "nothingLeft": "You have reviewed every record of this round.",
+      "waiting": "{count} waiting for review"
+    },
+    "money": {
+      "title": "Amounts",
+      "claim": "Claim amount (RM)",
+      "approved": "Approved amount this period (RM)",
+      "difference": "Difference (RM)",
+      "reason": "Approval reason",
+      "reasonHint": "Required when the approved amount differs from the claim amount.",
+      "pinHint": "Filling in or changing an amount asks for your six-digit PIN.",
+      "locked": "Locked",
+      "notSet": "Not filled in",
+      "save": "Save the amount",
+      "placeholder": "e.g. 12500.00",
+      "approvedOnly": "Fill in the approved amount when you confirm everything."
+    },
+    "signatures": {
+      "title": "Signatures and review record",
+      "none": "No signature yet.",
+      "side": {
+        "SENDER": "Project manager signed and submitted",
+        "REVIEWER": "Reviewer signed"
+      },
+      "action": {
+        "SUBMITTED": "Signed and submitted",
+        "CONFIRMED": "Records confirmed",
+        "APPROVED": "Approved",
+        "RETURNED": "Returned for more material"
+      },
+      "by": "{name} · {when}",
+      "for": "For: {name}",
+      "opinion": "Opinion / note: {text}",
+      "version": "Material version: {digest}",
+      "picture": "Signature",
+      "decision": {
+        "ACCEPTED": "Confirmed",
+        "RETURNED": "Returned",
+        "PENDING": "Waiting"
+      }
+    },
+    "complete": {
+      "button": "Complete and archive",
+      "help": "Everything is approved. Press Complete and archive to close it; the material, review records, messages and timeline are all kept.",
+      "done": "Completed and archived by {name}, {when}"
+    },
+    "supplement": {
+      "title": "Add material for the next round",
+      "help": "Material was returned. Add files, photos or records from the system in the usual places, then write a note and press Sign and resubmit.",
+      "staged": "For the next round (not submitted yet)",
+      "nextRoundFile": "For the next round",
+      "resubmit": "Sign and resubmit",
+      "addedCount": "{count} added record(s) go with this round."
+    },
+    "toast": {
+      "reviewSigned": "Review signed and submitted",
+      "completed": "Completed and archived"
+    }
   }
 }

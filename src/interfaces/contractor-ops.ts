@@ -1713,6 +1713,68 @@ export type ArchiveOutgoingKind = "RETURN" | "ISSUE";
 
 export type PackageState = "DRAFT" | "CONFIRMED";
 export type PackageReviewState = "NOT_SENT" | "SENT" | "REVIEWED";
+/**
+ * The list's 「审阅」 column (JB252, 客户 11-24 事项 3 三) - exactly the
+ * client's table, worked out by the server from the approval recipients.
+ */
+export type PackageProgress =
+  | "NOT_SENT"
+  | "SENT"
+  | "VIEWED"
+  | "IN_REVIEW"
+  | "RETURNED"
+  | "APPROVED"
+  | "COMPLETED";
+export const PACKAGE_PROGRESS: readonly PackageProgress[] = [
+  "NOT_SENT",
+  "SENT",
+  "VIEWED",
+  "IN_REVIEW",
+  "RETURNED",
+  "APPROVED",
+  "COMPLETED",
+];
+/** 「提交审批」 or 「资料传阅」 (JB252). */
+export type RecipientPurpose = "APPROVAL" | "CIRCULATION";
+export type PackageSignatureSide = "SENDER" | "REVIEWER";
+export type PackageSignatureAction = "SUBMITTED" | "CONFIRMED" | "APPROVED" | "RETURNED";
+
+/** One electronic signature on one round (JB252): written once, kept for good. */
+export interface PackageSignature {
+  id: string;
+  round_no: number;
+  side: PackageSignatureSide;
+  action: PackageSignatureAction;
+  recipient: string | null;
+  recipient_name: string;
+  recipient_kind: RecipientKind | "";
+  signer_name: string;
+  signed_at: string;
+  opinion: string;
+  decisions: {
+    item: string;
+    record_kind: string;
+    reference: string;
+    decision: PackageItemReviewState;
+    reason: string;
+  }[];
+  claim_amount: string | null;
+  approved_amount: string | null;
+  amount_reason: string;
+  round_sha256: string;
+  signature_url: string | null;
+}
+
+/** JB254: 申请金额 / 本期批准金额 / 差额 - on the two money types only. */
+export interface PackageMoney {
+  claim_amount: string | null;
+  approved_amount: string | null;
+  difference: string | null;
+  approved_amount_reason: string;
+  approved_at: string | null;
+  /** 「锁定已批准金额」. */
+  locked: boolean;
+}
 export type PackageItemReviewState = "PENDING" | "ACCEPTED" | "RETURNED";
 /** What a package is for (batch H, HD17). Progress Claim is opened by period. */
 export type PackageType =
@@ -1755,7 +1817,12 @@ export type PackageEventKind =
   | "REVOKED"
   | "EXTENDED"
   | "LINK_REGENERATED"
-  | "REPORT";
+  | "REPORT"
+  | "SUBMIT_SIGNED"
+  | "REVIEW_SIGNED"
+  | "APPROVED"
+  | "COMPLETED"
+  | "CLAIM_AMOUNT";
 
 export interface PackageRecipient {
   id: string;
@@ -1785,6 +1852,10 @@ export interface PackageRecipient {
   created_by_name: string;
   /** Only in the answer that made (or remade) the link. */
   token?: string;
+  /** JB252: 提交审批 (reviewed and signed) or 资料传阅 (read only). */
+  purpose?: RecipientPurpose;
+  /** JB252: where this reviewer is in the current round; null for 资料传阅. */
+  progress?: PackageProgress | null;
 }
 
 /** One recipient's answer on one record. */
@@ -2010,6 +2081,8 @@ export type PackageLayoutRow =
       letter: boolean;
       uploaded_by_name: string;
       uploaded_at: string;
+      /** JB252: uploaded for the next round, after the latest one was locked. */
+      next_round?: boolean;
     };
 
 export interface EvidencePackageRow {
@@ -2060,6 +2133,13 @@ export interface EvidencePackageRow {
    * 「待审阅资料包 N」 counts - a record left to answer, or his signature due.
    */
   needs_action?: boolean;
+  /** JB252: 「审阅」 in the client's words. */
+  review_progress?: PackageProgress;
+  /** JB252: 「确认完毕并归档」 - 已完成（已归档）. */
+  completed_at?: string | null;
+  /** JB254: 申请金额 / 本期批准金额 (RM), on the two money types. */
+  claim_amount?: string | null;
+  approved_amount?: string | null;
 }
 
 export interface EvidencePackageDetail extends EvidencePackageRow {
@@ -2087,6 +2167,24 @@ export interface EvidencePackageDetail extends EvidencePackageRow {
   resends?: PackageResendLink[];
   /** JB189: the answer of 【重新发送】 only - the new recipient row (a link's `token` in full, this once). */
   sent?: PackageRecipient;
+  /* JB252 / JB254: the signed review loop. */
+  /** Every round's signatures (a reviewer sees the sender's and his own). */
+  signatures?: PackageSignature[];
+  money?: PackageMoney | null;
+  /** The sender signed the current round. */
+  round_signed?: boolean;
+  completed_by_name?: string;
+  /** 「确认完毕并归档」 may be pressed now. */
+  can_complete?: boolean;
+  /** Returned: records and files may be added for the next round. */
+  takes_supplements?: boolean;
+  /** What was added for the next round and not sent yet. */
+  staged_items?: PackageItem[];
+  /** 总部（系统内）: whether this reader may review for head office now. */
+  headquarters_review?: { recipient: string; can_review: boolean } | null;
+  /** The consultant's view: he may sign a review now. */
+  can_review?: boolean;
+  purpose?: RecipientPurpose;
 }
 
 /** One package at the other end of a resend (JB189). */
