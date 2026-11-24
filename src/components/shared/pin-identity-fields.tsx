@@ -65,16 +65,14 @@ export function PinIdentityFields({
   const t = useTranslations("jb239.identity");
   const mail = useTranslations("jb239.email");
   const canUseOld = oldPinUsable(status);
-  const [mode, setMode] = useState<"old" | "code">(canUseOld && !startWithCode ? "old" : "code");
+  const [chosen, setMode] = useState<"old" | "code">(startWithCode ? "code" : "old");
+  // A PIN reset or locked meanwhile: only the code can prove it.
+  const mode = canUseOld ? chosen : "code";
   const [oldPin, setOldPin] = useState("");
   const [code, setCode] = useState("");
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState<{ to: string; minutes: number } | null>(null);
   const [sendError, setSendError] = useState("");
-
-  useEffect(() => {
-    if (!canUseOld && mode === "old") setMode("code");
-  }, [canUseOld, mode]);
 
   useEffect(() => {
     onChange(identityOf(mode, oldPin, code));
