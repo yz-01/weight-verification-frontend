@@ -31,6 +31,7 @@ describe("the shared map's defaults are what every map had before JB222", () => 
     expect(map).toMatch(/fitMaxZoom = 16,/);
     expect(map).toMatch(/popups = true,/);
     expect(map).toMatch(/\n  siteFill,\n/);
+    expect(map).toMatch(/\n  spreadOverlaps = false,\n/);
     expect(map).toMatch(/\n  overlay,\n/);
   });
 
@@ -38,7 +39,13 @@ describe("the shared map's defaults are what every map had before JB222", () => 
     expect(map).toContain('map.fitBounds(fence, { maxZoom: 17, animate: false, padding: [24, 24] });');
     expect(map).toContain("map.fitBounds(target.pad(0.15), { maxZoom: fitMaxZoom, animate: false });");
     // In-between zoom steps only for a fill-to-share map.
-    expect(map).toContain("...(siteFillRef.current ? { zoomSnap: 0.25 } : {}),");
+    expect(map).toContain("...(siteFillRef.current ? { zoomSnap: SITE_ZOOM_SNAP } : {}),");
+    // Drawn past the tiles' closest zoom (JB240) only for a fill-to-share map too.
+    expect(map).toContain(
+      "...(siteFillRef.current ? { maxNativeZoom: MAP_TILE_MAX_ZOOM, maxZoom: MAP_TILE_MAX_ZOOM + SITE_OVERZOOM } : {}),",
+    );
+    // Icons are spread only when asked (JB240).
+    expect(map).toContain("if (!spreadOverlaps || drawn.length < 2) return;");
   });
 
   it("the frame draws an overlay only when one is given", () => {
@@ -57,10 +64,10 @@ describe("only the two JB222 maps use the new props", () => {
     expect(files.length).toBeGreaterThan(8);
   });
 
-  it("siteFill, overlay and popups={false}: the project dashboard's map only", () => {
+  it("siteFill, spreadOverlaps, overlay and popups={false}: the project dashboard's map only", () => {
     for (const { file, text } of users) {
       const mine = file.endsWith("dashboard/project-site-map.tsx");
-      for (const prop of [/\bsiteFill=/, /\boverlay=\{/, /\bpopups=\{false\}/]) {
+      for (const prop of [/\bsiteFill=/, /\bspreadOverlaps\b/, /\boverlay=\{/, /\bpopups=\{false\}/]) {
         expect(prop.test(text), `${file} ${prop}`).toBe(mine);
       }
     }
