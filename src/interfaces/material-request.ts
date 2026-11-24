@@ -204,6 +204,25 @@ export interface MaterialRequest extends RecordedBy {
   /** False when the approver stands in for a project with no project manager. */
   execution_by_project_manager?: boolean | null;
   can_execute?: boolean;
+  /**
+   * JB253 (客户 11-24 事项 4): a material request (MR) is not confirmed by hand -
+   * its execution follows the deliveries signed for. True on every MR.
+   */
+  execution_automatic?: boolean;
+  /** Set when the deliveries completed it (no 确认完成人). */
+  completed_automatically?: boolean;
+  /** The detail of an approved MR: each line's 「已收 x / 批准 y」. */
+  execution_lines?: MaterialRequestExecutionLine[] | null;
+}
+
+/** One line of an approved MR against what was signed for (JB253). */
+export interface MaterialRequestExecutionLine {
+  position: number;
+  material_name: string;
+  specification: string;
+  unit: string;
+  approved_quantity: string;
+  received_quantity: string;
 }
 
 /** One group of the totals (C04): approved and pending are never added. */
@@ -219,6 +238,38 @@ export interface MaterialRequestTotal {
   approved_count: number;
   pending_count: number;
   returned_count: number;
+  /**
+   * JB243 (客户 11-23 事项 15): MI 现场实际已签收, RN 实际退货 and 尚未收货 =
+   * 已批准 − MI (whole project, never below 0; the excess is
+   * `over_received_quantity`). `null` for a reader who cannot see deliveries.
+   * MI and RN follow the supplier filter; the MR figures never do.
+   */
+  mi_quantity: string | null;
+  mi_count: number | null;
+  rn_quantity: string | null;
+  rn_count: number | null;
+  outstanding_quantity: string | null;
+  over_received_quantity: string | null;
+}
+
+/** Which figure of 申请累计 a click opens (JB243). */
+export type MaterialRequestTotalColumn = "approved" | "pending" | "returned" | "mi" | "rn";
+
+/** One record behind a figure of 申请累计 (JB243): an MR, a delivery or a return. */
+export interface MaterialRequestTotalRecord {
+  kind: "MR" | "MI" | "RN";
+  id: string;
+  reference: string;
+  date: string;
+  quantity: string;
+  unit: string;
+  supplier_name: string;
+  delivery_note_no: string;
+  status: string;
+  execution_status?: string;
+  submitted_by_name?: string;
+  /** Where the record opens. */
+  href: string;
 }
 
 export interface MaterialRequestDraft {

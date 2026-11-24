@@ -5,6 +5,8 @@ import type {
   MaterialRequestDraft,
   MaterialRequestReviewerOption,
   MaterialRequestTotal,
+  MaterialRequestTotalColumn,
+  MaterialRequestTotalRecord,
   RequestFormStyle,
   RequestType,
 } from "@/interfaces/material-request";
@@ -21,6 +23,21 @@ export const getMaterialRequest = (id: string) =>
 /** Approved and pending quantities per material + specification + unit (C04). */
 export const getMaterialRequestTotals = (query: ListQuery = {}) =>
   api.get<MaterialRequestTotal[]>("/api/material-requests/get_summary/", query);
+
+/** The records behind one figure of 申请累计 (JB243), newest first. */
+export const getMaterialRequestTotalRecords = (
+  row: Pick<MaterialRequestTotal, "project" | "material_name" | "specification" | "unit">,
+  column: MaterialRequestTotalColumn,
+  supplier?: string,
+) =>
+  api.get<MaterialRequestTotalRecord[]>("/api/material-requests/get_total_records/", {
+    project: row.project,
+    material_name: row.material_name,
+    specification: row.specification,
+    unit: row.unit,
+    column,
+    ...(supplier ? { supplier } : {}),
+  });
 
 export async function createMaterialRequest(draft: MaterialRequestDraft) {
   const data = new FormData();
