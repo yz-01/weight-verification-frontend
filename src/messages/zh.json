@@ -9678,7 +9678,8 @@
       "exit_pass_photos_missing": "现场还没有提交车辆及货物的出场照片，现在不能启动或签出门条。请等现场人员在车辆到场后拍照提交。",
       "exit_pass_not_started": "后台还没有按【启动出门条】，现在不能签名。请等后台看过现场照片、按【启动出门条】后再签。",
       "exit_pass_start_not_allowed": "你不能启动这张出门条：要由电脑后台、有这个项目「材料出场」批准权限的人按。请联系项目经理或总部。",
-      "exit_pass_already_started": "这张出门条已经启动了，不用再按；页面已刷新。"
+      "exit_pass_already_started": "这张出门条已经启动了，不用再按；页面已刷新。",
+      "project_left": "你已经被移出「{project}」项目，不能再查看或操作这个项目的资料。如有需要，请联系项目经理。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -9723,7 +9724,8 @@
       "site_worker_passport_taken": "这本护照已经在名单里",
       "supplier_not_on_project": "这个供应商不在这个项目的「可用供应商」里。请总部或项目经理先在项目里加入。",
       "field_one_project": "手机账号同一时间只能在一个项目，请只选一个项目。",
-      "phone_role_office_account": "手机账号要在「现场人员管理」里开，这里不能把后台账号设为手机角色（工地人员、设备操作人员、门岗保安）。请选别的角色。"
+      "phone_role_office_account": "手机账号要在「现场人员管理」里开，这里不能把后台账号设为手机角色（工地人员、设备操作人员、门岗保安）。请选别的角色。",
+      "assignee_not_on_project": "这个人已经不在这个项目，不能派任务给他。请重新选择。"
     },
     "forbidden": "你没有访问权限。",
     "forbiddenBody": "如果确实需要，请联系管理员。",
@@ -23495,5 +23497,9 @@
     "withoutPhotos": "不包含照片",
     "summaryTitle": "累计数量及总金额",
     "totalAmount": "总金额"
+  },
+  "jb245": {
+    "leftProject": "已移出项目",
+    "leftProjectHelp": "{name} 已移出这个项目，不能再做这个任务。请选一个现在在项目里的人。"
   }
 }

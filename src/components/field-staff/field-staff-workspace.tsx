@@ -76,6 +76,7 @@ import type { AttendanceEvent, SafetyIncident } from "@/interfaces/site-operatio
 import { ApiError } from "@/interfaces/api";
 import { getFieldTask } from "@/services/contractor-ops.service";
 import { PROJECT_OPTIONS_KEY, loadProjectOptions } from "@/lib/project-options";
+import { PROJECT_LEFT_EVENT } from "@/services/api-client";
 import { submitAttendanceOfflineAware } from "@/services/offline-sync.service";
 import { getAttendance, getSafetyIncident } from "@/services/site-operations.service";
 import { createFieldPwaBootstrap } from "@/services/field-access.service";
@@ -454,6 +455,16 @@ function FieldStaffWorkspaceContent({
     else if (key === "records" && guardRecord) openRecord(guardRecord);
     else openTab(key);
   };
+
+  // JB245 (客户 11-23 事项 17): taken off a project, the server refuses it in
+  // words; the phone then reads everything again, so 负责项目, the lists and
+  // the pickers drop that project at once instead of at the next refresh.
+  const workspaceClient = useQueryClient();
+  useEffect(() => {
+    const reread = () => void workspaceClient.invalidateQueries();
+    window.addEventListener(PROJECT_LEFT_EVENT, reread);
+    return () => window.removeEventListener(PROJECT_LEFT_EVENT, reread);
+  }, [workspaceClient]);
 
   // Kept on the phone and used when there is no network (`loadProjectOptions`).
   const projects = useQuery({

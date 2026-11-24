@@ -9678,7 +9678,8 @@
       "exit_pass_photos_missing": "The site has not submitted the exit photos of the vehicle and the goods yet, so the exit pass cannot be started or signed. Wait for the site staff to take and submit them when the vehicle arrives.",
       "exit_pass_not_started": "The office has not pressed [Start exit pass] yet, so it cannot be signed. Sign after the office has checked the site photos and pressed [Start exit pass].",
       "exit_pass_start_not_allowed": "You cannot start this exit pass: it is pressed in the office by someone who approves material exits on this project. Ask the project manager or head office.",
-      "exit_pass_already_started": "This exit pass has already been started - no need to press again. The page has been refreshed."
+      "exit_pass_already_started": "This exit pass has already been started - no need to press again. The page has been refreshed.",
+      "project_left": "You have been taken off the project {project}, so you can no longer view or work on its records. Please contact the project manager if you need to."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -9723,7 +9724,8 @@
       "site_worker_passport_taken": "This passport is already on the roster",
       "supplier_not_on_project": "This supplier is not on this project's supplier list. Ask head office or the project manager to add it to the project first.",
       "field_one_project": "A phone account can be on one project at a time. Choose one project.",
-      "phone_role_office_account": "Phone accounts are made in Field staff. An office account cannot be given a phone role (site staff, equipment operator, gate guard) here. Please choose another role."
+      "phone_role_office_account": "Phone accounts are made in Field staff. An office account cannot be given a phone role (site staff, equipment operator, gate guard) here. Please choose another role.",
+      "assignee_not_on_project": "This person is no longer on this project and cannot be given its task. Please choose someone else."
     },
     "forbidden": "You do not have access to this.",
     "forbiddenBody": "Ask your administrator if you need it.",
@@ -23495,5 +23497,9 @@
     "withoutPhotos": "Without photos",
     "summaryTitle": "Cumulative quantity and total amount",
     "totalAmount": "Total amount"
+  },
+  "jb245": {
+    "leftProject": "Taken off project",
+    "leftProjectHelp": "{name} has been taken off this project and can no longer do this task. Please choose someone who is on the project now."
   }
 }

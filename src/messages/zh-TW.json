@@ -9678,7 +9678,8 @@
       "exit_pass_photos_missing": "現場還沒有提交車輛及貨物的出場照片，現在不能啟動或簽出門條。請等現場人員在車輛到場後拍照提交。",
       "exit_pass_not_started": "後台還沒有按【啟動出門條】，現在不能簽名。請等後台看過現場照片、按【啟動出門條】後再簽。",
       "exit_pass_start_not_allowed": "你不能啟動這張出門條：要由電腦後台、有這個項目「材料出場」批准權限的人按。請聯絡項目經理或總部。",
-      "exit_pass_already_started": "這張出門條已經啟動了，不用再按；頁面已刷新。"
+      "exit_pass_already_started": "這張出門條已經啟動了，不用再按；頁面已刷新。",
+      "project_left": "你已經被移出「{project}」項目，不能再查看或操作這個項目的資料。如有需要，請聯繫項目經理。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -9723,7 +9724,8 @@
       "site_worker_passport_taken": "這本護照已經在名單裡",
       "supplier_not_on_project": "這個供應商不在這個項目的「可用供應商」裡。請總部或項目經理先在項目裡加入。",
       "field_one_project": "手機賬號同一時間只能在一個項目，請只選一個項目。",
-      "phone_role_office_account": "手機賬號要在「現場人員管理」裡開，這裡不能把後台賬號設為手機角色（工地人員、設備操作人員、門崗保安）。請選別的角色。"
+      "phone_role_office_account": "手機賬號要在「現場人員管理」裡開，這裡不能把後台賬號設為手機角色（工地人員、設備操作人員、門崗保安）。請選別的角色。",
+      "assignee_not_on_project": "這個人已經不在這個項目，不能派任務給他。請重新選擇。"
     },
     "forbidden": "你沒有訪問權限。",
     "forbiddenBody": "如果確實需要，請聯繫管理員。",
@@ -23495,5 +23497,9 @@
     "withoutPhotos": "不包含照片",
     "summaryTitle": "累計數量及總金額",
     "totalAmount": "總金額"
+  },
+  "jb245": {
+    "leftProject": "已移出項目",
+    "leftProjectHelp": "{name} 已移出這個項目，不能再做這個任務。請選一個現在在項目裡的人。"
   }
 }

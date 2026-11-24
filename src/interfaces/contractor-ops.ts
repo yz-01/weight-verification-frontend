@@ -361,6 +361,8 @@ export interface FieldTask extends RecordedBy {
   submission_category: string;
   assigned_to: string;
   assigned_to_name: string;
+  /** JB245: the assignee was taken off the project (or their account no longer works). */
+  assignee_left_project?: boolean;
   created_by_name: string;
   category: string | null;
   category_name: string | null;
