@@ -1477,6 +1477,15 @@ export const PORTAL_NAVIGATION = {
           undefined,
           "report_contractor",
         ),
+        // 项目现场费用总览 (JB259, 客户 11-24b 事项 6): the five site costs
+        // side by side. The builder's own costs: no consultant menu.
+        child(
+          "13.2.11B",
+          "nav.submodule.siteCostOverview",
+          "/reports/site-cost-overview",
+          "report_center",
+          "report.view",
+        ),
         child(
           "13.2.12",
           "nav.submodule.reportHistory",

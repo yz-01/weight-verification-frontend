@@ -13220,7 +13220,8 @@
       "fieldChats": "Rekod perbualan",
       "photoTimeline": "Garis masa foto projek",
       "materialIssue": "Pengeluaran bahan (MIN)",
-      "equipmentRentalReport": "Laporan caj sewa peralatan"
+      "equipmentRentalReport": "Laporan caj sewa peralatan",
+      "siteCostOverview": "Ringkasan kos tapak"
     },
     "subscription_management": "Pengurusan Langganan",
     "suppliers": "Pembekal",
@@ -23556,6 +23557,49 @@
       "daysWorked": "Hari bekerja",
       "normalHours": "Jam biasa",
       "overtimeHours": "Jam lebih masa"
+    }
+  },
+  "jb259": {
+    "title": "Ringkasan kos tapak",
+    "subtitle": "Kos sebenar setiap modul, dengan jumlah kos projek dan bahagian setiap satu.",
+    "filter": {
+      "project": "Projek",
+      "allProjects": "Semua projek",
+      "dateFrom": "Dari",
+      "dateTo": "Hingga"
+    },
+    "total": "Jumlah kos projek",
+    "totalShort": "Jumlah",
+    "share": "Pecahan kos (bahagian)",
+    "trend": "Trend kos (bulanan)",
+    "links": "Pergi ke laporan",
+    "detail": "Lihat butiran",
+    "sum": "Jumlah",
+    "empty": "Tiada kos dalam tarikh ini.",
+    "help": "Setiap amaun sama dengan laporannya sendiri untuk projek dan tarikh yang sama; \"Lihat butiran\" membuka laporan itu, di mana setiap rekod boleh dijejak. Tuntutan pelbagai dikira selepas diluluskan.",
+    "notAvailableShort": "Belum ada amaun",
+    "source": {
+      "material_cost": "Kos bahan",
+      "equipment_rental": "Sewa peralatan",
+      "progress_claim": "Progress Claim (perbelanjaan)",
+      "sundry_claims": "Tuntutan pelbagai",
+      "disposal": "Pembersihan sampah"
+    },
+    "report": {
+      "material_cost": "Laporan kos bahan",
+      "equipment_rental": "Laporan caj sewa peralatan",
+      "progress_claim": "Laporan Progress Claim (perbelanjaan)",
+      "sundry_claims": "Laporan tuntutan pelbagai",
+      "disposal": "Laporan pembersihan sampah"
+    },
+    "column": {
+      "module": "Modul (sumber)",
+      "amount": "Amaun (RM)",
+      "share": "Bahagian"
+    },
+    "notAvailable": {
+      "progress_claim": "Progress Claim (perbelanjaan): amaun lulus Multi Engine belum aktif, jadi dikira 0. Ia ditambah secara automatik apabila aktif.",
+      "disposal": "Pembersihan sampah: rekodnya tiada amaun (hanya berat, trip dan pengutip), jadi dikira 0; tiada harga diteka."
     }
   }
 }

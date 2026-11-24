@@ -135,7 +135,7 @@ export function RentalFeeTable({ rental }: { rental: RentalReport }) {
               <TableCell />
               <TableCell />
               <TableCell />
-              <TableCell />
+              <TableCell className="text-right" />
               <TableCell className="tabular text-right font-semibold">{rental.totals.days_worked}</TableCell>
               <TableCell className="tabular text-right font-semibold">{rental.totals.normal_hours}</TableCell>
               <TableCell className="tabular text-right font-semibold">{rental.totals.overtime_hours}</TableCell>

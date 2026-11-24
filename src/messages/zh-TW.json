@@ -13220,7 +13220,8 @@
       "fieldChats": "溝通記錄",
       "photoTimeline": "工程照片牆",
       "materialIssue": "材料領用（MIN）",
-      "equipmentRentalReport": "設備租賃費用報表"
+      "equipmentRentalReport": "設備租賃費用報表",
+      "siteCostOverview": "項目現場費用總覽"
     },
     "subscription_management": "訂閱管理",
     "suppliers": "供應商",
@@ -23556,6 +23557,49 @@
       "daysWorked": "工作天數",
       "normalHours": "正常工時（小時）",
       "overtimeHours": "超時工時（小時）"
+    }
+  },
+  "jb259": {
+    "title": "項目現場費用總覽",
+    "subtitle": "關聯各業務模組的實際費用，彙總顯示項目總費用及各項佔比。",
+    "filter": {
+      "project": "項目",
+      "allProjects": "全部項目",
+      "dateFrom": "開始日期",
+      "dateTo": "結束日期"
+    },
+    "total": "項目總費用",
+    "totalShort": "總費用",
+    "share": "費用構成（佔比）",
+    "trend": "費用趨勢（按月份）",
+    "links": "快速進入關聯報表",
+    "detail": "查看明細",
+    "sum": "合計",
+    "empty": "這段時間沒有費用。",
+    "help": "每一項金額都和它自己的報表一樣（同一個項目、同一個日期範圍）；按「查看明細」打開那個報表，可以一筆一筆看到原始記錄。雜費報銷只算已批准的。",
+    "notAvailableShort": "暫時沒有金額",
+    "source": {
+      "material_cost": "材料成本",
+      "equipment_rental": "設備租賃費用",
+      "progress_claim": "Progress Claim（支出部分）",
+      "sundry_claims": "雜費報銷",
+      "disposal": "垃圾清運"
+    },
+    "report": {
+      "material_cost": "材料成本報表",
+      "equipment_rental": "設備租賃費用報表",
+      "progress_claim": "Progress Claim 報表（支出部分）",
+      "sundry_claims": "雜費報銷報表",
+      "disposal": "垃圾清運報表"
+    },
+    "column": {
+      "module": "業務模組（關聯來源）",
+      "amount": "金額 (RM)",
+      "share": "佔比"
+    },
+    "notAvailable": {
+      "progress_claim": "Progress Claim（支出部分）：Multi Engine 的批准金額還沒有上線，現在算 0。上線後自動算進來。",
+      "disposal": "垃圾清運：清運記錄沒有金額欄（只有重量、車次和清運公司），所以算 0，沒有自己估價。"
     }
   }
 }

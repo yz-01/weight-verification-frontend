@@ -13220,7 +13220,8 @@
       "fieldChats": "Conversations",
       "photoTimeline": "Project photo timeline",
       "materialIssue": "Material issue (MIN)",
-      "equipmentRentalReport": "Equipment rental fee report"
+      "equipmentRentalReport": "Equipment rental fee report",
+      "siteCostOverview": "Site cost overview"
     },
     "subscription_management": "Subscriptions",
     "suppliers": "Suppliers",
@@ -23556,6 +23557,49 @@
       "daysWorked": "Days worked",
       "normalHours": "Normal hours",
       "overtimeHours": "Overtime hours"
+    }
+  },
+  "jb259": {
+    "title": "Site cost overview",
+    "subtitle": "The actual costs of each module, with the project's total and each one's share.",
+    "filter": {
+      "project": "Project",
+      "allProjects": "All projects",
+      "dateFrom": "From",
+      "dateTo": "To"
+    },
+    "total": "Project total cost",
+    "totalShort": "Total",
+    "share": "Cost breakdown (share)",
+    "trend": "Cost trend (by month)",
+    "links": "Go to the reports",
+    "detail": "View details",
+    "sum": "Total",
+    "empty": "No costs in these dates.",
+    "help": "Each amount equals its own report for the same project and dates; \"View details\" opens that report, where every record can be traced. Sundry claims count once approved.",
+    "notAvailableShort": "No amount yet",
+    "source": {
+      "material_cost": "Material cost",
+      "equipment_rental": "Equipment rental",
+      "progress_claim": "Progress Claim (spending)",
+      "sundry_claims": "Sundry claims",
+      "disposal": "Waste clearance"
+    },
+    "report": {
+      "material_cost": "Material cost report",
+      "equipment_rental": "Equipment rental fee report",
+      "progress_claim": "Progress Claim report (spending)",
+      "sundry_claims": "Sundry claim report",
+      "disposal": "Waste clearance report"
+    },
+    "column": {
+      "module": "Module (source)",
+      "amount": "Amount (RM)",
+      "share": "Share"
+    },
+    "notAvailable": {
+      "progress_claim": "Progress Claim (spending): the Multi Engine approved amount is not live yet, so it counts as 0. It is added automatically once live.",
+      "disposal": "Waste clearance: its records have no amount (only weights, trips and the collector), so it counts as 0; no price is guessed."
     }
   }
 }

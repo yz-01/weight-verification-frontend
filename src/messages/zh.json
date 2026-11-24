@@ -13220,7 +13220,8 @@
       "fieldChats": "沟通记录",
       "photoTimeline": "工程照片墙",
       "materialIssue": "材料领用（MIN）",
-      "equipmentRentalReport": "设备租赁费用报表"
+      "equipmentRentalReport": "设备租赁费用报表",
+      "siteCostOverview": "项目现场费用总览"
     },
     "subscription_management": "订阅管理",
     "suppliers": "供应商",
@@ -23556,6 +23557,49 @@
       "daysWorked": "工作天数",
       "normalHours": "正常工时（小时）",
       "overtimeHours": "超时工时（小时）"
+    }
+  },
+  "jb259": {
+    "title": "项目现场费用总览",
+    "subtitle": "关联各业务模块的实际费用，汇总显示项目总费用及各项占比。",
+    "filter": {
+      "project": "项目",
+      "allProjects": "全部项目",
+      "dateFrom": "开始日期",
+      "dateTo": "结束日期"
+    },
+    "total": "项目总费用",
+    "totalShort": "总费用",
+    "share": "费用构成（占比）",
+    "trend": "费用趋势（按月份）",
+    "links": "快速进入关联报表",
+    "detail": "查看明细",
+    "sum": "合计",
+    "empty": "这段时间没有费用。",
+    "help": "每一项金额都和它自己的报表一样（同一个项目、同一个日期范围）；按「查看明细」打开那个报表，可以一笔一笔看到原始记录。杂费报销只算已批准的。",
+    "notAvailableShort": "暂时没有金额",
+    "source": {
+      "material_cost": "材料成本",
+      "equipment_rental": "设备租赁费用",
+      "progress_claim": "Progress Claim（支出部分）",
+      "sundry_claims": "杂费报销",
+      "disposal": "垃圾清运"
+    },
+    "report": {
+      "material_cost": "材料成本报表",
+      "equipment_rental": "设备租赁费用报表",
+      "progress_claim": "Progress Claim 报表（支出部分）",
+      "sundry_claims": "杂费报销报表",
+      "disposal": "垃圾清运报表"
+    },
+    "column": {
+      "module": "业务模块（关联来源）",
+      "amount": "金额 (RM)",
+      "share": "占比"
+    },
+    "notAvailable": {
+      "progress_claim": "Progress Claim（支出部分）：Multi Engine 的批准金额还没有上线，现在算 0。上线后自动算进来。",
+      "disposal": "垃圾清运：清运记录没有金额栏（只有重量、车次和清运公司），所以算 0，没有自己估价。"
     }
   }
 }
