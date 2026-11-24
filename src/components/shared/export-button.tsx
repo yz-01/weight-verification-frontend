@@ -2,6 +2,7 @@
 
 import { Download, FileSpreadsheet, FileText, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import {
@@ -17,6 +18,8 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -47,8 +50,15 @@ const FORMAT_LABELS = { xlsx: "export.excel", pdf: "export.pdf" } as const;
  * what an export contains - which columns, worded how - belongs to the screen
  * that knows both. Failures are already toasted by the service layer.
  */
+/** What the person chose in the menu, passed to `onExport` (JB256). */
+export interface ExportChoice {
+  /** 「包含照片」 (true) or 「不包含照片」 (false). */
+  includePhotos: boolean;
+}
+
 export function ExportButton({
   onExport,
+  photoChoice = false,
   disabled,
   disabledReason,
   formats = ["xlsx", "pdf"],
@@ -62,7 +72,13 @@ export function ExportButton({
   ownWork,
   blockedReason,
 }: {
-  onExport: (format: ExportFormat) => Promise<unknown>;
+  onExport: (format: ExportFormat, choice: ExportChoice) => Promise<unknown>;
+  /**
+   * 「包含照片 / 不包含照片」 at the top of the menu (JB256, 客户 11-24b 事项 3:
+   * 「预览及导出时，支持选择包含照片或不包含照片」): the choice holds for
+   * 预览 · 打印 · 导出 · 发送 alike. Without it the file is as it always was.
+   */
+  photoChoice?: boolean;
   disabled?: boolean;
   disabledReason?: string;
   /** The formats this export offers; both unless the server makes only one. */
@@ -103,12 +119,13 @@ export function ExportButton({
   // 「导出：报表和各模块清单可以导出」 (JB210, walk 11-17 F-A4): a consultant
   // without it gets no list file at all - the server makes none for him.
   const mayExport = useMayExport() || Boolean(ownWork);
+  const [includePhotos, setIncludePhotos] = useState(true);
 
   const start = (format: ExportFormat, action: FileAction) =>
     void run(
       action,
       {
-        load: () => captureDownload(() => onExport(format)),
+        load: () => captureDownload(() => onExport(format, { includePhotos })),
         title: title ?? "",
         link,
         recordKind: record?.kind,
@@ -140,6 +157,32 @@ export function ExportButton({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-72">
+          {photoChoice ? (
+            <div data-slot="export-photos">
+              <DropdownMenuLabel className="text-foreground">{t("jb256.photos")}</DropdownMenuLabel>
+              <DropdownMenuRadioGroup
+                value={includePhotos ? "with" : "without"}
+                onValueChange={(value) => setIncludePhotos(value === "with")}
+              >
+                {/* Choosing keeps the menu open: the file is picked next. */}
+                <DropdownMenuRadioItem
+                  value="with"
+                  data-slot="export-photos-with"
+                  onSelect={(event) => event.preventDefault()}
+                >
+                  {t("jb256.withPhotos")}
+                </DropdownMenuRadioItem>
+                <DropdownMenuRadioItem
+                  value="without"
+                  data-slot="export-photos-without"
+                  onSelect={(event) => event.preventDefault()}
+                >
+                  {t("jb256.withoutPhotos")}
+                </DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
+              <DropdownMenuSeparator />
+            </div>
+          ) : null}
           {formats.map((format, index) => {
             const FormatIcon = FORMAT_ICONS[format];
             const actions = fileActionsFor(format === "pdf" ? "pdf" : "sheet", allowSave);

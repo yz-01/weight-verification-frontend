@@ -31,7 +31,8 @@ describe("one way to handle an exported file", () => {
 
   it("offers preview, print, export and send under each format of the export menu", () => {
     const menu = read("src/components/shared/export-button.tsx");
-    expect(menu).toMatch(/captureDownload\(\(\) => onExport\(format\)\)/);
+    // JB256: with the menu's 「包含照片 / 不包含照片」 choice.
+    expect(menu).toMatch(/captureDownload\(\(\) => onExport\(format, \{ includePhotos \}\)\)/);
     expect(menu).toMatch(/fileActionsFor\(format === "pdf" \? "pdf" : "sheet", allowSave\)/);
     const actions = read("src/components/shared/file-actions.tsx");
     expect(actions).toMatch(/format === "pdf" \? \["preview", "print", "save", "share"\] : \["preview", "save", "share"\]/);

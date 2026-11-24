@@ -71,7 +71,8 @@ import {
   reportRowReference,
   reportRowRoute,
   reportRowTarget,
-  reportValueKey,
+  reportValueKeys,
+  reportValueWords,
 } from "@/lib/report-preview";
 import {
   ALL_REPORT_FILTERS,
@@ -117,6 +118,8 @@ export const REPORT_DATE_TIME_COLUMNS: ReadonlySet<string> = new Set([
   "business_at",
   // 文件资料报表's 上传时间 (10-28: it printed the raw ISO time).
   "created_at",
+  // 进度 Claim 报表's 创建时间 (JB258).
+  "package_created_at",
 ]);
 
 const REPORT_DATE_ONLY_COLUMNS = new Set([
@@ -311,8 +314,10 @@ export function ContractorReportWorkspace({
     row: Record<string, string | number | boolean | null>,
   ): string {
     // A code is shown in the reader's words, as its own module names it.
-    const message = reportValueKey(reportType, key, value, row);
-    if (message && tRoot.has(message)) return tRoot(message);
+    const words = reportValueWords(reportValueKeys(reportType, key, value, row), (message) =>
+      tRoot.has(message) ? tRoot(message) : null,
+    );
+    if (words) return words;
     if (value === null || value === "") return "-";
     if (key === "unit" && units[String(value)]) return units[String(value)];
     if (REPORT_DATE_TIME_COLUMNS.has(key)) {
