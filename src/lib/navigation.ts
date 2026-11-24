@@ -1377,7 +1377,8 @@ export const PORTAL_NAVIGATION = {
         ),
         child(
           "13.2.8",
-          "nav.submodule.siteEquipment",
+          // JB257 (客户 11-24b 事项 4): 「设备进退场报表」 → 「设备租赁费用报表」.
+          "nav.submodule.equipmentRentalReport",
           "/reports/contractor/equipment",
           "report_center",
           undefined,

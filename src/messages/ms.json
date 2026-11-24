@@ -7764,7 +7764,7 @@
     "description": {
       "attendance": "Semak bukti kemasukan tapak, ketepatan GPS dan geofence.",
       "consultant": "Semak permohonan perunding, bukti dan keputusan akhir.",
-      "equipment": "Semak keluar masuk peralatan, dokumen, OCR dan foto.",
+      "equipment": "Rekod masuk / keluar peralatan dengan caj sewa setiap mesin dan jumlah keseluruhan.",
       "photos": "Cari lejar bukti foto kekal mengikut projek, sumber, pemuat naik, tarikh dan GPS.",
       "progress": "Semak kemajuan projek, status pengesahan dan bukti foto.",
       "recycling": "Semak kerja pelupusan dan pesanan kitar semula hingga selesai.",
@@ -7930,7 +7930,7 @@
     "type": {
       "attendance": "Laporan kemasukan tapak dan tenaga kerja",
       "consultant": "Laporan permohonan perunding",
-      "equipment": "Laporan pergerakan peralatan",
+      "equipment": "Laporan caj sewa peralatan",
       "photos": "Laporan foto tapak",
       "progress": "Laporan kemajuan dan foto",
       "recycling": "Laporan pelupusan dan kitar semula",
@@ -13219,7 +13219,8 @@
       "fieldStaffManagement": "Kakitangan tapak",
       "fieldChats": "Rekod perbualan",
       "photoTimeline": "Garis masa foto projek",
-      "materialIssue": "Pengeluaran bahan (MIN)"
+      "materialIssue": "Pengeluaran bahan (MIN)",
+      "equipmentRentalReport": "Laporan caj sewa peralatan"
     },
     "subscription_management": "Pengurusan Langganan",
     "suppliers": "Pembekal",
@@ -23529,6 +23530,32 @@
       "termsSaved": "Terma sewa disimpan.",
       "amountsSaved": "Disimpan.",
       "confirmed": "Amaun sewa bulan ini telah disahkan."
+    }
+  },
+  "jb256": {
+    "photos": "Foto",
+    "withPhotos": "Dengan foto",
+    "withoutPhotos": "Tanpa foto",
+    "summaryTitle": "Kuantiti terkumpul dan jumlah amaun",
+    "totalAmount": "Jumlah amaun"
+  },
+  "jb257": {
+    "title": "Caj sewa peralatan",
+    "help": "Caj sewa setiap mesin, dikira sama seperti di Jam mesin › Bulanan. Mengikut projek, pembekal, mesin dan tarikh; arah dan kata kunci hanya menapis rekod masuk / keluar di bawah.",
+    "total": "Jumlah keseluruhan",
+    "empty": "Tiada caj sewa dalam tarikh ini.",
+    "confirmedMonths": "Disahkan: {months}",
+    "onSite": "Di tapak",
+    "column": {
+      "equipment": "Mesin",
+      "supplier": "Pembekal",
+      "terms": "Terma sewa",
+      "entry": "Tarikh masuk",
+      "exit": "Tarikh keluar",
+      "daysOnSite": "Hari di tapak",
+      "daysWorked": "Hari bekerja",
+      "normalHours": "Jam biasa",
+      "overtimeHours": "Jam lebih masa"
     }
   }
 }

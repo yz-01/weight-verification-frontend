@@ -7764,7 +7764,7 @@
     "description": {
       "attendance": "Review site entry evidence, GPS accuracy and geofence result.",
       "consultant": "Review consultant applications, evidence and final outcomes.",
-      "equipment": "Review equipment entries, exits, documents, OCR and photographs.",
+      "equipment": "Equipment in / out records with each machine's rental fee and the grand total.",
       "photos": "Search the permanent photo evidence ledger by project, source, uploader, date and GPS.",
       "progress": "Review project progress, confirmation state and photo evidence.",
       "recycling": "Review disposal work and recycling orders through completion.",
@@ -7930,7 +7930,7 @@
     "type": {
       "attendance": "Site entry and workforce report",
       "consultant": "Consultant application report",
-      "equipment": "Equipment movement report",
+      "equipment": "Equipment rental fee report",
       "photos": "Site photo report",
       "progress": "Progress and photo report",
       "recycling": "Disposal and recycling report",
@@ -13219,7 +13219,8 @@
       "fieldStaffManagement": "Field staff",
       "fieldChats": "Conversations",
       "photoTimeline": "Project photo timeline",
-      "materialIssue": "Material issue (MIN)"
+      "materialIssue": "Material issue (MIN)",
+      "equipmentRentalReport": "Equipment rental fee report"
     },
     "subscription_management": "Subscriptions",
     "suppliers": "Suppliers",
@@ -23529,6 +23530,32 @@
       "termsSaved": "Rental terms saved.",
       "amountsSaved": "Saved.",
       "confirmed": "This month's rental amounts are confirmed."
+    }
+  },
+  "jb256": {
+    "photos": "Photos",
+    "withPhotos": "With photos",
+    "withoutPhotos": "Without photos",
+    "summaryTitle": "Cumulative quantity and total amount",
+    "totalAmount": "Total amount"
+  },
+  "jb257": {
+    "title": "Equipment rental fees",
+    "help": "Each machine's rental fee, worked out exactly as on Machine hours › Month. Counted by project, supplier, machine and dates; direction and keyword narrow the in / out records below only.",
+    "total": "Grand total",
+    "empty": "No rental fees in these dates.",
+    "confirmedMonths": "Confirmed: {months}",
+    "onSite": "On site",
+    "column": {
+      "equipment": "Machine",
+      "supplier": "Supplier",
+      "terms": "Rental terms",
+      "entry": "Entry date",
+      "exit": "Exit date",
+      "daysOnSite": "Days on site",
+      "daysWorked": "Days worked",
+      "normalHours": "Normal hours",
+      "overtimeHours": "Overtime hours"
     }
   }
 }

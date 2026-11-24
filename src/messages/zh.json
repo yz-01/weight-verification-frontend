@@ -7764,7 +7764,7 @@
     "description": {
       "attendance": "查看人员进场证据、GPS 精度与围栏结果。",
       "consultant": "查看顾问申请、证据与最终结果。",
-      "equipment": "查看设备进退场、文件、OCR 与照片。",
+      "equipment": "设备进退场记录和每台设备的租赁费用、累计总金额。",
       "photos": "按项目、来源、上传人、日期及 GPS 查询永久照片证据账本。",
       "progress": "查看项目进度、确认状态与照片证据。",
       "recycling": "查看清运工作与回收订单直至完成。",
@@ -7930,7 +7930,7 @@
     "type": {
       "attendance": "人员进场报表",
       "consultant": "顾问申请报表",
-      "equipment": "设备进退场报表",
+      "equipment": "设备租赁费用报表",
       "photos": "现场照片报表",
       "progress": "进度与照片报表",
       "recycling": "清运与回收报表",
@@ -13219,7 +13219,8 @@
       "fieldStaffManagement": "现场人员管理",
       "fieldChats": "沟通记录",
       "photoTimeline": "工程照片墙",
-      "materialIssue": "材料领用（MIN）"
+      "materialIssue": "材料领用（MIN）",
+      "equipmentRentalReport": "设备租赁费用报表"
     },
     "subscription_management": "订阅管理",
     "suppliers": "供应商",
@@ -23529,6 +23530,32 @@
       "termsSaved": "租赁条件已保存。",
       "amountsSaved": "已保存。",
       "confirmed": "本月租赁金额已确认。"
+    }
+  },
+  "jb256": {
+    "photos": "照片",
+    "withPhotos": "包含照片",
+    "withoutPhotos": "不包含照片",
+    "summaryTitle": "累计数量及总金额",
+    "totalAmount": "总金额"
+  },
+  "jb257": {
+    "title": "设备租赁费用",
+    "help": "每台设备的租赁费用，和「设备操作员工时 › 按月」用同一个计算。按项目、供应商、设备和日期范围统计；方向和关键字只筛选下面的进退场记录。",
+    "total": "累计总金额",
+    "empty": "这段时间没有租赁费用。",
+    "confirmedMonths": "已确认：{months}",
+    "onSite": "在场",
+    "column": {
+      "equipment": "设备",
+      "supplier": "供应商",
+      "terms": "租赁条件",
+      "entry": "进场日期",
+      "exit": "退场日期",
+      "daysOnSite": "累计在场天数",
+      "daysWorked": "工作天数",
+      "normalHours": "正常工时（小时）",
+      "overtimeHours": "超时工时（小时）"
     }
   }
 }

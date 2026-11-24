@@ -7764,7 +7764,7 @@
     "description": {
       "attendance": "查看人員進場證據、GPS 精度與圍欄結果。",
       "consultant": "查看顧問申請、證據與最終結果。",
-      "equipment": "查看設備進退場、文件、OCR 與照片。",
+      "equipment": "設備進退場記錄和每台設備的租賃費用、累計總金額。",
       "photos": "按項目、來源、上傳人、日期及 GPS 查詢永久照片證據賬本。",
       "progress": "查看項目進度、確認狀態與照片證據。",
       "recycling": "查看清運工作與回收訂單直至完成。",
@@ -7930,7 +7930,7 @@
     "type": {
       "attendance": "人員進場報表",
       "consultant": "顧問申請報表",
-      "equipment": "設備進退場報表",
+      "equipment": "設備租賃費用報表",
       "photos": "現場照片報表",
       "progress": "進度與照片報表",
       "recycling": "清運與回收報表",
@@ -13219,7 +13219,8 @@
       "fieldStaffManagement": "現場人員管理",
       "fieldChats": "溝通記錄",
       "photoTimeline": "工程照片牆",
-      "materialIssue": "材料領用（MIN）"
+      "materialIssue": "材料領用（MIN）",
+      "equipmentRentalReport": "設備租賃費用報表"
     },
     "subscription_management": "訂閱管理",
     "suppliers": "供應商",
@@ -23529,6 +23530,32 @@
       "termsSaved": "租賃條件已儲存。",
       "amountsSaved": "已儲存。",
       "confirmed": "本月租賃金額已確認。"
+    }
+  },
+  "jb256": {
+    "photos": "照片",
+    "withPhotos": "包含照片",
+    "withoutPhotos": "不包含照片",
+    "summaryTitle": "累計數量及總金額",
+    "totalAmount": "總金額"
+  },
+  "jb257": {
+    "title": "設備租賃費用",
+    "help": "每台設備的租賃費用，和「設備操作員工時 › 按月」用同一個計算。按項目、供應商、設備和日期範圍統計；方向和關鍵字只篩選下面的進退場記錄。",
+    "total": "累計總金額",
+    "empty": "這段時間沒有租賃費用。",
+    "confirmedMonths": "已確認：{months}",
+    "onSite": "在場",
+    "column": {
+      "equipment": "設備",
+      "supplier": "供應商",
+      "terms": "租賃條件",
+      "entry": "進場日期",
+      "exit": "退場日期",
+      "daysOnSite": "累計在場天數",
+      "daysWorked": "工作天數",
+      "normalHours": "正常工時（小時）",
+      "overtimeHours": "超時工時（小時）"
     }
   }
 }

@@ -211,7 +211,7 @@ describe("【选择报表】 (D6, B9)", () => {
     ["材料数量报表", 0, `/reports/material-quantity?${DATES}`],
     // 「现场照片报表」 is out of the menu (JB47).
     ["工程进度", 0, `/reports/contractor/progress?${DATES}`],
-    ["设备进退场", 0, `/reports/contractor/equipment?${DATES}`],
+    ["设备租赁费用报表", 0, `/reports/contractor/equipment?${DATES}`],
     ["文件资料", 0, `/reports/contractor/documents?${DATES}`],
     ["人员进场记录", 0, `/reports/contractor/attendance?${DATES}`],
     ["报表历史记录", 0, `/reports/contractor/history?${DATES}`],
