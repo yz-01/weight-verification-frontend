@@ -619,6 +619,8 @@ export interface MySubmissionRow {
    * COMPLETED; "" while pending or returned. The badge says both.
    */
   execution_status?: string;
+  /** JB253: a material request (MR) follows the deliveries signed for - no manual confirm. */
+  execution_automatic?: boolean;
   /**
    * The machine an equipment movement is about: what the phone checks the
    * scanned QR against at the actual exit, with or without signal (ID60).
