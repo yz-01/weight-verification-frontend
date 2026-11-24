@@ -294,8 +294,12 @@ export interface HazardConversation {
   participants: HazardParticipant[];
   /** This reader's chat notices the read settled (see `clearedNotices`). */
   cleared_notices?: number;
-  /** Archived, which means readable but closed to new messages. */
+  /** Ended: readable, but closed to new messages. */
   is_closed: boolean;
+  /** JB241 (客户 11-23 事项 13): why it is closed - "completed" once the item
+   *  is confirmed 已完成 (a permit approved), "archived" after 【确认归档】,
+   *  "" while it is open. Missing from a server before JB241. */
+  closed_reason?: "" | "completed" | "archived";
   audio_seconds_limit: number;
   /** The 「需要继续整改」 switch beside the box (ID11): this reader may
    *  confirm it, and it is waiting for that. */

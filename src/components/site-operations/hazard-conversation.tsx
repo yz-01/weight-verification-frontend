@@ -32,6 +32,7 @@ import {
   type ComposerPayload,
 } from "@/components/shared/conversation";
 import { LoadFailed } from "@/components/shared/page-primitives";
+import { ApiError } from "@/interfaces/api";
 import { useAuth } from "@/components/providers/auth-provider";
 import { useBellRefreshOnRead } from "@/hooks/use-bell-refresh-on-read";
 import { useNewMessageTone } from "@/hooks/use-new-message-tone";
@@ -40,6 +41,9 @@ import {
   postHazardMessage,
 } from "@/services/site-operations.service";
 import { FieldDraft, useClearDraft, useDraftState } from "@/components/field-staff/field-draft";
+
+/** The refusals that mean the room has ended (JB241) or was archived. */
+const HAZARD_ENDED_CODES = new Set(["hazard_chat_ended", "hazard_closed"]);
 
 export function HazardConversationPanel({ incidentId }: { incidentId: string }) {
   return <FieldDraft scope={`hazard-conversation:${incidentId}`}>
@@ -89,6 +93,17 @@ function HazardConversationContent({ incidentId }: { incidentId: string }) {
         void queryClient.invalidateQueries({ queryKey: ["my-tasks"] });
       }
     },
+    onError: (error) => {
+      // JB241: somebody ended the item while this page was open. The server
+      // refused the message; reload so the box goes and the 「已结束」 line
+      // shows - the same as on every other screen of this item.
+      if (error instanceof ApiError && HAZARD_ENDED_CODES.has(error.code)) {
+        void queryClient.invalidateQueries({
+          queryKey: ["hazard-conversation", incidentId],
+        });
+        void queryClient.invalidateQueries({ queryKey: ["safety"] });
+      }
+    },
   });
 
   if (isError) {
@@ -125,7 +140,14 @@ function HazardConversationContent({ incidentId }: { incidentId: string }) {
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h3 className="panel-title">{t("hazard.conversationTitle")}</h3>
+        <h3 className="panel-title flex items-center gap-2">
+          {t("hazard.conversationTitle")}
+          {data.is_closed && (
+            <span className="rounded-full border border-panel-border px-2 py-0.5 text-xs font-medium text-muted-foreground">
+              {t("hazard.endedBadge")}
+            </span>
+          )}
+        </h3>
         <p className="text-xs text-muted-foreground">
           {t("hazard.participants")}:{" "}
           {data.participants
@@ -156,12 +178,18 @@ function HazardConversationContent({ incidentId }: { incidentId: string }) {
         reference={data.incident.incident_no}
       />
 
-      {/* Archived is readable, not hidden: 「记录全部都要留着」. What closes is
+      {/* Ended is readable, not hidden: 「记录全部都要留着」. What closes is
           the ability to add to it, and the reason is said rather than shown as
-          a disabled box with no explanation. */}
+          a disabled box with no explanation. JB241 (客户 11-23 事项 13): the
+          server closes it once the item is confirmed 已完成, and every screen
+          of the item - office, phone, permit - says 「已结束」 from that one
+          answer. Archived keeps its own words. */}
       {data.is_closed ? (
-        <p className="rounded-lg border border-dashed border-panel-border p-3 text-xs text-muted-foreground">
-          {t("hazard.closed")}
+        <p
+          className="rounded-lg border border-dashed border-panel-border p-3 text-xs text-muted-foreground"
+          data-hazard-chat-ended
+        >
+          {data.closed_reason === "archived" ? t("hazard.closed") : t("hazard.ended")}
         </p>
       ) : (
         <ConversationComposer
