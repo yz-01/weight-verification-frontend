@@ -10351,7 +10351,8 @@
       "operatorHours": "Equipment operator hours",
       "permit": "Permit to work",
       "visitor": "Visitor QR Scan",
-      "rain": "Rainy Weather"
+      "rain": "Rainy Weather",
+      "scrap": "Scrap disposal"
     },
     "status": {
       "ACCEPTED": "Complete",
@@ -12949,7 +12950,7 @@
     "settings": "Settings",
     "settlements": "Settlements",
     "site_access": "Site access",
-    "site_disposals": "Site disposal",
+    "site_disposals": "Waste clearance",
     "site_gps": "Site personnel GPS",
     "sites": "Yards",
     "submodule": {
@@ -13151,7 +13152,7 @@
       "settingsActivity": "Setting records",
       "settingsAudit": "Setting records",
       "siteAccessPasses": "Access passes",
-      "siteDisposals": "Site disposal",
+      "siteDisposals": "Waste clearance",
       "siteEquipment": "Equipment movement",
       "siteGps": "Site personnel GPS",
       "subscriptionActivity": "Operation records",
@@ -17743,7 +17744,7 @@
       "SUPPLIER_SET": "Office named / changed the clearance company",
       "ANOMALY_REPORTED": "Exception reported"
     },
-    "title": "Site disposal",
+    "title": "Waste clearance",
     "toast": {
       "assigned": "External contractor assigned",
       "assignedInternal": "Sent to field staff",
@@ -23418,5 +23419,31 @@
     "noProjects": "You have not been given access to any project yet. Please ask the contractor's head office to open one for you.",
     "chooseProject": "First choose a project in the project box at the top of the page; that project's dashboard will then show here.",
     "onlyOpened": "Head office has opened only these parts for you. To see anything else, please contact the contractor's head office."
+  },
+  "jb248": {
+    "field": "Type",
+    "kind": {
+      "GARBAGE": "Waste clearance",
+      "SCRAP": "Scrap disposal"
+    },
+    "count": {
+      "GARBAGE": "Waste clearance: {count}",
+      "SCRAP": "Scrap disposal: {count}"
+    },
+    "tab": {
+      "all": "All",
+      "garbage": "Waste clearance",
+      "scrap": "Scrap disposal",
+      "abnormal": "Exception records"
+    },
+    "totals": {
+      "GARBAGE": "Waste clearance: {records} jobs · {trips} trips · {weight} kg",
+      "SCRAP": "Scrap disposal: {records} jobs · {trips} trips · {weight} kg",
+      "apart": "Counted separately; not added together."
+    }
+  },
+  "jb249": {
+    "button": "ESG statistics",
+    "soon": "Coming soon"
   }
 }

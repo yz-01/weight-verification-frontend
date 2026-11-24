@@ -1,430 +1,139 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, Loader2, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect } from "react";
 
-import { ExportButton } from "@/components/shared/export-button";
+import { ClearanceStatsBar } from "@/components/contractor-ops/clearance-stats-bar";
 import { SiteDisposalOffice } from "@/components/contractor-ops/site-disposal-workspaces";
 import { useCurrentProject } from "@/components/providers/current-project-provider";
-import {
-  DISPATCH_STATE_TONE,
-  Dispatches,
-  dispatchCategoryText,
-} from "@/components/dispatches/dispatches";
 import { useAuth } from "@/components/providers/auth-provider";
-import { NeedsActionChip, NeedsActionMarker } from "@/components/shared/needs-action";
-import {
-  ListHeader,
-  QueryFailedNote,
-  StatusBadge,
-  TypeBadge,
-} from "@/components/shared/page-primitives";
-import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { useDateFormat } from "@/lib/dates";
+import { ListHeader, QueryFailedNote } from "@/components/shared/page-primitives";
 import { cn } from "@/lib/utils";
-import { clearanceFigureFilters, clearanceTabHref, type ClearanceTab } from "@/lib/waste-clearance-figures";
-import { getDispatchSummary, getDispatches } from "@/services/contractor.service";
-import { getDisposalRequests, getDisposalTotals, exportWasteClearance } from "@/services/contractor-ops.service";
-import { clickOpensRow } from "@/components/shared/inside-row-control";
+import {
+  CLEARANCE_KIND_OF,
+  clearanceFigureFilters,
+  clearanceKindOf,
+  clearanceTabHref,
+  dispatchListHref,
+  type ClearanceTab,
+} from "@/lib/waste-clearance-figures";
+import { getDisposalTotals } from "@/services/contractor-ops.service";
 
-type Kind = "all" | "disposal" | "dispatch";
-/** The tabs: the three kinds, and 工地清运's 「异常记录」 view (JB149). */
-type Tab = ClearanceTab;
-
-const PER_KIND = 10;
+const TABS: readonly ClearanceTab[] = ["all", "garbage", "scrap", "abnormal"];
 
 /**
- * 垃圾清运: the contractor's one column for waste leaving site (B08).
+ * 垃圾清运: a business menu of its own (JB248, 客户 11-23b 事项 1).
  *
- * The 29.09 meeting: 「废料订单和工地清运本质上是同一个东西，两个栏目要合起来，
- * 名字叫"垃圾清运"」. Only the entry is merged. A waste order (a load sold
- * to a partner recycler) and a site disposal (rubbish taken away) stay two
- * kinds of record, each with its own number, flow, evidence and figures -
- * nothing underneath was joined, renamed or moved (DEV_BRIEF Q7, D06).
+ *   「垃圾清运」与「废料处理」名称为归属同一个业务菜单。
+ *   菜单内分为：全部｜垃圾清运｜废料处理。
+ *   两种业务共用现有操作页面及审批流程。
+ *   两种业务的车次、重量及总数量分别累计，不混合统计。
  *
- * 全部 lists both, newest first, each row saying which kind it is and opening
- * the original detail. The other two tabs are the original screens, whole:
- * filters, export, every step. The counts stay apart. The 废料订单 tab is a
- * read-only tracker since 2026-10-09: orders come from approved
- * 环保材料出场申请, and the old direct ones stay for history.
+ * One list of clearance jobs, the existing one (`SiteDisposalOffice`) with
+ * every step, filter and export it had; each tab narrows it to one kind, and
+ * 全部 shows both, each row saying which it is. The statistics bar keeps a
+ * line for each kind - never added together - and 「ESG 统计」 at its far
+ * right (JB249). 「异常记录」 (JB149, the client's 11-10 request for
+ * 垃圾清运) stays beside the tabs: every job in it is a clearance job.
  *
- * The recycler's own order book (废料订单 in their console) is a different
- * screen and is not touched.
+ * 废料订单 is back in 环保材料管理 (第三点); an old `kind=dispatch` link goes
+ * there.
  */
 export function WasteClearance() {
   const t = useTranslations("wasteClearance");
-  const { user, can } = useAuth();
+  const words = useTranslations("jb248");
+  const { can } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const hasDisposals = user?.features.includes("site_disposals") ?? false;
-  const hasDispatches = user?.features.includes("waste_dispatches") ?? false;
+  const asked = searchParams.get("kind");
+  const kind = clearanceKindOf(asked);
+  const tab: ClearanceTab = kind === "all" && searchParams.get("abnormal") === "1" ? "abnormal" : kind;
 
-  const kinds: Kind[] = [
-    ...(hasDisposals && hasDispatches ? (["all"] as const) : []),
-    ...(hasDisposals ? (["disposal"] as const) : []),
-    ...(hasDispatches ? (["dispatch"] as const) : []),
-  ];
-  const asked = searchParams.get("kind") as Kind | null;
-  const kind: Kind = asked && kinds.includes(asked) ? asked : kinds[0] ?? "all";
+  useEffect(() => {
+    if (asked === "dispatch") router.replace(dispatchListHref(searchParams));
+  }, [asked, router, searchParams]);
 
-  // The header describes the list under it: opened from a head-office card
-  // (`counted=1`, one project) it counts what that list shows (F8).
-  // The page's project is the top bar's 「当前项目」 when it is in force (B13).
+  // The page's project is the top bar's 「当前项目」 when it is in force (B13);
+  // the header counts what the list under it shows (F8).
   const topBar = useCurrentProject();
   const figureParams = new URLSearchParams(searchParams.toString());
   if (topBar.active) {
     figureParams.delete("project");
     if (topBar.projectId) figureParams.set("project", topBar.projectId);
   }
-  const figureFilters = clearanceFigureFilters(kind, figureParams);
-  if (kind === "all" && topBar.active && topBar.projectId) {
-    figureFilters.disposal.project = topBar.projectId;
-    figureFilters.dispatch.project = topBar.projectId;
-  }
-  // The two counts, apart (D06). Page size 1: only `count` is read.
-  const disposalCount = useQuery({
-    queryKey: ["site-disposals", "count", "waste-clearance", figureFilters.disposal],
-    queryFn: () => getDisposalRequests({ page_size: 1, ...figureFilters.disposal }),
-    enabled: hasDisposals,
+  const figureFilters = clearanceFigureFilters(figureParams);
+  const allowed = can("disposal.view");
+  // Each kind's own 笔数 / 车次 / 重量, read apart and shown on its own line.
+  const garbageTotals = useQuery({
+    queryKey: ["site-disposals", "totals", "waste-clearance", figureFilters.GARBAGE],
+    queryFn: () => getDisposalTotals(figureFilters.GARBAGE),
+    enabled: allowed,
   });
-  const dispatchCount = useQuery({
-    queryKey: ["dispatches", "count", "waste-clearance", figureFilters.dispatch],
-    queryFn: () => getDispatches({ page_size: 1, ...figureFilters.dispatch }),
-    enabled: hasDispatches,
+  const scrapTotals = useQuery({
+    queryKey: ["site-disposals", "totals", "waste-clearance", figureFilters.SCRAP],
+    queryFn: () => getDisposalTotals(figureFilters.SCRAP),
+    enabled: allowed,
   });
-  const countText = (query: typeof disposalCount | typeof dispatchCount) =>
-    query.isError ? "—" : query.isLoading ? "…" : String(query.data?.count ?? 0);
-  // D06: each kind's own 数量 / 车次 / 重量, read from its own module and
-  // shown on its own line - never added together.
-  const disposalTotals = useQuery({
-    queryKey: ["site-disposals", "totals", "waste-clearance", figureFilters.disposal],
-    queryFn: () => getDisposalTotals(figureFilters.disposal),
-    enabled: hasDisposals && can("disposal.view"),
-  });
-  const dispatchTotals = useQuery({
-    queryKey: ["dispatches", "summary", "waste-clearance", figureFilters.dispatch],
-    queryFn: () => getDispatchSummary(figureFilters.dispatch),
-    enabled: hasDispatches && can("dispatch.view"),
-  });
-  const dispatchFigures = dispatchTotals.data?.clearance_totals;
+  const countText = (query: typeof garbageTotals) =>
+    query.isError ? "—" : query.isLoading ? "…" : String(query.data?.records ?? 0);
 
-  // 「异常记录」 sits beside 工地清运 wherever that is offered (JB149).
-  const tabs: Tab[] = [...kinds, ...(hasDisposals ? (["abnormal"] as const) : [])];
-  const tab: Tab = kind === "disposal" && searchParams.get("abnormal") === "1" ? "abnormal" : kind;
-
-  if (kinds.length === 0) return null;
+  if (asked === "dispatch") return null;
 
   return (
     <div className="flex flex-col gap-4">
       <ListHeader
         title={t("title")}
         subtitle={[
-          hasDisposals ? t("countDisposals", { count: countText(disposalCount) }) : null,
-          hasDispatches ? t("countDispatches", { count: countText(dispatchCount) }) : null,
-        ]
-          .filter(Boolean)
-          .join(" · ")}
-        action={
-          kind === "all" ? (
-            <div className="flex flex-wrap gap-2">
-              {/* 「待处理 N」: the 工地清运 jobs waiting for this reader - a
-                  request to accept, a lorry back to check - the sidebar's
-                  number. Opens that tab with only them (2026-10-09). The
-                  工地清运 tab carries its own. */}
-              <NeedsActionChip
-                count={disposalCount.data?.needs_action_count}
-                active={false}
-                onToggle={() => router.push("/waste-clearance?kind=disposal&needs_action=1")}
-              />
-              {can("disposal.submit") && (
-                <Button asChild>
-                  <Link href="/waste-clearance?kind=disposal&create=1">
-                    <Plus className="size-4" />
-                    {t("newDisposal")}
-                  </Link>
-                </Button>
-              )}
-              {/*
-                No 新增废料订单 (Lucas 2026-10-09): an order is what an
-                approved 环保材料出场申请 becomes when the office arranges
-                the recycler, so it is raised there, not here.
-              */}
-            </div>
-          ) : undefined
-        }
+          words("count.GARBAGE", { count: countText(garbageTotals) }),
+          words("count.SCRAP", { count: countText(scrapTotals) }),
+        ].join(" · ")}
       />
-      <QueryFailedNote query={disposalCount} what={t("kind.disposal")} />
-      <QueryFailedNote query={dispatchCount} what={t("kind.dispatch")} />
-      <QueryFailedNote query={disposalTotals} what={t("kind.disposal")} />
-      <QueryFailedNote query={dispatchTotals} what={t("kind.dispatch")} />
+      <QueryFailedNote query={garbageTotals} what={words("kind.GARBAGE")} />
+      <QueryFailedNote query={scrapTotals} what={words("kind.SCRAP")} />
 
-      {(disposalTotals.data || dispatchFigures) && (
-        <section data-clearance-totals className="surface-panel rounded-xl px-4 py-3 text-sm tabular sm:px-6">
-          {disposalTotals.data && (
-            <p>
-              {t("totals.disposals", {
-                records: disposalTotals.data.records,
-                trips: disposalTotals.data.trips,
-                weight: disposalTotals.data.weight_kg,
-              })}
-            </p>
-          )}
-          {dispatchFigures && (
-            <p>
-              {t("totals.dispatches", {
-                records: dispatchFigures.records,
-                trips: dispatchFigures.trips,
-                weight: dispatchFigures.weighed_kg,
-              })}
-            </p>
-          )}
-          <p className="mt-0.5 text-xs text-muted-foreground">{t("totals.apart")}</p>
-        </section>
-      )}
+      <ClearanceStatsBar>
+        {garbageTotals.data && (
+          <p>
+            {words("totals.GARBAGE", {
+              records: garbageTotals.data.records,
+              trips: garbageTotals.data.trips,
+              weight: garbageTotals.data.weight_kg,
+            })}
+          </p>
+        )}
+        {scrapTotals.data && (
+          <p>
+            {words("totals.SCRAP", {
+              records: scrapTotals.data.records,
+              trips: scrapTotals.data.trips,
+              weight: scrapTotals.data.weight_kg,
+            })}
+          </p>
+        )}
+        <p className="mt-0.5 text-xs text-muted-foreground">{words("totals.apart")}</p>
+      </ClearanceStatsBar>
 
-      {tabs.length > 1 && (
-        <nav aria-label={t("title")} className="surface-panel flex w-fit max-w-full flex-wrap gap-1 rounded-xl p-1">
-          {tabs.map((option) => (
-            <Link
-              key={option}
-              href={clearanceTabHref(option, searchParams)}
-              aria-current={option === tab ? "page" : undefined}
-              className={cn(
-                "inline-flex h-9 items-center rounded-lg px-3 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground pointer-coarse:h-10",
-                option === tab && "bg-primary/10 text-primary",
-                option === "abnormal" && option !== tab && "text-destructive",
-              )}
-            >
-              {t(`tab.${option}`)}
-            </Link>
-          ))}
-        </nav>
-      )}
+      <nav aria-label={t("title")} className="surface-panel flex w-fit max-w-full flex-wrap gap-1 rounded-xl p-1">
+        {TABS.map((option) => (
+          <Link
+            key={option}
+            href={clearanceTabHref(option, searchParams)}
+            aria-current={option === tab ? "page" : undefined}
+            className={cn(
+              "inline-flex h-9 items-center rounded-lg px-3 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground pointer-coarse:h-10",
+              option === tab && "bg-primary/10 text-primary",
+              option === "abnormal" && option !== tab && "text-destructive",
+            )}
+          >
+            {words(`tab.${option}`)}
+          </Link>
+        ))}
+      </nav>
 
-      {kind === "all" ? (
-        <MergedList />
-      ) : kind === "disposal" ? (
-        <SiteDisposalOffice />
-      ) : (
-        <Dispatches />
-      )}
+      <SiteDisposalOffice clearanceKind={kind === "all" ? undefined : CLEARANCE_KIND_OF[kind]} />
     </div>
-  );
-}
-
-interface MergedRow {
-  kind: "disposal" | "dispatch";
-  id: string;
-  /** A 工地清运 job waiting for this reader (「待处理」); never a 废料订单. */
-  needsAction: boolean;
-  reference: string;
-  statusBadge: React.ReactNode;
-  project: string;
-  content: string;
-  at: string | null;
-  href: string;
-}
-
-/**
- * Both kinds in one list, newest first. Each page holds up to ten of each
- * kind, merged by time; the arrows move both together.
- */
-function MergedList() {
-  const router = useRouter();
-  const t = useTranslations("wasteClearance");
-  const disposalT = useTranslations("siteDisposal");
-  const root = useTranslations();
-  const df = useDateFormat();
-  const searchParams = useSearchParams();
-  const page = Math.max(1, Number(searchParams.get("page") ?? "1") || 1);
-  // On the top bar's 「当前项目」 (B13); 全部项目 leaves it out.
-  const topBar = useCurrentProject();
-  const project = (topBar.active ? topBar.projectId : "") || undefined;
-
-  const disposals = useQuery({
-    queryKey: ["site-disposals", "waste-clearance", project, page],
-    queryFn: () => getDisposalRequests({ page, page_size: PER_KIND, project }),
-  });
-  const dispatches = useQuery({
-    queryKey: ["dispatches", "waste-clearance", project, page],
-    queryFn: () => getDispatches({ page, page_size: PER_KIND, project }),
-  });
-
-  const rows: MergedRow[] = [
-    ...(disposals.data?.results ?? []).map((row) => ({
-      kind: "disposal" as const,
-      id: row.id,
-      needsAction: row.needs_action === true,
-      reference: row.reference_no,
-      statusBadge: <StatusBadge label={disposalT(`status.${row.status}`)} />,
-      project: row.project_name,
-      content: row.waste_description,
-      at: row.created_at,
-      href: `/waste-clearance?kind=disposal&record=${row.id}`,
-    })),
-    ...(dispatches.data?.results ?? []).map((row) => ({
-      kind: "dispatch" as const,
-      id: row.id,
-      needsAction: false,
-      reference: row.dispatch_no,
-      statusBadge: (
-        <StatusBadge
-          label={root(`dispatches.state.${row.state}`)}
-          tone={DISPATCH_STATE_TONE[row.state]}
-        />
-      ),
-      project: row.project_name,
-      // The application's category, as its own list names it; an old
-      // direct order falls back to its waste type, marked 旧订单 (2026-10-09).
-      content: `${dispatchCategoryText(row, root)} · ${row.recycler_name}`,
-      at: row.created_at ?? null,
-      href: `/dispatches/${row.id}`,
-    })),
-  ].sort((a, b) => (b.at ?? "").localeCompare(a.at ?? ""));
-
-  const pages = Math.max(
-    1,
-    Math.ceil((disposals.data?.count ?? 0) / PER_KIND),
-    Math.ceil((dispatches.data?.count ?? 0) / PER_KIND),
-  );
-  const loading = disposals.isLoading || dispatches.isLoading;
-  const pageHref = (target: number) => `/waste-clearance?kind=all&page=${target}`;
-
-  const statusWords = {
-    ...Object.fromEntries(
-      Object.entries(root.raw("siteDisposal.status") as Record<string, string>).map(([code, text]) => [`DISPOSAL:${code}`, text]),
-    ),
-    ...Object.fromEntries(
-      Object.entries(root.raw("dispatches.state") as Record<string, string>).map(([code, text]) => [`DISPATCH:${code}`, text]),
-    ),
-  };
-
-  return (
-    <section className="overflow-hidden surface-panel rounded-xl">
-      {/* Both kinds, merged as here, as one file (H16, HD13). */}
-      <div className="flex justify-end px-3 pt-3">
-        <ExportButton
-          size="sm"
-          disabled={!disposals.data?.count && !dispatches.data?.count}
-          disabledReason={t("title")}
-          title={t("title")}
-          onExport={(format) =>
-            exportWasteClearance({
-              format,
-              title: t("title"),
-              query: { project },
-              columns: [
-                { key: "kind", label: t("column.kind"), values: { DISPOSAL: t("kind.disposal"), DISPATCH: t("kind.dispatch") } },
-                { key: "reference", label: t("column.reference") },
-                { key: "status_key", label: t("column.status"), values: statusWords },
-                { key: "project_name", label: t("column.project") },
-                { key: "content", label: t("column.content") },
-                { key: "created_at", label: t("column.at") },
-                // JB149: a 工地清运 job's 「异常」 and what it was.
-                { key: "is_abnormal", label: t("column.abnormal"), values: { true: t("column.abnormal"), false: "" } },
-                { key: "anomaly_text", label: t("column.anomalyText") },
-              ],
-            })
-          }
-        />
-      </div>
-      <QueryFailedNote query={disposals} what={t("kind.disposal")} />
-      <QueryFailedNote query={dispatches} what={t("kind.dispatch")} />
-      {/* Fits the page, 打开 pinned at the right (I39). */}
-      <Table fit>
-        <TableHeader>
-          <TableRow>
-            <TableHead>{t("column.kind")}</TableHead>
-            <TableHead>{t("column.reference")}</TableHead>
-            <TableHead>{t("column.status")}</TableHead>
-            <TableHead>{t("column.project")}</TableHead>
-            <TableHead>{t("column.content")}</TableHead>
-            <TableHead>{t("column.at")}</TableHead>
-            <TableHead>
-              <span className="sr-only">{root("needsAction.column")}</span>
-            </TableHead>
-            <TableHead pin="end" className="text-right">{t("column.open")}</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {loading ? (
-            <TableRow>
-              <TableCell colSpan={8} className="h-24 justify-center">
-                <Loader2 className="mx-auto h-4 w-4 animate-spin text-muted-foreground" />
-              </TableCell>
-            </TableRow>
-          ) : rows.map((row) => (
-            <TableRow
-              key={`${row.kind}-${row.id}`}
-              className="cursor-pointer"
-              onClick={(event) => {
-                if (clickOpensRow(event)) router.push(row.href);
-              }}
-            >
-              <TableCell>
-                <TypeBadge label={t(`kind.${row.kind}`)} />
-              </TableCell>
-              <TableCell className="tabular font-medium">{row.reference}</TableCell>
-              <TableCell>{row.statusBadge}</TableCell>
-              <TableCell className="max-w-45 truncate">{row.project}</TableCell>
-              <TableCell className="max-w-65 truncate">{row.content}</TableCell>
-              <TableCell className="tabular text-muted-foreground">
-                {row.at ? df.dateTime(row.at) : "—"}
-              </TableCell>
-              <TableCell>
-                <NeedsActionMarker show={row.needsAction} />
-              </TableCell>
-              <TableCell pin="end" className="text-right">
-                <Button asChild variant="outline" size="sm">
-                  <Link href={row.href}>{t("column.open")}</Link>
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-panel-border px-4 py-3 text-sm text-muted-foreground sm:px-6">
-        <span>{t("pageOf", { page, pages })}</span>
-        <div className="flex gap-2">
-          <Button asChild={page > 1} variant="outline" size="sm" disabled={page <= 1} disabledReason={page <= 1 ? root("common.alreadyFirstPage") : undefined}>
-            {page > 1 ? (
-              <Link href={pageHref(page - 1)}>
-                <ChevronLeft className="h-4 w-4" />
-                {root("table.previous")}
-              </Link>
-            ) : (
-              <span>
-                <ChevronLeft className="h-4 w-4" />
-                {root("table.previous")}
-              </span>
-            )}
-          </Button>
-          <Button asChild={page < pages} variant="outline" size="sm" disabled={page >= pages} disabledReason={page >= pages ? t("lastPage") : undefined}>
-            {page < pages ? (
-              <Link href={pageHref(page + 1)}>
-                {root("table.next")}
-                <ChevronRight className="h-4 w-4" />
-              </Link>
-            ) : (
-              <span>
-                {root("table.next")}
-                <ChevronRight className="h-4 w-4" />
-              </span>
-            )}
-          </Button>
-        </div>
-      </div>
-    </section>
   );
 }

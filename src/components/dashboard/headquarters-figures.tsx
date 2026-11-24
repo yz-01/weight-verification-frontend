@@ -122,7 +122,7 @@ export function HeadquartersFigures({ data }: { data: HeadquartersOverview }) {
           trips={totals.waste_dispatches.trips}
           weight={totals.waste_dispatches.weighed_kg}
           weightLabel={t("weighedKg")}
-          href={href("waste_dispatches") ?? "/waste-clearance"}
+          href={href("waste_dispatches") ?? "/dispatches"}
         />
         <ClearanceCard
           label={t("siteDisposals")}

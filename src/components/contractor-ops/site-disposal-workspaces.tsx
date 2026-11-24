@@ -53,7 +53,7 @@ import {
   ProjectListFilter,
   sortable,
 } from "@/components/shared/module-records-table";
-import { EmptyState, FieldWrapper, FilterBar, ListHeader, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
+import { EmptyState, FieldWrapper, FilterBar, ListHeader, QueryFailedNote, StatusBadge, TypeBadge } from "@/components/shared/page-primitives";
 import { Timeline } from "@/components/shared/timeline";
 import { RecordDetailDialog, RecordDetailShell, RecordRecorder } from "@/components/shared/record-detail-shell";
 import { useListQuery } from "@/hooks/use-list-query";
@@ -89,9 +89,11 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { ApiError } from "@/interfaces/api";
+import { DISPOSAL_CLEARANCE_KINDS } from "@/interfaces/contractor-ops";
 import type {
   DisposalAnomaly,
   DisposalAnomalyKind,
+  DisposalClearanceKind,
   DisposalEvidenceKind,
   DisposalEvidenceStage,
   DisposalRequest,
@@ -165,8 +167,15 @@ function statusTone(status: DisposalRequestStatus): "neutral" | "positive" | "wa
 // office's field-task sheet can word them without loading this file.
 export { GPS_SITE_LOCATION, siteLocationText };
 
-export function SiteDisposalWorkspace({ initialProject = "", fieldTaskId, onRecordSaved }: { initialProject?: string; fieldTaskId?: string; onRecordSaved?: () => void } = {}) {
+/**
+ * The phone's 垃圾清运, and since JB248 its 「废料处理」 button too (客户 11-23b
+ * 事项 1 第二点: 「增设独立「废料处理」按钮。两者使用相同操作流程，提交后自动归入
+ * 后台对应业务分类」): the same screen and flow, listing and raising jobs of
+ * the one kind it was opened for.
+ */
+export function SiteDisposalWorkspace({ initialProject = "", fieldTaskId, onRecordSaved, clearanceKind = "GARBAGE" }: { initialProject?: string; fieldTaskId?: string; onRecordSaved?: () => void; clearanceKind?: DisposalClearanceKind } = {}) {
   const t = useTranslations("siteDisposal");
+  const kindT = useTranslations("jb248");
   const { can } = useAuth();
   // The word 「分类」 for an old record's category lives in `contractorOps`.
   const ops = useTranslations("contractorOps");
@@ -179,8 +188,8 @@ export function SiteDisposalWorkspace({ initialProject = "", fieldTaskId, onReco
   // Which step dialog is open, and for which request.
   const [step, setStep] = useState<{ step: DisposalStep; row: DisposalRequest } | null>(null);
   const rows = useQuery({
-    queryKey: ["site-disposals", project],
-    queryFn: () => getDisposalRequests({ page_size: 200, project: project || undefined }),
+    queryKey: ["site-disposals", project, clearanceKind],
+    queryFn: () => getDisposalRequests({ page_size: 200, project: project || undefined, clearance_kind: clearanceKind }),
   });
   const refresh = () => qc.invalidateQueries({ queryKey: ["site-disposals"] });
   // The approval / vehicle notice links to `?disposal=<id>` (C08): that job
@@ -195,7 +204,7 @@ export function SiteDisposalWorkspace({ initialProject = "", fieldTaskId, onReco
   return (
     <div className="flex flex-col gap-4">
       <ListHeader
-        title={t("title")}
+        title={kindT(`kind.${clearanceKind}`)}
         subtitle={t("subtitle")}
         action={can("disposal.submit") ? <Button onClick={() => setCreating(true)}><Plus />{t("action.new")}</Button> : undefined}
       />
@@ -274,7 +283,7 @@ export function SiteDisposalWorkspace({ initialProject = "", fieldTaskId, onReco
         </div>
       )}
 
-      {creating && <CreateDisposalDialog initialProject={project} fieldTaskId={fieldTaskId} onClose={() => setCreating(false)} onSaved={() => { void refresh(); setCreating(false); onRecordSaved?.(); }} />}
+      {creating && <CreateDisposalDialog initialProject={project} fieldTaskId={fieldTaskId} clearanceKind={clearanceKind} onClose={() => setCreating(false)} onSaved={() => { void refresh(); setCreating(false); onRecordSaved?.(); }} />}
       {shownRow && (
         <DisposalDetailDialog
           row={shownRow}
@@ -290,8 +299,13 @@ export function SiteDisposalWorkspace({ initialProject = "", fieldTaskId, onReco
   );
 }
 
-function CreateDisposalDialog({ initialProject = "", fieldTaskId, onClose, onSaved }: { initialProject?: string; fieldTaskId?: string; onClose: () => void; onSaved: () => void }) {
+function CreateDisposalDialog({ initialProject = "", fieldTaskId, clearanceKind, onClose, onSaved }: { initialProject?: string; fieldTaskId?: string; clearanceKind?: DisposalClearanceKind; onClose: () => void; onSaved: () => void }) {
   const t = useTranslations("siteDisposal");
+  const kindT = useTranslations("jb248");
+  // JB248: the tab or phone button it was opened from decides 垃圾清运 or
+  // 废料处理; on 全部 the office picks one (垃圾清运 unless changed).
+  const [chosenKind, setChosenKind] = useDraftState<DisposalClearanceKind>("clearanceKind", clearanceKind ?? "GARBAGE");
+  const kind = clearanceKind ?? chosenKind;
   const { user } = useAuth();
   const isFieldStaff = Boolean(user?.is_field_staff);
   // F-282. Saved even when this dialog is opened from the office console:
@@ -332,6 +346,7 @@ function CreateDisposalDialog({ initialProject = "", fieldTaskId, onClose, onSav
         preferred_at: !isFieldStaff && preferred ? new Date(preferred).toISOString() : undefined,
         request_note: note,
         planned_trips: plannedTrips,
+        clearance_kind: kind,
         captured_at: new Date().toISOString(),
         latitude: location!.latitude,
         longitude: location!.longitude,
@@ -351,6 +366,27 @@ function CreateDisposalDialog({ initialProject = "", fieldTaskId, onClose, onSav
       <DialogContent className="flex max-h-[calc(100dvh-1rem)] min-w-0 flex-col overflow-hidden sm:max-w-2xl">
         <DialogHeader className="shrink-0"><DialogTitle>{t("create.title")}</DialogTitle><DialogDescription>{t("create.description")}</DialogDescription></DialogHeader>
         <div className="grid min-h-0 min-w-0 flex-1 gap-4 overflow-y-auto overflow-x-hidden pr-1 sm:grid-cols-2">
+          <FieldWrapper label={kindT("field")} required className="sm:col-span-2">
+            {clearanceKind ? (
+              <p data-clearance-kind={kind} className="text-sm font-medium">{kindT(`kind.${kind}`)}</p>
+            ) : (
+              <div className="flex flex-wrap gap-2" role="radiogroup" aria-label={kindT("field")}>
+                {DISPOSAL_CLEARANCE_KINDS.map((option) => (
+                  <Button
+                    key={option}
+                    type="button"
+                    size="sm"
+                    role="radio"
+                    aria-checked={option === kind}
+                    variant={option === kind ? "default" : "outline"}
+                    onClick={() => setChosenKind(option)}
+                  >
+                    {kindT(`kind.${option}`)}
+                  </Button>
+                ))}
+              </div>
+            )}
+          </FieldWrapper>
           <FieldWrapper label={t("field.project")} required className="sm:col-span-2"><ProjectPicker value={project} onValueChange={setProject} placeholder={t("field.project")} /></FieldWrapper>
           <FieldWrapper label={t("field.waste")} required className="sm:col-span-2"><Input value={description} onChange={(e) => setDescription(e.target.value)} /></FieldWrapper>
           <FieldWrapper label={t("field.plannedTrips")} required><Input inputMode="numeric" type="number" min="1" max={MAX_PLANNED_TRIPS} value={plannedTrips} onChange={(e) => setPlannedTrips(e.target.value)} /></FieldWrapper>
@@ -1486,8 +1522,14 @@ export function DisposalInPlace({ id, onClose }: { id: string; onClose: () => vo
  * T-370); each request opens on the shared shell (T-369). The phone keeps
  * `SiteDisposalWorkspace`'s cards.
  */
-export function SiteDisposalOffice() {
+/**
+ * The office's list of clearance jobs. On 垃圾清运's 全部 tab both kinds, each
+ * row saying which it is; on 垃圾清运 or 废料处理 only that kind (JB248) -
+ * the same columns, steps, filters and files either way.
+ */
+export function SiteDisposalOffice({ clearanceKind }: { clearanceKind?: DisposalClearanceKind } = {}) {
   const t = useTranslations("siteDisposal");
+  const kindT = useTranslations("jb248");
   const tRoot = useTranslations();
   const df = useDateFormat();
   const { can } = useAuth();
@@ -1502,9 +1544,20 @@ export function SiteDisposalOffice() {
   // 材料管理's Reject is the receipts with `acceptance=REJECTED`.
   const list = useListQuery(["project", "status", "counted", "abnormal", ...DISPOSAL_SUPPLIER_FILTERS]);
   const abnormal = list.filters.abnormal === "1";
+  // JB248: the tab's kind goes to the server, so its count, its pages and
+  // its file are that kind's alone.
+  const query = useMemo(
+    () => (clearanceKind ? { ...list.query, clearance_kind: clearanceKind } : list.query),
+    [clearanceKind, list.query],
+  );
+  const listTitle = abnormal
+    ? t("anomaly.listTitle")
+    : clearanceKind
+      ? kindT(`kind.${clearanceKind}`)
+      : tRoot("nav.submodule.siteDisposals");
   const rows = useQuery({
-    queryKey: ["site-disposals", "office", list.query],
-    queryFn: () => getDisposalRequests(list.query),
+    queryKey: ["site-disposals", "office", query],
+    queryFn: () => getDisposalRequests(query),
   });
   const refresh = () => void qc.invalidateQueries({ queryKey: ["site-disposals"] });
   const [creating, setCreating] = useState(searchParams.get("create") === "1");
@@ -1547,6 +1600,19 @@ export function SiteDisposalOffice() {
         reference: (row) => row.reference_no,
         photos: (row) => rowPhotos(row.evidence, row.reference_no),
       }),
+      // 垃圾清运 or 废料处理 (JB248): on 全部 each row says which.
+      ...(clearanceKind
+        ? []
+        : [
+            {
+              id: "clearance_kind",
+              meta: { label: kindT("field") },
+              header: () => <PlainHeader label={kindT("field")} />,
+              cell: ({ row }: { row: { original: DisposalRequest } }) => (
+                <TypeBadge label={kindT(`kind.${row.original.clearance_kind ?? "GARBAGE"}`)} />
+              ),
+            } satisfies ColumnDef<DisposalRequest, unknown>,
+          ]),
       {
         accessorKey: "status",
         meta: { label: t("field.status") },
@@ -1628,7 +1694,7 @@ export function SiteDisposalOffice() {
         cell: ({ row }) => <p className="max-w-45 truncate">{row.original.project_name}</p>,
       },
     ],
-    [t, tRoot, df],
+    [t, tRoot, df, kindT, clearanceKind],
   );
 
   return (
@@ -1643,7 +1709,7 @@ export function SiteDisposalOffice() {
       )}
       <ModuleRecordsTable
         corrected={{ kind: "DISPOSAL_REQUEST" }}
-        title={abnormal ? t("anomaly.listTitle") : tRoot("nav.submodule.siteDisposals")}
+        title={listTitle}
         countLabel={tRoot("moduleTable.count", { count: total })}
         headerAction={
           can("disposal.submit") ? (
@@ -1690,14 +1756,20 @@ export function SiteDisposalOffice() {
                 onExport={(format) =>
                   exportDisposalRequests({
                     format,
-                    title: abnormal ? t("anomaly.listTitle") : tRoot("nav.submodule.siteDisposals"),
+                    title: listTitle,
                     subtitle: tRoot("moduleTable.count", { count: total }),
                     emptyLabel: abnormal ? t("anomaly.empty") : t("empty"),
-                    query: list.query,
+                    query,
                     // 「异常记录」: the view's columns, one row per report (the
                     // server splits them), and its DO as every export (C12).
                     columns: abnormal ? [...abnormalExportColumns(t, tRoot), { key: "disposal_do_no", label: t("field.doNo") }] : [
                       { key: "reference_no", label: tRoot("moduleTable.reference") },
+                      // JB248: which of the two each job is.
+                      {
+                        key: "clearance_kind",
+                        label: kindT("field"),
+                        values: Object.fromEntries(DISPOSAL_CLEARANCE_KINDS.map((option) => [option, kindT(`kind.${option}`)])),
+                      },
                       { key: "project_name", label: t("field.project") },
                       {
                         key: "status",
@@ -1747,6 +1819,7 @@ export function SiteDisposalOffice() {
       {creating && (
         <CreateDisposalDialog
           initialProject={list.filters.project ?? ""}
+          clearanceKind={clearanceKind}
           onClose={() => setCreating(false)}
           onSaved={() => {
             refresh();

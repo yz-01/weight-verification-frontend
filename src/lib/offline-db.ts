@@ -1,4 +1,5 @@
 import type { RefusalReason } from "@/lib/queue-refusal";
+import type { DisposalClearanceKind } from "@/interfaces/contractor-ops";
 
 export type OfflineJobKind =
   | "ATTENDANCE"
@@ -412,6 +413,8 @@ export interface DisposalRequestOfflineJob extends OfflineJobBase {
     request_note?: string;
     /** 「预计车次」 (X11); absent on a job queued before it existed. */
     planned_trips?: string;
+    /** 垃圾清运 or 废料处理 (JB248); absent on a job queued before - 垃圾清运. */
+    clearance_kind?: DisposalClearanceKind;
     captured_at: string;
     /** Absent: offline with no GPS fix (Lucas 2026-10-23); both or neither. */
     latitude?: string;

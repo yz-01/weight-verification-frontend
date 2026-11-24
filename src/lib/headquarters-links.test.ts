@@ -30,7 +30,7 @@ describe("公司总部 Dashboard links", () => {
       open_tasks: "/field-tasks?open=1",
       overdue_tasks: "/field-tasks?overdue=1",
       on_site_now: "/attendance",
-      waste_dispatches: "/waste-clearance?kind=dispatch&counted=1",
+      waste_dispatches: "/dispatches?counted=1",
       site_disposals: "/waste-clearance?kind=disposal&counted=1",
     };
     for (const [card, href] of Object.entries(all)) {
@@ -49,7 +49,7 @@ describe("公司总部 Dashboard links", () => {
       open_tasks: "/field-tasks?open=1&project=p1",
       overdue_tasks: "/field-tasks?overdue=1&project=p1",
       on_site_now: "/attendance?project=p1",
-      waste_dispatches: "/waste-clearance?kind=dispatch&counted=1&project=p1",
+      waste_dispatches: "/dispatches?counted=1&project=p1",
       site_disposals: "/waste-clearance?kind=disposal&counted=1&project=p1",
     };
     for (const [card, href] of Object.entries(one)) {

@@ -284,18 +284,19 @@ describe("filtering by company and by date (I27-3, I27-5)", () => {
   });
 
   it("reads the header's 数量 / 车次 / 重量 with the same company and dates", () => {
-    const params = new URLSearchParams("kind=disposal&supplier=s1&date_from=2026-10-01&date_to=2026-10-15&state=SETTLED");
-    expect(clearanceFigureFilters("disposal", params)).toEqual({
-      disposal: { supplier: "s1", date_from: "2026-10-01", date_to: "2026-10-15" },
-      dispatch: {},
+    const params = new URLSearchParams("kind=garbage&supplier=s1&date_from=2026-10-01&date_to=2026-10-15&state=SETTLED");
+    // JB248: each kind's line with the same company and dates, on its own kind.
+    expect(clearanceFigureFilters(params)).toEqual({
+      GARBAGE: { supplier: "s1", date_from: "2026-10-01", date_to: "2026-10-15", clearance_kind: "GARBAGE" },
+      SCRAP: { supplier: "s1", date_from: "2026-10-01", date_to: "2026-10-15", clearance_kind: "SCRAP" },
     });
-    // 全部 has no filters.
-    expect(clearanceFigureFilters("all", params)).toEqual({ disposal: {}, dispatch: {} });
   });
 
   it("exports with the list's query, with the company and the lorries", () => {
     const exported = source.slice(source.indexOf("exportDisposalRequests({"), source.indexOf("rowClassName={(row) => (row.is_abnormal"));
-    expect(exported).toMatch(/query: list\.query/);
+    // The list's query, with the tab's kind on it (JB248).
+    expect(exported).toMatch(/\n\s*query,\n/);
+    expect(source).toMatch(/clearanceKind \? \{ \.\.\.list\.query, clearance_kind: clearanceKind \} : list\.query/);
     expect(exported).toMatch(/key: "supplier_label", label: t\("field\.supplier"\)/);
     expect(exported).toMatch(/key: "vehicle_plates_text", label: t\("field\.vehiclePlates"\)/);
     expect(exported).toMatch(/key: "created_at", label: t\("field\.createdAt"\)/);

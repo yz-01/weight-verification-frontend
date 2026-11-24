@@ -10351,7 +10351,8 @@
       "operatorHours": "Jam operator peralatan",
       "permit": "Permit kerja",
       "visitor": "Imbas QR Pelawat",
-      "rain": "Rainy Weather"
+      "rain": "Rainy Weather",
+      "scrap": "Pelupusan bahan buangan"
     },
     "status": {
       "ACCEPTED": "Selesai",
@@ -12949,7 +12950,7 @@
     "settings": "Tetapan",
     "settlements": "Penyelesaian",
     "site_access": "Akses tapak",
-    "site_disposals": "Pelupusan tapak",
+    "site_disposals": "Pembersihan sisa",
     "site_gps": "GPS kakitangan tapak",
     "sites": "Tapak",
     "submodule": {
@@ -13151,7 +13152,7 @@
       "settingsActivity": "Rekod tetapan",
       "settingsAudit": "Rekod tetapan",
       "siteAccessPasses": "Pas akses",
-      "siteDisposals": "Pelupusan tapak",
+      "siteDisposals": "Pembersihan sisa",
       "siteEquipment": "Pergerakan peralatan",
       "siteGps": "GPS kakitangan tapak",
       "subscriptionActivity": "Rekod operasi",
@@ -17743,7 +17744,7 @@
       "SUPPLIER_SET": "Pejabat menamakan / menukar syarikat pembersihan",
       "ANOMALY_REPORTED": "Pengecualian dilaporkan"
     },
-    "title": "Pelupusan tapak",
+    "title": "Pembersihan sisa",
     "toast": {
       "assigned": "Kontraktor luar ditugaskan",
       "assignedInternal": "Dihantar kepada kakitangan tapak",
@@ -23418,5 +23419,31 @@
     "noProjects": "Anda belum diberi akses kepada mana-mana projek. Sila minta ibu pejabat kontraktor membukanya untuk anda.",
     "chooseProject": "Pilih projek dahulu dalam kotak projek di bahagian atas halaman; papan pemuka projek itu akan dipaparkan di sini.",
     "onlyOpened": "Ibu pejabat hanya membuka bahagian ini untuk anda. Untuk melihat yang lain, sila hubungi ibu pejabat kontraktor."
+  },
+  "jb248": {
+    "field": "Jenis",
+    "kind": {
+      "GARBAGE": "Pembersihan sisa",
+      "SCRAP": "Pelupusan bahan buangan"
+    },
+    "count": {
+      "GARBAGE": "Pembersihan sisa: {count}",
+      "SCRAP": "Pelupusan bahan buangan: {count}"
+    },
+    "tab": {
+      "all": "Semua",
+      "garbage": "Pembersihan sisa",
+      "scrap": "Pelupusan bahan buangan",
+      "abnormal": "Rekod pengecualian"
+    },
+    "totals": {
+      "GARBAGE": "Pembersihan sisa: {records} tugas · {trips} trip · {weight} kg",
+      "SCRAP": "Pelupusan bahan buangan: {records} tugas · {trips} trip · {weight} kg",
+      "apart": "Dikira berasingan; tidak dijumlahkan."
+    }
+  },
+  "jb249": {
+    "button": "Statistik ESG",
+    "soon": "Akan datang"
   }
 }

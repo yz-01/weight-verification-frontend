@@ -65,7 +65,8 @@ export function cardHref(
       // 人员进场: its 当前现场总人数 is this figure (C21).
       return withQuery("/attendance", { project });
     case "waste_dispatches":
-      return withQuery("/waste-clearance", { kind: "dispatch", counted: "1", project });
+      // 废料订单 in 环保材料管理 (JB248).
+      return withQuery("/dispatches", { counted: "1", project });
     case "site_disposals":
       return withQuery("/waste-clearance", { kind: "disposal", counted: "1", project });
   }

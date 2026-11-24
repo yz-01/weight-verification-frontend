@@ -37,6 +37,7 @@ import {
   HardHat,
   ListTree,
   Smartphone,
+  Trash2,
 } from "lucide-react";
 
 import type { Portal } from "@/interfaces/auth";
@@ -1007,6 +1008,17 @@ export const PORTAL_NAVIGATION = {
       ),
       consultantChildren: CONSULTANT_PROGRESS_ITEMS,
     },
+    // 垃圾清运 (JB248, 客户 11-23b 事项 1): 「「垃圾清运」与「废料处理」名称为归属
+    // 同一个业务菜单」, a business menu of its own beside 环保材料管理 -
+    // 全部｜垃圾清运｜废料处理 on one page. The old `/site-disposals` address
+    // forwards here.
+    item(
+      "site_disposals",
+      "/waste-clearance",
+      Trash2,
+      "operations",
+      ["/site-disposals"],
+    ),
     item(
       "recyclers",
       "/modules/recycling",
@@ -1029,34 +1041,16 @@ export const PORTAL_NAVIGATION = {
           "/waste-outgoing",
           "waste_outgoing",
         ),
-        // 垃圾清运 (B08, 29.09 meeting): 废料订单 and 工地清运 were two entries
-        // for what the customer sees as one job, so they are one entry now.
-        // Only the entry: both kinds keep their own records, numbers, flows
-        // and figures, and the page lists each row as the kind it is.
-        {
-          ...child("8.2.3", "nav.submodule.wasteClearance", "/waste-clearance"),
-          anyFeatures: ["waste_dispatches", "site_disposals"],
-        },
-        // The two old list addresses, out of the menu: they forward to their
-        // tab in 垃圾清运, and `/dispatches/<id>` still opens an order.
-        {
-          ...child(
-            "8.2.3a",
-            "nav.submodule.wasteDispatches",
-            "/dispatches",
-            "waste_dispatches",
-          ),
-          menuHidden: true,
-        },
-        {
-          ...child(
-            "8.2.4",
-            "nav.submodule.siteDisposals",
-            "/site-disposals",
-            "site_disposals",
-          ),
-          menuHidden: true,
-        },
+        // 废料订单 back in 环保材料管理 (JB248, 客户 11-23b 事项 1 第三点:
+        // 「现有「废料订单」及相关异常记录归回环保材料管理…与工地清运及废料处理
+        // 业务分开管理和统计」). 垃圾清运 is its own menu above; B08 had put
+        // the two together in one entry here.
+        child(
+          "8.2.3",
+          "nav.submodule.wasteDispatches",
+          "/dispatches",
+          "waste_dispatches",
+        ),
         child(
           "8.2.5",
           "nav.submodule.paymentProofs",

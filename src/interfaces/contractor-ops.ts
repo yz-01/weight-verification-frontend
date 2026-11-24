@@ -1329,7 +1329,17 @@ export interface DisposalTimelineEntry {
   happened_at: string;
 }
 
+/**
+ * 垃圾清运's two businesses (JB248, 客户 11-23b 事项 1): one flow, one record,
+ * counted apart. Every job from before is 垃圾清运.
+ */
+export type DisposalClearanceKind = "GARBAGE" | "SCRAP";
+
+export const DISPOSAL_CLEARANCE_KINDS: readonly DisposalClearanceKind[] = ["GARBAGE", "SCRAP"];
+
 export interface DisposalRequest extends RecordedBy {
+  /** 垃圾清运 or 废料处理 (JB248); absent from an old cached row - 垃圾清运. */
+  clearance_kind?: DisposalClearanceKind;
   /** The number before I6 renumbered it (「旧编号」); empty on a newer record. */
   legacy_no?: string;
   /** A request to accept or a lorry back to check, for this reader (2026-10-09). */
