@@ -4035,7 +4035,8 @@
       "platform_access_closed": "Closed access for MSE",
       "project_grant_updated": "Changed project access",
       "jb225_sub_modules": "Materials / progress items ticked separately (system upgrade)",
-      "jb225_default_sub_modules": "Consultant default items ticked separately (system upgrade)"
+      "jb225_default_sub_modules": "Consultant default items ticked separately (system upgrade)",
+      "company_modules_by_platform": "MSE switched a company's business modules on or off"
     },
     "objectType": {
       "SignOffAssistant": "Assistant PIN",
@@ -9661,7 +9662,8 @@
       "permit_work_name_required": "Write the work name first, then sign and approve.",
       "permit_formal_permit_required": "There is no formal permit yet. Upload the company's filled permit form with \"Attach files\", or fill in the e-permit, then sign and approve.",
       "hazard_room_not_for_consultant": "This is the contractor's internal conversation; a consultant cannot post here. To talk to the project office, use 'Message someone'.",
-      "report_export_made_before_update": "This file was made before the system update. Please export it again."
+      "report_export_made_before_update": "This file was made before the system update. Please export it again.",
+      "company_module_invalid": "Tick only business modules this company has."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -23445,5 +23447,16 @@
   "jb249": {
     "button": "ESG statistics",
     "soon": "Coming soon"
+  },
+  "jb250": {
+    "title": "Business modules",
+    "help": "Ticked modules are available to this company. Untick one and it disappears from this company's back office and phones, and opening it by link or API is refused. Records are kept; tick it again to bring it back.",
+    "alwaysOn": "Dashboard, notifications, users, roles, company settings and logs are always on for every company and are not listed here.",
+    "count": "{on} of {total} modules on",
+    "notInPlan": "(not in the package)",
+    "save": "Save modules",
+    "noChange": "Nothing has changed yet.",
+    "saved": "Business modules saved.",
+    "saveFailed": "Could not save. Please try again."
   }
 }

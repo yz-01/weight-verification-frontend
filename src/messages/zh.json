@@ -4035,7 +4035,8 @@
       "platform_access_closed": "关闭 MSE 查看权限",
       "project_grant_updated": "修改项目权限",
       "jb225_sub_modules": "材料管理 / 工程进度分项勾选（系统升级）",
-      "jb225_default_sub_modules": "顾问默认权限分项勾选（系统升级）"
+      "jb225_default_sub_modules": "顾问默认权限分项勾选（系统升级）",
+      "company_modules_by_platform": "MSE 开启或关闭公司的业务模块"
     },
     "objectType": {
       "SignOffAssistant": "助理副密码",
@@ -9661,7 +9662,8 @@
       "permit_work_name_required": "请先填写施工事项名称，再签名批准。",
       "permit_formal_permit_required": "还没有正式施工准证。请用「上传附件」上传填好的公司准证表格，或填写电子准证，再签名批准。",
       "hazard_room_not_for_consultant": "这是建筑商内部的沟通，顾问不能在这里发言。要和项目后台沟通，请用「找人沟通」。",
-      "report_export_made_before_update": "这份文件是系统更新前生成的，请重新导出。"
+      "report_export_made_before_update": "这份文件是系统更新前生成的，请重新导出。",
+      "company_module_invalid": "请只勾选这家公司有的业务模块。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -23445,5 +23447,16 @@
   "jb249": {
     "button": "ESG 统计",
     "soon": "即将推出"
+  },
+  "jb250": {
+    "title": "业务模块",
+    "help": "勾选的模块这家公司可以用。取消勾选后，这家公司的后台和手机都看不到这个模块，直接打开链接或 API 也会被拒绝。资料保留，重新勾选就恢复。",
+    "alwaysOn": "仪表板、通知中心、用户、角色权限、公司设置和日志每家公司都一直开着，不在这里列出。",
+    "count": "已开 {on} / {total} 个模块",
+    "notInPlan": "（套餐不包含）",
+    "save": "保存模块",
+    "noChange": "还没有改动。",
+    "saved": "业务模块已保存。",
+    "saveFailed": "保存失败，请再试一次。"
   }
 }

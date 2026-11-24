@@ -4035,7 +4035,8 @@
       "platform_access_closed": "關閉 MSE 查看權限",
       "project_grant_updated": "修改項目權限",
       "jb225_sub_modules": "材料管理 / 工程進度分項勾選（系統升級）",
-      "jb225_default_sub_modules": "顧問默認權限分項勾選（系統升級）"
+      "jb225_default_sub_modules": "顧問默認權限分項勾選（系統升級）",
+      "company_modules_by_platform": "MSE 開啟或關閉公司的業務模組"
     },
     "objectType": {
       "SignOffAssistant": "助理副密碼",
@@ -9661,7 +9662,8 @@
       "permit_work_name_required": "請先填寫施工事項名稱，再簽名批准。",
       "permit_formal_permit_required": "還沒有正式施工准證。請用「上傳附件」上傳填好的公司准證表格，或填寫電子准證，再簽名批准。",
       "hazard_room_not_for_consultant": "這是建築商內部的溝通，顧問不能在這裡發言。要和項目後台溝通，請用「找人溝通」。",
-      "report_export_made_before_update": "這份文件是系統更新前生成的，請重新導出。"
+      "report_export_made_before_update": "這份文件是系統更新前生成的，請重新導出。",
+      "company_module_invalid": "請只勾選這家公司有的業務模組。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -23445,5 +23447,16 @@
   "jb249": {
     "button": "ESG 統計",
     "soon": "即將推出"
+  },
+  "jb250": {
+    "title": "業務模組",
+    "help": "勾選的模組這家公司可以用。取消勾選後，這家公司的後台和手機都看不到這個模組，直接打開連結或 API 也會被拒絕。資料保留，重新勾選就恢復。",
+    "alwaysOn": "儀表板、通知中心、用戶、角色權限、公司設定和日誌每家公司都一直開著，不在這裡列出。",
+    "count": "已開 {on} / {total} 個模組",
+    "notInPlan": "（套餐不包含）",
+    "save": "儲存模組",
+    "noChange": "還沒有改動。",
+    "saved": "業務模組已儲存。",
+    "saveFailed": "儲存失敗，請再試一次。"
   }
 }
