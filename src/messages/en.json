@@ -7756,7 +7756,14 @@
       "item_count": "Items",
       "submit_to": "Sent to",
       "applicant": "Applicant",
-      "origin": "Photo source"
+      "origin": "Photo source",
+      "package_no": "Package no.",
+      "package_name": "Package name",
+      "review": "Review",
+      "claim_amount": "Claim amount (RM)",
+      "approved_amount": "Approved amount (RM)",
+      "packed_by": "Packed by",
+      "package_created_at": "Created"
     },
     "description": {
       "attendance": "Review site entry evidence, GPS accuracy and geofence result.",
@@ -7772,7 +7779,7 @@
       "material_returns": "Material sent back to its supplier: RN, supplier, material, specification, quantity returned and the delivery it came from; subtotals per material and specification at the foot.",
       "material_rejections": "Deliveries judged non-conforming or turned away: quantity, reason and who decided; subtotals per material and specification at the foot.",
       "sundry_claims": "Sundry claims: what was claimed, who approved it, and the amounts.",
-      "claims": "Each project's progress claims and their approvals.",
+      "claims": "Each project's Progress Claim packages in Multi Engine and their review.",
       "material_outgoing": "Material leaving site and returns (RN).",
       "field_tasks": "Site tasks assigned and completed, with their photos.",
       "daily_report": "Daily reports by date: each report's full text, the records it holds and their photos. In the PDF each report starts on a new page, its photos watermarked.",
@@ -7803,7 +7810,7 @@
         "material_outgoing": "Search number, material, spec, DO, plate, Return Note, supplier",
         "material_returns": "Search RN, delivery, material, spec, supplier, reason",
         "material_rejections": "Search delivery number, material, spec, supplier, reason, DO, plate",
-        "claims": "Search claim no., remarks, description, category, subcontractor",
+        "claims": "Search package no., name, claim no., remarks, category, subcontractor",
         "sundry_claims": "Search number, description, applicant"
       },
       "noMatch": "Nothing matches",

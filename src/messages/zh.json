@@ -7756,7 +7756,14 @@
       "item_count": "条数",
       "submit_to": "提交给",
       "applicant": "申请人",
-      "origin": "照片来源"
+      "origin": "照片来源",
+      "package_no": "资料包编号",
+      "package_name": "资料包名称",
+      "review": "审阅",
+      "claim_amount": "申请金额 (RM)",
+      "approved_amount": "批准金额 (RM)",
+      "packed_by": "打包人",
+      "package_created_at": "创建时间"
     },
     "description": {
       "attendance": "查看人员进场证据、GPS 精度与围栏结果。",
@@ -7772,7 +7779,7 @@
       "material_returns": "退回供应商的材料：RN 编号、供应商、材料、规格、退货数量和关联的进场单；最下面按材料 + 规格小计。",
       "material_rejections": "验收不合格 / 被拒收的进场单：数量、原因和验收人；最下面按材料 + 规格小计。",
       "sundry_claims": "杂费报销的申请、审批和金额。",
-      "claims": "每个项目的 Progress Claim 和审批情况。",
+      "claims": "Multi Engine 里每个项目的 Progress Claim 资料包和审阅情况。",
       "material_outgoing": "材料出场和退货（RN）记录。",
       "field_tasks": "现场任务的派发、完成和照片。",
       "daily_report": "按日期看日报告：每篇的全文、收进的记录和照片。导出 PDF 时每篇从新的一页开始，照片带水印。",
@@ -7803,7 +7810,7 @@
         "material_outgoing": "搜索编号、材料、规格、DO、车牌、Return Note、供应商",
         "material_returns": "搜索 RN 编号、进场单、材料、规格、供应商、原因",
         "material_rejections": "搜索进场单编号、材料、规格、供应商、原因、DO、车牌",
-        "claims": "搜索 Claim 编号、备注、说明、分类、分包商",
+        "claims": "搜索资料包编号、名称、Claim 编号、备注、分类、分包商",
         "sundry_claims": "搜索编号、说明、申请人"
       },
       "noMatch": "没有符合的选项",

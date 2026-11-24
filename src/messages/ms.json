@@ -7756,7 +7756,14 @@
       "item_count": "Item",
       "submit_to": "Dihantar kepada",
       "applicant": "Pemohon",
-      "origin": "Sumber foto"
+      "origin": "Sumber foto",
+      "package_no": "No. pakej",
+      "package_name": "Nama pakej",
+      "review": "Semakan",
+      "claim_amount": "Amaun tuntutan (RM)",
+      "approved_amount": "Amaun diluluskan (RM)",
+      "packed_by": "Dibungkus oleh",
+      "package_created_at": "Dicipta"
     },
     "description": {
       "attendance": "Semak bukti kemasukan tapak, ketepatan GPS dan geofence.",
@@ -7772,7 +7779,7 @@
       "material_returns": "Bahan yang dipulangkan kepada pembekal: RN, pembekal, bahan, spesifikasi, kuantiti dipulangkan dan penerimaan asal; subjumlah mengikut bahan dan spesifikasi di bawah.",
       "material_rejections": "Penerimaan yang tidak menepati atau ditolak: kuantiti, sebab dan siapa memutuskan; subjumlah mengikut bahan dan spesifikasi di bawah.",
       "sundry_claims": "Tuntutan pelbagai: apa yang dituntut, siapa meluluskan dan jumlahnya.",
-      "claims": "Tuntutan kemajuan setiap projek dan kelulusannya.",
+      "claims": "Pakej Progress Claim setiap projek dalam Multi Engine dan semakannya.",
       "material_outgoing": "Bahan keluar tapak dan pemulangan (RN).",
       "field_tasks": "Tugasan tapak yang diberi dan disiapkan, dengan fotonya.",
       "daily_report": "Laporan harian mengikut tarikh: teks penuh setiap laporan, rekod dan fotonya. Dalam PDF setiap laporan bermula di halaman baharu, fotonya bertera air.",
@@ -7803,7 +7810,7 @@
         "material_outgoing": "Cari nombor, bahan, spesifikasi, DO, plat, Return Note, pembekal",
         "material_returns": "Cari RN, penerimaan, bahan, spesifikasi, pembekal, sebab",
         "material_rejections": "Cari no. penerimaan, bahan, spesifikasi, pembekal, sebab, DO, plat",
-        "claims": "Cari no. tuntutan, catatan, keterangan, kategori, subkontraktor",
+        "claims": "Cari no. pakej, nama, no. tuntutan, catatan, kategori, subkontraktor",
         "sundry_claims": "Cari nombor, keterangan, pemohon"
       },
       "noMatch": "Tiada pilihan yang sepadan",

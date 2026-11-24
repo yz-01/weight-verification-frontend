@@ -7756,7 +7756,14 @@
       "item_count": "條數",
       "submit_to": "提交給",
       "applicant": "申請人",
-      "origin": "照片來源"
+      "origin": "照片來源",
+      "package_no": "資料包編號",
+      "package_name": "資料包名稱",
+      "review": "審閱",
+      "claim_amount": "申請金額 (RM)",
+      "approved_amount": "批准金額 (RM)",
+      "packed_by": "打包人",
+      "package_created_at": "建立時間"
     },
     "description": {
       "attendance": "查看人員進場證據、GPS 精度與圍欄結果。",
@@ -7772,7 +7779,7 @@
       "material_returns": "退回供應商的材料：RN 編號、供應商、材料、規格、退貨數量和關聯的進場單；最下面按材料 + 規格小計。",
       "material_rejections": "驗收不合格 / 被拒收的進場單：數量、原因和驗收人；最下面按材料 + 規格小計。",
       "sundry_claims": "雜費報銷的申請、審批和金額。",
-      "claims": "每個項目的 Progress Claim 和審批情況。",
+      "claims": "Multi Engine 裡每個項目的 Progress Claim 資料包和審閱情況。",
       "material_outgoing": "材料出場和退貨（RN）記錄。",
       "field_tasks": "現場任務的派發、完成和照片。",
       "daily_report": "按日期看日報告：每篇的全文、收進的記錄和照片。匯出 PDF 時每篇從新的一頁開始，照片帶浮水印。",
@@ -7803,7 +7810,7 @@
         "material_outgoing": "搜尋編號、材料、規格、DO、車牌、Return Note、供應商",
         "material_returns": "搜尋 RN 編號、進場單、材料、規格、供應商、原因",
         "material_rejections": "搜尋進場單編號、材料、規格、供應商、原因、DO、車牌",
-        "claims": "搜尋 Claim 編號、備註、說明、分類、分包商",
+        "claims": "搜尋資料包編號、名稱、Claim 編號、備註、分類、分包商",
         "sundry_claims": "搜尋編號、說明、申請人"
       },
       "noMatch": "沒有符合的選項",

@@ -56,6 +56,10 @@ export function reportRowTarget(
       return { href: `/site-equipment?movement=${id}` };
     case "DOCUMENT":
       return { href: `/documents?document=${id}` };
+    // 进度 Claim 报表 (JB258): a row is a Multi Engine Progress Claim package,
+    // opened in Multi Engine.
+    case "EVIDENCE_PACKAGE":
+      return { href: `/evidence-packages?package=${id}` };
     // 项目进度摘要 opens on the progress page's own tab, at that summary (I8).
     case "PROGRESS_SUMMARY":
       return {
@@ -134,7 +138,8 @@ const STATUS_NAMESPACE: Partial<Record<ContractorReportType, string>> = {
   // I11 (ID27): the four new reports, worded as their own pages word them.
   field_tasks: "contractorOps.taskStatus",
   material_outgoing: "contractorOps.outgoingStatus",
-  claims: "claims.state",
+  // JB258: a Progress Claim package's 状态, as Multi Engine's list words it.
+  claims: "multiEngine.state",
   sundry_claims: "sundryClaim.status",
 };
 
@@ -212,6 +217,57 @@ export function reportValueKey(
 const SCHEDULE_STATUSES = ["NOT_STARTED", "IN_PROGRESS", "DELAYED", "COMPLETED", "COMPLETED_LATE"];
 
 /**
+ * 进度 Claim 报表's 审阅 (JB258), as Multi Engine's list words it
+ * (`SendStatusWords`): the server's `claim_report.review_code` joins the
+ * sends with `+` and puts the consultant's answer after `~` -
+ * `INTERNAL+SENT~REVIEWED` reads 「已发送系统内 · 已对外发送 · 已审阅」.
+ * When the list's 审阅 changes (JB252), change both together.
+ */
+export function claimReviewKeys(code: string): string[] {
+  const [sends, review] = code.split("~");
+  const keys = sends
+    .split("+")
+    .filter(Boolean)
+    .map((part) => `multiEngine.sendStatus.${part}`);
+  if (review) keys.push(`multiEngine.review.${review}`);
+  return keys;
+}
+
+/** Every 审阅 code the server can send, for the exported file's words. */
+export const CLAIM_REVIEW_CODES: readonly string[] = (() => {
+  const sends = ["NOT_SENT", "INTERNAL", "STARTED", "SENT", "INTERNAL+STARTED", "INTERNAL+SENT"];
+  const answers = ["", "SENT", "REVIEWED"];
+  return sends.flatMap((send) => answers.map((answer) => (answer ? `${send}~${answer}` : send)));
+})();
+
+/**
+ * The message keys that word one cell, in order (most cells: one), or `null`
+ * for a cell that is already the reader's text.
+ */
+export function reportValueKeys(
+  reportType: ContractorReportType,
+  column: string,
+  value: string | number | boolean | null,
+  row: ReportRow,
+): string[] | null {
+  if (reportType === "claims" && column === "review" && typeof value === "string" && value) {
+    return claimReviewKeys(value);
+  }
+  const key = reportValueKey(reportType, column, value, row);
+  return key ? [key] : null;
+}
+
+/** A cell's words from its keys, or `null` when one of them has no words. */
+export function reportValueWords(
+  keys: readonly string[] | null,
+  word: (key: string) => string | null,
+): string | null {
+  if (!keys?.length) return null;
+  const words = keys.map(word);
+  return words.every((text): text is string => Boolean(text)) ? words.join(" · ") : null;
+}
+
+/**
  * Every code a column of `reportType` can hold, each with a row that says
  * which namespace words it (a recycling status depends on its row's type).
  */
@@ -227,6 +283,7 @@ function columnCodes(
     return [];
   }
   if (column === "record_type") return plain(Object.keys(RECORD_TYPE_KEYS));
+  if (reportType === "claims" && column === "review") return plain(CLAIM_REVIEW_CODES);
   if (column === "status") {
     if (reportType === "recycling") {
       return [
@@ -270,8 +327,7 @@ export function reportColumnValues(
     if (no) values.false = no;
     if (column === "unit") Object.assign(values, units);
     for (const [code, row] of columnCodes(reportType, column, codes)) {
-      const key = reportValueKey(reportType, column, code, row);
-      const text = key ? word(key) : null;
+      const text = reportValueWords(reportValueKeys(reportType, column, code, row), word);
       if (text) values[code] = text;
     }
     result[column] = values;
