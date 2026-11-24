@@ -7,7 +7,7 @@
  * - The office cannot approve until the Return Note is filled: the button is
  *   off and says why (the server refuses it too).
  * - The note reads back as one block with the approver's signature.
- * - The statuses read 已批准 / 等待退场 and 待后台确认 in all four languages.
+ * - The statuses read 准备出门条 (JB237; was 已批准 / 等待退场) and 待后台确认 in all four languages.
  *
  * Rendered to static markup like the other screen tests - the runner has no
  * DOM - with the draft seeded the way choosing the material leaves it.
@@ -262,10 +262,11 @@ describe("the note as filled", () => {
 
 describe("the status words (C9)", () => {
   it.each([
-    ["zh", zh, "已批准 / 等待退场", "待后台确认"],
-    ["zh-TW", zhTW, "已批准 / 等待退場", "待後台確認"],
-    ["en", en, "Approved / waiting to leave site", "Waiting for office confirmation"],
-    ["ms", ms, "Diluluskan / menunggu keluar tapak", "Menunggu pengesahan pejabat"],
+    // JB237 (客户 11-23 事项 9): 批准后状态显示「准备出门条」.
+    ["zh", zh, "准备出门条", "待后台确认"],
+    ["zh-TW", zhTW, "準備出門條", "待後台確認"],
+    ["en", en, "Preparing exit pass", "Waiting for office confirmation"],
+    ["ms", ms, "Menyediakan pas keluar", "Menunggu pengesahan pejabat"],
   ])("%s", (_, catalogue, approved, processed) => {
     expect(catalogue.contractorOps.outgoingStatus.APPROVED).toBe(approved);
     expect(catalogue.contractorOps.outgoingStatus.PROCESSED).toBe(processed);
