@@ -107,6 +107,15 @@ describe("启动出门条 (JB237)", () => {
     expect(html).not.toContain("data-exit-pass-start-button");
   });
 
+  it("a record archived or returned while preparing waits for nothing: no 「准备出门条」, no button", () => {
+    const html = approval(
+      exitPass({ state: "awaiting_photos", record_closed: "archived", start: start({ may_start: true }) }),
+    );
+    expect(html).not.toContain("准备出门条");
+    expect(html).not.toContain("data-exit-pass-start-button");
+    expect(html).toContain("未批准");
+  });
+
   it("the start button sits above the signature in the client's order (photos → start → sign)", () => {
     const source = readFileSync(path.join(__dirname, "exit-pass-panel.tsx"), "utf8");
     expect(source).toContain("startExitPass(pass.kind, pass.record)");

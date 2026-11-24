@@ -312,9 +312,9 @@ function ApprovalPart({ pass, readOnly }: { pass: ExitPass; readOnly: boolean })
   const badge =
     pass.state === "legacy" || pass.state === "not_ready" ? null : signed ? (
       <StatusBadge label={t("approval.approved")} tone="positive" />
-    ) : pass.state === "awaiting_photos" ? (
+    ) : pass.state === "awaiting_photos" && !pass.record_closed ? (
       <StatusBadge label={t("start.preparing")} tone="warning" />
-    ) : pass.state === "awaiting_start" ? (
+    ) : pass.state === "awaiting_start" && !pass.record_closed ? (
       <StatusBadge label={t("start.waitingStart")} tone="warning" />
     ) : (
       <StatusBadge label={t("approval.notApproved")} tone="warning" />
