@@ -23488,7 +23488,8 @@
       "submit": "签名提交审核结果",
       "chooseOne": "至少选一条",
       "nothingLeft": "这一轮的资料你都审核了。",
-      "waiting": "待审核 {count} 条"
+      "waiting": "待审核 {count} 条",
+      "records": "要审核的资料"
     },
     "money": {
       "title": "金额",

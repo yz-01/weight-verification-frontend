@@ -17,7 +17,10 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 
 import { TooltipProvider } from "@/components/ui/tooltip";
-import type { EvidencePackageDetail, PackageSignature } from "@/interfaces/contractor-ops";
+import type {
+  EvidencePackageDetail,
+  PackageSignature,
+} from "@/interfaces/contractor-ops";
 import en from "@/messages/en.json";
 import ms from "@/messages/ms.json";
 import zhTW from "@/messages/zh-TW.json";
@@ -30,17 +33,25 @@ vi.mock("@/components/providers/auth-provider", () => ({
 const loop = await import("@/components/contractor-ops/package-review-loop");
 
 function render(node: React.ReactNode, messages: Record<string, unknown> = zh) {
-  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  const client = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
   return renderToStaticMarkup(
     <QueryClientProvider client={client}>
-      <NextIntlClientProvider locale="zh" messages={messages} timeZone="Asia/Kuala_Lumpur">
+      <NextIntlClientProvider
+        locale="zh"
+        messages={messages}
+        timeZone="Asia/Kuala_Lumpur"
+      >
         <TooltipProvider>{node}</TooltipProvider>
       </NextIntlClientProvider>
     </QueryClientProvider>,
   );
 }
 
-const pkg = (over: Partial<EvidencePackageDetail> = {}): EvidencePackageDetail =>
+const pkg = (
+  over: Partial<EvidencePackageDetail> = {},
+): EvidencePackageDetail =>
   ({
     id: "p-1",
     package_no: "PKG-PRJ-0003-007",
@@ -92,26 +103,45 @@ describe("「审阅」 in the client's words", () => {
 
   it("says each of the seven exactly as the client's table", () => {
     for (const [code, words] of Object.entries(table)) {
-      expect((zh as unknown as { jb252: { progress: Record<string, string> } }).jb252.progress[code]).toBe(words);
+      expect(
+        (zh as unknown as { jb252: { progress: Record<string, string> } }).jb252
+          .progress[code],
+      ).toBe(words);
     }
   });
 
   it("has every word in all four languages", () => {
     for (const messages of [zh, zhTW, en, ms]) {
-      const group = (messages as unknown as { jb252: { progress: Record<string, string>; stateCompleted: string } })
-        .jb252;
-      for (const code of Object.keys(table)) expect(group.progress[code]).toBeTruthy();
+      const group = (
+        messages as unknown as {
+          jb252: { progress: Record<string, string>; stateCompleted: string };
+        }
+      ).jb252;
+      for (const code of Object.keys(table))
+        expect(group.progress[code]).toBeTruthy();
       expect(group.stateCompleted).toBeTruthy();
     }
   });
 
   it("says 已完成（已归档） once the loop is closed, 已确认（已锁定） before", () => {
-    const t = (key: string) => (key === "state.CONFIRMED" ? "已确认（已锁定）" : key);
-    const words = (key: string) => (key === "stateCompleted" ? "已完成（已归档）" : key);
-    expect(loop.packageStateLabel({ state: "CONFIRMED", completed_at: null }, t, words)).toBe("已确认（已锁定）");
-    expect(loop.packageStateLabel({ state: "CONFIRMED", completed_at: "2026-11-24T01:00:00Z" }, t, words)).toBe(
-      "已完成（已归档）",
-    );
+    const t = (key: string) =>
+      key === "state.CONFIRMED" ? "已确认（已锁定）" : key;
+    const words = (key: string) =>
+      key === "stateCompleted" ? "已完成（已归档）" : key;
+    expect(
+      loop.packageStateLabel(
+        { state: "CONFIRMED", completed_at: null },
+        t,
+        words,
+      ),
+    ).toBe("已确认（已锁定）");
+    expect(
+      loop.packageStateLabel(
+        { state: "CONFIRMED", completed_at: "2026-11-24T01:00:00Z" },
+        t,
+        words,
+      ),
+    ).toBe("已完成（已归档）");
   });
 });
 
@@ -123,7 +153,13 @@ describe("the review window", () => {
 
   it("offers 确认通过 / 退回补充资料 per record, 全部确认, the opinion and the signature", () => {
     const html = render(
-      <loop.ReviewDialog pkg={pkg()} records={records} onClose={() => {}} submit={async () => {}} onDone={() => {}} />,
+      <loop.ReviewDialog
+        pkg={pkg()}
+        records={records}
+        onClose={() => {}}
+        submit={async () => {}}
+        onDone={() => {}}
+      />,
     );
     expect(html).toContain("确认通过");
     expect(html).toContain("退回补充资料");
@@ -137,12 +173,21 @@ describe("the review window", () => {
 
   it("approves only when every record ends up confirmed", () => {
     expect(loop.reviewApproves(records, { "i-1": "ACCEPTED" })).toBe(false);
-    expect(loop.reviewApproves(records, { "i-1": "ACCEPTED", "i-2": "ACCEPTED" })).toBe(true);
-    expect(loop.reviewApproves(records, { "i-1": "ACCEPTED", "i-2": "RETURNED" })).toBe(false);
     expect(
-      loop.reviewApproves([{ id: "i-1", label: "A", mine: "ACCEPTED" }, records[1]], { "i-2": "ACCEPTED" }),
+      loop.reviewApproves(records, { "i-1": "ACCEPTED", "i-2": "ACCEPTED" }),
     ).toBe(true);
-    expect(loop.reviewApproves([{ id: "i-1", label: "A", mine: "RETURNED" }], {})).toBe(false);
+    expect(
+      loop.reviewApproves(records, { "i-1": "ACCEPTED", "i-2": "RETURNED" }),
+    ).toBe(false);
+    expect(
+      loop.reviewApproves(
+        [{ id: "i-1", label: "A", mine: "ACCEPTED" }, records[1]],
+        { "i-2": "ACCEPTED" },
+      ),
+    ).toBe(true);
+    expect(
+      loop.reviewApproves([{ id: "i-1", label: "A", mine: "RETURNED" }], {}),
+    ).toBe(false);
   });
 
   it("works out 差额 from the claim and the approved amount", () => {
@@ -192,7 +237,15 @@ describe("signatures and money on the package", () => {
             recipient_name: "总部（系统内）",
             signer_name: "hq",
             opinion: "DO 照片看不清",
-            decisions: [{ item: "i-2", record_kind: "MATERIAL_RECEIPT", reference: "GRN-002", decision: "RETURNED", reason: "重拍" }],
+            decisions: [
+              {
+                item: "i-2",
+                record_kind: "MATERIAL_RECEIPT",
+                reference: "GRN-002",
+                decision: "RETURNED",
+                reason: "重拍",
+              },
+            ],
           }),
         ]}
       />,
@@ -231,9 +284,21 @@ describe("signatures and money on the package", () => {
   });
 
   it("offers 确认完毕并归档 only when everything is approved", () => {
-    expect(render(<loop.CompletePanel pkg={pkg({ can_complete: true })} onChanged={() => {}} />)).toContain(
-      "确认完毕并归档",
-    );
-    expect(render(<loop.CompletePanel pkg={pkg({ can_complete: false })} onChanged={() => {}} />)).toBe("");
+    expect(
+      render(
+        <loop.CompletePanel
+          pkg={pkg({ can_complete: true })}
+          onChanged={() => {}}
+        />,
+      ),
+    ).toContain("确认完毕并归档");
+    expect(
+      render(
+        <loop.CompletePanel
+          pkg={pkg({ can_complete: false })}
+          onChanged={() => {}}
+        />,
+      ),
+    ).toBe("");
   });
 });

@@ -23488,7 +23488,8 @@
       "submit": "簽名提交審核結果",
       "chooseOne": "至少選一條",
       "nothingLeft": "這一輪的資料你都審核了。",
-      "waiting": "待審核 {count} 條"
+      "waiting": "待審核 {count} 條",
+      "records": "要審核的資料"
     },
     "money": {
       "title": "金額",

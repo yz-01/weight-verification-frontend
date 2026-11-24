@@ -23488,7 +23488,8 @@
       "submit": "Tandatangan dan hantar semakan",
       "chooseOne": "Pilih sekurang-kurangnya satu rekod",
       "nothingLeft": "Anda telah menyemak setiap rekod pusingan ini.",
-      "waiting": "{count} menunggu semakan"
+      "waiting": "{count} menunggu semakan",
+      "records": "Rekod untuk disemak"
     },
     "money": {
       "title": "Jumlah",
