@@ -4039,7 +4039,11 @@
       "project_grant_updated": "Changed project access",
       "jb225_sub_modules": "Materials / progress items ticked separately (system upgrade)",
       "jb225_default_sub_modules": "Consultant default items ticked separately (system upgrade)",
-      "exit_pass_started": "Started the exit pass"
+      "exit_pass_started": "Started the exit pass",
+      "sign_off_pin_code_sent": "Sign-off PIN code sent",
+      "sign_off_pin_code_failed": "Sign-off PIN code refused",
+      "sign_off_pin_set_failed": "Sign-off PIN not set (refused)",
+      "login_email_changed": "Login e-mail changed"
     },
     "objectType": {
       "SignOffAssistant": "Assistant PIN",
@@ -9483,7 +9487,7 @@
       "sign_off_pin_not_set": "You have not set a sign-off PIN yet. Set one first.",
       "sign_off_pin_incorrect": "The sign-off PIN is wrong. {attempts_left} tries left before it locks for 15 minutes.",
       "sign_off_office_only": "Please do this in the office back office, on a computer. The phone cannot do this step.",
-      "sign_off_pin_locked": "Wrong PIN 5 times: locked. Try again in {minutes} minutes, or set a new PIN with your account password.",
+      "sign_off_pin_locked": "Wrong PIN 5 times: locked. Try again in {minutes} minutes, or set a new PIN with the code sent to your login e-mail.",
       "equipment_hours_same_machine": "These hours are already that machine's.",
       "equipment_hours_overlap": "That machine already has hours at this time. The same time cannot be counted twice.",
       "equipment_hours_equipment_gone": "This machine has left the site; it cannot be clocked any more.",
@@ -9682,7 +9686,15 @@
       "project_left": "You have been taken off the project {project}, so you can no longer view or work on its records. Please contact the project manager if you need to.",
       "phone_identity_in_use": "This mobile number already belongs to an active identity: {name} ({kind, select, driver {driver link} site_staff {site staff} equipment_operator {equipment operator} gate_guard {gate guard} other {field staff}}). One number can have only one active identity: stop the old one first, then create the new one.",
       "phone_device_in_use": "This phone is already bound to another person's identity ({name}). One phone can have only one active identity: ask the office to stop the old identity first, then use the new link.",
-      "equipment_hours_driver_busy": "Your machine {equipment} has not been stopped yet (started {since}). One driver can run only one machine at a time: take its stop photo first, then start this one."
+      "equipment_hours_driver_busy": "Your machine {equipment} has not been stopped yet (started {since}). One driver can run only one machine at a time: take its stop photo first, then start this one.",
+      "company_settings_pin_required": "Enter your six-digit sign-off PIN to open company settings.",
+      "sign_off_pin_identity_required": "First confirm it is you: type your old sign-off PIN, or the code sent to your login e-mail.",
+      "sign_off_pin_code_incorrect": "The code is wrong. {attempts_left} more wrong tries and it stops working.",
+      "sign_off_pin_code_expired": "The code has expired or was used up. Tap Send code for a new one.",
+      "sign_off_pin_code_wait": "A code was just sent. Try again in {seconds} seconds.",
+      "sign_off_pin_code_not_sent": "The code could not be sent. Try again later; if it never arrives, contact MSE.",
+      "admin_account_only_admin": "Only a Company Administrator can reset a Company Administrator's sign-off PIN, suspend, remove or hand over the account. Please ask the Company Administrator.",
+      "admin_email_only_self": "Only the Company Administrator himself can change his login e-mail."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -22035,11 +22047,11 @@
     "checking": "Checking…",
     "cancel": "Cancel",
     "close": "Close",
-    "forgot": "Forgot it? Set a new one with your account password",
+    "forgot": "Forgot it? Set a new one with a code sent to your e-mail",
     "setupTitle": "Set your sign-off PIN",
     "setupHelp": "You do not have a sign-off PIN yet. Choose six digits only you know; important office operations are confirmed with it.",
-    "changeHelp": "Choose a new six-digit PIN. Your account password confirms it is you.",
-    "resetHelp": "Your company administrator reset your sign-off PIN. Set a new one to continue.",
+    "changeHelp": "Choose a new six-digit PIN. First confirm it is you with your old PIN, or a code sent to your login e-mail.",
+    "resetHelp": "Your company administrator reset your sign-off PIN. Set a new one with the code sent to your login e-mail to continue.",
     "newPin": "New sign-off PIN (6 digits)",
     "confirmPin": "Enter it again",
     "pinMismatch": "The two PINs are not the same",
@@ -22048,11 +22060,11 @@
     "saveAndContinue": "Save and continue",
     "lockedTitle": "Sign-off PIN locked",
     "lockedHelp": "Your sign-off PIN is locked after 5 wrong tries. It opens again 15 minutes after the last one.",
-    "lockedHint": "If you forgot it, set a new one with your account password, or ask your company administrator to reset it.",
+    "lockedHint": "If you forgot it, set a new one with a code sent to your login e-mail.",
     "setAgain": "Set a new PIN",
     "back": "Back",
     "lockedUntil": "Your sign-off PIN is locked after 5 wrong tries. It opens again at {time}.",
-    "forgotPassword": "Forgot your account password too? Tap “Forgot your password?” on the sign-in page, or ask your administrator to reset your sign-off PIN.",
+    "forgotPassword": "Forgot your account password too? Tap “Forgot your password?” on the sign-in page.",
     "failed": "Could not save. Try again.",
     "profileTitle": "Sign-off PIN",
     "profileHelp": "Six digits only you know. Daily reports, the schedule, approvals and other important office operations are confirmed with it. The phone never asks for it.",
@@ -22068,7 +22080,7 @@
     "reset": "Reset sign-off PIN",
     "resetArm": "Reset this person's sign-off PIN",
     "resetArmFirst": "Turn on the switch first",
-    "resetHint": "The PIN is turned off and any lock lifted. The person sets a new one with their own account password; you never see it.",
+    "resetHint": "The PIN is turned off and any lock lifted. The person sets a new one with their account password and a code sent to their own login e-mail; you never see it.",
     "toast": {
       "saved": "Sign-off PIN saved",
       "reset": "Sign-off PIN reset. The person sets a new one next time."
@@ -22133,7 +22145,10 @@
       "exit_pass_external": "External approval",
       "exit_pass_waive_external": "Drop the external approval and send the exit pass",
       "platform_access_open": "Open MSE access",
-      "platform_access_revoke_link": "Revoke an external link MSE opened"
+      "platform_access_revoke_link": "Revoke an external link MSE opened",
+      "company_settings_open": "Open company settings",
+      "sign_off_pin_change": "Change your sign-off PIN",
+      "user_change_email": "Change a user's login e-mail"
     },
     "firstTitle": "Set your sign-off PIN for the first time",
     "firstBanner": "This is your first time using a sign-off PIN",
@@ -23514,6 +23529,31 @@
       "equipment_operator": "equipment operator",
       "gate_guard": "gate guard",
       "other": "field staff"
+    }
+  },
+  "jb239": {
+    "gate": {
+      "title": "Company settings need your sign-off PIN",
+      "help": "Company details and permissions such as “Allow MSE to view” open only after your six-digit sign-off PIN. Leaving this page and coming back asks for it again.",
+      "enter": "Enter sign-off PIN",
+      "opening": "Opening…"
+    },
+    "identity": {
+      "oldPin": "Old sign-off PIN (6 digits)",
+      "useCode": "Forgot the old PIN? Use an e-mail code",
+      "useOldPin": "Remember the old PIN? Type it",
+      "codeHelp": "Fill in your account password below, then tap Send code. The code goes to your login e-mail {email} and works for 10 minutes.",
+      "send": "Send code",
+      "sending": "Sending…",
+      "resend": "Send again",
+      "sent": "Code sent to {email}. It works for {minutes} minutes.",
+      "code": "E-mail code (6 digits)",
+      "needPassword": "Fill in your account password first",
+      "proof": "Old PIN or e-mail code"
+    },
+    "email": {
+      "subject": "MSE Trace sign-off PIN code",
+      "body": "Your sign-off PIN code is {code}. It works for 10 minutes, once.\n\nIf you are not setting a new sign-off PIN yourself, somebody knows your login password: change your login password now."
     }
   }
 }

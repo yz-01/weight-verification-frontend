@@ -4039,7 +4039,11 @@
       "project_grant_updated": "Ubah akses projek",
       "jb225_sub_modules": "Item bahan / kemajuan ditanda berasingan (naik taraf sistem)",
       "jb225_default_sub_modules": "Item lalai perunding ditanda berasingan (naik taraf sistem)",
-      "exit_pass_started": "Memulakan pas keluar"
+      "exit_pass_started": "Memulakan pas keluar",
+      "sign_off_pin_code_sent": "Kod PIN pengesahan dihantar",
+      "sign_off_pin_code_failed": "Kod PIN pengesahan ditolak",
+      "sign_off_pin_set_failed": "PIN pengesahan tidak ditetapkan (ditolak)",
+      "login_email_changed": "E-mel log masuk ditukar"
     },
     "objectType": {
       "SignOffAssistant": "PIN pembantu",
@@ -9483,7 +9487,7 @@
       "sign_off_pin_not_set": "Anda belum menetapkan PIN pengesahan. Tetapkan dahulu.",
       "sign_off_pin_incorrect": "PIN pengesahan salah. Tinggal {attempts_left} cubaan sebelum dikunci 15 minit.",
       "sign_off_office_only": "Sila buat ini di pejabat belakang, pada komputer. Telefon tidak boleh membuat langkah ini.",
-      "sign_off_pin_locked": "PIN salah 5 kali: dikunci. Cuba lagi dalam {minutes} minit, atau tetapkan PIN baharu dengan kata laluan akaun anda.",
+      "sign_off_pin_locked": "PIN salah 5 kali: dikunci. Cuba lagi dalam {minutes} minit, atau tetapkan PIN baharu dengan kod yang dihantar ke e-mel log masuk anda.",
       "equipment_hours_same_machine": "Jam ini sudah milik mesin itu.",
       "equipment_hours_overlap": "Mesin itu sudah ada jam pada masa ini. Masa yang sama tidak boleh dikira dua kali.",
       "equipment_hours_equipment_gone": "Mesin ini telah meninggalkan tapak; ia tidak boleh didaftar masuk lagi.",
@@ -9682,7 +9686,15 @@
       "project_left": "Anda telah dikeluarkan daripada projek {project}, jadi anda tidak lagi boleh melihat atau mengendalikan rekodnya. Sila hubungi pengurus projek jika perlu.",
       "phone_identity_in_use": "Nombor telefon ini sudah menjadi identiti aktif \"{name}\" ({kind, select, driver {pautan pemandu} site_staff {kakitangan tapak} equipment_operator {operator peralatan} gate_guard {pengawal pintu} other {kakitangan tapak}}). Satu nombor hanya boleh ada satu identiti aktif: hentikan yang lama dahulu, kemudian buat yang baharu.",
       "phone_device_in_use": "Telefon ini sudah diikat pada identiti orang lain ({name}). Satu telefon hanya boleh ada satu identiti aktif: minta pejabat menghentikan identiti lama dahulu, kemudian gunakan pautan baharu.",
-      "equipment_hours_driver_busy": "Mesin anda {equipment} belum ditamatkan (mula {since}). Seorang pemandu hanya boleh menjalankan satu mesin pada satu masa: ambil foto tamat mesin itu dahulu, kemudian mulakan mesin ini."
+      "equipment_hours_driver_busy": "Mesin anda {equipment} belum ditamatkan (mula {since}). Seorang pemandu hanya boleh menjalankan satu mesin pada satu masa: ambil foto tamat mesin itu dahulu, kemudian mulakan mesin ini.",
+      "company_settings_pin_required": "Masukkan PIN pengesahan enam digit anda untuk membuka tetapan syarikat.",
+      "sign_off_pin_identity_required": "Sahkan dahulu ini anda: taip PIN pengesahan lama, atau kod yang dihantar ke e-mel log masuk anda.",
+      "sign_off_pin_code_incorrect": "Kod salah. {attempts_left} lagi cubaan salah dan kod tidak boleh digunakan.",
+      "sign_off_pin_code_expired": "Kod telah tamat tempoh atau tidak sah lagi. Tekan Hantar kod untuk kod baharu.",
+      "sign_off_pin_code_wait": "Kod baru sahaja dihantar. Cuba lagi dalam {seconds} saat.",
+      "sign_off_pin_code_not_sent": "Kod tidak dapat dihantar. Cuba lagi nanti; jika tidak pernah sampai, hubungi MSE.",
+      "admin_account_only_admin": "Hanya Pentadbir Syarikat boleh menetapkan semula PIN pengesahan, menggantung, membuang atau menyerahkan akaun Pentadbir Syarikat. Sila minta Pentadbir Syarikat.",
+      "admin_email_only_self": "Hanya Pentadbir Syarikat sendiri boleh menukar e-mel log masuknya."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -22035,11 +22047,11 @@
     "checking": "Menyemak…",
     "cancel": "Batal",
     "close": "Tutup",
-    "forgot": "Terlupa? Tetapkan yang baharu dengan kata laluan akaun",
+    "forgot": "Terlupa? Tetapkan yang baharu dengan kod yang dihantar ke e-mel anda",
     "setupTitle": "Tetapkan PIN pengesahan",
     "setupHelp": "Anda belum mempunyai PIN pengesahan. Pilih enam digit yang hanya anda tahu; operasi pejabat yang penting disahkan dengannya.",
-    "changeHelp": "Pilih PIN enam digit baharu. Kata laluan akaun anda mengesahkan ia anda.",
-    "resetHelp": "Pentadbir syarikat telah menetapkan semula PIN anda. Tetapkan yang baharu untuk meneruskan.",
+    "changeHelp": "Pilih PIN enam digit baharu. Sahkan dahulu ini anda dengan PIN lama, atau kod yang dihantar ke e-mel log masuk anda.",
+    "resetHelp": "Pentadbir syarikat telah menetapkan semula PIN anda. Tetapkan yang baharu dengan kod yang dihantar ke e-mel log masuk anda untuk meneruskan.",
     "newPin": "PIN pengesahan baharu (6 digit)",
     "confirmPin": "Masukkan sekali lagi",
     "pinMismatch": "Kedua-dua PIN tidak sama",
@@ -22048,11 +22060,11 @@
     "saveAndContinue": "Simpan dan teruskan",
     "lockedTitle": "PIN pengesahan dikunci",
     "lockedHelp": "PIN anda dikunci selepas 5 cubaan salah. Ia dibuka semula 15 minit selepas cubaan terakhir.",
-    "lockedHint": "Jika terlupa, tetapkan yang baharu dengan kata laluan akaun, atau minta pentadbir syarikat menetapkannya semula.",
+    "lockedHint": "Jika terlupa, tetapkan yang baharu dengan kod yang dihantar ke e-mel log masuk anda.",
     "setAgain": "Tetapkan PIN baharu",
     "back": "Kembali",
     "lockedUntil": "PIN pengesahan anda dikunci selepas 5 kali salah. Ia dibuka semula pada {time}.",
-    "forgotPassword": "Lupa kata laluan akaun juga? Tekan “Lupa kata laluan?” di halaman log masuk, atau minta pentadbir menetapkan semula PIN pengesahan anda.",
+    "forgotPassword": "Lupa kata laluan akaun juga? Tekan “Lupa kata laluan?” di halaman log masuk.",
     "failed": "Tidak dapat disimpan. Cuba lagi.",
     "profileTitle": "PIN pengesahan saya",
     "profileHelp": "Enam digit yang hanya anda tahu. Laporan harian, jadual, kelulusan dan operasi pejabat penting lain disahkan dengannya. Telefon tidak memintanya.",
@@ -22068,7 +22080,7 @@
     "reset": "Tetapkan semula PIN",
     "resetArm": "Tetapkan semula PIN orang ini",
     "resetArmFirst": "Hidupkan suis dahulu",
-    "resetHint": "PIN dimatikan dan kunci dibuka. Orang itu menetapkan yang baharu dengan kata laluan akaunnya sendiri; anda tidak melihatnya.",
+    "resetHint": "PIN dimatikan dan kunci dibuka. Orang itu menetapkan yang baharu dengan kata laluan akaun dan kod yang dihantar ke e-mel log masuknya sendiri; anda tidak melihatnya.",
     "toast": {
       "saved": "PIN pengesahan disimpan",
       "reset": "PIN ditetapkan semula. Orang itu menetapkan yang baharu kali seterusnya."
@@ -22133,7 +22145,10 @@
       "exit_pass_external": "Kelulusan luar",
       "exit_pass_waive_external": "Batalkan kelulusan luar dan hantar pas keluar",
       "platform_access_open": "Buka akses MSE",
-      "platform_access_revoke_link": "Batalkan pautan luar yang dibuka MSE"
+      "platform_access_revoke_link": "Batalkan pautan luar yang dibuka MSE",
+      "company_settings_open": "Buka tetapan syarikat",
+      "sign_off_pin_change": "Tukar PIN pengesahan",
+      "user_change_email": "Tukar e-mel log masuk pengguna"
     },
     "firstTitle": "Tetapkan PIN pengesahan buat kali pertama",
     "firstBanner": "Ini kali pertama anda menggunakan PIN pengesahan",
@@ -23514,6 +23529,31 @@
       "equipment_operator": "operator peralatan",
       "gate_guard": "pengawal pintu",
       "other": "kakitangan tapak"
+    }
+  },
+  "jb239": {
+    "gate": {
+      "title": "Tetapan syarikat memerlukan PIN pengesahan anda",
+      "help": "Maklumat syarikat dan kebenaran seperti “Benarkan MSE melihat” hanya dibuka selepas PIN pengesahan enam digit anda. Jika anda keluar dari halaman ini dan kembali, PIN diminta semula.",
+      "enter": "Masukkan PIN pengesahan",
+      "opening": "Membuka…"
+    },
+    "identity": {
+      "oldPin": "PIN pengesahan lama (6 digit)",
+      "useCode": "Lupa PIN lama? Guna kod e-mel",
+      "useOldPin": "Ingat PIN lama? Taip PIN lama",
+      "codeHelp": "Isi kata laluan akaun di bawah, kemudian tekan Hantar kod. Kod dihantar ke e-mel log masuk anda {email} dan sah selama 10 minit.",
+      "send": "Hantar kod",
+      "sending": "Menghantar…",
+      "resend": "Hantar semula",
+      "sent": "Kod dihantar ke {email}. Sah selama {minutes} minit.",
+      "code": "Kod e-mel (6 digit)",
+      "needPassword": "Isi kata laluan akaun dahulu",
+      "proof": "PIN lama atau kod e-mel"
+    },
+    "email": {
+      "subject": "Kod PIN pengesahan MSE Trace",
+      "body": "Kod PIN pengesahan anda ialah {code}. Sah selama 10 minit, sekali sahaja.\n\nJika bukan anda yang menetapkan PIN baharu, seseorang mengetahui kata laluan log masuk anda: tukar kata laluan log masuk anda sekarang."
     }
   }
 }

@@ -4039,7 +4039,11 @@
       "project_grant_updated": "修改項目權限",
       "jb225_sub_modules": "材料管理 / 工程進度分項勾選（系統升級）",
       "jb225_default_sub_modules": "顧問默認權限分項勾選（系統升級）",
-      "exit_pass_started": "啟動出門條"
+      "exit_pass_started": "啟動出門條",
+      "sign_off_pin_code_sent": "簽核密碼驗證碼已寄出",
+      "sign_off_pin_code_failed": "簽核密碼驗證碼未通過",
+      "sign_off_pin_set_failed": "設定簽核密碼未通過",
+      "login_email_changed": "更改登入郵箱"
     },
     "objectType": {
       "SignOffAssistant": "助理副密碼",
@@ -9483,7 +9487,7 @@
       "sign_off_pin_not_set": "你還沒有設定簽核密碼，請先設定。",
       "sign_off_pin_incorrect": "簽核密碼不對。再錯 {attempts_left} 次會鎖 15 分鐘。",
       "sign_off_office_only": "請在電腦後台操作。手機端不能做這一步。",
-      "sign_off_pin_locked": "簽核密碼輸錯 5 次，已鎖定。請 {minutes} 分鐘後再試，或用帳號密碼重新設定。",
+      "sign_off_pin_locked": "簽核密碼輸錯 5 次，已鎖定。請 {minutes} 分鐘後再試，或用郵箱驗證碼重新設定。",
       "equipment_hours_same_machine": "這筆工時已經是這台設備的。",
       "equipment_hours_overlap": "那台設備在這段時間已經有工時，同一段時間不能重複算。",
       "equipment_hours_equipment_gone": "這部設備已經離場，不能再打卡。",
@@ -9682,7 +9686,15 @@
       "project_left": "你已經被移出「{project}」項目，不能再查看或操作這個項目的資料。如有需要，請聯繫項目經理。",
       "phone_identity_in_use": "這個手機號碼已經是「{name}」（{kind, select, driver {司機打卡連結} site_staff {工地人員} equipment_operator {設備操作人員} gate_guard {門崗保安} other {現場人員}}）的有效身份。一個號碼只能有一個有效身份：請先停用原來的，再建立新的。",
       "phone_device_in_use": "這部手機已經綁定了另一個人的身份（{name}）。一部手機只能有一個有效身份：請後台先停用原來的身份，再用新的連結。",
-      "equipment_hours_driver_busy": "你的設備 {equipment} 還沒有收工（{since} 開工）。一個司機同一時間只能開一台設備：請先為它拍收工，再為這台開工。"
+      "equipment_hours_driver_busy": "你的設備 {equipment} 還沒有收工（{since} 開工）。一個司機同一時間只能開一台設備：請先為它拍收工，再為這台開工。",
+      "company_settings_pin_required": "進入公司設置要先輸入六位數簽核密碼。",
+      "sign_off_pin_identity_required": "要先確認是你本人：輸入舊的簽核密碼，或輸入寄到你登入郵箱的驗證碼。",
+      "sign_off_pin_code_incorrect": "驗證碼不對。再錯 {attempts_left} 次，這個驗證碼就作廢。",
+      "sign_off_pin_code_expired": "驗證碼已經過期或作廢，請按【發送驗證碼】重新發送。",
+      "sign_off_pin_code_wait": "驗證碼剛寄出，請 {seconds} 秒後再發。",
+      "sign_off_pin_code_not_sent": "驗證碼沒有寄出去，請稍後再試；一直收不到請聯絡 MSE。",
+      "admin_account_only_admin": "公司管理員的簽核密碼重設、停用、刪除和人員交接，只有公司管理員可以做。請公司管理員來做。",
+      "admin_email_only_self": "公司管理員的登入郵箱只有他本人可以改。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -22035,11 +22047,11 @@
     "checking": "核對中…",
     "cancel": "取消",
     "close": "關閉",
-    "forgot": "忘記了？用帳號密碼重新設定",
+    "forgot": "忘記了？用郵箱驗證碼重新設定",
     "setupTitle": "設定簽核密碼",
     "setupHelp": "你還沒有簽核密碼。設定一個只有你知道的六位數，以後重要的後台操作都用它確認。",
-    "changeHelp": "設定新的六位數簽核密碼，用帳號密碼確認是你本人。",
-    "resetHelp": "公司管理員已重設你的簽核密碼，請重新設定後繼續。",
+    "changeHelp": "設定新的六位數簽核密碼。要先用舊簽核密碼，或寄到你登入郵箱的驗證碼，確認是你本人。",
+    "resetHelp": "公司管理員已重設你的簽核密碼。請用寄到你登入郵箱的驗證碼重新設定，再繼續。",
     "newPin": "新簽核密碼（六位數）",
     "confirmPin": "再輸入一次",
     "pinMismatch": "兩次輸入的簽核密碼不一樣",
@@ -22048,11 +22060,11 @@
     "saveAndContinue": "設定並繼續",
     "lockedTitle": "簽核密碼已鎖定",
     "lockedHelp": "簽核密碼輸錯 5 次，已鎖定，最後一次輸錯後 15 分鐘自動解鎖。",
-    "lockedHint": "忘記了可以用帳號密碼重新設定，或請公司管理員重設。",
+    "lockedHint": "忘記了可以用寄到你登入郵箱的驗證碼重新設定。",
     "setAgain": "重新設定",
     "back": "返回",
     "lockedUntil": "簽核密碼輸錯 5 次，已鎖定，{time} 自動解鎖。",
-    "forgotPassword": "忘記帳號密碼？請到登入頁按『忘記密碼』，或請管理員幫你重設簽核密碼。",
+    "forgotPassword": "忘記帳號密碼？請到登入頁按『忘記密碼』。",
     "failed": "儲存失敗，請再試一次。",
     "profileTitle": "我的簽核密碼",
     "profileHelp": "只有你知道的六位數。日報告、施工計劃、審批等重要後台操作都用它確認；手機端不用。",
@@ -22068,7 +22080,7 @@
     "reset": "重設簽核密碼",
     "resetArm": "重設這個人的簽核密碼",
     "resetArmFirst": "先打開左邊的開關",
-    "resetHint": "重設後舊密碼失效、鎖定解除；本人下次用自己的帳號密碼重新設定，管理員看不到密碼。",
+    "resetHint": "重設後舊密碼失效、鎖定解除；本人要用帳號密碼和寄到自己登入郵箱的驗證碼重新設定，管理員看不到密碼。",
     "toast": {
       "saved": "簽核密碼已儲存",
       "reset": "已重設簽核密碼，對方下次要重新設定。"
@@ -22133,7 +22145,10 @@
       "exit_pass_external": "外部審批",
       "exit_pass_waive_external": "改為不需要外部審批並發出門條",
       "platform_access_open": "開放 MSE 查看權限",
-      "platform_access_revoke_link": "撤銷 MSE 開的外部訪問鏈接"
+      "platform_access_revoke_link": "撤銷 MSE 開的外部訪問鏈接",
+      "company_settings_open": "進入公司設置",
+      "sign_off_pin_change": "更改簽核密碼",
+      "user_change_email": "更改用戶的登入郵箱"
     },
     "firstTitle": "第一次設定簽核密碼",
     "firstBanner": "這是你第一次使用簽核密碼",
@@ -23514,6 +23529,31 @@
       "equipment_operator": "設備操作人員",
       "gate_guard": "門崗保安",
       "other": "現場人員"
+    }
+  },
+  "jb239": {
+    "gate": {
+      "title": "公司設置要先輸入簽核密碼",
+      "help": "公司資料和「允許 MSE 查看」等權限，要輸入你的六位數簽核密碼才能打開。離開這一頁後再進來，要重新輸入。",
+      "enter": "輸入簽核密碼",
+      "opening": "正在打開…"
+    },
+    "identity": {
+      "oldPin": "舊簽核密碼（六位數）",
+      "useCode": "忘記舊密碼？用郵箱驗證碼",
+      "useOldPin": "記得舊密碼？輸入舊密碼",
+      "codeHelp": "先填下面的帳號密碼，再按【發送驗證碼】。驗證碼會寄到你登入用的郵箱 {email}，10 分鐘內有效。",
+      "send": "發送驗證碼",
+      "sending": "發送中…",
+      "resend": "重新發送",
+      "sent": "驗證碼已寄到 {email}，{minutes} 分鐘內有效。",
+      "code": "郵箱驗證碼（六位數）",
+      "needPassword": "先填帳號密碼",
+      "proof": "舊簽核密碼或郵箱驗證碼"
+    },
+    "email": {
+      "subject": "MSE Trace 簽核密碼驗證碼",
+      "body": "你的簽核密碼驗證碼是 {code}，10 分鐘內有效，只能用一次。\n\n如果不是你本人在重新設定簽核密碼，說明有人知道你的登入密碼，請馬上更改登入密碼。"
     }
   }
 }

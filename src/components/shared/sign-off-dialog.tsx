@@ -5,6 +5,7 @@ import { useFormatter, useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { FieldWrapper } from "@/components/shared/page-primitives";
+import { PinIdentityFields, needsIdentity, pinSaveError } from "@/components/shared/pin-identity-fields";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -17,15 +18,18 @@ import {
 import { Input } from "@/components/ui/input";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ApiError } from "@/interfaces/api";
+import { pinDigits } from "@/lib/pin-digits";
 import { SIGN_OFF_CODES, registerSignOff, type SignOffAsk } from "@/lib/sign-off";
-import { getSignOffPinStatus, setSignOffPin, type SignOffPinStatus } from "@/services/sign-off.service";
+import {
+  getSignOffPinStatus,
+  setSignOffPin,
+  type PinIdentity,
+  type SignOffPinStatus,
+} from "@/services/sign-off.service";
 
 type Mode = "loading" | "enter" | "setup" | "locked";
 
-/** The digits only, at most six: what a PIN box keeps of what was typed. */
-export function pinDigits(value: string): string {
-  return value.replace(/\D/g, "").slice(0, 6);
-}
+export { pinDigits };
 
 /** Which screen a refusal opens on, given what is known of the PIN. */
 export function modeFor(code: string, status: SignOffPinStatus | null): Mode {
@@ -49,6 +53,7 @@ export function modeFor(code: string, status: SignOffPinStatus | null): Mode {
  */
 export function SignOffHost() {
   const t = useTranslations("signOff");
+  const tIdentity = useTranslations("jb239.identity");
   const format = useFormatter();
   const [ask, setAsk] = useState<SignOffAsk | null>(null);
   const [mode, setMode] = useState<Mode>("loading");
@@ -58,6 +63,8 @@ export function SignOffHost() {
   const [newPin, setNewPin] = useState("");
   const [confirmPin, setConfirmPin] = useState("");
   const [password, setPassword] = useState("");
+  // JB239: a PIN once set is replaced with the old PIN or the e-mailed code.
+  const [identity, setIdentity] = useState<PinIdentity>(null);
   const [setupError, setSetupError] = useState<{ field: string; message: string } | null>(null);
   // Where 「返回」 on the set-again form goes: the box it was opened from.
   // `null` when the form is the first thing shown (no PIN yet): it cancels.
@@ -105,6 +112,7 @@ export function SignOffHost() {
         setNewPin("");
         setConfirmPin("");
         setPassword("");
+        setIdentity(null);
       },
     );
     return () => {
@@ -126,20 +134,23 @@ export function SignOffHost() {
     answer(pin);
   };
 
+  // Opened from the PIN box or a lock, a PIN exists even before its status
+  // is read: ask who it is rather than let the server refuse the save.
+  const proving = needsIdentity(status) || (status === null && backTo !== null);
   const submitSetup = async () => {
     if (busy || newPin.length !== 6 || newPin !== confirmPin || !password) return;
+    if (proving && !identity) return;
     setBusy(true);
     setSetupError(null);
     try {
-      await setSignOffPin({ currentPassword: password, pin: newPin });
+      await setSignOffPin({ currentPassword: password, pin: newPin, identity: proving ? identity : null });
       setPassword("");
       // Carry on with the operation it was asked for.
       answer(newPin);
     } catch (error) {
       setBusy(false);
       if (error instanceof ApiError) {
-        const field = error.fieldError("current_password") ? "current_password" : "pin";
-        setSetupError({ field, message: error.fieldError(field) ?? error.message });
+        setSetupError(pinSaveError(error));
       } else {
         setSetupError({ field: "pin", message: t("failed") });
       }
@@ -161,6 +172,9 @@ export function SignOffHost() {
     setSetupError(null);
     setBackTo(from);
     setMode("setup");
+    // JB239: what the set-again form asks for (old PIN or e-mailed code)
+    // follows the PIN as it is now - a lock may have come since it was read.
+    getSignOffPinStatus().then(setStatus).catch(() => undefined);
   };
 
   // Its own tooltip provider: a disabled button explains itself in a tooltip,
@@ -289,6 +303,18 @@ export function SignOffHost() {
                   onChange={(event) => setPassword(event.target.value)}
                 />
               </FieldWrapper>
+              {proving && (
+                <FieldWrapper label={tIdentity("proof")} required>
+                  <PinIdentityFields
+                    status={status}
+                    password={password}
+                    disabled={busy}
+                    error={setupError}
+                    startWithCode={backTo !== null}
+                    onChange={setIdentity}
+                  />
+                </FieldWrapper>
+              )}
               {backTo !== null && (
                 // Someone who forgot the PIN may have forgotten the password
                 // too: say where that is put right.
@@ -323,6 +349,7 @@ export function SignOffHost() {
                     [newPin.length === 6, t("newPin")],
                     [confirmPin.length === 6, t("confirmPin")],
                     [password, t("accountPassword")],
+                    ...(proving ? [[identity, tIdentity("proof")] as const] : []),
                   ]}
                   disabledReason={
                     newPin.length === 6 && confirmPin.length === 6 && newPin !== confirmPin
