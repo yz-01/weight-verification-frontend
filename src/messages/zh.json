@@ -4050,7 +4050,11 @@
       "remedial_item_submitted": "提交整改",
       "remedial_item_accepted": "整改验收通过",
       "remedial_item_returned": "退回继续整改",
-      "remedial_accepted": "全部整改验收通过"
+      "remedial_accepted": "全部整改验收通过",
+      "package_submit_signed": "资料包签名提交",
+      "package_review_signed": "资料包签名审核",
+      "package_completed": "资料包确认完毕并归档",
+      "package_claim_amount_set": "资料包申请金额修改"
     },
     "objectType": {
       "SignOffAssistant": "助理副密码",
@@ -9701,7 +9705,20 @@
       "sign_off_pin_code_wait": "验证码刚寄出，请 {seconds} 秒后再发。",
       "sign_off_pin_code_not_sent": "验证码没有寄出去，请稍后再试；一直收不到请联系 MSE。",
       "admin_account_only_admin": "公司管理员的签核密码重设、停用、删除和人员交接，只有公司管理员可以做。请公司管理员来做。",
-      "admin_email_only_self": "公司管理员的登录邮箱只有他本人可以改。"
+      "admin_email_only_self": "公司管理员的登录邮箱只有他本人可以改。",
+      "package_signature_required": "请先在签名框里签名。",
+      "package_opinion_required": "请填写审核意见。",
+      "package_review_needs_signature": "请在「审核」窗口里确认或退回：要填写审核意见、电子签名和输入六位数密码。",
+      "package_not_your_review": "这个资料包由总部审核，打包或发送的人不能自己审核。",
+      "package_nothing_to_review": "请至少确认或退回一条资料。",
+      "package_item_decided": "这条资料这一轮你已经审核过了，原来的记录不会被覆盖。",
+      "package_circulation_only": "这是资料传阅，只能查看，不用审核。",
+      "package_purpose": "请选「提交审批」或「资料传阅」。",
+      "package_amount_invalid": "请输入正确的金额（RM）。",
+      "package_approved_amount_required": "请填写本期批准金额。",
+      "package_amount_reason_required": "批准金额和申请金额不一样，请填写审批原因。",
+      "package_not_approved": "要等全部审核通过，才能确认完毕并归档。",
+      "package_completed": "这个资料包已经确认完毕并归档，不能再改动。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -12552,7 +12569,12 @@
         "REVOKED": "撤销",
         "EXTENDED": "延期",
         "LINK_REGENERATED": "重新生成链接",
-        "REPORT": "生成往来记录"
+        "REPORT": "生成往来记录",
+        "SUBMIT_SIGNED": "签名提交",
+        "REVIEW_SIGNED": "签名审核",
+        "APPROVED": "审核通过",
+        "COMPLETED": "确认完毕并归档",
+        "CLAIM_AMOUNT": "修改申请金额"
       },
       "ip": "IP {ip}",
       "writeFirst": "先写留言或选附件。",
@@ -22155,7 +22177,11 @@
       "platform_access_revoke_link": "撤销 MSE 开的外部访问链接",
       "company_settings_open": "进入公司设置",
       "sign_off_pin_change": "更改签核密码",
-      "user_change_email": "更改用户的登录邮箱"
+      "user_change_email": "更改用户的登录邮箱",
+      "package_submit": "签名提交资料包审批",
+      "package_resubmit": "重新签名提交资料包",
+      "package_review": "签名审核资料包",
+      "package_claim_amount": "填写或修改申请金额"
     },
     "firstTitle": "第一次设定签核密码",
     "firstBanner": "这是你第一次使用签核密码",
@@ -23561,6 +23587,108 @@
     "email": {
       "subject": "MSE Trace 签核密码验证码",
       "body": "你的签核密码验证码是 {code}，10 分钟内有效，只能用一次。\n\n如果不是你本人在重新设定签核密码，说明有人知道你的登录密码，请马上更改登录密码。"
+    }
+  },
+  "jb252": {
+    "progress": {
+      "NOT_SENT": "未发送",
+      "SENT": "已发送，待审核",
+      "VIEWED": "已查看，待审核",
+      "IN_REVIEW": "审核处理中",
+      "RETURNED": "退回补充资料",
+      "APPROVED": "审核通过，待完成确认",
+      "COMPLETED": "审核完成"
+    },
+    "progressFilter": "审阅",
+    "progressAll": "全部审阅状态",
+    "stateCompleted": "已完成（已归档）",
+    "purpose": {
+      "label": "发送用途",
+      "APPROVAL": "提交审批",
+      "CIRCULATION": "资料传阅",
+      "approvalHelp": "对方要逐条审核，填写审核意见并电子签名。退回时，你补充资料后重新签名提交。",
+      "circulationHelp": "只给对方查看，不用审核，也不用签名。"
+    },
+    "sign": {
+      "label": "电子签名",
+      "clear": "重签",
+      "hint": "用鼠标或手指在框里签名。",
+      "confirmHint": "确认锁定前，请先电子签名。确认后资料包锁定，不能再修改。",
+      "sendHint": "这一轮还没有你的签名。提交审批前，请先电子签名。",
+      "resendHint": "重新发送是新的一次提交审批，请先电子签名。"
+    },
+    "review": {
+      "button": "审核",
+      "title": "审核资料包",
+      "help": "逐条选「确认通过」或「退回补充资料」，也可以按「全部确认」。最后填写审核意见并电子签名，提交时要输入六位数密码。",
+      "accept": "确认通过",
+      "return": "退回补充资料",
+      "allConfirm": "全部确认",
+      "undecided": "这次先不审",
+      "decided": "已审核",
+      "returnReason": "要补充什么",
+      "opinion": "审核意见（备注）",
+      "opinionHint": "写给项目经理看，会和你的签名一起保存。",
+      "submit": "签名提交审核结果",
+      "chooseOne": "至少选一条",
+      "nothingLeft": "这一轮的资料你都审核了。",
+      "waiting": "待审核 {count} 条",
+      "records": "要审核的资料"
+    },
+    "money": {
+      "title": "金额",
+      "claim": "申请金额（RM）",
+      "approved": "本期批准金额（RM）",
+      "difference": "差额（RM）",
+      "reason": "审批原因",
+      "reasonHint": "批准金额和申请金额不一样时，一定要填。",
+      "pinHint": "填写或修改金额，保存时要输入六位数密码。",
+      "locked": "已锁定",
+      "notSet": "未填",
+      "save": "保存金额",
+      "placeholder": "例如：12500.00",
+      "approvedOnly": "全部确认时填写本期批准金额。"
+    },
+    "signatures": {
+      "title": "签名及审核记录",
+      "none": "还没有签名。",
+      "side": {
+        "SENDER": "项目经理签名提交",
+        "REVIEWER": "审核人签名"
+      },
+      "action": {
+        "SUBMITTED": "签名提交",
+        "CONFIRMED": "逐条确认",
+        "APPROVED": "审核通过",
+        "RETURNED": "退回补充资料"
+      },
+      "by": "{name} · {when}",
+      "for": "接收方：{name}",
+      "opinion": "意见 / 说明：{text}",
+      "version": "对应资料版本：{digest}",
+      "picture": "签名",
+      "decision": {
+        "ACCEPTED": "确认通过",
+        "RETURNED": "退回",
+        "PENDING": "待审核"
+      }
+    },
+    "complete": {
+      "button": "确认完毕并归档",
+      "help": "全部审核通过了。按「确认完毕并归档」完成闭环，资料、审核记录、沟通记录和时间线都会保留。",
+      "done": "已确认完毕并归档：{name}，{when}"
+    },
+    "supplement": {
+      "title": "补充下一轮的资料",
+      "help": "资料被退回了。你可以在原来的位置补充文件、照片，或选择系统内资料；写好说明后，按「重新签名提交」。",
+      "staged": "下一轮补充（还没提交）",
+      "nextRoundFile": "下一轮补充",
+      "resubmit": "重新签名提交",
+      "addedCount": "这一轮会一起提交新加的 {count} 条资料。"
+    },
+    "toast": {
+      "reviewSigned": "审核结果已签名提交",
+      "completed": "已确认完毕并归档"
     }
   }
 }

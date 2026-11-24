@@ -4050,7 +4050,11 @@
       "remedial_item_submitted": "提交整改",
       "remedial_item_accepted": "整改驗收通過",
       "remedial_item_returned": "退回繼續整改",
-      "remedial_accepted": "全部整改驗收通過"
+      "remedial_accepted": "全部整改驗收通過",
+      "package_submit_signed": "資料包簽名提交",
+      "package_review_signed": "資料包簽名審核",
+      "package_completed": "資料包確認完畢並歸檔",
+      "package_claim_amount_set": "資料包申請金額修改"
     },
     "objectType": {
       "SignOffAssistant": "助理副密碼",
@@ -9701,7 +9705,20 @@
       "sign_off_pin_code_wait": "驗證碼剛寄出，請 {seconds} 秒後再發。",
       "sign_off_pin_code_not_sent": "驗證碼沒有寄出去，請稍後再試；一直收不到請聯絡 MSE。",
       "admin_account_only_admin": "公司管理員的簽核密碼重設、停用、刪除和人員交接，只有公司管理員可以做。請公司管理員來做。",
-      "admin_email_only_self": "公司管理員的登入郵箱只有他本人可以改。"
+      "admin_email_only_self": "公司管理員的登入郵箱只有他本人可以改。",
+      "package_signature_required": "請先在簽名框裡簽名。",
+      "package_opinion_required": "請填寫審核意見。",
+      "package_review_needs_signature": "請在「審核」窗口裡確認或退回：要填寫審核意見、電子簽名和輸入六位數密碼。",
+      "package_not_your_review": "這個資料包由總部審核，打包或發送的人不能自己審核。",
+      "package_nothing_to_review": "請至少確認或退回一條資料。",
+      "package_item_decided": "這條資料這一輪你已經審核過了，原來的記錄不會被覆蓋。",
+      "package_circulation_only": "這是資料傳閱，只能查看，不用審核。",
+      "package_purpose": "請選「提交審批」或「資料傳閱」。",
+      "package_amount_invalid": "請輸入正確的金額（RM）。",
+      "package_approved_amount_required": "請填寫本期批准金額。",
+      "package_amount_reason_required": "批准金額和申請金額不一樣，請填寫審批原因。",
+      "package_not_approved": "要等全部審核通過，才能確認完畢並歸檔。",
+      "package_completed": "這個資料包已經確認完畢並歸檔，不能再改動。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -12552,7 +12569,12 @@
         "REVOKED": "撤銷",
         "EXTENDED": "延期",
         "LINK_REGENERATED": "重新產生連結",
-        "REPORT": "產生往來記錄"
+        "REPORT": "產生往來記錄",
+        "SUBMIT_SIGNED": "簽名提交",
+        "REVIEW_SIGNED": "簽名審核",
+        "APPROVED": "審核通過",
+        "COMPLETED": "確認完畢並歸檔",
+        "CLAIM_AMOUNT": "修改申請金額"
       },
       "ip": "IP {ip}",
       "writeFirst": "先寫留言或選附件。",
@@ -22155,7 +22177,11 @@
       "platform_access_revoke_link": "撤銷 MSE 開的外部訪問鏈接",
       "company_settings_open": "進入公司設置",
       "sign_off_pin_change": "更改簽核密碼",
-      "user_change_email": "更改用戶的登入郵箱"
+      "user_change_email": "更改用戶的登入郵箱",
+      "package_submit": "簽名提交資料包審批",
+      "package_resubmit": "重新簽名提交資料包",
+      "package_review": "簽名審核資料包",
+      "package_claim_amount": "填寫或修改申請金額"
     },
     "firstTitle": "第一次設定簽核密碼",
     "firstBanner": "這是你第一次使用簽核密碼",
@@ -23561,6 +23587,108 @@
     "email": {
       "subject": "MSE Trace 簽核密碼驗證碼",
       "body": "你的簽核密碼驗證碼是 {code}，10 分鐘內有效，只能用一次。\n\n如果不是你本人在重新設定簽核密碼，說明有人知道你的登入密碼，請馬上更改登入密碼。"
+    }
+  },
+  "jb252": {
+    "progress": {
+      "NOT_SENT": "未發送",
+      "SENT": "已發送，待審核",
+      "VIEWED": "已查看，待審核",
+      "IN_REVIEW": "審核處理中",
+      "RETURNED": "退回補充資料",
+      "APPROVED": "審核通過，待完成確認",
+      "COMPLETED": "審核完成"
+    },
+    "progressFilter": "審閱",
+    "progressAll": "全部審閱狀態",
+    "stateCompleted": "已完成（已歸檔）",
+    "purpose": {
+      "label": "發送用途",
+      "APPROVAL": "提交審批",
+      "CIRCULATION": "資料傳閱",
+      "approvalHelp": "對方要逐條審核，填寫審核意見並電子簽名。退回時，你補充資料後重新簽名提交。",
+      "circulationHelp": "只給對方查看，不用審核，也不用簽名。"
+    },
+    "sign": {
+      "label": "電子簽名",
+      "clear": "重簽",
+      "hint": "用滑鼠或手指在框裡簽名。",
+      "confirmHint": "確認鎖定前，請先電子簽名。確認後資料包鎖定，不能再修改。",
+      "sendHint": "這一輪還沒有你的簽名。提交審批前，請先電子簽名。",
+      "resendHint": "重新發送是新的一次提交審批，請先電子簽名。"
+    },
+    "review": {
+      "button": "審核",
+      "title": "審核資料包",
+      "help": "逐條選「確認通過」或「退回補充資料」，也可以按「全部確認」。最後填寫審核意見並電子簽名，提交時要輸入六位數密碼。",
+      "accept": "確認通過",
+      "return": "退回補充資料",
+      "allConfirm": "全部確認",
+      "undecided": "這次先不審",
+      "decided": "已審核",
+      "returnReason": "要補充什麼",
+      "opinion": "審核意見（備註）",
+      "opinionHint": "寫給項目經理看，會和你的簽名一起保存。",
+      "submit": "簽名提交審核結果",
+      "chooseOne": "至少選一條",
+      "nothingLeft": "這一輪的資料你都審核了。",
+      "waiting": "待審核 {count} 條",
+      "records": "要審核的資料"
+    },
+    "money": {
+      "title": "金額",
+      "claim": "申請金額（RM）",
+      "approved": "本期批准金額（RM）",
+      "difference": "差額（RM）",
+      "reason": "審批原因",
+      "reasonHint": "批准金額和申請金額不一樣時，一定要填。",
+      "pinHint": "填寫或修改金額，保存時要輸入六位數密碼。",
+      "locked": "已鎖定",
+      "notSet": "未填",
+      "save": "保存金額",
+      "placeholder": "例如：12500.00",
+      "approvedOnly": "全部確認時填寫本期批准金額。"
+    },
+    "signatures": {
+      "title": "簽名及審核記錄",
+      "none": "還沒有簽名。",
+      "side": {
+        "SENDER": "項目經理簽名提交",
+        "REVIEWER": "審核人簽名"
+      },
+      "action": {
+        "SUBMITTED": "簽名提交",
+        "CONFIRMED": "逐條確認",
+        "APPROVED": "審核通過",
+        "RETURNED": "退回補充資料"
+      },
+      "by": "{name} · {when}",
+      "for": "接收方：{name}",
+      "opinion": "意見 / 說明：{text}",
+      "version": "對應資料版本：{digest}",
+      "picture": "簽名",
+      "decision": {
+        "ACCEPTED": "確認通過",
+        "RETURNED": "退回",
+        "PENDING": "待審核"
+      }
+    },
+    "complete": {
+      "button": "確認完畢並歸檔",
+      "help": "全部審核通過了。按「確認完畢並歸檔」完成閉環，資料、審核記錄、溝通記錄和時間線都會保留。",
+      "done": "已確認完畢並歸檔：{name}，{when}"
+    },
+    "supplement": {
+      "title": "補充下一輪的資料",
+      "help": "資料被退回了。你可以在原來的位置補充檔案、照片，或選擇系統內資料；寫好說明後，按「重新簽名提交」。",
+      "staged": "下一輪補充（還沒提交）",
+      "nextRoundFile": "下一輪補充",
+      "resubmit": "重新簽名提交",
+      "addedCount": "這一輪會一起提交新加的 {count} 條資料。"
+    },
+    "toast": {
+      "reviewSigned": "審核結果已簽名提交",
+      "completed": "已確認完畢並歸檔"
     }
   }
 }

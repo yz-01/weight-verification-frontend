@@ -74,6 +74,7 @@ import type {
   PackageRound,
   PackageType,
   RecipientKind,
+  RecipientPurpose,
 } from "@/interfaces/contractor-ops";
 import type { CategoryModuleKey } from "@/lib/category-modules";
 import type { ChatRecordKind, ConversationClosed } from "@/lib/record-chat";
@@ -1718,6 +1719,8 @@ export async function createEvidencePackage(payload: {
   name: string;
   remarks?: string;
   package_type?: PackageType;
+  /** JB254: 申请金额 (RM) - the server asks for the PIN when it is filled. */
+  claim_amount?: string;
 } & PackageClaimFieldsPayload) {
   const row = await api.post<EvidencePackageDetail>(
     "/api/evidence-packages/create_package/",
@@ -1729,7 +1732,13 @@ export async function createEvidencePackage(payload: {
 
 export async function updateEvidencePackage(
   id: string,
-  payload: { name?: string; remarks?: string; package_type?: PackageType } & PackageClaimFieldsPayload,
+  payload: {
+    name?: string;
+    remarks?: string;
+    package_type?: PackageType;
+    /** JB254: 申请金额 (RM); a change asks for the PIN. */
+    claim_amount?: string;
+  } & PackageClaimFieldsPayload,
 ) {
   const row = await api.patch<EvidencePackageDetail>(
     `/api/evidence-packages/${id}/update_package/`,
@@ -1891,10 +1900,17 @@ export const previewDraftPackage = (id: string, name: string) =>
     fallbackFilename: `${name || "package"}.pdf`,
   });
 
-export async function confirmEvidencePackage(id: string, remarks: string) {
+/**
+ * 确认锁定 (JB252: 「项目经理完成资料打包后，必须电子签名，才能确认锁定并提交
+ * 审核」): the remarks and the drawn signature; the PIN is asked on the way.
+ */
+export async function confirmEvidencePackage(id: string, remarks: string, signature: File) {
+  const body = new FormData();
+  body.append("remarks", remarks);
+  body.append("signature", signature);
   const row = await api.post<EvidencePackageDetail>(
     `/api/evidence-packages/${id}/confirm_package/`,
-    { remarks },
+    body,
   );
   toastSuccess("multiEngine.toast.confirmed");
   return row;
@@ -2094,6 +2110,10 @@ export interface NewRecipient {
   organization?: string;
   contact?: string;
   days?: number;
+  /** JB252: 提交审批 (default) or 资料传阅. */
+  purpose?: RecipientPurpose;
+  /** JB252: the round's signature, when the round was not signed yet. */
+  signature?: File;
 }
 
 /**
@@ -2101,9 +2121,19 @@ export interface NewRecipient {
  * this once and never again (H17 五 1).
  */
 export async function addPackageRecipient(id: string, payload: NewRecipient) {
+  const { signature, ...fields } = payload;
+  let body: NewRecipient | FormData = fields;
+  if (signature) {
+    const form = new FormData();
+    for (const [key, value] of Object.entries(fields)) {
+      if (value !== undefined && value !== null) form.append(key, String(value));
+    }
+    form.append("signature", signature);
+    body = form;
+  }
   const row = await api.post<PackageRecipient>(
     `/api/evidence-packages/${id}/add_recipient/`,
-    payload,
+    body,
   );
   toastSuccess("multiEngine.exchange.toast.sent");
   return row;
@@ -2186,11 +2216,26 @@ export const getPackageTimeline = (id: string) =>
 export const getPackageRounds = (id: string) =>
   api.get<PackageRound[]>(`/api/evidence-packages/${id}/get_rounds/`);
 
-/** 「重新提交」: a new round with the returned records replaced (H17 七). */
-export async function resubmitPackage(id: string, items: string[], reason: string) {
+/**
+ * 「重新签名提交」 (H17 七, JB252): a new round with the returned records
+ * replaced and what was added for it, the note, the drawn signature and the
+ * PIN. `claimAmount` (JB254) only when it was changed.
+ */
+export async function resubmitPackage(
+  id: string,
+  items: string[],
+  reason: string,
+  signature: File,
+  claimAmount?: string,
+) {
+  const body = new FormData();
+  body.append("items", JSON.stringify(items));
+  body.append("reason", reason);
+  body.append("signature", signature);
+  if (claimAmount !== undefined) body.append("claim_amount", claimAmount);
   const row = await api.post<EvidencePackageDetail>(
     `/api/evidence-packages/${id}/resubmit/`,
-    { items, reason },
+    body,
   );
   toastSuccess("multiEngine.exchange.toast.resubmitted");
   return row;
@@ -2202,8 +2247,15 @@ export async function resubmitPackage(id: string, items: string[], reason: strin
  * as 「确认」 does. The answer is the new package; `sent` is its recipient
  * row (a link's `token` in full, this once).
  */
-export async function resendPackage(id: string, recipient: string) {
-  const row = await api.post<EvidencePackageDetail>(`/api/evidence-packages/${id}/resend/`, { recipient });
+export async function resendPackage(id: string, recipient: string, signature?: File) {
+  // JB252: a 提交审批 resend is the new package's signed round 1.
+  let body: { recipient: string } | FormData = { recipient };
+  if (signature) {
+    body = new FormData();
+    body.append("recipient", recipient);
+    body.append("signature", signature);
+  }
+  const row = await api.post<EvidencePackageDetail>(`/api/evidence-packages/${id}/resend/`, body);
   toastSuccess("multiEngine.exchange.toast.resent", { number: row.package_no });
   return row;
 }
@@ -2225,6 +2277,60 @@ export const correspondenceReportFile = (id: string, name: string, inline = fals
     query: inline ? { inline: "1" } : undefined,
     fallbackFilename: `${name || "package"}-correspondence.pdf`,
   });
+
+/* -- the signed review loop (JB252 / JB254) -------------------------------- */
+
+/** One signed review: the records decided, the opinion, the money, the signature. */
+export interface PackageReviewPayload {
+  decisions: { item: string; decision: "ACCEPTED" | "RETURNED"; reason?: string }[];
+  /** 「全部确认」: every record still waiting. */
+  all?: boolean;
+  opinion: string;
+  approved_amount?: string;
+  amount_reason?: string;
+  signature: File;
+}
+
+function reviewForm(payload: PackageReviewPayload) {
+  const body = new FormData();
+  body.append("decisions", JSON.stringify(payload.decisions));
+  if (payload.all) body.append("all", "true");
+  body.append("opinion", payload.opinion);
+  if (payload.approved_amount !== undefined) body.append("approved_amount", payload.approved_amount);
+  if (payload.amount_reason) body.append("amount_reason", payload.amount_reason);
+  body.append("signature", payload.signature);
+  return body;
+}
+
+/** 总部（系统内） signs its review in Multi Engine (客户 11-24 事项 3 一). */
+export async function reviewEvidencePackage(id: string, payload: PackageReviewPayload) {
+  const row = await api.post<EvidencePackageDetail>(
+    `/api/evidence-packages/${id}/review_package/`,
+    reviewForm(payload),
+  );
+  toastSuccess("jb252.toast.reviewSigned");
+  return row;
+}
+
+/** A consultant signs his review on 「待审阅的资料包」. */
+export async function submitPackageReview(id: string, payload: PackageReviewPayload) {
+  const row = await api.post<EvidencePackageDetail>(
+    `/api/package-reviews/${id}/submit_review/`,
+    reviewForm(payload),
+  );
+  toastSuccess("jb252.toast.reviewSigned");
+  return row;
+}
+
+/** 「确认完毕并归档」 (客户 11-24 事项 3 二): the PIN, then the loop is closed. */
+export async function completeEvidencePackage(id: string) {
+  const row = await api.post<EvidencePackageDetail>(
+    `/api/evidence-packages/${id}/complete_package/`,
+    {},
+  );
+  toastSuccess("jb252.toast.completed");
+  return row;
+}
 
 /* -- the consultant's side ------------------------------------------------ */
 
@@ -2251,16 +2357,6 @@ export function exportPackagesToReview(request: ExportRequest): Promise<void> {
   });
 }
 
-/** 「签收」 (H17 五 2): the consultant takes the package as it stands. */
-export async function signReviewedPackage(id: string) {
-  const row = await api.post<EvidencePackageDetail>(
-    `/api/package-reviews/${id}/sign_package/`,
-    {},
-  );
-  toastSuccess("multiEngine.exchange.toast.signed");
-  return row;
-}
-
 export const getReviewMessages = (id: string) =>
   api.get<PackageMessage[]>(`/api/package-reviews/${id}/get_messages/`);
 
@@ -2280,25 +2376,6 @@ export const reviewPackageItemFile = (id: string, item: string, reference: strin
     query: inline ? { item, inline: "1" } : { item },
     fallbackFilename: `${reference || "record"}.pdf`,
   });
-
-export async function reviewPackageItem(
-  id: string,
-  item: string,
-  decision: "ACCEPTED" | "RETURNED",
-  reason = "",
-) {
-  const row = await api.post<EvidencePackageDetail>(
-    `/api/package-reviews/${id}/review_item/`,
-    { item, decision, reason },
-  );
-  toastSuccess(
-    decision === "ACCEPTED"
-      ? "multiEngine.toast.accepted"
-      : "multiEngine.toast.returned",
-  );
-  return row;
-}
-
 
 /* -------------------------------------------------------------------------
  * Claim Engine (T-236)

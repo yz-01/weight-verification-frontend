@@ -189,7 +189,7 @@ describe("JB189-7, -8, -12: 【重新发送】", () => {
     expect(html).toContain(words.resend);
     const source = read("components/contractor-ops/package-exchange.tsx");
     expect(source).toContain('t("exchange.resendAsk", { name: recipientLabel(t, row) })');
-    expect(source).toContain("resendPackage(pkg.id, recipient.id)");
+    expect(source).toContain("resendPackage(pkg.id, recipient.id, ");
     expect(words.resendAsk).toBe("会生成一个新的资料包编号，内容和原来一样，发给 {name}。");
   });
 
