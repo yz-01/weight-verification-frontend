@@ -109,7 +109,7 @@ export function MoneyBlock({ pkg }: { pkg: EvidencePackageDetail }) {
   return (
     <dl className="grid gap-1 rounded-lg border p-3 text-sm sm:grid-cols-[11rem_1fr]" data-package-money>
       <dt className="text-muted-foreground">{loop("money.claim")}</dt>
-      <dd className="tabular">{claim ? rm(claim) : loop("money.notSet")}</dd>
+      <dd className="tabular">{claim ? rm(claim) : "—"}</dd>
       <dt className="text-muted-foreground">{loop("money.approved")}</dt>
       <dd className="tabular">
         {approved ? rm(approved) : "—"}

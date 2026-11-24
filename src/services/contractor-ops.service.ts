@@ -2357,16 +2357,6 @@ export function exportPackagesToReview(request: ExportRequest): Promise<void> {
   });
 }
 
-/** 「签收」 (H17 五 2): the consultant takes the package as it stands. */
-export async function signReviewedPackage(id: string) {
-  const row = await api.post<EvidencePackageDetail>(
-    `/api/package-reviews/${id}/sign_package/`,
-    {},
-  );
-  toastSuccess("multiEngine.exchange.toast.signed");
-  return row;
-}
-
 export const getReviewMessages = (id: string) =>
   api.get<PackageMessage[]>(`/api/package-reviews/${id}/get_messages/`);
 
@@ -2386,25 +2376,6 @@ export const reviewPackageItemFile = (id: string, item: string, reference: strin
     query: inline ? { item, inline: "1" } : { item },
     fallbackFilename: `${reference || "record"}.pdf`,
   });
-
-export async function reviewPackageItem(
-  id: string,
-  item: string,
-  decision: "ACCEPTED" | "RETURNED",
-  reason = "",
-) {
-  const row = await api.post<EvidencePackageDetail>(
-    `/api/package-reviews/${id}/review_item/`,
-    { item, decision, reason },
-  );
-  toastSuccess(
-    decision === "ACCEPTED"
-      ? "multiEngine.toast.accepted"
-      : "multiEngine.toast.returned",
-  );
-  return row;
-}
-
 
 /* -------------------------------------------------------------------------
  * Claim Engine (T-236)
