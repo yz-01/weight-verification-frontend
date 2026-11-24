@@ -14,8 +14,8 @@ import { createElement, useEffect, useRef, useState, type ReactNode } from "reac
 import { renderToStaticMarkup } from "react-dom/server";
 
 import { MapFrame } from "@/components/shared/map-frame";
-import { MAP_PRIMARY } from "@/lib/map-palette";
-import { lockMapToBox, sitePadding, siteViewBox } from "@/lib/site-view";
+import { MAP_COLORS, MAP_PRIMARY } from "@/lib/map-palette";
+import { lockMapToBox, sitePadding, siteViewBox, spreadPiles } from "@/lib/site-view";
 
 import {
   MAP_TILE_MAX_ZOOM,
@@ -111,6 +111,13 @@ interface LocationMapProps {
    */
   siteFill?: number;
   /**
+   * Icons that would sit on each other at this zoom are set apart round their
+   * middle, each with a thin line to its real place (JB240, 客户 11-23 事项 12:
+   * 「避免全部挤在一起」), worked out again at every zoom. The project
+   * dashboard's map only.
+   */
+  spreadOverlaps?: boolean;
+  /**
    * What the first view fits: everything drawn (default), or the markers
    * only - the head-office map opens on its pins, its fences drawn but not
    * pulling the view down to one street (JB222-1).
@@ -125,6 +132,20 @@ interface LocationMapProps {
 }
 
 const DEFAULT_CENTER: [number, number] = [3.139, 101.6869];
+
+/**
+ * A fill-to-share map's zoom steps (JB240): a tenth of a step, so a fit is
+ * not rounded down by as much as a sixth of the site (it was 0.25, JB222).
+ */
+export const SITE_ZOOM_SNAP = 0.1;
+/**
+ * How many steps a fill-to-share map may go past the tiles' own closest zoom
+ * (JB240): the tiles are drawn larger. OpenStreetMap stops at 19, where a
+ * 900 px wide map shows about 270 m - a smaller site could not fill the map.
+ */
+export const SITE_OVERZOOM = 2;
+/** The thin line and dot from a spread icon to its real place (JB240): slate. */
+const SPREAD_LINE = MAP_COLORS[7];
 
 export function LocationMap({
   center = DEFAULT_CENTER,
@@ -142,6 +163,7 @@ export function LocationMap({
   fitLabel,
   lockToSite = false,
   siteFill,
+  spreadOverlaps = false,
   fitTo = "all",
   fitMaxZoom = 16,
   popups = true,
@@ -187,7 +209,7 @@ export function LocationMap({
         fadeAnimation: false,
         markerZoomAnimation: false,
         zoomAnimation: false,
-        ...(siteFillRef.current ? { zoomSnap: 0.25 } : {}),
+        ...(siteFillRef.current ? { zoomSnap: SITE_ZOOM_SNAP } : {}),
       });
       if (siteFillRef.current) {
         // Any move the map did not make itself is the reader's.
@@ -196,7 +218,11 @@ export function LocationMap({
         });
       }
       warnIfFallbackTiles();
-      L.tileLayer(MAP_TILE_URL, { ...MAP_TILE_OPTIONS }).addTo(map);
+      L.tileLayer(MAP_TILE_URL, {
+        ...MAP_TILE_OPTIONS,
+        // A small site fills the map too (JB240): past the tiles' own closest zoom, drawn larger.
+        ...(siteFillRef.current ? { maxNativeZoom: MAP_TILE_MAX_ZOOM, maxZoom: MAP_TILE_MAX_ZOOM + SITE_OVERZOOM } : {}),
+      }).addTo(map);
       mapRef.current = map;
       layerGroupRef.current = L.layerGroup().addTo(map);
       leafletRef.current = L;
@@ -281,6 +307,8 @@ export function LocationMap({
         if (path.label) line.bindTooltip(path.label);
         path.points.forEach((point) => bounds.extend(point));
       });
+      // Each icon and its real place, for the spreading below (JB240).
+      const drawn: Array<{ point: import("leaflet").Marker; at: import("leaflet").LatLng }> = [];
       markers.forEach((marker) => {
         const color =
           marker.tone === "danger"
@@ -317,6 +345,7 @@ export function LocationMap({
         }
         point.on("click", () => onMarkerClickRef.current?.(marker.id));
         bounds.extend(point.getLatLng());
+        drawn.push({ point, at: point.getLatLng() });
       });
 
       // A site's map: its room first, since Leaflet will not show a place
@@ -344,7 +373,7 @@ export function LocationMap({
             const size = map.getSize();
             if (siteFill && size.x > 0 && size.y > 0) {
               map.fitBounds(fence, {
-                maxZoom: MAP_TILE_MAX_ZOOM,
+                maxZoom: MAP_TILE_MAX_ZOOM + SITE_OVERZOOM,
                 animate: false,
                 padding: sitePadding(size.x, size.y, siteFill),
               });
@@ -389,6 +418,40 @@ export function LocationMap({
           hasFittedRef.current = true;
         }
       }
+
+      // Icons that would sit on each other at this zoom stand apart round
+      // their middle, a thin line and a dot at each one's real place (JB240).
+      // Pixels, so it is worked out again whenever the zoom changes.
+      if (!spreadOverlaps || drawn.length < 2) return;
+      const lines = L.layerGroup().addTo(layers);
+      const spread = () => {
+        lines.clearLayers();
+        const zoom = map.getZoom();
+        const real = drawn.map(({ at }) => map.project(at, zoom));
+        spreadPiles(real).forEach((place, index) => {
+          const { point, at } = drawn[index];
+          if (Math.abs(place.x - real[index].x) < 0.5 && Math.abs(place.y - real[index].y) < 0.5) {
+            point.setLatLng(at);
+            return;
+          }
+          const shown = map.unproject(L.point(place.x, place.y), zoom);
+          point.setLatLng(shown);
+          L.polyline([at, shown], { color: SPREAD_LINE, weight: 1.5, opacity: 0.8, interactive: false }).addTo(lines);
+          L.circleMarker(at, {
+            radius: 3,
+            color: SPREAD_LINE,
+            weight: 1,
+            fillColor: SPREAD_LINE,
+            fillOpacity: 0.9,
+            interactive: false,
+          }).addTo(lines);
+        });
+      };
+      spread();
+      map.on("zoomend", spread);
+      return () => {
+        map.off("zoomend", spread);
+      };
   }, [
     center,
     fitBoundsKey,
@@ -403,6 +466,7 @@ export function LocationMap({
     ready,
     singlePointZoom,
     siteFill,
+    spreadOverlaps,
     zones,
   ]);
 

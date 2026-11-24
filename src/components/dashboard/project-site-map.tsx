@@ -9,8 +9,11 @@
  * 地图上的图标，可以查看对应的人员或完整事项记录。项目仪表板的地图是用来管理工地
  * 现场，而不是查看整个城市的道路分布。」
  *
- * - The map opens on the project's fences, filling about 80 % of it, and stays
- *   on the site (JB111's lock): nothing of the city around it.
+ * - The map opens on the project's fences, filling it (JB240, 客户 11-23 事项
+ *   12: 「希望整个工地尽量放大，覆盖整个地图显示框」 - it was about 80 %, JB222),
+ *   and stays on the site (JB111's lock): nothing of the city around it.
+ * - Icons that would sit on each other stand apart round their middle, each
+ *   with a thin line to its real place (JB240: 「避免全部挤在一起」).
  * - Four layers, each a labelled switch with its count: 人员 and 机械设备 are
  *   where they are now; 材料卸货 and 现场记录 are today's, or the last seven
  *   days' with one switch. A point outside the site is not drawn; one line
@@ -74,8 +77,12 @@ import { getProjectMap } from "@/services/contractor-dashboard.service";
 export type MapLayer = "people" | "receipts" | "machines" | "records";
 export const MAP_LAYERS: readonly MapLayer[] = ["people", "receipts", "machines", "records"];
 
-/** The share of the map the site fills when it opens (「约80%」). */
-export const SITE_FILL = 0.8;
+/**
+ * The share of the map the site fills when it opens: all of it but a thin
+ * edge, so the fence line and an icon on it are not cut off (JB240, 客户
+ * 11-23: 「覆盖整个地图显示框」「也不要求100%精确填满」; JB222 had 0.8, 「约80%」).
+ */
+export const SITE_FILL = 0.96;
 /** Icons of one layer closer than this many metres are one icon (D8). */
 export const SAME_SPOT_M = 8;
 
@@ -388,6 +395,7 @@ export function ProjectSiteMap({
             zones={zones}
             lockToSite
             siteFill={SITE_FILL}
+            spreadOverlaps
             popups={false}
             preserveViewOnDataUpdate
             fitBoundsKey={`project-site-map:${project}`}
