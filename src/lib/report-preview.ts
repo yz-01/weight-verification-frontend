@@ -3,6 +3,7 @@ import type {
   ContractorReportRecord,
   ContractorReportType,
 } from "@/interfaces/contractor-report";
+import { PACKAGE_PROGRESS } from "@/interfaces/contractor-ops";
 import { attendanceRecordHref } from "@/lib/dashboard-cards";
 import { recordTarget, type RecordTarget } from "@/lib/record-routes";
 import { PHOTO_CATEGORIES, PHOTO_ORIGINS, photoCategoryKey, photoOriginKey } from "@/lib/report-menu";
@@ -207,6 +208,8 @@ export function reportValueKey(
     if (reportType === "target") {
       return `businessTargets.status.${code === "ACTIVE" ? "active" : "inactive"}`;
     }
+    // 进度 Claim 报表: 已完成（已归档） as Multi Engine's list says it (JB252).
+    if (reportType === "claims" && code === "COMPLETED") return "jb252.stateCompleted";
     const namespace = STATUS_NAMESPACE[reportType];
     return namespace ? `${namespace}.${code}` : null;
   }
@@ -218,26 +221,22 @@ const SCHEDULE_STATUSES = ["NOT_STARTED", "IN_PROGRESS", "DELAYED", "COMPLETED",
 
 /**
  * 进度 Claim 报表's 审阅 (JB258), as Multi Engine's list words it
- * (`SendStatusWords`): the server's `claim_report.review_code` joins the
- * sends with `+` and puts the consultant's answer after `~` -
- * `INTERNAL+SENT~REVIEWED` reads 「已发送系统内 · 已对外发送 · 已审阅」.
- * When the list's 审阅 changes (JB252), change both together.
+ * (`SendStatusWords`, JB252): the server's `claim_report.review_cell` sends
+ * the package's review (`jb252.progress`), or `CIRCULATION` for a package only
+ * sent to read (`jb252.purpose.CIRCULATION`), then an outside share after
+ * `+` - `IN_REVIEW+SENT` reads 「审核处理中 · 已对外发送」.
  */
 export function claimReviewKeys(code: string): string[] {
-  const [sends, review] = code.split("~");
-  const keys = sends
-    .split("+")
-    .filter(Boolean)
-    .map((part) => `multiEngine.sendStatus.${part}`);
-  if (review) keys.push(`multiEngine.review.${review}`);
-  return keys;
+  const [review, ...shares] = code.split("+");
+  const first = review === "CIRCULATION" ? "jb252.purpose.CIRCULATION" : `jb252.progress.${review}`;
+  return [first, ...shares.filter(Boolean).map((part) => `multiEngine.sendStatus.${part}`)];
 }
 
 /** Every 审阅 code the server can send, for the exported file's words. */
 export const CLAIM_REVIEW_CODES: readonly string[] = (() => {
-  const sends = ["NOT_SENT", "INTERNAL", "STARTED", "SENT", "INTERNAL+STARTED", "INTERNAL+SENT"];
-  const answers = ["", "SENT", "REVIEWED"];
-  return sends.flatMap((send) => answers.map((answer) => (answer ? `${send}~${answer}` : send)));
+  const reviews = [...PACKAGE_PROGRESS, "CIRCULATION"];
+  const shares = ["", "STARTED", "SENT"];
+  return reviews.flatMap((review) => shares.map((share) => (share ? `${review}+${share}` : review)));
 })();
 
 /**
@@ -293,6 +292,7 @@ function columnCodes(
     }
     if (reportType === "schedule") return plain(SCHEDULE_STATUSES);
     if (reportType === "target") return plain(["ACTIVE", "INACTIVE"]);
+    if (reportType === "claims") return plain(["DRAFT", "CONFIRMED", "COMPLETED"]);
     const namespace = STATUS_NAMESPACE[reportType];
     return namespace ? plain(codes(namespace)) : [];
   }

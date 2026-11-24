@@ -6,6 +6,7 @@
  */
 import { describe, expect, it } from "vitest";
 
+import { PACKAGE_PROGRESS } from "@/interfaces/contractor-ops";
 import type { ContractorReportRecord } from "@/interfaces/contractor-report";
 import {
   CLAIM_REVIEW_CODES,
@@ -41,49 +42,53 @@ function codesOf(catalogue: unknown) {
   };
 }
 
-/** The list's own 审阅 words (`SendStatusWords` in multi-engine.tsx). */
+/**
+ * The list's own 审阅 cell (`SendStatusWords` in multi-engine.tsx, JB252): the
+ * review in the client's words (`jb252.progress`), 资料传阅 for a package only
+ * sent to read, then an outside share (`multiEngine.sendStatus`).
+ */
 function listWords(
   catalogue: unknown,
   sendStatus: { internal: boolean; external: "NONE" | "STARTED" | "SENT" },
-  reviewState: string,
+  progress: string,
 ): string {
-  const words = sendStatusKeys({ send_status: sendStatus, recipient_count: 0 }).map(
-    (key) => lookup(catalogue, `multiEngine.sendStatus.${key}`) ?? "",
-  );
-  if (reviewState !== "NOT_SENT") words.push(lookup(catalogue, `multiEngine.review.${reviewState}`) ?? "");
-  return words.join(" · ");
+  const first =
+    progress === "NOT_SENT" && sendStatus.internal
+      ? lookup(catalogue, "jb252.purpose.CIRCULATION")
+      : lookup(catalogue, `jb252.progress.${progress}`);
+  const shares = sendStatusKeys({ send_status: sendStatus, recipient_count: 0 })
+    .filter((key) => key === "STARTED" || key === "SENT")
+    .map((key) => lookup(catalogue, `multiEngine.sendStatus.${key}`) ?? "");
+  return [first ?? "", ...shares].join(" · ");
 }
 
-/** The server's `claim_report.review_code`. */
-function serverCode(sendStatus: { internal: boolean; external: string }, reviewState: string): string {
-  const parts: string[] = [];
-  if (sendStatus.internal) parts.push("INTERNAL");
-  if (sendStatus.external !== "NONE") parts.push(sendStatus.external);
-  const code = parts.join("+") || "NOT_SENT";
-  return reviewState !== "NOT_SENT" ? `${code}~${reviewState}` : code;
+/** The server's `claim_report.review_cell`. */
+function serverCode(sendStatus: { internal: boolean; external: string }, progress: string): string {
+  const first = progress === "NOT_SENT" && sendStatus.internal ? "CIRCULATION" : progress;
+  return sendStatus.external === "NONE" ? first : `${first}+${sendStatus.external}`;
 }
 
 describe("JB258 进度 Claim 报表: 审阅 reads as Multi Engine's list", () => {
   const cases = [false, true].flatMap((internal) =>
     (["NONE", "STARTED", "SENT"] as const).flatMap((external) =>
-      ["NOT_SENT", "SENT", "REVIEWED"].map((review) => ({ internal, external, review })),
+      PACKAGE_PROGRESS.map((progress) => ({ internal, external, progress })),
     ),
   );
 
   it.each(Object.entries(CATALOGUES))("every code, %s", (_, catalogue) => {
-    for (const { internal, external, review } of cases) {
-      const code = serverCode({ internal, external }, review);
+    for (const { internal, external, progress } of cases) {
+      const code = serverCode({ internal, external }, progress);
       const words = reportValueWords(
         reportValueKeys("claims", "review", code, {}),
         (key) => lookup(catalogue, key),
       );
-      expect(words).toBe(listWords(catalogue, { internal, external }, review));
+      expect(words, code).toBe(listWords(catalogue, { internal, external }, progress));
     }
   });
 
   it("the exported file words every code the server can send", () => {
-    for (const { internal, external, review } of cases) {
-      expect(CLAIM_REVIEW_CODES).toContain(serverCode({ internal, external }, review));
+    for (const { internal, external, progress } of cases) {
+      expect(CLAIM_REVIEW_CODES).toContain(serverCode({ internal, external }, progress));
     }
     const values = reportColumnValues(
       "claims",
@@ -91,20 +96,32 @@ describe("JB258 进度 Claim 报表: 审阅 reads as Multi Engine's list", () =>
       (key) => lookup(zh, key),
       codesOf(zh),
     );
-    expect(values.review["INTERNAL~SENT"]).toBe("已发送系统内 · 已发送，等待回复");
+    expect(values.review.SENT).toBe("已发送，待审核");
     expect(values.review.NOT_SENT).toBe("未发送");
-    expect(values.review["INTERNAL+SENT~REVIEWED"]).toBe("已发送系统内 · 已对外发送 · 已审阅");
-    // 状态 is the package's: 草稿 / 已确认（已锁定）.
+    expect(values.review.CIRCULATION).toBe("资料传阅");
+    expect(values.review["IN_REVIEW+SENT"]).toBe("审核处理中 · 已对外发送");
+    // 状态 as the list: 草稿 / 已确认（已锁定） / 已完成（已归档）.
     expect(values.status.CONFIRMED).toBe("已确认（已锁定）");
     expect(values.status.DRAFT).toBe("草稿");
+    expect(values.status.COMPLETED).toBe("已完成（已归档）");
+  });
+
+  it("words 状态 COMPLETED in four languages", () => {
+    for (const catalogue of Object.values(CATALOGUES)) {
+      const words = reportValueWords(
+        reportValueKeys("claims", "status", "COMPLETED", {}),
+        (key) => lookup(catalogue, key),
+      );
+      expect(words).toBe(lookup(catalogue, "jb252.stateCompleted"));
+    }
   });
 
   it("splits a code into the list's keys", () => {
-    expect(claimReviewKeys("INTERNAL+STARTED~SENT")).toEqual([
-      "multiEngine.sendStatus.INTERNAL",
+    expect(claimReviewKeys("IN_REVIEW+STARTED")).toEqual([
+      "jb252.progress.IN_REVIEW",
       "multiEngine.sendStatus.STARTED",
-      "multiEngine.review.SENT",
     ]);
+    expect(claimReviewKeys("CIRCULATION")).toEqual(["jb252.purpose.CIRCULATION"]);
   });
 });
 
