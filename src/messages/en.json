@@ -9679,7 +9679,10 @@
       "exit_pass_not_started": "The office has not pressed [Start exit pass] yet, so it cannot be signed. Sign after the office has checked the site photos and pressed [Start exit pass].",
       "exit_pass_start_not_allowed": "You cannot start this exit pass: it is pressed in the office by someone who approves material exits on this project. Ask the project manager or head office.",
       "exit_pass_already_started": "This exit pass has already been started - no need to press again. The page has been refreshed.",
-      "project_left": "You have been taken off the project {project}, so you can no longer view or work on its records. Please contact the project manager if you need to."
+      "project_left": "You have been taken off the project {project}, so you can no longer view or work on its records. Please contact the project manager if you need to.",
+      "phone_identity_in_use": "This mobile number already belongs to an active identity: {name} ({kind, select, driver {driver link} site_staff {site staff} equipment_operator {equipment operator} gate_guard {gate guard} other {field staff}}). One number can have only one active identity: stop the old one first, then create the new one.",
+      "phone_device_in_use": "This phone is already bound to another person's identity ({name}). One phone can have only one active identity: ask the office to stop the old identity first, then use the new link.",
+      "equipment_hours_driver_busy": "Your machine {equipment} has not been stopped yet (started {since}). One driver can run only one machine at a time: take its stop photo first, then start this one."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -23501,5 +23504,16 @@
   "jb245": {
     "leftProject": "Taken off project",
     "leftProjectHelp": "{name} has been taken off this project and can no longer do this task. Please choose someone who is on the project now."
+  },
+  "jb246": {
+    "sameNumber": "This number also has another active identity: {names}. One number can have only one active identity - stop the one you do not need.",
+    "identity": "{name} ({kind})",
+    "kind": {
+      "driver": "driver link",
+      "site_staff": "site staff",
+      "equipment_operator": "equipment operator",
+      "gate_guard": "gate guard",
+      "other": "field staff"
+    }
   }
 }

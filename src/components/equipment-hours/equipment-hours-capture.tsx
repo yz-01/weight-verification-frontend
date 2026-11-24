@@ -438,6 +438,15 @@ export function EquipmentHoursCapture({
       ) {
         void queryClient.invalidateQueries({ queryKey: ["equipment-hours", "machines"] });
       }
+      // JB246: the office stopped (or sent again) this driver's link while
+      // the page was open - read the link again, so the page ends at once.
+      if (
+        driver &&
+        reason instanceof ApiError &&
+        (reason.code === "driver_link_closed" || reason.code === "driver_link_invalid")
+      ) {
+        void queryClient.invalidateQueries({ queryKey: ["driver-clock-link", driver.token] });
+      }
     },
   });
 

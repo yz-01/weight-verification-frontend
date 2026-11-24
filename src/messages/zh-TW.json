@@ -9679,7 +9679,10 @@
       "exit_pass_not_started": "後台還沒有按【啟動出門條】，現在不能簽名。請等後台看過現場照片、按【啟動出門條】後再簽。",
       "exit_pass_start_not_allowed": "你不能啟動這張出門條：要由電腦後台、有這個項目「材料出場」批准權限的人按。請聯絡項目經理或總部。",
       "exit_pass_already_started": "這張出門條已經啟動了，不用再按；頁面已刷新。",
-      "project_left": "你已經被移出「{project}」項目，不能再查看或操作這個項目的資料。如有需要，請聯繫項目經理。"
+      "project_left": "你已經被移出「{project}」項目，不能再查看或操作這個項目的資料。如有需要，請聯繫項目經理。",
+      "phone_identity_in_use": "這個手機號碼已經是「{name}」（{kind, select, driver {司機打卡連結} site_staff {工地人員} equipment_operator {設備操作人員} gate_guard {門崗保安} other {現場人員}}）的有效身份。一個號碼只能有一個有效身份：請先停用原來的，再建立新的。",
+      "phone_device_in_use": "這部手機已經綁定了另一個人的身份（{name}）。一部手機只能有一個有效身份：請後台先停用原來的身份，再用新的連結。",
+      "equipment_hours_driver_busy": "你的設備 {equipment} 還沒有收工（{since} 開工）。一個司機同一時間只能開一台設備：請先為它拍收工，再為這台開工。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -23501,5 +23504,16 @@
   "jb245": {
     "leftProject": "已移出項目",
     "leftProjectHelp": "{name} 已移出這個項目，不能再做這個任務。請選一個現在在項目裡的人。"
+  },
+  "jb246": {
+    "sameNumber": "這個號碼還有別的有效身份：{names}。一個號碼只能有一個有效身份，請停用不要的那一個。",
+    "identity": "{name}（{kind}）",
+    "kind": {
+      "driver": "司機打卡連結",
+      "site_staff": "工地人員",
+      "equipment_operator": "設備操作人員",
+      "gate_guard": "門崗保安",
+      "other": "現場人員"
+    }
   }
 }

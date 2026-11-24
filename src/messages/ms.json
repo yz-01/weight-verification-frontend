@@ -9679,7 +9679,10 @@
       "exit_pass_not_started": "Pejabat belum menekan [Mulakan pas keluar], jadi ia belum boleh ditandatangani. Tandatangan selepas pejabat menyemak foto tapak dan menekan [Mulakan pas keluar].",
       "exit_pass_start_not_allowed": "Anda tidak boleh memulakan pas keluar ini: ia ditekan di pejabat oleh orang yang meluluskan bahan keluar bagi projek ini. Hubungi pengurus projek atau ibu pejabat.",
       "exit_pass_already_started": "Pas keluar ini sudah dimulakan - tidak perlu tekan lagi. Halaman telah dimuat semula.",
-      "project_left": "Anda telah dikeluarkan daripada projek {project}, jadi anda tidak lagi boleh melihat atau mengendalikan rekodnya. Sila hubungi pengurus projek jika perlu."
+      "project_left": "Anda telah dikeluarkan daripada projek {project}, jadi anda tidak lagi boleh melihat atau mengendalikan rekodnya. Sila hubungi pengurus projek jika perlu.",
+      "phone_identity_in_use": "Nombor telefon ini sudah menjadi identiti aktif \"{name}\" ({kind, select, driver {pautan pemandu} site_staff {kakitangan tapak} equipment_operator {operator peralatan} gate_guard {pengawal pintu} other {kakitangan tapak}}). Satu nombor hanya boleh ada satu identiti aktif: hentikan yang lama dahulu, kemudian buat yang baharu.",
+      "phone_device_in_use": "Telefon ini sudah diikat pada identiti orang lain ({name}). Satu telefon hanya boleh ada satu identiti aktif: minta pejabat menghentikan identiti lama dahulu, kemudian gunakan pautan baharu.",
+      "equipment_hours_driver_busy": "Mesin anda {equipment} belum ditamatkan (mula {since}). Seorang pemandu hanya boleh menjalankan satu mesin pada satu masa: ambil foto tamat mesin itu dahulu, kemudian mulakan mesin ini."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -23501,5 +23504,16 @@
   "jb245": {
     "leftProject": "Dikeluarkan daripada projek",
     "leftProjectHelp": "{name} telah dikeluarkan daripada projek ini dan tidak lagi boleh membuat tugas ini. Sila pilih orang yang berada dalam projek sekarang."
+  },
+  "jb246": {
+    "sameNumber": "Nombor ini juga ada identiti aktif lain: {names}. Satu nombor hanya boleh ada satu identiti aktif - hentikan yang tidak diperlukan.",
+    "identity": "{name} ({kind})",
+    "kind": {
+      "driver": "pautan pemandu",
+      "site_staff": "kakitangan tapak",
+      "equipment_operator": "operator peralatan",
+      "gate_guard": "pengawal pintu",
+      "other": "kakitangan tapak"
+    }
   }
 }

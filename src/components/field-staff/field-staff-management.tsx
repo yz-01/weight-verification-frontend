@@ -19,6 +19,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { FieldAccessManagementDialog } from "@/components/field-staff/field-access-management";
+import { OtherIdentitiesNote } from "@/components/field-staff/other-identities-note";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import {
   EmptyState,
@@ -137,6 +138,8 @@ export function FieldStaffManagementPage() {
                 <div className="min-w-0">
                   <p className="truncate text-base font-semibold">{person.full_name}</p>
                   <p className="text-sm text-muted-foreground tabular">{person.phone || "—"}</p>
+                  {/* JB247: this number is also a driver's live link (from before the rule). */}
+                  <OtherIdentitiesNote others={person.other_identities} />
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
                   <TypeBadge label={roleLabel(person.role_code, person.role_name, tAll)} />
