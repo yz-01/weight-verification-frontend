@@ -9661,7 +9661,10 @@
       "permit_work_name_required": "Write the work name first, then sign and approve.",
       "permit_formal_permit_required": "There is no formal permit yet. Upload the company's filled permit form with \"Attach files\", or fill in the e-permit, then sign and approve.",
       "hazard_room_not_for_consultant": "This is the contractor's internal conversation; a consultant cannot post here. To talk to the project office, use 'Message someone'.",
-      "report_export_made_before_update": "This file was made before the system update. Please export it again."
+      "report_export_made_before_update": "This file was made before the system update. Please export it again.",
+      "phone_identity_in_use": "This mobile number already belongs to an active identity: {name} ({kind, select, driver {driver link} site_staff {site staff} equipment_operator {equipment operator} gate_guard {gate guard} other {field staff}}). One number can have only one active identity: stop the old one first, then create the new one.",
+      "phone_device_in_use": "This phone is already bound to another person's identity ({name}). One phone can have only one active identity: ask the office to stop the old identity first, then use the new link.",
+      "equipment_hours_driver_busy": "Your machine {equipment} has not been stopped yet (started {since}). One driver can run only one machine at a time: take its stop photo first, then start this one."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -23418,5 +23421,16 @@
     "noProjects": "You have not been given access to any project yet. Please ask the contractor's head office to open one for you.",
     "chooseProject": "First choose a project in the project box at the top of the page; that project's dashboard will then show here.",
     "onlyOpened": "Head office has opened only these parts for you. To see anything else, please contact the contractor's head office."
+  },
+  "jb246": {
+    "sameNumber": "This number also has another active identity: {names}. One number can have only one active identity - stop the one you do not need.",
+    "identity": "{name} ({kind})",
+    "kind": {
+      "driver": "driver link",
+      "site_staff": "site staff",
+      "equipment_operator": "equipment operator",
+      "gate_guard": "gate guard",
+      "other": "field staff"
+    }
   }
 }

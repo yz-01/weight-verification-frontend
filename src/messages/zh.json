@@ -9661,7 +9661,10 @@
       "permit_work_name_required": "请先填写施工事项名称，再签名批准。",
       "permit_formal_permit_required": "还没有正式施工准证。请用「上传附件」上传填好的公司准证表格，或填写电子准证，再签名批准。",
       "hazard_room_not_for_consultant": "这是建筑商内部的沟通，顾问不能在这里发言。要和项目后台沟通，请用「找人沟通」。",
-      "report_export_made_before_update": "这份文件是系统更新前生成的，请重新导出。"
+      "report_export_made_before_update": "这份文件是系统更新前生成的，请重新导出。",
+      "phone_identity_in_use": "这个手机号码已经是「{name}」（{kind, select, driver {司机打卡链接} site_staff {工地人员} equipment_operator {设备操作人员} gate_guard {门岗保安} other {现场人员}}）的有效身份。一个号码只能有一个有效身份：请先停用原来的，再建立新的。",
+      "phone_device_in_use": "这部手机已经绑定了另一个人的身份（{name}）。一部手机只能有一个有效身份：请后台先停用原来的身份，再用新的链接。",
+      "equipment_hours_driver_busy": "你的设备 {equipment} 还没有收工（{since} 开工）。一个司机同一时间只能开一台设备：请先为它拍收工，再为这台开工。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -23418,5 +23421,16 @@
     "noProjects": "您目前没有获授权的项目。请联系建筑商总部开通。",
     "chooseProject": "请先在页面上方的项目框选一个项目，这里就会显示那个项目的仪表板。",
     "onlyOpened": "总部目前只为您开通了这些内容。要看其他内容，请联系建筑商总部。"
+  },
+  "jb246": {
+    "sameNumber": "这个号码还有别的有效身份：{names}。一个号码只能有一个有效身份，请停用不要的那一个。",
+    "identity": "{name}（{kind}）",
+    "kind": {
+      "driver": "司机打卡链接",
+      "site_staff": "工地人员",
+      "equipment_operator": "设备操作人员",
+      "gate_guard": "门岗保安",
+      "other": "现场人员"
+    }
   }
 }

@@ -40,6 +40,8 @@ export interface DriverClockLink {
   /** 操作人员资料 (JB233) - in the list only. */
   operator_profile_id?: string | null;
   operator_expiry?: OperatorExpiry;
+  /** Other active identities on this number (JB246) - in the list only. */
+  other_identities?: { kind: string; name: string }[];
 }
 
 export interface DriverLinkPayload {

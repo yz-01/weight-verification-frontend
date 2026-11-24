@@ -43,6 +43,9 @@ import {
 
 type Ending = "invalid" | "closed" | "otherDevice";
 
+/** How often an open driver page asks whether its link is still on (JB246). */
+export const DRIVER_LINK_RECHECK_MS = 60_000;
+
 /** What a refusal of the link means for the page. */
 export function driverLinkEnding(code: string): Ending | null {
   if (code === "driver_link_invalid") return "invalid";
@@ -63,6 +66,11 @@ export function DriverClockLink({ token: rawToken }: { token: string }) {
     queryFn: () => getDriverLink(token, device),
     enabled: Boolean(token && device),
     retry: (count, error) => count < 2 && !(error instanceof ApiError && driverLinkEnding(error.code)),
+    // JB246 (客户 11-23 事项 18 第 3 点): 「旧链接停用后必须立即失效」 - the server
+    // refuses a stopped link at once; a page left open asks again every
+    // minute (and when it comes back to the front), so it shows 「已停用」
+    // instead of the machines.
+    refetchInterval: DRIVER_LINK_RECHECK_MS,
   });
   const bound = Boolean(link.data?.bound);
   const [tab, setTab] = useState<"clock" | "records">("clock");
