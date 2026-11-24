@@ -4054,7 +4054,8 @@
       "package_submit_signed": "Pakej ditandatangani dan dihantar",
       "package_review_signed": "Semakan pakej ditandatangani",
       "package_completed": "Pakej diselesaikan dan diarkibkan",
-      "package_claim_amount_set": "Jumlah tuntutan pakej diubah"
+      "package_claim_amount_set": "Jumlah tuntutan pakej diubah",
+      "company_modules_by_platform": "MSE menghidupkan atau mematikan modul perniagaan syarikat"
     },
     "objectType": {
       "SignOffAssistant": "PIN pembantu",
@@ -9718,7 +9719,8 @@
       "package_approved_amount_required": "Isi jumlah diluluskan bagi tempoh ini.",
       "package_amount_reason_required": "Jumlah diluluskan berbeza daripada jumlah tuntutan: tulis sebabnya.",
       "package_not_approved": "Ia boleh diselesaikan selepas semua penyemak meluluskannya.",
-      "package_completed": "Pakej ini telah selesai dan diarkibkan; tiada lagi perubahan."
+      "package_completed": "Pakej ini telah selesai dan diarkibkan; tiada lagi perubahan.",
+      "company_module_invalid": "Tanda hanya modul perniagaan yang ada pada syarikat ini."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -10409,7 +10411,8 @@
       "operatorHours": "Jam operator peralatan",
       "permit": "Permit kerja",
       "visitor": "Imbas QR Pelawat",
-      "rain": "Rainy Weather"
+      "rain": "Rainy Weather",
+      "scrap": "Pelupusan bahan buangan"
     },
     "status": {
       "ACCEPTED": "Selesai",
@@ -12708,7 +12711,7 @@
       "DRIVER_TRIP": "Perjalanan",
       "MATERIAL_OUTGOING": "Bahan keluar",
       "EQUIPMENT_MOVEMENT": "Pergerakan peralatan",
-      "DISPOSAL_REQUEST": "Pelupusan tapak",
+      "DISPOSAL_REQUEST": "Pembersihan sisa",
       "SUNDRY_CLAIM": "Tuntutan pelbagai",
       "MATERIAL_REQUEST": "MR / Permohonan Lain",
       "GATE_INCIDENT": "Foto pintu",
@@ -13016,7 +13019,7 @@
     "settings": "Tetapan",
     "settlements": "Penyelesaian",
     "site_access": "Akses tapak",
-    "site_disposals": "Pelupusan tapak",
+    "site_disposals": "Pembersihan sisa",
     "site_gps": "GPS kakitangan tapak",
     "sites": "Tapak",
     "submodule": {
@@ -13218,7 +13221,7 @@
       "settingsActivity": "Rekod tetapan",
       "settingsAudit": "Rekod tetapan",
       "siteAccessPasses": "Pas akses",
-      "siteDisposals": "Pelupusan tapak",
+      "siteDisposals": "Pembersihan sisa",
       "siteEquipment": "Pergerakan peralatan",
       "siteGps": "GPS kakitangan tapak",
       "subscriptionActivity": "Rekod operasi",
@@ -17810,7 +17813,7 @@
       "SUPPLIER_SET": "Pejabat menamakan / menukar syarikat pembersihan",
       "ANOMALY_REPORTED": "Pengecualian dilaporkan"
     },
-    "title": "Pelupusan tapak",
+    "title": "Pembersihan sisa",
     "toast": {
       "assigned": "Kontraktor luar ditugaskan",
       "assignedInternal": "Dihantar kepada kakitangan tapak",
@@ -23690,5 +23693,42 @@
       "reviewSigned": "Semakan ditandatangani dan dihantar",
       "completed": "Diselesaikan dan diarkibkan"
     }
+  },
+  "jb248": {
+    "field": "Jenis",
+    "kind": {
+      "GARBAGE": "Pembersihan sisa",
+      "SCRAP": "Pelupusan bahan buangan"
+    },
+    "count": {
+      "GARBAGE": "Pembersihan sisa: {count}",
+      "SCRAP": "Pelupusan bahan buangan: {count}"
+    },
+    "tab": {
+      "all": "Semua",
+      "garbage": "Pembersihan sisa",
+      "scrap": "Pelupusan bahan buangan",
+      "abnormal": "Rekod pengecualian"
+    },
+    "totals": {
+      "GARBAGE": "Pembersihan sisa: {records} tugas · {trips} trip · {weight} kg",
+      "SCRAP": "Pelupusan bahan buangan: {records} tugas · {trips} trip · {weight} kg",
+      "apart": "Dikira berasingan; tidak dijumlahkan."
+    }
+  },
+  "jb249": {
+    "button": "Statistik ESG",
+    "soon": "Akan datang"
+  },
+  "jb250": {
+    "title": "Modul perniagaan",
+    "help": "Modul yang ditanda boleh digunakan oleh syarikat ini. Buang tanda dan modul itu hilang dari pejabat dan telefon syarikat ini, dan membukanya melalui pautan atau API akan ditolak. Rekod disimpan; tanda semula untuk memulihkannya.",
+    "alwaysOn": "Papan pemuka, pemberitahuan, pengguna, peranan, tetapan syarikat dan log sentiasa hidup untuk setiap syarikat dan tidak disenaraikan di sini.",
+    "count": "{on} daripada {total} modul hidup",
+    "notInPlan": "(tiada dalam pakej)",
+    "save": "Simpan modul",
+    "noChange": "Belum ada perubahan.",
+    "saved": "Modul perniagaan disimpan.",
+    "saveFailed": "Gagal menyimpan. Sila cuba lagi."
   }
 }

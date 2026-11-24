@@ -3258,7 +3258,7 @@
       "EQUIPMENT_MOVEMENT": "設備進出",
       "HAZARD": "整改 / EHS",
       "WASTE_OUTGOING": "環保材料出場申請",
-      "DISPOSAL_REQUEST": "工地清運",
+      "DISPOSAL_REQUEST": "垃圾清運",
       "PROGRESS": "工程進度",
       "CONSULTANT_APPLICATION": "顧問申請",
       "ATTENDANCE_DAY": "出入場（按日）",
@@ -4054,7 +4054,8 @@
       "package_submit_signed": "資料包簽名提交",
       "package_review_signed": "資料包簽名審核",
       "package_completed": "資料包確認完畢並歸檔",
-      "package_claim_amount_set": "資料包申請金額修改"
+      "package_claim_amount_set": "資料包申請金額修改",
+      "company_modules_by_platform": "MSE 開啟或關閉公司的業務模組"
     },
     "objectType": {
       "SignOffAssistant": "助理副密碼",
@@ -6548,7 +6549,7 @@
       "source": {
         "APPROVAL": "審批中心",
         "CONSULTANT_APPLICATION": "顧問申請",
-        "DISPOSAL_REQUEST": "工地清運",
+        "DISPOSAL_REQUEST": "垃圾清運",
         "FIELD_TASK": "現場任務",
         "WASTE_OUTGOING": "環保材料出場申請",
         "MATERIAL_REQUEST": "MR / Other Request",
@@ -7295,7 +7296,7 @@
       "route": {
         "label": "手機端開啟",
         "hint": "被指派的人在手機上會直接開啟這張表單。",
-        "SITE_DISPOSAL": "工地清運",
+        "SITE_DISPOSAL": "垃圾清運",
         "WASTE_OUTGOING": "環保材料出場申請"
       },
       "applicationType": {
@@ -9718,7 +9719,8 @@
       "package_approved_amount_required": "請填寫本期批准金額。",
       "package_amount_reason_required": "批准金額和申請金額不一樣，請填寫審批原因。",
       "package_not_approved": "要等全部審核通過，才能確認完畢並歸檔。",
-      "package_completed": "這個資料包已經確認完畢並歸檔，不能再改動。"
+      "package_completed": "這個資料包已經確認完畢並歸檔，不能再改動。",
+      "company_module_invalid": "請只勾選這家公司有的業務模組。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -10409,7 +10411,8 @@
       "operatorHours": "設備操作員工時",
       "permit": "施工准證",
       "visitor": "訪客掃碼",
-      "rain": "Rainy Weather"
+      "rain": "Rainy Weather",
+      "scrap": "廢料處理"
     },
     "status": {
       "ACCEPTED": "已完成",
@@ -10762,7 +10765,7 @@
         "material_receipts_today": "今日材料進場"
       },
       "wasteDispatches": "廢料訂單",
-      "siteDisposals": "原工地清運",
+      "siteDisposals": "原垃圾清運",
       "records": "數量",
       "trips": "車次",
       "weighedKg": "過磅重量（kg）",
@@ -10774,7 +10777,7 @@
       "other": "公司層級／未關聯項目",
       "total": "合計",
       "drillHelp": "各項目的明細，加起來等於上面的總數。",
-      "todayRecordsHelp": "今天發生的現場記錄：材料進場及退場、材料出場、設備交接、工程進度、整改、現場任務提交、工地清運、廢料訂單、環保材料出場、門崗拍照記錄。在場人員另外計算，不算在這裡。",
+      "todayRecordsHelp": "今天發生的現場記錄：材料進場及退場、材料出場、設備交接、工程進度、整改、現場任務提交、垃圾清運、廢料訂單、環保材料出場、門崗拍照記錄。在場人員另外計算，不算在這裡。",
       "overdueHelp": "過了截止時間、還沒閉環的（任務要確認人確認完成才算閉環，整改要驗收通過）。",
       "clearanceHelp": "至今的累計，各自按本身模組統計，兩類不相加。",
       "nothingToday": "今天還沒有現場記錄。",
@@ -10794,7 +10797,7 @@
       "SITE_PROGRESS": "工程進度",
       "SAFETY_INCIDENT": "整改",
       "FIELD_TASK": "現場任務",
-      "DISPOSAL": "工地清運",
+      "DISPOSAL": "垃圾清運",
       "WASTE_DISPATCH": "廢料訂單",
       "WASTE_OUTGOING": "環保材料出場",
       "GATE_INCIDENT": "門崗拍照記錄",
@@ -12708,7 +12711,7 @@
       "DRIVER_TRIP": "運輸任務",
       "MATERIAL_OUTGOING": "材料出場",
       "EQUIPMENT_MOVEMENT": "設備進退場",
-      "DISPOSAL_REQUEST": "工地清運",
+      "DISPOSAL_REQUEST": "垃圾清運",
       "SUNDRY_CLAIM": "雜費報銷",
       "MATERIAL_REQUEST": "MR / 其他申請",
       "GATE_INCIDENT": "門崗照片",
@@ -13016,7 +13019,7 @@
     "settings": "設置",
     "settlements": "結算",
     "site_access": "工地門禁",
-    "site_disposals": "工地清運",
+    "site_disposals": "垃圾清運",
     "site_gps": "工地人員 GPS",
     "sites": "回收場",
     "submodule": {
@@ -13218,7 +13221,7 @@
       "settingsActivity": "設置操作記錄",
       "settingsAudit": "設置記錄",
       "siteAccessPasses": "通行證",
-      "siteDisposals": "工地清運",
+      "siteDisposals": "垃圾清運",
       "siteEquipment": "設備進退場",
       "siteGps": "工地人員 GPS",
       "subscriptionActivity": "操作記錄",
@@ -13896,7 +13899,7 @@
       "trouble": "掃了沒反應：看異常那一頁。幾乎都是碼過期了，或者掃的人沒有對應權限。"
     },
     "recyclers": {
-      "what": "從建築商這一側看的整條廢料鏈：跟哪些回收商合作、申請環保材料出場、由此產生的訂單、工地清運、付款憑證。",
+      "what": "從建築商這一側看的整條廢料鏈：跟哪些回收商合作、申請環保材料出場、由此產生的訂單、垃圾清運、付款憑證。",
       "who": "持 partnership.view。",
       "need": "建立合作要選回收商和專案。",
       "then": "配好之後，申請環保材料出場時才能選到這家回收商。",
@@ -14424,9 +14427,9 @@
         "config": "管理環保材料出場分類"
       },
       "disposal": {
-        "view": "查看工地清運",
-        "submit": "申請工地清運",
-        "manage": "審核及安排工地清運",
+        "view": "查看垃圾清運",
+        "submit": "申請垃圾清運",
+        "manage": "審核及安排垃圾清運",
         "confirm": "確認清運車次"
       },
       "attendance": {
@@ -14607,7 +14610,7 @@
       "sundry_claim": "雜費報銷",
       "material_outgoing": "材料出場",
       "waste_outgoing": "環保材料出場",
-      "disposal": "工地清運",
+      "disposal": "垃圾清運",
       "attendance": "人員進場",
       "field_position": "人員定位",
       "dashboard": "儀表板",
@@ -17810,7 +17813,7 @@
       "SUPPLIER_SET": "後台填寫 / 更改了供應商",
       "ANOMALY_REPORTED": "報告異常"
     },
-    "title": "工地清運",
+    "title": "垃圾清運",
     "toast": {
       "assigned": "外部清運商已指派",
       "assignedInternal": "已發送給現場工作人員",
@@ -17858,7 +17861,7 @@
       "submit": "提交後台",
       "photos": "照片"
     },
-    "countedOnly": "只顯示總部「原工地清運」計入數量的申請：不含已拒絕和已取消。",
+    "countedOnly": "只顯示總部「原垃圾清運」計入數量的申請：不含已拒絕和已取消。",
     "showAll": "顯示全部",
     "trips": {
       "title": "車次",
@@ -20011,16 +20014,16 @@
   },
   "wasteClearance": {
     "title": "垃圾清運",
-    "countDisposals": "工地清運 {count} 筆",
+    "countDisposals": "垃圾清運 {count} 筆",
     "countDispatches": "廢料訂單 {count} 筆",
     "tab": {
       "all": "全部",
-      "disposal": "工地清運",
+      "disposal": "垃圾清運",
       "dispatch": "廢料訂單",
       "abnormal": "異常記錄"
     },
     "kind": {
-      "disposal": "工地清運",
+      "disposal": "垃圾清運",
       "dispatch": "廢料訂單"
     },
     "newDisposal": "新增清運申請",
@@ -20038,7 +20041,7 @@
     "pageOf": "第 {page} / {pages} 頁（每頁每種最多 10 筆）",
     "lastPage": "已經是最後一頁。",
     "totals": {
-      "disposals": "工地清運：{records} 筆 · {trips} 車次 · {weight} kg",
+      "disposals": "垃圾清運：{records} 筆 · {trips} 車次 · {weight} kg",
       "dispatches": "廢料訂單：{records} 筆 · {trips} 車次 · 過磅 {weight} kg",
       "apart": "兩類分開統計，不合計。"
     }
@@ -22980,7 +22983,7 @@
       "MATERIAL_OUTGOING": "材料出場",
       "EQUIPMENT_MOVEMENT": "設備退場",
       "WASTE_OUTGOING": "環保材料出場申請",
-      "DISPOSAL_REQUEST": "工地清運"
+      "DISPOSAL_REQUEST": "垃圾清運"
     },
     "closed": {
       "archived": "這筆記錄已歸檔，出門條不能再簽名或放行。",
@@ -23510,7 +23513,7 @@
       "SAFETY_INCIDENT": "整改 / EHS",
       "PERMIT": "施工準證",
       "FIELD_TASK": "現場任務",
-      "DISPOSAL": "工地清運",
+      "DISPOSAL": "垃圾清運",
       "WASTE_OUTGOING": "環保材料出場",
       "SUNDRY_CLAIM": "雜費報銷",
       "GATE_INCIDENT": "門崗拍照記錄"
@@ -23690,5 +23693,42 @@
       "reviewSigned": "審核結果已簽名提交",
       "completed": "已確認完畢並歸檔"
     }
+  },
+  "jb248": {
+    "field": "類型",
+    "kind": {
+      "GARBAGE": "垃圾清運",
+      "SCRAP": "廢料處理"
+    },
+    "count": {
+      "GARBAGE": "垃圾清運 {count} 筆",
+      "SCRAP": "廢料處理 {count} 筆"
+    },
+    "tab": {
+      "all": "全部",
+      "garbage": "垃圾清運",
+      "scrap": "廢料處理",
+      "abnormal": "異常記錄"
+    },
+    "totals": {
+      "GARBAGE": "垃圾清運：{records} 筆 · {trips} 車次 · {weight} kg",
+      "SCRAP": "廢料處理：{records} 筆 · {trips} 車次 · {weight} kg",
+      "apart": "兩類分開統計，不合計。"
+    }
+  },
+  "jb249": {
+    "button": "ESG 統計",
+    "soon": "即將推出"
+  },
+  "jb250": {
+    "title": "業務模組",
+    "help": "勾選的模組這家公司可以用。取消勾選後，這家公司的後台和手機都看不到這個模組，直接打開連結或 API 也會被拒絕。資料保留，重新勾選就恢復。",
+    "alwaysOn": "儀表板、通知中心、用戶、角色權限、公司設定和日誌每家公司都一直開著，不在這裡列出。",
+    "count": "已開 {on} / {total} 個模組",
+    "notInPlan": "（套餐不包含）",
+    "save": "儲存模組",
+    "noChange": "還沒有改動。",
+    "saved": "業務模組已儲存。",
+    "saveFailed": "儲存失敗，請再試一次。"
   }
 }

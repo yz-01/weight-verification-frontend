@@ -3258,7 +3258,7 @@
       "EQUIPMENT_MOVEMENT": "设备进出",
       "HAZARD": "整改 / EHS",
       "WASTE_OUTGOING": "环保材料出场申请",
-      "DISPOSAL_REQUEST": "工地清运",
+      "DISPOSAL_REQUEST": "垃圾清运",
       "PROGRESS": "工程进度",
       "CONSULTANT_APPLICATION": "顾问申请",
       "ATTENDANCE_DAY": "出入场（按日）",
@@ -4054,7 +4054,8 @@
       "package_submit_signed": "资料包签名提交",
       "package_review_signed": "资料包签名审核",
       "package_completed": "资料包确认完毕并归档",
-      "package_claim_amount_set": "资料包申请金额修改"
+      "package_claim_amount_set": "资料包申请金额修改",
+      "company_modules_by_platform": "MSE 开启或关闭公司的业务模块"
     },
     "objectType": {
       "SignOffAssistant": "助理副密码",
@@ -6548,7 +6549,7 @@
       "source": {
         "APPROVAL": "审批中心",
         "CONSULTANT_APPLICATION": "顾问申请",
-        "DISPOSAL_REQUEST": "工地清运",
+        "DISPOSAL_REQUEST": "垃圾清运",
         "FIELD_TASK": "现场任务",
         "WASTE_OUTGOING": "环保材料出场申请",
         "MATERIAL_REQUEST": "MR / Other Request",
@@ -7295,7 +7296,7 @@
       "route": {
         "label": "手机端打开",
         "hint": "被指派的人在手机上会直接打开这张表单。",
-        "SITE_DISPOSAL": "工地清运",
+        "SITE_DISPOSAL": "垃圾清运",
         "WASTE_OUTGOING": "环保材料出场申请"
       },
       "applicationType": {
@@ -9718,7 +9719,8 @@
       "package_approved_amount_required": "请填写本期批准金额。",
       "package_amount_reason_required": "批准金额和申请金额不一样，请填写审批原因。",
       "package_not_approved": "要等全部审核通过，才能确认完毕并归档。",
-      "package_completed": "这个资料包已经确认完毕并归档，不能再改动。"
+      "package_completed": "这个资料包已经确认完毕并归档，不能再改动。",
+      "company_module_invalid": "请只勾选这家公司有的业务模块。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -10409,7 +10411,8 @@
       "operatorHours": "设备操作员工时",
       "permit": "施工准证",
       "visitor": "访客扫码",
-      "rain": "Rainy Weather"
+      "rain": "Rainy Weather",
+      "scrap": "废料处理"
     },
     "status": {
       "ACCEPTED": "已完成",
@@ -10762,7 +10765,7 @@
         "material_receipts_today": "今日材料进场"
       },
       "wasteDispatches": "废料订单",
-      "siteDisposals": "原工地清运",
+      "siteDisposals": "原垃圾清运",
       "records": "数量",
       "trips": "车次",
       "weighedKg": "过磅重量（kg）",
@@ -10774,7 +10777,7 @@
       "other": "公司层级／未关联项目",
       "total": "合计",
       "drillHelp": "各项目的明细，加起来等于上面的总数。",
-      "todayRecordsHelp": "今天发生的现场记录：材料进场及退场、材料出场、设备交接、工程进度、整改、现场任务提交、工地清运、废料订单、环保材料出场、门岗拍照记录。在场人员另外计算，不算在这里。",
+      "todayRecordsHelp": "今天发生的现场记录：材料进场及退场、材料出场、设备交接、工程进度、整改、现场任务提交、垃圾清运、废料订单、环保材料出场、门岗拍照记录。在场人员另外计算，不算在这里。",
       "overdueHelp": "过了截止时间、还没闭环的（任务要确认人确认完成才算闭环，整改要验收通过）。",
       "clearanceHelp": "至今的累计，各自按本身模组统计，两类不相加。",
       "nothingToday": "今天还没有现场记录。",
@@ -10794,7 +10797,7 @@
       "SITE_PROGRESS": "工程进度",
       "SAFETY_INCIDENT": "整改",
       "FIELD_TASK": "现场任务",
-      "DISPOSAL": "工地清运",
+      "DISPOSAL": "垃圾清运",
       "WASTE_DISPATCH": "废料订单",
       "WASTE_OUTGOING": "环保材料出场",
       "GATE_INCIDENT": "门岗拍照记录",
@@ -12708,7 +12711,7 @@
       "DRIVER_TRIP": "运输任务",
       "MATERIAL_OUTGOING": "材料出场",
       "EQUIPMENT_MOVEMENT": "设备进退场",
-      "DISPOSAL_REQUEST": "工地清运",
+      "DISPOSAL_REQUEST": "垃圾清运",
       "SUNDRY_CLAIM": "杂费报销",
       "MATERIAL_REQUEST": "MR / 其他申请",
       "GATE_INCIDENT": "门岗照片",
@@ -13016,7 +13019,7 @@
     "settings": "设置",
     "settlements": "结算",
     "site_access": "工地门禁",
-    "site_disposals": "工地清运",
+    "site_disposals": "垃圾清运",
     "site_gps": "工地人员 GPS",
     "sites": "回收场",
     "submodule": {
@@ -13218,7 +13221,7 @@
       "settingsActivity": "设置操作记录",
       "settingsAudit": "设置记录",
       "siteAccessPasses": "通行证",
-      "siteDisposals": "工地清运",
+      "siteDisposals": "垃圾清运",
       "siteEquipment": "设备进退场",
       "siteGps": "工地人员 GPS",
       "subscriptionActivity": "操作记录",
@@ -13896,7 +13899,7 @@
       "trouble": "扫了没反应：看异常那一页。几乎都是码过期了，或者扫的人没有对应权限。"
     },
     "recyclers": {
-      "what": "从建筑商这一侧看的整条废料链：跟哪些回收商合作、申请环保材料出场、由此产生的订单、工地清运、付款凭证。",
+      "what": "从建筑商这一侧看的整条废料链：跟哪些回收商合作、申请环保材料出场、由此产生的订单、垃圾清运、付款凭证。",
       "who": "持 partnership.view。",
       "need": "建立合作要选回收商和项目。",
       "then": "配好之后，申请环保材料出场时才能选到这家回收商。",
@@ -14424,9 +14427,9 @@
         "config": "管理环保材料出场分类"
       },
       "disposal": {
-        "view": "查看工地清运",
-        "submit": "申请工地清运",
-        "manage": "审核及安排工地清运",
+        "view": "查看垃圾清运",
+        "submit": "申请垃圾清运",
+        "manage": "审核及安排垃圾清运",
         "confirm": "确认清运车次"
       },
       "attendance": {
@@ -14607,7 +14610,7 @@
       "sundry_claim": "杂费报销",
       "material_outgoing": "材料出场",
       "waste_outgoing": "环保材料出场",
-      "disposal": "工地清运",
+      "disposal": "垃圾清运",
       "attendance": "人员进场",
       "field_position": "人员定位",
       "dashboard": "仪表板",
@@ -17810,7 +17813,7 @@
       "SUPPLIER_SET": "后台填写 / 更改了供应商",
       "ANOMALY_REPORTED": "报告异常"
     },
-    "title": "工地清运",
+    "title": "垃圾清运",
     "toast": {
       "assigned": "外部清运商已指派",
       "assignedInternal": "已发送给现场工作人员",
@@ -17858,7 +17861,7 @@
       "submit": "提交后台",
       "photos": "照片"
     },
-    "countedOnly": "只显示总部「原工地清运」计入数量的申请：不含已拒绝和已取消。",
+    "countedOnly": "只显示总部「原垃圾清运」计入数量的申请：不含已拒绝和已取消。",
     "showAll": "显示全部",
     "trips": {
       "title": "车次",
@@ -20011,16 +20014,16 @@
   },
   "wasteClearance": {
     "title": "垃圾清运",
-    "countDisposals": "工地清运 {count} 笔",
+    "countDisposals": "垃圾清运 {count} 笔",
     "countDispatches": "废料订单 {count} 笔",
     "tab": {
       "all": "全部",
-      "disposal": "工地清运",
+      "disposal": "垃圾清运",
       "dispatch": "废料订单",
       "abnormal": "异常记录"
     },
     "kind": {
-      "disposal": "工地清运",
+      "disposal": "垃圾清运",
       "dispatch": "废料订单"
     },
     "newDisposal": "新增清运申请",
@@ -20038,7 +20041,7 @@
     "pageOf": "第 {page} / {pages} 页（每页每种最多 10 笔）",
     "lastPage": "已经是最后一页。",
     "totals": {
-      "disposals": "工地清运：{records} 笔 · {trips} 车次 · {weight} kg",
+      "disposals": "垃圾清运：{records} 笔 · {trips} 车次 · {weight} kg",
       "dispatches": "废料订单：{records} 笔 · {trips} 车次 · 过磅 {weight} kg",
       "apart": "两类分开统计，不合计。"
     }
@@ -22980,7 +22983,7 @@
       "MATERIAL_OUTGOING": "材料出场",
       "EQUIPMENT_MOVEMENT": "设备退场",
       "WASTE_OUTGOING": "环保材料出场申请",
-      "DISPOSAL_REQUEST": "工地清运"
+      "DISPOSAL_REQUEST": "垃圾清运"
     },
     "closed": {
       "archived": "这笔记录已归档，出门条不能再签名或放行。",
@@ -23510,7 +23513,7 @@
       "SAFETY_INCIDENT": "整改 / EHS",
       "PERMIT": "施工准证",
       "FIELD_TASK": "现场任务",
-      "DISPOSAL": "工地清运",
+      "DISPOSAL": "垃圾清运",
       "WASTE_OUTGOING": "环保材料出场",
       "SUNDRY_CLAIM": "杂费报销",
       "GATE_INCIDENT": "门岗拍照记录"
@@ -23690,5 +23693,42 @@
       "reviewSigned": "审核结果已签名提交",
       "completed": "已确认完毕并归档"
     }
+  },
+  "jb248": {
+    "field": "类型",
+    "kind": {
+      "GARBAGE": "垃圾清运",
+      "SCRAP": "废料处理"
+    },
+    "count": {
+      "GARBAGE": "垃圾清运 {count} 笔",
+      "SCRAP": "废料处理 {count} 笔"
+    },
+    "tab": {
+      "all": "全部",
+      "garbage": "垃圾清运",
+      "scrap": "废料处理",
+      "abnormal": "异常记录"
+    },
+    "totals": {
+      "GARBAGE": "垃圾清运：{records} 笔 · {trips} 车次 · {weight} kg",
+      "SCRAP": "废料处理：{records} 笔 · {trips} 车次 · {weight} kg",
+      "apart": "两类分开统计，不合计。"
+    }
+  },
+  "jb249": {
+    "button": "ESG 统计",
+    "soon": "即将推出"
+  },
+  "jb250": {
+    "title": "业务模块",
+    "help": "勾选的模块这家公司可以用。取消勾选后，这家公司的后台和手机都看不到这个模块，直接打开链接或 API 也会被拒绝。资料保留，重新勾选就恢复。",
+    "alwaysOn": "仪表板、通知中心、用户、角色权限、公司设置和日志每家公司都一直开着，不在这里列出。",
+    "count": "已开 {on} / {total} 个模块",
+    "notInPlan": "（套餐不包含）",
+    "save": "保存模块",
+    "noChange": "还没有改动。",
+    "saved": "业务模块已保存。",
+    "saveFailed": "保存失败，请再试一次。"
   }
 }

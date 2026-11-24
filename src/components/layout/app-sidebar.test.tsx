@@ -176,8 +176,8 @@ describe("the restyled sidebar keeps the whole menu", () => {
       material_receipts: "6",
       // 设备: both pages share the feature, counted once.
       equipment: "5",
-      // 回收: 垃圾清运 is counted here.
-      recyclers: "2",
+      // 垃圾清运: its own entry since JB248 (客户 11-23b 事项 1).
+      site_disposals: "2",
       // 顾问 / 隐患 / 文件审批 / 杂费报销 / 现场任务.
       hazard_rectification: "1",
       documents: "3",
@@ -215,8 +215,8 @@ describe("the restyled sidebar keeps the whole menu", () => {
   it("puts each count the backend sends on its own module's entry, and only there", async () => {
     const { BADGE_FEATURES } = await import("@/hooks/use-unread-badges");
     // Count key -> the entry (its `data-sidebar-badge`, the entry's feature)
-    // the number appears on. 材料出场 is under 材料管理, 环保出场 and 垃圾清运
-    // under 回收, 文件审批 under 文件, 杂费报销 is its own entry.
+    // the number appears on. 材料出场 is under 材料管理, 环保出场 under 回收,
+    // 垃圾清运 its own entry (JB248), 文件审批 under 文件, 杂费报销 is its own entry.
     const home: Record<string, string> = {
       material_receipts: "material_receipts",
       material_outgoing: "material_receipts",
@@ -224,7 +224,7 @@ describe("the restyled sidebar keeps the whole menu", () => {
       field_tasks: "field_tasks",
       equipment: "equipment",
       waste_outgoing: "recyclers",
-      site_disposals: "recyclers",
+      site_disposals: "site_disposals",
       consultant_applications: "consultant_applications",
       approvals: "documents",
       sundry_claims: "project_categories",

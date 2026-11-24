@@ -75,6 +75,7 @@ import type {
   PackageType,
   RecipientKind,
   RecipientPurpose,
+  DisposalClearanceKind,
 } from "@/interfaces/contractor-ops";
 import type { CategoryModuleKey } from "@/lib/category-modules";
 import type { ChatRecordKind, ConversationClosed } from "@/lib/record-chat";
@@ -1180,6 +1181,8 @@ export async function createDisposalRequest(payload: {
   request_note?: string;
   /** 「预计车次」 (X11): how many lorries the site expects. */
   planned_trips?: string;
+  /** 垃圾清运 or 废料处理 (JB248): the button the job was raised from. */
+  clearance_kind?: DisposalClearanceKind;
   captured_at: string;
   /** Absent: offline with no GPS fix (Lucas 2026-10-23); both or neither. */
   latitude?: string;

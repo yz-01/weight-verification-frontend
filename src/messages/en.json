@@ -4054,7 +4054,8 @@
       "package_submit_signed": "Package signed and submitted",
       "package_review_signed": "Package review signed",
       "package_completed": "Package completed and archived",
-      "package_claim_amount_set": "Package claim amount changed"
+      "package_claim_amount_set": "Package claim amount changed",
+      "company_modules_by_platform": "MSE switched a company's business modules on or off"
     },
     "objectType": {
       "SignOffAssistant": "Assistant PIN",
@@ -9718,7 +9719,8 @@
       "package_approved_amount_required": "Fill in the approved amount for this period.",
       "package_amount_reason_required": "The approved amount differs from the claim amount: write the reason.",
       "package_not_approved": "It can be completed once every reviewer has approved it.",
-      "package_completed": "This package is completed and archived; nothing more changes."
+      "package_completed": "This package is completed and archived; nothing more changes.",
+      "company_module_invalid": "Tick only business modules this company has."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -10409,7 +10411,8 @@
       "operatorHours": "Equipment operator hours",
       "permit": "Permit to work",
       "visitor": "Visitor QR Scan",
-      "rain": "Rainy Weather"
+      "rain": "Rainy Weather",
+      "scrap": "Scrap disposal"
     },
     "status": {
       "ACCEPTED": "Complete",
@@ -12708,7 +12711,7 @@
       "DRIVER_TRIP": "Trip",
       "MATERIAL_OUTGOING": "Material outgoing",
       "EQUIPMENT_MOVEMENT": "Equipment movement",
-      "DISPOSAL_REQUEST": "Site disposal",
+      "DISPOSAL_REQUEST": "Waste clearance",
       "SUNDRY_CLAIM": "Sundry claims",
       "MATERIAL_REQUEST": "MR / Other Request",
       "GATE_INCIDENT": "Gate photo",
@@ -13016,7 +13019,7 @@
     "settings": "Settings",
     "settlements": "Settlements",
     "site_access": "Site access",
-    "site_disposals": "Site disposal",
+    "site_disposals": "Waste clearance",
     "site_gps": "Site personnel GPS",
     "sites": "Yards",
     "submodule": {
@@ -13218,7 +13221,7 @@
       "settingsActivity": "Setting records",
       "settingsAudit": "Setting records",
       "siteAccessPasses": "Access passes",
-      "siteDisposals": "Site disposal",
+      "siteDisposals": "Waste clearance",
       "siteEquipment": "Equipment movement",
       "siteGps": "Site personnel GPS",
       "subscriptionActivity": "Operation records",
@@ -17810,7 +17813,7 @@
       "SUPPLIER_SET": "Office named / changed the clearance company",
       "ANOMALY_REPORTED": "Exception reported"
     },
-    "title": "Site disposal",
+    "title": "Waste clearance",
     "toast": {
       "assigned": "External contractor assigned",
       "assignedInternal": "Sent to field staff",
@@ -23690,5 +23693,42 @@
       "reviewSigned": "Review signed and submitted",
       "completed": "Completed and archived"
     }
+  },
+  "jb248": {
+    "field": "Type",
+    "kind": {
+      "GARBAGE": "Waste clearance",
+      "SCRAP": "Scrap disposal"
+    },
+    "count": {
+      "GARBAGE": "Waste clearance: {count}",
+      "SCRAP": "Scrap disposal: {count}"
+    },
+    "tab": {
+      "all": "All",
+      "garbage": "Waste clearance",
+      "scrap": "Scrap disposal",
+      "abnormal": "Exception records"
+    },
+    "totals": {
+      "GARBAGE": "Waste clearance: {records} jobs · {trips} trips · {weight} kg",
+      "SCRAP": "Scrap disposal: {records} jobs · {trips} trips · {weight} kg",
+      "apart": "Counted separately; not added together."
+    }
+  },
+  "jb249": {
+    "button": "ESG statistics",
+    "soon": "Coming soon"
+  },
+  "jb250": {
+    "title": "Business modules",
+    "help": "Ticked modules are available to this company. Untick one and it disappears from this company's back office and phones, and opening it by link or API is refused. Records are kept; tick it again to bring it back.",
+    "alwaysOn": "Dashboard, notifications, users, roles, company settings and logs are always on for every company and are not listed here.",
+    "count": "{on} of {total} modules on",
+    "notInPlan": "(not in the package)",
+    "save": "Save modules",
+    "noChange": "Nothing has changed yet.",
+    "saved": "Business modules saved.",
+    "saveFailed": "Could not save. Please try again."
   }
 }

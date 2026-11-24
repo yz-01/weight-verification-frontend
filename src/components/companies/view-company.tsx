@@ -7,6 +7,7 @@ import Link from "next/link";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { CompanyLockedSettingsPanel } from "@/components/companies/company-locked-settings";
+import { CompanyModulesPanel } from "@/components/companies/company-modules-panel";
 import { CompanyOnboarding } from "@/components/companies/company-onboarding";
 import { PlatformReasonLine } from "@/components/platform-access/closed";
 import { CompanyAccessPanel } from "@/components/platform-access/company-access-panel";
@@ -301,6 +302,8 @@ export function ViewCompany({ id }: { id: string }) {
         {/* 客户开放情况 (JB220, 客户 11-18): whether this customer lets MSE look
             at its records or change its accounts, the asking, and the record. */}
         <CompanyAccessPanel companyId={data.id} />
+        {/* 业务模块 (JB250, 客户 11-24 事项 1): MSE switches modules per company. */}
+        <CompanyModulesPanel companyId={data.id} />
         {/* 锁起来的设定 (JB99): the contractor's own page no longer has them. */}
         {data.type === "CONTRACTOR" && <CompanyLockedSettingsPanel companyId={data.id} />}
         {/* 外部访问链接 and 技术管理 left the contractor's back office; MSE runs

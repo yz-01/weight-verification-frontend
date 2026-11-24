@@ -15,6 +15,7 @@ import {
   PackageOpen,
   Plus,
   Recycle,
+  Container,
   ScanLine,
   Timer,
   ShieldAlert,
@@ -116,6 +117,7 @@ export type FieldRecordMode =
   | "progress"
   | "rain"
   | "disposal"
+  | "scrap"
   | "outgoing"
   | "waste"
   | "safety"
@@ -146,6 +148,10 @@ const RECORD_OPTIONS: RecordOption[] = [
   // record, and the same people send it.
   { key: "rain", permission: "progress.manage", icon: CloudRain, tone: "bg-info/10 text-info" },
   { key: "disposal", permission: "disposal.submit", icon: Recycle, tone: "bg-success/10 text-success" },
+  // 废料处理 (JB248, 客户 11-23b 事项 1 第二点: 「增设独立「废料处理」按钮。两者
+  // 使用相同操作流程，提交后自动归入后台对应业务分类」): 垃圾清运's own screen
+  // and flow, raising and listing 废料处理 jobs. Same permission.
+  { key: "scrap", permission: "disposal.submit", icon: Container, tone: "bg-warning/15 text-warning" },
   { key: "outgoing", permission: "material_outgoing.submit", icon: Truck, tone: "bg-destructive/10 text-destructive" },
   { key: "waste", permission: "waste_outgoing.submit", icon: Recycle, tone: "bg-success/10 text-success" },
   { key: "safety", permission: "safety.manage", icon: ShieldAlert, tone: "bg-warning/15 text-warning" },
@@ -217,7 +223,10 @@ export function FieldRecordsPanel({
     ) {
       return <RecordFrame title={t("records.disposal")} onBack={() => chooseMode(null)}><InternalDisposalWorkspace disposalId={task.linked_record_id} onSubmitted={() => chooseMode(null)} /></RecordFrame>;
     }
-    return <RecordFrame title={t("records.disposal")} onBack={() => chooseMode(null)}><FieldSlots scope={`disposal:${task?.id ?? "new"}`} jobKinds={["DISPOSAL_REQUEST"]}><SiteDisposalWorkspace initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></FieldSlots></RecordFrame>;
+    return <RecordFrame title={t("records.disposal")} onBack={() => chooseMode(null)}><FieldSlots scope={`disposal:${task?.id ?? "new"}`} jobKinds={["DISPOSAL_REQUEST"]}><SiteDisposalWorkspace initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} clearanceKind="GARBAGE" /></FieldSlots></RecordFrame>;
+  }
+  if (mode === "scrap") {
+    return <RecordFrame title={t("records.scrap")} onBack={() => chooseMode(null)}><FieldSlots scope={`scrap:${task?.id ?? "new"}`} jobKinds={["DISPOSAL_REQUEST"]}><SiteDisposalWorkspace initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} clearanceKind="SCRAP" /></FieldSlots></RecordFrame>;
   }
   if (mode === "outgoing") {
     return <RecordFrame title={t("records.outgoing")} onBack={() => chooseMode(null)}><FieldDraft scope={`outgoing:${task?.id ?? "new"}`}><MaterialOutgoingWorkspace initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
