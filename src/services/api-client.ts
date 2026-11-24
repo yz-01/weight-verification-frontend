@@ -257,6 +257,18 @@ function endSession(): void {
  * in place, under the page's own maintenance notice, so the form stays open
  * for MSE staff, who are never kept out.
  */
+/** JB245: the server's 「你已经被移出这个项目」. */
+export const PROJECT_LEFT = "project_left";
+/** The window event a refusal with ``PROJECT_LEFT`` sends: whoever keeps a
+ * project list (the phone's 负责项目, its pickers) reads it again. */
+export const PROJECT_LEFT_EVENT = "mse:project-left";
+
+function announceProjectLeft(code: string): void {
+  if (code === PROJECT_LEFT && typeof window !== "undefined") {
+    window.dispatchEvent(new Event(PROJECT_LEFT_EVENT));
+  }
+}
+
 function announcePlatformGate(status: number, code: string, path: string): boolean {
   const gate = gateForRefusal(status, code);
   if (gate === null) return false;
@@ -507,6 +519,7 @@ export async function request<T>(
       if (pin === null) throw signOffCancelled(response.status);
 
       const failure = new ApiError(message, response.status, errors, code, values);
+      announceProjectLeft(code);
 
       // The same exemption as the retry above. It was missing here, so a
       // wrong password skipped the refresh correctly and was then signed out
@@ -810,6 +823,7 @@ async function fetchFile(path: string, options: RequestOptions): Promise<Respons
         continue;
       }
       if (pin === null) throw signOffCancelled(response.status);
+      announceProjectLeft(code);
       if (!attempt.silent) toast.error(message);
       throw new ApiError(message, response.status, {}, code);
     }

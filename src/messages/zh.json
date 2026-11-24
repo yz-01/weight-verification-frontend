@@ -9661,7 +9661,8 @@
       "permit_work_name_required": "请先填写施工事项名称，再签名批准。",
       "permit_formal_permit_required": "还没有正式施工准证。请用「上传附件」上传填好的公司准证表格，或填写电子准证，再签名批准。",
       "hazard_room_not_for_consultant": "这是建筑商内部的沟通，顾问不能在这里发言。要和项目后台沟通，请用「找人沟通」。",
-      "report_export_made_before_update": "这份文件是系统更新前生成的，请重新导出。"
+      "report_export_made_before_update": "这份文件是系统更新前生成的，请重新导出。",
+      "project_left": "你已经被移出「{project}」项目，不能再查看或操作这个项目的资料。如有需要，请联系项目经理。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -9706,7 +9707,8 @@
       "site_worker_passport_taken": "这本护照已经在名单里",
       "supplier_not_on_project": "这个供应商不在这个项目的「可用供应商」里。请总部或项目经理先在项目里加入。",
       "field_one_project": "手机账号同一时间只能在一个项目，请只选一个项目。",
-      "phone_role_office_account": "手机账号要在「现场人员管理」里开，这里不能把后台账号设为手机角色（工地人员、设备操作人员、门岗保安）。请选别的角色。"
+      "phone_role_office_account": "手机账号要在「现场人员管理」里开，这里不能把后台账号设为手机角色（工地人员、设备操作人员、门岗保安）。请选别的角色。",
+      "assignee_not_on_project": "这个人已经不在这个项目，不能派任务给他。请重新选择。"
     },
     "forbidden": "你没有访问权限。",
     "forbiddenBody": "如果确实需要，请联系管理员。",
@@ -23418,5 +23420,9 @@
     "noProjects": "您目前没有获授权的项目。请联系建筑商总部开通。",
     "chooseProject": "请先在页面上方的项目框选一个项目，这里就会显示那个项目的仪表板。",
     "onlyOpened": "总部目前只为您开通了这些内容。要看其他内容，请联系建筑商总部。"
+  },
+  "jb245": {
+    "leftProject": "已移出项目",
+    "leftProjectHelp": "{name} 已移出这个项目，不能再做这个任务。请选一个现在在项目里的人。"
   }
 }

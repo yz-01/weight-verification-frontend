@@ -9661,7 +9661,8 @@
       "permit_work_name_required": "Write the work name first, then sign and approve.",
       "permit_formal_permit_required": "There is no formal permit yet. Upload the company's filled permit form with \"Attach files\", or fill in the e-permit, then sign and approve.",
       "hazard_room_not_for_consultant": "This is the contractor's internal conversation; a consultant cannot post here. To talk to the project office, use 'Message someone'.",
-      "report_export_made_before_update": "This file was made before the system update. Please export it again."
+      "report_export_made_before_update": "This file was made before the system update. Please export it again.",
+      "project_left": "You have been taken off the project {project}, so you can no longer view or work on its records. Please contact the project manager if you need to."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -9706,7 +9707,8 @@
       "site_worker_passport_taken": "This passport is already on the roster",
       "supplier_not_on_project": "This supplier is not on this project's supplier list. Ask head office or the project manager to add it to the project first.",
       "field_one_project": "A phone account can be on one project at a time. Choose one project.",
-      "phone_role_office_account": "Phone accounts are made in Field staff. An office account cannot be given a phone role (site staff, equipment operator, gate guard) here. Please choose another role."
+      "phone_role_office_account": "Phone accounts are made in Field staff. An office account cannot be given a phone role (site staff, equipment operator, gate guard) here. Please choose another role.",
+      "assignee_not_on_project": "This person is no longer on this project and cannot be given its task. Please choose someone else."
     },
     "forbidden": "You do not have access to this.",
     "forbiddenBody": "Ask your administrator if you need it.",
@@ -23418,5 +23420,9 @@
     "noProjects": "You have not been given access to any project yet. Please ask the contractor's head office to open one for you.",
     "chooseProject": "First choose a project in the project box at the top of the page; that project's dashboard will then show here.",
     "onlyOpened": "Head office has opened only these parts for you. To see anything else, please contact the contractor's head office."
+  },
+  "jb245": {
+    "leftProject": "Taken off project",
+    "leftProjectHelp": "{name} has been taken off this project and can no longer do this task. Please choose someone who is on the project now."
   }
 }

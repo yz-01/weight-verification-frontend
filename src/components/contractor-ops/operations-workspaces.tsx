@@ -35,6 +35,7 @@ import {
   useNeedsActionParam,
 } from "@/components/shared/needs-action";
 import { FieldTaskSheet } from "@/components/dashboard/field-task-sheet";
+import { AssigneeName } from "@/components/contractor-ops/assignee-left-tag";
 import { useListQuery } from "@/hooks/use-list-query";
 import {
   fieldTaskStageKey,
@@ -1435,7 +1436,9 @@ export function FieldTasksWorkspace({
                           </span>
                         ) : null}
                       </span>
-                      <span className="truncate text-sm">{row.assigned_to_name}</span>
+                      <span className="truncate text-sm">
+                        <AssigneeName name={row.assigned_to_name} left={row.assignee_left_project} />
+                      </span>
                       <span className="tabular truncate text-sm text-muted-foreground">
                         {row.due_at
                           ? t("tasks.dueShort", { value: new Date(row.due_at).toLocaleString() })
@@ -1649,6 +1652,7 @@ function TaskDialog({
   onSaved: () => void;
 }) {
   const t = useTranslations("contractorOps");
+  const left = useTranslations("jb245");
   const [form, setForm] = useState<FieldTaskPayload>({
     project: task?.project ?? project,
     title: task?.title ?? "",
@@ -1752,6 +1756,12 @@ function TaskDialog({
               </SelectContent>
             </Select>
             <QueryFailedNote query={team} what={t("what.projectPeople")} />
+            {task?.assignee_left_project && form.assigned_to === task.assigned_to ? (
+              // JB245: the one it was given to was taken off the project.
+              <p className="text-xs text-warning" data-testid="assignee-left-help">
+                {left("leftProjectHelp", { name: task.assigned_to_name })}
+              </p>
+            ) : null}
           </FieldWrapper>
           <FieldWrapper label={t("field.priority")}>
             <Select

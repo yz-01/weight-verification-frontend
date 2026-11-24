@@ -9661,7 +9661,8 @@
       "permit_work_name_required": "Tulis nama kerja dahulu, kemudian tandatangan dan luluskan.",
       "permit_formal_permit_required": "Belum ada permit rasmi. Muat naik borang permit syarikat yang telah diisi dengan \"Lampirkan fail\", atau isi e-permit, kemudian tandatangan dan luluskan.",
       "hazard_room_not_for_consultant": "Ini perbualan dalaman kontraktor; perunding tidak boleh menghantar mesej di sini. Untuk berbincang dengan pejabat projek, gunakan 'Mesej seseorang'.",
-      "report_export_made_before_update": "Fail ini dibuat sebelum kemas kini sistem. Sila eksport semula."
+      "report_export_made_before_update": "Fail ini dibuat sebelum kemas kini sistem. Sila eksport semula.",
+      "project_left": "Anda telah dikeluarkan daripada projek {project}, jadi anda tidak lagi boleh melihat atau mengendalikan rekodnya. Sila hubungi pengurus projek jika perlu."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -9706,7 +9707,8 @@
       "site_worker_passport_taken": "Pasport ini sudah ada dalam senarai",
       "supplier_not_on_project": "Pembekal ini tiada dalam senarai pembekal projek ini. Minta ibu pejabat atau pengurus projek menambahnya dahulu.",
       "field_one_project": "Akaun telefon hanya boleh berada di satu projek pada satu masa. Pilih satu projek.",
-      "phone_role_office_account": "Akaun telefon dibuat dalam Kakitangan tapak. Akaun pejabat tidak boleh diberi peranan telefon (kakitangan tapak, operator jentera, pengawal pintu) di sini. Sila pilih peranan lain."
+      "phone_role_office_account": "Akaun telefon dibuat dalam Kakitangan tapak. Akaun pejabat tidak boleh diberi peranan telefon (kakitangan tapak, operator jentera, pengawal pintu) di sini. Sila pilih peranan lain.",
+      "assignee_not_on_project": "Orang ini tidak lagi berada dalam projek ini dan tidak boleh diberi tugasnya. Sila pilih orang lain."
     },
     "forbidden": "Anda tiada akses kepada ini.",
     "forbiddenBody": "Tanya pentadbir anda jika anda memerlukannya.",
@@ -23418,5 +23420,9 @@
     "noProjects": "Anda belum diberi akses kepada mana-mana projek. Sila minta ibu pejabat kontraktor membukanya untuk anda.",
     "chooseProject": "Pilih projek dahulu dalam kotak projek di bahagian atas halaman; papan pemuka projek itu akan dipaparkan di sini.",
     "onlyOpened": "Ibu pejabat hanya membuka bahagian ini untuk anda. Untuk melihat yang lain, sila hubungi ibu pejabat kontraktor."
+  },
+  "jb245": {
+    "leftProject": "Dikeluarkan daripada projek",
+    "leftProjectHelp": "{name} telah dikeluarkan daripada projek ini dan tidak lagi boleh membuat tugas ini. Sila pilih orang yang berada dalam projek sekarang."
   }
 }
