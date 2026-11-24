@@ -179,3 +179,88 @@ export function groupNearby<T>(
   }
   return groups;
 }
+
+/** A point on the screen, in pixels (a map's `project` at its zoom). */
+export interface ScreenPoint {
+  x: number;
+  y: number;
+}
+
+/** Icons whose centres are closer than this (px) sit on each other (JB240): an icon is 30 px, its time under it. */
+export const ICON_CLASH_PX = 36;
+/** How far apart (px) the icons of one pile stand once spread (JB240). */
+export const ICON_SPREAD_PX = 46;
+
+/**
+ * Icons that would sit on each other at this zoom, set apart (JB240, 客户 11-23
+ * 事项 12: 「请检查地图上的人员、材料卸货、机械设备及现场记录图标，避免全部挤在
+ * 一起，影响查看。」).
+ *
+ * - A pile is every icon reached through neighbours closer than `clash`, of
+ *   any layer: a worker, a delivery and a machine at the gate are one pile.
+ * - Up to eight icons stand on a ring round the pile's middle, `gap` apart
+ *   (two: left and right, so the times under them do not meet); more stand
+ *   on a spiral whose turns are `gap` apart.
+ * - An icon on its own keeps its place. The order of `points` is kept, so a
+ *   pile spreads the same way on every refresh.
+ *
+ * Pixels, not metres: zooming in spreads the icons by itself, so the piles
+ * are worked out again at every zoom and fewer icons are moved the closer
+ * one looks.
+ */
+export function spreadPiles(
+  points: readonly ScreenPoint[],
+  clash: number = ICON_CLASH_PX,
+  gap: number = ICON_SPREAD_PX,
+): ScreenPoint[] {
+  const parent = points.map((_, index) => index);
+  const root = (index: number): number => {
+    let at = index;
+    while (parent[at] !== at) {
+      parent[at] = parent[parent[at]];
+      at = parent[at];
+    }
+    return at;
+  };
+  for (let a = 0; a < points.length; a += 1) {
+    for (let b = a + 1; b < points.length; b += 1) {
+      if (Math.hypot(points[a].x - points[b].x, points[a].y - points[b].y) < clash) {
+        const ra = root(a);
+        const rb = root(b);
+        if (ra !== rb) parent[Math.max(ra, rb)] = Math.min(ra, rb);
+      }
+    }
+  }
+  const piles = new Map<number, number[]>();
+  points.forEach((_, index) => {
+    const key = root(index);
+    piles.set(key, [...(piles.get(key) ?? []), index]);
+  });
+
+  const placed = points.map((point) => ({ x: point.x, y: point.y }));
+  for (const members of piles.values()) {
+    const count = members.length;
+    if (count < 2) continue;
+    const middle = {
+      x: members.reduce((sum, index) => sum + points[index].x, 0) / count,
+      y: members.reduce((sum, index) => sum + points[index].y, 0) / count,
+    };
+    if (count <= 8) {
+      // Neighbours on the ring stand `gap` apart (chord = 2r·sin(π/k)).
+      const radius = gap / (2 * Math.sin(Math.PI / count));
+      members.forEach((index, order) => {
+        const angle = Math.PI + (2 * Math.PI * order) / count;
+        placed[index] = { x: middle.x + radius * Math.cos(angle), y: middle.y + radius * Math.sin(angle) };
+      });
+    } else {
+      // An Archimedean spiral: r = gap + gap·θ/2π, one icon every `gap` along it.
+      let theta = 0;
+      members.forEach((index) => {
+        const radius = gap + (gap * theta) / (2 * Math.PI);
+        placed[index] = { x: middle.x + radius * Math.cos(theta), y: middle.y + radius * Math.sin(theta) };
+        theta += gap / radius;
+      });
+    }
+  }
+  return placed;
+}
