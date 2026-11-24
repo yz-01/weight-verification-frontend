@@ -56,7 +56,8 @@ const SHARED_TABLE_LISTS: Record<string, { pinned: boolean }> = {
   "src/components/receipts/material-tabs.tsx": { pinned: false },
   "src/components/equipment-hours/equipment-operator-hours.tsx": { pinned: true },
   "src/components/progress/daily-reports.tsx": { pinned: true },
-  "src/components/contractor-ops/waste-clearance.tsx": { pinned: true },
+  // waste-clearance.tsx draws no table of its own since JB248: every tab is
+  // the 垃圾清运 list (DataTable).
   "src/components/contractor-ops/claim-engine.tsx": { pinned: true },
   "src/components/contractor-ops/archive-queue.tsx": { pinned: true },
   // 报表导出历史 moved to its own file (JB27).
