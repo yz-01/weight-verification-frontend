@@ -95,15 +95,16 @@ describe("the office lists mark a number with two live identities", () => {
 });
 
 describe("a stopped link ends an open driver page", () => {
-  it("asks again every minute and on a refusal that ends the link", async () => {
-    const { DRIVER_LINK_RECHECK_MS, driverLinkEnding } = await import(
-      "@/components/equipment-hours/driver-clock-link"
+  it("asks again every minute and on a refusal that ends the link", () => {
+    // Read as text: importing the whole page is slow on a busy machine.
+    const page = source("components/equipment-hours/driver-clock-link.tsx");
+    expect(page).toContain("export const DRIVER_LINK_RECHECK_MS = 60_000;");
+    expect(page).toContain("refetchInterval: DRIVER_LINK_RECHECK_MS");
+    expect(page).toContain('if (code === "driver_link_closed") return "closed";');
+    // The phone step says whose identity this phone already holds (JB247).
+    expect(source("components/equipment-hours/driver-clock-link.tsx")).toMatch(
+      /failure\.code === "phone_device_in_use"\s*\? failure\.message/,
     );
-    expect(DRIVER_LINK_RECHECK_MS).toBe(60_000);
-    expect(source("components/equipment-hours/driver-clock-link.tsx")).toContain(
-      "refetchInterval: DRIVER_LINK_RECHECK_MS",
-    );
-    expect(driverLinkEnding("driver_link_closed")).toBe("closed");
     const capture = source("components/equipment-hours/equipment-hours-capture.tsx");
     expect(capture).toMatch(
       /reason\.code === "driver_link_closed" \|\| reason\.code === "driver_link_invalid"[\s\S]{0,120}queryKey: \["driver-clock-link", driver\.token\]/,

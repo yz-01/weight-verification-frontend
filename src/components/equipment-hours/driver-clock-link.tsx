@@ -257,7 +257,11 @@ function PhoneStep({
       setError(
         failure instanceof ApiError && failure.code === "driver_link_phone_mismatch"
           ? t("phoneMismatch")
-          : t("failedTitle"),
+          : // JB247: this phone already holds another person's identity - say
+            // whose, and that the office stops it first.
+            failure instanceof ApiError && failure.code === "phone_device_in_use"
+            ? failure.message
+            : t("failedTitle"),
       ),
   });
   return (
