@@ -134,7 +134,9 @@ export function SignOffHost() {
     answer(pin);
   };
 
-  const proving = needsIdentity(status);
+  // Opened from the PIN box or a lock, a PIN exists even before its status
+  // is read: ask who it is rather than let the server refuse the save.
+  const proving = needsIdentity(status) || (status === null && backTo !== null);
   const submitSetup = async () => {
     if (busy || newPin.length !== 6 || newPin !== confirmPin || !password) return;
     if (proving && !identity) return;
@@ -170,6 +172,9 @@ export function SignOffHost() {
     setSetupError(null);
     setBackTo(from);
     setMode("setup");
+    // JB239: what the set-again form asks for (old PIN or e-mailed code)
+    // follows the PIN as it is now - a lock may have come since it was read.
+    getSignOffPinStatus().then(setStatus).catch(() => undefined);
   };
 
   // Its own tooltip provider: a disabled button explains itself in a tooltip,
