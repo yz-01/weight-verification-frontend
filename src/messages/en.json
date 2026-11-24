@@ -4035,7 +4035,10 @@
       "platform_access_closed": "Closed access for MSE",
       "project_grant_updated": "Changed project access",
       "jb225_sub_modules": "Materials / progress items ticked separately (system upgrade)",
-      "jb225_default_sub_modules": "Consultant default items ticked separately (system upgrade)"
+      "jb225_default_sub_modules": "Consultant default items ticked separately (system upgrade)",
+      "equipment_rental_terms_set": "Set equipment rental terms",
+      "equipment_rental_month_amounts_set": "Entered an equipment rental diesel fee or adjustment",
+      "equipment_rental_month_confirmed": "Confirmed a month's equipment rental amounts"
     },
     "objectType": {
       "SignOffAssistant": "Assistant PIN",
@@ -9661,7 +9664,11 @@
       "permit_work_name_required": "Write the work name first, then sign and approve.",
       "permit_formal_permit_required": "There is no formal permit yet. Upload the company's filled permit form with \"Attach files\", or fill in the e-permit, then sign and approve.",
       "hazard_room_not_for_consultant": "This is the contractor's internal conversation; a consultant cannot post here. To talk to the project office, use 'Message someone'.",
-      "report_export_made_before_update": "This file was made before the system update. Please export it again."
+      "report_export_made_before_update": "This file was made before the system update. Please export it again.",
+      "equipment_rental_no_terms": "Set this machine's rental terms first (Equipment rental terms).",
+      "equipment_rental_diesel_not_charged": "This machine's diesel is not charged separately by the supplier, so no diesel fee can be entered.",
+      "equipment_rental_month_confirmed": "This month's rental amounts are confirmed and can no longer be changed.",
+      "equipment_rental_month_not_started": "This month has not started yet and cannot be confirmed."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -22071,7 +22078,10 @@
       "exit_pass_external": "External approval",
       "exit_pass_waive_external": "Drop the external approval and send the exit pass",
       "platform_access_open": "Open MSE access",
-      "platform_access_revoke_link": "Revoke an external link MSE opened"
+      "platform_access_revoke_link": "Revoke an external link MSE opened",
+      "equipment_rental_terms": "Set a machine's rental terms",
+      "equipment_rental_month_amounts": "Enter a diesel fee or adjustment",
+      "equipment_rental_confirm": "Confirm this month's rental amounts"
     },
     "firstTitle": "Set your sign-off PIN for the first time",
     "firstBanner": "This is your first time using a sign-off PIN",
@@ -23418,5 +23428,107 @@
     "noProjects": "You have not been given access to any project yet. Please ask the contractor's head office to open one for you.",
     "chooseProject": "First choose a project in the project box at the top of the page; that project's dashboard will then show here.",
     "onlyOpened": "Head office has opened only these parts for you. To see anything else, please contact the contractor's head office."
+  },
+  "equipmentRental": {
+    "title": "Equipment rental terms",
+    "help": "Each machine has its own rental terms, set once and used from then on. Entering or changing an amount needs your six-digit PIN.",
+    "close": "Close",
+    "chooseProject": "Choose a project at the top of the page first.",
+    "withoutTerms": "{count} machine(s) have no rental terms yet.",
+    "noMachines": "This project has no machines.",
+    "noSupplier": "No supplier",
+    "machineLine": "No. {number} · {name}",
+    "noTerms": "No rental terms yet",
+    "noTermsShort": "No rental terms",
+    "history": "Changes ({count})",
+    "open": "Rental terms",
+    "inForce": "In use now",
+    "changedBy": "{name} · {time}",
+    "method": {
+      "HOURLY": "Per hour",
+      "DAILY": "Per day",
+      "MONTHLY": "Per month",
+      "YEARLY": "Per year",
+      "FIXED": "Fixed amount"
+    },
+    "diesel": {
+      "INCLUDED": "Diesel included in the rent",
+      "CONTRACTOR": "Contractor supplies the diesel",
+      "SUPPLIER_CHARGED": "Supplier supplies the diesel, charged separately"
+    },
+    "summary": {
+      "price": "Rate RM {amount}",
+      "overtime": "Overtime RM {amount}/hour",
+      "standardDays": "{days} standard days a month",
+      "period": "{from} to {to}",
+      "since": "from {from}"
+    },
+    "field": {
+      "method": "Rental method",
+      "unitPrice": {
+        "HOURLY": "Rate (RM / hour)",
+        "DAILY": "Rate (RM / day)",
+        "MONTHLY": "Rate (RM / month)",
+        "YEARLY": "Rate (RM / year)",
+        "FIXED": "Fixed amount (RM / month)"
+      },
+      "standardDays": "Standard working days a month",
+      "normalHours": "Normal working hours a day",
+      "overtimeRate": "Overtime rate (RM / hour)",
+      "extraDayRate": "Charge for days beyond the standard (RM / day)",
+      "extraDayOnly": "Only for per month and per year",
+      "startDate": "Rental start date",
+      "endDate": "Rental end date (optional)",
+      "diesel": "Diesel supply",
+      "stoppage": "Deductions for stoppage and breakdown",
+      "remarks": "Other terms and remarks"
+    },
+    "formula": {
+      "HOURLY": "Base rent = normal hours × rate.",
+      "DAILY": "Base rent = days worked × rate.",
+      "MONTHLY": "Base rent = monthly rate × days of the month inside the rental period ÷ days in the month; each day worked beyond the standard working days adds the extra-day charge.",
+      "YEARLY": "Base rent = yearly rate ÷ 12 × days of the month inside the rental period ÷ days in the month; extra days are charged as per month.",
+      "FIXED": "Base rent = fixed monthly amount × days of the month inside the rental period ÷ days in the month, whatever the hours, also with no clock-ins.",
+      "common": "Overtime fee = overtime hours × overtime rate. Diesel counts only when the supplier charges for it separately; enter it on the Month page. Rental total = base rent + overtime fee + diesel fee ± adjustment. Normal and overtime hours are this page's figures (split by the \"Normal hours\" setting above); \"Normal working hours a day\" records the contract - when it differs, change this page's setting too."
+    },
+    "save": "Save",
+    "cancel": "Cancel",
+    "failed": "Could not save. Please try again.",
+    "needPriceAndStart": "Enter the rate and the rental start date first.",
+    "fee": {
+      "base_rent": "Base rent (RM)",
+      "overtime_fee": "Overtime fee (RM)",
+      "diesel_fee": "Diesel fee (RM)",
+      "adjustment_amount": "Adjustment (RM)",
+      "rental_total": "Rental total (RM)",
+      "state": "Rental amount"
+    },
+    "confirmed": "Confirmed",
+    "confirmedBy": "{name} · {time}",
+    "notConfirmed": "Not confirmed",
+    "amounts": {
+      "open": "Diesel / adjust",
+      "title": "{name} · {month} diesel fee and adjustment",
+      "help": "Entering or changing an amount needs your six-digit PIN. Once the month is confirmed it can no longer be changed.",
+      "diesel": "Diesel fee (RM, charged by the supplier)",
+      "noDiesel": "This machine is \"{supply}\": diesel is not part of the rental fee.",
+      "adjustment": "Adjustment (RM, minus to deduct, e.g. -500)",
+      "reason": "Reason for the adjustment",
+      "reasonPlaceholder": "e.g. broken down 2 days, RM 500 off as per contract",
+      "needReason": "An adjustment needs a reason."
+    },
+    "confirm": {
+      "open": "Confirm this month's amounts",
+      "title": "Confirm the rental amounts of {month}",
+      "help": "The rental amounts of {count} machine(s) are kept as they are now. After confirming, this month's amounts never change again, also when the rental terms change later.",
+      "incomplete": "{count} hours record(s) still miss a start or a stop. Hours entered after confirming do not change this month's amounts.",
+      "do": "Confirm",
+      "nothing": "Nothing to confirm this month (already confirmed, or no rental terms yet)."
+    },
+    "toast": {
+      "termsSaved": "Rental terms saved.",
+      "amountsSaved": "Saved.",
+      "confirmed": "This month's rental amounts are confirmed."
+    }
   }
 }

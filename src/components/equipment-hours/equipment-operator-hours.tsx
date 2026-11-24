@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Camera, Eye, Hash, IdCard, Link2, Loader2, PencilLine, RotateCcw, ScanLine, Search, UserRound, UsersRound } from "lucide-react";
+import { Camera, Eye, Hash, IdCard, Link2, Loader2, PencilLine, Receipt, RotateCcw, ScanLine, Search, UserRound, UsersRound } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
@@ -17,6 +17,16 @@ import {
   type OperatorPapersTarget,
 } from "@/components/equipment-hours/operator-profile-window";
 import { DriverBindingHints, DriverBindingsDialog } from "@/components/equipment-hours/driver-bindings";
+import {
+  ConfirmRentalMonthButton,
+  RENTAL_COLUMN_COUNT,
+  RentalAmountsDialog,
+  RentalFeeCells,
+  RentalFeeHeads,
+  RentalTermsDialog,
+  RentalTotalCells,
+  rentalExportColumns,
+} from "@/components/equipment-hours/rental-fees";
 import { DriverClockLinksDialog } from "@/components/equipment-hours/driver-clock-links";
 import { EquipmentNormalHoursButton } from "@/components/equipment-hours/equipment-normal-hours";
 import { EquipmentSiteNumbersDialog } from "@/components/equipment-hours/equipment-site-numbers";
@@ -61,6 +71,7 @@ import { ApiError } from "@/interfaces/api";
 import type {
   EquipmentDayAdjustmentPayload,
   EquipmentHoursMachineTotal,
+  EquipmentHoursMonthRow,
   EquipmentHoursSession,
 } from "@/interfaces/equipment-hours";
 import { useDateFormat, type DateFormatter } from "@/lib/dates";
@@ -272,6 +283,7 @@ const ALL = "all";
 export function EquipmentOperatorHours() {
   const t = useTranslations("equipmentHours");
   const tRoot = useTranslations();
+  const tRental = useTranslations("equipmentRental");
   const df = useDateFormat();
   const { can } = useAuth();
   const [view, setView] = useState<View>("day");
@@ -303,6 +315,9 @@ export function EquipmentOperatorHours() {
   const [registering, setRegistering] = useState<RegisterPrefill | null>(null);
   // 设备绑定司机 (JB227): which driver phone may clock which machine.
   const [driverBindings, setDriverBindings] = useState(false);
+  // 设备租赁设定 (JB255): each machine's rental terms, and a month's diesel / adjustment.
+  const [rentalTerms, setRentalTermsOpen] = useState(false);
+  const [amountsRow, setAmountsRow] = useState<EquipmentHoursMonthRow | null>(null);
   // 操作人员 / CIDB 卡号 being written for this row (I4, ID19).
   const [naming, setNaming] = useState<EquipmentHoursSession | null>(null);
   // 操作人员资料 (JB233): the papers the operator's name opens, and the row's project.
@@ -461,6 +476,20 @@ export function EquipmentOperatorHours() {
                   {tRoot("driverBinding.open")}
                 </Button>
               )}
+              {/* JB255: 「在现有「设备绑定司机」按钮旁边，设置「设备租赁设定」按钮」. */}
+              {canAdjust && (
+                <Button variant="outline" onClick={() => setRentalTermsOpen(true)}>
+                  <Receipt />
+                  {tRoot("equipmentRental.title")}
+                </Button>
+              )}
+              {view === "month" && canAdjust && (
+                <ConfirmRentalMonthButton
+                  project={projectFilterValue(project)}
+                  month={monthly.data?.month ?? ""}
+                  rows={monthRows}
+                />
+              )}
               {view === "day" && canExport && (
                 <ExportButton onExport={exportDays} disabled={rows.length === 0} />
               )}
@@ -489,8 +518,9 @@ export function EquipmentOperatorHours() {
                         { key: "total_hours", label: t("field.totalHours") },
                         { key: "incomplete_count", label: t("field.incomplete") },
                         { key: "adjusted_count", label: t("field.adjustedCount") },
+                        ...rentalExportColumns(tRental),
                       ],
-                    })
+                    }, t("month.total"))
                   }
                 />
               )}
@@ -862,18 +892,19 @@ export function EquipmentOperatorHours() {
                 <TableHead className="tabular text-right">{t("field.totalHours")}</TableHead>
                 <TableHead className="tabular text-right">{t("field.incomplete")}</TableHead>
                 <TableHead className="tabular text-right">{t("field.adjustedCount")}</TableHead>
+                <RentalFeeHeads />
               </TableRow>
             </TableHeader>
             <TableBody>
               {monthly.isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={11} className="h-20 text-center text-muted-foreground">
+                  <TableCell colSpan={11 + RENTAL_COLUMN_COUNT} className="h-20 text-center text-muted-foreground">
                     <Loader2 className="size-4 animate-spin" />
                   </TableCell>
                 </TableRow>
               ) : monthRows.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={11} className="h-20 text-center text-muted-foreground">
+                  <TableCell colSpan={11 + RENTAL_COLUMN_COUNT} className="h-20 text-center text-muted-foreground">
                     {t("month.empty")}
                   </TableCell>
                 </TableRow>
@@ -903,6 +934,7 @@ export function EquipmentOperatorHours() {
                         )}
                       </TableCell>
                       <TableCell className="tabular text-right">{row.adjusted_count}</TableCell>
+                      <RentalFeeCells row={row} canAdjust={canAdjust} onAmounts={setAmountsRow} />
                     </TableRow>
                   ))}
                   <TableRow>
@@ -923,6 +955,7 @@ export function EquipmentOperatorHours() {
                     </TableCell>
                     <TableCell className="text-right" />
                     <TableCell className="text-right" />
+                    <RentalTotalCells totals={monthly.data?.rental_totals} />
                   </TableRow>
                 </>
               )}
@@ -955,6 +988,12 @@ export function EquipmentOperatorHours() {
         />
       )}
 
+      {rentalTerms && (
+        <RentalTermsDialog project={projectFilterValue(project)} onClose={() => setRentalTermsOpen(false)} />
+      )}
+      {amountsRow && monthly.data?.month ? (
+        <RentalAmountsDialog row={amountsRow} month={monthly.data.month} onClose={() => setAmountsRow(null)} />
+      ) : null}
       {driverBindings && (
         <DriverBindingsDialog project={projectFilterValue(project)} onClose={() => setDriverBindings(false)} />
       )}

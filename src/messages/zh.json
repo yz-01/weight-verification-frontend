@@ -4035,7 +4035,10 @@
       "platform_access_closed": "关闭 MSE 查看权限",
       "project_grant_updated": "修改项目权限",
       "jb225_sub_modules": "材料管理 / 工程进度分项勾选（系统升级）",
-      "jb225_default_sub_modules": "顾问默认权限分项勾选（系统升级）"
+      "jb225_default_sub_modules": "顾问默认权限分项勾选（系统升级）",
+      "equipment_rental_terms_set": "设定设备租赁条件",
+      "equipment_rental_month_amounts_set": "填写设备租赁的柴油费用或调整金额",
+      "equipment_rental_month_confirmed": "确认设备本月租赁金额"
     },
     "objectType": {
       "SignOffAssistant": "助理副密码",
@@ -9661,7 +9664,11 @@
       "permit_work_name_required": "请先填写施工事项名称，再签名批准。",
       "permit_formal_permit_required": "还没有正式施工准证。请用「上传附件」上传填好的公司准证表格，或填写电子准证，再签名批准。",
       "hazard_room_not_for_consultant": "这是建筑商内部的沟通，顾问不能在这里发言。要和项目后台沟通，请用「找人沟通」。",
-      "report_export_made_before_update": "这份文件是系统更新前生成的，请重新导出。"
+      "report_export_made_before_update": "这份文件是系统更新前生成的，请重新导出。",
+      "equipment_rental_no_terms": "先给这台设备设定租赁条件（【设备租赁设定】）。",
+      "equipment_rental_diesel_not_charged": "这台设备的柴油不是供应商另外收费，不能填柴油费用。",
+      "equipment_rental_month_confirmed": "这个月的租赁金额已经确认，不能再改。",
+      "equipment_rental_month_not_started": "这个月还没开始，不能确认。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -22071,7 +22078,10 @@
       "exit_pass_external": "外部审批",
       "exit_pass_waive_external": "改为不需要外部审批并发出门条",
       "platform_access_open": "开放 MSE 查看权限",
-      "platform_access_revoke_link": "撤销 MSE 开的外部访问链接"
+      "platform_access_revoke_link": "撤销 MSE 开的外部访问链接",
+      "equipment_rental_terms": "设定设备租赁条件",
+      "equipment_rental_month_amounts": "填写柴油费用或调整金额",
+      "equipment_rental_confirm": "确认本月租赁金额"
     },
     "firstTitle": "第一次设定签核密码",
     "firstBanner": "这是你第一次使用签核密码",
@@ -23418,5 +23428,107 @@
     "noProjects": "您目前没有获授权的项目。请联系建筑商总部开通。",
     "chooseProject": "请先在页面上方的项目框选一个项目，这里就会显示那个项目的仪表板。",
     "onlyOpened": "总部目前只为您开通了这些内容。要看其他内容，请联系建筑商总部。"
+  },
+  "equipmentRental": {
+    "title": "设备租赁设定",
+    "help": "每台设备独立设定租赁条件，设定一次后长期沿用。填写或修改金额要输入六位数密码。",
+    "close": "关闭",
+    "chooseProject": "先在页面上方选一个项目。",
+    "withoutTerms": "有 {count} 台设备还没有设定租赁条件。",
+    "noMachines": "这个项目没有设备。",
+    "noSupplier": "没有供应商",
+    "machineLine": "{number} 号 · {name}",
+    "noTerms": "还没有设定租赁条件",
+    "noTermsShort": "未设定租赁条件",
+    "history": "修改记录（{count}）",
+    "open": "租赁条件",
+    "inForce": "现在用的",
+    "changedBy": "{name} · {time}",
+    "method": {
+      "HOURLY": "按小时",
+      "DAILY": "按天",
+      "MONTHLY": "按月",
+      "YEARLY": "按年",
+      "FIXED": "固定金额"
+    },
+    "diesel": {
+      "INCLUDED": "租金包含柴油",
+      "CONTRACTOR": "建筑商自行提供柴油",
+      "SUPPLIER_CHARGED": "供应商提供柴油另外收费"
+    },
+    "summary": {
+      "price": "单价 RM {amount}",
+      "overtime": "超时 RM {amount}/小时",
+      "standardDays": "每月标准 {days} 天",
+      "period": "{from} 至 {to}",
+      "since": "{from} 起"
+    },
+    "field": {
+      "method": "租赁方式",
+      "unitPrice": {
+        "HOURLY": "租赁单价（RM / 小时）",
+        "DAILY": "租赁单价（RM / 天）",
+        "MONTHLY": "租赁单价（RM / 月）",
+        "YEARLY": "租赁单价（RM / 年）",
+        "FIXED": "固定金额（RM / 月）"
+      },
+      "standardDays": "每月标准工作天数",
+      "normalHours": "每天正常工作时数",
+      "overtimeRate": "超时工作每小时单价（RM）",
+      "extraDayRate": "超出标准工作天数的收费标准（RM / 天）",
+      "extraDayOnly": "只用于按月、按年",
+      "startDate": "租赁开始日期",
+      "endDate": "租赁结束日期（可以不填）",
+      "diesel": "柴油供应方式",
+      "stoppage": "停工及设备故障扣费条件",
+      "remarks": "其他租赁条款及备注"
+    },
+    "formula": {
+      "HOURLY": "基本租金 = 正常工时 × 单价。",
+      "DAILY": "基本租金 = 工作天数 × 单价。",
+      "MONTHLY": "基本租金 = 月租 × 这个月在租赁期内的天数 ÷ 这个月的天数；工作天数超过每月标准工作天数，每多一天加收「超出标准工作天数」的金额。",
+      "YEARLY": "基本租金 = 年租 ÷ 12 × 这个月在租赁期内的天数 ÷ 这个月的天数；超出标准工作天数和按月一样加收。",
+      "FIXED": "基本租金 = 每月固定金额 × 这个月在租赁期内的天数 ÷ 这个月的天数，不看工时，没有司机打卡也算。",
+      "common": "超时费用 = 超时工时 × 超时单价。柴油只有「供应商提供柴油另外收费」才算，金额在「按月」页填。租赁总金额 = 基本租金 + 超时费用 + 柴油费用 ± 调整金额。正常工时和超时工时就是本页的数字（按上面「正常工时」的设定分开）；「每天正常工作时数」照合同记录，和本页的设定不一样时，请把本页的设定也改好。"
+    },
+    "save": "保存",
+    "cancel": "取消",
+    "failed": "保存失败，请再试一次。",
+    "needPriceAndStart": "先填租赁单价和租赁开始日期。",
+    "fee": {
+      "base_rent": "基本租金（RM）",
+      "overtime_fee": "超时费用（RM）",
+      "diesel_fee": "柴油费用（RM）",
+      "adjustment_amount": "调整金额（RM）",
+      "rental_total": "租赁总金额（RM）",
+      "state": "租赁金额"
+    },
+    "confirmed": "已确认",
+    "confirmedBy": "{name} · {time}",
+    "notConfirmed": "未确认",
+    "amounts": {
+      "open": "柴油 / 调整",
+      "title": "{name} · {month} 柴油费用和调整金额",
+      "help": "填写或修改金额要输入六位数密码。确认本月金额后就不能再改。",
+      "diesel": "柴油费用（RM，供应商另外收取的）",
+      "noDiesel": "这台设备是「{supply}」，柴油不计入租赁费用。",
+      "adjustment": "调整金额（RM，要扣钱就填负数，例如 -500）",
+      "reason": "调整原因",
+      "reasonPlaceholder": "例如：设备故障停工 2 天，按合同扣 RM 500",
+      "needReason": "填了调整金额就要写原因。"
+    },
+    "confirm": {
+      "open": "确认本月金额",
+      "title": "确认 {month} 的租赁金额",
+      "help": "{count} 台设备的租赁金额会按现在的数字保存。确认后这个月的金额不会再改，以后修改租赁条件也不会影响它。",
+      "incomplete": "还有 {count} 笔工时缺开工或缺收工。确认后再补这些工时，这个月的金额也不会改。",
+      "do": "确认",
+      "nothing": "这个月没有要确认的金额（已经确认了，或者还没有设定租赁条件）。"
+    },
+    "toast": {
+      "termsSaved": "租赁条件已保存。",
+      "amountsSaved": "已保存。",
+      "confirmed": "本月租赁金额已确认。"
+    }
   }
 }
