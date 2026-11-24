@@ -4038,7 +4038,8 @@
       "platform_access_closed": "Menutup akses untuk MSE",
       "project_grant_updated": "Ubah akses projek",
       "jb225_sub_modules": "Item bahan / kemajuan ditanda berasingan (naik taraf sistem)",
-      "jb225_default_sub_modules": "Item lalai perunding ditanda berasingan (naik taraf sistem)"
+      "jb225_default_sub_modules": "Item lalai perunding ditanda berasingan (naik taraf sistem)",
+      "exit_pass_started": "Memulakan pas keluar"
     },
     "objectType": {
       "SignOffAssistant": "PIN pembantu",
@@ -7063,10 +7064,10 @@
       "returnProcessing": "Rekod keluar (kedua-dua tandatangan)",
       "exitWaitingUpload": "Rekod keluar ini sudah disimpan dalam telefon ini dan dimuat naik sendiri apabila ada isyarat - tidak perlu buat semula. Ikuti dalam Apa yang saya hantar.",
       "exitUploading": "Sedang memuat naik {photos} foto dan kedua-dua tandatangan - sila tunggu dan jangan tutup tetingkap ini.",
-      "waitingForSite": "Diluluskan / menunggu keluar tapak: tapak merekod keluar dengan kedua-dua tandatangan.",
+      "waitingForSite": "Menyediakan pas keluar: apabila kenderaan tiba, tapak mengambil foto kenderaan dan barang yang keluar lalu menghantarnya. Selepas foto diterima, pejabat menekan [Mulakan pas keluar].",
       "finalConfirm": "Sahkan keluar",
-      "waitingForOffice": "Bahan telah keluar. Menunggu pengesahan pejabat.",
-      "returnHelp": "{reference} telah diluluskan. Semasa bahan keluar: ambil foto, isi kuantiti sebenar, nombor plat lori, sahkan pembekal (imbas kodnya jika boleh), dan kedua-dua orang tapak dan pembekal / pemandu tandatangan. Pejabat kemudian mengesahkannya.",
+      "waitingForOffice": "Foto tapak telah dihantar - menunggu pejabat memulakan pas keluar dan mengesahkan.",
+      "returnHelp": "{reference} telah diluluskan - pas keluar sedang disediakan. Apabila kenderaan tiba: ambil foto kenderaan dan barang yang keluar, isi kuantiti sebenar dipulangkan dan nombor plat, sahkan pembekal (imbas kodnya) dan tandatangan kedua-dua pihak (kakitangan tapak dan pembekal / pemandu), kemudian hantar. Pas keluar sampai kepada anda dan pintu hanya selepas pejabat memulakannya dan pengurus keselamatan menandatangani.",
       "processingPhotos": "Gambar semasa serahan",
       "processingNote": "Nota dari tapak",
       "processingLocation": "Lokasi",
@@ -7119,7 +7120,7 @@
       "materialNameHint": "Tidak pasti? Biarkan - pejabat akan mengisinya."
     },
     "outgoingStatus": {
-      "APPROVED": "Diluluskan / menunggu keluar tapak",
+      "APPROVED": "Menyediakan pas keluar",
       "PENDING": "Menunggu kelulusan",
       "REJECTED": "Dikembalikan (ditutup)",
       "RELEASED": "Dilepaskan (aliran lama)",
@@ -9673,7 +9674,11 @@
       "permit_formal_permit_required": "Belum ada permit rasmi. Muat naik borang permit syarikat yang telah diisi dengan \"Lampirkan fail\", atau isi e-permit, kemudian tandatangan dan luluskan.",
       "hazard_room_not_for_consultant": "Ini perbualan dalaman kontraktor; perunding tidak boleh menghantar mesej di sini. Untuk berbincang dengan pejabat projek, gunakan 'Mesej seseorang'.",
       "report_export_made_before_update": "Fail ini dibuat sebelum kemas kini sistem. Sila eksport semula.",
-      "hazard_chat_ended": "{incident_no} telah tamat dan perbincangannya ditutup. Rekod masih boleh dibaca, tetapi tiada lagi teks, foto, fail atau nota suara boleh dihantar."
+      "hazard_chat_ended": "{incident_no} telah tamat dan perbincangannya ditutup. Rekod masih boleh dibaca, tetapi tiada lagi teks, foto, fail atau nota suara boleh dihantar.",
+      "exit_pass_photos_missing": "Tapak belum menghantar foto kenderaan dan barang yang keluar, jadi pas keluar belum boleh dimulakan atau ditandatangani. Tunggu kakitangan tapak mengambil dan menghantar foto apabila kenderaan tiba.",
+      "exit_pass_not_started": "Pejabat belum menekan [Mulakan pas keluar], jadi ia belum boleh ditandatangani. Tandatangan selepas pejabat menyemak foto tapak dan menekan [Mulakan pas keluar].",
+      "exit_pass_start_not_allowed": "Anda tidak boleh memulakan pas keluar ini: ia ditekan di pejabat oleh orang yang meluluskan bahan keluar bagi projek ini. Hubungi pengurus projek atau ibu pejabat.",
+      "exit_pass_already_started": "Pas keluar ini sudah dimulakan - tidak perlu tekan lagi. Halaman telah dimuat semula."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -23100,7 +23105,20 @@
       "signedSentNobody": "Ditandatangani: {reference}",
       "paperReplaced": "Salinan bertandatangan telah diganti. Pas keluar sudah dihantar sebelum ini dan tidak dihantar lagi: {reference}"
     },
-    "correctedAfter": "Selepas pas keluar ditandatangani, rekod ini dibetulkan oleh {by} pada {when}; yang dipaparkan di sini ialah rekod yang telah dibetulkan."
+    "correctedAfter": "Selepas pas keluar ditandatangani, rekod ini dibetulkan oleh {by} pada {when}; yang dipaparkan di sini ialah rekod yang telah dibetulkan.",
+    "start": {
+      "title": "Mulakan pas keluar",
+      "button": "Mulakan pas keluar",
+      "preparing": "Menyediakan pas keluar",
+      "waitingStart": "Menunggu dimulakan",
+      "noPhotos": "Permohonan telah diluluskan, tetapi itu bukan kebenaran untuk keluar. Apabila kenderaan tiba, kakitangan tapak mengambil foto kenderaan dan barang yang keluar lalu menghantarnya; barulah pejabat boleh menekan [Mulakan pas keluar] dan pengurus keselamatan menandatangani.",
+      "lockedReason": "Dikunci sehingga tapak menghantar foto keluar",
+      "photosIn": "Foto tapak dihantar ({when}). Semak foto, kemudian tekan [Mulakan pas keluar] supaya pengurus keselamatan boleh menandatangani.",
+      "waitingOffice": "Foto tapak telah diterima. Menunggu pejabat menekan [Mulakan pas keluar]; pengurus keselamatan menandatangani selepas itu.",
+      "started": "Dimulakan oleh {name} · {when}",
+      "confirm": "Mulakan pas keluar? Pengurus keselamatan projek akan dimaklumkan dan boleh menandatanganinya.",
+      "done": "Pas keluar dimulakan; pengurus keselamatan telah diminta menandatangani."
+    }
   },
   "mseAccess": {
     "section": {

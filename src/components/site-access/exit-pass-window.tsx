@@ -147,6 +147,11 @@ export function ExitPassWindow({
 function WindowStatus({ pass }: { pass: ExitPass }) {
   const t = useTranslations("exitPass");
   switch (pass.state) {
+    // JB237 (材料出场): 准备出门条 until the site's photos, then 等待启动出门条.
+    case "awaiting_photos":
+      return <StatusBadge label={t("start.preparing")} tone="warning" />;
+    case "awaiting_start":
+      return <StatusBadge label={t("start.waitingStart")} tone="warning" />;
     case "awaiting_signature":
       return <StatusBadge label={t("approval.notApproved")} tone="warning" />;
     case "awaiting_external":
