@@ -299,14 +299,16 @@ export function SignOffHost() {
                 />
               </FieldWrapper>
               {proving && (
-                <PinIdentityFields
-                  status={status}
-                  password={password}
-                  disabled={busy}
-                  error={setupError}
-                  startWithCode={backTo !== null}
-                  onChange={setIdentity}
-                />
+                <FieldWrapper label={tIdentity("proof")} required>
+                  <PinIdentityFields
+                    status={status}
+                    password={password}
+                    disabled={busy}
+                    error={setupError}
+                    startWithCode={backTo !== null}
+                    onChange={setIdentity}
+                  />
+                </FieldWrapper>
               )}
               {backTo !== null && (
                 // Someone who forgot the PIN may have forgotten the password

@@ -169,14 +169,16 @@ export function SignOffPinSettings() {
         </FieldWrapper>
         {proving && current && (
           <div className="md:col-span-2">
-            <PinIdentityFields
-              key={round}
-              status={current}
-              password={password}
-              disabled={save.isPending}
-              error={error}
-              onChange={setIdentity}
-            />
+            <FieldWrapper label={tIdentity("proof")} required>
+              <PinIdentityFields
+                key={round}
+                status={current}
+                password={password}
+                disabled={save.isPending}
+                error={error}
+                onChange={setIdentity}
+              />
+            </FieldWrapper>
           </div>
         )}
       </form>

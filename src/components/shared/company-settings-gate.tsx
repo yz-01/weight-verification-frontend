@@ -85,6 +85,7 @@ export function CompanySettingsGate({ children }: { children: ReactNode }) {
         <Button
           className="mt-5"
           disabled={state === "opening"}
+          disabledReason={state === "opening" ? t("opening") : undefined}
           onClick={() => {
             setState("opening");
             void unlock();

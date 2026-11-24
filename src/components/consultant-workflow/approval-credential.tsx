@@ -48,6 +48,8 @@ export function ApprovalCredentialSettings() {
   // JB239 (客户 11-23 事项 11): a PIN once set is replaced only with the old
   // PIN or a code mailed to the login e-mail - here as on 「我的签核密码」.
   const tIdentity = useTranslations("jb239.identity");
+  // The server still refuses a PIN replaced without proof (sign_off_pin_identity_required), said in the toast.
+  // query-failure: the 「确认是你本人」 block stays hidden; the save is then refused and says why.
   const pinStatus = useQuery({ queryKey: ["sign-off-pin"], queryFn: getSignOffPinStatus });
   const proving = !keepsPin && needsIdentity(pinStatus.data);
   const [identity, setIdentity] = useState<PinIdentity>(null);
@@ -175,13 +177,15 @@ export function ApprovalCredentialSettings() {
           </FieldWrapper>
           {proving && pinStatus.data && (
             <div className="sm:col-span-2">
-              <PinIdentityFields
-                key={round}
-                status={pinStatus.data}
-                password={password}
-                disabled={save.isPending}
-                onChange={setIdentity}
-              />
+              <FieldWrapper label={tIdentity("proof")} required>
+                <PinIdentityFields
+                  key={round}
+                  status={pinStatus.data}
+                  password={password}
+                  disabled={save.isPending}
+                  onChange={setIdentity}
+                />
+              </FieldWrapper>
             </div>
           )}
         </div>
