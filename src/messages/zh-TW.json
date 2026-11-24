@@ -23425,5 +23425,12 @@
     "noProjects": "您目前沒有獲授權的項目。請聯絡建築商總部開通。",
     "chooseProject": "請先在頁面上方的項目框選一個項目，這裡就會顯示那個項目的儀表板。",
     "onlyOpened": "總部目前只為您開通了這些內容。要看其他內容，請聯絡建築商總部。"
+  },
+  "jb256": {
+    "photos": "照片",
+    "withPhotos": "包含照片",
+    "withoutPhotos": "不包含照片",
+    "summaryTitle": "累計數量及總金額",
+    "totalAmount": "總金額"
   }
 }

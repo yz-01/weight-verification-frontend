@@ -23425,5 +23425,12 @@
     "noProjects": "Anda belum diberi akses kepada mana-mana projek. Sila minta ibu pejabat kontraktor membukanya untuk anda.",
     "chooseProject": "Pilih projek dahulu dalam kotak projek di bahagian atas halaman; papan pemuka projek itu akan dipaparkan di sini.",
     "onlyOpened": "Ibu pejabat hanya membuka bahagian ini untuk anda. Untuk melihat yang lain, sila hubungi ibu pejabat kontraktor."
+  },
+  "jb256": {
+    "photos": "Foto",
+    "withPhotos": "Dengan foto",
+    "withoutPhotos": "Tanpa foto",
+    "summaryTitle": "Kuantiti terkumpul dan jumlah amaun",
+    "totalAmount": "Jumlah amaun"
   }
 }

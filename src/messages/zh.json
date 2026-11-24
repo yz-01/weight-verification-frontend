@@ -23425,5 +23425,12 @@
     "noProjects": "您目前没有获授权的项目。请联系建筑商总部开通。",
     "chooseProject": "请先在页面上方的项目框选一个项目，这里就会显示那个项目的仪表板。",
     "onlyOpened": "总部目前只为您开通了这些内容。要看其他内容，请联系建筑商总部。"
+  },
+  "jb256": {
+    "photos": "照片",
+    "withPhotos": "包含照片",
+    "withoutPhotos": "不包含照片",
+    "summaryTitle": "累计数量及总金额",
+    "totalAmount": "总金额"
   }
 }

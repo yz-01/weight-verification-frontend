@@ -23425,5 +23425,12 @@
     "noProjects": "You have not been given access to any project yet. Please ask the contractor's head office to open one for you.",
     "chooseProject": "First choose a project in the project box at the top of the page; that project's dashboard will then show here.",
     "onlyOpened": "Head office has opened only these parts for you. To see anything else, please contact the contractor's head office."
+  },
+  "jb256": {
+    "photos": "Photos",
+    "withPhotos": "With photos",
+    "withoutPhotos": "Without photos",
+    "summaryTitle": "Cumulative quantity and total amount",
+    "totalAmount": "Total amount"
   }
 }
