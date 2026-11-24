@@ -153,7 +153,8 @@ describe("every page a badge opens shows them (2026-10-09)", () => {
     field_tasks: ["contractor-ops/operations-workspaces.tsx"],
     equipment: ["contractor-ops/office-module-lists.tsx"],
     waste_outgoing: ["contractor-ops/waste-outgoing-workspace.tsx"],
-    site_disposals: ["contractor-ops/site-disposal-workspaces.tsx", "contractor-ops/waste-clearance.tsx"],
+    // JB248: every 垃圾清运 tab is the clearance list, which carries both.
+    site_disposals: ["contractor-ops/site-disposal-workspaces.tsx"],
     consultant_applications: ["consultant-workflow/applications-list.tsx"],
     approvals: ["document-workflow/approvals.tsx"],
     sundry_claims: ["sundry-claims/sundry-claims-office.tsx"],
