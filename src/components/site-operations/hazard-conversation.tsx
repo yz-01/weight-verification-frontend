@@ -36,6 +36,7 @@ import { ApiError } from "@/interfaces/api";
 import { useAuth } from "@/components/providers/auth-provider";
 import { useBellRefreshOnRead } from "@/hooks/use-bell-refresh-on-read";
 import { useNewMessageTone } from "@/hooks/use-new-message-tone";
+import { consultantChatPoll } from "@/lib/record-chat";
 import {
   getHazardConversation,
   postHazardMessage,
@@ -60,14 +61,18 @@ function HazardConversationContent({ incidentId }: { incidentId: string }) {
   // 「需要继续整改」 (ID11): never kept in the draft - it is armed for one send.
   const [moreWork, setMoreWork] = useState(false);
 
+  const { user } = useAuth();
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["hazard-conversation", incidentId],
     queryFn: () => getHazardConversation(incidentId),
+    // JB241 (「双方必须同步显示「已结束」」): the contractor's screens hear the
+    // end on the live stream (`safety.`), which never serves a consultant
+    // (JB224 F7) - his open room is read again every 15 seconds instead.
+    refetchInterval: (query) => consultantChatPoll(user?.account_type, Boolean(query.state.error)),
   });
   // Reading the room settles this reader's chat notice; the dot follows.
   useBellRefreshOnRead(data);
   // Somebody else's new message rings while the chat is open (JB36).
-  const { user } = useAuth();
   useNewMessageTone(data?.messages, user?.id);
 
   const limit = data?.audio_seconds_limit ?? FALLBACK_AUDIO_LIMIT;

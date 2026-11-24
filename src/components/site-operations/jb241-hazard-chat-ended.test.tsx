@@ -117,6 +117,9 @@ describe("an ended 整改 (JB241)", () => {
     );
     expect(source).toMatch(/HAZARD_ENDED_CODES = new Set\(\["hazard_chat_ended", "hazard_closed"\]\)/);
     expect(source).toMatch(/onError:[\s\S]*HAZARD_ENDED_CODES\.has\(error\.code\)[\s\S]*"hazard-conversation", incidentId/);
+    // A consultant has no live stream: his open room is read again, so the
+    // end reaches his screen too.
+    expect(source).toMatch(/refetchInterval: \(query\) => consultantChatPoll\(user\?\.account_type/);
   });
 
   it("has its words in all four languages", () => {
