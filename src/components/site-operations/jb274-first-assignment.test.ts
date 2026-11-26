@@ -43,10 +43,22 @@ describe("JB274 the desk form names who fixes it", () => {
     expect(zh.jb274.notChosenYet).toContain("待分配");
   });
 
+  it("asks once, before saving, to assign a person ticked only in 另外通知 (QA2)", () => {
+    // 「避免重复指派」: nobody in 整改负责人, somebody ticked below -> one tap.
+    expect(source).toContain(
+      "!fieldMode && !draft.rectifier && tickedPeople.length > 0 && !notifyOnlyChosen",
+    );
+    expect(source).toContain("onClick={submitCreate}");
+    expect(source).toMatch(/data-jb274="ask-assign"[\s\S]{0,1200}rectifier: row\.id[\s\S]{0,800}t\("jb274\.notifyOnlyGo"\)/);
+    expect(zh.jb274.assignTo).toBe("指派给 {name}");
+    expect(zh.jb274.askAssignTitle).toContain("整改负责人");
+    expect(zh.jb274.askAssignHint).toContain("待分配");
+  });
+
   it("has the words in all four languages, the UI's 你 only", () => {
     for (const messages of [zh, zhTW, en, ms]) {
       expect(Object.keys(messages.jb274).sort()).toEqual(
-        ["notChosenYet", "notifyOnly", "notifyOnlyHint"],
+        ["askAssignHint", "askAssignTitle", "assignTo", "notChosenYet", "notifyOnly", "notifyOnlyGo", "notifyOnlyHint"],
       );
     }
     expect(JSON.stringify(zh.jb274)).not.toContain("您");

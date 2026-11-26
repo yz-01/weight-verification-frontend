@@ -209,6 +209,11 @@ export interface ApplicationEvidenceLink {
   sha256: string;
   caption: string;
   sort_order: number;
+  /** JB269 (QA2): the photo's record, named as the picker names it. */
+  source_model?: string;
+  record_type?: string;
+  record_reference?: string;
+  record_title?: string;
 }
 
 export interface ApplicationReviewStep {

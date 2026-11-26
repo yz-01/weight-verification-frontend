@@ -296,6 +296,7 @@ export function InviteUser() {
       submitIcon={UserPlus}
       onSubmit={() => void form.handleSubmit()}
       footerError={formError}
+      submitDisabledReason={can("user.update") ? undefined : t("jb242.needsUserUpdate")}
     >
       <FormSection title={t("users.section.identity")}>
         <form.Field name="full_name" validators={{ onSubmit: required(t("validation.required")) }}>

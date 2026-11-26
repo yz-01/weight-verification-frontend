@@ -9799,7 +9799,9 @@
       "archive_items_missing": "还有必填资料没有补齐（看「确认归档」里列出的项目），系统不能归档。",
       "archive_check_not_ticked": "请先勾选「我已核对所有资料，确认无误。」，再确认归档。",
       "return_gate_not_released": "门岗还没有拍照放行（车辆、车牌及退场货物），现在不能确认正式退场。",
-      "exit_release_shots_missing": "材料退场放行要拍车辆、车牌和退场货物，每样至少一张。还没拍的：请补拍后再按【确认放行】。"
+      "exit_release_shots_missing": "材料退场放行要拍车辆、车牌和退场货物，每样至少一张。还没拍的：请补拍后再按【确认放行】。",
+      "invite_needs_user_update": "邀请时会一起设定这个人的权限，所以要有「编辑用户」权限才能邀请。请公司管理员帮你打开。",
+      "field_removed_from_project": "你已经被移出项目，这台手机已退出登录。如果还要用，请联系项目经理。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -14971,7 +14973,7 @@
       "empty": "尚未分配人员。",
       "loadError": "人员列表无法载入。",
       "remove": "移出项目",
-      "removeConfirm": "移除",
+      "removeConfirm": "移出项目",
       "removeDescription": "他将无法再看到此项目的收货和出场记录。其账号及已记录的数据保持不变。",
       "removeTitle": "将 {name} 移出此项目？",
       "title": "项目人员名单",
@@ -24118,7 +24120,8 @@
     "linkValid": "邀请邮件里的链接 {valid}内有效。",
     "days": "{n} 天",
     "hours": "{n} 小时",
-    "sent": "已发送邀请到 {email}"
+    "sent": "已发送邀请到 {email}",
+    "needsUserUpdate": "邀请时会一起设定这个人的权限，所以要有「编辑用户」权限才能邀请。请公司管理员帮你打开。"
   },
   "jb266": {
     "approvalColumn": "顾问审批",
@@ -24319,7 +24322,11 @@
   "jb274": {
     "notifyOnly": "另外通知（不会指派）",
     "notifyOnlyHint": "勾选的人只会收到通知，可以在整改沟通里说话，但不会成为整改负责人。要谁整改，请在上面的「整改负责人」选。",
-    "notChosenYet": "还没选整改负责人：建立后会显示「待分配」，要再指派一次。"
+    "notChosenYet": "还没选整改负责人：建立后会显示「待分配」，要再指派一次。",
+    "askAssignTitle": "还没选「整改负责人」。要指派给你在「另外通知」勾的人吗？",
+    "askAssignHint": "「另外通知」的人只会收到通知，不会去整改；没有整改负责人，事项会显示「待分配」。",
+    "assignTo": "指派给 {name}",
+    "notifyOnlyGo": "不用指派，直接建立"
   },
   "jb244": {
     "open": "导入 Excel",

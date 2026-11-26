@@ -79,6 +79,7 @@ import type {
 } from "@/interfaces/contractor-ops";
 import type { CategoryModuleKey } from "@/lib/category-modules";
 import type { ChatRecordKind, ConversationClosed } from "@/lib/record-chat";
+import { everyPage } from "@/lib/report-menu";
 import { api, download, fetchAsFile, fetchObjectUrl, toastSuccess } from "@/services/api-client";
 
 export const getProjectCategories = (query: ListQuery) =>
@@ -823,8 +824,20 @@ export async function recordEquipmentMovement(payload: {
   return row;
 }
 
-export const getConstructionPhases = (query: ListQuery = {}) =>
-  api.list<ConstructionPhase>("/api/site-progress/get_phases/", query);
+const PHASE_PAGE = 100;
+/**
+ * A project's 施工分类. Asked for more than one page (`page_size` over the
+ * server's 100), every page is read: the 施工分类 tab, the 施工分类 pickers and
+ * 确认进度's 「关联现场进度」 filter (JB271) stopped at the first 100, so the
+ * newest 施工分类 of a big project could not be chosen at all (QA2).
+ */
+export const getConstructionPhases = (query: ListQuery = {}) => {
+  const url = "/api/site-progress/get_phases/";
+  if (query.page || !query.page_size || query.page_size <= PHASE_PAGE) {
+    return api.list<ConstructionPhase>(url, query);
+  }
+  return everyPage((page) => api.list<ConstructionPhase>(url, { ...query, page, page_size: PHASE_PAGE }));
+};
 /** `code` left out: the server makes the next PH-NNN (H14, HD3). */
 export const createConstructionPhase = async (payload: { project: string; code?: string; name: string; description?: string; sort_order?: number; planned_weight?: string }) => {
   const row = await api.post<ConstructionPhase>("/api/site-progress/create_phase/", payload);

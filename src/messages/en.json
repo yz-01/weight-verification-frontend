@@ -9799,7 +9799,9 @@
       "archive_items_missing": "Some required items are still missing (see the list under Confirm and archive), so it cannot be archived.",
       "archive_check_not_ticked": "Tick \"I have checked all the information and it is correct.\" before archiving.",
       "return_gate_not_released": "The gate has not photographed and released it yet (vehicle, plate and goods), so the formal exit cannot be confirmed.",
-      "exit_release_shots_missing": "A material return is released with photos of the vehicle, its number plate and the goods leaving - at least one each. Take the missing ones, then press Confirm release."
+      "exit_release_shots_missing": "A material return is released with photos of the vehicle, its number plate and the goods leaving - at least one each. Take the missing ones, then press Confirm release.",
+      "invite_needs_user_update": "Inviting also sets the person's permissions, so you need 'Edit users' to invite. Ask your company administrator to switch it on for you.",
+      "field_removed_from_project": "You have been taken off the project, so this phone is signed out. Ask your project manager if you still need it."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -24118,7 +24120,8 @@
     "linkValid": "The link in the invitation e-mail is valid for {valid}.",
     "days": "{n, plural, one {# day} other {# days}}",
     "hours": "{n, plural, one {# hour} other {# hours}}",
-    "sent": "Invitation sent to {email}"
+    "sent": "Invitation sent to {email}",
+    "needsUserUpdate": "Inviting also sets the person's permissions, so you need 'Edit users' to invite. Ask your company administrator to switch it on for you."
   },
   "jb266": {
     "approvalColumn": "Consultant approval",
@@ -24319,7 +24322,11 @@
   "jb274": {
     "notifyOnly": "Also notify (does not assign)",
     "notifyOnlyHint": "People ticked here are only notified and can talk in the rectification chat; they are not the responsible person. Choose who fixes it in \"Responsible person\" above.",
-    "notChosenYet": "No responsible person chosen: the item will show \"Waiting to be assigned\" and needs assigning again."
+    "notChosenYet": "No responsible person chosen: the item will show \"Waiting to be assigned\" and needs assigning again.",
+    "askAssignTitle": "No responsible person chosen yet. Assign it to someone you ticked under \"Also notify\"?",
+    "askAssignHint": "People under \"Also notify\" only get the notice - they do not fix it. Without a responsible person the item shows \"Waiting to be assigned\".",
+    "assignTo": "Assign to {name}",
+    "notifyOnlyGo": "Don't assign, create it now"
   },
   "jb244": {
     "open": "Import Excel",

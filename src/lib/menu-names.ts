@@ -14,8 +14,10 @@
  *
  * Read in: the left menu, the page title 「菜单项 › 页面」, the page switcher,
  * the module search (which finds both names) and the report picker items that
- * borrow a menu name. Not read by page help texts, PDFs, notifications, to-do
- * cards, the phone, or MSE Admin's own menu (they keep the system names).
+ * borrow a menu name, and the phone's 现场记录 tiles that are the same module
+ * as a menu page (QA2: the phone home is that company's menu too - see
+ * `PHONE_TILE_MENU_KEYS`). Not read by page help texts, PDFs, notifications,
+ * to-do cards, or MSE Admin's own menu (they keep the system names).
  */
 
 import type { Portal } from "@/interfaces/auth";
@@ -154,4 +156,38 @@ export function moduleEntryMatches(
   normalized: string,
 ): boolean {
   return `${entry.label} ${entry.context} ${entry.also ?? ""}`.toLocaleLowerCase().includes(normalized);
+}
+
+/**
+ * The phone's 现场记录 tiles that are the same module as a menu page, and the
+ * menu name(s) they follow, first renamed wins (QA2, JB251: 「修改只影响该公司的
+ * 菜单显示」 - the phone home is that company's menu too). A tile that is not
+ * one menu page (门岗, 顾问资料提交, 废料处理, Rainy Weather) keeps its words.
+ */
+export const PHONE_TILE_MENU_KEYS: Readonly<Record<string, readonly string[]>> = {
+  material: ["nav.submodule.materialReceipts"],
+  outgoing: ["nav.submodule.materialOutgoing"],
+  equipment: ["nav.submodule.siteEquipment"],
+  operatorHours: ["nav.submodule.equipmentOperatorHours"],
+  progress: ["nav.submodule.progressRecords", "nav.progress"],
+  disposal: ["nav.site_disposals"],
+  waste: ["nav.submodule.wasteOutgoing"],
+  safety: ["nav.submodule.hazardRectifications", "nav.hazard_rectification"],
+  permit: ["nav.submodule.permits"],
+  request: ["nav.material_requests"],
+  sundry: ["nav.submodule.sundryClaims"],
+  visitor: ["nav.submodule.gateScanning"],
+};
+
+/** The company's name for a phone tile, or `null` for the tile's own words. */
+export function phoneTileName(
+  names: MenuNames | null | undefined,
+  locale: string,
+  tile: string,
+): string | null {
+  for (const key of PHONE_TILE_MENU_KEYS[tile] ?? []) {
+    const name = companyMenuName(names, locale, key);
+    if (name) return name;
+  }
+  return null;
 }

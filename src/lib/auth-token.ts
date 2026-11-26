@@ -193,11 +193,16 @@ export function bootstrapRefusalKeepsIcon(failure: string | null): boolean {
  * and a sign-out that kept the phone's place (停用 then 恢复, 强制登出 - JB159),
  * which the PIN puts right.
  */
+/** JB245 (QA2): the office took this phone's person off his last project. */
+export const FIELD_REMOVED_FROM_PROJECT = "field_removed_from_project";
+
 export const FIELD_OFFICE_SIGN_OUTS = [
   "field_link_replaced",
   FIELD_ACCOUNT_STOPPED,
   FIELD_ACCOUNT_REMOVED,
   "field_office_signed_out",
+  // JB245 (QA2): 移出项目 from his last project - said as such, not as a new link.
+  FIELD_REMOVED_FROM_PROJECT,
 ];
 
 /**
