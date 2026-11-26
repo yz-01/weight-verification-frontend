@@ -45,7 +45,7 @@ import zh from "@/messages/zh.json";
 const auth = vi.hoisted(() => ({
   value: {
     user: { id: "u1", portal: "MSE_TRACE" } as Record<string, unknown> | null,
-    can: (_code: string) => true,
+    can: (code: string) => Boolean(code),
     refresh: async () => {},
   },
 }));
