@@ -957,6 +957,8 @@ export async function createMaterialOutgoing(payload: {
   executor_name: string; vehicle_plate?: string; delivery_note_no?: string; reason: string;
   latitude?: string; longitude?: string; client_event_id?: string;
   field_task?: string;
+  /** JB279: the MR / 其他申请 it belongs to, comma-separated ids. */
+  material_requests?: string;
   photos: File[]; photo_captions?: string[];
 }) {
   const data = new FormData();
@@ -2663,6 +2665,11 @@ export interface RecordClosureState {
    */
   ready: boolean;
   closed: boolean;
+  /**
+   * JB279 (客户 11-26 事项 20): a 进场 / 退场 / 领用 not linked to its MR /
+   * 其他申请 yet - 「未完成关联，不允许确认归档」. The server refuses it too.
+   */
+  mr_link_missing?: boolean;
   closure: {
     confirmed_by: string;
     confirmed_by_name: string;

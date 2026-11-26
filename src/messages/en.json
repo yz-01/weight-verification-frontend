@@ -4058,7 +4058,9 @@
       "company_modules_by_platform": "MSE switched a company's business modules on or off",
       "equipment_rental_terms_set": "Set equipment rental terms",
       "equipment_rental_month_amounts_set": "Entered an equipment rental diesel fee or adjustment",
-      "equipment_rental_month_confirmed": "Confirmed a month's equipment rental amounts"
+      "equipment_rental_month_confirmed": "Confirmed a month's equipment rental amounts",
+      "material_request_linked": "Linked to an MR / other request",
+      "material_request_unlinked": "Unlinked from an MR / other request"
     },
     "objectType": {
       "SignOffAssistant": "Assistant PIN",
@@ -9727,7 +9729,9 @@
       "equipment_rental_no_terms": "Set this machine's rental terms first (Equipment rental terms).",
       "equipment_rental_diesel_not_charged": "This machine's diesel is not charged separately by the supplier, so no diesel fee can be entered.",
       "equipment_rental_month_confirmed": "This month's rental amounts are confirmed and can no longer be changed.",
-      "equipment_rental_month_not_started": "This month has not started yet and cannot be confirmed."
+      "equipment_rental_month_not_started": "This month has not started yet and cannot be confirmed.",
+      "material_request_link_required": "This record ({reference}) is not linked to an MR / other request yet. It cannot be archived until it is linked.",
+      "material_request_link_invalid": "Only this project's MR / other requests can be linked (not a returned one)."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -23905,6 +23909,65 @@
     "notAvailable": {
       "progress_claim": "Progress Claim (spending): the Multi Engine approved amount is not live yet, so it counts as 0. It is added automatically once live.",
       "disposal": "Waste clearance: its records have no amount (only weights, trips and the collector), so it counts as 0; no price is guessed."
+    }
+  },
+  "jb279": {
+    "link": {
+      "title": "Linked request (MR / other request)",
+      "help": "Choose this project's MR or other request this material record belongs to. You can choose more than one.",
+      "phoneLabel": "Linked request (MR / other request)",
+      "phoneHelp": "Choose the request this material is for. You may leave it empty and the office fills it in; a record with no link cannot be archived.",
+      "chooseProjectFirst": "Choose the project first.",
+      "loading": "Reading the requests…",
+      "what": "this project's requests",
+      "none": "This project has no request to link yet.",
+      "search": "Search request number, material or subject",
+      "chosen": "{count} chosen",
+      "missing": "Not linked to an MR / other request yet. It cannot be archived until it is linked.",
+      "empty": "No linked request yet.",
+      "edit": "Link request",
+      "change": "Change link",
+      "dialogTitle": "{reference} · Linked request",
+      "save": "Save link",
+      "cancel": "Cancel",
+      "saved": "Link saved",
+      "failed": "Not saved. Please try again.",
+      "linkedBy": "Linked by {name} on {when}",
+      "lockedArchived": "Archived: the link can no longer change."
+    },
+    "archiveBlocked": "Not linked to an MR / other request yet, so it cannot be archived. Choose one under 「Linked request」 first.",
+    "records": {
+      "title": "Linked material records",
+      "help": "The material deliveries, returns and issues linked to this request. Click a row to open the original record.",
+      "loading": "Reading…",
+      "what": "the linked material records",
+      "empty": "No material record is linked to this request yet.",
+      "kind": {
+        "RECEIPT": "Material delivery",
+        "RETURN": "Material return",
+        "ISSUE": "Material issue"
+      },
+      "column": {
+        "kind": "Type",
+        "reference": "Number",
+        "date": "Date",
+        "material": "Material",
+        "quantity": "Quantity",
+        "status": "Status"
+      },
+      "notInRequest": "Not in the request",
+      "appliedOnly": "(applied)",
+      "totalsTitle": "Quantities (linked records only)",
+      "totalsHelp": "Deliveries are compared with the requested quantity; returns and issues are counted on their own and never taken off each other. Rejected deliveries are not counted; returns and issues count once completed.",
+      "totals": {
+        "material": "Material",
+        "applied": "Requested",
+        "received": "Delivered",
+        "outstanding": "Still to come",
+        "overBy": "{quantity} over",
+        "returned": "Returned",
+        "issued": "Issued"
+      }
     }
   }
 }

@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useState } from "react";
 
 import { useUnitName } from "@/hooks/use-material-units";
+import { RecordRequestLinksPanel } from "@/components/material-requests/request-links";
 import { useAuth } from "@/components/providers/auth-provider";
 import { PhotoFileInput } from "@/components/shared/photo-file-input";
 import {
@@ -597,6 +598,9 @@ export function ViewReceipt({
               canEdit={can("receipt.update") && !data.superseded_by && !(archived && archiveLocks)}
               onEdit={setEditingLines}
             />
+            {/* JB279 (客户 11-26 事项 20): the MR / 其他申请 it belongs to -
+                linked before 确认归档. */}
+            {!data.superseded_by && <RecordRequestLinksPanel kind="MATERIAL_RECEIPT" recordId={data.id} />}
           </div>
         }
         signatures={(

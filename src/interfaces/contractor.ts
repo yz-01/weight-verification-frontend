@@ -827,6 +827,11 @@ export interface MaterialReceiptPayload {
   longitude?: string | null;
   location_accuracy_m?: string | null;
   ocr_proof?: string;
+  /**
+   * JB279 (客户 11-26 事项 20): the MR / 其他申请 this delivery belongs to,
+   * comma-separated ids; the server keeps them to this project's.
+   */
+  material_requests?: string;
 }
 
 export type DeliveryNoteOCRField =

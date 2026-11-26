@@ -46,6 +46,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { FieldDraft } from "@/components/field-staff/field-draft";
 import { RequestTypesDialog } from "@/components/material-requests/request-types-dialog";
+import { RequestLinkedRecordsPanel } from "@/components/material-requests/request-links";
 import { TotalsTab } from "@/components/material-requests/totals-tab";
 import { requestTypeNameOptions } from "@/lib/request-types";
 import {
@@ -608,6 +609,7 @@ export function MaterialRequestDetail({
   onRaiseAgain: (prefill: MaterialRequestPrefill) => void;
 }) {
   const t = useTranslations("materialRequest");
+  const tLinked = useTranslations("jb279.records");
   const tFile = useTranslations("fileActions");
   const df = useDateFormat();
   const unitLabel = useUnitLabel();
@@ -914,6 +916,7 @@ export function MaterialRequestDetail({
           .filter((file) => file.is_image && file.watermarked)
           .map((file) => ({ id: file.id, url: file.watermarked ?? "", label: file.original_name, takenAt: file.uploaded_at }))}
         panel={
+          <div className="space-y-4">
           <section className="rounded-lg border bg-card p-3">
             <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("attachments.title")}</h3>
             {row.attachments.length === 0 ? (
@@ -950,6 +953,13 @@ export function MaterialRequestDetail({
               </ol>
             )}
           </section>
+          {/* JB279 (客户 11-26 事项 20): 「在 MR／其他申请页面，可以查看所有已关联的
+              材料进场、退场及领用记录，并点击查看原始资料」. */}
+          <section className="rounded-lg border bg-card p-3" data-slot="material-request-linked-records">
+            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{tLinked("title")}</h3>
+            <RequestLinkedRecordsPanel requestId={row.id} />
+          </section>
+          </div>
         }
         actions={
           <div className="space-y-2">

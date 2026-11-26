@@ -202,6 +202,8 @@ export interface MaterialReceiptOfflineJob extends OfflineJobBase {
       longitude?: string | null;
       location_accuracy_m?: string | null;
       ocr_proof?: string;
+      /** JB279: the chosen MR / 其他申请, comma-separated ids; absent when none. */
+      material_requests?: string;
     };
     signature?: StoredFile;
     supplierSignature?: StoredFile;
@@ -327,6 +329,8 @@ export interface MaterialOutgoingOfflineJob extends OfflineJobBase {
     longitude?: string;
     client_event_id: string;
     field_task?: string;
+    /** JB279: the chosen MR / 其他申请, comma-separated ids; absent when none. */
+    material_requests?: string;
     photos: StoredFile[];
     photo_captions?: string[];
   };

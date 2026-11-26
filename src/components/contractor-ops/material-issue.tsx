@@ -43,6 +43,7 @@ import {
 } from "@/components/field-staff/field-evidence-grid";
 import { FieldSignaturePad } from "@/components/field-staff/field-signature-pad";
 import { LocationField } from "@/components/field-staff/location-field";
+import { RequestLinkPicker } from "@/components/material-requests/request-links";
 import { useAuth } from "@/components/providers/auth-provider";
 import { FieldWrapper, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { ProjectListFilter } from "@/components/shared/module-records-table";
@@ -384,6 +385,9 @@ export function IssueDialog({
   const [lines, setLines] = useDraftState<IssueLineDraft[]>("issue:lines", () => [emptyIssueLine()]);
   const [photos, setPhotos] = useDraftState("issue:photos", createEmptyFieldEvidence);
   const [note, setNote] = useDraftState("issue:note", "");
+  // JB279 (客户 11-26 事项 20): the MR / 其他申请 this issue belongs to.
+  const tLink = useTranslations("jb279.link");
+  const [linkedRequests, setLinkedRequests] = useDraftState<string[]>("issue:materialRequests", []);
   const [clientEventId, setClientEventId] = useDraftState("issue:clientEventId", "");
   const clearDraft = useClearDraft();
   const [location, setLocation] = useState<LocationValue | null>(null);
@@ -437,6 +441,7 @@ export function IssueDialog({
         latitude: location?.latitude,
         longitude: location?.longitude,
         client_event_id: eventId,
+        material_requests: linkedRequests.length ? linkedRequests.join(",") : undefined,
         photos: taken,
         photo_captions: taken.map((_, index) =>
           index < photoPrompts.length ? photoPrompts[index] : t("outgoing.evidence.other"),
@@ -470,6 +475,8 @@ export function IssueDialog({
                 setProject(next);
                 setMachineId("");
                 setLines([emptyIssueLine()]);
+                // A request belongs to one project too (JB279).
+                setLinkedRequests([]);
               }}
               placeholder={t("field.selectProject")}
               disabled={Boolean(initialProject) && isFieldStaff}
@@ -575,6 +582,11 @@ export function IssueDialog({
           />
           <FieldWrapper label={t("issue.note")}>
             <Textarea rows={2} value={note} onChange={(event) => setNote(event.target.value)} />
+          </FieldWrapper>
+          {/* JB279: 「必须能够选择并关联本项目对应的 MR／其他申请记录」 - optional
+              here; the office links it before 确认归档 when the site did not. */}
+          <FieldWrapper label={tLink("phoneLabel")} hint={tLink("phoneHelp")}>
+            <RequestLinkPicker project={project} value={linkedRequests} onChange={setLinkedRequests} />
           </FieldWrapper>
           {error && (
             <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
