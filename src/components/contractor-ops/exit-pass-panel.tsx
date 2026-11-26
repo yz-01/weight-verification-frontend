@@ -502,8 +502,10 @@ export function EvidenceSteps({ pass, readOnly = false }: { pass: ExitPass; read
             ) : (
               <Circle className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden />
             )}
-            <span className={step.done ? "text-foreground" : "text-muted-foreground"}>
-              {index + 1}. {step.label}
+            {/* The number keeps to the first line; a long step wraps beside it (QA3). */}
+            <span className={cn("flex min-w-0 gap-1", step.done ? "text-foreground" : "text-muted-foreground")}>
+              <span className="shrink-0 tabular-nums">{index + 1}.</span>
+              <span className="min-w-0">{step.label}</span>
             </span>
           </li>
         ))}

@@ -112,7 +112,7 @@ describe("设备租赁设定 dialog", () => {
     expect(html).toContain(words.withoutTerms.replace("{count}", "1"));
     expect(html.split(`>${words.open}<`).length - 1).toBeGreaterThanOrEqual(2);
     // The machine's terms in one line.
-    expect(html).toContain("按月 · 单价 RM 18,000.00 · 超时 RM 120.00/小时 · 每月标准 26 天 · 供应商提供柴油另外收费 · 2026-09-01 起");
+    expect(html).toContain("按月 · 单价 RM 18,000.00 · 超时 RM 120.00/小时 · 每月标准 26 天 · 每天正常 8 小时 · 供应商提供柴油另外收费 · 2026-09-01 起");
   });
 
   it("asks for a project first", () => {

@@ -64,9 +64,11 @@ export const QUEUED_SUBMISSION_KINDS: Record<string, string> = {
  * not 现场记录.
  */
 export function submissionKindKey(
-  row: Pick<MySubmissionRow, "kind" | "gate_issue" | "task_type">,
+  row: Pick<MySubmissionRow, "kind" | "gate_issue" | "task_type" | "clearance_kind">,
 ): string {
   if (row.kind === "GATE_INCIDENT" && row.gate_issue) return "mySubmissions.kind.GATE_ISSUE";
+  // JB248 (QA3): a 废料处理 job is not called 垃圾清运 in the phone's list.
+  if (row.kind === "DISPOSAL_REQUEST" && row.clearance_kind === "SCRAP") return "jb248.kind.SCRAP";
   if (row.kind === "SITE_RECORD" && row.task_type === "CONSULTANT") return "mySubmissions.kind.CONSULTANT";
   return `mySubmissions.kind.${row.kind}`;
 }

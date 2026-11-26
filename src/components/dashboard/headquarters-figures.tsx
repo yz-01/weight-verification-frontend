@@ -71,6 +71,7 @@ const COUNT_TILES: Array<{
  */
 export function HeadquartersFigures({ data }: { data: HeadquartersOverview }) {
   const t = useTranslations("headquarters.figures");
+  const kinds = useTranslations("jb248.kind");
   const format = useFormatter();
   const [breakdown, setBreakdown] = useState(false);
   const totals = data.totals;
@@ -114,7 +115,7 @@ export function HeadquartersFigures({ data }: { data: HeadquartersOverview }) {
           />
         ))}
       </div>
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
         <ClearanceCard
           label={t("wasteDispatches")}
           icon={Recycle}
@@ -124,14 +125,24 @@ export function HeadquartersFigures({ data }: { data: HeadquartersOverview }) {
           weightLabel={t("weighedKg")}
           href={href("waste_dispatches") ?? "/dispatches"}
         />
+        {/* 垃圾清运 and 废料处理 apart (JB248: 「分别累计，不混合统计」). */}
         <ClearanceCard
-          label={t("siteDisposals")}
+          label={kinds("GARBAGE")}
           icon={Truck}
           records={totals.site_disposals.records}
           trips={totals.site_disposals.trips}
           weight={totals.site_disposals.weight_kg}
           weightLabel={t("weightKg")}
-          href={href("site_disposals") ?? "/waste-clearance"}
+          href={href("site_disposals") ?? "/waste-clearance?kind=garbage"}
+        />
+        <ClearanceCard
+          label={kinds("SCRAP")}
+          icon={Truck}
+          records={totals.site_scraps?.records ?? 0}
+          trips={totals.site_scraps?.trips ?? 0}
+          weight={totals.site_scraps?.weight_kg ?? "0"}
+          weightLabel={t("weightKg")}
+          href={href("site_scraps") ?? "/waste-clearance?kind=scrap"}
         />
       </div>
       {breakdown && <TodayRecordsDialog data={data} onClose={() => setBreakdown(false)} />}

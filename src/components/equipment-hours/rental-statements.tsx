@@ -426,6 +426,22 @@ function GenerateStatementDialog({ onClose, onSaved }: { onClose: () => void; on
         {shown ? (
           <section className="space-y-3" data-slot="statement-preview">
             <StatementLines lines={shown.lines} totals={shown} project={shown.project} />
+            {shown.will_confirm?.length ? (
+              // 「自动生成」: the months not confirmed yet are confirmed with this statement.
+              <div className="rounded-lg border border-info/30 bg-info/10 p-3 text-sm" data-slot="statement-will-confirm">
+                <p>{tr("willConfirm")}</p>
+                <ul className="mt-1 list-disc pl-5">
+                  {shown.will_confirm.map((item) => (
+                    <li key={`${item.equipment}-${item.month}`}>
+                      {tr("willConfirmItem", {
+                        equipment: [item.equipment_no, item.equipment_name].filter(Boolean).join(" "),
+                        month: item.month,
+                      })}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
             {shown.overlap ? (
               <p className="rounded-lg border border-warning/30 bg-warning/10 p-3 text-sm" data-slot="statement-overlap">
                 {tr("overlap", { number: shown.overlap })}

@@ -72,6 +72,10 @@ export function termsSummary(t: Translate, terms: RentalTermsValues): string {
     t("summary.price", { amount: rentalMoney(terms.unit_price) }),
     terms.overtime_rate ? t("summary.overtime", { amount: rentalMoney(terms.overtime_rate) }) : "",
     terms.standard_days ? t("summary.standardDays", { days: terms.standard_days }) : "",
+    // QA3 (JB255): the machine's own normal hours split its overtime, so the line says them.
+    terms.normal_hours_per_day && Number(terms.normal_hours_per_day) > 0
+      ? t("summary.normalHours", { hours: Number(terms.normal_hours_per_day) })
+      : "",
     t(`diesel.${terms.diesel_supply}`),
     terms.end_date
       ? t("summary.period", { from: terms.start_date, to: terms.end_date })

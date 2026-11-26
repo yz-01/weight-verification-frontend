@@ -9751,6 +9751,7 @@
       "package_not_approved": "要等全部審核通過，才能確認完畢並歸檔。",
       "package_completed": "這個資料包已經確認完畢並歸檔，不能再改動。",
       "company_module_invalid": "請只勾選這家公司有的業務模組。",
+      "company_module_switched_off": "你們公司沒有開通這個模組。要用，請聯絡 MSE 開通。",
       "equipment_rental_no_terms": "先給這台設備設定租賃條件（【設備租賃設定】）。",
       "equipment_rental_diesel_not_charged": "這台設備的柴油不是供應商另外收費，不能填柴油費用。",
       "equipment_rental_month_confirmed": "這個月的租賃金額已經確認，不能再改。",
@@ -9787,10 +9788,11 @@
       "settlement_other_party": "{check_no} 是別家的。一次只能結算同一家供應商或公司的核對。",
       "rental_statement_filters": "請選擇專案、設備公司、開始日期和結束日期（結束日期不能早於開始日期，最多一年）。",
       "rental_statement_empty": "這段日期這家設備公司在這個專案沒有租賃費用。",
-      "rental_statement_not_confirmed": "這些月份的租賃金額還沒確認：{items}。請先到「設備操作員工時 › 按月」按【確認本月金額】，再生成月結單。",
+      "rental_statement_not_confirmed": "這些月份還沒過完：{items}。月過完後才能生成月結單；一定要現在生成，請先到「設備操作員工時 › 按月」按【確認本月金額】。",
       "rental_statement_no_terms": "這些設備還沒有設定租賃條件：{items}。請先設定，再生成月結單。",
       "rental_statement_overlap": "這段日期和月結單 {statement_no} 重疊（同一專案、同一設備公司），同一筆設備費用不能重複結算。",
       "rental_statement_locked": "月結單 {statement_no} 已經核對或作廢，不能再改。",
+      "rental_statement_hours_locked": "這些工時已經在月結單 {statement_no} 裡，月結單已核對或已結算，工時不能再改。",
       "rental_check_supplier_required": "請先選設備公司。",
       "rental_check_other_supplier": "月結單 {reference} 是別的設備公司的。一次只能核對同一家設備公司的月結單。",
       "archived_record_final": "這筆記錄已確認歸檔，任何人都不能再修改或刪除（包括總部管理員）。",
@@ -10846,7 +10848,7 @@
         "material_receipts_today": "今日材料進場"
       },
       "wasteDispatches": "廢料訂單",
-      "siteDisposals": "原垃圾清運",
+      "siteDisposals": "垃圾清運",
       "records": "數量",
       "trips": "車次",
       "weighedKg": "過磅重量（kg）",
@@ -13392,7 +13394,8 @@
     "waitingForYou": "{count} 項等你處理",
     "materialManagement": "材料管理",
     "material_requests": "MR / 其他申請",
-    "waitingApproval": "{count} 項待審批/驗收"
+    "waitingApproval": "{count} 項待審批/驗收",
+    "photo_wall": "照片牆"
   },
   "notifications": {
     "compose": {
@@ -14193,6 +14196,12 @@
       "need": "登記付款要選賬單、填金額、付款日期和付款方式；參考號、憑證和備註選填。附上銀行憑證，MSE 核對得比較快。",
       "then": "登記的付款先是「待確認」，MSE 核對後確認或駁回；確認了，賬單才算付了。",
       "trouble": "對賬單金額有疑問，請直接聯繫 MSE。"
+    },
+    "photo_wall": {
+      "what": "系統裡所有記錄的照片，按拍攝時間排好，從開工到竣工都在這裡。不用另外上傳。",
+      "who": "能看公司總部儀表板的人。MSE 可以按公司關掉這個模組。",
+      "then": "點照片就打開它所屬的記錄，這裡不改任何資料。",
+      "trouble": "看不到某張照片：先看上面選的專案和日期；照片是跟著記錄來的，記錄刪掉或還沒送出就不會有。"
     }
   },
   "partners": {
@@ -17950,7 +17959,7 @@
       "submit": "提交後台",
       "photos": "照片"
     },
-    "countedOnly": "只顯示總部「原垃圾清運」計入數量的申請：不含已拒絕和已取消。",
+    "countedOnly": "只顯示總部「垃圾清運」「廢料處理」卡片計入數量的申請：不含已拒絕和已取消。",
     "showAll": "顯示全部",
     "trips": {
       "title": "車次",
@@ -21246,7 +21255,7 @@
     "normal": {
       "open": "正常工時：每天 {hours} 小時",
       "title": "每日正常工時",
-      "help": "每位操作人員每天前面的工時算正常，超過的算超時；沒有操作人員的按設備算。跨天的算開工那天。改了只影響之後收工結算的工時，之前已結算的不變。",
+      "help": "每位操作人員每天前面的工時算正常，超過的算超時；沒有操作人員的按設備算。跨天的算開工那天。改了只影響之後收工結算的工時，之前已結算的不變。設備在租賃設定裡填了「每天正常工作時數」的，按設備自己的時數算。",
       "label": "每天正常工時（小時）",
       "save": "保存",
       "failed": "保存沒有成功，請再試一次。",
@@ -23871,6 +23880,7 @@
       "price": "單價 RM {amount}",
       "overtime": "超時 RM {amount}/小時",
       "standardDays": "每月標準 {days} 天",
+      "normalHours": "每天正常 {hours} 小時",
       "period": "{from} 至 {to}",
       "since": "{from} 起"
     },
@@ -23900,7 +23910,7 @@
       "MONTHLY": "基本租金 = 月租 × 這個月在租賃期內的天數 ÷ 這個月的天數；工作天數超過每月標準工作天數，每多一天加收「超出標準工作天數」的金額。",
       "YEARLY": "基本租金 = 年租 ÷ 12 × 這個月在租賃期內的天數 ÷ 這個月的天數；超出標準工作天數和按月一樣加收。",
       "FIXED": "基本租金 = 每月固定金額 × 這個月在租賃期內的天數 ÷ 這個月的天數，不看工時，沒有司機打卡也算。",
-      "common": "超時費用 = 超時工時 × 超時單價。柴油只有「供應商提供柴油另外收費」才算，金額在「按月」頁填。租賃總金額 = 基本租金 + 超時費用 + 柴油費用 ± 調整金額。正常工時和超時工時就是本頁的數字（按上面「正常工時」的設定分開）；「每天正常工作時數」照合同記錄，和本頁的設定不一樣時，請把本頁的設定也改好。"
+      "common": "超時費用 = 超時工時 × 超時單價。柴油只有「供應商提供柴油另外收費」才算，金額在「按月」頁填。租賃總金額 = 基本租金 + 超時費用 + 柴油費用 ± 調整金額。正常工時和超時工時就是本頁的數字：設備填了「每天正常工作時數」的，按這台設備自己的時數分開；沒有填的，按上面「正常工時」的設定分開。"
     },
     "save": "儲存",
     "cancel": "取消",
@@ -24282,7 +24292,8 @@
     "save": "儲存",
     "nothing": "先填一個數字",
     "saved": "數字已補錄",
-    "historyFilled": "補錄"
+    "historyFilled": "補錄",
+    "lockedNoLorry": "還沒有車次送來。司機送出車次後，才能補錄數字。"
   },
   "jb265": {
     "startedBy": "顧問 {name} 發起"
@@ -24522,7 +24533,7 @@
     "machinesValue": "{count} 台",
     "view": "查看",
     "generate": "生成月結單",
-    "generateHelp": "選擇專案、設備公司、開始日期及結束日期，系統按設備租賃費用自動算出（和設備租賃費用報表一樣）。只能用已經【確認本月金額】的月份。",
+    "generateHelp": "選擇專案、設備公司、開始日期及結束日期，系統按設備租賃費用自動算出（和設備租賃費用報表一樣）。還沒確認金額的月份，生成時會一起確認。",
     "preview": "先看一下",
     "overlap": "這段日期和月結單 {number} 重疊，同一筆設備費用不能重複結算。",
     "overlapShort": "日期不重疊",
@@ -24548,7 +24559,11 @@
     "cancelTitle": "作廢月結單 {number}",
     "cancelHelp": "只有待核對的月結單可以作廢。作廢後記錄保留，這段日期可以重新生成。要輸入六位數簽核密碼。",
     "cancelReason": "作廢原因",
-    "confirmCancel": "確認作廢"
+    "confirmCancel": "確認作廢",
+    "willConfirm": "按「生成月結單」時，會一起確認這些月份的金額（確認後不能再改）：",
+    "willConfirmItem": "{equipment} {month}",
+    "onStatement": "月結單 {number}（{state}）",
+    "hoursLocked": "這天的工時已經在月結單 {number} 裡（已核對或已結算），時間、設備和操作人員都不能再改。"
   },
   "jb276": {
     "help": "請認真核對所有資料，包括供應商、材料名稱、規格、單位、數量、車牌號碼、DO（送貨單及讀取資料）、相關照片及簽收記錄。",

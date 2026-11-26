@@ -9751,6 +9751,7 @@
       "package_not_approved": "Ia boleh diselesaikan selepas semua penyemak meluluskannya.",
       "package_completed": "Pakej ini telah selesai dan diarkibkan; tiada lagi perubahan.",
       "company_module_invalid": "Tanda hanya modul perniagaan yang ada pada syarikat ini.",
+      "company_module_switched_off": "Modul ini tidak dibuka untuk syarikat anda. Untuk menggunakannya, minta MSE membukanya.",
       "equipment_rental_no_terms": "Tetapkan terma sewa mesin ini dahulu (Terma sewa peralatan).",
       "equipment_rental_diesel_not_charged": "Diesel mesin ini tidak dicaj berasingan oleh pembekal, jadi caj diesel tidak boleh dimasukkan.",
       "equipment_rental_month_confirmed": "Amaun sewa bulan ini sudah disahkan dan tidak boleh diubah lagi.",
@@ -9787,10 +9788,11 @@
       "settlement_other_party": "{check_no} milik pihak lain. Satu penyelesaian hanya untuk satu pihak.",
       "rental_statement_filters": "Pilih projek, syarikat peralatan dan tarikh mula serta tamat (tamat tidak sebelum mula, paling lama setahun).",
       "rental_statement_empty": "Syarikat peralatan ini tiada yuran sewa dalam projek ini pada tarikh tersebut.",
-      "rental_statement_not_confirmed": "Amaun sewa bulan-bulan ini belum disahkan: {items}. Tekan 【Sahkan amaun bulan ini】 di Jam operator peralatan › Bulanan dahulu.",
+      "rental_statement_not_confirmed": "Bulan-bulan ini belum tamat: {items}. Jana penyata selepas bulan tamat; untuk menjana sekarang, tekan 【Sahkan amaun bulan ini】 di Jam operator peralatan › Bulanan dahulu.",
       "rental_statement_no_terms": "Peralatan ini belum ada terma sewaan: {items}. Tetapkan dahulu.",
       "rental_statement_overlap": "Tarikh ini bertindih dengan penyata {statement_no} bagi projek dan syarikat yang sama; yuran yang sama tidak boleh diselesaikan dua kali.",
       "rental_statement_locked": "Penyata {statement_no} sudah disemak atau dibatalkan; ia kekal seperti itu.",
+      "rental_statement_hours_locked": "Jam ini sudah dalam penyata {statement_no} yang telah disemak atau diselesaikan, jadi tidak boleh diubah lagi.",
       "rental_check_supplier_required": "Pilih syarikat peralatan dahulu.",
       "rental_check_other_supplier": "Penyata {reference} milik syarikat peralatan lain. Satu semakan hanya untuk satu syarikat.",
       "archived_record_final": "Rekod ini telah diarkibkan. Tiada sesiapa boleh mengubah atau memadamnya lagi, termasuk ibu pejabat.",
@@ -10846,7 +10848,7 @@
         "material_receipts_today": "Bahan diterima hari ini"
       },
       "wasteDispatches": "Pesanan sisa",
-      "siteDisposals": "Pembersihan tapak",
+      "siteDisposals": "Pembersihan sisa",
       "records": "Rekod",
       "trips": "Trip",
       "weighedKg": "Ditimbang (kg)",
@@ -13392,7 +13394,8 @@
     "waitingForYou": "{count} menunggu anda",
     "materialManagement": "Pengurusan bahan",
     "material_requests": "MR / Permohonan Lain",
-    "waitingApproval": "{count} menunggu kelulusan atau penerimaan"
+    "waitingApproval": "{count} menunggu kelulusan atau penerimaan",
+    "photo_wall": "Dinding foto"
   },
   "notifications": {
     "compose": {
@@ -14193,6 +14196,12 @@
       "need": "Merekod bayaran memerlukan invois, jumlah, tarikh bayar dan cara bayaran; rujukan, slip dan catatan adalah pilihan. Dengan slip bank, MSE dapat menyemaknya lebih cepat.",
       "then": "Bayaran yang direkod berstatus “Menunggu semakan” sehingga MSE menyemak dan mengesahkan atau menolaknya; hanya bayaran yang disahkan dikira untuk bil.",
       "trouble": "Jika jumlah pada bil kelihatan salah, hubungi MSE terus."
+    },
+    "photo_wall": {
+      "what": "Semua foto yang sudah ada dalam rekod sistem, mengikut masa diambil, dari hari pertama kerja hingga siap. Tiada apa-apa untuk dimuat naik.",
+      "who": "Sesiapa yang membaca papan pemuka ibu pejabat. MSE boleh menutup modul ini mengikut syarikat.",
+      "then": "Foto membuka rekod asalnya. Tiada apa-apa disunting di sini.",
+      "trouble": "Foto tiada: semak projek dan tarikh yang dipilih di atas; foto datang bersama rekodnya, jadi rekod yang belum dihantar tiada di sini."
     }
   },
   "partners": {
@@ -21246,7 +21255,7 @@
     "normal": {
       "open": "Jam biasa: {hours} j",
       "title": "Jam biasa sehari",
-      "help": "Jam pertama setiap pengendali dalam sehari dikira biasa dan bakinya lebih masa; mesin tanpa pengendali, mengikut mesin. Hari ialah hari mula. Perubahan dikira untuk sesi yang tamat selepasnya; sesi lebih awal kekal seperti diselesaikan.",
+      "help": "Jam pertama setiap pengendali dalam sehari dikira biasa dan bakinya lebih masa; mesin tanpa pengendali, mengikut mesin. Hari ialah hari mula. Perubahan dikira untuk sesi yang tamat selepasnya; sesi lebih awal kekal seperti diselesaikan. Mesin yang syarat sewanya ada \"Jam bekerja biasa sehari\" sendiri menggunakan angka itu.",
       "label": "Jam biasa sehari",
       "save": "Simpan",
       "failed": "Tidak dapat menyimpan. Sila cuba lagi.",
@@ -23871,6 +23880,7 @@
       "price": "Kadar RM {amount}",
       "overtime": "Lebih masa RM {amount}/jam",
       "standardDays": "{days} hari standard sebulan",
+      "normalHours": "biasa {hours} jam sehari",
       "period": "{from} hingga {to}",
       "since": "dari {from}"
     },
@@ -23900,7 +23910,7 @@
       "MONTHLY": "Sewa asas = kadar bulanan × hari bulan ini dalam tempoh sewa ÷ hari dalam bulan; setiap hari bekerja melebihi hari standard menambah caj hari lebih.",
       "YEARLY": "Sewa asas = kadar tahunan ÷ 12 × hari bulan ini dalam tempoh sewa ÷ hari dalam bulan; hari lebih dicaj seperti sebulan.",
       "FIXED": "Sewa asas = amaun tetap bulanan × hari bulan ini dalam tempoh sewa ÷ hari dalam bulan, tanpa mengira jam, juga tanpa rekod masuk kerja.",
-      "common": "Caj lebih masa = jam lebih masa × kadar lebih masa. Diesel dikira hanya jika pembekal mengecaj berasingan; masukkan di halaman Bulanan. Jumlah sewa = sewa asas + caj lebih masa + caj diesel ± pelarasan. Jam biasa dan lebih masa ialah angka halaman ini (dibahagi mengikut tetapan \"Jam biasa\" di atas); \"Jam bekerja biasa sehari\" merekod kontrak - jika berbeza, ubah juga tetapan halaman ini."
+      "common": "Caj lebih masa = jam lebih masa × kadar lebih masa. Diesel dikira hanya jika pembekal mengecaj berasingan; masukkan di halaman Bulanan. Jumlah sewa = sewa asas + caj lebih masa + caj diesel ± pelarasan. Jam biasa dan lebih masa ialah angka halaman ini: mesin yang ada \"Jam bekerja biasa sehari\" sendiri dibahagi mengikut angka itu; yang tiada, mengikut tetapan \"Jam biasa\" di atas."
     },
     "save": "Simpan",
     "cancel": "Batal",
@@ -24282,7 +24292,8 @@
     "save": "Simpan",
     "nothing": "Isi satu angka dahulu",
     "saved": "Angka direkodkan",
-    "historyFilled": "diisi"
+    "historyFilled": "diisi",
+    "lockedNoLorry": "Belum ada lori dihantar. Nombor boleh diisi selepas pemandu menghantar lori."
   },
   "jb265": {
     "startedBy": "Dimulakan oleh perunding {name}"
@@ -24522,7 +24533,7 @@
     "machinesValue": "{count}",
     "view": "Lihat",
     "generate": "Jana penyata",
-    "generateHelp": "Pilih projek, syarikat peralatan dan tarikh; amaun dikira daripada yuran sewa peralatan (sama seperti laporan yuran sewa). Hanya bulan yang amaunnya telah disahkan boleh digunakan.",
+    "generateHelp": "Pilih projek, syarikat peralatan dan tarikh; amaun dikira daripada yuran sewa peralatan (sama seperti laporan yuran sewa). Bulan yang amaunnya belum disahkan akan disahkan semasa anda menjana penyata.",
     "preview": "Pratonton",
     "overlap": "Tarikh ini bertindih dengan penyata {number}; yuran yang sama tidak boleh diselesaikan dua kali.",
     "overlapShort": "Tarikh yang tidak bertindih",
@@ -24548,7 +24559,11 @@
     "cancelTitle": "Batalkan penyata {number}",
     "cancelHelp": "Hanya penyata yang menunggu semakan boleh dibatalkan. Ia disimpan, dan tarikhnya boleh dijana semula. PIN enam digit anda diminta.",
     "cancelReason": "Sebab dibatalkan",
-    "confirmCancel": "Sahkan pembatalan"
+    "confirmCancel": "Sahkan pembatalan",
+    "willConfirm": "Menjana penyata juga mengesahkan amaun bulan-bulan ini (tidak boleh diubah selepas itu):",
+    "willConfirmItem": "{equipment} {month}",
+    "onStatement": "Penyata {number} ({state})",
+    "hoursLocked": "Jam hari ini sudah dalam penyata {number} (disemak atau diselesaikan); masa, mesin dan pengendali tidak boleh diubah lagi."
   },
   "jb276": {
     "help": "Semak semua maklumat dengan teliti: pembekal, nama bahan, spesifikasi, unit, kuantiti, nombor plat kenderaan, DO (nota penghantaran dan data yang dibaca daripadanya), gambar berkaitan dan rekod tandatangan terima.",

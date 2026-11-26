@@ -94,6 +94,11 @@ export type EquipmentSessionStatus = "OK" | "MISSING_END" | "MISSING_START" | "A
 export interface EquipmentHoursSession extends RecordedBy {
   /** The id of the session's first photo; what a correction names. */
   key: string;
+  /**
+   * JB280 第 7 点: the checked / settled 设备租赁月结单 this day's hours are in
+   * ("" or absent when none) - nothing on it is changed any more.
+   */
+  locked_statement_no?: string;
   equipment: string;
   equipment_name: string;
   equipment_code: string;
@@ -201,6 +206,11 @@ export interface EquipmentHoursMonthRow {
   /** Sessions still missing a start or an end. */
   incomplete_count: number;
   adjusted_count: number;
+  /**
+   * JB280 第 5 点 「月结单与设备原始记录…双向关联」: the live 设备租赁月结单 this
+   * machine's days of the month are in.
+   */
+  statements?: Array<{ id: string; statement_no: string; state: "PENDING" | "CHECKED" | "SETTLED" | "CANCELLED" }>;
   /**
    * JB255 设备租赁费用: the five amounts right of 「后台修改次数」 (RM, as
    * strings; null when 金额查看 is switched off for the reader).

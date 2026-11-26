@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Camera, Eye, Hash, IdCard, Link2, Loader2, PencilLine, Receipt, RotateCcw, ScanLine, Search, UserRound, UsersRound } from "lucide-react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
@@ -285,8 +286,11 @@ export function EquipmentOperatorHours() {
   const t = useTranslations("equipmentHours");
   const tRoot = useTranslations();
   const tRental = useTranslations("equipmentRental");
+  const tStatement = useTranslations("jb280");
   const df = useDateFormat();
-  const { can } = useAuth();
+  const { can, user } = useAuth();
+  // JB280 第 5 点: a 按月 row opens its 月结单 - for those who may open the statements.
+  const opensStatements = !user?.is_field_staff && can("equipment.manage");
   // JB280: a 设备租赁月结单's machine line opens this page on its 按月 view
   // (`?view=month&month=YYYY-MM&equipment=<id>&project=<id>`) - the
   // statement's 设备原始记录. Read once, as the starting state.
@@ -786,7 +790,7 @@ export function EquipmentOperatorHours() {
                         <OperatorNameCell
                           name={row.operator_name}
                           expiry={row.operator_expiry}
-                          canFill={canAdjust}
+                          canFill={canAdjust && !row.locked_statement_no}
                           onOpen={() => setPapers({ target: papersTargetOf(row), project: row.project })}
                           onFill={() => setNaming(row)}
                         />
@@ -826,7 +830,7 @@ export function EquipmentOperatorHours() {
                       </TableCell>
                       <TableCell pin="end">
                         <div className="flex items-center justify-end gap-0.5">
-                          {canAdjust && (row.missing_end || row.missing_start) ? (
+                          {canAdjust && !row.locked_statement_no && (row.missing_end || row.missing_start) ? (
                             <Button
                               size="sm"
                               onClick={(event) => {
@@ -925,6 +929,26 @@ export function EquipmentOperatorHours() {
                         <p className="text-xs text-muted-foreground">
                           {[row.equipment_code, row.project_name].filter(Boolean).join(" · ")}
                         </p>
+                        {(row.statements ?? []).map((statement) => {
+                          const label = tStatement("onStatement", {
+                            number: statement.statement_no,
+                            state: tStatement(`state.${statement.state}`),
+                          });
+                          return opensStatements ? (
+                            <Link
+                              key={statement.id}
+                              data-slot="month-row-statement"
+                              href={`/equipment-rental-statements?tab=all&statement=${encodeURIComponent(statement.id)}`}
+                              className="block text-xs font-medium text-primary underline-offset-2 hover:underline"
+                            >
+                              {label}
+                            </Link>
+                          ) : (
+                            <p key={statement.id} data-slot="month-row-statement" className="text-xs">
+                              {label}
+                            </p>
+                          );
+                        })}
                       </TableCell>
                       <TableCell className="font-medium">{row.site_no || "-"}</TableCell>
                       <TableCell>{row.supplier_name || "-"}</TableCell>
@@ -1145,6 +1169,7 @@ export function DayDialog({
   onRegister?: (prefill: RegisterPrefill) => void;
 }) {
   const t = useTranslations("equipmentHours");
+  const tStatement = useTranslations("jb280");
   const df = useDateFormat();
   const queryClient = useQueryClient();
   const mode = adjustMode(day);
@@ -1331,7 +1356,12 @@ export function DayDialog({
           </div>
         }
         actions={
-          canAdjust ? (
+          canAdjust && day.locked_statement_no ? (
+            // JB280 第 7 点: the server refuses too; the panel says why first.
+            <p className="rounded-lg border border-warning/30 bg-warning/10 p-3 text-sm" data-slot="hours-locked">
+              {tStatement("hoursLocked", { number: day.locked_statement_no })}
+            </p>
+          ) : canAdjust ? (
             <div className="space-y-4">
             <section className="space-y-3">
               <h3 className="panel-title">{t("operator.title")}</h3>

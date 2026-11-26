@@ -1464,6 +1464,7 @@ function DisposalActions({
 }) {
   const t = useTranslations("siteDisposal");
   const w = useTranslations("jb282");
+  const fillWords = useTranslations("jb286");
   const { can, user } = useAuth();
   const steps = disposalSteps(row, {
     manage: can("disposal.manage"),
@@ -1484,7 +1485,10 @@ function DisposalActions({
       {/* JB286 (客户 11-26 事项 27: 「更改供应商换去以前是 补数字」): once a lorry
           is in, 【补录数字】 stands where 【更改供应商】 stood (图 40); the
           company is still changed, from after 加进资料包. */}
-      {steps.fillNumbers && <Button size="sm" variant="outline" data-disposal-fill-numbers onClick={() => onStep("fillNumbers")}><Hash />{t("action.recordNumbers")}</Button>}
+      {steps.fillNumbers === "open" && <Button size="sm" variant="outline" data-disposal-fill-numbers onClick={() => onStep("fillNumbers")}><Hash />{t("action.recordNumbers")}</Button>}
+      {/* QA3 (audit #3): from the start of the running job the place is
+          【补录数字】's - locked, saying why, until a lorry is in. */}
+      {steps.fillNumbers === "locked" && <Button size="sm" variant="outline" data-disposal-fill-numbers-locked disabled disabledReason={fillWords("lockedNoLorry")} showReason><Hash />{t("action.recordNumbers")}</Button>}
       {/* I27: name the clearance company once the assign dialog is behind
           the job - a driver started it from the link, or it is being settled. */}
       {!steps.fillNumbers && supplierButton}
@@ -1492,7 +1496,8 @@ function DisposalActions({
       {can("disposal.submit") && RUNNING.includes(row.status) && <Button size="sm" variant="outline" onClick={() => onStep("siteEvidence")}><Camera />{t("action.siteEvidence")}</Button>}
       {/* E04: no 验收 / 退回 - the final proof's submission ended the job.
           What the office still does is fill in the numbers (D06). */}
-      {can("disposal.confirm") && ["COMPLETED", "AWAITING_CONFIRMATION"].includes(row.status) && <Button size="sm" variant="outline" onClick={() => onStep("numbers")}><Hash />{t("action.recordNumbers")}</Button>}
+      {/* Office only (QA3, audit #17): the phone never fills the job's numbers. */}
+      {can("disposal.confirm") && !user?.is_field_staff && ["COMPLETED", "AWAITING_CONFIRMATION"].includes(row.status) && <Button size="sm" variant="outline" onClick={() => onStep("numbers")}><Hash />{t("action.recordNumbers")}</Button>}
       {extra}
       {steps.fillNumbers && supplierButton}
       {/* The warning and the destructive step last, drawn alike (JB166):
@@ -1550,17 +1555,20 @@ function DisposalStepDialogs({
  *   holds 审批及安排垃圾清运; `"locked"` (drawn, saying why) for an office
  *   account without it; `null` on the phone, which never decides (Lucas
  *   11-26: 「那个手机不应该出现审批才对」; the server refuses it too).
- * - `fillNumbers`: 【补录数字】 while the job runs and a lorry is in (JB286).
+ * - `fillNumbers`: 【补录数字】 while the job runs (JB286): `"open"` once a
+ *   lorry is in, `"locked"` (drawn in that place, saying why) before;
+ *   `null` on the phone, on a job not running, or without the permission.
  * - `supplier`: 【填写 / 更改供应商】 (I27). Not on the phone when it would
  *   replace a company: that is a correction, signed in the office.
  */
 export function disposalSteps(
   row: Pick<DisposalRequest, "status" | "assignment_type" | "collector_supplier" | "supplier_name" | "trips">,
   may: { manage: boolean; confirm: boolean; phone: boolean },
-): { review: "open" | "locked" | null; fillNumbers: boolean; supplier: boolean } {
+): { review: "open" | "locked" | null; fillNumbers: "open" | "locked" | null; supplier: boolean } {
   const review = row.status !== "REQUESTED" || may.phone ? null : may.manage ? "open" : "locked";
   const lorryIn = (row.trips ?? []).some((trip) => trip.status === "SUBMITTED" || trip.status === "ACCEPTED");
-  const fillNumbers = !may.phone && (may.manage || may.confirm) && RUNNING.includes(row.status) && lorryIn;
+  const fillNumbers =
+    !may.phone && (may.manage || may.confirm) && RUNNING.includes(row.status) ? (lorryIn ? "open" : "locked") : null;
   const supplier =
     offersSupplierButton(row, { manage: may.manage, confirm: may.confirm }) &&
     !(may.phone && supplierChangeNeedsReason(row));

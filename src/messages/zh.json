@@ -9751,6 +9751,7 @@
       "package_not_approved": "要等全部审核通过，才能确认完毕并归档。",
       "package_completed": "这个资料包已经确认完毕并归档，不能再改动。",
       "company_module_invalid": "请只勾选这家公司有的业务模块。",
+      "company_module_switched_off": "你们公司没有开通这个模块。要用，请联系 MSE 开通。",
       "equipment_rental_no_terms": "先给这台设备设定租赁条件（【设备租赁设定】）。",
       "equipment_rental_diesel_not_charged": "这台设备的柴油不是供应商另外收费，不能填柴油费用。",
       "equipment_rental_month_confirmed": "这个月的租赁金额已经确认，不能再改。",
@@ -9787,10 +9788,11 @@
       "settlement_other_party": "{check_no} 是别家的。一次只能结算同一家供应商或公司的核对。",
       "rental_statement_filters": "请选择项目、设备公司、开始日期和结束日期（结束日期不能早于开始日期，最多一年）。",
       "rental_statement_empty": "这段日期这家设备公司在这个项目没有租赁费用。",
-      "rental_statement_not_confirmed": "这些月份的租赁金额还没确认：{items}。请先到「设备操作员工时 › 按月」按【确认本月金额】，再生成月结单。",
+      "rental_statement_not_confirmed": "这些月份还没过完：{items}。月过完后才能生成月结单；一定要现在生成，请先到「设备操作员工时 › 按月」按【确认本月金额】。",
       "rental_statement_no_terms": "这些设备还没有设定租赁条件：{items}。请先设定，再生成月结单。",
       "rental_statement_overlap": "这段日期和月结单 {statement_no} 重叠（同一项目、同一设备公司），同一笔设备费用不能重复结算。",
       "rental_statement_locked": "月结单 {statement_no} 已经核对或作废，不能再改。",
+      "rental_statement_hours_locked": "这些工时已经在月结单 {statement_no} 里，月结单已核对或已结算，工时不能再改。",
       "rental_check_supplier_required": "请先选设备公司。",
       "rental_check_other_supplier": "月结单 {reference} 是别的设备公司的。一次只能核对同一家设备公司的月结单。",
       "archived_record_final": "这笔记录已确认归档，任何人都不能再修改或删除（包括总部管理员）。",
@@ -10846,7 +10848,7 @@
         "material_receipts_today": "今日材料进场"
       },
       "wasteDispatches": "废料订单",
-      "siteDisposals": "原垃圾清运",
+      "siteDisposals": "垃圾清运",
       "records": "数量",
       "trips": "车次",
       "weighedKg": "过磅重量（kg）",
@@ -13392,7 +13394,8 @@
     "waitingForYou": "{count} 项等你处理",
     "materialManagement": "材料管理",
     "material_requests": "MR / 其他申请",
-    "waitingApproval": "{count} 项待审批/验收"
+    "waitingApproval": "{count} 项待审批/验收",
+    "photo_wall": "照片墙"
   },
   "notifications": {
     "compose": {
@@ -14193,6 +14196,12 @@
       "need": "登记付款要选账单、填金额、付款日期和付款方式；参考号、凭证和备注选填。附上银行凭证，MSE 核对得比较快。",
       "then": "登记的付款先是「待确认」，MSE 核对后确认或驳回；确认了，账单才算付了。",
       "trouble": "对账单金额有疑问，请直接联系 MSE。"
+    },
+    "photo_wall": {
+      "what": "系统里所有记录的照片，按拍摄时间排好，从开工到竣工都在这里。不用另外上传。",
+      "who": "能看公司总部仪表板的人。MSE 可以按公司关掉这个模块。",
+      "then": "点照片就打开它所属的记录，这里不改任何数据。",
+      "trouble": "看不到某张照片：先看上面选的项目和日期；照片是跟着记录来的，记录删掉或还没送出就不会有。"
     }
   },
   "partners": {
@@ -17950,7 +17959,7 @@
       "submit": "提交后台",
       "photos": "照片"
     },
-    "countedOnly": "只显示总部「原垃圾清运」计入数量的申请：不含已拒绝和已取消。",
+    "countedOnly": "只显示总部「垃圾清运」「废料处理」卡片计入数量的申请：不含已拒绝和已取消。",
     "showAll": "显示全部",
     "trips": {
       "title": "车次",
@@ -21246,7 +21255,7 @@
     "normal": {
       "open": "正常工时：每天 {hours} 小时",
       "title": "每日正常工时",
-      "help": "每位操作人员每天前面的工时算正常，超过的算超时；没有操作人员的按设备算。跨天的算开工那天。改了只影响之后收工结算的工时，之前已结算的不变。",
+      "help": "每位操作人员每天前面的工时算正常，超过的算超时；没有操作人员的按设备算。跨天的算开工那天。改了只影响之后收工结算的工时，之前已结算的不变。设备在租赁设定里填了「每天正常工作时数」的，按设备自己的时数算。",
       "label": "每天正常工时（小时）",
       "save": "保存",
       "failed": "保存没有成功，请再试一次。",
@@ -23871,6 +23880,7 @@
       "price": "单价 RM {amount}",
       "overtime": "超时 RM {amount}/小时",
       "standardDays": "每月标准 {days} 天",
+      "normalHours": "每天正常 {hours} 小时",
       "period": "{from} 至 {to}",
       "since": "{from} 起"
     },
@@ -23900,7 +23910,7 @@
       "MONTHLY": "基本租金 = 月租 × 这个月在租赁期内的天数 ÷ 这个月的天数；工作天数超过每月标准工作天数，每多一天加收「超出标准工作天数」的金额。",
       "YEARLY": "基本租金 = 年租 ÷ 12 × 这个月在租赁期内的天数 ÷ 这个月的天数；超出标准工作天数和按月一样加收。",
       "FIXED": "基本租金 = 每月固定金额 × 这个月在租赁期内的天数 ÷ 这个月的天数，不看工时，没有司机打卡也算。",
-      "common": "超时费用 = 超时工时 × 超时单价。柴油只有「供应商提供柴油另外收费」才算，金额在「按月」页填。租赁总金额 = 基本租金 + 超时费用 + 柴油费用 ± 调整金额。正常工时和超时工时就是本页的数字（按上面「正常工时」的设定分开）；「每天正常工作时数」照合同记录，和本页的设定不一样时，请把本页的设定也改好。"
+      "common": "超时费用 = 超时工时 × 超时单价。柴油只有「供应商提供柴油另外收费」才算，金额在「按月」页填。租赁总金额 = 基本租金 + 超时费用 + 柴油费用 ± 调整金额。正常工时和超时工时就是本页的数字：设备填了「每天正常工作时数」的，按这台设备自己的时数分开；没有填的，按上面「正常工时」的设定分开。"
     },
     "save": "保存",
     "cancel": "取消",
@@ -24282,7 +24292,8 @@
     "save": "保存",
     "nothing": "先填一个数字",
     "saved": "数字已补录",
-    "historyFilled": "补录"
+    "historyFilled": "补录",
+    "lockedNoLorry": "还没有车次送来。司机送出车次后，才能补录数字。"
   },
   "jb265": {
     "startedBy": "顾问 {name} 发起"
@@ -24522,7 +24533,7 @@
     "machinesValue": "{count} 台",
     "view": "查看",
     "generate": "生成月结单",
-    "generateHelp": "选择项目、设备公司、开始日期及结束日期，系统按设备租赁费用自动算出（和设备租赁费用报表一样）。只能用已经【确认本月金额】的月份。",
+    "generateHelp": "选择项目、设备公司、开始日期及结束日期，系统按设备租赁费用自动算出（和设备租赁费用报表一样）。还没确认金额的月份，生成时会一起确认。",
     "preview": "先看一下",
     "overlap": "这段日期和月结单 {number} 重叠，同一笔设备费用不能重复结算。",
     "overlapShort": "日期不重叠",
@@ -24548,7 +24559,11 @@
     "cancelTitle": "作废月结单 {number}",
     "cancelHelp": "只有待核对的月结单可以作废。作废后记录保留，这段日期可以重新生成。要输入六位数签核密码。",
     "cancelReason": "作废原因",
-    "confirmCancel": "确认作废"
+    "confirmCancel": "确认作废",
+    "willConfirm": "按「生成月结单」时，会一起确认这些月份的金额（确认后不能再改）：",
+    "willConfirmItem": "{equipment} {month}",
+    "onStatement": "月结单 {number}（{state}）",
+    "hoursLocked": "这天的工时已经在月结单 {number} 里（已核对或已结算），时间、设备和操作人员都不能再改。"
   },
   "jb276": {
     "help": "请认真核对所有资料，包括供应商、材料名称、规格、单位、数量、车牌号码、DO（送货单及读取资料）、相关照片及签收记录。",

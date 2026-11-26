@@ -45,6 +45,7 @@ import { featuresCarryItems } from "@/lib/consultant-modules";
 
 export type PortalFeatureKey =
   | "dashboard"
+  | "photo_wall"
   | "cloud_weighing"
   | "transaction_reports"
   | "projects"
@@ -856,10 +857,13 @@ export const PORTAL_NAVIGATION = {
     // MSE Timeline 工程照片墙 (JB135, 客户 11-07 事项 10): every photo the
     // records already hold, project by project, from the first day to the
     // last. Whoever reads the head-office dashboard (`dashboard.view`) reads
-    // this; no feature of its own, so it rides on 「dashboard」. Its own
+    // this; since QA3 (JB250, 「物业…可以只开放…照片墙…」) it is a module of
+    // its own, `photo_wall`, that MSE can switch off per company. Its own
     // count would be the dashboard's, so it shows none.
-    entry("dashboard", "submodule.photoTimeline", "/photo-timeline", Images, "overview", {
+    entry("photo_wall", "submodule.photoTimeline", "/photo-timeline", Images, "overview", {
       requiredPermission: "dashboard.view",
+      // A consultant's 仪表板 tick opens it as before (JB226).
+      consultantFeature: "dashboard",
       badge: [],
     }),
     item(

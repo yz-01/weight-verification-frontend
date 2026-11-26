@@ -9751,6 +9751,7 @@
       "package_not_approved": "It can be completed once every reviewer has approved it.",
       "package_completed": "This package is completed and archived; nothing more changes.",
       "company_module_invalid": "Tick only business modules this company has.",
+      "company_module_switched_off": "This module is not switched on for your company. To use it, ask MSE to switch it on.",
       "equipment_rental_no_terms": "Set this machine's rental terms first (Equipment rental terms).",
       "equipment_rental_diesel_not_charged": "This machine's diesel is not charged separately by the supplier, so no diesel fee can be entered.",
       "equipment_rental_month_confirmed": "This month's rental amounts are confirmed and can no longer be changed.",
@@ -9787,10 +9788,11 @@
       "settlement_other_party": "{check_no} is another supplier's or company's. One settlement is one party's checks.",
       "rental_statement_filters": "Choose the project, the equipment company and the start and end dates (the end not before the start, at most a year).",
       "rental_statement_empty": "This equipment company has no rental fee on this project in these dates.",
-      "rental_statement_not_confirmed": "These months' rental amounts are not confirmed yet: {items}. Press 【Confirm this month's amounts】 on Equipment operator hours › By month first.",
+      "rental_statement_not_confirmed": "These months are not over yet: {items}. Generate the statement after the month is over; to generate it now, press 【Confirm this month's amounts】 on Equipment operator hours › By month first.",
       "rental_statement_no_terms": "These machines have no rental terms yet: {items}. Set them first.",
       "rental_statement_overlap": "These dates overlap statement {statement_no} of the same project and company; the same fee cannot be settled twice.",
       "rental_statement_locked": "Statement {statement_no} is checked or cancelled already; it stays as it is.",
+      "rental_statement_hours_locked": "These hours are in statement {statement_no}, which is checked or settled, so they can no longer be changed.",
       "rental_check_supplier_required": "Choose the equipment company first.",
       "rental_check_other_supplier": "Statement {reference} is another equipment company's. One check is one company's statements.",
       "archived_record_final": "This record has been archived. Nobody can change or delete it any more, head office included.",
@@ -10846,7 +10848,7 @@
         "material_receipts_today": "Material received today"
       },
       "wasteDispatches": "Waste orders",
-      "siteDisposals": "Site clearance",
+      "siteDisposals": "Waste clearance",
       "records": "Records",
       "trips": "Trips",
       "weighedKg": "Weighed (kg)",
@@ -13392,7 +13394,8 @@
     "waitingForYou": "{count} waiting for you",
     "materialManagement": "Material management",
     "material_requests": "MR / Other Request",
-    "waitingApproval": "{count} waiting for approval or acceptance"
+    "waitingApproval": "{count} waiting for approval or acceptance",
+    "photo_wall": "Photo wall"
   },
   "notifications": {
     "compose": {
@@ -14193,6 +14196,12 @@
       "need": "Recording a payment needs the invoice, the amount, the date paid and how it was paid; the reference, slip and notes are optional. With the bank slip attached MSE can check it sooner.",
       "then": "A recorded payment is “Pending review” until MSE checks it and confirms or rejects it; only a confirmed payment counts against the bill.",
       "trouble": "If an amount on a bill looks wrong, contact MSE directly."
+    },
+    "photo_wall": {
+      "what": "Every photo already in the system's records, in the order taken, from the first day of work to completion. Nothing extra to upload.",
+      "who": "Whoever reads the head-office dashboard. MSE can switch this module off per company.",
+      "then": "A photo opens the record it belongs to. Nothing is edited here.",
+      "trouble": "A photo missing: check the project and dates chosen above; photos come with their records, so a record not sent yet has none here."
     }
   },
   "partners": {
@@ -21246,7 +21255,7 @@
     "normal": {
       "open": "Normal hours: {hours} h",
       "title": "Daily normal hours",
-      "help": "Each operator's first hours of a day count as normal and the rest as overtime; a machine with no operator, per machine. The day is the start's day. A change counts for sessions that end after it; earlier ones stay as they were settled.",
+      "help": "Each operator's first hours of a day count as normal and the rest as overtime; a machine with no operator, per machine. The day is the start's day. A change counts for sessions that end after it; earlier ones stay as they were settled. A machine whose rental terms give its own \"Normal working hours a day\" uses that number.",
       "label": "Normal hours a day",
       "save": "Save",
       "failed": "Could not save. Please try again.",
@@ -23871,6 +23880,7 @@
       "price": "Rate RM {amount}",
       "overtime": "Overtime RM {amount}/hour",
       "standardDays": "{days} standard days a month",
+      "normalHours": "normal {hours} h a day",
       "period": "{from} to {to}",
       "since": "from {from}"
     },
@@ -23900,7 +23910,7 @@
       "MONTHLY": "Base rent = monthly rate × days of the month inside the rental period ÷ days in the month; each day worked beyond the standard working days adds the extra-day charge.",
       "YEARLY": "Base rent = yearly rate ÷ 12 × days of the month inside the rental period ÷ days in the month; extra days are charged as per month.",
       "FIXED": "Base rent = fixed monthly amount × days of the month inside the rental period ÷ days in the month, whatever the hours, also with no clock-ins.",
-      "common": "Overtime fee = overtime hours × overtime rate. Diesel counts only when the supplier charges for it separately; enter it on the Month page. Rental total = base rent + overtime fee + diesel fee ± adjustment. Normal and overtime hours are this page's figures (split by the \"Normal hours\" setting above); \"Normal working hours a day\" records the contract - when it differs, change this page's setting too."
+      "common": "Overtime fee = overtime hours × overtime rate. Diesel counts only when the supplier charges for it separately; enter it on the Month page. Rental total = base rent + overtime fee + diesel fee ± adjustment. Normal and overtime hours are this page's figures: a machine with its own \"Normal working hours a day\" is split by that number; one without, by the \"Normal hours\" setting above."
     },
     "save": "Save",
     "cancel": "Cancel",
@@ -24282,7 +24292,8 @@
     "save": "Save",
     "nothing": "Fill in a number first",
     "saved": "Numbers recorded",
-    "historyFilled": "filled in"
+    "historyFilled": "filled in",
+    "lockedNoLorry": "No lorry has been sent yet. Numbers can be filled in once the driver sends a lorry."
   },
   "jb265": {
     "startedBy": "Started by consultant {name}"
@@ -24522,7 +24533,7 @@
     "machinesValue": "{count}",
     "view": "View",
     "generate": "Generate statement",
-    "generateHelp": "Choose the project, the equipment company and the dates; the amounts come from the equipment rental fees (the same as the rental fee report). Only months whose amounts are confirmed can be used.",
+    "generateHelp": "Choose the project, the equipment company and the dates; the amounts come from the equipment rental fees (the same as the rental fee report). Months whose amounts are not confirmed yet are confirmed when you generate it.",
     "preview": "Preview",
     "overlap": "These dates overlap statement {number}; the same fee cannot be settled twice.",
     "overlapShort": "Dates that do not overlap",
@@ -24548,7 +24559,11 @@
     "cancelTitle": "Cancel statement {number}",
     "cancelHelp": "Only a statement waiting to be checked can be cancelled. It is kept, and its dates can be generated again. Your six-digit PIN is asked.",
     "cancelReason": "Why it is cancelled",
-    "confirmCancel": "Confirm cancel"
+    "confirmCancel": "Confirm cancel",
+    "willConfirm": "Generating the statement also confirms these months' amounts (they cannot be changed afterwards):",
+    "willConfirmItem": "{equipment} {month}",
+    "onStatement": "Statement {number} ({state})",
+    "hoursLocked": "This day's hours are in statement {number} (checked or settled); the times, the machine and the operator can no longer be changed."
   },
   "jb276": {
     "help": "Check every item carefully: supplier, material name, specification, unit, quantity, vehicle plate, DO (the delivery order and the data read from it), related photos and the signed receipt.",

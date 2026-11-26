@@ -270,15 +270,21 @@ describe("今日现场照片 keeps its look and gains the wall's clicks and filt
 });
 
 describe("MSE Timeline is in the menu for whoever reads the head-office dashboard", () => {
-  const hrefs = (permissions: string[]) =>
-    visibleNavigation("MSE_TRACE", ["dashboard"], permissions).flatMap((group) =>
+  // QA3 (JB250): 照片墙 is its own module, `photo_wall`, beside 「dashboard」.
+  const hrefs = (permissions: string[], features = ["dashboard", "photo_wall"]) =>
+    visibleNavigation("MSE_TRACE", features, permissions).flatMap((group) =>
       group.items.map((item) => item.href),
     );
 
   it("sits right under Dashboard with dashboard.view, and is gone without it", () => {
     expect(hrefs(["dashboard.view"])).toEqual(["/dashboard", "/photo-timeline"]);
     expect(hrefs([])).toEqual(["/dashboard"]);
-    expect(isRouteAllowed("MSE_TRACE", ["dashboard"], "/photo-timeline", ["dashboard.view"])).toBe(true);
-    expect(isRouteAllowed("MSE_TRACE", ["dashboard"], "/photo-timeline", [])).toBe(false);
+    expect(isRouteAllowed("MSE_TRACE", ["dashboard", "photo_wall"], "/photo-timeline", ["dashboard.view"])).toBe(true);
+    expect(isRouteAllowed("MSE_TRACE", ["dashboard", "photo_wall"], "/photo-timeline", [])).toBe(false);
+  });
+
+  it("is gone, address included, once MSE switches 照片墙 off for the company (QA3, JB250)", () => {
+    expect(hrefs(["dashboard.view"], ["dashboard"])).toEqual(["/dashboard"]);
+    expect(isRouteAllowed("MSE_TRACE", ["dashboard"], "/photo-timeline", ["dashboard.view"])).toBe(false);
   });
 });
