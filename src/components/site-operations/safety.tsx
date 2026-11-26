@@ -2078,7 +2078,7 @@ function SafetyCreateDialog({
           </p>
         )}
         {askAssign && shouldAskAssign && (
-          <div role="alert" data-jb274="ask-assign" className="space-y-2 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm dark:border-amber-700 dark:bg-amber-950/40">
+          <div role="alert" data-jb274="ask-assign" className="space-y-2 rounded-lg border border-warning/40 bg-warning/10 p-3 text-sm">
             <p className="font-medium">{t("jb274.askAssignTitle")}</p>
             <p className="text-xs text-muted-foreground">{t("jb274.askAssignHint")}</p>
             <div className="flex flex-wrap gap-2">
