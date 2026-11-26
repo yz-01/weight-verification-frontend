@@ -7101,7 +7101,7 @@
       "executor": "Pelaksana",
       "fieldFormHelp": "Isi maklumat penting sahaja, lengkapkan sekurang-kurangnya empat foto bukti dan ambil GPS. Pelaksana direkod secara automatik.",
       "formHelp": "Namakan pelaksana sebenar dan ambil lokasi GPS semasa.",
-      "subtitle": "Bahan dipulangkan kepada pembekal: mohon di telefon → pejabat isi Return Note dan luluskan → kedua-dua pihak tandatangan semasa keluar → pejabat sahkan.",
+      "subtitle": "Bahan dipulangkan kepada pembekal: mohon di telefon → pejabat isi Return Note dan luluskan → foto dan tandatangan kedua-dua pihak semasa lori tiba → pejabat mulakan pas keluar dan pengurus keselamatan tandatangan → pengawal pintu ambil foto dan lepaskan → pejabat sahkan keluar → arkib.",
       "title": "Bahan keluar",
       "rejectTitle": "Hantar permohonan ini kembali",
       "rejectHelp": "Permohonan {reference} berakhir di sini. Ia tidak dibuka semula — permohonan baharu dibuat — jadi sebab ini sahaja yang pemohon ada.",
@@ -19784,7 +19784,8 @@
       "summary": "Ringkasan",
       "tags": "Tag",
       "trip_count": "Trip",
-      "do_number": "No. DO"
+      "do_number": "No. DO",
+      "equipment_company": "Syarikat pemilik"
     },
     "followsSpec": "Unit mengikut spesifikasi",
     "linePrice": "{name} harga seunit (RM / {unit})",

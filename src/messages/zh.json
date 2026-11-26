@@ -7101,7 +7101,7 @@
       "executor": "执行人",
       "fieldFormHelp": "填写最少资料，至少完成 4 张现场取证照片并获取 GPS。执行人会自动记录。",
       "formHelp": "填写实际执行人员，并获取当前 GPS 位置。",
-      "subtitle": "材料退回供应商：手机申请 → 后台填 Return Note 并批准 → 实际退场时双方签名 → 后台确认。",
+      "subtitle": "材料退回供应商：手机申请 → 后台填 Return Note 并批准 → 车辆到场拍照、双方签名 → 后台启动出门条、安全经理签名 → 门岗拍照放行 → 后台确认正式退场 → 确认归档。",
       "title": "材料出场",
       "rejectTitle": "退回这笔申请",
       "rejectHelp": "申请 {reference} 到此结束。退回后不再重开 —— 要再申请得新建一条 —— 所以这段理由就是申请人能拿到的全部说明。",
@@ -19784,7 +19784,8 @@
       "summary": "摘要",
       "tags": "标签",
       "trip_count": "车次",
-      "do_number": "送货单号"
+      "do_number": "送货单号",
+      "equipment_company": "所属公司"
     },
     "followsSpec": "单位跟着规格，不能改",
     "linePrice": "{name} 单价（RM / {unit}）",

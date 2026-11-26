@@ -4796,7 +4796,8 @@ export function OutgoingDetailDialog({
         row
           ? issue
             ? `${t("issue.docTitle")} · ${row.material_name}`
-            : `${row.material_name} · ${row.quantity} ${row.unit}`
+            : // QA1: the unit by its name (吨（Ton）), never the code (TONNE) - 中英文统一.
+              `${row.material_name} · ${row.quantity} ${unitNameDetail(row.unit, row.unit_label)}`
           : undefined
       }
       exportRecord={

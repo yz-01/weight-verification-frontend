@@ -7101,7 +7101,7 @@
       "executor": "執行人",
       "fieldFormHelp": "填寫最少資料，至少完成 4 張現場取證照片並獲取 GPS。執行人會自動記錄。",
       "formHelp": "填寫實際執行人員，並獲取當前 GPS 位置。",
-      "subtitle": "材料退回供應商：手機申請 → 後台填 Return Note 並批准 → 實際退場時雙方簽名 → 後台確認。",
+      "subtitle": "材料退回供應商：手機申請 → 後台填 Return Note 並批准 → 車輛到場拍照、雙方簽名 → 後台啟動出門條、安全經理簽名 → 門崗拍照放行 → 後台確認正式退場 → 確認歸檔。",
       "title": "材料出場",
       "rejectTitle": "退回這筆申請",
       "rejectHelp": "申請 {reference} 到此結束。退回後不再重開 —— 要再申請得新建一條 —— 所以這段理由就是申請人能拿到的全部說明。",
@@ -19784,7 +19784,8 @@
       "summary": "摘要",
       "tags": "標籤",
       "trip_count": "車次",
-      "do_number": "送貨單號"
+      "do_number": "送貨單號",
+      "equipment_company": "所屬公司"
     },
     "followsSpec": "單位跟著規格，不能改",
     "linePrice": "{name} 單價（RM / {unit}）",

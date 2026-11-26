@@ -7101,7 +7101,7 @@
       "executor": "Executor",
       "fieldFormHelp": "Enter only the essential details, complete at least four evidence photos and capture GPS. The executor is recorded automatically.",
       "formHelp": "Name the person carrying out the movement as the executor and capture the current location.",
-      "subtitle": "Material going back to its supplier: apply on the phone → the office fills the Return Note and approves → both sides sign as it leaves → the office confirms.",
+      "subtitle": "Material going back to its supplier: apply on the phone → the office fills the Return Note and approves → photos and both signatures when the lorry is there → the office starts the exit pass and the safety manager signs → the gate photographs and releases → the office confirms the exit → archive.",
       "title": "Material outgoing",
       "rejectTitle": "Send this application back",
       "rejectHelp": "Application {reference} ends here. It is not reopened — a new application is raised instead — so this reason is what the applicant is left with.",
@@ -19784,7 +19784,8 @@
       "summary": "Summary",
       "tags": "Tags",
       "trip_count": "Trips",
-      "do_number": "DO number"
+      "do_number": "DO number",
+      "equipment_company": "Owner company"
     },
     "followsSpec": "The unit follows the specification",
     "linePrice": "{name} unit price (RM / {unit})",
