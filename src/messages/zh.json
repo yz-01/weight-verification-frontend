@@ -16169,7 +16169,7 @@
       "filesHint": "电脑里的照片、PDF、Word、Excel 按【选择照片或文件】；WhatsApp 的照片或截图，复制后按【粘贴截图】或 Ctrl+V。没有照片也可以建立。",
       "filesHintNoPasteButton": "电脑里的照片、PDF、Word、Excel 按【选择照片或文件】；WhatsApp 的照片或截图，复制后在这个窗口里按键盘 Ctrl+V。没有照片也可以建立。",
       "filesHintPhone": "照片按【拍照】拍；PDF、Word、Excel 按【选择文件】。没有照片也可以建立。",
-      "photoTimeNote": "照片记录的时间就是上面的「{when}」；没有填，就是您建立这个整改事项的时间（不看照片文件自己的日期）。",
+      "photoTimeNote": "照片记录的时间就是上面的「{when}」；没有填，就是你建立这个整改事项的时间（不看照片文件自己的日期）。",
       "chooseFiles": "选择照片或文件",
       "webcam": "用电脑摄像头拍照",
       "limits": "照片最多 {photos} 张，文件最多 {documents} 个，每个不超过 {limit} MB。",
