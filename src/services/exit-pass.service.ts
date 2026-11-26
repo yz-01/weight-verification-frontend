@@ -173,12 +173,14 @@ export async function releaseExit(payload: {
   body.append(
     "photo_meta",
     JSON.stringify(
-      payload.photos.map(({ captured_at, latitude, longitude, accuracy_m, client_event_id }) => ({
+      payload.photos.map(({ captured_at, latitude, longitude, accuracy_m, client_event_id, shot }) => ({
         captured_at,
         latitude: latitude ?? null,
         longitude: longitude ?? null,
         accuracy_m: accuracy_m ?? null,
         client_event_id,
+        // JB281: 车辆 / 车牌 / 退场货物 on a 材料退场's release.
+        ...(shot ? { shot } : {}),
       })),
     ),
   );

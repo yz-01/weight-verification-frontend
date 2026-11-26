@@ -15,7 +15,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { NextIntlClientProvider } from "next-intl";
 import { renderToStaticMarkup } from "react-dom/server";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { TooltipProvider } from "@/components/ui/tooltip";
 import type { MaterialOutgoing } from "@/interfaces/contractor-ops";
@@ -27,9 +27,11 @@ import zh from "@/messages/zh.json";
 const drafts: Record<string, unknown> = {};
 let permissions = new Set<string>(["material_outgoing.approve", "material_outgoing.submit"]);
 
+// Lucas 11-26 「手机不应该出现审批才对」: the approval buttons are the office's.
+let fieldStaff = true;
 vi.mock("@/components/providers/auth-provider", () => ({
   useAuth: () => ({
-    user: { id: "u-site", full_name: "Ah Seng", is_field_staff: true },
+    user: { id: "u-site", full_name: "Ah Seng", is_field_staff: fieldStaff },
     can: (code: string) => permissions.has(code),
   }),
 }));
@@ -182,6 +184,14 @@ describe("the phone's application (C9, X20)", () => {
 });
 
 describe("approving needs the Return Note first (C9)", () => {
+  // The office decides (Lucas 11-26): drawn for an office account; the exit
+  // itself is the phone's, so that one test turns the phone back on.
+  beforeEach(() => {
+    fieldStaff = false;
+  });
+  afterEach(() => {
+    fieldStaff = true;
+  });
   beforeEach(() => {
     permissions = new Set(["material_outgoing.approve", "material_outgoing.submit"]);
   });
@@ -216,7 +226,7 @@ describe("approving needs the Return Note first (C9)", () => {
     const processed = render(
       <OutgoingActions row={outgoing({ status: "PROCESSED", has_return_note: true })} pending={false} onReview={() => {}} onReturn={() => {}} />,
     );
-    expect(processed).toContain("确认退场完成");
+    expect(processed).toContain("确认正式退场");
   });
 
   it("never offers the exit in the office console, which is told it waits for the site (2026-10-09)", () => {

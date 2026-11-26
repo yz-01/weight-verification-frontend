@@ -2714,7 +2714,31 @@ export interface RecordClosureState {
     confirmed_at: string;
     note: string;
   } | null;
+  /**
+   * JB276 (客户 11-26 事项 17): a 材料进场 / 材料退场 shows the client's
+   * checklist - the required items still missing (`ArchiveMissingItem`), the
+   * 「我已核对所有资料，确认无误。」 tick, then the PIN. Absent on other kinds.
+   */
+  checklist?: boolean;
+  missing?: ArchiveMissingItem[];
 }
+
+/** JB276: what a 材料进场 / 材料退场 still lacks before 确认归档, in the client's order. */
+export type ArchiveMissingItem =
+  | "supplier"
+  | "material_name"
+  | "specification"
+  | "unit"
+  | "quantity"
+  | "vehicle_plate"
+  | "do_photo"
+  | "do_data"
+  | "return_note"
+  | "photos"
+  | "signatures"
+  | "exit_not_confirmed"
+  // Group S (事项 20) adds the MR link here; any later code still shows.
+  | (string & {});
 
 export function getRecordClosure(
   kind: ArchiveRecordKind,
@@ -2737,11 +2761,14 @@ export function confirmRecordClosure(
   kind: ArchiveRecordKind,
   record: string,
   note?: string,
+  checked?: boolean,
 ): Promise<RecordClosureState> {
   return api.post<RecordClosureState>("/api/record-closure/confirm_record/", {
     kind,
     record,
     note: note ?? "",
+    // JB276: 「我已核对所有资料，确认无误。」 - the server refuses without it.
+    ...(checked ? { checked: true } : {}),
   });
 }
 

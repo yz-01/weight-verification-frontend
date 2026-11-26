@@ -4074,7 +4074,9 @@
       "equipment_rental_checked": "Equipment rental statements checked",
       "equipment_rental_settled": "Equipment rental statements settled",
       "equipment_rental_statement_pdf_exported": "Equipment rental statement PDF exported",
-      "equipment_rental_statement_pdf_previewed": "Equipment rental statement PDF previewed"
+      "equipment_rental_statement_pdf_previewed": "Equipment rental statement PDF previewed",
+      "record_archive_checked": "Confirmed and archived (items checked)",
+      "return_exit_confirmed": "Confirmed the formal exit"
     },
     "objectType": {
       "SignOffAssistant": "Assistant PIN",
@@ -7109,7 +7111,7 @@
       "exitWaitingUpload": "This exit is already saved on this phone and uploads by itself when there is signal - no need to do it again. Follow it in What I sent.",
       "exitUploading": "Uploading {photos} photos and both signatures - please wait and keep this window open.",
       "waitingForSite": "Preparing the exit pass: when the vehicle arrives, the site photographs the vehicle and the goods leaving and submits them. Once the photos are in, the office presses [Start exit pass].",
-      "finalConfirm": "Confirm the exit",
+      "finalConfirm": "Confirm formal exit",
       "waitingForOffice": "Site photos are in - waiting for the office to start the exit pass and confirm.",
       "returnHelp": "{reference} is approved - preparing the exit pass. When the vehicle arrives: photograph the vehicle and the goods leaving, fill in the quantity actually returned and the plate, confirm the supplier (scan its code) and sign on both sides (site staff and supplier / driver), then submit. The exit pass reaches you and the gate only after the office starts it and the safety manager signs.",
       "processingPhotos": "Photos at the handover",
@@ -9790,7 +9792,12 @@
       "rental_statement_overlap": "These dates overlap statement {statement_no} of the same project and company; the same fee cannot be settled twice.",
       "rental_statement_locked": "Statement {statement_no} is checked or cancelled already; it stays as it is.",
       "rental_check_supplier_required": "Choose the equipment company first.",
-      "rental_check_other_supplier": "Statement {reference} is another equipment company's. One check is one company's statements."
+      "rental_check_other_supplier": "Statement {reference} is another equipment company's. One check is one company's statements.",
+      "archived_record_final": "This record has been archived. Nobody can change or delete it any more, head office included.",
+      "archive_items_missing": "Some required items are still missing (see the list under Confirm and archive), so it cannot be archived.",
+      "archive_check_not_ticked": "Tick \"I have checked all the information and it is correct.\" before archiving.",
+      "return_gate_not_released": "The gate has not photographed and released it yet (vehicle, plate and goods), so the formal exit cannot be confirmed.",
+      "exit_release_shots_missing": "A material return is released with photos of the vehicle, its number plate and the goods leaving - at least one each. Take the missing ones, then press Confirm release."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -9839,7 +9846,8 @@
       "assignee_not_on_project": "This person is no longer on this project and cannot be given its task. Please choose someone else.",
       "link_expiry_past": "This time has already passed. Choose a time later than now.",
       "supplier_inactive": "This supplier is switched off. Choose another supplier.",
-      "trip_number_recorded": "Already recorded - use Correct to change it"
+      "trip_number_recorded": "Already recorded - use Correct to change it",
+      "archived_final": "This record has been archived. Nobody can change or delete it any more."
     },
     "forbidden": "You do not have access to this.",
     "forbiddenBody": "Ask your administrator if you need it.",
@@ -19703,7 +19711,8 @@
       "record_archived": "This record was confirmed and archived; it can no longer be corrected. Raise a new record for anything further.",
       "project_closed": "This project has ended; its records can no longer be changed.",
       "claim_decided": "This sundry claim has already been decided; it can no longer be corrected.",
-      "record_settled": "This record has been settled; its quantities and prices can no longer be changed."
+      "record_settled": "This record has been settled; its quantities and prices can no longer be changed.",
+      "archived_final": "This record has been archived. Nobody can correct it any more."
     },
     "toast": {
       "saved": "Record corrected",
@@ -24518,5 +24527,67 @@
     "cancelHelp": "Only a statement waiting to be checked can be cancelled. It is kept, and its dates can be generated again. Your six-digit PIN is asked.",
     "cancelReason": "Why it is cancelled",
     "confirmCancel": "Confirm cancel"
+  },
+  "jb276": {
+    "help": "Check every item carefully: supplier, material name, specification, unit, quantity, vehicle plate, DO (the delivery order and the data read from it), related photos and the signed receipt.",
+    "missingTitle": "These required items are incomplete, so the record cannot be archived:",
+    "missingShort": "Some required items are still missing, so it cannot be archived.",
+    "missing": {
+      "supplier": "Supplier",
+      "material_name": "Material name",
+      "specification": "Specification",
+      "unit": "Unit",
+      "quantity": "Quantity",
+      "vehicle_plate": "Vehicle plate",
+      "do_photo": "Photo of the DO (delivery order)",
+      "do_data": "Data read from the DO (DO number)",
+      "return_note": "Return Note and the approver's signature",
+      "photos": "Related photos",
+      "signatures": "Signed receipt (both signatures)",
+      "exit_not_confirmed": "\"Confirm formal exit\" not done yet",
+      "other": "Other required items"
+    },
+    "tick": "I have checked all the information and it is correct.",
+    "tickRequired": "(required)",
+    "tickFirst": "Tick \"I have checked all the information and it is correct.\" first.",
+    "pinNext": "After ticking, press Confirm and archive and enter your six-digit PIN.",
+    "closedBy": "Archived by {name} on {when}. Nobody can change or delete this record any more, head office included.",
+    "lockedTitle": "This record has been archived",
+    "lockedNote": "Archived: nobody can change or delete this record any more (head office included). It can still be viewed, printed and added to a package."
+  },
+  "jb281": {
+    "title": "Material return steps (in order)",
+    "step": {
+      "applied": "Return application sent from the phone",
+      "approved": "Office reviews and approves",
+      "site_exit": "Phone uploads the actual exit photos and details",
+      "exit_pass": "Exit pass checked and signed (sent to the gate phone)",
+      "gate": "Gate photographs the vehicle, plate and goods",
+      "exit_confirmed": "Office checks the gate's upload and confirms the formal exit",
+      "archived": "All items checked, formally archived"
+    },
+    "state": {
+      "done": "Done",
+      "current": "Now",
+      "locked": "Locked",
+      "rejected": "Rejected - the application ended",
+      "not_recorded": "(finished before this rule; no such step)"
+    },
+    "started": "Exit pass started: {name} · {when}",
+    "gateRecord": "Gate record {number}, {photos} photos",
+    "waitGate": "The gate has not photographed and released it yet (vehicle, plate and goods), so the formal exit cannot be confirmed.",
+    "phoneWaitApproval": "Sent. Waiting for the office to review and approve.",
+    "shot": {
+      "VEHICLE": "Vehicle",
+      "PLATE": "Number plate",
+      "GOODS": "Goods leaving"
+    },
+    "gateShotsTitle": "Gate photos (vehicle, number plate, goods leaving)",
+    "gateShotsHint": "Material return: photograph the vehicle, its number plate and the goods leaving - at least one each.",
+    "gateShotTake": "Photograph: {shot}",
+    "gateShotTaken": "{shot}: {count} taken · take another",
+    "gateNeedShots": "Take at least one photo each of the vehicle, the number plate and the goods leaving before releasing.",
+    "gateShotsMissing": "Not taken yet: {shots}",
+    "checkGatePhotos": "Check the gate's photos first, then press Confirm formal exit:"
   }
 }

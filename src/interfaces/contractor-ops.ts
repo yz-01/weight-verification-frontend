@@ -1098,6 +1098,42 @@ export interface MaterialIssueOptions {
   recipients: string[];
 }
 
+/**
+ * JB281 (客户 11-26 事项 22): one of the seven steps of a 材料退场, as the
+ * record's detail (`get_record`) gives them - in order, each done (who, when),
+ * current, locked, rejected (step 2 said no) or not_recorded (a return
+ * finished before the rule went on without it).
+ */
+export interface ReturnFlowStep {
+  key:
+    | "applied"
+    | "approved"
+    | "site_exit"
+    | "exit_pass"
+    | "gate"
+    | "exit_confirmed"
+    | "archived";
+  state: "done" | "current" | "locked" | "rejected" | "not_recorded";
+  by: string;
+  at: string | null;
+  started_by?: string;
+  started_at?: string | null;
+  sent_at?: string | null;
+  incident_no?: string;
+  photos?: number;
+  rejected?: boolean;
+  /** Step 5: how many photos of each shot (车辆 / 车牌 / 退场货物). */
+  shots?: Record<"VEHICLE" | "PLATE" | "GOODS", number>;
+  /** Step 5: the gate's photographs, each labelled. */
+  gate_photos?: {
+    id: string;
+    shot: "VEHICLE" | "PLATE" | "GOODS" | "";
+    image: string | null;
+    watermarked_image?: string;
+    captured_at: string | null;
+  }[];
+}
+
 export interface MaterialOutgoing extends RecordedBy {
   /** 供应商退货 or 材料领用 (JB168); absent on a cached row from before. */
   kind?: MaterialOutgoingKind;
@@ -1117,6 +1153,8 @@ export interface MaterialOutgoing extends RecordedBy {
     settled_by_name: string;
     settled_at: string | null;
   } | null;
+  /** JB281: the seven steps of a 材料退场 - on its detail only. */
+  return_steps?: ReturnFlowStep[];
   /** 材料领用: the machine scanned and what the register said then. */
   equipment?: string | null;
   equipment_no?: string;

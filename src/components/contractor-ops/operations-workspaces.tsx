@@ -78,6 +78,8 @@ import { OpenExitOfficeFiles } from "@/components/field-staff/office-sent-files"
 import { RecordConversationButton } from "@/components/shared/record-conversation-button";
 import { RecordDetailDialog, RecordDetailShell, RecordRecorder } from "@/components/shared/record-detail-shell";
 import { ReconciliationPanel } from "@/components/contractor-ops/return-checks";
+import { useRecordArchived } from "@/components/shared/record-closure";
+import { GateShotPhotos, ReturnFlowSteps, exitConfirmLockedReason } from "@/components/contractor-ops/return-flow-steps";
 import {
   CORRECTED_ROW_CLASS,
   CorrectedTag,
@@ -3899,7 +3901,13 @@ export function OutgoingActions({
   onReturn?: () => void;
 }) {
   const t = useTranslations("contractorOps");
-  const { can } = useAuth();
+  const tFlow = useTranslations("jb281");
+  const { can, user } = useAuth();
+  // Lucas 11-26 「手机不应该出现审批才对」 + 事项 22 「后台负责人审核及批准」:
+  // the Return Note, 批准 / 驳回 and 「确认正式退场」 are office steps - the
+  // server refuses the signed ones on a phone (`sign_off_office_only`). A
+  // phone shows where the record stands and its own step only (实际退场).
+  const onPhone = Boolean(user?.is_field_staff);
   const pathname = usePathname();
   const qc = useQueryClient();
   const offersExit =
@@ -3912,9 +3920,17 @@ export function OutgoingActions({
   // 「未选择供应商不能确认归档」 (JB169, 客户 11-11): the office's 确认 waits for
   // the supplier, with 「补供应商」 and the reason beside it.
   const needsSupplier = !issue && returnNeedsSupplier(row);
+  // JB281 (客户 11-26 事项 22): 「确认正式退场」 waits for the gate's photographs.
+  const gateLocked = issue ? null : exitConfirmLockedReason(row, tFlow);
+  const gateStep = row.return_steps?.find((step) => step.key === "gate");
   return (
     <>
-      {can("material_outgoing.approve") && row.status === "PENDING" && (
+      {onPhone && row.status === "PENDING" && (
+        <p className="rounded-lg border border-info/25 bg-info/5 px-3 py-2 text-sm" data-phone-waits-office>
+          {tFlow("phoneWaitApproval")}
+        </p>
+      )}
+      {!onPhone && can("material_outgoing.approve") && row.status === "PENDING" && (
         // The record panel's size, the destructive step last and drawn as
         // every other one (JB166, Lucas 11-11: 「这些按钮不consistent」).
         <div className="flex flex-wrap items-center gap-2">
@@ -3955,13 +3971,25 @@ export function OutgoingActions({
         ))}
       {/* 待后台确认: the office confirms what left, which closes it. */}
       {row.status === "PROCESSED" &&
-        (can("material_outgoing.approve") ? (
+        (!onPhone && can("material_outgoing.approve") ? (
           <div className="space-y-2">
             {needsSupplier && <ReturnSupplierNeeded row={row} />}
+            {gateLocked && (
+              <p role="status" className="rounded-md bg-warning/10 px-2 py-1.5 text-sm font-medium text-warning" data-exit-confirm-locked>
+                {gateLocked}
+              </p>
+            )}
+            {/* JB281 step 6: 「后台负责人核对门岗上传的资料」 - the three shots here. */}
+            {!issue && !gateLocked && gateStep?.state === "done" && (gateStep.gate_photos?.length ?? 0) > 0 && (
+              <div className="space-y-1" data-exit-confirm-gate-photos>
+                <p className="text-xs text-muted-foreground">{tFlow("checkGatePhotos")}</p>
+                <GateShotPhotos step={gateStep} />
+              </div>
+            )}
             <Button
               size="sm"
-              disabled={pending || needsSupplier}
-              disabledReason={needsSupplier ? t("outgoing.needSupplierFirst") : undefined}
+              disabled={pending || needsSupplier || Boolean(gateLocked)}
+              disabledReason={needsSupplier ? t("outgoing.needSupplierFirst") : gateLocked ?? undefined}
               onClick={() => onReview("COMPLETED")}
             >
               <Check />
@@ -4756,6 +4784,9 @@ export function OutgoingDetailDialog({
   // people and materials in place of a return's supplier, DO and lorry.
   const issue = isIssue(row);
   const finished = row ? ["COMPLETED", "REJECTED", "RELEASED"].includes(row.status) : true;
+  // JB276 (客户 11-26 事项 17、22): an archived 材料退场 takes nothing from anybody.
+  const archived = useRecordArchived("MATERIAL_OUTGOING", id);
+  const finalReturn = archived && Boolean(row) && !issue;
   const when = (name?: string | null, at?: string | null) =>
     name ? `${name}${at ? ` · ${df.dateTime(at)}` : ""}` : "—";
   return (
@@ -4867,7 +4898,7 @@ export function OutgoingDetailDialog({
             };
           })}
           photoActions={
-            can("material_outgoing.approve") && !finished ? (
+            can("material_outgoing.approve") && !finished && !finalReturn ? (
               <div className="flex flex-wrap items-end gap-2 rounded-md border border-dashed p-2">
                 <FieldWrapper label={t("outgoing.uploadFiles")} required>
                   <Input
@@ -4914,6 +4945,10 @@ export function OutgoingDetailDialog({
             <>
             {/* The Return Note it is approved on (2026-10 C9); an issue's materials (JB168). */}
             {issue ? <IssueLinesPanel row={row} /> : <ReturnNotePanel row={row} />}
+            {/* JB281: a return's seven steps - done / current / locked, who and when. */}
+            {!issue && row.return_steps ? (
+              <ReturnFlowSteps steps={row.return_steps} />
+            ) : (
             <section className="rounded-lg border bg-card p-3">
               <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 {t("outgoing.flowTitle")}
@@ -4936,6 +4971,7 @@ export function OutgoingDetailDialog({
                 )}
               </dl>
             </section>
+            )}
             {/* JB279 (客户 11-26 事项 20): the MR / 其他申请 this 退场 / 领用
                 belongs to - linked before 确认归档. The office's; the phone
                 chose it when filing. */}
@@ -4959,6 +4995,12 @@ export function OutgoingDetailDialog({
                   reference={row.reference_no}
                 />
               </div>
+              {/* JB276: why 改正 / 补供应商 / 上传文件 are gone. */}
+              {finalReturn && (
+                <p className="rounded-md border px-2 py-1.5 text-xs text-muted-foreground" data-archived-final>
+                  {tRootDetail("jb276.lockedNote")}
+                </p>
+              )}
             </>
           }
           corrections={<RecordCorrectionHistory kind="MATERIAL_OUTGOING" recordId={row.id} />}

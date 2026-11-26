@@ -4074,7 +4074,9 @@
       "equipment_rental_checked": "Penyata sewaan peralatan disemak",
       "equipment_rental_settled": "Penyata sewaan peralatan diselesaikan",
       "equipment_rental_statement_pdf_exported": "PDF penyata sewaan peralatan dieksport",
-      "equipment_rental_statement_pdf_previewed": "PDF penyata sewaan peralatan dipratonton"
+      "equipment_rental_statement_pdf_previewed": "PDF penyata sewaan peralatan dipratonton",
+      "record_archive_checked": "Disahkan dan diarkibkan (maklumat disemak)",
+      "return_exit_confirmed": "Mengesahkan keluar rasmi"
     },
     "objectType": {
       "SignOffAssistant": "PIN pembantu",
@@ -7109,7 +7111,7 @@
       "exitWaitingUpload": "Rekod keluar ini sudah disimpan dalam telefon ini dan dimuat naik sendiri apabila ada isyarat - tidak perlu buat semula. Ikuti dalam Apa yang saya hantar.",
       "exitUploading": "Sedang memuat naik {photos} foto dan kedua-dua tandatangan - sila tunggu dan jangan tutup tetingkap ini.",
       "waitingForSite": "Menyediakan pas keluar: apabila kenderaan tiba, tapak mengambil foto kenderaan dan barang yang keluar lalu menghantarnya. Selepas foto diterima, pejabat menekan [Mulakan pas keluar].",
-      "finalConfirm": "Sahkan keluar",
+      "finalConfirm": "Sahkan keluar rasmi",
       "waitingForOffice": "Foto tapak telah dihantar - menunggu pejabat memulakan pas keluar dan mengesahkan.",
       "returnHelp": "{reference} telah diluluskan - pas keluar sedang disediakan. Apabila kenderaan tiba: ambil foto kenderaan dan barang yang keluar, isi kuantiti sebenar dipulangkan dan nombor plat, sahkan pembekal (imbas kodnya) dan tandatangan kedua-dua pihak (kakitangan tapak dan pembekal / pemandu), kemudian hantar. Pas keluar sampai kepada anda dan pintu hanya selepas pejabat memulakannya dan pengurus keselamatan menandatangani.",
       "processingPhotos": "Gambar semasa serahan",
@@ -9790,7 +9792,12 @@
       "rental_statement_overlap": "Tarikh ini bertindih dengan penyata {statement_no} bagi projek dan syarikat yang sama; yuran yang sama tidak boleh diselesaikan dua kali.",
       "rental_statement_locked": "Penyata {statement_no} sudah disemak atau dibatalkan; ia kekal seperti itu.",
       "rental_check_supplier_required": "Pilih syarikat peralatan dahulu.",
-      "rental_check_other_supplier": "Penyata {reference} milik syarikat peralatan lain. Satu semakan hanya untuk satu syarikat."
+      "rental_check_other_supplier": "Penyata {reference} milik syarikat peralatan lain. Satu semakan hanya untuk satu syarikat.",
+      "archived_record_final": "Rekod ini telah diarkibkan. Tiada sesiapa boleh mengubah atau memadamnya lagi, termasuk ibu pejabat.",
+      "archive_items_missing": "Masih ada maklumat wajib yang belum lengkap (lihat senarai di bawah Sahkan dan arkibkan), jadi tidak boleh diarkibkan.",
+      "archive_check_not_ticked": "Tandakan \"Saya telah menyemak semua maklumat dan ia betul.\" sebelum mengarkibkan.",
+      "return_gate_not_released": "Pintu belum mengambil gambar dan melepaskannya (kenderaan, plat dan barang), jadi keluar rasmi belum boleh disahkan.",
+      "exit_release_shots_missing": "Pemulangan bahan dilepaskan dengan gambar kenderaan, nombor plat dan barang keluar - sekurang-kurangnya satu setiap satu. Ambil yang belum, kemudian tekan Sahkan lepas."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -9839,7 +9846,8 @@
       "assignee_not_on_project": "Orang ini tidak lagi berada dalam projek ini dan tidak boleh diberi tugasnya. Sila pilih orang lain.",
       "link_expiry_past": "Masa ini sudah lepas. Pilih masa selepas sekarang.",
       "supplier_inactive": "Pembekal ini dimatikan. Pilih pembekal lain.",
-      "trip_number_recorded": "Sudah direkodkan - guna Betulkan untuk menukar"
+      "trip_number_recorded": "Sudah direkodkan - guna Betulkan untuk menukar",
+      "archived_final": "Rekod ini telah diarkibkan. Tiada sesiapa boleh mengubah atau memadamnya lagi."
     },
     "forbidden": "Anda tiada akses kepada ini.",
     "forbiddenBody": "Tanya pentadbir anda jika anda memerlukannya.",
@@ -19703,7 +19711,8 @@
       "record_archived": "Rekod ini telah disahkan dan diarkibkan; ia tidak boleh dibetulkan lagi. Buka rekod baharu untuk perkara lain.",
       "project_closed": "Projek ini telah tamat; rekodnya tidak boleh diubah lagi.",
       "claim_decided": "Tuntutan pelbagai ini telah diputuskan; ia tidak boleh dibetulkan lagi.",
-      "record_settled": "Rekod ini telah diselesaikan; kuantiti dan harganya tidak boleh diubah lagi."
+      "record_settled": "Rekod ini telah diselesaikan; kuantiti dan harganya tidak boleh diubah lagi.",
+      "archived_final": "Rekod ini telah diarkibkan. Tiada sesiapa boleh membetulkannya lagi."
     },
     "toast": {
       "saved": "Rekod dibetulkan",
@@ -24518,5 +24527,67 @@
     "cancelHelp": "Hanya penyata yang menunggu semakan boleh dibatalkan. Ia disimpan, dan tarikhnya boleh dijana semula. PIN enam digit anda diminta.",
     "cancelReason": "Sebab dibatalkan",
     "confirmCancel": "Sahkan pembatalan"
+  },
+  "jb276": {
+    "help": "Semak semua maklumat dengan teliti: pembekal, nama bahan, spesifikasi, unit, kuantiti, nombor plat kenderaan, DO (nota penghantaran dan data yang dibaca daripadanya), gambar berkaitan dan rekod tandatangan terima.",
+    "missingTitle": "Maklumat wajib berikut tidak lengkap, jadi rekod tidak boleh diarkibkan:",
+    "missingShort": "Masih ada maklumat wajib yang belum lengkap, jadi tidak boleh diarkibkan.",
+    "missing": {
+      "supplier": "Pembekal",
+      "material_name": "Nama bahan",
+      "specification": "Spesifikasi",
+      "unit": "Unit",
+      "quantity": "Kuantiti",
+      "vehicle_plate": "Nombor plat kenderaan",
+      "do_photo": "Gambar DO (nota penghantaran)",
+      "do_data": "Data dibaca daripada DO (nombor DO)",
+      "return_note": "Return Note dan tandatangan pelulus",
+      "photos": "Gambar berkaitan",
+      "signatures": "Rekod tandatangan terima (kedua-dua pihak)",
+      "exit_not_confirmed": "\"Sahkan keluar rasmi\" belum dibuat",
+      "other": "Maklumat wajib lain"
+    },
+    "tick": "Saya telah menyemak semua maklumat dan ia betul.",
+    "tickRequired": "(wajib ditanda)",
+    "tickFirst": "Tandakan \"Saya telah menyemak semua maklumat dan ia betul.\" dahulu.",
+    "pinNext": "Selepas menanda, tekan Sahkan dan arkibkan dan masukkan PIN enam digit anda.",
+    "closedBy": "Diarkibkan oleh {name} pada {when}. Tiada sesiapa boleh mengubah atau memadam rekod ini lagi, termasuk ibu pejabat.",
+    "lockedTitle": "Rekod ini telah diarkibkan",
+    "lockedNote": "Telah diarkibkan: tiada sesiapa boleh mengubah atau memadam rekod ini lagi (termasuk ibu pejabat). Ia masih boleh dilihat, dicetak dan ditambah ke pakej."
+  },
+  "jb281": {
+    "title": "Langkah pemulangan bahan (mengikut urutan)",
+    "step": {
+      "applied": "Permohonan pemulangan dihantar dari telefon",
+      "approved": "Pejabat menyemak dan meluluskan",
+      "site_exit": "Telefon memuat naik gambar dan butiran keluar sebenar",
+      "exit_pass": "Pas keluar disemak dan ditandatangani (dihantar ke telefon pintu)",
+      "gate": "Pintu mengambil gambar kenderaan, plat dan barang",
+      "exit_confirmed": "Pejabat menyemak muat naik pintu dan mengesahkan keluar rasmi",
+      "archived": "Semua maklumat disemak, diarkibkan secara rasmi"
+    },
+    "state": {
+      "done": "Selesai",
+      "current": "Sekarang",
+      "locked": "Dikunci",
+      "rejected": "Ditolak - permohonan tamat",
+      "not_recorded": "(selesai sebelum peraturan ini; tiada langkah ini)"
+    },
+    "started": "Pas keluar dimulakan: {name} · {when}",
+    "gateRecord": "Rekod pintu {number}, {photos} gambar",
+    "waitGate": "Pintu belum mengambil gambar dan melepaskannya (kenderaan, plat dan barang), jadi keluar rasmi belum boleh disahkan.",
+    "phoneWaitApproval": "Telah dihantar. Menunggu pejabat menyemak dan meluluskan.",
+    "shot": {
+      "VEHICLE": "Kenderaan",
+      "PLATE": "Nombor plat",
+      "GOODS": "Barang keluar"
+    },
+    "gateShotsTitle": "Gambar pintu (kenderaan, nombor plat, barang keluar)",
+    "gateShotsHint": "Pemulangan bahan: ambil gambar kenderaan, nombor plat dan barang keluar - sekurang-kurangnya satu setiap satu.",
+    "gateShotTake": "Ambil gambar: {shot}",
+    "gateShotTaken": "{shot}: {count} diambil · ambil lagi",
+    "gateNeedShots": "Ambil sekurang-kurangnya satu gambar kenderaan, nombor plat dan barang keluar sebelum melepaskan.",
+    "gateShotsMissing": "Belum diambil: {shots}",
+    "checkGatePhotos": "Semak gambar pintu dahulu, kemudian tekan Sahkan keluar rasmi:"
   }
 }
