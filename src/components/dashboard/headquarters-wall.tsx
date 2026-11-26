@@ -716,7 +716,9 @@ function TopSuppliers({ extras }: { extras: HeadquartersWallExtras }) {
 function ClearanceMonth({ extras }: { extras: HeadquartersWallExtras }) {
   const t = useTranslations("headquarters");
   const format = useFormatter();
-  const { waste_dispatches: dispatches, site_disposals: disposals } = extras.clearance_month;
+  const kinds = useTranslations("jb248.kind");
+  const { waste_dispatches: dispatches, site_disposals: disposals, site_scraps: scraps } =
+    extras.clearance_month;
   const rows = [
     {
       key: "dispatches",
@@ -725,12 +727,20 @@ function ClearanceMonth({ extras }: { extras: HeadquartersWallExtras }) {
       weightLabel: t("figures.weighedKg"),
       weight: dispatches.weighed_kg,
     },
+    // 垃圾清运 and 废料处理 apart (JB248: 「分别累计，不混合统计」).
     {
       key: "disposals",
-      label: t("figures.siteDisposals"),
+      label: kinds("GARBAGE"),
       trips: disposals.trips,
       weightLabel: t("figures.weightKg"),
       weight: disposals.weight_kg,
+    },
+    {
+      key: "scraps",
+      label: kinds("SCRAP"),
+      trips: scraps?.trips ?? 0,
+      weightLabel: t("figures.weightKg"),
+      weight: scraps?.weight_kg ?? "0",
     },
   ];
   return (
