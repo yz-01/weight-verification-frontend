@@ -70,7 +70,8 @@ export function ReceiptLinesDialog({
   const seesAmounts = useSeesAmounts();
   const eventId = useRef<string | null>(null);
   // query-failure: the editor below reads the same query and says when it fails.
-  const catalogue = useMaterialCatalogue(receipt.project ?? "");
+  // With the delivery: its prices on its own day (JB275), as the editor reads them.
+  const catalogue = useMaterialCatalogue(receipt.project ?? "", receipt.id);
   const materials = catalogue.data?.materials ?? [];
   const storedIds = stored.map((line) => line.id).filter((id): id is string => Boolean(id));
   const complete = lines.every(
@@ -124,6 +125,7 @@ export function ReceiptLinesDialog({
               keepFirst
               readOnlyFirst={readOnlyFirst}
               storedIds={storedIds}
+              receipt={receipt.id}
             />
           </FieldWrapper>
           {moneyNote && (

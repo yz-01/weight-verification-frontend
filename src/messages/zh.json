@@ -23906,5 +23906,13 @@
       "progress_claim": "Progress Claim（支出部分）：Multi Engine 的批准金额还没有上线，现在算 0。上线后自动算进来。",
       "disposal": "垃圾清运：清运记录没有金额栏（只有重量、车次和清运公司），所以算 0，没有自己估价。"
     }
+  },
+  "jb275": {
+    "priceFromList": "按材料分类的单价自动带出（RM {price} / {unit}）",
+    "priceNone": "材料分类没有设这个材料的单价，可以自己填。",
+    "priceOtherUnit": "材料分类的单价是 RM {price} / {unit}，这一项的单位不一样，所以没有带出。可以自己填。",
+    "priceLater": "材料分类的单价从 {date} 起才用，这张单比它早，所以没有带出。可以自己填。",
+    "priceTyped": "人工填写",
+    "pickFirst": "选了材料和规格，单价会自动带出"
   }
 }

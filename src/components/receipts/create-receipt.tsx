@@ -26,6 +26,7 @@ import { FieldWrapper, ReadField } from "@/components/shared/page-primitives";
 import { ProjectColumnPicker } from "@/components/site-operations/project-column-picker";
 import { MaterialSpecPicker } from "@/components/receipts/material-spec-picker";
 import { ReceiptLinesDialog } from "@/components/receipts/receipt-lines-dialog";
+import { lineCost, useMaterialCatalogue, usePriceHint } from "@/components/shared/material-lines";
 import { Button } from "@/components/ui/button";
 import { ApiError } from "@/interfaces/api";
 import {
@@ -41,6 +42,7 @@ import { unchangedRefusal } from "@/lib/correction-refusal";
 import { correctReceipt, getReceipt } from "@/services/contractor.service";
 import { getProjectCategories } from "@/services/contractor-ops.service";
 import { typedWords } from "@/lib/material-catalogue";
+import { listPriceFor } from "@/lib/material-lines";
 
 /**
  * The delivery correction form.
@@ -126,6 +128,21 @@ function CorrectReceiptForm({
     enabled: Boolean(receipt.project),
   });
   const materialRows = materials.data?.results ?? [];
+  // 单价 (JB275, 客户 11-26 事项 16): the project's material data with each
+  // price on this delivery's day - choosing another material or specification
+  // shows its price at once, or empties the box; never the old one's.
+  // query-failure: without it the box is emptied on a change and the server fills it in on save.
+  const priced = useMaterialCatalogue(receipt.project ?? "", receipt.id);
+  const priceHint = usePriceHint();
+  // The price the form put in the box at the last change of material (null:
+  // none yet). Anything else in the box at save was typed by the person.
+  const autoPrice = useRef<string | null>(null);
+  const priceFor = (category: string, spec: string, unit: string) =>
+    listPriceFor(
+      (priced.data?.materials ?? []).find((row) => row.id === category),
+      spec,
+      unit,
+    );
   const form = useForm({
     defaultValues: {
       project: receipt.project ?? "",
@@ -176,7 +193,14 @@ function CorrectReceiptForm({
         total_weight_kg: value.total_weight_kg || null,
         // Not sent by a reader who cannot see money: there was no input.
         ...(seesAmounts
-          ? { unit_price: value.unit_price || null, document_amount: value.document_amount || null }
+          ? {
+              unit_price: value.unit_price || null,
+              document_amount: value.document_amount || null,
+              // Typed after choosing another material (JB275): the person's.
+              ...(autoPrice.current !== null && value.unit_price !== autoPrice.current
+                ? { unit_price_typed: true }
+                : {}),
+            }
           : {}),
         vehicle_plate: value.vehicle_plate,
         delivery_note_no: value.delivery_note_no,
@@ -213,6 +237,17 @@ function CorrectReceiptForm({
       }
     },
   });
+
+  // Another material, specification or unit: its price from 材料分类, or an
+  // empty box to type in (事项 16 第 1–3 点).
+  const fillPrice = () => {
+    if (!seesAmounts) return;
+    const { category, spec_category, unit } = form.state.values;
+    const found = priceFor(category, spec_category, unit);
+    const next = found.known && found.price ? found.price : "";
+    autoPrice.current = next;
+    form.setFieldValue("unit_price", next);
+  };
 
   return (
     <FormShell
@@ -265,8 +300,10 @@ function CorrectReceiptForm({
                   value={field.state.value}
                   onChange={(next) => {
                     // Another material: the old one's specification is not its.
-                    if (next !== field.state.value) form.setFieldValue("spec_category", "");
+                    const moved = next !== field.state.value;
+                    if (moved) form.setFieldValue("spec_category", "");
                     field.handleChange(next);
+                    if (moved) fillPrice();
                   }}
                 />
               )}
@@ -289,6 +326,7 @@ function CorrectReceiptForm({
                       form.setFieldValue("material_specification", spec.name);
                       if (spec.default_unit) form.setFieldValue("unit", spec.default_unit as MaterialUnit);
                     }
+                    fillPrice();
                   }}
                 />
               )}
@@ -419,7 +457,7 @@ function CorrectReceiptForm({
           )}
         </form.Field>
 
-        <form.Field name="unit">
+        <form.Field name="unit" listeners={{ onChange: () => fillPrice() }}>
           {(field) => (
             <SelectField
               field={field as unknown as BoundField}
@@ -471,23 +509,39 @@ function CorrectReceiptForm({
         </form.Field>
 
         {seesAmounts && (
-          <form.Field name="unit_price">
-            {(field) => (
-              <TextField
-                field={field as unknown as BoundField}
-                label={t("receipts.field.unitPrice")}
-                type="number"
-                optional
-                // 「按材料分类的单价自动带出」 (JB167): still editable; a price
-                // typed here is kept and the list never replaces it.
-                hint={
-                  receipt.unit_price_source === "PRICE_LIST" && field.state.value === (receipt.unit_price ?? "")
-                    ? t("receipts.field.unitPriceFromList")
-                    : t("receipts.field.unitPriceAuto")
-                }
-              />
+          <form.Subscribe
+            selector={(state) =>
+              [state.values.category, state.values.spec_category, state.values.unit, state.values.quantity] as const
+            }
+          >
+            {([category, specCategory, unit, quantity]) => (
+              <form.Field name="unit_price">
+                {(field) => {
+                  // Where the price came from, or why 材料分类 gave none
+                  // (JB275); still editable - a price typed here is kept and
+                  // the list never replaces it while the material stays.
+                  const found = priceFor(category, specCategory, unit);
+                  const typed = autoPrice.current !== null && field.state.value !== autoPrice.current;
+                  const hint = found.known
+                    ? priceHint(found, field.state.value, typed)
+                    : receipt.unit_price_source === "PRICE_LIST" && field.state.value === (receipt.unit_price ?? "")
+                      ? t("receipts.field.unitPriceFromList")
+                      : t("receipts.field.unitPriceAuto");
+                  // 成本 = 数量 × 单价 (事项 2 第 2 点), live as either changes.
+                  const cost = lineCost(quantity, field.state.value);
+                  return (
+                    <TextField
+                      field={field as unknown as BoundField}
+                      label={t("receipts.field.unitPrice")}
+                      type="number"
+                      optional
+                      hint={cost ? `${hint} · ${t("materialLines.cost")}: ${cost}` : hint}
+                    />
+                  );
+                }}
+              </form.Field>
             )}
-          </form.Field>
+          </form.Subscribe>
         )}
 
         {seesAmounts && (

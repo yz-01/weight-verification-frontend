@@ -23906,5 +23906,13 @@
       "progress_claim": "Progress Claim（支出部分）：Multi Engine 的批准金額還沒有上線，現在算 0。上線後自動算進來。",
       "disposal": "垃圾清運：清運記錄沒有金額欄（只有重量、車次和清運公司），所以算 0，沒有自己估價。"
     }
+  },
+  "jb275": {
+    "priceFromList": "按材料分類的單價自動帶出（RM {price} / {unit}）",
+    "priceNone": "材料分類沒有設這個材料的單價，可以自己填。",
+    "priceOtherUnit": "材料分類的單價是 RM {price} / {unit}，這一項的單位不一樣，所以沒有帶出。可以自己填。",
+    "priceLater": "材料分類的單價從 {date} 起才用，這張單比它早，所以沒有帶出。可以自己填。",
+    "priceTyped": "人工填寫",
+    "pickFirst": "選了材料和規格，單價會自動帶出"
   }
 }

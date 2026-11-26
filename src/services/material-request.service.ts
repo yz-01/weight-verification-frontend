@@ -170,9 +170,15 @@ export async function deleteRequestType(id: string) {
   toastSuccess("materialRequest.types.toast.removed");
 }
 
-/** The project's materials, their specifications and units, for the form (I19). */
-export const getMaterialCatalogue = (project: string) =>
-  api.get<MaterialCatalogue>("/api/material-requests/get_material_catalogue/", { project });
+/**
+ * The project's materials, their specifications and units, for the form (I19).
+ * With a delivery (JB275): each with its unit price on that delivery's day.
+ */
+export const getMaterialCatalogue = (project: string, receipt?: string) =>
+  api.get<MaterialCatalogue>("/api/material-requests/get_material_catalogue/", {
+    project,
+    ...(receipt ? { receipt } : {}),
+  });
 
 /** 申请累计 (H16, HD13): the rows the list shows, as Excel or PDF. */
 export function exportMaterialRequestTotals(request: ExportRequest): Promise<void> {

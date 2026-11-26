@@ -23906,5 +23906,13 @@
       "progress_claim": "Progress Claim (perbelanjaan): amaun lulus Multi Engine belum aktif, jadi dikira 0. Ia ditambah secara automatik apabila aktif.",
       "disposal": "Pembersihan sampah: rekodnya tiada amaun (hanya berat, trip dan pengutip), jadi dikira 0; tiada harga diteka."
     }
+  },
+  "jb275": {
+    "priceFromList": "Daripada harga seunit kategori bahan (RM {price} / {unit})",
+    "priceNone": "Kategori bahan tiada harga seunit untuk bahan ini. Anda boleh isi sendiri.",
+    "priceOtherUnit": "Harga kategori bahan ialah RM {price} / {unit}. Item ini dalam unit lain, jadi tidak diisi. Anda boleh isi sendiri.",
+    "priceLater": "Harga kategori bahan bermula pada {date}, selepas rekod ini, jadi tidak diisi. Anda boleh isi sendiri.",
+    "priceTyped": "Dimasukkan oleh seseorang",
+    "pickFirst": "Pilih bahan dan spesifikasi, harga seunit akan diisi sendiri"
   }
 }

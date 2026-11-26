@@ -1,4 +1,4 @@
-import type { MaterialSpec } from "@/interfaces/contractor-ops";
+import type { ListPriceOnDay, MaterialSpec } from "@/interfaces/contractor-ops";
 import type { RecordedBy } from "@/interfaces/recorder";
 
 /**
@@ -101,6 +101,9 @@ export interface CatalogueMaterial {
   default_unit: string;
   default_unit_label: string | null;
   specs: MaterialSpec[];
+  /** The material's own price on a delivery's day (JB275); see `MaterialSpec.list_price`. */
+  list_price?: ListPriceOnDay | null;
+  list_price_later?: ListPriceOnDay | null;
 }
 
 export interface MaterialCatalogue {
