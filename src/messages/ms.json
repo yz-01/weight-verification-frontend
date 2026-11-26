@@ -4058,7 +4058,9 @@
       "company_modules_by_platform": "MSE menghidupkan atau mematikan modul perniagaan syarikat",
       "equipment_rental_terms_set": "Tetapkan terma sewa peralatan",
       "equipment_rental_month_amounts_set": "Masukkan caj diesel atau pelarasan sewa peralatan",
-      "equipment_rental_month_confirmed": "Sahkan amaun sewa peralatan sebulan"
+      "equipment_rental_month_confirmed": "Sahkan amaun sewa peralatan sebulan",
+      "menu_names_permission_by_platform": "MSE membenarkan atau menghentikan syarikat menamakan semula menunya",
+      "menu_names_update": "Nama menu diubah"
     },
     "objectType": {
       "SignOffAssistant": "PIN pembantu",
@@ -9727,7 +9729,9 @@
       "equipment_rental_no_terms": "Tetapkan terma sewa mesin ini dahulu (Terma sewa peralatan).",
       "equipment_rental_diesel_not_charged": "Diesel mesin ini tidak dicaj berasingan oleh pembekal, jadi caj diesel tidak boleh dimasukkan.",
       "equipment_rental_month_confirmed": "Amaun sewa bulan ini sudah disahkan dan tidak boleh diubah lagi.",
-      "equipment_rental_month_not_started": "Bulan ini belum bermula dan tidak boleh disahkan."
+      "equipment_rental_month_not_started": "Bulan ini belum bermula dan tidak boleh disahkan.",
+      "menu_names_not_enabled": "MSE belum menghidupkan nama menu untuk syarikat anda.",
+      "menu_name_invalid": "Semak nama menu: 1–20 aksara setiap satu, tiada baris baharu, tiada tanda kurung sudut."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -23905,6 +23909,41 @@
     "notAvailable": {
       "progress_claim": "Progress Claim (perbelanjaan): amaun lulus Multi Engine belum aktif, jadi dikira 0. Ia ditambah secara automatik apabila aktif.",
       "disposal": "Pembersihan sampah: rekodnya tiada amaun (hanya berat, trip dan pengutip), jadi dikira 0; tiada harga diteka."
+    }
+  },
+  "jb251": {
+    "saved": "Nama menu disimpan.",
+    "company": {
+      "title": "Nama menu",
+      "subtitle": "Namakan menu mengikut kebiasaan syarikat anda, contohnya \"Pergerakan peralatan\" sebagai \"Sewaan peralatan\". Hanya syarikat anda yang melihatnya; fungsi, rekod dan kebenaran kekal sama.",
+      "scope": "Hanya menu kiri dan nama di bahagian atas halaman berubah; PDF, notifikasi dan teks bantuan kekal menggunakan nama sistem.",
+      "systemName": "Nama sistem",
+      "ownNameIn": "Nama syarikat anda ({language})",
+      "ownNameFor": "Nama syarikat anda untuk \"{name}\"",
+      "blankHint": "Biarkan kosong untuk nama sistem",
+      "otherLanguages": "Bahasa lain",
+      "restore": "Guna nama sistem",
+      "save": "Simpan nama menu",
+      "noChange": "Belum ada perubahan.",
+      "fixFirst": "Betulkan nama yang bertanda merah dahulu.",
+      "changedCount": "{count} nama menu diubah",
+      "saveFailed": "Gagal disimpan. Sila cuba lagi.",
+      "problem": {
+        "tooLong": "Paling banyak {max} aksara.",
+        "lineBreak": "Tiada baris baharu.",
+        "markup": "Tiada tanda kurung sudut."
+      }
+    },
+    "mse": {
+      "title": "Nama menu",
+      "help": "Apabila dihidupkan, orang dalam syarikat ini yang boleh mengubah Tetapan syarikat boleh menamakan semula menunya di situ. Hanya syarikat ini terjejas; fungsi, rekod dan kebenaran kekal sama. Apabila dimatikan, nama disimpan tetapi tidak ditunjukkan; dihidupkan semula, ia kembali.",
+      "switch": "Benarkan syarikat ini menamakan semula menunya",
+      "changed": "Nama yang diubah oleh syarikat ini ({count})",
+      "none": "Syarikat ini belum menamakan semula mana-mana menu.",
+      "hiddenNow": "Dimatikan: nama ini tidak ditunjukkan; menu menggunakan nama sistem.",
+      "openedToast": "Syarikat ini kini boleh menamakan semula menunya.",
+      "closedToast": "Dimatikan: menu syarikat ini kembali kepada nama sistem.",
+      "saveFailed": "Gagal disimpan. Sila cuba lagi."
     }
   }
 }

@@ -4058,7 +4058,9 @@
       "company_modules_by_platform": "MSE 开启或关闭公司的业务模块",
       "equipment_rental_terms_set": "设定设备租赁条件",
       "equipment_rental_month_amounts_set": "填写设备租赁的柴油费用或调整金额",
-      "equipment_rental_month_confirmed": "确认设备本月租赁金额"
+      "equipment_rental_month_confirmed": "确认设备本月租赁金额",
+      "menu_names_permission_by_platform": "MSE 开放或关闭公司自己改菜单名称",
+      "menu_names_update": "修改菜单名称"
     },
     "objectType": {
       "SignOffAssistant": "助理副密码",
@@ -9727,7 +9729,9 @@
       "equipment_rental_no_terms": "先给这台设备设定租赁条件（【设备租赁设定】）。",
       "equipment_rental_diesel_not_charged": "这台设备的柴油不是供应商另外收费，不能填柴油费用。",
       "equipment_rental_month_confirmed": "这个月的租赁金额已经确认，不能再改。",
-      "equipment_rental_month_not_started": "这个月还没开始，不能确认。"
+      "equipment_rental_month_not_started": "这个月还没开始，不能确认。",
+      "menu_names_not_enabled": "MSE 还没有为你们公司打开自定义菜单名称。",
+      "menu_name_invalid": "菜单名称不对：每个名称 1–20 个字，不能换行，不能有尖括号。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -23905,6 +23909,41 @@
     "notAvailable": {
       "progress_claim": "Progress Claim（支出部分）：Multi Engine 的批准金额还没有上线，现在算 0。上线后自动算进来。",
       "disposal": "垃圾清运：清运记录没有金额栏（只有重量、车次和清运公司），所以算 0，没有自己估价。"
+    }
+  },
+  "jb251": {
+    "saved": "菜单名称已保存。",
+    "company": {
+      "title": "菜单名称",
+      "subtitle": "把菜单改成你们公司习惯的叫法，例如把「设备管理」改成「设备租赁管理」。只影响你们公司，功能、资料和权限都不变。",
+      "scope": "只改左边菜单和页面最上面的名字；PDF、通知和说明文字仍用系统名称。",
+      "systemName": "系统名称",
+      "ownNameIn": "你们公司的名称（{language}）",
+      "ownNameFor": "「{name}」你们公司的名称",
+      "blankHint": "空着就用系统名称",
+      "otherLanguages": "其他语言",
+      "restore": "恢复系统名称",
+      "save": "保存菜单名称",
+      "noChange": "还没有改动。",
+      "fixFirst": "先改好标红的名称。",
+      "changedCount": "已改 {count} 个菜单名称",
+      "saveFailed": "保存失败，请再试一次。",
+      "problem": {
+        "tooLong": "最多 {max} 个字。",
+        "lineBreak": "不能换行。",
+        "markup": "不能有尖括号。"
+      }
+    },
+    "mse": {
+      "title": "菜单名称",
+      "help": "打开后，这家公司有「公司设置」修改权限的人可以在「公司设置」把菜单改成自己的叫法，只影响这家公司，功能、资料和权限都不变。关掉后，改过的名字保留但不显示，再打开就恢复。",
+      "switch": "允许这家公司自己改菜单名称",
+      "changed": "这家公司改过的名称（{count}）",
+      "none": "这家公司还没有改过菜单名称。",
+      "hiddenNow": "现在没有打开，这些名字不显示，菜单用系统名称。",
+      "openedToast": "已允许这家公司自己改菜单名称。",
+      "closedToast": "已关闭，这家公司的菜单回到系统名称。",
+      "saveFailed": "保存失败，请再试一次。"
     }
   }
 }

@@ -4058,7 +4058,9 @@
       "company_modules_by_platform": "MSE switched a company's business modules on or off",
       "equipment_rental_terms_set": "Set equipment rental terms",
       "equipment_rental_month_amounts_set": "Entered an equipment rental diesel fee or adjustment",
-      "equipment_rental_month_confirmed": "Confirmed a month's equipment rental amounts"
+      "equipment_rental_month_confirmed": "Confirmed a month's equipment rental amounts",
+      "menu_names_permission_by_platform": "MSE let a company rename its menu, or stopped it",
+      "menu_names_update": "Menu names changed"
     },
     "objectType": {
       "SignOffAssistant": "Assistant PIN",
@@ -9727,7 +9729,9 @@
       "equipment_rental_no_terms": "Set this machine's rental terms first (Equipment rental terms).",
       "equipment_rental_diesel_not_charged": "This machine's diesel is not charged separately by the supplier, so no diesel fee can be entered.",
       "equipment_rental_month_confirmed": "This month's rental amounts are confirmed and can no longer be changed.",
-      "equipment_rental_month_not_started": "This month has not started yet and cannot be confirmed."
+      "equipment_rental_month_not_started": "This month has not started yet and cannot be confirmed.",
+      "menu_names_not_enabled": "MSE has not turned on menu names for your company yet.",
+      "menu_name_invalid": "Check the menu names: 1–20 characters each, no line breaks, no angle brackets."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -23905,6 +23909,41 @@
     "notAvailable": {
       "progress_claim": "Progress Claim (spending): the Multi Engine approved amount is not live yet, so it counts as 0. It is added automatically once live.",
       "disposal": "Waste clearance: its records have no amount (only weights, trips and the collector), so it counts as 0; no price is guessed."
+    }
+  },
+  "jb251": {
+    "saved": "Menu names saved.",
+    "company": {
+      "title": "Menu names",
+      "subtitle": "Call the menu what your company calls it, for example \"Equipment movement\" as \"Equipment rental\". Only your company sees it; functions, records and permissions stay the same.",
+      "scope": "Only the left menu and the name at the top of each page change; PDFs, notifications and help texts keep the system names.",
+      "systemName": "System name",
+      "ownNameIn": "Your company's name ({language})",
+      "ownNameFor": "Your company's name for \"{name}\"",
+      "blankHint": "Leave empty to use the system name",
+      "otherLanguages": "Other languages",
+      "restore": "Use system name",
+      "save": "Save menu names",
+      "noChange": "Nothing changed yet.",
+      "fixFirst": "Fix the names marked in red first.",
+      "changedCount": "{count} menu names changed",
+      "saveFailed": "Could not save. Please try again.",
+      "problem": {
+        "tooLong": "At most {max} characters.",
+        "lineBreak": "No line breaks.",
+        "markup": "No angle brackets."
+      }
+    },
+    "mse": {
+      "title": "Menu names",
+      "help": "When on, people in this company who may change Company settings can rename its menu there. Only this company is affected; functions, records and permissions stay the same. Turned off, the names are kept but not shown; turned on again, they come back.",
+      "switch": "Let this company rename its menu",
+      "changed": "Names this company changed ({count})",
+      "none": "This company has not renamed any menu.",
+      "hiddenNow": "Turned off: these names are not shown; the menu uses the system names.",
+      "openedToast": "This company may now rename its menu.",
+      "closedToast": "Turned off: this company's menu is back to the system names.",
+      "saveFailed": "Could not save. Please try again."
     }
   }
 }
