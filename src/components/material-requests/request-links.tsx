@@ -45,6 +45,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ApiError } from "@/interfaces/api";
 import type {
   LinkableRequest,
@@ -336,38 +337,38 @@ export function RequestLinkedRecordsPanel({ requestId }: { requestId: string }) 
       {totals.length > 0 ? (
         <div className="space-y-1.5">
           <p className="text-sm font-semibold">{t("totalsTitle")}</p>
-          <div className="overflow-x-auto rounded-lg border">
-            <table className="w-full min-w-[36rem] text-sm">
-              <thead className="bg-muted/40 text-xs text-muted-foreground">
-                <tr>
-                  <th className="px-3 py-2 text-left font-medium">{t("totals.material")}</th>
-                  <th className="px-3 py-2 text-right font-medium">{t("totals.applied")}</th>
-                  <th className="px-3 py-2 text-right font-medium">{t("totals.received")}</th>
-                  <th className="px-3 py-2 text-right font-medium">{t("totals.outstanding")}</th>
-                  <th className="px-3 py-2 text-right font-medium">{t("totals.returned")}</th>
-                  <th className="px-3 py-2 text-right font-medium">{t("totals.issued")}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y">
+          <div className="rounded-lg border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t("totals.material")}</TableHead>
+                  <TableHead className="text-right">{t("totals.applied")}</TableHead>
+                  <TableHead className="text-right">{t("totals.received")}</TableHead>
+                  <TableHead className="text-right">{t("totals.outstanding")}</TableHead>
+                  <TableHead className="text-right">{t("totals.returned")}</TableHead>
+                  <TableHead className="text-right">{t("totals.issued")}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {totals.map((row) => (
-                  <tr key={`${row.material_name}|${row.specification}|${row.unit}`}>
-                    <td className="px-3 py-2">
+                  <TableRow key={`${row.material_name}|${row.specification}|${row.unit}`}>
+                    <TableCell className="whitespace-normal">
                       {row.material_name}
                       {row.specification ? <span className="text-muted-foreground"> · {row.specification}</span> : null}
-                    </td>
-                    <td className="px-3 py-2 text-right tabular-nums">{quantity(row.applied_quantity, row.unit)}</td>
-                    <td className="px-3 py-2 text-right tabular-nums">{quantity(row.received_quantity, row.unit)}</td>
-                    <td className="px-3 py-2 text-right tabular-nums">
+                    </TableCell>
+                    <TableCell className="text-right tabular-nums">{quantity(row.applied_quantity, row.unit)}</TableCell>
+                    <TableCell className="text-right tabular-nums">{quantity(row.received_quantity, row.unit)}</TableCell>
+                    <TableCell className="text-right tabular-nums">
                       {row.over_quantity && Number(row.over_quantity) > 0
                         ? t("totals.overBy", { quantity: quantity(row.over_quantity, row.unit) })
                         : quantity(row.outstanding_quantity, row.unit)}
-                    </td>
-                    <td className="px-3 py-2 text-right tabular-nums">{quantity(row.returned_quantity, row.unit)}</td>
-                    <td className="px-3 py-2 text-right tabular-nums">{quantity(row.issued_quantity, row.unit)}</td>
-                  </tr>
+                    </TableCell>
+                    <TableCell className="text-right tabular-nums">{quantity(row.returned_quantity, row.unit)}</TableCell>
+                    <TableCell className="text-right tabular-nums">{quantity(row.issued_quantity, row.unit)}</TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
           <p className="text-xs leading-5 text-muted-foreground">{t("totalsHelp")}</p>
         </div>
@@ -375,36 +376,36 @@ export function RequestLinkedRecordsPanel({ requestId }: { requestId: string }) 
       {records.length === 0 ? (
         <p className="text-sm text-muted-foreground">{t("empty")}</p>
       ) : (
-        <div className="overflow-x-auto rounded-lg border">
-          <table className="w-full min-w-[40rem] text-sm">
-            <thead className="bg-muted/40 text-xs text-muted-foreground">
-              <tr>
-                <th className="px-3 py-2 text-left font-medium">{t("column.kind")}</th>
-                <th className="px-3 py-2 text-left font-medium">{t("column.reference")}</th>
-                <th className="px-3 py-2 text-left font-medium">{t("column.date")}</th>
-                <th className="px-3 py-2 text-left font-medium">{t("column.material")}</th>
-                <th className="px-3 py-2 text-right font-medium">{t("column.quantity")}</th>
-                <th className="px-3 py-2 text-left font-medium">{t("column.status")}</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y">
+        <div className="rounded-lg border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{t("column.kind")}</TableHead>
+                <TableHead>{t("column.reference")}</TableHead>
+                <TableHead>{t("column.date")}</TableHead>
+                <TableHead>{t("column.material")}</TableHead>
+                <TableHead className="text-right">{t("column.quantity")}</TableHead>
+                <TableHead>{t("column.status")}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {records.map((row) => {
                 const href = linkedRecordHref(row);
                 return (
-                  <tr
+                  <TableRow
                     key={`${row.kind}-${row.id}`}
-                    className="cursor-pointer align-top hover:bg-muted/40"
+                    className="cursor-pointer align-top"
                     onClick={() => router.push(href)}
                     data-linked-record={row.kind}
                   >
-                    <td className="px-3 py-2 whitespace-nowrap">{t(`kind.${row.kind}`)}</td>
-                    <td className="px-3 py-2 whitespace-nowrap">
+                    <TableCell>{t(`kind.${row.kind}`)}</TableCell>
+                    <TableCell>
                       <Link href={href} className="font-medium text-primary hover:underline" onClick={(event) => event.stopPropagation()}>
                         {row.reference}
                       </Link>
-                    </td>
-                    <td className="px-3 py-2 whitespace-nowrap">{df.date(row.date)}</td>
-                    <td className="px-3 py-2">
+                    </TableCell>
+                    <TableCell>{df.date(row.date)}</TableCell>
+                    <TableCell className="whitespace-normal">
                       <ul className="space-y-0.5">
                         {row.materials.map((item, index) => (
                           <li key={index}>
@@ -416,8 +417,8 @@ export function RequestLinkedRecordsPanel({ requestId }: { requestId: string }) 
                           </li>
                         ))}
                       </ul>
-                    </td>
-                    <td className="px-3 py-2 text-right whitespace-nowrap tabular-nums">
+                    </TableCell>
+                    <TableCell className="text-right tabular-nums">
                       <ul className="space-y-0.5">
                         {row.materials.map((item, index) => (
                           <li key={index}>
@@ -426,13 +427,13 @@ export function RequestLinkedRecordsPanel({ requestId }: { requestId: string }) 
                           </li>
                         ))}
                       </ul>
-                    </td>
-                    <td className="px-3 py-2 whitespace-nowrap">{status(row)}</td>
-                  </tr>
+                    </TableCell>
+                    <TableCell>{status(row)}</TableCell>
+                  </TableRow>
                 );
               })}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
       )}
     </div>
