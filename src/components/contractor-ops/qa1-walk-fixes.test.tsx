@@ -42,3 +42,13 @@ describe("QA1 walk fixes", () => {
     for (const messages of [zhTW, en, ms]) expect(messages.contractorOps.outgoing.subtitle.length).toBeGreaterThan(60);
   });
 });
+
+describe("QA1 walk fixes - unit names", () => {
+  it("names the unit in the 领用 check table and the MR edit window", () => {
+    const checks = read("src/components/contractor-ops/return-checks.tsx");
+    expect(checks).toContain("${line.quantity} ${unitName(line.unit)}");
+    expect(checks).not.toContain("${line.quantity} ${line.unit}`");
+    const edit = read("src/components/material-requests/material-request-edit.tsx");
+    expect(edit).toContain("(${unitName(line.unit)})");
+  });
+});

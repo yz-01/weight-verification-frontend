@@ -64,6 +64,7 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { useListQuery } from "@/hooks/use-list-query";
+import { useUnitName } from "@/hooks/use-material-units";
 import type { MaterialOutgoing } from "@/interfaces/contractor-ops";
 import { ATTACHMENT_ACCEPT } from "@/lib/attachment-whitelist";
 import { useDateFormat } from "@/lib/dates";
@@ -795,6 +796,8 @@ function TickCell({ selection, id, reference }: { selection?: RowSelection; id: 
  */
 export function IssueRowsTable({ rows, selection }: { rows: readonly IssueCheckRow[]; selection?: RowSelection }) {
   const tj = useTranslations("jb278");
+  // QA1 walk: 吨（Ton）, never the code TONNE (中英文统一).
+  const unitName = useUnitName();
   const df = useDateFormat();
   const [opened, setOpened] = useState<string | null>(null);
   const money = rows.some((row) => row.amount !== null);
@@ -829,7 +832,7 @@ export function IssueRowsTable({ rows, selection }: { rows: readonly IssueCheckR
               <TableCell className="font-medium text-primary">{row.reference_no}</TableCell>
               <TableCell>{row.project_name}</TableCell>
               <TableCell>
-                {row.materials.map((line) => `${line.material} ${line.quantity} ${line.unit}`).join("；")}
+                {row.materials.map((line) => `${line.material} ${line.quantity} ${unitName(line.unit)}`).join("；")}
               </TableCell>
               <TableCell>{row.equipment_company}</TableCell>
               <TableCell>{row.equipment_no || "—"}</TableCell>
