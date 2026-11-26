@@ -24466,7 +24466,9 @@
     "rentalTickFirst": "先勾選要核對的月結單，下面才會出現核對確認。",
     "rentalWindowTitle": "設備租賃核對 {number}",
     "rentalStatementsTitle": "這次勾選的月結單（{count} 張）",
-    "rentalStatementsHelp": "點任意一行打開那一張月結單，關掉回到這裡。"
+    "rentalStatementsHelp": "點任意一行打開那一張月結單，關掉回到這裡。",
+    "stateNoCompany": "不能核對：沒有所屬公司",
+    "noCompanyHelp": "這筆領用沒有所屬公司（設備檔案裡沒有設定供應商），所以不會出現在「核對與結算」裡。請按上面的【改正】選好所屬公司，之後就可以核對。"
   },
   "jb280": {
     "title": "設備租賃月結單",

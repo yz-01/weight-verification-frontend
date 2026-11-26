@@ -5009,7 +5009,16 @@ export function OutgoingDetailDialog({
           // 核对编号, 核对人及日期, 结算状态, 结算编号; each number opens its
           // window. A finished 退场 / 领用 only: before that there is nothing to
           // check. Read only - the record itself never changes by it.
-          aside={row.status === "COMPLETED" ? <ReconciliationPanel links={row.reconciliation} /> : undefined}
+          aside={
+            row.status === "COMPLETED" ? (
+              <ReconciliationPanel
+                links={row.reconciliation}
+                // QA1 audit #23: a 领用 with no 所属公司 cannot be checked -
+                // say so and what to press, instead of 「待核对」 for ever.
+                noCompany={issue && !(row.equipment_company ?? "").trim()}
+              />
+            ) : undefined
+          }
           conversation={{ kind: "MATERIAL_OUTGOING", recordId: row.id }}
           // JB217: 出门条批准（安全经理） · 外部审批 · 门岗放行 - a return only (D1).
           exitPass={issue ? null : { kind: "MATERIAL_OUTGOING", recordId: row.id }}

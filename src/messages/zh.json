@@ -24466,7 +24466,9 @@
     "rentalTickFirst": "先勾选要核对的月结单，下面才会出现核对确认。",
     "rentalWindowTitle": "设备租赁核对 {number}",
     "rentalStatementsTitle": "这次勾选的月结单（{count} 张）",
-    "rentalStatementsHelp": "点任意一行打开那一张月结单，关掉回到这里。"
+    "rentalStatementsHelp": "点任意一行打开那一张月结单，关掉回到这里。",
+    "stateNoCompany": "不能核对：没有所属公司",
+    "noCompanyHelp": "这笔领用没有所属公司（设备档案里没有设定供应商），所以不会出现在「核对与结算」里。请按上面的【改正】选好所属公司，之后就可以核对。"
   },
   "jb280": {
     "title": "设备租赁月结单",

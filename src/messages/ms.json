@@ -24466,7 +24466,9 @@
     "rentalTickFirst": "Tanda penyata untuk disemak dahulu; pengesahan kemudian muncul di bawah.",
     "rentalWindowTitle": "Semakan sewaan peralatan {number}",
     "rentalStatementsTitle": "Penyata dalam semakan ini ({count})",
-    "rentalStatementsHelp": "Klik mana-mana baris untuk membuka penyata itu; tutup untuk kembali ke sini."
+    "rentalStatementsHelp": "Klik mana-mana baris untuk membuka penyata itu; tutup untuk kembali ke sini.",
+    "stateNoCompany": "Tidak boleh disemak: tiada syarikat pemilik",
+    "noCompanyHelp": "Pengeluaran ini tiada syarikat pemilik (mesin tiada pembekal dalam daftarnya), jadi ia tidak ditawarkan dalam 「Semak & selesaikan」. Tekan 【Betulkan】 di atas dan pilih syarikat pemilik; selepas itu ia boleh disemak."
   },
   "jb280": {
     "title": "Penyata sewaan peralatan",

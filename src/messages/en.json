@@ -24466,7 +24466,9 @@
     "rentalTickFirst": "Tick the statements to check first; the confirmation then appears below.",
     "rentalWindowTitle": "Equipment rental check {number}",
     "rentalStatementsTitle": "Statements in this check ({count})",
-    "rentalStatementsHelp": "Click any row to open that statement; close it to come back here."
+    "rentalStatementsHelp": "Click any row to open that statement; close it to come back here.",
+    "stateNoCompany": "Cannot be checked: no owner company",
+    "noCompanyHelp": "This issue has no owner company (the machine has no supplier on its register), so it is not offered in 「Check & settle」. Press 【Correct】 above and choose the owner company; then it can be checked."
   },
   "jb280": {
     "title": "Equipment rental statements",
