@@ -5677,7 +5677,10 @@
       "progressRecords": "Construction progress",
       "progressDailyReports": "Daily site reports",
       "progressRain": "Rainy weather records",
-      "progressSchedule": "Construction schedule"
+      "progressSchedule": "Construction schedule",
+      "fieldTasksView": "View site tasks",
+      "fieldTasksAssign": "Start and assign site tasks",
+      "fieldTasksAccept": "Accept site tasks"
     },
     "itemHint": {
       "materialsIn": "Material delivered to site, rejected loads included (under Material in)",
@@ -5688,7 +5691,10 @@
       "progressRecords": "Progress updates, timeline photos, work categories and the progress summary (under Progress)",
       "progressDailyReports": "Each day's site report (Progress → Daily reports)",
       "progressRain": "Rain stoppages and their monthly figures (Progress → Rain records)",
-      "progressSchedule": "The construction schedule and actual progress (Progress → Schedule)"
+      "progressSchedule": "The construction schedule and actual progress (Progress → Schedule)",
+      "fieldTasksView": "See the site tasks he takes part in: those he started and those sent to him to check (under Site tasks)",
+      "fieldTasksAssign": "Can press Assign task and give a task to this project's people",
+      "fieldTasksAccept": "When a task he started is done, he accepts it or sends it back"
     },
     "itemShort": {
       "materialsIn": "in",
@@ -5699,7 +5705,10 @@
       "progressRecords": "progress",
       "progressDailyReports": "daily reports",
       "progressRain": "rain",
-      "progressSchedule": "schedule"
+      "progressSchedule": "schedule",
+      "fieldTasksView": "view",
+      "fieldTasksAssign": "start and assign",
+      "fieldTasksAccept": "accept"
     }
   },
   "consultantDashboard": {
@@ -24203,5 +24212,31 @@
     "nothing": "Fill in a number first",
     "saved": "Numbers recorded",
     "historyFilled": "filled in"
+  },
+  "jb265": {
+    "startedBy": "Started by consultant {name}"
+  },
+  "jb269": {
+    "spec": "Spec {spec}",
+    "uploader": "Uploaded by {name}",
+    "count": "{count, plural, one {# file} other {# files}}",
+    "noNumber": "No number",
+    "unclassified": "Not yet classified",
+    "enlarge": "View photo {n} large",
+    "selectPhoto": "Tick photo {n}",
+    "openFile": "Open file"
+  },
+  "jb270": {
+    "title": "Consultant approvals",
+    "none": "No consultant application has linked this delivery's photos yet.",
+    "decidedAt": "Decided {when}",
+    "notDecided": "Not decided yet",
+    "open": "View the approval report and material certificates",
+    "independent": "Only the consultant applications' results are shown here; they never change this delivery's acceptance."
+  },
+  "jb274": {
+    "notifyOnly": "Also notify (does not assign)",
+    "notifyOnlyHint": "People ticked here are only notified and can talk in the rectification chat; they are not the responsible person. Choose who fixes it in \"Responsible person\" above.",
+    "notChosenYet": "No responsible person chosen: the item will show \"Waiting to be assigned\" and needs assigning again."
   }
 }

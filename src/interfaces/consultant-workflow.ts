@@ -556,6 +556,10 @@ export interface EvidenceCandidate {
   record_uploader: string | null;
   category: string;
   subcategory: string;
+  /** JB269: the material's specification(s), joined; empty elsewhere. */
+  record_spec?: string;
+  /** JB269: the small stamped copy for the row; null for a document. */
+  thumbnail_url?: string | null;
 }
 
 export interface ConsultantApplicationPayload {

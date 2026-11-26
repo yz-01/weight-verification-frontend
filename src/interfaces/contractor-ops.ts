@@ -443,6 +443,8 @@ export interface FieldTask extends RecordedBy {
   can_confirm?: boolean;
   /** 「确认完成」 on the desk while it is still with its assignee (JB129). */
   can_close?: boolean;
+  /** JB265: set by a consultant (「顾问发起」). */
+  created_by_consultant?: boolean;
   created_at: string;
   updated_at: string;
 }

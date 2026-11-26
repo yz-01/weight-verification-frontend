@@ -5677,7 +5677,10 @@
       "progressRecords": "施工進度",
       "progressDailyReports": "施工日報告",
       "progressRain": "雨天記錄",
-      "progressSchedule": "施工計劃"
+      "progressSchedule": "施工計劃",
+      "fieldTasksView": "查看現場任務",
+      "fieldTasksAssign": "發起及指派現場任務",
+      "fieldTasksAccept": "驗收現場任務"
     },
     "itemHint": {
       "materialsIn": "送到工地的材料，含驗收不合格的（在「材料進場」）",
@@ -5688,7 +5691,10 @@
       "progressRecords": "進度記錄、工程時間軸照片、施工分類、項目進度摘要（在「工程進度」）",
       "progressDailyReports": "每天的施工日報告（在「工程進度」→「日報告」）",
       "progressRain": "下雨停工的記錄和每月統計（在「工程進度」→「雨天記錄」）",
-      "progressSchedule": "施工計劃和實際進度（在「工程進度」→「施工計劃」）"
+      "progressSchedule": "施工計劃和實際進度（在「工程進度」→「施工計劃」）",
+      "fieldTasksView": "看到他參與的現場任務：他發起的、發給他驗收的（在「現場任務」）",
+      "fieldTasksAssign": "可以按【派發任務】，把任務交給這個項目的人員處理",
+      "fieldTasksAccept": "他發起的任務做好後，由他【驗收】或退回"
     },
     "itemShort": {
       "materialsIn": "進場",
@@ -5699,7 +5705,10 @@
       "progressRecords": "施工進度",
       "progressDailyReports": "日報告",
       "progressRain": "雨天",
-      "progressSchedule": "施工計劃"
+      "progressSchedule": "施工計劃",
+      "fieldTasksView": "查看",
+      "fieldTasksAssign": "發起及指派",
+      "fieldTasksAccept": "驗收"
     }
   },
   "consultantDashboard": {
@@ -24203,5 +24212,31 @@
     "nothing": "先填一個數字",
     "saved": "數字已補錄",
     "historyFilled": "補錄"
+  },
+  "jb265": {
+    "startedBy": "顧問 {name} 發起"
+  },
+  "jb269": {
+    "spec": "規格 {spec}",
+    "uploader": "上傳人 {name}",
+    "count": "{count} 張",
+    "noNumber": "未編號",
+    "unclassified": "待歸類",
+    "enlarge": "放大查看第 {n} 張",
+    "selectPhoto": "勾選第 {n} 張",
+    "openFile": "打開文件"
+  },
+  "jb270": {
+    "title": "顧問審批記錄",
+    "none": "還沒有顧問申請關聯這筆進場的照片。",
+    "decidedAt": "審批時間 {when}",
+    "notDecided": "還沒審批",
+    "open": "查看審批報告及材料證書",
+    "independent": "這裡只顯示顧問申請的結果，不會改變這筆進場的驗收狀態。"
+  },
+  "jb274": {
+    "notifyOnly": "另外通知（不會指派）",
+    "notifyOnlyHint": "勾選的人只會收到通知，可以在整改溝通裡說話，但不會成為整改負責人。要誰整改，請在上面的「整改負責人」選。",
+    "notChosenYet": "還沒選整改負責人：建立後會顯示「待分配」，要再指派一次。"
   }
 }

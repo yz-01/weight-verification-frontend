@@ -95,7 +95,11 @@ describe("consultant items", () => {
   const MATERIALS = ["materials.in", "materials.returns", "materials.issues", "materials.supplier_totals", "materials.targets"];
 
   it("are the client's nine in the client's order", () => {
-    expect(CONSULTANT_ITEMS).toEqual([...MATERIALS, "progress.records", "progress.daily_reports", "progress.rain", "progress.schedule"]);
+    expect(CONSULTANT_ITEMS).toEqual([
+      ...MATERIALS, "progress.records", "progress.daily_reports", "progress.rain", "progress.schedule",
+      // JB265 (客户 11-26 事项 6): 现场任务's three.
+      "field_tasks.view", "field_tasks.assign", "field_tasks.accept",
+    ]);
   });
 
   it("follow the backend's rule between a module and its items", () => {
@@ -126,7 +130,9 @@ describe("consultant items", () => {
     // One item on brings the module back.
     expect(toggleItem(ticks, "materials.targets", true)).toEqual({ modules: ["materials"], items: ["materials.targets"] });
     // Unticking the parent unticks every item.
-    expect(toggleModuleTicks(allTicks(), "progress", false).items).toEqual(MATERIALS);
+    expect(toggleModuleTicks(allTicks(), "progress", false).items).toEqual([
+      ...MATERIALS, "field_tasks.view", "field_tasks.assign", "field_tasks.accept",
+    ]);
   });
 
   it("「全选」 includes every item", () => {
