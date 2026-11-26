@@ -27,6 +27,7 @@
 import { type QueryClient, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   CheckCircle2,
+  Circle,
   ExternalLink,
   Eye,
   FileCheck2,
@@ -316,10 +317,14 @@ function ApprovalPart({ pass, readOnly }: { pass: ExitPass; readOnly: boolean })
       <StatusBadge label={t("start.preparing")} tone="warning" />
     ) : pass.state === "awaiting_start" && !pass.record_closed ? (
       <StatusBadge label={t("start.waitingStart")} tone="warning" />
+    ) : (pass.state === "awaiting_executor" || pass.state === "awaiting_exit_evidence") && !pass.record_closed ? (
+      <StatusBadge label={t("start.preparing")} tone="warning" />
     ) : (
       <StatusBadge label={t("approval.notApproved")} tone="warning" />
     );
   const beforeStart = pass.state === "awaiting_photos" || pass.state === "awaiting_start";
+  // JB285 (工地清运): the executor and the exit photos come before the signature.
+  const beforeEvidence = pass.state === "awaiting_executor" || pass.state === "awaiting_exit_evidence";
   return (
     <ShellPanel title={t("approval.title")} aside={badge} data-exit-pass-part="approval">
       {/* JB237: who pressed 【启动出门条】 and when - part of the evidence chain. */}
@@ -354,6 +359,8 @@ function ApprovalPart({ pass, readOnly }: { pass: ExitPass; readOnly: boolean })
         <p className="text-sm text-muted-foreground">{t("approval.closedUnsigned")}</p>
       ) : beforeStart ? (
         <StartStep pass={pass} readOnly={readOnly} />
+      ) : beforeEvidence ? (
+        <EvidenceSteps pass={pass} readOnly={readOnly} />
       ) : (
         <div className="space-y-3">
           <p className="rounded-md bg-warning/10 px-2 py-1.5 text-sm font-medium text-warning" role="status">
@@ -448,6 +455,71 @@ export function StartStep({ pass, readOnly = false }: { pass: ExitPass; readOnly
         isPending={start.isPending}
         onConfirm={() => start.mutate()}
       />
+    </div>
+  );
+}
+
+/**
+ * What a 工地清运's 出门条 waits for (JB285, 客户 11-26 事项 26: 「还没开始外部
+ * 清运商还没成功截图就显示出门条批准签名」): the order, each step done or not,
+ * and - for a safety manager - 【签名批准】 locked with what is missing. The
+ * server refuses the signature on its own whatever the screen shows.
+ */
+export function EvidenceSteps({ pass, readOnly = false }: { pass: ExitPass; readOnly?: boolean }) {
+  const t = useTranslations("exitPass");
+  const w = useTranslations("jb285");
+  const df = useDateFormat();
+  const evidence = pass.evidence?.needed ? pass.evidence : null;
+  const executor = Boolean(evidence?.executor_chosen);
+  const photos = Boolean(evidence?.photos_in);
+  const steps: Array<{ key: string; done: boolean; label: string }> = [
+    { key: "approved", done: true, label: w("step.approved") },
+    { key: "executor", done: executor, label: w("step.executor") },
+    {
+      key: "photos",
+      done: photos,
+      label: photos && evidence?.photos_at
+        ? w("step.photosDone", { count: evidence.photos_count, when: df.dateTime(evidence.photos_at) })
+        : w("step.photos"),
+    },
+    { key: "sign", done: false, label: w("step.sign") },
+    { key: "gate", done: false, label: w("step.gate") },
+  ];
+  const reason = !executor ? w("locked.executor") : w("locked.photos");
+  return (
+    <div className="space-y-3" data-exit-pass-evidence={pass.state}>
+      <p className="rounded-md bg-warning/10 px-2 py-1.5 text-sm font-medium text-warning" role="status">
+        {t("approval.notSentYet")}
+      </p>
+      <ol className="space-y-1.5 text-sm" aria-label={w("stepsLabel")}>
+        {steps.map((step, index) => (
+          <li key={step.key} data-step={step.key} data-done={step.done ? "1" : "0"} className="flex items-start gap-2">
+            {step.done ? (
+              <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-success" aria-hidden />
+            ) : (
+              <Circle className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden />
+            )}
+            <span className={step.done ? "text-foreground" : "text-muted-foreground"}>
+              {index + 1}. {step.label}
+            </span>
+          </li>
+        ))}
+      </ol>
+      <p className="text-sm leading-6 text-muted-foreground" data-exit-pass-evidence-line>
+        {reason}
+      </p>
+      {evidence?.may_sign_later && !readOnly ? (
+        <Button
+          className="min-h-11 w-full"
+          data-exit-pass-sign-locked
+          disabled
+          disabledReason={reason}
+          showReason
+        >
+          <PenLine />
+          {t("approval.sign")}
+        </Button>
+      ) : null}
     </div>
   );
 }

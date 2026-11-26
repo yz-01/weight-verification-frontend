@@ -4058,7 +4058,9 @@
       "company_modules_by_platform": "MSE menghidupkan atau mematikan modul perniagaan syarikat",
       "equipment_rental_terms_set": "Tetapkan terma sewa peralatan",
       "equipment_rental_month_amounts_set": "Masukkan caj diesel atau pelarasan sewa peralatan",
-      "equipment_rental_month_confirmed": "Sahkan amaun sewa peralatan sebulan"
+      "equipment_rental_month_confirmed": "Sahkan amaun sewa peralatan sebulan",
+      "external_site_evidence": "Syarikat luar mengambil foto kenderaan keluar / Gate Pass",
+      "fill_trip_numbers": "Angka muatan diisi"
     },
     "objectType": {
       "SignOffAssistant": "PIN pembantu",
@@ -9727,7 +9729,10 @@
       "equipment_rental_no_terms": "Tetapkan terma sewa mesin ini dahulu (Terma sewa peralatan).",
       "equipment_rental_diesel_not_charged": "Diesel mesin ini tidak dicaj berasingan oleh pembekal, jadi caj diesel tidak boleh dimasukkan.",
       "equipment_rental_month_confirmed": "Amaun sewa bulan ini sudah disahkan dan tidak boleh diubah lagi.",
-      "equipment_rental_month_not_started": "Bulan ini belum bermula dan tidak boleh disahkan."
+      "equipment_rental_month_not_started": "Bulan ini belum bermula dan tidak boleh disahkan.",
+      "exit_pass_executor_missing": "Pelaksana belum dipilih, jadi pas keluar tidak boleh ditandatangani. Tekan [Pilih pelaksana] pada pelupusan ini dahulu.",
+      "exit_pass_exit_evidence_missing": "Belum ada foto kenderaan keluar / Gate Pass, jadi pas keluar tidak boleh ditandatangani. Tapak atau syarikat pelupusan mengambilnya dahulu.",
+      "disposal_trip_number_recorded": "Muatan {seq} sudah ada angka ini. Untuk menukarnya, tekan Betulkan pada muatan itu dan beri sebab."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -9773,7 +9778,10 @@
       "supplier_not_on_project": "Pembekal ini tiada dalam senarai pembekal projek ini. Minta ibu pejabat atau pengurus projek menambahnya dahulu.",
       "field_one_project": "Akaun telefon hanya boleh berada di satu projek pada satu masa. Pilih satu projek.",
       "phone_role_office_account": "Akaun telefon dibuat dalam Kakitangan tapak. Akaun pejabat tidak boleh diberi peranan telefon (kakitangan tapak, operator jentera, pengawal pintu) di sini. Sila pilih peranan lain.",
-      "assignee_not_on_project": "Orang ini tidak lagi berada dalam projek ini dan tidak boleh diberi tugasnya. Sila pilih orang lain."
+      "assignee_not_on_project": "Orang ini tidak lagi berada dalam projek ini dan tidak boleh diberi tugasnya. Sila pilih orang lain.",
+      "link_expiry_past": "Masa ini sudah lepas. Pilih masa selepas sekarang.",
+      "supplier_inactive": "Pembekal ini dimatikan. Pilih pembekal lain.",
+      "trip_number_recorded": "Sudah direkodkan - guna Betulkan untuk menukar"
     },
     "forbidden": "Anda tiada akses kepada ini.",
     "forbiddenBody": "Tanya pentadbir anda jika anda memerlukannya.",
@@ -17820,7 +17828,8 @@
       "ENDED_EARLY": "Pejabat menamatkan kerja awal; muatan belum dihantar dibatalkan",
       "TRIP_CORRECTED": "Pejabat membetulkan berat / DO / plat satu muatan",
       "SUPPLIER_SET": "Pejabat menamakan / menukar syarikat pembersihan",
-      "ANOMALY_REPORTED": "Pengecualian dilaporkan"
+      "ANOMALY_REPORTED": "Pengecualian dilaporkan",
+      "TRIP_NUMBERS_FILLED": "Pejabat mengisi berat / DO / plat muatan"
     },
     "title": "Pembersihan sisa",
     "toast": {
@@ -23906,5 +23915,40 @@
       "progress_claim": "Progress Claim (perbelanjaan): amaun lulus Multi Engine belum aktif, jadi dikira 0. Ia ditambah secara automatik apabila aktif.",
       "disposal": "Pembersihan sampah: rekodnya tiada amaun (hanya berat, trip dan pengutip), jadi dikira 0; tiada harga diteka."
     }
+  },
+  "jb282": {
+    "reviewLocked": "Akaun anda tiada kebenaran \"Semak dan atur pelupusan tapak\", jadi tidak boleh menyemak. Minta pentadbir syarikat membukanya dalam kebenaran pengguna."
+  },
+  "jb284": {
+    "expiryPast": "Masa ini sudah lepas. Pilih masa selepas sekarang."
+  },
+  "jb285": {
+    "step": {
+      "approved": "Permohonan diluluskan",
+      "executor": "Pelaksana dipilih (pekerja tapak atau syarikat pelupusan luar)",
+      "photos": "Foto muat naik dan keluar tapak diambil (kenderaan keluar / Gate Pass)",
+      "photosDone": "Foto muat naik dan keluar tapak: {count} ({when})",
+      "sign": "Pengurus keselamatan menandatangani",
+      "gate": "Pelepasan pintu pagar"
+    },
+    "stepsLabel": "Langkah pas keluar",
+    "locked": {
+      "executor": "Pelaksana belum dipilih, jadi pas keluar tidak boleh ditandatangani. Tekan [Pilih pelaksana] dahulu.",
+      "photos": "Belum ada foto kenderaan keluar / Gate Pass, jadi pas keluar tidak boleh ditandatangani. Tapak atau syarikat pelupusan mengambilnya di telefon dahulu."
+    },
+    "capture": {
+      "title": "Foto muat naik dan keluar tapak",
+      "body": "Selepas lori dimuatkan dan sebelum keluar tapak, ambil foto kenderaan keluar dan Gate Pass. Pengurus keselamatan menandatangani pas keluar selepas itu.",
+      "done": "{count} foto diambil dan dihantar ke pejabat."
+    }
+  },
+  "jb286": {
+    "title": "Rekod angka",
+    "description": "{reference}: isi berat, nombor DO dan nombor plat yang tidak diisi pemandu. Untuk menukar angka yang sudah ada, tekan Betulkan pada muatan itu.",
+    "correctHint": "Hanya angka kosong diisi; setiap satu disimpan dalam sejarah muatan.",
+    "save": "Simpan",
+    "nothing": "Isi satu angka dahulu",
+    "saved": "Angka direkodkan",
+    "historyFilled": "diisi"
   }
 }

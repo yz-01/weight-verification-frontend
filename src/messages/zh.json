@@ -4058,7 +4058,9 @@
       "company_modules_by_platform": "MSE 开启或关闭公司的业务模块",
       "equipment_rental_terms_set": "设定设备租赁条件",
       "equipment_rental_month_amounts_set": "填写设备租赁的柴油费用或调整金额",
-      "equipment_rental_month_confirmed": "确认设备本月租赁金额"
+      "equipment_rental_month_confirmed": "确认设备本月租赁金额",
+      "external_site_evidence": "外部清运商拍车辆出场 / Gate Pass",
+      "fill_trip_numbers": "补录车次数字"
     },
     "objectType": {
       "SignOffAssistant": "助理副密码",
@@ -9727,7 +9729,10 @@
       "equipment_rental_no_terms": "先给这台设备设定租赁条件（【设备租赁设定】）。",
       "equipment_rental_diesel_not_charged": "这台设备的柴油不是供应商另外收费，不能填柴油费用。",
       "equipment_rental_month_confirmed": "这个月的租赁金额已经确认，不能再改。",
-      "equipment_rental_month_not_started": "这个月还没开始，不能确认。"
+      "equipment_rental_month_not_started": "这个月还没开始，不能确认。",
+      "exit_pass_executor_missing": "还没有选择执行人，现在不能签出门条。请先在这笔清运按【选择执行人】。",
+      "exit_pass_exit_evidence_missing": "还没有拍车辆出场 / Gate Pass 照片，现在不能签出门条。请现场或清运商先拍照。",
+      "disposal_trip_number_recorded": "第 {seq} 车的这个数字已经有了。要改，请在「车次」里按「更正」并写原因。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -9773,7 +9778,10 @@
       "supplier_not_on_project": "这个供应商不在这个项目的「可用供应商」里。请总部或项目经理先在项目里加入。",
       "field_one_project": "手机账号同一时间只能在一个项目，请只选一个项目。",
       "phone_role_office_account": "手机账号要在「现场人员管理」里开，这里不能把后台账号设为手机角色（工地人员、设备操作人员、门岗保安）。请选别的角色。",
-      "assignee_not_on_project": "这个人已经不在这个项目，不能派任务给他。请重新选择。"
+      "assignee_not_on_project": "这个人已经不在这个项目，不能派任务给他。请重新选择。",
+      "link_expiry_past": "这个时间已经过了，请选现在以后的时间。",
+      "supplier_inactive": "这家供应商已停用，请选别的供应商。",
+      "trip_number_recorded": "已经有数字，要改请按「更正」"
     },
     "forbidden": "你没有访问权限。",
     "forbiddenBody": "如果确实需要，请联系管理员。",
@@ -17820,7 +17828,8 @@
       "ENDED_EARLY": "后台提前结束，未送的车次已取消",
       "TRIP_CORRECTED": "后台更正了一车的重量 / DO / 车牌",
       "SUPPLIER_SET": "后台填写 / 更改了供应商",
-      "ANOMALY_REPORTED": "报告异常"
+      "ANOMALY_REPORTED": "报告异常",
+      "TRIP_NUMBERS_FILLED": "后台补录了车次的重量 / DO / 车牌"
     },
     "title": "垃圾清运",
     "toast": {
@@ -23906,5 +23915,40 @@
       "progress_claim": "Progress Claim（支出部分）：Multi Engine 的批准金额还没有上线，现在算 0。上线后自动算进来。",
       "disposal": "垃圾清运：清运记录没有金额栏（只有重量、车次和清运公司），所以算 0，没有自己估价。"
     }
+  },
+  "jb282": {
+    "reviewLocked": "你的账号没有「审核及安排垃圾清运」权限，不能审批。请公司管理员在用户权限里打开。"
+  },
+  "jb284": {
+    "expiryPast": "这个时间已经过了，请选现在以后的时间。"
+  },
+  "jb285": {
+    "step": {
+      "approved": "申请已批准",
+      "executor": "已选择执行人（内部工作人员或外部清运商）",
+      "photos": "已拍装车与工地出场证据（车辆出场 / Gate Pass）",
+      "photosDone": "已拍装车与工地出场证据：{count} 张（{when}）",
+      "sign": "安全经理签名批准",
+      "gate": "门岗放行"
+    },
+    "stepsLabel": "出门条的顺序",
+    "locked": {
+      "executor": "还没有选择执行人，现在不能签出门条。请先按【选择执行人】。",
+      "photos": "还没有拍车辆出场 / Gate Pass 照片，现在不能签出门条。请现场或清运商在手机上先拍照。"
+    },
+    "capture": {
+      "title": "装车与工地出场证据",
+      "body": "车辆装好、出工地前，拍车辆出场和 Gate Pass。拍好后安全经理才能签出门条。",
+      "done": "已拍 {count} 张，已送到后台。"
+    }
+  },
+  "jb286": {
+    "title": "补录数字",
+    "description": "{reference}：司机没填的重量、DO 编号、车牌，在这里补上。已经有的数字要改，请在「车次」里按「更正」。",
+    "correctHint": "只补空白的数字；每次补录都会留在这一车的记录里。",
+    "save": "保存",
+    "nothing": "先填一个数字",
+    "saved": "数字已补录",
+    "historyFilled": "补录"
   }
 }

@@ -1344,6 +1344,20 @@ export async function correctDisposalTrip(
 }
 
 /**
+ * 【补录数字】 while the job runs (JB286, 客户 11-26 事项 27): the numbers each
+ * sent lorry's driver left blank - weight, DO number, plate. Blanks only; a
+ * recorded number is put right with 【更正】.
+ */
+export async function fillDisposalTripNumbers(
+  id: string,
+  trips: Array<{ trip: string; weight_kg?: string; do_no?: string; vehicle_plate?: string }>,
+) {
+  const row = await api.post<DisposalRequest>(`/api/site-disposals/${id}/fill_trip_numbers/`, { trips });
+  toastSuccess("jb286.saved");
+  return row;
+}
+
+/**
  * Name or change the job's clearance company (I27, ID65), any time after
  * approval - a job the driver started from the forwarded link, or one being
  * settled after it finished. Replacing a company already named needs a reason.
@@ -1525,6 +1539,30 @@ export const addExternalDisposalEvidence = (
     if (value !== undefined && value !== "") data.append(key, value instanceof File ? value : String(value));
   }
   return externalDisposalFetch<{ evidence: DisposalEvidence; ocr: Record<string, unknown> | null; ocr_status: DisposalRequest["ocr_status"] }>(token, data);
+};
+
+/**
+ * 车辆出场 / Gate Pass from the outside company's phone (JB285, 客户 11-26
+ * 事项 26: 「手机端也没有拍照正式出厂证据」): one photograph a time, on the
+ * lorry being sent; what the 出门条's signature waits for.
+ */
+export const addExternalDisposalSiteEvidence = (
+  token: string,
+  payload: {
+    kind: DisposalSiteEvidenceKind;
+    image: File;
+    latitude?: string;
+    longitude?: string;
+    accuracy_m?: string;
+    client_event_id: string;
+  },
+) => {
+  const data = new FormData();
+  data.append("operation", "add_site_evidence");
+  for (const [key, value] of Object.entries(payload)) {
+    if (value !== undefined && value !== "") data.append(key, value instanceof File ? value : String(value));
+  }
+  return externalDisposalFetch<{ evidence: DisposalEvidence }>(token, data);
 };
 
 export const submitExternalDisposalTask = (

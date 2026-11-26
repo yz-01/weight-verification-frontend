@@ -152,6 +152,10 @@ function WindowStatus({ pass }: { pass: ExitPass }) {
       return <StatusBadge label={t("start.preparing")} tone="warning" />;
     case "awaiting_start":
       return <StatusBadge label={t("start.waitingStart")} tone="warning" />;
+    // JB285 (工地清运): 准备出门条 until the executor and the exit photos are in.
+    case "awaiting_executor":
+    case "awaiting_exit_evidence":
+      return <StatusBadge label={t("start.preparing")} tone="warning" />;
     case "awaiting_signature":
       return <StatusBadge label={t("approval.notApproved")} tone="warning" />;
     case "awaiting_external":
