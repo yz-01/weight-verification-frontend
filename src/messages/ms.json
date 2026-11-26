@@ -24376,10 +24376,12 @@
     "done": "Import selesai: {added} baris ditambah, {skipped} sudah ada dan dilangkau, {problems} bermasalah tidak diimport.",
     "doneWhere": {
       "supplier": "Pembekal baharu sudah ada dalam senarai pembekal, dinomborkan oleh sistem.",
-      "material": "Bahan dan spesifikasi baharu sudah ada dalam senarai bahan, dinomborkan oleh sistem."
+      "material": "Bahan dan spesifikasi baharu sudah ada dalam senarai bahan syarikat, dinomborkan oleh sistem. Projek sedia ada belum ada: untuk memasukkannya ke projek sedia ada, tekan 【Tambah ke projek sedia ada】."
     },
     "doneUnits": "Unit ditambah: {names}",
-    "needFile": "Pilih fail Excel dahulu."
+    "needFile": "Pilih fail Excel dahulu.",
+    "addToProjects": "Tambah ke projek sedia ada",
+    "categoryAsDescription": "Lajur {letter} \"{header}\" dimasukkan ke Keterangan setiap bahan, jadi tiada yang hilang (bahan ada dua peringkat: nama bahan › spesifikasi)."
   },
   "jb278": {
     "tabSettled": "Sudah diselesaikan",

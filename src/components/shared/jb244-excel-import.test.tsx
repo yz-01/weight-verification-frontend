@@ -204,7 +204,7 @@ describe("JB244 导入 Excel", () => {
     expect(page).toContain('<ExcelImportDialog kind="supplier"');
     const categories = read("components/contractor-ops/company-categories.tsx");
     expect(categories).toMatch(/canManage && active\.key === "material" && \(/);
-    expect(categories).toContain('<ExcelImportDialog kind="material"');
+    expect(categories).toMatch(/<ExcelImportDialog\s+kind="material"/);
   });
 
   it("accepts an old .xls so the server can say 「另存为 .xlsx」 instead of the browser hiding it", () => {

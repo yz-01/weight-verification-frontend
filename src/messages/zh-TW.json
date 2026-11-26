@@ -24376,10 +24376,12 @@
     "done": "導入完成：新增 {added} 行，已經有、跳過 {skipped} 行，有問題沒導入 {problems} 行。",
     "doneWhere": {
       "supplier": "新的供應商已經在「供應商資料」裡，編號系統自動編。",
-      "material": "新的材料和規格已經在「材料分類」裡，編號系統自動編。"
+      "material": "新的材料和規格已經在「公司通用分類」的材料分類裡，編號系統自動編。現有的項目還沒有它們：要放進現有項目，按【加到現有項目】。"
     },
     "doneUnits": "新增的單位：{names}",
-    "needFile": "先選 Excel 文件。"
+    "needFile": "先選 Excel 文件。",
+    "addToProjects": "加到現有項目",
+    "categoryAsDescription": "{letter} 欄「{header}」放進每個材料的「說明」，不會丟掉（系統的材料只有兩層：材料名稱 › 規格）。"
   },
   "jb278": {
     "tabSettled": "已結算",

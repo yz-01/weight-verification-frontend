@@ -95,9 +95,13 @@ const fileKey = (file: File | null) => (file ? `${file.name}|${file.size}|${file
 export function ExcelImportDialog({
   kind,
   onClose,
+  onAddToProjects,
 }: {
   kind: ExcelImportKind;
   onClose: () => void;
+  /** 材料: the existing projects do not get the new materials by themselves -
+   * 【加到现有项目】 right here after the import (QA1 audit #9). */
+  onAddToProjects?: () => void;
 }) {
   const t = useTranslations();
   const w = useTranslations("jb244");
@@ -183,7 +187,7 @@ export function ExcelImportDialog({
         </DialogHeader>
         <div className="min-h-0 flex-1 space-y-5 overflow-y-auto pr-1">
           {result ? (
-            <ResultPanel kind={kind} result={result} />
+            <ResultPanel kind={kind} result={result} onAddToProjects={onAddToProjects} />
           ) : (
             <>
               <section className="flex flex-col gap-3 rounded-lg border bg-muted/20 p-4 sm:flex-row sm:items-center">
@@ -299,7 +303,12 @@ export function ExcelImportDialog({
                               letter: data.category_column.letter,
                               header: data.category_column.header,
                             })
-                          : w("twoLevels")}
+                          : data.category_description_column
+                            ? w("categoryAsDescription", {
+                                letter: data.category_description_column.letter,
+                                header: data.category_description_column.header,
+                              })
+                            : w("twoLevels")}
                       </p>
                     )}
                   </section>
@@ -536,7 +545,15 @@ export function ImportPreviewTable({
   );
 }
 
-function ResultPanel({ kind, result }: { kind: ExcelImportKind; result: ImportResult }) {
+export function ResultPanel({
+  kind,
+  result,
+  onAddToProjects,
+}: {
+  kind: ExcelImportKind;
+  result: ImportResult;
+  onAddToProjects?: () => void;
+}) {
   const w = useTranslations("jb244");
   return (
     <section className="space-y-2 rounded-lg border border-success/40 bg-success/10 p-4" data-testid="excel-import-done">
@@ -551,6 +568,11 @@ function ResultPanel({ kind, result }: { kind: ExcelImportKind; result: ImportRe
       <p className="text-sm text-muted-foreground">{w(`doneWhere.${kind}`)}</p>
       {kind === "material" && (result.units_added?.length ?? 0) > 0 && (
         <p className="text-sm">{w("doneUnits", { names: (result.units_added ?? []).join("、") })}</p>
+      )}
+      {kind === "material" && onAddToProjects && (result.materials_added ?? 0) + (result.specs_added ?? 0) > 0 && (
+        <Button variant="outline" size="sm" onClick={onAddToProjects} data-testid="excel-import-add-to-projects">
+          {w("addToProjects")}
+        </Button>
       )}
     </section>
   );

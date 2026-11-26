@@ -24376,10 +24376,12 @@
     "done": "Import done: {added} rows added, {skipped} already there and skipped, {problems} with a problem not imported.",
     "doneWhere": {
       "supplier": "The new suppliers are on the supplier list, numbered by the system.",
-      "material": "The new materials and specifications are on the material list, numbered by the system."
+      "material": "The new materials and specifications are on the company's material list, numbered by the system. Existing projects do not have them yet: to put them into existing projects, press 【Add to existing projects】."
     },
     "doneUnits": "Units added: {names}",
-    "needFile": "Choose the Excel file first."
+    "needFile": "Choose the Excel file first.",
+    "addToProjects": "Add to existing projects",
+    "categoryAsDescription": "Column {letter} \"{header}\" goes into each material's Description, so nothing is lost (materials have two levels: material name › specification)."
   },
   "jb278": {
     "tabSettled": "Settled",

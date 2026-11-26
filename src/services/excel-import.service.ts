@@ -70,6 +70,8 @@ export interface ImportPreview {
   /** Materials. */
   shows_prices?: boolean;
   category_column?: ImportColumn | null;
+  /** 「分类」 read as each material's 说明 (QA1 audit #9). */
+  category_description_column?: ImportColumn | null;
   units?: ImportUnit[];
 }
 
@@ -78,6 +80,8 @@ export interface ImportResult extends ImportPreview {
   skipped_count: number;
   problem_count: number;
   units_added?: string[];
+  materials_added?: number;
+  specs_added?: number;
 }
 
 export interface SupplierImportChoices {

@@ -24376,10 +24376,12 @@
     "done": "导入完成：新增 {added} 行，已经有、跳过 {skipped} 行，有问题没导入 {problems} 行。",
     "doneWhere": {
       "supplier": "新的供应商已经在「供应商资料」里，编号系统自动编。",
-      "material": "新的材料和规格已经在「材料分类」里，编号系统自动编。"
+      "material": "新的材料和规格已经在「公司通用分类」的材料分类里，编号系统自动编。现有的项目还没有它们：要放进现有项目，按【加到现有项目】。"
     },
     "doneUnits": "新增的单位：{names}",
-    "needFile": "先选 Excel 文件。"
+    "needFile": "先选 Excel 文件。",
+    "addToProjects": "加到现有项目",
+    "categoryAsDescription": "{letter} 栏「{header}」放进每个材料的「说明」，不会丢掉（系统的材料只有两层：材料名称 › 规格）。"
   },
   "jb278": {
     "tabSettled": "已结算",
