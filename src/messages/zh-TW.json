@@ -20680,7 +20680,7 @@
     "limitsMany": "最多 {count} 個檔案，每個不超過 {limit} MB。",
     "limitsCount": "最多 {count} 個檔案。",
     "limitsOne": "一個檔案，不超過 {limit} MB。",
-    "copiedNote": "貼上或拖進來的圖片（例如從 WhatsApp Web 複製的）沒有拍攝時間和位置，系統記錄的是您上傳的時間。",
+    "copiedNote": "貼上或拖進來的圖片（例如從 WhatsApp Web 複製的）沒有拍攝時間和位置，系統記錄的是你上傳的時間。",
     "none": "還沒有選擇檔案。",
     "remove": "移除",
     "wrongType": "{name} 不能上傳：這裡不接受這種檔案。",
