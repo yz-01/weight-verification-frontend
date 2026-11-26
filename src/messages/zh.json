@@ -9798,7 +9798,8 @@
       "archive_check_not_ticked": "请先勾选「我已核对所有资料，确认无误。」，再确认归档。",
       "return_gate_not_released": "门岗还没有拍照放行（车辆、车牌及退场货物），现在不能确认正式退场。",
       "exit_release_shots_missing": "材料退场放行要拍车辆、车牌和退场货物，每样至少一张。还没拍的：请补拍后再按【确认放行】。",
-      "invite_needs_user_update": "邀请时会一起设定这个人的权限，所以要有「编辑用户」权限才能邀请。请公司管理员帮你打开。"
+      "invite_needs_user_update": "邀请时会一起设定这个人的权限，所以要有「编辑用户」权限才能邀请。请公司管理员帮你打开。",
+      "field_removed_from_project": "你已经被移出项目，这台手机已退出登录。如果还要用，请联系项目经理。"
     },
     "backToDashboard": "返回仪表板",
     "field": {

@@ -9798,7 +9798,8 @@
       "archive_check_not_ticked": "Tick \"I have checked all the information and it is correct.\" before archiving.",
       "return_gate_not_released": "The gate has not photographed and released it yet (vehicle, plate and goods), so the formal exit cannot be confirmed.",
       "exit_release_shots_missing": "A material return is released with photos of the vehicle, its number plate and the goods leaving - at least one each. Take the missing ones, then press Confirm release.",
-      "invite_needs_user_update": "Inviting also sets the person's permissions, so you need 'Edit users' to invite. Ask your company administrator to switch it on for you."
+      "invite_needs_user_update": "Inviting also sets the person's permissions, so you need 'Edit users' to invite. Ask your company administrator to switch it on for you.",
+      "field_removed_from_project": "You have been taken off the project, so this phone is signed out. Ask your project manager if you still need it."
     },
     "backToDashboard": "Back to dashboard",
     "field": {

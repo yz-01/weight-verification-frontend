@@ -9798,7 +9798,8 @@
       "archive_check_not_ticked": "請先勾選「我已核對所有資料，確認無誤。」，再確認歸檔。",
       "return_gate_not_released": "門崗還沒有拍照放行（車輛、車牌及退場貨物），現在不能確認正式退場。",
       "exit_release_shots_missing": "材料退場放行要拍車輛、車牌和退場貨物，每樣至少一張。還沒拍的：請補拍後再按【確認放行】。",
-      "invite_needs_user_update": "邀請時會一起設定這個人的權限，所以要有「編輯用戶」權限才能邀請。請公司管理員幫你打開。"
+      "invite_needs_user_update": "邀請時會一起設定這個人的權限，所以要有「編輯用戶」權限才能邀請。請公司管理員幫你打開。",
+      "field_removed_from_project": "你已經被移出項目，這台手機已退出登入。如果還要用，請聯繫項目經理。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
