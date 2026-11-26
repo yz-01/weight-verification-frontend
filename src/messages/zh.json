@@ -14964,7 +14964,7 @@
       "empty": "尚未分配人员。",
       "loadError": "人员列表无法载入。",
       "remove": "移出项目",
-      "removeConfirm": "移除",
+      "removeConfirm": "移出项目",
       "removeDescription": "他将无法再看到此项目的收货和出场记录。其账号及已记录的数据保持不变。",
       "removeTitle": "将 {name} 移出此项目？",
       "title": "项目人员名单",

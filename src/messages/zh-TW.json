@@ -14964,7 +14964,7 @@
       "empty": "尚未分配人員。",
       "loadError": "人員列表無法載入。",
       "remove": "移出項目",
-      "removeConfirm": "移除",
+      "removeConfirm": "移出項目",
       "removeDescription": "他將無法再看到此項目的收貨和出場記錄。其賬號及已記錄的數據保持不變。",
       "removeTitle": "將 {name} 移出此項目？",
       "title": "項目人員名單",
