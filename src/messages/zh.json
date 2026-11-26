@@ -9733,7 +9733,8 @@
       "archived_record_final": "这笔记录已确认归档，任何人都不能再修改或删除（包括总部管理员）。",
       "archive_items_missing": "还有必填资料没有补齐（看「确认归档」里列出的项目），系统不能归档。",
       "archive_check_not_ticked": "请先勾选「我已核对所有资料，确认无误。」，再确认归档。",
-      "return_gate_not_released": "门岗还没有拍照放行（车辆、车牌及退场货物），现在不能确认正式退场。"
+      "return_gate_not_released": "门岗还没有拍照放行（车辆、车牌及退场货物），现在不能确认正式退场。",
+      "exit_release_shots_missing": "材料退场放行要拍车辆、车牌和退场货物，每样至少一张。还没拍的：请补拍后再按【确认放行】。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -23963,6 +23964,18 @@
     "started": "启动出门条：{name} · {when}",
     "gateRecord": "门岗记录 {number}，{photos} 张照片",
     "waitGate": "门岗还没有拍照放行（车辆、车牌及退场货物），现在不能确认正式退场。",
-    "phoneWaitApproval": "已提交，等后台负责人审核及批准。"
+    "phoneWaitApproval": "已提交，等后台负责人审核及批准。",
+    "shot": {
+      "VEHICLE": "车辆",
+      "PLATE": "车牌",
+      "GOODS": "退场货物"
+    },
+    "gateShotsTitle": "门岗照片（车辆、车牌、退场货物）",
+    "gateShotsHint": "材料退场：车辆、车牌、退场货物三样都要拍，每样至少一张。",
+    "gateShotTake": "拍{shot}",
+    "gateShotTaken": "{shot}：已拍 {count} 张 · 继续拍",
+    "gateNeedShots": "车辆、车牌和退场货物各拍至少一张，才能确认放行。",
+    "gateShotsMissing": "还没拍：{shots}",
+    "checkGatePhotos": "请先核对门岗上传的照片，再按【确认正式退场】："
   }
 }

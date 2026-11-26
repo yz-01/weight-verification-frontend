@@ -232,6 +232,81 @@ describe("the phone shows no approval (Lucas 11-26 「手机不应该出现审�
   });
 });
 
+describe("the gate photographs 车辆、车牌、退场货物 (JB281 step 5)", () => {
+  const gateStep = (photos: { shot: "VEHICLE" | "PLATE" | "GOODS" }[]): ReturnFlowStep => ({
+    key: "gate",
+    state: "done",
+    by: "Guard One",
+    at: "2026-11-26T03:00:00Z",
+    incident_no: "GT-XP-001",
+    photos: photos.length,
+    shots: { VEHICLE: 1, PLATE: 1, GOODS: 1 },
+    gate_photos: photos.map((photo, index) => ({
+      id: `g-${index}`,
+      shot: photo.shot,
+      image: `https://x.test/${photo.shot}.jpg`,
+      captured_at: "2026-11-26T03:00:00Z",
+    })),
+  });
+
+  it("the gate phone has one labelled camera per shot, and 确认放行 waits for all three", async () => {
+    const { ReleaseShotCameras, ReleaseCaptureView } = await import("@/components/site-access/exit-pass-window");
+    const empty = { photos: [], add: () => {}, remove: () => {}, clear: () => {} };
+    const html = render(<ReleaseShotCameras cameras={{ VEHICLE: empty, PLATE: empty, GOODS: empty }} />);
+    for (const shot of ["VEHICLE", "PLATE", "GOODS"]) {
+      expect(html).toContain(`data-release-shot="${shot}"`);
+      expect(html).toContain((zh.jb281.shot as Record<string, string>)[shot]);
+    }
+    expect(html).toContain(zh.jb281.gateShotsHint);
+    const locked = render(
+      <ReleaseCaptureView
+        photosTaken={2}
+        missingReason={zh.jb281.gateNeedShots}
+        offline={false}
+        pending={false}
+        error={null}
+        done={null}
+        multi={false}
+        camera={null}
+        onRelease={() => {}}
+      />,
+    );
+    expect(locked).toContain(zh.jb281.gateNeedShots);
+    expect(locked).toMatch(/data-exit-pass-release="confirm"[^>]*disabled=""|disabled=""[^>]*data-exit-pass-release="confirm"/);
+  });
+
+  it("the release sends each photo's shot", () => {
+    const text = readFileSync(join(process.cwd(), "src/services/exit-pass.service.ts"), "utf8");
+    expect(text).toContain("...(shot ? { shot } : {})");
+    const window = readFileSync(join(process.cwd(), "src/components/site-access/exit-pass-window.tsx"), "utf8");
+    expect(window).toContain('const labelled = pass.kind === "MATERIAL_OUTGOING";');
+  });
+
+  it("the step list shows the three, and 确认正式退场 shows them to the office", () => {
+    const shots = [{ shot: "VEHICLE" as const }, { shot: "PLATE" as const }, { shot: "GOODS" as const }];
+    const list = render(<ReturnFlowSteps steps={[gateStep(shots)]} />);
+    for (const shot of ["VEHICLE", "PLATE", "GOODS"]) {
+      expect(list).toContain(`data-gate-shot="${shot}"`);
+      expect(list).toContain(`https://x.test/${shot}.jpg`);
+    }
+    const steps = STEPS(["done", "done", "done", "done", "done", "current", "locked"]).map((step) =>
+      step.key === "gate" ? gateStep(shots) : step,
+    );
+    const actions = render(
+      <OutgoingActions
+        row={{ id: "o-1", reference_no: "MO-1", project: "p-1", kind: "RETURN", status: "PROCESSED", supplier: "s-1",
+          needs_supplier: false, has_return_note: true, material_name: "水泥", quantity: "10", unit: "BAG", photos: [],
+          return_steps: steps } as unknown as MaterialOutgoing}
+        pending={false}
+        onReview={() => {}}
+      />,
+    );
+    expect(actions).toContain(zh.jb281.checkGatePhotos);
+    expect(actions).toContain("data-exit-confirm-gate-photos");
+    expect(actions).toContain("https://x.test/PLATE.jpg");
+  });
+});
+
 describe("archived records offer no change (JB276 第 5 点)", () => {
   const source = (path: string) => readFileSync(join(process.cwd(), "src", path), "utf8");
 

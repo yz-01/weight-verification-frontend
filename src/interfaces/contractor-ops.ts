@@ -1103,6 +1103,16 @@ export interface ReturnFlowStep {
   incident_no?: string;
   photos?: number;
   rejected?: boolean;
+  /** Step 5: how many photos of each shot (车辆 / 车牌 / 退场货物). */
+  shots?: Record<"VEHICLE" | "PLATE" | "GOODS", number>;
+  /** Step 5: the gate's photographs, each labelled. */
+  gate_photos?: {
+    id: string;
+    shot: "VEHICLE" | "PLATE" | "GOODS" | "";
+    image: string | null;
+    watermarked_image?: string;
+    captured_at: string | null;
+  }[];
 }
 
 export interface MaterialOutgoing extends RecordedBy {

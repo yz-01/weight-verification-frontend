@@ -73,12 +73,51 @@ export function ReturnFlowSteps({ steps }: { steps: ReturnFlowStep[] }) {
                     {t("gateRecord", { number: step.incident_no, photos: step.photos ?? 0 })}
                   </p>
                 ) : null}
+                {step.key === "gate" && step.state === "done" ? <GateShotPhotos step={step} /> : null}
               </div>
             </li>
           );
         })}
       </ol>
     </section>
+  );
+}
+
+const SHOTS = ["VEHICLE", "PLATE", "GOODS"] as const;
+
+/**
+ * JB281 step 5: the gate's photographs, under 车辆 / 车牌 / 退场货物 - on the
+ * step list and beside 「确认正式退场」, where the office checks them.
+ */
+export function GateShotPhotos({ step }: { step: ReturnFlowStep }) {
+  const t = useTranslations("jb281");
+  const photos = step.gate_photos ?? [];
+  if (photos.length === 0) return null;
+  return (
+    <div className="mt-1 grid grid-cols-3 gap-2" data-gate-shots>
+      {SHOTS.map((shot) => {
+        const own = photos.filter((photo) => photo.shot === shot);
+        return (
+          <figure key={shot} className="min-w-0 space-y-1" data-gate-shot={shot}>
+            <figcaption className="text-xs font-medium">
+              {t(`shot.${shot}`)} · {own.length}
+            </figcaption>
+            {own.slice(0, 2).map((photo) =>
+              photo.image ? (
+                <a key={photo.id} href={photo.watermarked_image || photo.image} target="_blank" rel="noreferrer">
+                  {/* eslint-disable-next-line @next/next/no-img-element -- a signed media URL, shown as it is */}
+                  <img
+                    src={photo.watermarked_image || photo.image}
+                    alt={t(`shot.${shot}`)}
+                    className="aspect-square w-full rounded-md border object-cover"
+                  />
+                </a>
+              ) : null,
+            )}
+          </figure>
+        );
+      })}
+    </div>
   );
 }
 

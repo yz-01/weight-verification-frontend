@@ -77,7 +77,7 @@ import { OpenExitOfficeFiles } from "@/components/field-staff/office-sent-files"
 import { RecordConversationButton } from "@/components/shared/record-conversation-button";
 import { RecordDetailDialog, RecordDetailShell, RecordRecorder } from "@/components/shared/record-detail-shell";
 import { useRecordArchived } from "@/components/shared/record-closure";
-import { ReturnFlowSteps, exitConfirmLockedReason } from "@/components/contractor-ops/return-flow-steps";
+import { GateShotPhotos, ReturnFlowSteps, exitConfirmLockedReason } from "@/components/contractor-ops/return-flow-steps";
 import {
   CORRECTED_ROW_CLASS,
   CorrectedTag,
@@ -4005,6 +4005,7 @@ export function OutgoingActions({
   const needsSupplier = !issue && returnNeedsSupplier(row);
   // JB281 (客户 11-26 事项 22): 「确认正式退场」 waits for the gate's photographs.
   const gateLocked = issue ? null : exitConfirmLockedReason(row, tFlow);
+  const gateStep = row.return_steps?.find((step) => step.key === "gate");
   return (
     <>
       {onPhone && row.status === "PENDING" && (
@@ -4060,6 +4061,13 @@ export function OutgoingActions({
               <p role="status" className="rounded-md bg-warning/10 px-2 py-1.5 text-sm font-medium text-warning" data-exit-confirm-locked>
                 {gateLocked}
               </p>
+            )}
+            {/* JB281 step 6: 「后台负责人核对门岗上传的资料」 - the three shots here. */}
+            {!issue && !gateLocked && gateStep?.state === "done" && (gateStep.gate_photos?.length ?? 0) > 0 && (
+              <div className="space-y-1" data-exit-confirm-gate-photos>
+                <p className="text-xs text-muted-foreground">{tFlow("checkGatePhotos")}</p>
+                <GateShotPhotos step={gateStep} />
+              </div>
             )}
             <Button
               size="sm"

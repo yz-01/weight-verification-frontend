@@ -9733,7 +9733,8 @@
       "archived_record_final": "This record has been archived. Nobody can change or delete it any more, head office included.",
       "archive_items_missing": "Some required items are still missing (see the list under Confirm and archive), so it cannot be archived.",
       "archive_check_not_ticked": "Tick \"I have checked all the information and it is correct.\" before archiving.",
-      "return_gate_not_released": "The gate has not photographed and released it yet (vehicle, plate and goods), so the formal exit cannot be confirmed."
+      "return_gate_not_released": "The gate has not photographed and released it yet (vehicle, plate and goods), so the formal exit cannot be confirmed.",
+      "exit_release_shots_missing": "A material return is released with photos of the vehicle, its number plate and the goods leaving - at least one each. Take the missing ones, then press Confirm release."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -23963,6 +23964,18 @@
     "started": "Exit pass started: {name} · {when}",
     "gateRecord": "Gate record {number}, {photos} photos",
     "waitGate": "The gate has not photographed and released it yet (vehicle, plate and goods), so the formal exit cannot be confirmed.",
-    "phoneWaitApproval": "Sent. Waiting for the office to review and approve."
+    "phoneWaitApproval": "Sent. Waiting for the office to review and approve.",
+    "shot": {
+      "VEHICLE": "Vehicle",
+      "PLATE": "Number plate",
+      "GOODS": "Goods leaving"
+    },
+    "gateShotsTitle": "Gate photos (vehicle, number plate, goods leaving)",
+    "gateShotsHint": "Material return: photograph the vehicle, its number plate and the goods leaving - at least one each.",
+    "gateShotTake": "Photograph: {shot}",
+    "gateShotTaken": "{shot}: {count} taken · take another",
+    "gateNeedShots": "Take at least one photo each of the vehicle, the number plate and the goods leaving before releasing.",
+    "gateShotsMissing": "Not taken yet: {shots}",
+    "checkGatePhotos": "Check the gate's photos first, then press Confirm formal exit:"
   }
 }

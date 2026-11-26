@@ -9733,7 +9733,8 @@
       "archived_record_final": "Rekod ini telah diarkibkan. Tiada sesiapa boleh mengubah atau memadamnya lagi, termasuk ibu pejabat.",
       "archive_items_missing": "Masih ada maklumat wajib yang belum lengkap (lihat senarai di bawah Sahkan dan arkibkan), jadi tidak boleh diarkibkan.",
       "archive_check_not_ticked": "Tandakan \"Saya telah menyemak semua maklumat dan ia betul.\" sebelum mengarkibkan.",
-      "return_gate_not_released": "Pintu belum mengambil gambar dan melepaskannya (kenderaan, plat dan barang), jadi keluar rasmi belum boleh disahkan."
+      "return_gate_not_released": "Pintu belum mengambil gambar dan melepaskannya (kenderaan, plat dan barang), jadi keluar rasmi belum boleh disahkan.",
+      "exit_release_shots_missing": "Pemulangan bahan dilepaskan dengan gambar kenderaan, nombor plat dan barang keluar - sekurang-kurangnya satu setiap satu. Ambil yang belum, kemudian tekan Sahkan lepas."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -23963,6 +23964,18 @@
     "started": "Pas keluar dimulakan: {name} · {when}",
     "gateRecord": "Rekod pintu {number}, {photos} gambar",
     "waitGate": "Pintu belum mengambil gambar dan melepaskannya (kenderaan, plat dan barang), jadi keluar rasmi belum boleh disahkan.",
-    "phoneWaitApproval": "Telah dihantar. Menunggu pejabat menyemak dan meluluskan."
+    "phoneWaitApproval": "Telah dihantar. Menunggu pejabat menyemak dan meluluskan.",
+    "shot": {
+      "VEHICLE": "Kenderaan",
+      "PLATE": "Nombor plat",
+      "GOODS": "Barang keluar"
+    },
+    "gateShotsTitle": "Gambar pintu (kenderaan, nombor plat, barang keluar)",
+    "gateShotsHint": "Pemulangan bahan: ambil gambar kenderaan, nombor plat dan barang keluar - sekurang-kurangnya satu setiap satu.",
+    "gateShotTake": "Ambil gambar: {shot}",
+    "gateShotTaken": "{shot}: {count} diambil · ambil lagi",
+    "gateNeedShots": "Ambil sekurang-kurangnya satu gambar kenderaan, nombor plat dan barang keluar sebelum melepaskan.",
+    "gateShotsMissing": "Belum diambil: {shots}",
+    "checkGatePhotos": "Semak gambar pintu dahulu, kemudian tekan Sahkan keluar rasmi:"
   }
 }

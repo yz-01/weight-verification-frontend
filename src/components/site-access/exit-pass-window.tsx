@@ -54,6 +54,7 @@ import { isRouteAllowed } from "@/lib/navigation";
 import { photoMeta } from "@/lib/photo-meta";
 import { cn } from "@/lib/utils";
 import { getExitPassesWaiting, releaseExit } from "@/services/exit-pass.service";
+import { GATE_RELEASE_SHOTS, type GatePhotoDraft, type GateReleaseShot } from "@/interfaces/site-access";
 
 // The record's own window, over this one (office only; the phone's is this).
 const InPlaceRecord = dynamic(
@@ -393,10 +394,28 @@ export function ReleaseCapture({
   onReleased?: (done: ReleasedNow) => void;
 }) {
   const t = useTranslations("exitPass");
+  const tFlow = useTranslations("jb281");
   const queryClient = useQueryClient();
   const offline = usePhoneOffline();
   const { fix, failed, refresh } = useGateLocation();
   const camera = useContinuousCamera(fix);
+  // JB281 (客户 11-26 事项 22): a 材料退场 is photographed 车辆、车牌、退场货物 -
+  // one camera each, every photo labelled; the server refuses a missing one.
+  const vehicle = useContinuousCamera(fix);
+  const plate = useContinuousCamera(fix);
+  const goods = useContinuousCamera(fix);
+  const shotCameras = { VEHICLE: vehicle, PLATE: plate, GOODS: goods } as const;
+  const labelled = pass.kind === "MATERIAL_OUTGOING";
+  const photos: GatePhotoDraft[] = labelled
+    ? GATE_RELEASE_SHOTS.flatMap((shot) => shotCameras[shot].photos.map((photo) => ({ ...photo, shot })))
+    : camera.photos;
+  const missingShots = labelled ? GATE_RELEASE_SHOTS.filter((shot) => shotCameras[shot].photos.length === 0) : [];
+  const clearAll = () => {
+    camera.clear();
+    vehicle.clear();
+    plate.clear();
+    goods.clear();
+  };
   // One id per release, kept across 【重试】 (a resend is the same release).
   const eventId = useRef(newEventId());
   // A second tap before the button turns off sends nothing (walk 11-18
@@ -408,7 +427,7 @@ export function ReleaseCapture({
       releaseExit({
         kind: pass.kind,
         record: pass.record,
-        photos: camera.photos,
+        photos,
         clientEventId: eventId.current,
         fix: fix ? { latitude: fix.latitude, longitude: fix.longitude, accuracy_m: fix.accuracy } : undefined,
       }),
@@ -416,7 +435,7 @@ export function ReleaseCapture({
       const released = { number: row.incident_no, count: pass.releases.length + 1 };
       setDone(released);
       onReleased?.(released);
-      camera.clear();
+      clearAll();
       eventId.current = newEventId();
       void queryClient.invalidateQueries({ queryKey: exitPassKey(pass.kind, pass.record) });
       void queryClient.invalidateQueries({ queryKey: ["exit-passes", "waiting"] });
@@ -436,7 +455,14 @@ export function ReleaseCapture({
   });
   return (
     <ReleaseCaptureView
-      photosTaken={camera.photos.length}
+      photosTaken={photos.length}
+      missingReason={
+        missingShots.length > 0
+          ? `${tFlow("gateNeedShots")} ${tFlow("gateShotsMissing", {
+              shots: missingShots.map((shot) => tFlow(`shot.${shot}`)).join("、"),
+            })}`
+          : undefined
+      }
       offline={offline}
       pending={release.isPending}
       error={
@@ -447,6 +473,13 @@ export function ReleaseCapture({
       done={done}
       multi={pass.multi_release}
       camera={
+        labelled ? (
+          <ReleaseShotCameras
+            cameras={shotCameras}
+            onCapture={() => setDone(null)}
+            location={<LocationLine fix={fix} failed={failed} onRetry={refresh} />}
+          />
+        ) : (
         <FieldWrapper label={t("gate.photos")} required hint={t("gate.photosHint")}>
           <div className="space-y-2">
             <FieldCamera
@@ -462,6 +495,7 @@ export function ReleaseCapture({
             <LocationLine fix={fix} failed={failed} onRetry={refresh} />
           </div>
         </FieldWrapper>
+        )
       }
       onRelease={() => {
         if (sending.current) return;
@@ -472,6 +506,54 @@ export function ReleaseCapture({
   );
 }
 
+type ShotCamera = ReturnType<typeof useContinuousCamera>;
+
+/**
+ * JB281: the three labelled cameras of a 材料退场's release - 车辆, 车牌,
+ * 退场货物 - each with its own tray, so every photo says what it shows.
+ */
+export function ReleaseShotCameras({
+  cameras,
+  onCapture,
+  location,
+}: {
+  cameras: Record<GateReleaseShot, Pick<ShotCamera, "photos" | "add" | "remove" | "clear">>;
+  onCapture?: () => void;
+  location?: React.ReactNode;
+}) {
+  const tFlow = useTranslations("jb281");
+  return (
+    <FieldWrapper label={tFlow("gateShotsTitle")} required hint={tFlow("gateShotsHint")}>
+      <div className="space-y-3" data-release-shots>
+        {GATE_RELEASE_SHOTS.map((shot) => {
+          const camera = cameras[shot];
+          const name = tFlow(`shot.${shot}`);
+          return (
+            <div key={shot} className="space-y-2 rounded-lg border p-2" data-release-shot={shot}>
+              <p className="text-sm font-medium">{name}</p>
+              <FieldCamera
+                label={
+                  camera.photos.length
+                    ? tFlow("gateShotTaken", { shot: name, count: camera.photos.length })
+                    : tFlow("gateShotTake", { shot: name })
+                }
+                fileCount={camera.photos.length}
+                onCapture={(file) => {
+                  onCapture?.();
+                  camera.add(file);
+                }}
+                onClear={camera.clear}
+              />
+              <PhotoTray photos={camera.photos} onRemove={camera.remove} />
+            </div>
+          );
+        })}
+        {location}
+      </div>
+    </FieldWrapper>
+  );
+}
+
 /**
  * The gate step as drawn, apart from the camera itself, so each state - no
  * photo yet, no network, sending, refused with the photos kept, released -
@@ -479,6 +561,7 @@ export function ReleaseCapture({
  */
 export function ReleaseCaptureView({
   photosTaken,
+  missingReason,
   offline,
   pending,
   error,
@@ -488,6 +571,8 @@ export function ReleaseCaptureView({
   onRelease,
 }: {
   photosTaken: number;
+  /** JB281: a 材料退场 still missing one of 车辆 / 车牌 / 退场货物. */
+  missingReason?: string;
   offline: boolean;
   pending: boolean;
   /** Why the last press did not release; the photos are still in the tray. */
@@ -498,7 +583,9 @@ export function ReleaseCaptureView({
   onRelease: () => void;
 }) {
   const t = useTranslations("exitPass");
-  const reason = offline ? t("gate.needNetwork") : photosTaken === 0 ? t("gate.needPhoto") : undefined;
+  const reason = offline
+    ? t("gate.needNetwork")
+    : (missingReason ?? (photosTaken === 0 ? t("gate.needPhoto") : undefined));
   return (
     <ShellPanel title={t("gate.title")} data-exit-pass-release-capture className="border-primary/40 shadow-glow-sm">
       <div className="space-y-3">

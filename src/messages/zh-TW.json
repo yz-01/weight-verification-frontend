@@ -9733,7 +9733,8 @@
       "archived_record_final": "這筆記錄已確認歸檔，任何人都不能再修改或刪除（包括總部管理員）。",
       "archive_items_missing": "還有必填資料沒有補齊（看「確認歸檔」裡列出的項目），系統不能歸檔。",
       "archive_check_not_ticked": "請先勾選「我已核對所有資料，確認無誤。」，再確認歸檔。",
-      "return_gate_not_released": "門崗還沒有拍照放行（車輛、車牌及退場貨物），現在不能確認正式退場。"
+      "return_gate_not_released": "門崗還沒有拍照放行（車輛、車牌及退場貨物），現在不能確認正式退場。",
+      "exit_release_shots_missing": "材料退場放行要拍車輛、車牌和退場貨物，每樣至少一張。還沒拍的：請補拍後再按【確認放行】。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -23963,6 +23964,18 @@
     "started": "啟動出門條：{name} · {when}",
     "gateRecord": "門崗記錄 {number}，{photos} 張照片",
     "waitGate": "門崗還沒有拍照放行（車輛、車牌及退場貨物），現在不能確認正式退場。",
-    "phoneWaitApproval": "已提交，等後台負責人審核及批准。"
+    "phoneWaitApproval": "已提交，等後台負責人審核及批准。",
+    "shot": {
+      "VEHICLE": "車輛",
+      "PLATE": "車牌",
+      "GOODS": "退場貨物"
+    },
+    "gateShotsTitle": "門崗照片（車輛、車牌、退場貨物）",
+    "gateShotsHint": "材料退場：車輛、車牌、退場貨物三樣都要拍，每樣至少一張。",
+    "gateShotTake": "拍{shot}",
+    "gateShotTaken": "{shot}：已拍 {count} 張 · 繼續拍",
+    "gateNeedShots": "車輛、車牌和退場貨物各拍至少一張，才能確認放行。",
+    "gateShotsMissing": "還沒拍：{shots}",
+    "checkGatePhotos": "請先核對門崗上傳的照片，再按【確認正式退場】："
   }
 }
