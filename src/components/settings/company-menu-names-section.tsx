@@ -76,6 +76,7 @@ export function CompanyMenuNamesSection() {
 }
 
 function MenuNamesLoader({ portal }: { portal: Portal }) {
+  // query-failure: the block stays hidden, as for a company MSE has not opened it for; the menu keeps the names 「我」 sent.
   const query = useQuery({ queryKey: QUERY_KEY, queryFn: getOwnMenuNames });
   // Nothing at all until MSE opens it: the page looks as it always has.
   if (!query.data?.enabled) return null;
