@@ -52,3 +52,10 @@ describe("QA1 walk fixes - unit names", () => {
     expect(edit).toContain("(${unitName(line.unit)})");
   });
 });
+
+describe("QA1 walk fixes - 你, never 您", () => {
+  it("the voucher / attachment picker's note says 你", () => {
+    expect(zh.attachmentPicker.copiedNote).not.toContain("您");
+    expect(zhTW.attachmentPicker.copiedNote).not.toContain("您");
+  });
+});

@@ -20680,7 +20680,7 @@
     "limitsMany": "最多 {count} 个文件，每个不超过 {limit} MB。",
     "limitsCount": "最多 {count} 个文件。",
     "limitsOne": "一个文件，不超过 {limit} MB。",
-    "copiedNote": "粘贴或拖进来的图片（例如从 WhatsApp Web 复制的）没有拍摄时间和位置，系统记录的是您上传的时间。",
+    "copiedNote": "粘贴或拖进来的图片（例如从 WhatsApp Web 复制的）没有拍摄时间和位置，系统记录的是你上传的时间。",
     "none": "还没有选择文件。",
     "remove": "移除",
     "wrongType": "{name} 不能上传：这里不接受这种文件。",
