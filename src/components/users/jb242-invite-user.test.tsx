@@ -71,6 +71,8 @@ const role = (over: Partial<Role>): Role => ({
   description: "",
   permissions: [],
   is_system: false,
+  created_at: "",
+  updated_at: "",
   ...over,
 });
 
