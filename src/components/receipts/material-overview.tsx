@@ -254,8 +254,10 @@ export function MaterialOverview({ project }: { project?: string }) {
       ) : rows.length === 0 ? (
         <p className="border-t px-3 py-3 text-sm text-muted-foreground">{t("overview.empty")}</p>
       ) : (
-        <div className="max-h-80 overflow-auto border-t">
-          <Table fit>
+        <div className="border-t">
+          {/* The table's own box scrolls past ~8 rows, so the list below
+              keeps its room and the header sticks to this box (I39-2). */}
+          <Table fit containerClassName="max-h-80">
             <TableHeader>
               <TableRow>
                 <TableHead>{t("col.material")}</TableHead>
