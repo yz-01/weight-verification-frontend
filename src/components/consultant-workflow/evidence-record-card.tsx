@@ -49,13 +49,12 @@ export function useEvidenceRecordLabel() {
 export function EvidenceRecordCard({ rows, selected, onToggle, onToggleRecord, onOpen }: EvidenceRecordCardProps) {
   const t = useTranslations("jb269");
   const tw = useTranslations("consultantWorkflow");
-  const common = useTranslations("common");
   const df = useDateFormat();
   const label = useEvidenceRecordLabel();
   const first = rows[0];
   const { reference, module: moduleName, title } = label(first);
   const allSelected = rows.every((row) => selected.includes(row.id));
-  const uploader = first.record_uploader || first.photographer_name || common("unknown");
+  const uploader = first.record_uploader || first.photographer_name || tw("common.unknown");
   const when = df.dateTime(first.record_date || first.captured_at);
   // Each photo's place among the record's photos (a file in between is not
   // one), for the viewer it opens.
