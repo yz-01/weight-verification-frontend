@@ -23758,7 +23758,8 @@
       "notSet": "Not filled in",
       "save": "Save the amount",
       "placeholder": "e.g. 12500.00",
-      "approvedOnly": "Fill in the approved amount when you confirm everything."
+      "approvedOnly": "Fill in the approved amount when you confirm everything.",
+      "linkOnly": "Approved only through outside links, which never enter an amount, so there is no approved amount. To have one, also send it to head office or a consultant to review in the system."
     },
     "signatures": {
       "title": "Signatures and review record",

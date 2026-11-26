@@ -23758,7 +23758,8 @@
       "notSet": "Belum diisi",
       "save": "Simpan jumlah",
       "placeholder": "cth. 12500.00",
-      "approvedOnly": "Isi jumlah diluluskan apabila anda mengesahkan semua."
+      "approvedOnly": "Isi jumlah diluluskan apabila anda mengesahkan semua.",
+      "linkOnly": "Diluluskan hanya melalui pautan luar, yang tidak memasukkan amaun, jadi tiada amaun diluluskan. Untuk mendapatkannya, hantar juga kepada ibu pejabat atau perunding untuk disemak dalam sistem."
     },
     "signatures": {
       "title": "Tandatangan dan rekod semakan",

@@ -116,6 +116,10 @@ export function MoneyBlock({ pkg }: { pkg: EvidencePackageDetail }) {
   const money = pkg.money;
   const claim = money?.claim_amount ?? pkg.claim_amount ?? null;
   const approved = money?.approved_amount ?? pkg.approved_amount ?? null;
+  // Lucas 11-27 (A): approved only through outside links, which never show or
+  // type money (H17 六 7) - no 批准金额, said plainly. With a 申请金额 an
+  // in-system approver must type one, so an empty one here means links only.
+  const linkOnly = Boolean(money?.approved_at) && !approved && Boolean(claim);
   return (
     <dl
       className="grid gap-1 rounded-lg border p-3 text-sm sm:grid-cols-[11rem_1fr]"
@@ -126,6 +130,11 @@ export function MoneyBlock({ pkg }: { pkg: EvidencePackageDetail }) {
       <dt className="text-muted-foreground">{loop("money.approved")}</dt>
       <dd className="tabular">
         {approved ? rm(approved) : "—"}
+        {linkOnly && (
+          <span className="mt-1 block text-xs text-muted-foreground" data-package-money-link-only>
+            {loop("money.linkOnly")}
+          </span>
+        )}
         {money?.locked && (
           <span className="ml-2 text-xs text-muted-foreground">
             {loop("money.locked")}
