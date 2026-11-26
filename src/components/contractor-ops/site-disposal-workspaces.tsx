@@ -1504,6 +1504,45 @@ function DisposalActions({
   );
 }
 
+/** The step dialogs, mounted once by whichever screen owns the request list. */
+function DisposalStepDialogs({
+  step,
+  row,
+  onClose,
+  onChanged,
+}: {
+  step: DisposalStep | null;
+  row: DisposalRequest | null;
+  onClose: () => void;
+  onChanged: () => void;
+}) {
+  if (!step || !row) return null;
+  const done = () => {
+    onChanged();
+    onClose();
+  };
+  switch (step) {
+    case "reviewing":
+      return <ReviewDisposalDialog row={row} onClose={onClose} onSaved={done} />;
+    case "assigning":
+      return <AssignExecutorDialog row={row} onClose={onClose} onSaved={onChanged} />;
+    case "regenerating":
+      return <RegenerateLinkDialog row={row} onClose={onClose} onSaved={onChanged} />;
+    case "supplier":
+      return <SetSupplierDialog row={row} onClose={onClose} onSaved={done} />;
+    case "cancelling":
+      return <CancelDisposalDialog row={row} onClose={onClose} onSaved={done} />;
+    case "numbers":
+      return <RecordNumbersDialog row={row} onClose={onClose} onSaved={done} />;
+    case "fillNumbers":
+      return <FillTripNumbersDialog row={row} onClose={onClose} onSaved={done} />;
+    case "siteEvidence":
+      return <SiteEvidenceDialog row={row} onClose={onClose} onSaved={done} />;
+    case "anomaly":
+      return <AnomalyDialog row={row} onClose={onClose} onSaved={done} />;
+  }
+}
+
 /**
  * Which of the job's office steps this reader is offered (JB282, JB286).
  *
@@ -1604,45 +1643,6 @@ export function fillEntries(
     if (!trip.vehicle_plate && typed.vehicle_plate.trim()) entry.vehicle_plate = normalisePlate(typed.vehicle_plate);
     return Object.keys(entry).length > 1 ? [entry] : [];
   });
-}
-
-/** The step dialogs, mounted once by whichever screen owns the request list. */
-function DisposalStepDialogs({
-  step,
-  row,
-  onClose,
-  onChanged,
-}: {
-  step: DisposalStep | null;
-  row: DisposalRequest | null;
-  onClose: () => void;
-  onChanged: () => void;
-}) {
-  if (!step || !row) return null;
-  const done = () => {
-    onChanged();
-    onClose();
-  };
-  switch (step) {
-    case "reviewing":
-      return <ReviewDisposalDialog row={row} onClose={onClose} onSaved={done} />;
-    case "assigning":
-      return <AssignExecutorDialog row={row} onClose={onClose} onSaved={onChanged} />;
-    case "regenerating":
-      return <RegenerateLinkDialog row={row} onClose={onClose} onSaved={onChanged} />;
-    case "supplier":
-      return <SetSupplierDialog row={row} onClose={onClose} onSaved={done} />;
-    case "cancelling":
-      return <CancelDisposalDialog row={row} onClose={onClose} onSaved={done} />;
-    case "numbers":
-      return <RecordNumbersDialog row={row} onClose={onClose} onSaved={done} />;
-    case "fillNumbers":
-      return <FillTripNumbersDialog row={row} onClose={onClose} onSaved={done} />;
-    case "siteEvidence":
-      return <SiteEvidenceDialog row={row} onClose={onClose} onSaved={done} />;
-    case "anomaly":
-      return <AnomalyDialog row={row} onClose={onClose} onSaved={done} />;
-  }
 }
 
 /**
