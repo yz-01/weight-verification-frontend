@@ -59,3 +59,10 @@ describe("QA1 walk fixes - 你, never 您", () => {
     expect(zhTW.attachmentPicker.copiedNote).not.toContain("您");
   });
 });
+
+describe("AGENT_RULES 6: the Chinese UI speaks 你 (QA1 follow-up)", () => {
+  it("has no 您 left anywhere in zh or zh-TW", () => {
+    expect(JSON.stringify(zh)).not.toContain("您");
+    expect(JSON.stringify(zhTW)).not.toContain("您");
+  });
+});

@@ -5917,7 +5917,7 @@
       "passwordHelp": "修改签名或签核密码前需验证当前登录密码。",
       "pin": "新的 6 位签核密码",
       "pinConfirm": "再输入一次",
-      "pinHelp": "这就是您的 6 位签核密码，确认归档、打印、发送和审批都用它。",
+      "pinHelp": "这就是你的 6 位签核密码，确认归档、打印、发送和审批都用它。",
       "pinMismatch": "两次输入的签核密码不一样。",
       "pinTitle": "签核密码",
       "save": "保存签名与签核密码",
@@ -5955,13 +5955,13 @@
         "complete": "审批决定已经完成，系统正在准备最终报告。",
         "draft": "填好表格，加上现场照片和附件。然后先按【确认归档】（输入 6 位签核密码），再按申请表上的【发送给顾问】。",
         "final": "审批已经完成。请下载最终报告，并查看验证记录。",
-        "review": "这份申请正在等待您的决定。请查看现场证据，然后选择审批结果。",
+        "review": "这份申请正在等待你的决定。请查看现场证据，然后选择审批结果。",
         "revise": "顾问选了「修改后重提」。请按【建立新版本】，按照意见修改后再发送给顾问。",
-        "waiting": "您现在不需要操作，申请正在等待“{step}”处理。",
+        "waiting": "你现在不需要操作，申请正在等待“{step}”处理。",
         "remedialOpen": "已批准，但还有 {count} 条整改没完成。请完成整改并提交顾问复核：在下面的「整改事项」里按「提交顾问复核」，附上能证明的照片。",
         "remedialOpenReviewer": "还有 {count} 条整改等建筑商完成并提交给你复核；提交时你会收到通知。需要时可以按【开一条整改】。",
         "remedialOpenWatching": "还有 {count} 条整改等建筑商完成。",
-        "remedialReview": "有 {count} 条整改等您复核。请在「整改事项」里看提交的说明和照片，选【整改合格】或【退回继续整改】。",
+        "remedialReview": "有 {count} 条整改等你复核。请在「整改事项」里看提交的说明和照片，选【整改合格】或【退回继续整改】。",
         "remedialWaitingReview": "有 {count} 条整改已经提交，正在等顾问复核。",
         "remedialHold": "顾问确认整改合格前，这份申请不会完成，也不会归档。",
         "remedialAccepted": "整改验收通过。申请资料、签名审批记录、整改复核记录和最终报告都已安全归档。",
@@ -6176,7 +6176,7 @@
       },
       "pending": "当前步骤：{step}",
       "pin": "6 位签核密码",
-      "pinHint": "签核密码用于确认此签署决定由您本人作出。",
+      "pinHint": "签核密码用于确认此签署决定由你本人作出。",
       "remarks": "决定备注",
       "reviewerConsultant": "指定顾问：{name}",
       "reviewerRole": "指定角色：{name}",
@@ -6189,7 +6189,7 @@
         "add": "再加一条",
         "remove": "删除这一条"
       },
-      "stampMissing": "这一步要盖顾问印章，您还没有上传印章。请先按下面的按钮上传印章，再回来审批。"
+      "stampMissing": "这一步要盖顾问印章，你还没有上传印章。请先按下面的按钮上传印章，再回来审批。"
     },
     "reviewerKind": {
       "CONSULTANT": "申请中指定的顾问",
@@ -6198,10 +6198,10 @@
     },
     "state": {
       "chooseProject": "请选择项目以查看该项目的顾问工作。",
-      "draftUnavailable": "此草稿无法编辑，可能已经提交或您已没有权限。",
+      "draftUnavailable": "此草稿无法编辑，可能已经提交或你已没有权限。",
       "loadError": "无法载入资料，请检查项目权限后重试。",
       "noApplications": "该项目没有符合条件的顾问申请。",
-      "otherProject": "这份申请可能在您的另一个项目。请在下面选那个项目，申请就会打开。"
+      "otherProject": "这份申请可能在你的另一个项目。请在下面选那个项目，申请就会打开。"
     },
     "status": {
       "APPROVED": "已批准",
@@ -7963,13 +7963,13 @@
       }
     },
     "records": "共 {count} 条记录",
-    "evidencePdfHelp": "导出 PDF：第一页是目录（每笔记录在第几页），后面每笔记录接它的完整证据页。超过 20 笔会在后台准备，好了会通知您。",
+    "evidencePdfHelp": "导出 PDF：第一页是目录（每笔记录在第几页），后面每笔记录接它的完整证据页。超过 20 笔会在后台准备，好了会通知你。",
     "jobs": {
       "title": "正在准备的报表",
       "what": "正在准备的报表",
       "records": "{count} 笔",
       "preparing": "准备中",
-      "preparingHint": "报表正在准备，好了会通知您。",
+      "preparingHint": "报表正在准备，好了会通知你。",
       "failed": "没有做成",
       "again": "重新导出",
       "failure": {
@@ -8794,7 +8794,7 @@
       "title": "整条记录",
       "allPdf": "全部记录合成一份 PDF",
       "gone": "原记录已删除。",
-      "notGranted": "总部没有为您开通这一项。如需查看，请联系总部。"
+      "notGranted": "总部没有为你开通这一项。如需查看，请联系总部。"
     },
     "inspection": {
       "needs": "需要检验栏位",
@@ -9577,7 +9577,7 @@
       "company_material_supplier_not_found": "有一家供应商不在公司的供应商名单里。请重新选。",
       "phone_page_not_yours": "你的手机没有这个页面。",
       "chat_people_invalid": "请从名单里选人。",
-      "consultant_chat_closed": "建筑商总部已经关闭了您在这个项目的「沟通记录」（或授权已经结束），这个对话现在打不开，也不能发送。如需继续沟通，请联系建筑商总部。",
+      "consultant_chat_closed": "建筑商总部已经关闭了你在这个项目的「沟通记录」（或授权已经结束），这个对话现在打不开，也不能发送。如需继续沟通，请联系建筑商总部。",
       "chat_consultant_off": "顾问在这个项目的沟通权限已经关闭（或授权已经结束），这个对话只能查看，不能再发送。",
       "user_removed": "这个账号已经删除，不能再启用。请重新建立一个新账号。",
       "supplier_not_on_project": "这个供应商不在这个项目的「可用供应商」里。请总部或项目经理先在项目里加入。",
@@ -9618,7 +9618,7 @@
       "consultant_required_fields_missing": "表格里还有 {count} 个必填项没有填：{fields}。请先填好，再继续。",
       "consultant_required_attachments_missing": "还有 {count} 份必附文件没有上传。请在「附件」里把标着必附的格子都补上，再继续。",
       "consultant_workflow_no_steps": "这条审批流程还没有审批步骤，送不出去。请到「顾问审批流程」给它加一步，或在申请里换一条流程。",
-      "consultant_stamp_required": "这一步要盖顾问印章，您还没有上传印章。请先到「签名与签核密码」上传印章，再回来审批。",
+      "consultant_stamp_required": "这一步要盖顾问印章，你还没有上传印章。请先到「签名与签核密码」上传印章，再回来审批。",
       "dispatch_not_loaded": "司机还没在手机上按【装好货了】。请司机先按【装好货了】，再扫码。",
       "recycler_standard_plan": "这家回收商是标准版，不能接收建筑商的订单。请选择合作版回收商。",
       "standard_plan_no_partnership": "你们公司是标准版，不能接收建筑商的订单，所以不能申请合作。如要接收建筑商的订单，请联系 MSE 改为合作版。",
@@ -9666,9 +9666,9 @@
       "ai_cctv_disabled": "这家回收商已关闭 AI CCTV，照片没有收下。",
       "archive_lock_choice_invalid": "请选择打开或关闭。",
       "consultant_read_only": "顾问账号只能查看这里的资料，不能修改。",
-      "consultant_module_not_granted": "总部没有为您在这个项目开通这个模块。如需使用，请联系总部。",
-      "consultant_no_permit": "施工准证由施工方申请，顾问不能提交。您可以发起整改。",
-      "consultant_export_not_granted": "总部没有为您在这个项目开通「导出」，所以不能导出或发送。可以预览和打印。",
+      "consultant_module_not_granted": "总部没有为你在这个项目开通这个模块。如需使用，请联系总部。",
+      "consultant_no_permit": "施工准证由施工方申请，顾问不能提交。你可以发起整改。",
+      "consultant_export_not_granted": "总部没有为你在这个项目开通「导出」，所以不能导出或发送。可以预览和打印。",
       "exit_pass_not_applicable": "这笔记录没有出门条（材料领用、设备进场，或出门条功能启用前已完成的记录），不需要签名或放行。",
       "exit_pass_not_ready": "这笔申请还没有批准，现在不能签出门条；请等后台批准后再签。",
       "exit_pass_record_closed": "这笔记录已经归档、退回或取消，出门条已经不能再签名或放行；如有疑问请联系申请人或后台。",
@@ -9715,7 +9715,7 @@
       "platform_owner_locked": "客户已经开始用这个管理员账号，MSE 不能改它的登录邮箱；请告诉客户：由客户自己的公司管理员在「用户管理」里修改，或者客户来函，由管服务器的同事处理。",
       "exit_pass_busy": "系统正忙，刚才没有存好。请等几秒再按一次。",
       "phone_role_office_account": "手机账号要在「现场人员管理」里开，这里不能把后台账号设为手机角色（工地人员、设备操作人员、门岗保安）。请选别的角色。",
-      "consultant_sub_module_not_granted": "总部没有为您在这个项目开通这一项。如需查看，请联系总部。",
+      "consultant_sub_module_not_granted": "总部没有为你在这个项目开通这一项。如需查看，请联系总部。",
       "permit_work_name_required": "请先填写施工事项名称，再签名批准。",
       "permit_formal_permit_required": "还没有正式施工准证。请用「上传附件」上传填好的公司准证表格，或填写电子准证，再签名批准。",
       "hazard_room_not_for_consultant": "这是建筑商内部的沟通，顾问不能在这里发言。要和项目后台沟通，请用「找人沟通」。",
@@ -12566,7 +12566,7 @@
       "revoke": "撤销",
       "revokeHelp": "打开开关再按「撤销」。撤销后对方马上打不开。",
       "armFirst": "先打开开关。",
-      "whatsappText": "您好，这是资料包 {package}（{name}）的链接，请打开查看：{link}",
+      "whatsappText": "你好，这是资料包 {package}（{name}）的链接，请打开查看：{link}",
       "copied": "链接已复制。",
       "copyFailed": "复制不了，请长按链接复制。",
       "linkReady": "给 {name} 的链接",
@@ -12617,7 +12617,7 @@
       "resubmitTitle": "重新提交退回的资料",
       "resubmitted": "第 {n} 轮已生成。",
       "tellLinks": "顾问已收到通知。用链接的收件方要你自己通知（他们用原来的链接打开就能看到新一轮）：",
-      "whatsappRound": "您好，资料包 {package} 已重新提交第 {n} 轮，请用原来的链接打开查看。",
+      "whatsappRound": "你好，资料包 {package} 已重新提交第 {n} 轮，请用原来的链接打开查看。",
       "resubmitHelp": "系统会读取这些原记录现在的内容，生成第 {n} 轮。其他资料不变，第 1 轮的 PDF、哈希和资料包编号都不变。",
       "answerReturned": "{name}：退回——{reason}",
       "answerLine": "{name}：{state}",
@@ -16168,7 +16168,7 @@
       "filesHint": "电脑里的照片、PDF、Word、Excel 按【选择照片或文件】；WhatsApp 的照片或截图，复制后按【粘贴截图】或 Ctrl+V。没有照片也可以建立。",
       "filesHintNoPasteButton": "电脑里的照片、PDF、Word、Excel 按【选择照片或文件】；WhatsApp 的照片或截图，复制后在这个窗口里按键盘 Ctrl+V。没有照片也可以建立。",
       "filesHintPhone": "照片按【拍照】拍；PDF、Word、Excel 按【选择文件】。没有照片也可以建立。",
-      "photoTimeNote": "照片记录的时间就是上面的「{when}」；没有填，就是您建立这个整改事项的时间（不看照片文件自己的日期）。",
+      "photoTimeNote": "照片记录的时间就是上面的「{when}」；没有填，就是你建立这个整改事项的时间（不看照片文件自己的日期）。",
       "chooseFiles": "选择照片或文件",
       "webcam": "用电脑摄像头拍照",
       "limits": "照片最多 {photos} 张，文件最多 {documents} 个，每个不超过 {limit} MB。",
@@ -17581,7 +17581,7 @@
     "pdpa": {
       "title": "个人资料告知（PDPA）",
       "agree": "访客已阅读并同意以上告知",
-      "defaultNotice": "本公司依照《2010年个人资料保护法令》（PDPA）收集您的姓名、电话、公司、到访目的及门岗拍摄的进出场照片，只用于工地安全和进出管理，不会提供给无关第三方。照片保存 {months} 个月，之后由公司管理员确认删除。如需查询或更正您的资料，请联系本公司。",
+      "defaultNotice": "本公司依照《2010年个人资料保护法令》（PDPA）收集你的姓名、电话、公司、到访目的及门岗拍摄的进出场照片，只用于工地安全和进出管理，不会提供给无关第三方。照片保存 {months} 个月，之后由公司管理员确认删除。如需查询或更正你的资料，请联系本公司。",
       "agreedAt": "访客于 {time} 同意个人资料告知"
     },
     "visitorPrivacy": {
@@ -20051,7 +20051,7 @@
     "withdrawn": "这笔报销已由申请人撤回，原记录保留，不用再处理。如果还要报销，请申请人重新提交。"
   },
   "moduleHub": {
-    "nothingToOpen": "此模块中没有您可以打开的页面。"
+    "nothingToOpen": "此模块中没有你可以打开的页面。"
   },
   "pageSwitcher": {
     "label": "切换页面（当前：{page}）"
@@ -20526,7 +20526,7 @@
     "openInViewer": "用手机的阅读器打开"
   },
   "fileActions": {
-    "reportQueued": "报表正在准备，好了会通知您。准备好后可在「报表导出历史」下载。",
+    "reportQueued": "报表正在准备，好了会通知你。准备好后可在「报表导出历史」下载。",
     "originalVersion": "修改前原单",
     "originalVersionHint": "这笔记录第一次提交时的样子（版本 1），同一个编号；不计入任何累计。",
     "originalVersionTitle": "{reference} · 修改前原单",
@@ -22303,7 +22303,7 @@
       "addTitle": "新增助理",
       "addHelp": "先由负责人输入自己的签核密码，再由助理在这台电脑上填写自己的资料。",
       "full": "已经有两位助理。要换人，请先删除一位。",
-      "needOwnPin": "请先在上面设定您自己的签核密码，才能新增助理。",
+      "needOwnPin": "请先在上面设定你自己的签核密码，才能新增助理。",
       "empty": "还没有助理。",
       "step1": "第 1 步：负责人输入自己的签核密码",
       "step2": "第 2 步：助理填写自己的资料",
@@ -22498,7 +22498,7 @@
     "noPending": "没有待处理事项。",
     "photos": "最新现场照片记录",
     "noPhotos": "还没有现场照片。",
-    "noPendingMine": "目前没有需要您处理的事项。",
+    "noPendingMine": "目前没有需要你处理的事项。",
     "safety": "整改 / EHS",
     "progress": "工程进度",
     "progressRecords": "施工进度记录",
@@ -22509,7 +22509,7 @@
     "overall": "整体进度",
     "percent": "{value}%",
     "schedule": "施工计划进度",
-    "consultantRefused": "总部已更改或停止您在这个项目的权限，这里暂时看不到内容。请按「重新载入」；如仍看不到，请联系总部。",
+    "consultantRefused": "总部已更改或停止你在这个项目的权限，这里暂时看不到内容。请按「重新载入」；如仍看不到，请联系总部。",
     "reload": "重新载入"
   },
   "draftRecords": {
@@ -22707,8 +22707,8 @@
     "packageKind": "资料包",
     "packageGone": "找不到这个资料包的沟通，或者你没有权限看。",
     "consultant": {
-      "subtitle": "这个项目上发给您、或您参与过的沟通：资料包、顾问申请、现场任务、整改，以及您和本项目后台的对话。按「找人沟通」联系本项目后台。",
-      "empty": "这个项目还没有您参与的沟通。按右上角「找人沟通」可以联系本项目后台。",
+      "subtitle": "这个项目上发给你、或你参与过的沟通：资料包、顾问申请、现场任务、整改，以及你和本项目后台的对话。按「找人沟通」联系本项目后台。",
+      "empty": "这个项目还没有你参与的沟通。按右上角「找人沟通」可以联系本项目后台。",
       "kind": {
         "FIELD_TASK": "现场任务",
         "CONSULTANT_APPLICATION": "顾问申请",
@@ -22765,8 +22765,8 @@
       "end": "已经到最早的照片了。",
       "dayCount": "{count} 张",
       "noDate": "没有日期",
-      "subtitleConsultant": "这个项目里总部为您开通的内容的照片，按拍摄时间排好，从开工到竣工都在这里。",
-      "emptyConsultant": "总部为您开通的内容里还没有照片。"
+      "subtitleConsultant": "这个项目里总部为你开通的内容的照片，按拍摄时间排好，从开工到竣工都在这里。",
+      "emptyConsultant": "总部为你开通的内容里还没有照片。"
     },
     "positionOpen": "第 {number} 张"
   },
@@ -23063,7 +23063,7 @@
     "gate": {
       "maintenanceTitle": "系统维护中",
       "maintenanceBody": "现在不能使用系统。维护结束后，这个画面会自动恢复，不用重新登录。",
-      "nothingLost": "您还是登录着的。还没上传的资料会留在这台手机或电脑里，之后自动上传。",
+      "nothingLost": "你还是登录着的。还没上传的资料会留在这台手机或电脑里，之后自动上传。",
       "tryAgain": "再试一次",
       "updateTitle": "系统已更新",
       "updateBody": "请按【重新载入】换成新版本，然后照常使用。",
@@ -23286,7 +23286,7 @@
   "mseAccess": {
     "section": {
       "title": "MSE 查看权限",
-      "subtitle": "贵公司的业务资料，MSE（系统方）要您开放才看得到；MSE 每一次看、每一次被挡住，都记在下面。",
+      "subtitle": "贵公司的业务资料，MSE（系统方）要你开放才看得到；MSE 每一次看、每一次被挡住，都记在下面。",
       "loading": "正在读取 MSE 查看权限……",
       "what": "MSE 查看权限"
     },
@@ -23299,8 +23299,8 @@
     "accounts": {
       "name": "允许 MSE 管理账号",
       "closed": "MSE 现在不能加或改贵公司的账号；需要 MSE 帮忙开账号时，点「允许 MSE 管理账号」。",
-      "open": "MSE 现在可以帮贵公司加账号、改账号，每一次都会通知您，到 {until} 自动关闭。",
-      "help": "MSE 帮您加账号、改账号之前，要您先在这里开放。"
+      "open": "MSE 现在可以帮贵公司加账号、改账号，每一次都会通知你，到 {until} 自动关闭。",
+      "help": "MSE 帮你加账号、改账号之前，要你先在这里开放。"
     },
     "state": {
       "open": "开放中",
@@ -23318,7 +23318,7 @@
       "reason": "原因（可以不填）",
       "reasonPlaceholder": "例如：请 MSE 帮忙看称重照片",
       "replace": "现在已经开放到 {until}。重新选择以后，从现在起重新计时。",
-      "pin": "按「开放」以后，要输入您的签核密码；还没设定过的，会先请您设定一个。",
+      "pin": "按「开放」以后，要输入你的签核密码；还没设定过的，会先请你设定一个。",
       "confirm": "开放"
     },
     "duration": {
@@ -23330,7 +23330,7 @@
       "viewTitle": "马上关闭 MSE 查看？",
       "viewBody": "关闭以后，MSE 马上看不到贵公司的业务资料。",
       "accountsTitle": "马上关闭 MSE 管理账号？",
-      "accountsBody": "关闭以后，MSE 马上不能帮您加账号、改账号。",
+      "accountsBody": "关闭以后，MSE 马上不能帮你加账号、改账号。",
       "confirm": "马上关闭"
     },
     "toast": {
@@ -23344,10 +23344,10 @@
     },
     "lists": {
       "alwaysTitle": "MSE 一直看得到（开户、收费、管设备要用）",
-      "openTitle": "您按「允许 MSE 查看」后，MSE 才看得到",
-      "neverTitle": "MSE 一直看不到（就算您开放了查看）",
+      "openTitle": "你按「允许 MSE 查看」后，MSE 才看得到",
+      "neverTitle": "MSE 一直看不到（就算你开放了查看）",
       "neverNote1": "开放查看时，通知内容和操作记录里写到的单号和数量，MSE 会看得到。",
-      "neverNote2": "需要 MSE 进来帮忙看这些时，请按「允许 MSE 管理账号」。MSE 会在贵公司加一个协助账号；它会列在下面「MSE 加的账号」里，您随时可以停用。",
+      "neverNote2": "需要 MSE 进来帮忙看这些时，请按「允许 MSE 管理账号」。MSE 会在贵公司加一个协助账号；它会列在下面「MSE 加的账号」里，你随时可以停用。",
       "neverNote3": "MSE 用协助账号做的事，记在贵公司自己的登录记录和操作记录里。",
       "item": {
         "company_profile": "公司资料（名称、地址、联系人、SSM 和银行账户）",
@@ -23361,7 +23361,7 @@
         "yards_on_map": "总部、回收场和地磅在地图上的位置",
         "qr_code_list": "二维码的编号、类型和状态，扫码的时间和结果",
         "notice_delivery": "通知发给了谁、有没有送到（不看内容）",
-        "external_link_list": "MSE 帮您开的外部访问链接（名称、项目、期限）",
+        "external_link_list": "MSE 帮你开的外部访问链接（名称、项目、期限）",
         "mse_staff_actions": "MSE 同事自己做过的操作",
         "visitor_photo_counts": "到期访客照片的数量、通行证号码和项目名称（用来按时清除）",
         "weighing_details": "称重记录里的车牌、确认和作废的说明、经手人名字，以及连着的清运单号和项目",
@@ -23376,8 +23376,8 @@
         "print_send_log": "贵公司的打印、下载、发送记录",
         "sites_on_map": "贵公司工地在地图上的位置",
         "visitor_names": "到期访客照片上的访客名字",
-        "external_link_create": "MSE 帮您开新的外部访问链接",
-        "qr_issue": "MSE 帮您给贵公司的人、车、项目开二维码",
+        "external_link_create": "MSE 帮你开新的外部访问链接",
+        "qr_issue": "MSE 帮你给贵公司的人、车、项目开二维码",
         "receipts_materials": "收货单、材料申请、领用和退货",
         "documents_approvals": "文件和审批",
         "deductions": "扣款单",
@@ -23404,22 +23404,22 @@
       "loading": "正在读取 MSE 加的账号……"
     },
     "links": {
-      "title": "MSE 帮您开的外部访问链接",
+      "title": "MSE 帮你开的外部访问链接",
       "help": "这些链接是 MSE 按贵公司的要求开的，到期或撤销以前都能用。不再需要时，公司管理员可以在这里按「撤销」，链接马上停用。",
       "valid": "有效到 {at}",
       "expired": "已经到期",
       "revoked": "已经撤销",
       "by": "{name} 在 {at} 开的",
       "wholeCompany": "整个公司",
-      "empty": "MSE 没有帮您开过外部访问链接。",
+      "empty": "MSE 没有帮你开过外部访问链接。",
       "revoke": "撤销",
       "adminOnly": "只有公司管理员可以撤销，请找贵公司的管理员。",
       "revokeTitle": "撤销「{name}」这个外部访问链接？",
-      "revokeBody": "撤销以后，拿着这个链接的人马上打不开。撤销了不能恢复；以后还需要，请 MSE 重新开一个。按「撤销」以后要输入您的签核密码。"
+      "revokeBody": "撤销以后，拿着这个链接的人马上打不开。撤销了不能恢复；以后还需要，请 MSE 重新开一个。按「撤销」以后要输入你的签核密码。"
     },
     "records": {
       "title": "MSE 查看记录",
-      "help": "这里记下 MSE 的人每一次查看、被挡住、改账号和请求开放，您随时可以回来看。",
+      "help": "这里记下 MSE 的人每一次查看、被挡住、改账号和请求开放，你随时可以回来看。",
       "helpMse": "这家客户的「MSE 查看记录」，客户自己在「公司设置」里也看得到同样的内容。",
       "what": "MSE 查看记录",
       "column": {
@@ -23444,8 +23444,8 @@
         "FILE": "预览了文件"
       },
       "refused": {
-        "closed": "被挡住（您没有开放）",
-        "accounts_closed": "被挡住（您没有开放「允许 MSE 管理账号」）",
+        "closed": "被挡住（你没有开放）",
+        "accounts_closed": "被挡住（你没有开放「允许 MSE 管理账号」）",
         "not_available": "被挡住（这类资料 MSE 永远看不到，开放了也看不到）",
         "owner_locked": "被挡住（这个管理员账号已经在用，MSE 不能改它的登录邮箱）",
         "no_changes": "被挡住（MSE 不能改贵公司的资料）"
@@ -23553,7 +23553,7 @@
       "accountsOnboarding": "这家客户的管理员还没有登录过，可以先帮它开好账号。",
       "askView": "请客户开放查看",
       "askAccounts": "请客户开放账号管理",
-      "askHelp": "客户的公司管理员会收到通知，通知里有您写的原因。同一件事一小时内只能发一次。",
+      "askHelp": "客户的公司管理员会收到通知，通知里有你写的原因。同一件事一小时内只能发一次。",
       "reason": "原因（客户会看到）",
       "reasonPlaceholder": "例如：客户报称重异常，需要看照片",
       "send": "发送",
@@ -23643,15 +23643,15 @@
     "noLayers": "你的角色没有查看人员、材料卸货、机械设备或现场记录的权限，所以地图只显示工地范围。需要查看的话，请公司管理员在「角色与权限」里开通。",
     "notUpdating": "地图暂时没有更新，现在显示的是 {at} 的情况。请检查网络，系统会自动再试。",
     "retry": "重试",
-    "consultantLegend": "地图上是总部为您开通的、{window, select, today {今天} other {最近 7 天}}的记录，只画出有定位的。",
+    "consultantLegend": "地图上是总部为你开通的、{window, select, today {今天} other {最近 7 天}}的记录，只画出有定位的。",
     "consultantNothingYet": "{window, select, today {今天} other {最近 7 天}}还没有可以画在地图上的记录。",
-    "consultantNoLayers": "总部还没有为您在这个项目开通可以画在地图上的记录，所以地图只显示工地范围。要看这些记录，请联系建筑商总部。",
+    "consultantNoLayers": "总部还没有为你在这个项目开通可以画在地图上的记录，所以地图只显示工地范围。要看这些记录，请联系建筑商总部。",
     "askHeadOffice": "请联系建筑商总部画出工地范围。"
   },
   "consultantHome": {
-    "noProjects": "您目前没有获授权的项目。请联系建筑商总部开通。",
+    "noProjects": "你目前没有获授权的项目。请联系建筑商总部开通。",
     "chooseProject": "请先在页面上方的项目框选一个项目，这里就会显示那个项目的仪表板。",
-    "onlyOpened": "总部目前只为您开通了这些内容。要看其他内容，请联系建筑商总部。"
+    "onlyOpened": "总部目前只为你开通了这些内容。要看其他内容，请联系建筑商总部。"
   },
   "jb256": {
     "photos": "照片",

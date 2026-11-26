@@ -5917,7 +5917,7 @@
       "passwordHelp": "修改簽名或簽核密碼前需驗證當前登入密碼。",
       "pin": "新的 6 位簽核密碼",
       "pinConfirm": "再輸入一次",
-      "pinHelp": "這就是您的 6 位簽核密碼，確認歸檔、列印、發送和審批都用它。",
+      "pinHelp": "這就是你的 6 位簽核密碼，確認歸檔、列印、發送和審批都用它。",
       "pinMismatch": "兩次輸入的簽核密碼不一樣。",
       "pinTitle": "簽核密碼",
       "save": "保存簽名與簽核密碼",
@@ -5955,13 +5955,13 @@
         "complete": "審批決定已經完成，系統正在準備最終報告。",
         "draft": "填好表格，加上現場照片和附件。然後先按【確認歸檔】（輸入 6 位簽核密碼），再按申請表上的【發送給顧問】。",
         "final": "審批已經完成。請下載最終報告，並查看驗證記錄。",
-        "review": "這份申請正在等待您的決定。請查看現場證據，然後選擇審批結果。",
+        "review": "這份申請正在等待你的決定。請查看現場證據，然後選擇審批結果。",
         "revise": "顧問選了「修改後重提」。請按【建立新版本】，按照意見修改後再發送給顧問。",
-        "waiting": "您現在不需要操作，申請正在等待“{step}”處理。",
+        "waiting": "你現在不需要操作，申請正在等待“{step}”處理。",
         "remedialOpen": "已批准，但還有 {count} 條整改沒完成。請完成整改並提交顧問複核：在下面的「整改事項」裡按「提交顧問複核」，附上能證明的照片。",
         "remedialOpenReviewer": "還有 {count} 條整改等建築商完成並提交給你複核；提交時你會收到通知。需要時可以按【開一條整改】。",
         "remedialOpenWatching": "還有 {count} 條整改等建築商完成。",
-        "remedialReview": "有 {count} 條整改等您複核。請在「整改事項」裡看提交的說明和照片，選【整改合格】或【退回繼續整改】。",
+        "remedialReview": "有 {count} 條整改等你複核。請在「整改事項」裡看提交的說明和照片，選【整改合格】或【退回繼續整改】。",
         "remedialWaitingReview": "有 {count} 條整改已經提交，正在等顧問複核。",
         "remedialHold": "顧問確認整改合格前，這份申請不會完成，也不會歸檔。",
         "remedialAccepted": "整改驗收通過。申請資料、簽名審批記錄、整改複核記錄和最終報告都已安全歸檔。",
@@ -6176,7 +6176,7 @@
       },
       "pending": "當前步驟：{step}",
       "pin": "6 位簽核密碼",
-      "pinHint": "簽核密碼用於確認此簽署決定由您本人作出。",
+      "pinHint": "簽核密碼用於確認此簽署決定由你本人作出。",
       "remarks": "決定備註",
       "reviewerConsultant": "指定顧問：{name}",
       "reviewerRole": "指定角色：{name}",
@@ -6189,7 +6189,7 @@
         "add": "再加一條",
         "remove": "刪除這一條"
       },
-      "stampMissing": "這一步要蓋顧問印章，您還沒有上傳印章。請先按下面的按鈕上傳印章，再回來審批。"
+      "stampMissing": "這一步要蓋顧問印章，你還沒有上傳印章。請先按下面的按鈕上傳印章，再回來審批。"
     },
     "reviewerKind": {
       "CONSULTANT": "申請中指定的顧問",
@@ -6198,10 +6198,10 @@
     },
     "state": {
       "chooseProject": "請選擇項目以查看該項目的顧問工作。",
-      "draftUnavailable": "此草稿無法編輯，可能已經提交或您已沒有權限。",
+      "draftUnavailable": "此草稿無法編輯，可能已經提交或你已沒有權限。",
       "loadError": "無法載入資料，請檢查項目權限後重試。",
       "noApplications": "該項目沒有符合條件的顧問申請。",
-      "otherProject": "這份申請可能在您的另一個項目。請在下面選那個項目，申請就會打開。"
+      "otherProject": "這份申請可能在你的另一個項目。請在下面選那個項目，申請就會打開。"
     },
     "status": {
       "APPROVED": "已批准",
@@ -7963,13 +7963,13 @@
       }
     },
     "records": "共 {count} 條記錄",
-    "evidencePdfHelp": "導出 PDF：第一頁是目錄（每筆記錄在第幾頁），後面每筆記錄接它的完整證據頁。超過 20 筆會在後台準備，好了會通知您。",
+    "evidencePdfHelp": "導出 PDF：第一頁是目錄（每筆記錄在第幾頁），後面每筆記錄接它的完整證據頁。超過 20 筆會在後台準備，好了會通知你。",
     "jobs": {
       "title": "正在準備的報表",
       "what": "正在準備的報表",
       "records": "{count} 筆",
       "preparing": "準備中",
-      "preparingHint": "報表正在準備，好了會通知您。",
+      "preparingHint": "報表正在準備，好了會通知你。",
       "failed": "沒有做成",
       "again": "重新導出",
       "failure": {
@@ -8794,7 +8794,7 @@
       "title": "整條記錄",
       "allPdf": "全部記錄合成一份 PDF",
       "gone": "原記錄已刪除。",
-      "notGranted": "總部沒有為您開通這一項。如需查看，請聯絡總部。"
+      "notGranted": "總部沒有為你開通這一項。如需查看，請聯絡總部。"
     },
     "inspection": {
       "needs": "需要檢驗欄位",
@@ -9577,7 +9577,7 @@
       "company_material_supplier_not_found": "有一家供應商不在公司的供應商名單裡。請重新選。",
       "phone_page_not_yours": "你的手機沒有這個頁面。",
       "chat_people_invalid": "請從名單裡選人。",
-      "consultant_chat_closed": "建築商總部已經關閉了您在這個項目的「溝通記錄」（或授權已經結束），這個對話現在打不開，也不能發送。如需繼續溝通，請聯絡建築商總部。",
+      "consultant_chat_closed": "建築商總部已經關閉了你在這個項目的「溝通記錄」（或授權已經結束），這個對話現在打不開，也不能發送。如需繼續溝通，請聯絡建築商總部。",
       "chat_consultant_off": "顧問在這個項目的溝通權限已經關閉（或授權已經結束），這個對話只能查看，不能再發送。",
       "user_removed": "這個賬號已經刪除，不能再啟用。請重新建立一個新賬號。",
       "supplier_not_on_project": "這個供應商不在這個項目的「可用供應商」裡。請總部或項目經理先在項目裡加入。",
@@ -9618,7 +9618,7 @@
       "consultant_required_fields_missing": "表格裡還有 {count} 個必填項沒有填：{fields}。請先填好，再繼續。",
       "consultant_required_attachments_missing": "還有 {count} 份必附文件沒有上傳。請在「附件」裡把標著必附的格子都補上，再繼續。",
       "consultant_workflow_no_steps": "這條審批流程還沒有審批步驟，送不出去。請到「顧問審批流程」給它加一步，或在申請裡換一條流程。",
-      "consultant_stamp_required": "這一步要蓋顧問印章，您還沒有上傳印章。請先到「簽名與簽核密碼」上傳印章，再回來審批。",
+      "consultant_stamp_required": "這一步要蓋顧問印章，你還沒有上傳印章。請先到「簽名與簽核密碼」上傳印章，再回來審批。",
       "dispatch_not_loaded": "司機還沒在手機上按【裝好貨了】。請司機先按【裝好貨了】，再掃碼。",
       "recycler_standard_plan": "這家回收商是標準版，不能接收建築商的訂單。請選擇合作版回收商。",
       "standard_plan_no_partnership": "你們公司是標準版，不能接收建築商的訂單，所以不能申請合作。如要接收建築商的訂單，請聯絡 MSE 改為合作版。",
@@ -9666,9 +9666,9 @@
       "ai_cctv_disabled": "這家回收商已關閉 AI CCTV，照片沒有收下。",
       "archive_lock_choice_invalid": "請選擇打開或關閉。",
       "consultant_read_only": "顧問帳號只能查看這裡的資料，不能修改。",
-      "consultant_module_not_granted": "總部沒有為您在這個項目開通這個模組。如需使用，請聯絡總部。",
-      "consultant_no_permit": "施工准證由施工方申請，顧問不能提交。您可以發起整改。",
-      "consultant_export_not_granted": "總部沒有為您在這個項目開通「導出」，所以不能導出或發送。可以預覽和列印。",
+      "consultant_module_not_granted": "總部沒有為你在這個項目開通這個模組。如需使用，請聯絡總部。",
+      "consultant_no_permit": "施工准證由施工方申請，顧問不能提交。你可以發起整改。",
+      "consultant_export_not_granted": "總部沒有為你在這個項目開通「導出」，所以不能導出或發送。可以預覽和列印。",
       "exit_pass_not_applicable": "這筆記錄沒有出門條（材料領用、設備進場，或出門條功能啟用前已完成的記錄），不需要簽名或放行。",
       "exit_pass_not_ready": "這筆申請還沒有批准，現在不能簽出門條；請等後台批准後再簽。",
       "exit_pass_record_closed": "這筆記錄已經歸檔、退回或取消，出門條已經不能再簽名或放行；如有疑問請聯繫申請人或後台。",
@@ -9715,7 +9715,7 @@
       "platform_owner_locked": "客戶已經開始用這個管理員賬號，MSE 不能改它的登入郵箱；請告訴客戶：由客戶自己的公司管理員在「用戶管理」裡修改，或者客戶來函，由管伺服器的同事處理。",
       "exit_pass_busy": "系統正忙，剛才沒有存好。請等幾秒再按一次。",
       "phone_role_office_account": "手機賬號要在「現場人員管理」裡開，這裡不能把後台賬號設為手機角色（工地人員、設備操作人員、門崗保安）。請選別的角色。",
-      "consultant_sub_module_not_granted": "總部沒有為您在這個項目開通這一項。如需查看，請聯絡總部。",
+      "consultant_sub_module_not_granted": "總部沒有為你在這個項目開通這一項。如需查看，請聯絡總部。",
       "permit_work_name_required": "請先填寫施工事項名稱，再簽名批准。",
       "permit_formal_permit_required": "還沒有正式施工准證。請用「上傳附件」上傳填好的公司准證表格，或填寫電子准證，再簽名批准。",
       "hazard_room_not_for_consultant": "這是建築商內部的溝通，顧問不能在這裡發言。要和項目後台溝通，請用「找人溝通」。",
@@ -12566,7 +12566,7 @@
       "revoke": "撤銷",
       "revokeHelp": "打開開關再按「撤銷」。撤銷後對方馬上打不開。",
       "armFirst": "先打開開關。",
-      "whatsappText": "您好，這是資料包 {package}（{name}）的連結，請打開查看：{link}",
+      "whatsappText": "你好，這是資料包 {package}（{name}）的連結，請打開查看：{link}",
       "copied": "連結已複製。",
       "copyFailed": "複製不了，請長按連結複製。",
       "linkReady": "給 {name} 的連結",
@@ -12617,7 +12617,7 @@
       "resubmitTitle": "重新提交退回的資料",
       "resubmitted": "第 {n} 輪已產生。",
       "tellLinks": "顧問已收到通知。用連結的收件方要你自己通知（他們用原來的連結打開就能看到新一輪）：",
-      "whatsappRound": "您好，資料包 {package} 已重新提交第 {n} 輪，請用原來的連結打開查看。",
+      "whatsappRound": "你好，資料包 {package} 已重新提交第 {n} 輪，請用原來的連結打開查看。",
       "resubmitHelp": "系統會讀取這些原記錄現在的內容，產生第 {n} 輪。其他資料不變，第 1 輪的 PDF、雜湊和資料包編號都不變。",
       "answerReturned": "{name}：退回——{reason}",
       "answerLine": "{name}：{state}",
@@ -16168,7 +16168,7 @@
       "filesHint": "電腦裡的照片、PDF、Word、Excel 按【選擇照片或檔案】；WhatsApp 的照片或截圖，複製後按【貼上截圖】或 Ctrl+V。沒有照片也可以建立。",
       "filesHintNoPasteButton": "電腦裡的照片、PDF、Word、Excel 按【選擇照片或檔案】；WhatsApp 的照片或截圖，複製後在這個視窗裡按鍵盤 Ctrl+V。沒有照片也可以建立。",
       "filesHintPhone": "照片按【拍照】拍；PDF、Word、Excel 按【選擇檔案】。沒有照片也可以建立。",
-      "photoTimeNote": "照片記錄的時間就是上面的「{when}」；沒有填，就是您建立這個整改事項的時間（不看照片檔案自己的日期）。",
+      "photoTimeNote": "照片記錄的時間就是上面的「{when}」；沒有填，就是你建立這個整改事項的時間（不看照片檔案自己的日期）。",
       "chooseFiles": "選擇照片或檔案",
       "webcam": "用電腦攝影機拍照",
       "limits": "照片最多 {photos} 張，檔案最多 {documents} 個，每個不超過 {limit} MB。",
@@ -17581,7 +17581,7 @@
     "pdpa": {
       "title": "個人資料告知（PDPA）",
       "agree": "訪客已閱讀並同意以上告知",
-      "defaultNotice": "本公司依照《2010年個人資料保護法令》（PDPA）收集您的姓名、電話、公司、到訪目的及門崗拍攝的進出場照片，只用於工地安全和進出管理，不會提供給無關第三方。照片保存 {months} 個月，之後由公司管理員確認刪除。如需查詢或更正您的資料，請聯繫本公司。",
+      "defaultNotice": "本公司依照《2010年個人資料保護法令》（PDPA）收集你的姓名、電話、公司、到訪目的及門崗拍攝的進出場照片，只用於工地安全和進出管理，不會提供給無關第三方。照片保存 {months} 個月，之後由公司管理員確認刪除。如需查詢或更正你的資料，請聯繫本公司。",
       "agreedAt": "訪客於 {time} 同意個人資料告知"
     },
     "visitorPrivacy": {
@@ -20051,7 +20051,7 @@
     "withdrawn": "這筆報銷已由申請人撤回，原記錄保留，不用再處理。如果還要報銷，請申請人重新提交。"
   },
   "moduleHub": {
-    "nothingToOpen": "此模組中沒有您可以開啟的頁面。"
+    "nothingToOpen": "此模組中沒有你可以開啟的頁面。"
   },
   "pageSwitcher": {
     "label": "切換頁面（目前：{page}）"
@@ -20526,7 +20526,7 @@
     "openInViewer": "用手機的閱讀器打開"
   },
   "fileActions": {
-    "reportQueued": "報表正在準備，好了會通知您。準備好後可在「報表導出歷史」下載。",
+    "reportQueued": "報表正在準備，好了會通知你。準備好後可在「報表導出歷史」下載。",
     "originalVersion": "修改前原單",
     "originalVersionHint": "這筆記錄第一次提交時的樣子（版本 1），同一個編號；不計入任何累計。",
     "originalVersionTitle": "{reference} · 修改前原單",
@@ -22303,7 +22303,7 @@
       "addTitle": "新增助理",
       "addHelp": "先由負責人輸入自己的簽核密碼，再由助理在這台電腦上填寫自己的資料。",
       "full": "已經有兩位助理。要換人，請先刪除一位。",
-      "needOwnPin": "請先在上面設定您自己的簽核密碼，才能新增助理。",
+      "needOwnPin": "請先在上面設定你自己的簽核密碼，才能新增助理。",
       "empty": "還沒有助理。",
       "step1": "第 1 步：負責人輸入自己的簽核密碼",
       "step2": "第 2 步：助理填寫自己的資料",
@@ -22498,7 +22498,7 @@
     "noPending": "沒有待處理事項。",
     "photos": "最新現場照片記錄",
     "noPhotos": "還沒有現場照片。",
-    "noPendingMine": "目前沒有需要您處理的事項。",
+    "noPendingMine": "目前沒有需要你處理的事項。",
     "safety": "整改 / EHS",
     "progress": "工程進度",
     "progressRecords": "施工進度記錄",
@@ -22509,7 +22509,7 @@
     "overall": "整體進度",
     "percent": "{value}%",
     "schedule": "施工計劃進度",
-    "consultantRefused": "總部已更改或停止您在這個項目的權限，這裡暫時看不到內容。請按「重新載入」；如仍看不到，請聯絡總部。",
+    "consultantRefused": "總部已更改或停止你在這個項目的權限，這裡暫時看不到內容。請按「重新載入」；如仍看不到，請聯絡總部。",
     "reload": "重新載入"
   },
   "draftRecords": {
@@ -22707,8 +22707,8 @@
     "packageKind": "資料包",
     "packageGone": "找不到這個資料包的溝通，或者你沒有權限看。",
     "consultant": {
-      "subtitle": "這個項目上發給您、或您參與過的溝通：資料包、顧問申請、現場任務、整改，以及您和本項目後台的對話。按「找人溝通」聯繫本項目後台。",
-      "empty": "這個項目還沒有您參與的溝通。按右上角「找人溝通」可以聯繫本項目後台。",
+      "subtitle": "這個項目上發給你、或你參與過的溝通：資料包、顧問申請、現場任務、整改，以及你和本項目後台的對話。按「找人溝通」聯繫本項目後台。",
+      "empty": "這個項目還沒有你參與的溝通。按右上角「找人溝通」可以聯繫本項目後台。",
       "kind": {
         "FIELD_TASK": "現場任務",
         "CONSULTANT_APPLICATION": "顧問申請",
@@ -22765,8 +22765,8 @@
       "end": "已經到最早的照片了。",
       "dayCount": "{count} 張",
       "noDate": "沒有日期",
-      "subtitleConsultant": "這個項目裡總部為您開通的內容的照片，按拍攝時間排好，從開工到竣工都在這裡。",
-      "emptyConsultant": "總部為您開通的內容裡還沒有照片。"
+      "subtitleConsultant": "這個項目裡總部為你開通的內容的照片，按拍攝時間排好，從開工到竣工都在這裡。",
+      "emptyConsultant": "總部為你開通的內容裡還沒有照片。"
     },
     "positionOpen": "第 {number} 張"
   },
@@ -23063,7 +23063,7 @@
     "gate": {
       "maintenanceTitle": "系統維護中",
       "maintenanceBody": "現在不能使用系統。維護結束後，這個畫面會自動恢復，不用重新登入。",
-      "nothingLost": "您還是登入著的。還沒上傳的資料會留在這台手機或電腦裡，之後自動上傳。",
+      "nothingLost": "你還是登入著的。還沒上傳的資料會留在這台手機或電腦裡，之後自動上傳。",
       "tryAgain": "再試一次",
       "updateTitle": "系統已更新",
       "updateBody": "請按【重新載入】換成新版本，然後照常使用。",
@@ -23286,7 +23286,7 @@
   "mseAccess": {
     "section": {
       "title": "MSE 查看權限",
-      "subtitle": "貴公司的業務資料，MSE（系統方）要您開放才看得到；MSE 每一次看、每一次被擋住，都記在下面。",
+      "subtitle": "貴公司的業務資料，MSE（系統方）要你開放才看得到；MSE 每一次看、每一次被擋住，都記在下面。",
       "loading": "正在讀取 MSE 查看權限……",
       "what": "MSE 查看權限"
     },
@@ -23299,8 +23299,8 @@
     "accounts": {
       "name": "允許 MSE 管理賬號",
       "closed": "MSE 現在不能加或改貴公司的賬號；需要 MSE 幫忙開賬號時，點「允許 MSE 管理賬號」。",
-      "open": "MSE 現在可以幫貴公司加賬號、改賬號，每一次都會通知您，到 {until} 自動關閉。",
-      "help": "MSE 幫您加賬號、改賬號之前，要您先在這裡開放。"
+      "open": "MSE 現在可以幫貴公司加賬號、改賬號，每一次都會通知你，到 {until} 自動關閉。",
+      "help": "MSE 幫你加賬號、改賬號之前，要你先在這裡開放。"
     },
     "state": {
       "open": "開放中",
@@ -23318,7 +23318,7 @@
       "reason": "原因（可以不填）",
       "reasonPlaceholder": "例如：請 MSE 幫忙看稱重照片",
       "replace": "現在已經開放到 {until}。重新選擇以後，從現在起重新計時。",
-      "pin": "按「開放」以後，要輸入您的簽核密碼；還沒設定過的，會先請您設定一個。",
+      "pin": "按「開放」以後，要輸入你的簽核密碼；還沒設定過的，會先請你設定一個。",
       "confirm": "開放"
     },
     "duration": {
@@ -23330,7 +23330,7 @@
       "viewTitle": "馬上關閉 MSE 查看？",
       "viewBody": "關閉以後，MSE 馬上看不到貴公司的業務資料。",
       "accountsTitle": "馬上關閉 MSE 管理賬號？",
-      "accountsBody": "關閉以後，MSE 馬上不能幫您加賬號、改賬號。",
+      "accountsBody": "關閉以後，MSE 馬上不能幫你加賬號、改賬號。",
       "confirm": "馬上關閉"
     },
     "toast": {
@@ -23344,10 +23344,10 @@
     },
     "lists": {
       "alwaysTitle": "MSE 一直看得到（開戶、收費、管設備要用）",
-      "openTitle": "您按「允許 MSE 查看」後，MSE 才看得到",
-      "neverTitle": "MSE 一直看不到（就算您開放了查看）",
+      "openTitle": "你按「允許 MSE 查看」後，MSE 才看得到",
+      "neverTitle": "MSE 一直看不到（就算你開放了查看）",
       "neverNote1": "開放查看時，通知內容和操作記錄裡寫到的單號和數量，MSE 會看得到。",
-      "neverNote2": "需要 MSE 進來幫忙看這些時，請按「允許 MSE 管理賬號」。MSE 會在貴公司加一個協助賬號；它會列在下面「MSE 加的賬號」裡，您隨時可以停用。",
+      "neverNote2": "需要 MSE 進來幫忙看這些時，請按「允許 MSE 管理賬號」。MSE 會在貴公司加一個協助賬號；它會列在下面「MSE 加的賬號」裡，你隨時可以停用。",
       "neverNote3": "MSE 用協助賬號做的事，記在貴公司自己的登入記錄和操作記錄裡。",
       "item": {
         "company_profile": "公司資料（名稱、地址、聯絡人、SSM 和銀行賬戶）",
@@ -23361,7 +23361,7 @@
         "yards_on_map": "總部、回收場和地磅在地圖上的位置",
         "qr_code_list": "二維碼的編號、類型和狀態，掃碼的時間和結果",
         "notice_delivery": "通知發給了誰、有沒有送到（不看內容）",
-        "external_link_list": "MSE 幫您開的外部訪問鏈接（名稱、項目、期限）",
+        "external_link_list": "MSE 幫你開的外部訪問鏈接（名稱、項目、期限）",
         "mse_staff_actions": "MSE 同事自己做過的操作",
         "visitor_photo_counts": "到期訪客照片的數量、通行證號碼和項目名稱（用來按時清除）",
         "weighing_details": "稱重記錄裡的車牌、確認和作廢的說明、經手人名字，以及連著的清運單號和項目",
@@ -23376,8 +23376,8 @@
         "print_send_log": "貴公司的列印、下載、發送記錄",
         "sites_on_map": "貴公司工地在地圖上的位置",
         "visitor_names": "到期訪客照片上的訪客名字",
-        "external_link_create": "MSE 幫您開新的外部訪問鏈接",
-        "qr_issue": "MSE 幫您給貴公司的人、車、項目開二維碼",
+        "external_link_create": "MSE 幫你開新的外部訪問鏈接",
+        "qr_issue": "MSE 幫你給貴公司的人、車、項目開二維碼",
         "receipts_materials": "收貨單、材料申請、領用和退貨",
         "documents_approvals": "文件和審批",
         "deductions": "扣款單",
@@ -23404,22 +23404,22 @@
       "loading": "正在讀取 MSE 加的賬號……"
     },
     "links": {
-      "title": "MSE 幫您開的外部訪問鏈接",
+      "title": "MSE 幫你開的外部訪問鏈接",
       "help": "這些鏈接是 MSE 按貴公司的要求開的，到期或撤銷以前都能用。不再需要時，公司管理員可以在這裡按「撤銷」，鏈接馬上停用。",
       "valid": "有效到 {at}",
       "expired": "已經到期",
       "revoked": "已經撤銷",
       "by": "{name} 在 {at} 開的",
       "wholeCompany": "整個公司",
-      "empty": "MSE 沒有幫您開過外部訪問鏈接。",
+      "empty": "MSE 沒有幫你開過外部訪問鏈接。",
       "revoke": "撤銷",
       "adminOnly": "只有公司管理員可以撤銷，請找貴公司的管理員。",
       "revokeTitle": "撤銷「{name}」這個外部訪問鏈接？",
-      "revokeBody": "撤銷以後，拿著這個鏈接的人馬上打不開。撤銷了不能恢復；以後還需要，請 MSE 重新開一個。按「撤銷」以後要輸入您的簽核密碼。"
+      "revokeBody": "撤銷以後，拿著這個鏈接的人馬上打不開。撤銷了不能恢復；以後還需要，請 MSE 重新開一個。按「撤銷」以後要輸入你的簽核密碼。"
     },
     "records": {
       "title": "MSE 查看記錄",
-      "help": "這裡記下 MSE 的人每一次查看、被擋住、改賬號和請求開放，您隨時可以回來看。",
+      "help": "這裡記下 MSE 的人每一次查看、被擋住、改賬號和請求開放，你隨時可以回來看。",
       "helpMse": "這家客戶的「MSE 查看記錄」，客戶自己在「公司設置」裡也看得到同樣的內容。",
       "what": "MSE 查看記錄",
       "column": {
@@ -23444,8 +23444,8 @@
         "FILE": "預覽了文件"
       },
       "refused": {
-        "closed": "被擋住（您沒有開放）",
-        "accounts_closed": "被擋住（您沒有開放「允許 MSE 管理賬號」）",
+        "closed": "被擋住（你沒有開放）",
+        "accounts_closed": "被擋住（你沒有開放「允許 MSE 管理賬號」）",
         "not_available": "被擋住（這類資料 MSE 永遠看不到，開放了也看不到）",
         "owner_locked": "被擋住（這個管理員賬號已經在用，MSE 不能改它的登入郵箱）",
         "no_changes": "被擋住（MSE 不能改貴公司的資料）"
@@ -23553,7 +23553,7 @@
       "accountsOnboarding": "這家客戶的管理員還沒有登入過，可以先幫它開好賬號。",
       "askView": "請客戶開放查看",
       "askAccounts": "請客戶開放賬號管理",
-      "askHelp": "客戶的公司管理員會收到通知，通知裡有您寫的原因。同一件事一小時內只能發一次。",
+      "askHelp": "客戶的公司管理員會收到通知，通知裡有你寫的原因。同一件事一小時內只能發一次。",
       "reason": "原因（客戶會看到）",
       "reasonPlaceholder": "例如：客戶報稱重異常，需要看照片",
       "send": "發送",
@@ -23643,15 +23643,15 @@
     "noLayers": "你的角色沒有查看人員、材料卸貨、機械設備或現場記錄的權限，所以地圖只顯示工地範圍。需要查看的話，請公司管理員在「角色與權限」裡開通。",
     "notUpdating": "地圖暫時沒有更新，現在顯示的是 {at} 的情況。請檢查網路，系統會自動再試。",
     "retry": "重試",
-    "consultantLegend": "地圖上是總部為您開通的、{window, select, today {今天} other {最近 7 天}}的記錄，只畫出有定位的。",
+    "consultantLegend": "地圖上是總部為你開通的、{window, select, today {今天} other {最近 7 天}}的記錄，只畫出有定位的。",
     "consultantNothingYet": "{window, select, today {今天} other {最近 7 天}}還沒有可以畫在地圖上的記錄。",
-    "consultantNoLayers": "總部還沒有為您在這個項目開通可以畫在地圖上的記錄，所以地圖只顯示工地範圍。要看這些記錄，請聯絡建築商總部。",
+    "consultantNoLayers": "總部還沒有為你在這個項目開通可以畫在地圖上的記錄，所以地圖只顯示工地範圍。要看這些記錄，請聯絡建築商總部。",
     "askHeadOffice": "請聯絡建築商總部畫出工地範圍。"
   },
   "consultantHome": {
-    "noProjects": "您目前沒有獲授權的項目。請聯絡建築商總部開通。",
+    "noProjects": "你目前沒有獲授權的項目。請聯絡建築商總部開通。",
     "chooseProject": "請先在頁面上方的項目框選一個項目，這裡就會顯示那個項目的儀表板。",
-    "onlyOpened": "總部目前只為您開通了這些內容。要看其他內容，請聯絡建築商總部。"
+    "onlyOpened": "總部目前只為你開通了這些內容。要看其他內容，請聯絡建築商總部。"
   },
   "jb256": {
     "photos": "照片",

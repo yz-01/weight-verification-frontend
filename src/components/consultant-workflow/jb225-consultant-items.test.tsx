@@ -167,7 +167,7 @@ describe("the tick screen: nine items under 材料管理 and 工程进度 (以�
       expect(messages.documents.recordLinks.notGranted).toBeTruthy();
       expect(messages.consultantAccess.grant.partialCount).toContain("{held}");
     }
-    expect(zh.errors.api.consultant_sub_module_not_granted).toBe("总部没有为您在这个项目开通这一项。如需查看，请联系总部。");
+    expect(zh.errors.api.consultant_sub_module_not_granted).toBe("总部没有为你在这个项目开通这一项。如需查看，请联系总部。");
   });
 });
 
@@ -298,7 +298,7 @@ describe("the pages follow the items", () => {
   });
 
   it("says why when a material view he asked for is not his, as 工程进度 does (audit 11-19 F8)", () => {
-    const sentence = "总部没有为您在这个项目开通这一项。如需查看，请联系总部。";
+    const sentence = "总部没有为你在这个项目开通这一项。如需查看，请联系总部。";
     expect(withItemRefused("/receipts?view=totals")).toBe("/receipts?view=totals&refused=1");
     expect(withItemRefused("/material-targets")).toBe("/material-targets?refused=1");
     expect(text(render(<MaterialItemRefusedNote shown />))).toContain(sentence);
@@ -310,7 +310,7 @@ describe("the pages follow the items", () => {
       address.params = new URLSearchParams();
     }
     // 文件档案's linked record of an unticked item says whom to ask, in all four.
-    expect(zh.documents.recordLinks.notGranted).toBe("总部没有为您开通这一项。如需查看，请联系总部。");
+    expect(zh.documents.recordLinks.notGranted).toBe("总部没有为你开通这一项。如需查看，请联系总部。");
     expect(zhTW.documents.recordLinks.notGranted).toContain("請聯絡總部");
     expect(en.documents.recordLinks.notGranted).toContain("Ask head office");
     expect(ms.documents.recordLinks.notGranted).toContain("Hubungi ibu pejabat");
