@@ -79,7 +79,7 @@ export interface CheckSettlement {
 }
 
 /** One check, as 查看 shows it. */
-export interface ReturnCheck extends ReturnCheckRow {
+export interface ReturnCheck extends Omit<ReturnCheckRow, "settlement"> {
   note: string;
   /** The returns this reader sees, as the badge's window (图 2) draws them. */
   returns: MaterialOutgoing[];
