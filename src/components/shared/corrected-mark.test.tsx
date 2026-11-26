@@ -68,7 +68,8 @@ describe("the gold 已修改 (J20)", () => {
     expect(hours).toContain("moveEquipmentSession({ session: day.key, equipment: machine, reason: moveReason })");
     expect(hours).toContain('<RecordCorrectionHistory kind="EQUIPMENT_HOURS" recordId={day.key} />');
     // Only the office's managers see the forms; the phone has no entry.
-    expect(hours).toMatch(/actions=\{\s*canAdjust \?/);
+    // QA3 (JB280 第 7 点): a day inside a checked / settled 月结单 shows why instead.
+    expect(hours).toMatch(/actions=\{\s*canAdjust && day\.locked_statement_no \?[\s\S]*?: canAdjust \?/);
     expect(read("src/services/equipment-hours.service.ts")).toContain('"/api/equipment-hours/move_session/"');
   });
 });
