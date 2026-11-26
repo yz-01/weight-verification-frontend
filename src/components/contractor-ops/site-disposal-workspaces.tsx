@@ -1543,7 +1543,7 @@ function FillTripNumbersDialog({ row, onClose, onSaved }: { row: DisposalRequest
   const set = (trip: DisposalTrip, field: "weight_kg" | "do_no" | "vehicle_plate", next: string) =>
     setValues((current) => ({
       ...current,
-      [trip.id]: { weight_kg: "", do_no: "", vehicle_plate: "", ...current[trip.id], [field]: next },
+      [trip.id]: { ...(current[trip.id] ?? { weight_kg: "", do_no: "", vehicle_plate: "" }), [field]: next },
     }));
   const entries = fillEntries(lorries, values);
   const save = useMutation({ mutationFn: () => fillDisposalTripNumbers(row.id, entries), onSuccess: onSaved });

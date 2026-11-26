@@ -142,7 +142,7 @@ describe("JB285: the 出门条 waits for the executor and the exit photos", () =
     expect(html).toContain("已选择执行人（内部工作人员或外部清运商）");
     expect(html).toContain("还没有选择执行人，现在不能签出门条");
     expect(html).toMatch(/data-exit-pass-sign-locked[^>]*disabled|disabled[^>]*data-exit-pass-sign-locked/);
-    expect(html).not.toContain('data-exit-pass-sign=""');
+    expect(html).not.toContain('data-exit-pass-sign="true"');
     expect(html).toContain('data-step="executor" data-done="0"');
   });
 
@@ -157,7 +157,7 @@ describe("JB285: the 出门条 waits for the executor and the exit photos", () =
     const html = approval(
       disposal("awaiting_signature", evidence({ executor_chosen: true, photos_in: true, photos_count: 2, photos_at: "2026-11-26T05:30:00Z", may_sign_later: false }), { can_sign: true }),
     );
-    expect(html).toContain('data-exit-pass-sign=""');
+    expect(html).toContain('data-exit-pass-sign="true"');
     expect(html).not.toContain("data-exit-pass-sign-locked");
   });
 
