@@ -146,7 +146,7 @@ export function MaterialTargets() {
       <p className="text-xs text-muted-foreground">{t("basis")}</p>
       {material && (
         <p className="flex flex-wrap items-center gap-2 text-sm" data-slot="targets-one-material">
-          {tj("oneMaterial", { name: rows[0]?.category_name ?? "" })}
+          {tj("oneMaterial", { name: rows[0]?.category_name ?? "—" })}
           <Button size="sm" variant="outline" className="h-7" onClick={() => list.setFilter("category", undefined)}>
             {tj("allMaterials")}
           </Button>
