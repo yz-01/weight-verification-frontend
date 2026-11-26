@@ -4064,7 +4064,9 @@
       "menu_names_permission_by_platform": "MSE 開放或關閉公司自己改選單名稱",
       "menu_names_update": "修改選單名稱",
       "external_site_evidence": "外部清運商拍車輛出場 / Gate Pass",
-      "fill_trip_numbers": "補錄車次數字"
+      "fill_trip_numbers": "補錄車次數字",
+      "supplier_excel_import": "導入 Excel 供應商",
+      "company_material_excel_import": "導入 Excel 材料分類"
     },
     "objectType": {
       "SignOffAssistant": "助理副密碼",
@@ -9753,7 +9755,13 @@
       "menu_name_invalid": "選單名稱不對：每個名稱 1–20 個字，不能換行，不能有尖括號。",
       "exit_pass_executor_missing": "還沒有選擇執行人，現在不能簽出門條。請先在這筆清運按【選擇執行人】。",
       "exit_pass_exit_evidence_missing": "還沒有拍車輛出場 / Gate Pass 照片，現在不能簽出門條。請現場或清運商先拍照。",
-      "disposal_trip_number_recorded": "第 {seq} 車的這個數字已經有了。要改，請在「車次」裡按「更正」並寫原因。"
+      "disposal_trip_number_recorded": "第 {seq} 車的這個數字已經有了。要改，請在「車次」裡按「更正」並寫原因。",
+      "import_excel_old_format": "這是舊的 .xls 文件。請在 Excel 裡按「另存為」，選 .xlsx，再上傳。",
+      "import_excel_invalid": "打不開這個文件。請上傳 Excel（.xlsx）文件，或者按「下載 Excel 樣板」填好再上傳。",
+      "import_excel_too_large": "文件太大了，最多 {limit_mb} MB。",
+      "import_excel_empty": "這個 Excel 的表頭下面沒有資料。",
+      "import_excel_too_many_rows": "一次最多導入 {limit} 行，請分幾個文件導入。",
+      "import_excel_mapping_invalid": "選的欄位不在這個 Excel 裡，請重新選一次。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -24238,5 +24246,88 @@
     "notifyOnly": "另外通知（不會指派）",
     "notifyOnlyHint": "勾選的人只會收到通知，可以在整改溝通裡說話，但不會成為整改負責人。要誰整改，請在上面的「整改負責人」選。",
     "notChosenYet": "還沒選整改負責人：建立後會顯示「待分配」，要再指派一次。"
+  },
+  "jb244": {
+    "open": "導入 Excel",
+    "template": "下載 Excel 樣板",
+    "title": {
+      "supplier": "導入 Excel · 供應商資料",
+      "material": "導入 Excel · 材料分類"
+    },
+    "intro": {
+      "supplier": "上傳你原來的供應商 Excel。系統先認出每一欄，再給你看預覽：哪些是新的、哪些已經有了（跳過）、哪些有問題。按【確認導入】才保存；已經有的供應商不會改。",
+      "material": "上傳你原來的材料 Excel。一行一個規格，材料名稱一樣的放在同一個材料下面。系統先認出每一欄，再給你看預覽，按【確認導入】才保存；已經有的材料和規格不會改。"
+    },
+    "chooseFirst": "還沒有選文件",
+    "chooseFile": "選 Excel 文件",
+    "changeFile": "換一個文件",
+    "xlsxOnly": "只收 .xlsx。舊的 .xls 請在 Excel 裡「另存為」.xlsx 再上傳。",
+    "fileLine": "表頭在第 {row} 行，下面有 {total} 行資料",
+    "reading": "正在讀 Excel…",
+    "readFailed": "讀不到這個 Excel，請換一個文件。",
+    "columnsTitle": "對應 Excel 欄位",
+    "columnsHelp": "系統按 Excel 的表頭認出來的，已經先選好。不對的可以自己改；不要的選「不導入」。",
+    "notImported": "不導入",
+    "columnOption": "{letter} 欄 · {header}",
+    "columnNoHeader": "{letter} 欄",
+    "example": "例：{values}",
+    "requiredMissing": "請選「{field}」在 Excel 的哪一欄。",
+    "noPrices": "你的帳號看不到金額，單價不導入。",
+    "twoLevels": "系統的材料只有兩層：材料名稱 › 規格。Excel 只有「分類」一欄、沒有材料名稱欄的，「分類」就當材料名稱導入。",
+    "categoryLeftOut": "{letter} 欄「{header}」沒有導入：系統的材料只有兩層（材料名稱 › 規格），沒有再上一層的分類。要留下它，可以在「說明」選這一欄。",
+    "batchTitle": "這一批都是",
+    "batchHelp": "每個供應商都要有公司類型、行業和主要產品。Excel 裡有的用 Excel 的；沒有的用這裡選的、填的。",
+    "batch": {
+      "industry": "行業（Excel 沒有的用這個）",
+      "main_products": "主要產品（Excel 沒有的用這個）"
+    },
+    "unitsTitle": "單位管理裡沒有的單位",
+    "unitsHelp": "這些單位在「單位管理」裡還沒有。可以對到已有的單位，或者新增這個單位。",
+    "unitLabel": "Excel 寫的「{unit}」",
+    "unitLines": "在第 {lines} 行",
+    "unitNew": "新增「{unit}」到單位管理",
+    "unitMapTo": "對到「{unit}」",
+    "unitAdded": "單位「{unit}」會新增到單位管理",
+    "pricesPin": "這次有 {count} 個單價。按【確認導入】時要輸入六位數簽核密碼，單價從今天開始用。",
+    "previewTitle": "預覽",
+    "counts": "新增 {new} 行 · 已經有、跳過 {exists} 行 · 有問題 {problem} 行（不會導入）",
+    "filter": {
+      "all": "全部（{count}）",
+      "new": "新增（{count}）",
+      "exists": "已經有（{count}）",
+      "problem": "有問題（{count}）"
+    },
+    "col": {
+      "line": "行",
+      "status": "結果"
+    },
+    "status": {
+      "new": "新增",
+      "exists": "已經有，跳過",
+      "problem": "有問題"
+    },
+    "existsMatch": "已經有：{code} {name}",
+    "sameAsLine": "和第 {line} 行一樣",
+    "problem": {
+      "missing": "沒有{field}",
+      "invalid": "{field}格式不對",
+      "too_long": "{field}太長"
+    },
+    "note": {
+      "supplier_not_found": "供應商「{name}」不在供應商資料裡，沒有關聯",
+      "material_added": "材料「{name}」也會新增"
+    },
+    "moreRows": "這裡只顯示前 {shown} 行，共 {total} 行。",
+    "confirm": "確認導入（{count} 行）",
+    "nothingNew": "沒有新增的行可以導入。",
+    "cancel": "取消",
+    "close": "關閉",
+    "done": "導入完成：新增 {added} 行，已經有、跳過 {skipped} 行，有問題沒導入 {problems} 行。",
+    "doneWhere": {
+      "supplier": "新的供應商已經在「供應商資料」裡，編號系統自動編。",
+      "material": "新的材料和規格已經在「材料分類」裡，編號系統自動編。"
+    },
+    "doneUnits": "新增的單位：{names}",
+    "needFile": "先選 Excel 文件。"
   }
 }

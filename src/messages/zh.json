@@ -4064,7 +4064,9 @@
       "menu_names_permission_by_platform": "MSE 开放或关闭公司自己改菜单名称",
       "menu_names_update": "修改菜单名称",
       "external_site_evidence": "外部清运商拍车辆出场 / Gate Pass",
-      "fill_trip_numbers": "补录车次数字"
+      "fill_trip_numbers": "补录车次数字",
+      "supplier_excel_import": "导入 Excel 供应商",
+      "company_material_excel_import": "导入 Excel 材料分类"
     },
     "objectType": {
       "SignOffAssistant": "助理副密码",
@@ -9753,7 +9755,13 @@
       "menu_name_invalid": "菜单名称不对：每个名称 1–20 个字，不能换行，不能有尖括号。",
       "exit_pass_executor_missing": "还没有选择执行人，现在不能签出门条。请先在这笔清运按【选择执行人】。",
       "exit_pass_exit_evidence_missing": "还没有拍车辆出场 / Gate Pass 照片，现在不能签出门条。请现场或清运商先拍照。",
-      "disposal_trip_number_recorded": "第 {seq} 车的这个数字已经有了。要改，请在「车次」里按「更正」并写原因。"
+      "disposal_trip_number_recorded": "第 {seq} 车的这个数字已经有了。要改，请在「车次」里按「更正」并写原因。",
+      "import_excel_old_format": "这是旧的 .xls 文件。请在 Excel 里按「另存为」，选 .xlsx，再上传。",
+      "import_excel_invalid": "打不开这个文件。请上传 Excel（.xlsx）文件，或者按「下载 Excel 样板」填好再上传。",
+      "import_excel_too_large": "文件太大了，最多 {limit_mb} MB。",
+      "import_excel_empty": "这个 Excel 的表头下面没有资料。",
+      "import_excel_too_many_rows": "一次最多导入 {limit} 行，请分几个文件导入。",
+      "import_excel_mapping_invalid": "选的栏位不在这个 Excel 里，请重新选一次。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -24238,5 +24246,88 @@
     "notifyOnly": "另外通知（不会指派）",
     "notifyOnlyHint": "勾选的人只会收到通知，可以在整改沟通里说话，但不会成为整改负责人。要谁整改，请在上面的「整改负责人」选。",
     "notChosenYet": "还没选整改负责人：建立后会显示「待分配」，要再指派一次。"
+  },
+  "jb244": {
+    "open": "导入 Excel",
+    "template": "下载 Excel 样板",
+    "title": {
+      "supplier": "导入 Excel · 供应商资料",
+      "material": "导入 Excel · 材料分类"
+    },
+    "intro": {
+      "supplier": "上传你原来的供应商 Excel。系统先认出每一栏，再给你看预览：哪些是新的、哪些已经有了（跳过）、哪些有问题。按【确认导入】才保存；已经有的供应商不会改。",
+      "material": "上传你原来的材料 Excel。一行一个规格，材料名称一样的放在同一个材料下面。系统先认出每一栏，再给你看预览，按【确认导入】才保存；已经有的材料和规格不会改。"
+    },
+    "chooseFirst": "还没有选文件",
+    "chooseFile": "选 Excel 文件",
+    "changeFile": "换一个文件",
+    "xlsxOnly": "只收 .xlsx。旧的 .xls 请在 Excel 里「另存为」.xlsx 再上传。",
+    "fileLine": "表头在第 {row} 行，下面有 {total} 行资料",
+    "reading": "正在读 Excel…",
+    "readFailed": "读不到这个 Excel，请换一个文件。",
+    "columnsTitle": "对应 Excel 栏位",
+    "columnsHelp": "系统按 Excel 的表头认出来的，已经先选好。不对的可以自己改；不要的选「不导入」。",
+    "notImported": "不导入",
+    "columnOption": "{letter} 栏 · {header}",
+    "columnNoHeader": "{letter} 栏",
+    "example": "例：{values}",
+    "requiredMissing": "请选「{field}」在 Excel 的哪一栏。",
+    "noPrices": "你的账号看不到金额，单价不导入。",
+    "twoLevels": "系统的材料只有两层：材料名称 › 规格。Excel 只有「分类」一栏、没有材料名称栏的，「分类」就当材料名称导入。",
+    "categoryLeftOut": "{letter} 栏「{header}」没有导入：系统的材料只有两层（材料名称 › 规格），没有再上一层的分类。要留下它，可以在「说明」选这一栏。",
+    "batchTitle": "这一批都是",
+    "batchHelp": "每个供应商都要有公司类型、行业和主要产品。Excel 里有的用 Excel 的；没有的用这里选的、填的。",
+    "batch": {
+      "industry": "行业（Excel 没有的用这个）",
+      "main_products": "主要产品（Excel 没有的用这个）"
+    },
+    "unitsTitle": "单位管理里没有的单位",
+    "unitsHelp": "这些单位在「单位管理」里还没有。可以对到已有的单位，或者新增这个单位。",
+    "unitLabel": "Excel 写的「{unit}」",
+    "unitLines": "在第 {lines} 行",
+    "unitNew": "新增「{unit}」到单位管理",
+    "unitMapTo": "对到「{unit}」",
+    "unitAdded": "单位「{unit}」会新增到单位管理",
+    "pricesPin": "这次有 {count} 个单价。按【确认导入】时要输入六位数签核密码，单价从今天开始用。",
+    "previewTitle": "预览",
+    "counts": "新增 {new} 行 · 已经有、跳过 {exists} 行 · 有问题 {problem} 行（不会导入）",
+    "filter": {
+      "all": "全部（{count}）",
+      "new": "新增（{count}）",
+      "exists": "已经有（{count}）",
+      "problem": "有问题（{count}）"
+    },
+    "col": {
+      "line": "行",
+      "status": "结果"
+    },
+    "status": {
+      "new": "新增",
+      "exists": "已经有，跳过",
+      "problem": "有问题"
+    },
+    "existsMatch": "已经有：{code} {name}",
+    "sameAsLine": "和第 {line} 行一样",
+    "problem": {
+      "missing": "没有{field}",
+      "invalid": "{field}格式不对",
+      "too_long": "{field}太长"
+    },
+    "note": {
+      "supplier_not_found": "供应商「{name}」不在供应商资料里，没有关联",
+      "material_added": "材料「{name}」也会新增"
+    },
+    "moreRows": "这里只显示前 {shown} 行，共 {total} 行。",
+    "confirm": "确认导入（{count} 行）",
+    "nothingNew": "没有新增的行可以导入。",
+    "cancel": "取消",
+    "close": "关闭",
+    "done": "导入完成：新增 {added} 行，已经有、跳过 {skipped} 行，有问题没导入 {problems} 行。",
+    "doneWhere": {
+      "supplier": "新的供应商已经在「供应商资料」里，编号系统自动编。",
+      "material": "新的材料和规格已经在「材料分类」里，编号系统自动编。"
+    },
+    "doneUnits": "新增的单位：{names}",
+    "needFile": "先选 Excel 文件。"
   }
 }

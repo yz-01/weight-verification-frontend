@@ -4064,7 +4064,9 @@
       "menu_names_permission_by_platform": "MSE membenarkan atau menghentikan syarikat menamakan semula menunya",
       "menu_names_update": "Nama menu diubah",
       "external_site_evidence": "Syarikat luar mengambil foto kenderaan keluar / Gate Pass",
-      "fill_trip_numbers": "Angka muatan diisi"
+      "fill_trip_numbers": "Angka muatan diisi",
+      "supplier_excel_import": "Pembekal diimport dari Excel",
+      "company_material_excel_import": "Bahan diimport dari Excel"
     },
     "objectType": {
       "SignOffAssistant": "PIN pembantu",
@@ -9753,7 +9755,13 @@
       "menu_name_invalid": "Semak nama menu: 1–20 aksara setiap satu, tiada baris baharu, tiada tanda kurung sudut.",
       "exit_pass_executor_missing": "Pelaksana belum dipilih, jadi pas keluar tidak boleh ditandatangani. Tekan [Pilih pelaksana] pada pelupusan ini dahulu.",
       "exit_pass_exit_evidence_missing": "Belum ada foto kenderaan keluar / Gate Pass, jadi pas keluar tidak boleh ditandatangani. Tapak atau syarikat pelupusan mengambilnya dahulu.",
-      "disposal_trip_number_recorded": "Muatan {seq} sudah ada angka ini. Untuk menukarnya, tekan Betulkan pada muatan itu dan beri sebab."
+      "disposal_trip_number_recorded": "Muatan {seq} sudah ada angka ini. Untuk menukarnya, tekan Betulkan pada muatan itu dan beri sebab.",
+      "import_excel_old_format": "Ini fail .xls lama. Dalam Excel, guna Simpan Sebagai, pilih .xlsx, dan muat naik fail itu.",
+      "import_excel_invalid": "Fail ini tidak dapat dibuka. Muat naik fail Excel (.xlsx), atau isi templat Excel dan muat naik.",
+      "import_excel_too_large": "Fail terlalu besar: maksimum {limit_mb} MB.",
+      "import_excel_empty": "Excel ini tiada data di bawah tajuknya.",
+      "import_excel_too_many_rows": "Maksimum {limit} baris setiap import. Sila bahagikan fail.",
+      "import_excel_mapping_invalid": "Lajur yang dipilih tiada dalam Excel ini. Sila pilih semula."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -24238,5 +24246,88 @@
     "notifyOnly": "Maklumkan juga (tidak menugaskan)",
     "notifyOnlyHint": "Orang yang ditanda hanya dimaklumkan dan boleh bercakap dalam sembang pembaikan; mereka bukan orang bertanggungjawab. Pilih siapa yang membaikinya di \"Orang bertanggungjawab\" di atas.",
     "notChosenYet": "Tiada orang bertanggungjawab dipilih: item akan menunjukkan \"Menunggu untuk ditugaskan\" dan perlu ditugaskan semula."
+  },
+  "jb244": {
+    "open": "Import Excel",
+    "template": "Muat turun templat Excel",
+    "title": {
+      "supplier": "Import Excel · Pembekal",
+      "material": "Import Excel · Kategori bahan"
+    },
+    "intro": {
+      "supplier": "Muat naik Excel pembekal anda sendiri. Sistem mengenal pasti setiap lajur dan menunjukkan pratonton: baris baharu, yang sudah ada (dilangkau) dan yang bermasalah. Tiada yang disimpan sehingga anda tekan Sahkan import; pembekal yang sudah ada tidak diubah.",
+      "material": "Muat naik Excel bahan anda sendiri. Satu spesifikasi setiap baris; baris dengan nama bahan yang sama diletakkan di bawah satu bahan. Sistem mengenal pasti setiap lajur dan menunjukkan pratonton; tiada yang disimpan sehingga anda tekan Sahkan import, dan bahan serta spesifikasi yang sudah ada tidak diubah."
+    },
+    "chooseFirst": "Belum ada fail dipilih",
+    "chooseFile": "Pilih fail Excel",
+    "changeFile": "Pilih fail lain",
+    "xlsxOnly": "Hanya .xlsx. Simpan fail .xls lama sebagai .xlsx dalam Excel (Simpan Sebagai) dahulu.",
+    "fileLine": "Tajuk di baris {row}, {total} baris data di bawahnya",
+    "reading": "Membaca Excel…",
+    "readFailed": "Excel ini tidak dapat dibaca. Sila pilih fail lain.",
+    "columnsTitle": "Padankan lajur Excel",
+    "columnsHelp": "Lajur yang dikenal pasti melalui tajuknya sudah dipilih. Tukar yang salah; pilih Tidak diimport untuk yang tidak diperlukan.",
+    "notImported": "Tidak diimport",
+    "columnOption": "Lajur {letter} · {header}",
+    "columnNoHeader": "Lajur {letter}",
+    "example": "cth. {values}",
+    "requiredMissing": "Pilih lajur Excel untuk {field}.",
+    "noPrices": "Akaun anda tidak melihat amaun, jadi harga tidak diimport.",
+    "twoLevels": "Bahan ada dua peringkat: nama bahan › spesifikasi. Excel yang ada lajur kategori tetapi tiada lajur nama bahan, kategorinya diimport sebagai nama bahan.",
+    "categoryLeftOut": "Lajur {letter} \"{header}\" tidak diimport: bahan hanya ada dua peringkat (nama bahan › spesifikasi), tiada kategori di atasnya. Untuk menyimpannya, pilih lajur ini untuk Keterangan.",
+    "batchTitle": "Untuk seluruh import",
+    "batchHelp": "Setiap pembekal perlu jenis syarikat, industri dan produk utama. Nilai dalam Excel digunakan; baris tanpanya mengambil apa yang anda pilih dan isi di sini.",
+    "batch": {
+      "industry": "Industri (untuk baris tanpanya)",
+      "main_products": "Produk utama (untuk baris tanpanya)"
+    },
+    "unitsTitle": "Unit yang tiada dalam senarai unit",
+    "unitsHelp": "Unit ini belum ada dalam senarai unit. Padankan dengan unit yang ada, atau tambahnya.",
+    "unitLabel": "\"{unit}\" dalam Excel",
+    "unitLines": "Di baris {lines}",
+    "unitNew": "Tambah \"{unit}\" ke senarai unit",
+    "unitMapTo": "Sama dengan \"{unit}\"",
+    "unitAdded": "Unit \"{unit}\" akan ditambah ke senarai unit",
+    "pricesPin": "Import ini menetapkan {count} harga. Sahkan import meminta PIN pengesahan enam digit anda; harga berkuat kuasa hari ini.",
+    "previewTitle": "Pratonton",
+    "counts": "{new} baharu · {exists} sudah ada, dilangkau · {problem} bermasalah (tidak diimport)",
+    "filter": {
+      "all": "Semua ({count})",
+      "new": "Baharu ({count})",
+      "exists": "Sudah ada ({count})",
+      "problem": "Bermasalah ({count})"
+    },
+    "col": {
+      "line": "Baris",
+      "status": "Keputusan"
+    },
+    "status": {
+      "new": "Baharu",
+      "exists": "Sudah ada, dilangkau",
+      "problem": "Bermasalah"
+    },
+    "existsMatch": "Sudah ada: {code} {name}",
+    "sameAsLine": "Sama dengan baris {line}",
+    "problem": {
+      "missing": "Tiada {field}",
+      "invalid": "{field} tidak betul",
+      "too_long": "{field} terlalu panjang"
+    },
+    "note": {
+      "supplier_not_found": "Pembekal \"{name}\" tiada dalam senarai pembekal: tidak dipautkan",
+      "material_added": "Bahan \"{name}\" turut ditambah"
+    },
+    "moreRows": "Menunjukkan {shown} baris pertama daripada {total}.",
+    "confirm": "Sahkan import ({count} baris)",
+    "nothingNew": "Tiada baris baharu untuk diimport.",
+    "cancel": "Batal",
+    "close": "Tutup",
+    "done": "Import selesai: {added} baris ditambah, {skipped} sudah ada dan dilangkau, {problems} bermasalah tidak diimport.",
+    "doneWhere": {
+      "supplier": "Pembekal baharu sudah ada dalam senarai pembekal, dinomborkan oleh sistem.",
+      "material": "Bahan dan spesifikasi baharu sudah ada dalam senarai bahan, dinomborkan oleh sistem."
+    },
+    "doneUnits": "Unit ditambah: {names}",
+    "needFile": "Pilih fail Excel dahulu."
   }
 }
