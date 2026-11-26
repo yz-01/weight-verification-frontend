@@ -38,10 +38,11 @@ export function useEvidenceRecordLabel() {
   return (row: EvidenceCandidate) => {
     const key = rowModuleKey(row);
     const path = MODULE_LABEL_PATH[key];
-    const module = path ? root(path) : root("consultantWorkflow.evidence.moduleName.other");
+    // Not `module`: Next's lint refuses that name for a variable.
+    const moduleName = path ? root(path) : root("consultantWorkflow.evidence.moduleName.other");
     const title =
       row.record_title || (row.record_type === "SITE_PROGRESS" ? t("unclassified") : "");
-    return { reference: row.record_reference || t("noNumber"), module, title };
+    return { reference: row.record_reference || t("noNumber"), module: moduleName, title };
   };
 }
 
@@ -52,11 +53,13 @@ export function EvidenceRecordCard({ rows, selected, onToggle, onToggleRecord, o
   const df = useDateFormat();
   const label = useEvidenceRecordLabel();
   const first = rows[0];
-  const { reference, module, title } = label(first);
+  const { reference, module: moduleName, title } = label(first);
   const allSelected = rows.every((row) => selected.includes(row.id));
   const uploader = first.record_uploader || first.photographer_name || common("unknown");
   const when = df.dateTime(first.record_date || first.captured_at);
-  let photoIndex = -1;
+  // Each photo's place among the record's photos (a file in between is not
+  // one), for the viewer it opens.
+  const photoIds = rows.filter((row) => row.kind === "PHOTO").map((row) => row.id);
   return (
     <div
       data-evidence-record={first.record_key}
@@ -72,7 +75,7 @@ export function EvidenceRecordCard({ rows, selected, onToggle, onToggleRecord, o
         <div className="min-w-0 flex-1 space-y-2">
           <div className="min-w-0">
             <p className="font-medium" data-slot="record-name">
-              {[reference, module, title].filter(Boolean).join(" · ")}
+              {[reference, moduleName, title].filter(Boolean).join(" · ")}
             </p>
             <p className="text-xs text-muted-foreground" data-slot="record-facts">
               {[
@@ -89,8 +92,7 @@ export function EvidenceRecordCard({ rows, selected, onToggle, onToggleRecord, o
             {rows.map((row) => {
               const checked = selected.includes(row.id);
               const isPhoto = row.kind === "PHOTO";
-              if (isPhoto) photoIndex += 1;
-              const index = photoIndex;
+              const index = photoIds.indexOf(row.id);
               const image = row.thumbnail_url || row.watermarked_file || row.file;
               return (
                 <div
