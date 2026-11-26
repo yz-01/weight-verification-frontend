@@ -23116,7 +23116,7 @@
       "title": "Nobody on this project can sign exit passes yet. An administrator sets it up in three steps:",
       "permission": "Permission: turn on 「Safety verification」 for the account (or the role) of the person who will sign.",
       "project": "Project: add them to this project's team list (not needed for someone who sees every project).",
-      "account": "Account: make sure their account is active (a new account is active once its owner sets a password from the email).",
+      "account": "Account: make sure their account is active and is an office account (the exit pass is signed on a computer, not on a phone account; a new account is active once its owner sets a password from the email).",
       "openTeam": "Add to project team",
       "onlyApplicant": "The applicant is the only safety manager on this project, and another safety manager has to sign the exit pass. An administrator adds one in three steps:"
     },
