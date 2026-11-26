@@ -200,13 +200,22 @@ describe("JB285: the 出门条 waits for the executor and the exit photos", () =
 describe("JB286: 【补录数字】 where 【更改供应商】 stood (图 40)", () => {
   const office = { manage: true, confirm: true, phone: false };
 
-  it("offered once a lorry is in while the job runs; not before, not on the phone", () => {
-    expect(disposalSteps(job("IN_PROGRESS", { trips: [trip(1, "PLANNED")] }), office).fillNumbers).toBe(false);
-    expect(disposalSteps(job("IN_PROGRESS", { trips: [trip(1, "SUBMITTED")] }), office).fillNumbers).toBe(true);
-    expect(disposalSteps(job("ASSIGNED", { trips: [trip(1, "ACCEPTED"), trip(2, "PLANNED")] }), office).fillNumbers).toBe(true);
-    expect(disposalSteps(job("IN_PROGRESS", { trips: [trip(1, "SUBMITTED")] }), { ...office, phone: true }).fillNumbers).toBe(false);
+  it("open once a lorry is in while the job runs; locked in its place before; not on the phone", () => {
+    // QA3 (audit #3): the fig 40 state - running, no lorry yet - shows it locked.
+    expect(disposalSteps(job("IN_PROGRESS", { trips: [trip(1, "PLANNED")] }), office).fillNumbers).toBe("locked");
+    expect(disposalSteps(job("APPROVED"), office).fillNumbers).toBe("locked");
+    expect(disposalSteps(job("IN_PROGRESS", { trips: [trip(1, "SUBMITTED")] }), office).fillNumbers).toBe("open");
+    expect(disposalSteps(job("ASSIGNED", { trips: [trip(1, "ACCEPTED"), trip(2, "PLANNED")] }), office).fillNumbers).toBe("open");
+    expect(disposalSteps(job("IN_PROGRESS", { trips: [trip(1, "SUBMITTED")] }), { ...office, phone: true }).fillNumbers).toBeNull();
     // Finished: the existing 补录数字 (job totals) as before.
-    expect(disposalSteps(job("COMPLETED", { trips: [trip(1, "ACCEPTED")] }), office).fillNumbers).toBe(false);
+    expect(disposalSteps(job("COMPLETED", { trips: [trip(1, "ACCEPTED")] }), office).fillNumbers).toBeNull();
+    expect(disposalSteps(job("REQUESTED"), office).fillNumbers).toBeNull();
+  });
+
+  it("the finished job's 【补录数字】 is office only (QA3, audit #17)", () => {
+    const source = here("site-disposal-workspaces.tsx");
+    expect(source).toContain('can("disposal.confirm") && !user?.is_field_staff && ["COMPLETED", "AWAITING_CONFIRMATION"]');
+    expect(source).toContain("data-disposal-fill-numbers-locked disabled");
   });
 
   it("stands in 更改供应商's place; the company is still changed, after 加进资料包", () => {

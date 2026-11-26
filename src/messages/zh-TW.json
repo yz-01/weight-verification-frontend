@@ -24265,7 +24265,8 @@
     "save": "儲存",
     "nothing": "先填一個數字",
     "saved": "數字已補錄",
-    "historyFilled": "補錄"
+    "historyFilled": "補錄",
+    "lockedNoLorry": "還沒有車次送來。司機送出車次後，才能補錄數字。"
   },
   "jb265": {
     "startedBy": "顧問 {name} 發起"

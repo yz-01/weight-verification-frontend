@@ -24265,7 +24265,8 @@
     "save": "Simpan",
     "nothing": "Isi satu angka dahulu",
     "saved": "Angka direkodkan",
-    "historyFilled": "diisi"
+    "historyFilled": "diisi",
+    "lockedNoLorry": "Belum ada lori dihantar. Nombor boleh diisi selepas pemandu menghantar lori."
   },
   "jb265": {
     "startedBy": "Dimulakan oleh perunding {name}"

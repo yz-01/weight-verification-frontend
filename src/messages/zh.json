@@ -24265,7 +24265,8 @@
     "save": "保存",
     "nothing": "先填一个数字",
     "saved": "数字已补录",
-    "historyFilled": "补录"
+    "historyFilled": "补录",
+    "lockedNoLorry": "还没有车次送来。司机送出车次后，才能补录数字。"
   },
   "jb265": {
     "startedBy": "顾问 {name} 发起"

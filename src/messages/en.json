@@ -24265,7 +24265,8 @@
     "save": "Save",
     "nothing": "Fill in a number first",
     "saved": "Numbers recorded",
-    "historyFilled": "filled in"
+    "historyFilled": "filled in",
+    "lockedNoLorry": "No lorry has been sent yet. Numbers can be filled in once the driver sends a lorry."
   },
   "jb265": {
     "startedBy": "Started by consultant {name}"
