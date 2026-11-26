@@ -9727,7 +9727,11 @@
       "equipment_rental_no_terms": "先给这台设备设定租赁条件（【设备租赁设定】）。",
       "equipment_rental_diesel_not_charged": "这台设备的柴油不是供应商另外收费，不能填柴油费用。",
       "equipment_rental_month_confirmed": "这个月的租赁金额已经确认，不能再改。",
-      "equipment_rental_month_not_started": "这个月还没开始，不能确认。"
+      "equipment_rental_month_not_started": "这个月还没开始，不能确认。",
+      "role_start_fixed": "「总部」「项目」是邀请用户用的起点，不能修改，也不能用这个代号。",
+      "invite_workplace_required": "请选「总部」或「项目」。",
+      "invite_projects_required": "请至少勾一个所属项目。",
+      "invite_role_wrong_kind": "选的常用权限和「总部 / 项目」不一样，请重新选。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -9785,11 +9789,7 @@
     "notFoundBody": "它可能已被移除，或你没有访问权限。",
     "uploadTimeout": "上传超时：信号太弱，没有传完。系统会自动再试。",
     "uploadTooLarge": "文件太大，请在电脑后台上传。",
-    "serverBusy": "服务器暂时没有回应，请稍后再试。",
-    "role_start_fixed": "「总部」「项目」是邀请用户用的起点，不能修改，也不能用这个代号。",
-    "invite_workplace_required": "请选「总部」或「项目」。",
-    "invite_projects_required": "请至少勾一个所属项目。",
-    "invite_role_wrong_kind": "选的常用权限和「总部 / 项目」不一样，请重新选。"
+    "serverBusy": "服务器暂时没有回应，请稍后再试。"
   },
   "evidence": {
     "revision": {

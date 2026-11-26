@@ -9727,7 +9727,11 @@
       "equipment_rental_no_terms": "先給這台設備設定租賃條件（【設備租賃設定】）。",
       "equipment_rental_diesel_not_charged": "這台設備的柴油不是供應商另外收費，不能填柴油費用。",
       "equipment_rental_month_confirmed": "這個月的租賃金額已經確認，不能再改。",
-      "equipment_rental_month_not_started": "這個月還沒開始，不能確認。"
+      "equipment_rental_month_not_started": "這個月還沒開始，不能確認。",
+      "role_start_fixed": "「總部」「項目」是邀請用戶用的起點，不能修改，也不能用這個代號。",
+      "invite_workplace_required": "請選「總部」或「項目」。",
+      "invite_projects_required": "請至少勾一個所屬項目。",
+      "invite_role_wrong_kind": "選的常用權限和「總部 / 項目」不一樣，請重新選。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -9785,11 +9789,7 @@
     "notFoundBody": "它可能已被移除，或你沒有訪問權限。",
     "uploadTimeout": "上傳超時：信號太弱，沒有傳完。系統會自動再試。",
     "uploadTooLarge": "文件太大，請在電腦後台上傳。",
-    "serverBusy": "服務器暫時沒有回應，請稍後再試。",
-    "role_start_fixed": "「總部」「項目」是邀請用戶用的起點，不能修改，也不能用這個代號。",
-    "invite_workplace_required": "請選「總部」或「項目」。",
-    "invite_projects_required": "請至少勾一個所屬項目。",
-    "invite_role_wrong_kind": "選的常用權限和「總部 / 項目」不一樣，請重新選。"
+    "serverBusy": "服務器暫時沒有回應，請稍後再試。"
   },
   "evidence": {
     "revision": {

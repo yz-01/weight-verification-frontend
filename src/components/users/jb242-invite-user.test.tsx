@@ -255,7 +255,7 @@ describe("four languages", () => {
     for (const messages of [zhTW, en, ms]) {
       expect(Object.keys(messages.jb242).sort()).toEqual(keys);
       for (const code of ["role_start_fixed", "invite_workplace_required", "invite_projects_required", "invite_role_wrong_kind"]) {
-        expect((messages.errors as Record<string, string>)[code], code).toBeTruthy();
+        expect((messages.errors.api as Record<string, string>)[code], code).toBeTruthy();
       }
       expect((messages.mseAccess.operation as Record<string, string>).invite_user).toBeTruthy();
     }

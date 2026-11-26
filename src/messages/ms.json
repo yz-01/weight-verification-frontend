@@ -9727,7 +9727,11 @@
       "equipment_rental_no_terms": "Tetapkan terma sewa mesin ini dahulu (Terma sewa peralatan).",
       "equipment_rental_diesel_not_charged": "Diesel mesin ini tidak dicaj berasingan oleh pembekal, jadi caj diesel tidak boleh dimasukkan.",
       "equipment_rental_month_confirmed": "Amaun sewa bulan ini sudah disahkan dan tidak boleh diubah lagi.",
-      "equipment_rental_month_not_started": "Bulan ini belum bermula dan tidak boleh disahkan."
+      "equipment_rental_month_not_started": "Bulan ini belum bermula dan tidak boleh disahkan.",
+      "role_start_fixed": "\"Ibu pejabat\" dan \"Projek\" ialah titik mula Jemput pengguna: tidak boleh diubah, dan kodnya tidak boleh digunakan.",
+      "invite_workplace_required": "Pilih ibu pejabat atau projek.",
+      "invite_projects_required": "Tandakan sekurang-kurangnya satu projek.",
+      "invite_role_wrong_kind": "Kebenaran biasa yang dipilih bukan untuk tempat yang dipilih (ibu pejabat atau projek). Pilih semula."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -9785,11 +9789,7 @@
     "notFoundBody": "Ia mungkin telah dibuang, atau anda tiada akses kepadanya.",
     "uploadTimeout": "Muat naik tamat masa: isyarat terlalu lemah untuk selesai. Ia akan cuba lagi sendiri.",
     "uploadTooLarge": "Fail terlalu besar. Sila muat naik dari komputer pejabat.",
-    "serverBusy": "Pelayan tidak menjawab sekarang. Sila cuba lagi nanti.",
-    "role_start_fixed": "\"Ibu pejabat\" dan \"Projek\" ialah titik mula Jemput pengguna: tidak boleh diubah, dan kodnya tidak boleh digunakan.",
-    "invite_workplace_required": "Pilih ibu pejabat atau projek.",
-    "invite_projects_required": "Tandakan sekurang-kurangnya satu projek.",
-    "invite_role_wrong_kind": "Kebenaran biasa yang dipilih bukan untuk tempat yang dipilih (ibu pejabat atau projek). Pilih semula."
+    "serverBusy": "Pelayan tidak menjawab sekarang. Sila cuba lagi nanti."
   },
   "evidence": {
     "revision": {

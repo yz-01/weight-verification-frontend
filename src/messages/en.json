@@ -9727,7 +9727,11 @@
       "equipment_rental_no_terms": "Set this machine's rental terms first (Equipment rental terms).",
       "equipment_rental_diesel_not_charged": "This machine's diesel is not charged separately by the supplier, so no diesel fee can be entered.",
       "equipment_rental_month_confirmed": "This month's rental amounts are confirmed and can no longer be changed.",
-      "equipment_rental_month_not_started": "This month has not started yet and cannot be confirmed."
+      "equipment_rental_month_not_started": "This month has not started yet and cannot be confirmed.",
+      "role_start_fixed": "\"Head office\" and \"Project\" are the starting points of Invite user: they cannot be changed, and their codes cannot be used.",
+      "invite_workplace_required": "Choose head office or project.",
+      "invite_projects_required": "Tick at least one project.",
+      "invite_role_wrong_kind": "The saved permissions picked are not for the place chosen (head office or project). Pick again."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -9785,11 +9789,7 @@
     "notFoundBody": "It may have been removed, or you may not have access to it.",
     "uploadTimeout": "The upload timed out: the signal was too weak to finish. It will try again by itself.",
     "uploadTooLarge": "The file is too big. Please upload it from the office computer.",
-    "serverBusy": "The server is not answering right now. Please try again later.",
-    "role_start_fixed": "\"Head office\" and \"Project\" are the starting points of Invite user: they cannot be changed, and their codes cannot be used.",
-    "invite_workplace_required": "Choose head office or project.",
-    "invite_projects_required": "Tick at least one project.",
-    "invite_role_wrong_kind": "The saved permissions picked are not for the place chosen (head office or project). Pick again."
+    "serverBusy": "The server is not answering right now. Please try again later."
   },
   "evidence": {
     "revision": {
