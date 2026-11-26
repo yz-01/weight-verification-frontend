@@ -396,6 +396,8 @@ function GenerateStatementDialog({ onClose, onSaved }: { onClose: () => void; on
                 ))}
               </SelectContent>
             </Select>
+            {/* Without the list there is nothing to choose: say the list failed, not that there is none. */}
+            {companies.isError ? <QueryFailedNote query={companies} what={tr("col.company")} /> : null}
           </FieldWrapper>
           <FieldWrapper label={tr("dateFrom")} required>
             <Input type="date" value={dateFrom} onChange={(event) => setDateFrom(event.target.value)} />
@@ -434,8 +436,15 @@ function GenerateStatementDialog({ onClose, onSaved }: { onClose: () => void; on
               <Button
                 size="lg"
                 data-slot="create-statement-button"
-                requires={[[ready && !shown.overlap, tr("overlapShort")]]}
-                disabled={save.isPending}
+                requires={[
+                  [project, tr("col.project")],
+                  [supplier, tr("col.company")],
+                  [dateFrom, tr("dateFrom")],
+                  [dateTo, tr("dateTo")],
+                ]}
+                // Overlapping dates are no field to fill: the button stays off and says why.
+                disabled={save.isPending || Boolean(shown.overlap)}
+                disabledReason={shown.overlap ? tr("overlapShort") : undefined}
                 onClick={() => save.mutate()}
               >
                 {save.isPending ? <Loader2 className="animate-spin" /> : <FileSpreadsheet />}

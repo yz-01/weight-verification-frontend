@@ -206,18 +206,27 @@ const SELF_LABELLED = new Map([
   // A return's supplier at the handover (JB169): it draws its own wrapper
   // labelled outgoing.supplier and stars it when told `required`.
   ["OutgoingSupplierField", "outgoing.supplier"],
+  // 凭证编号 and 上传凭证 of 核对 / 结算 (JB277 / JB278 / JB280): both starred.
+  // (Several keys: an array, as the buttons write them - tj("voucherNo").)
+  ["VoucherFields", ["voucherNo", "vouchersRequired"]],
 ]);
 const SELF_LABELLED_SOURCES = {
   ProjectColumnPicker: "site-operations/project-column-picker.tsx",
   OutgoingSupplierField: "contractor-ops/outgoing-supplier-field.tsx",
+  VoucherFields: "contractor-ops/return-checks.tsx",
 };
-for (const [tag, key] of SELF_LABELLED) {
+/** The keys a self-labelled component carries (one, or an array). */
+const keysOf = (keys) => (Array.isArray(keys) ? keys : [keys]);
+for (const [tag, keys] of SELF_LABELLED) {
   const own = readFileSync(path.join(ROOT, SELF_LABELLED_SOURCES[tag]), "utf8");
-  // The attributes may sit one to a line; `required={required}` counts.
-  const marked = new RegExp(`<FieldWrapper\\s+label=\\{t\\("${key.replace(".", "\\.")}"\\)\\}\\s+required\\b`);
-  if (!marked.test(own)) {
-    console.error(`${tag} no longer renders a required FieldWrapper labelled ${key}; remove it from SELF_LABELLED.`);
-    process.exit(1);
+  for (const key of keysOf(keys)) {
+    // The attributes may sit one to a line; `required={required}` counts;
+    // any translator (`t`, `tj`, ...).
+    const marked = new RegExp(`<FieldWrapper\\s+label=\\{\\w+\\("${key.replace(".", "\\.")}"\\)\\}\\s+required\\b`);
+    if (!marked.test(own)) {
+      console.error(`${tag} no longer renders a required FieldWrapper labelled ${key}; remove it from SELF_LABELLED.`);
+      process.exit(1);
+    }
   }
 }
 
@@ -301,10 +310,12 @@ for (const relative of files) {
     // Pickers that draw their own marked wrapper with a fixed label carry that
     // label wherever they are placed (T-164: three category pickers were
     // reported as starless while the picker itself wears the star).
-    for (const [tag, key] of SELF_LABELLED) {
-      if (demanded.has(key) && new RegExp(`<${tag}\\b`).test(body)) {
-        carried.add(key);
-        matched += 1;
+    for (const [tag, keys] of SELF_LABELLED) {
+      for (const key of keysOf(keys)) {
+        if (demanded.has(key) && new RegExp(`<${tag}\\b`).test(body)) {
+          carried.add(key);
+          matched += 1;
+        }
       }
     }
 
