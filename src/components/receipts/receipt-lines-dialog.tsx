@@ -69,8 +69,8 @@ export function ReceiptLinesDialog({
   // (JB170).
   const seesAmounts = useSeesAmounts();
   const eventId = useRef<string | null>(null);
-  // query-failure: the editor below reads the same query and says when it fails.
   // With the delivery: its prices on its own day (JB275), as the editor reads them.
+  // query-failure: the editor below reads the same query and says when it fails.
   const catalogue = useMaterialCatalogue(receipt.project ?? "", receipt.id);
   const materials = catalogue.data?.materials ?? [];
   const storedIds = stored.map((line) => line.id).filter((id): id is string => Boolean(id));
