@@ -24551,7 +24551,8 @@
       "photos": "相关照片",
       "signatures": "签收记录（双方签名）",
       "exit_not_confirmed": "还没有「确认正式退场」",
-      "other": "其他必填资料"
+      "other": "其他必填资料",
+      "mr_link": "关联 MR／其他申请（在「关联申请」选好）"
     },
     "tick": "我已核对所有资料，确认无误。",
     "tickRequired": "（必须勾选）",

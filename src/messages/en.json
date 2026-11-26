@@ -24551,7 +24551,8 @@
       "photos": "Related photos",
       "signatures": "Signed receipt (both signatures)",
       "exit_not_confirmed": "\"Confirm formal exit\" not done yet",
-      "other": "Other required items"
+      "other": "Other required items",
+      "mr_link": "Link to its MR / other request (choose it under 「Linked request」)"
     },
     "tick": "I have checked all the information and it is correct.",
     "tickRequired": "(required)",

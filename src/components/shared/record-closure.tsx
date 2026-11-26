@@ -197,14 +197,18 @@ export function RecordClosurePanel({
   // Its own steps are not done yet: the module's buttons come first.
   if (!state.data?.ready) return null;
 
-  // JB279: 「未完成关联，不允许确认归档」 - said beside the button, which stays
-  // off until the record is linked to its MR / 其他申请 (「关联申请」 above).
-  const shownBlock =
-    blocked ?? (state.data.mr_link_missing ? { reason: tLink("archiveBlocked") } : null);
   // JB276 (客户 11-26 事项 17): a 材料进场 / 材料退场 - the client's text, what
   // is still missing (the server refuses too), the tick, then the PIN.
   const checklist = Boolean(state.data.checklist);
   const missing = state.data.missing ?? [];
+  // JB279: 「未完成关联，不允许确认归档」 - said beside the button, which stays
+  // off until the record is linked to its MR / 其他申请 (「关联申请」 above).
+  // On a 进场 / 退场 it is one line of 「以下必填资料不完整」 (`mr_link`, QA1
+  // audit #15), never hidden behind another reason; on a 领用, its own line.
+  const linkLine =
+    state.data.mr_link_missing && !missing.includes("mr_link") ? { reason: tLink("archiveBlocked") } : null;
+  const shownBlock = blocked ?? linkLine;
+  const linkHidden = Boolean(blocked && linkLine);
   const missingReason = checklist && missing.length > 0 ? tChecklist("missingShort") : null;
   const tickReason = checklist && !ticked ? tChecklist("tickFirst") : null;
   // JB279 and JB276 both hold the button: the link first (said above), then
@@ -247,6 +251,11 @@ export function RecordClosurePanel({
             {shownBlock.reason}
           </p>
           {shownBlock.action ?? null}
+          {linkHidden && linkLine && (
+            <p role="status" className="rounded-md bg-warning/10 px-2 py-1.5 text-sm font-medium text-warning" data-record-closure-link>
+              {linkLine.reason}
+            </p>
+          )}
         </div>
       )}
       {checklist && (

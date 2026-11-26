@@ -24551,7 +24551,8 @@
       "photos": "相關照片",
       "signatures": "簽收記錄（雙方簽名）",
       "exit_not_confirmed": "還沒有「確認正式退場」",
-      "other": "其他必填資料"
+      "other": "其他必填資料",
+      "mr_link": "關聯 MR／其他申請（在「關聯申請」選好）"
     },
     "tick": "我已核對所有資料，確認無誤。",
     "tickRequired": "（必須勾選）",

@@ -24551,7 +24551,8 @@
       "photos": "Gambar berkaitan",
       "signatures": "Rekod tandatangan terima (kedua-dua pihak)",
       "exit_not_confirmed": "\"Sahkan keluar rasmi\" belum dibuat",
-      "other": "Maklumat wajib lain"
+      "other": "Maklumat wajib lain",
+      "mr_link": "Pautan ke MR / permohonan lain (pilih di 「Permohonan dipautkan」)"
     },
     "tick": "Saya telah menyemak semua maklumat dan ia betul.",
     "tickRequired": "(wajib ditanda)",
