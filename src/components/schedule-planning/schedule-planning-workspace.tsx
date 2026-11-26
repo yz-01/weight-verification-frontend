@@ -29,7 +29,15 @@ import {
 } from "@/components/providers/current-project-provider";
 import { ScheduleFigures } from "@/components/schedule-planning/schedule-figures";
 import { ScheduleGantt } from "@/components/schedule-planning/schedule-gantt";
+import {
+  HistoryEntryDialog,
+  HistoryList,
+  LinkedRecordsDialog,
+  ProgressRecordPicker,
+} from "@/components/schedule-planning/schedule-records";
 import { ScheduleTaskTable } from "@/components/schedule-planning/schedule-task-table";
+import { InPlaceRecord } from "@/components/shared/in-place-record";
+import { Pager } from "@/components/progress/progress-photos";
 import { isDelayed } from "@/components/schedule-planning/task-status";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { clickOpensRow } from "@/components/shared/inside-row-control";
@@ -67,7 +75,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/components/providers/auth-provider";
 import type {
-  ProgressCandidate,
+  ScheduleHistoryEntry,
   ScheduleImportPreview,
   SchedulePlan,
   ScheduleRevision,
@@ -75,7 +83,6 @@ import type {
   ScheduleTaskPayload,
 } from "@/interfaces/schedule-planning";
 import { useDateFormat } from "@/lib/dates";
-import { usePercentText } from "@/lib/progress-percent";
 import { cn } from "@/lib/utils";
 import {
   archiveSchedulePlan,
@@ -89,12 +96,12 @@ import {
   deleteScheduleRevision,
   deleteScheduleTask,
   exportSchedule,
-  getProgressCandidates,
   getScheduleHistory,
   getScheduleOverview,
   getSchedulePlans,
   getScheduleRevisions,
   getScheduleTasks,
+  getTaskLinkedRecords,
   updateSchedulePlan,
   updateScheduleRevision,
   updateScheduleTask,
@@ -169,6 +176,11 @@ export function SchedulePlanningWorkspace({
   const [revisionDialog, setRevisionDialog] = useState(false);
   const [editingTask, setEditingTask] = useState<ScheduleTask | "new" | null>(null);
   const [progressTask, setProgressTask] = useState<ScheduleTask | null>(null);
+  // JB273 / JB266 / JB272: the windows opened from the task list and 操作记录.
+  const [linkedTask, setLinkedTask] = useState<ScheduleTask | null>(null);
+  const [openedApplication, setOpenedApplication] = useState<string | null>(null);
+  const [openedEntry, setOpenedEntry] = useState<ScheduleHistoryEntry | null>(null);
+  const [historyPage, setHistoryPage] = useState(1);
   const [removingTask, setRemovingTask] = useState<ScheduleTask | null>(null);
   const [removingRevision, setRemovingRevision] = useState<ScheduleRevision | null>(null);
   const [confirmingRevision, setConfirmingRevision] = useState<ScheduleRevision | null>(null);
@@ -211,8 +223,8 @@ export function SchedulePlanningWorkspace({
     enabled: Boolean(plan && revision),
   });
   const historyRows = useQuery({
-    queryKey: ["schedule-history", plan?.id],
-    queryFn: () => getScheduleHistory(plan!.id),
+    queryKey: ["schedule-history", plan?.id, historyPage],
+    queryFn: () => getScheduleHistory(plan!.id, { page: historyPage }),
     enabled: Boolean(plan) && advancedOpen && advancedTab === "history",
   });
 
@@ -223,6 +235,9 @@ export function SchedulePlanningWorkspace({
       qc.invalidateQueries({ queryKey: ["schedule-tasks"] }),
       qc.invalidateQueries({ queryKey: ["schedule-overview"] }),
       qc.invalidateQueries({ queryKey: ["schedule-history"] }),
+      // JB267: 项目进度摘要 reads the same figures.
+      qc.invalidateQueries({ queryKey: ["schedule-project-progress"] }),
+      qc.invalidateQueries({ queryKey: ["schedule-task-linked-records"] }),
     ]);
   };
   const removeTask = useMutation({
@@ -440,6 +455,8 @@ export function SchedulePlanningWorkspace({
                 onEdit={setEditingTask}
                 onProgress={setProgressTask}
                 onRemove={setRemovingTask}
+                onLinkedRecords={setLinkedTask}
+                onOpenApplication={can("approval.view") ? setOpenedApplication : undefined}
               />
             </QueryPanel>
           </section>
@@ -474,7 +491,12 @@ export function SchedulePlanningWorkspace({
               </QueryPanel>
             ) : (
               <QueryPanel query={historyRows} errorText={t("state.historyLoadError")}>
-                <HistoryList rows={historyRows.data?.results ?? []} />
+                <HistoryList rows={historyRows.data?.results ?? []} onOpen={setOpenedEntry} />
+                {(historyRows.data?.total_pages ?? 1) > 1 && (
+                  <div className="mt-2">
+                    <Pager page={historyPage} pages={historyRows.data?.total_pages ?? 1} onPage={setHistoryPage} />
+                  </div>
+                )}
               </QueryPanel>
             )}
           </AdvancedSection>
@@ -518,6 +540,11 @@ export function SchedulePlanningWorkspace({
       {progressTask && (
         <ProgressDialog project={project} task={progressTask} onClose={() => setProgressTask(null)} onSaved={async () => { setProgressTask(null); await invalidate(); }} />
       )}
+      {linkedTask && <LinkedRecordsDialog task={linkedTask} onClose={() => setLinkedTask(null)} />}
+      {openedApplication && (
+        <InPlaceRecord kind="CONSULTANT_APPLICATION" id={openedApplication} onClose={() => setOpenedApplication(null)} />
+      )}
+      {openedEntry && <HistoryEntryDialog entry={openedEntry} onClose={() => setOpenedEntry(null)} />}
       <ConfirmDialog open={Boolean(removingTask)} onOpenChange={() => setRemovingTask(null)} title={t("confirm.removeTaskTitle")} description={t("confirm.removeTaskBody")} confirmLabel={t("action.remove")} confirmIcon={Trash2} isPending={removeTask.isPending} onConfirm={() => removingTask && removeTask.mutate(removingTask.id)} />
       <ConfirmDialog open={Boolean(removingRevision)} onOpenChange={() => setRemovingRevision(null)} title={t("confirm.removeRevisionTitle")} description={t("confirm.removeRevisionBody")} confirmLabel={t("action.remove")} confirmIcon={Trash2} isPending={removeRevision.isPending} onConfirm={() => removingRevision && removeRevision.mutate(removingRevision.id)} />
       <ConfirmDialog open={Boolean(confirmingRevision)} onOpenChange={() => setConfirmingRevision(null)} title={t("confirm.lockTitle")} description={t("confirm.lockBody")} confirmLabel={t("action.confirmRevision")} confirmIcon={Check} isPending={confirmRevision.isPending} onConfirm={() => confirmingRevision && confirmRevision.mutate(confirmingRevision.id)} />
@@ -636,11 +663,6 @@ function RevisionList({ rows, selected, canManage, canConfirm, onSelect, onConfi
   return <div className="grid gap-3 lg:grid-cols-2">{rows.map((row) => <article key={row.id} className={"surface-panel cursor-pointer rounded-xl p-4 " + (selected === row.id ? "ring-2 ring-primary/30" : "")} onClick={(event) => { if (clickOpensRow(event)) onSelect(row.id); }}><div className="flex items-start justify-between gap-3"><div><div className="flex flex-wrap items-center gap-2"><h3 className="font-semibold">{row.label}</h3><StatusBadge label={t("revisionStatus." + row.status)} tone={tone(row.status)} />{row.is_current && <StatusBadge label={t("status.current")} tone="info" />}</div><p className="mt-1 text-sm text-muted-foreground">{t("revision.number", { number: row.revision_number })} / {t("source." + row.source)}</p></div><GitBranch className="size-5 text-muted-foreground" /></div><p className="mt-3 min-h-10 text-sm">{row.reason || t("state.noReason")}</p><div className="mt-3 flex flex-wrap items-center gap-2 border-t pt-3"><span className="text-xs text-muted-foreground">{row.task_count} {t("common.tasks")} {row.confirmed_at ? " / " + df.dateTime(row.confirmed_at) : ""}</span><div className="ml-auto flex gap-1"><Button size="sm" variant="outline" onClick={() => onSelect(row.id)}>{t("action.open")}</Button>{canConfirm && row.status === "DRAFT" && row.task_count > 0 && <Button size="icon-sm" title={t("action.confirmRevision")} onClick={() => onConfirm(row)}><Check /></Button>}{canManage && row.status === "DRAFT" && <Button size="icon-sm" variant="ghost" title={t("action.editRevision")} onClick={() => onEdit(row)}><Pencil /></Button>}{canManage && row.status === "DRAFT" && <Button size="icon-sm" variant="ghost" className="text-destructive" title={t("action.remove")} onClick={() => onRemove(row)}><Trash2 /></Button>}</div></div></article>)}</div>;
 }
 
-function HistoryList({ rows }: { rows: Array<{ id: string; event: string; note: string; revision_label: string | null; task_name: string | null; actor_name: string | null; created_at: string }> }) {
-  const t = useTranslations("schedulePlanning"); const df = useDateFormat();
-  if (!rows.length) return <EmptyState text={t("state.noHistory")} />;
-  return <div className="overflow-hidden surface-panel rounded-xl"><div className="divide-y">{rows.map((row) => <div key={row.id} className="flex gap-3 p-4"><span className="mt-0.5 grid size-9 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground"><History className="size-4" /></span><div className="min-w-0 flex-1"><p className="font-medium">{t("history." + row.event)}</p><p className="text-sm text-muted-foreground">{[row.revision_label, row.task_name, row.note].filter(Boolean).join(" / ") || t("state.noReason")}</p></div><div className="shrink-0 text-right text-xs text-muted-foreground"><p>{row.actor_name || t("common.system")}</p><p>{df.dateTime(row.created_at)}</p></div></div>)}</div></div>;
-}
 
 /**
  * Create a plan, or correct its name and description.
@@ -690,21 +712,21 @@ function TaskDialog({ revision, row, tasks, onClose, onSaved }: { revision: Sche
 
 function ProgressDialog({ project, task, onClose, onSaved }: { project: string; task: ScheduleTask; onClose: () => void; onSaved: () => void }) {
   const t = useTranslations("schedulePlanning"); const common = useTranslations("common");
-  const candidates = useQuery({ queryKey: ["schedule-progress-candidates", project], queryFn: () => getProgressCandidates(project) });
   const [progress, setProgress] = useState(task.actual_progress); const [start, setStart] = useState(task.actual_start ?? ""); const [end, setEnd] = useState(task.actual_end ?? ""); const [note, setNote] = useState(task.progress_note); const [selected, setSelected] = useState<string[]>(task.progress_links.map((link) => link.progress_record));
   const lockedEvidence = new Set(task.progress_links.map((link) => link.progress_record));
+  // JB271: the records already linked, with their numbers and photographs,
+  // shown above the search - ticked and locked, as before.
+  const linked = useQuery({
+    queryKey: ["schedule-task-linked-records", task.id, "all"],
+    queryFn: () => getTaskLinkedRecords(task.id, { page_size: 100 }),
+    enabled: lockedEvidence.size > 0,
+  });
   const save = useMutation({ mutationFn: () => confirmScheduleTaskProgress(task.id, { actual_progress: progress, actual_start: start || null, actual_end: Number(progress) >= 100 ? end || null : null, note, progress_record_ids: selected }), onSuccess: onSaved });
   const toggle = (id: string) => {
     if (lockedEvidence.has(id)) return;
     setSelected((old) => old.includes(id) ? old.filter((value) => value !== id) : [...old, id]);
   };
-  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-2xl"><DialogHeader><DialogTitle>{t("dialog.progressTitle")}</DialogTitle><DialogDescription>{task.wbs_code} - {task.name}. {t("dialog.progressHelp")}</DialogDescription></DialogHeader><div className="grid gap-4 sm:grid-cols-2"><FieldWrapper label={t("field.actualProgress")} required><Input type="number" min="0" max="100" step="0.01" value={progress} onChange={(event) => setProgress(event.target.value)} /></FieldWrapper><FieldWrapper label={t("field.actualStart")} required={Number(progress) > 0}><Input type="date" value={start} onChange={(event) => setStart(event.target.value)} /></FieldWrapper>{Number(progress) >= 100 && <FieldWrapper label={t("field.actualEnd")}><Input type="date" value={end} onChange={(event) => setEnd(event.target.value)} /></FieldWrapper>}<FieldWrapper label={t("field.managerNote")} className="sm:col-span-2"><Textarea value={note} onChange={(event) => setNote(event.target.value)} /></FieldWrapper><div className="space-y-2 sm:col-span-2"><p className="text-sm font-medium">{t("field.progressEvidence")}</p><p className="text-xs text-muted-foreground">{t("field.progressEvidenceHelp")}</p><div className="max-h-52 overflow-y-auto rounded-lg border">{candidates.isError ? <div className="p-5 text-center text-sm text-destructive">{t("state.candidatesLoadError")}</div> : candidates.isLoading ? <LoadingState /> : !(candidates.data?.count) ? <div className="p-5 text-center text-sm text-muted-foreground">{t("state.noConfirmedProgress")}</div> : candidates.data.results.map((row) => <EvidenceOption key={row.id} row={row} checked={selected.includes(row.id)} locked={lockedEvidence.has(row.id)} onToggle={() => toggle(row.id)} />)}</div></div></div><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button disabledReason={Number(progress) < 0 || Number(progress) > 100 ? common("outOfRange", { field: t("field.actualProgress"), min: 0, max: 100 }) : undefined} requires={[[Number(progress) <= 0 || start, t("field.actualStart")]]} disabled={Number(progress) < 0 || Number(progress) > 100 || save.isPending} onClick={() => save.mutate()}><Check />{t("action.confirmProgress")}</Button></DialogFooter></DialogContent></Dialog>;
-}
-
-function EvidenceOption({ row, checked, locked, onToggle }: { row: ProgressCandidate; checked: boolean; locked: boolean; onToggle: () => void }) {
-  const df = useDateFormat();
-  const percent = usePercentText();
-  return <label className="flex cursor-pointer items-start gap-3 border-b p-3 last:border-0 hover:bg-muted/30"><input type="checkbox" className="mt-1" checked={checked} disabled={locked} onChange={onToggle} /><div className="min-w-0"><p className="text-sm font-medium">{row.phase_name} / {percent(row.percent_complete)}</p><p className="truncate text-xs text-muted-foreground">{row.description}</p><p className="mt-1 text-xs text-muted-foreground">{df.dateTime(row.captured_at)} / {row.submitted_by_name}</p></div></label>;
+  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-3xl"><DialogHeader><DialogTitle>{t("dialog.progressTitle")}</DialogTitle><DialogDescription>{task.wbs_code} - {task.name}. {t("dialog.progressHelp")}</DialogDescription></DialogHeader><div className="grid gap-4 sm:grid-cols-2"><FieldWrapper label={t("field.actualProgress")} required><Input type="number" min="0" max="100" step="0.01" value={progress} onChange={(event) => setProgress(event.target.value)} /></FieldWrapper><FieldWrapper label={t("field.actualStart")} required={Number(progress) > 0}><Input type="date" value={start} onChange={(event) => setStart(event.target.value)} /></FieldWrapper>{Number(progress) >= 100 && <FieldWrapper label={t("field.actualEnd")}><Input type="date" value={end} onChange={(event) => setEnd(event.target.value)} /></FieldWrapper>}<FieldWrapper label={t("field.managerNote")} className="sm:col-span-2"><Textarea value={note} onChange={(event) => setNote(event.target.value)} /></FieldWrapper><div className="space-y-2 sm:col-span-2"><p className="text-sm font-medium">{t("field.progressEvidence")}</p><p className="text-xs text-muted-foreground">{t("field.progressEvidenceHelp")}</p><ProgressRecordPicker project={project} linked={linked.data?.results ?? []} selected={selected} onToggle={toggle} /></div></div><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button disabledReason={Number(progress) < 0 || Number(progress) > 100 ? common("outOfRange", { field: t("field.actualProgress"), min: 0, max: 100 }) : undefined} requires={[[Number(progress) <= 0 || start, t("field.actualStart")]]} disabled={Number(progress) < 0 || Number(progress) > 100 || save.isPending} onClick={() => save.mutate()}><Check />{t("action.confirmProgress")}</Button></DialogFooter></DialogContent></Dialog>;
 }
 
 type MappingField = "wbs_code" | "parent_wbs" | "name" | "description" | "planned_start" | "planned_end" | "duration_days";

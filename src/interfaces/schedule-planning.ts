@@ -105,8 +105,22 @@ export interface ScheduleTask {
    * (JB225, audit 11-19 F2); absent from an older backend.
    */
   progress_link_count?: number;
+  /**
+   * 「顾问审批」 (JB266, 客户 11-26 事项 7): the consultant applications of the
+   * task - its 「施工计划任务」 on the application, or a photo of a site record
+   * linked here among the application's evidence. Empty for a reader without
+   * 顾问申请; absent from an older backend.
+   */
+  consultant_approvals?: ScheduleConsultantApproval[];
   created_at: string;
   updated_at: string;
+}
+
+export interface ScheduleConsultantApproval {
+  id: string;
+  application_no: string;
+  revision: number;
+  status: string;
 }
 
 export interface ScheduleOverview {
@@ -160,22 +174,60 @@ export interface ScheduleHistoryEntry {
   revision_label: string | null;
   task: string | null;
   task_name: string | null;
+  task_wbs_code?: string | null;
   event: string;
   note: string;
   snapshot: Record<string, unknown>;
   actor: string | null;
   actor_name: string | null;
   created_at: string;
+  /**
+   * 「确认实际进度」 rows (JB272): 完成% before and after. `progress_before`
+   * is null when an entry saved before JB272 cannot tell.
+   */
+  progress_before?: string | null;
+  progress_after?: string | null;
+  /** The site records linked that time; empty for a reader without 施工进度. */
+  linked_records?: ProgressCandidate[];
+  linked_record_count?: number;
+  /** Linked for the first time at this confirmation (empty on older rows). */
+  new_record_ids?: string[];
 }
 
+/**
+ * A 施工进度 record as the schedule lists it (JB271-JB273): number,
+ * photographs, 施工分类, time, who recorded it.
+ */
 export interface ProgressCandidate {
   id: string;
+  record_no?: string;
+  phase?: string | null;
   phase_name: string;
+  category_name?: string | null;
   description: string;
   /** Null when the site left it out (H5/H11, HD2). */
   percent_complete: string | null;
   captured_at: string;
+  is_rain?: boolean;
   submitted_by_name: string;
+  created_by_name?: string | null;
+  cover_photo_url?: string | null;
+  photo_thumbs?: string[] | null;
+  photo_count?: number | null;
+}
+
+/** 项目进度摘要's figures for one schedule (JB267). */
+export interface ScheduleProjectProgressPlan extends ScheduleOverview {
+  plan_name: string;
+  tasks: Array<{
+    id: string;
+    wbs_code: string;
+    name: string;
+    planned_progress: string;
+    actual_progress: string;
+    schedule_status: ScheduleTaskStatus;
+    progress_confirmed_at: string | null;
+  }>;
 }
 
 export interface ScheduleTaskPayload {
