@@ -24292,7 +24292,11 @@
   "jb274": {
     "notifyOnly": "Maklumkan juga (tidak menugaskan)",
     "notifyOnlyHint": "Orang yang ditanda hanya dimaklumkan dan boleh bercakap dalam sembang pembaikan; mereka bukan orang bertanggungjawab. Pilih siapa yang membaikinya di \"Orang bertanggungjawab\" di atas.",
-    "notChosenYet": "Tiada orang bertanggungjawab dipilih: item akan menunjukkan \"Menunggu untuk ditugaskan\" dan perlu ditugaskan semula."
+    "notChosenYet": "Tiada orang bertanggungjawab dipilih: item akan menunjukkan \"Menunggu untuk ditugaskan\" dan perlu ditugaskan semula.",
+    "askAssignTitle": "Orang bertanggungjawab belum dipilih. Tugaskan kepada orang yang anda tanda di \"Maklumkan juga\"?",
+    "askAssignHint": "Orang di \"Maklumkan juga\" hanya dimaklumkan - mereka tidak membaikinya. Tanpa orang bertanggungjawab, item akan menunjukkan \"Menunggu untuk ditugaskan\".",
+    "assignTo": "Tugaskan kepada {name}",
+    "notifyOnlyGo": "Jangan tugaskan, cipta sekarang"
   },
   "jb244": {
     "open": "Import Excel",

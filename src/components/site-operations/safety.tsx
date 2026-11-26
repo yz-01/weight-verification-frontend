@@ -1603,6 +1603,20 @@ function SafetyCreateDialog({
   // do, the window stays open and says so; 【建立整改事项】 waits.
   const officeFileCount = fieldMode ? 0 : (draft.attachments ?? []).length;
   const [uploading, setUploading] = useState(false);
+  // JB274 (QA2, 客户 11-26 事项 15 「避免重复指派」): people ticked in
+  // 「另外通知」 with no 整改负责人 - asked once, one tap, before saving.
+  const [askAssign, setAskAssign] = useState(false);
+  const [notifyOnlyChosen, setNotifyOnlyChosen] = useState(false);
+  const tickedPeople = selectableWorkers.filter((row) => draft.notifyUsers.includes(row.id));
+  const shouldAskAssign =
+    !fieldMode && !draft.rectifier && tickedPeople.length > 0 && !notifyOnlyChosen;
+  function submitCreate() {
+    if (shouldAskAssign) {
+      setAskAssign(true);
+      return;
+    }
+    create.mutate();
+  }
   const uploadingLine = uploading ? t("safety.officeCreate.uploading", { count: officeFileCount }) : "";
   // Closing the browser now would cut the files off: it asks first.
   useEffect(() => {
@@ -2063,6 +2077,37 @@ function SafetyCreateDialog({
             {uploadingLine}
           </p>
         )}
+        {askAssign && shouldAskAssign && (
+          <div role="alert" data-jb274="ask-assign" className="space-y-2 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm dark:border-amber-700 dark:bg-amber-950/40">
+            <p className="font-medium">{t("jb274.askAssignTitle")}</p>
+            <p className="text-xs text-muted-foreground">{t("jb274.askAssignHint")}</p>
+            <div className="flex flex-wrap gap-2">
+              {tickedPeople.map((row) => (
+                <Button
+                  key={row.id}
+                  size="sm"
+                  onClick={() => {
+                    setDraft((current) => ({ ...current, rectifier: row.id }));
+                    setAskAssign(false);
+                  }}
+                >
+                  {t("jb274.assignTo", { name: row.full_name })}
+                </Button>
+              ))}
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  setNotifyOnlyChosen(true);
+                  setAskAssign(false);
+                  create.mutate();
+                }}
+              >
+                {t("jb274.notifyOnlyGo")}
+              </Button>
+            </div>
+          </div>
+        )}
         <DialogFooter>
           <Button variant="outline" onClick={onClose} disabled={uploading} disabledReason={uploadingLine || undefined}>
             {t("common.cancel")}
@@ -2076,7 +2121,7 @@ function SafetyCreateDialog({
               ? [[photosReady, t("safety.field.photo")], [draft.project, t("safety.field.project")], [draft.latitude && draft.longitude, t("safety.field.location")]]
               : [[draft.project, t("safety.field.project")], [category, t("safety.field.category")], [draft.title, t("safety.field.title")]]),
             [!draft.rectifier || draft.rectifierDueAt, t("safetyRectification.field.dueAt")],
-          ] as Array<[unknown, string]>} disabled={create.isPending} disabledReason={uploadingLine || undefined} onClick={() => create.mutate()}>
+          ] as Array<[unknown, string]>} disabled={create.isPending} disabledReason={uploadingLine || undefined} onClick={submitCreate}>
 
             {create.isPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
