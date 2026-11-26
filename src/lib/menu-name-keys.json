@@ -15,6 +15,7 @@
     "nav.equipment",
     "nav.submodule.siteEquipment",
     "nav.submodule.equipmentOperatorHours",
+    "nav.submodule.equipmentRentalStatements",
     "nav.progress",
     "nav.submodule.progressRecords",
     "nav.site_disposals",
