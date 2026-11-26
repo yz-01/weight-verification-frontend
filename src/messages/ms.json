@@ -4058,7 +4058,9 @@
       "company_modules_by_platform": "MSE menghidupkan atau mematikan modul perniagaan syarikat",
       "equipment_rental_terms_set": "Tetapkan terma sewa peralatan",
       "equipment_rental_month_amounts_set": "Masukkan caj diesel atau pelarasan sewa peralatan",
-      "equipment_rental_month_confirmed": "Sahkan amaun sewa peralatan sebulan"
+      "equipment_rental_month_confirmed": "Sahkan amaun sewa peralatan sebulan",
+      "material_request_linked": "Dipautkan kepada MR / permohonan lain",
+      "material_request_unlinked": "Pautan MR / permohonan lain dibuang"
     },
     "objectType": {
       "SignOffAssistant": "PIN pembantu",
@@ -9731,7 +9733,9 @@
       "role_start_fixed": "\"Ibu pejabat\" dan \"Projek\" ialah titik mula Jemput pengguna: tidak boleh diubah, dan kodnya tidak boleh digunakan.",
       "invite_workplace_required": "Pilih ibu pejabat atau projek.",
       "invite_projects_required": "Tandakan sekurang-kurangnya satu projek.",
-      "invite_role_wrong_kind": "Kebenaran biasa yang dipilih bukan untuk tempat yang dipilih (ibu pejabat atau projek). Pilih semula."
+      "invite_role_wrong_kind": "Kebenaran biasa yang dipilih bukan untuk tempat yang dipilih (ibu pejabat atau projek). Pilih semula.",
+      "material_request_link_required": "Rekod ini ({reference}) belum dipautkan kepada MR / permohonan lain. Tidak boleh diarkibkan sehingga dipautkan.",
+      "material_request_link_invalid": "Hanya MR / permohonan lain projek ini boleh dipautkan (bukan yang telah dipulangkan)."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -24057,5 +24061,64 @@
     "chooseProject": "Pilih projek untuk melihat kemajuan jadualnya di sini.",
     "noPlan": "Projek ini belum ada jadual.",
     "lastConfirmed": "Disahkan terakhir {time}"
+  },
+  "jb279": {
+    "link": {
+      "title": "Permohonan dipautkan (MR / permohonan lain)",
+      "help": "Pilih MR atau permohonan lain projek ini untuk rekod bahan ini. Boleh pilih lebih daripada satu.",
+      "phoneLabel": "Permohonan dipautkan (MR / permohonan lain)",
+      "phoneHelp": "Pilih permohonan untuk bahan ini. Boleh dibiarkan kosong, pejabat akan mengisinya; rekod tanpa pautan tidak boleh diarkibkan.",
+      "chooseProjectFirst": "Pilih projek dahulu.",
+      "loading": "Membaca permohonan…",
+      "what": "permohonan projek ini",
+      "none": "Projek ini belum ada permohonan untuk dipautkan.",
+      "search": "Cari nombor permohonan, bahan atau perkara",
+      "chosen": "{count} dipilih",
+      "missing": "Belum dipautkan kepada MR / permohonan lain. Tidak boleh diarkibkan sehingga dipautkan.",
+      "empty": "Belum ada permohonan dipautkan.",
+      "edit": "Pautkan permohonan",
+      "change": "Tukar pautan",
+      "dialogTitle": "{reference} · Permohonan dipautkan",
+      "save": "Simpan pautan",
+      "cancel": "Batal",
+      "saved": "Pautan disimpan",
+      "failed": "Tidak disimpan. Sila cuba lagi.",
+      "linkedBy": "Dipautkan oleh {name} pada {when}",
+      "lockedArchived": "Sudah diarkibkan: pautan tidak boleh diubah lagi."
+    },
+    "archiveBlocked": "Belum dipautkan kepada MR / permohonan lain, jadi tidak boleh diarkibkan. Pilih satu di 「Permohonan dipautkan」 dahulu.",
+    "records": {
+      "title": "Rekod bahan dipautkan",
+      "help": "Penghantaran, pemulangan dan pengeluaran bahan yang dipautkan kepada permohonan ini. Klik satu baris untuk membuka rekod asal.",
+      "loading": "Membaca…",
+      "what": "rekod bahan dipautkan",
+      "empty": "Belum ada rekod bahan dipautkan kepada permohonan ini.",
+      "kind": {
+        "RECEIPT": "Bahan masuk",
+        "RETURN": "Bahan dipulangkan",
+        "ISSUE": "Pengeluaran bahan"
+      },
+      "column": {
+        "kind": "Jenis",
+        "reference": "Nombor",
+        "date": "Tarikh",
+        "material": "Bahan",
+        "quantity": "Kuantiti",
+        "status": "Status"
+      },
+      "notInRequest": "Tiada dalam permohonan",
+      "appliedOnly": "(dipohon)",
+      "totalsTitle": "Kuantiti (rekod dipautkan sahaja)",
+      "totalsHelp": "Bahan masuk dibandingkan dengan kuantiti dipohon; pemulangan dan pengeluaran dikira berasingan dan tidak ditolak antara satu sama lain. Bahan masuk yang ditolak tidak dikira; pemulangan dan pengeluaran dikira setelah selesai.",
+      "totals": {
+        "material": "Bahan",
+        "applied": "Dipohon",
+        "received": "Sudah masuk",
+        "outstanding": "Belum masuk",
+        "overBy": "Lebih {quantity}",
+        "returned": "Dipulangkan",
+        "issued": "Dikeluarkan"
+      }
+    }
   }
 }

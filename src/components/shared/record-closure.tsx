@@ -106,6 +106,7 @@ export function RecordClosurePanel({
   blocked?: { reason: string; action?: ReactNode } | null;
 }) {
   const t = useTranslations("recordClosure");
+  const tLink = useTranslations("jb279");
   const formatter = useDateFormat();
   const queryClient = useQueryClient();
   const [note, setNote] = useState("");
@@ -184,6 +185,11 @@ export function RecordClosurePanel({
   // Its own steps are not done yet: the module's buttons come first.
   if (!state.data?.ready) return null;
 
+  // JB279: 「未完成关联，不允许确认归档」 - said beside the button, which stays
+  // off until the record is linked to its MR / 其他申请 (「关联申请」 above).
+  const shownBlock =
+    blocked ?? (state.data.mr_link_missing ? { reason: tLink("archiveBlocked") } : null);
+
   return (
     <div className="space-y-2 rounded-lg border p-3" data-record-closure="open">
       <p className="text-sm font-semibold">{t("title")}</p>
@@ -196,18 +202,18 @@ export function RecordClosurePanel({
       />
       {/* The record panel's size, as the buttons above it in the same
           card (JB166, Lucas 11-11: 「这些按钮不consistent」). */}
-      {blocked && (
+      {shownBlock && (
         <div className="space-y-2" data-record-closure-blocked>
           <p role="status" className="rounded-md bg-warning/10 px-2 py-1.5 text-sm font-medium text-warning">
-            {blocked.reason}
+            {shownBlock.reason}
           </p>
-          {blocked.action ?? null}
+          {shownBlock.action ?? null}
         </div>
       )}
       <Button
         size="sm"
-        disabled={confirm.isPending || Boolean(blocked)}
-        disabledReason={blocked?.reason}
+        disabled={confirm.isPending || Boolean(shownBlock)}
+        disabledReason={shownBlock?.reason}
         onClick={() => confirm.mutate()}
       >
         {confirm.isPending ? (

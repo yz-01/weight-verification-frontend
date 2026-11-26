@@ -45,6 +45,7 @@ import { SundryClaimCapture } from "@/components/field-staff/sundry-claim-captur
 import { SiteStaffHoursView } from "@/components/equipment-hours/site-staff-hours-view";
 import { RainInProgressMark, RainyWeatherCapture } from "@/components/field-staff/rainy-weather-capture";
 import { MaterialRequestForm } from "@/components/material-requests/request-form";
+import { RequestLinkPicker } from "@/components/material-requests/request-links";
 import { GateRecordsPanel } from "@/components/site-access/gate-records";
 import { SupplierQrScanner } from "@/components/field-staff/supplier-qr-scanner";
 import { SupplierReturnBadge } from "@/components/suppliers/supplier-return-badge";
@@ -395,6 +396,9 @@ export function MaterialCapturePanel({
   const [materialEvidence, setMaterialEvidence] = useDraftState("materialEvidence", createEmptyFieldEvidence);
   const [receiverSignature, setReceiverSignature] = useDraftState<File | undefined>("receiverSignature");
   const [supplierSignature, setSupplierSignature] = useDraftState<File | undefined>("supplierSignature");
+  // JB279 (客户 11-26 事项 20): the MR / 其他申请 this delivery is for.
+  const tLink = useTranslations("jb279.link");
+  const [linkedRequests, setLinkedRequests] = useDraftState<string[]>("materialRequests", []);
   const receiptEventId = useDraftEventId("material-receipt");
   const clearDraft = useClearDraft();
   const [scannedQr, setScannedQr] = useState<SupplierQRCode>();
@@ -736,6 +740,7 @@ export function MaterialCapturePanel({
           longitude: location.longitude,
           location_accuracy_m: location.accuracy,
           ocr_proof: ocrProof || undefined,
+          material_requests: linkedRequests.length ? linkedRequests.join(",") : undefined,
         },
         signature: receiverSignature,
         supplierSignature,
@@ -785,6 +790,8 @@ export function MaterialCapturePanel({
             // A column belongs to one site, so the one chosen for the old
             // project is not a valid answer for the new one.
             setDraft((old) => ({ ...old, project, category: "", specCategory: "" }));
+            // A request belongs to one project too (JB279).
+            setLinkedRequests([]);
           }}
           placeholder={t("material.chooseProject")}
           className="h-12 w-full"
@@ -1112,6 +1119,11 @@ export function MaterialCapturePanel({
         required
       />
       <Textarea value={draft.notes} onChange={(event) => setDraft((old) => ({ ...old, notes: event.target.value }))} placeholder={t("material.notes")} />
+      {/* JB279: 「必须能够选择并关联本项目对应的 MR／其他申请记录」 - optional here;
+          the office links it before 确认归档 when the site did not. */}
+      <FieldWrapper label={tLink("phoneLabel")} hint={tLink("phoneHelp")}>
+        <RequestLinkPicker project={draft.project} value={linkedRequests} onChange={setLinkedRequests} />
+      </FieldWrapper>
       {/* 当天货不对 (10-02 D08): the same delivery, turned away here with
           both signatures - no return application, no conversation first. It
           stays on record and never counts as received. */}

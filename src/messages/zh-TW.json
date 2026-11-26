@@ -4058,7 +4058,9 @@
       "company_modules_by_platform": "MSE 開啟或關閉公司的業務模組",
       "equipment_rental_terms_set": "設定設備租賃條件",
       "equipment_rental_month_amounts_set": "填寫設備租賃的柴油費用或調整金額",
-      "equipment_rental_month_confirmed": "確認設備本月租賃金額"
+      "equipment_rental_month_confirmed": "確認設備本月租賃金額",
+      "material_request_linked": "關聯 MR／其他申請",
+      "material_request_unlinked": "取消關聯 MR／其他申請"
     },
     "objectType": {
       "SignOffAssistant": "助理副密碼",
@@ -9731,7 +9733,9 @@
       "role_start_fixed": "「總部」「項目」是邀請用戶用的起點，不能修改，也不能用這個代號。",
       "invite_workplace_required": "請選「總部」或「項目」。",
       "invite_projects_required": "請至少勾一個所屬項目。",
-      "invite_role_wrong_kind": "選的常用權限和「總部 / 項目」不一樣，請重新選。"
+      "invite_role_wrong_kind": "選的常用權限和「總部 / 項目」不一樣，請重新選。",
+      "material_request_link_required": "這筆記錄（{reference}）還沒有關聯 MR／其他申請。未完成關聯，不能確認歸檔。",
+      "material_request_link_invalid": "只能關聯本項目的 MR／其他申請（已退回的不能選）。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -24057,5 +24061,64 @@
     "chooseProject": "選一個項目，這裡就會顯示它的施工計劃進度。",
     "noPlan": "這個項目還沒有施工計劃。",
     "lastConfirmed": "最後確認 {time}"
+  },
+  "jb279": {
+    "link": {
+      "title": "關聯申請（MR／其他申請）",
+      "help": "選這筆進場、退場或領用對應的本項目 MR 或其他申請，可以選多張。",
+      "phoneLabel": "關聯申請（MR／其他申請）",
+      "phoneHelp": "選這批材料對應的申請。可以不選，後台會補上；沒有關聯就不能確認歸檔。",
+      "chooseProjectFirst": "先選項目。",
+      "loading": "正在讀取申請…",
+      "what": "這個項目的申請",
+      "none": "這個項目還沒有可以關聯的申請。",
+      "search": "搜尋申請編號、材料或事項",
+      "chosen": "已選 {count} 張",
+      "missing": "還沒有關聯 MR／其他申請。未完成關聯，不能確認歸檔。",
+      "empty": "還沒有關聯申請。",
+      "edit": "關聯申請",
+      "change": "更改關聯",
+      "dialogTitle": "{reference} · 關聯申請",
+      "save": "保存關聯",
+      "cancel": "取消",
+      "saved": "關聯已保存",
+      "failed": "沒有保存，請再試一次。",
+      "linkedBy": "{name} 於 {when} 關聯",
+      "lockedArchived": "已歸檔，關聯不能再改。"
+    },
+    "archiveBlocked": "還沒有關聯 MR／其他申請，不能確認歸檔。請先在「關聯申請」選好。",
+    "records": {
+      "title": "已關聯的進場、退場和領用",
+      "help": "關聯這張申請的材料進場、材料退場和材料領用。點一行打開原始記錄。",
+      "loading": "正在讀取…",
+      "what": "已關聯的進場、退場和領用",
+      "empty": "還沒有進場、退場或領用關聯這張申請。",
+      "kind": {
+        "RECEIPT": "材料進場",
+        "RETURN": "材料退場",
+        "ISSUE": "材料領用"
+      },
+      "column": {
+        "kind": "類型",
+        "reference": "編號",
+        "date": "日期",
+        "material": "材料",
+        "quantity": "數量",
+        "status": "狀態"
+      },
+      "notInRequest": "不在申請裡",
+      "appliedOnly": "（申請數量）",
+      "totalsTitle": "數量對比（只算已關聯的記錄）",
+      "totalsHelp": "材料進場數量和申請數量對比；材料退場和材料領用各自統計，不互相扣減。進場不算不合格的，退場和領用只算已完成的。",
+      "totals": {
+        "material": "材料",
+        "applied": "申請數量",
+        "received": "已進場",
+        "outstanding": "還差",
+        "overBy": "超出 {quantity}",
+        "returned": "已退場",
+        "issued": "已領用"
+      }
+    }
   }
 }

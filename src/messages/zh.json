@@ -4058,7 +4058,9 @@
       "company_modules_by_platform": "MSE 开启或关闭公司的业务模块",
       "equipment_rental_terms_set": "设定设备租赁条件",
       "equipment_rental_month_amounts_set": "填写设备租赁的柴油费用或调整金额",
-      "equipment_rental_month_confirmed": "确认设备本月租赁金额"
+      "equipment_rental_month_confirmed": "确认设备本月租赁金额",
+      "material_request_linked": "关联 MR／其他申请",
+      "material_request_unlinked": "取消关联 MR／其他申请"
     },
     "objectType": {
       "SignOffAssistant": "助理副密码",
@@ -9731,7 +9733,9 @@
       "role_start_fixed": "「总部」「项目」是邀请用户用的起点，不能修改，也不能用这个代号。",
       "invite_workplace_required": "请选「总部」或「项目」。",
       "invite_projects_required": "请至少勾一个所属项目。",
-      "invite_role_wrong_kind": "选的常用权限和「总部 / 项目」不一样，请重新选。"
+      "invite_role_wrong_kind": "选的常用权限和「总部 / 项目」不一样，请重新选。",
+      "material_request_link_required": "这笔记录（{reference}）还没有关联 MR／其他申请。未完成关联，不能确认归档。",
+      "material_request_link_invalid": "只能关联本项目的 MR／其他申请（已退回的不能选）。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -24057,5 +24061,64 @@
     "chooseProject": "选一个项目，这里就会显示它的施工计划进度。",
     "noPlan": "这个项目还没有施工计划。",
     "lastConfirmed": "最后确认 {time}"
+  },
+  "jb279": {
+    "link": {
+      "title": "关联申请（MR／其他申请）",
+      "help": "选这笔进场、退场或领用对应的本项目 MR 或其他申请，可以选多张。",
+      "phoneLabel": "关联申请（MR／其他申请）",
+      "phoneHelp": "选这批材料对应的申请。可以不选，后台会补上；没有关联就不能确认归档。",
+      "chooseProjectFirst": "先选项目。",
+      "loading": "正在读取申请…",
+      "what": "这个项目的申请",
+      "none": "这个项目还没有可以关联的申请。",
+      "search": "搜索申请编号、材料或事项",
+      "chosen": "已选 {count} 张",
+      "missing": "还没有关联 MR／其他申请。未完成关联，不能确认归档。",
+      "empty": "还没有关联申请。",
+      "edit": "关联申请",
+      "change": "更改关联",
+      "dialogTitle": "{reference} · 关联申请",
+      "save": "保存关联",
+      "cancel": "取消",
+      "saved": "关联已保存",
+      "failed": "没有保存，请再试一次。",
+      "linkedBy": "{name} 于 {when} 关联",
+      "lockedArchived": "已归档，关联不能再改。"
+    },
+    "archiveBlocked": "还没有关联 MR／其他申请，不能确认归档。请先在「关联申请」选好。",
+    "records": {
+      "title": "已关联的进场、退场和领用",
+      "help": "关联这张申请的材料进场、材料退场和材料领用。点一行打开原始记录。",
+      "loading": "正在读取…",
+      "what": "已关联的进场、退场和领用",
+      "empty": "还没有进场、退场或领用关联这张申请。",
+      "kind": {
+        "RECEIPT": "材料进场",
+        "RETURN": "材料退场",
+        "ISSUE": "材料领用"
+      },
+      "column": {
+        "kind": "类型",
+        "reference": "编号",
+        "date": "日期",
+        "material": "材料",
+        "quantity": "数量",
+        "status": "状态"
+      },
+      "notInRequest": "不在申请里",
+      "appliedOnly": "（申请数量）",
+      "totalsTitle": "数量对比（只算已关联的记录）",
+      "totalsHelp": "材料进场数量和申请数量对比；材料退场和材料领用各自统计，不互相扣减。进场不算不合格的，退场和领用只算已完成的。",
+      "totals": {
+        "material": "材料",
+        "applied": "申请数量",
+        "received": "已进场",
+        "outstanding": "还差",
+        "overBy": "超出 {quantity}",
+        "returned": "已退场",
+        "issued": "已领用"
+      }
+    }
   }
 }

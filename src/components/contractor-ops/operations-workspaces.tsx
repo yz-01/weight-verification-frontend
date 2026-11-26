@@ -48,6 +48,7 @@ import { useRef, useState } from "react";
 
 import { AddToPackageButton } from "@/components/contractor-ops/add-to-package";
 import { CloseTaskButton } from "@/components/contractor-ops/close-task-button";
+import { RecordRequestLinksPanel, RequestLinkPicker } from "@/components/material-requests/request-links";
 import { useAuth } from "@/components/providers/auth-provider";
 import {
   useCurrentProject,
@@ -4019,6 +4020,9 @@ export function OutgoingDialog({
   });
   const [scannedSupplier, setScannedSupplier] = useState("");
   const [photos, setPhotos] = useDraftState("photos", createEmptyFieldEvidence);
+  // JB279 (客户 11-26 事项 20): the MR / 其他申请 this return belongs to.
+  const tLink = useTranslations("jb279.link");
+  const [linkedRequests, setLinkedRequests] = useDraftState<string[]>("materialRequests", []);
   const clearDraft = useClearDraft();
   const [location, setLocation] = useState<LocationValue | null>(null);
   const columns = useQuery({
@@ -4106,6 +4110,7 @@ export function OutgoingDialog({
         longitude: location?.longitude,
         client_event_id: crypto.randomUUID(),
         field_task: fieldTaskId,
+        material_requests: linkedRequests.length ? linkedRequests.join(",") : undefined,
         photos: evidencePhotos,
         photo_captions: photoCaptions,
       });
@@ -4134,6 +4139,8 @@ export function OutgoingDialog({
                 setProject(next);
                 // A category belongs to one site.
                 setForm((old) => ({ ...old, category: "", spec_category: "", material_specification: "", unit: "" }));
+                // A request too (JB279).
+                setLinkedRequests([]);
               }}
               placeholder={t("field.selectProject")}
               disabled={Boolean(initialProject) && isFieldStaff}
@@ -4309,6 +4316,11 @@ export function OutgoingDialog({
               placeholder={t("outgoing.reasonPlaceholder")}
               onChange={(e) => set("reason", e.target.value)}
             />
+          </FieldWrapper>
+          {/* JB279: 「必须能够选择并关联本项目对应的 MR／其他申请记录」 - optional
+              here; the office links it before 确认归档 when the site did not. */}
+          <FieldWrapper label={tLink("phoneLabel")} hint={tLink("phoneHelp")} className="sm:col-span-2">
+            <RequestLinkPicker project={project} value={linkedRequests} onChange={setLinkedRequests} />
           </FieldWrapper>
         </div>
         <DialogFooter>
@@ -4712,7 +4724,8 @@ export function OutgoingDetailDialog({
   const tRootDetail = useTranslations();
   const unitNameDetail = useUnitName();
   const df = useDateFormat();
-  const { can } = useAuth();
+  const { can, user: reader } = useAuth();
+  const isFieldStaffReader = Boolean(reader?.is_field_staff);
   const qc = useQueryClient();
   const detail = useQuery({
     queryKey: ["material-outgoing", "detail", id],
@@ -4912,6 +4925,10 @@ export function OutgoingDetailDialog({
                 )}
               </dl>
             </section>
+            {/* JB279 (客户 11-26 事项 20): the MR / 其他申请 this 退场 / 领用
+                belongs to - linked before 确认归档. The office's; the phone
+                chose it when filing. */}
+            {!isFieldStaffReader && <RecordRequestLinksPanel kind="MATERIAL_OUTGOING" recordId={row.id} />}
             </>
           }
           actions={
