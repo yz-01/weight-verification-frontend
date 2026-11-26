@@ -21245,7 +21245,7 @@
     "normal": {
       "open": "Jam biasa: {hours} j",
       "title": "Jam biasa sehari",
-      "help": "Jam pertama setiap pengendali dalam sehari dikira biasa dan bakinya lebih masa; mesin tanpa pengendali, mengikut mesin. Hari ialah hari mula. Perubahan dikira untuk sesi yang tamat selepasnya; sesi lebih awal kekal seperti diselesaikan.",
+      "help": "Jam pertama setiap pengendali dalam sehari dikira biasa dan bakinya lebih masa; mesin tanpa pengendali, mengikut mesin. Hari ialah hari mula. Perubahan dikira untuk sesi yang tamat selepasnya; sesi lebih awal kekal seperti diselesaikan. Mesin yang syarat sewanya ada \"Jam bekerja biasa sehari\" sendiri menggunakan angka itu.",
       "label": "Jam biasa sehari",
       "save": "Simpan",
       "failed": "Tidak dapat menyimpan. Sila cuba lagi.",
@@ -23891,7 +23891,7 @@
       "MONTHLY": "Sewa asas = kadar bulanan × hari bulan ini dalam tempoh sewa ÷ hari dalam bulan; setiap hari bekerja melebihi hari standard menambah caj hari lebih.",
       "YEARLY": "Sewa asas = kadar tahunan ÷ 12 × hari bulan ini dalam tempoh sewa ÷ hari dalam bulan; hari lebih dicaj seperti sebulan.",
       "FIXED": "Sewa asas = amaun tetap bulanan × hari bulan ini dalam tempoh sewa ÷ hari dalam bulan, tanpa mengira jam, juga tanpa rekod masuk kerja.",
-      "common": "Caj lebih masa = jam lebih masa × kadar lebih masa. Diesel dikira hanya jika pembekal mengecaj berasingan; masukkan di halaman Bulanan. Jumlah sewa = sewa asas + caj lebih masa + caj diesel ± pelarasan. Jam biasa dan lebih masa ialah angka halaman ini (dibahagi mengikut tetapan \"Jam biasa\" di atas); \"Jam bekerja biasa sehari\" merekod kontrak - jika berbeza, ubah juga tetapan halaman ini."
+      "common": "Caj lebih masa = jam lebih masa × kadar lebih masa. Diesel dikira hanya jika pembekal mengecaj berasingan; masukkan di halaman Bulanan. Jumlah sewa = sewa asas + caj lebih masa + caj diesel ± pelarasan. Jam biasa dan lebih masa ialah angka halaman ini: mesin yang ada \"Jam bekerja biasa sehari\" sendiri dibahagi mengikut angka itu; yang tiada, mengikut tetapan \"Jam biasa\" di atas."
     },
     "save": "Simpan",
     "cancel": "Batal",

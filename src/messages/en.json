@@ -21245,7 +21245,7 @@
     "normal": {
       "open": "Normal hours: {hours} h",
       "title": "Daily normal hours",
-      "help": "Each operator's first hours of a day count as normal and the rest as overtime; a machine with no operator, per machine. The day is the start's day. A change counts for sessions that end after it; earlier ones stay as they were settled.",
+      "help": "Each operator's first hours of a day count as normal and the rest as overtime; a machine with no operator, per machine. The day is the start's day. A change counts for sessions that end after it; earlier ones stay as they were settled. A machine whose rental terms give its own \"Normal working hours a day\" uses that number.",
       "label": "Normal hours a day",
       "save": "Save",
       "failed": "Could not save. Please try again.",
@@ -23891,7 +23891,7 @@
       "MONTHLY": "Base rent = monthly rate × days of the month inside the rental period ÷ days in the month; each day worked beyond the standard working days adds the extra-day charge.",
       "YEARLY": "Base rent = yearly rate ÷ 12 × days of the month inside the rental period ÷ days in the month; extra days are charged as per month.",
       "FIXED": "Base rent = fixed monthly amount × days of the month inside the rental period ÷ days in the month, whatever the hours, also with no clock-ins.",
-      "common": "Overtime fee = overtime hours × overtime rate. Diesel counts only when the supplier charges for it separately; enter it on the Month page. Rental total = base rent + overtime fee + diesel fee ± adjustment. Normal and overtime hours are this page's figures (split by the \"Normal hours\" setting above); \"Normal working hours a day\" records the contract - when it differs, change this page's setting too."
+      "common": "Overtime fee = overtime hours × overtime rate. Diesel counts only when the supplier charges for it separately; enter it on the Month page. Rental total = base rent + overtime fee + diesel fee ± adjustment. Normal and overtime hours are this page's figures: a machine with its own \"Normal working hours a day\" is split by that number; one without, by the \"Normal hours\" setting above."
     },
     "save": "Save",
     "cancel": "Cancel",
