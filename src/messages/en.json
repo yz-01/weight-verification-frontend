@@ -9797,7 +9797,8 @@
       "archive_items_missing": "Some required items are still missing (see the list under Confirm and archive), so it cannot be archived.",
       "archive_check_not_ticked": "Tick \"I have checked all the information and it is correct.\" before archiving.",
       "return_gate_not_released": "The gate has not photographed and released it yet (vehicle, plate and goods), so the formal exit cannot be confirmed.",
-      "exit_release_shots_missing": "A material return is released with photos of the vehicle, its number plate and the goods leaving - at least one each. Take the missing ones, then press Confirm release."
+      "exit_release_shots_missing": "A material return is released with photos of the vehicle, its number plate and the goods leaving - at least one each. Take the missing ones, then press Confirm release.",
+      "invite_needs_user_update": "Inviting also sets the person's permissions, so you need 'Edit users' to invite. Ask your company administrator to switch it on for you."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -24090,7 +24091,8 @@
     "linkValid": "The link in the invitation e-mail is valid for {valid}.",
     "days": "{n, plural, one {# day} other {# days}}",
     "hours": "{n, plural, one {# hour} other {# hours}}",
-    "sent": "Invitation sent to {email}"
+    "sent": "Invitation sent to {email}",
+    "needsUserUpdate": "Inviting also sets the person's permissions, so you need 'Edit users' to invite. Ask your company administrator to switch it on for you."
   },
   "jb266": {
     "approvalColumn": "Consultant approval",

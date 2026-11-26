@@ -9797,7 +9797,8 @@
       "archive_items_missing": "還有必填資料沒有補齊（看「確認歸檔」裡列出的項目），系統不能歸檔。",
       "archive_check_not_ticked": "請先勾選「我已核對所有資料，確認無誤。」，再確認歸檔。",
       "return_gate_not_released": "門崗還沒有拍照放行（車輛、車牌及退場貨物），現在不能確認正式退場。",
-      "exit_release_shots_missing": "材料退場放行要拍車輛、車牌和退場貨物，每樣至少一張。還沒拍的：請補拍後再按【確認放行】。"
+      "exit_release_shots_missing": "材料退場放行要拍車輛、車牌和退場貨物，每樣至少一張。還沒拍的：請補拍後再按【確認放行】。",
+      "invite_needs_user_update": "邀請時會一起設定這個人的權限，所以要有「編輯用戶」權限才能邀請。請公司管理員幫你打開。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -24090,7 +24091,8 @@
     "linkValid": "邀請郵件裡的連結 {valid}內有效。",
     "days": "{n} 天",
     "hours": "{n} 小時",
-    "sent": "已發送邀請到 {email}"
+    "sent": "已發送邀請到 {email}",
+    "needsUserUpdate": "邀請時會一起設定這個人的權限，所以要有「編輯用戶」權限才能邀請。請公司管理員幫你打開。"
   },
   "jb266": {
     "approvalColumn": "顧問審批",

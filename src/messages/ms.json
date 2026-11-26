@@ -9797,7 +9797,8 @@
       "archive_items_missing": "Masih ada maklumat wajib yang belum lengkap (lihat senarai di bawah Sahkan dan arkibkan), jadi tidak boleh diarkibkan.",
       "archive_check_not_ticked": "Tandakan \"Saya telah menyemak semua maklumat dan ia betul.\" sebelum mengarkibkan.",
       "return_gate_not_released": "Pintu belum mengambil gambar dan melepaskannya (kenderaan, plat dan barang), jadi keluar rasmi belum boleh disahkan.",
-      "exit_release_shots_missing": "Pemulangan bahan dilepaskan dengan gambar kenderaan, nombor plat dan barang keluar - sekurang-kurangnya satu setiap satu. Ambil yang belum, kemudian tekan Sahkan lepas."
+      "exit_release_shots_missing": "Pemulangan bahan dilepaskan dengan gambar kenderaan, nombor plat dan barang keluar - sekurang-kurangnya satu setiap satu. Ambil yang belum, kemudian tekan Sahkan lepas.",
+      "invite_needs_user_update": "Menjemput juga menetapkan kebenaran orang itu, jadi anda perlu 'Sunting pengguna' untuk menjemput. Minta pentadbir syarikat anda menghidupkannya."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -24090,7 +24091,8 @@
     "linkValid": "Pautan dalam e-mel jemputan sah selama {valid}.",
     "days": "{n} hari",
     "hours": "{n} jam",
-    "sent": "Jemputan dihantar kepada {email}"
+    "sent": "Jemputan dihantar kepada {email}",
+    "needsUserUpdate": "Menjemput juga menetapkan kebenaran orang itu, jadi anda perlu 'Sunting pengguna' untuk menjemput. Minta pentadbir syarikat anda menghidupkannya."
   },
   "jb266": {
     "approvalColumn": "Kelulusan perunding",

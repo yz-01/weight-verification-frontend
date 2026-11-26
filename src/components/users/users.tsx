@@ -609,14 +609,22 @@ export function Users({
                   {t("fieldAccessAdmin.action")}
                 </Button>
               )}
-              {canCreateUser && (
-                <Button asChild>
-                  <Link href="/users/create">
+              {canCreateUser &&
+                (me?.portal === "MSE_TRACE" && !can("user.update") ? (
+                  // QA2 (JB242): a builder invites on one page that sets the
+                  // permissions too - 「编辑用户」 is needed; said before the click.
+                  <Button disabled disabledReason={t("jb242.needsUserUpdate")} showReason>
                     <Plus className="size-4" />
                     {t("users.new")}
-                  </Link>
-                </Button>
-              )}
+                  </Button>
+                ) : (
+                  <Button asChild>
+                    <Link href="/users/create">
+                      <Plus className="size-4" />
+                      {t("users.new")}
+                    </Link>
+                  </Button>
+                ))}
             </div>
           ) : null}
           </div>
