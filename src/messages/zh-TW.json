@@ -23962,6 +23962,7 @@
     },
     "started": "啟動出門條：{name} · {when}",
     "gateRecord": "門崗記錄 {number}，{photos} 張照片",
-    "waitGate": "門崗還沒有拍照放行（車輛、車牌及退場貨物），現在不能確認正式退場。"
+    "waitGate": "門崗還沒有拍照放行（車輛、車牌及退場貨物），現在不能確認正式退場。",
+    "phoneWaitApproval": "已提交，等後台負責人審核及批准。"
   }
 }

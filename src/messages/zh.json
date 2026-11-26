@@ -23962,6 +23962,7 @@
     },
     "started": "启动出门条：{name} · {when}",
     "gateRecord": "门岗记录 {number}，{photos} 张照片",
-    "waitGate": "门岗还没有拍照放行（车辆、车牌及退场货物），现在不能确认正式退场。"
+    "waitGate": "门岗还没有拍照放行（车辆、车牌及退场货物），现在不能确认正式退场。",
+    "phoneWaitApproval": "已提交，等后台负责人审核及批准。"
   }
 }

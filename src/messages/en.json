@@ -23962,6 +23962,7 @@
     },
     "started": "Exit pass started: {name} · {when}",
     "gateRecord": "Gate record {number}, {photos} photos",
-    "waitGate": "The gate has not photographed and released it yet (vehicle, plate and goods), so the formal exit cannot be confirmed."
+    "waitGate": "The gate has not photographed and released it yet (vehicle, plate and goods), so the formal exit cannot be confirmed.",
+    "phoneWaitApproval": "Sent. Waiting for the office to review and approve."
   }
 }

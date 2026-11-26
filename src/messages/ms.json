@@ -23962,6 +23962,7 @@
     },
     "started": "Pas keluar dimulakan: {name} · {when}",
     "gateRecord": "Rekod pintu {number}, {photos} gambar",
-    "waitGate": "Pintu belum mengambil gambar dan melepaskannya (kenderaan, plat dan barang), jadi keluar rasmi belum boleh disahkan."
+    "waitGate": "Pintu belum mengambil gambar dan melepaskannya (kenderaan, plat dan barang), jadi keluar rasmi belum boleh disahkan.",
+    "phoneWaitApproval": "Telah dihantar. Menunggu pejabat menyemak dan meluluskan."
   }
 }

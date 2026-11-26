@@ -3985,7 +3985,12 @@ export function OutgoingActions({
 }) {
   const t = useTranslations("contractorOps");
   const tFlow = useTranslations("jb281");
-  const { can } = useAuth();
+  const { can, user } = useAuth();
+  // Lucas 11-26 「手机不应该出现审批才对」 + 事项 22 「后台负责人审核及批准」:
+  // the Return Note, 批准 / 驳回 and 「确认正式退场」 are office steps - the
+  // server refuses the signed ones on a phone (`sign_off_office_only`). A
+  // phone shows where the record stands and its own step only (实际退场).
+  const onPhone = Boolean(user?.is_field_staff);
   const pathname = usePathname();
   const qc = useQueryClient();
   const offersExit =
@@ -4002,7 +4007,12 @@ export function OutgoingActions({
   const gateLocked = issue ? null : exitConfirmLockedReason(row, tFlow);
   return (
     <>
-      {can("material_outgoing.approve") && row.status === "PENDING" && (
+      {onPhone && row.status === "PENDING" && (
+        <p className="rounded-lg border border-info/25 bg-info/5 px-3 py-2 text-sm" data-phone-waits-office>
+          {tFlow("phoneWaitApproval")}
+        </p>
+      )}
+      {!onPhone && can("material_outgoing.approve") && row.status === "PENDING" && (
         // The record panel's size, the destructive step last and drawn as
         // every other one (JB166, Lucas 11-11: 「这些按钮不consistent」).
         <div className="flex flex-wrap items-center gap-2">
@@ -4043,7 +4053,7 @@ export function OutgoingActions({
         ))}
       {/* 待后台确认: the office confirms what left, which closes it. */}
       {row.status === "PROCESSED" &&
-        (can("material_outgoing.approve") ? (
+        (!onPhone && can("material_outgoing.approve") ? (
           <div className="space-y-2">
             {needsSupplier && <ReturnSupplierNeeded row={row} />}
             {gateLocked && (

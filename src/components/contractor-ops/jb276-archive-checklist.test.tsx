@@ -27,9 +27,10 @@ import ms from "@/messages/ms.json";
 import zhTW from "@/messages/zh-TW.json";
 import zh from "@/messages/zh.json";
 
+let onPhone = false;
 vi.mock("@/components/providers/auth-provider", () => ({
   useAuth: () => ({
-    user: { id: "u-office", full_name: "Wang HQ", is_field_staff: false },
+    user: { id: "u-office", full_name: "Wang HQ", is_field_staff: onPhone },
     can: () => true,
   }),
 }));
@@ -190,6 +191,44 @@ describe("材料退场's seven steps (JB281)", () => {
     );
     expect(html).not.toContain(zh.jb281.waitGate);
     expect(buttonWith(html, "确认正式退场")).not.toMatch(/\sdisabled=""/);
+  });
+});
+
+describe("the phone shows no approval (Lucas 11-26 「手机不应该出现审批才对」)", () => {
+  const outgoing = (status: string, kind = "RETURN"): MaterialOutgoing =>
+    ({
+      id: "o-1", reference_no: "MO-XP-001", project: "p-1", kind, status, supplier: "s-1",
+      supplier_name: "AAA", needs_supplier: false, has_return_note: status !== "PENDING",
+      material_name: "水泥", quantity: "10", unit: "BAG", photos: [],
+    }) as unknown as MaterialOutgoing;
+  const office = zh.contractorOps;
+
+  it("a phone account with every permission sees no Return Note, 批准, 驳回 or 确认正式退场", () => {
+    onPhone = true;
+    try {
+      for (const kind of ["RETURN", "ISSUE"]) {
+        const pending = render(<OutgoingActions row={outgoing("PENDING", kind)} pending={false} onReview={() => {}} />);
+        expect(pending).not.toContain("<button");
+        expect(pending).not.toContain(`>${office.action.approve}<`);
+        expect(pending).not.toContain(office.outgoing.returnAction);
+        expect(pending).not.toContain(office.returnNote.fill);
+        expect(pending).not.toContain(office.returnNote.edit);
+        expect(pending).toContain(zh.jb281.phoneWaitApproval);
+        const processed = render(<OutgoingActions row={outgoing("PROCESSED", kind)} pending={false} onReview={() => {}} />);
+        expect(processed).not.toContain(office.outgoing.finalConfirm);
+        expect(processed).not.toContain(office.issue.finalConfirm);
+        expect(processed).not.toContain("<button");
+      }
+    } finally {
+      onPhone = false;
+    }
+  });
+
+  it("the office keeps them", () => {
+    const pending = render(<OutgoingActions row={outgoing("PENDING")} pending={false} onReview={() => {}} />);
+    expect(pending).toContain(office.action.approve);
+    expect(pending).toContain(office.outgoing.returnAction);
+    expect(pending).toContain(office.returnNote.fill);
   });
 });
 
