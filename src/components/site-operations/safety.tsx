@@ -1945,8 +1945,12 @@ function SafetyCreateDialog({
               )}
             </FieldWrapper>
           )}
-          {/* 上报 → 指派 in one step (B22), and who confirms it (B21). */}
-          <FieldWrapper label={t("ehs.form.rectifier")} optional={t("common.optional")} className="sm:col-span-2">
+          {/* 上报 → 指派 in one step (B22), and who confirms it (B21). At a
+              desk it is 「整改负责人」, the word the 指派 window and the detail
+              use (JB274, 客户 11-26 事项 15: the consultant ticked his
+              rectifier in the notify list below, then called 「负责人及工地人员」,
+              and the item stayed 待分配). */}
+          <FieldWrapper label={fieldMode ? t("ehs.form.rectifier") : t("safety.field.responsible")} optional={t("common.optional")} className="sm:col-span-2">
             <Select
               value={draft.rectifier || "none"}
               onValueChange={(value) =>
@@ -1954,7 +1958,7 @@ function SafetyCreateDialog({
               }
               disabled={!draft.project}
             >
-              <SelectTrigger className="w-full" aria-label={t("ehs.form.rectifier")}><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full" aria-label={fieldMode ? t("ehs.form.rectifier") : t("safety.field.responsible")}><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="none">{t("ehs.form.noRectifier")}</SelectItem>
                 {selectableWorkers.map((row) => (
@@ -1962,6 +1966,9 @@ function SafetyCreateDialog({
                 ))}
               </SelectContent>
             </Select>
+            {!fieldMode && !draft.rectifier && draft.project && (
+              <p className="mt-1 text-xs text-muted-foreground" data-jb274="not-chosen">{t("jb274.notChosenYet")}</p>
+            )}
             {draft.rectifier && (
               <div className="mt-2">
                 <FieldWrapper label={t("safetyRectification.field.dueAt")} required>
@@ -1987,8 +1994,8 @@ function SafetyCreateDialog({
               flow into a wall: a worker who does not know who fixes scaffold
               could not report the scaffold. Unnamed hazards land in 待分配 and
               a supervisor claims them. */}
-          <FieldWrapper label={t("safety.fieldReport.notifyPeople")} optional={t("common.optional")} className="sm:col-span-2">
-            <p className="mb-2 text-xs text-muted-foreground">{t("safety.fieldReport.supervisorAutomatic")}</p>
+          <FieldWrapper label={fieldMode ? t("safety.fieldReport.notifyPeople") : t("jb274.notifyOnly")} optional={t("common.optional")} className="sm:col-span-2">
+            <p className="mb-2 text-xs text-muted-foreground">{fieldMode ? t("safety.fieldReport.supervisorAutomatic") : t("jb274.notifyOnlyHint")}</p>
             <div className="grid gap-2 sm:grid-cols-2">
               {selectableWorkers.map((row) => (
                 <label key={row.id} className="flex min-h-12 items-center gap-3 rounded-lg border p-3">

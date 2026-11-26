@@ -23906,5 +23906,10 @@
       "progress_claim": "Progress Claim (spending): the Multi Engine approved amount is not live yet, so it counts as 0. It is added automatically once live.",
       "disposal": "Waste clearance: its records have no amount (only weights, trips and the collector), so it counts as 0; no price is guessed."
     }
+  },
+  "jb274": {
+    "notifyOnly": "Also notify (does not assign)",
+    "notifyOnlyHint": "People ticked here are only notified and can talk in the rectification chat; they are not the responsible person. Choose who fixes it in \"Responsible person\" above.",
+    "notChosenYet": "No responsible person chosen: the item will show \"Waiting to be assigned\" and needs assigning again."
   }
 }

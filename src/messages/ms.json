@@ -23906,5 +23906,10 @@
       "progress_claim": "Progress Claim (perbelanjaan): amaun lulus Multi Engine belum aktif, jadi dikira 0. Ia ditambah secara automatik apabila aktif.",
       "disposal": "Pembersihan sampah: rekodnya tiada amaun (hanya berat, trip dan pengutip), jadi dikira 0; tiada harga diteka."
     }
+  },
+  "jb274": {
+    "notifyOnly": "Maklumkan juga (tidak menugaskan)",
+    "notifyOnlyHint": "Orang yang ditanda hanya dimaklumkan dan boleh bercakap dalam sembang pembaikan; mereka bukan orang bertanggungjawab. Pilih siapa yang membaikinya di \"Orang bertanggungjawab\" di atas.",
+    "notChosenYet": "Tiada orang bertanggungjawab dipilih: item akan menunjukkan \"Menunggu untuk ditugaskan\" dan perlu ditugaskan semula."
   }
 }
