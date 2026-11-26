@@ -4062,7 +4062,9 @@
       "material_request_linked": "Linked to an MR / other request",
       "material_request_unlinked": "Unlinked from an MR / other request",
       "menu_names_permission_by_platform": "MSE let a company rename its menu, or stopped it",
-      "menu_names_update": "Menu names changed"
+      "menu_names_update": "Menu names changed",
+      "external_site_evidence": "Outside company photographed vehicle exit / Gate Pass",
+      "fill_trip_numbers": "Load numbers filled in"
     },
     "objectType": {
       "SignOffAssistant": "Assistant PIN",
@@ -9739,7 +9741,10 @@
       "material_request_link_required": "This record ({reference}) is not linked to an MR / other request yet. It cannot be archived until it is linked.",
       "material_request_link_invalid": "Only this project's MR / other requests can be linked (not a returned one).",
       "menu_names_not_enabled": "MSE has not turned on menu names for your company yet.",
-      "menu_name_invalid": "Check the menu names: 1–20 characters each, no line breaks, no angle brackets."
+      "menu_name_invalid": "Check the menu names: 1–20 characters each, no line breaks, no angle brackets.",
+      "exit_pass_executor_missing": "No executor has been chosen yet, so the exit pass cannot be signed. Press [Choose executor] on this clearance first.",
+      "exit_pass_exit_evidence_missing": "No vehicle exit / Gate Pass photo yet, so the exit pass cannot be signed. The site or the clearance company takes them first.",
+      "disposal_trip_number_recorded": "Load {seq} already has this number. To change it, press Correct on the load and give a reason."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -9785,7 +9790,10 @@
       "supplier_not_on_project": "This supplier is not on this project's supplier list. Ask head office or the project manager to add it to the project first.",
       "field_one_project": "A phone account can be on one project at a time. Choose one project.",
       "phone_role_office_account": "Phone accounts are made in Field staff. An office account cannot be given a phone role (site staff, equipment operator, gate guard) here. Please choose another role.",
-      "assignee_not_on_project": "This person is no longer on this project and cannot be given its task. Please choose someone else."
+      "assignee_not_on_project": "This person is no longer on this project and cannot be given its task. Please choose someone else.",
+      "link_expiry_past": "This time has already passed. Choose a time later than now.",
+      "supplier_inactive": "This supplier is switched off. Choose another supplier.",
+      "trip_number_recorded": "Already recorded - use Correct to change it"
     },
     "forbidden": "You do not have access to this.",
     "forbiddenBody": "Ask your administrator if you need it.",
@@ -17836,7 +17844,8 @@
       "ENDED_EARLY": "Office ended the job early; loads not sent were dropped",
       "TRIP_CORRECTED": "Office corrected a load's weight / DO / plate",
       "SUPPLIER_SET": "Office named / changed the clearance company",
-      "ANOMALY_REPORTED": "Exception reported"
+      "ANOMALY_REPORTED": "Exception reported",
+      "TRIP_NUMBERS_FILLED": "Office filled in a load's weight / DO / plate"
     },
     "title": "Waste clearance",
     "toast": {
@@ -24159,5 +24168,40 @@
       "closedToast": "Turned off: this company's menu is back to the system names.",
       "saveFailed": "Could not save. Please try again."
     }
+  },
+  "jb282": {
+    "reviewLocked": "Your account does not have \"Review and arrange site disposal\", so you cannot review. Ask the company administrator to turn it on in the user's permissions."
+  },
+  "jb284": {
+    "expiryPast": "This time has already passed. Choose a time later than now."
+  },
+  "jb285": {
+    "step": {
+      "approved": "Application approved",
+      "executor": "Executor chosen (field staff or outside clearance company)",
+      "photos": "Loading and leaving-site photos taken (vehicle exit / Gate Pass)",
+      "photosDone": "Loading and leaving-site photos taken: {count} ({when})",
+      "sign": "Safety manager signs",
+      "gate": "Gate release"
+    },
+    "stepsLabel": "Exit pass steps",
+    "locked": {
+      "executor": "No executor has been chosen yet, so the exit pass cannot be signed. Press [Choose executor] first.",
+      "photos": "No vehicle exit / Gate Pass photo yet, so the exit pass cannot be signed. The site or the clearance company takes them on the phone first."
+    },
+    "capture": {
+      "title": "Loading and leaving-site photos",
+      "body": "When the lorry is loaded and before it leaves the site, photograph the vehicle leaving and the Gate Pass. The safety manager signs the exit pass after that.",
+      "done": "{count} taken and sent to the office."
+    }
+  },
+  "jb286": {
+    "title": "Record numbers",
+    "description": "{reference}: fill in the weight, DO number and plate the driver left blank. To change a number already there, press Correct on the load.",
+    "correctHint": "Only blank numbers are filled; each one is kept on the load's history.",
+    "save": "Save",
+    "nothing": "Fill in a number first",
+    "saved": "Numbers recorded",
+    "historyFilled": "filled in"
   }
 }

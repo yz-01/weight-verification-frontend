@@ -4062,7 +4062,9 @@
       "material_request_linked": "關聯 MR／其他申請",
       "material_request_unlinked": "取消關聯 MR／其他申請",
       "menu_names_permission_by_platform": "MSE 開放或關閉公司自己改選單名稱",
-      "menu_names_update": "修改選單名稱"
+      "menu_names_update": "修改選單名稱",
+      "external_site_evidence": "外部清運商拍車輛出場 / Gate Pass",
+      "fill_trip_numbers": "補錄車次數字"
     },
     "objectType": {
       "SignOffAssistant": "助理副密碼",
@@ -9739,7 +9741,10 @@
       "material_request_link_required": "這筆記錄（{reference}）還沒有關聯 MR／其他申請。未完成關聯，不能確認歸檔。",
       "material_request_link_invalid": "只能關聯本項目的 MR／其他申請（已退回的不能選）。",
       "menu_names_not_enabled": "MSE 還沒有為你們公司開啟自訂選單名稱。",
-      "menu_name_invalid": "選單名稱不對：每個名稱 1–20 個字，不能換行，不能有尖括號。"
+      "menu_name_invalid": "選單名稱不對：每個名稱 1–20 個字，不能換行，不能有尖括號。",
+      "exit_pass_executor_missing": "還沒有選擇執行人，現在不能簽出門條。請先在這筆清運按【選擇執行人】。",
+      "exit_pass_exit_evidence_missing": "還沒有拍車輛出場 / Gate Pass 照片，現在不能簽出門條。請現場或清運商先拍照。",
+      "disposal_trip_number_recorded": "第 {seq} 車的這個數字已經有了。要改，請在「車次」裡按「更正」並寫原因。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -9785,7 +9790,10 @@
       "supplier_not_on_project": "這個供應商不在這個項目的「可用供應商」裡。請總部或項目經理先在項目裡加入。",
       "field_one_project": "手機賬號同一時間只能在一個項目，請只選一個項目。",
       "phone_role_office_account": "手機賬號要在「現場人員管理」裡開，這裡不能把後台賬號設為手機角色（工地人員、設備操作人員、門崗保安）。請選別的角色。",
-      "assignee_not_on_project": "這個人已經不在這個項目，不能派任務給他。請重新選擇。"
+      "assignee_not_on_project": "這個人已經不在這個項目，不能派任務給他。請重新選擇。",
+      "link_expiry_past": "這個時間已經過了，請選現在以後的時間。",
+      "supplier_inactive": "這家供應商已停用，請選別的供應商。",
+      "trip_number_recorded": "已經有數字，要改請按「更正」"
     },
     "forbidden": "你沒有訪問權限。",
     "forbiddenBody": "如果確實需要，請聯繫管理員。",
@@ -17836,7 +17844,8 @@
       "ENDED_EARLY": "後台提前結束，未送的車次已取消",
       "TRIP_CORRECTED": "後台更正了一車的重量 / DO / 車牌",
       "SUPPLIER_SET": "後台填寫 / 更改了供應商",
-      "ANOMALY_REPORTED": "報告異常"
+      "ANOMALY_REPORTED": "報告異常",
+      "TRIP_NUMBERS_FILLED": "後台補錄了車次的重量 / DO / 車牌"
     },
     "title": "垃圾清運",
     "toast": {
@@ -24159,5 +24168,40 @@
       "closedToast": "已關閉，這家公司的選單回到系統名稱。",
       "saveFailed": "儲存失敗，請再試一次。"
     }
+  },
+  "jb282": {
+    "reviewLocked": "你的帳號沒有「審核及安排垃圾清運」權限，不能審批。請公司管理員在用戶權限裡打開。"
+  },
+  "jb284": {
+    "expiryPast": "這個時間已經過了，請選現在以後的時間。"
+  },
+  "jb285": {
+    "step": {
+      "approved": "申請已批准",
+      "executor": "已選擇執行人（內部工作人員或外部清運商）",
+      "photos": "已拍裝車與工地出場證據（車輛出場 / Gate Pass）",
+      "photosDone": "已拍裝車與工地出場證據：{count} 張（{when}）",
+      "sign": "安全經理簽名批准",
+      "gate": "門崗放行"
+    },
+    "stepsLabel": "出門條的順序",
+    "locked": {
+      "executor": "還沒有選擇執行人，現在不能簽出門條。請先按【選擇執行人】。",
+      "photos": "還沒有拍車輛出場 / Gate Pass 照片，現在不能簽出門條。請現場或清運商在手機上先拍照。"
+    },
+    "capture": {
+      "title": "裝車與工地出場證據",
+      "body": "車輛裝好、出工地前，拍車輛出場和 Gate Pass。拍好後安全經理才能簽出門條。",
+      "done": "已拍 {count} 張，已送到後台。"
+    }
+  },
+  "jb286": {
+    "title": "補錄數字",
+    "description": "{reference}：司機沒填的重量、DO 編號、車牌，在這裡補上。已經有的數字要改，請在「車次」裡按「更正」。",
+    "correctHint": "只補空白的數字；每次補錄都會留在這一車的記錄裡。",
+    "save": "儲存",
+    "nothing": "先填一個數字",
+    "saved": "數字已補錄",
+    "historyFilled": "補錄"
   }
 }

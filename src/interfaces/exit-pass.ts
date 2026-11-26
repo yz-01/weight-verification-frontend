@@ -39,6 +39,10 @@ export type ExitPassState =
   | "awaiting_photos"
   /** JB237 (材料出场): photos in, the office has not pressed 【启动出门条】. */
   | "awaiting_start"
+  /** JB285 (工地清运): approved, no executor chosen yet. */
+  | "awaiting_executor"
+  /** JB285 (工地清运): executor chosen, the load leaving not photographed yet. */
+  | "awaiting_exit_evidence"
   | "awaiting_signature"
   | "awaiting_external"
   | "sent"
@@ -155,6 +159,11 @@ export interface ExitPass {
    * 【启动出门条】 → the safety manager signs. Absent from a server before JB237.
    */
   start?: ExitPassStart;
+  /**
+   * JB285 (客户 11-26 事项 26, 工地清运 only): approved → executor → 装车与工地出场
+   * 证据 → the safety manager signs. Absent from a server before JB285.
+   */
+  evidence?: ExitPassEvidence;
   external: ExitPassExternal;
   sent: ExitPassSent | null;
   releases: ExitPassRelease[];
@@ -188,6 +197,21 @@ export interface ExitPassStart {
   /** …and may be pressed now. */
   can_start: boolean;
 }
+
+/** JB285: what a 工地清运's signature waits for. */
+export type ExitPassEvidence =
+  | { needed: false }
+  | {
+      needed: true;
+      /** 【选择执行人】 done (internal worker or outside company), or the driver started. */
+      executor_chosen: boolean;
+      /** At least one 车辆出场 / Gate Pass / 装车 photograph. */
+      photos_in: boolean;
+      photos_count: number;
+      photos_at: string | null;
+      /** A safety manager of the project: 【签名批准】 is drawn locked, with the reason. */
+      may_sign_later: boolean;
+    };
 
 /** `release_blocked` (contract v3): the same codes the release refuses with. */
 export type ExitPassReleaseBlock = "exit_pass_own_release" | "exit_pass_gate_release_only";
