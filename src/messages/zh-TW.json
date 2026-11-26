@@ -9106,7 +9106,7 @@
   },
   "email": {
     "invite": {
-      "body": "你已被邀請加入 MSE Trace。請使用下方鏈接設置密碼並登入。鏈接將很快失效。",
+      "body": "你已被邀請加入 MSE Trace。請使用下方鏈接設置密碼並登入。鏈接 {valid_for}內有效。",
       "subject": "邀請你加入 MSE Trace"
     },
     "reset": {
@@ -9785,7 +9785,11 @@
     "notFoundBody": "它可能已被移除，或你沒有訪問權限。",
     "uploadTimeout": "上傳超時：信號太弱，沒有傳完。系統會自動再試。",
     "uploadTooLarge": "文件太大，請在電腦後台上傳。",
-    "serverBusy": "服務器暫時沒有回應，請稍後再試。"
+    "serverBusy": "服務器暫時沒有回應，請稍後再試。",
+    "role_start_fixed": "「總部」「項目」是邀請用戶用的起點，不能修改，也不能用這個代號。",
+    "invite_workplace_required": "請選「總部」或「項目」。",
+    "invite_projects_required": "請至少勾一個所屬項目。",
+    "invite_role_wrong_kind": "選的常用權限和「總部 / 項目」不一樣，請重新選。"
   },
   "evidence": {
     "revision": {
@@ -15994,7 +15998,9 @@
       "equipment_manager": "管理全部項目的設備進退場、設備清單、二維碼貼紙和設備工時。",
       "site_supervisor": "在所在項目指派及驗收現場任務與整改 / EHS，記錄工程進度，處理門崗事項。",
       "document_controller": "管理文件檔案，提交顧問申請和後台審批，維護 RFI 表格。",
-      "equipment_operator": "用手機給設備開工、收工打卡。"
+      "equipment_operator": "用手機給設備開工、收工打卡。",
+      "invite_head_office": "邀請時選「總部」：權限按這個人自己的開關。",
+      "invite_project": "邀請時選「項目」：權限按這個人自己的開關。"
     },
     "systemHint": "內置角色不可移除，確保公司始終有辦法管理自己的人員。",
     "system_": {
@@ -16017,7 +16023,9 @@
       "equipment_manager": "設備管理員",
       "site_supervisor": "工地主管",
       "document_controller": "文控",
-      "equipment_operator": "設備操作人員"
+      "equipment_operator": "設備操作人員",
+      "invite_head_office": "總部",
+      "invite_project": "項目"
     },
     "title": "角色權限",
     "toast": {
@@ -23445,7 +23453,8 @@
       "reissue_invitation": "重發手機登入鏈接",
       "reset_device": "重置手機",
       "remove_field_staff": "移除現場人員",
-      "other": "修改賬號"
+      "other": "修改賬號",
+      "invite_user": "邀請用戶"
     },
     "mse": {
       "title": "客戶開放情況",
@@ -23906,5 +23915,35 @@
       "progress_claim": "Progress Claim（支出部分）：Multi Engine 的批准金額還沒有上線，現在算 0。上線後自動算進來。",
       "disposal": "垃圾清運：清運記錄沒有金額欄（只有重量、車次和清運公司），所以算 0，沒有自己估價。"
     }
+  },
+  "jb242": {
+    "submit": "邀請",
+    "workplaceTitle": "這個人在哪裡工作",
+    "headOffice": "總部",
+    "headOfficeHelp": "在總部辦公室，管理整個公司。",
+    "project": "項目",
+    "projectHelp": "只做被分配的項目。",
+    "workplaceRequired": "請選「總部」或「項目」。",
+    "chooseFirst": "先選上面的「總部」或「項目」。",
+    "projectsHelpProject": "這個人只看得到勾的項目。",
+    "projectsRequired": "請至少勾一個項目。",
+    "presetTitle": "從常用權限開始",
+    "presetNone": "不用，按系統預設",
+    "presetHelp": "選了以後，下面的權限照它打開，你只要改少數幾項。",
+    "presetEmpty": "公司還沒有存過常用權限。下面勾好以後，可以按「存成常用權限」存起來，下次直接選。",
+    "defaultProject": "系統預設：項目的日常權限全部打開，B 組關掉。",
+    "defaultHeadOffice": "系統預設：A 組、B 組全部關掉，請打開這個人要用的。",
+    "saveAsPreset": "存成常用權限",
+    "presetName": "常用權限名稱",
+    "presetNameRequired": "請填名稱。",
+    "presetSave": "儲存",
+    "presetSaved": "已存成常用權限「{name}」，下次邀請可以直接選。",
+    "presetNote": "常用權限只記總部權限（A 組、B 組）和「全部項目」；項目的日常權限每個人預設全部打開。",
+    "more": "更多（語言、時區）",
+    "less": "收起",
+    "linkValid": "邀請郵件裡的連結 {valid}內有效。",
+    "days": "{n} 天",
+    "hours": "{n} 小時",
+    "sent": "已發送邀請到 {email}"
   }
 }

@@ -9106,7 +9106,7 @@
   },
   "email": {
     "invite": {
-      "body": "You have been invited to MSE Trace. Use the link below to set your password and sign in. The link expires soon.",
+      "body": "You have been invited to MSE Trace. Use the link below to set your password and sign in. The link is valid for {valid_for}.",
       "subject": "You're invited to MSE Trace"
     },
     "reset": {
@@ -9785,7 +9785,11 @@
     "notFoundBody": "It may have been removed, or you may not have access to it.",
     "uploadTimeout": "The upload timed out: the signal was too weak to finish. It will try again by itself.",
     "uploadTooLarge": "The file is too big. Please upload it from the office computer.",
-    "serverBusy": "The server is not answering right now. Please try again later."
+    "serverBusy": "The server is not answering right now. Please try again later.",
+    "role_start_fixed": "\"Head office\" and \"Project\" are the starting points of Invite user: they cannot be changed, and their codes cannot be used.",
+    "invite_workplace_required": "Choose head office or project.",
+    "invite_projects_required": "Tick at least one project.",
+    "invite_role_wrong_kind": "The saved permissions picked are not for the place chosen (head office or project). Pick again."
   },
   "evidence": {
     "revision": {
@@ -15994,7 +15998,9 @@
       "equipment_manager": "Runs equipment entry and exit, the equipment list, QR stickers and operating hours on every project.",
       "site_supervisor": "Assigns and accepts site tasks and hazard rectification, records progress and handles gate issues on their projects.",
       "document_controller": "Keeps the document archive, submits consultant applications and back-office approvals, and maintains the RFI forms.",
-      "equipment_operator": "Clocks the site's machines on and off from the phone."
+      "equipment_operator": "Clocks the site's machines on and off from the phone.",
+      "invite_head_office": "Invited as head office: the person's own switches decide.",
+      "invite_project": "Invited for chosen projects: the person's own switches decide."
     },
     "systemHint": "Built-in roles cannot be removed, so a company always keeps a way to manage its own people.",
     "system_": {
@@ -16017,7 +16023,9 @@
       "equipment_manager": "Equipment Manager",
       "site_supervisor": "Site Supervisor",
       "document_controller": "Document Controller",
-      "equipment_operator": "Equipment Operator"
+      "equipment_operator": "Equipment Operator",
+      "invite_head_office": "Head office",
+      "invite_project": "Project"
     },
     "title": "Roles",
     "toast": {
@@ -23445,7 +23453,8 @@
       "reissue_invitation": "Re-sent the phone sign-in link",
       "reset_device": "Reset the phone",
       "remove_field_staff": "Removed a site worker",
-      "other": "Changed an account"
+      "other": "Changed an account",
+      "invite_user": "Invited a user"
     },
     "mse": {
       "title": "Customer access",
@@ -23906,5 +23915,35 @@
       "progress_claim": "Progress Claim (spending): the Multi Engine approved amount is not live yet, so it counts as 0. It is added automatically once live.",
       "disposal": "Waste clearance: its records have no amount (only weights, trips and the collector), so it counts as 0; no price is guessed."
     }
+  },
+  "jb242": {
+    "submit": "Invite",
+    "workplaceTitle": "Where this person works",
+    "headOffice": "Head office",
+    "headOfficeHelp": "Works in the head office and manages the whole company.",
+    "project": "Project",
+    "projectHelp": "Works only on the projects given to them.",
+    "workplaceRequired": "Choose head office or project.",
+    "chooseFirst": "First choose head office or project above.",
+    "projectsHelpProject": "This person sees only the projects ticked.",
+    "projectsRequired": "Tick at least one project.",
+    "presetTitle": "Start from saved permissions",
+    "presetNone": "No, use the system default",
+    "presetHelp": "The permissions below are set from it; change the few that differ.",
+    "presetEmpty": "The company has no saved permissions yet. Once the switches below are set, press \"Save as common permissions\" to pick them next time.",
+    "defaultProject": "System default: every everyday project permission on, group B off.",
+    "defaultHeadOffice": "System default: groups A and B all off; switch on what this person needs.",
+    "saveAsPreset": "Save as common permissions",
+    "presetName": "Name for these permissions",
+    "presetNameRequired": "Enter a name.",
+    "presetSave": "Save",
+    "presetSaved": "Saved as \"{name}\". Pick it next time you invite somebody.",
+    "presetNote": "Saved permissions keep the head-office permissions (groups A and B) and \"All projects\"; everyday project permissions are on for everybody by default.",
+    "more": "More (language, time zone)",
+    "less": "Less",
+    "linkValid": "The link in the invitation e-mail is valid for {valid}.",
+    "days": "{n, plural, one {# day} other {# days}}",
+    "hours": "{n, plural, one {# hour} other {# hours}}",
+    "sent": "Invitation sent to {email}"
   }
 }

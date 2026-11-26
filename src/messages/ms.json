@@ -9106,7 +9106,7 @@
   },
   "email": {
     "invite": {
-      "body": "Anda telah dijemput ke MSE Trace. Gunakan pautan di bawah untuk menetapkan kata laluan dan log masuk. Pautan ini akan tamat tempoh tidak lama lagi.",
+      "body": "Anda telah dijemput ke MSE Trace. Gunakan pautan di bawah untuk menetapkan kata laluan dan log masuk. Pautan ini sah selama {valid_for}.",
       "subject": "Anda dijemput ke MSE Trace"
     },
     "reset": {
@@ -9785,7 +9785,11 @@
     "notFoundBody": "Ia mungkin telah dibuang, atau anda tiada akses kepadanya.",
     "uploadTimeout": "Muat naik tamat masa: isyarat terlalu lemah untuk selesai. Ia akan cuba lagi sendiri.",
     "uploadTooLarge": "Fail terlalu besar. Sila muat naik dari komputer pejabat.",
-    "serverBusy": "Pelayan tidak menjawab sekarang. Sila cuba lagi nanti."
+    "serverBusy": "Pelayan tidak menjawab sekarang. Sila cuba lagi nanti.",
+    "role_start_fixed": "\"Ibu pejabat\" dan \"Projek\" ialah titik mula Jemput pengguna: tidak boleh diubah, dan kodnya tidak boleh digunakan.",
+    "invite_workplace_required": "Pilih ibu pejabat atau projek.",
+    "invite_projects_required": "Tandakan sekurang-kurangnya satu projek.",
+    "invite_role_wrong_kind": "Kebenaran biasa yang dipilih bukan untuk tempat yang dipilih (ibu pejabat atau projek). Pilih semula."
   },
   "evidence": {
     "revision": {
@@ -15994,7 +15998,9 @@
       "equipment_manager": "Mengurus peralatan masuk dan keluar, senarai peralatan, pelekat QR dan jam operasi di semua projek.",
       "site_supervisor": "Menugaskan dan menerima tugas tapak serta pembetulan bahaya, merekod kemajuan dan mengendalikan isu pintu di projek mereka.",
       "document_controller": "Menjaga arkib dokumen, menghantar permohonan perunding dan kelulusan pejabat, serta menyelenggara borang RFI.",
-      "equipment_operator": "Merekod mula dan tamat kerja jentera tapak dari telefon."
+      "equipment_operator": "Merekod mula dan tamat kerja jentera tapak dari telefon.",
+      "invite_head_office": "Dijemput sebagai ibu pejabat: suis orang itu sendiri menentukan.",
+      "invite_project": "Dijemput untuk projek terpilih: suis orang itu sendiri menentukan."
     },
     "systemHint": "Peranan terbina dalam tidak boleh dibuang, supaya syarikat sentiasa ada cara untuk menguruskan orangnya sendiri.",
     "system_": {
@@ -16017,7 +16023,9 @@
       "equipment_manager": "Pengurus Peralatan",
       "site_supervisor": "Penyelia Tapak",
       "document_controller": "Pengawal Dokumen",
-      "equipment_operator": "Operator Jentera"
+      "equipment_operator": "Operator Jentera",
+      "invite_head_office": "Ibu pejabat",
+      "invite_project": "Projek"
     },
     "title": "Peranan",
     "toast": {
@@ -23445,7 +23453,8 @@
       "reissue_invitation": "Menghantar semula pautan log masuk telefon",
       "reset_device": "Menetapkan semula telefon",
       "remove_field_staff": "Mengeluarkan pekerja tapak",
-      "other": "Mengubah akaun"
+      "other": "Mengubah akaun",
+      "invite_user": "Menjemput pengguna"
     },
     "mse": {
       "title": "Akses pelanggan",
@@ -23906,5 +23915,35 @@
       "progress_claim": "Progress Claim (perbelanjaan): amaun lulus Multi Engine belum aktif, jadi dikira 0. Ia ditambah secara automatik apabila aktif.",
       "disposal": "Pembersihan sampah: rekodnya tiada amaun (hanya berat, trip dan pengutip), jadi dikira 0; tiada harga diteka."
     }
+  },
+  "jb242": {
+    "submit": "Jemput",
+    "workplaceTitle": "Di mana orang ini bekerja",
+    "headOffice": "Ibu pejabat",
+    "headOfficeHelp": "Bekerja di ibu pejabat dan mengurus seluruh syarikat.",
+    "project": "Projek",
+    "projectHelp": "Hanya bekerja pada projek yang diberikan.",
+    "workplaceRequired": "Pilih ibu pejabat atau projek.",
+    "chooseFirst": "Pilih ibu pejabat atau projek di atas dahulu.",
+    "projectsHelpProject": "Orang ini hanya nampak projek yang ditanda.",
+    "projectsRequired": "Tandakan sekurang-kurangnya satu projek.",
+    "presetTitle": "Mula daripada kebenaran biasa",
+    "presetNone": "Tidak, guna lalai sistem",
+    "presetHelp": "Kebenaran di bawah ditetapkan mengikutnya; ubah beberapa yang berbeza.",
+    "presetEmpty": "Syarikat belum menyimpan kebenaran biasa. Selepas suis di bawah ditetapkan, tekan \"Simpan sebagai kebenaran biasa\" untuk memilihnya kali seterusnya.",
+    "defaultProject": "Lalai sistem: semua kebenaran harian projek hidup, kumpulan B mati.",
+    "defaultHeadOffice": "Lalai sistem: kumpulan A dan B semua mati; hidupkan yang orang ini perlukan.",
+    "saveAsPreset": "Simpan sebagai kebenaran biasa",
+    "presetName": "Nama kebenaran biasa",
+    "presetNameRequired": "Masukkan nama.",
+    "presetSave": "Simpan",
+    "presetSaved": "Disimpan sebagai \"{name}\". Pilih kali seterusnya anda menjemput seseorang.",
+    "presetNote": "Kebenaran biasa menyimpan kebenaran ibu pejabat (kumpulan A dan B) dan \"Semua projek\"; kebenaran harian projek hidup untuk semua orang secara lalai.",
+    "more": "Lagi (bahasa, zon waktu)",
+    "less": "Kurang",
+    "linkValid": "Pautan dalam e-mel jemputan sah selama {valid}.",
+    "days": "{n} hari",
+    "hours": "{n} jam",
+    "sent": "Jemputan dihantar kepada {email}"
   }
 }

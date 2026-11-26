@@ -8,7 +8,7 @@ import {
   Plus,
   Save,
 } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
@@ -41,6 +41,7 @@ import type {
   CompanyPayload,
   CompanyType,
 } from "@/interfaces/company";
+import { inviteEmailCopy } from "@/lib/invite-email";
 import { localToday } from "@/lib/local-date";
 import { MALAYSIA_STATES } from "@/lib/malaysia";
 import {
@@ -129,6 +130,7 @@ export function CreateCompany({
   after?: React.ReactNode;
 }) {
   const t = useTranslations();
+  const locale = useLocale();
   const router = useRouter();
   const finish = useFinishForm();
   const { user } = useAuth();
@@ -296,10 +298,8 @@ export function CreateCompany({
               // Wording comes from the message catalogue so the owner is
               // written to in their own language; the backend only splices in
               // the token, which is the one thing the frontend cannot know.
-              owner_email_copy: {
-                subject: t("email.invite.subject"),
-                body: t("email.invite.body"),
-              } satisfies EmailCopy,
+              // JB242: and how long its link lasts, in this language.
+              owner_email_copy: inviteEmailCopy(t, locale) satisfies EmailCopy,
             };
         const basePayload = {
           ...companyValues,

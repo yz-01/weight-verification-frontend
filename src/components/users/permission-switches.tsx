@@ -305,21 +305,7 @@ function SwitchForm({
     : state.project_user === true;
   const entries = useMemo(() => catalogue.filter((entry) => entry.code !== SCOPE_CODE), [catalogue]);
   // What this page switches: for a project user, everything but A.
-  const switchable = useMemo(
-    () => (projectUser ? entries.filter((entry) => pageOf(entry) !== "hq_reserved") : entries),
-    [entries, projectUser],
-  );
-  const { hq, operate, approve, amounts } = useMemo(() => {
-    const inHq = (entry: PermissionEntry) =>
-      projectUser ? pageOf(entry) === "hq_grantable" : entry.area === "hq";
-    const rest = switchable.filter((entry) => !inHq(entry));
-    return {
-      hq: groups(switchable.filter(inHq)),
-      operate: groups(rest.filter((entry) => entry.kind === "operate")),
-      approve: rest.filter((entry) => entry.kind === "approve"),
-      amounts: rest.find((entry) => entry.kind === "amounts"),
-    };
-  }, [switchable, projectUser]);
+  const switchable = useMemo(() => switchableEntries(catalogue, projectUser), [catalogue, projectUser]);
 
   const isOn = (code: string) => !off.has(code);
   // JB219 audit F1 (「A组及B组权限由公司管理员自行勾选及分配」): what the
@@ -481,118 +467,71 @@ function SwitchForm({
         </div>
       </div>
 
-      <section className="space-y-4 rounded-xl border p-4" data-switch-area="hq">
-        <header>
-          <h4 className="panel-title">{t("hq")}</h4>
-          <p className="text-xs text-muted-foreground">{t(projectUser ? "hqHintProjectUser" : "hqHint")}</p>
-        </header>
-        {projectUser ? (
-          <p className="rounded-lg border border-dashed px-3 py-2 text-xs text-muted-foreground" data-switch-reserved>
-            {t("reservedNote")}
-          </p>
-        ) : null}
-        {hq.map((group) => (
-          <SwitchGroup key={group.key} group={group} isOn={isOn} turn={turn} locked={locked} t={t} tRoot={tRoot} />
-        ))}
-      </section>
-
-      <section className="space-y-5 rounded-xl border p-4" data-switch-area="project">
-        <header>
-          <h4 className="panel-title">{t("project")}</h4>
-          {projectUser ? (
-            <p className="text-xs text-muted-foreground" data-switch-default-on>
-              {t("projectDefaultOn")}
-            </p>
-          ) : null}
-        </header>
-
-        <div className="space-y-2" data-switch-part="scope">
-          <p className="text-sm font-medium">{t("scope")}</p>
-          {projectUser ? <p className="text-xs text-muted-foreground">{t("scopeProjectUser")}</p> : null}
-          <div className="flex flex-wrap gap-2" role="radiogroup" aria-label={t("scope")}>
-            {(projectUser ? [false] : [true, false]).map((all) => (
-              <button
-                key={String(all)}
-                type="button"
-                role="radio"
-                aria-checked={allProjects === all}
-                disabled={readOnly || (all && locked(SCOPE_CODE))}
-                onClick={() => setAllProjects(all)}
-                className={cn(
-                  "rounded-full border px-3 py-1.5 text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-60",
-                  allProjects === all
-                    ? "border-primary/40 bg-primary/12 text-primary"
-                    : "border-border bg-card text-muted-foreground hover:text-foreground",
-                )}
-              >
-                {all ? t("allProjects") : t("chosenProjects")}
-              </button>
-            ))}
+      <SwitchSections
+        catalogue={catalogue}
+        projectUser={projectUser}
+        isOn={isOn}
+        turn={turn}
+        locked={locked}
+        t={t}
+        tRoot={tRoot}
+        scope={
+          <div className="space-y-2" data-switch-part="scope">
+            <p className="text-sm font-medium">{t("scope")}</p>
+            {projectUser ? <p className="text-xs text-muted-foreground">{t("scopeProjectUser")}</p> : null}
+            <div className="flex flex-wrap gap-2" role="radiogroup" aria-label={t("scope")}>
+              {(projectUser ? [false] : [true, false]).map((all) => (
+                <button
+                  key={String(all)}
+                  type="button"
+                  role="radio"
+                  aria-checked={allProjects === all}
+                  disabled={readOnly || (all && locked(SCOPE_CODE))}
+                  onClick={() => setAllProjects(all)}
+                  className={cn(
+                    "rounded-full border px-3 py-1.5 text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-60",
+                    allProjects === all
+                      ? "border-primary/40 bg-primary/12 text-primary"
+                      : "border-border bg-card text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  {all ? t("allProjects") : t("chosenProjects")}
+                </button>
+              ))}
+            </div>
+            {!allProjects ? (
+              state.available_projects.length === 0 ? (
+                <p className="text-sm text-muted-foreground">{t("noProjects")}</p>
+              ) : (
+                <div className="grid gap-1.5 sm:grid-cols-2 lg:grid-cols-3">
+                  {state.available_projects.map((project) => (
+                    <label
+                      key={project.id}
+                      className="flex min-w-0 cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm"
+                    >
+                      <Checkbox
+                        checked={chosen.has(project.id)}
+                        onCheckedChange={(value) =>
+                          setChosen((current) => {
+                            const next = new Set(current);
+                            if (value === true) next.add(project.id);
+                            else next.delete(project.id);
+                            return next;
+                          })
+                        }
+                      />
+                      <span className="min-w-0 break-words">
+                        {project.code} · {project.name}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              )
+            ) : null}
+            {needsProject ? <p className="text-sm text-destructive">{t("needOneProject")}</p> : null}
           </div>
-          {!allProjects ? (
-            state.available_projects.length === 0 ? (
-              <p className="text-sm text-muted-foreground">{t("noProjects")}</p>
-            ) : (
-              <div className="grid gap-1.5 sm:grid-cols-2 lg:grid-cols-3">
-                {state.available_projects.map((project) => (
-                  <label
-                    key={project.id}
-                    className="flex min-w-0 cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm"
-                  >
-                    <Checkbox
-                      checked={chosen.has(project.id)}
-                      onCheckedChange={(value) =>
-                        setChosen((current) => {
-                          const next = new Set(current);
-                          if (value === true) next.add(project.id);
-                          else next.delete(project.id);
-                          return next;
-                        })
-                      }
-                    />
-                    <span className="min-w-0 break-words">
-                      {project.code} · {project.name}
-                    </span>
-                  </label>
-                ))}
-              </div>
-            )
-          ) : null}
-          {needsProject ? <p className="text-sm text-destructive">{t("needOneProject")}</p> : null}
-        </div>
-
-        {amounts ? (
-          <SwitchRow
-            entry={amounts}
-            on={isOn(amounts.code)}
-            onChange={(on) => turn([amounts.code], on)}
-            hint={t("amountsHint")}
-            label={t("amounts")}
-            locked={locked(amounts.code)}
-          />
-        ) : null}
-
-        <div className="space-y-4" data-switch-part="operate">
-          <p className="text-sm font-medium">{t("operate")}</p>
-          {operate.map((group) => (
-            <SwitchGroup key={group.key} group={group} isOn={isOn} turn={turn} locked={locked} t={t} tRoot={tRoot} />
-          ))}
-        </div>
-
-        <div className="space-y-2" data-switch-part="approve">
-          <p className="text-sm font-medium">{t("approve")}</p>
-          <p className="text-xs text-muted-foreground">{t("approveHint")}</p>
-          <SwitchGroup
-            group={{ key: "approve", entries: approve }}
-            title={null}
-            isOn={isOn}
-            turn={turn}
-            locked={locked}
-            t={t}
-            tRoot={tRoot}
-          />
-        </div>
-      </section>
+        }
+      />
 
       {embedded ? (
         notSaved ? (
@@ -614,6 +553,117 @@ function SwitchForm({
         </>
       )}
     </div>
+  );
+}
+
+/**
+ * Which entries a person's switch page shows (J17, JB139): for a project
+ * user every one but 总部专属 A; 「项目查看」 is the scope part, not a switch.
+ */
+export function switchableEntries(catalogue: PermissionEntry[], projectUser: boolean): PermissionEntry[] {
+  const entries = catalogue.filter((entry) => entry.code !== SCOPE_CODE);
+  return projectUser ? entries.filter((entry) => pageOf(entry) !== "hq_reserved") : entries;
+}
+
+/**
+ * The two areas of switches - 总部后台 and 项目后台 (金额查看, 业务操作, 审批) -
+ * as 编辑用户 shows them, and 邀请用户 (JB242) with its projects chosen above
+ * (no ``scope``). The state is the caller's.
+ */
+export function SwitchSections({
+  catalogue,
+  projectUser,
+  isOn,
+  turn,
+  locked,
+  scope,
+  t,
+  tRoot,
+}: {
+  catalogue: PermissionEntry[];
+  projectUser: boolean;
+  isOn: (code: string) => boolean;
+  turn: (codes: string[], on: boolean) => void;
+  locked: (code: string) => boolean;
+  /** 「项目查看」 (all or chosen projects), inside 项目后台; none on 邀请用户. */
+  scope?: React.ReactNode;
+  t: ReturnType<typeof useTranslations>;
+  tRoot: ReturnType<typeof useTranslations>;
+}) {
+  const switchable = useMemo(() => switchableEntries(catalogue, projectUser), [catalogue, projectUser]);
+  const { hq, operate, approve, amounts } = useMemo(() => {
+    const inHq = (entry: PermissionEntry) =>
+      projectUser ? pageOf(entry) === "hq_grantable" : entry.area === "hq";
+    const rest = switchable.filter((entry) => !inHq(entry));
+    return {
+      hq: groups(switchable.filter(inHq)),
+      operate: groups(rest.filter((entry) => entry.kind === "operate")),
+      approve: rest.filter((entry) => entry.kind === "approve"),
+      amounts: rest.find((entry) => entry.kind === "amounts"),
+    };
+  }, [switchable, projectUser]);
+  return (
+    <>
+  <section className="space-y-4 rounded-xl border p-4" data-switch-area="hq">
+    <header>
+      <h4 className="panel-title">{t("hq")}</h4>
+      <p className="text-xs text-muted-foreground">{t(projectUser ? "hqHintProjectUser" : "hqHint")}</p>
+    </header>
+    {projectUser ? (
+      <p className="rounded-lg border border-dashed px-3 py-2 text-xs text-muted-foreground" data-switch-reserved>
+        {t("reservedNote")}
+      </p>
+    ) : null}
+    {hq.map((group) => (
+      <SwitchGroup key={group.key} group={group} isOn={isOn} turn={turn} locked={locked} t={t} tRoot={tRoot} />
+    ))}
+  </section>
+
+  <section className="space-y-5 rounded-xl border p-4" data-switch-area="project">
+    <header>
+      <h4 className="panel-title">{t("project")}</h4>
+      {projectUser ? (
+        <p className="text-xs text-muted-foreground" data-switch-default-on>
+          {t("projectDefaultOn")}
+        </p>
+      ) : null}
+    </header>
+
+    {scope}
+
+    {amounts ? (
+      <SwitchRow
+        entry={amounts}
+        on={isOn(amounts.code)}
+        onChange={(on) => turn([amounts.code], on)}
+        hint={t("amountsHint")}
+        label={t("amounts")}
+        locked={locked(amounts.code)}
+      />
+    ) : null}
+
+    <div className="space-y-4" data-switch-part="operate">
+      <p className="text-sm font-medium">{t("operate")}</p>
+      {operate.map((group) => (
+        <SwitchGroup key={group.key} group={group} isOn={isOn} turn={turn} locked={locked} t={t} tRoot={tRoot} />
+      ))}
+    </div>
+
+    <div className="space-y-2" data-switch-part="approve">
+      <p className="text-sm font-medium">{t("approve")}</p>
+      <p className="text-xs text-muted-foreground">{t("approveHint")}</p>
+      <SwitchGroup
+        group={{ key: "approve", entries: approve }}
+        title={null}
+        isOn={isOn}
+        turn={turn}
+        locked={locked}
+        t={t}
+        tRoot={tRoot}
+      />
+    </div>
+  </section>
+    </>
   );
 }
 
