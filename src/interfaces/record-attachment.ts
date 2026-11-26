@@ -13,7 +13,9 @@ export type AttachableKind =
   | "CLAIM_LETTER"
   | "PACKAGE_LETTER"
   // 退货核对 (JB188): a check's vouchers - read only once it is saved.
-  | "MATERIAL_RETURN_CHECK";
+  | "MATERIAL_RETURN_CHECK"
+  // 结算 (JB278 / JB280): a settlement's vouchers - read only once saved.
+  | "MATERIAL_SETTLEMENT";
 
 /** One file in a record's general attachment slot (B28, E10). */
 export interface RecordAttachment {

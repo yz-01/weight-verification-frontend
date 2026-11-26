@@ -1082,6 +1082,22 @@ export interface MaterialIssueOptions {
 export interface MaterialOutgoing extends RecordedBy {
   /** 供应商退货 or 材料领用 (JB168); absent on a cached row from before. */
   kind?: MaterialOutgoingKind;
+  /**
+   * 核对与结算 (JB278, 客户 11-26 事项 19 第 3 点): 核对状态, 核对编号, 核对人及
+   * 日期, 结算状态, 结算编号 - null while 待核对.
+   */
+  reconciliation?: {
+    state: "CHECKED" | "SETTLED";
+    kind: "RETURN" | "ISSUE" | "RENTAL";
+    check_id: string;
+    check_no: string;
+    checked_by_name: string;
+    checked_at: string;
+    settlement_id: string | null;
+    settlement_no: string;
+    settled_by_name: string;
+    settled_at: string | null;
+  } | null;
   /** 材料领用: the machine scanned and what the register said then. */
   equipment?: string | null;
   equipment_no?: string;

@@ -76,6 +76,7 @@ import { SupplierQrScanner } from "@/components/field-staff/supplier-qr-scanner"
 import { OpenExitOfficeFiles } from "@/components/field-staff/office-sent-files";
 import { RecordConversationButton } from "@/components/shared/record-conversation-button";
 import { RecordDetailDialog, RecordDetailShell, RecordRecorder } from "@/components/shared/record-detail-shell";
+import { ReconciliationPanel } from "@/components/contractor-ops/return-checks";
 import {
   CORRECTED_ROW_CLASS,
   CorrectedTag,
@@ -5030,6 +5031,11 @@ export function OutgoingDetailDialog({
           }
           corrections={<RecordCorrectionHistory kind="MATERIAL_OUTGOING" recordId={row.id} />}
           recorder={<RecordRecorder record={row} />}
+          // JB278 (客户 11-26 事项 19 第 3、4 点): under 「已归档」 - 核对状态,
+          // 核对编号, 核对人及日期, 结算状态, 结算编号; each number opens its
+          // window. A finished 退场 / 领用 only: before that there is nothing to
+          // check. Read only - the record itself never changes by it.
+          aside={row.status === "COMPLETED" ? <ReconciliationPanel links={row.reconciliation} /> : undefined}
           conversation={{ kind: "MATERIAL_OUTGOING", recordId: row.id }}
           // JB217: 出门条批准（安全经理） · 外部审批 · 门岗放行 - a return only (D1).
           exitPass={issue ? null : { kind: "MATERIAL_OUTGOING", recordId: row.id }}

@@ -58,10 +58,14 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { MaterialIssueList, OutgoingKindSwitch } from "@/components/contractor-ops/material-issue";
 import { outgoingKindsFor } from "@/lib/consultant-modules";
 import {
+  ReconcileSettleButton,
   ReturnCheckButton,
   ReturnCheckTabs,
   ReturnCheckWindow,
   ReturnChecksList,
+  SettleButton,
+  SettlementWindow,
+  SettlementsList,
   returnTabOf,
   type ReturnTab,
 } from "@/components/contractor-ops/return-checks";
@@ -291,19 +295,23 @@ export function MaterialOutgoingOffice() {
     const query = params.toString();
     router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
   };
-  // 「待核对｜已核对」 on the returns' side (JB188 做法 1), kept in the address
-  // (`?tab=checked`) so a refresh or the back button stays on it.
+  // 「待核对｜已核对｜已结算」 on both sides (JB188 做法 1; JB278 第 2 点 for
+  // 材料领用 and the 已结算 tab), kept in the address (`?tab=checked`,
+  // `?tab=settled`, with `kind=ISSUE` kept) so a refresh or the back button
+  // stays on it.
   const tab: ReturnTab = returnTabOf(searchParams.get("tab"));
   const switchTab = (next: ReturnTab) => {
     const params = new URLSearchParams();
     const keep = searchParams.get("project");
     if (keep) params.set("project", keep);
-    if (next === "checked") params.set("tab", "checked");
+    if (view === "ISSUE") params.set("kind", "ISSUE");
+    if (next !== "pending") params.set("tab", next);
     const query = params.toString();
     router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
   };
-  // One 核对 open over 「已核对」, by state: closing it closes it (JB187).
+  // One 核对 / 结算 open over its list, by state: closing it closes it (JB187).
   const [checkOpen, setCheckOpen] = useState<string | null>(null);
+  const [settlementOpen, setSettlementOpen] = useState<string | null>(null);
   // 「待核对」 is the list as it was, without the checked returns (Lucas
   // 11-13 决定 3) - on screen and in its export.
   const returnsQuery = { ...list.query, kind: "RETURN", unchecked: "1" };
@@ -546,16 +554,66 @@ export function MaterialOutgoingOffice() {
   );
 
   if (view === "ISSUE") {
+    // 材料领用's 「待核对｜已核对｜已结算」 and 【核对与结算】 (JB278 第 1、2 点):
+    // 待核对 is the list as it was without the checked issues; 已核对 the
+    // checks not settled yet; 已结算 the settlements.
+    const issueTabs = <ReturnCheckTabs value={tab} onChange={switchTab} />;
+    const issueAction = (
+      <ReconcileSettleButton
+        kind="ISSUE"
+        step={tab === "checked" ? "settle" : "check"}
+        permission="material_outgoing.approve"
+        onChecked={() => switchTab("checked")}
+        onSettled={() => switchTab("settled")}
+      />
+    );
     return (
       <div className="space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h1 className="text-xl font-semibold">{title}</h1>
-          <OutgoingKindSwitch value={view} onChange={switchView} kinds={kinds} />
+          <div className="flex flex-wrap items-center gap-2">
+            {issueAction}
+            <OutgoingKindSwitch value={view} onChange={switchView} kinds={kinds} />
+          </div>
         </div>
         {refusedNote}
-        <MaterialIssueList onOpen={(id) => setViewing(id)} />
+        {tab === "checked" ? (
+          <ReturnChecksList kind="ISSUE" title={title} above={issueTabs} onOpen={setCheckOpen} />
+        ) : tab === "settled" ? (
+          <SettlementsList kind="ISSUE" title={title} above={issueTabs} onOpen={setSettlementOpen} />
+        ) : (
+          <>
+            {issueTabs}
+            <MaterialIssueList onOpen={(id) => setViewing(id)} unchecked />
+          </>
+        )}
+        {checkOpen ? <ReturnCheckWindow id={checkOpen} kind="ISSUE" onClose={() => setCheckOpen(null)} /> : null}
+        {settlementOpen ? (
+          <SettlementWindow id={settlementOpen} kind="ISSUE" onClose={() => setSettlementOpen(null)} />
+        ) : null}
         {detailAndDialogs}
       </div>
+    );
+  }
+
+  if (tab === "settled") {
+    // 「已结算」 of the returns (JB278 第 2 点).
+    return (
+      <>
+        {refusedNote}
+        <div className="mb-2 flex justify-end">
+          <OutgoingKindSwitch value={view} onChange={switchView} kinds={kinds} />
+        </div>
+        <SettlementsList
+          kind="RETURN"
+          title={title}
+          above={<ReturnCheckTabs value={tab} onChange={switchTab} />}
+          onOpen={setSettlementOpen}
+        />
+        {settlementOpen ? (
+          <SettlementWindow id={settlementOpen} kind="RETURN" onClose={() => setSettlementOpen(null)} />
+        ) : null}
+      </>
     );
   }
 
@@ -569,7 +627,13 @@ export function MaterialOutgoingOffice() {
         </div>
         <ReturnChecksList
           title={title}
-          above={<ReturnCheckTabs value={tab} onChange={switchTab} />}
+          above={
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <ReturnCheckTabs value={tab} onChange={switchTab} />
+              {/* 【结算】 over the checks of one supplier (JB278). */}
+              <SettleButton kind="RETURN" permission="material_outgoing.approve" onSaved={() => switchTab("settled")} />
+            </div>
+          }
           onOpen={setCheckOpen}
         />
         {checkOpen ? <ReturnCheckWindow id={checkOpen} onClose={() => setCheckOpen(null)} /> : null}

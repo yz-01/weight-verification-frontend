@@ -976,6 +976,15 @@ export const PORTAL_NAVIGATION = {
           "/equipment-operator-hours",
           "equipment",
         ),
+        // 设备租赁月结单 and its 核对与结算 (JB280, 客户 11-26 事项 21): the
+        // rental pages' people (JB255, equipment.manage).
+        child(
+          "6.2.3",
+          "nav.submodule.equipmentRentalStatements",
+          "/equipment-rental-statements",
+          "equipment",
+          "equipment.manage",
+        ),
       ],
     ),
     {
