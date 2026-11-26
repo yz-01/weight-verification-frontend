@@ -23933,7 +23933,7 @@
     "fileLine": "Header on row {row}, {total} rows of data below it",
     "reading": "Reading the Excel…",
     "readFailed": "This Excel could not be read. Please choose another file.",
-    "columnsTitle": "Match the columns",
+    "columnsTitle": "Match Excel columns",
     "columnsHelp": "Columns recognised by their headers are already chosen. Change any that are wrong; choose Not imported for one you do not want.",
     "notImported": "Not imported",
     "columnOption": "Column {letter} · {header}",

@@ -9735,7 +9735,7 @@
       "import_excel_too_large": "文件太大了，最多 {limit_mb} MB。",
       "import_excel_empty": "這個 Excel 的表頭下面沒有資料。",
       "import_excel_too_many_rows": "一次最多導入 {limit} 行，請分幾個文件導入。",
-      "import_excel_mapping_invalid": "選的欄目不在這個 Excel 裡，請重新選一次。"
+      "import_excel_mapping_invalid": "選的欄位不在這個 Excel 裡，請重新選一次。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -23933,7 +23933,7 @@
     "fileLine": "表頭在第 {row} 行，下面有 {total} 行資料",
     "reading": "正在讀 Excel…",
     "readFailed": "讀不到這個 Excel，請換一個文件。",
-    "columnsTitle": "對應欄目",
+    "columnsTitle": "對應 Excel 欄位",
     "columnsHelp": "系統按 Excel 的表頭認出來的，已經先選好。不對的可以自己改；不要的選「不導入」。",
     "notImported": "不導入",
     "columnOption": "{letter} 欄 · {header}",

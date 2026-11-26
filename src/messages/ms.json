@@ -23933,7 +23933,7 @@
     "fileLine": "Tajuk di baris {row}, {total} baris data di bawahnya",
     "reading": "Membaca Excel…",
     "readFailed": "Excel ini tidak dapat dibaca. Sila pilih fail lain.",
-    "columnsTitle": "Padankan lajur",
+    "columnsTitle": "Padankan lajur Excel",
     "columnsHelp": "Lajur yang dikenal pasti melalui tajuknya sudah dipilih. Tukar yang salah; pilih Tidak diimport untuk yang tidak diperlukan.",
     "notImported": "Tidak diimport",
     "columnOption": "Lajur {letter} · {header}",
