@@ -24,7 +24,7 @@ import { useState } from "react";
 
 import { DayRange, Pager } from "@/components/progress/progress-photos";
 import { InPlaceRecord } from "@/components/shared/in-place-record";
-import { StatusBadge } from "@/components/shared/page-primitives";
+import { QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { PhotoStrip, recordPhotos } from "@/components/shared/photo-thumb";
 import {
   Dialog,
@@ -223,6 +223,7 @@ export function ProgressRecordPicker({
           </SelectContent>
         </Select>
       </div>
+      <QueryFailedNote query={phases} what={t("allPhases")} />
       <DayRange
         from={range.date_from ?? ""}
         to={range.date_to ?? ""}
