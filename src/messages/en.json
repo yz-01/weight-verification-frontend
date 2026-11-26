@@ -21601,14 +21601,15 @@
     "formal": {
       "label": "Formal permit",
       "missing": "There is no formal permit yet. Fill in your company's own permit form on the computer and upload it with \"Attach files\" under \"Attachments\", or press \"Fill in e-permit\" beside \"Permit documents\" and save it.",
-      "missingPhone": "There is no formal permit yet. It is uploaded (\"Attach files\") or filled in as an e-permit on the computer; once it is there, you can sign and approve here.",
+      "missingPhone": "There is no formal permit yet. It is uploaded in the office (Upload attachment) or written as an e-permit, then the safety manager approves it in the office.",
       "uploaded": "Uploaded: {files}. Check that this is the formal permit, then sign and approve.",
       "uploadedFile": "{file} ({name} · {time})",
       "uploadedMore": "{files} and others, {count} in all",
       "ePermit": "E-permit {no} · filled in by {name}",
       "archivedWith": "Once signed, the formal permit is archived with the approval note, the signature and the time.",
       "attachHint": "Upload the formal permit here: fill in your company's own permit form on the computer, press \"Attach files\" (Word, PDF, Excel or a photo), then sign and approve."
-    }
+    },
+    "officeOnly": "Work permits are approved in the office: sign in on a computer, open this permit, then approve or return it."
   },
   "gateCard": {
     "title": "Gate",

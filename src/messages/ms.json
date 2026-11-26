@@ -21601,14 +21601,15 @@
     "formal": {
       "label": "Permit rasmi",
       "missing": "Belum ada permit rasmi. Isi borang permit syarikat anda di komputer dan muat naik dengan \"Lampirkan fail\" di bawah \"Lampiran\", atau tekan \"Isi e-permit\" di sebelah \"Dokumen permit\" dan simpan.",
-      "missingPhone": "Belum ada permit rasmi. Ia dimuat naik (\"Lampirkan fail\") atau diisi sebagai e-permit di komputer; selepas itu anda boleh menandatangan dan meluluskan di sini.",
+      "missingPhone": "Belum ada permit rasmi. Ia dimuat naik di pejabat (Muat naik lampiran) atau ditulis sebagai e-permit, kemudian pengurus keselamatan meluluskannya di pejabat.",
       "uploaded": "Dimuat naik: {files}. Pastikan ini permit rasmi, kemudian tandatangan dan luluskan.",
       "uploadedFile": "{file} ({name} · {time})",
       "uploadedMore": "{files} dan lain-lain, {count} kesemuanya",
       "ePermit": "E-permit {no} · diisi oleh {name}",
       "archivedWith": "Selepas ditandatangani, permit rasmi diarkibkan bersama catatan kelulusan, tandatangan dan masa.",
       "attachHint": "Muat naik permit rasmi di sini: isi borang permit syarikat anda di komputer, tekan \"Lampirkan fail\" (Word, PDF, Excel atau foto), kemudian tandatangan dan luluskan."
-    }
+    },
+    "officeOnly": "Permit kerja diluluskan di pejabat: log masuk di komputer, buka permit ini, kemudian luluskan atau pulangkan."
   },
   "gateCard": {
     "title": "Pintu",
