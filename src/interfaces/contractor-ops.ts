@@ -108,6 +108,23 @@ export interface MaterialSpec {
   sort_order: number;
   /** 单价 (JB167): office only; absent on the phone and with 金额查看 off. */
   price?: MaterialPriceSummary | null;
+  /**
+   * The price on one delivery's day (JB275): only in the material data read
+   * for a delivery's form (`get_material_catalogue?receipt=`), and not with
+   * 金额查看 off. `null`: none in force that day.
+   */
+  list_price?: ListPriceOnDay | null;
+  /** With none in force: the first price that starts after that day. */
+  list_price_later?: ListPriceOnDay | null;
+}
+
+/** One price of 材料分类 as a delivery's form reads it (JB275). */
+export interface ListPriceOnDay {
+  unit_price: string;
+  unit: string;
+  /** A unit the company added; empty for a built-in code (translated). */
+  unit_label: string;
+  effective_from: string;
 }
 
 /** One price as 材料分类 shows it (JB167): per `unit`, from `effective_from`. */

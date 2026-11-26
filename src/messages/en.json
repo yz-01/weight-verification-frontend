@@ -23906,5 +23906,13 @@
       "progress_claim": "Progress Claim (spending): the Multi Engine approved amount is not live yet, so it counts as 0. It is added automatically once live.",
       "disposal": "Waste clearance: its records have no amount (only weights, trips and the collector), so it counts as 0; no price is guessed."
     }
+  },
+  "jb275": {
+    "priceFromList": "From the material category's unit price (RM {price} / {unit})",
+    "priceNone": "No unit price is set for this material in the material category. You can type one.",
+    "priceOtherUnit": "The material category's price is RM {price} / {unit}. This item is in another unit, so it was not filled in. You can type one.",
+    "priceLater": "The material category's price starts on {date}, after this record, so it was not filled in. You can type one.",
+    "priceTyped": "Entered by a person",
+    "pickFirst": "Choose the material and specification and the unit price fills in"
   }
 }
