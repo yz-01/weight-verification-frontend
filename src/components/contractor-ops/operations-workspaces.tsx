@@ -105,7 +105,6 @@ import {
 } from "@/components/shared/page-primitives";
 import { LocationField } from "@/components/field-staff/location-field";
 import type { LocationValue } from "@/lib/field-location";
-import { parseAlertAmounts, parseAlertPercentages } from "@/lib/category-modules";
 import { PERMIT_COLUMN_CODE } from "@/lib/hazard-columns";
 import { MultiPickList } from "@/components/shared/multi-pick-list";
 import { useDebounce } from "@/hooks/use-debounce";
@@ -395,20 +394,10 @@ export function CategoryDialog({
     allowed_roles: row?.allowed_roles ?? [],
     allowed_users: row?.allowed_users ?? [],
   });
-  // The material column's money (D-263): whether it counts against a budget,
-  // the budget, and the percentages worth a warning. Moved here from the
-  // retired /material-columns screen, with the same reading rules.
-  const [tracksSpend, setTracksSpend] = useState(row?.tracks_spend ?? false);
-  const [budget, setBudget] = useState(row?.budget_amount ?? "");
-  const [alerts, setAlerts] = useState(
-    (row?.budget_alert_percentages ?? []).join(", "),
-  );
-  // 2026-10 A6 (X17): the budget warns at percentages and/or absolute
-  // figures. Money only since I18 (ID40): a quantity is a material target,
-  // set in 材料管理 → 材料目标, net of returns and per specification.
-  const [alertAmounts, setAlertAmounts] = useState(
-    (row?.budget_alert_amounts ?? []).join(", "),
-  );
+  // No budget here since JB262 (客户 11-26 事项 3: 「材料分类管理应该只保留材料
+  // 名称、规格、单位、编号及默认单价等基础资料设置」「不要在两个不同的页面分别设定
+  // 目标及预算」): it is set on 材料管理 → 材料目标 (`MaterialBudgetDialog`),
+  // and this form never sends it, so saving the basic data leaves it as it is.
   // 2026-10 A4, D1 (Q1, Q13): what the phone fills in when this category is
   // chosen - its one unit, its suppliers, its designated manufacturers.
   const [defaultUnit, setDefaultUnit] = useState(row?.default_unit ?? "");
@@ -474,24 +463,11 @@ export function CategoryDialog({
       getManufacturers({ page_size: 100, ...(manufacturerSearch ? { search: manufacturerSearch } : {}) }),
     enabled: isMaterial,
   });
-  const parsedAlerts = parseAlertPercentages(alerts);
-  const alertsInvalid = isMaterial && tracksSpend && parsedAlerts === null;
-  const parsedAmounts = parseAlertAmounts(alertAmounts);
-  const amountsInvalid = isMaterial && tracksSpend && parsedAmounts === null;
   const save = useMutation({
     mutationFn: () => {
       const payload: ProjectCategoryPayload = isMaterial
         ? {
             ...form,
-            tracks_spend: tracksSpend,
-            // Null, not "", for a column that counts nothing: the field is a
-            // nullable decimal and an empty string is not a number.
-            budget_amount: tracksSpend && budget.trim() ? budget.trim() : null,
-            budget_alert_percentages:
-              parsedAlerts ?? row?.budget_alert_percentages ?? [],
-            budget_mode: "AMOUNT",
-            budget_quantity: null,
-            budget_alert_amounts: parsedAmounts ?? row?.budget_alert_amounts ?? [],
             default_unit: defaultUnit,
             suppliers: supplierIds,
             manufacturers: manufacturerIds,
@@ -880,71 +856,11 @@ export function CategoryDialog({
               )}
             </div>
           )}
+          {/* 预算 moved to 材料管理 → 材料目标 (JB262). */}
           {isMaterial && (
-            <div className="grid gap-4 border-t pt-4 sm:col-span-2">
-              <div>
-                <h4 className="panel-title">{modules("budget.title")}</h4>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {modules("budget.help")}
-                </p>
-                {/* JB167: the client typed his price per tonne here. */}
-                <p className="mt-1 rounded-lg border border-panel-border bg-muted/40 px-3 py-2 text-xs">
-                  {modules("budget.vsPrice")}
-                </p>
-              </div>
-              <label className="flex items-center gap-2 text-sm">
-                <Checkbox
-                  checked={tracksSpend}
-                  onCheckedChange={(checked) => setTracksSpend(checked === true)}
-                />
-                {modules("budget.tracksSpend")}
-              </label>
-              {/* 「数量目标请到 材料管理 → 材料目标」 (I18, ID40). */}
-              <p className="rounded-lg border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
-                {modules("budget.quantityMoved")}
-              </p>
-              {tracksSpend && (
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <FieldWrapper
-                    label={modules("budget.amount")}
-                    hint={modules("budget.amountHint")}
-                  >
-                    <Input
-                      type="number"
-                      inputMode="decimal"
-                      min="0"
-                      step="0.01"
-                      value={budget}
-                      onChange={(event) => setBudget(event.target.value)}
-                    />
-                  </FieldWrapper>
-                  <FieldWrapper
-                    label={modules("budget.alerts")}
-                    hint={modules("budget.alertsHint")}
-                    error={alertsInvalid ? modules("budget.alertsInvalid") : undefined}
-                  >
-                    <Input
-                      value={alerts}
-                      onChange={(event) => setAlerts(event.target.value)}
-                    />
-                  </FieldWrapper>
-                  <FieldWrapper
-                    label={modules("budget.thresholdAmounts")}
-                    hint={modules("budget.thresholdAmountsHint")}
-                    error={amountsInvalid ? modules("budget.thresholdAmountsInvalid") : undefined}
-                    className="sm:col-span-2"
-                  >
-                    <Input
-                      value={alertAmounts}
-                      onChange={(event) => setAlertAmounts(event.target.value)}
-                    />
-                  </FieldWrapper>
-                  <p className="text-xs text-muted-foreground sm:col-span-2">
-                    {modules("budget.recipients")}
-                  </p>
-                </div>
-              )}
-            </div>
+            <p className="rounded-lg border bg-muted/30 px-3 py-2 text-xs text-muted-foreground sm:col-span-2" data-slot="budget-moved">
+              {tRoot("jb262.budgetMoved")}
+            </p>
           )}
           <FieldWrapper label={t("field.sortOrder")}>
             <Input
@@ -1000,18 +916,7 @@ export function CategoryDialog({
               [form.name, t("field.name")],
               [!restrictedEmpty, t("categories.accessTitle")],
             ]}
-            // Not a `requires` entry: the warning lines are optional - empty
-            // means "do not warn me" - so listing them there would put a star
-            // on a field that is not required. What is wrong when they cannot
-            // be read is the text itself, and the field says so inline.
-            disabledReason={
-              alertsInvalid
-                ? modules("budget.alertsInvalid")
-                : amountsInvalid
-                  ? modules("budget.thresholdAmountsInvalid")
-                  : undefined
-            }
-            disabled={save.isPending || alertsInvalid || amountsInvalid}
+            disabled={save.isPending}
             onClick={() => save.mutate()}
           >
             {save.isPending ? <Loader2 className="animate-spin" /> : <Save />}

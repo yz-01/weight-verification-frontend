@@ -5,7 +5,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { ClipboardList, Eye, Pencil } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
@@ -44,6 +44,7 @@ import {
   useMaterialTab,
   withItemRefused,
 } from "@/components/receipts/material-tabs";
+import { MaterialLookupButton, MaterialOverview } from "@/components/receipts/material-overview";
 import { SpecCell } from "@/components/receipts/spec-pending-tag";
 import { LIST_FITS } from "@/lib/list-fits";
 
@@ -56,6 +57,7 @@ const ALL_STATES = "__any__";
 
 export function Receipts() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const t = useTranslations();
   const { can, user } = useAuth();
   const list = useListQuery([
@@ -476,16 +478,32 @@ export function Receipts() {
         // the phone at the gate, and the office corrects it from its detail.
         // 「待处理 N」: deliveries 待验收 for this reader, the sidebar's
         // number for 材料进场 (2026-10-09).
-        action={<ListNeedsActionChip list={list} count={data?.needs_action_count} />}
+        action={
+          <div className="flex flex-wrap items-center gap-2">
+            {/* 「按材料查询」 (JB260, 客户 11-26 事项 1): pick a material, its
+                statistics window opens - the one 分类管理's 【查看记录】 opens. */}
+            <MaterialLookupButton project={list.filters.project} />
+            <ListNeedsActionChip list={list} count={data?.needs_action_count} />
+          </div>
+        }
       />
 
       <MaterialItemRefusedNote shown={closed && !landing} />
       <MaterialTabs>
         <SupplierDateListFilter list={list} showManufacturer showUnfilled />
       </MaterialTabs>
+      {/* 材料统计 (JB262 / JB263, 客户 11-26 事项 3、4): each material's
+          收货、MR、目标、预算 and its entries, on 材料进场's own list. */}
+      {tab === "in" && !closed && (
+        <div className="shrink-0">
+          <MaterialOverview project={list.filters.project} />
+        </div>
+      )}
       {tab === "totals" ? (
         <NetTotalsView
           project={list.filters.project}
+          // 材料统计's 【供应商统计】 names the material (JB262).
+          initialMaterial={searchParams.get("material") ?? undefined}
           filters={{
             supplier: list.filters.supplier,
             manufacturer: list.filters.manufacturer,
