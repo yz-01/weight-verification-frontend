@@ -594,6 +594,8 @@ export interface MySubmissionRow {
   linked_record_reference?: string;
   /** A gate record that is a 门岗事项 rather than a plain photo (JB116). */
   gate_issue?: boolean;
+  /** A clearance job's kind (JB248): 废料处理 is named so on the phone too. */
+  clearance_kind?: "GARBAGE" | "SCRAP";
   /** A hazard or permit row's record type (`PERMIT` on a 施工准证). */
   record_type?: string;
   reference: string;

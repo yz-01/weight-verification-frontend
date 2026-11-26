@@ -89,6 +89,12 @@ describe("「我提交过的」 names every kind (JB116)", () => {
     expect(messages("zh").mySubmissions.kind.CONSULTANT).toBe("顾问资料提交");
   });
 
+  it("names a 废料处理 job as such (JB248, QA3)", () => {
+    expect(submissionKindKey({ kind: "DISPOSAL_REQUEST", clearance_kind: "SCRAP" })).toBe("jb248.kind.SCRAP");
+    expect(submissionKindKey({ kind: "DISPOSAL_REQUEST", clearance_kind: "GARBAGE" })).toBe("mySubmissions.kind.DISPOSAL_REQUEST");
+    expect(submissionKindKey({ kind: "DISPOSAL_REQUEST" })).toBe("mySubmissions.kind.DISPOSAL_REQUEST");
+  });
+
   it("opens the conversation on a gate issue only", () => {
     expect(rowTalksAsGateIssue({ kind: "GATE_INCIDENT", gate_issue: true })).toBe(true);
     expect(rowTalksAsGateIssue({ kind: "GATE_INCIDENT", gate_issue: false })).toBe(false);
