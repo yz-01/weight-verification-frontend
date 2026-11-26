@@ -957,6 +957,9 @@ const CATALOGUE_WINS = new Set([
   // The number is held by another phone account: the catalogue says how to
   // free it - 移出项目 or delete, not suspend (JB109, JB148).
   "phone_in_use",
+  // An e-mail that already has an account (邀请用户 / 新增用户, QA2 JB242):
+  // 「该电子邮箱已注册」 in the reader's language, not the server's English.
+  "email_in_use",
   // A phone link names one project (JB148, 客户 11-10 事项 5 第 3 点).
   "field_one_project",
   // Not on the project's 可用供应商: the catalogue says who adds it (JB115).

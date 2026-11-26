@@ -70,4 +70,14 @@ describe("QA2 JB242: inviting needs 编辑用户, said before the click", () => 
       'submitDisabledReason={can("user.update") ? undefined : t("jb242.needsUserUpdate")}',
     );
   });
+
+  it("an e-mail already used is said in the reader's language (email_in_use wins over the server's English)", () => {
+    const client = readFileSync(path.join(__dirname, "../../services/api-client.ts"), "utf8");
+    const wins = client.slice(client.indexOf("const CATALOGUE_WINS"), client.indexOf("]);", client.indexOf("const CATALOGUE_WINS")));
+    expect(wins).toContain('"email_in_use"');
+    expect(zh.errors.field.email_in_use).toBe("该电子邮箱已注册");
+    for (const messages of [zhTW, en, ms]) {
+      expect((messages as unknown as { errors: { field: Record<string, string> } }).errors.field.email_in_use).toBeTruthy();
+    }
+  });
 });
