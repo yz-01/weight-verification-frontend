@@ -26,7 +26,7 @@ const { RecordClosurePanel, recordClosureKey } = await import("@/components/shar
 
 function render(node: React.ReactNode, data: Record<string, unknown>) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: Infinity } } });
-  client.setQueryData(recordClosureKey(String(data.kind), "r-1"), {
+  client.setQueryData(recordClosureKey(data.kind as Parameters<typeof recordClosureKey>[0], "r-1"), {
     record: "r-1",
     ready: true,
     closed: false,

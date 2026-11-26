@@ -24065,8 +24065,17 @@
       "noAlerts": "No alerts",
       "set": "Set budget",
       "dialogTitle": "Budget of {name}",
-      "pinNote": "Saving asks for your sign-off PIN. Every change is kept in the operation records (the amount before and after)."
-    }
+      "pinNote": "Saving asks for your sign-off PIN. Every change is kept in the operation records (the amount before and after).",
+      "history": "Change history",
+      "historyTitle": "Budget changes of {name}",
+      "historyHelp": "Every time the budget was set or changed: who, when, before and after. Newest on top.",
+      "historyEmpty": "The budget has not been changed yet.",
+      "historyBudget": "Budget: {before} → {after}",
+      "historyAlerts": "Alerts: {before} → {after}",
+      "historyOn": "Spend and budget switched on",
+      "historyOff": "Spend and budget switched off"
+    },
+    "oneMaterialUnnamed": "Showing one material's targets."
   },
   "jb242": {
     "submit": "Invite",

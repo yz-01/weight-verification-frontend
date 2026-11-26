@@ -42,7 +42,7 @@ vi.mock("next/navigation", () => ({
 const { MaterialOverview, MaterialLookupButton, filterMaterials, requestLinesOf, sameWords } = await import(
   "@/components/receipts/material-overview"
 );
-const { MaterialBudgets, budgetPayload } = await import("@/components/receipts/material-budget");
+const { MaterialBudgets, BudgetHistoryList, budgetPayload } = await import("@/components/receipts/material-budget");
 
 const read = (path: string) => readFileSync(join(process.cwd(), path), "utf8");
 
@@ -321,9 +321,54 @@ describe("材料目标 = 数量目标 + 预算金额 + 追加记录 (JB262 / JB2
     expect(budgetPayload({ tracksSpend: false, budget: "5000", alerts: [], amounts: [] }).budget_amount).toBeNull();
   });
 
+  it("shows one material's budget only when 材料统计 opened one, and each budget's 修改记录 (QA1 audit #24)", () => {
+    const seed = (client: QueryClient) =>
+      client.setQueryData(["project-categories", "materials", "p-2"], {
+        results: [material(), material({ id: "m-sand", code: "MAT-SAND", name: "沙" })],
+        count: 2,
+      });
+    const all = render(<MaterialBudgets project="p-2" />, seed);
+    expect(all).toContain("MAT-SAND");
+    const one = render(<MaterialBudgets project="p-2" material="m-rebar" />, seed);
+    expect(one).toContain("MAT-REBAR");
+    expect(one).not.toContain("MAT-SAND");
+    expect(one).toContain('data-slot="budget-history-open"');
+    // Read-only readers see the history too.
+    reader.codes = ["receipt.view", "category.view"];
+    expect(render(<MaterialBudgets project="p-2" />, seed)).toContain(messages.jb262.budgets.history);
+  });
+
+  it("lists who changed the budget, when, and what it was and became, newest first", () => {
+    const html = render(
+      <BudgetHistoryList
+        rows={[
+          {
+            id: "a2",
+            at: "2026-11-27T03:00:00Z",
+            by: "PM Lee",
+            before: { budget_amount: "250000.00" },
+            after: { budget_amount: "268000.00", budget_alert_percentages: [80, 100] },
+          },
+          { id: "a1", at: "2026-11-20T03:00:00Z", by: "PM Lee", before: { budget_amount: null }, after: { budget_amount: null } },
+        ]}
+      />,
+    );
+    expect(html).toContain("PM Lee");
+    expect(html).toContain("预算：RM 250000.00 → RM 268000.00");
+    expect(html).toContain("80%、100%");
+    // A reader without 金额查看 gets the amounts blanked by the server: 「—」.
+    expect(html).toContain("预算：— → —");
+  });
+
+  it("names the material opened from 材料统计 even before it has a target", () => {
+    const targets = read("src/components/receipts/material-targets.tsx");
+    expect(targets).toMatch(/projectMaterials\.data\?\.find\(\(row\) => row\.id === material\)\?\.name/);
+    expect(targets).not.toContain('rows[0]?.category_name ?? "—"');
+  });
+
   it("is on the 材料目标 page beside the targets and their additions", () => {
     const targets = read("src/components/receipts/material-targets.tsx");
-    expect(targets).toMatch(/<MaterialBudgets project=\{project\} \/>/);
+    expect(targets).toMatch(/<MaterialBudgets project=\{project\} material=\{material \|\| undefined\} \/>/);
     expect(targets).toMatch(/<AppendTargetDialog/);
     expect(targets).toMatch(/useListQuery\(\["project", "target", "category"\]\)/);
   });

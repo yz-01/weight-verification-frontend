@@ -17,7 +17,7 @@
  */
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Save, Wallet } from "lucide-react";
+import { History, Loader2, Save, Wallet } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
@@ -39,7 +39,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { ApiError } from "@/interfaces/api";
 import type { ProjectCategory } from "@/interfaces/contractor-ops";
 import { parseAlertAmounts, parseAlertPercentages } from "@/lib/category-modules";
-import { getProjectCategories, updateProjectCategory } from "@/services/contractor-ops.service";
+import { useDateFormat } from "@/lib/dates";
+import {
+  getBudgetHistory,
+  getProjectCategories,
+  updateProjectCategory,
+  type BudgetHistoryRow,
+  type BudgetSide,
+} from "@/services/contractor-ops.service";
 
 /** A project's materials, as 材料分类 lists them (top level; specs are under each). */
 export function useProjectMaterials(project: string | undefined) {
@@ -78,15 +85,20 @@ export function budgetPayload(input: {
   };
 }
 
-/** The 预算金额 table on 材料目标: one row per material of the project. */
-export function MaterialBudgets({ project }: { project: string }) {
+/** The 预算金额 table on 材料目标: one row per material of the project -
+ * or one material's only, as 材料统计's 【材料目标】 opens it (`material`). */
+export function MaterialBudgets({ project, material }: { project: string; material?: string }) {
   const t = useTranslations("jb262");
   const { can } = useAuth();
   const qc = useQueryClient();
   const materials = useProjectMaterials(project);
   const [editing, setEditing] = useState<ProjectCategory | null>(null);
+  // 「…预算金额及追加记录」 (QA1 audit #24): each budget's own 修改记录.
+  const [history, setHistory] = useState<ProjectCategory | null>(null);
   const canSet = can("category.manage");
-  const rows = (materials.data ?? []).filter((row) => row.is_active || row.tracks_spend);
+  const rows = (materials.data ?? []).filter(
+    (row) => (row.is_active || row.tracks_spend) && (!material || row.id === material),
+  );
 
   return (
     <section className="space-y-2" data-slot="material-budgets">
@@ -115,7 +127,7 @@ export function MaterialBudgets({ project }: { project: string }) {
                 <TableHead>{t("col.material")}</TableHead>
                 <TableHead>{t("col.spend")}</TableHead>
                 <TableHead>{t("budgets.alerts")}</TableHead>
-                {canSet && <TableHead pin="end">{t("col.action")}</TableHead>}
+                <TableHead pin="end">{t("col.action")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -136,20 +148,33 @@ export function MaterialBudgets({ project }: { project: string }) {
                         ].join("、") || t("budgets.noAlerts")
                       : "—"}
                   </TableCell>
-                  {canSet && (
-                    <TableCell pin="end">
-                      <Button size="sm" variant="outline" className="h-7" onClick={() => setEditing(row)}>
-                        <Wallet />
-                        {t("budgets.set")}
+                  <TableCell pin="end">
+                    <div className="flex flex-wrap gap-1">
+                      {canSet && (
+                        <Button size="sm" variant="outline" className="h-7" onClick={() => setEditing(row)}>
+                          <Wallet />
+                          {t("budgets.set")}
+                        </Button>
+                      )}
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-7"
+                        onClick={() => setHistory(row)}
+                        data-slot="budget-history-open"
+                      >
+                        <History />
+                        {t("budgets.history")}
                       </Button>
-                    </TableCell>
-                  )}
+                    </div>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </div>
       )}
+      {history && <BudgetHistoryDialog material={history} onClose={() => setHistory(null)} />}
       {editing && (
         <MaterialBudgetDialog
           material={editing}
@@ -163,6 +188,95 @@ export function MaterialBudgets({ project }: { project: string }) {
         />
       )}
     </section>
+  );
+}
+
+function alertsText(side: BudgetSide, none: string) {
+  const list = (value: unknown) => (Array.isArray(value) ? value : []);
+  const parts = [
+    ...list(side.budget_alert_percentages).map((value) => `${value}%`),
+    ...list(side.budget_alert_amounts).map((value) => `RM ${value}`),
+  ];
+  return parts.length ? parts.join("、") : none;
+}
+
+/** 预算修改记录 (JB262, QA1 audit #24): newest first, from the audit rows. */
+export function BudgetHistoryDialog({ material, onClose }: { material: ProjectCategory; onClose: () => void }) {
+  const t = useTranslations("jb262");
+  const common = useTranslations("common");
+  const query = useQuery({
+    queryKey: ["budget-history", material.id],
+    queryFn: () => getBudgetHistory(material.id),
+  });
+  const rows = query.data?.rows ?? [];
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>{t("budgets.historyTitle", { name: material.name })}</DialogTitle>
+          <DialogDescription>{t("budgets.historyHelp")}</DialogDescription>
+        </DialogHeader>
+        {query.isError ? (
+          <LoadFailed what={t("budgets.history")} onRetry={() => void query.refetch()} />
+        ) : query.isLoading ? (
+          <p className="text-sm text-muted-foreground">{t("loading")}</p>
+        ) : (
+          <BudgetHistoryList rows={rows} />
+        )}
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>
+            {common("close")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/** The rows of 预算修改记录: who · when, the budget before → after, the alerts. */
+export function BudgetHistoryList({ rows }: { rows: BudgetHistoryRow[] }) {
+  const t = useTranslations("jb262");
+  const formatter = useDateFormat();
+  const money = (value: string | null | undefined) => (value === undefined ? null : value === null ? "—" : `RM ${value}`);
+  if (rows.length === 0) {
+    return (
+      <p className="text-sm text-muted-foreground" data-slot="budget-history-empty">
+        {t("budgets.historyEmpty")}
+      </p>
+    );
+  }
+  return (
+          <ul className="grid gap-2" data-slot="budget-history">
+            {rows.map((row) => {
+              const before = money(row.before.budget_amount);
+              const after = money(row.after.budget_amount);
+              const alertsMoved =
+                "budget_alert_percentages" in row.after || "budget_alert_amounts" in row.after;
+              return (
+                <li key={row.id} className="rounded-lg border px-3 py-2 text-sm">
+                  <p className="text-xs text-muted-foreground">
+                    {row.by || "—"} · {formatter.dateTime(row.at)}
+                  </p>
+                  {after !== null && (
+                    <p className="font-medium tabular-nums">
+                      {t("budgets.historyBudget", { before: before ?? "—", after })}
+                    </p>
+                  )}
+                  {alertsMoved && (
+                    <p>
+                      {t("budgets.historyAlerts", {
+                        before: alertsText(row.before, t("budgets.noAlerts")),
+                        after: alertsText(row.after, t("budgets.noAlerts")),
+                      })}
+                    </p>
+                  )}
+                  {"tracks_spend" in row.after && (
+                    <p>{row.after.tracks_spend ? t("budgets.historyOn") : t("budgets.historyOff")}</p>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
   );
 }
 

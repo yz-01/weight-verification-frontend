@@ -24065,8 +24065,17 @@
       "noAlerts": "Tiada peringatan",
       "set": "Tetapkan bajet",
       "dialogTitle": "Bajet {name}",
-      "pinNote": "Menyimpan meminta PIN pengesahan anda. Setiap perubahan disimpan dalam rekod operasi (jumlah sebelum dan selepas)."
-    }
+      "pinNote": "Menyimpan meminta PIN pengesahan anda. Setiap perubahan disimpan dalam rekod operasi (jumlah sebelum dan selepas).",
+      "history": "Sejarah perubahan",
+      "historyTitle": "Perubahan bajet {name}",
+      "historyHelp": "Setiap kali bajet ditetapkan atau diubah: siapa, bila, sebelum dan selepas. Terbaru di atas.",
+      "historyEmpty": "Bajet belum pernah diubah.",
+      "historyBudget": "Bajet: {before} → {after}",
+      "historyAlerts": "Peringatan: {before} → {after}",
+      "historyOn": "Perbelanjaan dan bajet dihidupkan",
+      "historyOff": "Perbelanjaan dan bajet dimatikan"
+    },
+    "oneMaterialUnnamed": "Menunjukkan sasaran satu bahan."
   },
   "jb242": {
     "submit": "Jemput",

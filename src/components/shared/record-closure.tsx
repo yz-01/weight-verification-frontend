@@ -205,7 +205,7 @@ export function RecordClosurePanel({
   // off until the record is linked to its MR / 其他申请 (「关联申请」 above).
   // On a 进场 / 退场 it is one line of 「以下必填资料不完整」 (`mr_link`, QA1
   // audit #15), never hidden behind another reason; on a 领用, its own line.
-  const linkLine =
+  const linkLine: { reason: string; action?: ReactNode } | null =
     state.data.mr_link_missing && !missing.includes("mr_link") ? { reason: tLink("archiveBlocked") } : null;
   const shownBlock = blocked ?? linkLine;
   const linkHidden = Boolean(blocked && linkLine);

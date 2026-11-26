@@ -24065,8 +24065,17 @@
       "noAlerts": "不提醒",
       "set": "設定預算",
       "dialogTitle": "{name} 的預算",
-      "pinNote": "儲存時要輸入你的簽核密碼。每次修改都記在操作記錄裡（修改前和修改後的金額）。"
-    }
+      "pinNote": "儲存時要輸入你的簽核密碼。每次修改都記在操作記錄裡（修改前和修改後的金額）。",
+      "history": "修改記錄",
+      "historyTitle": "{name} 的預算修改記錄",
+      "historyHelp": "每一次設定或修改預算：誰、什麼時候、改之前和改之後。最新的在最上面。",
+      "historyEmpty": "還沒有修改過預算。",
+      "historyBudget": "預算：{before} → {after}",
+      "historyAlerts": "提醒：{before} → {after}",
+      "historyOn": "開始計算花費和預算",
+      "historyOff": "不再計算花費和預算"
+    },
+    "oneMaterialUnnamed": "只看一種材料的目標。"
   },
   "jb242": {
     "submit": "邀請",

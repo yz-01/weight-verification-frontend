@@ -24065,8 +24065,17 @@
       "noAlerts": "不提醒",
       "set": "设定预算",
       "dialogTitle": "{name} 的预算",
-      "pinNote": "保存时要输入你的签核密码。每次修改都记在操作记录里（修改前和修改后的金额）。"
-    }
+      "pinNote": "保存时要输入你的签核密码。每次修改都记在操作记录里（修改前和修改后的金额）。",
+      "history": "修改记录",
+      "historyTitle": "{name} 的预算修改记录",
+      "historyHelp": "每一次设定或修改预算：谁、什么时候、改之前和改之后。最新的在最上面。",
+      "historyEmpty": "还没有修改过预算。",
+      "historyBudget": "预算：{before} → {after}",
+      "historyAlerts": "提醒：{before} → {after}",
+      "historyOn": "开始计算花费和预算",
+      "historyOff": "不再计算花费和预算"
+    },
+    "oneMaterialUnnamed": "只看一种材料的目标。"
   },
   "jb242": {
     "submit": "邀请",
