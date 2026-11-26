@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { FolderPlus, ListPlus, Pencil, Plus, QrCode, Trash2 } from "lucide-react";
+import { FileSpreadsheet, FolderPlus, ListPlus, Pencil, Plus, QrCode, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -11,6 +11,7 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { useCurrentProject } from "@/components/providers/current-project-provider";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
+import { ExcelImportDialog } from "@/components/shared/excel-import-dialog";
 import { ExportButton } from "@/components/shared/export-button";
 import {
   ListHeader,
@@ -47,6 +48,8 @@ export function Suppliers() {
   // on their own projects instead of creating new ones.
   const [pickingFromHq, setPickingFromHq] = useState(false);
   const [qrPreviewId, setQrPreviewId] = useState<string | null>(null);
+  // 导入 Excel (JB244): the client's own supplier list, previewed before it is saved.
+  const [importing, setImporting] = useState(false);
   const qrPreview = useQuery({
     queryKey: ["suppliers", "qr-preview", qrPreviewId],
     queryFn: () => getSupplier(qrPreviewId as string),
@@ -291,6 +294,12 @@ export function Suppliers() {
                 {t("projectSuppliers.toProject")}
               </Button>
             )}
+            {can("supplier.create") && (
+              <Button variant="outline" onClick={() => setImporting(true)} data-testid="suppliers-import-excel">
+                <FileSpreadsheet className="size-4" />
+                {t("jb244.open")}
+              </Button>
+            )}
             {can("supplier.create") ? (
               <Button asChild>
                 <Link href="/suppliers/create">
@@ -312,6 +321,7 @@ export function Suppliers() {
           {t("projectSuppliers.hqListNote")}
         </p>
       )}
+      {importing && <ExcelImportDialog kind="supplier" onClose={() => setImporting(false)} />}
       {pickingFromHq && (
         <AddFromHeadOfficeDialog
           headOffice={can("supplier.create")}

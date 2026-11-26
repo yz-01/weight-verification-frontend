@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ListTree, Loader2, Pencil, Plus, Save, Send, Trash2 } from "lucide-react";
+import { FileSpreadsheet, ListTree, Loader2, Pencil, Plus, Save, Send, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -11,6 +11,7 @@ import { CompanyMaterialForm } from "@/components/contractor-ops/company-materia
 import { PermitWorkTypesPanel } from "@/components/contractor-ops/permit-work-types";
 import { CompanyMaterialList, toggled } from "@/components/contractor-ops/company-material-list";
 import { WasteCategoryDialog } from "@/components/contractor-ops/waste-category-dialog";
+import { ExcelImportDialog } from "@/components/shared/excel-import-dialog";
 import {
   EmptyState,
   FieldWrapper,
@@ -203,6 +204,7 @@ type Editing =
 
 export function CompanyCategories() {
   const t = useTranslations("categoryManagement");
+  const tAll = useTranslations();
   const { can } = useAuth();
   const qc = useQueryClient();
   // `?company=permitWorkType` - the e-permit's 「管理施工类别」 (JB216) - opens
@@ -216,6 +218,8 @@ export function CompanyCategories() {
   // the materials whose specifications are unfolded - none at first.
   const [materialPage, setMaterialPage] = useState<{ row: CompanyCategory | null; addSpec?: boolean } | null>(null);
   const [open, setOpen] = useState<ReadonlySet<string>>(() => new Set());
+  // 导入 Excel (JB244): materials and specifications from the client's own file.
+  const [importing, setImporting] = useState(false);
   const active = COMPANY_MODULES.find((entry) => entry.key === moduleKey) ?? COMPANY_MODULES[0];
   const canManage = active.manage.some((code) => can(code));
   const seesAmounts = useSeesAmounts();
@@ -275,6 +279,7 @@ export function CompanyCategories() {
           </Button>
         )}
       </div>
+      {importing && <ExcelImportDialog kind="material" onClose={() => setImporting(false)} />}
       <div className="grid gap-4 lg:grid-cols-[14rem_1fr]">
         <nav aria-label={t("company.modules")} className="flex flex-col gap-1">
           {COMPANY_MODULES.map((entry) => {
@@ -304,7 +309,15 @@ export function CompanyCategories() {
           <header className="mb-3 flex flex-wrap items-center gap-2">
             <h2 className="panel-title">{t(`company.module.${active.key}`)}</h2>
             <StatusBadge label={t("scope.company")} tone="neutral" />
-            <div className="ml-auto flex flex-wrap items-center gap-2">{createButton}</div>
+            <div className="ml-auto flex flex-wrap items-center gap-2">
+              {canManage && active.key === "material" && (
+                <Button variant="outline" onClick={() => setImporting(true)} data-testid="materials-import-excel">
+                  <FileSpreadsheet />
+                  {tAll("jb244.open")}
+                </Button>
+              )}
+              {createButton}
+            </div>
           </header>
           <p className="mb-3 text-xs text-muted-foreground">{t(`company.moduleHelp.${active.key}`)}</p>
           {/* JB181 (Lucas 11-12 「怕客户不会用或者不明白」): how the fold works, in words. */}

@@ -4058,7 +4058,9 @@
       "company_modules_by_platform": "MSE switched a company's business modules on or off",
       "equipment_rental_terms_set": "Set equipment rental terms",
       "equipment_rental_month_amounts_set": "Entered an equipment rental diesel fee or adjustment",
-      "equipment_rental_month_confirmed": "Confirmed a month's equipment rental amounts"
+      "equipment_rental_month_confirmed": "Confirmed a month's equipment rental amounts",
+      "supplier_excel_import": "Suppliers imported from Excel",
+      "company_material_excel_import": "Materials imported from Excel"
     },
     "objectType": {
       "SignOffAssistant": "Assistant PIN",
@@ -9727,7 +9729,13 @@
       "equipment_rental_no_terms": "Set this machine's rental terms first (Equipment rental terms).",
       "equipment_rental_diesel_not_charged": "This machine's diesel is not charged separately by the supplier, so no diesel fee can be entered.",
       "equipment_rental_month_confirmed": "This month's rental amounts are confirmed and can no longer be changed.",
-      "equipment_rental_month_not_started": "This month has not started yet and cannot be confirmed."
+      "equipment_rental_month_not_started": "This month has not started yet and cannot be confirmed.",
+      "import_excel_old_format": "This is an old .xls file. In Excel, use Save As, choose .xlsx, and upload that.",
+      "import_excel_invalid": "This file cannot be opened. Upload an Excel (.xlsx) file, or fill in the Excel template and upload it.",
+      "import_excel_too_large": "The file is too large: at most {limit_mb} MB.",
+      "import_excel_empty": "This Excel has nothing under its header.",
+      "import_excel_too_many_rows": "At most {limit} rows per import. Please split the file.",
+      "import_excel_mapping_invalid": "A chosen column is not in this Excel. Please choose again."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -23906,5 +23914,87 @@
       "progress_claim": "Progress Claim (spending): the Multi Engine approved amount is not live yet, so it counts as 0. It is added automatically once live.",
       "disposal": "Waste clearance: its records have no amount (only weights, trips and the collector), so it counts as 0; no price is guessed."
     }
+  },
+  "jb244": {
+    "open": "Import Excel",
+    "template": "Download Excel template",
+    "title": {
+      "supplier": "Import Excel · Suppliers",
+      "material": "Import Excel · Material categories"
+    },
+    "intro": {
+      "supplier": "Upload your own supplier Excel. The system recognises each column and shows you a preview: which rows are new, which are already there (skipped) and which have a problem. Nothing is saved until you press Confirm import; suppliers already on the list are not changed.",
+      "material": "Upload your own material Excel. One specification per row; rows with the same material name go under one material. The system recognises each column and shows you a preview; nothing is saved until you press Confirm import, and materials and specifications already on the list are not changed."
+    },
+    "chooseFirst": "No file chosen yet",
+    "chooseFile": "Choose Excel file",
+    "changeFile": "Choose another file",
+    "xlsxOnly": "Only .xlsx. Save an old .xls as .xlsx in Excel (Save As) first.",
+    "fileLine": "Header on row {row}, {total} rows of data below it",
+    "reading": "Reading the Excel…",
+    "readFailed": "This Excel could not be read. Please choose another file.",
+    "columnsTitle": "Match the columns",
+    "columnsHelp": "Columns recognised by their headers are already chosen. Change any that are wrong; choose Not imported for one you do not want.",
+    "notImported": "Not imported",
+    "columnOption": "Column {letter} · {header}",
+    "columnNoHeader": "Column {letter}",
+    "example": "e.g. {values}",
+    "requiredMissing": "Choose which Excel column is the {field}.",
+    "noPrices": "Your account does not see amounts, so prices are not imported.",
+    "twoLevels": "Materials have two levels: material name › specification. An Excel with a category column and no material name column has its category imported as the material name.",
+    "categoryLeftOut": "Column {letter} \"{header}\" is not imported: materials have only two levels (material name › specification), with no category above them. To keep it, choose this column for Description.",
+    "batchTitle": "For the whole import",
+    "batchHelp": "Every supplier needs a company type, industry and main products. The Excel's own values are used; rows without them take what you choose and fill in here.",
+    "batch": {
+      "industry": "Industry (for rows without one)",
+      "main_products": "Main products (for rows without them)"
+    },
+    "unitsTitle": "Units not on your unit list",
+    "unitsHelp": "These units are not on your unit list yet. Match each to a listed unit, or add it.",
+    "unitLabel": "\"{unit}\" in the Excel",
+    "unitLines": "On rows {lines}",
+    "unitNew": "Add \"{unit}\" to the unit list",
+    "unitMapTo": "Same as \"{unit}\"",
+    "unitAdded": "Unit \"{unit}\" will be added to the unit list",
+    "pricesPin": "This import sets {count} prices. Confirm import asks for your six-digit sign-off PIN; the prices start today.",
+    "previewTitle": "Preview",
+    "counts": "{new} new · {exists} already there, skipped · {problem} with a problem (not imported)",
+    "filter": {
+      "all": "All ({count})",
+      "new": "New ({count})",
+      "exists": "Already there ({count})",
+      "problem": "Problems ({count})"
+    },
+    "col": {
+      "line": "Row",
+      "status": "Result"
+    },
+    "status": {
+      "new": "New",
+      "exists": "Already there, skipped",
+      "problem": "Problem"
+    },
+    "existsMatch": "Already there: {code} {name}",
+    "sameAsLine": "Same as row {line}",
+    "problem": {
+      "missing": "No {field}",
+      "invalid": "{field} is not right",
+      "too_long": "{field} is too long"
+    },
+    "note": {
+      "supplier_not_found": "Supplier \"{name}\" is not on your supplier list: not linked",
+      "material_added": "Material \"{name}\" is added too"
+    },
+    "moreRows": "Showing the first {shown} of {total} rows.",
+    "confirm": "Confirm import ({count} rows)",
+    "nothingNew": "New rows to import",
+    "cancel": "Cancel",
+    "close": "Close",
+    "done": "Import done: {added} rows added, {skipped} already there and skipped, {problems} with a problem not imported.",
+    "doneWhere": {
+      "supplier": "The new suppliers are on the supplier list, numbered by the system.",
+      "material": "The new materials and specifications are on the material list, numbered by the system."
+    },
+    "doneUnits": "Units added: {names}"
   }
 }
