@@ -4060,7 +4060,9 @@
       "equipment_rental_month_amounts_set": "Entered an equipment rental diesel fee or adjustment",
       "equipment_rental_month_confirmed": "Confirmed a month's equipment rental amounts",
       "material_request_linked": "Linked to an MR / other request",
-      "material_request_unlinked": "Unlinked from an MR / other request"
+      "material_request_unlinked": "Unlinked from an MR / other request",
+      "menu_names_permission_by_platform": "MSE let a company rename its menu, or stopped it",
+      "menu_names_update": "Menu names changed"
     },
     "objectType": {
       "SignOffAssistant": "Assistant PIN",
@@ -9735,7 +9737,9 @@
       "invite_projects_required": "Tick at least one project.",
       "invite_role_wrong_kind": "The saved permissions picked are not for the place chosen (head office or project). Pick again.",
       "material_request_link_required": "This record ({reference}) is not linked to an MR / other request yet. It cannot be archived until it is linked.",
-      "material_request_link_invalid": "Only this project's MR / other requests can be linked (not a returned one)."
+      "material_request_link_invalid": "Only this project's MR / other requests can be linked (not a returned one).",
+      "menu_names_not_enabled": "MSE has not turned on menu names for your company yet.",
+      "menu_name_invalid": "Check the menu names: 1–20 characters each, no line breaks, no angle brackets."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -24119,6 +24123,41 @@
         "returned": "Returned",
         "issued": "Issued"
       }
+    }
+  },
+  "jb251": {
+    "saved": "Menu names saved.",
+    "company": {
+      "title": "Menu names",
+      "subtitle": "Call the menu what your company calls it, for example \"Equipment movement\" as \"Equipment rental\". Only your company sees it; functions, records and permissions stay the same.",
+      "scope": "Only the left menu and the name at the top of each page change; PDFs, notifications and help texts keep the system names.",
+      "systemName": "System name",
+      "ownNameIn": "Your company's name ({language})",
+      "ownNameFor": "Your company's name for \"{name}\"",
+      "blankHint": "Leave empty to use the system name",
+      "otherLanguages": "Other languages",
+      "restore": "Use system name",
+      "save": "Save menu names",
+      "noChange": "Nothing changed yet.",
+      "fixFirst": "Fix the names marked in red first.",
+      "changedCount": "{count} menu names changed",
+      "saveFailed": "Could not save. Please try again.",
+      "problem": {
+        "tooLong": "At most {max} characters.",
+        "lineBreak": "No line breaks.",
+        "markup": "No angle brackets."
+      }
+    },
+    "mse": {
+      "title": "Menu names",
+      "help": "When on, people in this company who may change Company settings can rename its menu there. Only this company is affected; functions, records and permissions stay the same. Turned off, the names are kept but not shown; turned on again, they come back.",
+      "switch": "Let this company rename its menu",
+      "changed": "Names this company changed ({count})",
+      "none": "This company has not renamed any menu.",
+      "hiddenNow": "Turned off: these names are not shown; the menu uses the system names.",
+      "openedToast": "This company may now rename its menu.",
+      "closedToast": "Turned off: this company's menu is back to the system names.",
+      "saveFailed": "Could not save. Please try again."
     }
   }
 }

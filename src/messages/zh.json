@@ -4060,7 +4060,9 @@
       "equipment_rental_month_amounts_set": "填写设备租赁的柴油费用或调整金额",
       "equipment_rental_month_confirmed": "确认设备本月租赁金额",
       "material_request_linked": "关联 MR／其他申请",
-      "material_request_unlinked": "取消关联 MR／其他申请"
+      "material_request_unlinked": "取消关联 MR／其他申请",
+      "menu_names_permission_by_platform": "MSE 开放或关闭公司自己改菜单名称",
+      "menu_names_update": "修改菜单名称"
     },
     "objectType": {
       "SignOffAssistant": "助理副密码",
@@ -9735,7 +9737,9 @@
       "invite_projects_required": "请至少勾一个所属项目。",
       "invite_role_wrong_kind": "选的常用权限和「总部 / 项目」不一样，请重新选。",
       "material_request_link_required": "这笔记录（{reference}）还没有关联 MR／其他申请。未完成关联，不能确认归档。",
-      "material_request_link_invalid": "只能关联本项目的 MR／其他申请（已退回的不能选）。"
+      "material_request_link_invalid": "只能关联本项目的 MR／其他申请（已退回的不能选）。",
+      "menu_names_not_enabled": "MSE 还没有为你们公司打开自定义菜单名称。",
+      "menu_name_invalid": "菜单名称不对：每个名称 1–20 个字，不能换行，不能有尖括号。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -24119,6 +24123,41 @@
         "returned": "已退场",
         "issued": "已领用"
       }
+    }
+  },
+  "jb251": {
+    "saved": "菜单名称已保存。",
+    "company": {
+      "title": "菜单名称",
+      "subtitle": "把菜单改成你们公司习惯的叫法，例如把「设备管理」改成「设备租赁管理」。只影响你们公司，功能、资料和权限都不变。",
+      "scope": "只改左边菜单和页面最上面的名字；PDF、通知和说明文字仍用系统名称。",
+      "systemName": "系统名称",
+      "ownNameIn": "你们公司的名称（{language}）",
+      "ownNameFor": "「{name}」你们公司的名称",
+      "blankHint": "空着就用系统名称",
+      "otherLanguages": "其他语言",
+      "restore": "恢复系统名称",
+      "save": "保存菜单名称",
+      "noChange": "还没有改动。",
+      "fixFirst": "先改好标红的名称。",
+      "changedCount": "已改 {count} 个菜单名称",
+      "saveFailed": "保存失败，请再试一次。",
+      "problem": {
+        "tooLong": "最多 {max} 个字。",
+        "lineBreak": "不能换行。",
+        "markup": "不能有尖括号。"
+      }
+    },
+    "mse": {
+      "title": "菜单名称",
+      "help": "打开后，这家公司有「公司设置」修改权限的人可以在「公司设置」把菜单改成自己的叫法，只影响这家公司，功能、资料和权限都不变。关掉后，改过的名字保留但不显示，再打开就恢复。",
+      "switch": "允许这家公司自己改菜单名称",
+      "changed": "这家公司改过的名称（{count}）",
+      "none": "这家公司还没有改过菜单名称。",
+      "hiddenNow": "现在没有打开，这些名字不显示，菜单用系统名称。",
+      "openedToast": "已允许这家公司自己改菜单名称。",
+      "closedToast": "已关闭，这家公司的菜单回到系统名称。",
+      "saveFailed": "保存失败，请再试一次。"
     }
   }
 }

@@ -162,6 +162,12 @@ export interface CompanyPreferences {
   dashboard_title?: string;
   dashboard_subtitle?: string;
   default_notification_channel: "IN_APP" | "PUSH";
+  /**
+   * The company's own menu names (JB251, 客户 11-24 事项 2), sent only while
+   * MSE has opened renaming for it: full message key → language → name.
+   * A recycler with no 显示偏好 row gets an object with this alone.
+   */
+  menu_names?: Record<string, Partial<Record<string, string>>>;
 }
 
 export interface ConsultantProjectAccess {

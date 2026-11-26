@@ -16,6 +16,7 @@ import {
 import { UserMenu } from "@/components/layout/user-menu";
 import { useAuth } from "@/components/providers/auth-provider";
 import { badgeFor, menuWaiting, useUnreadBadges } from "@/hooks/use-unread-badges";
+import { useNavLabel } from "@/hooks/use-nav-label";
 import { OfflineStatus } from "@/components/shared/offline-status";
 import { BrandIcon } from "@/components/shared/brand-icon";
 import type { CurrentUser } from "@/interfaces/auth";
@@ -46,6 +47,7 @@ import {
   type FeatureNavItem,
   type PortalFeatureKey,
 } from "@/lib/navigation";
+import { itemNameKey } from "@/lib/menu-names";
 import { PORTAL_LABELS } from "@/lib/portal";
 import { MODULE_TILE, moduleTone } from "@/lib/tones";
 import { cn } from "@/lib/utils";
@@ -71,6 +73,8 @@ import { cn } from "@/lib/utils";
  */
 export function AppSidebar() {
   const t = useTranslations();
+  // JB251: the company's own menu names, when MSE has opened them.
+  const navLabel = useNavLabel();
   const badges = useUnreadBadges();
   const pathname = usePathname();
   const router = useRouter();
@@ -177,7 +181,7 @@ export function AppSidebar() {
         const below = child.children?.length ? build(child.children) : undefined;
         return {
           key: child.key,
-          label: t(child.labelKey),
+          label: navLabel(child.labelKey),
           href: child.href,
           waiting: waiting[child.key],
           children: below,
@@ -203,7 +207,7 @@ export function AppSidebar() {
               <SidebarMenu>
                 {group.items.map((item) => {
                   const Icon = item.icon;
-                  const label = t(`nav.${item.labelKey}`);
+                  const label = navLabel(itemNameKey(item));
                   const entryKey = `${item.feature}:${item.href}`;
                   // `menuHidden` children are already gone: visibleNavigation
                   // drops them with whatever the reader may not open, at

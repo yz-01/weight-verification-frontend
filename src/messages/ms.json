@@ -4060,7 +4060,9 @@
       "equipment_rental_month_amounts_set": "Masukkan caj diesel atau pelarasan sewa peralatan",
       "equipment_rental_month_confirmed": "Sahkan amaun sewa peralatan sebulan",
       "material_request_linked": "Dipautkan kepada MR / permohonan lain",
-      "material_request_unlinked": "Pautan MR / permohonan lain dibuang"
+      "material_request_unlinked": "Pautan MR / permohonan lain dibuang",
+      "menu_names_permission_by_platform": "MSE membenarkan atau menghentikan syarikat menamakan semula menunya",
+      "menu_names_update": "Nama menu diubah"
     },
     "objectType": {
       "SignOffAssistant": "PIN pembantu",
@@ -9735,7 +9737,9 @@
       "invite_projects_required": "Tandakan sekurang-kurangnya satu projek.",
       "invite_role_wrong_kind": "Kebenaran biasa yang dipilih bukan untuk tempat yang dipilih (ibu pejabat atau projek). Pilih semula.",
       "material_request_link_required": "Rekod ini ({reference}) belum dipautkan kepada MR / permohonan lain. Tidak boleh diarkibkan sehingga dipautkan.",
-      "material_request_link_invalid": "Hanya MR / permohonan lain projek ini boleh dipautkan (bukan yang telah dipulangkan)."
+      "material_request_link_invalid": "Hanya MR / permohonan lain projek ini boleh dipautkan (bukan yang telah dipulangkan).",
+      "menu_names_not_enabled": "MSE belum menghidupkan nama menu untuk syarikat anda.",
+      "menu_name_invalid": "Semak nama menu: 1–20 aksara setiap satu, tiada baris baharu, tiada tanda kurung sudut."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -24119,6 +24123,41 @@
         "returned": "Dipulangkan",
         "issued": "Dikeluarkan"
       }
+    }
+  },
+  "jb251": {
+    "saved": "Nama menu disimpan.",
+    "company": {
+      "title": "Nama menu",
+      "subtitle": "Namakan menu mengikut kebiasaan syarikat anda, contohnya \"Pergerakan peralatan\" sebagai \"Sewaan peralatan\". Hanya syarikat anda yang melihatnya; fungsi, rekod dan kebenaran kekal sama.",
+      "scope": "Hanya menu kiri dan nama di bahagian atas halaman berubah; PDF, notifikasi dan teks bantuan kekal menggunakan nama sistem.",
+      "systemName": "Nama sistem",
+      "ownNameIn": "Nama syarikat anda ({language})",
+      "ownNameFor": "Nama syarikat anda untuk \"{name}\"",
+      "blankHint": "Biarkan kosong untuk nama sistem",
+      "otherLanguages": "Bahasa lain",
+      "restore": "Guna nama sistem",
+      "save": "Simpan nama menu",
+      "noChange": "Belum ada perubahan.",
+      "fixFirst": "Betulkan nama yang bertanda merah dahulu.",
+      "changedCount": "{count} nama menu diubah",
+      "saveFailed": "Gagal disimpan. Sila cuba lagi.",
+      "problem": {
+        "tooLong": "Paling banyak {max} aksara.",
+        "lineBreak": "Tiada baris baharu.",
+        "markup": "Tiada tanda kurung sudut."
+      }
+    },
+    "mse": {
+      "title": "Nama menu",
+      "help": "Apabila dihidupkan, orang dalam syarikat ini yang boleh mengubah Tetapan syarikat boleh menamakan semula menunya di situ. Hanya syarikat ini terjejas; fungsi, rekod dan kebenaran kekal sama. Apabila dimatikan, nama disimpan tetapi tidak ditunjukkan; dihidupkan semula, ia kembali.",
+      "switch": "Benarkan syarikat ini menamakan semula menunya",
+      "changed": "Nama yang diubah oleh syarikat ini ({count})",
+      "none": "Syarikat ini belum menamakan semula mana-mana menu.",
+      "hiddenNow": "Dimatikan: nama ini tidak ditunjukkan; menu menggunakan nama sistem.",
+      "openedToast": "Syarikat ini kini boleh menamakan semula menunya.",
+      "closedToast": "Dimatikan: menu syarikat ini kembali kepada nama sistem.",
+      "saveFailed": "Gagal disimpan. Sila cuba lagi."
     }
   }
 }

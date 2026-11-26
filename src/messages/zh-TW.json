@@ -4060,7 +4060,9 @@
       "equipment_rental_month_amounts_set": "填寫設備租賃的柴油費用或調整金額",
       "equipment_rental_month_confirmed": "確認設備本月租賃金額",
       "material_request_linked": "關聯 MR／其他申請",
-      "material_request_unlinked": "取消關聯 MR／其他申請"
+      "material_request_unlinked": "取消關聯 MR／其他申請",
+      "menu_names_permission_by_platform": "MSE 開放或關閉公司自己改選單名稱",
+      "menu_names_update": "修改選單名稱"
     },
     "objectType": {
       "SignOffAssistant": "助理副密碼",
@@ -9735,7 +9737,9 @@
       "invite_projects_required": "請至少勾一個所屬項目。",
       "invite_role_wrong_kind": "選的常用權限和「總部 / 項目」不一樣，請重新選。",
       "material_request_link_required": "這筆記錄（{reference}）還沒有關聯 MR／其他申請。未完成關聯，不能確認歸檔。",
-      "material_request_link_invalid": "只能關聯本項目的 MR／其他申請（已退回的不能選）。"
+      "material_request_link_invalid": "只能關聯本項目的 MR／其他申請（已退回的不能選）。",
+      "menu_names_not_enabled": "MSE 還沒有為你們公司開啟自訂選單名稱。",
+      "menu_name_invalid": "選單名稱不對：每個名稱 1–20 個字，不能換行，不能有尖括號。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -24119,6 +24123,41 @@
         "returned": "已退場",
         "issued": "已領用"
       }
+    }
+  },
+  "jb251": {
+    "saved": "選單名稱已儲存。",
+    "company": {
+      "title": "選單名稱",
+      "subtitle": "把選單改成你們公司習慣的叫法，例如把「設備管理」改成「設備租賃管理」。只影響你們公司，功能、資料和權限都不變。",
+      "scope": "只改左邊選單和頁面最上面的名字；PDF、通知和說明文字仍用系統名稱。",
+      "systemName": "系統名稱",
+      "ownNameIn": "你們公司的名稱（{language}）",
+      "ownNameFor": "「{name}」你們公司的名稱",
+      "blankHint": "空著就用系統名稱",
+      "otherLanguages": "其他語言",
+      "restore": "恢復系統名稱",
+      "save": "儲存選單名稱",
+      "noChange": "還沒有改動。",
+      "fixFirst": "先改好標紅的名稱。",
+      "changedCount": "已改 {count} 個選單名稱",
+      "saveFailed": "儲存失敗，請再試一次。",
+      "problem": {
+        "tooLong": "最多 {max} 個字。",
+        "lineBreak": "不能換行。",
+        "markup": "不能有尖括號。"
+      }
+    },
+    "mse": {
+      "title": "選單名稱",
+      "help": "開啟後，這家公司有「公司設置」修改權限的人可以在「公司設置」把選單改成自己的叫法，只影響這家公司，功能、資料和權限都不變。關掉後，改過的名字保留但不顯示，再開啟就恢復。",
+      "switch": "允許這家公司自己改選單名稱",
+      "changed": "這家公司改過的名稱（{count}）",
+      "none": "這家公司還沒有改過選單名稱。",
+      "hiddenNow": "現在沒有開啟，這些名字不顯示，選單用系統名稱。",
+      "openedToast": "已允許這家公司自己改選單名稱。",
+      "closedToast": "已關閉，這家公司的選單回到系統名稱。",
+      "saveFailed": "儲存失敗，請再試一次。"
     }
   }
 }

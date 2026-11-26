@@ -33,6 +33,7 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { FieldWrapper, ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { MseAccessSection } from "@/components/platform-access/mse-access-section";
+import { CompanyMenuNamesSection } from "@/components/settings/company-menu-names-section";
 import { LetterheadPreviewSection } from "@/components/site-access/letterhead-preview";
 import { ChoiceField, ErrorBanner, SectionTitle, State, Toggle } from "@/components/site-access/settings-fields";
 import { Button } from "@/components/ui/button";
@@ -302,6 +303,8 @@ export function CompanySiteSettingsWorkspace() {
     {/* MSE 查看权限 (JB220, 客户 11-18 「MSE 管理人员……是否必须经过客户授权」):
         whether MSE can see this company's records, opening and closing it,
         and who looked. */}
+    {/* 菜单名称 (JB251, 客户 11-24 事项 2): only once MSE has opened it. */}
+    <CompanyMenuNamesSection />
     <MseAccessSection />
     {editingBranch && <BranchDialog row={editingBranch === "new" ? null : editingBranch} onClose={() => setEditingBranch(null)} onSaved={async () => { setEditingBranch(null); await qc.invalidateQueries({ queryKey: ["company-branches"] }); }} />}
     <ConfirmDialog open={removing !== null} onOpenChange={(open) => !open && setRemoving(null)} title={t("branches.removeTitle")} description={t("branches.removeBody")} confirmLabel={t("action.remove")} isPending={remove.isPending} onConfirm={() => removing && remove.mutate(removing.id)} />

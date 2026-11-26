@@ -10,6 +10,8 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useNavLabel } from "@/hooks/use-nav-label";
+import { itemNameKey, moduleEntryMatches } from "@/lib/menu-names";
 import { navLeaves, visibleNavigation } from "@/lib/navigation";
 import {
   focusSection,
@@ -20,6 +22,7 @@ import {
 
 export function GlobalModuleSearch() {
   const t = useTranslations();
+  const navLabel = useNavLabel();
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -44,19 +47,29 @@ export function GlobalModuleSearch() {
     );
     return groups.flatMap((group) =>
       group.items.flatMap((item) => {
-        const moduleLabel = t(`nav.${item.labelKey}`);
+        // JB251: the company's own menu name is shown; the system name
+        // still finds it (「设备管理」 finds 「设备租赁管理」).
+        const moduleKey = itemNameKey(item);
+        const moduleLabel = navLabel(moduleKey);
         return [
-          { href: item.href, label: moduleLabel, context: t(`nav.group.${group.key}`), icon: item.icon },
+          {
+            href: item.href,
+            label: moduleLabel,
+            context: t(`nav.group.${group.key}`),
+            also: t(moduleKey as never),
+            icon: item.icon,
+          },
           ...navLeaves(item.children).map((child) => ({
             href: child.href,
-            label: t(child.labelKey),
+            label: navLabel(child.labelKey),
             context: moduleLabel,
+            also: `${t(child.labelKey as never)} ${t(moduleKey as never)}`,
             icon: item.icon,
           })),
         ];
       }),
     );
-  }, [t, user?.features, user?.is_superuser, user?.permissions, user?.portal]);
+  }, [navLabel, t, user?.features, user?.is_superuser, user?.permissions, user?.portal]);
 
   // Every settings section too (JB70: 「助理副密码」 was not found): one
   // result each, 「设定 · 页面 · 区块」, opening the page at that section.
@@ -73,9 +86,7 @@ export function GlobalModuleSearch() {
   const results = useMemo(() => {
     const normalized = query.trim().toLocaleLowerCase();
     if (!normalized) return entries.slice(0, 12);
-    const modules = entries.filter((entry) =>
-      `${entry.label} ${entry.context}`.toLocaleLowerCase().includes(normalized),
-    );
+    const modules = entries.filter((entry) => moduleEntryMatches(entry, normalized));
     const sections = searchSettings(query, settings);
     return [...modules.slice(0, 12), ...sections].slice(0, 24);
   }, [entries, settings, query]);
