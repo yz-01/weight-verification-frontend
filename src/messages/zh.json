@@ -10848,7 +10848,7 @@
         "material_receipts_today": "今日材料进场"
       },
       "wasteDispatches": "废料订单",
-      "siteDisposals": "原垃圾清运",
+      "siteDisposals": "垃圾清运",
       "records": "数量",
       "trips": "车次",
       "weighedKg": "过磅重量（kg）",
@@ -17959,7 +17959,7 @@
       "submit": "提交后台",
       "photos": "照片"
     },
-    "countedOnly": "只显示总部「原垃圾清运」计入数量的申请：不含已拒绝和已取消。",
+    "countedOnly": "只显示总部「垃圾清运」「废料处理」卡片计入数量的申请：不含已拒绝和已取消。",
     "showAll": "显示全部",
     "trips": {
       "title": "车次",

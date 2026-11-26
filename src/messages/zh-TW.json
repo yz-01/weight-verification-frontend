@@ -10848,7 +10848,7 @@
         "material_receipts_today": "今日材料進場"
       },
       "wasteDispatches": "廢料訂單",
-      "siteDisposals": "原垃圾清運",
+      "siteDisposals": "垃圾清運",
       "records": "數量",
       "trips": "車次",
       "weighedKg": "過磅重量（kg）",
@@ -17959,7 +17959,7 @@
       "submit": "提交後台",
       "photos": "照片"
     },
-    "countedOnly": "只顯示總部「原垃圾清運」計入數量的申請：不含已拒絕和已取消。",
+    "countedOnly": "只顯示總部「垃圾清運」「廢料處理」卡片計入數量的申請：不含已拒絕和已取消。",
     "showAll": "顯示全部",
     "trips": {
       "title": "車次",
