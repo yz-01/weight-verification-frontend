@@ -19,6 +19,37 @@ export type AccountType = "PLATFORM" | "TENANT" | "CONSULTANT";
 export interface EmailCopy {
   subject: string;
   body: string;
+  /**
+   * The body's language (JB242): an invitation's ``{valid_for}`` - how long
+   * its link lasts - is written in it by the server.
+   */
+  language?: string;
+}
+
+/** 邀请用户 in one page (JB242): what the page offers. */
+export interface InviteOptions {
+  /** 常用权限: 公司管理员 and the company's own roles (never the phone's). */
+  roles: Role[];
+  /** What the inviter does not hold himself: never switched on by him. */
+  locked_on: string[];
+  available_projects: { id: string; code: string; name: string }[];
+  /** How long the invitation link lasts (Lucas 11-26: 168 = 7 days). */
+  link_valid_hours: number;
+  remaining_user_seats: number | null;
+}
+
+/** 邀请用户 (JB242): the account, where they work, projects and switches at once. */
+export interface InvitePayload {
+  full_name: string;
+  email: string;
+  phone?: string;
+  language?: string;
+  timezone?: string;
+  workplace: "head_office" | "project";
+  /** 常用权限 to start from; ``null``: the system's default. */
+  role: string | null;
+  off: string[];
+  projects: { all: true } | { all: false; chosen: string[] };
 }
 
 /**

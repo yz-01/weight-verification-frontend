@@ -3,7 +3,7 @@
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Info, Save, UserPlus } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -24,6 +24,7 @@ import {
 } from "@/components/shared/form-shell";
 import { QueryFailedNote } from "@/components/shared/page-primitives";
 import { LOCALES, LOCALE_LABELS } from "@/i18n/config";
+import { inviteEmailCopy } from "@/lib/invite-email";
 import { roleName } from "@/lib/role-labels";
 import { ApiError } from "@/interfaces/api";
 import type { Role, UserDetail, UserPayload } from "@/interfaces/auth";
@@ -58,6 +59,12 @@ function isPhoneRole(role: Role): boolean {
 }
 
 /**
+ * 邀请用户's hidden 「总部」 / 「项目」 starting points (JB242): no role to pick.
+ * 编辑用户 shows the one the person holds, and only that one.
+ */
+export const INVITE_START_ROLE_CODES = ["invite_head_office", "invite_project"];
+
+/**
  * The roles the 角色 field offers. A new person: never a phone role (every
  * one, not only 工地人员 - JB219 sibling: 设备操作人员 and 门岗保安 were offered
  * and then refused) and never the driver's. Editing: an office account is
@@ -71,6 +78,7 @@ export function invitableRoles(
   editing?: { phone: boolean; role?: string | null },
 ): Role[] {
   return roles.filter((role) => {
+    if (INVITE_START_ROLE_CODES.includes(role.code)) return isEdit && role.id === editing?.role;
     if (!isEdit) return !isPhoneRole(role) && !isDriverRole(role);
     if (!isPhoneRole(role) || editing?.phone) return true;
     return editing !== undefined && role.id === editing.role;
@@ -150,6 +158,7 @@ export function CreateUser({
   saveAfter?: () => Promise<boolean | string>;
 }) {
   const t = useTranslations();
+  const locale = useLocale();
   const finish = useFinishForm();
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
@@ -175,11 +184,13 @@ export function CreateUser({
     me?.portal === "MSE_ADMIN" ? "/users/admin/management" : "/users";
 
   const rolesQuery = useQuery({
-    queryKey: ["roles", "options", companyId ?? "platform"],
+    queryKey: ["roles", "options", companyId ?? "platform", isEdit ? "edit" : "new"],
     queryFn: () =>
       getRoles({
         page_size: 100,
         ...(companyId ? { company: companyId } : {}),
+        // JB242: the hidden 「总部」 / 「项目」 a person was invited on, named.
+        ...(isEdit ? { with_start: "1" } : {}),
       }),
   });
   const roles = rolesQuery.data;
@@ -190,10 +201,7 @@ export function CreateUser({
         ? updateUser(user.id, values, { quiet: Boolean(saveAfter) })
         : createUser(
             { ...values, ...(companyId ? { company: companyId } : {}) },
-            {
-              subject: t("email.invite.subject"),
-              body: t("email.invite.body"),
-            },
+            inviteEmailCopy(t, locale),
           ),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["users"] });

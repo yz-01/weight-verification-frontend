@@ -9106,7 +9106,7 @@
   },
   "email": {
     "invite": {
-      "body": "你已被邀请加入 MSE Trace。请使用下方链接设置密码并登录。链接将很快失效。",
+      "body": "你已被邀请加入 MSE Trace。请使用下方链接设置密码并登录。链接 {valid_for}内有效。",
       "subject": "邀请你加入 MSE Trace"
     },
     "reset": {
@@ -9727,7 +9727,11 @@
       "equipment_rental_no_terms": "先给这台设备设定租赁条件（【设备租赁设定】）。",
       "equipment_rental_diesel_not_charged": "这台设备的柴油不是供应商另外收费，不能填柴油费用。",
       "equipment_rental_month_confirmed": "这个月的租赁金额已经确认，不能再改。",
-      "equipment_rental_month_not_started": "这个月还没开始，不能确认。"
+      "equipment_rental_month_not_started": "这个月还没开始，不能确认。",
+      "role_start_fixed": "「总部」「项目」是邀请用户用的起点，不能修改，也不能用这个代号。",
+      "invite_workplace_required": "请选「总部」或「项目」。",
+      "invite_projects_required": "请至少勾一个所属项目。",
+      "invite_role_wrong_kind": "选的常用权限和「总部 / 项目」不一样，请重新选。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -15994,7 +15998,9 @@
       "equipment_manager": "管理全部项目的设备进退场、设备清单、二维码贴纸和设备工时。",
       "site_supervisor": "在所在项目指派及验收现场任务与整改 / EHS，记录工程进度，处理门岗事项。",
       "document_controller": "管理文件档案，提交顾问申请和后台审批，维护 RFI 表格。",
-      "equipment_operator": "用手机给设备开工、收工打卡。"
+      "equipment_operator": "用手机给设备开工、收工打卡。",
+      "invite_head_office": "邀请时选「总部」：权限按这个人自己的开关。",
+      "invite_project": "邀请时选「项目」：权限按这个人自己的开关。"
     },
     "systemHint": "内置角色不可移除，确保公司始终有办法管理自己的人员。",
     "system_": {
@@ -16017,7 +16023,9 @@
       "equipment_manager": "设备管理员",
       "site_supervisor": "工地主管",
       "document_controller": "文控",
-      "equipment_operator": "设备操作人员"
+      "equipment_operator": "设备操作人员",
+      "invite_head_office": "总部",
+      "invite_project": "项目"
     },
     "title": "角色权限",
     "toast": {
@@ -23445,7 +23453,8 @@
       "reissue_invitation": "重发手机登录链接",
       "reset_device": "重置手机",
       "remove_field_staff": "移除现场人员",
-      "other": "修改账号"
+      "other": "修改账号",
+      "invite_user": "邀请用户"
     },
     "mse": {
       "title": "客户开放情况",
@@ -23973,5 +23982,35 @@
       "dialogTitle": "{name} 的预算",
       "pinNote": "保存时要输入你的签核密码。每次修改都记在操作记录里（修改前和修改后的金额）。"
     }
+  },
+  "jb242": {
+    "submit": "邀请",
+    "workplaceTitle": "这个人在哪里工作",
+    "headOffice": "总部",
+    "headOfficeHelp": "在总部办公室，管理整个公司。",
+    "project": "项目",
+    "projectHelp": "只做被分配的项目。",
+    "workplaceRequired": "请选「总部」或「项目」。",
+    "chooseFirst": "先选上面的「总部」或「项目」。",
+    "projectsHelpProject": "这个人只看得到勾的项目。",
+    "projectsRequired": "请至少勾一个项目。",
+    "presetTitle": "从常用权限开始",
+    "presetNone": "不用，按系统默认",
+    "presetHelp": "选了以后，下面的权限照它打开，你只要改少数几项。",
+    "presetEmpty": "公司还没有存过常用权限。下面勾好以后，可以按「存成常用权限」存起来，下次直接选。",
+    "defaultProject": "系统默认：项目的日常权限全部打开，B 组关掉。",
+    "defaultHeadOffice": "系统默认：A 组、B 组全部关掉，请打开这个人要用的。",
+    "saveAsPreset": "存成常用权限",
+    "presetName": "常用权限名称",
+    "presetNameRequired": "请填名称。",
+    "presetSave": "保存",
+    "presetSaved": "已存成常用权限「{name}」，下次邀请可以直接选。",
+    "presetNote": "常用权限只记总部权限（A 组、B 组）和「全部项目」；项目的日常权限每个人默认全部打开。",
+    "more": "更多（语言、时区）",
+    "less": "收起",
+    "linkValid": "邀请邮件里的链接 {valid}内有效。",
+    "days": "{n} 天",
+    "hours": "{n} 小时",
+    "sent": "已发送邀请到 {email}"
   }
 }
