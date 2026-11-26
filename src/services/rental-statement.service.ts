@@ -87,6 +87,8 @@ export interface RentalStatementPreview extends RentalAmounts {
   lines: RentalStatementLine[];
   /** A live statement of the same project and company sharing a day. */
   overlap: string;
+  /** The machines' months 【生成月结单】 confirms in the same step (QA3, audit #10). */
+  will_confirm?: Array<{ equipment: string; equipment_no: string; equipment_name: string; month: string }>;
 }
 
 export interface RentalStatementChoices {

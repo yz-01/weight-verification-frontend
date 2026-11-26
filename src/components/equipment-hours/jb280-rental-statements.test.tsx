@@ -147,7 +147,8 @@ describe("JB280 设备租赁月结单", () => {
     }
     expect(dialog).toMatch(/previewRentalStatement\(choices\)/);
     expect(dialog).toMatch(/createRentalStatement\(choices\)/);
-    expect(zh.jb280.generateHelp).toContain("确认本月金额");
+    // QA3 (audit #10): generating confirms the months not confirmed yet.
+    expect(zh.jb280.generateHelp).toContain("生成时会一起确认");
   });
 
   it("第 5、6 点: machines with their 按月 page, 合计, the numbers that open, the four file buttons", () => {
