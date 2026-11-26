@@ -1071,7 +1071,14 @@ function OptionFilter({
  * photographs are (「原始照片、双方签名及其他证据继续保留在单笔记录中」). Under
  * it the 自动汇总 of every line the filters select; above it 「批量预览 / 打印」.
  */
-export function MaterialIssueList({ onOpen }: { onOpen: (recordId: string) => void }) {
+export function MaterialIssueList({
+  onOpen,
+  unchecked = false,
+}: {
+  onOpen: (recordId: string) => void;
+  /** 「待核对」 (JB278): the issues not in a 核对 yet - list, totals and statement alike. */
+  unchecked?: boolean;
+}) {
   const t = useTranslations("contractorOps");
   const tRoot = useTranslations();
   const df = useDateFormat();
@@ -1079,9 +1086,10 @@ export function MaterialIssueList({ onOpen }: { onOpen: (recordId: string) => vo
   const { user } = useAuth();
   const list = useListQuery(ISSUE_FILTERS);
   const project = list.filters.project;
+  const pending = unchecked ? { unchecked: "1" } : {};
   const rows = useQuery({
-    queryKey: ["material-outgoing", "issues", list.query],
-    queryFn: () => getMaterialIssueLines({ ...list.query, page_size: list.pageSize }),
+    queryKey: ["material-outgoing", "issues", list.query, ...(unchecked ? ["unchecked"] : [])],
+    queryFn: () => getMaterialIssueLines({ ...list.query, ...pending, page_size: list.pageSize }),
   });
   // query-failure: the filters fall back to typing nothing - the list itself says when it failed.
   const options = useQuery({
@@ -1089,7 +1097,7 @@ export function MaterialIssueList({ onOpen }: { onOpen: (recordId: string) => vo
     queryFn: () => getMaterialIssueOptions(project || undefined),
   });
   // The whole selection the filters make, not the page shown (JB171 C4).
-  const selection = issueSelection(list.filters, list.search);
+  const selection = { ...issueSelection(list.filters, list.search), ...pending };
   const totals = useQuery({
     queryKey: ["material-outgoing", "issue-totals", selection],
     queryFn: () => getMaterialIssueTotals(selection),

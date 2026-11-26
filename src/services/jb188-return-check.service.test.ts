@@ -21,6 +21,7 @@ describe("the return check service", () => {
     const check = await service.createReturnCheck({
       supplier: "s-1",
       returns: ["r-1", "r-2"],
+      voucherNo: " CN No. 1232 ",
       note: "  两车都对过了 ",
       files: [photo, pdf],
     });
@@ -32,28 +33,38 @@ describe("the return check service", () => {
     expect(form.get("supplier")).toBe("s-1");
     expect(form.getAll("returns")).toEqual(["r-1", "r-2"]);
     expect(form.get("note")).toBe("两车都对过了");
+    // JB277: 凭证编号 in its own field.
+    expect(form.get("voucher_no")).toBe("CN No. 1232");
     expect((form.getAll("files") as File[]).map((file) => file.name)).toEqual(["truck.jpg", "note.pdf"]);
     // 「已核对，编号 MO-RN001」.
     expect(toastSuccess).toHaveBeenCalledWith("returnChecks.saved", { number: "MO-RN001" });
   });
 
-  it("leaves the remark and the files out when there are none (both optional)", async () => {
+  it("leaves the remark out when there is none (the voucher is required since JB277)", async () => {
     api.post.mockResolvedValueOnce({ id: "c-2", check_no: "MO-RN002" });
-    await service.createReturnCheck({ supplier: "s-1", returns: ["r-3"], note: " ", files: [] });
+    await service.createReturnCheck({ supplier: "s-1", returns: ["r-3"], voucherNo: "CN 1", note: " ", files: [] });
     const form = api.post.mock.calls.at(-1)![1] as FormData;
     expect(form.has("note")).toBe(false);
-    expect(form.has("files")).toBe(false);
+    expect(form.get("voucher_no")).toBe("CN 1");
   });
 
   it("reads 已核对 with the list's query, one check, and the suppliers waiting", () => {
     service.getReturnChecks({ page: 1, project: "p-1" });
-    expect(api.list).toHaveBeenCalledWith("/api/material-return-checks/get_checks/", { page: 1, project: "p-1" });
+    // JB278: the kind rides along (returns by default).
+    expect(api.list).toHaveBeenCalledWith("/api/material-return-checks/get_checks/", {
+      page: 1,
+      project: "p-1",
+      kind: "RETURN",
+    });
     service.getReturnCheck("c-1");
     expect(api.get).toHaveBeenCalledWith("/api/material-return-checks/c-1/get_check/");
     service.getPendingReturnSuppliers("p-1");
-    expect(api.get).toHaveBeenCalledWith("/api/material-return-checks/get_pending_suppliers/", { project: "p-1" });
+    expect(api.get).toHaveBeenCalledWith("/api/material-return-checks/get_pending_suppliers/", {
+      kind: "RETURN",
+      project: "p-1",
+    });
     service.getPendingReturnSuppliers();
-    expect(api.get).toHaveBeenLastCalledWith("/api/material-return-checks/get_pending_suppliers/", {});
+    expect(api.get).toHaveBeenLastCalledWith("/api/material-return-checks/get_pending_suppliers/", { kind: "RETURN" });
   });
 
   it("fetches 退货核对单 in the reader's language, named by its number", () => {
