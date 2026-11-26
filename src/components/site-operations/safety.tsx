@@ -138,6 +138,7 @@ import {
 import { getOrCreateFieldDeviceId } from "@/services/field-access.service";
 import { signOffBeforeEditing } from "@/services/sign-off.service";
 import { ApiError } from "@/interfaces/api";
+import type { CurrentUser } from "@/interfaces/auth";
 import { SIGN_OFF_CANCELLED } from "@/lib/sign-off";
 import { LIST_FITS } from "@/lib/list-fits";
 import { useRoleLabel } from "@/lib/role-labels";
@@ -275,6 +276,20 @@ function useHazardRules() {
     [can, fieldStaff],
   );
   return { mayAssign, mayFile };
+}
+
+/**
+ * The project a new 整改 / 事故 starts with. A consultant's starts with the
+ * project in his top bar (qa2, JB274: it started empty, one more pick); he
+ * can still choose another. A page that names its own project keeps it.
+ */
+export function createStartProject(
+  initialProject: string,
+  user: Pick<CurrentUser, "account_type" | "active_project"> | null | undefined,
+): string {
+  if (initialProject) return initialProject;
+  if (user?.account_type === "CONSULTANT") return user.active_project?.project_id ?? "";
+  return "";
 }
 
 export function Safety({
@@ -889,7 +904,7 @@ export function Safety({
         onClearFilters={list.clearFilters}
       />}
 
-      {createOpen && <SafetyCreateDialog fieldMode={fieldMode} initialProject={initialProject} fieldTaskId={fieldTaskId} onSaved={(result) => {
+      {createOpen && <SafetyCreateDialog fieldMode={fieldMode} initialProject={createStartProject(initialProject, user)} fieldTaskId={fieldTaskId} onSaved={(result) => {
         if (result.status === "uploaded" && !fieldMode) setTalking(result.incident);
         onRecordSaved?.(result);
       }} onClose={() => setCreateOpen(false)} />}
