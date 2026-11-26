@@ -521,7 +521,8 @@ describe("the phone screen 设备操作员工时", () => {
       "utf8",
     );
     expect(panel).toMatch(/key: "operatorHours", permission: "equipment\.capture"/);
-    expect(panel).toMatch(/title=\{t\("records\.operatorHours"\)\}/);
+    // QA2 (JB251): read through the company's tile name, the system words as the fallback.
+    expect(panel).toMatch(/title=\{(t\("records\.operatorHours"\)|tile\("operatorHours"\))\}/);
     expect(messages.fieldStaffPwa.records.operatorHours).toBe(
       messages.nav.submodule.equipmentOperatorHours,
     );
