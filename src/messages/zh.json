@@ -9751,6 +9751,7 @@
       "package_not_approved": "要等全部审核通过，才能确认完毕并归档。",
       "package_completed": "这个资料包已经确认完毕并归档，不能再改动。",
       "company_module_invalid": "请只勾选这家公司有的业务模块。",
+      "company_module_switched_off": "你们公司没有开通这个模块。要用，请联系 MSE 开通。",
       "equipment_rental_no_terms": "先给这台设备设定租赁条件（【设备租赁设定】）。",
       "equipment_rental_diesel_not_charged": "这台设备的柴油不是供应商另外收费，不能填柴油费用。",
       "equipment_rental_month_confirmed": "这个月的租赁金额已经确认，不能再改。",
@@ -13393,7 +13394,8 @@
     "waitingForYou": "{count} 项等你处理",
     "materialManagement": "材料管理",
     "material_requests": "MR / 其他申请",
-    "waitingApproval": "{count} 项待审批/验收"
+    "waitingApproval": "{count} 项待审批/验收",
+    "photo_wall": "照片墙"
   },
   "notifications": {
     "compose": {
@@ -14194,6 +14196,12 @@
       "need": "登记付款要选账单、填金额、付款日期和付款方式；参考号、凭证和备注选填。附上银行凭证，MSE 核对得比较快。",
       "then": "登记的付款先是「待确认」，MSE 核对后确认或驳回；确认了，账单才算付了。",
       "trouble": "对账单金额有疑问，请直接联系 MSE。"
+    },
+    "photo_wall": {
+      "what": "系统里所有记录的照片，按拍摄时间排好，从开工到竣工都在这里。不用另外上传。",
+      "who": "能看公司总部仪表板的人。MSE 可以按公司关掉这个模块。",
+      "then": "点照片就打开它所属的记录，这里不改任何数据。",
+      "trouble": "看不到某张照片：先看上面选的项目和日期；照片是跟着记录来的，记录删掉或还没送出就不会有。"
     }
   },
   "partners": {

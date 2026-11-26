@@ -249,7 +249,8 @@ describe("the banner and the page around it", () => {
     expect(isRouteAllowed("MSE_TRACE", mine, "/photo-timeline", ["project.view"])).toBe(true);
     expect(isRouteAllowed("MSE_TRACE", ["safety", "consultant_menu"], "/photo-timeline", ["project.view"])).toBe(false);
     expect(isRouteAllowed("MSE_TRACE", ["dashboard"], "/photo-timeline", ["project.view"])).toBe(false);
-    expect(isRouteAllowed("MSE_TRACE", ["dashboard"], "/photo-timeline", ["dashboard.view"])).toBe(true);
+    // QA3 (JB250): the office's 照片墙 is its own module, `photo_wall`.
+    expect(isRouteAllowed("MSE_TRACE", ["dashboard", "photo_wall"], "/photo-timeline", ["dashboard.view"])).toBe(true);
     const hrefs = visibleNavigation("MSE_TRACE", mine, ["project.view"]).flatMap((group) => group.items.map((item) => item.href));
     expect(hrefs).toContain("/photo-timeline");
   });

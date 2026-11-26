@@ -9751,6 +9751,7 @@
       "package_not_approved": "要等全部審核通過，才能確認完畢並歸檔。",
       "package_completed": "這個資料包已經確認完畢並歸檔，不能再改動。",
       "company_module_invalid": "請只勾選這家公司有的業務模組。",
+      "company_module_switched_off": "你們公司沒有開通這個模組。要用，請聯絡 MSE 開通。",
       "equipment_rental_no_terms": "先給這台設備設定租賃條件（【設備租賃設定】）。",
       "equipment_rental_diesel_not_charged": "這台設備的柴油不是供應商另外收費，不能填柴油費用。",
       "equipment_rental_month_confirmed": "這個月的租賃金額已經確認，不能再改。",
@@ -13393,7 +13394,8 @@
     "waitingForYou": "{count} 項等你處理",
     "materialManagement": "材料管理",
     "material_requests": "MR / 其他申請",
-    "waitingApproval": "{count} 項待審批/驗收"
+    "waitingApproval": "{count} 項待審批/驗收",
+    "photo_wall": "照片牆"
   },
   "notifications": {
     "compose": {
@@ -14194,6 +14196,12 @@
       "need": "登記付款要選賬單、填金額、付款日期和付款方式；參考號、憑證和備註選填。附上銀行憑證，MSE 核對得比較快。",
       "then": "登記的付款先是「待確認」，MSE 核對後確認或駁回；確認了，賬單才算付了。",
       "trouble": "對賬單金額有疑問，請直接聯繫 MSE。"
+    },
+    "photo_wall": {
+      "what": "系統裡所有記錄的照片，按拍攝時間排好，從開工到竣工都在這裡。不用另外上傳。",
+      "who": "能看公司總部儀表板的人。MSE 可以按公司關掉這個模組。",
+      "then": "點照片就打開它所屬的記錄，這裡不改任何資料。",
+      "trouble": "看不到某張照片：先看上面選的專案和日期；照片是跟著記錄來的，記錄刪掉或還沒送出就不會有。"
     }
   },
   "partners": {

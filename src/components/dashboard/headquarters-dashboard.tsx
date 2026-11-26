@@ -8,6 +8,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
 import { GateCard } from "@/components/dashboard/gate-card";
+import { useAuth } from "@/components/providers/auth-provider";
 import { HeadquartersFigures } from "@/components/dashboard/headquarters-figures";
 import { HeadquartersMap } from "@/components/dashboard/headquarters-map";
 import { HeadquartersMaterialTargets } from "@/components/dashboard/headquarters-material-targets";
@@ -82,6 +83,8 @@ export function HeadquartersDashboard() {
   });
   const data = overview.data;
   const photos = usePhotoOpener();
+  const { user } = useAuth();
+  const photoWall = user?.features?.includes("photo_wall") ?? false;
 
   return (
     <div className="space-y-4">
@@ -151,7 +154,8 @@ export function HeadquartersDashboard() {
           <HeadquartersPresence data={data} />
           {/* 材料目标 (I18, ID42): each project's targets over, at and near. */}
           <HeadquartersMaterialTargets data={data} />
-          <HeadquartersPhotos onOpen={photos.open} suspended={photos.sheet !== null} />
+          {/* 照片墙 switched off for the company (JB250): not drawn. */}
+          {photoWall ? <HeadquartersPhotos onOpen={photos.open} suspended={photos.sheet !== null} /> : null}
         </>
       )}
       {photos.sheet}

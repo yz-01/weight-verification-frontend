@@ -9751,6 +9751,7 @@
       "package_not_approved": "Ia boleh diselesaikan selepas semua penyemak meluluskannya.",
       "package_completed": "Pakej ini telah selesai dan diarkibkan; tiada lagi perubahan.",
       "company_module_invalid": "Tanda hanya modul perniagaan yang ada pada syarikat ini.",
+      "company_module_switched_off": "Modul ini tidak dibuka untuk syarikat anda. Untuk menggunakannya, minta MSE membukanya.",
       "equipment_rental_no_terms": "Tetapkan terma sewa mesin ini dahulu (Terma sewa peralatan).",
       "equipment_rental_diesel_not_charged": "Diesel mesin ini tidak dicaj berasingan oleh pembekal, jadi caj diesel tidak boleh dimasukkan.",
       "equipment_rental_month_confirmed": "Amaun sewa bulan ini sudah disahkan dan tidak boleh diubah lagi.",
@@ -13393,7 +13394,8 @@
     "waitingForYou": "{count} menunggu anda",
     "materialManagement": "Pengurusan bahan",
     "material_requests": "MR / Permohonan Lain",
-    "waitingApproval": "{count} menunggu kelulusan atau penerimaan"
+    "waitingApproval": "{count} menunggu kelulusan atau penerimaan",
+    "photo_wall": "Dinding foto"
   },
   "notifications": {
     "compose": {
@@ -14194,6 +14196,12 @@
       "need": "Merekod bayaran memerlukan invois, jumlah, tarikh bayar dan cara bayaran; rujukan, slip dan catatan adalah pilihan. Dengan slip bank, MSE dapat menyemaknya lebih cepat.",
       "then": "Bayaran yang direkod berstatus “Menunggu semakan” sehingga MSE menyemak dan mengesahkan atau menolaknya; hanya bayaran yang disahkan dikira untuk bil.",
       "trouble": "Jika jumlah pada bil kelihatan salah, hubungi MSE terus."
+    },
+    "photo_wall": {
+      "what": "Semua foto yang sudah ada dalam rekod sistem, mengikut masa diambil, dari hari pertama kerja hingga siap. Tiada apa-apa untuk dimuat naik.",
+      "who": "Sesiapa yang membaca papan pemuka ibu pejabat. MSE boleh menutup modul ini mengikut syarikat.",
+      "then": "Foto membuka rekod asalnya. Tiada apa-apa disunting di sini.",
+      "trouble": "Foto tiada: semak projek dan tarikh yang dipilih di atas; foto datang bersama rekodnya, jadi rekod yang belum dihantar tiada di sini."
     }
   },
   "partners": {

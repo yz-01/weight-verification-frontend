@@ -132,6 +132,8 @@ export function HeadquartersWall() {
   const router = useRouter();
   const { user, can } = useAuth();
   const allowed = user?.portal === "MSE_TRACE" && can("dashboard.view");
+  // 照片墙 switched off for the company (JB250): no photo panels, no request.
+  const photoWall = user?.features?.includes("photo_wall") ?? false;
   const overview = useQuery({
     queryKey: ["contractor-dashboard", "headquarters"],
     queryFn: getHeadquarters,
@@ -142,7 +144,7 @@ export function HeadquartersWall() {
     queryKey: ["contractor-dashboard", "headquarters-wall-photos"],
     queryFn: () => getHeadquartersPhotos({ page: 1, page_size: STREAM_SIZE }),
     refetchInterval: LIVE_MS,
-    enabled: allowed,
+    enabled: allowed && photoWall,
   });
   // The panels added on 2026-10-10 (「加多一点真实数据」): the week's
   // deliveries, hazards, queues, machines and waste - all real records.
@@ -234,7 +236,14 @@ export function HeadquartersWall() {
               )}
             </div>
             <div className="flex min-h-0 flex-col gap-4">
-              {photos.isError ? (
+              {!photoWall ? (
+                extras.data ? (
+                  <>
+                    <TopSuppliers extras={extras.data} />
+                    <ClearanceMonth extras={extras.data} />
+                  </>
+                ) : null
+              ) : photos.isError ? (
                 <LoadFailed onRetry={() => void photos.refetch()} />
               ) : (
                 <PhotoPanels
