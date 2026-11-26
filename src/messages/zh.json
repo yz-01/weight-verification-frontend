@@ -4058,7 +4058,9 @@
       "company_modules_by_platform": "MSE 开启或关闭公司的业务模块",
       "equipment_rental_terms_set": "设定设备租赁条件",
       "equipment_rental_month_amounts_set": "填写设备租赁的柴油费用或调整金额",
-      "equipment_rental_month_confirmed": "确认设备本月租赁金额"
+      "equipment_rental_month_confirmed": "确认设备本月租赁金额",
+      "record_archive_checked": "确认归档（已核对资料）",
+      "return_exit_confirmed": "确认正式退场"
     },
     "objectType": {
       "SignOffAssistant": "助理副密码",
@@ -7084,7 +7086,7 @@
       "exitWaitingUpload": "这次实际退场已经保存在手机上，有网络时会自动上传，不用重做。可在「我提交过的」查看。",
       "exitUploading": "正在上传 {photos} 张照片和双方签名，请稍候，不要关闭这个窗口。",
       "waitingForSite": "准备出门条：车辆到场后，现场人员拍车辆及货物出场照片并提交。照片到了，后台再按【启动出门条】。",
-      "finalConfirm": "确认退场完成",
+      "finalConfirm": "确认正式退场",
       "waitingForOffice": "现场照片已提交，待后台启动出门条和确认。",
       "returnHelp": "{reference} 已批准，准备出门条。车辆到场后：拍车辆及货物出场照片，填写实际退回数量、车牌，确认供应商（可扫码），现场人员与供应商 / 司机双方签名，再提交。后台启动出门条、安全经理签名后，出门条才发给你和门岗。",
       "processingPhotos": "出场时的照片",
@@ -9727,7 +9729,11 @@
       "equipment_rental_no_terms": "先给这台设备设定租赁条件（【设备租赁设定】）。",
       "equipment_rental_diesel_not_charged": "这台设备的柴油不是供应商另外收费，不能填柴油费用。",
       "equipment_rental_month_confirmed": "这个月的租赁金额已经确认，不能再改。",
-      "equipment_rental_month_not_started": "这个月还没开始，不能确认。"
+      "equipment_rental_month_not_started": "这个月还没开始，不能确认。",
+      "archived_record_final": "这笔记录已确认归档，任何人都不能再修改或删除（包括总部管理员）。",
+      "archive_items_missing": "还有必填资料没有补齐（看「确认归档」里列出的项目），系统不能归档。",
+      "archive_check_not_ticked": "请先勾选「我已核对所有资料，确认无误。」，再确认归档。",
+      "return_gate_not_released": "门岗还没有拍照放行（车辆、车牌及退场货物），现在不能确认正式退场。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -9773,7 +9779,8 @@
       "supplier_not_on_project": "这个供应商不在这个项目的「可用供应商」里。请总部或项目经理先在项目里加入。",
       "field_one_project": "手机账号同一时间只能在一个项目，请只选一个项目。",
       "phone_role_office_account": "手机账号要在「现场人员管理」里开，这里不能把后台账号设为手机角色（工地人员、设备操作人员、门岗保安）。请选别的角色。",
-      "assignee_not_on_project": "这个人已经不在这个项目，不能派任务给他。请重新选择。"
+      "assignee_not_on_project": "这个人已经不在这个项目，不能派任务给他。请重新选择。",
+      "archived_final": "这笔记录已确认归档，任何人都不能再修改或删除。"
     },
     "forbidden": "你没有访问权限。",
     "forbiddenBody": "如果确实需要，请联系管理员。",
@@ -19630,7 +19637,8 @@
     "blocked": {
       "record_archived": "这条记录已确认归档，不能再改正。有新问题请另开一条记录。",
       "project_closed": "这个项目已经结束，记录不能再改。",
-      "claim_decided": "这笔杂费报销已经审批，不能再改正。"
+      "claim_decided": "这笔杂费报销已经审批，不能再改正。",
+      "archived_final": "这笔记录已确认归档，任何人都不能再改正。"
     },
     "toast": {
       "saved": "已改正",
@@ -23906,5 +23914,54 @@
       "progress_claim": "Progress Claim（支出部分）：Multi Engine 的批准金额还没有上线，现在算 0。上线后自动算进来。",
       "disposal": "垃圾清运：清运记录没有金额栏（只有重量、车次和清运公司），所以算 0，没有自己估价。"
     }
+  },
+  "jb276": {
+    "help": "请认真核对所有资料，包括供应商、材料名称、规格、单位、数量、车牌号码、DO（送货单及读取资料）、相关照片及签收记录。",
+    "missingTitle": "以下必填资料不完整，系统不得允许归档：",
+    "missingShort": "还有必填资料没有补齐，不能归档。",
+    "missing": {
+      "supplier": "供应商",
+      "material_name": "材料名称",
+      "specification": "规格",
+      "unit": "单位",
+      "quantity": "数量",
+      "vehicle_plate": "车牌号码",
+      "do_photo": "DO 送货单照片",
+      "do_data": "DO 读取资料（送货单号）",
+      "return_note": "退货单（Return Note）及批准签名",
+      "photos": "相关照片",
+      "signatures": "签收记录（双方签名）",
+      "exit_not_confirmed": "还没有「确认正式退场」",
+      "other": "其他必填资料"
+    },
+    "tick": "我已核对所有资料，确认无误。",
+    "tickRequired": "（必须勾选）",
+    "tickFirst": "请先勾选「我已核对所有资料，确认无误。」",
+    "pinNext": "勾选后，按【确认归档】并输入六位数密码。",
+    "closedBy": "由 {name} 于 {when} 确认归档。归档后任何人都不能修改或删除这笔记录，包括总部管理员。",
+    "lockedTitle": "这笔记录已确认归档",
+    "lockedNote": "已确认归档：任何人都不能再修改或删除这笔记录（包括总部管理员），只能查看、打印和加进资料包。"
+  },
+  "jb281": {
+    "title": "材料退场流程（按顺序）",
+    "step": {
+      "applied": "手机端提交材料退场申请",
+      "approved": "后台负责人审核及批准",
+      "site_exit": "手机端上传实际退场照片及资料",
+      "exit_pass": "出门条负责人核对及签名（发到门岗手机）",
+      "gate": "门岗拍车辆、车牌及退场货物照片",
+      "exit_confirmed": "后台核对门岗资料，确认正式退场",
+      "archived": "核对所有资料，确认正式归档"
+    },
+    "state": {
+      "done": "已完成",
+      "current": "现在这一步",
+      "locked": "未开放",
+      "rejected": "已驳回，流程结束",
+      "not_recorded": "（这条规则以前完成的，没有这一步）"
+    },
+    "started": "启动出门条：{name} · {when}",
+    "gateRecord": "门岗记录 {number}，{photos} 张照片",
+    "waitGate": "门岗还没有拍照放行（车辆、车牌及退场货物），现在不能确认正式退场。"
   }
 }

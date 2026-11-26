@@ -216,7 +216,7 @@ describe("approving needs the Return Note first (C9)", () => {
     const processed = render(
       <OutgoingActions row={outgoing({ status: "PROCESSED", has_return_note: true })} pending={false} onReview={() => {}} onReturn={() => {}} />,
     );
-    expect(processed).toContain("确认退场完成");
+    expect(processed).toContain("确认正式退场");
   });
 
   it("never offers the exit in the office console, which is told it waits for the site (2026-10-09)", () => {

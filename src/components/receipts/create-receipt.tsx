@@ -39,6 +39,7 @@ import { useMaterialUnits, useUnitName } from "@/hooks/use-material-units";
 import { useSeesAmounts } from "@/hooks/use-sees-amounts";
 import { unchangedRefusal } from "@/lib/correction-refusal";
 import { correctReceipt, getReceipt } from "@/services/contractor.service";
+import { useRecordArchived } from "@/components/shared/record-closure";
 import { getProjectCategories } from "@/services/contractor-ops.service";
 import { typedWords } from "@/lib/material-catalogue";
 
@@ -573,10 +574,22 @@ export function EditReceipt({
     queryKey: ["receipts", "detail", id],
     queryFn: () => getReceipt(id),
   });
+  // JB276 (客户 11-26 事项 17): an archived 材料进场 is not corrected by anybody.
+  const archived = useRecordArchived("MATERIAL_RECEIPT", id);
 
   if (isLoading) return <FormSkeleton sections={4} />;
   if (isLoadingError || !data) {
     return <LoadErrorCard backHref="/receipts" backLabel={t("receipts.title")} />;
+  }
+  if (archived) {
+    return (
+      <LoadErrorCard
+        backHref={`/receipts/${data.id}`}
+        backLabel={data.receipt_no}
+        title={t("jb276.lockedTitle")}
+        body={t("jb276.lockedNote")}
+      />
+    );
   }
   if (data.superseded_by) {
     // Already corrected (JB1-2): a second correction here would fork the

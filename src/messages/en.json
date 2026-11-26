@@ -4058,7 +4058,9 @@
       "company_modules_by_platform": "MSE switched a company's business modules on or off",
       "equipment_rental_terms_set": "Set equipment rental terms",
       "equipment_rental_month_amounts_set": "Entered an equipment rental diesel fee or adjustment",
-      "equipment_rental_month_confirmed": "Confirmed a month's equipment rental amounts"
+      "equipment_rental_month_confirmed": "Confirmed a month's equipment rental amounts",
+      "record_archive_checked": "Confirmed and archived (items checked)",
+      "return_exit_confirmed": "Confirmed the formal exit"
     },
     "objectType": {
       "SignOffAssistant": "Assistant PIN",
@@ -7084,7 +7086,7 @@
       "exitWaitingUpload": "This exit is already saved on this phone and uploads by itself when there is signal - no need to do it again. Follow it in What I sent.",
       "exitUploading": "Uploading {photos} photos and both signatures - please wait and keep this window open.",
       "waitingForSite": "Preparing the exit pass: when the vehicle arrives, the site photographs the vehicle and the goods leaving and submits them. Once the photos are in, the office presses [Start exit pass].",
-      "finalConfirm": "Confirm the exit",
+      "finalConfirm": "Confirm formal exit",
       "waitingForOffice": "Site photos are in - waiting for the office to start the exit pass and confirm.",
       "returnHelp": "{reference} is approved - preparing the exit pass. When the vehicle arrives: photograph the vehicle and the goods leaving, fill in the quantity actually returned and the plate, confirm the supplier (scan its code) and sign on both sides (site staff and supplier / driver), then submit. The exit pass reaches you and the gate only after the office starts it and the safety manager signs.",
       "processingPhotos": "Photos at the handover",
@@ -9727,7 +9729,11 @@
       "equipment_rental_no_terms": "Set this machine's rental terms first (Equipment rental terms).",
       "equipment_rental_diesel_not_charged": "This machine's diesel is not charged separately by the supplier, so no diesel fee can be entered.",
       "equipment_rental_month_confirmed": "This month's rental amounts are confirmed and can no longer be changed.",
-      "equipment_rental_month_not_started": "This month has not started yet and cannot be confirmed."
+      "equipment_rental_month_not_started": "This month has not started yet and cannot be confirmed.",
+      "archived_record_final": "This record has been archived. Nobody can change or delete it any more, head office included.",
+      "archive_items_missing": "Some required items are still missing (see the list under Confirm and archive), so it cannot be archived.",
+      "archive_check_not_ticked": "Tick \"I have checked all the information and it is correct.\" before archiving.",
+      "return_gate_not_released": "The gate has not photographed and released it yet (vehicle, plate and goods), so the formal exit cannot be confirmed."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -9773,7 +9779,8 @@
       "supplier_not_on_project": "This supplier is not on this project's supplier list. Ask head office or the project manager to add it to the project first.",
       "field_one_project": "A phone account can be on one project at a time. Choose one project.",
       "phone_role_office_account": "Phone accounts are made in Field staff. An office account cannot be given a phone role (site staff, equipment operator, gate guard) here. Please choose another role.",
-      "assignee_not_on_project": "This person is no longer on this project and cannot be given its task. Please choose someone else."
+      "assignee_not_on_project": "This person is no longer on this project and cannot be given its task. Please choose someone else.",
+      "archived_final": "This record has been archived. Nobody can change or delete it any more."
     },
     "forbidden": "You do not have access to this.",
     "forbiddenBody": "Ask your administrator if you need it.",
@@ -19630,7 +19637,8 @@
     "blocked": {
       "record_archived": "This record was confirmed and archived; it can no longer be corrected. Raise a new record for anything further.",
       "project_closed": "This project has ended; its records can no longer be changed.",
-      "claim_decided": "This sundry claim has already been decided; it can no longer be corrected."
+      "claim_decided": "This sundry claim has already been decided; it can no longer be corrected.",
+      "archived_final": "This record has been archived. Nobody can correct it any more."
     },
     "toast": {
       "saved": "Record corrected",
@@ -23906,5 +23914,54 @@
       "progress_claim": "Progress Claim (spending): the Multi Engine approved amount is not live yet, so it counts as 0. It is added automatically once live.",
       "disposal": "Waste clearance: its records have no amount (only weights, trips and the collector), so it counts as 0; no price is guessed."
     }
+  },
+  "jb276": {
+    "help": "Check every item carefully: supplier, material name, specification, unit, quantity, vehicle plate, DO (the delivery order and the data read from it), related photos and the signed receipt.",
+    "missingTitle": "These required items are incomplete, so the record cannot be archived:",
+    "missingShort": "Some required items are still missing, so it cannot be archived.",
+    "missing": {
+      "supplier": "Supplier",
+      "material_name": "Material name",
+      "specification": "Specification",
+      "unit": "Unit",
+      "quantity": "Quantity",
+      "vehicle_plate": "Vehicle plate",
+      "do_photo": "Photo of the DO (delivery order)",
+      "do_data": "Data read from the DO (DO number)",
+      "return_note": "Return Note and the approver's signature",
+      "photos": "Related photos",
+      "signatures": "Signed receipt (both signatures)",
+      "exit_not_confirmed": "\"Confirm formal exit\" not done yet",
+      "other": "Other required items"
+    },
+    "tick": "I have checked all the information and it is correct.",
+    "tickRequired": "(required)",
+    "tickFirst": "Tick \"I have checked all the information and it is correct.\" first.",
+    "pinNext": "After ticking, press Confirm and archive and enter your six-digit PIN.",
+    "closedBy": "Archived by {name} on {when}. Nobody can change or delete this record any more, head office included.",
+    "lockedTitle": "This record has been archived",
+    "lockedNote": "Archived: nobody can change or delete this record any more (head office included). It can still be viewed, printed and added to a package."
+  },
+  "jb281": {
+    "title": "Material return steps (in order)",
+    "step": {
+      "applied": "Return application sent from the phone",
+      "approved": "Office reviews and approves",
+      "site_exit": "Phone uploads the actual exit photos and details",
+      "exit_pass": "Exit pass checked and signed (sent to the gate phone)",
+      "gate": "Gate photographs the vehicle, plate and goods",
+      "exit_confirmed": "Office checks the gate's upload and confirms the formal exit",
+      "archived": "All items checked, formally archived"
+    },
+    "state": {
+      "done": "Done",
+      "current": "Now",
+      "locked": "Locked",
+      "rejected": "Rejected - the application ended",
+      "not_recorded": "(finished before this rule; no such step)"
+    },
+    "started": "Exit pass started: {name} · {when}",
+    "gateRecord": "Gate record {number}, {photos} photos",
+    "waitGate": "The gate has not photographed and released it yet (vehicle, plate and goods), so the formal exit cannot be confirmed."
   }
 }

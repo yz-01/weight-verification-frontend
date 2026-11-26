@@ -4058,7 +4058,9 @@
       "company_modules_by_platform": "MSE 開啟或關閉公司的業務模組",
       "equipment_rental_terms_set": "設定設備租賃條件",
       "equipment_rental_month_amounts_set": "填寫設備租賃的柴油費用或調整金額",
-      "equipment_rental_month_confirmed": "確認設備本月租賃金額"
+      "equipment_rental_month_confirmed": "確認設備本月租賃金額",
+      "record_archive_checked": "確認歸檔（已核對資料）",
+      "return_exit_confirmed": "確認正式退場"
     },
     "objectType": {
       "SignOffAssistant": "助理副密碼",
@@ -7084,7 +7086,7 @@
       "exitWaitingUpload": "這次實際退場已經保存在手機上，有網絡時會自動上傳，不用重做。可在「我提交過的」查看。",
       "exitUploading": "正在上傳 {photos} 張照片和雙方簽名，請稍候，不要關閉這個視窗。",
       "waitingForSite": "準備出門條：車輛到場後，現場人員拍車輛及貨物出場照片並提交。照片到了，後台再按【啟動出門條】。",
-      "finalConfirm": "確認退場完成",
+      "finalConfirm": "確認正式退場",
       "waitingForOffice": "現場照片已提交，待後台啟動出門條和確認。",
       "returnHelp": "{reference} 已批准，準備出門條。車輛到場後：拍車輛及貨物出場照片，填寫實際退回數量、車牌，確認供應商（可掃碼），現場人員與供應商 / 司機雙方簽名，再提交。後台啟動出門條、安全經理簽名後，出門條才發給你和門崗。",
       "processingPhotos": "出場時的照片",
@@ -9727,7 +9729,11 @@
       "equipment_rental_no_terms": "先給這台設備設定租賃條件（【設備租賃設定】）。",
       "equipment_rental_diesel_not_charged": "這台設備的柴油不是供應商另外收費，不能填柴油費用。",
       "equipment_rental_month_confirmed": "這個月的租賃金額已經確認，不能再改。",
-      "equipment_rental_month_not_started": "這個月還沒開始，不能確認。"
+      "equipment_rental_month_not_started": "這個月還沒開始，不能確認。",
+      "archived_record_final": "這筆記錄已確認歸檔，任何人都不能再修改或刪除（包括總部管理員）。",
+      "archive_items_missing": "還有必填資料沒有補齊（看「確認歸檔」裡列出的項目），系統不能歸檔。",
+      "archive_check_not_ticked": "請先勾選「我已核對所有資料，確認無誤。」，再確認歸檔。",
+      "return_gate_not_released": "門崗還沒有拍照放行（車輛、車牌及退場貨物），現在不能確認正式退場。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -9773,7 +9779,8 @@
       "supplier_not_on_project": "這個供應商不在這個項目的「可用供應商」裡。請總部或項目經理先在項目裡加入。",
       "field_one_project": "手機賬號同一時間只能在一個項目，請只選一個項目。",
       "phone_role_office_account": "手機賬號要在「現場人員管理」裡開，這裡不能把後台賬號設為手機角色（工地人員、設備操作人員、門崗保安）。請選別的角色。",
-      "assignee_not_on_project": "這個人已經不在這個項目，不能派任務給他。請重新選擇。"
+      "assignee_not_on_project": "這個人已經不在這個項目，不能派任務給他。請重新選擇。",
+      "archived_final": "這筆記錄已確認歸檔，任何人都不能再修改或刪除。"
     },
     "forbidden": "你沒有訪問權限。",
     "forbiddenBody": "如果確實需要，請聯繫管理員。",
@@ -19630,7 +19637,8 @@
     "blocked": {
       "record_archived": "這條記錄已確認歸檔，不能再改正。有新問題請另開一條記錄。",
       "project_closed": "這個專案已經結束，記錄不能再改。",
-      "claim_decided": "這筆雜費報銷已經審批，不能再改正。"
+      "claim_decided": "這筆雜費報銷已經審批，不能再改正。",
+      "archived_final": "這筆記錄已確認歸檔，任何人都不能再改正。"
     },
     "toast": {
       "saved": "已改正",
@@ -23906,5 +23914,54 @@
       "progress_claim": "Progress Claim（支出部分）：Multi Engine 的批准金額還沒有上線，現在算 0。上線後自動算進來。",
       "disposal": "垃圾清運：清運記錄沒有金額欄（只有重量、車次和清運公司），所以算 0，沒有自己估價。"
     }
+  },
+  "jb276": {
+    "help": "請認真核對所有資料，包括供應商、材料名稱、規格、單位、數量、車牌號碼、DO（送貨單及讀取資料）、相關照片及簽收記錄。",
+    "missingTitle": "以下必填資料不完整，系統不得允許歸檔：",
+    "missingShort": "還有必填資料沒有補齊，不能歸檔。",
+    "missing": {
+      "supplier": "供應商",
+      "material_name": "材料名稱",
+      "specification": "規格",
+      "unit": "單位",
+      "quantity": "數量",
+      "vehicle_plate": "車牌號碼",
+      "do_photo": "DO 送貨單照片",
+      "do_data": "DO 讀取資料（送貨單號）",
+      "return_note": "退貨單（Return Note）及批准簽名",
+      "photos": "相關照片",
+      "signatures": "簽收記錄（雙方簽名）",
+      "exit_not_confirmed": "還沒有「確認正式退場」",
+      "other": "其他必填資料"
+    },
+    "tick": "我已核對所有資料，確認無誤。",
+    "tickRequired": "（必須勾選）",
+    "tickFirst": "請先勾選「我已核對所有資料，確認無誤。」",
+    "pinNext": "勾選後，按【確認歸檔】並輸入六位數密碼。",
+    "closedBy": "由 {name} 於 {when} 確認歸檔。歸檔後任何人都不能修改或刪除這筆記錄，包括總部管理員。",
+    "lockedTitle": "這筆記錄已確認歸檔",
+    "lockedNote": "已確認歸檔：任何人都不能再修改或刪除這筆記錄（包括總部管理員），只能查看、列印和加進資料包。"
+  },
+  "jb281": {
+    "title": "材料退場流程（按順序）",
+    "step": {
+      "applied": "手機端提交材料退場申請",
+      "approved": "後台負責人審核及批准",
+      "site_exit": "手機端上傳實際退場照片及資料",
+      "exit_pass": "出門條負責人核對及簽名（發到門崗手機）",
+      "gate": "門崗拍車輛、車牌及退場貨物照片",
+      "exit_confirmed": "後台核對門崗資料，確認正式退場",
+      "archived": "核對所有資料，確認正式歸檔"
+    },
+    "state": {
+      "done": "已完成",
+      "current": "現在這一步",
+      "locked": "未開放",
+      "rejected": "已駁回，流程結束",
+      "not_recorded": "（這條規則以前完成的，沒有這一步）"
+    },
+    "started": "啟動出門條：{name} · {when}",
+    "gateRecord": "門崗記錄 {number}，{photos} 張照片",
+    "waitGate": "門崗還沒有拍照放行（車輛、車牌及退場貨物），現在不能確認正式退場。"
   }
 }
