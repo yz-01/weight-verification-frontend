@@ -110,6 +110,10 @@ describe("the tick screen: nine items under 材料管理 and 工程进度 (以�
     const html = dialog(GRANT);
     const items = [...html.matchAll(/data-item="([^"]+)"/g)].map((match) => match[1]);
     expect(items).toEqual([
+      // JB265 (客户 11-26 事项 6): 现场任务 comes first in the client's 11.
+      "field_tasks.view",
+      "field_tasks.assign",
+      "field_tasks.accept",
       "materials.in",
       "materials.returns",
       "materials.issues",

@@ -735,6 +735,23 @@ export interface MySubmissionsPage {
 
 export type MaterialAcceptance = "PENDING" | "ACCEPTED" | "REJECTED";
 
+/** One row of a delivery's 「顾问审批记录」 (JB270). */
+export interface ReceiptConsultantApproval {
+  id: string;
+  application_no: string;
+  /** The latest version the reader may see. */
+  revision: number;
+  status: string;
+  /** When the consultant decided; null while it waits. */
+  decided_at: string | null;
+  submitted_at: string | null;
+  application_type: string;
+  has_final_report: boolean;
+  attachment_count: number;
+  /** Whether this reader may open the application (its report, its certificates). */
+  can_open: boolean;
+}
+
 export interface MaterialReceiptDetail extends MaterialReceipt {
   /** 检验 (J12-8): the latest inspection of its material and specification. */
   inspection?: InspectionInfo | null;

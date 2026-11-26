@@ -12,6 +12,7 @@ import type {
   DispatchSummary,
   MaterialReceipt,
   MaterialReceiptDetail,
+  ReceiptConsultantApproval,
   MySubmissionDetail,
   MySubmissionRow,
   MySubmissionsPage,
@@ -734,6 +735,14 @@ export function getReceiptNetTotals(
 
 export function getReceipt(id: string): Promise<MaterialReceiptDetail> {
   return api.get<MaterialReceiptDetail>(`/api/receipts/${id}/get_receipt/`);
+}
+
+/** 「顾问审批记录」 of a delivery (JB270): read from 关联现场证据, never linked by hand. */
+export async function getReceiptConsultantApprovals(id: string): Promise<ReceiptConsultantApproval[]> {
+  const data = await api.get<{ results: ReceiptConsultantApproval[] }>(
+    `/api/receipts/${id}/consultant_approvals/`,
+  );
+  return data.results;
 }
 
 /**

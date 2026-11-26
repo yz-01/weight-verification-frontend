@@ -512,8 +512,16 @@ export const getApplicationEvidenceCandidates = (
     { project, page_size: 100, ...filters },
   );
 
-export const getEvidenceFilterOptions = (project: string) =>
-  api.get<EvidenceFilterOptions>("/api/consultant-applications/get_evidence_filter_options/", { project });
+/**
+ * JB268 (客户 11-26 事项 9): the counts follow what else is chosen - the
+ * module, the dates, the keyword and the uploader - so 钢筋 (8) under
+ * 材料进场 means eight of 材料进场's own.
+ */
+export const getEvidenceFilterOptions = (
+  project: string,
+  filters: { module?: string; date_from?: string; date_to?: string; search?: string; uploader?: string } = {},
+) =>
+  api.get<EvidenceFilterOptions>("/api/consultant-applications/get_evidence_filter_options/", { project, ...filters });
 
 /**
  * 文件管理's files on the application's own project (J22, Q22-1): listed by

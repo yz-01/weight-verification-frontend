@@ -5671,7 +5671,10 @@
       "progressRecords": "Kemajuan pembinaan",
       "progressDailyReports": "Laporan harian tapak",
       "progressRain": "Rekod hujan",
-      "progressSchedule": "Jadual pembinaan"
+      "progressSchedule": "Jadual pembinaan",
+      "fieldTasksView": "Lihat tugasan tapak",
+      "fieldTasksAssign": "Mula dan tugaskan tugasan tapak",
+      "fieldTasksAccept": "Terima tugasan tapak"
     },
     "itemHint": {
       "materialsIn": "Bahan yang dihantar ke tapak, termasuk muatan yang ditolak (di Bahan masuk)",
@@ -5682,7 +5685,10 @@
       "progressRecords": "Kemas kini kemajuan, foto garis masa, kategori kerja dan ringkasan kemajuan (di Kemajuan)",
       "progressDailyReports": "Laporan tapak setiap hari (Kemajuan → Laporan harian)",
       "progressRain": "Rekod henti kerja kerana hujan dan angka bulanannya (Kemajuan → Rekod hari hujan)",
-      "progressSchedule": "Jadual pembinaan dan kemajuan sebenar (Kemajuan → Jadual)"
+      "progressSchedule": "Jadual pembinaan dan kemajuan sebenar (Kemajuan → Jadual)",
+      "fieldTasksView": "Lihat tugasan tapak yang dia terlibat: yang dia mulakan dan yang dihantar kepadanya untuk disemak (di Tugasan tapak)",
+      "fieldTasksAssign": "Boleh tekan Agih tugas dan berikan tugasan kepada kakitangan projek ini",
+      "fieldTasksAccept": "Apabila tugasan yang dia mulakan siap, dia menerimanya atau menghantarnya balik"
     },
     "itemShort": {
       "materialsIn": "masuk",
@@ -5693,7 +5699,10 @@
       "progressRecords": "kemajuan",
       "progressDailyReports": "laporan harian",
       "progressRain": "hujan",
-      "progressSchedule": "jadual"
+      "progressSchedule": "jadual",
+      "fieldTasksView": "lihat",
+      "fieldTasksAssign": "mula dan tugaskan",
+      "fieldTasksAccept": "terima"
     }
   },
   "consultantDashboard": {
@@ -23906,6 +23915,27 @@
       "progress_claim": "Progress Claim (perbelanjaan): amaun lulus Multi Engine belum aktif, jadi dikira 0. Ia ditambah secara automatik apabila aktif.",
       "disposal": "Pembersihan sampah: rekodnya tiada amaun (hanya berat, trip dan pengutip), jadi dikira 0; tiada harga diteka."
     }
+  },
+  "jb265": {
+    "startedBy": "Dimulakan oleh perunding {name}"
+  },
+  "jb269": {
+    "spec": "Spesifikasi {spec}",
+    "uploader": "Dimuat naik oleh {name}",
+    "count": "{count} fail",
+    "noNumber": "Tiada nombor",
+    "unclassified": "Belum dikelaskan",
+    "enlarge": "Lihat foto {n} lebih besar",
+    "selectPhoto": "Tanda foto {n}",
+    "openFile": "Buka fail"
+  },
+  "jb270": {
+    "title": "Kelulusan perunding",
+    "none": "Belum ada permohonan perunding yang memautkan foto penghantaran ini.",
+    "decidedAt": "Diputuskan {when}",
+    "notDecided": "Belum diputuskan",
+    "open": "Lihat laporan kelulusan dan sijil bahan",
+    "independent": "Hanya keputusan permohonan perunding ditunjukkan di sini; ia tidak mengubah penerimaan penghantaran ini."
   },
   "jb274": {
     "notifyOnly": "Maklumkan juga (tidak menugaskan)",

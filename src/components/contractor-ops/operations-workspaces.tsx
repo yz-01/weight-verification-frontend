@@ -214,6 +214,7 @@ import {
   useIssueFacts,
 } from "@/components/contractor-ops/material-issue";
 import { photoMeta } from "@/lib/photo-meta";
+import { consultantHoldsItem } from "@/lib/consultant-modules";
 import {
   newClientEventId,
   queuedOutgoingExit,
@@ -1230,7 +1231,9 @@ export function FieldTasksWorkspace({
                   })
                 }
               />
-              {can("field_task.manage") ? (
+              {/* JB265 (客户 11-26 事项 6, 图 6): a consultant with 「发起及指派
+                  现场任务」 ticked on this project sets a task too. */}
+              {can("field_task.manage") || consultantHoldsItem(user, "field_tasks.assign") ? (
                 <Button onClick={() => setCreating(true)}>
                   <Plus />
                   {t("tasks.assign")}
@@ -1438,6 +1441,12 @@ export function FieldTasksWorkspace({
                       </span>
                       <span className="truncate text-sm">
                         <AssigneeName name={row.assigned_to_name} left={row.assignee_left_project} />
+                        {/* JB265: who started it, when a consultant did. */}
+                        {row.created_by_consultant ? (
+                          <span className="block truncate text-xs text-muted-foreground" data-slot="consultant-started">
+                            {tRoot("jb265.startedBy", { name: row.created_by_name ?? "" })}
+                          </span>
+                        ) : null}
                       </span>
                       <span className="tabular truncate text-sm text-muted-foreground">
                         {row.due_at
@@ -1582,7 +1591,8 @@ export function FieldTasksWorkspace({
       )}
       {creating && (
         <TaskDialog
-          project={project}
+          // A consultant sets it on the project he is working in (JB265).
+          project={project || (user?.account_type === "CONSULTANT" ? user.active_project?.project_id ?? "" : "")}
           onClose={() => setCreating(false)}
           onSaved={() => {
             void qc.invalidateQueries({ queryKey: ["field-tasks"] });

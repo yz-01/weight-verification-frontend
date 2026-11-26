@@ -5671,7 +5671,10 @@
       "progressRecords": "施工进度",
       "progressDailyReports": "施工日报告",
       "progressRain": "雨天记录",
-      "progressSchedule": "施工计划"
+      "progressSchedule": "施工计划",
+      "fieldTasksView": "查看现场任务",
+      "fieldTasksAssign": "发起及指派现场任务",
+      "fieldTasksAccept": "验收现场任务"
     },
     "itemHint": {
       "materialsIn": "送到工地的材料，含验收不合格的（在「材料进场」）",
@@ -5682,7 +5685,10 @@
       "progressRecords": "进度记录、工程时间轴照片、施工分类、项目进度摘要（在「工程进度」）",
       "progressDailyReports": "每天的施工日报告（在「工程进度」→「日报告」）",
       "progressRain": "下雨停工的记录和每月统计（在「工程进度」→「雨天记录」）",
-      "progressSchedule": "施工计划和实际进度（在「工程进度」→「施工计划」）"
+      "progressSchedule": "施工计划和实际进度（在「工程进度」→「施工计划」）",
+      "fieldTasksView": "看到他参与的现场任务：他发起的、发给他验收的（在「现场任务」）",
+      "fieldTasksAssign": "可以按【派发任务】，把任务交给这个项目的人员处理",
+      "fieldTasksAccept": "他发起的任务做好后，由他【验收】或退回"
     },
     "itemShort": {
       "materialsIn": "进场",
@@ -5693,7 +5699,10 @@
       "progressRecords": "施工进度",
       "progressDailyReports": "日报告",
       "progressRain": "雨天",
-      "progressSchedule": "施工计划"
+      "progressSchedule": "施工计划",
+      "fieldTasksView": "查看",
+      "fieldTasksAssign": "发起及指派",
+      "fieldTasksAccept": "验收"
     }
   },
   "consultantDashboard": {
@@ -23906,6 +23915,27 @@
       "progress_claim": "Progress Claim（支出部分）：Multi Engine 的批准金额还没有上线，现在算 0。上线后自动算进来。",
       "disposal": "垃圾清运：清运记录没有金额栏（只有重量、车次和清运公司），所以算 0，没有自己估价。"
     }
+  },
+  "jb265": {
+    "startedBy": "顾问 {name} 发起"
+  },
+  "jb269": {
+    "spec": "规格 {spec}",
+    "uploader": "上传人 {name}",
+    "count": "{count} 张",
+    "noNumber": "未编号",
+    "unclassified": "待归类",
+    "enlarge": "放大查看第 {n} 张",
+    "selectPhoto": "勾选第 {n} 张",
+    "openFile": "打开文件"
+  },
+  "jb270": {
+    "title": "顾问审批记录",
+    "none": "还没有顾问申请关联这笔进场的照片。",
+    "decidedAt": "审批时间 {when}",
+    "notDecided": "还没审批",
+    "open": "查看审批报告及材料证书",
+    "independent": "这里只显示顾问申请的结果，不会改变这笔进场的验收状态。"
   },
   "jb274": {
     "notifyOnly": "另外通知（不会指派）",

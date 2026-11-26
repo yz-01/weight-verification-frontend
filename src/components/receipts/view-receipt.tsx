@@ -47,6 +47,7 @@ import { useRecordArchived } from "@/components/shared/record-closure";
 import { RecordCorrectionHistory } from "@/components/shared/record-correction";
 import { InspectionBadge } from "@/components/document-workflow/inspection";
 import { ReceiptLinesDialog } from "@/components/receipts/receipt-lines-dialog";
+import { ConsultantApprovalsPanel } from "@/components/receipts/consultant-approvals-panel";
 import { MaterialLinesTable } from "@/components/shared/material-lines";
 import { receiptShownLines } from "@/lib/material-lines";
 
@@ -599,6 +600,9 @@ export function ViewReceipt({
             />
           </div>
         }
+        // JB270 (客户 11-26 事项 11): 「顾问审批记录」 between 验收 and 签名 -
+        // the shell's `aside` place.
+        aside={<ConsultantApprovalsPanel receiptId={data.id} />}
         signatures={(
           [
             ["receiver", data.signature],
