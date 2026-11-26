@@ -1076,7 +1076,7 @@ export function MaterialIssueList({
   const project = list.filters.project;
   const pending = unchecked ? { unchecked: "1" } : {};
   const rows = useQuery({
-    queryKey: ["material-outgoing", "issues", list.query, unchecked],
+    queryKey: ["material-outgoing", "issues", list.query, ...(unchecked ? ["unchecked"] : [])],
     queryFn: () => getMaterialIssueLines({ ...list.query, ...pending, page_size: list.pageSize }),
   });
   // query-failure: the filters fall back to typing nothing - the list itself says when it failed.

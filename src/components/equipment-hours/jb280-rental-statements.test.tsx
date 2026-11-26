@@ -190,8 +190,8 @@ describe("JB280 设备租赁月结单", () => {
 
   it("the 按月 page opens on the machine and month the address names", () => {
     const hours = read("src/components/equipment-hours/equipment-operator-hours.tsx");
-    expect(hours).toMatch(/useState<View>\(address\.get\("view"\) === "month" \? "month" : "day"\)/);
-    expect(hours).toMatch(/useState\(address\.get\("equipment"\) \|\| ALL\)/);
+    expect(hours).toContain('useState<View>(address?.get("view") === "month" ? "month" : "day")');
+    expect(hours).toContain('useState(address?.get("equipment") || ALL)');
   });
 
   it("a printed or sent statement's log row opens it on its page", async () => {

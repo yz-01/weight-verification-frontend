@@ -42,6 +42,7 @@ import { RentalStatementWindow } from "@/components/equipment-hours/rental-state
 import { useAuth } from "@/components/providers/auth-provider";
 import { useCurrentProject } from "@/components/providers/current-project-provider";
 import { AttachmentPicker } from "@/components/shared/attachment-picker";
+import { clickOpensRow } from "@/components/shared/inside-row-control";
 import { DataTable } from "@/components/shared/data-table";
 import { FileActionButtons } from "@/components/shared/file-actions";
 import { PlainHeader } from "@/components/shared/module-records-table";
@@ -775,7 +776,7 @@ function TickCell({ selection, id, reference }: { selection?: RowSelection; id: 
   const checks = useTranslations("returnChecks");
   if (!selection) return null;
   return (
-    <TableCell onClick={(event) => event.stopPropagation()}>
+    <TableCell>
       <label className="inline-flex min-h-11 min-w-11 cursor-pointer items-center">
         <Checkbox
           data-slot="recon-select-row"
@@ -819,7 +820,9 @@ export function IssueRowsTable({ rows, selection }: { rows: readonly IssueCheckR
               key={row.id}
               data-slot="issue-check-row"
               className="cursor-pointer"
-              onClick={() => setOpened(row.id)}
+              onClick={(event) => {
+                if (clickOpensRow(event)) setOpened(row.id);
+              }}
             >
               <TickCell selection={selection} id={row.id} reference={row.reference_no} />
               <TableCell className="tabular whitespace-nowrap">{df.date(row.at)}</TableCell>
@@ -874,7 +877,9 @@ export function StatementRowsTable({
               key={row.id}
               data-slot="statement-check-row"
               className="cursor-pointer"
-              onClick={() => setOpened(row.id)}
+              onClick={(event) => {
+                if (clickOpensRow(event)) setOpened(row.id);
+              }}
             >
               <TickCell selection={selection} id={row.id} reference={row.statement_no} />
               <TableCell className="font-medium text-primary">{row.statement_no}</TableCell>

@@ -291,18 +291,18 @@ export function EquipmentOperatorHours() {
   // (`?view=month&month=YYYY-MM&equipment=<id>&project=<id>`) - the
   // statement's 设备原始记录. Read once, as the starting state.
   const address = useSearchParams();
-  const [view, setView] = useState<View>(address.get("view") === "month" ? "month" : "day");
+  const [view, setView] = useState<View>(address?.get("view") === "month" ? "month" : "day");
   // The top bar's 「当前项目」 in the office (B13).
-  const [project, setProject] = usePageProject(address.get("project") ?? "");
+  const [project, setProject] = usePageProject(address?.get("project") ?? "");
   const [supplier, setSupplier] = useState(ALL);
-  const [equipment, setEquipment] = useState(address.get("equipment") || ALL);
+  const [equipment, setEquipment] = useState(address?.get("equipment") || ALL);
   const [search, setSearch] = useState("");
   const q = useDebounce(search.trim(), 300);
   // No dates chosen: the server opens on the latest records (图6).
   const [range, setRangeState] = useState<{ from: string; to: string } | null>(null);
   const [capped, setCapped] = useState(false);
   const [month, setMonth] = useState<string | null>(() => {
-    const asked = address.get("month") ?? "";
+    const asked = address?.get("month") ?? "";
     return /^\d{4}-\d{2}$/.test(asked) ? asked : null;
   });
   const [opened, setOpened] = useState<EquipmentHoursSession | null>(null);
