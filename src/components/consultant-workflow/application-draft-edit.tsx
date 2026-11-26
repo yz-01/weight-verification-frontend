@@ -35,6 +35,7 @@ import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { useState, type ReactNode } from "react";
 
+import { useEvidenceRecordLabel } from "@/components/consultant-workflow/evidence-record-card";
 import { FieldWrapper } from "@/components/shared/page-primitives";
 import { AttachmentPicker } from "@/components/shared/attachment-picker";
 import { useFileActions } from "@/components/shared/file-actions";
@@ -125,11 +126,13 @@ export function LockedNote() {
  */
 export function evidenceViewerPhotos(
   links: ConsultantApplication["evidence_links"],
+  nameOf: (link: ConsultantApplication["evidence_links"][number]) => string = (link) =>
+    link.caption || link.original_filename,
 ): ShellPhoto[] {
   return links.map((link) => ({
     id: link.id,
     url: link.evidence_watermarked_file || link.evidence_file,
-    label: link.caption || link.original_filename,
+    label: nameOf(link),
     takenAt: link.captured_at,
     latitude: link.latitude,
     longitude: link.longitude,
@@ -154,7 +157,21 @@ export function EvidenceLinkCards({
   // a bare link to the file.
   const [viewing, setViewing] = useState<number | null>(null);
   const links = application.evidence_links;
-  const photos = evidenceViewerPhotos(links);
+  // JB269 (QA2): named by its record - number · module · name - as in the
+  // picker; never the file name or the fingerprint (事项 10). A caption the
+  // office wrote comes first.
+  const recordLabel = useEvidenceRecordLabel();
+  const nameOf = (link: (typeof links)[number]) => {
+    if (link.caption) return link.caption;
+    const { reference, module: moduleName, title } = recordLabel({
+      source_model: link.source_model ?? "",
+      record_type: link.record_type ?? "",
+      record_reference: link.record_reference ?? "",
+      record_title: link.record_title ?? "",
+    } as Parameters<typeof recordLabel>[0]);
+    return [reference, moduleName, title].filter(Boolean).join(" · ");
+  };
+  const photos = evidenceViewerPhotos(links, nameOf);
   const unlink = useMutation({
     mutationFn: (ids: string[]) => unlinkApplicationEvidence(application.id, ids),
     onSuccess: onChanged,
@@ -190,14 +207,14 @@ export function EvidenceLinkCards({
           <button
             type="button"
             data-photo-open={index}
-            aria-label={t("evidence.open", { name: link.caption || link.original_filename })}
+            aria-label={t("evidence.open", { name: nameOf(link) })}
             onClick={() => setViewing(index)}
             className="block w-full transition-colors hover:bg-muted/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           >
             <div className="photo-hatch relative aspect-[4/3] overflow-hidden">
               <Image
                 src={link.evidence_watermarked_file || link.evidence_file}
-                alt={link.caption || link.original_filename}
+                alt={nameOf(link)}
                 fill
                 unoptimized
                 className="object-cover object-bottom transition-transform group-hover:scale-[1.02]"
@@ -235,12 +252,11 @@ export function EvidenceLinkCards({
                 </Button>
               </div>
             ) : (
-              <p className="truncate text-sm font-medium">{link.caption || link.original_filename}</p>
+              <p className="truncate text-sm font-medium" data-slot="evidence-link-name" title={nameOf(link)}>{nameOf(link)}</p>
             )}
             <p className="truncate text-xs text-muted-foreground">
               {link.photographer_name || t("common.unknown")} - {new Date(link.captured_at).toLocaleString()}
             </p>
-            <p className="truncate font-mono text-2xs text-muted-foreground">{link.sha256}</p>
             {editable && (
               <div className="flex flex-wrap items-center gap-1 pt-1" data-draft-controls>
                 {editing !== link.id && (
