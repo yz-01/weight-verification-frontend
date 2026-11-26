@@ -34,7 +34,7 @@ const { importBody } = await import("@/services/excel-import.service");
 const { CompanyCategories } = await import("@/components/contractor-ops/company-categories");
 
 const LOCALES = { zh, "zh-TW": zhTW, en, ms } as const;
-const SRC = path.resolve(__dirname, "..");
+const SRC = path.resolve(__dirname, "../..");
 const read = (file: string) => readFileSync(path.join(SRC, file), "utf8");
 
 function render(children: ReactNode, messages: typeof zh = zh, locale = "zh") {

@@ -130,7 +130,16 @@ export function ExcelImportDialog({
 
   const template = useMutation({ mutationFn: () => downloadImportTemplate(kind, locale) });
   const confirm = useMutation({
-    mutationFn: () => confirmImport(kind, file as File, { ...options, mapping: shownMapping }),
+    // What the boxes say now, even if the click came before they were left.
+    mutationFn: () =>
+      confirmImport(kind, file as File, {
+        ...options,
+        mapping: shownMapping,
+        choices:
+          kind === "supplier"
+            ? { ...choices, industry: draft.industry.trim(), main_products: draft.main_products.trim() }
+            : undefined,
+      }),
     onSuccess: (answer) => {
       setResult(answer);
       const keys =
