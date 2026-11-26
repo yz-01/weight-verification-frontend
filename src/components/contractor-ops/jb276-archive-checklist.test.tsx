@@ -99,9 +99,9 @@ describe("确认归档 of a 材料进场 / 材料退场 (JB276)", () => {
   });
 
   it("a code it has no words for still reads as plain words", () => {
-    const html = render(<RecordClosurePanel kind="MATERIAL_RECEIPT" recordId="r-1" />, closure({ checklist: true, missing: ["mr_link"] }));
+    const html = render(<RecordClosurePanel kind="MATERIAL_RECEIPT" recordId="r-1" />, closure({ checklist: true, missing: ["a_later_code"] }));
     expect(html).toContain(zh.jb276.missing.other);
-    expect(html).not.toContain(">mr_link<");
+    expect(html).not.toContain(">a_later_code<");
   });
 
   it("asks for the tick before the button goes, and says the PIN comes next", () => {
