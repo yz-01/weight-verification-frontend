@@ -23871,6 +23871,7 @@
       "price": "單價 RM {amount}",
       "overtime": "超時 RM {amount}/小時",
       "standardDays": "每月標準 {days} 天",
+      "normalHours": "每天正常 {hours} 小時",
       "period": "{from} 至 {to}",
       "since": "{from} 起"
     },

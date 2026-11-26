@@ -41,6 +41,9 @@ describe("JB255 the machine's own normal hours", () => {
     expect(en.equipmentRental.formula.common).toContain("is split by that number");
     expect(ms.equipmentRental.formula.common).toContain("dibahagi mengikut angka itu");
     expect(zh.equipmentRental.formula.common).not.toContain("请把本页的设定也改好");
+    // The machine's terms line says its own normal hours.
+    expect(read("src/components/equipment-hours/rental-fees.tsx")).toContain('t("summary.normalHours"');
+    for (const messages of [zh, zhTW, en, ms]) expect(messages.equipmentRental.summary.normalHours).toContain("{hours}");
   });
 });
 

@@ -23871,6 +23871,7 @@
       "price": "Kadar RM {amount}",
       "overtime": "Lebih masa RM {amount}/jam",
       "standardDays": "{days} hari standard sebulan",
+      "normalHours": "biasa {hours} jam sehari",
       "period": "{from} hingga {to}",
       "since": "dari {from}"
     },

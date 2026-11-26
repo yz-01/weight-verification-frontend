@@ -23871,6 +23871,7 @@
       "price": "Rate RM {amount}",
       "overtime": "Overtime RM {amount}/hour",
       "standardDays": "{days} standard days a month",
+      "normalHours": "normal {hours} h a day",
       "period": "{from} to {to}",
       "since": "from {from}"
     },
