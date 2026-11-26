@@ -4592,7 +4592,7 @@
       "claim": "Kategori Progress Claim"
     },
     "moduleHelp": {
-      "material": "Penghantaran dan kosnya difailkan di sini. Satu senarai bagi setiap projek.",
+      "material": "Data asas bahan: nama, spesifikasi, unit, kod dan harga seunit. Satu senarai bagi setiap projek.",
       "equipment": "Kren, jengkaut, penjana. Satu senarai bagi setiap projek, diselenggara oleh syarikat ini.",
       "ehs": "Setiap projek bermula dengan pembetulan keselamatan, pembinaan dan perunding serta permit kerja. Tambah, namakan semula atau matikan kategori di sini; hanya kategori tanpa rekod boleh dibuang. Permit kerja ialah kategori sistem dan hanya boleh dinamakan semula.",
       "recycle": "Sisa kitar semula yang dihantar keluar dari tapak: besi buruk, tembaga, aluminium, kabel. Satu senarai untuk seluruh syarikat; yang disediakan boleh ditutup tetapi tidak dipadam.",
@@ -23905,6 +23905,65 @@
     "notAvailable": {
       "progress_claim": "Progress Claim (perbelanjaan): amaun lulus Multi Engine belum aktif, jadi dikira 0. Ia ditambah secara automatik apabila aktif.",
       "disposal": "Pembersihan sampah: rekodnya tiada amaun (hanya berat, trip dan pengutip), jadi dikira 0; tiada harga diteka."
+    }
+  },
+  "jb260": {
+    "button": "Cari ikut bahan",
+    "title": "Cari ikut bahan",
+    "help": "Taip nama, kod atau spesifikasi bahan dan pilih: rekod dan angkanya dibuka (tetingkap yang sama seperti Lihat rekod dalam Pengurusan Kategori).",
+    "search": "Cari nama, kod, spesifikasi bahan",
+    "chooseProject": "Pilih projek di atas dahulu",
+    "loading": "Memuatkan…",
+    "failed": "Bahan tidak dapat dimuatkan. Cuba lagi nanti.",
+    "noMatch": "Tiada bahan dijumpai.",
+    "none": "Projek ini belum ada bahan."
+  },
+  "jb262": {
+    "categoryNote": "Hanya data asas bahan ditetapkan di sini: nama, spesifikasi, unit, kod dan harga seunit. Kuantiti diterima, belanja dan bajet, angka pembekal dan rekod setiap bahan ada di Pengurusan bahan → Bahan masuk; sasaran kuantiti dan bajet di Pengurusan bahan → Sasaran bahan.",
+    "budgetMoved": "Bajet kini ditetapkan di Pengurusan bahan → Sasaran bahan (bersama sasaran kuantiti dan tambahannya).",
+    "loading": "Memuatkan…",
+    "failed": "Tidak dapat disimpan. Cuba lagi nanti.",
+    "cancel": "Batal",
+    "save": "Simpan",
+    "oneMaterial": "Hanya sasaran {name}.",
+    "allMaterials": "Semua bahan",
+    "col": {
+      "material": "Bahan",
+      "received": "Diterima",
+      "requests": "Permohonan MR",
+      "target": "Sasaran bahan",
+      "spend": "Belanja / bajet",
+      "action": "Tindakan"
+    },
+    "overview": {
+      "title": "Angka bahan",
+      "count": "({count} bahan)",
+      "help": "Penghantaran, permohonan MR, sasaran dan bajet setiap bahan. Klik satu baris untuk membuka rekodnya.",
+      "chooseProject": "Pilih projek di atas untuk menyenaraikan setiap bahannya.",
+      "empty": "Projek ini belum ada bahan. Tambah di Pengurusan Kategori → Kategori bahan.",
+      "records": "{count} rekod",
+      "archived": "{count} diarkibkan",
+      "noRequests": "Tiada MR",
+      "requestLine": "Menunggu {pending} · diluluskan {approved} {unit}",
+      "noTarget": "Tiada sasaran",
+      "targetLine": "{net} / {target} {unit}"
+    },
+    "action": {
+      "records": "Lihat rekod",
+      "targets": "Sasaran bahan",
+      "requests": "Permohonan MR",
+      "suppliers": "Ikut pembekal"
+    },
+    "budgets": {
+      "title": "Bajet",
+      "help": "Berapa banyak setiap bahan boleh dibelanjakan semuanya, ditetapkan di halaman yang sama dengan sasaran kuantiti di atas. Belanja = kuantiti diterima × harga seunit, seperti laporan kos bahan.",
+      "chooseProject": "Pilih projek di atas untuk menetapkan bajet bahannya.",
+      "empty": "Projek ini belum ada bahan.",
+      "alerts": "Peringatan",
+      "noAlerts": "Tiada peringatan",
+      "set": "Tetapkan bajet",
+      "dialogTitle": "Bajet {name}",
+      "pinNote": "Menyimpan meminta PIN pengesahan anda. Setiap perubahan disimpan dalam rekod operasi (jumlah sebelum dan selepas)."
     }
   }
 }

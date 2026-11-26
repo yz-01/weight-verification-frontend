@@ -4592,7 +4592,7 @@
       "claim": "Progress Claim categories"
     },
     "moduleHelp": {
-      "material": "Deliveries and the money they cost file here. One list per project.",
+      "material": "A material's basic data: name, specifications, unit, code and unit price. One list per project.",
       "equipment": "Cranes, excavators, generators. One list per project, kept by this company.",
       "ehs": "Each project starts with safety, construction and consultant rectifications and work permits. Add, rename or switch off categories here; only one with no records can be removed. Work permits is a system category and can only be renamed.",
       "recycle": "Recyclable waste the site sends out: scrap iron, copper, aluminium, cable. One list for the whole company; the seeded ones can be closed but not deleted.",
@@ -23905,6 +23905,65 @@
     "notAvailable": {
       "progress_claim": "Progress Claim (spending): the Multi Engine approved amount is not live yet, so it counts as 0. It is added automatically once live.",
       "disposal": "Waste clearance: its records have no amount (only weights, trips and the collector), so it counts as 0; no price is guessed."
+    }
+  },
+  "jb260": {
+    "button": "Find by material",
+    "title": "Find by material",
+    "help": "Type a material's name, code or specification and pick it: its records and figures open (the same window as View records in Category Management).",
+    "search": "Search material name, code, specification",
+    "chooseProject": "Choose a project above first",
+    "loading": "Loading…",
+    "failed": "The materials could not be loaded. Try again later.",
+    "noMatch": "No material found.",
+    "none": "This project has no materials yet."
+  },
+  "jb262": {
+    "categoryNote": "Only a material's basic data is set here: name, specifications, unit, code and unit price. Each material's received quantities, spend and budget, supplier figures and records are under Material management → Material In; quantity targets and budgets under Material management → Material targets.",
+    "budgetMoved": "The budget is now set under Material management → Material targets (with the quantity targets and their additions).",
+    "loading": "Loading…",
+    "failed": "Could not save. Try again later.",
+    "cancel": "Cancel",
+    "save": "Save",
+    "oneMaterial": "Only the targets of {name}.",
+    "allMaterials": "All materials",
+    "col": {
+      "material": "Material",
+      "received": "Received",
+      "requests": "MR requests",
+      "target": "Material targets",
+      "spend": "Spent / budget",
+      "action": "Actions"
+    },
+    "overview": {
+      "title": "Material figures",
+      "count": "({count} materials)",
+      "help": "Each material's deliveries, MR requests, targets and budget. Click a row to open its records.",
+      "chooseProject": "Choose a project above to list each of its materials.",
+      "empty": "This project has no materials yet. Add them under Category Management → Material categories.",
+      "records": "{count} records",
+      "archived": "{count} archived",
+      "noRequests": "No MR",
+      "requestLine": "Pending {pending} · approved {approved} {unit}",
+      "noTarget": "No target",
+      "targetLine": "{net} / {target} {unit}"
+    },
+    "action": {
+      "records": "View records",
+      "targets": "Material targets",
+      "requests": "MR requests",
+      "suppliers": "By supplier"
+    },
+    "budgets": {
+      "title": "Budgets",
+      "help": "How much each material may cost in all, set on the same page as the quantity targets above. Spent = quantity received × unit price, as the material cost report counts it.",
+      "chooseProject": "Choose a project above to set its materials' budgets.",
+      "empty": "This project has no materials yet.",
+      "alerts": "Alerts",
+      "noAlerts": "No alerts",
+      "set": "Set budget",
+      "dialogTitle": "Budget of {name}",
+      "pinNote": "Saving asks for your sign-off PIN. Every change is kept in the operation records (the amount before and after)."
     }
   }
 }

@@ -197,8 +197,11 @@ export function NetTotalsView({
   project,
   filters = {},
   defaultCollapsed = false,
+  initialMaterial,
 }: {
   project?: string;
+  /** The material's name to search for at first (材料统计's 【供应商统计】, JB262). */
+  initialMaterial?: string;
   /** Start with every supplier heading closed (the test's way to press ▼). */
   defaultCollapsed?: boolean;
   /** Supplier, manufacturer (2026-10 D1) and dates, as the list filters them. */
@@ -215,7 +218,7 @@ export function NetTotalsView({
   // Three independent filters (J5-1, Q5-1): the material's name (across every
   // supplier, never a supplier's name), the specification, and the supplier
   // the page's own filter chose. Changing one never clears another.
-  const [term, setTerm] = useState("");
+  const [term, setTerm] = useState(initialMaterial ?? "");
   const material = useDebounce(term.trim(), 300);
   const [specTerm, setSpecTerm] = useState("");
   const specification = useDebounce(specTerm.trim(), 300);
