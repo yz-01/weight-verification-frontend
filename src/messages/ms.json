@@ -21653,13 +21653,19 @@
     "armFirst": "Hidupkan suis dahulu.",
     "signedToast": "Ditandatangani.",
     "actingAs": "Direkodkan sebagai {name}",
-    "noNameYet": "Anda akan diminta nama kali pertama mengesah, memulang, menandatangan atau menulis.",
+    "noNameYet": "Anda akan diminta nama kali pertama menyemak atau menulis.",
     "changeName": "Tukar nama",
     "nameTitle": "Nama anda",
-    "nameHelp": "Nama anda direkodkan pada pengesahan, pemulangan, tandatangan dan mesej. Pelayar ini mengingatinya.",
+    "nameHelp": "Nama anda direkodkan bersama tandatangan pada semakan dan mesej anda. Pelayar ini mengingatinya.",
     "name": "Nama",
     "continue": "Teruskan",
-    "talk": "Mesej"
+    "talk": "Mesej",
+    "waitingForYou": "Menunggu semakan anda",
+    "reviewWaiting": "{count} rekod menunggu semakan anda.",
+    "reviewButton": "Semak dan tandatangan",
+    "reviewAllDone": "Anda telah menyemak semua rekod pusingan ini.",
+    "reviewHelp": "Menyemak sebagai \"{name}\": pilih Sahkan atau Pulangkan bagi setiap rekod, atau Sahkan semua. Kemudian tulis pendapat semakan dan tandatangan. Selepas dihantar, pusingan ini tidak boleh diubah.",
+    "reviewedToast": "Semakan bertandatangan anda telah dihantar."
   },
   "taskFlow": {
     "moreWork": {

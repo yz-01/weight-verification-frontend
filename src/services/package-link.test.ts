@@ -12,8 +12,7 @@ import { whatsappHref } from "@/components/contractor-ops/package-exchange";
 import {
   getPackageLink,
   linkPackageFile,
-  reviewLinkItem,
-  signPackageLink,
+  submitLinkReview,
 } from "@/services/package-link.service";
 
 function answer(status: number, body: unknown) {
@@ -33,14 +32,24 @@ describe("package link calls", () => {
     expect(new Headers(init.headers).get("Authorization")).toBeNull();
   });
 
-  it("send the typed name with a confirm and a signature", async () => {
+  it("send the typed name, each record's answer, the opinion and the drawn signature in one signed review", async () => {
     const fetchMock = vi.fn(() => answer(200, { success: true, data: {} }));
     vi.stubGlobal("fetch", fetchMock);
-    await reviewLinkItem("abc", { item: "i1", decision: "RETURNED", reason: "blurred", name: "Olive" });
-    await signPackageLink("abc", "Olive");
-    const bodies = fetchMock.mock.calls.map((call) => JSON.parse(String((call as unknown as [string, RequestInit])[1].body)));
-    expect(bodies[0]).toEqual({ item: "i1", decision: "RETURNED", reason: "blurred", name: "Olive" });
-    expect(bodies[1]).toEqual({ name: "Olive" });
+    const signature = new File([new Uint8Array([137, 80, 78, 71])], "signature.png", { type: "image/png" });
+    await submitLinkReview("abc", {
+      name: "Olive",
+      decisions: [{ item: "i1", decision: "RETURNED", reason: "blurred" }],
+      opinion: "Second photo unreadable.",
+      signature,
+    });
+    const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+    expect(new URL(url).pathname).toBe("/api/package-link/abc/submit-review/");
+    expect(init.credentials).toBe("omit");
+    const body = init.body as FormData;
+    expect(body.get("name")).toBe("Olive");
+    expect(JSON.parse(String(body.get("decisions")))).toEqual([{ item: "i1", decision: "RETURNED", reason: "blurred" }]);
+    expect(body.get("opinion")).toBe("Second photo unreadable.");
+    expect(body.get("signature")).toBeInstanceOf(File);
   });
 
   it("turn the server's 「找不到」 into an error with its code", async () => {

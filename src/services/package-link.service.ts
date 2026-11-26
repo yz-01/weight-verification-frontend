@@ -67,13 +67,31 @@ export const getPackageLink = (token: string, options: { open?: boolean; lang?: 
 
 // The paths are written out whole (not through `linkUrl`) so the backend's
 // reachability guard can see which screen calls each write.
-export const reviewLinkItem = (
-  token: string,
-  payload: { item: string; decision: "ACCEPTED" | "RETURNED"; reason?: string; name: string },
-) => post<PackageLinkPage>(`${API_BASE_URL}/api/package-link/${encodeURIComponent(token)}/review/`, payload);
 
-export const signPackageLink = (token: string, name: string) =>
-  post<PackageLinkPage>(`${API_BASE_URL}/api/package-link/${encodeURIComponent(token)}/sign/`, { name });
+/**
+ * 「审核并签名」 (JB252, QA1 audit #11): every record's answer, the 审核意见
+ * and the drawn signature in one go, under the typed name - the same review
+ * head office and a consultant sign, without a PIN (a link has no account).
+ */
+export function submitLinkReview(
+  token: string,
+  payload: {
+    name: string;
+    decisions: Array<{ item: string; decision: "ACCEPTED" | "RETURNED"; reason?: string }>;
+    opinion: string;
+    signature: File;
+  },
+) {
+  const body = new FormData();
+  body.append("name", payload.name);
+  body.append("decisions", JSON.stringify(payload.decisions));
+  body.append("opinion", payload.opinion);
+  body.append("signature", payload.signature);
+  return post<PackageLinkPage>(
+    `${API_BASE_URL}/api/package-link/${encodeURIComponent(token)}/submit-review/`,
+    body,
+  );
+}
 
 export function sendLinkMessage(
   token: string,

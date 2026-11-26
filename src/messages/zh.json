@@ -21653,13 +21653,19 @@
     "armFirst": "先打开开关。",
     "signedToast": "已签收。",
     "actingAs": "以「{name}」的名义记录",
-    "noNameYet": "第一次确认、退回、签收或留言时会请你填名字。",
+    "noNameYet": "第一次审核或留言时会请你填名字。",
     "changeName": "改名字",
     "nameTitle": "请输入你的名字",
-    "nameHelp": "名字会记录在你的确认、退回、签收和留言上。这个浏览器会记住，下次不用再填。",
+    "nameHelp": "名字会和你的签名一起记录在审核结果和留言上。这个浏览器会记住，下次不用再填。",
     "name": "名字",
     "continue": "继续",
-    "talk": "沟通"
+    "talk": "沟通",
+    "waitingForYou": "等你审核",
+    "reviewWaiting": "还有 {count} 条资料等你审核。",
+    "reviewButton": "审核并签名",
+    "reviewAllDone": "这一轮的资料你都审核了。",
+    "reviewHelp": "以「{name}」的名义审核：逐条选「确认通过」或「退回补充资料」，也可以按「全部确认」。最后填写审核意见并电子签名。提交后这一轮不能再改。",
+    "reviewedToast": "审核结果已签名提交。"
   },
   "taskFlow": {
     "moreWork": {

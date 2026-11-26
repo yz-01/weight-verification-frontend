@@ -21653,13 +21653,19 @@
     "armFirst": "Turn the switch on first.",
     "signedToast": "Signed for.",
     "actingAs": "Recorded as {name}",
-    "noNameYet": "You will be asked for your name the first time you confirm, return, sign or write.",
+    "noNameYet": "You will be asked for your name the first time you review or write.",
     "changeName": "Change name",
     "nameTitle": "Your name, please",
-    "nameHelp": "Your name goes on your confirmations, returns, signature and messages. This browser remembers it.",
+    "nameHelp": "Your name goes with your signature on your review and on your messages. This browser remembers it.",
     "name": "Name",
     "continue": "Continue",
-    "talk": "Messages"
+    "talk": "Messages",
+    "waitingForYou": "Waiting for your review",
+    "reviewWaiting": "{count} record(s) are waiting for your review.",
+    "reviewButton": "Review and sign",
+    "reviewAllDone": "You have reviewed every record of this round.",
+    "reviewHelp": "Reviewing as \"{name}\": choose Confirm or Return for each record, or Confirm all. Then write your review opinion and sign. After you submit, this round cannot be changed.",
+    "reviewedToast": "Your signed review was submitted."
   },
   "taskFlow": {
     "moreWork": {
