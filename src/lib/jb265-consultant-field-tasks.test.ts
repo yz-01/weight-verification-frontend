@@ -60,7 +60,7 @@ describe("JB265 the three 现场任务 ticks", () => {
     for (const messages of [zh, zhTW, en, ms]) {
       for (const item of ITEMS_OF_MODULE.field_tasks ?? []) {
         const key = ITEM_MESSAGE_KEYS[item];
-        const access = messages.consultantAccess as Record<string, Record<string, string>>;
+        const access = messages.consultantAccess as unknown as Record<string, Record<string, string>>;
         expect(access.item[key]).toBeTruthy();
         expect(access.itemShort[key]).toBeTruthy();
         expect(access.itemHint[key]).toBeTruthy();
