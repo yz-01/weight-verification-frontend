@@ -25,7 +25,7 @@ import {
   UserRoundCheck,
 } from "lucide-react";
 import { CategoryOptionItems } from "@/components/shared/category-options";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import {
@@ -76,6 +76,7 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { ApiError } from "@/interfaces/api";
 import { missingSiteEntry, siteEntryRequired } from "@/lib/material-site-entry";
+import { phoneTileName } from "@/lib/menu-names";
 import { NO_SUPPLIER_ITEM, supplierFromSelect, supplierSelectValue } from "@/lib/receipt-supplier";
 import { matchSupplier } from "@/lib/supplier-match";
 import type { FieldTask, ProjectCategory } from "@/interfaces/contractor-ops";
@@ -188,6 +189,10 @@ export function FieldRecordsPanel({
 } = {}) {
   const t = useTranslations("fieldStaffPwa");
   const { can, user } = useAuth();
+  const locale = useLocale();
+  // JB251 (QA2): a tile that is a renamed menu page shows the company's name.
+  const tile = (key: FieldRecordMode) =>
+    phoneTileName(user?.company_preferences?.menu_names, locale, key) ?? t(`records.${key}`);
   const boundProject = user?.is_field_staff ? user.active_project?.project_id : undefined;
   const [localMode, setLocalMode] = useState<FieldRecordMode | null>(initialMode);
   const mode = onModeChange ? initialMode : localMode;
@@ -203,56 +208,56 @@ export function FieldRecordsPanel({
   };
 
   if (mode === "material") {
-    return <RecordFrame title={t("records.material")} onBack={() => chooseMode(null)}><FieldSlots scope={`material:${task?.id ?? "new"}`} jobKinds={["MATERIAL_RECEIPT"]}><MaterialCapturePanel initialSupplierToken={initialSupplierToken} initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onSaved={() => chooseMode(null)} /></FieldSlots></RecordFrame>;
+    return <RecordFrame title={tile("material")} onBack={() => chooseMode(null)}><FieldSlots scope={`material:${task?.id ?? "new"}`} jobKinds={["MATERIAL_RECEIPT"]}><MaterialCapturePanel initialSupplierToken={initialSupplierToken} initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onSaved={() => chooseMode(null)} /></FieldSlots></RecordFrame>;
   }
   if (mode === "equipment") {
-    return <RecordFrame title={t("records.equipment")} onBack={() => chooseMode(null)}><FieldSlots scope={`equipment:${task?.id ?? "new"}`} jobKinds={["EQUIPMENT_MOVEMENT"]}><SiteEquipmentWorkspace initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></FieldSlots></RecordFrame>;
+    return <RecordFrame title={tile("equipment")} onBack={() => chooseMode(null)}><FieldSlots scope={`equipment:${task?.id ?? "new"}`} jobKinds={["EQUIPMENT_MOVEMENT"]}><SiteEquipmentWorkspace initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></FieldSlots></RecordFrame>;
   }
   if (mode === "operatorHours") {
-    return <RecordFrame title={t("records.operatorHours")} onBack={() => chooseMode(null)}><SiteStaffHoursView initialProject={task?.project ?? boundProject} /></RecordFrame>;
+    return <RecordFrame title={tile("operatorHours")} onBack={() => chooseMode(null)}><SiteStaffHoursView initialProject={task?.project ?? boundProject} /></RecordFrame>;
   }
   if (mode === "progress") {
-    return <RecordFrame title={t("records.progress")} onBack={() => chooseMode(null)}><FieldDraft scope={`progress:${task?.id ?? "new"}`}><SiteProgressWorkspace initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} onClose={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
+    return <RecordFrame title={tile("progress")} onBack={() => chooseMode(null)}><FieldDraft scope={`progress:${task?.id ?? "new"}`}><SiteProgressWorkspace initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} onClose={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
   }
   if (mode === "rain") {
-    return <RecordFrame title={t("records.rain")} onBack={() => chooseMode(null)}><RainyWeatherCapture initialProject={task?.project ?? boundProject} /></RecordFrame>;
+    return <RecordFrame title={tile("rain")} onBack={() => chooseMode(null)}><RainyWeatherCapture initialProject={task?.project ?? boundProject} /></RecordFrame>;
   }
   if (mode === "disposal") {
     if (
       task?.linked_record_type === "DISPOSAL_EXECUTION" &&
       task.linked_record_id
     ) {
-      return <RecordFrame title={t("records.disposal")} onBack={() => chooseMode(null)}><InternalDisposalWorkspace disposalId={task.linked_record_id} onSubmitted={() => chooseMode(null)} /></RecordFrame>;
+      return <RecordFrame title={tile("disposal")} onBack={() => chooseMode(null)}><InternalDisposalWorkspace disposalId={task.linked_record_id} onSubmitted={() => chooseMode(null)} /></RecordFrame>;
     }
-    return <RecordFrame title={t("records.disposal")} onBack={() => chooseMode(null)}><FieldSlots scope={`disposal:${task?.id ?? "new"}`} jobKinds={["DISPOSAL_REQUEST"]}><SiteDisposalWorkspace initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} clearanceKind="GARBAGE" /></FieldSlots></RecordFrame>;
+    return <RecordFrame title={tile("disposal")} onBack={() => chooseMode(null)}><FieldSlots scope={`disposal:${task?.id ?? "new"}`} jobKinds={["DISPOSAL_REQUEST"]}><SiteDisposalWorkspace initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} clearanceKind="GARBAGE" /></FieldSlots></RecordFrame>;
   }
   if (mode === "scrap") {
-    return <RecordFrame title={t("records.scrap")} onBack={() => chooseMode(null)}><FieldSlots scope={`scrap:${task?.id ?? "new"}`} jobKinds={["DISPOSAL_REQUEST"]}><SiteDisposalWorkspace initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} clearanceKind="SCRAP" /></FieldSlots></RecordFrame>;
+    return <RecordFrame title={tile("scrap")} onBack={() => chooseMode(null)}><FieldSlots scope={`scrap:${task?.id ?? "new"}`} jobKinds={["DISPOSAL_REQUEST"]}><SiteDisposalWorkspace initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} clearanceKind="SCRAP" /></FieldSlots></RecordFrame>;
   }
   if (mode === "outgoing") {
-    return <RecordFrame title={t("records.outgoing")} onBack={() => chooseMode(null)}><FieldDraft scope={`outgoing:${task?.id ?? "new"}`}><MaterialOutgoingWorkspace initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
+    return <RecordFrame title={tile("outgoing")} onBack={() => chooseMode(null)}><FieldDraft scope={`outgoing:${task?.id ?? "new"}`}><MaterialOutgoingWorkspace initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
   }
   if (mode === "waste") {
-    return <RecordFrame title={t("records.waste")} onBack={() => chooseMode(null)}><FieldSlots scope={`waste:${task?.id ?? "new"}`} jobKinds={["WASTE_OUTGOING"]}><WasteOutgoingCapturePanel initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onSaved={() => chooseMode(null)} /></FieldSlots></RecordFrame>;
+    return <RecordFrame title={tile("waste")} onBack={() => chooseMode(null)}><FieldSlots scope={`waste:${task?.id ?? "new"}`} jobKinds={["WASTE_OUTGOING"]}><WasteOutgoingCapturePanel initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onSaved={() => chooseMode(null)} /></FieldSlots></RecordFrame>;
   }
   if (mode === "safety") {
-    return <RecordFrame title={t("records.safety")} onBack={() => chooseMode(null)}><FieldDraft scope={`safety:${task?.id ?? "new"}`}><Safety fieldMode initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onRecordSaved={(result) => { chooseMode(null); onWorkflowSaved?.("safety", result); }} /></FieldDraft></RecordFrame>;
+    return <RecordFrame title={tile("safety")} onBack={() => chooseMode(null)}><FieldDraft scope={`safety:${task?.id ?? "new"}`}><Safety fieldMode initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onRecordSaved={(result) => { chooseMode(null); onWorkflowSaved?.("safety", result); }} /></FieldDraft></RecordFrame>;
   }
   if (mode === "permit") {
-    return <RecordFrame title={t("records.permit")} onBack={() => chooseMode(null)}><FieldPermits initialProject={task?.project ?? boundProject} /></RecordFrame>;
+    return <RecordFrame title={tile("permit")} onBack={() => chooseMode(null)}><FieldPermits initialProject={task?.project ?? boundProject} /></RecordFrame>;
   }
   if (mode === "consultant") {
-    return <RecordFrame title={t("records.consultant")} onBack={() => chooseMode(null)}><FieldDraft scope={`consultant:${task?.id ?? "new"}`}><ConsultantCapturePanel initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
+    return <RecordFrame title={tile("consultant")} onBack={() => chooseMode(null)}><FieldDraft scope={`consultant:${task?.id ?? "new"}`}><ConsultantCapturePanel initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
   }
   if (mode === "request") {
-    return <RecordFrame title={t("records.request")} onBack={() => chooseMode(null)}><FieldDraft scope={`request:${task?.id ?? "new"}`}><MaterialRequestForm initialProject={task?.project ?? boundProject} onSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
+    return <RecordFrame title={tile("request")} onBack={() => chooseMode(null)}><FieldDraft scope={`request:${task?.id ?? "new"}`}><MaterialRequestForm initialProject={task?.project ?? boundProject} onSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
   }
   if (mode === "gate" || mode === "visitor") {
     // `visitor` is an older link to the scan: the same 门岗, on 扫访客二维码.
-    return <RecordFrame title={t("records.gate")} onBack={() => chooseMode(null)}><GateRecordsPanel initialProject={task?.project ?? boundProject} initialAction={mode === "visitor" ? "scan" : "photo"} /></RecordFrame>;
+    return <RecordFrame title={tile("gate")} onBack={() => chooseMode(null)}><GateRecordsPanel initialProject={task?.project ?? boundProject} initialAction={mode === "visitor" ? "scan" : "photo"} /></RecordFrame>;
   }
   if (mode === "sundry") {
-    return <RecordFrame title={t("records.sundry")} onBack={() => chooseMode(null)}><FieldDraft scope={`sundry:${task?.id ?? "new"}`}><SundryClaimCapture initialProject={task?.project ?? boundProject} onSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
+    return <RecordFrame title={tile("sundry")} onBack={() => chooseMode(null)}><FieldDraft scope={`sundry:${task?.id ?? "new"}`}><SundryClaimCapture initialProject={task?.project ?? boundProject} onSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
   }
 
 
@@ -282,7 +287,7 @@ export function FieldRecordsPanel({
                 ) : null}
               </span>
               <span className="mt-4 break-words text-sm font-semibold leading-5">
-                {t(`records.${option.key}`)}
+                {tile(option.key)}
               </span>
             </button>
           );
