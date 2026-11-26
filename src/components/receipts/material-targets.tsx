@@ -30,7 +30,7 @@ import { useRouter } from "next/navigation";
 import { Fragment, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
-import { MaterialBudgets } from "@/components/receipts/material-budget";
+import { MaterialBudgets, useProjectMaterials } from "@/components/receipts/material-budget";
 import { AppendTargetDialog } from "@/components/receipts/material-target-append";
 import { MaterialItemRefusedNote, MaterialTabs } from "@/components/receipts/material-tabs";
 import { ProjectListFilter } from "@/components/shared/module-records-table";
@@ -95,6 +95,12 @@ export function MaterialTargets() {
   });
   const rows = targets.data?.results ?? [];
   const canManage = Boolean(targets.data?.can_manage);
+  // The material's own name even when it has no target yet (QA1 audit #24),
+  // not 「—」.
+  // query-failure: without the list the line reads 「只看一种材料的目标」, no name
+  const projectMaterials = useProjectMaterials(material ? project || undefined : undefined);
+  const materialName =
+    rows[0]?.category_name ?? projectMaterials.data?.find((row) => row.id === material)?.name ?? "";
   // 「材料管理只能查看，不能新增、修改、删除或审批」 (JB210, 客户 11-16): 【追加】
   // raises the contractor's target - not a consultant's (the server refuses it).
   const { user, can } = useAuth();
@@ -146,7 +152,7 @@ export function MaterialTargets() {
       <p className="text-xs text-muted-foreground">{t("basis")}</p>
       {material && (
         <p className="flex flex-wrap items-center gap-2 text-sm" data-slot="targets-one-material">
-          {tj("oneMaterial", { name: rows[0]?.category_name ?? "—" })}
+          {materialName ? tj("oneMaterial", { name: materialName }) : tj("oneMaterialUnnamed")}
           <Button size="sm" variant="outline" className="h-7" onClick={() => list.setFilter("category", undefined)}>
             {tj("allMaterials")}
           </Button>
@@ -320,7 +326,7 @@ export function MaterialTargets() {
           their 追加记录 - no longer in 分类管理's material form. Read by whoever
           read it on 分类管理 (`category.view`); amounts hidden by the server
           without 金额查看; set by `category.manage` alone. */}
-      {can("category.view") && <MaterialBudgets project={project} />}
+      {can("category.view") && <MaterialBudgets project={project} material={material || undefined} />}
       {appending && (
         <AppendTargetDialog
           row={appending}

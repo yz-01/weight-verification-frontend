@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { useUnitName } from "@/hooks/use-material-units";
 import type { MaterialRequest } from "@/interfaces/material-request";
 import { updateMaterialRequest } from "@/services/material-request.service";
 
@@ -40,6 +41,7 @@ export function MaterialRequestEditDialog({
   const t = useTranslations("materialRequest");
   const draft = useTranslations("draftRecords");
   const common = useTranslations("common");
+  const unitName = useUnitName();
   const qc = useQueryClient();
   const isMaterial = row.request_type === "MATERIAL";
   const lines = row.lines ?? [];
@@ -86,7 +88,7 @@ export function MaterialRequestEditDialog({
             ? lines.map((line, index) => (
                 <FieldWrapper
                   key={line.id ?? index}
-                  label={`${line.material_name} · ${line.specification} (${line.unit})`}
+                  label={`${line.material_name} · ${line.specification} (${unitName(line.unit)})`}
                   required
                 >
                   <Input

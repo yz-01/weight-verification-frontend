@@ -27,7 +27,7 @@ const { renderDetail } = await import("@/components/shared/record-detail-test-ki
 const { OutgoingDetailDialog } = await import("@/components/contractor-ops/operations-workspaces");
 const { ProgressInPlace } = await import("@/components/contractor-ops/office-module-lists");
 
-const SENTENCE = "总部没有为您在这个项目开通这一项。如需查看，请联系总部。";
+const SENTENCE = "总部没有为你在这个项目开通这一项。如需查看，请联系总部。";
 const refused = () =>
   new ApiError("Head office has not opened this item to you on this project.", 403, {}, "consultant_sub_module_not_granted");
 

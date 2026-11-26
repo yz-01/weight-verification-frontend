@@ -64,6 +64,7 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { useListQuery } from "@/hooks/use-list-query";
+import { useUnitName } from "@/hooks/use-material-units";
 import type { MaterialOutgoing } from "@/interfaces/contractor-ops";
 import { ATTACHMENT_ACCEPT } from "@/lib/attachment-whitelist";
 import { useDateFormat } from "@/lib/dates";
@@ -795,6 +796,8 @@ function TickCell({ selection, id, reference }: { selection?: RowSelection; id: 
  */
 export function IssueRowsTable({ rows, selection }: { rows: readonly IssueCheckRow[]; selection?: RowSelection }) {
   const tj = useTranslations("jb278");
+  // QA1 walk: 吨（Ton）, never the code TONNE (中英文统一).
+  const unitName = useUnitName();
   const df = useDateFormat();
   const [opened, setOpened] = useState<string | null>(null);
   const money = rows.some((row) => row.amount !== null);
@@ -829,7 +832,7 @@ export function IssueRowsTable({ rows, selection }: { rows: readonly IssueCheckR
               <TableCell className="font-medium text-primary">{row.reference_no}</TableCell>
               <TableCell>{row.project_name}</TableCell>
               <TableCell>
-                {row.materials.map((line) => `${line.material} ${line.quantity} ${line.unit}`).join("；")}
+                {row.materials.map((line) => `${line.material} ${line.quantity} ${unitName(line.unit)}`).join("；")}
               </TableCell>
               <TableCell>{row.equipment_company}</TableCell>
               <TableCell>{row.equipment_no || "—"}</TableCell>
@@ -1612,7 +1615,14 @@ export interface ReconciliationLinks {
  * 核对编号 (opens the check), 核对人及日期, 结算状态, 结算编号 (opens the
  * settlement). Read only: it never changes the record (第 7 点).
  */
-export function ReconciliationPanel({ links }: { links: ReconciliationLinks | null | undefined }) {
+export function ReconciliationPanel({
+  links,
+  noCompany = false,
+}: {
+  links: ReconciliationLinks | null | undefined;
+  /** A 材料领用 with no 所属公司: not offered for 核对 until it is filled in. */
+  noCompany?: boolean;
+}) {
   const tj = useTranslations("jb278");
   const df = useDateFormat();
   const [open, setOpen] = useState<"check" | "settlement" | null>(null);
@@ -1622,7 +1632,7 @@ export function ReconciliationPanel({ links }: { links: ReconciliationLinks | nu
       <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1.5 text-sm">
         <dt className="text-muted-foreground">{tj("panelState")}</dt>
         <dd className="font-medium" data-slot="reconciliation-state">
-          {links ? tj("stateChecked") : tj("statePending")}
+          {links ? tj("stateChecked") : noCompany ? tj("stateNoCompany") : tj("statePending")}
         </dd>
         <dt className="text-muted-foreground">{tj("panelCheckNo")}</dt>
         <dd>
@@ -1661,6 +1671,15 @@ export function ReconciliationPanel({ links }: { links: ReconciliationLinks | nu
           )}
         </dd>
       </dl>
+      {!links && noCompany ? (
+        <p
+          role="status"
+          className="mt-2 rounded-md bg-warning/10 px-2 py-1.5 text-sm font-medium text-warning"
+          data-slot="reconciliation-no-company"
+        >
+          {tj("noCompanyHelp")}
+        </p>
+      ) : null}
       <p className="mt-2 text-xs text-muted-foreground">{tj("panelUnchanged")}</p>
       {open === "check" && links ? (
         <ReturnCheckWindow id={links.check_id} kind={links.kind} onClose={() => setOpen(null)} />

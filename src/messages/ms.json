@@ -7101,7 +7101,7 @@
       "executor": "Pelaksana",
       "fieldFormHelp": "Isi maklumat penting sahaja, lengkapkan sekurang-kurangnya empat foto bukti dan ambil GPS. Pelaksana direkod secara automatik.",
       "formHelp": "Namakan pelaksana sebenar dan ambil lokasi GPS semasa.",
-      "subtitle": "Bahan dipulangkan kepada pembekal: mohon di telefon → pejabat isi Return Note dan luluskan → kedua-dua pihak tandatangan semasa keluar → pejabat sahkan.",
+      "subtitle": "Bahan dipulangkan kepada pembekal: mohon di telefon → pejabat isi Return Note dan luluskan → foto dan tandatangan kedua-dua pihak semasa lori tiba → pejabat mulakan pas keluar dan pengurus keselamatan tandatangan → pengawal pintu ambil foto dan lepaskan → pejabat sahkan keluar → arkib.",
       "title": "Bahan keluar",
       "rejectTitle": "Hantar permohonan ini kembali",
       "rejectHelp": "Permohonan {reference} berakhir di sini. Ia tidak dibuka semula — permohonan baharu dibuat — jadi sebab ini sahaja yang pemohon ada.",
@@ -19784,7 +19784,8 @@
       "summary": "Ringkasan",
       "tags": "Tag",
       "trip_count": "Trip",
-      "do_number": "No. DO"
+      "do_number": "No. DO",
+      "equipment_company": "Syarikat pemilik"
     },
     "followsSpec": "Unit mengikut spesifikasi",
     "linePrice": "{name} harga seunit (RM / {unit})",
@@ -21600,14 +21601,15 @@
     "formal": {
       "label": "Permit rasmi",
       "missing": "Belum ada permit rasmi. Isi borang permit syarikat anda di komputer dan muat naik dengan \"Lampirkan fail\" di bawah \"Lampiran\", atau tekan \"Isi e-permit\" di sebelah \"Dokumen permit\" dan simpan.",
-      "missingPhone": "Belum ada permit rasmi. Ia dimuat naik (\"Lampirkan fail\") atau diisi sebagai e-permit di komputer; selepas itu anda boleh menandatangan dan meluluskan di sini.",
+      "missingPhone": "Belum ada permit rasmi. Ia dimuat naik di pejabat (Muat naik lampiran) atau ditulis sebagai e-permit, kemudian pengurus keselamatan meluluskannya di pejabat.",
       "uploaded": "Dimuat naik: {files}. Pastikan ini permit rasmi, kemudian tandatangan dan luluskan.",
       "uploadedFile": "{file} ({name} · {time})",
       "uploadedMore": "{files} dan lain-lain, {count} kesemuanya",
       "ePermit": "E-permit {no} · diisi oleh {name}",
       "archivedWith": "Selepas ditandatangani, permit rasmi diarkibkan bersama catatan kelulusan, tandatangan dan masa.",
       "attachHint": "Muat naik permit rasmi di sini: isi borang permit syarikat anda di komputer, tekan \"Lampirkan fail\" (Word, PDF, Excel atau foto), kemudian tandatangan dan luluskan."
-    }
+    },
+    "officeOnly": "Permit kerja diluluskan di pejabat: log masuk di komputer, buka permit ini, kemudian luluskan atau pulangkan."
   },
   "gateCard": {
     "title": "Pintu",
@@ -21653,13 +21655,19 @@
     "armFirst": "Hidupkan suis dahulu.",
     "signedToast": "Ditandatangani.",
     "actingAs": "Direkodkan sebagai {name}",
-    "noNameYet": "Anda akan diminta nama kali pertama mengesah, memulang, menandatangan atau menulis.",
+    "noNameYet": "Anda akan diminta nama kali pertama menyemak atau menulis.",
     "changeName": "Tukar nama",
     "nameTitle": "Nama anda",
-    "nameHelp": "Nama anda direkodkan pada pengesahan, pemulangan, tandatangan dan mesej. Pelayar ini mengingatinya.",
+    "nameHelp": "Nama anda direkodkan bersama tandatangan pada semakan dan mesej anda. Pelayar ini mengingatinya.",
     "name": "Nama",
     "continue": "Teruskan",
-    "talk": "Mesej"
+    "talk": "Mesej",
+    "waitingForYou": "Menunggu semakan anda",
+    "reviewWaiting": "{count} rekod menunggu semakan anda.",
+    "reviewButton": "Semak dan tandatangan",
+    "reviewAllDone": "Anda telah menyemak semua rekod pusingan ini.",
+    "reviewHelp": "Menyemak sebagai \"{name}\": pilih Sahkan atau Pulangkan bagi setiap rekod, atau Sahkan semua. Kemudian tulis pendapat semakan dan tandatangan. Selepas dihantar, pusingan ini tidak boleh diubah.",
+    "reviewedToast": "Semakan bertandatangan anda telah dihantar."
   },
   "taskFlow": {
     "moreWork": {
@@ -23110,7 +23118,7 @@
       "title": "Belum ada sesiapa dalam projek ini yang boleh menandatangani pas keluar. Pentadbir menetapkannya dalam tiga langkah:",
       "permission": "Kebenaran: hidupkan 「Pengesahan keselamatan」 untuk akaun (atau peranan) orang yang akan menandatangani.",
       "project": "Projek: masukkan dia ke senarai pasukan projek ini (tidak perlu bagi orang yang nampak semua projek).",
-      "account": "Akaun: pastikan akaunnya aktif (akaun baharu aktif selepas pemiliknya menetapkan kata laluan dari e-mel).",
+      "account": "Akaun: pastikan akaunnya aktif dan ialah akaun pejabat (pas keluar ditandatangani di komputer, bukan akaun telefon; akaun baharu aktif selepas pemiliknya menetapkan kata laluan dari e-mel).",
       "openTeam": "Tambah ke pasukan projek",
       "onlyApplicant": "Pemohon ialah satu-satunya pengurus keselamatan dalam projek ini, dan pengurus keselamatan lain perlu menandatangani pas keluar. Pentadbir menambah seorang lagi dalam tiga langkah:"
     },
@@ -23750,7 +23758,8 @@
       "notSet": "Belum diisi",
       "save": "Simpan jumlah",
       "placeholder": "cth. 12500.00",
-      "approvedOnly": "Isi jumlah diluluskan apabila anda mengesahkan semua."
+      "approvedOnly": "Isi jumlah diluluskan apabila anda mengesahkan semua.",
+      "linkOnly": "Diluluskan hanya melalui pautan luar, yang tidak memasukkan amaun, jadi tiada amaun diluluskan. Untuk mendapatkannya, hantar juga kepada ibu pejabat atau perunding untuk disemak dalam sistem."
     },
     "signatures": {
       "title": "Tandatangan dan rekod semakan",
@@ -24059,8 +24068,17 @@
       "noAlerts": "Tiada peringatan",
       "set": "Tetapkan bajet",
       "dialogTitle": "Bajet {name}",
-      "pinNote": "Menyimpan meminta PIN pengesahan anda. Setiap perubahan disimpan dalam rekod operasi (jumlah sebelum dan selepas)."
-    }
+      "pinNote": "Menyimpan meminta PIN pengesahan anda. Setiap perubahan disimpan dalam rekod operasi (jumlah sebelum dan selepas).",
+      "history": "Sejarah perubahan",
+      "historyTitle": "Perubahan bajet {name}",
+      "historyHelp": "Setiap kali bajet ditetapkan atau diubah: siapa, bila, sebelum dan selepas. Terbaru di atas.",
+      "historyEmpty": "Bajet belum pernah diubah.",
+      "historyBudget": "Bajet: {before} → {after}",
+      "historyAlerts": "Peringatan: {before} → {after}",
+      "historyOn": "Perbelanjaan dan bajet dihidupkan",
+      "historyOff": "Perbelanjaan dan bajet dimatikan"
+    },
+    "oneMaterialUnnamed": "Menunjukkan sasaran satu bahan."
   },
   "jb242": {
     "submit": "Jemput",
@@ -24370,10 +24388,12 @@
     "done": "Import selesai: {added} baris ditambah, {skipped} sudah ada dan dilangkau, {problems} bermasalah tidak diimport.",
     "doneWhere": {
       "supplier": "Pembekal baharu sudah ada dalam senarai pembekal, dinomborkan oleh sistem.",
-      "material": "Bahan dan spesifikasi baharu sudah ada dalam senarai bahan, dinomborkan oleh sistem."
+      "material": "Bahan dan spesifikasi baharu sudah ada dalam senarai bahan syarikat, dinomborkan oleh sistem. Projek sedia ada belum ada: untuk memasukkannya ke projek sedia ada, tekan 【Tambah ke projek sedia ada】."
     },
     "doneUnits": "Unit ditambah: {names}",
-    "needFile": "Pilih fail Excel dahulu."
+    "needFile": "Pilih fail Excel dahulu.",
+    "addToProjects": "Tambah ke projek sedia ada",
+    "categoryAsDescription": "Lajur {letter} \"{header}\" dimasukkan ke Keterangan setiap bahan, jadi tiada yang hilang (bahan ada dua peringkat: nama bahan › spesifikasi)."
   },
   "jb278": {
     "tabSettled": "Sudah diselesaikan",
@@ -24460,7 +24480,9 @@
     "rentalTickFirst": "Tanda penyata untuk disemak dahulu; pengesahan kemudian muncul di bawah.",
     "rentalWindowTitle": "Semakan sewaan peralatan {number}",
     "rentalStatementsTitle": "Penyata dalam semakan ini ({count})",
-    "rentalStatementsHelp": "Klik mana-mana baris untuk membuka penyata itu; tutup untuk kembali ke sini."
+    "rentalStatementsHelp": "Klik mana-mana baris untuk membuka penyata itu; tutup untuk kembali ke sini.",
+    "stateNoCompany": "Tidak boleh disemak: tiada syarikat pemilik",
+    "noCompanyHelp": "Pengeluaran ini tiada syarikat pemilik (mesin tiada pembekal dalam daftarnya), jadi ia tidak ditawarkan dalam 「Semak & selesaikan」. Tekan 【Betulkan】 di atas dan pilih syarikat pemilik; selepas itu ia boleh disemak."
   },
   "jb280": {
     "title": "Penyata sewaan peralatan",
@@ -24545,7 +24567,8 @@
       "photos": "Gambar berkaitan",
       "signatures": "Rekod tandatangan terima (kedua-dua pihak)",
       "exit_not_confirmed": "\"Sahkan keluar rasmi\" belum dibuat",
-      "other": "Maklumat wajib lain"
+      "other": "Maklumat wajib lain",
+      "mr_link": "Pautan ke MR / permohonan lain (pilih di 「Permohonan dipautkan」)"
     },
     "tick": "Saya telah menyemak semua maklumat dan ia betul.",
     "tickRequired": "(wajib ditanda)",

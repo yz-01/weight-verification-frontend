@@ -8,6 +8,7 @@ import {
   Loader2,
   MessagesSquare,
   PackageOpen,
+  PenLine,
   RotateCcw,
   UserRound,
 } from "lucide-react";
@@ -17,16 +18,15 @@ import { useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { ThreadView } from "@/components/contractor-ops/package-exchange";
+import { ReviewDialog, type ReviewRecord } from "@/components/contractor-ops/package-review-loop";
 import { Shell } from "@/components/contractor-ops/package-shell";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { FileActionButtons } from "@/components/shared/file-actions";
-import { ArmRow, FieldWrapper } from "@/components/shared/page-primitives";
+import { FieldWrapper } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
-import { Textarea } from "@/components/ui/textarea";
 import { ApiError } from "@/interfaces/api";
-import type { PackageLinkItem, PackageLinkPage } from "@/interfaces/contractor-ops";
+import type { PackageLinkPage } from "@/interfaces/contractor-ops";
 import { useDateFormat } from "@/lib/dates";
 import { packageKindName } from "@/lib/package-items";
 import {
@@ -34,9 +34,8 @@ import {
   linkAttachmentFile,
   linkItemFile,
   linkPackageFile,
-  reviewLinkItem,
   sendLinkMessage,
-  signPackageLink,
+  submitLinkReview,
 } from "@/services/package-link.service";
 import { PhotoStrip, toShellPhotos } from "@/components/shared/photo-thumb";
 
@@ -46,9 +45,11 @@ import { PhotoStrip, toShellPhotos } from "@/components/shared/photo-thumb";
  * column, big buttons, nothing to sign in to.
  *
  * Top: the client company's logo and the project (全系统表头规则), the package
- * number and the round. Then each record - preview, print, download, confirm,
- * return - then this link's own conversation, then 「整包签收」. The first
- * button that records something asks for a name once; the browser keeps it.
+ * number and the round. Then each record - preview, print, download, and this
+ * link's answer on it - then 【审核并签名】 and this link's own conversation.
+ * Every answer is signed (JB252 「统一适用于所有资料包」, QA1 audit #11): each
+ * record 确认通过 / 退回补充资料, the 审核意见 and a drawn signature, under the
+ * typed name, which is asked once and kept by the browser.
  */
 
 const NAME_KEY = "mse.package-link.name";
@@ -153,10 +154,8 @@ function LinkPage({
   // The name dialog, open while a button waits for it; resolves with the
   // name, or null when it was closed.
   const [asking, setAsking] = useState<((who: string | null) => void) | null>(null);
-  const [returning, setReturning] = useState<string | null>(null);
-  const [reason, setReason] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [armed, setArmed] = useState(false);
+  // 【审核并签名】: the signed review window, under this name.
+  const [reviewer, setReviewer] = useState<string | null>(null);
   // JB189 「沟通」: this link's own thread with the office, further down.
   const chat = useRef<HTMLElement | null>(null);
 
@@ -169,26 +168,18 @@ function LinkPage({
     name.trim()
       ? Promise.resolve(name.trim())
       : new Promise((resolve) => setAsking(() => resolve));
-  const withName = async (action: (who: string) => Promise<void>) => {
+  const pending = data.items.filter((item) => item.review_state === "PENDING").length;
+  const startReview = async () => {
     const who = await ensureName();
-    if (!who) return;
-    setBusy(true);
-    try {
-      await action(who);
-    } catch (error) {
-      say(error);
-    } finally {
-      setBusy(false);
-    }
+    if (who) setReviewer(who);
   };
-
-  const decide = (item: PackageLinkItem, decision: "ACCEPTED" | "RETURNED") =>
-    withName(async (who) => {
-      onData(await reviewLinkItem(token, { item: item.id, decision, reason, name: who }));
-      setReturning(null);
-      setReason("");
-      toast.success(decision === "ACCEPTED" ? t("confirmed") : t("returned"));
-    });
+  const records: ReviewRecord[] = data.items.map((item) => ({
+    id: item.id,
+    label: item.reference || packageKindName(kinds, item),
+    detail: packageKindName(kinds, item),
+    mine: item.review_state,
+    reason: item.returned_reason,
+  }));
 
   const load = (fetcher: () => Promise<File>) => async () => {
     try {
@@ -316,7 +307,7 @@ function LinkPage({
                     }}
                   />
                 </div>
-                {item.review_state !== "PENDING" && returning !== item.id ? (
+                {item.review_state !== "PENDING" ? (
                   <div className="flex flex-wrap items-center gap-2">
                     <p
                       className={`min-w-0 flex-1 rounded-lg p-2 text-sm ${
@@ -332,60 +323,39 @@ function LinkPage({
                         {item.answered_by} · {formatter.dateTime(item.answered_at)}
                       </span>
                     </p>
-                    {data.can_decide && (
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => {
-                          setReturning(item.review_state === "ACCEPTED" ? item.id : null);
-                          if (item.review_state === "RETURNED") decide(item, "ACCEPTED");
-                        }}
-                      >
-                        {item.review_state === "ACCEPTED" ? t("changeToReturn") : t("changeToConfirm")}
-                      </Button>
-                    )}
-                  </div>
-                ) : returning === item.id ? (
-                  <div className="space-y-2">
-                    <FieldWrapper label={t("reason")} required>
-                      <Textarea rows={3} value={reason} onChange={(event) => setReason(event.target.value)} />
-                    </FieldWrapper>
-                    <div className="grid grid-cols-2 gap-2">
-                      <Button variant="outline" className="h-11" onClick={() => setReturning(null)}>
-                        {t("cancel")}
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        className="h-11"
-                        requires={[[reason.trim(), t("reason")]]}
-                        disabled={busy}
-                        onClick={() => decide(item, "RETURNED")}
-                      >
-                        {t("return")}
-                      </Button>
-                    </div>
                   </div>
                 ) : data.can_decide ? (
-                  <div className="grid grid-cols-2 gap-2">
-                    <Button className="h-11" disabled={busy} onClick={() => decide(item, "ACCEPTED")}>
-                      {t("confirm")}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="h-11"
-                      onClick={() => {
-                        setReturning(item.id);
-                        setReason("");
-                      }}
-                    >
-                      {t("return")}
-                    </Button>
-                  </div>
+                  <p className="rounded-lg border border-dashed p-2 text-xs text-muted-foreground" data-link-waiting>
+                    {t("waitingForYou")}
+                  </p>
                 ) : null}
               </li>
             ))}
           </ul>
         </section>
+
+        {data.can_decide && (
+          <section
+            className="space-y-2 rounded-xl border border-primary/30 bg-primary/5 p-3"
+            aria-label={t("reviewButton")}
+            data-link-review
+          >
+            {pending > 0 ? (
+              <>
+                <p className="text-sm">{t("reviewWaiting", { count: pending })}</p>
+                <Button className="h-11 w-full" onClick={() => void startReview()} data-link-review-open>
+                  <PenLine className="size-4" />
+                  {t("reviewButton")}
+                </Button>
+              </>
+            ) : (
+              <p className="flex items-center gap-2 text-sm">
+                <CheckCircle2 className="size-4 text-primary" />
+                {t("reviewAllDone")}
+              </p>
+            )}
+          </section>
+        )}
 
         <section ref={chat} className="scroll-mt-20 space-y-2" aria-label={t("chat")} data-package-chat>
           <h2 className="text-sm font-semibold">{t("chat")}</h2>
@@ -411,32 +381,6 @@ function LinkPage({
           />
         </section>
 
-        {data.can_sign && (
-          <section className="space-y-2" aria-label={t("sign")}>
-            <h2 className="text-sm font-semibold">{t("sign")}</h2>
-            <ArmRow className="border-primary/25 bg-primary/5">
-              <label className="flex min-w-0 flex-1 items-start gap-3">
-                <Switch className="mt-0.5" checked={armed} onCheckedChange={setArmed} aria-label={t("sign")} />
-                <span className="text-sm leading-5 text-muted-foreground">{t("signHelp")}</span>
-              </label>
-              <Button
-                className="h-11 w-full sm:w-auto"
-                disabled={!armed || busy}
-                disabledReason={t("armFirst")}
-                onClick={() =>
-                  withName(async (who) => {
-                    onData(await signPackageLink(token, who));
-                    setArmed(false);
-                    toast.success(t("signedToast"));
-                  })
-                }
-              >
-                {t("sign")}
-              </Button>
-            </ArmRow>
-          </section>
-        )}
-
         <p className="flex items-center gap-2 text-xs text-muted-foreground">
           <UserRound className="size-3.5" />
           {name ? t("actingAs", { name }) : t("noNameYet")}
@@ -447,6 +391,32 @@ function LinkPage({
           )}
         </p>
       </div>
+
+      {reviewer && (
+        <ReviewDialog
+          pkg={null}
+          records={records}
+          help={t("reviewHelp", { name: reviewer })}
+          onClose={() => setReviewer(null)}
+          submit={async (payload) => {
+            try {
+              onData(
+                await submitLinkReview(token, {
+                  name: reviewer,
+                  decisions: payload.decisions,
+                  opinion: payload.opinion,
+                  signature: payload.signature,
+                }),
+              );
+              toast.success(t("reviewedToast"));
+            } catch (error) {
+              say(error);
+              throw error;
+            }
+          }}
+          onDone={() => undefined}
+        />
+      )}
 
       {asking && (
         <NameDialog

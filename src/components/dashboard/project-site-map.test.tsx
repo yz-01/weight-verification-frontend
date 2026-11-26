@@ -295,7 +295,7 @@ describe("a consultant's notes (JB226 audit F2): his layers, and 建筑商总部
       { consultant: true },
     );
     const said = notes(html);
-    expect(said).toContain("地图上是总部为您开通的、今天的记录，只画出有定位的。");
+    expect(said).toContain("地图上是总部为你开通的、今天的记录，只画出有定位的。");
     expect(said).toContain("今天还没有可以画在地图上的记录。");
     for (const word of ["人员", "机械设备", "设备"]) {
       expect(said).not.toContain(word);

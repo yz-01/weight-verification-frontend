@@ -2329,6 +2329,9 @@ export interface PackageLinkPage {
   };
   exported: boolean;
   can_decide: boolean;
+  /** Records of this round still waiting for this link's signed review. */
+  pending_count?: number;
+  /** Always false since every answer is signed (QA1 audit #11). */
   can_sign: boolean;
   items: PackageLinkItem[];
   messages: PackageMessage[];

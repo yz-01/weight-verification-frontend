@@ -279,7 +279,20 @@ export function CompanyCategories() {
           </Button>
         )}
       </div>
-      {importing && <ExcelImportDialog kind="material" onClose={() => setImporting(false)} />}
+      {importing && (
+        <ExcelImportDialog
+          kind="material"
+          onClose={() => setImporting(false)}
+          onAddToProjects={
+            can("category.manage")
+              ? () => {
+                  setImporting(false);
+                  setAdding(true);
+                }
+              : undefined
+          }
+        />
+      )}
       <div className="grid gap-4 lg:grid-cols-[14rem_1fr]">
         <nav aria-label={t("company.modules")} className="flex flex-col gap-1">
           {COMPANY_MODULES.map((entry) => {

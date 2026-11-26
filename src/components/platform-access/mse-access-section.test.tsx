@@ -78,7 +78,7 @@ describe("can MSE see my records right now?", () => {
     expect(html).toContain("MSE 现在不能加或改贵公司的账号；需要 MSE 帮忙开账号时，点「允许 MSE 管理账号」。");
     expect(html).toContain('data-access-card="VIEW_RECORDS" data-open="false"');
     expect(card(html, "VIEW_RECORDS")).toContain(">没有开放<");
-    expect(html).toContain("MSE 帮您加账号、改账号之前，要您先在这里开放。");
+    expect(html).toContain("MSE 帮你加账号、改账号之前，要你先在这里开放。");
   });
 
   it("an open door is amber, says until when it closes by itself, who opened it and why", () => {
@@ -96,7 +96,7 @@ describe("can MSE see my records right now?", () => {
 
   it("an open 管理账号 says each change is told", () => {
     const html = body(status({ accounts: { ...OPEN_VIEW, onboarding: false } }));
-    expect(card(html, "MANAGE_ACCOUNTS")).toContain("MSE 现在可以帮贵公司加账号、改账号，每一次都会通知您，到 2026-11-19 15:00 自动关闭。");
+    expect(card(html, "MANAGE_ACCOUNTS")).toContain("MSE 现在可以帮贵公司加账号、改账号，每一次都会通知你，到 2026-11-19 15:00 自动关闭。");
   });
 
   it("a door the server says has run out reads as shut (lapsed by time)", () => {
@@ -132,7 +132,7 @@ describe("opening", () => {
     expect(view).toContain(zh.mseAccess.openDialog.reason);
     // The PIN is asked after 「开放」; a first-timer is told he will set one.
     expect(view).toContain(zh.mseAccess.openDialog.pin);
-    expect(zh.mseAccess.openDialog.pin).toContain("还没设定过的，会先请您设定一个");
+    expect(zh.mseAccess.openDialog.pin).toContain("还没设定过的，会先请你设定一个");
 
     const accounts = form("MANAGE_ACCOUNTS");
     expect([...accounts.matchAll(/data-hours="(\d+)"/g)].map((match) => match[1])).toEqual(["24", "168"]);
@@ -161,8 +161,8 @@ describe("the three plain lists (JB220-5, contract §8.1a)", () => {
     const lists = [...html.matchAll(/data-mse-list="(\w+)"/g)].map((match) => match[1]);
     expect(lists).toEqual(["always", "open", "never"]);
     expect(html).toContain("MSE 一直看得到（开户、收费、管设备要用）");
-    expect(html).toContain("您按「允许 MSE 查看」后，MSE 才看得到");
-    expect(html).toContain("MSE 一直看不到（就算您开放了查看）");
+    expect(html).toContain("你按「允许 MSE 查看」后，MSE 才看得到");
+    expect(html).toContain("MSE 一直看不到（就算你开放了查看）");
     for (const number of ["1", "2", "3"]) expect(html).toMatch(new RegExp(`aria-hidden="true">${number}</span>`));
   });
 
@@ -175,7 +175,7 @@ describe("the three plain lists (JB220-5, contract §8.1a)", () => {
     expect(html).toContain("项目里面的详细资料（地址、预算、团队）");
     const never = slice(html, 'data-mse-list="never"', "</section>");
     expect(never).toContain("开放查看时，通知内容和操作记录里写到的单号和数量，MSE 会看得到。");
-    expect(never).toContain("需要 MSE 进来帮忙看这些时，请按「允许 MSE 管理账号」。MSE 会在贵公司加一个协助账号；它会列在下面「MSE 加的账号」里，您随时可以停用。");
+    expect(never).toContain("需要 MSE 进来帮忙看这些时，请按「允许 MSE 管理账号」。MSE 会在贵公司加一个协助账号；它会列在下面「MSE 加的账号」里，你随时可以停用。");
     expect(never).toContain("MSE 用协助账号做的事，记在贵公司自己的登录记录和操作记录里。");
     // No jargon, no raw keys.
     for (const word of ["授权范围", "租户", "审计", "receipts_materials", "weighing_details"]) expect(html).not.toContain(word);
@@ -270,7 +270,7 @@ describe("the external links MSE opened", () => {
         ],
       }),
     );
-    expect(html).toContain("MSE 帮您开的外部访问链接");
+    expect(html).toContain("MSE 帮你开的外部访问链接");
     expect(html).toContain("业主查看 · 示范商业大厦一期");
     expect(html).toContain("旧链接 · 整个公司");
     expect(html).toContain("已经撤销");
@@ -305,7 +305,7 @@ describe("the external links MSE opened", () => {
   });
 
   it("none is a sentence", () => {
-    expect(body(status())).toContain("MSE 没有帮您开过外部访问链接。");
+    expect(body(status())).toContain("MSE 没有帮你开过外部访问链接。");
   });
 });
 
@@ -339,7 +339,7 @@ describe("「MSE 查看记录」 (JB220-3)", () => {
     expect(html).toContain(zh.mseAccess.records.help);
     expect(html).toContain("称重记录 · WS-000123");
     expect(html).toContain("看了一笔资料");
-    expect(html).toContain("被挡住（您没有开放）");
+    expect(html).toContain("被挡住（你没有开放）");
     expect(html).toContain("称重照片 · WS-000123");
     expect(html).toContain("请求开放");
     // MSE's reason for asking is shown with the request (contract (c)).
@@ -356,7 +356,7 @@ describe("「MSE 查看记录」 (JB220-3)", () => {
     const html = records(MORE_RECORDS);
     expect(html).toContain("项目里面的详细资料");
     expect(html).toContain("被挡住（这类资料 MSE 永远看不到，开放了也看不到）");
-    expect(html).toContain("被挡住（您没有开放「允许 MSE 管理账号」）");
+    expect(html).toContain("被挡住（你没有开放「允许 MSE 管理账号」）");
     expect(html).toContain("账号 · helper@shifan.invalid");
     expect(html).toContain("被挡住（这个管理员账号已经在用，MSE 不能改它的登录邮箱）");
     expect(html).not.toContain("其他业务资料");
@@ -373,14 +373,14 @@ describe("「MSE 查看记录」 (JB220-3)", () => {
     expect(html).not.toContain("看了一笔资料");
   });
 
-  it("MSE reads the same rows with 客户 in place of 您", () => {
+  it("MSE reads the same rows with 客户 in place of 你", () => {
     const html = renderDetail(<PlatformAccessRecords audience="mse" company="c-1" />, (client) => {
       client.setQueryData(["platform-access", "records", { company: "c-1", page: 1, page_size: 20 }], page([RECORDS[2], ...MORE_RECORDS]));
     });
     expect(html).toContain("被挡住（客户没有开放）");
     expect(html).toContain("被挡住（客户没有开放「允许 MSE 管理账号」）");
     expect(html).toContain("被挡住（这类资料 MSE 永远看不到，客户开放了也看不到）");
-    expect(html).not.toContain("您没有开放");
+    expect(html).not.toContain("你没有开放");
   });
 
   it("the filter offers 被挡住 as one choice, whatever the reason", () => {

@@ -88,6 +88,25 @@ export const createProjectCategory = async (payload: ProjectCategoryPayload) => 
   toastSuccess("contractorOps.toast.saved");
   return row;
 };
+/** One change of a material's budget (JB262, QA1 audit #24): who, when, what it was and became. */
+export interface BudgetHistoryRow {
+  id: string;
+  at: string;
+  by: string;
+  before: BudgetSide;
+  after: BudgetSide;
+}
+export interface BudgetSide {
+  tracks_spend?: boolean | null;
+  /** Money: `null` for a reader without 金额查看. */
+  budget_amount?: string | null;
+  budget_alert_percentages?: number[] | string | null;
+  budget_alert_amounts?: Array<number | string> | string | null;
+}
+export const getBudgetHistory = (id: string) =>
+  api.get<{ material: string; name: string; rows: BudgetHistoryRow[] }>(
+    `/api/project-categories/${id}/budget_history/`,
+  );
 export const updateProjectCategory = async (id: string, payload: Partial<ProjectCategoryPayload>) => {
   const row = await api.patch<ProjectCategory>(`/api/project-categories/${id}/update_category/`, payload);
   toastSuccess("contractorOps.toast.saved");

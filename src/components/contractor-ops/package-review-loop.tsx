@@ -116,6 +116,10 @@ export function MoneyBlock({ pkg }: { pkg: EvidencePackageDetail }) {
   const money = pkg.money;
   const claim = money?.claim_amount ?? pkg.claim_amount ?? null;
   const approved = money?.approved_amount ?? pkg.approved_amount ?? null;
+  // Lucas 11-27 (A): approved only through outside links, which never show or
+  // type money (H17 六 7) - no 批准金额, said plainly. With a 申请金额 an
+  // in-system approver must type one, so an empty one here means links only.
+  const linkOnly = Boolean(money?.approved_at) && !approved && Boolean(claim);
   return (
     <dl
       className="grid gap-1 rounded-lg border p-3 text-sm sm:grid-cols-[11rem_1fr]"
@@ -126,6 +130,11 @@ export function MoneyBlock({ pkg }: { pkg: EvidencePackageDetail }) {
       <dt className="text-muted-foreground">{loop("money.approved")}</dt>
       <dd className="tabular">
         {approved ? rm(approved) : "—"}
+        {linkOnly && (
+          <span className="mt-1 block text-xs text-muted-foreground" data-package-money-link-only>
+            {loop("money.linkOnly")}
+          </span>
+        )}
         {money?.locked && (
           <span className="ml-2 text-xs text-muted-foreground">
             {loop("money.locked")}
@@ -370,12 +379,16 @@ export function ReviewDialog({
   onClose,
   submit,
   onDone,
+  help,
 }: {
-  pkg: EvidencePackageDetail;
+  /** `null`: a package link - it never shows an amount (H17 六 7). */
+  pkg: EvidencePackageDetail | null;
   records: ReviewRecord[];
   onClose: () => void;
   submit: (payload: PackageReviewPayload) => Promise<unknown>;
   onDone: () => void;
+  /** The line on top; a link has no PIN, so it says so in its own words. */
+  help?: string;
 }) {
   const loop = useTranslations("jb252");
   const common = useTranslations("common");
@@ -384,14 +397,14 @@ export function ReviewDialog({
   const [reasons, setReasons] = useState<Record<string, string>>({});
   const [opinion, setOpinion] = useState("");
   const [approved, setApproved] = useState(
-    pkg.money?.claim_amount ?? pkg.claim_amount ?? "",
+    pkg?.money?.claim_amount ?? pkg?.claim_amount ?? "",
   );
   const [amountReason, setAmountReason] = useState("");
   const [signature, setSignature] = useState<File | undefined>();
 
   const approves = reviewApproves(records, choices);
-  const money = isMoneyType(pkg) && approves;
-  const claim = pkg.money?.claim_amount ?? pkg.claim_amount ?? null;
+  const money = pkg !== null && isMoneyType(pkg) && approves;
+  const claim = pkg?.money?.claim_amount ?? pkg?.claim_amount ?? null;
   const difference = money ? amountDifference(claim, approved) : null;
   const differs = difference !== null && Number(difference) !== 0;
   const chosen = useMemo(
@@ -437,7 +450,7 @@ export function ReviewDialog({
   return (
     <Shell title={loop("review.title")} onClose={onClose}>
       <div className="flex-1 space-y-4 overflow-y-auto p-4" data-review-dialog>
-        <p className="text-xs text-muted-foreground">{loop("review.help")}</p>
+        <p className="text-xs text-muted-foreground">{help ?? loop("review.help")}</p>
         {pending.length > 0 && (
           <Button
             variant="outline"

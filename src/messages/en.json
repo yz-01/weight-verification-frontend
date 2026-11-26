@@ -7101,7 +7101,7 @@
       "executor": "Executor",
       "fieldFormHelp": "Enter only the essential details, complete at least four evidence photos and capture GPS. The executor is recorded automatically.",
       "formHelp": "Name the person carrying out the movement as the executor and capture the current location.",
-      "subtitle": "Material going back to its supplier: apply on the phone → the office fills the Return Note and approves → both sides sign as it leaves → the office confirms.",
+      "subtitle": "Material going back to its supplier: apply on the phone → the office fills the Return Note and approves → photos and both signatures when the lorry is there → the office starts the exit pass and the safety manager signs → the gate photographs and releases → the office confirms the exit → archive.",
       "title": "Material outgoing",
       "rejectTitle": "Send this application back",
       "rejectHelp": "Application {reference} ends here. It is not reopened — a new application is raised instead — so this reason is what the applicant is left with.",
@@ -19784,7 +19784,8 @@
       "summary": "Summary",
       "tags": "Tags",
       "trip_count": "Trips",
-      "do_number": "DO number"
+      "do_number": "DO number",
+      "equipment_company": "Owner company"
     },
     "followsSpec": "The unit follows the specification",
     "linePrice": "{name} unit price (RM / {unit})",
@@ -21600,14 +21601,15 @@
     "formal": {
       "label": "Formal permit",
       "missing": "There is no formal permit yet. Fill in your company's own permit form on the computer and upload it with \"Attach files\" under \"Attachments\", or press \"Fill in e-permit\" beside \"Permit documents\" and save it.",
-      "missingPhone": "There is no formal permit yet. It is uploaded (\"Attach files\") or filled in as an e-permit on the computer; once it is there, you can sign and approve here.",
+      "missingPhone": "There is no formal permit yet. It is uploaded in the office (Upload attachment) or written as an e-permit, then the safety manager approves it in the office.",
       "uploaded": "Uploaded: {files}. Check that this is the formal permit, then sign and approve.",
       "uploadedFile": "{file} ({name} · {time})",
       "uploadedMore": "{files} and others, {count} in all",
       "ePermit": "E-permit {no} · filled in by {name}",
       "archivedWith": "Once signed, the formal permit is archived with the approval note, the signature and the time.",
       "attachHint": "Upload the formal permit here: fill in your company's own permit form on the computer, press \"Attach files\" (Word, PDF, Excel or a photo), then sign and approve."
-    }
+    },
+    "officeOnly": "Work permits are approved in the office: sign in on a computer, open this permit, then approve or return it."
   },
   "gateCard": {
     "title": "Gate",
@@ -21653,13 +21655,19 @@
     "armFirst": "Turn the switch on first.",
     "signedToast": "Signed for.",
     "actingAs": "Recorded as {name}",
-    "noNameYet": "You will be asked for your name the first time you confirm, return, sign or write.",
+    "noNameYet": "You will be asked for your name the first time you review or write.",
     "changeName": "Change name",
     "nameTitle": "Your name, please",
-    "nameHelp": "Your name goes on your confirmations, returns, signature and messages. This browser remembers it.",
+    "nameHelp": "Your name goes with your signature on your review and on your messages. This browser remembers it.",
     "name": "Name",
     "continue": "Continue",
-    "talk": "Messages"
+    "talk": "Messages",
+    "waitingForYou": "Waiting for your review",
+    "reviewWaiting": "{count} record(s) are waiting for your review.",
+    "reviewButton": "Review and sign",
+    "reviewAllDone": "You have reviewed every record of this round.",
+    "reviewHelp": "Reviewing as \"{name}\": choose Confirm or Return for each record, or Confirm all. Then write your review opinion and sign. After you submit, this round cannot be changed.",
+    "reviewedToast": "Your signed review was submitted."
   },
   "taskFlow": {
     "moreWork": {
@@ -23110,7 +23118,7 @@
       "title": "Nobody on this project can sign exit passes yet. An administrator sets it up in three steps:",
       "permission": "Permission: turn on 「Safety verification」 for the account (or the role) of the person who will sign.",
       "project": "Project: add them to this project's team list (not needed for someone who sees every project).",
-      "account": "Account: make sure their account is active (a new account is active once its owner sets a password from the email).",
+      "account": "Account: make sure their account is active and is an office account (the exit pass is signed on a computer, not on a phone account; a new account is active once its owner sets a password from the email).",
       "openTeam": "Add to project team",
       "onlyApplicant": "The applicant is the only safety manager on this project, and another safety manager has to sign the exit pass. An administrator adds one in three steps:"
     },
@@ -23750,7 +23758,8 @@
       "notSet": "Not filled in",
       "save": "Save the amount",
       "placeholder": "e.g. 12500.00",
-      "approvedOnly": "Fill in the approved amount when you confirm everything."
+      "approvedOnly": "Fill in the approved amount when you confirm everything.",
+      "linkOnly": "Approved only through outside links, which never enter an amount, so there is no approved amount. To have one, also send it to head office or a consultant to review in the system."
     },
     "signatures": {
       "title": "Signatures and review record",
@@ -24059,8 +24068,17 @@
       "noAlerts": "No alerts",
       "set": "Set budget",
       "dialogTitle": "Budget of {name}",
-      "pinNote": "Saving asks for your sign-off PIN. Every change is kept in the operation records (the amount before and after)."
-    }
+      "pinNote": "Saving asks for your sign-off PIN. Every change is kept in the operation records (the amount before and after).",
+      "history": "Change history",
+      "historyTitle": "Budget changes of {name}",
+      "historyHelp": "Every time the budget was set or changed: who, when, before and after. Newest on top.",
+      "historyEmpty": "The budget has not been changed yet.",
+      "historyBudget": "Budget: {before} → {after}",
+      "historyAlerts": "Alerts: {before} → {after}",
+      "historyOn": "Spend and budget switched on",
+      "historyOff": "Spend and budget switched off"
+    },
+    "oneMaterialUnnamed": "Showing one material's targets."
   },
   "jb242": {
     "submit": "Invite",
@@ -24370,10 +24388,12 @@
     "done": "Import done: {added} rows added, {skipped} already there and skipped, {problems} with a problem not imported.",
     "doneWhere": {
       "supplier": "The new suppliers are on the supplier list, numbered by the system.",
-      "material": "The new materials and specifications are on the material list, numbered by the system."
+      "material": "The new materials and specifications are on the company's material list, numbered by the system. Existing projects do not have them yet: to put them into existing projects, press 【Add to existing projects】."
     },
     "doneUnits": "Units added: {names}",
-    "needFile": "Choose the Excel file first."
+    "needFile": "Choose the Excel file first.",
+    "addToProjects": "Add to existing projects",
+    "categoryAsDescription": "Column {letter} \"{header}\" goes into each material's Description, so nothing is lost (materials have two levels: material name › specification)."
   },
   "jb278": {
     "tabSettled": "Settled",
@@ -24460,7 +24480,9 @@
     "rentalTickFirst": "Tick the statements to check first; the confirmation then appears below.",
     "rentalWindowTitle": "Equipment rental check {number}",
     "rentalStatementsTitle": "Statements in this check ({count})",
-    "rentalStatementsHelp": "Click any row to open that statement; close it to come back here."
+    "rentalStatementsHelp": "Click any row to open that statement; close it to come back here.",
+    "stateNoCompany": "Cannot be checked: no owner company",
+    "noCompanyHelp": "This issue has no owner company (the machine has no supplier on its register), so it is not offered in 「Check & settle」. Press 【Correct】 above and choose the owner company; then it can be checked."
   },
   "jb280": {
     "title": "Equipment rental statements",
@@ -24545,7 +24567,8 @@
       "photos": "Related photos",
       "signatures": "Signed receipt (both signatures)",
       "exit_not_confirmed": "\"Confirm formal exit\" not done yet",
-      "other": "Other required items"
+      "other": "Other required items",
+      "mr_link": "Link to its MR / other request (choose it under 「Linked request」)"
     },
     "tick": "I have checked all the information and it is correct.",
     "tickRequired": "(required)",

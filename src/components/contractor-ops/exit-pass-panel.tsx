@@ -308,6 +308,7 @@ function ApprovalPart({ pass, readOnly }: { pass: ExitPass; readOnly: boolean })
   const t = useTranslations("exitPass");
   const df = useDateFormat();
   const signerLine = useSignerLine();
+  const { user } = useAuth();
   const [signing, setSigning] = useState(false);
   const signed = Boolean(pass.approval);
   const badge =
@@ -373,7 +374,9 @@ function ApprovalPart({ pass, readOnly }: { pass: ExitPass; readOnly: boolean })
               {signerLine(pass.signers)}
             </p>
           )}
-          {pass.can_sign && !readOnly ? (
+          {/* 「手机不应该出现审批」 (QA1 audit #14): the server never offers a
+              phone account the signature; the page does not either. */}
+          {pass.can_sign && !readOnly && !user?.is_field_staff ? (
             <Button className="min-h-11 w-full" data-exit-pass-sign onClick={() => setSigning(true)}>
               <PenLine />
               {t("approval.sign")}

@@ -336,7 +336,7 @@ describe("下一步 per reader", () => {
   it("tells the consultant how many wait for his review", () => {
     as(CONSULTANT, CONSULTANT_PERMS);
     const said = nextStep(detail({ remedial_items: [{ ...SUBMITTED, can_review: true }, { ...SUBMITTED, id: "i2", can_review: true }] }));
-    expect(said).toContain("有 2 条整改等您复核");
+    expect(said).toContain("有 2 条整改等你复核");
     expect(said).toContain("顾问确认整改合格前");
   });
 
