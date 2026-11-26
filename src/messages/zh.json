@@ -23987,7 +23987,7 @@
     },
     "moreRows": "这里只显示前 {shown} 行，共 {total} 行。",
     "confirm": "确认导入（{count} 行）",
-    "nothingNew": "要导入的新行",
+    "nothingNew": "没有新增的行可以导入。",
     "cancel": "取消",
     "close": "关闭",
     "done": "导入完成：新增 {added} 行，已经有、跳过 {skipped} 行，有问题没导入 {problems} 行。",
@@ -23995,6 +23995,7 @@
       "supplier": "新的供应商已经在「供应商资料」里，编号系统自动编。",
       "material": "新的材料和规格已经在「材料分类」里，编号系统自动编。"
     },
-    "doneUnits": "新增的单位：{names}"
+    "doneUnits": "新增的单位：{names}",
+    "needFile": "先选 Excel 文件。"
   }
 }

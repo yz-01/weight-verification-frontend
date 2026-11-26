@@ -23987,7 +23987,7 @@
     },
     "moreRows": "Showing the first {shown} of {total} rows.",
     "confirm": "Confirm import ({count} rows)",
-    "nothingNew": "New rows to import",
+    "nothingNew": "There are no new rows to import.",
     "cancel": "Cancel",
     "close": "Close",
     "done": "Import done: {added} rows added, {skipped} already there and skipped, {problems} with a problem not imported.",
@@ -23995,6 +23995,7 @@
       "supplier": "The new suppliers are on the supplier list, numbered by the system.",
       "material": "The new materials and specifications are on the material list, numbered by the system."
     },
-    "doneUnits": "Units added: {names}"
+    "doneUnits": "Units added: {names}",
+    "needFile": "Choose the Excel file first."
   }
 }

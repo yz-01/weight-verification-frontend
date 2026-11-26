@@ -23987,7 +23987,7 @@
     },
     "moreRows": "這裡只顯示前 {shown} 行，共 {total} 行。",
     "confirm": "確認導入（{count} 行）",
-    "nothingNew": "要導入的新行",
+    "nothingNew": "沒有新增的行可以導入。",
     "cancel": "取消",
     "close": "關閉",
     "done": "導入完成：新增 {added} 行，已經有、跳過 {skipped} 行，有問題沒導入 {problems} 行。",
@@ -23995,6 +23995,7 @@
       "supplier": "新的供應商已經在「供應商資料」裡，編號系統自動編。",
       "material": "新的材料和規格已經在「材料分類」裡，編號系統自動編。"
     },
-    "doneUnits": "新增的單位：{names}"
+    "doneUnits": "新增的單位：{names}",
+    "needFile": "先選 Excel 文件。"
   }
 }

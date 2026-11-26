@@ -23987,7 +23987,7 @@
     },
     "moreRows": "Menunjukkan {shown} baris pertama daripada {total}.",
     "confirm": "Sahkan import ({count} baris)",
-    "nothingNew": "Baris baharu untuk diimport",
+    "nothingNew": "Tiada baris baharu untuk diimport.",
     "cancel": "Batal",
     "close": "Tutup",
     "done": "Import selesai: {added} baris ditambah, {skipped} sudah ada dan dilangkau, {problems} bermasalah tidak diimport.",
@@ -23995,6 +23995,7 @@
       "supplier": "Pembekal baharu sudah ada dalam senarai pembekal, dinomborkan oleh sistem.",
       "material": "Bahan dan spesifikasi baharu sudah ada dalam senarai bahan, dinomborkan oleh sistem."
     },
-    "doneUnits": "Unit ditambah: {names}"
+    "doneUnits": "Unit ditambah: {names}",
+    "needFile": "Pilih fail Excel dahulu."
   }
 }

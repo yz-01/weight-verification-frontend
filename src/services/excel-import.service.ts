@@ -94,9 +94,18 @@ export interface ImportOptions {
 
 export const NEW_UNIT = "__new__";
 
-const BASE: Record<ExcelImportKind, string> = {
-  supplier: "/api/suppliers",
-  material: "/api/company-categories",
+/** Each path written out whole, so the backend's reachability guard finds it. */
+const PATHS: Record<ExcelImportKind, { preview: string; confirm: string; template: string }> = {
+  supplier: {
+    preview: "/api/suppliers/import_preview/",
+    confirm: "/api/suppliers/import_confirm/",
+    template: "/api/suppliers/import_template/",
+  },
+  material: {
+    preview: "/api/company-categories/import_preview/",
+    confirm: "/api/company-categories/import_confirm/",
+    template: "/api/company-categories/import_template/",
+  },
 };
 
 export function importBody(file: File, options: ImportOptions = {}): FormData {
@@ -109,16 +118,16 @@ export function importBody(file: File, options: ImportOptions = {}): FormData {
 }
 
 export function previewImport(kind: ExcelImportKind, file: File, options: ImportOptions = {}) {
-  return api.post<ImportPreview>(`${BASE[kind]}/import_preview/`, importBody(file, options));
+  return api.post<ImportPreview>(PATHS[kind].preview, importBody(file, options));
 }
 
 /** With prices in a material file the server asks for the sign-off PIN; the PIN dialog opens by itself. */
 export function confirmImport(kind: ExcelImportKind, file: File, options: ImportOptions = {}) {
-  return api.post<ImportResult>(`${BASE[kind]}/import_confirm/`, importBody(file, options));
+  return api.post<ImportResult>(PATHS[kind].confirm, importBody(file, options));
 }
 
 export function downloadImportTemplate(kind: ExcelImportKind, lang: string): Promise<void> {
-  return download(`${BASE[kind]}/import_template/`, {
+  return download(PATHS[kind].template, {
     method: "GET",
     query: { lang },
     fallbackFilename: kind === "supplier" ? "suppliers-template.xlsx" : "materials-template.xlsx",

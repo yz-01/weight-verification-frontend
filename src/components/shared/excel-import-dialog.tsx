@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { MATERIAL_UNITS_QUERY_KEY, useMaterialUnits, useUnitName } from "@/hooks/use-material-units";
 import {
   confirmImport,
@@ -104,6 +105,7 @@ export function ExcelImportDialog({
   const qc = useQueryClient();
   const input = useRef<HTMLInputElement>(null);
   const unitName = useUnitName();
+  // query-failure: without the unit list a unit the list lacks can still be added (「新增这个单位」, the default)
   const unitList = useMaterialUnits({ enabled: kind === "material" });
 
   const [file, setFile] = useState<File | null>(null);
@@ -431,12 +433,9 @@ export function ExcelImportDialog({
               </Button>
               <Button
                 data-testid="excel-import-confirm"
-                requires={[
-                  [file, w("chooseFile")],
-                  ...requiredMissing.map((field) => [null, label(field.key)] as const),
-                  [newCount > 0 ? "ok" : null, w("nothingNew")],
-                ]}
-                disabled={confirm.isPending || preview.isFetching}
+                requires={requiredMissing.map((field) => [null, label(field.key)] as const)}
+                disabled={!file || newCount === 0 || confirm.isPending || preview.isFetching}
+                disabledReason={!file ? w("needFile") : newCount === 0 ? w("nothingNew") : undefined}
                 onClick={() => confirm.mutate()}
               >
                 {confirm.isPending ? <Loader2 className="animate-spin" /> : <CheckCircle2 />}
@@ -497,26 +496,23 @@ export function ImportPreviewTable({
     }
     return row.values[field] ?? "";
   };
-  const head = "whitespace-nowrap px-3 py-2 text-left text-xs font-semibold text-muted-foreground";
   return (
-    <div className="overflow-x-auto rounded-lg border">
-      <table className="min-w-full text-sm">
-        <thead className="bg-muted/40">
-          <tr>
-            <th className={head}>{w("col.line")}</th>
-            <th className={head}>{w("col.status")}</th>
+    <div className="rounded-lg border">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>{w("col.line")}</TableHead>
+            <TableHead>{w("col.status")}</TableHead>
             {fields.map((field) => (
-              <th key={field} className={head}>
-                {t(FIELD_LABEL_KEYS[kind][field])}
-              </th>
+              <TableHead key={field}>{t(FIELD_LABEL_KEYS[kind][field])}</TableHead>
             ))}
-          </tr>
-        </thead>
-        <tbody>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {rows.map((row) => (
-            <tr key={row.line} className="border-t align-top" data-testid={`excel-import-row-${row.line}`}>
-              <td className="whitespace-nowrap px-3 py-2 tabular-nums text-muted-foreground">{row.line}</td>
-              <td className="min-w-44 px-3 py-2">
+            <TableRow key={row.line} className="align-top" data-testid={`excel-import-row-${row.line}`}>
+              <TableCell className="tabular-nums text-muted-foreground">{row.line}</TableCell>
+              <TableCell className="min-w-44 whitespace-normal">
                 <StatusBadge label={w(`status.${row.status}`)} tone={STATUS_TONE[row.status]} />
                 {importReasons(kind, row, w, t).map((reason) => (
                   <p
@@ -526,16 +522,16 @@ export function ImportPreviewTable({
                     {reason}
                   </p>
                 ))}
-              </td>
+              </TableCell>
               {fields.map((field) => (
-                <td key={field} className="max-w-56 truncate whitespace-nowrap px-3 py-2" title={cell(row, field)}>
+                <TableCell key={field} className="max-w-56 truncate" title={cell(row, field)}>
                   {cell(row, field)}
-                </td>
+                </TableCell>
               ))}
-            </tr>
+            </TableRow>
           ))}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   );
 }
