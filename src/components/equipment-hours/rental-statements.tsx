@@ -36,7 +36,7 @@ import {
   ReturnCheckWindow,
   SettlementWindow,
 } from "@/components/contractor-ops/return-checks";
-import { RentalTermsDialog, rentalMoney } from "@/components/equipment-hours/rental-fees";
+import { RentalTermsDialog, displayPieces, rentalMoney } from "@/components/equipment-hours/rental-fees";
 import { useAuth } from "@/components/providers/auth-provider";
 import { useSeesAmounts } from "@/hooks/use-sees-amounts";
 import { useCurrentProject } from "@/components/providers/current-project-provider";
@@ -573,9 +573,10 @@ export function StatementLines({
               </TableCell>
               <TableCell>
                 {line.terms.method ? (
-                  line.terms.pieces && line.terms.pieces.length > 1 ? (
-                    // JB288: the price changed in these dates - each set with its days.
-                    line.terms.pieces.map((piece) => (
+                  displayPieces(line.terms.pieces).length > 1 ? (
+                    // JB288: the price changed in these dates - each set with its days
+                    // (JB294: periods whose terms price a day the same are one).
+                    displayPieces(line.terms.pieces).map((piece) => (
                       <span key={piece.from} className="block text-xs" data-slot="statement-line-piece">
                         {tj("piece", {
                           from: piece.from,

@@ -63,3 +63,21 @@ export async function confirmRentalMonth(payload: {
   toastSuccess("equipmentRental.toast.confirmed");
   return answer;
 }
+
+/**
+ * 【取消确认】 (JB294): one machine's confirmed month back to unconfirmed, with
+ * a reason and the PIN. Refused while the month is in a 设备租赁月结单.
+ */
+export async function unconfirmRentalMonth(payload: {
+  project: string;
+  equipment: string;
+  month: string;
+  reason: string;
+}): Promise<{ month: string; equipment: string; confirmed: boolean }> {
+  const answer = await api.post<{ month: string; equipment: string; confirmed: boolean }>(
+    "/api/equipment-rental/unconfirm_month/",
+    payload,
+  );
+  toastSuccess("jb294.unconfirm.done");
+  return answer;
+}

@@ -12,7 +12,7 @@
 
 import { useTranslations } from "next-intl";
 
-import { rentalMoney, termsSummary } from "@/components/equipment-hours/rental-fees";
+import { RentalTermsLines, rentalMoney } from "@/components/equipment-hours/rental-fees";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import type { RentalReport, RentalReportRow } from "@/interfaces/contractor-report";
 import type { RentalTermsValues } from "@/interfaces/equipment-hours";
@@ -59,7 +59,6 @@ function hasTerms(row: RentalReportRow): row is RentalReportRow & { rental_terms
 export function RentalFeeTable({ rental }: { rental: RentalReport }) {
   const t = useTranslations("jb257");
   const tRental = useTranslations("equipmentRental");
-  const tj = useTranslations("jb288");
   const df = useDateFormat();
   return (
     <section className="surface-panel overflow-hidden rounded-xl" data-slot="rental-fees">
@@ -103,7 +102,7 @@ export function RentalFeeTable({ rental }: { rental: RentalReport }) {
                 <TableCell className="align-top font-medium">{row.equipment}</TableCell>
                 <TableCell className="align-top">{row.supplier_name || "-"}</TableCell>
                 <TableCell className="align-top text-xs leading-5">
-                  {hasTerms(row) ? termsSummary(tRental, row.rental_terms, tj) : (
+                  {hasTerms(row) ? <RentalTermsLines terms={row.rental_terms} /> : (
                     <span className="font-medium text-warning">{tRental("noTermsShort")}</span>
                   )}
                   {row.confirmed_months.length > 0 ? (
