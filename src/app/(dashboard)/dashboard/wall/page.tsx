@@ -1,6 +1,9 @@
-import { HeadquartersWall } from "@/components/dashboard/headquarters-wall";
+import { redirect } from "next/navigation";
 
-/** 总部大屏 (E1): the company dashboard as a full-screen wall display. */
-export default function HeadquartersWallPage() {
-  return <HeadquartersWall />;
+/**
+ * The old address of 总部大屏: it is its own page now (`/wall`, JB291 四),
+ * outside the office console, so a bookmark still finds it.
+ */
+export default function HeadquartersWallRedirect() {
+  redirect("/wall");
 }

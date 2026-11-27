@@ -986,3 +986,22 @@
   justify-content: center;
   margin-inline: auto;
 }
+
+/* 总部大屏 (JB291): the slide's timer bar fills over its 15 s, and the progress
+ * curve draws itself as the slide opens. Still for someone who asked the
+ * system for less motion. */
+@keyframes wall-timer {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@keyframes wall-draw {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-wall-motion] {
+    animation: none !important;
+    stroke-dashoffset: 0 !important;
+    transform: none !important;
+  }
+}
