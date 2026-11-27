@@ -42,7 +42,7 @@ import {
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { FieldDraft } from "@/components/field-staff/field-draft";
 import { RequestTypesDialog } from "@/components/material-requests/request-types-dialog";
@@ -75,7 +75,7 @@ import {
   hideEmptyManufacturerColumn,
 } from "@/components/shared/manufacturer-picker";
 import { SupplierDateListFilter } from "@/components/shared/supplier-date-filter";
-import { SupplierPicker } from "@/components/shared/supplier-picker";
+import { SupplierMultiPicker } from "@/components/shared/supplier-multi-picker";
 import {
   FilterSelect,
   ModuleRecordsTable,
@@ -114,6 +114,7 @@ import {
   type MaterialRequestExecutionLine,
   type MaterialRequestExecutionStatus,
   type MaterialRequestStatus,
+  supplierNames,
 } from "@/interfaces/material-request";
 import { awaitingFieldTasksAddress } from "@/lib/awaiting-field-tasks";
 import { useDateFormat } from "@/lib/dates";
@@ -321,9 +322,10 @@ function RequestsTab() {
         header: () => <PlainHeader label={t("field.unit")} />,
         cell: ({ row }) => (row.original.unit ? unitLabel(row.original.unit) : "—"),
       },
-      // 业主指定厂商 and who sells it (2026-10 D1, D3; 2026-10-10): the
-      // supplier is settled on approval; the named manufacturer only when the
-      // owner names one, so its column shows only when a row in view has one.
+      // 业主指定厂商 and 供应商 (2026-10 D1, D3; 2026-10-10; JB292): both
+      // optional, the suppliers none, one or several; the named manufacturer
+      // only when the owner names one, so its column shows only when a row in
+      // view has one.
       {
         accessorKey: "manufacturer_name",
         meta: { label: t("field.manufacturer") },
@@ -334,7 +336,8 @@ function RequestsTab() {
         accessorKey: "supplier_name",
         meta: { label: t("field.supplier") },
         header: () => <PlainHeader label={t("field.supplier")} />,
-        cell: ({ row }) => row.original.supplier_name || <span className="text-muted-foreground">—</span>,
+        // All of an MR's suppliers, 「A、B」 (JB292).
+        cell: ({ row }) => supplierNames(row.original) || <span className="text-muted-foreground">—</span>,
       },
       {
         accessorKey: "submitted_by_name",
@@ -623,12 +626,12 @@ export function MaterialRequestDetail({
   const draft = useTranslations("draftRecords");
   const notArchived = useNotArchivedReason();
   const [editingRequest, setEditingRequest] = useState(false);
-  // Approving is the purchase (2026-10 D1, D2): who it is bought from, and
-  // the 业主指定厂商 when the owner names one (optional since 2026-10-10).
-  // Starts from what the applicant suggested; `null` = untouched.
-  const [supplier, setSupplier] = useState<string | null>(null);
+  // 供应商 - none, one or several - and the 业主指定厂商, both optional on
+  // approval (JB292, 客户 11-27f: 「MR是材料申请审批，并不是采购订单」).
+  // Starts from what the request already names; `null` = untouched.
+  const [suppliers, setSuppliers] = useState<string[] | null>(null);
   const [manufacturer, setManufacturer] = useState<string | null>(null);
-  const chosenSupplier = supplier ?? detail.data?.supplier ?? "";
+  const chosenSuppliers = suppliers ?? (detail.data?.suppliers ?? []).map((row) => row.id);
   const chosenManufacturer = manufacturer ?? detail.data?.manufacturer ?? "";
   const review = useMutation({
     mutationFn: (decision: "APPROVED" | "RETURNED") =>
@@ -637,7 +640,7 @@ export function MaterialRequestDetail({
         decision,
         decision === "RETURNED" ? reason.trim() : "",
         decision === "APPROVED" && detail.data?.request_type === "MATERIAL"
-          ? { supplier: chosenSupplier, manufacturer: chosenManufacturer }
+          ? { suppliers: chosenSuppliers, manufacturer: chosenManufacturer }
           : undefined,
       ),
     onSuccess: () => {
@@ -651,6 +654,19 @@ export function MaterialRequestDetail({
     },
     onError: (reasonError) => setError(reasonError instanceof ApiError ? reasonError.message : t("failed")),
   });
+  // One decision per press (QA292): a double click on 【批准】 sent it twice,
+  // and the second came back 「已经审批过」 in red under a request that was
+  // just approved.
+  const sending = useRef(false);
+  const decide = (decision: "APPROVED" | "RETURNED") => {
+    if (sending.current) return;
+    sending.current = true;
+    review.mutate(decision, {
+      onSettled: () => {
+        sending.current = false;
+      },
+    });
+  };
   // 「改派给我」 (D2, Q15): another approver takes it over, then decides it.
   const takeOver = useMutation({
     mutationFn: () => reassignMaterialRequestToMe(id),
@@ -791,7 +807,7 @@ export function MaterialRequestDetail({
                   wide: true,
                   value: <MaterialLinesTable lines={requestShownLines(row)} />,
                 },
-                { label: t("field.supplier"), value: row.supplier_name || "—" },
+                { label: t("field.supplier"), value: supplierNames(row) || "—" },
                 { label: t("field.manufacturer"), value: row.manufacturer_name || "—" },
               ]
             : isMaterial
@@ -800,7 +816,7 @@ export function MaterialRequestDetail({
                 { label: t("field.materialCode"), value: row.category_code || "—" },
                 { label: t("field.specification"), value: row.specification },
                 { label: t("field.quantity"), value: `${row.quantity ?? "—"} ${unitLabel(row.unit)}` },
-                { label: t("field.supplier"), value: row.supplier_name || "—" },
+                { label: t("field.supplier"), value: supplierNames(row) || "—" },
                 { label: t("field.manufacturer"), value: row.manufacturer_name || "—" },
               ]
             : []),
@@ -1010,17 +1026,15 @@ export function MaterialRequestDetail({
                   </p>
                 )}
                 {isMaterial && (
-                  // D2 + D1: approving settles the supplier; the owner's
-                  // named manufacturer is optional (2026-10-10). Returning
-                  // needs neither.
-                  <div className="space-y-2 rounded-md border p-2">
-                    <p className="text-xs text-muted-foreground">{t("approve.help")}</p>
-                    <FieldWrapper label={t("field.supplier")} required>
-                      <SupplierPicker
-                        value={chosenSupplier}
-                        onChange={setSupplier}
-                        knownName={row.supplier_name}
-                        placeholder={t("approve.chooseSupplier")}
+                  // 供应商 - none, one or several - and the owner's named
+                  // manufacturer, both optional (JB292; 2026-10-10).
+                  // Returning needs neither.
+                  <div className="space-y-2 rounded-md border p-2" data-slot="mr-approve-suppliers">
+                    <FieldWrapper label={t("field.supplier")}>
+                      <SupplierMultiPicker
+                        value={chosenSuppliers}
+                        onChange={setSuppliers}
+                        known={row.suppliers ?? []}
                       />
                     </FieldWrapper>
                     <FieldWrapper label={t("field.manufacturer")}>
@@ -1036,13 +1050,8 @@ export function MaterialRequestDetail({
                     button on a record (JB166, Lucas 11-11). */}
                 <Button
                   size="sm"
-                  requires={
-                    isMaterial
-                      ? [[chosenSupplier, t("field.supplier")]]
-                      : []
-                  }
                   disabled={review.isPending}
-                  onClick={() => review.mutate("APPROVED")}
+                  onClick={() => decide("APPROVED")}
                 >
                   <Check />
                   {t("action.approve")}
@@ -1067,7 +1076,7 @@ export function MaterialRequestDetail({
                       variant="outline-destructive"
                       requires={[[reason.trim(), t("field.returnReason")]]}
                       disabled={review.isPending}
-                      onClick={() => review.mutate("RETURNED")}
+                      onClick={() => decide("RETURNED")}
                     >
                       <XCircle />
                       {t("action.return")}
@@ -1339,7 +1348,7 @@ function useRequestTypeFilter(project: string) {
       };
     }
     if (project) {
-      return { ready: true, param: "request_kind", options: rows.map((row) => ({ value: row.id, label: row.name })) };
+      return { ready: true, param: "request_kind", options: rows.map((row) => ({ value: row.id, label: row.display_name || row.name })) };
     }
     return { ready: true, param: "request_kind_name", options: requestTypeNameOptions(rows) };
   }, [rows, project, t]);

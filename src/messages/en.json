@@ -4681,7 +4681,7 @@
       "count": "{count} records",
       "empty": "Nothing has been filed in this category yet.",
       "byMaterial": "By material",
-      "groupCount": "{count} deliveries",
+      "groupCount": "{count, plural, one {# delivery} other {# deliveries}}",
       "search": "Search number, material, DO",
       "emptyFiltered": "Nothing in this category matches these filters.",
       "deliveryNoteNo": "DO",
@@ -4930,7 +4930,7 @@
       "addSpecTitle": "Add a specification · {name}",
       "name": "Name",
       "description": "Description",
-      "descriptionHint": "For example the English name: Rebar",
+      "descriptionHint": "For example what it is used for, or a note",
       "unit": "Unit",
       "noUnit": "No unit",
       "codeAuto": "The number is made by the system.",
@@ -9834,7 +9834,8 @@
       "disposal_settlement_already_settled": "{settlement_no} is already settled; it cannot be settled twice.",
       "disposal_lorry_sheet_missing": "The site has not typed the lorry's plate yet, and the driver and the site person-in-charge have not signed.",
       "wall_project_unavailable": "This project cannot go on the wall: only active projects can be set. Open the wall settings again and try once more.",
-      "wall_link_not_found": "This wall link no longer works. Ask the company for a new link."
+      "wall_link_not_found": "This wall link no longer works. Ask the company for a new link.",
+      "project_material_name_taken": "This project already has \"{name}\". Use another name."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -10417,7 +10418,7 @@
         "remove": "Remove row",
         "use": "Use",
         "noUnit": "No unit",
-        "useOther": "Use 「其他材料」"
+        "useOther": "Use 「Other materials」"
       },
       "ocrLowConfidence": "Read with low confidence: {fields}. Check these against the paper before saving.",
       "ocrManual": "The delivery note could not be read. Enter the details manually.",
@@ -10481,7 +10482,7 @@
       "specOptionalHint": "Not sure of the specification? Leave it - the office will fill it in.",
       "autoFilledFromSpec": "From the specification",
       "otherName": "Material name",
-      "otherNameHint": "Not on the list? Choose 「其他材料」 and type the name here. Not sure? Leave it - the office will fill it in."
+      "otherNameHint": "Not on the list? Choose 「Other materials」 and type the name here. Not sure? Leave it - the office will fill it in."
     },
     "materialEvidence": {
       "arrival": "1. Arriving vehicle",
@@ -20394,7 +20395,7 @@
       "attachmentKindsHint": "Photos, PDF, Word, Excel, PowerPoint, CSV, TXT, DWG or ZIP. Up to {count} files, each under {limit} MB.",
       "fileKindRefused": "{name} cannot be attached. Attach photos, PDF, Word, Excel, PowerPoint, CSV, TXT, DWG or ZIP.",
       "assignedReviewerManagerHint": "A site request goes to the project manager first, who sends it on to head office.",
-      "otherMaterialHint": "「其他材料」: type what the material is if you know it. Not sure? Leave it - the office will fill it in."
+      "otherMaterialHint": "「Other materials」: type what the material is if you know it. Not sure? Leave it - the office will fill it in."
     },
     "toast": {
       "submitted": "Request submitted.",
@@ -20413,8 +20414,6 @@
     "reassignHelp": "Once you take it over, you approve or return it. The first approver no longer can, and the take-over is recorded.",
     "approve": {
       "title": "Approve {reference}",
-      "help": "Approving is the purchase decision: choose who it is bought from - and, when the owner names a manufacturer, choose that too from the supplier list.",
-      "chooseSupplier": "Choose supplier",
       "confirm": "Approve"
     },
     "types": {
@@ -25080,5 +25079,13 @@
       "HQ": "This claim was sent to head office for approval. You can view it but not approve it."
     },
     "fallback": "This project has no project manager who can approve it, so head office approves it."
+  },
+  "jb293": {
+    "nameZh": "Chinese name",
+    "nameEn": "English name",
+    "anyName": "Chinese or English name",
+    "namesHint": "Fill in at least one. Chinese screens show the Chinese name; English and Malay screens show the English name. With only one filled in, that one is shown everywhere. Either name or the code finds this material in a search, and the code does not change.",
+    "nameZhPlaceholder": "e.g. 钢筋",
+    "nameEnPlaceholder": "e.g. Rebar"
   }
 }

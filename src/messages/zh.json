@@ -4930,7 +4930,7 @@
       "addSpecTitle": "新增规格 · {name}",
       "name": "名称",
       "description": "说明",
-      "descriptionHint": "例如英文名称：Rebar",
+      "descriptionHint": "例如用途或备注",
       "unit": "单位",
       "noUnit": "不设单位",
       "codeAuto": "编号由系统自动生成。",
@@ -9834,7 +9834,8 @@
       "disposal_settlement_already_settled": "{settlement_no} 已经结算完毕，不能重复结算。",
       "disposal_lorry_sheet_missing": "工地还没有填车牌、司机和工地负责人还没有签名。",
       "wall_project_unavailable": "这个项目不能放上大屏：只有在建项目可以设定。请重新打开「大屏展示设定」再试。",
-      "wall_link_not_found": "这个大屏链接已经失效。请向公司要新的链接。"
+      "wall_link_not_found": "这个大屏链接已经失效。请向公司要新的链接。",
+      "project_material_name_taken": "这个项目已经有「{name}」了。请换一个名称。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -20413,8 +20414,6 @@
     "reassignHelp": "改派后由你批准或退回，原来的审批人不能再批，系统会留下改派记录。",
     "approve": {
       "title": "批准 {reference}",
-      "help": "批准就是采购决定：选好向哪家供应商买；业主指定了厂商时，也从供应商名单选上。",
-      "chooseSupplier": "选择供应商",
       "confirm": "批准"
     },
     "types": {
@@ -25080,5 +25079,13 @@
       "HQ": "这笔报销提交给总部审批。你可以查看，不可以审批。"
     },
     "fallback": "这个项目没有可以审批的项目经理，改由总部审批。"
+  },
+  "jb293": {
+    "nameZh": "中文名称",
+    "nameEn": "英文名称",
+    "anyName": "中文名称或英文名称",
+    "namesHint": "至少填一个。中文界面显示中文名称，英文和马来文界面显示英文名称；只填了一个的，都显示那一个。两个名称和编号都能搜索到这个材料，编号不会变。",
+    "nameZhPlaceholder": "例如：钢筋",
+    "nameEnPlaceholder": "例如：Rebar"
   }
 }

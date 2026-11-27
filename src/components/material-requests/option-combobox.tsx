@@ -25,6 +25,12 @@ export interface ComboOption {
   value: string;
   label: string;
   /**
+   * More words the search box finds this option by (JB293, 客户 11-27g): a
+   * material's other-language name and its code, so 「rebar」, 「钢筋」 and
+   * 「MAT-REBAR」 all find 钢筋.
+   */
+  keywords?: readonly (string | null | undefined)[];
+  /**
    * A mark after the label in the list - 「有退场资料」 beside a supplier
    * (2026-10 C10). Only a mark: pressing the option still chooses it.
    */
@@ -92,7 +98,11 @@ export function OptionCombobox({
     const typed =
       onSearch || !needle
         ? options
-        : options.filter((option) => option.label.toLowerCase().includes(needle));
+        : options.filter((option) =>
+            [option.label, ...(option.keywords ?? [])].some((text) =>
+              String(text ?? "").toLowerCase().includes(needle),
+            ),
+          );
     return letter ? typed.filter((option) => initialOf(option.label) === letter) : typed;
   }, [options, term, onSearch, letter]);
   const selected = options.find((option) => option.value === value);

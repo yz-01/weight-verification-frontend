@@ -4930,7 +4930,7 @@
       "addSpecTitle": "新增規格 · {name}",
       "name": "名稱",
       "description": "說明",
-      "descriptionHint": "例如英文名稱：Rebar",
+      "descriptionHint": "例如用途或備註",
       "unit": "單位",
       "noUnit": "不設單位",
       "codeAuto": "編號由系統自動生成。",
@@ -9834,7 +9834,8 @@
       "disposal_settlement_already_settled": "{settlement_no} 已經結算完畢，不能重複結算。",
       "disposal_lorry_sheet_missing": "工地還沒有填車牌、司機和工地負責人還沒有簽名。",
       "wall_project_unavailable": "這個項目不能放上大屏：只有在建項目可以設定。請重新打開「大屏展示設定」再試。",
-      "wall_link_not_found": "這個大屏連結已經失效。請向公司要新的連結。"
+      "wall_link_not_found": "這個大屏連結已經失效。請向公司要新的連結。",
+      "project_material_name_taken": "這個項目已經有「{name}」了。請換一個名稱。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -20413,8 +20414,6 @@
     "reassignHelp": "改派後由你批准或退回，原來的審批人不能再批，系統會留下改派記錄。",
     "approve": {
       "title": "批准 {reference}",
-      "help": "批准就是採購決定：選好向哪家供應商買；業主指定了廠商時，也從供應商名單選上。",
-      "chooseSupplier": "選擇供應商",
       "confirm": "批准"
     },
     "types": {
@@ -25080,5 +25079,13 @@
       "HQ": "這筆報銷提交給總部審批。你可以查看，不可以審批。"
     },
     "fallback": "這個項目沒有可以審批的項目經理，改由總部審批。"
+  },
+  "jb293": {
+    "nameZh": "中文名稱",
+    "nameEn": "英文名稱",
+    "anyName": "中文名稱或英文名稱",
+    "namesHint": "至少填一個。中文介面顯示中文名稱，英文和馬來文介面顯示英文名稱；只填了一個的，都顯示那一個。兩個名稱和編號都能搜尋到這個材料，編號不會變。",
+    "nameZhPlaceholder": "例如：鋼筋",
+    "nameEnPlaceholder": "例如：Rebar"
   }
 }

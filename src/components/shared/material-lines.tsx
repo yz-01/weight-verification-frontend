@@ -19,7 +19,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ExternalLink, Layers, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { OptionCombobox } from "@/components/material-requests/option-combobox";
+import { OptionCombobox, type ComboOption } from "@/components/material-requests/option-combobox";
 import { FieldWrapper, LoadFailed } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,7 +28,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useUnitName } from "@/hooks/use-material-units";
 import { useDateFormat } from "@/lib/dates";
-import { categoryManagementLink, isOtherMaterial, offeredSpecs } from "@/lib/material-catalogue";
+import { categoryManagementLink, isOtherMaterial, materialOption, offeredSpecs } from "@/lib/material-catalogue";
 import {
   changesWhatIsPriced,
   emptyLine,
@@ -267,7 +267,7 @@ export function MaterialLinesEditor({
           showProblems || started ? lineProblems(line, materials, { stored }) : [],
         );
         const message = (problem: Problem) => (problems.has(problem) ? t("needed") : undefined);
-        const materialOptions = materials.map((row) => ({ value: row.id, label: row.name }));
+        const materialOptions: ComboOption[] = materials.map(materialOption);
         if (line.category && !materials.some((row) => row.id === line.category) && line.known_material) {
           materialOptions.push({ value: line.category, label: line.known_material });
         }

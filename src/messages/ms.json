@@ -4930,7 +4930,7 @@
       "addSpecTitle": "Tambah spesifikasi · {name}",
       "name": "Nama",
       "description": "Keterangan",
-      "descriptionHint": "Contohnya nama Inggeris: Rebar",
+      "descriptionHint": "Contohnya kegunaan atau catatan",
       "unit": "Unit",
       "noUnit": "Tiada unit",
       "codeAuto": "Nombor dijana oleh sistem.",
@@ -9834,7 +9834,8 @@
       "disposal_settlement_already_settled": "{settlement_no} sudah diselesaikan; tidak boleh diselesaikan dua kali.",
       "disposal_lorry_sheet_missing": "Tapak belum menaip plat lori, dan pemandu serta penyelia tapak belum menandatangani.",
       "wall_project_unavailable": "Projek ini tidak boleh dipaparkan pada skrin besar: hanya projek aktif boleh ditetapkan. Buka semula tetapan skrin besar dan cuba lagi.",
-      "wall_link_not_found": "Pautan skrin besar ini tidak lagi berfungsi. Minta pautan baharu daripada syarikat."
+      "wall_link_not_found": "Pautan skrin besar ini tidak lagi berfungsi. Minta pautan baharu daripada syarikat.",
+      "project_material_name_taken": "Projek ini sudah ada \"{name}\". Gunakan nama lain."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -10417,7 +10418,7 @@
         "remove": "Buang baris",
         "use": "Guna",
         "noUnit": "Tiada unit",
-        "useOther": "Guna 「其他材料」"
+        "useOther": "Guna 「Other materials」"
       },
       "ocrLowConfidence": "Dibaca dengan keyakinan rendah: {fields}. Semak dengan dokumen kertas sebelum menyimpan.",
       "ocrManual": "Nota penghantaran tidak dapat dibaca. Isi butiran secara manual.",
@@ -10481,7 +10482,7 @@
       "specOptionalHint": "Tidak pasti spesifikasinya? Biarkan - pejabat akan mengisinya.",
       "autoFilledFromSpec": "Dari spesifikasi",
       "otherName": "Nama bahan",
-      "otherNameHint": "Tiada dalam senarai? Pilih 「其他材料」 dan taip namanya di sini. Tidak pasti? Biarkan - pejabat akan mengisinya."
+      "otherNameHint": "Tiada dalam senarai? Pilih 「Other materials」 dan taip namanya di sini. Tidak pasti? Biarkan - pejabat akan mengisinya."
     },
     "materialEvidence": {
       "arrival": "1. Kenderaan tiba",
@@ -20394,7 +20395,7 @@
       "attachmentKindsHint": "Foto, PDF, Word, Excel, PowerPoint, CSV, TXT, DWG atau ZIP. Sehingga {count} fail, setiap satu bawah {limit} MB.",
       "fileKindRefused": "{name} tidak boleh dilampirkan. Lampirkan foto, PDF, Word, Excel, PowerPoint, CSV, TXT, DWG atau ZIP.",
       "assignedReviewerManagerHint": "Permohonan tapak dihantar kepada pengurus projek dahulu, yang menghantarnya ke ibu pejabat.",
-      "otherMaterialHint": "「其他材料」: taip nama bahan jika tahu. Tidak pasti? Biarkan - pejabat akan mengisinya."
+      "otherMaterialHint": "「Other materials」: taip nama bahan jika tahu. Tidak pasti? Biarkan - pejabat akan mengisinya."
     },
     "toast": {
       "submitted": "Permohonan dihantar.",
@@ -20413,8 +20414,6 @@
     "reassignHelp": "Selepas anda mengambil alih, anda yang meluluskan atau mengembalikannya. Pelulus asal tidak lagi boleh, dan pengambilalihan direkodkan.",
     "approve": {
       "title": "Luluskan {reference}",
-      "help": "Meluluskan ialah keputusan pembelian: pilih pembekal - dan, jika pemilik menamakan pengilang, pilih juga daripada senarai pembekal.",
-      "chooseSupplier": "Pilih pembekal",
       "confirm": "Luluskan"
     },
     "types": {
@@ -25080,5 +25079,13 @@
       "HQ": "Tuntutan ini dihantar kepada ibu pejabat untuk kelulusan. Anda boleh melihatnya tetapi tidak boleh meluluskannya."
     },
     "fallback": "Projek ini tiada pengurus projek yang boleh meluluskannya, jadi ibu pejabat meluluskannya."
+  },
+  "jb293": {
+    "nameZh": "Nama Cina",
+    "nameEn": "Nama Inggeris",
+    "anyName": "Nama Cina atau Inggeris",
+    "namesHint": "Isi sekurang-kurangnya satu. Skrin bahasa Cina menunjukkan nama Cina; skrin bahasa Inggeris dan Melayu menunjukkan nama Inggeris. Jika hanya satu diisi, yang itu ditunjukkan di mana-mana. Kedua-dua nama atau kod menemui bahan ini dalam carian, dan kod tidak berubah.",
+    "nameZhPlaceholder": "cth. 钢筋",
+    "nameEnPlaceholder": "cth. Rebar"
   }
 }

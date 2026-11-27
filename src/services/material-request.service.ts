@@ -52,15 +52,17 @@ export async function createMaterialRequest(draft: MaterialRequestDraft) {
 }
 
 /**
- * Approve, or return - which ends the request (C05). Approve or return. Approving a material request settles who it is bought
- * from and whose make (2026-10 D1, D2): `purchase` carries both, and the
- * server refuses an approval without them. Returning needs neither.
+ * Approve, or return - which ends the request (C05). Approving a material
+ * request may name its suppliers - none, one or several - and the owner's
+ * named manufacturer (JB292, 客户 11-27f: both optional, 「即使没有选择供应商，
+ * 「批准」按钮也必须正常显示，并允许完成审批」): `purchase` carries them, an
+ * empty list included. Returning needs neither.
  */
 export async function reviewMaterialRequest(
   id: string,
   decision: "APPROVED" | "RETURNED",
   note = "",
-  purchase?: { supplier: string; manufacturer: string },
+  purchase?: { suppliers: string[]; manufacturer: string },
 ) {
   const row = await api.post<MaterialRequest>(`/api/material-requests/${id}/review_request/`, {
     decision,
