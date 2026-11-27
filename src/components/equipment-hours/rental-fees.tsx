@@ -34,6 +34,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TableCell, TableHead } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
+import { useSeesAmounts } from "@/hooks/use-sees-amounts";
 import { ApiError } from "@/interfaces/api";
 import type {
   DieselSupply,
@@ -183,10 +184,18 @@ export function RentalTermsBody({ project }: { project: string }) {
   });
   const [editing, setEditing] = useState<string | null>(null);
   const [showHistory, setShowHistory] = useState<string | null>(null);
+  // QA288: the terms are amounts; without 「金额查看」 every rate reads blank,
+  // so the list is shown but not the form (the server refuses it too).
+  const seesAmounts = useSeesAmounts();
   const data = query.data;
   return (
     <div className="space-y-3">
       {!project ? <p className="text-sm text-muted-foreground">{t("chooseProject")}</p> : null}
+      {project && !seesAmounts ? (
+        <p role="status" className="rounded-lg border px-3 py-2 text-sm text-muted-foreground" data-testid="rental-terms-no-amounts">
+          {tj("noAmounts")}
+        </p>
+      ) : null}
       <QueryFailedNote query={query} what={t("title")} />
       {data && data.without_terms > 0 ? (
         <p role="status" className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-sm font-medium">
@@ -226,10 +235,12 @@ export function RentalTermsBody({ project }: { project: string }) {
                         {t("history", { count: machine.history.length })}
                       </Button>
                     ) : null}
-                    <Button size="sm" variant="outline" onClick={() => setEditing(machine.id)}>
-                      <Pencil />
-                      {t("open")}
-                    </Button>
+                    {seesAmounts ? (
+                      <Button size="sm" variant="outline" onClick={() => setEditing(machine.id)}>
+                        <Pencil />
+                        {t("open")}
+                      </Button>
+                    ) : null}
                   </div>
                 ) : null}
               </div>

@@ -24314,7 +24314,8 @@
     "endBeforeEffective": "The rental end date is before the effective date: the days in between still count with the old terms. To stop charging from the end date, set the effective date to the end date too.",
     "needEffective": "Enter the effective date first.",
     "pieceRent": "base rent RM {amount}",
-    "noChange": "terms unchanged"
+    "noChange": "terms unchanged",
+    "noAmounts": "Amount view is switched off for you: you can see each machine's rental terms, but not set or change the fees."
   },
   "jb265": {
     "startedBy": "Started by consultant {name}"

@@ -29,8 +29,12 @@ import zh from "@/messages/zh.json";
 vi.mock("@/components/ui/dialog", async () =>
   (await import("@/components/shared/record-detail-test-kit")).inlineDialogModule(),
 );
+const auth = vi.hoisted(() => ({ amounts: true }));
 vi.mock("@/components/providers/auth-provider", () => ({
-  useAuth: () => ({ user: { id: "u-1", full_name: "Site Office" }, can: () => true }),
+  useAuth: () => ({
+    user: { id: "u-1", full_name: "Site Office", account_type: "TENANT", company_type: "CONTRACTOR", is_field_staff: false },
+    can: (code: string) => code !== "finance.view_amounts" || auth.amounts,
+  }),
 }));
 
 const {
@@ -293,6 +297,23 @@ describe("words", () => {
     }
     for (const catalogue of [zh, zhTW]) {
       expect(JSON.stringify(catalogue.jb288)).not.toContain("您");
+    }
+  });
+
+  it("QA288: without 金额查看 the list shows, the 租赁条件 form does not, and the line says why", () => {
+    const cache: [readonly unknown[], unknown][] = [[["equipment-rental", "p1"], LIST]];
+    const withAmounts = text(render(<RentalTermsBody project="p1" />, cache));
+    expect(render(<RentalTermsBody project="p1" />, cache)).toContain(`>${zh.equipmentRental.open}<`);
+    expect(withAmounts).not.toContain(words.noAmounts);
+    auth.amounts = false;
+    try {
+      const raw = render(<RentalTermsBody project="p1" />, cache);
+      const without = text(raw);
+      expect(without).toContain("HH machinery sb · 1 号 · 挖土机");
+      expect(without).toContain(words.noAmounts);
+      expect(raw.split(`>${zh.equipmentRental.open}<`).length - 1).toBe(0);
+    } finally {
+      auth.amounts = true;
     }
   });
 

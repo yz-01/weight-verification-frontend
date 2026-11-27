@@ -24314,7 +24314,8 @@
     "endBeforeEffective": "租賃結束日期在生效日期之前：這兩個日期中間的日子還按舊條件算。要從結束日期起不再計費，把生效日期也改成結束日期。",
     "needEffective": "先填生效日期。",
     "pieceRent": "基本租金 RM {amount}",
-    "noChange": "條件沒有改"
+    "noChange": "條件沒有改",
+    "noAmounts": "你沒有「金額查看」權限：可以看每台設備的租賃條件，但不能設定或修改租賃費用。"
   },
   "jb265": {
     "startedBy": "顧問 {name} 發起"
