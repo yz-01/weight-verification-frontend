@@ -1273,17 +1273,18 @@ export function DisposalTripsPanel({
                     {t("trips.accept")}
                   </Button>
                 )}
-                {canCorrectTrip(row, trip) && !phone && !lock && (
-                  <Button size="sm" variant="outline" onClick={() => setCorrecting(trip)}>
-                    <Pencil />
-                    {t("trips.correct")}
-                  </Button>
-                )}
-                {canCorrectTrip(row, trip) && !phone && lock && (
-                  <Button size="sm" variant="outline" data-disposal-settlement-locked disabled disabledReason={settlementWords("locked", lock)} showReason>
-                    <Pencil />
-                    {t("trips.correct")}
-                  </Button>
+                {canCorrectTrip(row, trip) && !phone && (
+                  lock ? (
+                    <Button size="sm" variant="outline" data-disposal-settlement-locked disabled disabledReason={settlementWords("locked", lock)} showReason>
+                      <Pencil />
+                      {t("trips.correct")}
+                    </Button>
+                  ) : (
+                    <Button size="sm" variant="outline" onClick={() => setCorrecting(trip)}>
+                      <Pencil />
+                      {t("trips.correct")}
+                    </Button>
+                  )
                 )}
               </div>
             )}

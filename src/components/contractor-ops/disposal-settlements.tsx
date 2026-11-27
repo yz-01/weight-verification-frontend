@@ -273,9 +273,8 @@ function PendingList({ filters, onChecked }: { filters: DisposalSettlementFilter
         <div className="flex flex-wrap items-center gap-3">
           <Button
             data-slot="settlement-confirm-check"
-            requires={[[picked.length > 0, t("settlement.tickFirst")]]}
-            disabled={mixed}
-            disabledReason={mixed ? t("settlement.mixed") : undefined}
+            disabled={picked.length === 0 || mixed}
+            disabledReason={mixed ? t("settlement.mixed") : t("settlement.tickFirst")}
             showReason={mixed}
             onClick={() => setConfirming(true)}
           >
@@ -669,11 +668,12 @@ export function SettlementLinesTable({ settlement }: { settlement: DisposalSettl
               </TableRow>
             ))}
             <TableRow>
-              <TableCell colSpan={2} className="font-semibold">{t("settlement.total")}</TableCell>
+              <TableCell className="font-semibold">{t("settlement.total")}</TableCell>
+              <TableCell />
               <TableCell className="tabular text-right font-semibold">{t("settlement.tripsValue", { count: settlement.trip_total })}</TableCell>
-              <TableCell />
+              <TableCell className="text-right" />
               <TableCell className="tabular text-right font-semibold">{rmText(settlement.amount_total)}</TableCell>
-              <TableCell />
+              <TableCell className="text-right" />
             </TableRow>
           </TableBody>
         </Table>
@@ -693,7 +693,7 @@ export function PrepareSettleButton({ row }: { row: DisposalSettlementRow }) {
   const { can, user } = useAuth();
   const [pin, setPin] = useState<string | null>(null);
   const [error, setError] = useState("");
-  const [asking, setAsking] = useState(false);
+  const [isAsking, setAsking] = useState(false);
   if (user?.is_field_staff) return null;
   if (!mayHandleDisposalFees(user, can)) {
     return (
@@ -717,8 +717,8 @@ export function PrepareSettleButton({ row }: { row: DisposalSettlementRow }) {
   };
   return (
     <>
-      <Button size="sm" data-slot="settlement-prepare" title={t("settlement.prepareHint")} disabled={asking} onClick={() => void prepare()}>
-        {asking ? <Loader2 className="animate-spin" /> : <HandCoins />}
+      <Button size="sm" data-slot="settlement-prepare" title={t("settlement.prepareHint")} disabled={isAsking} onClick={() => void prepare()}>
+        {isAsking ? <Loader2 className="animate-spin" /> : <HandCoins />}
         {t("settlement.prepare")}
       </Button>
       {error ? <p role="alert" className="mt-1 text-xs text-destructive">{error}</p> : null}
