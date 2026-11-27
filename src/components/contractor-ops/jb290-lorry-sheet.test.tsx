@@ -32,7 +32,7 @@ vi.mock("@/components/providers/auth-provider", () => ({
 }));
 
 const { renderDetail } = await import("@/components/shared/record-detail-test-kit");
-const { LorrySheetDialog, LorrySheetLines, LorrySheetButton, lorrySheetMissing, lorrySheetStep, nextLorry } = await import(
+const { LorrySignDialog, LorrySignLines, LorrySignButton, lorrySheetMissing, lorrySheetStep, nextLorry } = await import(
   "@/components/contractor-ops/disposal-lorry-sheet"
 );
 const { ReleaseCaptureView, GateLorryCard } = await import("@/components/site-access/exit-pass-window");
@@ -82,17 +82,17 @@ describe("JB290: which lorry the site fills and the gate releases", () => {
     expect(lorrySheetStep({ ...running, trips: [trip(1, "PLANNED")] }, { submit: false })).toBeNull();
     expect(lorrySheetStep({ status: "COMPLETED", trips_closed_at: null, trips: [trip(1, "PLANNED")] }, { submit: true })).toBeNull();
     expect(lorrySheetStep({ status: "REQUESTED", trips_closed_at: null, trips: [] }, { submit: true })).toBeNull();
-    const locked = renderDetail(<LorrySheetButton step="locked" onOpen={() => {}} />);
+    const locked = renderDetail(<LorrySignButton step="locked" onOpen={() => {}} />);
     expect(locked).toContain("data-lorry-sheet-locked");
     expect(locked).toContain("这次清运的车都已经放行了。还要多一车，请后台先按【加一车】。");
-    expect(renderDetail(<LorrySheetButton step="open" onOpen={() => {}} />)).toContain("填写车牌和签名");
+    expect(renderDetail(<LorrySignButton step="open" onOpen={() => {}} />)).toContain("填写车牌和签名");
   });
 
   it("the record's buttons carry it beside 【拍车辆出场 / Gate Pass】", () => {
     const source = here("site-disposal-workspaces.tsx");
-    expect(source).toContain('<LorrySheetButton step={lorrySheetStep(row, { submit: can("disposal.submit") })}');
+    expect(source).toContain('<LorrySignButton step={lorrySheetStep(row, { submit: can("disposal.submit") })}');
     expect(source).toContain('case "lorrySheet":');
-    expect(source).toContain("<LorrySheetLines trip={trip} waiting={next?.id === trip.id} />");
+    expect(source).toContain("<LorrySignLines trip={trip} waiting={next?.id === trip.id} />");
     expect(root("services/contractor-ops.service.ts")).toContain("/sign_lorry/");
   });
 });
@@ -111,7 +111,7 @@ describe("JB290: 「以上资料全部必填」 on the site phone", () => {
   it("draws the plate, both names and both signature pads; the site name is the account's", () => {
     const row = { id: "d-1", reference_no: "DISP-PRJ-0001-012", trips: [trip(1, "PLANNED")] };
     const html = renderDetail(
-      <LorrySheetDialog row={row as never} onClose={() => {}} onSaved={() => {}} />,
+      <LorrySignDialog row={row as never} onClose={() => {}} onSaved={() => {}} />,
     );
     for (const words of ["第 1 车：车牌和签名", "车辆车牌号码", "清运司机姓名", "清运司机签名", "工地现场负责人姓名", "工地现场负责人签名", "保存，交给门岗"]) {
       expect(html).toContain(words);
@@ -126,7 +126,7 @@ describe("JB290: 「以上资料全部必填」 on the site phone", () => {
 
   it("filled before and not released: says so, and a new fill replaces it", () => {
     const row = { id: "d-1", reference_no: "DISP-1", trips: [trip(1, "PLANNED", { sheet: SHEET, vehicle_plate: "WXY 1234" })] };
-    const html = renderDetail(<LorrySheetDialog row={row as never} onClose={() => {}} onSaved={() => {}} />);
+    const html = renderDetail(<LorrySignDialog row={row as never} onClose={() => {}} onSaved={() => {}} />);
     expect(html).toContain("这一车已经填过（WXY 1234），门岗还没有放行。");
   });
 });
@@ -134,7 +134,7 @@ describe("JB290: 「以上资料全部必填」 on the site phone", () => {
 describe("JB290: 「车牌号码、双方签名及门岗照片必须关联同一条垃圾清运记录」 on the office window", () => {
   it("each lorry shows its plate, both signers with their signatures, who filled it and its 门岗放行", () => {
     const html = renderDetail(
-      <LorrySheetLines trip={trip(1, "PLANNED", { sheet: SHEET, vehicle_plate: "WXY 1234", release: RELEASED })} waiting={false} />,
+      <LorrySignLines trip={trip(1, "PLANNED", { sheet: SHEET, vehicle_plate: "WXY 1234", release: RELEASED })} waiting={false} />,
     );
     expect(html).toContain("车牌：WXY 1234");
     expect(html).toContain("清运司机：Murugan");
@@ -147,8 +147,8 @@ describe("JB290: 「车牌号码、双方签名及门岗照片必须关联同一
   });
 
   it("the next lorry still waiting says what it waits for; a past lorry says nothing", () => {
-    expect(renderDetail(<LorrySheetLines trip={trip(2, "PLANNED")} waiting />)).toContain("等工地填车牌，司机和工地负责人签名");
-    expect(renderDetail(<LorrySheetLines trip={trip(1, "SUBMITTED")} waiting={false} />)).toBe("");
+    expect(renderDetail(<LorrySignLines trip={trip(2, "PLANNED")} waiting />)).toContain("等工地填车牌，司机和工地负责人签名");
+    expect(renderDetail(<LorrySignLines trip={trip(1, "SUBMITTED")} waiting={false} />)).toBe("");
   });
 
   it("the 出门条's 门岗放行 names the lorry and its plate", () => {

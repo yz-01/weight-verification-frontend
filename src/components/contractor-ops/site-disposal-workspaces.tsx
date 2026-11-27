@@ -32,9 +32,9 @@ import { PhotoLink } from "@/components/shared/photo-link";
 import type { LocationValue } from "@/lib/field-location";
 import { AddToPackageButton } from "@/components/contractor-ops/add-to-package";
 import {
-  LorrySheetButton,
-  LorrySheetDialog,
-  LorrySheetLines,
+  LorrySignButton,
+  LorrySignDialog,
+  LorrySignLines,
   lorrySheetStep,
   nextLorry,
 } from "@/components/contractor-ops/disposal-lorry-sheet";
@@ -1231,7 +1231,7 @@ export function DisposalTripsPanel({
               </p>
             )}
             {/* JB290: 车牌, both signatures and the 门岗放行 of this lorry. */}
-            <LorrySheetLines trip={trip} waiting={next?.id === trip.id} />
+            <LorrySignLines trip={trip} waiting={next?.id === trip.id} />
             {trip.evidence.length > 0 && (
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {trip.evidence.map((item, index, all) => (
@@ -1507,7 +1507,7 @@ function DisposalActions({
       {can("disposal.submit") && RUNNING.includes(row.status) && <Button size="sm" variant="outline" onClick={() => onStep("siteEvidence")}><Camera />{t("action.siteEvidence")}</Button>}
       {/* JB290 (客户 11-27d): each lorry's plate, the driver's and the site
           person-in-charge's signatures - before the gate photographs it. */}
-      <LorrySheetButton step={lorrySheetStep(row, { submit: can("disposal.submit") })} onOpen={() => onStep("lorrySheet")} />
+      <LorrySignButton step={lorrySheetStep(row, { submit: can("disposal.submit") })} onOpen={() => onStep("lorrySheet")} />
       {/* E04: no 验收 / 退回 - the final proof's submission ended the job.
           What the office still does is fill in the numbers (D06). */}
       {/* Office only (QA3, audit #17): the phone never fills the job's numbers. */}
@@ -1558,7 +1558,7 @@ function DisposalStepDialogs({
     case "siteEvidence":
       return <SiteEvidenceDialog row={row} onClose={onClose} onSaved={done} />;
     case "lorrySheet":
-      return <LorrySheetDialog row={row} onClose={onClose} onSaved={done} />;
+      return <LorrySignDialog row={row} onClose={onClose} onSaved={done} />;
     case "anomaly":
       return <AnomalyDialog row={row} onClose={onClose} onSaved={done} />;
   }

@@ -97,7 +97,7 @@ function fieldError(error: unknown, field: string): string | undefined {
  * else on site signs on it. All five are required; the button says what is
  * still missing.
  */
-export function LorrySheetDialog({
+export function LorrySignDialog({
   row,
   onClose,
   onSaved,
@@ -202,7 +202,7 @@ export function LorrySheetDialog({
 }
 
 /** The record's button: 【填写车牌和签名】, or locked saying why. */
-export function LorrySheetButton({
+export function LorrySignButton({
   step,
   onOpen,
 }: {
@@ -244,7 +244,7 @@ function SignatureThumb({ url, label }: { url: string | null; label: string }) {
  * and 工地现场负责人 with their signatures, who filled it and when, and the
  * 门岗事项 that let it out. The next lorry still waiting says so.
  */
-export function LorrySheetLines({
+export function LorrySignLines({
   trip,
   waiting,
 }: {
