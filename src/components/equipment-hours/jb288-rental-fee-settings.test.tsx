@@ -43,6 +43,7 @@ const {
   RentalTermsBody,
   RentalTermsDialog,
   RentalFeeCells,
+  RentalPiecesDialog,
   changedParts,
   draftOf,
   effectiveOf,
@@ -310,10 +311,14 @@ describe("two sets of terms in one month", () => {
         </Table>,
       ),
     );
-    expect(html).toContain(words.monthPieces.replace("{count}", "2"));
-    expect(html).toContain("2026-09-01 至 2026-09-15：按月 · 单价 RM 18,000.00");
-    expect(html).toContain("2026-09-16 至 2026-09-30：按月 · 单价 RM 24,000.00");
-    expect(html).toContain("9,000.00");
+    // JB294 (Lucas 11-27 「弄好看弄整齐」): the cell says how many parts; 【看分段】 lists them.
+    expect(html).toContain(zh.jb294.pieces.count.replace("{count}", "2"));
+    expect(html).toContain(zh.jb294.pieces.open);
+    const parts = text(render(<RentalPiecesDialog row={row} month="2026-09" onClose={() => undefined} />));
+    expect(parts).toContain("按月 RM 18,000.00");
+    expect(parts).toContain("按月 RM 24,000.00");
+    expect(parts).toContain("9,000.00");
+    expect(parts).toContain("12,000.00");
   });
 
   it("the statement lines and the report name each set with its days", () => {
@@ -349,7 +354,8 @@ describe("two sets of terms in one month", () => {
     expect(html).toContain("21,000.00");
     expect(html).not.toContain(" 21000.00");
     const report = read("src/components/reports/rental-fee-table.tsx");
-    expect(report).toContain("termsSummary(tRental, row.rental_terms, tj)");
+    // JB294: one short line per period (RentalTermsLines), no longer one long run.
+    expect(report).toContain("<RentalTermsLines terms={row.rental_terms} />");
   });
 
   it("one set of terms reads as before", () => {
