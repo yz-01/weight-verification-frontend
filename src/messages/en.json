@@ -9584,6 +9584,7 @@
       "category_group_single": "This module has one category group per project. Rename that one instead.",
       "company_category_fixed": "Every project needs this category: it can be renamed, not switched off or removed.",
       "company_material_name_taken": "The company categories already have \"{name}\". Use another name.",
+      "project_material_name_taken": "This project already has \"{name}\". Use another name.",
       "company_material_unit_missing": "Choose the unit: a unit price is per unit.",
       "company_material_spec_invalid": "Specification row {row}: give it a name that no other specification has.",
       "company_material_price_invalid": "The unit price of \"{row}\" is not right. Enter an amount above 0, with at most two decimals.",

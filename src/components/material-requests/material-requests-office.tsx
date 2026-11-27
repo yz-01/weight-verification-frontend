@@ -1348,7 +1348,7 @@ function useRequestTypeFilter(project: string) {
       };
     }
     if (project) {
-      return { ready: true, param: "request_kind", options: rows.map((row) => ({ value: row.id, label: row.name })) };
+      return { ready: true, param: "request_kind", options: rows.map((row) => ({ value: row.id, label: row.display_name || row.name })) };
     }
     return { ready: true, param: "request_kind_name", options: requestTypeNameOptions(rows) };
   }, [rows, project, t]);

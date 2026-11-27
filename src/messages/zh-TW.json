@@ -9584,6 +9584,7 @@
       "category_group_single": "這個模組每個項目只有一個分類組，請直接改它的名稱。",
       "company_category_fixed": "每個項目都要用這個分類：可以改名，不能停用或刪除。",
       "company_material_name_taken": "公司通用分類裡已經有「{name}」了。請換一個名稱。",
+      "project_material_name_taken": "這個項目已經有「{name}」了。請換一個名稱。",
       "company_material_unit_missing": "請選單位。單價是按單位算的。",
       "company_material_spec_invalid": "第 {row} 行規格要改一下：名稱不能空著，也不能和別的規格一樣。",
       "company_material_price_invalid": "「{row}」的單價不對。請填大於 0 的數目，最多兩位小數。",

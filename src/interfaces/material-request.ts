@@ -76,7 +76,10 @@ export interface RequestType {
   id: string;
   project: string;
   code: string;
+  /** The stored name - what the management form edits and the filters send. */
   name: string;
+  /** The name in the reader's language (JB293 QA): 「Material Request」 in English. */
+  display_name?: string;
   description: string;
   form_style: RequestFormStyle;
   /** 材料申请 / 其他申请: renamed, never switched off or removed. */

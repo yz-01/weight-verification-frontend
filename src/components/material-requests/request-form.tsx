@@ -317,7 +317,7 @@ export function MaterialRequestForm({
           <SelectContent position="popper">
             {typeRows.map((row) => (
               <SelectItem key={row.id} value={row.id}>
-                {row.name}
+                {row.display_name || row.name}
               </SelectItem>
             ))}
           </SelectContent>

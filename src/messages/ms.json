@@ -9584,6 +9584,7 @@
       "category_group_single": "Modul ini ada satu kumpulan kategori bagi setiap projek. Namakan semula kumpulan itu.",
       "company_category_fixed": "Setiap projek memerlukan kategori ini: boleh dinamakan semula, tidak boleh dimatikan atau dibuang.",
       "company_material_name_taken": "Kategori syarikat sudah ada \"{name}\". Gunakan nama lain.",
+      "project_material_name_taken": "Projek ini sudah ada \"{name}\". Gunakan nama lain.",
       "company_material_unit_missing": "Pilih unit: harga seunit adalah bagi setiap unit.",
       "company_material_spec_invalid": "Baris spesifikasi {row}: beri nama yang tiada pada spesifikasi lain.",
       "company_material_price_invalid": "Harga seunit \"{row}\" tidak betul. Masukkan jumlah melebihi 0, paling banyak dua tempat perpuluhan.",

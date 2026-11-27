@@ -9584,6 +9584,7 @@
       "category_group_single": "这个模块每个项目只有一个分类组，请直接改它的名称。",
       "company_category_fixed": "每个项目都要用这个分类：可以改名，不能停用或删除。",
       "company_material_name_taken": "公司通用分类里已经有「{name}」了。请换一个名称。",
+      "project_material_name_taken": "这个项目已经有「{name}」了。请换一个名称。",
       "company_material_unit_missing": "请选单位。单价是按单位算的。",
       "company_material_spec_invalid": "第 {row} 行规格要改一下：名称不能空着，也不能和别的规格一样。",
       "company_material_price_invalid": "「{row}」的单价不对。请填大于 0 的数目，最多两位小数。",
