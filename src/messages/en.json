@@ -17911,7 +17911,7 @@
       "EVIDENCE_DISPOSAL_PROOF": "Final disposal proof photo uploaded",
       "TRIP_SUBMITTED": "Load sent, waiting for the office check",
       "TRIP_ACCEPTED": "Office checked a load",
-      "TRIP_ADDED": "Office added a load",
+      "TRIP_ADDED": "A load was added",
       "ENDED_EARLY": "Office ended the job early; loads not sent were dropped",
       "TRIP_CORRECTED": "Office corrected a load's weight / DO / plate",
       "SUPPLIER_SET": "Office named / changed the clearance company",

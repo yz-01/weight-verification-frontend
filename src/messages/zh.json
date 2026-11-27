@@ -17911,7 +17911,7 @@
       "EVIDENCE_DISPOSAL_PROOF": "已上传最终处理证明照片",
       "TRIP_SUBMITTED": "已送出一车，等待后台验收",
       "TRIP_ACCEPTED": "后台已验收一车",
-      "TRIP_ADDED": "后台加了一车",
+      "TRIP_ADDED": "加了一车",
       "ENDED_EARLY": "后台提前结束，未送的车次已取消",
       "TRIP_CORRECTED": "后台更正了一车的重量 / DO / 车牌",
       "SUPPLIER_SET": "后台填写 / 更改了供应商",

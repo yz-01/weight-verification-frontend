@@ -109,6 +109,8 @@ describe("JB290: which lorry the site fills and the gate releases", () => {
     const html = renderDetail(<LorrySignDialog row={row} onClose={() => {}} onSaved={() => {}} />);
     expect(html).toContain("第 2 车：车牌和签名");
     expect(html).toContain("之前批准的车都已经放行了。保存后会加上这一车（第 2 车），门岗就可以拍照放行。");
+    // The timeline line names whoever added it - the office or, now, the site.
+    expect(zh.siteDisposal.timelineEvent.TRIP_ADDED).toBe("加了一车");
   });
 
   it("says 「第 N 车：车牌和签名已填」 on the card once the sheet is in (QA290)", () => {
