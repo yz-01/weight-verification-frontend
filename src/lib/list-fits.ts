@@ -294,8 +294,8 @@ export const LIST_FITS = {
   },
   /** 人员名单 → 进出记录 */
   siteWorkerVisits: {
-    // `.v2`: 来源 (人员名单链接 / App 打卡) after 离场时间 (JB295b).
-    storageKey: "site-workers.visits.v2",
+    // JB295b: 来源 (人员名单链接 / App 打卡) after 离场时间; nothing hidden, so the key stays (I39 rule 6).
+    storageKey: "site-workers.visits",
     file: "src/components/site-workers/site-workers.tsx",
     columns: {
       worker_name: "name",
