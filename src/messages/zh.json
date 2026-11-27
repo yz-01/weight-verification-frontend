@@ -9757,6 +9757,7 @@
       "equipment_rental_diesel_not_charged": "这台设备的柴油不是供应商另外收费，不能填柴油费用。",
       "equipment_rental_month_confirmed": "这个月的租赁金额已经确认，不能再改。",
       "equipment_rental_month_not_started": "这个月还没开始，不能确认。",
+      "equipment_rental_amounts_off": "你的账号没有「金额查看」权限，不能设定或修改租赁金额。请公司管理员帮你打开「金额查看」。",
       "role_start_fixed": "「总部」「项目」是邀请用户用的起点，不能修改，也不能用这个代号。",
       "invite_workplace_required": "请选「总部」或「项目」。",
       "invite_projects_required": "请至少勾一个所属项目。",
@@ -24315,7 +24316,11 @@
     "needEffective": "先填生效日期。",
     "pieceRent": "基本租金 RM {amount}",
     "noChange": "条件没有改",
-    "noAmounts": "你没有「金额查看」权限：可以看每台设备的租赁条件，但不能设定或修改租赁费用。"
+    "noAmounts": "你没有「金额查看」权限：可以看每台设备的租赁条件，但不能设定或修改租赁费用。",
+    "upcoming": "{date} 起改为：{terms}",
+    "amountsOff": "你没有「金额查看」权限，不能填柴油或调整金额。",
+    "statementsNoManage": "你的账号没有「管理设备、验收进退场、调整工时」权限，所以看不到设备租赁月结单。请公司管理员帮你打开这项权限。",
+    "statementsNoAmounts": "设备租赁月结单全部是金额。你的账号没有「金额查看」权限，所以看不到。请公司管理员帮你打开「金额查看」。"
   },
   "jb265": {
     "startedBy": "顾问 {name} 发起"

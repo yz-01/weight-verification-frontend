@@ -9757,6 +9757,7 @@
       "equipment_rental_diesel_not_charged": "Diesel mesin ini tidak dicaj berasingan oleh pembekal, jadi caj diesel tidak boleh dimasukkan.",
       "equipment_rental_month_confirmed": "Amaun sewa bulan ini sudah disahkan dan tidak boleh diubah lagi.",
       "equipment_rental_month_not_started": "Bulan ini belum bermula dan tidak boleh disahkan.",
+      "equipment_rental_amounts_off": "'Lihat jumlah wang' ditutup untuk akaun anda, jadi anda tidak boleh menetapkan atau mengubah jumlah sewaan. Minta pentadbir syarikat anda menghidupkannya.",
       "role_start_fixed": "\"Ibu pejabat\" dan \"Projek\" ialah titik mula Jemput pengguna: tidak boleh diubah, dan kodnya tidak boleh digunakan.",
       "invite_workplace_required": "Pilih ibu pejabat atau projek.",
       "invite_projects_required": "Tandakan sekurang-kurangnya satu projek.",
@@ -24315,7 +24316,11 @@
     "needEffective": "Masukkan tarikh berkuat kuasa dahulu.",
     "pieceRent": "sewa asas RM {amount}",
     "noChange": "terma tidak berubah",
-    "noAmounts": "Paparan amaun ditutup untuk anda: anda boleh melihat terma sewaan setiap peralatan, tetapi tidak boleh menetapkan atau mengubah bayaran."
+    "noAmounts": "Paparan amaun ditutup untuk anda: anda boleh melihat terma sewaan setiap peralatan, tetapi tidak boleh menetapkan atau mengubah bayaran.",
+    "upcoming": "Mulai {date}: {terms}",
+    "amountsOff": "'Lihat jumlah wang' ditutup untuk anda, jadi anda tidak boleh mengisi diesel atau pelarasan.",
+    "statementsNoManage": "Akaun anda tiada kebenaran 'Urus peralatan, terima masuk dan keluar, laras jam', jadi tidak boleh melihat penyata sewaan peralatan. Minta pentadbir syarikat anda menghidupkannya.",
+    "statementsNoAmounts": "Penyata sewaan peralatan semuanya jumlah wang, dan 'Lihat jumlah wang' ditutup untuk akaun anda. Minta pentadbir syarikat anda menghidupkan 'Lihat jumlah wang'."
   },
   "jb265": {
     "startedBy": "Dimulakan oleh perunding {name}"

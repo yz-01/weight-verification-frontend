@@ -9757,6 +9757,7 @@
       "equipment_rental_diesel_not_charged": "這台設備的柴油不是供應商另外收費，不能填柴油費用。",
       "equipment_rental_month_confirmed": "這個月的租賃金額已經確認，不能再改。",
       "equipment_rental_month_not_started": "這個月還沒開始，不能確認。",
+      "equipment_rental_amounts_off": "你的帳號沒有「金額查看」權限，不能設定或修改租賃金額。請公司管理員幫你打開「金額查看」。",
       "role_start_fixed": "「總部」「項目」是邀請用戶用的起點，不能修改，也不能用這個代號。",
       "invite_workplace_required": "請選「總部」或「項目」。",
       "invite_projects_required": "請至少勾一個所屬項目。",
@@ -24315,7 +24316,11 @@
     "needEffective": "先填生效日期。",
     "pieceRent": "基本租金 RM {amount}",
     "noChange": "條件沒有改",
-    "noAmounts": "你沒有「金額查看」權限：可以看每台設備的租賃條件，但不能設定或修改租賃費用。"
+    "noAmounts": "你沒有「金額查看」權限：可以看每台設備的租賃條件，但不能設定或修改租賃費用。",
+    "upcoming": "{date} 起改為：{terms}",
+    "amountsOff": "你沒有「金額查看」權限，不能填柴油或調整金額。",
+    "statementsNoManage": "你的帳號沒有「管理設備、驗收進退場、調整工時」權限，所以看不到設備租賃月結單。請公司管理員幫你打開這項權限。",
+    "statementsNoAmounts": "設備租賃月結單全部是金額。你的帳號沒有「金額查看」權限，所以看不到。請公司管理員幫你打開「金額查看」。"
   },
   "jb265": {
     "startedBy": "顧問 {name} 發起"

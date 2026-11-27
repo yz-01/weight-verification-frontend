@@ -38,6 +38,8 @@ vi.mock("@/components/providers/auth-provider", () => ({
 }));
 
 const {
+  inForce,
+  upcoming,
   RentalTermsBody,
   RentalTermsDialog,
   RentalFeeCells,
@@ -103,7 +105,8 @@ const LIST: RentalMachines = {
 describe("【租赁费用设定】 on 设备租赁月结单", () => {
   it("sits right beside 生成月结单, office only, and opens the same 设备租赁设定 window", () => {
     const page = read("src/components/equipment-hours/rental-statements.tsx");
-    const button = page.indexOf("<RentalTermsButton />");
+    // The page's header row (the last one: the first is the 「看不到」 notice's).
+    const button = page.lastIndexOf("<RentalTermsButton />");
     const generate = page.indexOf("<GenerateStatementButton");
     expect(button).toBeGreaterThan(0);
     expect(generate - button).toBeGreaterThan(0);
@@ -176,6 +179,69 @@ describe("生效日期", () => {
     expect(source).toContain('tj("firstSet"');
     expect(source).toContain('tj("effectiveShort", { date: next.effective_from })');
     expect(source).toContain("next.changed_by");
+  });
+});
+
+describe("QA288 B: each change keeps its own dates", () => {
+  const BACK: RentalTermsValues = { ...OLD, id: "t3", unit_price: "20000.00", effective_from: "2026-08-15", changed_at: "2026-10-05T10:00:00+08:00" };
+  const LATER: RentalTermsValues = { ...OLD, id: "t4", unit_price: "30000.00", effective_from: "2099-01-01", changed_at: "2026-10-06T10:00:00+08:00" };
+  const machine = { ...LIST.machines[0], terms: LATER, history: [BACK, NEW, OLD], in_force_id: "t2", upcoming_ids: ["t4"] };
+
+  it("the window shows the terms pricing today and the ones still to come, not just the newest save", () => {
+    expect(inForce(machine)?.id).toBe("t2");
+    expect(upcoming(machine).map((row) => row.id)).toEqual(["t4"]);
+    const html = text(render(<RentalTermsBody project="p1" />, [[["equipment-rental", "p1"], { without_terms: 0, machines: [machine] }]]));
+    expect(html).toContain("单价 RM 24,000.00");
+    expect(html).toContain("生效日期 2026-10-01");
+    expect(html).toContain("2099-01-01 起改为：按月 · 单价 RM 30,000.00");
+    // 修改记录 keeps the save order (not shown until opened).
+    expect(termsChanges(machine).map((change) => change.next.id)).toEqual(["t4", "t3", "t2", "t1"]);
+  });
+
+  it("without the server's word, the newest save is shown as before", () => {
+    expect(inForce(LIST.machines[0])?.id).toBe("t2");
+    expect(upcoming(LIST.machines[0])).toEqual([]);
+  });
+});
+
+describe("QA288 rights on 设备租赁月结单 and 按月", () => {
+  it("the 月结单 page says which right is missing and who switches it on, instead of 「加载失败」", () => {
+    const page = read("src/components/equipment-hours/rental-statements.tsx");
+    expect(page).toContain('"statementsNoManage"');
+    expect(page).toContain('"statementsNoAmounts"');
+    expect(page).toContain("enabled: !refused");
+    expect(words.statementsNoManage).toContain("请公司管理员帮你打开");
+    expect(words.statementsNoAmounts).toContain("「金额查看」");
+    expect(zh.errors.api.equipment_rental_amounts_off).toContain("请公司管理员帮你打开");
+  });
+
+  it("without 金额查看 the 按月 row has no 柴油 / 调整 form, one line says why", () => {
+    const row = {
+      equipment: "m1",
+      equipment_name: "挖土机",
+      rental_has_terms: true,
+      rental_confirmed: false,
+      rental_total: null,
+      rental_terms: NEW,
+    } as unknown as EquipmentHoursMonthRow;
+    const cells = (
+      <Table>
+        <TableBody>
+          <TableRow>
+            <RentalFeeCells row={row} canAdjust onAmounts={() => undefined} />
+          </TableRow>
+        </TableBody>
+      </Table>
+    );
+    expect(text(render(cells))).toContain(zh.equipmentRental.amounts.open);
+    auth.amounts = false;
+    try {
+      const html = text(render(cells));
+      expect(html).toContain(words.amountsOff);
+      expect(html).not.toContain(zh.equipmentRental.amounts.open);
+    } finally {
+      auth.amounts = true;
+    }
   });
 });
 
@@ -277,8 +343,11 @@ describe("two sets of terms in one month", () => {
         />,
       ),
     );
-    expect(html).toContain("2026-09-01 至 2026-09-15：按月 RM 18000.00");
-    expect(html).toContain("2026-09-16 至 2026-09-30：按月 RM 24000.00");
+    expect(html).toContain("2026-09-01 至 2026-09-15：按月 RM 18,000.00");
+    expect(html).toContain("2026-09-16 至 2026-09-30：按月 RM 24,000.00");
+    // QA288: the amounts read like the rest of the page, 「21,000.00」.
+    expect(html).toContain("21,000.00");
+    expect(html).not.toContain(" 21000.00");
     const report = read("src/components/reports/rental-fee-table.tsx");
     expect(report).toContain("termsSummary(tRental, row.rental_terms, tj)");
   });

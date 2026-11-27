@@ -215,10 +215,20 @@ export function RentalTermsBody({ project }: { project: string }) {
                       .join(" · ")}
                   </p>
                   {machine.terms ? (
-                    <p className="text-sm text-muted-foreground">
-                      {termsSummary(t, machine.terms)}
-                      {machine.terms.effective_from ? ` · ${tj("effectiveShort", { date: machine.terms.effective_from })}` : ""}
-                    </p>
+                    <>
+                      <p className="text-sm text-muted-foreground">
+                        {termsSummary(t, inForce(machine) ?? machine.terms)}
+                        {(inForce(machine) ?? machine.terms).effective_from
+                          ? ` · ${tj("effectiveShort", { date: (inForce(machine) ?? machine.terms).effective_from ?? "" })}`
+                          : ""}
+                      </p>
+                      {/* QA288: terms saved for a later 生效日期 - they take over on that day. */}
+                      {upcoming(machine).map((later) => (
+                        <p key={later.id} className="text-sm text-muted-foreground" data-testid="rental-upcoming">
+                          {tj("upcoming", { date: later.effective_from ?? "", terms: pieceSummary(t, later) })}
+                        </p>
+                      ))}
+                    </>
                   ) : (
                     <p className="text-sm font-medium text-warning">{t("noTerms")}</p>
                   )}
@@ -301,6 +311,24 @@ function historyLine(t: Translate, tj: Translate, previous: RentalTermsValues, n
   return changed ? tj("oldNew", changed) : tj("noChange");
 }
 
+/**
+ * The saved version pricing today (QA288: by 生效日期, not save time - a
+ * change saved later with an earlier date fills only its own days), or the
+ * newest saved when the server does not say.
+ */
+export function inForce(machine: RentalMachine): RentalTermsValues | null {
+  const versions = machine.terms ? [machine.terms, ...machine.history] : [...machine.history];
+  return versions.find((version) => version.id === machine.in_force_id) ?? machine.terms;
+}
+
+/** The versions whose 生效日期 is still to come, soonest first (QA288). */
+export function upcoming(machine: RentalMachine): RentalTermsValues[] {
+  const versions = machine.terms ? [machine.terms, ...machine.history] : [...machine.history];
+  return (machine.upcoming_ids ?? [])
+    .map((id) => versions.find((version) => version.id === id))
+    .filter((version): version is RentalTermsValues => Boolean(version));
+}
+
 /** 修改记录 (JB288): each saved version with the one before it, newest first. */
 export function termsChanges(machine: RentalMachine): { next: RentalTermsValues; previous: RentalTermsValues | null }[] {
   const versions = machine.terms ? [machine.terms, ...machine.history] : [...machine.history];
@@ -348,7 +376,8 @@ function RentalTermsForm({ project, machine, onDone }: { project: string; machin
   const t = useTranslations("equipmentRental");
   const tj = useTranslations("jb288");
   const queryClient = useQueryClient();
-  const [draft, setDraft] = useState<TermsDraft>(() => draftOf(machine.terms));
+  // QA288: a change starts from the terms pricing today.
+  const [draft, setDraft] = useState<TermsDraft>(() => draftOf(inForce(machine)));
   const [error, setError] = useState("");
   const set = (key: Exclude<keyof TermsDraft, "first">) => (value: string) => setDraft((current) => ({ ...current, [key]: value }));
   const save = useMutation({
@@ -507,6 +536,8 @@ export function RentalFeeCells({
   const tj = useTranslations("jb288");
   const df = useDateFormat();
   const pieces = monthPieces(row);
+  // QA288: 柴油 / 调整 are amounts; without 「金额查看」 they read blank, so no form.
+  const seesAmounts = useSeesAmounts();
   return (
     <>
       {FEE_KEYS.map((key) => (
@@ -527,6 +558,10 @@ export function RentalFeeCells({
             <span className="text-xs text-muted-foreground">
               {t("confirmedBy", { name: row.rental_confirmed_by ?? "", time: df.dateTime(row.rental_confirmed_at ?? "") })}
             </span>
+          </span>
+        ) : canAdjust && !seesAmounts ? (
+          <span className="text-xs text-muted-foreground" data-testid="rental-amounts-off">
+            {tj("amountsOff")}
           </span>
         ) : canAdjust ? (
           <Button size="sm" variant="outline" onClick={() => onAmounts(row)}>

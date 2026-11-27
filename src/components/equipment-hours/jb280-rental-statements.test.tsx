@@ -157,8 +157,8 @@ describe("JB280 设备租赁月结单", () => {
     );
     const flat = text(html);
     for (const words of [
-      "设备租赁月结单 EQ-MS001", "PUTRA MAS · HH machinery sb", "EQ0001 · Excavator", "按月 RM 18000.00",
-      "19550.00", "合计", "EQ-RC001 · INV-88", "EQ-ST001 · PAID-01", "已结算",
+      "设备租赁月结单 EQ-MS001", "PUTRA MAS · HH machinery sb", "EQ0001 · Excavator", "按月 RM 18,000.00",
+      "19,550.00", "合计", "EQ-RC001 · INV-88", "EQ-ST001 · PAID-01", "已结算",
       "这里只记录核对及结算结果，不涉及实际付款及财务操作。",
     ]) {
       expect(flat).toContain(words);

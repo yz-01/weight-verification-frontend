@@ -36,8 +36,9 @@ import {
   ReturnCheckWindow,
   SettlementWindow,
 } from "@/components/contractor-ops/return-checks";
-import { RentalTermsDialog } from "@/components/equipment-hours/rental-fees";
+import { RentalTermsDialog, rentalMoney } from "@/components/equipment-hours/rental-fees";
 import { useAuth } from "@/components/providers/auth-provider";
+import { useSeesAmounts } from "@/hooks/use-sees-amounts";
 import { useCurrentProject } from "@/components/providers/current-project-provider";
 import { DataTable } from "@/components/shared/data-table";
 import { FileActionButtons } from "@/components/shared/file-actions";
@@ -121,14 +122,23 @@ export function RentalStatementsPage() {
   const [viewing, setViewing] = useUrlSelection("statement");
   const state = TAB_STATE[tab];
   const query = { ...list.query, ...(state ? { state } : {}) };
+  // QA288: the server refuses statements without 设备管理 or without 「金额查看」
+  // (they are all amounts); say which right is missing and who switches it on,
+  // instead of a list that 「加载失败」.
+  const { can, user } = useAuth();
+  const seesAmounts = useSeesAmounts();
+  const refused = !officeMay(user, can, RENTAL_PERMISSION) ? "statementsNoManage" : !seesAmounts ? "statementsNoAmounts" : null;
+  const tj = useTranslations("jb288");
   const rows = useQuery({
     queryKey: ["rental-statements", "list", query],
     queryFn: () => getRentalStatements(query),
+    enabled: !refused,
   });
   // query-failure: without the list of companies the filter shows only 「全部设备公司」; the table still loads.
   const companies = useQuery({
     queryKey: ["rental-statements", "companies", list.filters.project ?? ""],
     queryFn: () => getRentalStatementCompanies(list.filters.project || undefined),
+    enabled: !refused,
   });
   const total = rows.data?.count ?? 0;
   const columns = useMemo<ColumnDef<RentalStatementRow, unknown>[]>(
@@ -161,7 +171,7 @@ export function RentalStatementsPage() {
         accessorKey: "rental_total",
         meta: { label: tr("col.total") },
         header: () => <PlainHeader label={tr("col.total")} />,
-        cell: ({ row }) => <span className="tabular font-semibold">{row.original.rental_total}</span>,
+        cell: ({ row }) => <span className="tabular font-semibold">{rentalMoney(row.original.rental_total)}</span>,
       },
       {
         accessorKey: "state",
@@ -206,6 +216,17 @@ export function RentalStatementsPage() {
     [tr, df, setViewing],
   );
   const refresh = () => void qc.invalidateQueries({ queryKey: ["rental-statements"] });
+  if (refused) {
+    return (
+      <div className="flex flex-col gap-4" data-slot="rental-statements">
+        {/* Without 「金额查看」 the 租赁费用设定 window still lists the terms (no prices). */}
+        <ListHeader title={tr("title")} subtitle="" action={refused === "statementsNoAmounts" ? <RentalTermsButton /> : undefined} />
+        <p role="status" className="rounded-lg border bg-muted/30 px-4 py-3 text-sm" data-slot="rental-statements-refused">
+          {tj(refused)}
+        </p>
+      </div>
+    );
+  }
   return (
     <div className="flex flex-col gap-4 max-sm:[&>*]:shrink-0 sm:h-[calc(100dvh-5rem)]" data-slot="rental-statements">
       <ListHeader
@@ -559,12 +580,12 @@ export function StatementLines({
                         {tj("piece", {
                           from: piece.from,
                           to: piece.to,
-                          terms: `${tFee(`method.${piece.terms.method}` as never)} RM ${piece.terms.unit_price ?? ""}`,
+                          terms: `${tFee(`method.${piece.terms.method}` as never)} RM ${rentalMoney(piece.terms.unit_price)}`,
                         })}
                       </span>
                     ))
                   ) : (
-                    `${tFee(`method.${line.terms.method}` as never)} RM ${line.terms.unit_price ?? ""}`
+                    `${tFee(`method.${line.terms.method}` as never)} RM ${rentalMoney(line.terms.unit_price)}`
                   )
                 ) : (
                   tFee("noTermsShort")
@@ -575,7 +596,7 @@ export function StatementLines({
               <TableCell className="tabular text-right">{line.overtime_hours}</TableCell>
               {STATEMENT_KEYS.map((key) => (
                 <TableCell key={key} className="tabular text-right">
-                  {line[key]}
+                  {rentalMoney(line[key])}
                 </TableCell>
               ))}
               <TableCell className="whitespace-nowrap">
@@ -600,7 +621,7 @@ export function StatementLines({
             </TableCell>
             {STATEMENT_KEYS.map((key) => (
               <TableCell key={key} className="tabular text-right font-semibold" data-slot={`statement-total-${key}`}>
-                {totals[key]}
+                {rentalMoney(totals[key])}
               </TableCell>
             ))}
             <TableCell />

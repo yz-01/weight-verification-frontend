@@ -9757,6 +9757,7 @@
       "equipment_rental_diesel_not_charged": "This machine's diesel is not charged separately by the supplier, so no diesel fee can be entered.",
       "equipment_rental_month_confirmed": "This month's rental amounts are confirmed and can no longer be changed.",
       "equipment_rental_month_not_started": "This month has not started yet and cannot be confirmed.",
+      "equipment_rental_amounts_off": "'See amounts' is off for your account, so you cannot set or change rental amounts. Ask your company administrator to switch it on for you.",
       "role_start_fixed": "\"Head office\" and \"Project\" are the starting points of Invite user: they cannot be changed, and their codes cannot be used.",
       "invite_workplace_required": "Choose head office or project.",
       "invite_projects_required": "Tick at least one project.",
@@ -24315,7 +24316,11 @@
     "needEffective": "Enter the effective date first.",
     "pieceRent": "base rent RM {amount}",
     "noChange": "terms unchanged",
-    "noAmounts": "Amount view is switched off for you: you can see each machine's rental terms, but not set or change the fees."
+    "noAmounts": "Amount view is switched off for you: you can see each machine's rental terms, but not set or change the fees.",
+    "upcoming": "From {date}: {terms}",
+    "amountsOff": "See amounts is off for you, so you cannot enter diesel or an adjustment.",
+    "statementsNoManage": "Your account does not have 'Manage equipment, accept entry and exit, adjust hours', so it cannot see equipment rental statements. Ask your company administrator to switch it on for you.",
+    "statementsNoAmounts": "Equipment rental statements are all amounts, and 'See amounts' is off for your account. Ask your company administrator to switch 'See amounts' on for you."
   },
   "jb265": {
     "startedBy": "Started by consultant {name}"

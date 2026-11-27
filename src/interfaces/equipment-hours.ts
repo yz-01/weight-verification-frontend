@@ -281,6 +281,10 @@ export interface RentalMachine {
   supplier_name: string;
   terms: RentalTermsValues | null;
   history: RentalTermsValues[];
+  /** QA288: the saved version pricing today (by 生效日期, not save time). */
+  in_force_id?: string | null;
+  /** QA288: versions whose 生效日期 is still to come, soonest first. */
+  upcoming_ids?: string[];
 }
 
 export interface RentalMachines {
