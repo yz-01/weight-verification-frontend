@@ -4098,7 +4098,9 @@
       "labour_statement_pdf_previewed": "PDF penyata buruh dipratonton",
       "labour_statement_pdf_exported": "PDF penyata buruh dieksport",
       "labour_checked": "Penyata buruh disemak",
-      "labour_settled": "Penyata buruh diselesaikan"
+      "labour_settled": "Penyata buruh diselesaikan",
+      "progress_claim_checked": "Progress Claim disemak",
+      "progress_claim_settled": "Progress Claim diselesaikan"
     },
     "objectType": {
       "SignOffAssistant": "PIN pembantu",
@@ -7841,7 +7843,10 @@
       "fee_per_trip": "Yuran setiap lori",
       "fee_amount": "Jumlah yuran",
       "settlement_no": "No. penyelesaian",
-      "settlement_status": "Status penyelesaian"
+      "settlement_status": "Status penyelesaian",
+      "checked_amount": "Amaun semakan (RM)",
+      "claim_settle_state": "Status penyelesaian",
+      "check_no": "No. semakan"
     },
     "description": {
       "attendance": "Semak bukti kemasukan tapak, ketepatan GPS dan geofence.",
@@ -9859,6 +9864,10 @@
       "labour_statement_no_company": "Orang ini belum diisi syarikatnya: {items}. Isikan dahulu.",
       "labour_statement_empty": "Tiada sesiapa dari syarikat ini bekerja bulan ini; tiada apa untuk diselesaikan.",
       "labour_check_other_company": "{reference} milik syarikat lain; satu semakan untuk satu syarikat sahaja.",
+      "claim_check_other_subcontractor": "{reference} milik subkontraktor lain; satu semakan untuk satu subkontraktor sahaja.",
+      "claim_not_settleable": "{reference} belum boleh disemak: ia mesti diluluskan dan diarkibkan, dengan subkontraktor dan amaun lulus.",
+      "claim_check_reason_required": "Anda mengubah amaun semakan {reference}: nyatakan sebab.",
+      "claim_check_amount_invalid": "Amaun semakan {reference} mesti lebih daripada 0.",
       "labour_amounts_off": "Amaun dimatikan untuk akaun anda, jadi anda tidak boleh menetapkan kadar buruh."
     },
     "backToDashboard": "Kembali ke papan pemuka",
@@ -22376,7 +22385,9 @@
       "labour_unconfirm": "Batalkan pengesahan jam bulan ini",
       "labour_statement": "Jana atau batalkan penyata buruh",
       "labour_check": "Semak penyata buruh",
-      "labour_settle": "Selesaikan penyata buruh"
+      "labour_settle": "Selesaikan penyata buruh",
+      "progress_claim_check": "Semak Progress Claim",
+      "progress_claim_settle": "Selesaikan Progress Claim"
     },
     "firstTitle": "Tetapkan PIN pengesahan buat kali pertama",
     "firstBanner": "Ini kali pertama anda menggunakan PIN pengesahan",
@@ -25505,6 +25516,66 @@
       "months": "Setiap bulan",
       "empty": "Tiada sesiapa mempunyai hari bekerja dalam bulan-bulan ini.",
       "help": "Kos buruh dikira daripada rekod dan kadar sekarang; bulan yang sudah disahkan menggunakan apa yang disimpan semasa disahkan."
+    }
+  },
+  "jb298": {
+    "state": {
+      "PENDING": "Untuk disemak",
+      "CHECKED": "Telah disemak",
+      "SETTLED": "Telah diselesaikan",
+      "WAITING": "Belum diarkibkan",
+      "NOT_NEEDED": "Tidak perlu diselesaikan"
+    },
+    "tab": {
+      "pending": "Untuk disemak",
+      "checked": "Telah disemak",
+      "settled": "Telah diselesaikan",
+      "all": "Semua Claim"
+    },
+    "tabsLabel": "Tab semakan dan penyelesaian Progress Claim",
+    "tabHelp": {
+      "pending": "Claim yang telah diluluskan dan diarkibkan, dengan subkontraktor dan amaun lulus, menunggu semakan di sini.",
+      "checked": "Claim yang telah disemak tetapi belum diselesaikan. Tekan Semak dan selesaikan untuk menyelesaikannya.",
+      "settled": "Claim yang telah diselesaikan. Amaunnya dikira dalam gambaran kos tapak.",
+      "all": "Semua pakej Progress Claim; lajur Status penyelesaian menunjukkan peringkatnya."
+    },
+    "empty": {
+      "pending": "Tiada Claim untuk disemak sekarang. Pakej akan muncul di sini selepas diluluskan dan diarkibkan.",
+      "checked": "Tiada Claim yang telah disemak dan menunggu penyelesaian sekarang.",
+      "settled": "Belum ada Claim yang diselesaikan."
+    },
+    "col": {
+      "package": "Pakej",
+      "subcontractor": "Subkontraktor",
+      "period": "Tempoh",
+      "appliedAt": "Tarikh permohonan",
+      "archivedAt": "Tarikh lulus dan arkib",
+      "approved": "Amaun lulus (RM)",
+      "checked": "Amaun semakan (RM)",
+      "state": "Status penyelesaian",
+      "open": "Tindakan"
+    },
+    "open": "Buka",
+    "bothAmounts": "Lulus {approved} → semakan {checked}",
+    "checkTitle": "Progress Claim · Semak dan selesaikan",
+    "checkHelp": "Pilih subkontraktor, kemudian tandakan Claim yang menunggu semakan. Amaun semakan bermula dengan amaun lulus; boleh diubah dengan sebab.",
+    "checkChooseSub": "Pilih subkontraktor",
+    "checkNoPending": "Tiada Claim untuk disemak sekarang. Pakej akan muncul di sini selepas diluluskan dan diarkibkan.",
+    "checkPickTitle": "{name}: Claim untuk disemak",
+    "checkPickHelp": "Tandakan Claim untuk disemak, satu atau lebih.",
+    "checkWhat": "Claim untuk disemak",
+    "checkTickFirst": "Tandakan Claim untuk disemak dahulu; pengesahan akan muncul di bawah.",
+    "checkedAmountFor": "Amaun semakan {reference}",
+    "reasonFor": "Sebab amaun {reference} diubah",
+    "reasonPlaceholder": "Anda mengubah amaun: nyatakan sebab (wajib)",
+    "amountInvalidFor": "Amaun semakan {reference} mesti lebih daripada 0",
+    "reasonRequiredFor": "Anda mengubah amaun semakan {reference}: nyatakan sebab",
+    "checkWindowTitle": "Semakan Claim {number}",
+    "checkClaimsTitle": "Claim dalam semakan ini ({count})",
+    "checkClaimsHelp": "Amaun lulus dan amaun semakan; amaun yang diubah menunjukkan sebabnya.",
+    "cost": {
+      "notCounted": "Lagi {amount} belum diselesaikan, tidak dikira",
+      "basis": "Hanya Claim yang diselesaikan, mengikut tarikh kelulusan"
     }
   }
 }

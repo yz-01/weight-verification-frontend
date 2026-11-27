@@ -4098,7 +4098,9 @@
       "labour_statement_pdf_previewed": "Labour statement PDF previewed",
       "labour_statement_pdf_exported": "Labour statement PDF exported",
       "labour_checked": "Labour statements checked",
-      "labour_settled": "Labour statements settled"
+      "labour_settled": "Labour statements settled",
+      "progress_claim_checked": "Progress Claims checked",
+      "progress_claim_settled": "Progress Claims settled"
     },
     "objectType": {
       "SignOffAssistant": "Assistant PIN",
@@ -7841,7 +7843,10 @@
       "fee_per_trip": "Fee per lorry",
       "fee_amount": "Fee amount",
       "settlement_no": "Settlement no.",
-      "settlement_status": "Settlement status"
+      "settlement_status": "Settlement status",
+      "checked_amount": "Checked amount (RM)",
+      "claim_settle_state": "Settlement status",
+      "check_no": "Check no."
     },
     "description": {
       "attendance": "Review site entry evidence, GPS accuracy and geofence result.",
@@ -9859,6 +9864,10 @@
       "labour_statement_no_company": "These people have no company filled in: {items}. Fill it in first.",
       "labour_statement_empty": "Nobody of this company worked in this month; there is nothing to settle.",
       "labour_check_other_company": "{reference} is another company's; one check is one company's.",
+      "claim_check_other_subcontractor": "{reference} is another subcontractor's; one check is one subcontractor's.",
+      "claim_not_settleable": "{reference} cannot be checked yet: it must be approved and archived, with a subcontractor and an approved amount.",
+      "claim_check_reason_required": "You changed the checked amount of {reference}: say why.",
+      "claim_check_amount_invalid": "The checked amount of {reference} must be above 0.",
       "labour_amounts_off": "Amounts are switched off for your account, so you can't set labour rates."
     },
     "backToDashboard": "Back to dashboard",
@@ -22376,7 +22385,9 @@
       "labour_unconfirm": "Cancel the confirmation of a month's hours",
       "labour_statement": "Generate or cancel a labour statement",
       "labour_check": "Check labour statements",
-      "labour_settle": "Settle labour statements"
+      "labour_settle": "Settle labour statements",
+      "progress_claim_check": "Check Progress Claims",
+      "progress_claim_settle": "Settle Progress Claims"
     },
     "firstTitle": "Set your sign-off PIN for the first time",
     "firstBanner": "This is your first time using a sign-off PIN",
@@ -25505,6 +25516,66 @@
       "months": "Each month",
       "empty": "Nobody has working days in these months.",
       "help": "The labour cost is worked out from the records and rates now; confirmed months use what was kept when they were confirmed."
+    }
+  },
+  "jb298": {
+    "state": {
+      "PENDING": "To check",
+      "CHECKED": "Checked",
+      "SETTLED": "Settled",
+      "WAITING": "Not archived yet",
+      "NOT_NEEDED": "No settlement needed"
+    },
+    "tab": {
+      "pending": "To check",
+      "checked": "Checked",
+      "settled": "Settled",
+      "all": "All claims"
+    },
+    "tabsLabel": "Progress Claim check and settle tabs",
+    "tabHelp": {
+      "pending": "Claims approved and archived, with a subcontractor and an approved amount, wait here to be checked.",
+      "checked": "Claims checked, not settled yet. Use Check and settle to settle them.",
+      "settled": "Settled claims. Their amounts count in the site cost overview.",
+      "all": "Every Progress Claim package; the Settlement status column says how far it is."
+    },
+    "empty": {
+      "pending": "No claims to check now. A package shows here once it is approved and archived.",
+      "checked": "No claims checked and waiting to be settled now.",
+      "settled": "No settled claims yet."
+    },
+    "col": {
+      "package": "Package",
+      "subcontractor": "Subcontractor",
+      "period": "Period",
+      "appliedAt": "Applied on",
+      "archivedAt": "Approved and archived on",
+      "approved": "Approved amount (RM)",
+      "checked": "Checked amount (RM)",
+      "state": "Settlement status",
+      "open": "Action"
+    },
+    "open": "Open",
+    "bothAmounts": "Approved {approved} → checked {checked}",
+    "checkTitle": "Progress Claim · Check and settle",
+    "checkHelp": "Choose the subcontractor, then tick its claims waiting to be checked. The checked amount starts at the approved amount; you can change it, with a reason.",
+    "checkChooseSub": "Choose the subcontractor",
+    "checkNoPending": "No claims to check now. A package shows here once it is approved and archived.",
+    "checkPickTitle": "{name}: claims to check",
+    "checkPickHelp": "Tick the claims to check, one or more.",
+    "checkWhat": "Claims to check",
+    "checkTickFirst": "Tick the claims to check first; the confirmation then shows below.",
+    "checkedAmountFor": "Checked amount of {reference}",
+    "reasonFor": "Why the amount of {reference} changed",
+    "reasonPlaceholder": "You changed the amount: say why (required)",
+    "amountInvalidFor": "The checked amount of {reference} must be above 0",
+    "reasonRequiredFor": "You changed the checked amount of {reference}: say why",
+    "checkWindowTitle": "Claim check {number}",
+    "checkClaimsTitle": "Claims in this check ({count})",
+    "checkClaimsHelp": "The approved and the checked amounts; a changed amount shows its reason.",
+    "cost": {
+      "notCounted": "Another {amount} not settled yet, not counted",
+      "basis": "Settled claims only, by the approval date"
     }
   }
 }

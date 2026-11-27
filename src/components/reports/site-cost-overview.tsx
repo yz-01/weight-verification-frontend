@@ -47,6 +47,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useListQuery } from "@/hooks/use-list-query";
+import { useKeptFilters } from "@/lib/kept-filters";
 import {
   SITE_COST_SOURCES,
   getSiteCostOverview,
@@ -107,6 +108,9 @@ export function SiteCostOverview() {
   const t = useTranslations("jb259");
   const tOff = useTranslations("jb250fix");
   const list = useListQuery(["project", "date_from", "date_to"]);
+  // JB300 (客户 11-28d 事项 3): the 开始 / 结束日期 stay when the page is left
+  // and opened again, until changed or 【清除】.
+  const kept = useKeptFilters("site-cost-overview", ["date_from", "date_to"]);
   const topBar = useCurrentProject();
   const now = new Date();
   const dateFrom = list.filters.date_from ?? day(new Date(now.getFullYear(), now.getMonth(), 1));
@@ -116,7 +120,7 @@ export function SiteCostOverview() {
   const query = useQuery({
     queryKey: ["site-cost-overview", filters],
     queryFn: () => getSiteCostOverview(filters),
-    enabled: Boolean(dateFrom && dateTo && dateFrom <= dateTo),
+    enabled: kept.ready && Boolean(dateFrom && dateTo && dateFrom <= dateTo),
   });
   const data = query.data;
   const byKey = new Map((data?.sources ?? []).map((row) => [row.key, row]));
@@ -136,6 +140,7 @@ export function SiteCostOverview() {
   );
   const offWord = tOff("cardOff");
   const tFee = useTranslations("jb287");
+  const t298 = useTranslations("jb298");
 
   return (
     <div className="space-y-4" data-slot="site-cost-overview">
@@ -210,8 +215,16 @@ export function SiteCostOverview() {
                   <p className="text-xs text-warning" data-slot="cost-no-fee">{tFee("cost.noFee", { count: row.no_fee_count })}</p>
                 ) : row?.not_counted_amount && Number(row.not_counted_amount) > 0 ? (
                   // JB295: 「还有 RM x 未核对，不算在内」 - only 已核对 / 已结算 count.
+                  // JB298: Progress Claim - 「还有 RM x 未结算，不算在内」.
                   <p className="text-xs text-muted-foreground" data-slot="cost-not-counted">
-                    {t295("cost.notCounted", { amount: rm(row.not_counted_amount) })}
+                    {key === "progress_claim"
+                      ? t298("cost.notCounted", { amount: rm(row.not_counted_amount) })
+                      : t295("cost.notCounted", { amount: rm(row.not_counted_amount) })}
+                  </p>
+                ) : key === "progress_claim" && row && row.available && !row.switched_off ? (
+                  // JB298: what the card counts - only 已结算, by the 审核归档 day.
+                  <p className="text-xs text-muted-foreground" data-slot="cost-claim-basis">
+                    {t298("cost.basis")}
                   </p>
                 ) : null}
               </div>

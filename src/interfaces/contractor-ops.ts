@@ -2302,6 +2302,22 @@ export interface EvidencePackageRow {
   /** JB254: 申请金额 / 本期批准金额 (RM), on the two money types. */
   claim_amount?: string | null;
   approved_amount?: string | null;
+  /** JB298: a Progress Claim's 结算状态, 核对 / 结算 numbers and 核对金额. */
+  claim_settlement?: ClaimSettlementInfo | null;
+}
+
+/** 结算状态 of a Progress Claim (JB298): 待核对 / 已核对 / 已结算 / 待归档 / 不需要结算. */
+export type ClaimSettleState = "PENDING" | "CHECKED" | "SETTLED" | "WAITING" | "NOT_NEEDED";
+
+export interface ClaimSettlementInfo {
+  state: ClaimSettleState;
+  check_id: string | null;
+  check_no: string;
+  settlement_id: string | null;
+  settlement_no: string;
+  /** 核对金额 (RM); null before 核对 or without 金额查看. */
+  checked_amount: string | null;
+  checked_reason: string;
 }
 
 export interface EvidencePackageDetail extends EvidencePackageRow {
