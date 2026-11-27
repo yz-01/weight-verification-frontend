@@ -131,8 +131,10 @@ describe("every module is managed on this one page (D-264)", () => {
     expect(source).toMatch(/t\("removeFailed", refusal\)/);
   });
 
-  it("shows the material money in the material table (D-263)", () => {
-    const source = read(MANAGEMENT);
+  // JB262 (客户 11-26 事项 3): the material money and counts left 材料分类 for
+  // 材料进场's 「材料统计」, which reads the same fields of the same category.
+  it("shows the material money on 材料进场's 材料统计 (D-263, moved by JB262)", () => {
+    const source = read(MANAGEMENT) + read("src/components/receipts/material-overview.tsx");
     for (const field of [
       "archived_deliveries",
       // Per unit, not tonnes only (D-281): concrete is cubic metres.
@@ -179,10 +181,10 @@ describe("the column form (D-265, D-266; X1 for equipment)", () => {
     }
   });
 
-  it("keeps who can see the column, and the material budget", () => {
+  it("keeps who can see the column; the budget is set on 材料目标 since JB262", () => {
     expect(dialog).toMatch(/access_mode/);
-    expect(dialog).toMatch(/tracks_spend: tracksSpend/);
-    expect(dialog).toMatch(/budget_alert_percentages/);
+    expect(dialog).not.toMatch(/tracks_spend/);
+    expect(read("src/components/receipts/material-budget.tsx")).toMatch(/tracks_spend: input\.tracksSpend/);
   });
 
   it("no longer writes those fields at all", () => {
@@ -324,9 +326,9 @@ describe("the material table stays readable in the page width (JB38-2)", () => {
     expect(body).toContain('inline ? "text-xs text-muted-foreground" : "block text-xs text-muted-foreground"');
   });
 
-  it("keeps the quantity a right-aligned number cell, which never splits a line", () => {
-    expect(read(MANAGEMENT)).toMatch(
-      /<TableCell className="text-right tabular-nums">\s*<QuantityCell quantities=\{row\.column\.quantities/,
+  it("keeps the quantity a number cell, which never splits a line (on 材料进场 since JB262)", () => {
+    expect(read("src/components/receipts/material-overview.tsx")).toMatch(
+      /<TableCell className="tabular-nums">\s*<QuantityCell quantities=\{row\.quantities \?\? \[\]\} \/>/,
     );
   });
 });

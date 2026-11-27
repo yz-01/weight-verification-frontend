@@ -32,6 +32,7 @@ import {
   firstAllowedDashboardPath,
   isDriverOnlyAccount,
   isRouteAllowed,
+  refusedByCompanyModule,
 } from "@/lib/navigation";
 import { portalLoginPath, redirectWithFallback } from "@/lib/portal";
 import { refusedPageNotice } from "@/lib/refused-page";
@@ -100,7 +101,18 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       user.is_superuser,
     )
     ) {
-      const notice = refusedPageNotice(pathname, user.features);
+      const notice = refusedPageNotice(
+        pathname,
+        user.features,
+        refusedByCompanyModule(
+          user.portal,
+          user.features,
+          user.modules_off,
+          pathname,
+          user.permissions,
+          user.is_superuser,
+        ),
+      );
       if (notice && toldRefused.current !== pathname) {
         toldRefused.current = pathname;
         toastRefusal(notice);

@@ -18,6 +18,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useCurrentNav } from "@/hooks/use-current-nav";
+import { useNavLabel } from "@/hooks/use-nav-label";
+import { itemNameKey } from "@/lib/menu-names";
 import type { FeatureNavChild } from "@/lib/navigation";
 import { isReportCenterPage } from "@/lib/report-menu";
 
@@ -34,6 +36,7 @@ import { isReportCenterPage } from "@/lib/report-menu";
  */
 export function PageSwitcher() {
   const t = useTranslations();
+  const navLabel = useNavLabel();
   const pathname = usePathname();
   const current = useCurrentNav();
   const pages = current?.item.children ?? [];
@@ -51,16 +54,16 @@ export function PageSwitcher() {
           // top bar moves it to a second row instead (on a phone it had been
           // squeezed to a sliver).
           className="h-10 max-w-full shrink-0 gap-2 bg-card px-3"
-          aria-label={t("pageSwitcher.label", { page: t(here.labelKey) })}
-          title={t("pageSwitcher.label", { page: t(here.labelKey) })}
+          aria-label={t("pageSwitcher.label", { page: navLabel(here.labelKey) })}
+          title={t("pageSwitcher.label", { page: navLabel(here.labelKey) })}
         >
-          <span className="hidden truncate sm:inline">{t(here.labelKey)}</span>
+          <span className="hidden truncate sm:inline">{navLabel(here.labelKey)}</span>
           <ChevronsUpDown className="size-4 shrink-0 text-muted-foreground" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-auto min-w-56 max-w-72">
         <DropdownMenuLabel className="text-xs text-muted-foreground">
-          {t(`nav.${current.item.labelKey}`)}
+          {navLabel(itemNameKey(current.item))}
         </DropdownMenuLabel>
         <Level pages={pages} hereHref={here.href} />
       </DropdownMenuContent>
@@ -75,11 +78,11 @@ function Level({
   pages: readonly FeatureNavChild[];
   hereHref: string;
 }) {
-  const t = useTranslations();
+  const navLabel = useNavLabel();
   return pages.map((page) =>
     page.children?.length ? (
       <DropdownMenuSub key={`${page.key}:${page.href}`}>
-        <DropdownMenuSubTrigger className="h-8">{t(page.labelKey)}</DropdownMenuSubTrigger>
+        <DropdownMenuSubTrigger className="h-8">{navLabel(page.labelKey)}</DropdownMenuSubTrigger>
         <DropdownMenuPortal>
           <DropdownMenuSubContent className="min-w-52">
             <Level pages={page.children} hereHref={hereHref} />
@@ -93,7 +96,7 @@ function Level({
           aria-current={page.href === hereHref ? "page" : undefined}
           className={page.href === hereHref ? "font-medium text-primary" : undefined}
         >
-          <span className="min-w-0 flex-1 truncate">{t(page.labelKey)}</span>
+          <span className="min-w-0 flex-1 truncate">{navLabel(page.labelKey)}</span>
           {page.href === hereHref && <Check className="size-4 text-primary" />}
         </Link>
       </DropdownMenuItem>

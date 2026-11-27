@@ -165,16 +165,17 @@ describe("the report on the detail (第 2 点, 补充 第 2 点)", () => {
 });
 
 describe("「异常记录」 (补充 第 1 点)", () => {
-  it("is a tab beside 工地清运 that keeps the project, company and dates", () => {
+  it("is a tab beside 垃圾清运 / 废料处理 that keeps the project, company and dates", () => {
     const params = new URLSearchParams("kind=disposal&project=p1&supplier=s1&date_from=2026-11-01&status=APPROVED");
     const href = clearanceTabHref("abnormal", params);
-    expect(href).toContain("kind=disposal");
+    // JB248: both kinds' jobs, on 全部.
+    expect(href).toContain("kind=all");
     expect(href).toContain("abnormal=1");
     expect(href).toContain("project=p1");
     expect(href).toContain("supplier=s1");
     expect(href).toContain("date_from=2026-11-01");
-    expect(clearanceTabHref("disposal", new URLSearchParams("abnormal=1&project=p1"))).toBe("/waste-clearance?kind=disposal&project=p1");
-    expect(clearanceTabHref("dispatch", params)).toBe("/waste-clearance?kind=dispatch");
+    expect(clearanceTabHref("garbage", new URLSearchParams("abnormal=1&project=p1"))).toBe("/waste-clearance?kind=garbage&project=p1");
+    expect(clearanceTabHref("scrap", new URLSearchParams("abnormal=1"))).toBe("/waste-clearance?kind=scrap");
   });
 
   it("lists each report, then the lateness", () => {

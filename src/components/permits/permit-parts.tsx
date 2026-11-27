@@ -872,7 +872,16 @@ function PermitActions({ permit }: { permit: Permit }) {
     );
   }
   if (permit.status === "RECTIFICATION_SUBMITTED") {
-    if (permit.can_decide) return <DecisionPanel permit={permit} />;
+    // 「仅后台获授权审批人员可操作」 (客户 11-18b), Lucas 11-26 「手机不应该出现审批」:
+    // 签名批准 / 退回 only in the office; the server refuses a phone too.
+    if (permit.can_decide && !user?.is_field_staff) return <DecisionPanel permit={permit} />;
+    if (user?.is_field_staff && permit.approver === user.id) {
+      return (
+        <p className="rounded-md border border-warning/25 bg-warning/5 px-2 py-1.5 text-xs" data-slot="permit-office-only">
+          {t("officeOnly")}
+        </p>
+      );
+    }
     const name = permit.approver_name;
     return (
       <p className="rounded-md border border-warning/25 bg-warning/5 px-2 py-1.5 text-xs">

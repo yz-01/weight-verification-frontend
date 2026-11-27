@@ -18,7 +18,7 @@ import { useState } from "react";
 import { useAuth } from "@/components/providers/auth-provider";
 import { useCurrentProject } from "@/components/providers/current-project-provider";
 import { CompanyBanner } from "@/components/dashboard/company-banner";
-import { ExportButton } from "@/components/shared/export-button";
+import { ExportButton, type ExportChoice } from "@/components/shared/export-button";
 import { PhotoStrip, recordPhotos } from "@/components/shared/photo-thumb";
 import {
   ReportChoiceField,
@@ -64,6 +64,8 @@ import {
 } from "@/lib/report-menu";
 import { UNFILLED_SUPPLIER, supplierShown } from "@/lib/receipt-supplier";
 import { consultantLacks } from "@/lib/consultant-modules";
+import { companyModulesOff, reportSourcesOff } from "@/lib/company-modules";
+import { ModuleOffNotice } from "@/components/shared/module-off-notice";
 import { cn } from "@/lib/utils";
 import {
   exportMaterialReportReturns,
@@ -113,7 +115,27 @@ function currentPage(): string {
   return typeof window === "undefined" ? "" : `${window.location.pathname}${window.location.search}`;
 }
 
+/**
+ * JB250 (客户 11-24 事项 1): with 材料进场 not open for the company the report
+ * says so - 「材料进场 没有开通，这个报表没有资料」 - and reads nothing (the
+ * server no longer lets the report read deliveries then).
+ */
 export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
+  const t = useTranslations();
+  const { user } = useAuth();
+  const off = reportSourcesOff(mode === "cost" ? "material_cost" : "material_quantity", companyModulesOff(user));
+  if (off) {
+    return (
+      <div className="space-y-4">
+        <CompanyBanner scope="reports" />
+        <ModuleOffNotice modules={off} title={t(`materialReports.${mode}.title`)} />
+      </div>
+    );
+  }
+  return <MaterialReportBody mode={mode} />;
+}
+
+function MaterialReportBody({ mode }: { mode: MaterialReportMode }) {
   const t = useTranslations();
   const { can, user } = useAuth();
   // JB225 (客户 11-19 事项 5): a consultant's 进场 / 不合格 views need 材料进场,
@@ -210,7 +232,7 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
   // Kept in 「报表导出历史」 under its own name (JB178, 客户 11-12 追加 1).
   const reportType = mode === "cost" ? "material_cost" : "material_quantity";
 
-  function runExport(format: ExportFormat) {
+  function runExport(format: ExportFormat, choice?: ExportChoice) {
     // The file ends with each material's 累计总数量 (E5, Q24): one
     // quantity beside 收货次数, as on the screen (Lucas 2026-10-10).
     const cumulativeSummary = {
@@ -223,6 +245,22 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
               countLabel: t("reports.receipts.deliveries"),
               note: t(`materialReports.quantity.${hintKey[view]}`),
             };
+    const unpriced = summary.data?.unpriced_receipts ?? 0;
+    const costSummary = {
+      groupBy: "material_cost" as const,
+      title: t("jb256.summaryTitle"),
+      materialLabel: t("exportTotals.material"),
+      specificationLabel: t("exportTotals.specification"),
+      unitLabel: t("reports.receipts.unit"),
+      quantityLabel: t("exportTotals.quantity"),
+      countLabel: t("reports.receipts.deliveries"),
+      amountLabel: t("materialReports.cost.purchaseCost"),
+      totalLabel: t("jb256.totalAmount"),
+      // What the page says about missing prices, or how the lines are kept apart.
+      note: unpriced
+        ? t("materialReports.cost.incompleteWarning", { count: unpriced })
+        : t("exportTotals.materialNote"),
+    };
     if (view === "returns") {
       // 退货 view (J36): the returns, from their own endpoint.
       return exportMaterialReportReturns({
@@ -273,7 +311,11 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
       reportType,
       // The file ends with each material's 累计总数量 (E5, Q24): one
       // quantity beside 收货次数, as on the screen (Lucas 2026-10-10).
-      summary: mode === "quantity" ? cumulativeSummary : undefined,
+      // 材料成本报表 (JB256, 客户 11-24b 事项 3): 累计数量 and 金额 per material +
+      // specification + unit, then 总金额 - the page's own numbers.
+      summary: mode === "quantity" ? cumulativeSummary : costSummary,
+      // 「包含照片 / 不包含照片」 (JB256): 材料成本报表 only.
+      ...(mode === "cost" && choice ? { includePhotos: choice.includePhotos } : {}),
       columns:
         mode === "quantity"
           ? [
@@ -334,6 +376,7 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
           <ExportButton
             disabled={summary.isLoading || (summary.data?.total_receipts ?? 0) === 0}
             onExport={runExport}
+            photoChoice={mode === "cost"}
           />
         ) : undefined}
       />

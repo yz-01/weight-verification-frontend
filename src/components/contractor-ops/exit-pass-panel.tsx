@@ -27,6 +27,7 @@
 import { type QueryClient, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   CheckCircle2,
+  Circle,
   ExternalLink,
   Eye,
   FileCheck2,
@@ -44,6 +45,7 @@ import { useEffect, useState } from "react";
 import { FieldSignaturePad } from "@/components/field-staff/field-signature-pad";
 import { useAuth } from "@/components/providers/auth-provider";
 import { AttachmentPicker } from "@/components/shared/attachment-picker";
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { FilePreviewDialog } from "@/components/shared/file-preview";
 import {
   FieldWrapper,
@@ -78,6 +80,7 @@ import {
   setExitPassExternalRequired,
   signExitPass,
   signExitPassExternal,
+  startExitPass,
 } from "@/services/exit-pass.service";
 import { getRecordAttachments } from "@/services/record-attachment.service";
 
@@ -305,16 +308,32 @@ function ApprovalPart({ pass, readOnly }: { pass: ExitPass; readOnly: boolean })
   const t = useTranslations("exitPass");
   const df = useDateFormat();
   const signerLine = useSignerLine();
+  const { user } = useAuth();
   const [signing, setSigning] = useState(false);
   const signed = Boolean(pass.approval);
   const badge =
     pass.state === "legacy" || pass.state === "not_ready" ? null : signed ? (
       <StatusBadge label={t("approval.approved")} tone="positive" />
+    ) : pass.state === "awaiting_photos" && !pass.record_closed ? (
+      <StatusBadge label={t("start.preparing")} tone="warning" />
+    ) : pass.state === "awaiting_start" && !pass.record_closed ? (
+      <StatusBadge label={t("start.waitingStart")} tone="warning" />
+    ) : (pass.state === "awaiting_executor" || pass.state === "awaiting_exit_evidence") && !pass.record_closed ? (
+      <StatusBadge label={t("start.preparing")} tone="warning" />
     ) : (
       <StatusBadge label={t("approval.notApproved")} tone="warning" />
     );
+  const beforeStart = pass.state === "awaiting_photos" || pass.state === "awaiting_start";
+  // JB285 (工地清运): the executor and the exit photos come before the signature.
+  const beforeEvidence = pass.state === "awaiting_executor" || pass.state === "awaiting_exit_evidence";
   return (
     <ShellPanel title={t("approval.title")} aside={badge} data-exit-pass-part="approval">
+      {/* JB237: who pressed 【启动出门条】 and when - part of the evidence chain. */}
+      {pass.start?.started_at ? (
+        <p className="mb-2 text-sm text-muted-foreground" data-exit-pass-started>
+          {t("start.started", { name: pass.start.started_by_name, when: df.dateTime(pass.start.started_at) })}
+        </p>
+      ) : null}
       {pass.state === "legacy" ? (
         <p className="text-sm text-muted-foreground">{t("approval.legacy")}</p>
       ) : pass.state === "not_ready" ? (
@@ -339,6 +358,10 @@ function ApprovalPart({ pass, readOnly }: { pass: ExitPass; readOnly: boolean })
         </dl>
       ) : pass.record_closed ? (
         <p className="text-sm text-muted-foreground">{t("approval.closedUnsigned")}</p>
+      ) : beforeStart ? (
+        <StartStep pass={pass} readOnly={readOnly} />
+      ) : beforeEvidence ? (
+        <EvidenceSteps pass={pass} readOnly={readOnly} />
       ) : (
         <div className="space-y-3">
           <p className="rounded-md bg-warning/10 px-2 py-1.5 text-sm font-medium text-warning" role="status">
@@ -351,7 +374,9 @@ function ApprovalPart({ pass, readOnly }: { pass: ExitPass; readOnly: boolean })
               {signerLine(pass.signers)}
             </p>
           )}
-          {pass.can_sign && !readOnly ? (
+          {/* 「手机不应该出现审批」 (QA1 audit #14): the server never offers a
+              phone account the signature; the page does not either. */}
+          {pass.can_sign && !readOnly && !user?.is_field_staff ? (
             <Button className="min-h-11 w-full" data-exit-pass-sign onClick={() => setSigning(true)}>
               <PenLine />
               {t("approval.sign")}
@@ -361,6 +386,146 @@ function ApprovalPart({ pass, readOnly }: { pass: ExitPass; readOnly: boolean })
       )}
       {signing ? <SignDialog pass={pass} onClose={() => setSigning(false)} /> : null}
     </ShellPanel>
+  );
+}
+
+/**
+ * 【启动出门条】 (JB237, 客户 11-23 事项 9):
+ *
+ *   「1. 项目经理可以提前批准材料出场申请，批准后状态显示「准备出门条」。2. 现场人员
+ *   必须在车辆到场后，拍摄车辆及货物出场照片并提交后台。3. 后台设置「启动出门条」
+ *   按钮。现场照片未提交前，按钮锁定，不能操作。4. 收到现场照片后，授权人员点击
+ *   「启动出门条」，才开放安全经理签名批准。」
+ *
+ * The office approver sees the button: locked, with the reason, until the
+ * photos are in; then pressable (one confirmation). Everybody else reads
+ * which step it waits for. The server refuses every skip on its own.
+ */
+export function StartStep({ pass, readOnly = false }: { pass: ExitPass; readOnly?: boolean }) {
+  const t = useTranslations("exitPass");
+  const df = useDateFormat();
+  const settle = useSettle(pass);
+  const [confirming, setConfirming] = useState(false);
+  const start = useMutation({
+    mutationFn: () => startExitPass(pass.kind, pass.record),
+    onSuccess: (next) => {
+      settle.done(next);
+      setConfirming(false);
+    },
+    onError: settle.refresh,
+  });
+  const step = pass.start;
+  const photosIn = pass.state === "awaiting_start";
+  const showButton = Boolean(step?.may_start) && !readOnly;
+  return (
+    <div className="space-y-3" data-exit-pass-start={pass.state}>
+      <p className="rounded-md bg-warning/10 px-2 py-1.5 text-sm font-medium text-warning" role="status">
+        {t("approval.notSentYet")}
+      </p>
+      <p className="text-sm leading-6 text-muted-foreground" data-exit-pass-start-line>
+        {!photosIn
+          ? t("start.noPhotos")
+          : showButton && step?.photos_at
+            ? t("start.photosIn", { when: df.dateTime(step.photos_at) })
+            : t("start.waitingOffice")}
+      </p>
+      {showButton ? (
+        <Button
+          className="min-h-11 w-full"
+          data-exit-pass-start-button
+          disabled={!step?.can_start || start.isPending}
+          disabledReason={!photosIn ? t("start.lockedReason") : undefined}
+          showReason={!photosIn}
+          onClick={() => setConfirming(true)}
+        >
+          {start.isPending ? <Loader2 className="animate-spin" /> : <Send />}
+          {t("start.button")}
+        </Button>
+      ) : null}
+      {start.isError ? (
+        <p role="alert" className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+          {failure(start.error, t("failed"))}
+        </p>
+      ) : null}
+      <ConfirmDialog
+        open={confirming}
+        onOpenChange={setConfirming}
+        title={t("start.title")}
+        description={t("start.confirm")}
+        confirmLabel={t("start.button")}
+        confirmIcon={Send}
+        variant="default"
+        isPending={start.isPending}
+        onConfirm={() => start.mutate()}
+      />
+    </div>
+  );
+}
+
+/**
+ * What a 工地清运's 出门条 waits for (JB285, 客户 11-26 事项 26: 「还没开始外部
+ * 清运商还没成功截图就显示出门条批准签名」): the order, each step done or not,
+ * and - for a safety manager - 【签名批准】 locked with what is missing. The
+ * server refuses the signature on its own whatever the screen shows.
+ */
+export function EvidenceSteps({ pass, readOnly = false }: { pass: ExitPass; readOnly?: boolean }) {
+  const t = useTranslations("exitPass");
+  const w = useTranslations("jb285");
+  const df = useDateFormat();
+  const evidence = pass.evidence?.needed ? pass.evidence : null;
+  const executor = Boolean(evidence?.executor_chosen);
+  const photos = Boolean(evidence?.photos_in);
+  const steps: Array<{ key: string; done: boolean; label: string }> = [
+    { key: "approved", done: true, label: w("step.approved") },
+    { key: "executor", done: executor, label: w("step.executor") },
+    {
+      key: "photos",
+      done: photos,
+      label: photos && evidence?.photos_at
+        ? w("step.photosDone", { count: evidence.photos_count, when: df.dateTime(evidence.photos_at) })
+        : w("step.photos"),
+    },
+    { key: "sign", done: false, label: w("step.sign") },
+    { key: "gate", done: false, label: w("step.gate") },
+  ];
+  const reason = !executor ? w("locked.executor") : w("locked.photos");
+  return (
+    <div className="space-y-3" data-exit-pass-evidence={pass.state}>
+      <p className="rounded-md bg-warning/10 px-2 py-1.5 text-sm font-medium text-warning" role="status">
+        {t("approval.notSentYet")}
+      </p>
+      <ol className="space-y-1.5 text-sm" aria-label={w("stepsLabel")}>
+        {steps.map((step, index) => (
+          <li key={step.key} data-step={step.key} data-done={step.done ? "1" : "0"} className="flex items-start gap-2">
+            {step.done ? (
+              <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-success" aria-hidden />
+            ) : (
+              <Circle className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden />
+            )}
+            {/* The number keeps to the first line; a long step wraps beside it (QA3). */}
+            <span className={cn("flex min-w-0 gap-1", step.done ? "text-foreground" : "text-muted-foreground")}>
+              <span className="shrink-0 tabular-nums">{index + 1}.</span>
+              <span className="min-w-0">{step.label}</span>
+            </span>
+          </li>
+        ))}
+      </ol>
+      <p className="text-sm leading-6 text-muted-foreground" data-exit-pass-evidence-line>
+        {reason}
+      </p>
+      {evidence?.may_sign_later && !readOnly ? (
+        <Button
+          className="min-h-11 w-full"
+          data-exit-pass-sign-locked
+          disabled
+          disabledReason={reason}
+          showReason
+        >
+          <PenLine />
+          {t("approval.sign")}
+        </Button>
+      ) : null}
+    </div>
   );
 }
 

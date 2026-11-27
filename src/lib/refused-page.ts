@@ -26,8 +26,15 @@ const ITEM_PAGES: ReadonlyArray<readonly [string, string]> = [
  * word, and the reader thought the button was broken (JB206-8, Lucas 11-16
  * audit). The home address is everyone's way in, so leaving it says nothing.
  */
-export function refusedPageNotice(pathname: string, features: readonly string[] = []): string | null {
+export function refusedPageNotice(
+  pathname: string,
+  features: readonly string[] = [],
+  companyModuleOff = false,
+): string | null {
   if (pathname === "/" || pathname === "/dashboard") return null;
+  // JB250 (客户 11-24 事项 1): the company does not have the page's module -
+  // 「这个功能你的公司没有开通，请联系总部或 MSE」, not 「你的账号不能打开」.
+  if (companyModuleOff) return "jb250fix.pageModuleOff";
   // A consultant's page is a module head office ticks per project (JB210,
   // walk 11-17 F-A3): he is told so, in the server's own words.
   if (features.includes("consultant_menu")) {

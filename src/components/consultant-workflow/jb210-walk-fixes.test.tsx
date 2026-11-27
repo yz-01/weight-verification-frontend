@@ -6,7 +6,7 @@
  * - F-A5: a consultant 验收 / 退回 a 提交顾问审批 task in plain words, with no
  *   「需要继续整改」 hint; the contractor's window as before.
  * - F-A3: a typed report address of a module not ticked is refused, with
- *   「总部没有为您在这个项目开通这个模块」.
+ *   「总部没有为你在这个项目开通这个模块」.
  * - N-A3: 材料目标's empty line says nothing about 新增 to him.
  */
 import { describe, expect, it, vi } from "vitest";
@@ -169,7 +169,7 @@ describe("F-A3: a report address of a module not ticked", () => {
     expect(refusedPageNotice("/reports/contractor/progress", consultant)).toBe(
       "errors.api.consultant_module_not_granted",
     );
-    expect(zh.errors.api.consultant_module_not_granted).toContain("总部没有为您在这个项目开通这个模块");
+    expect(zh.errors.api.consultant_module_not_granted).toContain("总部没有为你在这个项目开通这个模块");
   });
 
   it("closes 现场记录中心 without its tick, even beside 材料管理", () => {

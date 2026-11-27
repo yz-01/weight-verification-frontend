@@ -157,7 +157,7 @@ function DecisionBar({ onReview }: { onReview: () => void }) {
 }
 
 function DisposalDecision({ id, onDone }: { id: string; onDone: () => void }) {
-  const { can } = useAuth();
+  const { can, user } = useAuth();
   const [reviewing, setReviewing] = useState(false);
   // A ref, not state: the dialog calls onSaved and then onClose in one tick.
   const saved = useRef(false);
@@ -169,7 +169,8 @@ function DisposalDecision({ id, onDone }: { id: string; onDone: () => void }) {
   const row = record.data;
   // Kept open once started: approving shows the temporary link once (D-217),
   // and the request is no longer REQUESTED by the time it does.
-  if (!reviewing && (!row || !can("disposal.manage") || row.status !== "REQUESTED")) {
+  // JB282: never on the phone (Lucas 11-26 「那个手机不应该出现审批才对」).
+  if (!reviewing && (!row || !can("disposal.manage") || user?.is_field_staff || row.status !== "REQUESTED")) {
     return null;
   }
   return (

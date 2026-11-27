@@ -1,4 +1,5 @@
 import type { RefusalReason } from "@/lib/queue-refusal";
+import type { DisposalClearanceKind } from "@/interfaces/contractor-ops";
 
 export type OfflineJobKind =
   | "ATTENDANCE"
@@ -201,6 +202,8 @@ export interface MaterialReceiptOfflineJob extends OfflineJobBase {
       longitude?: string | null;
       location_accuracy_m?: string | null;
       ocr_proof?: string;
+      /** JB279: the chosen MR / 其他申请, comma-separated ids; absent when none. */
+      material_requests?: string;
     };
     signature?: StoredFile;
     supplierSignature?: StoredFile;
@@ -326,6 +329,8 @@ export interface MaterialOutgoingOfflineJob extends OfflineJobBase {
     longitude?: string;
     client_event_id: string;
     field_task?: string;
+    /** JB279: the chosen MR / 其他申请, comma-separated ids; absent when none. */
+    material_requests?: string;
     photos: StoredFile[];
     photo_captions?: string[];
   };
@@ -412,6 +417,8 @@ export interface DisposalRequestOfflineJob extends OfflineJobBase {
     request_note?: string;
     /** 「预计车次」 (X11); absent on a job queued before it existed. */
     planned_trips?: string;
+    /** 垃圾清运 or 废料处理 (JB248); absent on a job queued before - 垃圾清运. */
+    clearance_kind?: DisposalClearanceKind;
     captured_at: string;
     /** Absent: offline with no GPS fix (Lucas 2026-10-23); both or neither. */
     latitude?: string;

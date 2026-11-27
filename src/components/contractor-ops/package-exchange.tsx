@@ -9,6 +9,7 @@ import {
   Link2,
   MessageCircle,
   MessagesSquare,
+  PenLine,
   RefreshCw,
   Repeat,
   Send,
@@ -22,6 +23,15 @@ import { toast } from "sonner";
 
 import { packageRecord, usePackageSend, type PackageShareWhat } from "@/components/contractor-ops/package-share";
 import { Shell } from "@/components/contractor-ops/package-shell";
+import {
+  CompletePanel,
+  ProgressBadge,
+  ReviewDialog,
+  SignaturesBlock,
+  isMoneyType,
+  type ReviewRecord,
+} from "@/components/contractor-ops/package-review-loop";
+import { FieldSignaturePad } from "@/components/field-staff/field-signature-pad";
 import { LoadedFileThumb } from "@/components/shared/file-thumbs";
 import { OptionCombobox } from "@/components/material-requests/option-combobox";
 import { useAuth } from "@/components/providers/auth-provider";
@@ -44,6 +54,7 @@ import type {
   PackageRecipient,
   PackageThreadPeople,
   RecipientKind,
+  RecipientPurpose,
 } from "@/interfaces/contractor-ops";
 import { isLinkRecipient } from "@/interfaces/contractor-ops";
 import {
@@ -61,6 +72,7 @@ import {
   regeneratePackageLink,
   resendPackage,
   resubmitPackage,
+  reviewEvidencePackage,
   revokePackageRecipient,
   sendPackageMessage,
 } from "@/services/contractor-ops.service";
@@ -190,12 +202,43 @@ export function ExchangePanel({
   onChanged: () => void;
 }) {
   const t = useTranslations("multiEngine");
+  const loop = useTranslations("jb252");
   const { can } = useAuth();
   const [resubmitting, setResubmitting] = useState(false);
+  // JB252 (客户 11-24 事项 3 一): head office reviews what was sent to it.
+  const [reviewing, setReviewing] = useState(false);
   const recipients = data.recipients ?? [];
+  const hq = data.headquarters_review;
+  const hqRecords: ReviewRecord[] = hq
+    ? data.items.map((item) => {
+        const mine = (item.answers ?? []).find((answer) => answer.recipient === hq.recipient);
+        return {
+          id: item.id,
+          label: item.reference || packageKindName(t, item),
+          detail: packageKindName(t, item),
+          mine: mine?.decision ?? "PENDING",
+          reason: mine?.reason,
+        };
+      })
+    : [];
 
   return (
     <section className="space-y-3" aria-label={t("exchange.title")}>
+      <CompletePanel pkg={data} onChanged={onChanged} />
+      {hq?.can_review && (
+        <div
+          className="flex flex-wrap items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 p-3"
+          data-headquarters-review
+        >
+          <p className="min-w-0 flex-1 text-sm">
+            {loop("review.waiting", { count: hqRecords.filter((row) => row.mine === "PENDING").length })}
+          </p>
+          <Button size="sm" onClick={() => setReviewing(true)}>
+            <PenLine className="size-4" />
+            {loop("review.button")}
+          </Button>
+        </div>
+      )}
       {data.can_resubmit && can("package.manage") && (
         <div className="flex flex-wrap items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 p-3">
           <p className="min-w-0 flex-1 text-sm">
@@ -248,6 +291,15 @@ export function ExchangePanel({
           }}
         />
       )}
+      {reviewing && (
+        <ReviewDialog
+          pkg={data}
+          records={hqRecords}
+          onClose={() => setReviewing(false)}
+          submit={(payload) => reviewEvidencePackage(data.id, payload)}
+          onDone={onChanged}
+        />
+      )}
     </section>
   );
 }
@@ -264,11 +316,14 @@ function RecipientsBlock({
   onChanged: () => void;
 }) {
   const t = useTranslations("multiEngine");
+  const loop = useTranslations("jb252");
   const common = useTranslations("common");
   const formatter = useDateFormat();
   const { can } = useAuth();
   const manage = can("package.manage");
   const [sending, setSending] = useState(false);
+  // JB252: a 提交审批 resend is the new package's signed round 1.
+  const [resendSignature, setResendSignature] = useState<File | undefined>();
   // A link in full, the one time the server hands it over (五 1).
   const [revealed, setRevealed] = useState<PackageRecipient | null>(null);
   // Whose package that link opens: a resend's link is the new package's (JB189).
@@ -277,9 +332,11 @@ function RecipientsBlock({
   // 【重新发送】 asks once before it goes (JB189 做法 2).
   const [resending, setResending] = useState<string | null>(null);
   const resend = useMutation({
-    mutationFn: (recipient: PackageRecipient) => resendPackage(pkg.id, recipient.id),
+    mutationFn: (recipient: PackageRecipient) =>
+      resendPackage(pkg.id, recipient.id, recipient.purpose === "CIRCULATION" ? undefined : resendSignature),
     onSuccess: (made) => {
       setResending(null);
+      setResendSignature(undefined);
       if (made.sent?.token) {
         setRevealed(made.sent);
         setRevealedFor({ package_no: made.package_no, name: made.name });
@@ -333,6 +390,11 @@ function RecipientsBlock({
                     )}
                   </p>
                   <StatusBadge label={t(`exchange.kind.${row.kind}`)} tone="neutral" />
+                  {/* JB252: 提交审批 / 资料传阅, and where this reviewer is. */}
+                  {row.purpose && (
+                    <StatusBadge label={loop(`purpose.${row.purpose}`)} tone="neutral" />
+                  )}
+                  <ProgressBadge progress={row.progress} />
                   <StatusBadge
                     label={
                       row.is_expired && !closed ? t("exchange.expired") : t(`exchange.status.${row.status}`)
@@ -446,10 +508,27 @@ function RecipientsBlock({
                     <p className="min-w-0 flex-1 text-sm">
                       {t("exchange.resendAsk", { name: recipientLabel(t, row) })}
                     </p>
+                    {row.purpose !== "CIRCULATION" && (
+                      <div className="w-full">
+                        <FieldSignaturePad
+                          label={loop("sign.label")}
+                          clearLabel={loop("sign.clear")}
+                          hint={loop("sign.resendHint")}
+                          required
+                          value={resendSignature}
+                          onChange={setResendSignature}
+                        />
+                      </div>
+                    )}
                     <Button size="sm" variant="outline" onClick={() => setResending(null)}>
                       {common("cancel")}
                     </Button>
-                    <Button size="sm" disabled={resend.isPending} onClick={() => resend.mutate(row)}>
+                    <Button
+                      size="sm"
+                      requires={row.purpose !== "CIRCULATION" ? [[resendSignature, loop("sign.label")]] : []}
+                      disabled={resend.isPending}
+                      onClick={() => resend.mutate(row)}
+                    >
                       <Repeat className="size-4" />
                       {t("exchange.resendConfirm")}
                     </Button>
@@ -567,8 +646,13 @@ export function SendDialog({
   initialKind?: RecipientKind;
 }) {
   const t = useTranslations("multiEngine");
+  const loop = useTranslations("jb252");
   const common = useTranslations("common");
   const [kind, setKind] = useState<RecipientKind>(initialKind);
+  // JB252 (第三份补充): 「系统内发送」 is 提交审批 or 资料传阅.
+  const [purpose, setPurpose] = useState<RecipientPurpose>("APPROVAL");
+  const [signature, setSignature] = useState<File | undefined>();
+  const needsSignature = purpose === "APPROVAL" && pkg.round_signed === false;
   const [consultant, setConsultant] = useState("");
   const [name, setName] = useState("");
   const [organization, setOrganization] = useState("");
@@ -586,14 +670,15 @@ export function SendDialog({
   }));
   const send = useMutation({
     mutationFn: () =>
-      addPackageRecipient(
-        pkg.id,
-        kind === "HEADQUARTERS"
+      addPackageRecipient(pkg.id, {
+        ...(kind === "HEADQUARTERS"
           ? { kind }
           : kind === "CONSULTANT"
             ? { kind, consultant }
-            : { kind, name, organization, contact, days: Number(days) || 90 },
-      ),
+            : { kind, name, organization, contact, days: Number(days) || 90 }),
+        purpose,
+        ...(needsSignature ? { signature } : {}),
+      }),
     onSuccess: onSent,
   });
   const link = isLinkRecipient(kind);
@@ -601,6 +686,28 @@ export function SendDialog({
   return (
     <Shell title={t("exchange.sendTitle")} onClose={onClose}>
       <div className="flex-1 space-y-4 overflow-y-auto p-4">
+        <FieldWrapper label={loop("purpose.label")} required>
+          <div className="grid grid-cols-2 gap-2" data-send-purpose>
+            {(["APPROVAL", "CIRCULATION"] as const).map((value) => (
+              <button
+                key={value}
+                type="button"
+                aria-pressed={purpose === value}
+                onClick={() => setPurpose(value)}
+                className={`h-10 rounded-lg border px-3 text-sm font-medium transition-colors ${
+                  purpose === value
+                    ? "border-primary/40 bg-primary/12 text-primary"
+                    : "border-border bg-card text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {loop(`purpose.${value}`)}
+              </button>
+            ))}
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {loop(purpose === "APPROVAL" ? "purpose.approvalHelp" : "purpose.circulationHelp")}
+          </p>
+        </FieldWrapper>
         <FieldWrapper label={t("exchange.field.kind")} required>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
             {RECIPIENT_KINDS.map((value) => (
@@ -679,19 +786,30 @@ export function SendDialog({
             </p>
           </>
         )}
+        {needsSignature && (
+          <FieldSignaturePad
+            label={loop("sign.label")}
+            clearLabel={loop("sign.clear")}
+            hint={loop("sign.sendHint")}
+            required
+            value={signature}
+            onChange={setSignature}
+          />
+        )}
       </div>
       <footer className="flex flex-col-reverse gap-2 border-t border-panel-border bg-muted p-4 sm:flex-row sm:items-center sm:justify-end">
         <Button variant="outline" onClick={onClose}>
           {common("cancel")}
         </Button>
         <Button
-          requires={
-            kind === "HEADQUARTERS"
+          requires={[
+            ...(kind === "HEADQUARTERS"
               ? []
               : link
-                ? [[(name.trim() || organization.trim()), t("exchange.field.who")]]
-                : [[consultant, t("field.consultant")]]
-          }
+                ? ([[(name.trim() || organization.trim()), t("exchange.field.who")]] as const)
+                : ([[consultant, t("field.consultant")]] as const)),
+            ...(needsSignature ? ([[signature, loop("sign.label")]] as const) : []),
+          ]}
           disabled={send.isPending}
           onClick={() => send.mutate()}
         >
@@ -1280,6 +1398,8 @@ function RoundsBlock({ pkg, onChanged }: { pkg: EvidencePackageDetail; onChanged
           </li>
         ))}
       </ul>
+      {/* JB252: every round's signatures, both sides (「每一轮资料及审批记录独立保留」). */}
+      <SignaturesBlock signatures={pkg.signatures} />
       {/* 往来记录 (H17 九, HD19): its own report with its own digest. */}
       <div className="space-y-2 rounded-lg border bg-muted/20 p-3">
         <p className="text-sm font-medium">{t("exchange.report")}</p>
@@ -1317,13 +1437,25 @@ function ResubmitDialog({
   onDone: () => void;
 }) {
   const t = useTranslations("multiEngine");
+  const loop = useTranslations("jb252");
   const common = useTranslations("common");
   const returned = pkg.items.filter((item) => (pkg.returned_item_ids ?? []).includes(item.id));
   const [picked, setPicked] = useState<string[]>(returned.map((item) => item.id));
   const [reason, setReason] = useState("");
   const [result, setResult] = useState<EvidencePackageDetail | null>(null);
+  // JB252: 「填写说明后重新签名提交」; JB254: the claim amount may be corrected (PIN).
+  const [signature, setSignature] = useState<File | undefined>();
+  const [claimAmount, setClaimAmount] = useState<string | null>(null);
+  const staged = pkg.staged_items ?? [];
   const resubmit = useMutation({
-    mutationFn: () => resubmitPackage(pkg.id, picked, reason),
+    mutationFn: () =>
+      resubmitPackage(
+        pkg.id,
+        picked,
+        reason,
+        signature!,
+        claimAmount !== null && claimAmount.trim() !== (pkg.claim_amount ?? "") ? claimAmount.trim() : undefined,
+      ),
     onSuccess: (row) => {
       setResult(row);
       onDone();
@@ -1397,9 +1529,33 @@ function ResubmitDialog({
                 ))}
               </ul>
             </FieldWrapper>
+            {staged.length > 0 && (
+              <p className="text-xs text-muted-foreground" data-resubmit-staged>
+                {loop("supplement.addedCount", { count: staged.length })}
+              </p>
+            )}
             <FieldWrapper label={t("exchange.field.whatChanged")} required>
               <Textarea rows={3} value={reason} onChange={(event) => setReason(event.target.value)} />
             </FieldWrapper>
+            {isMoneyType(pkg) && (
+              <FieldWrapper label={loop("money.claim")} hint={loop("money.pinHint")}>
+                <Input
+                  inputMode="decimal"
+                  className="w-48"
+                  placeholder={loop("money.placeholder")}
+                  value={claimAmount ?? pkg.claim_amount ?? ""}
+                  onChange={(event) => setClaimAmount(event.target.value)}
+                />
+              </FieldWrapper>
+            )}
+            <FieldSignaturePad
+              label={loop("sign.label")}
+              clearLabel={loop("sign.clear")}
+              hint={loop("sign.hint")}
+              required
+              value={signature}
+              onChange={setSignature}
+            />
           </>
         )}
       </div>
@@ -1412,12 +1568,13 @@ function ResubmitDialog({
             requires={[
               [picked.length > 0, t("exchange.field.returnedItems")],
               [reason.trim(), t("exchange.field.whatChanged")],
+              [signature, loop("sign.label")],
             ]}
             disabled={resubmit.isPending}
             onClick={() => resubmit.mutate()}
           >
             <RefreshCw className="size-4" />
-            {t("exchange.resubmit")}
+            {loop("supplement.resubmit")}
           </Button>
         )}
       </footer>

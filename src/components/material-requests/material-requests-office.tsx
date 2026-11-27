@@ -46,6 +46,8 @@ import { useEffect, useMemo, useState } from "react";
 
 import { FieldDraft } from "@/components/field-staff/field-draft";
 import { RequestTypesDialog } from "@/components/material-requests/request-types-dialog";
+import { RequestLinkedRecordsPanel } from "@/components/material-requests/request-links";
+import { TotalsTab } from "@/components/material-requests/totals-tab";
 import { requestTypeNameOptions } from "@/lib/request-types";
 import {
   chosenReviewer,
@@ -82,10 +84,7 @@ import {
   sortable,
 } from "@/components/shared/module-records-table";
 import {
-  EmptyState,
   FieldWrapper,
-  FilterBar,
-  LoadFailed,
   QueryFailedNote,
   StatusBadge,
 } from "@/components/shared/page-primitives";
@@ -103,7 +102,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { useListQuery } from "@/hooks/use-list-query";
@@ -113,6 +111,7 @@ import {
   MATERIAL_REQUEST_EXECUTION_FILTERS,
   MATERIAL_REQUEST_STATUSES,
   type MaterialRequest,
+  type MaterialRequestExecutionLine,
   type MaterialRequestExecutionStatus,
   type MaterialRequestStatus,
 } from "@/interfaces/material-request";
@@ -124,14 +123,13 @@ import {
   exportMaterialRequests,
   getMaterialRequest,
   getMaterialRequests,
-  getMaterialRequestTotals,
   materialRequestFormFile,
   managerDecideMaterialRequest,
   getMaterialRequestReviewerOptions,
   reassignMaterialRequestToMe,
   confirmMaterialRequestCompletion,
   startMaterialRequestExecution,
-  reviewMaterialRequest, exportMaterialRequestTotals, getRequestTypes } from "@/services/material-request.service";
+  reviewMaterialRequest, getRequestTypes } from "@/services/material-request.service";
 import { LIST_FITS } from "@/lib/list-fits";
 
 const TONE: Record<MaterialRequestStatus, "warning" | "positive" | "neutral"> = {
@@ -601,113 +599,6 @@ export function NewRequestDialog({
   );
 }
 
-function TotalsTab({ onOpenGroup }: { onOpenGroup: (filters: Record<string, string>) => void }) {
-  const t = useTranslations("materialRequest");
-  const tRoot = useTranslations();
-  const unitLabel = useUnitLabel();
-  const list = useListQuery(["project", "material", "specification"]);
-  const totals = useQuery({
-    queryKey: ["material-requests", "totals", list.filters],
-    queryFn: () => getMaterialRequestTotals(list.filters),
-  });
-  const rows = totals.data ?? [];
-
-  return (
-    <section className="space-y-4">
-      <div>
-        <h2 className="text-lg font-semibold">{t("totals.title")}</h2>
-        <p className="text-sm text-muted-foreground">{t("totals.basis")}</p>
-      </div>
-      <FilterBar>
-        <ProjectListFilter list={list} />
-        <TextFilter list={list} param="material" placeholder={t("filter.material")} />
-        <TextFilter list={list} param="specification" placeholder={t("filter.specification")} />
-        {/* The totals on screen, as a file (H16, HD13). */}
-        <ExportButton
-          disabled={rows.length === 0}
-          disabledReason={t("totals.basis")}
-          title={t("totals.title")}
-          onExport={(format) =>
-            exportMaterialRequestTotals({
-              format,
-              title: t("totals.title"),
-              subtitle: t("totals.basis"),
-              query: list.filters,
-              columns: [
-                { key: "project_label", label: t("field.project") },
-                { key: "material_name", label: t("field.material") },
-                { key: "specification", label: t("field.specification") },
-                { key: "unit", label: t("field.unit"), values: tRoot.raw("mySubmissions.unit") as Record<string, string> },
-                { key: "approved_quantity", label: t("totals.approved") },
-                { key: "approved_count", label: t("totals.approvedCount") },
-                { key: "pending_quantity", label: t("totals.pending") },
-                { key: "pending_count", label: t("totals.pendingCount") },
-                { key: "returned_count", label: t("totals.returned") },
-              ],
-            })
-          }
-        />
-      </FilterBar>
-      {totals.isError ? (
-        <LoadFailed what={t("totals.title")} onRetry={() => void totals.refetch()} />
-      ) : totals.isLoading ? (
-        <p className="text-sm text-muted-foreground">{t("loading")}</p>
-      ) : rows.length === 0 ? (
-        <EmptyState title={t("totals.empty")} />
-      ) : (
-        <div className="surface-panel overflow-hidden rounded-xl">
-          <Table className="min-w-180">
-            <TableHeader>
-              <TableRow>
-                <TableHead>{t("field.project")}</TableHead>
-                <TableHead>{t("field.material")}</TableHead>
-                <TableHead>{t("field.specification")}</TableHead>
-                <TableHead>{t("field.unit")}</TableHead>
-                <TableHead className="tabular text-right">{t("totals.approved")}</TableHead>
-                <TableHead className="tabular text-right">{t("totals.pending")}</TableHead>
-                <TableHead className="tabular text-right">{t("totals.returned")}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {rows.map((row) => (
-                <TableRow
-                  key={`${row.project}|${row.material_name}|${row.specification}|${row.unit}`}
-                  className="cursor-pointer"
-                  onClick={() =>
-                    onOpenGroup({
-                      project: row.project,
-                      material: row.material_name,
-                      specification: row.specification,
-                      unit: row.unit,
-                    })
-                  }
-                >
-                  <TableCell>{row.project_code} - {row.project_name}</TableCell>
-                  <TableCell className="font-medium">{row.material_name}</TableCell>
-                  <TableCell>{row.specification}</TableCell>
-                  <TableCell>{unitLabel(row.unit)}</TableCell>
-                  <TableCell className="tabular text-right">
-                    <span className="tabular font-semibold text-success">{row.approved_quantity}</span>
-                    <span className="block text-2xs text-muted-foreground">{t("totals.requests", { count: row.approved_count })}</span>
-                  </TableCell>
-                  <TableCell className="tabular text-right">
-                    <span className="tabular font-semibold text-warning">{row.pending_quantity}</span>
-                    <span className="block text-2xs text-muted-foreground">{t("totals.requests", { count: row.pending_count })}</span>
-                  </TableCell>
-                  <TableCell className="tabular text-right text-muted-foreground">
-                    {t("totals.requests", { count: row.returned_count })}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      )}
-      <p className="text-xs text-muted-foreground">{t("totals.notStock")}</p>
-    </section>
-  );
-}
-
 export function MaterialRequestDetail({
   id,
   onClose,
@@ -718,6 +609,7 @@ export function MaterialRequestDetail({
   onRaiseAgain: (prefill: MaterialRequestPrefill) => void;
 }) {
   const t = useTranslations("materialRequest");
+  const tLinked = useTranslations("jb279.records");
   const tFile = useTranslations("fileActions");
   const df = useDateFormat();
   const unitLabel = useUnitLabel();
@@ -836,6 +728,9 @@ export function MaterialRequestDetail({
   // 执行状态 (JB231): approved is not done until the project manager confirms it.
   const execution = row.status === "APPROVED" ? row.execution_status || "" : "";
   const executionOpen = execution === "PENDING" || execution === "IN_PROGRESS";
+  // JB253 (客户 11-24 事项 4): a material request follows the deliveries signed
+  // for - no 开始处理 / 确认完成 and no manual completion text on it.
+  const automatic = Boolean(row.execution_automatic);
 
   return (
     <RecordDetailDialog title={row.request_no} description={`${row.project_name} · ${requestTypeName(row, t)}`} onClose={onClose}>
@@ -921,7 +816,20 @@ export function MaterialRequestDetail({
           ...(execution && row.execution_started_by_name
             ? [{ label: t("field.executionStartedBy"), value: who(row.execution_started_by_name, row.execution_started_at ?? null) }]
             : []),
-          ...(execution === "COMPLETED"
+          // JB253: each material received against approved.
+          ...(automatic && execution && (row.execution_lines ?? []).length > 0
+            ? [
+                {
+                  label: t("jb253.received"),
+                  wide: true,
+                  value: <ExecutionLines lines={row.execution_lines ?? []} />,
+                },
+              ]
+            : []),
+          ...(execution === "COMPLETED" && automatic && row.completed_automatically
+            ? [{ label: t("jb253.completedHow"), value: t("jb253.completedAuto", { at: row.completed_at ? df.dateTime(row.completed_at) : "—" }) }]
+            : []),
+          ...(execution === "COMPLETED" && !(automatic && row.completed_automatically)
             ? [
                 { label: t("field.completedBy"), value: who(row.completed_by_name ?? null, row.completed_at ?? null) },
                 ...(row.completion_note ? [{ label: t("field.completionNote"), value: row.completion_note, wide: true }] : []),
@@ -1008,6 +916,7 @@ export function MaterialRequestDetail({
           .filter((file) => file.is_image && file.watermarked)
           .map((file) => ({ id: file.id, url: file.watermarked ?? "", label: file.original_name, takenAt: file.uploaded_at }))}
         panel={
+          <div className="space-y-4">
           <section className="rounded-lg border bg-card p-3">
             <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("attachments.title")}</h3>
             {row.attachments.length === 0 ? (
@@ -1044,6 +953,13 @@ export function MaterialRequestDetail({
               </ol>
             )}
           </section>
+          {/* JB279 (客户 11-26 事项 20): 「在 MR／其他申请页面，可以查看所有已关联的
+              材料进场、退场及领用记录，并点击查看原始资料」. */}
+          <section className="rounded-lg border bg-card p-3" data-slot="material-request-linked-records">
+            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{tLinked("title")}</h3>
+            <RequestLinkedRecordsPanel requestId={row.id} />
+          </section>
+          </div>
         }
         actions={
           <div className="space-y-2">
@@ -1185,7 +1101,17 @@ export function MaterialRequestDetail({
             {/* 执行 (JB231): what approval does not finish. Everyone reading an
                 open one is told why it still waits; the project manager has
                 the two buttons. */}
-            {executionOpen && (
+            {executionOpen && automatic && (
+              <div className="space-y-2 rounded-md border border-warning/25 bg-warning/5 p-2" data-slot="material-request-execution-auto">
+                <p className="text-xs leading-5">{t("jb253.explain")}</p>
+                {(row.reminder_count ?? 0) > 0 && row.reminded_at && (
+                  <p className="text-xs text-muted-foreground">
+                    {t("execution.reminded", { count: row.reminder_count ?? 0, at: df.dateTime(row.reminded_at) })}
+                  </p>
+                )}
+              </div>
+            )}
+            {executionOpen && !automatic && (
               <div className="space-y-2 rounded-md border border-warning/25 bg-warning/5 p-2" data-slot="material-request-execution">
                 <p className="text-xs leading-5">{t("execution.explain")}</p>
                 {(row.execution_manager_names ?? []).length > 0 && (
@@ -1236,7 +1162,12 @@ export function MaterialRequestDetail({
                 )}
               </div>
             )}
-            {execution === "COMPLETED" && (
+            {execution === "COMPLETED" && automatic && row.completed_automatically && (
+              <p className="rounded-md border bg-muted/40 px-2 py-1.5 text-xs" data-slot="material-request-completed-auto">
+                {t("jb253.completedNotice", { at: row.completed_at ? df.dateTime(row.completed_at) : "—" })}
+              </p>
+            )}
+            {execution === "COMPLETED" && !(automatic && row.completed_automatically) && (
               <p className="rounded-md border bg-muted/40 px-2 py-1.5 text-xs" data-slot="material-request-completed">
                 {t("execution.completedNotice", {
                   name: row.completed_by_name ?? "—",
@@ -1259,6 +1190,28 @@ export function MaterialRequestDetail({
       <RecordCorrectionHistory kind="MATERIAL_REQUEST" recordId={row.id} />
       <RecordSendLog recordKind="MATERIAL_REQUEST" recordId={row.id} />
     </RecordDetailDialog>
+  );
+}
+
+/** JB253: each material of an approved MR, received against approved. */
+export function ExecutionLines({ lines }: { lines: MaterialRequestExecutionLine[] }) {
+  const t = useTranslations("materialRequest");
+  const unitLabel = useUnitLabel();
+  return (
+    <ul className="space-y-0.5" data-slot="material-request-execution-lines">
+      {lines.map((line) => (
+        <li key={line.position} className="flex flex-wrap items-baseline justify-between gap-x-3">
+          <span>{[line.material_name, line.specification].filter(Boolean).join(" ")}</span>
+          <span className="tabular font-medium">
+            {t("jb253.receivedOf", {
+              received: line.received_quantity,
+              approved: line.approved_quantity,
+              unit: unitLabel(line.unit),
+            })}
+          </span>
+        </li>
+      ))}
+    </ul>
   );
 }
 

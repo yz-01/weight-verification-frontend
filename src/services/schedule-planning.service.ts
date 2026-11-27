@@ -5,6 +5,7 @@ import type {
   ScheduleImportPreview,
   ScheduleOverview,
   SchedulePlan,
+  ScheduleProjectProgressPlan,
   ScheduleRevision,
   ScheduleTask,
   ScheduleTaskPayload,
@@ -163,9 +164,25 @@ export const confirmScheduleTaskProgress = async (
   return row;
 };
 
-export const getProgressCandidates = (project: string) =>
-  api.get<{ results: ProgressCandidate[]; count: number }>(
-    "/api/schedule-tasks/get_progress_candidates/",
+/**
+ * 「关联现场进度」 in 确认实际进度 (JB271): a page of the project's records,
+ * searched on the server - `search` (number, 施工分类, words), `phase`,
+ * `date_from` / `date_to`.
+ */
+export const getProgressCandidates = (project: string, query: ListQuery = {}) =>
+  api.list<ProgressCandidate>("/api/schedule-tasks/get_progress_candidates/", {
+    ...query,
+    project,
+  });
+
+/** 「附 N 条现场记录」 opened (JB273): the task's records, a page at a time. */
+export const getTaskLinkedRecords = (taskId: string, query: ListQuery = {}) =>
+  api.list<ProgressCandidate>(`/api/schedule-tasks/${taskId}/get_linked_records/`, query);
+
+/** 项目进度摘要's figures, straight from the project's schedules (JB267). */
+export const getProjectScheduleProgress = (project: string) =>
+  api.get<{ project: string; plans: ScheduleProjectProgressPlan[] }>(
+    "/api/schedules/get_project_progress/",
     { project },
   );
 
@@ -203,11 +220,12 @@ export const confirmScheduleImport = async (
   return row;
 };
 
-export const getScheduleHistory = (planId: string) =>
-  api.list<ScheduleHistoryEntry>(
-    `/api/schedules/${planId}/get_history/`,
-    { page_size: 200 },
-  );
+/** 操作记录, a page at a time (JB272: every entry is kept, none cut off). */
+export const getScheduleHistory = (planId: string, query: ListQuery = {}) =>
+  api.list<ScheduleHistoryEntry>(`/api/schedules/${planId}/get_history/`, {
+    page_size: 50,
+    ...query,
+  });
 
 export const exportSchedule = (
   planId: string,

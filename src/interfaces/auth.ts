@@ -19,6 +19,37 @@ export type AccountType = "PLATFORM" | "TENANT" | "CONSULTANT";
 export interface EmailCopy {
   subject: string;
   body: string;
+  /**
+   * The body's language (JB242): an invitation's ``{valid_for}`` - how long
+   * its link lasts - is written in it by the server.
+   */
+  language?: string;
+}
+
+/** 邀请用户 in one page (JB242): what the page offers. */
+export interface InviteOptions {
+  /** 常用权限: 公司管理员 and the company's own roles (never the phone's). */
+  roles: Role[];
+  /** What the inviter does not hold himself: never switched on by him. */
+  locked_on: string[];
+  available_projects: { id: string; code: string; name: string }[];
+  /** How long the invitation link lasts (Lucas 11-26: 168 = 7 days). */
+  link_valid_hours: number;
+  remaining_user_seats: number | null;
+}
+
+/** 邀请用户 (JB242): the account, where they work, projects and switches at once. */
+export interface InvitePayload {
+  full_name: string;
+  email: string;
+  phone?: string;
+  language?: string;
+  timezone?: string;
+  workplace: "head_office" | "project";
+  /** 常用权限 to start from; ``null``: the system's default. */
+  role: string | null;
+  off: string[];
+  projects: { all: true } | { all: false; chosen: string[] };
 }
 
 /**
@@ -114,6 +145,11 @@ export interface CurrentUser {
    */
   cannot_give?: string[];
   features: string[];
+  /**
+   * JB250: the modules of this portal the company does not have - left out
+   * of its package or switched off by MSE. Missing from an older backend.
+   */
+  modules_off?: string[];
   project_quota: ProjectQuota | null;
   consultant_projects: ConsultantProjectAccess[];
   active_project: ActiveProject | null;
@@ -131,6 +167,12 @@ export interface CompanyPreferences {
   dashboard_title?: string;
   dashboard_subtitle?: string;
   default_notification_channel: "IN_APP" | "PUSH";
+  /**
+   * The company's own menu names (JB251, 客户 11-24 事项 2), sent only while
+   * MSE has opened renaming for it: full message key → language → name.
+   * A recycler with no 显示偏好 row gets an object with this alone.
+   */
+  menu_names?: Record<string, Partial<Record<string, string>>>;
 }
 
 export interface ConsultantProjectAccess {

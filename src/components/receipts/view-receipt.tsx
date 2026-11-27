@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useState } from "react";
 
 import { useUnitName } from "@/hooks/use-material-units";
+import { RecordRequestLinksPanel } from "@/components/material-requests/request-links";
 import { useAuth } from "@/components/providers/auth-provider";
 import { PhotoFileInput } from "@/components/shared/photo-file-input";
 import {
@@ -40,13 +41,13 @@ import {
   reviewReceipt,
 } from "@/services/contractor.service";
 import { useDateFormat } from "@/lib/dates";
-import { useArchiveLocksChanges } from "@/lib/archive-policy";
 import { needsSupplier, supplierShown } from "@/lib/receipt-supplier";
 import { useRecordShownInPlace } from "@/components/shared/dialog-navigation";
 import { useRecordArchived } from "@/components/shared/record-closure";
 import { RecordCorrectionHistory } from "@/components/shared/record-correction";
 import { InspectionBadge } from "@/components/document-workflow/inspection";
 import { ReceiptLinesDialog } from "@/components/receipts/receipt-lines-dialog";
+import { ConsultantApprovalsPanel } from "@/components/receipts/consultant-approvals-panel";
 import { MaterialLinesTable } from "@/components/shared/material-lines";
 import { receiptShownLines } from "@/lib/material-lines";
 
@@ -434,8 +435,9 @@ export function ViewReceipt({
   });
   // A06: an archived delivery takes no more photographs.
   const archived = useRecordArchived("MATERIAL_RECEIPT", id);
-  // 「归档后锁定记录」 for the delivery's project (JB214-3d).
-  const archiveLocks = useArchiveLocksChanges(data?.project);
+  // JB276 (客户 11-26 事项 17): 「归档后，任何人均不得修改或删除该记录，包括总部
+  // 管理员」 - an archived 材料进场 is locked on every project (the server
+  // refuses every change); 「归档后锁定记录」 (JB214-3d) no longer decides it.
   // Opened in place (a dashboard photo, a report row, 操作记录): 更正 and
   // 补供应商 inside come back to this window when saved, not to a second
   // one of the same delivery over it (JB187).
@@ -578,7 +580,7 @@ export function ViewReceipt({
           longitude: photo.longitude,
         }))}
         photoActions={
-          can("receipt.create") && !data.superseded_by && !(archived && archiveLocks) ? (
+          can("receipt.create") && !data.superseded_by && !archived ? (
             <AddPhoto
               receipt={data}
               onAdded={() =>
@@ -594,11 +596,17 @@ export function ViewReceipt({
             <DeliveryOrderPanel receipt={data} />
             <ReceiptLinesPanel
               receipt={data}
-              canEdit={can("receipt.update") && !data.superseded_by && !(archived && archiveLocks)}
+              canEdit={can("receipt.update") && !data.superseded_by && !archived}
               onEdit={setEditingLines}
             />
+            {/* JB279 (客户 11-26 事项 20): the MR / 其他申请 it belongs to -
+                linked before 确认归档. */}
+            {!data.superseded_by && <RecordRequestLinksPanel kind="MATERIAL_RECEIPT" recordId={data.id} />}
           </div>
         }
+        // JB270 (客户 11-26 事项 11): 「顾问审批记录」 between 验收 and 签名 -
+        // the shell's `aside` place.
+        aside={<ConsultantApprovalsPanel receiptId={data.id} />}
         signatures={(
           [
             ["receiver", data.signature],
@@ -637,13 +645,13 @@ export function ViewReceipt({
                   it a column holding deliveries could never be emptied, and
                   the server's "move them first" would name an action nobody
                   could take (F-204). */}
-              {can("receipt.update") && !data.superseded_by && (
+              {can("receipt.update") && !data.superseded_by && !archived && (
                 <Button size="sm" variant="outline" onClick={() => setFiling(true)}>
                   <FolderOpen />
                   {t("contractorOps.filing.action")}
                 </Button>
               )}
-              {can("receipt.update") && !data.superseded_by && (
+              {can("receipt.update") && !data.superseded_by && !archived && (
                 <Button asChild size="sm" variant="outline">
                   <Link href={`/receipts/${data.id}/edit`}>
                     <Pencil />
@@ -652,6 +660,12 @@ export function ViewReceipt({
                 </Button>
               )}
             </div>
+            {/* JB276: why 归入分类 / 更正 / 修改材料明细 / 补拍照片 are gone. */}
+            {archived && (
+              <p className="rounded-md border px-2 py-1.5 text-xs text-muted-foreground" data-archived-final>
+                {t("jb276.lockedNote")}
+              </p>
+            )}
           </>
         }
         conversation={{ kind: "MATERIAL_RECEIPT", recordId: data.id }}

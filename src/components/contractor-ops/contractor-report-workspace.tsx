@@ -24,6 +24,8 @@ import {
 import { PhotoThumb, recordKindIcon, recordPhotos } from "@/components/shared/photo-thumb";
 import { opensInPlace } from "@/components/shared/in-place-record";
 import { useRecordOpener } from "@/components/shared/record-opener";
+import { ModuleOffNotice } from "@/components/shared/module-off-notice";
+import { companyModulesOff, reportSourcesOff } from "@/lib/company-modules";
 import { BusinessTargetManagement } from "@/components/contractor-ops/business-target-management";
 import {
   ContractorReportFilterFields,
@@ -64,6 +66,7 @@ import { useListQuery } from "@/hooks/use-list-query";
 import { useDateFormat } from "@/lib/dates";
 import { isRouteAllowed } from "@/lib/navigation";
 import { useUnitExportValues } from "@/hooks/use-material-units";
+import { RentalFeeTable, rentalLabels } from "@/components/reports/rental-fee-table";
 import {
   REPORT_REFERENCE_COLUMNS,
   messageCodes,
@@ -71,7 +74,8 @@ import {
   reportRowReference,
   reportRowRoute,
   reportRowTarget,
-  reportValueKey,
+  reportValueKeys,
+  reportValueWords,
 } from "@/lib/report-preview";
 import {
   ALL_REPORT_FILTERS,
@@ -117,6 +121,8 @@ export const REPORT_DATE_TIME_COLUMNS: ReadonlySet<string> = new Set([
   "business_at",
   // 文件资料报表's 上传时间 (10-28: it printed the raw ISO time).
   "created_at",
+  // 进度 Claim 报表's 创建时间 (JB258).
+  "package_created_at",
 ]);
 
 const REPORT_DATE_ONLY_COLUMNS = new Set([
@@ -168,7 +174,32 @@ function currentPage(): string {
   return typeof window === "undefined" ? "" : `${window.location.pathname}${window.location.search}`;
 }
 
+/**
+ * JB250 (客户 11-24 事项 1): a report whose source module the company does not
+ * have says 「<模块> 没有开通，这个报表没有资料」 instead of its records (the
+ * server refuses it with `company_module_switched_off`).
+ */
 export function ContractorReportWorkspace({
+  reportType,
+}: {
+  reportType: ContractorReportType;
+}) {
+  const t = useTranslations("contractorReports");
+  const { user } = useAuth();
+  const off = reportSourcesOff(reportType, companyModulesOff(user));
+  if (off) {
+    return (
+      <div className="flex flex-col gap-4">
+        <CompanyBanner scope="reports" />
+        <ReportSelector />
+        <ModuleOffNotice modules={off} title={t(`type.${reportType}`)} />
+      </div>
+    );
+  }
+  return <ContractorReportWorkspaceBody reportType={reportType} />;
+}
+
+function ContractorReportWorkspaceBody({
   reportType,
 }: {
   reportType: ContractorReportType;
@@ -275,11 +306,18 @@ export function ContractorReportWorkspace({
     enabled:
       Boolean(dateFrom && dateTo && dateFrom <= dateTo) && !wantsLatest && !asksDays,
   });
+  const tRentalReport = useTranslations("jb257");
+  const tRental = useTranslations("equipmentRental");
+  // 设备租赁费用报表 (JB257): 「可选择包含照片或不包含照片」, and the machine
+  // table printed in the screen's words.
+  const rentalReport = reportType === "equipment";
   const exportMutation = useMutation({
-    mutationFn: (format: "PDF" | "EXCEL") =>
+    mutationFn: ({ format, includePhotos }: { format: "PDF" | "EXCEL"; includePhotos: boolean }) =>
       exportContractorReport({
         ...filters,
         format,
+        ...(includePhotos ? {} : { include_photos: false }),
+        ...(rentalReport ? { rental_labels: rentalLabels(tRentalReport, tRental) } : {}),
         title: t(`type.${reportType}`),
         // The file says what it was narrowed to, as the screen does.
         subtitle: [t("period", { from: dateFrom, to: dateTo }), level.name]
@@ -311,8 +349,10 @@ export function ContractorReportWorkspace({
     row: Record<string, string | number | boolean | null>,
   ): string {
     // A code is shown in the reader's words, as its own module names it.
-    const message = reportValueKey(reportType, key, value, row);
-    if (message && tRoot.has(message)) return tRoot(message);
+    const words = reportValueWords(reportValueKeys(reportType, key, value, row), (message) =>
+      tRoot.has(message) ? tRoot(message) : null,
+    );
+    if (words) return words;
     if (value === null || value === "") return "-";
     if (key === "unit" && units[String(value)]) return units[String(value)];
     if (REPORT_DATE_TIME_COLUMNS.has(key)) {
@@ -412,7 +452,13 @@ export function ContractorReportWorkspace({
           {/* 预览 · 打印 · 导出 · 发送 (PDF 统一操作规则). */}
           {mayExport && (
             <ExportButton
-              onExport={(format) => exportMutation.mutateAsync(format === "pdf" ? "PDF" : "EXCEL")}
+              onExport={(format, choice) =>
+                exportMutation.mutateAsync({
+                  format: format === "pdf" ? "PDF" : "EXCEL",
+                  includePhotos: choice?.includePhotos ?? true,
+                })
+              }
+              photoChoice={rentalReport}
               disabled={!report.data}
               disabledReason={common("noReportYet")}
               title={t(`type.${reportType}`)}
@@ -432,6 +478,9 @@ export function ContractorReportWorkspace({
         <QueryFailedNote query={options} what={t("what.projects")} className="w-full" />
         <QueryFailedNote query={latest} what={t("what.latestDay")} className="w-full" />
       </section>
+
+      {/* JB257: each machine's rental fee and the 累计总金额, above the records. */}
+      {report.data?.rental ? <RentalFeeTable rental={report.data.rental} /> : null}
 
       <section className="surface-panel overflow-hidden rounded-xl">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-panel-border px-4 py-3 sm:px-6">

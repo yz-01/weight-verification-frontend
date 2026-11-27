@@ -37,6 +37,7 @@ import {
   HardHat,
   ListTree,
   Smartphone,
+  Trash2,
 } from "lucide-react";
 
 import type { Portal } from "@/interfaces/auth";
@@ -44,6 +45,7 @@ import { featuresCarryItems } from "@/lib/consultant-modules";
 
 export type PortalFeatureKey =
   | "dashboard"
+  | "photo_wall"
   | "cloud_weighing"
   | "transaction_reports"
   | "projects"
@@ -855,10 +857,13 @@ export const PORTAL_NAVIGATION = {
     // MSE Timeline 工程照片墙 (JB135, 客户 11-07 事项 10): every photo the
     // records already hold, project by project, from the first day to the
     // last. Whoever reads the head-office dashboard (`dashboard.view`) reads
-    // this; no feature of its own, so it rides on 「dashboard」. Its own
+    // this; since QA3 (JB250, 「物业…可以只开放…照片墙…」) it is a module of
+    // its own, `photo_wall`, that MSE can switch off per company. Its own
     // count would be the dashboard's, so it shows none.
-    entry("dashboard", "submodule.photoTimeline", "/photo-timeline", Images, "overview", {
+    entry("photo_wall", "submodule.photoTimeline", "/photo-timeline", Images, "overview", {
       requiredPermission: "dashboard.view",
+      // A consultant's 仪表板 tick opens it as before (JB226).
+      consultantFeature: "dashboard",
       badge: [],
     }),
     item(
@@ -975,6 +980,15 @@ export const PORTAL_NAVIGATION = {
           "/equipment-operator-hours",
           "equipment",
         ),
+        // 设备租赁月结单 and its 核对与结算 (JB280, 客户 11-26 事项 21): the
+        // rental pages' people (JB255, equipment.manage).
+        child(
+          "6.2.3",
+          "nav.submodule.equipmentRentalStatements",
+          "/equipment-rental-statements",
+          "equipment",
+          "equipment.manage",
+        ),
       ],
     ),
     {
@@ -1007,6 +1021,17 @@ export const PORTAL_NAVIGATION = {
       ),
       consultantChildren: CONSULTANT_PROGRESS_ITEMS,
     },
+    // 垃圾清运 (JB248, 客户 11-23b 事项 1): 「「垃圾清运」与「废料处理」名称为归属
+    // 同一个业务菜单」, a business menu of its own beside 环保材料管理 -
+    // 全部｜垃圾清运｜废料处理 on one page. The old `/site-disposals` address
+    // forwards here.
+    item(
+      "site_disposals",
+      "/waste-clearance",
+      Trash2,
+      "operations",
+      ["/site-disposals"],
+    ),
     item(
       "recyclers",
       "/modules/recycling",
@@ -1029,34 +1054,16 @@ export const PORTAL_NAVIGATION = {
           "/waste-outgoing",
           "waste_outgoing",
         ),
-        // 垃圾清运 (B08, 29.09 meeting): 废料订单 and 工地清运 were two entries
-        // for what the customer sees as one job, so they are one entry now.
-        // Only the entry: both kinds keep their own records, numbers, flows
-        // and figures, and the page lists each row as the kind it is.
-        {
-          ...child("8.2.3", "nav.submodule.wasteClearance", "/waste-clearance"),
-          anyFeatures: ["waste_dispatches", "site_disposals"],
-        },
-        // The two old list addresses, out of the menu: they forward to their
-        // tab in 垃圾清运, and `/dispatches/<id>` still opens an order.
-        {
-          ...child(
-            "8.2.3a",
-            "nav.submodule.wasteDispatches",
-            "/dispatches",
-            "waste_dispatches",
-          ),
-          menuHidden: true,
-        },
-        {
-          ...child(
-            "8.2.4",
-            "nav.submodule.siteDisposals",
-            "/site-disposals",
-            "site_disposals",
-          ),
-          menuHidden: true,
-        },
+        // 废料订单 back in 环保材料管理 (JB248, 客户 11-23b 事项 1 第三点:
+        // 「现有「废料订单」及相关异常记录归回环保材料管理…与工地清运及废料处理
+        // 业务分开管理和统计」). 垃圾清运 is its own menu above; B08 had put
+        // the two together in one entry here.
+        child(
+          "8.2.3",
+          "nav.submodule.wasteDispatches",
+          "/dispatches",
+          "waste_dispatches",
+        ),
         child(
           "8.2.5",
           "nav.submodule.paymentProofs",
@@ -1377,7 +1384,8 @@ export const PORTAL_NAVIGATION = {
         ),
         child(
           "13.2.8",
-          "nav.submodule.siteEquipment",
+          // JB257 (客户 11-24b 事项 4): 「设备进退场报表」 → 「设备租赁费用报表」.
+          "nav.submodule.equipmentRentalReport",
           "/reports/contractor/equipment",
           "report_center",
           undefined,
@@ -1475,6 +1483,15 @@ export const PORTAL_NAVIGATION = {
           "report_center",
           undefined,
           "report_contractor",
+        ),
+        // 项目现场费用总览 (JB259, 客户 11-24b 事项 6): the five site costs
+        // side by side. The builder's own costs: no consultant menu.
+        child(
+          "13.2.11B",
+          "nav.submodule.siteCostOverview",
+          "/reports/site-cost-overview",
+          "report_center",
+          "report.view",
         ),
         child(
           "13.2.12",
@@ -2312,6 +2329,24 @@ export function isRouteAllowed(
   if (enabled.has(CONSULTANT_MENU) && CONSULTANT_OPEN_PATHS.includes(pathname)) return true;
 
   return actionRuleAllows(pathname, permissions, isSuperuser);
+}
+
+/**
+ * Whether a refused address is refused because the company does not have its
+ * module (JB250): the page would open with those modules on. The screen then
+ * says 「这个功能你的公司没有开通」 rather than that the account cannot.
+ */
+export function refusedByCompanyModule(
+  portal: Portal,
+  features: readonly string[],
+  modulesOff: readonly string[] | undefined,
+  pathname: string,
+  permissions: readonly string[] = [],
+  isSuperuser = false,
+): boolean {
+  if (!modulesOff?.length) return false;
+  if (isRouteAllowed(portal, features, pathname, permissions, isSuperuser)) return false;
+  return isRouteAllowed(portal, [...features, ...modulesOff], pathname, permissions, isSuperuser);
 }
 
 /** Whether the page's own action permission, if it names one, is held. */

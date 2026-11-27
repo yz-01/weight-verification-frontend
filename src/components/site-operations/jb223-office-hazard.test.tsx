@@ -359,7 +359,7 @@ describe("the box on the office form (AttachmentPicker with pasteAnywhere)", () 
 
   it("F2: the small print says the time a photo is recorded under, as it now is", () => {
     vi.stubGlobal("navigator", {});
-    const note = "照片记录的时间就是上面的「发生时间」；没有填，就是您建立这个整改事项的时间（不看照片文件自己的日期）。";
+    const note = "照片记录的时间就是上面的「发生时间」；没有填，就是你建立这个整改事项的时间（不看照片文件自己的日期）。";
     expect(zh.safety.officeCreate.photoTimeNote.replace("{when}", zh.safety.field.occurredAt)).toBe(note);
     const out = box({ note });
     expect(out).toContain(note);

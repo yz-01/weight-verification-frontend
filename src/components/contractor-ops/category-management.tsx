@@ -718,6 +718,8 @@ export function CategoryManagement() {
           <p className="mb-3 text-xs text-muted-foreground">
             {t(`moduleSource.${active.key}`)}
           </p>
+          {/* JB262 (客户 11-26 事项 3): where the statistics and the budget went. */}
+          {isMaterial && <MaterialBasicsNote />}
           {refusal && (
             <p
               role="alert"
@@ -746,24 +748,18 @@ export function CategoryManagement() {
             <EmptyState title={t("empty")} action={canManage ? createButton : undefined} />
           ) : (
             <div className="overflow-hidden rounded-lg border">
-              <Table className={isMaterial ? "min-w-[56rem]" : "min-w-[36rem]"}>
+              <Table className="min-w-[36rem]">
                 <TableHeader>
                   <TableRow>
                     <TableHead>{t("column.name")}</TableHead>
                     <TableHead>{t("column.code")}</TableHead>
-                    <TableHead className="text-right">
-                      {t("column.records")}
-                    </TableHead>
-                    {isMaterial && (
-                      <>
-                        <TableHead className="text-right">
-                          {t("column.archived")}
-                        </TableHead>
-                        <TableHead>{t("column.spend")}</TableHead>
-                        <TableHead className="text-right">
-                          {t("column.quantity")}
-                        </TableHead>
-                      </>
+                    {/* 材料分类 is basic data only (JB262, 客户 11-26 事项 3): its
+                        记录数量、已归档送货、花费／预算、累计数量 are on 材料进场's
+                        「材料统计」 now. The other modules keep their count. */}
+                    {!isMaterial && (
+                      <TableHead className="text-right">
+                        {t("column.records")}
+                      </TableHead>
                     )}
                     <TableHead>{t("column.status")}</TableHead>
                     <TableHead>{t("column.action")}</TableHead>
@@ -839,21 +835,10 @@ export function CategoryManagement() {
                       <TableCell className="font-mono text-xs text-muted-foreground">
                         {row.code}
                       </TableCell>
-                      <TableCell className="text-right tabular-nums">
-                        {row.recordCount}
-                      </TableCell>
-                      {isMaterial && row.column && (
-                        <>
-                          <TableCell className="text-right tabular-nums">
-                            {row.column.archived_deliveries ?? 0}
-                          </TableCell>
-                          <TableCell>
-                            <SpendCell column={row.column} />
-                          </TableCell>
-                          <TableCell className="text-right tabular-nums">
-                            <QuantityCell quantities={row.column.quantities ?? []} />
-                          </TableCell>
-                        </>
+                      {!isMaterial && (
+                        <TableCell className="text-right tabular-nums">
+                          {row.recordCount}
+                        </TableCell>
                       )}
                       <TableCell>
                         <StatusBadge
@@ -1397,13 +1382,20 @@ const SUPPLIER_MODULES: ReadonlySet<CategoryModuleKey> = new Set<CategoryModuleK
   "equipment",
 ]);
 
-function ColumnRecordsDialog({
+/**
+ * What the records window needs of a category: its id, its name, and - for a
+ * material - the row with its specifications (the 规格 filter). 材料进场's
+ * 「按材料查询」 (JB260) opens the same window from a category it fetched itself.
+ */
+export type RecordsColumn = Pick<Row, "id" | "name" | "column">;
+
+export function ColumnRecordsDialog({
   moduleKey,
   column,
   onClose,
 }: {
   moduleKey: CategoryModuleKey;
-  column: Row;
+  column: RecordsColumn;
   onClose: () => void;
 }) {
   const t = useTranslations("categoryManagement");
@@ -1891,7 +1883,7 @@ export function groupMoney(value: string | number | null | undefined): string {
   return `${match[1]}${match[2].replace(/\B(?=(\d{3})+(?!\d))/g, ",")}${match[3] ?? ""}`;
 }
 
-function SpendCell({ column }: { column: ProjectCategory }) {
+export function SpendCell({ column }: { column: ProjectCategory }) {
   const t = useTranslations("categoryManagement");
   const unitName = useUnitName();
   const percent = column.budget_used_percent;
@@ -1954,5 +1946,22 @@ function SpendCell({ column }: { column: ProjectCategory }) {
         </p>
       )}
     </div>
+  );
+}
+
+/**
+ * 「材料分类负责基础设置，材料进场负责记录、查询及统计，材料目标负责数量与预算控制」
+ * (JB262, 客户 11-26 事项 3): one line on 材料分类 saying where each went. Words,
+ * not links: this page sends nobody to another page (D-264).
+ */
+function MaterialBasicsNote() {
+  const t = useTranslations("jb262");
+  return (
+    <p
+      className="mb-3 rounded-lg border border-panel-border bg-muted/40 px-3 py-2 text-xs"
+      data-slot="material-basics-note"
+    >
+      {t("categoryNote")}
+    </p>
   );
 }

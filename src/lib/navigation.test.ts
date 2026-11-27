@@ -216,8 +216,10 @@ describe("the sidebar's waiting counts", () => {
     ]);
     expect(badgeKeysFor(entry("equipment"))).toEqual(["equipment"]);
     expect(badgeKeysFor(entry("recyclers"))).toEqual(
-      expect.arrayContaining(["waste_outgoing", "site_disposals"]),
+      expect.arrayContaining(["waste_outgoing"]),
     );
+    // 垃圾清运 is its own entry since JB248, with its own count.
+    expect(badgeKeysFor(entry("site_disposals"))).toEqual(["site_disposals"]);
     expect(badgeKeysFor(entry("documents"))).toEqual(expect.arrayContaining(["approvals"]));
     // 门岗记录 moved to 工地门禁 (I25), and its count with it.
     expect(badgeKeysFor(entry("hazard_rectification"))).toEqual([

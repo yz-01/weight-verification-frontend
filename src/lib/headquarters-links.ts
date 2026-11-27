@@ -17,7 +17,8 @@ export type HeadquartersCard =
   | HeadquartersCountField
   | "projects"
   | "waste_dispatches"
-  | "site_disposals";
+  | "site_disposals"
+  | "site_scraps";
 
 function withQuery(path: string, params: Record<string, string | undefined>) {
   const query = new URLSearchParams();
@@ -65,9 +66,13 @@ export function cardHref(
       // 人员进场: its 当前现场总人数 is this figure (C21).
       return withQuery("/attendance", { project });
     case "waste_dispatches":
-      return withQuery("/waste-clearance", { kind: "dispatch", counted: "1", project });
+      // 废料订单 in 环保材料管理 (JB248).
+      return withQuery("/dispatches", { counted: "1", project });
     case "site_disposals":
-      return withQuery("/waste-clearance", { kind: "disposal", counted: "1", project });
+      // 垃圾清运 and 废料处理 each open their own tab (JB248).
+      return withQuery("/waste-clearance", { kind: "garbage", counted: "1", project });
+    case "site_scraps":
+      return withQuery("/waste-clearance", { kind: "scrap", counted: "1", project });
   }
 }
 
@@ -84,7 +89,7 @@ export function cardProject(
 ): string | undefined {
   if (data.projects.length !== 1) return undefined;
   const other =
-    card === "waste_dispatches" || card === "site_disposals"
+    card === "waste_dispatches" || card === "site_disposals" || card === "site_scraps"
       ? data.other[card].records
       : card === "projects"
         ? 0

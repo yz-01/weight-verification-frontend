@@ -33,7 +33,52 @@ const MODULE_OF: Record<string, string> = {
   "site_operations.safetyincident": "hazard",
   "site_operations.safetyrectificationevidence": "hazard",
   "site_operations.incidentreportmessage": "hazard",
+  // JB269 (客户 11-26 事项 10, 图 12): the sources that were 「其他」 with
+  // their table's name on the row - each under the module it belongs to.
+  "site_operations.permitfile": "hazard",
+  "contractor_ops.fieldtaskreference": "fieldTask",
+  "contractor_ops.siteequipmentphoto": "equipment",
+  "contractor_ops.materialrequestattachment": "materialRequest",
+  "site_access.gatephoto": "gate",
+  "site_access.siteaccessevent": "gate",
+  "site_access.visitorarrivalphoto": "visitor",
+  "site_operations.equipmentoperatinglog": "equipmentHours",
+  "site_operations.attendancerecord": "attendance",
+  "contractor_ops.sundryclaimattachment": "sundry",
+  "contractor_ops.sundryclaimpaymentproof": "sundry",
 };
+
+/**
+ * A file attached to a record (`contractor_ops.recordattachment`) is one
+ * table for every module: its row is named by the record it sits on, which
+ * the server sends as `record_type` (JB269).
+ */
+const MODULE_OF_RECORD: Record<string, string> = {
+  MATERIAL_RECEIPT: "materialIn",
+  DELIVERY_NOTE: "materialIn",
+  MATERIAL_OUTGOING: "materialOut",
+  EQUIPMENT_MOVEMENT: "equipment",
+  EQUIPMENT: "equipment",
+  SITE_PROGRESS: "progress",
+  PROGRESS: "progress",
+  PROGRESS_UPDATE: "progress",
+  HAZARD: "hazard",
+  SAFETY_INCIDENT: "hazard",
+  FIELD_TASK: "fieldTask",
+  DISPOSAL_REQUEST: "disposal",
+  WASTE_OUTGOING: "wasteOut",
+  WASTE_DISPATCH: "wasteDispatch",
+  MATERIAL_REQUEST: "materialRequest",
+  GATE_INCIDENT: "gate",
+  SUNDRY_CLAIM: "sundry",
+};
+
+/** The module a picker row is named under: its table's, or its record's. */
+export function rowModuleKey(row: { source_model: string; record_type?: string }): string {
+  const own = moduleKeyOf(row.source_model);
+  if (own !== "other") return own;
+  return MODULE_OF_RECORD[row.record_type ?? ""] ?? "other";
+}
 
 /** Which module name a table is shown under; anything unknown is 「其他」. */
 export function moduleKeyOf(sourceModel: string): string {
@@ -78,6 +123,12 @@ export const MODULE_LABEL_PATH: Record<string, string | undefined> = {
   materialIn: "headquarters.recordKind.MATERIAL_RECEIPT",
   materialOut: "nav.submodule.materialOutgoing",
   hazard: "headquarters.recordKind.SAFETY_INCIDENT",
+  materialRequest: "nav.submodule.materialRequests",
+  gate: "nav.submodule.gateRecords",
+  visitor: "nav.submodule.visitorRecords",
+  equipmentHours: "nav.submodule.equipmentOperatorHours",
+  attendance: "nav.submodule.attendanceRecords",
+  sundry: "nav.submodule.sundryClaims",
 };
 
 const BUILTIN_CATEGORY: Record<string, string> = {

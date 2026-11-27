@@ -135,15 +135,12 @@ const MODULES: Array<{ module: string; keys: string[] }> = [
       "fieldStaffPwa.records.disposal",
       "fieldStaffPwa.home.disposal",
       "fieldStaffPwa.nav.disposal",
-    ],
-  },
-  // The kind of record keeps its own name (Q7 「每笔标明是哪一种」): the old
-  // list's title and 「我提交过的」 (T-356) both say which kind it is.
-  {
-    module: "site disposal record",
-    keys: [
+      // JB248 (客户 11-23b 事项 1: 「统一名称为「垃圾清运」，后台及手机端名称
+      // 保持一致」): the record's kind is no longer 「工地清运」 but the same
+      // name - the list's title, 「我提交过的」 and the menu entry.
       "nav.submodule.siteDisposals",
       "mySubmissions.kind.DISPOSAL_REQUEST",
+      "nav.site_disposals",
     ],
   },
   // No "site records" entry: the phone's 「现场资料」 and its 现场资料分类 are

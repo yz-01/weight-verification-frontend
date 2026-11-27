@@ -51,6 +51,7 @@ const counts = {
   today_records_by_kind: {},
   waste_dispatches: { records: 0, trips: 0, weighed_kg: "0.00", weighed_records: 0 },
   site_disposals: { records: 0, completed: 0, trips: 0, weight_kg: "0.00", with_weight: 0 },
+  site_scraps: { records: 0, completed: 0, trips: 0, weight_kg: "0.00", with_weight: 0 },
 };
 
 const overview = {
@@ -112,6 +113,7 @@ const extras: HeadquartersWallExtras = {
     since: "2026-10-01",
     waste_dispatches: { records: 6, trips: 5, weighed_kg: "18250.00", weighed_records: 5 },
     site_disposals: { records: 3, completed: 2, trips: 4, weight_kg: "1700.50", with_weight: 2 },
+    site_scraps: { records: 1, completed: 1, trips: 2, weight_kg: "800.00", with_weight: 1 },
   },
 };
 
@@ -192,8 +194,12 @@ describe("总部大屏 shows more of the company's real numbers (「加多一点
     expect(panel(html, "suppliers")).toContain("11 次");
     const clearance = panel(html, "clearance");
     expect(clearance).toContain(messages.headquarters.figures.wasteDispatches);
-    expect(clearance).toContain(messages.headquarters.figures.siteDisposals);
+    // 垃圾清运 and 废料处理 each on their own line (JB248: 「分别累计，不混合统计」).
+    expect(clearance).toContain(messages.jb248.kind.GARBAGE);
+    expect(clearance).toContain(messages.jb248.kind.SCRAP);
     expect(clearance).toContain("18,250");
     expect(clearance).toContain("1,700.5");
+    expect(clearance).toContain(">800<");
+    expect(clearance).not.toContain("2,500.5");
   });
 });

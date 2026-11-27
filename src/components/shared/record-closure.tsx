@@ -28,6 +28,7 @@ import { type ReactNode, useState } from "react";
 
 import { LoadFailed } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import type { ArchiveRecordKind } from "@/interfaces/contractor-ops";
 import { recordConversationKey } from "@/lib/record-chat";
@@ -106,9 +107,13 @@ export function RecordClosurePanel({
   blocked?: { reason: string; action?: ReactNode } | null;
 }) {
   const t = useTranslations("recordClosure");
+  const tLink = useTranslations("jb279");
+  const tChecklist = useTranslations("jb276");
   const formatter = useDateFormat();
   const queryClient = useQueryClient();
   const [note, setNote] = useState("");
+  // JB276: 「我已核对所有资料，确认无误。」 (必须勾选).
+  const [ticked, setTicked] = useState(false);
 
   const state = useQuery({
     queryKey: recordClosureKey(kind, recordId),
@@ -116,9 +121,11 @@ export function RecordClosurePanel({
   });
 
   const confirm = useMutation({
-    mutationFn: () => confirmRecordClosure(kind, recordId, note.trim()),
+    mutationFn: () =>
+      confirmRecordClosure(kind, recordId, note.trim(), Boolean(state.data?.checklist) && ticked),
     onSuccess: () => {
       setNote("");
+      setTicked(false);
       void queryClient.invalidateQueries({
         queryKey: recordClosureKey(kind, recordId),
       });
@@ -171,10 +178,16 @@ export function RecordClosurePanel({
         {/* Named, because the system no longer judges - the record has to say
             who did. */}
         <p className="mt-1 text-sm text-muted-foreground">
-          {t(FINAL_ONCE_DECIDED.has(kind) ? "closedByFinal" : "closedBy", {
-            name: confirmed_by_name,
-            when: formatter.dateTime(confirmed_at),
-          })}
+          {state.data.checklist
+            ? // JB276: 材料进场 / 材料退场 - 「归档后，任何人均不得修改或删除该记录」.
+              tChecklist("closedBy", {
+                name: confirmed_by_name,
+                when: formatter.dateTime(confirmed_at),
+              })
+            : t(FINAL_ONCE_DECIDED.has(kind) ? "closedByFinal" : "closedBy", {
+                name: confirmed_by_name,
+                when: formatter.dateTime(confirmed_at),
+              })}
         </p>
         {reason && <p className="mt-2 text-sm">{reason}</p>}
       </div>
@@ -184,10 +197,46 @@ export function RecordClosurePanel({
   // Its own steps are not done yet: the module's buttons come first.
   if (!state.data?.ready) return null;
 
+  // JB276 (客户 11-26 事项 17): a 材料进场 / 材料退场 - the client's text, what
+  // is still missing (the server refuses too), the tick, then the PIN.
+  const checklist = Boolean(state.data.checklist);
+  const missing = state.data.missing ?? [];
+  // JB279: 「未完成关联，不允许确认归档」 - said beside the button, which stays
+  // off until the record is linked to its MR / 其他申请 (「关联申请」 above).
+  // On a 进场 / 退场 it is one line of 「以下必填资料不完整」 (`mr_link`, QA1
+  // audit #15), never hidden behind another reason; on a 领用, its own line.
+  const linkLine: { reason: string; action?: ReactNode } | null =
+    state.data.mr_link_missing && !missing.includes("mr_link") ? { reason: tLink("archiveBlocked") } : null;
+  const shownBlock = blocked ?? linkLine;
+  const linkHidden = Boolean(blocked && linkLine);
+  const missingReason = checklist && missing.length > 0 ? tChecklist("missingShort") : null;
+  const tickReason = checklist && !ticked ? tChecklist("tickFirst") : null;
+  // JB279 and JB276 both hold the button: the link first (said above), then
+  // the checklist and the tick.
+  const lockedReason = shownBlock?.reason ?? missingReason ?? tickReason ?? undefined;
+
   return (
     <div className="space-y-2 rounded-lg border p-3" data-record-closure="open">
       <p className="text-sm font-semibold">{t("title")}</p>
-      <p className="text-xs leading-5 text-muted-foreground">{t("help")}</p>
+      <p className="text-xs leading-5 text-muted-foreground">
+        {checklist ? tChecklist("help") : t("help")}
+      </p>
+      {checklist && missing.length > 0 && (
+        <div
+          role="status"
+          className="rounded-md border border-warning/40 bg-warning/10 px-2 py-1.5 text-sm"
+          data-archive-missing
+        >
+          <p className="font-medium text-warning">{tChecklist("missingTitle")}</p>
+          <ul className="mt-1 list-disc space-y-0.5 pl-5">
+            {missing.map((code) => (
+              <li key={code} data-archive-missing-item={code}>
+                {tChecklist.has(`missing.${code}`) ? tChecklist(`missing.${code}`) : tChecklist("missing.other")}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
       <Textarea
         rows={2}
         value={note}
@@ -196,18 +245,38 @@ export function RecordClosurePanel({
       />
       {/* The record panel's size, as the buttons above it in the same
           card (JB166, Lucas 11-11: 「这些按钮不consistent」). */}
-      {blocked && (
+      {shownBlock && (
         <div className="space-y-2" data-record-closure-blocked>
           <p role="status" className="rounded-md bg-warning/10 px-2 py-1.5 text-sm font-medium text-warning">
-            {blocked.reason}
+            {shownBlock.reason}
           </p>
-          {blocked.action ?? null}
+          {shownBlock.action ?? null}
+          {linkHidden && linkLine && (
+            <p role="status" className="rounded-md bg-warning/10 px-2 py-1.5 text-sm font-medium text-warning" data-record-closure-link>
+              {linkLine.reason}
+            </p>
+          )}
         </div>
       )}
+      {checklist && (
+        <label className="flex min-h-10 cursor-pointer items-start gap-2 rounded-md border px-2 py-2 text-sm" data-archive-tick>
+          <Checkbox
+            className="mt-0.5"
+            checked={ticked}
+            disabled={missing.length > 0}
+            onCheckedChange={(next) => setTicked(next === true)}
+          />
+          <span>
+            {tChecklist("tick")}
+            <span className="ml-1 text-xs text-muted-foreground">{tChecklist("tickRequired")}</span>
+          </span>
+        </label>
+      )}
+      {checklist && <p className="text-xs text-muted-foreground">{tChecklist("pinNext")}</p>}
       <Button
         size="sm"
-        disabled={confirm.isPending || Boolean(blocked)}
-        disabledReason={blocked?.reason}
+        disabled={confirm.isPending || Boolean(lockedReason)}
+        disabledReason={lockedReason}
         onClick={() => confirm.mutate()}
       >
         {confirm.isPending ? (

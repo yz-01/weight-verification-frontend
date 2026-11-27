@@ -3803,6 +3803,9 @@
       "final_report_recovery": "Laporan akhir dijana semula",
       "form_pdf": "PDF borang dijana",
       "forwarded_to_head_office": "Dihantar ke ibu pejabat",
+      "execution_started": "Permohonan dimulakan",
+      "execution_completed": "Permohonan disahkan selesai",
+      "execution_auto": "Pelaksanaan dikemas kini daripada penerimaan",
       "gate_conversation_started": "Perbualan pintu dimulakan",
       "gate_incident_members_added": "Orang ditambah ke insiden pintu",
       "gate_incident_photos_added": "Foto ditambah ke insiden pintu",
@@ -4035,7 +4038,45 @@
       "platform_access_closed": "Menutup akses untuk MSE",
       "project_grant_updated": "Ubah akses projek",
       "jb225_sub_modules": "Item bahan / kemajuan ditanda berasingan (naik taraf sistem)",
-      "jb225_default_sub_modules": "Item lalai perunding ditanda berasingan (naik taraf sistem)"
+      "jb225_default_sub_modules": "Item lalai perunding ditanda berasingan (naik taraf sistem)",
+      "exit_pass_started": "Memulakan pas keluar",
+      "sign_off_pin_code_sent": "Kod PIN pengesahan dihantar",
+      "sign_off_pin_code_failed": "Kod PIN pengesahan ditolak",
+      "sign_off_pin_set_failed": "PIN pengesahan tidak ditetapkan (ditolak)",
+      "login_email_changed": "E-mel log masuk ditukar",
+      "equipment_operator_profile_saved": "Dokumen operator disimpan",
+      "equipment_operator_file_added": "Foto atau fail ditambah pada dokumen operator",
+      "equipment_operator_file_removed": "Foto atau fail dibuang daripada dokumen operator",
+      "remedial_item_submitted": "Kerja pembaikan dihantar",
+      "remedial_item_accepted": "Perkara pembaikan diterima",
+      "remedial_item_returned": "Perkara pembaikan dikembalikan untuk dibaiki lagi",
+      "remedial_accepted": "Semua perkara pembaikan diterima",
+      "package_submit_signed": "Pakej ditandatangani dan dihantar",
+      "package_review_signed": "Semakan pakej ditandatangani",
+      "package_completed": "Pakej diselesaikan dan diarkibkan",
+      "package_claim_amount_set": "Jumlah tuntutan pakej diubah",
+      "company_modules_by_platform": "MSE menghidupkan atau mematikan modul perniagaan syarikat",
+      "equipment_rental_terms_set": "Tetapkan terma sewa peralatan",
+      "equipment_rental_month_amounts_set": "Masukkan caj diesel atau pelarasan sewa peralatan",
+      "equipment_rental_month_confirmed": "Sahkan amaun sewa peralatan sebulan",
+      "material_request_linked": "Dipautkan kepada MR / permohonan lain",
+      "material_request_unlinked": "Pautan MR / permohonan lain dibuang",
+      "menu_names_permission_by_platform": "MSE membenarkan atau menghentikan syarikat menamakan semula menunya",
+      "menu_names_update": "Nama menu diubah",
+      "external_site_evidence": "Syarikat luar mengambil foto kenderaan keluar / Gate Pass",
+      "fill_trip_numbers": "Angka muatan diisi",
+      "supplier_excel_import": "Pembekal diimport dari Excel",
+      "company_material_excel_import": "Bahan diimport dari Excel",
+      "material_issue_checked": "Pengeluaran bahan disemak",
+      "material_records_settled": "Rekod yang disemak diselesaikan",
+      "equipment_rental_statement_created": "Penyata sewaan peralatan dijana",
+      "equipment_rental_statement_cancelled": "Penyata sewaan peralatan dibatalkan",
+      "equipment_rental_checked": "Penyata sewaan peralatan disemak",
+      "equipment_rental_settled": "Penyata sewaan peralatan diselesaikan",
+      "equipment_rental_statement_pdf_exported": "PDF penyata sewaan peralatan dieksport",
+      "equipment_rental_statement_pdf_previewed": "PDF penyata sewaan peralatan dipratonton",
+      "record_archive_checked": "Disahkan dan diarkibkan (maklumat disemak)",
+      "return_exit_confirmed": "Mengesahkan keluar rasmi"
     },
     "objectType": {
       "SignOffAssistant": "PIN pembantu",
@@ -4569,7 +4610,7 @@
       "claim": "Kategori Progress Claim"
     },
     "moduleHelp": {
-      "material": "Penghantaran dan kosnya difailkan di sini. Satu senarai bagi setiap projek.",
+      "material": "Data asas bahan: nama, spesifikasi, unit, kod dan harga seunit. Satu senarai bagi setiap projek.",
       "equipment": "Kren, jengkaut, penjana. Satu senarai bagi setiap projek, diselenggara oleh syarikat ini.",
       "ehs": "Setiap projek bermula dengan pembetulan keselamatan, pembinaan dan perunding serta permit kerja. Tambah, namakan semula atau matikan kategori di sini; hanya kategori tanpa rekod boleh dibuang. Permit kerja ialah kategori sistem dan hanya boleh dinamakan semula.",
       "recycle": "Sisa kitar semula yang dihantar keluar dari tapak: besi buruk, tembaga, aluminium, kabel. Satu senarai untuk seluruh syarikat; yang disediakan boleh ditutup tetapi tidak dipadam.",
@@ -5648,7 +5689,10 @@
       "progressRecords": "Kemajuan pembinaan",
       "progressDailyReports": "Laporan harian tapak",
       "progressRain": "Rekod hujan",
-      "progressSchedule": "Jadual pembinaan"
+      "progressSchedule": "Jadual pembinaan",
+      "fieldTasksView": "Lihat tugasan tapak",
+      "fieldTasksAssign": "Mula dan tugaskan tugasan tapak",
+      "fieldTasksAccept": "Terima tugasan tapak"
     },
     "itemHint": {
       "materialsIn": "Bahan yang dihantar ke tapak, termasuk muatan yang ditolak (di Bahan masuk)",
@@ -5659,7 +5703,10 @@
       "progressRecords": "Kemas kini kemajuan, foto garis masa, kategori kerja dan ringkasan kemajuan (di Kemajuan)",
       "progressDailyReports": "Laporan tapak setiap hari (Kemajuan → Laporan harian)",
       "progressRain": "Rekod henti kerja kerana hujan dan angka bulanannya (Kemajuan → Rekod hari hujan)",
-      "progressSchedule": "Jadual pembinaan dan kemajuan sebenar (Kemajuan → Jadual)"
+      "progressSchedule": "Jadual pembinaan dan kemajuan sebenar (Kemajuan → Jadual)",
+      "fieldTasksView": "Lihat tugasan tapak yang dia terlibat: yang dia mulakan dan yang dihantar kepadanya untuk disemak (di Tugasan tapak)",
+      "fieldTasksAssign": "Boleh tekan Agih tugas dan berikan tugasan kepada kakitangan projek ini",
+      "fieldTasksAccept": "Apabila tugasan yang dia mulakan siap, dia menerimanya atau menghantarnya balik"
     },
     "itemShort": {
       "materialsIn": "masuk",
@@ -5670,7 +5717,10 @@
       "progressRecords": "kemajuan",
       "progressDailyReports": "laporan harian",
       "progressRain": "hujan",
-      "progressSchedule": "jadual"
+      "progressSchedule": "jadual",
+      "fieldTasksView": "lihat",
+      "fieldTasksAssign": "mula dan tugaskan",
+      "fieldTasksAccept": "terima"
     }
   },
   "consultantDashboard": {
@@ -7051,7 +7101,7 @@
       "executor": "Pelaksana",
       "fieldFormHelp": "Isi maklumat penting sahaja, lengkapkan sekurang-kurangnya empat foto bukti dan ambil GPS. Pelaksana direkod secara automatik.",
       "formHelp": "Namakan pelaksana sebenar dan ambil lokasi GPS semasa.",
-      "subtitle": "Bahan dipulangkan kepada pembekal: mohon di telefon → pejabat isi Return Note dan luluskan → kedua-dua pihak tandatangan semasa keluar → pejabat sahkan.",
+      "subtitle": "Bahan dipulangkan kepada pembekal: mohon di telefon → pejabat isi Return Note dan luluskan → foto dan tandatangan kedua-dua pihak semasa lori tiba → pejabat mulakan pas keluar dan pengurus keselamatan tandatangan → pengawal pintu ambil foto dan lepaskan → pejabat sahkan keluar → arkib.",
       "title": "Bahan keluar",
       "rejectTitle": "Hantar permohonan ini kembali",
       "rejectHelp": "Permohonan {reference} berakhir di sini. Ia tidak dibuka semula — permohonan baharu dibuat — jadi sebab ini sahaja yang pemohon ada.",
@@ -7060,10 +7110,10 @@
       "returnProcessing": "Rekod keluar (kedua-dua tandatangan)",
       "exitWaitingUpload": "Rekod keluar ini sudah disimpan dalam telefon ini dan dimuat naik sendiri apabila ada isyarat - tidak perlu buat semula. Ikuti dalam Apa yang saya hantar.",
       "exitUploading": "Sedang memuat naik {photos} foto dan kedua-dua tandatangan - sila tunggu dan jangan tutup tetingkap ini.",
-      "waitingForSite": "Diluluskan / menunggu keluar tapak: tapak merekod keluar dengan kedua-dua tandatangan.",
-      "finalConfirm": "Sahkan keluar",
-      "waitingForOffice": "Bahan telah keluar. Menunggu pengesahan pejabat.",
-      "returnHelp": "{reference} telah diluluskan. Semasa bahan keluar: ambil foto, isi kuantiti sebenar, nombor plat lori, sahkan pembekal (imbas kodnya jika boleh), dan kedua-dua orang tapak dan pembekal / pemandu tandatangan. Pejabat kemudian mengesahkannya.",
+      "waitingForSite": "Menyediakan pas keluar: apabila kenderaan tiba, tapak mengambil foto kenderaan dan barang yang keluar lalu menghantarnya. Selepas foto diterima, pejabat menekan [Mulakan pas keluar].",
+      "finalConfirm": "Sahkan keluar rasmi",
+      "waitingForOffice": "Foto tapak telah dihantar - menunggu pejabat memulakan pas keluar dan mengesahkan.",
+      "returnHelp": "{reference} telah diluluskan - pas keluar sedang disediakan. Apabila kenderaan tiba: ambil foto kenderaan dan barang yang keluar, isi kuantiti sebenar dipulangkan dan nombor plat, sahkan pembekal (imbas kodnya) dan tandatangan kedua-dua pihak (kakitangan tapak dan pembekal / pemandu), kemudian hantar. Pas keluar sampai kepada anda dan pintu hanya selepas pejabat memulakannya dan pengurus keselamatan menandatangani.",
       "processingPhotos": "Gambar semasa serahan",
       "processingNote": "Nota dari tapak",
       "processingLocation": "Lokasi",
@@ -7116,7 +7166,7 @@
       "materialNameHint": "Tidak pasti? Biarkan - pejabat akan mengisinya."
     },
     "outgoingStatus": {
-      "APPROVED": "Diluluskan / menunggu keluar tapak",
+      "APPROVED": "Menyediakan pas keluar",
       "PENDING": "Menunggu kelulusan",
       "REJECTED": "Dikembalikan (ditutup)",
       "RELEASED": "Dilepaskan (aliran lama)",
@@ -7756,12 +7806,19 @@
       "item_count": "Item",
       "submit_to": "Dihantar kepada",
       "applicant": "Pemohon",
-      "origin": "Sumber foto"
+      "origin": "Sumber foto",
+      "package_no": "No. pakej",
+      "package_name": "Nama pakej",
+      "review": "Semakan",
+      "claim_amount": "Amaun tuntutan (RM)",
+      "approved_amount": "Amaun diluluskan (RM)",
+      "packed_by": "Dibungkus oleh",
+      "package_created_at": "Dicipta"
     },
     "description": {
       "attendance": "Semak bukti kemasukan tapak, ketepatan GPS dan geofence.",
       "consultant": "Semak permohonan perunding, bukti dan keputusan akhir.",
-      "equipment": "Semak keluar masuk peralatan, dokumen, OCR dan foto.",
+      "equipment": "Rekod masuk / keluar peralatan dengan caj sewa setiap mesin dan jumlah keseluruhan.",
       "photos": "Cari lejar bukti foto kekal mengikut projek, sumber, pemuat naik, tarikh dan GPS.",
       "progress": "Semak kemajuan projek, status pengesahan dan bukti foto.",
       "recycling": "Semak kerja pelupusan dan pesanan kitar semula hingga selesai.",
@@ -7772,7 +7829,7 @@
       "material_returns": "Bahan yang dipulangkan kepada pembekal: RN, pembekal, bahan, spesifikasi, kuantiti dipulangkan dan penerimaan asal; subjumlah mengikut bahan dan spesifikasi di bawah.",
       "material_rejections": "Penerimaan yang tidak menepati atau ditolak: kuantiti, sebab dan siapa memutuskan; subjumlah mengikut bahan dan spesifikasi di bawah.",
       "sundry_claims": "Tuntutan pelbagai: apa yang dituntut, siapa meluluskan dan jumlahnya.",
-      "claims": "Tuntutan kemajuan setiap projek dan kelulusannya.",
+      "claims": "Pakej Progress Claim setiap projek dalam Multi Engine dan semakannya.",
       "material_outgoing": "Bahan keluar tapak dan pemulangan (RN).",
       "field_tasks": "Tugasan tapak yang diberi dan disiapkan, dengan fotonya.",
       "daily_report": "Laporan harian mengikut tarikh: teks penuh setiap laporan, rekod dan fotonya. Dalam PDF setiap laporan bermula di halaman baharu, fotonya bertera air.",
@@ -7803,7 +7860,7 @@
         "material_outgoing": "Cari nombor, bahan, spesifikasi, DO, plat, Return Note, pembekal",
         "material_returns": "Cari RN, penerimaan, bahan, spesifikasi, pembekal, sebab",
         "material_rejections": "Cari no. penerimaan, bahan, spesifikasi, pembekal, sebab, DO, plat",
-        "claims": "Cari no. tuntutan, catatan, keterangan, kategori, subkontraktor",
+        "claims": "Cari no. pakej, nama, no. tuntutan, catatan, kategori, subkontraktor",
         "sundry_claims": "Cari nombor, keterangan, pemohon"
       },
       "noMatch": "Tiada pilihan yang sepadan",
@@ -7927,7 +7984,7 @@
     "type": {
       "attendance": "Laporan kemasukan tapak dan tenaga kerja",
       "consultant": "Laporan permohonan perunding",
-      "equipment": "Laporan pergerakan peralatan",
+      "equipment": "Laporan caj sewa peralatan",
       "photos": "Laporan foto tapak",
       "progress": "Laporan kemajuan dan foto",
       "recycling": "Laporan pelupusan dan kitar semula",
@@ -9076,7 +9133,7 @@
   },
   "email": {
     "invite": {
-      "body": "Anda telah dijemput ke MSE Trace. Gunakan pautan di bawah untuk menetapkan kata laluan dan log masuk. Pautan ini akan tamat tempoh tidak lama lagi.",
+      "body": "Anda telah dijemput ke MSE Trace. Gunakan pautan di bawah untuk menetapkan kata laluan dan log masuk. Pautan ini sah selama {valid_for}.",
       "subject": "Anda dijemput ke MSE Trace"
     },
     "reset": {
@@ -9467,11 +9524,12 @@
       "material_request_manager_first": "Permohonan tapak dihantar kepada pengurus projek dahulu, yang menghantarnya ke ibu pejabat.",
       "material_request_not_executor": "Hanya pengurus projek bagi projek ini boleh memproses dan mengesahkan selesai; ibu pejabat hanya boleh melihat.",
       "material_request_not_open": "Permohonan ini tidak menunggu untuk dilaksanakan (belum diluluskan, atau sudah disahkan selesai).",
+      "material_request_execution_automatic": "Permohonan bahan (MR) tiada Mula atau Sahkan selesai: pelaksanaannya mengikut kuantiti yang ditandatangani terima dalam Bahan Masuk.",
       "sign_off_pin_required": "Masukkan PIN pengesahan enam digit anda untuk meneruskan.",
       "sign_off_pin_not_set": "Anda belum menetapkan PIN pengesahan. Tetapkan dahulu.",
       "sign_off_pin_incorrect": "PIN pengesahan salah. Tinggal {attempts_left} cubaan sebelum dikunci 15 minit.",
       "sign_off_office_only": "Sila buat ini di pejabat belakang, pada komputer. Telefon tidak boleh membuat langkah ini.",
-      "sign_off_pin_locked": "PIN salah 5 kali: dikunci. Cuba lagi dalam {minutes} minit, atau tetapkan PIN baharu dengan kata laluan akaun anda.",
+      "sign_off_pin_locked": "PIN salah 5 kali: dikunci. Cuba lagi dalam {minutes} minit, atau tetapkan PIN baharu dengan kod yang dihantar ke e-mel log masuk anda.",
       "equipment_hours_same_machine": "Jam ini sudah milik mesin itu.",
       "equipment_hours_overlap": "Mesin itu sudah ada jam pada masa ini. Masa yang sama tidak boleh dikira dua kali.",
       "equipment_hours_equipment_gone": "Mesin ini telah meninggalkan tapak; ia tidak boleh didaftar masuk lagi.",
@@ -9661,7 +9719,90 @@
       "permit_work_name_required": "Tulis nama kerja dahulu, kemudian tandatangan dan luluskan.",
       "permit_formal_permit_required": "Belum ada permit rasmi. Muat naik borang permit syarikat yang telah diisi dengan \"Lampirkan fail\", atau isi e-permit, kemudian tandatangan dan luluskan.",
       "hazard_room_not_for_consultant": "Ini perbualan dalaman kontraktor; perunding tidak boleh menghantar mesej di sini. Untuk berbincang dengan pejabat projek, gunakan 'Mesej seseorang'.",
-      "report_export_made_before_update": "Fail ini dibuat sebelum kemas kini sistem. Sila eksport semula."
+      "report_export_made_before_update": "Fail ini dibuat sebelum kemas kini sistem. Sila eksport semula.",
+      "hazard_chat_ended": "{incident_no} telah tamat dan perbincangannya ditutup. Rekod masih boleh dibaca, tetapi tiada lagi teks, foto, fail atau nota suara boleh dihantar.",
+      "exit_pass_photos_missing": "Tapak belum menghantar foto kenderaan dan barang yang keluar, jadi pas keluar belum boleh dimulakan atau ditandatangani. Tunggu kakitangan tapak mengambil dan menghantar foto apabila kenderaan tiba.",
+      "exit_pass_not_started": "Pejabat belum menekan [Mulakan pas keluar], jadi ia belum boleh ditandatangani. Tandatangan selepas pejabat menyemak foto tapak dan menekan [Mulakan pas keluar].",
+      "exit_pass_start_not_allowed": "Anda tidak boleh memulakan pas keluar ini: ia ditekan di pejabat oleh orang yang meluluskan bahan keluar bagi projek ini. Hubungi pengurus projek atau ibu pejabat.",
+      "exit_pass_already_started": "Pas keluar ini sudah dimulakan - tidak perlu tekan lagi. Halaman telah dimuat semula.",
+      "project_left": "Anda telah dikeluarkan daripada projek {project}, jadi anda tidak lagi boleh melihat atau mengendalikan rekodnya. Sila hubungi pengurus projek jika perlu.",
+      "phone_identity_in_use": "Nombor telefon ini sudah menjadi identiti aktif \"{name}\" ({kind, select, driver {pautan pemandu} site_staff {kakitangan tapak} equipment_operator {operator peralatan} gate_guard {pengawal pintu} other {kakitangan tapak}}). Satu nombor hanya boleh ada satu identiti aktif: hentikan yang lama dahulu, kemudian buat yang baharu.",
+      "phone_device_in_use": "Telefon ini sudah diikat pada identiti orang lain ({name}). Satu telefon hanya boleh ada satu identiti aktif: minta pejabat menghentikan identiti lama dahulu, kemudian gunakan pautan baharu.",
+      "equipment_hours_driver_busy": "Mesin anda {equipment} belum ditamatkan (mula {since}). Seorang pemandu hanya boleh menjalankan satu mesin pada satu masa: ambil foto tamat mesin itu dahulu, kemudian mulakan mesin ini.",
+      "company_settings_pin_required": "Masukkan PIN pengesahan enam digit anda untuk membuka tetapan syarikat.",
+      "sign_off_pin_identity_required": "Sahkan dahulu ini anda: taip PIN pengesahan lama, atau kod yang dihantar ke e-mel log masuk anda.",
+      "sign_off_pin_code_incorrect": "Kod salah. {attempts_left} lagi cubaan salah dan kod tidak boleh digunakan.",
+      "sign_off_pin_code_expired": "Kod telah tamat tempoh atau tidak sah lagi. Tekan Hantar kod untuk kod baharu.",
+      "sign_off_pin_code_wait": "Kod baru sahaja dihantar. Cuba lagi dalam {seconds} saat.",
+      "sign_off_pin_code_not_sent": "Kod tidak dapat dihantar. Cuba lagi nanti; jika tidak pernah sampai, hubungi MSE.",
+      "admin_account_only_admin": "Hanya Pentadbir Syarikat boleh menetapkan semula PIN pengesahan, menggantung, membuang atau menyerahkan akaun Pentadbir Syarikat. Sila minta Pentadbir Syarikat.",
+      "admin_email_only_self": "Hanya Pentadbir Syarikat sendiri boleh menukar e-mel log masuknya.",
+      "package_signature_required": "Tandatangan dalam kotak tandatangan dahulu.",
+      "package_opinion_required": "Tulis pendapat semakan.",
+      "package_review_needs_signature": "Sahkan atau pulangkan dalam tetingkap Semak: ia meminta pendapat, tandatangan dan PIN enam digit anda.",
+      "package_not_your_review": "Ibu pejabat menyemak pakej ini - bukan orang yang membungkus atau menghantarnya.",
+      "package_nothing_to_review": "Sahkan atau pulangkan sekurang-kurangnya satu rekod.",
+      "package_item_decided": "Anda sudah menyemak rekod ini dalam pusingan ini; rekod itu kekal.",
+      "package_circulation_only": "Ini diedarkan untuk dibaca sahaja; tiada semakan.",
+      "package_purpose": "Pilih Hantar untuk kelulusan atau Edarkan untuk dibaca.",
+      "package_amount_invalid": "Taip jumlah dalam RM.",
+      "package_approved_amount_required": "Isi jumlah diluluskan bagi tempoh ini.",
+      "package_amount_reason_required": "Jumlah diluluskan berbeza daripada jumlah tuntutan: tulis sebabnya.",
+      "package_not_approved": "Ia boleh diselesaikan selepas semua penyemak meluluskannya.",
+      "package_completed": "Pakej ini telah selesai dan diarkibkan; tiada lagi perubahan.",
+      "company_module_invalid": "Tanda hanya modul perniagaan yang ada pada syarikat ini.",
+      "company_module_switched_off": "Modul ini tidak dibuka untuk syarikat anda. Untuk menggunakannya, minta MSE membukanya.",
+      "consultant_grant_changed": "Akses projek anda telah dikemas kini. Sila log masuk semula.",
+      "equipment_rental_no_terms": "Tetapkan terma sewa mesin ini dahulu (Terma sewa peralatan).",
+      "equipment_rental_diesel_not_charged": "Diesel mesin ini tidak dicaj berasingan oleh pembekal, jadi caj diesel tidak boleh dimasukkan.",
+      "equipment_rental_month_confirmed": "Amaun sewa bulan ini sudah disahkan dan tidak boleh diubah lagi.",
+      "equipment_rental_month_not_started": "Bulan ini belum bermula dan tidak boleh disahkan.",
+      "role_start_fixed": "\"Ibu pejabat\" dan \"Projek\" ialah titik mula Jemput pengguna: tidak boleh diubah, dan kodnya tidak boleh digunakan.",
+      "invite_workplace_required": "Pilih ibu pejabat atau projek.",
+      "invite_projects_required": "Tandakan sekurang-kurangnya satu projek.",
+      "invite_role_wrong_kind": "Kebenaran biasa yang dipilih bukan untuk tempat yang dipilih (ibu pejabat atau projek). Pilih semula.",
+      "material_request_link_required": "Rekod ini ({reference}) belum dipautkan kepada MR / permohonan lain. Tidak boleh diarkibkan sehingga dipautkan.",
+      "material_request_link_invalid": "Hanya MR / permohonan lain projek ini boleh dipautkan (bukan yang telah dipulangkan).",
+      "menu_names_not_enabled": "MSE belum menghidupkan nama menu untuk syarikat anda.",
+      "menu_name_invalid": "Semak nama menu: 1–20 aksara setiap satu, tiada baris baharu, tiada tanda kurung sudut.",
+      "exit_pass_executor_missing": "Pelaksana belum dipilih, jadi pas keluar tidak boleh ditandatangani. Tekan [Pilih pelaksana] pada pelupusan ini dahulu.",
+      "exit_pass_exit_evidence_missing": "Belum ada foto kenderaan keluar / Gate Pass, jadi pas keluar tidak boleh ditandatangani. Tapak atau syarikat pelupusan mengambilnya dahulu.",
+      "disposal_trip_number_recorded": "Muatan {seq} sudah ada angka ini. Untuk menukarnya, tekan Betulkan pada muatan itu dan beri sebab.",
+      "import_excel_old_format": "Ini fail .xls lama. Dalam Excel, guna Simpan Sebagai, pilih .xlsx, dan muat naik fail itu.",
+      "import_excel_invalid": "Fail ini tidak dapat dibuka. Muat naik fail Excel (.xlsx), atau isi templat Excel dan muat naik.",
+      "import_excel_too_large": "Fail terlalu besar: maksimum {limit_mb} MB.",
+      "import_excel_empty": "Excel ini tiada data di bawah tajuknya.",
+      "import_excel_too_many_rows": "Maksimum {limit} baris setiap import. Sila bahagikan fail.",
+      "import_excel_mapping_invalid": "Lajur yang dipilih tiada dalam Excel ini. Sila pilih semula.",
+      "recon_voucher_no_required": "Isikan nombor baucar, cth. CN No. 1232 - dalam ruangnya sendiri, bukan dalam catatan.",
+      "recon_voucher_file_required": "Muat naik baucar (foto atau PDF) - sekurang-kurangnya satu.",
+      "recon_none_chosen": "Tandakan sekurang-kurangnya satu.",
+      "recon_record_not_found": "{count} rekod yang ditanda tidak dijumpai, atau dalam projek yang anda tidak boleh lihat. Buka semula dan tanda lagi.",
+      "recon_already_checked": "{reference} sudah disemak dalam {check_no}; ia tidak boleh disemak dua kali.",
+      "issue_check_company_required": "Pilih syarikat dahulu.",
+      "issue_check_no_company": "Pengeluaran {reference} tiada syarikat, jadi ia tidak boleh disemak.",
+      "issue_check_other_company": "Pengeluaran {reference} milik syarikat lain. Satu semakan hanya untuk satu syarikat.",
+      "issue_check_not_issued": "Pengeluaran {reference} belum diserahkan, jadi ia tidak boleh disemak.",
+      "settlement_none_chosen": "Tandakan sekurang-kurangnya satu semakan.",
+      "settlement_check_not_found": "{count} semakan yang ditanda tidak dijumpai, atau dalam projek yang anda tidak boleh lihat.",
+      "settlement_already_settled": "{check_no} sudah diselesaikan dalam {settlement_no}; ia tidak boleh diselesaikan dua kali.",
+      "settlement_other_party": "{check_no} milik pihak lain. Satu penyelesaian hanya untuk satu pihak.",
+      "rental_statement_filters": "Pilih projek, syarikat peralatan dan tarikh mula serta tamat (tamat tidak sebelum mula, paling lama setahun).",
+      "rental_statement_empty": "Syarikat peralatan ini tiada yuran sewa dalam projek ini pada tarikh tersebut.",
+      "rental_statement_not_confirmed": "Bulan-bulan ini belum tamat: {items}. Jana penyata selepas bulan tamat; untuk menjana sekarang, tekan 【Sahkan amaun bulan ini】 di Jam operator peralatan › Bulanan dahulu.",
+      "rental_statement_no_terms": "Peralatan ini belum ada terma sewaan: {items}. Tetapkan dahulu.",
+      "rental_statement_overlap": "Tarikh ini bertindih dengan penyata {statement_no} bagi projek dan syarikat yang sama; yuran yang sama tidak boleh diselesaikan dua kali.",
+      "rental_statement_locked": "Penyata {statement_no} sudah disemak atau dibatalkan; ia kekal seperti itu.",
+      "rental_statement_hours_locked": "Jam ini sudah dalam penyata {statement_no} yang telah disemak atau diselesaikan, jadi tidak boleh diubah lagi.",
+      "rental_check_supplier_required": "Pilih syarikat peralatan dahulu.",
+      "rental_check_other_supplier": "Penyata {reference} milik syarikat peralatan lain. Satu semakan hanya untuk satu syarikat.",
+      "archived_record_final": "Rekod ini telah diarkibkan. Tiada sesiapa boleh mengubah atau memadamnya lagi, termasuk ibu pejabat.",
+      "archive_items_missing": "Masih ada maklumat wajib yang belum lengkap (lihat senarai di bawah Sahkan dan arkibkan), jadi tidak boleh diarkibkan.",
+      "archive_check_not_ticked": "Tandakan \"Saya telah menyemak semua maklumat dan ia betul.\" sebelum mengarkibkan.",
+      "return_gate_not_released": "Pintu belum mengambil gambar dan melepaskannya (kenderaan, plat dan barang), jadi keluar rasmi belum boleh disahkan.",
+      "exit_release_shots_missing": "Pemulangan bahan dilepaskan dengan gambar kenderaan, nombor plat dan barang keluar - sekurang-kurangnya satu setiap satu. Ambil yang belum, kemudian tekan Sahkan lepas.",
+      "invite_needs_user_update": "Menjemput juga menetapkan kebenaran orang itu, jadi anda perlu 'Sunting pengguna' untuk menjemput. Minta pentadbir syarikat anda menghidupkannya.",
+      "field_removed_from_project": "Anda telah dikeluarkan daripada projek, jadi telefon ini dilog keluar. Hubungi pengurus projek anda jika masih memerlukannya."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -9706,7 +9847,12 @@
       "site_worker_passport_taken": "Pasport ini sudah ada dalam senarai",
       "supplier_not_on_project": "Pembekal ini tiada dalam senarai pembekal projek ini. Minta ibu pejabat atau pengurus projek menambahnya dahulu.",
       "field_one_project": "Akaun telefon hanya boleh berada di satu projek pada satu masa. Pilih satu projek.",
-      "phone_role_office_account": "Akaun telefon dibuat dalam Kakitangan tapak. Akaun pejabat tidak boleh diberi peranan telefon (kakitangan tapak, operator jentera, pengawal pintu) di sini. Sila pilih peranan lain."
+      "phone_role_office_account": "Akaun telefon dibuat dalam Kakitangan tapak. Akaun pejabat tidak boleh diberi peranan telefon (kakitangan tapak, operator jentera, pengawal pintu) di sini. Sila pilih peranan lain.",
+      "assignee_not_on_project": "Orang ini tidak lagi berada dalam projek ini dan tidak boleh diberi tugasnya. Sila pilih orang lain.",
+      "link_expiry_past": "Masa ini sudah lepas. Pilih masa selepas sekarang.",
+      "supplier_inactive": "Pembekal ini dimatikan. Pilih pembekal lain.",
+      "trip_number_recorded": "Sudah direkodkan - guna Betulkan untuk menukar",
+      "archived_final": "Rekod ini telah diarkibkan. Tiada sesiapa boleh mengubah atau memadamnya lagi."
     },
     "forbidden": "Anda tiada akses kepada ini.",
     "forbiddenBody": "Tanya pentadbir anda jika anda memerlukannya.",
@@ -10351,7 +10497,8 @@
       "operatorHours": "Jam operator peralatan",
       "permit": "Permit kerja",
       "visitor": "Imbas QR Pelawat",
-      "rain": "Rainy Weather"
+      "rain": "Rainy Weather",
+      "scrap": "Pelupusan bahan buangan"
     },
     "status": {
       "ACCEPTED": "Selesai",
@@ -10671,7 +10818,9 @@
       "open": "Buka",
       "dismiss": "Tutup"
     },
-    "recordFailed": "Rakaman tidak bermula. Benarkan aplikasi ini menggunakan mikrofon, atau taip atau ambil gambar."
+    "recordFailed": "Rakaman tidak bermula. Benarkan aplikasi ini menggunakan mikrofon, atau taip atau ambil gambar.",
+    "ended": "Perkara ini telah tamat dan perbincangannya ditutup. Setiap mesej, foto, fail dan nota suara, berserta pengirim dan masanya, kekal di sini untuk dibaca. Tiada lagi yang boleh dihantar.",
+    "endedBadge": "Tamat"
   },
   "headquarters": {
     "banner": {
@@ -10702,7 +10851,7 @@
         "material_receipts_today": "Bahan diterima hari ini"
       },
       "wasteDispatches": "Pesanan sisa",
-      "siteDisposals": "Pembersihan tapak",
+      "siteDisposals": "Pembersihan sisa",
       "records": "Rekod",
       "trips": "Trip",
       "weighedKg": "Ditimbang (kg)",
@@ -12509,7 +12658,12 @@
         "REVOKED": "Dibatalkan",
         "EXTENDED": "Dilanjutkan",
         "LINK_REGENERATED": "Pautan baharu",
-        "REPORT": "Rekod surat-menyurat dijana"
+        "REPORT": "Rekod surat-menyurat dijana",
+        "SUBMIT_SIGNED": "Ditandatangani dan dihantar",
+        "REVIEW_SIGNED": "Semakan ditandatangani",
+        "APPROVED": "Diluluskan",
+        "COMPLETED": "Diselesaikan dan diarkibkan",
+        "CLAIM_AMOUNT": "Jumlah tuntutan diubah"
       },
       "ip": "IP {ip}",
       "writeFirst": "Tulis mesej atau pilih fail dahulu.",
@@ -12643,7 +12797,7 @@
       "DRIVER_TRIP": "Perjalanan",
       "MATERIAL_OUTGOING": "Bahan keluar",
       "EQUIPMENT_MOVEMENT": "Pergerakan peralatan",
-      "DISPOSAL_REQUEST": "Pelupusan tapak",
+      "DISPOSAL_REQUEST": "Pembersihan sisa",
       "SUNDRY_CLAIM": "Tuntutan pelbagai",
       "MATERIAL_REQUEST": "MR / Permohonan Lain",
       "GATE_INCIDENT": "Foto pintu",
@@ -12722,6 +12876,8 @@
       "execution_status": "Status pelaksanaan",
       "completed_by": "Disahkan selesai oleh",
       "completion_note": "Catatan penyelesaian",
+      "execution_received": "Diterima / diluluskan",
+      "completed_auto": "Cara selesai",
       "original_quantity": "Kuantiti asal",
       "correction_reason": "Sebab pembetulan",
       "assigned_reviewer": "Dihantar kepada",
@@ -12949,7 +13105,7 @@
     "settings": "Tetapan",
     "settlements": "Penyelesaian",
     "site_access": "Akses tapak",
-    "site_disposals": "Pelupusan tapak",
+    "site_disposals": "Pembersihan sisa",
     "site_gps": "GPS kakitangan tapak",
     "sites": "Tapak",
     "submodule": {
@@ -13151,7 +13307,7 @@
       "settingsActivity": "Rekod tetapan",
       "settingsAudit": "Rekod tetapan",
       "siteAccessPasses": "Pas akses",
-      "siteDisposals": "Pelupusan tapak",
+      "siteDisposals": "Pembersihan sisa",
       "siteEquipment": "Pergerakan peralatan",
       "siteGps": "GPS kakitangan tapak",
       "subscriptionActivity": "Rekod operasi",
@@ -13212,7 +13368,10 @@
       "fieldStaffManagement": "Kakitangan tapak",
       "fieldChats": "Rekod perbualan",
       "photoTimeline": "Garis masa foto projek",
-      "materialIssue": "Pengeluaran bahan (MIN)"
+      "materialIssue": "Pengeluaran bahan (MIN)",
+      "equipmentRentalReport": "Laporan caj sewa peralatan",
+      "siteCostOverview": "Ringkasan kos tapak",
+      "equipmentRentalStatements": "Penyata sewaan peralatan"
     },
     "subscription_management": "Pengurusan Langganan",
     "suppliers": "Pembekal",
@@ -13238,7 +13397,8 @@
     "waitingForYou": "{count} menunggu anda",
     "materialManagement": "Pengurusan bahan",
     "material_requests": "MR / Permohonan Lain",
-    "waitingApproval": "{count} menunggu kelulusan atau penerimaan"
+    "waitingApproval": "{count} menunggu kelulusan atau penerimaan",
+    "photo_wall": "Dinding foto"
   },
   "notifications": {
     "compose": {
@@ -14039,6 +14199,12 @@
       "need": "Merekod bayaran memerlukan invois, jumlah, tarikh bayar dan cara bayaran; rujukan, slip dan catatan adalah pilihan. Dengan slip bank, MSE dapat menyemaknya lebih cepat.",
       "then": "Bayaran yang direkod berstatus “Menunggu semakan” sehingga MSE menyemak dan mengesahkan atau menolaknya; hanya bayaran yang disahkan dikira untuk bil.",
       "trouble": "Jika jumlah pada bil kelihatan salah, hubungi MSE terus."
+    },
+    "photo_wall": {
+      "what": "Semua foto yang sudah ada dalam rekod sistem, mengikut masa diambil, dari hari pertama kerja hingga siap. Tiada apa-apa untuk dimuat naik.",
+      "who": "Sesiapa yang membaca papan pemuka ibu pejabat. MSE boleh menutup modul ini mengikut syarikat.",
+      "then": "Foto membuka rekod asalnya. Tiada apa-apa disunting di sini.",
+      "trouble": "Foto tiada: semak projek dan tarikh yang dipilih di atas; foto datang bersama rekodnya, jadi rekod yang belum dihantar tiada di sini."
     }
   },
   "partners": {
@@ -15915,7 +16081,9 @@
       "equipment_manager": "Mengurus peralatan masuk dan keluar, senarai peralatan, pelekat QR dan jam operasi di semua projek.",
       "site_supervisor": "Menugaskan dan menerima tugas tapak serta pembetulan bahaya, merekod kemajuan dan mengendalikan isu pintu di projek mereka.",
       "document_controller": "Menjaga arkib dokumen, menghantar permohonan perunding dan kelulusan pejabat, serta menyelenggara borang RFI.",
-      "equipment_operator": "Merekod mula dan tamat kerja jentera tapak dari telefon."
+      "equipment_operator": "Merekod mula dan tamat kerja jentera tapak dari telefon.",
+      "invite_head_office": "Dijemput sebagai ibu pejabat: suis orang itu sendiri menentukan.",
+      "invite_project": "Dijemput untuk projek terpilih: suis orang itu sendiri menentukan."
     },
     "systemHint": "Peranan terbina dalam tidak boleh dibuang, supaya syarikat sentiasa ada cara untuk menguruskan orangnya sendiri.",
     "system_": {
@@ -15938,7 +16106,9 @@
       "equipment_manager": "Pengurus Peralatan",
       "site_supervisor": "Penyelia Tapak",
       "document_controller": "Pengawal Dokumen",
-      "equipment_operator": "Operator Jentera"
+      "equipment_operator": "Operator Jentera",
+      "invite_head_office": "Ibu pejabat",
+      "invite_project": "Projek"
     },
     "title": "Peranan",
     "toast": {
@@ -17741,9 +17911,10 @@
       "ENDED_EARLY": "Pejabat menamatkan kerja awal; muatan belum dihantar dibatalkan",
       "TRIP_CORRECTED": "Pejabat membetulkan berat / DO / plat satu muatan",
       "SUPPLIER_SET": "Pejabat menamakan / menukar syarikat pembersihan",
-      "ANOMALY_REPORTED": "Pengecualian dilaporkan"
+      "ANOMALY_REPORTED": "Pengecualian dilaporkan",
+      "TRIP_NUMBERS_FILLED": "Pejabat mengisi berat / DO / plat muatan"
     },
-    "title": "Pelupusan tapak",
+    "title": "Pembersihan sisa",
     "toast": {
       "assigned": "Kontraktor luar ditugaskan",
       "assignedInternal": "Dihantar kepada kakitangan tapak",
@@ -19551,7 +19722,9 @@
     "blocked": {
       "record_archived": "Rekod ini telah disahkan dan diarkibkan; ia tidak boleh dibetulkan lagi. Buka rekod baharu untuk perkara lain.",
       "project_closed": "Projek ini telah tamat; rekodnya tidak boleh diubah lagi.",
-      "claim_decided": "Tuntutan pelbagai ini telah diputuskan; ia tidak boleh dibetulkan lagi."
+      "claim_decided": "Tuntutan pelbagai ini telah diputuskan; ia tidak boleh dibetulkan lagi.",
+      "record_settled": "Rekod ini telah diselesaikan; kuantiti dan harganya tidak boleh diubah lagi.",
+      "archived_final": "Rekod ini telah diarkibkan. Tiada sesiapa boleh membetulkannya lagi."
     },
     "toast": {
       "saved": "Rekod dibetulkan",
@@ -19623,7 +19796,8 @@
       "summary": "Ringkasan",
       "tags": "Tag",
       "trip_count": "Trip",
-      "do_number": "No. DO"
+      "do_number": "No. DO",
+      "equipment_company": "Syarikat pemilik"
     },
     "followsSpec": "Unit mengikut spesifikasi",
     "linePrice": "{name} harga seunit (RM / {unit})",
@@ -20253,6 +20427,42 @@
       "help": "Akaun pengurus projek {manager} digantung, jadi ibu pejabat memutuskan permohonan ini bagi pihaknya: luluskan atau pulangkan di sini. Rekod akan menyatakan ia diputuskan oleh ibu pejabat.",
       "approved": "{by} meluluskannya bagi pihak {manager} (ibu pejabat) · {at}",
       "returned": "{by} memulangkannya bagi pihak {manager} (ibu pejabat) · {at}"
+    },
+    "jb243": {
+      "basis": "Dibandingkan mengikut projek dan bahan + spesifikasi + unit. Setiap lajur dijumlahkan sendiri, tidak ditolak dari lajur lain; hanya \"Belum diterima\" = MR diluluskan − MI ditandatangani terima. Tekan angka untuk melihat rekod.",
+      "approved": "Kuantiti MR diluluskan",
+      "pending": "MR belum diluluskan (menunggu)",
+      "returned": "MR dikembalikan (sejarah)",
+      "mi": "MI ditandatangani terima di tapak",
+      "miCount": "Penghantaran MI",
+      "rn": "RN dipulangkan",
+      "rnCount": "Pemulangan RN",
+      "outstanding": "Belum diterima",
+      "outstandingFormula": "= MR diluluskan − MI diterima",
+      "overColumn": "Diterima melebihi kelulusan",
+      "over": "{quantity} melebihi kelulusan",
+      "records": "{count, plural, =0 {tiada rekod} other {# rekod}}",
+      "supplierNote": "Pembekal dipilih: MI dan RN hanya untuk pembekal ini; permohonan bahan tidak dibahagi mengikut pembekal, jadi angka MR ialah untuk seluruh projek, dan \"Belum diterima\" untuk seluruh projek (semua pembekal).",
+      "footer": "Angka MR ialah kuantiti yang dimohon; MI dan RN daripada rekod Bahan Masuk dan pemulangan bahan dalam Pengurusan Bahan. Semua ini bukan stok di tapak.",
+      "noRecords": "Tiada rekod",
+      "recordNo": "No.",
+      "recordDate": "Tarikh",
+      "recordStatus": "Status / DO",
+      "open": "Buka rekod",
+      "recordsHelp": "Tekan satu baris untuk membuka rekod itu (gambar, tandatangan dan sejarah ada di dalamnya).",
+      "kind": {
+        "MR": "Permohonan bahan",
+        "MI": "Bahan Masuk",
+        "RN": "Pulang kepada pembekal"
+      }
+    },
+    "jb253": {
+      "explain": "Pelaksanaan permohonan bahan dibandingkan secara automatik dengan kuantiti yang ditandatangani terima dalam Bahan Masuk (projek, bahan, spesifikasi dan unit yang sama) - tiada pengesahan manual. Ia menunjukkan \"Selesai\" apabila semuanya diterima; sebelum itu peringatan dihantar setiap 24 jam.",
+      "received": "Diterima",
+      "receivedOf": "Diterima {received} / diluluskan {approved} {unit}",
+      "completedHow": "Cara selesai",
+      "completedAuto": "Semua diterima - diselesaikan oleh sistem ({at})",
+      "completedNotice": "Semua diterima pada {at}; sistem menunjukkan selesai. Peringatan dihentikan dan perbincangan ditutup."
     }
   },
   "materialLines": {
@@ -21048,7 +21258,7 @@
     "normal": {
       "open": "Jam biasa: {hours} j",
       "title": "Jam biasa sehari",
-      "help": "Jam pertama setiap pengendali dalam sehari dikira biasa dan bakinya lebih masa; mesin tanpa pengendali, mengikut mesin. Hari ialah hari mula. Perubahan dikira untuk sesi yang tamat selepasnya; sesi lebih awal kekal seperti diselesaikan.",
+      "help": "Jam pertama setiap pengendali dalam sehari dikira biasa dan bakinya lebih masa; mesin tanpa pengendali, mengikut mesin. Hari ialah hari mula. Perubahan dikira untuk sesi yang tamat selepasnya; sesi lebih awal kekal seperti diselesaikan. Mesin yang syarat sewanya ada \"Jam bekerja biasa sehari\" sendiri menggunakan angka itu.",
       "label": "Jam biasa sehari",
       "save": "Simpan",
       "failed": "Tidak dapat menyimpan. Sila cuba lagi.",
@@ -21403,14 +21613,15 @@
     "formal": {
       "label": "Permit rasmi",
       "missing": "Belum ada permit rasmi. Isi borang permit syarikat anda di komputer dan muat naik dengan \"Lampirkan fail\" di bawah \"Lampiran\", atau tekan \"Isi e-permit\" di sebelah \"Dokumen permit\" dan simpan.",
-      "missingPhone": "Belum ada permit rasmi. Ia dimuat naik (\"Lampirkan fail\") atau diisi sebagai e-permit di komputer; selepas itu anda boleh menandatangan dan meluluskan di sini.",
+      "missingPhone": "Belum ada permit rasmi. Ia dimuat naik di pejabat (Muat naik lampiran) atau ditulis sebagai e-permit, kemudian pengurus keselamatan meluluskannya di pejabat.",
       "uploaded": "Dimuat naik: {files}. Pastikan ini permit rasmi, kemudian tandatangan dan luluskan.",
       "uploadedFile": "{file} ({name} · {time})",
       "uploadedMore": "{files} dan lain-lain, {count} kesemuanya",
       "ePermit": "E-permit {no} · diisi oleh {name}",
       "archivedWith": "Selepas ditandatangani, permit rasmi diarkibkan bersama catatan kelulusan, tandatangan dan masa.",
       "attachHint": "Muat naik permit rasmi di sini: isi borang permit syarikat anda di komputer, tekan \"Lampirkan fail\" (Word, PDF, Excel atau foto), kemudian tandatangan dan luluskan."
-    }
+    },
+    "officeOnly": "Permit kerja diluluskan di pejabat: log masuk di komputer, buka permit ini, kemudian luluskan atau pulangkan."
   },
   "gateCard": {
     "title": "Pintu",
@@ -21456,13 +21667,19 @@
     "armFirst": "Hidupkan suis dahulu.",
     "signedToast": "Ditandatangani.",
     "actingAs": "Direkodkan sebagai {name}",
-    "noNameYet": "Anda akan diminta nama kali pertama mengesah, memulang, menandatangan atau menulis.",
+    "noNameYet": "Anda akan diminta nama kali pertama menyemak atau menulis.",
     "changeName": "Tukar nama",
     "nameTitle": "Nama anda",
-    "nameHelp": "Nama anda direkodkan pada pengesahan, pemulangan, tandatangan dan mesej. Pelayar ini mengingatinya.",
+    "nameHelp": "Nama anda direkodkan bersama tandatangan pada semakan dan mesej anda. Pelayar ini mengingatinya.",
     "name": "Nama",
     "continue": "Teruskan",
-    "talk": "Mesej"
+    "talk": "Mesej",
+    "waitingForYou": "Menunggu semakan anda",
+    "reviewWaiting": "{count} rekod menunggu semakan anda.",
+    "reviewButton": "Semak dan tandatangan",
+    "reviewAllDone": "Anda telah menyemak semua rekod pusingan ini.",
+    "reviewHelp": "Menyemak sebagai \"{name}\": pilih Sahkan atau Pulangkan bagi setiap rekod, atau Sahkan semua. Kemudian tulis pendapat semakan dan tandatangan. Selepas dihantar, pusingan ini tidak boleh diubah.",
+    "reviewedToast": "Semakan bertandatangan anda telah dihantar."
   },
   "taskFlow": {
     "moreWork": {
@@ -21973,11 +22190,11 @@
     "checking": "Menyemak…",
     "cancel": "Batal",
     "close": "Tutup",
-    "forgot": "Terlupa? Tetapkan yang baharu dengan kata laluan akaun",
+    "forgot": "Terlupa? Tetapkan yang baharu dengan kod yang dihantar ke e-mel anda",
     "setupTitle": "Tetapkan PIN pengesahan",
     "setupHelp": "Anda belum mempunyai PIN pengesahan. Pilih enam digit yang hanya anda tahu; operasi pejabat yang penting disahkan dengannya.",
-    "changeHelp": "Pilih PIN enam digit baharu. Kata laluan akaun anda mengesahkan ia anda.",
-    "resetHelp": "Pentadbir syarikat telah menetapkan semula PIN anda. Tetapkan yang baharu untuk meneruskan.",
+    "changeHelp": "Pilih PIN enam digit baharu. Sahkan dahulu ini anda dengan PIN lama, atau kod yang dihantar ke e-mel log masuk anda.",
+    "resetHelp": "Pentadbir syarikat telah menetapkan semula PIN anda. Tetapkan yang baharu dengan kod yang dihantar ke e-mel log masuk anda untuk meneruskan.",
     "newPin": "PIN pengesahan baharu (6 digit)",
     "confirmPin": "Masukkan sekali lagi",
     "pinMismatch": "Kedua-dua PIN tidak sama",
@@ -21986,11 +22203,11 @@
     "saveAndContinue": "Simpan dan teruskan",
     "lockedTitle": "PIN pengesahan dikunci",
     "lockedHelp": "PIN anda dikunci selepas 5 cubaan salah. Ia dibuka semula 15 minit selepas cubaan terakhir.",
-    "lockedHint": "Jika terlupa, tetapkan yang baharu dengan kata laluan akaun, atau minta pentadbir syarikat menetapkannya semula.",
+    "lockedHint": "Jika terlupa, tetapkan yang baharu dengan kod yang dihantar ke e-mel log masuk anda.",
     "setAgain": "Tetapkan PIN baharu",
     "back": "Kembali",
     "lockedUntil": "PIN pengesahan anda dikunci selepas 5 kali salah. Ia dibuka semula pada {time}.",
-    "forgotPassword": "Lupa kata laluan akaun juga? Tekan “Lupa kata laluan?” di halaman log masuk, atau minta pentadbir menetapkan semula PIN pengesahan anda.",
+    "forgotPassword": "Lupa kata laluan akaun juga? Tekan “Lupa kata laluan?” di halaman log masuk.",
     "failed": "Tidak dapat disimpan. Cuba lagi.",
     "profileTitle": "PIN pengesahan saya",
     "profileHelp": "Enam digit yang hanya anda tahu. Laporan harian, jadual, kelulusan dan operasi pejabat penting lain disahkan dengannya. Telefon tidak memintanya.",
@@ -22006,7 +22223,7 @@
     "reset": "Tetapkan semula PIN",
     "resetArm": "Tetapkan semula PIN orang ini",
     "resetArmFirst": "Hidupkan suis dahulu",
-    "resetHint": "PIN dimatikan dan kunci dibuka. Orang itu menetapkan yang baharu dengan kata laluan akaunnya sendiri; anda tidak melihatnya.",
+    "resetHint": "PIN dimatikan dan kunci dibuka. Orang itu menetapkan yang baharu dengan kata laluan akaun dan kod yang dihantar ke e-mel log masuknya sendiri; anda tidak melihatnya.",
     "toast": {
       "saved": "PIN pengesahan disimpan",
       "reset": "PIN ditetapkan semula. Orang itu menetapkan yang baharu kali seterusnya."
@@ -22071,7 +22288,22 @@
       "exit_pass_external": "Kelulusan luar",
       "exit_pass_waive_external": "Batalkan kelulusan luar dan hantar pas keluar",
       "platform_access_open": "Buka akses MSE",
-      "platform_access_revoke_link": "Batalkan pautan luar yang dibuka MSE"
+      "platform_access_revoke_link": "Batalkan pautan luar yang dibuka MSE",
+      "company_settings_open": "Buka tetapan syarikat",
+      "sign_off_pin_change": "Tukar PIN pengesahan",
+      "user_change_email": "Tukar e-mel log masuk pengguna",
+      "package_submit": "Tandatangan dan hantar pakej untuk kelulusan",
+      "package_resubmit": "Tandatangan dan hantar semula pakej",
+      "package_review": "Tandatangan semakan pakej",
+      "package_claim_amount": "Isi atau ubah jumlah tuntutan",
+      "equipment_rental_terms": "Tetapkan terma sewa mesin",
+      "equipment_rental_month_amounts": "Masukkan caj diesel atau pelarasan",
+      "equipment_rental_confirm": "Sahkan amaun sewa bulan ini",
+      "material_issue_check": "Semak pengeluaran bahan",
+      "material_settlement_settle": "Selesaikan rekod yang disemak",
+      "equipment_rental_statement": "Jana atau batalkan penyata sewaan peralatan",
+      "equipment_rental_check": "Semak penyata sewaan peralatan",
+      "equipment_rental_settle": "Selesaikan penyata sewaan peralatan"
     },
     "firstTitle": "Tetapkan PIN pengesahan buat kali pertama",
     "firstBanner": "Ini kali pertama anda menggunakan PIN pengesahan",
@@ -22655,7 +22887,7 @@
     "filesHint": "Pilihan. Sehingga {count} fail, {limit} MB setiap satu.",
     "note": "Catatan",
     "notePlaceholder": "Pilihan",
-    "noPrice": "Tiada maklumat pemulangan diisi semula, dan tiada harga terlibat.",
+    "noPrice": "Tiada maklumat pemulangan diisi semula, dan tiada harga terlibat; penyelesaian ialah langkah berasingan selepas semakan.",
     "confirm": "Sahkan semakan",
     "confirmPin": "Selepas 「Sahkan semakan」, masukkan PIN pengesahan enam digit anda.",
     "needTick": "Tandakan sekurang-kurangnya satu pemulangan dahulu",
@@ -22898,7 +23130,7 @@
       "title": "Belum ada sesiapa dalam projek ini yang boleh menandatangani pas keluar. Pentadbir menetapkannya dalam tiga langkah:",
       "permission": "Kebenaran: hidupkan 「Pengesahan keselamatan」 untuk akaun (atau peranan) orang yang akan menandatangani.",
       "project": "Projek: masukkan dia ke senarai pasukan projek ini (tidak perlu bagi orang yang nampak semua projek).",
-      "account": "Akaun: pastikan akaunnya aktif (akaun baharu aktif selepas pemiliknya menetapkan kata laluan dari e-mel).",
+      "account": "Akaun: pastikan akaunnya aktif dan ialah akaun pejabat (pas keluar ditandatangani di komputer, bukan akaun telefon; akaun baharu aktif selepas pemiliknya menetapkan kata laluan dari e-mel).",
       "openTeam": "Tambah ke pasukan projek",
       "onlyApplicant": "Pemohon ialah satu-satunya pengurus keselamatan dalam projek ini, dan pengurus keselamatan lain perlu menandatangani pas keluar. Pentadbir menambah seorang lagi dalam tiga langkah:"
     },
@@ -23048,7 +23280,20 @@
       "signedSentNobody": "Ditandatangani: {reference}",
       "paperReplaced": "Salinan bertandatangan telah diganti. Pas keluar sudah dihantar sebelum ini dan tidak dihantar lagi: {reference}"
     },
-    "correctedAfter": "Selepas pas keluar ditandatangani, rekod ini dibetulkan oleh {by} pada {when}; yang dipaparkan di sini ialah rekod yang telah dibetulkan."
+    "correctedAfter": "Selepas pas keluar ditandatangani, rekod ini dibetulkan oleh {by} pada {when}; yang dipaparkan di sini ialah rekod yang telah dibetulkan.",
+    "start": {
+      "title": "Mulakan pas keluar",
+      "button": "Mulakan pas keluar",
+      "preparing": "Menyediakan pas keluar",
+      "waitingStart": "Menunggu dimulakan",
+      "noPhotos": "Permohonan telah diluluskan, tetapi itu bukan kebenaran untuk keluar. Apabila kenderaan tiba, kakitangan tapak mengambil foto kenderaan dan barang yang keluar lalu menghantarnya; barulah pejabat boleh menekan [Mulakan pas keluar] dan pengurus keselamatan menandatangani.",
+      "lockedReason": "Dikunci sehingga tapak menghantar foto keluar",
+      "photosIn": "Foto tapak dihantar ({when}). Semak foto, kemudian tekan [Mulakan pas keluar] supaya pengurus keselamatan boleh menandatangani.",
+      "waitingOffice": "Foto tapak telah diterima. Menunggu pejabat menekan [Mulakan pas keluar]; pengurus keselamatan menandatangani selepas itu.",
+      "started": "Dimulakan oleh {name} · {when}",
+      "confirm": "Mulakan pas keluar? Pengurus keselamatan projek akan dimaklumkan dan boleh menandatanganinya.",
+      "done": "Pas keluar dimulakan; pengurus keselamatan telah diminta menandatangani."
+    }
   },
   "mseAccess": {
     "section": {
@@ -23307,7 +23552,8 @@
       "reissue_invitation": "Menghantar semula pautan log masuk telefon",
       "reset_device": "Menetapkan semula telefon",
       "remove_field_staff": "Mengeluarkan pekerja tapak",
-      "other": "Mengubah akaun"
+      "other": "Mengubah akaun",
+      "invite_user": "Menjemput pengguna"
     },
     "mse": {
       "title": "Akses pelanggan",
@@ -23418,5 +23664,984 @@
     "noProjects": "Anda belum diberi akses kepada mana-mana projek. Sila minta ibu pejabat kontraktor membukanya untuk anda.",
     "chooseProject": "Pilih projek dahulu dalam kotak projek di bahagian atas halaman; papan pemuka projek itu akan dipaparkan di sini.",
     "onlyOpened": "Ibu pejabat hanya membuka bahagian ini untuk anda. Untuk melihat yang lain, sila hubungi ibu pejabat kontraktor."
+  },
+  "jb256": {
+    "photos": "Foto",
+    "withPhotos": "Dengan foto",
+    "withoutPhotos": "Tanpa foto",
+    "summaryTitle": "Kuantiti terkumpul dan jumlah amaun",
+    "totalAmount": "Jumlah amaun"
+  },
+  "jb245": {
+    "leftProject": "Dikeluarkan daripada projek",
+    "leftProjectHelp": "{name} telah dikeluarkan daripada projek ini dan tidak lagi boleh membuat tugas ini. Sila pilih orang yang berada dalam projek sekarang."
+  },
+  "jb246": {
+    "sameNumber": "Nombor ini juga ada identiti aktif lain: {names}. Satu nombor hanya boleh ada satu identiti aktif - hentikan yang tidak diperlukan.",
+    "identity": "{name} ({kind})",
+    "kind": {
+      "driver": "pautan pemandu",
+      "site_staff": "kakitangan tapak",
+      "equipment_operator": "operator peralatan",
+      "gate_guard": "pengawal pintu",
+      "other": "kakitangan tapak"
+    }
+  },
+  "jb239": {
+    "gate": {
+      "title": "Tetapan syarikat memerlukan PIN pengesahan anda",
+      "help": "Maklumat syarikat dan kebenaran seperti “Benarkan MSE melihat” hanya dibuka selepas PIN pengesahan enam digit anda. Jika anda keluar dari halaman ini dan kembali, PIN diminta semula.",
+      "enter": "Masukkan PIN pengesahan",
+      "opening": "Membuka…"
+    },
+    "identity": {
+      "oldPin": "PIN pengesahan lama (6 digit)",
+      "useCode": "Lupa PIN lama? Guna kod e-mel",
+      "useOldPin": "Ingat PIN lama? Taip PIN lama",
+      "codeHelp": "Isi kata laluan akaun di bawah, kemudian tekan Hantar kod. Kod dihantar ke e-mel log masuk anda {email} dan sah selama 10 minit.",
+      "send": "Hantar kod",
+      "sending": "Menghantar…",
+      "resend": "Hantar semula",
+      "sent": "Kod dihantar ke {email}. Sah selama {minutes} minit.",
+      "code": "Kod e-mel (6 digit)",
+      "needPassword": "Isi kata laluan akaun dahulu",
+      "proof": "PIN lama atau kod e-mel"
+    },
+    "email": {
+      "subject": "Kod PIN pengesahan MSE Trace",
+      "body": "Kod PIN pengesahan anda ialah {code}. Sah selama 10 minit, sekali sahaja.\n\nJika bukan anda yang menetapkan PIN baharu, seseorang mengetahui kata laluan log masuk anda: tukar kata laluan log masuk anda sekarang."
+    }
+  },
+  "jb252": {
+    "progress": {
+      "NOT_SENT": "Belum dihantar",
+      "SENT": "Dihantar, menunggu semakan",
+      "VIEWED": "Dilihat, menunggu semakan",
+      "IN_REVIEW": "Semakan sedang dijalankan",
+      "RETURNED": "Dipulangkan untuk bahan tambahan",
+      "APPROVED": "Diluluskan, menunggu pengesahan selesai",
+      "COMPLETED": "Semakan selesai"
+    },
+    "progressFilter": "Semakan",
+    "progressAll": "Semua status semakan",
+    "stateCompleted": "Selesai (diarkibkan)",
+    "purpose": {
+      "label": "Tujuan",
+      "APPROVAL": "Hantar untuk kelulusan",
+      "CIRCULATION": "Edarkan untuk dibaca",
+      "approvalHelp": "Mereka menyemak setiap rekod, menulis pendapat dan menandatangani. Jika dipulangkan, anda tambah bahan, tandatangan semula dan hantar semula.",
+      "circulationHelp": "Untuk dibaca sahaja: tiada semakan, tiada tandatangan."
+    },
+    "sign": {
+      "label": "Tandatangan elektronik",
+      "clear": "Tandatangan semula",
+      "hint": "Tandatangan dalam kotak dengan tetikus atau jari.",
+      "confirmHint": "Tandatangan sebelum mengesahkan. Selepas disahkan, pakej dikunci dan tidak boleh diubah.",
+      "sendHint": "Pusingan ini belum ditandatangani. Tandatangan sebelum menghantar untuk kelulusan.",
+      "resendHint": "Hantar semula ialah penghantaran baharu untuk kelulusan: tandatangan dahulu."
+    },
+    "review": {
+      "button": "Semak",
+      "title": "Semak pakej",
+      "help": "Pilih Sahkan atau Pulangkan bagi setiap rekod, atau tekan Sahkan semua. Kemudian tulis pendapat dan tandatangan; PIN enam digit diminta semasa menghantar.",
+      "accept": "Sahkan",
+      "return": "Pulangkan untuk bahan tambahan",
+      "allConfirm": "Sahkan semua",
+      "undecided": "Bukan sekarang",
+      "decided": "Sudah disemak",
+      "returnReason": "Apa yang perlu ditambah",
+      "opinion": "Pendapat semakan (nota)",
+      "opinionHint": "Untuk pengurus projek; disimpan bersama tandatangan anda.",
+      "submit": "Tandatangan dan hantar semakan",
+      "chooseOne": "Pilih sekurang-kurangnya satu rekod",
+      "nothingLeft": "Anda telah menyemak setiap rekod pusingan ini.",
+      "waiting": "{count} menunggu semakan",
+      "records": "Rekod untuk disemak"
+    },
+    "money": {
+      "title": "Jumlah",
+      "claim": "Jumlah tuntutan (RM)",
+      "approved": "Jumlah diluluskan tempoh ini (RM)",
+      "difference": "Perbezaan (RM)",
+      "reason": "Sebab kelulusan",
+      "reasonHint": "Wajib apabila jumlah diluluskan berbeza daripada jumlah tuntutan.",
+      "pinHint": "Mengisi atau mengubah jumlah memerlukan PIN enam digit anda.",
+      "locked": "Dikunci",
+      "notSet": "Belum diisi",
+      "save": "Simpan jumlah",
+      "placeholder": "cth. 12500.00",
+      "approvedOnly": "Isi jumlah diluluskan apabila anda mengesahkan semua.",
+      "linkOnly": "Diluluskan hanya melalui pautan luar, yang tidak memasukkan amaun, jadi tiada amaun diluluskan. Untuk mendapatkannya, hantar juga kepada ibu pejabat atau perunding untuk disemak dalam sistem."
+    },
+    "signatures": {
+      "title": "Tandatangan dan rekod semakan",
+      "none": "Belum ada tandatangan.",
+      "side": {
+        "SENDER": "Pengurus projek tandatangan dan hantar",
+        "REVIEWER": "Penyemak tandatangan"
+      },
+      "action": {
+        "SUBMITTED": "Ditandatangani dan dihantar",
+        "CONFIRMED": "Rekod disahkan",
+        "APPROVED": "Diluluskan",
+        "RETURNED": "Dipulangkan untuk bahan tambahan"
+      },
+      "by": "{name} · {when}",
+      "for": "Untuk: {name}",
+      "opinion": "Pendapat / nota: {text}",
+      "version": "Versi bahan: {digest}",
+      "picture": "Tandatangan",
+      "decision": {
+        "ACCEPTED": "Disahkan",
+        "RETURNED": "Dipulangkan",
+        "PENDING": "Menunggu"
+      }
+    },
+    "complete": {
+      "button": "Selesai dan arkibkan",
+      "help": "Semua telah diluluskan. Tekan Selesai dan arkibkan untuk menutupnya; bahan, rekod semakan, mesej dan garis masa disimpan.",
+      "done": "Diselesaikan dan diarkibkan oleh {name}, {when}"
+    },
+    "supplement": {
+      "title": "Tambah bahan untuk pusingan seterusnya",
+      "help": "Bahan dipulangkan. Tambah fail, foto atau rekod sistem di tempat biasa, kemudian tulis nota dan tekan Tandatangan dan hantar semula.",
+      "staged": "Untuk pusingan seterusnya (belum dihantar)",
+      "nextRoundFile": "Untuk pusingan seterusnya",
+      "resubmit": "Tandatangan dan hantar semula",
+      "addedCount": "{count} rekod tambahan dihantar bersama pusingan ini."
+    },
+    "toast": {
+      "reviewSigned": "Semakan ditandatangani dan dihantar",
+      "completed": "Diselesaikan dan diarkibkan"
+    }
+  },
+  "jb248": {
+    "field": "Jenis",
+    "kind": {
+      "GARBAGE": "Pembersihan sisa",
+      "SCRAP": "Pelupusan bahan buangan"
+    },
+    "count": {
+      "GARBAGE": "Pembersihan sisa: {count}",
+      "SCRAP": "Pelupusan bahan buangan: {count}"
+    },
+    "tab": {
+      "all": "Semua",
+      "garbage": "Pembersihan sisa",
+      "scrap": "Pelupusan bahan buangan",
+      "abnormal": "Rekod pengecualian"
+    },
+    "totals": {
+      "GARBAGE": "Pembersihan sisa: {records} tugas · {trips} trip · {weight} kg",
+      "SCRAP": "Pelupusan bahan buangan: {records} tugas · {trips} trip · {weight} kg",
+      "apart": "Dikira berasingan; tidak dijumlahkan."
+    }
+  },
+  "jb249": {
+    "button": "Statistik ESG",
+    "soon": "Akan datang"
+  },
+  "jb250": {
+    "title": "Modul perniagaan",
+    "help": "Modul yang ditanda boleh digunakan oleh syarikat ini. Buang tanda dan modul itu hilang dari pejabat dan telefon syarikat ini, dan membukanya melalui pautan atau API akan ditolak. Rekod disimpan; tanda semula untuk memulihkannya.",
+    "alwaysOn": "Papan pemuka, pemberitahuan, pengguna, peranan, tetapan syarikat dan log sentiasa hidup untuk setiap syarikat dan tidak disenaraikan di sini.",
+    "count": "{on} daripada {total} modul hidup",
+    "notInPlan": "(tiada dalam pakej)",
+    "save": "Simpan modul",
+    "noChange": "Belum ada perubahan.",
+    "saved": "Modul perniagaan disimpan.",
+    "saveFailed": "Gagal menyimpan. Sila cuba lagi."
+  },
+  "equipmentRental": {
+    "title": "Terma sewa peralatan",
+    "help": "Setiap mesin ada terma sewanya sendiri, ditetapkan sekali dan digunakan seterusnya. Memasukkan atau mengubah amaun memerlukan PIN enam digit anda.",
+    "close": "Tutup",
+    "chooseProject": "Pilih projek di bahagian atas halaman dahulu.",
+    "withoutTerms": "{count} mesin belum ada terma sewa.",
+    "noMachines": "Projek ini tiada mesin.",
+    "noSupplier": "Tiada pembekal",
+    "machineLine": "No. {number} · {name}",
+    "noTerms": "Belum ada terma sewa",
+    "noTermsShort": "Tiada terma sewa",
+    "history": "Perubahan ({count})",
+    "open": "Terma sewa",
+    "inForce": "Digunakan sekarang",
+    "changedBy": "{name} · {time}",
+    "method": {
+      "HOURLY": "Sejam",
+      "DAILY": "Sehari",
+      "MONTHLY": "Sebulan",
+      "YEARLY": "Setahun",
+      "FIXED": "Amaun tetap"
+    },
+    "diesel": {
+      "INCLUDED": "Diesel termasuk dalam sewa",
+      "CONTRACTOR": "Kontraktor membekalkan diesel",
+      "SUPPLIER_CHARGED": "Pembekal membekalkan diesel, dicaj berasingan"
+    },
+    "summary": {
+      "price": "Kadar RM {amount}",
+      "overtime": "Lebih masa RM {amount}/jam",
+      "standardDays": "{days} hari standard sebulan",
+      "normalHours": "biasa {hours} jam sehari",
+      "period": "{from} hingga {to}",
+      "since": "dari {from}"
+    },
+    "field": {
+      "method": "Cara sewa",
+      "unitPrice": {
+        "HOURLY": "Kadar (RM / jam)",
+        "DAILY": "Kadar (RM / hari)",
+        "MONTHLY": "Kadar (RM / bulan)",
+        "YEARLY": "Kadar (RM / tahun)",
+        "FIXED": "Amaun tetap (RM / bulan)"
+      },
+      "standardDays": "Hari bekerja standard sebulan",
+      "normalHours": "Jam bekerja biasa sehari",
+      "overtimeRate": "Kadar lebih masa (RM / jam)",
+      "extraDayRate": "Caj hari melebihi standard (RM / hari)",
+      "extraDayOnly": "Hanya untuk sebulan dan setahun",
+      "startDate": "Tarikh mula sewa",
+      "endDate": "Tarikh tamat sewa (pilihan)",
+      "diesel": "Bekalan diesel",
+      "stoppage": "Potongan untuk henti kerja dan kerosakan",
+      "remarks": "Terma lain dan catatan"
+    },
+    "formula": {
+      "HOURLY": "Sewa asas = jam biasa × kadar.",
+      "DAILY": "Sewa asas = hari bekerja × kadar.",
+      "MONTHLY": "Sewa asas = kadar bulanan × hari bulan ini dalam tempoh sewa ÷ hari dalam bulan; setiap hari bekerja melebihi hari standard menambah caj hari lebih.",
+      "YEARLY": "Sewa asas = kadar tahunan ÷ 12 × hari bulan ini dalam tempoh sewa ÷ hari dalam bulan; hari lebih dicaj seperti sebulan.",
+      "FIXED": "Sewa asas = amaun tetap bulanan × hari bulan ini dalam tempoh sewa ÷ hari dalam bulan, tanpa mengira jam, juga tanpa rekod masuk kerja.",
+      "common": "Caj lebih masa = jam lebih masa × kadar lebih masa. Diesel dikira hanya jika pembekal mengecaj berasingan; masukkan di halaman Bulanan. Jumlah sewa = sewa asas + caj lebih masa + caj diesel ± pelarasan. Jam biasa dan lebih masa ialah angka halaman ini: mesin yang ada \"Jam bekerja biasa sehari\" sendiri dibahagi mengikut angka itu; yang tiada, mengikut tetapan \"Jam biasa\" di atas."
+    },
+    "save": "Simpan",
+    "cancel": "Batal",
+    "failed": "Tidak dapat disimpan. Sila cuba lagi.",
+    "needPriceAndStart": "Masukkan kadar dan tarikh mula sewa dahulu.",
+    "fee": {
+      "base_rent": "Sewa asas (RM)",
+      "overtime_fee": "Caj lebih masa (RM)",
+      "diesel_fee": "Caj diesel (RM)",
+      "adjustment_amount": "Pelarasan (RM)",
+      "rental_total": "Jumlah sewa (RM)",
+      "state": "Amaun sewa"
+    },
+    "confirmed": "Disahkan",
+    "confirmedBy": "{name} · {time}",
+    "notConfirmed": "Belum disahkan",
+    "amounts": {
+      "open": "Diesel / pelarasan",
+      "title": "{name} · {month} caj diesel dan pelarasan",
+      "help": "Memasukkan atau mengubah amaun memerlukan PIN enam digit anda. Selepas bulan disahkan, ia tidak boleh diubah lagi.",
+      "diesel": "Caj diesel (RM, dicaj oleh pembekal)",
+      "noDiesel": "Mesin ini \"{supply}\": diesel tidak termasuk dalam caj sewa.",
+      "adjustment": "Pelarasan (RM, tolak dengan nombor negatif, cth. -500)",
+      "reason": "Sebab pelarasan",
+      "reasonPlaceholder": "cth. rosak 2 hari, tolak RM 500 mengikut kontrak",
+      "needReason": "Pelarasan perlukan sebab."
+    },
+    "confirm": {
+      "open": "Sahkan amaun bulan ini",
+      "title": "Sahkan amaun sewa {month}",
+      "help": "Amaun sewa {count} mesin disimpan seperti sekarang. Selepas disahkan, amaun bulan ini tidak berubah lagi, juga jika terma sewa diubah kemudian.",
+      "incomplete": "{count} rekod jam masih tiada mula atau tamat. Jam yang dimasukkan selepas pengesahan tidak mengubah amaun bulan ini.",
+      "do": "Sahkan",
+      "nothing": "Tiada apa untuk disahkan bulan ini (sudah disahkan, atau belum ada terma sewa)."
+    },
+    "toast": {
+      "termsSaved": "Terma sewa disimpan.",
+      "amountsSaved": "Disimpan.",
+      "confirmed": "Amaun sewa bulan ini telah disahkan."
+    }
+  },
+  "jb257": {
+    "title": "Caj sewa peralatan",
+    "help": "Caj sewa setiap mesin, dikira sama seperti di Jam mesin › Bulanan. Mengikut projek, pembekal, mesin dan tarikh; arah dan kata kunci hanya menapis rekod masuk / keluar di bawah.",
+    "total": "Jumlah keseluruhan",
+    "empty": "Tiada caj sewa dalam tarikh ini.",
+    "confirmedMonths": "Disahkan: {months}",
+    "onSite": "Di tapak",
+    "column": {
+      "equipment": "Mesin",
+      "supplier": "Pembekal",
+      "terms": "Terma sewa",
+      "entry": "Tarikh masuk",
+      "exit": "Tarikh keluar",
+      "daysOnSite": "Hari di tapak",
+      "daysWorked": "Hari bekerja",
+      "normalHours": "Jam biasa",
+      "overtimeHours": "Jam lebih masa"
+    }
+  },
+  "jb259": {
+    "title": "Ringkasan kos tapak",
+    "subtitle": "Kos sebenar setiap modul, dengan jumlah kos projek dan bahagian setiap satu.",
+    "filter": {
+      "project": "Projek",
+      "allProjects": "Semua projek",
+      "dateFrom": "Dari",
+      "dateTo": "Hingga"
+    },
+    "total": "Jumlah kos projek",
+    "totalShort": "Jumlah",
+    "share": "Pecahan kos (bahagian)",
+    "trend": "Trend kos (bulanan)",
+    "links": "Pergi ke laporan",
+    "detail": "Lihat butiran",
+    "sum": "Jumlah",
+    "empty": "Tiada kos dalam tarikh ini.",
+    "help": "Setiap amaun sama dengan laporannya sendiri untuk projek dan tarikh yang sama; \"Lihat butiran\" membuka laporan itu, di mana setiap rekod boleh dijejak. Tuntutan pelbagai dikira selepas diluluskan.",
+    "notAvailableShort": "Belum ada amaun",
+    "source": {
+      "material_cost": "Kos bahan",
+      "equipment_rental": "Sewa peralatan",
+      "progress_claim": "Progress Claim (perbelanjaan)",
+      "sundry_claims": "Tuntutan pelbagai",
+      "disposal": "Pembersihan sampah"
+    },
+    "report": {
+      "material_cost": "Laporan kos bahan",
+      "equipment_rental": "Laporan caj sewa peralatan",
+      "progress_claim": "Laporan Progress Claim (perbelanjaan)",
+      "sundry_claims": "Laporan tuntutan pelbagai",
+      "disposal": "Laporan pembersihan sampah"
+    },
+    "column": {
+      "module": "Modul (sumber)",
+      "amount": "Amaun (RM)",
+      "share": "Bahagian"
+    },
+    "notAvailable": {
+      "progress_claim": "Progress Claim (perbelanjaan): amaun lulus Multi Engine belum aktif, jadi dikira 0. Ia ditambah secara automatik apabila aktif.",
+      "disposal": "Pembersihan sampah: rekodnya tiada amaun (hanya berat, trip dan pengutip), jadi dikira 0; tiada harga diteka."
+    }
+  },
+  "jb275": {
+    "priceFromList": "Daripada harga seunit kategori bahan (RM {price} / {unit})",
+    "priceNone": "Kategori bahan tiada harga seunit untuk bahan ini. Anda boleh isi sendiri.",
+    "priceOtherUnit": "Harga kategori bahan ialah RM {price} / {unit}. Item ini dalam unit lain, jadi tidak diisi. Anda boleh isi sendiri.",
+    "priceLater": "Harga kategori bahan bermula pada {date}, selepas rekod ini, jadi tidak diisi. Anda boleh isi sendiri.",
+    "priceTyped": "Dimasukkan oleh seseorang",
+    "pickFirst": "Pilih bahan dan spesifikasi, harga seunit akan diisi sendiri"
+  },
+  "jb260": {
+    "button": "Cari ikut bahan",
+    "title": "Cari ikut bahan",
+    "help": "Taip nama, kod atau spesifikasi bahan dan pilih: rekod dan angkanya dibuka (tetingkap yang sama seperti Lihat rekod dalam Pengurusan Kategori).",
+    "search": "Cari nama, kod, spesifikasi bahan",
+    "chooseProject": "Pilih projek di atas dahulu",
+    "loading": "Memuatkan…",
+    "failed": "Bahan tidak dapat dimuatkan. Cuba lagi nanti.",
+    "noMatch": "Tiada bahan dijumpai.",
+    "none": "Projek ini belum ada bahan."
+  },
+  "jb262": {
+    "categoryNote": "Hanya data asas bahan ditetapkan di sini: nama, spesifikasi, unit, kod dan harga seunit. Kuantiti diterima, belanja dan bajet, angka pembekal dan rekod setiap bahan ada di Pengurusan bahan → Bahan masuk; sasaran kuantiti dan bajet di Pengurusan bahan → Sasaran bahan.",
+    "budgetMoved": "Bajet kini ditetapkan di Pengurusan bahan → Sasaran bahan (bersama sasaran kuantiti dan tambahannya).",
+    "loading": "Memuatkan…",
+    "failed": "Tidak dapat disimpan. Cuba lagi nanti.",
+    "cancel": "Batal",
+    "save": "Simpan",
+    "oneMaterial": "Hanya sasaran {name}.",
+    "allMaterials": "Semua bahan",
+    "col": {
+      "material": "Bahan",
+      "received": "Diterima",
+      "requests": "Permohonan MR",
+      "target": "Sasaran bahan",
+      "spend": "Belanja / bajet",
+      "action": "Tindakan"
+    },
+    "overview": {
+      "title": "Angka bahan",
+      "count": "({count} bahan)",
+      "help": "Penghantaran, permohonan MR, sasaran dan bajet setiap bahan. Klik satu baris untuk membuka rekodnya.",
+      "chooseProject": "Pilih projek di atas untuk menyenaraikan setiap bahannya.",
+      "empty": "Projek ini belum ada bahan. Tambah di Pengurusan Kategori → Kategori bahan.",
+      "records": "{count} rekod",
+      "archived": "{count} diarkibkan",
+      "noRequests": "Tiada MR",
+      "requestLine": "Menunggu {pending} · diluluskan {approved} {unit}",
+      "noTarget": "Tiada sasaran",
+      "targetLine": "{net} / {target} {unit}"
+    },
+    "action": {
+      "records": "Lihat rekod",
+      "targets": "Sasaran bahan",
+      "requests": "Permohonan MR",
+      "suppliers": "Ikut pembekal"
+    },
+    "budgets": {
+      "title": "Bajet",
+      "help": "Berapa banyak setiap bahan boleh dibelanjakan semuanya, ditetapkan di halaman yang sama dengan sasaran kuantiti di atas. Belanja = kuantiti diterima × harga seunit, seperti laporan kos bahan.",
+      "chooseProject": "Pilih projek di atas untuk menetapkan bajet bahannya.",
+      "empty": "Projek ini belum ada bahan.",
+      "alerts": "Peringatan",
+      "noAlerts": "Tiada peringatan",
+      "set": "Tetapkan bajet",
+      "dialogTitle": "Bajet {name}",
+      "pinNote": "Menyimpan meminta PIN pengesahan anda. Setiap perubahan disimpan dalam rekod operasi (jumlah sebelum dan selepas).",
+      "history": "Sejarah perubahan",
+      "historyTitle": "Perubahan bajet {name}",
+      "historyHelp": "Setiap kali bajet ditetapkan atau diubah: siapa, bila, sebelum dan selepas. Terbaru di atas.",
+      "historyEmpty": "Bajet belum pernah diubah.",
+      "historyBudget": "Bajet: {before} → {after}",
+      "historyAlerts": "Peringatan: {before} → {after}",
+      "historyOn": "Perbelanjaan dan bajet dihidupkan",
+      "historyOff": "Perbelanjaan dan bajet dimatikan"
+    },
+    "oneMaterialUnnamed": "Menunjukkan sasaran satu bahan."
+  },
+  "jb242": {
+    "submit": "Jemput",
+    "workplaceTitle": "Di mana orang ini bekerja",
+    "headOffice": "Ibu pejabat",
+    "headOfficeHelp": "Bekerja di ibu pejabat dan mengurus seluruh syarikat.",
+    "project": "Projek",
+    "projectHelp": "Hanya bekerja pada projek yang diberikan.",
+    "workplaceRequired": "Pilih ibu pejabat atau projek.",
+    "chooseFirst": "Pilih ibu pejabat atau projek di atas dahulu.",
+    "projectsHelpProject": "Orang ini hanya nampak projek yang ditanda.",
+    "projectsRequired": "Tandakan sekurang-kurangnya satu projek.",
+    "presetTitle": "Mula daripada kebenaran biasa",
+    "presetNone": "Tidak, guna lalai sistem",
+    "presetHelp": "Kebenaran di bawah ditetapkan mengikutnya; ubah beberapa yang berbeza.",
+    "presetEmpty": "Syarikat belum menyimpan kebenaran biasa. Selepas suis di bawah ditetapkan, tekan \"Simpan sebagai kebenaran biasa\" untuk memilihnya kali seterusnya.",
+    "defaultProject": "Lalai sistem: semua kebenaran harian projek hidup, kumpulan B mati.",
+    "defaultHeadOffice": "Lalai sistem: kumpulan A dan B semua mati; hidupkan yang orang ini perlukan.",
+    "saveAsPreset": "Simpan sebagai kebenaran biasa",
+    "presetName": "Nama kebenaran biasa",
+    "presetNameRequired": "Masukkan nama.",
+    "presetSave": "Simpan",
+    "presetSaved": "Disimpan sebagai \"{name}\". Pilih kali seterusnya anda menjemput seseorang.",
+    "presetNote": "Kebenaran biasa menyimpan kebenaran ibu pejabat (kumpulan A dan B) dan \"Semua projek\"; kebenaran harian projek hidup untuk semua orang secara lalai.",
+    "more": "Lagi (bahasa, zon waktu)",
+    "less": "Kurang",
+    "linkValid": "Pautan dalam e-mel jemputan sah selama {valid}.",
+    "days": "{n} hari",
+    "hours": "{n} jam",
+    "sent": "Jemputan dihantar kepada {email}",
+    "needsUserUpdate": "Menjemput juga menetapkan kebenaran orang itu, jadi anda perlu 'Sunting pengguna' untuk menjemput. Minta pentadbir syarikat anda menghidupkannya."
+  },
+  "jb266": {
+    "approvalColumn": "Kelulusan perunding",
+    "approvalOpen": "Buka permohonan perunding {no}",
+    "recordedAt": "Masa rekod",
+    "uploader": "Dimuat naik oleh",
+    "recorder": "Direkod oleh",
+    "openRecord": "Buka rekod asal",
+    "alreadyLinked": "{count} sudah dipautkan (tidak boleh dibuang)",
+    "searchPlaceholder": "Cari nombor, kategori kerja atau teks",
+    "phase": "Kategori kerja",
+    "allPhases": "Semua kategori kerja",
+    "noMatch": "Tiada rekod kemajuan tapak yang sepadan.",
+    "found": "Jumlah {count}",
+    "linkedTitle": "Rekod tapak bagi {task}",
+    "linkedHelp": "Rekod tapak yang dipautkan semasa kemajuan disahkan. Tekan nombor untuk membuka rekod asal, tekan foto untuk membesarkannya.",
+    "linkedLoadError": "Rekod tapak tidak dapat dimuatkan. Sila cuba lagi.",
+    "linkedEmpty": "Belum ada rekod tapak yang dipautkan.",
+    "linkedOpen": "Lihat rekod tapak yang dipautkan",
+    "change": "Kemajuan {before} → {after}",
+    "historyRecords": "{count} rekod tapak dipautkan kali ini",
+    "before": "Kemajuan sebelum",
+    "after": "Kemajuan selepas",
+    "confirmer": "Disahkan oleh",
+    "confirmedAt": "Masa pengesahan",
+    "note": "Catatan",
+    "recordsHidden": "Ibu pejabat belum membuka kemajuan tapak untuk anda; hanya bilangan ditunjukkan.",
+    "noRecordsThatTime": "Tiada rekod tapak dipautkan kali ini.",
+    "newThisTime": "Baharu kali ini",
+    "dashboardTitle": "Kemajuan jadual",
+    "dashboardHelp": "Dipaparkan secara automatik daripada jadual projek ini dan dikemas kini setiap kali pengurus mengesahkan kemajuan. Tidak perlu membuat ringkasan.",
+    "plannedProgress": "Kemajuan dirancang",
+    "plannedProgressHint": "Sepatutnya hari ini mengikut rancangan",
+    "actualProgress": "Kemajuan sebenar",
+    "actualProgressHint": "Seperti disahkan oleh pengurus",
+    "completedTasks": "Tugas selesai",
+    "delayedTasks": "Tugas lewat",
+    "delayedHint": "Melepasi tarikh siap dirancang dan belum selesai",
+    "chartTitle": "Setiap tugas: kemajuan dirancang dan sebenar",
+    "chartPlanned": "Dirancang",
+    "chartActual": "Sebenar",
+    "noTasks": "Jadual ini belum ada tugas.",
+    "chooseProject": "Pilih projek untuk melihat kemajuan jadualnya di sini.",
+    "noPlan": "Projek ini belum ada jadual.",
+    "lastConfirmed": "Disahkan terakhir {time}"
+  },
+  "jb279": {
+    "link": {
+      "title": "Permohonan dipautkan (MR / permohonan lain)",
+      "help": "Pilih MR atau permohonan lain projek ini untuk rekod bahan ini. Boleh pilih lebih daripada satu.",
+      "phoneLabel": "Permohonan dipautkan (MR / permohonan lain)",
+      "phoneHelp": "Pilih permohonan untuk bahan ini. Boleh dibiarkan kosong, pejabat akan mengisinya; rekod tanpa pautan tidak boleh diarkibkan.",
+      "chooseProjectFirst": "Pilih projek dahulu.",
+      "loading": "Membaca permohonan…",
+      "what": "permohonan projek ini",
+      "none": "Projek ini belum ada permohonan untuk dipautkan.",
+      "search": "Cari nombor permohonan, bahan atau perkara",
+      "chosen": "{count} dipilih",
+      "missing": "Belum dipautkan kepada MR / permohonan lain. Tidak boleh diarkibkan sehingga dipautkan.",
+      "empty": "Belum ada permohonan dipautkan.",
+      "edit": "Pautkan permohonan",
+      "change": "Tukar pautan",
+      "dialogTitle": "{reference} · Permohonan dipautkan",
+      "save": "Simpan pautan",
+      "cancel": "Batal",
+      "saved": "Pautan disimpan",
+      "failed": "Tidak disimpan. Sila cuba lagi.",
+      "linkedBy": "Dipautkan oleh {name} pada {when}",
+      "lockedArchived": "Sudah diarkibkan: pautan tidak boleh diubah lagi."
+    },
+    "archiveBlocked": "Belum dipautkan kepada MR / permohonan lain, jadi tidak boleh diarkibkan. Pilih satu di 「Permohonan dipautkan」 dahulu.",
+    "records": {
+      "title": "Rekod bahan dipautkan",
+      "help": "Penghantaran, pemulangan dan pengeluaran bahan yang dipautkan kepada permohonan ini. Klik satu baris untuk membuka rekod asal.",
+      "loading": "Membaca…",
+      "what": "rekod bahan dipautkan",
+      "empty": "Belum ada rekod bahan dipautkan kepada permohonan ini.",
+      "kind": {
+        "RECEIPT": "Bahan masuk",
+        "RETURN": "Bahan dipulangkan",
+        "ISSUE": "Pengeluaran bahan"
+      },
+      "column": {
+        "kind": "Jenis",
+        "reference": "Nombor",
+        "date": "Tarikh",
+        "material": "Bahan",
+        "quantity": "Kuantiti",
+        "status": "Status"
+      },
+      "notInRequest": "Tiada dalam permohonan",
+      "appliedOnly": "(dipohon)",
+      "totalsTitle": "Kuantiti (rekod dipautkan sahaja)",
+      "totalsHelp": "Bahan masuk dibandingkan dengan kuantiti dipohon; pemulangan dan pengeluaran dikira berasingan dan tidak ditolak antara satu sama lain. Bahan masuk yang ditolak tidak dikira; pemulangan dan pengeluaran dikira setelah selesai.",
+      "totals": {
+        "material": "Bahan",
+        "applied": "Dipohon",
+        "received": "Sudah masuk",
+        "outstanding": "Belum masuk",
+        "overBy": "Lebih {quantity}",
+        "returned": "Dipulangkan",
+        "issued": "Dikeluarkan"
+      }
+    }
+  },
+  "jb251": {
+    "saved": "Nama menu disimpan.",
+    "company": {
+      "title": "Nama menu",
+      "subtitle": "Namakan menu mengikut kebiasaan syarikat anda, contohnya \"Pergerakan peralatan\" sebagai \"Sewaan peralatan\". Hanya syarikat anda yang melihatnya; fungsi, rekod dan kebenaran kekal sama.",
+      "scope": "Hanya menu kiri dan nama di bahagian atas halaman berubah; PDF, notifikasi dan teks bantuan kekal menggunakan nama sistem.",
+      "systemName": "Nama sistem",
+      "ownNameIn": "Nama syarikat anda ({language})",
+      "ownNameFor": "Nama syarikat anda untuk \"{name}\"",
+      "blankHint": "Biarkan kosong untuk nama sistem",
+      "otherLanguages": "Bahasa lain",
+      "restore": "Guna nama sistem",
+      "save": "Simpan nama menu",
+      "noChange": "Belum ada perubahan.",
+      "fixFirst": "Betulkan nama yang bertanda merah dahulu.",
+      "changedCount": "{count} nama menu diubah",
+      "saveFailed": "Gagal disimpan. Sila cuba lagi.",
+      "problem": {
+        "tooLong": "Paling banyak {max} aksara.",
+        "lineBreak": "Tiada baris baharu.",
+        "markup": "Tiada tanda kurung sudut."
+      }
+    },
+    "mse": {
+      "title": "Nama menu",
+      "help": "Apabila dihidupkan, orang dalam syarikat ini yang boleh mengubah Tetapan syarikat boleh menamakan semula menunya di situ. Hanya syarikat ini terjejas; fungsi, rekod dan kebenaran kekal sama. Apabila dimatikan, nama disimpan tetapi tidak ditunjukkan; dihidupkan semula, ia kembali.",
+      "switch": "Benarkan syarikat ini menamakan semula menunya",
+      "changed": "Nama yang diubah oleh syarikat ini ({count})",
+      "none": "Syarikat ini belum menamakan semula mana-mana menu.",
+      "hiddenNow": "Dimatikan: nama ini tidak ditunjukkan; menu menggunakan nama sistem.",
+      "openedToast": "Syarikat ini kini boleh menamakan semula menunya.",
+      "closedToast": "Dimatikan: menu syarikat ini kembali kepada nama sistem.",
+      "saveFailed": "Gagal disimpan. Sila cuba lagi."
+    }
+  },
+  "jb282": {
+    "reviewLocked": "Akaun anda tiada kebenaran \"Semak dan atur pelupusan tapak\", jadi tidak boleh menyemak. Minta pentadbir syarikat membukanya dalam kebenaran pengguna."
+  },
+  "jb284": {
+    "expiryPast": "Masa ini sudah lepas. Pilih masa selepas sekarang."
+  },
+  "jb285": {
+    "step": {
+      "approved": "Permohonan diluluskan",
+      "executor": "Pelaksana dipilih (pekerja tapak atau syarikat pelupusan luar)",
+      "photos": "Foto muat naik dan keluar tapak diambil (kenderaan keluar / Gate Pass)",
+      "photosDone": "Foto muat naik dan keluar tapak: {count} ({when})",
+      "sign": "Pengurus keselamatan menandatangani",
+      "gate": "Pelepasan pintu pagar"
+    },
+    "stepsLabel": "Langkah pas keluar",
+    "locked": {
+      "executor": "Pelaksana belum dipilih, jadi pas keluar tidak boleh ditandatangani. Tekan [Pilih pelaksana] dahulu.",
+      "photos": "Belum ada foto kenderaan keluar / Gate Pass, jadi pas keluar tidak boleh ditandatangani. Tapak atau syarikat pelupusan mengambilnya di telefon dahulu."
+    },
+    "capture": {
+      "title": "Foto muat naik dan keluar tapak",
+      "body": "Selepas lori dimuatkan dan sebelum keluar tapak, ambil foto kenderaan keluar dan Gate Pass. Pengurus keselamatan menandatangani pas keluar selepas itu.",
+      "done": "{count} foto diambil dan dihantar ke pejabat."
+    }
+  },
+  "jb286": {
+    "title": "Rekod angka",
+    "description": "{reference}: isi berat, nombor DO dan nombor plat yang tidak diisi pemandu. Untuk menukar angka yang sudah ada, tekan Betulkan pada muatan itu.",
+    "correctHint": "Hanya angka kosong diisi; setiap satu disimpan dalam sejarah muatan.",
+    "save": "Simpan",
+    "nothing": "Isi satu angka dahulu",
+    "saved": "Angka direkodkan",
+    "historyFilled": "diisi",
+    "lockedNoLorry": "Belum ada lori dihantar. Nombor boleh diisi selepas pemandu menghantar lori."
+  },
+  "jb265": {
+    "startedBy": "Dimulakan oleh perunding {name}"
+  },
+  "jb269": {
+    "spec": "Spesifikasi {spec}",
+    "uploader": "Dimuat naik oleh {name}",
+    "count": "{count} fail",
+    "noNumber": "Tiada nombor",
+    "unclassified": "Belum dikelaskan",
+    "enlarge": "Lihat foto {n} lebih besar",
+    "selectPhoto": "Tanda foto {n}",
+    "openFile": "Buka fail"
+  },
+  "jb270": {
+    "title": "Kelulusan perunding",
+    "none": "Belum ada permohonan perunding yang memautkan foto penghantaran ini.",
+    "decidedAt": "Diputuskan {when}",
+    "notDecided": "Belum diputuskan",
+    "open": "Lihat laporan kelulusan dan sijil bahan",
+    "independent": "Hanya keputusan permohonan perunding ditunjukkan di sini; ia tidak mengubah penerimaan penghantaran ini."
+  },
+  "jb274": {
+    "notifyOnly": "Maklumkan juga (tidak menugaskan)",
+    "notifyOnlyHint": "Orang yang ditanda hanya dimaklumkan dan boleh bercakap dalam sembang pembaikan; mereka bukan orang bertanggungjawab. Pilih siapa yang membaikinya di \"Orang bertanggungjawab\" di atas.",
+    "notChosenYet": "Tiada orang bertanggungjawab dipilih: item akan menunjukkan \"Menunggu untuk ditugaskan\" dan perlu ditugaskan semula.",
+    "askAssignTitle": "Orang bertanggungjawab belum dipilih. Tugaskan kepada orang yang anda tanda di \"Maklumkan juga\"?",
+    "askAssignHint": "Orang di \"Maklumkan juga\" hanya dimaklumkan - mereka tidak membaikinya. Tanpa orang bertanggungjawab, item akan menunjukkan \"Menunggu untuk ditugaskan\".",
+    "assignTo": "Tugaskan kepada {name}",
+    "notifyOnlyGo": "Jangan tugaskan, cipta sekarang"
+  },
+  "jb244": {
+    "open": "Import Excel",
+    "template": "Muat turun templat Excel",
+    "title": {
+      "supplier": "Import Excel · Pembekal",
+      "material": "Import Excel · Kategori bahan"
+    },
+    "intro": {
+      "supplier": "Muat naik Excel pembekal anda sendiri. Sistem mengenal pasti setiap lajur dan menunjukkan pratonton: baris baharu, yang sudah ada (dilangkau) dan yang bermasalah. Tiada yang disimpan sehingga anda tekan Sahkan import; pembekal yang sudah ada tidak diubah.",
+      "material": "Muat naik Excel bahan anda sendiri. Satu spesifikasi setiap baris; baris dengan nama bahan yang sama diletakkan di bawah satu bahan. Sistem mengenal pasti setiap lajur dan menunjukkan pratonton; tiada yang disimpan sehingga anda tekan Sahkan import, dan bahan serta spesifikasi yang sudah ada tidak diubah."
+    },
+    "chooseFirst": "Belum ada fail dipilih",
+    "chooseFile": "Pilih fail Excel",
+    "changeFile": "Pilih fail lain",
+    "xlsxOnly": "Hanya .xlsx. Simpan fail .xls lama sebagai .xlsx dalam Excel (Simpan Sebagai) dahulu.",
+    "fileLine": "Tajuk di baris {row}, {total} baris data di bawahnya",
+    "reading": "Membaca Excel…",
+    "readFailed": "Excel ini tidak dapat dibaca. Sila pilih fail lain.",
+    "columnsTitle": "Padankan lajur Excel",
+    "columnsHelp": "Lajur yang dikenal pasti melalui tajuknya sudah dipilih. Tukar yang salah; pilih Tidak diimport untuk yang tidak diperlukan.",
+    "notImported": "Tidak diimport",
+    "columnOption": "Lajur {letter} · {header}",
+    "columnNoHeader": "Lajur {letter}",
+    "example": "cth. {values}",
+    "requiredMissing": "Pilih lajur Excel untuk {field}.",
+    "noPrices": "Akaun anda tidak melihat amaun, jadi harga tidak diimport.",
+    "twoLevels": "Bahan ada dua peringkat: nama bahan › spesifikasi. Excel yang ada lajur kategori tetapi tiada lajur nama bahan, kategorinya diimport sebagai nama bahan.",
+    "categoryLeftOut": "Lajur {letter} \"{header}\" tidak diimport: bahan hanya ada dua peringkat (nama bahan › spesifikasi), tiada kategori di atasnya. Untuk menyimpannya, pilih lajur ini untuk Keterangan.",
+    "batchTitle": "Untuk seluruh import",
+    "batchHelp": "Setiap pembekal perlu jenis syarikat, industri dan produk utama. Nilai dalam Excel digunakan; baris tanpanya mengambil apa yang anda pilih dan isi di sini.",
+    "batch": {
+      "industry": "Industri (untuk baris tanpanya)",
+      "main_products": "Produk utama (untuk baris tanpanya)"
+    },
+    "unitsTitle": "Unit yang tiada dalam senarai unit",
+    "unitsHelp": "Unit ini belum ada dalam senarai unit. Padankan dengan unit yang ada, atau tambahnya.",
+    "unitLabel": "\"{unit}\" dalam Excel",
+    "unitLines": "Di baris {lines}",
+    "unitNew": "Tambah \"{unit}\" ke senarai unit",
+    "unitMapTo": "Sama dengan \"{unit}\"",
+    "unitAdded": "Unit \"{unit}\" akan ditambah ke senarai unit",
+    "pricesPin": "Import ini menetapkan {count} harga. Sahkan import meminta PIN pengesahan enam digit anda; harga berkuat kuasa hari ini.",
+    "previewTitle": "Pratonton",
+    "counts": "{new} baharu · {exists} sudah ada, dilangkau · {problem} bermasalah (tidak diimport)",
+    "filter": {
+      "all": "Semua ({count})",
+      "new": "Baharu ({count})",
+      "exists": "Sudah ada ({count})",
+      "problem": "Bermasalah ({count})"
+    },
+    "col": {
+      "line": "Baris",
+      "status": "Keputusan"
+    },
+    "status": {
+      "new": "Baharu",
+      "exists": "Sudah ada, dilangkau",
+      "problem": "Bermasalah"
+    },
+    "existsMatch": "Sudah ada: {code} {name}",
+    "sameAsLine": "Sama dengan baris {line}",
+    "problem": {
+      "missing": "Tiada {field}",
+      "invalid": "{field} tidak betul",
+      "too_long": "{field} terlalu panjang"
+    },
+    "note": {
+      "supplier_not_found": "Pembekal \"{name}\" tiada dalam senarai pembekal: tidak dipautkan",
+      "material_added": "Bahan \"{name}\" turut ditambah"
+    },
+    "moreRows": "Menunjukkan {shown} baris pertama daripada {total}.",
+    "confirm": "Sahkan import ({count} baris)",
+    "nothingNew": "Tiada baris baharu untuk diimport.",
+    "cancel": "Batal",
+    "close": "Tutup",
+    "done": "Import selesai: {added} baris ditambah, {skipped} sudah ada dan dilangkau, {problems} bermasalah tidak diimport.",
+    "doneWhere": {
+      "supplier": "Pembekal baharu sudah ada dalam senarai pembekal, dinomborkan oleh sistem.",
+      "material": "Bahan dan spesifikasi baharu sudah ada dalam senarai bahan syarikat, dinomborkan oleh sistem. Projek sedia ada belum ada: untuk memasukkannya ke projek sedia ada, tekan 【Tambah ke projek sedia ada】."
+    },
+    "doneUnits": "Unit ditambah: {names}",
+    "needFile": "Pilih fail Excel dahulu.",
+    "addToProjects": "Tambah ke projek sedia ada",
+    "categoryAsDescription": "Lajur {letter} \"{header}\" dimasukkan ke Keterangan setiap bahan, jadi tiada yang hilang (bahan ada dua peringkat: nama bahan › spesifikasi)."
+  },
+  "jb278": {
+    "tabSettled": "Sudah diselesaikan",
+    "voucherNo": "No. baucar",
+    "voucherNoPlaceholder": "cth. CN No. 1232",
+    "voucherNoHint": "Wajib. Nombor baucar diisi di sini, bukan dalam catatan.",
+    "vouchersRequired": "Muat naik baucar (foto atau PDF)",
+    "vouchersRequiredHint": "Wajib - sekurang-kurangnya satu. Sehingga {count} fail, {limit} MB setiap satu.",
+    "voucherFixed": "Selepas disahkan, nombor baucar dan baucar yang dimuat naik tidak boleh diubah atau dipadam; siapa dan bila direkod secara automatik.",
+    "oldNoVoucher": "— (semakan lama: nombor baucarnya, jika ada, dalam catatan)",
+    "issueButton": "Semak & selesaikan",
+    "issueButtonHint": "Tanda rekod siap satu pihak untuk disemak bersama; selesaikan selepas disemak",
+    "issueTitle": "Pengeluaran bahan · Semak & selesaikan",
+    "rentalTitle": "Penyata sewaan peralatan · Semak & selesaikan",
+    "stepCheck": "Semak",
+    "stepSettle": "Selesaikan",
+    "resultOnly": "Hanya keputusan semakan dan penyelesaian direkod di sini - tiada bayaran atau langkah kewangan.",
+    "issueHelp": "Pilih syarikat, kemudian tanda pengeluaran yang telah diserahkan dan belum disemak.",
+    "chooseCompany": "Pilih syarikat",
+    "noCompanies": "Tiada pengeluaran bahan menunggu semakan.",
+    "issuesWhat": "pengeluaran yang menunggu semakan",
+    "issuesPickTitle": "{name}: pengeluaran menunggu semakan",
+    "issuesPickHelp": "Tanda pengeluaran untuk disemak - satu atau lebih. Klik baris untuk melihat rekod penuh.",
+    "noIssues": "Syarikat ini tiada pengeluaran menunggu semakan.",
+    "tickIssuesFirst": "Tanda pengeluaran untuk disemak dahulu; pengesahan kemudian muncul di bawah.",
+    "issueWindowTitle": "Semakan pengeluaran {number}",
+    "issuesTitle": "Pengeluaran dalam semakan ini ({count})",
+    "issuesHelp": "Klik mana-mana baris untuk membuka rekod asal pengeluaran itu; tutup untuk kembali ke sini.",
+    "issuePdf": "PDF semakan pengeluaran bahan",
+    "issuePdfTitle": "Semakan pengeluaran bahan {number}",
+    "col": {
+      "date": "Tarikh",
+      "issueNo": "No. pengeluaran",
+      "project": "Projek",
+      "materials": "Bahan dan kuantiti",
+      "company": "Syarikat",
+      "equipmentNo": "No. peralatan",
+      "recipient": "Penerima",
+      "amount": "Amaun (RM)",
+      "party": "Pembekal / syarikat",
+      "settlementNo": "No. penyelesaian",
+      "checks": "Semakan",
+      "settledBy": "Diselesaikan oleh"
+    },
+    "checksValue": "{count}",
+    "amountTotal": "Jumlah amaun (RM)",
+    "settleButton": "Selesaikan",
+    "settleTitle": "Penyelesaian",
+    "settleHelp": "Tanda semakan satu pihak yang belum diselesaikan dan selesaikan bersama.",
+    "settleNone": "Tiada semakan menunggu penyelesaian.",
+    "chooseParty": "Pilih pembekal atau syarikat",
+    "settleChecksTitle": "{name}: disemak, menunggu penyelesaian",
+    "settleTickFirst": "Tanda semakan untuk diselesaikan dahulu; pengesahan kemudian muncul di bawah.",
+    "settler": "Diselesaikan oleh",
+    "confirmSettle": "Sahkan penyelesaian",
+    "settlePin": "Selepas 「Sahkan penyelesaian」, masukkan PIN pengesahan enam digit anda.",
+    "settledToast": "Diselesaikan sebagai {number}",
+    "settlementsCount": "{count} penyelesaian",
+    "settlementsWhat": "rekod penyelesaian",
+    "settlementWhat": "penyelesaian ini",
+    "settlementWindowTitle": "Penyelesaian {number}",
+    "settlementChecksTitle": "Semakan dalam penyelesaian ini ({count})",
+    "settlementChecksHelp": "Klik baris untuk membuka semakan itu, dan rekod asal dari situ.",
+    "settlementHidden": "{count} lagi semakan dalam projek lain.",
+    "settlementDetails": "Butiran penyelesaian",
+    "settlementVouchersHint": "Foto atau PDF yang dimuat naik semasa penyelesaian. Penyelesaian tidak boleh diubah atau dipadam.",
+    "panelTitle": "Semakan & penyelesaian",
+    "panelState": "Status semakan",
+    "panelCheckNo": "No. semakan",
+    "panelChecker": "Disemak oleh dan bila",
+    "panelSettleState": "Status penyelesaian",
+    "panelSettlementNo": "No. penyelesaian",
+    "panelUnchanged": "Semakan dan penyelesaian hanya dipautkan di sini; rekod asal tidak berubah.",
+    "statePending": "Menunggu semakan",
+    "stateChecked": "Sudah disemak",
+    "stateSettled": "Sudah diselesaikan",
+    "stateNotSettled": "Belum diselesaikan",
+    "chooseRentalCompany": "Pilih syarikat peralatan",
+    "rentalHelp": "Pilih syarikat peralatan, kemudian tanda penyatanya yang menunggu semakan.",
+    "rentalNoPending": "Tiada penyata menunggu semakan.",
+    "rentalWhat": "penyata yang menunggu semakan",
+    "rentalPickTitle": "{name}: penyata menunggu semakan",
+    "rentalPickHelp": "Tanda penyata untuk disemak - satu atau lebih. Klik baris untuk melihat penyata.",
+    "rentalTickFirst": "Tanda penyata untuk disemak dahulu; pengesahan kemudian muncul di bawah.",
+    "rentalWindowTitle": "Semakan sewaan peralatan {number}",
+    "rentalStatementsTitle": "Penyata dalam semakan ini ({count})",
+    "rentalStatementsHelp": "Klik mana-mana baris untuk membuka penyata itu; tutup untuk kembali ke sini.",
+    "stateNoCompany": "Tidak boleh disemak: tiada syarikat pemilik",
+    "noCompanyHelp": "Pengeluaran ini tiada syarikat pemilik (mesin tiada pembekal dalam daftarnya), jadi ia tidak ditawarkan dalam 「Semak & selesaikan」. Tekan 【Betulkan】 di atas dan pilih syarikat pemilik; selepas itu ia boleh disemak."
+  },
+  "jb280": {
+    "title": "Penyata sewaan peralatan",
+    "count": "{count} penyata",
+    "what": "penyata",
+    "tabsLabel": "Tab penyata",
+    "tab": {
+      "pending": "Menunggu semakan",
+      "checked": "Sudah disemak",
+      "settled": "Sudah diselesaikan",
+      "all": "Semua penyata"
+    },
+    "state": {
+      "PENDING": "Menunggu semakan",
+      "CHECKED": "Sudah disemak",
+      "SETTLED": "Sudah diselesaikan",
+      "CANCELLED": "Dibatalkan"
+    },
+    "resultOnly": "Hanya keputusan semakan dan penyelesaian direkod di sini - tiada bayaran atau langkah kewangan.",
+    "allCompanies": "Semua syarikat peralatan",
+    "chooseCompany": "Pilih syarikat peralatan",
+    "chooseProject": "Pilih projek",
+    "dateFrom": "Tarikh mula",
+    "dateTo": "Tarikh tamat",
+    "col": {
+      "statementNo": "No. penyata",
+      "project": "Projek",
+      "company": "Syarikat peralatan",
+      "period": "Tarikh",
+      "machines": "Peralatan",
+      "total": "Jumlah sewaan (RM)",
+      "state": "Status",
+      "checkNo": "No. semakan",
+      "settlementNo": "No. penyelesaian",
+      "view": "Lihat"
+    },
+    "machinesValue": "{count}",
+    "view": "Lihat",
+    "generate": "Jana penyata",
+    "generateHelp": "Pilih projek, syarikat peralatan dan tarikh; amaun dikira daripada yuran sewa peralatan (sama seperti laporan yuran sewa). Bulan yang amaunnya belum disahkan akan disahkan semasa anda menjana penyata.",
+    "preview": "Pratonton",
+    "overlap": "Tarikh ini bertindih dengan penyata {number}; yuran yang sama tidak boleh diselesaikan dua kali.",
+    "overlapShort": "Tarikh yang tidak bertindih",
+    "generatePin": "Selepas 「Jana penyata」, masukkan PIN pengesahan enam digit anda. Amaun tidak berubah selepas itu.",
+    "generatedToast": "Penyata {number} dijana",
+    "cancelledToast": "Penyata {number} dibatalkan",
+    "line": {
+      "equipment": "Peralatan",
+      "terms": "Terma sewaan",
+      "daysWorked": "Hari bekerja",
+      "normalHours": "Jam biasa",
+      "overtimeHours": "Jam lebih masa",
+      "records": "Rekod peralatan",
+      "total": "Jumlah"
+    },
+    "openMonth": "{month} bulanan",
+    "linesTitle": "Peralatan dan yuran",
+    "linesHelp": "Klik 「bulanan」 pada peralatan untuk membuka jam dan yurannya di Jam operator peralatan.",
+    "generatedBy": "Dijana oleh",
+    "windowTitle": "Penyata sewaan peralatan {number}",
+    "pdf": "PDF penyata",
+    "cancel": "Batalkan penyata",
+    "cancelTitle": "Batalkan penyata {number}",
+    "cancelHelp": "Hanya penyata yang menunggu semakan boleh dibatalkan. Ia disimpan, dan tarikhnya boleh dijana semula. PIN enam digit anda diminta.",
+    "cancelReason": "Sebab dibatalkan",
+    "confirmCancel": "Sahkan pembatalan",
+    "willConfirm": "Menjana penyata juga mengesahkan amaun bulan-bulan ini (tidak boleh diubah selepas itu):",
+    "willConfirmItem": "{equipment} {month}",
+    "onStatement": "Penyata {number} ({state})",
+    "hoursLocked": "Jam hari ini sudah dalam penyata {number} (disemak atau diselesaikan); masa, mesin dan pengendali tidak boleh diubah lagi."
+  },
+  "jb276": {
+    "help": "Semak semua maklumat dengan teliti: pembekal, nama bahan, spesifikasi, unit, kuantiti, nombor plat kenderaan, DO (nota penghantaran dan data yang dibaca daripadanya), gambar berkaitan dan rekod tandatangan terima.",
+    "missingTitle": "Maklumat wajib berikut tidak lengkap, jadi rekod tidak boleh diarkibkan:",
+    "missingShort": "Masih ada maklumat wajib yang belum lengkap, jadi tidak boleh diarkibkan.",
+    "missing": {
+      "supplier": "Pembekal",
+      "material_name": "Nama bahan",
+      "specification": "Spesifikasi",
+      "unit": "Unit",
+      "quantity": "Kuantiti",
+      "vehicle_plate": "Nombor plat kenderaan",
+      "do_photo": "Gambar DO (nota penghantaran)",
+      "do_data": "Data dibaca daripada DO (nombor DO)",
+      "return_note": "Return Note dan tandatangan pelulus",
+      "photos": "Gambar berkaitan",
+      "signatures": "Rekod tandatangan terima (kedua-dua pihak)",
+      "exit_not_confirmed": "\"Sahkan keluar rasmi\" belum dibuat",
+      "other": "Maklumat wajib lain",
+      "mr_link": "Pautan ke MR / permohonan lain (pilih di 「Permohonan dipautkan」)"
+    },
+    "tick": "Saya telah menyemak semua maklumat dan ia betul.",
+    "tickRequired": "(wajib ditanda)",
+    "tickFirst": "Tandakan \"Saya telah menyemak semua maklumat dan ia betul.\" dahulu.",
+    "pinNext": "Selepas menanda, tekan Sahkan dan arkibkan dan masukkan PIN enam digit anda.",
+    "closedBy": "Diarkibkan oleh {name} pada {when}. Tiada sesiapa boleh mengubah atau memadam rekod ini lagi, termasuk ibu pejabat.",
+    "lockedTitle": "Rekod ini telah diarkibkan",
+    "lockedNote": "Telah diarkibkan: tiada sesiapa boleh mengubah atau memadam rekod ini lagi (termasuk ibu pejabat). Ia masih boleh dilihat, dicetak dan ditambah ke pakej."
+  },
+  "jb281": {
+    "title": "Langkah pemulangan bahan (mengikut urutan)",
+    "step": {
+      "applied": "Permohonan pemulangan dihantar dari telefon",
+      "approved": "Pejabat menyemak dan meluluskan",
+      "site_exit": "Telefon memuat naik gambar dan butiran keluar sebenar",
+      "exit_pass": "Pas keluar disemak dan ditandatangani (dihantar ke telefon pintu)",
+      "gate": "Pintu mengambil gambar kenderaan, plat dan barang",
+      "exit_confirmed": "Pejabat menyemak muat naik pintu dan mengesahkan keluar rasmi",
+      "archived": "Semua maklumat disemak, diarkibkan secara rasmi"
+    },
+    "state": {
+      "done": "Selesai",
+      "current": "Sekarang",
+      "locked": "Dikunci",
+      "rejected": "Ditolak - permohonan tamat",
+      "not_recorded": "(selesai sebelum peraturan ini; tiada langkah ini)"
+    },
+    "started": "Pas keluar dimulakan: {name} · {when}",
+    "gateRecord": "Rekod pintu {number}, {photos} gambar",
+    "waitGate": "Pintu belum mengambil gambar dan melepaskannya (kenderaan, plat dan barang), jadi keluar rasmi belum boleh disahkan.",
+    "phoneWaitApproval": "Telah dihantar. Menunggu pejabat menyemak dan meluluskan.",
+    "shot": {
+      "VEHICLE": "Kenderaan",
+      "PLATE": "Nombor plat",
+      "GOODS": "Barang keluar"
+    },
+    "gateShotsTitle": "Gambar pintu (kenderaan, nombor plat, barang keluar)",
+    "gateShotsHint": "Pemulangan bahan: ambil gambar kenderaan, nombor plat dan barang keluar - sekurang-kurangnya satu setiap satu.",
+    "gateShotTake": "Ambil gambar: {shot}",
+    "gateShotTaken": "{shot}: {count} diambil · ambil lagi",
+    "gateNeedShots": "Ambil sekurang-kurangnya satu gambar kenderaan, nombor plat dan barang keluar sebelum melepaskan.",
+    "gateShotsMissing": "Belum diambil: {shots}",
+    "checkGatePhotos": "Semak gambar pintu dahulu, kemudian tekan Sahkan keluar rasmi:"
+  },
+  "jb250fix": {
+    "pageModuleOff": "Ciri ini tidak dibuka untuk syarikat anda. Sila hubungi ibu pejabat atau MSE.",
+    "reportModuleOff": "{modules} tidak dibuka, jadi laporan ini tiada rekod.",
+    "cardOff": "Tidak dibuka",
+    "noteSafety": "Pembetulan bahaya dan permit kerja ada di sini dan dibuka atau ditutup bersama.",
+    "noteGate": "Foto di telefon pengawal mengikut Rekod Pintu, Imbas QR Pelawat mengikut Akses Tapak; kedua-duanya dibuka atau ditutup berasingan.",
+    "noteReports": "Rekod laporan ini datang daripada Bahan Masuk: jika Bahan Masuk ditutup, laporan ini tiada rekod."
   }
 }

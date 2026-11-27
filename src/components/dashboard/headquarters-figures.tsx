@@ -42,6 +42,7 @@ import type {
 import { cardHref, cardProject, type HeadquartersCard } from "@/lib/headquarters-links";
 import { ALL_PROJECTS_CHOICE } from "@/lib/project-context";
 import { KpiCard } from "@/components/shared/kpi-card";
+import { cardModuleOff } from "@/lib/company-modules";
 import type { Tone } from "@/lib/tones";
 
 const COUNT_TILES: Array<{
@@ -71,6 +72,10 @@ const COUNT_TILES: Array<{
  */
 export function HeadquartersFigures({ data }: { data: HeadquartersOverview }) {
   const t = useTranslations("headquarters.figures");
+  const kinds = useTranslations("jb248.kind");
+  const offWord = useTranslations("jb250fix")("cardOff");
+  // JB250: a module the company does not have says so, not a number.
+  const moduleOff = (key: string) => data.modules_off?.includes(key) ?? false;
   const format = useFormatter();
   const [breakdown, setBreakdown] = useState(false);
   const totals = data.totals;
@@ -93,7 +98,17 @@ export function HeadquartersFigures({ data }: { data: HeadquartersOverview }) {
           tone={FIELD_TONE.projects}
           href={href("projects")}
         />
-        {COUNT_TILES.map(({ field, icon, alarm }) => (
+        {COUNT_TILES.map(({ field, icon, alarm }) => cardModuleOff(field, data.modules_off) ? (
+          <Tile
+            key={field}
+            label={t(`field.${field}`)}
+            value={offWord}
+            icon={icon}
+            tone="slate"
+            href={null}
+            data-module-off={field}
+          />
+        ) : (
           <Tile
             key={field}
             label={t(`field.${field}`)}
@@ -114,7 +129,10 @@ export function HeadquartersFigures({ data }: { data: HeadquartersOverview }) {
           />
         ))}
       </div>
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+        {moduleOff("waste_dispatches") ? (
+          <Tile label={t("wasteDispatches")} value={offWord} icon={Recycle} tone="slate" href={null} data-module-off="waste_dispatches" />
+        ) : (
         <ClearanceCard
           label={t("wasteDispatches")}
           icon={Recycle}
@@ -122,17 +140,37 @@ export function HeadquartersFigures({ data }: { data: HeadquartersOverview }) {
           trips={totals.waste_dispatches.trips}
           weight={totals.waste_dispatches.weighed_kg}
           weightLabel={t("weighedKg")}
-          href={href("waste_dispatches") ?? "/waste-clearance"}
+          href={href("waste_dispatches") ?? "/dispatches"}
         />
+        )}
+        {/* 垃圾清运 and 废料处理 apart (JB248: 「分别累计，不混合统计」). */}
+        {moduleOff("site_disposals") ? (
+          <>
+            <Tile label={kinds("GARBAGE")} value={offWord} icon={Truck} tone="slate" href={null} data-module-off="site_disposals" />
+            <Tile label={kinds("SCRAP")} value={offWord} icon={Truck} tone="slate" href={null} data-module-off="site_disposals" />
+          </>
+        ) : (
+        <>
         <ClearanceCard
-          label={t("siteDisposals")}
+          label={kinds("GARBAGE")}
           icon={Truck}
           records={totals.site_disposals.records}
           trips={totals.site_disposals.trips}
           weight={totals.site_disposals.weight_kg}
           weightLabel={t("weightKg")}
-          href={href("site_disposals") ?? "/waste-clearance"}
+          href={href("site_disposals") ?? "/waste-clearance?kind=garbage"}
         />
+        <ClearanceCard
+          label={kinds("SCRAP")}
+          icon={Truck}
+          records={totals.site_scraps?.records ?? 0}
+          trips={totals.site_scraps?.trips ?? 0}
+          weight={totals.site_scraps?.weight_kg ?? "0"}
+          weightLabel={t("weightKg")}
+          href={href("site_scraps") ?? "/waste-clearance?kind=scrap"}
+        />
+        </>
+        )}
       </div>
       {breakdown && <TodayRecordsDialog data={data} onClose={() => setBreakdown(false)} />}
     </>
@@ -160,6 +198,7 @@ function Tile({
   tone,
   href,
   onOpen,
+  "data-module-off": moduleOff,
 }: {
   label: string;
   value: string;
@@ -170,6 +209,7 @@ function Tile({
   /** The list it counts; null when it opens a breakdown (`onOpen`). */
   href: string | null;
   onOpen?: () => void;
+  "data-module-off"?: string;
 }) {
   // An alarm figure at zero is not an alarm: it stays quiet (U-029).
   const shown: Tone = tone === "rose" && !danger ? "slate" : tone;
@@ -184,6 +224,7 @@ function Tile({
       href={href}
       onClick={href ? undefined : onOpen}
       data-headquarters-card
+      data-module-off={moduleOff}
     />
   );
 }

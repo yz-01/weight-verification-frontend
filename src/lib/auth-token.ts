@@ -193,11 +193,16 @@ export function bootstrapRefusalKeepsIcon(failure: string | null): boolean {
  * and a sign-out that kept the phone's place (停用 then 恢复, 强制登出 - JB159),
  * which the PIN puts right.
  */
+/** JB245 (QA2): the office took this phone's person off his last project. */
+export const FIELD_REMOVED_FROM_PROJECT = "field_removed_from_project";
+
 export const FIELD_OFFICE_SIGN_OUTS = [
   "field_link_replaced",
   FIELD_ACCOUNT_STOPPED,
   FIELD_ACCOUNT_REMOVED,
   "field_office_signed_out",
+  // JB245 (QA2): 移出项目 from his last project - said as such, not as a new link.
+  FIELD_REMOVED_FROM_PROJECT,
 ];
 
 /**
@@ -249,6 +254,16 @@ export function takeFieldSignOutReason(): string {
  * page says it in words (「这个账号已在另一台电脑登录」).
  */
 export const SESSION_REPLACED = "session_replaced";
+
+/**
+ * JB265 (INT37): head office saved this consultant's 顾问项目授权, which ends
+ * his session so the new rights load. The sign-in page says 「你的项目权限已
+ * 更新，请重新登录。」 instead of a plain 「请重新登录」.
+ */
+export const CONSULTANT_GRANT_CHANGED = "consultant_grant_changed";
+
+/** Sign-outs the desktop sign-in page explains in the server's own words. */
+export const DESKTOP_EXPLAINED_SIGN_OUTS: readonly string[] = [SESSION_REPLACED, CONSULTANT_GRANT_CHANGED];
 
 /**
  * JB78 (客户 10-29 晚 事项 6): the person pressed 退出登录 themselves. Kept as

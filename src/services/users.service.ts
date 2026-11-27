@@ -5,6 +5,8 @@ import type {
   Department,
   DepartmentPayload,
   EmailCopy,
+  InviteOptions,
+  InvitePayload,
   LoginRecord,
   PermissionSwitchPayload,
   PermissionSwitchState,
@@ -62,6 +64,29 @@ export async function createUser(
   );
   if (user.invitation_sent === false) warnNotSent("users.toast.createdNotSent");
   else toastSuccess("users.toast.created");
+  return user;
+}
+
+/** 邀请用户 (JB242): projects, 常用权限 and the inviter's locked switches. */
+export function getInviteOptions(company?: string): Promise<InviteOptions> {
+  return api.get<InviteOptions>("/api/users/invite_options/", company ? { company } : undefined);
+}
+
+/**
+ * 邀请用户 in one page (JB242): account, permissions, projects and the
+ * invitation at once, with one sign-off PIN (the API client's dialog). A
+ * refusal stores nothing.
+ */
+export async function inviteUser(
+  payload: InvitePayload & { company?: string },
+  emailCopy?: EmailCopy,
+): Promise<UserDetail & { invitation_sent?: boolean }> {
+  const user = await api.post<UserDetail & { invitation_sent?: boolean }>("/api/users/invite_user/", {
+    ...payload,
+    ...(emailCopy ? { email_copy: emailCopy } : {}),
+  });
+  if (user.invitation_sent === false) warnNotSent("users.toast.createdNotSent");
+  else toastSuccess("jb242.sent", { email: user.email });
   return user;
 }
 

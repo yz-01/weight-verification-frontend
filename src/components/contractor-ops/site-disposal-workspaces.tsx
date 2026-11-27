@@ -53,7 +53,7 @@ import {
   ProjectListFilter,
   sortable,
 } from "@/components/shared/module-records-table";
-import { EmptyState, FieldWrapper, FilterBar, ListHeader, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
+import { EmptyState, FieldWrapper, FilterBar, ListHeader, QueryFailedNote, StatusBadge, TypeBadge } from "@/components/shared/page-primitives";
 import { Timeline } from "@/components/shared/timeline";
 import { RecordDetailDialog, RecordDetailShell, RecordRecorder } from "@/components/shared/record-detail-shell";
 import { useListQuery } from "@/hooks/use-list-query";
@@ -89,9 +89,11 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { ApiError } from "@/interfaces/api";
+import { DISPOSAL_CLEARANCE_KINDS } from "@/interfaces/contractor-ops";
 import type {
   DisposalAnomaly,
   DisposalAnomalyKind,
+  DisposalClearanceKind,
   DisposalEvidenceKind,
   DisposalEvidenceStage,
   DisposalRequest,
@@ -112,6 +114,8 @@ import {
   cancelDisposalRequest,
   correctDisposalTrip,
   endDisposalEarly,
+  fillDisposalTripNumbers,
+  addExternalDisposalSiteEvidence,
   getDisposalRequest,
   getDisposalRequests,
   getExternalDisposalTask,
@@ -165,8 +169,15 @@ function statusTone(status: DisposalRequestStatus): "neutral" | "positive" | "wa
 // office's field-task sheet can word them without loading this file.
 export { GPS_SITE_LOCATION, siteLocationText };
 
-export function SiteDisposalWorkspace({ initialProject = "", fieldTaskId, onRecordSaved }: { initialProject?: string; fieldTaskId?: string; onRecordSaved?: () => void } = {}) {
+/**
+ * The phone's 垃圾清运, and since JB248 its 「废料处理」 button too (客户 11-23b
+ * 事项 1 第二点: 「增设独立「废料处理」按钮。两者使用相同操作流程，提交后自动归入
+ * 后台对应业务分类」): the same screen and flow, listing and raising jobs of
+ * the one kind it was opened for.
+ */
+export function SiteDisposalWorkspace({ initialProject = "", fieldTaskId, onRecordSaved, clearanceKind = "GARBAGE" }: { initialProject?: string; fieldTaskId?: string; onRecordSaved?: () => void; clearanceKind?: DisposalClearanceKind } = {}) {
   const t = useTranslations("siteDisposal");
+  const kindT = useTranslations("jb248");
   const { can } = useAuth();
   // The word 「分类」 for an old record's category lives in `contractorOps`.
   const ops = useTranslations("contractorOps");
@@ -179,8 +190,8 @@ export function SiteDisposalWorkspace({ initialProject = "", fieldTaskId, onReco
   // Which step dialog is open, and for which request.
   const [step, setStep] = useState<{ step: DisposalStep; row: DisposalRequest } | null>(null);
   const rows = useQuery({
-    queryKey: ["site-disposals", project],
-    queryFn: () => getDisposalRequests({ page_size: 200, project: project || undefined }),
+    queryKey: ["site-disposals", project, clearanceKind],
+    queryFn: () => getDisposalRequests({ page_size: 200, project: project || undefined, clearance_kind: clearanceKind }),
   });
   const refresh = () => qc.invalidateQueries({ queryKey: ["site-disposals"] });
   // The approval / vehicle notice links to `?disposal=<id>` (C08): that job
@@ -195,7 +206,7 @@ export function SiteDisposalWorkspace({ initialProject = "", fieldTaskId, onReco
   return (
     <div className="flex flex-col gap-4">
       <ListHeader
-        title={t("title")}
+        title={kindT(`kind.${clearanceKind}`)}
         subtitle={t("subtitle")}
         action={can("disposal.submit") ? <Button onClick={() => setCreating(true)}><Plus />{t("action.new")}</Button> : undefined}
       />
@@ -274,7 +285,7 @@ export function SiteDisposalWorkspace({ initialProject = "", fieldTaskId, onReco
         </div>
       )}
 
-      {creating && <CreateDisposalDialog initialProject={project} fieldTaskId={fieldTaskId} onClose={() => setCreating(false)} onSaved={() => { void refresh(); setCreating(false); onRecordSaved?.(); }} />}
+      {creating && <CreateDisposalDialog initialProject={project} fieldTaskId={fieldTaskId} clearanceKind={clearanceKind} onClose={() => setCreating(false)} onSaved={() => { void refresh(); setCreating(false); onRecordSaved?.(); }} />}
       {shownRow && (
         <DisposalDetailDialog
           row={shownRow}
@@ -290,8 +301,13 @@ export function SiteDisposalWorkspace({ initialProject = "", fieldTaskId, onReco
   );
 }
 
-function CreateDisposalDialog({ initialProject = "", fieldTaskId, onClose, onSaved }: { initialProject?: string; fieldTaskId?: string; onClose: () => void; onSaved: () => void }) {
+function CreateDisposalDialog({ initialProject = "", fieldTaskId, clearanceKind, onClose, onSaved }: { initialProject?: string; fieldTaskId?: string; clearanceKind?: DisposalClearanceKind; onClose: () => void; onSaved: () => void }) {
   const t = useTranslations("siteDisposal");
+  const kindT = useTranslations("jb248");
+  // JB248: the tab or phone button it was opened from decides 垃圾清运 or
+  // 废料处理; on 全部 the office picks one (垃圾清运 unless changed).
+  const [chosenKind, setChosenKind] = useDraftState<DisposalClearanceKind>("clearanceKind", clearanceKind ?? "GARBAGE");
+  const kind = clearanceKind ?? chosenKind;
   const { user } = useAuth();
   const isFieldStaff = Boolean(user?.is_field_staff);
   // F-282. Saved even when this dialog is opened from the office console:
@@ -332,6 +348,7 @@ function CreateDisposalDialog({ initialProject = "", fieldTaskId, onClose, onSav
         preferred_at: !isFieldStaff && preferred ? new Date(preferred).toISOString() : undefined,
         request_note: note,
         planned_trips: plannedTrips,
+        clearance_kind: kind,
         captured_at: new Date().toISOString(),
         latitude: location!.latitude,
         longitude: location!.longitude,
@@ -351,6 +368,27 @@ function CreateDisposalDialog({ initialProject = "", fieldTaskId, onClose, onSav
       <DialogContent className="flex max-h-[calc(100dvh-1rem)] min-w-0 flex-col overflow-hidden sm:max-w-2xl">
         <DialogHeader className="shrink-0"><DialogTitle>{t("create.title")}</DialogTitle><DialogDescription>{t("create.description")}</DialogDescription></DialogHeader>
         <div className="grid min-h-0 min-w-0 flex-1 gap-4 overflow-y-auto overflow-x-hidden pr-1 sm:grid-cols-2">
+          <FieldWrapper label={kindT("field")} required className="sm:col-span-2">
+            {clearanceKind ? (
+              <p data-clearance-kind={kind} className="text-sm font-medium">{kindT(`kind.${kind}`)}</p>
+            ) : (
+              <div className="flex flex-wrap gap-2" role="radiogroup" aria-label={kindT("field")}>
+                {DISPOSAL_CLEARANCE_KINDS.map((option) => (
+                  <Button
+                    key={option}
+                    type="button"
+                    size="sm"
+                    role="radio"
+                    aria-checked={option === kind}
+                    variant={option === kind ? "default" : "outline"}
+                    onClick={() => setChosenKind(option)}
+                  >
+                    {kindT(`kind.${option}`)}
+                  </Button>
+                ))}
+              </div>
+            )}
+          </FieldWrapper>
           <FieldWrapper label={t("field.project")} required className="sm:col-span-2"><ProjectPicker value={project} onValueChange={setProject} placeholder={t("field.project")} /></FieldWrapper>
           <FieldWrapper label={t("field.waste")} required className="sm:col-span-2"><Input value={description} onChange={(e) => setDescription(e.target.value)} /></FieldWrapper>
           <FieldWrapper label={t("field.plannedTrips")} required><Input inputMode="numeric" type="number" min="1" max={MAX_PLANNED_TRIPS} value={plannedTrips} onChange={(e) => setPlannedTrips(e.target.value)} /></FieldWrapper>
@@ -427,6 +465,29 @@ function defaultLinkExpiry() {
   return value.toISOString().slice(0, 16);
 }
 
+/** Now, in the `datetime-local` box's own shape - its earliest choice (JB284). */
+export function nowLinkInput(now = new Date()) {
+  const value = new Date(now.getTime());
+  value.setMinutes(value.getMinutes() - value.getTimezoneOffset());
+  return value.toISOString().slice(0, 16);
+}
+
+/**
+ * JB284 (客户 11-26 事项 25, 图 36: 「红点这段全部填写系统还是说标？」): an expiry
+ * already gone. The server refuses it too (`link_expiry_past`); saying it
+ * under the box first is what was missing - nothing turned red before.
+ */
+export function linkExpiryPast(value: string, now = Date.now()): boolean {
+  if (!value) return false;
+  const at = new Date(value).getTime();
+  return !Number.isNaN(at) && at <= now;
+}
+
+/** The server's words for one field of a refused save, to show under that field (JB284). */
+export function serverFieldError(error: unknown, field: string): string | undefined {
+  return error instanceof ApiError ? error.fieldError(field) : undefined;
+}
+
 function AssignExecutorDialog({ row, onClose, onSaved }: { row: DisposalRequest; onClose: () => void; onSaved: () => void }) {
   const t = useTranslations("siteDisposal");
   const qc = useQueryClient();
@@ -462,6 +523,8 @@ function AssignExecutorDialog({ row, onClose, onSaved }: { row: DisposalRequest;
       .then(fill)
       .catch(() => undefined);
   };
+  const w = useTranslations("jb284");
+  const expiryPast = mode === "EXTERNAL" && linkExpiryPast(expires);
   const save = useMutation({
     mutationFn: () => mode === "INTERNAL"
       ? assignDisposalInternal(row.id, { assigned_staff: staff })
@@ -498,7 +561,7 @@ function AssignExecutorDialog({ row, onClose, onSaved }: { row: DisposalRequest;
               <Button type="button" variant={mode === "EXTERNAL" ? "default" : "outline"} onClick={() => setMode("EXTERNAL")}><Link2 />{t("assignment.external")}</Button>
             </div>
             {mode === "INTERNAL" ? (
-              <FieldWrapper label={t("field.fieldStaff")} required>
+              <FieldWrapper label={t("field.fieldStaff")} required error={serverFieldError(save.error, "assigned_staff")}>
                 <Select value={staff} onValueChange={setStaff}>
                   <SelectTrigger className="w-full"><SelectValue placeholder={t("field.chooseFieldStaff")} /></SelectTrigger>
                   <SelectContent>{fieldStaff.map((assignment) => <SelectItem key={assignment.user} value={assignment.user}>{assignment.user_name}</SelectItem>)}</SelectContent>
@@ -508,7 +571,7 @@ function AssignExecutorDialog({ row, onClose, onSaved }: { row: DisposalRequest;
               </FieldWrapper>
             ) : (
               <div className="grid gap-4 sm:grid-cols-2">
-                <FieldWrapper label={t("field.supplier")} required hint={t("supplierPick.hint")} className="sm:col-span-2">
+                <FieldWrapper label={t("field.supplier")} required hint={t("supplierPick.hint")} className="sm:col-span-2" error={serverFieldError(save.error, "collector_supplier")}>
                   <SupplierPicker
                     value={supplier}
                     onChange={(id) => pickSupplier(id)}
@@ -520,10 +583,12 @@ function AssignExecutorDialog({ row, onClose, onSaved }: { row: DisposalRequest;
                     onCreated={(created) => pickSupplier(created.id, created)}
                   />
                 </FieldWrapper>
-                <FieldWrapper label={t("field.contact")} required><Input value={contact} onChange={(e) => setContact(e.target.value)} /></FieldWrapper>
-                <FieldWrapper label={t("field.phone")} required><Input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} /></FieldWrapper>
-                <FieldWrapper label={t("field.email")} optional={t("optional")}><Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} /></FieldWrapper>
-                <FieldWrapper label={t("field.linkExpiry")} required><Input type="datetime-local" value={expires} onChange={(e) => setExpires(e.target.value)} /></FieldWrapper>
+                <FieldWrapper label={t("field.contact")} required error={serverFieldError(save.error, "collector_contact_name")}><Input value={contact} aria-invalid={Boolean(serverFieldError(save.error, "collector_contact_name"))} onChange={(e) => setContact(e.target.value)} /></FieldWrapper>
+                <FieldWrapper label={t("field.phone")} required error={serverFieldError(save.error, "collector_phone")}><Input type="tel" value={phone} aria-invalid={Boolean(serverFieldError(save.error, "collector_phone"))} onChange={(e) => setPhone(e.target.value)} /></FieldWrapper>
+                <FieldWrapper label={t("field.email")} optional={t("optional")} error={serverFieldError(save.error, "collector_email")}><Input type="email" value={email} aria-invalid={Boolean(serverFieldError(save.error, "collector_email"))} onChange={(e) => setEmail(e.target.value)} /></FieldWrapper>
+                {/* JB284: the box cannot pick a time already gone, says so when
+                    one is typed, and shows the server's words if it refuses. */}
+                <FieldWrapper label={t("field.linkExpiry")} required error={expiryPast ? w("expiryPast") : serverFieldError(save.error, "expires_at")}><Input type="datetime-local" min={nowLinkInput()} value={expires} aria-invalid={expiryPast || Boolean(serverFieldError(save.error, "expires_at"))} onChange={(e) => setExpires(e.target.value)} /></FieldWrapper>
               </div>
             )}
           </>
@@ -542,7 +607,8 @@ function AssignExecutorDialog({ row, onClose, onSaved }: { row: DisposalRequest;
                       [expires, t("field.linkExpiry")],
                     ]
               }
-              disabled={save.isPending}
+              disabledReason={expiryPast ? w("expiryPast") : undefined}
+              disabled={save.isPending || expiryPast}
               onClick={() => save.mutate()}
             >
               <Send />
@@ -627,8 +693,10 @@ function RegenerateLinkDialog({ row, onClose, onSaved }: { row: DisposalRequest;
   const t = useTranslations("siteDisposal");
   const [expires, setExpires] = useState(defaultLinkExpiry);
   const [link, setLink] = useState("");
+  const w = useTranslations("jb284");
+  const expiryPast = linkExpiryPast(expires);
   const save = useMutation({ mutationFn: () => regenerateDisposalExternalLink(row.id, new Date(expires).toISOString()), onSuccess: (data) => { setLink(data.external_url); onSaved(); } });
-  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle>{t("regenerate.title")}</DialogTitle><DialogDescription>{link ? t("regenerate.copyNow") : t("regenerate.description")}</DialogDescription></DialogHeader>{link ? <div className="space-y-3"><div className="break-all rounded-lg border bg-muted/30 p-3 font-mono text-sm">{link}</div><Button className="w-full" onClick={() => void navigator.clipboard.writeText(link)}><Copy />{t("action.copyLink")}</Button></div> : <FieldWrapper label={t("field.linkExpiry")} required><Input type="datetime-local" value={expires} onChange={(event) => setExpires(event.target.value)} /></FieldWrapper>}<DialogFooter><Button variant="outline" onClick={onClose}>{link ? t("action.close") : t("action.cancel")}</Button>{!link && <Button requires={[[expires, t("field.linkExpiry")]]} disabled={save.isPending} onClick={() => save.mutate()}><RefreshCw />{t("action.regenerateLink")}</Button>}</DialogFooter></DialogContent></Dialog>;
+  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle>{t("regenerate.title")}</DialogTitle><DialogDescription>{link ? t("regenerate.copyNow") : t("regenerate.description")}</DialogDescription></DialogHeader>{link ? <div className="space-y-3"><div className="break-all rounded-lg border bg-muted/30 p-3 font-mono text-sm">{link}</div><Button className="w-full" onClick={() => void navigator.clipboard.writeText(link)}><Copy />{t("action.copyLink")}</Button></div> : <FieldWrapper label={t("field.linkExpiry")} required error={expiryPast ? w("expiryPast") : serverFieldError(save.error, "expires_at")}><Input type="datetime-local" min={nowLinkInput()} value={expires} aria-invalid={expiryPast || Boolean(serverFieldError(save.error, "expires_at"))} onChange={(event) => setExpires(event.target.value)} /></FieldWrapper>}<DialogFooter><Button variant="outline" onClick={onClose}>{link ? t("action.close") : t("action.cancel")}</Button>{!link && <Button requires={[[expires, t("field.linkExpiry")]]} disabledReason={expiryPast ? w("expiryPast") : undefined} disabled={save.isPending || expiryPast} onClick={() => save.mutate()}><RefreshCw />{t("action.regenerateLink")}</Button>}</DialogFooter></DialogContent></Dialog>;
 }
 
 function CancelDisposalDialog({ row, onClose, onSaved }: { row: DisposalRequest; onClose: () => void; onSaved: () => void }) {
@@ -1114,6 +1182,12 @@ export function DisposalTripsPanel({
 }) {
   const t = useTranslations("siteDisposal");
   const df = useDateFormat();
+  // 更正 is signed with the office PIN: never offered on the phone, where the
+  // server always refuses it (「请在电脑后台操作」).
+  const { user } = useAuth();
+  const phone = Boolean(user?.is_field_staff);
+  // JB286: a blank filled by 【补录数字】 has no reason - it is worded 「补录」.
+  const filled = useTranslations("jb286");
   const [endArmed, setEndArmed] = useState(false);
   const [correcting, setCorrecting] = useState<DisposalTrip | null>(null);
   const accept = useMutation({ mutationFn: (trip: string) => acceptDisposalTrip(row.id, trip), onSuccess: onChanged });
@@ -1179,7 +1253,7 @@ export function DisposalTripsPanel({
                       <span className="font-medium text-foreground">
                         {t(TRIP_HISTORY_KEY[item.field], { from: item.from || t("trips.blank"), to: item.to })}
                       </span>
-                      <span className="block">{t("trips.historyMeta", { name: item.by_name, at: df.dateTime(item.at), reason: item.reason })}</span>
+                      <span className="block">{t("trips.historyMeta", { name: item.by_name, at: df.dateTime(item.at), reason: item.reason || filled("historyFilled") })}</span>
                     </li>
                   ))}
                 </ul>
@@ -1193,7 +1267,7 @@ export function DisposalTripsPanel({
                     {t("trips.accept")}
                   </Button>
                 )}
-                {canCorrectTrip(row, trip) && (
+                {canCorrectTrip(row, trip) && !phone && (
                   <Button size="sm" variant="outline" onClick={() => setCorrecting(trip)}>
                     <Pencil />
                     {t("trips.correct")}
@@ -1366,7 +1440,7 @@ function DisposalDetailDialog({
   );
 }
 
-type DisposalStep = "reviewing" | "assigning" | "regenerating" | "supplier" | "numbers" | "siteEvidence" | "anomaly" | "cancelling";
+type DisposalStep = "reviewing" | "assigning" | "regenerating" | "supplier" | "numbers" | "fillNumbers" | "siteEvidence" | "anomaly" | "cancelling";
 
 /** Approved and not yet finished: the only time the job takes photographs. */
 const RUNNING: DisposalRequestStatus[] = ["APPROVED", "ASSIGNED", "IN_PROGRESS", "RETURNED"];
@@ -1389,21 +1463,43 @@ function DisposalActions({
   extra?: React.ReactNode;
 }) {
   const t = useTranslations("siteDisposal");
-  const { can } = useAuth();
+  const w = useTranslations("jb282");
+  const fillWords = useTranslations("jb286");
+  const { can, user } = useAuth();
+  const steps = disposalSteps(row, {
+    manage: can("disposal.manage"),
+    confirm: can("disposal.confirm"),
+    phone: Boolean(user?.is_field_staff),
+  });
+  const supplierButton = steps.supplier ? <Button size="sm" variant="outline" onClick={() => onStep("supplier")}><Truck />{row.collector_supplier ? t("action.changeSupplier") : t("action.setSupplier")}</Button> : null;
   return (
     <>
-      {can("disposal.manage") && row.status === "REQUESTED" && <Button size="sm" onClick={() => onStep("reviewing")}><ClipboardCheck />{t("action.review")}</Button>}
+      {/* JB282/JB283 (客户 11-26 事项 23、24; Lucas: 「那个手机不应该出现审批才对」):
+          the decision is the office computer's. The phone shows the status
+          only; an office account without the permission sees the button
+          locked, saying why, instead of nothing at all (图 34). */}
+      {steps.review === "open" && <Button size="sm" onClick={() => onStep("reviewing")}><ClipboardCheck />{t("action.review")}</Button>}
+      {steps.review === "locked" && <Button size="sm" data-disposal-review-locked disabled disabledReason={w("reviewLocked")} showReason><ClipboardCheck />{t("action.review")}</Button>}
       {can("disposal.manage") && ["APPROVED", "ASSIGNED", "RETURNED"].includes(row.status) && <Button size="sm" onClick={() => onStep("assigning")}><Send />{t("action.assign")}</Button>}
       {can("disposal.manage") && row.assignment_type === "EXTERNAL" && ["ASSIGNED", "IN_PROGRESS", "RETURNED"].includes(row.status) && <Button size="sm" variant="outline" onClick={() => onStep("regenerating")}><RefreshCw />{t("action.regenerateLink")}</Button>}
+      {/* JB286 (客户 11-26 事项 27: 「更改供应商换去以前是 补数字」): once a lorry
+          is in, 【补录数字】 stands where 【更改供应商】 stood (图 40); the
+          company is still changed, from after 加进资料包. */}
+      {steps.fillNumbers === "open" && <Button size="sm" variant="outline" data-disposal-fill-numbers onClick={() => onStep("fillNumbers")}><Hash />{t("action.recordNumbers")}</Button>}
+      {/* QA3 (audit #3): from the start of the running job the place is
+          【补录数字】's - locked, saying why, until a lorry is in. */}
+      {steps.fillNumbers === "locked" && <Button size="sm" variant="outline" data-disposal-fill-numbers-locked disabled disabledReason={fillWords("lockedNoLorry")} showReason><Hash />{t("action.recordNumbers")}</Button>}
       {/* I27: name the clearance company once the assign dialog is behind
           the job - a driver started it from the link, or it is being settled. */}
-      {offersSupplierButton(row, { manage: can("disposal.manage"), confirm: can("disposal.confirm") }) && <Button size="sm" variant="outline" onClick={() => onStep("supplier")}><Truck />{row.collector_supplier ? t("action.changeSupplier") : t("action.setSupplier")}</Button>}
+      {!steps.fillNumbers && supplierButton}
       {/* C08: the site's vehicle exit / Gate Pass, on the same job. */}
       {can("disposal.submit") && RUNNING.includes(row.status) && <Button size="sm" variant="outline" onClick={() => onStep("siteEvidence")}><Camera />{t("action.siteEvidence")}</Button>}
       {/* E04: no 验收 / 退回 - the final proof's submission ended the job.
           What the office still does is fill in the numbers (D06). */}
-      {can("disposal.confirm") && ["COMPLETED", "AWAITING_CONFIRMATION"].includes(row.status) && <Button size="sm" variant="outline" onClick={() => onStep("numbers")}><Hash />{t("action.recordNumbers")}</Button>}
+      {/* Office only (QA3, audit #17): the phone never fills the job's numbers. */}
+      {can("disposal.confirm") && !user?.is_field_staff && ["COMPLETED", "AWAITING_CONFIRMATION"].includes(row.status) && <Button size="sm" variant="outline" onClick={() => onStep("numbers")}><Hash />{t("action.recordNumbers")}</Button>}
       {extra}
+      {steps.fillNumbers && supplierButton}
       {/* The warning and the destructive step last, drawn alike (JB166):
           outline in the destructive colour, the size of the rest. */}
       {/* JB149: 「手机端增加异常拍照功能」 - a problem on the job, with photos. */}
@@ -1443,11 +1539,118 @@ function DisposalStepDialogs({
       return <CancelDisposalDialog row={row} onClose={onClose} onSaved={done} />;
     case "numbers":
       return <RecordNumbersDialog row={row} onClose={onClose} onSaved={done} />;
+    case "fillNumbers":
+      return <FillTripNumbersDialog row={row} onClose={onClose} onSaved={done} />;
     case "siteEvidence":
       return <SiteEvidenceDialog row={row} onClose={onClose} onSaved={done} />;
     case "anomaly":
       return <AnomalyDialog row={row} onClose={onClose} onSaved={done} />;
   }
+}
+
+/**
+ * Which of the job's office steps this reader is offered (JB282, JB286).
+ *
+ * - `review`: 「审批」 on a new request - `"open"` for an office account that
+ *   holds 审批及安排垃圾清运; `"locked"` (drawn, saying why) for an office
+ *   account without it; `null` on the phone, which never decides (Lucas
+ *   11-26: 「那个手机不应该出现审批才对」; the server refuses it too).
+ * - `fillNumbers`: 【补录数字】 while the job runs (JB286): `"open"` once a
+ *   lorry is in, `"locked"` (drawn in that place, saying why) before;
+ *   `null` on the phone, on a job not running, or without the permission.
+ * - `supplier`: 【填写 / 更改供应商】 (I27). Not on the phone when it would
+ *   replace a company: that is a correction, signed in the office.
+ */
+export function disposalSteps(
+  row: Pick<DisposalRequest, "status" | "assignment_type" | "collector_supplier" | "supplier_name" | "trips">,
+  may: { manage: boolean; confirm: boolean; phone: boolean },
+): { review: "open" | "locked" | null; fillNumbers: "open" | "locked" | null; supplier: boolean } {
+  const review = row.status !== "REQUESTED" || may.phone ? null : may.manage ? "open" : "locked";
+  const lorryIn = (row.trips ?? []).some((trip) => trip.status === "SUBMITTED" || trip.status === "ACCEPTED");
+  const fillNumbers =
+    !may.phone && (may.manage || may.confirm) && RUNNING.includes(row.status) ? (lorryIn ? "open" : "locked") : null;
+  const supplier =
+    offersSupplierButton(row, { manage: may.manage, confirm: may.confirm }) &&
+    !(may.phone && supplierChangeNeedsReason(row));
+  return { review, fillNumbers, supplier };
+}
+
+/**
+ * 【补录数字】 while the job runs (JB286): each lorry that is in, its weight, DO
+ * number and plate. What the driver already sent is shown, not changed here -
+ * that is 【更正】 on the lorry, with a reason; a blank is filled. Kept on the
+ * lorry's history as 「补录」.
+ */
+function FillTripNumbersDialog({ row, onClose, onSaved }: { row: DisposalRequest; onClose: () => void; onSaved: () => void }) {
+  const t = useTranslations("siteDisposal");
+  const w = useTranslations("jb286");
+  const lorries = row.trips.filter((trip) => trip.status === "SUBMITTED" || trip.status === "ACCEPTED");
+  const [values, setValues] = useState<Record<string, { weight_kg: string; do_no: string; vehicle_plate: string }>>({});
+  const value = (trip: DisposalTrip, field: "weight_kg" | "do_no" | "vehicle_plate") => values[trip.id]?.[field] ?? "";
+  const set = (trip: DisposalTrip, field: "weight_kg" | "do_no" | "vehicle_plate", next: string) =>
+    setValues((current) => ({
+      ...current,
+      [trip.id]: { ...(current[trip.id] ?? { weight_kg: "", do_no: "", vehicle_plate: "" }), [field]: next },
+    }));
+  const entries = fillEntries(lorries, values);
+  const save = useMutation({ mutationFn: () => fillDisposalTripNumbers(row.id, entries), onSuccess: onSaved });
+  const recorded = (text: string) => <p className="flex min-h-9 items-center rounded-md border bg-muted/30 px-3 text-sm tabular">{text}</p>;
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="flex max-h-[calc(100dvh-1rem)] min-w-0 flex-col overflow-hidden sm:max-w-2xl">
+        <DialogHeader className="shrink-0">
+          <DialogTitle>{w("title")}</DialogTitle>
+          <DialogDescription>{w("description", { reference: row.reference_no })}</DialogDescription>
+        </DialogHeader>
+        <div className="grid min-h-0 flex-1 gap-4 overflow-y-auto pr-1">
+          {lorries.map((trip) => (
+            <section key={trip.id} className="rounded-lg border p-3" data-fill-trip={trip.seq}>
+              <h3 className="mb-2 text-sm font-semibold">{t("trips.seq", { seq: trip.seq })}</h3>
+              <div className="grid gap-3 sm:grid-cols-3">
+                <FieldWrapper label={t("field.actualWeight")} optional={trip.weight_kg === null ? t("optional") : undefined}>
+                  {trip.weight_kg !== null ? recorded(`${trip.weight_kg} kg`) : <Input inputMode="decimal" type="number" min="0" step="0.01" value={value(trip, "weight_kg")} onChange={(event) => set(trip, "weight_kg", event.target.value)} />}
+                </FieldWrapper>
+                <FieldWrapper label={t("field.doNo")} optional={!trip.do_no ? t("optional") : undefined}>
+                  {trip.do_no ? recorded(trip.do_no) : <Input value={value(trip, "do_no")} onChange={(event) => set(trip, "do_no", event.target.value)} />}
+                </FieldWrapper>
+                <FieldWrapper label={t("field.vehiclePlate")} optional={!trip.vehicle_plate ? t("optional") : undefined}>
+                  {trip.vehicle_plate ? recorded(trip.vehicle_plate) : <Input value={value(trip, "vehicle_plate")} autoCapitalize="characters" onChange={(event) => set(trip, "vehicle_plate", event.target.value)} />}
+                </FieldWrapper>
+              </div>
+            </section>
+          ))}
+          <p className="text-xs text-muted-foreground">{w("correctHint")}</p>
+        </div>
+        <DialogFooter className="shrink-0">
+          <Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button>
+          <Button
+            disabled={!entries.length || save.isPending}
+            disabledReason={!entries.length ? w("nothing") : undefined}
+            onClick={() => save.mutate()}
+          >
+            {save.isPending ? <Loader2 className="animate-spin" /> : <Hash />}
+            {w("save")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/** What 【补录数字】 sends: per lorry, only the blanks typed into (JB286). */
+export function fillEntries(
+  lorries: Array<Pick<DisposalTrip, "id" | "weight_kg" | "do_no" | "vehicle_plate">>,
+  values: Record<string, { weight_kg: string; do_no: string; vehicle_plate: string }>,
+): Array<{ trip: string; weight_kg?: string; do_no?: string; vehicle_plate?: string }> {
+  return lorries.flatMap((trip) => {
+    const typed = values[trip.id];
+    if (!typed) return [];
+    const entry: { trip: string; weight_kg?: string; do_no?: string; vehicle_plate?: string } = { trip: trip.id };
+    if (trip.weight_kg === null && typed.weight_kg.trim()) entry.weight_kg = typed.weight_kg.trim();
+    if (!trip.do_no && typed.do_no.trim()) entry.do_no = typed.do_no.trim();
+    if (!trip.vehicle_plate && typed.vehicle_plate.trim()) entry.vehicle_plate = normalisePlate(typed.vehicle_plate);
+    return Object.keys(entry).length > 1 ? [entry] : [];
+  });
 }
 
 /**
@@ -1486,8 +1689,14 @@ export function DisposalInPlace({ id, onClose }: { id: string; onClose: () => vo
  * T-370); each request opens on the shared shell (T-369). The phone keeps
  * `SiteDisposalWorkspace`'s cards.
  */
-export function SiteDisposalOffice() {
+/**
+ * The office's list of clearance jobs. On 垃圾清运's 全部 tab both kinds, each
+ * row saying which it is; on 垃圾清运 or 废料处理 only that kind (JB248) -
+ * the same columns, steps, filters and files either way.
+ */
+export function SiteDisposalOffice({ clearanceKind }: { clearanceKind?: DisposalClearanceKind } = {}) {
   const t = useTranslations("siteDisposal");
+  const kindT = useTranslations("jb248");
   const tRoot = useTranslations();
   const df = useDateFormat();
   const { can } = useAuth();
@@ -1502,9 +1711,20 @@ export function SiteDisposalOffice() {
   // 材料管理's Reject is the receipts with `acceptance=REJECTED`.
   const list = useListQuery(["project", "status", "counted", "abnormal", ...DISPOSAL_SUPPLIER_FILTERS]);
   const abnormal = list.filters.abnormal === "1";
+  // JB248: the tab's kind goes to the server, so its count, its pages and
+  // its file are that kind's alone.
+  const query = useMemo(
+    () => (clearanceKind ? { ...list.query, clearance_kind: clearanceKind } : list.query),
+    [clearanceKind, list.query],
+  );
+  const listTitle = abnormal
+    ? t("anomaly.listTitle")
+    : clearanceKind
+      ? kindT(`kind.${clearanceKind}`)
+      : tRoot("nav.submodule.siteDisposals");
   const rows = useQuery({
-    queryKey: ["site-disposals", "office", list.query],
-    queryFn: () => getDisposalRequests(list.query),
+    queryKey: ["site-disposals", "office", query],
+    queryFn: () => getDisposalRequests(query),
   });
   const refresh = () => void qc.invalidateQueries({ queryKey: ["site-disposals"] });
   const [creating, setCreating] = useState(searchParams.get("create") === "1");
@@ -1547,6 +1767,19 @@ export function SiteDisposalOffice() {
         reference: (row) => row.reference_no,
         photos: (row) => rowPhotos(row.evidence, row.reference_no),
       }),
+      // 垃圾清运 or 废料处理 (JB248): on 全部 each row says which.
+      ...(clearanceKind
+        ? []
+        : [
+            {
+              id: "clearance_kind",
+              meta: { label: kindT("field") },
+              header: () => <PlainHeader label={kindT("field")} />,
+              cell: ({ row }: { row: { original: DisposalRequest } }) => (
+                <TypeBadge label={kindT(`kind.${row.original.clearance_kind ?? "GARBAGE"}`)} />
+              ),
+            } satisfies ColumnDef<DisposalRequest, unknown>,
+          ]),
       {
         accessorKey: "status",
         meta: { label: t("field.status") },
@@ -1628,7 +1861,7 @@ export function SiteDisposalOffice() {
         cell: ({ row }) => <p className="max-w-45 truncate">{row.original.project_name}</p>,
       },
     ],
-    [t, tRoot, df],
+    [t, tRoot, df, kindT, clearanceKind],
   );
 
   return (
@@ -1643,7 +1876,7 @@ export function SiteDisposalOffice() {
       )}
       <ModuleRecordsTable
         corrected={{ kind: "DISPOSAL_REQUEST" }}
-        title={abnormal ? t("anomaly.listTitle") : tRoot("nav.submodule.siteDisposals")}
+        title={listTitle}
         countLabel={tRoot("moduleTable.count", { count: total })}
         headerAction={
           can("disposal.submit") ? (
@@ -1690,14 +1923,20 @@ export function SiteDisposalOffice() {
                 onExport={(format) =>
                   exportDisposalRequests({
                     format,
-                    title: abnormal ? t("anomaly.listTitle") : tRoot("nav.submodule.siteDisposals"),
+                    title: listTitle,
                     subtitle: tRoot("moduleTable.count", { count: total }),
                     emptyLabel: abnormal ? t("anomaly.empty") : t("empty"),
-                    query: list.query,
+                    query,
                     // 「异常记录」: the view's columns, one row per report (the
                     // server splits them), and its DO as every export (C12).
                     columns: abnormal ? [...abnormalExportColumns(t, tRoot), { key: "disposal_do_no", label: t("field.doNo") }] : [
                       { key: "reference_no", label: tRoot("moduleTable.reference") },
+                      // JB248: which of the two each job is.
+                      {
+                        key: "clearance_kind",
+                        label: kindT("field"),
+                        values: Object.fromEntries(DISPOSAL_CLEARANCE_KINDS.map((option) => [option, kindT(`kind.${option}`)])),
+                      },
                       { key: "project_name", label: t("field.project") },
                       {
                         key: "status",
@@ -1747,6 +1986,7 @@ export function SiteDisposalOffice() {
       {creating && (
         <CreateDisposalDialog
           initialProject={list.filters.project ?? ""}
+          clearanceKind={clearanceKind}
           onClose={() => setCreating(false)}
           onSaved={() => {
             refresh();
@@ -2030,6 +2270,21 @@ export function ExternalDisposalWorkspace({ token }: { token: string }) {
     } finally { setUploading(null); }
   };
 
+  // JB285: 车辆出场 / Gate Pass from the outside company's phone.
+  const [exitBusy, setExitBusy] = useState(false);
+  const uploadExit = async (kind: DisposalSiteEvidenceKind, image: File) => {
+    setError("");
+    setJustSent(null);
+    setExitBusy(true);
+    try {
+      const location = await getCoordinates();
+      await addExternalDisposalSiteEvidence(token, { kind, image, ...location, client_event_id: crypto.randomUUID() });
+      await taskQuery.refetch();
+    } catch (reason) {
+      setError(isLocationRefusal(reason) ? t("error.location") : reasonText(reason, t("error.action")));
+    } finally { setExitBusy(false); }
+  };
+
   const load = currentLoad(current ?? { evidence: [], trips: [] });
   // The link is gone (ended early, finished, replaced): say why, in words.
   const gone = taskQuery.error instanceof ApiError && taskQuery.error.isNotFound;
@@ -2081,6 +2336,7 @@ export function ExternalDisposalWorkspace({ token }: { token: string }) {
 
       {editable && !startable && !load.allSent && (
         <>
+          <SiteExitCapture shots={siteExitShots(current.evidence, load.current?.id)} busy={exitBusy || uploading !== null} onCapture={(kind, file) => void uploadExit(kind, file)} />
           <section className="mt-6">
             {/* One field, not four (L6 / B24): no category per photograph, up
                 to four, and the submit button waits on one - for this lorry. */}
@@ -2130,6 +2386,58 @@ export function ExternalDisposalWorkspace({ token }: { token: string }) {
         </section>
       )}
     </main>
+  );
+}
+
+/** The 车辆出场 / Gate Pass photographs already taken for this lorry (JB285). */
+export function siteExitShots<E extends { kind: DisposalEvidenceKind; trip?: string | null }>(
+  evidence: E[],
+  tripId: string | null | undefined,
+): E[] {
+  return evidence.filter(
+    (item) => (item.kind === "VEHICLE_EXIT" || item.kind === "GATE_PASS") && (!tripId || !item.trip || item.trip === tripId),
+  );
+}
+
+/**
+ * 「装车与工地出场证据」 on the executor's phone (JB285, 客户 11-26 事项 26:
+ * 「手机端也没有拍照正式出厂证据」): 车辆出场 and Gate Pass, one tap each, sent
+ * at once. The safety manager signs the 出门条 only after one is in.
+ */
+function SiteExitCapture({
+  shots,
+  busy,
+  onCapture,
+}: {
+  shots: Array<{ kind: DisposalEvidenceKind; watermarked?: string | null; image?: string | null }>;
+  busy: boolean;
+  onCapture: (kind: DisposalSiteEvidenceKind, file: File) => void;
+}) {
+  const t = useTranslations("siteDisposal");
+  const w = useTranslations("jb285");
+  return (
+    <section className="surface-panel mt-4 space-y-3 rounded-xl p-4" data-site-exit-capture>
+      <div>
+        <h2 className="text-base font-semibold">{w("capture.title")}</h2>
+        <p className="mt-1 text-sm text-muted-foreground">{shots.length ? w("capture.done", { count: shots.length }) : w("capture.body")}</p>
+      </div>
+      <div className="grid gap-3">
+        {SITE_EVIDENCE_KINDS.map((kind) => {
+          const taken = shots.filter((shot) => shot.kind === kind);
+          const last = taken[taken.length - 1];
+          return (
+            <FieldCamera
+              key={kind}
+              label={t(kind === "VEHICLE_EXIT" ? "siteEvidence.vehicleExit" : "siteEvidence.gatePass")}
+              fileCount={taken.length}
+              previewUrl={last ? (last.watermarked || last.image || undefined) : undefined}
+              disabled={busy || shots.length >= DISPOSAL_PHOTO_MAX}
+              onCapture={(file) => onCapture(kind, file)}
+            />
+          );
+        })}
+      </div>
+    </section>
   );
 }
 
@@ -2213,6 +2521,28 @@ export function InternalDisposalWorkspace({ disposalId, onSubmitted }: { disposa
     }
   };
 
+  // JB285: the site's own 车辆出场 / Gate Pass, from the executor's phone.
+  const uploadExit = async (kind: DisposalSiteEvidenceKind, image: File) => {
+    setError("");
+    setJustSent(null);
+    setUploading(kind);
+    try {
+      const location = await getCoordinates();
+      await addDisposalSiteEvidence(disposalId, {
+        photos: [{ file: image, kind }],
+        latitude: location.latitude,
+        longitude: location.longitude,
+        accuracy_m: location.accuracy,
+        client_event_id: crypto.randomUUID(),
+      });
+      await taskQuery.refetch();
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : t("error.action"));
+    } finally {
+      setUploading(null);
+    }
+  };
+
   if (taskQuery.isLoading) return <div className="grid min-h-64 place-items-center"><Loader2 className="size-8 animate-spin text-primary" /></div>;
   // A failed poll keeps what is on screen; only a page with nothing to show says so.
   if ((taskQuery.isError && !current) || !current) return <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-5 text-sm text-destructive">{t("invalid")}</div>;
@@ -2231,6 +2561,7 @@ export function InternalDisposalWorkspace({ disposalId, onSubmitted }: { disposa
     {justSent !== null && <div className="rounded-lg border border-success/30 bg-success/5 p-3 text-sm font-medium">{tTrips("justSent", { seq: justSent })}</div>}
     {current.status === "ASSIGNED" && <Button size="lg" className="h-14 w-full text-base" disabled={start.isPending} onClick={() => start.mutate()}>{start.isPending ? <Loader2 className="animate-spin" /> : <PackageCheck />}{t("action.start")}</Button>}
     {editable && current.status !== "ASSIGNED" && !load.allSent && <>
+      <SiteExitCapture shots={siteExitShots(current.evidence, null)} busy={uploading !== null} onCapture={(kind, file) => void uploadExit(kind, file)} />
       {/* One camera, like the driver's link (DEV_BRIEF Q2): this lorry's
           proof, up to four, any kind. Vehicle exit / Gate Pass are the
           site's own photographs, taken from the job itself (C08). */}

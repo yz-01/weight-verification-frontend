@@ -13,12 +13,14 @@ import {
   LoadFailed,
 } from "@/components/shared/page-primitives";
 import { PhotoLink } from "@/components/shared/photo-link";
+import { PinIdentityFields, needsIdentity } from "@/components/shared/pin-identity-fields";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   getApprovalCredential,
   setApprovalCredential,
 } from "@/services/consultant-workflow.service";
+import { getSignOffPinStatus, type PinIdentity } from "@/services/sign-off.service";
 
 export function ApprovalCredentialSettings() {
   const t = useTranslations("consultantWorkflow");
@@ -43,6 +45,15 @@ export function ApprovalCredentialSettings() {
   // optional - a new stamp or signature alone keeps it. Asking for a 「新 6 位
   // PIN」 to save a picture replaced the one PIN used everywhere.
   const keepsPin = Boolean(credential.data?.has_pin) && pin === "" && pinConfirm === "";
+  // JB239 (客户 11-23 事项 11): a PIN once set is replaced only with the old
+  // PIN or a code mailed to the login e-mail - here as on 「我的签核密码」.
+  const tIdentity = useTranslations("jb239.identity");
+  // The server still refuses a PIN replaced without proof (sign_off_pin_identity_required), said in the toast.
+  // query-failure: the 「确认是你本人」 block stays hidden; the save is then refused and says why.
+  const pinStatus = useQuery({ queryKey: ["sign-off-pin"], queryFn: getSignOffPinStatus });
+  const proving = !keepsPin && needsIdentity(pinStatus.data);
+  const [identity, setIdentity] = useState<PinIdentity>(null);
+  const [round, setRound] = useState(0);
   const save = useMutation({
     mutationFn: () =>
       setApprovalCredential({
@@ -50,14 +61,17 @@ export function ApprovalCredentialSettings() {
         approvalPin: pin,
         signature,
         stamp,
+        identity: proving ? identity : null,
       }),
     onSuccess: async () => {
+      setRound((value) => value + 1);
       setPassword("");
       setPin("");
       setPinConfirm("");
       setSignature(undefined);
       setStamp(undefined);
       await queryClient.invalidateQueries({ queryKey: ["approval-credential"] });
+      await queryClient.invalidateQueries({ queryKey: ["sign-off-pin"] });
     },
   });
 
@@ -161,11 +175,24 @@ export function ApprovalCredentialSettings() {
           <FieldWrapper label={t("credential.currentPassword")} required className="sm:col-span-2" hint={t("credential.passwordHelp")}>
             <Input type="password" autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} />
           </FieldWrapper>
+          {proving && pinStatus.data && (
+            <div className="sm:col-span-2">
+              <FieldWrapper label={tIdentity("proof")} required>
+                <PinIdentityFields
+                  key={round}
+                  status={pinStatus.data}
+                  password={password}
+                  disabled={save.isPending}
+                  onChange={setIdentity}
+                />
+              </FieldWrapper>
+            </div>
+          )}
         </div>
       </section>
 
       <div className="flex justify-end max-sm:[&_button]:w-full">
-        <Button requires={[[password, t("credential.currentPassword")], [keepsPin || pin.length === 6, t("credential.pin")], [keepsPin || pinConfirm.length === 6, t("credential.pinConfirm")], [credential.data?.signature || signature, t("credential.signature")]]}
+        <Button requires={[[password, t("credential.currentPassword")], [keepsPin || pin.length === 6, t("credential.pin")], [keepsPin || pinConfirm.length === 6, t("credential.pinConfirm")], [credential.data?.signature || signature, t("credential.signature")], ...(proving ? [[identity, tIdentity("proof")] as const] : [])]}
 disabledReason={pin.length === 6 && pinConfirm.length === 6 && pin !== pinConfirm ? t("credential.pinMismatch") : undefined}
                 disabled={pin !== pinConfirm || save.isPending} onClick={() => save.mutate()}>
           {save.isPending ? <Loader2 className="animate-spin" /> : credential.data ? <Save /> : <Stamp />}

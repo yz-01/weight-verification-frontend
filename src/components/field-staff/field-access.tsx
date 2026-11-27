@@ -17,6 +17,7 @@ import { ApiError } from "@/interfaces/api";
 import {
   FIELD_ACCOUNT_REMOVED,
   FIELD_ACCOUNT_STOPPED,
+  FIELD_REMOVED_FROM_PROJECT,
   FIELD_OFFICE_SIGN_OUTS,
   fieldSessionIssuedAt,
   getFieldBootstrapToken,
@@ -149,7 +150,8 @@ export function FieldAccess() {
       if (officeReason && !joinLink && !token) {
         setError((current) => current || officeReason);
         if (officeCode === FIELD_ACCOUNT_REMOVED) setAccountRemoved(true);
-        if (officeCode === FIELD_ACCOUNT_STOPPED) setAccountStopped(true);
+        // JB245 (QA2): taken off his last project - the PIN cannot help either.
+        if (officeCode === FIELD_ACCOUNT_STOPPED || officeCode === FIELD_REMOVED_FROM_PROJECT) setAccountStopped(true);
       }
       setContext({
         standalone: isStandaloneApp(),
@@ -230,7 +232,7 @@ export function FieldAccess() {
         ) {
           setError(cause.message);
           setAccountRemoved(cause.code === FIELD_ACCOUNT_REMOVED);
-          setAccountStopped(cause.code === FIELD_ACCOUNT_STOPPED);
+          setAccountStopped(cause.code === FIELD_ACCOUNT_STOPPED || cause.code === FIELD_REMOVED_FROM_PROJECT);
         } else if (cause instanceof ApiError && cause.code) {
           setRefusedCode(cause.code);
         }
@@ -288,7 +290,8 @@ export function FieldAccess() {
         cause instanceof ApiError && cause.code === "field_device_invalid",
       );
       setAccountStopped(
-        cause instanceof ApiError && cause.code === FIELD_ACCOUNT_STOPPED,
+        cause instanceof ApiError &&
+          (cause.code === FIELD_ACCOUNT_STOPPED || cause.code === FIELD_REMOVED_FROM_PROJECT),
       );
       setPending(false);
     }

@@ -253,7 +253,8 @@ function read(file: string) {
 describe("the four capture screens share the one 挂号 mechanism (D-260, 「不要分别做不同逻辑」)", () => {
   const panel = read("src/components/field-staff/field-records-panel.tsx");
   // 材料进场、设备进出场、建筑垃圾清运（工地清运）、废料出场（环保材料出场申请）.
-  const held = ["material", "equipment", "disposal", "waste"];
+  // 废料处理 (JB248) is 垃圾清运's own form, held the same way.
+  const held = ["material", "equipment", "disposal", "scrap", "waste"];
   // Everything else keeps its single draft - still saved, just no 挂号 strip.
   // No "category": the phone's 「现场资料」 is gone (D-285).
   const single = ["progress", "outgoing", "safety", "consultant", "sundry"];
@@ -271,7 +272,7 @@ describe("the four capture screens share the one 挂号 mechanism (D-260, 「不
     });
   }
 
-  it("exactly those four, so a fifth cannot slip in unnoticed", () => {
+  it("exactly those five, so a sixth cannot slip in unnoticed", () => {
     expect(panel.match(/<FieldSlots scope=/g)).toHaveLength(held.length);
   });
 

@@ -12,6 +12,7 @@ import {
 import { useMemo, useRef, useState, type ReactNode } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { useNavLabel } from "@/hooks/use-nav-label";
 import { useCurrentProject } from "@/components/providers/current-project-provider";
 import { Button } from "@/components/ui/button";
 import {
@@ -156,6 +157,8 @@ export function ReportMenu({
 }) {
   const t = useTranslations("reportSelector");
   const tRoot = useTranslations();
+  // JB251: the report names that are menu names read the company's own.
+  const navLabel = useNavLabel();
   // The reader's project: the top bar's 「当前项目」 when it is in force (B13).
   const topBar = useCurrentProject();
   const project =
@@ -174,7 +177,7 @@ export function ReportMenu({
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-auto min-w-56 max-w-72">
         {reports.map((report) => {
-          const label = tRoot(report.labelKey);
+          const label = navLabel(report.labelKey);
           const current = pathname === report.href.split("?", 1)[0];
           const className = current ? "h-8 font-medium text-primary" : "h-8";
           const kind = reportMenuKind(report.href);
@@ -215,7 +218,7 @@ export function ReportMenu({
                         );
                       }}
                     >
-                      <span className="min-w-0 flex-1 truncate">{tRoot(entry.labelKey)}</span>
+                      <span className="min-w-0 flex-1 truncate">{navLabel(entry.labelKey)}</span>
                     </DropdownMenuItem>
                   ))}
                   {progressEntries.length > 0 && <DropdownMenuSeparator />}

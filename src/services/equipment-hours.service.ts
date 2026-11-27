@@ -264,11 +264,12 @@ export async function loadEquipmentHoursMachines(
 }
 
 /** 设备操作员工时 · 按月 (H16, HD13): the rows the list shows, as Excel or PDF. */
-export function exportEquipmentHoursMonth(request: ExportRequest): Promise<void> {
+export function exportEquipmentHoursMonth(request: ExportRequest, totalLabel?: string): Promise<void> {
   return download("/api/equipment-hours/export_month/", {
     method: "POST",
     query: exportQuery(request),
-    body: exportBody(request),
+    // JB255: 「自动汇总租赁费用，支持打印及导出」 - the file ends with the 合计 row.
+    body: { ...exportBody(request), ...(totalLabel ? { total_label: totalLabel } : {}) },
     fallbackFilename: `equipment-hours-month.${request.format}`,
   });
 }

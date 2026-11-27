@@ -2,9 +2,10 @@
 
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Loader2, Send, ShieldAlert } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 
+import { inviteEmailCopy } from "@/lib/invite-email";
 import { useAuth } from "@/components/providers/auth-provider";
 import { FormSection } from "@/components/shared/form-shell";
 import { FieldWrapper, LoadFailed } from "@/components/shared/page-primitives";
@@ -33,6 +34,7 @@ import {
  */
 export function OwnerAccountPanel({ companyId }: { companyId: string }) {
   const t = useTranslations();
+  const locale = useLocale();
   const { user } = useAuth();
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -50,10 +52,7 @@ export function OwnerAccountPanel({ companyId }: { companyId: string }) {
       updateCompanyOwnerAccount(companyId, {
         ...(email.trim() ? { email: email.trim() } : {}),
         ...(phone.trim() ? { phone: phone.trim() } : {}),
-        owner_email_copy: {
-          subject: t("email.invite.subject"),
-          body: t("email.invite.body"),
-        },
+        owner_email_copy: inviteEmailCopy(t, locale),
       }),
     onSuccess: (result) => {
       setError("");

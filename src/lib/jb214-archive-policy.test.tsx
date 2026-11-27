@@ -52,13 +52,17 @@ describe("useArchiveLocksChanges (JB214-3d)", () => {
       "src/components/contractor-ops/office-module-lists.tsx",
       "src/components/material-requests/material-requests-office.tsx",
       "src/components/progress/progress-summary.tsx",
-      "src/components/receipts/view-receipt.tsx",
     ];
     for (const file of files) {
       const source = readFileSync(path.join(process.cwd(), file), "utf8");
       expect(source, file).toContain("useArchiveLocksChanges(");
       expect(source, file).not.toContain("import { ARCHIVE_LOCKS_CHANGES }");
     }
+    // JB276 (客户 11-26 事项 17): an archived 材料进场 is locked on every
+    // project - its page no longer asks the project's switch.
+    const receipt = readFileSync(path.join(process.cwd(), "src/components/receipts/view-receipt.tsx"), "utf8");
+    expect(receipt).not.toContain("useArchiveLocksChanges(");
+    expect(receipt).toContain("!archived");
     const documents = readFileSync(path.join(process.cwd(), "src/components/document-workflow/documents.tsx"), "utf8");
     // A document list spans projects: each row says whether its own is locked.
     expect(documents.match(/!ARCHIVE_LOCKS_CHANGES && !record\.archive_locked/g)?.length).toBe(2);

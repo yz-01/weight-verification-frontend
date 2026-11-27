@@ -30,8 +30,9 @@ describe("公司总部 Dashboard links", () => {
       open_tasks: "/field-tasks?open=1",
       overdue_tasks: "/field-tasks?overdue=1",
       on_site_now: "/attendance",
-      waste_dispatches: "/waste-clearance?kind=dispatch&counted=1",
-      site_disposals: "/waste-clearance?kind=disposal&counted=1",
+      waste_dispatches: "/dispatches?counted=1",
+      site_disposals: "/waste-clearance?kind=garbage&counted=1",
+      site_scraps: "/waste-clearance?kind=scrap&counted=1",
     };
     for (const [card, href] of Object.entries(all)) {
       expect(cardHref(card as HeadquartersCard, { date }), card).toBe(href);
@@ -49,8 +50,9 @@ describe("公司总部 Dashboard links", () => {
       open_tasks: "/field-tasks?open=1&project=p1",
       overdue_tasks: "/field-tasks?overdue=1&project=p1",
       on_site_now: "/attendance?project=p1",
-      waste_dispatches: "/waste-clearance?kind=dispatch&counted=1&project=p1",
-      site_disposals: "/waste-clearance?kind=disposal&counted=1&project=p1",
+      waste_dispatches: "/dispatches?counted=1&project=p1",
+      site_disposals: "/waste-clearance?kind=garbage&counted=1&project=p1",
+      site_scraps: "/waste-clearance?kind=scrap&counted=1&project=p1",
     };
     for (const [card, href] of Object.entries(one)) {
       expect(cardHref(card as HeadquartersCard, { project: "p1", date }), card).toBe(href);
@@ -69,6 +71,7 @@ describe("公司总部 Dashboard links", () => {
       "on_site_now",
       "waste_dispatches",
       "site_disposals",
+      "site_scraps",
     ];
     for (const card of cards) {
       const href = cardHref(card, { project: "p1", date }) ?? "";
@@ -93,6 +96,7 @@ describe("公司总部 Dashboard links", () => {
       today_records_by_kind: {},
       waste_dispatches: { records: 0, trips: 0, weighed_kg: "0", weighed_records: 0 },
       site_disposals: { records: 0, completed: 0, trips: 0, weight_kg: "0", with_weight: 0 },
+      site_scraps: { records: 0, completed: 0, trips: 0, weight_kg: "0", with_weight: 0 },
     });
     const project = { id: "p1" } as HeadquartersProject;
     const single = { projects: [project], other: counts(0) };

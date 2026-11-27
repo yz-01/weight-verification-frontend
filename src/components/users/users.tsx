@@ -15,7 +15,7 @@ import {
   Trash2,
   UserPlus,
 } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
@@ -34,6 +34,7 @@ import { UserHandoverDialog } from "@/components/users/user-handover-dialog";
 import { Input } from "@/components/ui/input";
 import { useListQuery } from "@/hooks/use-list-query";
 import type { UserRow, UserStatus } from "@/interfaces/auth";
+import { inviteEmailCopy } from "@/lib/invite-email";
 import { useDateFormat } from "@/lib/dates";
 import { accountWritesClosed } from "@/lib/platform-access";
 import { roleLabel } from "@/lib/role-labels";
@@ -90,6 +91,7 @@ export function Users({
 }) {
   const router = useRouter();
   const t = useTranslations();
+  const locale = useLocale();
   const df = useDateFormat();
   const { user: me, can } = useAuth();
   const queryClient = useQueryClient();
@@ -145,13 +147,16 @@ export function Users({
 
   const resetLink = useMutation({
     // The action from the list is "resend the sign-in link". The backend picks
-    // invite versus reset by the user's state; the wording here matches the
-    // reset case, which is what this control is for — a user who cannot get in.
-    mutationFn: (id: string) =>
-      sendPasswordReset(id, {
-        subject: t("email.reset.subject"),
-        body: t("email.reset.body"),
-      }),
+    // invite versus reset by the user's state; so does the wording (JB242): a
+    // person still 已邀请 gets the invitation again, saying how long its link
+    // lasts (7 days); anybody else the reset, for a user who cannot get in.
+    mutationFn: (target: Pick<UserRow, "id" | "status">) =>
+      sendPasswordReset(
+        target.id,
+        target.status === "INVITED"
+          ? inviteEmailCopy(t, locale)
+          : { subject: t("email.reset.subject"), body: t("email.reset.body") },
+      ),
   });
   const forceLogout = useMutation({
     mutationFn: (id: string) => forceLogoutUser(id),
@@ -384,7 +389,7 @@ export function Users({
                   title={t("users.resetPassword.action")}
                   disabled={resetLink.isPending || accountsClosed}
                   disabledReason={accountsReason}
-                  onClick={() => resetLink.mutate(target.id)}
+                  onClick={() => resetLink.mutate(target)}
                 >
                   <KeyRound className="h-3.5 w-3.5" />
                 </Button>
@@ -604,14 +609,22 @@ export function Users({
                   {t("fieldAccessAdmin.action")}
                 </Button>
               )}
-              {canCreateUser && (
-                <Button asChild>
-                  <Link href="/users/create">
+              {canCreateUser &&
+                (me?.portal === "MSE_TRACE" && !can("user.update") ? (
+                  // QA2 (JB242): a builder invites on one page that sets the
+                  // permissions too - 「编辑用户」 is needed; said before the click.
+                  <Button disabled disabledReason={t("jb242.needsUserUpdate")} showReason>
                     <Plus className="size-4" />
                     {t("users.new")}
-                  </Link>
-                </Button>
-              )}
+                  </Button>
+                ) : (
+                  <Button asChild>
+                    <Link href="/users/create">
+                      <Plus className="size-4" />
+                      {t("users.new")}
+                    </Link>
+                  </Button>
+                ))}
             </div>
           ) : null}
           </div>

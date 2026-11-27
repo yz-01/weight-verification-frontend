@@ -84,14 +84,15 @@ describe("the dispatch detail (E8)", () => {
     expect(html).toContain(messages.dispatches.cancel.confirm);
     // Raised in the office: no recorder block, and no back link in the popup.
     expect(html).not.toContain("data-shell-recorder");
-    expect(html).not.toContain('href="/waste-clearance?kind=dispatch"');
+    expect(html).not.toContain('href="/dispatches"');
   });
 
   it("renders the same frame on its own page for a typed or notified address", () => {
     const html = renderDetail(<ViewDispatch id="d1" />, seeded);
     expect(html).toContain('data-record-detail="page"');
     expect(html).toContain("data-record-detail-header");
-    expect(html).toContain('href="/waste-clearance?kind=dispatch"');
+    // 废料订单 is in 环保材料管理 again (JB248).
+    expect(html).toContain('href="/dispatches"');
     expect(html).toContain("DS-P1-261008-001");
   });
 });

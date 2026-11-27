@@ -20,7 +20,8 @@ describe("a material category adds up per unit (D-281)", () => {
   const source = read(MANAGEMENT);
 
   it("shows the per-unit quantities, not tonnes only", () => {
-    expect(source).toMatch(/<QuantityCell quantities=\{row\.column\.quantities \?\? \[\]\} \/>/);
+    // On 材料进场's 「材料统计」 since JB262 (客户 11-26 事项 3).
+    expect(read("src/components/receipts/material-overview.tsx")).toMatch(/<QuantityCell quantities=\{row\.quantities \?\? \[\]\} \/>/);
     expect(source).not.toMatch(/tonnes_received \?\? "0"/);
     // Units are named in the reader's language - a unit the company added by
     // its own label (2026-10 A4) - and a return is its own figure.

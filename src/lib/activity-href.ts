@@ -6,7 +6,8 @@ const ACTIVITY_ROUTES: Record<ActivityKind, { list: string; one?: (id: string) =
   EQUIPMENT_MOVEMENT: { list: "/site-equipment" },
   SITE_PROGRESS: { list: "/progress" },
   DISPOSAL: { list: "/waste-clearance?kind=disposal", one: (id) => `/waste-clearance?kind=disposal&record=${id}` },
-  WASTE_DISPATCH: { list: "/waste-clearance?kind=dispatch", one: (id) => `/dispatches/${id}` },
+  // 废料订单 is in 环保材料管理 again (JB248).
+  WASTE_DISPATCH: { list: "/dispatches", one: (id) => `/dispatches/${id}` },
   // Not /safety: that route is not in the sidebar any more, so the route
   // guard sent the click straight back to the dashboard.
   SAFETY_INCIDENT: {

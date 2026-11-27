@@ -86,7 +86,7 @@ describe("the 「Rainy Weather」 tile (JB192-1, JB192-5)", () => {
     const panel = read("src/components/field-staff/field-records-panel.tsx");
     expect(panel).toMatch(/key: "progress", permission: "progress\.manage"/);
     expect(panel).toMatch(/key: "rain", permission: "progress\.manage", icon: CloudRain/);
-    expect(panel).toMatch(/mode === "rain"[\s\S]{0,80}title=\{t\("records\.rain"\)\}[\s\S]{0,120}<RainyWeatherCapture initialProject=\{task\?\.project \?\? boundProject\} \/>/);
+    expect(panel).toMatch(/mode === "rain"[\s\S]{0,80}title=\{(t|tile)\("(records\.)?rain"\)\}[\s\S]{0,120}<RainyWeatherCapture initialProject=\{task\?\.project \?\? boundProject\} \/>/);
     for (const messages of [zh, zhTW, en, ms]) {
       expect(messages.fieldStaffPwa.records.rain).toBe("Rainy Weather");
     }

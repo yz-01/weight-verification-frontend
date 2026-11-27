@@ -274,6 +274,8 @@ export interface FieldStaffRow extends UserRow {
    * never the names. More than one is tagged (JB148: one at a time).
    */
   open_project_count?: number;
+  /** Other active identities on this number - a driver's link (JB247). */
+  other_identities?: { kind: string; name: string }[];
 }
 
 export interface FieldRoleOption {

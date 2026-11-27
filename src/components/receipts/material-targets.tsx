@@ -30,6 +30,7 @@ import { useRouter } from "next/navigation";
 import { Fragment, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { MaterialBudgets, useProjectMaterials } from "@/components/receipts/material-budget";
 import { AppendTargetDialog } from "@/components/receipts/material-target-append";
 import { MaterialItemRefusedNote, MaterialTabs } from "@/components/receipts/material-tabs";
 import { ProjectListFilter } from "@/components/shared/module-records-table";
@@ -79,21 +80,30 @@ import {
 
 export function MaterialTargets() {
   const t = useTranslations("materialTargets");
+  const tj = useTranslations("jb262");
   const router = useRouter();
   const unitName = useUnitName();
   const qc = useQueryClient();
-  const list = useListQuery(["project", "target"]);
+  // `category`: one material's targets, as 材料进场's 「材料统计」 opens them (JB262).
+  const list = useListQuery(["project", "target", "category"]);
   const project = list.filters.project ?? "";
   const focused = list.filters.target ?? "";
+  const material = list.filters.category ?? "";
   const targets = useQuery({
-    queryKey: ["material-targets", project],
-    queryFn: () => getMaterialTargets({ project }),
+    queryKey: ["material-targets", project, material],
+    queryFn: () => getMaterialTargets({ project, ...(material ? { category: material } : {}) }),
   });
   const rows = targets.data?.results ?? [];
   const canManage = Boolean(targets.data?.can_manage);
+  // The material's own name even when it has no target yet (QA1 audit #24),
+  // not 「—」.
+  // query-failure: without the list the line reads 「只看一种材料的目标」, no name
+  const projectMaterials = useProjectMaterials(material ? project || undefined : undefined);
+  const materialName =
+    rows[0]?.category_name ?? projectMaterials.data?.find((row) => row.id === material)?.name ?? "";
   // 「材料管理只能查看，不能新增、修改、删除或审批」 (JB210, 客户 11-16): 【追加】
   // raises the contractor's target - not a consultant's (the server refuses it).
-  const { user } = useAuth();
+  const { user, can } = useAuth();
   const mayAppend = user?.account_type !== "CONSULTANT";
   // JB225 Decision 5: 材料目标 shows its numbers with its own tick; its
   // deliveries / returns open only with 材料进场 / 材料退场.
@@ -140,6 +150,14 @@ export function MaterialTargets() {
         <ProjectListFilter list={list} />
       </MaterialTabs>
       <p className="text-xs text-muted-foreground">{t("basis")}</p>
+      {material && (
+        <p className="flex flex-wrap items-center gap-2 text-sm" data-slot="targets-one-material">
+          {materialName ? tj("oneMaterial", { name: materialName }) : tj("oneMaterialUnnamed")}
+          <Button size="sm" variant="outline" className="h-7" onClick={() => list.setFilter("category", undefined)}>
+            {tj("allMaterials")}
+          </Button>
+        </p>
+      )}
       {error && (
         <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
           {error}
@@ -304,6 +322,11 @@ export function MaterialTargets() {
           </Table>
         </div>
       )}
+      {/* 预算金额 (JB262, 客户 11-26 事项 3): set here, beside the targets and
+          their 追加记录 - no longer in 分类管理's material form. Read by whoever
+          read it on 分类管理 (`category.view`); amounts hidden by the server
+          without 金额查看; set by `category.manage` alone. */}
+      {can("category.view") && <MaterialBudgets project={project} material={material || undefined} />}
       {appending && (
         <AppendTargetDialog
           row={appending}

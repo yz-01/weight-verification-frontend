@@ -13,6 +13,7 @@
 
 import { isValidRequestQuantity, type MaterialRequestLine } from "@/interfaces/material-request";
 import type { MaterialReceiptLine } from "@/interfaces/contractor";
+import type { ListPriceOnDay } from "@/interfaces/contractor-ops";
 import { isOtherMaterial, specChoice, type MaterialWithSpecs, type OtherMaterialFlags } from "@/lib/material-catalogue";
 
 /** One line as the editor holds it. */
@@ -31,6 +32,12 @@ export interface MaterialLineDraft {
   /** Chosen only under 「其他」; otherwise the specification's unit. */
   unit: string;
   unit_price: string;
+  /**
+   * The person typed `unit_price` after the material was last chosen
+   * (JB275): sent, so the server keeps it even when it is the old number.
+   * Choosing another material, specification or unit clears it.
+   */
+  unit_price_typed?: boolean;
   amount: string;
   /** The words a stored line already carries, shown when its material is
    *  no longer offered (switched off since). */
@@ -38,7 +45,75 @@ export interface MaterialLineDraft {
   known_spec?: string;
 }
 
-export type CatalogueRow = MaterialWithSpecs & OtherMaterialFlags;
+export type CatalogueRow = MaterialWithSpecs &
+  OtherMaterialFlags & {
+    /** The material's own price on the delivery's day (JB275), when the form asked for it. */
+    list_price?: ListPriceOnDay | null;
+    list_price_later?: ListPriceOnDay | null;
+  };
+
+/**
+ * What 材料分类 says a line costs per unit (JB261 / JB275, 客户 11-26 事项 2、16:
+ * 「根据材料名称及规格，自动读取分类管理中已设置的单价」「选择材料名称及规格后……
+ * 系统应立即自动显示单价」).
+ *
+ * The same choice the server makes on save (`receiving.prices.resolve`): the
+ * specification's own price in force wins - but only in its own unit; with
+ * none, the material's, in its unit. Another unit takes nothing (a price per
+ * Liter says nothing about tonnes). `why` says why nothing came, for the hint
+ * under the box:
+ *
+ * - `known: false` - the material data carries no prices (a reader without
+ *   金额查看, still loading, or a material no longer offered): the box is
+ *   left empty and the server fills it in on save;
+ * - `"unit"` - a price exists in another unit (`listed`);
+ * - `"later"` - a price starts only after this delivery's day (`listed`);
+ * - `"none"` - no price is set;
+ * - `null` with no price - the unit is not decided yet (no specification).
+ */
+export type LinePrice =
+  | { known: false }
+  | { known: true; price: string | null; why: null | "none" | "unit" | "later"; listed: ListPriceOnDay | null };
+
+export function listPriceFor(
+  material: CatalogueRow | null | undefined,
+  specId: string,
+  unit: string,
+): LinePrice {
+  if (!material || material.list_price === undefined) return { known: false };
+  const spec = (material.specs ?? []).find((row) => row.id === specId) ?? null;
+  if (!unit) return { known: true, price: null, why: null, listed: null };
+  const fits = (row: ListPriceOnDay): LinePrice =>
+    row.unit === unit
+      ? { known: true, price: row.unit_price, why: null, listed: row }
+      : { known: true, price: null, why: "unit", listed: row };
+  if (spec?.list_price) return fits(spec.list_price);
+  if (material.list_price) return fits(material.list_price);
+  const later = spec?.list_price_later ?? material.list_price_later ?? null;
+  if (later) return { known: true, price: null, why: "later", listed: later };
+  return { known: true, price: null, why: "none", listed: null };
+}
+
+/**
+ * A line after its material, specification or unit changed (JB275, 事项 16:
+ * 「更换材料名称或规格时，单价必须同步更新，避免沿用之前材料的单价」): the new
+ * material's price, or an empty box - never the old one's, typed or not.
+ * Typing after this is the person's (`unit_price_typed`).
+ */
+export function withListPrice(line: MaterialLineDraft, materials: readonly CatalogueRow[]): MaterialLineDraft {
+  const resolved = resolveLine(line, materials);
+  const found = listPriceFor(resolved.material, line.spec_category, resolved.unit);
+  return {
+    ...line,
+    unit_price: found.known && found.price ? found.price : "",
+    unit_price_typed: false,
+  };
+}
+
+/** Whether a change to a line is one its price follows (material, specification, unit). */
+export function changesWhatIsPriced(patch: Partial<MaterialLineDraft>): boolean {
+  return "category" in patch || "spec_category" in patch || "unit" in patch;
+}
 
 let counter = 0;
 export function newLineKey(): string {
@@ -146,6 +221,8 @@ export function receiptLinesPayload(lines: readonly MaterialLineDraft[], materia
       quantity: line.quantity.replace(/,/g, "").trim(),
       unit: resolved.unit,
       unit_price: line.unit_price.trim() || null,
+      // Typed after choosing the material (JB275): the person's, whatever it is.
+      ...(line.unit_price_typed ? { unit_price_typed: true } : {}),
       amount: line.amount.trim() || null,
     };
   });
