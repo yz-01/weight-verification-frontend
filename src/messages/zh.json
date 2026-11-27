@@ -24299,6 +24299,19 @@
     "historyFilled": "补录",
     "lockedNoLorry": "还没有车次送来。司机送出车次后，才能补录数字。"
   },
+  "jb288": {
+    "termsButton": "租赁费用设定",
+    "project": "项目",
+    "chooseProject": "选择项目",
+    "chooseProjectHelp": "先选一个项目，再设定这个项目每台设备的租赁费用。",
+    "effectiveFrom": "生效日期",
+    "effectiveHelp": "改价从生效日期开始算，以前的日子照旧。",
+    "effectiveShort": "生效日期 {date}",
+    "oldNew": "{old} → {new}",
+    "firstSet": "第一次设定：{terms}",
+    "piece": "{from} 至 {to}：{terms}",
+    "monthPieces": "本月改过价，分 {count} 段计算："
+  },
   "jb265": {
     "startedBy": "顾问 {name} 发起"
   },

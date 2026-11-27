@@ -24299,6 +24299,19 @@
     "historyFilled": "diisi",
     "lockedNoLorry": "Belum ada lori dihantar. Nombor boleh diisi selepas pemandu menghantar lori."
   },
+  "jb288": {
+    "termsButton": "Tetapan bayaran sewa",
+    "project": "Projek",
+    "chooseProject": "Pilih projek",
+    "chooseProjectHelp": "Pilih projek dahulu, kemudian tetapkan bayaran sewa setiap peralatannya.",
+    "effectiveFrom": "Tarikh berkuat kuasa",
+    "effectiveHelp": "Harga baharu dikira dari tarikh berkuat kuasa; hari sebelumnya kekal seperti dahulu.",
+    "effectiveShort": "berkuat kuasa {date}",
+    "oldNew": "{old} → {new}",
+    "firstSet": "Kali pertama: {terms}",
+    "piece": "{from} hingga {to}: {terms}",
+    "monthPieces": "Harga berubah bulan ini, dikira dalam {count} bahagian:"
+  },
   "jb265": {
     "startedBy": "Dimulakan oleh perunding {name}"
   },

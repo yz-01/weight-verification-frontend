@@ -27,6 +27,8 @@ export interface RentalTermsPayload {
   end_date: string | null;
   diesel_supply: DieselSupply;
   remarks: string;
+  /** 生效日期 (JB288). */
+  effective_from: string | null;
 }
 
 export async function setRentalTerms(payload: RentalTermsPayload): Promise<RentalTermsValues> {

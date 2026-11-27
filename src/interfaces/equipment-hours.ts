@@ -252,8 +252,24 @@ export interface RentalTermsValues {
   end_date: string;
   diesel_supply: DieselSupply;
   remarks: string;
+  /** 生效日期 (JB288): these terms count from this day; earlier days keep the terms in force then. */
+  effective_from?: string;
+  /** JB288: the terms changed inside the month / dates - every set with its days (and, for a month, its figures). */
+  pieces?: RentalTermsPiece[];
   changed_at?: string;
   changed_by?: string;
+}
+
+/** One run of days priced with one set of terms (JB288). */
+export interface RentalTermsPiece {
+  from: string;
+  to: string;
+  terms: RentalTermsValues;
+  days_worked?: number;
+  normal_hours?: string;
+  overtime_hours?: string;
+  base_rent?: string;
+  overtime_fee?: string;
 }
 
 /** 【设备租赁设定】's list: one machine, its terms and their history. */

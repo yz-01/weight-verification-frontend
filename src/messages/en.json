@@ -24299,6 +24299,19 @@
     "historyFilled": "filled in",
     "lockedNoLorry": "No lorry has been sent yet. Numbers can be filled in once the driver sends a lorry."
   },
+  "jb288": {
+    "termsButton": "Rental fee settings",
+    "project": "Project",
+    "chooseProject": "Choose the project",
+    "chooseProjectHelp": "Choose a project first, then set the rental fee of each of its machines.",
+    "effectiveFrom": "Effective date",
+    "effectiveHelp": "A new price counts from the effective date; earlier days stay as they were.",
+    "effectiveShort": "effective {date}",
+    "oldNew": "{old} → {new}",
+    "firstSet": "First set: {terms}",
+    "piece": "{from} to {to}: {terms}",
+    "monthPieces": "The price changed this month, worked out in {count} parts:"
+  },
   "jb265": {
     "startedBy": "Started by consultant {name}"
   },

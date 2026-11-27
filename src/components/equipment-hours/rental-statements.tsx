@@ -17,11 +17,14 @@
  * `RentalStatementWindow`: its machines (each opens that machine's 按月 page),
  * the five amounts and their 合计, the 核对 / 结算 numbers (each opens its
  * window), the four file buttons on the A4 PDF, and 【作废】 while 待核对.
+ *
+ * JB288 (客户 11-27b): 【租赁费用设定】 beside 【生成月结单】 - the 设备租赁设定
+ * window of 设备操作员工时 (`RentalTermsDialog`), for the top bar's project.
  */
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Ban, Eye, FileSpreadsheet, Loader2 } from "lucide-react";
+import { Ban, Eye, FileSpreadsheet, Loader2, Receipt } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
@@ -33,6 +36,7 @@ import {
   ReturnCheckWindow,
   SettlementWindow,
 } from "@/components/contractor-ops/return-checks";
+import { RentalTermsDialog } from "@/components/equipment-hours/rental-fees";
 import { useAuth } from "@/components/providers/auth-provider";
 import { useCurrentProject } from "@/components/providers/current-project-provider";
 import { DataTable } from "@/components/shared/data-table";
@@ -209,6 +213,7 @@ export function RentalStatementsPage() {
         subtitle={rows.isLoading ? "—" : tr("count", { count: total })}
         action={
           <div className="flex flex-wrap gap-2">
+            <RentalTermsButton />
             <GenerateStatementButton
               onSaved={(statement) => {
                 refresh();
@@ -321,6 +326,36 @@ export function RentalStatementsPage() {
  * machine with no terms, dates another statement already covers) →
  * 【生成月结单】, PIN.
  */
+/**
+ * 【租赁费用设定】 (JB288): 「在「设备租赁月结单」页面右上方「生成月结单」旁边设置
+ * 一个「租赁费用设定」按钮。由建筑商后台根据设备及供应商填写合同约定的租赁条件及
+ * 费用，只需设定一次」. Office only, like 【生成月结单】; the server asks for the PIN
+ * and refuses a phone account. On 全部项目 the window asks for a project first.
+ */
+export function RentalTermsButton() {
+  const tj = useTranslations("jb288");
+  const { can, user } = useAuth();
+  const current = useCurrentProject();
+  const [open, setOpen] = useState(false);
+  if (!officeMay(user, can, RENTAL_PERMISSION)) return null;
+  return (
+    <>
+      <Button variant="outline" data-slot="rental-terms-button" onClick={() => setOpen(true)}>
+        <Receipt />
+        {tj("termsButton")}
+      </Button>
+      {open ? (
+        <RentalTermsDialog
+          project={current.active ? current.projectId : ""}
+          title={tj("termsButton")}
+          pickProject
+          onClose={() => setOpen(false)}
+        />
+      ) : null}
+    </>
+  );
+}
+
 function GenerateStatementButton({ onSaved }: { onSaved: (id: string) => void }) {
   const tr = useTranslations("jb280");
   const { can, user } = useAuth();
@@ -490,6 +525,7 @@ export function StatementLines({
 }) {
   const tr = useTranslations("jb280");
   const tFee = useTranslations("equipmentRental");
+  const tj = useTranslations("jb288");
   return (
     <div className="overflow-x-auto rounded-lg border" data-slot="statement-lines">
       <Table>
@@ -515,9 +551,24 @@ export function StatementLines({
                 {[line.equipment_no, line.equipment_name].filter(Boolean).join(" · ")}
               </TableCell>
               <TableCell>
-                {line.terms.method
-                  ? `${tFee(`method.${line.terms.method}` as never)} RM ${line.terms.unit_price ?? ""}`
-                  : tFee("noTermsShort")}
+                {line.terms.method ? (
+                  line.terms.pieces && line.terms.pieces.length > 1 ? (
+                    // JB288: the price changed in these dates - each set with its days.
+                    line.terms.pieces.map((piece) => (
+                      <span key={piece.from} className="block text-xs" data-slot="statement-line-piece">
+                        {tj("piece", {
+                          from: piece.from,
+                          to: piece.to,
+                          terms: `${tFee(`method.${piece.terms.method}` as never)} RM ${piece.terms.unit_price ?? ""}`,
+                        })}
+                      </span>
+                    ))
+                  ) : (
+                    `${tFee(`method.${line.terms.method}` as never)} RM ${line.terms.unit_price ?? ""}`
+                  )
+                ) : (
+                  tFee("noTermsShort")
+                )}
               </TableCell>
               <TableCell className="tabular text-right">{line.days_worked}</TableCell>
               <TableCell className="tabular text-right">{line.normal_hours}</TableCell>

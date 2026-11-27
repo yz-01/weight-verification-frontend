@@ -24299,6 +24299,19 @@
     "historyFilled": "補錄",
     "lockedNoLorry": "還沒有車次送來。司機送出車次後，才能補錄數字。"
   },
+  "jb288": {
+    "termsButton": "租賃費用設定",
+    "project": "專案",
+    "chooseProject": "選擇專案",
+    "chooseProjectHelp": "先選一個專案，再設定這個專案每台設備的租賃費用。",
+    "effectiveFrom": "生效日期",
+    "effectiveHelp": "改價從生效日期開始算，以前的日子照舊。",
+    "effectiveShort": "生效日期 {date}",
+    "oldNew": "{old} → {new}",
+    "firstSet": "第一次設定：{terms}",
+    "piece": "{from} 至 {to}：{terms}",
+    "monthPieces": "本月改過價，分 {count} 段計算："
+  },
   "jb265": {
     "startedBy": "顧問 {name} 發起"
   },
