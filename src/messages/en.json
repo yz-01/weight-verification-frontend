@@ -4076,7 +4076,12 @@
       "equipment_rental_statement_pdf_exported": "Equipment rental statement PDF exported",
       "equipment_rental_statement_pdf_previewed": "Equipment rental statement PDF previewed",
       "record_archive_checked": "Confirmed and archived (items checked)",
-      "return_exit_confirmed": "Confirmed the formal exit"
+      "return_exit_confirmed": "Confirmed the formal exit",
+      "disposal_fee_set": "Set clearance fee per lorry",
+      "disposal_settlement_checked": "Clearance records checked",
+      "disposal_settlement_settled": "Clearance settlement settled",
+      "disposal_settlement_pdf_previewed": "Previewed clearance settlement",
+      "disposal_settlement_pdf_exported": "Exported clearance settlement"
     },
     "objectType": {
       "SignOffAssistant": "Assistant PIN",
@@ -4113,7 +4118,9 @@
       "SundryClaim": "Sundry claim",
       "Document": "Archive file",
       "RecordCorrection": "Correction",
-      "MaterialReturnCheck": "Return check"
+      "MaterialReturnCheck": "Return check",
+      "DisposalFee": "Clearance fee",
+      "DisposalSettlement": "Clearance settlement"
     },
     "result": {
       "FAILED": "Failed",
@@ -7813,7 +7820,11 @@
       "claim_amount": "Claim amount (RM)",
       "approved_amount": "Approved amount (RM)",
       "packed_by": "Packed by",
-      "package_created_at": "Created"
+      "package_created_at": "Created",
+      "fee_per_trip": "Fee per lorry",
+      "fee_amount": "Fee amount",
+      "settlement_no": "Settlement no.",
+      "settlement_status": "Settlement status"
     },
     "description": {
       "attendance": "Review site entry evidence, GPS accuracy and geofence result.",
@@ -9802,7 +9813,13 @@
       "return_gate_not_released": "The gate has not photographed and released it yet (vehicle, plate and goods), so the formal exit cannot be confirmed.",
       "exit_release_shots_missing": "A material return is released with photos of the vehicle, its number plate and the goods leaving - at least one each. Take the missing ones, then press Confirm release.",
       "invite_needs_user_update": "Inviting also sets the person's permissions, so you need 'Edit users' to invite. Ask your company administrator to switch it on for you.",
-      "field_removed_from_project": "You have been taken off the project, so this phone is signed out. Ask your project manager if you still need it."
+      "field_removed_from_project": "You have been taken off the project, so this phone is signed out. Ask your project manager if you still need it.",
+      "disposal_in_settlement": "This clearance is checked and in settlement {settlement_no}; its lorries and amount can no longer be changed",
+      "disposal_fee_duplicate_date": "This supplier already has a fee set on {date}. Pick another effective date to change it.",
+      "disposal_settlement_mixed": "Only clearance records of one project and one supplier can be checked together",
+      "disposal_not_archived": "{reference} is not archived yet, so it cannot be checked.",
+      "disposal_fee_missing": "{reference}: this supplier has no fee per lorry yet",
+      "disposal_settlement_already_settled": "{settlement_no} is already settled; it cannot be settled twice."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -22303,7 +22320,8 @@
       "material_settlement_settle": "Settle checked records",
       "equipment_rental_statement": "Generate or cancel an equipment rental statement",
       "equipment_rental_check": "Check equipment rental statements",
-      "equipment_rental_settle": "Settle equipment rental statements"
+      "equipment_rental_settle": "Settle equipment rental statements",
+      "disposal_settlement_settle": "Mark a clearance settlement as settled"
     },
     "firstTitle": "Set your sign-off PIN for the first time",
     "firstBanner": "This is your first time using a sign-off PIN",
@@ -24013,8 +24031,7 @@
       "share": "Share"
     },
     "notAvailable": {
-      "progress_claim": "Progress Claim (spending): the Multi Engine approved amount is not live yet, so it counts as 0. It is added automatically once live.",
-      "disposal": "Waste clearance: its records have no amount (only weights, trips and the collector), so it counts as 0; no price is guessed."
+      "progress_claim": "Progress Claim (spending): the Multi Engine approved amount is not live yet, so it counts as 0. It is added automatically once live."
     }
   },
   "jb275": {
@@ -24643,5 +24660,180 @@
     "noteSafety": "Hazard rectification and work permits are both here and switch together.",
     "noteGate": "The gate phone's Photo follows Gate Records and its Scan Visitor QR follows Site Access; they switch separately.",
     "noteReports": "This report's records come from Material In: with Material In off, this report has no records."
+  },
+  "jb287": {
+    "tab": {
+      "settlement": "Clearance settlement"
+    },
+    "fee": {
+      "button": "Clearance fees",
+      "buttonHint": "Set each supplier's contract fee per lorry",
+      "title": "Clearance fees",
+      "help": "Enter each supplier's contract fee per lorry once. The system then works out each clearance's fee from the lorries accepted - no need to type it for every clearance.",
+      "what": "clearance fees",
+      "loading": "Loading…",
+      "empty": "No clearance suppliers yet. Add the clearance company under Suppliers first.",
+      "col": {
+        "supplier": "Supplier",
+        "fee": "Fee per lorry",
+        "effective": "Effective from",
+        "action": "Action",
+        "oldFee": "Old fee",
+        "newFee": "New fee",
+        "by": "Changed by",
+        "at": "Changed at",
+        "from": "Effective from",
+        "note": "Note"
+      },
+      "none": "Not set yet",
+      "perTrip": "RM {fee} / lorry",
+      "upcoming": "RM {fee} / lorry from {date}",
+      "set": "Set",
+      "adjust": "Change",
+      "history": "Change history",
+      "historyTitle": "Change history of {name}",
+      "historyEmpty": "No changes yet.",
+      "nowIs": "Now: RM {fee} / lorry",
+      "feeLabel": "Fee per lorry (RM)",
+      "feeHint": "The contract fee for one lorry, e.g. 350.00",
+      "feeRule": "Enter an amount above 0, at most two decimals",
+      "effectiveFrom": "Effective from",
+      "effectiveHint": "The first time you may pick an earlier date, so clearances already finished get their fee too.",
+      "note": "Note",
+      "notePlaceholder": "Optional, e.g. the contract number",
+      "keepsOld": "A new fee applies from its effective date; earlier records stay as they are",
+      "save": "Save",
+      "cancel": "Cancel",
+      "back": "Back",
+      "close": "Close",
+      "saved": "Fee per lorry saved",
+      "failed": "Could not save. Please try again."
+    },
+    "col": {
+      "reference": "Clearance record no.",
+      "project": "Project",
+      "supplier": "Supplier",
+      "clearedOn": "Clearance date",
+      "trips": "Lorries accepted",
+      "feePerTrip": "Fee per lorry",
+      "feeAmount": "Fee amount",
+      "feeState": "Settlement status",
+      "settlementNo": "Settlement no.",
+      "dateRange": "Clearance dates",
+      "tripTotal": "Total lorries",
+      "amountTotal": "Settlement total",
+      "settledBy": "Settled by",
+      "settledAt": "Settled at",
+      "checkedBy": "Checked by and when",
+      "status": "Status",
+      "actions": "Actions",
+      "weight": "Weight"
+    },
+    "state": {
+      "unchecked": "Not checked",
+      "ready": "Ready to settle",
+      "settled": "Settled",
+      "running": "In progress",
+      "no_fee": "No fee set",
+      "internal": "Internal clearance",
+      "not_archived": "Not archived"
+    },
+    "stage": {
+      "unchecked": "Not checked",
+      "ready": "Ready to settle",
+      "settled": "Settled"
+    },
+    "status": {
+      "READY": "Ready to settle",
+      "SETTLED": "Settled"
+    },
+    "cannotTick": {
+      "no_fee": "This supplier has no fee per lorry yet",
+      "disposal_fee_missing": "This supplier has no fee per lorry yet"
+    },
+    "locked": "This clearance is checked and in settlement {number}; its lorries and amount can no longer be changed",
+    "panel": {
+      "title": "Clearance fee and settlement",
+      "clearedOn": "Clearance date",
+      "trips": "Lorries accepted",
+      "feePerTrip": "Fee per lorry",
+      "feeAmount": "Fee amount",
+      "state": "Settlement status",
+      "settlementNo": "Settlement no.",
+      "internal": "Internal clearance - no clearance fee",
+      "noFee": "This supplier has no fee per lorry yet",
+      "setFee": "Set the clearance fee",
+      "running": "Still running: worked out from today's fee and the lorries accepted so far; once finished, the fee of the clearance date applies.",
+      "notArchived": "Once finished and archived, it moves to Not checked in Clearance settlement by itself.",
+      "weightOnly": "Weight is only counted; it never enters the fee.",
+      "openSettlement": "Open settlement",
+      "hidden": "You do not have the amount view right, so amounts are not shown."
+    },
+    "settlement": {
+      "help": "Check clearance records in batches, create settlement numbers, prepare and finish settlement, and keep the history.",
+      "filterHelp": "The project follows the Current project at the top. Supplier and dates (clearance date) only change the range shown.",
+      "figure": {
+        "trips": "Total lorries",
+        "weight": "Total weight",
+        "amount": "Total clearance fees",
+        "unchecked": "Not checked amount",
+        "ready": "Ready to settle amount",
+        "settled": "Settled amount"
+      },
+      "tripsValue": "{count} lorries",
+      "weightValue": "{weight} kg",
+      "figuresHelp": "The totals include checked and settled clearances and do not go down after settlement. Weight is only counted; it never enters the fee.",
+      "summaryWhat": "the totals",
+      "noFeeLine": "{count} clearances are with a supplier that has no fee per lorry yet; they count as 0 for now.",
+      "noFeeLink": "Set the clearance fee",
+      "pendingWhat": "clearance records not checked",
+      "what": "clearance settlement",
+      "selectAll": "Select all",
+      "selectRow": "Select {reference}",
+      "filteredTotal": "Filtered total: {amount}",
+      "tickedTotal": "Ticked now: {count}, {amount}",
+      "tickFirst": "Tick the clearance records to check first",
+      "mixed": "Only clearance records of one project and one supplier can be checked together",
+      "confirm": "Confirm check",
+      "confirmHint": "Tick clearance records of one project and one supplier, check them together and get one settlement number.",
+      "confirmTitle": "Confirm check",
+      "confirmBody": "Put the {count} ticked clearance records ({project} · {supplier}, {trips} lorries, {amount}) into one settlement number.",
+      "confirmLock": "After the check they leave Not checked, and their lorries and amounts can no longer be changed.",
+      "checkedDone": "Checked. Settlement number {number} - find it under Ready to settle.",
+      "toReady": "Go to Ready to settle",
+      "emptyUnchecked": "No clearance records waiting. Once a clearance is finished and archived it appears here by itself.",
+      "emptyReady": "Nothing ready to settle. Tick clearance records under Not checked and press Confirm check; they appear here.",
+      "emptySettled": "Nothing settled yet. Under Ready to settle, press Prepare settlement and enter your PIN to settle.",
+      "expand": "Show the clearance records and fees",
+      "collapse": "Hide the details",
+      "lines": "Clearance records in this settlement ({count})",
+      "linesHelp": "Press a clearance record number to open the original record with all its photos and acceptance details.",
+      "total": "Total",
+      "view": "View",
+      "prepare": "Prepare settlement",
+      "prepareHint": "Press it once the payment is really made. It asks for your six-digit sign-off PIN first.",
+      "noRight": "You do not have the right to review and arrange waste clearance, so you cannot settle.",
+      "settleTitle": "Settled {number}",
+      "settleBody": "PIN correct. Has {number} of {supplier} ({trips} lorries, {amount}) been paid? If so, press Settled.",
+      "settleAsk": "Mark {number} ({supplier}, {amount}) as settled? It is then locked: no second settlement, no amount change.",
+      "settleGo": "Settled",
+      "settleConfirm": "Confirm",
+      "cancel": "Cancel",
+      "failed": "That did not work. Please try again.",
+      "lockedNote": "Settled items are locked: no second settlement and no amount change; you can still view, preview, print and export.",
+      "pdfTitle": "Clearance settlement {number}",
+      "windowTitle": "Clearance settlement {number}",
+      "resultOnly": "Only the check and settlement result is recorded here - no payment step."
+    },
+    "settle": {
+      "done": "{number} settled"
+    },
+    "report": {
+      "total": "Waste clearance fees total: {amount}",
+      "noFee": "{count} of these clearances have no fee per lorry yet and count as 0."
+    },
+    "cost": {
+      "noFee": "{count} without a fee per lorry yet"
+    }
   }
 }

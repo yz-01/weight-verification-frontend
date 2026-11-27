@@ -1,0 +1,357 @@
+"use client";
+
+/**
+ * 【清运费用设定】 (JB287, 客户 11-27).
+ *
+ * 「在右上方「新增申请」旁边设置一个「清运费用设定」按钮。建筑商后台按照供应商填写
+ * 合同约定的每车清运费用，参照现有材料分类的价格设定方式，只需填写一次。」
+ * 「原有合同价格调整后，不得影响历史费用记录。」
+ *
+ * The look of 材料单价 (`material-prices.tsx`): one window, a row per
+ * clearance supplier with its 每车清运费用 today and its 生效日期, one button
+ * to set or change it, and 【修改记录】 (old → new, who, when, 生效日期). A
+ * change is a new row from its 生效日期; nothing before it moves. Office
+ * only - the phone never sees the button (the server refuses it too).
+ */
+
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { BadgeDollarSign, History, Loader2, Save, Tag } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useState } from "react";
+
+import { useAuth } from "@/components/providers/auth-provider";
+import { FieldWrapper, QueryFailedNote } from "@/components/shared/page-primitives";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
+import { useUrlSelection } from "@/hooks/use-url-selection";
+import { ApiError } from "@/interfaces/api";
+import { useDateFormat } from "@/lib/dates";
+import { isValidFee, mayHandleDisposalFees, moneyText } from "@/lib/disposal-fees";
+import { isSignOffCancelled } from "@/lib/sign-off";
+import {
+  getDisposalFeeHistory,
+  getDisposalFees,
+  setDisposalFee,
+  type DisposalFeeSupplier,
+} from "@/services/disposal-settlement.service";
+
+/** What a saved fee changes elsewhere: the jobs' amounts and the figures. */
+export const DISPOSAL_FEE_STALE_KEYS = [
+  ["disposal-fees"],
+  ["site-disposals"],
+  ["disposal-settlements"],
+  ["site-cost-overview"],
+  ["contractor-reports", "report"],
+] as const;
+
+/** The address that opens the window, from a 「去设定」 link anywhere. */
+export const DISPOSAL_FEES_PARAM = "fees";
+
+function today(): string {
+  const now = new Date();
+  const pad = (value: number) => String(value).padStart(2, "0");
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+}
+
+/**
+ * 【清运费用设定】: for an office account that may handle the fees; nothing
+ * for anyone else. `?fees=1` in the address opens it (the 「去设定」 links).
+ */
+export function DisposalFeeButton() {
+  const t = useTranslations("jb287");
+  const { can, user } = useAuth();
+  const [open, setOpen] = useUrlSelection(DISPOSAL_FEES_PARAM);
+  if (!mayHandleDisposalFees(user, can)) return null;
+  return (
+    <>
+      <Button variant="outline" data-slot="disposal-fee-button" title={t("fee.buttonHint")} onClick={() => setOpen("1")}>
+        <BadgeDollarSign className="size-4" />
+        {t("fee.button")}
+      </Button>
+      {open ? <DisposalFeeDialog onClose={() => setOpen(null)} /> : null}
+    </>
+  );
+}
+
+type Mode =
+  | { kind: "list" }
+  | { kind: "set"; row: DisposalFeeSupplier }
+  | { kind: "history"; row: DisposalFeeSupplier };
+
+export function DisposalFeeDialog({ onClose }: { onClose: () => void }) {
+  const t = useTranslations("jb287");
+  const [mode, setMode] = useState<Mode>({ kind: "list" });
+  const fees = useQuery({ queryKey: ["disposal-fees", "list"], queryFn: getDisposalFees });
+  return (
+    <Dialog open onOpenChange={(next) => !next && onClose()}>
+      <DialogContent data-slot="disposal-fee-dialog" className="max-h-[90dvh] overflow-y-auto sm:max-w-3xl">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Tag className="size-5" />
+            {t("fee.title")}
+          </DialogTitle>
+          <DialogDescription>{t("fee.help")}</DialogDescription>
+        </DialogHeader>
+        {mode.kind === "set" ? (
+          <SetFeeForm row={mode.row} onDone={() => setMode({ kind: "list" })} />
+        ) : mode.kind === "history" ? (
+          <FeeHistory row={mode.row} onBack={() => setMode({ kind: "list" })} />
+        ) : (
+          <>
+            <QueryFailedNote query={fees} what={t("fee.what")} />
+            {fees.isLoading ? (
+              <p className="text-sm text-muted-foreground">{t("fee.loading")}</p>
+            ) : fees.data ? (
+              <FeeTable
+                rows={fees.data}
+                onSet={(row) => setMode({ kind: "set", row })}
+                onHistory={(row) => setMode({ kind: "history", row })}
+              />
+            ) : null}
+            <p className="text-xs text-muted-foreground">{t("fee.keepsOld")}</p>
+            <DialogFooter>
+              <Button variant="outline" onClick={onClose}>
+                {t("fee.close")}
+              </Button>
+            </DialogFooter>
+          </>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+export function FeeTable({
+  rows,
+  onSet,
+  onHistory,
+}: {
+  rows: readonly DisposalFeeSupplier[];
+  onSet: (row: DisposalFeeSupplier) => void;
+  onHistory: (row: DisposalFeeSupplier) => void;
+}) {
+  const t = useTranslations("jb287");
+  const when = useDateFormat();
+  if (rows.length === 0) {
+    return (
+      <p className="rounded-xl border border-dashed p-6 text-center text-sm text-muted-foreground" data-slot="disposal-fee-empty">
+        {t("fee.empty")}
+      </p>
+    );
+  }
+  return (
+    <div className="rounded-lg border">
+      <Table fit>
+        <TableHeader>
+          <TableRow>
+            <TableHead>{t("fee.col.supplier")}</TableHead>
+            <TableHead>{t("fee.col.fee")}</TableHead>
+            <TableHead>{t("fee.col.effective")}</TableHead>
+            <TableHead>{t("fee.col.action")}</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {rows.map((row) => (
+            <TableRow key={row.supplier.id} data-slot="disposal-fee-row">
+              <TableCell className="font-medium">{row.supplier.name}</TableCell>
+              <TableCell>
+                <p className="tabular-nums">
+                  {row.current ? t("fee.perTrip", { fee: moneyText(row.current.fee_per_trip) }) : (
+                    <span className="text-muted-foreground">{t("fee.none")}</span>
+                  )}
+                </p>
+                {row.upcoming ? (
+                  <p className="text-xs text-warning">
+                    {t("fee.upcoming", { fee: moneyText(row.upcoming.fee_per_trip), date: when.date(row.upcoming.effective_from) })}
+                  </p>
+                ) : null}
+              </TableCell>
+              <TableCell className="tabular-nums whitespace-nowrap">
+                {row.current ? when.date(row.current.effective_from) : "—"}
+              </TableCell>
+              <TableCell>
+                <div className="flex flex-wrap items-center gap-1">
+                  <Button size="sm" data-slot="disposal-fee-set" onClick={() => onSet(row)}>
+                    <Tag />
+                    {row.current || row.upcoming ? t("fee.adjust") : t("fee.set")}
+                  </Button>
+                  <Button size="sm" variant="outline" data-slot="disposal-fee-history" onClick={() => onHistory(row)}>
+                    <History />
+                    {t("fee.history")}
+                  </Button>
+                </div>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}
+
+function SetFeeForm({ row, onDone }: { row: DisposalFeeSupplier; onDone: () => void }) {
+  const t = useTranslations("jb287");
+  const queryClient = useQueryClient();
+  const [fee, setFee] = useState("");
+  const [day, setDay] = useState(today());
+  const [note, setNote] = useState("");
+  const [error, setError] = useState("");
+  const feeOk = isValidFee(fee);
+  const save = useMutation({
+    mutationFn: () =>
+      setDisposalFee({
+        supplier: row.supplier.id,
+        fee_per_trip: fee.replace(/,/g, "").trim(),
+        effective_from: day,
+        note,
+      }),
+    onSuccess: () => {
+      for (const key of DISPOSAL_FEE_STALE_KEYS) void queryClient.invalidateQueries({ queryKey: [...key] });
+      onDone();
+    },
+    onError: (reason) => {
+      if (isSignOffCancelled(reason)) return;
+      setError(reason instanceof ApiError ? reason.message : t("fee.failed"));
+    },
+  });
+  return (
+    <div className="space-y-4" data-slot="disposal-fee-form">
+      <p className="text-sm font-medium">
+        {row.supplier.name}
+        {row.current ? (
+          <span className="ml-2 font-normal text-muted-foreground">
+            {t("fee.nowIs", { fee: moneyText(row.current.fee_per_trip) })}
+          </span>
+        ) : null}
+      </p>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <FieldWrapper
+          label={t("fee.feeLabel")}
+          required
+          error={fee && !feeOk ? t("fee.feeRule") : undefined}
+          hint={t("fee.feeHint")}
+        >
+          <Input
+            type="number"
+            inputMode="decimal"
+            min="0.01"
+            step="0.01"
+            aria-label={t("fee.feeLabel")}
+            value={fee}
+            onChange={(event) => setFee(event.target.value)}
+          />
+        </FieldWrapper>
+        <FieldWrapper label={t("fee.effectiveFrom")} required hint={t("fee.effectiveHint")}>
+          <Input
+            type="date"
+            aria-label={t("fee.effectiveFrom")}
+            value={day}
+            onChange={(event) => setDay(event.target.value)}
+          />
+        </FieldWrapper>
+      </div>
+      <FieldWrapper label={t("fee.note")}>
+        <Textarea
+          rows={2}
+          maxLength={500}
+          placeholder={t("fee.notePlaceholder")}
+          aria-label={t("fee.note")}
+          value={note}
+          onChange={(event) => setNote(event.target.value)}
+        />
+      </FieldWrapper>
+      <p className="rounded-lg bg-muted/50 px-3 py-2 text-sm" data-slot="disposal-fee-keeps-old">
+        {t("fee.keepsOld")}
+      </p>
+      {error ? (
+        <p role="alert" className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
+          {error}
+        </p>
+      ) : null}
+      <DialogFooter>
+        <Button variant="outline" onClick={onDone}>
+          {t("fee.cancel")}
+        </Button>
+        <Button
+          requires={[
+            [feeOk, t("fee.feeLabel")],
+            [Boolean(day), t("fee.effectiveFrom")],
+          ]}
+          disabled={save.isPending}
+          data-slot="disposal-fee-save"
+          onClick={() => save.mutate()}
+        >
+          {save.isPending ? <Loader2 className="animate-spin" /> : <Save />}
+          {t("fee.save")}
+        </Button>
+      </DialogFooter>
+    </div>
+  );
+}
+
+function FeeHistory({ row, onBack }: { row: DisposalFeeSupplier; onBack: () => void }) {
+  const t = useTranslations("jb287");
+  const when = useDateFormat();
+  const history = useQuery({
+    queryKey: ["disposal-fees", "history", row.supplier.id],
+    queryFn: () => getDisposalFeeHistory(row.supplier.id),
+  });
+  const rows = history.data ?? [];
+  return (
+    <section className="space-y-3" data-slot="disposal-fee-history-list">
+      <h3 className="text-sm font-medium">{t("fee.historyTitle", { name: row.supplier.name })}</h3>
+      <QueryFailedNote query={history} what={t("fee.history")} />
+      {history.isLoading ? (
+        <p className="text-sm text-muted-foreground">{t("fee.loading")}</p>
+      ) : rows.length === 0 ? (
+        !history.isError && <p className="text-sm text-muted-foreground">{t("fee.historyEmpty")}</p>
+      ) : (
+        <div className="rounded-lg border">
+          <Table fit>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="text-right">{t("fee.col.oldFee")}</TableHead>
+                <TableHead className="text-right">{t("fee.col.newFee")}</TableHead>
+                <TableHead>{t("fee.col.by")}</TableHead>
+                <TableHead>{t("fee.col.at")}</TableHead>
+                <TableHead>{t("fee.col.from")}</TableHead>
+                <TableHead>{t("fee.col.note")}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {rows.map((entry) => (
+                <TableRow key={entry.id}>
+                  <TableCell className="text-right tabular-nums text-muted-foreground">
+                    {entry.previous_fee ? t("fee.perTrip", { fee: moneyText(entry.previous_fee) }) : "—"}
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums font-medium">
+                    {t("fee.perTrip", { fee: moneyText(entry.fee_per_trip) })}
+                  </TableCell>
+                  <TableCell>{entry.set_by_name || "—"}</TableCell>
+                  <TableCell className="tabular-nums whitespace-nowrap">{when.dateTime(entry.set_at)}</TableCell>
+                  <TableCell className="tabular-nums whitespace-nowrap">{when.date(entry.effective_from)}</TableCell>
+                  <TableCell className="max-w-48 truncate" title={entry.note || undefined}>{entry.note || "—"}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
+      <DialogFooter>
+        <Button variant="outline" onClick={onBack}>
+          {t("fee.back")}
+        </Button>
+      </DialogFooter>
+    </section>
+  );
+}
