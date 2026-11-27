@@ -4925,7 +4925,7 @@
       "addSpecTitle": "新增規格 · {name}",
       "name": "名稱",
       "description": "說明",
-      "descriptionHint": "例如英文名稱：Rebar",
+      "descriptionHint": "例如用途或備註",
       "unit": "單位",
       "noUnit": "不設單位",
       "codeAuto": "編號由系統自動生成。",

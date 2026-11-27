@@ -4925,7 +4925,7 @@
       "addSpecTitle": "Tambah spesifikasi · {name}",
       "name": "Nama",
       "description": "Keterangan",
-      "descriptionHint": "Contohnya nama Inggeris: Rebar",
+      "descriptionHint": "Contohnya kegunaan atau catatan",
       "unit": "Unit",
       "noUnit": "Tiada unit",
       "codeAuto": "Nombor dijana oleh sistem.",
@@ -10406,7 +10406,7 @@
         "remove": "Buang baris",
         "use": "Guna",
         "noUnit": "Tiada unit",
-        "useOther": "Guna 「其他材料」"
+        "useOther": "Guna 「Other materials」"
       },
       "ocrLowConfidence": "Dibaca dengan keyakinan rendah: {fields}. Semak dengan dokumen kertas sebelum menyimpan.",
       "ocrManual": "Nota penghantaran tidak dapat dibaca. Isi butiran secara manual.",
@@ -10470,7 +10470,7 @@
       "specOptionalHint": "Tidak pasti spesifikasinya? Biarkan - pejabat akan mengisinya.",
       "autoFilledFromSpec": "Dari spesifikasi",
       "otherName": "Nama bahan",
-      "otherNameHint": "Tiada dalam senarai? Pilih 「其他材料」 dan taip namanya di sini. Tidak pasti? Biarkan - pejabat akan mengisinya."
+      "otherNameHint": "Tiada dalam senarai? Pilih 「Other materials」 dan taip namanya di sini. Tidak pasti? Biarkan - pejabat akan mengisinya."
     },
     "materialEvidence": {
       "arrival": "1. Kenderaan tiba",
@@ -20383,7 +20383,7 @@
       "attachmentKindsHint": "Foto, PDF, Word, Excel, PowerPoint, CSV, TXT, DWG atau ZIP. Sehingga {count} fail, setiap satu bawah {limit} MB.",
       "fileKindRefused": "{name} tidak boleh dilampirkan. Lampirkan foto, PDF, Word, Excel, PowerPoint, CSV, TXT, DWG atau ZIP.",
       "assignedReviewerManagerHint": "Permohonan tapak dihantar kepada pengurus projek dahulu, yang menghantarnya ke ibu pejabat.",
-      "otherMaterialHint": "「其他材料」: taip nama bahan jika tahu. Tidak pasti? Biarkan - pejabat akan mengisinya."
+      "otherMaterialHint": "「Other materials」: taip nama bahan jika tahu. Tidak pasti? Biarkan - pejabat akan mengisinya."
     },
     "toast": {
       "submitted": "Permohonan dihantar.",

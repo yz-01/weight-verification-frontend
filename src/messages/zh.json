@@ -4925,7 +4925,7 @@
       "addSpecTitle": "新增规格 · {name}",
       "name": "名称",
       "description": "说明",
-      "descriptionHint": "例如英文名称：Rebar",
+      "descriptionHint": "例如用途或备注",
       "unit": "单位",
       "noUnit": "不设单位",
       "codeAuto": "编号由系统自动生成。",

@@ -135,6 +135,16 @@ describe("JB293 words and the Excel import", () => {
     expect(en.jb293.nameEn).toBe("English name");
   });
 
+  it("the 说明 hint no longer asks for the English name; 「其他材料」 is named in English (coordinator 11-27)", () => {
+    expect(zh.categoryManagement.company.descriptionHint).toBe("例如用途或备注");
+    expect(zhTW.categoryManagement.company.descriptionHint).toBe("例如用途或備註");
+    for (const catalogue of [zh, zhTW, en, ms]) {
+      expect(catalogue.categoryManagement.company.descriptionHint).not.toMatch(/Rebar|英文|English|Inggeris/);
+    }
+    expect(JSON.stringify(en)).not.toContain("其他材料");
+    expect(JSON.stringify(ms)).not.toContain("其他材料");
+  });
+
   it("offers the optional 英文名称 column", () => {
     const dialog = read("components/shared/excel-import-dialog.tsx");
     expect(dialog).toContain('name_en: "jb293.nameEn"');

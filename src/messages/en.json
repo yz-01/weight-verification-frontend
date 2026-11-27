@@ -4925,7 +4925,7 @@
       "addSpecTitle": "Add a specification · {name}",
       "name": "Name",
       "description": "Description",
-      "descriptionHint": "For example the English name: Rebar",
+      "descriptionHint": "For example what it is used for, or a note",
       "unit": "Unit",
       "noUnit": "No unit",
       "codeAuto": "The number is made by the system.",
@@ -10406,7 +10406,7 @@
         "remove": "Remove row",
         "use": "Use",
         "noUnit": "No unit",
-        "useOther": "Use 「其他材料」"
+        "useOther": "Use 「Other materials」"
       },
       "ocrLowConfidence": "Read with low confidence: {fields}. Check these against the paper before saving.",
       "ocrManual": "The delivery note could not be read. Enter the details manually.",
@@ -10470,7 +10470,7 @@
       "specOptionalHint": "Not sure of the specification? Leave it - the office will fill it in.",
       "autoFilledFromSpec": "From the specification",
       "otherName": "Material name",
-      "otherNameHint": "Not on the list? Choose 「其他材料」 and type the name here. Not sure? Leave it - the office will fill it in."
+      "otherNameHint": "Not on the list? Choose 「Other materials」 and type the name here. Not sure? Leave it - the office will fill it in."
     },
     "materialEvidence": {
       "arrival": "1. Arriving vehicle",
@@ -20383,7 +20383,7 @@
       "attachmentKindsHint": "Photos, PDF, Word, Excel, PowerPoint, CSV, TXT, DWG or ZIP. Up to {count} files, each under {limit} MB.",
       "fileKindRefused": "{name} cannot be attached. Attach photos, PDF, Word, Excel, PowerPoint, CSV, TXT, DWG or ZIP.",
       "assignedReviewerManagerHint": "A site request goes to the project manager first, who sends it on to head office.",
-      "otherMaterialHint": "「其他材料」: type what the material is if you know it. Not sure? Leave it - the office will fill it in."
+      "otherMaterialHint": "「Other materials」: type what the material is if you know it. Not sure? Leave it - the office will fill it in."
     },
     "toast": {
       "submitted": "Request submitted.",
