@@ -4065,6 +4065,7 @@
       "menu_names_update": "Menu names changed",
       "external_site_evidence": "Outside company photographed vehicle exit / Gate Pass",
       "fill_trip_numbers": "Load numbers filled in",
+      "disposal_lorry_signed": "Lorry plate and clearance signatures filled",
       "supplier_excel_import": "Suppliers imported from Excel",
       "company_material_excel_import": "Materials imported from Excel",
       "material_issue_checked": "Material issues checked",
@@ -9801,6 +9802,8 @@
       "archive_check_not_ticked": "Tick \"I have checked all the information and it is correct.\" before archiving.",
       "return_gate_not_released": "The gate has not photographed and released it yet (vehicle, plate and goods), so the formal exit cannot be confirmed.",
       "exit_release_shots_missing": "A material return is released with photos of the vehicle, its number plate and the goods leaving - at least one each. Take the missing ones, then press Confirm release.",
+      "disposal_lorry_sheet_missing": "The site has not typed the lorry's plate yet, and the driver and the site person-in-charge have not signed.",
+      "disposal_no_lorry_left": "Every lorry approved for this clearance has been released. For one more, the office presses Add a lorry first.",
       "invite_needs_user_update": "Inviting also sets the person's permissions, so you need 'Edit users' to invite. Ask your company administrator to switch it on for you.",
       "field_removed_from_project": "You have been taken off the project, so this phone is signed out. Ask your project manager if you still need it."
     },
@@ -12885,6 +12888,8 @@
       "trips_progress": "Loads checked / planned",
       "trip_checked": "Load checked",
       "trip_waiting": "Load waiting for check",
+      "lorry_sheet": "Lorry plate and signatures",
+      "lorry_released": "Lorry released at the gate",
       "return_note_no": "Return Note no.",
       "return_note_at": "Return Note date",
       "return_note_material": "Return Note material",
@@ -17912,7 +17917,8 @@
       "TRIP_CORRECTED": "Office corrected a load's weight / DO / plate",
       "SUPPLIER_SET": "Office named / changed the clearance company",
       "ANOMALY_REPORTED": "Exception reported",
-      "TRIP_NUMBERS_FILLED": "Office filled in a load's weight / DO / plate"
+      "TRIP_NUMBERS_FILLED": "Office filled in a load's weight / DO / plate",
+      "LORRY_SIGNED": "Site typed the lorry's plate; driver and site person-in-charge signed"
     },
     "title": "Waste clearance",
     "toast": {
@@ -24643,5 +24649,33 @@
     "noteSafety": "Hazard rectification and work permits are both here and switch together.",
     "noteGate": "The gate phone's Photo follows Gate Records and its Scan Visitor QR follows Site Access; they switch separately.",
     "noteReports": "This report's records come from Material In: with Material In off, this report has no records."
+  },
+  "jb290": {
+    "action": "Fill plate and signatures",
+    "lockedNoLorry": "Every lorry of this clearance has been released. For one more, the office presses Add a lorry first.",
+    "dialogTitle": "Lorry {seq}: plate and signatures",
+    "dialogHelp": "{reference}: before the gate photographs and releases it, type the plate, and the driver and the site person-in-charge sign. All are required.",
+    "refillNote": "This lorry is filled already ({plate}) and the gate has not released it. Filling it again replaces it; the earlier one stays on the record.",
+    "plate": "Lorry number plate",
+    "driverName": "Driver's name",
+    "driverSignature": "Driver's signature",
+    "driverHint": "The driver signs here.",
+    "siteName": "Site person-in-charge's name",
+    "siteSignature": "Site person-in-charge's signature",
+    "siteHint": "Your name is filled in; if somebody else signs, change it to theirs.",
+    "submit": "Save for the gate",
+    "toastSigned": "Saved. The gate can now photograph and release this lorry",
+    "tripWaiting": "Waiting for the site: plate, driver's and site person-in-charge's signatures",
+    "tripPlate": "Plate: {plate}",
+    "tripDriver": "Driver: {name}",
+    "tripSite": "Site person-in-charge: {name}",
+    "tripFilled": "Filled by {name} · {at}",
+    "tripReleased": "Released at the gate: {number} · {name} · {at} · {count} photos (open them under Released at the gate)",
+    "gateLorry": "Lorry {seq} · plate {plate}",
+    "gateLorryWaiting": "Lorry {seq}",
+    "gateSigners": "Driver: {driver} · site person-in-charge: {site}",
+    "waitingReady": "Lorry {seq} can be released",
+    "waitingNotReady": "Lorry {seq}: waiting for the site's plate and signatures",
+    "releaseLorry": "Lorry {seq} · plate {plate}"
   }
 }

@@ -1383,6 +1383,36 @@ export interface DisposalTrip {
   /** Q29.7: the office's corrections of this load, newest first. */
   corrections: DisposalTripCorrection[];
   evidence: DisposalEvidence[];
+  /**
+   * JB290 (客户 11-27d): the plate and the two signatures the site filled
+   * before the gate; null until filled. Absent from a server before JB290.
+   */
+  sheet?: DisposalLorrySheet | null;
+  /** JB290: the 门岗放行 that let this lorry out; null until released. */
+  release?: DisposalTripRelease | null;
+}
+
+/** One lorry's 车牌 + 清运司机签名 + 工地现场负责人签名 (JB290). */
+export interface DisposalLorrySheet {
+  id: string;
+  vehicle_plate: string;
+  driver_name: string;
+  /** The drawn signature's URL. */
+  driver_signature: string | null;
+  site_signer_name: string;
+  site_signature: string | null;
+  /** The site account that filled it on its phone. */
+  filled_by_name: string;
+  signed_at: string | null;
+}
+
+/** The 门岗事项 that let one lorry out (JB290). */
+export interface DisposalTripRelease {
+  incident_id: string;
+  incident_no: string;
+  by: string;
+  at: string | null;
+  photo_count: number;
 }
 
 /** One office correction of a load's weight, DO number or plate (Q29.7, I27). */

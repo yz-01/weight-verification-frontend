@@ -1474,6 +1474,35 @@ export async function addDisposalSiteEvidence(
 }
 
 /**
+ * 【填写车牌和签名】 (JB290, 客户 11-27d): the next lorry's plate, the driver's
+ * name and signature, the site person-in-charge's name and signature - all
+ * required before the gate photographs and releases that lorry. The server
+ * picks the lorry (the first not yet released) and answers the whole job.
+ */
+export async function signDisposalLorry(
+  id: string,
+  payload: {
+    vehicle_plate: string;
+    driver_name: string;
+    driver_signature: File;
+    site_signer_name: string;
+    site_signature: File;
+    client_event_id: string;
+  },
+) {
+  const data = new FormData();
+  data.append("vehicle_plate", payload.vehicle_plate);
+  data.append("driver_name", payload.driver_name);
+  data.append("driver_signature", payload.driver_signature);
+  data.append("site_signer_name", payload.site_signer_name);
+  data.append("site_signature", payload.site_signature);
+  data.append("client_event_id", payload.client_event_id);
+  const row = await api.post<DisposalRequest>(`/api/site-disposals/${id}/sign_lorry/`, data);
+  toastSuccess("jb290.toastSigned");
+  return row;
+}
+
+/**
  * Report a problem on a running disposal job, with its photographs (JB149).
  *
  * 客户 11-10 事项 6: 「如果是车辆异常，必须注明第几车…每笔异常最少上传2张照片」.

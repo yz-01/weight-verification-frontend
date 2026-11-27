@@ -4065,6 +4065,7 @@
       "menu_names_update": "修改菜单名称",
       "external_site_evidence": "外部清运商拍车辆出场 / Gate Pass",
       "fill_trip_numbers": "补录车次数字",
+      "disposal_lorry_signed": "填写车牌和清运签名",
       "supplier_excel_import": "导入 Excel 供应商",
       "company_material_excel_import": "导入 Excel 材料分类",
       "material_issue_checked": "材料领用核对",
@@ -9801,6 +9802,8 @@
       "archive_check_not_ticked": "请先勾选「我已核对所有资料，确认无误。」，再确认归档。",
       "return_gate_not_released": "门岗还没有拍照放行（车辆、车牌及退场货物），现在不能确认正式退场。",
       "exit_release_shots_missing": "材料退场放行要拍车辆、车牌和退场货物，每样至少一张。还没拍的：请补拍后再按【确认放行】。",
+      "disposal_lorry_sheet_missing": "工地还没有填车牌、司机和工地负责人还没有签名。",
+      "disposal_no_lorry_left": "这次清运批准的车都已经放行了。还要多一车，请后台先按【加一车】。",
       "invite_needs_user_update": "邀请时会一起设定这个人的权限，所以要有「编辑用户」权限才能邀请。请公司管理员帮你打开。",
       "field_removed_from_project": "你已经被移出项目，这台手机已退出登录。如果还要用，请联系项目经理。"
     },
@@ -12885,6 +12888,8 @@
       "trips_progress": "已验收 / 车次",
       "trip_checked": "已验收的车",
       "trip_waiting": "待验收的车",
+      "lorry_sheet": "车牌和签名",
+      "lorry_released": "门岗放行的车",
       "return_note_no": "Return Note 编号",
       "return_note_at": "Return Note 日期",
       "return_note_material": "Return Note 材料",
@@ -17912,7 +17917,8 @@
       "TRIP_CORRECTED": "后台更正了一车的重量 / DO / 车牌",
       "SUPPLIER_SET": "后台填写 / 更改了供应商",
       "ANOMALY_REPORTED": "报告异常",
-      "TRIP_NUMBERS_FILLED": "后台补录了车次的重量 / DO / 车牌"
+      "TRIP_NUMBERS_FILLED": "后台补录了车次的重量 / DO / 车牌",
+      "LORRY_SIGNED": "工地已填车牌，司机和工地负责人已签名"
     },
     "title": "垃圾清运",
     "toast": {
@@ -24643,5 +24649,33 @@
     "noteSafety": "整改和施工准证都在这里，一起开关。",
     "noteGate": "门岗手机的「拍照」跟着门岗记录，「扫访客二维码」跟着工地门禁，两个分开开关。",
     "noteReports": "报表的资料来自材料进场：材料进场关掉后，这个报表没有资料。"
+  },
+  "jb290": {
+    "action": "填写车牌和签名",
+    "lockedNoLorry": "这次清运的车都已经放行了。还要多一车，请后台先按【加一车】。",
+    "dialogTitle": "第 {seq} 车：车牌和签名",
+    "dialogHelp": "{reference}：门岗拍照、放行之前，必须先填车牌，由清运司机和工地现场负责人签名。全部必填。",
+    "refillNote": "这一车已经填过（{plate}），门岗还没有放行。重新填写会换成这一次的，原来的会留在记录里。",
+    "plate": "车辆车牌号码",
+    "driverName": "清运司机姓名",
+    "driverSignature": "清运司机签名",
+    "driverHint": "请司机在这里签名。",
+    "siteName": "工地现场负责人姓名",
+    "siteSignature": "工地现场负责人签名",
+    "siteHint": "已填你的名字；如果是别人签，请改成他的名字。",
+    "submit": "保存，交给门岗",
+    "toastSigned": "已保存，门岗现在可以拍照放行这一车",
+    "tripWaiting": "等工地填车牌，司机和工地负责人签名",
+    "tripPlate": "车牌：{plate}",
+    "tripDriver": "清运司机：{name}",
+    "tripSite": "工地现场负责人：{name}",
+    "tripFilled": "{name} 填写 · {at}",
+    "tripReleased": "门岗放行：{number} · {name} · {at} · {count} 张照片（在「门岗放行」里打开看）",
+    "gateLorry": "第 {seq} 车 · 车牌：{plate}",
+    "gateLorryWaiting": "第 {seq} 车",
+    "gateSigners": "清运司机：{driver} · 工地现场负责人：{site}",
+    "waitingReady": "第 {seq} 车可以放行",
+    "waitingNotReady": "第 {seq} 车：等工地填车牌和签名",
+    "releaseLorry": "第 {seq} 车 · 车牌：{plate}"
   }
 }
