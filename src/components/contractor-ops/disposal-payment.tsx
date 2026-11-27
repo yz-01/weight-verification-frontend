@@ -126,7 +126,9 @@ export function PaymentDialog({
   const addFiles = (list: FileList | null) => {
     if (!list) return;
     setError("");
-    setFiles((before) => [...before, ...Array.from(list)]);
+    // Copied now: clearing the box below empties the list it handed over.
+    const chosen = Array.from(list);
+    setFiles((before) => [...before, ...chosen]);
     if (picker.current) picker.current.value = "";
   };
   const problemText = problem

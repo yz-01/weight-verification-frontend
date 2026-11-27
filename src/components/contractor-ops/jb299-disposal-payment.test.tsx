@@ -267,6 +267,12 @@ describe("准备结算: 付款凭证 + 付款编号 first (事项 2.2 / 2.3 / 2.
     expect(source).toContain('t("upload.paymentNoMissing")');
     expect(source).toContain('t("upload.fileMissing")');
     expect(source).toContain("t(`upload.${problem.key}`, { name: problem.name })");
+    // Browser walk 11-28: the chosen files are copied before the box is cleared
+    // (the cleared box emptied the list, so nothing was ever chosen).
+    const add = source.slice(source.indexOf("const addFiles"), source.indexOf("const problemText"));
+    expect(add.indexOf("const chosen = Array.from(list);")).toBeGreaterThan(-1);
+    expect(add.indexOf("const chosen = Array.from(list);")).toBeLessThan(add.indexOf('picker.current.value = ""'));
+    expect(add).not.toContain("...Array.from(list)");
   });
 
   it("【确认结算完毕】 after the PIN names the 付款编号; the double click guard stays", () => {
