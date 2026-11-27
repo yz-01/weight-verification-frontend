@@ -17,11 +17,14 @@
  * `RentalStatementWindow`: its machines (each opens that machine's 按月 page),
  * the five amounts and their 合计, the 核对 / 结算 numbers (each opens its
  * window), the four file buttons on the A4 PDF, and 【作废】 while 待核对.
+ *
+ * JB288 (客户 11-27b): 【租赁费用设定】 beside 【生成月结单】 - the 设备租赁设定
+ * window of 设备操作员工时 (`RentalTermsDialog`), for the top bar's project.
  */
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Ban, Eye, FileSpreadsheet, Loader2 } from "lucide-react";
+import { Ban, Eye, FileSpreadsheet, Loader2, Receipt } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
@@ -33,7 +36,9 @@ import {
   ReturnCheckWindow,
   SettlementWindow,
 } from "@/components/contractor-ops/return-checks";
+import { RentalTermsDialog, rentalMoney } from "@/components/equipment-hours/rental-fees";
 import { useAuth } from "@/components/providers/auth-provider";
+import { useSeesAmounts } from "@/hooks/use-sees-amounts";
 import { useCurrentProject } from "@/components/providers/current-project-provider";
 import { DataTable } from "@/components/shared/data-table";
 import { FileActionButtons } from "@/components/shared/file-actions";
@@ -117,14 +122,23 @@ export function RentalStatementsPage() {
   const [viewing, setViewing] = useUrlSelection("statement");
   const state = TAB_STATE[tab];
   const query = { ...list.query, ...(state ? { state } : {}) };
+  // QA288: the server refuses statements without 设备管理 or without 「金额查看」
+  // (they are all amounts); say which right is missing and who switches it on,
+  // instead of a list that 「加载失败」.
+  const { can, user } = useAuth();
+  const seesAmounts = useSeesAmounts();
+  const refused = !officeMay(user, can, RENTAL_PERMISSION) ? "statementsNoManage" : !seesAmounts ? "statementsNoAmounts" : null;
+  const tj = useTranslations("jb288");
   const rows = useQuery({
     queryKey: ["rental-statements", "list", query],
     queryFn: () => getRentalStatements(query),
+    enabled: !refused,
   });
   // query-failure: without the list of companies the filter shows only 「全部设备公司」; the table still loads.
   const companies = useQuery({
     queryKey: ["rental-statements", "companies", list.filters.project ?? ""],
     queryFn: () => getRentalStatementCompanies(list.filters.project || undefined),
+    enabled: !refused,
   });
   const total = rows.data?.count ?? 0;
   const columns = useMemo<ColumnDef<RentalStatementRow, unknown>[]>(
@@ -157,7 +171,7 @@ export function RentalStatementsPage() {
         accessorKey: "rental_total",
         meta: { label: tr("col.total") },
         header: () => <PlainHeader label={tr("col.total")} />,
-        cell: ({ row }) => <span className="tabular font-semibold">{row.original.rental_total}</span>,
+        cell: ({ row }) => <span className="tabular font-semibold">{rentalMoney(row.original.rental_total)}</span>,
       },
       {
         accessorKey: "state",
@@ -202,6 +216,17 @@ export function RentalStatementsPage() {
     [tr, df, setViewing],
   );
   const refresh = () => void qc.invalidateQueries({ queryKey: ["rental-statements"] });
+  if (refused) {
+    return (
+      <div className="flex flex-col gap-4" data-slot="rental-statements">
+        {/* Without 「金额查看」 the 租赁费用设定 window still lists the terms (no prices). */}
+        <ListHeader title={tr("title")} subtitle="" action={refused === "statementsNoAmounts" ? <RentalTermsButton /> : undefined} />
+        <p role="status" className="rounded-lg border bg-muted/30 px-4 py-3 text-sm" data-slot="rental-statements-refused">
+          {tj(refused)}
+        </p>
+      </div>
+    );
+  }
   return (
     <div className="flex flex-col gap-4 max-sm:[&>*]:shrink-0 sm:h-[calc(100dvh-5rem)]" data-slot="rental-statements">
       <ListHeader
@@ -209,6 +234,7 @@ export function RentalStatementsPage() {
         subtitle={rows.isLoading ? "—" : tr("count", { count: total })}
         action={
           <div className="flex flex-wrap gap-2">
+            <RentalTermsButton />
             <GenerateStatementButton
               onSaved={(statement) => {
                 refresh();
@@ -321,6 +347,36 @@ export function RentalStatementsPage() {
  * machine with no terms, dates another statement already covers) →
  * 【生成月结单】, PIN.
  */
+/**
+ * 【租赁费用设定】 (JB288): 「在「设备租赁月结单」页面右上方「生成月结单」旁边设置
+ * 一个「租赁费用设定」按钮。由建筑商后台根据设备及供应商填写合同约定的租赁条件及
+ * 费用，只需设定一次」. Office only, like 【生成月结单】; the server asks for the PIN
+ * and refuses a phone account. On 全部项目 the window asks for a project first.
+ */
+export function RentalTermsButton() {
+  const tj = useTranslations("jb288");
+  const { can, user } = useAuth();
+  const current = useCurrentProject();
+  const [open, setOpen] = useState(false);
+  if (!officeMay(user, can, RENTAL_PERMISSION)) return null;
+  return (
+    <>
+      <Button variant="outline" data-slot="rental-terms-button" onClick={() => setOpen(true)}>
+        <Receipt />
+        {tj("termsButton")}
+      </Button>
+      {open ? (
+        <RentalTermsDialog
+          project={current.active ? current.projectId : ""}
+          title={tj("termsButton")}
+          pickProject
+          onClose={() => setOpen(false)}
+        />
+      ) : null}
+    </>
+  );
+}
+
 function GenerateStatementButton({ onSaved }: { onSaved: (id: string) => void }) {
   const tr = useTranslations("jb280");
   const { can, user } = useAuth();
@@ -490,6 +546,7 @@ export function StatementLines({
 }) {
   const tr = useTranslations("jb280");
   const tFee = useTranslations("equipmentRental");
+  const tj = useTranslations("jb288");
   return (
     <div className="overflow-x-auto rounded-lg border" data-slot="statement-lines">
       <Table>
@@ -515,16 +572,31 @@ export function StatementLines({
                 {[line.equipment_no, line.equipment_name].filter(Boolean).join(" · ")}
               </TableCell>
               <TableCell>
-                {line.terms.method
-                  ? `${tFee(`method.${line.terms.method}` as never)} RM ${line.terms.unit_price ?? ""}`
-                  : tFee("noTermsShort")}
+                {line.terms.method ? (
+                  line.terms.pieces && line.terms.pieces.length > 1 ? (
+                    // JB288: the price changed in these dates - each set with its days.
+                    line.terms.pieces.map((piece) => (
+                      <span key={piece.from} className="block text-xs" data-slot="statement-line-piece">
+                        {tj("piece", {
+                          from: piece.from,
+                          to: piece.to,
+                          terms: `${tFee(`method.${piece.terms.method}` as never)} RM ${rentalMoney(piece.terms.unit_price)}`,
+                        })}
+                      </span>
+                    ))
+                  ) : (
+                    `${tFee(`method.${line.terms.method}` as never)} RM ${rentalMoney(line.terms.unit_price)}`
+                  )
+                ) : (
+                  tFee("noTermsShort")
+                )}
               </TableCell>
               <TableCell className="tabular text-right">{line.days_worked}</TableCell>
               <TableCell className="tabular text-right">{line.normal_hours}</TableCell>
               <TableCell className="tabular text-right">{line.overtime_hours}</TableCell>
               {STATEMENT_KEYS.map((key) => (
                 <TableCell key={key} className="tabular text-right">
-                  {line[key]}
+                  {rentalMoney(line[key])}
                 </TableCell>
               ))}
               <TableCell className="whitespace-nowrap">
@@ -549,7 +621,7 @@ export function StatementLines({
             </TableCell>
             {STATEMENT_KEYS.map((key) => (
               <TableCell key={key} className="tabular text-right font-semibold" data-slot={`statement-total-${key}`}>
-                {totals[key]}
+                {rentalMoney(totals[key])}
               </TableCell>
             ))}
             <TableCell />

@@ -9768,6 +9768,7 @@
       "equipment_rental_diesel_not_charged": "This machine's diesel is not charged separately by the supplier, so no diesel fee can be entered.",
       "equipment_rental_month_confirmed": "This month's rental amounts are confirmed and can no longer be changed.",
       "equipment_rental_month_not_started": "This month has not started yet and cannot be confirmed.",
+      "equipment_rental_amounts_off": "'See amounts' is off for your account, so you cannot set or change rental amounts. Ask your company administrator to switch it on for you.",
       "role_start_fixed": "\"Head office\" and \"Project\" are the starting points of Invite user: they cannot be changed, and their codes cannot be used.",
       "invite_workplace_required": "Choose head office or project.",
       "invite_projects_required": "Tick at least one project.",
@@ -9801,7 +9802,7 @@
       "rental_statement_filters": "Choose the project, the equipment company and the start and end dates (the end not before the start, at most a year).",
       "rental_statement_empty": "This equipment company has no rental fee on this project in these dates.",
       "rental_statement_not_confirmed": "These months are not over yet: {items}. Generate the statement after the month is over; to generate it now, press 【Confirm this month's amounts】 on Equipment operator hours › By month first.",
-      "rental_statement_no_terms": "These machines have no rental terms yet: {items}. Set them first.",
+      "rental_statement_no_terms": "These machines have no rental terms yet: {items}. Set them first with 「Rental fee settings」.",
       "rental_statement_overlap": "These dates overlap statement {statement_no} of the same project and company; the same fee cannot be settled twice.",
       "rental_statement_locked": "Statement {statement_no} is checked or cancelled already; it stays as it is.",
       "rental_statement_hours_locked": "These hours are in statement {statement_no}, which is checked or settled, so they can no longer be changed.",
@@ -23903,8 +23904,8 @@
       "overtime": "Overtime RM {amount}/hour",
       "standardDays": "{days} standard days a month",
       "normalHours": "normal {hours} h a day",
-      "period": "{from} to {to}",
-      "since": "from {from}"
+      "period": "rented {from} to {to}",
+      "since": "rented from {from}"
     },
     "field": {
       "method": "Rental method",
@@ -24316,6 +24317,28 @@
     "saved": "Numbers recorded",
     "historyFilled": "filled in",
     "lockedNoLorry": "No lorry has been sent yet. Numbers can be filled in once the driver sends a lorry."
+  },
+  "jb288": {
+    "termsButton": "Rental fee settings",
+    "project": "Project",
+    "chooseProject": "Choose the project",
+    "chooseProjectHelp": "Choose a project first, then set the rental fee of each of its machines.",
+    "effectiveFrom": "Effective date",
+    "effectiveHelp": "A new price counts from the effective date; earlier days stay as they were.",
+    "effectiveShort": "effective {date}",
+    "oldNew": "{old} → {new}",
+    "firstSet": "First set: {terms}",
+    "piece": "{from} to {to}: {terms}",
+    "monthPieces": "The price changed this month, worked out in {count} parts:",
+    "endBeforeEffective": "The rental end date is before the effective date: the days in between still count with the old terms. To stop charging from the end date, set the effective date to the end date too.",
+    "needEffective": "Enter the effective date first.",
+    "pieceRent": "base rent RM {amount}",
+    "noChange": "terms unchanged",
+    "noAmounts": "Amount view is switched off for you: you can see each machine's rental terms, but not set or change the fees.",
+    "upcoming": "From {date}: {terms}",
+    "amountsOff": "See amounts is off for you, so you cannot enter diesel or an adjustment.",
+    "statementsNoManage": "Your account does not have 'Manage equipment, accept entry and exit, adjust hours', so it cannot see equipment rental statements. Ask your company administrator to switch it on for you.",
+    "statementsNoAmounts": "Equipment rental statements are all amounts, and 'See amounts' is off for your account. Ask your company administrator to switch 'See amounts' on for you."
   },
   "jb265": {
     "startedBy": "Started by consultant {name}"

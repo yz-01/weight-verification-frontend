@@ -9768,6 +9768,7 @@
       "equipment_rental_diesel_not_charged": "这台设备的柴油不是供应商另外收费，不能填柴油费用。",
       "equipment_rental_month_confirmed": "这个月的租赁金额已经确认，不能再改。",
       "equipment_rental_month_not_started": "这个月还没开始，不能确认。",
+      "equipment_rental_amounts_off": "你的账号没有「金额查看」权限，不能设定或修改租赁金额。请公司管理员帮你打开「金额查看」。",
       "role_start_fixed": "「总部」「项目」是邀请用户用的起点，不能修改，也不能用这个代号。",
       "invite_workplace_required": "请选「总部」或「项目」。",
       "invite_projects_required": "请至少勾一个所属项目。",
@@ -9801,7 +9802,7 @@
       "rental_statement_filters": "请选择项目、设备公司、开始日期和结束日期（结束日期不能早于开始日期，最多一年）。",
       "rental_statement_empty": "这段日期这家设备公司在这个项目没有租赁费用。",
       "rental_statement_not_confirmed": "这些月份还没过完：{items}。月过完后才能生成月结单；一定要现在生成，请先到「设备操作员工时 › 按月」按【确认本月金额】。",
-      "rental_statement_no_terms": "这些设备还没有设定租赁条件：{items}。请先设定，再生成月结单。",
+      "rental_statement_no_terms": "这些设备还没有设定租赁条件：{items}。请先按「租赁费用设定」设定，再生成月结单。",
       "rental_statement_overlap": "这段日期和月结单 {statement_no} 重叠（同一项目、同一设备公司），同一笔设备费用不能重复结算。",
       "rental_statement_locked": "月结单 {statement_no} 已经核对或作废，不能再改。",
       "rental_statement_hours_locked": "这些工时已经在月结单 {statement_no} 里，月结单已核对或已结算，工时不能再改。",
@@ -23903,8 +23904,8 @@
       "overtime": "超时 RM {amount}/小时",
       "standardDays": "每月标准 {days} 天",
       "normalHours": "每天正常 {hours} 小时",
-      "period": "{from} 至 {to}",
-      "since": "{from} 起"
+      "period": "租期 {from} 至 {to}",
+      "since": "租期 {from} 起"
     },
     "field": {
       "method": "租赁方式",
@@ -24316,6 +24317,28 @@
     "saved": "数字已补录",
     "historyFilled": "补录",
     "lockedNoLorry": "还没有车次送来。司机送出车次后，才能补录数字。"
+  },
+  "jb288": {
+    "termsButton": "租赁费用设定",
+    "project": "项目",
+    "chooseProject": "选择项目",
+    "chooseProjectHelp": "先选一个项目，再设定这个项目每台设备的租赁费用。",
+    "effectiveFrom": "生效日期",
+    "effectiveHelp": "改价从生效日期开始算，以前的日子照旧。",
+    "effectiveShort": "生效日期 {date}",
+    "oldNew": "{old} → {new}",
+    "firstSet": "第一次设定：{terms}",
+    "piece": "{from} 至 {to}：{terms}",
+    "monthPieces": "本月改过价，分 {count} 段计算：",
+    "endBeforeEffective": "租赁结束日期在生效日期之前：这两个日期中间的日子还按旧条件算。要从结束日期起不再计费，把生效日期也改成结束日期。",
+    "needEffective": "先填生效日期。",
+    "pieceRent": "基本租金 RM {amount}",
+    "noChange": "条件没有改",
+    "noAmounts": "你没有「金额查看」权限：可以看每台设备的租赁条件，但不能设定或修改租赁费用。",
+    "upcoming": "{date} 起改为：{terms}",
+    "amountsOff": "你没有「金额查看」权限，不能填柴油或调整金额。",
+    "statementsNoManage": "你的账号没有「管理设备、验收进退场、调整工时」权限，所以看不到设备租赁月结单。请公司管理员帮你打开这项权限。",
+    "statementsNoAmounts": "设备租赁月结单全部是金额。你的账号没有「金额查看」权限，所以看不到。请公司管理员帮你打开「金额查看」。"
   },
   "jb265": {
     "startedBy": "顾问 {name} 发起"

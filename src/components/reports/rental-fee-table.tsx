@@ -59,6 +59,7 @@ function hasTerms(row: RentalReportRow): row is RentalReportRow & { rental_terms
 export function RentalFeeTable({ rental }: { rental: RentalReport }) {
   const t = useTranslations("jb257");
   const tRental = useTranslations("equipmentRental");
+  const tj = useTranslations("jb288");
   const df = useDateFormat();
   return (
     <section className="surface-panel overflow-hidden rounded-xl" data-slot="rental-fees">
@@ -102,7 +103,7 @@ export function RentalFeeTable({ rental }: { rental: RentalReport }) {
                 <TableCell className="align-top font-medium">{row.equipment}</TableCell>
                 <TableCell className="align-top">{row.supplier_name || "-"}</TableCell>
                 <TableCell className="align-top text-xs leading-5">
-                  {hasTerms(row) ? termsSummary(tRental, row.rental_terms) : (
+                  {hasTerms(row) ? termsSummary(tRental, row.rental_terms, tj) : (
                     <span className="font-medium text-warning">{tRental("noTermsShort")}</span>
                   )}
                   {row.confirmed_months.length > 0 ? (
