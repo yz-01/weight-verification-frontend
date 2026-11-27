@@ -24169,6 +24169,42 @@
     "noPlan": "Projek ini belum ada jadual.",
     "lastConfirmed": "Disahkan terakhir {time}"
   },
+  "jb289": {
+    "curveTitle": "Lengkung kemajuan",
+    "curveHelp": "Dilukis daripada jadual dan setiap kemajuan yang disahkan oleh pengurus. Dikemas kini selepas setiap pengesahan dan yang lama disimpan - tiada apa perlu dibina sendiri.",
+    "curvePlanned": "Kemajuan dirancang (Planned Progress)",
+    "curveActual": "Kemajuan sebenar (Actual Progress)",
+    "curveAxes": "Melintang: tarikh · Menegak: % siap",
+    "noCurve": "Jadual ini belum ada tugas, jadi tiada lengkung.",
+    "noConfirmation": "Belum ada kemajuan sebenar disahkan. Garis sebenar muncul selepas pengurus menekan \"Sahkan kemajuan\" kali pertama.",
+    "today": "Hari ini",
+    "tooltipLine": "{label}: {value}",
+    "confirmationLine": "{name} mengesahkan {task}: {before} → {after}",
+    "reportLabel": "Laporan ringkasan kemajuan",
+    "reportHint": "Carta dirancang vs sebenar, lengkung kemajuan, carta Gantt dan rekod kemajuan berkaitan dalam satu PDF.",
+    "reportTitle": "Ringkasan kemajuan projek · {plan}",
+    "exportTitle": "Jadual pembinaan",
+    "exportSubtitle": "Versi jadual: {version}",
+    "column": {
+      "wbs_code": "WBS",
+      "name": "Tugas",
+      "parent_wbs_code": "Tugas induk",
+      "planned_start": "Mula dirancang",
+      "planned_end": "Siap dirancang",
+      "duration_days": "Hari",
+      "planned_progress": "Sepatutnya hari ini (%)",
+      "actual_progress": "Kemajuan sebenar (%)",
+      "actual_completion_date": "Tarikh siap sebenar",
+      "schedule_status": "Status tugas",
+      "delay_days": "Hari lewat",
+      "consultant_approvals_text": "No. dan keputusan kelulusan perunding",
+      "linked_record_nos": "No. rekod tapak berkaitan",
+      "progress_confirmed_by_name": "Kemajuan disahkan oleh",
+      "progress_confirmed_at": "Masa disahkan",
+      "progress_note": "Nota pengurus",
+      "plan_version": "Versi jadual"
+    }
+  },
   "jb279": {
     "link": {
       "title": "Permohonan dipautkan (MR / permohonan lain)",

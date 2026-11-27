@@ -41,6 +41,7 @@ import { Pager } from "@/components/progress/progress-photos";
 import { isDelayed } from "@/components/schedule-planning/task-status";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { clickOpensRow } from "@/components/shared/inside-row-control";
+import { useScheduleExportWords } from "@/components/schedule-planning/schedule-export-words";
 import { ExportButton } from "@/components/shared/export-button";
 import {
   EmptyState as EmptyPanel,
@@ -153,6 +154,7 @@ export function SchedulePlanningWorkspace({
 } = {}) {
   const t = useTranslations("schedulePlanning");
   const draftWords = useTranslations("draftRecords");
+  const exportWords = useScheduleExportWords();
   const df = useDateFormat();
   const { can } = useAuth();
   const qc = useQueryClient();
@@ -336,7 +338,13 @@ export function SchedulePlanningWorkspace({
             {/* 预览 · 打印 · 导出 · 发送 (PDF 统一操作规则), as on every export. */}
             {plan && revision ? (
               <ExportButton
-                onExport={(format) => exportSchedule(plan.id, revision.id, format, { delayed: onlyDelayed })}
+                onExport={(format) =>
+                  exportSchedule(plan.id, revision.id, format, {
+                    delayed: onlyDelayed,
+                    // JB289 二: the related columns and the 施工计划版本, in the reader's words.
+                    words: exportWords(revision),
+                  })
+                }
                 title={plan.name}
                 // JB25: a draft revision is checked on screen; it goes out once confirmed.
                 disabled={revision.status !== "CONFIRMED"}

@@ -14,16 +14,23 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { AlertTriangle, BarChart3, Check, Gauge } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 
+import { ScheduleProgressCurveChart } from "@/components/progress/schedule-progress-curve";
+import { useAuth } from "@/components/providers/auth-provider";
+import { FileActionButtons } from "@/components/shared/file-actions";
 import { KpiCard } from "@/components/shared/kpi-card";
 import { QueryFailedNote } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import type { ScheduleProjectProgressPlan } from "@/interfaces/schedule-planning";
 import { useDateFormat } from "@/lib/dates";
 import { cn } from "@/lib/utils";
-import { getProjectScheduleProgress } from "@/services/schedule-planning.service";
+import { absoluteUrl } from "@/lib/share";
+import {
+  getProjectScheduleProgress,
+  scheduleProgressReportFile,
+} from "@/services/schedule-planning.service";
 
 function percentText(value: string | undefined | null) {
   if (value == null || value === "") return "-";
@@ -88,6 +95,46 @@ export function ScheduleProgressFigures({ plan }: { plan: ScheduleProjectProgres
           </ul>
         )}
       </section>
+      {/* JB289 一 (客户 11-27c): the 计划 / 实际 曲线, below the 对比条, by itself. */}
+      <ScheduleProgressCurveChart curve={plan.curve} />
+    </div>
+  );
+}
+
+/**
+ * 预览 · 打印 · 导出 · 发送 of the block above (JB289 三, 客户 11-27c: 「自动生成的
+ * 计划与实际进度对比条及曲线图，必须支持预览、打印、导出及发送」): one PDF with the
+ * figures, the 对比图, the 曲线图, the 甘特图 and the 相关进度资料. A draft
+ * schedule version is previewed only, as 施工计划's own export (JB25). Files
+ * are the office's: never on the phone.
+ */
+export function ScheduleProgressReportButtons({
+  plan,
+  project,
+}: {
+  plan: ScheduleProjectProgressPlan;
+  project: string;
+}) {
+  const t = useTranslations("jb289");
+  const draftWords = useTranslations("draftRecords");
+  const locale = useLocale();
+  const { user } = useAuth();
+  if (user?.is_field_staff || !plan.revision) return null;
+  const title = t("reportTitle", { plan: plan.plan_name });
+  const revisionId = plan.revision.id;
+  return (
+    <div className="flex flex-wrap items-center gap-2" data-slot="schedule-progress-report">
+      <FileActionButtons
+        label={t("reportLabel")}
+        labelHint={t("reportHint")}
+        blockedReason={plan.revision.status === "CONFIRMED" ? undefined : draftWords("draftRevision")}
+        source={{
+          load: () => scheduleProgressReportFile(plan.plan_id, locale, title, revisionId),
+          title,
+          project,
+          link: absoluteUrl(`/progress?tab=summary&project=${project}`),
+        }}
+      />
     </div>
   );
 }
@@ -162,6 +209,9 @@ export function ScheduleProgressDashboard({ project }: { project: string }) {
           ))}
         </div>
       )}
+      {plan && !progress.isLoading && !progress.isError ? (
+        <ScheduleProgressReportButtons plan={plan} project={project} />
+      ) : null}
       {progress.isLoading ? (
         <p className="text-sm text-muted-foreground">…</p>
       ) : progress.isError ? null : plan ? (

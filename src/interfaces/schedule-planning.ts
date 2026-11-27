@@ -228,6 +228,38 @@ export interface ScheduleProjectProgressPlan extends ScheduleOverview {
     schedule_status: ScheduleTaskStatus;
     progress_confirmed_at: string | null;
   }>;
+  /** JB289 一: the 计划 / 实际 curve - the schedule's planned rule by day and one point per 「确认实际进度」. */
+  curve?: ScheduleProgressCurve;
+}
+
+/** One day of the planned line (JB289). */
+export interface ScheduleCurvePlannedPoint {
+  date: string;
+  value: string;
+}
+
+/**
+ * One point of the actual line (JB289): a confirmation (`at` set), the 0 % opening
+ * point at the plan's start, or today's figure when the tasks hold one no
+ * confirmation recorded (`at` null).
+ */
+export interface ScheduleCurveActualPoint {
+  at: string | null;
+  date: string;
+  value: string;
+  task_wbs_code: string;
+  task_name: string;
+  actor_name: string;
+  progress_before: string | null;
+  progress_after: string | null;
+}
+
+export interface ScheduleProgressCurve {
+  start: string | null;
+  end: string | null;
+  today: string | null;
+  planned: ScheduleCurvePlannedPoint[];
+  actual: ScheduleCurveActualPoint[];
 }
 
 export interface ScheduleTaskPayload {

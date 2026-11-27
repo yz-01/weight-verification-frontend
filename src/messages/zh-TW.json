@@ -24169,6 +24169,42 @@
     "noPlan": "這個項目還沒有施工計劃。",
     "lastConfirmed": "最後確認 {time}"
   },
+  "jb289": {
+    "curveTitle": "工程進度曲線圖",
+    "curveHelp": "按施工計劃和經理每次確認的進度自動畫出，每次確認後自動更新，以前的進度都保留，不用手動建立。",
+    "curvePlanned": "計劃進度（Planned Progress）",
+    "curveActual": "實際進度（Actual Progress）",
+    "curveAxes": "橫軸：日期 · 縱軸：完成百分比",
+    "noCurve": "這份施工計劃還沒有任務，畫不出曲線。",
+    "noConfirmation": "還沒有確認過實際進度：經理第一次按「確認進度」後，實際進度曲線就會出現。",
+    "today": "今天",
+    "tooltipLine": "{label}：{value}",
+    "confirmationLine": "{name} 確認 {task}：{before} → {after}",
+    "reportLabel": "進度摘要報表",
+    "reportHint": "計劃與實際進度對比圖、曲線圖、甘特圖和相關進度資料，合成一份 PDF。",
+    "reportTitle": "項目進度摘要 · {plan}",
+    "exportTitle": "施工計劃",
+    "exportSubtitle": "施工計劃版本：{version}",
+    "column": {
+      "wbs_code": "WBS",
+      "name": "任務",
+      "parent_wbs_code": "上級任務",
+      "planned_start": "計劃開始",
+      "planned_end": "計劃完成",
+      "duration_days": "天數",
+      "planned_progress": "按計劃今天應到（%）",
+      "actual_progress": "實際進度（%）",
+      "actual_completion_date": "實際完成日期",
+      "schedule_status": "任務完成狀態",
+      "delay_days": "延誤天數",
+      "consultant_approvals_text": "顧問審批編號及審批結果",
+      "linked_record_nos": "關聯現場記錄編號",
+      "progress_confirmed_by_name": "進度確認人",
+      "progress_confirmed_at": "確認時間",
+      "progress_note": "經理確認備註",
+      "plan_version": "施工計劃版本"
+    }
+  },
   "jb279": {
     "link": {
       "title": "關聯申請（MR／其他申請）",

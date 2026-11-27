@@ -24169,6 +24169,42 @@
     "noPlan": "This project has no schedule yet.",
     "lastConfirmed": "Last confirmed {time}"
   },
+  "jb289": {
+    "curveTitle": "Progress curve",
+    "curveHelp": "Drawn from the schedule and every progress the manager confirms. It updates after each confirmation and keeps the earlier ones - nothing to build by hand.",
+    "curvePlanned": "Planned Progress",
+    "curveActual": "Actual Progress",
+    "curveAxes": "Across: date · Up: % complete",
+    "noCurve": "This schedule has no tasks yet, so there is no curve.",
+    "noConfirmation": "No actual progress has been confirmed yet. The actual line appears after the manager's first \"Confirm progress\".",
+    "today": "Today",
+    "tooltipLine": "{label}: {value}",
+    "confirmationLine": "{name} confirmed {task}: {before} → {after}",
+    "reportLabel": "Progress summary report",
+    "reportHint": "Planned vs actual chart, progress curve, Gantt chart and the related progress records in one PDF.",
+    "reportTitle": "Project progress summary · {plan}",
+    "exportTitle": "Construction schedule",
+    "exportSubtitle": "Schedule version: {version}",
+    "column": {
+      "wbs_code": "WBS",
+      "name": "Task",
+      "parent_wbs_code": "Parent task",
+      "planned_start": "Planned start",
+      "planned_end": "Planned finish",
+      "duration_days": "Days",
+      "planned_progress": "Planned for today (%)",
+      "actual_progress": "Actual progress (%)",
+      "actual_completion_date": "Actual completion date",
+      "schedule_status": "Task status",
+      "delay_days": "Days late",
+      "consultant_approvals_text": "Consultant approval no. and result",
+      "linked_record_nos": "Linked site record no.",
+      "progress_confirmed_by_name": "Progress confirmed by",
+      "progress_confirmed_at": "Confirmed at",
+      "progress_note": "Manager's note",
+      "plan_version": "Schedule version"
+    }
+  },
   "jb279": {
     "link": {
       "title": "Linked request (MR / other request)",

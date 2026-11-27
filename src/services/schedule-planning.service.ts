@@ -9,8 +9,9 @@ import type {
   ScheduleRevision,
   ScheduleTask,
   ScheduleTaskPayload,
+  ScheduleTaskStatus,
 } from "@/interfaces/schedule-planning";
-import { api, download, toastSuccess } from "@/services/api-client";
+import { api, download, fetchAsFile, toastSuccess } from "@/services/api-client";
 
 export const getSchedulePlans = (query: ListQuery = {}) =>
   api.list<SchedulePlan>("/api/schedules/get_plans/", query);
@@ -227,32 +228,113 @@ export const getScheduleHistory = (planId: string, query: ListQuery = {}) =>
     ...query,
   });
 
+/**
+ * The words 施工计划's Excel / PDF are written in (JB289 二: 「四种语言」): the
+ * column names, the status words and the 施工计划版本 line, from the screen's
+ * catalogue. Without them the file keeps its old English headings.
+ */
+export interface ScheduleExportWords {
+  lang: string;
+  title: string;
+  subtitle?: string;
+  columns: Record<ScheduleExportColumn, string>;
+  status: Record<ScheduleTaskStatus, string>;
+}
+
+/** The columns of 施工计划's Excel / PDF, in their order (JB289 adds the related ones). */
+export const SCHEDULE_EXPORT_COLUMNS = [
+  "wbs_code",
+  "name",
+  "parent_wbs_code",
+  "planned_start",
+  "planned_end",
+  "duration_days",
+  "planned_progress",
+  "actual_progress",
+  // JB289 二 (客户 11-27c): 实际完成日期、任务完成状态 ...
+  "actual_completion_date",
+  "schedule_status",
+  "delay_days",
+  // ... 顾问审批编号及审批结果、关联现场记录编号、进度确认人及确认时间 ...
+  "consultant_approvals_text",
+  "linked_record_nos",
+  "progress_confirmed_by_name",
+  "progress_confirmed_at",
+  "progress_note",
+  // ... 施工计划版本.
+  "plan_version",
+] as const;
+
+export type ScheduleExportColumn = (typeof SCHEDULE_EXPORT_COLUMNS)[number];
+
+const ENGLISH_COLUMNS: Record<ScheduleExportColumn, string> = {
+  wbs_code: "WBS",
+  name: "Task",
+  parent_wbs_code: "Parent WBS",
+  planned_start: "Planned Start",
+  planned_end: "Planned End",
+  duration_days: "Duration (days)",
+  planned_progress: "Planned Progress (%)",
+  actual_progress: "Actual Progress (%)",
+  actual_completion_date: "Actual Completion Date",
+  schedule_status: "Task Status",
+  delay_days: "Delay (days)",
+  consultant_approvals_text: "Consultant Approval No. and Result",
+  linked_record_nos: "Linked Site Records",
+  progress_confirmed_by_name: "Progress Confirmed By",
+  progress_confirmed_at: "Confirmed At",
+  progress_note: "Manager Note",
+  plan_version: "Schedule Version",
+};
+
+/** The body of 施工计划's export request: the columns in the reader's words. */
+export function scheduleExportBody(
+  revisionId: string,
+  format: "xlsx" | "pdf",
+  options: { delayed?: boolean; words?: ScheduleExportWords } = {},
+) {
+  const words = options.words;
+  return {
+    revision: revisionId,
+    format,
+    ...(options.delayed ? { delayed: true } : {}),
+    title: words?.title ?? "Construction Schedule",
+    ...(words?.subtitle ? { subtitle: words.subtitle } : {}),
+    ...(words?.lang ? { lang: words.lang } : {}),
+    columns: SCHEDULE_EXPORT_COLUMNS.map((key) => ({
+      key,
+      label: words?.columns[key] ?? ENGLISH_COLUMNS[key],
+      // 任务完成状态 in words, not codes (`utils.exports._cell`).
+      ...(key === "schedule_status" && words ? { values: words.status } : {}),
+    })),
+  };
+}
+
 export const exportSchedule = (
   planId: string,
   revisionId: string,
   format: "xlsx" | "pdf",
   /** 「只看延误」 on (H16): the file holds only the delayed tasks, as the screen. */
-  options: { delayed?: boolean } = {},
+  options: { delayed?: boolean; words?: ScheduleExportWords } = {},
 ) =>
   download(`/api/schedules/${planId}/export_schedule/`, {
     method: "POST",
-    body: {
-      revision: revisionId,
-      format,
-      ...(options.delayed ? { delayed: true } : {}),
-      title: "Construction Schedule",
-      columns: [
-        { key: "wbs_code", label: "WBS" },
-        { key: "name", label: "Task" },
-        { key: "parent_wbs_code", label: "Parent WBS" },
-        { key: "planned_start", label: "Planned Start" },
-        { key: "planned_end", label: "Planned End" },
-        { key: "duration_days", label: "Duration (days)" },
-        { key: "planned_progress", label: "Planned Progress (%)" },
-        { key: "actual_progress", label: "Actual Progress (%)" },
-        { key: "delay_days", label: "Delay (days)" },
-        { key: "progress_note", label: "Manager Note" },
-      ],
-    },
+    body: scheduleExportBody(revisionId, format, options),
     fallbackFilename: `construction-schedule.${format}`,
+  });
+
+/**
+ * 项目进度摘要's automatic part as a PDF (JB289 三): the figures, the 对比图,
+ * the 曲线图, the 甘特图 and the 相关进度资料, for 预览 · 打印 · 导出 · 发送.
+ */
+export const scheduleProgressReportFile = (
+  planId: string,
+  lang: string,
+  title: string,
+  revisionId?: string,
+) =>
+  fetchAsFile(`/api/schedules/${planId}/get_progress_report_pdf/`, {
+    method: "GET",
+    query: { lang, ...(revisionId ? { revision: revisionId } : {}) },
+    fallbackFilename: `${(title || "progress-report").replace(/[\\/:*?"<>|]+/g, "-")}.pdf`,
   });
