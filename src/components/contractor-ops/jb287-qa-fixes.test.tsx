@@ -13,6 +13,9 @@
  *    and no 【确认核对】 at all, while 【准备结算】 was locked with the reason;
  *    all three are now locked with the reason, and the 「去设定」 links are
  *    only for whoever may set fees.
+ * 5. A job with no supplier yet (a request still waiting, an old job whose
+ *    company was only typed) read 「没有设费用」 / 「这个供应商还没有设每车
+ *    清运费用」; it now says the supplier is not chosen yet.
  */
 import { readFileSync } from "node:fs";
 import path from "node:path";
@@ -55,7 +58,7 @@ vi.mock("@/components/providers/current-project-provider", () => ({
 
 const { DisposalFeeButton, DisposalFeeLink } = await import("@/components/contractor-ops/disposal-fees");
 const { NoFeeLine } = await import("@/components/contractor-ops/disposal-settlements");
-const { DisposalFeePanel } = await import("@/components/contractor-ops/disposal-fee-panel");
+const { DisposalFeePanel, FeeStateBadge } = await import("@/components/contractor-ops/disposal-fee-panel");
 const { TooltipProvider } = await import("@/components/ui/tooltip");
 
 const ROOT = process.cwd();
@@ -162,5 +165,23 @@ describe("4. without 「审核及安排垃圾清运」 the buttons are locked, s
     expect(zh.jb287.fee.noRight).toBe("你没有「审核及安排垃圾清运」权限，不能设定清运费用。");
     expect(zh.jb287.settlement.noRightCheck).toBe("你没有「审核及安排垃圾清运」权限，不能核对。");
     expect(zhTW.jb287.fee.noRight).not.toContain("您");
+  });
+});
+
+describe("5. no supplier yet is said as such, not as a missing fee", () => {
+  it("the badge and the panel say 「未选供应商」 without the fee link; a supplier's job without a fee keeps 「没有设费用」", () => {
+    const badge = text(render(<FeeStateBadge row={{ fee_state: "no_fee", collector_supplier: null }} />));
+    expect(badge).toBe(zh.jb287.panel.noSupplierState);
+    expect(text(render(<FeeStateBadge row={{ fee_state: "no_fee", collector_supplier: "s-1" }} />))).toBe(zh.jb287.state.no_fee);
+    const panel = render(<DisposalFeePanel row={{ ...NO_FEE_ROW, collector_supplier: null }} />);
+    expect(text(panel)).toContain(zh.jb287.panel.noSupplier);
+    expect(text(panel)).not.toContain(zh.jb287.panel.noFee);
+    expect(panel).not.toContain("fees=1");
+    const priced = render(<DisposalFeePanel row={{ ...NO_FEE_ROW, collector_supplier: "s-1" }} />);
+    expect(text(priced)).toContain(zh.jb287.panel.noFee);
+    for (const catalogue of [zh, zhTW, en, ms]) {
+      expect(catalogue.jb287.panel.noSupplier).toBeTruthy();
+      expect(catalogue.jb287.panel.noSupplierState).toBeTruthy();
+    }
   });
 });

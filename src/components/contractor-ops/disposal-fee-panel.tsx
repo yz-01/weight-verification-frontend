@@ -32,12 +32,27 @@ import {
 type FeeRow = Pick<
   DisposalRequest,
   "cleared_on" | "fee_per_trip" | "fee_amount" | "fee_state" | "settlement" | "amounts_hidden" | "trip_count" | "actual_weight_kg"
->;
+> &
+  Partial<Pick<DisposalRequest, "collector_supplier">>;
+
+/**
+ * 「没有设费用」 on a job that has no supplier yet (a request still waiting,
+ * or an old job whose company was only typed): the fee is not missing, the
+ * supplier is - say that instead (QA287).
+ */
+function noSupplierYet(row: Pick<DisposalRequest, "fee_state"> & Partial<Pick<DisposalRequest, "collector_supplier">>) {
+  return row.fee_state === "no_fee" && row.collector_supplier === null;
+}
 
 /** 结算状态 as a badge; nothing on 废料处理 (no fee state). */
-export function FeeStateBadge({ row }: { row: Pick<DisposalRequest, "fee_state"> }) {
+export function FeeStateBadge({
+  row,
+}: {
+  row: Pick<DisposalRequest, "fee_state"> & Partial<Pick<DisposalRequest, "collector_supplier">>;
+}) {
   const t = useTranslations("jb287");
   if (!row.fee_state) return <span className="text-muted-foreground">—</span>;
+  if (noSupplierYet(row)) return <StatusBadge label={t("panel.noSupplierState")} tone="neutral" />;
   return <StatusBadge label={t(`state.${row.fee_state}`)} tone={feeStateTone(row.fee_state)} />;
 }
 
@@ -80,6 +95,7 @@ export function DisposalFeePanel({ row }: { row: FeeRow }) {
   if (!row.fee_state) return null;
   const internal = row.fee_state === "internal";
   const noFee = row.fee_state === "no_fee";
+  const noSupplier = noSupplierYet(row);
   return (
     <section className="rounded-lg border bg-card p-3" data-slot="disposal-fee-panel">
       <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("panel.title")}</h3>
@@ -117,7 +133,12 @@ export function DisposalFeePanel({ row }: { row: FeeRow }) {
           )}
         </dl>
       )}
-      {noFee ? (
+      {noSupplier ? (
+        <p className="mt-2 text-sm text-muted-foreground" data-slot="disposal-fee-no-supplier">
+          {t("panel.noSupplier")}
+        </p>
+      ) : null}
+      {noFee && !noSupplier ? (
         <p className="mt-2 text-sm text-destructive" data-slot="disposal-fee-missing">
           {t("panel.noFee")}
           {maySetFee ? (

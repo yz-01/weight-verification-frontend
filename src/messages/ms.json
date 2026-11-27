@@ -24765,6 +24765,8 @@
       "settlementNo": "No. penyelesaian",
       "internal": "Pembersihan dalaman - tiada yuran pembersihan",
       "noFee": "Pembekal ini belum ada yuran setiap lori",
+      "noSupplier": "Pembersihan ini belum ada pembekal pembersihan. Selepas pembekal dipilih, fi setiap tripnya akan digunakan.",
+      "noSupplierState": "Belum pilih pembekal",
       "setFee": "Tetapkan yuran pembersihan",
       "running": "Masih berjalan: dikira dengan yuran hari ini dan lori yang sudah diterima; selepas selesai, yuran pada tarikh pembersihan digunakan.",
       "notArchived": "Selepas selesai dan diarkibkan, ia masuk ke Belum disemak dalam Penyelesaian pembersihan dengan sendiri.",

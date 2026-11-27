@@ -24765,6 +24765,8 @@
       "settlementNo": "Settlement no.",
       "internal": "Internal clearance - no clearance fee",
       "noFee": "This supplier has no fee per lorry yet",
+      "noSupplier": "This clearance has no clearance supplier yet. Once a supplier is chosen, its fee per trip is used.",
+      "noSupplierState": "No supplier yet",
       "setFee": "Set the clearance fee",
       "running": "Still running: worked out from today's fee and the lorries accepted so far; once finished, the fee of the clearance date applies.",
       "notArchived": "Once finished and archived, it moves to Not checked in Clearance settlement by itself.",
