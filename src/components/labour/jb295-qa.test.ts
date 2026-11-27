@@ -35,10 +35,6 @@ describe("人员名单 › 进出场记录: an app account's stay", () => {
   it("words an account with no 所属公司 as 本公司, not 「—」", () => {
     expect(source).toContain('row.original.company_key === "self" ? t295("company.self")');
   });
-
-  it("keeps 「App 账号：ah ong」 on one line under the name", () => {
-    expect(source).toMatch(/whitespace-nowrap text-xs text-muted-foreground" data-slot="visit-linked-user"/);
-  });
 });
 
 describe("【补一天】 (R7: 「It can add a day with no session (worked = true)」)", () => {

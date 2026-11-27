@@ -484,7 +484,7 @@ function WorkerVisits({ onView }: { onView: (id: string) => void }) {
           <span className="flex flex-col items-start gap-0.5">
             <span className="font-medium text-foreground">{row.original.worker_name}</span>
             {row.original.linked_user_name ? (
-              <span className="whitespace-nowrap text-xs text-muted-foreground" data-slot="visit-linked-user">
+              <span className="text-xs text-muted-foreground" data-slot="visit-linked-user">
                 {t295("twin.appName", { name: row.original.linked_user_name })}
               </span>
             ) : null}
