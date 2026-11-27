@@ -4076,7 +4076,12 @@
       "equipment_rental_statement_pdf_exported": "PDF penyata sewaan peralatan dieksport",
       "equipment_rental_statement_pdf_previewed": "PDF penyata sewaan peralatan dipratonton",
       "record_archive_checked": "Disahkan dan diarkibkan (maklumat disemak)",
-      "return_exit_confirmed": "Mengesahkan keluar rasmi"
+      "return_exit_confirmed": "Mengesahkan keluar rasmi",
+      "disposal_fee_set": "Tetapkan yuran pembersihan setiap lori",
+      "disposal_settlement_checked": "Rekod pembersihan disemak",
+      "disposal_settlement_settled": "Penyelesaian pembersihan selesai",
+      "disposal_settlement_pdf_previewed": "Pratonton penyelesaian pembersihan",
+      "disposal_settlement_pdf_exported": "Eksport penyelesaian pembersihan"
     },
     "objectType": {
       "SignOffAssistant": "PIN pembantu",
@@ -4113,7 +4118,9 @@
       "SundryClaim": "Tuntutan pelbagai",
       "Document": "Fail arkib",
       "RecordCorrection": "Pembetulan",
-      "MaterialReturnCheck": "Semakan pemulangan"
+      "MaterialReturnCheck": "Semakan pemulangan",
+      "DisposalFee": "Yuran pembersihan",
+      "DisposalSettlement": "Penyelesaian pembersihan"
     },
     "result": {
       "FAILED": "Gagal",
@@ -7813,7 +7820,11 @@
       "claim_amount": "Amaun tuntutan (RM)",
       "approved_amount": "Amaun diluluskan (RM)",
       "packed_by": "Dibungkus oleh",
-      "package_created_at": "Dicipta"
+      "package_created_at": "Dicipta",
+      "fee_per_trip": "Yuran setiap lori",
+      "fee_amount": "Jumlah yuran",
+      "settlement_no": "No. penyelesaian",
+      "settlement_status": "Status penyelesaian"
     },
     "description": {
       "attendance": "Semak bukti kemasukan tapak, ketepatan GPS dan geofence.",
@@ -9802,7 +9813,13 @@
       "return_gate_not_released": "Pintu belum mengambil gambar dan melepaskannya (kenderaan, plat dan barang), jadi keluar rasmi belum boleh disahkan.",
       "exit_release_shots_missing": "Pemulangan bahan dilepaskan dengan gambar kenderaan, nombor plat dan barang keluar - sekurang-kurangnya satu setiap satu. Ambil yang belum, kemudian tekan Sahkan lepas.",
       "invite_needs_user_update": "Menjemput juga menetapkan kebenaran orang itu, jadi anda perlu 'Sunting pengguna' untuk menjemput. Minta pentadbir syarikat anda menghidupkannya.",
-      "field_removed_from_project": "Anda telah dikeluarkan daripada projek, jadi telefon ini dilog keluar. Hubungi pengurus projek anda jika masih memerlukannya."
+      "field_removed_from_project": "Anda telah dikeluarkan daripada projek, jadi telefon ini dilog keluar. Hubungi pengurus projek anda jika masih memerlukannya.",
+      "disposal_in_settlement": "Pembersihan ini sudah disemak dan dalam penyelesaian {settlement_no}; lori dan jumlahnya tidak boleh diubah lagi",
+      "disposal_fee_duplicate_date": "Pembekal ini sudah ada yuran pada {date}. Pilih tarikh berkuat kuasa lain untuk mengubahnya.",
+      "disposal_settlement_mixed": "Hanya rekod pembersihan satu projek dan satu pembekal boleh disemak bersama",
+      "disposal_not_archived": "{reference} belum diarkibkan, jadi tidak boleh disemak.",
+      "disposal_fee_missing": "{reference}: pembekal ini belum ada yuran setiap lori",
+      "disposal_settlement_already_settled": "{settlement_no} sudah diselesaikan; tidak boleh diselesaikan dua kali."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -22303,7 +22320,9 @@
       "material_settlement_settle": "Selesaikan rekod yang disemak",
       "equipment_rental_statement": "Jana atau batalkan penyata sewaan peralatan",
       "equipment_rental_check": "Semak penyata sewaan peralatan",
-      "equipment_rental_settle": "Selesaikan penyata sewaan peralatan"
+      "equipment_rental_settle": "Selesaikan penyata sewaan peralatan",
+      "disposal_settlement_settle": "Tandakan penyelesaian pembersihan sebagai selesai",
+      "disposal_fee_set": "Tetapkan atau ubah yuran pembersihan setiap lori"
     },
     "firstTitle": "Tetapkan PIN pengesahan buat kali pertama",
     "firstBanner": "Ini kali pertama anda menggunakan PIN pengesahan",
@@ -24013,8 +24032,7 @@
       "share": "Bahagian"
     },
     "notAvailable": {
-      "progress_claim": "Progress Claim (perbelanjaan): amaun lulus Multi Engine belum aktif, jadi dikira 0. Ia ditambah secara automatik apabila aktif.",
-      "disposal": "Pembersihan sampah: rekodnya tiada amaun (hanya berat, trip dan pengutip), jadi dikira 0; tiada harga diteka."
+      "progress_claim": "Progress Claim (perbelanjaan): amaun lulus Multi Engine belum aktif, jadi dikira 0. Ia ditambah secara automatik apabila aktif."
     }
   },
   "jb275": {
@@ -24643,5 +24661,186 @@
     "noteSafety": "Pembetulan bahaya dan permit kerja ada di sini dan dibuka atau ditutup bersama.",
     "noteGate": "Foto di telefon pengawal mengikut Rekod Pintu, Imbas QR Pelawat mengikut Akses Tapak; kedua-duanya dibuka atau ditutup berasingan.",
     "noteReports": "Rekod laporan ini datang daripada Bahan Masuk: jika Bahan Masuk ditutup, laporan ini tiada rekod."
+  },
+  "jb287": {
+    "tab": {
+      "settlement": "Penyelesaian pembersihan"
+    },
+    "fee": {
+      "button": "Yuran pembersihan",
+      "buttonHint": "Tetapkan yuran kontrak setiap lori bagi setiap pembekal",
+      "noRight": "Anda tiada hak menyemak dan mengatur pembersihan sisa, jadi tidak boleh menetapkan yuran pembersihan.",
+      "title": "Yuran pembersihan",
+      "help": "Isi yuran kontrak setiap lori bagi setiap pembekal sekali sahaja. Sistem kemudian mengira yuran setiap pembersihan mengikut lori yang diterima - tidak perlu diisi setiap kali.",
+      "what": "yuran pembersihan",
+      "loading": "Memuatkan…",
+      "empty": "Belum ada pembekal pembersihan. Tambah syarikat pembersihan di Pembekal dahulu.",
+      "col": {
+        "supplier": "Pembekal",
+        "fee": "Yuran setiap lori",
+        "effective": "Berkuat kuasa dari",
+        "action": "Tindakan",
+        "oldFee": "Yuran lama",
+        "newFee": "Yuran baharu",
+        "by": "Diubah oleh",
+        "at": "Masa diubah",
+        "from": "Berkuat kuasa dari",
+        "note": "Catatan"
+      },
+      "none": "Belum ditetapkan",
+      "perTrip": "RM {fee} / lori",
+      "upcoming": "RM {fee} / lori mulai {date}",
+      "set": "Tetapkan",
+      "adjust": "Ubah",
+      "history": "Sejarah perubahan",
+      "historyTitle": "Sejarah perubahan {name}",
+      "historyEmpty": "Belum ada perubahan.",
+      "nowIs": "Sekarang: RM {fee} / lori",
+      "feeLabel": "Yuran setiap lori (RM)",
+      "feeHint": "Yuran kontrak bagi satu lori, contohnya 350.00",
+      "feeRule": "Isi jumlah lebih daripada 0, paling banyak dua tempat perpuluhan",
+      "effectiveFrom": "Berkuat kuasa dari",
+      "effectiveHint": "Kali pertama anda boleh pilih tarikh lebih awal, supaya pembersihan yang sudah selesai turut dikira.",
+      "note": "Catatan",
+      "notePlaceholder": "Pilihan, contohnya nombor kontrak",
+      "keepsOld": "Yuran baharu digunakan mulai tarikh berkuat kuasa; rekod terdahulu kekal",
+      "pinHint": "Selepas menekan Simpan, masukkan PIN tandatangan enam digit anda.",
+      "save": "Simpan",
+      "cancel": "Batal",
+      "back": "Kembali",
+      "close": "Tutup",
+      "saved": "Yuran setiap lori disimpan",
+      "failed": "Tidak dapat disimpan. Sila cuba lagi."
+    },
+    "col": {
+      "reference": "No. rekod pembersihan",
+      "project": "Projek",
+      "supplier": "Pembekal",
+      "clearedOn": "Tarikh pembersihan",
+      "trips": "Lori diterima",
+      "feePerTrip": "Yuran setiap lori",
+      "feeAmount": "Jumlah yuran",
+      "feeState": "Status penyelesaian",
+      "settlementNo": "No. penyelesaian",
+      "dateRange": "Tarikh pembersihan",
+      "tripTotal": "Jumlah lori",
+      "amountTotal": "Jumlah penyelesaian",
+      "settledBy": "Diselesaikan oleh",
+      "settledAt": "Masa diselesaikan",
+      "checkedBy": "Disemak oleh dan bila",
+      "status": "Status",
+      "actions": "Tindakan",
+      "weight": "Berat"
+    },
+    "state": {
+      "unchecked": "Belum disemak",
+      "ready": "Sedia diselesaikan",
+      "settled": "Sudah diselesaikan",
+      "running": "Sedang berjalan",
+      "no_fee": "Tiada yuran",
+      "internal": "Pembersihan dalaman",
+      "not_archived": "Belum diarkibkan"
+    },
+    "stage": {
+      "unchecked": "Belum disemak",
+      "ready": "Sedia diselesaikan",
+      "settled": "Sudah diselesaikan"
+    },
+    "status": {
+      "READY": "Sedia diselesaikan",
+      "SETTLED": "Sudah diselesaikan"
+    },
+    "cannotTick": {
+      "no_fee": "Pembekal ini belum ada yuran setiap lori",
+      "disposal_fee_missing": "Pembekal ini belum ada yuran setiap lori"
+    },
+    "locked": "Pembersihan ini sudah disemak dan dalam penyelesaian {number}; lori dan jumlahnya tidak boleh diubah lagi",
+    "panel": {
+      "title": "Yuran dan penyelesaian pembersihan",
+      "clearedOn": "Tarikh pembersihan",
+      "trips": "Lori diterima",
+      "feePerTrip": "Yuran setiap lori",
+      "feeAmount": "Jumlah yuran",
+      "state": "Status penyelesaian",
+      "settlementNo": "No. penyelesaian",
+      "internal": "Pembersihan dalaman - tiada yuran pembersihan",
+      "noFee": "Pembekal ini belum ada yuran setiap lori",
+      "noSupplier": "Pembersihan ini belum ada pembekal pembersihan. Selepas pembekal dipilih, fi setiap tripnya akan digunakan.",
+      "noSupplierState": "Belum pilih pembekal",
+      "setFee": "Tetapkan yuran pembersihan",
+      "running": "Masih berjalan: dikira dengan yuran hari ini dan lori yang sudah diterima; selepas selesai, yuran pada tarikh pembersihan digunakan.",
+      "notArchived": "Selepas selesai dan diarkibkan, ia masuk ke Belum disemak dalam Penyelesaian pembersihan dengan sendiri.",
+      "weightOnly": "Berat hanya untuk statistik; tidak dikira dalam yuran.",
+      "openSettlement": "Buka penyelesaian",
+      "hidden": "Anda tiada hak melihat jumlah wang, jadi jumlah tidak ditunjukkan."
+    },
+    "settlement": {
+      "help": "Semak rekod pembersihan secara berkelompok, jana nombor penyelesaian, sedia dan selesaikan, dan simpan sejarah.",
+      "filterHelp": "Projek mengikut Projek semasa di atas. Pembekal dan tarikh (tarikh pembersihan) hanya mengubah julat yang ditunjukkan.",
+      "figure": {
+        "trips": "Jumlah lori",
+        "weight": "Jumlah berat",
+        "amount": "Jumlah yuran pembersihan",
+        "unchecked": "Jumlah belum disemak",
+        "ready": "Jumlah sedia diselesaikan",
+        "settled": "Jumlah sudah diselesaikan"
+      },
+      "tripsValue": "{count} lori",
+      "weightValue": "{weight} kg",
+      "figuresHelp": "Jumlah termasuk pembersihan yang sudah disemak dan diselesaikan, dan tidak berkurang selepas penyelesaian. Berat hanya untuk statistik.",
+      "summaryWhat": "jumlah keseluruhan",
+      "noFeeLine": "{count} pembersihan dengan pembekal yang belum ada yuran setiap lori; dikira 0 buat masa ini.",
+      "noFeeLink": "Tetapkan yuran pembersihan",
+      "pendingWhat": "rekod pembersihan belum disemak",
+      "what": "penyelesaian pembersihan",
+      "selectAll": "Pilih semua",
+      "selectRow": "Pilih {reference}",
+      "filteredTotal": "Jumlah dalam tapisan: {amount}",
+      "tickedTotal": "Dipilih kali ini: {count}, {amount}",
+      "tickFirst": "Pilih rekod pembersihan untuk disemak dahulu",
+      "mixed": "Hanya rekod pembersihan satu projek dan satu pembekal boleh disemak bersama",
+      "confirm": "Sahkan semakan",
+      "confirmHint": "Pilih rekod pembersihan satu projek dan satu pembekal, semak bersama dan dapatkan satu nombor penyelesaian.",
+      "confirmTitle": "Sahkan semakan",
+      "confirmBody": "Gabungkan {count} rekod pembersihan yang dipilih ({project} · {supplier}, {trips} lori, {amount}) dalam satu nombor penyelesaian.",
+      "confirmLock": "Selepas semakan, rekod ini keluar dari Belum disemak, dan lori serta jumlahnya tidak boleh diubah lagi.",
+      "checkedDone": "Sudah disemak. Nombor penyelesaian {number} - ada di Sedia diselesaikan.",
+      "toReady": "Pergi ke Sedia diselesaikan",
+      "emptyUnchecked": "Tiada rekod pembersihan menunggu. Selepas pembersihan selesai dan diarkibkan, ia muncul di sini dengan sendiri.",
+      "emptyReady": "Tiada yang sedia diselesaikan. Pilih rekod di Belum disemak dan tekan Sahkan semakan; ia akan muncul di sini.",
+      "emptySettled": "Belum ada yang diselesaikan. Di Sedia diselesaikan, tekan Sedia selesaikan dan masukkan PIN anda.",
+      "expand": "Tunjuk rekod pembersihan dan yuran",
+      "collapse": "Sembunyi butiran",
+      "lines": "Rekod pembersihan dalam penyelesaian ini ({count})",
+      "linesHelp": "Tekan nombor rekod pembersihan untuk membuka rekod asal dengan semua gambar dan butiran penerimaan.",
+      "total": "Jumlah",
+      "view": "Lihat",
+      "prepare": "Sedia selesaikan",
+      "prepareHint": "Tekan selepas bayaran benar-benar dibuat. Ia meminta PIN tandatangan enam digit anda dahulu.",
+      "noRight": "Anda tiada hak menyemak dan mengatur pembersihan sisa, jadi tidak boleh menyelesaikan.",
+      "noRightCheck": "Anda tiada hak menyemak dan mengatur pembersihan sisa, jadi tidak boleh menyemak.",
+      "settleTitle": "Selesai {number}",
+      "settleBody": "PIN betul. Adakah {number} bagi {supplier} ({trips} lori, {amount}) sudah dibayar? Jika ya, tekan Selesai.",
+      "settleAsk": "Tandakan {number} ({supplier}, {amount}) sebagai selesai? Ia kemudian dikunci: tiada penyelesaian kedua, tiada perubahan jumlah.",
+      "settleGo": "Selesai",
+      "settleConfirm": "Sahkan",
+      "cancel": "Batal",
+      "failed": "Tidak berjaya. Sila cuba lagi.",
+      "lockedNote": "Yang sudah diselesaikan dikunci: tiada penyelesaian kedua dan tiada perubahan jumlah; masih boleh lihat, pratonton, cetak dan eksport.",
+      "pdfTitle": "Penyelesaian pembersihan {number}",
+      "windowTitle": "Penyelesaian pembersihan {number}",
+      "resultOnly": "Hanya keputusan semakan dan penyelesaian direkod di sini - tiada langkah bayaran."
+    },
+    "settle": {
+      "done": "{number} sudah diselesaikan"
+    },
+    "report": {
+      "total": "Jumlah yuran pembersihan sisa: {amount}",
+      "noFee": "{count} daripada pembersihan ini belum ada yuran setiap lori dan dikira 0.",
+      "runningNote": "Pembersihan yang masih berjalan tidak dikira dalam jumlah."
+    },
+    "cost": {
+      "noFee": "{count} belum ada yuran setiap lori"
+    }
   }
 }

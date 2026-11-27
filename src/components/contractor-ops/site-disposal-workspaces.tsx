@@ -31,6 +31,8 @@ import { LocationField } from "@/components/field-staff/location-field";
 import { PhotoLink } from "@/components/shared/photo-link";
 import type { LocationValue } from "@/lib/field-location";
 import { AddToPackageButton } from "@/components/contractor-ops/add-to-package";
+import { DisposalFeePanel, FeeAmountText, FeeStateBadge, SettlementNoLink } from "@/components/contractor-ops/disposal-fee-panel";
+import { DisposalFeeButton } from "@/components/contractor-ops/disposal-fees";
 import { useAuth } from "@/components/providers/auth-provider";
 import { DrillNote } from "@/components/shared/drill-note";
 import { useClearDraft, useDraftState } from "@/components/field-staff/field-draft";
@@ -59,6 +61,7 @@ import { RecordDetailDialog, RecordDetailShell, RecordRecorder } from "@/compone
 import { useListQuery } from "@/hooks/use-list-query";
 import { useUrlSelection } from "@/hooks/use-url-selection";
 import { useDateFormat } from "@/lib/dates";
+import { settlementLock } from "@/lib/disposal-fees";
 import {
   DISPOSAL_SUPPLIER_FILTERS,
   changedPlate,
@@ -1188,6 +1191,9 @@ export function DisposalTripsPanel({
   const phone = Boolean(user?.is_field_staff);
   // JB286: a blank filled by 【补录数字】 has no reason - it is worded 「补录」.
   const filled = useTranslations("jb286");
+  // JB287: from 确认核对 on the lorries are the settlement's - 更正 says why not.
+  const settlementWords = useTranslations("jb287");
+  const lock = settlementLock(row);
   const [endArmed, setEndArmed] = useState(false);
   const [correcting, setCorrecting] = useState<DisposalTrip | null>(null);
   const accept = useMutation({ mutationFn: (trip: string) => acceptDisposalTrip(row.id, trip), onSuccess: onChanged });
@@ -1268,10 +1274,17 @@ export function DisposalTripsPanel({
                   </Button>
                 )}
                 {canCorrectTrip(row, trip) && !phone && (
-                  <Button size="sm" variant="outline" onClick={() => setCorrecting(trip)}>
-                    <Pencil />
-                    {t("trips.correct")}
-                  </Button>
+                  lock ? (
+                    <Button size="sm" variant="outline" data-disposal-settlement-locked disabled disabledReason={settlementWords("locked", lock)} showReason>
+                      <Pencil />
+                      {t("trips.correct")}
+                    </Button>
+                  ) : (
+                    <Button size="sm" variant="outline" onClick={() => setCorrecting(trip)}>
+                      <Pencil />
+                      {t("trips.correct")}
+                    </Button>
+                  )
                 )}
               </div>
             )}
@@ -1399,6 +1412,8 @@ function DisposalDetailDialog({
         panel={
           <div className="space-y-3">
           <DisposalAnomaliesPanel row={row} />
+          {/* JB287: 「清运费用与结算」 - the fee, the amount and the settlement. */}
+          <DisposalFeePanel row={row} />
           <DisposalTripsPanel row={row} canCheck={can("disposal.confirm") || can("disposal.manage")} onChanged={() => void qc.invalidateQueries({ queryKey: ["site-disposals"] })} />
           <section className="rounded-lg border bg-card p-3">
             <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("timeline")}</h3>
@@ -1465,13 +1480,23 @@ function DisposalActions({
   const t = useTranslations("siteDisposal");
   const w = useTranslations("jb282");
   const fillWords = useTranslations("jb286");
+  const settlementWords = useTranslations("jb287");
   const { can, user } = useAuth();
   const steps = disposalSteps(row, {
     manage: can("disposal.manage"),
     confirm: can("disposal.confirm"),
     phone: Boolean(user?.is_field_staff),
   });
-  const supplierButton = steps.supplier ? <Button size="sm" variant="outline" onClick={() => onStep("supplier")}><Truck />{row.collector_supplier ? t("action.changeSupplier") : t("action.setSupplier")}</Button> : null;
+  // JB287 (decision 8): from 确认核对 on, the supplier and the numbers are the
+  // settlement's - the button stays in its place, locked, saying why.
+  const lock = settlementLock(row);
+  const lockedReason = lock ? settlementWords("locked", lock) : undefined;
+  const supplierLabel = row.collector_supplier ? t("action.changeSupplier") : t("action.setSupplier");
+  const supplierButton = !steps.supplier ? null : lock ? (
+    <Button size="sm" variant="outline" data-disposal-settlement-locked disabled disabledReason={lockedReason} showReason><Truck />{supplierLabel}</Button>
+  ) : (
+    <Button size="sm" variant="outline" onClick={() => onStep("supplier")}><Truck />{supplierLabel}</Button>
+  );
   return (
     <>
       {/* JB282/JB283 (客户 11-26 事项 23、24; Lucas: 「那个手机不应该出现审批才对」):
@@ -1497,7 +1522,13 @@ function DisposalActions({
       {/* E04: no 验收 / 退回 - the final proof's submission ended the job.
           What the office still does is fill in the numbers (D06). */}
       {/* Office only (QA3, audit #17): the phone never fills the job's numbers. */}
-      {can("disposal.confirm") && !user?.is_field_staff && ["COMPLETED", "AWAITING_CONFIRMATION"].includes(row.status) && <Button size="sm" variant="outline" onClick={() => onStep("numbers")}><Hash />{t("action.recordNumbers")}</Button>}
+      {can("disposal.confirm") && !user?.is_field_staff && ["COMPLETED", "AWAITING_CONFIRMATION"].includes(row.status) && (
+        lock ? (
+          <Button size="sm" variant="outline" data-disposal-settlement-locked disabled disabledReason={lockedReason} showReason><Hash />{t("action.recordNumbers")}</Button>
+        ) : (
+          <Button size="sm" variant="outline" onClick={() => onStep("numbers")}><Hash />{t("action.recordNumbers")}</Button>
+        )
+      )}
       {extra}
       {steps.fillNumbers && supplierButton}
       {/* The warning and the destructive step last, drawn alike (JB166):
@@ -1697,6 +1728,7 @@ export function DisposalInPlace({ id, onClose }: { id: string; onClose: () => vo
 export function SiteDisposalOffice({ clearanceKind }: { clearanceKind?: DisposalClearanceKind } = {}) {
   const t = useTranslations("siteDisposal");
   const kindT = useTranslations("jb248");
+  const feeWords = useTranslations("jb287");
   const tRoot = useTranslations();
   const df = useDateFormat();
   const { can } = useAuth();
@@ -1860,8 +1892,32 @@ export function SiteDisposalOffice({ clearanceKind }: { clearanceKind?: Disposal
         header: () => <PlainHeader label={t("field.project")} />,
         cell: ({ row }) => <p className="max-w-45 truncate">{row.original.project_name}</p>,
       },
+      // JB287 (客户 11-27): 费用金额｜结算编号｜结算状态 on 垃圾清运 - the job's
+      // side of the two-way link with 清运结算管理.
+      ...(clearanceKind === "GARBAGE"
+        ? ([
+            {
+              id: "fee_amount",
+              meta: { label: feeWords("col.feeAmount") },
+              header: () => <PlainHeader label={feeWords("col.feeAmount")} />,
+              cell: ({ row }) => <FeeAmountText row={row.original} />,
+            },
+            {
+              id: "settlement_no",
+              meta: { label: feeWords("col.settlementNo") },
+              header: () => <PlainHeader label={feeWords("col.settlementNo")} />,
+              cell: ({ row }) => <SettlementNoLink row={row.original} />,
+            },
+            {
+              id: "fee_state",
+              meta: { label: feeWords("col.feeState") },
+              header: () => <PlainHeader label={feeWords("col.feeState")} />,
+              cell: ({ row }) => <FeeStateBadge row={row.original} />,
+            },
+          ] satisfies ColumnDef<DisposalRequest, unknown>[])
+        : []),
     ],
-    [t, tRoot, df, kindT, clearanceKind],
+    [t, tRoot, df, kindT, feeWords, clearanceKind],
   );
 
   return (
@@ -1879,11 +1935,18 @@ export function SiteDisposalOffice({ clearanceKind }: { clearanceKind?: Disposal
         title={listTitle}
         countLabel={tRoot("moduleTable.count", { count: total })}
         headerAction={
-          can("disposal.submit") ? (
-            <Button onClick={() => setCreating(true)}>
-              <Plus className="size-4" />
-              {t("action.new")}
-            </Button>
+          // JB287: 「在右上方「新增申请」旁边设置一个「清运费用设定」按钮」 - on
+          // 垃圾清运, for the office that may set it.
+          clearanceKind === "GARBAGE" || can("disposal.submit") ? (
+            <div className="flex flex-wrap items-center gap-2">
+              {clearanceKind === "GARBAGE" ? <DisposalFeeButton /> : null}
+              {can("disposal.submit") ? (
+                <Button onClick={() => setCreating(true)}>
+                  <Plus className="size-4" />
+                  {t("action.new")}
+                </Button>
+              ) : null}
+            </div>
           ) : undefined
         }
         list={list}
@@ -1962,6 +2025,10 @@ export function SiteDisposalOffice({ clearanceKind }: { clearanceKind?: Disposal
                       // row that is, and what it was.
                       { key: "is_abnormal", label: t("field.isAbnormal"), values: { true: t("overdue.badge"), false: "" } },
                       { key: "anomaly_text", label: t("field.anomalyText") },
+                      // JB287: 费用金额｜结算编号｜结算状态 on 垃圾清运's file too.
+                      // 费用金额 is a money column: the server leaves it out
+                      // for a reader without 金额查看.
+                      ...(clearanceKind === "GARBAGE" ? disposalFeeExportColumns(feeWords) : []),
                     ],
                   })
                 }
@@ -1996,6 +2063,25 @@ export function SiteDisposalOffice({ clearanceKind }: { clearanceKind?: Disposal
       )}
     </>
   );
+}
+
+/**
+ * JB287: the three fee columns of 垃圾清运's own file - 费用金额 (a money
+ * column, dropped by the server without 金额查看), 结算编号 and 结算状态 worded.
+ */
+export function disposalFeeExportColumns(
+  feeWords: (key: string) => string,
+): { key: string; label: string; values?: Record<string, string> }[] {
+  const states = ["unchecked", "ready", "settled", "running", "no_fee", "internal", "not_archived"] as const;
+  return [
+    { key: "fee_amount", label: feeWords("col.feeAmount") },
+    { key: "settlement_no", label: feeWords("col.settlementNo") },
+    {
+      key: "fee_state",
+      label: feeWords("col.feeState"),
+      values: Object.fromEntries(states.map((state) => [state, feeWords(`state.${state}`)])),
+    },
+  ];
 }
 
 /**

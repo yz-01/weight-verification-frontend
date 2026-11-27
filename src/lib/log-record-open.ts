@@ -128,6 +128,8 @@ export const PAGE_ONLY: Readonly<Record<string, (id: string) => string>> = {
   MATERIAL_SETTLEMENT: () => "/material-outgoing?tab=settled",
   // 设备租赁月结单's 打印 / 导出 / 发送 (JB280): the statement on its page.
   EQUIPMENT_RENTAL_STATEMENT: (id) => `/equipment-rental-statements?statement=${id}`,
+  // 清运结算单's 预览 / 打印 / 导出 (JB287): the settlement on 清运结算管理.
+  DISPOSAL_SETTLEMENT: (id) => `/waste-clearance?kind=settlement&settlement=${id}`,
 };
 
 /**

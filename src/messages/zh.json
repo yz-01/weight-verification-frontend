@@ -4076,7 +4076,12 @@
       "equipment_rental_statement_pdf_exported": "导出设备租赁月结单 PDF",
       "equipment_rental_statement_pdf_previewed": "预览设备租赁月结单 PDF",
       "record_archive_checked": "确认归档（已核对资料）",
-      "return_exit_confirmed": "确认正式退场"
+      "return_exit_confirmed": "确认正式退场",
+      "disposal_fee_set": "设定每车清运费用",
+      "disposal_settlement_checked": "清运记录确认核对",
+      "disposal_settlement_settled": "清运结算完毕",
+      "disposal_settlement_pdf_previewed": "预览清运结算单",
+      "disposal_settlement_pdf_exported": "导出清运结算单"
     },
     "objectType": {
       "SignOffAssistant": "助理副密码",
@@ -4113,7 +4118,9 @@
       "SundryClaim": "杂项请款",
       "Document": "文件档案",
       "RecordCorrection": "更正",
-      "MaterialReturnCheck": "退货核对"
+      "MaterialReturnCheck": "退货核对",
+      "DisposalFee": "每车清运费用",
+      "DisposalSettlement": "清运结算"
     },
     "result": {
       "FAILED": "失败",
@@ -7813,7 +7820,11 @@
       "claim_amount": "申请金额 (RM)",
       "approved_amount": "批准金额 (RM)",
       "packed_by": "打包人",
-      "package_created_at": "创建时间"
+      "package_created_at": "创建时间",
+      "fee_per_trip": "每车费用",
+      "fee_amount": "费用金额",
+      "settlement_no": "结算编号",
+      "settlement_status": "结算状态"
     },
     "description": {
       "attendance": "查看人员进场证据、GPS 精度与围栏结果。",
@@ -9802,7 +9813,13 @@
       "return_gate_not_released": "门岗还没有拍照放行（车辆、车牌及退场货物），现在不能确认正式退场。",
       "exit_release_shots_missing": "材料退场放行要拍车辆、车牌和退场货物，每样至少一张。还没拍的：请补拍后再按【确认放行】。",
       "invite_needs_user_update": "邀请时会一起设定这个人的权限，所以要有「编辑用户」权限才能邀请。请公司管理员帮你打开。",
-      "field_removed_from_project": "你已经被移出项目，这台手机已退出登录。如果还要用，请联系项目经理。"
+      "field_removed_from_project": "你已经被移出项目，这台手机已退出登录。如果还要用，请联系项目经理。",
+      "disposal_in_settlement": "这笔清运已经核对，进了结算 {settlement_no}，车次和金额不能再改",
+      "disposal_fee_duplicate_date": "这个供应商在 {date} 已经设过费用。要改价请选另一个生效日期。",
+      "disposal_settlement_mixed": "一次只能核对同一个项目、同一个供应商的清运记录",
+      "disposal_not_archived": "{reference} 还没有确认归档，不能核对。",
+      "disposal_fee_missing": "{reference}：这个供应商还没有设每车清运费用",
+      "disposal_settlement_already_settled": "{settlement_no} 已经结算完毕，不能重复结算。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -22303,7 +22320,9 @@
       "material_settlement_settle": "结算核对记录",
       "equipment_rental_statement": "生成或作废设备租赁月结单",
       "equipment_rental_check": "核对设备租赁月结单",
-      "equipment_rental_settle": "结算设备租赁月结单"
+      "equipment_rental_settle": "结算设备租赁月结单",
+      "disposal_settlement_settle": "清运结算完毕",
+      "disposal_fee_set": "设定或修改每车清运费用"
     },
     "firstTitle": "第一次设定签核密码",
     "firstBanner": "这是你第一次使用签核密码",
@@ -24013,8 +24032,7 @@
       "share": "占比"
     },
     "notAvailable": {
-      "progress_claim": "Progress Claim（支出部分）：Multi Engine 的批准金额还没有上线，现在算 0。上线后自动算进来。",
-      "disposal": "垃圾清运：清运记录没有金额栏（只有重量、车次和清运公司），所以算 0，没有自己估价。"
+      "progress_claim": "Progress Claim（支出部分）：Multi Engine 的批准金额还没有上线，现在算 0。上线后自动算进来。"
     }
   },
   "jb275": {
@@ -24643,5 +24661,186 @@
     "noteSafety": "整改和施工准证都在这里，一起开关。",
     "noteGate": "门岗手机的「拍照」跟着门岗记录，「扫访客二维码」跟着工地门禁，两个分开开关。",
     "noteReports": "报表的资料来自材料进场：材料进场关掉后，这个报表没有资料。"
+  },
+  "jb287": {
+    "tab": {
+      "settlement": "清运结算管理"
+    },
+    "fee": {
+      "button": "清运费用设定",
+      "buttonHint": "按供应商设定合同约定的每车清运费用",
+      "noRight": "你没有「审核及安排垃圾清运」权限，不能设定清运费用。",
+      "title": "清运费用设定",
+      "help": "按照供应商填写合同约定的每车清运费用，只需填写一次。以后系统按实际验收车次自动算出每笔清运的费用，不用每次清运再填。",
+      "what": "清运费用",
+      "loading": "正在读取…",
+      "empty": "还没有清运供应商。请先在供应商管理里新增清运公司。",
+      "col": {
+        "supplier": "供应商",
+        "fee": "每车清运费用",
+        "effective": "生效日期",
+        "action": "操作",
+        "oldFee": "原来费用",
+        "newFee": "新费用",
+        "by": "修改人",
+        "at": "修改时间",
+        "from": "生效日期",
+        "note": "备注"
+      },
+      "none": "还没有设定",
+      "perTrip": "RM {fee} / 车",
+      "upcoming": "{date} 起改为 RM {fee} / 车",
+      "set": "设定",
+      "adjust": "修改",
+      "history": "修改记录",
+      "historyTitle": "{name} 的修改记录",
+      "historyEmpty": "还没有修改记录。",
+      "nowIs": "现在：RM {fee} / 车",
+      "feeLabel": "每车清运费用（RM）",
+      "feeHint": "合同约定的每一车费用，例如 350.00",
+      "feeRule": "请填大于 0 的金额，最多两位小数",
+      "effectiveFrom": "生效日期",
+      "effectiveHint": "第一次设定可以选以前的日期，以前完成的清运也会算上费用。",
+      "note": "备注",
+      "notePlaceholder": "可以不填，例如合同编号",
+      "keepsOld": "改价从生效日期开始用，以前的记录不变",
+      "pinHint": "按「保存」后，输入你的六位数签核密码。",
+      "save": "保存",
+      "cancel": "取消",
+      "back": "返回",
+      "close": "关闭",
+      "saved": "已保存每车清运费用",
+      "failed": "保存不成功，请再试。"
+    },
+    "col": {
+      "reference": "清运记录编号",
+      "project": "项目名称",
+      "supplier": "供应商名称",
+      "clearedOn": "清运日期",
+      "trips": "实际验收车次",
+      "feePerTrip": "每车费用",
+      "feeAmount": "费用金额",
+      "feeState": "结算状态",
+      "settlementNo": "结算编号",
+      "dateRange": "清运日期范围",
+      "tripTotal": "清运总车次",
+      "amountTotal": "结算总金额",
+      "settledBy": "结算人",
+      "settledAt": "结算时间",
+      "checkedBy": "核对人及时间",
+      "status": "状态",
+      "actions": "操作",
+      "weight": "重量"
+    },
+    "state": {
+      "unchecked": "未核对",
+      "ready": "准备结算",
+      "settled": "结算完毕",
+      "running": "进行中",
+      "no_fee": "没有设费用",
+      "internal": "内部清运",
+      "not_archived": "未归档"
+    },
+    "stage": {
+      "unchecked": "未核对",
+      "ready": "准备结算",
+      "settled": "结算完毕"
+    },
+    "status": {
+      "READY": "准备结算",
+      "SETTLED": "结算完毕"
+    },
+    "cannotTick": {
+      "no_fee": "这个供应商还没有设每车清运费用",
+      "disposal_fee_missing": "这个供应商还没有设每车清运费用"
+    },
+    "locked": "这笔清运已经核对，进了结算 {number}，车次和金额不能再改",
+    "panel": {
+      "title": "清运费用与结算",
+      "clearedOn": "清运日期",
+      "trips": "实际验收车次",
+      "feePerTrip": "每车费用",
+      "feeAmount": "费用金额",
+      "state": "结算状态",
+      "settlementNo": "结算编号",
+      "internal": "内部清运，没有清运费用",
+      "noFee": "这个供应商还没有设每车清运费用",
+      "noSupplier": "这笔清运还没有选清运供应商。选好供应商后，才会按每车清运费用算出费用。",
+      "noSupplierState": "未选供应商",
+      "setFee": "去设定清运费用",
+      "running": "清运还在进行：先按今天的费用和已验收的车次算，清运完成后按清运日期的费用算。",
+      "notArchived": "清运完成并确认归档后，会自动进入「清运结算管理」的未核对。",
+      "weightOnly": "重量只作统计，不参与费用计算。",
+      "openSettlement": "打开结算",
+      "hidden": "你没有金额查看权限，金额不显示。"
+    },
+    "settlement": {
+      "help": "批量核对清运记录、生成结算编号、准备结算、结算完毕及历史归档。",
+      "filterHelp": "项目跟着上方的「当前项目」。供应商和日期（清运日期）只改变显示的范围。",
+      "figure": {
+        "trips": "累计清运车次",
+        "weight": "累计清运重量",
+        "amount": "累计清运费用",
+        "unchecked": "未核对金额",
+        "ready": "准备结算金额",
+        "settled": "结算完毕金额"
+      },
+      "tripsValue": "{count} 车",
+      "weightValue": "{weight} kg",
+      "figuresHelp": "累计数字包括已核对和已结算的清运，结算完毕后也不会减少。重量只作统计，不参与费用计算。",
+      "summaryWhat": "累计统计",
+      "noFeeLine": "有 {count} 笔清运的供应商还没有设每车清运费用，这些清运暂时算 0。",
+      "noFeeLink": "去设定清运费用",
+      "pendingWhat": "未核对的清运记录",
+      "what": "清运结算",
+      "selectAll": "全选",
+      "selectRow": "勾选 {reference}",
+      "filteredTotal": "筛选范围累计：{amount}",
+      "tickedTotal": "本次勾选：{count} 笔，{amount}",
+      "tickFirst": "先勾选要核对的清运记录",
+      "mixed": "一次只能核对同一个项目、同一个供应商的清运记录",
+      "confirm": "确认核对",
+      "confirmHint": "勾选同一个项目、同一个供应商的清运记录，一起核对，生成一个结算编号。",
+      "confirmTitle": "确认核对",
+      "confirmBody": "把勾选的 {count} 笔清运记录（{project} · {supplier}，共 {trips} 车，{amount}）整合成一个结算编号。",
+      "confirmLock": "核对后，这些清运记录会移出「未核对」，车次和金额不能再改。",
+      "checkedDone": "已核对，结算编号 {number}。在「准备结算」里可以找到。",
+      "toReady": "去准备结算",
+      "emptyUnchecked": "没有未核对的清运记录。清运完成并确认归档后，会自动出现在这里。",
+      "emptyReady": "没有准备结算的事项。在「未核对」里勾选清运记录，按「确认核对」后，会出现在这里。",
+      "emptySettled": "还没有结算完毕的事项。在「准备结算」里按「准备结算」并输入密码后，就可以结算完毕。",
+      "expand": "展开清运记录及费用明细",
+      "collapse": "收起明细",
+      "lines": "这次结算包含的清运记录（{count} 笔）",
+      "linesHelp": "点清运记录编号打开原始记录，可以看完整照片及验收资料。",
+      "total": "合计",
+      "view": "查看",
+      "prepare": "准备结算",
+      "prepareHint": "建筑商实际完成付款后再按。会先要你输入六位数签核密码。",
+      "noRight": "你没有「审核及安排垃圾清运」权限，不能结算。",
+      "noRightCheck": "你没有「审核及安排垃圾清运」权限，不能核对。",
+      "settleTitle": "结算完毕 {number}",
+      "settleBody": "密码正确。{supplier} 的 {number}（共 {trips} 车，{amount}）已经付款了吗？已经付款就按「结算完毕」。",
+      "settleAsk": "确认把 {number}（{supplier}，{amount}）设为结算完毕？结算完毕后会锁定，不能重复结算，也不能改金额。",
+      "settleGo": "结算完毕",
+      "settleConfirm": "确认",
+      "cancel": "取消",
+      "failed": "没有成功，请再试。",
+      "lockedNote": "结算完毕的事项已经锁定，不能重复结算或修改金额；可以查看、预览、打印及导出。",
+      "pdfTitle": "清运结算单 {number}",
+      "windowTitle": "清运结算 {number}",
+      "resultOnly": "这里只记录核对及结算结果，不涉及实际付款。"
+    },
+    "settle": {
+      "done": "{number} 已结算完毕"
+    },
+    "report": {
+      "total": "垃圾清运费用合计：{amount}",
+      "noFee": "其中 {count} 笔清运还没有设每车费用，算 0。",
+      "runningNote": "进行中的清运不算进合计"
+    },
+    "cost": {
+      "noFee": "{count} 笔还没有设每车费用"
+    }
   }
 }

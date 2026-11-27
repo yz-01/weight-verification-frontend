@@ -158,7 +158,9 @@ export const PACK_TARGETS: readonly PackTarget[] = [
     kind: "DISPOSAL_REQUEST",
     labelKey: "nav.submodule.siteDisposals",
     path: "/waste-clearance",
-    params: { kind: "disposal" },
+    // JB287: 「全部」 became 清运结算管理, so the jobs to tick are on 垃圾清运
+    // (废料处理 is the tab beside it; the package stays docked).
+    params: { kind: "garbage" },
   },
   {
     key: "progress",

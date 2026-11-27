@@ -7,22 +7,25 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
 import { ClearanceStatsBar } from "@/components/contractor-ops/clearance-stats-bar";
-import { SiteDisposalOffice } from "@/components/contractor-ops/site-disposal-workspaces";
+import { ClearanceSettlement } from "@/components/contractor-ops/disposal-settlements";
+import { DisposalInPlace, SiteDisposalOffice } from "@/components/contractor-ops/site-disposal-workspaces";
 import { useCurrentProject } from "@/components/providers/current-project-provider";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ListHeader, QueryFailedNote } from "@/components/shared/page-primitives";
+import { useUrlSelection } from "@/hooks/use-url-selection";
 import { cn } from "@/lib/utils";
 import {
   CLEARANCE_KIND_OF,
   clearanceFigureFilters,
   clearanceKindOf,
+  clearanceListHref,
   clearanceTabHref,
   dispatchListHref,
   type ClearanceTab,
 } from "@/lib/waste-clearance-figures";
 import { getDisposalTotals } from "@/services/contractor-ops.service";
 
-const TABS: readonly ClearanceTab[] = ["all", "garbage", "scrap", "abnormal"];
+const TABS: readonly ClearanceTab[] = ["settlement", "garbage", "scrap", "abnormal"];
 
 /**
  * 垃圾清运: a business menu of its own (JB248, 客户 11-23b 事项 1).
@@ -41,20 +44,32 @@ const TABS: readonly ClearanceTab[] = ["all", "garbage", "scrap", "abnormal"];
  *
  * 废料订单 is back in 环保材料管理 (第三点); an old `kind=dispatch` link goes
  * there.
+ *
+ * JB287 (客户 11-27): 「目前垃圾清运的「全部」与「垃圾清运」两个页面基本相同。请保留
+ * 「垃圾清运」原有页面及操作流程…「全部」页面则按照之前提出的方案调整为「清运结算
+ * 管理」」 - the first tab is now 清运结算管理 (`ClearanceSettlement`); its old
+ * links (`kind=all`, `kind=disposal`) open it, and a `?record=` they carry
+ * opens that job over it. 「异常记录」 still lists both kinds.
  */
 export function WasteClearance() {
   const t = useTranslations("wasteClearance");
   const words = useTranslations("jb248");
+  const settlementWords = useTranslations("jb287");
   const { can } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const asked = searchParams.get("kind");
   const kind = clearanceKindOf(asked);
-  const tab: ClearanceTab = kind === "all" && searchParams.get("abnormal") === "1" ? "abnormal" : kind;
+  const tab: ClearanceTab = kind === "settlement" && searchParams.get("abnormal") === "1" ? "abnormal" : kind;
+  // 【新增申请】 or Multi Engine's 「添加资料」 on an old link: the list of jobs.
+  const listHref = clearanceListHref(searchParams);
+  // A notice's or task card's job, opened over 清运结算管理.
+  const [recordId, setRecordId] = useUrlSelection("record");
 
   useEffect(() => {
     if (asked === "dispatch") router.replace(dispatchListHref(searchParams));
-  }, [asked, router, searchParams]);
+    else if (listHref) router.replace(listHref);
+  }, [asked, listHref, router, searchParams]);
 
   // The page's project is the top bar's 「当前项目」 when it is in force (B13);
   // the header counts what the list under it shows (F8).
@@ -80,7 +95,7 @@ export function WasteClearance() {
   const countText = (query: typeof garbageTotals) =>
     query.isError ? "—" : query.isLoading ? "…" : String(query.data?.records ?? 0);
 
-  if (asked === "dispatch") return null;
+  if (asked === "dispatch" || listHref) return null;
 
   return (
     <div className="flex flex-col gap-4">
@@ -128,12 +143,19 @@ export function WasteClearance() {
               option === "abnormal" && option !== tab && "text-destructive",
             )}
           >
-            {words(`tab.${option}`)}
+            {option === "settlement" ? settlementWords("tab.settlement") : words(`tab.${option}`)}
           </Link>
         ))}
       </nav>
 
-      <SiteDisposalOffice clearanceKind={kind === "all" ? undefined : CLEARANCE_KIND_OF[kind]} />
+      {tab === "settlement" ? (
+        <>
+          <ClearanceSettlement />
+          {recordId ? <DisposalInPlace id={recordId} onClose={() => setRecordId(null)} /> : null}
+        </>
+      ) : (
+        <SiteDisposalOffice clearanceKind={kind === "settlement" ? undefined : CLEARANCE_KIND_OF[kind]} />
+      )}
     </div>
   );
 }

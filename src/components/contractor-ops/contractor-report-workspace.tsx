@@ -67,6 +67,7 @@ import { useDateFormat } from "@/lib/dates";
 import { isRouteAllowed } from "@/lib/navigation";
 import { useUnitExportValues } from "@/hooks/use-material-units";
 import { RentalFeeTable, rentalLabels } from "@/components/reports/rental-fee-table";
+import { DisposalFeeTotal } from "@/components/contractor-ops/disposal-fee-panel";
 import {
   REPORT_REFERENCE_COLUMNS,
   messageCodes,
@@ -481,6 +482,8 @@ function ContractorReportWorkspaceBody({
 
       {/* JB257: each machine's rental fee and the 累计总金额, above the records. */}
       {report.data?.rental ? <RentalFeeTable rental={report.data.rental} /> : null}
+      {/* JB287: 垃圾清运's 费用金额 added up, above the records. */}
+      {report.data?.disposal_fees ? <DisposalFeeTotal fees={report.data.disposal_fees} /> : null}
 
       <section className="surface-panel overflow-hidden rounded-xl">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-panel-border px-4 py-3 sm:px-6">

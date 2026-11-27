@@ -1505,6 +1505,37 @@ export interface DisposalRequest extends RecordedBy {
   timeline: DisposalTimelineEntry[];
   created_at: string;
   updated_at: string;
+  /**
+   * JB287 (客户 11-27): 清运日期 - the day the last lorry was accepted. 垃圾清运
+   * only; null on 废料处理, on a job not finished, or from an older backend.
+   */
+  cleared_on?: string | null;
+  /** 每车费用 in force for (supplier, 清运日期); null when hidden or none. */
+  fee_per_trip?: string | null;
+  /** 费用金额 = 每车费用 × 实际验收车次; null when hidden or none. */
+  fee_amount?: string | null;
+  /** Where the job stands in 清运结算; null on 废料处理. */
+  fee_state?: DisposalFeeState | null;
+  /** The 清运结算 it is in, from 确认核对 on. */
+  settlement?: DisposalSettlementRef | null;
+  /** 金额查看 off for the reader: the amounts above are null. */
+  amounts_hidden?: boolean;
+}
+
+/** JB287: a 垃圾清运 job's 结算状态. */
+export type DisposalFeeState =
+  | "settled"
+  | "ready"
+  | "unchecked"
+  | "running"
+  | "no_fee"
+  | "internal"
+  | "not_archived";
+
+export interface DisposalSettlementRef {
+  id: string;
+  number: string;
+  status: "READY" | "SETTLED";
 }
 
 export interface ExternalDisposalTask {

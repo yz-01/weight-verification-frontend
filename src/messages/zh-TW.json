@@ -4076,7 +4076,12 @@
       "equipment_rental_statement_pdf_exported": "匯出設備租賃月結單 PDF",
       "equipment_rental_statement_pdf_previewed": "預覽設備租賃月結單 PDF",
       "record_archive_checked": "確認歸檔（已核對資料）",
-      "return_exit_confirmed": "確認正式退場"
+      "return_exit_confirmed": "確認正式退場",
+      "disposal_fee_set": "設定每車清運費用",
+      "disposal_settlement_checked": "清運記錄確認核對",
+      "disposal_settlement_settled": "清運結算完畢",
+      "disposal_settlement_pdf_previewed": "預覽清運結算單",
+      "disposal_settlement_pdf_exported": "匯出清運結算單"
     },
     "objectType": {
       "SignOffAssistant": "助理副密碼",
@@ -4113,7 +4118,9 @@
       "SundryClaim": "雜項請款",
       "Document": "文件檔案",
       "RecordCorrection": "更正",
-      "MaterialReturnCheck": "退貨核對"
+      "MaterialReturnCheck": "退貨核對",
+      "DisposalFee": "每車清運費用",
+      "DisposalSettlement": "清運結算"
     },
     "result": {
       "FAILED": "失敗",
@@ -7813,7 +7820,11 @@
       "claim_amount": "申請金額 (RM)",
       "approved_amount": "批准金額 (RM)",
       "packed_by": "打包人",
-      "package_created_at": "建立時間"
+      "package_created_at": "建立時間",
+      "fee_per_trip": "每車費用",
+      "fee_amount": "費用金額",
+      "settlement_no": "結算編號",
+      "settlement_status": "結算狀態"
     },
     "description": {
       "attendance": "查看人員進場證據、GPS 精度與圍欄結果。",
@@ -9802,7 +9813,13 @@
       "return_gate_not_released": "門崗還沒有拍照放行（車輛、車牌及退場貨物），現在不能確認正式退場。",
       "exit_release_shots_missing": "材料退場放行要拍車輛、車牌和退場貨物，每樣至少一張。還沒拍的：請補拍後再按【確認放行】。",
       "invite_needs_user_update": "邀請時會一起設定這個人的權限，所以要有「編輯用戶」權限才能邀請。請公司管理員幫你打開。",
-      "field_removed_from_project": "你已經被移出項目，這台手機已退出登入。如果還要用，請聯繫項目經理。"
+      "field_removed_from_project": "你已經被移出項目，這台手機已退出登入。如果還要用，請聯繫項目經理。",
+      "disposal_in_settlement": "這筆清運已經核對，進了結算 {settlement_no}，車次和金額不能再改",
+      "disposal_fee_duplicate_date": "這個供應商在 {date} 已經設過費用。要改價請選另一個生效日期。",
+      "disposal_settlement_mixed": "一次只能核對同一個項目、同一個供應商的清運記錄",
+      "disposal_not_archived": "{reference} 還沒有確認歸檔，不能核對。",
+      "disposal_fee_missing": "{reference}：這個供應商還沒有設每車清運費用",
+      "disposal_settlement_already_settled": "{settlement_no} 已經結算完畢，不能重複結算。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -22303,7 +22320,9 @@
       "material_settlement_settle": "結算核對記錄",
       "equipment_rental_statement": "生成或作廢設備租賃月結單",
       "equipment_rental_check": "核對設備租賃月結單",
-      "equipment_rental_settle": "結算設備租賃月結單"
+      "equipment_rental_settle": "結算設備租賃月結單",
+      "disposal_settlement_settle": "清運結算完畢",
+      "disposal_fee_set": "設定或修改每車清運費用"
     },
     "firstTitle": "第一次設定簽核密碼",
     "firstBanner": "這是你第一次使用簽核密碼",
@@ -24013,8 +24032,7 @@
       "share": "佔比"
     },
     "notAvailable": {
-      "progress_claim": "Progress Claim（支出部分）：Multi Engine 的批准金額還沒有上線，現在算 0。上線後自動算進來。",
-      "disposal": "垃圾清運：清運記錄沒有金額欄（只有重量、車次和清運公司），所以算 0，沒有自己估價。"
+      "progress_claim": "Progress Claim（支出部分）：Multi Engine 的批准金額還沒有上線，現在算 0。上線後自動算進來。"
     }
   },
   "jb275": {
@@ -24643,5 +24661,186 @@
     "noteSafety": "整改和施工准證都在這裡，一起開關。",
     "noteGate": "門崗手機的「拍照」跟著門崗記錄，「掃訪客二維碼」跟著工地門禁，兩個分開開關。",
     "noteReports": "報表的資料來自材料進場：材料進場關掉後，這個報表沒有資料。"
+  },
+  "jb287": {
+    "tab": {
+      "settlement": "清運結算管理"
+    },
+    "fee": {
+      "button": "清運費用設定",
+      "buttonHint": "按供應商設定合約約定的每車清運費用",
+      "noRight": "你沒有「審核及安排垃圾清運」權限，不能設定清運費用。",
+      "title": "清運費用設定",
+      "help": "按照供應商填寫合約約定的每車清運費用，只需填寫一次。以後系統按實際驗收車次自動算出每筆清運的費用，不用每次清運再填。",
+      "what": "清運費用",
+      "loading": "正在讀取…",
+      "empty": "還沒有清運供應商。請先在供應商管理裡新增清運公司。",
+      "col": {
+        "supplier": "供應商",
+        "fee": "每車清運費用",
+        "effective": "生效日期",
+        "action": "操作",
+        "oldFee": "原來費用",
+        "newFee": "新費用",
+        "by": "修改人",
+        "at": "修改時間",
+        "from": "生效日期",
+        "note": "備註"
+      },
+      "none": "還沒有設定",
+      "perTrip": "RM {fee} / 車",
+      "upcoming": "{date} 起改為 RM {fee} / 車",
+      "set": "設定",
+      "adjust": "修改",
+      "history": "修改記錄",
+      "historyTitle": "{name} 的修改記錄",
+      "historyEmpty": "還沒有修改記錄。",
+      "nowIs": "現在：RM {fee} / 車",
+      "feeLabel": "每車清運費用（RM）",
+      "feeHint": "合約約定的每一車費用，例如 350.00",
+      "feeRule": "請填大於 0 的金額，最多兩位小數",
+      "effectiveFrom": "生效日期",
+      "effectiveHint": "第一次設定可以選以前的日期，以前完成的清運也會算上費用。",
+      "note": "備註",
+      "notePlaceholder": "可以不填，例如合約編號",
+      "keepsOld": "改價從生效日期開始用，以前的記錄不變",
+      "pinHint": "按「儲存」後，輸入你的六位數簽核密碼。",
+      "save": "儲存",
+      "cancel": "取消",
+      "back": "返回",
+      "close": "關閉",
+      "saved": "已儲存每車清運費用",
+      "failed": "儲存不成功，請再試。"
+    },
+    "col": {
+      "reference": "清運記錄編號",
+      "project": "項目名稱",
+      "supplier": "供應商名稱",
+      "clearedOn": "清運日期",
+      "trips": "實際驗收車次",
+      "feePerTrip": "每車費用",
+      "feeAmount": "費用金額",
+      "feeState": "結算狀態",
+      "settlementNo": "結算編號",
+      "dateRange": "清運日期範圍",
+      "tripTotal": "清運總車次",
+      "amountTotal": "結算總金額",
+      "settledBy": "結算人",
+      "settledAt": "結算時間",
+      "checkedBy": "核對人及時間",
+      "status": "狀態",
+      "actions": "操作",
+      "weight": "重量"
+    },
+    "state": {
+      "unchecked": "未核對",
+      "ready": "準備結算",
+      "settled": "結算完畢",
+      "running": "進行中",
+      "no_fee": "沒有設費用",
+      "internal": "內部清運",
+      "not_archived": "未歸檔"
+    },
+    "stage": {
+      "unchecked": "未核對",
+      "ready": "準備結算",
+      "settled": "結算完畢"
+    },
+    "status": {
+      "READY": "準備結算",
+      "SETTLED": "結算完畢"
+    },
+    "cannotTick": {
+      "no_fee": "這個供應商還沒有設每車清運費用",
+      "disposal_fee_missing": "這個供應商還沒有設每車清運費用"
+    },
+    "locked": "這筆清運已經核對，進了結算 {number}，車次和金額不能再改",
+    "panel": {
+      "title": "清運費用與結算",
+      "clearedOn": "清運日期",
+      "trips": "實際驗收車次",
+      "feePerTrip": "每車費用",
+      "feeAmount": "費用金額",
+      "state": "結算狀態",
+      "settlementNo": "結算編號",
+      "internal": "內部清運，沒有清運費用",
+      "noFee": "這個供應商還沒有設每車清運費用",
+      "noSupplier": "這筆清運還沒有選清運供應商。選好供應商後，才會按每車清運費用算出費用。",
+      "noSupplierState": "未選供應商",
+      "setFee": "去設定清運費用",
+      "running": "清運還在進行：先按今天的費用和已驗收的車次算，清運完成後按清運日期的費用算。",
+      "notArchived": "清運完成並確認歸檔後，會自動進入「清運結算管理」的未核對。",
+      "weightOnly": "重量只作統計，不參與費用計算。",
+      "openSettlement": "打開結算",
+      "hidden": "你沒有金額查看權限，金額不顯示。"
+    },
+    "settlement": {
+      "help": "批量核對清運記錄、生成結算編號、準備結算、結算完畢及歷史歸檔。",
+      "filterHelp": "項目跟著上方的「當前項目」。供應商和日期（清運日期）只改變顯示的範圍。",
+      "figure": {
+        "trips": "累計清運車次",
+        "weight": "累計清運重量",
+        "amount": "累計清運費用",
+        "unchecked": "未核對金額",
+        "ready": "準備結算金額",
+        "settled": "結算完畢金額"
+      },
+      "tripsValue": "{count} 車",
+      "weightValue": "{weight} kg",
+      "figuresHelp": "累計數字包括已核對和已結算的清運，結算完畢後也不會減少。重量只作統計，不參與費用計算。",
+      "summaryWhat": "累計統計",
+      "noFeeLine": "有 {count} 筆清運的供應商還沒有設每車清運費用，這些清運暫時算 0。",
+      "noFeeLink": "去設定清運費用",
+      "pendingWhat": "未核對的清運記錄",
+      "what": "清運結算",
+      "selectAll": "全選",
+      "selectRow": "勾選 {reference}",
+      "filteredTotal": "篩選範圍累計：{amount}",
+      "tickedTotal": "本次勾選：{count} 筆，{amount}",
+      "tickFirst": "先勾選要核對的清運記錄",
+      "mixed": "一次只能核對同一個項目、同一個供應商的清運記錄",
+      "confirm": "確認核對",
+      "confirmHint": "勾選同一個項目、同一個供應商的清運記錄，一起核對，生成一個結算編號。",
+      "confirmTitle": "確認核對",
+      "confirmBody": "把勾選的 {count} 筆清運記錄（{project} · {supplier}，共 {trips} 車，{amount}）整合成一個結算編號。",
+      "confirmLock": "核對後，這些清運記錄會移出「未核對」，車次和金額不能再改。",
+      "checkedDone": "已核對，結算編號 {number}。在「準備結算」裡可以找到。",
+      "toReady": "去準備結算",
+      "emptyUnchecked": "沒有未核對的清運記錄。清運完成並確認歸檔後，會自動出現在這裡。",
+      "emptyReady": "沒有準備結算的事項。在「未核對」裡勾選清運記錄，按「確認核對」後，會出現在這裡。",
+      "emptySettled": "還沒有結算完畢的事項。在「準備結算」裡按「準備結算」並輸入密碼後，就可以結算完畢。",
+      "expand": "展開清運記錄及費用明細",
+      "collapse": "收起明細",
+      "lines": "這次結算包含的清運記錄（{count} 筆）",
+      "linesHelp": "點清運記錄編號打開原始記錄，可以看完整照片及驗收資料。",
+      "total": "合計",
+      "view": "查看",
+      "prepare": "準備結算",
+      "prepareHint": "建築商實際完成付款後再按。會先要你輸入六位數簽核密碼。",
+      "noRight": "你沒有「審核及安排垃圾清運」權限，不能結算。",
+      "noRightCheck": "你沒有「審核及安排垃圾清運」權限，不能核對。",
+      "settleTitle": "結算完畢 {number}",
+      "settleBody": "密碼正確。{supplier} 的 {number}（共 {trips} 車，{amount}）已經付款了嗎？已經付款就按「結算完畢」。",
+      "settleAsk": "確認把 {number}（{supplier}，{amount}）設為結算完畢？結算完畢後會鎖定，不能重複結算，也不能改金額。",
+      "settleGo": "結算完畢",
+      "settleConfirm": "確認",
+      "cancel": "取消",
+      "failed": "沒有成功，請再試。",
+      "lockedNote": "結算完畢的事項已經鎖定，不能重複結算或修改金額；可以查看、預覽、列印及匯出。",
+      "pdfTitle": "清運結算單 {number}",
+      "windowTitle": "清運結算 {number}",
+      "resultOnly": "這裡只記錄核對及結算結果，不涉及實際付款。"
+    },
+    "settle": {
+      "done": "{number} 已結算完畢"
+    },
+    "report": {
+      "total": "垃圾清運費用合計：{amount}",
+      "noFee": "其中 {count} 筆清運還沒有設每車費用，算 0。",
+      "runningNote": "進行中的清運不算進合計"
+    },
+    "cost": {
+      "noFee": "{count} 筆還沒有設每車費用"
+    }
   }
 }
