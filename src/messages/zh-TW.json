@@ -4083,6 +4083,8 @@
       "disposal_settlement_settled": "清運結算完畢",
       "disposal_settlement_pdf_previewed": "預覽清運結算單",
       "disposal_settlement_pdf_exported": "匯出清運結算單",
+      "disposal_settlement_payment_recorded": "上傳清運結算付款憑證",
+      "disposal_settlement_voucher_added": "補上傳清運結算付款憑證",
       "disposal_lorry_signed": "填寫車牌和清運簽名",
       "wall_screen_viewed": "查看總部大屏",
       "wall_display_settings_saved": "保存大屏展示設定",
@@ -9843,6 +9845,11 @@
       "disposal_not_archived": "{reference} 還沒有確認歸檔，不能核對。",
       "disposal_fee_missing": "{reference}：這個供應商還沒有設每車清運費用",
       "disposal_settlement_already_settled": "{settlement_no} 已經結算完畢，不能重複結算。",
+      "disposal_settlement_payment_missing": "{settlement_no} 還沒有上傳付款憑證和付款編號，不能確認結算完畢。請先上傳付款憑證並填寫付款編號。",
+      "disposal_payment_no_required": "請填寫付款編號。",
+      "disposal_payment_file_required": "請上傳付款憑證（照片或 PDF）。",
+      "disposal_settlement_payment_locked": "{settlement_no} 已經結算完畢並鎖定，付款憑證不能再改。",
+      "disposal_fee_project_required": "請先選項目。清運費用按項目分別設定。",
       "disposal_lorry_sheet_missing": "工地還沒有填車牌、司機和工地負責人還沒有簽名。",
       "wall_project_unavailable": "這個項目不能放上大屏：只有在建項目可以設定。請重新打開「大屏展示設定」再試。",
       "wall_link_not_found": "這個大屏連結已經失效。請向公司要新的連結。",
@@ -22369,6 +22376,7 @@
       "equipment_rental_check": "核對設備租賃月結單",
       "equipment_rental_settle": "結算設備租賃月結單",
       "disposal_settlement_settle": "清運結算完畢",
+      "disposal_settlement_voucher": "補上傳清運結算的付款憑證",
       "disposal_fee_set": "設定或修改每車清運費用",
       "labour_rate_set": "設定人工單價",
       "labour_hours_adjust": "調整人工工時",
@@ -25505,6 +25513,82 @@
       "months": "看每月",
       "empty": "這段月份沒有人有工作天數。",
       "help": "人工費用是按現在的記錄和單價算出的；已確認的月份按確認時保存的算。"
+    }
+  },
+  "jb299": {
+    "fee": {
+      "help": "按照「項目＋供應商」填寫合同約定的每車清運費用。同一家供應商在不同項目可以有不同價格。設定一次，以後這個項目的清運按實際驗收車次自動算費用。",
+      "thisProject": "這個項目：{name}",
+      "chooseProject": "先選項目。清運費用按項目分別設定。",
+      "projectLabel": "項目",
+      "projectPlaceholder": "選擇項目",
+      "keepsOld": "改價只用在這個項目，從生效日期開始；其他項目和已經結算的記錄都不變。",
+      "legacyTitle": "以前的統一價格（沒有指定項目），請為每個項目重新設定",
+      "legacyFrom": "{date} 起"
+    },
+    "col": {
+      "payment": "付款編號"
+    },
+    "upload": {
+      "button": "上傳付款憑證",
+      "more": "補充付款憑證",
+      "again": "補上傳付款憑證",
+      "noRight": "你沒有「審核及安排垃圾清運」權限，不能上傳付款憑證。",
+      "title": "上傳付款憑證：{number}",
+      "againTitle": "補上傳付款憑證：{number}",
+      "help": "財務付款給 {supplier} 後，填寫付款編號，再上傳付款憑證（照片或 PDF）。",
+      "paymentNo": "付款編號",
+      "paymentNoHint": "例如銀行轉賬編號或支票號碼",
+      "paymentNoMissing": "請填寫付款編號",
+      "files": "付款憑證（照片或 PDF）",
+      "filesHint": "可以選多個文件，一次最多 {limit} 個，每個最大 50 MB。",
+      "fileMissing": "請上傳付款憑證（照片或 PDF）",
+      "choose": "選擇照片或 PDF",
+      "remove": "去掉 {name}",
+      "alreadyHas": "已經上傳了 {count} 份付款憑證。可以只改付款編號，或者再加文件。",
+      "wrongType": "{name} 不是照片或 PDF，不能上傳。請選照片（JPG、PNG）或 PDF。",
+      "tooLarge": "{name} 超過 50 MB，太大了。請縮小後再上傳。",
+      "tooMany": "一次最多上傳 {limit} 個文件。",
+      "keepNote": "上傳後的付款憑證會一直保留，不能刪除。確認結算完畢後會鎖定。",
+      "againPin": "這是舊記錄補上傳。按「保存」後，輸入你的六位數簽核密碼。上傳後會鎖定，不能再改。",
+      "save": "保存",
+      "cancel": "取消",
+      "failed": "沒有成功，請再試。",
+      "saved": "{number} 的付款憑證已保存"
+    },
+    "missing": {
+      "title": "還不能確認結算完畢",
+      "body": "{number} 還沒有上傳付款憑證和付款編號。請先上傳付款憑證並填寫付款編號，才可以確認結算完畢。"
+    },
+    "settle": {
+      "go": "確認結算完畢",
+      "body": "密碼正確。{supplier} 的 {number}（共 {trips} 車，{amount}，付款編號 {paymentNo}）。確認已經付款，就按「確認結算完畢」。"
+    },
+    "oldNoVoucher": "舊記錄：沒有付款憑證",
+    "oldNoVoucherHelp": "這是加上付款憑證以前結算完畢的舊記錄。可以按「補上傳付款憑證」補上，其他內容不會改變。",
+    "notUploaded": "還沒有上傳",
+    "voucherCount": "{count} 份付款憑證",
+    "voucherTitle": "付款憑證",
+    "recordedBy": "上傳人及時間",
+    "voucherN": "憑證 {n}",
+    "openVoucher": "打開",
+    "evidenceOnly": "系統不涉及實際轉賬，只負責記錄付款證據。",
+    "inPdf": "預覽、列印、匯出及發送的結算單，會把付款憑證附在後面，是同一份文件。",
+    "panel": {
+      "referenceAmount": "參考金額",
+      "referenceHelp": "還沒有結算完畢，這個金額只作參考，不算進項目現場費用總覽。",
+      "paymentNo": "付款編號"
+    },
+    "report": {
+      "settled": "其中已結算：{amount}",
+      "reference": "未結算（參考）：{amount}"
+    },
+    "cost": {
+      "notCounted": "還有 {amount} 未結算（參考），不算在內"
+    },
+    "send": {
+      "filled": "已經幫你填好 {name} 的資料，可以修改。",
+      "noContact": "{name} 的資料裡沒有電話或 Email，請自己填寫。"
     }
   }
 }

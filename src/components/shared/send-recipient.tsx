@@ -110,22 +110,56 @@ export function recipientLine(person: Pick<SendRecipient, "recipient_name" | "re
 }
 
 /**
+ * Who a record's file normally goes to (JB299: a 清运结算单 to its supplier),
+ * filled into 「发给谁？」; the person can change every field.
+ */
+export interface SendRecipientSuggestion {
+  name: string;
+  company: string;
+  phone: string;
+  email: string;
+}
+
+/** The contact a suggestion gives for `method`. */
+export function suggestedContact(suggested: SendRecipientSuggestion | undefined, method: SendMethod): string {
+  if (!suggested) return "";
+  if (method === "WHATSAPP") return suggested.phone;
+  if (method === "EMAIL") return suggested.email;
+  return suggested.phone || suggested.email;
+}
+
+/**
  * 「发给谁？」: the recipient, before the PIN. `onDone(null)` when closed -
- * nothing is sent and nothing is asked.
+ * nothing is sent and nothing is asked. `suggested` fills it in (the
+ * supplier's own phone / email when on file); with neither on file it says
+ * so plainly and the person types them.
  */
 export function SendRecipientDialog({
   fileTitle,
   onDone,
+  suggested,
 }: {
   fileTitle: string;
   onDone: (recipient: SendRecipient | null) => void;
+  suggested?: SendRecipientSuggestion;
 }) {
   const t = useTranslations("fileActions.send");
+  const t299 = useTranslations("jb299");
   const common = useTranslations("common");
-  const [method, setMethod] = useState<SendMethod>("WHATSAPP");
-  const [name, setName] = useState("");
-  const [company, setCompany] = useState("");
-  const [contact, setContact] = useState("");
+  const firstMethod: SendMethod = suggested && !suggested.phone && suggested.email ? "EMAIL" : "WHATSAPP";
+  const [method, setMethodState] = useState<SendMethod>(firstMethod);
+  const [name, setName] = useState(suggested?.name ?? "");
+  const [company, setCompany] = useState(suggested?.company ?? "");
+  const [contact, setContact] = useState(suggestedContact(suggested, firstMethod));
+  // Switching WhatsApp ↔ Email swaps in the supplier's other contact, unless
+  // the person typed their own.
+  const setMethod = (next: SendMethod) => {
+    if (suggested && (contact === "" || contact === suggestedContact(suggested, method))) {
+      setContact(suggestedContact(suggested, next));
+    }
+    setMethodState(next);
+  };
+  const noContactOnFile = Boolean(suggested) && !suggested?.phone && !suggested?.email;
   // query-failure: without the list the person types the recipient in; nothing else depends on it
   const recent = useQuery({
     queryKey: ["file-shares", "recent"],
@@ -157,6 +191,19 @@ export function SendRecipientDialog({
           }}
         >
           <p className="text-sm text-muted-foreground">{t("intro")}</p>
+          {suggested ? (
+            <p
+              className={cn(
+                "rounded-md px-3 py-2 text-sm",
+                noContactOnFile ? "border border-warning/40 bg-warning/10" : "bg-muted/50 text-muted-foreground",
+              )}
+              data-slot="send-recipient-suggested"
+            >
+              {noContactOnFile
+                ? t299("send.noContact", { name: suggested.company })
+                : t299("send.filled", { name: suggested.company })}
+            </p>
+          ) : null}
           {people.length > 0 ? (
             <div className="space-y-2" data-slot="send-recent">
               <p className="text-sm">{t("recent")}</p>

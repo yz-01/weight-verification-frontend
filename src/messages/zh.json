@@ -4083,6 +4083,8 @@
       "disposal_settlement_settled": "清运结算完毕",
       "disposal_settlement_pdf_previewed": "预览清运结算单",
       "disposal_settlement_pdf_exported": "导出清运结算单",
+      "disposal_settlement_payment_recorded": "上传清运结算付款凭证",
+      "disposal_settlement_voucher_added": "补上传清运结算付款凭证",
       "disposal_lorry_signed": "填写车牌和清运签名",
       "wall_screen_viewed": "查看总部大屏",
       "wall_display_settings_saved": "保存大屏展示设定",
@@ -9843,6 +9845,11 @@
       "disposal_not_archived": "{reference} 还没有确认归档，不能核对。",
       "disposal_fee_missing": "{reference}：这个供应商还没有设每车清运费用",
       "disposal_settlement_already_settled": "{settlement_no} 已经结算完毕，不能重复结算。",
+      "disposal_settlement_payment_missing": "{settlement_no} 还没有上传付款凭证和付款编号，不能确认结算完毕。请先上传付款凭证并填写付款编号。",
+      "disposal_payment_no_required": "请填写付款编号。",
+      "disposal_payment_file_required": "请上传付款凭证（照片或 PDF）。",
+      "disposal_settlement_payment_locked": "{settlement_no} 已经结算完毕并锁定，付款凭证不能再改。",
+      "disposal_fee_project_required": "请先选项目。清运费用按项目分别设定。",
       "disposal_lorry_sheet_missing": "工地还没有填车牌、司机和工地负责人还没有签名。",
       "wall_project_unavailable": "这个项目不能放上大屏：只有在建项目可以设定。请重新打开「大屏展示设定」再试。",
       "wall_link_not_found": "这个大屏链接已经失效。请向公司要新的链接。",
@@ -22369,6 +22376,7 @@
       "equipment_rental_check": "核对设备租赁月结单",
       "equipment_rental_settle": "结算设备租赁月结单",
       "disposal_settlement_settle": "清运结算完毕",
+      "disposal_settlement_voucher": "补上传清运结算的付款凭证",
       "disposal_fee_set": "设定或修改每车清运费用",
       "labour_rate_set": "设定人工单价",
       "labour_hours_adjust": "调整人工工时",
@@ -25505,6 +25513,82 @@
       "months": "看每月",
       "empty": "这段月份没有人有工作天数。",
       "help": "人工费用是按现在的记录和单价算出的；已确认的月份按确认时保存的算。"
+    }
+  },
+  "jb299": {
+    "fee": {
+      "help": "按照「项目＋供应商」填写合同约定的每车清运费用。同一家供应商在不同项目可以有不同价格。设定一次，以后这个项目的清运按实际验收车次自动算费用。",
+      "thisProject": "这个项目：{name}",
+      "chooseProject": "先选项目。清运费用按项目分别设定。",
+      "projectLabel": "项目",
+      "projectPlaceholder": "选择项目",
+      "keepsOld": "改价只用在这个项目，从生效日期开始；其他项目和已经结算的记录都不变。",
+      "legacyTitle": "以前的统一价格（没有指定项目），请为每个项目重新设定",
+      "legacyFrom": "{date} 起"
+    },
+    "col": {
+      "payment": "付款编号"
+    },
+    "upload": {
+      "button": "上传付款凭证",
+      "more": "补充付款凭证",
+      "again": "补上传付款凭证",
+      "noRight": "你没有「审核及安排垃圾清运」权限，不能上传付款凭证。",
+      "title": "上传付款凭证：{number}",
+      "againTitle": "补上传付款凭证：{number}",
+      "help": "财务付款给 {supplier} 后，填写付款编号，再上传付款凭证（照片或 PDF）。",
+      "paymentNo": "付款编号",
+      "paymentNoHint": "例如银行转账编号或支票号码",
+      "paymentNoMissing": "请填写付款编号",
+      "files": "付款凭证（照片或 PDF）",
+      "filesHint": "可以选多个文件，一次最多 {limit} 个，每个最大 50 MB。",
+      "fileMissing": "请上传付款凭证（照片或 PDF）",
+      "choose": "选择照片或 PDF",
+      "remove": "去掉 {name}",
+      "alreadyHas": "已经上传了 {count} 份付款凭证。可以只改付款编号，或者再加文件。",
+      "wrongType": "{name} 不是照片或 PDF，不能上传。请选照片（JPG、PNG）或 PDF。",
+      "tooLarge": "{name} 超过 50 MB，太大了。请缩小后再上传。",
+      "tooMany": "一次最多上传 {limit} 个文件。",
+      "keepNote": "上传后的付款凭证会一直保留，不能删除。确认结算完毕后会锁定。",
+      "againPin": "这是旧记录补上传。按「保存」后，输入你的六位数签核密码。上传后会锁定，不能再改。",
+      "save": "保存",
+      "cancel": "取消",
+      "failed": "没有成功，请再试。",
+      "saved": "{number} 的付款凭证已保存"
+    },
+    "missing": {
+      "title": "还不能确认结算完毕",
+      "body": "{number} 还没有上传付款凭证和付款编号。请先上传付款凭证并填写付款编号，才可以确认结算完毕。"
+    },
+    "settle": {
+      "go": "确认结算完毕",
+      "body": "密码正确。{supplier} 的 {number}（共 {trips} 车，{amount}，付款编号 {paymentNo}）。确认已经付款，就按「确认结算完毕」。"
+    },
+    "oldNoVoucher": "旧记录：没有付款凭证",
+    "oldNoVoucherHelp": "这是加上付款凭证以前结算完毕的旧记录。可以按「补上传付款凭证」补上，其他内容不会改变。",
+    "notUploaded": "还没有上传",
+    "voucherCount": "{count} 份付款凭证",
+    "voucherTitle": "付款凭证",
+    "recordedBy": "上传人及时间",
+    "voucherN": "凭证 {n}",
+    "openVoucher": "打开",
+    "evidenceOnly": "系统不涉及实际转账，只负责记录付款证据。",
+    "inPdf": "预览、打印、导出及发送的结算单，会把付款凭证附在后面，是同一份文件。",
+    "panel": {
+      "referenceAmount": "参考金额",
+      "referenceHelp": "还没有结算完毕，这个金额只作参考，不算进项目现场费用总览。",
+      "paymentNo": "付款编号"
+    },
+    "report": {
+      "settled": "其中已结算：{amount}",
+      "reference": "未结算（参考）：{amount}"
+    },
+    "cost": {
+      "notCounted": "还有 {amount} 未结算（参考），不算在内"
+    },
+    "send": {
+      "filled": "已经帮你填好 {name} 的资料，可以修改。",
+      "noContact": "{name} 的资料里没有电话或 Email，请自己填写。"
     }
   }
 }

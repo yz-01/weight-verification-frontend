@@ -4083,6 +4083,8 @@
       "disposal_settlement_settled": "Penyelesaian pembersihan selesai",
       "disposal_settlement_pdf_previewed": "Pratonton penyelesaian pembersihan",
       "disposal_settlement_pdf_exported": "Eksport penyelesaian pembersihan",
+      "disposal_settlement_payment_recorded": "Muat naik baucar bayaran penyelesaian pembersihan",
+      "disposal_settlement_voucher_added": "Tambah baucar bayaran penyelesaian pembersihan yang tiada",
       "disposal_lorry_signed": "Plat lori dan tandatangan pembersihan diisi",
       "wall_screen_viewed": "Skrin besar ibu pejabat dibuka",
       "wall_display_settings_saved": "Tetapan paparan skrin besar disimpan",
@@ -9843,6 +9845,11 @@
       "disposal_not_archived": "{reference} belum diarkibkan, jadi tidak boleh disemak.",
       "disposal_fee_missing": "{reference}: pembekal ini belum ada yuran setiap lori",
       "disposal_settlement_already_settled": "{settlement_no} sudah diselesaikan; tidak boleh diselesaikan dua kali.",
+      "disposal_settlement_payment_missing": "{settlement_no} belum ada baucar bayaran dan nombor bayaran, jadi tidak boleh disahkan selesai. Muat naik baucar bayaran dan masukkan nombor bayaran dahulu.",
+      "disposal_payment_no_required": "Masukkan nombor bayaran.",
+      "disposal_payment_file_required": "Muat naik baucar bayaran (foto atau PDF).",
+      "disposal_settlement_payment_locked": "{settlement_no} sudah diselesaikan dan dikunci; baucar bayarannya tidak boleh diubah lagi.",
+      "disposal_fee_project_required": "Pilih projek dahulu. Yuran pembersihan ditetapkan mengikut projek.",
       "disposal_lorry_sheet_missing": "Tapak belum menaip plat lori, dan pemandu serta penyelia tapak belum menandatangani.",
       "wall_project_unavailable": "Projek ini tidak boleh dipaparkan pada skrin besar: hanya projek aktif boleh ditetapkan. Buka semula tetapan skrin besar dan cuba lagi.",
       "wall_link_not_found": "Pautan skrin besar ini tidak lagi berfungsi. Minta pautan baharu daripada syarikat.",
@@ -22369,6 +22376,7 @@
       "equipment_rental_check": "Semak penyata sewaan peralatan",
       "equipment_rental_settle": "Selesaikan penyata sewaan peralatan",
       "disposal_settlement_settle": "Tandakan penyelesaian pembersihan sebagai selesai",
+      "disposal_settlement_voucher": "Tambah baucar bayaran pada penyelesaian pembersihan yang sudah selesai",
       "disposal_fee_set": "Tetapkan atau ubah yuran pembersihan setiap lori",
       "labour_rate_set": "Tetapkan kadar buruh",
       "labour_hours_adjust": "Laraskan jam pekerja",
@@ -25505,6 +25513,82 @@
       "months": "Setiap bulan",
       "empty": "Tiada sesiapa mempunyai hari bekerja dalam bulan-bulan ini.",
       "help": "Kos buruh dikira daripada rekod dan kadar sekarang; bulan yang sudah disahkan menggunakan apa yang disimpan semasa disahkan."
+    }
+  },
+  "jb299": {
+    "fee": {
+      "help": "Masukkan yuran kontrak setiap lori untuk setiap projek dan pembekal. Pembekal yang sama boleh ada yuran berbeza di projek lain. Tetapkan sekali; pembersihan projek ini kemudian dikira mengikut trip yang diterima.",
+      "thisProject": "Projek ini: {name}",
+      "chooseProject": "Pilih projek dahulu. Yuran pembersihan ditetapkan mengikut projek.",
+      "projectLabel": "Projek",
+      "projectPlaceholder": "Pilih projek",
+      "keepsOld": "Yuran baharu hanya untuk projek ini, dari tarikh kuat kuasa; projek lain dan rekod yang sudah diselesaikan tidak berubah.",
+      "legacyTitle": "Yuran seragam lama (tiada projek) - sila tetapkan yuran untuk setiap projek semula",
+      "legacyFrom": "dari {date}"
+    },
+    "col": {
+      "payment": "No. Bayaran"
+    },
+    "upload": {
+      "button": "Muat naik baucar bayaran",
+      "more": "Tambah baucar bayaran",
+      "again": "Muat naik baucar bayaran yang tiada",
+      "noRight": "Anda tiada hak menyemak dan mengatur pembersihan, jadi anda tidak boleh memuat naik baucar bayaran.",
+      "title": "Muat naik baucar bayaran: {number}",
+      "againTitle": "Muat naik baucar bayaran yang tiada: {number}",
+      "help": "Selepas kewangan membayar {supplier}, masukkan nombor bayaran dan muat naik baucar bayaran (foto atau PDF).",
+      "paymentNo": "No. Bayaran",
+      "paymentNoHint": "cth. rujukan pindahan bank atau nombor cek",
+      "paymentNoMissing": "Masukkan nombor bayaran",
+      "files": "Baucar bayaran (foto atau PDF)",
+      "filesHint": "Anda boleh pilih beberapa fail, paling banyak {limit} sekali, setiap satu hingga 50 MB.",
+      "fileMissing": "Muat naik baucar bayaran (foto atau PDF)",
+      "choose": "Pilih foto atau PDF",
+      "remove": "Buang {name}",
+      "alreadyHas": "{count} baucar bayaran sudah dimuat naik. Anda boleh tukar nombor bayaran sahaja, atau tambah fail.",
+      "wrongType": "{name} bukan foto atau PDF, jadi tidak boleh dimuat naik. Pilih foto (JPG, PNG) atau PDF.",
+      "tooLarge": "{name} melebihi 50 MB - terlalu besar. Kecilkan dan muat naik semula.",
+      "tooMany": "Muat naik paling banyak {limit} fail sekali.",
+      "keepNote": "Baucar yang dimuat naik disimpan selama-lamanya dan tidak boleh dipadam. Ia dikunci selepas diselesaikan.",
+      "againPin": "Ini menambah baucar pada rekod lama. Selepas Simpan, masukkan PIN pengesahan enam digit anda. Ia dikunci selepas itu.",
+      "save": "Simpan",
+      "cancel": "Batal",
+      "failed": "Tidak berjaya. Sila cuba lagi.",
+      "saved": "Baucar bayaran {number} disimpan"
+    },
+    "missing": {
+      "title": "Belum boleh sahkan selesai",
+      "body": "{number} belum ada baucar bayaran dan nombor bayaran. Muat naik baucar bayaran dan masukkan nombor bayaran dahulu; kemudian anda boleh sahkan selesai."
+    },
+    "settle": {
+      "go": "Sahkan selesai",
+      "body": "PIN betul. {number} untuk {supplier} ({trips} trip, {amount}, no. bayaran {paymentNo}). Jika sudah dibayar, tekan Sahkan selesai."
+    },
+    "oldNoVoucher": "Rekod lama: tiada baucar bayaran",
+    "oldNoVoucherHelp": "Ini diselesaikan sebelum baucar bayaran wujud. Anda boleh tambah baucar dengan Muat naik baucar bayaran yang tiada; perkara lain tidak berubah.",
+    "notUploaded": "Belum dimuat naik",
+    "voucherCount": "{count} baucar bayaran",
+    "voucherTitle": "Baucar bayaran",
+    "recordedBy": "Dimuat naik oleh dan bila",
+    "voucherN": "Baucar {n}",
+    "openVoucher": "Buka",
+    "evidenceOnly": "Sistem tidak membuat pemindahan wang; ia hanya merekod bukti bayaran.",
+    "inPdf": "Helaian penyelesaian yang dipratonton, dicetak, dieksport atau dihantar membawa baucar bayaran selepasnya - satu fail.",
+    "panel": {
+      "referenceAmount": "Amaun rujukan",
+      "referenceHelp": "Belum diselesaikan: amaun ini untuk rujukan sahaja dan tidak dikira dalam gambaran kos tapak.",
+      "paymentNo": "No. Bayaran"
+    },
+    "report": {
+      "settled": "Telah diselesaikan: {amount}",
+      "reference": "Belum diselesaikan (rujukan): {amount}"
+    },
+    "cost": {
+      "notCounted": "{amount} lagi belum diselesaikan (rujukan), tidak dikira"
+    },
+    "send": {
+      "filled": "Butiran {name} sudah diisi untuk anda; anda boleh mengubahnya.",
+      "noContact": "{name} tiada telefon atau e-mel dalam rekod. Sila taipkan sendiri."
     }
   }
 }

@@ -219,20 +219,26 @@ describe("the plain rules (lib/disposal-fees)", () => {
 });
 
 describe("the calls (contract 「接口和资料」)", () => {
-  it("reads and sets the fees per supplier", async () => {
-    await service.getDisposalFees();
-    expect(api.get).toHaveBeenLastCalledWith("/api/disposal-fees/");
-    await service.getDisposalFeeHistory("s-1");
-    expect(api.get).toHaveBeenLastCalledWith("/api/disposal-fees/history/", { supplier: "s-1" });
-    await service.setDisposalFee({ supplier: "s-1", fee_per_trip: "350.00", effective_from: "2026-11-01", note: " 合同 A " });
+  it("reads and sets the fees per project and supplier (JB301)", async () => {
+    await service.getDisposalFees("p-1");
+    expect(api.get).toHaveBeenLastCalledWith("/api/disposal-fees/", { project: "p-1" });
+    await service.getDisposalFeeHistory("s-1", "p-1");
+    expect(api.get).toHaveBeenLastCalledWith("/api/disposal-fees/history/", { supplier: "s-1", project: "p-1" });
+    await service.setDisposalFee({
+      project: "p-1", supplier: "s-1", fee_per_trip: "350.00", effective_from: "2026-11-01", note: " 合同 A ",
+    });
     expect(api.post).toHaveBeenLastCalledWith("/api/disposal-fees/", {
+      project: "p-1",
       supplier: "s-1",
       fee_per_trip: "350.00",
       effective_from: "2026-11-01",
       note: "合同 A",
     });
-    await service.setDisposalFee({ supplier: "s-1", fee_per_trip: "350.00", effective_from: "2026-11-01", note: "" });
+    await service.setDisposalFee({
+      project: "p-1", supplier: "s-1", fee_per_trip: "350.00", effective_from: "2026-11-01", note: "",
+    });
     expect(api.post).toHaveBeenLastCalledWith("/api/disposal-fees/", {
+      project: "p-1",
       supplier: "s-1",
       fee_per_trip: "350.00",
       effective_from: "2026-11-01",
@@ -305,8 +311,10 @@ describe("【清运费用设定】 (「按照供应商填写合同约定的每�
     const source = read("src/components/contractor-ops/disposal-fees.tsx");
     expect(source).toContain("useState(today())");
     expect(source).toMatch(/\[feeOk, t\("fee\.feeLabel"\)\],\s+\[Boolean\(day\), t\("fee\.effectiveFrom"\)\],/);
-    expect(source).toContain('t("fee.keepsOld")');
+    // JB301: the help now also says the price is this project's only.
+    expect(source).toContain('t299("fee.keepsOld")');
     expect(zh.jb287.fee.keepsOld).toBe("改价从生效日期开始用，以前的记录不变");
+    expect(zh.jb299.fee.keepsOld).toContain("从生效日期开始");
     expect(source).toContain('t("fee.col.oldFee")');
     expect(source).toContain('t("fee.col.newFee")');
     expect(source).toContain("entry.previous_fee");
@@ -487,7 +495,8 @@ describe("清运结算管理 (三–八)", () => {
 
   it("七: the A4 结算单 goes through the record file buttons (预览 · 打印 · 导出)", () => {
     const source = read("src/components/contractor-ops/disposal-settlements.tsx");
-    expect(source).toContain('omit={row.status === "SETTLED" ? ["share"] : ["save", "share"]}');
+    // JB299: 发送 too once settled (事项 2.4).
+    expect(source).toContain('omit={row.status === "SETTLED" ? [] : ["save", "share"]}');
     expect(source).toContain("load: () => disposalSettlementPdfFile(row.id, locale, row.number)");
   });
 
@@ -529,9 +538,11 @@ describe("垃圾清运 tab: three columns, 「清运费用与结算」, locked r
     );
     const words = text(html);
     expect(words).toContain(zh.jb287.panel.title);
-    for (const key of ["clearedOn", "trips", "feePerTrip", "feeAmount", "state", "settlementNo"] as const) {
+    for (const key of ["clearedOn", "trips", "feePerTrip", "state", "settlementNo"] as const) {
       expect(words).toContain(zh.jb287.panel[key]);
     }
+    // JB301: not settled yet - the amount is a reference (「参考金额」).
+    expect(words).toContain(zh.jb299.panel.referenceAmount);
     expect(words).toContain("RM 1,050.00");
     expect(words).toContain(zh.jb287.state.ready);
     expect(html).toContain('href="/waste-clearance?kind=settlement&amp;stage=ready&amp;settlement=st-1"');

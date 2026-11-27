@@ -1582,6 +1582,8 @@ export interface DisposalSettlementRef {
   id: string;
   number: string;
   status: "READY" | "SETTLED";
+  /** JB299: the settlement's 付款编号 ("" until recorded). */
+  payment_no?: string;
 }
 
 export interface ExternalDisposalTask {

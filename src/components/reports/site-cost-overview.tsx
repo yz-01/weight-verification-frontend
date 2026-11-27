@@ -136,6 +136,7 @@ export function SiteCostOverview() {
   );
   const offWord = tOff("cardOff");
   const tFee = useTranslations("jb287");
+  const t299 = useTranslations("jb299");
 
   return (
     <div className="space-y-4" data-slot="site-cost-overview">
@@ -205,9 +206,20 @@ export function SiteCostOverview() {
                   <p className="text-xs text-muted-foreground" data-module-off={key}>{offWord}</p>
                 ) : row && !row.available ? (
                   <p className="text-xs text-muted-foreground">{t("notAvailableShort")}</p>
-                ) : row?.no_fee_count ? (
-                  // JB287: 「X 笔还没有设每车费用」 - counted 0 until a fee is set.
-                  <p className="text-xs text-warning" data-slot="cost-no-fee">{tFee("cost.noFee", { count: row.no_fee_count })}</p>
+                ) : key === "disposal" ? (
+                  // JB301 (客户 11-28d): only 结算完毕 counts; the rest is a
+                  // reference - 「还有 RM x 未结算（参考），不算在内」 - and the
+                  // jobs whose project has no fee yet (JB287).
+                  <>
+                    {row?.not_counted_amount && Number(row.not_counted_amount) > 0 ? (
+                      <p className="text-xs text-muted-foreground" data-slot="cost-not-counted">
+                        {t299("cost.notCounted", { amount: rm(row.not_counted_amount) })}
+                      </p>
+                    ) : null}
+                    {row?.no_fee_count ? (
+                      <p className="text-xs text-warning" data-slot="cost-no-fee">{tFee("cost.noFee", { count: row.no_fee_count })}</p>
+                    ) : null}
+                  </>
                 ) : row?.not_counted_amount && Number(row.not_counted_amount) > 0 ? (
                   // JB295: 「还有 RM x 未核对，不算在内」 - only 已核对 / 已结算 count.
                   <p className="text-xs text-muted-foreground" data-slot="cost-not-counted">

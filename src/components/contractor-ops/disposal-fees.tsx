@@ -15,6 +15,13 @@
  * Saving is signed with the six-digit PIN, as 材料单价 is: the API client
  * opens the shared PIN dialog on the server's `sign_off_pin_required` and
  * sends the same save again with it.
+ *
+ * JB301 (客户 11-28d 事项 5.3 / 5.4): 「清运费用必须按照「项目＋供应商」分别设定
+ * ……修改某个项目的清运单价，不得影响其他项目的费用及已经结算归档的历史记录。」
+ * The window is for one project, named plainly at the top (「这个项目：
+ * PUTRA_MAS」) - the top bar's, or chosen in the window on 全部项目. Old
+ * company-wide fees (before JB301) are listed apart: they price nothing until
+ * each project sets its own.
  */
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -24,6 +31,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useRef, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { useCurrentProject } from "@/components/providers/current-project-provider";
 import { FieldWrapper, QueryFailedNote } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import {
@@ -35,6 +43,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { useUrlSelection } from "@/hooks/use-url-selection";
@@ -45,6 +54,7 @@ import { isSignOffCancelled } from "@/lib/sign-off";
 import {
   getDisposalFeeHistory,
   getDisposalFees,
+  getDisposalLegacyFees,
   setDisposalFee,
   type DisposalFeeSupplier,
 } from "@/services/disposal-settlement.service";
@@ -135,8 +145,19 @@ type Mode =
 
 export function DisposalFeeDialog({ onClose }: { onClose: () => void }) {
   const t = useTranslations("jb287");
+  const t299 = useTranslations("jb299");
   const [mode, setMode] = useState<Mode>({ kind: "list" });
-  const fees = useQuery({ queryKey: ["disposal-fees", "list"], queryFn: getDisposalFees });
+  const current = useCurrentProject();
+  // JB301: the fee is the project's own - the top bar's project, or one
+  // chosen here on 全部项目 (the page itself stays on 全部项目).
+  const [chosen, setChosen] = useState("");
+  const project = current.projectId || chosen;
+  const projectName = current.projects.find((each) => each.id === project)?.name ?? "";
+  const fees = useQuery({
+    queryKey: ["disposal-fees", "list", project],
+    queryFn: () => getDisposalFees(project),
+    enabled: Boolean(project),
+  });
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
       <DialogContent data-slot="disposal-fee-dialog" className="max-h-[90dvh] overflow-y-auto sm:max-w-3xl">
@@ -145,12 +166,19 @@ export function DisposalFeeDialog({ onClose }: { onClose: () => void }) {
             <Tag className="size-5" />
             {t("fee.title")}
           </DialogTitle>
-          <DialogDescription>{t("fee.help")}</DialogDescription>
+          <DialogDescription>{t299("fee.help")}</DialogDescription>
         </DialogHeader>
-        {mode.kind === "set" ? (
-          <SetFeeForm row={mode.row} onDone={() => setMode({ kind: "list" })} />
+        <FeeProjectLine
+          project={project}
+          name={projectName}
+          fixed={Boolean(current.projectId) || mode.kind !== "list"}
+          projects={current.projects}
+          onChoose={setChosen}
+        />
+        {!project ? null : mode.kind === "set" ? (
+          <SetFeeForm row={mode.row} project={project} onDone={() => setMode({ kind: "list" })} />
         ) : mode.kind === "history" ? (
-          <FeeHistory row={mode.row} onBack={() => setMode({ kind: "list" })} />
+          <FeeHistory row={mode.row} project={project} onBack={() => setMode({ kind: "list" })} />
         ) : (
           <>
             <QueryFailedNote query={fees} what={t("fee.what")} />
@@ -163,16 +191,90 @@ export function DisposalFeeDialog({ onClose }: { onClose: () => void }) {
                 onHistory={(row) => setMode({ kind: "history", row })}
               />
             ) : null}
-            <p className="text-xs text-muted-foreground">{t("fee.keepsOld")}</p>
-            <DialogFooter>
-              <Button variant="outline" onClick={onClose}>
-                {t("fee.close")}
-              </Button>
-            </DialogFooter>
+            <p className="text-xs text-muted-foreground">{t299("fee.keepsOld")}</p>
+            <LegacyFees />
           </>
         )}
+        {mode.kind === "list" ? (
+          <DialogFooter>
+            <Button variant="outline" onClick={onClose}>
+              {t("fee.close")}
+            </Button>
+          </DialogFooter>
+        ) : null}
       </DialogContent>
     </Dialog>
+  );
+}
+
+/**
+ * 「这个项目：PUTRA_MAS」 - which project the fees below are for. On 全部项目
+ * the window asks for one first (a fee is never set for every project).
+ */
+export function FeeProjectLine({
+  project,
+  name,
+  fixed,
+  projects,
+  onChoose,
+}: {
+  project: string;
+  name: string;
+  fixed: boolean;
+  projects: readonly { id: string; name: string }[];
+  onChoose: (id: string) => void;
+}) {
+  const t = useTranslations("jb299");
+  if (fixed && project) {
+    return (
+      <p className="rounded-lg border border-primary/30 bg-primary/5 px-3 py-2 text-base font-semibold" data-slot="disposal-fee-project">
+        {t("fee.thisProject", { name: name || "—" })}
+      </p>
+    );
+  }
+  return (
+    <div className="space-y-1.5 rounded-lg border border-warning/40 bg-warning/10 px-3 py-2" data-slot="disposal-fee-choose-project">
+      <p className="text-sm font-medium">{project ? t("fee.thisProject", { name: name || "—" }) : t("fee.chooseProject")}</p>
+      <Select value={project || undefined} onValueChange={onChoose}>
+        <SelectTrigger className="w-full sm:w-80" aria-label={t("fee.projectLabel")}>
+          <SelectValue placeholder={t("fee.projectPlaceholder")} />
+        </SelectTrigger>
+        <SelectContent>
+          {projects.map((each) => (
+            <SelectItem key={each.id} value={each.id}>
+              {each.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  );
+}
+
+/**
+ * 「以前的统一价格（没有指定项目），请为每个项目重新设定」 - fees set for every
+ * project before JB301 that no settlement or record tied to one project.
+ * They price nothing; shown so nobody wonders where they went.
+ */
+function LegacyFees() {
+  const t = useTranslations("jb299");
+  const when = useDateFormat();
+  const feeText = useFeeText();
+  // query-failure: an old list for information only; the window works without it
+  const legacy = useQuery({ queryKey: ["disposal-fees", "legacy"], queryFn: getDisposalLegacyFees });
+  const rows = legacy.data ?? [];
+  if (rows.length === 0) return null;
+  return (
+    <section className="space-y-1.5 rounded-lg border border-dashed p-3" data-slot="disposal-fee-legacy">
+      <p className="text-sm font-medium">{t("fee.legacyTitle")}</p>
+      <ul className="space-y-0.5 text-sm text-muted-foreground">
+        {rows.map((row) => (
+          <li key={row.id}>
+            {row.supplier.name} · {feeText(row.fee_per_trip)} · {t("fee.legacyFrom", { date: when.date(row.effective_from) })}
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
 
@@ -245,8 +347,9 @@ export function FeeTable({
   );
 }
 
-function SetFeeForm({ row, onDone }: { row: DisposalFeeSupplier; onDone: () => void }) {
+function SetFeeForm({ row, project, onDone }: { row: DisposalFeeSupplier; project: string; onDone: () => void }) {
   const t = useTranslations("jb287");
+  const t299 = useTranslations("jb299");
   const queryClient = useQueryClient();
   const [fee, setFee] = useState("");
   const [day, setDay] = useState(today());
@@ -259,6 +362,7 @@ function SetFeeForm({ row, onDone }: { row: DisposalFeeSupplier; onDone: () => v
   const save = useMutation({
     mutationFn: () =>
       setDisposalFee({
+        project,
         supplier: row.supplier.id,
         fee_per_trip: fee.replace(/,/g, "").trim(),
         effective_from: day,
@@ -326,7 +430,7 @@ function SetFeeForm({ row, onDone }: { row: DisposalFeeSupplier; onDone: () => v
         />
       </FieldWrapper>
       <p className="rounded-lg bg-muted/50 px-3 py-2 text-sm" data-slot="disposal-fee-keeps-old">
-        {t("fee.keepsOld")}
+        {t299("fee.keepsOld")}
       </p>
       {/* Signed like 材料单价 (「参照现有材料分类的价格设定方式」): the server asks for
           the PIN, the shared dialog takes it and the same save goes again; a
@@ -366,13 +470,13 @@ function SetFeeForm({ row, onDone }: { row: DisposalFeeSupplier; onDone: () => v
   );
 }
 
-function FeeHistory({ row, onBack }: { row: DisposalFeeSupplier; onBack: () => void }) {
+function FeeHistory({ row, project, onBack }: { row: DisposalFeeSupplier; project: string; onBack: () => void }) {
   const t = useTranslations("jb287");
   const when = useDateFormat();
   const feeText = useFeeText();
   const history = useQuery({
-    queryKey: ["disposal-fees", "history", row.supplier.id],
-    queryFn: () => getDisposalFeeHistory(row.supplier.id),
+    queryKey: ["disposal-fees", "history", project, row.supplier.id],
+    queryFn: () => getDisposalFeeHistory(row.supplier.id, project),
   });
   const rows = history.data ?? [];
   return (

@@ -54,7 +54,8 @@ function serverSays(...answers: Array<[unknown, number]>) {
   return { pins, urls };
 }
 
-const FEE = { supplier: "s-1", fee_per_trip: "350.00", effective_from: "2026-11-01" };
+// JB301: a fee is set for one project.
+const FEE = { project: "p-1", supplier: "s-1", fee_per_trip: "350.00", effective_from: "2026-11-01" };
 
 describe("清运费用设定 asks the sign-off PIN (as 材料单价)", () => {
   beforeEach(() => {
