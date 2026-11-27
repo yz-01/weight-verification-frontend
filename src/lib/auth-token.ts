@@ -256,6 +256,16 @@ export function takeFieldSignOutReason(): string {
 export const SESSION_REPLACED = "session_replaced";
 
 /**
+ * JB265 (INT37): head office saved this consultant's 顾问项目授权, which ends
+ * his session so the new rights load. The sign-in page says 「你的项目权限已
+ * 更新，请重新登录。」 instead of a plain 「请重新登录」.
+ */
+export const CONSULTANT_GRANT_CHANGED = "consultant_grant_changed";
+
+/** Sign-outs the desktop sign-in page explains in the server's own words. */
+export const DESKTOP_EXPLAINED_SIGN_OUTS: readonly string[] = [SESSION_REPLACED, CONSULTANT_GRANT_CHANGED];
+
+/**
  * JB78 (客户 10-29 晚 事项 6): the person pressed 退出登录 themselves. Kept as
  * this code, not words, and said on the sign-in page as 「你已退出登录」 so the
  * page does not look like it is asking them to sign in for no reason.

@@ -9752,6 +9752,7 @@
       "package_completed": "这个资料包已经确认完毕并归档，不能再改动。",
       "company_module_invalid": "请只勾选这家公司有的业务模块。",
       "company_module_switched_off": "你们公司没有开通这个模块。要用，请联系 MSE 开通。",
+      "consultant_grant_changed": "你的项目权限已更新，请重新登录。",
       "equipment_rental_no_terms": "先给这台设备设定租赁条件（【设备租赁设定】）。",
       "equipment_rental_diesel_not_charged": "这台设备的柴油不是供应商另外收费，不能填柴油费用。",
       "equipment_rental_month_confirmed": "这个月的租赁金额已经确认，不能再改。",

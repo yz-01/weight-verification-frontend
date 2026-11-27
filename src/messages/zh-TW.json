@@ -9752,6 +9752,7 @@
       "package_completed": "這個資料包已經確認完畢並歸檔，不能再改動。",
       "company_module_invalid": "請只勾選這家公司有的業務模組。",
       "company_module_switched_off": "你們公司沒有開通這個模組。要用，請聯絡 MSE 開通。",
+      "consultant_grant_changed": "你的項目權限已更新，請重新登入。",
       "equipment_rental_no_terms": "先給這台設備設定租賃條件（【設備租賃設定】）。",
       "equipment_rental_diesel_not_charged": "這台設備的柴油不是供應商另外收費，不能填柴油費用。",
       "equipment_rental_month_confirmed": "這個月的租賃金額已經確認，不能再改。",

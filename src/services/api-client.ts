@@ -21,7 +21,7 @@ import {
 } from "@/interfaces/api";
 import {
   FIELD_EXPLAINED_SIGN_OUTS,
-  SESSION_REPLACED,
+  DESKTOP_EXPLAINED_SIGN_OUTS,
   clearTokens,
   rememberFieldSignOutReason,
   rememberSignOutReason,
@@ -248,8 +248,9 @@ function endSession(): void {
         ? resolveMessage(reason, "")
         : "";
     if (officeReason) rememberFieldSignOutReason(officeReason, reason);
-    // JB56: signed in on another computer - said here and on the sign-in page.
-    const replacedReason = reason === SESSION_REPLACED ? resolveMessage(reason, "") : "";
+    // JB56: signed in on another computer - said here and on the sign-in page;
+    // JB265: 顾问项目授权 saved - 「你的项目权限已更新，请重新登录。」.
+    const replacedReason = DESKTOP_EXPLAINED_SIGN_OUTS.includes(reason) ? resolveMessage(reason, "") : "";
     if (replacedReason) rememberSignOutReason(replacedReason);
     toast.error(officeReason || replacedReason || t("auth.sessionExpired"));
     window.location.href = loginPath;
