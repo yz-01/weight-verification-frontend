@@ -9,6 +9,9 @@ export const SITE_COST_SOURCES = [
   "progress_claim",
   "sundry_claims",
   "disposal",
+  // JB295 (客户 11-27i 「经核对确认的人工费用自动关联至项目总花费，避免重复累计」):
+  // the 人工结算单 that are 已核对 or 已结算, by the days they priced.
+  "labour",
 ] as const;
 export type SiteCostSource = (typeof SITE_COST_SOURCES)[number];
 
@@ -30,6 +33,11 @@ export interface SiteCostAmount {
    * per lorry yet - counted 0, and the card says how many.
    */
   no_fee_count?: number;
+  /**
+   * JB295, `labour` only: 待核对 statements and confirmed months not in a
+   * statement yet, for the same days - not counted, said under the card.
+   */
+  not_counted_amount?: string | null;
 }
 
 export interface SiteCostMonth {
@@ -79,7 +87,10 @@ export function siteCostReportHref(
     progress_claim: "/reports/contractor/claims",
     sundry_claims: "/reports/contractor/sundry_claims",
     disposal: "/reports/contractor/recycling",
+    labour: "/site-workers",
   }[source];
+  // 人工费用: the 已核对 人工月结单 - what the amount counts (JB295), in its tab on 人员名单.
+  if (source === "labour") return `${base}?tab=statements&state=checked`;
   // 杂费报销: the claims the office approved - what the amount counts.
   if (source === "sundry_claims") params.set("status", "CONFIRMED");
   return `${base}?${params.toString()}`;

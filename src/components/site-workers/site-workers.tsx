@@ -15,6 +15,11 @@
  * per trade 登记 and 在场, a card pressed filters the roster by its trade.
  * The roster and the cards ask again every minute, so 在场 follows the
  * fence without a reload (「在场人数根据现有电子围栏定位状态自动更新」).
+ *
+ * JB295b (客户 11-28 事项 2): 「在现有人员名单页面上方，完善人工费用统计及人工
+ * 月结单两个栏目，直接关联现有人员进出场记录」 - two more tabs, 人工费用统计
+ * (`?tab=labour`, `labour.view`) and 人工月结单 (`?tab=statements`,
+ * `labour.manage`), each shown only to whoever may open it.
  */
 
 import { useQuery } from "@tanstack/react-query";
@@ -25,6 +30,10 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
+import { officeMay } from "@/components/contractor-ops/return-checks";
+import { LabourCostsPage } from "@/components/labour/labour-costs";
+import { LABOUR_MANAGE, LABOUR_VIEW } from "@/components/labour/labour-shared";
+import { LabourStatementsPage } from "@/components/labour/labour-statements";
 import { useAuth } from "@/components/providers/auth-provider";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import { ExportButton } from "@/components/shared/export-button";
@@ -63,17 +72,36 @@ import {
 } from "@/services/site-workers.service";
 import { LIST_FITS } from "@/lib/list-fits";
 
-type Tab = "roster" | "visits";
-const TABS: readonly Tab[] = ["roster", "visits"];
+type Tab = "roster" | "visits" | "labour" | "statements";
+const TABS: readonly Tab[] = ["roster", "visits", "labour", "statements"];
 const ALL = "all";
+
+/**
+ * The tabs this reader may open: the two labour ones by their rights (JB295b),
+ * and only while the company has 人员进场 (`attendance`, R13) - with it
+ * switched off the server refuses labour (QA295).
+ */
+export function siteWorkerTabs(may: (permission: string) => boolean, attendanceOn = true): Tab[] {
+  return TABS.filter(
+    (tab) =>
+      (tab !== "labour" || (attendanceOn && may(LABOUR_VIEW))) &&
+      (tab !== "statements" || (attendanceOn && may(LABOUR_MANAGE))),
+  );
+}
 
 export function SiteWorkers() {
   const t = useTranslations("siteWorkers");
+  const t295 = useTranslations("jb295");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const { can, user } = useAuth();
+  const tabs = siteWorkerTabs(
+    (permission) => officeMay(user, can, permission),
+    user?.features?.includes("attendance") ?? true,
+  );
   const asked = searchParams.get("tab") as Tab | null;
-  const tab: Tab = asked && TABS.includes(asked) ? asked : "roster";
+  const tab: Tab = asked && tabs.includes(asked) ? asked : "roster";
   const [viewing, setViewing] = useState<string | null>(null);
 
   const go = (next: Tab, extra: Record<string, string> = {}) => {
@@ -89,18 +117,26 @@ export function SiteWorkers() {
     <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4">
       <Tabs value={tab} onValueChange={(value) => go(value as Tab)}>
         <TabsList>
-          {TABS.map((key) => (
-            <TabsTrigger key={key} value={key}>
-              {t(`tab.${key}`)}
+          {tabs.map((key) => (
+            <TabsTrigger key={key} value={key} data-slot={`site-workers-tab-${key}`}>
+              {key === "labour" || key === "statements" ? t295(`tab.${key}`) : t(`tab.${key}`)}
             </TabsTrigger>
           ))}
         </TabsList>
       </Tabs>
-      {tab === "roster" ? (
-        <WorkerRoster onView={setViewing} />
-      ) : (
-        <WorkerVisits onView={setViewing} />
-      )}
+      {tab === "roster" ? <WorkerRoster onView={setViewing} /> : null}
+      {tab === "visits" ? <WorkerVisits onView={setViewing} /> : null}
+      {/* The labour tabs are long pages: they scroll inside the tab. */}
+      {tab === "labour" ? (
+        <div className="min-h-0 flex-1 overflow-y-auto" data-slot="site-workers-labour">
+          <LabourCostsPage />
+        </div>
+      ) : null}
+      {tab === "statements" ? (
+        <div className="min-h-0 flex-1 overflow-y-auto" data-slot="site-workers-statements">
+          <LabourStatementsPage />
+        </div>
+      ) : null}
       <WorkerDetailDialog
         workerId={viewing}
         onClose={() => setViewing(null)}
@@ -157,6 +193,7 @@ function OpenWorkerButton({ onClick }: { onClick: () => void }) {
 
 function WorkerRoster({ onView }: { onView: (id: string) => void }) {
   const t = useTranslations("siteWorkers");
+  const t295 = useTranslations("jb295");
   const common = useTranslations("common");
   const df = useDateFormat();
   const { can } = useAuth();
@@ -186,7 +223,17 @@ function WorkerRoster({ onView }: { onView: (id: string) => void }) {
             onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
           />
         ),
-        cell: ({ row }) => <span className="font-medium text-foreground">{row.original.name}</span>,
+        cell: ({ row }) => (
+          <span className="flex flex-col items-start gap-0.5">
+            <span className="font-medium text-foreground">{row.original.name}</span>
+            {/* JB295b: the same phone's app account on this project is the same person. */}
+            {row.original.linked_user ? (
+              <span className="text-xs text-primary" data-slot="worker-linked-user">
+                {t295("twin.linkedTag", { name: row.original.linked_user.name })}
+              </span>
+            ) : null}
+          </span>
+        ),
       },
       {
         accessorKey: "phone",
@@ -269,7 +316,7 @@ function WorkerRoster({ onView }: { onView: (id: string) => void }) {
       },
     );
     return rows;
-  }, [allProjects, df, onView, t, tradeLabel]);
+  }, [allProjects, df, onView, t, t295, tradeLabel]);
 
   const statusValues = Object.fromEntries(WORKER_STATUSES.map((status) => [status, t(`status.${status}`)]));
   // The file carries a built-in trade's stored name; say it in the reader's language.
@@ -416,6 +463,7 @@ function WorkerRoster({ onView }: { onView: (id: string) => void }) {
 
 function WorkerVisits({ onView }: { onView: (id: string) => void }) {
   const t = useTranslations("siteWorkers");
+  const t295 = useTranslations("jb295");
   const common = useTranslations("common");
   const df = useDateFormat();
   const list = useListQuery(["project", "company", "worker", "date_from", "date_to"]);
@@ -432,7 +480,16 @@ function WorkerVisits({ onView }: { onView: (id: string) => void }) {
         accessorKey: "worker_name",
         meta: { label: t("field.name") },
         header: () => t("field.name"),
-        cell: ({ row }) => <span className="font-medium text-foreground">{row.original.worker_name}</span>,
+        cell: ({ row }) => (
+          <span className="flex flex-col items-start gap-0.5">
+            <span className="font-medium text-foreground">{row.original.worker_name}</span>
+            {row.original.linked_user_name ? (
+              <span className="text-xs text-muted-foreground" data-slot="visit-linked-user">
+                {t295("twin.appName", { name: row.original.linked_user_name })}
+              </span>
+            ) : null}
+          </span>
+        ),
       },
       {
         accessorKey: "phone",
@@ -450,7 +507,9 @@ function WorkerVisits({ onView }: { onView: (id: string) => void }) {
         accessorKey: "company_name",
         meta: { label: t("field.company") },
         header: () => t("field.company"),
-        cell: ({ row }) => row.original.company_name || "—",
+        // JB295b: an app account with no 所属公司 is 本公司 (QA295).
+        cell: ({ row }) =>
+          row.original.company_key === "self" ? t295("company.self") : row.original.company_name || "—",
       },
     ];
     if (allProjects) {
@@ -477,18 +536,33 @@ function WorkerVisits({ onView }: { onView: (id: string) => void }) {
         accessorKey: "exited_at",
         meta: { label: t("field.exitedAt") },
         header: () => t("field.exitedAt"),
-        cell: ({ row }) => <VisitExit visit={row.original} />,
+        cell: ({ row }) => (
+          <span className="flex flex-col items-start gap-0.5">
+            <VisitExit visit={row.original} />
+            <VisitFlags flags={row.original.flags} />
+          </span>
+        ),
+      },
+      // JB295b: where the stay comes from - the worker's link or the app account's AT- records.
+      {
+        id: "source",
+        accessorKey: "source",
+        enableSorting: false,
+        meta: { label: t295("visits.source") },
+        header: () => t295("visits.source"),
+        cell: ({ row }) => <VisitSource visit={row.original} />,
       },
       {
         id: "view",
         enableSorting: false,
         meta: { label: t("field.view") },
         header: () => t("field.view"),
-        cell: ({ row }) => <OpenWorkerButton onClick={() => onView(row.original.worker)} />,
+        cell: ({ row }) =>
+          row.original.worker ? <OpenWorkerButton onClick={() => onView(row.original.worker)} /> : null,
       },
     );
     return rows;
-  }, [allProjects, df, onView, t]);
+  }, [allProjects, df, onView, t, t295]);
 
   const workerName = list.filters.worker
     ? visits.data?.results.find((row) => row.worker === list.filters.worker)?.worker_name ?? "…"
@@ -538,6 +612,14 @@ function WorkerVisits({ onView }: { onView: (id: string) => void }) {
                       },
                     },
                     { key: "last_seen_at", label: t("field.lastPositionAt") },
+                    {
+                      key: "source",
+                      label: t295("visits.source"),
+                      values: { visit: t295("visits.sourceVisit"), app: t295("visits.sourceApp") },
+                    },
+                    { key: "refs", label: t295("visits.refs") },
+                    { key: "flags", label: t295("visits.flags") },
+                    { key: "linked_user_name", label: t295("visits.appAccount") },
                   ],
                 })
               }
@@ -545,11 +627,13 @@ function WorkerVisits({ onView }: { onView: (id: string) => void }) {
           </div>
         }
       />
-      <p className="text-xs text-muted-foreground">{t("visitsHint")}</p>
+      <p className="text-xs text-muted-foreground">
+        {t("visitsHint")} {t295("visits.hint")}
+      </p>
       <DataTable
         columns={columns}
         rows={visits.data?.results ?? []}
-        onRowClick={(row) => onView(row.worker)}
+        onRowClick={(row) => (row.worker ? onView(row.worker) : undefined)}
         totalCount={total}
         page={list.page}
         pageSize={list.pageSize}
@@ -606,4 +690,38 @@ function WorkerVisits({ onView }: { onView: (id: string) => void }) {
       />
     </>
   );
+}
+
+/** 「系统结束，离开时间要核对」 / 「缺离场」 on a stay (JB295b, as in 人工费用). */
+export function VisitFlags({ flags }: { flags?: SiteWorkerVisit["flags"] }) {
+  const t295 = useTranslations("jb295");
+  if (!flags?.length) return null;
+  return (
+    <>
+      {flags.includes("system_exit") ? (
+        <span className="text-xs font-medium text-warning" data-slot="visit-system-exit">
+          {t295("day.systemExit")}
+        </span>
+      ) : null}
+      {flags.includes("missing_exit") ? (
+        <span className="text-xs font-medium text-warning" data-slot="visit-missing-exit">
+          {t295("visits.missingExit")}
+        </span>
+      ) : null}
+    </>
+  );
+}
+
+/** 「人员名单链接」, or 「App 打卡」 with its AT numbers. */
+export function VisitSource({ visit }: { visit: SiteWorkerVisit }) {
+  const t295 = useTranslations("jb295");
+  if (visit.source === "app") {
+    return (
+      <span className="flex flex-col items-start gap-0.5" data-slot="visit-source-app">
+        <span>{t295("visits.sourceApp")}</span>
+        {visit.refs?.length ? <span className="tabular text-xs text-muted-foreground">{visit.refs.join(" · ")}</span> : null}
+      </span>
+    );
+  }
+  return <span data-slot="visit-source-visit">{t295("visits.sourceVisit")}</span>;
 }

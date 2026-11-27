@@ -23,6 +23,12 @@ import {
   requiredEmail,
 } from "@/components/shared/form-shell";
 import { QueryFailedNote } from "@/components/shared/page-primitives";
+import {
+  EmployerCompanyField,
+  employerDraftOf,
+  employerKeyOf,
+  type EmployerDraft,
+} from "@/components/users/employer-company-field";
 import { LOCALES, LOCALE_LABELS } from "@/i18n/config";
 import { inviteEmailCopy } from "@/lib/invite-email";
 import { roleName } from "@/lib/role-labels";
@@ -165,6 +171,11 @@ export function CreateUser({
   const { user: me } = useAuth();
   const isEdit = user !== undefined;
   const [formError, setFormError] = useState<string | null>(null);
+  // JB295: 「所属公司」 of a builder's account (empty = 本公司), on 编辑用户.
+  const showsEmployer = isEdit && me?.portal === "MSE_TRACE";
+  const [employer, setEmployer] = useState<EmployerDraft>(() =>
+    employerDraftOf(user?.employer_company_key, user?.employer_company_name),
+  );
 
   // Platform staff manage a named tenant's users; a tenant admin manages their
   // own. Either way the roles offered must come from the same company as the
@@ -232,6 +243,7 @@ export function CreateUser({
             mutation.mutateAsync({
               ...value,
               role: value.role || null,
+              ...(showsEmployer ? { employer_company_key: employerKeyOf(employer) } : {}),
             } as UserPayload),
           saveAfter: saveAfter
             ? async () => {
@@ -375,6 +387,7 @@ export function CreateUser({
             />
           )}
         </form.Field>
+        {showsEmployer ? <EmployerCompanyField draft={employer} onChange={setEmployer} /> : null}
       </FormSection>
 
       <FormSection title={t("users.section.access")}>

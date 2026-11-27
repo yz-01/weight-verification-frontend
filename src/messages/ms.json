@@ -4087,7 +4087,18 @@
       "wall_screen_viewed": "Skrin besar ibu pejabat dibuka",
       "wall_display_settings_saved": "Tetapan paparan skrin besar disimpan",
       "wall_link_created": "Pautan skrin besar dibuat",
-      "wall_link_revoked": "Pautan skrin besar dihentikan"
+      "wall_link_revoked": "Pautan skrin besar dihentikan",
+      "labour_rate_set": "Kadar buruh ditetapkan",
+      "labour_normal_hours_set": "Jam biasa buruh ditetapkan",
+      "labour_day_adjusted": "Jam pekerja dilaraskan",
+      "labour_month_confirmed": "Jam buruh bulan disahkan",
+      "labour_month_unconfirmed": "Pengesahan jam buruh bulan dibatalkan",
+      "labour_statement_created": "Penyata buruh dijana",
+      "labour_statement_cancelled": "Penyata buruh dibatalkan",
+      "labour_statement_pdf_previewed": "PDF penyata buruh dipratonton",
+      "labour_statement_pdf_exported": "PDF penyata buruh dieksport",
+      "labour_checked": "Penyata buruh disemak",
+      "labour_settled": "Penyata buruh diselesaikan"
     },
     "objectType": {
       "SignOffAssistant": "PIN pembantu",
@@ -9835,7 +9846,20 @@
       "disposal_lorry_sheet_missing": "Tapak belum menaip plat lori, dan pemandu serta penyelia tapak belum menandatangani.",
       "wall_project_unavailable": "Projek ini tidak boleh dipaparkan pada skrin besar: hanya projek aktif boleh ditetapkan. Buka semula tetapan skrin besar dan cuba lagi.",
       "wall_link_not_found": "Pautan skrin besar ini tidak lagi berfungsi. Minta pautan baharu daripada syarikat.",
-      "project_material_name_taken": "Projek ini sudah ada \"{name}\". Gunakan nama lain."
+      "project_material_name_taken": "Projek ini sudah ada \"{name}\". Gunakan nama lain.",
+      "labour_rate_duplicate_date": "Sudah ada kadar untuk ini pada {date}; satu sehari. Pilih tarikh berkuat kuasa lain untuk mengubahnya.",
+      "labour_rate_invalid_scope": "Pilih kadar ini untuk apa, kemudian orang, syarikat atau jenis kerja.",
+      "labour_month_not_over": "Bulan ini belum tamat (tamat {last_day}); sahkan selepas itu.",
+      "labour_month_confirmed": "Jam bagi {month} sudah disahkan dan tidak boleh diubah. Batalkan pengesahan dahulu.",
+      "labour_month_not_confirmed": "Jam bulan ini belum disahkan.",
+      "labour_month_in_statement": "Bulan ini ada dalam penyata {statement_no}. Batalkan penyata itu dahulu.",
+      "labour_statement_locked": "Penyata {statement_no} sudah disemak atau dibatalkan; ia kekal seperti itu.",
+      "labour_statement_overlap": "Projek, syarikat dan bulan ini sudah ada penyata {statement_no}; kos buruh yang sama tidak boleh diselesaikan dua kali.",
+      "labour_statement_no_rate": "Orang ini belum ada kadar buruh: {items}. Tetapkan kadar mereka dahulu.",
+      "labour_statement_no_company": "Orang ini belum diisi syarikatnya: {items}. Isikan dahulu.",
+      "labour_statement_empty": "Tiada sesiapa dari syarikat ini bekerja bulan ini; tiada apa untuk diselesaikan.",
+      "labour_check_other_company": "{reference} milik syarikat lain; satu semakan untuk satu syarikat sahaja.",
+      "labour_amounts_off": "Amaun dimatikan untuk akaun anda, jadi anda tidak boleh menetapkan kadar buruh."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -14701,6 +14725,10 @@
       },
       "project_supplier": {
         "manage": "Letak pembekal daripada senarai ibu pejabat pada projek sendiri, atau keluarkan"
+      },
+      "labour": {
+        "view": "Lihat kos dan jam buruh",
+        "manage": "Tetapkan kadar buruh, laras dan sahkan jam, semak dan selesaikan penyata buruh"
       }
     },
     "group": {
@@ -14774,7 +14802,8 @@
       "inspection": "Pemeriksaan",
       "finance": "Jumlah wang",
       "field_staff": "Kakitangan tapak",
-      "project_supplier": "Pembekal projek"
+      "project_supplier": "Pembekal projek",
+      "labour": "Kos buruh"
     }
   },
   "photos": {
@@ -22340,7 +22369,14 @@
       "equipment_rental_check": "Semak penyata sewaan peralatan",
       "equipment_rental_settle": "Selesaikan penyata sewaan peralatan",
       "disposal_settlement_settle": "Tandakan penyelesaian pembersihan sebagai selesai",
-      "disposal_fee_set": "Tetapkan atau ubah yuran pembersihan setiap lori"
+      "disposal_fee_set": "Tetapkan atau ubah yuran pembersihan setiap lori",
+      "labour_rate_set": "Tetapkan kadar buruh",
+      "labour_hours_adjust": "Laraskan jam pekerja",
+      "labour_confirm": "Sahkan jam bulan ini",
+      "labour_unconfirm": "Batalkan pengesahan jam bulan ini",
+      "labour_statement": "Jana atau batalkan penyata buruh",
+      "labour_check": "Semak penyata buruh",
+      "labour_settle": "Selesaikan penyata buruh"
     },
     "firstTitle": "Tetapkan PIN pengesahan buat kali pertama",
     "firstBanner": "Ini kali pertama anda menggunakan PIN pengesahan",
@@ -25087,5 +25123,388 @@
     "namesHint": "Isi sekurang-kurangnya satu. Skrin bahasa Cina menunjukkan nama Cina; skrin bahasa Inggeris dan Melayu menunjukkan nama Inggeris. Jika hanya satu diisi, yang itu ditunjukkan di mana-mana. Kedua-dua nama atau kod menemui bahan ini dalam carian, dan kod tidak berubah.",
     "nameZhPlaceholder": "cth. 钢筋",
     "nameEnPlaceholder": "cth. Rebar"
+  },
+  "jb295": {
+    "addDay": {
+      "button": "Tambah satu hari",
+      "hint": "Hari yang tiada rekod pagar geo (contohnya lokasi tidak dihidupkan) ditambah di sini.",
+      "title": "Tambah jam satu hari",
+      "help": "Pilih orang dan hari. Seterusnya isi sama ada dia bekerja, jam biasa dan lebih masa serta sebabnya, kemudian PIN 6 digit anda.",
+      "dateHint": "Hari dalam bulan ini, hari ini atau sebelumnya.",
+      "dateInvalid": "Pilih hari dalam bulan ini, hari ini atau sebelumnya.",
+      "next": "Seterusnya"
+    },
+    "subtitle": "Hari dan jam bekerja dikira daripada rekod masuk dan keluar pagar geo. Orang yang bertanggungjawab mengesahkannya sebelum diselesaikan.",
+    "pageNote": "Hari bekerja, jam biasa dan jam lebih masa datang daripada rekod masuk dan keluar pagar geo (senarai pekerja dan akaun App). Betulkan hari yang salah dengan 【Laraskan】: tulis sebab dan masukkan PIN pengesahan enam digit anda.",
+    "noView": "Anda tiada hak untuk melihat kos buruh. Minta pentadbir syarikat anda menghidupkannya.",
+    "amountsHidden": "「Lihat jumlah」 anda dimatikan, jadi jumlah ditunjukkan sebagai 「—」.",
+    "chooseProjectFirst": "Pilih projek dahulu.",
+    "chooseCompany": "Pilih syarikat",
+    "choosePerson": "Pilih orang",
+    "chooseTrade": "Pilih tred",
+    "close": "Tutup",
+    "personOption": "{name} ({group} · {company} · {trade})",
+    "group": {
+      "roster": "Senarai pekerja",
+      "app": "Akaun App"
+    },
+    "company": {
+      "self": "Syarikat sendiri",
+      "none": "Syarikat belum diisi"
+    },
+    "trade": {
+      "none": "Tred belum diisi"
+    },
+    "method": {
+      "DAILY": "Gaji harian",
+      "HOURLY": "Gaji sejam",
+      "IN_RENTAL": "Termasuk dalam sewaan peralatan"
+    },
+    "methodHelp": {
+      "DAILY": "Gaji harian: setiap hari bekerja dibayar satu hari; lebih masa dikira berasingan.",
+      "HOURLY": "Gaji sejam: jam biasa didarab harga sejam; lebih masa dikira berasingan.",
+      "IN_RENTAL": "Kos buruh orang ini sudah dibayar dalam sewaan peralatan (contohnya pengendali peralatan). Hari dan jam ditunjukkan seperti biasa, tetapi kos buruh tidak dikira."
+    },
+    "scope": {
+      "PERSON": "Ikut orang",
+      "COMPANY_TRADE": "Ikut syarikat + tred",
+      "TRADE": "Ikut tred",
+      "COMPANY": "Ikut syarikat",
+      "EQUIPMENT": "Pengendali peralatan"
+    },
+    "scopeHelp": {
+      "PERSON": "Hanya untuk orang ini",
+      "COMPANY_TRADE": "Tred ini di syarikat ini",
+      "TRADE": "Tred ini di semua syarikat",
+      "COMPANY": "Semua orang di syarikat ini"
+    },
+    "state": {
+      "PENDING": "Untuk disemak",
+      "CHECKED": "Sudah disemak",
+      "SETTLED": "Sudah diselesaikan",
+      "CANCELLED": "Dibatalkan"
+    },
+    "view": {
+      "day": "Ikut hari",
+      "month": "Ikut bulan"
+    },
+    "filter": {
+      "project": "Projek",
+      "chooseProject": "Pilih projek",
+      "allProjects": "Semua projek",
+      "month": "Bulan",
+      "company": "Syarikat",
+      "allCompanies": "Semua syarikat",
+      "trade": "Tred",
+      "allTrades": "Semua tred",
+      "person": "Orang",
+      "allPeople": "Semua orang",
+      "flagged": "Hanya hari yang perlu disemak",
+      "clear": "Kosongkan penapis"
+    },
+    "what": {
+      "options": "pilihan syarikat, tred dan orang",
+      "days": "jam ikut hari",
+      "month": "jam ikut bulan",
+      "summary": "statistik kos buruh"
+    },
+    "col": {
+      "date": "Tarikh",
+      "person": "Nama",
+      "group": "Jenis",
+      "company": "Syarikat",
+      "trade": "Tred",
+      "sessions": "Masuk – keluar",
+      "normalHours": "Jam biasa",
+      "overtimeHours": "Jam lebih masa",
+      "dayAmount": "Jumlah hari (RM)",
+      "daysWorked": "Hari bekerja",
+      "missingExit": "Tiada keluar (hari)",
+      "systemExit": "Ditamatkan oleh sistem (hari)",
+      "adjustedCount": "Dilaraskan (hari)",
+      "toCheck": "Perlu disemak (hari)",
+      "adjusted": "Pelarasan",
+      "method": "Cara",
+      "unitPrice": "Kadar (RM)",
+      "overtimeRate": "Kadar lebih masa (RM / jam)",
+      "rate": "Kadar",
+      "normalAmount": "Jumlah biasa (RM)",
+      "overtimeAmount": "Jumlah lebih masa (RM)",
+      "labourAmount": "Jumlah (RM)",
+      "status": "Status"
+    },
+    "day": {
+      "empty": "Tiada rekod masuk bulan ini.",
+      "noSession": "Tiada rekod masuk",
+      "systemExit": "Ditamatkan oleh sistem, semak masa keluar",
+      "systemExitHelp": "Masa keluar 「ditamatkan oleh sistem」 ialah masa telefon kali terakhir melapor, tidak semestinya masa sebenar orang itu keluar. Sila semak.",
+      "missingExit": "Tiada keluar, dikira 0 jam",
+      "notWorked": "Dilaraskan kepada tidak bekerja",
+      "adjusted": "Dilaraskan",
+      "adjustedBy": "Dilaraskan oleh {name} pada {time}: {reason}",
+      "locked": {
+        "confirmed": "Bulan ini sudah disahkan dan tidak boleh dilaraskan",
+        "statement": "Sudah dalam penyata dan tidak boleh dilaraskan"
+      }
+    },
+    "month": {
+      "empty": "Tiada sesiapa mempunyai hari bekerja bulan ini.",
+      "total": "Jumlah",
+      "notConfirmed": "Belum disahkan",
+      "confirmed": "Sudah disahkan",
+      "confirmedBy": "{name} · {time}",
+      "inStatement": "Penyata {number} ({state})",
+      "flagsHelp": "Hari tanpa keluar atau ditamatkan oleh sistem. Semak dalam Ikut hari."
+    },
+    "rate": {
+      "none": "Tiada kadar",
+      "set": "Tetapkan kadar",
+      "methodPrice": "{method} RM {amount}",
+      "overtimePrice": "Lebih masa RM {amount} / jam",
+      "noOvertime": "Tiada kadar lebih masa",
+      "companyTrade": "{company} · {trade}"
+    },
+    "pieces": {
+      "count": "{count} kadar bulan ini",
+      "open": "Lihat bahagian",
+      "title": "Kadar {name} pada {month}",
+      "help": "Kadar berubah di pertengahan bulan. Hari setiap bahagian dikira dengan kadar pada masa itu.",
+      "period": "Tarikh",
+      "scope": "Ditetapkan ikut",
+      "overtime": "Kadar lebih masa",
+      "range": "{from} hingga {to}",
+      "rangeRate": "{from} hingga {to}: {rate}"
+    },
+    "normal": {
+      "title": "Jam biasa",
+      "button": "Jam biasa: {hours} jam sehari",
+      "help": "Jam pertama setiap hari ialah jam biasa; selebihnya lebih masa. Buruh projek ini menggunakan tetapan ini.",
+      "hours": "Jam biasa sehari",
+      "invalid": "Masukkan nombor dari 0.5 hingga 24.",
+      "fromHint": "Digunakan mulai hari ini; tarikh lebih awal dibenarkan. Bulan yang sudah disahkan tidak berubah.",
+      "history": "Tetapan terdahulu",
+      "historyRow": "Mulai {from}: {hours} jam sehari ({name} · {time})",
+      "default": "Belum ditetapkan: 8 jam sehari digunakan.",
+      "save": "Simpan"
+    },
+    "adjust": {
+      "button": "Laraskan",
+      "title": "Laraskan {name} pada {date}",
+      "help": "Betulkan sama ada hari ini bekerja serta jam biasa dan lebih masanya. Rekod kekal; pelarasan terbaharu yang dikira.",
+      "records": "Rekod pagar geo",
+      "worked": "Adakah orang ini bekerja pada hari ini?",
+      "workedYes": "Bekerja",
+      "workedNo": "Tidak bekerja",
+      "hoursInvalid": "Masukkan nombor dari 0 hingga 24, paling banyak dua tempat perpuluhan.",
+      "over24": "Jam biasa campur lebih masa tidak boleh melebihi 24.",
+      "reason": "Sebab pelarasan",
+      "reasonPlaceholder": "Contoh: bateri telefon habis, keluar pada 17:30",
+      "pinNote": "Selepas 「Simpan pelarasan」, masukkan PIN pengesahan enam digit anda.",
+      "save": "Simpan pelarasan"
+    },
+    "confirm": {
+      "button": "Sahkan jam bulan ini",
+      "title": "Sahkan jam {month}",
+      "help": "Orang yang bertanggungjawab menyemak hari dan jam bekerja setiap orang, tandakan yang betul dan sahkan. Selepas itu hari, jam dan jumlah bulan ini tetap.",
+      "notOver": "Bulan ini belum tamat (hingga {date}). Ia boleh disahkan selepas tamat.",
+      "nothing": "Tiada sesiapa untuk disahkan bulan ini (semua sudah disahkan, atau tiada hari bekerja).",
+      "all": "Tanda semua",
+      "check": "Perlu disemak",
+      "flags": "{count} hari perlu disemak",
+      "ok": "Tiada masalah",
+      "pinNote": "Selepas 「Sahkan」, masukkan PIN pengesahan enam digit anda.",
+      "save": "Sahkan jam {count} orang",
+      "tickSomeone": "Tandakan sekurang-kurangnya seorang",
+      "noRate": "Tiada kadar: tetapkan kadar sebelum mengesahkan",
+      "noRateNames": "Orang ini belum ada kadar buruh: {names}. Tetapkan kadar mereka dalam 【Kadar buruh】 dahulu, kemudian jam mereka boleh disahkan."
+    },
+    "unconfirm": {
+      "button": "Batalkan pengesahan",
+      "inStatement": "Bulan ini sudah dalam penyata {number}. Batalkan penyata itu dahulu.",
+      "title": "Batalkan pengesahan {name}, {month}",
+      "help": "Selepas itu jam bulan ini boleh dilaraskan dan disahkan semula. Tulis sebab dan masukkan PIN pengesahan enam digit anda.",
+      "reason": "Sebab",
+      "save": "Batalkan pengesahan"
+    },
+    "rates": {
+      "title": "Kadar buruh",
+      "help": "Kadar buruh milik syarikat dan digunakan di setiap projek. Kadar baharu digunakan mulai tarikh mula; bulan yang sudah disahkan dan penyata tidak berubah.",
+      "order": "Jika seseorang ada beberapa kadar, yang paling khusus digunakan: orang → syarikat + tred → tred → syarikat",
+      "add": "Tambah kadar",
+      "what": "kadar buruh",
+      "whatOptions": "orang, syarikat dan tred",
+      "noneInScope": "Belum ditetapkan.",
+      "col": {
+        "target": "Untuk",
+        "price": "Kadar",
+        "overtime": "Kadar lebih masa",
+        "from": "Tarikh mula",
+        "note": "Catatan",
+        "by": "Ditetapkan oleh"
+      },
+      "history": "Sejarah harga",
+      "historyTitle": "Sejarah harga {name}",
+      "historyHelp": "Terbaharu di atas. Setiap satu digunakan mulai tarikh mulanya.",
+      "chooseScope": "Tetapkan kadar ikut apa?",
+      "pinNote": "Selepas 「Simpan kadar」, masukkan PIN pengesahan enam digit anda.",
+      "save": "Simpan kadar"
+    },
+    "field": {
+      "person": "Orang",
+      "company": "Syarikat",
+      "trade": "Tred",
+      "method": "Harian atau sejam?",
+      "dayPrice": "Harga sehari (RM)",
+      "hourPrice": "Harga sejam (RM)",
+      "priceInvalid": "Masukkan jumlah lebih daripada 0, paling banyak dua tempat perpuluhan.",
+      "overtimeRate": "Kadar lebih masa (RM / jam)",
+      "overtimeHint": "Kosong = lebih masa tidak dibayar.",
+      "effectiveFrom": "Tarikh mula",
+      "effectiveHint": "Tarikh lebih awal dibenarkan.",
+      "note": "Catatan"
+    },
+    "statement": {
+      "noManage": "Anda tiada hak untuk menyelesaikan buruh. Minta pentadbir syarikat anda menghidupkannya.",
+      "noAmounts": "「Lihat jumlah」 anda dimatikan, dan penyata semuanya jumlah, jadi anda tidak dapat melihatnya. Minta pentadbir syarikat anda menghidupkannya.",
+      "count": "{count} penyata",
+      "tabsLabel": "Tab penyata",
+      "tab": {
+        "pending": "Untuk disemak",
+        "checked": "Sudah disemak",
+        "settled": "Sudah diselesaikan",
+        "all": "Semua"
+      },
+      "resultOnly": "Di sini hanya merekod hasil semakan dan penyelesaian; tiada bayaran atau urusan kewangan dibuat.",
+      "what": "penyata bulanan buruh",
+      "empty": {
+        "pending": "Tiada penyata untuk disemak sekarang.",
+        "checked": "Tiada penyata yang sudah disemak sekarang.",
+        "settled": "Tiada penyata yang sudah diselesaikan sekarang.",
+        "all": "Belum ada penyata."
+      },
+      "col": {
+        "number": "No. penyata",
+        "project": "Projek",
+        "month": "Bulan",
+        "people": "Bilangan orang",
+        "total": "Jumlah (RM)",
+        "checkNo": "No. semakan",
+        "settlementNo": "No. penyelesaian",
+        "generated": "Dibuat oleh",
+        "rate": "Kadar (cara)"
+      },
+      "peopleValue": "{count} orang",
+      "view": "Lihat",
+      "generate": "Buat penyata",
+      "generateHelp": "Pilih projek, syarikat dan bulan. Jumlah datang daripada hari dan jam bekerja yang disahkan. Orang yang belum disahkan disahkan dalam langkah yang sama.",
+      "preview": "Lihat dahulu",
+      "willConfirm": "「Buat penyata」 juga mengesahkan jam bulan ini bagi orang ini (tidak boleh diubah selepas itu):",
+      "noRate": "Orang ini belum ada kadar. Tetapkan kadar mereka dahulu:",
+      "noCompany": "Orang ini belum diisi syarikat. Isi dahulu sebelum boleh diselesaikan:",
+      "noRateShort": "Ada orang yang belum ada kadar. Tetapkan dahulu.",
+      "overlap": "Syarikat ini sudah ada penyata {number} untuk bulan ini. Kos buruh yang sama tidak boleh diselesaikan dua kali.",
+      "emptyPreview": "Tiada sesiapa di syarikat ini mempunyai hari bekerja bulan ini, jadi tiada apa untuk diselesaikan.",
+      "generatePin": "Selepas 「Buat penyata」, masukkan PIN pengesahan enam digit anda. Jumlah tidak akan berubah selepas itu.",
+      "windowTitle": "Penyata bulanan buruh {number}",
+      "pdf": "PDF penyata",
+      "linesTitle": "Orang dan kos",
+      "linesHelp": "Tekan 「Setiap hari」 pada seseorang untuk melihat hari dan jamnya.",
+      "days": "Setiap hari",
+      "worked": "Bekerja?",
+      "cancel": "Batalkan",
+      "cancelTitle": "Batalkan penyata {number}",
+      "cancelHelp": "Hanya penyata yang masih untuk disemak boleh dibatalkan. Ia disimpan, dan bulan itu boleh dibuat semula. Masukkan PIN pengesahan enam digit anda.",
+      "cancelReason": "Sebab pembatalan",
+      "confirmCancel": "Batalkan penyata",
+      "tickAll": "Tanda semua",
+      "generatedToast": "Penyata {number} dibuat",
+      "cancelledToast": "Penyata {number} dibatalkan",
+      "inRental": "Kos buruh orang ini termasuk dalam sewaan peralatan, jadi tidak dikira dan tidak dimasukkan ke dalam penyata:"
+    },
+    "checkTitle": "Penyata bulanan buruh · semak dan selesaikan",
+    "checkNoPending": "Tiada penyata bulanan buruh untuk disemak sekarang.",
+    "checkChooseCompany": "Pilih syarikat",
+    "checkHelp": "Pilih syarikat dahulu, kemudian tandakan penyatanya untuk disemak.",
+    "checkPickTitle": "Penyata {name} untuk disemak",
+    "checkPickHelp": "Tandakan penyata untuk disemak, satu atau lebih. Tekan satu baris untuk melihat penyata.",
+    "checkWhat": "penyata untuk disemak",
+    "checkTickFirst": "Tandakan penyata untuk disemak dahulu; pengesahan kemudian muncul di bawah.",
+    "checkWindowTitle": "Semakan buruh {number}",
+    "checkStatementsTitle": "Penyata dalam semakan ini ({count})",
+    "cost": {
+      "source": "Kos buruh",
+      "report": "Penyata bulanan buruh",
+      "notCounted": "{amount} belum disemak, tidak dikira"
+    },
+    "employer": {
+      "label": "Syarikat",
+      "hint": "Kosong = syarikat sendiri. Kos buruh dan penyata bulanan buruh ikut syarikat ini.",
+      "pick": "Pilih syarikat",
+      "search": "Cari syarikat",
+      "noMatch": "Syarikat ini tiada dalam senarai. Taipkan di bawah.",
+      "self": "Syarikat sendiri",
+      "what": "senarai syarikat",
+      "noteLabel": "Syarikat yang tiada dalam senarai (taip)",
+      "noteHint": "Hanya jika tiada dalam senarai. Kedua-duanya kosong = syarikat sendiri."
+    },
+    "toast": {
+      "rateSaved": "Kadar buruh disimpan",
+      "normalSaved": "Jam biasa disimpan",
+      "adjusted": "Jam dilaraskan",
+      "confirmed": "Jam {count} orang disahkan",
+      "unconfirmed": "Pengesahan dibatalkan"
+    },
+    "tab": {
+      "labour": "Statistik kos buruh",
+      "statements": "Penyata bulanan buruh"
+    },
+    "inRental": {
+      "rate": "Termasuk dalam sewaan peralatan, buruh tidak dikira",
+      "operator": "Pengendali peralatan {equipment}; buruh termasuk dalam sewaan peralatan"
+    },
+    "twin": {
+      "linkedTag": "Akaun App dipautkan {name}",
+      "appName": "Akaun App: {name}",
+      "samePhone": "Satu nombor telefon ada dua orang. Sila semak: {names}",
+      "samePhoneNumber": "Satu nombor ada dua orang, sila semak: {names} ({phone})"
+    },
+    "visits": {
+      "flags": "Ditamatkan sistem / Tiada keluar",
+      "source": "Sumber",
+      "sourceVisit": "Pautan senarai pekerja",
+      "sourceApp": "Daftar masuk App",
+      "refs": "No. rekod masuk",
+      "appAccount": "Akaun App",
+      "missingExit": "Tiada keluar",
+      "hint": "Akaun App dengan nombor telefon yang sama ialah orang yang sama; rekod masuk dan keluarnya (daftar masuk App) juga disenaraikan di sini."
+    },
+    "stats": {
+      "label": "Kira ikut",
+      "person": "Ikut orang",
+      "company": "Ikut syarikat",
+      "trade": "Ikut tred",
+      "monthFrom": "Bulan dari",
+      "monthTo": "Hingga",
+      "name": {
+        "person": "Nama",
+        "company": "Syarikat",
+        "trade": "Tred"
+      },
+      "col": {
+        "people": "Bilangan orang",
+        "labourAmount": "Kos buruh (RM)",
+        "confirmed": "Sudah disahkan (RM)",
+        "unconfirmed": "Belum disahkan (RM)",
+        "statements": "Penyata bulanan buruh",
+        "pending": "Untuk disemak (RM)",
+        "checked": "Sudah disemak (RM)",
+        "settled": "Sudah diselesaikan (RM)"
+      },
+      "split": "{state} RM {amount}",
+      "noRatePeople": "{count} orang belum ada kadar, tidak dikira dalam kos buruh",
+      "months": "Setiap bulan",
+      "empty": "Tiada sesiapa mempunyai hari bekerja dalam bulan-bulan ini.",
+      "help": "Kos buruh dikira daripada rekod dan kadar sekarang; bulan yang sudah disahkan menggunakan apa yang disimpan semasa disahkan."
+    }
   }
 }

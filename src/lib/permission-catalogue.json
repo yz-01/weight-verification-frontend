@@ -138,6 +138,10 @@
       "label": "Worker roster"
     },
     {
+      "key": "labour",
+      "label": "Labour costs"
+    },
+    {
       "key": "dashboard",
       "label": "Dashboard"
     },
@@ -746,6 +750,16 @@
       "code": "site_worker.manage",
       "group": "site_worker",
       "label": "Register workers and send their location links"
+    },
+    {
+      "code": "labour.view",
+      "group": "labour",
+      "label": "View labour costs and hours"
+    },
+    {
+      "code": "labour.manage",
+      "group": "labour",
+      "label": "Set labour rates, adjust and confirm hours, check and settle labour statements"
     },
     {
       "code": "dashboard.view",
