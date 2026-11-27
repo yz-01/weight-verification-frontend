@@ -376,6 +376,12 @@ function RentalTermsForm({ project, machine, onDone }: { project: string; machin
           <Input type="date" value={effectiveOf(draft)} onChange={(event) => set("effective_from")(event.target.value)} />
           <span className="font-normal">{tj("effectiveHelp")}</span>
         </label>
+        {machine.terms && draft.end_date && draft.end_date < effectiveOf(draft) ? (
+          // JB288: every condition follows the 生效日期, the end date too.
+          <p role="status" className="text-xs font-medium text-warning sm:col-span-2" data-testid="rental-end-before-effective">
+            {tj("endBeforeEffective")}
+          </p>
+        ) : null}
         <label className="flex min-w-0 flex-col gap-1 text-xs font-medium text-muted-foreground sm:col-span-2">
           {t("field.diesel")}
           <Select value={draft.diesel_supply} onValueChange={(value) => set("diesel_supply")(value)}>

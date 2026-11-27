@@ -127,6 +127,9 @@ describe("生效日期", () => {
     expect(source).toContain('tj("effectiveHelp")');
     expect(source).toContain("effective_from: effectiveOf(draft) || null");
     expect(words.effectiveHelp).toBe("改价从生效日期开始算，以前的日子照旧。");
+    // An end date before the 生效日期 says what that means.
+    expect(source).toContain("draft.end_date < effectiveOf(draft)");
+    expect(source).toContain('tj("endBeforeEffective")');
   });
 
   it("the first terms take the 租赁开始日期; a change defaults to today", () => {

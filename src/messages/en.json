@@ -24310,7 +24310,8 @@
     "oldNew": "{old} → {new}",
     "firstSet": "First set: {terms}",
     "piece": "{from} to {to}: {terms}",
-    "monthPieces": "The price changed this month, worked out in {count} parts:"
+    "monthPieces": "The price changed this month, worked out in {count} parts:",
+    "endBeforeEffective": "The rental end date is before the effective date: the days in between still count with the old terms. To stop charging from the end date, set the effective date to the end date too."
   },
   "jb265": {
     "startedBy": "Started by consultant {name}"

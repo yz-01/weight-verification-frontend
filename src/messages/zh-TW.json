@@ -24310,7 +24310,8 @@
     "oldNew": "{old} → {new}",
     "firstSet": "第一次設定：{terms}",
     "piece": "{from} 至 {to}：{terms}",
-    "monthPieces": "本月改過價，分 {count} 段計算："
+    "monthPieces": "本月改過價，分 {count} 段計算：",
+    "endBeforeEffective": "租賃結束日期在生效日期之前：這兩個日期中間的日子還按舊條件算。要從結束日期起不再計費，把生效日期也改成結束日期。"
   },
   "jb265": {
     "startedBy": "顧問 {name} 發起"

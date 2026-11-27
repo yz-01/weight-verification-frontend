@@ -24310,7 +24310,8 @@
     "oldNew": "{old} → {new}",
     "firstSet": "Kali pertama: {terms}",
     "piece": "{from} hingga {to}: {terms}",
-    "monthPieces": "Harga berubah bulan ini, dikira dalam {count} bahagian:"
+    "monthPieces": "Harga berubah bulan ini, dikira dalam {count} bahagian:",
+    "endBeforeEffective": "Tarikh tamat sewa sebelum tarikh berkuat kuasa: hari di antaranya masih dikira dengan terma lama. Untuk berhenti mengenakan bayaran dari tarikh tamat, tetapkan tarikh berkuat kuasa kepada tarikh tamat juga."
   },
   "jb265": {
     "startedBy": "Dimulakan oleh perunding {name}"
