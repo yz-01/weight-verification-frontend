@@ -75,6 +75,17 @@ describe("JB290: which lorry the site fills and the gate releases", () => {
     expect(nextLorry({ trips: [trip(1, "SUBMITTED"), trip(2, "CANCELLED")] })).toBeNull();
   });
 
+  it("keeps a lorry the driver sent early, once its sheet is in, as the one at the gate (QA290)", () => {
+    const trips = [
+      trip(1, "SUBMITTED", { release: RELEASED, sheet: SHEET }),
+      trip(2, "SUBMITTED", { sheet: SHEET }),
+      trip(3, "PLANNED"),
+    ];
+    expect(nextLorry({ trips })?.seq).toBe(2);
+    // Sent without a sheet (before JB290, or no gate step): past, as before.
+    expect(nextLorry({ trips: [trip(1, "SUBMITTED"), trip(2, "PLANNED")] })?.seq).toBe(2);
+  });
+
   it("offers 【填写车牌和签名】 on a running job, locked once every lorry has left", () => {
     const running = { status: "IN_PROGRESS" as const, trips_closed_at: null };
     expect(lorrySheetStep({ ...running, trips: [trip(1, "PLANNED")] }, { submit: true })).toBe("open");

@@ -51,7 +51,13 @@ const RUNNING = ["APPROVED", "ASSIGNED", "IN_PROGRESS", "RETURNED"];
  */
 export function nextLorry(row: Pick<DisposalRequest, "trips">): DisposalTrip | null {
   const trips = [...(row.trips ?? [])].sort((a, b) => a.seq - b.seq);
-  return trips.find((trip) => trip.status === "PLANNED" && !trip.release) ?? null;
+  // A lorry whose proof the driver sent early, after the site filled its
+  // sheet, still waits at the gate (QA290; the server's rule too).
+  return (
+    trips.find(
+      (trip) => !trip.release && trip.status !== "CANCELLED" && (trip.status === "PLANNED" || !!trip.sheet),
+    ) ?? null
+  );
 }
 
 /**
