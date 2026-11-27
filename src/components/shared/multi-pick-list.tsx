@@ -77,7 +77,7 @@ export function MultiPickList({
                 type="button"
                 className={
                   large
-                    ? "inline-flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
+                    ? "inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
                     : "rounded-full p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground"
                 }
                 aria-label={`${ariaLabel}: ${names[id] ?? ""}`}

@@ -42,7 +42,7 @@ import {
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { FieldDraft } from "@/components/field-staff/field-draft";
 import { RequestTypesDialog } from "@/components/material-requests/request-types-dialog";
@@ -654,6 +654,19 @@ export function MaterialRequestDetail({
     },
     onError: (reasonError) => setError(reasonError instanceof ApiError ? reasonError.message : t("failed")),
   });
+  // One decision per press (QA292): a double click on 【批准】 sent it twice,
+  // and the second came back 「已经审批过」 in red under a request that was
+  // just approved.
+  const sending = useRef(false);
+  const decide = (decision: "APPROVED" | "RETURNED") => {
+    if (sending.current) return;
+    sending.current = true;
+    review.mutate(decision, {
+      onSettled: () => {
+        sending.current = false;
+      },
+    });
+  };
   // 「改派给我」 (D2, Q15): another approver takes it over, then decides it.
   const takeOver = useMutation({
     mutationFn: () => reassignMaterialRequestToMe(id),
@@ -1038,7 +1051,7 @@ export function MaterialRequestDetail({
                 <Button
                   size="sm"
                   disabled={review.isPending}
-                  onClick={() => review.mutate("APPROVED")}
+                  onClick={() => decide("APPROVED")}
                 >
                   <Check />
                   {t("action.approve")}
@@ -1063,7 +1076,7 @@ export function MaterialRequestDetail({
                       variant="outline-destructive"
                       requires={[[reason.trim(), t("field.returnReason")]]}
                       disabled={review.isPending}
-                      onClick={() => review.mutate("RETURNED")}
+                      onClick={() => decide("RETURNED")}
                     >
                       <XCircle />
                       {t("action.return")}
