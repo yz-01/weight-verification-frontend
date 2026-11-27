@@ -48,6 +48,7 @@ import { useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { KpiCard } from "@/components/shared/kpi-card";
+import { cardModuleOff } from "@/lib/company-modules";
 import { QueryFailedNote } from "@/components/shared/page-primitives";
 import type { HeadquartersOverview, HeadquartersPhoto } from "@/interfaces/headquarters";
 import { useCurrentProject } from "@/components/providers/current-project-provider";
@@ -203,6 +204,7 @@ const KPIS: { card: HeadquartersCard; field: keyof HeadquartersOverview["totals"
 /** 数字卡一排 (要做 2): each opens its list, already filtered. */
 export function HeadquartersKpis({ data }: { data: HeadquartersOverview }) {
   const t = useTranslations("headquarters.reference.kpi");
+  const offWord = useTranslations("jb250fix")("cardOff");
   const format = useFormatter();
   const topBar = useCurrentProject();
   const everyProject = topBar.active && topBar.projectId ? ALL_PROJECTS_CHOICE : undefined;
@@ -210,6 +212,12 @@ export function HeadquartersKpis({ data }: { data: HeadquartersOverview }) {
   return (
     <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6" data-headquarters-kpis>
       {KPIS.map(({ card, field, icon, tone }) => {
+        if (cardModuleOff(card, data.modules_off)) {
+          // JB250: 「没有开通」, not a number taken from a closed module.
+          return (
+            <KpiCard key={card} label={t(card)} value={offWord} icon={icon} tone="slate" size="sm" data-module-off={card} />
+          );
+        }
         const value = Number(data.totals[field] ?? 0);
         const before = (yesterday as Record<string, number | undefined>)[field];
         return (

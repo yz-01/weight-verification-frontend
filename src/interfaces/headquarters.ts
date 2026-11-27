@@ -219,6 +219,11 @@ export interface ProjectOverview {
 
 export interface HeadquartersOverview {
   date: string;
+  /**
+   * JB250: the modules the company does not have; their cards say 「没有开通」
+   * and count nothing. Missing from an older backend.
+   */
+  modules_off?: string[];
   generated_at: string;
   /** Whether this reader sees every project (`project.view_all`). */
   all_projects: boolean;

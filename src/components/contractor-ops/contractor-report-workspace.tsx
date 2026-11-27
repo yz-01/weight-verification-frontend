@@ -24,6 +24,8 @@ import {
 import { PhotoThumb, recordKindIcon, recordPhotos } from "@/components/shared/photo-thumb";
 import { opensInPlace } from "@/components/shared/in-place-record";
 import { useRecordOpener } from "@/components/shared/record-opener";
+import { ModuleOffNotice } from "@/components/shared/module-off-notice";
+import { companyModulesOff, reportSourcesOff } from "@/lib/company-modules";
 import { BusinessTargetManagement } from "@/components/contractor-ops/business-target-management";
 import {
   ContractorReportFilterFields,
@@ -172,7 +174,32 @@ function currentPage(): string {
   return typeof window === "undefined" ? "" : `${window.location.pathname}${window.location.search}`;
 }
 
+/**
+ * JB250 (客户 11-24 事项 1): a report whose source module the company does not
+ * have says 「<模块> 没有开通，这个报表没有资料」 instead of its records (the
+ * server refuses it with `company_module_switched_off`).
+ */
 export function ContractorReportWorkspace({
+  reportType,
+}: {
+  reportType: ContractorReportType;
+}) {
+  const t = useTranslations("contractorReports");
+  const { user } = useAuth();
+  const off = reportSourcesOff(reportType, companyModulesOff(user));
+  if (off) {
+    return (
+      <div className="flex flex-col gap-4">
+        <CompanyBanner scope="reports" />
+        <ReportSelector />
+        <ModuleOffNotice modules={off} title={t(`type.${reportType}`)} />
+      </div>
+    );
+  }
+  return <ContractorReportWorkspaceBody reportType={reportType} />;
+}
+
+function ContractorReportWorkspaceBody({
   reportType,
 }: {
   reportType: ContractorReportType;

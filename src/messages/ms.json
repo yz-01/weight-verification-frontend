@@ -9752,6 +9752,7 @@
       "package_completed": "Pakej ini telah selesai dan diarkibkan; tiada lagi perubahan.",
       "company_module_invalid": "Tanda hanya modul perniagaan yang ada pada syarikat ini.",
       "company_module_switched_off": "Modul ini tidak dibuka untuk syarikat anda. Untuk menggunakannya, minta MSE membukanya.",
+      "consultant_grant_changed": "Akses projek anda telah dikemas kini. Sila log masuk semula.",
       "equipment_rental_no_terms": "Tetapkan terma sewa mesin ini dahulu (Terma sewa peralatan).",
       "equipment_rental_diesel_not_charged": "Diesel mesin ini tidak dicaj berasingan oleh pembekal, jadi caj diesel tidak boleh dimasukkan.",
       "equipment_rental_month_confirmed": "Amaun sewa bulan ini sudah disahkan dan tidak boleh diubah lagi.",
@@ -24634,5 +24635,13 @@
     "gateNeedShots": "Ambil sekurang-kurangnya satu gambar kenderaan, nombor plat dan barang keluar sebelum melepaskan.",
     "gateShotsMissing": "Belum diambil: {shots}",
     "checkGatePhotos": "Semak gambar pintu dahulu, kemudian tekan Sahkan keluar rasmi:"
+  },
+  "jb250fix": {
+    "pageModuleOff": "Ciri ini tidak dibuka untuk syarikat anda. Sila hubungi ibu pejabat atau MSE.",
+    "reportModuleOff": "{modules} tidak dibuka, jadi laporan ini tiada rekod.",
+    "cardOff": "Tidak dibuka",
+    "noteSafety": "Pembetulan bahaya dan permit kerja ada di sini dan dibuka atau ditutup bersama.",
+    "noteGate": "Foto di telefon pengawal mengikut Rekod Pintu, Imbas QR Pelawat mengikut Akses Tapak; kedua-duanya dibuka atau ditutup berasingan.",
+    "noteReports": "Rekod laporan ini datang daripada Bahan Masuk: jika Bahan Masuk ditutup, laporan ini tiada rekod."
   }
 }

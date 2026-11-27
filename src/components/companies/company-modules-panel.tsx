@@ -9,6 +9,7 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { QueryFailedNote } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { MODULE_NOTES } from "@/lib/company-modules";
 import { getCompanyModules, setCompanyModules } from "@/services/companies.service";
 
 /** The modules switched off once a tick changes `key`. */
@@ -33,6 +34,7 @@ export function toggleModule(disabled: readonly string[], key: string, on: boole
 export function CompanyModulesPanel({ companyId }: { companyId: string }) {
   const t = useTranslations();
   const words = useTranslations("jb250");
+  const notes = useTranslations("jb250fix");
   const { can } = useAuth();
   const qc = useQueryClient();
   const queryKey = ["companies", "modules", companyId];
@@ -93,7 +95,7 @@ export function CompanyModulesPanel({ companyId }: { companyId: string }) {
         {data.choices.map((key) => {
           const outOfPlan = notInPlan.has(key);
           return (
-            <label key={key} className="flex items-center gap-2 text-sm" data-module={key} data-off={off.has(key) || undefined}>
+            <label key={key} className="flex items-start gap-2 text-sm" data-module={key} data-off={off.has(key) || undefined}>
               <Checkbox
                 checked={!outOfPlan && !off.has(key)}
                 disabled={!canManage || outOfPlan}
@@ -102,6 +104,14 @@ export function CompanyModulesPanel({ companyId }: { companyId: string }) {
               <span className={outOfPlan ? "text-muted-foreground" : undefined}>
                 {label(key)}
                 {outOfPlan && <span className="ml-1 text-xs">{words("notInPlan")}</span>}
+                {/* JB250: what the tick alone does not say - two modules that
+                    share the gate phone, a report fed by 材料进场, one switch
+                    for 隐患整改 and 施工准证. */}
+                {MODULE_NOTES[key] ? (
+                  <span className="block text-xs text-muted-foreground" data-module-note={MODULE_NOTES[key]}>
+                    {notes(MODULE_NOTES[key])}
+                  </span>
+                ) : null}
               </span>
             </label>
           );

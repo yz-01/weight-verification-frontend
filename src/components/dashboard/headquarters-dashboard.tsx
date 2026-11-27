@@ -85,6 +85,8 @@ export function HeadquartersDashboard() {
   const photos = usePhotoOpener();
   const { user } = useAuth();
   const photoWall = user?.features?.includes("photo_wall") ?? false;
+  // JB250: 门岗记录 / 材料进场 not open for the company - their cards are not drawn.
+  const modulesOff = new Set(user?.modules_off ?? []);
 
   return (
     <div className="space-y-4">
@@ -150,10 +152,10 @@ export function HeadquartersDashboard() {
           {/* What head office had before, kept (J32-5). */}
           <HeadquartersFigures data={data} />
           {/* 门岗 (HD10): every project's gate photos today and open issues. */}
-          <GateCard />
+          {modulesOff.has("gate_records") ? null : <GateCard />}
           <HeadquartersPresence data={data} />
           {/* 材料目标 (I18, ID42): each project's targets over, at and near. */}
-          <HeadquartersMaterialTargets data={data} />
+          {modulesOff.has("material_receipts") ? null : <HeadquartersMaterialTargets data={data} />}
           {/* 照片墙 switched off for the company (JB250): not drawn. */}
           {photoWall ? <HeadquartersPhotos onOpen={photos.open} suspended={photos.sheet !== null} /> : null}
         </>

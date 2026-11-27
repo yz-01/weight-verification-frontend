@@ -145,6 +145,11 @@ export interface CurrentUser {
    */
   cannot_give?: string[];
   features: string[];
+  /**
+   * JB250: the modules of this portal the company does not have - left out
+   * of its package or switched off by MSE. Missing from an older backend.
+   */
+  modules_off?: string[];
   project_quota: ProjectQuota | null;
   consultant_projects: ConsultantProjectAccess[];
   active_project: ActiveProject | null;

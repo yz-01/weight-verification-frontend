@@ -9752,6 +9752,7 @@
       "package_completed": "This package is completed and archived; nothing more changes.",
       "company_module_invalid": "Tick only business modules this company has.",
       "company_module_switched_off": "This module is not switched on for your company. To use it, ask MSE to switch it on.",
+      "consultant_grant_changed": "Your project access has been updated. Please sign in again.",
       "equipment_rental_no_terms": "Set this machine's rental terms first (Equipment rental terms).",
       "equipment_rental_diesel_not_charged": "This machine's diesel is not charged separately by the supplier, so no diesel fee can be entered.",
       "equipment_rental_month_confirmed": "This month's rental amounts are confirmed and can no longer be changed.",
@@ -24634,5 +24635,13 @@
     "gateNeedShots": "Take at least one photo each of the vehicle, the number plate and the goods leaving before releasing.",
     "gateShotsMissing": "Not taken yet: {shots}",
     "checkGatePhotos": "Check the gate's photos first, then press Confirm formal exit:"
+  },
+  "jb250fix": {
+    "pageModuleOff": "Your company does not have this feature switched on. Please contact head office or MSE.",
+    "reportModuleOff": "{modules} is not switched on, so this report has no records.",
+    "cardOff": "Not switched on",
+    "noteSafety": "Hazard rectification and work permits are both here and switch together.",
+    "noteGate": "The gate phone's Photo follows Gate Records and its Scan Visitor QR follows Site Access; they switch separately.",
+    "noteReports": "This report's records come from Material In: with Material In off, this report has no records."
   }
 }
