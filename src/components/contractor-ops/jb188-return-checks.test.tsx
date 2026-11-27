@@ -201,7 +201,7 @@ describe("【退货核对】 (JB188-3, -4)", () => {
     expect(confirm).toMatch(/label=\{t\("note"\)\} optional=\{common\("optional"\)\}/);
     expect(confirm).not.toMatch(/unit_price|amount|单价|金额|RM/);
     // One request, signed by the server's PIN answer (the API client's dialog).
-    expect(form).toMatch(/createReturnCheck\(\{ kind, supplier: party\.id, returns: picked, voucherNo, note, files \}\)/);
+    expect(form).toMatch(/createReturnCheck\(\{\s+kind,\s+supplier: party\.id,\s+returns: picked,\s+voucherNo,\s+note,\s+files,/);
     expect(zh.returnChecks.confirmPin).toContain("六位数签核密码");
     expect(zh.signOff.action.material_return_check).toBe("退货核对");
   });
