@@ -22321,7 +22321,8 @@
       "equipment_rental_statement": "生成或作废设备租赁月结单",
       "equipment_rental_check": "核对设备租赁月结单",
       "equipment_rental_settle": "结算设备租赁月结单",
-      "disposal_settlement_settle": "清运结算完毕"
+      "disposal_settlement_settle": "清运结算完毕",
+      "disposal_fee_set": "设定或修改每车清运费用"
     },
     "firstTitle": "第一次设定签核密码",
     "firstBanner": "这是你第一次使用签核密码",
@@ -24702,6 +24703,7 @@
       "note": "备注",
       "notePlaceholder": "可以不填，例如合同编号",
       "keepsOld": "改价从生效日期开始用，以前的记录不变",
+      "pinHint": "按「保存」后，输入你的六位数签核密码。",
       "save": "保存",
       "cancel": "取消",
       "back": "返回",

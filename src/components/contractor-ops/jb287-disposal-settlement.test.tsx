@@ -672,3 +672,16 @@ describe("words: four languages, 你 never 您, every refusal worded", () => {
     }
   });
 });
+
+describe("垃圾清运's own file carries 费用金额｜结算编号｜结算状态", () => {
+  it("adds the three columns on 垃圾清运, 结算状态 worded", async () => {
+    const { disposalFeeExportColumns } = await import("@/components/contractor-ops/site-disposal-workspaces");
+    const words = (key: string) => key.split(".").reduce<unknown>((node, part) => (node as Record<string, unknown>)[part], zh.jb287) as string;
+    const columns = disposalFeeExportColumns(words);
+    expect(columns.map((column) => column.key)).toEqual(["fee_amount", "settlement_no", "fee_state"]);
+    expect(columns.map((column) => column.label)).toEqual(["费用金额", "结算编号", "结算状态"]);
+    expect(columns[2].values).toEqual(zh.jb287.state);
+    const office = read("src/components/contractor-ops/site-disposal-workspaces.tsx");
+    expect(office).toContain('...(clearanceKind === "GARBAGE" ? disposalFeeExportColumns(feeWords) : []),');
+  });
+});

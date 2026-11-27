@@ -2025,6 +2025,10 @@ export function SiteDisposalOffice({ clearanceKind }: { clearanceKind?: Disposal
                       // row that is, and what it was.
                       { key: "is_abnormal", label: t("field.isAbnormal"), values: { true: t("overdue.badge"), false: "" } },
                       { key: "anomaly_text", label: t("field.anomalyText") },
+                      // JB287: 费用金额｜结算编号｜结算状态 on 垃圾清运's file too.
+                      // 费用金额 is a money column: the server leaves it out
+                      // for a reader without 金额查看.
+                      ...(clearanceKind === "GARBAGE" ? disposalFeeExportColumns(feeWords) : []),
                     ],
                   })
                 }
@@ -2059,6 +2063,25 @@ export function SiteDisposalOffice({ clearanceKind }: { clearanceKind?: Disposal
       )}
     </>
   );
+}
+
+/**
+ * JB287: the three fee columns of 垃圾清运's own file - 费用金额 (a money
+ * column, dropped by the server without 金额查看), 结算编号 and 结算状态 worded.
+ */
+export function disposalFeeExportColumns(
+  feeWords: (key: string) => string,
+): { key: string; label: string; values?: Record<string, string> }[] {
+  const states = ["unchecked", "ready", "settled", "running", "no_fee", "internal", "not_archived"] as const;
+  return [
+    { key: "fee_amount", label: feeWords("col.feeAmount") },
+    { key: "settlement_no", label: feeWords("col.settlementNo") },
+    {
+      key: "fee_state",
+      label: feeWords("col.feeState"),
+      values: Object.fromEntries(states.map((state) => [state, feeWords(`state.${state}`)])),
+    },
+  ];
 }
 
 /**

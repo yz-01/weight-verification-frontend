@@ -22321,7 +22321,8 @@
       "equipment_rental_statement": "Generate or cancel an equipment rental statement",
       "equipment_rental_check": "Check equipment rental statements",
       "equipment_rental_settle": "Settle equipment rental statements",
-      "disposal_settlement_settle": "Mark a clearance settlement as settled"
+      "disposal_settlement_settle": "Mark a clearance settlement as settled",
+      "disposal_fee_set": "Set or change a clearance fee per lorry"
     },
     "firstTitle": "Set your sign-off PIN for the first time",
     "firstBanner": "This is your first time using a sign-off PIN",
@@ -24702,6 +24703,7 @@
       "note": "Note",
       "notePlaceholder": "Optional, e.g. the contract number",
       "keepsOld": "A new fee applies from its effective date; earlier records stay as they are",
+      "pinHint": "After you press Save, enter your six-digit sign-off PIN.",
       "save": "Save",
       "cancel": "Cancel",
       "back": "Back",

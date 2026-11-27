@@ -22321,7 +22321,8 @@
       "equipment_rental_statement": "生成或作廢設備租賃月結單",
       "equipment_rental_check": "核對設備租賃月結單",
       "equipment_rental_settle": "結算設備租賃月結單",
-      "disposal_settlement_settle": "清運結算完畢"
+      "disposal_settlement_settle": "清運結算完畢",
+      "disposal_fee_set": "設定或修改每車清運費用"
     },
     "firstTitle": "第一次設定簽核密碼",
     "firstBanner": "這是你第一次使用簽核密碼",
@@ -24702,6 +24703,7 @@
       "note": "備註",
       "notePlaceholder": "可以不填，例如合約編號",
       "keepsOld": "改價從生效日期開始用，以前的記錄不變",
+      "pinHint": "按「儲存」後，輸入你的六位數簽核密碼。",
       "save": "儲存",
       "cancel": "取消",
       "back": "返回",

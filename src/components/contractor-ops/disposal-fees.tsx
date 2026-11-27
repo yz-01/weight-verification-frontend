@@ -12,6 +12,9 @@
  * to set or change it, and 【修改记录】 (old → new, who, when, 生效日期). A
  * change is a new row from its 生效日期; nothing before it moves. Office
  * only - the phone never sees the button (the server refuses it too).
+ * Saving is signed with the six-digit PIN, as 材料单价 is: the API client
+ * opens the shared PIN dialog on the server's `sign_off_pin_required` and
+ * sends the same save again with it.
  */
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -280,6 +283,10 @@ function SetFeeForm({ row, onDone }: { row: DisposalFeeSupplier; onDone: () => v
       <p className="rounded-lg bg-muted/50 px-3 py-2 text-sm" data-slot="disposal-fee-keeps-old">
         {t("fee.keepsOld")}
       </p>
+      {/* Signed like 材料单价 (「参照现有材料分类的价格设定方式」): the server asks for
+          the PIN, the shared dialog takes it and the same save goes again; a
+          wrong PIN is said in that dialog and this form stays as typed. */}
+      <p className="text-xs text-muted-foreground" data-slot="disposal-fee-pin">{t("fee.pinHint")}</p>
       {error ? (
         <p role="alert" className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
           {error}

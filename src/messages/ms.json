@@ -22321,7 +22321,8 @@
       "equipment_rental_statement": "Jana atau batalkan penyata sewaan peralatan",
       "equipment_rental_check": "Semak penyata sewaan peralatan",
       "equipment_rental_settle": "Selesaikan penyata sewaan peralatan",
-      "disposal_settlement_settle": "Tandakan penyelesaian pembersihan sebagai selesai"
+      "disposal_settlement_settle": "Tandakan penyelesaian pembersihan sebagai selesai",
+      "disposal_fee_set": "Tetapkan atau ubah yuran pembersihan setiap lori"
     },
     "firstTitle": "Tetapkan PIN pengesahan buat kali pertama",
     "firstBanner": "Ini kali pertama anda menggunakan PIN pengesahan",
@@ -24702,6 +24703,7 @@
       "note": "Catatan",
       "notePlaceholder": "Pilihan, contohnya nombor kontrak",
       "keepsOld": "Yuran baharu digunakan mulai tarikh berkuat kuasa; rekod terdahulu kekal",
+      "pinHint": "Selepas menekan Simpan, masukkan PIN tandatangan enam digit anda.",
       "save": "Simpan",
       "cancel": "Batal",
       "back": "Kembali",
