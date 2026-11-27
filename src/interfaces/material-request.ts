@@ -141,10 +141,15 @@ export interface MaterialRequestSupplier {
   completed_return_count?: number;
 }
 
-/** 「A、B」, or `""` when the MR names no supplier (JB292). */
-export function supplierNames(row: Pick<MaterialRequest, "suppliers" | "supplier_name">): string {
+/** How several supplier names are joined (INT39 QA, Lucas B): 「、」 in Chinese, ", " in English / Malay - as the MR PDF. */
+export function supplierJoiner(locale?: string): string {
+  return !locale || locale.startsWith("zh") ? "、" : ", ";
+}
+
+/** 「A、B」 (Chinese) / "A, B" (English, Malay), or `""` when the MR names no supplier (JB292). */
+export function supplierNames(row: Pick<MaterialRequest, "suppliers" | "supplier_name">, locale?: string): string {
   const names = (row.suppliers ?? []).map((supplier) => supplier.name).filter(Boolean);
-  return names.length ? names.join("、") : (row.supplier_name ?? "");
+  return names.length ? names.join(supplierJoiner(locale)) : (row.supplier_name ?? "");
 }
 
 export interface MaterialRequest extends RecordedBy {

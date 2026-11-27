@@ -205,6 +205,7 @@ export function MaterialRequestsOffice() {
 }
 
 function RequestsTab() {
+  const locale = useLocale();
   const t = useTranslations("materialRequest");
   const tRoot = useTranslations();
   const df = useDateFormat();
@@ -337,7 +338,7 @@ function RequestsTab() {
         meta: { label: t("field.supplier") },
         header: () => <PlainHeader label={t("field.supplier")} />,
         // All of an MR's suppliers, 「A、B」 (JB292).
-        cell: ({ row }) => supplierNames(row.original) || <span className="text-muted-foreground">—</span>,
+        cell: ({ row }) => supplierNames(row.original, locale) || <span className="text-muted-foreground">—</span>,
       },
       {
         accessorKey: "submitted_by_name",
@@ -394,7 +395,7 @@ function RequestsTab() {
         ),
       },
     ],
-    [t, tRoot, df, unitLabel, setViewing],
+    [t, tRoot, df, unitLabel, setViewing, locale],
   );
 
   const runExport = (format: "xlsx" | "pdf") =>
@@ -807,7 +808,7 @@ export function MaterialRequestDetail({
                   wide: true,
                   value: <MaterialLinesTable lines={requestShownLines(row)} />,
                 },
-                { label: t("field.supplier"), value: supplierNames(row) || "—" },
+                { label: t("field.supplier"), value: supplierNames(row, locale) || "—" },
                 { label: t("field.manufacturer"), value: row.manufacturer_name || "—" },
               ]
             : isMaterial
@@ -816,7 +817,7 @@ export function MaterialRequestDetail({
                 { label: t("field.materialCode"), value: row.category_code || "—" },
                 { label: t("field.specification"), value: row.specification },
                 { label: t("field.quantity"), value: `${row.quantity ?? "—"} ${unitLabel(row.unit)}` },
-                { label: t("field.supplier"), value: supplierNames(row) || "—" },
+                { label: t("field.supplier"), value: supplierNames(row, locale) || "—" },
                 { label: t("field.manufacturer"), value: row.manufacturer_name || "—" },
               ]
             : []),
