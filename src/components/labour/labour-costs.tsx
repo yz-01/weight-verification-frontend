@@ -30,6 +30,7 @@ import {
   Loader2,
   Lock,
   PencilLine,
+  Plus,
   Receipt,
   Save,
   Undo2,
@@ -177,6 +178,7 @@ export function LabourCostsPage() {
     | { kind: "rates"; prefill?: LabourRatePrefill }
     | { kind: "confirm" }
     | { kind: "adjust"; row: LabourDayRow }
+    | { kind: "addDay" }
     | { kind: "unconfirm"; row: LabourMonthRow }
     | { kind: "pieces"; row: LabourMonthRow }
     | null
@@ -534,6 +536,17 @@ export function LabourCostsPage() {
       ) : summaryView ? (
         <SummaryTable group={group} data={summary.data} loading={summary.isLoading} query={summary} seesAmounts={seesAmounts} />
       ) : view === "day" ? (
+        <>
+          {/* R7: a day with no 电子围栏 record at all (e.g. 忘了开定位) is added here (QA295). */}
+          {canManage ? (
+            <div className="flex flex-wrap items-center gap-3" data-slot="labour-add-day">
+              <Button variant="outline" size="lg" data-slot="labour-add-day-button" onClick={() => setDialog({ kind: "addDay" })}>
+                <Plus />
+                {t("addDay.button")}
+              </Button>
+              <span className="text-sm text-muted-foreground">{t("addDay.hint")}</span>
+            </div>
+          ) : null}
         <DaysTable
           rows={dayRows}
           linked={linkedNames(options.data)}
@@ -542,6 +555,7 @@ export function LabourCostsPage() {
           canManage={canManage}
           onAdjust={(row) => setDialog({ kind: "adjust", row })}
         />
+        </>
       ) : (
         <MonthTable
           rows={monthRows}
@@ -568,6 +582,15 @@ export function LabourCostsPage() {
       ) : null}
       {dialog?.kind === "adjust" ? (
         <AdjustDayDialog project={project} row={dialog.row} onClose={() => setDialog(null)} />
+      ) : null}
+      {dialog?.kind === "addDay" ? (
+        <AddDayDialog
+          people={people}
+          month={month}
+          rows={dayRows}
+          onClose={() => setDialog(null)}
+          onNext={(row) => setDialog({ kind: "adjust", row })}
+        />
       ) : null}
       {dialog?.kind === "unconfirm" ? (
         <UnconfirmMonthDialog project={project} month={month} row={dialog.row} onClose={() => setDialog(null)} />
@@ -1312,7 +1335,8 @@ export function AdjustDayDialog({ project, row, onClose }: { project: string; ro
   const df = useDateFormat();
   const queryClient = useQueryClient();
   const [worked, setWorked] = useState(row.worked || row.sessions.length === 0);
-  const [normal, setNormal] = useState(hoursText(row.normal_hours));
+  // 【补一天】 opens with the hours empty, to be filled in.
+  const [normal, setNormal] = useState(row.normal_hours === "" ? "" : hoursText(row.normal_hours));
   const [overtime, setOvertime] = useState(hoursText(row.overtime_hours));
   const [reason, setReason] = useState("");
   const normalOk = validHours(normal);
@@ -1414,6 +1438,114 @@ export function AdjustDayDialog({ project, row, onClose }: { project: string; ro
           >
             {save.isPending ? <Loader2 className="animate-spin" /> : <Save />}
             {t("adjust.save")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/** The day row 【补一天】 opens 【调整】 with: the person's existing row of that day, else an empty one. */
+export function dayToAdd(person: LabourOptions["people"][number], date: string, rows: readonly LabourDayRow[]): LabourDayRow {
+  const existing = rows.find((row) => row.person_key === person.key && row.date === date);
+  if (existing) return existing;
+  return {
+    person_key: person.key,
+    person_name: person.name,
+    group: person.group,
+    company_key: person.company_key,
+    company_name: person.company_name,
+    trade_name: person.trade_name,
+    date,
+    sessions: [],
+    total_hours: "0",
+    normal_hours: "",
+    overtime_hours: "0",
+    worked: false,
+    flags: [],
+    adjusted: null,
+    locked: null,
+    rate: null,
+    normal_amount: null,
+    overtime_amount: null,
+    day_amount: null,
+  };
+}
+
+/**
+ * 【补一天】 (R7: 「It can add a day with no session」): choose the person and
+ * the day, then 【调整】 asks 有上班, the hours, the reason and the PIN.
+ */
+function AddDayDialog({
+  people,
+  month,
+  rows,
+  onClose,
+  onNext,
+}: {
+  people: LabourOptions["people"];
+  month: string;
+  rows: readonly LabourDayRow[];
+  onClose: () => void;
+  onNext: (row: LabourDayRow) => void;
+}) {
+  const t = useTranslations("jb295");
+  const [personKey, setPersonKey] = useState("");
+  const [date, setDate] = useState("");
+  const today = todayIso();
+  const first = `${month}-01`;
+  const person = people.find((each) => each.key === personKey);
+  const dateOk = Boolean(date) && date <= today && date.startsWith(month);
+  return (
+    <Dialog open onOpenChange={(next) => !next && onClose()}>
+      <DialogContent className="sm:max-w-lg" data-slot="labour-add-day-dialog">
+        <DialogHeader>
+          <DialogTitle>{t("addDay.title")}</DialogTitle>
+          <DialogDescription>{t("addDay.help")}</DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-3">
+          <FieldWrapper label={t("field.person")} required>
+            <Select value={personKey || undefined} onValueChange={setPersonKey}>
+              <SelectTrigger aria-label={t("field.person")} className="h-11 text-base">
+                <SelectValue placeholder={t("choosePerson")} />
+              </SelectTrigger>
+              <SelectContent>
+                {people.map((each) => (
+                  <SelectItem key={each.key} value={each.key}>
+                    {`${each.name} · ${t(`group.${each.group}`)}`}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </FieldWrapper>
+          <FieldWrapper
+            label={t("col.date")}
+            required
+            hint={t("addDay.dateHint")}
+            error={date && !dateOk ? t("addDay.dateInvalid") : undefined}
+          >
+            <Input
+              type="date"
+              className="h-11 text-base"
+              value={date}
+              min={first}
+              max={today < `${month}-31` ? today : undefined}
+              aria-label={t("col.date")}
+              onChange={(event) => setDate(event.target.value)}
+            />
+          </FieldWrapper>
+        </div>
+        <DialogFooter>
+          <Button
+            size="lg"
+            data-slot="labour-add-day-next"
+            requires={[
+              [person, t("field.person")],
+              [dateOk, t("col.date")],
+            ]}
+            onClick={() => person && onNext(dayToAdd(person, date, rows))}
+          >
+            {t("addDay.next")}
           </Button>
         </DialogFooter>
       </DialogContent>

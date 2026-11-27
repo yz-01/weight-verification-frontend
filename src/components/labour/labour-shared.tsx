@@ -107,15 +107,20 @@ export function inRentalText(t: Translate, inRental: LabourInRental | null | und
     : t("inRental.rate");
 }
 
-/** Whether a row's labour is inside the equipment rental (its own mark, or its rate). */
+/**
+ * Whether a row's labour is wholly inside the equipment rental. A month with
+ * pieces is only when every piece is: Rahim worked 06/10 before the machine's
+ * rental terms (charged) and 13-14/10 inside them - his month shows both
+ * pieces, not 「已含在设备租赁费用内」 over a RM 100 line (QA295).
+ */
 export function isInRental(row: {
   in_rental?: LabourInRental | null;
   rate?: { method: LabourMethod } | null;
   rates?: { method: LabourMethod }[];
 }): boolean {
+  if (row.rates?.length) return row.rates.every((piece) => piece.method === "IN_RENTAL");
   if (row.in_rental) return true;
-  if (row.rate?.method === "IN_RENTAL") return true;
-  return Boolean(row.rates?.length && row.rates.every((piece) => piece.method === "IN_RENTAL"));
+  return row.rate?.method === "IN_RENTAL";
 }
 
 /** The company as written: 「本公司」 and 「未填所属公司」 in the reader's words. */

@@ -88,6 +88,8 @@ export interface SiteWorkerVisit {
   flags?: ("missing_exit" | "system_exit")[];
   /** The linked app account's name, shown under the roster name. */
   linked_user_name?: string;
+  /** An app stay's 所属公司 key: ``self`` = 本公司 (no 所属公司 on the account). */
+  company_key?: string;
 }
 
 export interface WorkerFence {

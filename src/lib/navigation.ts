@@ -42,6 +42,7 @@ import {
 
 import type { Portal } from "@/interfaces/auth";
 import { featuresCarryItems } from "@/lib/consultant-modules";
+import { LABOUR_OLD_ADDRESSES } from "@/lib/labour-links";
 
 export type PortalFeatureKey =
   | "dashboard"
@@ -2263,6 +2264,13 @@ function hasPermission(
 }
 
 /**
+ * Old addresses whose page now redirects to another one: the guard judges
+ * them as the page they open, so the redirect runs instead of the guard
+ * sending the reader to the dashboard first (QA295).
+ */
+const REDIRECTED_ROUTES: Readonly<Record<string, string>> = { ...LABOUR_OLD_ADDRESSES };
+
+/**
  * Whether the current portal feature list owns a dashboard route.
  *
  * Unknown routes are denied instead of becoming an accidental bypass when a
@@ -2271,10 +2279,11 @@ function hasPermission(
 export function isRouteAllowed(
   portal: Portal,
   features: readonly string[],
-  pathname: string,
+  asked: string,
   permissions: readonly string[] = [],
   isSuperuser = false,
 ): boolean {
+  const pathname = REDIRECTED_ROUTES[asked] ?? asked;
   if (matchesPrefix(pathname, "/profile")) return true;
 
   // Monitoring is an internal support page, intentionally absent from the

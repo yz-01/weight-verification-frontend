@@ -25063,6 +25063,15 @@
     "noProjects": "No project is on the wall now. Head office can choose the projects to show in 【Wall display settings】."
   },
   "jb295": {
+    "addDay": {
+      "button": "Add a day",
+      "hint": "A day the geofence has no record of (for example the location was not on) is added here.",
+      "title": "Add a day's hours",
+      "help": "Choose the person and the day. Next you fill in whether they worked, the normal and overtime hours and the reason, then your 6-digit sign-off PIN.",
+      "dateHint": "A day of this month, today or earlier.",
+      "dateInvalid": "Choose a day of this month, today or earlier.",
+      "next": "Next"
+    },
     "subtitle": "Working days and hours from the geofence entries and exits. The person in charge confirms them before they are settled.",
     "pageNote": "Working days, normal hours and overtime hours come from the geofence entry and exit records (worker list and app accounts). Fix a wrong day with 【Adjust】: write the reason and enter your six-digit sign-off PIN.",
     "noView": "You do not have the right to view labour costs. Ask your company administrator to switch it on.",

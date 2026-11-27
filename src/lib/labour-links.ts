@@ -7,6 +7,12 @@
 
 export type LabourTab = "labour" | "statements";
 
+/** The old addresses and the page they redirect to (read by the page guard). */
+export const LABOUR_OLD_ADDRESSES: Readonly<Record<string, string>> = {
+  "/labour-costs": "/site-workers",
+  "/labour-statements": "/site-workers",
+};
+
 /** The 人员名单 page on a labour tab, keeping the given address values. */
 export function labourTabHref(tab: LabourTab, values: Record<string, string | undefined> = {}): string {
   const params = new URLSearchParams({ tab });

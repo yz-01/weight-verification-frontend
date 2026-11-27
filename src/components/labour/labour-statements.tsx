@@ -37,7 +37,7 @@ import {
   labourMoney,
   lastFinishedMonth,
   monthEndShort,
-  ratePrice,
+  rateLine,
   tradeText,
 } from "@/components/labour/labour-shared";
 import { useAuth } from "@/components/providers/auth-provider";
@@ -607,15 +607,16 @@ export function LabourStatementLines({
                       {inRentalText(t, line.in_rental)}
                     </span>
                   ) : line.rates.length ? (
+                    // Each piece with its 超时单价, as the PDF writes it (QA295).
                     line.rates.map((rate) => (
-                      <span key={rate.from} className="block" style={{ whiteSpace: "nowrap" }}>
+                      <span key={rate.from} className="block min-w-56 whitespace-normal">
                         {line.rates.length > 1
                           ? t("pieces.rangeRate", {
                               from: df.date(rate.from),
                               to: df.date(rate.to),
-                              rate: ratePrice(t, rate.method, rate.unit_price),
+                              rate: rateLine(t, rate),
                             })
-                          : ratePrice(t, rate.method, rate.unit_price)}
+                          : rateLine(t, rate)}
                       </span>
                     ))
                   ) : (

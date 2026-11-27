@@ -475,7 +475,7 @@ function WorkerVisits({ onView }: { onView: (id: string) => void }) {
           <span className="flex flex-col items-start gap-0.5">
             <span className="font-medium text-foreground">{row.original.worker_name}</span>
             {row.original.linked_user_name ? (
-              <span className="text-xs text-muted-foreground" data-slot="visit-linked-user">
+              <span className="whitespace-nowrap text-xs text-muted-foreground" data-slot="visit-linked-user">
                 {t295("twin.appName", { name: row.original.linked_user_name })}
               </span>
             ) : null}
@@ -498,7 +498,9 @@ function WorkerVisits({ onView }: { onView: (id: string) => void }) {
         accessorKey: "company_name",
         meta: { label: t("field.company") },
         header: () => t("field.company"),
-        cell: ({ row }) => row.original.company_name || "—",
+        // JB295b: an app account with no 所属公司 is 本公司 (QA295).
+        cell: ({ row }) =>
+          row.original.company_key === "self" ? t295("company.self") : row.original.company_name || "—",
       },
     ];
     if (allProjects) {

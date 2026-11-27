@@ -25063,6 +25063,15 @@
     "noProjects": "Tiada projek dipaparkan pada skrin besar sekarang. Ibu pejabat boleh memilih projek yang dipaparkan dalam 【Tetapan paparan skrin besar】."
   },
   "jb295": {
+    "addDay": {
+      "button": "Tambah satu hari",
+      "hint": "Hari yang tiada rekod pagar geo (contohnya lokasi tidak dihidupkan) ditambah di sini.",
+      "title": "Tambah jam satu hari",
+      "help": "Pilih orang dan hari. Seterusnya isi sama ada dia bekerja, jam biasa dan lebih masa serta sebabnya, kemudian PIN 6 digit anda.",
+      "dateHint": "Hari dalam bulan ini, hari ini atau sebelumnya.",
+      "dateInvalid": "Pilih hari dalam bulan ini, hari ini atau sebelumnya.",
+      "next": "Seterusnya"
+    },
     "subtitle": "Hari dan jam bekerja dikira daripada rekod masuk dan keluar pagar geo. Orang yang bertanggungjawab mengesahkannya sebelum diselesaikan.",
     "pageNote": "Hari bekerja, jam biasa dan jam lebih masa datang daripada rekod masuk dan keluar pagar geo (senarai pekerja dan akaun App). Betulkan hari yang salah dengan 【Laraskan】: tulis sebab dan masukkan PIN pengesahan enam digit anda.",
     "noView": "Anda tiada hak untuk melihat kos buruh. Minta pentadbir syarikat anda menghidupkannya.",

@@ -1234,6 +1234,7 @@ export function SettlementsList({
 function SettlePicker({ kind, onSaved }: { kind: ReconKind; onSaved: (settlement: Settlement) => void }) {
   const t = useTranslations("returnChecks");
   const tj = useTranslations("jb278");
+  const t295 = useTranslations("jb295");
   const common = useTranslations("common");
   const df = useDateFormat();
   const { user } = useAuth();
@@ -1286,7 +1287,8 @@ function SettlePicker({ kind, onSaved }: { kind: ReconKind; onSaved: (settlement
       {offer.isSuccess && !parties.length ? <EmptyNote>{tj("settleNone")}</EmptyNote> : null}
       {parties.length ? (
         <section className="space-y-2">
-          <h3 className="text-sm font-semibold">{tj("chooseParty")}</h3>
+          {/* 人工月结单 are settled per 所属公司 (QA295). */}
+          <h3 className="text-sm font-semibold">{kind === "LABOUR" ? t295("checkChooseCompany") : tj("chooseParty")}</h3>
           <div className="flex flex-wrap gap-2">
             {parties.map((row) => (
               <Button
