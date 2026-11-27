@@ -9538,6 +9538,7 @@
       "review_by_head_office": "Kategori ini ditetapkan kepada kelulusan ibu pejabat: ibu pejabat menerimanya.",
       "sundry_claim_sent_elsewhere": "Tuntutan sundry ini dihantar kepada pihak lain untuk kelulusan.",
       "sundry_claim_own": "Anda tidak boleh meluluskan tuntutan sundry yang anda hantar sendiri.",
+      "sundry_claim_view_only": "Tuntutan ini dihantar kepada {submit_to, select, HQ {ibu pejabat} other {pengurus projek}} untuk kelulusan. Anda boleh melihatnya tetapi tidak boleh meluluskannya.",
       "material_request_manager_first": "Permohonan tapak dihantar kepada pengurus projek dahulu, yang menghantarnya ke ibu pejabat.",
       "material_request_not_executor": "Hanya pengurus projek bagi projek ini boleh memproses dan mengesahkan selesai; ibu pejabat hanya boleh melihat.",
       "material_request_not_open": "Permohonan ini tidak menunggu untuk dilaksanakan (belum diluluskan, atau sudah disahkan selesai).",
@@ -25062,5 +25063,12 @@
     "linkCopy": "Salin pautan",
     "linkCopied": "Disalin",
     "noProjects": "Tiada projek dipaparkan pada skrin besar sekarang. Ibu pejabat boleh memilih projek yang dipaparkan dalam 【Tetapan paparan skrin besar】."
+  },
+  "jb297": {
+    "viewOnly": {
+      "PROJECT": "Tuntutan ini dihantar kepada pengurus projek untuk kelulusan. Anda boleh melihatnya tetapi tidak boleh meluluskannya.",
+      "HQ": "Tuntutan ini dihantar kepada ibu pejabat untuk kelulusan. Anda boleh melihatnya tetapi tidak boleh meluluskannya."
+    },
+    "fallback": "Projek ini tiada pengurus projek yang boleh meluluskannya, jadi ibu pejabat meluluskannya."
   }
 }

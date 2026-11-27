@@ -9538,6 +9538,7 @@
       "review_by_head_office": "This category is set to head office approval: head office accepts it.",
       "sundry_claim_sent_elsewhere": "This sundry claim was sent to the other side for approval.",
       "sundry_claim_own": "You cannot approve a sundry claim you submitted yourself.",
+      "sundry_claim_view_only": "This claim was sent to {submit_to, select, HQ {head office} other {the project manager}} for approval. You can view it but not approve it.",
       "material_request_manager_first": "A site request goes to the project manager first, who sends it on to head office.",
       "material_request_not_executor": "Only the project's project manager confirms this request; head office can view it.",
       "material_request_not_open": "This request is not waiting to be carried out (not approved, or already confirmed completed).",
@@ -25062,5 +25063,12 @@
     "linkCopy": "Copy link",
     "linkCopied": "Copied",
     "noProjects": "No project is on the wall now. Head office can choose the projects to show in 【Wall display settings】."
+  },
+  "jb297": {
+    "viewOnly": {
+      "PROJECT": "This claim was sent to the project manager for approval. You can view it but not approve it.",
+      "HQ": "This claim was sent to head office for approval. You can view it but not approve it."
+    },
+    "fallback": "This project has no project manager who can approve it, so head office approves it."
   }
 }

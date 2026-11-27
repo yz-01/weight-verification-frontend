@@ -44,8 +44,14 @@ export interface SundryClaim extends RecordedBy {
   description: string;
   /** 提交给 (I12, ID8): blank on a claim made before the choice existed. */
   submit_to?: "PROJECT" | "HQ" | "";
-  /** Whether the reader is on the side it was sent to (I12). */
+  /** Whether the reader may 确认 / 拒绝 it: the side it was sent to and the reader's own right (I12, JB297). */
   can_review?: boolean;
+  /**
+   * Who decides a waiting claim (JB297): its 项目经理, head office, or head
+   * office because the project has no 项目经理 who may approve it
+   * (`HQ_FALLBACK`). Blank on an older claim or once decided.
+   */
+  review_route?: "PROJECT" | "HQ" | "HQ_FALLBACK" | "";
   state: SundryClaimState;
   /** RECEIVED means 已付款 for a sundry claim (the applicant received it). */
   payment_state: "NOT_RECEIVED" | "PARTIAL" | "RECEIVED";

@@ -9538,6 +9538,7 @@
       "review_by_head_office": "这个分类设为「提交总部审批」，由总部验收。",
       "sundry_claim_sent_elsewhere": "这笔杂费报销交给另一边审批，你不能批。",
       "sundry_claim_own": "你不能批自己提交的杂费报销。",
+      "sundry_claim_view_only": "这笔报销提交给{submit_to, select, HQ {总部} other {项目经理}}审批，你可以查看，不可以审批。",
       "material_request_manager_first": "现场人员的申请先交项目经理，项目经理确认后再转给总部。",
       "material_request_not_executor": "只有这个项目的项目经理可以处理和确认完成；总部只能查看。",
       "material_request_not_open": "这个申请不在待执行中（还没批准，或已经确认完成）。",
@@ -25062,5 +25063,12 @@
     "linkCopy": "复制链接",
     "linkCopied": "已复制",
     "noProjects": "现在没有项目在大屏上展示。总部可以在【大屏展示设定】里选要展示的项目。"
+  },
+  "jb297": {
+    "viewOnly": {
+      "PROJECT": "这笔报销提交给项目经理审批。你可以查看，不可以审批。",
+      "HQ": "这笔报销提交给总部审批。你可以查看，不可以审批。"
+    },
+    "fallback": "这个项目没有可以审批的项目经理，改由总部审批。"
   }
 }
