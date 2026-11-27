@@ -177,6 +177,14 @@ export function ScheduleProgressReportButtons({
         isPending={archive.isPending}
         onConfirm={() => archive.mutate()}
       />
+      {/* JB289 QA: why 打印 / 导出 / 发送 are grey, said on the screen (not
+          only on hover), as the hand-made summary says it under its buttons -
+          to whoever can press 【确认归档】. */}
+      {can("progress.confirm") ? (
+        <p className="w-full text-xs text-muted-foreground" data-slot="schedule-progress-archive-hint">
+          {draftRevision ? t("archiveDraft") : t("archiveFirst")}
+        </p>
+      ) : null}
     </div>
   );
 }

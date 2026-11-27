@@ -194,6 +194,20 @@ describe("JB289 三 报表: preview live, print / export / send an archived copy
     expect(w.archiveFirst).toBe("先按【确认归档】存一份，归档后才能打印、导出和发送");
   });
 
+  it("says on the screen, not only on hover, why print / export / send are grey (QA 11-27)", () => {
+    auth.fieldStaff = false;
+    const html = dashboard();
+    const at = html.indexOf('data-slot="schedule-progress-archive-hint"');
+    expect(at).toBeGreaterThan(0);
+    expect(html.slice(at, at + 300)).toContain(w.archiveFirst);
+    const draft = plan({ revision: { id: "r2", status: "DRAFT", revision_number: 2, label: "Rev 1" } as ScheduleRevision });
+    const draftHtml = dashboard([draft]);
+    const draftAt = draftHtml.indexOf('data-slot="schedule-progress-archive-hint"');
+    expect(draftHtml.slice(draftAt, draftAt + 300)).toContain(w.archiveDraft);
+    const source = read("components/progress/schedule-progress-dashboard.tsx");
+    expect(source).toMatch(/can\("progress\.confirm"\) \? \(\s*<p[^>]*data-slot="schedule-progress-archive-hint"/);
+  });
+
   it("has 【确认归档】 on the live report, greyed on a draft version with the reason", () => {
     const html = dashboard();
     expect(html).toContain('data-slot="schedule-progress-archive"');
