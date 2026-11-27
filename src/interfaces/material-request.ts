@@ -127,6 +127,20 @@ export interface MaterialRequestLine {
   unit: string;
 }
 
+/** One of an MR's suppliers (JB292). */
+export interface MaterialRequestSupplier {
+  id: string;
+  name: string;
+  /** Returns not yet checked - the 「有退货资料」 mark. */
+  completed_return_count?: number;
+}
+
+/** 「A、B」, or `""` when the MR names no supplier (JB292). */
+export function supplierNames(row: Pick<MaterialRequest, "suppliers" | "supplier_name">): string {
+  const names = (row.suppliers ?? []).map((supplier) => supplier.name).filter(Boolean);
+  return names.length ? names.join("、") : (row.supplier_name ?? "");
+}
+
 export interface MaterialRequest extends RecordedBy {
   /** The number before I6 renumbered it (「旧编号」); empty on a newer record. */
   legacy_no?: string;
@@ -162,11 +176,14 @@ export interface MaterialRequest extends RecordedBy {
   unit: string;
   remark: string;
   /**
-   * Who to buy from and whose make (2026-10 D1, D2): the applicant may
-   * suggest them, approving settles both.
+   * 供应商 (JB292, 客户 11-27f): none, one or several - optional, also on
+   * approval. An MR is not a purchase order; the actual supplier is the
+   * delivery's (MI). Each with the count behind its 「有退货资料」 mark.
    */
-  supplier?: string | null;
+  suppliers?: MaterialRequestSupplier[];
+  /** The same names as one text 「A、B」, `""` when none (list column key, export). */
   supplier_name?: string | null;
+  /** 业主指定厂商 (2026-10 D1, D2; optional). */
   manufacturer?: string | null;
   manufacturer_name?: string | null;
   submitted_by: string | null;

@@ -20402,8 +20402,6 @@
     "reassignHelp": "改派後由你批准或退回，原來的審批人不能再批，系統會留下改派記錄。",
     "approve": {
       "title": "批准 {reference}",
-      "help": "批准就是採購決定：選好向哪家供應商買；業主指定了廠商時，也從供應商名單選上。",
-      "chooseSupplier": "選擇供應商",
       "confirm": "批准"
     },
     "types": {

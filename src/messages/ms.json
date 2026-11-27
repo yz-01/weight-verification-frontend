@@ -20402,8 +20402,6 @@
     "reassignHelp": "Selepas anda mengambil alih, anda yang meluluskan atau mengembalikannya. Pelulus asal tidak lagi boleh, dan pengambilalihan direkodkan.",
     "approve": {
       "title": "Luluskan {reference}",
-      "help": "Meluluskan ialah keputusan pembelian: pilih pembekal - dan, jika pemilik menamakan pengilang, pilih juga daripada senarai pembekal.",
-      "chooseSupplier": "Pilih pembekal",
       "confirm": "Luluskan"
     },
     "types": {

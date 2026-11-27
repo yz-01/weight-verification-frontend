@@ -20402,8 +20402,6 @@
     "reassignHelp": "Once you take it over, you approve or return it. The first approver no longer can, and the take-over is recorded.",
     "approve": {
       "title": "Approve {reference}",
-      "help": "Approving is the purchase decision: choose who it is bought from - and, when the owner names a manufacturer, choose that too from the supplier list.",
-      "chooseSupplier": "Choose supplier",
       "confirm": "Approve"
     },
     "types": {

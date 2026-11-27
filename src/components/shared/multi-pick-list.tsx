@@ -32,6 +32,8 @@ export function MultiPickList({
   search,
   searchPlaceholder,
   ariaLabel,
+  chipExtra,
+  large = false,
 }: {
   selected: readonly string[];
   onChange: (next: string[]) => void;
@@ -43,6 +45,10 @@ export function MultiPickList({
   onSearch: (term: string) => void;
   searchPlaceholder: string;
   ariaLabel: string;
+  /** Something after a chosen one's name - its 「有退货资料」 mark (JB292). */
+  chipExtra?: (id: string) => React.ReactNode;
+  /** Bigger chips and a bigger ✕, for a screen an older reader decides on (JB292). */
+  large?: boolean;
 }) {
   const t = useTranslations("categoryManagement.material");
   const names: Record<string, string> = { ...knownNames };
@@ -58,16 +64,26 @@ export function MultiPickList({
           selected.map((id) => (
             <span
               key={id}
-              className="inline-flex items-center gap-1 rounded-full border bg-muted/50 py-0.5 pl-2.5 pr-1 text-xs font-medium"
+              className={
+                large
+                  ? "inline-flex items-center gap-1.5 rounded-full border bg-muted/50 py-1 pl-3 pr-1 text-sm font-medium"
+                  : "inline-flex items-center gap-1 rounded-full border bg-muted/50 py-0.5 pl-2.5 pr-1 text-xs font-medium"
+              }
+              data-slot="multi-pick-chip"
             >
               {names[id] ?? "…"}
+              {chipExtra?.(id)}
               <button
                 type="button"
-                className="rounded-full p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+                className={
+                  large
+                    ? "inline-flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
+                    : "rounded-full p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+                }
                 aria-label={`${ariaLabel}: ${names[id] ?? ""}`}
                 onClick={() => toggle(id, false)}
               >
-                <X className="h-3 w-3" />
+                <X className={large ? "h-4 w-4" : "h-3 w-3"} />
               </button>
             </span>
           ))
