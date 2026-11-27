@@ -1,913 +1,130 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-import { Building2, Camera, Maximize, UserRound } from "lucide-react";
-import { useFormatter, useTranslations } from "next-intl";
-import Link from "next/link";
+import { useQueryClient } from "@tanstack/react-query";
+import { LogOut, Maximize } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo } from "react";
 
-import { usePhotoOpener } from "@/components/dashboard/headquarters-photos";
-import { projectTone } from "@/components/dashboard/headquarters-map";
+import { WallControl, WallScreen, type WallSource } from "@/components/dashboard/wall-screen";
+import { WallSettingsButton } from "@/components/dashboard/wall-settings";
 import { useAuth } from "@/components/providers/auth-provider";
-import { ThemeSegmented } from "@/components/layout/theme-choice";
-import { KpiCard } from "@/components/shared/kpi-card";
+import { ApiError } from "@/interfaces/api";
+import { getSessionPortal } from "@/lib/auth-token";
+import { portalLoginPath, redirectWithFallback } from "@/lib/portal";
 import {
-  LocationMap,
-  type LocationMapMarker,
-} from "@/components/shared/location-map";
-import { LoadFailed } from "@/components/shared/page-primitives";
-import { Skeleton } from "@/components/ui/skeleton";
-import type {
-  HeadquartersCountField,
-  HeadquartersOverview,
-  ApprovalSource,
-  HeadquartersPhoto,
-  HeadquartersWallExtras,
-  TodayRecordKind,
-} from "@/interfaces/headquarters";
-import { useDateFormat } from "@/lib/dates";
-import {
-  cardHref,
-  cardProject,
-  photoTarget,
-  projectDashboardHref,
-} from "@/lib/headquarters-links";
-import { TONES, type Tone } from "@/lib/tones";
-import { cn } from "@/lib/utils";
-import {
-  getHeadquarters,
-  getHeadquartersPhotos,
-  getHeadquartersWall,
-} from "@/services/contractor-dashboard.service";
+  getWallLinkScreen,
+  getWallLinkWeather,
+  getWallScreen,
+  getWallWeather,
+} from "@/services/wall-screen.service";
 
-/** The big screen refreshes on the dashboard's live cadence (E1). */
-const LIVE_MS = 30_000;
-const STREAM_SIZE = 12;
+/** The page address of the signed-in wall (its own tab, outside the console). */
+export const WALL_PATH = "/wall";
 
-/** The figures along the bottom of the map, each in its own data colour. */
-const STRIP: Array<{ field: HeadquartersCountField; tone: Tone }> = [
-  { field: "pending_approvals", tone: "amber" },
-  { field: "overdue_rectifications", tone: "rose" },
-  { field: "material_receipts_today", tone: "green" },
-  { field: "on_site_now", tone: "blue" },
-  { field: "open_tasks", tone: "purple" },
-  { field: "today_records", tone: "cyan" },
-];
-
-/** Bars in the chart ramp's order, one colour per kind of record. */
-const BAR_TONES: Tone[] = ["cyan", "blue", "purple", "green", "amber", "rose", "orange", "slate"];
+const WALL_KEY = ["wall-screen", "session"] as const;
 
 /**
- * No scrollbars on the wall (Lucas 2026-10-10, 「左边那个位置…弄小一点」):
- * a TV has no one to drag them, and the bars read as clutter beside the
- * panels. A wheel, a finger and the keyboard still scroll.
- */
-const NO_SCROLLBAR = "[scrollbar-width:none] [&::-webkit-scrollbar]:hidden";
-
-/** Pixels per step and the pause at either end of the photo stream's drift. */
-const DRIFT_STEP_MS = 60;
-const DRIFT_PAUSE_MS = 4000;
-
-/**
- * A list taller than its panel drifts down slowly and starts again from the
- * top, so the photos below the fold are seen on a screen nobody touches.
- * It stands still while a pointer is over it or focus is in it, and when
- * the viewer asked the system for less motion.
- */
-function useGentleScroll(ref: React.RefObject<HTMLElement | null>, size: number) {
-  useEffect(() => {
-    const box = ref.current;
-    if (!box || window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
-    let held = false;
-    let pausedUntil = Date.now() + DRIFT_PAUSE_MS;
-    const hold = () => {
-      held = true;
-    };
-    const release = () => {
-      held = false;
-    };
-    box.addEventListener("pointerenter", hold);
-    box.addEventListener("pointerleave", release);
-    box.addEventListener("focusin", hold);
-    box.addEventListener("focusout", release);
-    const timer = window.setInterval(() => {
-      const room = box.scrollHeight - box.clientHeight;
-      if (held || room <= 1 || Date.now() < pausedUntil) return;
-      if (box.scrollTop >= room - 1) {
-        box.scrollTop = 0;
-        pausedUntil = Date.now() + DRIFT_PAUSE_MS;
-      } else {
-        box.scrollTop += 1;
-        if (box.scrollTop >= room - 1) pausedUntil = Date.now() + DRIFT_PAUSE_MS;
-      }
-    }, DRIFT_STEP_MS);
-    return () => {
-      window.clearInterval(timer);
-      box.removeEventListener("pointerenter", hold);
-      box.removeEventListener("pointerleave", release);
-      box.removeEventListener("focusin", hold);
-      box.removeEventListener("focusout", release);
-    };
-  }, [ref, size]);
-}
-
-/**
- * 总部大屏 (E1, the canvas's 「总部大屏」 artboard): the company's live
- * picture on a wall screen. It follows the app's 外观 like every page, and
- * carries that same switch in its top-right corner (Lucas 2026-10-08); in
- * light the colours stay and the glow goes, as the canvas says. Full
- * screen over the console, sized for 1920×1080 and scaled up on a 4K panel,
- * refreshed every 30 seconds. Esc or 【退出大屏】 goes back to the 公司总部
- * dashboard.
+ * 总部大屏 for a signed-in head office (JB291, 客户 11-27e), at `/wall`.
  *
- * Only real data: the same overview and photos the 公司总部 dashboard reads.
- * Blocks the canvas draws without a data source here (equipment presence
- * rings, hazard trend, the note box) are left out rather than faked; see the
- * UI-phase report.
+ * 四 「后台与大屏独立运行」: the page is its own tab, outside the office console
+ * - no sidebar, top-bar project, live stream or bell behind it - so a
+ * colleague switching projects, approving, editing or reading reports, in
+ * this browser or anywhere else, never touches it. It reads only the wall's
+ * own endpoint and keeps its own loop (`WallScreen`). The session renews
+ * itself while the wall polls, so it does not sign itself out over a day.
+ *
+ * Head office (公司设置's manage right) has 【大屏展示设定】 among the corner
+ * buttons; Esc or 【退出大屏】 goes to the 公司总部 dashboard.
  */
 export function HeadquartersWall() {
-  const t = useTranslations("headquarters");
-  const format = useFormatter();
   const router = useRouter();
-  const { user, can } = useAuth();
-  const allowed = user?.portal === "MSE_TRACE" && can("dashboard.view");
-  // 照片墙 switched off for the company (JB250): no photo panels, no request.
-  const photoWall = user?.features?.includes("photo_wall") ?? false;
-  const overview = useQuery({
-    queryKey: ["contractor-dashboard", "headquarters"],
-    queryFn: getHeadquarters,
-    refetchInterval: LIVE_MS,
-    enabled: allowed,
-  });
-  const photos = useQuery({
-    queryKey: ["contractor-dashboard", "headquarters-wall-photos"],
-    queryFn: () => getHeadquartersPhotos({ page: 1, page_size: STREAM_SIZE }),
-    refetchInterval: LIVE_MS,
-    enabled: allowed && photoWall,
-  });
-  // The panels added on 2026-10-10 (「加多一点真实数据」): the week's
-  // deliveries, hazards, queues, machines and waste - all real records.
-  const extras = useQuery({
-    queryKey: ["contractor-dashboard", "headquarters-wall-extras"],
-    queryFn: getHeadquartersWall,
-    refetchInterval: LIVE_MS,
-    enabled: allowed,
-  });
-  const opener = usePhotoOpener();
+  const queryClient = useQueryClient();
+  const t = useTranslations("headquarters.wall");
+  const { user, can, isLoading } = useAuth();
+  const allowed = user?.portal === "MSE_TRACE" && !user.is_field_staff && can("dashboard.view");
+  const manages = allowed && can("company_settings.manage");
 
-  // Esc leaves, as a wall screen has no menu to reach for.
+  useEffect(() => {
+    if (isLoading) return;
+    if (user === null) {
+      redirectWithFallback(router, portalLoginPath(getSessionPortal()));
+      return;
+    }
+    // Someone without the company view is sent to the dashboard they have.
+    if (user && !allowed) router.replace("/dashboard");
+  }, [allowed, isLoading, router, user]);
+
+  // Esc leaves (not while a dialog is open, nor out of full screen, which the
+  // browser's own Esc ends first).
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && !document.querySelector("[role=dialog]")) {
-        router.push("/dashboard");
-      }
+      if (event.key !== "Escape" || document.fullscreenElement) return;
+      if (document.querySelector("[role=dialog]")) return;
+      router.push("/dashboard");
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [router]);
 
-  // One rem per 1/120 of the screen width, between 16 and 32 px: the same
-  // layout reads from across the room at 1920 and at 3840 wide.
-  useEffect(() => {
-    const root = document.documentElement;
-    const before = root.style.fontSize;
-    root.style.fontSize = "clamp(16px, 0.8333vw, 32px)";
-    return () => {
-      root.style.fontSize = before;
-    };
-  }, []);
-
-  // Someone without the company view is sent to the dashboard they have.
-  useEffect(() => {
-    if (user && !allowed) router.replace("/dashboard");
-  }, [allowed, router, user]);
+  const source = useMemo<WallSource>(
+    () => ({ queryKey: WALL_KEY, load: getWallScreen, weather: getWallWeather }),
+    [],
+  );
   if (!allowed) return null;
-
-  const data = overview.data;
   return (
-    <div
-      data-headquarters-wall
-      className={cn("fixed inset-0 z-50 overflow-y-auto bg-background text-foreground", NO_SCROLLBAR)}
-      style={{ backgroundImage: "var(--canvas-glow)" }}
-    >
-      <div className="mx-auto flex min-h-dvh max-w-[240rem] flex-col gap-4 p-4 xl:h-dvh xl:min-h-0 xl:px-6 xl:pb-6">
-        <WallHeader />
-        {overview.isError ? (
-          <LoadFailed onRetry={() => void overview.refetch()} />
-        ) : !data ? (
-          <Skeleton className="h-96 w-full rounded-xl" />
-        ) : (
-          <div className="grid min-h-0 flex-1 gap-4 xl:grid-cols-[minmax(0,25rem)_minmax(0,1fr)_minmax(0,29rem)]">
-            <div className="flex min-h-0 flex-col gap-4">
-              <ProjectStatus data={data} />
-              <TodayByKind data={data} />
-              {extras.data && (
-                <div className="grid grid-cols-2 gap-4">
-                  <AcceptancePanel extras={extras.data} />
-                  <EquipmentPanel extras={extras.data} />
-                </div>
-              )}
-            </div>
-            <div className="flex min-h-0 flex-col gap-4">
-              <WallMap data={data} />
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 2xl:grid-cols-6">
-                {STRIP.map(({ field, tone }) => (
-                  <KpiCard
-                    key={field}
-                    label={t(`figures.field.${field}`)}
-                    value={format.number(data.totals[field])}
-                    tone={tone}
-                    href={cardHref(field, { project: cardProject(data, field), date: data.date })}
-                    data-wall-figure={field}
-                  />
-                ))}
-              </div>
-              {extras.isError ? (
-                <LoadFailed onRetry={() => void extras.refetch()} />
-              ) : !extras.data ? (
-                <Skeleton className="h-40 w-full rounded-xl" />
-              ) : (
-                <div className="grid gap-4 md:grid-cols-3">
-                  <WeekDeliveries extras={extras.data} />
-                  <OpenHazards extras={extras.data} />
-                  <ApprovalsBySource extras={extras.data} />
-                </div>
-              )}
-            </div>
-            <div className="flex min-h-0 flex-col gap-4">
-              {!photoWall ? (
-                extras.data ? (
-                  <>
-                    <TopSuppliers extras={extras.data} />
-                    <ClearanceMonth extras={extras.data} />
-                  </>
-                ) : null
-              ) : photos.isError ? (
-                <LoadFailed onRetry={() => void photos.refetch()} />
-              ) : (
-                <PhotoPanels
-                  rows={photos.data?.results}
-                  loading={photos.isLoading}
-                  onOpen={opener.open}
-                  between={
-                    extras.data ? (
-                      <>
-                        <TopSuppliers extras={extras.data} />
-                        <ClearanceMonth extras={extras.data} />
-                      </>
-                    ) : null
-                  }
-                />
-              )}
-            </div>
-          </div>
-        )}
-      </div>
-      {opener.sheet}
-    </div>
-  );
-}
-
-function WallHeader() {
-  const t = useTranslations("headquarters");
-  const df = useDateFormat();
-  const { user } = useAuth();
-  // The clock is the viewer's own; drawn after mount so the server render
-  // and the first client render agree.
-  const [now, setNow] = useState<Date | null>(null);
-  useEffect(() => {
-    const tick = () => setNow(new Date());
-    const first = window.setTimeout(tick, 0);
-    const timer = window.setInterval(tick, 1000);
-    return () => {
-      window.clearTimeout(first);
-      window.clearInterval(timer);
-    };
-  }, []);
-  const branding = user?.branding;
-  const companyName = branding?.company_name || user?.company_name || "";
-  const logo = branding?.company_logo_url;
-  return (
-    <header className="grid grid-cols-1 items-center gap-3 lg:grid-cols-[1fr_auto_1fr]">
-      <div className="flex min-w-0 items-center gap-2.5" data-wall-brand>
-        <span className="flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-panel-border bg-switch-thumb">
-          {logo ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={logo} alt={companyName} className="h-full w-full object-contain" />
-          ) : (
-            <Building2 className="size-4 text-tone-slate" aria-hidden />
+    <WallScreen
+      source={source}
+      controls={
+        <>
+          {manages && (
+            <WallSettingsButton onSaved={() => void queryClient.invalidateQueries({ queryKey: WALL_KEY })} />
           )}
-        </span>
-        <div className="min-w-0">
-          <p className="truncate text-sm font-semibold">{companyName}</p>
-          <p className="text-xs text-muted-foreground">{t("banner.companyView")}</p>
-        </div>
-      </div>
-      <h1 className="border-b-2 border-primary bg-gradient-to-b from-transparent to-primary/12 px-10 py-2 text-center text-2xl font-bold tracking-widest text-foreground dark:[text-shadow:0_0_18px_var(--primary)] lg:text-3xl">
-        {t("wall.title")}
-      </h1>
-      <div className="flex flex-wrap items-center justify-start gap-4 lg:justify-end">
-        <div className="text-left lg:text-right">
-          <p className="kpi-figure text-2xl text-foreground" suppressHydrationWarning>
-            {now ? df.precise(now.toISOString()) : " "}
-          </p>
-          <p className="text-xs text-muted-foreground">
-            {t("wall.refresh")} · {t("wall.escHint")}
-          </p>
-        </div>
-        <ThemeSegmented className="shrink-0" />
-        <Link
-          href="/dashboard"
-          className="inline-flex h-11 shrink-0 items-center gap-2 rounded-lg border border-primary/40 px-4 text-sm text-tone-cyan-fg hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        >
-          <Maximize className="size-4" aria-hidden />
-          {t("wall.exit")}
-        </Link>
-      </div>
-    </header>
-  );
-}
-
-/** A big-screen panel: the canvas's panel with its cyan title bar. */
-function WallPanel({
-  title,
-  aside,
-  className,
-  children,
-  ...rest
-}: {
-  title: string;
-  aside?: React.ReactNode;
-  className?: string;
-  children: React.ReactNode;
-} & Record<`data-${string}`, string>) {
-  return (
-    <section
-      {...rest}
-      aria-label={title}
-      className={cn("surface-panel flex min-h-0 flex-col gap-3 rounded-xl p-4", className)}
-    >
-      <div className="flex items-center justify-between gap-3">
-        <h2 className="panel-title tracking-wide text-tone-cyan-fg">{title}</h2>
-        {aside}
-      </div>
-      {children}
-    </section>
-  );
-}
-
-function ProjectStatus({ data }: { data: HeadquartersOverview }) {
-  const t = useTranslations("headquarters");
-  const format = useFormatter();
-  const rows = useMemo(
-    () => [...data.projects].sort((a, b) => b.today_records - a.today_records).slice(0, 8),
-    [data.projects],
-  );
-  const most = Math.max(1, ...rows.map((row) => row.today_records));
-  return (
-    <WallPanel title={t("wall.projectStatus")}>
-      <div className="grid grid-cols-3 gap-3">
-        <Figure label={t("wall.activeProjects")} value={format.number(data.totals.active_projects)} tone="cyan" />
-        <Figure label={t("figures.field.on_site_now")} value={format.number(data.totals.on_site_now)} tone="green" />
-        <Figure
-          label={t("figures.field.overdue_rectifications")}
-          value={format.number(data.totals.overdue_rectifications)}
-          tone={data.totals.overdue_rectifications > 0 ? "rose" : "slate"}
-        />
-      </div>
-      <p className="text-xs text-muted-foreground">{t("wall.todayByProject")}</p>
-      {rows.length === 0 ? (
-        <p className="text-sm text-muted-foreground">{t("map.noProjects")}</p>
-      ) : (
-        <ul className="space-y-2">
-          {rows.map((project, index) => (
-            <li key={project.id}>
-              <Link
-                href={projectDashboardHref(project.id)}
-                className="grid grid-cols-[minmax(0,7rem)_1fr_3rem] items-center gap-3 rounded-md text-sm hover:text-tone-cyan-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                title={`${project.code} · ${project.name}`}
-              >
-                <span className="truncate">{project.name}</span>
-                <span className="h-2 rounded-full bg-muted">
-                  <span
-                    className={cn("block h-2 rounded-full", TONES[BAR_TONES[index % 4]].bar)}
-                    style={{ width: `${(project.today_records / most) * 100}%` }}
-                  />
-                </span>
-                <span className="text-right tabular-nums">{format.number(project.today_records)}</span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )}
-    </WallPanel>
-  );
-}
-
-function Figure({ label, value, tone }: { label: string; value: string; tone: Tone }) {
-  return (
-    <div className="min-w-0">
-      <p className={cn("kpi-figure text-4xl", TONES[tone].text)}>{value}</p>
-      <p className="mt-1 text-xs text-muted-foreground">{label}</p>
-    </div>
-  );
-}
-
-function TodayByKind({ data }: { data: HeadquartersOverview }) {
-  const t = useTranslations("headquarters");
-  const format = useFormatter();
-  const kinds = (Object.entries(data.totals.today_records_by_kind) as Array<[TodayRecordKind, number]>)
-    .filter(([, value]) => value > 0)
-    .sort((a, b) => b[1] - a[1]);
-  const most = Math.max(1, ...kinds.map(([, value]) => value));
-  return (
-    <WallPanel title={t("wall.todayByKind")} className="flex-1">
-      {kinds.length === 0 ? (
-        <p className="text-sm text-muted-foreground">{t("figures.nothingToday")}</p>
-      ) : (
-        <div className="flex min-h-40 flex-1 items-end gap-3 border-b border-panel-border px-1">
-          {kinds.map(([kind, value], index) => {
-            const tone = TONES[BAR_TONES[index % BAR_TONES.length]];
-            return (
-              <div key={kind} className="flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-1">
-                <span className={cn("kpi-figure text-sm", tone.text)}>{format.number(value)}</span>
-                <span
-                  className={cn("w-full rounded-t-md opacity-90", tone.bar)}
-                  style={{ height: `${Math.max(6, (value / most) * 100)}%` }}
-                />
-                <span className="w-full truncate pb-1 text-center text-2xs text-muted-foreground" title={t(`recordKind.${kind}`)}>
-                  {t(`recordKind.${kind}`)}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      )}
-    </WallPanel>
-  );
-}
-
-function WallMap({ data }: { data: HeadquartersOverview }) {
-  const t = useTranslations("headquarters.map");
-  const format = useFormatter();
-  const placed = data.projects.filter((row) => row.has_location);
-  const markers = useMemo<LocationMapMarker[]>(
-    () =>
-      placed.map((project) => ({
-        id: project.id,
-        latitude: Number(project.latitude),
-        longitude: Number(project.longitude),
-        label: `${project.code} · ${project.name}`,
-        detail: t("markerDetail", {
-          onSite: format.number(project.on_site_now),
-          pending: format.number(project.pending_approvals),
-          overdue: format.number(project.overdue_tasks + project.overdue_rectifications),
-        }),
-        tone: projectTone(project),
-        stale: project.status !== "ACTIVE",
-        icon: "project" as const,
-      })),
-    [format, placed, t],
-  );
-  return (
-    <WallPanel
-      title={t("title")}
-      className="flex-1"
-      aside={
-        <ul className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
-          <Legend tone="rose" label={t("legendOverdue")} />
-          <Legend tone="amber" label={t("legendWaiting")} />
-          <Legend tone="green" label={t("legendClear")} />
-        </ul>
+          <WallControl onClick={() => router.push("/dashboard")} data-wall-exit>
+            <LogOut className="size-[1.4rem]" aria-hidden />
+            {t("exit")}
+          </WallControl>
+        </>
       }
-    >
-      <div className="relative min-h-[22rem] flex-1 overflow-hidden rounded-lg">
-        <LocationMap
-          markers={markers}
-          className="absolute inset-0 h-full w-full"
-          ariaLabel={t("title")}
-          preserveViewOnDataUpdate
-          fitBoundsKey={placed.map((row) => row.id).join(",")}
-          singlePointZoom={12}
-        />
-        {placed.length === 0 && (
-          <p className="pointer-events-none absolute inset-x-4 top-4 z-[500] rounded-lg bg-overlay p-3 text-center text-sm text-overlay-foreground">
-            {t("nothingPlaced")}
-          </p>
-        )}
-      </div>
-    </WallPanel>
-  );
-}
-
-function Legend({ tone, label }: { tone: Tone; label: string }) {
-  return (
-    <li className="inline-flex items-center gap-1.5">
-      <span className={cn("size-2.5 rounded-full", TONES[tone].dot, TONES[tone].glow)} aria-hidden />
-      {label}
-    </li>
-  );
-}
-
-/** Labelled horizontal bars, longest first: the shape every ranked panel uses. */
-function RankBars({
-  rows,
-  unit,
-}: {
-  rows: Array<{ key: string; label: string; value: number; tone: Tone }>;
-  unit?: (value: number) => string;
-}) {
-  const format = useFormatter();
-  const most = Math.max(1, ...rows.map((row) => row.value));
-  return (
-    <ul className="space-y-2">
-      {rows.map((row) => (
-        <li
-          key={row.key}
-          className="grid grid-cols-[minmax(0,8rem)_1fr_auto] items-center gap-3 text-sm"
-          title={row.label}
-        >
-          <span className="truncate">{row.label}</span>
-          <span className="h-2 rounded-full bg-muted">
-            <span
-              className={cn("block h-2 rounded-full", TONES[row.tone].bar)}
-              style={{ width: `${(row.value / most) * 100}%` }}
-            />
-          </span>
-          <span className="text-right tabular-nums">
-            {unit ? unit(row.value) : format.number(row.value)}
-          </span>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-/** 本周材料进场: the last seven days, Material In with the rejected loads on top. */
-function WeekDeliveries({ extras }: { extras: HeadquartersWallExtras }) {
-  const t = useTranslations("headquarters.wall");
-  const format = useFormatter();
-  const most = Math.max(1, ...extras.week.map((day) => day.delivered + day.rejected));
-  const total = extras.week.reduce((sum, day) => sum + day.delivered, 0);
-  return (
-    <WallPanel
-      title={t("weekDeliveries")}
-      data-wall-panel="week"
-      aside={
-        <ul className="flex gap-3 text-xs text-muted-foreground">
-          <Legend tone="cyan" label={t("delivered")} />
-          <Legend tone="rose" label={t("rejected")} />
-        </ul>
-      }
-    >
-      {total === 0 && extras.week.every((day) => day.rejected === 0) ? (
-        <p className="text-sm text-muted-foreground">{t("noDeliveries")}</p>
-      ) : (
-        <div className="flex h-32 items-end gap-2 border-b border-panel-border px-1">
-          {extras.week.map((day) => {
-            const label = format.dateTime(new Date(`${day.date}T12:00:00Z`), { weekday: "short" });
-            return (
-              <div
-                key={day.date}
-                className="flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-1"
-                title={`${day.date} · ${t("delivered")} ${day.delivered} · ${t("rejected")} ${day.rejected}`}
-              >
-                <span className="kpi-figure text-xs text-tone-cyan-fg">{format.number(day.delivered)}</span>
-                <span className="flex w-full flex-col justify-end" style={{ height: `${((day.delivered + day.rejected) / most) * 100}%` }}>
-                  {day.rejected > 0 && (
-                    <span
-                      className={cn("w-full rounded-t-sm", TONES.rose.bar)}
-                      style={{ flexGrow: day.rejected }}
-                    />
-                  )}
-                  <span
-                    className={cn("w-full", TONES.cyan.bar, day.rejected > 0 ? "" : "rounded-t-sm")}
-                    style={{ flexGrow: day.delivered }}
-                  />
-                </span>
-                <span className="pb-1 text-2xs text-muted-foreground">{label}</span>
-              </div>
-            );
-          })}
-        </div>
-      )}
-    </WallPanel>
+    />
   );
 }
 
 /**
- * 未关闭隐患: how many hazards are open, and how many of them are past their
- * date. No split by severity - 严重程度 is gone from the system (Lucas,
- * 2026-10-10: 「严重程度不需要，完全在系统里面删除掉」).
+ * 总部大屏 on a screen nobody signs in on (`/screen/<token>`): the wall and
+ * nothing else - no back office behind it, no buttons but 全屏. A link that
+ * was ended says so in plain words.
  */
-function OpenHazards({ extras }: { extras: HeadquartersWallExtras }) {
-  const t = useTranslations("headquarters.wall");
-  const format = useFormatter();
-  const { hazards } = extras;
-  return (
-    <WallPanel
-      title={t("openHazards")}
-      data-wall-panel="hazards"
-      aside={
-        hazards.overdue > 0 ? (
-          <span className="text-xs font-semibold text-tone-rose-fg">
-            {t("overdueCount", { count: format.number(hazards.overdue) })}
-          </span>
-        ) : null
-      }
-    >
-      {hazards.open === 0 ? (
-        <p className="text-sm text-muted-foreground">{t("noHazards")}</p>
-      ) : (
-        <RankBars
-          rows={[
-            { key: "open", label: t("hazardsOpen"), value: hazards.open, tone: "amber" },
-            { key: "overdue", label: t("hazardsOverdue"), value: hazards.overdue, tone: "rose" },
-          ]}
-        />
-      )}
-    </WallPanel>
+export function WallLinkScreen({ token }: { token: string }) {
+  const t = useTranslations("jb291");
+  const source = useMemo<WallSource>(
+    () => ({
+      queryKey: ["wall-screen", "link", token],
+      load: () => getWallLinkScreen(token),
+      weather: (project: string) => getWallLinkWeather(token, project),
+      failure: (error) => (error instanceof ApiError && error.status === 404 ? t("linkGone") : null),
+    }),
+    [t, token],
   );
+  return <WallScreen source={source} />;
 }
 
-/** 待审批 · 按类别: the approvals card's queues, largest first. */
-function ApprovalsBySource({ extras }: { extras: HeadquartersWallExtras }) {
-  const t = useTranslations("headquarters");
-  const source = useTranslations("contractorDashboard.approvals.source");
-  const rows = (Object.entries(extras.approvals_by_source) as Array<[ApprovalSource, number]>)
-    .filter(([, value]) => value > 0)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 5);
-  return (
-    <WallPanel title={t("wall.approvalsBySource")} data-wall-panel="approvals">
-      {rows.length === 0 ? (
-        <p className="text-sm text-muted-foreground">{t("approvals.empty")}</p>
-      ) : (
-        <RankBars
-          rows={rows.map(([key, value], index) => ({
-            key,
-            label: source(key),
-            value,
-            tone: index === 0 ? "amber" : "purple",
-          }))}
-        />
-      )}
-    </WallPanel>
-  );
-}
-
-/** 本周验收: of the week's deliveries someone decided on, how many passed. */
-function AcceptancePanel({ extras }: { extras: HeadquartersWallExtras }) {
-  const t = useTranslations("headquarters.wall");
-  const format = useFormatter();
-  const { accepted, pending, rejected } = extras.acceptance;
-  const decided = accepted + rejected;
-  return (
-    <WallPanel title={t("acceptance")} data-wall-panel="acceptance">
-      <Figure
-        label={t("passRate")}
-        value={decided ? format.number(accepted / decided, { style: "percent" }) : "-"}
-        tone={decided && rejected === 0 ? "green" : decided ? "amber" : "slate"}
-      />
-      <p className="text-xs text-muted-foreground">
-        {t("acceptanceSplit", {
-          accepted: format.number(accepted),
-          pending: format.number(pending),
-          rejected: format.number(rejected),
-        })}
-      </p>
-    </WallPanel>
-  );
-}
-
-/** 设备: machines on site now, and under maintenance. */
-function EquipmentPanel({ extras }: { extras: HeadquartersWallExtras }) {
-  const t = useTranslations("headquarters.wall");
-  const format = useFormatter();
-  return (
-    <WallPanel title={t("equipment")} data-wall-panel="equipment">
-      <div className="grid grid-cols-2 gap-3">
-        <Figure label={t("equipmentOnSite")} value={format.number(extras.equipment.on_site)} tone="green" />
-        <Figure
-          label={t("equipmentMaintenance")}
-          value={format.number(extras.equipment.maintenance)}
-          tone={extras.equipment.maintenance > 0 ? "amber" : "slate"}
-        />
-      </div>
-    </WallPanel>
-  );
-}
-
-/** 本周送货最多的供应商: the week's Material In by supplier, top five. */
-function TopSuppliers({ extras }: { extras: HeadquartersWallExtras }) {
-  const t = useTranslations("headquarters.wall");
-  return (
-    <WallPanel title={t("topSuppliers")} data-wall-panel="suppliers">
-      {extras.top_suppliers.length === 0 ? (
-        <p className="text-sm text-muted-foreground">{t("noDeliveries")}</p>
-      ) : (
-        <RankBars
-          rows={extras.top_suppliers.map((row) => ({
-            key: row.id,
-            label: row.name,
-            value: row.deliveries,
-            tone: "cyan",
-          }))}
-          unit={(count) => t("deliveries", { count })}
-        />
-      )}
-    </WallPanel>
-  );
-}
-
-/** 本月清运: this month's two kinds of waste, each by its own module, never added. */
-function ClearanceMonth({ extras }: { extras: HeadquartersWallExtras }) {
-  const t = useTranslations("headquarters");
-  const format = useFormatter();
-  const kinds = useTranslations("jb248.kind");
-  const { waste_dispatches: dispatches, site_disposals: disposals, site_scraps: scraps } =
-    extras.clearance_month;
-  const rows = [
-    {
-      key: "dispatches",
-      label: t("figures.wasteDispatches"),
-      trips: dispatches.trips,
-      weightLabel: t("figures.weighedKg"),
-      weight: dispatches.weighed_kg,
-    },
-    // 垃圾清运 and 废料处理 apart (JB248: 「分别累计，不混合统计」).
-    {
-      key: "disposals",
-      label: kinds("GARBAGE"),
-      trips: disposals.trips,
-      weightLabel: t("figures.weightKg"),
-      weight: disposals.weight_kg,
-    },
-    {
-      key: "scraps",
-      label: kinds("SCRAP"),
-      trips: scraps?.trips ?? 0,
-      weightLabel: t("figures.weightKg"),
-      weight: scraps?.weight_kg ?? "0",
-    },
-  ];
-  return (
-    <WallPanel title={t("wall.clearanceMonth")} data-wall-panel="clearance">
-      <dl className="space-y-2">
-        {rows.map((row) => (
-          <div key={row.key} className="grid grid-cols-[minmax(0,1fr)_auto_auto] items-baseline gap-x-4 text-sm">
-            <dt className="truncate">{row.label}</dt>
-            <dd className="text-right" title={t("figures.trips")}>
-              <span className="kpi-figure text-lg text-tone-cyan-fg">{format.number(row.trips)}</span>
-              <span className="ml-1 text-xs text-muted-foreground">{t("figures.trips")}</span>
-            </dd>
-            <dd className="text-right" title={row.weightLabel}>
-              <span className="kpi-figure text-lg text-tone-green-fg">{format.number(Number(row.weight))}</span>
-              <span className="ml-1 text-xs text-muted-foreground">kg</span>
-            </dd>
-          </div>
-        ))}
-      </dl>
-    </WallPanel>
-  );
-}
-
-function PhotoPanels({
-  rows,
-  loading,
-  onOpen,
-  between,
-}: {
-  rows: HeadquartersPhoto[] | undefined;
-  loading: boolean;
-  onOpen: (photo: HeadquartersPhoto) => void;
-  /** Panels between the newest photo and the stream below it. */
-  between?: React.ReactNode;
-}) {
-  const t = useTranslations("headquarters");
-  const df = useDateFormat();
-  const list = rows ?? [];
-  const [latest, ...stream] = list;
-  const streamRef = useRef<HTMLUListElement>(null);
-  useGentleScroll(streamRef, stream.length);
-  return (
-    <>
-      <WallPanel
-        title={t("wall.latestPhoto")}
-        aside={
-          latest ? (
-            <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <span className="size-2 rounded-full bg-tone-green shadow-[0_0_8px_var(--tone-green)]" aria-hidden />
-              {df.time(latest.captured_at)}
-            </span>
-          ) : null
-        }
-      >
-        {loading ? (
-          <Skeleton className="aspect-video w-full rounded-lg" />
-        ) : !latest ? (
-          <p className="rounded-lg border border-dashed border-panel-border py-10 text-center text-sm text-muted-foreground">
-            {t("photos.empty")}
-          </p>
-        ) : (
-          <WallPhoto photo={latest} large onOpen={onOpen} />
-        )}
-      </WallPanel>
-      {between}
-      <WallPanel title={t("wall.photoStream")} className="flex-1">
-        {loading ? (
-          <Skeleton className="h-40 w-full rounded-lg" />
-        ) : stream.length === 0 ? (
-          latest ? null : <p className="text-sm text-muted-foreground">{t("photos.empty")}</p>
-        ) : (
-          <ul ref={streamRef} className={cn("min-h-0 flex-1 space-y-3 overflow-y-auto", NO_SCROLLBAR)}>
-            {stream.map((photo) => (
-              <li key={photo.id}>
-                <WallPhoto photo={photo} onOpen={onOpen} />
-              </li>
-            ))}
-          </ul>
-        )}
-      </WallPanel>
-    </>
-  );
-}
-
-function WallPhoto({
-  photo,
-  large = false,
-  onOpen,
-}: {
-  photo: HeadquartersPhoto;
-  large?: boolean;
-  onOpen: (photo: HeadquartersPhoto) => void;
-}) {
-  const t = useTranslations("headquarters");
-  const df = useDateFormat();
-  const opens = photoTarget(photo) !== null;
-  const kind = t(`recordKind.${photo.record_kind}`);
-  const picture = (
-    <span className={cn("photo-hatch relative block shrink-0 overflow-hidden rounded-lg", large ? "aspect-video w-full" : "h-18 w-24")}>
-      {photo.image ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={photo.image}
-          alt={t("photos.alt", { kind, project: photo.project })}
-          className="h-full w-full object-cover"
-          loading="lazy"
-        />
-      ) : (
-        <Camera className="absolute inset-0 m-auto size-6 text-muted-foreground" aria-hidden />
-      )}
-      {large ? (
-        <span className="absolute bottom-2 left-2 max-w-[calc(100%-1rem)] truncate rounded-md bg-overlay px-2 py-1 text-xs text-overlay-foreground">
-          {photo.project} · {photo.photographer || t("photos.unknownPhotographer")} · {df.time(photo.captured_at)}
-        </span>
-      ) : null}
-    </span>
-  );
-  const body = large ? (
-    picture
-  ) : (
-    <span className="grid grid-cols-[6rem_minmax(0,1fr)] gap-3 rounded-lg border border-panel-border bg-muted/40 p-2.5">
-      {picture}
-      <span className="flex min-w-0 flex-col gap-1">
-        <span className="flex items-center justify-between gap-2">
-          <span className="truncate text-sm font-semibold">{photo.project}</span>
-          <span className="shrink-0 text-xs tabular-nums text-muted-foreground">{df.time(photo.captured_at)}</span>
-        </span>
-        <span className="truncate text-sm text-tone-cyan-fg">{kind}</span>
-        <span className="flex items-center gap-1 truncate text-xs text-muted-foreground">
-          <UserRound className="size-3 shrink-0" aria-hidden />
-          {photo.photographer || t("photos.unknownPhotographer")}
-        </span>
-      </span>
-    </span>
-  );
-  if (!opens) return <div className="block">{body}</div>;
-  return (
-    <button
-      type="button"
-      onClick={() => onOpen(photo)}
-      className="block w-full rounded-lg text-left transition hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-    >
-      {body}
-    </button>
-  );
-}
-
-/** 【大屏模式】 on the 公司总部 dashboard. */
+/**
+ * 【大屏模式】 on the 公司总部 dashboard: the wall opens in its own tab
+ * (四: 「后台与大屏独立运行」), so the dashboard stays where it is.
+ */
 export function WallButton() {
   const t = useTranslations("headquarters.wall");
   return (
-    <Link
-      href="/dashboard/wall"
+    <a
+      href={WALL_PATH}
+      target="_blank"
+      rel="noopener"
       data-wall-open
       className="inline-flex h-10 shrink-0 items-center gap-2 rounded-lg bg-primary bg-(image:--primary-gradient) px-4 text-sm font-semibold text-primary-foreground shadow-glow hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring pointer-coarse:h-11"
     >
       <Maximize className="size-4" aria-hidden />
       {t("open")}
-    </Link>
+    </a>
   );
 }
