@@ -103,6 +103,7 @@ export function monthRows(data: Overview | undefined) {
 
 export function SiteCostOverview() {
   const t = useTranslations("jb259");
+  const tOff = useTranslations("jb250fix");
   const list = useListQuery(["project", "date_from", "date_to"]);
   const topBar = useCurrentProject();
   const now = new Date();
@@ -122,7 +123,9 @@ export function SiteCostOverview() {
     .filter((row) => Number(row.amount ?? 0) > 0)
     .map((row) => ({ key: row.key, value: Number(row.amount), name: name(row.key) }));
   const trend = monthRows(data);
-  const missing = (data?.sources ?? []).filter((row) => !row.available);
+  // JB250: a source whose module is off says 「没有开通」, not 「暂时没有金额」.
+  const missing = (data?.sources ?? []).filter((row) => !row.available && !row.switched_off);
+  const offWord = tOff("cardOff");
 
   return (
     <div className="space-y-4" data-slot="site-cost-overview">
@@ -188,7 +191,9 @@ export function SiteCostOverview() {
                 ) : (
                   <p className="tabular text-lg font-semibold">{rm(row?.amount)}</p>
                 )}
-                {row && !row.available ? (
+                {row?.switched_off ? (
+                  <p className="text-xs text-muted-foreground" data-module-off={key}>{offWord}</p>
+                ) : row && !row.available ? (
                   <p className="text-xs text-muted-foreground">{t("notAvailableShort")}</p>
                 ) : null}
               </div>
@@ -275,7 +280,9 @@ export function SiteCostOverview() {
                         {t(`report.${key}`)}
                       </span>
                     </TableCell>
-                    <TableCell className="tabular text-right">{row ? (row.amount === null ? "—" : money(row.amount)) : ""}</TableCell>
+                    <TableCell className="tabular text-right">
+                      {row?.switched_off ? offWord : row ? (row.amount === null ? "—" : money(row.amount)) : ""}
+                    </TableCell>
                     <TableCell className="tabular text-right">{row ? share(row.share) : ""}</TableCell>
                     <TableCell className="text-right">
                       <Button asChild size="sm" variant="outline">

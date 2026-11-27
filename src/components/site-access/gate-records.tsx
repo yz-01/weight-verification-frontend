@@ -192,7 +192,17 @@ export function GateRecordsPanel({
   const [project, setProject] = useState(initialProject);
   // A visit opened from its notice (I26: 「访客已确认，可以放行」) opens the scan on it.
   const gateArrival = search.get("gate_arrival") ?? "";
-  const [action, setAction] = useState<GateAction>(gateArrival ? "scan" : initialAction);
+  // JB250 (客户 11-24 事项 1): 「拍照」 is 门岗记录's, 「扫访客二维码」 工地门禁's;
+  // a module the company does not have leaves its button (the server refuses
+  // it too). With one left, the gate opens on it.
+  const modulesOff = new Set(user?.modules_off ?? []);
+  const actions = (["photo", "scan"] as const).filter((key) =>
+    !modulesOff.has(key === "photo" ? "gate_records" : "site_access"),
+  );
+  const firstAction: GateAction = gateArrival ? "scan" : initialAction;
+  const [chosenAction, setAction] = useState<GateAction>(firstAction);
+  const action: GateAction = actions.includes(chosenAction) ? chosenAction : (actions[0] ?? chosenAction);
+  const gateRecordsOpen = !modulesOff.has("gate_records");
   const mayScan = can("site_access.scan");
   const open = (id: string, talk = false) => {
     setOpenId(id);
@@ -204,6 +214,7 @@ export function GateRecordsPanel({
 
   const rows = useInfiniteQuery({
     queryKey: ["gate-incidents", "phone", project],
+    enabled: gateRecordsOpen,
     initialPageParam: 1,
     queryFn: ({ pageParam }) =>
       getGateIncidents({
@@ -229,10 +240,10 @@ export function GateRecordsPanel({
           现场拍照，再确认放行」 - the 出门条 waiting at this gate, above the
           two buttons, on the gate's own 拍照 page (no new page, JB104). */}
       {mayScan && user?.is_field_staff ? <ExitPassWaitingList project={project} /> : null}
-      {mayScan && (
+      {mayScan && actions.length > 0 && (
         <>
-          <div className="grid grid-cols-2 gap-3" role="group" aria-label={tp("title")} data-gate-actions>
-            {(["photo", "scan"] as const).map((key) => {
+          <div className={cn("grid gap-3", actions.length > 1 ? "grid-cols-2" : "grid-cols-1")} role="group" aria-label={tp("title")} data-gate-actions>
+            {actions.map((key) => {
               const Icon = key === "photo" ? Camera : ScanLine;
               return (
                 <button
@@ -271,6 +282,9 @@ export function GateRecordsPanel({
         </>
       )}
 
+      {/* The latest gate records are 门岗记录's (JB250). */}
+      {gateRecordsOpen ? (
+      <>
       <div className="flex items-center gap-2 pt-2">
         <DoorOpen className="size-4 text-muted-foreground" />
         <h3 className="text-sm font-semibold">{t("recentTitle")}</h3>
@@ -307,8 +321,10 @@ export function GateRecordsPanel({
           )}
         </>
       )}
+      </>
+      ) : null}
 
-      {openId && (
+      {openId && gateRecordsOpen && (
         <GateIncidentDetailDialog
           id={openId}
           focusConversation={openToTalk}

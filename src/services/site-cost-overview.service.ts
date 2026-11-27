@@ -20,6 +20,11 @@ export interface SiteCostAmount {
   available: boolean;
   /** Per cent of the total, one decimal; null when the total is 0. */
   share: string | null;
+  /**
+   * JB250: the source's module is not open for the company - 0, and the card
+   * says 「没有开通」. Missing from an older backend.
+   */
+  switched_off?: boolean;
 }
 
 export interface SiteCostMonth {

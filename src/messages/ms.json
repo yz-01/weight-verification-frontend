@@ -24634,5 +24634,13 @@
     "gateNeedShots": "Ambil sekurang-kurangnya satu gambar kenderaan, nombor plat dan barang keluar sebelum melepaskan.",
     "gateShotsMissing": "Belum diambil: {shots}",
     "checkGatePhotos": "Semak gambar pintu dahulu, kemudian tekan Sahkan keluar rasmi:"
+  },
+  "jb250fix": {
+    "pageModuleOff": "Ciri ini tidak dibuka untuk syarikat anda. Sila hubungi ibu pejabat atau MSE.",
+    "reportModuleOff": "{modules} tidak dibuka, jadi laporan ini tiada rekod.",
+    "cardOff": "Tidak dibuka",
+    "noteSafety": "Pembetulan bahaya dan permit kerja ada di sini dan dibuka atau ditutup bersama.",
+    "noteGate": "Foto di telefon pengawal mengikut Rekod Pintu, Imbas QR Pelawat mengikut Akses Tapak; kedua-duanya dibuka atau ditutup berasingan.",
+    "noteReports": "Rekod laporan ini datang daripada Bahan Masuk: jika Bahan Masuk ditutup, laporan ini tiada rekod."
   }
 }

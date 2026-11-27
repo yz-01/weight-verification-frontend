@@ -2331,6 +2331,24 @@ export function isRouteAllowed(
   return actionRuleAllows(pathname, permissions, isSuperuser);
 }
 
+/**
+ * Whether a refused address is refused because the company does not have its
+ * module (JB250): the page would open with those modules on. The screen then
+ * says 「这个功能你的公司没有开通」 rather than that the account cannot.
+ */
+export function refusedByCompanyModule(
+  portal: Portal,
+  features: readonly string[],
+  modulesOff: readonly string[] | undefined,
+  pathname: string,
+  permissions: readonly string[] = [],
+  isSuperuser = false,
+): boolean {
+  if (!modulesOff?.length) return false;
+  if (isRouteAllowed(portal, features, pathname, permissions, isSuperuser)) return false;
+  return isRouteAllowed(portal, [...features, ...modulesOff], pathname, permissions, isSuperuser);
+}
+
 /** Whether the page's own action permission, if it names one, is held. */
 function actionRuleAllows(
   pathname: string,

@@ -24634,5 +24634,13 @@
     "gateNeedShots": "車輛、車牌和退場貨物各拍至少一張，才能確認放行。",
     "gateShotsMissing": "還沒拍：{shots}",
     "checkGatePhotos": "請先核對門崗上傳的照片，再按【確認正式退場】："
+  },
+  "jb250fix": {
+    "pageModuleOff": "這個功能你的公司沒有開通，請聯絡總部或 MSE。",
+    "reportModuleOff": "{modules} 沒有開通，這個報表沒有資料。",
+    "cardOff": "沒有開通",
+    "noteSafety": "隱患整改和施工准證都在這裡，一起開關。",
+    "noteGate": "門崗手機的「拍照」跟著門崗記錄，「掃訪客二維碼」跟著工地門禁，兩個分開開關。",
+    "noteReports": "報表的資料來自材料進場：材料進場關掉後，這個報表沒有資料。"
   }
 }

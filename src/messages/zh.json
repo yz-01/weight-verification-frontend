@@ -24634,5 +24634,13 @@
     "gateNeedShots": "车辆、车牌和退场货物各拍至少一张，才能确认放行。",
     "gateShotsMissing": "还没拍：{shots}",
     "checkGatePhotos": "请先核对门岗上传的照片，再按【确认正式退场】："
+  },
+  "jb250fix": {
+    "pageModuleOff": "这个功能你的公司没有开通，请联系总部或 MSE。",
+    "reportModuleOff": "{modules} 没有开通，这个报表没有资料。",
+    "cardOff": "没有开通",
+    "noteSafety": "隐患整改和施工准证都在这里，一起开关。",
+    "noteGate": "门岗手机的「拍照」跟着门岗记录，「扫访客二维码」跟着工地门禁，两个分开开关。",
+    "noteReports": "报表的资料来自材料进场：材料进场关掉后，这个报表没有资料。"
   }
 }

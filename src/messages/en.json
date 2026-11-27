@@ -24634,5 +24634,13 @@
     "gateNeedShots": "Take at least one photo each of the vehicle, the number plate and the goods leaving before releasing.",
     "gateShotsMissing": "Not taken yet: {shots}",
     "checkGatePhotos": "Check the gate's photos first, then press Confirm formal exit:"
+  },
+  "jb250fix": {
+    "pageModuleOff": "Your company does not have this feature switched on. Please contact head office or MSE.",
+    "reportModuleOff": "{modules} is not switched on, so this report has no records.",
+    "cardOff": "Not switched on",
+    "noteSafety": "Hazard rectification and work permits are both here and switch together.",
+    "noteGate": "The gate phone's Photo follows Gate Records and its Scan Visitor QR follows Site Access; they switch separately.",
+    "noteReports": "This report's records come from Material In: with Material In off, this report has no records."
   }
 }

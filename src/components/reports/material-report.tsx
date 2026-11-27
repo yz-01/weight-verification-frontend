@@ -64,6 +64,8 @@ import {
 } from "@/lib/report-menu";
 import { UNFILLED_SUPPLIER, supplierShown } from "@/lib/receipt-supplier";
 import { consultantLacks } from "@/lib/consultant-modules";
+import { companyModulesOff, reportSourcesOff } from "@/lib/company-modules";
+import { ModuleOffNotice } from "@/components/shared/module-off-notice";
 import { cn } from "@/lib/utils";
 import {
   exportMaterialReportReturns,
@@ -113,7 +115,27 @@ function currentPage(): string {
   return typeof window === "undefined" ? "" : `${window.location.pathname}${window.location.search}`;
 }
 
+/**
+ * JB250 (客户 11-24 事项 1): with 材料进场 not open for the company the report
+ * says so - 「材料进场 没有开通，这个报表没有资料」 - and reads nothing (the
+ * server no longer lets the report read deliveries then).
+ */
 export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
+  const t = useTranslations();
+  const { user } = useAuth();
+  const off = reportSourcesOff(mode === "cost" ? "material_cost" : "material_quantity", companyModulesOff(user));
+  if (off) {
+    return (
+      <div className="space-y-4">
+        <CompanyBanner scope="reports" />
+        <ModuleOffNotice modules={off} title={t(`materialReports.${mode}.title`)} />
+      </div>
+    );
+  }
+  return <MaterialReportBody mode={mode} />;
+}
+
+function MaterialReportBody({ mode }: { mode: MaterialReportMode }) {
   const t = useTranslations();
   const { can, user } = useAuth();
   // JB225 (客户 11-19 事项 5): a consultant's 进场 / 不合格 views need 材料进场,

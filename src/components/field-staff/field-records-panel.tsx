@@ -196,10 +196,13 @@ export function FieldRecordsPanel({
   const boundProject = user?.is_field_staff ? user.active_project?.project_id : undefined;
   const [localMode, setLocalMode] = useState<FieldRecordMode | null>(initialMode);
   const mode = onModeChange ? initialMode : localMode;
+  // JB250: the gate's tile needs 门岗记录 or 工地门禁 open for the company.
+  const modulesOff = new Set(user?.modules_off ?? []);
   const options = RECORD_OPTIONS.filter((option) =>
-    Array.isArray(option.permission)
+    (Array.isArray(option.permission)
       ? option.permission.every((permission) => can(permission))
-      : can(option.permission),
+      : can(option.permission)) &&
+    !(option.key === "gate" && modulesOff.has("gate_records") && modulesOff.has("site_access")),
   );
 
   const chooseMode = (next: FieldRecordMode | null) => {
