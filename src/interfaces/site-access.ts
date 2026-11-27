@@ -313,13 +313,17 @@ export interface ExpiredVisitorPhotos {
 /**
  * One person on the 紧急在场名单 (C21). `APP`: in by the phone's fence; `GATE`:
  * in through the gate on a pass; `BOTH`: the pass's own account is also in
- * by the phone, so it is one row, not two.
+ * by the phone, so it is one row, not two. `ROSTER` (JB296): a 人员名单 worker
+ * on site by their location link; one with the phone of an app account on
+ * site on the same project is that account's row (counted once).
  */
-export type EmergencySource = "APP" | "GATE" | "BOTH";
+export type EmergencySource = "APP" | "GATE" | "BOTH" | "ROSTER";
 
 export interface EmergencyList {
   count: number;
   app_count: number;
+  /** JB296: 人员名单 workers on site by their location link. */
+  roster_count?: number;
   gate_count: number;
   people: EmergencyPresence[];
   /** What the printed list is headed with: the company's own name and logo
@@ -333,6 +337,8 @@ export interface EmergencyPresence {
   pass_id: string | null;
   pass_no: string;
   user_id: string | null;
+  /** JB296: the 人员名单 worker of this row (`ROSTER`), or the app account's roster twin. */
+  roster_worker_id?: string | null;
   project_id: string;
   project_name: string;
   subject_type: AccessSubjectType;

@@ -174,7 +174,7 @@ export function WorkforcePresencePanel({ projectId }: { projectId: string }) {
             <ul className="divide-y rounded-lg border">
               {data.people.map((person) => (
                 <li
-                  key={`${person.project_id}:${person.user_id}`}
+                  key={`${person.kind ?? "APP"}:${person.project_id}:${person.user_id}`}
                   className="flex flex-wrap items-center justify-between gap-2 px-3 py-2"
                 >
                   <span className="min-w-0">

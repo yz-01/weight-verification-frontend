@@ -9538,6 +9538,7 @@
       "review_by_head_office": "This category is set to head office approval: head office accepts it.",
       "sundry_claim_sent_elsewhere": "This sundry claim was sent to the other side for approval.",
       "sundry_claim_own": "You cannot approve a sundry claim you submitted yourself.",
+      "sundry_claim_view_only": "This claim was sent to {submit_to, select, HQ {head office} other {the project manager}} for approval. You can view it but not approve it.",
       "material_request_manager_first": "A site request goes to the project manager first, who sends it on to head office.",
       "material_request_not_executor": "Only the project's project manager confirms this request; head office can view it.",
       "material_request_not_open": "This request is not waiting to be carried out (not approved, or already confirmed completed).",
@@ -9746,6 +9747,7 @@
       "project_left": "You have been taken off the project {project}, so you can no longer view or work on its records. Please contact the project manager if you need to.",
       "phone_identity_in_use": "This mobile number already belongs to an active identity: {name} ({kind, select, driver {driver link} site_staff {site staff} equipment_operator {equipment operator} gate_guard {gate guard} other {field staff}}). One number can have only one active identity: stop the old one first, then create the new one.",
       "phone_device_in_use": "This phone is already bound to another person's identity ({name}). One phone can have only one active identity: ask the office to stop the old identity first, then use the new link.",
+      "field_presence_not_granted": "Your role does not include “Clock in and out on site” and “Share own location from the phone”, so the phone cannot record your arrival or departure. Ask the office to tick both for your role in Roles and permissions.",
       "equipment_hours_driver_busy": "Your machine {equipment} has not been stopped yet (started {since}). One driver can run only one machine at a time: take its stop photo first, then start this one.",
       "company_settings_pin_required": "Enter your six-digit sign-off PIN to open company settings.",
       "sign_off_pin_identity_required": "First confirm it is you: type your old sign-off PIN, or the code sent to your login e-mail.",
@@ -25062,5 +25064,21 @@
     "linkCopy": "Copy link",
     "linkCopied": "Copied",
     "noProjects": "No project is on the wall now. Head office can choose the projects to show in 【Wall display settings】."
+  },
+  "jb296": {
+    "composition": "App {app} + worker roster {roster} + gate pass {gate}",
+    "emergencyComposition": "{total} people (app {app} + worker roster {roster} + gate pass {gate})",
+    "emergencySubtitle": "Everyone on site now: in by the phone's geofence, on the worker roster's location link, or through the gate on a pass and not yet out. One phone number on one project is one person.",
+    "sourceRoster": "Worker roster (location link)",
+    "rosterTag": "Worker roster",
+    "hqOnSiteSplit": "App {app} + roster {roster} + gate {gate}",
+    "hqPresenceSplit": "App {app} + roster {roster} + gate {gate}, by project"
+  },
+  "jb297": {
+    "viewOnly": {
+      "PROJECT": "This claim was sent to the project manager for approval. You can view it but not approve it.",
+      "HQ": "This claim was sent to head office for approval. You can view it but not approve it."
+    },
+    "fallback": "This project has no project manager who can approve it, so head office approves it."
   }
 }

@@ -7,6 +7,9 @@
  * can always be traced to its rows. 当前现场总人数 says what it is made of -
  * App 人员 plus 门岗通行 - because it is the one figure that is not the same as
  * 仍在场, and an unexplained difference reads as a bug.
+ *
+ * JB296 (客户 11-28 事项 1): 人员名单 workers on site by their location link
+ * are part of 当前现场总人数 too, so the line under it names three parts.
  */
 
 import { useQuery } from "@tanstack/react-query";
@@ -35,6 +38,7 @@ function emergencyHref(project?: string) {
 
 export function PresenceSummary({ project }: { project?: string }) {
   const t = useTranslations("attendance.presence");
+  const words = useTranslations("jb296");
   const [open, setOpen] = useState(false);
   const presence = useQuery({
     queryKey: ["attendance-presence", project ?? "all"],
@@ -56,7 +60,7 @@ export function PresenceSummary({ project }: { project?: string }) {
           value={data?.current_total ?? "–"}
           detail={
             data
-              ? t("composition", { app: data.app_on_site, gate: data.gate_on_site })
+              ? words("composition", { app: data.app_on_site, roster: data.roster_on_site ?? 0, gate: data.gate_on_site })
               : t("loading")
           }
         >
@@ -98,7 +102,7 @@ export function PresenceSummary({ project }: { project?: string }) {
                           {row.current_total}
                         </Link>
                         <span className="ml-1 text-xs text-muted-foreground">
-                          ({t("composition", { app: row.app_on_site, gate: row.gate_on_site })})
+                          ({words("composition", { app: row.app_on_site, roster: row.roster_on_site ?? 0, gate: row.gate_on_site })})
                         </span>
                       </TableCell>
                       <NumberCell row={row} field="entered_today" />

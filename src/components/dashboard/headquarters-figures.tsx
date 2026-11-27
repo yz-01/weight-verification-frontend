@@ -72,6 +72,7 @@ const COUNT_TILES: Array<{
  */
 export function HeadquartersFigures({ data }: { data: HeadquartersOverview }) {
   const t = useTranslations("headquarters.figures");
+  const words = useTranslations("jb296");
   const kinds = useTranslations("jb248.kind");
   const offWord = useTranslations("jb250fix")("cardOff");
   // JB250: a module the company does not have says so, not a number.
@@ -115,8 +116,9 @@ export function HeadquartersFigures({ data }: { data: HeadquartersOverview }) {
             value={format.number(totals[field])}
             detail={
               field === "on_site_now"
-                ? t("onSiteSplit", {
+                ? words("hqOnSiteSplit", {
                     app: format.number(totals.app_on_site),
+                    roster: format.number(totals.roster_on_site ?? 0),
                     gate: format.number(totals.gate_on_site),
                   })
                 : undefined
