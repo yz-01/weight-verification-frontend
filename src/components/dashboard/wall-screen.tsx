@@ -264,7 +264,7 @@ function WallHeader({
   return (
     <header className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-[1.5rem]">
       <div className="flex min-w-0 items-center gap-[1rem]" data-wall-brand>
-        <span className="flex size-[4.5rem] shrink-0 items-center justify-center overflow-hidden rounded-[0.9rem] border border-panel-border bg-white/95">
+        <span className="flex size-[4.5rem] shrink-0 items-center justify-center overflow-hidden rounded-[0.9rem] border border-panel-border bg-paper">
           {data.company.logo_url ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={data.company.logo_url} alt={data.company.name} className="h-full w-full object-contain" />
@@ -303,6 +303,7 @@ function WallHeader({
 /** The weather on the slide: the project's place, else the company's. */
 function WallWeatherReading({ project, source }: { project: string; source: WallSource }) {
   const t = useTranslations("headquarters.reference");
+  // query-failure: no weather is the answer when it cannot be read (J32-1, 「天气取不到就不显示」)
   const weather = useQuery({
     queryKey: [...source.queryKey, "weather", project],
     queryFn: () => source.weather(project),
@@ -750,7 +751,7 @@ function PhotoCarousel({ photos, showProject = false }: { photos: WallPhoto[]; s
   if (!shown) return null;
   return (
     <figure className="flex min-h-0 flex-1 flex-col gap-[0.6rem]" data-wall-carousel>
-      <span className="photo-hatch relative block min-h-0 flex-1 overflow-hidden rounded-[0.75rem] bg-black">
+      <span className="photo-hatch relative block min-h-0 flex-1 overflow-hidden rounded-[0.75rem] bg-overlay">
         {shown.image ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -798,7 +799,7 @@ function EsgBand({ esg, scope }: { esg: WallEsg; scope: "company" | "project" })
       className="surface-panel grid min-h-[17rem] grid-cols-[auto_repeat(3,minmax(0,1fr))] gap-[1.5rem] rounded-[1rem] p-[1.25rem]"
     >
       <div className="flex flex-col justify-center pr-[0.5rem]">
-        <p className="text-[2rem] font-bold text-tone-green-fg">ESG</p>
+        <p className="text-[2rem] font-bold text-tone-green-fg">{t("colEsg")}</p>
         <p className="max-w-[11rem] text-[1.3rem] text-muted-foreground">{t("esgSubtitle")}</p>
       </div>
       {environment ? <EnvironmentCard esg={esg} /> : null}

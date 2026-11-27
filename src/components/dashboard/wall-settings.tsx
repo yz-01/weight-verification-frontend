@@ -6,6 +6,7 @@ import { useFormatter, useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { WallControl } from "@/components/dashboard/wall-screen";
+import { LoadFailed } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -16,6 +17,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import type { WallSettingRow, WallSettings } from "@/interfaces/wall-screen";
 import {
   createWallLink,
@@ -82,54 +84,56 @@ export function WallSettingsDialog({
           <DialogTitle>{t("settings")}</DialogTitle>
           <DialogDescription>{t("settingsIntro")}</DialogDescription>
         </DialogHeader>
-        {settings.isLoading ? (
+        {settings.isError ? (
+          <LoadFailed onRetry={() => void settings.refetch()} />
+        ) : settings.isLoading ? (
           <p className="text-sm text-muted-foreground">{common("loading")}</p>
         ) : shown.length === 0 ? (
           <p className="text-sm text-muted-foreground">{t("noActive")}</p>
         ) : (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b text-left text-muted-foreground">
-                <th className="py-2 font-medium">{t("colProject")}</th>
-                <th className="w-24 py-2 text-center font-medium">{t("colShown")}</th>
-                <th className="w-24 py-2 text-center font-medium">{t("colPhotos")}</th>
-                <th className="w-24 py-2 text-center font-medium">{t("colEsg")}</th>
-              </tr>
-            </thead>
-            <tbody>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{t("colProject")}</TableHead>
+                <TableHead className="w-24 text-center">{t("colShown")}</TableHead>
+                <TableHead className="w-24 text-center">{t("colPhotos")}</TableHead>
+                <TableHead className="w-24 text-center">{t("colEsg")}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {shown.map((row) => (
-                <tr key={row.project} className="border-b last:border-0" data-wall-setting-row={row.project}>
-                  <td className="py-2.5 pr-3">
+                <TableRow key={row.project} data-wall-setting-row={row.project}>
+                  <TableCell>
                     <span className="font-medium">{row.name}</span>
                     <span className="ml-2 text-xs text-muted-foreground">{row.code}</span>
-                  </td>
-                  <td className="text-center">
+                  </TableCell>
+                  <TableCell className="text-center">
                     <Switch
                       checked={row.shown}
                       onCheckedChange={(value) => set(row.project, "shown", value)}
                       aria-label={`${row.name} · ${t("colShown")}`}
                     />
-                  </td>
-                  <td className="text-center">
+                  </TableCell>
+                  <TableCell className="text-center">
                     <Switch
                       checked={row.photos}
                       disabled={!row.shown}
                       onCheckedChange={(value) => set(row.project, "photos", value)}
                       aria-label={`${row.name} · ${t("colPhotos")}`}
                     />
-                  </td>
-                  <td className="text-center">
+                  </TableCell>
+                  <TableCell className="text-center">
                     <Switch
                       checked={row.esg}
                       disabled={!row.shown}
                       onCheckedChange={(value) => set(row.project, "esg", value)}
                       aria-label={`${row.name} · ${t("colEsg")}`}
                     />
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         )}
         <p className="text-xs text-muted-foreground">{t("neverShown")}</p>
         <DialogFooter>
