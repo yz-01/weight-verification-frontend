@@ -97,7 +97,7 @@ export function RentalTermsLines({ terms }: { terms: RentalTermsValues }) {
   return (
     <>
       {pieces.map((piece) => (
-        <span key={piece.from} className="block whitespace-nowrap" data-slot="rental-terms-piece">
+        <span key={piece.from} className="block" style={{ whiteSpace: "nowrap" }} data-slot="rental-terms-piece">
           {tj("piece", { from: piece.from, to: piece.to, terms: pieceSummary(t, piece.terms) })}
         </span>
       ))}
@@ -667,7 +667,8 @@ export function RentalFeeCells({
         ) : row.rental_confirmed ? (
           <span className="flex flex-col items-start gap-1" data-testid="rental-confirmed">
             <StatusBadge label={t("confirmed")} tone="positive" />
-            <span className="whitespace-nowrap text-xs text-muted-foreground" data-testid="rental-confirmed-by">
+            {/* JB294: one line - a fitted table turns `whitespace-nowrap` back to wrapping (globals.css), the style does not. */}
+            <span className="text-xs text-muted-foreground" style={{ whiteSpace: "nowrap" }} data-testid="rental-confirmed-by">
               {t("confirmedBy", { name: row.rental_confirmed_by ?? "", time: df.dateTime(row.rental_confirmed_at ?? "") })}
             </span>
           </span>
@@ -687,7 +688,8 @@ export function RentalFeeCells({
             JB294: one short line here, the parts in 【看分段】. */}
         {pieces ? (
           <span
-            className="mt-1.5 flex items-center gap-2 whitespace-nowrap text-xs text-muted-foreground"
+            className="mt-1.5 flex items-center gap-2 text-xs text-muted-foreground"
+            style={{ whiteSpace: "nowrap" }}
             data-testid="rental-month-pieces"
           >
             {t294("pieces.count", { count: pieces.length })}

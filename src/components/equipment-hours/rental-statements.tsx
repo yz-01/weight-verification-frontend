@@ -577,7 +577,7 @@ export function StatementLines({
                     // JB288: the price changed in these dates - each set with its days
                     // (JB294: periods whose terms price a day the same are one).
                     displayPieces(line.terms.pieces).map((piece) => (
-                      <span key={piece.from} className="block text-xs" data-slot="statement-line-piece">
+                      <span key={piece.from} className="block text-xs" style={{ whiteSpace: "nowrap" }} data-slot="statement-line-piece">
                         {tj("piece", {
                           from: piece.from,
                           to: piece.to,
