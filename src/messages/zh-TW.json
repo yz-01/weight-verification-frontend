@@ -4086,7 +4086,18 @@
       "wall_screen_viewed": "查看總部大屏",
       "wall_display_settings_saved": "保存大屏展示設定",
       "wall_link_created": "生成大屏連結",
-      "wall_link_revoked": "停用大屏連結"
+      "wall_link_revoked": "停用大屏連結",
+      "labour_rate_set": "設定人工單價",
+      "labour_normal_hours_set": "設定人工正常工時",
+      "labour_day_adjusted": "調整人工工時",
+      "labour_month_confirmed": "確認本月人工工時",
+      "labour_month_unconfirmed": "取消確認本月人工工時",
+      "labour_statement_created": "生成人工結算單",
+      "labour_statement_cancelled": "作廢人工結算單",
+      "labour_statement_pdf_previewed": "預覽人工結算單 PDF",
+      "labour_statement_pdf_exported": "匯出人工結算單 PDF",
+      "labour_checked": "人工結算單核對",
+      "labour_settled": "人工結算單結算"
     },
     "objectType": {
       "SignOffAssistant": "助理副密碼",
@@ -9829,7 +9840,20 @@
       "disposal_settlement_already_settled": "{settlement_no} 已經結算完畢，不能重複結算。",
       "disposal_lorry_sheet_missing": "工地還沒有填車牌、司機和工地負責人還沒有簽名。",
       "wall_project_unavailable": "這個項目不能放上大屏：只有在建項目可以設定。請重新打開「大屏展示設定」再試。",
-      "wall_link_not_found": "這個大屏連結已經失效。請向公司要新的連結。"
+      "wall_link_not_found": "這個大屏連結已經失效。請向公司要新的連結。",
+      "labour_rate_duplicate_date": "這個單價在 {date} 已經有一條了，同一天只能有一條。要改就換一個生效日期。",
+      "labour_rate_invalid_scope": "請選好按什麼設定單價，再選人員、所屬公司或工種。",
+      "labour_month_not_over": "這個月還沒過完（到 {last_day}），過完才能確認。",
+      "labour_month_confirmed": "{month} 的工時已經確認，不能再改。要改請先【取消確認】。",
+      "labour_month_not_confirmed": "這個月的工時還沒有確認。",
+      "labour_month_in_statement": "這個月已經在結算單 {statement_no} 裡，要先作廢結算單才能取消確認。",
+      "labour_statement_locked": "結算單 {statement_no} 已經核對或作廢，不能再改。",
+      "labour_statement_overlap": "這個專案、這家所屬公司、這個月已經有結算單 {statement_no}，同一筆人工費用不能重複結算。",
+      "labour_statement_no_rate": "這些人還沒有人工單價：{items}。先設定單價才能生成結算單。",
+      "labour_statement_no_company": "這些人還沒填所屬公司：{items}。填好才能結算。",
+      "labour_statement_empty": "這家所屬公司在這個月沒有工作天數，沒有東西可以結算。",
+      "labour_check_other_company": "{reference} 是另一家所屬公司的，一次核對只能是同一家公司。",
+      "labour_amounts_off": "你的帳號沒有開「金額查看」，不能設定人工單價。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -13400,7 +13424,9 @@
       "materialIssue": "材料領用（MIN）",
       "equipmentRentalReport": "設備租賃費用報表",
       "siteCostOverview": "項目現場費用總覽",
-      "equipmentRentalStatements": "設備租賃月結單"
+      "equipmentRentalStatements": "設備租賃月結單",
+      "labourCosts": "人工費用",
+      "labourStatements": "人工結算單"
     },
     "subscription_management": "訂閱管理",
     "suppliers": "供應商",
@@ -14695,6 +14721,10 @@
       },
       "project_supplier": {
         "manage": "把總部名單的供應商加到自己負責的項目，或移出"
+      },
+      "labour": {
+        "view": "查看人工費用和工時",
+        "manage": "設定人工單價、調整和確認工時、人工結算單的核對與結算"
       }
     },
     "group": {
@@ -14768,7 +14798,8 @@
       "inspection": "檢驗",
       "finance": "金額",
       "field_staff": "現場人員",
-      "project_supplier": "項目可用供應商"
+      "project_supplier": "項目可用供應商",
+      "labour": "人工費用"
     }
   },
   "photos": {
@@ -22335,7 +22366,14 @@
       "equipment_rental_check": "核對設備租賃月結單",
       "equipment_rental_settle": "結算設備租賃月結單",
       "disposal_settlement_settle": "清運結算完畢",
-      "disposal_fee_set": "設定或修改每車清運費用"
+      "disposal_fee_set": "設定或修改每車清運費用",
+      "labour_rate_set": "設定人工單價",
+      "labour_hours_adjust": "調整人工工時",
+      "labour_confirm": "確認本月工時",
+      "labour_unconfirm": "取消確認本月工時",
+      "labour_statement": "生成或作廢人工結算單",
+      "labour_check": "核對人工結算單",
+      "labour_settle": "結算人工結算單"
     },
     "firstTitle": "第一次設定簽核密碼",
     "firstBanner": "這是你第一次使用簽核密碼",
@@ -25025,5 +25063,321 @@
     "linkCopy": "複製連結",
     "linkCopied": "已複製",
     "noProjects": "現在沒有項目在大屏上展示。總部可以在【大屏展示設定】裡選要展示的項目。"
+  },
+  "jb295": {
+    "subtitle": "按電子圍欄的進場和離場算工作天數和工時，負責人核對確認後才能結算。",
+    "pageNote": "工作天數、正常工時和超時工時來自電子圍欄的進場及離場記錄（人員名單和 App 帳號）。有問題的那天可以按【調整】改正，要寫原因和輸入六位數簽核密碼。",
+    "noView": "你沒有查看人工費用的權限。請找公司管理員開通。",
+    "amountsHidden": "你的「金額查看」已關閉，所以金額顯示為「—」。",
+    "chooseProjectFirst": "先選一個專案。",
+    "chooseCompany": "選擇所屬公司",
+    "choosePerson": "選擇人員",
+    "chooseTrade": "選擇工種",
+    "close": "關閉",
+    "personOption": "{name}（{group} · {company} · {trade}）",
+    "group": {
+      "roster": "人員名單",
+      "app": "App 帳號"
+    },
+    "company": {
+      "self": "本公司",
+      "none": "未填所屬公司"
+    },
+    "trade": {
+      "none": "未填工種"
+    },
+    "method": {
+      "DAILY": "日薪",
+      "HOURLY": "時薪"
+    },
+    "methodHelp": {
+      "DAILY": "日薪：有上班的每一天算一天的錢，超時另算。",
+      "HOURLY": "時薪：正常工時乘以每小時單價，超時另算。"
+    },
+    "scope": {
+      "PERSON": "按人員",
+      "COMPANY_TRADE": "按所屬公司 + 工種",
+      "TRADE": "按工種",
+      "COMPANY": "按所屬公司"
+    },
+    "scopeHelp": {
+      "PERSON": "只給這一個人",
+      "COMPANY_TRADE": "這家公司的這個工種",
+      "TRADE": "所有公司的這個工種",
+      "COMPANY": "這家公司的所有人"
+    },
+    "state": {
+      "PENDING": "待核對",
+      "CHECKED": "已核對",
+      "SETTLED": "已結算",
+      "CANCELLED": "已作廢"
+    },
+    "view": {
+      "day": "按日",
+      "month": "按月"
+    },
+    "filter": {
+      "project": "專案",
+      "chooseProject": "選擇專案",
+      "allProjects": "全部專案",
+      "month": "月份",
+      "company": "所屬公司",
+      "allCompanies": "全部所屬公司",
+      "trade": "工種",
+      "allTrades": "全部工種",
+      "person": "人員",
+      "allPeople": "全部人員",
+      "flagged": "只看要核對的",
+      "clear": "清除篩選"
+    },
+    "what": {
+      "options": "公司、工種和人員的選項",
+      "days": "按日的工時",
+      "month": "按月的工時"
+    },
+    "col": {
+      "date": "日期",
+      "person": "姓名",
+      "group": "類別",
+      "company": "所屬公司",
+      "trade": "工種",
+      "sessions": "進場 – 離場",
+      "normalHours": "正常工時",
+      "overtimeHours": "超時工時",
+      "dayAmount": "當天金額（RM）",
+      "daysWorked": "工作天數",
+      "missingExit": "缺離場（天）",
+      "systemExit": "系統結束（天）",
+      "adjustedCount": "調整過（天）",
+      "toCheck": "要核對（天）",
+      "adjusted": "調整",
+      "method": "方式",
+      "unitPrice": "單價（RM）",
+      "overtimeRate": "超時單價（RM / 小時）",
+      "rate": "單價",
+      "normalAmount": "正常金額（RM）",
+      "overtimeAmount": "超時金額（RM）",
+      "labourAmount": "合計（RM）",
+      "status": "狀態"
+    },
+    "day": {
+      "empty": "這個月沒有進場記錄。",
+      "noSession": "沒有進場記錄",
+      "systemExit": "系統結束，離開時間要核對",
+      "systemExitHelp": "「系統結束」的離開時間是手機最後一次回報的時間，不一定是真正離開的時間，請核對。",
+      "missingExit": "缺離場，算 0 小時",
+      "notWorked": "已調整為沒有上班",
+      "adjusted": "已調整",
+      "adjustedBy": "{name} 在 {time} 調整：{reason}",
+      "locked": {
+        "confirmed": "這個月已確認，不能再調整",
+        "statement": "已在結算單裡，不能再調整"
+      }
+    },
+    "month": {
+      "empty": "這個月沒有人有工作天數。",
+      "total": "合計",
+      "notConfirmed": "未確認",
+      "confirmed": "已確認",
+      "confirmedBy": "{name} · {time}",
+      "inStatement": "結算單 {number}（{state}）",
+      "flagsHelp": "缺離場或系統結束的天數，請在按日裡核對。"
+    },
+    "rate": {
+      "none": "沒有單價",
+      "set": "設定單價",
+      "methodPrice": "{method} RM {amount}",
+      "overtimePrice": "超時 RM {amount} / 小時",
+      "noOvertime": "沒有超時單價",
+      "companyTrade": "{company} · {trade}"
+    },
+    "pieces": {
+      "count": "這個月有 {count} 個單價",
+      "open": "看分段",
+      "title": "{name} {month} 的單價",
+      "help": "這個月中途改過單價，每一段的日子用當時的單價算。",
+      "period": "日期",
+      "scope": "按什麼設定",
+      "overtime": "超時單價",
+      "range": "{from} 至 {to}",
+      "rangeRate": "{from} 至 {to}：{rate}"
+    },
+    "normal": {
+      "title": "正常工時",
+      "button": "正常工時：每天 {hours} 小時",
+      "help": "每天前面這幾個小時算正常工時，多出來的算超時工時。這個專案的人工用這個設定。",
+      "hours": "每天正常工時（小時）",
+      "invalid": "請填 0.5 到 24 之間的數字。",
+      "fromHint": "從這一天開始用，可以選以前的日期。已確認的月份不會變。",
+      "history": "以前的設定",
+      "historyRow": "{from} 起每天 {hours} 小時（{name} · {time}）",
+      "default": "還沒有設定過，現在按每天 8 小時算。",
+      "save": "保存"
+    },
+    "adjust": {
+      "button": "調整",
+      "title": "調整 {name} {date} 的工時",
+      "help": "改正這一天有沒有上班、正常工時和超時工時。原來的記錄會保留，以最新的調整為準。",
+      "records": "電子圍欄記錄",
+      "worked": "這一天有上班嗎？",
+      "workedYes": "有上班",
+      "workedNo": "沒有上班",
+      "hoursInvalid": "請填 0 到 24 之間的數字，最多兩位小數。",
+      "over24": "正常工時加超時工時不能超過 24 小時。",
+      "sumLabel": "正常加超時不超過 24 小時",
+      "reason": "調整原因",
+      "reasonPlaceholder": "例如：手機沒電，實際 17:30 離開",
+      "pinNote": "按「保存調整」後，輸入你的六位數簽核密碼。",
+      "save": "保存調整"
+    },
+    "confirm": {
+      "button": "確認本月工時",
+      "title": "確認 {month} 的工時",
+      "help": "請負責人核對每個人的工作天數和工時，勾選沒問題的人再確認。確認後這個月的天數、工時和金額就固定了。",
+      "notOver": "這個月還沒過完（到 {date}），過完才能確認。",
+      "nothing": "這個月沒有要確認的人（都已確認，或沒有工作天數）。",
+      "all": "全選",
+      "check": "核對提醒",
+      "flags": "有 {count} 天要核對",
+      "ok": "沒問題",
+      "pinNote": "按「確認」後，輸入你的六位數簽核密碼。",
+      "save": "確認 {count} 人的工時",
+      "tickSomeone": "至少勾選一個人"
+    },
+    "unconfirm": {
+      "button": "取消確認",
+      "inStatement": "這個月已在結算單 {number} 裡，要先把結算單作廢才能取消確認。",
+      "title": "取消確認 {name} {month}",
+      "help": "取消後可以再調整這個月的工時，然後重新確認。要寫原因和輸入六位數簽核密碼。",
+      "reason": "取消原因",
+      "save": "確認取消"
+    },
+    "rates": {
+      "title": "人工單價設定",
+      "help": "人工單價是全公司通用的，每個專案都用。改單價是從生效日期開始用新的，已確認的月份和結算單不會變。",
+      "order": "同一個人有幾個單價時，用最細的那一個：人員 → 所屬公司 + 工種 → 工種 → 所屬公司",
+      "add": "新增單價",
+      "what": "人工單價",
+      "whatOptions": "人員、公司和工種",
+      "noneInScope": "還沒有設定。",
+      "col": {
+        "target": "對象",
+        "price": "單價",
+        "overtime": "超時單價",
+        "from": "生效日期",
+        "note": "備注",
+        "by": "設定人"
+      },
+      "history": "價格歷史",
+      "historyTitle": "{name} 的價格歷史",
+      "historyHelp": "最新的在上面。每一筆從它的生效日期開始用。",
+      "chooseScope": "按什麼設定？",
+      "pinNote": "按「保存單價」後，輸入你的六位數簽核密碼。",
+      "save": "保存單價"
+    },
+    "field": {
+      "person": "人員",
+      "company": "所屬公司",
+      "trade": "工種",
+      "method": "日薪還是時薪？",
+      "dayPrice": "每天單價（RM）",
+      "hourPrice": "每小時單價（RM）",
+      "priceInvalid": "請填大於 0 的金額，最多兩位小數。",
+      "overtimeRate": "超時單價（RM / 小時）",
+      "overtimeHint": "不填 = 超時不算錢。",
+      "effectiveFrom": "生效日期",
+      "effectiveHint": "可以選以前的日期。",
+      "note": "備注"
+    },
+    "statement": {
+      "noManage": "你沒有人工結算的權限。請找公司管理員開通。",
+      "noAmounts": "你的「金額查看」已關閉，結算單都是金額，所以看不到。請找公司管理員開通。",
+      "count": "{count} 張結算單",
+      "tabsLabel": "結算單的頁簽",
+      "tab": {
+        "pending": "待核對",
+        "checked": "已核對",
+        "settled": "已結算",
+        "all": "全部"
+      },
+      "resultOnly": "這裡只記錄核對及結算結果，不涉及實際付款及財務操作。",
+      "what": "人工結算單",
+      "empty": {
+        "pending": "現在沒有待核對的結算單。",
+        "checked": "現在沒有已核對的結算單。",
+        "settled": "現在沒有已結算的結算單。",
+        "all": "還沒有結算單。"
+      },
+      "col": {
+        "number": "結算單編號",
+        "project": "專案",
+        "month": "月份",
+        "people": "人數",
+        "total": "合計金額（RM）",
+        "checkNo": "核對編號",
+        "settlementNo": "結算編號",
+        "generated": "生成人",
+        "rate": "單價（方式）"
+      },
+      "peopleValue": "{count} 人",
+      "view": "查看",
+      "generate": "生成結算單",
+      "generateHelp": "選擇專案、所屬公司和月份。系統按確認的工作天數和工時算出金額。還沒確認的人，生成時會一起確認。",
+      "preview": "先看一下",
+      "willConfirm": "按「生成結算單」時，會一起確認這些人這個月的工時（確認後不能再改）：",
+      "noRate": "這些人還沒有單價，設好單價才能生成：",
+      "noCompany": "這些人未填所屬公司，填好才能結算：",
+      "noRateShort": "還有人沒有單價，設好單價才能生成。",
+      "overlap": "這個月這家公司已經有結算單 {number}，同一筆人工費用不能重複結算。",
+      "emptyPreview": "這個月這家公司沒有人有工作天數，沒有東西可以結算。",
+      "generatePin": "按「生成結算單」後，輸入你的六位數簽核密碼。生成後金額不會再變。",
+      "windowTitle": "人工結算單 {number}",
+      "pdf": "結算單 PDF",
+      "linesTitle": "人員及費用",
+      "linesHelp": "每個人按「看每天」可以看到是哪幾天、幾個小時。",
+      "days": "看每天",
+      "worked": "有沒有上班",
+      "cancel": "作廢",
+      "cancelTitle": "作廢結算單 {number}",
+      "cancelHelp": "只有待核對的結算單可以作廢。作廢後記錄保留，這個月可以重新生成。要輸入六位數簽核密碼。",
+      "cancelReason": "作廢原因",
+      "confirmCancel": "確認作廢",
+      "tickAll": "全選",
+      "generatedToast": "已生成結算單 {number}",
+      "cancelledToast": "結算單 {number} 已作廢"
+    },
+    "checkTitle": "人工結算單 · 核對與結算",
+    "checkNoPending": "現在沒有待核對的人工結算單。",
+    "checkChooseCompany": "選擇所屬公司",
+    "checkHelp": "先選所屬公司，再勾選這家公司待核對的結算單。",
+    "checkPickTitle": "{name} 待核對的結算單",
+    "checkPickHelp": "勾選要核對的結算單，可以勾一張或多張。點一行可以查看結算單。",
+    "checkWhat": "待核對的結算單",
+    "checkTickFirst": "先勾選要核對的結算單，下面才會出現核對確認。",
+    "checkWindowTitle": "人工核對 {number}",
+    "checkStatementsTitle": "這次勾選的結算單（{count} 張）",
+    "cost": {
+      "source": "人工費用",
+      "report": "人工結算單",
+      "notCounted": "還有 {amount} 未核對，不算在內"
+    },
+    "employer": {
+      "label": "所屬公司",
+      "hint": "不填 = 本公司。人工費用和人工結算單按這個公司分。",
+      "pick": "選擇公司",
+      "search": "搜尋公司",
+      "noMatch": "名單裡沒有這家公司，可以在下面手動填寫。",
+      "self": "本公司",
+      "what": "公司名單",
+      "noteLabel": "不在名單裡的公司（手動填寫）",
+      "noteHint": "名單裡沒有時才填。兩個都不填 = 本公司。"
+    },
+    "toast": {
+      "rateSaved": "人工單價已保存",
+      "normalSaved": "正常工時已保存",
+      "adjusted": "工時已調整",
+      "confirmed": "已確認 {count} 人的工時",
+      "unconfirmed": "已取消確認"
+    }
   }
 }

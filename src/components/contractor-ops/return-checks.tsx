@@ -19,7 +19,8 @@
  * third tab 「已结算」 and the 结算 after 核对 (`SettlePicker`) for both; the
  * record shows its 核对 / 结算 under 「已归档」 (`ReconciliationPanel`), and
  * each number opens its window. JB280 (事项 21) reuses all of it for the
- * equipment rental statements (`kind="RENTAL"`).
+ * equipment rental statements (`kind="RENTAL"`). JB295: the 人工结算单
+ * (`kind="LABOUR"`, by 所属公司, LB-RC / LB-ST).
  *
  * Reused, not rebuilt (「请尽量复用现有页面、文件上传、签核密码及历史记录机制」):
  * the picking list and the list inside a check are the badge's own table
@@ -39,6 +40,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { OutgoingDecision } from "@/components/dashboard/approval-opener";
 import { RentalStatementWindow } from "@/components/equipment-hours/rental-statements";
+import { LabourStatementRowsTable } from "@/components/labour/labour-statements";
 import { useAuth } from "@/components/providers/auth-provider";
 import { useCurrentProject } from "@/components/providers/current-project-provider";
 import { AttachmentPicker } from "@/components/shared/attachment-picker";
@@ -69,6 +71,7 @@ import type { MaterialOutgoing } from "@/interfaces/contractor-ops";
 import { ATTACHMENT_ACCEPT } from "@/lib/attachment-whitelist";
 import { useDateFormat } from "@/lib/dates";
 import { getSupplierReturns } from "@/services/contractor.service";
+import { getLabourStatements, type LabourStatementSummary } from "@/services/labour-statement.service";
 import { getRentalStatements, type RentalStatementRow } from "@/services/rental-statement.service";
 import {
   createReturnCheck,
@@ -128,6 +131,7 @@ export const RETURN_CHECK_STALE_KEYS = [
   ["settlements"],
   ["receipts", "net-totals"],
   ["rental-statements"],
+  ["labour-statements"],
 ] as const;
 
 /** 「待核对｜已核对｜已结算」 (JB188 做法 1, JB278 第 2 点). */
@@ -211,6 +215,7 @@ export function ReconcileSettleButton({
   onSettled: (settlement: Settlement) => void;
 }) {
   const tj = useTranslations("jb278");
+  const t295 = useTranslations("jb295");
   const { can, user } = useAuth();
   const [open, setOpen] = useState<"check" | "settle" | null>(null);
   if (!officeMay(user, can, permission)) return null;
@@ -224,7 +229,9 @@ export function ReconcileSettleButton({
         <Dialog open onOpenChange={(next) => !next && setOpen(null)}>
           <DialogContent data-slot="reconcile-settle-dialog" className="max-h-[92dvh] overflow-y-auto sm:max-w-6xl">
             <DialogHeader>
-              <DialogTitle>{kind === "RENTAL" ? tj("rentalTitle") : tj("issueTitle")}</DialogTitle>
+              <DialogTitle>
+                {kind === "LABOUR" ? t295("checkTitle") : kind === "RENTAL" ? tj("rentalTitle") : tj("issueTitle")}
+              </DialogTitle>
               <DialogDescription>{tj("resultOnly")}</DialogDescription>
             </DialogHeader>
             <div role="tablist" className="inline-flex self-start rounded-lg border bg-muted/40 p-1">
@@ -347,12 +354,29 @@ function CheckPicker({ kind, onSaved }: { kind: ReconKind; onSaved: (check: Retu
   const list = suppliers.data?.results ?? [];
   // 「只有一家就直接选好」.
   const supplier = picked ?? (list.length === 1 ? list[0] : null);
-  const none = kind === "RETURN" ? t("noSuppliers") : kind === "ISSUE" ? tj("noCompanies") : tj("rentalNoPending");
-  const choose = kind === "RETURN" ? t("chooseSupplier") : kind === "ISSUE" ? tj("chooseCompany") : tj("chooseRentalCompany");
+  const t295 = useTranslations("jb295");
+  const none =
+    kind === "RETURN"
+      ? t("noSuppliers")
+      : kind === "ISSUE"
+        ? tj("noCompanies")
+        : kind === "LABOUR"
+          ? t295("checkNoPending")
+          : tj("rentalNoPending");
+  const choose =
+    kind === "RETURN"
+      ? t("chooseSupplier")
+      : kind === "ISSUE"
+        ? tj("chooseCompany")
+        : kind === "LABOUR"
+          ? t295("checkChooseCompany")
+          : tj("chooseRentalCompany");
   return (
     <div className="space-y-4">
       {kind !== "RETURN" ? (
-        <p className="text-sm text-muted-foreground">{kind === "ISSUE" ? tj("issueHelp") : tj("rentalHelp")}</p>
+        <p className="text-sm text-muted-foreground">
+          {kind === "ISSUE" ? tj("issueHelp") : kind === "LABOUR" ? t295("checkHelp") : tj("rentalHelp")}
+        </p>
       ) : null}
       <QueryFailedNote query={suppliers} what={t("suppliersWhat")} />
       {suppliers.isLoading ? <Spinner /> : null}
@@ -384,6 +408,9 @@ function CheckPicker({ kind, onSaved }: { kind: ReconKind; onSaved: (check: Retu
       ) : null}
       {supplier && kind === "RENTAL" ? (
         <CompanyPendingStatements key={supplier.id} company={supplier} project={project} onSaved={onSaved} />
+      ) : null}
+      {supplier && kind === "LABOUR" ? (
+        <CompanyPendingLabourStatements key={supplier.id} company={supplier} project={project} onSaved={onSaved} />
       ) : null}
     </div>
   );
@@ -520,6 +547,47 @@ function CompanyPendingStatements({
           tickFirst={tj("rentalTickFirst")}
           truncated={null}
           table={(selection) => <StatementRowsTable rows={rows} selection={selection} />}
+          onSaved={onSaved}
+        />
+      ) : null}
+    </section>
+  );
+}
+
+/** One 所属公司's 人工结算单 waiting to be checked (JB295). */
+function CompanyPendingLabourStatements({
+  company,
+  project,
+  onSaved,
+}: {
+  company: { id: string; name: string };
+  project: string;
+  onSaved: (check: ReturnCheck) => void;
+}) {
+  const t295 = useTranslations("jb295");
+  const query = { state: "pending" as const, company: company.id, ...(project ? { project } : {}) };
+  const statements = useQuery({
+    queryKey: ["labour-statements", "pending", query],
+    queryFn: () => getLabourStatements(query),
+  });
+  const rows = statements.data?.rows ?? [];
+  return (
+    <section className="space-y-3" data-slot="labour-check-pick">
+      <div>
+        <h3 className="text-base font-semibold">{t295("checkPickTitle", { name: company.name })}</h3>
+        <p className="text-sm text-muted-foreground">{t295("checkPickHelp")}</p>
+      </div>
+      <QueryFailedNote query={statements} what={t295("checkWhat")} />
+      {statements.isLoading ? <Spinner /> : null}
+      {statements.isSuccess && !rows.length ? <EmptyNote>{t295("checkNoPending")}</EmptyNote> : null}
+      {rows.length ? (
+        <CheckConfirmForm
+          kind="LABOUR"
+          party={company}
+          ids={rows.map((row) => row.id)}
+          tickFirst={t295("checkTickFirst")}
+          truncated={null}
+          table={(selection) => <LabourStatementRowsTable rows={rows} selection={selection} />}
           onSaved={onSaved}
         />
       ) : null}
@@ -1337,6 +1405,7 @@ export function ReturnCheckWindow({
 }) {
   const t = useTranslations("returnChecks");
   const tj = useTranslations("jb278");
+  const t295 = useTranslations("jb295");
   const locale = useLocale();
   const df = useDateFormat();
   const check = useQuery({ queryKey: ["return-checks", "detail", kind, id], queryFn: () => getReturnCheck(id, kind) });
@@ -1348,14 +1417,16 @@ export function ReturnCheckWindow({
       ? tj("issueWindowTitle", { number: data.check_no })
       : shown === "RENTAL"
         ? tj("rentalWindowTitle", { number: data.check_no })
-        : t("windowTitle", { number: data.check_no })
+        : shown === "LABOUR"
+          ? t295("checkWindowTitle", { number: data.check_no })
+          : t("windowTitle", { number: data.check_no })
     : t("title");
   const count = data
     ? (shown === "ISSUE"
         ? (data.issues ?? []).length
-        : shown === "RENTAL"
+        : shown === "RENTAL" || shown === "LABOUR"
           ? (data.statements ?? []).length
-          : data.returns.length) + data.hidden_count
+          : (data.returns ?? []).length) + data.hidden_count
     : 0;
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
@@ -1371,7 +1442,7 @@ export function ReturnCheckWindow({
         {data ? (
           <div className="space-y-5">
             {/* 预览 · 打印 · 导出 · 发送 - the PIN for all but 预览 (JB27). */}
-            {shown !== "RENTAL" ? (
+            {shown !== "RENTAL" && shown !== "LABOUR" ? (
               <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
                 <FileActionButtons
                   label={shown === "ISSUE" ? tj("issuePdf") : t("pdf")}
@@ -1398,18 +1469,23 @@ export function ReturnCheckWindow({
                     ? tj("issuesTitle", { count })
                     : shown === "RENTAL"
                       ? tj("rentalStatementsTitle", { count })
-                      : t("returnsTitle", { count })}
+                      : shown === "LABOUR"
+                        ? t295("checkStatementsTitle", { count })
+                        : t("returnsTitle", { count })}
                 </h3>
                 <p className="text-sm text-muted-foreground">
                   {shown === "ISSUE"
                     ? tj("issuesHelp")
-                    : shown === "RENTAL"
+                    : shown === "RENTAL" || shown === "LABOUR"
                       ? tj("rentalStatementsHelp")
                       : t("returnsHelp")}
                 </p>
               </div>
               {shown === "ISSUE" ? <IssueRowsTable rows={data.issues ?? []} /> : null}
               {shown === "RENTAL" ? <StatementRowsTable rows={data.statements ?? []} /> : null}
+              {shown === "LABOUR" ? (
+                <LabourStatementRowsTable rows={(data.statements ?? []) as unknown as LabourStatementSummary[]} />
+              ) : null}
               {shown === "RETURN" ? <SupplierReturnsTable rows={data.returns} /> : null}
               {data.hidden_count ? (
                 <p className="text-sm text-muted-foreground" data-slot="return-check-hidden">
@@ -1473,8 +1549,12 @@ export function ReturnCheckWindow({
               />
             </section>
             {/* 发送记录 (JB65): every send of this check, to whom and whether it went. */}
-            {shown !== "RENTAL" ? <RecordSendLog recordKind="MATERIAL_RETURN_CHECK" recordId={data.id} /> : null}
-            {shown === "RENTAL" ? <p className="text-xs text-muted-foreground">{tj("resultOnly")}</p> : null}
+            {shown !== "RENTAL" && shown !== "LABOUR" ? (
+              <RecordSendLog recordKind="MATERIAL_RETURN_CHECK" recordId={data.id} />
+            ) : null}
+            {shown === "RENTAL" || shown === "LABOUR" ? (
+              <p className="text-xs text-muted-foreground">{tj("resultOnly")}</p>
+            ) : null}
           </div>
         ) : null}
         {settlementOpen ? (

@@ -259,6 +259,12 @@ export interface UserDetail extends UserRow {
    * 「项目人员名单」 - and whether they see every project anyway.
    */
   projects?: { all: boolean; assigned: { id: string; code: string; name: string }[] };
+  /**
+   * 所属公司 (JB295): `""` = 本公司, `<supplier uuid>` or `note:<text>`; the
+   * name as shown (「本公司」 when empty). For 人工费用 by 所属公司.
+   */
+  employer_company_key?: string;
+  employer_company_name?: string;
 }
 
 export interface UserStats {
@@ -278,6 +284,8 @@ export interface UserPayload {
   role?: string | null;
   language?: Locale;
   timezone?: string;
+  /** 所属公司 (JB295), on 编辑用户 only: `""` = 本公司. */
+  employer_company_key?: string;
 }
 
 export interface UserReplacementPayload {

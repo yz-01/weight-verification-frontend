@@ -19,6 +19,7 @@ import { PhotoFileInput } from "@/components/shared/photo-file-input";
 import { ZoomablePhoto } from "@/components/shared/photo-zoom";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import { RecordNo } from "@/components/shared/record-no";
+import { LabourCostsButton } from "@/components/labour/labour-costs-button";
 import { FieldWrapper, ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { OnSiteMap } from "@/components/site-operations/on-site-map";
 import { PresenceSummary } from "@/components/site-operations/presence-summary";
@@ -294,6 +295,8 @@ export function Attendance() {
               allLabel={t("attendance.filter.allProjects")}
               className="hidden w-55 sm:flex"
             />
+            {/* JB295 「没有看到人工费用统计及结算入口」: the 人工费用 page. */}
+            <LabourCostsButton project={selectedProject} />
             {/* 「包括人进场记录」 (事项16): the rows on screen, as a file. */}
             <ExportButton
               disabled={total === 0}

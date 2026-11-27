@@ -4086,7 +4086,18 @@
       "wall_screen_viewed": "Head office wall opened",
       "wall_display_settings_saved": "Wall display settings saved",
       "wall_link_created": "Wall link made",
-      "wall_link_revoked": "Wall link ended"
+      "wall_link_revoked": "Wall link ended",
+      "labour_rate_set": "Labour rate set",
+      "labour_normal_hours_set": "Labour normal hours set",
+      "labour_day_adjusted": "Worker's hours adjusted",
+      "labour_month_confirmed": "Month's labour hours confirmed",
+      "labour_month_unconfirmed": "Month's labour hours confirmation cancelled",
+      "labour_statement_created": "Labour statement generated",
+      "labour_statement_cancelled": "Labour statement cancelled",
+      "labour_statement_pdf_previewed": "Labour statement PDF previewed",
+      "labour_statement_pdf_exported": "Labour statement PDF exported",
+      "labour_checked": "Labour statements checked",
+      "labour_settled": "Labour statements settled"
     },
     "objectType": {
       "SignOffAssistant": "Assistant PIN",
@@ -9829,7 +9840,20 @@
       "disposal_settlement_already_settled": "{settlement_no} is already settled; it cannot be settled twice.",
       "disposal_lorry_sheet_missing": "The site has not typed the lorry's plate yet, and the driver and the site person-in-charge have not signed.",
       "wall_project_unavailable": "This project cannot go on the wall: only active projects can be set. Open the wall settings again and try once more.",
-      "wall_link_not_found": "This wall link no longer works. Ask the company for a new link."
+      "wall_link_not_found": "This wall link no longer works. Ask the company for a new link.",
+      "labour_rate_duplicate_date": "There is already a rate for this on {date}; one a day. Choose another effective date to change it.",
+      "labour_rate_invalid_scope": "Choose what the rate is for, then the person, company or trade.",
+      "labour_month_not_over": "This month is not over yet (it ends {last_day}); confirm it after that.",
+      "labour_month_confirmed": "The hours of {month} are confirmed and can't be changed. Cancel the confirmation first.",
+      "labour_month_not_confirmed": "This month's hours are not confirmed yet.",
+      "labour_month_in_statement": "This month is in statement {statement_no}. Cancel the statement first.",
+      "labour_statement_locked": "Statement {statement_no} is checked or cancelled already; it stays as it is.",
+      "labour_statement_overlap": "This project, company and month already have statement {statement_no}; the same labour cost cannot be settled twice.",
+      "labour_statement_no_rate": "These people have no labour rate yet: {items}. Set their rates first.",
+      "labour_statement_no_company": "These people have no company filled in: {items}. Fill it in first.",
+      "labour_statement_empty": "Nobody of this company worked in this month; there is nothing to settle.",
+      "labour_check_other_company": "{reference} is another company's; one check is one company's.",
+      "labour_amounts_off": "Amounts are switched off for your account, so you can't set labour rates."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -13400,7 +13424,9 @@
       "materialIssue": "Material issue (MIN)",
       "equipmentRentalReport": "Equipment rental fee report",
       "siteCostOverview": "Site cost overview",
-      "equipmentRentalStatements": "Equipment rental statements"
+      "equipmentRentalStatements": "Equipment rental statements",
+      "labourCosts": "Labour costs",
+      "labourStatements": "Labour statements"
     },
     "subscription_management": "Subscriptions",
     "suppliers": "Suppliers",
@@ -14695,6 +14721,10 @@
       },
       "project_supplier": {
         "manage": "Put suppliers from head office's list on one's own projects, or take them off"
+      },
+      "labour": {
+        "view": "View labour costs and hours",
+        "manage": "Set labour rates, adjust and confirm hours, check and settle labour statements"
       }
     },
     "group": {
@@ -14768,7 +14798,8 @@
       "inspection": "Inspection",
       "finance": "Amounts",
       "field_staff": "Field staff",
-      "project_supplier": "Project suppliers"
+      "project_supplier": "Project suppliers",
+      "labour": "Labour costs"
     }
   },
   "photos": {
@@ -22335,7 +22366,14 @@
       "equipment_rental_check": "Check equipment rental statements",
       "equipment_rental_settle": "Settle equipment rental statements",
       "disposal_settlement_settle": "Mark a clearance settlement as settled",
-      "disposal_fee_set": "Set or change a clearance fee per lorry"
+      "disposal_fee_set": "Set or change a clearance fee per lorry",
+      "labour_rate_set": "Set a labour rate",
+      "labour_hours_adjust": "Adjust a worker's hours",
+      "labour_confirm": "Confirm this month's hours",
+      "labour_unconfirm": "Cancel the confirmation of a month's hours",
+      "labour_statement": "Generate or cancel a labour statement",
+      "labour_check": "Check labour statements",
+      "labour_settle": "Settle labour statements"
     },
     "firstTitle": "Set your sign-off PIN for the first time",
     "firstBanner": "This is your first time using a sign-off PIN",
@@ -25025,5 +25063,321 @@
     "linkCopy": "Copy link",
     "linkCopied": "Copied",
     "noProjects": "No project is on the wall now. Head office can choose the projects to show in 【Wall display settings】."
+  },
+  "jb295": {
+    "subtitle": "Working days and hours from the geofence entries and exits. The person in charge confirms them before they are settled.",
+    "pageNote": "Working days, normal hours and overtime hours come from the geofence entry and exit records (worker list and app accounts). Fix a wrong day with 【Adjust】: write the reason and enter your six-digit sign-off PIN.",
+    "noView": "You do not have the right to view labour costs. Ask your company administrator to switch it on.",
+    "amountsHidden": "Your 「view amounts」 is switched off, so amounts show as 「—」.",
+    "chooseProjectFirst": "Choose a project first.",
+    "chooseCompany": "Choose the company",
+    "choosePerson": "Choose a person",
+    "chooseTrade": "Choose a trade",
+    "close": "Close",
+    "personOption": "{name} ({group} · {company} · {trade})",
+    "group": {
+      "roster": "Worker list",
+      "app": "App account"
+    },
+    "company": {
+      "self": "Own company",
+      "none": "No company filled in"
+    },
+    "trade": {
+      "none": "No trade filled in"
+    },
+    "method": {
+      "DAILY": "Daily rate",
+      "HOURLY": "Hourly rate"
+    },
+    "methodHelp": {
+      "DAILY": "Daily rate: each day worked is paid as one day; overtime is extra.",
+      "HOURLY": "Hourly rate: normal hours times the hourly price; overtime is extra."
+    },
+    "scope": {
+      "PERSON": "By person",
+      "COMPANY_TRADE": "By company + trade",
+      "TRADE": "By trade",
+      "COMPANY": "By company"
+    },
+    "scopeHelp": {
+      "PERSON": "Only this one person",
+      "COMPANY_TRADE": "This trade at this company",
+      "TRADE": "This trade at every company",
+      "COMPANY": "Everyone at this company"
+    },
+    "state": {
+      "PENDING": "To check",
+      "CHECKED": "Checked",
+      "SETTLED": "Settled",
+      "CANCELLED": "Cancelled"
+    },
+    "view": {
+      "day": "By day",
+      "month": "By month"
+    },
+    "filter": {
+      "project": "Project",
+      "chooseProject": "Choose a project",
+      "allProjects": "All projects",
+      "month": "Month",
+      "company": "Company",
+      "allCompanies": "All companies",
+      "trade": "Trade",
+      "allTrades": "All trades",
+      "person": "Person",
+      "allPeople": "Everyone",
+      "flagged": "Only days to check",
+      "clear": "Clear filters"
+    },
+    "what": {
+      "options": "the company, trade and person choices",
+      "days": "the hours by day",
+      "month": "the hours by month"
+    },
+    "col": {
+      "date": "Date",
+      "person": "Name",
+      "group": "Type",
+      "company": "Company",
+      "trade": "Trade",
+      "sessions": "In – out",
+      "normalHours": "Normal hours",
+      "overtimeHours": "Overtime hours",
+      "dayAmount": "Day amount (RM)",
+      "daysWorked": "Days worked",
+      "missingExit": "No exit (days)",
+      "systemExit": "Ended by the system (days)",
+      "adjustedCount": "Adjusted (days)",
+      "toCheck": "To check (days)",
+      "adjusted": "Adjustment",
+      "method": "Method",
+      "unitPrice": "Rate (RM)",
+      "overtimeRate": "Overtime rate (RM / hour)",
+      "rate": "Rate",
+      "normalAmount": "Normal amount (RM)",
+      "overtimeAmount": "Overtime amount (RM)",
+      "labourAmount": "Total (RM)",
+      "status": "Status"
+    },
+    "day": {
+      "empty": "No entries this month.",
+      "noSession": "No entry record",
+      "systemExit": "Ended by the system, check the exit time",
+      "systemExitHelp": "An exit 「ended by the system」 is the time the phone last reported, not always when the person really left. Please check it.",
+      "missingExit": "No exit, counted as 0 hours",
+      "notWorked": "Adjusted to not worked",
+      "adjusted": "Adjusted",
+      "adjustedBy": "Adjusted by {name} at {time}: {reason}",
+      "locked": {
+        "confirmed": "This month is confirmed and cannot be adjusted",
+        "statement": "In a statement and cannot be adjusted"
+      }
+    },
+    "month": {
+      "empty": "Nobody has working days this month.",
+      "total": "Total",
+      "notConfirmed": "Not confirmed",
+      "confirmed": "Confirmed",
+      "confirmedBy": "{name} · {time}",
+      "inStatement": "Statement {number} ({state})",
+      "flagsHelp": "Days with no exit or ended by the system. Check them in By day."
+    },
+    "rate": {
+      "none": "No rate",
+      "set": "Set a rate",
+      "methodPrice": "{method} RM {amount}",
+      "overtimePrice": "Overtime RM {amount} / hour",
+      "noOvertime": "No overtime rate",
+      "companyTrade": "{company} · {trade}"
+    },
+    "pieces": {
+      "count": "{count} rates this month",
+      "open": "See the parts",
+      "title": "Rates of {name} in {month}",
+      "help": "The rate changed during the month. Each part's days are priced at the rate of that time.",
+      "period": "Dates",
+      "scope": "Set by",
+      "overtime": "Overtime rate",
+      "range": "{from} to {to}",
+      "rangeRate": "{from} to {to}: {rate}"
+    },
+    "normal": {
+      "title": "Normal hours",
+      "button": "Normal hours: {hours} a day",
+      "help": "The first hours of each day are normal hours; the rest are overtime. Labour on this project uses this setting.",
+      "hours": "Normal hours a day",
+      "invalid": "Enter a number from 0.5 to 24.",
+      "fromHint": "Used from this day; an earlier date is allowed. Confirmed months do not change.",
+      "history": "Earlier settings",
+      "historyRow": "From {from}: {hours} hours a day ({name} · {time})",
+      "default": "Not set yet: 8 hours a day is used.",
+      "save": "Save"
+    },
+    "adjust": {
+      "button": "Adjust",
+      "title": "Adjust {name} on {date}",
+      "help": "Correct whether this day was worked and its normal and overtime hours. The records stay; the newest adjustment counts.",
+      "records": "Geofence records",
+      "worked": "Did this person work this day?",
+      "workedYes": "Worked",
+      "workedNo": "Did not work",
+      "hoursInvalid": "Enter a number from 0 to 24, at most two decimals.",
+      "over24": "Normal plus overtime hours cannot be more than 24.",
+      "sumLabel": "Normal plus overtime no more than 24 hours",
+      "reason": "Reason for the adjustment",
+      "reasonPlaceholder": "For example: phone battery ran out, left at 17:30",
+      "pinNote": "After 「Save the adjustment」, enter your six-digit sign-off PIN.",
+      "save": "Save the adjustment"
+    },
+    "confirm": {
+      "button": "Confirm this month's hours",
+      "title": "Confirm the hours of {month}",
+      "help": "The person in charge checks each person's working days and hours, ticks the ones that are right and confirms. After that the month's days, hours and amounts are fixed.",
+      "notOver": "This month is not over yet (until {date}). It can be confirmed when it is over.",
+      "nothing": "Nobody to confirm this month (all confirmed, or no working days).",
+      "all": "Tick all",
+      "check": "To check",
+      "flags": "{count} days to check",
+      "ok": "Fine",
+      "pinNote": "After 「Confirm」, enter your six-digit sign-off PIN.",
+      "save": "Confirm the hours of {count} people",
+      "tickSomeone": "Tick at least one person"
+    },
+    "unconfirm": {
+      "button": "Undo the confirmation",
+      "inStatement": "This month is in statement {number}. Cancel the statement first.",
+      "title": "Undo the confirmation of {name}, {month}",
+      "help": "Afterwards this month's hours can be adjusted and confirmed again. Write the reason and enter your six-digit sign-off PIN.",
+      "reason": "Reason",
+      "save": "Undo the confirmation"
+    },
+    "rates": {
+      "title": "Labour rates",
+      "help": "Labour rates belong to the company and are used on every project. A new rate is used from its start date; confirmed months and statements do not change.",
+      "order": "When one person has several rates, the most specific one is used: person → company + trade → trade → company",
+      "add": "Add a rate",
+      "what": "the labour rates",
+      "whatOptions": "the people, companies and trades",
+      "noneInScope": "None set yet.",
+      "col": {
+        "target": "For",
+        "price": "Rate",
+        "overtime": "Overtime rate",
+        "from": "Start date",
+        "note": "Remarks",
+        "by": "Set by"
+      },
+      "history": "Price history",
+      "historyTitle": "Price history of {name}",
+      "historyHelp": "Newest at the top. Each one is used from its start date.",
+      "chooseScope": "Set the rate by what?",
+      "pinNote": "After 「Save the rate」, enter your six-digit sign-off PIN.",
+      "save": "Save the rate"
+    },
+    "field": {
+      "person": "Person",
+      "company": "Company",
+      "trade": "Trade",
+      "method": "Daily or hourly?",
+      "dayPrice": "Price per day (RM)",
+      "hourPrice": "Price per hour (RM)",
+      "priceInvalid": "Enter an amount above 0, at most two decimals.",
+      "overtimeRate": "Overtime rate (RM / hour)",
+      "overtimeHint": "Empty = overtime is not paid.",
+      "effectiveFrom": "Start date",
+      "effectiveHint": "An earlier date is allowed.",
+      "note": "Remarks"
+    },
+    "statement": {
+      "noManage": "You do not have the right to settle labour. Ask your company administrator to switch it on.",
+      "noAmounts": "Your 「view amounts」 is switched off, and statements are all amounts, so you cannot see them. Ask your company administrator to switch it on.",
+      "count": "{count, plural, one {# statement} other {# statements}}",
+      "tabsLabel": "Statement tabs",
+      "tab": {
+        "pending": "To check",
+        "checked": "Checked",
+        "settled": "Settled",
+        "all": "All"
+      },
+      "resultOnly": "Only the check and settlement results are recorded here; no payment or finance is done.",
+      "what": "the labour statements",
+      "empty": {
+        "pending": "No statements to check now.",
+        "checked": "No checked statements now.",
+        "settled": "No settled statements now.",
+        "all": "No statements yet."
+      },
+      "col": {
+        "number": "Statement no.",
+        "project": "Project",
+        "month": "Month",
+        "people": "People",
+        "total": "Total (RM)",
+        "checkNo": "Check no.",
+        "settlementNo": "Settlement no.",
+        "generated": "Made by",
+        "rate": "Rate (method)"
+      },
+      "peopleValue": "{count, plural, one {# person} other {# people}}",
+      "view": "View",
+      "generate": "Make a statement",
+      "generateHelp": "Choose the project, company and month. The amounts come from the confirmed working days and hours. People not confirmed yet are confirmed in the same step.",
+      "preview": "Have a look first",
+      "willConfirm": "「Make a statement」 also confirms this month's hours of these people (they cannot be changed after):",
+      "noRate": "These people have no rate yet. Set their rate first:",
+      "noCompany": "These people have no company filled in. Fill it in before they can be settled:",
+      "noRateShort": "Someone has no rate yet. Set it first.",
+      "overlap": "This company already has statement {number} for this month. The same labour cost cannot be settled twice.",
+      "emptyPreview": "Nobody at this company has working days this month, so there is nothing to settle.",
+      "generatePin": "After 「Make a statement」, enter your six-digit sign-off PIN. The amounts will not change after.",
+      "windowTitle": "Labour statement {number}",
+      "pdf": "Statement PDF",
+      "linesTitle": "People and costs",
+      "linesHelp": "Press 「Each day」 on a person to see which days and how many hours.",
+      "days": "Each day",
+      "worked": "Worked?",
+      "cancel": "Cancel",
+      "cancelTitle": "Cancel statement {number}",
+      "cancelHelp": "Only a statement still to check can be cancelled. It is kept, and the month can be made again. Enter your six-digit sign-off PIN.",
+      "cancelReason": "Reason for cancelling",
+      "confirmCancel": "Cancel the statement",
+      "tickAll": "Tick all",
+      "generatedToast": "Statement {number} made",
+      "cancelledToast": "Statement {number} cancelled"
+    },
+    "checkTitle": "Labour statements · check and settle",
+    "checkNoPending": "No labour statements to check now.",
+    "checkChooseCompany": "Choose the company",
+    "checkHelp": "Choose the company first, then tick its statements to check.",
+    "checkPickTitle": "Statements of {name} to check",
+    "checkPickHelp": "Tick the statements to check, one or more. Press a row to view the statement.",
+    "checkWhat": "the statements to check",
+    "checkTickFirst": "Tick the statements to check first; the confirmation then appears below.",
+    "checkWindowTitle": "Labour check {number}",
+    "checkStatementsTitle": "Statements in this check ({count})",
+    "cost": {
+      "source": "Labour costs",
+      "report": "Labour statements",
+      "notCounted": "{amount} not checked yet, not counted"
+    },
+    "employer": {
+      "label": "Company",
+      "hint": "Empty = own company. Labour costs and labour statements go by this company.",
+      "pick": "Choose a company",
+      "search": "Search companies",
+      "noMatch": "This company is not on the list. Type it in below.",
+      "self": "Own company",
+      "what": "the company list",
+      "noteLabel": "A company not on the list (type it in)",
+      "noteHint": "Only when it is not on the list. Both empty = own company."
+    },
+    "toast": {
+      "rateSaved": "Labour rate saved",
+      "normalSaved": "Normal hours saved",
+      "adjusted": "Hours adjusted",
+      "confirmed": "Hours of {count} people confirmed",
+      "unconfirmed": "Confirmation undone"
+    }
   }
 }

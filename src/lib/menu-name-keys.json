@@ -60,6 +60,8 @@
     "nav.submodule.workforceGps",
     "nav.submodule.emergencyList",
     "nav.submodule.siteWorkers",
+    "nav.submodule.labourCosts",
+    "nav.submodule.labourStatements",
     "nav.submodule.archiveQueue",
     "nav.submodule.fieldChats",
     "nav.submodule.multiEngine",

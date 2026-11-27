@@ -4086,7 +4086,18 @@
       "wall_screen_viewed": "查看总部大屏",
       "wall_display_settings_saved": "保存大屏展示设定",
       "wall_link_created": "生成大屏链接",
-      "wall_link_revoked": "停用大屏链接"
+      "wall_link_revoked": "停用大屏链接",
+      "labour_rate_set": "设定人工单价",
+      "labour_normal_hours_set": "设定人工正常工时",
+      "labour_day_adjusted": "调整人工工时",
+      "labour_month_confirmed": "确认本月人工工时",
+      "labour_month_unconfirmed": "取消确认本月人工工时",
+      "labour_statement_created": "生成人工结算单",
+      "labour_statement_cancelled": "作废人工结算单",
+      "labour_statement_pdf_previewed": "预览人工结算单 PDF",
+      "labour_statement_pdf_exported": "导出人工结算单 PDF",
+      "labour_checked": "人工结算单核对",
+      "labour_settled": "人工结算单结算"
     },
     "objectType": {
       "SignOffAssistant": "助理副密码",
@@ -9829,7 +9840,20 @@
       "disposal_settlement_already_settled": "{settlement_no} 已经结算完毕，不能重复结算。",
       "disposal_lorry_sheet_missing": "工地还没有填车牌、司机和工地负责人还没有签名。",
       "wall_project_unavailable": "这个项目不能放上大屏：只有在建项目可以设定。请重新打开「大屏展示设定」再试。",
-      "wall_link_not_found": "这个大屏链接已经失效。请向公司要新的链接。"
+      "wall_link_not_found": "这个大屏链接已经失效。请向公司要新的链接。",
+      "labour_rate_duplicate_date": "这个单价在 {date} 已经有一条了，同一天只能有一条。要改就换一个生效日期。",
+      "labour_rate_invalid_scope": "请选好按什么设定单价，再选人员、所属公司或工种。",
+      "labour_month_not_over": "这个月还没过完（到 {last_day}），过完才能确认。",
+      "labour_month_confirmed": "{month} 的工时已经确认，不能再改。要改请先【取消确认】。",
+      "labour_month_not_confirmed": "这个月的工时还没有确认。",
+      "labour_month_in_statement": "这个月已经在结算单 {statement_no} 里，要先作废结算单才能取消确认。",
+      "labour_statement_locked": "结算单 {statement_no} 已经核对或作废，不能再改。",
+      "labour_statement_overlap": "这个项目、这家所属公司、这个月已经有结算单 {statement_no}，同一笔人工费用不能重复结算。",
+      "labour_statement_no_rate": "这些人还没有人工单价：{items}。先设定单价才能生成结算单。",
+      "labour_statement_no_company": "这些人还没填所属公司：{items}。填好才能结算。",
+      "labour_statement_empty": "这家所属公司在这个月没有工作天数，没有东西可以结算。",
+      "labour_check_other_company": "{reference} 是另一家所属公司的，一次核对只能是同一家公司。",
+      "labour_amounts_off": "你的账号没有开「金额查看」，不能设定人工单价。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -13400,7 +13424,9 @@
       "materialIssue": "材料领用（MIN）",
       "equipmentRentalReport": "设备租赁费用报表",
       "siteCostOverview": "项目现场费用总览",
-      "equipmentRentalStatements": "设备租赁月结单"
+      "equipmentRentalStatements": "设备租赁月结单",
+      "labourCosts": "人工费用",
+      "labourStatements": "人工结算单"
     },
     "subscription_management": "订阅管理",
     "suppliers": "供应商",
@@ -14695,6 +14721,10 @@
       },
       "project_supplier": {
         "manage": "把总部名单的供应商加到自己负责的项目，或移出"
+      },
+      "labour": {
+        "view": "查看人工费用和工时",
+        "manage": "设定人工单价、调整和确认工时、人工结算单的核对与结算"
       }
     },
     "group": {
@@ -14768,7 +14798,8 @@
       "inspection": "检验",
       "finance": "金额",
       "field_staff": "现场人员",
-      "project_supplier": "项目可用供应商"
+      "project_supplier": "项目可用供应商",
+      "labour": "人工费用"
     }
   },
   "photos": {
@@ -22335,7 +22366,14 @@
       "equipment_rental_check": "核对设备租赁月结单",
       "equipment_rental_settle": "结算设备租赁月结单",
       "disposal_settlement_settle": "清运结算完毕",
-      "disposal_fee_set": "设定或修改每车清运费用"
+      "disposal_fee_set": "设定或修改每车清运费用",
+      "labour_rate_set": "设定人工单价",
+      "labour_hours_adjust": "调整人工工时",
+      "labour_confirm": "确认本月工时",
+      "labour_unconfirm": "取消确认本月工时",
+      "labour_statement": "生成或作废人工结算单",
+      "labour_check": "核对人工结算单",
+      "labour_settle": "结算人工结算单"
     },
     "firstTitle": "第一次设定签核密码",
     "firstBanner": "这是你第一次使用签核密码",
@@ -25025,5 +25063,321 @@
     "linkCopy": "复制链接",
     "linkCopied": "已复制",
     "noProjects": "现在没有项目在大屏上展示。总部可以在【大屏展示设定】里选要展示的项目。"
+  },
+  "jb295": {
+    "subtitle": "按电子围栏的进场和离场算工作天数和工时，负责人核对确认后才能结算。",
+    "pageNote": "工作天数、正常工时和超时工时来自电子围栏的进场及离场记录（人员名单和 App 账号）。有问题的那天可以按【调整】改正，要写原因和输入六位数签核密码。",
+    "noView": "你没有查看人工费用的权限。请找公司管理员开通。",
+    "amountsHidden": "你的「金额查看」已关闭，所以金额显示为「—」。",
+    "chooseProjectFirst": "先选一个项目。",
+    "chooseCompany": "选择所属公司",
+    "choosePerson": "选择人员",
+    "chooseTrade": "选择工种",
+    "close": "关闭",
+    "personOption": "{name}（{group} · {company} · {trade}）",
+    "group": {
+      "roster": "人员名单",
+      "app": "App 账号"
+    },
+    "company": {
+      "self": "本公司",
+      "none": "未填所属公司"
+    },
+    "trade": {
+      "none": "未填工种"
+    },
+    "method": {
+      "DAILY": "日薪",
+      "HOURLY": "时薪"
+    },
+    "methodHelp": {
+      "DAILY": "日薪：有上班的每一天算一天的钱，超时另算。",
+      "HOURLY": "时薪：正常工时乘以每小时单价，超时另算。"
+    },
+    "scope": {
+      "PERSON": "按人员",
+      "COMPANY_TRADE": "按所属公司 + 工种",
+      "TRADE": "按工种",
+      "COMPANY": "按所属公司"
+    },
+    "scopeHelp": {
+      "PERSON": "只给这一个人",
+      "COMPANY_TRADE": "这家公司的这个工种",
+      "TRADE": "所有公司的这个工种",
+      "COMPANY": "这家公司的所有人"
+    },
+    "state": {
+      "PENDING": "待核对",
+      "CHECKED": "已核对",
+      "SETTLED": "已结算",
+      "CANCELLED": "已作废"
+    },
+    "view": {
+      "day": "按日",
+      "month": "按月"
+    },
+    "filter": {
+      "project": "项目",
+      "chooseProject": "选择项目",
+      "allProjects": "全部项目",
+      "month": "月份",
+      "company": "所属公司",
+      "allCompanies": "全部所属公司",
+      "trade": "工种",
+      "allTrades": "全部工种",
+      "person": "人员",
+      "allPeople": "全部人员",
+      "flagged": "只看要核对的",
+      "clear": "清除筛选"
+    },
+    "what": {
+      "options": "公司、工种和人员的选项",
+      "days": "按日的工时",
+      "month": "按月的工时"
+    },
+    "col": {
+      "date": "日期",
+      "person": "姓名",
+      "group": "类别",
+      "company": "所属公司",
+      "trade": "工种",
+      "sessions": "进场 – 离场",
+      "normalHours": "正常工时",
+      "overtimeHours": "超时工时",
+      "dayAmount": "当天金额（RM）",
+      "daysWorked": "工作天数",
+      "missingExit": "缺离场（天）",
+      "systemExit": "系统结束（天）",
+      "adjustedCount": "调整过（天）",
+      "toCheck": "要核对（天）",
+      "adjusted": "调整",
+      "method": "方式",
+      "unitPrice": "单价（RM）",
+      "overtimeRate": "超时单价（RM / 小时）",
+      "rate": "单价",
+      "normalAmount": "正常金额（RM）",
+      "overtimeAmount": "超时金额（RM）",
+      "labourAmount": "合计（RM）",
+      "status": "状态"
+    },
+    "day": {
+      "empty": "这个月没有进场记录。",
+      "noSession": "没有进场记录",
+      "systemExit": "系统结束，离开时间要核对",
+      "systemExitHelp": "「系统结束」的离开时间是手机最后一次回报的时间，不一定是真正离开的时间，请核对。",
+      "missingExit": "缺离场，算 0 小时",
+      "notWorked": "已调整为没有上班",
+      "adjusted": "已调整",
+      "adjustedBy": "{name} 在 {time} 调整：{reason}",
+      "locked": {
+        "confirmed": "这个月已确认，不能再调整",
+        "statement": "已在结算单里，不能再调整"
+      }
+    },
+    "month": {
+      "empty": "这个月没有人有工作天数。",
+      "total": "合计",
+      "notConfirmed": "未确认",
+      "confirmed": "已确认",
+      "confirmedBy": "{name} · {time}",
+      "inStatement": "结算单 {number}（{state}）",
+      "flagsHelp": "缺离场或系统结束的天数，请在按日里核对。"
+    },
+    "rate": {
+      "none": "没有单价",
+      "set": "设定单价",
+      "methodPrice": "{method} RM {amount}",
+      "overtimePrice": "超时 RM {amount} / 小时",
+      "noOvertime": "没有超时单价",
+      "companyTrade": "{company} · {trade}"
+    },
+    "pieces": {
+      "count": "这个月有 {count} 个单价",
+      "open": "看分段",
+      "title": "{name} {month} 的单价",
+      "help": "这个月中途改过单价，每一段的日子用当时的单价算。",
+      "period": "日期",
+      "scope": "按什么设定",
+      "overtime": "超时单价",
+      "range": "{from} 至 {to}",
+      "rangeRate": "{from} 至 {to}：{rate}"
+    },
+    "normal": {
+      "title": "正常工时",
+      "button": "正常工时：每天 {hours} 小时",
+      "help": "每天前面这几个小时算正常工时，多出来的算超时工时。这个项目的人工用这个设定。",
+      "hours": "每天正常工时（小时）",
+      "invalid": "请填 0.5 到 24 之间的数字。",
+      "fromHint": "从这一天开始用，可以选以前的日期。已确认的月份不会变。",
+      "history": "以前的设定",
+      "historyRow": "{from} 起每天 {hours} 小时（{name} · {time}）",
+      "default": "还没有设定过，现在按每天 8 小时算。",
+      "save": "保存"
+    },
+    "adjust": {
+      "button": "调整",
+      "title": "调整 {name} {date} 的工时",
+      "help": "改正这一天有没有上班、正常工时和超时工时。原来的记录会保留，以最新的调整为准。",
+      "records": "电子围栏记录",
+      "worked": "这一天有上班吗？",
+      "workedYes": "有上班",
+      "workedNo": "没有上班",
+      "hoursInvalid": "请填 0 到 24 之间的数字，最多两位小数。",
+      "over24": "正常工时加超时工时不能超过 24 小时。",
+      "sumLabel": "正常加超时不超过 24 小时",
+      "reason": "调整原因",
+      "reasonPlaceholder": "例如：手机没电，实际 17:30 离开",
+      "pinNote": "按「保存调整」后，输入你的六位数签核密码。",
+      "save": "保存调整"
+    },
+    "confirm": {
+      "button": "确认本月工时",
+      "title": "确认 {month} 的工时",
+      "help": "请负责人核对每个人的工作天数和工时，勾选没问题的人再确认。确认后这个月的天数、工时和金额就固定了。",
+      "notOver": "这个月还没过完（到 {date}），过完才能确认。",
+      "nothing": "这个月没有要确认的人（都已确认，或没有工作天数）。",
+      "all": "全选",
+      "check": "核对提醒",
+      "flags": "有 {count} 天要核对",
+      "ok": "没问题",
+      "pinNote": "按「确认」后，输入你的六位数签核密码。",
+      "save": "确认 {count} 人的工时",
+      "tickSomeone": "至少勾选一个人"
+    },
+    "unconfirm": {
+      "button": "取消确认",
+      "inStatement": "这个月已在结算单 {number} 里，要先把结算单作废才能取消确认。",
+      "title": "取消确认 {name} {month}",
+      "help": "取消后可以再调整这个月的工时，然后重新确认。要写原因和输入六位数签核密码。",
+      "reason": "取消原因",
+      "save": "确认取消"
+    },
+    "rates": {
+      "title": "人工单价设定",
+      "help": "人工单价是全公司通用的，每个项目都用。改单价是从生效日期开始用新的，已确认的月份和结算单不会变。",
+      "order": "同一个人有几个单价时，用最细的那一个：人员 → 所属公司 + 工种 → 工种 → 所属公司",
+      "add": "新增单价",
+      "what": "人工单价",
+      "whatOptions": "人员、公司和工种",
+      "noneInScope": "还没有设定。",
+      "col": {
+        "target": "对象",
+        "price": "单价",
+        "overtime": "超时单价",
+        "from": "生效日期",
+        "note": "备注",
+        "by": "设定人"
+      },
+      "history": "价格历史",
+      "historyTitle": "{name} 的价格历史",
+      "historyHelp": "最新的在上面。每一笔从它的生效日期开始用。",
+      "chooseScope": "按什么设定？",
+      "pinNote": "按「保存单价」后，输入你的六位数签核密码。",
+      "save": "保存单价"
+    },
+    "field": {
+      "person": "人员",
+      "company": "所属公司",
+      "trade": "工种",
+      "method": "日薪还是时薪？",
+      "dayPrice": "每天单价（RM）",
+      "hourPrice": "每小时单价（RM）",
+      "priceInvalid": "请填大于 0 的金额，最多两位小数。",
+      "overtimeRate": "超时单价（RM / 小时）",
+      "overtimeHint": "不填 = 超时不算钱。",
+      "effectiveFrom": "生效日期",
+      "effectiveHint": "可以选以前的日期。",
+      "note": "备注"
+    },
+    "statement": {
+      "noManage": "你没有人工结算的权限。请找公司管理员开通。",
+      "noAmounts": "你的「金额查看」已关闭，结算单都是金额，所以看不到。请找公司管理员开通。",
+      "count": "{count} 张结算单",
+      "tabsLabel": "结算单的页签",
+      "tab": {
+        "pending": "待核对",
+        "checked": "已核对",
+        "settled": "已结算",
+        "all": "全部"
+      },
+      "resultOnly": "这里只记录核对及结算结果，不涉及实际付款及财务操作。",
+      "what": "人工结算单",
+      "empty": {
+        "pending": "现在没有待核对的结算单。",
+        "checked": "现在没有已核对的结算单。",
+        "settled": "现在没有已结算的结算单。",
+        "all": "还没有结算单。"
+      },
+      "col": {
+        "number": "结算单编号",
+        "project": "项目",
+        "month": "月份",
+        "people": "人数",
+        "total": "合计金额（RM）",
+        "checkNo": "核对编号",
+        "settlementNo": "结算编号",
+        "generated": "生成人",
+        "rate": "单价（方式）"
+      },
+      "peopleValue": "{count} 人",
+      "view": "查看",
+      "generate": "生成结算单",
+      "generateHelp": "选择项目、所属公司和月份。系统按确认的工作天数和工时算出金额。还没确认的人，生成时会一起确认。",
+      "preview": "先看一下",
+      "willConfirm": "按「生成结算单」时，会一起确认这些人这个月的工时（确认后不能再改）：",
+      "noRate": "这些人还没有单价，设好单价才能生成：",
+      "noCompany": "这些人未填所属公司，填好才能结算：",
+      "noRateShort": "还有人没有单价，设好单价才能生成。",
+      "overlap": "这个月这家公司已经有结算单 {number}，同一笔人工费用不能重复结算。",
+      "emptyPreview": "这个月这家公司没有人有工作天数，没有东西可以结算。",
+      "generatePin": "按「生成结算单」后，输入你的六位数签核密码。生成后金额不会再变。",
+      "windowTitle": "人工结算单 {number}",
+      "pdf": "结算单 PDF",
+      "linesTitle": "人员及费用",
+      "linesHelp": "每个人按「看每天」可以看到是哪几天、几个小时。",
+      "days": "看每天",
+      "worked": "有没有上班",
+      "cancel": "作废",
+      "cancelTitle": "作废结算单 {number}",
+      "cancelHelp": "只有待核对的结算单可以作废。作废后记录保留，这个月可以重新生成。要输入六位数签核密码。",
+      "cancelReason": "作废原因",
+      "confirmCancel": "确认作废",
+      "tickAll": "全选",
+      "generatedToast": "已生成结算单 {number}",
+      "cancelledToast": "结算单 {number} 已作废"
+    },
+    "checkTitle": "人工结算单 · 核对与结算",
+    "checkNoPending": "现在没有待核对的人工结算单。",
+    "checkChooseCompany": "选择所属公司",
+    "checkHelp": "先选所属公司，再勾选这家公司待核对的结算单。",
+    "checkPickTitle": "{name} 待核对的结算单",
+    "checkPickHelp": "勾选要核对的结算单，可以勾一张或多张。点一行可以查看结算单。",
+    "checkWhat": "待核对的结算单",
+    "checkTickFirst": "先勾选要核对的结算单，下面才会出现核对确认。",
+    "checkWindowTitle": "人工核对 {number}",
+    "checkStatementsTitle": "这次勾选的结算单（{count} 张）",
+    "cost": {
+      "source": "人工费用",
+      "report": "人工结算单",
+      "notCounted": "还有 {amount} 未核对，不算在内"
+    },
+    "employer": {
+      "label": "所属公司",
+      "hint": "不填 = 本公司。人工费用和人工结算单按这个公司分。",
+      "pick": "选择公司",
+      "search": "搜索公司",
+      "noMatch": "名单里没有这家公司，可以在下面手动填写。",
+      "self": "本公司",
+      "what": "公司名单",
+      "noteLabel": "不在名单里的公司（手动填写）",
+      "noteHint": "名单里没有时才填。两个都不填 = 本公司。"
+    },
+    "toast": {
+      "rateSaved": "人工单价已保存",
+      "normalSaved": "正常工时已保存",
+      "adjusted": "工时已调整",
+      "confirmed": "已确认 {count} 人的工时",
+      "unconfirmed": "已取消确认"
+    }
   }
 }

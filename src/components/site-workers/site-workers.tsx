@@ -28,6 +28,7 @@ import { useMemo, useState } from "react";
 import { useAuth } from "@/components/providers/auth-provider";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import { ExportButton } from "@/components/shared/export-button";
+import { LabourCostsButton } from "@/components/labour/labour-costs-button";
 import { ListHeader, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { useTradeLabel } from "@/components/site-workers/trade-select";
@@ -293,6 +294,8 @@ function WorkerRoster({ onView }: { onView: (id: string) => void }) {
               allLabel={t("filter.allProjects")}
               className="hidden w-56 sm:flex"
             />
+            {/* JB295 「没有看到人工费用统计及结算入口」: the 人工费用 page. */}
+            <LabourCostsButton project={list.filters.project} />
             {/* 预览 · 打印 · 导出 PDF / Excel: the rows the filters show. */}
             <ExportButton
               disabled={total === 0}
