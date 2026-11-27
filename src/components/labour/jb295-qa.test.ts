@@ -99,3 +99,16 @@ describe("【结算】 for 人工月结单", () => {
     expect(source).toContain('kind === "LABOUR" ? t295("checkChooseCompany") : tj("chooseParty")');
   });
 });
+
+describe("人员进场 (attendance) switched off for the company (R13: labour is under feature attendance)", () => {
+  it("hides the two labour tabs, whatever the rights", async () => {
+    const { siteWorkerTabs } = await import("@/components/site-workers/site-workers");
+    expect(siteWorkerTabs(() => true, false)).toEqual(["roster", "visits"]);
+    expect(siteWorkerTabs(() => true, true)).toEqual(["roster", "visits", "labour", "statements"]);
+  });
+
+  it("reads the feature from the signed-in user, and the header button does too", () => {
+    expect(read("src/components/site-workers/site-workers.tsx")).toContain('user?.features?.includes("attendance") ?? true');
+    expect(read("src/components/labour/labour-costs-button.tsx")).toContain('user?.features?.includes("attendance") ?? true');
+  });
+});

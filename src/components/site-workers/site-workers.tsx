@@ -76,10 +76,16 @@ type Tab = "roster" | "visits" | "labour" | "statements";
 const TABS: readonly Tab[] = ["roster", "visits", "labour", "statements"];
 const ALL = "all";
 
-/** The tabs this reader may open: the two labour ones by their rights (JB295b). */
-export function siteWorkerTabs(may: (permission: string) => boolean): Tab[] {
+/**
+ * The tabs this reader may open: the two labour ones by their rights (JB295b),
+ * and only while the company has 人员进场 (`attendance`, R13) - with it
+ * switched off the server refuses labour (QA295).
+ */
+export function siteWorkerTabs(may: (permission: string) => boolean, attendanceOn = true): Tab[] {
   return TABS.filter(
-    (tab) => (tab !== "labour" || may(LABOUR_VIEW)) && (tab !== "statements" || may(LABOUR_MANAGE)),
+    (tab) =>
+      (tab !== "labour" || (attendanceOn && may(LABOUR_VIEW))) &&
+      (tab !== "statements" || (attendanceOn && may(LABOUR_MANAGE))),
   );
 }
 
@@ -90,7 +96,10 @@ export function SiteWorkers() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { can, user } = useAuth();
-  const tabs = siteWorkerTabs((permission) => officeMay(user, can, permission));
+  const tabs = siteWorkerTabs(
+    (permission) => officeMay(user, can, permission),
+    user?.features?.includes("attendance") ?? true,
+  );
   const asked = searchParams.get("tab") as Tab | null;
   const tab: Tab = asked && tabs.includes(asked) ? asked : "roster";
   const [viewing, setViewing] = useState<string | null>(null);

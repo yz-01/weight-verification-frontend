@@ -22,7 +22,8 @@ export function labourCostsHref(project?: string): string {
 export function LabourCostsButton({ project }: { project?: string }) {
   const t = useTranslations("jb295");
   const { can, user } = useAuth();
-  if (user?.is_field_staff || !can("labour.view")) return null;
+  // The tab is closed with 人员进场 (attendance) switched off for the company (QA295).
+  if (user?.is_field_staff || !can("labour.view") || !(user?.features?.includes("attendance") ?? true)) return null;
   return (
     <Button asChild variant="outline" data-slot="labour-costs-button">
       <Link href={labourCostsHref(project)}>
