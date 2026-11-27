@@ -25,7 +25,8 @@ import { api, fetchAsFile, toastSuccess } from "@/services/api-client";
 /** One fee row: 每车清运费用 from 生效日期, who set it and when. */
 export interface DisposalFeeEntry {
   id: string;
-  fee_per_trip: string;
+  /** Null when the reader may not see amounts (金额查看 off). */
+  fee_per_trip: string | null;
   effective_from: string;
   set_by_name: string;
   set_at: string;
@@ -96,7 +97,7 @@ export interface DisposalPendingRow {
   reference_no: string;
   project: { id: string; name: string };
   supplier: { id: string; name: string };
-  cleared_on: string;
+  cleared_on: string | null;
   trip_count: number;
   fee_per_trip: string | null;
   fee_amount: string | null;

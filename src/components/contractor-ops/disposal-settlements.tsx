@@ -378,7 +378,7 @@ export function PendingRowsTable({
               </TableCell>
               <TableCell>{row.project.name}</TableCell>
               <TableCell>{row.supplier.name}</TableCell>
-              <TableCell className="tabular whitespace-nowrap">{df.date(row.cleared_on)}</TableCell>
+              <TableCell className="tabular whitespace-nowrap">{row.cleared_on ? df.date(row.cleared_on) : "—"}</TableCell>
               <TableCell className="tabular text-right">{t("settlement.tripsValue", { count: row.trip_count })}</TableCell>
               {row.can_tick ? (
                 <>

@@ -57,6 +57,12 @@ export const DISPOSAL_FEE_STALE_KEYS = [
 /** The address that opens the window, from a 「去设定」 link anywhere. */
 export const DISPOSAL_FEES_PARAM = "fees";
 
+/** 「RM 350.00 / 车」, or 「—」 when the reader may not see amounts. */
+function useFeeText() {
+  const t = useTranslations("jb287");
+  return (value: string | null | undefined) => (value ? t("fee.perTrip", { fee: moneyText(value) }) : "—");
+}
+
 function today(): string {
   const now = new Date();
   const pad = (value: number) => String(value).padStart(2, "0");
@@ -142,6 +148,7 @@ export function FeeTable({
 }) {
   const t = useTranslations("jb287");
   const when = useDateFormat();
+  const feeText = useFeeText();
   if (rows.length === 0) {
     return (
       <p className="rounded-xl border border-dashed p-6 text-center text-sm text-muted-foreground" data-slot="disposal-fee-empty">
@@ -166,13 +173,13 @@ export function FeeTable({
               <TableCell className="font-medium">{row.supplier.name}</TableCell>
               <TableCell>
                 <p className="tabular-nums">
-                  {row.current ? t("fee.perTrip", { fee: moneyText(row.current.fee_per_trip) }) : (
+                  {row.current ? feeText(row.current.fee_per_trip) : (
                     <span className="text-muted-foreground">{t("fee.none")}</span>
                   )}
                 </p>
                 {row.upcoming ? (
                   <p className="text-xs text-warning">
-                    {t("fee.upcoming", { fee: moneyText(row.upcoming.fee_per_trip), date: when.date(row.upcoming.effective_from) })}
+                    {t("fee.upcoming", { fee: moneyText(row.upcoming.fee_per_trip) || "—", date: when.date(row.upcoming.effective_from) })}
                   </p>
                 ) : null}
               </TableCell>
@@ -228,7 +235,7 @@ function SetFeeForm({ row, onDone }: { row: DisposalFeeSupplier; onDone: () => v
     <div className="space-y-4" data-slot="disposal-fee-form">
       <p className="text-sm font-medium">
         {row.supplier.name}
-        {row.current ? (
+        {row.current?.fee_per_trip ? (
           <span className="ml-2 font-normal text-muted-foreground">
             {t("fee.nowIs", { fee: moneyText(row.current.fee_per_trip) })}
           </span>
@@ -302,6 +309,7 @@ function SetFeeForm({ row, onDone }: { row: DisposalFeeSupplier; onDone: () => v
 function FeeHistory({ row, onBack }: { row: DisposalFeeSupplier; onBack: () => void }) {
   const t = useTranslations("jb287");
   const when = useDateFormat();
+  const feeText = useFeeText();
   const history = useQuery({
     queryKey: ["disposal-fees", "history", row.supplier.id],
     queryFn: () => getDisposalFeeHistory(row.supplier.id),
@@ -332,10 +340,10 @@ function FeeHistory({ row, onBack }: { row: DisposalFeeSupplier; onBack: () => v
               {rows.map((entry) => (
                 <TableRow key={entry.id}>
                   <TableCell className="text-right tabular-nums text-muted-foreground">
-                    {entry.previous_fee ? t("fee.perTrip", { fee: moneyText(entry.previous_fee) }) : "—"}
+                    {feeText(entry.previous_fee)}
                   </TableCell>
                   <TableCell className="text-right tabular-nums font-medium">
-                    {t("fee.perTrip", { fee: moneyText(entry.fee_per_trip) })}
+                    {feeText(entry.fee_per_trip)}
                   </TableCell>
                   <TableCell>{entry.set_by_name || "—"}</TableCell>
                   <TableCell className="tabular-nums whitespace-nowrap">{when.dateTime(entry.set_at)}</TableCell>
