@@ -26,7 +26,12 @@ export interface RentalStatementLine extends RentalAmounts {
   equipment_no: string;
   equipment_code: string;
   equipment_name: string;
-  terms: { method?: string; unit_price?: string } & Record<string, unknown>;
+  terms: {
+    method?: string;
+    unit_price?: string;
+    /** JB288: the terms changed in the dates - every set with its days. */
+    pieces?: { from: string; to: string; terms: { method?: string; unit_price?: string | null } }[];
+  } & Record<string, unknown>;
   days_worked: number;
   normal_hours: string;
   overtime_hours: string;

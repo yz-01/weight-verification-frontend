@@ -147,6 +147,8 @@ const STATUS_NAMESPACE: Partial<Record<ContractorReportType, string>> = {
 /** Columns that hold a code, wherever they appear. */
 const COLUMN_NAMESPACE: Record<string, string> = {
   final_decision: "consultantWorkflow.status",
+  // 清运与回收报表's 结算状态 (JB287): 未核对 / 准备结算 / 结算完毕 ...
+  settlement_status: "jb287.state",
   event: "attendance.event",
   geofence_result: "fieldStaffPwa.attendance.geofence",
   direction: "contractorOps.direction",

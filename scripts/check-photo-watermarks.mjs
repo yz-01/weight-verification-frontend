@@ -87,6 +87,12 @@ const NO_VARIANT_AVAILABLE = new Map([
     "src/components/dashboard/headquarters-wall.tsx",
     "HeadquartersPhoto.image is already the watermarked derivative, not the original (the big screen reads the same photos as headquarters-photos)",
   ],
+  // 总部大屏 (JB291): the wall's own answer stamps each photo on the server
+  // (`wall_screen._photo_rows` -> `watermarked_url_for_asset`).
+  [
+    "src/components/dashboard/wall-screen.tsx",
+    "WallPhoto.image is already the watermarked derivative (wall_screen._photo_rows), not the original",
+  ],
   // 照片墙 (JB134 / JB135): the same head-office photo rows, enlarged and on the timeline.
   [
     "src/components/shared/photo-wall-viewer.tsx",

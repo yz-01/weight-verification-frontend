@@ -124,8 +124,11 @@ export function SiteCostOverview() {
     .map((row) => ({ key: row.key, value: Number(row.amount), name: name(row.key) }));
   const trend = monthRows(data);
   // JB250: a source whose module is off says 「没有开通」, not 「暂时没有金额」.
-  const missing = (data?.sources ?? []).filter((row) => !row.available && !row.switched_off);
+  // JB287: 垃圾清运 has its amount now (每车清运费用 × 实际验收车次); the old
+  // 「没有金额栏…算 0」 note is gone.
+  const missing = (data?.sources ?? []).filter((row) => !row.available && !row.switched_off && row.key !== "disposal");
   const offWord = tOff("cardOff");
+  const tFee = useTranslations("jb287");
 
   return (
     <div className="space-y-4" data-slot="site-cost-overview">
@@ -195,6 +198,9 @@ export function SiteCostOverview() {
                   <p className="text-xs text-muted-foreground" data-module-off={key}>{offWord}</p>
                 ) : row && !row.available ? (
                   <p className="text-xs text-muted-foreground">{t("notAvailableShort")}</p>
+                ) : row?.no_fee_count ? (
+                  // JB287: 「X 笔还没有设每车费用」 - counted 0 until a fee is set.
+                  <p className="text-xs text-warning" data-slot="cost-no-fee">{tFee("cost.noFee", { count: row.no_fee_count })}</p>
                 ) : null}
               </div>
             </div>
