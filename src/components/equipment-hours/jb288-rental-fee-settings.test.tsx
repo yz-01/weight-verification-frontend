@@ -16,7 +16,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { NextIntlClientProvider } from "next-intl";
+import { NextIntlClientProvider, useTranslations } from "next-intl";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 
@@ -33,8 +33,17 @@ vi.mock("@/components/providers/auth-provider", () => ({
   useAuth: () => ({ user: { id: "u-1", full_name: "Site Office" }, can: () => true }),
 }));
 
-const { RentalTermsBody, RentalTermsDialog, RentalFeeCells, draftOf, effectiveOf, termsChanges, termsSummary } =
-  await import("@/components/equipment-hours/rental-fees");
+const {
+  RentalTermsBody,
+  RentalTermsDialog,
+  RentalFeeCells,
+  changedParts,
+  draftOf,
+  effectiveOf,
+  pieceSummary,
+  termsChanges,
+  termsSummary,
+} = await import("@/components/equipment-hours/rental-fees");
 const { StatementLines } = await import("@/components/equipment-hours/rental-statements");
 const { TooltipProvider } = await import("@/components/ui/tooltip");
 const { Table, TableBody, TableRow } = await import("@/components/ui/table");
@@ -143,6 +152,15 @@ describe("生效日期", () => {
     expect(effectiveOf({ ...change, effective_from: "2026-09-01" })).toBe("2026-09-01");
   });
 
+  it("QA288: an emptied 生效日期 on a change stays empty - 保存 waits, it never falls back to 租赁开始日期", () => {
+    const change = draftOf(NEW);
+    expect(effectiveOf({ ...change, effective_from: "" })).toBe("");
+    expect(effectiveOf({ ...draftOf(null), start_date: "2026-08-15", effective_from: "" })).toBe("2026-08-15");
+    const source = read("src/components/equipment-hours/rental-fees.tsx");
+    expect(source).toContain('tj("needEffective")');
+    expect(words.needEffective).toBe("先填生效日期。");
+  });
+
   it("修改记录 shows 旧 → 新, who, when and 生效日期", () => {
     const changes = termsChanges(LIST.machines[0]);
     expect(changes.map((change) => [change.next.id, change.previous?.id ?? null])).toEqual([
@@ -150,10 +168,46 @@ describe("生效日期", () => {
       ["t1", null],
     ]);
     const source = read("src/components/equipment-hours/rental-fees.tsx");
-    expect(source).toContain('tj("oldNew", { old: termsSummary(t, previous), new: termsSummary(t, next) })');
+    expect(source).toContain('tj("oldNew", changed)');
     expect(source).toContain('tj("firstSet"');
     expect(source).toContain('tj("effectiveShort", { date: next.effective_from })');
     expect(source).toContain("next.changed_by");
+  });
+});
+
+describe("QA288 words for an elderly reader", () => {
+  const html = (node: React.ReactNode) => text(render(node));
+  function Probe({ run }: { run: (t: Parameters<typeof termsSummary>[0]) => string }) {
+    const t = useTranslations("equipmentRental");
+    return <span>{run(t)}</span>;
+  }
+
+  it("修改记录 names only what changed; 「条件没有改」 when only the 生效日期 moved", () => {
+    const changed = (t: Parameters<typeof termsSummary>[0]) => {
+      const found = changedParts(t, OLD, NEW);
+      return found ? `${found.old} | ${found.new}` : "none";
+    };
+    expect(html(<Probe run={changed} />)).toBe("单价 RM 18,000.00 | 单价 RM 24,000.00");
+    expect(html(<Probe run={(t) => String(changedParts(t, OLD, { ...OLD, id: "t3", effective_from: "2026-11-01" }))} />)).toBe("null");
+    expect(words.noChange).toBe("条件没有改");
+  });
+
+  it("the terms line says 租期 for the rental dates, so it is not mixed up with 生效日期", () => {
+    const line = html(<Probe run={(t) => termsSummary(t, OLD)} />);
+    expect(line).toContain("租期 2026-09-01 起");
+    expect(html(<Probe run={(t) => termsSummary(t, { ...OLD, end_date: "2026-12-31" })} />)).toContain("租期 2026-09-01 至 2026-12-31");
+  });
+
+  it("a part of a month reads short: method, price, overtime", () => {
+    expect(html(<Probe run={(t) => pieceSummary(t, { ...OLD, overtime_rate: "120.00" })} />)).toBe(
+      "按月 · 单价 RM 18,000.00 · 超时 RM 120.00/小时",
+    );
+    expect(html(<Probe run={(t) => pieceSummary(t, OLD)} />)).toBe("按月 · 单价 RM 18,000.00");
+  });
+
+  it("生成月结单 refused for a machine without terms says where to set them", () => {
+    expect(zh.errors.api.rental_statement_no_terms).toContain("「租赁费用设定」");
+    expect(zhTW.errors.api.rental_statement_no_terms).toContain("「租賃費用設定」");
   });
 });
 

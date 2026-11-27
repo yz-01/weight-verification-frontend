@@ -9790,7 +9790,7 @@
       "rental_statement_filters": "Pilih projek, syarikat peralatan dan tarikh mula serta tamat (tamat tidak sebelum mula, paling lama setahun).",
       "rental_statement_empty": "Syarikat peralatan ini tiada yuran sewa dalam projek ini pada tarikh tersebut.",
       "rental_statement_not_confirmed": "Bulan-bulan ini belum tamat: {items}. Jana penyata selepas bulan tamat; untuk menjana sekarang, tekan 【Sahkan amaun bulan ini】 di Jam operator peralatan › Bulanan dahulu.",
-      "rental_statement_no_terms": "Peralatan ini belum ada terma sewaan: {items}. Tetapkan dahulu.",
+      "rental_statement_no_terms": "Peralatan ini belum ada terma sewaan: {items}. Tetapkan dahulu di 「Tetapan bayaran sewa」.",
       "rental_statement_overlap": "Tarikh ini bertindih dengan penyata {statement_no} bagi projek dan syarikat yang sama; yuran yang sama tidak boleh diselesaikan dua kali.",
       "rental_statement_locked": "Penyata {statement_no} sudah disemak atau dibatalkan; ia kekal seperti itu.",
       "rental_statement_hours_locked": "Jam ini sudah dalam penyata {statement_no} yang telah disemak atau diselesaikan, jadi tidak boleh diubah lagi.",
@@ -23884,8 +23884,8 @@
       "overtime": "Lebih masa RM {amount}/jam",
       "standardDays": "{days} hari standard sebulan",
       "normalHours": "biasa {hours} jam sehari",
-      "period": "{from} hingga {to}",
-      "since": "dari {from}"
+      "period": "disewa {from} hingga {to}",
+      "since": "disewa dari {from}"
     },
     "field": {
       "method": "Cara sewa",
@@ -24311,7 +24311,10 @@
     "firstSet": "Kali pertama: {terms}",
     "piece": "{from} hingga {to}: {terms}",
     "monthPieces": "Harga berubah bulan ini, dikira dalam {count} bahagian:",
-    "endBeforeEffective": "Tarikh tamat sewa sebelum tarikh berkuat kuasa: hari di antaranya masih dikira dengan terma lama. Untuk berhenti mengenakan bayaran dari tarikh tamat, tetapkan tarikh berkuat kuasa kepada tarikh tamat juga."
+    "endBeforeEffective": "Tarikh tamat sewa sebelum tarikh berkuat kuasa: hari di antaranya masih dikira dengan terma lama. Untuk berhenti mengenakan bayaran dari tarikh tamat, tetapkan tarikh berkuat kuasa kepada tarikh tamat juga.",
+    "needEffective": "Masukkan tarikh berkuat kuasa dahulu.",
+    "pieceRent": "sewa asas RM {amount}",
+    "noChange": "terma tidak berubah"
   },
   "jb265": {
     "startedBy": "Dimulakan oleh perunding {name}"

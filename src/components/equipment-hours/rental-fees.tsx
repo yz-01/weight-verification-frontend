@@ -77,6 +77,11 @@ export function termsSummary(t: Translate, terms: RentalTermsValues, tj?: Transl
       .map((piece) => tj("piece", { from: piece.from, to: piece.to, terms: termsSummary(t, piece.terms) }))
       .join(" / ");
   }
+  return termsParts(t, terms).join(" · ");
+}
+
+/** The parts of `termsSummary`, one per condition (QA288: 修改记录 compares them). */
+export function termsParts(t: Translate, terms: RentalTermsValues): string[] {
   return [
     t(`method.${terms.method}`),
     t("summary.price", { amount: rentalMoney(terms.unit_price) }),
@@ -90,9 +95,26 @@ export function termsSummary(t: Translate, terms: RentalTermsValues, tj?: Transl
     terms.end_date
       ? t("summary.period", { from: terms.start_date, to: terms.end_date })
       : t("summary.since", { from: terms.start_date }),
-  ]
-    .filter(Boolean)
-    .join(" · ");
+  ].filter(Boolean);
+}
+
+/** A part of a month in one short line (QA288): 「按月 · 单价 RM 18,000.00 · 超时 RM 120.00/小时」. */
+export function pieceSummary(t: Translate, terms: RentalTermsValues): string {
+  return termsParts(t, terms).slice(0, terms.overtime_rate ? 3 : 2).join(" · ");
+}
+
+/**
+ * 修改记录 (QA288): only what changed, 「单价 RM 18,000.00 → 单价 RM 21,000.00」,
+ * so an elderly reader does not hunt for it in two long lines; 「—」 for a
+ * condition added or removed.
+ */
+export function changedParts(t: Translate, previous: RentalTermsValues, next: RentalTermsValues): { old: string; new: string } | null {
+  const before = termsParts(t, previous);
+  const after = termsParts(t, next);
+  const gone = before.filter((part) => !after.includes(part));
+  const added = after.filter((part) => !before.includes(part));
+  if (gone.length === 0 && added.length === 0) return null;
+  return { old: gone.join(" · ") || "—", new: added.join(" · ") || "—" };
 }
 
 function errorText(reason: unknown, fallback: string): string {
@@ -226,7 +248,7 @@ export function RentalTermsBody({ project }: { project: string }) {
                       </p>
                       <p className="text-muted-foreground">
                         {previous
-                          ? tj("oldNew", { old: termsSummary(t, previous), new: termsSummary(t, next) })
+                          ? historyLine(t, tj, previous, next)
                           : tj("firstSet", { terms: termsSummary(t, next) })}
                       </p>
                     </li>
@@ -258,6 +280,14 @@ interface TermsDraft {
   remarks: string;
   /** 生效日期 (JB288); "" on a machine's first terms: then it follows 租赁开始日期. */
   effective_from: string;
+  /** The machine has no terms yet (QA288: only then may 生效日期 follow 租赁开始日期). */
+  first: boolean;
+}
+
+/** One 修改记录 line: what changed, 旧 → 新 - or 「条件没有改」 when only the 生效日期 moved. */
+function historyLine(t: Translate, tj: Translate, previous: RentalTermsValues, next: RentalTermsValues): string {
+  const changed = changedParts(t, previous, next);
+  return changed ? tj("oldNew", changed) : tj("noChange");
 }
 
 /** 修改记录 (JB288): each saved version with the one before it, newest first. */
@@ -289,12 +319,18 @@ export function draftOf(terms: RentalTermsValues | null): TermsDraft {
     // JB288: a change counts from today unless another day is chosen; the
     // first terms from the 租赁开始日期 (see `effectiveOf`).
     effective_from: terms ? today() : "",
+    first: !terms,
   };
 }
 
-/** The 生效日期 the form sends: the one chosen, else the 租赁开始日期 (first terms). */
+/**
+ * The 生效日期 the form sends: the one chosen, else - on a machine's first
+ * terms only - the 租赁开始日期. QA288: on a change an emptied 生效日期 stays
+ * empty (保存 waits for it); falling back to the 租赁开始日期 would quietly
+ * re-price every month since the rental began.
+ */
 export function effectiveOf(draft: TermsDraft): string {
-  return draft.effective_from || draft.start_date;
+  return draft.effective_from || (draft.first ? draft.start_date : "");
 }
 
 function RentalTermsForm({ project, machine, onDone }: { project: string; machine: RentalMachine; onDone: () => void }) {
@@ -303,7 +339,7 @@ function RentalTermsForm({ project, machine, onDone }: { project: string; machin
   const queryClient = useQueryClient();
   const [draft, setDraft] = useState<TermsDraft>(() => draftOf(machine.terms));
   const [error, setError] = useState("");
-  const set = (key: keyof TermsDraft) => (value: string) => setDraft((current) => ({ ...current, [key]: value }));
+  const set = (key: Exclude<keyof TermsDraft, "first">) => (value: string) => setDraft((current) => ({ ...current, [key]: value }));
   const save = useMutation({
     mutationFn: () =>
       setRentalTerms({
@@ -332,7 +368,7 @@ function RentalTermsForm({ project, machine, onDone }: { project: string; machin
     onError: (reason) => setError(errorText(reason, t("failed"))),
   });
   const extraDays = draft.method === "MONTHLY" || draft.method === "YEARLY";
-  const field = (key: keyof TermsDraft, label: string, props: React.ComponentProps<typeof Input> = {}) => (
+  const field = (key: Exclude<keyof TermsDraft, "first">, label: string, props: React.ComponentProps<typeof Input> = {}) => (
     <label className="flex min-w-0 flex-col gap-1 text-xs font-medium text-muted-foreground">
       {label}
       <Input value={draft[key]} onChange={(event) => set(key)(event.target.value)} {...props} />
@@ -414,7 +450,7 @@ function RentalTermsForm({ project, machine, onDone }: { project: string; machin
         <Button
           size="sm"
           disabled={save.isPending || !draft.unit_price || !draft.start_date || !effectiveOf(draft)}
-          disabledReason={t("needPriceAndStart")}
+          disabledReason={draft.unit_price && draft.start_date && !effectiveOf(draft) ? tj("needEffective") : t("needPriceAndStart")}
           onClick={() => save.mutate()}
         >
           {save.isPending ? <Loader2 className="animate-spin" /> : <Check />}
@@ -498,7 +534,7 @@ export function RentalFeeCells({
                 {tj("piece", {
                   from: piece.from,
                   to: piece.to,
-                  terms: `${termsSummary(t, piece.terms)}${piece.base_rent ? ` · ${t("fee.base_rent")} ${rentalMoney(piece.base_rent)}` : ""}`,
+                  terms: `${pieceSummary(t, piece.terms)}${piece.base_rent ? ` · ${tj("pieceRent", { amount: rentalMoney(piece.base_rent) })}` : ""}`,
                 })}
               </span>
             ))}

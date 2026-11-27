@@ -9790,7 +9790,7 @@
       "rental_statement_filters": "Choose the project, the equipment company and the start and end dates (the end not before the start, at most a year).",
       "rental_statement_empty": "This equipment company has no rental fee on this project in these dates.",
       "rental_statement_not_confirmed": "These months are not over yet: {items}. Generate the statement after the month is over; to generate it now, press 【Confirm this month's amounts】 on Equipment operator hours › By month first.",
-      "rental_statement_no_terms": "These machines have no rental terms yet: {items}. Set them first.",
+      "rental_statement_no_terms": "These machines have no rental terms yet: {items}. Set them first with 「Rental fee settings」.",
       "rental_statement_overlap": "These dates overlap statement {statement_no} of the same project and company; the same fee cannot be settled twice.",
       "rental_statement_locked": "Statement {statement_no} is checked or cancelled already; it stays as it is.",
       "rental_statement_hours_locked": "These hours are in statement {statement_no}, which is checked or settled, so they can no longer be changed.",
@@ -23884,8 +23884,8 @@
       "overtime": "Overtime RM {amount}/hour",
       "standardDays": "{days} standard days a month",
       "normalHours": "normal {hours} h a day",
-      "period": "{from} to {to}",
-      "since": "from {from}"
+      "period": "rented {from} to {to}",
+      "since": "rented from {from}"
     },
     "field": {
       "method": "Rental method",
@@ -24311,7 +24311,10 @@
     "firstSet": "First set: {terms}",
     "piece": "{from} to {to}: {terms}",
     "monthPieces": "The price changed this month, worked out in {count} parts:",
-    "endBeforeEffective": "The rental end date is before the effective date: the days in between still count with the old terms. To stop charging from the end date, set the effective date to the end date too."
+    "endBeforeEffective": "The rental end date is before the effective date: the days in between still count with the old terms. To stop charging from the end date, set the effective date to the end date too.",
+    "needEffective": "Enter the effective date first.",
+    "pieceRent": "base rent RM {amount}",
+    "noChange": "terms unchanged"
   },
   "jb265": {
     "startedBy": "Started by consultant {name}"

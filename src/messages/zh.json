@@ -9790,7 +9790,7 @@
       "rental_statement_filters": "请选择项目、设备公司、开始日期和结束日期（结束日期不能早于开始日期，最多一年）。",
       "rental_statement_empty": "这段日期这家设备公司在这个项目没有租赁费用。",
       "rental_statement_not_confirmed": "这些月份还没过完：{items}。月过完后才能生成月结单；一定要现在生成，请先到「设备操作员工时 › 按月」按【确认本月金额】。",
-      "rental_statement_no_terms": "这些设备还没有设定租赁条件：{items}。请先设定，再生成月结单。",
+      "rental_statement_no_terms": "这些设备还没有设定租赁条件：{items}。请先按「租赁费用设定」设定，再生成月结单。",
       "rental_statement_overlap": "这段日期和月结单 {statement_no} 重叠（同一项目、同一设备公司），同一笔设备费用不能重复结算。",
       "rental_statement_locked": "月结单 {statement_no} 已经核对或作废，不能再改。",
       "rental_statement_hours_locked": "这些工时已经在月结单 {statement_no} 里，月结单已核对或已结算，工时不能再改。",
@@ -23884,8 +23884,8 @@
       "overtime": "超时 RM {amount}/小时",
       "standardDays": "每月标准 {days} 天",
       "normalHours": "每天正常 {hours} 小时",
-      "period": "{from} 至 {to}",
-      "since": "{from} 起"
+      "period": "租期 {from} 至 {to}",
+      "since": "租期 {from} 起"
     },
     "field": {
       "method": "租赁方式",
@@ -24311,7 +24311,10 @@
     "firstSet": "第一次设定：{terms}",
     "piece": "{from} 至 {to}：{terms}",
     "monthPieces": "本月改过价，分 {count} 段计算：",
-    "endBeforeEffective": "租赁结束日期在生效日期之前：这两个日期中间的日子还按旧条件算。要从结束日期起不再计费，把生效日期也改成结束日期。"
+    "endBeforeEffective": "租赁结束日期在生效日期之前：这两个日期中间的日子还按旧条件算。要从结束日期起不再计费，把生效日期也改成结束日期。",
+    "needEffective": "先填生效日期。",
+    "pieceRent": "基本租金 RM {amount}",
+    "noChange": "条件没有改"
   },
   "jb265": {
     "startedBy": "顾问 {name} 发起"
