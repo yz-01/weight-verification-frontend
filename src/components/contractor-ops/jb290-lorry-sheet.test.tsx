@@ -213,6 +213,12 @@ describe("JB290: the gate phone - 拍照 / 上传 / 确认放行 locked until th
     expect(renderDetail(<GateLorryCard lorry={waiting} />)).toContain("第 2 车");
   });
 
+  it("the waiting list says when every lorry of a clearance has left (QA290)", () => {
+    const source = root("components/site-access/exit-pass-window.tsx");
+    expect(source).toContain('row.kind === "DISPOSAL_REQUEST" && !row.lorry_seq && row.release_count > 0 ? lorryWords("waitingNoneLeft") : ""');
+    expect(zh.jb290.waitingNoneLeft).toBe("车都已放行，还要多一车请后台按【加一车】");
+  });
+
   it("ready: 【确认放行】 opens with a photo, as before", () => {
     const html = view({ photosTaken: 1 });
     const button = html.slice(html.lastIndexOf("<button", html.indexOf('data-exit-pass-release="confirm"')));

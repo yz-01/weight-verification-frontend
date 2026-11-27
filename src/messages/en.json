@@ -24676,6 +24676,7 @@
     "gateSigners": "Driver: {driver} · site person-in-charge: {site}",
     "waitingReady": "Lorry {seq} can be released",
     "waitingNotReady": "Lorry {seq}: waiting for the site's plate and signatures",
+    "waitingNoneLeft": "Every lorry has left; for one more, the office presses Add a lorry",
     "releaseLorry": "Lorry {seq} · plate {plate}"
   }
 }

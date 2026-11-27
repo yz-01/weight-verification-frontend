@@ -24676,6 +24676,7 @@
     "gateSigners": "Pemandu: {driver} · penyelia tapak: {site}",
     "waitingReady": "Lori {seq} boleh dilepaskan",
     "waitingNotReady": "Lori {seq}: menunggu plat dan tandatangan dari tapak",
+    "waitingNoneLeft": "Semua lori sudah keluar; untuk satu lagi, pejabat tekan Tambah lori",
     "releaseLorry": "Lori {seq} · plat {plate}"
   }
 }

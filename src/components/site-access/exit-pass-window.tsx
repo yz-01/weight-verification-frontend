@@ -756,6 +756,9 @@ function WaitingRow({ row, onOpen }: { row: ExitPassWaiting; onOpen: () => void 
             row.multi_release && row.release_count > 0 ? t("release.trips", { count: row.release_count }) : "",
             // JB290: whether the next lorry may be released yet.
             row.lorry_seq ? lorryWords(row.lorry_ready ? "waitingReady" : "waitingNotReady", { seq: row.lorry_seq }) : "",
+            // QA290: a 工地清运 whose lorries have all left says so here, so the
+            // guard does not open it looking for a lorry to release.
+            row.kind === "DISPOSAL_REQUEST" && !row.lorry_seq && row.release_count > 0 ? lorryWords("waitingNoneLeft") : "",
           ]
             .filter(Boolean)
             .join(" · ")}

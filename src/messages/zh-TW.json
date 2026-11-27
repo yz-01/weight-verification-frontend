@@ -24676,6 +24676,7 @@
     "gateSigners": "清運司機：{driver} · 工地現場負責人：{site}",
     "waitingReady": "第 {seq} 車可以放行",
     "waitingNotReady": "第 {seq} 車：等工地填車牌和簽名",
+    "waitingNoneLeft": "車都已放行，還要多一車請後台按【加一車】",
     "releaseLorry": "第 {seq} 車 · 車牌：{plate}"
   }
 }
