@@ -159,7 +159,7 @@ export function SendRecipientDialog({
     }
     setMethodState(next);
   };
-  const noContactOnFile = Boolean(suggested) && !suggested?.phone && !suggested?.email;
+  const contactMissing = Boolean(suggested) && !suggested?.phone && !suggested?.email;
   // query-failure: without the list the person types the recipient in; nothing else depends on it
   const recent = useQuery({
     queryKey: ["file-shares", "recent"],
@@ -195,11 +195,11 @@ export function SendRecipientDialog({
             <p
               className={cn(
                 "rounded-md px-3 py-2 text-sm",
-                noContactOnFile ? "border border-warning/40 bg-warning/10" : "bg-muted/50 text-muted-foreground",
+                contactMissing ? "border border-warning/40 bg-warning/10" : "bg-muted/50 text-muted-foreground",
               )}
               data-slot="send-recipient-suggested"
             >
-              {noContactOnFile
+              {contactMissing
                 ? t299("send.noContact", { name: suggested.company })
                 : t299("send.filled", { name: suggested.company })}
             </p>
