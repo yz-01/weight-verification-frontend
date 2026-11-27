@@ -35,6 +35,7 @@ import {
   LorrySignButton,
   LorrySignDialog,
   LorrySignLines,
+  filledLorrySeq,
   lorrySheetStep,
   nextLorry,
 } from "@/components/contractor-ops/disposal-lorry-sheet";
@@ -1507,7 +1508,7 @@ function DisposalActions({
       {can("disposal.submit") && RUNNING.includes(row.status) && <Button size="sm" variant="outline" onClick={() => onStep("siteEvidence")}><Camera />{t("action.siteEvidence")}</Button>}
       {/* JB290 (客户 11-27d): each lorry's plate, the driver's and the site
           person-in-charge's signatures - before the gate photographs it. */}
-      <LorrySignButton step={lorrySheetStep(row, { submit: can("disposal.submit") })} onOpen={() => onStep("lorrySheet")} />
+      <LorrySignButton step={lorrySheetStep(row, { submit: can("disposal.submit") })} filled={filledLorrySeq(row)} onOpen={() => onStep("lorrySheet")} />
       {/* E04: no 验收 / 退回 - the final proof's submission ended the job.
           What the office still does is fill in the numbers (D06). */}
       {/* Office only (QA3, audit #17): the phone never fills the job's numbers. */}

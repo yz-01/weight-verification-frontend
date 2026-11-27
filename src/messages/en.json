@@ -9803,7 +9803,6 @@
       "return_gate_not_released": "The gate has not photographed and released it yet (vehicle, plate and goods), so the formal exit cannot be confirmed.",
       "exit_release_shots_missing": "A material return is released with photos of the vehicle, its number plate and the goods leaving - at least one each. Take the missing ones, then press Confirm release.",
       "disposal_lorry_sheet_missing": "The site has not typed the lorry's plate yet, and the driver and the site person-in-charge have not signed.",
-      "disposal_no_lorry_left": "Every lorry approved for this clearance has been released. For one more, the office presses Add a lorry first.",
       "invite_needs_user_update": "Inviting also sets the person's permissions, so you need 'Edit users' to invite. Ask your company administrator to switch it on for you.",
       "field_removed_from_project": "You have been taken off the project, so this phone is signed out. Ask your project manager if you still need it."
     },
@@ -24652,7 +24651,6 @@
   },
   "jb290": {
     "action": "Fill plate and signatures",
-    "lockedNoLorry": "Every lorry of this clearance has been released. For one more, the office presses Add a lorry first.",
     "dialogTitle": "Lorry {seq}: plate and signatures",
     "dialogHelp": "{reference}: before the gate photographs and releases it, type the plate, and the driver and the site person-in-charge sign. All are required.",
     "refillNote": "This lorry is filled already ({plate}) and the gate has not released it. Filling it again replaces it; the earlier one stays on the record.",
@@ -24676,7 +24674,8 @@
     "gateSigners": "Driver: {driver} · site person-in-charge: {site}",
     "waitingReady": "Lorry {seq} can be released",
     "waitingNotReady": "Lorry {seq}: waiting for the site's plate and signatures",
-    "waitingNoneLeft": "Every lorry has left; for one more, the office presses Add a lorry",
+    "filledMark": "Lorry {seq}: plate and signatures filled",
+    "extraLorryNote": "Every approved lorry has already left. Saving adds this one (lorry {seq}), and the gate can then photograph and release it.",
     "releaseLorry": "Lorry {seq} · plate {plate}"
   }
 }

@@ -486,7 +486,8 @@ export function ReleaseCapture({
       camera={
         lockedReason ? (
           // Locked: no photo is taken or uploaded for this lorry yet (JB290).
-          <FieldWrapper label={t("gate.photos")} required hint={lockedReason}>
+          // The reason is said once, in the box above (QA290).
+          <FieldWrapper label={t("gate.photos")} required>
             <FieldCamera label={t("gate.takePhoto")} fileCount={0} disabled onCapture={() => undefined} onClear={() => undefined} />
           </FieldWrapper>
         ) : labelled ? (
@@ -669,7 +670,8 @@ export function ReleaseCaptureView({
           data-exit-pass-release={error ? "retry" : "confirm"}
           disabled={pending || Boolean(reason)}
           disabledReason={reason}
-          showReason
+          // The lock is already said once, in the box above the camera (QA290).
+          showReason={!lockedReason}
           onClick={onRelease}
         >
           {pending ? <Loader2 className="animate-spin" /> : <DoorOpen />}
@@ -756,9 +758,6 @@ function WaitingRow({ row, onOpen }: { row: ExitPassWaiting; onOpen: () => void 
             row.multi_release && row.release_count > 0 ? t("release.trips", { count: row.release_count }) : "",
             // JB290: whether the next lorry may be released yet.
             row.lorry_seq ? lorryWords(row.lorry_ready ? "waitingReady" : "waitingNotReady", { seq: row.lorry_seq }) : "",
-            // QA290: a 工地清运 whose lorries have all left says so here, so the
-            // guard does not open it looking for a lorry to release.
-            row.kind === "DISPOSAL_REQUEST" && !row.lorry_seq && row.release_count > 0 ? lorryWords("waitingNoneLeft") : "",
           ]
             .filter(Boolean)
             .join(" · ")}

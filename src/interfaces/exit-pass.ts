@@ -233,7 +233,7 @@ export type ExitPassEvidence =
 export type ExitPassReleaseBlock = "exit_pass_own_release" | "exit_pass_gate_release_only";
 
 /** JB290: the gate's lock on a 工地清运's lorry. */
-export type ExitPassReleaseLock = "disposal_lorry_sheet_missing" | "disposal_no_lorry_left";
+export type ExitPassReleaseLock = "disposal_lorry_sheet_missing";
 
 /** JB290: the lorry of a 工地清运 the gate may release now. */
 export interface ExitPassLorry {

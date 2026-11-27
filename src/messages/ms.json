@@ -9803,7 +9803,6 @@
       "return_gate_not_released": "Pintu belum mengambil gambar dan melepaskannya (kenderaan, plat dan barang), jadi keluar rasmi belum boleh disahkan.",
       "exit_release_shots_missing": "Pemulangan bahan dilepaskan dengan gambar kenderaan, nombor plat dan barang keluar - sekurang-kurangnya satu setiap satu. Ambil yang belum, kemudian tekan Sahkan lepas.",
       "disposal_lorry_sheet_missing": "Tapak belum menaip plat lori, dan pemandu serta penyelia tapak belum menandatangani.",
-      "disposal_no_lorry_left": "Semua lori yang diluluskan untuk pembersihan ini sudah dilepaskan. Untuk satu lagi, pejabat tekan Tambah lori dahulu.",
       "invite_needs_user_update": "Menjemput juga menetapkan kebenaran orang itu, jadi anda perlu 'Sunting pengguna' untuk menjemput. Minta pentadbir syarikat anda menghidupkannya.",
       "field_removed_from_project": "Anda telah dikeluarkan daripada projek, jadi telefon ini dilog keluar. Hubungi pengurus projek anda jika masih memerlukannya."
     },
@@ -24652,7 +24651,6 @@
   },
   "jb290": {
     "action": "Isi plat dan tandatangan",
-    "lockedNoLorry": "Semua lori pembersihan ini sudah dilepaskan. Untuk satu lagi, pejabat tekan Tambah lori dahulu.",
     "dialogTitle": "Lori {seq}: plat dan tandatangan",
     "dialogHelp": "{reference}: sebelum pintu mengambil gambar dan melepaskannya, taip plat, dan pemandu serta penyelia tapak menandatangani. Semua wajib.",
     "refillNote": "Lori ini sudah diisi ({plate}) dan pintu belum melepaskannya. Mengisi semula menggantikannya; yang lama kekal dalam rekod.",
@@ -24676,7 +24674,8 @@
     "gateSigners": "Pemandu: {driver} · penyelia tapak: {site}",
     "waitingReady": "Lori {seq} boleh dilepaskan",
     "waitingNotReady": "Lori {seq}: menunggu plat dan tandatangan dari tapak",
-    "waitingNoneLeft": "Semua lori sudah keluar; untuk satu lagi, pejabat tekan Tambah lori",
+    "filledMark": "Lori {seq}: plat dan tandatangan sudah diisi",
+    "extraLorryNote": "Semua lori yang diluluskan sudah keluar. Simpan akan menambah lori ini (lori {seq}), dan pintu pagar boleh mengambil foto dan melepaskannya.",
     "releaseLorry": "Lori {seq} · plat {plate}"
   }
 }

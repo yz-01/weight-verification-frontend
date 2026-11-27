@@ -9803,7 +9803,6 @@
       "return_gate_not_released": "門崗還沒有拍照放行（車輛、車牌及退場貨物），現在不能確認正式退場。",
       "exit_release_shots_missing": "材料退場放行要拍車輛、車牌和退場貨物，每樣至少一張。還沒拍的：請補拍後再按【確認放行】。",
       "disposal_lorry_sheet_missing": "工地還沒有填車牌、司機和工地負責人還沒有簽名。",
-      "disposal_no_lorry_left": "這次清運批准的車都已經放行了。還要多一車，請後台先按【加一車】。",
       "invite_needs_user_update": "邀請時會一起設定這個人的權限，所以要有「編輯用戶」權限才能邀請。請公司管理員幫你打開。",
       "field_removed_from_project": "你已經被移出項目，這台手機已退出登入。如果還要用，請聯繫項目經理。"
     },
@@ -24652,7 +24651,6 @@
   },
   "jb290": {
     "action": "填寫車牌和簽名",
-    "lockedNoLorry": "這次清運的車都已經放行了。還要多一車，請後台先按【加一車】。",
     "dialogTitle": "第 {seq} 車：車牌和簽名",
     "dialogHelp": "{reference}：門崗拍照、放行之前，必須先填車牌，由清運司機和工地現場負責人簽名。全部必填。",
     "refillNote": "這一車已經填過（{plate}），門崗還沒有放行。重新填寫會換成這一次的，原來的會留在記錄裡。",
@@ -24676,7 +24674,8 @@
     "gateSigners": "清運司機：{driver} · 工地現場負責人：{site}",
     "waitingReady": "第 {seq} 車可以放行",
     "waitingNotReady": "第 {seq} 車：等工地填車牌和簽名",
-    "waitingNoneLeft": "車都已放行，還要多一車請後台按【加一車】",
+    "filledMark": "第 {seq} 車：車牌和簽名已填",
+    "extraLorryNote": "之前批准的車都已經放行了。保存後會加上這一車（第 {seq} 車），門崗就可以拍照放行。",
     "releaseLorry": "第 {seq} 車 · 車牌：{plate}"
   }
 }

@@ -17,7 +17,7 @@
  */
 
 import { useMutation } from "@tanstack/react-query";
-import { Loader2, PenLine, Send } from "lucide-react";
+import { CheckCircle2, Loader2, PenLine, Send } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRef, useState } from "react";
 
@@ -61,19 +61,35 @@ export function nextLorry(row: Pick<DisposalRequest, "trips">): DisposalTrip | n
 }
 
 /**
- * Whether this reader is offered 【填写车牌和签名】, and in which state:
- * `"open"`; `"locked"` when every lorry has left (the office adds one first);
+ * The number of the lorry a fill adds when every planned lorry has left
+ * (QA290: the server adds it, as the office's 【加一车】 - before JB290 the
+ * gate released any number of lorries, so there is no new limit).
+ */
+export function extraLorrySeq(row: Pick<DisposalRequest, "trips">): number {
+  return Math.max(0, ...(row.trips ?? []).map((trip) => trip.seq)) + 1;
+}
+
+/**
+ * 「第 N 车：车牌和签名已填」 (QA290): the lorry at the gate whose sheet is in,
+ * so the site person sees it is done; `null` when there is none.
+ */
+export function filledLorrySeq(row: Pick<DisposalRequest, "trips">): number | null {
+  const lorry = nextLorry(row);
+  return lorry?.sheet ? lorry.seq : null;
+}
+
+/**
+ * Whether this reader is offered 【填写车牌和签名】: `"open"` on a running
+ * job (when every planned lorry has left, the fill adds the next one);
  * `null` when the job is not running or the reader may not take the site's
  * photographs (`disposal.submit`, the same people as 【拍车辆出场 / Gate Pass】).
  */
 export function lorrySheetStep(
   row: Pick<DisposalRequest, "status" | "trips" | "trips_closed_at">,
   may: { submit: boolean },
-): "open" | "locked" | null {
+): "open" | null {
   if (!may.submit || !RUNNING.includes(row.status) || row.trips_closed_at) return null;
-  // A job approved before C5 has no lorries yet; the server plans them on the first fill.
-  if (!(row.trips ?? []).length) return "open";
-  return nextLorry(row) ? "open" : "locked";
+  return "open";
 }
 
 /** The five items, as the server requires them; what is still missing, in the form's order. */
@@ -117,7 +133,9 @@ export function LorrySignDialog({
   const common = useTranslations("siteDisposal");
   const { user } = useAuth();
   const lorry = nextLorry(row);
-  const seq = lorry?.seq ?? 1;
+  // Every planned lorry has left: this fill adds the next one (QA290).
+  const extra = !lorry && (row.trips ?? []).length > 0;
+  const seq = lorry?.seq ?? extraLorrySeq(row);
   const [plate, setPlate] = useState("");
   const [driverName, setDriverName] = useState("");
   const [driverSignature, setDriverSignature] = useState<File | undefined>();
@@ -156,6 +174,11 @@ export function LorrySignDialog({
           {lorry?.sheet ? (
             <p className="rounded-md border border-warning/40 bg-warning/5 px-3 py-2 text-sm" data-lorry-sheet-refill>
               {t("refillNote", { plate: lorry.sheet.vehicle_plate })}
+            </p>
+          ) : null}
+          {extra ? (
+            <p className="rounded-md border bg-muted/40 px-3 py-2 text-sm" data-lorry-sheet-extra>
+              {t("extraLorryNote", { seq })}
             </p>
           ) : null}
           <FieldWrapper label={label.plate} required error={fieldError(save.error, "vehicle_plate")}>
@@ -207,32 +230,36 @@ export function LorrySignDialog({
   );
 }
 
-/** The record's button: 【填写车牌和签名】, or locked saying why. */
+/**
+ * The record's button 【填写车牌和签名】 and, once the lorry at the gate has
+ * its sheet, the plain mark 「第 N 车：车牌和签名已填」 beside it (QA290).
+ */
 export function LorrySignButton({
   step,
+  filled,
   onOpen,
 }: {
-  step: "open" | "locked" | null;
+  step: "open" | null;
+  /** The lorry at the gate whose sheet is in (`filledLorrySeq`). */
+  filled?: number | null;
   onOpen: () => void;
 }) {
   const t = useTranslations("jb290");
-  if (step === "open") {
-    return (
+  if (step !== "open") return null;
+  return (
+    <>
+      {filled ? (
+        <span className="inline-flex items-center gap-1 text-sm font-medium text-success" data-lorry-sheet-filled={filled}>
+          <CheckCircle2 className="size-4" />
+          {t("filledMark", { seq: filled })}
+        </span>
+      ) : null}
       <Button size="sm" data-lorry-sheet-open onClick={onOpen}>
         <PenLine />
         {t("action")}
       </Button>
-    );
-  }
-  if (step === "locked") {
-    return (
-      <Button size="sm" variant="outline" data-lorry-sheet-locked disabled disabledReason={t("lockedNoLorry")} showReason>
-        <PenLine />
-        {t("action")}
-      </Button>
-    );
-  }
-  return null;
+    </>
+  );
 }
 
 function SignatureThumb({ url, label }: { url: string | null; label: string }) {

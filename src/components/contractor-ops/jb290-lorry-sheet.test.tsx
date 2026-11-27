@@ -32,7 +32,7 @@ vi.mock("@/components/providers/auth-provider", () => ({
 }));
 
 const { renderDetail } = await import("@/components/shared/record-detail-test-kit");
-const { LorrySignDialog, LorrySignLines, LorrySignButton, lorrySheetMissing, lorrySheetStep, nextLorry } = await import(
+const { LorrySignDialog, LorrySignLines, LorrySignButton, extraLorrySeq, filledLorrySeq, lorrySheetMissing, lorrySheetStep, nextLorry } = await import(
   "@/components/contractor-ops/disposal-lorry-sheet"
 );
 const { ReleaseCaptureView, GateLorryCard } = await import("@/components/site-access/exit-pass-window");
@@ -86,22 +86,43 @@ describe("JB290: which lorry the site fills and the gate releases", () => {
     expect(nextLorry({ trips: [trip(1, "SUBMITTED"), trip(2, "PLANNED")] })?.seq).toBe(2);
   });
 
-  it("offers 【填写车牌和签名】 on a running job, locked once every lorry has left", () => {
+  it("offers 【填写车牌和签名】 on a running job, also once every planned lorry has left (QA290: the fill adds one)", () => {
     const running = { status: "IN_PROGRESS" as const, trips_closed_at: null };
     expect(lorrySheetStep({ ...running, trips: [trip(1, "PLANNED")] }, { submit: true })).toBe("open");
-    expect(lorrySheetStep({ ...running, trips: [trip(1, "PLANNED", { release: RELEASED })] }, { submit: true })).toBe("locked");
+    const allGone = [trip(1, "PLANNED", { release: RELEASED, sheet: SHEET }), trip(2, "CANCELLED")];
+    expect(lorrySheetStep({ ...running, trips: allGone }, { submit: true })).toBe("open");
+    expect(extraLorrySeq({ trips: allGone })).toBe(3);
+    expect(extraLorrySeq({ trips: [] })).toBe(1);
     expect(lorrySheetStep({ ...running, trips: [trip(1, "PLANNED")] }, { submit: false })).toBeNull();
     expect(lorrySheetStep({ status: "COMPLETED", trips_closed_at: null, trips: [trip(1, "PLANNED")] }, { submit: true })).toBeNull();
+    expect(lorrySheetStep({ status: "CANCELLED", trips_closed_at: null, trips: [trip(1, "PLANNED")] }, { submit: true })).toBeNull();
     expect(lorrySheetStep({ status: "REQUESTED", trips_closed_at: null, trips: [] }, { submit: true })).toBeNull();
-    const locked = renderDetail(<LorrySignButton step="locked" onOpen={() => {}} />);
-    expect(locked).toContain("data-lorry-sheet-locked");
-    expect(locked).toContain("这次清运的车都已经放行了。还要多一车，请后台先按【加一车】。");
     expect(renderDetail(<LorrySignButton step="open" onOpen={() => {}} />)).toContain("填写车牌和签名");
+    expect(JSON.stringify(zh.jb290)).not.toContain("请后台先按【加一车】");
+  });
+
+  it("the extra lorry's form says it adds 第 N 车", () => {
+    const row = {
+      id: "d-1", reference_no: "DISP-1", status: "IN_PROGRESS", trips_closed_at: null,
+      trips: [trip(1, "PLANNED", { release: RELEASED, sheet: SHEET })],
+    } as unknown as Parameters<typeof LorrySignDialog>[0]["row"];
+    const html = renderDetail(<LorrySignDialog row={row} onClose={() => {}} onSaved={() => {}} />);
+    expect(html).toContain("第 2 车：车牌和签名");
+    expect(html).toContain("之前批准的车都已经放行了。保存后会加上这一车（第 2 车），门岗就可以拍照放行。");
+  });
+
+  it("says 「第 N 车：车牌和签名已填」 on the card once the sheet is in (QA290)", () => {
+    expect(filledLorrySeq({ trips: [trip(1, "PLANNED", { sheet: SHEET }), trip(2, "PLANNED")] })).toBe(1);
+    expect(filledLorrySeq({ trips: [trip(1, "PLANNED", { sheet: SHEET, release: RELEASED }), trip(2, "PLANNED")] })).toBeNull();
+    const html = renderDetail(<LorrySignButton step="open" filled={1} onOpen={() => {}} />);
+    expect(html).toContain('data-lorry-sheet-filled="1"');
+    expect(html).toContain("第 1 车：车牌和签名已填");
+    expect(renderDetail(<LorrySignButton step="open" filled={null} onOpen={() => {}} />)).not.toContain("已填");
   });
 
   it("the record's buttons carry it beside 【拍车辆出场 / Gate Pass】", () => {
     const source = here("site-disposal-workspaces.tsx");
-    expect(source).toContain('<LorrySignButton step={lorrySheetStep(row, { submit: can("disposal.submit") })}');
+    expect(source).toContain('<LorrySignButton step={lorrySheetStep(row, { submit: can("disposal.submit") })} filled={filledLorrySeq(row)}');
     expect(source).toContain('case "lorrySheet":');
     expect(source).toContain("<LorrySignLines trip={trip} waiting={next?.id === trip.id} />");
     expect(root("services/contractor-ops.service.ts")).toContain("/sign_lorry/");
@@ -213,10 +234,13 @@ describe("JB290: the gate phone - 拍照 / 上传 / 确认放行 locked until th
     expect(renderDetail(<GateLorryCard lorry={waiting} />)).toContain("第 2 车");
   });
 
-  it("the waiting list says when every lorry of a clearance has left (QA290)", () => {
+  it("the lock reason is said once: the box, not again under the camera or the button (QA290)", () => {
+    const reason = zh.errors.api.disposal_lorry_sheet_missing;
+    const html = view({ lockedReason: reason, photosTaken: 0 });
+    expect(html.split(reason).length - 1 - html.split(`title="${reason}"`).length + 1).toBe(1);
     const source = root("components/site-access/exit-pass-window.tsx");
-    expect(source).toContain('row.kind === "DISPOSAL_REQUEST" && !row.lorry_seq && row.release_count > 0 ? lorryWords("waitingNoneLeft") : ""');
-    expect(zh.jb290.waitingNoneLeft).toBe("车都已放行，还要多一车请后台按【加一车】");
+    expect(source).toContain("showReason={!lockedReason}");
+    expect(source).toContain('<FieldWrapper label={t("gate.photos")} required>');
   });
 
   it("ready: 【确认放行】 opens with a photo, as before", () => {
@@ -232,12 +256,11 @@ describe("JB290 words: four languages, 你 never 您", () => {
     for (const [name, messages] of Object.entries(LANGUAGES)) {
       expect(Object.keys(messages.jb290).sort(), name).toEqual([...keys].sort());
       expect(messages.errors.api.disposal_lorry_sheet_missing, name).toBeTruthy();
-      expect(messages.errors.api.disposal_no_lorry_left, name).toBeTruthy();
       expect(messages.audit.operation.disposal_lorry_signed, name).toBeTruthy();
       expect(messages.siteDisposal.timelineEvent.LORRY_SIGNED, name).toBeTruthy();
       expect(messages.mySubmissions.field.lorry_sheet, name).toBeTruthy();
       expect(messages.mySubmissions.field.lorry_released, name).toBeTruthy();
-      const all = JSON.stringify(messages.jb290) + messages.errors.api.disposal_lorry_sheet_missing + messages.errors.api.disposal_no_lorry_left;
+      const all = JSON.stringify(messages.jb290) + messages.errors.api.disposal_lorry_sheet_missing;
       expect(all, name).not.toContain("您");
     }
   });
