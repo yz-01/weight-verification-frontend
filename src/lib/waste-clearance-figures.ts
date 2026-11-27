@@ -15,10 +15,13 @@
  */
 import type { DisposalClearanceKind } from "@/interfaces/contractor-ops";
 
-/** The address's `kind`: 全部, or one of the two businesses. */
-export type ClearanceKind = "all" | "garbage" | "scrap";
+/**
+ * The address's `kind`: 清运结算管理 (JB287, in 「全部」's place), or one of the
+ * two businesses.
+ */
+export type ClearanceKind = "settlement" | "garbage" | "scrap";
 
-/** The tabs: 全部｜垃圾清运｜废料处理, and 「异常记录」 (JB149). */
+/** The tabs: 清运结算管理｜垃圾清运｜废料处理, and 「异常记录」 (JB149). */
 export type ClearanceTab = ClearanceKind | "abnormal";
 
 /** Each kind's tab and the record value it lists. */
@@ -28,12 +31,27 @@ export const CLEARANCE_KIND_OF: Record<"garbage" | "scrap", DisposalClearanceKin
 };
 
 /**
- * The tab an address asks for. `kind=disposal` is every link written before
- * JB248 (notices, task cards, Multi Engine): it opens 全部, where the job is
- * whichever kind it is. An unknown value is 全部 too.
+ * The tab an address asks for. JB287 (客户 11-27: 「「全部」页面…调整为「清运结算
+ * 管理」」): 「全部」 is gone, so its old link `kind=all` and `kind=disposal`
+ * (every link written before JB248: notices, task cards) open 清运结算管理;
+ * a `?record=` they carry opens that job over it. An unknown value is
+ * 清运结算管理 too.
  */
 export function clearanceKindOf(asked: string | null): ClearanceKind {
-  return asked === "garbage" || asked === "scrap" ? asked : "all";
+  return asked === "garbage" || asked === "scrap" ? asked : "settlement";
+}
+
+/**
+ * An address that needs the list of jobs rather than 清运结算管理: 【新增申请】
+ * (`create=1`) or Multi Engine's 「添加资料」 (`pack=`) on an old `kind=disposal`
+ * link. It goes to 垃圾清运 with everything it carried; null when it stays.
+ */
+export function clearanceListHref(params: URLSearchParams): string | null {
+  if (clearanceKindOf(params.get("kind")) !== "settlement" || params.get("abnormal") === "1") return null;
+  if (params.get("create") !== "1" && !params.get("pack")) return null;
+  const next = new URLSearchParams(params.toString());
+  next.set("kind", "garbage");
+  return `/waste-clearance?${next.toString()}`;
 }
 
 const FIGURE_FILTERS = [
@@ -62,7 +80,8 @@ export function clearanceFigureFilters(
 
 /**
  * Where each tab goes. The project, clearance company and dates the reader
- * chose go along (as `MaterialTabs` carries them); 「异常记录」 is 全部 with
+ * chose go along (as `MaterialTabs` carries them); 「异常记录」 is both kinds
+ * with `kind=all` (the address it always had, so its links keep working) and
  * `abnormal=1` (JB149: 材料管理's 「验收不合格」 is the receipts list with
  * `acceptance=REJECTED`).
  */

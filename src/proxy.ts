@@ -43,6 +43,8 @@ const PUBLIC_PREFIXES = [
   "/package",
   // A file's private link in a WhatsApp / email send (客户 11-08): the token is the credential.
   "/s",
+  // 总部大屏 on a screen nobody signs in on (JB291): the token is the credential.
+  "/screen",
   "/delivery-note",
   "/field-staff",
   "/scan",
@@ -62,7 +64,7 @@ const PACKAGE_LINK_HEADERS = {
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  if (pathname.startsWith("/package/") || pathname.startsWith("/s/")) {
+  if (pathname.startsWith("/package/") || pathname.startsWith("/s/") || pathname.startsWith("/screen/")) {
     const response = NextResponse.next();
     for (const [name, value] of Object.entries(PACKAGE_LINK_HEADERS)) {
       response.headers.set(name, value);

@@ -338,6 +338,9 @@ describe("10-29 tutorial fixes", () => {
       // Rainy Weather 月报 (JB192): every rain record of one project's month;
       // its log row names the project.
       "progress/rain-records.tsx",
+      // 项目进度摘要's automatic report (JB289): one schedule's figures,
+      // read live, not a stored record; its log row names the project.
+      "progress/schedule-progress-dashboard.tsx",
     ];
     const missing: string[] = [];
     for (const file of files) {

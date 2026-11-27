@@ -19,7 +19,8 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { money } from "@/components/contractor-ops/company-material-list";
-import { QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
+import { FieldWrapper, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
+import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -33,6 +34,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TableCell, TableHead } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
+import { useSeesAmounts } from "@/hooks/use-sees-amounts";
 import { ApiError } from "@/interfaces/api";
 import type {
   DieselSupply,
@@ -65,8 +67,22 @@ export function rentalMoney(value: string | null | undefined): string {
 
 type Translate = ReturnType<typeof useTranslations>;
 
-/** One line saying what a machine's terms are: 「按月 · RM 18,000.00 · …」. */
-export function termsSummary(t: Translate, terms: RentalTermsValues): string {
+/**
+ * One line saying what a machine's terms are: 「按月 · RM 18,000.00 · …」. When
+ * the terms changed inside the month or dates (JB288, `pieces`) and `tj` (the
+ * `jb288` words) is given: each set with its days, 「2026-09-01 至 2026-09-15：…」.
+ */
+export function termsSummary(t: Translate, terms: RentalTermsValues, tj?: Translate): string {
+  if (tj && terms.pieces && terms.pieces.length > 1) {
+    return terms.pieces
+      .map((piece) => tj("piece", { from: piece.from, to: piece.to, terms: termsSummary(t, piece.terms) }))
+      .join(" / ");
+  }
+  return termsParts(t, terms).join(" · ");
+}
+
+/** The parts of `termsSummary`, one per condition (QA288: 修改记录 compares them). */
+export function termsParts(t: Translate, terms: RentalTermsValues): string[] {
   return [
     t(`method.${terms.method}`),
     t("summary.price", { amount: rentalMoney(terms.unit_price) }),
@@ -80,9 +96,26 @@ export function termsSummary(t: Translate, terms: RentalTermsValues): string {
     terms.end_date
       ? t("summary.period", { from: terms.start_date, to: terms.end_date })
       : t("summary.since", { from: terms.start_date }),
-  ]
-    .filter(Boolean)
-    .join(" · ");
+  ].filter(Boolean);
+}
+
+/** A part of a month in one short line (QA288): 「按月 · 单价 RM 18,000.00 · 超时 RM 120.00/小时」. */
+export function pieceSummary(t: Translate, terms: RentalTermsValues): string {
+  return termsParts(t, terms).slice(0, terms.overtime_rate ? 3 : 2).join(" · ");
+}
+
+/**
+ * 修改记录 (QA288): only what changed, 「单价 RM 18,000.00 → 单价 RM 21,000.00」,
+ * so an elderly reader does not hunt for it in two long lines; 「—」 for a
+ * condition added or removed.
+ */
+export function changedParts(t: Translate, previous: RentalTermsValues, next: RentalTermsValues): { old: string; new: string } | null {
+  const before = termsParts(t, previous);
+  const after = termsParts(t, next);
+  const gone = before.filter((part) => !after.includes(part));
+  const added = after.filter((part) => !before.includes(part));
+  if (gone.length === 0 && added.length === 0) return null;
+  return { old: gone.join(" · ") || "—", new: added.join(" · ") || "—" };
 }
 
 function errorText(reason: unknown, fallback: string): string {
@@ -91,16 +124,45 @@ function errorText(reason: unknown, fallback: string): string {
 
 // -- 设备租赁设定 ---------------------------------------------------------------
 
-export function RentalTermsDialog({ project, onClose }: { project: string; onClose: () => void }) {
+/**
+ * 设备租赁设定 - also opened as 【租赁费用设定】 on 设备租赁月结单 (JB288, 客户
+ * 11-27b: 「在「设备租赁月结单」页面右上方「生成月结单」旁边设置一个「租赁费用
+ * 设定」按钮」): the same list and form, under that page's name. `pickProject`:
+ * the page's top bar is on 全部项目, so the window asks for a project first.
+ */
+export function RentalTermsDialog({
+  project,
+  onClose,
+  title,
+  pickProject = false,
+}: {
+  project: string;
+  onClose: () => void;
+  title?: string;
+  pickProject?: boolean;
+}) {
   const t = useTranslations("equipmentRental");
+  const tj = useTranslations("jb288");
+  const [chosen, setChosen] = useState(project);
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-3xl" data-testid="rental-terms">
         <DialogHeader>
-          <DialogTitle>{t("title")}</DialogTitle>
+          <DialogTitle>{title ?? t("title")}</DialogTitle>
           <DialogDescription>{t("help")}</DialogDescription>
         </DialogHeader>
-        <RentalTermsBody project={project} />
+        {pickProject && !project ? (
+          <FieldWrapper label={tj("project")} required>
+            <ProjectPicker value={chosen} placeholder={tj("chooseProject")} onValueChange={setChosen} />
+          </FieldWrapper>
+        ) : null}
+        {pickProject && !chosen ? (
+          <p className="text-sm text-muted-foreground" data-testid="rental-terms-choose-project">
+            {tj("chooseProjectHelp")}
+          </p>
+        ) : (
+          <RentalTermsBody project={chosen} />
+        )}
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
             {t("close")}
@@ -113,6 +175,7 @@ export function RentalTermsDialog({ project, onClose }: { project: string; onClo
 
 export function RentalTermsBody({ project }: { project: string }) {
   const t = useTranslations("equipmentRental");
+  const tj = useTranslations("jb288");
   const df = useDateFormat();
   const query = useQuery({
     queryKey: [RENTAL_KEY, project],
@@ -121,10 +184,18 @@ export function RentalTermsBody({ project }: { project: string }) {
   });
   const [editing, setEditing] = useState<string | null>(null);
   const [showHistory, setShowHistory] = useState<string | null>(null);
+  // QA288: the terms are amounts; without 「金额查看」 every rate reads blank,
+  // so the list is shown but not the form (the server refuses it too).
+  const seesAmounts = useSeesAmounts();
   const data = query.data;
   return (
     <div className="space-y-3">
       {!project ? <p className="text-sm text-muted-foreground">{t("chooseProject")}</p> : null}
+      {project && !seesAmounts ? (
+        <p role="status" className="rounded-lg border px-3 py-2 text-sm text-muted-foreground" data-testid="rental-terms-no-amounts">
+          {tj("noAmounts")}
+        </p>
+      ) : null}
       <QueryFailedNote query={query} what={t("title")} />
       {data && data.without_terms > 0 ? (
         <p role="status" className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-sm font-medium">
@@ -144,7 +215,20 @@ export function RentalTermsBody({ project }: { project: string }) {
                       .join(" · ")}
                   </p>
                   {machine.terms ? (
-                    <p className="text-sm text-muted-foreground">{termsSummary(t, machine.terms)}</p>
+                    <>
+                      <p className="text-sm text-muted-foreground">
+                        {termsSummary(t, inForce(machine) ?? machine.terms)}
+                        {(inForce(machine) ?? machine.terms).effective_from
+                          ? ` · ${tj("effectiveShort", { date: (inForce(machine) ?? machine.terms).effective_from ?? "" })}`
+                          : ""}
+                      </p>
+                      {/* QA288: terms saved for a later 生效日期 - they take over on that day. */}
+                      {upcoming(machine).map((later) => (
+                        <p key={later.id} className="text-sm text-muted-foreground" data-testid="rental-upcoming">
+                          {tj("upcoming", { date: later.effective_from ?? "", terms: pieceSummary(t, later) })}
+                        </p>
+                      ))}
+                    </>
                   ) : (
                     <p className="text-sm font-medium text-warning">{t("noTerms")}</p>
                   )}
@@ -161,27 +245,33 @@ export function RentalTermsBody({ project }: { project: string }) {
                         {t("history", { count: machine.history.length })}
                       </Button>
                     ) : null}
-                    <Button size="sm" variant="outline" onClick={() => setEditing(machine.id)}>
-                      <Pencil />
-                      {t("open")}
-                    </Button>
+                    {seesAmounts ? (
+                      <Button size="sm" variant="outline" onClick={() => setEditing(machine.id)}>
+                        <Pencil />
+                        {t("open")}
+                      </Button>
+                    ) : null}
                   </div>
                 ) : null}
               </div>
               {showHistory === machine.id ? (
-                <ul className="space-y-1 rounded-lg border bg-muted/30 p-3 text-sm" data-testid="rental-history">
-                  {machine.terms ? (
-                    <li>
-                      <span className="font-medium">{t("inForce")}</span>
-                      {" · "}
-                      {t("changedBy", { name: machine.terms.changed_by ?? "", time: df.dateTime(machine.terms.changed_at ?? "") })}
-                    </li>
-                  ) : null}
-                  {machine.history.map((old) => (
-                    <li key={old.id} className="text-muted-foreground">
-                      {termsSummary(t, old)}
-                      {" · "}
-                      {t("changedBy", { name: old.changed_by ?? "", time: df.dateTime(old.changed_at ?? "") })}
+                <ul className="space-y-2 rounded-lg border bg-muted/30 p-3 text-sm" data-testid="rental-history">
+                  {/* JB288: each change as 旧 → 新, with who, when and its 生效日期 - newest first. */}
+                  {termsChanges(machine).map(({ next, previous }) => (
+                    <li key={next.id ?? next.changed_at} className="space-y-0.5" data-testid="rental-history-change">
+                      <p className="font-medium">
+                        {[
+                          t("changedBy", { name: next.changed_by ?? "", time: df.dateTime(next.changed_at ?? "") }),
+                          next.effective_from ? tj("effectiveShort", { date: next.effective_from }) : "",
+                        ]
+                          .filter(Boolean)
+                          .join(" · ")}
+                      </p>
+                      <p className="text-muted-foreground">
+                        {previous
+                          ? historyLine(t, tj, previous, next)
+                          : tj("firstSet", { terms: termsSummary(t, next) })}
+                      </p>
                     </li>
                   ))}
                 </ul>
@@ -209,6 +299,40 @@ interface TermsDraft {
   end_date: string;
   diesel_supply: DieselSupply;
   remarks: string;
+  /** 生效日期 (JB288); "" on a machine's first terms: then it follows 租赁开始日期. */
+  effective_from: string;
+  /** The machine has no terms yet (QA288: only then may 生效日期 follow 租赁开始日期). */
+  first: boolean;
+}
+
+/** One 修改记录 line: what changed, 旧 → 新 - or 「条件没有改」 when only the 生效日期 moved. */
+function historyLine(t: Translate, tj: Translate, previous: RentalTermsValues, next: RentalTermsValues): string {
+  const changed = changedParts(t, previous, next);
+  return changed ? tj("oldNew", changed) : tj("noChange");
+}
+
+/**
+ * The saved version pricing today (QA288: by 生效日期, not save time - a
+ * change saved later with an earlier date fills only its own days), or the
+ * newest saved when the server does not say.
+ */
+export function inForce(machine: RentalMachine): RentalTermsValues | null {
+  const versions = machine.terms ? [machine.terms, ...machine.history] : [...machine.history];
+  return versions.find((version) => version.id === machine.in_force_id) ?? machine.terms;
+}
+
+/** The versions whose 生效日期 is still to come, soonest first (QA288). */
+export function upcoming(machine: RentalMachine): RentalTermsValues[] {
+  const versions = machine.terms ? [machine.terms, ...machine.history] : [...machine.history];
+  return (machine.upcoming_ids ?? [])
+    .map((id) => versions.find((version) => version.id === id))
+    .filter((version): version is RentalTermsValues => Boolean(version));
+}
+
+/** 修改记录 (JB288): each saved version with the one before it, newest first. */
+export function termsChanges(machine: RentalMachine): { next: RentalTermsValues; previous: RentalTermsValues | null }[] {
+  const versions = machine.terms ? [machine.terms, ...machine.history] : [...machine.history];
+  return versions.map((next, index) => ({ next, previous: versions[index + 1] ?? null }));
 }
 
 function today(): string {
@@ -231,15 +355,31 @@ export function draftOf(terms: RentalTermsValues | null): TermsDraft {
     end_date: terms?.end_date ?? "",
     diesel_supply: terms?.diesel_supply ?? "INCLUDED",
     remarks: terms?.remarks ?? "",
+    // JB288: a change counts from today unless another day is chosen; the
+    // first terms from the 租赁开始日期 (see `effectiveOf`).
+    effective_from: terms ? today() : "",
+    first: !terms,
   };
+}
+
+/**
+ * The 生效日期 the form sends: the one chosen, else - on a machine's first
+ * terms only - the 租赁开始日期. QA288: on a change an emptied 生效日期 stays
+ * empty (保存 waits for it); falling back to the 租赁开始日期 would quietly
+ * re-price every month since the rental began.
+ */
+export function effectiveOf(draft: TermsDraft): string {
+  return draft.effective_from || (draft.first ? draft.start_date : "");
 }
 
 function RentalTermsForm({ project, machine, onDone }: { project: string; machine: RentalMachine; onDone: () => void }) {
   const t = useTranslations("equipmentRental");
+  const tj = useTranslations("jb288");
   const queryClient = useQueryClient();
-  const [draft, setDraft] = useState<TermsDraft>(() => draftOf(machine.terms));
+  // QA288: a change starts from the terms pricing today.
+  const [draft, setDraft] = useState<TermsDraft>(() => draftOf(inForce(machine)));
   const [error, setError] = useState("");
-  const set = (key: keyof TermsDraft) => (value: string) => setDraft((current) => ({ ...current, [key]: value }));
+  const set = (key: Exclude<keyof TermsDraft, "first">) => (value: string) => setDraft((current) => ({ ...current, [key]: value }));
   const save = useMutation({
     mutationFn: () =>
       setRentalTerms({
@@ -256,17 +396,19 @@ function RentalTermsForm({ project, machine, onDone }: { project: string; machin
         end_date: draft.end_date || null,
         diesel_supply: draft.diesel_supply,
         remarks: draft.remarks,
+        effective_from: effectiveOf(draft) || null,
       }),
     onSuccess: () => {
       setError("");
       void queryClient.invalidateQueries({ queryKey: [RENTAL_KEY] });
       void queryClient.invalidateQueries({ queryKey: ["equipment-hours", "month"] });
+      void queryClient.invalidateQueries({ queryKey: ["rental-statements"] });
       onDone();
     },
     onError: (reason) => setError(errorText(reason, t("failed"))),
   });
   const extraDays = draft.method === "MONTHLY" || draft.method === "YEARLY";
-  const field = (key: keyof TermsDraft, label: string, props: React.ComponentProps<typeof Input> = {}) => (
+  const field = (key: Exclude<keyof TermsDraft, "first">, label: string, props: React.ComponentProps<typeof Input> = {}) => (
     <label className="flex min-w-0 flex-col gap-1 text-xs font-medium text-muted-foreground">
       {label}
       <Input value={draft[key]} onChange={(event) => set(key)(event.target.value)} {...props} />
@@ -305,6 +447,17 @@ function RentalTermsForm({ project, machine, onDone }: { project: string; machin
         })}
         {field("start_date", t("field.startDate"), { type: "date" })}
         {field("end_date", t("field.endDate"), { type: "date" })}
+        <label className="flex min-w-0 flex-col gap-1 text-xs font-medium text-muted-foreground" data-testid="rental-effective-from">
+          {tj("effectiveFrom")}
+          <Input type="date" value={effectiveOf(draft)} onChange={(event) => set("effective_from")(event.target.value)} />
+          <span className="font-normal">{tj("effectiveHelp")}</span>
+        </label>
+        {machine.terms && draft.end_date && draft.end_date < effectiveOf(draft) ? (
+          // JB288: every condition follows the 生效日期, the end date too.
+          <p role="status" className="text-xs font-medium text-warning sm:col-span-2" data-testid="rental-end-before-effective">
+            {tj("endBeforeEffective")}
+          </p>
+        ) : null}
         <label className="flex min-w-0 flex-col gap-1 text-xs font-medium text-muted-foreground sm:col-span-2">
           {t("field.diesel")}
           <Select value={draft.diesel_supply} onValueChange={(value) => set("diesel_supply")(value)}>
@@ -336,8 +489,8 @@ function RentalTermsForm({ project, machine, onDone }: { project: string; machin
       <div className="flex flex-wrap gap-2">
         <Button
           size="sm"
-          disabled={save.isPending || !draft.unit_price || !draft.start_date}
-          disabledReason={t("needPriceAndStart")}
+          disabled={save.isPending || !draft.unit_price || !draft.start_date || !effectiveOf(draft)}
+          disabledReason={draft.unit_price && draft.start_date && !effectiveOf(draft) ? tj("needEffective") : t("needPriceAndStart")}
           onClick={() => save.mutate()}
         >
           {save.isPending ? <Loader2 className="animate-spin" /> : <Check />}
@@ -380,7 +533,11 @@ export function RentalFeeCells({
   onAmounts: (row: EquipmentHoursMonthRow) => void;
 }) {
   const t = useTranslations("equipmentRental");
+  const tj = useTranslations("jb288");
   const df = useDateFormat();
+  const pieces = monthPieces(row);
+  // QA288: 柴油 / 调整 are amounts; without 「金额查看」 they read blank, so no form.
+  const seesAmounts = useSeesAmounts();
   return (
     <>
       {FEE_KEYS.map((key) => (
@@ -402,6 +559,10 @@ export function RentalFeeCells({
               {t("confirmedBy", { name: row.rental_confirmed_by ?? "", time: df.dateTime(row.rental_confirmed_at ?? "") })}
             </span>
           </span>
+        ) : canAdjust && !seesAmounts ? (
+          <span className="text-xs text-muted-foreground" data-testid="rental-amounts-off">
+            {tj("amountsOff")}
+          </span>
         ) : canAdjust ? (
           <Button size="sm" variant="outline" onClick={() => onAmounts(row)}>
             <CircleDollarSign />
@@ -410,9 +571,31 @@ export function RentalFeeCells({
         ) : (
           <span className="text-xs text-muted-foreground">{t("notConfirmed")}</span>
         )}
+        {/* JB288: the price changed inside the month - each part priced with its own terms. */}
+        {pieces ? (
+          <span className="mt-1 block text-xs text-muted-foreground" data-testid="rental-month-pieces">
+            {tj("monthPieces", { count: pieces.length })}
+            {pieces.map((piece) => (
+              <span key={piece.from} className="block">
+                {tj("piece", {
+                  from: piece.from,
+                  to: piece.to,
+                  terms: `${pieceSummary(t, piece.terms)}${piece.base_rent ? ` · ${tj("pieceRent", { amount: rentalMoney(piece.base_rent) })}` : ""}`,
+                })}
+              </span>
+            ))}
+          </span>
+        ) : null}
       </TableCell>
     </>
   );
+}
+
+/** The parts of a month priced with different terms (JB288), or null. */
+export function monthPieces(row: EquipmentHoursMonthRow) {
+  const terms = row.rental_terms;
+  const pieces = terms && "pieces" in terms ? terms.pieces : undefined;
+  return pieces && pieces.length > 1 ? pieces : null;
 }
 
 export function RentalTotalCells({ totals }: { totals: RentalTotals | undefined }) {

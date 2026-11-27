@@ -25,6 +25,11 @@ export interface SiteCostAmount {
    * says 「没有开通」. Missing from an older backend.
    */
   switched_off?: boolean;
+  /**
+   * JB287, `disposal` only: 垃圾清运 jobs in range whose supplier has no fee
+   * per lorry yet - counted 0, and the card says how many.
+   */
+  no_fee_count?: number;
 }
 
 export interface SiteCostMonth {

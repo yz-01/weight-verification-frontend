@@ -120,6 +120,11 @@ export interface ContractorReportData {
   generated_at: string;
   /** 设备租赁费用报表 (JB257): each machine's rental fee and the 累计总金额. */
   rental?: RentalReport;
+  /**
+   * 清运与回收报表 (JB287): 垃圾清运's 费用金额 added up (null when amounts are
+   * hidden) and the jobs whose supplier has no fee yet.
+   */
+  disposal_fees?: { amount_total: string | null; no_fee_count: number; running_count?: number };
 }
 
 /** One machine of 设备租赁费用报表 (JB257); money as strings, null when hidden. */

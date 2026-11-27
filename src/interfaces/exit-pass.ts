@@ -117,6 +117,10 @@ export interface ExitPassRelease {
   by: string;
   at: string;
   photos: ExitPassReleasePhoto[];
+  /** JB290 (工地清运): 第几车 this release let out; null on other kinds and older releases. */
+  trip_seq?: number | null;
+  /** JB290: that lorry's plate. */
+  vehicle_plate?: string;
 }
 
 /** The record itself, as 我提交过的 shows it (`mySubmissions.field.*` keys). */
@@ -180,6 +184,18 @@ export interface ExitPass {
    * 门岗放行 part reads 「本清运已结束」, not 「等待门岗放行」.
    */
   release_ended: boolean;
+  /**
+   * JB290 (客户 11-27d, 工地清运 only): the lorry the gate may release now - its
+   * plate and the driver's and the site person-in-charge's signatures. Null on
+   * other kinds; absent from a server before JB290.
+   */
+  lorry?: ExitPassLorry | null;
+  /**
+   * JB290: why 拍照 / 上传 / 确认放行 are locked on this phone although it may
+   * release - the site has not filled the lorry's plate and signatures, or no
+   * lorry is left. Words: `errors.api.<code>`.
+   */
+  release_locked?: ExitPassReleaseLock | null;
   record_view?: ExitPassRecordView | null;
 }
 
@@ -216,6 +232,29 @@ export type ExitPassEvidence =
 /** `release_blocked` (contract v3): the same codes the release refuses with. */
 export type ExitPassReleaseBlock = "exit_pass_own_release" | "exit_pass_gate_release_only";
 
+/** JB290: the gate's lock on a 工地清运's lorry. */
+export type ExitPassReleaseLock = "disposal_lorry_sheet_missing";
+
+/** JB290: the lorry of a 工地清运 the gate may release now. */
+export interface ExitPassLorry {
+  state: "ready" | "waiting_sheet" | "none_left";
+  trip: {
+    id: string;
+    seq: number;
+    vehicle_plate: string;
+    sheet: {
+      id: string;
+      vehicle_plate: string;
+      driver_name: string;
+      driver_signature: string | null;
+      site_signer_name: string;
+      site_signature: string | null;
+      filled_by_name: string;
+      signed_at: string | null;
+    } | null;
+  } | null;
+}
+
 /** One row of the guard's 「待放行」 (contract §4.1). */
 export interface ExitPassWaiting {
   kind: ExitPassKind;
@@ -228,6 +267,10 @@ export interface ExitPassWaiting {
   sent_at: string;
   multi_release: boolean;
   release_count: number;
+  /** JB290 (工地清运): the next lorry has its plate and both signatures. */
+  lorry_ready?: boolean;
+  /** JB290: 第几车 is next; null when none is left or on other kinds. */
+  lorry_seq?: number | null;
 }
 
 /** A gate record's 「关联原申请」 (contract §7). */

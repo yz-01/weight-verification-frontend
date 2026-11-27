@@ -46,7 +46,9 @@ const DATA: Overview = {
     { key: "equipment_rental", amount: "458000.00", available: true, share: "17.2" },
     { key: "progress_claim", amount: "732000.00", available: true, share: "27.5" },
     { key: "sundry_claims", amount: "87500.00", available: true, share: "3.3" },
-    { key: "disposal", amount: "0.00", available: false, share: "0.0" },
+    // JB287: 垃圾清运 has its amount (每车清运费用 × 实际验收车次), and two jobs
+    // whose supplier has no fee yet.
+    { key: "disposal", amount: "1050.00", available: true, share: "0.0", no_fee_count: 2 },
   ],
   months: [
     {
@@ -99,8 +101,11 @@ describe("项目现场费用总览", () => {
     expect(html).toContain(zh.jb259.trend);
     expect(html).toContain(zh.jb259.links);
     expect(html).toContain("100%");
-    // 垃圾清运 has no money field: said, not invented.
-    expect(html).toContain(zh.jb259.notAvailable.disposal);
+    // JB287: 垃圾清运's amount, the jobs with no fee yet, and no 「没有金额栏…算 0」.
+    expect(html).toContain("RM 1,050.00");
+    expect(html).toContain(zh.jb287.cost.noFee.replace("{count}", "2"));
+    expect(html).not.toContain("没有金额栏");
+    expect(JSON.stringify(zh.jb259)).not.toContain("没有金额栏");
     expect(html.split('data-slot="cost-card"').length - 1).toBe(5);
   });
 

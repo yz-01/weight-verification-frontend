@@ -48,7 +48,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { usePhoneOffline } from "@/hooks/use-phone-offline";
 import { ApiError } from "@/interfaces/api";
-import type { ExitPass, ExitPassKind, ExitPassReleaseBlock, ExitPassWaiting } from "@/interfaces/exit-pass";
+import type { ExitPass, ExitPassKind, ExitPassLorry, ExitPassReleaseBlock, ExitPassWaiting } from "@/interfaces/exit-pass";
 import { useDateFormat } from "@/lib/dates";
 import { isRouteAllowed } from "@/lib/navigation";
 import { photoMeta } from "@/lib/photo-meta";
@@ -399,7 +399,12 @@ export function ReleaseCapture({
 }) {
   const t = useTranslations("exitPass");
   const tFlow = useTranslations("jb281");
+  const tRoot = useTranslations();
   const queryClient = useQueryClient();
+  // JB290 (客户 11-27d): a 工地清运's lorry is photographed, uploaded and
+  // released only once the site has typed its plate and the driver and the
+  // site person-in-charge have signed - from the server's own state.
+  const lockedReason = pass.release_locked ? tRoot(`errors.api.${pass.release_locked}`) : undefined;
   const offline = usePhoneOffline();
   const { fix, failed, refresh } = useGateLocation();
   const camera = useContinuousCamera(fix);
@@ -459,6 +464,8 @@ export function ReleaseCapture({
   });
   return (
     <ReleaseCaptureView
+      lockedReason={lockedReason}
+      lorry={pass.lorry ? <GateLorryCard lorry={pass.lorry} /> : null}
       photosTaken={photos.length}
       missingReason={
         missingShots.length > 0
@@ -477,7 +484,13 @@ export function ReleaseCapture({
       done={done}
       multi={pass.multi_release}
       camera={
-        labelled ? (
+        lockedReason ? (
+          // Locked: no photo is taken or uploaded for this lorry yet (JB290).
+          // The reason is said once, in the box above (QA290).
+          <FieldWrapper label={t("gate.photos")} required>
+            <FieldCamera label={t("gate.takePhoto")} fileCount={0} disabled onCapture={() => undefined} onClear={() => undefined} />
+          </FieldWrapper>
+        ) : labelled ? (
           <ReleaseShotCameras
             cameras={shotCameras}
             onCapture={() => setDone(null)}
@@ -507,6 +520,29 @@ export function ReleaseCapture({
         release.mutate();
       }}
     />
+  );
+}
+
+/**
+ * JB290: the lorry a 工地清运's release lets out - 「第 N 车 · 车牌」 and who
+ * signed for it - so the guard checks the plate on the lorry in front of him.
+ */
+export function GateLorryCard({ lorry }: { lorry: ExitPassLorry }) {
+  const t = useTranslations("jb290");
+  const trip = lorry.trip;
+  if (!trip) return null;
+  const sheet = trip.sheet;
+  return (
+    <div className="space-y-1 rounded-lg border bg-muted/30 px-3 py-2 text-sm" data-exit-pass-lorry={lorry.state}>
+      <p className="font-semibold">
+        {sheet ? t("gateLorry", { seq: trip.seq, plate: trip.vehicle_plate || sheet.vehicle_plate }) : t("gateLorryWaiting", { seq: trip.seq })}
+      </p>
+      {sheet ? (
+        <p className="text-xs text-muted-foreground">
+          {t("gateSigners", { driver: sheet.driver_name, site: sheet.site_signer_name })}
+        </p>
+      ) : null}
+    </div>
   );
 }
 
@@ -564,6 +600,8 @@ export function ReleaseShotCameras({
  * is drawn the same way wherever it is tested or shown.
  */
 export function ReleaseCaptureView({
+  lockedReason,
+  lorry,
   photosTaken,
   missingReason,
   offline,
@@ -574,6 +612,13 @@ export function ReleaseCaptureView({
   camera,
   onRelease,
 }: {
+  /**
+   * JB290: why 拍照 / 上传 / 确认放行 are locked for this lorry (the site's plate
+   * and two signatures are not in, or no lorry is left) - from the server.
+   */
+  lockedReason?: string;
+  /** JB290: 「第 N 车」 - the lorry this release lets out, its plate and signers. */
+  lorry?: React.ReactNode;
   photosTaken: number;
   /** JB281: a 材料退场 still missing one of 车辆 / 车牌 / 退场货物. */
   missingReason?: string;
@@ -587,13 +632,23 @@ export function ReleaseCaptureView({
   onRelease: () => void;
 }) {
   const t = useTranslations("exitPass");
-  const reason = offline
-    ? t("gate.needNetwork")
-    : (missingReason ?? (photosTaken === 0 ? t("gate.needPhoto") : undefined));
+  const reason =
+    lockedReason ??
+    (offline ? t("gate.needNetwork") : (missingReason ?? (photosTaken === 0 ? t("gate.needPhoto") : undefined)));
   return (
     <ShellPanel title={t("gate.title")} data-exit-pass-release-capture className="border-primary/40 shadow-glow-sm">
       <div className="space-y-3">
         <p className="text-sm leading-6 text-muted-foreground">{t("gate.help")}</p>
+        {lorry}
+        {lockedReason ? (
+          <p
+            role="status"
+            data-exit-pass-release-locked
+            className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-sm font-medium leading-6 text-foreground"
+          >
+            {lockedReason}
+          </p>
+        ) : null}
         {camera}
         {done ? <ReleasedNowLine done={done} multi={multi} /> : null}
         {error ? (
@@ -615,7 +670,8 @@ export function ReleaseCaptureView({
           data-exit-pass-release={error ? "retry" : "confirm"}
           disabled={pending || Boolean(reason)}
           disabledReason={reason}
-          showReason
+          // The lock is already said once, in the box above the camera (QA290).
+          showReason={!lockedReason}
           onClick={onRelease}
         >
           {pending ? <Loader2 className="animate-spin" /> : <DoorOpen />}
@@ -678,6 +734,7 @@ export function ExitPassWaitingList({ project }: { project: string }) {
 
 function WaitingRow({ row, onOpen }: { row: ExitPassWaiting; onOpen: () => void }) {
   const t = useTranslations("exitPass");
+  const lorryWords = useTranslations("jb290");
   const df = useDateFormat();
   return (
     <button
@@ -699,6 +756,8 @@ function WaitingRow({ row, onOpen }: { row: ExitPassWaiting; onOpen: () => void 
             row.vehicle_plate ? t("waiting.plate", { plate: row.vehicle_plate }) : "",
             t("waiting.sentAt", { when: df.dateTime(row.sent_at) }),
             row.multi_release && row.release_count > 0 ? t("release.trips", { count: row.release_count }) : "",
+            // JB290: whether the next lorry may be released yet.
+            row.lorry_seq ? lorryWords(row.lorry_ready ? "waitingReady" : "waitingNotReady", { seq: row.lorry_seq }) : "",
           ]
             .filter(Boolean)
             .join(" · ")}

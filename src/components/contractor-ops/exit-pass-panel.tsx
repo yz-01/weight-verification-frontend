@@ -1170,6 +1170,7 @@ export function WaiveExternalDialog({ pass, onClose }: { pass: ExitPass; onClose
 
 function ReleasePart({ pass }: { pass: ExitPass }) {
   const t = useTranslations("exitPass");
+  const lorryWords = useTranslations("jb290");
   const df = useDateFormat();
   const { can } = useAuth();
   const [opened, setOpened] = useState<string | null>(null);
@@ -1229,6 +1230,12 @@ function ReleasePart({ pass }: { pass: ExitPass }) {
                   data-exit-pass-release={release.incident_no}
                 >
                   <span className="min-w-0 flex-1">
+                    {/* JB290: which lorry it let out, and its plate - the one the site signed for. */}
+                    {release.trip_seq ? (
+                      <span className="block font-medium" data-exit-pass-release-lorry={release.trip_seq}>
+                        {lorryWords("releaseLorry", { seq: release.trip_seq, plate: release.vehicle_plate || "-" })}
+                      </span>
+                    ) : null}
                     {t("release.done", {
                       name: release.by,
                       when: df.dateTime(release.at),
