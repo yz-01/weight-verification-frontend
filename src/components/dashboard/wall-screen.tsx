@@ -117,8 +117,14 @@ export function WallScreen({ source, controls }: { source: WallSource; controls?
   const idle = useIdle();
   useWallScale();
 
-  const failure = data.data ? null : data.isError ? (source.failure?.(data.error) ?? t("loadFailed")) : null;
-  const project = slide.kind === "project" ? data.data?.projects.find((row) => row.id === slide.id) : undefined;
+  // A failure the source calls final (a wall link that was ended) replaces
+  // the picture at once - the last data is not kept, or an ended link would
+  // go on showing the wall under 「网络中断」 (QA291). Any other failure keeps
+  // the last good picture with the amber note.
+  const final = data.isError ? (source.failure?.(data.error) ?? null) : null;
+  const failure = final ?? (data.data ? null : data.isError ? t("loadFailed") : null);
+  const shown = final ? undefined : data.data;
+  const project = slide.kind === "project" ? shown?.projects.find((row) => row.id === slide.id) : undefined;
 
   return (
     <div
@@ -131,17 +137,29 @@ export function WallScreen({ source, controls }: { source: WallSource; controls?
       style={{ backgroundImage: "var(--canvas-glow)" }}
     >
       <div className="flex h-dvh flex-col gap-[1rem] p-[1.5rem]">
-        {data.data ? (
+        {shown ? (
           <>
-            <WallHeader data={data.data} project={project} source={source} updatedAt={data.dataUpdatedAt} stale={data.isError} />
-            <SlideIndicator slides={slides} index={index} data={data.data} />
-            <main key={slide.id} className="animate-in fade-in min-h-0 flex-1 duration-700" data-wall-slide={slide.kind}>
-              {project ? (
-                <ProjectSlide project={project} modules={data.data.modules} />
-              ) : (
-                <OverviewSlide data={data.data} />
-              )}
-            </main>
+            <WallHeader data={shown} project={project} source={source} updatedAt={data.dataUpdatedAt} stale={data.isError} />
+            {shown.projects.length === 0 ? (
+              // No project on the wall (head office switched them all off,
+              // or none is active): a plain sentence, never empty boxes.
+              <main className="flex min-h-0 flex-1 items-center justify-center" data-wall-slide="none">
+                <p className="max-w-[60rem] text-center text-[2.4rem] leading-snug text-muted-foreground" role="status">
+                  {t("noProjects")}
+                </p>
+              </main>
+            ) : (
+              <>
+                <SlideIndicator slides={slides} index={index} data={shown} />
+                <main key={slide.id} className="animate-in fade-in min-h-0 flex-1 duration-700" data-wall-slide={slide.kind}>
+                  {project ? (
+                    <ProjectSlide project={project} modules={shown.modules} />
+                  ) : (
+                    <OverviewSlide data={shown} />
+                  )}
+                </main>
+              </>
+            )}
           </>
         ) : (
           <div className="flex flex-1 items-center justify-center">
@@ -415,28 +433,46 @@ export function ProjectSlide({ project, modules }: { project: WallProject; modul
   return (
     <div className={cn("grid h-full min-h-0 gap-[1rem]", project.esg ? "grid-rows-[minmax(0,1fr)_auto]" : "grid-rows-1")}>
       <div className={cn("grid min-h-0 gap-[1rem]", photos ? "grid-cols-[34rem_minmax(0,1fr)_38rem]" : "grid-cols-[34rem_minmax(0,1fr)]")}>
+        {/* The left column never holds more than fits (QA291: the ring, the
+            two figures and the map pin together ran over each other at
+            1920×1080): the ring and the figures here, the pin under the curve. */}
         <div className="flex min-h-0 flex-col gap-[1rem]">
           {project.progress && (
-            <Panel title={t("progress")} data-wall-panel="gauge">
-              <ProgressRing planned={percent(project.progress.planned)} actual={percent(project.progress.actual)} />
+            <Panel title={t("progress")} className="min-h-0 flex-1" data-wall-panel="gauge">
+              <div className="flex min-h-0 flex-1 items-center">
+                <ProgressRing planned={percent(project.progress.planned)} actual={percent(project.progress.actual)} />
+              </div>
             </Panel>
           )}
-          <div className="grid grid-cols-2 gap-[1rem]">
-            <BigFigure label={t("peopleOnSite")} value={project.people_on_site} tone="green" icon={HardHat} unit={t("people")} />
+          <div
+            className={cn(
+              "grid gap-[1rem]",
+              project.progress ? "shrink-0 grid-cols-2" : "min-h-0 flex-1 auto-rows-fr grid-cols-1",
+            )}
+          >
+            <BigFigure
+              label={t("peopleOnSite")} value={project.people_on_site} tone="green" icon={HardHat} unit={t("people")}
+              large={!project.progress}
+            />
             {modules.equipment && (
-              <BigFigure label={t("equipmentWorking")} value={project.equipment_working ?? 0} tone="amber" icon={Truck} unit={t("machines")} />
+              <BigFigure
+                label={t("equipmentWorking")} value={project.equipment_working ?? 0} tone="amber" icon={Truck} unit={t("machines")}
+                large={!project.progress}
+              />
             )}
           </div>
-          {located && project.progress && (
-            <Panel title={t("location")} className="min-h-[12rem] flex-1" data-wall-panel="pin">
-              <WallMap projects={[project]} />
-            </Panel>
-          )}
         </div>
         {project.progress ? (
-          <Panel title={t("curve")} className="min-h-0" data-wall-panel="curve" aside={<CurveLegend />}>
-            <ProgressCurve progress={project.progress} />
-          </Panel>
+          <div className="flex min-h-0 flex-col gap-[1rem]">
+            <Panel title={t("curve")} className="min-h-0 flex-1" data-wall-panel="curve" aside={<CurveLegend />}>
+              <ProgressCurve progress={project.progress} />
+            </Panel>
+            {located && (
+              <Panel title={t("location")} className="h-[12rem] shrink-0" data-wall-panel="pin">
+                <WallMap projects={[project]} />
+              </Panel>
+            )}
+          </div>
         ) : located ? (
           <Panel title={t("location")} className="min-h-0" data-wall-panel="pin">
             <WallMap projects={[project]} />
@@ -517,22 +553,28 @@ function BigFigure({
   tone,
   icon: Icon,
   unit,
+  large = false,
 }: {
   label: string;
   value: number;
   tone: Tone;
   icon: LucideIcon;
   unit?: string;
+  /** Fills a tall box (a project slide with no schedule): bigger, centred. */
+  large?: boolean;
 }) {
   return (
-    <div className={cn("surface-panel rounded-[1rem] p-[1.1rem]")} data-wall-figure>
-      <div className="flex items-center gap-[0.5rem] text-[1.3rem] text-muted-foreground">
-        <Icon className={cn("size-[1.5rem]", TONES[tone].text)} aria-hidden />
+    <div
+      className={cn("surface-panel rounded-[1rem] p-[1.1rem]", large && "flex min-h-0 flex-col justify-center gap-[1rem] px-[2rem]")}
+      data-wall-figure
+    >
+      <div className={cn("flex items-center gap-[0.5rem] text-muted-foreground", large ? "text-[1.8rem]" : "text-[1.3rem]")}>
+        <Icon className={cn(large ? "size-[2rem]" : "size-[1.5rem]", TONES[tone].text)} aria-hidden />
         <span className="truncate">{label}</span>
       </div>
-      <p className={cn("kpi-figure mt-[0.4rem] text-[3.6rem] leading-none", TONES[tone].text)}>
+      <p className={cn("kpi-figure mt-[0.4rem] leading-none", large ? "text-[6rem]" : "text-[3.6rem]", TONES[tone].text)}>
         <CountUp value={value} />
-        {unit && <span className="ml-[0.4rem] text-[1.4rem] text-muted-foreground">{unit}</span>}
+        {unit && <span className={cn("ml-[0.4rem] text-muted-foreground", large ? "text-[2rem]" : "text-[1.4rem]")}>{unit}</span>}
       </p>
     </div>
   );
@@ -572,7 +614,7 @@ function ProgressBars({ data }: { data: WallScreenData }) {
 function CurveLegend() {
   const t = useTranslations("jb291");
   return (
-    <ul className="flex gap-[1rem] text-[1.15rem] text-muted-foreground">
+    <ul className="flex gap-[1rem] text-[1.3rem] text-muted-foreground">
       <li className="flex items-center gap-[0.4rem]">
         <span className="h-[0.3rem] w-[1.5rem] rounded-full bg-tone-slate" aria-hidden />
         {t("planned")}
@@ -648,15 +690,23 @@ function ProgressCurve({ progress }: { progress: NonNullable<WallProject["progre
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-[0.5rem]" data-wall-curve>
       <div className="relative min-h-0 flex-1">
-        <svg viewBox={`-60 -10 ${width + 80} ${height + 30}`} preserveAspectRatio="none" className="absolute inset-0 h-full w-full" role="img" aria-hidden>
+        {/* The % labels are page text beside the drawing, not SVG text: in a
+            stretched SVG they were squeezed and the 100 % one cut (QA291). */}
+        <div className="absolute inset-y-[0.9rem] left-[4.75rem] right-[0.5rem]">
+          {[0, 25, 50, 75, 100].map((tick) => (
+            <span
+              key={tick}
+              className="absolute right-full mr-[0.75rem] -translate-y-1/2 text-[1.3rem] leading-none tabular-nums text-muted-foreground"
+              style={{ top: `${100 - tick}%` }}
+              data-wall-curve-tick
+            >
+              {tick}%
+            </span>
+          ))}
+          <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" className="absolute inset-0 h-full w-full overflow-visible" role="img" aria-hidden>
           {[0, 25, 50, 75, 100].map((tick) => {
             const y = height - (tick / 100) * height;
-            return (
-              <g key={tick}>
-                <line x1="0" x2={width} y1={y} y2={y} className="stroke-panel-border" strokeWidth="1" vectorEffect="non-scaling-stroke" />
-                <text x="-14" y={y + 8} textAnchor="end" className="fill-muted-foreground" fontSize="24">{tick}%</text>
-              </g>
-            );
+            return <line key={tick} x1="0" x2={width} y1={y} y2={y} className="stroke-panel-border" strokeWidth="1" vectorEffect="non-scaling-stroke" />;
           })}
           {planned && (
             <path d={planned} fill="none" className="stroke-tone-slate" strokeWidth="3" strokeDasharray="10 8" vectorEffect="non-scaling-stroke" />
@@ -675,9 +725,10 @@ function ProgressCurve({ progress }: { progress: NonNullable<WallProject["progre
               style={{ animation: "wall-draw 2.4s ease-out forwards", strokeDashoffset: 1 }}
             />
           )}
-        </svg>
+          </svg>
+        </div>
       </div>
-      <div className="flex justify-between pl-[3rem] text-[1.15rem] text-muted-foreground">
+      <div className="flex justify-between pl-[4.75rem] pr-[0.5rem] text-[1.3rem] text-muted-foreground">
         <span>{label(start)}</span>
         <span>{label(end)}</span>
       </div>
@@ -711,9 +762,12 @@ function WallMap({ projects }: { projects: WallProject[] }) {
   );
   return (
     <div className="relative min-h-0 flex-1 overflow-hidden rounded-[0.75rem]">
+      {/* The shared map's own 22rem minimum is dropped: in the small 项目位置
+          box it made the map taller than its box, so the pin sat below the
+          part that shows (QA291). */}
       <LocationMap
         markers={markers}
-        className="absolute inset-0 h-full w-full"
+        className="absolute inset-0 h-full w-full min-h-0!"
         ariaLabel={placed.map((row) => row.name).join(", ")}
         preserveViewOnDataUpdate
         fitBoundsKey={placed.map((row) => row.id).join(",")}
@@ -838,12 +892,12 @@ function EnvironmentCard({ esg }: { esg: WallEsg }) {
                   <span className="kpi-figure text-[1.9rem] text-foreground">
                     <CountUp value={total.value} decimals={total.decimals} />
                   </span>
-                  <span className="ml-[0.25rem] text-[1.1rem] text-muted-foreground">{t(total.unit === "t" ? "tonnes" : "kg")}</span>
-                  <span className="ml-[0.6rem] text-[1.1rem] text-muted-foreground">
+                  <span className="ml-[0.25rem] text-[1.2rem] text-muted-foreground">{t(total.unit === "t" ? "tonnes" : "kg")}</span>
+                  <span className="ml-[0.6rem] text-[1.2rem] text-muted-foreground">
                     {t("trips", { count: row.value.trips })}
                   </span>
                 </span>
-                <span className="col-span-2 text-[1.05rem] text-muted-foreground">
+                <span className="col-span-2 text-[1.2rem] text-muted-foreground">
                   {t("monthLine", {
                     weight: `${month.value}${t(month.unit === "t" ? "tonnes" : "kg")}`,
                     trips: row.value.month_trips,
@@ -918,7 +972,7 @@ function EsgNumber({ label, value, suffix, detail }: { label: string; value: num
           <CountUp value={value} />
           {suffix}
         </span>
-        {detail && <span className="ml-[0.6rem] text-[1.05rem] text-muted-foreground">{detail}</span>}
+        {detail && <span className="ml-[0.6rem] text-[1.2rem] text-muted-foreground">{detail}</span>}
       </dd>
     </div>
   );

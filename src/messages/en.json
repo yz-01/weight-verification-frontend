@@ -24761,12 +24761,13 @@
     "linkRevoke": "End the link",
     "linkRevokeConfirm": "Yes, end it",
     "keepLink": "Keep it",
-    "confirmRevoke": "A screen using this link stops at once.",
+    "confirmRevoke": "A screen using this link stops at its next refresh, within two minutes.",
     "linkMadeAt": "Made {time} by {name}",
     "linkOpenedAt": "Last opened: {time}",
     "linkNeverOpened": "Not opened yet",
     "linkShownOnce": "Copy this link now. It is not shown again after you close this.",
     "linkCopy": "Copy link",
-    "linkCopied": "Copied"
+    "linkCopied": "Copied",
+    "noProjects": "No project is on the wall now. Head office can choose the projects to show in 【Wall display settings】."
   }
 }

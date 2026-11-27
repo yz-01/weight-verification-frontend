@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Check, Copy, Link2, Settings2 } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { WallControl } from "@/components/dashboard/wall-screen";
 import { LoadFailed } from "@/components/shared/page-primitives";
@@ -77,6 +77,7 @@ export function WallSettingsDialog({
   });
   const set = (project: string, field: "shown" | "photos" | "esg", value: boolean) =>
     setRows(shown.map((row) => (row.project === project ? { ...row, [field]: value } : row)));
+  useOfficeTextSize(open);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-3xl" data-wall-settings>
@@ -148,6 +149,27 @@ export function WallSettingsDialog({
       </DialogContent>
     </Dialog>
   );
+}
+
+/**
+ * The wall sizes its type to the screen (one rem per 1/120 of the width), so
+ * on a 1366×768 screen this office dialog came out at 10 px (QA291). While it
+ * is open, the type is never smaller than the back office's own 16 px; the
+ * wall's size comes back when it closes.
+ */
+export const OFFICE_TEXT_PX = 16;
+
+function useOfficeTextSize(open: boolean) {
+  useEffect(() => {
+    if (!open) return;
+    const root = document.documentElement;
+    if (parseFloat(getComputedStyle(root).fontSize) >= OFFICE_TEXT_PX) return;
+    const before = root.style.fontSize;
+    root.style.fontSize = `${OFFICE_TEXT_PX}px`;
+    return () => {
+      root.style.fontSize = before;
+    };
+  }, [open]);
 }
 
 /** 接待区大屏链接: made once, copied, ended - the token is shown only once. */

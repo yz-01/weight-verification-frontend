@@ -15,6 +15,7 @@ import path from "node:path";
 
 import { describe, expect, it, vi } from "vitest";
 
+import { ApiError } from "@/interfaces/api";
 import type { WallProject, WallScreenData } from "@/interfaces/wall-screen";
 import {
   IDLE_MS,
@@ -303,6 +304,80 @@ describe("五 大屏展示设定", () => {
     expect(html).toContain('data-wall-setting-row="p-tower"');
     for (const word of ["上大屏", "现场照片", "ESG", "接待区大屏链接", "停用链接", "还没有打开过"]) expect(html).toContain(word);
     expect(html).toContain(zh.jb291.neverShown);
+  });
+});
+
+describe("QA291 walk fixes", () => {
+  function failedAfterData(error: Error, failure?: (error: unknown) => string | null) {
+    const linkSource = { ...source, queryKey: ["wall-screen", "qa", String(Math.random())] as const, failure };
+    return renderDetail(<WallScreen source={linkSource} />, (client) => {
+      client.setQueryData(linkSource.queryKey, wall());
+      client.getQueryCache().find({ queryKey: linkSource.queryKey })?.setState({ status: "error", error, fetchStatus: "idle" });
+    });
+  }
+
+  it("an ended wall link stops the screen at its next refresh, not 「网络中断」 over the old picture", () => {
+    const gone = new ApiError("gone", 404, {}, "wall_link_not_found");
+    const html = failedAfterData(gone, (error) => (error instanceof ApiError && error.status === 404 ? zh.jb291.linkGone : null));
+    expect(html).toContain(zh.jb291.linkGone);
+    expect(html).not.toContain("data-wall-slide");
+    expect(html).not.toContain("Alpha Tower");
+    // A network failure still keeps the last good picture with the amber note.
+    const offline = failedAfterData(new ApiError("network", 0, {}, "network_error"), () => null);
+    expect(offline).toContain("data-wall-slide");
+    expect(offline).toContain("网络中断");
+  });
+
+  it("no project on the wall: one plain sentence, no empty boxes, no page counter", () => {
+    const html = renderWall(wall({
+      projects: [],
+      overview: { ...wall().overview, projects: 0, located: 0, people_on_site: 0, equipment_on_site: 0, equipment_working: 0, progress: [], esg: null, photos: null },
+    }));
+    expect(html).toContain(zh.jb291.noProjects);
+    expect(html).not.toContain("data-wall-panel");
+    expect(html).not.toContain("data-wall-indicator");
+    expect(html).toContain("Alpha Builders Sdn Bhd");
+  });
+
+  it("a project slide: ring and figures on the left, the pin under the curve, % labels as page text", () => {
+    const html = renderDetail(<ProjectSlide project={tower} modules={wall().modules} />);
+    const at = (panel: string) => html.indexOf(`data-wall-panel="${panel}"`);
+    expect(at("gauge")).toBeLessThan(at("curve"));
+    expect(at("curve")).toBeLessThan(at("pin"));
+    expect(at("pin")).toBeLessThan(at("photos"));
+    expect(html.match(/data-wall-curve-tick/g)?.length).toBe(5);
+    expect(html).toContain(">100%</span>");
+    const curve = html.slice(at("curve"), at("pin"));
+    expect(curve).not.toContain("<text");
+  });
+
+  it("大屏展示设定 keeps the back office's 16 px type on a small screen while it is open", () => {
+    const text = src("components/dashboard/wall-settings.tsx");
+    expect(text).toContain("useOfficeTextSize(open)");
+    expect(text).toContain("root.style.fontSize = `${OFFICE_TEXT_PX}px`");
+    expect(text).toContain("export const OFFICE_TEXT_PX = 16");
+  });
+
+  it("the small 项目位置 map is as tall as its box, so its pin shows", () => {
+    expect(src("components/dashboard/wall-screen.tsx")).toContain('className="absolute inset-0 h-full w-full min-h-0!"');
+  });
+
+  it("a project without a schedule fills its left column with two big figures", () => {
+    const html = renderDetail(<ProjectSlide project={depot} modules={wall().modules} />);
+    expect(html.match(/text-\[6rem\]/g)?.length).toBe(2);
+  });
+
+  it("Esc in 大屏展示设定 closes the dialog only: the wall hears Esc before the dialog does", () => {
+    const text = src("components/dashboard/headquarters-wall.tsx");
+    expect(text).toContain('window.addEventListener("keydown", onKey, true)');
+    expect(text).toContain('window.removeEventListener("keydown", onKey, true)');
+  });
+
+  it("停用链接 says when the screen stops (its next refresh), in four languages", () => {
+    expect(zh.jb291.confirmRevoke).toContain("下一次自动更新");
+    expect(zhTW.jb291.confirmRevoke).toContain("下一次自動更新");
+    expect(en.jb291.confirmRevoke).not.toContain("at once");
+    expect(ms.jb291.confirmRevoke).not.toContain("serta-merta");
   });
 });
 

@@ -24761,12 +24761,13 @@
     "linkRevoke": "Hentikan pautan",
     "linkRevokeConfirm": "Ya, hentikan",
     "keepLink": "Kekalkan",
-    "confirmRevoke": "Skrin yang menggunakan pautan ini akan berhenti serta-merta.",
+    "confirmRevoke": "Skrin yang menggunakan pautan ini berhenti pada kemas kini seterusnya, dalam masa dua minit.",
     "linkMadeAt": "Dibuat {time} oleh {name}",
     "linkOpenedAt": "Terakhir dibuka: {time}",
     "linkNeverOpened": "Belum pernah dibuka",
     "linkShownOnce": "Salin pautan ini sekarang. Ia tidak dipaparkan lagi selepas ini ditutup.",
     "linkCopy": "Salin pautan",
-    "linkCopied": "Disalin"
+    "linkCopied": "Disalin",
+    "noProjects": "Tiada projek dipaparkan pada skrin besar sekarang. Ibu pejabat boleh memilih projek yang dipaparkan dalam 【Tetapan paparan skrin besar】."
   }
 }

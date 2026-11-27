@@ -56,15 +56,17 @@ export function HeadquartersWall() {
   }, [allowed, isLoading, router, user]);
 
   // Esc leaves (not while a dialog is open, nor out of full screen, which the
-  // browser's own Esc ends first).
+  // browser's own Esc ends first). Heard in the capture phase, before the
+  // dialog's own Esc handler closes it: heard after, the dialog was already
+  // gone, and one Esc closed 【大屏展示设定】 and left the wall too (QA291).
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.key !== "Escape" || document.fullscreenElement) return;
-      if (document.querySelector("[role=dialog]")) return;
+      if (document.querySelector("[role=dialog], [role=alertdialog]")) return;
       router.push("/dashboard");
     };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    window.addEventListener("keydown", onKey, true);
+    return () => window.removeEventListener("keydown", onKey, true);
   }, [router]);
 
   const source = useMemo<WallSource>(

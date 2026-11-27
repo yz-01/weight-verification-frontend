@@ -24761,12 +24761,13 @@
     "linkRevoke": "停用链接",
     "linkRevokeConfirm": "确定停用",
     "keepLink": "不停用",
-    "confirmRevoke": "停用后，用这个链接的屏幕会马上停止显示。",
+    "confirmRevoke": "停用后，用这个链接的屏幕在下一次自动更新时（两分钟内）停止显示。",
     "linkMadeAt": "{time} 由 {name} 生成",
     "linkOpenedAt": "最近打开：{time}",
     "linkNeverOpened": "还没有打开过",
     "linkShownOnce": "请现在复制这个链接，关掉后不会再显示。",
     "linkCopy": "复制链接",
-    "linkCopied": "已复制"
+    "linkCopied": "已复制",
+    "noProjects": "现在没有项目在大屏上展示。总部可以在【大屏展示设定】里选要展示的项目。"
   }
 }

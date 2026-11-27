@@ -24761,12 +24761,13 @@
     "linkRevoke": "停用連結",
     "linkRevokeConfirm": "確定停用",
     "keepLink": "不停用",
-    "confirmRevoke": "停用後，用這個連結的屏幕會馬上停止顯示。",
+    "confirmRevoke": "停用後，用這個連結的屏幕在下一次自動更新時（兩分鐘內）停止顯示。",
     "linkMadeAt": "{time} 由 {name} 生成",
     "linkOpenedAt": "最近打開：{time}",
     "linkNeverOpened": "還沒有打開過",
     "linkShownOnce": "請現在複製這個連結，關掉後不會再顯示。",
     "linkCopy": "複製連結",
-    "linkCopied": "已複製"
+    "linkCopied": "已複製",
+    "noProjects": "現在沒有項目在大屏上展示。總部可以在【大屏展示設定】裡選要展示的項目。"
   }
 }
