@@ -718,7 +718,6 @@ function WallMap({ projects }: { projects: WallProject[] }) {
         preserveViewOnDataUpdate
         fitBoundsKey={placed.map((row) => row.id).join(",")}
         singlePointZoom={13}
-        popups={false}
       />
     </div>
   );
