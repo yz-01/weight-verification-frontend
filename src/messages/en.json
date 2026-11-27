@@ -25224,7 +25224,6 @@
       "workedNo": "Did not work",
       "hoursInvalid": "Enter a number from 0 to 24, at most two decimals.",
       "over24": "Normal plus overtime hours cannot be more than 24.",
-      "sumLabel": "Normal plus overtime no more than 24 hours",
       "reason": "Reason for the adjustment",
       "reasonPlaceholder": "For example: phone battery ran out, left at 17:30",
       "pinNote": "After 「Save the adjustment」, enter your six-digit sign-off PIN.",
@@ -25242,7 +25241,9 @@
       "ok": "Fine",
       "pinNote": "After 「Confirm」, enter your six-digit sign-off PIN.",
       "save": "Confirm the hours of {count} people",
-      "tickSomeone": "Tick at least one person"
+      "tickSomeone": "Tick at least one person",
+      "noRate": "No rate: set the rate before confirming",
+      "noRateNames": "These people have no labour rate yet: {names}. Set their rate in 【Labour rates】 first, then their hours can be confirmed."
     },
     "unconfirm": {
       "button": "Undo the confirmation",

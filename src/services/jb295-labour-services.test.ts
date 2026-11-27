@@ -4,8 +4,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const calls = vi.hoisted(() => ({
-  get: vi.fn(async (..._args: unknown[]): Promise<unknown> => ({})),
-  post: vi.fn(async (..._args: unknown[]): Promise<unknown> => ({ statement_no: "LB-MS001", check_no: "LB-RC001", settlement_no: "LB-ST001", confirmed: [] })),
+  get: vi.fn(async (...args: unknown[]): Promise<unknown> => (args.length ? {} : {})),
+  post: vi.fn(async (...args: unknown[]): Promise<unknown> => ({
+    args: args.length, statement_no: "LB-MS001", check_no: "LB-RC001", settlement_no: "LB-ST001", confirmed: [] })),
   download: vi.fn(async () => undefined),
 }));
 

@@ -78,6 +78,7 @@ export function LabourRatesDialog({
   const t = useTranslations("jb295");
   const df = useDateFormat();
   const rates = useQuery({ queryKey: ["labour", "rates", project], queryFn: () => getLabourRates(project || undefined) });
+  // query-failure: said inside 【新增单价】 (QueryFailedNote on `optionsQuery`); the rates list still loads.
   const options = useQuery({
     queryKey: ["labour", "options", project],
     queryFn: () => getLabourOptions(project),
@@ -154,7 +155,7 @@ export function LabourRatesDialog({
                             <TableCell className="text-sm">
                               {rate.created_by_name} · {df.dateTime(rate.created_at)}
                             </TableCell>
-                            <TableCell className="text-right">
+                            <TableCell>
                               <Button size="sm" variant="outline" onClick={() => setHistory(rate)}>
                                 <History />
                                 {t("rates.history")}
@@ -444,10 +445,10 @@ function NewRateForm({
             [!missing.includes("company"), t("field.company")],
             [!missing.includes("trade"), t("field.trade")],
             [priceOk, method === "DAILY" ? t("field.dayPrice") : t("field.hourPrice")],
-            [overtimeOk, t("field.overtimeRate")],
             [effectiveFrom, t("field.effectiveFrom")],
           ]}
-          disabled={save.isPending}
+          disabled={save.isPending || !overtimeOk}
+          disabledReason={!overtimeOk ? `${t("field.overtimeRate")}: ${t("field.priceInvalid")}` : undefined}
           onClick={() => save.mutate()}
         >
           {save.isPending ? <Loader2 className="animate-spin" /> : <Save />}

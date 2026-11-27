@@ -351,10 +351,15 @@ function CheckPicker({ kind, onSaved }: { kind: ReconKind; onSaved: (check: Retu
     queryFn: () => getPendingReturnSuppliers(project || undefined, kind),
   });
   const [picked, setPicked] = useState<PendingReturnSupplier | null>(null);
-  const list = suppliers.data?.results ?? [];
+  const t295 = useTranslations("jb295");
+  // JB295: 本公司 / 未填所属公司 come without a name; the screen words them.
+  const list = (suppliers.data?.results ?? []).map((row) =>
+    kind === "LABOUR" && !row.name
+      ? { ...row, name: row.id === "self" ? t295("company.self") : t295("company.none") }
+      : row,
+  );
   // 「只有一家就直接选好」.
   const supplier = picked ?? (list.length === 1 ? list[0] : null);
-  const t295 = useTranslations("jb295");
   const none =
     kind === "RETURN"
       ? t("noSuppliers")

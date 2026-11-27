@@ -25224,7 +25224,6 @@
       "workedNo": "Tidak bekerja",
       "hoursInvalid": "Masukkan nombor dari 0 hingga 24, paling banyak dua tempat perpuluhan.",
       "over24": "Jam biasa campur lebih masa tidak boleh melebihi 24.",
-      "sumLabel": "Jam biasa campur lebih masa tidak melebihi 24",
       "reason": "Sebab pelarasan",
       "reasonPlaceholder": "Contoh: bateri telefon habis, keluar pada 17:30",
       "pinNote": "Selepas 「Simpan pelarasan」, masukkan PIN pengesahan enam digit anda.",
@@ -25242,7 +25241,9 @@
       "ok": "Tiada masalah",
       "pinNote": "Selepas 「Sahkan」, masukkan PIN pengesahan enam digit anda.",
       "save": "Sahkan jam {count} orang",
-      "tickSomeone": "Tandakan sekurang-kurangnya seorang"
+      "tickSomeone": "Tandakan sekurang-kurangnya seorang",
+      "noRate": "Tiada kadar: tetapkan kadar sebelum mengesahkan",
+      "noRateNames": "Orang ini belum ada kadar buruh: {names}. Tetapkan kadar mereka dalam 【Kadar buruh】 dahulu, kemudian jam mereka boleh disahkan."
     },
     "unconfirm": {
       "button": "Batalkan pengesahan",

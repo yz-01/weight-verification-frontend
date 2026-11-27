@@ -102,9 +102,18 @@ export function sortDays(rows: readonly LabourDayRow[]): LabourDayRow[] {
   return [...rows].sort((a, b) => (a.date === b.date ? a.person_name.localeCompare(b.person_name) : a.date < b.date ? 1 : -1));
 }
 
-/** The people 【确认本月工时】 offers: worked this month, not confirmed yet. */
+/** The people 【确认本月工时】 lists: worked this month, not confirmed yet. */
 export function confirmable(rows: readonly LabourMonthRow[]): LabourMonthRow[] {
   return rows.filter((row) => !row.confirmed && row.days_worked > 0);
+}
+
+/**
+ * Of those, the ones that can be ticked: the server refuses to confirm a
+ * person with no 人工单价 (a confirmed month would keep 「没有单价」 for good),
+ * so they are listed with the reason instead.
+ */
+export function tickable(rows: readonly LabourMonthRow[]): LabourMonthRow[] {
+  return confirmable(rows).filter((row) => !row.no_rate && row.rates.length > 0);
 }
 
 /** A live (not 作废) 结算单 holding the month: 【取消确认】 waits for it. */
@@ -120,7 +129,6 @@ export function LabourCostsPage() {
   const seesAmounts = useSeesAmounts();
   const canView = officeMay(user, can, LABOUR_VIEW);
   const canManage = officeMay(user, can, LABOUR_MANAGE);
-  const canExport = can("report.export") || canView;
   const [view, setView] = useState<View>(address?.get("view") === "day" ? "day" : "month");
   const [project, setProject] = usePageProject(address?.get("project") ?? "");
   const [month, setMonth] = useState(() => {
@@ -224,7 +232,7 @@ export function LabourCostsPage() {
                 </Link>
               </Button>
             ) : null}
-            {canExport ? (
+            {canView ? (
               view === "day" ? (
                 <ExportButton
                   disabled={!dayRows.length}
@@ -1056,10 +1064,10 @@ export function AdjustDayDialog({ project, row, onClose }: { project: string; ro
             requires={[
               [!worked || normalOk, t("col.normalHours")],
               [!worked || overtimeOk, t("col.overtimeHours")],
-              [sumOk, t("adjust.sumLabel")],
               [reason.trim(), t("adjust.reason")],
             ]}
-            disabled={save.isPending}
+            disabled={save.isPending || !sumOk}
+            disabledReason={!sumOk ? t("adjust.over24") : undefined}
             onClick={() => save.mutate()}
           >
             {save.isPending ? <Loader2 className="animate-spin" /> : <Save />}
@@ -1084,8 +1092,10 @@ export function ConfirmMonthDialog({ project, month, onClose }: { project: strin
     queryFn: () => getLabourMonth({ project, month }),
   });
   const offered = confirmable(data.data?.rows ?? []);
+  const canTick = tickable(data.data?.rows ?? []);
   const [unticked, setUnticked] = useState<ReadonlySet<string>>(() => new Set());
-  const ticked = offered.filter((row) => !unticked.has(row.person_key)).map((row) => row.person_key);
+  const ticked = canTick.filter((row) => !unticked.has(row.person_key)).map((row) => row.person_key);
+  const tickableKeys = new Set(canTick.map((row) => row.person_key));
   const over = data.data?.month_over ?? false;
   const save = useMutation({
     mutationFn: () => confirmLabourMonth({ project, month, people: ticked }),
@@ -1121,6 +1131,17 @@ export function ConfirmMonthDialog({ project, month, onClose }: { project: strin
             {t("confirm.nothing")}
           </p>
         ) : null}
+        {offered.length > canTick.length ? (
+          // The server refuses to confirm a person with no 人工单价: named here first.
+          <p className="rounded-lg border border-warning/30 bg-warning/10 px-4 py-3 text-base" data-slot="labour-confirm-no-rate-names">
+            {t("confirm.noRateNames", {
+              names: offered
+                .filter((row) => !tickableKeys.has(row.person_key))
+                .map((row) => row.person_name)
+                .join("、"),
+            })}
+          </p>
+        ) : null}
         {offered.length ? (
           <div className="overflow-x-auto rounded-lg border">
             <Table className="text-base">
@@ -1129,9 +1150,10 @@ export function ConfirmMonthDialog({ project, month, onClose }: { project: strin
                   <TableHead className="w-12">
                     <Checkbox
                       aria-label={t("confirm.all")}
-                      checked={ticked.length === offered.length}
+                      checked={canTick.length > 0 && ticked.length === canTick.length}
+                      disabled={canTick.length === 0}
                       onCheckedChange={(value) =>
-                        setUnticked(value === true ? new Set() : new Set(offered.map((row) => row.person_key)))
+                        setUnticked(value === true ? new Set() : new Set(canTick.map((row) => row.person_key)))
                       }
                     />
                   </TableHead>
@@ -1149,7 +1171,8 @@ export function ConfirmMonthDialog({ project, month, onClose }: { project: strin
                     <TableCell>
                       <Checkbox
                         aria-label={row.person_name}
-                        checked={!unticked.has(row.person_key)}
+                        checked={tickableKeys.has(row.person_key) && !unticked.has(row.person_key)}
+                        disabled={!tickableKeys.has(row.person_key)}
                         onCheckedChange={() => toggle(row.person_key)}
                       />
                     </TableCell>
@@ -1164,7 +1187,11 @@ export function ConfirmMonthDialog({ project, month, onClose }: { project: strin
                     <TableCell className="tabular text-right">{hoursText(row.normal_hours)}</TableCell>
                     <TableCell className="tabular text-right">{hoursText(row.overtime_hours)}</TableCell>
                     <TableCell className="text-sm">
-                      {row.missing_exit_count + row.system_exit_count > 0 ? (
+                      {!tickableKeys.has(row.person_key) ? (
+                        <span className="font-medium text-warning" data-slot="labour-confirm-no-rate">
+                          {t("confirm.noRate")}
+                        </span>
+                      ) : row.missing_exit_count + row.system_exit_count > 0 ? (
                         <span className="text-warning">
                           {t("confirm.flags", { count: row.missing_exit_count + row.system_exit_count })}
                         </span>
@@ -1183,9 +1210,8 @@ export function ConfirmMonthDialog({ project, month, onClose }: { project: strin
           <Button
             size="lg"
             data-slot="labour-confirm-save"
-            requires={[[ticked.length > 0, t("confirm.tickSomeone")]]}
-            disabled={save.isPending || !over}
-            disabledReason={!over ? notOver : undefined}
+            disabled={save.isPending || !over || ticked.length === 0}
+            disabledReason={!over ? notOver : ticked.length === 0 ? t("confirm.tickSomeone") : undefined}
             onClick={() => save.mutate()}
           >
             {save.isPending ? <Loader2 className="animate-spin" /> : <CheckCheck />}

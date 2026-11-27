@@ -64,7 +64,7 @@ vi.mock("@/components/providers/current-project-provider", () => ({
   useOnProjectChange: () => undefined,
 }));
 
-const { LabourCostsPage, AdjustDayDialog, ConfirmMonthDialog, confirmable, liveStatement, sortDays, statementHref } =
+const { LabourCostsPage, AdjustDayDialog, ConfirmMonthDialog, confirmable, liveStatement, sortDays, statementHref, tickable } =
   await import("@/components/labour/labour-costs");
 const { LabourRatesDialog, rateTargetMissing, ratesByScope, validPrice } = await import(
   "@/components/labour/labour-rates"
@@ -398,14 +398,20 @@ describe("【确认本月工时】 (负责人核对确认)", () => {
     expect(monthEndShort("2028-02")).toBe("29/02");
   });
 
-  it("offers the people not confirmed yet, with their days to check", () => {
+  it("offers the people not confirmed yet, with their days to check; no rate = not tickable, says why", () => {
     expect(confirmable(MONTH_ROWS as never).map((row) => row.person_key)).toEqual(["user:u-ahing"]);
+    expect(tickable(MONTH_ROWS as never)).toEqual([]);
+    const priced = { ...MONTH_ROWS[1], person_key: "user:u-mei", person_name: "mei", no_rate: false, rates: MONTH_ROWS[0].rates };
+    expect(tickable([...MONTH_ROWS, priced] as never).map((row) => row.person_key)).toEqual(["user:u-mei"]);
     const out = text(
       render(<ConfirmMonthDialog project="p-1" month="2026-10" onClose={() => undefined} />, (qc) =>
-        qc.setQueryData(["labour", "month", { project: "p-1", month: "2026-10" }], MONTH),
+        qc.setQueryData(["labour", "month", { project: "p-1", month: "2026-10" }], { ...MONTH, rows: [...MONTH_ROWS, priced] }),
       ),
     );
     expect(out).toContain("ahing");
+    expect(out).toContain(zh.jb295.confirm.noRate);
+    expect(out).toContain(fill(zh.jb295.confirm.noRateNames, { names: "ahing" }));
+    expect(out).toContain("mei");
     expect(out).toContain(fill(zh.jb295.confirm.flags, { count: 1 }));
     expect(out).toContain(fill(zh.jb295.confirm.save, { count: 1 }));
     expect(out).toContain(zh.jb295.confirm.pinNote);
@@ -532,6 +538,8 @@ describe("人工结算单: 按所属公司及月份, 待核对 / 已核对 / 已
     expect(labourTabOf("checked")).toBe("checked");
     expect(labourTabOf(null)).toBe("pending");
     expect(read("src/components/labour/labour-statements.tsx")).toMatch(/<ReconcileSettleButton\s+kind="LABOUR"/);
+    // 本公司 / 未填所属公司 come without a name: the 核对 picker words them.
+    expect(read("src/components/contractor-ops/return-checks.tsx")).toContain('row.id === "self" ? t295("company.self") : t295("company.none")');
   });
 
   it("opens on 已核对 from the overview's 查看明细", () => {
@@ -666,7 +674,7 @@ describe("words", () => {
       "labour_amounts_off",
     ];
     const pins = ["labour_rate_set", "labour_hours_adjust", "labour_confirm", "labour_unconfirm", "labour_statement", "labour_check", "labour_settle"];
-    for (const catalogue of [zh, zhTW, en, ms] as Record<string, never>[]) {
+    for (const catalogue of [zh, zhTW, en, ms] as unknown as Record<string, unknown>[]) {
       const errors = (catalogue.errors as { api: Record<string, string> }).api;
       for (const code of codes) expect(errors[code], code).toBeTruthy();
       const actions = (catalogue.signOff as { action: Record<string, string> }).action;
