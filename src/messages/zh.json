@@ -4098,7 +4098,9 @@
       "labour_statement_pdf_previewed": "预览人工结算单 PDF",
       "labour_statement_pdf_exported": "导出人工结算单 PDF",
       "labour_checked": "人工结算单核对",
-      "labour_settled": "人工结算单结算"
+      "labour_settled": "人工结算单结算",
+      "progress_claim_checked": "Progress Claim 核对",
+      "progress_claim_settled": "Progress Claim 结算"
     },
     "objectType": {
       "SignOffAssistant": "助理副密码",
@@ -7841,7 +7843,10 @@
       "fee_per_trip": "每车费用",
       "fee_amount": "费用金额",
       "settlement_no": "结算编号",
-      "settlement_status": "结算状态"
+      "settlement_status": "结算状态",
+      "checked_amount": "核对金额 (RM)",
+      "claim_settle_state": "结算状态",
+      "check_no": "核对编号"
     },
     "description": {
       "attendance": "查看人员进场证据、GPS 精度与围栏结果。",
@@ -9859,6 +9864,10 @@
       "labour_statement_no_company": "这些人还没填所属公司：{items}。填好才能结算。",
       "labour_statement_empty": "这家所属公司在这个月没有工作天数，没有东西可以结算。",
       "labour_check_other_company": "{reference} 是另一家所属公司的，一次核对只能是同一家公司。",
+      "claim_check_other_subcontractor": "{reference} 是另一家分包商的，一次核对只能是同一家分包商。",
+      "claim_not_settleable": "{reference} 现在不能核对：要审批完成并归档，并有分包商和批准金额。",
+      "claim_check_reason_required": "{reference} 改了核对金额，请写原因。",
+      "claim_check_amount_invalid": "{reference} 的核对金额要大于 0。",
       "labour_amounts_off": "你的账号没有开「金额查看」，不能设定人工单价。"
     },
     "backToDashboard": "返回仪表板",
@@ -22376,7 +22385,9 @@
       "labour_unconfirm": "取消确认本月工时",
       "labour_statement": "生成或作废人工结算单",
       "labour_check": "核对人工结算单",
-      "labour_settle": "结算人工结算单"
+      "labour_settle": "结算人工结算单",
+      "progress_claim_check": "核对 Progress Claim",
+      "progress_claim_settle": "结算 Progress Claim"
     },
     "firstTitle": "第一次设定签核密码",
     "firstBanner": "这是你第一次使用签核密码",
@@ -25505,6 +25516,66 @@
       "months": "看每月",
       "empty": "这段月份没有人有工作天数。",
       "help": "人工费用是按现在的记录和单价算出的；已确认的月份按确认时保存的算。"
+    }
+  },
+  "jb298": {
+    "state": {
+      "PENDING": "待核对",
+      "CHECKED": "已核对",
+      "SETTLED": "已结算",
+      "WAITING": "待归档",
+      "NOT_NEEDED": "不需要结算"
+    },
+    "tab": {
+      "pending": "待核对",
+      "checked": "已核对",
+      "settled": "已结算",
+      "all": "全部 Claim"
+    },
+    "tabsLabel": "Progress Claim 的核对与结算页签",
+    "tabHelp": {
+      "pending": "审批完成并归档、有分包商和批准金额的 Claim，在这里等核对。",
+      "checked": "已核对、还没结算的 Claim。按【核对与结算】去结算。",
+      "settled": "已结算的 Claim。结算的金额算进项目现场费用总览。",
+      "all": "全部 Progress Claim 资料包，「结算状态」一栏说明到了哪一步。"
+    },
+    "empty": {
+      "pending": "现在没有待核对的 Claim。资料包审批完成并归档后，会自动出现在这里。",
+      "checked": "现在没有已核对、待结算的 Claim。",
+      "settled": "还没有已结算的 Claim。"
+    },
+    "col": {
+      "package": "资料包",
+      "subcontractor": "分包商",
+      "period": "期数",
+      "appliedAt": "申请日期",
+      "archivedAt": "审核归档日期",
+      "approved": "批准金额（RM）",
+      "checked": "核对金额（RM）",
+      "state": "结算状态",
+      "open": "操作"
+    },
+    "open": "打开",
+    "bothAmounts": "批准 {approved} → 核对 {checked}",
+    "checkTitle": "Progress Claim · 核对与结算",
+    "checkHelp": "先选分包商，再勾选这家分包商待核对的 Claim。核对金额先填好批准金额，可以改；改了要写原因。",
+    "checkChooseSub": "选择分包商",
+    "checkNoPending": "现在没有待核对的 Claim。资料包审批完成并归档后，会自动出现在这里。",
+    "checkPickTitle": "{name} 待核对的 Claim",
+    "checkPickHelp": "勾选要核对的 Claim，可以勾一笔或多笔。",
+    "checkWhat": "待核对的 Claim",
+    "checkTickFirst": "先勾选要核对的 Claim，下面才会出现核对确认。",
+    "checkedAmountFor": "{reference} 的核对金额",
+    "reasonFor": "{reference} 改金额的原因",
+    "reasonPlaceholder": "改了金额，请写原因（必填）",
+    "amountInvalidFor": "{reference} 的核对金额（要大于 0）",
+    "reasonRequiredFor": "{reference} 改金额的原因",
+    "checkWindowTitle": "Claim 核对 {number}",
+    "checkClaimsTitle": "这次核对的 Claim（{count} 笔）",
+    "checkClaimsHelp": "批准金额和核对金额都在这里；改过的金额写着原因。",
+    "cost": {
+      "notCounted": "还有 {amount} 未结算，不算在内",
+      "basis": "只算已结算的，按审核归档日期"
     }
   }
 }

@@ -20,7 +20,9 @@
  * record shows its 核对 / 结算 under 「已归档」 (`ReconciliationPanel`), and
  * each number opens its window. JB280 (事项 21) reuses all of it for the
  * equipment rental statements (`kind="RENTAL"`). JB295: the 人工结算单
- * (`kind="LABOUR"`, by 所属公司, LB-RC / LB-ST).
+ * (`kind="LABOUR"`, by 所属公司, LB-RC / LB-ST). JB298 (客户 11-28d 事项 1): Multi
+ * Engine's Progress Claims (`kind="CLAIM"`, by 分包商, CL-RC / CL-ST), each with
+ * its 核对金额 (the 批准金额 unless changed, then with a reason).
  *
  * Reused, not rebuilt (「请尽量复用现有页面、文件上传、签核密码及历史记录机制」):
  * the picking list and the list inside a check are the badge's own table
@@ -76,6 +78,7 @@ import { getRentalStatements, type RentalStatementRow } from "@/services/rental-
 import {
   createReturnCheck,
   createSettlement,
+  getPendingClaims,
   getPendingIssues,
   getPendingReturnSuppliers,
   getReturnCheck,
@@ -84,6 +87,7 @@ import {
   getSettlement,
   getSettlements,
   returnCheckPdfFile,
+  type ClaimCheckRow,
   type IssueCheckRow,
   type PendingReturnSupplier,
   type ReconKind,
@@ -132,6 +136,10 @@ export const RETURN_CHECK_STALE_KEYS = [
   ["receipts", "net-totals"],
   ["rental-statements"],
   ["labour-statements"],
+  // JB298: Multi Engine's Progress Claim tabs, the overview card, the report.
+  ["evidence-packages"],
+  ["site-cost-overview"],
+  ["contractor-reports"],
 ] as const;
 
 /** 「待核对｜已核对｜已结算」 (JB188 做法 1, JB278 第 2 点). */
@@ -216,6 +224,7 @@ export function ReconcileSettleButton({
 }) {
   const tj = useTranslations("jb278");
   const t295 = useTranslations("jb295");
+  const t298 = useTranslations("jb298");
   const { can, user } = useAuth();
   const [open, setOpen] = useState<"check" | "settle" | null>(null);
   if (!officeMay(user, can, permission)) return null;
@@ -230,7 +239,13 @@ export function ReconcileSettleButton({
           <DialogContent data-slot="reconcile-settle-dialog" className="max-h-[92dvh] overflow-y-auto sm:max-w-6xl">
             <DialogHeader>
               <DialogTitle>
-                {kind === "LABOUR" ? t295("checkTitle") : kind === "RENTAL" ? tj("rentalTitle") : tj("issueTitle")}
+                {kind === "CLAIM"
+                  ? t298("checkTitle")
+                  : kind === "LABOUR"
+                    ? t295("checkTitle")
+                    : kind === "RENTAL"
+                      ? tj("rentalTitle")
+                      : tj("issueTitle")}
               </DialogTitle>
               <DialogDescription>{tj("resultOnly")}</DialogDescription>
             </DialogHeader>
@@ -360,6 +375,7 @@ function CheckPicker({ kind, onSaved }: { kind: ReconKind; onSaved: (check: Retu
   );
   // 「只有一家就直接选好」.
   const supplier = picked ?? (list.length === 1 ? list[0] : null);
+  const t298 = useTranslations("jb298");
   const none =
     kind === "RETURN"
       ? t("noSuppliers")
@@ -367,7 +383,9 @@ function CheckPicker({ kind, onSaved }: { kind: ReconKind; onSaved: (check: Retu
         ? tj("noCompanies")
         : kind === "LABOUR"
           ? t295("checkNoPending")
-          : tj("rentalNoPending");
+          : kind === "CLAIM"
+            ? t298("checkNoPending")
+            : tj("rentalNoPending");
   const choose =
     kind === "RETURN"
       ? t("chooseSupplier")
@@ -375,12 +393,20 @@ function CheckPicker({ kind, onSaved }: { kind: ReconKind; onSaved: (check: Retu
         ? tj("chooseCompany")
         : kind === "LABOUR"
           ? t295("checkChooseCompany")
-          : tj("chooseRentalCompany");
+          : kind === "CLAIM"
+            ? t298("checkChooseSub")
+            : tj("chooseRentalCompany");
   return (
     <div className="space-y-4">
       {kind !== "RETURN" ? (
         <p className="text-sm text-muted-foreground">
-          {kind === "ISSUE" ? tj("issueHelp") : kind === "LABOUR" ? t295("checkHelp") : tj("rentalHelp")}
+          {kind === "ISSUE"
+            ? tj("issueHelp")
+            : kind === "LABOUR"
+              ? t295("checkHelp")
+              : kind === "CLAIM"
+                ? t298("checkHelp")
+                : tj("rentalHelp")}
         </p>
       ) : null}
       <QueryFailedNote query={suppliers} what={t("suppliersWhat")} />
@@ -416,6 +442,9 @@ function CheckPicker({ kind, onSaved }: { kind: ReconKind; onSaved: (check: Retu
       ) : null}
       {supplier && kind === "LABOUR" ? (
         <CompanyPendingLabourStatements key={supplier.id} company={supplier} project={project} onSaved={onSaved} />
+      ) : null}
+      {supplier && kind === "CLAIM" ? (
+        <SubcontractorPendingClaims key={supplier.id} subcontractor={supplier} project={project} onSaved={onSaved} />
       ) : null}
     </div>
   );
@@ -600,6 +629,202 @@ function CompanyPendingLabourStatements({
   );
 }
 
+/** A 核对金额 as typed: a number above 0 with at most two decimals, or null. */
+export function claimAmountValue(text: string): number | null {
+  const cleaned = text.replace(/,/g, "").trim();
+  if (!/^\d+(\.\d{1,2})?$/.test(cleaned)) return null;
+  const value = Number(cleaned);
+  return value > 0 ? value : null;
+}
+
+/** One claim's 核对金额 and reason while ticking (JB298). */
+export interface ClaimAmountEdit {
+  amount: string;
+  reason: string;
+}
+
+/** Whether a typed 核对金额 differs from the 批准金额. */
+export function claimAmountChanged(row: { approved_amount: string | null }, edit: ClaimAmountEdit | undefined): boolean {
+  if (!edit) return false;
+  const typed = claimAmountValue(edit.amount);
+  return typed === null || typed !== Number(row.approved_amount ?? 0);
+}
+
+/**
+ * One 分包商's Progress Claims waiting to be checked (JB298): each with its
+ * 批准金额 and a 核对金额 box that starts at it; a changed amount asks why and
+ * shows both. Then the shared confirmation (凭证编号 + voucher + PIN).
+ */
+function SubcontractorPendingClaims({
+  subcontractor,
+  project,
+  onSaved,
+}: {
+  subcontractor: { id: string; name: string };
+  project: string;
+  onSaved: (check: ReturnCheck) => void;
+}) {
+  const t298 = useTranslations("jb298");
+  const claims = useQuery({
+    queryKey: ["evidence-packages", "claims-pending", subcontractor.id, project],
+    queryFn: () => getPendingClaims(subcontractor.id, project || undefined),
+  });
+  const rows = claims.data?.results ?? [];
+  const [edits, setEdits] = useState<Record<string, ClaimAmountEdit>>({});
+  const editOf = (row: ClaimCheckRow) => edits[row.id] ?? { amount: row.approved_amount ?? "", reason: "" };
+  const amounts = rows.map((row) => {
+    const edit = editOf(row);
+    return { id: row.id, amount: edit.amount.replace(/,/g, "").trim(), reason: edit.reason.trim() };
+  });
+  return (
+    <section className="space-y-3" data-slot="claim-check-pick">
+      <div>
+        <h3 className="text-base font-semibold">{t298("checkPickTitle", { name: subcontractor.name })}</h3>
+        <p className="text-sm text-muted-foreground">{t298("checkPickHelp")}</p>
+      </div>
+      <QueryFailedNote query={claims} what={t298("checkWhat")} />
+      {claims.isLoading ? <Spinner /> : null}
+      {claims.isSuccess && !rows.length ? <EmptyNote>{t298("checkNoPending")}</EmptyNote> : null}
+      {rows.length ? (
+        <CheckConfirmForm
+          kind="CLAIM"
+          party={subcontractor}
+          ids={rows.map((row) => row.id)}
+          tickFirst={t298("checkTickFirst")}
+          truncated={null}
+          amounts={amounts}
+          extraRequires={(picked) =>
+            rows
+              .filter((row) => picked.includes(row.id))
+              .flatMap((row): [unknown, string][] => {
+                const edit = editOf(row);
+                if (claimAmountValue(edit.amount) === null)
+                  return [[false, t298("amountInvalidFor", { reference: row.package_no })]];
+                if (claimAmountChanged(row, edit) && !edit.reason.trim())
+                  return [[false, t298("reasonRequiredFor", { reference: row.package_no })]];
+                return [];
+              })
+          }
+          table={(selection) => (
+            <ClaimRowsTable
+              rows={rows}
+              selection={selection}
+              edits={edits}
+              onEdit={(id, edit) => setEdits((previous) => ({ ...previous, [id]: edit }))}
+            />
+          )}
+          onSaved={onSaved}
+        />
+      ) : null}
+    </section>
+  );
+}
+
+/**
+ * Progress Claims in a check or its pick list (JB298): 资料包｜期数｜申请日期｜
+ * 审核归档｜批准金额｜核对金额 (and why it differs). While ticking (`onEdit`),
+ * the 核对金额 is a box that starts at the 批准金额.
+ */
+export function ClaimRowsTable({
+  rows,
+  selection,
+  edits,
+  onEdit,
+}: {
+  rows: readonly ClaimCheckRow[];
+  selection?: RowSelection;
+  edits?: Record<string, ClaimAmountEdit>;
+  onEdit?: (id: string, edit: ClaimAmountEdit) => void;
+}) {
+  const t298 = useTranslations("jb298");
+  const df = useDateFormat();
+  const month = (value: string | null) => (value ? value.slice(0, 7) : "—");
+  return (
+    <div className="overflow-x-auto rounded-lg border">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TickHead selection={selection} rows={rows} />
+            <TableHead>{t298("col.package")}</TableHead>
+            <TableHead>{t298("col.period")}</TableHead>
+            <TableHead>{t298("col.appliedAt")}</TableHead>
+            <TableHead>{t298("col.archivedAt")}</TableHead>
+            <TableHead className="text-right">{t298("col.approved")}</TableHead>
+            <TableHead className="min-w-56 text-right">{t298("col.checked")}</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {rows.map((row) => {
+            const editing = Boolean(onEdit);
+            const edit = edits?.[row.id] ?? { amount: row.approved_amount ?? "", reason: "" };
+            const changed = editing
+              ? claimAmountChanged(row, edit)
+              : row.checked_amount != null && Number(row.checked_amount) !== Number(row.approved_amount ?? 0);
+            return (
+              <TableRow key={row.id} data-slot="claim-check-row" className="align-top">
+                <TickCell selection={selection} id={row.id} reference={row.package_no} />
+                <TableCell>
+                  <span className="block text-xs text-muted-foreground tabular">{row.package_no}</span>
+                  <span className="font-medium">{row.name}</span>
+                  {row.category_name ? (
+                    <span className="block text-xs text-muted-foreground">{row.category_name}</span>
+                  ) : null}
+                </TableCell>
+                <TableCell className="tabular whitespace-nowrap">{month(row.claim_period)}</TableCell>
+                <TableCell className="tabular whitespace-nowrap">{df.date(row.created_at)}</TableCell>
+                <TableCell className="tabular whitespace-nowrap">
+                  {row.completed_at ? df.date(row.completed_at) : "—"}
+                </TableCell>
+                <TableCell className="tabular text-right font-semibold">{row.approved_amount ?? "—"}</TableCell>
+                <TableCell className="text-right">
+                  {editing ? (
+                    <div className="flex flex-col items-end gap-1.5">
+                      <Input
+                        inputMode="decimal"
+                        className="w-40 text-right tabular"
+                        aria-label={t298("checkedAmountFor", { reference: row.package_no })}
+                        data-slot="claim-checked-amount"
+                        value={edit.amount}
+                        onChange={(event) => onEdit?.(row.id, { ...edit, amount: event.target.value })}
+                      />
+                      {changed ? (
+                        <>
+                          <span className="text-xs text-warning" data-slot="claim-amount-changed">
+                            {t298("bothAmounts", { approved: row.approved_amount ?? "—", checked: edit.amount || "—" })}
+                          </span>
+                          <Input
+                            className="w-56"
+                            maxLength={2000}
+                            placeholder={t298("reasonPlaceholder")}
+                            aria-label={t298("reasonFor", { reference: row.package_no })}
+                            data-slot="claim-checked-reason"
+                            value={edit.reason}
+                            onChange={(event) => onEdit?.(row.id, { ...edit, reason: event.target.value })}
+                          />
+                        </>
+                      ) : null}
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-end">
+                      <span className="tabular font-semibold">{row.checked_amount ?? "—"}</span>
+                      {changed ? (
+                        <span className="text-xs text-warning">
+                          {t298("bothAmounts", { approved: row.approved_amount ?? "—", checked: row.checked_amount ?? "—" })}
+                          {row.checked_reason ? ` · ${row.checked_reason}` : ""}
+                        </span>
+                      ) : null}
+                    </div>
+                  )}
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}
+
 /** Now, to the minute: 「自动显示…日期及时间」 while the window is open. */
 function useNow(): Date {
   const [now, setNow] = useState(() => new Date());
@@ -658,6 +883,8 @@ function CheckConfirmForm({
   truncated,
   table,
   onSaved,
+  amounts,
+  extraRequires,
 }: {
   kind: ReconKind;
   party: { id: string; name: string };
@@ -666,6 +893,10 @@ function CheckConfirmForm({
   truncated: { shown: number; total: number } | null;
   table: (selection: RowSelection) => React.ReactNode;
   onSaved: (check: ReturnCheck) => void;
+  /** JB298: each ticked claim's 核对金额 and reason. */
+  amounts?: readonly { id: string; amount: string; reason: string }[];
+  /** JB298: what else must be right before 【确认核对】 (the button says it). */
+  extraRequires?: (picked: readonly string[]) => [unknown, string][];
 }) {
   const t = useTranslations("returnChecks");
   const tj = useTranslations("jb278");
@@ -681,7 +912,16 @@ function CheckConfirmForm({
   // Only what is still listed: a row checked meanwhile drops out.
   const picked = ids.filter((id) => chosen.has(id));
   const save = useMutation({
-    mutationFn: () => createReturnCheck({ kind, supplier: party.id, returns: picked, voucherNo, note, files }),
+    mutationFn: () =>
+      createReturnCheck({
+        kind,
+        supplier: party.id,
+        returns: picked,
+        voucherNo,
+        note,
+        files,
+        amounts: amounts?.filter((row) => picked.includes(row.id)),
+      }),
     onSuccess: (check) => {
       for (const key of RETURN_CHECK_STALE_KEYS) void queryClient.invalidateQueries({ queryKey: [...key] });
       onSaved(check);
@@ -755,6 +995,7 @@ function CheckConfirmForm({
               // JB277: 「以上两项缺少任何一项，系统均不得允许确认核对」 - the
               // button says what is missing; the server refuses it too.
               requires={[
+                ...(extraRequires ? extraRequires(picked) : []),
                 [voucherNo.trim(), tj("voucherNo")],
                 [files.length > 0, tj("vouchersRequired")],
               ]}
@@ -1235,6 +1476,7 @@ function SettlePicker({ kind, onSaved }: { kind: ReconKind; onSaved: (settlement
   const t = useTranslations("returnChecks");
   const tj = useTranslations("jb278");
   const t295 = useTranslations("jb295");
+  const t298 = useTranslations("jb298");
   const common = useTranslations("common");
   const df = useDateFormat();
   const { user } = useAuth();
@@ -1288,7 +1530,9 @@ function SettlePicker({ kind, onSaved }: { kind: ReconKind; onSaved: (settlement
       {parties.length ? (
         <section className="space-y-2">
           {/* 人工月结单 are settled per 所属公司 (QA295). */}
-          <h3 className="text-sm font-semibold">{kind === "LABOUR" ? t295("checkChooseCompany") : tj("chooseParty")}</h3>
+          <h3 className="text-sm font-semibold">
+            {kind === "LABOUR" ? t295("checkChooseCompany") : kind === "CLAIM" ? t298("checkChooseSub") : tj("chooseParty")}
+          </h3>
           <div className="flex flex-wrap gap-2">
             {parties.map((row) => (
               <Button
@@ -1413,6 +1657,7 @@ export function ReturnCheckWindow({
   const t = useTranslations("returnChecks");
   const tj = useTranslations("jb278");
   const t295 = useTranslations("jb295");
+  const t298 = useTranslations("jb298");
   const locale = useLocale();
   const df = useDateFormat();
   const check = useQuery({ queryKey: ["return-checks", "detail", kind, id], queryFn: () => getReturnCheck(id, kind) });
@@ -1426,14 +1671,20 @@ export function ReturnCheckWindow({
         ? tj("rentalWindowTitle", { number: data.check_no })
         : shown === "LABOUR"
           ? t295("checkWindowTitle", { number: data.check_no })
-          : t("windowTitle", { number: data.check_no })
+          : shown === "CLAIM"
+            ? t298("checkWindowTitle", { number: data.check_no })
+            : t("windowTitle", { number: data.check_no })
     : t("title");
+  // JB298: like the statements, a claim check has no PDF of its own here.
+  const noPdf = shown === "RENTAL" || shown === "LABOUR" || shown === "CLAIM";
   const count = data
     ? (shown === "ISSUE"
         ? (data.issues ?? []).length
         : shown === "RENTAL" || shown === "LABOUR"
           ? (data.statements ?? []).length
-          : (data.returns ?? []).length) + data.hidden_count
+          : shown === "CLAIM"
+            ? (data.claims ?? []).length
+            : (data.returns ?? []).length) + data.hidden_count
     : 0;
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
@@ -1449,7 +1700,7 @@ export function ReturnCheckWindow({
         {data ? (
           <div className="space-y-5">
             {/* 预览 · 打印 · 导出 · 发送 - the PIN for all but 预览 (JB27). */}
-            {shown !== "RENTAL" && shown !== "LABOUR" ? (
+            {!noPdf ? (
               <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
                 <FileActionButtons
                   label={shown === "ISSUE" ? tj("issuePdf") : t("pdf")}
@@ -1478,14 +1729,18 @@ export function ReturnCheckWindow({
                       ? tj("rentalStatementsTitle", { count })
                       : shown === "LABOUR"
                         ? t295("checkStatementsTitle", { count })
-                        : t("returnsTitle", { count })}
+                        : shown === "CLAIM"
+                          ? t298("checkClaimsTitle", { count })
+                          : t("returnsTitle", { count })}
                 </h3>
                 <p className="text-sm text-muted-foreground">
                   {shown === "ISSUE"
                     ? tj("issuesHelp")
                     : shown === "RENTAL" || shown === "LABOUR"
                       ? tj("rentalStatementsHelp")
-                      : t("returnsHelp")}
+                      : shown === "CLAIM"
+                        ? t298("checkClaimsHelp")
+                        : t("returnsHelp")}
                 </p>
               </div>
               {shown === "ISSUE" ? <IssueRowsTable rows={data.issues ?? []} /> : null}
@@ -1493,6 +1748,7 @@ export function ReturnCheckWindow({
               {shown === "LABOUR" ? (
                 <LabourStatementRowsTable rows={(data.statements ?? []) as unknown as LabourStatementSummary[]} />
               ) : null}
+              {shown === "CLAIM" ? <ClaimRowsTable rows={data.claims ?? []} /> : null}
               {shown === "RETURN" ? <SupplierReturnsTable rows={data.returns} /> : null}
               {data.hidden_count ? (
                 <p className="text-sm text-muted-foreground" data-slot="return-check-hidden">
@@ -1556,12 +1812,8 @@ export function ReturnCheckWindow({
               />
             </section>
             {/* 发送记录 (JB65): every send of this check, to whom and whether it went. */}
-            {shown !== "RENTAL" && shown !== "LABOUR" ? (
-              <RecordSendLog recordKind="MATERIAL_RETURN_CHECK" recordId={data.id} />
-            ) : null}
-            {shown === "RENTAL" || shown === "LABOUR" ? (
-              <p className="text-xs text-muted-foreground">{tj("resultOnly")}</p>
-            ) : null}
+            {!noPdf ? <RecordSendLog recordKind="MATERIAL_RETURN_CHECK" recordId={data.id} /> : null}
+            {noPdf ? <p className="text-xs text-muted-foreground">{tj("resultOnly")}</p> : null}
           </div>
         ) : null}
         {settlementOpen ? (
