@@ -385,6 +385,9 @@ export function CategoryDialog({
     group: row?.group ?? group ?? null,
     code: row?.code ?? "",
     name: row?.name ?? "",
+    // Both names as stored (JB293); `name` above is the reader's language.
+    name_zh: row ? (row.name_zh ?? (row.name_en ? "" : row.name)) : "",
+    name_en: row?.name_en ?? "",
     // A new column joins the list it was created from. An existing row keeps
     // whatever it already is, including the BOTH marker on a column the split
     // could not classify; the picker below is where somebody who knows
@@ -473,6 +476,10 @@ export function CategoryDialog({
       const payload: ProjectCategoryPayload = isMaterial
         ? {
             ...form,
+            // The two names (JB293); the server keeps `name` from them.
+            name: (form.name_zh ?? "").trim() || (form.name_en ?? "").trim(),
+            name_zh: (form.name_zh ?? "").trim(),
+            name_en: (form.name_en ?? "").trim(),
             default_unit: defaultUnit,
             suppliers: supplierIds,
             manufacturers: manufacturerIds,
@@ -495,6 +502,18 @@ export function CategoryDialog({
         reason instanceof ApiError ? reason.message : modules("saveFailed"),
       ),
   });
+  // One save per press (QA293): a double click on 【保存】 made the same new
+  // material twice (two MAT- codes) before the button could grey out.
+  const saving = useRef(false);
+  const saveOnce = () => {
+    if (saving.current) return;
+    saving.current = true;
+    save.mutate(undefined, {
+      onSettled: () => {
+        saving.current = false;
+      },
+    });
+  };
   const set = <K extends keyof ProjectCategoryPayload>(
     key: K,
     value: ProjectCategoryPayload[K],
@@ -513,7 +532,36 @@ export function CategoryDialog({
   const restrictedEmpty =
     form.access_mode === "RESTRICTED" &&
     !(form.allowed_roles?.length || form.allowed_users?.length);
-  const nameField = (
+  // A material's 中文名称 and 英文名称 (JB293, 客户 11-27g): at least one, shown
+  // by the reader's language. Every other category keeps its one name.
+  const twoNames = isMaterial && !form.parent;
+  const anyName = twoNames ? (form.name_zh ?? "").trim() || (form.name_en ?? "").trim() : form.name;
+  const nameField = twoNames ? (
+    // Either name is enough: required as a group, said in words (JB293).
+    <FieldWrapper
+      label={tRoot("jb293.anyName")}
+      required="quiet"
+      hint={tRoot("jb293.namesHint")}
+      className="sm:col-span-2"
+    >
+      <div className="grid gap-3 sm:grid-cols-2">
+        <FieldWrapper label={tRoot("jb293.nameZh")}>
+          <Input
+            value={form.name_zh ?? ""}
+            placeholder={tRoot("jb293.nameZhPlaceholder")}
+            onChange={(e) => set("name_zh", e.target.value)}
+          />
+        </FieldWrapper>
+        <FieldWrapper label={tRoot("jb293.nameEn")}>
+          <Input
+            value={form.name_en ?? ""}
+            placeholder={tRoot("jb293.nameEnPlaceholder")}
+            onChange={(e) => set("name_en", e.target.value)}
+          />
+        </FieldWrapper>
+      </div>
+    </FieldWrapper>
+  ) : (
     <FieldWrapper label={t("field.name")} required>
       <Input value={form.name} onChange={(e) => set("name", e.target.value)} />
     </FieldWrapper>
@@ -918,11 +966,11 @@ export function CategoryDialog({
           <Button
             requires={[
               [form.project, t("field.project")],
-              [form.name, t("field.name")],
+              [anyName, twoNames ? tRoot("jb293.anyName") : t("field.name")],
               [!restrictedEmpty, t("categories.accessTitle")],
             ]}
             disabled={save.isPending}
-            onClick={() => save.mutate()}
+            onClick={saveOnce}
           >
             {save.isPending ? <Loader2 className="animate-spin" /> : <Save />}
             {t("action.save")}

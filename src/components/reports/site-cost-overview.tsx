@@ -19,7 +19,7 @@
  */
 
 import { useQuery } from "@tanstack/react-query";
-import { ChevronRight, Database, HardHat, Package, ReceiptText, Truck, Wrench } from "lucide-react";
+import { ChevronRight, Database, HardHat, Package, ReceiptText, Truck, UsersRound, Wrench } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import {
@@ -63,6 +63,7 @@ export const SOURCE_COLOR: Record<SiteCostSource, string> = {
   progress_claim: "var(--tone-green)",
   sundry_claims: "var(--tone-purple)",
   disposal: "var(--tone-rose)",
+  labour: "var(--tone-cyan)",
 };
 
 const SOURCE_ICON = {
@@ -71,6 +72,7 @@ const SOURCE_ICON = {
   progress_claim: HardHat,
   sundry_claims: ReceiptText,
   disposal: Truck,
+  labour: UsersRound,
 } as const;
 
 function pad(value: number) {
@@ -118,7 +120,10 @@ export function SiteCostOverview() {
   });
   const data = query.data;
   const byKey = new Map((data?.sources ?? []).map((row) => [row.key, row]));
-  const name = (key: SiteCostSource) => t(`source.${key}`);
+  const t295 = useTranslations("jb295");
+  // JB295: 人工费用's words are in its own group.
+  const name = (key: SiteCostSource) => (key === "labour" ? t295("cost.source") : t(`source.${key}`));
+  const reportName = (key: SiteCostSource) => (key === "labour" ? t295("cost.report") : t(`report.${key}`));
   const pie = (data?.sources ?? [])
     .filter((row) => Number(row.amount ?? 0) > 0)
     .map((row) => ({ key: row.key, value: Number(row.amount), name: name(row.key) }));
@@ -126,7 +131,9 @@ export function SiteCostOverview() {
   // JB250: a source whose module is off says 「没有开通」, not 「暂时没有金额」.
   // JB287: 垃圾清运 has its amount now (每车清运费用 × 实际验收车次); the old
   // 「没有金额栏…算 0」 note is gone.
-  const missing = (data?.sources ?? []).filter((row) => !row.available && !row.switched_off && row.key !== "disposal");
+  const missing = (data?.sources ?? []).filter(
+    (row) => !row.available && !row.switched_off && row.key !== "disposal" && row.key !== "labour",
+  );
   const offWord = tOff("cardOff");
   const tFee = useTranslations("jb287");
 
@@ -168,9 +175,9 @@ export function SiteCostOverview() {
       </FilterBar>
       <QueryFailedNote query={query} what={t("title")} />
 
-      {/* 项目总费用 and the five sources. */}
+      {/* 项目总费用 on its own row, then the six sources (JB295: 人工费用 the sixth). */}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6" data-slot="cost-cards">
-        <div className="surface-panel flex items-center gap-3 rounded-xl border-2 border-primary/40 p-4">
+        <div className="surface-panel flex items-center gap-3 rounded-xl border-2 border-primary/40 p-4 sm:col-span-2 lg:col-span-3 xl:col-span-6">
           <Database className="size-8 shrink-0 text-primary" aria-hidden />
           <div className="min-w-0">
             <p className="text-sm font-medium text-muted-foreground">{t("total")}</p>
@@ -201,6 +208,11 @@ export function SiteCostOverview() {
                 ) : row?.no_fee_count ? (
                   // JB287: 「X 笔还没有设每车费用」 - counted 0 until a fee is set.
                   <p className="text-xs text-warning" data-slot="cost-no-fee">{tFee("cost.noFee", { count: row.no_fee_count })}</p>
+                ) : row?.not_counted_amount && Number(row.not_counted_amount) > 0 ? (
+                  // JB295: 「还有 RM x 未核对，不算在内」 - only 已核对 / 已结算 count.
+                  <p className="text-xs text-muted-foreground" data-slot="cost-not-counted">
+                    {t295("cost.notCounted", { amount: rm(row.not_counted_amount) })}
+                  </p>
                 ) : null}
               </div>
             </div>
@@ -283,7 +295,7 @@ export function SiteCostOverview() {
                     <TableCell>
                       <span className="flex items-center gap-2">
                         <span className="size-3 shrink-0 rounded-sm" style={{ background: SOURCE_COLOR[key] }} aria-hidden />
-                        {t(`report.${key}`)}
+                        {reportName(key)}
                       </span>
                     </TableCell>
                     <TableCell className="tabular text-right">
@@ -399,7 +411,7 @@ export function SiteCostOverview() {
                 >
                   <Icon className="size-6" style={{ color: SOURCE_COLOR[key] }} aria-hidden />
                   <span className="flex items-end justify-between gap-1">
-                    {t(`report.${key}`)}
+                    {reportName(key)}
                     <ChevronRight className="size-4 shrink-0" aria-hidden />
                   </span>
                 </Link>

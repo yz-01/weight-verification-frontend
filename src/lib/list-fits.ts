@@ -294,6 +294,7 @@ export const LIST_FITS = {
   },
   /** 人员名单 → 进出记录 */
   siteWorkerVisits: {
+    // JB295b: 来源 (人员名单链接 / App 打卡) after 离场时间; nothing hidden, so the key stays (I39 rule 6).
     storageKey: "site-workers.visits",
     file: "src/components/site-workers/site-workers.tsx",
     columns: {
@@ -304,6 +305,7 @@ export const LIST_FITS = {
       project_name: "text",
       entered_at: "datetime",
       exited_at: "datetime",
+      source: "text",
       view: "button",
     },
     hidden: [],

@@ -8,19 +8,24 @@
 
 export interface NamedType {
   name: string;
+  /** The name in the reader's language (JB293 QA: 「Material Request」 in English). */
+  display_name?: string;
   sort_order: number;
 }
 
 /** Each type name once, in the order the projects keep them. */
 export function requestTypeNameOptions(rows: readonly NamedType[]): { value: string; label: string }[] {
   const seen = new Map<string, number>();
+  const shown = new Map<string, string>();
   for (const row of rows) {
     const order = seen.get(row.name);
     if (order === undefined || row.sort_order < order) seen.set(row.name, row.sort_order);
+    if (!shown.has(row.name)) shown.set(row.name, row.display_name || row.name);
   }
+  // Filtered by the stored name; shown in the reader's language (JB293 QA).
   return [...seen.entries()]
     .sort((a, b) => a[1] - b[1] || a[0].localeCompare(b[0]))
-    .map(([name]) => ({ value: name, label: name }));
+    .map(([name]) => ({ value: name, label: shown.get(name) ?? name }));
 }
 
 /** A new type's name, trimmed, and whether it is already on this project's list. */
