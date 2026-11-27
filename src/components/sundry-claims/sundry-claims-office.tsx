@@ -294,6 +294,7 @@ export function SundryClaimsOffice() {
 
 export function SundryClaimDetail({ id, onClose }: { id: string; onClose: () => void }) {
   const t = useTranslations("sundryClaim");
+  const t297 = useTranslations("jb297");
   const ops = useTranslations("contractorOps");
   const df = useDateFormat();
   const { can, user } = useAuth();
@@ -446,12 +447,20 @@ export function SundryClaimDetail({ id, onClose }: { id: string; onClose: () => 
             {claim.state === "SUBMITTED" && user?.id && claim.submitted_by === user.id && (
               <SundryWithdraw id={claim.id} onDone={refresh} />
             )}
+            {/* JB297: 「提交给项目经理」 on a project with no 项目经理 who may
+                approve it - head office decides, and everybody is told why. */}
+            {claim.state === "SUBMITTED" && claim.review_route === "HQ_FALLBACK" && (
+              <p className="rounded-md border px-2 py-1.5 text-xs text-muted-foreground">{t297("fallback")}</p>
+            )}
             {claim.state === "SUBMITTED" && can("sundry_claim.review") && claim.can_review === false && (
               <p className="rounded-md border px-2 py-1.5 text-xs text-muted-foreground">
-                {/* Your own claim is decided by someone else (I12-6). */}
+                {/* Your own claim is decided by someone else (I12-6); sent to
+                    the other side, it is looked at, not decided (JB297). */}
                 {user?.id && claim.submitted_by === user.id
                   ? t("ownClaim")
-                  : t(`sentTo.${claim.submit_to || "NONE"}`)}
+                  : claim.review_route
+                    ? t297(claim.review_route === "PROJECT" ? "viewOnly.PROJECT" : "viewOnly.HQ")
+                    : t(`sentTo.${claim.submit_to || "NONE"}`)}
               </p>
             )}
             {claim.state === "SUBMITTED" && can("sundry_claim.review") && claim.can_review !== false && (

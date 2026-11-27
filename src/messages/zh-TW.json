@@ -9538,6 +9538,7 @@
       "review_by_head_office": "這個分類設為「提交總部審批」，由總部驗收。",
       "sundry_claim_sent_elsewhere": "這筆雜費報銷交給另一邊審批，你不能批。",
       "sundry_claim_own": "你不能批自己提交的雜費報銷。",
+      "sundry_claim_view_only": "這筆報銷提交給{submit_to, select, HQ {總部} other {項目經理}}審批，你可以查看，不可以審批。",
       "material_request_manager_first": "現場人員的申請先交專案經理，專案經理確認後再轉給總部。",
       "material_request_not_executor": "只有這個專案的專案經理可以處理和確認完成；總部只能查看。",
       "material_request_not_open": "這個申請不在待執行中（還沒批准，或已經確認完成）。",
@@ -25072,5 +25073,12 @@
     "rosterTag": "人員名單",
     "hqOnSiteSplit": "App 人員 {app} ＋ 人員名單 {roster} ＋ 門崗通行 {gate}",
     "hqPresenceSplit": "App 人員 {app} ＋ 人員名單 {roster} ＋ 門崗通行 {gate}，按項目"
+  },
+  "jb297": {
+    "viewOnly": {
+      "PROJECT": "這筆報銷提交給項目經理審批。你可以查看，不可以審批。",
+      "HQ": "這筆報銷提交給總部審批。你可以查看，不可以審批。"
+    },
+    "fallback": "這個項目沒有可以審批的項目經理，改由總部審批。"
   }
 }
