@@ -294,7 +294,8 @@ export const LIST_FITS = {
   },
   /** 人员名单 → 进出记录 */
   siteWorkerVisits: {
-    storageKey: "site-workers.visits",
+    // `.v2`: 来源 (人员名单链接 / App 打卡) after 离场时间 (JB295b).
+    storageKey: "site-workers.visits.v2",
     file: "src/components/site-workers/site-workers.tsx",
     columns: {
       worker_name: "name",
@@ -304,6 +305,7 @@ export const LIST_FITS = {
       project_name: "text",
       entered_at: "datetime",
       exited_at: "datetime",
+      source: "text",
       view: "button",
     },
     hidden: [],

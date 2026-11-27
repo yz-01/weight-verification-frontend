@@ -1,5 +1,7 @@
 /**
- * JB295 (客户 11-27i): 人工费用 + 人工结算单.
+ * JB295 (客户 11-27i): 人工费用 + 人工结算单; JB295b (客户 11-28 事项 2): the two
+ * tabs on 人员名单 (人工费用统计 / 人工月结单), linked people, 统计方式 and
+ * operators already paid inside the equipment rental.
  *
  * 「目前人员名单及人员进场记录页面……没有看到人工费用统计及结算入口。请参考现有设备
  * 租赁费用的核对与结算流程……支持按人员、工种及所属公司设定人工单价。按实际核实的
@@ -41,9 +43,13 @@ const state = vi.hoisted(() => ({
 vi.mock("@/components/ui/dialog", async () =>
   (await import("@/components/shared/record-detail-test-kit")).inlineDialogModule(),
 );
+const redirected = vi.hoisted(() => ({ to: "" }));
 vi.mock("next/navigation", () => ({
+  redirect: (to: string) => {
+    redirected.to = to;
+  },
   useRouter: () => ({ push: vi.fn(), back: vi.fn(), replace: vi.fn(), prefetch: vi.fn() }),
-  usePathname: () => "/labour-costs",
+  usePathname: () => "/site-workers",
   useSearchParams: () => new URLSearchParams(state.search),
 }));
 vi.mock("@/components/providers/auth-provider", () => ({
@@ -64,8 +70,23 @@ vi.mock("@/components/providers/current-project-provider", () => ({
   useOnProjectChange: () => undefined,
 }));
 
-const { LabourCostsPage, AdjustDayDialog, ConfirmMonthDialog, confirmable, liveStatement, sortDays, statementHref, tickable } =
-  await import("@/components/labour/labour-costs");
+const {
+  LabourCostsPage,
+  AdjustDayDialog,
+  ConfirmMonthDialog,
+  SummaryTable,
+  confirmable,
+  linkedNames,
+  liveStatement,
+  phoneWarnings,
+  sortDays,
+  statementHref,
+  tickable,
+  usesSummary,
+} = await import("@/components/labour/labour-costs");
+const { siteWorkerTabs, VisitFlags, VisitSource } = await import("@/components/site-workers/site-workers");
+const { default: LabourCostsRoute } = await import("@/app/(dashboard)/labour-costs/page");
+const { default: LabourStatementsRoute } = await import("@/app/(dashboard)/labour-statements/page");
 const { LabourRatesDialog, rateTargetMissing, ratesByScope, validPrice } = await import(
   "@/components/labour/labour-rates"
 );
@@ -241,28 +262,39 @@ beforeEach(() => {
 });
 
 describe("「没有看到人工费用统计及结算入口」: the menu, the pages and the header buttons", () => {
-  it("adds 15.2.6 人工费用 and 15.2.7 人工结算单 under 电子围栏 / 人员进场", () => {
+  it("JB295b 「在现有人员名单页面上方，完善人工费用统计及人工月结单两个栏目」: two tabs, no menu items", () => {
     const nav = read("src/lib/navigation.ts");
-    expect(nav).toMatch(/"15\.2\.6",\s+"nav\.submodule\.labourCosts",\s+"\/labour-costs",\s+"attendance",\s+"labour\.view",/);
-    expect(nav).toMatch(
-      /"15\.2\.7",\s+"nav\.submodule\.labourStatements",\s+"\/labour-statements",\s+"attendance",\s+"labour\.manage",/,
-    );
-    expect(zh.nav.submodule.labourCosts).toBe("人工费用");
-    expect(zh.nav.submodule.labourStatements).toBe("人工结算单");
-    expect(read("src/app/(dashboard)/labour-costs/page.tsx")).toContain("<LabourCostsPage />");
-    expect(read("src/app/(dashboard)/labour-statements/page.tsx")).toContain("<LabourStatementsPage />");
+    expect(nav).not.toContain('"/labour-costs"');
+    expect(nav).not.toContain('"/labour-statements"');
     const keys = JSON.parse(read("src/lib/menu-name-keys.json")).MSE_TRACE as string[];
-    expect(keys.indexOf("nav.submodule.labourCosts")).toBe(keys.indexOf("nav.submodule.siteWorkers") + 1);
+    expect(keys).not.toContain("nav.submodule.labourCosts");
+    expect(keys).not.toContain("nav.submodule.labourStatements");
+    expect(zh.jb295.tab.labour).toBe("人工费用统计");
+    expect(zh.jb295.tab.statements).toBe("人工月结单");
+    // Each tab by its right; the phone has none of them.
+    expect(siteWorkerTabs(() => true)).toEqual(["roster", "visits", "labour", "statements"]);
+    expect(siteWorkerTabs((code) => code !== "labour.manage")).toEqual(["roster", "visits", "labour"]);
+    expect(siteWorkerTabs(() => false)).toEqual(["roster", "visits"]);
+    const page = read("src/components/site-workers/site-workers.tsx");
+    expect(page).toContain("<LabourCostsPage />");
+    expect(page).toContain("<LabourStatementsPage />");
   });
 
-  it("puts 【人工费用】 in the headers of 人员名单 and 人员进场记录, for labour.view, never on the phone", () => {
-    expect(read("src/components/site-workers/site-workers.tsx")).toContain("<LabourCostsButton project={list.filters.project} />");
+  it("the old addresses open the tabs, keeping project, month, state and statement", async () => {
+    await LabourCostsRoute({ searchParams: Promise.resolve({ project: "p-1", month: "2026-10" }) });
+    expect(redirected.to).toBe("/site-workers?tab=labour&project=p-1&month=2026-10");
+    await LabourStatementsRoute({ searchParams: Promise.resolve({ tab: "checked", statement: "st-1" }) });
+    expect(redirected.to).toBe("/site-workers?tab=statements&state=checked&statement=st-1");
+  });
+
+  it("【人工费用统计】 sits in the 人员进场记录 header only, for labour.view, never on the phone", () => {
+    expect(read("src/components/site-workers/site-workers.tsx")).not.toContain("<LabourCostsButton");
     expect(read("src/components/site-operations/attendance.tsx")).toContain("<LabourCostsButton project={selectedProject} />");
-    expect(labourCostsHref("p-1")).toBe("/labour-costs?project=p-1");
-    expect(labourCostsHref("all")).toBe("/labour-costs");
+    expect(labourCostsHref("p-1")).toBe("/site-workers?tab=labour&project=p-1");
+    expect(labourCostsHref("all")).toBe("/site-workers?tab=labour");
     const html = render(<LabourCostsButton project="p-1" />);
-    expect(text(html)).toContain("人工费用");
-    expect(html).toContain('href="/labour-costs?project=p-1"');
+    expect(text(html)).toContain("人工费用统计");
+    expect(html).toContain('href="/site-workers?tab=labour&amp;project=p-1"');
     state.denied = new Set(["labour.view"]);
     expect(render(<LabourCostsButton />)).toBe("");
     state.denied = new Set();
@@ -278,7 +310,7 @@ describe("人工费用 · 按月", () => {
       zh.jb295.rates.title,
       fill(zh.jb295.normal.button, { hours: "9" }),
       zh.jb295.confirm.button,
-      zh.nav.submodule.labourStatements,
+      zh.jb295.tab.statements,
       zh.jb295.view.day,
       zh.jb295.view.month,
       zh.jb295.filter.flagged,
@@ -298,7 +330,7 @@ describe("人工费用 · 按月", () => {
     expect(out).toContain("设定单价");
     expect(out).toContain("已确认");
     expect(out).toContain("Boss Lim");
-    expect(out).toContain("结算单 LB-MS001（待核对）");
+    expect(out).toContain("月结单 LB-MS001（待核对）");
     expect(out).toContain("未确认");
     expect(out).toContain(zh.jb295.unconfirm.button);
     expect(out).toContain(zh.jb295.month.total);
@@ -314,8 +346,8 @@ describe("人工费用 · 按月", () => {
     );
     const html = render(<LabourCostsPage />, seedPage);
     expect(html).toContain(fill(zh.jb295.unconfirm.inStatement, { number: "LB-MS001" }));
-    expect(statementHref("st-1")).toBe("/labour-statements?tab=all&statement=st-1");
-    expect(html).toContain('href="/labour-statements?tab=all&amp;statement=st-1"');
+    expect(statementHref("st-1")).toBe("/site-workers?tab=statements&state=all&statement=st-1");
+    expect(html).toContain('href="/site-workers?tab=statements&amp;state=all&amp;statement=st-1"');
   });
 
   it("without 「金额查看」: days and hours stay, no rates button, a plain sentence", () => {
@@ -567,7 +599,7 @@ describe("人工结算单: 按所属公司及月份, 待核对 / 已核对 / 已
       qc.setQueryData(["labour-statements", "detail", "st-1"], { ...SUMMARY, lines: [line] }),
     );
     const out = text(html);
-    expect(out).toContain("人工结算单 LB-MS001");
+    expect(out).toContain("人工月结单 LB-MS001");
     expect(out).toContain("PUTRA_MAS · HH machinery sb · 2026-10");
     for (const head of ["姓名", "工种", "工作天数", "正常工时", "超时工时", "单价（方式）", "正常金额（RM）", "超时金额（RM）", "合计（RM）"]) {
       expect(out).toContain(head);
@@ -648,8 +680,8 @@ describe("words", () => {
   it("jb295 is in all four languages, same keys, says 你 (never 您)", () => {
     for (const catalogue of [zhTW, en, ms]) {
       expect(keys(catalogue.jb295).sort()).toEqual(keys(zh.jb295).sort());
-      expect(catalogue.nav.submodule.labourCosts).toBeTruthy();
-      expect(catalogue.nav.submodule.labourStatements).toBeTruthy();
+      expect(catalogue.jb295.tab.labour).toBeTruthy();
+      expect(catalogue.jb295.tab.statements).toBeTruthy();
     }
     for (const catalogue of [zh, zhTW]) expect(JSON.stringify(catalogue.jb295)).not.toContain("您");
     expect(zh.jb295.cost.notCounted).toBe("还有 {amount} 未核对，不算在内");
@@ -722,7 +754,138 @@ describe("「经核对确认的人工费用自动关联至项目总花费，避�
     expect(out).toContain(zh.jb295.cost.report);
     // 查看明细: the 已核对 statements - what the amount counts.
     expect(siteCostReportHref("labour", { project: "p1", date_from: "2026-10-01", date_to: "2026-10-31" })).toBe(
-      "/labour-statements?state=checked",
+      "/site-workers?tab=statements&state=checked",
     );
+  });
+});
+
+describe("JB295b · one person, two identities (same phone): 「人员名单中的进出场记录显示0笔」", () => {
+  const LINKED = {
+    ...OPTIONS,
+    people: [{ ...OPTIONS.people[0], linked_user: { key: "user:u-ahong", name: "ah ong" } }, OPTIONS.people[1]],
+    warnings: [{ kind: "same_phone_twice", keys: ["worker:w-ong", "user:u-ahing"] }],
+  };
+
+  it("the worker list tags the linked app account; the 进出场记录 tab shows 来源, AT numbers and marks", () => {
+    const page = read("src/components/site-workers/site-workers.tsx");
+    expect(page).toContain('t295("twin.linkedTag", { name: row.original.linked_user.name })');
+    expect(page).toContain('t295("twin.appName", { name: row.original.linked_user_name })');
+    expect(fill(zh.jb295.twin.linkedTag, { name: "ah ong" })).toBe("已关联 App 账号 ah ong");
+    const app = text(
+      render(
+        <VisitSource
+          visit={{ source: "app", refs: ["AT-048", "AT-049"] } as never}
+        />,
+      ),
+    );
+    expect(app).toContain("App 打卡");
+    expect(app).toContain("AT-048 · AT-049");
+    expect(text(render(<VisitSource visit={{ source: "visit" } as never} />))).toBe("人员名单链接");
+    const marks = text(render(<VisitFlags flags={["system_exit", "missing_exit"]} />));
+    expect(marks).toContain("系统结束，离开时间要核对");
+    expect(marks).toContain("缺离场");
+  });
+
+  it("人工费用统计 counts the twin once, says so, and warns about one phone with two people", () => {
+    expect(linkedNames(LINKED as never).get("worker:w-ong")).toBe("ah ong");
+    expect(phoneWarnings(LINKED as never)).toEqual([["ong", "ahing"]]);
+    const out = text(
+      render(<LabourCostsPage />, (qc) => {
+        seedPage(qc);
+        qc.setQueryData(["labour", "options", "p-1"], LINKED);
+      }),
+    );
+    expect(out).toContain("App 账号：ah ong");
+    expect(out).toContain("同一个号码有两个人员，请检查：ong、ahing");
+  });
+
+  it("按日 marks an app stay of a linked worker with 「App 打卡」 and its AT numbers", () => {
+    state.search = "project=p-1&month=2026-10&view=day";
+    const out = text(
+      render(<LabourCostsPage />, (qc) => {
+        seedPage(qc);
+        qc.setQueryData(["labour", "days", { project: "p-1", month: "2026-10" }], {
+          rows: [
+            {
+              ...DAY_ROWS[1],
+              locked: null,
+              sessions: [
+                { start: "2026-10-27T00:00:00Z", end: "2026-10-27T09:00:00Z", end_kind: "EXIT", source: "app", refs: ["AT-048", "AT-049"] },
+              ],
+            },
+          ],
+          month_locked_people: [],
+        });
+      }),
+    );
+    expect(out).toContain("App 打卡 AT-048 · AT-049");
+  });
+});
+
+describe("JB295b · 统计方式: 按人员 | 按所属公司 | 按工种, 月份 从…到", () => {
+  it("按人员 for one month is the 按月 table; anything else reads the summary", () => {
+    expect(usesSummary("person", "2026-10", "2026-10")).toBe(false);
+    expect(usesSummary("person", "2026-09", "2026-10")).toBe(true);
+    expect(usesSummary("company", "2026-10", "2026-10")).toBe(true);
+    const out = text(render(<LabourCostsPage />, seedPage));
+    for (const word of ["统计方式", "按人员", "按所属公司", "按工种", "月份从", "到"]) expect(out).toContain(word);
+  });
+
+  it("按所属公司: 人数, 工作天数, 工时, 人工费用 (已确认 / 未确认), 每月, 合计", () => {
+    const figures = { people: 2, days_worked: 25, normal_hours: "200.00", overtime_hours: "10.50", labour_amount: "2850.00", confirmed_amount: "2850.00", unconfirmed_amount: "0.00" };
+    const data = {
+      rows: [
+        { key: "s-hh", name: "HH machinery sb", ...figures, months: [{ month: "2026-09", ...figures }, { month: "2026-10", ...figures }] },
+        { key: "self", name: "", ...figures, people: 1, months: [{ month: "2026-10", ...figures }] },
+      ],
+      totals: { ...figures, people: 3, labour_amount: "5700.00" },
+      amounts_hidden: false,
+    };
+    const html = render(<SummaryTable group="company" data={data as never} loading={false} query={{ isError: false }} seesAmounts />);
+    const out = text(html);
+    for (const head of ["所属公司", "人数", "工作天数", "正常工时", "超时工时", "人工费用（RM）", "已确认（RM）", "未确认（RM）"]) {
+      expect(out).toContain(head);
+    }
+    expect(out).toContain("HH machinery sb");
+    expect(out).toContain("本公司");
+    expect(out).toContain("5,700.00");
+    // 每月 only where there are several months.
+    expect(html.split('data-slot="labour-summary-months-toggle"').length - 1).toBe(1);
+    expect(html).toContain('data-slot="labour-summary-total"');
+    const trades = text(
+      render(<SummaryTable group="trade" data={{ ...data, rows: [{ ...data.rows[0], key: "none", name: "" }] } as never} loading={false} query={{ isError: false }} seesAmounts />),
+    );
+    expect(trades).toContain("未填工种");
+  });
+});
+
+describe("JB295b · 「已包含在设备租赁费用内的操作员人工费用，不得重复计算」", () => {
+  it("rows under it say so instead of an amount - set by a rate, or found from the machine", () => {
+    const rows = [
+      { ...MONTH_ROWS[0], confirmed: null, statement: null, rates: [{ ...MONTH_ROWS[0].rates[0], method: "IN_RENTAL", unit_price: null }], labour_amount: "0.00", in_rental: { reason: "rate", equipment_no: null } },
+      { ...MONTH_ROWS[1], person_key: "user:u-x", person_name: "kk", no_rate: false, rates: [], labour_amount: "0.00", in_rental: { reason: "operator", equipment_no: "EQ0002" } },
+    ];
+    const out = text(
+      render(<LabourCostsPage />, (qc) => {
+        seedPage(qc);
+        qc.setQueryData(["labour", "month", { project: "p-1", month: "2026-10" }], { ...MONTH, rows });
+      }),
+    );
+    expect(out).toContain("已含在设备租赁费用内，不计人工");
+    expect(out).toContain("设备 EQ0002 的操作员，人工已含在设备租赁费用内");
+    expect(out).not.toContain("设定单价");
+  });
+
+  it("【新增单价】 offers 「已含在设备租赁费用内」, and the 月结单 preview lists them", () => {
+    expect(zh.jb295.method.IN_RENTAL).toBe("已含在设备租赁费用内");
+    const out = text(
+      render(<LabourRatesDialog project="p-1" prefill={{ scope: "TRADE", trade: "operator" }} onClose={() => undefined} />, (qc) => {
+        qc.setQueryData(["labour", "rates", "p-1"], { rows: [] });
+        qc.setQueryData(["labour", "options", "p-1"], OPTIONS);
+      }),
+    );
+    expect(out).toContain("已含在设备租赁费用内");
+    expect(read("src/components/labour/labour-statements.tsx")).toContain('text={t("statement.inRental")} people={shown.in_rental}');
+    expect(zh.jb295.statement.inRental).toContain("已含在设备租赁费用内");
   });
 });

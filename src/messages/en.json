@@ -13424,9 +13424,7 @@
       "materialIssue": "Material issue (MIN)",
       "equipmentRentalReport": "Equipment rental fee report",
       "siteCostOverview": "Site cost overview",
-      "equipmentRentalStatements": "Equipment rental statements",
-      "labourCosts": "Labour costs",
-      "labourStatements": "Labour statements"
+      "equipmentRentalStatements": "Equipment rental statements"
     },
     "subscription_management": "Subscriptions",
     "suppliers": "Suppliers",
@@ -25088,11 +25086,13 @@
     },
     "method": {
       "DAILY": "Daily rate",
-      "HOURLY": "Hourly rate"
+      "HOURLY": "Hourly rate",
+      "IN_RENTAL": "Included in the equipment rental"
     },
     "methodHelp": {
       "DAILY": "Daily rate: each day worked is paid as one day; overtime is extra.",
-      "HOURLY": "Hourly rate: normal hours times the hourly price; overtime is extra."
+      "HOURLY": "Hourly rate: normal hours times the hourly price; overtime is extra.",
+      "IN_RENTAL": "This person's labour is already paid in the equipment rental (an equipment operator, for example). Days and hours show as usual, but no labour cost is counted."
     },
     "scope": {
       "PERSON": "By person",
@@ -25133,7 +25133,8 @@
     "what": {
       "options": "the company, trade and person choices",
       "days": "the hours by day",
-      "month": "the hours by month"
+      "month": "the hours by month",
+      "summary": "the labour cost statistics"
     },
     "col": {
       "date": "Date",
@@ -25302,7 +25303,7 @@
         "all": "All"
       },
       "resultOnly": "Only the check and settlement results are recorded here; no payment or finance is done.",
-      "what": "the labour statements",
+      "what": "the labour monthly statements",
       "empty": {
         "pending": "No statements to check now.",
         "checked": "No checked statements now.",
@@ -25332,7 +25333,7 @@
       "overlap": "This company already has statement {number} for this month. The same labour cost cannot be settled twice.",
       "emptyPreview": "Nobody at this company has working days this month, so there is nothing to settle.",
       "generatePin": "After 「Make a statement」, enter your six-digit sign-off PIN. The amounts will not change after.",
-      "windowTitle": "Labour statement {number}",
+      "windowTitle": "Labour monthly statement {number}",
       "pdf": "Statement PDF",
       "linesTitle": "People and costs",
       "linesHelp": "Press 「Each day」 on a person to see which days and how many hours.",
@@ -25345,10 +25346,11 @@
       "confirmCancel": "Cancel the statement",
       "tickAll": "Tick all",
       "generatedToast": "Statement {number} made",
-      "cancelledToast": "Statement {number} cancelled"
+      "cancelledToast": "Statement {number} cancelled",
+      "inRental": "These people's labour is included in the equipment rental, so it is not counted and not put in the statement:"
     },
-    "checkTitle": "Labour statements · check and settle",
-    "checkNoPending": "No labour statements to check now.",
+    "checkTitle": "Labour monthly statements · check and settle",
+    "checkNoPending": "No labour monthly statements to check now.",
     "checkChooseCompany": "Choose the company",
     "checkHelp": "Choose the company first, then tick its statements to check.",
     "checkPickTitle": "Statements of {name} to check",
@@ -25359,12 +25361,12 @@
     "checkStatementsTitle": "Statements in this check ({count})",
     "cost": {
       "source": "Labour costs",
-      "report": "Labour statements",
+      "report": "Labour monthly statements",
       "notCounted": "{amount} not checked yet, not counted"
     },
     "employer": {
       "label": "Company",
-      "hint": "Empty = own company. Labour costs and labour statements go by this company.",
+      "hint": "Empty = own company. Labour costs and labour monthly statements go by this company.",
       "pick": "Choose a company",
       "search": "Search companies",
       "noMatch": "This company is not on the list. Type it in below.",
@@ -25379,6 +25381,50 @@
       "adjusted": "Hours adjusted",
       "confirmed": "Hours of {count} people confirmed",
       "unconfirmed": "Confirmation undone"
+    },
+    "tab": {
+      "labour": "Labour cost statistics",
+      "statements": "Labour monthly statements"
+    },
+    "inRental": {
+      "rate": "Included in the equipment rental, no labour counted",
+      "operator": "Operator of equipment {equipment}; the labour is included in the equipment rental"
+    },
+    "twin": {
+      "linkedTag": "Linked app account {name}",
+      "appName": "App account: {name}",
+      "samePhone": "One phone number has two people. Please check: {names}"
+    },
+    "visits": {
+      "source": "Source",
+      "sourceVisit": "Worker list link",
+      "sourceApp": "App clock-in",
+      "refs": "Entry record no.",
+      "appAccount": "App account",
+      "missingExit": "No exit",
+      "hint": "An app account with the same phone number is the same person; its entries and exits (app clock-in) are listed here too."
+    },
+    "stats": {
+      "label": "Count by",
+      "person": "By person",
+      "company": "By company",
+      "trade": "By trade",
+      "monthFrom": "Month from",
+      "monthTo": "To",
+      "name": {
+        "person": "Name",
+        "company": "Company",
+        "trade": "Trade"
+      },
+      "col": {
+        "people": "People",
+        "labourAmount": "Labour cost (RM)",
+        "confirmed": "Confirmed (RM)",
+        "unconfirmed": "Not confirmed (RM)"
+      },
+      "months": "Each month",
+      "empty": "Nobody has working days in these months.",
+      "help": "The labour cost is worked out from the records and rates now; confirmed months use what was kept when they were confirmed."
     }
   }
 }

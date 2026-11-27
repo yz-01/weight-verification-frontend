@@ -13424,9 +13424,7 @@
       "materialIssue": "Pengeluaran bahan (MIN)",
       "equipmentRentalReport": "Laporan caj sewa peralatan",
       "siteCostOverview": "Ringkasan kos tapak",
-      "equipmentRentalStatements": "Penyata sewaan peralatan",
-      "labourCosts": "Kos buruh",
-      "labourStatements": "Penyata buruh"
+      "equipmentRentalStatements": "Penyata sewaan peralatan"
     },
     "subscription_management": "Pengurusan Langganan",
     "suppliers": "Pembekal",
@@ -25088,11 +25086,13 @@
     },
     "method": {
       "DAILY": "Gaji harian",
-      "HOURLY": "Gaji sejam"
+      "HOURLY": "Gaji sejam",
+      "IN_RENTAL": "Termasuk dalam sewaan peralatan"
     },
     "methodHelp": {
       "DAILY": "Gaji harian: setiap hari bekerja dibayar satu hari; lebih masa dikira berasingan.",
-      "HOURLY": "Gaji sejam: jam biasa didarab harga sejam; lebih masa dikira berasingan."
+      "HOURLY": "Gaji sejam: jam biasa didarab harga sejam; lebih masa dikira berasingan.",
+      "IN_RENTAL": "Kos buruh orang ini sudah dibayar dalam sewaan peralatan (contohnya pengendali peralatan). Hari dan jam ditunjukkan seperti biasa, tetapi kos buruh tidak dikira."
     },
     "scope": {
       "PERSON": "Ikut orang",
@@ -25133,7 +25133,8 @@
     "what": {
       "options": "pilihan syarikat, tred dan orang",
       "days": "jam ikut hari",
-      "month": "jam ikut bulan"
+      "month": "jam ikut bulan",
+      "summary": "statistik kos buruh"
     },
     "col": {
       "date": "Tarikh",
@@ -25302,7 +25303,7 @@
         "all": "Semua"
       },
       "resultOnly": "Di sini hanya merekod hasil semakan dan penyelesaian; tiada bayaran atau urusan kewangan dibuat.",
-      "what": "penyata buruh",
+      "what": "penyata bulanan buruh",
       "empty": {
         "pending": "Tiada penyata untuk disemak sekarang.",
         "checked": "Tiada penyata yang sudah disemak sekarang.",
@@ -25332,7 +25333,7 @@
       "overlap": "Syarikat ini sudah ada penyata {number} untuk bulan ini. Kos buruh yang sama tidak boleh diselesaikan dua kali.",
       "emptyPreview": "Tiada sesiapa di syarikat ini mempunyai hari bekerja bulan ini, jadi tiada apa untuk diselesaikan.",
       "generatePin": "Selepas 「Buat penyata」, masukkan PIN pengesahan enam digit anda. Jumlah tidak akan berubah selepas itu.",
-      "windowTitle": "Penyata buruh {number}",
+      "windowTitle": "Penyata bulanan buruh {number}",
       "pdf": "PDF penyata",
       "linesTitle": "Orang dan kos",
       "linesHelp": "Tekan 「Setiap hari」 pada seseorang untuk melihat hari dan jamnya.",
@@ -25345,10 +25346,11 @@
       "confirmCancel": "Batalkan penyata",
       "tickAll": "Tanda semua",
       "generatedToast": "Penyata {number} dibuat",
-      "cancelledToast": "Penyata {number} dibatalkan"
+      "cancelledToast": "Penyata {number} dibatalkan",
+      "inRental": "Kos buruh orang ini termasuk dalam sewaan peralatan, jadi tidak dikira dan tidak dimasukkan ke dalam penyata:"
     },
-    "checkTitle": "Penyata buruh · semak dan selesaikan",
-    "checkNoPending": "Tiada penyata buruh untuk disemak sekarang.",
+    "checkTitle": "Penyata bulanan buruh · semak dan selesaikan",
+    "checkNoPending": "Tiada penyata bulanan buruh untuk disemak sekarang.",
     "checkChooseCompany": "Pilih syarikat",
     "checkHelp": "Pilih syarikat dahulu, kemudian tandakan penyatanya untuk disemak.",
     "checkPickTitle": "Penyata {name} untuk disemak",
@@ -25359,12 +25361,12 @@
     "checkStatementsTitle": "Penyata dalam semakan ini ({count})",
     "cost": {
       "source": "Kos buruh",
-      "report": "Penyata buruh",
+      "report": "Penyata bulanan buruh",
       "notCounted": "{amount} belum disemak, tidak dikira"
     },
     "employer": {
       "label": "Syarikat",
-      "hint": "Kosong = syarikat sendiri. Kos buruh dan penyata buruh ikut syarikat ini.",
+      "hint": "Kosong = syarikat sendiri. Kos buruh dan penyata bulanan buruh ikut syarikat ini.",
       "pick": "Pilih syarikat",
       "search": "Cari syarikat",
       "noMatch": "Syarikat ini tiada dalam senarai. Taipkan di bawah.",
@@ -25379,6 +25381,50 @@
       "adjusted": "Jam dilaraskan",
       "confirmed": "Jam {count} orang disahkan",
       "unconfirmed": "Pengesahan dibatalkan"
+    },
+    "tab": {
+      "labour": "Statistik kos buruh",
+      "statements": "Penyata bulanan buruh"
+    },
+    "inRental": {
+      "rate": "Termasuk dalam sewaan peralatan, buruh tidak dikira",
+      "operator": "Pengendali peralatan {equipment}; buruh termasuk dalam sewaan peralatan"
+    },
+    "twin": {
+      "linkedTag": "Akaun App dipautkan {name}",
+      "appName": "Akaun App: {name}",
+      "samePhone": "Satu nombor telefon ada dua orang. Sila semak: {names}"
+    },
+    "visits": {
+      "source": "Sumber",
+      "sourceVisit": "Pautan senarai pekerja",
+      "sourceApp": "Daftar masuk App",
+      "refs": "No. rekod masuk",
+      "appAccount": "Akaun App",
+      "missingExit": "Tiada keluar",
+      "hint": "Akaun App dengan nombor telefon yang sama ialah orang yang sama; rekod masuk dan keluarnya (daftar masuk App) juga disenaraikan di sini."
+    },
+    "stats": {
+      "label": "Kira ikut",
+      "person": "Ikut orang",
+      "company": "Ikut syarikat",
+      "trade": "Ikut tred",
+      "monthFrom": "Bulan dari",
+      "monthTo": "Hingga",
+      "name": {
+        "person": "Nama",
+        "company": "Syarikat",
+        "trade": "Tred"
+      },
+      "col": {
+        "people": "Bilangan orang",
+        "labourAmount": "Kos buruh (RM)",
+        "confirmed": "Sudah disahkan (RM)",
+        "unconfirmed": "Belum disahkan (RM)"
+      },
+      "months": "Setiap bulan",
+      "empty": "Tiada sesiapa mempunyai hari bekerja dalam bulan-bulan ini.",
+      "help": "Kos buruh dikira daripada rekod dan kadar sekarang; bulan yang sudah disahkan menggunakan apa yang disimpan semasa disahkan."
     }
   }
 }

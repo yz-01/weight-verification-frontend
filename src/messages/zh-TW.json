@@ -13424,9 +13424,7 @@
       "materialIssue": "材料領用（MIN）",
       "equipmentRentalReport": "設備租賃費用報表",
       "siteCostOverview": "項目現場費用總覽",
-      "equipmentRentalStatements": "設備租賃月結單",
-      "labourCosts": "人工費用",
-      "labourStatements": "人工結算單"
+      "equipmentRentalStatements": "設備租賃月結單"
     },
     "subscription_management": "訂閱管理",
     "suppliers": "供應商",
@@ -25088,11 +25086,13 @@
     },
     "method": {
       "DAILY": "日薪",
-      "HOURLY": "時薪"
+      "HOURLY": "時薪",
+      "IN_RENTAL": "已含在設備租赁費用內"
     },
     "methodHelp": {
       "DAILY": "日薪：有上班的每一天算一天的錢，超時另算。",
-      "HOURLY": "時薪：正常工時乘以每小時單價，超時另算。"
+      "HOURLY": "時薪：正常工時乘以每小時單價，超時另算。",
+      "IN_RENTAL": "這個人的人工已經算在設備租赁費用裡（例如設備操作員），工作天數和工時照常顯示，但不再計人工費用。"
     },
     "scope": {
       "PERSON": "按人員",
@@ -25133,7 +25133,8 @@
     "what": {
       "options": "公司、工種和人員的選項",
       "days": "按日的工時",
-      "month": "按月的工時"
+      "month": "按月的工時",
+      "summary": "人工費用統計"
     },
     "col": {
       "date": "日期",
@@ -25171,7 +25172,7 @@
       "adjustedBy": "{name} 在 {time} 調整：{reason}",
       "locked": {
         "confirmed": "這個月已確認，不能再調整",
-        "statement": "已在結算單裡，不能再調整"
+        "statement": "已在月結單裡，不能再調整"
       }
     },
     "month": {
@@ -25180,7 +25181,7 @@
       "notConfirmed": "未確認",
       "confirmed": "已確認",
       "confirmedBy": "{name} · {time}",
-      "inStatement": "結算單 {number}（{state}）",
+      "inStatement": "月結單 {number}（{state}）",
       "flagsHelp": "缺離場或系統結束的天數，請在按日裡核對。"
     },
     "rate": {
@@ -25247,7 +25248,7 @@
     },
     "unconfirm": {
       "button": "取消確認",
-      "inStatement": "這個月已在結算單 {number} 裡，要先把結算單作廢才能取消確認。",
+      "inStatement": "這個月已在月結單 {number} 裡，要先把月結單作廢才能取消確認。",
       "title": "取消確認 {name} {month}",
       "help": "取消後可以再調整這個月的工時，然後重新確認。要寫原因和輸入六位數簽核密碼。",
       "reason": "取消原因",
@@ -25255,7 +25256,7 @@
     },
     "rates": {
       "title": "人工單價設定",
-      "help": "人工單價是全公司通用的，每個專案都用。改單價是從生效日期開始用新的，已確認的月份和結算單不會變。",
+      "help": "人工單價是全公司通用的，每個專案都用。改單價是從生效日期開始用新的，已確認的月份和月結單不會變。",
       "order": "同一個人有幾個單價時，用最細的那一個：人員 → 所屬公司 + 工種 → 工種 → 所屬公司",
       "add": "新增單價",
       "what": "人工單價",
@@ -25292,9 +25293,9 @@
     },
     "statement": {
       "noManage": "你沒有人工結算的權限。請找公司管理員開通。",
-      "noAmounts": "你的「金額查看」已關閉，結算單都是金額，所以看不到。請找公司管理員開通。",
-      "count": "{count} 張結算單",
-      "tabsLabel": "結算單的頁簽",
+      "noAmounts": "你的「金額查看」已關閉，月結單都是金額，所以看不到。請找公司管理員開通。",
+      "count": "{count} 張月結單",
+      "tabsLabel": "月結單的頁簽",
       "tab": {
         "pending": "待核對",
         "checked": "已核對",
@@ -25302,15 +25303,15 @@
         "all": "全部"
       },
       "resultOnly": "這裡只記錄核對及結算結果，不涉及實際付款及財務操作。",
-      "what": "人工結算單",
+      "what": "人工月結單",
       "empty": {
-        "pending": "現在沒有待核對的結算單。",
-        "checked": "現在沒有已核對的結算單。",
-        "settled": "現在沒有已結算的結算單。",
-        "all": "還沒有結算單。"
+        "pending": "現在沒有待核對的月結單。",
+        "checked": "現在沒有已核對的月結單。",
+        "settled": "現在沒有已結算的月結單。",
+        "all": "還沒有月結單。"
       },
       "col": {
-        "number": "結算單編號",
+        "number": "月結單編號",
         "project": "專案",
         "month": "月份",
         "people": "人數",
@@ -25322,49 +25323,50 @@
       },
       "peopleValue": "{count} 人",
       "view": "查看",
-      "generate": "生成結算單",
+      "generate": "生成月結單",
       "generateHelp": "選擇專案、所屬公司和月份。系統按確認的工作天數和工時算出金額。還沒確認的人，生成時會一起確認。",
       "preview": "先看一下",
-      "willConfirm": "按「生成結算單」時，會一起確認這些人這個月的工時（確認後不能再改）：",
+      "willConfirm": "按「生成月結單」時，會一起確認這些人這個月的工時（確認後不能再改）：",
       "noRate": "這些人還沒有單價，設好單價才能生成：",
       "noCompany": "這些人未填所屬公司，填好才能結算：",
       "noRateShort": "還有人沒有單價，設好單價才能生成。",
-      "overlap": "這個月這家公司已經有結算單 {number}，同一筆人工費用不能重複結算。",
+      "overlap": "這個月這家公司已經有月結單 {number}，同一筆人工費用不能重複結算。",
       "emptyPreview": "這個月這家公司沒有人有工作天數，沒有東西可以結算。",
-      "generatePin": "按「生成結算單」後，輸入你的六位數簽核密碼。生成後金額不會再變。",
-      "windowTitle": "人工結算單 {number}",
-      "pdf": "結算單 PDF",
+      "generatePin": "按「生成月結單」後，輸入你的六位數簽核密碼。生成後金額不會再變。",
+      "windowTitle": "人工月結單 {number}",
+      "pdf": "月結單 PDF",
       "linesTitle": "人員及費用",
       "linesHelp": "每個人按「看每天」可以看到是哪幾天、幾個小時。",
       "days": "看每天",
       "worked": "有沒有上班",
       "cancel": "作廢",
-      "cancelTitle": "作廢結算單 {number}",
-      "cancelHelp": "只有待核對的結算單可以作廢。作廢後記錄保留，這個月可以重新生成。要輸入六位數簽核密碼。",
+      "cancelTitle": "作廢月結單 {number}",
+      "cancelHelp": "只有待核對的月結單可以作廢。作廢後記錄保留，這個月可以重新生成。要輸入六位數簽核密碼。",
       "cancelReason": "作廢原因",
       "confirmCancel": "確認作廢",
       "tickAll": "全選",
-      "generatedToast": "已生成結算單 {number}",
-      "cancelledToast": "結算單 {number} 已作廢"
+      "generatedToast": "已生成月結單 {number}",
+      "cancelledToast": "月結單 {number} 已作廢",
+      "inRental": "這些人的人工已含在設備租赁費用內，不計人工，不放進月結單："
     },
-    "checkTitle": "人工結算單 · 核對與結算",
-    "checkNoPending": "現在沒有待核對的人工結算單。",
+    "checkTitle": "人工月結單 · 核對與結算",
+    "checkNoPending": "現在沒有待核對的人工月結單。",
     "checkChooseCompany": "選擇所屬公司",
-    "checkHelp": "先選所屬公司，再勾選這家公司待核對的結算單。",
-    "checkPickTitle": "{name} 待核對的結算單",
-    "checkPickHelp": "勾選要核對的結算單，可以勾一張或多張。點一行可以查看結算單。",
-    "checkWhat": "待核對的結算單",
-    "checkTickFirst": "先勾選要核對的結算單，下面才會出現核對確認。",
+    "checkHelp": "先選所屬公司，再勾選這家公司待核對的月結單。",
+    "checkPickTitle": "{name} 待核對的月結單",
+    "checkPickHelp": "勾選要核對的月結單，可以勾一張或多張。點一行可以查看月結單。",
+    "checkWhat": "待核對的月結單",
+    "checkTickFirst": "先勾選要核對的月結單，下面才會出現核對確認。",
     "checkWindowTitle": "人工核對 {number}",
-    "checkStatementsTitle": "這次勾選的結算單（{count} 張）",
+    "checkStatementsTitle": "這次勾選的月結單（{count} 張）",
     "cost": {
       "source": "人工費用",
-      "report": "人工結算單",
+      "report": "人工月結單",
       "notCounted": "還有 {amount} 未核對，不算在內"
     },
     "employer": {
       "label": "所屬公司",
-      "hint": "不填 = 本公司。人工費用和人工結算單按這個公司分。",
+      "hint": "不填 = 本公司。人工費用和人工月結單按這個公司分。",
       "pick": "選擇公司",
       "search": "搜尋公司",
       "noMatch": "名單裡沒有這家公司，可以在下面手動填寫。",
@@ -25379,6 +25381,50 @@
       "adjusted": "工時已調整",
       "confirmed": "已確認 {count} 人的工時",
       "unconfirmed": "已取消確認"
+    },
+    "tab": {
+      "labour": "人工費用統計",
+      "statements": "人工月結單"
+    },
+    "inRental": {
+      "rate": "已含在設備租赁費用內，不計人工",
+      "operator": "設備 {equipment} 的操作員，人工已含在設備租赁費用內"
+    },
+    "twin": {
+      "linkedTag": "已關聯 App 帳號 {name}",
+      "appName": "App 帳號：{name}",
+      "samePhone": "同一個號碼有兩個人員，請檢查：{names}"
+    },
+    "visits": {
+      "source": "來源",
+      "sourceVisit": "人員名單鏈接",
+      "sourceApp": "App 打卡",
+      "refs": "進場記錄編號",
+      "appAccount": "App 帳號",
+      "missingExit": "缺離場",
+      "hint": "同一個電話號碼的 App 帳號是同一個人，它的進場和離場（App 打卡）也列在這裡。"
+    },
+    "stats": {
+      "label": "統計方式",
+      "person": "按人員",
+      "company": "按所屬公司",
+      "trade": "按工種",
+      "monthFrom": "月份從",
+      "monthTo": "到",
+      "name": {
+        "person": "姓名",
+        "company": "所屬公司",
+        "trade": "工種"
+      },
+      "col": {
+        "people": "人數",
+        "labourAmount": "人工費用（RM）",
+        "confirmed": "已確認（RM）",
+        "unconfirmed": "未確認（RM）"
+      },
+      "months": "看每月",
+      "empty": "這段月份沒有人有工作天數。",
+      "help": "人工費用是按現在的記錄和單價算出的；已確認的月份按確認時保存的算。"
     }
   }
 }

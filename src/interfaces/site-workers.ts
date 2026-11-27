@@ -52,6 +52,11 @@ export interface SiteWorker {
   status: WorkerStatus;
   last_position_at: string | null;
   link: SiteWorkerLink;
+  /**
+   * JB295b: the app account with the same phone on the same project - the
+   * same person (「已关联 App 账号 ah ong」). Null when there is none.
+   */
+  linked_user?: { id: string; name: string } | null;
   created_at: string;
   updated_at: string;
 }
@@ -74,6 +79,15 @@ export interface SiteWorkerVisit {
   exited_at: string | null;
   exit_state: VisitExitState;
   last_seen_at: string | null;
+  /**
+   * JB295b: 「人员名单链接」 (a stay from the worker's link) or 「App 打卡」 (an
+   * AT- 进场 → 离开 pair of the app account), with its AT numbers and marks.
+   */
+  source?: "visit" | "app";
+  refs?: string[];
+  flags?: ("missing_exit" | "system_exit")[];
+  /** The linked app account's name, shown under the roster name. */
+  linked_user_name?: string;
 }
 
 export interface WorkerFence {

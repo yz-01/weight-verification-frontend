@@ -77,6 +77,35 @@ describe("/api/labour/", () => {
     });
   });
 
+  it("「已含在设备租赁费用内」 sends no price; the summary sends only what is chosen", async () => {
+    await labour.setLabourRate({
+      scope: "TRADE",
+      trade: "operator",
+      method: "IN_RENTAL",
+      unit_price: "120",
+      overtime_rate: "20",
+      effective_from: "2026-10-01",
+    });
+    expect(calls.post).toHaveBeenLastCalledWith("/api/labour/set_rate/", {
+      scope: "TRADE",
+      method: "IN_RENTAL",
+      effective_from: "2026-10-01",
+      trade: "operator",
+    });
+    await labour.getLabourSummary({ project: "p-1", month_from: "2026-09", month_to: "2026-10", group: "company", trade: "" });
+    expect(calls.get).toHaveBeenLastCalledWith("/api/labour/get_summary/", {
+      project: "p-1",
+      month_from: "2026-09",
+      month_to: "2026-10",
+      group: "company",
+    });
+    await labour.exportLabourSummary({ format: "xlsx", title: "x", columns: [], query: { project: "p-1", group: "trade" } }, "合计");
+    expect(calls.download).toHaveBeenLastCalledWith(
+      "/api/labour/export_summary/",
+      expect.objectContaining({ method: "POST", body: expect.objectContaining({ total_label: "合计" }) }),
+    );
+  });
+
   it("adjust, confirm, unconfirm, normal hours and the exports", async () => {
     const day = { project: "p-1", person_key: "worker:w-1", date: "2026-10-03", worked: true, normal_hours: "8", overtime_hours: "1", reason: "x" };
     await labour.adjustLabourDay(day);

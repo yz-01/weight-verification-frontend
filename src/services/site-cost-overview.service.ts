@@ -87,10 +87,10 @@ export function siteCostReportHref(
     progress_claim: "/reports/contractor/claims",
     sundry_claims: "/reports/contractor/sundry_claims",
     disposal: "/reports/contractor/recycling",
-    labour: "/labour-statements",
+    labour: "/site-workers",
   }[source];
-  // 人工费用: the 已核对 人工结算单 - what the amount counts (JB295).
-  if (source === "labour") return `${base}?state=checked`;
+  // 人工费用: the 已核对 人工月结单 - what the amount counts (JB295), in its tab on 人员名单.
+  if (source === "labour") return `${base}?tab=statements&state=checked`;
   // 杂费报销: the claims the office approved - what the amount counts.
   if (source === "sundry_claims") params.set("status", "CONFIRMED");
   return `${base}?${params.toString()}`;

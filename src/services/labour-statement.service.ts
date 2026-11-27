@@ -65,6 +65,8 @@ export interface LabourStatementPreview {
   will_confirm: { key: string; name: string }[];
   no_rate: { key: string; name: string }[];
   no_company: { key: string; name: string }[];
+  /** JB295b: 「已含在设备租赁费用内，不计人工」 - left out of the lines. */
+  in_rental?: { key: string; name: string; reason: string }[];
   overlap: { id: string; statement_no: string } | null;
   month_over: boolean;
 }

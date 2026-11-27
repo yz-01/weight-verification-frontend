@@ -21,12 +21,15 @@ export type LabourGroup = "roster" | "app";
 export type LabourCompanyKind = "supplier" | "note" | "self" | "none";
 /** 按人员 / 按所属公司 + 工种 / 按工种 / 按所属公司 - the most specific one wins. */
 export type LabourScope = "PERSON" | "COMPANY_TRADE" | "TRADE" | "COMPANY";
-/** 日薪 / 时薪. */
-export type LabourMethod = "DAILY" | "HOURLY";
+/**
+ * 日薪 / 时薪, or 「已含在设备租赁费用内」 (JB295b, 客户 11-28 第 6 点: the
+ * operator's labour is inside the equipment rental and is not counted again).
+ */
+export type LabourMethod = "DAILY" | "HOURLY" | "IN_RENTAL";
 
 /** The order a person's rate is looked for: the first one found counts. */
 export const LABOUR_SCOPES: readonly LabourScope[] = ["PERSON", "COMPANY_TRADE", "TRADE", "COMPANY"];
-export const LABOUR_METHODS: readonly LabourMethod[] = ["DAILY", "HOURLY"];
+export const LABOUR_METHODS: readonly LabourMethod[] = ["DAILY", "HOURLY", "IN_RENTAL"];
 
 export interface LabourCompany {
   key: string;
@@ -47,12 +50,30 @@ export interface LabourPerson {
   company_name: string;
   trade_name: string;
   is_active: boolean;
+  /** JB295b: a roster worker's app account with the same phone - counted as one person. */
+  linked_user?: { key: string; name: string } | null;
+}
+
+/** JB295b: two roster rows (or two accounts) with one phone on the project - not merged. */
+export interface LabourWarning {
+  kind: "same_phone_twice";
+  keys: string[];
 }
 
 export interface LabourOptions {
   companies: LabourCompany[];
   trades: LabourTrade[];
   people: LabourPerson[];
+  warnings?: LabourWarning[];
+}
+
+/**
+ * JB295b: why a person's labour is not counted - 「已含在设备租赁费用内」, set
+ * by a rate, or found because they operate a rented machine (`equipment_no`).
+ */
+export interface LabourInRental {
+  reason: string;
+  equipment_no?: string | null;
 }
 
 /** The rate a day was priced with. */
@@ -145,6 +166,8 @@ export interface LabourDayRow {
   normal_amount: string | null;
   overtime_amount: string | null;
   day_amount: string | null;
+  /** JB295b: the day's labour is inside the equipment rental. */
+  in_rental?: LabourInRental | null;
 }
 
 /** A rate in force for part of a month. */
@@ -172,6 +195,8 @@ export interface LabourMonthPerson {
   adjusted_count: number;
   rates: LabourRatePiece[];
   no_rate: boolean;
+  /** JB295b: 「已含在设备租赁费用内，不计人工」. */
+  in_rental?: LabourInRental | null;
   normal_amount: string | null;
   overtime_amount: string | null;
   labour_amount: string | null;
@@ -240,15 +265,16 @@ export async function setLabourRate(payload: LabourRatePayload): Promise<LabourR
   const body: Record<string, string> = {
     scope: payload.scope,
     method: payload.method,
-    unit_price: payload.unit_price.trim(),
     effective_from: payload.effective_from,
   };
+  // 「已含在设备租赁费用内」 has no price (JB295b).
+  if (payload.method !== "IN_RENTAL") body.unit_price = payload.unit_price.trim();
   if (payload.scope === "PERSON" && payload.person_key) body.person_key = payload.person_key;
   if ((payload.scope === "COMPANY" || payload.scope === "COMPANY_TRADE") && payload.company_key) {
     body.company_key = payload.company_key;
   }
   if ((payload.scope === "TRADE" || payload.scope === "COMPANY_TRADE") && payload.trade) body.trade = payload.trade;
-  if (payload.overtime_rate?.trim()) body.overtime_rate = payload.overtime_rate.trim();
+  if (payload.method !== "IN_RENTAL" && payload.overtime_rate?.trim()) body.overtime_rate = payload.overtime_rate.trim();
   if (payload.note?.trim()) body.note = payload.note.trim();
   const rate = await api.post<LabourRate>("/api/labour/set_rate/", body);
   toastSuccess("jb295.toast.rateSaved");
@@ -331,5 +357,57 @@ export function exportLabourMonth(request: ExportRequest, totalLabel?: string): 
     query: exportQuery(request),
     body: { ...exportBody(request), ...(totalLabel ? { total_label: totalLabel } : {}) },
     fallbackFilename: `labour-month.${request.format}`,
+  });
+}
+
+/* ------------------------------------------------------------------ */
+/* 统计方式 (JB295b, 客户 11-28 第 3 点 「按所属公司、工种及月份统计」)       */
+/* ------------------------------------------------------------------ */
+
+export type LabourSummaryGroup = "person" | "company" | "trade";
+
+export interface LabourSummaryFigures {
+  people: number;
+  days_worked: number;
+  normal_hours: string;
+  overtime_hours: string;
+  labour_amount: string | null;
+  confirmed_amount: string | null;
+  unconfirmed_amount: string | null;
+}
+
+export interface LabourSummaryRow extends LabourSummaryFigures {
+  key: string;
+  name: string;
+  months: (LabourSummaryFigures & { month: string })[];
+}
+
+export interface LabourSummary {
+  rows: LabourSummaryRow[];
+  totals: LabourSummaryFigures;
+  amounts_hidden: boolean;
+}
+
+export interface LabourSummaryQuery {
+  project: string;
+  month_from: string;
+  month_to: string;
+  group: LabourSummaryGroup;
+  company?: string;
+  trade?: string;
+}
+
+export const getLabourSummary = (query: LabourSummaryQuery) =>
+  api.get<LabourSummary>(`${BASE}get_summary/`, Object.fromEntries(
+    Object.entries(query).filter(([, value]) => Boolean(value)),
+  ) as Record<string, string>);
+
+/** 按所属公司 / 按工种 / 按人员 as a file: the rows on screen, then the 合计. */
+export function exportLabourSummary(request: ExportRequest, totalLabel?: string): Promise<void> {
+  return download("/api/labour/export_summary/", {
+    method: "POST",
+    query: exportQuery(request),
+    body: { ...exportBody(request), ...(totalLabel ? { total_label: totalLabel } : {}) },
+    fallbackFilename: `labour-summary.${request.format}`,
   });
 }

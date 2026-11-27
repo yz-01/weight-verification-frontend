@@ -1551,22 +1551,8 @@ export const PORTAL_NAVIGATION = {
           "/site-workers",
           "site_workers",
         ),
-        // 人工费用 / 人工结算单 (JB295, 客户 11-27i 「没有看到人工费用统计及结算
-        // 入口」): 人员名单 workers and App 账号, priced and settled by 所属公司.
-        child(
-          "15.2.6",
-          "nav.submodule.labourCosts",
-          "/labour-costs",
-          "attendance",
-          "labour.view",
-        ),
-        child(
-          "15.2.7",
-          "nav.submodule.labourStatements",
-          "/labour-statements",
-          "attendance",
-          "labour.manage",
-        ),
+        // 人工费用统计 / 人工月结单 (JB295) are tabs of 人员名单 (客户 11-28
+        // 「在现有人员名单页面上方，完善人工费用统计及人工月结单两个栏目」), not menu items.
       ],
     ),
     // What used to sit together under 「现场资料」 (F-484), each at its own

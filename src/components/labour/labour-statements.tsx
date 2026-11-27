@@ -30,6 +30,8 @@ import {
 import {
   companyText,
   hoursText,
+  inRentalText,
+  isInRental,
   isMonth,
   LABOUR_MANAGE,
   labourMoney,
@@ -55,6 +57,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useSeesAmounts } from "@/hooks/use-sees-amounts";
 import { useUrlSelection } from "@/hooks/use-url-selection";
 import { useDateFormat } from "@/lib/dates";
+import { labourTabHref } from "@/lib/labour-links";
 import { getLabourOptions } from "@/services/labour.service";
 import {
   cancelLabourStatement,
@@ -118,15 +121,15 @@ export function summaryTotals(statement: LabourStatementSummary): LabourStatemen
 
 export function LabourStatementsPage() {
   const t = useTranslations("jb295");
-  const tRoot = useTranslations();
   const df = useDateFormat();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const qc = useQueryClient();
   const current = useCurrentProject();
-  // 项目现场费用总览's 查看明细 opens `?state=checked` (JB295 R11).
-  const tab = labourTabOf(searchParams.get("tab") ?? searchParams.get("state"));
+  // JB295b: on the 人员名单 page `tab` is that page's tab; this list keeps its
+  // own in `state` (项目现场费用总览's 查看明细 opens `state=checked`).
+  const tab = labourTabOf(searchParams.get("state"));
   const [viewing, setViewing] = useUrlSelection("statement");
   const [project, setProject] = useState(current.active ? current.projectId : "");
   const [company, setCompany] = useState(ALL);
@@ -134,9 +137,8 @@ export function LabourStatementsPage() {
   const shownProject = current.active ? current.projectId : project;
   const switchTab = (next: LabourStatementTab) => {
     const params = new URLSearchParams(searchParams.toString());
-    params.delete("state");
-    if (next === "pending") params.delete("tab");
-    else params.set("tab", next);
+    if (next === "pending") params.delete("state");
+    else params.set("state", next);
     const query = params.toString();
     router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
   };
@@ -161,7 +163,7 @@ export function LabourStatementsPage() {
     enabled: !refused,
   });
   const refresh = () => void qc.invalidateQueries({ queryKey: ["labour-statements"] });
-  const title = tRoot("nav.submodule.labourStatements");
+  const title = t("tab.statements");
   if (refused) {
     return (
       <div className="flex flex-col gap-4" data-slot="labour-statements">
@@ -182,9 +184,9 @@ export function LabourStatementsPage() {
         action={
           <div className="flex flex-wrap gap-2">
             <Button asChild variant="outline" size="lg">
-              <Link href="/labour-costs">
+              <Link href={labourTabHref("labour", { project: shownProject })}>
                 <HandCoins />
-                {tRoot("nav.submodule.labourCosts")}
+                {t("tab.labour")}
               </Link>
             </Button>
             <GenerateButton
@@ -487,6 +489,10 @@ export function GenerateStatementDialog({ onClose, onSaved }: { onClose: () => v
             {shown.no_rate.length ? (
               <PeopleNote tone="warning" slot="labour-no-rate-people" text={t("statement.noRate")} people={shown.no_rate} />
             ) : null}
+            {shown.in_rental?.length ? (
+              // JB295b (客户 11-28 第 6 点): operators paid inside the equipment rental, left out.
+              <PeopleNote tone="info" slot="labour-in-rental-people" text={t("statement.inRental")} people={shown.in_rental} />
+            ) : null}
             {shown.no_company.length ? (
               <PeopleNote
                 tone="warning"
@@ -596,7 +602,11 @@ export function LabourStatementLines({
                 <TableCell className="tabular text-right">{hoursText(line.normal_hours)}</TableCell>
                 <TableCell className="tabular text-right">{hoursText(line.overtime_hours)}</TableCell>
                 <TableCell>
-                  {line.rates.length ? (
+                  {isInRental(line) ? (
+                    <span className="block max-w-56 whitespace-normal text-sm text-muted-foreground">
+                      {inRentalText(t, line.in_rental)}
+                    </span>
+                  ) : line.rates.length ? (
                     line.rates.map((rate) => (
                       <span key={rate.from} className="block" style={{ whiteSpace: "nowrap" }}>
                         {line.rates.length > 1

@@ -13424,9 +13424,7 @@
       "materialIssue": "材料领用（MIN）",
       "equipmentRentalReport": "设备租赁费用报表",
       "siteCostOverview": "项目现场费用总览",
-      "equipmentRentalStatements": "设备租赁月结单",
-      "labourCosts": "人工费用",
-      "labourStatements": "人工结算单"
+      "equipmentRentalStatements": "设备租赁月结单"
     },
     "subscription_management": "订阅管理",
     "suppliers": "供应商",
@@ -25088,11 +25086,13 @@
     },
     "method": {
       "DAILY": "日薪",
-      "HOURLY": "时薪"
+      "HOURLY": "时薪",
+      "IN_RENTAL": "已含在设备租赁费用内"
     },
     "methodHelp": {
       "DAILY": "日薪：有上班的每一天算一天的钱，超时另算。",
-      "HOURLY": "时薪：正常工时乘以每小时单价，超时另算。"
+      "HOURLY": "时薪：正常工时乘以每小时单价，超时另算。",
+      "IN_RENTAL": "这个人的人工已经算在设备租赁费用里（例如设备操作员），工作天数和工时照常显示，但不再计人工费用。"
     },
     "scope": {
       "PERSON": "按人员",
@@ -25133,7 +25133,8 @@
     "what": {
       "options": "公司、工种和人员的选项",
       "days": "按日的工时",
-      "month": "按月的工时"
+      "month": "按月的工时",
+      "summary": "人工费用统计"
     },
     "col": {
       "date": "日期",
@@ -25171,7 +25172,7 @@
       "adjustedBy": "{name} 在 {time} 调整：{reason}",
       "locked": {
         "confirmed": "这个月已确认，不能再调整",
-        "statement": "已在结算单里，不能再调整"
+        "statement": "已在月结单里，不能再调整"
       }
     },
     "month": {
@@ -25180,7 +25181,7 @@
       "notConfirmed": "未确认",
       "confirmed": "已确认",
       "confirmedBy": "{name} · {time}",
-      "inStatement": "结算单 {number}（{state}）",
+      "inStatement": "月结单 {number}（{state}）",
       "flagsHelp": "缺离场或系统结束的天数，请在按日里核对。"
     },
     "rate": {
@@ -25247,7 +25248,7 @@
     },
     "unconfirm": {
       "button": "取消确认",
-      "inStatement": "这个月已在结算单 {number} 里，要先把结算单作废才能取消确认。",
+      "inStatement": "这个月已在月结单 {number} 里，要先把月结单作废才能取消确认。",
       "title": "取消确认 {name} {month}",
       "help": "取消后可以再调整这个月的工时，然后重新确认。要写原因和输入六位数签核密码。",
       "reason": "取消原因",
@@ -25255,7 +25256,7 @@
     },
     "rates": {
       "title": "人工单价设定",
-      "help": "人工单价是全公司通用的，每个项目都用。改单价是从生效日期开始用新的，已确认的月份和结算单不会变。",
+      "help": "人工单价是全公司通用的，每个项目都用。改单价是从生效日期开始用新的，已确认的月份和月结单不会变。",
       "order": "同一个人有几个单价时，用最细的那一个：人员 → 所属公司 + 工种 → 工种 → 所属公司",
       "add": "新增单价",
       "what": "人工单价",
@@ -25292,9 +25293,9 @@
     },
     "statement": {
       "noManage": "你没有人工结算的权限。请找公司管理员开通。",
-      "noAmounts": "你的「金额查看」已关闭，结算单都是金额，所以看不到。请找公司管理员开通。",
-      "count": "{count} 张结算单",
-      "tabsLabel": "结算单的页签",
+      "noAmounts": "你的「金额查看」已关闭，月结单都是金额，所以看不到。请找公司管理员开通。",
+      "count": "{count} 张月结单",
+      "tabsLabel": "月结单的页签",
       "tab": {
         "pending": "待核对",
         "checked": "已核对",
@@ -25302,15 +25303,15 @@
         "all": "全部"
       },
       "resultOnly": "这里只记录核对及结算结果，不涉及实际付款及财务操作。",
-      "what": "人工结算单",
+      "what": "人工月结单",
       "empty": {
-        "pending": "现在没有待核对的结算单。",
-        "checked": "现在没有已核对的结算单。",
-        "settled": "现在没有已结算的结算单。",
-        "all": "还没有结算单。"
+        "pending": "现在没有待核对的月结单。",
+        "checked": "现在没有已核对的月结单。",
+        "settled": "现在没有已结算的月结单。",
+        "all": "还没有月结单。"
       },
       "col": {
-        "number": "结算单编号",
+        "number": "月结单编号",
         "project": "项目",
         "month": "月份",
         "people": "人数",
@@ -25322,49 +25323,50 @@
       },
       "peopleValue": "{count} 人",
       "view": "查看",
-      "generate": "生成结算单",
+      "generate": "生成月结单",
       "generateHelp": "选择项目、所属公司和月份。系统按确认的工作天数和工时算出金额。还没确认的人，生成时会一起确认。",
       "preview": "先看一下",
-      "willConfirm": "按「生成结算单」时，会一起确认这些人这个月的工时（确认后不能再改）：",
+      "willConfirm": "按「生成月结单」时，会一起确认这些人这个月的工时（确认后不能再改）：",
       "noRate": "这些人还没有单价，设好单价才能生成：",
       "noCompany": "这些人未填所属公司，填好才能结算：",
       "noRateShort": "还有人没有单价，设好单价才能生成。",
-      "overlap": "这个月这家公司已经有结算单 {number}，同一笔人工费用不能重复结算。",
+      "overlap": "这个月这家公司已经有月结单 {number}，同一笔人工费用不能重复结算。",
       "emptyPreview": "这个月这家公司没有人有工作天数，没有东西可以结算。",
-      "generatePin": "按「生成结算单」后，输入你的六位数签核密码。生成后金额不会再变。",
-      "windowTitle": "人工结算单 {number}",
-      "pdf": "结算单 PDF",
+      "generatePin": "按「生成月结单」后，输入你的六位数签核密码。生成后金额不会再变。",
+      "windowTitle": "人工月结单 {number}",
+      "pdf": "月结单 PDF",
       "linesTitle": "人员及费用",
       "linesHelp": "每个人按「看每天」可以看到是哪几天、几个小时。",
       "days": "看每天",
       "worked": "有没有上班",
       "cancel": "作废",
-      "cancelTitle": "作废结算单 {number}",
-      "cancelHelp": "只有待核对的结算单可以作废。作废后记录保留，这个月可以重新生成。要输入六位数签核密码。",
+      "cancelTitle": "作废月结单 {number}",
+      "cancelHelp": "只有待核对的月结单可以作废。作废后记录保留，这个月可以重新生成。要输入六位数签核密码。",
       "cancelReason": "作废原因",
       "confirmCancel": "确认作废",
       "tickAll": "全选",
-      "generatedToast": "已生成结算单 {number}",
-      "cancelledToast": "结算单 {number} 已作废"
+      "generatedToast": "已生成月结单 {number}",
+      "cancelledToast": "月结单 {number} 已作废",
+      "inRental": "这些人的人工已含在设备租赁费用内，不计人工，不放进月结单："
     },
-    "checkTitle": "人工结算单 · 核对与结算",
-    "checkNoPending": "现在没有待核对的人工结算单。",
+    "checkTitle": "人工月结单 · 核对与结算",
+    "checkNoPending": "现在没有待核对的人工月结单。",
     "checkChooseCompany": "选择所属公司",
-    "checkHelp": "先选所属公司，再勾选这家公司待核对的结算单。",
-    "checkPickTitle": "{name} 待核对的结算单",
-    "checkPickHelp": "勾选要核对的结算单，可以勾一张或多张。点一行可以查看结算单。",
-    "checkWhat": "待核对的结算单",
-    "checkTickFirst": "先勾选要核对的结算单，下面才会出现核对确认。",
+    "checkHelp": "先选所属公司，再勾选这家公司待核对的月结单。",
+    "checkPickTitle": "{name} 待核对的月结单",
+    "checkPickHelp": "勾选要核对的月结单，可以勾一张或多张。点一行可以查看月结单。",
+    "checkWhat": "待核对的月结单",
+    "checkTickFirst": "先勾选要核对的月结单，下面才会出现核对确认。",
     "checkWindowTitle": "人工核对 {number}",
-    "checkStatementsTitle": "这次勾选的结算单（{count} 张）",
+    "checkStatementsTitle": "这次勾选的月结单（{count} 张）",
     "cost": {
       "source": "人工费用",
-      "report": "人工结算单",
+      "report": "人工月结单",
       "notCounted": "还有 {amount} 未核对，不算在内"
     },
     "employer": {
       "label": "所属公司",
-      "hint": "不填 = 本公司。人工费用和人工结算单按这个公司分。",
+      "hint": "不填 = 本公司。人工费用和人工月结单按这个公司分。",
       "pick": "选择公司",
       "search": "搜索公司",
       "noMatch": "名单里没有这家公司，可以在下面手动填写。",
@@ -25379,6 +25381,50 @@
       "adjusted": "工时已调整",
       "confirmed": "已确认 {count} 人的工时",
       "unconfirmed": "已取消确认"
+    },
+    "tab": {
+      "labour": "人工费用统计",
+      "statements": "人工月结单"
+    },
+    "inRental": {
+      "rate": "已含在设备租赁费用内，不计人工",
+      "operator": "设备 {equipment} 的操作员，人工已含在设备租赁费用内"
+    },
+    "twin": {
+      "linkedTag": "已关联 App 账号 {name}",
+      "appName": "App 账号：{name}",
+      "samePhone": "同一个号码有两个人员，请检查：{names}"
+    },
+    "visits": {
+      "source": "来源",
+      "sourceVisit": "人员名单链接",
+      "sourceApp": "App 打卡",
+      "refs": "进场记录编号",
+      "appAccount": "App 账号",
+      "missingExit": "缺离场",
+      "hint": "同一个电话号码的 App 账号是同一个人，它的进场和离场（App 打卡）也列在这里。"
+    },
+    "stats": {
+      "label": "统计方式",
+      "person": "按人员",
+      "company": "按所属公司",
+      "trade": "按工种",
+      "monthFrom": "月份从",
+      "monthTo": "到",
+      "name": {
+        "person": "姓名",
+        "company": "所属公司",
+        "trade": "工种"
+      },
+      "col": {
+        "people": "人数",
+        "labourAmount": "人工费用（RM）",
+        "confirmed": "已确认（RM）",
+        "unconfirmed": "未确认（RM）"
+      },
+      "months": "看每月",
+      "empty": "这段月份没有人有工作天数。",
+      "help": "人工费用是按现在的记录和单价算出的；已确认的月份按确认时保存的算。"
     }
   }
 }

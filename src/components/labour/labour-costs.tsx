@@ -22,6 +22,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   CheckCheck,
+  ChevronDown,
+  ChevronRight,
   Clock,
   HandCoins,
   ListTree,
@@ -35,7 +37,7 @@ import {
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 
 import { officeMay } from "@/components/contractor-ops/return-checks";
 import { LabourRatesDialog, type LabourRatePrefill } from "@/components/labour/labour-rates";
@@ -43,6 +45,8 @@ import {
   companyText,
   GroupBadge,
   hoursText,
+  inRentalText,
+  isInRental,
   isMonth,
   LABOUR_MANAGE,
   LABOUR_VIEW,
@@ -71,21 +75,27 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { useSeesAmounts } from "@/hooks/use-sees-amounts";
 import { useDateFormat } from "@/lib/dates";
+import { labourStatementHref, labourTabHref } from "@/lib/labour-links";
 import {
   adjustLabourDay,
   confirmLabourMonth,
   exportLabourDays,
   exportLabourMonth,
+  exportLabourSummary,
   getLabourDays,
   getLabourMonth,
   getLabourNormalHours,
   getLabourOptions,
+  getLabourSummary,
   setLabourNormalHours,
   unconfirmLabourMonth,
   type LabourDayRow,
   type LabourMonthRow,
   type LabourNormalHours,
+  type LabourOptions,
   type LabourQuery,
+  type LabourSummary,
+  type LabourSummaryGroup,
   type LabourTotals,
 } from "@/services/labour.service";
 
@@ -94,7 +104,7 @@ type View = "day" | "month";
 
 /** The 人工结算单 a 按月 row is in, opened on its page. */
 export function statementHref(id: string): string {
-  return `/labour-statements?tab=all&statement=${id}`;
+  return labourStatementHref(id);
 }
 
 /** 按日's rows: newest day first, then by name. */
@@ -116,6 +126,25 @@ export function tickable(rows: readonly LabourMonthRow[]): LabourMonthRow[] {
   return confirmable(rows).filter((row) => !row.no_rate && row.rates.length > 0);
 }
 
+/** 统计方式 (JB295b, 客户 11-28 第 3 点 「按所属公司、工种及月份统计」). */
+export const SUMMARY_GROUPS: readonly LabourSummaryGroup[] = ["person", "company", "trade"];
+
+/**
+ * Whether 按月 reads the summary: 按所属公司 / 按工种 always; 按人员 over several
+ * months. 按人员 for one month is the 按月 table with 确认 / 取消确认.
+ */
+export function usesSummary(group: LabourSummaryGroup, monthFrom: string, monthTo: string): boolean {
+  return group !== "person" || monthFrom !== monthTo;
+}
+
+/** 「同一个号码有两个人员，请检查」 warnings, each with the names it is about. */
+export function phoneWarnings(options: LabourOptions | undefined): string[][] {
+  const names = new Map((options?.people ?? []).map((person) => [person.key, person.name]));
+  return (options?.warnings ?? [])
+    .filter((warning) => warning.kind === "same_phone_twice")
+    .map((warning) => warning.keys.map((key) => names.get(key) ?? key));
+}
+
 /** A live (not 作废) 结算单 holding the month: 【取消确认】 waits for it. */
 export function liveStatement(row: LabourMonthRow): LabourMonthRow["statement"] {
   return row.statement && row.statement.state !== "CANCELLED" ? row.statement : null;
@@ -123,7 +152,6 @@ export function liveStatement(row: LabourMonthRow): LabourMonthRow["statement"] 
 
 export function LabourCostsPage() {
   const t = useTranslations("jb295");
-  const tRoot = useTranslations();
   const address = useSearchParams();
   const { can, user } = useAuth();
   const seesAmounts = useSeesAmounts();
@@ -135,6 +163,9 @@ export function LabourCostsPage() {
     const asked = address?.get("month");
     return isMonth(asked) ? asked : lastFinishedMonth();
   });
+  // JB295b: 月份 从 … 到 (one month by default) and 统计方式.
+  const [monthTo, setMonthTo] = useState(month);
+  const [group, setGroup] = useState<LabourSummaryGroup>("person");
   const [company, setCompany] = useState(ALL);
   const [trade, setTrade] = useState(ALL);
   const [person, setPerson] = useState(ALL);
@@ -168,16 +199,30 @@ export function LabourCostsPage() {
     queryFn: () => getLabourDays(query),
     enabled: ready && view === "day",
   });
+  const summaryView = view === "month" && usesSummary(group, month, monthTo);
+  const summaryQuery = {
+    project,
+    month_from: month,
+    month_to: monthTo,
+    group,
+    ...(company !== ALL ? { company } : {}),
+    ...(trade !== ALL ? { trade } : {}),
+  };
   const monthly = useQuery({
     queryKey: ["labour", "month", query],
     queryFn: () => getLabourMonth(query),
-    enabled: ready && view === "month",
+    enabled: ready && view === "month" && !summaryView,
+  });
+  const summary = useQuery({
+    queryKey: ["labour", "summary", summaryQuery],
+    queryFn: () => getLabourSummary(summaryQuery),
+    enabled: ready && summaryView,
   });
 
   if (!canView) {
     return (
       <div className="flex flex-col gap-4" data-slot="labour-costs">
-        <ListHeader title={tRoot("nav.submodule.labourCosts")} subtitle="" />
+        <ListHeader title={t("tab.labour")} subtitle="" />
         <p role="status" className="rounded-lg border bg-muted/30 px-4 py-3 text-base" data-slot="labour-costs-refused">
           {t("noView")}
         </p>
@@ -185,14 +230,14 @@ export function LabourCostsPage() {
     );
   }
 
-  const title = tRoot("nav.submodule.labourCosts");
+  const title = t("tab.labour");
   const companies = options.data?.companies ?? [];
   const trades = options.data?.trades ?? [];
   const people = options.data?.people ?? [];
   const dayRows = sortDays(days.data?.rows ?? []);
   const monthRows = monthly.data?.rows ?? [];
   const subtitleParts = [
-    month,
+    view === "month" && monthTo !== month ? `${month} – ${monthTo}` : month,
     company !== ALL ? companyText(t, company, companies.find((each) => each.key === company)?.name ?? "") : "",
     trade !== ALL ? trade : "",
     person !== ALL ? people.find((each) => each.key === person)?.name ?? "" : "",
@@ -226,14 +271,42 @@ export function LabourCostsPage() {
             ) : null}
             {canManage && seesAmounts ? (
               <Button asChild variant="outline" size="lg" data-slot="labour-statements-link">
-                <Link href="/labour-statements">
+                <Link href={labourTabHref("statements", { project })}>
                   <HandCoins />
-                  {tRoot("nav.submodule.labourStatements")}
+                  {t("tab.statements")}
                 </Link>
               </Button>
             ) : null}
             {canView ? (
-              view === "day" ? (
+              summaryView ? (
+                <ExportButton
+                  disabled={!summary.data?.rows.length}
+                  disabledReason={t("stats.empty")}
+                  title={title}
+                  onExport={(format) =>
+                    exportLabourSummary(
+                      {
+                        format,
+                        title: `${title} · ${t(`stats.${group}`)}`,
+                        subtitle: subtitleParts.join(" · "),
+                        emptyLabel: t("stats.empty"),
+                        query: { ...summaryQuery },
+                        columns: [
+                          { key: "name", label: t(`stats.name.${group}`) },
+                          { key: "people", label: t("stats.col.people") },
+                          { key: "days_worked", label: t("col.daysWorked") },
+                          { key: "normal_hours", label: t("col.normalHours") },
+                          { key: "overtime_hours", label: t("col.overtimeHours") },
+                          { key: "labour_amount", label: t("stats.col.labourAmount") },
+                          { key: "confirmed_amount", label: t("stats.col.confirmed") },
+                          { key: "unconfirmed_amount", label: t("stats.col.unconfirmed") },
+                        ],
+                      },
+                      t("month.total"),
+                    )
+                  }
+                />
+              ) : view === "day" ? (
                 <ExportButton
                   disabled={!dayRows.length}
                   disabledReason={t("day.empty")}
@@ -335,14 +408,33 @@ export function LabourCostsPage() {
             className="w-full"
           />
         </FilterField>
-        <FilterField label={t("filter.month")} className="sm:w-44">
+        <FilterField label={view === "month" ? t("stats.monthFrom") : t("filter.month")} className="sm:w-44">
           <Input
             type="month"
             value={month}
-            aria-label={t("filter.month")}
-            onChange={(event) => (isMonth(event.target.value) ? setMonth(event.target.value) : undefined)}
+            aria-label={view === "month" ? t("stats.monthFrom") : t("filter.month")}
+            onChange={(event) => {
+              const next = event.target.value;
+              if (!isMonth(next)) return;
+              // 到 follows when it would fall before 从.
+              setMonthTo((to) => (to < next || to === month ? next : to));
+              setMonth(next);
+            }}
           />
         </FilterField>
+        {view === "month" ? (
+          <FilterField label={t("stats.monthTo")} className="sm:w-44">
+            <Input
+              type="month"
+              value={monthTo}
+              min={month}
+              aria-label={t("stats.monthTo")}
+              onChange={(event) =>
+                isMonth(event.target.value) && event.target.value >= month ? setMonthTo(event.target.value) : undefined
+              }
+            />
+          </FilterField>
+        ) : null}
         <FilterField label={t("filter.company")} className="sm:w-52">
           <Select value={company} onValueChange={setCompany}>
             <SelectTrigger aria-label={t("filter.company")}>
@@ -394,14 +486,48 @@ export function LabourCostsPage() {
         </label>
       </FilterBar>
       <QueryFailedNote query={options} what={t("what.options")} />
+      {view === "month" ? (
+        <div className="flex flex-wrap items-center gap-2" data-slot="labour-stats-switch">
+          <span className="text-base font-medium">{t("stats.label")}</span>
+          <div className="inline-flex flex-wrap rounded-lg border bg-muted/40 p-1" role="radiogroup" aria-label={t("stats.label")}>
+            {SUMMARY_GROUPS.map((each) => (
+              <Button
+                key={each}
+                type="button"
+                role="radio"
+                aria-checked={group === each}
+                variant={group === each ? "default" : "ghost"}
+                className="h-11 px-5 text-base"
+                data-slot={`labour-stats-${each}`}
+                onClick={() => setGroup(each)}
+              >
+                {t(`stats.${each}`)}
+              </Button>
+            ))}
+          </div>
+        </div>
+      ) : null}
+      {/* JB295b: two roster rows (or two accounts) with one phone are not merged - said here. */}
+      {phoneWarnings(options.data).map((names) => (
+        <p
+          key={names.join("|")}
+          className="rounded-lg border border-warning/30 bg-warning/10 px-4 py-3 text-base"
+          data-slot="labour-same-phone"
+        >
+          {t("twin.samePhone", { names: names.join("、") })}
+        </p>
+      ))}
 
       {!project ? (
         <p className="rounded-xl border bg-muted/30 px-4 py-6 text-center text-base" data-slot="labour-choose-project">
           {t("chooseProjectFirst")}
         </p>
+      ) : summaryView ? (
+        <SummaryTable group={group} data={summary.data} loading={summary.isLoading} query={summary} seesAmounts={seesAmounts} />
       ) : view === "day" ? (
         <DaysTable
           rows={dayRows}
+          linked={linkedNames(options.data)}
           loading={days.isLoading}
           query={days}
           canManage={canManage}
@@ -410,6 +536,7 @@ export function LabourCostsPage() {
       ) : (
         <MonthTable
           rows={monthRows}
+          linked={linkedNames(options.data)}
           totals={monthly.data?.totals}
           loading={monthly.isLoading}
           query={monthly}
@@ -443,6 +570,31 @@ export function LabourCostsPage() {
   );
 }
 
+/** The name, its group, and (JB295b) the linked app account counted with it. */
+function PersonCell({ name, group, linked }: { name: string; group: LabourDayRow["group"]; linked?: string }) {
+  const t = useTranslations("jb295");
+  return (
+    <span className="flex flex-col items-start gap-1">
+      <span className="font-medium">{name}</span>
+      <GroupBadge group={group} />
+      {linked ? (
+        <span className="text-xs text-muted-foreground" data-slot="labour-linked-user">
+          {t("twin.appName", { name: linked })}
+        </span>
+      ) : null}
+    </span>
+  );
+}
+
+/** person key → the linked app account's name (JB295b). */
+export function linkedNames(options: LabourOptions | undefined): Map<string, string> {
+  return new Map(
+    (options?.people ?? [])
+      .filter((person) => person.linked_user)
+      .map((person) => [person.key, person.linked_user?.name ?? ""]),
+  );
+}
+
 function Loading() {
   return (
     <div className="grid min-h-32 place-items-center">
@@ -463,6 +615,13 @@ export function SessionsCell({ row }: { row: LabourDayRow }) {
           <span className="tabular">
             {df.time(session.start)} – {session.end ? df.time(session.end) : "?"}
           </span>
+          {/* JB295b: an app stay of a roster worker's linked account. */}
+          {session.source === "app" && row.group === "roster" ? (
+            <span className="text-sm text-muted-foreground" data-slot="labour-session-app">
+              {t("visits.sourceApp")}
+              {session.refs.length ? ` ${session.refs.join(" · ")}` : ""}
+            </span>
+          ) : null}
           {session.end_kind === "SYSTEM" ? (
             <span className="text-sm font-medium text-warning" data-slot="labour-system-exit">
               {t("day.systemExit")}
@@ -501,12 +660,14 @@ function AdjustedMark({ row }: { row: LabourDayRow }) {
 
 function DaysTable({
   rows,
+  linked,
   loading,
   query,
   canManage,
   onAdjust,
 }: {
   rows: LabourDayRow[];
+  linked: Map<string, string>;
   loading: boolean;
   query: { isError: boolean; refetch?: () => unknown };
   canManage: boolean;
@@ -546,10 +707,7 @@ function DaysTable({
                 >
                   <TableCell className="tabular whitespace-nowrap">{df.date(row.date)}</TableCell>
                   <TableCell>
-                    <span className="flex flex-col items-start gap-1">
-                      <span className="font-medium">{row.person_name}</span>
-                      <GroupBadge group={row.group} />
-                    </span>
+                    <PersonCell name={row.person_name} group={row.group} linked={linked.get(row.person_key)} />
                   </TableCell>
                   <TableCell>{companyText(t, row.company_key, row.company_name)}</TableCell>
                   <TableCell>{tradeText(t, row.trade_name)}</TableCell>
@@ -564,7 +722,15 @@ function DaysTable({
                   <TableCell className="tabular text-right">{hoursText(row.normal_hours)}</TableCell>
                   <TableCell className="tabular text-right">{hoursText(row.overtime_hours)}</TableCell>
                   <TableCell className="tabular text-right">
-                    {row.rate ? labourMoney(row.day_amount) : <span className="text-warning">{t("rate.none")}</span>}
+                    {isInRental(row) ? (
+                      <span className="text-sm text-muted-foreground" data-slot="labour-day-in-rental">
+                        {inRentalText(t, row.in_rental)}
+                      </span>
+                    ) : row.rate ? (
+                      labourMoney(row.day_amount)
+                    ) : (
+                      <span className="text-warning">{t("rate.none")}</span>
+                    )}
                   </TableCell>
                   <TableCell>
                     <span className="flex flex-wrap items-center gap-2">
@@ -609,6 +775,13 @@ function RateCell({
   onPieces: () => void;
 }) {
   const t = useTranslations("jb295");
+  if (isInRental(row)) {
+    return (
+      <span className="block max-w-56 whitespace-normal text-sm text-muted-foreground" data-slot="labour-in-rental">
+        {inRentalText(t, row.in_rental)}
+      </span>
+    );
+  }
   if (row.no_rate || !row.rates.length) {
     return (
       <span className="flex flex-col items-start gap-1.5" data-slot="labour-no-rate">
@@ -689,6 +862,7 @@ function MonthStatusCell({
 
 function MonthTable({
   rows,
+  linked,
   totals,
   loading,
   query,
@@ -699,6 +873,7 @@ function MonthTable({
   onPieces,
 }: {
   rows: LabourMonthRow[];
+  linked: Map<string, string>;
   totals: LabourTotals | undefined;
   loading: boolean;
   query: { isError: boolean; refetch?: () => unknown };
@@ -739,10 +914,7 @@ function MonthTable({
               {rows.map((row) => (
                 <TableRow key={row.person_key} data-slot="labour-month-row">
                   <TableCell>
-                    <span className="flex flex-col items-start gap-1">
-                      <span className="font-medium">{row.person_name}</span>
-                      <GroupBadge group={row.group} />
-                    </span>
+                    <PersonCell name={row.person_name} group={row.group} linked={linked.get(row.person_key)} />
                   </TableCell>
                   <TableCell>{companyText(t, row.company_key, row.company_name)}</TableCell>
                   <TableCell>{tradeText(t, row.trade_name)}</TableCell>
@@ -798,6 +970,128 @@ function MonthTable({
           </Table>
         </div>
       ) : null}
+      {!seesAmounts ? <p className="text-sm text-muted-foreground">{t("amountsHidden")}</p> : null}
+    </section>
+  );
+}
+
+/**
+ * 按所属公司 / 按工种 / 按人员 over the months chosen (JB295b): 人数, 工作天数,
+ * 正常工时, 超时工时, 人工费用 (已确认 / 未确认), a 每月 line under each row when
+ * there are several months, and the 合计.
+ */
+export function SummaryTable({
+  group,
+  data,
+  loading,
+  query,
+  seesAmounts,
+}: {
+  group: LabourSummaryGroup;
+  data: LabourSummary | undefined;
+  loading: boolean;
+  query: { isError: boolean; refetch?: () => unknown };
+  seesAmounts: boolean;
+}) {
+  const t = useTranslations("jb295");
+  const [open, setOpen] = useState<ReadonlySet<string>>(() => new Set());
+  const toggle = (key: string) =>
+    setOpen((previous) => {
+      const next = new Set(previous);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  const rows = data?.rows ?? [];
+  const nameOf = (key: string, name: string) =>
+    group === "company" ? companyText(t, key, name) : group === "trade" ? tradeText(t, key === "none" ? "" : name) : name;
+  return (
+    <section className="space-y-2" data-slot="labour-summary">
+      <QueryFailedNote query={query} what={t("what.summary")} />
+      {loading ? <Loading /> : null}
+      {!loading && !query.isError && data && rows.length === 0 ? (
+        <p className="rounded-xl border px-4 py-6 text-center text-base text-muted-foreground">{t("stats.empty")}</p>
+      ) : null}
+      {rows.length ? (
+        <div className="overflow-x-auto rounded-xl border">
+          <Table className="text-base">
+            <TableHeader>
+              <TableRow>
+                <TableHead>{t(`stats.name.${group}`)}</TableHead>
+                <TableHead className="text-right">{t("stats.col.people")}</TableHead>
+                <TableHead className="text-right">{t("col.daysWorked")}</TableHead>
+                <TableHead className="text-right">{t("col.normalHours")}</TableHead>
+                <TableHead className="text-right">{t("col.overtimeHours")}</TableHead>
+                <TableHead className="text-right">{t("stats.col.labourAmount")}</TableHead>
+                <TableHead className="text-right">{t("stats.col.confirmed")}</TableHead>
+                <TableHead className="text-right">{t("stats.col.unconfirmed")}</TableHead>
+                <TableHead />
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {rows.map((row) => (
+                <Fragment key={row.key}>
+                  <TableRow data-slot="labour-summary-row">
+                    <TableCell className="font-medium">{nameOf(row.key, row.name)}</TableCell>
+                    <TableCell className="tabular text-right">{row.people}</TableCell>
+                    <TableCell className="tabular text-right">{row.days_worked}</TableCell>
+                    <TableCell className="tabular text-right">{hoursText(row.normal_hours)}</TableCell>
+                    <TableCell className="tabular text-right">{hoursText(row.overtime_hours)}</TableCell>
+                    <TableCell className="tabular text-right font-semibold">{labourMoney(row.labour_amount)}</TableCell>
+                    <TableCell className="tabular text-right">{labourMoney(row.confirmed_amount)}</TableCell>
+                    <TableCell className="tabular text-right">{labourMoney(row.unconfirmed_amount)}</TableCell>
+                    <TableCell>
+                      {row.months.length > 1 ? (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          aria-expanded={open.has(row.key)}
+                          data-slot="labour-summary-months-toggle"
+                          onClick={() => toggle(row.key)}
+                        >
+                          {open.has(row.key) ? <ChevronDown /> : <ChevronRight />}
+                          {t("stats.months")}
+                        </Button>
+                      ) : null}
+                    </TableCell>
+                  </TableRow>
+                  {open.has(row.key)
+                    ? row.months.map((piece) => (
+                        <TableRow key={`${row.key}-${piece.month}`} className="bg-muted/20 text-muted-foreground" data-slot="labour-summary-month">
+                          <TableCell className="tabular pl-8">{piece.month}</TableCell>
+                    <TableCell className="tabular text-right">{piece.people}</TableCell>
+                    <TableCell className="tabular text-right">{piece.days_worked}</TableCell>
+                    <TableCell className="tabular text-right">{hoursText(piece.normal_hours)}</TableCell>
+                    <TableCell className="tabular text-right">{hoursText(piece.overtime_hours)}</TableCell>
+                    <TableCell className="tabular text-right font-semibold">{labourMoney(piece.labour_amount)}</TableCell>
+                    <TableCell className="tabular text-right">{labourMoney(piece.confirmed_amount)}</TableCell>
+                    <TableCell className="tabular text-right">{labourMoney(piece.unconfirmed_amount)}</TableCell>
+                          <TableCell />
+                        </TableRow>
+                      ))
+                    : null}
+                </Fragment>
+              ))}
+            </TableBody>
+            {data ? (
+              <TableFooter>
+                <TableRow data-slot="labour-summary-total">
+                  <TableCell className="font-semibold">{t("month.total")}</TableCell>
+                    <TableCell className="tabular text-right">{data.totals.people}</TableCell>
+                    <TableCell className="tabular text-right">{data.totals.days_worked}</TableCell>
+                    <TableCell className="tabular text-right">{hoursText(data.totals.normal_hours)}</TableCell>
+                    <TableCell className="tabular text-right">{hoursText(data.totals.overtime_hours)}</TableCell>
+                    <TableCell className="tabular text-right font-semibold">{labourMoney(data.totals.labour_amount)}</TableCell>
+                    <TableCell className="tabular text-right">{labourMoney(data.totals.confirmed_amount)}</TableCell>
+                    <TableCell className="tabular text-right">{labourMoney(data.totals.unconfirmed_amount)}</TableCell>
+                  <TableCell />
+                </TableRow>
+              </TableFooter>
+            ) : null}
+          </Table>
+        </div>
+      ) : null}
+      <p className="text-sm text-muted-foreground">{t("stats.help")}</p>
       {!seesAmounts ? <p className="text-sm text-muted-foreground">{t("amountsHidden")}</p> : null}
     </section>
   );

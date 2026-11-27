@@ -149,7 +149,7 @@ export function LabourRatesDialog({
                           <TableRow key={rate.id} data-slot="labour-rate-row">
                             <TableCell className="font-medium">{rateTarget(t, rate)}</TableCell>
                             <TableCell className="whitespace-nowrap">{ratePrice(t, rate.method, rate.unit_price)}</TableCell>
-                            <TableCell className="whitespace-nowrap">{overtimeText(t, rate.overtime_rate)}</TableCell>
+                            <TableCell className="whitespace-nowrap">{overtimeText(t, rate.overtime_rate, rate.method)}</TableCell>
                             <TableCell className="tabular whitespace-nowrap">{df.date(rate.effective_from)}</TableCell>
                             <TableCell className="max-w-56 whitespace-pre-wrap text-sm">{rate.note || "—"}</TableCell>
                             <TableCell className="text-sm">
@@ -211,7 +211,7 @@ function RateHistoryDialog({ rate, onClose }: { rate: LabourRate; onClose: () =>
                   <TableRow key={row.id} data-slot="labour-rate-history-row">
                     <TableCell className="tabular whitespace-nowrap">{df.date(row.effective_from)}</TableCell>
                     <TableCell className="whitespace-nowrap">{ratePrice(t, row.method, row.unit_price)}</TableCell>
-                    <TableCell className="whitespace-nowrap">{overtimeText(t, row.overtime_rate)}</TableCell>
+                    <TableCell className="whitespace-nowrap">{overtimeText(t, row.overtime_rate, row.method)}</TableCell>
                     <TableCell className="whitespace-pre-wrap text-sm">{row.note || "—"}</TableCell>
                     <TableCell className="text-sm">
                       {row.created_by_name} · {df.dateTime(row.created_at)}
@@ -292,8 +292,9 @@ function NewRateForm({
   const companies = (options?.companies ?? []).filter((company) => company.kind !== "none");
   const trades = options?.trades ?? [];
   const missing = rateTargetMissing(scope, { person_key: personKey, company_key: companyKey, trade });
-  const priceOk = validPrice(unitPrice);
-  const overtimeOk = !overtimeRate.trim() || validPrice(overtimeRate);
+  const inRental = method === "IN_RENTAL";
+  const priceOk = inRental || validPrice(unitPrice);
+  const overtimeOk = inRental || !overtimeRate.trim() || validPrice(overtimeRate);
   return (
     <section className="space-y-4 rounded-xl border-2 border-primary/30 p-4" data-slot="labour-rate-form">
       <h3 className="text-lg font-semibold">{t("rates.add")}</h3>
@@ -384,7 +385,7 @@ function NewRateForm({
               role="radio"
               aria-checked={method === each}
               variant={method === each ? "default" : "outline"}
-              className="h-12 min-w-32 text-base"
+              className="h-12 min-w-32 whitespace-normal text-base"
               data-slot={`labour-method-${each}`}
               onClick={() => setMethod(each)}
             >
@@ -395,31 +396,36 @@ function NewRateForm({
         <p className="text-sm text-muted-foreground">{t(`methodHelp.${method}`)}</p>
       </div>
       <div className="grid gap-3 sm:grid-cols-3">
-        <FieldWrapper
-          label={method === "DAILY" ? t("field.dayPrice") : t("field.hourPrice")}
-          required
-          error={unitPrice && !priceOk ? t("field.priceInvalid") : undefined}
-        >
-          <Input
-            inputMode="decimal"
-            className="h-11 text-base"
-            value={unitPrice}
-            onChange={(event) => setUnitPrice(event.target.value)}
-          />
-        </FieldWrapper>
-        <FieldWrapper
-          label={t("field.overtimeRate")}
-          optional={common("optional")}
-          hint={t("field.overtimeHint")}
-          error={!overtimeOk ? t("field.priceInvalid") : undefined}
-        >
-          <Input
-            inputMode="decimal"
-            className="h-11 text-base"
-            value={overtimeRate}
-            onChange={(event) => setOvertimeRate(event.target.value)}
-          />
-        </FieldWrapper>
+        {/* 「已含在设备租赁费用内」 has no price: the days and hours show, no labour is counted. */}
+        {inRental ? null : (
+          <>
+            <FieldWrapper
+              label={method === "DAILY" ? t("field.dayPrice") : t("field.hourPrice")}
+              required
+              error={unitPrice && !priceOk ? t("field.priceInvalid") : undefined}
+            >
+              <Input
+                inputMode="decimal"
+                className="h-11 text-base"
+                value={unitPrice}
+                onChange={(event) => setUnitPrice(event.target.value)}
+              />
+            </FieldWrapper>
+            <FieldWrapper
+              label={t("field.overtimeRate")}
+              optional={common("optional")}
+              hint={t("field.overtimeHint")}
+              error={!overtimeOk ? t("field.priceInvalid") : undefined}
+            >
+              <Input
+                inputMode="decimal"
+                className="h-11 text-base"
+                value={overtimeRate}
+                onChange={(event) => setOvertimeRate(event.target.value)}
+              />
+            </FieldWrapper>
+          </>
+        )}
         <FieldWrapper label={t("field.effectiveFrom")} required hint={t("field.effectiveHint")}>
           <Input
             type="date"

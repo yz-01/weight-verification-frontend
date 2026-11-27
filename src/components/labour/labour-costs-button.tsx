@@ -1,9 +1,9 @@
 "use client";
 
 /**
- * 【人工费用】 in the header of 人员名单 and 人员进场记录 (JB295 R13): the
- * client's 「没有看到人工费用统计及结算入口」. For whoever may read labour
- * (`labour.view`); never on the phone.
+ * 【人工费用统计】 in the header of 人员进场记录 (JB295 R13, 「没有看到人工费用统计
+ * 及结算入口」): opens the 人员名单 page on its 人工费用统计 tab (JB295b). For
+ * whoever may read labour (`labour.view`); never on the phone.
  */
 
 import { HandCoins } from "lucide-react";
@@ -12,21 +12,22 @@ import { useTranslations } from "next-intl";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { Button } from "@/components/ui/button";
+import { labourTabHref } from "@/lib/labour-links";
 
-/** The 人工费用 page, on the header's project when one is chosen. */
+/** The 人工费用统计 tab, on the header's project when one is chosen. */
 export function labourCostsHref(project?: string): string {
-  return project && project !== "all" ? `/labour-costs?project=${encodeURIComponent(project)}` : "/labour-costs";
+  return labourTabHref("labour", { project });
 }
 
 export function LabourCostsButton({ project }: { project?: string }) {
-  const t = useTranslations();
+  const t = useTranslations("jb295");
   const { can, user } = useAuth();
   if (user?.is_field_staff || !can("labour.view")) return null;
   return (
     <Button asChild variant="outline" data-slot="labour-costs-button">
       <Link href={labourCostsHref(project)}>
         <HandCoins />
-        {t("nav.submodule.labourCosts")}
+        {t("tab.labour")}
       </Link>
     </Button>
   );

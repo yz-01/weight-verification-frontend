@@ -10,7 +10,13 @@ import { useTranslations } from "next-intl";
 
 import { rentalMoney } from "@/components/equipment-hours/rental-fees";
 import { StatusBadge } from "@/components/shared/page-primitives";
-import type { LabourGroup, LabourMethod, LabourRatePiece, LabourRateUsed } from "@/services/labour.service";
+import type {
+  LabourGroup,
+  LabourInRental,
+  LabourMethod,
+  LabourRatePiece,
+  LabourRateUsed,
+} from "@/services/labour.service";
 
 /** Reads the pages and the live figures. */
 export const LABOUR_VIEW = "labour.view";
@@ -70,13 +76,15 @@ export function GroupBadge({ group }: { group: LabourGroup }) {
 
 type Translate = ReturnType<typeof useTranslations>;
 
-/** 「日薪 RM 120.00」 / 「时薪 RM 15.00」. */
+/** 「日薪 RM 120.00」 / 「时薪 RM 15.00」 / 「已含在设备租赁费用内」. */
 export function ratePrice(t: Translate, method: LabourMethod, unitPrice: string | null): string {
+  if (method === "IN_RENTAL") return t("method.IN_RENTAL");
   return t("rate.methodPrice", { method: t(`method.${method}`), amount: labourMoney(unitPrice) });
 }
 
-/** 「超时 RM 20.00 / 小时」, or 「没有超时单价」. */
-export function overtimeText(t: Translate, overtimeRate: string | null | undefined): string {
+/** 「超时 RM 20.00 / 小时」, 「没有超时单价」, or 「—」 for 已含在设备租赁费用内. */
+export function overtimeText(t: Translate, overtimeRate: string | null | undefined, method?: LabourMethod): string {
+  if (method === "IN_RENTAL") return "—";
   return overtimeRate && Number(overtimeRate) > 0
     ? t("rate.overtimePrice", { amount: labourMoney(overtimeRate) })
     : t("rate.noOvertime");
@@ -84,7 +92,30 @@ export function overtimeText(t: Translate, overtimeRate: string | null | undefin
 
 /** One rate in a line: 「日薪 RM 120.00 · 超时 RM 20.00 / 小时」. */
 export function rateLine(t: Translate, rate: LabourRateUsed | LabourRatePiece): string {
+  if (rate.method === "IN_RENTAL") return ratePrice(t, rate.method, null);
   return `${ratePrice(t, rate.method, rate.unit_price)} · ${overtimeText(t, rate.overtime_rate)}`;
+}
+
+/**
+ * JB295b (客户 11-28 第 6 点 「已包含在设备租赁费用内的操作员人工费用，不得重复计算」):
+ * 「设备 EQ0002 的操作员，人工已含在设备租赁费用内」 when found from the machine,
+ * else 「已含在设备租赁费用内，不计人工」.
+ */
+export function inRentalText(t: Translate, inRental: LabourInRental | null | undefined): string {
+  return inRental?.equipment_no
+    ? t("inRental.operator", { equipment: inRental.equipment_no })
+    : t("inRental.rate");
+}
+
+/** Whether a row's labour is inside the equipment rental (its own mark, or its rate). */
+export function isInRental(row: {
+  in_rental?: LabourInRental | null;
+  rate?: { method: LabourMethod } | null;
+  rates?: { method: LabourMethod }[];
+}): boolean {
+  if (row.in_rental) return true;
+  if (row.rate?.method === "IN_RENTAL") return true;
+  return Boolean(row.rates?.length && row.rates.every((piece) => piece.method === "IN_RENTAL"));
 }
 
 /** The company as written: 「本公司」 and 「未填所属公司」 in the reader's words. */
