@@ -23,6 +23,12 @@ import { useUnitName } from "@/hooks/use-material-units";
 import type { CompanyCategory, MaterialPriceSummary } from "@/interfaces/contractor-ops";
 import { useDateFormat } from "@/lib/dates";
 
+/** Two names read the same (case and spacing aside). */
+function sameName(a: string | null | undefined, b: string | null | undefined): boolean {
+  const key = (text: string | null | undefined) => String(text ?? "").trim().replace(/\s+/g, " ").toLocaleLowerCase();
+  return key(a) === key(b);
+}
+
 /** ``open`` with ``id`` opened, or closed when it was open. */
 export function toggled(open: ReadonlySet<string>, id: string): Set<string> {
   const next = new Set(open);
@@ -187,7 +193,10 @@ export function CompanyMaterialList({
                     ) : null}
                     <span>{row.name}</span>
                   </span>
-                  {!material && row.description ? (
+                  {/* 说明 under the name - not when it only repeats the name shown
+                      (QA293: the presets' 说明 「Rebar」 is their English name now,
+                      so an English screen read 「Rebar / Rebar」). */}
+                  {!material && row.description && !sameName(row.description, row.name) ? (
                     <span className="block pl-5 text-xs font-normal text-muted-foreground">{row.description}</span>
                   ) : null}
                 </TableCell>

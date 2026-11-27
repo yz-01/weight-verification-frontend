@@ -17,19 +17,21 @@
 import type { ListQuery, Paginated } from "@/interfaces/api";
 import type { MaterialOutgoing } from "@/interfaces/contractor-ops";
 import { api, fetchAsFile, toastSuccess } from "@/services/api-client";
+import { getLabourPendingCompanies } from "@/services/labour-statement.service";
 import type { RentalStatementRow } from "@/services/rental-statement.service";
 
 /** What a 核对 / 结算 is about - each its own numbers and lists. */
-export type ReconKind = "RETURN" | "ISSUE" | "RENTAL";
+export type ReconKind = "RETURN" | "ISSUE" | "RENTAL" | "LABOUR";
 
-/** Where a kind's calls live. */
+/** Where a kind's calls live. JB295: 人工结算单 under `/api/labour-statements/`. */
 export function reconBase(kind: ReconKind): string {
+  if (kind === "LABOUR") return "/api/labour-statements/";
   return kind === "RENTAL" ? "/api/equipment-rental-statements/" : "/api/material-return-checks/";
 }
 
-/** `?kind=` for the material calls; the rental ones need none. */
+/** `?kind=` for the material calls; the rental and labour ones need none. */
 function kindQuery(kind: ReconKind): Record<string, string> {
-  return kind === "RENTAL" ? {} : { kind };
+  return kind === "RENTAL" || kind === "LABOUR" ? {} : { kind };
 }
 
 /** One line of 「已核对」: 核对编号｜供应商｜笔数｜日期｜核对人. */
@@ -85,7 +87,7 @@ export interface ReturnCheck extends Omit<ReturnCheckRow, "settlement"> {
   returns: MaterialOutgoing[];
   /** 材料领用 (JB278). */
   issues?: IssueCheckRow[];
-  /** 设备租赁月结单 (JB280). */
+  /** 设备租赁月结单 (JB280); 人工结算单 for kind LABOUR (JB295, their own shape). */
   statements?: RentalStatementRow[];
   amount_total?: string | null;
   /** 「另有 N 笔在别的项目」: records of this check on projects not seen. */
@@ -108,11 +110,26 @@ export const getReturnChecks = (query: ListQuery = {}, kind: ReconKind = "RETURN
 export const getReturnCheck = (id: string, kind: ReconKind = "RETURN") =>
   api.get<ReturnCheck>(`${reconBase(kind)}${id}/get_check/`);
 
-export const getPendingReturnSuppliers = (project?: string, kind: ReconKind = "RETURN") =>
-  api.get<{ results: PendingReturnSupplier[] }>(`${reconBase(kind)}get_pending_suppliers/`, {
+export async function getPendingReturnSuppliers(
+  project?: string,
+  kind: ReconKind = "RETURN",
+): Promise<{ results: PendingReturnSupplier[] }> {
+  // JB295: the labour companies come as `{company_key, company_name, statements}`.
+  if (kind === "LABOUR") {
+    const data = await getLabourPendingCompanies(project);
+    return {
+      results: (data.rows ?? []).map((row) => ({
+        id: row.company_key,
+        name: row.company_name,
+        count: row.statements?.length ?? 0,
+      })),
+    };
+  }
+  return api.get<{ results: PendingReturnSupplier[] }>(`${reconBase(kind)}get_pending_suppliers/`, {
     ...kindQuery(kind),
     ...(project ? { project } : {}),
   });
+}
 
 /** 领用的【核对与结算】's pick list: one 所属公司's issues waiting. */
 export const getPendingIssues = (company: string, project?: string) =>
@@ -140,17 +157,24 @@ export async function createReturnCheck(payload: {
   if (kind === "ISSUE") {
     body.append("kind", "ISSUE");
     body.append("company", payload.supplier);
+  } else if (kind === "LABOUR") {
+    // JB295: one 所属公司 per check (`<supplier uuid>`, `note:<text>` or `self`).
+    body.append("company_key", payload.supplier);
   } else {
     body.append("supplier", payload.supplier);
   }
-  const field = kind === "RENTAL" ? "statements" : "returns";
+  const field = kind === "RENTAL" || kind === "LABOUR" ? "statements" : "returns";
   for (const id of payload.returns) body.append(field, id);
   body.append("voucher_no", payload.voucherNo.trim());
   if (payload.note.trim()) body.append("note", payload.note.trim());
   for (const file of payload.files) body.append("files", file);
   // Written out, so the route check (core.tests.test_ui_reachability) finds both.
   const url =
-    kind === "RENTAL" ? "/api/equipment-rental-statements/create_check/" : "/api/material-return-checks/create_check/";
+    kind === "LABOUR"
+      ? "/api/labour-statements/create_check/"
+      : kind === "RENTAL"
+        ? "/api/equipment-rental-statements/create_check/"
+        : "/api/material-return-checks/create_check/";
   const check = await api.post<ReturnCheck>(url, body);
   toastSuccess("returnChecks.saved", { number: check.check_no });
   return check;
@@ -228,15 +252,17 @@ export async function createSettlement(payload: {
   files: readonly File[];
 }): Promise<Settlement> {
   const body = new FormData();
-  if (payload.kind !== "RENTAL") body.append("kind", payload.kind);
+  if (payload.kind !== "RENTAL" && payload.kind !== "LABOUR") body.append("kind", payload.kind);
   for (const id of payload.checks) body.append("checks", id);
   body.append("voucher_no", payload.voucherNo.trim());
   if (payload.note.trim()) body.append("note", payload.note.trim());
   for (const file of payload.files) body.append("files", file);
   const url =
-    payload.kind === "RENTAL"
-      ? "/api/equipment-rental-statements/create_settlement/"
-      : "/api/material-return-checks/create_settlement/";
+    payload.kind === "LABOUR"
+      ? "/api/labour-statements/create_settlement/"
+      : payload.kind === "RENTAL"
+        ? "/api/equipment-rental-statements/create_settlement/"
+        : "/api/material-return-checks/create_settlement/";
   const settlement = await api.post<Settlement>(url, body);
   toastSuccess("jb278.settledToast", { number: settlement.settlement_no });
   return settlement;

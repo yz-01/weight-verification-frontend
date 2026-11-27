@@ -119,6 +119,9 @@ describe("JB181-4 one page, one 【保存】 (追加 5 第 3 点)", () => {
     expect(payload).toEqual({
       id: "m-1",
       name: "钢筋",
+      // JB293: both names; an old row's one Chinese name is its 中文名称.
+      name_zh: "钢筋",
+      name_en: "",
       description: "Rebar",
       default_unit: "TONNE",
       is_active: true,

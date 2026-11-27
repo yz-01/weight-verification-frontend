@@ -149,7 +149,12 @@ export interface ProjectCategory {
   parent_name: string | null;
   parent_sort_order?: number | null;
   code: string;
+  /** In the reader's language (JB293): the same as `display_name`. */
   name: string;
+  /** A material's 中文名称 / 英文名称 (JB293); blank on every other row. */
+  name_zh?: string;
+  name_en?: string;
+  display_name?: string;
   kind: ProjectCategoryKind;
   /** Its 分类组 (I11); null on a row of a retired kind. */
   group?: string | null;
@@ -265,6 +270,9 @@ export interface ProjectCategoryPayload {
   group?: string | null;
   code: string;
   name: string;
+  /** A material's two names (JB293): at least one; the server keeps `name`. */
+  name_zh?: string;
+  name_en?: string;
   /**
    * Required when the whole record is written, not defaulted.
    *
@@ -609,7 +617,12 @@ export interface CompanyCategory {
   kind: CompanyCategoryKind;
   /** Made by the server, never typed (客户 11-05 事项 7). */
   code: string;
+  /** In the reader's language (JB293). */
   name: string;
+  /** A material's 中文名称 / 英文名称 (JB293). */
+  name_zh?: string;
+  name_en?: string;
+  display_name?: string;
   description: string;
   sort_order: number;
   is_active: boolean;
@@ -634,6 +647,9 @@ export interface CompanyMaterialPayload {
   /** The material changed; none for a new one. */
   id?: string;
   name: string;
+  /** 中文名称 / 英文名称 (JB293): at least one. */
+  name_zh: string;
+  name_en: string;
   description: string;
   default_unit: string;
   is_active: boolean;

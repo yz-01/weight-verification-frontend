@@ -271,37 +271,73 @@ describe("「提交给」 on the request form (D2, Q15)", () => {
   });
 });
 
-describe("approving settles the supplier; the owner's named manufacturer is optional (2026-10 D1, D2; 2026-10-10)", () => {
+describe("JB292 (客户 11-27f): 供应商 optional and several; approve works without one; no 「批准就是采购决定」", () => {
   beforeEach(() => {
     reader.id = HQ_ONE;
     reader.codes = REVIEW;
   });
 
-  it("puts both pickers beside approve, and holds approve back only for the supplier", () => {
-    const html = detail(request());
-    expect(html).toContain("批准就是采购决定");
-    expect(html).toContain("业主指定厂商");
-    expect(html).toMatch(/还差这些没填：供应商"/);
-    expect(html).not.toMatch(/还差这些没填：[^"]*厂商/);
+  /** The approval panel's supplier box, as rendered. */
+  function panel(html: string) {
+    const start = html.indexOf('data-slot="mr-approve-suppliers"');
+    expect(start).toBeGreaterThan(-1);
+    return html.slice(start, html.indexOf(">批准</button>", start));
+  }
+
+  it("shows 【批准】 and holds nothing back when no supplier is chosen", () => {
+    const html = detail(request({ suppliers: [], supplier_name: "" }));
+    expect(html).toMatch(APPROVE);
+    expect(html).not.toContain("还差这些没填");
+    // 「供应商」 without the red star; 「业主指定厂商」 stays optional.
+    const box = panel(html);
+    expect(box).toContain("供应商");
+    expect(box).not.toMatch(/供应商<span[^>]*>\*<\/span>/);
+    expect(box).toContain("业主指定厂商");
+    expect(box).toContain("未选择");
+    // The detail reads 「—」 for 供应商.
+    expect(html).toMatch(/<dt>供应商<\/dt><dd>—<\/dd>/);
   });
 
-  it("starts from what the applicant suggested, so nothing is missing", () => {
+  it("the 「批准就是采购决定」 help is gone, in every language", async () => {
+    const html = detail(request());
+    expect(html).not.toContain("批准就是采购决定");
+    expect(html).not.toContain("采购决定");
+    for (const locale of ["zh", "zh-TW", "en", "ms"]) {
+      const catalogue = (await import(`@/messages/${locale}.json`)).default as {
+        materialRequest: { approve: Record<string, string> };
+      };
+      expect(catalogue.materialRequest.approve.help).toBeUndefined();
+      expect(catalogue.materialRequest.approve.chooseSupplier).toBeUndefined();
+    }
+  });
+
+  it("several suppliers: each a chip with its ✕, each with its own 「有退货资料」; the detail names all with 「、」", () => {
     const html = detail(
       request({
-        supplier: "s-1",
-        supplier_name: "Steel Trader",
+        suppliers: [
+          { id: "s-1", name: "AAA Supplier", completed_return_count: 2 },
+          { id: "s-2", name: "SunSun", completed_return_count: 0 },
+        ],
+        supplier_name: "AAA Supplier、SunSun",
         manufacturer: "m-1",
         manufacturer_name: "Southern Steel",
       }),
     );
-    expect(html).toContain("Steel Trader");
-    expect(html).toContain("Southern Steel");
-    expect(html).not.toMatch(/还差这些没填：[^<]*供应商/);
+    const box = panel(html);
+    expect(box.match(/data-slot="multi-pick-chip"/g)?.length).toBe(2);
+    expect(box).toContain('aria-label="供应商: AAA Supplier"');
+    expect(box).toContain('aria-label="供应商: SunSun"');
+    // The return mark only beside the one that has returns.
+    expect(box.match(/有退货资料/g)?.length).toBe(1);
+    expect(box).toContain("Southern Steel");
+    expect(html).toMatch(/<dt>供应商<\/dt><dd>AAA Supplier、SunSun<\/dd>/);
+    expect(html).toMatch(APPROVE);
+    expect(html).not.toContain("还差这些没填");
   });
 
   it("asks for neither on an other request", () => {
     const html = detail(request({ request_type: "OTHER", material_name: "", quantity: null, unit: "" }));
-    expect(html).not.toContain("批准就是采购决定");
+    expect(html).not.toContain('data-slot="mr-approve-suppliers"');
     expect(html).toMatch(APPROVE);
   });
 });

@@ -73,7 +73,8 @@ export function filterMaterials(rows: readonly ProjectCategory[], typed: string)
   const term = sameWords(typed);
   if (!term) return [...rows];
   return rows.filter((row) =>
-    [row.name, row.code, ...(row.specs ?? []).map((spec) => spec.name)].some((text) =>
+    // Either name (JB293) as well as the one shown.
+    [row.name, row.name_zh, row.name_en, row.code, ...(row.specs ?? []).map((spec) => spec.name)].some((text) =>
       sameWords(text).includes(term),
     ),
   );

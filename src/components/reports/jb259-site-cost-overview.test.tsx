@@ -90,8 +90,9 @@ describe("项目现场费用总览", () => {
     expect(html).toContain(zh.jb259.title);
     expect(html).toContain("RM 2,659,900.00");
     for (const key of SITE_COST_SOURCES) {
-      expect(html).toContain(zh.jb259.source[key]);
-      expect(html).toContain(zh.jb259.report[key]);
+      // JB295: 人工费用, the sixth source, has its words in its own group.
+      expect(html).toContain(key === "labour" ? zh.jb295.cost.source : zh.jb259.source[key]);
+      expect(html).toContain(key === "labour" ? zh.jb295.cost.report : zh.jb259.report[key]);
     }
     expect(html).toContain("RM 1,256,400.00");
     expect(html).toContain("47.2%");
@@ -106,7 +107,8 @@ describe("项目现场费用总览", () => {
     expect(html).toContain(zh.jb287.cost.noFee.replace("{count}", "2"));
     expect(html).not.toContain("没有金额栏");
     expect(JSON.stringify(zh.jb259)).not.toContain("没有金额栏");
-    expect(html.split('data-slot="cost-card"').length - 1).toBe(5);
+    // JB295: 人工费用 is the sixth source card.
+    expect(html.split('data-slot="cost-card"').length - 1).toBe(6);
   });
 
   it("查看明细 opens each source's own report with the same project and dates", () => {
