@@ -67,7 +67,9 @@ export interface PriceRow {
 
 export interface MaterialForm {
   id?: string;
-  name: string;
+  /** 中文名称 / 英文名称 (JB293, 客户 11-27g): at least one. */
+  nameZh: string;
+  nameEn: string;
   description: string;
   unit: string;
   active: boolean;
@@ -112,7 +114,9 @@ export function formOf(
   }));
   return {
     id: row?.id,
-    name: row?.name ?? "",
+    // Both names as stored (JB293); `row.name` is the reader's language.
+    nameZh: row ? (row.name_zh ?? (row.name_en ? "" : row.name)) : "",
+    nameEn: row?.name_en ?? "",
     description: row?.description ?? "",
     unit,
     active: row?.is_active ?? true,
@@ -168,13 +172,18 @@ export function rowProblems(form: MaterialForm, seesAmounts: boolean): Record<st
   return problems;
 }
 
+/** The one name the server keeps (JB293): the Chinese, or the English without it. */
+export const materialName = (form: MaterialForm): string => form.nameZh.trim() || form.nameEn.trim();
+
 /** What 【保存】 sends: everything, a price only where it was typed or changed. */
 export function payloadOf(form: MaterialForm, seesAmounts: boolean): CompanyMaterialPayload {
   const price = (row: PriceRow) => (seesAmounts && priceChanged(row) ? plain(row.price) : "");
   const changed = seesAmounts && changedPrices(form).length > 0;
   return {
     ...(form.id ? { id: form.id } : {}),
-    name: form.name.trim(),
+    name: materialName(form),
+    name_zh: form.nameZh.trim(),
+    name_en: form.nameEn.trim(),
     description: form.description.trim(),
     default_unit: form.unit,
     is_active: form.active,
@@ -217,6 +226,7 @@ export function CompanyMaterialForm({
 }) {
   const t = useTranslations("categoryManagement");
   const prices = useTranslations("materialPrices");
+  const names = useTranslations("jb293");
   const seesAmounts = useSeesAmounts();
   const unitName = useUnitName();
   const qc = useQueryClient();
@@ -292,12 +302,27 @@ export function CompanyMaterialForm({
       </header>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <FieldWrapper label={t("company.form.name")} required>
-          <Input
-            value={form.name}
-            maxLength={150}
-            onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
-          />
+        {/* 中文名称 / 英文名称 (JB293): either one is enough, so the pair is
+            required as a group and says so in words. */}
+        <FieldWrapper label={names("anyName")} required="quiet" hint={names("namesHint")} className="sm:col-span-2">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <FieldWrapper label={names("nameZh")}>
+              <Input
+                value={form.nameZh}
+                maxLength={150}
+                placeholder={names("nameZhPlaceholder")}
+                onChange={(event) => setForm((current) => ({ ...current, nameZh: event.target.value }))}
+              />
+            </FieldWrapper>
+            <FieldWrapper label={names("nameEn")}>
+              <Input
+                value={form.nameEn}
+                maxLength={150}
+                placeholder={names("nameEnPlaceholder")}
+                onChange={(event) => setForm((current) => ({ ...current, nameEn: event.target.value }))}
+              />
+            </FieldWrapper>
+          </div>
         </FieldWrapper>
         <FieldWrapper label={t("company.description")} hint={t("company.descriptionHint")}>
           <Input
@@ -531,7 +556,7 @@ export function CompanyMaterialForm({
         )}
         <Button
           requires={[
-            [form.name.trim(), t("company.form.name")],
+            [materialName(form), names("anyName")],
             [form.unit, t("company.unit")],
             [changed.length === 0 || form.effectiveFrom, dateLabel],
           ]}

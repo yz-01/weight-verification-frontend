@@ -94,7 +94,10 @@ export type RequestFormStyle = "MATERIAL" | "GENERAL";
 export interface CatalogueMaterial {
   id: string;
   code: string;
+  /** In the reader's language; both names too (JB293). */
   name: string;
+  name_zh?: string;
+  name_en?: string;
   is_fixed: boolean;
   /** 「其他材料」: the one material whose name is typed (J14-3). */
   is_other?: boolean;

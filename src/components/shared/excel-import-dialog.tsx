@@ -72,13 +72,15 @@ export const FIELD_LABEL_KEYS: Record<ExcelImportKind, Record<string, string>> =
     unit_price: "categoryManagement.company.form.price",
     suppliers: "categoryManagement.company.col.suppliers",
     description: "categoryManagement.company.description",
+    // An optional 英文名称 column (JB293, 客户 11-27g).
+    name_en: "jb293.nameEn",
   },
 };
 
 /** The columns of the preview table, after 行 and 结果. */
 const TABLE_FIELDS: Record<ExcelImportKind, string[]> = {
   supplier: ["name", "registration_no", "contact_person", "contact_phone", "industry", "main_products", "company_types"],
-  material: ["material", "spec", "unit", "unit_price", "suppliers", "description"],
+  material: ["material", "name_en", "spec", "unit", "unit_price", "suppliers", "description"],
 };
 
 const STATUS_TONE: Record<ImportRowStatus, "positive" | "neutral" | "danger"> = {
@@ -496,7 +498,12 @@ export function ImportPreviewTable({
   const t = useTranslations();
   const w = useTranslations("jb244");
   const unitName = useUnitName();
-  const fields = TABLE_FIELDS[kind].filter((field) => field !== "unit_price" || showsPrices);
+  const fields = TABLE_FIELDS[kind].filter(
+    (field) =>
+      (field !== "unit_price" || showsPrices) &&
+      // 英文名称 (JB293) only when the file has one.
+      (field !== "name_en" || rows.some((row) => String(row.values.name_en ?? "").trim())),
+  );
   const cell = (row: ImportRow, field: string) => {
     if (field === "unit" && row.unit) return row.unit.code ? unitName(row.unit.code) : row.unit.text;
     if (field === "unit_price") return row.price ?? row.values.unit_price ?? "";

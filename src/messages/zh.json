@@ -24945,5 +24945,13 @@
     "filledMark": "第 {seq} 车：车牌和签名已填",
     "extraLorryNote": "之前批准的车都已经放行了。保存后会加上这一车（第 {seq} 车），门岗就可以拍照放行。",
     "releaseLorry": "第 {seq} 车 · 车牌：{plate}"
+  },
+  "jb293": {
+    "nameZh": "中文名称",
+    "nameEn": "英文名称",
+    "anyName": "中文名称或英文名称",
+    "namesHint": "至少填一个。中文界面显示中文名称，英文和马来文界面显示英文名称；只填了一个的，都显示那一个。两个名称和编号都能搜索到这个材料，编号不会变。",
+    "nameZhPlaceholder": "例如：钢筋",
+    "nameEnPlaceholder": "例如：Rebar"
   }
 }

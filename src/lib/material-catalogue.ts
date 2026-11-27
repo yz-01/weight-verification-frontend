@@ -17,9 +17,24 @@ import type { MaterialSpec } from "@/interfaces/contractor-ops";
 /** What a material row needs to offer here - a category or a catalogue entry. */
 export interface MaterialWithSpecs {
   id: string;
+  /** In the reader's language (JB293). */
   name: string;
+  /** 中文名称 / 英文名称 and 编号 (JB293): what else a search finds it by. */
+  name_zh?: string;
+  name_en?: string;
+  code?: string;
   default_unit?: string;
   specs?: MaterialSpec[];
+}
+
+/** A material as a searchable picker option (JB293): its name in the reader's
+ *  language, found by either name or its code. */
+export function materialOption(row: MaterialWithSpecs): { value: string; label: string; keywords: string[] } {
+  return {
+    value: row.id,
+    label: row.name,
+    keywords: [row.name_zh, row.name_en, row.code].filter((word): word is string => Boolean(word)),
+  };
 }
 
 /** The specifications a form offers: switched on (or the one already chosen), 「其他」 last. */

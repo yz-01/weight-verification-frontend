@@ -24945,5 +24945,13 @@
     "filledMark": "Lori {seq}: plat dan tandatangan sudah diisi",
     "extraLorryNote": "Semua lori yang diluluskan sudah keluar. Simpan akan menambah lori ini (lori {seq}), dan pintu pagar boleh mengambil foto dan melepaskannya.",
     "releaseLorry": "Lori {seq} · plat {plate}"
+  },
+  "jb293": {
+    "nameZh": "Nama Cina",
+    "nameEn": "Nama Inggeris",
+    "anyName": "Nama Cina atau Inggeris",
+    "namesHint": "Isi sekurang-kurangnya satu. Skrin bahasa Cina menunjukkan nama Cina; skrin bahasa Inggeris dan Melayu menunjukkan nama Inggeris. Jika hanya satu diisi, yang itu ditunjukkan di mana-mana. Kedua-dua nama atau kod menemui bahan ini dalam carian, dan kod tidak berubah.",
+    "nameZhPlaceholder": "cth. 钢筋",
+    "nameEnPlaceholder": "cth. Rebar"
   }
 }

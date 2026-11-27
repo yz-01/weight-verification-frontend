@@ -24945,5 +24945,13 @@
     "filledMark": "Lorry {seq}: plate and signatures filled",
     "extraLorryNote": "Every approved lorry has already left. Saving adds this one (lorry {seq}), and the gate can then photograph and release it.",
     "releaseLorry": "Lorry {seq} · plate {plate}"
+  },
+  "jb293": {
+    "nameZh": "Chinese name",
+    "nameEn": "English name",
+    "anyName": "Chinese or English name",
+    "namesHint": "Fill in at least one. Chinese screens show the Chinese name; English and Malay screens show the English name. With only one filled in, that one is shown everywhere. Either name or the code finds this material in a search, and the code does not change.",
+    "nameZhPlaceholder": "e.g. 钢筋",
+    "nameEnPlaceholder": "e.g. Rebar"
   }
 }

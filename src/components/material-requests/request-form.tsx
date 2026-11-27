@@ -49,7 +49,13 @@ import {
   type MaterialRequestLine,
   type MaterialRequestType,
 } from "@/interfaces/material-request";
-import { categoryManagementLink, isOtherMaterial, offeredSpecs, specChoice } from "@/lib/material-catalogue";
+import {
+  categoryManagementLink,
+  isOtherMaterial,
+  materialOption,
+  offeredSpecs,
+  specChoice,
+} from "@/lib/material-catalogue";
 import { MaterialLinesEditor } from "@/components/shared/material-lines";
 import {
   emptyLine,
@@ -394,7 +400,7 @@ export function MaterialRequestForm({
                     setTypedMaterial("");
                   }
                 }}
-                options={materials.map((row) => ({ value: row.id, label: row.name }))}
+                options={materials.map(materialOption)}
                 placeholder={t("form.chooseMaterial")}
                 searchPlaceholder={t("form.search")}
                 emptyLabel={t("form.notSetUp")}
