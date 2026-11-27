@@ -966,7 +966,7 @@ export function EquipmentOperatorHours() {
                         )}
                       </TableCell>
                       <TableCell className="tabular text-right">{row.adjusted_count}</TableCell>
-                      <RentalFeeCells row={row} canAdjust={canAdjust} onAmounts={setAmountsRow} />
+                      <RentalFeeCells row={row} canAdjust={canAdjust} onAmounts={setAmountsRow} month={monthly.data?.month ?? ""} />
                     </TableRow>
                   ))}
                   <TableRow>

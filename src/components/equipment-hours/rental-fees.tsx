@@ -14,7 +14,7 @@
  */
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Check, CircleDollarSign, History, Loader2, Lock, Pencil } from "lucide-react";
+import { Check, CircleDollarSign, History, ListTree, Loader2, Lock, Pencil, Undo2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
@@ -32,7 +32,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { TableCell, TableHead } from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { useSeesAmounts } from "@/hooks/use-sees-amounts";
 import { ApiError } from "@/interfaces/api";
@@ -41,6 +41,7 @@ import type {
   EquipmentHoursMonthRow,
   RentalMachine,
   RentalMethod,
+  RentalTermsPiece,
   RentalTermsValues,
   RentalTotals,
 } from "@/interfaces/equipment-hours";
@@ -50,6 +51,7 @@ import {
   listRentalMachines,
   setRentalMonthAmounts,
   setRentalTerms,
+  unconfirmRentalMonth,
 } from "@/services/equipment-rental.service";
 
 export const RENTAL_KEY = "equipment-rental";
@@ -73,12 +75,112 @@ type Translate = ReturnType<typeof useTranslations>;
  * `jb288` words) is given: each set with its days, 「2026-09-01 至 2026-09-15：…」.
  */
 export function termsSummary(t: Translate, terms: RentalTermsValues, tj?: Translate): string {
-  if (tj && terms.pieces && terms.pieces.length > 1) {
-    return terms.pieces
+  const pieces = displayPieces(terms.pieces);
+  if (tj && pieces.length > 1) {
+    return pieces
       .map((piece) => tj("piece", { from: piece.from, to: piece.to, terms: termsSummary(t, piece.terms) }))
       .join(" / ");
   }
-  return termsParts(t, terms).join(" · ");
+  return termsParts(t, pieces.length === 1 ? pieces[0].terms : terms).join(" · ");
+}
+
+/**
+ * JB294 (Lucas 11-27 「这里难看啊，弄好看弄整齐」): the terms of a machine over
+ * some dates, one short line per period - for the 设备租赁费用报表 and the
+ * 月结单, where several periods used to run on as one long line.
+ */
+export function RentalTermsLines({ terms }: { terms: RentalTermsValues }) {
+  const t = useTranslations("equipmentRental");
+  const tj = useTranslations("jb288");
+  const pieces = displayPieces(terms.pieces);
+  if (pieces.length < 2) return <>{termsSummary(t, terms)}</>;
+  return (
+    <>
+      {pieces.map((piece) => (
+        <span key={piece.from} className="block" style={{ whiteSpace: "nowrap" }} data-slot="rental-terms-piece">
+          {tj("piece", { from: piece.from, to: piece.to, terms: pieceSummary(t, piece.terms) })}
+        </span>
+      ))}
+    </>
+  );
+}
+
+/** The conditions that price a day: two periods equal in all of them are one. */
+const PRICED_TERMS = [
+  "method",
+  "unit_price",
+  "standard_days",
+  "normal_hours_per_day",
+  "overtime_rate",
+  "extra_day_rate",
+  "diesel_supply",
+  "start_date",
+  "end_date",
+] as const;
+
+function samePricing(a: object | undefined, b: object | undefined): boolean {
+  const left = (a ?? {}) as Record<string, unknown>;
+  const right = (b ?? {}) as Record<string, unknown>;
+  return PRICED_TERMS.every((key) => String(left[key] ?? "") === String(right[key] ?? ""));
+}
+
+/** What `displayPieces` needs of a period: its days and terms, maybe its figures. */
+type PieceLike = { from: string; to: string; terms: object } & Partial<
+  Pick<RentalTermsPiece, "days_worked" | "normal_hours" | "overtime_hours" | "base_rent" | "overtime_fee">
+>;
+
+function addAmounts(a: string | undefined, b: string | undefined): string | undefined {
+  if (a === undefined && b === undefined) return undefined;
+  const cents = Math.round(Number(a || 0) * 100) + Math.round(Number(b || 0) * 100);
+  return (cents / 100).toFixed(2);
+}
+
+/**
+ * JB294: a month's or a range's periods (JB288 `pieces`) as they are shown.
+ * Back-to-back periods whose terms price a day the same (every condition in
+ * `PRICED_TERMS` equal - a save that changed only the remarks, say) are one
+ * period: they are not a price change. Their days, hours and amounts are
+ * added, so the shown total is the one the server kept. Display only.
+ */
+export function displayPieces<P extends PieceLike>(pieces: readonly P[] | undefined): P[] {
+  const shown: P[] = [];
+  for (const piece of pieces ?? []) {
+    const last = shown[shown.length - 1];
+    if (last && samePricing(last.terms, piece.terms)) {
+      shown[shown.length - 1] = {
+        ...last,
+        to: piece.to,
+        terms: piece.terms,
+        days_worked:
+          last.days_worked === undefined && piece.days_worked === undefined
+            ? undefined
+            : (last.days_worked ?? 0) + (piece.days_worked ?? 0),
+        normal_hours: addAmounts(last.normal_hours, piece.normal_hours),
+        overtime_hours: addAmounts(last.overtime_hours, piece.overtime_hours),
+        base_rent: addAmounts(last.base_rent, piece.base_rent),
+        overtime_fee: addAmounts(last.overtime_fee, piece.overtime_fee),
+      };
+    } else {
+      shown.push({ ...piece });
+    }
+  }
+  return shown;
+}
+
+function dayNumber(iso: string): number {
+  const [year, month, day] = iso.split("-").map(Number);
+  return Date.UTC(year, month - 1, day) / 86_400_000;
+}
+
+/**
+ * JB294: the days a period counts for its 基本租金 - the days worked when it is
+ * priced by the day, otherwise its days inside the rental period.
+ */
+export function pieceDays(piece: RentalTermsPiece): number {
+  if (piece.terms.method === "DAILY") return piece.days_worked ?? 0;
+  const start = Math.max(dayNumber(piece.from), piece.terms.start_date ? dayNumber(piece.terms.start_date) : -Infinity);
+  const end = Math.min(dayNumber(piece.to), piece.terms.end_date ? dayNumber(piece.terms.end_date) : Infinity);
+  return Math.max(0, end - start + 1);
 }
 
 /** The parts of `termsSummary`, one per condition (QA288: 修改记录 compares them). */
@@ -527,17 +629,27 @@ export function RentalFeeCells({
   row,
   canAdjust,
   onAmounts,
+  month = "",
 }: {
   row: EquipmentHoursMonthRow;
   canAdjust: boolean;
   onAmounts: (row: EquipmentHoursMonthRow) => void;
+  /** The 按月 page's month (YYYY-MM), for 【取消确认】 and 【看分段】. */
+  month?: string;
 }) {
   const t = useTranslations("equipmentRental");
   const tj = useTranslations("jb288");
+  const t294 = useTranslations("jb294");
   const df = useDateFormat();
   const pieces = monthPieces(row);
+  const [dialog, setDialog] = useState<"pieces" | "unconfirm" | null>(null);
   // QA288: 柴油 / 调整 are amounts; without 「金额查看」 they read blank, so no form.
   const seesAmounts = useSeesAmounts();
+  // JB294: a month in a 设备租赁月结单 keeps its amounts (「生成后金额不会再变」).
+  const statementNos = (row.statements ?? [])
+    .filter((statement) => statement.state !== "CANCELLED")
+    .map((statement) => statement.statement_no)
+    .join(", ");
   return (
     <>
       {FEE_KEYS.map((key) => (
@@ -553,9 +665,10 @@ export function RentalFeeCells({
         {!row.rental_has_terms ? (
           <span className="text-xs font-medium text-warning">{t("noTermsShort")}</span>
         ) : row.rental_confirmed ? (
-          <span className="flex flex-col gap-0.5">
+          <span className="flex flex-col items-start gap-1" data-testid="rental-confirmed">
             <StatusBadge label={t("confirmed")} tone="positive" />
-            <span className="text-xs text-muted-foreground">
+            {/* JB294: one line - a fitted table turns `whitespace-nowrap` back to wrapping (globals.css), the style does not. */}
+            <span className="text-xs text-muted-foreground" style={{ whiteSpace: "nowrap" }} data-testid="rental-confirmed-by">
               {t("confirmedBy", { name: row.rental_confirmed_by ?? "", time: df.dateTime(row.rental_confirmed_at ?? "") })}
             </span>
           </span>
@@ -571,31 +684,220 @@ export function RentalFeeCells({
         ) : (
           <span className="text-xs text-muted-foreground">{t("notConfirmed")}</span>
         )}
-        {/* JB288: the price changed inside the month - each part priced with its own terms. */}
+        {/* JB288: the price changed inside the month - each part priced with its own terms;
+            JB294: one short line here, the parts in 【看分段】. */}
         {pieces ? (
-          <span className="mt-1 block text-xs text-muted-foreground" data-testid="rental-month-pieces">
-            {tj("monthPieces", { count: pieces.length })}
-            {pieces.map((piece) => (
-              <span key={piece.from} className="block">
-                {tj("piece", {
-                  from: piece.from,
-                  to: piece.to,
-                  terms: `${pieceSummary(t, piece.terms)}${piece.base_rent ? ` · ${tj("pieceRent", { amount: rentalMoney(piece.base_rent) })}` : ""}`,
-                })}
-              </span>
-            ))}
+          <span
+            className="mt-1.5 flex items-center gap-2 text-xs text-muted-foreground"
+            style={{ whiteSpace: "nowrap" }}
+            data-testid="rental-month-pieces"
+          >
+            {t294("pieces.count", { count: pieces.length })}
+            <Button size="xs" variant="outline" onClick={() => setDialog("pieces")} data-testid="rental-pieces-open">
+              <ListTree />
+              {t294("pieces.open")}
+            </Button>
           </span>
+        ) : null}
+        {row.rental_has_terms && row.rental_confirmed && canAdjust ? (
+          <Button
+            size="xs"
+            variant="outline"
+            className="mt-1.5"
+            disabled={Boolean(statementNos)}
+            disabledReason={t294("unconfirm.inStatement", { statement_no: statementNos })}
+            onClick={() => setDialog("unconfirm")}
+            data-testid="rental-unconfirm-open"
+          >
+            <Undo2 />
+            {t294("unconfirm.open")}
+          </Button>
+        ) : null}
+        {dialog === "pieces" && pieces ? (
+          <RentalPiecesDialog row={row} month={month} onClose={() => setDialog(null)} />
+        ) : null}
+        {dialog === "unconfirm" ? (
+          <UnconfirmRentalMonthDialog row={row} month={month} onClose={() => setDialog(null)} />
         ) : null}
       </TableCell>
     </>
   );
 }
 
-/** The parts of a month priced with different terms (JB288), or null. */
+/**
+ * The parts of a month priced with different terms (JB288), or null. JB294:
+ * parts whose terms price a day the same are shown as one (`displayPieces`).
+ */
 export function monthPieces(row: EquipmentHoursMonthRow) {
   const terms = row.rental_terms;
-  const pieces = terms && "pieces" in terms ? terms.pieces : undefined;
-  return pieces && pieces.length > 1 ? pieces : null;
+  const pieces = displayPieces(terms && "pieces" in terms ? terms.pieces : undefined);
+  return pieces.length > 1 ? pieces : null;
+}
+
+/**
+ * 【看分段】 (JB294, Lucas 11-27 「这里难看啊，弄好看弄整齐」): the month's parts
+ * as a small table - 期间, 租赁方式 · 单价, 超时单价, 天数, 基本租金 - with a 合计
+ * equal to the row's 基本租金 (and the 超出标准工作天数 charge, a month-wide part,
+ * on its own line when there is one).
+ */
+export function RentalPiecesDialog({
+  row,
+  month,
+  onClose,
+}: {
+  row: EquipmentHoursMonthRow;
+  month: string;
+  onClose: () => void;
+}) {
+  const t = useTranslations("equipmentRental");
+  const t294 = useTranslations("jb294");
+  const df = useDateFormat();
+  const pieces = monthPieces(row) ?? [];
+  const toCents = (value: string | null | undefined) => Math.round(Number(value || 0) * 100);
+  const pieceCents = pieces.reduce((sum, piece) => sum + toCents(piece.base_rent), 0);
+  const known = pieces.every((piece) => piece.base_rent !== undefined) && row.base_rent != null;
+  const extraCents = known ? toCents(row.base_rent) - pieceCents : 0;
+  const name = [row.equipment_code, row.equipment_name].filter(Boolean).join(" · ");
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-3xl" data-testid="rental-pieces">
+        <DialogHeader>
+          <DialogTitle>{t294("pieces.title", { name, month })}</DialogTitle>
+          <DialogDescription>{t294("pieces.help")}</DialogDescription>
+        </DialogHeader>
+        <Table className="text-sm">
+          <TableHeader>
+            <TableRow>
+              <TableHead>{t294("pieces.period")}</TableHead>
+              <TableHead>{t294("pieces.method")}</TableHead>
+              <TableHead>{t294("pieces.overtime")}</TableHead>
+              <TableHead className="tabular text-right">{t294("pieces.days")}</TableHead>
+              <TableHead className="tabular text-right">{t294("pieces.rent")}</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {pieces.map((piece) => (
+              <TableRow key={piece.from} data-slot="rental-piece-row">
+                <TableCell className="whitespace-nowrap">
+                  {t294("pieces.range", { from: df.date(piece.from), to: df.date(piece.to) })}
+                </TableCell>
+                <TableCell className="whitespace-nowrap">
+                  {t294("pieces.methodPrice", {
+                    method: t(`method.${piece.terms.method}`),
+                    amount: rentalMoney(piece.terms.unit_price),
+                  })}
+                </TableCell>
+                <TableCell className="whitespace-nowrap">
+                  {piece.terms.overtime_rate && Number(piece.terms.overtime_rate) > 0
+                    ? t294("pieces.overtimeRate", { amount: rentalMoney(piece.terms.overtime_rate) })
+                    : t294("pieces.none")}
+                </TableCell>
+                <TableCell className="tabular text-right">{pieceDays(piece)}</TableCell>
+                <TableCell className="tabular text-right">{rentalMoney(piece.base_rent)}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+          <TableFooter>
+            {/* The month-wide 超出标准工作天数 charge, part of the row's 基本租金. */}
+            {extraCents !== 0 ? (
+              <TableRow data-slot="rental-piece-extra">
+                <TableCell colSpan={4}>{t294("pieces.extraDays")}</TableCell>
+                <TableCell className="tabular text-right">{rentalMoney((extraCents / 100).toFixed(2))}</TableCell>
+              </TableRow>
+            ) : null}
+            <TableRow>
+              <TableCell colSpan={4} className="font-semibold">
+                {t294("pieces.total")}
+              </TableCell>
+              <TableCell className="tabular text-right font-semibold" data-slot="rental-piece-total">
+                {known ? rentalMoney(row.base_rent) : rentalMoney((pieceCents / 100).toFixed(2))}
+              </TableCell>
+            </TableRow>
+          </TableFooter>
+        </Table>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>
+            {t294("pieces.close")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/**
+ * 【取消确认】 (JB294): a reason, then the six-digit PIN (the API client opens
+ * the PIN box when the server asks for it). The server refuses a month in a
+ * 设备租赁月结单 and says which one.
+ */
+export function UnconfirmRentalMonthDialog({
+  row,
+  month,
+  onClose,
+}: {
+  row: EquipmentHoursMonthRow;
+  month: string;
+  onClose: () => void;
+}) {
+  const t = useTranslations("equipmentRental");
+  const t294 = useTranslations("jb294");
+  const queryClient = useQueryClient();
+  const [reason, setReason] = useState("");
+  const [error, setError] = useState("");
+  const name = [row.equipment_code, row.equipment_name].filter(Boolean).join(" · ");
+  const cancel = useMutation({
+    mutationFn: () =>
+      unconfirmRentalMonth({ project: row.project, equipment: row.equipment, month, reason: reason.trim() }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["equipment-hours", "month"] });
+      onClose();
+    },
+    onError: (failure) => setError(errorText(failure, t("failed"))),
+  });
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-lg" data-testid="rental-unconfirm">
+        <DialogHeader>
+          <DialogTitle>{t294("unconfirm.title", { name, month })}</DialogTitle>
+          <DialogDescription>{t294("unconfirm.help")}</DialogDescription>
+        </DialogHeader>
+        <label className="flex flex-col gap-1 text-sm font-medium">
+          {t294("unconfirm.reason")}
+          <Textarea
+            value={reason}
+            rows={2}
+            maxLength={500}
+            placeholder={t294("unconfirm.reasonPlaceholder")}
+            onChange={(event) => setReason(event.target.value)}
+            data-testid="rental-unconfirm-reason"
+          />
+        </label>
+        <p className="text-sm text-muted-foreground">{t294("unconfirm.pin")}</p>
+        {error ? (
+          <p role="alert" className="text-sm text-destructive" data-testid="rental-unconfirm-error">
+            {error}
+          </p>
+        ) : null}
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>
+            {t294("unconfirm.back")}
+          </Button>
+          <Button
+            variant="destructive"
+            disabled={cancel.isPending || !reason.trim()}
+            disabledReason={t294("unconfirm.needReason")}
+            onClick={() => {
+              setError("");
+              cancel.mutate();
+            }}
+          >
+            {cancel.isPending ? <Loader2 className="animate-spin" /> : <Undo2 />}
+            {t294("unconfirm.do")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
 }
 
 export function RentalTotalCells({ totals }: { totals: RentalTotals | undefined }) {
