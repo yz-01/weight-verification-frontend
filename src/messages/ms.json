@@ -4081,7 +4081,8 @@
       "disposal_settlement_checked": "Rekod pembersihan disemak",
       "disposal_settlement_settled": "Penyelesaian pembersihan selesai",
       "disposal_settlement_pdf_previewed": "Pratonton penyelesaian pembersihan",
-      "disposal_settlement_pdf_exported": "Eksport penyelesaian pembersihan"
+      "disposal_settlement_pdf_exported": "Eksport penyelesaian pembersihan",
+      "disposal_lorry_signed": "Plat lori dan tandatangan pembersihan diisi"
     },
     "objectType": {
       "SignOffAssistant": "PIN pembantu",
@@ -9821,7 +9822,8 @@
       "disposal_settlement_mixed": "Hanya rekod pembersihan satu projek dan satu pembekal boleh disemak bersama",
       "disposal_not_archived": "{reference} belum diarkibkan, jadi tidak boleh disemak.",
       "disposal_fee_missing": "{reference}: pembekal ini belum ada yuran setiap lori",
-      "disposal_settlement_already_settled": "{settlement_no} sudah diselesaikan; tidak boleh diselesaikan dua kali."
+      "disposal_settlement_already_settled": "{settlement_no} sudah diselesaikan; tidak boleh diselesaikan dua kali.",
+      "disposal_lorry_sheet_missing": "Tapak belum menaip plat lori, dan pemandu serta penyelia tapak belum menandatangani."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -13013,7 +13015,9 @@
       "permit_subcontractor": "Subkontraktor",
       "permit_work_lead": "Penyelia kerja",
       "permit_contact_phone": "No. telefon",
-      "permit_work_name": "Nama kerja"
+      "permit_work_name": "Nama kerja",
+      "lorry_sheet": "Plat lori dan tandatangan",
+      "lorry_released": "Lori dilepaskan di pintu"
     },
     "detailTitle": "Apa yang saya hantar",
     "photos": "Gambar",
@@ -17926,12 +17930,13 @@
       "EVIDENCE_DISPOSAL_PROOF": "Foto bukti pelupusan akhir dimuat naik",
       "TRIP_SUBMITTED": "Muatan dihantar, menunggu semakan pejabat",
       "TRIP_ACCEPTED": "Pejabat menyemak satu muatan",
-      "TRIP_ADDED": "Pejabat menambah satu muatan",
+      "TRIP_ADDED": "Satu muatan ditambah",
       "ENDED_EARLY": "Pejabat menamatkan kerja awal; muatan belum dihantar dibatalkan",
       "TRIP_CORRECTED": "Pejabat membetulkan berat / DO / plat satu muatan",
       "SUPPLIER_SET": "Pejabat menamakan / menukar syarikat pembersihan",
       "ANOMALY_REPORTED": "Pengecualian dilaporkan",
-      "TRIP_NUMBERS_FILLED": "Pejabat mengisi berat / DO / plat muatan"
+      "TRIP_NUMBERS_FILLED": "Pejabat mengisi berat / DO / plat muatan",
+      "LORRY_SIGNED": "Tapak menaip plat lori; pemandu dan penyelia tapak menandatangani"
     },
     "title": "Pembersihan sisa",
     "toast": {
@@ -24913,5 +24918,34 @@
     "cost": {
       "noFee": "{count} belum ada yuran setiap lori"
     }
+  },
+  "jb290": {
+    "action": "Isi plat dan tandatangan",
+    "dialogTitle": "Lori {seq}: plat dan tandatangan",
+    "dialogHelp": "{reference}: sebelum pintu mengambil gambar dan melepaskannya, taip plat, dan pemandu serta penyelia tapak menandatangani. Semua wajib.",
+    "refillNote": "Lori ini sudah diisi ({plate}) dan pintu belum melepaskannya. Mengisi semula menggantikannya; yang lama kekal dalam rekod.",
+    "plate": "Nombor plat lori",
+    "driverName": "Nama pemandu",
+    "driverSignature": "Tandatangan pemandu",
+    "driverHint": "Pemandu menandatangani di sini.",
+    "siteName": "Nama penyelia tapak",
+    "siteSignature": "Tandatangan penyelia tapak",
+    "siteHint": "Nama anda sudah diisi; jika orang lain menandatangani, tukar kepada namanya.",
+    "submit": "Simpan untuk pintu",
+    "toastSigned": "Disimpan. Pintu kini boleh mengambil gambar dan melepaskan lori ini",
+    "tripWaiting": "Menunggu tapak: plat, tandatangan pemandu dan penyelia tapak",
+    "tripPlate": "Plat: {plate}",
+    "tripDriver": "Pemandu: {name}",
+    "tripSite": "Penyelia tapak: {name}",
+    "tripFilled": "Diisi oleh {name} · {at}",
+    "tripReleased": "Dilepaskan di pintu: {number} · {name} · {at} · {count} gambar (buka di bawah Dilepaskan di pintu)",
+    "gateLorry": "Lori {seq} · plat {plate}",
+    "gateLorryWaiting": "Lori {seq}",
+    "gateSigners": "Pemandu: {driver} · penyelia tapak: {site}",
+    "waitingReady": "Lori {seq} boleh dilepaskan",
+    "waitingNotReady": "Lori {seq}: menunggu plat dan tandatangan dari tapak",
+    "filledMark": "Lori {seq}: plat dan tandatangan sudah diisi",
+    "extraLorryNote": "Semua lori yang diluluskan sudah keluar. Simpan akan menambah lori ini (lori {seq}), dan pintu pagar boleh mengambil foto dan melepaskannya.",
+    "releaseLorry": "Lori {seq} · plat {plate}"
   }
 }

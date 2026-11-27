@@ -4081,7 +4081,8 @@
       "disposal_settlement_checked": "Clearance records checked",
       "disposal_settlement_settled": "Clearance settlement settled",
       "disposal_settlement_pdf_previewed": "Previewed clearance settlement",
-      "disposal_settlement_pdf_exported": "Exported clearance settlement"
+      "disposal_settlement_pdf_exported": "Exported clearance settlement",
+      "disposal_lorry_signed": "Lorry plate and clearance signatures filled"
     },
     "objectType": {
       "SignOffAssistant": "Assistant PIN",
@@ -9821,7 +9822,8 @@
       "disposal_settlement_mixed": "Only clearance records of one project and one supplier can be checked together",
       "disposal_not_archived": "{reference} is not archived yet, so it cannot be checked.",
       "disposal_fee_missing": "{reference}: this supplier has no fee per lorry yet",
-      "disposal_settlement_already_settled": "{settlement_no} is already settled; it cannot be settled twice."
+      "disposal_settlement_already_settled": "{settlement_no} is already settled; it cannot be settled twice.",
+      "disposal_lorry_sheet_missing": "The site has not typed the lorry's plate yet, and the driver and the site person-in-charge have not signed."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -13013,7 +13015,9 @@
       "permit_subcontractor": "Subcontractor",
       "permit_work_lead": "Person in charge of the work",
       "permit_contact_phone": "Contact number",
-      "permit_work_name": "Work name"
+      "permit_work_name": "Work name",
+      "lorry_sheet": "Lorry plate and signatures",
+      "lorry_released": "Lorry released at the gate"
     },
     "detailTitle": "What I sent",
     "photos": "Photographs",
@@ -17926,12 +17930,13 @@
       "EVIDENCE_DISPOSAL_PROOF": "Final disposal proof photo uploaded",
       "TRIP_SUBMITTED": "Load sent, waiting for the office check",
       "TRIP_ACCEPTED": "Office checked a load",
-      "TRIP_ADDED": "Office added a load",
+      "TRIP_ADDED": "A load was added",
       "ENDED_EARLY": "Office ended the job early; loads not sent were dropped",
       "TRIP_CORRECTED": "Office corrected a load's weight / DO / plate",
       "SUPPLIER_SET": "Office named / changed the clearance company",
       "ANOMALY_REPORTED": "Exception reported",
-      "TRIP_NUMBERS_FILLED": "Office filled in a load's weight / DO / plate"
+      "TRIP_NUMBERS_FILLED": "Office filled in a load's weight / DO / plate",
+      "LORRY_SIGNED": "Site typed the lorry's plate; driver and site person-in-charge signed"
     },
     "title": "Waste clearance",
     "toast": {
@@ -24913,5 +24918,34 @@
     "cost": {
       "noFee": "{count} without a fee per lorry yet"
     }
+  },
+  "jb290": {
+    "action": "Fill plate and signatures",
+    "dialogTitle": "Lorry {seq}: plate and signatures",
+    "dialogHelp": "{reference}: before the gate photographs and releases it, type the plate, and the driver and the site person-in-charge sign. All are required.",
+    "refillNote": "This lorry is filled already ({plate}) and the gate has not released it. Filling it again replaces it; the earlier one stays on the record.",
+    "plate": "Lorry number plate",
+    "driverName": "Driver's name",
+    "driverSignature": "Driver's signature",
+    "driverHint": "The driver signs here.",
+    "siteName": "Site person-in-charge's name",
+    "siteSignature": "Site person-in-charge's signature",
+    "siteHint": "Your name is filled in; if somebody else signs, change it to theirs.",
+    "submit": "Save for the gate",
+    "toastSigned": "Saved. The gate can now photograph and release this lorry",
+    "tripWaiting": "Waiting for the site: plate, driver's and site person-in-charge's signatures",
+    "tripPlate": "Plate: {plate}",
+    "tripDriver": "Driver: {name}",
+    "tripSite": "Site person-in-charge: {name}",
+    "tripFilled": "Filled by {name} · {at}",
+    "tripReleased": "Released at the gate: {number} · {name} · {at} · {count} photos (open them under Released at the gate)",
+    "gateLorry": "Lorry {seq} · plate {plate}",
+    "gateLorryWaiting": "Lorry {seq}",
+    "gateSigners": "Driver: {driver} · site person-in-charge: {site}",
+    "waitingReady": "Lorry {seq} can be released",
+    "waitingNotReady": "Lorry {seq}: waiting for the site's plate and signatures",
+    "filledMark": "Lorry {seq}: plate and signatures filled",
+    "extraLorryNote": "Every approved lorry has already left. Saving adds this one (lorry {seq}), and the gate can then photograph and release it.",
+    "releaseLorry": "Lorry {seq} · plate {plate}"
   }
 }

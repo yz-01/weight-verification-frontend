@@ -4081,7 +4081,8 @@
       "disposal_settlement_checked": "清運記錄確認核對",
       "disposal_settlement_settled": "清運結算完畢",
       "disposal_settlement_pdf_previewed": "預覽清運結算單",
-      "disposal_settlement_pdf_exported": "匯出清運結算單"
+      "disposal_settlement_pdf_exported": "匯出清運結算單",
+      "disposal_lorry_signed": "填寫車牌和清運簽名"
     },
     "objectType": {
       "SignOffAssistant": "助理副密碼",
@@ -9821,7 +9822,8 @@
       "disposal_settlement_mixed": "一次只能核對同一個項目、同一個供應商的清運記錄",
       "disposal_not_archived": "{reference} 還沒有確認歸檔，不能核對。",
       "disposal_fee_missing": "{reference}：這個供應商還沒有設每車清運費用",
-      "disposal_settlement_already_settled": "{settlement_no} 已經結算完畢，不能重複結算。"
+      "disposal_settlement_already_settled": "{settlement_no} 已經結算完畢，不能重複結算。",
+      "disposal_lorry_sheet_missing": "工地還沒有填車牌、司機和工地負責人還沒有簽名。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -13013,7 +13015,9 @@
       "permit_subcontractor": "分包商",
       "permit_work_lead": "施工負責人",
       "permit_contact_phone": "聯繫電話",
-      "permit_work_name": "施工事項名稱"
+      "permit_work_name": "施工事項名稱",
+      "lorry_sheet": "車牌和簽名",
+      "lorry_released": "門崗放行的車"
     },
     "detailTitle": "我提交過的",
     "photos": "照片",
@@ -17926,12 +17930,13 @@
       "EVIDENCE_DISPOSAL_PROOF": "已上傳最終處理證明照片",
       "TRIP_SUBMITTED": "已送出一車，等待後台驗收",
       "TRIP_ACCEPTED": "後台已驗收一車",
-      "TRIP_ADDED": "後台加了一車",
+      "TRIP_ADDED": "加了一車",
       "ENDED_EARLY": "後台提前結束，未送的車次已取消",
       "TRIP_CORRECTED": "後台更正了一車的重量 / DO / 車牌",
       "SUPPLIER_SET": "後台填寫 / 更改了供應商",
       "ANOMALY_REPORTED": "報告異常",
-      "TRIP_NUMBERS_FILLED": "後台補錄了車次的重量 / DO / 車牌"
+      "TRIP_NUMBERS_FILLED": "後台補錄了車次的重量 / DO / 車牌",
+      "LORRY_SIGNED": "工地已填車牌，司機和工地負責人已簽名"
     },
     "title": "垃圾清運",
     "toast": {
@@ -24913,5 +24918,34 @@
     "cost": {
       "noFee": "{count} 筆還沒有設每車費用"
     }
+  },
+  "jb290": {
+    "action": "填寫車牌和簽名",
+    "dialogTitle": "第 {seq} 車：車牌和簽名",
+    "dialogHelp": "{reference}：門崗拍照、放行之前，必須先填車牌，由清運司機和工地現場負責人簽名。全部必填。",
+    "refillNote": "這一車已經填過（{plate}），門崗還沒有放行。重新填寫會換成這一次的，原來的會留在記錄裡。",
+    "plate": "車輛車牌號碼",
+    "driverName": "清運司機姓名",
+    "driverSignature": "清運司機簽名",
+    "driverHint": "請司機在這裡簽名。",
+    "siteName": "工地現場負責人姓名",
+    "siteSignature": "工地現場負責人簽名",
+    "siteHint": "已填你的名字；如果是別人簽，請改成他的名字。",
+    "submit": "保存，交給門崗",
+    "toastSigned": "已保存，門崗現在可以拍照放行這一車",
+    "tripWaiting": "等工地填車牌，司機和工地負責人簽名",
+    "tripPlate": "車牌：{plate}",
+    "tripDriver": "清運司機：{name}",
+    "tripSite": "工地現場負責人：{name}",
+    "tripFilled": "{name} 填寫 · {at}",
+    "tripReleased": "門崗放行：{number} · {name} · {at} · {count} 張照片（在「門崗放行」裡打開看）",
+    "gateLorry": "第 {seq} 車 · 車牌：{plate}",
+    "gateLorryWaiting": "第 {seq} 車",
+    "gateSigners": "清運司機：{driver} · 工地現場負責人：{site}",
+    "waitingReady": "第 {seq} 車可以放行",
+    "waitingNotReady": "第 {seq} 車：等工地填車牌和簽名",
+    "filledMark": "第 {seq} 車：車牌和簽名已填",
+    "extraLorryNote": "之前批准的車都已經放行了。保存後會加上這一車（第 {seq} 車），門崗就可以拍照放行。",
+    "releaseLorry": "第 {seq} 車 · 車牌：{plate}"
   }
 }
