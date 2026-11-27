@@ -502,6 +502,18 @@ export function CategoryDialog({
         reason instanceof ApiError ? reason.message : modules("saveFailed"),
       ),
   });
+  // One save per press (QA293): a double click on 【保存】 made the same new
+  // material twice (two MAT- codes) before the button could grey out.
+  const saving = useRef(false);
+  const saveOnce = () => {
+    if (saving.current) return;
+    saving.current = true;
+    save.mutate(undefined, {
+      onSettled: () => {
+        saving.current = false;
+      },
+    });
+  };
   const set = <K extends keyof ProjectCategoryPayload>(
     key: K,
     value: ProjectCategoryPayload[K],
@@ -958,7 +970,7 @@ export function CategoryDialog({
               [!restrictedEmpty, t("categories.accessTitle")],
             ]}
             disabled={save.isPending}
-            onClick={() => save.mutate()}
+            onClick={saveOnce}
           >
             {save.isPending ? <Loader2 className="animate-spin" /> : <Save />}
             {t("action.save")}

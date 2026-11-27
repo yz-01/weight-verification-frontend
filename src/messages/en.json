@@ -4676,7 +4676,7 @@
       "count": "{count} records",
       "empty": "Nothing has been filed in this category yet.",
       "byMaterial": "By material",
-      "groupCount": "{count} deliveries",
+      "groupCount": "{count, plural, one {# delivery} other {# deliveries}}",
       "search": "Search number, material, DO",
       "emptyFiltered": "Nothing in this category matches these filters.",
       "deliveryNoteNo": "DO",
