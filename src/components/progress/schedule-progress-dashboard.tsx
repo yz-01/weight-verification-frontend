@@ -12,13 +12,15 @@
  * the manager writes himself stay below it, unchanged.
  */
 
-import { useQuery } from "@tanstack/react-query";
-import { AlertTriangle, BarChart3, Check, Gauge } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { AlertTriangle, Archive, BarChart3, Check, Gauge } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { ScheduleProgressCurveChart } from "@/components/progress/schedule-progress-curve";
 import { useAuth } from "@/components/providers/auth-provider";
+import { versionLine } from "@/components/schedule-planning/schedule-export-words";
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { FileActionButtons } from "@/components/shared/file-actions";
 import { KpiCard } from "@/components/shared/kpi-card";
 import { QueryFailedNote } from "@/components/shared/page-primitives";
@@ -28,7 +30,10 @@ import { useDateFormat } from "@/lib/dates";
 import { cn } from "@/lib/utils";
 import { absoluteUrl } from "@/lib/share";
 import {
+  archiveScheduleProgressReport,
   getProjectScheduleProgress,
+  getScheduleProgressArchives,
+  scheduleProgressArchiveFile,
   scheduleProgressReportFile,
 } from "@/services/schedule-planning.service";
 
@@ -102,11 +107,14 @@ export function ScheduleProgressFigures({ plan }: { plan: ScheduleProjectProgres
 }
 
 /**
- * 预览 · 打印 · 导出 · 发送 of the block above (JB289 三, 客户 11-27c: 「自动生成的
- * 计划与实际进度对比条及曲线图，必须支持预览、打印、导出及发送」): one PDF with the
- * figures, the 对比图, the 曲线图, the 甘特图 and the 相关进度资料. A draft
- * schedule version is previewed only, as 施工计划's own export (JB25). Files
- * are the office's: never on the phone.
+ * 预览 · 打印 · 导出 · 发送 of the block above, and its 【确认归档】 (JB289 三).
+ *
+ * 客户 11-27c: 「自动生成的计划与实际进度对比条及曲线图，必须支持预览、打印、导出及
+ * 发送」, under his rule for 项目进度摘要 (10-28 事项10: 「只有确认归档后，才可以生成
+ * PDF、打印、下载或转发给顾问」; Lucas 11-27: build it so). The live report is
+ * previewed only; 【确认归档】 (with the PIN) keeps a frozen copy, and the copies
+ * below are printed, exported and sent. Files and 归档 are the office's: never
+ * on the phone.
  */
 export function ScheduleProgressReportButtons({
   plan,
@@ -118,16 +126,27 @@ export function ScheduleProgressReportButtons({
   const t = useTranslations("jb289");
   const draftWords = useTranslations("draftRecords");
   const locale = useLocale();
-  const { user } = useAuth();
+  const { user, can } = useAuth();
+  const qc = useQueryClient();
+  const [confirming, setConfirming] = useState(false);
+  const archive = useMutation({
+    mutationFn: () => archiveScheduleProgressReport(plan.plan_id, plan.revision!.id),
+    onSuccess: () => {
+      setConfirming(false);
+      void qc.invalidateQueries({ queryKey: ["schedule-progress-archives"] });
+    },
+  });
   if (user?.is_field_staff || !plan.revision) return null;
   const title = t("reportTitle", { plan: plan.plan_name });
   const revisionId = plan.revision.id;
+  const draftRevision = plan.revision.status !== "CONFIRMED";
   return (
     <div className="flex flex-wrap items-center gap-2" data-slot="schedule-progress-report">
       <FileActionButtons
         label={t("reportLabel")}
         labelHint={t("reportHint")}
-        blockedReason={plan.revision.status === "CONFIRMED" ? undefined : draftWords("draftRevision")}
+        // Preview only, always: what goes out is an archived copy.
+        blockedReason={t("archiveFirst")}
         source={{
           load: () => scheduleProgressReportFile(plan.plan_id, locale, title, revisionId),
           title,
@@ -135,7 +154,95 @@ export function ScheduleProgressReportButtons({
           link: absoluteUrl(`/progress?tab=summary&project=${project}`),
         }}
       />
+      {can("progress.confirm") ? (
+        <Button
+          size="sm"
+          onClick={() => setConfirming(true)}
+          disabled={draftRevision}
+          disabledReason={draftRevision ? t("archiveDraft") : undefined}
+          data-slot="schedule-progress-archive"
+        >
+          <Archive />
+          {draftWords("confirmArchive")}
+        </Button>
+      ) : null}
+      <ConfirmDialog
+        open={confirming}
+        onOpenChange={(open) => !open && setConfirming(false)}
+        title={t("archiveTitle")}
+        description={t("archiveBody")}
+        confirmLabel={draftWords("confirmArchive")}
+        confirmIcon={Archive}
+        variant="default"
+        isPending={archive.isPending}
+        onConfirm={() => archive.mutate()}
+      />
     </div>
+  );
+}
+
+/**
+ * The archived copies of the report, newest first: when, who, which plan and
+ * version, the two figures they froze - each with 预览 · 打印 · 导出 · 发送,
+ * drawn from what it froze (JB289).
+ */
+export function ScheduleProgressArchives({ plan, project }: { plan: ScheduleProjectProgressPlan; project: string }) {
+  const t = useTranslations("jb289");
+  const tSchedule = useTranslations("schedulePlanning");
+  const df = useDateFormat();
+  const locale = useLocale();
+  const { user } = useAuth();
+  const archives = useQuery({
+    queryKey: ["schedule-progress-archives", plan.plan_id],
+    queryFn: () => getScheduleProgressArchives({ plan: plan.plan_id }),
+    enabled: !user?.is_field_staff,
+  });
+  if (user?.is_field_staff) return null;
+  const rows = archives.data?.results ?? [];
+  return (
+    <section className="rounded-lg border bg-card p-3" aria-label={t("archivesTitle")} data-slot="schedule-progress-archives">
+      <h3 className="text-sm font-medium">{t("archivesTitle")}</h3>
+      <p className="mb-2 text-xs text-muted-foreground">{t("archivesHelp")}</p>
+      <QueryFailedNote query={archives} what={t("archivesTitle")} />
+      {rows.length === 0 ? (
+        <p className="text-sm text-muted-foreground" data-slot="schedule-progress-archives-empty">
+          {archives.isLoading ? "…" : t("archivesEmpty")}
+        </p>
+      ) : (
+        <ul className="divide-y">
+          {rows.map((row) => {
+            const when = df.dateTime(row.archived_at);
+            const title = t("archiveTitleFile", { plan: row.plan_name, when });
+            const version = versionLine(tSchedule("revision.number", { number: row.revision_number }), row.revision_label);
+            return (
+              <li key={row.id} className="flex flex-wrap items-center justify-between gap-2 py-2" data-slot="schedule-progress-archive-row">
+                <div className="min-w-0">
+                  <p className="text-sm font-medium">{t("archivedLine", { when, name: row.archived_by_name ?? "—" })}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {t("archivedFigures", {
+                      plan: row.plan_name,
+                      version,
+                      planned: percentText(row.planned_progress),
+                      actual: percentText(row.actual_progress),
+                    })}
+                  </p>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <FileActionButtons
+                    source={{
+                      load: () => scheduleProgressArchiveFile(row.id, locale, title),
+                      title,
+                      project,
+                      link: absoluteUrl(`/progress?tab=summary&project=${project}`),
+                    }}
+                  />
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </section>
   );
 }
 
@@ -215,7 +322,11 @@ export function ScheduleProgressDashboard({ project }: { project: string }) {
       {progress.isLoading ? (
         <p className="text-sm text-muted-foreground">…</p>
       ) : progress.isError ? null : plan ? (
-        <ScheduleProgressFigures plan={plan} />
+        <>
+          <ScheduleProgressFigures plan={plan} />
+          {/* JB289: the 确认归档 copies - the ones printed, exported and sent. */}
+          <ScheduleProgressArchives plan={plan} project={project} />
+        </>
       ) : (
         <p className="text-sm text-muted-foreground">{t("noPlan")}</p>
       )}

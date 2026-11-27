@@ -7,8 +7,9 @@
  *   summaries and their charts stay.
  * - 二: 施工计划's Excel carries 实际完成日期, 任务完成状态, 顾问审批编号及审批结果,
  *   关联现场记录编号, 进度确认人, 确认时间 and 施工计划版本, in the reader's words.
- * - 三: the automatic block has 预览 · 打印 · 导出 · 发送 (one PDF); a draft
- *   version is previewed only; never on the phone.
+ * - 三: the live report is previewed; 【确认归档】 keeps a frozen copy, and only
+ *   archived copies are printed, exported and sent (客户 10-28 事项10); never
+ *   on the phone.
  * - All new words in the four languages, saying 你.
  *
  * Rendered to static markup (the runner has no DOM).
@@ -165,40 +166,76 @@ describe("JB289 一 曲线图 in 项目进度摘要", () => {
   });
 });
 
-describe("JB289 三 报表: 预览 · 打印 · 导出 · 发送", () => {
-  it("offers the four file actions on the automatic block", () => {
-    auth.fieldStaff = false;
+describe("JB289 三 报表: preview live, print / export / send an archived copy", () => {
+  const archived = {
+    id: "a1", project: "p1", plan: "plan1", plan_name: "Approved Baseline Schedule", revision: "r1",
+    revision_number: 1, revision_label: "Tender Baseline", archived_by: "u1", archived_by_name: "Ong",
+    archived_at: "2026-11-27T04:00:00Z", planned_progress: "25.00", actual_progress: "50.00",
+  };
+
+  function dashboard(plans = [plan()], archives: unknown[] = []) {
     const client = new QueryClient();
-    client.setQueryData(["schedule-project-progress", "p1"], { project: "p1", plans: [plan()] });
-    const html = render(<ScheduleProgressDashboard project="p1" />, client);
-    expect(html).toContain('data-slot="schedule-progress-report"');
-    expect(html).toContain(w.reportLabel);
+    client.setQueryData(["schedule-project-progress", "p1"], { project: "p1", plans });
+    client.setQueryData(["schedule-progress-archives", "plan1"], {
+      count: archives.length, next: null, previous: null, results: archives,
+    });
+    return render(<ScheduleProgressDashboard project="p1" />, client);
+  }
+
+  it("previews the live report; print / export / send say to archive first", () => {
+    auth.fieldStaff = false;
+    const html = dashboard();
+    const live = html.slice(html.indexOf('data-slot="schedule-progress-report"'));
+    expect(live).toContain(w.reportLabel);
     for (const action of ["preview", "print", "save", "share"] as const) {
-      expect(html).toContain(zh.fileActions[action]);
+      expect(live).toContain(zh.fileActions[action]);
     }
+    expect(live).toContain(w.archiveFirst);
+    expect(w.archiveFirst).toBe("先按【确认归档】存一份，归档后才能打印、导出和发送");
   });
 
-  it("previews a draft version only, and says why", () => {
-    const client = new QueryClient();
+  it("has 【确认归档】 on the live report, greyed on a draft version with the reason", () => {
+    const html = dashboard();
+    expect(html).toContain('data-slot="schedule-progress-archive"');
+    expect(html).toContain(zh.draftRecords.confirmArchive);
     const draft = plan({ revision: { id: "r2", status: "DRAFT", revision_number: 2, label: "Rev 1" } as ScheduleRevision });
-    client.setQueryData(["schedule-project-progress", "p1"], { project: "p1", plans: [draft] });
-    const html = render(<ScheduleProgressDashboard project="p1" />, client);
-    expect(html).toContain(zh.draftRecords.draftRevision);
+    expect(dashboard([draft])).toContain(w.archiveDraft);
+    const source = read("components/progress/schedule-progress-dashboard.tsx");
+    expect(source).toContain("archiveScheduleProgressReport(plan.plan_id, plan.revision!.id)");
+    expect(source).toContain('can("progress.confirm")');
+  });
+
+  it("lists the archived copies with when and who, each with the four file actions", () => {
+    const empty = dashboard();
+    expect(empty).toContain(w.archivesTitle);
+    expect(empty).toContain(w.archivesEmpty);
+    const html = dashboard([plan()], [archived]);
+    const list = html.slice(html.indexOf('data-slot="schedule-progress-archives"'));
+    expect(list).toContain('data-slot="schedule-progress-archive-row"');
+    expect(list).toContain("Ong");
+    expect(list).toContain("版本 1 · Tender Baseline");
+    expect(list).toContain("计划 25%");
+    expect(list).toContain("实际 50%");
+    for (const action of ["preview", "print", "save", "share"] as const) {
+      expect(list).toContain(zh.fileActions[action]);
+    }
+    expect(list).not.toContain(w.archiveFirst);
   });
 
   it("never shows on the phone", () => {
     auth.fieldStaff = true;
-    const client = new QueryClient();
-    client.setQueryData(["schedule-project-progress", "p1"], { project: "p1", plans: [plan()] });
-    const html = render(<ScheduleProgressDashboard project="p1" />, client);
+    const html = dashboard([plan()], [archived]);
     expect(html).not.toContain('data-slot="schedule-progress-report"');
+    expect(html).not.toContain('data-slot="schedule-progress-archives"');
     auth.fieldStaff = false;
   });
 
-  it("asks the server for the PDF of the version on screen, in the reader's language", () => {
+  it("asks the server for the live preview and for an archived copy's PDF", () => {
     const source = read("services/schedule-planning.service.ts");
     expect(source).toContain("/api/schedules/${planId}/get_progress_report_pdf/");
-    expect(source).toContain("query: { lang, ...(revisionId ? { revision: revisionId } : {}) }");
+    expect(source).toContain("/api/schedules/${planId}/archive_progress_report/");
+    expect(source).toContain('"/api/schedules/get_progress_archive_pdf/"');
+    expect(source).toContain("query: { archive: archiveId, lang }");
   });
 });
 

@@ -5,6 +5,7 @@ import type {
   ScheduleImportPreview,
   ScheduleOverview,
   SchedulePlan,
+  ScheduleProgressArchive,
   ScheduleProjectProgressPlan,
   ScheduleRevision,
   ScheduleTask,
@@ -336,5 +337,34 @@ export const scheduleProgressReportFile = (
   fetchAsFile(`/api/schedules/${planId}/get_progress_report_pdf/`, {
     method: "GET",
     query: { lang, ...(revisionId ? { revision: revisionId } : {}) },
+    fallbackFilename: `${(title || "progress-report").replace(/[\\/:*?"<>|]+/g, "-")}.pdf`,
+  });
+
+/**
+ * 【确认归档】 on 项目进度摘要's report (JB289, 客户 10-28 事项10: 「只有确认归档后，
+ * 才可以生成PDF、打印、下载或转发给顾问」): freezes what it shows now into a copy
+ * that can be printed, exported and sent. The server asks for the PIN.
+ */
+export async function archiveScheduleProgressReport(planId: string, revisionId: string) {
+  const row = await api.post<ScheduleProgressArchive>(
+    `/api/schedules/${planId}/archive_progress_report/`,
+    { revision: revisionId },
+  );
+  toastSuccess("draftRecords.archivedToast");
+  return row;
+}
+
+/** The archived copies, newest first. */
+export const getScheduleProgressArchives = (query: ListQuery = {}) =>
+  api.list<ScheduleProgressArchive>("/api/schedules/get_progress_archives/", {
+    page_size: 50,
+    ...query,
+  });
+
+/** One archived copy as a PDF, drawn from what it froze. */
+export const scheduleProgressArchiveFile = (archiveId: string, lang: string, title: string) =>
+  fetchAsFile("/api/schedules/get_progress_archive_pdf/", {
+    method: "GET",
+    query: { archive: archiveId, lang },
     fallbackFilename: `${(title || "progress-report").replace(/[\\/:*?"<>|]+/g, "-")}.pdf`,
   });

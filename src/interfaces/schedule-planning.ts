@@ -273,3 +273,19 @@ export interface ScheduleTaskPayload {
   planned_end: string;
   sort_order?: number;
 }
+
+/** One 确认归档 copy of 项目进度摘要's report (JB289): frozen, printed and sent from. */
+export interface ScheduleProgressArchive {
+  id: string;
+  project: string;
+  plan: string;
+  plan_name: string;
+  revision: string;
+  revision_number: number;
+  revision_label: string;
+  archived_by: string;
+  archived_by_name: string | null;
+  archived_at: string;
+  planned_progress: string | null;
+  actual_progress: string | null;
+}
