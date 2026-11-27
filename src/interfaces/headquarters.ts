@@ -125,8 +125,9 @@ export interface HeadquartersProject extends HeadquartersCounts {
 export interface HeadquartersTotals extends HeadquartersCounts {
   projects: number;
   active_projects: number;
-  /** 当前在场人数 = App 人员 + 门岗通行 (Phase 8). */
+  /** 当前在场人数 = App 人员 + 人员名单 (JB296) + 门岗通行 (Phase 8). */
   app_on_site: number;
+  roster_on_site?: number;
   gate_on_site: number;
   /** Passes on site by their subject: WORKER, VISITOR, VEHICLE (J32). */
   gate_by_type?: Partial<Record<string, number>>;

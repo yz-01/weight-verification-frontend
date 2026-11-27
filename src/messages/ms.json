@@ -9746,6 +9746,7 @@
       "project_left": "Anda telah dikeluarkan daripada projek {project}, jadi anda tidak lagi boleh melihat atau mengendalikan rekodnya. Sila hubungi pengurus projek jika perlu.",
       "phone_identity_in_use": "Nombor telefon ini sudah menjadi identiti aktif \"{name}\" ({kind, select, driver {pautan pemandu} site_staff {kakitangan tapak} equipment_operator {operator peralatan} gate_guard {pengawal pintu} other {kakitangan tapak}}). Satu nombor hanya boleh ada satu identiti aktif: hentikan yang lama dahulu, kemudian buat yang baharu.",
       "phone_device_in_use": "Telefon ini sudah diikat pada identiti orang lain ({name}). Satu telefon hanya boleh ada satu identiti aktif: minta pejabat menghentikan identiti lama dahulu, kemudian gunakan pautan baharu.",
+      "field_presence_not_granted": "Peranan anda tidak termasuk “Daftar masuk dan keluar di tapak” dan “Kongsi lokasi sendiri dari telefon”, jadi telefon tidak dapat merekod kedatangan atau kepulangan anda. Minta pejabat menandakan kedua-duanya untuk peranan anda dalam Peranan dan kebenaran.",
       "equipment_hours_driver_busy": "Mesin anda {equipment} belum ditamatkan (mula {since}). Seorang pemandu hanya boleh menjalankan satu mesin pada satu masa: ambil foto tamat mesin itu dahulu, kemudian mulakan mesin ini.",
       "company_settings_pin_required": "Masukkan PIN pengesahan enam digit anda untuk membuka tetapan syarikat.",
       "sign_off_pin_identity_required": "Sahkan dahulu ini anda: taip PIN pengesahan lama, atau kod yang dihantar ke e-mel log masuk anda.",
@@ -25062,5 +25063,14 @@
     "linkCopy": "Salin pautan",
     "linkCopied": "Disalin",
     "noProjects": "Tiada projek dipaparkan pada skrin besar sekarang. Ibu pejabat boleh memilih projek yang dipaparkan dalam 【Tetapan paparan skrin besar】."
+  },
+  "jb296": {
+    "composition": "App {app} + senarai pekerja {roster} + pas pintu {gate}",
+    "emergencyComposition": "{total} orang (app {app} + senarai pekerja {roster} + pas pintu {gate})",
+    "emergencySubtitle": "Semua orang di tapak sekarang: masuk melalui pagar geo telefon, melalui pautan lokasi senarai pekerja, atau melalui pintu dengan pas dan belum keluar. Satu nombor telefon dalam satu projek dikira satu orang.",
+    "sourceRoster": "Senarai pekerja (pautan lokasi)",
+    "rosterTag": "Senarai pekerja",
+    "hqOnSiteSplit": "App {app} + senarai {roster} + pintu {gate}",
+    "hqPresenceSplit": "App {app} + senarai {roster} + pintu {gate}, mengikut projek"
   }
 }

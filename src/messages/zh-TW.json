@@ -9746,6 +9746,7 @@
       "project_left": "你已經被移出「{project}」項目，不能再查看或操作這個項目的資料。如有需要，請聯繫項目經理。",
       "phone_identity_in_use": "這個手機號碼已經是「{name}」（{kind, select, driver {司機打卡連結} site_staff {工地人員} equipment_operator {設備操作人員} gate_guard {門崗保安} other {現場人員}}）的有效身份。一個號碼只能有一個有效身份：請先停用原來的，再建立新的。",
       "phone_device_in_use": "這部手機已經綁定了另一個人的身份（{name}）。一部手機只能有一個有效身份：請後台先停用原來的身份，再用新的連結。",
+      "field_presence_not_granted": "你的帳號角色沒有開通「現場打卡進退場」和「手機分享本人位置」，所以手機記不了你的進場和離開。請聯絡辦公室在「角色與權限」裡給你的角色勾選這兩項。",
       "equipment_hours_driver_busy": "你的設備 {equipment} 還沒有收工（{since} 開工）。一個司機同一時間只能開一台設備：請先為它拍收工，再為這台開工。",
       "company_settings_pin_required": "進入公司設置要先輸入六位數簽核密碼。",
       "sign_off_pin_identity_required": "要先確認是你本人：輸入舊的簽核密碼，或輸入寄到你登入郵箱的驗證碼。",
@@ -25062,5 +25063,14 @@
     "linkCopy": "複製連結",
     "linkCopied": "已複製",
     "noProjects": "現在沒有項目在大屏上展示。總部可以在【大屏展示設定】裡選要展示的項目。"
+  },
+  "jb296": {
+    "composition": "App 人員 {app} + 人員名單 {roster} + 門崗通行 {gate}",
+    "emergencyComposition": "共 {total} 人（App 人員 {app} + 人員名單 {roster} + 門崗通行 {gate}）",
+    "emergencySubtitle": "此刻在現場的所有人：手機電子圍欄記錄進場的人、人員名單裡用定位連結在場的人，加上門崗通行證進了還沒出的人。同一個電話號碼在同一個項目只算一個人。",
+    "sourceRoster": "人員名單（定位連結）",
+    "rosterTag": "人員名單",
+    "hqOnSiteSplit": "App 人員 {app} ＋ 人員名單 {roster} ＋ 門崗通行 {gate}",
+    "hqPresenceSplit": "App 人員 {app} ＋ 人員名單 {roster} ＋ 門崗通行 {gate}，按項目"
   }
 }
