@@ -154,6 +154,7 @@ export function SchedulePlanningWorkspace({
 } = {}) {
   const t = useTranslations("schedulePlanning");
   const draftWords = useTranslations("draftRecords");
+  const jb289Words = useTranslations("jb289");
   const exportWords = useScheduleExportWords();
   const df = useDateFormat();
   const { can } = useAuth();
@@ -556,7 +557,10 @@ export function SchedulePlanningWorkspace({
       {openedEntry && <HistoryEntryDialog entry={openedEntry} onClose={() => setOpenedEntry(null)} />}
       <ConfirmDialog open={Boolean(removingTask)} onOpenChange={() => setRemovingTask(null)} title={t("confirm.removeTaskTitle")} description={t("confirm.removeTaskBody")} confirmLabel={t("action.remove")} confirmIcon={Trash2} isPending={removeTask.isPending} onConfirm={() => removingTask && removeTask.mutate(removingTask.id)} />
       <ConfirmDialog open={Boolean(removingRevision)} onOpenChange={() => setRemovingRevision(null)} title={t("confirm.removeRevisionTitle")} description={t("confirm.removeRevisionBody")} confirmLabel={t("action.remove")} confirmIcon={Trash2} isPending={removeRevision.isPending} onConfirm={() => removingRevision && removeRevision.mutate(removingRevision.id)} />
-      <ConfirmDialog open={Boolean(confirmingRevision)} onOpenChange={() => setConfirmingRevision(null)} title={t("confirm.lockTitle")} description={t("confirm.lockBody")} confirmLabel={t("action.confirmRevision")} confirmIcon={Check} isPending={confirmRevision.isPending} onConfirm={() => confirmingRevision && confirmRevision.mutate(confirmingRevision.id)} />
+      <ConfirmDialog open={Boolean(confirmingRevision)} onOpenChange={() => setConfirmingRevision(null)} title={t("confirm.lockTitle")} description={
+        // JB289 QA (coordinator 11-27): a new version takes the progress confirmed while it was a draft.
+        confirmingRevision?.kind === "REVISION" ? `${t("confirm.lockBody")} ${jb289Words("lockCarriesProgress")}` : t("confirm.lockBody")
+      } confirmLabel={t("action.confirmRevision")} confirmIcon={Check} isPending={confirmRevision.isPending} onConfirm={() => confirmingRevision && confirmRevision.mutate(confirmingRevision.id)} />
       <ConfirmDialog open={Boolean(archivingPlan)} onOpenChange={() => setArchivingPlan(null)} title={t("confirm.archiveTitle")} description={t("confirm.archiveBody")} confirmLabel={t("action.archive")} confirmIcon={Archive} isPending={archivePlan.isPending} onConfirm={() => archivingPlan && archivePlan.mutate(archivingPlan.id)} />
     </div>
   );

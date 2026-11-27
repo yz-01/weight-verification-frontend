@@ -24171,6 +24171,7 @@
     "lastConfirmed": "Last confirmed {time}"
   },
   "jb289": {
+    "lockCarriesProgress": "Progress confirmed after this draft was opened is carried into the new version.",
     "curveTitle": "Progress curve",
     "curveHelp": "Drawn from the schedule and every progress the manager confirms. It updates after each confirmation and keeps the earlier ones - nothing to build by hand.",
     "curvePlanned": "Planned Progress",

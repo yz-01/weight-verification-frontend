@@ -24171,6 +24171,7 @@
     "lastConfirmed": "Disahkan terakhir {time}"
   },
   "jb289": {
+    "lockCarriesProgress": "Kemajuan yang disahkan selepas draf ini dibuka akan dibawa ke versi baharu.",
     "curveTitle": "Lengkung kemajuan",
     "curveHelp": "Dilukis daripada jadual dan setiap kemajuan yang disahkan oleh pengurus. Dikemas kini selepas setiap pengesahan dan yang lama disimpan - tiada apa perlu dibina sendiri.",
     "curvePlanned": "Kemajuan dirancang (Planned Progress)",

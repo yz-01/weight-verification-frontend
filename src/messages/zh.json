@@ -24171,6 +24171,7 @@
     "lastConfirmed": "最后确认 {time}"
   },
   "jb289": {
+    "lockCarriesProgress": "草稿打开以后确认过的进度，会一起带到新版本。",
     "curveTitle": "工程进度曲线图",
     "curveHelp": "按施工计划和经理每次确认的进度自动画出，每次确认后自动更新，以前的进度都保留，不用手动建立。",
     "curvePlanned": "计划进度（Planned Progress）",

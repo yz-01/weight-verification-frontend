@@ -297,6 +297,13 @@ describe("JB289 二 施工计划 Excel", () => {
     expect(versionLine("版本 2", "Rev 1")).toBe("版本 2 · Rev 1");
     expect(versionLine("版本 1", "")).toBe("版本 1");
   });
+
+  it("confirming a new version says the progress confirmed meanwhile goes with it (QA 11-27)", () => {
+    const source = read("components/schedule-planning/schedule-planning-workspace.tsx");
+    expect(source).toContain('confirmingRevision?.kind === "REVISION" ? `${t("confirm.lockBody")} ${jb289Words("lockCarriesProgress")}`');
+    expect(w.lockCarriesProgress).toBe("草稿打开以后确认过的进度，会一起带到新版本。");
+    for (const words of [en, ms, zhTW]) expect(words.jb289.lockCarriesProgress).toBeTruthy();
+  });
 });
 
 describe("JB289 words", () => {
