@@ -173,8 +173,11 @@ export function DisposalFeePanel({ row }: { row: FeeRow }) {
 /**
  * 清运与回收报表 (JB287: 「所有清运费用自动关联现有「清运与回收报表」」): the
  * 合计 of 垃圾清运's 费用金额 in range, and how many jobs have no fee yet.
+ * Finished clearances only, said in one line (QA287): a running job's row
+ * shows its amount so far, marked 进行中, and is not added - the same number
+ * as 项目现场费用总览's 垃圾清运 for the same project and dates.
  */
-export function DisposalFeeTotal({ fees }: { fees: { amount_total: string | null; no_fee_count: number } }) {
+export function DisposalFeeTotal({ fees }: { fees: { amount_total: string | null; no_fee_count: number; running_count?: number } }) {
   const t = useTranslations("jb287");
   return (
     <section className="surface-panel rounded-xl px-4 py-3 text-sm sm:px-6" data-slot="disposal-fee-total">
@@ -182,6 +185,9 @@ export function DisposalFeeTotal({ fees }: { fees: { amount_total: string | null
       {fees.no_fee_count > 0 ? (
         <p className="mt-0.5 text-xs text-muted-foreground">{t("report.noFee", { count: fees.no_fee_count })}</p>
       ) : null}
+      <p className="mt-0.5 text-xs text-muted-foreground" data-slot="disposal-fee-running-note">
+        {t("report.runningNote")}
+      </p>
     </section>
   );
 }

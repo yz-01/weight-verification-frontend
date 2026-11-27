@@ -24836,7 +24836,8 @@
     },
     "report": {
       "total": "垃圾清运费用合计：{amount}",
-      "noFee": "其中 {count} 笔清运还没有设每车费用，算 0。"
+      "noFee": "其中 {count} 笔清运还没有设每车费用，算 0。",
+      "runningNote": "进行中的清运不算进合计"
     },
     "cost": {
       "noFee": "{count} 笔还没有设每车费用"

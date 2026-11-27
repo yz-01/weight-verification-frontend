@@ -24836,7 +24836,8 @@
     },
     "report": {
       "total": "垃圾清運費用合計：{amount}",
-      "noFee": "其中 {count} 筆清運還沒有設每車費用，算 0。"
+      "noFee": "其中 {count} 筆清運還沒有設每車費用，算 0。",
+      "runningNote": "進行中的清運不算進合計"
     },
     "cost": {
       "noFee": "{count} 筆還沒有設每車費用"

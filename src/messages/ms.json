@@ -24836,7 +24836,8 @@
     },
     "report": {
       "total": "Jumlah yuran pembersihan sisa: {amount}",
-      "noFee": "{count} daripada pembersihan ini belum ada yuran setiap lori dan dikira 0."
+      "noFee": "{count} daripada pembersihan ini belum ada yuran setiap lori dan dikira 0.",
+      "runningNote": "Pembersihan yang masih berjalan tidak dikira dalam jumlah."
     },
     "cost": {
       "noFee": "{count} belum ada yuran setiap lori"

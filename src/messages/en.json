@@ -24836,7 +24836,8 @@
     },
     "report": {
       "total": "Waste clearance fees total: {amount}",
-      "noFee": "{count} of these clearances have no fee per lorry yet and count as 0."
+      "noFee": "{count} of these clearances have no fee per lorry yet and count as 0.",
+      "runningNote": "Clearances still running are not added to the total."
     },
     "cost": {
       "noFee": "{count} without a fee per lorry yet"

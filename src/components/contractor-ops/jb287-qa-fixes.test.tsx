@@ -16,6 +16,9 @@
  * 5. A job with no supplier yet (a request still waiting, an old job whose
  *    company was only typed) read 「没有设费用」 / 「这个供应商还没有设每车
  *    清运费用」; it now says the supplier is not chosen yet.
+ * 6. 项目现场费用总览's 垃圾清运 and the 清运与回收报表's 合计 counted different
+ *    jobs (coordinator 11-27: they must match). Both add the finished jobs
+ *    the report lists; the report's 合计 says 「进行中的清运不算进合计」.
  */
 import { readFileSync } from "node:fs";
 import path from "node:path";
@@ -58,7 +61,7 @@ vi.mock("@/components/providers/current-project-provider", () => ({
 
 const { DisposalFeeButton, DisposalFeeLink } = await import("@/components/contractor-ops/disposal-fees");
 const { NoFeeLine } = await import("@/components/contractor-ops/disposal-settlements");
-const { DisposalFeePanel, FeeStateBadge } = await import("@/components/contractor-ops/disposal-fee-panel");
+const { DisposalFeePanel, DisposalFeeTotal, FeeStateBadge } = await import("@/components/contractor-ops/disposal-fee-panel");
 const { TooltipProvider } = await import("@/components/ui/tooltip");
 
 const ROOT = process.cwd();
@@ -183,5 +186,15 @@ describe("5. no supplier yet is said as such, not as a missing fee", () => {
       expect(catalogue.jb287.panel.noSupplier).toBeTruthy();
       expect(catalogue.jb287.panel.noSupplierState).toBeTruthy();
     }
+  });
+});
+
+describe("6. the report's 合计 says running clearances are not added", () => {
+  it("one plain line under the total, in all four languages", () => {
+    const html = render(<DisposalFeeTotal fees={{ amount_total: "1800.00", no_fee_count: 1, running_count: 1 }} />);
+    expect(text(html)).toContain("垃圾清运费用合计：RM 1,800.00");
+    expect(text(html)).toContain("进行中的清运不算进合计");
+    expect(zh.jb287.report.runningNote).toBe("进行中的清运不算进合计");
+    for (const catalogue of [zh, zhTW, en, ms]) expect(catalogue.jb287.report.runningNote).toBeTruthy();
   });
 });
