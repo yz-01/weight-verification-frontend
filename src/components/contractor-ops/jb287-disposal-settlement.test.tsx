@@ -310,8 +310,9 @@ describe("【清运费用设定】 (「按照供应商填写合同约定的每�
     expect(source).toContain('t("fee.col.oldFee")');
     expect(source).toContain('t("fee.col.newFee")');
     expect(source).toContain("entry.previous_fee");
-    // Only office accounts that may handle it see the button.
-    expect(source).toMatch(/if \(!mayHandleDisposalFees\(user, can\)\) return null;/);
+    // Only office accounts that may handle it can press it; other office
+    // accounts see it locked with the reason (QA287), the phone never.
+    expect(source).toMatch(/if \(!user \|\| user\.is_field_staff\) return null;\s+if \(!mayHandleDisposalFees\(user, can\)\) \{/);
   });
 
   it("sits beside 【新增申请】 on 垃圾清运 and at the top of 清运结算管理", () => {
@@ -346,7 +347,8 @@ describe("清运结算管理 (三–八)", () => {
     expect(words).toContain("RM 14,700.00");
     expect(words).toContain("RM 3,500.00");
     expect(words).toContain(fill(zh.jb287.settlement.noFeeLine, { count: 3 }));
-    expect(html).toContain('href="/waste-clearance?kind=garbage&amp;fees=1"');
+    // QA287: the link opens the fee window here, on 清运结算管理.
+    expect(html).toContain('data-slot="disposal-fee-link"');
     expect(zh.jb287.settlement.figuresHelp).toContain("结算完毕后也不会减少");
     expect(zh.jb287.settlement.figuresHelp).toContain("重量只作统计");
   });

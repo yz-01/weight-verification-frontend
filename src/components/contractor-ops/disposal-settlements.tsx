@@ -28,11 +28,10 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChevronDown, ChevronRight, ClipboardCheck, Eye, HandCoins, Loader2, Lock } from "lucide-react";
-import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
-import { Fragment, useMemo, useState } from "react";
+import { Fragment, useMemo, useRef, useState } from "react";
 
-import { DisposalFeeButton } from "@/components/contractor-ops/disposal-fees";
+import { DisposalFeeButton, DisposalFeeLink } from "@/components/contractor-ops/disposal-fees";
 import { DisposalInPlace } from "@/components/contractor-ops/site-disposal-workspaces";
 import { useAuth } from "@/components/providers/auth-provider";
 import { FileActionButtons } from "@/components/shared/file-actions";
@@ -55,7 +54,6 @@ import { useUrlSelection } from "@/hooks/use-url-selection";
 import { ApiError } from "@/interfaces/api";
 import { useDateFormat } from "@/lib/dates";
 import {
-  DISPOSAL_FEES_HREF,
   DISPOSAL_SETTLE_PIN_ACTION,
   mayHandleDisposalFees,
   rmText,
@@ -188,9 +186,7 @@ export function NoFeeLine({ count }: { count: number }) {
   return (
     <p className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-sm" data-slot="settlement-no-fee">
       {t("settlement.noFeeLine", { count })}{" "}
-      <Link href={DISPOSAL_FEES_HREF} className="font-medium text-primary underline underline-offset-2">
-        {t("settlement.noFeeLink")}
-      </Link>
+      <DisposalFeeLink className="font-medium text-primary underline underline-offset-2" />
     </p>
   );
 }
@@ -268,6 +264,12 @@ function PendingList({ filters, onChecked }: { filters: DisposalSettlementFilter
         <EmptyNote>{t("settlement.emptyUnchecked")}</EmptyNote>
       ) : rows.length > 0 ? (
         <PendingRowsTable rows={rows} chosen={office ? chosen : undefined} allChosen={allChosen} onToggle={toggle} onToggleAll={toggleAll} />
+      ) : null}
+      {!office && user && !user.is_field_staff && rows.length > 0 ? (
+        <Button data-slot="settlement-confirm-locked" disabled disabledReason={t("settlement.noRightCheck")} showReason>
+          <Lock />
+          {t("settlement.confirm")}
+        </Button>
       ) : null}
       {office && rows.length > 0 ? (
         <div className="flex flex-wrap items-center gap-3">
@@ -388,9 +390,7 @@ export function PendingRowsTable({
               ) : (
                 <TableCell colSpan={2} className="text-right text-sm text-destructive" data-slot="settlement-cannot-tick">
                   {cannotTick(row.cannot_tick_reason)}{" "}
-                  <Link href={DISPOSAL_FEES_HREF} className="font-medium text-primary underline underline-offset-2">
-                    {t("settlement.noFeeLink")}
-                  </Link>
+                  <DisposalFeeLink className="font-medium text-primary underline underline-offset-2" />
                 </TableCell>
               )}
             </TableRow>
@@ -414,6 +414,8 @@ function ConfirmCheckDialog({
 }) {
   const t = useTranslations("jb287");
   const [error, setError] = useState("");
+  // One 确认核对 per press: a double click must not send it twice.
+  const sending = useRef(false);
   const save = useMutation({
     mutationFn: () => createDisposalSettlement(rows.map((row) => row.disposal_id)),
     onSuccess: onSaved,
@@ -449,7 +451,19 @@ function ConfirmCheckDialog({
           <Button variant="outline" onClick={onClose}>
             {t("settlement.cancel")}
           </Button>
-          <Button data-slot="settlement-confirm-go" disabled={save.isPending} onClick={() => save.mutate()}>
+          <Button
+            data-slot="settlement-confirm-go"
+            disabled={save.isPending}
+            onClick={() => {
+              if (sending.current) return;
+              sending.current = true;
+              save.mutate(undefined, {
+                onSettled: () => {
+                  sending.current = false;
+                },
+              });
+            }}
+          >
             {save.isPending ? <Loader2 className="animate-spin" /> : <ClipboardCheck />}
             {t("settlement.confirm")}
           </Button>
@@ -733,6 +747,9 @@ export function SettleDialog({ row, pin, onClose }: { row: DisposalSettlementRow
   const queryClient = useQueryClient();
   const [asked, setAsked] = useState(false);
   const [error, setError] = useState("");
+  // One 结算完毕 per press: a double click must not send it twice (the second
+  // would come back 「已经结算完毕」 right after the first succeeded).
+  const sending = useRef(false);
   const settle = useMutation({
     mutationFn: () => settleDisposalSettlement(row.id, pin),
     onSuccess: () => {
@@ -767,7 +784,19 @@ export function SettleDialog({ row, pin, onClose }: { row: DisposalSettlementRow
             {t("settlement.cancel")}
           </Button>
           {asked ? (
-            <Button data-slot="settlement-settle-confirm" disabled={settle.isPending} onClick={() => settle.mutate()}>
+            <Button
+              data-slot="settlement-settle-confirm"
+              disabled={settle.isPending}
+              onClick={() => {
+                if (sending.current) return;
+                sending.current = true;
+                settle.mutate(undefined, {
+                  onSettled: () => {
+                    sending.current = false;
+                  },
+                });
+              }}
+            >
               {settle.isPending ? <Loader2 className="animate-spin" /> : <HandCoins />}
               {t("settlement.settleConfirm")}
             </Button>

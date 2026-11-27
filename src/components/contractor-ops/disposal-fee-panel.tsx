@@ -17,10 +17,17 @@ import { Link2 } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 
+import { useAuth } from "@/components/providers/auth-provider";
 import { StatusBadge } from "@/components/shared/page-primitives";
 import type { DisposalRequest } from "@/interfaces/contractor-ops";
 import { useDateFormat } from "@/lib/dates";
-import { DISPOSAL_FEES_HREF, disposalSettlementHref, feeStateTone, rmText } from "@/lib/disposal-fees";
+import {
+  DISPOSAL_FEES_HREF,
+  disposalSettlementHref,
+  feeStateTone,
+  mayHandleDisposalFees,
+  rmText,
+} from "@/lib/disposal-fees";
 
 type FeeRow = Pick<
   DisposalRequest,
@@ -67,6 +74,9 @@ export function FeeAmountText({ row }: { row: Pick<DisposalRequest, "fee_state" 
 export function DisposalFeePanel({ row }: { row: FeeRow }) {
   const t = useTranslations("jb287");
   const df = useDateFormat();
+  const { can, user } = useAuth();
+  // The way to set the fee only for whoever may set it (no dead link).
+  const maySetFee = mayHandleDisposalFees(user, can);
   if (!row.fee_state) return null;
   const internal = row.fee_state === "internal";
   const noFee = row.fee_state === "no_fee";
@@ -109,10 +119,15 @@ export function DisposalFeePanel({ row }: { row: FeeRow }) {
       )}
       {noFee ? (
         <p className="mt-2 text-sm text-destructive" data-slot="disposal-fee-missing">
-          {t("panel.noFee")}{" "}
-          <Link href={DISPOSAL_FEES_HREF} className="font-medium text-primary underline underline-offset-2">
-            {t("panel.setFee")}
-          </Link>
+          {t("panel.noFee")}
+          {maySetFee ? (
+            <>
+              {" "}
+              <Link href={DISPOSAL_FEES_HREF} className="font-medium text-primary underline underline-offset-2">
+                {t("panel.setFee")}
+              </Link>
+            </>
+          ) : null}
         </p>
       ) : null}
       {row.fee_state === "running" ? <p className="mt-2 text-xs text-muted-foreground">{t("panel.running")}</p> : null}

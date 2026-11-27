@@ -24669,6 +24669,7 @@
     "fee": {
       "button": "Clearance fees",
       "buttonHint": "Set each supplier's contract fee per lorry",
+      "noRight": "You do not have the right to review and arrange waste clearance, so you cannot set clearance fees.",
       "title": "Clearance fees",
       "help": "Enter each supplier's contract fee per lorry once. The system then works out each clearance's fee from the lorries accepted - no need to type it for every clearance.",
       "what": "clearance fees",
@@ -24815,6 +24816,7 @@
       "prepare": "Prepare settlement",
       "prepareHint": "Press it once the payment is really made. It asks for your six-digit sign-off PIN first.",
       "noRight": "You do not have the right to review and arrange waste clearance, so you cannot settle.",
+      "noRightCheck": "You do not have the right to review and arrange waste clearance, so you cannot check.",
       "settleTitle": "Settled {number}",
       "settleBody": "PIN correct. Has {number} of {supplier} ({trips} lorries, {amount}) been paid? If so, press Settled.",
       "settleAsk": "Mark {number} ({supplier}, {amount}) as settled? It is then locked: no second settlement, no amount change.",

@@ -18,9 +18,10 @@
  */
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { BadgeDollarSign, History, Loader2, Save, Tag } from "lucide-react";
+import { BadgeDollarSign, History, Loader2, Lock, Save, Tag } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useRef, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { FieldWrapper, QueryFailedNote } from "@/components/shared/page-primitives";
@@ -60,6 +61,31 @@ export const DISPOSAL_FEE_STALE_KEYS = [
 /** The address that opens the window, from a 「去设定」 link anywhere. */
 export const DISPOSAL_FEES_PARAM = "fees";
 
+/**
+ * 「去设定清运费用」 where a job has no fee yet: opens the same window on the
+ * page the reader is on (`?fees=1`, held by 【清运费用设定】 there), so closing
+ * it lands back on the same list - in 未核对 the row is tickable at once.
+ * Nothing for a reader who may not set fees.
+ */
+export function DisposalFeeLink({ className }: { className?: string }) {
+  const t = useTranslations("jb287");
+  const { can, user } = useAuth();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  if (!mayHandleDisposalFees(user, can)) return null;
+  const openHere = () => {
+    const next = new URLSearchParams(searchParams.toString());
+    next.set(DISPOSAL_FEES_PARAM, "1");
+    router.replace(`${pathname}?${next.toString()}`, { scroll: false });
+  };
+  return (
+    <button type="button" data-slot="disposal-fee-link" className={className} onClick={openHere}>
+      {t("settlement.noFeeLink")}
+    </button>
+  );
+}
+
 /** 「RM 350.00 / 车」, or 「—」 when the reader may not see amounts. */
 function useFeeText() {
   const t = useTranslations("jb287");
@@ -73,14 +99,24 @@ function today(): string {
 }
 
 /**
- * 【清运费用设定】: for an office account that may handle the fees; nothing
- * for anyone else. `?fees=1` in the address opens it (the 「去设定」 links).
+ * 【清运费用设定】: for an office account that may handle the fees. An office
+ * account without 「审核及安排垃圾清运」 sees it locked, saying why (as the
+ * other 垃圾清运 steps do); the phone never sees it. `?fees=1` in the address
+ * opens it (the 「去设定」 links).
  */
 export function DisposalFeeButton() {
   const t = useTranslations("jb287");
   const { can, user } = useAuth();
   const [open, setOpen] = useUrlSelection(DISPOSAL_FEES_PARAM);
-  if (!mayHandleDisposalFees(user, can)) return null;
+  if (!user || user.is_field_staff) return null;
+  if (!mayHandleDisposalFees(user, can)) {
+    return (
+      <Button variant="outline" data-slot="disposal-fee-button-locked" disabled disabledReason={t("fee.noRight")} showReason>
+        <Lock className="size-4" />
+        {t("fee.button")}
+      </Button>
+    );
+  }
   return (
     <>
       <Button variant="outline" data-slot="disposal-fee-button" title={t("fee.buttonHint")} onClick={() => setOpen("1")}>
@@ -216,6 +252,9 @@ function SetFeeForm({ row, onDone }: { row: DisposalFeeSupplier; onDone: () => v
   const [day, setDay] = useState(today());
   const [note, setNote] = useState("");
   const [error, setError] = useState("");
+  // One save per press: a double click must not send it twice (the second
+  // would come back 「已经设过费用」 after the first was saved).
+  const sending = useRef(false);
   const feeOk = isValidFee(fee);
   const save = useMutation({
     mutationFn: () =>
@@ -258,7 +297,10 @@ function SetFeeForm({ row, onDone }: { row: DisposalFeeSupplier; onDone: () => v
             step="0.01"
             aria-label={t("fee.feeLabel")}
             value={fee}
-            onChange={(event) => setFee(event.target.value)}
+            onChange={(event) => {
+              setFee(event.target.value);
+              setError("");
+            }}
           />
         </FieldWrapper>
         <FieldWrapper label={t("fee.effectiveFrom")} required hint={t("fee.effectiveHint")}>
@@ -266,7 +308,10 @@ function SetFeeForm({ row, onDone }: { row: DisposalFeeSupplier; onDone: () => v
             type="date"
             aria-label={t("fee.effectiveFrom")}
             value={day}
-            onChange={(event) => setDay(event.target.value)}
+            onChange={(event) => {
+              setDay(event.target.value);
+              setError("");
+            }}
           />
         </FieldWrapper>
       </div>
@@ -303,7 +348,15 @@ function SetFeeForm({ row, onDone }: { row: DisposalFeeSupplier; onDone: () => v
           ]}
           disabled={save.isPending}
           data-slot="disposal-fee-save"
-          onClick={() => save.mutate()}
+          onClick={() => {
+            if (sending.current) return;
+            sending.current = true;
+            save.mutate(undefined, {
+              onSettled: () => {
+                sending.current = false;
+              },
+            });
+          }}
         >
           {save.isPending ? <Loader2 className="animate-spin" /> : <Save />}
           {t("fee.save")}

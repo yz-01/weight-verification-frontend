@@ -24669,6 +24669,7 @@
     "fee": {
       "button": "Yuran pembersihan",
       "buttonHint": "Tetapkan yuran kontrak setiap lori bagi setiap pembekal",
+      "noRight": "Anda tiada hak menyemak dan mengatur pembersihan sisa, jadi tidak boleh menetapkan yuran pembersihan.",
       "title": "Yuran pembersihan",
       "help": "Isi yuran kontrak setiap lori bagi setiap pembekal sekali sahaja. Sistem kemudian mengira yuran setiap pembersihan mengikut lori yang diterima - tidak perlu diisi setiap kali.",
       "what": "yuran pembersihan",
@@ -24815,6 +24816,7 @@
       "prepare": "Sedia selesaikan",
       "prepareHint": "Tekan selepas bayaran benar-benar dibuat. Ia meminta PIN tandatangan enam digit anda dahulu.",
       "noRight": "Anda tiada hak menyemak dan mengatur pembersihan sisa, jadi tidak boleh menyelesaikan.",
+      "noRightCheck": "Anda tiada hak menyemak dan mengatur pembersihan sisa, jadi tidak boleh menyemak.",
       "settleTitle": "Selesai {number}",
       "settleBody": "PIN betul. Adakah {number} bagi {supplier} ({trips} lori, {amount}) sudah dibayar? Jika ya, tekan Selesai.",
       "settleAsk": "Tandakan {number} ({supplier}, {amount}) sebagai selesai? Ia kemudian dikunci: tiada penyelesaian kedua, tiada perubahan jumlah.",
