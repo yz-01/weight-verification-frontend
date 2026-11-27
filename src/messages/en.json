@@ -4100,7 +4100,9 @@
       "labour_checked": "Labour statements checked",
       "labour_settled": "Labour statements settled",
       "progress_claim_checked": "Progress Claims checked",
-      "progress_claim_settled": "Progress Claims settled"
+      "progress_claim_settled": "Progress Claims settled",
+      "disposal_settlement_payment_recorded": "Uploaded clearance settlement payment voucher",
+      "disposal_settlement_voucher_added": "Added missing clearance settlement payment voucher"
     },
     "objectType": {
       "SignOffAssistant": "Assistant PIN",
@@ -9868,7 +9870,12 @@
       "claim_not_settleable": "{reference} cannot be checked yet: it must be approved and archived, with a subcontractor and an approved amount.",
       "claim_check_reason_required": "You changed the checked amount of {reference}: say why.",
       "claim_check_amount_invalid": "The checked amount of {reference} must be above 0.",
-      "labour_amounts_off": "Amounts are switched off for your account, so you can't set labour rates."
+      "labour_amounts_off": "Amounts are switched off for your account, so you can't set labour rates.",
+      "disposal_settlement_payment_missing": "{settlement_no} has no payment voucher and payment number yet, so it cannot be confirmed settled. Upload the payment voucher and enter the payment number first.",
+      "disposal_payment_no_required": "Enter the payment number.",
+      "disposal_payment_file_required": "Upload the payment voucher (photo or PDF).",
+      "disposal_settlement_payment_locked": "{settlement_no} is settled and locked; its payment voucher can no longer change.",
+      "disposal_fee_project_required": "Choose the project first. Clearance fees are set per project."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -22387,7 +22394,8 @@
       "labour_check": "Check labour statements",
       "labour_settle": "Settle labour statements",
       "progress_claim_check": "Check Progress Claims",
-      "progress_claim_settle": "Settle Progress Claims"
+      "progress_claim_settle": "Settle Progress Claims",
+      "disposal_settlement_voucher": "Add the payment voucher to a settled clearance settlement"
     },
     "firstTitle": "Set your sign-off PIN for the first time",
     "firstBanner": "This is your first time using a sign-off PIN",
@@ -25576,6 +25584,82 @@
     "cost": {
       "notCounted": "Another {amount} not settled yet, not counted",
       "basis": "Settled claims only, by the approval date"
+    }
+  },
+  "jb299": {
+    "fee": {
+      "help": "Enter the contract fee per lorry for each project and supplier. The same supplier can have a different fee in another project. Set it once; this project's clearances are then priced by the accepted trips.",
+      "thisProject": "This project: {name}",
+      "chooseProject": "Choose the project first. Clearance fees are set per project.",
+      "projectLabel": "Project",
+      "projectPlaceholder": "Choose a project",
+      "keepsOld": "A new fee applies to this project only, from its effective date; other projects and settled records do not change.",
+      "legacyTitle": "Earlier company-wide fees (no project) - please set a fee for each project again",
+      "legacyFrom": "from {date}"
+    },
+    "col": {
+      "payment": "Payment No."
+    },
+    "upload": {
+      "button": "Upload payment voucher",
+      "more": "Add payment voucher",
+      "again": "Add the missing payment voucher",
+      "noRight": "You do not have the right to review and arrange clearances, so you cannot upload payment vouchers.",
+      "title": "Upload payment voucher: {number}",
+      "againTitle": "Add the missing payment voucher: {number}",
+      "help": "After finance has paid {supplier}, enter the payment number and upload the payment voucher (photo or PDF).",
+      "paymentNo": "Payment No.",
+      "paymentNoHint": "e.g. the bank transfer reference or cheque number",
+      "paymentNoMissing": "Enter the payment number",
+      "files": "Payment voucher (photo or PDF)",
+      "filesHint": "You can choose several files, at most {limit} at a time, up to 50 MB each.",
+      "fileMissing": "Upload the payment voucher (photo or PDF)",
+      "choose": "Choose photos or PDF",
+      "remove": "Remove {name}",
+      "alreadyHas": "{count} payment voucher(s) already uploaded. You can change only the payment number, or add files.",
+      "wrongType": "{name} is not a photo or a PDF, so it cannot be uploaded. Choose a photo (JPG, PNG) or a PDF.",
+      "tooLarge": "{name} is over 50 MB - too large. Make it smaller and upload again.",
+      "tooMany": "Upload at most {limit} files at a time.",
+      "keepNote": "Uploaded vouchers are kept for good and cannot be deleted. They are locked once settled.",
+      "againPin": "This adds the voucher to an older record. After Save, enter your six-digit sign-off PIN. It is locked afterwards.",
+      "save": "Save",
+      "cancel": "Cancel",
+      "failed": "That did not work. Please try again.",
+      "saved": "Payment voucher of {number} saved"
+    },
+    "missing": {
+      "title": "Cannot confirm it settled yet",
+      "body": "{number} has no payment voucher and payment number yet. Upload the payment voucher and enter the payment number first; then you can confirm it settled."
+    },
+    "settle": {
+      "go": "Confirm settled",
+      "body": "PIN correct. {number} of {supplier} ({trips} trips, {amount}, payment No. {paymentNo}). If it has been paid, press Confirm settled."
+    },
+    "oldNoVoucher": "Older record: no payment voucher",
+    "oldNoVoucherHelp": "This was settled before payment vouchers existed. You can add the voucher with Add the missing payment voucher; nothing else changes.",
+    "notUploaded": "Not uploaded yet",
+    "voucherCount": "{count} payment voucher(s)",
+    "voucherTitle": "Payment voucher",
+    "recordedBy": "Uploaded by and when",
+    "voucherN": "Voucher {n}",
+    "openVoucher": "Open",
+    "evidenceOnly": "The system makes no transfer; it records the payment evidence only.",
+    "inPdf": "The settlement sheet you preview, print, export or send carries the payment vouchers after it - one file.",
+    "panel": {
+      "referenceAmount": "Reference amount",
+      "referenceHelp": "Not settled yet: this amount is for reference only and is not in the site cost overview.",
+      "paymentNo": "Payment No."
+    },
+    "report": {
+      "settled": "Settled: {amount}",
+      "reference": "Not settled (reference): {amount}"
+    },
+    "cost": {
+      "notCounted": "{amount} more not settled (reference), not counted"
+    },
+    "send": {
+      "filled": "{name}'s details are filled in for you; you can change them.",
+      "noContact": "{name} has no phone or email on file. Please type them in."
     }
   }
 }
