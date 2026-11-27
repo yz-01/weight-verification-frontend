@@ -3,7 +3,7 @@
  * closed by head office (「沟通记录」 unticked) or an ended grant while his
  * screen is still open.
  *
- * Plan JB224-6: 「这个沟通现在打不开：总部关闭了您在这个项目的「沟通记录」，或授权已经
+ * Plan JB224-6: 「这个沟通现在打不开：总部关闭了你在这个项目的「沟通记录」，或授权已经
  * 结束。」 He read 「这条记录不在你这个账号的范围内。」 and 「事项沟通读取失败，请重试。」 -
  * retrying never helps. The server now answers `consultant_chat_closed`
  * (`contractor_ops/tests/test_jb224_consultant_chat.py`); this checks the panel

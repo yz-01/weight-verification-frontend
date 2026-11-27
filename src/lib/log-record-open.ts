@@ -124,6 +124,10 @@ export const PAGE_ONLY: Readonly<Record<string, (id: string) => string>> = {
   // MSE's own records, with no window that reads one by its id.
   INVOICE: () => "/billing",
   EVIDENCE_ASSET: () => "/evidence",
+  // A 结算's vouchers (JB278 / JB280): 材料出场 › 已结算, where it opens.
+  MATERIAL_SETTLEMENT: () => "/material-outgoing?tab=settled",
+  // 设备租赁月结单's 打印 / 导出 / 发送 (JB280): the statement on its page.
+  EQUIPMENT_RENTAL_STATEMENT: (id) => `/equipment-rental-statements?statement=${id}`,
 };
 
 /**

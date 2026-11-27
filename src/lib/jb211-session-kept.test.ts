@@ -1,5 +1,5 @@
 /**
- * JB211 (walk 11-17 F-A7): 「系统已更新」 promises 「您还是登录着的」, so a
+ * JB211 (walk 11-17 F-A7): 「系统已更新」 promises 「你还是登录着的」, so a
  * refused sign-in check (426 强制更新, 503 系统维护) must never read as signed
  * out - not on the first answer, and not when the check is asked again.
  *

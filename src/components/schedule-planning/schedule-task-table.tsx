@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 
 import { StatusBadge } from "@/components/shared/page-primitives";
+import { ConsultantApprovalCell, LinkedRecordsCount } from "@/components/schedule-planning/schedule-records";
 import { lateLabelKey, taskStatusView } from "@/components/schedule-planning/task-status";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,6 +29,11 @@ import { useDateFormat } from "@/lib/dates";
  *
  * The row actions are the ones the API allows at this revision's stage:
  * 确认进度 on a confirmed revision; 编辑 / 移除 on a draft.
+ *
+ * 「附 N 条现场记录」 opens the records (JB273, 客户 11-26 事项 14), and
+ * 「顾问审批」 between 状态 and 操作 lists the task's consultant applications,
+ * each opening the whole application (JB266, 事项 7) - for a reader who may
+ * open 顾问申请 (`onOpenApplication`).
  */
 export function ScheduleTaskTable({
   rows,
@@ -38,6 +44,8 @@ export function ScheduleTaskTable({
   onEdit,
   onProgress,
   onRemove,
+  onLinkedRecords,
+  onOpenApplication,
 }: {
   rows: ScheduleTask[];
   revision: ScheduleRevision | null;
@@ -48,8 +56,13 @@ export function ScheduleTaskTable({
   onEdit: (row: ScheduleTask) => void;
   onProgress: (row: ScheduleTask) => void;
   onRemove: (row: ScheduleTask) => void;
+  /** 「附 N 条现场记录」 pressed (JB273). */
+  onLinkedRecords?: (row: ScheduleTask) => void;
+  /** A 「顾问审批」 application pressed (JB266); without it the column is not shown. */
+  onOpenApplication?: (id: string) => void;
 }) {
   const t = useTranslations("schedulePlanning");
+  const tU = useTranslations("jb266");
   const df = useDateFormat();
   const depths = useMemo(() => {
     const byId = new Map(rows.map((row) => [row.id, row]));
@@ -91,6 +104,7 @@ export function ScheduleTaskTable({
             <TableHead className="text-right">{t("field.days")}</TableHead>
             <TableHead>{t("field.done")}</TableHead>
             <TableHead>{t("field.status")}</TableHead>
+            {onOpenApplication && <TableHead>{tU("approvalColumn")}</TableHead>}
             {hasActions && <TableHead className="text-right">{t("field.actions")}</TableHead>}
           </TableRow>
         </TableHeader>
@@ -126,11 +140,13 @@ export function ScheduleTaskTable({
                     value={Number(row.actual_progress)}
                     title={t("field.plannedToday", { value: row.planned_progress })}
                   />
-                  {linked > 0 && (
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      {t("field.linkedRecords", { count: linked })}
-                    </p>
-                  )}
+                  {/* The records themselves only for a reader the server sends
+                      them to (JB225); the number for everybody. */}
+                  <LinkedRecordsCount
+                    count={linked}
+                    canOpen={Boolean(onLinkedRecords) && row.progress_links.length > 0}
+                    onOpen={() => onLinkedRecords?.(row)}
+                  />
                 </TableCell>
                 <TableCell>
                   <StatusBadge
@@ -151,6 +167,11 @@ export function ScheduleTaskTable({
                     </p>
                   )}
                 </TableCell>
+                {onOpenApplication && (
+                  <TableCell>
+                    <ConsultantApprovalCell rows={row.consultant_approvals} onOpen={onOpenApplication} />
+                  </TableCell>
+                )}
                 {hasActions && (
                   <TableCell>
                     <div className="flex items-center justify-end gap-0.5">

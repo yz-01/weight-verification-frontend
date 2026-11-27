@@ -166,7 +166,8 @@ describe("each row of an entry's menu shows its own number (2026-10-09)", () => 
 
   it("shows a pile shared by two pages once, on the first page", () => {
     // 设备's two pages are both `equipment`; the movements are 现场设备's list.
-    expect(menuWaiting(entry("equipment"), { equipment: 5 })).toEqual({ "6.2.1": 5, "6.2.2": 0 });
+    // JB280 added 设备租赁月结单 (6.2.3) to the same menu; the pile still shows once.
+    expect(menuWaiting(entry("equipment"), { equipment: 5 })).toEqual({ "6.2.1": 5, "6.2.2": 0, "6.2.3": 0 });
   });
 
   it("gives a heading the sum of the pages under it, and each page its own", () => {

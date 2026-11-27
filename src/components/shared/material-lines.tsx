@@ -27,21 +27,30 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useUnitName } from "@/hooks/use-material-units";
+import { useDateFormat } from "@/lib/dates";
 import { categoryManagementLink, isOtherMaterial, offeredSpecs } from "@/lib/material-catalogue";
 import {
+  changesWhatIsPriced,
   emptyLine,
   lineProblems,
+  listPriceFor,
   resolveLine,
+  withListPrice,
   type CatalogueRow,
+  type LinePrice,
   type MaterialLineDraft,
 } from "@/lib/material-lines";
 import { getMaterialCatalogue } from "@/services/material-request.service";
 
-/** The project's material data, read once for the editor and its form. */
-export function useMaterialCatalogue(project: string) {
+/**
+ * The project's material data, read once for the editor and its form. With
+ * a delivery (JB275): each material and specification carries its unit price
+ * on that delivery's day, so a form shows it as soon as a material is chosen.
+ */
+export function useMaterialCatalogue(project: string, receipt?: string) {
   return useQuery({
-    queryKey: ["material-catalogue", project],
-    queryFn: () => getMaterialCatalogue(project),
+    queryKey: ["material-catalogue", project, receipt ?? ""],
+    queryFn: () => getMaterialCatalogue(project, receipt),
     enabled: Boolean(project),
     staleTime: 30_000,
     refetchOnWindowFocus: true,
@@ -156,6 +165,31 @@ export function MaterialLinesChip({ lines }: { lines: readonly ShownMaterialLine
 type Problem = ReturnType<typeof lineProblems>[number];
 
 /**
+ * The words under a line's 单价 box (JB275): where the price came from, or
+ * why 材料分类 gave none - so the link between 材料分类 and the record can be
+ * checked on the form itself (客户 11-26 事项 2: 「请检查分类管理与材料进场记录
+ * 之间的单价数据关联是否正常」).
+ */
+export function usePriceHint() {
+  const t = useTranslations("materialLines");
+  const jb = useTranslations("jb275");
+  const unitName = useUnitName();
+  const when = useDateFormat();
+  return (found: LinePrice, unitPrice: string, typed = false): string => {
+    if (typed) return jb("priceTyped");
+    if (!found.known) return t("unitPriceHint");
+    const listed = found.listed;
+    const shown = listed ? { price: listed.unit_price, unit: unitName(listed.unit, listed.unit_label || null) } : null;
+    if (found.price && unitPrice === found.price && shown) return jb("priceFromList", shown);
+    if (found.why === "unit" && shown) return jb("priceOtherUnit", shown);
+    if (found.why === "later" && listed) return jb("priceLater", { date: when.date(listed.effective_from) });
+    if (found.why === "none") return jb("priceNone");
+    if (unitPrice.trim()) return jb("priceTyped");
+    return found.why === null && !found.price ? jb("pickFirst") : t("unitPriceHint");
+  };
+}
+
+/**
  * The lines, editable (J35). Controlled: ``lines`` and ``onChange``. The
  * first line can be kept from removal (a delivery's own material).
  */
@@ -168,6 +202,7 @@ export function MaterialLinesEditor({
   showProblems = false,
   storedIds = [],
   readOnlyFirst = false,
+  receipt,
 }: {
   project: string;
   lines: readonly MaterialLineDraft[];
@@ -180,15 +215,27 @@ export function MaterialLinesEditor({
   storedIds?: readonly string[];
   /** Line 1 shown, not edited - the form around it edits it (J35). */
   readOnlyFirst?: boolean;
+  /** The delivery these lines are on: its day decides the unit prices shown (JB275). */
+  receipt?: string;
 }) {
   const t = useTranslations("materialLines");
   const unitName = useUnitName();
-  const catalogue = useMaterialCatalogue(project);
+  const priceHint = usePriceHint();
+  const catalogue = useMaterialCatalogue(project, receipt);
   const materials: CatalogueRow[] = catalogue.data?.materials ?? [];
   const canSetUp = Boolean(catalogue.data?.can_manage_categories);
 
+  // Another material, specification or unit (JB275, 客户 11-26 事项 16): the
+  // price box shows that material's price at once, or empties - never keeps
+  // the old material's price.
   const update = (key: string, patch: Partial<MaterialLineDraft>) =>
-    onChange(lines.map((line) => (line.key === key ? { ...line, ...patch } : line)));
+    onChange(
+      lines.map((line) => {
+        if (line.key !== key) return line;
+        const next = { ...line, ...patch };
+        return money && changesWhatIsPriced(patch) ? withListPrice(next, materials) : next;
+      }),
+    );
   const remove = (key: string) => onChange(lines.filter((line) => line.key !== key));
 
   return (
@@ -370,14 +417,38 @@ export function MaterialLinesEditor({
                 )}
               </FieldWrapper>
               {money && (
-                <FieldWrapper label={t("unitPrice")} optional={t("optional")} hint={t("unitPriceHint")}>
+                <FieldWrapper
+                  label={t("unitPrice")}
+                  optional={t("optional")}
+                  hint={priceHint(
+                    listPriceFor(resolved.material, line.spec_category, resolved.unit),
+                    line.unit_price,
+                    line.unit_price_typed,
+                  )}
+                >
                   <Input
                     inputMode="decimal"
                     type="number"
                     min="0"
                     step="0.01"
+                    aria-label={t("unitPrice")}
                     value={line.unit_price}
-                    onChange={(event) => update(line.key, { unit_price: event.target.value })}
+                    onChange={(event) =>
+                      update(line.key, { unit_price: event.target.value, unit_price_typed: true })
+                    }
+                    data-line-price
+                  />
+                </FieldWrapper>
+              )}
+              {money && (
+                // 成本 = 数量 × 单价 (客户 11-26 事项 2 第 2 点), as the table shows it - live.
+                <FieldWrapper label={t("cost")}>
+                  <Input
+                    aria-label={t("cost")}
+                    value={lineCost(line.quantity, line.unit_price) ?? "—"}
+                    readOnly
+                    disabled
+                    data-line-cost
                   />
                 </FieldWrapper>
               )}

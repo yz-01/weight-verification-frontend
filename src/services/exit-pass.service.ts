@@ -35,6 +35,17 @@ export function downloadExitPassPaperCopy(kind: ExitPassKind, record: string, fi
   return download(`${BASE}/get_paper_copy/`, { query: { kind, record }, fallbackFilename: filename });
 }
 
+/**
+ * 【启动出门条】 (JB237, 客户 11-23 事项 9): the office, once the site's exit
+ * photos are in. The server refuses it before them (`exit_pass_photos_missing`)
+ * and asks the project's safety managers to sign after it.
+ */
+export async function startExitPass(kind: ExitPassKind, record: string): Promise<ExitPass> {
+  const pass = await api.post<ExitPass>(`${BASE}/start/`, { kind, record });
+  toastSuccess("exitPass.start.done", { reference: pass.reference });
+  return pass;
+}
+
 /** 【签名批准】: the safety manager's drawn signature (and the 「需要外部审批」 switch). */
 export async function signExitPass(
   kind: ExitPassKind,
@@ -162,12 +173,14 @@ export async function releaseExit(payload: {
   body.append(
     "photo_meta",
     JSON.stringify(
-      payload.photos.map(({ captured_at, latitude, longitude, accuracy_m, client_event_id }) => ({
+      payload.photos.map(({ captured_at, latitude, longitude, accuracy_m, client_event_id, shot }) => ({
         captured_at,
         latitude: latitude ?? null,
         longitude: longitude ?? null,
         accuracy_m: accuracy_m ?? null,
         client_event_id,
+        // JB281: 车辆 / 车牌 / 退场货物 on a 材料退场's release.
+        ...(shot ? { shot } : {}),
       })),
     ),
   );

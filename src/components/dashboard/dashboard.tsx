@@ -219,7 +219,7 @@ function TraceDashboard({ features }: { features: string[] }) {
         },
         {
           key: "dispatches",
-          href: "/waste-clearance?kind=dispatch",
+          href: "/dispatches",
           icon: Truck,
           value: dispatches.data?.count,
           loading: dispatches.isLoading,

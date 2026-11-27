@@ -1,6 +1,6 @@
 /**
  * JB48 (Lucas 10-28): a report of more than 20 records is made in the
- * background. The export says 「报表正在准备，好了会通知您」 and ends without a
+ * background. The export says 「报表正在准备，好了会通知你」 and ends without a
  * file; 「报表导出历史」 shows 「准备中」 until it is ready, and one that was
  * not made says why, with 「重新导出」 back to its report page.
  */
@@ -85,7 +85,7 @@ describe("a report made in the background (JB48)", () => {
     expect(html).toContain("整改 / EHS 报表");
     expect(html).toContain("45 笔");
     expect(html).toContain("准备中");
-    expect(html).toContain("报表正在准备，好了会通知您。");
+    expect(html).toContain("报表正在准备，好了会通知你。");
   });
 
   it("says plainly why one was not made, with 重新导出", () => {

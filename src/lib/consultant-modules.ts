@@ -160,6 +160,11 @@ export const CONSULTANT_ITEMS = [
   "progress.daily_reports",
   "progress.rain",
   "progress.schedule",
+  // JB265 (客户 11-26 事项 6): 「支持总部独立勾选：查看现场任务。发起及指派现场
+  // 任务。验收现场任务。」
+  "field_tasks.view",
+  "field_tasks.assign",
+  "field_tasks.accept",
 ] as const;
 
 export type ConsultantItem = (typeof CONSULTANT_ITEMS)[number];
@@ -168,6 +173,16 @@ export type ConsultantItem = (typeof CONSULTANT_ITEMS)[number];
 export const ITEMS_OF_MODULE: Readonly<Partial<Record<ConsultantModule, readonly ConsultantItem[]>>> = {
   materials: CONSULTANT_ITEMS.filter((key) => key.startsWith("materials.")),
   progress: CONSULTANT_ITEMS.filter((key) => key.startsWith("progress.")),
+  field_tasks: CONSULTANT_ITEMS.filter((key) => key.startsWith("field_tasks.")),
+};
+
+/**
+ * What a module ticked without any of its items holds (the backend's
+ * `DEFAULT_ITEMS_OF_MODULE`): all of them, except 现场任务 - a grant from
+ * before JB265 had 「查看现场任务」 only, and keeps exactly that.
+ */
+const DEFAULT_ITEMS_OF_MODULE: Readonly<Partial<Record<ConsultantModule, readonly ConsultantItem[]>>> = {
+  field_tasks: ["field_tasks.view"],
 };
 
 /** Message key under `consultantAccess.item` / `itemHint` / `itemShort`. */
@@ -181,6 +196,9 @@ export const ITEM_MESSAGE_KEYS: Readonly<Record<ConsultantItem, string>> = {
   "progress.daily_reports": "progressDailyReports",
   "progress.rain": "progressRain",
   "progress.schedule": "progressSchedule",
+  "field_tasks.view": "fieldTasksView",
+  "field_tasks.assign": "fieldTasksAssign",
+  "field_tasks.accept": "fieldTasksAccept",
 };
 
 /** The consultant's menu key for each item (`consultant_access.Item.features[0]`). */
@@ -194,6 +212,10 @@ export const ITEM_FEATURES: Readonly<Record<ConsultantItem, string>> = {
   "progress.daily_reports": "item_progress_daily_reports",
   "progress.rain": "item_progress_rain",
   "progress.schedule": "item_progress_schedule",
+  // One page, one menu key, whichever of the three is ticked (JB265).
+  "field_tasks.view": "field_tasks",
+  "field_tasks.assign": "field_tasks",
+  "field_tasks.accept": "field_tasks",
 };
 
 export const isConsultantItem = (value: string): value is ConsultantItem =>
@@ -231,7 +253,7 @@ export function normaliseTicks(
   const all = new Set<ConsultantItem>(chosen);
   for (const [module, keys] of Object.entries(ITEMS_OF_MODULE)) {
     if (ticked.has(module) && !(keys ?? []).some((key) => all.has(key))) {
-      for (const key of keys ?? []) all.add(key);
+      for (const key of DEFAULT_ITEMS_OF_MODULE[module as ConsultantModule] ?? keys ?? []) all.add(key);
     }
   }
   return { modules: orderedModules([...ticked]), items: orderedItems([...all]) };
@@ -257,6 +279,20 @@ export function toggleModuleTicks(
     ? orderedItems([...ticks.items, ...keys])
     : ticks.items.filter((item) => !keys.includes(item));
   return { modules: toggleModule(ticks.modules, module, checked), items };
+}
+
+/**
+ * Whether head office ticked this item for the consultant on the project he
+ * is working in (JB265: 发起及指派 / 验收现场任务). The server checks the same
+ * on every request; this only decides which buttons to show. False for anyone
+ * who is not a consultant - their permission codes decide.
+ */
+export function consultantHoldsItem(
+  user: { account_type?: string; active_project?: { sub_modules?: string[] } | null } | null | undefined,
+  item: ConsultantItem,
+): boolean {
+  if (!user || user.account_type !== "CONSULTANT") return false;
+  return (user.active_project?.sub_modules ?? []).includes(item);
 }
 
 /** Tick or untick one item: the first ticks its module, the last unticks it. */

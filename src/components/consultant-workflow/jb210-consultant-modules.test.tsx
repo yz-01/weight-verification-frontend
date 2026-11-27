@@ -146,7 +146,8 @@ describe("the grant dialog: 11 module ticks and the 3 options left of the origin
 
   it("starts a new grant from the company's 顾问项目默认权限 (JB203-9 kept)", () => {
     const html = dialog(null, (client) =>
-      client.setQueryData(["contractor-site-settings"], {
+      // JB239: read on their own (`get_consultant_defaults`), not from 公司设置.
+      client.setQueryData(["consultant-defaults"], {
         default_consultant_modules: ["materials", "record_centre"],
         default_consultant_permissions: ["report.export"],
       }),

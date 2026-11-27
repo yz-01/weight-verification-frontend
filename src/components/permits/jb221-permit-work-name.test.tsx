@@ -213,12 +213,17 @@ describe("JB221-2/3 no 正式施工准证, no 签名批准", () => {
     expect(hasFormalPermit(permit())).toBe(false);
   });
 
-  it("tells a phone approver it is done on the computer", () => {
+  it("tells a phone approver it is done on the computer, with no approve / return on the phone (QA1 follow-up)", () => {
     session.user = { id: "u-pm", is_field_staff: true };
     try {
+      // Even if a stale answer still said can_decide, the phone shows no decision.
       const html = detail(permit(), "inline");
-      expect(html).toContain(p.formal.missingPhone);
+      expect(html).toContain(p.officeOnly);
+      expect(html).not.toContain('data-slot="permit-decision"');
       expect(html).not.toContain(p.formal.attachHint);
+      const server = detail(permit({ can_decide: false }), "inline");
+      expect(server).toContain(p.officeOnly);
+      for (const messages of [zh, zhTW, en, ms]) expect(messages.permits.officeOnly.length).toBeGreaterThan(10);
     } finally {
       session.user = { id: "u-pm", is_field_staff: false };
     }

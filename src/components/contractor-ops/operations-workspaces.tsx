@@ -35,6 +35,7 @@ import {
   useNeedsActionParam,
 } from "@/components/shared/needs-action";
 import { FieldTaskSheet } from "@/components/dashboard/field-task-sheet";
+import { AssigneeName } from "@/components/contractor-ops/assignee-left-tag";
 import { useListQuery } from "@/hooks/use-list-query";
 import {
   fieldTaskStageKey,
@@ -47,6 +48,7 @@ import { useRef, useState } from "react";
 
 import { AddToPackageButton } from "@/components/contractor-ops/add-to-package";
 import { CloseTaskButton } from "@/components/contractor-ops/close-task-button";
+import { RecordRequestLinksPanel, RequestLinkPicker } from "@/components/material-requests/request-links";
 import { useAuth } from "@/components/providers/auth-provider";
 import {
   useCurrentProject,
@@ -75,6 +77,9 @@ import { SupplierQrScanner } from "@/components/field-staff/supplier-qr-scanner"
 import { OpenExitOfficeFiles } from "@/components/field-staff/office-sent-files";
 import { RecordConversationButton } from "@/components/shared/record-conversation-button";
 import { RecordDetailDialog, RecordDetailShell, RecordRecorder } from "@/components/shared/record-detail-shell";
+import { ReconciliationPanel } from "@/components/contractor-ops/return-checks";
+import { useRecordArchived } from "@/components/shared/record-closure";
+import { GateShotPhotos, ReturnFlowSteps, exitConfirmLockedReason } from "@/components/contractor-ops/return-flow-steps";
 import {
   CORRECTED_ROW_CLASS,
   CorrectedTag,
@@ -104,7 +109,6 @@ import {
 } from "@/components/shared/page-primitives";
 import { LocationField } from "@/components/field-staff/location-field";
 import type { LocationValue } from "@/lib/field-location";
-import { parseAlertAmounts, parseAlertPercentages } from "@/lib/category-modules";
 import { PERMIT_COLUMN_CODE } from "@/lib/hazard-columns";
 import { MultiPickList } from "@/components/shared/multi-pick-list";
 import { useDebounce } from "@/hooks/use-debounce";
@@ -213,6 +217,7 @@ import {
   useIssueFacts,
 } from "@/components/contractor-ops/material-issue";
 import { photoMeta } from "@/lib/photo-meta";
+import { consultantHoldsItem } from "@/lib/consultant-modules";
 import {
   newClientEventId,
   queuedOutgoingExit,
@@ -394,20 +399,10 @@ export function CategoryDialog({
     allowed_roles: row?.allowed_roles ?? [],
     allowed_users: row?.allowed_users ?? [],
   });
-  // The material column's money (D-263): whether it counts against a budget,
-  // the budget, and the percentages worth a warning. Moved here from the
-  // retired /material-columns screen, with the same reading rules.
-  const [tracksSpend, setTracksSpend] = useState(row?.tracks_spend ?? false);
-  const [budget, setBudget] = useState(row?.budget_amount ?? "");
-  const [alerts, setAlerts] = useState(
-    (row?.budget_alert_percentages ?? []).join(", "),
-  );
-  // 2026-10 A6 (X17): the budget warns at percentages and/or absolute
-  // figures. Money only since I18 (ID40): a quantity is a material target,
-  // set in 材料管理 → 材料目标, net of returns and per specification.
-  const [alertAmounts, setAlertAmounts] = useState(
-    (row?.budget_alert_amounts ?? []).join(", "),
-  );
+  // No budget here since JB262 (客户 11-26 事项 3: 「材料分类管理应该只保留材料
+  // 名称、规格、单位、编号及默认单价等基础资料设置」「不要在两个不同的页面分别设定
+  // 目标及预算」): it is set on 材料管理 → 材料目标 (`MaterialBudgetDialog`),
+  // and this form never sends it, so saving the basic data leaves it as it is.
   // 2026-10 A4, D1 (Q1, Q13): what the phone fills in when this category is
   // chosen - its one unit, its suppliers, its designated manufacturers.
   const [defaultUnit, setDefaultUnit] = useState(row?.default_unit ?? "");
@@ -473,24 +468,11 @@ export function CategoryDialog({
       getManufacturers({ page_size: 100, ...(manufacturerSearch ? { search: manufacturerSearch } : {}) }),
     enabled: isMaterial,
   });
-  const parsedAlerts = parseAlertPercentages(alerts);
-  const alertsInvalid = isMaterial && tracksSpend && parsedAlerts === null;
-  const parsedAmounts = parseAlertAmounts(alertAmounts);
-  const amountsInvalid = isMaterial && tracksSpend && parsedAmounts === null;
   const save = useMutation({
     mutationFn: () => {
       const payload: ProjectCategoryPayload = isMaterial
         ? {
             ...form,
-            tracks_spend: tracksSpend,
-            // Null, not "", for a column that counts nothing: the field is a
-            // nullable decimal and an empty string is not a number.
-            budget_amount: tracksSpend && budget.trim() ? budget.trim() : null,
-            budget_alert_percentages:
-              parsedAlerts ?? row?.budget_alert_percentages ?? [],
-            budget_mode: "AMOUNT",
-            budget_quantity: null,
-            budget_alert_amounts: parsedAmounts ?? row?.budget_alert_amounts ?? [],
             default_unit: defaultUnit,
             suppliers: supplierIds,
             manufacturers: manufacturerIds,
@@ -879,71 +861,11 @@ export function CategoryDialog({
               )}
             </div>
           )}
+          {/* 预算 moved to 材料管理 → 材料目标 (JB262). */}
           {isMaterial && (
-            <div className="grid gap-4 border-t pt-4 sm:col-span-2">
-              <div>
-                <h4 className="panel-title">{modules("budget.title")}</h4>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {modules("budget.help")}
-                </p>
-                {/* JB167: the client typed his price per tonne here. */}
-                <p className="mt-1 rounded-lg border border-panel-border bg-muted/40 px-3 py-2 text-xs">
-                  {modules("budget.vsPrice")}
-                </p>
-              </div>
-              <label className="flex items-center gap-2 text-sm">
-                <Checkbox
-                  checked={tracksSpend}
-                  onCheckedChange={(checked) => setTracksSpend(checked === true)}
-                />
-                {modules("budget.tracksSpend")}
-              </label>
-              {/* 「数量目标请到 材料管理 → 材料目标」 (I18, ID40). */}
-              <p className="rounded-lg border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
-                {modules("budget.quantityMoved")}
-              </p>
-              {tracksSpend && (
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <FieldWrapper
-                    label={modules("budget.amount")}
-                    hint={modules("budget.amountHint")}
-                  >
-                    <Input
-                      type="number"
-                      inputMode="decimal"
-                      min="0"
-                      step="0.01"
-                      value={budget}
-                      onChange={(event) => setBudget(event.target.value)}
-                    />
-                  </FieldWrapper>
-                  <FieldWrapper
-                    label={modules("budget.alerts")}
-                    hint={modules("budget.alertsHint")}
-                    error={alertsInvalid ? modules("budget.alertsInvalid") : undefined}
-                  >
-                    <Input
-                      value={alerts}
-                      onChange={(event) => setAlerts(event.target.value)}
-                    />
-                  </FieldWrapper>
-                  <FieldWrapper
-                    label={modules("budget.thresholdAmounts")}
-                    hint={modules("budget.thresholdAmountsHint")}
-                    error={amountsInvalid ? modules("budget.thresholdAmountsInvalid") : undefined}
-                    className="sm:col-span-2"
-                  >
-                    <Input
-                      value={alertAmounts}
-                      onChange={(event) => setAlertAmounts(event.target.value)}
-                    />
-                  </FieldWrapper>
-                  <p className="text-xs text-muted-foreground sm:col-span-2">
-                    {modules("budget.recipients")}
-                  </p>
-                </div>
-              )}
-            </div>
+            <p className="rounded-lg border bg-muted/30 px-3 py-2 text-xs text-muted-foreground sm:col-span-2" data-slot="budget-moved">
+              {tRoot("jb262.budgetMoved")}
+            </p>
           )}
           <FieldWrapper label={t("field.sortOrder")}>
             <Input
@@ -999,18 +921,7 @@ export function CategoryDialog({
               [form.name, t("field.name")],
               [!restrictedEmpty, t("categories.accessTitle")],
             ]}
-            // Not a `requires` entry: the warning lines are optional - empty
-            // means "do not warn me" - so listing them there would put a star
-            // on a field that is not required. What is wrong when they cannot
-            // be read is the text itself, and the field says so inline.
-            disabledReason={
-              alertsInvalid
-                ? modules("budget.alertsInvalid")
-                : amountsInvalid
-                  ? modules("budget.thresholdAmountsInvalid")
-                  : undefined
-            }
-            disabled={save.isPending || alertsInvalid || amountsInvalid}
+            disabled={save.isPending}
             onClick={() => save.mutate()}
           >
             {save.isPending ? <Loader2 className="animate-spin" /> : <Save />}
@@ -1229,7 +1140,9 @@ export function FieldTasksWorkspace({
                   })
                 }
               />
-              {can("field_task.manage") ? (
+              {/* JB265 (客户 11-26 事项 6, 图 6): a consultant with 「发起及指派
+                  现场任务」 ticked on this project sets a task too. */}
+              {can("field_task.manage") || consultantHoldsItem(user, "field_tasks.assign") ? (
                 <Button onClick={() => setCreating(true)}>
                   <Plus />
                   {t("tasks.assign")}
@@ -1435,7 +1348,15 @@ export function FieldTasksWorkspace({
                           </span>
                         ) : null}
                       </span>
-                      <span className="truncate text-sm">{row.assigned_to_name}</span>
+                      <span className="truncate text-sm">
+                        <AssigneeName name={row.assigned_to_name} left={row.assignee_left_project} />
+                        {/* JB265: who started it, when a consultant did. */}
+                        {row.created_by_consultant ? (
+                          <span className="block truncate text-xs text-muted-foreground" data-slot="consultant-started">
+                            {tRoot("jb265.startedBy", { name: row.created_by_name ?? "" })}
+                          </span>
+                        ) : null}
+                      </span>
                       <span className="tabular truncate text-sm text-muted-foreground">
                         {row.due_at
                           ? t("tasks.dueShort", { value: new Date(row.due_at).toLocaleString() })
@@ -1579,7 +1500,8 @@ export function FieldTasksWorkspace({
       )}
       {creating && (
         <TaskDialog
-          project={project}
+          // A consultant sets it on the project he is working in (JB265).
+          project={project || (user?.account_type === "CONSULTANT" ? user.active_project?.project_id ?? "" : "")}
           onClose={() => setCreating(false)}
           onSaved={() => {
             void qc.invalidateQueries({ queryKey: ["field-tasks"] });
@@ -1649,6 +1571,7 @@ function TaskDialog({
   onSaved: () => void;
 }) {
   const t = useTranslations("contractorOps");
+  const left = useTranslations("jb245");
   const [form, setForm] = useState<FieldTaskPayload>({
     project: task?.project ?? project,
     title: task?.title ?? "",
@@ -1752,6 +1675,12 @@ function TaskDialog({
               </SelectContent>
             </Select>
             <QueryFailedNote query={team} what={t("what.projectPeople")} />
+            {task?.assignee_left_project && form.assigned_to === task.assigned_to ? (
+              // JB245: the one it was given to was taken off the project.
+              <p className="text-xs text-warning" data-testid="assignee-left-help">
+                {left("leftProjectHelp", { name: task.assigned_to_name })}
+              </p>
+            ) : null}
           </FieldWrapper>
           <FieldWrapper label={t("field.priority")}>
             <Select
@@ -3972,7 +3901,13 @@ export function OutgoingActions({
   onReturn?: () => void;
 }) {
   const t = useTranslations("contractorOps");
-  const { can } = useAuth();
+  const tFlow = useTranslations("jb281");
+  const { can, user } = useAuth();
+  // Lucas 11-26 「手机不应该出现审批才对」 + 事项 22 「后台负责人审核及批准」:
+  // the Return Note, 批准 / 驳回 and 「确认正式退场」 are office steps - the
+  // server refuses the signed ones on a phone (`sign_off_office_only`). A
+  // phone shows where the record stands and its own step only (实际退场).
+  const onPhone = Boolean(user?.is_field_staff);
   const pathname = usePathname();
   const qc = useQueryClient();
   const offersExit =
@@ -3985,9 +3920,17 @@ export function OutgoingActions({
   // 「未选择供应商不能确认归档」 (JB169, 客户 11-11): the office's 确认 waits for
   // the supplier, with 「补供应商」 and the reason beside it.
   const needsSupplier = !issue && returnNeedsSupplier(row);
+  // JB281 (客户 11-26 事项 22): 「确认正式退场」 waits for the gate's photographs.
+  const gateLocked = issue ? null : exitConfirmLockedReason(row, tFlow);
+  const gateStep = row.return_steps?.find((step) => step.key === "gate");
   return (
     <>
-      {can("material_outgoing.approve") && row.status === "PENDING" && (
+      {onPhone && row.status === "PENDING" && (
+        <p className="rounded-lg border border-info/25 bg-info/5 px-3 py-2 text-sm" data-phone-waits-office>
+          {tFlow("phoneWaitApproval")}
+        </p>
+      )}
+      {!onPhone && can("material_outgoing.approve") && row.status === "PENDING" && (
         // The record panel's size, the destructive step last and drawn as
         // every other one (JB166, Lucas 11-11: 「这些按钮不consistent」).
         <div className="flex flex-wrap items-center gap-2">
@@ -4028,13 +3971,25 @@ export function OutgoingActions({
         ))}
       {/* 待后台确认: the office confirms what left, which closes it. */}
       {row.status === "PROCESSED" &&
-        (can("material_outgoing.approve") ? (
+        (!onPhone && can("material_outgoing.approve") ? (
           <div className="space-y-2">
             {needsSupplier && <ReturnSupplierNeeded row={row} />}
+            {gateLocked && (
+              <p role="status" className="rounded-md bg-warning/10 px-2 py-1.5 text-sm font-medium text-warning" data-exit-confirm-locked>
+                {gateLocked}
+              </p>
+            )}
+            {/* JB281 step 6: 「后台负责人核对门岗上传的资料」 - the three shots here. */}
+            {!issue && !gateLocked && gateStep?.state === "done" && (gateStep.gate_photos?.length ?? 0) > 0 && (
+              <div className="space-y-1" data-exit-confirm-gate-photos>
+                <p className="text-xs text-muted-foreground">{tFlow("checkGatePhotos")}</p>
+                <GateShotPhotos step={gateStep} />
+              </div>
+            )}
             <Button
               size="sm"
-              disabled={pending || needsSupplier}
-              disabledReason={needsSupplier ? t("outgoing.needSupplierFirst") : undefined}
+              disabled={pending || needsSupplier || Boolean(gateLocked)}
+              disabledReason={needsSupplier ? t("outgoing.needSupplierFirst") : gateLocked ?? undefined}
               onClick={() => onReview("COMPLETED")}
             >
               <Check />
@@ -4104,6 +4059,9 @@ export function OutgoingDialog({
   });
   const [scannedSupplier, setScannedSupplier] = useState("");
   const [photos, setPhotos] = useDraftState("photos", createEmptyFieldEvidence);
+  // JB279 (客户 11-26 事项 20): the MR / 其他申请 this return belongs to.
+  const tLink = useTranslations("jb279.link");
+  const [linkedRequests, setLinkedRequests] = useDraftState<string[]>("materialRequests", []);
   const clearDraft = useClearDraft();
   const [location, setLocation] = useState<LocationValue | null>(null);
   const columns = useQuery({
@@ -4191,6 +4149,7 @@ export function OutgoingDialog({
         longitude: location?.longitude,
         client_event_id: crypto.randomUUID(),
         field_task: fieldTaskId,
+        material_requests: linkedRequests.length ? linkedRequests.join(",") : undefined,
         photos: evidencePhotos,
         photo_captions: photoCaptions,
       });
@@ -4219,6 +4178,8 @@ export function OutgoingDialog({
                 setProject(next);
                 // A category belongs to one site.
                 setForm((old) => ({ ...old, category: "", spec_category: "", material_specification: "", unit: "" }));
+                // A request too (JB279).
+                setLinkedRequests([]);
               }}
               placeholder={t("field.selectProject")}
               disabled={Boolean(initialProject) && isFieldStaff}
@@ -4394,6 +4355,11 @@ export function OutgoingDialog({
               placeholder={t("outgoing.reasonPlaceholder")}
               onChange={(e) => set("reason", e.target.value)}
             />
+          </FieldWrapper>
+          {/* JB279: 「必须能够选择并关联本项目对应的 MR／其他申请记录」 - optional
+              here; the office links it before 确认归档 when the site did not. */}
+          <FieldWrapper label={tLink("phoneLabel")} hint={tLink("phoneHelp")} className="sm:col-span-2">
+            <RequestLinkPicker project={project} value={linkedRequests} onChange={setLinkedRequests} />
           </FieldWrapper>
         </div>
         <DialogFooter>
@@ -4797,7 +4763,8 @@ export function OutgoingDetailDialog({
   const tRootDetail = useTranslations();
   const unitNameDetail = useUnitName();
   const df = useDateFormat();
-  const { can } = useAuth();
+  const { can, user: reader } = useAuth();
+  const isFieldStaffReader = Boolean(reader?.is_field_staff);
   const qc = useQueryClient();
   const detail = useQuery({
     queryKey: ["material-outgoing", "detail", id],
@@ -4817,6 +4784,9 @@ export function OutgoingDetailDialog({
   // people and materials in place of a return's supplier, DO and lorry.
   const issue = isIssue(row);
   const finished = row ? ["COMPLETED", "REJECTED", "RELEASED"].includes(row.status) : true;
+  // JB276 (客户 11-26 事项 17、22): an archived 材料退场 takes nothing from anybody.
+  const archived = useRecordArchived("MATERIAL_OUTGOING", id);
+  const finalReturn = archived && Boolean(row) && !issue;
   const when = (name?: string | null, at?: string | null) =>
     name ? `${name}${at ? ` · ${df.dateTime(at)}` : ""}` : "—";
   return (
@@ -4826,7 +4796,8 @@ export function OutgoingDetailDialog({
         row
           ? issue
             ? `${t("issue.docTitle")} · ${row.material_name}`
-            : `${row.material_name} · ${row.quantity} ${row.unit}`
+            : // QA1: the unit by its name (吨（Ton）), never the code (TONNE) - 中英文统一.
+              `${row.material_name} · ${row.quantity} ${unitNameDetail(row.unit, row.unit_label)}`
           : undefined
       }
       exportRecord={
@@ -4928,7 +4899,7 @@ export function OutgoingDetailDialog({
             };
           })}
           photoActions={
-            can("material_outgoing.approve") && !finished ? (
+            can("material_outgoing.approve") && !finished && !finalReturn ? (
               <div className="flex flex-wrap items-end gap-2 rounded-md border border-dashed p-2">
                 <FieldWrapper label={t("outgoing.uploadFiles")} required>
                   <Input
@@ -4975,6 +4946,10 @@ export function OutgoingDetailDialog({
             <>
             {/* The Return Note it is approved on (2026-10 C9); an issue's materials (JB168). */}
             {issue ? <IssueLinesPanel row={row} /> : <ReturnNotePanel row={row} />}
+            {/* JB281: a return's seven steps - done / current / locked, who and when. */}
+            {!issue && row.return_steps ? (
+              <ReturnFlowSteps steps={row.return_steps} />
+            ) : (
             <section className="rounded-lg border bg-card p-3">
               <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 {t("outgoing.flowTitle")}
@@ -4997,6 +4972,11 @@ export function OutgoingDetailDialog({
                 )}
               </dl>
             </section>
+            )}
+            {/* JB279 (客户 11-26 事项 20): the MR / 其他申请 this 退场 / 领用
+                belongs to - linked before 确认归档. The office's; the phone
+                chose it when filing. */}
+            {!isFieldStaffReader && <RecordRequestLinksPanel kind="MATERIAL_OUTGOING" recordId={row.id} />}
             </>
           }
           actions={
@@ -5016,10 +4996,30 @@ export function OutgoingDetailDialog({
                   reference={row.reference_no}
                 />
               </div>
+              {/* JB276: why 改正 / 补供应商 / 上传文件 are gone. */}
+              {finalReturn && (
+                <p className="rounded-md border px-2 py-1.5 text-xs text-muted-foreground" data-archived-final>
+                  {tRootDetail("jb276.lockedNote")}
+                </p>
+              )}
             </>
           }
           corrections={<RecordCorrectionHistory kind="MATERIAL_OUTGOING" recordId={row.id} />}
           recorder={<RecordRecorder record={row} />}
+          // JB278 (客户 11-26 事项 19 第 3、4 点): under 「已归档」 - 核对状态,
+          // 核对编号, 核对人及日期, 结算状态, 结算编号; each number opens its
+          // window. A finished 退场 / 领用 only: before that there is nothing to
+          // check. Read only - the record itself never changes by it.
+          aside={
+            row.status === "COMPLETED" ? (
+              <ReconciliationPanel
+                links={row.reconciliation}
+                // QA1 audit #23: a 领用 with no 所属公司 cannot be checked -
+                // say so and what to press, instead of 「待核对」 for ever.
+                noCompany={issue && !(row.equipment_company ?? "").trim()}
+              />
+            ) : undefined
+          }
           conversation={{ kind: "MATERIAL_OUTGOING", recordId: row.id }}
           // JB217: 出门条批准（安全经理） · 外部审批 · 门岗放行 - a return only (D1).
           exitPass={issue ? null : { kind: "MATERIAL_OUTGOING", recordId: row.id }}

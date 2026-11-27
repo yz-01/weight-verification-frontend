@@ -485,7 +485,13 @@ export interface GatePhotoDraft {
   longitude?: string;
   accuracy_m?: string;
   client_event_id: string;
+  /** JB281: what a 材料退场's release photo shows (车辆 / 车牌 / 退场货物). */
+  shot?: GateReleaseShot;
 }
+
+/** JB281 (客户 11-26 事项 22): 「门岗手机端拍摄车辆、车牌及退场货物照片」. */
+export type GateReleaseShot = "VEHICLE" | "PLATE" | "GOODS";
+export const GATE_RELEASE_SHOTS: GateReleaseShot[] = ["VEHICLE", "PLATE", "GOODS"];
 
 /**
  * What the guard's phone sends (HD5): photos and, for a 「特殊事项」, the

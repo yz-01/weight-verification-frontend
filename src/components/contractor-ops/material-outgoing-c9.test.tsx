@@ -7,7 +7,7 @@
  * - The office cannot approve until the Return Note is filled: the button is
  *   off and says why (the server refuses it too).
  * - The note reads back as one block with the approver's signature.
- * - The statuses read 已批准 / 等待退场 and 待后台确认 in all four languages.
+ * - The statuses read 准备出门条 (JB237; was 已批准 / 等待退场) and 待后台确认 in all four languages.
  *
  * Rendered to static markup like the other screen tests - the runner has no
  * DOM - with the draft seeded the way choosing the material leaves it.
@@ -15,7 +15,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { NextIntlClientProvider } from "next-intl";
 import { renderToStaticMarkup } from "react-dom/server";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { TooltipProvider } from "@/components/ui/tooltip";
 import type { MaterialOutgoing } from "@/interfaces/contractor-ops";
@@ -27,9 +27,11 @@ import zh from "@/messages/zh.json";
 const drafts: Record<string, unknown> = {};
 let permissions = new Set<string>(["material_outgoing.approve", "material_outgoing.submit"]);
 
+// Lucas 11-26 「手机不应该出现审批才对」: the approval buttons are the office's.
+let fieldStaff = true;
 vi.mock("@/components/providers/auth-provider", () => ({
   useAuth: () => ({
-    user: { id: "u-site", full_name: "Ah Seng", is_field_staff: true },
+    user: { id: "u-site", full_name: "Ah Seng", is_field_staff: fieldStaff },
     can: (code: string) => permissions.has(code),
   }),
 }));
@@ -182,6 +184,14 @@ describe("the phone's application (C9, X20)", () => {
 });
 
 describe("approving needs the Return Note first (C9)", () => {
+  // The office decides (Lucas 11-26): drawn for an office account; the exit
+  // itself is the phone's, so that one test turns the phone back on.
+  beforeEach(() => {
+    fieldStaff = false;
+  });
+  afterEach(() => {
+    fieldStaff = true;
+  });
   beforeEach(() => {
     permissions = new Set(["material_outgoing.approve", "material_outgoing.submit"]);
   });
@@ -216,7 +226,7 @@ describe("approving needs the Return Note first (C9)", () => {
     const processed = render(
       <OutgoingActions row={outgoing({ status: "PROCESSED", has_return_note: true })} pending={false} onReview={() => {}} onReturn={() => {}} />,
     );
-    expect(processed).toContain("确认退场完成");
+    expect(processed).toContain("确认正式退场");
   });
 
   it("never offers the exit in the office console, which is told it waits for the site (2026-10-09)", () => {
@@ -262,10 +272,11 @@ describe("the note as filled", () => {
 
 describe("the status words (C9)", () => {
   it.each([
-    ["zh", zh, "已批准 / 等待退场", "待后台确认"],
-    ["zh-TW", zhTW, "已批准 / 等待退場", "待後台確認"],
-    ["en", en, "Approved / waiting to leave site", "Waiting for office confirmation"],
-    ["ms", ms, "Diluluskan / menunggu keluar tapak", "Menunggu pengesahan pejabat"],
+    // JB237 (客户 11-23 事项 9): 批准后状态显示「准备出门条」.
+    ["zh", zh, "准备出门条", "待后台确认"],
+    ["zh-TW", zhTW, "準備出門條", "待後台確認"],
+    ["en", en, "Preparing exit pass", "Waiting for office confirmation"],
+    ["ms", ms, "Menyediakan pas keluar", "Menunggu pengesahan pejabat"],
   ])("%s", (_, catalogue, approved, processed) => {
     expect(catalogue.contractorOps.outgoingStatus.APPROVED).toBe(approved);
     expect(catalogue.contractorOps.outgoingStatus.PROCESSED).toBe(processed);

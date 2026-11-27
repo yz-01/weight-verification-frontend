@@ -209,6 +209,11 @@ export interface ApplicationEvidenceLink {
   sha256: string;
   caption: string;
   sort_order: number;
+  /** JB269 (QA2): the photo's record, named as the picker names it. */
+  source_model?: string;
+  record_type?: string;
+  record_reference?: string;
+  record_title?: string;
 }
 
 export interface ApplicationReviewStep {
@@ -556,6 +561,10 @@ export interface EvidenceCandidate {
   record_uploader: string | null;
   category: string;
   subcategory: string;
+  /** JB269: the material's specification(s), joined; empty elsewhere. */
+  record_spec?: string;
+  /** JB269: the small stamped copy for the row; null for a document. */
+  thumbnail_url?: string | null;
 }
 
 export interface ConsultantApplicationPayload {

@@ -3,7 +3,7 @@
  *
  * What the owner sees in WhatsApp: the client company and project on top,
  * the package number and round, each record with 预览 · 打印 and
- * 确认 / 退回, their own conversation, 「整包签收」 - and never money, never
+ * one signed review (确认 / 退回 + 审核意见 + 签名), their own conversation - and never money, never
  * another recipient. A link that opens nothing says 「找不到」 and nothing
  * else (五 3).
  *
@@ -49,7 +49,8 @@ const page: PackageLinkPage = {
   },
   exported: false,
   can_decide: true,
-  can_sign: true,
+  pending_count: 1,
+  can_sign: false,
   items: [
     {
       id: "i1",
@@ -126,26 +127,35 @@ describe("the package link page", () => {
     expect(html).toContain(words.round.replace("{n}", "2"));
   });
 
-  it("lets each pending record be confirmed or returned and shows a return's reason", () => {
+  it("offers one signed review for the records still waiting and shows a return's reason (QA1 audit #11)", () => {
     const html = render(page);
     expect(html).toContain("GRN-001");
-    expect(html).toContain(words.confirm);
-    expect(html).toContain(words.return);
+    expect(html).toContain(words.waitingForYou);
+    expect(html).toContain(words.reviewWaiting.replace("{count}", "1"));
+    expect(html).toContain(words.reviewButton);
     expect(html).toContain(words.youReturned.replace("{reason}", "Photo blurred"));
     expect(html).toContain(words.newInRound.replace("{n}", "2"));
+    // No unsigned one-tap confirm / return / 整包签收 any more.
+    expect(html).not.toContain(`>${words.confirm}<`);
+    expect(html).not.toContain(words.signHelp);
   });
 
-  it("shows its own conversation and the whole-package signature", () => {
+  it("says when every record of the round is reviewed", () => {
+    const done = page.items.map((item) => ({ ...item, review_state: "ACCEPTED" as const, answered_by: "Olive" }));
+    const html = render({ ...page, items: done, pending_count: 0 });
+    expect(html).toContain(words.reviewAllDone);
+    expect(html).not.toContain("data-link-review-open");
+  });
+
+  it("shows its own conversation", () => {
     const html = render(page);
     expect(html).toContain("Please check item 2");
-    expect(html).toContain(words.sign);
-    expect(html).toContain(words.signHelp);
   });
 
-  it("after the export says so and offers no confirm or return (HD18)", () => {
+  it("after the export says so and offers no review (HD18)", () => {
     const html = render({ ...page, exported: true, can_decide: false, can_sign: false });
     expect(html).toContain(words.exported);
-    expect(html).not.toContain(`>${words.confirm}<`);
+    expect(html).not.toContain("data-link-review");
     expect(html).not.toContain(words.signHelp);
   });
 

@@ -47,6 +47,14 @@ import {
 } from "@/components/contractor-ops/package-exchange";
 import { ClaimFacetBlock } from "@/components/contractor-ops/package-claim-facet";
 import { PackTargetChooser } from "@/components/contractor-ops/pack-collect";
+import {
+  MoneyBlock,
+  isMoneyType,
+  packageStateLabel,
+  progressLabel,
+  progressTone,
+} from "@/components/contractor-ops/package-review-loop";
+import { FieldSignaturePad } from "@/components/field-staff/field-signature-pad";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { useOnProjectChange, usePageProject } from "@/components/providers/current-project-provider";
@@ -81,6 +89,7 @@ import { useClearSearchParam } from "@/hooks/use-url-selection";
 import { useDateFormat } from "@/lib/dates";
 import { packageKindName, withFixedFiles } from "@/lib/package-items";
 import {
+  PACKAGE_PROGRESS,
   PACKAGE_TYPES,
   type ArchiveRecordKind,
   type EvidencePackageDetail,
@@ -211,6 +220,7 @@ export function MultiEngineWorkspace() {
 
 function PackageList({ type }: { type: PackageType | "" }) {
   const t = useTranslations("multiEngine");
+  const loop = useTranslations("jb252");
   const formatter = useDateFormat();
   const { can } = useAuth();
   // The top bar's 「当前项目」 (B13): 「Multi Engine 又要选一次项目」 was the
@@ -383,13 +393,12 @@ function PackageList({ type }: { type: PackageType | "" }) {
                   values: { DRAFT: t("state.DRAFT"), CONFIRMED: t("state.CONFIRMED") },
                 },
                 {
-                  key: "review_state",
+                  // JB252: 「审阅」 in the client's words, as the screen shows it.
+                  key: "review_progress",
                   label: t("column.review"),
-                  values: {
-                    NOT_SENT: t("review.NOT_SENT"),
-                    SENT: t("review.SENT"),
-                    REVIEWED: t("review.REVIEWED"),
-                  },
+                  values: Object.fromEntries(
+                    PACKAGE_PROGRESS.map((value) => [value, loop(`progress.${value}`)]),
+                  ),
                 },
                 { key: "created_by_name", label: t("column.packedBy") },
                 { key: "confirmed_by_name", label: t("export.confirmedBy") },
@@ -465,8 +474,10 @@ function PackageList({ type }: { type: PackageType | "" }) {
                     )}
                   </TableCell>
                   <TableCell>
+                    {/* JB252: 「已确认（已锁定）」 only means locked;
+                        「已完成（已归档）」 once the loop is closed. */}
                     <StatusBadge
-                      label={t(`state.${row.state}`)}
+                      label={packageStateLabel(row, t, loop)}
                       tone={row.state === "CONFIRMED" ? "positive" : "neutral"}
                     />
                   </TableCell>
@@ -584,6 +595,10 @@ function NewPackageDialog({
   const [claimInfo, setClaimInfo] = useState<ClaimInfoValue>(EMPTY_CLAIM_INFO);
   const isClaim = packageType === "PROGRESS_CLAIM";
   const claimComplete = useClaimInfoComplete(project, claimInfo);
+  const loop = useTranslations("jb252");
+  // JB254: 申请金额（Claim Amount RM）on the two money types; the PIN is asked when filled.
+  const [claimAmount, setClaimAmount] = useState("");
+  const money = isMoneyType({ package_type: packageType });
 
   const create = useMutation({
     mutationFn: () =>
@@ -592,6 +607,7 @@ function NewPackageDialog({
         name,
         package_type: packageType,
         ...(isClaim ? claimInfoPayload(claimInfo) : {}),
+        ...(money && claimAmount.trim() ? { claim_amount: claimAmount.trim() } : {}),
       }),
     onSuccess: (row) => {
       queryClient.invalidateQueries({ queryKey: ["evidence-packages"] });
@@ -630,6 +646,18 @@ function NewPackageDialog({
           />
         </FieldWrapper>
         {isClaim && <ClaimInfoFields project={project} value={claimInfo} onChange={setClaimInfo} />}
+        {money && (
+          <FieldWrapper label={loop("money.claim")} hint={loop("money.pinHint")}>
+            <Input
+              inputMode="decimal"
+              className="w-48"
+              placeholder={loop("money.placeholder")}
+              value={claimAmount}
+              onChange={(event) => setClaimAmount(event.target.value)}
+              data-new-claim-amount
+            />
+          </FieldWrapper>
+        )}
       </div>
       <footer className="flex flex-col-reverse gap-2 border-t border-panel-border bg-muted p-4 sm:flex-row sm:items-center sm:justify-end">
         <Button variant="outline" onClick={onClose}>
@@ -715,6 +743,7 @@ function PackageWindowContent({
   onOpenPackage: (id: string) => void;
 }) {
   const t = useTranslations("multiEngine");
+  const loop = useTranslations("jb252");
   const common = useTranslations("common");
   const queryClient = useQueryClient();
   const formatter = useDateFormat();
@@ -820,9 +849,23 @@ function PackageWindowContent({
       refresh();
     },
   });
+  // JB252: 「项目经理完成资料打包后，必须电子签名，才能确认锁定并提交审核」.
+  const [signature, setSignature] = useState<File | undefined>();
   const confirm = useMutation({
-    mutationFn: () => confirmEvidencePackage(id, remarks || data?.remarks || ""),
-    onSuccess: refresh,
+    mutationFn: () => confirmEvidencePackage(id, remarks || data?.remarks || "", signature!),
+    onSuccess: () => {
+      setSignature(undefined);
+      refresh();
+    },
+  });
+  // JB254: 申请金额 while a draft - the server asks for the PIN.
+  const [claimAmount, setClaimAmount] = useState<string | null>(null);
+  const saveAmount = useMutation({
+    mutationFn: () => updateEvidencePackage(id, { claim_amount: (claimAmount ?? "").trim() }),
+    onSuccess: () => {
+      setClaimAmount(null);
+      refresh();
+    },
   });
   const retype = useMutation({
     mutationFn: (next: PackageType) => updateEvidencePackage(id, { package_type: next }),
@@ -860,7 +903,7 @@ function PackageWindowContent({
             <p className="text-xs text-muted-foreground">
               {data.package_no ? `${data.package_no} · ` : ""}
               {t(`type.${data.package_type ?? "OTHER"}`)} · {data.project_name} ·{" "}
-              {t(`state.${data.state}`)} · <SendStatusWords row={data} inline />
+              {packageStateLabel(data, t, loop)} · <SendStatusWords row={data} inline />
               {(data.current_round ?? 0) > 1 && <> · {t("exchange.round", { n: data.current_round ?? 0 })}</>}
             </p>
             {/* H3 / HD20: 「是谁打包」. */}
@@ -922,6 +965,32 @@ function PackageWindowContent({
             {data.claim && data.package_type === "SUNDRY_CLAIM" && (
               <ClaimFacetBlock facet={data.claim} onChanged={refresh} />
             )}
+            {/* JB254 (客户 11-24b 事项 1): 申请金额 - typed with the PIN while a
+                draft; afterwards with the approved amount and the difference. */}
+            {isMoneyType(data) &&
+              (isDraft && can("package.manage") ? (
+                <FieldWrapper label={loop("money.claim")} hint={loop("money.pinHint")}>
+                  <div className="flex gap-2" data-claim-amount>
+                    <Input
+                      inputMode="decimal"
+                      className="w-48"
+                      placeholder={loop("money.placeholder")}
+                      value={claimAmount ?? data.claim_amount ?? ""}
+                      onChange={(event) => setClaimAmount(event.target.value)}
+                    />
+                    <Button
+                      variant="outline"
+                      disabled={claimAmount === null || saveAmount.isPending}
+                      disabledReason={loop("money.claim")}
+                      onClick={() => saveAmount.mutate()}
+                    >
+                      {loop("money.save")}
+                    </Button>
+                  </div>
+                </FieldWrapper>
+              ) : (
+                <MoneyBlock pkg={data} />
+              ))}
 
             {data.merge_report.length > 0 && (
               /* Named, not counted. A package that quietly lost two pages is
@@ -968,6 +1037,7 @@ function PackageWindowContent({
                               <p className="text-xs text-muted-foreground">
                                 {t(row.letter ? "layoutLetter" : "layoutUpload")} · {row.uploaded_by_name || "—"} ·{" "}
                                 {formatter.dateTime(row.uploaded_at)}
+                                {row.next_round && <> · {loop("supplement.nextRoundFile")}</>}
                               </p>
                             </div>
                             {isDraft && can("package.manage") && moveButtons(index)}
@@ -1163,6 +1233,14 @@ function PackageWindowContent({
                     onChange={(event) => setRemarks(event.target.value)}
                   />
                 </FieldWrapper>
+                <FieldSignaturePad
+                  label={loop("sign.label")}
+                  clearLabel={loop("sign.clear")}
+                  hint={loop("sign.confirmHint")}
+                  required
+                  value={signature}
+                  onChange={setSignature}
+                />
               </>
             )}
 
@@ -1198,7 +1276,56 @@ function PackageWindowContent({
                 )}
               </div>
             )}
-            {(!isDraft || !can("package.manage")) && (
+            {!isDraft && data.takes_supplements && (
+              /* JB252 (客户 11-24 事项 3): returned, so 「沿用原有上传位置补充
+                 文件、照片或选择系统内资料」 for the next round - the same two
+                 buttons and upload place as a draft; 「重新签名提交」 sends them. */
+              <section className="space-y-2 rounded-lg border border-destructive/30 p-3" data-package-supplement>
+                <p className="text-sm font-medium">{loop("supplement.title")}</p>
+                <p className="text-xs text-muted-foreground">{loop("supplement.help")}</p>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <Button variant="outline" className="w-full" onClick={() => setChoosing(true)}>
+                    <Plus className="size-4" />
+                    {t("addRecords")}
+                  </Button>
+                  <Button variant="outline" className="w-full" onClick={() => setUploading(true)}>
+                    <Upload className="size-4" />
+                    {t("uploads.add")}
+                  </Button>
+                </div>
+                {(data.staged_items ?? []).length > 0 && (
+                  <ul className="space-y-1.5" data-staged-items>
+                    {(data.staged_items ?? []).map((item) => (
+                      <li key={item.id} className="flex flex-wrap items-center gap-2 rounded-lg border border-dashed p-2.5 text-sm">
+                        <span className="min-w-0 flex-1 truncate">
+                          {item.reference || packageKindName(t, item)}
+                          <span className="ml-2 text-xs text-muted-foreground">{loop("supplement.staged")}</span>
+                        </span>
+                        <Button
+                          size="sm"
+                          variant="outline-destructive"
+                          disabled={remove.isPending}
+                          onClick={() => remove.mutate(item.id)}
+                        >
+                          <Trash2 />
+                        </Button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <RecordAttachmentsPanel
+                  kind="EVIDENCE_PACKAGE"
+                  recordId={data.id}
+                  title={t("uploads.title")}
+                  hint={t("uploads.hint")}
+                  hideWhenEmpty
+                  adding={uploading}
+                  onAddingChange={setUploading}
+                  onChanged={refresh}
+                />
+              </section>
+            )}
+            {(!isDraft || !can("package.manage")) && !data.takes_supplements && (
               /* What was uploaded into it - as it went into the PDF once
                  confirmed (JB30). */
               <>
@@ -1281,6 +1408,7 @@ function PackageWindowContent({
               requires={[
                 [data.items.length > 0, t("field.contents")],
                 [(remarks || data.remarks).trim(), t("field.remarks")],
+                [signature, loop("sign.label")],
               ]}
               disabled={confirm.isPending}
               onClick={() => confirm.mutate()}
@@ -1839,9 +1967,27 @@ function ClaimLine({ info }: { info: PackageClaimInfo | null | undefined }) {
  */
 function SendStatusWords({ row, inline = false }: { row: EvidencePackageRow; inline?: boolean }) {
   const t = useTranslations("multiEngine");
-  const keys = sendStatusKeys(row);
-  const words = keys.map((key) => t(`sendStatus.${key}`));
-  if (row.review_state !== "NOT_SENT") words.push(t(`review.${row.review_state}`));
+  const loop = useTranslations("jb252");
+  /*
+   * JB252 (客户 11-24 事项 3 三): 「审阅」 says where the review is, in the
+   * client's own table - 未发送 / 已发送，待审核 / 已查看，待审核 / 审核处理中 /
+   * 退回补充资料 / 审核通过，待完成确认 / 审核完成. Only sent to read
+   * (资料传阅) says so instead of 未发送; a share by WhatsApp / email (JB51)
+   * still says it went.
+   */
+  const keys = sendStatusKeys(row).filter((key) => key === "STARTED" || key === "SENT");
+  const progress = row.review_progress ?? "NOT_SENT";
+  const first =
+    progress === "NOT_SENT" && row.send_status?.internal ? loop("purpose.CIRCULATION") : progressLabel(row, loop);
+  const words = [first, ...keys.map((key) => t(`sendStatus.${key}`))];
   const text = words.join(" · ");
-  return inline ? <>{text}</> : <span className="block" data-send-status>{text}</span>;
+  if (inline) return <>{text}</>;
+  return (
+    <span className="block" data-send-status data-progress={progress}>
+      <StatusBadge label={first} tone={progressTone(progress)} />
+      {keys.length > 0 && (
+        <span className="block text-xs">{keys.map((key) => t(`sendStatus.${key}`)).join(" · ")}</span>
+      )}
+    </span>
+  );
 }

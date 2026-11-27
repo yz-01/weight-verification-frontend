@@ -138,6 +138,7 @@ import {
 import { getOrCreateFieldDeviceId } from "@/services/field-access.service";
 import { signOffBeforeEditing } from "@/services/sign-off.service";
 import { ApiError } from "@/interfaces/api";
+import type { CurrentUser } from "@/interfaces/auth";
 import { SIGN_OFF_CANCELLED } from "@/lib/sign-off";
 import { LIST_FITS } from "@/lib/list-fits";
 import { useRoleLabel } from "@/lib/role-labels";
@@ -275,6 +276,20 @@ function useHazardRules() {
     [can, fieldStaff],
   );
   return { mayAssign, mayFile };
+}
+
+/**
+ * The project a new 整改 / 事故 starts with. A consultant's starts with the
+ * project in his top bar (qa2, JB274: it started empty, one more pick); he
+ * can still choose another. A page that names its own project keeps it.
+ */
+export function createStartProject(
+  initialProject: string,
+  user: Pick<CurrentUser, "account_type" | "active_project"> | null | undefined,
+): string {
+  if (initialProject) return initialProject;
+  if (user?.account_type === "CONSULTANT") return user.active_project?.project_id ?? "";
+  return "";
 }
 
 export function Safety({
@@ -889,7 +904,7 @@ export function Safety({
         onClearFilters={list.clearFilters}
       />}
 
-      {createOpen && <SafetyCreateDialog fieldMode={fieldMode} initialProject={initialProject} fieldTaskId={fieldTaskId} onSaved={(result) => {
+      {createOpen && <SafetyCreateDialog fieldMode={fieldMode} initialProject={createStartProject(initialProject, user)} fieldTaskId={fieldTaskId} onSaved={(result) => {
         if (result.status === "uploaded" && !fieldMode) setTalking(result.incident);
         onRecordSaved?.(result);
       }} onClose={() => setCreateOpen(false)} />}
@@ -1603,6 +1618,20 @@ function SafetyCreateDialog({
   // do, the window stays open and says so; 【建立整改事项】 waits.
   const officeFileCount = fieldMode ? 0 : (draft.attachments ?? []).length;
   const [uploading, setUploading] = useState(false);
+  // JB274 (QA2, 客户 11-26 事项 15 「避免重复指派」): people ticked in
+  // 「另外通知」 with no 整改负责人 - asked once, one tap, before saving.
+  const [askAssign, setAskAssign] = useState(false);
+  const [notifyOnlyChosen, setNotifyOnlyChosen] = useState(false);
+  const tickedPeople = selectableWorkers.filter((row) => draft.notifyUsers.includes(row.id));
+  const shouldAskAssign =
+    !fieldMode && !draft.rectifier && tickedPeople.length > 0 && !notifyOnlyChosen;
+  function submitCreate() {
+    if (shouldAskAssign) {
+      setAskAssign(true);
+      return;
+    }
+    create.mutate();
+  }
   const uploadingLine = uploading ? t("safety.officeCreate.uploading", { count: officeFileCount }) : "";
   // Closing the browser now would cut the files off: it asks first.
   useEffect(() => {
@@ -1945,8 +1974,12 @@ function SafetyCreateDialog({
               )}
             </FieldWrapper>
           )}
-          {/* 上报 → 指派 in one step (B22), and who confirms it (B21). */}
-          <FieldWrapper label={t("ehs.form.rectifier")} optional={t("common.optional")} className="sm:col-span-2">
+          {/* 上报 → 指派 in one step (B22), and who confirms it (B21). At a
+              desk it is 「整改负责人」, the word the 指派 window and the detail
+              use (JB274, 客户 11-26 事项 15: the consultant ticked his
+              rectifier in the notify list below, then called 「负责人及工地人员」,
+              and the item stayed 待分配). */}
+          <FieldWrapper label={fieldMode ? t("ehs.form.rectifier") : t("safety.field.responsible")} optional={t("common.optional")} className="sm:col-span-2">
             <Select
               value={draft.rectifier || "none"}
               onValueChange={(value) =>
@@ -1954,7 +1987,7 @@ function SafetyCreateDialog({
               }
               disabled={!draft.project}
             >
-              <SelectTrigger className="w-full" aria-label={t("ehs.form.rectifier")}><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full" aria-label={fieldMode ? t("ehs.form.rectifier") : t("safety.field.responsible")}><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="none">{t("ehs.form.noRectifier")}</SelectItem>
                 {selectableWorkers.map((row) => (
@@ -1962,6 +1995,9 @@ function SafetyCreateDialog({
                 ))}
               </SelectContent>
             </Select>
+            {!fieldMode && !draft.rectifier && draft.project && (
+              <p className="mt-1 text-xs text-muted-foreground" data-jb274="not-chosen">{t("jb274.notChosenYet")}</p>
+            )}
             {draft.rectifier && (
               <div className="mt-2">
                 <FieldWrapper label={t("safetyRectification.field.dueAt")} required>
@@ -1987,8 +2023,8 @@ function SafetyCreateDialog({
               flow into a wall: a worker who does not know who fixes scaffold
               could not report the scaffold. Unnamed hazards land in 待分配 and
               a supervisor claims them. */}
-          <FieldWrapper label={t("safety.fieldReport.notifyPeople")} optional={t("common.optional")} className="sm:col-span-2">
-            <p className="mb-2 text-xs text-muted-foreground">{t("safety.fieldReport.supervisorAutomatic")}</p>
+          <FieldWrapper label={fieldMode ? t("safety.fieldReport.notifyPeople") : t("jb274.notifyOnly")} optional={t("common.optional")} className="sm:col-span-2">
+            <p className="mb-2 text-xs text-muted-foreground">{fieldMode ? t("safety.fieldReport.supervisorAutomatic") : t("jb274.notifyOnlyHint")}</p>
             <div className="grid gap-2 sm:grid-cols-2">
               {selectableWorkers.map((row) => (
                 <label key={row.id} className="flex min-h-12 items-center gap-3 rounded-lg border p-3">
@@ -2056,6 +2092,37 @@ function SafetyCreateDialog({
             {uploadingLine}
           </p>
         )}
+        {askAssign && shouldAskAssign && (
+          <div role="alert" data-jb274="ask-assign" className="space-y-2 rounded-lg border border-warning/40 bg-warning/10 p-3 text-sm">
+            <p className="font-medium">{t("jb274.askAssignTitle")}</p>
+            <p className="text-xs text-muted-foreground">{t("jb274.askAssignHint")}</p>
+            <div className="flex flex-wrap gap-2">
+              {tickedPeople.map((row) => (
+                <Button
+                  key={row.id}
+                  size="sm"
+                  onClick={() => {
+                    setDraft((current) => ({ ...current, rectifier: row.id }));
+                    setAskAssign(false);
+                  }}
+                >
+                  {t("jb274.assignTo", { name: row.full_name })}
+                </Button>
+              ))}
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  setNotifyOnlyChosen(true);
+                  setAskAssign(false);
+                  create.mutate();
+                }}
+              >
+                {t("jb274.notifyOnlyGo")}
+              </Button>
+            </div>
+          </div>
+        )}
         <DialogFooter>
           <Button variant="outline" onClick={onClose} disabled={uploading} disabledReason={uploadingLine || undefined}>
             {t("common.cancel")}
@@ -2069,7 +2136,7 @@ function SafetyCreateDialog({
               ? [[photosReady, t("safety.field.photo")], [draft.project, t("safety.field.project")], [draft.latitude && draft.longitude, t("safety.field.location")]]
               : [[draft.project, t("safety.field.project")], [category, t("safety.field.category")], [draft.title, t("safety.field.title")]]),
             [!draft.rectifier || draft.rectifierDueAt, t("safetyRectification.field.dueAt")],
-          ] as Array<[unknown, string]>} disabled={create.isPending} disabledReason={uploadingLine || undefined} onClick={() => create.mutate()}>
+          ] as Array<[unknown, string]>} disabled={create.isPending} disabledReason={uploadingLine || undefined} onClick={submitCreate}>
 
             {create.isPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />

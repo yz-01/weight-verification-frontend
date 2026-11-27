@@ -118,6 +118,44 @@ export interface ContractorReportData {
   total: number;
   truncated: boolean;
   generated_at: string;
+  /** 设备租赁费用报表 (JB257): each machine's rental fee and the 累计总金额. */
+  rental?: RentalReport;
+}
+
+/** One machine of 设备租赁费用报表 (JB257); money as strings, null when hidden. */
+export interface RentalReportRow {
+  equipment_id: string;
+  equipment: string;
+  site_no: string;
+  supplier_name: string;
+  rental_method: string;
+  rental_terms: import("@/interfaces/equipment-hours").RentalTermsValues | Record<string, never>;
+  entry_date: string;
+  exit_date: string;
+  days_on_site: number | null;
+  days_worked: number;
+  normal_hours: string;
+  overtime_hours: string;
+  base_rent: string | null;
+  overtime_fee: string | null;
+  diesel_fee: string | null;
+  adjustment_amount: string | null;
+  rental_total: string | null;
+  confirmed_months: string[];
+}
+
+export interface RentalReport {
+  rows: RentalReportRow[];
+  totals: {
+    days_worked: number;
+    normal_hours: string;
+    overtime_hours: string;
+    base_rent: string | null;
+    overtime_fee: string | null;
+    diesel_fee: string | null;
+    adjustment_amount: string | null;
+    rental_total: string | null;
+  };
 }
 
 /**

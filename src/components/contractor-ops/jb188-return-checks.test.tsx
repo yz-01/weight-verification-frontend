@@ -115,9 +115,11 @@ describe("「待核对｜已核对」 (JB188-1)", () => {
       text: text(m[2]),
       selected: m[1].includes('aria-selected="true"'),
     }));
+    // JB278 (11-26 事项 19) added the third, 「已结算」.
     expect(tabs).toEqual([
       { text: "待核对", selected: true },
       { text: "已核对", selected: false },
+      { text: "已结算", selected: false },
     ]);
   });
 
@@ -130,14 +132,15 @@ describe("「待核对｜已核对」 (JB188-1)", () => {
   it("sits on the returns' side only, and 待核对 asks for the unchecked ones (JB188-2)", () => {
     const page = read("src/components/contractor-ops/office-module-lists.tsx");
     const office = page.slice(page.indexOf("export function MaterialOutgoingOffice()"), page.indexOf("export function SiteEquipmentOffice()"));
-    // 材料领用's view returns before the tabs are drawn.
-    const issue = office.slice(office.indexOf('if (view === "ISSUE")'), office.indexOf('if (tab === "checked")'));
-    expect(issue).not.toContain("ReturnCheckTabs");
+    // JB278 (11-26 事项 19): 材料领用 has its own 「待核对｜已核对｜已结算」
+    // now; its 待核对 is its own list without the checked issues.
+    const issue = office.slice(office.indexOf('if (view === "ISSUE")'), office.indexOf('if (tab === "settled")'));
+    expect(issue).toMatch(/<MaterialIssueList onOpen=\{\(id\) => setViewing\(id\)\} unchecked \/>/);
     expect(office).toMatch(/const returnsQuery = \{ \.\.\.list\.query, kind: "RETURN", unchecked: "1" \};/);
     expect(office).toMatch(/enabled: view === "RETURN" && tab === "pending"/);
     // The export is the same query: the checked ones are left out of it too.
     expect(office).toMatch(/exportMaterialOutgoing\(\{[\s\S]{0,200}query: returnsQuery/);
-    expect(office).toMatch(/if \(next === "checked"\) params\.set\("tab", "checked"\)/);
+    expect(office).toMatch(/if \(next !== "pending"\) params\.set\("tab", next\)/);
     expect(office).toMatch(/headerAction=\{<ReturnCheckButton onSaved=\{\(\) => switchTab\("checked"\)\} \/>\}/);
     // The check window is opened and closed by state, never by an effect (JB187).
     expect(office).toMatch(/const \[checkOpen, setCheckOpen\] = useState<string \| null>\(null\)/);
@@ -186,24 +189,27 @@ describe("【退货核对】 (JB188-3, -4)", () => {
     expect(html).not.toContain('data-slot="return-check-confirm"');
   });
 
-  it("confirms with 核对人 and the time shown, files and a remark optional, then the PIN", () => {
+  it("confirms with 核对人 and the time shown, 凭证编号 and the voucher required (JB277), a remark optional, then the PIN", () => {
     const form = read("src/components/contractor-ops/return-checks.tsx");
-    const confirm = form.slice(form.indexOf('data-slot="return-check-confirm"'), form.indexOf("export function ReturnChecksList"));
+    const confirm = form.slice(form.indexOf('data-slot="return-check-confirm"'), form.indexOf("function VoucherFields("));
+    const voucher = form.slice(form.indexOf("function VoucherFields("), form.indexOf("function TickHead("));
     expect(confirm).toMatch(/\{user\?\.full_name \|\| user\?\.email \|\| "—"\}/);
     expect(confirm).toMatch(/\{df\.dateTime\(now\)\}/);
-    expect(confirm).toMatch(/label=\{t\("files"\)\}\s+optional=\{common\("optional"\)\}/);
-    expect(confirm).toMatch(/<AttachmentPicker[\s\S]{0,300}accept: ATTACHMENT_ACCEPT/);
+    // JB277 (11-26 事项 18): 「上传凭证（必填）」 - no longer optional.
+    expect(voucher).toMatch(/label=\{tj\("vouchersRequired"\)\}\s+required/);
+    expect(voucher).toMatch(/<AttachmentPicker[\s\S]{0,300}accept: ATTACHMENT_ACCEPT/);
     expect(confirm).toMatch(/label=\{t\("note"\)\} optional=\{common\("optional"\)\}/);
     expect(confirm).not.toMatch(/unit_price|amount|单价|金额|RM/);
     // One request, signed by the server's PIN answer (the API client's dialog).
-    expect(form).toMatch(/createReturnCheck\(\{ supplier: supplier\.id, returns: picked, note, files \}\)/);
+    expect(form).toMatch(/createReturnCheck\(\{ kind, supplier: party\.id, returns: picked, voucherNo, note, files \}\)/);
     expect(zh.returnChecks.confirmPin).toContain("六位数签核密码");
     expect(zh.signOff.action.material_return_check).toBe("退货核对");
   });
 
   it("can start from the yellow badge's window (图 2), for an approver only", () => {
     const badge = read("src/components/suppliers/supplier-return-badge.tsx");
-    expect(badge).toMatch(/\{can\("material_outgoing\.approve"\) \?/);
+    // In the office only (Lucas 11-26 「手机不应该出现审批」, JB278).
+    expect(badge).toMatch(/\{officeMay\(user, can, "material_outgoing\.approve"\) \?/);
     expect(badge).toMatch(/<ReturnCheckForm\s+supplier=\{supplier\}\s+rows=\{rows\}/);
     // Saved: the window closes and 「已核对」 shows the new check on top.
     expect(badge).toMatch(/onClose\(\);\s+router\.push\("\/material-outgoing\?tab=checked"\);/);
@@ -226,7 +232,7 @@ describe("「已核对」 (JB188-5, -6)", () => {
 
   it("lists 核对编号｜供应商｜笔数｜日期｜核对人｜查看, as the server orders them (newest first)", () => {
     const html = render(<ReturnChecksList title="材料出场" onOpen={() => undefined} />, (qc) =>
-      qc.setQueryData(["return-checks", "list", { page: 1, page_size: 25 }], LIST),
+      qc.setQueryData(["return-checks", "list", "RETURN", { page: 1, page_size: 25, settled: "0" }], LIST),
     );
     const flat = text(html);
     for (const column of ["核对编号", "供应商", "笔数", "日期", "核对人", "查看"]) expect(flat).toContain(column);
@@ -255,7 +261,7 @@ describe("查看 one check (JB188-7, -8, -9)", () => {
   function window(messages: typeof zh = zh) {
     return render(
       <ReturnCheckWindow id="c-1" onClose={() => undefined} />,
-      (qc) => qc.setQueryData(["return-checks", "detail", "c-1"], CHECK),
+      (qc) => qc.setQueryData(["return-checks", "detail", "RETURN", "c-1"], CHECK),
       messages,
     );
   }

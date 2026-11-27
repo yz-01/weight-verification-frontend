@@ -94,6 +94,11 @@ export type EquipmentSessionStatus = "OK" | "MISSING_END" | "MISSING_START" | "A
 export interface EquipmentHoursSession extends RecordedBy {
   /** The id of the session's first photo; what a correction names. */
   key: string;
+  /**
+   * JB280 第 7 点: the checked / settled 设备租赁月结单 this day's hours are in
+   * ("" or absent when none) - nothing on it is changed any more.
+   */
+  locked_statement_no?: string;
   equipment: string;
   equipment_name: string;
   equipment_code: string;
@@ -201,6 +206,79 @@ export interface EquipmentHoursMonthRow {
   /** Sessions still missing a start or an end. */
   incomplete_count: number;
   adjusted_count: number;
+  /**
+   * JB280 第 5 点 「月结单与设备原始记录…双向关联」: the live 设备租赁月结单 this
+   * machine's days of the month are in.
+   */
+  statements?: Array<{ id: string; statement_no: string; state: "PENDING" | "CHECKED" | "SETTLED" | "CANCELLED" }>;
+  /**
+   * JB255 设备租赁费用: the five amounts right of 「后台修改次数」 (RM, as
+   * strings; null when 金额查看 is switched off for the reader).
+   */
+  base_rent?: string | null;
+  overtime_fee?: string | null;
+  diesel_fee?: string | null;
+  adjustment_amount?: string | null;
+  rental_total?: string | null;
+  rental_method?: RentalMethod | "";
+  rental_terms?: RentalTermsValues | Record<string, never>;
+  rental_has_terms?: boolean;
+  rental_days?: number;
+  extra_days?: number;
+  extra_day_fee?: string | null;
+  adjustment_reason?: string;
+  rental_confirmed?: boolean;
+  rental_confirmed_at?: string | null;
+  rental_confirmed_by?: string;
+}
+
+/** 租赁方式 (JB255). */
+export type RentalMethod = "HOURLY" | "DAILY" | "MONTHLY" | "YEARLY" | "FIXED";
+
+/** 柴油供应方式 (JB255). */
+export type DieselSupply = "INCLUDED" | "CONTRACTOR" | "SUPPLIER_CHARGED";
+
+/** One machine's 租赁条件 as the server keeps them (money as strings). */
+export interface RentalTermsValues {
+  id?: string;
+  method: RentalMethod;
+  unit_price: string | null;
+  standard_days: number | null;
+  normal_hours_per_day: string;
+  overtime_rate: string | null;
+  extra_day_rate: string | null;
+  stoppage_terms: string;
+  start_date: string;
+  end_date: string;
+  diesel_supply: DieselSupply;
+  remarks: string;
+  changed_at?: string;
+  changed_by?: string;
+}
+
+/** 【设备租赁设定】's list: one machine, its terms and their history. */
+export interface RentalMachine {
+  id: string;
+  number: string;
+  name: string;
+  plate: string;
+  supplier_name: string;
+  terms: RentalTermsValues | null;
+  history: RentalTermsValues[];
+}
+
+export interface RentalMachines {
+  machines: RentalMachine[];
+  without_terms: number;
+}
+
+/** The month's 合计 of the five amounts (JB255). */
+export interface RentalTotals {
+  base_rent: string | null;
+  overtime_fee: string | null;
+  diesel_fee: string | null;
+  adjustment_amount: string | null;
+  rental_total: string | null;
 }
 
 export interface EquipmentHoursMonth {
@@ -209,6 +287,7 @@ export interface EquipmentHoursMonth {
   date_to: string;
   total_hours: string;
   rows: EquipmentHoursMonthRow[];
+  rental_totals?: RentalTotals;
 }
 
 /** What the server answers to one photo: the photo and its session. */

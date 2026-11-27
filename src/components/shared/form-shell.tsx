@@ -48,6 +48,7 @@ export function FormShell({
   children,
   after,
   footerError,
+  submitDisabledReason,
 }: {
   backHref: string;
   backLabel: string;
@@ -70,6 +71,11 @@ export function FormShell({
    * never scrolls away - instead of under the last field.
    */
   footerError?: string | null;
+  /**
+   * Why the submit button cannot be pressed (QA2, JB242: inviting without
+   * 「编辑用户」) - the button is greyed and says this before the click.
+   */
+  submitDisabledReason?: string;
 }) {
   const t = useTranslations();
   const surface = useFormSurface();
@@ -123,7 +129,9 @@ export function FormShell({
           <Button
             type="submit"
             form="mse-form"
-            disabled={isSubmitting}
+            disabled={isSubmitting || Boolean(submitDisabledReason)}
+            disabledReason={submitDisabledReason}
+            showReason={Boolean(submitDisabledReason)}
           >
             {isSubmitting ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -157,7 +165,9 @@ export function FormShell({
             <Button
               type="submit"
               form="mse-form"
-              disabled={isSubmitting}
+              disabled={isSubmitting || Boolean(submitDisabledReason)}
+              disabledReason={submitDisabledReason}
+              showReason={Boolean(submitDisabledReason)}
             >
               {isSubmitting ? (
                 <Loader2 className="h-4 w-4 animate-spin" />

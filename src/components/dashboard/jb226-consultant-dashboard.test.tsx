@@ -135,7 +135,7 @@ describe("the consultant's 仪表板 is the project dashboard, cut by what the s
     auth.user = consultant(["dashboard"]);
     const html = render(<ProjectReference project="p1" consultant />, dashboardOnly);
     expect(html).toContain("待处理事项");
-    expect(html).toContain("目前没有需要您处理的事项。");
+    expect(html).toContain("目前没有需要你处理的事项。");
     for (const absent of ["今日收货（吨）", "今日废料（吨）", "设备总数", "最新材料进场记录", "物料分类统计", "废料分类统计", "最新现场照片记录", "工程进度", "吨数只算称重的"]) {
       expect(html).not.toContain(absent);
     }
@@ -231,7 +231,7 @@ describe("the banner and the page around it", () => {
 
   it("says why there is nothing: no project granted, or none chosen yet", () => {
     auth.user = consultant(["dashboard"], { consultant_projects: [], active_project: null });
-    expect(render(<ConsultantHome />)).toContain("您目前没有获授权的项目。请联系建筑商总部开通。");
+    expect(render(<ConsultantHome />)).toContain("你目前没有获授权的项目。请联系建筑商总部开通。");
     auth.user = consultant(["dashboard"], { active_project: null });
     expect(render(<ConsultantHome />)).toContain(messages.consultantHome.chooseProject);
     auth.user = consultant(["dashboard"]);
@@ -239,7 +239,7 @@ describe("the banner and the page around it", () => {
     expect(html).toContain('data-consultant-home="project"');
     expect(html).toContain("当前项目：PRJ-0001 · 示范商业大厦一期");
     // Audit F2: with so little on the page, one line says why and whom to ask - under the banner.
-    expect(html).toContain("总部目前只为您开通了这些内容。要看其他内容，请联系建筑商总部。");
+    expect(html).toContain("总部目前只为你开通了这些内容。要看其他内容，请联系建筑商总部。");
     expect(html.indexOf("data-consultant-scope")).toBeGreaterThan(html.indexOf("当前项目："));
     expect(html.indexOf("data-consultant-scope")).toBeLessThan(html.indexOf("data-project-reference"));
   });
@@ -249,7 +249,8 @@ describe("the banner and the page around it", () => {
     expect(isRouteAllowed("MSE_TRACE", mine, "/photo-timeline", ["project.view"])).toBe(true);
     expect(isRouteAllowed("MSE_TRACE", ["safety", "consultant_menu"], "/photo-timeline", ["project.view"])).toBe(false);
     expect(isRouteAllowed("MSE_TRACE", ["dashboard"], "/photo-timeline", ["project.view"])).toBe(false);
-    expect(isRouteAllowed("MSE_TRACE", ["dashboard"], "/photo-timeline", ["dashboard.view"])).toBe(true);
+    // QA3 (JB250): the office's 照片墙 is its own module, `photo_wall`.
+    expect(isRouteAllowed("MSE_TRACE", ["dashboard", "photo_wall"], "/photo-timeline", ["dashboard.view"])).toBe(true);
     const hrefs = visibleNavigation("MSE_TRACE", mine, ["project.view"]).flatMap((group) => group.items.map((item) => item.href));
     expect(hrefs).toContain("/photo-timeline");
   });

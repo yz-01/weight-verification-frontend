@@ -3803,6 +3803,9 @@
       "final_report_recovery": "Final report made again",
       "form_pdf": "Form PDF made",
       "forwarded_to_head_office": "Sent to head office",
+      "execution_started": "Request started",
+      "execution_completed": "Request confirmed completed",
+      "execution_auto": "Execution updated from deliveries signed for",
       "gate_conversation_started": "Gate conversation started",
       "gate_incident_members_added": "People added to a gate incident",
       "gate_incident_photos_added": "Photos added to a gate incident",
@@ -4035,7 +4038,45 @@
       "platform_access_closed": "Closed access for MSE",
       "project_grant_updated": "Changed project access",
       "jb225_sub_modules": "Materials / progress items ticked separately (system upgrade)",
-      "jb225_default_sub_modules": "Consultant default items ticked separately (system upgrade)"
+      "jb225_default_sub_modules": "Consultant default items ticked separately (system upgrade)",
+      "exit_pass_started": "Started the exit pass",
+      "sign_off_pin_code_sent": "Sign-off PIN code sent",
+      "sign_off_pin_code_failed": "Sign-off PIN code refused",
+      "sign_off_pin_set_failed": "Sign-off PIN not set (refused)",
+      "login_email_changed": "Login e-mail changed",
+      "equipment_operator_profile_saved": "Operator papers saved",
+      "equipment_operator_file_added": "Photo or file added to operator papers",
+      "equipment_operator_file_removed": "Photo or file removed from operator papers",
+      "remedial_item_submitted": "Remedial work submitted",
+      "remedial_item_accepted": "Remedial item accepted",
+      "remedial_item_returned": "Remedial item returned for more work",
+      "remedial_accepted": "All remedial items accepted",
+      "package_submit_signed": "Package signed and submitted",
+      "package_review_signed": "Package review signed",
+      "package_completed": "Package completed and archived",
+      "package_claim_amount_set": "Package claim amount changed",
+      "company_modules_by_platform": "MSE switched a company's business modules on or off",
+      "equipment_rental_terms_set": "Set equipment rental terms",
+      "equipment_rental_month_amounts_set": "Entered an equipment rental diesel fee or adjustment",
+      "equipment_rental_month_confirmed": "Confirmed a month's equipment rental amounts",
+      "material_request_linked": "Linked to an MR / other request",
+      "material_request_unlinked": "Unlinked from an MR / other request",
+      "menu_names_permission_by_platform": "MSE let a company rename its menu, or stopped it",
+      "menu_names_update": "Menu names changed",
+      "external_site_evidence": "Outside company photographed vehicle exit / Gate Pass",
+      "fill_trip_numbers": "Load numbers filled in",
+      "supplier_excel_import": "Suppliers imported from Excel",
+      "company_material_excel_import": "Materials imported from Excel",
+      "material_issue_checked": "Material issues checked",
+      "material_records_settled": "Checked records settled",
+      "equipment_rental_statement_created": "Equipment rental statement generated",
+      "equipment_rental_statement_cancelled": "Equipment rental statement cancelled",
+      "equipment_rental_checked": "Equipment rental statements checked",
+      "equipment_rental_settled": "Equipment rental statements settled",
+      "equipment_rental_statement_pdf_exported": "Equipment rental statement PDF exported",
+      "equipment_rental_statement_pdf_previewed": "Equipment rental statement PDF previewed",
+      "record_archive_checked": "Confirmed and archived (items checked)",
+      "return_exit_confirmed": "Confirmed the formal exit"
     },
     "objectType": {
       "SignOffAssistant": "Assistant PIN",
@@ -4569,7 +4610,7 @@
       "claim": "Progress Claim categories"
     },
     "moduleHelp": {
-      "material": "Deliveries and the money they cost file here. One list per project.",
+      "material": "A material's basic data: name, specifications, unit, code and unit price. One list per project.",
       "equipment": "Cranes, excavators, generators. One list per project, kept by this company.",
       "ehs": "Each project starts with safety, construction and consultant rectifications and work permits. Add, rename or switch off categories here; only one with no records can be removed. Work permits is a system category and can only be renamed.",
       "recycle": "Recyclable waste the site sends out: scrap iron, copper, aluminium, cable. One list for the whole company; the seeded ones can be closed but not deleted.",
@@ -5648,7 +5689,10 @@
       "progressRecords": "Construction progress",
       "progressDailyReports": "Daily site reports",
       "progressRain": "Rainy weather records",
-      "progressSchedule": "Construction schedule"
+      "progressSchedule": "Construction schedule",
+      "fieldTasksView": "View site tasks",
+      "fieldTasksAssign": "Start and assign site tasks",
+      "fieldTasksAccept": "Accept site tasks"
     },
     "itemHint": {
       "materialsIn": "Material delivered to site, rejected loads included (under Material in)",
@@ -5659,7 +5703,10 @@
       "progressRecords": "Progress updates, timeline photos, work categories and the progress summary (under Progress)",
       "progressDailyReports": "Each day's site report (Progress → Daily reports)",
       "progressRain": "Rain stoppages and their monthly figures (Progress → Rain records)",
-      "progressSchedule": "The construction schedule and actual progress (Progress → Schedule)"
+      "progressSchedule": "The construction schedule and actual progress (Progress → Schedule)",
+      "fieldTasksView": "See the site tasks he takes part in: those he started and those sent to him to check (under Site tasks)",
+      "fieldTasksAssign": "Can press Assign task and give a task to this project's people",
+      "fieldTasksAccept": "When a task he started is done, he accepts it or sends it back"
     },
     "itemShort": {
       "materialsIn": "in",
@@ -5670,7 +5717,10 @@
       "progressRecords": "progress",
       "progressDailyReports": "daily reports",
       "progressRain": "rain",
-      "progressSchedule": "schedule"
+      "progressSchedule": "schedule",
+      "fieldTasksView": "view",
+      "fieldTasksAssign": "start and assign",
+      "fieldTasksAccept": "accept"
     }
   },
   "consultantDashboard": {
@@ -7051,7 +7101,7 @@
       "executor": "Executor",
       "fieldFormHelp": "Enter only the essential details, complete at least four evidence photos and capture GPS. The executor is recorded automatically.",
       "formHelp": "Name the person carrying out the movement as the executor and capture the current location.",
-      "subtitle": "Material going back to its supplier: apply on the phone → the office fills the Return Note and approves → both sides sign as it leaves → the office confirms.",
+      "subtitle": "Material going back to its supplier: apply on the phone → the office fills the Return Note and approves → photos and both signatures when the lorry is there → the office starts the exit pass and the safety manager signs → the gate photographs and releases → the office confirms the exit → archive.",
       "title": "Material outgoing",
       "rejectTitle": "Send this application back",
       "rejectHelp": "Application {reference} ends here. It is not reopened — a new application is raised instead — so this reason is what the applicant is left with.",
@@ -7060,10 +7110,10 @@
       "returnProcessing": "Record the exit (both sign)",
       "exitWaitingUpload": "This exit is already saved on this phone and uploads by itself when there is signal - no need to do it again. Follow it in What I sent.",
       "exitUploading": "Uploading {photos} photos and both signatures - please wait and keep this window open.",
-      "waitingForSite": "Approved / waiting to leave site: the site records the exit with both signatures.",
-      "finalConfirm": "Confirm the exit",
-      "waitingForOffice": "The material has left. Waiting for the office to confirm.",
-      "returnHelp": "{reference} is approved. As the material actually leaves: take the photos, enter how much left, the lorry plate, confirm the supplier (scan its code if you can), and both the site person and the supplier / driver sign. The office then confirms it.",
+      "waitingForSite": "Preparing the exit pass: when the vehicle arrives, the site photographs the vehicle and the goods leaving and submits them. Once the photos are in, the office presses [Start exit pass].",
+      "finalConfirm": "Confirm formal exit",
+      "waitingForOffice": "Site photos are in - waiting for the office to start the exit pass and confirm.",
+      "returnHelp": "{reference} is approved - preparing the exit pass. When the vehicle arrives: photograph the vehicle and the goods leaving, fill in the quantity actually returned and the plate, confirm the supplier (scan its code) and sign on both sides (site staff and supplier / driver), then submit. The exit pass reaches you and the gate only after the office starts it and the safety manager signs.",
       "processingPhotos": "Photos at the handover",
       "processingNote": "Note from site",
       "processingLocation": "Location",
@@ -7116,7 +7166,7 @@
       "materialNameHint": "Not sure? Leave it - the office will fill it in."
     },
     "outgoingStatus": {
-      "APPROVED": "Approved / waiting to leave site",
+      "APPROVED": "Preparing exit pass",
       "PENDING": "Pending approval",
       "REJECTED": "Returned (closed)",
       "RELEASED": "Released (before the new flow)",
@@ -7756,12 +7806,19 @@
       "item_count": "Items",
       "submit_to": "Sent to",
       "applicant": "Applicant",
-      "origin": "Photo source"
+      "origin": "Photo source",
+      "package_no": "Package no.",
+      "package_name": "Package name",
+      "review": "Review",
+      "claim_amount": "Claim amount (RM)",
+      "approved_amount": "Approved amount (RM)",
+      "packed_by": "Packed by",
+      "package_created_at": "Created"
     },
     "description": {
       "attendance": "Review site entry evidence, GPS accuracy and geofence result.",
       "consultant": "Review consultant applications, evidence and final outcomes.",
-      "equipment": "Review equipment entries, exits, documents, OCR and photographs.",
+      "equipment": "Equipment in / out records with each machine's rental fee and the grand total.",
       "photos": "Search the permanent photo evidence ledger by project, source, uploader, date and GPS.",
       "progress": "Review project progress, confirmation state and photo evidence.",
       "recycling": "Review disposal work and recycling orders through completion.",
@@ -7772,7 +7829,7 @@
       "material_returns": "Material sent back to its supplier: RN, supplier, material, specification, quantity returned and the delivery it came from; subtotals per material and specification at the foot.",
       "material_rejections": "Deliveries judged non-conforming or turned away: quantity, reason and who decided; subtotals per material and specification at the foot.",
       "sundry_claims": "Sundry claims: what was claimed, who approved it, and the amounts.",
-      "claims": "Each project's progress claims and their approvals.",
+      "claims": "Each project's Progress Claim packages in Multi Engine and their review.",
       "material_outgoing": "Material leaving site and returns (RN).",
       "field_tasks": "Site tasks assigned and completed, with their photos.",
       "daily_report": "Daily reports by date: each report's full text, the records it holds and their photos. In the PDF each report starts on a new page, its photos watermarked.",
@@ -7803,7 +7860,7 @@
         "material_outgoing": "Search number, material, spec, DO, plate, Return Note, supplier",
         "material_returns": "Search RN, delivery, material, spec, supplier, reason",
         "material_rejections": "Search delivery number, material, spec, supplier, reason, DO, plate",
-        "claims": "Search claim no., remarks, description, category, subcontractor",
+        "claims": "Search package no., name, claim no., remarks, category, subcontractor",
         "sundry_claims": "Search number, description, applicant"
       },
       "noMatch": "Nothing matches",
@@ -7927,7 +7984,7 @@
     "type": {
       "attendance": "Site entry and workforce report",
       "consultant": "Consultant application report",
-      "equipment": "Equipment movement report",
+      "equipment": "Equipment rental fee report",
       "photos": "Site photo report",
       "progress": "Progress and photo report",
       "recycling": "Disposal and recycling report",
@@ -9076,7 +9133,7 @@
   },
   "email": {
     "invite": {
-      "body": "You have been invited to MSE Trace. Use the link below to set your password and sign in. The link expires soon.",
+      "body": "You have been invited to MSE Trace. Use the link below to set your password and sign in. The link is valid for {valid_for}.",
       "subject": "You're invited to MSE Trace"
     },
     "reset": {
@@ -9467,11 +9524,12 @@
       "material_request_manager_first": "A site request goes to the project manager first, who sends it on to head office.",
       "material_request_not_executor": "Only the project's project manager confirms this request; head office can view it.",
       "material_request_not_open": "This request is not waiting to be carried out (not approved, or already confirmed completed).",
+      "material_request_execution_automatic": "A material request (MR) has no Start or Confirm completed: its execution follows the quantities signed for in Material In.",
       "sign_off_pin_required": "Enter your six-digit sign-off PIN to continue.",
       "sign_off_pin_not_set": "You have not set a sign-off PIN yet. Set one first.",
       "sign_off_pin_incorrect": "The sign-off PIN is wrong. {attempts_left} tries left before it locks for 15 minutes.",
       "sign_off_office_only": "Please do this in the office back office, on a computer. The phone cannot do this step.",
-      "sign_off_pin_locked": "Wrong PIN 5 times: locked. Try again in {minutes} minutes, or set a new PIN with your account password.",
+      "sign_off_pin_locked": "Wrong PIN 5 times: locked. Try again in {minutes} minutes, or set a new PIN with the code sent to your login e-mail.",
       "equipment_hours_same_machine": "These hours are already that machine's.",
       "equipment_hours_overlap": "That machine already has hours at this time. The same time cannot be counted twice.",
       "equipment_hours_equipment_gone": "This machine has left the site; it cannot be clocked any more.",
@@ -9661,7 +9719,90 @@
       "permit_work_name_required": "Write the work name first, then sign and approve.",
       "permit_formal_permit_required": "There is no formal permit yet. Upload the company's filled permit form with \"Attach files\", or fill in the e-permit, then sign and approve.",
       "hazard_room_not_for_consultant": "This is the contractor's internal conversation; a consultant cannot post here. To talk to the project office, use 'Message someone'.",
-      "report_export_made_before_update": "This file was made before the system update. Please export it again."
+      "report_export_made_before_update": "This file was made before the system update. Please export it again.",
+      "hazard_chat_ended": "{incident_no} has ended and its discussion is closed. The record can still be read, but no more text, photos, files or voice notes can be sent.",
+      "exit_pass_photos_missing": "The site has not submitted the exit photos of the vehicle and the goods yet, so the exit pass cannot be started or signed. Wait for the site staff to take and submit them when the vehicle arrives.",
+      "exit_pass_not_started": "The office has not pressed [Start exit pass] yet, so it cannot be signed. Sign after the office has checked the site photos and pressed [Start exit pass].",
+      "exit_pass_start_not_allowed": "You cannot start this exit pass: it is pressed in the office by someone who approves material exits on this project. Ask the project manager or head office.",
+      "exit_pass_already_started": "This exit pass has already been started - no need to press again. The page has been refreshed.",
+      "project_left": "You have been taken off the project {project}, so you can no longer view or work on its records. Please contact the project manager if you need to.",
+      "phone_identity_in_use": "This mobile number already belongs to an active identity: {name} ({kind, select, driver {driver link} site_staff {site staff} equipment_operator {equipment operator} gate_guard {gate guard} other {field staff}}). One number can have only one active identity: stop the old one first, then create the new one.",
+      "phone_device_in_use": "This phone is already bound to another person's identity ({name}). One phone can have only one active identity: ask the office to stop the old identity first, then use the new link.",
+      "equipment_hours_driver_busy": "Your machine {equipment} has not been stopped yet (started {since}). One driver can run only one machine at a time: take its stop photo first, then start this one.",
+      "company_settings_pin_required": "Enter your six-digit sign-off PIN to open company settings.",
+      "sign_off_pin_identity_required": "First confirm it is you: type your old sign-off PIN, or the code sent to your login e-mail.",
+      "sign_off_pin_code_incorrect": "The code is wrong. {attempts_left} more wrong tries and it stops working.",
+      "sign_off_pin_code_expired": "The code has expired or was used up. Tap Send code for a new one.",
+      "sign_off_pin_code_wait": "A code was just sent. Try again in {seconds} seconds.",
+      "sign_off_pin_code_not_sent": "The code could not be sent. Try again later; if it never arrives, contact MSE.",
+      "admin_account_only_admin": "Only a Company Administrator can reset a Company Administrator's sign-off PIN, suspend, remove or hand over the account. Please ask the Company Administrator.",
+      "admin_email_only_self": "Only the Company Administrator himself can change his login e-mail.",
+      "package_signature_required": "Sign in the signature box first.",
+      "package_opinion_required": "Write the review opinion.",
+      "package_review_needs_signature": "Confirm or return in the Review window: it asks for your opinion, your signature and your six-digit PIN.",
+      "package_not_your_review": "Head office reviews this package - not the person who packed or sent it.",
+      "package_nothing_to_review": "Confirm or return at least one record.",
+      "package_item_decided": "You already reviewed this record in this round; the record is kept as it is.",
+      "package_circulation_only": "This was circulated to read only; there is nothing to review.",
+      "package_purpose": "Choose Submit for approval or Circulate to read.",
+      "package_amount_invalid": "Type an amount in RM.",
+      "package_approved_amount_required": "Fill in the approved amount for this period.",
+      "package_amount_reason_required": "The approved amount differs from the claim amount: write the reason.",
+      "package_not_approved": "It can be completed once every reviewer has approved it.",
+      "package_completed": "This package is completed and archived; nothing more changes.",
+      "company_module_invalid": "Tick only business modules this company has.",
+      "company_module_switched_off": "This module is not switched on for your company. To use it, ask MSE to switch it on.",
+      "consultant_grant_changed": "Your project access has been updated. Please sign in again.",
+      "equipment_rental_no_terms": "Set this machine's rental terms first (Equipment rental terms).",
+      "equipment_rental_diesel_not_charged": "This machine's diesel is not charged separately by the supplier, so no diesel fee can be entered.",
+      "equipment_rental_month_confirmed": "This month's rental amounts are confirmed and can no longer be changed.",
+      "equipment_rental_month_not_started": "This month has not started yet and cannot be confirmed.",
+      "role_start_fixed": "\"Head office\" and \"Project\" are the starting points of Invite user: they cannot be changed, and their codes cannot be used.",
+      "invite_workplace_required": "Choose head office or project.",
+      "invite_projects_required": "Tick at least one project.",
+      "invite_role_wrong_kind": "The saved permissions picked are not for the place chosen (head office or project). Pick again.",
+      "material_request_link_required": "This record ({reference}) is not linked to an MR / other request yet. It cannot be archived until it is linked.",
+      "material_request_link_invalid": "Only this project's MR / other requests can be linked (not a returned one).",
+      "menu_names_not_enabled": "MSE has not turned on menu names for your company yet.",
+      "menu_name_invalid": "Check the menu names: 1–20 characters each, no line breaks, no angle brackets.",
+      "exit_pass_executor_missing": "No executor has been chosen yet, so the exit pass cannot be signed. Press [Choose executor] on this clearance first.",
+      "exit_pass_exit_evidence_missing": "No vehicle exit / Gate Pass photo yet, so the exit pass cannot be signed. The site or the clearance company takes them first.",
+      "disposal_trip_number_recorded": "Load {seq} already has this number. To change it, press Correct on the load and give a reason.",
+      "import_excel_old_format": "This is an old .xls file. In Excel, use Save As, choose .xlsx, and upload that.",
+      "import_excel_invalid": "This file cannot be opened. Upload an Excel (.xlsx) file, or fill in the Excel template and upload it.",
+      "import_excel_too_large": "The file is too large: at most {limit_mb} MB.",
+      "import_excel_empty": "This Excel has nothing under its header.",
+      "import_excel_too_many_rows": "At most {limit} rows per import. Please split the file.",
+      "import_excel_mapping_invalid": "A chosen column is not in this Excel. Please choose again.",
+      "recon_voucher_no_required": "Enter the voucher number, e.g. CN No. 1232 - in its own box, not in the remark.",
+      "recon_voucher_file_required": "Upload the voucher (a photo or a PDF) - at least one.",
+      "recon_none_chosen": "Tick at least one.",
+      "recon_record_not_found": "{count} of the ticked records cannot be found, or are on a project you cannot see. Open it again and tick again.",
+      "recon_already_checked": "{reference} was already checked in {check_no}; it cannot be checked twice.",
+      "issue_check_company_required": "Choose the company first.",
+      "issue_check_no_company": "Issue {reference} names no company, so it cannot be checked.",
+      "issue_check_other_company": "Issue {reference} belongs to another company. One check is one company's issues.",
+      "issue_check_not_issued": "Issue {reference} has not been handed over yet, so it cannot be checked.",
+      "settlement_none_chosen": "Tick at least one check.",
+      "settlement_check_not_found": "{count} of the ticked checks cannot be found, or are on a project you cannot see.",
+      "settlement_already_settled": "{check_no} was already settled in {settlement_no}; it cannot be settled twice.",
+      "settlement_other_party": "{check_no} is another supplier's or company's. One settlement is one party's checks.",
+      "rental_statement_filters": "Choose the project, the equipment company and the start and end dates (the end not before the start, at most a year).",
+      "rental_statement_empty": "This equipment company has no rental fee on this project in these dates.",
+      "rental_statement_not_confirmed": "These months are not over yet: {items}. Generate the statement after the month is over; to generate it now, press 【Confirm this month's amounts】 on Equipment operator hours › By month first.",
+      "rental_statement_no_terms": "These machines have no rental terms yet: {items}. Set them first.",
+      "rental_statement_overlap": "These dates overlap statement {statement_no} of the same project and company; the same fee cannot be settled twice.",
+      "rental_statement_locked": "Statement {statement_no} is checked or cancelled already; it stays as it is.",
+      "rental_statement_hours_locked": "These hours are in statement {statement_no}, which is checked or settled, so they can no longer be changed.",
+      "rental_check_supplier_required": "Choose the equipment company first.",
+      "rental_check_other_supplier": "Statement {reference} is another equipment company's. One check is one company's statements.",
+      "archived_record_final": "This record has been archived. Nobody can change or delete it any more, head office included.",
+      "archive_items_missing": "Some required items are still missing (see the list under Confirm and archive), so it cannot be archived.",
+      "archive_check_not_ticked": "Tick \"I have checked all the information and it is correct.\" before archiving.",
+      "return_gate_not_released": "The gate has not photographed and released it yet (vehicle, plate and goods), so the formal exit cannot be confirmed.",
+      "exit_release_shots_missing": "A material return is released with photos of the vehicle, its number plate and the goods leaving - at least one each. Take the missing ones, then press Confirm release.",
+      "invite_needs_user_update": "Inviting also sets the person's permissions, so you need 'Edit users' to invite. Ask your company administrator to switch it on for you.",
+      "field_removed_from_project": "You have been taken off the project, so this phone is signed out. Ask your project manager if you still need it."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -9706,7 +9847,12 @@
       "site_worker_passport_taken": "This passport is already on the roster",
       "supplier_not_on_project": "This supplier is not on this project's supplier list. Ask head office or the project manager to add it to the project first.",
       "field_one_project": "A phone account can be on one project at a time. Choose one project.",
-      "phone_role_office_account": "Phone accounts are made in Field staff. An office account cannot be given a phone role (site staff, equipment operator, gate guard) here. Please choose another role."
+      "phone_role_office_account": "Phone accounts are made in Field staff. An office account cannot be given a phone role (site staff, equipment operator, gate guard) here. Please choose another role.",
+      "assignee_not_on_project": "This person is no longer on this project and cannot be given its task. Please choose someone else.",
+      "link_expiry_past": "This time has already passed. Choose a time later than now.",
+      "supplier_inactive": "This supplier is switched off. Choose another supplier.",
+      "trip_number_recorded": "Already recorded - use Correct to change it",
+      "archived_final": "This record has been archived. Nobody can change or delete it any more."
     },
     "forbidden": "You do not have access to this.",
     "forbiddenBody": "Ask your administrator if you need it.",
@@ -10351,7 +10497,8 @@
       "operatorHours": "Equipment operator hours",
       "permit": "Permit to work",
       "visitor": "Visitor QR Scan",
-      "rain": "Rainy Weather"
+      "rain": "Rainy Weather",
+      "scrap": "Scrap disposal"
     },
     "status": {
       "ACCEPTED": "Complete",
@@ -10671,7 +10818,9 @@
       "open": "Open",
       "dismiss": "Close"
     },
-    "recordFailed": "Recording did not start. Allow this app to use the microphone, or type or take a photo instead."
+    "recordFailed": "Recording did not start. Allow this app to use the microphone, or type or take a photo instead.",
+    "ended": "This item has ended and its discussion is closed. Every message, photo, file and voice note, with who sent it and when, stays here to read. Nothing more can be sent.",
+    "endedBadge": "Ended"
   },
   "headquarters": {
     "banner": {
@@ -10702,7 +10851,7 @@
         "material_receipts_today": "Material received today"
       },
       "wasteDispatches": "Waste orders",
-      "siteDisposals": "Site clearance",
+      "siteDisposals": "Waste clearance",
       "records": "Records",
       "trips": "Trips",
       "weighedKg": "Weighed (kg)",
@@ -12509,7 +12658,12 @@
         "REVOKED": "Revoked",
         "EXTENDED": "Extended",
         "LINK_REGENERATED": "New link",
-        "REPORT": "Correspondence record made"
+        "REPORT": "Correspondence record made",
+        "SUBMIT_SIGNED": "Signed and submitted",
+        "REVIEW_SIGNED": "Review signed",
+        "APPROVED": "Approved",
+        "COMPLETED": "Completed and archived",
+        "CLAIM_AMOUNT": "Claim amount changed"
       },
       "ip": "IP {ip}",
       "writeFirst": "Write a message or choose a file first.",
@@ -12643,7 +12797,7 @@
       "DRIVER_TRIP": "Trip",
       "MATERIAL_OUTGOING": "Material outgoing",
       "EQUIPMENT_MOVEMENT": "Equipment movement",
-      "DISPOSAL_REQUEST": "Site disposal",
+      "DISPOSAL_REQUEST": "Waste clearance",
       "SUNDRY_CLAIM": "Sundry claims",
       "MATERIAL_REQUEST": "MR / Other Request",
       "GATE_INCIDENT": "Gate photo",
@@ -12722,6 +12876,8 @@
       "execution_status": "Execution status",
       "completed_by": "Confirmed completed by",
       "completion_note": "Completion note",
+      "execution_received": "Received / approved",
+      "completed_auto": "Completed by",
       "original_quantity": "Original quantity",
       "correction_reason": "Reason for correction",
       "assigned_reviewer": "Submitted to",
@@ -12949,7 +13105,7 @@
     "settings": "Settings",
     "settlements": "Settlements",
     "site_access": "Site access",
-    "site_disposals": "Site disposal",
+    "site_disposals": "Waste clearance",
     "site_gps": "Site personnel GPS",
     "sites": "Yards",
     "submodule": {
@@ -13151,7 +13307,7 @@
       "settingsActivity": "Setting records",
       "settingsAudit": "Setting records",
       "siteAccessPasses": "Access passes",
-      "siteDisposals": "Site disposal",
+      "siteDisposals": "Waste clearance",
       "siteEquipment": "Equipment movement",
       "siteGps": "Site personnel GPS",
       "subscriptionActivity": "Operation records",
@@ -13212,7 +13368,10 @@
       "fieldStaffManagement": "Field staff",
       "fieldChats": "Conversations",
       "photoTimeline": "Project photo timeline",
-      "materialIssue": "Material issue (MIN)"
+      "materialIssue": "Material issue (MIN)",
+      "equipmentRentalReport": "Equipment rental fee report",
+      "siteCostOverview": "Site cost overview",
+      "equipmentRentalStatements": "Equipment rental statements"
     },
     "subscription_management": "Subscriptions",
     "suppliers": "Suppliers",
@@ -13238,7 +13397,8 @@
     "waitingForYou": "{count} waiting for you",
     "materialManagement": "Material management",
     "material_requests": "MR / Other Request",
-    "waitingApproval": "{count} waiting for approval or acceptance"
+    "waitingApproval": "{count} waiting for approval or acceptance",
+    "photo_wall": "Photo wall"
   },
   "notifications": {
     "compose": {
@@ -14039,6 +14199,12 @@
       "need": "Recording a payment needs the invoice, the amount, the date paid and how it was paid; the reference, slip and notes are optional. With the bank slip attached MSE can check it sooner.",
       "then": "A recorded payment is “Pending review” until MSE checks it and confirms or rejects it; only a confirmed payment counts against the bill.",
       "trouble": "If an amount on a bill looks wrong, contact MSE directly."
+    },
+    "photo_wall": {
+      "what": "Every photo already in the system's records, in the order taken, from the first day of work to completion. Nothing extra to upload.",
+      "who": "Whoever reads the head-office dashboard. MSE can switch this module off per company.",
+      "then": "A photo opens the record it belongs to. Nothing is edited here.",
+      "trouble": "A photo missing: check the project and dates chosen above; photos come with their records, so a record not sent yet has none here."
     }
   },
   "partners": {
@@ -15915,7 +16081,9 @@
       "equipment_manager": "Runs equipment entry and exit, the equipment list, QR stickers and operating hours on every project.",
       "site_supervisor": "Assigns and accepts site tasks and hazard rectification, records progress and handles gate issues on their projects.",
       "document_controller": "Keeps the document archive, submits consultant applications and back-office approvals, and maintains the RFI forms.",
-      "equipment_operator": "Clocks the site's machines on and off from the phone."
+      "equipment_operator": "Clocks the site's machines on and off from the phone.",
+      "invite_head_office": "Invited as head office: the person's own switches decide.",
+      "invite_project": "Invited for chosen projects: the person's own switches decide."
     },
     "systemHint": "Built-in roles cannot be removed, so a company always keeps a way to manage its own people.",
     "system_": {
@@ -15938,7 +16106,9 @@
       "equipment_manager": "Equipment Manager",
       "site_supervisor": "Site Supervisor",
       "document_controller": "Document Controller",
-      "equipment_operator": "Equipment Operator"
+      "equipment_operator": "Equipment Operator",
+      "invite_head_office": "Head office",
+      "invite_project": "Project"
     },
     "title": "Roles",
     "toast": {
@@ -17741,9 +17911,10 @@
       "ENDED_EARLY": "Office ended the job early; loads not sent were dropped",
       "TRIP_CORRECTED": "Office corrected a load's weight / DO / plate",
       "SUPPLIER_SET": "Office named / changed the clearance company",
-      "ANOMALY_REPORTED": "Exception reported"
+      "ANOMALY_REPORTED": "Exception reported",
+      "TRIP_NUMBERS_FILLED": "Office filled in a load's weight / DO / plate"
     },
-    "title": "Site disposal",
+    "title": "Waste clearance",
     "toast": {
       "assigned": "External contractor assigned",
       "assignedInternal": "Sent to field staff",
@@ -19551,7 +19722,9 @@
     "blocked": {
       "record_archived": "This record was confirmed and archived; it can no longer be corrected. Raise a new record for anything further.",
       "project_closed": "This project has ended; its records can no longer be changed.",
-      "claim_decided": "This sundry claim has already been decided; it can no longer be corrected."
+      "claim_decided": "This sundry claim has already been decided; it can no longer be corrected.",
+      "record_settled": "This record has been settled; its quantities and prices can no longer be changed.",
+      "archived_final": "This record has been archived. Nobody can correct it any more."
     },
     "toast": {
       "saved": "Record corrected",
@@ -19623,7 +19796,8 @@
       "summary": "Summary",
       "tags": "Tags",
       "trip_count": "Trips",
-      "do_number": "DO number"
+      "do_number": "DO number",
+      "equipment_company": "Owner company"
     },
     "followsSpec": "The unit follows the specification",
     "linePrice": "{name} unit price (RM / {unit})",
@@ -20253,6 +20427,42 @@
       "help": "The project manager {manager}'s account is suspended, so head office decides this one for him: approve or return it here. The record will say it was decided by head office.",
       "approved": "{by} approved it for {manager} (head office) · {at}",
       "returned": "{by} returned it for {manager} (head office) · {at}"
+    },
+    "jb243": {
+      "basis": "Compared by project and material + specification + unit. Each column is added up on its own, never taken off another; only \"Not yet received\" = MR approved − MI signed for. Press a figure to see the records.",
+      "approved": "MR approved quantity",
+      "pending": "MR not approved (pending)",
+      "returned": "MR returned (history)",
+      "mi": "MI signed for on site",
+      "miCount": "MI deliveries",
+      "rn": "RN returned",
+      "rnCount": "RN returns",
+      "outstanding": "Not yet received",
+      "outstandingFormula": "= MR approved − MI signed for",
+      "overColumn": "Received above approved",
+      "over": "{quantity} above approved",
+      "records": "{count, plural, =0 {no records} one {# record} other {# records}}",
+      "supplierNote": "Supplier chosen: MI and RN count this supplier only; a material request is not split by supplier, so the MR figures are the whole project's, and \"Not yet received\" is the whole project's (every supplier).",
+      "footer": "MR figures are quantities asked for; MI and RN come from the Material In and material return records in Material Management. None of these is stock on site.",
+      "noRecords": "No records",
+      "recordNo": "No.",
+      "recordDate": "Date",
+      "recordStatus": "Status / DO",
+      "open": "Open record",
+      "recordsHelp": "Press a row to open that record (photos, signatures and history are in it).",
+      "kind": {
+        "MR": "Material request",
+        "MI": "Material In",
+        "RN": "Return to supplier"
+      }
+    },
+    "jb253": {
+      "explain": "A material request's execution is compared automatically with the quantities signed for in Material In (same project, material, specification and unit) - nobody confirms it by hand. It shows \"Completed\" once everything is received; until then a reminder goes out every 24 hours.",
+      "received": "Received",
+      "receivedOf": "Received {received} / approved {approved} {unit}",
+      "completedHow": "Completed by",
+      "completedAuto": "Everything received - completed by the system ({at})",
+      "completedNotice": "Everything received on {at}; the system shows it completed. Reminders have stopped and the conversation is closed."
     }
   },
   "materialLines": {
@@ -21048,7 +21258,7 @@
     "normal": {
       "open": "Normal hours: {hours} h",
       "title": "Daily normal hours",
-      "help": "Each operator's first hours of a day count as normal and the rest as overtime; a machine with no operator, per machine. The day is the start's day. A change counts for sessions that end after it; earlier ones stay as they were settled.",
+      "help": "Each operator's first hours of a day count as normal and the rest as overtime; a machine with no operator, per machine. The day is the start's day. A change counts for sessions that end after it; earlier ones stay as they were settled. A machine whose rental terms give its own \"Normal working hours a day\" uses that number.",
       "label": "Normal hours a day",
       "save": "Save",
       "failed": "Could not save. Please try again.",
@@ -21403,14 +21613,15 @@
     "formal": {
       "label": "Formal permit",
       "missing": "There is no formal permit yet. Fill in your company's own permit form on the computer and upload it with \"Attach files\" under \"Attachments\", or press \"Fill in e-permit\" beside \"Permit documents\" and save it.",
-      "missingPhone": "There is no formal permit yet. It is uploaded (\"Attach files\") or filled in as an e-permit on the computer; once it is there, you can sign and approve here.",
+      "missingPhone": "There is no formal permit yet. It is uploaded in the office (Upload attachment) or written as an e-permit, then the safety manager approves it in the office.",
       "uploaded": "Uploaded: {files}. Check that this is the formal permit, then sign and approve.",
       "uploadedFile": "{file} ({name} · {time})",
       "uploadedMore": "{files} and others, {count} in all",
       "ePermit": "E-permit {no} · filled in by {name}",
       "archivedWith": "Once signed, the formal permit is archived with the approval note, the signature and the time.",
       "attachHint": "Upload the formal permit here: fill in your company's own permit form on the computer, press \"Attach files\" (Word, PDF, Excel or a photo), then sign and approve."
-    }
+    },
+    "officeOnly": "Work permits are approved in the office: sign in on a computer, open this permit, then approve or return it."
   },
   "gateCard": {
     "title": "Gate",
@@ -21456,13 +21667,19 @@
     "armFirst": "Turn the switch on first.",
     "signedToast": "Signed for.",
     "actingAs": "Recorded as {name}",
-    "noNameYet": "You will be asked for your name the first time you confirm, return, sign or write.",
+    "noNameYet": "You will be asked for your name the first time you review or write.",
     "changeName": "Change name",
     "nameTitle": "Your name, please",
-    "nameHelp": "Your name goes on your confirmations, returns, signature and messages. This browser remembers it.",
+    "nameHelp": "Your name goes with your signature on your review and on your messages. This browser remembers it.",
     "name": "Name",
     "continue": "Continue",
-    "talk": "Messages"
+    "talk": "Messages",
+    "waitingForYou": "Waiting for your review",
+    "reviewWaiting": "{count} record(s) are waiting for your review.",
+    "reviewButton": "Review and sign",
+    "reviewAllDone": "You have reviewed every record of this round.",
+    "reviewHelp": "Reviewing as \"{name}\": choose Confirm or Return for each record, or Confirm all. Then write your review opinion and sign. After you submit, this round cannot be changed.",
+    "reviewedToast": "Your signed review was submitted."
   },
   "taskFlow": {
     "moreWork": {
@@ -21973,11 +22190,11 @@
     "checking": "Checking…",
     "cancel": "Cancel",
     "close": "Close",
-    "forgot": "Forgot it? Set a new one with your account password",
+    "forgot": "Forgot it? Set a new one with a code sent to your e-mail",
     "setupTitle": "Set your sign-off PIN",
     "setupHelp": "You do not have a sign-off PIN yet. Choose six digits only you know; important office operations are confirmed with it.",
-    "changeHelp": "Choose a new six-digit PIN. Your account password confirms it is you.",
-    "resetHelp": "Your company administrator reset your sign-off PIN. Set a new one to continue.",
+    "changeHelp": "Choose a new six-digit PIN. First confirm it is you with your old PIN, or a code sent to your login e-mail.",
+    "resetHelp": "Your company administrator reset your sign-off PIN. Set a new one with the code sent to your login e-mail to continue.",
     "newPin": "New sign-off PIN (6 digits)",
     "confirmPin": "Enter it again",
     "pinMismatch": "The two PINs are not the same",
@@ -21986,11 +22203,11 @@
     "saveAndContinue": "Save and continue",
     "lockedTitle": "Sign-off PIN locked",
     "lockedHelp": "Your sign-off PIN is locked after 5 wrong tries. It opens again 15 minutes after the last one.",
-    "lockedHint": "If you forgot it, set a new one with your account password, or ask your company administrator to reset it.",
+    "lockedHint": "If you forgot it, set a new one with a code sent to your login e-mail.",
     "setAgain": "Set a new PIN",
     "back": "Back",
     "lockedUntil": "Your sign-off PIN is locked after 5 wrong tries. It opens again at {time}.",
-    "forgotPassword": "Forgot your account password too? Tap “Forgot your password?” on the sign-in page, or ask your administrator to reset your sign-off PIN.",
+    "forgotPassword": "Forgot your account password too? Tap “Forgot your password?” on the sign-in page.",
     "failed": "Could not save. Try again.",
     "profileTitle": "Sign-off PIN",
     "profileHelp": "Six digits only you know. Daily reports, the schedule, approvals and other important office operations are confirmed with it. The phone never asks for it.",
@@ -22006,7 +22223,7 @@
     "reset": "Reset sign-off PIN",
     "resetArm": "Reset this person's sign-off PIN",
     "resetArmFirst": "Turn on the switch first",
-    "resetHint": "The PIN is turned off and any lock lifted. The person sets a new one with their own account password; you never see it.",
+    "resetHint": "The PIN is turned off and any lock lifted. The person sets a new one with their account password and a code sent to their own login e-mail; you never see it.",
     "toast": {
       "saved": "Sign-off PIN saved",
       "reset": "Sign-off PIN reset. The person sets a new one next time."
@@ -22071,7 +22288,22 @@
       "exit_pass_external": "External approval",
       "exit_pass_waive_external": "Drop the external approval and send the exit pass",
       "platform_access_open": "Open MSE access",
-      "platform_access_revoke_link": "Revoke an external link MSE opened"
+      "platform_access_revoke_link": "Revoke an external link MSE opened",
+      "company_settings_open": "Open company settings",
+      "sign_off_pin_change": "Change your sign-off PIN",
+      "user_change_email": "Change a user's login e-mail",
+      "package_submit": "Sign and submit a package for approval",
+      "package_resubmit": "Sign and resubmit a package",
+      "package_review": "Sign a package review",
+      "package_claim_amount": "Fill in or change a claim amount",
+      "equipment_rental_terms": "Set a machine's rental terms",
+      "equipment_rental_month_amounts": "Enter a diesel fee or adjustment",
+      "equipment_rental_confirm": "Confirm this month's rental amounts",
+      "material_issue_check": "Check material issues",
+      "material_settlement_settle": "Settle checked records",
+      "equipment_rental_statement": "Generate or cancel an equipment rental statement",
+      "equipment_rental_check": "Check equipment rental statements",
+      "equipment_rental_settle": "Settle equipment rental statements"
     },
     "firstTitle": "Set your sign-off PIN for the first time",
     "firstBanner": "This is your first time using a sign-off PIN",
@@ -22655,7 +22887,7 @@
     "filesHint": "Optional. Up to {count} files, {limit} MB each.",
     "note": "Remarks",
     "notePlaceholder": "Optional",
-    "noPrice": "Nothing of the returns is filled in again, and no prices are involved.",
+    "noPrice": "Nothing of the returns is filled in again, and no prices are involved; settling is a separate step after checking.",
     "confirm": "Confirm check",
     "confirmPin": "After 「Confirm check」, enter your six-digit sign-off PIN.",
     "needTick": "Tick at least one return first",
@@ -22898,7 +23130,7 @@
       "title": "Nobody on this project can sign exit passes yet. An administrator sets it up in three steps:",
       "permission": "Permission: turn on 「Safety verification」 for the account (or the role) of the person who will sign.",
       "project": "Project: add them to this project's team list (not needed for someone who sees every project).",
-      "account": "Account: make sure their account is active (a new account is active once its owner sets a password from the email).",
+      "account": "Account: make sure their account is active and is an office account (the exit pass is signed on a computer, not on a phone account; a new account is active once its owner sets a password from the email).",
       "openTeam": "Add to project team",
       "onlyApplicant": "The applicant is the only safety manager on this project, and another safety manager has to sign the exit pass. An administrator adds one in three steps:"
     },
@@ -23048,7 +23280,20 @@
       "signedSentNobody": "Signed: {reference}",
       "paperReplaced": "The signed copy was replaced. The exit pass had already been sent and was not sent again: {reference}"
     },
-    "correctedAfter": "After the exit pass was signed, this record was corrected by {by} at {when}; what you see here is the corrected record."
+    "correctedAfter": "After the exit pass was signed, this record was corrected by {by} at {when}; what you see here is the corrected record.",
+    "start": {
+      "title": "Start exit pass",
+      "button": "Start exit pass",
+      "preparing": "Preparing exit pass",
+      "waitingStart": "Waiting to start",
+      "noPhotos": "The application is approved, but that is not permission to leave. When the vehicle arrives, the site staff photograph the vehicle and the goods leaving and submit them; only then can the office press [Start exit pass] and the safety manager sign.",
+      "lockedReason": "Locked until the site submits the exit photos",
+      "photosIn": "Site photos submitted ({when}). Check them, then press [Start exit pass] so the safety manager can sign.",
+      "waitingOffice": "Site photos are in. Waiting for the office to press [Start exit pass]; the safety manager signs after that.",
+      "started": "Started by {name} · {when}",
+      "confirm": "Start the exit pass? The project's safety managers are then notified and can sign it.",
+      "done": "Exit pass started; the safety managers have been asked to sign."
+    }
   },
   "mseAccess": {
     "section": {
@@ -23307,7 +23552,8 @@
       "reissue_invitation": "Re-sent the phone sign-in link",
       "reset_device": "Reset the phone",
       "remove_field_staff": "Removed a site worker",
-      "other": "Changed an account"
+      "other": "Changed an account",
+      "invite_user": "Invited a user"
     },
     "mse": {
       "title": "Customer access",
@@ -23418,5 +23664,984 @@
     "noProjects": "You have not been given access to any project yet. Please ask the contractor's head office to open one for you.",
     "chooseProject": "First choose a project in the project box at the top of the page; that project's dashboard will then show here.",
     "onlyOpened": "Head office has opened only these parts for you. To see anything else, please contact the contractor's head office."
+  },
+  "jb256": {
+    "photos": "Photos",
+    "withPhotos": "With photos",
+    "withoutPhotos": "Without photos",
+    "summaryTitle": "Cumulative quantity and total amount",
+    "totalAmount": "Total amount"
+  },
+  "jb245": {
+    "leftProject": "Taken off project",
+    "leftProjectHelp": "{name} has been taken off this project and can no longer do this task. Please choose someone who is on the project now."
+  },
+  "jb246": {
+    "sameNumber": "This number also has another active identity: {names}. One number can have only one active identity - stop the one you do not need.",
+    "identity": "{name} ({kind})",
+    "kind": {
+      "driver": "driver link",
+      "site_staff": "site staff",
+      "equipment_operator": "equipment operator",
+      "gate_guard": "gate guard",
+      "other": "field staff"
+    }
+  },
+  "jb239": {
+    "gate": {
+      "title": "Company settings need your sign-off PIN",
+      "help": "Company details and permissions such as “Allow MSE to view” open only after your six-digit sign-off PIN. Leaving this page and coming back asks for it again.",
+      "enter": "Enter sign-off PIN",
+      "opening": "Opening…"
+    },
+    "identity": {
+      "oldPin": "Old sign-off PIN (6 digits)",
+      "useCode": "Forgot the old PIN? Use an e-mail code",
+      "useOldPin": "Remember the old PIN? Type it",
+      "codeHelp": "Fill in your account password below, then tap Send code. The code goes to your login e-mail {email} and works for 10 minutes.",
+      "send": "Send code",
+      "sending": "Sending…",
+      "resend": "Send again",
+      "sent": "Code sent to {email}. It works for {minutes} minutes.",
+      "code": "E-mail code (6 digits)",
+      "needPassword": "Fill in your account password first",
+      "proof": "Old PIN or e-mail code"
+    },
+    "email": {
+      "subject": "MSE Trace sign-off PIN code",
+      "body": "Your sign-off PIN code is {code}. It works for 10 minutes, once.\n\nIf you are not setting a new sign-off PIN yourself, somebody knows your login password: change your login password now."
+    }
+  },
+  "jb252": {
+    "progress": {
+      "NOT_SENT": "Not sent",
+      "SENT": "Sent, waiting for review",
+      "VIEWED": "Viewed, waiting for review",
+      "IN_REVIEW": "Review in progress",
+      "RETURNED": "Returned for more material",
+      "APPROVED": "Approved, waiting for completion",
+      "COMPLETED": "Review complete"
+    },
+    "progressFilter": "Review",
+    "progressAll": "All review states",
+    "stateCompleted": "Completed (archived)",
+    "purpose": {
+      "label": "What it is for",
+      "APPROVAL": "Submit for approval",
+      "CIRCULATION": "Circulate to read",
+      "approvalHelp": "They review each record, write an opinion and sign. If they return it, you add what is missing, sign again and resubmit.",
+      "circulationHelp": "For them to read only: no review, no signature."
+    },
+    "sign": {
+      "label": "Electronic signature",
+      "clear": "Sign again",
+      "hint": "Sign in the box with the mouse or a finger.",
+      "confirmHint": "Sign before confirming. Once confirmed the package is locked and cannot change.",
+      "sendHint": "This round has no signature yet. Sign before submitting it for approval.",
+      "resendHint": "A resend is a new submission for approval: sign first."
+    },
+    "review": {
+      "button": "Review",
+      "title": "Review the package",
+      "help": "Choose Confirm or Return for each record, or press Confirm all. Then write your opinion and sign; your six-digit PIN is asked when you submit.",
+      "accept": "Confirm",
+      "return": "Return for more material",
+      "allConfirm": "Confirm all",
+      "undecided": "Not now",
+      "decided": "Already reviewed",
+      "returnReason": "What must be added",
+      "opinion": "Review opinion (note)",
+      "opinionHint": "For the project manager; kept with your signature.",
+      "submit": "Sign and submit the review",
+      "chooseOne": "Choose at least one record",
+      "nothingLeft": "You have reviewed every record of this round.",
+      "waiting": "{count} waiting for review",
+      "records": "Records to review"
+    },
+    "money": {
+      "title": "Amounts",
+      "claim": "Claim amount (RM)",
+      "approved": "Approved amount this period (RM)",
+      "difference": "Difference (RM)",
+      "reason": "Approval reason",
+      "reasonHint": "Required when the approved amount differs from the claim amount.",
+      "pinHint": "Filling in or changing an amount asks for your six-digit PIN.",
+      "locked": "Locked",
+      "notSet": "Not filled in",
+      "save": "Save the amount",
+      "placeholder": "e.g. 12500.00",
+      "approvedOnly": "Fill in the approved amount when you confirm everything.",
+      "linkOnly": "Approved only through outside links, which never enter an amount, so there is no approved amount. To have one, also send it to head office or a consultant to review in the system."
+    },
+    "signatures": {
+      "title": "Signatures and review record",
+      "none": "No signature yet.",
+      "side": {
+        "SENDER": "Project manager signed and submitted",
+        "REVIEWER": "Reviewer signed"
+      },
+      "action": {
+        "SUBMITTED": "Signed and submitted",
+        "CONFIRMED": "Records confirmed",
+        "APPROVED": "Approved",
+        "RETURNED": "Returned for more material"
+      },
+      "by": "{name} · {when}",
+      "for": "For: {name}",
+      "opinion": "Opinion / note: {text}",
+      "version": "Material version: {digest}",
+      "picture": "Signature",
+      "decision": {
+        "ACCEPTED": "Confirmed",
+        "RETURNED": "Returned",
+        "PENDING": "Waiting"
+      }
+    },
+    "complete": {
+      "button": "Complete and archive",
+      "help": "Everything is approved. Press Complete and archive to close it; the material, review records, messages and timeline are all kept.",
+      "done": "Completed and archived by {name}, {when}"
+    },
+    "supplement": {
+      "title": "Add material for the next round",
+      "help": "Material was returned. Add files, photos or records from the system in the usual places, then write a note and press Sign and resubmit.",
+      "staged": "For the next round (not submitted yet)",
+      "nextRoundFile": "For the next round",
+      "resubmit": "Sign and resubmit",
+      "addedCount": "{count} added record(s) go with this round."
+    },
+    "toast": {
+      "reviewSigned": "Review signed and submitted",
+      "completed": "Completed and archived"
+    }
+  },
+  "jb248": {
+    "field": "Type",
+    "kind": {
+      "GARBAGE": "Waste clearance",
+      "SCRAP": "Scrap disposal"
+    },
+    "count": {
+      "GARBAGE": "Waste clearance: {count}",
+      "SCRAP": "Scrap disposal: {count}"
+    },
+    "tab": {
+      "all": "All",
+      "garbage": "Waste clearance",
+      "scrap": "Scrap disposal",
+      "abnormal": "Exception records"
+    },
+    "totals": {
+      "GARBAGE": "Waste clearance: {records} jobs · {trips} trips · {weight} kg",
+      "SCRAP": "Scrap disposal: {records} jobs · {trips} trips · {weight} kg",
+      "apart": "Counted separately; not added together."
+    }
+  },
+  "jb249": {
+    "button": "ESG statistics",
+    "soon": "Coming soon"
+  },
+  "jb250": {
+    "title": "Business modules",
+    "help": "Ticked modules are available to this company. Untick one and it disappears from this company's back office and phones, and opening it by link or API is refused. Records are kept; tick it again to bring it back.",
+    "alwaysOn": "Dashboard, notifications, users, roles, company settings and logs are always on for every company and are not listed here.",
+    "count": "{on} of {total} modules on",
+    "notInPlan": "(not in the package)",
+    "save": "Save modules",
+    "noChange": "Nothing has changed yet.",
+    "saved": "Business modules saved.",
+    "saveFailed": "Could not save. Please try again."
+  },
+  "equipmentRental": {
+    "title": "Equipment rental terms",
+    "help": "Each machine has its own rental terms, set once and used from then on. Entering or changing an amount needs your six-digit PIN.",
+    "close": "Close",
+    "chooseProject": "Choose a project at the top of the page first.",
+    "withoutTerms": "{count} machine(s) have no rental terms yet.",
+    "noMachines": "This project has no machines.",
+    "noSupplier": "No supplier",
+    "machineLine": "No. {number} · {name}",
+    "noTerms": "No rental terms yet",
+    "noTermsShort": "No rental terms",
+    "history": "Changes ({count})",
+    "open": "Rental terms",
+    "inForce": "In use now",
+    "changedBy": "{name} · {time}",
+    "method": {
+      "HOURLY": "Per hour",
+      "DAILY": "Per day",
+      "MONTHLY": "Per month",
+      "YEARLY": "Per year",
+      "FIXED": "Fixed amount"
+    },
+    "diesel": {
+      "INCLUDED": "Diesel included in the rent",
+      "CONTRACTOR": "Contractor supplies the diesel",
+      "SUPPLIER_CHARGED": "Supplier supplies the diesel, charged separately"
+    },
+    "summary": {
+      "price": "Rate RM {amount}",
+      "overtime": "Overtime RM {amount}/hour",
+      "standardDays": "{days} standard days a month",
+      "normalHours": "normal {hours} h a day",
+      "period": "{from} to {to}",
+      "since": "from {from}"
+    },
+    "field": {
+      "method": "Rental method",
+      "unitPrice": {
+        "HOURLY": "Rate (RM / hour)",
+        "DAILY": "Rate (RM / day)",
+        "MONTHLY": "Rate (RM / month)",
+        "YEARLY": "Rate (RM / year)",
+        "FIXED": "Fixed amount (RM / month)"
+      },
+      "standardDays": "Standard working days a month",
+      "normalHours": "Normal working hours a day",
+      "overtimeRate": "Overtime rate (RM / hour)",
+      "extraDayRate": "Charge for days beyond the standard (RM / day)",
+      "extraDayOnly": "Only for per month and per year",
+      "startDate": "Rental start date",
+      "endDate": "Rental end date (optional)",
+      "diesel": "Diesel supply",
+      "stoppage": "Deductions for stoppage and breakdown",
+      "remarks": "Other terms and remarks"
+    },
+    "formula": {
+      "HOURLY": "Base rent = normal hours × rate.",
+      "DAILY": "Base rent = days worked × rate.",
+      "MONTHLY": "Base rent = monthly rate × days of the month inside the rental period ÷ days in the month; each day worked beyond the standard working days adds the extra-day charge.",
+      "YEARLY": "Base rent = yearly rate ÷ 12 × days of the month inside the rental period ÷ days in the month; extra days are charged as per month.",
+      "FIXED": "Base rent = fixed monthly amount × days of the month inside the rental period ÷ days in the month, whatever the hours, also with no clock-ins.",
+      "common": "Overtime fee = overtime hours × overtime rate. Diesel counts only when the supplier charges for it separately; enter it on the Month page. Rental total = base rent + overtime fee + diesel fee ± adjustment. Normal and overtime hours are this page's figures: a machine with its own \"Normal working hours a day\" is split by that number; one without, by the \"Normal hours\" setting above."
+    },
+    "save": "Save",
+    "cancel": "Cancel",
+    "failed": "Could not save. Please try again.",
+    "needPriceAndStart": "Enter the rate and the rental start date first.",
+    "fee": {
+      "base_rent": "Base rent (RM)",
+      "overtime_fee": "Overtime fee (RM)",
+      "diesel_fee": "Diesel fee (RM)",
+      "adjustment_amount": "Adjustment (RM)",
+      "rental_total": "Rental total (RM)",
+      "state": "Rental amount"
+    },
+    "confirmed": "Confirmed",
+    "confirmedBy": "{name} · {time}",
+    "notConfirmed": "Not confirmed",
+    "amounts": {
+      "open": "Diesel / adjust",
+      "title": "{name} · {month} diesel fee and adjustment",
+      "help": "Entering or changing an amount needs your six-digit PIN. Once the month is confirmed it can no longer be changed.",
+      "diesel": "Diesel fee (RM, charged by the supplier)",
+      "noDiesel": "This machine is \"{supply}\": diesel is not part of the rental fee.",
+      "adjustment": "Adjustment (RM, minus to deduct, e.g. -500)",
+      "reason": "Reason for the adjustment",
+      "reasonPlaceholder": "e.g. broken down 2 days, RM 500 off as per contract",
+      "needReason": "An adjustment needs a reason."
+    },
+    "confirm": {
+      "open": "Confirm this month's amounts",
+      "title": "Confirm the rental amounts of {month}",
+      "help": "The rental amounts of {count} machine(s) are kept as they are now. After confirming, this month's amounts never change again, also when the rental terms change later.",
+      "incomplete": "{count} hours record(s) still miss a start or a stop. Hours entered after confirming do not change this month's amounts.",
+      "do": "Confirm",
+      "nothing": "Nothing to confirm this month (already confirmed, or no rental terms yet)."
+    },
+    "toast": {
+      "termsSaved": "Rental terms saved.",
+      "amountsSaved": "Saved.",
+      "confirmed": "This month's rental amounts are confirmed."
+    }
+  },
+  "jb257": {
+    "title": "Equipment rental fees",
+    "help": "Each machine's rental fee, worked out exactly as on Machine hours › Month. Counted by project, supplier, machine and dates; direction and keyword narrow the in / out records below only.",
+    "total": "Grand total",
+    "empty": "No rental fees in these dates.",
+    "confirmedMonths": "Confirmed: {months}",
+    "onSite": "On site",
+    "column": {
+      "equipment": "Machine",
+      "supplier": "Supplier",
+      "terms": "Rental terms",
+      "entry": "Entry date",
+      "exit": "Exit date",
+      "daysOnSite": "Days on site",
+      "daysWorked": "Days worked",
+      "normalHours": "Normal hours",
+      "overtimeHours": "Overtime hours"
+    }
+  },
+  "jb259": {
+    "title": "Site cost overview",
+    "subtitle": "The actual costs of each module, with the project's total and each one's share.",
+    "filter": {
+      "project": "Project",
+      "allProjects": "All projects",
+      "dateFrom": "From",
+      "dateTo": "To"
+    },
+    "total": "Project total cost",
+    "totalShort": "Total",
+    "share": "Cost breakdown (share)",
+    "trend": "Cost trend (by month)",
+    "links": "Go to the reports",
+    "detail": "View details",
+    "sum": "Total",
+    "empty": "No costs in these dates.",
+    "help": "Each amount equals its own report for the same project and dates; \"View details\" opens that report, where every record can be traced. Sundry claims count once approved.",
+    "notAvailableShort": "No amount yet",
+    "source": {
+      "material_cost": "Material cost",
+      "equipment_rental": "Equipment rental",
+      "progress_claim": "Progress Claim (spending)",
+      "sundry_claims": "Sundry claims",
+      "disposal": "Waste clearance"
+    },
+    "report": {
+      "material_cost": "Material cost report",
+      "equipment_rental": "Equipment rental fee report",
+      "progress_claim": "Progress Claim report (spending)",
+      "sundry_claims": "Sundry claim report",
+      "disposal": "Waste clearance report"
+    },
+    "column": {
+      "module": "Module (source)",
+      "amount": "Amount (RM)",
+      "share": "Share"
+    },
+    "notAvailable": {
+      "progress_claim": "Progress Claim (spending): the Multi Engine approved amount is not live yet, so it counts as 0. It is added automatically once live.",
+      "disposal": "Waste clearance: its records have no amount (only weights, trips and the collector), so it counts as 0; no price is guessed."
+    }
+  },
+  "jb275": {
+    "priceFromList": "From the material category's unit price (RM {price} / {unit})",
+    "priceNone": "No unit price is set for this material in the material category. You can type one.",
+    "priceOtherUnit": "The material category's price is RM {price} / {unit}. This item is in another unit, so it was not filled in. You can type one.",
+    "priceLater": "The material category's price starts on {date}, after this record, so it was not filled in. You can type one.",
+    "priceTyped": "Entered by a person",
+    "pickFirst": "Choose the material and specification and the unit price fills in"
+  },
+  "jb260": {
+    "button": "Find by material",
+    "title": "Find by material",
+    "help": "Type a material's name, code or specification and pick it: its records and figures open (the same window as View records in Category Management).",
+    "search": "Search material name, code, specification",
+    "chooseProject": "Choose a project above first",
+    "loading": "Loading…",
+    "failed": "The materials could not be loaded. Try again later.",
+    "noMatch": "No material found.",
+    "none": "This project has no materials yet."
+  },
+  "jb262": {
+    "categoryNote": "Only a material's basic data is set here: name, specifications, unit, code and unit price. Each material's received quantities, spend and budget, supplier figures and records are under Material management → Material In; quantity targets and budgets under Material management → Material targets.",
+    "budgetMoved": "The budget is now set under Material management → Material targets (with the quantity targets and their additions).",
+    "loading": "Loading…",
+    "failed": "Could not save. Try again later.",
+    "cancel": "Cancel",
+    "save": "Save",
+    "oneMaterial": "Only the targets of {name}.",
+    "allMaterials": "All materials",
+    "col": {
+      "material": "Material",
+      "received": "Received",
+      "requests": "MR requests",
+      "target": "Material targets",
+      "spend": "Spent / budget",
+      "action": "Actions"
+    },
+    "overview": {
+      "title": "Material figures",
+      "count": "({count} materials)",
+      "help": "Each material's deliveries, MR requests, targets and budget. Click a row to open its records.",
+      "chooseProject": "Choose a project above to list each of its materials.",
+      "empty": "This project has no materials yet. Add them under Category Management → Material categories.",
+      "records": "{count} records",
+      "archived": "{count} archived",
+      "noRequests": "No MR",
+      "requestLine": "Pending {pending} · approved {approved} {unit}",
+      "noTarget": "No target",
+      "targetLine": "{net} / {target} {unit}"
+    },
+    "action": {
+      "records": "View records",
+      "targets": "Material targets",
+      "requests": "MR requests",
+      "suppliers": "By supplier"
+    },
+    "budgets": {
+      "title": "Budgets",
+      "help": "How much each material may cost in all, set on the same page as the quantity targets above. Spent = quantity received × unit price, as the material cost report counts it.",
+      "chooseProject": "Choose a project above to set its materials' budgets.",
+      "empty": "This project has no materials yet.",
+      "alerts": "Alerts",
+      "noAlerts": "No alerts",
+      "set": "Set budget",
+      "dialogTitle": "Budget of {name}",
+      "pinNote": "Saving asks for your sign-off PIN. Every change is kept in the operation records (the amount before and after).",
+      "history": "Change history",
+      "historyTitle": "Budget changes of {name}",
+      "historyHelp": "Every time the budget was set or changed: who, when, before and after. Newest on top.",
+      "historyEmpty": "The budget has not been changed yet.",
+      "historyBudget": "Budget: {before} → {after}",
+      "historyAlerts": "Alerts: {before} → {after}",
+      "historyOn": "Spend and budget switched on",
+      "historyOff": "Spend and budget switched off"
+    },
+    "oneMaterialUnnamed": "Showing one material's targets."
+  },
+  "jb242": {
+    "submit": "Invite",
+    "workplaceTitle": "Where this person works",
+    "headOffice": "Head office",
+    "headOfficeHelp": "Works in the head office and manages the whole company.",
+    "project": "Project",
+    "projectHelp": "Works only on the projects given to them.",
+    "workplaceRequired": "Choose head office or project.",
+    "chooseFirst": "First choose head office or project above.",
+    "projectsHelpProject": "This person sees only the projects ticked.",
+    "projectsRequired": "Tick at least one project.",
+    "presetTitle": "Start from saved permissions",
+    "presetNone": "No, use the system default",
+    "presetHelp": "The permissions below are set from it; change the few that differ.",
+    "presetEmpty": "The company has no saved permissions yet. Once the switches below are set, press \"Save as common permissions\" to pick them next time.",
+    "defaultProject": "System default: every everyday project permission on, group B off.",
+    "defaultHeadOffice": "System default: groups A and B all off; switch on what this person needs.",
+    "saveAsPreset": "Save as common permissions",
+    "presetName": "Name for these permissions",
+    "presetNameRequired": "Enter a name.",
+    "presetSave": "Save",
+    "presetSaved": "Saved as \"{name}\". Pick it next time you invite somebody.",
+    "presetNote": "Saved permissions keep the head-office permissions (groups A and B) and \"All projects\"; everyday project permissions are on for everybody by default.",
+    "more": "More (language, time zone)",
+    "less": "Less",
+    "linkValid": "The link in the invitation e-mail is valid for {valid}.",
+    "days": "{n, plural, one {# day} other {# days}}",
+    "hours": "{n, plural, one {# hour} other {# hours}}",
+    "sent": "Invitation sent to {email}",
+    "needsUserUpdate": "Inviting also sets the person's permissions, so you need 'Edit users' to invite. Ask your company administrator to switch it on for you."
+  },
+  "jb266": {
+    "approvalColumn": "Consultant approval",
+    "approvalOpen": "Open consultant application {no}",
+    "recordedAt": "Recorded",
+    "uploader": "Uploaded by",
+    "recorder": "Recorded by",
+    "openRecord": "Open the original record",
+    "alreadyLinked": "{count} already linked (cannot be removed)",
+    "searchPlaceholder": "Search number, work category or text",
+    "phase": "Work category",
+    "allPhases": "All work categories",
+    "noMatch": "No site progress records match.",
+    "found": "{count} in total",
+    "linkedTitle": "Site records of {task}",
+    "linkedHelp": "The site records linked when progress was confirmed. Press a number to open the original record, a photo to enlarge it.",
+    "linkedLoadError": "Could not load the site records. Please try again.",
+    "linkedEmpty": "No site records linked yet.",
+    "linkedOpen": "See the linked site records",
+    "change": "Progress {before} → {after}",
+    "historyRecords": "{count} site records linked this time",
+    "before": "Progress before",
+    "after": "Progress after",
+    "confirmer": "Confirmed by",
+    "confirmedAt": "Confirmed at",
+    "note": "Note",
+    "recordsHidden": "Head office has not opened site progress for you; only the number is shown.",
+    "noRecordsThatTime": "No site records were linked this time.",
+    "newThisTime": "New this time",
+    "dashboardTitle": "Schedule progress",
+    "dashboardHelp": "Shown automatically from this project's schedule and updated every time the manager confirms progress. No summary needs to be created.",
+    "plannedProgress": "Planned progress",
+    "plannedProgressHint": "Where the plan says today",
+    "actualProgress": "Actual progress",
+    "actualProgressHint": "As confirmed by the manager",
+    "completedTasks": "Tasks completed",
+    "delayedTasks": "Tasks delayed",
+    "delayedHint": "Past the planned finish and not done",
+    "chartTitle": "Each task: planned and actual progress",
+    "chartPlanned": "Planned",
+    "chartActual": "Actual",
+    "noTasks": "This schedule has no tasks yet.",
+    "chooseProject": "Choose a project to see its schedule progress here.",
+    "noPlan": "This project has no schedule yet.",
+    "lastConfirmed": "Last confirmed {time}"
+  },
+  "jb279": {
+    "link": {
+      "title": "Linked request (MR / other request)",
+      "help": "Choose this project's MR or other request this material record belongs to. You can choose more than one.",
+      "phoneLabel": "Linked request (MR / other request)",
+      "phoneHelp": "Choose the request this material is for. You may leave it empty and the office fills it in; a record with no link cannot be archived.",
+      "chooseProjectFirst": "Choose the project first.",
+      "loading": "Reading the requests…",
+      "what": "this project's requests",
+      "none": "This project has no request to link yet.",
+      "search": "Search request number, material or subject",
+      "chosen": "{count} chosen",
+      "missing": "Not linked to an MR / other request yet. It cannot be archived until it is linked.",
+      "empty": "No linked request yet.",
+      "edit": "Link request",
+      "change": "Change link",
+      "dialogTitle": "{reference} · Linked request",
+      "save": "Save link",
+      "cancel": "Cancel",
+      "saved": "Link saved",
+      "failed": "Not saved. Please try again.",
+      "linkedBy": "Linked by {name} on {when}",
+      "lockedArchived": "Archived: the link can no longer change."
+    },
+    "archiveBlocked": "Not linked to an MR / other request yet, so it cannot be archived. Choose one under 「Linked request」 first.",
+    "records": {
+      "title": "Linked material records",
+      "help": "The material deliveries, returns and issues linked to this request. Click a row to open the original record.",
+      "loading": "Reading…",
+      "what": "the linked material records",
+      "empty": "No material record is linked to this request yet.",
+      "kind": {
+        "RECEIPT": "Material delivery",
+        "RETURN": "Material return",
+        "ISSUE": "Material issue"
+      },
+      "column": {
+        "kind": "Type",
+        "reference": "Number",
+        "date": "Date",
+        "material": "Material",
+        "quantity": "Quantity",
+        "status": "Status"
+      },
+      "notInRequest": "Not in the request",
+      "appliedOnly": "(applied)",
+      "totalsTitle": "Quantities (linked records only)",
+      "totalsHelp": "Deliveries are compared with the requested quantity; returns and issues are counted on their own and never taken off each other. Rejected deliveries are not counted; returns and issues count once completed.",
+      "totals": {
+        "material": "Material",
+        "applied": "Requested",
+        "received": "Delivered",
+        "outstanding": "Still to come",
+        "overBy": "{quantity} over",
+        "returned": "Returned",
+        "issued": "Issued"
+      }
+    }
+  },
+  "jb251": {
+    "saved": "Menu names saved.",
+    "company": {
+      "title": "Menu names",
+      "subtitle": "Call the menu what your company calls it, for example \"Equipment movement\" as \"Equipment rental\". Only your company sees it; functions, records and permissions stay the same.",
+      "scope": "Only the left menu and the name at the top of each page change; PDFs, notifications and help texts keep the system names.",
+      "systemName": "System name",
+      "ownNameIn": "Your company's name ({language})",
+      "ownNameFor": "Your company's name for \"{name}\"",
+      "blankHint": "Leave empty to use the system name",
+      "otherLanguages": "Other languages",
+      "restore": "Use system name",
+      "save": "Save menu names",
+      "noChange": "Nothing changed yet.",
+      "fixFirst": "Fix the names marked in red first.",
+      "changedCount": "{count} menu names changed",
+      "saveFailed": "Could not save. Please try again.",
+      "problem": {
+        "tooLong": "At most {max} characters.",
+        "lineBreak": "No line breaks.",
+        "markup": "No angle brackets."
+      }
+    },
+    "mse": {
+      "title": "Menu names",
+      "help": "When on, people in this company who may change Company settings can rename its menu there. Only this company is affected; functions, records and permissions stay the same. Turned off, the names are kept but not shown; turned on again, they come back.",
+      "switch": "Let this company rename its menu",
+      "changed": "Names this company changed ({count})",
+      "none": "This company has not renamed any menu.",
+      "hiddenNow": "Turned off: these names are not shown; the menu uses the system names.",
+      "openedToast": "This company may now rename its menu.",
+      "closedToast": "Turned off: this company's menu is back to the system names.",
+      "saveFailed": "Could not save. Please try again."
+    }
+  },
+  "jb282": {
+    "reviewLocked": "Your account does not have \"Review and arrange site disposal\", so you cannot review. Ask the company administrator to turn it on in the user's permissions."
+  },
+  "jb284": {
+    "expiryPast": "This time has already passed. Choose a time later than now."
+  },
+  "jb285": {
+    "step": {
+      "approved": "Application approved",
+      "executor": "Executor chosen (field staff or outside clearance company)",
+      "photos": "Loading and leaving-site photos taken (vehicle exit / Gate Pass)",
+      "photosDone": "Loading and leaving-site photos taken: {count} ({when})",
+      "sign": "Safety manager signs",
+      "gate": "Gate release"
+    },
+    "stepsLabel": "Exit pass steps",
+    "locked": {
+      "executor": "No executor has been chosen yet, so the exit pass cannot be signed. Press [Choose executor] first.",
+      "photos": "No vehicle exit / Gate Pass photo yet, so the exit pass cannot be signed. The site or the clearance company takes them on the phone first."
+    },
+    "capture": {
+      "title": "Loading and leaving-site photos",
+      "body": "When the lorry is loaded and before it leaves the site, photograph the vehicle leaving and the Gate Pass. The safety manager signs the exit pass after that.",
+      "done": "{count} taken and sent to the office."
+    }
+  },
+  "jb286": {
+    "title": "Record numbers",
+    "description": "{reference}: fill in the weight, DO number and plate the driver left blank. To change a number already there, press Correct on the load.",
+    "correctHint": "Only blank numbers are filled; each one is kept on the load's history.",
+    "save": "Save",
+    "nothing": "Fill in a number first",
+    "saved": "Numbers recorded",
+    "historyFilled": "filled in",
+    "lockedNoLorry": "No lorry has been sent yet. Numbers can be filled in once the driver sends a lorry."
+  },
+  "jb265": {
+    "startedBy": "Started by consultant {name}"
+  },
+  "jb269": {
+    "spec": "Spec {spec}",
+    "uploader": "Uploaded by {name}",
+    "count": "{count, plural, one {# file} other {# files}}",
+    "noNumber": "No number",
+    "unclassified": "Not yet classified",
+    "enlarge": "View photo {n} large",
+    "selectPhoto": "Tick photo {n}",
+    "openFile": "Open file"
+  },
+  "jb270": {
+    "title": "Consultant approvals",
+    "none": "No consultant application has linked this delivery's photos yet.",
+    "decidedAt": "Decided {when}",
+    "notDecided": "Not decided yet",
+    "open": "View the approval report and material certificates",
+    "independent": "Only the consultant applications' results are shown here; they never change this delivery's acceptance."
+  },
+  "jb274": {
+    "notifyOnly": "Also notify (does not assign)",
+    "notifyOnlyHint": "People ticked here are only notified and can talk in the rectification chat; they are not the responsible person. Choose who fixes it in \"Responsible person\" above.",
+    "notChosenYet": "No responsible person chosen: the item will show \"Waiting to be assigned\" and needs assigning again.",
+    "askAssignTitle": "No responsible person chosen yet. Assign it to someone you ticked under \"Also notify\"?",
+    "askAssignHint": "People under \"Also notify\" only get the notice - they do not fix it. Without a responsible person the item shows \"Waiting to be assigned\".",
+    "assignTo": "Assign to {name}",
+    "notifyOnlyGo": "Don't assign, create it now"
+  },
+  "jb244": {
+    "open": "Import Excel",
+    "template": "Download Excel template",
+    "title": {
+      "supplier": "Import Excel · Suppliers",
+      "material": "Import Excel · Material categories"
+    },
+    "intro": {
+      "supplier": "Upload your own supplier Excel. The system recognises each column and shows you a preview: which rows are new, which are already there (skipped) and which have a problem. Nothing is saved until you press Confirm import; suppliers already on the list are not changed.",
+      "material": "Upload your own material Excel. One specification per row; rows with the same material name go under one material. The system recognises each column and shows you a preview; nothing is saved until you press Confirm import, and materials and specifications already on the list are not changed."
+    },
+    "chooseFirst": "No file chosen yet",
+    "chooseFile": "Choose Excel file",
+    "changeFile": "Choose another file",
+    "xlsxOnly": "Only .xlsx. Save an old .xls as .xlsx in Excel (Save As) first.",
+    "fileLine": "Header on row {row}, {total} rows of data below it",
+    "reading": "Reading the Excel…",
+    "readFailed": "This Excel could not be read. Please choose another file.",
+    "columnsTitle": "Match Excel columns",
+    "columnsHelp": "Columns recognised by their headers are already chosen. Change any that are wrong; choose Not imported for one you do not want.",
+    "notImported": "Not imported",
+    "columnOption": "Column {letter} · {header}",
+    "columnNoHeader": "Column {letter}",
+    "example": "e.g. {values}",
+    "requiredMissing": "Choose which Excel column is the {field}.",
+    "noPrices": "Your account does not see amounts, so prices are not imported.",
+    "twoLevels": "Materials have two levels: material name › specification. An Excel with a category column and no material name column has its category imported as the material name.",
+    "categoryLeftOut": "Column {letter} \"{header}\" is not imported: materials have only two levels (material name › specification), with no category above them. To keep it, choose this column for Description.",
+    "batchTitle": "For the whole import",
+    "batchHelp": "Every supplier needs a company type, industry and main products. The Excel's own values are used; rows without them take what you choose and fill in here.",
+    "batch": {
+      "industry": "Industry (for rows without one)",
+      "main_products": "Main products (for rows without them)"
+    },
+    "unitsTitle": "Units not on your unit list",
+    "unitsHelp": "These units are not on your unit list yet. Match each to a listed unit, or add it.",
+    "unitLabel": "\"{unit}\" in the Excel",
+    "unitLines": "On rows {lines}",
+    "unitNew": "Add \"{unit}\" to the unit list",
+    "unitMapTo": "Same as \"{unit}\"",
+    "unitAdded": "Unit \"{unit}\" will be added to the unit list",
+    "pricesPin": "This import sets {count} prices. Confirm import asks for your six-digit sign-off PIN; the prices start today.",
+    "previewTitle": "Preview",
+    "counts": "{new} new · {exists} already there, skipped · {problem} with a problem (not imported)",
+    "filter": {
+      "all": "All ({count})",
+      "new": "New ({count})",
+      "exists": "Already there ({count})",
+      "problem": "Problems ({count})"
+    },
+    "col": {
+      "line": "Row",
+      "status": "Result"
+    },
+    "status": {
+      "new": "New",
+      "exists": "Already there, skipped",
+      "problem": "Problem"
+    },
+    "existsMatch": "Already there: {code} {name}",
+    "sameAsLine": "Same as row {line}",
+    "problem": {
+      "missing": "No {field}",
+      "invalid": "{field} is not right",
+      "too_long": "{field} is too long"
+    },
+    "note": {
+      "supplier_not_found": "Supplier \"{name}\" is not on your supplier list: not linked",
+      "material_added": "Material \"{name}\" is added too"
+    },
+    "moreRows": "Showing the first {shown} of {total} rows.",
+    "confirm": "Confirm import ({count} rows)",
+    "nothingNew": "There are no new rows to import.",
+    "cancel": "Cancel",
+    "close": "Close",
+    "done": "Import done: {added} rows added, {skipped} already there and skipped, {problems} with a problem not imported.",
+    "doneWhere": {
+      "supplier": "The new suppliers are on the supplier list, numbered by the system.",
+      "material": "The new materials and specifications are on the company's material list, numbered by the system. Existing projects do not have them yet: to put them into existing projects, press 【Add to existing projects】."
+    },
+    "doneUnits": "Units added: {names}",
+    "needFile": "Choose the Excel file first.",
+    "addToProjects": "Add to existing projects",
+    "categoryAsDescription": "Column {letter} \"{header}\" goes into each material's Description, so nothing is lost (materials have two levels: material name › specification)."
+  },
+  "jb278": {
+    "tabSettled": "Settled",
+    "voucherNo": "Voucher No.",
+    "voucherNoPlaceholder": "e.g. CN No. 1232",
+    "voucherNoHint": "Required. The voucher number goes here, not in the remark.",
+    "vouchersRequired": "Upload the voucher (photo or PDF)",
+    "vouchersRequiredHint": "Required - at least one. Up to {count} files, {limit} MB each.",
+    "voucherFixed": "Once confirmed, the voucher number and the uploaded vouchers cannot be changed or deleted; who did it and when are kept automatically.",
+    "oldNoVoucher": "— (an older check: its voucher number, if any, is in the remark)",
+    "issueButton": "Check & settle",
+    "issueButtonHint": "Tick one party's finished records to check them together; settle them after checking",
+    "issueTitle": "Material issues · Check & settle",
+    "rentalTitle": "Equipment rental statements · Check & settle",
+    "stepCheck": "Check",
+    "stepSettle": "Settle",
+    "resultOnly": "Only the check and settlement result is recorded here - no payment or finance step.",
+    "issueHelp": "Choose the company, then tick its handed-over issues not checked yet.",
+    "chooseCompany": "Choose the company",
+    "noCompanies": "No material issue is waiting to be checked.",
+    "issuesWhat": "the issues waiting to be checked",
+    "issuesPickTitle": "{name}: issues waiting to be checked",
+    "issuesPickHelp": "Tick the issues to check - one or more. Click a row to see the whole record.",
+    "noIssues": "This company has no issue waiting to be checked.",
+    "tickIssuesFirst": "Tick the issues to check first; the confirmation then appears below.",
+    "issueWindowTitle": "Issue check {number}",
+    "issuesTitle": "Issues in this check ({count})",
+    "issuesHelp": "Click any row to open that issue's original record; close it to come back here.",
+    "issuePdf": "Material issue check PDF",
+    "issuePdfTitle": "Material issue check {number}",
+    "col": {
+      "date": "Date",
+      "issueNo": "Issue No.",
+      "project": "Project",
+      "materials": "Materials and quantities",
+      "company": "Company",
+      "equipmentNo": "Equipment No.",
+      "recipient": "Received by",
+      "amount": "Amount (RM)",
+      "party": "Supplier / company",
+      "settlementNo": "Settlement No.",
+      "checks": "Checks",
+      "settledBy": "Settled by"
+    },
+    "checksValue": "{count}",
+    "amountTotal": "Total amount (RM)",
+    "settleButton": "Settle",
+    "settleTitle": "Settle",
+    "settleHelp": "Tick one party's checks that are not settled yet and settle them together.",
+    "settleNone": "No check is waiting to be settled.",
+    "chooseParty": "Choose the supplier or company",
+    "settleChecksTitle": "{name}: checked, waiting to be settled",
+    "settleTickFirst": "Tick the checks to settle first; the confirmation then appears below.",
+    "settler": "Settled by",
+    "confirmSettle": "Confirm settlement",
+    "settlePin": "After 「Confirm settlement」, enter your six-digit sign-off PIN.",
+    "settledToast": "Settled as {number}",
+    "settlementsCount": "{count} settlements",
+    "settlementsWhat": "the settlements",
+    "settlementWhat": "this settlement",
+    "settlementWindowTitle": "Settlement {number}",
+    "settlementChecksTitle": "Checks in this settlement ({count})",
+    "settlementChecksHelp": "Click a row to open that check, and the original records from there.",
+    "settlementHidden": "{count} more checks are on other projects.",
+    "settlementDetails": "Settlement details",
+    "settlementVouchersHint": "The photos or PDFs uploaded when settling. A settlement cannot be changed or deleted.",
+    "panelTitle": "Check & settlement",
+    "panelState": "Check status",
+    "panelCheckNo": "Check No.",
+    "panelChecker": "Checked by and when",
+    "panelSettleState": "Settlement status",
+    "panelSettlementNo": "Settlement No.",
+    "panelUnchanged": "The check and settlement are only linked here; the original record does not change.",
+    "statePending": "Waiting to be checked",
+    "stateChecked": "Checked",
+    "stateSettled": "Settled",
+    "stateNotSettled": "Not settled yet",
+    "chooseRentalCompany": "Choose the equipment company",
+    "rentalHelp": "Choose the equipment company, then tick its statements waiting to be checked.",
+    "rentalNoPending": "No statement is waiting to be checked.",
+    "rentalWhat": "the statements waiting to be checked",
+    "rentalPickTitle": "{name}: statements waiting to be checked",
+    "rentalPickHelp": "Tick the statements to check - one or more. Click a row to see the statement.",
+    "rentalTickFirst": "Tick the statements to check first; the confirmation then appears below.",
+    "rentalWindowTitle": "Equipment rental check {number}",
+    "rentalStatementsTitle": "Statements in this check ({count})",
+    "rentalStatementsHelp": "Click any row to open that statement; close it to come back here.",
+    "stateNoCompany": "Cannot be checked: no owner company",
+    "noCompanyHelp": "This issue has no owner company (the machine has no supplier on its register), so it is not offered in 「Check & settle」. Press 【Correct】 above and choose the owner company; then it can be checked."
+  },
+  "jb280": {
+    "title": "Equipment rental statements",
+    "count": "{count} statements",
+    "what": "the statements",
+    "tabsLabel": "Statement tabs",
+    "tab": {
+      "pending": "Waiting to be checked",
+      "checked": "Checked",
+      "settled": "Settled",
+      "all": "All statements"
+    },
+    "state": {
+      "PENDING": "Waiting to be checked",
+      "CHECKED": "Checked",
+      "SETTLED": "Settled",
+      "CANCELLED": "Cancelled"
+    },
+    "resultOnly": "Only the check and settlement result is recorded here - no payment or finance step.",
+    "allCompanies": "All equipment companies",
+    "chooseCompany": "Choose the equipment company",
+    "chooseProject": "Choose the project",
+    "dateFrom": "Start date",
+    "dateTo": "End date",
+    "col": {
+      "statementNo": "Statement No.",
+      "project": "Project",
+      "company": "Equipment company",
+      "period": "Dates",
+      "machines": "Machines",
+      "total": "Rental total (RM)",
+      "state": "Status",
+      "checkNo": "Check No.",
+      "settlementNo": "Settlement No.",
+      "view": "View"
+    },
+    "machinesValue": "{count}",
+    "view": "View",
+    "generate": "Generate statement",
+    "generateHelp": "Choose the project, the equipment company and the dates; the amounts come from the equipment rental fees (the same as the rental fee report). Months whose amounts are not confirmed yet are confirmed when you generate it.",
+    "preview": "Preview",
+    "overlap": "These dates overlap statement {number}; the same fee cannot be settled twice.",
+    "overlapShort": "Dates that do not overlap",
+    "generatePin": "After 「Generate statement」, enter your six-digit sign-off PIN. The amounts do not change afterwards.",
+    "generatedToast": "Statement {number} generated",
+    "cancelledToast": "Statement {number} cancelled",
+    "line": {
+      "equipment": "Equipment",
+      "terms": "Rental terms",
+      "daysWorked": "Days worked",
+      "normalHours": "Normal hours",
+      "overtimeHours": "Overtime hours",
+      "records": "Equipment records",
+      "total": "Total"
+    },
+    "openMonth": "{month} by month",
+    "linesTitle": "Machines and fees",
+    "linesHelp": "Click 「by month」 on a machine to open its hours and fees in Equipment operator hours.",
+    "generatedBy": "Generated by",
+    "windowTitle": "Equipment rental statement {number}",
+    "pdf": "Statement PDF",
+    "cancel": "Cancel statement",
+    "cancelTitle": "Cancel statement {number}",
+    "cancelHelp": "Only a statement waiting to be checked can be cancelled. It is kept, and its dates can be generated again. Your six-digit PIN is asked.",
+    "cancelReason": "Why it is cancelled",
+    "confirmCancel": "Confirm cancel",
+    "willConfirm": "Generating the statement also confirms these months' amounts (they cannot be changed afterwards):",
+    "willConfirmItem": "{equipment} {month}",
+    "onStatement": "Statement {number} ({state})",
+    "hoursLocked": "This day's hours are in statement {number} (checked or settled); the times, the machine and the operator can no longer be changed."
+  },
+  "jb276": {
+    "help": "Check every item carefully: supplier, material name, specification, unit, quantity, vehicle plate, DO (the delivery order and the data read from it), related photos and the signed receipt.",
+    "missingTitle": "These required items are incomplete, so the record cannot be archived:",
+    "missingShort": "Some required items are still missing, so it cannot be archived.",
+    "missing": {
+      "supplier": "Supplier",
+      "material_name": "Material name",
+      "specification": "Specification",
+      "unit": "Unit",
+      "quantity": "Quantity",
+      "vehicle_plate": "Vehicle plate",
+      "do_photo": "Photo of the DO (delivery order)",
+      "do_data": "Data read from the DO (DO number)",
+      "return_note": "Return Note and the approver's signature",
+      "photos": "Related photos",
+      "signatures": "Signed receipt (both signatures)",
+      "exit_not_confirmed": "\"Confirm formal exit\" not done yet",
+      "other": "Other required items",
+      "mr_link": "Link to its MR / other request (choose it under 「Linked request」)"
+    },
+    "tick": "I have checked all the information and it is correct.",
+    "tickRequired": "(required)",
+    "tickFirst": "Tick \"I have checked all the information and it is correct.\" first.",
+    "pinNext": "After ticking, press Confirm and archive and enter your six-digit PIN.",
+    "closedBy": "Archived by {name} on {when}. Nobody can change or delete this record any more, head office included.",
+    "lockedTitle": "This record has been archived",
+    "lockedNote": "Archived: nobody can change or delete this record any more (head office included). It can still be viewed, printed and added to a package."
+  },
+  "jb281": {
+    "title": "Material return steps (in order)",
+    "step": {
+      "applied": "Return application sent from the phone",
+      "approved": "Office reviews and approves",
+      "site_exit": "Phone uploads the actual exit photos and details",
+      "exit_pass": "Exit pass checked and signed (sent to the gate phone)",
+      "gate": "Gate photographs the vehicle, plate and goods",
+      "exit_confirmed": "Office checks the gate's upload and confirms the formal exit",
+      "archived": "All items checked, formally archived"
+    },
+    "state": {
+      "done": "Done",
+      "current": "Now",
+      "locked": "Locked",
+      "rejected": "Rejected - the application ended",
+      "not_recorded": "(finished before this rule; no such step)"
+    },
+    "started": "Exit pass started: {name} · {when}",
+    "gateRecord": "Gate record {number}, {photos} photos",
+    "waitGate": "The gate has not photographed and released it yet (vehicle, plate and goods), so the formal exit cannot be confirmed.",
+    "phoneWaitApproval": "Sent. Waiting for the office to review and approve.",
+    "shot": {
+      "VEHICLE": "Vehicle",
+      "PLATE": "Number plate",
+      "GOODS": "Goods leaving"
+    },
+    "gateShotsTitle": "Gate photos (vehicle, number plate, goods leaving)",
+    "gateShotsHint": "Material return: photograph the vehicle, its number plate and the goods leaving - at least one each.",
+    "gateShotTake": "Photograph: {shot}",
+    "gateShotTaken": "{shot}: {count} taken · take another",
+    "gateNeedShots": "Take at least one photo each of the vehicle, the number plate and the goods leaving before releasing.",
+    "gateShotsMissing": "Not taken yet: {shots}",
+    "checkGatePhotos": "Check the gate's photos first, then press Confirm formal exit:"
+  },
+  "jb250fix": {
+    "pageModuleOff": "Your company does not have this feature switched on. Please contact head office or MSE.",
+    "reportModuleOff": "{modules} is not switched on, so this report has no records.",
+    "cardOff": "Not switched on",
+    "noteSafety": "Hazard rectification and work permits are both here and switch together.",
+    "noteGate": "The gate phone's Photo follows Gate Records and its Scan Visitor QR follows Site Access; they switch separately.",
+    "noteReports": "This report's records come from Material In: with Material In off, this report has no records."
   }
 }

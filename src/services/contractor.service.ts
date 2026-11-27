@@ -12,6 +12,7 @@ import type {
   DispatchSummary,
   MaterialReceipt,
   MaterialReceiptDetail,
+  ReceiptConsultantApproval,
   MySubmissionDetail,
   MySubmissionRow,
   MySubmissionsPage,
@@ -76,7 +77,15 @@ export interface ExportSummary {
    * equipment and waste, which are not materials; a material list's server
    * never answers it.
    */
-  groupBy: "unit" | "material" | "material_cumulative" | "material_unit";
+  /**
+   * `material_cost` (JB256, 客户 11-24b 事项 3): 材料成本报表's closing block -
+   * per material + specification + unit its 累计数量, 收货次数 and 金额, then
+   * one 总金额 line; the page's 「按材料统计成本」 and 「采购成本」.
+   */
+  groupBy: "unit" | "material" | "material_cumulative" | "material_unit" | "material_cost";
+  /** `material_cost`: the 金额 heading and the 总金额 line's words. */
+  amountLabel?: string;
+  totalLabel?: string;
   /** `material_unit`: the words of an empty specification and an empty unit. */
   noSpecLabel?: string;
   noUnitLabel?: string;
@@ -116,6 +125,11 @@ export interface ExportRequest {
    * file is the module's plain list export.
    */
   reportType?: "material_quantity" | "material_cost";
+  /**
+   * 「不包含照片」 (JB256): `false` leaves every photograph out - no photo under
+   * a row, no evidence pages. Left out, the file is as it always was.
+   */
+  includePhotos?: boolean;
 }
 
 /**
@@ -138,6 +152,7 @@ export function exportBody(request: ExportRequest) {
     ...(request.completeEvidence ? { complete_evidence: true } : {}),
     ...(request.returnTo ? { return_to: request.returnTo } : {}),
     ...(request.reportType ? { report_type: request.reportType } : {}),
+    ...(request.includePhotos === false ? { include_photos: false } : {}),
     ...(request.summary
       ? {
           summary: {
@@ -163,6 +178,14 @@ export function exportBody(request: ExportRequest) {
                   material_label: request.summary.materialLabel ?? "",
                   specification_label: request.summary.specificationLabel ?? "",
                   cumulative_label: request.summary.cumulativeLabel ?? "",
+                }
+              : {}),
+            ...(request.summary.groupBy === "material_cost"
+              ? {
+                  material_label: request.summary.materialLabel ?? "",
+                  specification_label: request.summary.specificationLabel ?? "",
+                  amount_label: request.summary.amountLabel ?? "",
+                  total_label: request.summary.totalLabel ?? "",
                 }
               : {}),
             ...(request.summary.groupBy === "material_unit"
@@ -712,6 +735,14 @@ export function getReceiptNetTotals(
 
 export function getReceipt(id: string): Promise<MaterialReceiptDetail> {
   return api.get<MaterialReceiptDetail>(`/api/receipts/${id}/get_receipt/`);
+}
+
+/** 「顾问审批记录」 of a delivery (JB270): read from 关联现场证据, never linked by hand. */
+export async function getReceiptConsultantApprovals(id: string): Promise<ReceiptConsultantApproval[]> {
+  const data = await api.get<{ results: ReceiptConsultantApproval[] }>(
+    `/api/receipts/${id}/consultant_approvals/`,
+  );
+  return data.results;
 }
 
 /**

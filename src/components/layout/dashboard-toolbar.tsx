@@ -15,6 +15,8 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { Button } from "@/components/ui/button";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useCurrentNav } from "@/hooks/use-current-nav";
+import { useNavLabel } from "@/hooks/use-nav-label";
+import { itemNameKey } from "@/lib/menu-names";
 import { useQueryClient } from "@tanstack/react-query";
 import { consultantProjectToAutoSelect } from "@/lib/consultant-project";
 import { setActiveProjectId } from "@/lib/project-context";
@@ -126,12 +128,13 @@ function PageTitle({
 }: {
   current: NonNullable<ReturnType<typeof useCurrentNav>>;
 }) {
-  const t = useTranslations();
+  const navLabel = useNavLabel();
   // The page's own, more precise name wins over its menu entry's (B14).
   const override = usePageTitleOverride();
   const Icon = current.item.icon;
-  const entry = t(`nav.${current.item.labelKey}`);
-  const page = override ?? (current.leaf ? t(current.leaf.labelKey) : null);
+  // JB251: 「菜单项 › 页面」 reads the company's own menu names.
+  const entry = navLabel(itemNameKey(current.item));
+  const page = override ?? (current.leaf ? navLabel(current.leaf.labelKey) : null);
   const showPage = page !== null && page !== entry;
   return (
     // JB202: the page name wraps rather than ending in 「…」 (in English

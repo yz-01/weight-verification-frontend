@@ -14,6 +14,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { OperatorExpiryTag, OperatorProfileWindow } from "@/components/equipment-hours/operator-profile-window";
+import { OtherIdentitiesNote } from "@/components/field-staff/other-identities-note";
 import { FieldWrapper, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { SupplierPicker } from "@/components/shared/supplier-picker";
 import { Button } from "@/components/ui/button";
@@ -163,6 +164,8 @@ export function DriverClockLinksDialog({
                       <p className="text-xs font-medium text-warning">{t("office.noMachines")}</p>
                     )
                   ) : null}
+                  {/* JB246: the same number on another live identity (from before the rule). */}
+                  <OtherIdentitiesNote others={row.other_identities} />
                   {row.last_used_at ? (
                     <p className="text-xs text-muted-foreground">
                       {t("office.lastUsed", { at: df.dateTime(row.last_used_at) })}

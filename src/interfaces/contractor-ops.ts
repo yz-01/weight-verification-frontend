@@ -108,6 +108,23 @@ export interface MaterialSpec {
   sort_order: number;
   /** 单价 (JB167): office only; absent on the phone and with 金额查看 off. */
   price?: MaterialPriceSummary | null;
+  /**
+   * The price on one delivery's day (JB275): only in the material data read
+   * for a delivery's form (`get_material_catalogue?receipt=`), and not with
+   * 金额查看 off. `null`: none in force that day.
+   */
+  list_price?: ListPriceOnDay | null;
+  /** With none in force: the first price that starts after that day. */
+  list_price_later?: ListPriceOnDay | null;
+}
+
+/** One price of 材料分类 as a delivery's form reads it (JB275). */
+export interface ListPriceOnDay {
+  unit_price: string;
+  unit: string;
+  /** A unit the company added; empty for a built-in code (translated). */
+  unit_label: string;
+  effective_from: string;
 }
 
 /** One price as 材料分类 shows it (JB167): per `unit`, from `effective_from`. */
@@ -361,6 +378,8 @@ export interface FieldTask extends RecordedBy {
   submission_category: string;
   assigned_to: string;
   assigned_to_name: string;
+  /** JB245: the assignee was taken off the project (or their account no longer works). */
+  assignee_left_project?: boolean;
   created_by_name: string;
   category: string | null;
   category_name: string | null;
@@ -424,6 +443,8 @@ export interface FieldTask extends RecordedBy {
   can_confirm?: boolean;
   /** 「确认完成」 on the desk while it is still with its assignee (JB129). */
   can_close?: boolean;
+  /** JB265: set by a consultant (「顾问发起」). */
+  created_by_consultant?: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -1077,9 +1098,63 @@ export interface MaterialIssueOptions {
   recipients: string[];
 }
 
+/**
+ * JB281 (客户 11-26 事项 22): one of the seven steps of a 材料退场, as the
+ * record's detail (`get_record`) gives them - in order, each done (who, when),
+ * current, locked, rejected (step 2 said no) or not_recorded (a return
+ * finished before the rule went on without it).
+ */
+export interface ReturnFlowStep {
+  key:
+    | "applied"
+    | "approved"
+    | "site_exit"
+    | "exit_pass"
+    | "gate"
+    | "exit_confirmed"
+    | "archived";
+  state: "done" | "current" | "locked" | "rejected" | "not_recorded";
+  by: string;
+  at: string | null;
+  started_by?: string;
+  started_at?: string | null;
+  sent_at?: string | null;
+  incident_no?: string;
+  photos?: number;
+  rejected?: boolean;
+  /** Step 5: how many photos of each shot (车辆 / 车牌 / 退场货物). */
+  shots?: Record<"VEHICLE" | "PLATE" | "GOODS", number>;
+  /** Step 5: the gate's photographs, each labelled. */
+  gate_photos?: {
+    id: string;
+    shot: "VEHICLE" | "PLATE" | "GOODS" | "";
+    image: string | null;
+    watermarked_image?: string;
+    captured_at: string | null;
+  }[];
+}
+
 export interface MaterialOutgoing extends RecordedBy {
   /** 供应商退货 or 材料领用 (JB168); absent on a cached row from before. */
   kind?: MaterialOutgoingKind;
+  /**
+   * 核对与结算 (JB278, 客户 11-26 事项 19 第 3 点): 核对状态, 核对编号, 核对人及
+   * 日期, 结算状态, 结算编号 - null while 待核对.
+   */
+  reconciliation?: {
+    state: "CHECKED" | "SETTLED";
+    kind: "RETURN" | "ISSUE" | "RENTAL";
+    check_id: string;
+    check_no: string;
+    checked_by_name: string;
+    checked_at: string;
+    settlement_id: string | null;
+    settlement_no: string;
+    settled_by_name: string;
+    settled_at: string | null;
+  } | null;
+  /** JB281: the seven steps of a 材料退场 - on its detail only. */
+  return_steps?: ReturnFlowStep[];
   /** 材料领用: the machine scanned and what the register said then. */
   equipment?: string | null;
   equipment_no?: string;
@@ -1329,7 +1404,17 @@ export interface DisposalTimelineEntry {
   happened_at: string;
 }
 
+/**
+ * 垃圾清运's two businesses (JB248, 客户 11-23b 事项 1): one flow, one record,
+ * counted apart. Every job from before is 垃圾清运.
+ */
+export type DisposalClearanceKind = "GARBAGE" | "SCRAP";
+
+export const DISPOSAL_CLEARANCE_KINDS: readonly DisposalClearanceKind[] = ["GARBAGE", "SCRAP"];
+
 export interface DisposalRequest extends RecordedBy {
+  /** 垃圾清运 or 废料处理 (JB248); absent from an old cached row - 垃圾清运. */
+  clearance_kind?: DisposalClearanceKind;
   /** The number before I6 renumbered it (「旧编号」); empty on a newer record. */
   legacy_no?: string;
   /** A request to accept or a lorry back to check, for this reader (2026-10-09). */
@@ -1713,6 +1798,68 @@ export type ArchiveOutgoingKind = "RETURN" | "ISSUE";
 
 export type PackageState = "DRAFT" | "CONFIRMED";
 export type PackageReviewState = "NOT_SENT" | "SENT" | "REVIEWED";
+/**
+ * The list's 「审阅」 column (JB252, 客户 11-24 事项 3 三) - exactly the
+ * client's table, worked out by the server from the approval recipients.
+ */
+export type PackageProgress =
+  | "NOT_SENT"
+  | "SENT"
+  | "VIEWED"
+  | "IN_REVIEW"
+  | "RETURNED"
+  | "APPROVED"
+  | "COMPLETED";
+export const PACKAGE_PROGRESS: readonly PackageProgress[] = [
+  "NOT_SENT",
+  "SENT",
+  "VIEWED",
+  "IN_REVIEW",
+  "RETURNED",
+  "APPROVED",
+  "COMPLETED",
+];
+/** 「提交审批」 or 「资料传阅」 (JB252). */
+export type RecipientPurpose = "APPROVAL" | "CIRCULATION";
+export type PackageSignatureSide = "SENDER" | "REVIEWER";
+export type PackageSignatureAction = "SUBMITTED" | "CONFIRMED" | "APPROVED" | "RETURNED";
+
+/** One electronic signature on one round (JB252): written once, kept for good. */
+export interface PackageSignature {
+  id: string;
+  round_no: number;
+  side: PackageSignatureSide;
+  action: PackageSignatureAction;
+  recipient: string | null;
+  recipient_name: string;
+  recipient_kind: RecipientKind | "";
+  signer_name: string;
+  signed_at: string;
+  opinion: string;
+  decisions: {
+    item: string;
+    record_kind: string;
+    reference: string;
+    decision: PackageItemReviewState;
+    reason: string;
+  }[];
+  claim_amount: string | null;
+  approved_amount: string | null;
+  amount_reason: string;
+  round_sha256: string;
+  signature_url: string | null;
+}
+
+/** JB254: 申请金额 / 本期批准金额 / 差额 - on the two money types only. */
+export interface PackageMoney {
+  claim_amount: string | null;
+  approved_amount: string | null;
+  difference: string | null;
+  approved_amount_reason: string;
+  approved_at: string | null;
+  /** 「锁定已批准金额」. */
+  locked: boolean;
+}
 export type PackageItemReviewState = "PENDING" | "ACCEPTED" | "RETURNED";
 /** What a package is for (batch H, HD17). Progress Claim is opened by period. */
 export type PackageType =
@@ -1755,7 +1902,12 @@ export type PackageEventKind =
   | "REVOKED"
   | "EXTENDED"
   | "LINK_REGENERATED"
-  | "REPORT";
+  | "REPORT"
+  | "SUBMIT_SIGNED"
+  | "REVIEW_SIGNED"
+  | "APPROVED"
+  | "COMPLETED"
+  | "CLAIM_AMOUNT";
 
 export interface PackageRecipient {
   id: string;
@@ -1785,6 +1937,10 @@ export interface PackageRecipient {
   created_by_name: string;
   /** Only in the answer that made (or remade) the link. */
   token?: string;
+  /** JB252: 提交审批 (reviewed and signed) or 资料传阅 (read only). */
+  purpose?: RecipientPurpose;
+  /** JB252: where this reviewer is in the current round; null for 资料传阅. */
+  progress?: PackageProgress | null;
 }
 
 /** One recipient's answer on one record. */
@@ -2010,6 +2166,8 @@ export type PackageLayoutRow =
       letter: boolean;
       uploaded_by_name: string;
       uploaded_at: string;
+      /** JB252: uploaded for the next round, after the latest one was locked. */
+      next_round?: boolean;
     };
 
 export interface EvidencePackageRow {
@@ -2060,6 +2218,13 @@ export interface EvidencePackageRow {
    * 「待审阅资料包 N」 counts - a record left to answer, or his signature due.
    */
   needs_action?: boolean;
+  /** JB252: 「审阅」 in the client's words. */
+  review_progress?: PackageProgress;
+  /** JB252: 「确认完毕并归档」 - 已完成（已归档）. */
+  completed_at?: string | null;
+  /** JB254: 申请金额 / 本期批准金额 (RM), on the two money types. */
+  claim_amount?: string | null;
+  approved_amount?: string | null;
 }
 
 export interface EvidencePackageDetail extends EvidencePackageRow {
@@ -2087,6 +2252,24 @@ export interface EvidencePackageDetail extends EvidencePackageRow {
   resends?: PackageResendLink[];
   /** JB189: the answer of 【重新发送】 only - the new recipient row (a link's `token` in full, this once). */
   sent?: PackageRecipient;
+  /* JB252 / JB254: the signed review loop. */
+  /** Every round's signatures (a reviewer sees the sender's and his own). */
+  signatures?: PackageSignature[];
+  money?: PackageMoney | null;
+  /** The sender signed the current round. */
+  round_signed?: boolean;
+  completed_by_name?: string;
+  /** 「确认完毕并归档」 may be pressed now. */
+  can_complete?: boolean;
+  /** Returned: records and files may be added for the next round. */
+  takes_supplements?: boolean;
+  /** What was added for the next round and not sent yet. */
+  staged_items?: PackageItem[];
+  /** 总部（系统内）: whether this reader may review for head office now. */
+  headquarters_review?: { recipient: string; can_review: boolean } | null;
+  /** The consultant's view: he may sign a review now. */
+  can_review?: boolean;
+  purpose?: RecipientPurpose;
 }
 
 /** One package at the other end of a resend (JB189). */
@@ -2146,6 +2329,9 @@ export interface PackageLinkPage {
   };
   exported: boolean;
   can_decide: boolean;
+  /** Records of this round still waiting for this link's signed review. */
+  pending_count?: number;
+  /** Always false since every answer is signed (QA1 audit #11). */
   can_sign: boolean;
   items: PackageLinkItem[];
   messages: PackageMessage[];

@@ -37,6 +37,29 @@ export function getCompany(id: string): Promise<CompanyDetail> {
 }
 
 /** A contractor's settings, the ones MSE manages included (JB99). */
+/**
+ * 业务模块 of one company (JB250, 客户 11-24 事项 1): which modules MSE has
+ * switched off for it. `choices` leaves out the menus every company keeps.
+ */
+export interface CompanyModules {
+  company: string;
+  choices: string[];
+  always_on: string[];
+  disabled: string[];
+  /** Left out by the company's package (JB213-12): off whatever is ticked here. */
+  not_in_plan: string[];
+}
+
+export function getCompanyModules(id: string): Promise<CompanyModules> {
+  return api.get<CompanyModules>(`/api/companies/${id}/get_modules/`);
+}
+
+export async function setCompanyModules(id: string, disabled: string[]): Promise<CompanyModules> {
+  const row = await api.post<CompanyModules>(`/api/companies/${id}/set_modules/`, { disabled });
+  toastSuccess("jb250.saved");
+  return row;
+}
+
 export function getCompanySiteSettings(id: string): Promise<CompanyLockedSettings> {
   return api.get<CompanyLockedSettings>(`/api/companies/${id}/get_site_settings/`);
 }

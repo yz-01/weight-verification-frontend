@@ -1,5 +1,6 @@
 "use client";
 
+import { AssigneeName } from "@/components/contractor-ops/assignee-left-tag";
 import { CloseTaskButton } from "@/components/contractor-ops/close-task-button";
 import { PhotoLink, referencePhotos } from "@/components/shared/photo-link";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -180,7 +181,10 @@ export function FieldTaskSheet({ id, onClose }: { id: string; onClose: () => voi
         <RecordDetailShell
           reference={disposal ?? row.title}
           facts={[
-            { label: t("assignee"), value: row.assigned_to_name },
+            {
+              label: t("assignee"),
+              value: <AssigneeName name={row.assigned_to_name} left={row.assignee_left_project} />,
+            },
             {
               label: t("publisher"),
               value: `${row.created_by_name || "—"} · ${df.dateTime(row.created_at)}`,

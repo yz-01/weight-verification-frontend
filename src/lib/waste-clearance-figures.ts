@@ -1,73 +1,88 @@
 /**
- * Which filters 垃圾清运's header figures are read with (F8, audit #13).
+ * 垃圾清运's tabs and the filters its header figures are read with.
  *
- * The head office's 原工地清运 / 原废料订单 cards open this page on one kind
- * with `counted=1` and, for one project, `project=`. The list below then shows
- * just those - and the header's 清运 N · 废料订单 M and the 数量 / 车次 / 重量
- * line used to go on counting every record of the company above it. Now both
- * kinds' figures are read with the page's project and `counted`, and the
- * shown kind's figures also with the status filter its list applies, so the
- * header describes the list under it. The 全部 tab has no filters.
+ * JB248 (客户 11-23b 事项 1): 「菜单内分为：全部｜垃圾清运｜废料处理…两种业务的
+ * 车次、重量及总数量分别累计，不混合统计」. One page, one list of clearance
+ * jobs; 垃圾清运 and 废料处理 are its two kinds (`clearance_kind`), each with
+ * its own line of 笔数 / 车次 / 重量. 废料订单 is not here any more: it is back
+ * in 环保材料管理 (`/dispatches`).
  *
- * The two kinds are still counted apart (D06); only the filter is shared.
+ * F8 (audit #13) still holds: the head office's card opens this page with
+ * `counted=1` and maybe `project=`, and the header then counts what the list
+ * under it shows - the page's project, `counted`, and the list's own status,
+ * clearance company, dates and 「异常记录」 filter. Both kinds' lines are
+ * read with those same filters, each on its own kind.
  */
-export type ClearanceKind = "all" | "disposal" | "dispatch";
+import type { DisposalClearanceKind } from "@/interfaces/contractor-ops";
 
-/**
- * What each kind's list filters on besides project and `counted`. 工地清运's
- * clearance company and dates (I27) too: the header's 数量 / 车次 / 重量 is
- * then that company's for that period - what is settled with it.
- */
-const OWN_FILTERS: Record<"disposal" | "dispatch", readonly string[]> = {
-  // 「异常记录」 (JB149): the header counts the abnormal jobs it lists.
-  disposal: ["status", "supplier", "date_from", "date_to", "abnormal"],
-  dispatch: ["state", "waste_type"],
+/** The address's `kind`: 全部, or one of the two businesses. */
+export type ClearanceKind = "all" | "garbage" | "scrap";
+
+/** The tabs: 全部｜垃圾清运｜废料处理, and 「异常记录」 (JB149). */
+export type ClearanceTab = ClearanceKind | "abnormal";
+
+/** Each kind's tab and the record value it lists. */
+export const CLEARANCE_KIND_OF: Record<"garbage" | "scrap", DisposalClearanceKind> = {
+  garbage: "GARBAGE",
+  scrap: "SCRAP",
 };
 
-const SHARED_FILTERS = ["project", "counted"] as const;
+/**
+ * The tab an address asks for. `kind=disposal` is every link written before
+ * JB248 (notices, task cards, Multi Engine): it opens 全部, where the job is
+ * whichever kind it is. An unknown value is 全部 too.
+ */
+export function clearanceKindOf(asked: string | null): ClearanceKind {
+  return asked === "garbage" || asked === "scrap" ? asked : "all";
+}
 
-function pick(params: URLSearchParams, keys: readonly string[]) {
+const FIGURE_FILTERS = [
+  "project",
+  "counted",
+  "status",
+  "supplier",
+  "date_from",
+  "date_to",
+  "abnormal",
+] as const;
+
+export function clearanceFigureFilters(
+  params: URLSearchParams,
+): Record<DisposalClearanceKind, Record<string, string>> {
   const picked: Record<string, string> = {};
-  for (const key of keys) {
+  for (const key of FIGURE_FILTERS) {
     const value = params.get(key);
     if (value) picked[key] = value;
   }
-  return picked;
-}
-
-export function clearanceFigureFilters(
-  kind: ClearanceKind,
-  params: URLSearchParams,
-): Record<"disposal" | "dispatch", Record<string, string>> {
-  if (kind === "all") return { disposal: {}, dispatch: {} };
   return {
-    disposal: pick(params, [
-      ...SHARED_FILTERS,
-      ...(kind === "disposal" ? OWN_FILTERS.disposal : []),
-    ]),
-    dispatch: pick(params, [
-      ...SHARED_FILTERS,
-      ...(kind === "dispatch" ? OWN_FILTERS.dispatch : []),
-    ]),
+    GARBAGE: { ...picked, clearance_kind: "GARBAGE" },
+    SCRAP: { ...picked, clearance_kind: "SCRAP" },
   };
 }
 
-/** The page's tabs: the three kinds, and 工地清运's 「异常记录」 view (JB149). */
-export type ClearanceTab = ClearanceKind | "abnormal";
-
 /**
- * Where each tab goes (JB149, 补充 第 1 点). 「异常记录」 is the 工地清运 list
- * with `abnormal=1` - as 材料管理's 「验收不合格」 is the receipts list with
- * `acceptance=REJECTED` - and between those two the project, clearance
- * company and dates the reader chose go along, as `MaterialTabs` carries them.
+ * Where each tab goes. The project, clearance company and dates the reader
+ * chose go along (as `MaterialTabs` carries them); 「异常记录」 is 全部 with
+ * `abnormal=1` (JB149: 材料管理's 「验收不合格」 is the receipts list with
+ * `acceptance=REJECTED`).
  */
 export function clearanceTabHref(tab: ClearanceTab, params: URLSearchParams): string {
-  if (tab === "all" || tab === "dispatch") return `/waste-clearance?kind=${tab}`;
-  const next = new URLSearchParams({ kind: "disposal" });
+  const next = new URLSearchParams({ kind: tab === "abnormal" ? "all" : tab });
   if (tab === "abnormal") next.set("abnormal", "1");
   for (const key of ["project", "supplier", "date_from", "date_to"]) {
     const value = params.get(key);
     if (value) next.set(key, value);
   }
   return `/waste-clearance?${next.toString()}`;
+}
+
+/**
+ * Where an old `/waste-clearance?kind=dispatch` link goes now: 废料订单 in
+ * 环保材料管理, with what the link carried (`counted`, `project`, a filter).
+ */
+export function dispatchListHref(params: URLSearchParams): string {
+  const next = new URLSearchParams(params.toString());
+  next.delete("kind");
+  const query = next.toString();
+  return query ? `/dispatches?${query}` : "/dispatches";
 }

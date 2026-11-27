@@ -1,7 +1,9 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Camera, Eye, Hash, IdCard, Link2, Loader2, PencilLine, RotateCcw, ScanLine, Search, UserRound, UsersRound } from "lucide-react";
+import { Camera, Eye, Hash, IdCard, Link2, Loader2, PencilLine, Receipt, RotateCcw, ScanLine, Search, UserRound, UsersRound } from "lucide-react";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
@@ -17,6 +19,16 @@ import {
   type OperatorPapersTarget,
 } from "@/components/equipment-hours/operator-profile-window";
 import { DriverBindingHints, DriverBindingsDialog } from "@/components/equipment-hours/driver-bindings";
+import {
+  ConfirmRentalMonthButton,
+  RENTAL_COLUMN_COUNT,
+  RentalAmountsDialog,
+  RentalFeeCells,
+  RentalFeeHeads,
+  RentalTermsDialog,
+  RentalTotalCells,
+  rentalExportColumns,
+} from "@/components/equipment-hours/rental-fees";
 import { DriverClockLinksDialog } from "@/components/equipment-hours/driver-clock-links";
 import { EquipmentNormalHoursButton } from "@/components/equipment-hours/equipment-normal-hours";
 import { EquipmentSiteNumbersDialog } from "@/components/equipment-hours/equipment-site-numbers";
@@ -61,6 +73,7 @@ import { ApiError } from "@/interfaces/api";
 import type {
   EquipmentDayAdjustmentPayload,
   EquipmentHoursMachineTotal,
+  EquipmentHoursMonthRow,
   EquipmentHoursSession,
 } from "@/interfaces/equipment-hours";
 import { useDateFormat, type DateFormatter } from "@/lib/dates";
@@ -272,19 +285,30 @@ const ALL = "all";
 export function EquipmentOperatorHours() {
   const t = useTranslations("equipmentHours");
   const tRoot = useTranslations();
+  const tRental = useTranslations("equipmentRental");
+  const tStatement = useTranslations("jb280");
   const df = useDateFormat();
-  const { can } = useAuth();
-  const [view, setView] = useState<View>("day");
+  const { can, user } = useAuth();
+  // JB280 第 5 点: a 按月 row opens its 月结单 - for those who may open the statements.
+  const opensStatements = !user?.is_field_staff && can("equipment.manage");
+  // JB280: a 设备租赁月结单's machine line opens this page on its 按月 view
+  // (`?view=month&month=YYYY-MM&equipment=<id>&project=<id>`) - the
+  // statement's 设备原始记录. Read once, as the starting state.
+  const address = useSearchParams();
+  const [view, setView] = useState<View>(address?.get("view") === "month" ? "month" : "day");
   // The top bar's 「当前项目」 in the office (B13).
-  const [project, setProject] = usePageProject();
+  const [project, setProject] = usePageProject(address?.get("project") ?? "");
   const [supplier, setSupplier] = useState(ALL);
-  const [equipment, setEquipment] = useState(ALL);
+  const [equipment, setEquipment] = useState(address?.get("equipment") || ALL);
   const [search, setSearch] = useState("");
   const q = useDebounce(search.trim(), 300);
   // No dates chosen: the server opens on the latest records (图6).
   const [range, setRangeState] = useState<{ from: string; to: string } | null>(null);
   const [capped, setCapped] = useState(false);
-  const [month, setMonth] = useState<string | null>(null);
+  const [month, setMonth] = useState<string | null>(() => {
+    const asked = address?.get("month") ?? "";
+    return /^\d{4}-\d{2}$/.test(asked) ? asked : null;
+  });
   const [opened, setOpened] = useState<EquipmentHoursSession | null>(null);
   const [numbering, setNumbering] = useState(false);
   // 「查看那一笔」: the other entry a refused time points at, opened in place.
@@ -303,6 +327,9 @@ export function EquipmentOperatorHours() {
   const [registering, setRegistering] = useState<RegisterPrefill | null>(null);
   // 设备绑定司机 (JB227): which driver phone may clock which machine.
   const [driverBindings, setDriverBindings] = useState(false);
+  // 设备租赁设定 (JB255): each machine's rental terms, and a month's diesel / adjustment.
+  const [rentalTerms, setRentalTermsOpen] = useState(false);
+  const [amountsRow, setAmountsRow] = useState<EquipmentHoursMonthRow | null>(null);
   // 操作人员 / CIDB 卡号 being written for this row (I4, ID19).
   const [naming, setNaming] = useState<EquipmentHoursSession | null>(null);
   // 操作人员资料 (JB233): the papers the operator's name opens, and the row's project.
@@ -461,6 +488,20 @@ export function EquipmentOperatorHours() {
                   {tRoot("driverBinding.open")}
                 </Button>
               )}
+              {/* JB255: 「在现有「设备绑定司机」按钮旁边，设置「设备租赁设定」按钮」. */}
+              {canAdjust && (
+                <Button variant="outline" onClick={() => setRentalTermsOpen(true)}>
+                  <Receipt />
+                  {tRoot("equipmentRental.title")}
+                </Button>
+              )}
+              {view === "month" && canAdjust && (
+                <ConfirmRentalMonthButton
+                  project={projectFilterValue(project)}
+                  month={monthly.data?.month ?? ""}
+                  rows={monthRows}
+                />
+              )}
               {view === "day" && canExport && (
                 <ExportButton onExport={exportDays} disabled={rows.length === 0} />
               )}
@@ -489,8 +530,9 @@ export function EquipmentOperatorHours() {
                         { key: "total_hours", label: t("field.totalHours") },
                         { key: "incomplete_count", label: t("field.incomplete") },
                         { key: "adjusted_count", label: t("field.adjustedCount") },
+                        ...rentalExportColumns(tRental),
                       ],
-                    })
+                    }, t("month.total"))
                   }
                 />
               )}
@@ -748,7 +790,7 @@ export function EquipmentOperatorHours() {
                         <OperatorNameCell
                           name={row.operator_name}
                           expiry={row.operator_expiry}
-                          canFill={canAdjust}
+                          canFill={canAdjust && !row.locked_statement_no}
                           onOpen={() => setPapers({ target: papersTargetOf(row), project: row.project })}
                           onFill={() => setNaming(row)}
                         />
@@ -788,7 +830,7 @@ export function EquipmentOperatorHours() {
                       </TableCell>
                       <TableCell pin="end">
                         <div className="flex items-center justify-end gap-0.5">
-                          {canAdjust && (row.missing_end || row.missing_start) ? (
+                          {canAdjust && !row.locked_statement_no && (row.missing_end || row.missing_start) ? (
                             <Button
                               size="sm"
                               onClick={(event) => {
@@ -862,18 +904,19 @@ export function EquipmentOperatorHours() {
                 <TableHead className="tabular text-right">{t("field.totalHours")}</TableHead>
                 <TableHead className="tabular text-right">{t("field.incomplete")}</TableHead>
                 <TableHead className="tabular text-right">{t("field.adjustedCount")}</TableHead>
+                <RentalFeeHeads />
               </TableRow>
             </TableHeader>
             <TableBody>
               {monthly.isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={11} className="h-20 text-center text-muted-foreground">
+                  <TableCell colSpan={11 + RENTAL_COLUMN_COUNT} className="h-20 text-center text-muted-foreground">
                     <Loader2 className="size-4 animate-spin" />
                   </TableCell>
                 </TableRow>
               ) : monthRows.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={11} className="h-20 text-center text-muted-foreground">
+                  <TableCell colSpan={11 + RENTAL_COLUMN_COUNT} className="h-20 text-center text-muted-foreground">
                     {t("month.empty")}
                   </TableCell>
                 </TableRow>
@@ -886,6 +929,26 @@ export function EquipmentOperatorHours() {
                         <p className="text-xs text-muted-foreground">
                           {[row.equipment_code, row.project_name].filter(Boolean).join(" · ")}
                         </p>
+                        {(row.statements ?? []).map((statement) => {
+                          const label = tStatement("onStatement", {
+                            number: statement.statement_no,
+                            state: tStatement(`state.${statement.state}`),
+                          });
+                          return opensStatements ? (
+                            <Link
+                              key={statement.id}
+                              data-slot="month-row-statement"
+                              href={`/equipment-rental-statements?tab=all&statement=${encodeURIComponent(statement.id)}`}
+                              className="block text-xs font-medium text-primary underline-offset-2 hover:underline"
+                            >
+                              {label}
+                            </Link>
+                          ) : (
+                            <p key={statement.id} data-slot="month-row-statement" className="text-xs">
+                              {label}
+                            </p>
+                          );
+                        })}
                       </TableCell>
                       <TableCell className="font-medium">{row.site_no || "-"}</TableCell>
                       <TableCell>{row.supplier_name || "-"}</TableCell>
@@ -903,6 +966,7 @@ export function EquipmentOperatorHours() {
                         )}
                       </TableCell>
                       <TableCell className="tabular text-right">{row.adjusted_count}</TableCell>
+                      <RentalFeeCells row={row} canAdjust={canAdjust} onAmounts={setAmountsRow} />
                     </TableRow>
                   ))}
                   <TableRow>
@@ -923,6 +987,7 @@ export function EquipmentOperatorHours() {
                     </TableCell>
                     <TableCell className="text-right" />
                     <TableCell className="text-right" />
+                    <RentalTotalCells totals={monthly.data?.rental_totals} />
                   </TableRow>
                 </>
               )}
@@ -955,6 +1020,12 @@ export function EquipmentOperatorHours() {
         />
       )}
 
+      {rentalTerms && (
+        <RentalTermsDialog project={projectFilterValue(project)} onClose={() => setRentalTermsOpen(false)} />
+      )}
+      {amountsRow && monthly.data?.month ? (
+        <RentalAmountsDialog row={amountsRow} month={monthly.data.month} onClose={() => setAmountsRow(null)} />
+      ) : null}
       {driverBindings && (
         <DriverBindingsDialog project={projectFilterValue(project)} onClose={() => setDriverBindings(false)} />
       )}
@@ -1098,6 +1169,7 @@ export function DayDialog({
   onRegister?: (prefill: RegisterPrefill) => void;
 }) {
   const t = useTranslations("equipmentHours");
+  const tStatement = useTranslations("jb280");
   const df = useDateFormat();
   const queryClient = useQueryClient();
   const mode = adjustMode(day);
@@ -1284,7 +1356,12 @@ export function DayDialog({
           </div>
         }
         actions={
-          canAdjust ? (
+          canAdjust && day.locked_statement_no ? (
+            // JB280 第 7 点: the server refuses too; the panel says why first.
+            <p className="rounded-lg border border-warning/30 bg-warning/10 p-3 text-sm" data-slot="hours-locked">
+              {tStatement("hoursLocked", { number: day.locked_statement_no })}
+            </p>
+          ) : canAdjust ? (
             <div className="space-y-4">
             <section className="space-y-3">
               <h3 className="panel-title">{t("operator.title")}</h3>

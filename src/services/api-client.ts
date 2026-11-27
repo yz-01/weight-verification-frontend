@@ -21,7 +21,7 @@ import {
 } from "@/interfaces/api";
 import {
   FIELD_EXPLAINED_SIGN_OUTS,
-  SESSION_REPLACED,
+  DESKTOP_EXPLAINED_SIGN_OUTS,
   clearTokens,
   rememberFieldSignOutReason,
   rememberSignOutReason,
@@ -33,6 +33,12 @@ import {
   setTokens,
 } from "@/lib/auth-token";
 import { APP_VERSION } from "@/lib/app-version";
+import {
+  COMPANY_SETTINGS_PASS_HEADER,
+  COMPANY_SETTINGS_PIN_REQUIRED,
+  companySettingsPass,
+  renewCompanySettingsPass,
+} from "@/lib/company-settings-pass";
 import { portalLoginPath } from "@/lib/portal";
 import { t } from "@/lib/i18n-runtime";
 import { getActiveProjectId } from "@/lib/project-context";
@@ -101,6 +107,8 @@ interface RequestOptions {
    * else, and for every customer login, it is ignored.
    */
   platformCompany?: string;
+  /** JB239: a 公司设置 pass already renewed once for this request. */
+  companySettingsRenewed?: boolean;
 }
 
 function buildUrl(path: string, query?: ListQuery): string {
@@ -240,8 +248,9 @@ function endSession(): void {
         ? resolveMessage(reason, "")
         : "";
     if (officeReason) rememberFieldSignOutReason(officeReason, reason);
-    // JB56: signed in on another computer - said here and on the sign-in page.
-    const replacedReason = reason === SESSION_REPLACED ? resolveMessage(reason, "") : "";
+    // JB56: signed in on another computer - said here and on the sign-in page;
+    // JB265: 顾问项目授权 saved - 「你的项目权限已更新，请重新登录。」.
+    const replacedReason = DESKTOP_EXPLAINED_SIGN_OUTS.includes(reason) ? resolveMessage(reason, "") : "";
     if (replacedReason) rememberSignOutReason(replacedReason);
     toast.error(officeReason || replacedReason || t("auth.sessionExpired"));
     window.location.href = loginPath;
@@ -257,6 +266,18 @@ function endSession(): void {
  * in place, under the page's own maintenance notice, so the form stays open
  * for MSE staff, who are never kept out.
  */
+/** JB245: the server's 「你已经被移出这个项目」. */
+export const PROJECT_LEFT = "project_left";
+/** The window event a refusal with ``PROJECT_LEFT`` sends: whoever keeps a
+ * project list (the phone's 负责项目, its pickers) reads it again. */
+export const PROJECT_LEFT_EVENT = "mse:project-left";
+
+function announceProjectLeft(code: string): void {
+  if (code === PROJECT_LEFT && typeof window !== "undefined") {
+    window.dispatchEvent(new Event(PROJECT_LEFT_EVENT));
+  }
+}
+
 function announcePlatformGate(status: number, code: string, path: string): boolean {
   const gate = gateForRefusal(status, code);
   if (gate === null) return false;
@@ -369,6 +390,9 @@ async function send(path: string, options: RequestOptions): Promise<Response> {
     if (options.signOffPin) headers["X-Sign-Off-PIN"] = options.signOffPin;
     if (options.fileHeaders) Object.assign(headers, options.fileHeaders);
     if (options.platformCompany) headers["X-MSE-Company"] = options.platformCompany;
+    // JB239: while 公司设置 is open, the pass its PIN gave it.
+    const settingsPass = companySettingsPass();
+    if (settingsPass) headers[COMPANY_SETTINGS_PASS_HEADER] = settingsPass;
   }
   // JB211 (11.2.9 强制更新): which build is asking, on every signed-in call and
   // every sign-in. A public read (a visitor page, a driver link, branding)
@@ -496,6 +520,13 @@ export async function request<T>(
         throw new ApiError(message, response.status, {}, code, values);
       }
 
+      // JB239: 公司设置's pass ran out (or the PIN changed) - ask the PIN
+      // again through the page's gate, and send the same request once more.
+      if (await renewsCompanySettings(response.status, code, attempt)) {
+        attempt = { ...attempt, companySettingsRenewed: true };
+        continue;
+      }
+
       // The sign-off PIN (I29): ask, and send the same request again.
       const pin = attempt.noSignOffPrompt
         ? undefined
@@ -507,6 +538,7 @@ export async function request<T>(
       if (pin === null) throw signOffCancelled(response.status);
 
       const failure = new ApiError(message, response.status, errors, code, values);
+      announceProjectLeft(code);
 
       // The same exemption as the retry above. It was missing here, so a
       // wrong password skipped the refresh correctly and was then signed out
@@ -538,6 +570,20 @@ export async function request<T>(
  */
 function signOffCancelled(status: number): ApiError {
   return new ApiError("", status, {}, SIGN_OFF_CANCELLED);
+}
+
+/**
+ * JB239: a 公司设置 call refused for want of a fresh PIN. True when the gate
+ * got a new pass and the request should go again - once per request.
+ */
+async function renewsCompanySettings(
+  status: number,
+  code: string,
+  attempt: RequestOptions,
+): Promise<boolean> {
+  if (status !== 403 || code !== COMPANY_SETTINGS_PIN_REQUIRED) return false;
+  if (attempt.companySettingsRenewed || attempt.auth === false) return false;
+  return renewCompanySettingsPass();
 }
 
 /** What one request's PIN dialog remembers between its retries. */
@@ -802,6 +848,10 @@ async function fetchFile(path: string, options: RequestOptions): Promise<Respons
         if (attempt.signOffPin) settleSignOff();
         throw new ApiError(message, response.status, {}, code);
       }
+      if (await renewsCompanySettings(response.status, code, attempt)) {
+        attempt = { ...attempt, companySettingsRenewed: true };
+        continue;
+      }
       const pin = attempt.noSignOffPrompt
         ? undefined
         : await answerSignOff(response.status, code, message, attempt.signOffPin, values, asked);
@@ -810,6 +860,7 @@ async function fetchFile(path: string, options: RequestOptions): Promise<Respons
         continue;
       }
       if (pin === null) throw signOffCancelled(response.status);
+      announceProjectLeft(code);
       if (!attempt.silent) toast.error(message);
       throw new ApiError(message, response.status, {}, code);
     }
@@ -907,6 +958,9 @@ const CATALOGUE_WINS = new Set([
   // The number is held by another phone account: the catalogue says how to
   // free it - 移出项目 or delete, not suspend (JB109, JB148).
   "phone_in_use",
+  // An e-mail that already has an account (邀请用户 / 新增用户, QA2 JB242):
+  // 「该电子邮箱已注册」 in the reader's language, not the server's English.
+  "email_in_use",
   // A phone link names one project (JB148, 客户 11-10 事项 5 第 3 点).
   "field_one_project",
   // Not on the project's 可用供应商: the catalogue says who adds it (JB115).

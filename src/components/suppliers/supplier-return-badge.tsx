@@ -26,7 +26,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
-import { ReturnCheckForm } from "@/components/contractor-ops/return-checks";
+import { officeMay, ReturnCheckForm } from "@/components/contractor-ops/return-checks";
 import { clickOpensRow } from "@/components/shared/inside-row-control";
 import { OutgoingDecision } from "@/components/dashboard/approval-opener";
 import { useAuth } from "@/components/providers/auth-provider";
@@ -152,7 +152,7 @@ export function SupplierReturnsDialog({
   const t = useTranslations("supplierReturns");
   const ops = useTranslations("contractorOps");
   const dates = useTranslations("supplierDateFilter");
-  const { can } = useAuth();
+  const { can, user } = useAuth();
   const router = useRouter();
   const unitValues = useUnitExportValues();
   // 【退货核对】 in this window (JB188 做法 4): the same rows, ticked here.
@@ -194,8 +194,10 @@ export function SupplierReturnsDialog({
           <DialogDescription>{t("help")}</DialogDescription>
         </DialogHeader>
         <div className="flex flex-wrap items-center justify-end gap-2">
-          {/* 【退货核对】 here too, for whoever may approve 材料出场 (JB188 做法 4). */}
-          {can("material_outgoing.approve") ? (
+          {/* 【退货核对】 here too, for whoever may approve 材料出场 (JB188 做法 4) -
+              in the office only: the phone shows the returns, never the
+              check the server refuses there (Lucas 11-26 「手机不应该出现审批」). */}
+          {officeMay(user, can, "material_outgoing.approve") ? (
             checking ? (
               <Button variant="outline" data-slot="supplier-returns-back" onClick={() => setChecking(false)}>
                 <ArrowLeft />

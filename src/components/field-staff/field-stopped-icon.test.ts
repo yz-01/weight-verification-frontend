@@ -65,8 +65,9 @@ describe("the icon's start screen", () => {
 describe("the PIN screen", () => {
   it("shows only the stopped message for 停用, no 「还没绑定」 box", () => {
     const access = read("field-access.tsx");
-    expect(access).toMatch(/if \(officeCode === FIELD_ACCOUNT_STOPPED\) setAccountStopped\(true\)/);
-    expect(access).toMatch(/setAccountStopped\(cause\.code === FIELD_ACCOUNT_STOPPED\)/);
+    // QA2 (JB245): 移出项目 from the last project is a PIN-cannot-help sign-out too.
+    expect(access).toMatch(/if \(officeCode === FIELD_ACCOUNT_STOPPED( \|\| officeCode === FIELD_REMOVED_FROM_PROJECT)?\) setAccountStopped\(true\)/);
+    expect(access).toMatch(/setAccountStopped\(cause\.code === FIELD_ACCOUNT_STOPPED( \|\| cause\.code === FIELD_REMOVED_FROM_PROJECT)?\)/);
     expect(access).toMatch(/const unbound =\s*!token && context && !accountStopped/);
   });
 

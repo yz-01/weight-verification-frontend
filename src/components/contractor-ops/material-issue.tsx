@@ -43,6 +43,7 @@ import {
 } from "@/components/field-staff/field-evidence-grid";
 import { FieldSignaturePad } from "@/components/field-staff/field-signature-pad";
 import { LocationField } from "@/components/field-staff/location-field";
+import { RequestLinkPicker } from "@/components/material-requests/request-links";
 import { useAuth } from "@/components/providers/auth-provider";
 import { FieldWrapper, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { ProjectListFilter } from "@/components/shared/module-records-table";
@@ -384,6 +385,9 @@ export function IssueDialog({
   const [lines, setLines] = useDraftState<IssueLineDraft[]>("issue:lines", () => [emptyIssueLine()]);
   const [photos, setPhotos] = useDraftState("issue:photos", createEmptyFieldEvidence);
   const [note, setNote] = useDraftState("issue:note", "");
+  // JB279 (客户 11-26 事项 20): the MR / 其他申请 this issue belongs to.
+  const tLink = useTranslations("jb279.link");
+  const [linkedRequests, setLinkedRequests] = useDraftState<string[]>("issue:materialRequests", []);
   const [clientEventId, setClientEventId] = useDraftState("issue:clientEventId", "");
   const clearDraft = useClearDraft();
   const [location, setLocation] = useState<LocationValue | null>(null);
@@ -437,6 +441,7 @@ export function IssueDialog({
         latitude: location?.latitude,
         longitude: location?.longitude,
         client_event_id: eventId,
+        material_requests: linkedRequests.length ? linkedRequests.join(",") : undefined,
         photos: taken,
         photo_captions: taken.map((_, index) =>
           index < photoPrompts.length ? photoPrompts[index] : t("outgoing.evidence.other"),
@@ -470,6 +475,8 @@ export function IssueDialog({
                 setProject(next);
                 setMachineId("");
                 setLines([emptyIssueLine()]);
+                // A request belongs to one project too (JB279).
+                setLinkedRequests([]);
               }}
               placeholder={t("field.selectProject")}
               disabled={Boolean(initialProject) && isFieldStaff}
@@ -575,6 +582,11 @@ export function IssueDialog({
           />
           <FieldWrapper label={t("issue.note")}>
             <Textarea rows={2} value={note} onChange={(event) => setNote(event.target.value)} />
+          </FieldWrapper>
+          {/* JB279: 「必须能够选择并关联本项目对应的 MR／其他申请记录」 - optional
+              here; the office links it before 确认归档 when the site did not. */}
+          <FieldWrapper label={tLink("phoneLabel")} hint={tLink("phoneHelp")}>
+            <RequestLinkPicker project={project} value={linkedRequests} onChange={setLinkedRequests} />
           </FieldWrapper>
           {error && (
             <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
@@ -1059,7 +1071,14 @@ function OptionFilter({
  * photographs are (「原始照片、双方签名及其他证据继续保留在单笔记录中」). Under
  * it the 自动汇总 of every line the filters select; above it 「批量预览 / 打印」.
  */
-export function MaterialIssueList({ onOpen }: { onOpen: (recordId: string) => void }) {
+export function MaterialIssueList({
+  onOpen,
+  unchecked = false,
+}: {
+  onOpen: (recordId: string) => void;
+  /** 「待核对」 (JB278): the issues not in a 核对 yet - list, totals and statement alike. */
+  unchecked?: boolean;
+}) {
   const t = useTranslations("contractorOps");
   const tRoot = useTranslations();
   const df = useDateFormat();
@@ -1067,9 +1086,10 @@ export function MaterialIssueList({ onOpen }: { onOpen: (recordId: string) => vo
   const { user } = useAuth();
   const list = useListQuery(ISSUE_FILTERS);
   const project = list.filters.project;
+  const pending = unchecked ? { unchecked: "1" } : {};
   const rows = useQuery({
-    queryKey: ["material-outgoing", "issues", list.query],
-    queryFn: () => getMaterialIssueLines({ ...list.query, page_size: list.pageSize }),
+    queryKey: ["material-outgoing", "issues", list.query, ...(unchecked ? ["unchecked"] : [])],
+    queryFn: () => getMaterialIssueLines({ ...list.query, ...pending, page_size: list.pageSize }),
   });
   // query-failure: the filters fall back to typing nothing - the list itself says when it failed.
   const options = useQuery({
@@ -1077,7 +1097,7 @@ export function MaterialIssueList({ onOpen }: { onOpen: (recordId: string) => vo
     queryFn: () => getMaterialIssueOptions(project || undefined),
   });
   // The whole selection the filters make, not the page shown (JB171 C4).
-  const selection = issueSelection(list.filters, list.search);
+  const selection = { ...issueSelection(list.filters, list.search), ...pending };
   const totals = useQuery({
     queryKey: ["material-outgoing", "issue-totals", selection],
     queryFn: () => getMaterialIssueTotals(selection),

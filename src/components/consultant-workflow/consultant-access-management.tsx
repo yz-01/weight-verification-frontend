@@ -103,7 +103,7 @@ import {
   updateConsultantOrganization,
   uploadConsultantOrganizationLogo,
 } from "@/services/consultant-workflow.service";
-import { getContractorSiteSettings } from "@/services/site-access.service";
+import { getConsultantDefaults } from "@/services/site-access.service";
 
 /**
  * What head office ticks for a consultant on one project (JB210, 客户 11-16:
@@ -1068,8 +1068,9 @@ export function GrantDialog({
   // read it when no list was sent, and this dialog always sends one.
   // query-failure: it only pre-ticks the boxes - without it they start from the usual default, as before.
   const companySettings = useQuery({
-    queryKey: ["contractor-site-settings"],
-    queryFn: getContractorSiteSettings,
+    // JB239: the defaults alone - 公司设置 itself asks for the sign-off PIN.
+    queryKey: ["consultant-defaults"],
+    queryFn: getConsultantDefaults,
     enabled: !row && can("company_settings.view"),
     retry: false,
   });

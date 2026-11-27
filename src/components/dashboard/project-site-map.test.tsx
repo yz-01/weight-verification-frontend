@@ -30,6 +30,7 @@ vi.mock("@/components/shared/location-map", () => ({
       data-zones={JSON.stringify(props.zones)}
       data-lock={String(props.lockToSite)}
       data-fill={String(props.siteFill)}
+      data-spread={String(props.spreadOverlaps)}
       data-popups={String(props.popups)}
       data-fit-label={String(props.fitLabel)}
     >
@@ -120,10 +121,12 @@ afterEach(() => {
 });
 
 describe("the map is about the site, not the city (JB222-2, JB222-8)", () => {
-  it("draws the fence, keeps to it and fills about 80 % of the map", () => {
+  it("draws the fence, keeps to it and fills the map but a thin edge (JB240-1; it was 80 %, JB222)", () => {
     const html = render(mapData());
     expect(attr(html, "data-lock")).toBe("true");
-    expect(attr(html, "data-fill")).toBe("0.8");
+    expect(attr(html, "data-fill")).toBe("0.96");
+    // Icons that would sit on each other are set apart (JB240-2).
+    expect(attr(html, "data-spread")).toBe("true");
     expect(attr(html, "data-fit-label")).toBe(words.backToSite);
     expect(JSON.parse(attr(html, "data-zones"))).toEqual([
       { id: "f1", center: [3.1425, 101.7183], radiusM: 100, label: "Main", dashed: false },
@@ -292,7 +295,7 @@ describe("a consultant's notes (JB226 audit F2): his layers, and 建筑商总部
       { consultant: true },
     );
     const said = notes(html);
-    expect(said).toContain("地图上是总部为您开通的、今天的记录，只画出有定位的。");
+    expect(said).toContain("地图上是总部为你开通的、今天的记录，只画出有定位的。");
     expect(said).toContain("今天还没有可以画在地图上的记录。");
     for (const word of ["人员", "机械设备", "设备"]) {
       expect(said).not.toContain(word);

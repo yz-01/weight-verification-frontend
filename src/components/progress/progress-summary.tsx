@@ -50,6 +50,7 @@ import {
   ProgressPhotoPicker,
   usePhotoViewer,
 } from "@/components/progress/progress-photos";
+import { ScheduleProgressDashboard } from "@/components/progress/schedule-progress-dashboard";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { DeleteRecordButton, useNotArchivedReason } from "@/components/shared/delete-record-button";
 import { FileActionButtons } from "@/components/shared/file-actions";
@@ -195,6 +196,9 @@ export function ProgressSummaryTab() {
           </Button>
         )}
       </FilterBar>
+      {/* JB267 (客户 11-26 事项 8): the schedule's own figures first, nothing
+          to press or type; the summaries written by hand follow, as before. */}
+      {can("schedule.view") && <ScheduleProgressDashboard project={project} />}
       <QueryFailedNote query={summaries} what={tPage("tabs.summary")} />
       {summaries.isLoading ? (
         <Loader2 className="size-4 animate-spin text-muted-foreground" />

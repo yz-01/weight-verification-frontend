@@ -81,6 +81,8 @@ describe("the report menu's levels (D6 table)", () => {
         "reportSelector.level.documentSubcategory",
       ],
       "/reports/contractor/target": "none",
+      // JB259: 项目现场费用总览, by project and dates only.
+      "/reports/site-cost-overview": "none",
       "/reports/contractor/history": "none",
     });
   });

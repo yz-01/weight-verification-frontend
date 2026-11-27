@@ -594,6 +594,8 @@ export interface MySubmissionRow {
   linked_record_reference?: string;
   /** A gate record that is a 门岗事项 rather than a plain photo (JB116). */
   gate_issue?: boolean;
+  /** A clearance job's kind (JB248): 废料处理 is named so on the phone too. */
+  clearance_kind?: "GARBAGE" | "SCRAP";
   /** A hazard or permit row's record type (`PERMIT` on a 施工准证). */
   record_type?: string;
   reference: string;
@@ -619,6 +621,8 @@ export interface MySubmissionRow {
    * COMPLETED; "" while pending or returned. The badge says both.
    */
   execution_status?: string;
+  /** JB253: a material request (MR) follows the deliveries signed for - no manual confirm. */
+  execution_automatic?: boolean;
   /**
    * The machine an equipment movement is about: what the phone checks the
    * scanned QR against at the actual exit, with or without signal (ID60).
@@ -733,6 +737,23 @@ export interface MySubmissionsPage {
 
 export type MaterialAcceptance = "PENDING" | "ACCEPTED" | "REJECTED";
 
+/** One row of a delivery's 「顾问审批记录」 (JB270). */
+export interface ReceiptConsultantApproval {
+  id: string;
+  application_no: string;
+  /** The latest version the reader may see. */
+  revision: number;
+  status: string;
+  /** When the consultant decided; null while it waits. */
+  decided_at: string | null;
+  submitted_at: string | null;
+  application_type: string;
+  has_final_report: boolean;
+  attachment_count: number;
+  /** Whether this reader may open the application (its report, its certificates). */
+  can_open: boolean;
+}
+
 export interface MaterialReceiptDetail extends MaterialReceipt {
   /** 检验 (J12-8): the latest inspection of its material and specification. */
   inspection?: InspectionInfo | null;
@@ -825,6 +846,11 @@ export interface MaterialReceiptPayload {
   longitude?: string | null;
   location_accuracy_m?: string | null;
   ocr_proof?: string;
+  /**
+   * JB279 (客户 11-26 事项 20): the MR / 其他申请 this delivery belongs to,
+   * comma-separated ids; the server keeps them to this project's.
+   */
+  material_requests?: string;
 }
 
 export type DeliveryNoteOCRField =

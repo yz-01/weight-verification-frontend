@@ -3,6 +3,7 @@ import type {
   ContractorReportRecord,
   ContractorReportType,
 } from "@/interfaces/contractor-report";
+import { PACKAGE_PROGRESS } from "@/interfaces/contractor-ops";
 import { attendanceRecordHref } from "@/lib/dashboard-cards";
 import { recordTarget, type RecordTarget } from "@/lib/record-routes";
 import { PHOTO_CATEGORIES, PHOTO_ORIGINS, photoCategoryKey, photoOriginKey } from "@/lib/report-menu";
@@ -56,6 +57,10 @@ export function reportRowTarget(
       return { href: `/site-equipment?movement=${id}` };
     case "DOCUMENT":
       return { href: `/documents?document=${id}` };
+    // 进度 Claim 报表 (JB258): a row is a Multi Engine Progress Claim package,
+    // opened in Multi Engine.
+    case "EVIDENCE_PACKAGE":
+      return { href: `/evidence-packages?package=${id}` };
     // 项目进度摘要 opens on the progress page's own tab, at that summary (I8).
     case "PROGRESS_SUMMARY":
       return {
@@ -134,7 +139,8 @@ const STATUS_NAMESPACE: Partial<Record<ContractorReportType, string>> = {
   // I11 (ID27): the four new reports, worded as their own pages word them.
   field_tasks: "contractorOps.taskStatus",
   material_outgoing: "contractorOps.outgoingStatus",
-  claims: "claims.state",
+  // JB258: a Progress Claim package's 状态, as Multi Engine's list words it.
+  claims: "multiEngine.state",
   sundry_claims: "sundryClaim.status",
 };
 
@@ -202,6 +208,8 @@ export function reportValueKey(
     if (reportType === "target") {
       return `businessTargets.status.${code === "ACTIVE" ? "active" : "inactive"}`;
     }
+    // 进度 Claim 报表: 已完成（已归档） as Multi Engine's list says it (JB252).
+    if (reportType === "claims" && code === "COMPLETED") return "jb252.stateCompleted";
     const namespace = STATUS_NAMESPACE[reportType];
     return namespace ? `${namespace}.${code}` : null;
   }
@@ -210,6 +218,53 @@ export function reportValueKey(
 }
 
 const SCHEDULE_STATUSES = ["NOT_STARTED", "IN_PROGRESS", "DELAYED", "COMPLETED", "COMPLETED_LATE"];
+
+/**
+ * 进度 Claim 报表's 审阅 (JB258), as Multi Engine's list words it
+ * (`SendStatusWords`, JB252): the server's `claim_report.review_cell` sends
+ * the package's review (`jb252.progress`), or `CIRCULATION` for a package only
+ * sent to read (`jb252.purpose.CIRCULATION`), then an outside share after
+ * `+` - `IN_REVIEW+SENT` reads 「审核处理中 · 已对外发送」.
+ */
+export function claimReviewKeys(code: string): string[] {
+  const [review, ...shares] = code.split("+");
+  const first = review === "CIRCULATION" ? "jb252.purpose.CIRCULATION" : `jb252.progress.${review}`;
+  return [first, ...shares.filter(Boolean).map((part) => `multiEngine.sendStatus.${part}`)];
+}
+
+/** Every 审阅 code the server can send, for the exported file's words. */
+export const CLAIM_REVIEW_CODES: readonly string[] = (() => {
+  const reviews = [...PACKAGE_PROGRESS, "CIRCULATION"];
+  const shares = ["", "STARTED", "SENT"];
+  return reviews.flatMap((review) => shares.map((share) => (share ? `${review}+${share}` : review)));
+})();
+
+/**
+ * The message keys that word one cell, in order (most cells: one), or `null`
+ * for a cell that is already the reader's text.
+ */
+export function reportValueKeys(
+  reportType: ContractorReportType,
+  column: string,
+  value: string | number | boolean | null,
+  row: ReportRow,
+): string[] | null {
+  if (reportType === "claims" && column === "review" && typeof value === "string" && value) {
+    return claimReviewKeys(value);
+  }
+  const key = reportValueKey(reportType, column, value, row);
+  return key ? [key] : null;
+}
+
+/** A cell's words from its keys, or `null` when one of them has no words. */
+export function reportValueWords(
+  keys: readonly string[] | null,
+  word: (key: string) => string | null,
+): string | null {
+  if (!keys?.length) return null;
+  const words = keys.map(word);
+  return words.every((text): text is string => Boolean(text)) ? words.join(" · ") : null;
+}
 
 /**
  * Every code a column of `reportType` can hold, each with a row that says
@@ -227,6 +282,7 @@ function columnCodes(
     return [];
   }
   if (column === "record_type") return plain(Object.keys(RECORD_TYPE_KEYS));
+  if (reportType === "claims" && column === "review") return plain(CLAIM_REVIEW_CODES);
   if (column === "status") {
     if (reportType === "recycling") {
       return [
@@ -236,6 +292,7 @@ function columnCodes(
     }
     if (reportType === "schedule") return plain(SCHEDULE_STATUSES);
     if (reportType === "target") return plain(["ACTIVE", "INACTIVE"]);
+    if (reportType === "claims") return plain(["DRAFT", "CONFIRMED", "COMPLETED"]);
     const namespace = STATUS_NAMESPACE[reportType];
     return namespace ? plain(codes(namespace)) : [];
   }
@@ -270,8 +327,7 @@ export function reportColumnValues(
     if (no) values.false = no;
     if (column === "unit") Object.assign(values, units);
     for (const [code, row] of columnCodes(reportType, column, codes)) {
-      const key = reportValueKey(reportType, column, code, row);
-      const text = key ? word(key) : null;
+      const text = reportValueWords(reportValueKeys(reportType, column, code, row), word);
       if (text) values[code] = text;
     }
     result[column] = values;

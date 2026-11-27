@@ -781,7 +781,9 @@ function StoredDetailSheet({
                 row.status === "APPROVED" &&
                 (row.execution_status === "PENDING" || row.execution_status === "IN_PROGRESS") && (
                   <p className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-sm leading-6" data-slot="request-execution-note">
-                    {t("materialRequest.execution.explain")}
+                    {/* JB253: a material request completes by itself from the
+                        deliveries signed for - never 「等项目经理确认完成」. */}
+                    {t(row.execution_automatic ? "materialRequest.jb253.explain" : "materialRequest.execution.explain")}
                   </p>
                 )}
             </>

@@ -45,6 +45,7 @@ export interface ApplicationDocumentCandidate {
 }
 import { uploadEach, type BatchResult } from "@/lib/attachment-batch";
 import { api, download, fetchAsFile, fetchObjectUrl, toastSuccess } from "@/services/api-client";
+import type { PinIdentity } from "@/services/sign-off.service";
 
 export const getApplicationOptions = (
   project: string,
@@ -511,8 +512,16 @@ export const getApplicationEvidenceCandidates = (
     { project, page_size: 100, ...filters },
   );
 
-export const getEvidenceFilterOptions = (project: string) =>
-  api.get<EvidenceFilterOptions>("/api/consultant-applications/get_evidence_filter_options/", { project });
+/**
+ * JB268 (客户 11-26 事项 9): the counts follow what else is chosen - the
+ * module, the dates, the keyword and the uploader - so 钢筋 (8) under
+ * 材料进场 means eight of 材料进场's own.
+ */
+export const getEvidenceFilterOptions = (
+  project: string,
+  filters: { module?: string; date_from?: string; date_to?: string; search?: string; uploader?: string } = {},
+) =>
+  api.get<EvidenceFilterOptions>("/api/consultant-applications/get_evidence_filter_options/", { project, ...filters });
 
 /**
  * 文件管理's files on the application's own project (J22, Q22-1): listed by
@@ -685,10 +694,15 @@ export const setApprovalCredential = async (payload: {
   approvalPin: string;
   signature?: File;
   stamp?: File;
+  /** JB239: the old PIN or the e-mailed code, when a PIN once set is replaced. */
+  identity?: PinIdentity;
 }) => {
   const data = new FormData();
   data.append("current_password", payload.currentPassword);
   data.append("approval_pin", payload.approvalPin);
+  const identity = payload.identity ?? null;
+  if (identity && "currentPin" in identity) data.append("current_pin", identity.currentPin);
+  if (identity && "emailCode" in identity) data.append("email_code", identity.emailCode);
   if (payload.signature) data.append("signature", payload.signature);
   if (payload.stamp) data.append("stamp", payload.stamp);
   const row = await api.post<ApprovalCredential>(

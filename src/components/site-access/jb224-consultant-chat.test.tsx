@@ -126,7 +126,7 @@ describe("JB224 · 顾问端「找人沟通」 (事项 4)", () => {
     expect(html).toContain("data-consultant-find-open");
     expect(html).toContain(zh.fieldChats.find.title);
     expect(html).toContain(zh.fieldChats.consultant.subtitle);
-    expect(zh.fieldChats.consultant.subtitle).toContain("您和本项目后台的对话");
+    expect(zh.fieldChats.consultant.subtitle).toContain("你和本项目后台的对话");
     expect(html).toContain(zh.fieldChats.consultant.empty);
     expect(zh.fieldChats.consultant.empty).toContain("「找人沟通」");
   });
@@ -313,7 +313,7 @@ describe("JB224 audit 11-19 fixes", () => {
     expect(consultantChatClosed(shut)).toBe(zh.errors.api.consultant_chat_closed);
     expect(consultantChatClosed(new ApiError(zh.errors.api.record_not_found, 404, {}, "record_not_found"))).toBeNull();
     expect(consultantChatClosed(undefined)).toBeNull();
-    expect(zh.errors.api.consultant_chat_closed).toContain("建筑商总部已经关闭了您在这个项目的「沟通记录」");
+    expect(zh.errors.api.consultant_chat_closed).toContain("建筑商总部已经关闭了你在这个项目的「沟通记录」");
     expect(zh.errors.api.consultant_chat_closed).toContain("请联系建筑商总部");
     expect(zh.errors.api.consultant_chat_closed).not.toContain("重试");
     // The PM sending in the same moment: re-read, so the composer gives way

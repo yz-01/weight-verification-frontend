@@ -278,6 +278,9 @@ export function RecordCorrectionButton({
   const [open, setOpen] = useState(false);
   if (!allowed) return null;
   if (archived && (!fillable.data || fillable.data.blocked)) return null;
+  // JB276: an archived 材料进场 / 材料退场 takes no change at all
+  // (`archived_final`) - no 【改正】 beside 「任何人都不能再修改」 (QA1 walk).
+  if (fillable.data?.blocked?.reason === "archived_final") return null;
   return (
     <>
       <Button

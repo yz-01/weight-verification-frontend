@@ -108,7 +108,7 @@ describe("the gate's 「待放行」 (JB217-7)", () => {
     expect(html).toContain("材料出场");
     expect(html).toContain("111 · 10.000 Bag");
     expect(html).toContain("车牌 MMP 7007");
-    expect(html).toContain("工地清运");
+    expect(html).toContain("垃圾清运"); // 工地清运 renamed (JB248)
     expect(html).toContain("已放行 1 车");
     expect(html).toContain("打开");
   });

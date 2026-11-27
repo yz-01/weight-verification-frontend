@@ -59,7 +59,10 @@ export interface HeadquartersCounts {
   material_receipts_today: number;
   today_records_by_kind: Partial<Record<TodayRecordKind, number>>;
   waste_dispatches: DispatchClearance;
+  /** 垃圾清运 only (JB248). */
   site_disposals: DisposalClearance;
+  /** 废料处理 only - never added to 垃圾清运 (JB248: 「分别累计，不混合统计」). */
+  site_scraps: DisposalClearance;
 }
 
 export type HeadquartersCountField =
@@ -216,6 +219,11 @@ export interface ProjectOverview {
 
 export interface HeadquartersOverview {
   date: string;
+  /**
+   * JB250: the modules the company does not have; their cards say 「没有开通」
+   * and count nothing. Missing from an older backend.
+   */
+  modules_off?: string[];
   generated_at: string;
   /** Whether this reader sees every project (`project.view_all`). */
   all_projects: boolean;
@@ -263,6 +271,7 @@ export interface HeadquartersWallExtras {
     since: string;
     waste_dispatches: DispatchClearance;
     site_disposals: DisposalClearance;
+    site_scraps: DisposalClearance;
   };
 }
 

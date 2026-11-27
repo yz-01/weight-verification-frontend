@@ -66,7 +66,8 @@ describe("the category's spend is the cost report's figure (第 6 点)", () => {
     const management = read("src/components/contractor-ops/category-management.tsx");
     expect(management).toContain("<MaterialPriceDialog");
     expect(management).toContain("<PriceLine");
-    expect(read("src/components/contractor-ops/operations-workspaces.tsx")).toContain('modules("budget.vsPrice")');
+    // The budget is set on 材料目标 since JB262 (客户 11-26 事项 3); the line stays beside it.
+    expect(read("src/components/receipts/material-budget.tsx")).toContain('modules("budget.vsPrice")');
   });
 
   it("tells the correction form when the price came from the list", () => {
