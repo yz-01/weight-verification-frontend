@@ -164,10 +164,12 @@ function OverdueRectifications() {
 
 /**
  * 在场人数 by project (C19), from the same numbers as the figure above it:
- * App 人员 + 门岗通行 per project, each opening that project's 紧急在场名单.
+ * App 人员 + 人员名单 (JB296) + 门岗通行 per project, each opening that
+ * project's 紧急在场名单.
  */
 export function HeadquartersPresence({ data }: { data: HeadquartersOverview }) {
   const t = useTranslations("headquarters.work");
+  const words = useTranslations("jb296");
   const format = useFormatter();
   const rows = data.projects
     .filter((row) => row.on_site_now > 0)
@@ -187,8 +189,9 @@ export function HeadquartersPresence({ data }: { data: HeadquartersOverview }) {
         <span className="text-lg tabular-nums">{format.number(data.totals.on_site_now)}</span>
       </h2>
       <p className="text-xs text-muted-foreground">
-        {t("presenceSplit", {
+        {words("hqPresenceSplit", {
           app: format.number(data.totals.app_on_site),
+          roster: format.number(data.totals.roster_on_site ?? 0),
           gate: format.number(data.totals.gate_on_site),
         })}
       </p>

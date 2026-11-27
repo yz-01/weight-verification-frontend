@@ -439,6 +439,8 @@ export function HeadquartersByState({ data }: { data: HeadquartersOverview }) {
 
 const SPLIT: { key: string; tone: Tone }[] = [
   { key: "APP", tone: "blue" },
+  // JB296: 人员名单 workers on site by their location link.
+  { key: "ROSTER", tone: "cyan" },
   { key: "WORKER", tone: "green" },
   { key: "VISITOR", tone: "amber" },
   { key: "VEHICLE", tone: "purple" },
@@ -447,9 +449,14 @@ const SPLIT: { key: string; tone: Tone }[] = [
 /** 在场人数 (要做 5): the whole company's, by who is there. */
 export function HeadquartersPresenceSplit({ data }: { data: HeadquartersOverview }) {
   const t = useTranslations("headquarters.reference");
+  const words = useTranslations("jb296");
   const format = useFormatter();
   const byType = data.totals.gate_by_type ?? {};
-  const values: Record<string, number> = { APP: data.totals.app_on_site, ...byType };
+  const values: Record<string, number> = {
+    APP: data.totals.app_on_site,
+    ROSTER: data.totals.roster_on_site ?? 0,
+    ...byType,
+  };
   const total = SPLIT.reduce((sum, { key }) => sum + (values[key] ?? 0), 0);
   const circumference = 2 * Math.PI * 40;
   let offset = 0;
@@ -491,7 +498,7 @@ export function HeadquartersPresenceSplit({ data }: { data: HeadquartersOverview
           {SPLIT.map(({ key, tone }) => (
             <li key={key} className="flex items-center gap-2">
               <span className={cn("size-2.5 rounded-full", TONES[tone].dot)} aria-hidden />
-              <span>{t(`split.${key}`)}</span>
+              <span>{key === "ROSTER" ? words("sourceRoster") : t(`split.${key}`)}</span>
               <span className="ml-auto font-semibold tabular-nums">{format.number(values[key] ?? 0)}</span>
             </li>
           ))}

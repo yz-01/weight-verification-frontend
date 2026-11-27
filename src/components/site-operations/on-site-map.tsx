@@ -47,7 +47,11 @@ export function useOnSitePositions(project?: string, enabled = true) {
   });
 }
 
-/** The map's people: green while fresh, grey once stale. */
+/**
+ * The map's people: green while fresh, grey once stale. A 人员名单 worker on
+ * site by their location link (JB296, `kind` "ROSTER") is never stale - the
+ * link reports every two hours and keeps its last place (J25).
+ */
 export function onSiteMarkers(
   rows: OnSitePosition[],
   detail: (row: OnSitePosition) => string,
@@ -58,7 +62,7 @@ export function onSiteMarkers(
     if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return [];
     return [
       {
-        id: `on-site-${row.project_id}-${row.user_id}`,
+        id: `on-site-${row.kind ?? "APP"}-${row.project_id}-${row.user_id}`,
         latitude,
         longitude,
         label: row.full_name,
@@ -114,6 +118,7 @@ export function OnSiteMap({
   className?: string;
 }) {
   const t = useTranslations("onSiteMap");
+  const words = useTranslations("jb296");
   const dates = useDateFormat();
   const { can } = useAuth();
   const [open, setOpen] = useState(!collapsible);
@@ -196,7 +201,7 @@ export function OnSiteMap({
               ) : (
                 rows.map((row) => (
                   <div
-                    key={`${row.project_id}-${row.user_id}`}
+                    key={`${row.kind ?? "APP"}-${row.project_id}-${row.user_id}`}
                     className={cn("flex items-start gap-2 px-3 py-2.5", row.stale && "opacity-60")}
                   >
                     <UserRound className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
@@ -209,10 +214,14 @@ export function OnSiteMap({
                         {t("lastSeen", { at: dates.dateTime(row.last_seen_at) })}
                       </p>
                     </div>
-                    <StatusBadge
-                      label={row.stale ? t("stale") : t("live")}
-                      tone={row.stale ? "neutral" : "positive"}
-                    />
+                    {row.kind === "ROSTER" ? (
+                      <StatusBadge label={words("rosterTag")} tone="info" />
+                    ) : (
+                      <StatusBadge
+                        label={row.stale ? t("stale") : t("live")}
+                        tone={row.stale ? "neutral" : "positive"}
+                      />
+                    )}
                   </div>
                 ))
               )}

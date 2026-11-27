@@ -9538,6 +9538,7 @@
       "review_by_head_office": "这个分类设为「提交总部审批」，由总部验收。",
       "sundry_claim_sent_elsewhere": "这笔杂费报销交给另一边审批，你不能批。",
       "sundry_claim_own": "你不能批自己提交的杂费报销。",
+      "sundry_claim_view_only": "这笔报销提交给{submit_to, select, HQ {总部} other {项目经理}}审批，你可以查看，不可以审批。",
       "material_request_manager_first": "现场人员的申请先交项目经理，项目经理确认后再转给总部。",
       "material_request_not_executor": "只有这个项目的项目经理可以处理和确认完成；总部只能查看。",
       "material_request_not_open": "这个申请不在待执行中（还没批准，或已经确认完成）。",
@@ -9746,6 +9747,7 @@
       "project_left": "你已经被移出「{project}」项目，不能再查看或操作这个项目的资料。如有需要，请联系项目经理。",
       "phone_identity_in_use": "这个手机号码已经是「{name}」（{kind, select, driver {司机打卡链接} site_staff {工地人员} equipment_operator {设备操作人员} gate_guard {门岗保安} other {现场人员}}）的有效身份。一个号码只能有一个有效身份：请先停用原来的，再建立新的。",
       "phone_device_in_use": "这部手机已经绑定了另一个人的身份（{name}）。一部手机只能有一个有效身份：请后台先停用原来的身份，再用新的链接。",
+      "field_presence_not_granted": "你的账号角色没有开通「现场打卡进退场」和「手机分享本人位置」，所以手机记不了你的进场和离开。请联系办公室在「角色与权限」里给你的角色勾选这两项。",
       "equipment_hours_driver_busy": "你的设备 {equipment} 还没有收工（{since} 开工）。一个司机同一时间只能开一台设备：请先为它拍收工，再为这台开工。",
       "company_settings_pin_required": "进入公司设置要先输入六位数签核密码。",
       "sign_off_pin_identity_required": "要先确认是你本人：输入旧的签核密码，或输入寄到你登录邮箱的验证码。",
@@ -25062,5 +25064,21 @@
     "linkCopy": "复制链接",
     "linkCopied": "已复制",
     "noProjects": "现在没有项目在大屏上展示。总部可以在【大屏展示设定】里选要展示的项目。"
+  },
+  "jb296": {
+    "composition": "App 人员 {app} + 人员名单 {roster} + 门岗通行 {gate}",
+    "emergencyComposition": "共 {total} 人（App 人员 {app} + 人员名单 {roster} + 门岗通行 {gate}）",
+    "emergencySubtitle": "此刻在现场的所有人：手机电子围栏记录进场的人、人员名单里用定位链接在场的人，加上门岗通行证进了还没出的人。同一个电话号码在同一个项目只算一个人。",
+    "sourceRoster": "人员名单（定位链接）",
+    "rosterTag": "人员名单",
+    "hqOnSiteSplit": "App 人员 {app} ＋ 人员名单 {roster} ＋ 门岗通行 {gate}",
+    "hqPresenceSplit": "App 人员 {app} ＋ 人员名单 {roster} ＋ 门岗通行 {gate}，按项目"
+  },
+  "jb297": {
+    "viewOnly": {
+      "PROJECT": "这笔报销提交给项目经理审批。你可以查看，不可以审批。",
+      "HQ": "这笔报销提交给总部审批。你可以查看，不可以审批。"
+    },
+    "fallback": "这个项目没有可以审批的项目经理，改由总部审批。"
   }
 }

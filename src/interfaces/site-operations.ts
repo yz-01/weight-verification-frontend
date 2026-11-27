@@ -37,13 +37,17 @@ export type AttendanceSource = "MANUAL" | "GEOFENCE" | "SYSTEM";
 /**
  * 电子围栏／人员进场 (C21), counted by the L8 rules.
  *
- * `current_total` is `app_on_site + gate_on_site`: people in by the phone, and
- * people in through the gate on a pass whose account is not already counted.
- * `entered_today` always equals `left_today + still_on_site`.
+ * `current_total` is `app_on_site + roster_on_site + gate_on_site`: people in
+ * by the phone, 人员名单 workers on site by their location link (JB296; one
+ * with the phone of an app account on site there counted once), and people
+ * in through the gate on a pass whose account is not already counted.
+ * `entered_today` always equals `left_today + still_on_site` (人员进场记录 only).
  */
 export interface PresenceNumbers {
   current_total: number;
   app_on_site: number;
+  /** JB296; absent from an older server. */
+  roster_on_site?: number;
   gate_on_site: number;
   still_on_site: number;
   entered_today: number;
@@ -81,10 +85,16 @@ export type FieldPositionEvent =
  * One person on site now, where they were last seen inside the fence
  * (2026-10-10: 「在围栏内会显示现场工作人员的实时位置」). Only people with an
  * open 进场; a point outside the fence is never sent.
+ *
+ * JB296: `kind` "ROSTER" is a 人员名单 worker on site by their location link
+ * (`user_id` is then the roster worker's id; never stale - J25).
  */
 export interface OnSitePosition {
+  kind?: "APP" | "ROSTER";
   user_id: string;
   full_name: string;
+  department_name?: string;
+  trade_name?: string;
   project_id: string;
   project_name: string;
   latitude: string;
@@ -335,6 +345,11 @@ export interface SafetyIncidentPayload {
 
 /** One worker currently inside a project's geofence. */
 export interface WorkforcePresencePerson {
+  /**
+   * JB296: "ROSTER" is a 人员名单 worker on site by their location link -
+   * `user_id` is then the roster worker's id, `department_name` their 所属公司.
+   */
+  kind?: "APP" | "ROSTER";
   user_id: string;
   full_name: string;
   phone: string;
@@ -345,7 +360,7 @@ export interface WorkforcePresencePerson {
   trade_id: string | null;
   trade_name: string;
   since: string;
-  entry_source: AttendanceSource;
+  entry_source: AttendanceSource | null;
   last_report_at: string | null;
   /** No report for 30 minutes: still counted, shown as 未回报. */
   stale: boolean;

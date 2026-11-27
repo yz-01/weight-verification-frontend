@@ -34,9 +34,16 @@ import { exportEmergencyList, getEmergencyList } from "@/services/site-access.se
  * that page's 当前现场总人数 always agree. A phone that has not reported for a
  * while stays on the list, marked 未回报: at an assembly point it is safer to
  * look for somebody who has gone home than to forget somebody still inside.
+ *
+ * JB296 (客户 11-28 事项 1): 人员名单 workers on site by their location link are
+ * on it too (`ROSTER`); one with the phone of an app account on site on the
+ * same project is that account's row, counted once.
  */
 export function EmergencyListWorkspace() {
   const t = useTranslations("siteControl");
+  const words = useTranslations("jb296");
+  const sourceLabel = (row: EmergencyPresence) =>
+    row.source === "ROSTER" ? words("sourceRoster") : t(`emergency.sourceValue.${row.source}`);
   const df = useDateFormat();
   const search = useSearchParams();
   // The top bar's 「当前项目」 when it is in force (B13); a link's `?project=`
@@ -60,9 +67,10 @@ export function EmergencyListWorkspace() {
     printPage(printDocument(people, rows.data?.letterhead, {
       title: t("emergency.title"),
       generated: t("emergency.printedAt", { time: df.dateTime(new Date().toISOString()) }),
-      composition: t("emergency.composition", {
+      composition: words("emergencyComposition", {
         total: rows.data?.count ?? 0,
         app: rows.data?.app_count ?? 0,
+        roster: rows.data?.roster_count ?? 0,
         gate: rows.data?.gate_count ?? 0,
       }),
       headings: ["person", "type", "source", "company", "project", "enteredAt", "duration", "gate", "contact"].map((key) =>
@@ -71,7 +79,7 @@ export function EmergencyListWorkspace() {
       cells: (row) => [
         `${row.subject_name}${row.pass_no ? ` (${row.pass_no})` : ""}`,
         t(`subjectType.${row.subject_type}`),
-        t(`emergency.sourceValue.${row.source}`),
+        sourceLabel(row),
         row.subject_company || "-",
         row.project_name,
         df.dateTime(row.entered_at),
@@ -82,12 +90,12 @@ export function EmergencyListWorkspace() {
     }), "width=1000,height=760");
   }
 
-  return <div className="flex flex-col gap-4"><ListHeader title={t("emergency.title")} subtitle={t("emergency.subtitle")} action={<div className="flex flex-wrap gap-2"><Button variant="outline" disabled={rows.isFetching} onClick={() => void rows.refetch()}><RefreshCw className={rows.isFetching ? "animate-spin" : ""} />{t("action.refresh")}</Button><Button variant="outline" disabled={!people.length} disabledReason={!people.length ? t("emergency.empty") : undefined} onClick={() => void print()}><Printer />{t("emergency.print")}</Button><ExportButton variant="default" formats={["xlsx"]} onExport={() => exportEmergencyList(project === "all" ? undefined : project)} title={t("emergency.title")} /></div>} />
-    <div className="surface-panel grid gap-3 rounded-xl px-4 py-3 sm:grid-cols-[minmax(15rem,1fr)_auto] sm:items-end sm:px-6 sm:py-4">{projectBoxShown && <FieldWrapper label={t("field.project")}><ProjectPicker value={project} onValueChange={setProject} placeholder={t("field.chooseProject")} allowAll allLabel={t("field.allProjects")} /></FieldWrapper>}<div className="flex min-h-12 items-center gap-3 rounded-lg border border-warning/25 bg-warning/5 px-4 py-2"><Users className="text-warning" /><div><p className="text-xs text-muted-foreground">{t("emergency.currentCount")}</p><p className="font-semibold tabular">{rows.data?.count ?? 0}</p><p className="text-xs text-muted-foreground">{t("emergency.split", { app: rows.data?.app_count ?? 0, gate: rows.data?.gate_count ?? 0 })}</p></div></div></div>
+  return <div className="flex flex-col gap-4"><ListHeader title={t("emergency.title")} subtitle={words("emergencySubtitle")} action={<div className="flex flex-wrap gap-2"><Button variant="outline" disabled={rows.isFetching} onClick={() => void rows.refetch()}><RefreshCw className={rows.isFetching ? "animate-spin" : ""} />{t("action.refresh")}</Button><Button variant="outline" disabled={!people.length} disabledReason={!people.length ? t("emergency.empty") : undefined} onClick={() => void print()}><Printer />{t("emergency.print")}</Button><ExportButton variant="default" formats={["xlsx"]} onExport={() => exportEmergencyList(project === "all" ? undefined : project)} title={t("emergency.title")} /></div>} />
+    <div className="surface-panel grid gap-3 rounded-xl px-4 py-3 sm:grid-cols-[minmax(15rem,1fr)_auto] sm:items-end sm:px-6 sm:py-4">{projectBoxShown && <FieldWrapper label={t("field.project")}><ProjectPicker value={project} onValueChange={setProject} placeholder={t("field.chooseProject")} allowAll allLabel={t("field.allProjects")} /></FieldWrapper>}<div className="flex min-h-12 items-center gap-3 rounded-lg border border-warning/25 bg-warning/5 px-4 py-2"><Users className="text-warning" /><div><p className="text-xs text-muted-foreground">{t("emergency.currentCount")}</p><p className="font-semibold tabular">{rows.data?.count ?? 0}</p><p className="text-xs text-muted-foreground">{words("composition", { app: rows.data?.app_count ?? 0, roster: rows.data?.roster_count ?? 0, gate: rows.data?.gate_count ?? 0 })}</p></div></div></div>
     {/* 公司设置's 紧急联系人, to tap (JB206-9). */}
     <EmergencyContactLine />
     <div className="rounded-xl border border-warning/25 bg-warning/5 p-4"><div className="flex items-start gap-3"><ShieldAlert className="mt-0.5 shrink-0 text-warning" /><div><h2 className="font-semibold">{t("emergency.useTitle")}</h2><p className="mt-1 text-sm text-muted-foreground">{t("emergency.useHelp")}</p></div></div></div>
-    {rows.isLoading ? <State text={t("state.loading")} /> : rows.isError ? <State text={t("state.loadError")} danger /> : !rows.data?.count ? <State text={t("emergency.empty")} /> : <div className="surface-panel overflow-hidden rounded-xl"><Table className="min-w-250"><TableHeader><TableRow>{["person", "type", "source", "company", "project", "enteredAt", "duration", "gate", "contact"].map((key) => <TableHead key={key}>{key === "source" ? t("emergency.source") : t(`table.${key}`)}</TableHead>)}</TableRow></TableHeader><TableBody>{people.map((row) => <TableRow key={`${row.source}:${row.user_id ?? row.event_id}`}><TableCell><p className="font-semibold">{row.subject_name}</p><p className="text-xs text-muted-foreground">{row.pass_no}</p></TableCell><TableCell><StatusBadge label={t(`subjectType.${row.subject_type}`)} tone="info" /></TableCell><TableCell><p>{t(`emergency.sourceValue.${row.source}`)}</p>{row.source !== "GATE" && <p className={`text-xs ${row.stale ? "text-warning" : "text-muted-foreground"}`}>{row.last_report_at ? t(row.stale ? "emergency.stale" : "emergency.lastReport", { time: df.dateTime(row.last_report_at) }) : t("emergency.noReport")}</p>}</TableCell><TableCell>{row.subject_company || "-"}</TableCell><TableCell>{row.project_name}</TableCell><TableCell>{df.dateTime(row.entered_at)}</TableCell><TableCell className="font-medium tabular">{duration(row.minutes_on_site, t)}</TableCell><TableCell>{row.gate_name || "-"}</TableCell><TableCell>{row.phone ? <a className="inline-flex items-center gap-2 text-primary hover:underline" href={`tel:${row.phone}`}><Phone className="size-4" />{row.phone}</a> : "-"}</TableCell></TableRow>)}</TableBody></Table></div>}
+    {rows.isLoading ? <State text={t("state.loading")} /> : rows.isError ? <State text={t("state.loadError")} danger /> : !rows.data?.count ? <State text={t("emergency.empty")} /> : <div className="surface-panel overflow-hidden rounded-xl"><Table className="min-w-250"><TableHeader><TableRow>{["person", "type", "source", "company", "project", "enteredAt", "duration", "gate", "contact"].map((key) => <TableHead key={key}>{key === "source" ? t("emergency.source") : t(`table.${key}`)}</TableHead>)}</TableRow></TableHeader><TableBody>{people.map((row) => <TableRow key={`${row.source}:${row.user_id ?? row.roster_worker_id ?? row.event_id}`}><TableCell><p className="font-semibold">{row.subject_name}</p><p className="text-xs text-muted-foreground">{row.pass_no}</p></TableCell><TableCell><StatusBadge label={t(`subjectType.${row.subject_type}`)} tone="info" /></TableCell><TableCell><p>{sourceLabel(row)}</p>{row.source !== "GATE" && <p className={`text-xs ${row.stale ? "text-warning" : "text-muted-foreground"}`}>{row.last_report_at ? t(row.stale ? "emergency.stale" : "emergency.lastReport", { time: df.dateTime(row.last_report_at) }) : t("emergency.noReport")}</p>}</TableCell><TableCell>{row.subject_company || "-"}</TableCell><TableCell>{row.project_name}</TableCell><TableCell>{df.dateTime(row.entered_at)}</TableCell><TableCell className="font-medium tabular">{duration(row.minutes_on_site, t)}</TableCell><TableCell>{row.gate_name || "-"}</TableCell><TableCell>{row.phone ? <a className="inline-flex items-center gap-2 text-primary hover:underline" href={`tel:${row.phone}`}><Phone className="size-4" />{row.phone}</a> : "-"}</TableCell></TableRow>)}</TableBody></Table></div>}
     {rows.dataUpdatedAt > 0 && <p className="text-xs text-muted-foreground">{t("emergency.updated", { time: new Date(rows.dataUpdatedAt).toLocaleTimeString() })}</p>}
   </div>;
 }
