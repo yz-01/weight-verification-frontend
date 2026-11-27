@@ -25098,7 +25098,8 @@
       "PERSON": "By person",
       "COMPANY_TRADE": "By company + trade",
       "TRADE": "By trade",
-      "COMPANY": "By company"
+      "COMPANY": "By company",
+      "EQUIPMENT": "Equipment operator"
     },
     "scopeHelp": {
       "PERSON": "Only this one person",
@@ -25393,11 +25394,13 @@
     "twin": {
       "linkedTag": "Linked app account {name}",
       "appName": "App account: {name}",
-      "samePhone": "One phone number has two people. Please check: {names}"
+      "samePhone": "One phone number has two people. Please check: {names}",
+      "samePhoneNumber": "One number has two people, please check: {names} ({phone})"
     },
     "visits": {
+      "flags": "System ended / No exit",
       "source": "Source",
-      "sourceVisit": "Worker list link",
+      "sourceVisit": "Worker roster link",
       "sourceApp": "App clock-in",
       "refs": "Entry record no.",
       "appAccount": "App account",
@@ -25420,8 +25423,14 @@
         "people": "People",
         "labourAmount": "Labour cost (RM)",
         "confirmed": "Confirmed (RM)",
-        "unconfirmed": "Not confirmed (RM)"
+        "unconfirmed": "Not confirmed (RM)",
+        "statements": "Labour monthly statements",
+        "pending": "To check (RM)",
+        "checked": "Checked (RM)",
+        "settled": "Settled (RM)"
       },
+      "split": "{state} RM {amount}",
+      "noRatePeople": "{count, plural, one {# person has} other {# people have}} no rate yet, not in the labour cost",
       "months": "Each month",
       "empty": "Nobody has working days in these months.",
       "help": "The labour cost is worked out from the records and rates now; confirmed months use what was kept when they were confirmed."

@@ -25098,7 +25098,8 @@
       "PERSON": "按人员",
       "COMPANY_TRADE": "按所属公司 + 工种",
       "TRADE": "按工种",
-      "COMPANY": "按所属公司"
+      "COMPANY": "按所属公司",
+      "EQUIPMENT": "设备操作员"
     },
     "scopeHelp": {
       "PERSON": "只给这一个人",
@@ -25393,9 +25394,11 @@
     "twin": {
       "linkedTag": "已关联 App 账号 {name}",
       "appName": "App 账号：{name}",
-      "samePhone": "同一个号码有两个人员，请检查：{names}"
+      "samePhone": "同一个号码有两个人员，请检查：{names}",
+      "samePhoneNumber": "同一个号码有两个人员，请检查：{names}（{phone}）"
     },
     "visits": {
+      "flags": "系统结束 / 缺离场",
       "source": "来源",
       "sourceVisit": "人员名单链接",
       "sourceApp": "App 打卡",
@@ -25420,8 +25423,14 @@
         "people": "人数",
         "labourAmount": "人工费用（RM）",
         "confirmed": "已确认（RM）",
-        "unconfirmed": "未确认（RM）"
+        "unconfirmed": "未确认（RM）",
+        "statements": "人工月结单",
+        "pending": "待核对（RM）",
+        "checked": "已核对（RM）",
+        "settled": "已结算（RM）"
       },
+      "split": "{state} RM {amount}",
+      "noRatePeople": "{count} 人还没有单价，没算在人工费用里",
       "months": "看每月",
       "empty": "这段月份没有人有工作天数。",
       "help": "人工费用是按现在的记录和单价算出的；已确认的月份按确认时保存的算。"

@@ -137,12 +137,15 @@ export function usesSummary(group: LabourSummaryGroup, monthFrom: string, monthT
   return group !== "person" || monthFrom !== monthTo;
 }
 
-/** 「同一个号码有两个人员，请检查」 warnings, each with the names it is about. */
-export function phoneWarnings(options: LabourOptions | undefined): string[][] {
+/** 「同一个号码有两个人员，请检查」 warnings: the names it is about and the phone. */
+export function phoneWarnings(options: LabourOptions | undefined): { names: string[]; phone: string }[] {
   const names = new Map((options?.people ?? []).map((person) => [person.key, person.name]));
   return (options?.warnings ?? [])
     .filter((warning) => warning.kind === "same_phone_twice")
-    .map((warning) => warning.keys.map((key) => names.get(key) ?? key));
+    .map((warning) => ({
+      names: warning.names?.length ? warning.names : warning.keys.map((key) => names.get(key) ?? key),
+      phone: warning.phone ?? "",
+    }));
 }
 
 /** A live (not 作废) 结算单 holding the month: 【取消确认】 waits for it. */
@@ -293,6 +296,7 @@ export function LabourCostsPage() {
                         query: { ...summaryQuery },
                         columns: [
                           { key: "name", label: t(`stats.name.${group}`) },
+                          { key: "month", label: t("statement.col.month") },
                           { key: "people", label: t("stats.col.people") },
                           { key: "days_worked", label: t("col.daysWorked") },
                           { key: "normal_hours", label: t("col.normalHours") },
@@ -300,6 +304,9 @@ export function LabourCostsPage() {
                           { key: "labour_amount", label: t("stats.col.labourAmount") },
                           { key: "confirmed_amount", label: t("stats.col.confirmed") },
                           { key: "unconfirmed_amount", label: t("stats.col.unconfirmed") },
+                          { key: "pending_amount", label: t("stats.col.pending") },
+                          { key: "checked_amount", label: t("stats.col.checked") },
+                          { key: "settled_amount", label: t("stats.col.settled") },
                         ],
                       },
                       t("month.total"),
@@ -508,13 +515,15 @@ export function LabourCostsPage() {
         </div>
       ) : null}
       {/* JB295b: two roster rows (or two accounts) with one phone are not merged - said here. */}
-      {phoneWarnings(options.data).map((names) => (
+      {phoneWarnings(options.data).map((warning) => (
         <p
-          key={names.join("|")}
+          key={`${warning.phone}|${warning.names.join("|")}`}
           className="rounded-lg border border-warning/30 bg-warning/10 px-4 py-3 text-base"
           data-slot="labour-same-phone"
         >
-          {t("twin.samePhone", { names: names.join("、") })}
+          {warning.phone
+            ? t("twin.samePhoneNumber", { names: warning.names.join("、"), phone: warning.phone })
+            : t("twin.samePhone", { names: warning.names.join("、") })}
         </p>
       ))}
 
@@ -1025,6 +1034,7 @@ export function SummaryTable({
                 <TableHead className="text-right">{t("stats.col.labourAmount")}</TableHead>
                 <TableHead className="text-right">{t("stats.col.confirmed")}</TableHead>
                 <TableHead className="text-right">{t("stats.col.unconfirmed")}</TableHead>
+                <TableHead>{t("stats.col.statements")}</TableHead>
                 <TableHead />
               </TableRow>
             </TableHeader>
@@ -1032,7 +1042,16 @@ export function SummaryTable({
               {rows.map((row) => (
                 <Fragment key={row.key}>
                   <TableRow data-slot="labour-summary-row">
-                    <TableCell className="font-medium">{nameOf(row.key, row.name)}</TableCell>
+                    <TableCell className="font-medium">
+                      <span className="flex flex-col items-start gap-0.5">
+                        <span>{nameOf(row.key, row.name)}</span>
+                        {row.no_rate_people ? (
+                          <span className="text-xs font-normal text-warning" data-slot="labour-summary-no-rate">
+                            {t("stats.noRatePeople", { count: row.no_rate_people })}
+                          </span>
+                        ) : null}
+                      </span>
+                    </TableCell>
                     <TableCell className="tabular text-right">{row.people}</TableCell>
                     <TableCell className="tabular text-right">{row.days_worked}</TableCell>
                     <TableCell className="tabular text-right">{hoursText(row.normal_hours)}</TableCell>
@@ -1040,6 +1059,9 @@ export function SummaryTable({
                     <TableCell className="tabular text-right font-semibold">{labourMoney(row.labour_amount)}</TableCell>
                     <TableCell className="tabular text-right">{labourMoney(row.confirmed_amount)}</TableCell>
                     <TableCell className="tabular text-right">{labourMoney(row.unconfirmed_amount)}</TableCell>
+                    <TableCell>
+                      <StatementSplit figures={row} />
+                    </TableCell>
                     <TableCell>
                       {row.months.length > 1 ? (
                         <Button
@@ -1066,6 +1088,9 @@ export function SummaryTable({
                     <TableCell className="tabular text-right font-semibold">{labourMoney(piece.labour_amount)}</TableCell>
                     <TableCell className="tabular text-right">{labourMoney(piece.confirmed_amount)}</TableCell>
                     <TableCell className="tabular text-right">{labourMoney(piece.unconfirmed_amount)}</TableCell>
+                    <TableCell>
+                      <StatementSplit figures={piece} />
+                    </TableCell>
                           <TableCell />
                         </TableRow>
                       ))
@@ -1084,6 +1109,9 @@ export function SummaryTable({
                     <TableCell className="tabular text-right font-semibold">{labourMoney(data.totals.labour_amount)}</TableCell>
                     <TableCell className="tabular text-right">{labourMoney(data.totals.confirmed_amount)}</TableCell>
                     <TableCell className="tabular text-right">{labourMoney(data.totals.unconfirmed_amount)}</TableCell>
+                    <TableCell>
+                      <StatementSplit figures={data.totals} />
+                    </TableCell>
                   <TableCell />
                 </TableRow>
               </TableFooter>
@@ -1094,6 +1122,26 @@ export function SummaryTable({
       <p className="text-sm text-muted-foreground">{t("stats.help")}</p>
       {!seesAmounts ? <p className="text-sm text-muted-foreground">{t("amountsHidden")}</p> : null}
     </section>
+  );
+}
+
+/** In 人工月结单: 「待核对 RM x」 / 「已核对 RM y」 / 「已结算 RM z」, the ones not 0. */
+function StatementSplit({ figures }: { figures: LabourSummary["totals"] }) {
+  const t = useTranslations("jb295");
+  const parts = (
+    [
+      ["PENDING", figures.pending_amount],
+      ["CHECKED", figures.checked_amount],
+      ["SETTLED", figures.settled_amount],
+    ] as const
+  ).filter(([, amount]) => amount && Number(amount) !== 0);
+  if (!parts.length) return <span className="text-muted-foreground">—</span>;
+  return (
+    <span className="flex flex-col text-sm" style={{ whiteSpace: "nowrap" }}>
+      {parts.map(([state, amount]) => (
+        <span key={state}>{t("stats.split", { state: t(`state.${state}`), amount: labourMoney(amount ?? null) })}</span>
+      ))}
+    </span>
   );
 }
 

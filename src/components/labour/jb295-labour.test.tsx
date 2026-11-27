@@ -763,7 +763,7 @@ describe("JB295b · one person, two identities (same phone): 「人员名单中�
   const LINKED = {
     ...OPTIONS,
     people: [{ ...OPTIONS.people[0], linked_user: { key: "user:u-ahong", name: "ah ong" } }, OPTIONS.people[1]],
-    warnings: [{ kind: "same_phone_twice", keys: ["worker:w-ong", "user:u-ahing"] }],
+    warnings: [{ kind: "same_phone_twice", keys: ["worker:w-ong", "user:u-ahing"], names: ["ong", "ahing"], phone: "+60192469666" }],
   };
 
   it("the worker list tags the linked app account; the 进出场记录 tab shows 来源, AT numbers and marks", () => {
@@ -788,7 +788,10 @@ describe("JB295b · one person, two identities (same phone): 「人员名单中�
 
   it("人工费用统计 counts the twin once, says so, and warns about one phone with two people", () => {
     expect(linkedNames(LINKED as never).get("worker:w-ong")).toBe("ah ong");
-    expect(phoneWarnings(LINKED as never)).toEqual([["ong", "ahing"]]);
+    expect(phoneWarnings(LINKED as never)).toEqual([{ names: ["ong", "ahing"], phone: "+60192469666" }]);
+    expect(phoneWarnings({ ...LINKED, warnings: [{ kind: "same_phone_twice", keys: ["worker:w-ong"] }] } as never)).toEqual([
+      { names: ["ong"], phone: "" },
+    ]);
     const out = text(
       render(<LabourCostsPage />, (qc) => {
         seedPage(qc);
@@ -796,7 +799,7 @@ describe("JB295b · one person, two identities (same phone): 「人员名单中�
       }),
     );
     expect(out).toContain("App 账号：ah ong");
-    expect(out).toContain("同一个号码有两个人员，请检查：ong、ahing");
+    expect(out).toContain("同一个号码有两个人员，请检查：ong、ahing（+60192469666）");
   });
 
   it("按日 marks an app stay of a linked worker with 「App 打卡」 and its AT numbers", () => {
@@ -832,11 +835,23 @@ describe("JB295b · 统计方式: 按人员 | 按所属公司 | 按工种, 月�
   });
 
   it("按所属公司: 人数, 工作天数, 工时, 人工费用 (已确认 / 未确认), 每月, 合计", () => {
-    const figures = { people: 2, days_worked: 25, normal_hours: "200.00", overtime_hours: "10.50", labour_amount: "2850.00", confirmed_amount: "2850.00", unconfirmed_amount: "0.00" };
+    const figures = {
+      people: 2,
+      days_worked: 25,
+      normal_hours: "200.00",
+      overtime_hours: "10.50",
+      no_rate_people: 0,
+      labour_amount: "2850.00",
+      confirmed_amount: "2850.00",
+      unconfirmed_amount: "0.00",
+      pending_amount: "2850.00",
+      checked_amount: "0.00",
+      settled_amount: "0.00",
+    };
     const data = {
       rows: [
         { key: "s-hh", name: "HH machinery sb", ...figures, months: [{ month: "2026-09", ...figures }, { month: "2026-10", ...figures }] },
-        { key: "self", name: "", ...figures, people: 1, months: [{ month: "2026-10", ...figures }] },
+        { key: "self", name: "", ...figures, people: 1, no_rate_people: 1, months: [{ month: "2026-10", ...figures }] },
       ],
       totals: { ...figures, people: 3, labour_amount: "5700.00" },
       amounts_hidden: false,
@@ -849,6 +864,11 @@ describe("JB295b · 统计方式: 按人员 | 按所属公司 | 按工种, 月�
     expect(out).toContain("HH machinery sb");
     expect(out).toContain("本公司");
     expect(out).toContain("5,700.00");
+    // In 人工月结单: only the states that hold money; people with no rate said, not counted as 0.
+    expect(out).toContain("待核对 RM 2,850.00");
+    expect(out).not.toContain("已结算 RM 0.00");
+    expect(out).toContain(fill(zh.jb295.stats.noRatePeople, { count: 1 }));
+    expect(zh.jb295.scope.EQUIPMENT).toBe("设备操作员");
     // 每月 only where there are several months.
     expect(html.split('data-slot="labour-summary-months-toggle"').length - 1).toBe(1);
     expect(html).toContain('data-slot="labour-summary-total"');

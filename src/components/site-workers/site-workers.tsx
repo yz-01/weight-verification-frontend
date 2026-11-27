@@ -607,6 +607,7 @@ function WorkerVisits({ onView }: { onView: (id: string) => void }) {
                       values: { visit: t295("visits.sourceVisit"), app: t295("visits.sourceApp") },
                     },
                     { key: "refs", label: t295("visits.refs") },
+                    { key: "flags", label: t295("visits.flags") },
                     { key: "linked_user_name", label: t295("visits.appAccount") },
                   ],
                 })

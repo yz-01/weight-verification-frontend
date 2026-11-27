@@ -20,7 +20,7 @@ export type LabourGroup = "roster" | "app";
 /** A 所属公司: on the supplier list, typed in, 本公司 (`self`) or not filled in (`none`). */
 export type LabourCompanyKind = "supplier" | "note" | "self" | "none";
 /** 按人员 / 按所属公司 + 工种 / 按工种 / 按所属公司 - the most specific one wins. */
-export type LabourScope = "PERSON" | "COMPANY_TRADE" | "TRADE" | "COMPANY";
+export type LabourScope = "PERSON" | "COMPANY_TRADE" | "TRADE" | "COMPANY" | "EQUIPMENT";
 /**
  * 日薪 / 时薪, or 「已含在设备租赁费用内」 (JB295b, 客户 11-28 第 6 点: the
  * operator's labour is inside the equipment rental and is not counted again).
@@ -29,6 +29,7 @@ export type LabourMethod = "DAILY" | "HOURLY" | "IN_RENTAL";
 
 /** The order a person's rate is looked for: the first one found counts. */
 export const LABOUR_SCOPES: readonly LabourScope[] = ["PERSON", "COMPANY_TRADE", "TRADE", "COMPANY"];
+// (`EQUIPMENT` is no rate row: a day of the bound operator of a rented machine, JB295b.)
 export const LABOUR_METHODS: readonly LabourMethod[] = ["DAILY", "HOURLY", "IN_RENTAL"];
 
 export interface LabourCompany {
@@ -58,6 +59,8 @@ export interface LabourPerson {
 export interface LabourWarning {
   kind: "same_phone_twice";
   keys: string[];
+  names?: string[];
+  phone?: string;
 }
 
 export interface LabourOptions {
@@ -371,9 +374,15 @@ export interface LabourSummaryFigures {
   days_worked: number;
   normal_hours: string;
   overtime_hours: string;
+  /** People with days but no rate: not in the amount (never counted as 0). */
+  no_rate_people?: number;
   labour_amount: string | null;
   confirmed_amount: string | null;
   unconfirmed_amount: string | null;
+  /** Inside 人工月结单: 待核对 / 已核对 / 已结算. */
+  pending_amount?: string | null;
+  checked_amount?: string | null;
+  settled_amount?: string | null;
 }
 
 export interface LabourSummaryRow extends LabourSummaryFigures {

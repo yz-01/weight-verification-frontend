@@ -25098,7 +25098,8 @@
       "PERSON": "Ikut orang",
       "COMPANY_TRADE": "Ikut syarikat + tred",
       "TRADE": "Ikut tred",
-      "COMPANY": "Ikut syarikat"
+      "COMPANY": "Ikut syarikat",
+      "EQUIPMENT": "Pengendali peralatan"
     },
     "scopeHelp": {
       "PERSON": "Hanya untuk orang ini",
@@ -25393,9 +25394,11 @@
     "twin": {
       "linkedTag": "Akaun App dipautkan {name}",
       "appName": "Akaun App: {name}",
-      "samePhone": "Satu nombor telefon ada dua orang. Sila semak: {names}"
+      "samePhone": "Satu nombor telefon ada dua orang. Sila semak: {names}",
+      "samePhoneNumber": "Satu nombor ada dua orang, sila semak: {names} ({phone})"
     },
     "visits": {
+      "flags": "Ditamatkan sistem / Tiada keluar",
       "source": "Sumber",
       "sourceVisit": "Pautan senarai pekerja",
       "sourceApp": "Daftar masuk App",
@@ -25420,8 +25423,14 @@
         "people": "Bilangan orang",
         "labourAmount": "Kos buruh (RM)",
         "confirmed": "Sudah disahkan (RM)",
-        "unconfirmed": "Belum disahkan (RM)"
+        "unconfirmed": "Belum disahkan (RM)",
+        "statements": "Penyata bulanan buruh",
+        "pending": "Untuk disemak (RM)",
+        "checked": "Sudah disemak (RM)",
+        "settled": "Sudah diselesaikan (RM)"
       },
+      "split": "{state} RM {amount}",
+      "noRatePeople": "{count} orang belum ada kadar, tidak dikira dalam kos buruh",
       "months": "Setiap bulan",
       "empty": "Tiada sesiapa mempunyai hari bekerja dalam bulan-bulan ini.",
       "help": "Kos buruh dikira daripada rekod dan kadar sekarang; bulan yang sudah disahkan menggunakan apa yang disimpan semasa disahkan."

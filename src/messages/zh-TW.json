@@ -25098,7 +25098,8 @@
       "PERSON": "按人員",
       "COMPANY_TRADE": "按所屬公司 + 工種",
       "TRADE": "按工種",
-      "COMPANY": "按所屬公司"
+      "COMPANY": "按所屬公司",
+      "EQUIPMENT": "設備操作員"
     },
     "scopeHelp": {
       "PERSON": "只給這一個人",
@@ -25393,9 +25394,11 @@
     "twin": {
       "linkedTag": "已關聯 App 帳號 {name}",
       "appName": "App 帳號：{name}",
-      "samePhone": "同一個號碼有兩個人員，請檢查：{names}"
+      "samePhone": "同一個號碼有兩個人員，請檢查：{names}",
+      "samePhoneNumber": "同一個號碼有兩個人員，請檢查：{names}（{phone}）"
     },
     "visits": {
+      "flags": "系統結束 / 缺離場",
       "source": "來源",
       "sourceVisit": "人員名單鏈接",
       "sourceApp": "App 打卡",
@@ -25420,8 +25423,14 @@
         "people": "人數",
         "labourAmount": "人工費用（RM）",
         "confirmed": "已確認（RM）",
-        "unconfirmed": "未確認（RM）"
+        "unconfirmed": "未確認（RM）",
+        "statements": "人工月結單",
+        "pending": "待核對（RM）",
+        "checked": "已核對（RM）",
+        "settled": "已結算（RM）"
       },
+      "split": "{state} RM {amount}",
+      "noRatePeople": "{count} 人還沒有單價，沒算在人工費用裡",
       "months": "看每月",
       "empty": "這段月份沒有人有工作天數。",
       "help": "人工費用是按現在的記錄和單價算出的；已確認的月份按確認時保存的算。"
