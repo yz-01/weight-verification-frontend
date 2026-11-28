@@ -2199,6 +2199,18 @@ export const getPackageConsultantChoices = (id: string) =>
     `/api/evidence-packages/${id}/get_consultant_choices/`,
   );
 
+/** JB309-5: one account 提交审批 may choose as the QS 或授权审核负责人. */
+export interface PackageQsChoice {
+  id: string;
+  name: string;
+  role_code: string;
+  role_name: string;
+}
+
+/** JB309-5: exactly the accounts `add_recipient` accepts as this claim's QS. */
+export const getPackageQsChoices = (id: string) =>
+  api.get<PackageQsChoice[]>(`/api/evidence-packages/${id}/get_qs_choices/`);
+
 export async function sendPackageForReview(id: string, consultant: string) {
   const row = await api.post<EvidencePackageDetail>(
     `/api/evidence-packages/${id}/send_for_review/`,
@@ -2233,6 +2245,10 @@ export interface NewRecipient {
   purpose?: RecipientPurpose;
   /** JB252: the round's signature, when the round was not signed yet. */
   signature?: File;
+  /** JB309-5: the QS's account (kind QS). */
+  reviewer?: string;
+  /** JB309-5: head office goes with the QS, in the same send. */
+  with_headquarters?: boolean;
 }
 
 /**
@@ -2408,10 +2424,13 @@ export interface PackageReviewPayload {
   approved_amount?: string;
   amount_reason?: string;
   signature: File;
+  /** JB309-5: whose review this is - the QS's recipient (head office's by default). */
+  recipient?: string;
 }
 
 function reviewForm(payload: PackageReviewPayload) {
   const body = new FormData();
+  if (payload.recipient) body.append("recipient", payload.recipient);
   body.append("decisions", JSON.stringify(payload.decisions));
   if (payload.all) body.append("all", "true");
   body.append("opinion", payload.opinion);

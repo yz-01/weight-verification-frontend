@@ -1951,11 +1951,12 @@ export const CLAIM_PACKAGE_TYPES: readonly PackageType[] = ["PROGRESS_CLAIM", "S
 
 /** Who a package went to (H17 四 2). Only a consultant signs in. */
 /** HEADQUARTERS (J30-1): the company's own head office, in the system - no link. */
-export type RecipientKind = "HEADQUARTERS" | "CONSULTANT" | "OWNER" | "SUPPLIER" | "OTHER";
+/** QS (JB309-5): the QS 或授权审核负责人 of a subcontractor's Progress Claim - an office account. */
+export type RecipientKind = "HEADQUARTERS" | "QS" | "CONSULTANT" | "OWNER" | "SUPPLIER" | "OTHER";
 
-/** Whether a recipient reads through a link (not a consultant, not head office). */
+/** Whether a recipient reads through a link (not a consultant, not head office, not the QS). */
 export function isLinkRecipient(kind: RecipientKind): boolean {
-  return kind !== "CONSULTANT" && kind !== "HEADQUARTERS";
+  return kind !== "CONSULTANT" && kind !== "HEADQUARTERS" && kind !== "QS";
 }
 export type RecipientStatus = "SENT" | "VIEWED" | "SIGNED" | "REVOKED";
 export type PackageEventKind =
@@ -1982,6 +1983,8 @@ export interface PackageRecipient {
   id: string;
   kind: RecipientKind;
   consultant: string | null;
+  /** JB309-5: the QS's own account. */
+  reviewer?: string | null;
   display_name: string;
   name: string;
   organization: string;
@@ -2010,6 +2013,54 @@ export interface PackageRecipient {
   purpose?: RecipientPurpose;
   /** JB252: where this reviewer is in the current round; null for 资料传阅. */
   progress?: PackageProgress | null;
+}
+
+/** JB309-5 (客户 11-28l 「三方独立签字审批」): why a QS / head-office review cannot go now. */
+export type ThreePartyWaiting = "qs_first" | "same_signer" | "qs_review_off" | "not_your_review";
+
+/** JB309-5: the package's QS, and whether this reader is him and may sign now. */
+export interface PackageQsReview {
+  recipient: string;
+  name: string;
+  mine: boolean;
+  can_review: boolean;
+  waiting?: ThreePartyWaiting | null;
+}
+
+/** JB309-5: one of the three signatures of a round. */
+export interface ThreePartyStep {
+  signer_name: string;
+  signed_at: string;
+  action: PackageSignatureAction;
+  opinion: string;
+  recipient_name: string;
+  signature_url: string | null;
+}
+
+export interface ThreePartyRound {
+  round_no: number;
+  manager: ThreePartyStep | null;
+  qs: ThreePartyStep | null;
+  headquarters: ThreePartyStep | null;
+}
+
+export type ThreePartyNext =
+  | "MANAGER"
+  | "SEND_QS"
+  | "QS"
+  | "SEND_HEADQUARTERS"
+  | "HEADQUARTERS"
+  | "RESUBMIT"
+  | "COMPLETE"
+  | "DONE";
+
+/** JB309-5: 项目经理 → QS 或授权审核负责人 → 总部授权负责人, every round, newest first. */
+export interface ThreePartyView {
+  round_no: number;
+  next: ThreePartyNext;
+  complete: boolean;
+  qs_name: string;
+  rounds: ThreePartyRound[];
 }
 
 /** One recipient's answer on one record. */
@@ -2380,7 +2431,12 @@ export interface EvidencePackageDetail extends EvidencePackageRow {
   /** What was added for the next round and not sent yet. */
   staged_items?: PackageItem[];
   /** 总部（系统内）: whether this reader may review for head office now. */
-  headquarters_review?: { recipient: string; can_review: boolean } | null;
+  /** JB309-5 `waiting`: on a subcontractor's claim, why not yet (`qs_first`, `same_signer`). */
+  headquarters_review?: { recipient: string; can_review: boolean; waiting?: ThreePartyWaiting | null } | null;
+  /** JB309-5: the QS 或授权审核负责人 of a subcontractor's Progress Claim. */
+  qs_review?: PackageQsReview | null;
+  /** JB309-5: the three signatures of every round; null on any other package. */
+  three_party?: ThreePartyView | null;
   /** The consultant's view: he may sign a review now. */
   can_review?: boolean;
   purpose?: RecipientPurpose;

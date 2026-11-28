@@ -612,6 +612,11 @@
       "label": "Prepare and send packages"
     },
     {
+      "code": "package.qs_review",
+      "group": "package",
+      "label": "Review subcontractor Progress Claims as QS (the second of three signatures)"
+    },
+    {
       "code": "claim.view",
       "group": "claim",
       "label": "View progress claims"

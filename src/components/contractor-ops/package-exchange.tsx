@@ -22,6 +22,7 @@ import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { packageRecord, usePackageSend, type PackageShareWhat } from "@/components/contractor-ops/package-share";
+import { ThreePartyBlock, ThreePartyWaitingNote } from "@/components/contractor-ops/package-three-party";
 import { Shell } from "@/components/contractor-ops/package-shell";
 import {
   CompletePanel,
@@ -64,6 +65,7 @@ import {
   extendPackageRecipient,
   getPackageConsultantChoices,
   getPackageMessages,
+  getPackageQsChoices,
   getPackageThreadPeople,
   getPackageThreads,
   getPackageTimeline,
@@ -207,24 +209,46 @@ export function ExchangePanel({
   const [resubmitting, setResubmitting] = useState(false);
   // JB252 (客户 11-24 事项 3 一): head office reviews what was sent to it.
   const [reviewing, setReviewing] = useState(false);
+  // JB309-5: the QS 或授权审核负责人 reviews a subcontractor's claim before head office.
+  const threeParty = useTranslations("jb309f");
+  const [qsReviewing, setQsReviewing] = useState(false);
   const recipients = data.recipients ?? [];
   const hq = data.headquarters_review;
-  const hqRecords: ReviewRecord[] = hq
-    ? data.items.map((item) => {
-        const mine = (item.answers ?? []).find((answer) => answer.recipient === hq.recipient);
-        return {
-          id: item.id,
-          label: item.reference || packageKindName(t, item),
-          detail: packageKindName(t, item),
-          mine: mine?.decision ?? "PENDING",
-          reason: mine?.reason,
-        };
-      })
-    : [];
+  const qs = data.qs_review;
+  const recordsOf = (recipientId: string): ReviewRecord[] =>
+    data.items.map((item) => {
+      const mine = (item.answers ?? []).find((answer) => answer.recipient === recipientId);
+      return {
+        id: item.id,
+        label: item.reference || packageKindName(t, item),
+        detail: packageKindName(t, item),
+        mine: mine?.decision ?? "PENDING",
+        reason: mine?.reason,
+      };
+    });
+  const hqRecords: ReviewRecord[] = hq ? recordsOf(hq.recipient) : [];
+  const qsRecords: ReviewRecord[] = qs?.mine ? recordsOf(qs.recipient) : [];
 
   return (
     <section className="space-y-3" aria-label={t("exchange.title")}>
       <CompletePanel pkg={data} onChanged={onChanged} />
+      <ThreePartyBlock view={data.three_party} />
+      {qs?.can_review && (
+        <div
+          className="flex flex-wrap items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 p-3"
+          data-qs-review
+        >
+          <p className="min-w-0 flex-1 text-sm">
+            {threeParty("qs.waiting", { count: qsRecords.filter((row) => row.mine === "PENDING").length })}
+          </p>
+          <Button size="sm" onClick={() => setQsReviewing(true)}>
+            <PenLine className="size-4" />
+            {threeParty("qs.button")}
+          </Button>
+        </div>
+      )}
+      {qs?.mine && !qs.can_review && <ThreePartyWaitingNote waiting={qs.waiting} />}
+      {hq && !hq.can_review && <ThreePartyWaitingNote waiting={hq.waiting} />}
       {hq?.can_review && (
         <div
           className="flex flex-wrap items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 p-3"
@@ -297,6 +321,17 @@ export function ExchangePanel({
           records={hqRecords}
           onClose={() => setReviewing(false)}
           submit={(payload) => reviewEvidencePackage(data.id, payload)}
+          onDone={onChanged}
+        />
+      )}
+      {qsReviewing && qs && (
+        <ReviewDialog
+          pkg={data}
+          records={qsRecords}
+          amounts={false}
+          help={threeParty("qs.help")}
+          onClose={() => setQsReviewing(false)}
+          submit={(payload) => reviewEvidencePackage(data.id, { ...payload, recipient: qs.recipient })}
           onDone={onChanged}
         />
       )}
@@ -661,9 +696,22 @@ export function SendDialog({
   const t = useTranslations("multiEngine");
   const loop = useTranslations("jb252");
   const common = useTranslations("common");
-  const [kind, setKind] = useState<RecipientKind>(initialKind);
+  const words = useTranslations("jb309f");
+  const allWords = useTranslations();
+  // JB309-5: a subcontractor's Progress Claim goes 提交审批 to its QS first,
+  // head office with him - the server refuses anything else.
+  const threeParty = Boolean(pkg.three_party);
+  const hasQs = (pkg.recipients ?? []).some(
+    (row) => row.kind === "QS" && !row.revoked_at && row.purpose !== "CIRCULATION",
+  );
+  const [kind, setKind] = useState<RecipientKind>(threeParty && !hasQs ? "QS" : initialKind);
   // JB252 (第三份补充): 「系统内发送」 is 提交审批 or 资料传阅.
   const [purpose, setPurpose] = useState<RecipientPurpose>("APPROVAL");
+  const [reviewer, setReviewer] = useState("");
+  const offersQs = threeParty && !hasQs && purpose === "APPROVAL";
+  const qsFirst = threeParty && !hasQs && purpose === "APPROVAL" && kind !== "QS";
+  const kinds: RecipientKind[] = offersQs ? ["QS", ...RECIPIENT_KINDS] : RECIPIENT_KINDS;
+  const shownKind: RecipientKind = kind === "QS" && !offersQs ? "HEADQUARTERS" : kind;
   const [signature, setSignature] = useState<File | undefined>();
   const needsSignature = purpose === "APPROVAL" && pkg.round_signed === false;
   const [consultant, setConsultant] = useState("");
@@ -681,20 +729,31 @@ export function SendDialog({
     value: row.consultant,
     label: row.organization ? `${row.name} · ${row.organization}` : row.name,
   }));
+  const qsChoices = useQuery({
+    queryKey: ["evidence-packages", "qs-choices", pkg.id],
+    queryFn: () => getPackageQsChoices(pkg.id),
+    enabled: shownKind === "QS",
+  });
+  const qsOptions = (qsChoices.data ?? []).map((row) => {
+    const role = roleLabel(row.role_code, row.role_name, allWords);
+    return { value: row.id, label: role ? `${row.name} · ${role}` : row.name };
+  });
   const send = useMutation({
     mutationFn: () =>
       addPackageRecipient(pkg.id, {
-        ...(kind === "HEADQUARTERS"
-          ? { kind }
-          : kind === "CONSULTANT"
-            ? { kind, consultant }
-            : { kind, name, organization, contact, days: Number(days) || 90 }),
+        ...(shownKind === "HEADQUARTERS"
+          ? { kind: shownKind }
+          : shownKind === "QS"
+            ? { kind: shownKind, reviewer, with_headquarters: true }
+            : shownKind === "CONSULTANT"
+              ? { kind: shownKind, consultant }
+              : { kind: shownKind, name, organization, contact, days: Number(days) || 90 }),
         purpose,
         ...(needsSignature ? { signature } : {}),
       }),
     onSuccess: onSent,
   });
-  const link = isLinkRecipient(kind);
+  const link = isLinkRecipient(shownKind);
 
   return (
     <Shell title={t("exchange.sendTitle")} onClose={onClose}>
@@ -723,14 +782,14 @@ export function SendDialog({
         </FieldWrapper>
         <FieldWrapper label={t("exchange.field.kind")} required>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
-            {RECIPIENT_KINDS.map((value) => (
+            {kinds.map((value) => (
               <button
                 key={value}
                 type="button"
-                aria-pressed={kind === value}
+                aria-pressed={shownKind === value}
                 onClick={() => setKind(value)}
-                className={`h-10 rounded-lg border px-3 text-sm font-medium transition-colors ${
-                  kind === value
+                className={`min-h-10 rounded-lg border px-3 text-sm font-medium transition-colors ${
+                  shownKind === value
                     ? "border-primary/40 bg-primary/12 text-primary"
                     : "border-border bg-card text-muted-foreground hover:text-foreground"
                 }`}
@@ -740,12 +799,41 @@ export function SendDialog({
             ))}
           </div>
         </FieldWrapper>
-        {kind === "HEADQUARTERS" ? (
+        {qsFirst && (
+          <p className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm" data-send-qs-first>
+            {words("send.qsFirst")}
+          </p>
+        )}
+        {shownKind === "QS" ? (
+          <>
+            <p className="rounded-lg border border-primary/30 bg-primary/5 p-3 text-sm" data-send-qs>
+              {words("send.qsHelp")}
+            </p>
+            <FieldWrapper label={words("send.qsLabel")} required>
+              <OptionCombobox
+                value={reviewer}
+                onChange={setReviewer}
+                options={qsOptions}
+                placeholder={qsChoices.isLoading ? t("loading") : words("send.qsPlaceholder")}
+                searchPlaceholder={words("send.qsSearch")}
+                emptyLabel={words("send.qsNone")}
+                ariaLabel={words("send.qsLabel")}
+                disabled={qsChoices.isLoading || qsChoices.isError || !qsOptions.length}
+              />
+              {qsChoices.isSuccess && !qsOptions.length && (
+                <p className="text-xs text-muted-foreground" data-send-qs-none>
+                  {words("send.qsNone")}
+                </p>
+              )}
+              <QueryFailedNote query={qsChoices} what={words("send.qsWhat")} />
+            </FieldWrapper>
+          </>
+        ) : shownKind === "HEADQUARTERS" ? (
           // 发给贵司系统里的总部 (J30-1): nothing to fill in, no link made.
           <p className="rounded-lg border border-primary/30 bg-primary/5 p-3 text-sm" data-send-headquarters>
             {t("exchange.headquartersHelp")}
           </p>
-        ) : kind === "CONSULTANT" ? (
+        ) : shownKind === "CONSULTANT" ? (
           <FieldWrapper label={t("field.consultant")} required hint={t("exchange.consultantHelp")}>
             <OptionCombobox
               value={consultant}
@@ -816,22 +904,27 @@ export function SendDialog({
         </Button>
         <Button
           requires={[
-            ...(kind === "HEADQUARTERS"
+            ...(shownKind === "HEADQUARTERS"
               ? []
-              : link
-                ? ([[(name.trim() || organization.trim()), t("exchange.field.who")]] as const)
-                : ([[consultant, t("field.consultant")]] as const)),
+              : shownKind === "QS"
+                ? ([[reviewer, words("send.qsLabel")]] as const)
+                : link
+                  ? ([[(name.trim() || organization.trim()), t("exchange.field.who")]] as const)
+                  : ([[consultant, t("field.consultant")]] as const)),
             ...(needsSignature ? ([[signature, loop("sign.label")]] as const) : []),
           ]}
-          disabled={send.isPending}
+          disabled={send.isPending || qsFirst}
+          disabledReason={qsFirst ? words("send.qsFirst") : undefined}
           onClick={() => send.mutate()}
         >
           <Send className="size-4" />
-          {kind === "HEADQUARTERS"
-            ? t("exchange.sendToHeadquarters")
-            : link
-              ? t("exchange.makeLink")
-              : t("exchange.sendToConsultant")}
+          {shownKind === "QS"
+            ? words("send.button")
+            : shownKind === "HEADQUARTERS"
+              ? t("exchange.sendToHeadquarters")
+              : link
+                ? t("exchange.makeLink")
+                : t("exchange.sendToConsultant")}
         </Button>
       </footer>
     </Shell>

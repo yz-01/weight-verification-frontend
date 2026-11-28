@@ -9790,6 +9790,14 @@
       "package_not_approved": "Ia boleh diselesaikan selepas semua penyemak meluluskannya.",
       "package_completed": "Pakej ini telah selesai dan diarkibkan; tiada lagi perubahan.",
       "package_project_completes": "Ibu pejabat menyemak dan meluluskan; pengurus projek yang menekan “Selesai dan arkibkan”.",
+      "package_qs_not_needed": "Hanya Progress Claim subkontraktor yang dihantar untuk kelulusan dihantar kepada QS atau penyemak yang diberi kuasa.",
+      "package_qs_required": "Ini Progress Claim subkontraktor: hantar untuk kelulusan kepada QS atau penyemak yang diberi kuasa dahulu, kemudian ibu pejabat.",
+      "package_qs_reviewer_required": "Pilih QS atau penyemak yang diberi kuasa.",
+      "package_qs_reviewer_invalid": "Orang itu tidak boleh menjadi QS tuntutan ini: perlu kebenaran “Semakan tuntutan kemajuan (QS)” dan akses ke projek ini.",
+      "package_same_signer": "Pengurus projek, QS dan ibu pejabat mesti tiga akaun berbeza - seorang tidak boleh menandatangani dua kali.",
+      "package_qs_first": "Ibu pejabat menyemak selepas QS atau penyemak yang diberi kuasa meluluskan pusingan ini.",
+      "package_qs_review_off": "Akaun anda tidak menghidupkan “Semakan tuntutan kemajuan (QS)”, jadi anda tidak boleh menyemak sebagai QS. Minta ibu pejabat menghidupkannya di Pengguna › Edit › Suis kebenaran.",
+      "package_three_party_incomplete": "Ia boleh diselesaikan dan diarkibkan selepas pengurus projek, QS dan ibu pejabat semuanya menandatangani.",
       "package_claim_kind_required": "Pilih jenis tuntutan (bahan di tapak atau kemajuan).",
       "package_claim_category_required": "Pilih kategori tuntutan.",
       "package_claim_subcontractor_required": "Ini tuntutan subkontraktor: pilih subkontraktornya. Tanpanya, selepas diarkibkan ia menunjukkan “Tidak perlu diselesaikan” dan tidak boleh diselesaikan.",
@@ -12640,7 +12648,8 @@
         "OWNER": "Pemilik",
         "SUPPLIER": "Pembekal",
         "OTHER": "Lain-lain",
-        "HEADQUARTERS": "Ibu pejabat (dalam sistem)"
+        "HEADQUARTERS": "Ibu pejabat (dalam sistem)",
+        "QS": "QS atau penyemak yang diberi kuasa"
       },
       "expired": "Tamat tempoh",
       "status": {
@@ -14591,7 +14600,8 @@
       },
       "package": {
         "view": "Lihat pakej Multi Engine",
-        "manage": "Sedia dan hantar pakej"
+        "manage": "Sedia dan hantar pakej",
+        "qs_review": "Semakan tuntutan kemajuan (QS) - tandatangan kedua daripada tiga pada Progress Claim subkontraktor"
       },
       "claim": {
         "view": "Lihat tuntutan kemajuan",
@@ -25794,5 +25804,55 @@
     },
     "notChecked": "Semakan tidak berjaya - belum ada nombor semakan. Maklumat yang anda isi masih ada; sila cuba lagi.",
     "notSettled": "Penyelesaian tidak berjaya - belum ada nombor penyelesaian dan ia kekal di 「Sudah disemak」. Maklumat yang anda isi masih ada; sila cuba lagi."
+  },
+  "jb309f": {
+    "title": "Kelulusan bertandatangan tiga pihak",
+    "order": "Progress Claim subkontraktor ditandatangani oleh tiga akaun berbeza mengikut urutan: pengurus projek → QS atau penyemak yang diberi kuasa → penyemak ibu pejabat yang diberi kuasa, masing-masing dengan PIN pengesahan enam digit sendiri. Selepas ketiga-tiganya menandatangani, pengurus projek menyelesaikan dan mengarkibkannya.",
+    "step": {
+      "manager": "Pengurus projek",
+      "qs": "QS atau penyemak yang diberi kuasa",
+      "headquarters": "Penyemak ibu pejabat yang diberi kuasa"
+    },
+    "stepHelp": {
+      "manager": "Mengesahkan kerja sebenar dan bukti tapak",
+      "qs": "Menyemak jumlah tuntutan, kategori pembinaan dan tuntutan terdahulu",
+      "headquarters": "Semakan akhir dan meluluskan jumlah"
+    },
+    "round": "Pusingan {n}",
+    "notSigned": "Belum ditandatangani",
+    "by": "{name} · {when}",
+    "opinion": "Pendapat: {text}",
+    "next": {
+      "MANAGER": "Seterusnya: pengurus projek menandatangani dan menghantar pusingan ini.",
+      "SEND_QS": "Seterusnya: hantar untuk kelulusan dan pilih QS atau penyemak yang diberi kuasa (ibu pejabat turut menerimanya).",
+      "QS": "Seterusnya: menunggu QS atau penyemak yang diberi kuasa {name} menyemak dan menandatangani.",
+      "SEND_HEADQUARTERS": "Seterusnya: hantar kepada ibu pejabat (dalam sistem) untuk semakan akhir.",
+      "HEADQUARTERS": "Seterusnya: menunggu semakan akhir dan jumlah diluluskan oleh penyemak ibu pejabat yang diberi kuasa.",
+      "RESUBMIT": "Pusingan ini dipulangkan. Selepas pengurus projek menambah bahan dan menandatangani penghantaran semula, ketiga-tiga pihak menandatangani semula mengikut urutan pada pusingan baharu.",
+      "COMPLETE": "Ketiga-tiga pihak telah menandatangani; pengurus projek menekan “Selesai dan arkibkan”.",
+      "DONE": "Ketiga-tiga pihak telah menandatangani; selesai dan diarkibkan."
+    },
+    "qs": {
+      "waiting": "Anda QS atau penyemak yang diberi kuasa untuk tuntutan ini: {count} rekod untuk disemak.",
+      "button": "Semak sebagai QS",
+      "help": "Semak jumlah tuntutan, kategori pembinaan dan tuntutan terdahulu. Sahkan atau pulangkan setiap rekod, tulis pendapat anda dan tandatangan; penghantaran meminta PIN pengesahan enam digit anda sendiri. Ibu pejabat menaip jumlah diluluskan pada semakan akhir."
+    },
+    "waiting": {
+      "qs_first": "Ibu pejabat menyemak selepas QS atau penyemak yang diberi kuasa meluluskan pusingan ini.",
+      "same_signer": "Anda sudah menandatangani tuntutan ini sebagai pengurus projek atau QS. Ketiga-tiga pihak mesti orang berbeza, jadi orang lain menandatangani langkah ini.",
+      "qs_review_off": "Akaun anda tidak menghidupkan “Semakan tuntutan kemajuan (QS)”, jadi anda tidak boleh menyemak sebagai QS. Minta ibu pejabat menghidupkannya di Pengguna › Edit › Suis kebenaran.",
+      "not_your_review": "Tuntutan ini tidak dihantar kepada anda untuk semakan QS."
+    },
+    "send": {
+      "qsLabel": "QS atau penyemak yang diberi kuasa",
+      "qsHelp": "Ini Progress Claim subkontraktor, jadi kelulusan memerlukan tiga tandatangan: pengurus projek → QS atau penyemak yang diberi kuasa → penyemak ibu pejabat yang diberi kuasa. Selepas anda memilih QS, ibu pejabat (dalam sistem) turut menerimanya dan menyemak selepas QS meluluskan.",
+      "qsPlaceholder": "Pilih QS atau penyemak yang diberi kuasa",
+      "qsSearch": "Cari nama",
+      "qsNone": "Tiada sesiapa boleh dipilih. QS perlu kebenaran “Semakan tuntutan kemajuan (QS)” dan akses ke projek ini, dan bukan orang yang membuat, menghantar atau menandatangani pusingan ini. Minta ibu pejabat menghidupkannya di Pengguna › Edit › Suis kebenaran.",
+      "qsWhat": "orang yang boleh menjadi QS",
+      "qsFirst": "Ini Progress Claim subkontraktor: hantar untuk kelulusan kepada QS atau penyemak yang diberi kuasa dahulu - pilih “QS atau penyemak yang diberi kuasa” di atas.",
+      "button": "Hantar kepada QS dan ibu pejabat"
+    },
+    "qsCompletesOnProject": "Pengurus projek menekan “Selesai dan arkibkan”; QS tidak perlu."
   }
 }

@@ -9790,6 +9790,14 @@
       "package_not_approved": "It can be completed once every reviewer has approved it.",
       "package_completed": "This package is completed and archived; nothing more changes.",
       "package_project_completes": "Head office reviews and approves; the project manager presses “Complete and archive”.",
+      "package_qs_not_needed": "Only a subcontractor's Progress Claim submitted for approval goes to a QS or authorised reviewer.",
+      "package_qs_required": "This is a subcontractor's Progress Claim: submit it for approval to the QS or authorised reviewer first, then head office.",
+      "package_qs_reviewer_required": "Choose the QS or authorised reviewer.",
+      "package_qs_reviewer_invalid": "That person cannot be this claim's QS: they need the “Progress claim review (QS)” permission and access to this project.",
+      "package_same_signer": "The project manager, the QS and head office must be three different accounts - one person cannot sign twice.",
+      "package_qs_first": "Head office reviews once the QS or authorised reviewer has approved this round.",
+      "package_qs_review_off": "Your account does not have “Progress claim review (QS)” switched on, so you cannot review as the QS. Ask head office to switch it on under Users › Edit › Permission switches.",
+      "package_three_party_incomplete": "It can be completed and archived once the project manager, the QS and head office have all signed.",
       "package_claim_kind_required": "Choose the claim type (material on site or progress).",
       "package_claim_category_required": "Choose the claim category.",
       "package_claim_subcontractor_required": "This is a subcontractor's claim: choose its subcontractor. Without one it shows “No settlement needed” once archived and cannot be settled.",
@@ -12640,7 +12648,8 @@
         "OWNER": "Owner",
         "SUPPLIER": "Supplier",
         "OTHER": "Other",
-        "HEADQUARTERS": "Head office (in the system)"
+        "HEADQUARTERS": "Head office (in the system)",
+        "QS": "QS or authorised reviewer"
       },
       "expired": "Expired",
       "status": {
@@ -14591,7 +14600,8 @@
       },
       "package": {
         "view": "View Multi Engine packages",
-        "manage": "Prepare and send packages"
+        "manage": "Prepare and send packages",
+        "qs_review": "Progress claim review (QS) - the second of three signatures on a subcontractor's Progress Claim"
       },
       "claim": {
         "view": "View progress claims",
@@ -25794,5 +25804,55 @@
     },
     "notChecked": "The check did not go through - there is no check number yet. What you filled in is still here; please try again.",
     "notSettled": "The settlement did not go through - there is no settlement number yet and it stays under 「Checked」. What you filled in is still here; please try again."
+  },
+  "jb309f": {
+    "title": "Three-party signed approval",
+    "order": "A subcontractor's Progress Claim is signed by three different accounts in order: project manager → QS or authorised reviewer → authorised head office reviewer, each with their own six-digit sign-off PIN. Once all three have signed, the project manager completes and archives it.",
+    "step": {
+      "manager": "Project manager",
+      "qs": "QS or authorised reviewer",
+      "headquarters": "Authorised head office reviewer"
+    },
+    "stepHelp": {
+      "manager": "Confirms the work done and the site evidence",
+      "qs": "Checks the claim amount, the construction category and earlier claims",
+      "headquarters": "Final review and approves the amount"
+    },
+    "round": "Round {n}",
+    "notSigned": "Not signed yet",
+    "by": "{name} · {when}",
+    "opinion": "Opinion: {text}",
+    "next": {
+      "MANAGER": "Next: the project manager signs and submits this round.",
+      "SEND_QS": "Next: submit for approval and choose the QS or authorised reviewer (head office receives it too).",
+      "QS": "Next: waiting for the QS or authorised reviewer {name} to review and sign.",
+      "SEND_HEADQUARTERS": "Next: send it to head office (in the system) for the final review.",
+      "HEADQUARTERS": "Next: waiting for the authorised head office reviewer's final review and approved amount.",
+      "RESUBMIT": "This round was returned. After the project manager adds the material and signs the resubmission, all three sign again, in order, on the new round.",
+      "COMPLETE": "All three have signed; the project manager presses “Complete and archive”.",
+      "DONE": "All three signed; completed and archived."
+    },
+    "qs": {
+      "waiting": "You are this claim's QS or authorised reviewer: {count} records to review.",
+      "button": "Review as QS",
+      "help": "Check the claim amount, the construction category and earlier claims. Confirm or return each record, write your opinion and sign; submitting asks for your own six-digit sign-off PIN. Head office types the approved amount at the final review."
+    },
+    "waiting": {
+      "qs_first": "Head office reviews once the QS or authorised reviewer has approved this round.",
+      "same_signer": "You already signed this claim as the project manager or the QS. The three must be different people, so someone else signs this step.",
+      "qs_review_off": "Your account does not have “Progress claim review (QS)” switched on, so you cannot review as the QS. Ask head office to switch it on under Users › Edit › Permission switches.",
+      "not_your_review": "This claim was not sent to you for the QS review."
+    },
+    "send": {
+      "qsLabel": "QS or authorised reviewer",
+      "qsHelp": "This is a subcontractor's Progress Claim, so approval takes three signatures: project manager → QS or authorised reviewer → authorised head office reviewer. Once you choose the QS, head office (in the system) receives it too and reviews after the QS has approved.",
+      "qsPlaceholder": "Choose the QS or authorised reviewer",
+      "qsSearch": "Search by name",
+      "qsNone": "Nobody can be chosen. The QS needs the “Progress claim review (QS)” permission and access to this project, and cannot be the person who made, sends or signed this round. Ask head office to switch it on under Users › Edit › Permission switches.",
+      "qsWhat": "the people who can be the QS",
+      "qsFirst": "This is a subcontractor's Progress Claim: submit it for approval to the QS or authorised reviewer first - choose “QS or authorised reviewer” above.",
+      "button": "Send to the QS and head office"
+    },
+    "qsCompletesOnProject": "The project manager presses “Complete and archive”; the QS does not need to."
   }
 }
