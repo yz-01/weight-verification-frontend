@@ -498,13 +498,17 @@ function RecipientsBlock({
                           </Button>
                         </>
                       )}
-                      <Button
-                        size="sm"
-                        variant="outline-destructive"
-                        onClick={() => setArmed(armed === row.id ? null : row.id)}
-                      >
-                        {t("exchange.revoke")}
-                      </Button>
+                      {/* JB307-8: an archived package's recipients stay as they are. */}
+                      {!pkg.completed_at && (
+                        <Button
+                          size="sm"
+                          variant="outline-destructive"
+                          data-package-revoke
+                          onClick={() => setArmed(armed === row.id ? null : row.id)}
+                        >
+                          {t("exchange.revoke")}
+                        </Button>
+                      )}
                     </>
                   )}
                 </div>
@@ -543,7 +547,7 @@ function RecipientsBlock({
                     </Button>
                   </div>
                 )}
-                {armed === row.id && (
+                {armed === row.id && !pkg.completed_at && (
                   /* 防误触用开关 (规矩 8): the switch first, then the button acts. */
                   <RevokeRow
                     pending={act.isPending}

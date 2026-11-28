@@ -177,3 +177,11 @@ describe("JB307-8 the recipient says 已完成（已归档） (and 已结算) on
     expect(zh.jb252.stateCompleted).toBe("已完成（已归档）");
   });
 });
+
+describe("第 8 点: an archived package's recipients stay as they are", () => {
+  it("offers no 【撤销】 once the package is archived (the server refuses it too)", () => {
+    const source = readFileSync(path.join(process.cwd(), "src/components/contractor-ops/package-exchange.tsx"), "utf8");
+    expect(source).toMatch(/\{!pkg\.completed_at && \(\s*<Button[\s\S]{0,200}data-package-revoke/);
+    expect(source).toContain("armed === row.id && !pkg.completed_at");
+  });
+});
