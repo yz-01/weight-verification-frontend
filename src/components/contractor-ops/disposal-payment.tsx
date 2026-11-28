@@ -46,6 +46,7 @@ import {
   voucherProblem,
 } from "@/lib/disposal-payment";
 import { isSignOffCancelled } from "@/lib/sign-off";
+import { useMoneyStep } from "@/lib/money-steps";
 import {
   disposalVoucherUrl,
   recordDisposalPayment,
@@ -61,13 +62,15 @@ export function PaymentButton({ row, size = "sm" }: { row: DisposalSettlementRow
   const t = useTranslations("jb299");
   const { can, user } = useAuth();
   const [open, setOpen] = useState(false);
+  // JB306: 「结算确认」 switch - the 付款凭证 is part of the settlement.
+  const settleStep = useMoneyStep("settle");
   if (!user || user.is_field_staff) return null;
   const old = Boolean(row.old_without_voucher);
   if (row.status === "SETTLED" && !old) return null;
   const label = old ? t("upload.again") : row.voucher_count ? t("upload.more") : t("upload.button");
-  if (!mayHandleDisposalFees(user, can)) {
+  if (!mayHandleDisposalFees(user, can) || settleStep.off) {
     return (
-      <Button size={size} variant="outline" disabled disabledReason={t("upload.noRight")} showReason>
+      <Button size={size} variant="outline" disabled disabledReason={!mayHandleDisposalFees(user, can) ? t("upload.noRight") : settleStep.reason} showReason>
         <Lock />
         {label}
       </Button>

@@ -33,7 +33,7 @@ vi.mock("next/navigation", () => ({
   usePathname: () => "/waste-clearance",
   useSearchParams: () => new URLSearchParams("kind=settlement"),
 }));
-const reader = vi.hoisted(() => ({ phone: false, perms: new Set<string>(["disposal.view", "disposal.manage", "supplier.view"]) }));
+const reader = vi.hoisted(() => ({ phone: false, perms: new Set<string>(["disposal.view", "disposal.manage", "supplier.view", "finance.check_costs", "finance.confirm_settlement"]) }));
 vi.mock("@/components/providers/auth-provider", () => ({
   useAuth: () => ({
     user: { id: "u-1", full_name: "Site Office", email: "office@x.test", is_field_staff: reader.phone },
@@ -95,7 +95,7 @@ function render(node: React.ReactNode, seed?: (qc: QueryClient) => void) {
 
 beforeEach(() => {
   reader.phone = false;
-  reader.perms = new Set(["disposal.view", "disposal.manage", "supplier.view"]);
+  reader.perms = new Set(["disposal.view", "disposal.manage", "supplier.view", "finance.check_costs", "finance.confirm_settlement"]);
   api.get.mockClear();
   api.post.mockClear();
   api.fetchAsFile.mockClear();
@@ -409,7 +409,8 @@ describe("清运结算管理 (三–八)", () => {
     expect(source).toContain('t("settlement.tickedTotal", { count: picked.length, amount: rmText(pickedSum) })');
     expect(zh.jb287.settlement.filteredTotal).toBe("筛选范围累计：{amount}");
     expect(zh.jb287.settlement.tickedTotal).toBe("本次勾选：{count} 笔，{amount}");
-    expect(source).toContain('disabledReason={mixed ? t("settlement.mixed") : t("settlement.tickFirst")}');
+    // JB306: 「费用核对」 switch first, then the JB287 reasons.
+    expect(source).toContain('disabledReason={checkStep.reason ?? (mixed ? t("settlement.mixed") : t("settlement.tickFirst"))}');
     expect(zh.jb287.settlement.mixed).toBe("一次只能核对同一个项目、同一个供应商的清运记录");
     expect(source).toContain('t("settlement.checkedDone", { number: done.number })');
     // Select all takes only the rows that can be ticked.

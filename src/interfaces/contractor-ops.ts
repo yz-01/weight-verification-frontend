@@ -1,5 +1,6 @@
 import type { FileShare } from "@/interfaces/file-action";
 import type { InspectionInfo } from "@/interfaces/document-workflow";
+import type { LockedReconciliation, RecordReconciliation } from "@/interfaces/reconciliation";
 import type { RecordedBy } from "@/interfaces/recorder";
 
 /**
@@ -1157,18 +1158,7 @@ export interface MaterialOutgoing extends RecordedBy {
    * 核对与结算 (JB278, 客户 11-26 事项 19 第 3 点): 核对状态, 核对编号, 核对人及
    * 日期, 结算状态, 结算编号 - null while 待核对.
    */
-  reconciliation?: {
-    state: "CHECKED" | "SETTLED";
-    kind: "RETURN" | "ISSUE" | "RENTAL";
-    check_id: string;
-    check_no: string;
-    checked_by_name: string;
-    checked_at: string;
-    settlement_id: string | null;
-    settlement_no: string;
-    settled_by_name: string;
-    settled_at: string | null;
-  } | null;
+  reconciliation?: RecordReconciliation | null;
   /** JB281: the seven steps of a 材料退场 - on its detail only. */
   return_steps?: ReturnFlowStep[];
   /** 材料领用: the machine scanned and what the register said then. */
@@ -2129,6 +2119,8 @@ export interface PackageClaimFacet {
     payment_proofs: PaymentProof[];
   } | null;
   sundry_total?: string;
+  /** JB304: how many of `sundry` were rejected / withdrawn - listed, never added up. */
+  ended_count?: number;
   sundry?: {
     id: string;
     claim_no: string;
@@ -2136,6 +2128,8 @@ export interface PackageClaimFacet {
     state: string;
     payment_state: ClaimPaymentState;
     payment_proof_count: number;
+    /** JB304: false for a rejected / withdrawn 杂费报销 (not in 杂费合计). */
+    counted?: boolean;
   }[];
 }
 
@@ -2249,6 +2243,22 @@ export type PackageLayoutRow =
       next_round?: boolean;
     };
 
+/**
+ * JB307-1 (客户 11-28j 事项 1): one file the project manager uploaded into the
+ * package, as a receiver - a consultant, an outside link - lists it; it opens
+ * as a PDF.
+ */
+export interface PackageSentFile {
+  id: string;
+  name: string;
+  /** A Progress Claim's letter, rather than a plain upload. */
+  letter: boolean;
+  uploaded_by_name: string;
+  uploaded_at: string;
+  byte_size: number;
+  preview_type: string | null;
+}
+
 export interface EvidencePackageRow {
   id: string;
   claim_period?: string | null;
@@ -2324,8 +2334,15 @@ export interface ClaimSettlementInfo {
 
 export interface EvidencePackageDetail extends EvidencePackageRow {
   items: PackageItem[];
+  /**
+   * JB307-7: a Progress Claim's 核对与结算 with amounts, 凭证编号 and vouchers;
+   * `{locked: true}` without 「金额查看」; null before 核对.
+   */
+  reconciliation?: RecordReconciliation | LockedReconciliation | null;
   /** JB63: records and uploaded files in the order of the PDF. */
   layout?: PackageLayoutRow[];
+  /** JB307-1: the uploaded files a consultant was sent (his 「待审阅的资料包」 only). */
+  files?: PackageSentFile[];
   /** Records the last add call would not take, and why. */
   refused?: { id: string; reason: string }[];
   /** Which round `items` are (the latest unless one was asked for). */
@@ -2356,6 +2373,8 @@ export interface EvidencePackageDetail extends EvidencePackageRow {
   completed_by_name?: string;
   /** 「确认完毕并归档」 may be pressed now. */
   can_complete?: boolean;
+  /** JB307-4: approved, and this reader is head office - the project manager archives it. */
+  completes_on_project?: boolean;
   /** Returned: records and files may be added for the next round. */
   takes_supplements?: boolean;
   /** What was added for the next round and not sent yet. */
@@ -2429,6 +2448,8 @@ export interface PackageLinkPage {
   /** Always false since every answer is signed (QA1 audit #11). */
   can_sign: boolean;
   items: PackageLinkItem[];
+  /** JB307-1: the files the project manager uploaded into the package. */
+  files?: PackageSentFile[];
   messages: PackageMessage[];
 }
 

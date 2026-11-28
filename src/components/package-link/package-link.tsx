@@ -19,6 +19,7 @@ import { toast } from "sonner";
 
 import { ThreadView } from "@/components/contractor-ops/package-exchange";
 import { ReviewDialog, type ReviewRecord } from "@/components/contractor-ops/package-review-loop";
+import { PackageSentFiles } from "@/components/contractor-ops/package-sent-files";
 import { Shell } from "@/components/contractor-ops/package-shell";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { FileActionButtons } from "@/components/shared/file-actions";
@@ -34,6 +35,7 @@ import {
   linkAttachmentFile,
   linkItemFile,
   linkPackageFile,
+  linkSentFile,
   sendLinkMessage,
   submitLinkReview,
 } from "@/services/package-link.service";
@@ -259,6 +261,13 @@ function LinkPage({
         {data.exported && !data.recipient.signed_at && (
           <p className="rounded-lg border border-dashed bg-muted/30 p-3 text-sm">{t("exported")}</p>
         )}
+
+        {/* JB307-1: the files the project manager uploaded, each to open. */}
+        <PackageSentFiles
+          phone
+          files={data.files ?? []}
+          load={(file, inline) => load(() => linkSentFile(token, file.id, file.name, { lang: locale, inline }))()}
+        />
 
         <section className="space-y-3" aria-label={t("records")}>
           <h2 className="text-sm font-semibold">{t("recordCount", { count: data.items.length })}</h2>

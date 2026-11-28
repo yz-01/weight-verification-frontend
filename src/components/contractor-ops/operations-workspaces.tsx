@@ -77,6 +77,7 @@ import { SupplierQrScanner } from "@/components/field-staff/supplier-qr-scanner"
 import { OpenExitOfficeFiles } from "@/components/field-staff/office-sent-files";
 import { RecordConversationButton } from "@/components/shared/record-conversation-button";
 import { RecordDetailDialog, RecordDetailShell, RecordRecorder } from "@/components/shared/record-detail-shell";
+import { ReconciliationVouchers } from "@/components/contractor-ops/reconciliation-vouchers";
 import { ReconciliationPanel } from "@/components/contractor-ops/return-checks";
 import { useRecordArchived } from "@/components/shared/record-closure";
 import { GateShotPhotos, ReturnFlowSteps, exitConfirmLockedReason } from "@/components/contractor-ops/return-flow-steps";
@@ -5060,12 +5061,16 @@ export function OutgoingDetailDialog({
           // check. Read only - the record itself never changes by it.
           aside={
             row.status === "COMPLETED" ? (
-              <ReconciliationPanel
-                links={row.reconciliation}
-                // QA1 audit #23: a 领用 with no 所属公司 cannot be checked -
-                // say so and what to press, instead of 「待核对」 for ever.
-                noCompany={issue && !(row.equipment_company ?? "").trim()}
-              />
+              <>
+                <ReconciliationPanel
+                  links={row.reconciliation}
+                  // QA1 audit #23: a 领用 with no 所属公司 cannot be checked -
+                  // say so and what to press, instead of 「待核对」 for ever.
+                  noCompany={issue && !(row.equipment_company ?? "").trim()}
+                />
+                {/* JB308: its 核对 / 结算 vouchers and amounts, on the record. */}
+                <ReconciliationVouchers links={row.reconciliation} stacked />
+              </>
             ) : undefined
           }
           conversation={{ kind: "MATERIAL_OUTGOING", recordId: row.id }}

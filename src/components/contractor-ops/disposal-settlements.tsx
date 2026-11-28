@@ -59,7 +59,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
 import { useListQuery } from "@/hooks/use-list-query";
 import { useUrlSelection } from "@/hooks/use-url-selection";
 import { ApiError } from "@/interfaces/api";
@@ -75,6 +78,7 @@ import {
 } from "@/lib/disposal-fees";
 import { hasPayment, supplierRecipient } from "@/lib/disposal-payment";
 import { isSignOffCancelled } from "@/lib/sign-off";
+import { useMoneyStep } from "@/lib/money-steps";
 import {
   createDisposalSettlement,
   disposalSettlementPdfFile,
@@ -228,6 +232,8 @@ function PendingList({ filters, onChecked }: { filters: DisposalSettlementFilter
   const t = useTranslations("jb287");
   const { can, user } = useAuth();
   const office = mayHandleDisposalFees(user, can);
+  // JB306: 「费用核对」 switch.
+  const checkStep = useMoneyStep("check");
   const queryClient = useQueryClient();
   const pending = useQuery({
     queryKey: ["disposal-settlements", "pending", filters],
@@ -287,9 +293,9 @@ function PendingList({ filters, onChecked }: { filters: DisposalSettlementFilter
         <div className="flex flex-wrap items-center gap-3">
           <Button
             data-slot="settlement-confirm-check"
-            disabled={picked.length === 0 || mixed}
-            disabledReason={mixed ? t("settlement.mixed") : t("settlement.tickFirst")}
-            showReason={mixed}
+            disabled={picked.length === 0 || mixed || checkStep.off}
+            disabledReason={checkStep.reason ?? (mixed ? t("settlement.mixed") : t("settlement.tickFirst"))}
+            showReason={mixed || checkStep.off}
             onClick={() => setConfirming(true)}
           >
             <ClipboardCheck />
@@ -301,6 +307,7 @@ function PendingList({ filters, onChecked }: { filters: DisposalSettlementFilter
       {confirming ? (
         <ConfirmCheckDialog
           rows={picked}
+          amountsHidden={Boolean(pending.data?.amounts_hidden)}
           onClose={() => setConfirming(false)}
           onSaved={(settlement) => {
             setConfirming(false);
@@ -415,21 +422,61 @@ export function PendingRowsTable({
 }
 
 /** 【确认核对】's window: what is being put into one 结算编号. */
-function ConfirmCheckDialog({
+/** 「380」 / 「380.5」 → 「380.00」 / 「380.50」; anything else as typed (the server judges it). */
+function priceText(value: string): string {
+  const trimmed = value.replace(/,/g, "").trim();
+  return /^\d+(\.\d{1,2})?$/.test(trimmed) ? Number(trimmed).toFixed(2) : trimmed;
+}
+
+/** A price the window may send: above 0, at most two decimals. */
+function isPrice(value: string): boolean {
+  const trimmed = value.replace(/,/g, "").trim();
+  return /^\d+(\.\d{1,2})?$/.test(trimmed) && Number(trimmed) > 0;
+}
+
+export function ConfirmCheckDialog({
   rows,
+  amountsHidden = false,
   onClose,
   onSaved,
 }: {
   rows: readonly DisposalPendingRow[];
+  amountsHidden?: boolean;
   onClose: () => void;
   onSaved: (settlement: DisposalSettlement) => void;
 }) {
   const t = useTranslations("jb287");
+  const tAdjust = useTranslations("jb303");
   const [error, setError] = useState("");
+  // JB303 (客户 11-28f): 「系统自动带出对应项目及供应商的每车单价，根据实际验收车次
+  // 计算费用。如实际单价不同，可在确认核对前调整。」 Each job's price starts as
+  // 清运费用设定's; a changed one needs a reason.
+  const [prices, setPrices] = useState<Record<string, string>>(() =>
+    Object.fromEntries(rows.map((row) => [row.disposal_id, row.fee_per_trip ?? ""])),
+  );
+  const [reason, setReason] = useState("");
+  const changed = amountsHidden
+    ? {}
+    : Object.fromEntries(
+        rows
+          .filter((row) => priceText(prices[row.disposal_id] ?? "") !== (row.fee_per_trip ?? ""))
+          .map((row) => [row.disposal_id, priceText(prices[row.disposal_id] ?? "")]),
+      );
+  const anyChanged = Object.keys(changed).length > 0;
+  const badPrice = rows.some((row) => !amountsHidden && !isPrice(prices[row.disposal_id] ?? ""));
+  const needReason = anyChanged && !reason.trim();
+  const amountOf = (row: DisposalPendingRow) => {
+    const typed = prices[row.disposal_id] ?? "";
+    return isPrice(typed) ? (Number(priceText(typed)) * row.trip_count).toFixed(2) : null;
+  };
   // One 确认核对 per press: a double click must not send it twice.
   const sending = useRef(false);
   const save = useMutation({
-    mutationFn: () => createDisposalSettlement(rows.map((row) => row.disposal_id)),
+    mutationFn: () =>
+      createDisposalSettlement(
+        rows.map((row) => row.disposal_id),
+        anyChanged ? { fees: changed, reason: reason.trim() } : undefined,
+      ),
     onSuccess: onSaved,
     onError: (reason) => {
       if (isSignOffCancelled(reason)) return;
@@ -449,10 +496,69 @@ function ConfirmCheckDialog({
               project: first?.project.name ?? "",
               supplier: first?.supplier.name ?? "",
               trips,
-              amount: rmText(sumAmounts(rows.map((row) => row.fee_amount))),
+              amount: rmText(amountsHidden ? null : sumAmounts(rows.map(amountOf))),
             })}
           </DialogDescription>
         </DialogHeader>
+        {!amountsHidden ? (
+          <div className="space-y-2" data-slot="settlement-adjust">
+            <p className="text-xs leading-5 text-muted-foreground">{tAdjust("help")}</p>
+            <div className="rounded-lg border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{t("col.reference")}</TableHead>
+                    <TableHead className="text-right">{t("col.trips")}</TableHead>
+                    <TableHead className="text-right">{tAdjust("price")}</TableHead>
+                    <TableHead className="text-right">{t("col.feeAmount")}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {rows.map((row) => {
+                    const typed = prices[row.disposal_id] ?? "";
+                    const edited = row.disposal_id in changed;
+                    return (
+                      <TableRow key={row.disposal_id} data-slot="settlement-adjust-row">
+                        <TableCell className="font-medium">{row.reference_no}</TableCell>
+                        <TableCell className="tabular text-right">{t("settlement.tripsValue", { count: row.trip_count })}</TableCell>
+                        <TableCell className="text-right">
+                          <Input
+                            inputMode="decimal"
+                            className="ml-auto h-10 w-28 text-right tabular"
+                            value={typed}
+                            aria-label={tAdjust("priceFor", { reference: row.reference_no })}
+                            aria-invalid={!isPrice(typed)}
+                            onChange={(event) => setPrices((current) => ({ ...current, [row.disposal_id]: event.target.value }))}
+                          />
+                          {edited ? (
+                            <span className="mt-0.5 block text-2xs text-warning" data-slot="settlement-adjusted-from">
+                              {tAdjust("setWas", { amount: rmText(row.fee_per_trip) })}
+                            </span>
+                          ) : null}
+                        </TableCell>
+                        <TableCell className="tabular text-right">{rmText(amountOf(row))}</TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+            {badPrice ? <p className="text-sm text-destructive">{tAdjust("badPrice")}</p> : null}
+            {anyChanged ? (
+              <div className="space-y-1">
+                <Label htmlFor="settlement-adjust-reason">{tAdjust("reason")}</Label>
+                <Textarea
+                  id="settlement-adjust-reason"
+                  rows={2}
+                  value={reason}
+                  placeholder={tAdjust("reasonPlaceholder")}
+                  onChange={(event) => setReason(event.target.value)}
+                />
+                <p className="text-xs text-muted-foreground">{tAdjust("settingStays")}</p>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
         <p className="text-sm text-muted-foreground">{t("settlement.confirmLock")}</p>
         {error ? (
           <p role="alert" className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
@@ -465,7 +571,8 @@ function ConfirmCheckDialog({
           </Button>
           <Button
             data-slot="settlement-confirm-go"
-            disabled={save.isPending}
+            disabled={save.isPending || badPrice || needReason}
+            disabledReason={badPrice ? tAdjust("badPrice") : needReason ? tAdjust("reasonFirst") : undefined}
             onClick={() => {
               if (sending.current) return;
               sending.current = true;
@@ -667,6 +774,7 @@ export function SettlementLines({ id }: { id: string }) {
 
 export function SettlementLinesTable({ settlement }: { settlement: DisposalSettlement }) {
   const t = useTranslations("jb287");
+  const tAdjust = useTranslations("jb303");
   const df = useDateFormat();
   const [opened, setOpened] = useState<string | null>(null);
   return (
@@ -700,7 +808,14 @@ export function SettlementLinesTable({ settlement }: { settlement: DisposalSettl
                 </TableCell>
                 <TableCell className="tabular whitespace-nowrap">{df.date(line.cleared_on)}</TableCell>
                 <TableCell className="tabular text-right">{t("settlement.tripsValue", { count: line.trip_count })}</TableCell>
-                <TableCell className="tabular text-right">{rmText(line.fee_per_trip)}</TableCell>
+                <TableCell className="tabular text-right">
+                  {rmText(line.fee_per_trip)}
+                  {line.fee_adjusted ? (
+                    <span className="block text-2xs text-warning" data-slot="settlement-line-adjusted">
+                      {tAdjust("setWas", { amount: rmText(line.set_fee_per_trip) })}
+                    </span>
+                  ) : null}
+                </TableCell>
                 <TableCell className="tabular text-right">{rmText(line.fee_amount)}</TableCell>
                 <TableCell className="tabular text-right text-muted-foreground">
                   {line.weight_kg ? t("settlement.weightValue", { weight: line.weight_kg }) : "—"}
@@ -718,6 +833,11 @@ export function SettlementLinesTable({ settlement }: { settlement: DisposalSettl
           </TableBody>
         </Table>
       </div>
+      {settlement.adjust_reason ? (
+        <p className="rounded-md bg-warning/10 px-2 py-1.5 text-sm text-warning" data-slot="settlement-adjust-reason">
+          {tAdjust("reasonShown", { reason: settlement.adjust_reason })}
+        </p>
+      ) : null}
       {opened ? <DisposalInPlace id={opened} onClose={() => setOpened(null)} /> : null}
     </div>
   );
@@ -736,10 +856,12 @@ export function PrepareSettleButton({ row }: { row: DisposalSettlementRow }) {
   const [isAsking, setAsking] = useState(false);
   // JB299: 「未上传付款凭证，不允许确认结算完毕」 - said before any PIN.
   const [missing, setMissing] = useState(false);
+  // JB306: 「结算确认」 switch.
+  const settleStep = useMoneyStep("settle");
   if (user?.is_field_staff) return null;
-  if (!mayHandleDisposalFees(user, can)) {
+  if (!mayHandleDisposalFees(user, can) || settleStep.off) {
     return (
-      <Button size="sm" disabled disabledReason={t("settlement.noRight")} showReason>
+      <Button size="sm" disabled disabledReason={!mayHandleDisposalFees(user, can) ? t("settlement.noRight") : settleStep.reason} showReason>
         <Lock />
         {t("settlement.prepare")}
       </Button>

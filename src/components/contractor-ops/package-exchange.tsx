@@ -317,6 +317,7 @@ function RecipientsBlock({
 }) {
   const t = useTranslations("multiEngine");
   const loop = useTranslations("jb252");
+  const settleWords = useTranslations("jb298");
   const common = useTranslations("common");
   const formatter = useDateFormat();
   const { can } = useAuth();
@@ -395,6 +396,14 @@ function RecipientsBlock({
                     <StatusBadge label={loop(`purpose.${row.purpose}`)} tone="neutral" />
                   )}
                   <ProgressBadge progress={row.progress} />
+                  {/* JB307-8 (客户 11-28j): archived (and settled) says so on the recipient too. */}
+                  {row.progress === "COMPLETED" && (
+                    <StatusBadge label={loop("stateCompleted")} tone="positive" />
+                  )}
+                  {row.progress === "COMPLETED" &&
+                    (pkg.claim_settlement?.state === "SETTLED" || pkg.claim_settlement?.state === "CHECKED") && (
+                      <StatusBadge label={settleWords(`state.${pkg.claim_settlement.state}`)} tone="positive" />
+                    )}
                   <StatusBadge
                     label={
                       row.is_expired && !closed ? t("exchange.expired") : t(`exchange.status.${row.status}`)
@@ -489,13 +498,17 @@ function RecipientsBlock({
                           </Button>
                         </>
                       )}
-                      <Button
-                        size="sm"
-                        variant="outline-destructive"
-                        onClick={() => setArmed(armed === row.id ? null : row.id)}
-                      >
-                        {t("exchange.revoke")}
-                      </Button>
+                      {/* JB307-8: an archived package's recipients stay as they are. */}
+                      {!pkg.completed_at && (
+                        <Button
+                          size="sm"
+                          variant="outline-destructive"
+                          data-package-revoke
+                          onClick={() => setArmed(armed === row.id ? null : row.id)}
+                        >
+                          {t("exchange.revoke")}
+                        </Button>
+                      )}
                     </>
                   )}
                 </div>
@@ -534,7 +547,7 @@ function RecipientsBlock({
                     </Button>
                   </div>
                 )}
-                {armed === row.id && (
+                {armed === row.id && !pkg.completed_at && (
                   /* 防误触用开关 (规矩 8): the switch first, then the button acts. */
                   <RevokeRow
                     pending={act.isPending}

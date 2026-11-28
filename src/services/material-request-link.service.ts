@@ -3,6 +3,7 @@ import type {
   RecordRequestLinks,
   RequestLinkedRecords,
   RequestLinkRecordKind,
+  SpecMatchTarget,
 } from "@/interfaces/material-request-link";
 import { api, toastSuccess } from "@/services/api-client";
 
@@ -28,6 +29,28 @@ export async function setRecordRequestLinks(
     requests,
   });
   toastSuccess("jb279.link.saved");
+  return row;
+}
+
+/**
+ * JB302 「归档前的规格核对」: count one material of the record under the MR
+ * line the office chose (`requestLine` empty takes the choice off).
+ */
+export async function setRecordSpecMatch(
+  kind: RequestLinkRecordKind,
+  record: string,
+  target: SpecMatchTarget,
+  id: string,
+  requestLine: string,
+): Promise<RecordRequestLinks> {
+  const row = await api.post<RecordRequestLinks>("/api/material-request-links/set_match/", {
+    kind,
+    record,
+    target,
+    id,
+    request_line: requestLine,
+  });
+  toastSuccess("jb302.saved");
   return row;
 }
 

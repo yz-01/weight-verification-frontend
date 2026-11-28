@@ -40,17 +40,30 @@ export function ClaimFacetBlock({ facet, onChanged }: { facet: PackageClaimFacet
         <p className="text-sm font-medium">
           {t("claimFacet.sundryTotal", { amount: money(facet.sundry_total ?? "0") })}
         </p>
+        {facet.ended_count ? (
+          // JB304 (客户 11-28g): 「已拒绝的原始记录不得参与正式审批及结算」.
+          <p role="status" className="rounded-md bg-warning/10 px-2 py-1.5 text-xs font-medium text-warning" data-slot="sundry-ended-note">
+            {t("claimFacet.endedNote", { count: facet.ended_count })}
+          </p>
+        ) : null}
         {rows.length === 0 ? (
           <p className="text-xs text-muted-foreground">{t("claimFacet.noSundry")}</p>
         ) : (
           <ul className="space-y-1 text-xs">
             {rows.map((row) => (
-              <li key={row.id} className="flex flex-wrap justify-between gap-2">
-                <span>{row.claim_no}</span>
-                <span className="text-muted-foreground">
-                  {money(row.amount ?? "0")} · {claims(`payment.${row.payment_state}`)} ·{" "}
-                  {t("claimFacet.voucherCount", { count: row.payment_proof_count })}
-                </span>
+              <li key={row.id} className="flex flex-wrap justify-between gap-2" data-sundry-counted={row.counted === false ? "no" : "yes"}>
+                <span className={row.counted === false ? "text-muted-foreground line-through" : undefined}>{row.claim_no}</span>
+                {row.counted === false ? (
+                  <span className="font-medium text-warning">
+                    {money(row.amount ?? "0")} · {t(row.state === "CANCELLED" ? "claimFacet.withdrawn" : "claimFacet.rejected")} ·{" "}
+                    {t("claimFacet.notCounted")}
+                  </span>
+                ) : (
+                  <span className="text-muted-foreground">
+                    {money(row.amount ?? "0")} · {claims(`payment.${row.payment_state}`)} ·{" "}
+                    {t("claimFacet.voucherCount", { count: row.payment_proof_count })}
+                  </span>
+                )}
               </li>
             ))}
           </ul>

@@ -24,7 +24,7 @@
  */
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Link2, Loader2, Search } from "lucide-react";
+import { Check, Link2, Loader2, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -45,12 +45,16 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ApiError } from "@/interfaces/api";
 import type {
   LinkableRequest,
   LinkedRecord,
+  RecordRequestLinks,
   RequestLinkRecordKind,
+  SpecMatch,
+  SpecMatchOption,
 } from "@/interfaces/material-request-link";
 import { useDateFormat } from "@/lib/dates";
 import {
@@ -60,6 +64,7 @@ import {
   recordRequestLinksKey,
   requestLinkedRecordsKey,
   setRecordRequestLinks,
+  setRecordSpecMatch,
 } from "@/services/material-request-link.service";
 
 const STATUS_TONE = { SUBMITTED: "warning", APPROVED: "positive", RETURNED: "neutral" } as const;
@@ -272,6 +277,7 @@ export function RecordRequestLinksPanel({ kind, recordId }: { kind: RequestLinkR
           {data.archived && data.links.length > 0 ? (
             <p className="text-xs text-muted-foreground">{t("lockedArchived")}</p>
           ) : null}
+          {data.matches && data.matches.length > 0 ? <SpecCheck kind={kind} recordId={recordId} data={data} /> : null}
         </div>
       )}
       {editing && data ? (
@@ -296,6 +302,170 @@ export function RecordRequestLinksPanel({ kind, recordId }: { kind: RequestLinkR
         </Dialog>
       ) : null}
     </ShellPanel>
+  );
+}
+
+/** 「钢筋 Y12 300 吨」 for one MR line; 「没有规格」 where it has none. */
+function optionLabel(option: SpecMatchOption, unitLabel: (unit: string) => string, noSpec: string): string {
+  return [
+    option.request_no,
+    "·",
+    option.material_name,
+    option.specification || noSpec,
+    option.quantity ? `${option.quantity} ${unitLabel(option.unit)}` : unitLabel(option.unit),
+  ].join(" ");
+}
+
+const STATE_TONE = {
+  exact: "positive",
+  auto: "positive",
+  chosen: "positive",
+  pick: "warning",
+  unit: "warning",
+  none: "neutral",
+} as const;
+
+/**
+ * JB302 (客户 11-28e): 「材料退场记录既然已经关联指定的 MR，系统就必须按照该 MR 对应的
+ * 材料名称、规格及单位进行归类统计」「请完善关联逻辑及归档前的规格核对」.
+ *
+ * Under the record's linked requests: each material, what the record says and
+ * the MR line 申请累计 counts it under. Where the system cannot tell (another
+ * 规格, or several to choose from) the office chooses here, before 确认归档;
+ * the record's own words never change.
+ */
+function SpecCheck({ kind, recordId, data }: { kind: RequestLinkRecordKind; recordId: string; data: RecordRequestLinks }) {
+  const t = useTranslations("jb302");
+  const unitLabel = useUnitLabel();
+  const matches = data.matches ?? [];
+  const editable = data.may_change && !data.archived;
+  return (
+    <div className="space-y-2 rounded-lg border p-3" data-slot="spec-check">
+      <div className="space-y-0.5">
+        <p className="text-sm font-semibold">{t("title")}</p>
+        <p className="text-xs leading-5 text-muted-foreground">{t("help")}</p>
+      </div>
+      {data.spec_unmatched && !data.archived ? (
+        <p role="status" className="rounded-md bg-warning/10 px-2 py-1.5 text-sm font-medium text-warning">
+          {editable ? t("unsettled") : t("unsettledReadOnly")}
+        </p>
+      ) : null}
+      <ul className="divide-y rounded-md border">
+        {matches.map((row) => (
+          <SpecCheckRow
+            key={`${row.target}-${row.id}`}
+            kind={kind}
+            recordId={recordId}
+            row={row}
+            editable={editable}
+            unitLabel={unitLabel}
+          />
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function SpecCheckRow({
+  kind,
+  recordId,
+  row,
+  editable,
+  unitLabel,
+}: {
+  kind: RequestLinkRecordKind;
+  recordId: string;
+  row: SpecMatch;
+  editable: boolean;
+  unitLabel: (unit: string) => string;
+}) {
+  const t = useTranslations("jb302");
+  const qc = useQueryClient();
+  const current = row.state === "chosen" ? (row.request_line?.id ?? "") : "";
+  const [choice, setChoice] = useState(current);
+  const [changing, setChanging] = useState(false);
+  const [error, setError] = useState("");
+  const save = useMutation({
+    mutationFn: (line: string) => setRecordSpecMatch(kind, recordId, row.target, row.id, line),
+    onSuccess: (next) => {
+      qc.setQueryData(recordRequestLinksKey(kind, recordId), next);
+      // 确认归档 reads whether a material still waits (`mr_spec`).
+      void qc.invalidateQueries({ queryKey: recordClosureKey(kind, recordId) });
+      void qc.invalidateQueries({ queryKey: ["material-request-links", "request"] });
+      setChanging(false);
+      setError("");
+    },
+    onError: (reason) => setError(reason instanceof ApiError ? reason.message : t("failed")),
+  });
+  const noSpec = t("noSpec");
+  const recorded = [
+    row.material_name,
+    row.specification || noSpec,
+    row.quantity ? `${row.quantity} ${unitLabel(row.unit)}` : unitLabel(row.unit),
+  ].join(" · ");
+  const canChoose = editable && row.options.length > 0 && (row.state === "pick" || row.state === "chosen" || row.state === "auto");
+  const asking = editable && row.options.length > 0 && (row.state === "pick" || changing);
+  return (
+    <li className="space-y-1.5 px-3 py-2.5" data-spec-match={row.state}>
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+        <span className="text-xs text-muted-foreground">{t("position", { position: row.position })}</span>
+        <span className="text-sm">
+          <span className="text-muted-foreground">{t("recorded")}</span> {recorded}
+        </span>
+        <StatusBadge label={t(`state.${row.state}`)} tone={STATE_TONE[row.state]} />
+      </div>
+      {row.request_line ? (
+        <p className="text-sm font-medium">
+          {t("countedUnder")} {optionLabel(row.request_line, unitLabel, noSpec)}
+        </p>
+      ) : null}
+      <p className="text-xs leading-5 text-muted-foreground">{t(`explain.${row.state}`)}</p>
+      {asking ? (
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          <Select value={choice || undefined} onValueChange={setChoice} disabled={save.isPending}>
+            <SelectTrigger className="h-11 w-full sm:max-w-md" aria-label={t("choose")}>
+              <SelectValue placeholder={t("choose")} />
+            </SelectTrigger>
+            <SelectContent>
+              {row.options.map((option) => (
+                <SelectItem key={option.id} value={option.id}>
+                  {optionLabel(option, unitLabel, noSpec)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <div className="flex gap-2">
+            <Button
+              className="h-11"
+              onClick={() => save.mutate(choice)}
+              disabled={!choice || choice === current || save.isPending}
+              disabledReason={!choice ? t("chooseFirst") : choice === current ? t("sameChoice") : undefined}
+            >
+              {save.isPending ? <Loader2 className="animate-spin" /> : <Check />}
+              {t("save")}
+            </Button>
+            {changing ? (
+              <Button className="h-11" variant="outline" onClick={() => setChanging(false)} disabled={save.isPending}>
+                {t("cancel")}
+              </Button>
+            ) : null}
+          </div>
+        </div>
+      ) : canChoose ? (
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => {
+            setChoice(current);
+            setError("");
+            setChanging(true);
+          }}
+        >
+          {t("change")}
+        </Button>
+      ) : null}
+      {error ? <p className="text-sm text-destructive">{error}</p> : null}
+    </li>
   );
 }
 
@@ -413,6 +583,14 @@ export function RequestLinkedRecordsPanel({ requestId }: { requestId: string }) 
                             {item.specification ? <span className="text-muted-foreground"> · {item.specification}</span> : null}
                             {!item.in_request ? (
                               <span className="ml-1.5 rounded bg-warning/10 px-1.5 py-0.5 text-xs text-warning">{t("notInRequest")}</span>
+                            ) : null}
+                            {item.counted_as ? (
+                              <span className="block text-xs text-muted-foreground">
+                                {tRoot("jb302.countedAs", {
+                                  specification: item.counted_as.specification || tRoot("jb302.noSpec"),
+                                  unit: unitLabel(item.counted_as.unit),
+                                })}
+                              </span>
                             ) : null}
                           </li>
                         ))}

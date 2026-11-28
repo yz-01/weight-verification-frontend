@@ -4102,7 +4102,8 @@
       "progress_claim_checked": "Progress Claim disemak",
       "progress_claim_settled": "Progress Claim diselesaikan",
       "disposal_settlement_payment_recorded": "Muat naik baucar bayaran penyelesaian pembersihan",
-      "disposal_settlement_voucher_added": "Tambah baucar bayaran penyelesaian pembersihan yang tiada"
+      "disposal_settlement_voucher_added": "Tambah baucar bayaran penyelesaian pembersihan yang tiada",
+      "material_request_spec_matched": "Memilih baris MR bagi rekod bahan (semakan spesifikasi)"
     },
     "objectType": {
       "SignOffAssistant": "PIN pembantu",
@@ -9788,6 +9789,10 @@
       "package_amount_reason_required": "Jumlah diluluskan berbeza daripada jumlah tuntutan: tulis sebabnya.",
       "package_not_approved": "Ia boleh diselesaikan selepas semua penyemak meluluskannya.",
       "package_completed": "Pakej ini telah selesai dan diarkibkan; tiada lagi perubahan.",
+      "package_project_completes": "Ibu pejabat menyemak dan meluluskan; pengurus projek yang menekan “Selesai dan arkibkan”.",
+      "package_claim_kind_required": "Pilih jenis tuntutan (bahan di tapak atau kemajuan).",
+      "package_claim_category_required": "Pilih kategori tuntutan.",
+      "package_claim_subcontractor_required": "Ini tuntutan subkontraktor: pilih subkontraktornya. Tanpanya, selepas diarkibkan ia menunjukkan “Tidak perlu diselesaikan” dan tidak boleh diselesaikan.",
       "company_module_invalid": "Tanda hanya modul perniagaan yang ada pada syarikat ini.",
       "company_module_switched_off": "Modul ini tidak dibuka untuk syarikat anda. Untuk menggunakannya, minta MSE membukanya.",
       "consultant_grant_changed": "Akses projek anda telah dikemas kini. Sila log masuk semula.",
@@ -9875,7 +9880,17 @@
       "disposal_payment_no_required": "Masukkan nombor bayaran.",
       "disposal_payment_file_required": "Muat naik baucar bayaran (foto atau PDF).",
       "disposal_settlement_payment_locked": "{settlement_no} sudah diselesaikan dan dikunci; baucar bayarannya tidak boleh diubah lagi.",
-      "disposal_fee_project_required": "Pilih projek dahulu. Yuran pembersihan ditetapkan mengikut projek."
+      "disposal_fee_project_required": "Pilih projek dahulu. Yuran pembersihan ditetapkan mengikut projek.",
+      "material_request_spec_unmatched": "Spesifikasi bahan pada rekod ini ({reference}) tidak sepadan dengan MR yang dipautkan: {materials}. Pilih baris MR di “Semakan spesifikasi” sebelum mengarkibkan.",
+      "material_request_spec_choice_invalid": "Pilih baris MR yang dipautkan dengan bahan dan unit yang sama.",
+      "disposal_fee_adjust_invalid": "{reference}: fi setiap trip mesti melebihi 0, paling banyak dua tempat perpuluhan.",
+      "disposal_fee_adjust_reason_required": "Anda mengubah fi setiap trip: tulis sebabnya.",
+      "disposal_fee_adjust_amounts_off": "Akaun anda tidak melihat amaun, jadi tidak boleh mengubah fi setiap trip.",
+      "package_ended_record": "{records} telah ditolak atau ditarik balik dan tidak boleh diluluskan atau diselesaikan. Keluarkan dari pakej dahulu; jika sudah dihantar, penyemak hanya boleh memulangkannya.",
+      "package_file_locked": "Fail ini telah dihantar bersama pusingan sebelumnya, jadi ia tidak boleh dipadam. Hanya fail yang ditambah untuk pusingan ini, sebelum anda menandatangan semula dan menghantar, boleh dipadam.",
+      "finance_approve_amounts_off": "Suis “Luluskan amaun” anda dimatikan, jadi anda tidak boleh meluluskan amaun. Minta ibu pejabat menghidupkannya di Pengguna › Edit › Suis kebenaran.",
+      "finance_check_costs_off": "Suis “Semak kos” anda dimatikan, jadi anda tidak boleh menyemak. Minta ibu pejabat menghidupkannya di Pengguna › Edit › Suis kebenaran.",
+      "finance_confirm_settlement_off": "Suis “Sahkan penyelesaian” anda dimatikan, jadi anda tidak boleh menyelesaikan atau memuat naik baucar bayaran. Minta ibu pejabat menghidupkannya di Pengguna › Edit › Suis kebenaran."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -12575,7 +12590,8 @@
         "no_package": "Buka pakej dalam Multi Engine dahulu",
         "loading": "Sedang membaca status pakej…",
         "voided": "Rekod hujan ini sudah dibatalkan dan tidak boleh dipakej",
-        "not_archived": "Dokumen ini belum diarkibkan; ia boleh dimasukkan ke dalam pakej selepas diarkibkan"
+        "not_archived": "Dokumen ini belum diarkibkan; ia boleh dimasukkan ke dalam pakej selepas diarkibkan",
+        "ended": "Tuntutan sundry ini telah ditolak atau ditarik balik dan tidak boleh dibungkus untuk kelulusan"
       },
       "what": {
         "status": "Status pakej",
@@ -12765,7 +12781,11 @@
       "voucherHelp": "Foto atau PDF. Dikunci selepas dimuat naik; yang salah dijawab dengan menambah yang betul.",
       "voucherFile": "Fail baucar",
       "voucherAmount": "Jumlah (RM)",
-      "voucherNote": "Nota"
+      "voucherNote": "Nota",
+      "endedNote": "{count} tuntutan sundry telah ditolak atau ditarik balik: tidak dikira dalam jumlah sundry dan tidak boleh diluluskan atau diselesaikan. Rekod dan buktinya disimpan.",
+      "rejected": "Ditolak",
+      "withdrawn": "Ditarik balik",
+      "notCounted": "tidak dikira"
     },
     "export": {
       "number": "No. pakej",
@@ -14734,7 +14754,10 @@
         "record": "Isi keputusan pemeriksaan"
       },
       "finance": {
-        "view_amounts": "Lihat jumlah wang (harga, kos, bajet, tuntutan)"
+        "view_amounts": "Lihat jumlah wang (harga, kos, bajet, tuntutan)",
+        "approve_amounts": "Luluskan amaun (tuntutan sundry, amaun diluluskan pakej)",
+        "check_costs": "Semak kos (semakan penyata, pulangan / pengeluaran, Progress Claim, pembersihan)",
+        "confirm_settlement": "Sahkan penyelesaian (penyelesaian, baucar bayaran, bayaran disahkan)"
       },
       "field_staff": {
         "manage": "Keluarkan dan urus pautan telefon kakitangan tapak bagi projek sendiri"
@@ -23907,6 +23930,20 @@
       "completed": "Diselesaikan dan diarkibkan"
     }
   },
+  "jb307": {
+    "fileRemoved": "Fail telah dipadam.",
+    "files": {
+      "title": "Fail yang dimuat naik oleh pengurus projek",
+      "help": "Setiap fail boleh dipratonton, dicetak dan dieksport; fail ini juga ada dalam PDF keseluruhan pakej."
+    },
+    "remove": {
+      "button": "Padam fail ini",
+      "title": "Padam {name}?",
+      "body": "Fail ini belum dihantar. Selepas dipadam, ia tidak akan dimasukkan ke pusingan seterusnya. Fail yang dihantar dalam pusingan sebelumnya tidak berubah.",
+      "confirm": "Padam",
+      "bodyDraft": "Pakej belum disahkan; selepas dipadam, fail ini tidak akan dimasukkan."
+    }
+  },
   "jb248": {
     "field": "Jenis",
     "kind": {
@@ -24784,7 +24821,8 @@
       "signatures": "Rekod tandatangan terima (kedua-dua pihak)",
       "exit_not_confirmed": "\"Sahkan keluar rasmi\" belum dibuat",
       "other": "Maklumat wajib lain",
-      "mr_link": "Pautan ke MR / permohonan lain (pilih di 「Permohonan dipautkan」)"
+      "mr_link": "Pautan ke MR / permohonan lain (pilih di 「Permohonan dipautkan」)",
+      "mr_spec": "Semakan spesifikasi: ada bahan yang tidak sepadan dengan MR yang dipautkan (lihat “Semakan spesifikasi”)"
     },
     "tick": "Saya telah menyemak semua maklumat dan ia betul.",
     "tickRequired": "(wajib ditanda)",
@@ -25526,6 +25564,28 @@
       "help": "Kos buruh dikira daripada rekod dan kadar sekarang; bulan yang sudah disahkan menggunakan apa yang disimpan semasa disahkan."
     }
   },
+  "jb307Vouchers": {
+    "title": "Semakan dan penyelesaian",
+    "help": "Semakan dan penyelesaian rekod ini, dengan baucarnya. Buka fail untuk melihat, pratonton, mencetak atau memuat turun.",
+    "checkTitle": "Semakan",
+    "checkNo": "No. semakan",
+    "checkedAmount": "Jumlah disemak",
+    "changedReason": "Berbeza daripada jumlah diluluskan: {reason}",
+    "checkVoucherNo": "No. baucar semakan",
+    "checkedBy": "Disemak oleh",
+    "note": "Catatan",
+    "checkFiles": "Baucar semakan",
+    "filesHint": "Baca sahaja: baucar tidak boleh diubah atau dipadam selepas disimpan.",
+    "settlementTitle": "Penyelesaian",
+    "settlementNo": "No. penyelesaian",
+    "settledAmount": "Jumlah penyelesaian",
+    "settledTogether": "Jumlah {count} rekod yang diselesaikan bersama",
+    "settlementVoucherNo": "No. baucar penyelesaian",
+    "settledBy": "Diselesaikan oleh",
+    "settlementFiles": "Baucar penyelesaian",
+    "notSettled": "Telah disemak, belum diselesaikan.",
+    "locked": "Semakan dan penyelesaian rekod ini mengandungi jumlah. Akaun anda menutup 'Lihat jumlah', jadi ia tidak dipaparkan."
+  },
   "jb298": {
     "state": {
       "PENDING": "Untuk disemak",
@@ -25585,6 +25645,16 @@
       "notCounted": "Lagi {amount} belum diselesaikan, tidak dikira",
       "basis": "Hanya Claim yang diselesaikan, mengikut tarikh kelulusan"
     }
+  },
+  "jb307b": {
+    "required": "Jenis tuntutan dan kategori tuntutan wajib diisi. Tuntutan subkontraktor juga perlu subkontraktornya supaya boleh disemak dan diselesaikan selepas diarkibkan.",
+    "subRequired": "Ini tuntutan subkontraktor: pilih subkontraktornya. Tanpanya, selepas diarkibkan ia menunjukkan “Tidak perlu diselesaikan” dan tidak boleh diselesaikan.",
+    "subOptional": "Kategori ini bukan tuntutan subkontraktor, jadi subkontraktor boleh dibiarkan kosong; tanpanya ia menunjukkan “Tidak perlu diselesaikan” selepas diarkibkan.",
+    "completesOnProject": "Ibu pejabat telah meluluskannya. Pengurus projek yang menekan “Selesai dan arkibkan”; ibu pejabat tidak perlu.",
+    "settleNoManage": "Anda tiada kebenaran “Sedia dan hantar pakej”, jadi tidak boleh menyemak atau menyelesaikan Progress Claim.",
+    "settleNoAmounts": "“Lihat jumlah wang” anda dimatikan, dan semakan serta penyelesaian semuanya jumlah wang. Minta pentadbir syarikat menghidupkannya.",
+    "settleBothOff": "Suis “Semak kos” dan “Sahkan penyelesaian” anda dimatikan, jadi tidak boleh menyemak atau menyelesaikan. Minta ibu pejabat menghidupkannya di Pengguna › Edit › Suis kebenaran.",
+    "chooseCategory": "Pilih kategori tuntutan"
   },
   "jb299": {
     "fee": {
@@ -25661,5 +25731,68 @@
       "filled": "Butiran {name} sudah diisi untuk anda; anda boleh mengubahnya.",
       "noContact": "{name} tiada telefon atau e-mel dalam rekod. Sila taipkan sendiri."
     }
+  },
+  "jb302": {
+    "title": "Semakan spesifikasi (dikira mengikut bahan, spesifikasi dan unit MR yang dipautkan)",
+    "help": "Rekod ini dipautkan kepada MR, jadi jumlah permohonan mengiranya di bawah baris MR bagi bahan yang sama (bahan, spesifikasi, unit). Rekod asal tidak berubah.",
+    "unsettled": "Ada bahan yang tidak sepadan dengan MR: bagi “Perlu pilih”, pilih baris MR di bawah; bagi “Unit berbeza”, betulkan unit rekod ini atau pautkan MR yang betul. Selepas itu baru boleh diarkibkan.",
+    "unsettledReadOnly": "Ada bahan yang tidak sepadan dengan MR. Pejabat perlu menyelesaikannya di sini (pilih baris, atau betulkan unit) sebelum diarkibkan.",
+    "position": "Item {position}",
+    "recorded": "Rekod menyatakan:",
+    "countedUnder": "Dikira di bawah:",
+    "noSpec": "tiada spesifikasi",
+    "state": {
+      "exact": "Sepadan dengan MR",
+      "auto": "Dikira mengikut MR",
+      "chosen": "Dipilih",
+      "pick": "Perlu pilih",
+      "unit": "Unit berbeza",
+      "none": "Tiada dalam MR"
+    },
+    "explain": {
+      "exact": "Bahan, spesifikasi dan unit sama dengan MR.",
+      "auto": "MR hanya ada spesifikasi ini bagi bahan ini dalam unit ini, jadi ia dikira di bawahnya.",
+      "chosen": "Pejabat memilih baris ini.",
+      "pick": "Spesifikasi berbeza daripada MR, atau MR ada beberapa spesifikasi bahan ini: pilih baris yang betul.",
+      "unit": "MR ada bahan ini tetapi dalam unit lain. Betulkan unit rekod ini dahulu, atau pautkan MR yang betul.",
+      "none": "MR yang dipautkan tiada bahan ini, jadi ia dikira seperti direkodkan."
+    },
+    "choose": "Pilih baris MR",
+    "chooseFirst": "Pilih baris MR dahulu",
+    "sameChoice": "Baris ini sudah dipilih",
+    "save": "Simpan",
+    "cancel": "Batal",
+    "change": "Tukar spesifikasi",
+    "failed": "Gagal menyimpan. Sila cuba lagi.",
+    "saved": "Semakan spesifikasi disimpan.",
+    "archiveBlocked": "Ada bahan yang tidak sepadan dengan MR yang dipautkan: selesaikan di “Semakan spesifikasi” (pilih baris, atau betulkan unit) sebelum mengarkibkan.",
+    "countedAs": "Dikira sebagai {specification} · {unit} MR",
+    "recordedAs": "Dikira mengikut {request} · rekod menyatakan: {material} {specification} {unit}"
+  },
+  "jb303": {
+    "help": "Fi setiap trip bagi projek dan pembekal ini diambil daripada Yuran pembersihan, didarab dengan trip yang diterima. Jika harga sebenar berbeza, ubah di sini sebelum menekan Sahkan semakan. Ia tidak boleh diubah selepas semakan.",
+    "price": "Fi setiap trip (RM)",
+    "priceFor": "Fi setiap trip untuk {reference}",
+    "setWas": "Ditetapkan: {amount}",
+    "badPrice": "Fi setiap trip mesti melebihi 0, paling banyak dua tempat perpuluhan.",
+    "reason": "Sebab perubahan (wajib)",
+    "reasonPlaceholder": "cth. adendum kontrak pembekal: RM380 setiap trip tempoh ini",
+    "reasonFirst": "Anda mengubah fi setiap trip: tulis sebabnya dahulu",
+    "settingStays": "Hanya harga penyelesaian ini berubah; Yuran pembersihan kekal.",
+    "reasonShown": "Fi setiap trip diubah semasa semakan - sebab: {reason}"
+  },
+  "jb305": {
+    "cost": {
+      "basis": "Hanya penyata sewaan peralatan yang telah diselesaikan dikira"
+    }
+  },
+  "jb306": {
+    "off": {
+      "approve": "Suis “Luluskan amaun” anda dimatikan, jadi anda tidak boleh meluluskan amaun. Minta ibu pejabat menghidupkannya di Pengguna › Edit › Suis kebenaran.",
+      "check": "Suis “Semak kos” anda dimatikan, jadi anda tidak boleh menyemak. Minta ibu pejabat menghidupkannya di Pengguna › Edit › Suis kebenaran.",
+      "settle": "Suis “Sahkan penyelesaian” anda dimatikan, jadi anda tidak boleh menyelesaikan atau memuat naik baucar bayaran. Minta ibu pejabat menghidupkannya di Pengguna › Edit › Suis kebenaran."
+    },
+    "notChecked": "Semakan tidak berjaya - belum ada nombor semakan. Maklumat yang anda isi masih ada; sila cuba lagi.",
+    "notSettled": "Penyelesaian tidak berjaya - belum ada nombor penyelesaian dan ia kekal di 「Sudah disemak」. Maklumat yang anda isi masih ada; sila cuba lagi."
   }
 }

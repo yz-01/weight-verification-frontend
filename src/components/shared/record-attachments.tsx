@@ -60,6 +60,7 @@ export function RecordAttachmentsPanel({
   adding: addingProp,
   onAddingChange,
   onChanged,
+  rowAction,
 }: {
   kind: AttachableKind;
   recordId: string;
@@ -84,6 +85,11 @@ export function RecordAttachmentsPanel({
   onAddingChange?: (adding: boolean) => void;
   /** A file was added or deleted - an evidence package redraws its PDF order (JB63). */
   onChanged?: () => void;
+  /**
+   * The caller's own control at the end of a file's row: an evidence
+   * package's bin on a file uploaded for the next round (JB307-2).
+   */
+  rowAction?: (row: RecordAttachment) => React.ReactNode;
 }) {
   const t = useTranslations("recordAttachments");
   const df = useDateFormat();
@@ -235,6 +241,7 @@ export function RecordAttachmentsPanel({
                         }}
                       />
                     ) : null}
+                    {rowAction?.(row)}
                   </li>
                 );
               })}

@@ -4102,7 +4102,8 @@
       "progress_claim_checked": "Progress Claim 核对",
       "progress_claim_settled": "Progress Claim 结算",
       "disposal_settlement_payment_recorded": "上传清运结算付款凭证",
-      "disposal_settlement_voucher_added": "补上传清运结算付款凭证"
+      "disposal_settlement_voucher_added": "补上传清运结算付款凭证",
+      "material_request_spec_matched": "选择进场 / 退场 / 领用的材料归入 MR 的哪一项（规格核对）"
     },
     "objectType": {
       "SignOffAssistant": "助理副密码",
@@ -9788,6 +9789,10 @@
       "package_amount_reason_required": "批准金额和申请金额不一样，请填写审批原因。",
       "package_not_approved": "要等全部审核通过，才能确认完毕并归档。",
       "package_completed": "这个资料包已经确认完毕并归档，不能再改动。",
+      "package_project_completes": "总部负责审核批准，「确认完毕并归档」由项目经理去按。",
+      "package_claim_kind_required": "请选择 Claim 类型（材料到场或工程进度）。",
+      "package_claim_category_required": "请选择 Claim 分类。",
+      "package_claim_subcontractor_required": "这是分包商的 Claim，请选择对应的分包商。不选的话，归档后会显示「不需要结算」，不能进入结算。",
       "company_module_invalid": "请只勾选这家公司有的业务模块。",
       "company_module_switched_off": "你们公司没有开通这个模块。要用，请联系 MSE 开通。",
       "consultant_grant_changed": "你的项目权限已更新，请重新登录。",
@@ -9875,7 +9880,17 @@
       "disposal_payment_no_required": "请填写付款编号。",
       "disposal_payment_file_required": "请上传付款凭证（照片或 PDF）。",
       "disposal_settlement_payment_locked": "{settlement_no} 已经结算完毕并锁定，付款凭证不能再改。",
-      "disposal_fee_project_required": "请先选项目。清运费用按项目分别设定。"
+      "disposal_fee_project_required": "请先选项目。清运费用按项目分别设定。",
+      "material_request_spec_unmatched": "这笔记录（{reference}）有材料和关联的 MR 对不上：{materials}。请先在「关联申请」的「规格核对」处理好（选好归入 MR 的哪一项，或改正单位），才能确认归档。",
+      "material_request_spec_choice_invalid": "请选择关联 MR 里同一种材料、同一个单位的那一项。",
+      "disposal_fee_adjust_invalid": "{reference}：每车单价要大于 0，最多两位小数。",
+      "disposal_fee_adjust_reason_required": "改了每车单价，请写调整原因。",
+      "disposal_fee_adjust_amounts_off": "你的账号看不到金额，不能调整每车单价。",
+      "package_ended_record": "{records} 已拒绝或已撤回，不能参与审批和结算。请先把它移出资料包；已经送审的，审批人只能退回这一笔。",
+      "package_file_locked": "这个文件已经随之前的一轮提交，不能删除。只有这一轮补充、还没「重新签名提交」的文件才可以删除。",
+      "finance_approve_amounts_off": "你的账号没有开「金额审批」，不能审批金额。请总部在「用户 › 编辑 › 权限开关」打开。",
+      "finance_check_costs_off": "你的账号没有开「费用核对」，不能核对。请总部在「用户 › 编辑 › 权限开关」打开。",
+      "finance_confirm_settlement_off": "你的账号没有开「结算确认」，不能结算或上传付款凭证。请总部在「用户 › 编辑 › 权限开关」打开。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -12575,7 +12590,8 @@
         "no_package": "先在 Multi Engine 打开一个资料包",
         "loading": "正在读取打包情况…",
         "voided": "这份雨天记录已作废，不能打包",
-        "not_archived": "这份文件还没确认归档，归档后才能放进资料包"
+        "not_archived": "这份文件还没确认归档，归档后才能放进资料包",
+        "ended": "这笔杂费报销已拒绝或已撤回，不能打包审批"
       },
       "what": {
         "status": "打包情况",
@@ -12765,7 +12781,11 @@
       "voucherHelp": "照片或 PDF。上传后锁定，不能改、不能删；传错了就再传一张正确的。",
       "voucherFile": "凭证文件",
       "voucherAmount": "金额（RM）",
-      "voucherNote": "说明"
+      "voucherNote": "说明",
+      "endedNote": "有 {count} 笔杂费报销已拒绝或已撤回，不计入杂费合计，也不能审批和结算；原来的记录和证据都保留。",
+      "rejected": "已拒绝",
+      "withdrawn": "已撤回",
+      "notCounted": "不计入"
     },
     "export": {
       "number": "资料包编号",
@@ -14734,7 +14754,10 @@
         "record": "填写检验结果"
       },
       "finance": {
-        "view_amounts": "金额查看（单价、成本、预算、Claim）"
+        "view_amounts": "金额查看（单价、成本、预算、Claim）",
+        "approve_amounts": "金额审批（杂费报销审批、资料包本期批准金额）",
+        "check_costs": "费用核对（各月结单、退场／领用、Progress Claim、垃圾清运的核对）",
+        "confirm_settlement": "结算确认（各项结算、付款凭证、确认已付款）"
       },
       "field_staff": {
         "manage": "为自己负责的项目生成和管理现场人员手机链接"
@@ -23907,6 +23930,20 @@
       "completed": "已确认完毕并归档"
     }
   },
+  "jb307": {
+    "fileRemoved": "文件已删除。",
+    "files": {
+      "title": "项目经理上传的文件",
+      "help": "每个文件都可以预览、打印和导出；整份资料包的 PDF 里也有这些文件。"
+    },
+    "remove": {
+      "button": "删除这个文件",
+      "title": "删除 {name}？",
+      "body": "这个文件还没提交，删除后不会放进下一轮。之前几轮已经提交的资料不会改变。",
+      "confirm": "删除",
+      "bodyDraft": "这个资料包还没确认，删除后不会放进资料包。"
+    }
+  },
   "jb248": {
     "field": "类型",
     "kind": {
@@ -24784,7 +24821,8 @@
       "signatures": "签收记录（双方签名）",
       "exit_not_confirmed": "还没有「确认正式退场」",
       "other": "其他必填资料",
-      "mr_link": "关联 MR／其他申请（在「关联申请」选好）"
+      "mr_link": "关联 MR／其他申请（在「关联申请」选好）",
+      "mr_spec": "规格核对：有材料和关联的 MR 对不上（看「关联申请」的「规格核对」）"
     },
     "tick": "我已核对所有资料，确认无误。",
     "tickRequired": "（必须勾选）",
@@ -25526,6 +25564,28 @@
       "help": "人工费用是按现在的记录和单价算出的；已确认的月份按确认时保存的算。"
     }
   },
+  "jb307Vouchers": {
+    "title": "核对与结算",
+    "help": "这笔记录的核对和结算，以及上传的凭证。点开文件可以查看、预览、打印或下载。",
+    "checkTitle": "核对",
+    "checkNo": "核对编号",
+    "checkedAmount": "核对金额",
+    "changedReason": "与批准金额不同，原因：{reason}",
+    "checkVoucherNo": "核对凭证编号",
+    "checkedBy": "核对人及时间",
+    "note": "备注",
+    "checkFiles": "核对凭证",
+    "filesHint": "只能查看：凭证保存后不能修改或删除。",
+    "settlementTitle": "结算",
+    "settlementNo": "结算编号",
+    "settledAmount": "结算金额",
+    "settledTogether": "本结算单一共 {count} 笔的合计",
+    "settlementVoucherNo": "结算凭证编号",
+    "settledBy": "结算人及时间",
+    "settlementFiles": "结算凭证",
+    "notSettled": "已核对，还没有结算。",
+    "locked": "核对与结算里有金额。你的账号关闭了「金额查看」，所以这里不显示。"
+  },
   "jb298": {
     "state": {
       "PENDING": "待核对",
@@ -25585,6 +25645,16 @@
       "notCounted": "还有 {amount} 未结算，不算在内",
       "basis": "只算已结算的，按审核归档日期"
     }
+  },
+  "jb307b": {
+    "required": "Claim 类型和 Claim 分类必须填写。分包商的 Claim 还要选对应的分包商，归档后才能进入核对与结算。",
+    "subRequired": "这是分包商的 Claim，必须选择对应的分包商。不选的话，归档后会显示「不需要结算」，不能进入结算。",
+    "subOptional": "这个分类不是分包商的 Claim，可以不选分包商；不选的话，归档后显示「不需要结算」。",
+    "completesOnProject": "总部已审核批准。「确认完毕并归档」由项目经理去按，总部这里不用按。",
+    "settleNoManage": "你没有「制作及发送资料包」权限，不能做 Progress Claim 的核对与结算。",
+    "settleNoAmounts": "你的「金额查看」已关闭，核对与结算都是金额，所以不能做。请找公司管理员开通。",
+    "settleBothOff": "你的账号没有开「费用核对」和「结算确认」，不能核对与结算。请总部在「用户 › 编辑 › 权限开关」打开。",
+    "chooseCategory": "请选择 Claim 分类"
   },
   "jb299": {
     "fee": {
@@ -25661,5 +25731,68 @@
       "filled": "已经帮你填好 {name} 的资料，可以修改。",
       "noContact": "{name} 的资料里没有电话或 Email，请自己填写。"
     }
+  },
+  "jb302": {
+    "title": "规格核对（按关联 MR 的材料、规格、单位统计）",
+    "help": "这笔记录已经关联 MR，申请累计会按 MR 里同一种材料的那一项（材料、规格、单位）统计。原始记录不会因此改变。",
+    "unsettled": "还有材料和 MR 对不上：写「要选择」的，在下面选好归入 MR 的哪一项；写「单位不同」的，先修改这笔记录的单位，或改关联正确的 MR。处理好才能确认归档。",
+    "unsettledReadOnly": "还有材料和 MR 对不上，要由后台负责人在这里处理好（选好归入哪一项，或改正单位），才能确认归档。",
+    "position": "第 {position} 项",
+    "recorded": "记录写：",
+    "countedUnder": "统计归入：",
+    "noSpec": "没有规格",
+    "state": {
+      "exact": "和 MR 一致",
+      "auto": "按 MR 自动归入",
+      "chosen": "已选择",
+      "pick": "要选择",
+      "unit": "单位不同",
+      "none": "不在 MR 里"
+    },
+    "explain": {
+      "exact": "材料、规格、单位和 MR 一样。",
+      "auto": "MR 里这个材料、这个单位只有这一个规格，系统自动按它统计。",
+      "chosen": "由后台选择按这一项统计。",
+      "pick": "规格和 MR 不同，或 MR 里这个材料有几个规格：请选择这笔归入哪一项。",
+      "unit": "MR 里有这个材料，但单位不同。请先修改这笔记录的单位，或改关联正确的 MR。",
+      "none": "关联的 MR 里没有这个材料，按记录本身统计。"
+    },
+    "choose": "选择归入 MR 的哪一项",
+    "chooseFirst": "请先选择归入 MR 的哪一项",
+    "sameChoice": "已经是这一项了",
+    "save": "保存",
+    "cancel": "取消",
+    "change": "更改归入的规格",
+    "failed": "保存失败，请再试一次。",
+    "saved": "已保存规格核对。",
+    "archiveBlocked": "还有材料和关联的 MR 对不上：请先在「关联申请」的「规格核对」处理好（选好归入哪一项，或改正单位），才能确认归档。",
+    "countedAs": "按 MR 的 {specification} · {unit} 统计",
+    "recordedAs": "按 {request} 归入 · 记录写：{material} {specification} {unit}"
+  },
+  "jb303": {
+    "help": "系统按「清运费用设定」自动带出这个项目、这家供应商的每车单价，按实际验收车次算费用。如实际单价不同，可以在这里改，再按【确认核对】。确认核对后就不能再改。",
+    "price": "每车单价（RM）",
+    "priceFor": "{reference} 的每车单价",
+    "setWas": "设定 {amount}",
+    "badPrice": "每车单价要大于 0，最多两位小数。",
+    "reason": "调整原因（必填）",
+    "reasonPlaceholder": "例如：供应商合同补充协议，本期每车 RM380",
+    "reasonFirst": "改了每车单价，请先写调整原因",
+    "settingStays": "只改这次结算的单价，「清运费用设定」不会改变。",
+    "reasonShown": "核对时调整每车单价，原因：{reason}"
+  },
+  "jb305": {
+    "cost": {
+      "basis": "只算已结算的设备租赁月结单"
+    }
+  },
+  "jb306": {
+    "off": {
+      "approve": "你的账号没有开「金额审批」，不能审批金额。请总部在「用户 › 编辑 › 权限开关」打开。",
+      "check": "你的账号没有开「费用核对」，不能核对。请总部在「用户 › 编辑 › 权限开关」打开。",
+      "settle": "你的账号没有开「结算确认」，不能结算或上传付款凭证。请总部在「用户 › 编辑 › 权限开关」打开。"
+    },
+    "notChecked": "这次核对没有成功，还没有核对编号。你填的内容都还在，请再试一次。",
+    "notSettled": "这次结算没有成功，还没有结算编号，仍在「已核对」。你填的内容都还在，请再试一次。"
   }
 }

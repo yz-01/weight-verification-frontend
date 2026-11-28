@@ -16,6 +16,7 @@ import {
 } from "@/components/contractor-ops/package-review-loop";
 import { Shell } from "@/components/contractor-ops/package-shell";
 import { PackageItemPictures } from "@/components/contractor-ops/package-item-pictures";
+import { PackageSentFiles } from "@/components/contractor-ops/package-sent-files";
 import { ExportButton } from "@/components/shared/export-button";
 import { FileActionButtons } from "@/components/shared/file-actions";
 import {
@@ -42,6 +43,7 @@ import {
   packageAttachmentFile,
   reviewPackageFile,
   reviewPackageItemFile,
+  reviewPackageSentFile,
   sendReviewMessage,
   submitPackageReview,
 } from "@/services/contractor-ops.service";
@@ -298,6 +300,14 @@ function ReviewSheet({ id, onClose }: { id: string; onClose: () => void }) {
                 {t("exportedNoReturn")}
               </p>
             ) : null}
+            {/* JB307-1: the files the project manager uploaded, each to open. */}
+            <PackageSentFiles
+              files={data.files ?? []}
+              load={(file, inline) => reviewPackageSentFile(id, file.id, file.name, inline)}
+              ownWork
+              project={data.project}
+              recordId={id}
+            />
             <ul className="space-y-2">
               {data.items.map((item) => {
                 return (

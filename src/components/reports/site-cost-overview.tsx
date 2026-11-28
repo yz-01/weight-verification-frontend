@@ -142,6 +142,7 @@ export function SiteCostOverview() {
   const tFee = useTranslations("jb287");
   const t298 = useTranslations("jb298");
   const t299 = useTranslations("jb299");
+  const t305 = useTranslations("jb305");
 
   return (
     <div className="space-y-4" data-slot="site-cost-overview">
@@ -229,9 +230,15 @@ export function SiteCostOverview() {
                   // JB295: 「还有 RM x 未核对，不算在内」 - only 已核对 / 已结算 count.
                   // JB298: Progress Claim - 「还有 RM x 未结算，不算在内」.
                   <p className="text-xs text-muted-foreground" data-slot="cost-not-counted">
-                    {key === "progress_claim"
+                    {/* JB305 (客户 11-28h): 设备租赁 counts only 已结算 月结单, as Progress Claim. */}
+                    {key === "progress_claim" || key === "equipment_rental"
                       ? t298("cost.notCounted", { amount: rm(row.not_counted_amount) })
                       : t295("cost.notCounted", { amount: rm(row.not_counted_amount) })}
+                  </p>
+                ) : key === "equipment_rental" && row && row.available && !row.switched_off ? (
+                  // JB305: what the card counts - only 已结算 设备租赁月结单.
+                  <p className="text-xs text-muted-foreground" data-slot="cost-rental-basis">
+                    {t305("cost.basis")}
                   </p>
                 ) : key === "progress_claim" && row && row.available && !row.switched_off ? (
                   // JB298: what the card counts - only 已结算, by the 审核归档 day.

@@ -33,9 +33,11 @@ import {
   claimSettleTabOf,
   useClaimWindows,
 } from "@/components/contractor-ops/claim-settlements";
+import { ReconciliationVouchers } from "@/components/contractor-ops/reconciliation-vouchers";
 import { ReconcileSettleButton } from "@/components/contractor-ops/return-checks";
 import { useSeesAmounts } from "@/hooks/use-sees-amounts";
 import { useKeptFilters, useWriteSearchParams } from "@/lib/kept-filters";
+import { useMoneyStep } from "@/lib/money-steps";
 import {
   ClaimCategoriesDialog,
   ClaimInfoBlock,
@@ -47,7 +49,7 @@ import {
   claimInfoPayload,
   periodLabel,
   sendStatusKeys,
-  useClaimInfoComplete,
+  useClaimInfoReason,
   type ClaimInfoValue,
 } from "@/components/contractor-ops/package-claim-parts";
 import { usePackageRecordOpener } from "@/components/contractor-ops/package-record-opener";
@@ -72,7 +74,7 @@ import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { useOnProjectChange, usePageProject } from "@/components/providers/current-project-provider";
 import { ExportButton } from "@/components/shared/export-button";
 import { FileActionButtons, useFileActions } from "@/components/shared/file-actions";
-import { RecordAttachmentsPanel } from "@/components/shared/record-attachments";
+import { RecordAttachmentsPanel, recordAttachmentsKey } from "@/components/shared/record-attachments";
 import { EmptyState, FieldWrapper, FilterBar, ListHeader, LoadFailed, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -96,6 +98,7 @@ import {
 } from "@/components/ui/table";
 import { Shell } from "@/components/contractor-ops/package-shell";
 import { PackageItemPictures } from "@/components/contractor-ops/package-item-pictures";
+import { RemoveNextRoundFile } from "@/components/contractor-ops/package-sent-files";
 import { FileThumbs } from "@/components/shared/file-thumbs";
 import { useClearSearchParam } from "@/hooks/use-url-selection";
 import { useDateFormat } from "@/lib/dates";
@@ -128,6 +131,7 @@ import {
   getPackageCandidates,
   getPackageRecordParts,
   getProjectCategories,
+  removePackageFile,
   removePackageItem,
   reorderPackageContents,
   updateEvidencePackage,
@@ -243,6 +247,7 @@ export function MultiEngineWorkspace() {
 function PackageList({ type, ready }: { type: PackageType | ""; ready: boolean }) {
   const t = useTranslations("multiEngine");
   const settleWords = useTranslations("jb298");
+  const jb307 = useTranslations("jb307b");
   const loop = useTranslations("jb252");
   const formatter = useDateFormat();
   const { can } = useAuth();
@@ -281,6 +286,22 @@ function PackageList({ type, ready }: { type: PackageType | ""; ready: boolean }
   const settleState = isClaimTab && settleTab !== "all" ? CLAIM_TAB_STATE[settleTab] : undefined;
   const seesAmounts = useSeesAmounts();
   const claimWindows = useClaimWindows();
+  // JB307-5 (客户 11-28j: 「目前「全部类型」页面没有显示「核对与结算」按钮，进入
+  // Progress Claim 分类后才出现」): 【核对与结算】 on 全部类型 too (it opens the
+  // Progress Claim one). Who may: 「制作及发送资料包」 + 「金额查看」 + 「费用核对」
+  // or 「结算确认」 (JB306) - anybody else sees it greyed with the reason.
+  const settleWhere = isClaimTab || type === "";
+  const checkStep = useMoneyStep("check");
+  const settleStep = useMoneyStep("settle");
+  const settleLocked = !can(CLAIM_SETTLE_PERMISSION)
+    ? jb307("settleNoManage")
+    : !seesAmounts
+      ? jb307("settleNoAmounts")
+      : checkStep.off && settleStep.off
+        ? jb307("settleBothOff")
+        : undefined;
+  const settleFirstStep =
+    isClaimTab && settleTab === "checked" ? "settle" : checkStep.off ? "settle" : "check";
   const [managingCategories, setManagingCategories] = useState(false);
   const claimFilters = isClaimTab
     ? {
@@ -339,20 +360,23 @@ function PackageList({ type, ready }: { type: PackageType | ""; ready: boolean }
         title={t("title")}
         subtitle={t("subtitle")}
         action={
-          can("package.manage") || (isClaimTab && can("category.manage")) ? (
+          can("package.manage") || settleWhere || (isClaimTab && can("category.manage")) ? (
             <div className="flex flex-wrap gap-2">
-              {/* JB298: 【核对与结算】, the equipment rental statements' button. */}
-              {isClaimTab && seesAmounts && (
+              {/* JB298: 【核对与结算】, the equipment rental statements' button; JB307-5:
+                  on 全部类型 too, and greyed with the reason for who may not. After
+                  a step the Progress Claim tab shows where the claims went. */}
+              {settleWhere && (
                 <ReconcileSettleButton
                   kind="CLAIM"
-                  step={settleTab === "checked" ? "settle" : "check"}
+                  step={settleFirstStep}
                   permission={CLAIM_SETTLE_PERMISSION}
+                  locked={settleLocked}
                   onChecked={() => {
-                    writeParams({ settle: "checked" });
+                    writeParams({ type: "PROGRESS_CLAIM", settle: "checked" });
                     setPage(1);
                   }}
                   onSettled={() => {
-                    writeParams({ settle: "settled" });
+                    writeParams({ type: "PROGRESS_CLAIM", settle: "settled" });
                     setPage(1);
                   }}
                 />
@@ -677,15 +701,15 @@ function NewPackageDialog({
 }) {
   const t = useTranslations("multiEngine");
   const common = useTranslations("common");
-  const claims = useTranslations("claims");
   const queryClient = useQueryClient();
   const [project, setProject] = useState(initialProject);
   const [name, setName] = useState("");
   const [packageType, setPackageType] = useState<PackageType>(initialType);
-  // JB52 第 1 点: a Progress Claim's 期数 / 类型 / 分类 / 分包商, all optional.
+  // JB52 第 1 点: a Progress Claim's 期数 / 类型 / 分类 / 分包商; JB307-3: 类型 and
+  // 分类 required, the 分包商 of a subcontractor's claim too.
   const [claimInfo, setClaimInfo] = useState<ClaimInfoValue>(EMPTY_CLAIM_INFO);
   const isClaim = packageType === "PROGRESS_CLAIM";
-  const claimComplete = useClaimInfoComplete(project, claimInfo);
+  const claimMissing = useClaimInfoReason(project, claimInfo);
   const loop = useTranslations("jb252");
   // JB254: 申请金额（Claim Amount RM）on the two money types; the PIN is asked when filled.
   const [claimAmount, setClaimAmount] = useState("");
@@ -759,8 +783,8 @@ function NewPackageDialog({
             [project, t("field.project")],
             [name.trim(), t("field.name")],
           ]}
-          disabled={create.isPending || (isClaim && !claimComplete)}
-          disabledReason={claims("completeClaimFields")}
+          disabled={create.isPending || (isClaim && Boolean(claimMissing))}
+          disabledReason={project && name.trim() ? (isClaim && claimMissing ? claimMissing : common("saving")) : undefined}
           onClick={() => create.mutate()}
         >
           {common("create")}
@@ -884,6 +908,22 @@ function PackageWindowContent({
   const layout: PackageLayoutRow[] =
     data?.layout ?? (data?.items ?? []).map((entry) => ({ kind: "item" as const, id: entry.id }));
   const itemsById = new Map((data?.items ?? []).map((entry) => [entry.id, entry]));
+  // JB307-2: the files uploaded for the next round, which the project manager
+  // may still take off before 「重新签名提交」 (the server says so again).
+  // A draft's own uploads too (「确认前可以删除」); a Claim's letter is the
+  // Claim's, not deleted here.
+  const draftFiles = data?.state === "DRAFT" && can("package.manage");
+  const nextRoundFiles = new Set(
+    data?.takes_supplements || draftFiles
+      ? layout.flatMap((row) =>
+          row.kind === "file" && !row.letter && (draftFiles || row.next_round) ? [row.id] : [],
+        )
+      : [],
+  );
+  const refreshFiles = () => {
+    refresh();
+    queryClient.invalidateQueries({ queryKey: recordAttachmentsKey("EVIDENCE_PACKAGE", id) });
+  };
   const reorder = useMutation({
     mutationFn: (order: { kind: "item" | "file"; id: string }[]) => reorderPackageContents(id, order),
     onSuccess: refresh,
@@ -1082,6 +1122,12 @@ function PackageWindowContent({
               ) : (
                 <MoneyBlock pkg={data} />
               ))}
+            {/* JB307-7 (客户 11-28j 第 7 点): 核对与结算 back on the package -
+                amounts, 凭证编号, the vouchers (查看 / 预览 / 打印 / 下载), who
+                and when; a locked line without 「金额查看」. */}
+            {data.package_type === "PROGRESS_CLAIM" && data.reconciliation ? (
+              <ReconciliationVouchers links={data.reconciliation} />
+            ) : null}
 
             {data.merge_report.length > 0 && (
               /* Named, not counted. A package that quietly lost two pages is
@@ -1132,6 +1178,15 @@ function PackageWindowContent({
                               </p>
                             </div>
                             {isDraft && can("package.manage") && moveButtons(index)}
+                            {nextRoundFiles.has(row.id) && (
+                              /* JB307-2 (客户 11-28j 事项 2): taken off before 「重新签名提交」. */
+                              <RemoveNextRoundFile
+                                draft={draftFiles}
+                                name={row.name}
+                                onRemove={() => removePackageFile(id, row.id)}
+                                onRemoved={refreshFiles}
+                              />
+                            )}
                           </div>
                         </li>
                       );
@@ -1413,6 +1468,21 @@ function PackageWindowContent({
                   adding={uploading}
                   onAddingChange={setUploading}
                   onChanged={refresh}
+                  rowAction={(row) =>
+                    /* JB307-2: a file uploaded for this round goes until 「重新签名
+                       提交」; one an earlier round was sent with stays. */
+                    nextRoundFiles.has(row.id) ? (
+                      <span className="flex shrink-0 items-center gap-1.5">
+                        {!draftFiles && <span className="text-2xs text-muted-foreground">{loop("supplement.staged")}</span>}
+                        <RemoveNextRoundFile
+                          draft={draftFiles}
+                          name={row.original_name}
+                          onRemove={() => removePackageFile(id, row.id)}
+                          onRemoved={refreshFiles}
+                        />
+                      </span>
+                    ) : null
+                  }
                 />
               </section>
             )}

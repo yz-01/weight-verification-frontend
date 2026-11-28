@@ -4102,7 +4102,8 @@
       "progress_claim_checked": "Progress Claim 核對",
       "progress_claim_settled": "Progress Claim 結算",
       "disposal_settlement_payment_recorded": "上傳清運結算付款憑證",
-      "disposal_settlement_voucher_added": "補上傳清運結算付款憑證"
+      "disposal_settlement_voucher_added": "補上傳清運結算付款憑證",
+      "material_request_spec_matched": "選擇進場 / 退場 / 領用的材料歸入 MR 的哪一項（規格核對）"
     },
     "objectType": {
       "SignOffAssistant": "助理副密碼",
@@ -9788,6 +9789,10 @@
       "package_amount_reason_required": "批准金額和申請金額不一樣，請填寫審批原因。",
       "package_not_approved": "要等全部審核通過，才能確認完畢並歸檔。",
       "package_completed": "這個資料包已經確認完畢並歸檔，不能再改動。",
+      "package_project_completes": "總部負責審核批准，「確認完畢並歸檔」由項目經理去按。",
+      "package_claim_kind_required": "請選擇 Claim 類型（材料到場或工程進度）。",
+      "package_claim_category_required": "請選擇 Claim 分類。",
+      "package_claim_subcontractor_required": "這是分包商的 Claim，請選擇對應的分包商。不選的話，歸檔後會顯示「不需要結算」，不能進入結算。",
       "company_module_invalid": "請只勾選這家公司有的業務模組。",
       "company_module_switched_off": "你們公司沒有開通這個模組。要用，請聯絡 MSE 開通。",
       "consultant_grant_changed": "你的項目權限已更新，請重新登入。",
@@ -9875,7 +9880,17 @@
       "disposal_payment_no_required": "請填寫付款編號。",
       "disposal_payment_file_required": "請上傳付款憑證（照片或 PDF）。",
       "disposal_settlement_payment_locked": "{settlement_no} 已經結算完畢並鎖定，付款憑證不能再改。",
-      "disposal_fee_project_required": "請先選項目。清運費用按項目分別設定。"
+      "disposal_fee_project_required": "請先選項目。清運費用按項目分別設定。",
+      "material_request_spec_unmatched": "這筆記錄（{reference}）有材料和關聯的 MR 對不上：{materials}。請先在「關聯申請」的「規格核對」處理好（選好歸入 MR 的哪一項，或改正單位），才能確認歸檔。",
+      "material_request_spec_choice_invalid": "請選擇關聯 MR 裡同一種材料、同一個單位的那一項。",
+      "disposal_fee_adjust_invalid": "{reference}：每車單價要大於 0，最多兩位小數。",
+      "disposal_fee_adjust_reason_required": "改了每車單價，請寫調整原因。",
+      "disposal_fee_adjust_amounts_off": "你的帳號看不到金額，不能調整每車單價。",
+      "package_ended_record": "{records} 已拒絕或已撤回，不能參與審批和結算。請先把它移出資料包；已經送審的，審批人只能退回這一筆。",
+      "package_file_locked": "這個檔案已經隨之前的一輪提交，不能刪除。只有這一輪補充、還沒「重新簽名提交」的檔案才可以刪除。",
+      "finance_approve_amounts_off": "你的帳號沒有開「金額審批」，不能審批金額。請總部在「用戶 › 編輯 › 權限開關」打開。",
+      "finance_check_costs_off": "你的帳號沒有開「費用核對」，不能核對。請總部在「用戶 › 編輯 › 權限開關」打開。",
+      "finance_confirm_settlement_off": "你的帳號沒有開「結算確認」，不能結算或上傳付款憑證。請總部在「用戶 › 編輯 › 權限開關」打開。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -12575,7 +12590,8 @@
         "no_package": "先在 Multi Engine 打開一個資料包",
         "loading": "正在讀取打包情況…",
         "voided": "這份雨天記錄已作廢，不能打包",
-        "not_archived": "這份文件還沒確認歸檔，歸檔後才能放進資料包"
+        "not_archived": "這份文件還沒確認歸檔，歸檔後才能放進資料包",
+        "ended": "這筆雜費報銷已拒絕或已撤回，不能打包審批"
       },
       "what": {
         "status": "打包情況",
@@ -12765,7 +12781,11 @@
       "voucherHelp": "照片或 PDF。上傳後鎖定，不能改、不能刪；傳錯了就再傳一張正確的。",
       "voucherFile": "憑證檔案",
       "voucherAmount": "金額（RM）",
-      "voucherNote": "說明"
+      "voucherNote": "說明",
+      "endedNote": "有 {count} 筆雜費報銷已拒絕或已撤回，不計入雜費合計，也不能審批和結算；原來的記錄和證據都保留。",
+      "rejected": "已拒絕",
+      "withdrawn": "已撤回",
+      "notCounted": "不計入"
     },
     "export": {
       "number": "資料包編號",
@@ -14734,7 +14754,10 @@
         "record": "填寫檢驗結果"
       },
       "finance": {
-        "view_amounts": "金額查看（單價、成本、預算、Claim）"
+        "view_amounts": "金額查看（單價、成本、預算、Claim）",
+        "approve_amounts": "金額審批（雜費報銷審批、資料包本期批准金額）",
+        "check_costs": "費用核對（各月結單、退場／領用、Progress Claim、垃圾清運的核對）",
+        "confirm_settlement": "結算確認（各項結算、付款憑證、確認已付款）"
       },
       "field_staff": {
         "manage": "為自己負責的項目生成和管理現場人員手機連結"
@@ -23907,6 +23930,20 @@
       "completed": "已確認完畢並歸檔"
     }
   },
+  "jb307": {
+    "fileRemoved": "檔案已刪除。",
+    "files": {
+      "title": "專案經理上傳的檔案",
+      "help": "每個檔案都可以預覽、列印和匯出；整份資料包的 PDF 裡也有這些檔案。"
+    },
+    "remove": {
+      "button": "刪除這個檔案",
+      "title": "刪除 {name}？",
+      "body": "這個檔案還沒提交，刪除後不會放進下一輪。之前幾輪已經提交的資料不會改變。",
+      "confirm": "刪除",
+      "bodyDraft": "這個資料包還沒確認，刪除後不會放進資料包。"
+    }
+  },
   "jb248": {
     "field": "類型",
     "kind": {
@@ -24784,7 +24821,8 @@
       "signatures": "簽收記錄（雙方簽名）",
       "exit_not_confirmed": "還沒有「確認正式退場」",
       "other": "其他必填資料",
-      "mr_link": "關聯 MR／其他申請（在「關聯申請」選好）"
+      "mr_link": "關聯 MR／其他申請（在「關聯申請」選好）",
+      "mr_spec": "規格核對：有材料和關聯的 MR 對不上（看「關聯申請」的「規格核對」）"
     },
     "tick": "我已核對所有資料，確認無誤。",
     "tickRequired": "（必須勾選）",
@@ -25526,6 +25564,28 @@
       "help": "人工費用是按現在的記錄和單價算出的；已確認的月份按確認時保存的算。"
     }
   },
+  "jb307Vouchers": {
+    "title": "核對與結算",
+    "help": "這筆記錄的核對和結算，以及上傳的憑證。點開檔案可以查看、預覽、列印或下載。",
+    "checkTitle": "核對",
+    "checkNo": "核對編號",
+    "checkedAmount": "核對金額",
+    "changedReason": "與批准金額不同，原因：{reason}",
+    "checkVoucherNo": "核對憑證編號",
+    "checkedBy": "核對人及時間",
+    "note": "備註",
+    "checkFiles": "核對憑證",
+    "filesHint": "只能查看：憑證保存後不能修改或刪除。",
+    "settlementTitle": "結算",
+    "settlementNo": "結算編號",
+    "settledAmount": "結算金額",
+    "settledTogether": "本結算單一共 {count} 筆的合計",
+    "settlementVoucherNo": "結算憑證編號",
+    "settledBy": "結算人及時間",
+    "settlementFiles": "結算憑證",
+    "notSettled": "已核對，還沒有結算。",
+    "locked": "核對與結算裡有金額。你的帳號關閉了「金額查看」，所以這裡不顯示。"
+  },
   "jb298": {
     "state": {
       "PENDING": "待核對",
@@ -25585,6 +25645,16 @@
       "notCounted": "還有 {amount} 未結算，不算在內",
       "basis": "只算已結算的，按審核歸檔日期"
     }
+  },
+  "jb307b": {
+    "required": "Claim 類型和 Claim 分類必須填寫。分包商的 Claim 還要選對應的分包商，歸檔後才能進入核對與結算。",
+    "subRequired": "這是分包商的 Claim，必須選擇對應的分包商。不選的話，歸檔後會顯示「不需要結算」，不能進入結算。",
+    "subOptional": "這個分類不是分包商的 Claim，可以不選分包商；不選的話，歸檔後顯示「不需要結算」。",
+    "completesOnProject": "總部已審核批准。「確認完畢並歸檔」由項目經理去按，總部這裡不用按。",
+    "settleNoManage": "你沒有「製作及發送資料包」權限，不能做 Progress Claim 的核對與結算。",
+    "settleNoAmounts": "你的「金額查看」已關閉，核對與結算都是金額，所以不能做。請找公司管理員開通。",
+    "settleBothOff": "你的帳號沒有開「費用核對」和「結算確認」，不能核對與結算。請總部在「用戶 › 編輯 › 權限開關」打開。",
+    "chooseCategory": "請選擇 Claim 分類"
   },
   "jb299": {
     "fee": {
@@ -25661,5 +25731,68 @@
       "filled": "已經幫你填好 {name} 的資料，可以修改。",
       "noContact": "{name} 的資料裡沒有電話或 Email，請自己填寫。"
     }
+  },
+  "jb302": {
+    "title": "規格核對（按關聯 MR 的材料、規格、單位統計）",
+    "help": "這筆記錄已經關聯 MR，申請累計會按 MR 裡同一種材料的那一項（材料、規格、單位）統計。原始記錄不會因此改變。",
+    "unsettled": "還有材料和 MR 對不上：寫「要選擇」的，在下面選好歸入 MR 的哪一項；寫「單位不同」的，先修改這筆記錄的單位，或改關聯正確的 MR。處理好才能確認歸檔。",
+    "unsettledReadOnly": "還有材料和 MR 對不上，要由後台負責人在這裡處理好（選好歸入哪一項，或改正單位），才能確認歸檔。",
+    "position": "第 {position} 項",
+    "recorded": "記錄寫：",
+    "countedUnder": "統計歸入：",
+    "noSpec": "沒有規格",
+    "state": {
+      "exact": "和 MR 一致",
+      "auto": "按 MR 自動歸入",
+      "chosen": "已選擇",
+      "pick": "要選擇",
+      "unit": "單位不同",
+      "none": "不在 MR 裡"
+    },
+    "explain": {
+      "exact": "材料、規格、單位和 MR 一樣。",
+      "auto": "MR 裡這個材料、這個單位只有這一個規格，系統自動按它統計。",
+      "chosen": "由後台選擇按這一項統計。",
+      "pick": "規格和 MR 不同，或 MR 裡這個材料有幾個規格：請選擇這筆歸入哪一項。",
+      "unit": "MR 裡有這個材料，但單位不同。請先修改這筆記錄的單位，或改關聯正確的 MR。",
+      "none": "關聯的 MR 裡沒有這個材料，按記錄本身統計。"
+    },
+    "choose": "選擇歸入 MR 的哪一項",
+    "chooseFirst": "請先選擇歸入 MR 的哪一項",
+    "sameChoice": "已經是這一項了",
+    "save": "儲存",
+    "cancel": "取消",
+    "change": "更改歸入的規格",
+    "failed": "儲存失敗，請再試一次。",
+    "saved": "已儲存規格核對。",
+    "archiveBlocked": "還有材料和關聯的 MR 對不上：請先在「關聯申請」的「規格核對」處理好（選好歸入哪一項，或改正單位），才能確認歸檔。",
+    "countedAs": "按 MR 的 {specification} · {unit} 統計",
+    "recordedAs": "按 {request} 歸入 · 記錄寫：{material} {specification} {unit}"
+  },
+  "jb303": {
+    "help": "系統按「清運費用設定」自動帶出這個項目、這家供應商的每車單價，按實際驗收車次算費用。如實際單價不同，可以在這裡改，再按【確認核對】。確認核對後就不能再改。",
+    "price": "每車單價（RM）",
+    "priceFor": "{reference} 的每車單價",
+    "setWas": "設定 {amount}",
+    "badPrice": "每車單價要大於 0，最多兩位小數。",
+    "reason": "調整原因（必填）",
+    "reasonPlaceholder": "例如：供應商合約補充協議，本期每車 RM380",
+    "reasonFirst": "改了每車單價，請先寫調整原因",
+    "settingStays": "只改這次結算的單價，「清運費用設定」不會改變。",
+    "reasonShown": "核對時調整每車單價，原因：{reason}"
+  },
+  "jb305": {
+    "cost": {
+      "basis": "只算已結算的設備租賃月結單"
+    }
+  },
+  "jb306": {
+    "off": {
+      "approve": "你的帳號沒有開「金額審批」，不能審批金額。請總部在「用戶 › 編輯 › 權限開關」打開。",
+      "check": "你的帳號沒有開「費用核對」，不能核對。請總部在「用戶 › 編輯 › 權限開關」打開。",
+      "settle": "你的帳號沒有開「結算確認」，不能結算或上傳付款憑證。請總部在「用戶 › 編輯 › 權限開關」打開。"
+    },
+    "notChecked": "這次核對沒有成功，還沒有核對編號。你填的內容都還在，請再試一次。",
+    "notSettled": "這次結算沒有成功，還沒有結算編號，仍在「已核對」。你填的內容都還在，請再試一次。"
   }
 }

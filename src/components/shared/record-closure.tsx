@@ -108,6 +108,7 @@ export function RecordClosurePanel({
 }) {
   const t = useTranslations("recordClosure");
   const tLink = useTranslations("jb279");
+  const tSpec = useTranslations("jb302");
   const tChecklist = useTranslations("jb276");
   const formatter = useDateFormat();
   const queryClient = useQueryClient();
@@ -206,7 +207,12 @@ export function RecordClosurePanel({
   // On a 进场 / 退场 it is one line of 「以下必填资料不完整」 (`mr_link`, QA1
   // audit #15), never hidden behind another reason; on a 领用, its own line.
   const linkLine: { reason: string; action?: ReactNode } | null =
-    state.data.mr_link_missing && !missing.includes("mr_link") ? { reason: tLink("archiveBlocked") } : null;
+    state.data.mr_link_missing && !missing.includes("mr_link")
+      ? { reason: tLink("archiveBlocked") }
+      : // JB302 「归档前的规格核对」: on a 领用 (no checklist) its own line too.
+        state.data.mr_spec_unmatched && !missing.includes("mr_spec")
+        ? { reason: tSpec("archiveBlocked") }
+        : null;
   const shownBlock = blocked ?? linkLine;
   const linkHidden = Boolean(blocked && linkLine);
   const missingReason = checklist && missing.length > 0 ? tChecklist("missingShort") : null;

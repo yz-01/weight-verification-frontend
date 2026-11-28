@@ -9,6 +9,7 @@
  */
 
 import type { ListQuery, Paginated } from "@/interfaces/api";
+import type { RecordReconciliation } from "@/interfaces/reconciliation";
 import { api, fetchAsFile, toastSuccess } from "@/services/api-client";
 
 /** The five amounts, as strings (RM, two places). */
@@ -77,7 +78,8 @@ export interface RentalStatementLinks {
 
 export interface RentalStatement extends RentalStatementRow {
   lines: RentalStatementLine[];
-  check: RentalStatementLinks | null;
+  /** JB308: with the amounts, 凭证编号 and voucher files of its 核对 / 结算. */
+  check: (RentalStatementLinks & Partial<RecordReconciliation>) | null;
   check_voucher_no: string;
   settlement_voucher_no: string;
 }

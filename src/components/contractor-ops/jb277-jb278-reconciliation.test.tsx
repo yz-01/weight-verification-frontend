@@ -219,7 +219,8 @@ describe("JB278: 材料领用 核对与结算 (事项 19)", () => {
     expect(text(settled)).toContain("已结算");
     const detail = read("src/components/contractor-ops/operations-workspaces.tsx");
     // QA1 #23: the panel also says when a 领用 has no 所属公司.
-    expect(detail).toMatch(/row\.status === "COMPLETED" \? \(\s*<ReconciliationPanel\s+links=\{row\.reconciliation\}/);
+    // JB308: the vouchers block follows it in the same aside (`<>…</>`).
+    expect(detail).toMatch(/row\.status === "COMPLETED" \? \(\s*(?:<>\s*)?<ReconciliationPanel\s+links=\{row\.reconciliation\}/);
   });
 
   it("第 4 点: a check lists its issues, each opening the original record", () => {
