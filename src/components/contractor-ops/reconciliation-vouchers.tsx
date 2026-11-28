@@ -32,6 +32,7 @@ import {
   type RecordReconciliation,
 } from "@/interfaces/reconciliation";
 import { useDateFormat } from "@/lib/dates";
+import { rmText } from "@/lib/disposal-fees";
 
 function Fact({ label, children, slot }: { label: string; children: React.ReactNode; slot?: string }) {
   return (
@@ -92,7 +93,7 @@ export function ReconciliationVouchers({
             </Fact>
             {checkedAmount ? (
               <Fact label={t("checkedAmount")} slot="reconciliation-vouchers-checked-amount">
-                <span className="tabular font-semibold">RM {checkedAmount}</span>
+                <span className="tabular font-semibold">{rmText(checkedAmount)}</span>
                 {links.checked_reason ? (
                   <span className="block text-xs text-warning">{t("changedReason", { reason: links.checked_reason })}</span>
                 ) : null}
@@ -134,7 +135,7 @@ export function ReconciliationVouchers({
                 </Fact>
                 {settledAmount ? (
                   <Fact label={t("settledAmount")} slot="reconciliation-vouchers-settled-amount">
-                    <span className="tabular font-semibold">RM {settledAmount}</span>
+                    <span className="tabular font-semibold">{rmText(settledAmount)}</span>
                     {(links.settlement_item_count ?? 1) > 1 ? (
                       <span className="block text-xs text-muted-foreground">
                         {t("settledTogether", { count: links.settlement_item_count ?? 1 })}
