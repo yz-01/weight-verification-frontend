@@ -9875,7 +9875,12 @@
       "disposal_payment_no_required": "請填寫付款編號。",
       "disposal_payment_file_required": "請上傳付款憑證（照片或 PDF）。",
       "disposal_settlement_payment_locked": "{settlement_no} 已經結算完畢並鎖定，付款憑證不能再改。",
-      "disposal_fee_project_required": "請先選項目。清運費用按項目分別設定。"
+      "disposal_fee_project_required": "請先選項目。清運費用按項目分別設定。",
+      "material_request_spec_unmatched": "這筆記錄（{reference}）的材料規格和關聯的 MR 對不上：{materials}。請先在「關聯申請」的「規格核對」選好歸入 MR 的哪一項，才能確認歸檔。",
+      "material_request_spec_choice_invalid": "請選擇關聯 MR 裡同一種材料、同一個單位的那一項。",
+      "disposal_fee_adjust_invalid": "{reference}：每車單價要大於 0，最多兩位小數。",
+      "disposal_fee_adjust_reason_required": "改了每車單價，請寫調整原因。",
+      "disposal_fee_adjust_amounts_off": "你的帳號看不到金額，不能調整每車單價。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -24784,7 +24789,8 @@
       "signatures": "簽收記錄（雙方簽名）",
       "exit_not_confirmed": "還沒有「確認正式退場」",
       "other": "其他必填資料",
-      "mr_link": "關聯 MR／其他申請（在「關聯申請」選好）"
+      "mr_link": "關聯 MR／其他申請（在「關聯申請」選好）",
+      "mr_spec": "規格核對：材料的規格和關聯的 MR 對不上（在「關聯申請」選好）"
     },
     "tick": "我已核對所有資料，確認無誤。",
     "tickRequired": "（必須勾選）",
@@ -25661,5 +25667,54 @@
       "filled": "已經幫你填好 {name} 的資料，可以修改。",
       "noContact": "{name} 的資料裡沒有電話或 Email，請自己填寫。"
     }
+  },
+  "jb302": {
+    "title": "規格核對（按關聯 MR 的材料、規格、單位統計）",
+    "help": "這筆記錄已經關聯 MR，申請累計會按 MR 裡同一種材料的那一項（材料、規格、單位）統計。原始記錄不會因此改變。",
+    "unsettled": "還有材料的規格和 MR 對不上：請在下面選好歸入 MR 的哪一項，才能確認歸檔。",
+    "unsettledReadOnly": "還有材料的規格和 MR 對不上，要由後台負責人選好歸入 MR 的哪一項，才能確認歸檔。",
+    "position": "第 {position} 項",
+    "recorded": "記錄寫：",
+    "countedUnder": "統計歸入：",
+    "noSpec": "沒有規格",
+    "state": {
+      "exact": "和 MR 一致",
+      "auto": "按 MR 自動歸入",
+      "chosen": "已選擇",
+      "pick": "要選擇",
+      "unit": "單位不同",
+      "none": "不在 MR 裡"
+    },
+    "explain": {
+      "exact": "材料、規格、單位和 MR 一樣。",
+      "auto": "MR 裡這個材料、這個單位只有這一個規格，系統自動按它統計。",
+      "chosen": "由後台選擇按這一項統計。",
+      "pick": "規格和 MR 不同，或 MR 裡這個材料有幾個規格：請選擇這筆歸入哪一項。",
+      "unit": "MR 裡有這個材料，但單位不同。請先修改這筆記錄的單位，或改關聯正確的 MR。",
+      "none": "關聯的 MR 裡沒有這個材料，按記錄本身統計。"
+    },
+    "choose": "選擇歸入 MR 的哪一項",
+    "chooseFirst": "請先選擇歸入 MR 的哪一項",
+    "sameChoice": "已經是這一項了",
+    "save": "儲存",
+    "cancel": "取消",
+    "change": "更改歸入的規格",
+    "failed": "儲存失敗，請再試一次。",
+    "saved": "已儲存規格核對。",
+    "archiveBlocked": "還有材料的規格和關聯的 MR 對不上：請先在「關聯申請」的「規格核對」選好，才能確認歸檔。",
+    "countedAs": "按 MR 的 {specification}（{unit}）統計",
+    "recordedAs": "按 {request} 歸入（記錄寫：{material} {specification} {unit}）"
+  },
+  "jb303": {
+    "help": "系統按「清運費用設定」自動帶出這個項目、這家供應商的每車單價，按實際驗收車次算費用。如實際單價不同，可以在這裡改，再按【確認核對】。確認核對後就不能再改。",
+    "price": "每車單價（RM）",
+    "priceFor": "{reference} 的每車單價",
+    "setWas": "設定 {amount}",
+    "badPrice": "每車單價要大於 0，最多兩位小數。",
+    "reason": "調整原因（必填）",
+    "reasonPlaceholder": "例如：供應商合約補充協議，本期每車 RM380",
+    "reasonFirst": "改了每車單價，請先寫調整原因",
+    "settingStays": "只改這次結算的單價，「清運費用設定」不會改變。",
+    "reasonShown": "核對時調整每車單價，原因：{reason}"
   }
 }

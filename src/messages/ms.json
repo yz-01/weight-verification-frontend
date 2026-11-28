@@ -9875,7 +9875,12 @@
       "disposal_payment_no_required": "Masukkan nombor bayaran.",
       "disposal_payment_file_required": "Muat naik baucar bayaran (foto atau PDF).",
       "disposal_settlement_payment_locked": "{settlement_no} sudah diselesaikan dan dikunci; baucar bayarannya tidak boleh diubah lagi.",
-      "disposal_fee_project_required": "Pilih projek dahulu. Yuran pembersihan ditetapkan mengikut projek."
+      "disposal_fee_project_required": "Pilih projek dahulu. Yuran pembersihan ditetapkan mengikut projek.",
+      "material_request_spec_unmatched": "Spesifikasi bahan pada rekod ini ({reference}) tidak sepadan dengan MR yang dipautkan: {materials}. Pilih baris MR di “Semakan spesifikasi” sebelum mengarkibkan.",
+      "material_request_spec_choice_invalid": "Pilih baris MR yang dipautkan dengan bahan dan unit yang sama.",
+      "disposal_fee_adjust_invalid": "{reference}: fi setiap trip mesti melebihi 0, paling banyak dua tempat perpuluhan.",
+      "disposal_fee_adjust_reason_required": "Anda mengubah fi setiap trip: tulis sebabnya.",
+      "disposal_fee_adjust_amounts_off": "Akaun anda tidak melihat amaun, jadi tidak boleh mengubah fi setiap trip."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -24784,7 +24789,8 @@
       "signatures": "Rekod tandatangan terima (kedua-dua pihak)",
       "exit_not_confirmed": "\"Sahkan keluar rasmi\" belum dibuat",
       "other": "Maklumat wajib lain",
-      "mr_link": "Pautan ke MR / permohonan lain (pilih di 「Permohonan dipautkan」)"
+      "mr_link": "Pautan ke MR / permohonan lain (pilih di 「Permohonan dipautkan」)",
+      "mr_spec": "Semakan spesifikasi: spesifikasi bahan tidak sepadan dengan MR yang dipautkan (pilih di “Permohonan dipautkan”)"
     },
     "tick": "Saya telah menyemak semua maklumat dan ia betul.",
     "tickRequired": "(wajib ditanda)",
@@ -25661,5 +25667,54 @@
       "filled": "Butiran {name} sudah diisi untuk anda; anda boleh mengubahnya.",
       "noContact": "{name} tiada telefon atau e-mel dalam rekod. Sila taipkan sendiri."
     }
+  },
+  "jb302": {
+    "title": "Semakan spesifikasi (dikira mengikut bahan, spesifikasi dan unit MR yang dipautkan)",
+    "help": "Rekod ini dipautkan kepada MR, jadi jumlah permohonan mengiranya di bawah baris MR bagi bahan yang sama (bahan, spesifikasi, unit). Rekod asal tidak berubah.",
+    "unsettled": "Spesifikasi bahan tidak sepadan dengan MR: pilih baris MR di bawah sebelum mengarkibkan.",
+    "unsettledReadOnly": "Spesifikasi bahan tidak sepadan dengan MR. Pejabat perlu memilih baris MR sebelum rekod boleh diarkibkan.",
+    "position": "Item {position}",
+    "recorded": "Rekod menyatakan:",
+    "countedUnder": "Dikira di bawah:",
+    "noSpec": "tiada spesifikasi",
+    "state": {
+      "exact": "Sepadan dengan MR",
+      "auto": "Dikira mengikut MR",
+      "chosen": "Dipilih",
+      "pick": "Perlu pilih",
+      "unit": "Unit berbeza",
+      "none": "Tiada dalam MR"
+    },
+    "explain": {
+      "exact": "Bahan, spesifikasi dan unit sama dengan MR.",
+      "auto": "MR hanya ada spesifikasi ini bagi bahan ini dalam unit ini, jadi ia dikira di bawahnya.",
+      "chosen": "Pejabat memilih baris ini.",
+      "pick": "Spesifikasi berbeza daripada MR, atau MR ada beberapa spesifikasi bahan ini: pilih baris yang betul.",
+      "unit": "MR ada bahan ini tetapi dalam unit lain. Betulkan unit rekod ini dahulu, atau pautkan MR yang betul.",
+      "none": "MR yang dipautkan tiada bahan ini, jadi ia dikira seperti direkodkan."
+    },
+    "choose": "Pilih baris MR",
+    "chooseFirst": "Pilih baris MR dahulu",
+    "sameChoice": "Baris ini sudah dipilih",
+    "save": "Simpan",
+    "cancel": "Batal",
+    "change": "Tukar spesifikasi",
+    "failed": "Gagal menyimpan. Sila cuba lagi.",
+    "saved": "Semakan spesifikasi disimpan.",
+    "archiveBlocked": "Spesifikasi bahan tidak sepadan dengan MR yang dipautkan: pilih di “Semakan spesifikasi” pada “Permohonan dipautkan” sebelum mengarkibkan.",
+    "countedAs": "Dikira sebagai {specification} ({unit}) MR",
+    "recordedAs": "Dikira mengikut {request} (rekod menyatakan: {material} {specification} {unit})"
+  },
+  "jb303": {
+    "help": "Fi setiap trip bagi projek dan pembekal ini diambil daripada Yuran pembersihan, didarab dengan trip yang diterima. Jika harga sebenar berbeza, ubah di sini sebelum menekan Sahkan semakan. Ia tidak boleh diubah selepas semakan.",
+    "price": "Fi setiap trip (RM)",
+    "priceFor": "Fi setiap trip untuk {reference}",
+    "setWas": "Ditetapkan: {amount}",
+    "badPrice": "Fi setiap trip mesti melebihi 0, paling banyak dua tempat perpuluhan.",
+    "reason": "Sebab perubahan (wajib)",
+    "reasonPlaceholder": "cth. adendum kontrak pembekal: RM380 setiap trip tempoh ini",
+    "reasonFirst": "Anda mengubah fi setiap trip: tulis sebabnya dahulu",
+    "settingStays": "Hanya harga penyelesaian ini berubah; Yuran pembersihan kekal.",
+    "reasonShown": "Fi setiap trip diubah semasa semakan - sebab: {reason}"
   }
 }

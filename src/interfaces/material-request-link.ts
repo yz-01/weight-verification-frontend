@@ -33,6 +33,45 @@ export interface RecordRequestLink extends LinkableRequest {
   linked_by_name: string;
 }
 
+/**
+ * JB302 (客户 11-28e): how one material of a linked record is counted against
+ * the lines of its MR. `exact` the same 材料、规格、单位; `auto` the only
+ * 规格 to count under; `chosen` the office chose; `pick` the office must
+ * choose; `unit` the MR holds it in another unit; `none` not in the MR.
+ */
+export type SpecMatchState = "exact" | "auto" | "chosen" | "pick" | "unit" | "none";
+export type SpecMatchTarget = "receipt_line" | "outgoing" | "issue_line";
+
+/** A line of a linked MR a material may be counted under. */
+export interface SpecMatchOption {
+  id: string;
+  request: string;
+  request_no: string;
+  position: number;
+  material_name: string;
+  specification: string;
+  unit: string;
+  quantity: string | null;
+}
+
+/** One material of the record under 「规格核对」. */
+export interface SpecMatch {
+  target: SpecMatchTarget;
+  id: string;
+  position: number;
+  material_name: string;
+  specification: string;
+  unit: string;
+  quantity: string | null;
+  state: SpecMatchState;
+  /** Waits for the office before 确认归档. */
+  unsettled: boolean;
+  /** The MR line it is counted under, if any. */
+  request_line: SpecMatchOption | null;
+  /** The lines the office may choose from (same material and unit). */
+  options: SpecMatchOption[];
+}
+
 /** A record's links (`get_links` / `set_links`). */
 export interface RecordRequestLinks {
   kind: RequestLinkRecordKind;
@@ -45,6 +84,10 @@ export interface RecordRequestLinks {
   /** An office account that acts on the record, before it is archived. */
   may_change: boolean;
   links: RecordRequestLink[];
+  /** JB302 「规格核对」: each material and the MR line it is counted under. */
+  matches?: SpecMatch[];
+  /** A material still waits for the office's choice (archive refused). */
+  spec_unmatched?: boolean;
 }
 
 /** 进场 / 退场 / 领用 as one request's page lists them. */
@@ -60,6 +103,8 @@ export interface LinkedRecordMaterial {
   applied_quantity: string | null;
   /** The material is one of the request's (「不在申请里」 when false). */
   in_request: boolean;
+  /** JB302: counted under this MR line rather than its own words. */
+  counted_as?: { request_no: string; material_name: string; specification: string; unit: string } | null;
 }
 
 export interface LinkedRecord {

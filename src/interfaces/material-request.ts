@@ -299,6 +299,11 @@ export interface MaterialRequestTotalRecord {
   status: string;
   execution_status?: string;
   submitted_by_name?: string;
+  /**
+   * JB302: a delivery / return counted here by the MR it is linked to - what
+   * the record itself says (「记录写：…」). Absent or null otherwise.
+   */
+  recorded_as?: { material_name: string; specification: string; unit: string; request_no: string } | null;
   /** Where the record opens. */
   href: string;
 }

@@ -287,6 +287,7 @@ export function TotalRecordsDialog({
   onClose: () => void;
 }) {
   const t = useTranslations("materialRequest");
+  const tRoot = useTranslations();
   const router = useRouter();
   const df = useDateFormat();
   const unitLabel = useUnitLabel();
@@ -338,6 +339,16 @@ export function TotalRecordsDialog({
                   <TableCell className="font-medium">
                     {item.reference}
                     <span className="block text-2xs text-muted-foreground">{t(`jb243.kind.${item.kind}`)}</span>
+                    {item.recorded_as ? (
+                      <span className="block text-2xs font-normal text-muted-foreground" data-recorded-as>
+                        {tRoot("jb302.recordedAs", {
+                          request: item.recorded_as.request_no,
+                          material: item.recorded_as.material_name,
+                          specification: item.recorded_as.specification || tRoot("jb302.noSpec"),
+                          unit: unitLabel(item.recorded_as.unit),
+                        })}
+                      </span>
+                    ) : null}
                   </TableCell>
                   <TableCell>{item.date ? df.dateTime(item.date) : "—"}</TableCell>
                   <TableCell className="tabular text-right">

@@ -2771,6 +2771,12 @@ export interface RecordClosureState {
    * 其他申请 yet - 「未完成关联，不允许确认归档」. The server refuses it too.
    */
   mr_link_missing?: boolean;
+  /**
+   * JB302 (客户 11-28e 「归档前的规格核对」): linked, but a material its MR
+   * holds under another 规格 / unit still waits for the office's choice on
+   * the 「关联申请」 card. On a 进场 / 退场 it is the checklist's `mr_spec`.
+   */
+  mr_spec_unmatched?: boolean;
   closure: {
     confirmed_by: string;
     confirmed_by_name: string;

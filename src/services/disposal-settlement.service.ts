@@ -157,6 +157,8 @@ export interface DisposalSettlementRow {
   /** The send window fills these in (「发送给供应商」). */
   supplier_contact?: { person: string; phone: string; email: string };
   amounts_hidden?: boolean;
+  /** JB303: why a 每车单价 differs from 清运费用设定 (empty: none does). */
+  adjust_reason?: string;
 }
 
 /** One 付款凭证 file. */
@@ -177,6 +179,9 @@ export interface DisposalSettlementLine {
   trip_count: number;
   fee_per_trip: string | null;
   fee_amount: string | null;
+  /** JB303: the price in 清运费用设定, and whether 确认核对 changed it. */
+  set_fee_per_trip?: string | null;
+  fee_adjusted?: boolean;
   weight_kg: string | null;
 }
 
@@ -211,9 +216,15 @@ export const getDisposalSettlementSummary = (filters: DisposalSettlementFilters)
   api.get<DisposalSettlementSummary>("/api/disposal-settlements/summary/", filterQuery(filters));
 
 /** 【确认核对】: the ticked jobs of one project and one supplier → one READY settlement. */
-export async function createDisposalSettlement(disposalIds: readonly string[]): Promise<DisposalSettlement> {
+export async function createDisposalSettlement(
+  disposalIds: readonly string[],
+  adjust?: { fees: Record<string, string>; reason: string },
+): Promise<DisposalSettlement> {
+  // JB303 (客户 11-28f): 「如实际单价不同，可在确认核对前调整」 - the typed
+  // 每车单价 by job, and why. Only sent when one was changed.
   const settlement = await api.post<DisposalSettlement>("/api/disposal-settlements/", {
     disposal_ids: [...disposalIds],
+    ...(adjust && Object.keys(adjust.fees).length ? { fees: adjust.fees, adjust_reason: adjust.reason } : {}),
   });
   return settlement;
 }

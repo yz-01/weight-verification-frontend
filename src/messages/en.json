@@ -9875,7 +9875,12 @@
       "disposal_payment_no_required": "Enter the payment number.",
       "disposal_payment_file_required": "Upload the payment voucher (photo or PDF).",
       "disposal_settlement_payment_locked": "{settlement_no} is settled and locked; its payment voucher can no longer change.",
-      "disposal_fee_project_required": "Choose the project first. Clearance fees are set per project."
+      "disposal_fee_project_required": "Choose the project first. Clearance fees are set per project.",
+      "material_request_spec_unmatched": "The specification of a material on this record ({reference}) does not match the linked MR: {materials}. Choose which MR line it belongs to under “Specification check” before archiving.",
+      "material_request_spec_choice_invalid": "Choose a line of the linked MR with the same material and unit.",
+      "disposal_fee_adjust_invalid": "{reference}: the fee per trip must be above 0, with at most two decimals.",
+      "disposal_fee_adjust_reason_required": "You changed a fee per trip: write the reason.",
+      "disposal_fee_adjust_amounts_off": "Your account does not see amounts, so it cannot change a fee per trip."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -24784,7 +24789,8 @@
       "signatures": "Signed receipt (both signatures)",
       "exit_not_confirmed": "\"Confirm formal exit\" not done yet",
       "other": "Other required items",
-      "mr_link": "Link to its MR / other request (choose it under 「Linked request」)"
+      "mr_link": "Link to its MR / other request (choose it under 「Linked request」)",
+      "mr_spec": "Specification check: a material's specification does not match the linked MR (choose it under “Linked request”)"
     },
     "tick": "I have checked all the information and it is correct.",
     "tickRequired": "(required)",
@@ -25661,5 +25667,54 @@
       "filled": "{name}'s details are filled in for you; you can change them.",
       "noContact": "{name} has no phone or email on file. Please type them in."
     }
+  },
+  "jb302": {
+    "title": "Specification check (counted by the linked MR's material, specification and unit)",
+    "help": "This record is linked to an MR, so the request totals count it under the MR's line for the same material (material, specification, unit). The original record does not change.",
+    "unsettled": "A material's specification does not match the MR: choose below which MR line it belongs to before archiving.",
+    "unsettledReadOnly": "A material's specification does not match the MR. The office must choose which MR line it belongs to before it can be archived.",
+    "position": "Item {position}",
+    "recorded": "Record says:",
+    "countedUnder": "Counted under:",
+    "noSpec": "no specification",
+    "state": {
+      "exact": "Matches the MR",
+      "auto": "Counted by the MR",
+      "chosen": "Chosen",
+      "pick": "Choose one",
+      "unit": "Different unit",
+      "none": "Not in the MR"
+    },
+    "explain": {
+      "exact": "Material, specification and unit are the same as the MR.",
+      "auto": "The MR has only this specification of the material in this unit, so it is counted under it.",
+      "chosen": "The office chose this line.",
+      "pick": "The specification differs from the MR, or the MR has several specifications of this material: choose which line it belongs to.",
+      "unit": "The MR has this material, but in another unit. Correct this record's unit first, or link the right MR.",
+      "none": "The linked MR does not have this material, so it is counted as recorded."
+    },
+    "choose": "Choose the MR line",
+    "chooseFirst": "Choose the MR line first",
+    "sameChoice": "This line is already chosen",
+    "save": "Save",
+    "cancel": "Cancel",
+    "change": "Change the specification",
+    "failed": "Could not save. Please try again.",
+    "saved": "Specification check saved.",
+    "archiveBlocked": "A material's specification does not match the linked MR: choose it under “Specification check” on “Linked request” before archiving.",
+    "countedAs": "Counted as the MR's {specification} ({unit})",
+    "recordedAs": "Counted by {request} (record says: {material} {specification} {unit})"
+  },
+  "jb303": {
+    "help": "The fee per trip for this project and supplier comes from Clearance fees, times the accepted trips. If the real price differs, change it here before pressing Confirm check. It cannot be changed after the check.",
+    "price": "Fee per trip (RM)",
+    "priceFor": "Fee per trip for {reference}",
+    "setWas": "Set: {amount}",
+    "badPrice": "The fee per trip must be above 0, with at most two decimals.",
+    "reason": "Reason for the change (required)",
+    "reasonPlaceholder": "e.g. supplier contract addendum: RM380 per trip this period",
+    "reasonFirst": "You changed a fee per trip: write the reason first",
+    "settingStays": "Only this settlement's price changes; Clearance fees stay as they are.",
+    "reasonShown": "Fee per trip changed at the check - reason: {reason}"
   }
 }
