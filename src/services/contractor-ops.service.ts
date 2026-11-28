@@ -12,6 +12,7 @@ import type {
   ArchiveQueueDetail,
   ArchiveQueuePage,
   ArchiveQueueRow,
+  PackageClaimScope,
   CategoryGroup,
   CompanyCategoriesAdded,
   CompanyCategory,
@@ -1796,10 +1797,15 @@ export const getEvidencePackage = (id: string, round?: number) =>
 
 /** Records of one column in one project, to tick from. */
 export const getPackageCandidates = (
-  /** `month` (`YYYY-MM`, JB52): only that month's records. */
-  query: ListQuery & { kind: ArchiveRecordKind; project: string; month?: string },
+  /**
+   * `month` (`YYYY-MM`, JB52): only that month's records. `package` (JB309):
+   * the package being filled - a subcontractor Progress Claim narrows to its
+   * 施工分类 and 实际施工日期范围 unless `scope` is `all`, and marks the
+   * records another claim holds (`claimed_by`).
+   */
+  query: ListQuery & { kind: ArchiveRecordKind; project: string; month?: string; package?: string; scope?: "all" },
 ) =>
-  api.list<ArchiveQueueRow>(
+  api.get<Paginated<ArchiveQueueRow> & { claim_scope?: PackageClaimScope }>(
     "/api/evidence-packages/get_candidates/",
     query,
   );

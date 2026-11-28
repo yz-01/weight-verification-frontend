@@ -26,6 +26,7 @@ import { ArrowLeft, Package, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { AnswerLines } from "@/components/contractor-ops/package-exchange";
+import { claimedByText } from "@/components/contractor-ops/package-claim-ledger";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
@@ -428,6 +429,7 @@ export interface PackList {
  */
 export function usePackList<T>(config: PackListConfig<T>, rows: readonly T[]): PackList {
   const t = useTranslations("multiEngine.collect");
+  const tEngine = useTranslations("multiEngine");
   const { can } = useAuth();
   const { collecting } = usePackCollect();
   const queryClient = useQueryClient();
@@ -507,7 +509,13 @@ export function usePackList<T>(config: PackListConfig<T>, rows: readonly T[]): P
         </span>
       );
     }
-    const reason = row?.reason ? t(`reason.${row.reason}`) : t("reason.loading");
+    const reason =
+      row?.reason === "claimed" && row.claimed_by
+        ? // JB309: which claim holds it, its Claim No. and how far it got.
+          t("reason.claimed", { used: claimedByText(tEngine, row.claimed_by) })
+        : row?.reason
+          ? t(`reason.${row.reason}`)
+          : t("reason.loading");
     // The reason sits on a wrapper too: a disabled control shows no tooltip
     // of its own in every browser.
     if (row?.in_package) {

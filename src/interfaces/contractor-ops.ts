@@ -1735,6 +1735,40 @@ export interface ArchiveQueueRow<K extends string = ArchiveRecordKind> {
   archivable: boolean;
   /** Who archived it for everybody and when, or null while it is not archived. */
   archived: { by: string; at: string | null } | null;
+  /**
+   * JB309 (客户 11-28l 第 2 点): Multi Engine's candidates for a subcontractor
+   * Progress Claim - another claim already holds this record under the same
+   * 施工分类 (「已用于 PKG-… · Claim No. … · 已结算」). Absent otherwise.
+   */
+  claimed_by?: ClaimedBy;
+}
+
+/** JB309: where a 施工明细 is already claimed - which claim and how far it got. */
+export type ClaimLedgerStage =
+  | "DRAFT"
+  | "CONFIRMED"
+  | "IN_REVIEW"
+  | "RETURNED"
+  | "APPROVED"
+  | "COMPLETED"
+  | "CHECKED"
+  | "SETTLED";
+
+export interface ClaimedBy {
+  package_no: string;
+  /** 分包商工程款申请编号（Claim No.）; "" on a claim made before JB309. */
+  claim_ref_no: string;
+  stage: ClaimLedgerStage;
+}
+
+/** JB309: what Multi Engine's candidates of a subcontractor Progress Claim were narrowed by. */
+export interface PackageClaimScope {
+  /** False when 「只看本申请…」 was turned off (`scope=all`). */
+  narrowed: boolean;
+  phase: string | null;
+  phase_name: string;
+  work_from: string | null;
+  work_to: string | null;
 }
 
 /**
@@ -2486,7 +2520,11 @@ export type PackRowReason =
   /** A voided rain record (JB192 做法 二.6): 「不能再勾选打包」. */
   | "voided"
   /** A document not yet archived (JB193 三 3, the client's 10-26 rule JB25). */
-  | "not_archived";
+  | "not_archived"
+  /** JB304: a rejected / withdrawn 杂费报销. */
+  | "ended"
+  /** JB309: another subcontractor Progress Claim holds it under the same 施工分类 (`claimed_by`). */
+  | "claimed";
 
 /** One row of a module's list, as Multi Engine sees it. */
 export interface PackRowStatus {
@@ -2496,6 +2534,8 @@ export interface PackRowStatus {
   in_package: boolean;
   can_add: boolean;
   reason: PackRowReason;
+  /** JB309: with `reason: "claimed"`, the claim that holds it. */
+  claimed_by?: ClaimedBy;
 }
 
 /** The package being put together, as far as a module's list needs it. */

@@ -9887,6 +9887,7 @@
       "disposal_fee_adjust_reason_required": "Anda mengubah fi setiap trip: tulis sebabnya.",
       "disposal_fee_adjust_amounts_off": "Akaun anda tidak melihat amaun, jadi tidak boleh mengubah fi setiap trip.",
       "package_ended_record": "{records} telah ditolak atau ditarik balik dan tidak boleh diluluskan atau diselesaikan. Keluarkan dari pakej dahulu; jika sudah dihantar, penyemak hanya boleh memulangkannya.",
+      "package_record_claimed": "{records} sudah dituntut dalam {packages} di bawah fasa pembinaan yang sama. Rekod tapak yang telah dituntut tidak boleh dituntut, diluluskan atau diselesaikan sekali lagi. Keluarkan dari pakej dahulu; jika sudah dihantar, penyemak hanya boleh memulangkannya. Gambar tidak dihadkan.",
       "package_file_locked": "Fail ini telah dihantar bersama pusingan sebelumnya, jadi ia tidak boleh dipadam. Hanya fail yang ditambah untuk pusingan ini, sebelum anda menandatangan semula dan menghantar, boleh dipadam.",
       "finance_approve_amounts_off": "Suis “Luluskan amaun” anda dimatikan, jadi anda tidak boleh meluluskan amaun. Minta ibu pejabat menghidupkannya di Pengguna › Edit › Suis kebenaran.",
       "finance_check_costs_off": "Suis “Semak kos” anda dimatikan, jadi anda tidak boleh menyemak. Minta ibu pejabat menghidupkannya di Pengguna › Edit › Suis kebenaran.",
@@ -12591,7 +12592,8 @@
         "loading": "Sedang membaca status pakej…",
         "voided": "Rekod hujan ini sudah dibatalkan dan tidak boleh dipakej",
         "not_archived": "Dokumen ini belum diarkibkan; ia boleh dimasukkan ke dalam pakej selepas diarkibkan",
-        "ended": "Tuntutan sundry ini telah ditolak atau ditarik balik dan tidak boleh dibungkus untuk kelulusan"
+        "ended": "Tuntutan sundry ini telah ditolak atau ditarik balik dan tidak boleh dibungkus untuk kelulusan",
+        "claimed": "{used}; ia tidak boleh dituntut sekali lagi di bawah fasa pembinaan yang sama"
       },
       "what": {
         "status": "Status pakej",
@@ -12803,6 +12805,24 @@
     },
     "openRecord": "Buka rekod penuh",
     "monthOnly": "Hanya rekod {month}",
+    "claimLedger": {
+      "scopeOnly": "Hanya fasa pembinaan dan tarikh kerja sebenar tuntutan ini",
+      "scopeDetail": "Fasa pembinaan: {phase} · Tarikh kerja sebenar: {from} hingga {to} (fasa hanya menapis rekod kemajuan)",
+      "notSet": "belum diisi",
+      "used": "Sudah dituntut dalam {package}",
+      "usedWithNo": "Sudah dituntut dalam {package} · Claim No. {claimNo}",
+      "cannotPick": "Rekod tapak ini sudah dituntut di bawah fasa pembinaan yang sama dan tidak boleh dituntut sekali lagi. Gambar tidak dihadkan: ia boleh menyokong tuntutan di bawah fasa lain.",
+      "stage": {
+        "DRAFT": "Draf",
+        "CONFIRMED": "Disahkan, belum dihantar",
+        "IN_REVIEW": "Dalam kelulusan",
+        "RETURNED": "Dipulangkan untuk bahan tambahan",
+        "APPROVED": "Diluluskan, menunggu diarkibkan",
+        "COMPLETED": "Diarkibkan, menunggu semakan",
+        "CHECKED": "Disemak, menunggu penyelesaian",
+        "SETTLED": "Diselesaikan"
+      }
+    },
     "claimInfo": {
       "title": "Butiran Progress Claim",
       "claimNo": "No. tuntutan asal",
