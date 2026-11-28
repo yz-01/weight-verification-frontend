@@ -9788,6 +9788,10 @@
       "package_amount_reason_required": "批准金额和申请金额不一样，请填写审批原因。",
       "package_not_approved": "要等全部审核通过，才能确认完毕并归档。",
       "package_completed": "这个资料包已经确认完毕并归档，不能再改动。",
+      "package_project_completes": "总部负责审核批准，「确认完毕并归档」由项目经理去按。",
+      "package_claim_kind_required": "请选择 Claim 类型（材料到场或工程进度）。",
+      "package_claim_category_required": "请选择 Claim 分类。",
+      "package_claim_subcontractor_required": "这是分包商的 Claim，请选择对应的分包商。不选的话，归档后会显示「不需要结算」，不能进入结算。",
       "company_module_invalid": "请只勾选这家公司有的业务模块。",
       "company_module_switched_off": "你们公司没有开通这个模块。要用，请联系 MSE 开通。",
       "consultant_grant_changed": "你的项目权限已更新，请重新登录。",
@@ -25603,6 +25607,16 @@
       "notCounted": "还有 {amount} 未结算，不算在内",
       "basis": "只算已结算的，按审核归档日期"
     }
+  },
+  "jb307b": {
+    "required": "Claim 类型和 Claim 分类必须填写。分包商的 Claim 还要选对应的分包商，归档后才能进入核对与结算。",
+    "subRequired": "这是分包商的 Claim，必须选择对应的分包商。不选的话，归档后会显示「不需要结算」，不能进入结算。",
+    "subOptional": "这个分类不是分包商的 Claim，可以不选分包商；不选的话，归档后显示「不需要结算」。",
+    "completesOnProject": "总部已审核批准。「确认完毕并归档」由项目经理去按，总部这里不用按。",
+    "settleNoManage": "你没有「制作及发送资料包」权限，不能做 Progress Claim 的核对与结算。",
+    "settleNoAmounts": "你的「金额查看」已关闭，核对与结算都是金额，所以不能做。请找公司管理员开通。",
+    "settleBothOff": "你的账号没有开「费用核对」和「结算确认」，不能核对与结算。请总部在「用户 › 编辑 › 权限开关」打开。",
+    "chooseCategory": "请选择 Claim 分类"
   },
   "jb299": {
     "fee": {

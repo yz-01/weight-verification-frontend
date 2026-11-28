@@ -9788,6 +9788,10 @@
       "package_amount_reason_required": "Jumlah diluluskan berbeza daripada jumlah tuntutan: tulis sebabnya.",
       "package_not_approved": "Ia boleh diselesaikan selepas semua penyemak meluluskannya.",
       "package_completed": "Pakej ini telah selesai dan diarkibkan; tiada lagi perubahan.",
+      "package_project_completes": "Ibu pejabat menyemak dan meluluskan; pengurus projek yang menekan “Selesai dan arkibkan”.",
+      "package_claim_kind_required": "Pilih jenis tuntutan (bahan di tapak atau kemajuan).",
+      "package_claim_category_required": "Pilih kategori tuntutan.",
+      "package_claim_subcontractor_required": "Ini tuntutan subkontraktor: pilih subkontraktornya. Tanpanya, selepas diarkibkan ia menunjukkan “Tidak perlu diselesaikan” dan tidak boleh diselesaikan.",
       "company_module_invalid": "Tanda hanya modul perniagaan yang ada pada syarikat ini.",
       "company_module_switched_off": "Modul ini tidak dibuka untuk syarikat anda. Untuk menggunakannya, minta MSE membukanya.",
       "consultant_grant_changed": "Akses projek anda telah dikemas kini. Sila log masuk semula.",
@@ -25603,6 +25607,16 @@
       "notCounted": "Lagi {amount} belum diselesaikan, tidak dikira",
       "basis": "Hanya Claim yang diselesaikan, mengikut tarikh kelulusan"
     }
+  },
+  "jb307b": {
+    "required": "Jenis tuntutan dan kategori tuntutan wajib diisi. Tuntutan subkontraktor juga perlu subkontraktornya supaya boleh disemak dan diselesaikan selepas diarkibkan.",
+    "subRequired": "Ini tuntutan subkontraktor: pilih subkontraktornya. Tanpanya, selepas diarkibkan ia menunjukkan “Tidak perlu diselesaikan” dan tidak boleh diselesaikan.",
+    "subOptional": "Kategori ini bukan tuntutan subkontraktor, jadi subkontraktor boleh dibiarkan kosong; tanpanya ia menunjukkan “Tidak perlu diselesaikan” selepas diarkibkan.",
+    "completesOnProject": "Ibu pejabat telah meluluskannya. Pengurus projek yang menekan “Selesai dan arkibkan”; ibu pejabat tidak perlu.",
+    "settleNoManage": "Anda tiada kebenaran “Sedia dan hantar pakej”, jadi tidak boleh menyemak atau menyelesaikan Progress Claim.",
+    "settleNoAmounts": "“Lihat jumlah wang” anda dimatikan, dan semakan serta penyelesaian semuanya jumlah wang. Minta pentadbir syarikat menghidupkannya.",
+    "settleBothOff": "Suis “Semak kos” dan “Sahkan penyelesaian” anda dimatikan, jadi tidak boleh menyemak atau menyelesaikan. Minta ibu pejabat menghidupkannya di Pengguna › Edit › Suis kebenaran.",
+    "chooseCategory": "Pilih kategori tuntutan"
   },
   "jb299": {
     "fee": {

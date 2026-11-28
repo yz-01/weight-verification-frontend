@@ -36,6 +36,7 @@ import {
 import { ReconcileSettleButton } from "@/components/contractor-ops/return-checks";
 import { useSeesAmounts } from "@/hooks/use-sees-amounts";
 import { useKeptFilters, useWriteSearchParams } from "@/lib/kept-filters";
+import { useMoneyStep } from "@/lib/money-steps";
 import {
   ClaimCategoriesDialog,
   ClaimInfoBlock,
@@ -47,7 +48,7 @@ import {
   claimInfoPayload,
   periodLabel,
   sendStatusKeys,
-  useClaimInfoComplete,
+  useClaimInfoReason,
   type ClaimInfoValue,
 } from "@/components/contractor-ops/package-claim-parts";
 import { usePackageRecordOpener } from "@/components/contractor-ops/package-record-opener";
@@ -243,6 +244,7 @@ export function MultiEngineWorkspace() {
 function PackageList({ type, ready }: { type: PackageType | ""; ready: boolean }) {
   const t = useTranslations("multiEngine");
   const settleWords = useTranslations("jb298");
+  const jb307 = useTranslations("jb307b");
   const loop = useTranslations("jb252");
   const formatter = useDateFormat();
   const { can } = useAuth();
@@ -281,6 +283,22 @@ function PackageList({ type, ready }: { type: PackageType | ""; ready: boolean }
   const settleState = isClaimTab && settleTab !== "all" ? CLAIM_TAB_STATE[settleTab] : undefined;
   const seesAmounts = useSeesAmounts();
   const claimWindows = useClaimWindows();
+  // JB307-5 (客户 11-28j: 「目前「全部类型」页面没有显示「核对与结算」按钮，进入
+  // Progress Claim 分类后才出现」): 【核对与结算】 on 全部类型 too (it opens the
+  // Progress Claim one). Who may: 「制作及发送资料包」 + 「金额查看」 + 「费用核对」
+  // or 「结算确认」 (JB306) - anybody else sees it greyed with the reason.
+  const settleWhere = isClaimTab || type === "";
+  const checkStep = useMoneyStep("check");
+  const settleStep = useMoneyStep("settle");
+  const settleLocked = !can(CLAIM_SETTLE_PERMISSION)
+    ? jb307("settleNoManage")
+    : !seesAmounts
+      ? jb307("settleNoAmounts")
+      : checkStep.off && settleStep.off
+        ? jb307("settleBothOff")
+        : undefined;
+  const settleFirstStep =
+    isClaimTab && settleTab === "checked" ? "settle" : checkStep.off ? "settle" : "check";
   const [managingCategories, setManagingCategories] = useState(false);
   const claimFilters = isClaimTab
     ? {
@@ -339,20 +357,23 @@ function PackageList({ type, ready }: { type: PackageType | ""; ready: boolean }
         title={t("title")}
         subtitle={t("subtitle")}
         action={
-          can("package.manage") || (isClaimTab && can("category.manage")) ? (
+          can("package.manage") || settleWhere || (isClaimTab && can("category.manage")) ? (
             <div className="flex flex-wrap gap-2">
-              {/* JB298: 【核对与结算】, the equipment rental statements' button. */}
-              {isClaimTab && seesAmounts && (
+              {/* JB298: 【核对与结算】, the equipment rental statements' button; JB307-5:
+                  on 全部类型 too, and greyed with the reason for who may not. After
+                  a step the Progress Claim tab shows where the claims went. */}
+              {settleWhere && (
                 <ReconcileSettleButton
                   kind="CLAIM"
-                  step={settleTab === "checked" ? "settle" : "check"}
+                  step={settleFirstStep}
                   permission={CLAIM_SETTLE_PERMISSION}
+                  locked={settleLocked}
                   onChecked={() => {
-                    writeParams({ settle: "checked" });
+                    writeParams({ type: "PROGRESS_CLAIM", settle: "checked" });
                     setPage(1);
                   }}
                   onSettled={() => {
-                    writeParams({ settle: "settled" });
+                    writeParams({ type: "PROGRESS_CLAIM", settle: "settled" });
                     setPage(1);
                   }}
                 />
@@ -677,15 +698,15 @@ function NewPackageDialog({
 }) {
   const t = useTranslations("multiEngine");
   const common = useTranslations("common");
-  const claims = useTranslations("claims");
   const queryClient = useQueryClient();
   const [project, setProject] = useState(initialProject);
   const [name, setName] = useState("");
   const [packageType, setPackageType] = useState<PackageType>(initialType);
-  // JB52 第 1 点: a Progress Claim's 期数 / 类型 / 分类 / 分包商, all optional.
+  // JB52 第 1 点: a Progress Claim's 期数 / 类型 / 分类 / 分包商; JB307-3: 类型 and
+  // 分类 required, the 分包商 of a subcontractor's claim too.
   const [claimInfo, setClaimInfo] = useState<ClaimInfoValue>(EMPTY_CLAIM_INFO);
   const isClaim = packageType === "PROGRESS_CLAIM";
-  const claimComplete = useClaimInfoComplete(project, claimInfo);
+  const claimMissing = useClaimInfoReason(project, claimInfo);
   const loop = useTranslations("jb252");
   // JB254: 申请金额（Claim Amount RM）on the two money types; the PIN is asked when filled.
   const [claimAmount, setClaimAmount] = useState("");
@@ -759,8 +780,8 @@ function NewPackageDialog({
             [project, t("field.project")],
             [name.trim(), t("field.name")],
           ]}
-          disabled={create.isPending || (isClaim && !claimComplete)}
-          disabledReason={claims("completeClaimFields")}
+          disabled={create.isPending || (isClaim && Boolean(claimMissing))}
+          disabledReason={project && name.trim() ? (isClaim && claimMissing ? claimMissing : common("saving")) : undefined}
           onClick={() => create.mutate()}
         >
           {common("create")}
