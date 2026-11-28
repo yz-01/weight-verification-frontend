@@ -61,6 +61,7 @@ import {
   PackageTalkButton,
 } from "@/components/contractor-ops/package-exchange";
 import { ClaimFacetBlock } from "@/components/contractor-ops/package-claim-facet";
+import { ClaimedByLine, ClaimScopeToggle } from "@/components/contractor-ops/package-claim-ledger";
 import { PackTargetChooser } from "@/components/contractor-ops/pack-collect";
 import {
   MoneyBlock,
@@ -1661,6 +1662,9 @@ function AddRecordsDialog({
   );
   const month = periodLabel(claimInfo?.period);
   const [monthOnly, setMonthOnly] = useState(Boolean(month));
+  // JB309 (客户 11-28l 第 2 点): a subcontractor Progress Claim's list holds
+  // its 施工分类 and 实际施工日期范围 unless this is turned off.
+  const [claimOnly, setClaimOnly] = useState(true);
   // JB49 第 3 点: each record opens in full before it is ticked.
   const opener = usePackageRecordOpener();
   const [picked, setPicked] = useState<string[]>([]);
@@ -1672,12 +1676,14 @@ function AddRecordsDialog({
   // Page by page, so an older record is one 【Load more】 away rather than
   // cut off at the newest fifty.
   const query = useInfiniteQuery({
-    queryKey: ["evidence-packages", "candidates", kind, project, monthOnly ? month : ""],
+    queryKey: ["evidence-packages", "candidates", kind, project, monthOnly ? month : "", packageId, claimOnly],
     queryFn: ({ pageParam }) =>
       getPackageCandidates({
         kind,
         project,
         ...(monthOnly && month ? { month } : {}),
+        package: packageId,
+        ...(claimOnly ? {} : { scope: "all" as const }),
         page: pageParam,
         page_size: 50,
       }),
@@ -1692,6 +1698,7 @@ function AddRecordsDialog({
 
   const rows = query.data?.pages.flatMap((page) => page.results) ?? [];
   const total = query.data?.pages[0]?.count ?? 0;
+  const claimScope = query.data?.pages[0]?.claim_scope ?? null;
 
   return (
     <Shell title={t("addRecords")} onClose={onClose}>
@@ -1729,6 +1736,16 @@ function AddRecordsDialog({
             {t("monthOnly", { month })}
           </label>
         )}
+        {claimScope && (
+          <ClaimScopeToggle
+            scope={claimScope}
+            checked={claimOnly}
+            onChange={(next) => {
+              setClaimOnly(next);
+              setPicked([]);
+            }}
+          />
+        )}
         <FieldWrapper label={t("field.records")} required>
           {query.isLoading ? (
             <p className="text-sm text-muted-foreground">{t("loading")}</p>
@@ -1741,23 +1758,35 @@ function AddRecordsDialog({
           ) : (
             <ul className="divide-y rounded-lg border">
               {rows.map((row) => (
-                <li key={row.id} className="flex items-start gap-3 p-3">
-                  <Checkbox
-                    checked={picked.includes(row.id)}
-                    onCheckedChange={(next) =>
-                      setPicked((current) =>
-                        next
-                          ? [...current, row.id]
-                          : current.filter((value) => value !== row.id),
-                      )
-                    }
-                    aria-label={row.reference}
-                  />
-                  <div className="min-w-0 flex-1">
+                <li
+                  key={row.id}
+                  className="flex items-start gap-3 p-3"
+                  data-claimed={row.claimed_by ? "yes" : undefined}
+                >
+                  {row.claimed_by ? (
+                    // JB309: claimed under this 施工分类 already - greyed, and why.
+                    <span className="inline-flex" title={t("claimLedger.cannotPick")}>
+                      <Checkbox disabled aria-label={t("claimLedger.cannotPick")} />
+                    </span>
+                  ) : (
+                    <Checkbox
+                      checked={picked.includes(row.id)}
+                      onCheckedChange={(next) =>
+                        setPicked((current) =>
+                          next
+                            ? [...current, row.id]
+                            : current.filter((value) => value !== row.id),
+                        )
+                      }
+                      aria-label={row.reference}
+                    />
+                  )}
+                  <div className={`min-w-0 flex-1 ${row.claimed_by ? "opacity-60" : ""}`}>
                     <p className="truncate text-sm font-medium">{row.reference}</p>
                     <p className="truncate text-xs text-muted-foreground">
                       {row.detail} · {formatter.dateTime(row.submitted_at)}
                     </p>
+                    {row.claimed_by && <ClaimedByLine claimed={row.claimed_by} />}
                   </div>
                   <Button
                     type="button"

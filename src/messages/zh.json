@@ -9894,6 +9894,7 @@
       "disposal_fee_adjust_reason_required": "改了每车单价，请写调整原因。",
       "disposal_fee_adjust_amounts_off": "你的账号看不到金额，不能调整每车单价。",
       "package_ended_record": "{records} 已拒绝或已撤回，不能参与审批和结算。请先把它移出资料包；已经送审的，审批人只能退回这一笔。",
+      "package_record_claimed": "{records} 已用于 {packages}，同一个施工分类下已经申报的施工明细不能重复申报、审批或结算。请先把它移出资料包；已经送审的，审批人只能退回这一笔。照片不受限制。",
       "package_file_locked": "这个文件已经随之前的一轮提交，不能删除。只有这一轮补充、还没「重新签名提交」的文件才可以删除。",
       "finance_approve_amounts_off": "你的账号没有开「金额审批」，不能审批金额。请总部在「用户 › 编辑 › 权限开关」打开。",
       "finance_check_costs_off": "你的账号没有开「费用核对」，不能核对。请总部在「用户 › 编辑 › 权限开关」打开。",
@@ -12598,7 +12599,8 @@
         "loading": "正在读取打包情况…",
         "voided": "这份雨天记录已作废，不能打包",
         "not_archived": "这份文件还没确认归档，归档后才能放进资料包",
-        "ended": "这笔杂费报销已拒绝或已撤回，不能打包审批"
+        "ended": "这笔杂费报销已拒绝或已撤回，不能打包审批",
+        "claimed": "{used}，同一个施工分类下不能重复申报"
       },
       "what": {
         "status": "打包情况",
@@ -12810,6 +12812,24 @@
     },
     "openRecord": "打开完整记录",
     "monthOnly": "只看 {month} 的记录",
+    "claimLedger": {
+      "scopeOnly": "只看本申请的施工分类及实际施工日期",
+      "scopeDetail": "施工分类：{phase} · 实际施工日期：{from} 至 {to}（只对工程进度按施工分类筛选）",
+      "notSet": "未填",
+      "used": "已用于 {package}",
+      "usedWithNo": "已用于 {package} · Claim No. {claimNo}",
+      "cannotPick": "这条施工明细已经在同一个施工分类下申报过，不能重复申报。照片不受限制，可以在其他施工分类的申请里使用。",
+      "stage": {
+        "DRAFT": "草稿",
+        "CONFIRMED": "已确认，未提交审批",
+        "IN_REVIEW": "审批中",
+        "RETURNED": "退回补充中",
+        "APPROVED": "审批通过，待归档",
+        "COMPLETED": "已归档，待核对",
+        "CHECKED": "已核对，待结算",
+        "SETTLED": "已结算"
+      }
+    },
     "claimInfo": {
       "title": "Progress Claim 资料",
       "claimNo": "原 Claim 编号",

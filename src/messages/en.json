@@ -9894,6 +9894,7 @@
       "disposal_fee_adjust_reason_required": "You changed a fee per trip: write the reason.",
       "disposal_fee_adjust_amounts_off": "Your account does not see amounts, so it cannot change a fee per trip.",
       "package_ended_record": "{records} was rejected or withdrawn and cannot be approved or settled. Take it out of the package first; once sent, the reviewer can only return it.",
+      "package_record_claimed": "{records} is already claimed in {packages} under the same construction phase. A site record that was claimed cannot be claimed, approved or settled again. Take it out of the package first; once sent, the reviewer can only return it. Photos are not restricted.",
       "package_file_locked": "This file was submitted with an earlier round, so it cannot be deleted. Only a file added for this round, before you re-sign and submit, can be deleted.",
       "finance_approve_amounts_off": "Your “Approve amounts” switch is off, so you cannot approve amounts. Ask head office to turn it on in Users › Edit › Permission switches.",
       "finance_check_costs_off": "Your “Check costs” switch is off, so you cannot check. Ask head office to turn it on in Users › Edit › Permission switches.",
@@ -12598,7 +12599,8 @@
         "loading": "Reading where the records are packed…",
         "voided": "This rain record is voided and cannot be packed",
         "not_archived": "This document is not archived yet; it can go into a package once it is archived",
-        "ended": "This sundry claim was rejected or withdrawn and cannot be packed for approval"
+        "ended": "This sundry claim was rejected or withdrawn and cannot be packed for approval",
+        "claimed": "{used}; it cannot be claimed again under the same construction phase"
       },
       "what": {
         "status": "Package status",
@@ -12810,6 +12812,24 @@
     },
     "openRecord": "Open full record",
     "monthOnly": "Only records from {month}",
+    "claimLedger": {
+      "scopeOnly": "Only this claim's construction phase and actual work dates",
+      "scopeDetail": "Construction phase: {phase} · Actual work dates: {from} to {to} (the phase narrows progress records only)",
+      "notSet": "not set",
+      "used": "Already claimed in {package}",
+      "usedWithNo": "Already claimed in {package} · Claim No. {claimNo}",
+      "cannotPick": "This site record was already claimed under the same construction phase and cannot be claimed again. Photos are not restricted: they can support a claim under another phase.",
+      "stage": {
+        "DRAFT": "Draft",
+        "CONFIRMED": "Confirmed, not submitted",
+        "IN_REVIEW": "In approval",
+        "RETURNED": "Returned for more material",
+        "APPROVED": "Approved, waiting to be archived",
+        "COMPLETED": "Archived, waiting for checking",
+        "CHECKED": "Checked, waiting for settlement",
+        "SETTLED": "Settled"
+      }
+    },
     "claimInfo": {
       "title": "Progress Claim details",
       "claimNo": "Original claim no.",

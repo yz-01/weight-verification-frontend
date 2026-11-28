@@ -9894,6 +9894,7 @@
       "disposal_fee_adjust_reason_required": "改了每車單價，請寫調整原因。",
       "disposal_fee_adjust_amounts_off": "你的帳號看不到金額，不能調整每車單價。",
       "package_ended_record": "{records} 已拒絕或已撤回，不能參與審批和結算。請先把它移出資料包；已經送審的，審批人只能退回這一筆。",
+      "package_record_claimed": "{records} 已用於 {packages}，同一個施工分類下已經申報的施工明細不能重複申報、審批或結算。請先把它移出資料包；已經送審的，審批人只能退回這一筆。照片不受限制。",
       "package_file_locked": "這個檔案已經隨之前的一輪提交，不能刪除。只有這一輪補充、還沒「重新簽名提交」的檔案才可以刪除。",
       "finance_approve_amounts_off": "你的帳號沒有開「金額審批」，不能審批金額。請總部在「用戶 › 編輯 › 權限開關」打開。",
       "finance_check_costs_off": "你的帳號沒有開「費用核對」，不能核對。請總部在「用戶 › 編輯 › 權限開關」打開。",
@@ -12598,7 +12599,8 @@
         "loading": "正在讀取打包情況…",
         "voided": "這份雨天記錄已作廢，不能打包",
         "not_archived": "這份文件還沒確認歸檔，歸檔後才能放進資料包",
-        "ended": "這筆雜費報銷已拒絕或已撤回，不能打包審批"
+        "ended": "這筆雜費報銷已拒絕或已撤回，不能打包審批",
+        "claimed": "{used}，同一個施工分類下不能重複申報"
       },
       "what": {
         "status": "打包情況",
@@ -12810,6 +12812,24 @@
     },
     "openRecord": "開啟完整記錄",
     "monthOnly": "只看 {month} 的記錄",
+    "claimLedger": {
+      "scopeOnly": "只看本申請的施工分類及實際施工日期",
+      "scopeDetail": "施工分類：{phase} · 實際施工日期：{from} 至 {to}（只對工程進度按施工分類篩選）",
+      "notSet": "未填",
+      "used": "已用於 {package}",
+      "usedWithNo": "已用於 {package} · Claim No. {claimNo}",
+      "cannotPick": "這條施工明細已經在同一個施工分類下申報過，不能重複申報。照片不受限制，可以在其他施工分類的申請裡使用。",
+      "stage": {
+        "DRAFT": "草稿",
+        "CONFIRMED": "已確認，未提交審批",
+        "IN_REVIEW": "審批中",
+        "RETURNED": "退回補充中",
+        "APPROVED": "審批通過，待歸檔",
+        "COMPLETED": "已歸檔，待核對",
+        "CHECKED": "已核對，待結算",
+        "SETTLED": "已結算"
+      }
+    },
     "claimInfo": {
       "title": "Progress Claim 資料",
       "claimNo": "原 Claim 編號",
