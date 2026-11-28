@@ -106,10 +106,13 @@ export function PackageSentFiles({
  */
 export function RemoveNextRoundFile({
   name,
+  draft = false,
   onRemove,
   onRemoved,
 }: {
   name: string;
+  /** A draft's own upload: nothing was sent yet, there is no next round. */
+  draft?: boolean;
   onRemove: () => Promise<unknown>;
   onRemoved?: () => void;
 }) {
@@ -139,7 +142,7 @@ export function RemoveNextRoundFile({
         open={open}
         onOpenChange={setOpen}
         title={t("remove.title", { name })}
-        description={t("remove.body")}
+        description={t(draft ? "remove.bodyDraft" : "remove.body")}
         confirmLabel={t("remove.confirm")}
         isPending={remove.isPending}
         onConfirm={() => remove.mutate()}

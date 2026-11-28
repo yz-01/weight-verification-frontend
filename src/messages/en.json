@@ -23939,7 +23939,8 @@
       "button": "Delete this file",
       "title": "Delete {name}?",
       "body": "This file has not been submitted yet. Once deleted it will not go into the next round. Files submitted in earlier rounds do not change.",
-      "confirm": "Delete"
+      "confirm": "Delete",
+      "bodyDraft": "The package is not confirmed yet; once deleted, the file will not be in it."
     }
   },
   "jb248": {

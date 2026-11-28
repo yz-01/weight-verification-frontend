@@ -219,3 +219,13 @@ describe("JB307-1: every receiver sees the uploaded files, each to preview, prin
     }
   });
 });
+
+describe("a draft's own upload can be deleted before 确认 (the upload hint says 「确认前可以删除」)", () => {
+  it("offers the bin on a draft's uploads, not on a Claim's letter, with the draft's own words", () => {
+    const source = readFileSync(path.join(process.cwd(), "src/components/contractor-ops/multi-engine.tsx"), "utf8");
+    expect(source).toContain('const draftFiles = data?.state === "DRAFT" && can("package.manage");');
+    expect(source).toContain('row.kind === "file" && !row.letter && (draftFiles || row.next_round)');
+    expect(source.match(/draft=\{draftFiles\}/g)?.length).toBe(2);
+    for (const messages of [zh, zhTW, en, ms]) expect(messages.jb307.remove.bodyDraft).toBeTruthy();
+  });
+});

@@ -23939,7 +23939,8 @@
       "button": "Padam fail ini",
       "title": "Padam {name}?",
       "body": "Fail ini belum dihantar. Selepas dipadam, ia tidak akan dimasukkan ke pusingan seterusnya. Fail yang dihantar dalam pusingan sebelumnya tidak berubah.",
-      "confirm": "Padam"
+      "confirm": "Padam",
+      "bodyDraft": "Pakej belum disahkan; selepas dipadam, fail ini tidak akan dimasukkan."
     }
   },
   "jb248": {

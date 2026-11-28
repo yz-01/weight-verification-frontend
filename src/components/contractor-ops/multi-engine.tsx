@@ -910,9 +910,14 @@ function PackageWindowContent({
   const itemsById = new Map((data?.items ?? []).map((entry) => [entry.id, entry]));
   // JB307-2: the files uploaded for the next round, which the project manager
   // may still take off before 「重新签名提交」 (the server says so again).
+  // A draft's own uploads too (「确认前可以删除」); a Claim's letter is the
+  // Claim's, not deleted here.
+  const draftFiles = data?.state === "DRAFT" && can("package.manage");
   const nextRoundFiles = new Set(
-    data?.takes_supplements
-      ? layout.flatMap((row) => (row.kind === "file" && row.next_round ? [row.id] : []))
+    data?.takes_supplements || draftFiles
+      ? layout.flatMap((row) =>
+          row.kind === "file" && !row.letter && (draftFiles || row.next_round) ? [row.id] : [],
+        )
       : [],
   );
   const refreshFiles = () => {
@@ -1176,6 +1181,7 @@ function PackageWindowContent({
                             {nextRoundFiles.has(row.id) && (
                               /* JB307-2 (客户 11-28j 事项 2): taken off before 「重新签名提交」. */
                               <RemoveNextRoundFile
+                                draft={draftFiles}
                                 name={row.name}
                                 onRemove={() => removePackageFile(id, row.id)}
                                 onRemoved={refreshFiles}
@@ -1467,8 +1473,9 @@ function PackageWindowContent({
                        提交」; one an earlier round was sent with stays. */
                     nextRoundFiles.has(row.id) ? (
                       <span className="flex shrink-0 items-center gap-1.5">
-                        <span className="text-2xs text-muted-foreground">{loop("supplement.staged")}</span>
+                        {!draftFiles && <span className="text-2xs text-muted-foreground">{loop("supplement.staged")}</span>}
                         <RemoveNextRoundFile
+                          draft={draftFiles}
                           name={row.original_name}
                           onRemove={() => removePackageFile(id, row.id)}
                           onRemoved={refreshFiles}
