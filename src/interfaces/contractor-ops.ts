@@ -1735,6 +1735,40 @@ export interface ArchiveQueueRow<K extends string = ArchiveRecordKind> {
   archivable: boolean;
   /** Who archived it for everybody and when, or null while it is not archived. */
   archived: { by: string; at: string | null } | null;
+  /**
+   * JB309 (客户 11-28l 第 2 点): Multi Engine's candidates for a subcontractor
+   * Progress Claim - another claim already holds this record under the same
+   * 施工分类 (「已用于 PKG-… · Claim No. … · 已结算」). Absent otherwise.
+   */
+  claimed_by?: ClaimedBy;
+}
+
+/** JB309: where a 施工明细 is already claimed - which claim and how far it got. */
+export type ClaimLedgerStage =
+  | "DRAFT"
+  | "CONFIRMED"
+  | "IN_REVIEW"
+  | "RETURNED"
+  | "APPROVED"
+  | "COMPLETED"
+  | "CHECKED"
+  | "SETTLED";
+
+export interface ClaimedBy {
+  package_no: string;
+  /** 分包商工程款申请编号（Claim No.）; "" on a claim made before JB309. */
+  claim_ref_no: string;
+  stage: ClaimLedgerStage;
+}
+
+/** JB309: what Multi Engine's candidates of a subcontractor Progress Claim were narrowed by. */
+export interface PackageClaimScope {
+  /** False when 「只看本申请…」 was turned off (`scope=all`). */
+  narrowed: boolean;
+  phase: string | null;
+  phase_name: string;
+  work_from: string | null;
+  work_to: string | null;
 }
 
 /**
@@ -1951,11 +1985,12 @@ export const CLAIM_PACKAGE_TYPES: readonly PackageType[] = ["PROGRESS_CLAIM", "S
 
 /** Who a package went to (H17 四 2). Only a consultant signs in. */
 /** HEADQUARTERS (J30-1): the company's own head office, in the system - no link. */
-export type RecipientKind = "HEADQUARTERS" | "CONSULTANT" | "OWNER" | "SUPPLIER" | "OTHER";
+/** QS (JB309-5): the QS 或授权审核负责人 of a subcontractor's Progress Claim - an office account. */
+export type RecipientKind = "HEADQUARTERS" | "QS" | "CONSULTANT" | "OWNER" | "SUPPLIER" | "OTHER";
 
-/** Whether a recipient reads through a link (not a consultant, not head office). */
+/** Whether a recipient reads through a link (not a consultant, not head office, not the QS). */
 export function isLinkRecipient(kind: RecipientKind): boolean {
-  return kind !== "CONSULTANT" && kind !== "HEADQUARTERS";
+  return kind !== "CONSULTANT" && kind !== "HEADQUARTERS" && kind !== "QS";
 }
 export type RecipientStatus = "SENT" | "VIEWED" | "SIGNED" | "REVOKED";
 export type PackageEventKind =
@@ -1982,6 +2017,8 @@ export interface PackageRecipient {
   id: string;
   kind: RecipientKind;
   consultant: string | null;
+  /** JB309-5: the QS's own account. */
+  reviewer?: string | null;
   display_name: string;
   name: string;
   organization: string;
@@ -2010,6 +2047,54 @@ export interface PackageRecipient {
   purpose?: RecipientPurpose;
   /** JB252: where this reviewer is in the current round; null for 资料传阅. */
   progress?: PackageProgress | null;
+}
+
+/** JB309-5 (客户 11-28l 「三方独立签字审批」): why a QS / head-office review cannot go now. */
+export type ThreePartyWaiting = "qs_first" | "same_signer" | "qs_review_off" | "not_your_review";
+
+/** JB309-5: the package's QS, and whether this reader is him and may sign now. */
+export interface PackageQsReview {
+  recipient: string;
+  name: string;
+  mine: boolean;
+  can_review: boolean;
+  waiting?: ThreePartyWaiting | null;
+}
+
+/** JB309-5: one of the three signatures of a round. */
+export interface ThreePartyStep {
+  signer_name: string;
+  signed_at: string;
+  action: PackageSignatureAction;
+  opinion: string;
+  recipient_name: string;
+  signature_url: string | null;
+}
+
+export interface ThreePartyRound {
+  round_no: number;
+  manager: ThreePartyStep | null;
+  qs: ThreePartyStep | null;
+  headquarters: ThreePartyStep | null;
+}
+
+export type ThreePartyNext =
+  | "MANAGER"
+  | "SEND_QS"
+  | "QS"
+  | "SEND_HEADQUARTERS"
+  | "HEADQUARTERS"
+  | "RESUBMIT"
+  | "COMPLETE"
+  | "DONE";
+
+/** JB309-5: 项目经理 → QS 或授权审核负责人 → 总部授权负责人, every round, newest first. */
+export interface ThreePartyView {
+  round_no: number;
+  next: ThreePartyNext;
+  complete: boolean;
+  qs_name: string;
+  rounds: ThreePartyRound[];
 }
 
 /** One recipient's answer on one record. */
@@ -2217,6 +2302,45 @@ export interface PackageClaimInfo {
   category_name: string | null;
   subcontractor: string | null;
   subcontractor_name: string | null;
+  /** JB309-1: 施工分类 (a construction phase), 实际施工日期范围, Claim No.; blank on older packages. */
+  phase?: string | null;
+  phase_name?: string | null;
+  work_from?: string | null;
+  work_to?: string | null;
+  ref_no?: string;
+}
+
+/**
+ * JB309-3 「历史申请」: another application of the same project and 分包商
+ * with the same 期数 or overlapping 实际施工日期范围. Amounts are null without
+ * 「金额查看」.
+ */
+export interface PackageClaimHistoryRow {
+  id: string;
+  package_no: string;
+  name: string;
+  ref_no: string;
+  period: string | null;
+  work_from: string | null;
+  work_to: string | null;
+  phase_name: string;
+  state: PackageState;
+  review_progress: string;
+  completed_at: string | null;
+  claim_amount: string | null;
+  approved_amount: string | null;
+  checked_amount: string | null;
+  settled_amount: string | null;
+  settle_state: "NOT_NEEDED" | "WAITING" | "PENDING" | "CHECKED" | "SETTLED" | null;
+  check_no: string;
+  settlement_no: string;
+  same_period: boolean;
+  dates_overlap: boolean;
+}
+
+export interface PackageClaimHistory {
+  rows: PackageClaimHistoryRow[];
+  amounts_locked: boolean;
 }
 
 /** How far a package went out (JB51): in the system, and by hand. */
@@ -2266,6 +2390,11 @@ export interface EvidencePackageRow {
   claim_category?: string | null;
   claim_other_name?: string;
   claim_subcontractor?: string | null;
+  /** JB309-1 */
+  claim_phase?: string | null;
+  claim_work_from?: string | null;
+  claim_work_to?: string | null;
+  claim_ref_no?: string;
   claim_info?: PackageClaimInfo | null;
   send_status?: PackageSendStatus;
   /** 资料包编号, `PKG-<project>-<YYMMDD>-<NNN>` (2026-10-10). */
@@ -2339,6 +2468,8 @@ export interface EvidencePackageDetail extends EvidencePackageRow {
    * `{locked: true}` without 「金额查看」; null before 核对.
    */
   reconciliation?: RecordReconciliation | LockedReconciliation | null;
+  /** JB309-3: 「历史申请」 of a subcontractor's Progress Claim (office window); null otherwise. */
+  claim_history?: PackageClaimHistory | null;
   /** JB63: records and uploaded files in the order of the PDF. */
   layout?: PackageLayoutRow[];
   /** JB307-1: the uploaded files a consultant was sent (his 「待审阅的资料包」 only). */
@@ -2380,7 +2511,12 @@ export interface EvidencePackageDetail extends EvidencePackageRow {
   /** What was added for the next round and not sent yet. */
   staged_items?: PackageItem[];
   /** 总部（系统内）: whether this reader may review for head office now. */
-  headquarters_review?: { recipient: string; can_review: boolean } | null;
+  /** JB309-5 `waiting`: on a subcontractor's claim, why not yet (`qs_first`, `same_signer`). */
+  headquarters_review?: { recipient: string; can_review: boolean; waiting?: ThreePartyWaiting | null } | null;
+  /** JB309-5: the QS 或授权审核负责人 of a subcontractor's Progress Claim. */
+  qs_review?: PackageQsReview | null;
+  /** JB309-5: the three signatures of every round; null on any other package. */
+  three_party?: ThreePartyView | null;
   /** The consultant's view: he may sign a review now. */
   can_review?: boolean;
   purpose?: RecipientPurpose;
@@ -2486,7 +2622,11 @@ export type PackRowReason =
   /** A voided rain record (JB192 做法 二.6): 「不能再勾选打包」. */
   | "voided"
   /** A document not yet archived (JB193 三 3, the client's 10-26 rule JB25). */
-  | "not_archived";
+  | "not_archived"
+  /** JB304: a rejected / withdrawn 杂费报销. */
+  | "ended"
+  /** JB309: another subcontractor Progress Claim holds it under the same 施工分类 (`claimed_by`). */
+  | "claimed";
 
 /** One row of a module's list, as Multi Engine sees it. */
 export interface PackRowStatus {
@@ -2496,6 +2636,8 @@ export interface PackRowStatus {
   in_package: boolean;
   can_add: boolean;
   reason: PackRowReason;
+  /** JB309: with `reason: "claimed"`, the claim that holds it. */
+  claimed_by?: ClaimedBy;
 }
 
 /** The package being put together, as far as a module's list needs it. */

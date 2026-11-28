@@ -12,6 +12,7 @@ import type {
   ArchiveQueueDetail,
   ArchiveQueuePage,
   ArchiveQueueRow,
+  PackageClaimScope,
   CategoryGroup,
   CompanyCategoriesAdded,
   CompanyCategory,
@@ -63,6 +64,7 @@ import type {
   PackStatus,
   RecordPackageRow,
   PackageRecordParts,
+  PackageClaimHistory,
   PackageSelection,
   PackageState,
   PackagePart,
@@ -1796,10 +1798,15 @@ export const getEvidencePackage = (id: string, round?: number) =>
 
 /** Records of one column in one project, to tick from. */
 export const getPackageCandidates = (
-  /** `month` (`YYYY-MM`, JB52): only that month's records. */
-  query: ListQuery & { kind: ArchiveRecordKind; project: string; month?: string },
+  /**
+   * `month` (`YYYY-MM`, JB52): only that month's records. `package` (JB309):
+   * the package being filled - a subcontractor Progress Claim narrows to its
+   * 施工分类 and 实际施工日期范围 unless `scope` is `all`, and marks the
+   * records another claim holds (`claimed_by`).
+   */
+  query: ListQuery & { kind: ArchiveRecordKind; project: string; month?: string; package?: string; scope?: "all" },
 ) =>
-  api.list<ArchiveQueueRow>(
+  api.get<Paginated<ArchiveQueueRow> & { claim_scope?: PackageClaimScope }>(
     "/api/evidence-packages/get_candidates/",
     query,
   );
@@ -1818,7 +1825,26 @@ export interface PackageClaimFieldsPayload {
   claim_category?: string;
   claim_other_name?: string;
   claim_subcontractor?: string;
+  /** JB309-1: a subcontractor's claim - 施工分类, 实际施工日期范围 (YYYY-MM-DD), Claim No. */
+  claim_phase?: string;
+  claim_work_from?: string;
+  claim_work_to?: string;
+  claim_ref_no?: string;
 }
+
+/**
+ * JB309-3 「历史申请」 while the claim fields are typed: the same project and
+ * 分包商, the same 期数 (`YYYY-MM`) or overlapping work dates; `exclude` is the
+ * draft being edited.
+ */
+export const getPackageClaimHistory = (query: {
+  project: string;
+  subcontractor: string;
+  period?: string;
+  work_from?: string;
+  work_to?: string;
+  exclude?: string;
+}) => api.get<PackageClaimHistory>("/api/evidence-packages/claim_history/", query);
 
 export async function createEvidencePackage(payload: {
   project: string;
@@ -2199,6 +2225,18 @@ export const getPackageConsultantChoices = (id: string) =>
     `/api/evidence-packages/${id}/get_consultant_choices/`,
   );
 
+/** JB309-5: one account 提交审批 may choose as the QS 或授权审核负责人. */
+export interface PackageQsChoice {
+  id: string;
+  name: string;
+  role_code: string;
+  role_name: string;
+}
+
+/** JB309-5: exactly the accounts `add_recipient` accepts as this claim's QS. */
+export const getPackageQsChoices = (id: string) =>
+  api.get<PackageQsChoice[]>(`/api/evidence-packages/${id}/get_qs_choices/`);
+
 export async function sendPackageForReview(id: string, consultant: string) {
   const row = await api.post<EvidencePackageDetail>(
     `/api/evidence-packages/${id}/send_for_review/`,
@@ -2233,6 +2271,10 @@ export interface NewRecipient {
   purpose?: RecipientPurpose;
   /** JB252: the round's signature, when the round was not signed yet. */
   signature?: File;
+  /** JB309-5: the QS's account (kind QS). */
+  reviewer?: string;
+  /** JB309-5: head office goes with the QS, in the same send. */
+  with_headquarters?: boolean;
 }
 
 /**
@@ -2408,10 +2450,13 @@ export interface PackageReviewPayload {
   approved_amount?: string;
   amount_reason?: string;
   signature: File;
+  /** JB309-5: whose review this is - the QS's recipient (head office's by default). */
+  recipient?: string;
 }
 
 function reviewForm(payload: PackageReviewPayload) {
   const body = new FormData();
+  if (payload.recipient) body.append("recipient", payload.recipient);
   body.append("decisions", JSON.stringify(payload.decisions));
   if (payload.all) body.append("all", "true");
   body.append("opinion", payload.opinion);

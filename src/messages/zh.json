@@ -9790,9 +9790,24 @@
       "package_not_approved": "要等全部审核通过，才能确认完毕并归档。",
       "package_completed": "这个资料包已经确认完毕并归档，不能再改动。",
       "package_project_completes": "总部负责审核批准，「确认完毕并归档」由项目经理去按。",
+      "package_qs_not_needed": "只有分包商的 Progress Claim 提交审批时，才要发给 QS 或授权审核负责人。",
+      "package_qs_required": "这是分包商的 Progress Claim，提交审批要先发给 QS 或授权审核负责人，再到总部。",
+      "package_qs_reviewer_required": "请选择 QS 或授权审核负责人。",
+      "package_qs_reviewer_invalid": "这个人不能做这份 Claim 的 QS：要有「工程款审核（QS）」权限，并且能看这个项目。",
+      "package_same_signer": "项目经理、QS 和总部必须是三个不同的账号，同一个人不能签两次。",
+      "package_qs_first": "要等 QS 或授权审核负责人先审核通过这一轮，总部才能审核。",
+      "package_qs_review_off": "你的账号没有开「工程款审核（QS）」，不能以 QS 身份审核。请总部在「用户 › 编辑 › 权限开关」打开。",
+      "package_three_party_incomplete": "项目经理、QS 和总部三方都签字后，才能确认完毕并归档。",
       "package_claim_kind_required": "请选择 Claim 类型（材料到场或工程进度）。",
       "package_claim_category_required": "请选择 Claim 分类。",
       "package_claim_subcontractor_required": "这是分包商的 Claim，请选择对应的分包商。不选的话，归档后会显示「不需要结算」，不能进入结算。",
+      "package_claim_phase_required": "分包商的 Claim 请选择施工分类。",
+      "package_claim_work_dates_required": "请填写实际施工日期范围（从哪天到哪天）。",
+      "package_claim_work_dates_order": "实际施工日期范围的结束日期不能早于开始日期。",
+      "package_claim_period_required": "分包商的 Claim 请选择 Claim 申请期数。",
+      "package_claim_ref_no_required": "请填写分包商工程款申请编号（Claim No.）。",
+      "package_claim_amount_required": "分包商的 Claim 请填写申请金额。",
+      "package_claim_ref_no_taken": "Claim No. {ref_no} 已经用在 {package_no}，同一个项目和分包商的 Claim No. 不能重复。请先打开 {package_no} 核对。",
       "company_module_invalid": "请只勾选这家公司有的业务模块。",
       "company_module_switched_off": "你们公司没有开通这个模块。要用，请联系 MSE 开通。",
       "consultant_grant_changed": "你的项目权限已更新，请重新登录。",
@@ -9887,6 +9902,7 @@
       "disposal_fee_adjust_reason_required": "改了每车单价，请写调整原因。",
       "disposal_fee_adjust_amounts_off": "你的账号看不到金额，不能调整每车单价。",
       "package_ended_record": "{records} 已拒绝或已撤回，不能参与审批和结算。请先把它移出资料包；已经送审的，审批人只能退回这一笔。",
+      "package_record_claimed": "{records} 已用于 {packages}，同一个施工分类下已经申报的施工明细不能重复申报、审批或结算。请先把它移出资料包；已经送审的，审批人只能退回这一笔。照片不受限制。",
       "package_file_locked": "这个文件已经随之前的一轮提交，不能删除。只有这一轮补充、还没「重新签名提交」的文件才可以删除。",
       "finance_approve_amounts_off": "你的账号没有开「金额审批」，不能审批金额。请总部在「用户 › 编辑 › 权限开关」打开。",
       "finance_check_costs_off": "你的账号没有开「费用核对」，不能核对。请总部在「用户 › 编辑 › 权限开关」打开。",
@@ -12591,7 +12607,8 @@
         "loading": "正在读取打包情况…",
         "voided": "这份雨天记录已作废，不能打包",
         "not_archived": "这份文件还没确认归档，归档后才能放进资料包",
-        "ended": "这笔杂费报销已拒绝或已撤回，不能打包审批"
+        "ended": "这笔杂费报销已拒绝或已撤回，不能打包审批",
+        "claimed": "{used}，同一个施工分类下不能重复申报"
       },
       "what": {
         "status": "打包情况",
@@ -12640,7 +12657,8 @@
         "OWNER": "业主",
         "SUPPLIER": "供应商",
         "OTHER": "其他单位",
-        "HEADQUARTERS": "总部（系统内）"
+        "HEADQUARTERS": "总部（系统内）",
+        "QS": "QS 或授权审核负责人"
       },
       "expired": "已过期",
       "status": {
@@ -12803,6 +12821,24 @@
     },
     "openRecord": "打开完整记录",
     "monthOnly": "只看 {month} 的记录",
+    "claimLedger": {
+      "scopeOnly": "只看本申请的施工分类及实际施工日期",
+      "scopeDetail": "施工分类：{phase} · 实际施工日期：{from} 至 {to}（只对工程进度按施工分类筛选）",
+      "notSet": "未填",
+      "used": "已用于 {package}",
+      "usedWithNo": "已用于 {package} · Claim No. {claimNo}",
+      "cannotPick": "这条施工明细已经在同一个施工分类下申报过，不能重复申报。照片不受限制，可以在其他施工分类的申请里使用。",
+      "stage": {
+        "DRAFT": "草稿",
+        "CONFIRMED": "已确认，未提交审批",
+        "IN_REVIEW": "审批中",
+        "RETURNED": "退回补充中",
+        "APPROVED": "审批通过，待归档",
+        "COMPLETED": "已归档，待核对",
+        "CHECKED": "已核对，待结算",
+        "SETTLED": "已结算"
+      }
+    },
     "claimInfo": {
       "title": "Progress Claim 资料",
       "claimNo": "原 Claim 编号",
@@ -14591,7 +14627,8 @@
       },
       "package": {
         "view": "查看 Multi Engine 资料包",
-        "manage": "制作及发送资料包"
+        "manage": "制作及发送资料包",
+        "qs_review": "工程款审核（QS）（分包商 Progress Claim 的第二个签字）"
       },
       "claim": {
         "view": "查看进度 Claim",
@@ -25646,6 +25683,43 @@
       "basis": "只算已结算的，按审核归档日期"
     }
   },
+  "jb309d": {
+    "required": "分包商的 Claim 还要填：施工分类、实际施工日期范围、Claim 申请期数、分包商工程款申请编号（Claim No.）和申请金额。系统用这些资料检查有没有重复申请。",
+    "phase": "施工分类",
+    "phasePlaceholder": "请选择施工分类",
+    "phaseHint": "就是工程进度里用的施工分类。",
+    "noPhases": "这个项目还没有施工分类，请先在「工程进度」新增施工分类。",
+    "workDates": "实际施工日期范围",
+    "workFrom": "开始日期",
+    "workTo": "结束日期",
+    "datesOrder": "结束日期不能早于开始日期。",
+    "refNo": "分包商工程款申请编号（Claim No.）",
+    "refNoShort": "Claim No.",
+    "refNoPlaceholder": "例如 ABC-INV-028",
+    "refNoHint": "分包商自己的申请编号。同一个项目、同一个分包商的 Claim No. 不能重复。",
+    "amount": "申请金额",
+    "amountMissing": "申请金额请在资料包窗口的「申请金额」那里填写（要输入六位数密码）。",
+    "history": {
+      "title": "历史申请",
+      "formHint": "同一个项目和分包商，下面这些申请的期数相同或施工日期重叠，请先核对，不要重复申请。",
+      "windowHint": "同一个项目和分包商，期数相同或施工日期重叠的其他申请，供审核时核对。",
+      "empty": "没有期数相同或施工日期重叠的申请。",
+      "loading": "正在查找历史申请…",
+      "amountsLocked": "你的「金额查看」已关闭，这里不显示金额。",
+      "samePeriod": "期数相同",
+      "datesOverlap": "施工日期重叠",
+      "period": "期数",
+      "dates": "施工日期",
+      "phase": "施工分类",
+      "claim": "申请金额",
+      "approved": "批准金额",
+      "checked": "核对金额",
+      "settled": "结算金额",
+      "draft": "草稿",
+      "open": "打开",
+      "what": "历史申请"
+    }
+  },
   "jb307b": {
     "required": "Claim 类型和 Claim 分类必须填写。分包商的 Claim 还要选对应的分包商，归档后才能进入核对与结算。",
     "subRequired": "这是分包商的 Claim，必须选择对应的分包商。不选的话，归档后会显示「不需要结算」，不能进入结算。",
@@ -25794,5 +25868,55 @@
     },
     "notChecked": "这次核对没有成功，还没有核对编号。你填的内容都还在，请再试一次。",
     "notSettled": "这次结算没有成功，还没有结算编号，仍在「已核对」。你填的内容都还在，请再试一次。"
+  },
+  "jb309f": {
+    "title": "三方签字审批",
+    "order": "分包商的 Progress Claim 要三个不同的账号按顺序签字：项目经理 → QS 或授权审核负责人 → 总部授权负责人，每人用自己的六位数签核密码。三方都签了，才由项目经理确认完毕并归档。",
+    "step": {
+      "manager": "项目经理",
+      "qs": "QS 或授权审核负责人",
+      "headquarters": "总部授权负责人"
+    },
+    "stepHelp": {
+      "manager": "确认实际施工内容及现场证据",
+      "qs": "核对申请金额、施工分类及历史工程款申请",
+      "headquarters": "最终审核及批准金额"
+    },
+    "round": "第 {n} 轮",
+    "notSigned": "还没签",
+    "by": "{name} · {when}",
+    "opinion": "意见：{text}",
+    "next": {
+      "MANAGER": "下一步：项目经理签名提交这一轮。",
+      "SEND_QS": "下一步：提交审批，选好 QS 或授权审核负责人（总部会一起收到）。",
+      "QS": "下一步：等 QS 或授权审核负责人 {name} 审核签字。",
+      "SEND_HEADQUARTERS": "下一步：发给总部（系统内）做最终审核。",
+      "HEADQUARTERS": "下一步：等总部授权负责人最终审核及批准金额。",
+      "RESUBMIT": "这一轮被退回了。项目经理补充资料、重新签名提交后，三方要在新的一轮重新按顺序签字。",
+      "COMPLETE": "三方都签好了，由项目经理按「确认完毕并归档」。",
+      "DONE": "三方签字完成，已确认完毕并归档。"
+    },
+    "qs": {
+      "waiting": "你是这份 Claim 的 QS 或授权审核负责人，待审核 {count} 条。",
+      "button": "QS 审核",
+      "help": "请核对申请金额、施工分类及历史工程款申请，逐条选「确认通过」或「退回补充资料」，写审核意见并电子签名，提交时输入你自己的六位数签核密码。批准金额由总部最后审核时填写。"
+    },
+    "waiting": {
+      "qs_first": "要等 QS 或授权审核负责人先审核通过这一轮，总部才能审核。",
+      "same_signer": "你已经在这份 Claim 上以项目经理或 QS 身份签过字。三方必须是不同的人，这一步要由别人来签。",
+      "qs_review_off": "你的账号没有开「工程款审核（QS）」，不能以 QS 身份审核。请总部在「用户 › 编辑 › 权限开关」打开。",
+      "not_your_review": "这份 Claim 不是发给你做 QS 审核的。"
+    },
+    "send": {
+      "qsLabel": "QS 或授权审核负责人",
+      "qsHelp": "这是分包商的 Progress Claim，提交审批要三方签字：项目经理 → QS 或授权审核负责人 → 总部授权负责人。选好 QS 后，总部（系统内）会一起收到，等 QS 审核通过后再审核。",
+      "qsPlaceholder": "请选择 QS 或授权审核负责人",
+      "qsSearch": "搜索名字",
+      "qsNone": "没有可以选的人。QS 要有「工程款审核（QS）」权限、能看这个项目，而且不能是做这个资料包、发送或签这一轮的人。请总部在「用户 › 编辑 › 权限开关」打开。",
+      "qsWhat": "可以选的 QS",
+      "qsFirst": "这是分包商的 Progress Claim，提交审批要先发给 QS 或授权审核负责人：请在上面选「QS 或授权审核负责人」。",
+      "button": "发给 QS 和总部"
+    },
+    "qsCompletesOnProject": "「确认完毕并归档」由项目经理去按，QS 这里不用按。"
   }
 }
