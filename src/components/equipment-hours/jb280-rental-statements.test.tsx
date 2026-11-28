@@ -169,6 +169,19 @@ describe("JB280 设备租赁月结单", () => {
     expect(html).not.toContain('data-slot="cancel-statement-button"');
   });
 
+  it("walk 2 G5: 核对编号 and 结算编号 wrap inside their own cells, never run into each other", () => {
+    const html = render(<RentalStatementWindow id="st-1" onClose={() => undefined} />, (qc) =>
+      qc.setQueryData(["rental-statements", "detail", "st-1"], STATEMENT),
+    );
+    for (const slot of ["statement-check", "statement-settlement"]) {
+      const cell = html.split(`data-slot="${slot}"`)[0].split("<div").pop() ?? "";
+      expect(cell, slot).toContain("min-w-0");
+      const button = html.split(`data-slot="${slot}"`)[1].match(/<button[^>]*>/)?.[0] ?? "";
+      expect(button, slot).toContain("whitespace-normal");
+      expect(button, slot).not.toContain("whitespace-nowrap");
+    }
+  });
+
   it("【作废】 only while 待核对", () => {
     const html = render(<RentalStatementWindow id="st-1" onClose={() => undefined} />, (qc) =>
       qc.setQueryData(["rental-statements", "detail", "st-1"], {
