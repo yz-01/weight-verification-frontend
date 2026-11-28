@@ -1,5 +1,6 @@
 import type { FileShare } from "@/interfaces/file-action";
 import type { InspectionInfo } from "@/interfaces/document-workflow";
+import type { LockedReconciliation, RecordReconciliation } from "@/interfaces/reconciliation";
 import type { RecordedBy } from "@/interfaces/recorder";
 
 /**
@@ -1157,18 +1158,7 @@ export interface MaterialOutgoing extends RecordedBy {
    * 核对与结算 (JB278, 客户 11-26 事项 19 第 3 点): 核对状态, 核对编号, 核对人及
    * 日期, 结算状态, 结算编号 - null while 待核对.
    */
-  reconciliation?: {
-    state: "CHECKED" | "SETTLED";
-    kind: "RETURN" | "ISSUE" | "RENTAL";
-    check_id: string;
-    check_no: string;
-    checked_by_name: string;
-    checked_at: string;
-    settlement_id: string | null;
-    settlement_no: string;
-    settled_by_name: string;
-    settled_at: string | null;
-  } | null;
+  reconciliation?: RecordReconciliation | null;
   /** JB281: the seven steps of a 材料退场 - on its detail only. */
   return_steps?: ReturnFlowStep[];
   /** 材料领用: the machine scanned and what the register said then. */
@@ -2328,6 +2318,11 @@ export interface ClaimSettlementInfo {
 
 export interface EvidencePackageDetail extends EvidencePackageRow {
   items: PackageItem[];
+  /**
+   * JB307-7: a Progress Claim's 核对与结算 with amounts, 凭证编号 and vouchers;
+   * `{locked: true}` without 「金额查看」; null before 核对.
+   */
+  reconciliation?: RecordReconciliation | LockedReconciliation | null;
   /** JB63: records and uploaded files in the order of the PDF. */
   layout?: PackageLayoutRow[];
   /** Records the last add call would not take, and why. */

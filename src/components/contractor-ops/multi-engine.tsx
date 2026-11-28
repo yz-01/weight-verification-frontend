@@ -33,6 +33,7 @@ import {
   claimSettleTabOf,
   useClaimWindows,
 } from "@/components/contractor-ops/claim-settlements";
+import { ReconciliationVouchers } from "@/components/contractor-ops/reconciliation-vouchers";
 import { ReconcileSettleButton } from "@/components/contractor-ops/return-checks";
 import { useSeesAmounts } from "@/hooks/use-sees-amounts";
 import { useKeptFilters, useWriteSearchParams } from "@/lib/kept-filters";
@@ -1082,6 +1083,12 @@ function PackageWindowContent({
               ) : (
                 <MoneyBlock pkg={data} />
               ))}
+            {/* JB307-7 (客户 11-28j 第 7 点): 核对与结算 back on the package -
+                amounts, 凭证编号, the vouchers (查看 / 预览 / 打印 / 下载), who
+                and when; a locked line without 「金额查看」. */}
+            {data.package_type === "PROGRESS_CLAIM" && data.reconciliation ? (
+              <ReconciliationVouchers links={data.reconciliation} />
+            ) : null}
 
             {data.merge_report.length > 0 && (
               /* Named, not counted. A package that quietly lost two pages is

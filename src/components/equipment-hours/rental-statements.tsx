@@ -30,6 +30,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
+import { ReconciliationVouchers } from "@/components/contractor-ops/reconciliation-vouchers";
 import {
   officeMay,
   ReconcileSettleButton,
@@ -735,6 +736,8 @@ export function RentalStatementWindow({ id, onClose }: { id: string; onClose: ()
                 </div>
               ) : null}
             </dl>
+            {/* JB308 (客户 11-28k): the 核对 / 结算 vouchers on the statement itself. */}
+            {data.check ? <ReconciliationVouchers links={{ ...data.check, kind: "RENTAL" }} /> : null}
             <section className="space-y-2">
               <div>
                 <h3 className="text-base font-semibold">{tr("linesTitle")}</h3>

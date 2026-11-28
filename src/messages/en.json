@@ -25544,6 +25544,28 @@
       "help": "The labour cost is worked out from the records and rates now; confirmed months use what was kept when they were confirmed."
     }
   },
+  "jb307Vouchers": {
+    "title": "Check and settlement",
+    "help": "The check and the settlement of this record, with their vouchers. Open a file to view, preview, print or download it.",
+    "checkTitle": "Check",
+    "checkNo": "Check no.",
+    "checkedAmount": "Checked amount",
+    "changedReason": "Changed from the approved amount: {reason}",
+    "checkVoucherNo": "Check voucher no.",
+    "checkedBy": "Checked by",
+    "note": "Remark",
+    "checkFiles": "Check vouchers",
+    "filesHint": "Read only: vouchers cannot be changed or removed once saved.",
+    "settlementTitle": "Settlement",
+    "settlementNo": "Settlement no.",
+    "settledAmount": "Settled amount",
+    "settledTogether": "Total of the {count} records settled together",
+    "settlementVoucherNo": "Settlement voucher no.",
+    "settledBy": "Settled by",
+    "settlementFiles": "Settlement vouchers",
+    "notSettled": "Checked, not settled yet.",
+    "locked": "The check and settlement of this record carry amounts. Your account has 'View amounts' switched off, so they are not shown."
+  },
   "jb298": {
     "state": {
       "PENDING": "To check",
