@@ -25739,6 +25739,8 @@
       "approve": "Suis “Luluskan amaun” anda dimatikan, jadi anda tidak boleh meluluskan amaun. Minta ibu pejabat menghidupkannya di Pengguna › Edit › Suis kebenaran.",
       "check": "Suis “Semak kos” anda dimatikan, jadi anda tidak boleh menyemak. Minta ibu pejabat menghidupkannya di Pengguna › Edit › Suis kebenaran.",
       "settle": "Suis “Sahkan penyelesaian” anda dimatikan, jadi anda tidak boleh menyelesaikan atau memuat naik baucar bayaran. Minta ibu pejabat menghidupkannya di Pengguna › Edit › Suis kebenaran."
-    }
+    },
+    "notChecked": "Semakan tidak berjaya - belum ada nombor semakan. Maklumat yang anda isi masih ada; sila cuba lagi.",
+    "notSettled": "Penyelesaian tidak berjaya - belum ada nombor penyelesaian dan ia kekal di 「Sudah disemak」. Maklumat yang anda isi masih ada; sila cuba lagi."
   }
 }

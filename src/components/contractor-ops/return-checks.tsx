@@ -73,6 +73,7 @@ import type { MaterialOutgoing } from "@/interfaces/contractor-ops";
 import { ATTACHMENT_ACCEPT } from "@/lib/attachment-whitelist";
 import { useDateFormat } from "@/lib/dates";
 import { useMoneyStep } from "@/lib/money-steps";
+import { saveRefusalLine } from "@/lib/save-refusal";
 import { getSupplierReturns } from "@/services/contractor.service";
 import { getLabourStatements, type LabourStatementSummary } from "@/services/labour-statement.service";
 import { getRentalStatements, type RentalStatementRow } from "@/services/rental-statement.service";
@@ -913,6 +914,7 @@ function CheckConfirmForm({
   // Only what is still listed: a row checked meanwhile drops out.
   const picked = ids.filter((id) => chosen.has(id));
   const checkStep = useMoneyStep("check");
+  const t306 = useTranslations("jb306");
   const save = useMutation({
     mutationFn: () =>
       createReturnCheck({
@@ -1011,6 +1013,7 @@ function CheckConfirmForm({
               {t("confirm")}
             </Button>
           </div>
+          <FailedLine error={save.error} notSaved={t306("notChecked")} />
         </section>
       )}
     </div>
@@ -1472,6 +1475,23 @@ export function SettlementsList({
 }
 
 /**
+ * A 核对 / 结算 that did not go through says so in the window itself (客户 11-28i:
+ * 「已经提交结算，系统仍然显示「已核对、待结算」」 - the walk saw a failed
+ * settle leave the window open with nothing said, the toast unseen). A
+ * refusal says its own words; a server fault says it did not go through. A
+ * closed PIN dialog says nothing.
+ */
+export function FailedLine({ error, notSaved }: { error: unknown; notSaved: string }) {
+  const line = saveRefusalLine(error, notSaved);
+  if (!line) return null;
+  return (
+    <p role="alert" data-slot="reconcile-failed" className="text-sm font-medium text-destructive">
+      {line}
+    </p>
+  );
+}
+
+/**
  * 【结算】's body (JB278 / JB280): the parties with checks waiting, then that
  * party's checks to tick (each with its 笔数, 凭证编号 and amount), then
  * 结算人 and time (not typed), 凭证编号 + vouchers (required), remark and
@@ -1508,6 +1528,7 @@ function SettlePicker({ kind, onSaved }: { kind: ReconKind; onSaved: (settlement
   const ticked = ids.filter((id) => chosen.has(id));
   const money = party?.checks.some((check) => check.amount !== null) ?? false;
   const settleStep = useMoneyStep("settle");
+  const t306 = useTranslations("jb306");
   const save = useMutation({
     mutationFn: () => createSettlement({ kind, checks: ticked, voucherNo, note, files }),
     onSuccess: (settlement) => {
@@ -1640,6 +1661,7 @@ function SettlePicker({ kind, onSaved }: { kind: ReconKind; onSaved: (settlement
                   {tj("confirmSettle")}
                 </Button>
               </div>
+              <FailedLine error={save.error} notSaved={t306("notSettled")} />
             </section>
           )}
         </section>

@@ -25739,6 +25739,8 @@
       "approve": "Your “Approve amounts” switch is off, so you cannot approve amounts. Ask head office to turn it on in Users › Edit › Permission switches.",
       "check": "Your “Check costs” switch is off, so you cannot check. Ask head office to turn it on in Users › Edit › Permission switches.",
       "settle": "Your “Confirm settlements” switch is off, so you cannot settle or upload payment vouchers. Ask head office to turn it on in Users › Edit › Permission switches."
-    }
+    },
+    "notChecked": "The check did not go through - there is no check number yet. What you filled in is still here; please try again.",
+    "notSettled": "The settlement did not go through - there is no settlement number yet and it stays under 「Checked」. What you filled in is still here; please try again."
   }
 }
