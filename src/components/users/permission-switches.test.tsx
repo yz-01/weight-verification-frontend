@@ -9,6 +9,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 
+import { FormSurfaceProvider } from "@/components/shared/form-surface";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import type { PermissionEntry, PermissionSwitchState } from "@/interfaces/auth";
 import en from "@/messages/en.json";
@@ -223,12 +224,24 @@ describe("one 保存 in the edit-user dialog (10-29)", () => {
   });
 
   it("shows the unsaved line while the switches have changes, in every language", () => {
-    expect(render(<UnsavedSwitchesNote />, state())).toContain("权限已改，按下面的「保存」才会生效");
+    // Walk 2 G7: it points at the 「保存」 there is - the page's is at the top
+    // right, the dialog's below in its footer.
+    expect(render(<UnsavedSwitchesNote />, state())).toContain("权限已改，按页面右上角的「保存」才会生效");
+    expect(
+      render(
+        <FormSurfaceProvider value="dialog">
+          <UnsavedSwitchesNote />
+        </FormSurfaceProvider>,
+        state(),
+      ),
+    ).toContain("权限已改，按下面的「保存」才会生效");
     for (const book of [messages, zhTW, en, ms]) {
       expect(book.users.switches.unsaved).toBeTruthy();
+      expect(book.users.switches.unsavedTop).toBeTruthy();
       expect(book.users.switches.partSaved).toBeTruthy();
-      // The line names the dialog's own button.
+      // The line names the form's own button.
       expect(book.users.switches.unsaved).toContain(book.common.save);
+      expect(book.users.switches.unsavedTop).toContain(book.common.save);
     }
     // Nothing changed yet: no line.
     expect(render(<PermissionSwitches userId="u1" />, state())).not.toContain("data-switches-unsaved");

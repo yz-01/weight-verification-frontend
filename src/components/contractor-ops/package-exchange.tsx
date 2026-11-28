@@ -51,6 +51,7 @@ import { roleLabel } from "@/lib/role-labels";
 import type {
   EvidencePackageDetail,
   PackageAnswer,
+  PackageEvent,
   PackageMessage,
   PackageRecipient,
   PackageThreadPeople,
@@ -109,7 +110,7 @@ export function packageChatHref(recipientId: string) {
 /** Who a recipient is, in words: head office has no name of its own. */
 export function recipientLabel(
   t: (key: string) => string,
-  row: { display_name?: string; recipient_name?: string; kind?: RecipientKind; recipient_kind?: RecipientKind },
+  row: { display_name?: string; recipient_name?: string; kind?: RecipientKind; recipient_kind?: RecipientKind | "" },
 ) {
   const name = row.display_name ?? row.recipient_name ?? "";
   const kind = row.kind ?? row.recipient_kind;
@@ -420,12 +421,13 @@ function RecipientsBlock({
               <li key={row.id} className="space-y-2 rounded-lg border p-3">
                 <div className="flex flex-wrap items-center gap-2">
                   <p className="min-w-0 flex-1 truncate font-medium">
-                    {row.display_name}
+                    {/* Walk 2 G3: head office has no name - its kind is its name. */}
+                    {recipientLabel(t, row)}
                     {row.organization && row.organization !== row.display_name && (
                       <span className="text-xs font-normal text-muted-foreground"> · {row.organization}</span>
                     )}
                   </p>
-                  <StatusBadge label={t(`exchange.kind.${row.kind}`)} tone="neutral" />
+                  {row.display_name && <StatusBadge label={t(`exchange.kind.${row.kind}`)} tone="neutral" />}
                   {/* JB252: 提交审批 / 资料传阅, and where this reviewer is. */}
                   {row.purpose && (
                     <StatusBadge label={loop(`purpose.${row.purpose}`)} tone="neutral" />
@@ -971,8 +973,8 @@ function OfficeChat({ pkg, recipients }: { pkg: EvidencePackageDetail; recipient
                 : "border-border bg-card text-muted-foreground hover:text-foreground"
             }`}
           >
-            <span className="block truncate font-medium">{row.display_name}</span>
-            <span className="block text-xs">{t(`exchange.kind.${row.kind}`)}</span>
+            <span className="block truncate font-medium">{recipientLabel(t, row)}</span>
+            {row.display_name && <span className="block text-xs">{t(`exchange.kind.${row.kind}`)}</span>}
           </button>
         ))}
       </nav>
@@ -986,7 +988,7 @@ function OfficeChat({ pkg, recipients }: { pkg: EvidencePackageDetail; recipient
             loading={thread.isLoading}
             items={pkg.items.map((item) => ({ id: item.id, label: item.reference || packageKindName(t, item) }))}
             ownSide="OFFICE"
-            otherName={current.display_name}
+            otherName={recipientLabel(t, current)}
             // An office at both ends (JB189 / JB190): the reader's own on the right.
             mineId={twoOffices ? user?.id : undefined}
             addressing={addressing}
@@ -1398,7 +1400,7 @@ export function ThreadView({
 
 /* -- 时间线 --------------------------------------------------------------- */
 
-function TimelineBlock({ pkg }: { pkg: EvidencePackageDetail }) {
+export function TimelineBlock({ pkg }: { pkg: EvidencePackageDetail }) {
   const t = useTranslations("multiEngine");
   const formatter = useDateFormat();
   const timeline = useQuery({
@@ -1408,6 +1410,9 @@ function TimelineBlock({ pkg }: { pkg: EvidencePackageDetail }) {
   if (timeline.isLoading) return <p className="text-sm text-muted-foreground">{t("loading")}</p>;
   if (timeline.isError) return <LoadFailed what={t("exchange.tab.timeline")} onRetry={() => void timeline.refetch()} />;
   const events = timeline.data ?? [];
+  // An event's own `kind` is what happened, not who it was sent to.
+  const recipientOf = (event: PackageEvent) =>
+    recipientLabel(t, { recipient_name: event.recipient_name, recipient_kind: event.recipient_kind });
   return (
     <ol className="space-y-1.5">
       {events.map((event) => (
@@ -1418,7 +1423,7 @@ function TimelineBlock({ pkg }: { pkg: EvidencePackageDetail }) {
             {event.round_no > 1 && (
               <span className="text-xs text-muted-foreground"> · {t("exchange.round", { n: event.round_no })}</span>
             )}
-            {event.recipient_name && <span className="text-muted-foreground"> · {event.recipient_name}</span>}
+            {recipientOf(event) && <span className="text-muted-foreground"> · {recipientOf(event)}</span>}
             {event.actor_name && <span className="text-muted-foreground"> · {event.actor_name}</span>}
             {event.note && event.kind !== "REPORT" && event.note !== "export" && event.note !== "preview" && (
               <span className="block break-words text-xs text-muted-foreground">{event.note}</span>
@@ -1708,9 +1713,9 @@ export function AnswerLines({ answers }: { answers: PackageAnswer[] }) {
           }
         >
           {answer.decision === "RETURNED"
-            ? t("exchange.answerReturned", { name: answer.recipient_name, reason: answer.reason })
+            ? t("exchange.answerReturned", { name: recipientLabel(t, answer), reason: answer.reason })
             : t("exchange.answerLine", {
-                name: answer.recipient_name,
+                name: recipientLabel(t, answer),
                 state: t(
                   answer.decision === "PENDING" && answer.signed
                     ? "exchange.answer.SIGNED"
