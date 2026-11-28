@@ -306,6 +306,7 @@ export function CompletePanel({
 }) {
   const loop = useTranslations("jb252");
   const words = useTranslations("jb307b");
+  const threeParty = useTranslations("jb309f");
   const formatter = useDateFormat();
   const { can } = useAuth();
   const complete = useMutation({
@@ -330,7 +331,8 @@ export function CompletePanel({
   if (pkg.completes_on_project) {
     return (
       <p className="rounded-lg border border-dashed border-panel-border bg-muted/30 p-3 text-sm" data-package-completes-on-project>
-        {words("completesOnProject")}
+        {/* JB309-6: the QS signs; the project manager archives. */}
+        {pkg.qs_review?.mine ? threeParty("qsCompletesOnProject") : words("completesOnProject")}
       </p>
     );
   }
@@ -390,6 +392,7 @@ export function ReviewDialog({
   submit,
   onDone,
   help,
+  amounts = true,
 }: {
   /** `null`: a package link - it never shows an amount (H17 六 7). */
   pkg: EvidencePackageDetail | null;
@@ -399,6 +402,8 @@ export function ReviewDialog({
   onDone: () => void;
   /** The line on top; a link has no PIN, so it says so in its own words. */
   help?: string;
+  /** JB309-5: `false` for the QS - he checks the amount, head office approves it. */
+  amounts?: boolean;
 }) {
   const loop = useTranslations("jb252");
   const common = useTranslations("common");
@@ -413,7 +418,7 @@ export function ReviewDialog({
   const [signature, setSignature] = useState<File | undefined>();
 
   const approves = reviewApproves(records, choices);
-  const money = pkg !== null && isMoneyType(pkg) && approves;
+  const money = amounts && pkg !== null && isMoneyType(pkg) && approves;
   const claim = pkg?.money?.claim_amount ?? pkg?.claim_amount ?? null;
   const difference = money ? amountDifference(claim, approved) : null;
   const differs = difference !== null && Number(difference) !== 0;

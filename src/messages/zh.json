@@ -9790,6 +9790,14 @@
       "package_not_approved": "要等全部审核通过，才能确认完毕并归档。",
       "package_completed": "这个资料包已经确认完毕并归档，不能再改动。",
       "package_project_completes": "总部负责审核批准，「确认完毕并归档」由项目经理去按。",
+      "package_qs_not_needed": "只有分包商的 Progress Claim 提交审批时，才要发给 QS 或授权审核负责人。",
+      "package_qs_required": "这是分包商的 Progress Claim，提交审批要先发给 QS 或授权审核负责人，再到总部。",
+      "package_qs_reviewer_required": "请选择 QS 或授权审核负责人。",
+      "package_qs_reviewer_invalid": "这个人不能做这份 Claim 的 QS：要有「工程款审核（QS）」权限，并且能看这个项目。",
+      "package_same_signer": "项目经理、QS 和总部必须是三个不同的账号，同一个人不能签两次。",
+      "package_qs_first": "要等 QS 或授权审核负责人先审核通过这一轮，总部才能审核。",
+      "package_qs_review_off": "你的账号没有开「工程款审核（QS）」，不能以 QS 身份审核。请总部在「用户 › 编辑 › 权限开关」打开。",
+      "package_three_party_incomplete": "项目经理、QS 和总部三方都签字后，才能确认完毕并归档。",
       "package_claim_kind_required": "请选择 Claim 类型（材料到场或工程进度）。",
       "package_claim_category_required": "请选择 Claim 分类。",
       "package_claim_subcontractor_required": "这是分包商的 Claim，请选择对应的分包商。不选的话，归档后会显示「不需要结算」，不能进入结算。",
@@ -12649,7 +12657,8 @@
         "OWNER": "业主",
         "SUPPLIER": "供应商",
         "OTHER": "其他单位",
-        "HEADQUARTERS": "总部（系统内）"
+        "HEADQUARTERS": "总部（系统内）",
+        "QS": "QS 或授权审核负责人"
       },
       "expired": "已过期",
       "status": {
@@ -14618,7 +14627,8 @@
       },
       "package": {
         "view": "查看 Multi Engine 资料包",
-        "manage": "制作及发送资料包"
+        "manage": "制作及发送资料包",
+        "qs_review": "工程款审核（QS）（分包商 Progress Claim 的第二个签字）"
       },
       "claim": {
         "view": "查看进度 Claim",
@@ -25858,5 +25868,55 @@
     },
     "notChecked": "这次核对没有成功，还没有核对编号。你填的内容都还在，请再试一次。",
     "notSettled": "这次结算没有成功，还没有结算编号，仍在「已核对」。你填的内容都还在，请再试一次。"
+  },
+  "jb309f": {
+    "title": "三方签字审批",
+    "order": "分包商的 Progress Claim 要三个不同的账号按顺序签字：项目经理 → QS 或授权审核负责人 → 总部授权负责人，每人用自己的六位数签核密码。三方都签了，才由项目经理确认完毕并归档。",
+    "step": {
+      "manager": "项目经理",
+      "qs": "QS 或授权审核负责人",
+      "headquarters": "总部授权负责人"
+    },
+    "stepHelp": {
+      "manager": "确认实际施工内容及现场证据",
+      "qs": "核对申请金额、施工分类及历史工程款申请",
+      "headquarters": "最终审核及批准金额"
+    },
+    "round": "第 {n} 轮",
+    "notSigned": "还没签",
+    "by": "{name} · {when}",
+    "opinion": "意见：{text}",
+    "next": {
+      "MANAGER": "下一步：项目经理签名提交这一轮。",
+      "SEND_QS": "下一步：提交审批，选好 QS 或授权审核负责人（总部会一起收到）。",
+      "QS": "下一步：等 QS 或授权审核负责人 {name} 审核签字。",
+      "SEND_HEADQUARTERS": "下一步：发给总部（系统内）做最终审核。",
+      "HEADQUARTERS": "下一步：等总部授权负责人最终审核及批准金额。",
+      "RESUBMIT": "这一轮被退回了。项目经理补充资料、重新签名提交后，三方要在新的一轮重新按顺序签字。",
+      "COMPLETE": "三方都签好了，由项目经理按「确认完毕并归档」。",
+      "DONE": "三方签字完成，已确认完毕并归档。"
+    },
+    "qs": {
+      "waiting": "你是这份 Claim 的 QS 或授权审核负责人，待审核 {count} 条。",
+      "button": "QS 审核",
+      "help": "请核对申请金额、施工分类及历史工程款申请，逐条选「确认通过」或「退回补充资料」，写审核意见并电子签名，提交时输入你自己的六位数签核密码。批准金额由总部最后审核时填写。"
+    },
+    "waiting": {
+      "qs_first": "要等 QS 或授权审核负责人先审核通过这一轮，总部才能审核。",
+      "same_signer": "你已经在这份 Claim 上以项目经理或 QS 身份签过字。三方必须是不同的人，这一步要由别人来签。",
+      "qs_review_off": "你的账号没有开「工程款审核（QS）」，不能以 QS 身份审核。请总部在「用户 › 编辑 › 权限开关」打开。",
+      "not_your_review": "这份 Claim 不是发给你做 QS 审核的。"
+    },
+    "send": {
+      "qsLabel": "QS 或授权审核负责人",
+      "qsHelp": "这是分包商的 Progress Claim，提交审批要三方签字：项目经理 → QS 或授权审核负责人 → 总部授权负责人。选好 QS 后，总部（系统内）会一起收到，等 QS 审核通过后再审核。",
+      "qsPlaceholder": "请选择 QS 或授权审核负责人",
+      "qsSearch": "搜索名字",
+      "qsNone": "没有可以选的人。QS 要有「工程款审核（QS）」权限、能看这个项目，而且不能是做这个资料包、发送或签这一轮的人。请总部在「用户 › 编辑 › 权限开关」打开。",
+      "qsWhat": "可以选的 QS",
+      "qsFirst": "这是分包商的 Progress Claim，提交审批要先发给 QS 或授权审核负责人：请在上面选「QS 或授权审核负责人」。",
+      "button": "发给 QS 和总部"
+    },
+    "qsCompletesOnProject": "「确认完毕并归档」由项目经理去按，QS 这里不用按。"
   }
 }

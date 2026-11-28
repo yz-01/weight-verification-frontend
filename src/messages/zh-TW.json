@@ -9790,6 +9790,14 @@
       "package_not_approved": "要等全部審核通過，才能確認完畢並歸檔。",
       "package_completed": "這個資料包已經確認完畢並歸檔，不能再改動。",
       "package_project_completes": "總部負責審核批准，「確認完畢並歸檔」由項目經理去按。",
+      "package_qs_not_needed": "只有分包商的 Progress Claim 提交審批時，才要發給 QS 或授權審核負責人。",
+      "package_qs_required": "這是分包商的 Progress Claim，提交審批要先發給 QS 或授權審核負責人，再到總部。",
+      "package_qs_reviewer_required": "請選擇 QS 或授權審核負責人。",
+      "package_qs_reviewer_invalid": "這個人不能做這份 Claim 的 QS：要有「工程款審核（QS）」權限，並且能看這個項目。",
+      "package_same_signer": "項目經理、QS 和總部必須是三個不同的賬號，同一個人不能簽兩次。",
+      "package_qs_first": "要等 QS 或授權審核負責人先審核通過這一輪，總部才能審核。",
+      "package_qs_review_off": "你的賬號沒有開「工程款審核（QS）」，不能以 QS 身份審核。請總部在「用戶 › 編輯 › 權限開關」打開。",
+      "package_three_party_incomplete": "項目經理、QS 和總部三方都簽字後，才能確認完畢並歸檔。",
       "package_claim_kind_required": "請選擇 Claim 類型（材料到場或工程進度）。",
       "package_claim_category_required": "請選擇 Claim 分類。",
       "package_claim_subcontractor_required": "這是分包商的 Claim，請選擇對應的分包商。不選的話，歸檔後會顯示「不需要結算」，不能進入結算。",
@@ -12649,7 +12657,8 @@
         "OWNER": "業主",
         "SUPPLIER": "供應商",
         "OTHER": "其他單位",
-        "HEADQUARTERS": "總部（系統內）"
+        "HEADQUARTERS": "總部（系統內）",
+        "QS": "QS 或授權審核負責人"
       },
       "expired": "已過期",
       "status": {
@@ -14618,7 +14627,8 @@
       },
       "package": {
         "view": "查看 Multi Engine 資料包",
-        "manage": "製作及發送資料包"
+        "manage": "製作及發送資料包",
+        "qs_review": "工程款審核（QS）（分包商 Progress Claim 的第二個簽字）"
       },
       "claim": {
         "view": "查看進度 Claim",
@@ -25858,5 +25868,55 @@
     },
     "notChecked": "這次核對沒有成功，還沒有核對編號。你填的內容都還在，請再試一次。",
     "notSettled": "這次結算沒有成功，還沒有結算編號，仍在「已核對」。你填的內容都還在，請再試一次。"
+  },
+  "jb309f": {
+    "title": "三方簽字審批",
+    "order": "分包商的 Progress Claim 要三個不同的賬號按順序簽字：項目經理 → QS 或授權審核負責人 → 總部授權負責人，每人用自己的六位數簽核密碼。三方都簽了，才由項目經理確認完畢並歸檔。",
+    "step": {
+      "manager": "項目經理",
+      "qs": "QS 或授權審核負責人",
+      "headquarters": "總部授權負責人"
+    },
+    "stepHelp": {
+      "manager": "確認實際施工內容及現場證據",
+      "qs": "核對申請金額、施工分類及歷史工程款申請",
+      "headquarters": "最終審核及批准金額"
+    },
+    "round": "第 {n} 輪",
+    "notSigned": "還沒簽",
+    "by": "{name} · {when}",
+    "opinion": "意見：{text}",
+    "next": {
+      "MANAGER": "下一步：項目經理簽名提交這一輪。",
+      "SEND_QS": "下一步：提交審批，選好 QS 或授權審核負責人（總部會一起收到）。",
+      "QS": "下一步：等 QS 或授權審核負責人 {name} 審核簽字。",
+      "SEND_HEADQUARTERS": "下一步：發給總部（系統內）做最終審核。",
+      "HEADQUARTERS": "下一步：等總部授權負責人最終審核及批准金額。",
+      "RESUBMIT": "這一輪被退回了。項目經理補充資料、重新簽名提交後，三方要在新的一輪重新按順序簽字。",
+      "COMPLETE": "三方都簽好了，由項目經理按「確認完畢並歸檔」。",
+      "DONE": "三方簽字完成，已確認完畢並歸檔。"
+    },
+    "qs": {
+      "waiting": "你是這份 Claim 的 QS 或授權審核負責人，待審核 {count} 條。",
+      "button": "QS 審核",
+      "help": "請核對申請金額、施工分類及歷史工程款申請，逐條選「確認通過」或「退回補充資料」，寫審核意見並電子簽名，提交時輸入你自己的六位數簽核密碼。批准金額由總部最後審核時填寫。"
+    },
+    "waiting": {
+      "qs_first": "要等 QS 或授權審核負責人先審核通過這一輪，總部才能審核。",
+      "same_signer": "你已經在這份 Claim 上以項目經理或 QS 身份簽過字。三方必須是不同的人，這一步要由別人來簽。",
+      "qs_review_off": "你的賬號沒有開「工程款審核（QS）」，不能以 QS 身份審核。請總部在「用戶 › 編輯 › 權限開關」打開。",
+      "not_your_review": "這份 Claim 不是發給你做 QS 審核的。"
+    },
+    "send": {
+      "qsLabel": "QS 或授權審核負責人",
+      "qsHelp": "這是分包商的 Progress Claim，提交審批要三方簽字：項目經理 → QS 或授權審核負責人 → 總部授權負責人。選好 QS 後，總部（系統內）會一起收到，等 QS 審核通過後再審核。",
+      "qsPlaceholder": "請選擇 QS 或授權審核負責人",
+      "qsSearch": "搜索名字",
+      "qsNone": "沒有可以選的人。QS 要有「工程款審核（QS）」權限、能看這個項目，而且不能是做這個資料包、發送或簽這一輪的人。請總部在「用戶 › 編輯 › 權限開關」打開。",
+      "qsWhat": "可以選的 QS",
+      "qsFirst": "這是分包商的 Progress Claim，提交審批要先發給 QS 或授權審核負責人：請在上面選「QS 或授權審核負責人」。",
+      "button": "發給 QS 和總部"
+    },
+    "qsCompletesOnProject": "「確認完畢並歸檔」由項目經理去按，QS 這裡不用按。"
   }
 }
