@@ -9788,6 +9788,10 @@
       "package_amount_reason_required": "批准金額和申請金額不一樣，請填寫審批原因。",
       "package_not_approved": "要等全部審核通過，才能確認完畢並歸檔。",
       "package_completed": "這個資料包已經確認完畢並歸檔，不能再改動。",
+      "package_project_completes": "總部負責審核批准，「確認完畢並歸檔」由項目經理去按。",
+      "package_claim_kind_required": "請選擇 Claim 類型（材料到場或工程進度）。",
+      "package_claim_category_required": "請選擇 Claim 分類。",
+      "package_claim_subcontractor_required": "這是分包商的 Claim，請選擇對應的分包商。不選的話，歸檔後會顯示「不需要結算」，不能進入結算。",
       "company_module_invalid": "請只勾選這家公司有的業務模組。",
       "company_module_switched_off": "你們公司沒有開通這個模組。要用，請聯絡 MSE 開通。",
       "consultant_grant_changed": "你的項目權限已更新，請重新登入。",
@@ -25625,6 +25629,16 @@
       "notCounted": "還有 {amount} 未結算，不算在內",
       "basis": "只算已結算的，按審核歸檔日期"
     }
+  },
+  "jb307b": {
+    "required": "Claim 類型和 Claim 分類必須填寫。分包商的 Claim 還要選對應的分包商，歸檔後才能進入核對與結算。",
+    "subRequired": "這是分包商的 Claim，必須選擇對應的分包商。不選的話，歸檔後會顯示「不需要結算」，不能進入結算。",
+    "subOptional": "這個分類不是分包商的 Claim，可以不選分包商；不選的話，歸檔後顯示「不需要結算」。",
+    "completesOnProject": "總部已審核批准。「確認完畢並歸檔」由項目經理去按，總部這裡不用按。",
+    "settleNoManage": "你沒有「製作及發送資料包」權限，不能做 Progress Claim 的核對與結算。",
+    "settleNoAmounts": "你的「金額查看」已關閉，核對與結算都是金額，所以不能做。請找公司管理員開通。",
+    "settleBothOff": "你的帳號沒有開「費用核對」和「結算確認」，不能核對與結算。請總部在「用戶 › 編輯 › 權限開關」打開。",
+    "chooseCategory": "請選擇 Claim 分類"
   },
   "jb299": {
     "fee": {

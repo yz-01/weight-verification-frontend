@@ -305,6 +305,7 @@ export function CompletePanel({
   onChanged: () => void;
 }) {
   const loop = useTranslations("jb252");
+  const words = useTranslations("jb307b");
   const formatter = useDateFormat();
   const { can } = useAuth();
   const complete = useMutation({
@@ -321,6 +322,15 @@ export function CompletePanel({
           name: pkg.completed_by_name || "—",
           when: formatter.dateTime(pkg.completed_at),
         })}
+      </p>
+    );
+  }
+  // JB307-4 (客户 11-28j): 「总部负责审核批准，项目经理负责最终确认归档」 - head
+  // office reads who presses it instead of a button.
+  if (pkg.completes_on_project) {
+    return (
+      <p className="rounded-lg border border-dashed border-panel-border bg-muted/30 p-3 text-sm" data-package-completes-on-project>
+        {words("completesOnProject")}
       </p>
     );
   }

@@ -1014,6 +1014,9 @@ export function ClaimFieldsForm({
   onChange,
   categories,
   withAmount = true,
+  categoryRequired = false,
+  subcontractorRequired = false,
+  subcontractorHint,
 }: {
   project: string;
   general: boolean;
@@ -1021,8 +1024,14 @@ export function ClaimFieldsForm({
   onChange: (next: ClaimFields) => void;
   categories: ReturnType<typeof useClaimCategories>;
   withAmount?: boolean;
+  /** JB307-3: a Progress Claim package's 分类 is required (客户 11-28j). */
+  categoryRequired?: boolean;
+  /** JB307-3: a subcontractor's claim names its 分包商. */
+  subcontractorRequired?: boolean;
+  subcontractorHint?: string;
 }) {
   const t = useTranslations("claims");
+  const required = useTranslations("jb307b");
   const { can } = useAuth();
   const queryClient = useQueryClient();
   const [adding, setAdding] = useState(false);
@@ -1035,22 +1044,22 @@ export function ClaimFieldsForm({
     <>
       <FieldWrapper
         label={t("field.category")}
-        required={general}
-        hint={general ? t("categoryHintGeneral") : t("categoryHint")}
+        required={general || categoryRequired}
+        hint={general ? t("categoryHintGeneral") : categoryRequired ? undefined : t("categoryHint")}
       >
         <div className="flex gap-2">
           <Select
-            value={value.category || NO_CATEGORY}
+            value={value.category || (categoryRequired ? "" : NO_CATEGORY)}
             onValueChange={(next) =>
               set({ category: next === NO_CATEGORY ? "" : next, otherName: "" })
             }
             disabled={!project}
           >
             <SelectTrigger className="min-w-0 flex-1" aria-label={t("field.category")}>
-              <SelectValue placeholder={t("filter.noCategory")} />
+              <SelectValue placeholder={categoryRequired ? required("chooseCategory") : t("filter.noCategory")} />
             </SelectTrigger>
             <SelectContent>
-              {!general && <SelectItem value={NO_CATEGORY}>{t("filter.noCategory")}</SelectItem>}
+              {!general && !categoryRequired && <SelectItem value={NO_CATEGORY}>{t("filter.noCategory")}</SelectItem>}
               <CategoryOptionItems rows={rows} />
             </SelectContent>
           </Select>
@@ -1074,7 +1083,11 @@ export function ClaimFieldsForm({
           <Input value={value.otherName} onChange={(event) => set({ otherName: event.target.value })} />
         </FieldWrapper>
       )}
-      <FieldWrapper label={t("field.subcontractor")} hint={t("subcontractorHint")}>
+      <FieldWrapper
+        label={t("field.subcontractor")}
+        required={subcontractorRequired}
+        hint={subcontractorHint ?? t("subcontractorHint")}
+      >
         <Input
           value={term}
           onChange={(event) => setTerm(event.target.value)}

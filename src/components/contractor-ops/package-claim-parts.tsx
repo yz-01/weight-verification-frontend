@@ -4,7 +4,9 @@
  * Multi Engine after 客户 10-28 (JB51, JB52):
  *
  * - a Progress Claim is made in 「新建资料包」 like every other package, with
- *   its 期数 / Claim 类型 / 分类 / 分包商 - all optional - on the package
+ *   its 期数 / Claim 类型 / 分类 / 分包商 on the package (JB307-3, 客户 11-28j:
+ *   「Claim 类型及 Claim 分类必须填写。属于分包商的 Progress Claim，必须选择对应
+ *   分包商」 - 期数 stays optional)
  *   (`ClaimInfoFields`, `ClaimInfoBlock`); the Progress Claim tab only filters,
  *   and its one button manages the Claim categories (`ClaimCategoriesDialog`,
  *   客户: 「这个应该是新增claim 分类，不是新增claim」);
@@ -22,7 +24,6 @@ import { useState } from "react";
 import {
   ClaimFieldsForm,
   EMPTY_FIELDS,
-  claimFieldsComplete,
   useClaimCategories,
   type ClaimFields,
 } from "@/components/contractor-ops/claim-engine";
@@ -48,7 +49,30 @@ import {
 /* -- 期数 / Claim 类型 / 分类 / 分包商 ------------------------------------- */
 
 export type ClaimKindChoice = "" | "MATERIAL_ON_SITE" | "PROGRESS";
-const CLAIM_KINDS: ClaimKindChoice[] = ["", "MATERIAL_ON_SITE", "PROGRESS"];
+/** JB307-3: Claim 类型 is required - no 「不选」 any more ("" is only "not chosen yet"). */
+const CLAIM_KINDS: ClaimKindChoice[] = ["MATERIAL_ON_SITE", "PROGRESS"];
+
+/** The seeded 「Subcontractor Claim」, by its code (a rename keeps it). */
+const SUBCONTRACTOR_CLAIM_CODE = "CLM-SUBCONTRACTOR";
+const SUBCONTRACTOR_CLAIM_WORDS = ["分包", "subcon", "sub-con", "sub con", "subkon"];
+
+/**
+ * Whether a claim of this 分类 is a subcontractor's (JB307-3) - the server's
+ * `multi_engine.claim_needs_subcontractor`: the seeded Subcontractor Claim, or
+ * a 分类 whose name (its parent's, 「其他」's typed name) says 分包 / subcon.
+ */
+export function claimNeedsSubcontractor(
+  category: Pick<ProjectCategory, "code" | "name" | "name_zh" | "name_en" | "parent_name" | "is_other"> | undefined,
+  otherName = "",
+): boolean {
+  if (!category) return false;
+  if (category.code === SUBCONTRACTOR_CLAIM_CODE) return true;
+  const text = [category.name, category.name_zh, category.name_en, category.parent_name, category.is_other ? otherName : ""]
+    .map((part) => part ?? "")
+    .join(" ")
+    .toLowerCase();
+  return SUBCONTRACTOR_CLAIM_WORDS.some((word) => text.includes(word));
+}
 
 export interface ClaimInfoValue {
   /** `YYYY-MM`, or "" for none. */
@@ -87,9 +111,9 @@ export function claimInfoPayload(value: ClaimInfoValue): Required<PackageClaimFi
 }
 
 /**
- * The fields a Progress Claim adds to 「新建资料包」 (JB52 第 1 点). None is
- * required, so none carries a star; 「其他」 asks what it is, as on a claim.
- * Returns whether the value can be saved.
+ * The fields a Progress Claim adds to 「新建资料包」 (JB52 第 1 点). Since
+ * JB307-3 Claim 类型 and 分类 carry a star, and 分包商 too when the 分类 is a
+ * subcontractor's; 「其他」 asks what it is, as on a claim.
  */
 export function ClaimInfoFields({
   project,
@@ -102,12 +126,15 @@ export function ClaimInfoFields({
 }) {
   const t = useTranslations("multiEngine");
   const claims = useTranslations("claims");
+  const words = useTranslations("jb307b");
   // query-failure: passed to ClaimFieldsForm, which shows QueryFailedNote under the picker.
   const categories = useClaimCategories(project, { offered: true });
+  const chosen = (categories.data?.results ?? []).find((row) => row.id === value.fields.category);
+  const needsSub = claimNeedsSubcontractor(chosen, value.fields.otherName);
   return (
     <div className="space-y-4 rounded-lg border bg-muted/20 p-3" data-claim-info-fields>
       <p className="text-sm font-medium">{t("claimInfo.title")}</p>
-      <p className="text-xs text-muted-foreground">{t("claimInfo.optional")}</p>
+      <p className="text-xs text-muted-foreground">{words("required")}</p>
       <FieldWrapper label={t("claimInfo.period")}>
         <Input
           type="month"
@@ -116,11 +143,11 @@ export function ClaimInfoFields({
           className="w-48"
         />
       </FieldWrapper>
-      <FieldWrapper label={t("claimInfo.kind")}>
-        <div className="grid grid-cols-3 gap-2">
+      <FieldWrapper label={t("claimInfo.kind")} required>
+        <div className="grid grid-cols-2 gap-2" data-claim-kind>
           {CLAIM_KINDS.map((option) => (
             <button
-              key={option || "none"}
+              key={option}
               type="button"
               aria-pressed={value.kind === option}
               onClick={() => onChange({ ...value, kind: option })}
@@ -130,7 +157,7 @@ export function ClaimInfoFields({
                   : "border-border bg-card text-muted-foreground hover:text-foreground"
               }`}
             >
-              {option ? claims(`kind.${option}`) : t("claimInfo.noKind")}
+              {claims(`kind.${option}`)}
             </button>
           ))}
         </div>
@@ -142,17 +169,40 @@ export function ClaimInfoFields({
         value={value.fields}
         onChange={(fields) => onChange({ ...value, fields })}
         categories={categories}
+        categoryRequired
+        subcontractorRequired={needsSub}
+        subcontractorHint={chosen ? (needsSub ? words("subRequired") : words("subOptional")) : undefined}
       />
     </div>
   );
 }
 
-/** Whether the claim fields can be saved: 「其他」 needs its name. */
-export function useClaimInfoComplete(project: string, value: ClaimInfoValue) {
+/**
+ * What the claim fields still need before they can be saved (JB307-3), as
+ * the labels on screen: Claim 类型, Claim 分类, 「其他」's name, and the 分包商
+ * of a subcontractor's claim. Empty when they can be saved.
+ */
+export function useClaimInfoMissing(project: string, value: ClaimInfoValue): string[] {
+  const t = useTranslations("multiEngine");
+  const claims = useTranslations("claims");
   // query-failure: the same query ClaimInfoFields draws, with its own note there.
   const categories = useClaimCategories(project, { offered: true });
   const chosen = (categories.data?.results ?? []).find((row) => row.id === value.fields.category);
-  return claimFieldsComplete(value.fields, false, chosen?.is_other);
+  const missing: string[] = [];
+  if (!value.kind) missing.push(t("claimInfo.kind"));
+  if (!value.fields.category) missing.push(t("claimInfo.category"));
+  if (chosen?.is_other && !value.fields.otherName.trim()) missing.push(claims("field.otherName"));
+  if (claimNeedsSubcontractor(chosen, value.fields.otherName) && !value.fields.subcontractor) {
+    missing.push(t("claimInfo.subcontractor"));
+  }
+  return missing;
+}
+
+/** The button's reason for `useClaimInfoMissing`, or `undefined` when nothing is missing. */
+export function useClaimInfoReason(project: string, value: ClaimInfoValue): string | undefined {
+  const common = useTranslations("common");
+  const missing = useClaimInfoMissing(project, value);
+  return missing.length ? common("missingFields", { fields: missing.join(common("listSeparator")) }) : undefined;
 }
 
 /** `2026-10-01` as `2026-10`: the month a claim is for. */
@@ -229,10 +279,9 @@ function EditClaimInfoDialog({
   onSaved: () => void;
 }) {
   const t = useTranslations("multiEngine");
-  const claims = useTranslations("claims");
   const common = useTranslations("common");
   const [value, setValue] = useState<ClaimInfoValue>(() => claimInfoValue(pkg));
-  const complete = useClaimInfoComplete(pkg.project, value);
+  const missing = useClaimInfoReason(pkg.project, value);
   const save = useMutation({
     mutationFn: () => updateEvidencePackage(pkg.id, claimInfoPayload(value)),
     onSuccess: onSaved,
@@ -246,7 +295,7 @@ function EditClaimInfoDialog({
         <Button variant="outline" onClick={onClose}>
           {common("cancel")}
         </Button>
-        <Button disabled={save.isPending || !complete} disabledReason={claims("completeClaimFields")} onClick={() => save.mutate()}>
+        <Button disabled={save.isPending || Boolean(missing)} disabledReason={missing ?? common("saving")} onClick={() => save.mutate()}>
           {t("claimInfo.save")}
         </Button>
       </footer>

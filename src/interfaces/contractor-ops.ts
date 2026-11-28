@@ -2355,6 +2355,8 @@ export interface EvidencePackageDetail extends EvidencePackageRow {
   completed_by_name?: string;
   /** 「确认完毕并归档」 may be pressed now. */
   can_complete?: boolean;
+  /** JB307-4: approved, and this reader is head office - the project manager archives it. */
+  completes_on_project?: boolean;
   /** Returned: records and files may be added for the next round. */
   takes_supplements?: boolean;
   /** What was added for the next round and not sent yet. */

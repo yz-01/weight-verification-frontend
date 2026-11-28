@@ -9788,6 +9788,10 @@
       "package_amount_reason_required": "The approved amount differs from the claim amount: write the reason.",
       "package_not_approved": "It can be completed once every reviewer has approved it.",
       "package_completed": "This package is completed and archived; nothing more changes.",
+      "package_project_completes": "Head office reviews and approves; the project manager presses “Complete and archive”.",
+      "package_claim_kind_required": "Choose the claim type (material on site or progress).",
+      "package_claim_category_required": "Choose the claim category.",
+      "package_claim_subcontractor_required": "This is a subcontractor's claim: choose its subcontractor. Without one it shows “No settlement needed” once archived and cannot be settled.",
       "company_module_invalid": "Tick only business modules this company has.",
       "company_module_switched_off": "This module is not switched on for your company. To use it, ask MSE to switch it on.",
       "consultant_grant_changed": "Your project access has been updated. Please sign in again.",
@@ -25625,6 +25629,16 @@
       "notCounted": "Another {amount} not settled yet, not counted",
       "basis": "Settled claims only, by the approval date"
     }
+  },
+  "jb307b": {
+    "required": "Claim type and claim category are required. A subcontractor's claim also needs its subcontractor, so it can be checked and settled once archived.",
+    "subRequired": "This is a subcontractor's claim: choose its subcontractor. Without one it shows “No settlement needed” once archived and cannot be settled.",
+    "subOptional": "This category is not a subcontractor's claim, so the subcontractor may stay empty; without one it shows “No settlement needed” once archived.",
+    "completesOnProject": "Head office has approved it. The project manager presses “Complete and archive”; head office does not.",
+    "settleNoManage": "You do not have “Prepare and send packages”, so you cannot check or settle Progress Claims.",
+    "settleNoAmounts": "Your “See amounts” is off, and checking and settling are all amounts. Ask the company admin to turn it on.",
+    "settleBothOff": "Your “Check costs” and “Confirm settlements” switches are off, so you cannot check or settle. Ask head office to turn them on in Users › Edit › Permission switches.",
+    "chooseCategory": "Choose the claim category"
   },
   "jb299": {
     "fee": {

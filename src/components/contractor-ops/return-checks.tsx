@@ -217,18 +217,29 @@ export function ReconcileSettleButton({
   permission,
   onChecked,
   onSettled,
+  locked,
 }: {
   kind: ReconKind;
   step: "check" | "settle";
   permission: string;
   onChecked: (check: ReturnCheck) => void;
   onSettled: (settlement: Settlement) => void;
+  /** JB307-5: shown greyed with this reason instead of hidden (a field-staff account still sees nothing). */
+  locked?: string;
 }) {
   const tj = useTranslations("jb278");
   const t295 = useTranslations("jb295");
   const t298 = useTranslations("jb298");
   const { can, user } = useAuth();
   const [open, setOpen] = useState<"check" | "settle" | null>(null);
+  if (locked && !user?.is_field_staff) {
+    return (
+      <Button data-slot="reconcile-settle-button" disabled disabledReason={locked}>
+        <ClipboardCheck />
+        {tj("issueButton")}
+      </Button>
+    );
+  }
   if (!officeMay(user, can, permission)) return null;
   return (
     <>
