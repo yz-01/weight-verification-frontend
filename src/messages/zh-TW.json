@@ -9886,6 +9886,7 @@
       "disposal_fee_adjust_reason_required": "改了每車單價，請寫調整原因。",
       "disposal_fee_adjust_amounts_off": "你的帳號看不到金額，不能調整每車單價。",
       "package_ended_record": "{records} 已拒絕或已撤回，不能參與審批和結算。請先把它移出資料包；已經送審的，審批人只能退回這一筆。",
+      "package_file_locked": "這個檔案已經隨之前的一輪提交，不能刪除。只有這一輪補充、還沒「重新簽名提交」的檔案才可以刪除。",
       "finance_approve_amounts_off": "你的帳號沒有開「金額審批」，不能審批金額。請總部在「用戶 › 編輯 › 權限開關」打開。",
       "finance_check_costs_off": "你的帳號沒有開「費用核對」，不能核對。請總部在「用戶 › 編輯 › 權限開關」打開。",
       "finance_confirm_settlement_off": "你的帳號沒有開「結算確認」，不能結算或上傳付款憑證。請總部在「用戶 › 編輯 › 權限開關」打開。"
@@ -23926,6 +23927,19 @@
     "toast": {
       "reviewSigned": "審核結果已簽名提交",
       "completed": "已確認完畢並歸檔"
+    }
+  },
+  "jb307": {
+    "fileRemoved": "檔案已刪除。",
+    "files": {
+      "title": "專案經理上傳的檔案",
+      "help": "每個檔案都可以預覽、列印和匯出；整份資料包的 PDF 裡也有這些檔案。"
+    },
+    "remove": {
+      "button": "刪除這個檔案",
+      "title": "刪除 {name}？",
+      "body": "這個檔案還沒提交，刪除後不會放進下一輪。之前幾輪已經提交的資料不會改變。",
+      "confirm": "刪除"
     }
   },
   "jb248": {

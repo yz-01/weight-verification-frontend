@@ -1896,6 +1896,19 @@ export async function removePackageItem(id: string, item: string) {
   return row;
 }
 
+/**
+ * JB307-2 (客户 11-28j 事项 2): a file wrongly uploaded for the next round,
+ * taken off before 「重新签名提交」 - like a record added for that round.
+ */
+export async function removePackageFile(id: string, file: string) {
+  const row = await api.post<EvidencePackageDetail>(
+    `/api/evidence-packages/${id}/remove_file/`,
+    { file },
+  );
+  toastSuccess("jb307.fileRemoved");
+  return row;
+}
+
 /*
  * Picking on a module's own list (2026-10-10, 添加资料及勾选关联优化): the
  * rows ticked there join the package being put together, whole (补充 2), and
@@ -2481,6 +2494,13 @@ export const reviewPackageItemFile = (id: string, item: string, reference: strin
   fetchAsFile(`/api/package-reviews/${id}/download_item/`, {
     query: inline ? { item, inline: "1" } : { item },
     fallbackFilename: `${reference || "record"}.pdf`,
+  });
+
+/** JB307-1: one file the project manager uploaded into the package, as a PDF. */
+export const reviewPackageSentFile = (id: string, file: string, name: string, inline = false) =>
+  fetchAsFile(`/api/package-reviews/${id}/download_file/`, {
+    query: inline ? { file, inline: "1" } : { file },
+    fallbackFilename: `${name || "file"}.pdf`,
   });
 
 /* -------------------------------------------------------------------------

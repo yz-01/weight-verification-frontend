@@ -9886,6 +9886,7 @@
       "disposal_fee_adjust_reason_required": "改了每车单价，请写调整原因。",
       "disposal_fee_adjust_amounts_off": "你的账号看不到金额，不能调整每车单价。",
       "package_ended_record": "{records} 已拒绝或已撤回，不能参与审批和结算。请先把它移出资料包；已经送审的，审批人只能退回这一笔。",
+      "package_file_locked": "这个文件已经随之前的一轮提交，不能删除。只有这一轮补充、还没「重新签名提交」的文件才可以删除。",
       "finance_approve_amounts_off": "你的账号没有开「金额审批」，不能审批金额。请总部在「用户 › 编辑 › 权限开关」打开。",
       "finance_check_costs_off": "你的账号没有开「费用核对」，不能核对。请总部在「用户 › 编辑 › 权限开关」打开。",
       "finance_confirm_settlement_off": "你的账号没有开「结算确认」，不能结算或上传付款凭证。请总部在「用户 › 编辑 › 权限开关」打开。"
@@ -23926,6 +23927,19 @@
     "toast": {
       "reviewSigned": "审核结果已签名提交",
       "completed": "已确认完毕并归档"
+    }
+  },
+  "jb307": {
+    "fileRemoved": "文件已删除。",
+    "files": {
+      "title": "项目经理上传的文件",
+      "help": "每个文件都可以预览、打印和导出；整份资料包的 PDF 里也有这些文件。"
+    },
+    "remove": {
+      "button": "删除这个文件",
+      "title": "删除 {name}？",
+      "body": "这个文件还没提交，删除后不会放进下一轮。之前几轮已经提交的资料不会改变。",
+      "confirm": "删除"
     }
   },
   "jb248": {

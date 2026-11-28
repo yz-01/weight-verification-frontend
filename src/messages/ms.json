@@ -9886,6 +9886,7 @@
       "disposal_fee_adjust_reason_required": "Anda mengubah fi setiap trip: tulis sebabnya.",
       "disposal_fee_adjust_amounts_off": "Akaun anda tidak melihat amaun, jadi tidak boleh mengubah fi setiap trip.",
       "package_ended_record": "{records} telah ditolak atau ditarik balik dan tidak boleh diluluskan atau diselesaikan. Keluarkan dari pakej dahulu; jika sudah dihantar, penyemak hanya boleh memulangkannya.",
+      "package_file_locked": "Fail ini telah dihantar bersama pusingan sebelumnya, jadi ia tidak boleh dipadam. Hanya fail yang ditambah untuk pusingan ini, sebelum anda menandatangan semula dan menghantar, boleh dipadam.",
       "finance_approve_amounts_off": "Suis “Luluskan amaun” anda dimatikan, jadi anda tidak boleh meluluskan amaun. Minta ibu pejabat menghidupkannya di Pengguna › Edit › Suis kebenaran.",
       "finance_check_costs_off": "Suis “Semak kos” anda dimatikan, jadi anda tidak boleh menyemak. Minta ibu pejabat menghidupkannya di Pengguna › Edit › Suis kebenaran.",
       "finance_confirm_settlement_off": "Suis “Sahkan penyelesaian” anda dimatikan, jadi anda tidak boleh menyelesaikan atau memuat naik baucar bayaran. Minta ibu pejabat menghidupkannya di Pengguna › Edit › Suis kebenaran."
@@ -23926,6 +23927,19 @@
     "toast": {
       "reviewSigned": "Semakan ditandatangani dan dihantar",
       "completed": "Diselesaikan dan diarkibkan"
+    }
+  },
+  "jb307": {
+    "fileRemoved": "Fail telah dipadam.",
+    "files": {
+      "title": "Fail yang dimuat naik oleh pengurus projek",
+      "help": "Setiap fail boleh dipratonton, dicetak dan dieksport; fail ini juga ada dalam PDF keseluruhan pakej."
+    },
+    "remove": {
+      "button": "Padam fail ini",
+      "title": "Padam {name}?",
+      "body": "Fail ini belum dihantar. Selepas dipadam, ia tidak akan dimasukkan ke pusingan seterusnya. Fail yang dihantar dalam pusingan sebelumnya tidak berubah.",
+      "confirm": "Padam"
     }
   },
   "jb248": {

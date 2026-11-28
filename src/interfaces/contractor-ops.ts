@@ -2243,6 +2243,22 @@ export type PackageLayoutRow =
       next_round?: boolean;
     };
 
+/**
+ * JB307-1 (客户 11-28j 事项 1): one file the project manager uploaded into the
+ * package, as a receiver - a consultant, an outside link - lists it; it opens
+ * as a PDF.
+ */
+export interface PackageSentFile {
+  id: string;
+  name: string;
+  /** A Progress Claim's letter, rather than a plain upload. */
+  letter: boolean;
+  uploaded_by_name: string;
+  uploaded_at: string;
+  byte_size: number;
+  preview_type: string | null;
+}
+
 export interface EvidencePackageRow {
   id: string;
   claim_period?: string | null;
@@ -2325,6 +2341,8 @@ export interface EvidencePackageDetail extends EvidencePackageRow {
   reconciliation?: RecordReconciliation | LockedReconciliation | null;
   /** JB63: records and uploaded files in the order of the PDF. */
   layout?: PackageLayoutRow[];
+  /** JB307-1: the uploaded files a consultant was sent (his 「待审阅的资料包」 only). */
+  files?: PackageSentFile[];
   /** Records the last add call would not take, and why. */
   refused?: { id: string; reason: string }[];
   /** Which round `items` are (the latest unless one was asked for). */
@@ -2430,6 +2448,8 @@ export interface PackageLinkPage {
   /** Always false since every answer is signed (QA1 audit #11). */
   can_sign: boolean;
   items: PackageLinkItem[];
+  /** JB307-1: the files the project manager uploaded into the package. */
+  files?: PackageSentFile[];
   messages: PackageMessage[];
 }
 
