@@ -9882,6 +9882,7 @@
       "disposal_fee_adjust_reason_required": "You changed a fee per trip: write the reason.",
       "disposal_fee_adjust_amounts_off": "Your account does not see amounts, so it cannot change a fee per trip.",
       "package_ended_record": "{records} was rejected or withdrawn and cannot be approved or settled. Take it out of the package first; once sent, the reviewer can only return it.",
+      "package_file_locked": "This file was submitted with an earlier round, so it cannot be deleted. Only a file added for this round, before you re-sign and submit, can be deleted.",
       "finance_approve_amounts_off": "Your “Approve amounts” switch is off, so you cannot approve amounts. Ask head office to turn it on in Users › Edit › Permission switches.",
       "finance_check_costs_off": "Your “Check costs” switch is off, so you cannot check. Ask head office to turn it on in Users › Edit › Permission switches.",
       "finance_confirm_settlement_off": "Your “Confirm settlements” switch is off, so you cannot settle or upload payment vouchers. Ask head office to turn it on in Users › Edit › Permission switches."
@@ -23922,6 +23923,19 @@
     "toast": {
       "reviewSigned": "Review signed and submitted",
       "completed": "Completed and archived"
+    }
+  },
+  "jb307": {
+    "fileRemoved": "File deleted.",
+    "files": {
+      "title": "Files uploaded by the project manager",
+      "help": "Each file can be previewed, printed and exported; they are also in the whole package's PDF."
+    },
+    "remove": {
+      "button": "Delete this file",
+      "title": "Delete {name}?",
+      "body": "This file has not been submitted yet. Once deleted it will not go into the next round. Files submitted in earlier rounds do not change.",
+      "confirm": "Delete"
     }
   },
   "jb248": {

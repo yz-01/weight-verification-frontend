@@ -157,6 +157,22 @@ export const linkItemFile = (
     `${reference || "record"}.pdf`,
   );
 
+/** JB307-1: one file the project manager uploaded into the package, as a PDF. */
+export const linkSentFile = (
+  token: string,
+  file: string,
+  name: string,
+  options: { lang?: string; inline?: boolean } = {},
+) =>
+  linkFile(
+    linkUrl(token, "download-file/", {
+      file,
+      ...(options.inline ? { inline: "1" } : {}),
+      ...(options.lang ? { lang: options.lang } : {}),
+    }),
+    `${name || "file"}.pdf`,
+  );
+
 /** A file from this link's own thread. `path` is what the message carries. */
 export const linkAttachmentFile = (path: string, name: string) =>
   linkFile(`${API_BASE_URL}${path}`, name || "attachment");

@@ -72,7 +72,7 @@ import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { useOnProjectChange, usePageProject } from "@/components/providers/current-project-provider";
 import { ExportButton } from "@/components/shared/export-button";
 import { FileActionButtons, useFileActions } from "@/components/shared/file-actions";
-import { RecordAttachmentsPanel } from "@/components/shared/record-attachments";
+import { RecordAttachmentsPanel, recordAttachmentsKey } from "@/components/shared/record-attachments";
 import { EmptyState, FieldWrapper, FilterBar, ListHeader, LoadFailed, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -96,6 +96,7 @@ import {
 } from "@/components/ui/table";
 import { Shell } from "@/components/contractor-ops/package-shell";
 import { PackageItemPictures } from "@/components/contractor-ops/package-item-pictures";
+import { RemoveNextRoundFile } from "@/components/contractor-ops/package-sent-files";
 import { FileThumbs } from "@/components/shared/file-thumbs";
 import { useClearSearchParam } from "@/hooks/use-url-selection";
 import { useDateFormat } from "@/lib/dates";
@@ -128,6 +129,7 @@ import {
   getPackageCandidates,
   getPackageRecordParts,
   getProjectCategories,
+  removePackageFile,
   removePackageItem,
   reorderPackageContents,
   updateEvidencePackage,
@@ -884,6 +886,17 @@ function PackageWindowContent({
   const layout: PackageLayoutRow[] =
     data?.layout ?? (data?.items ?? []).map((entry) => ({ kind: "item" as const, id: entry.id }));
   const itemsById = new Map((data?.items ?? []).map((entry) => [entry.id, entry]));
+  // JB307-2: the files uploaded for the next round, which the project manager
+  // may still take off before 「重新签名提交」 (the server says so again).
+  const nextRoundFiles = new Set(
+    data?.takes_supplements
+      ? layout.flatMap((row) => (row.kind === "file" && row.next_round ? [row.id] : []))
+      : [],
+  );
+  const refreshFiles = () => {
+    refresh();
+    queryClient.invalidateQueries({ queryKey: recordAttachmentsKey("EVIDENCE_PACKAGE", id) });
+  };
   const reorder = useMutation({
     mutationFn: (order: { kind: "item" | "file"; id: string }[]) => reorderPackageContents(id, order),
     onSuccess: refresh,
@@ -1132,6 +1145,14 @@ function PackageWindowContent({
                               </p>
                             </div>
                             {isDraft && can("package.manage") && moveButtons(index)}
+                            {nextRoundFiles.has(row.id) && (
+                              /* JB307-2 (客户 11-28j 事项 2): taken off before 「重新签名提交」. */
+                              <RemoveNextRoundFile
+                                name={row.name}
+                                onRemove={() => removePackageFile(id, row.id)}
+                                onRemoved={refreshFiles}
+                              />
+                            )}
                           </div>
                         </li>
                       );
@@ -1413,6 +1434,20 @@ function PackageWindowContent({
                   adding={uploading}
                   onAddingChange={setUploading}
                   onChanged={refresh}
+                  rowAction={(row) =>
+                    /* JB307-2: a file uploaded for this round goes until 「重新签名
+                       提交」; one an earlier round was sent with stays. */
+                    nextRoundFiles.has(row.id) ? (
+                      <span className="flex shrink-0 items-center gap-1.5">
+                        <span className="text-2xs text-muted-foreground">{loop("supplement.staged")}</span>
+                        <RemoveNextRoundFile
+                          name={row.original_name}
+                          onRemove={() => removePackageFile(id, row.id)}
+                          onRemoved={refreshFiles}
+                        />
+                      </span>
+                    ) : null
+                  }
                 />
               </section>
             )}
