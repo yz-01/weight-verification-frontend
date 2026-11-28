@@ -50,6 +50,7 @@ import {
   periodLabel,
   sendStatusKeys,
   useClaimInfoReason,
+  useClaimIsApplication,
   type ClaimInfoValue,
 } from "@/components/contractor-ops/package-claim-parts";
 import { usePackageRecordOpener } from "@/components/contractor-ops/package-record-opener";
@@ -709,11 +710,14 @@ function NewPackageDialog({
   // 分类 required, the 分包商 of a subcontractor's claim too.
   const [claimInfo, setClaimInfo] = useState<ClaimInfoValue>(EMPTY_CLAIM_INFO);
   const isClaim = packageType === "PROGRESS_CLAIM";
-  const claimMissing = useClaimInfoReason(project, claimInfo);
   const loop = useTranslations("jb252");
   // JB254: 申请金额（Claim Amount RM）on the two money types; the PIN is asked when filled.
   const [claimAmount, setClaimAmount] = useState("");
   const money = isMoneyType({ package_type: packageType });
+  // JB309-1: a subcontractor's claim also names 施工分类 / 日期范围 / 期数 /
+  // Claim No. and must carry its 申请金额.
+  const application = useClaimIsApplication(project, claimInfo);
+  const claimMissing = useClaimInfoReason(project, claimInfo, claimAmount);
 
   const create = useMutation({
     mutationFn: () =>
@@ -721,7 +725,7 @@ function NewPackageDialog({
         project,
         name,
         package_type: packageType,
-        ...(isClaim ? claimInfoPayload(claimInfo) : {}),
+        ...(isClaim ? claimInfoPayload(claimInfo, application) : {}),
         ...(money && claimAmount.trim() ? { claim_amount: claimAmount.trim() } : {}),
       }),
     onSuccess: (row) => {
@@ -762,7 +766,7 @@ function NewPackageDialog({
         </FieldWrapper>
         {isClaim && <ClaimInfoFields project={project} value={claimInfo} onChange={setClaimInfo} />}
         {money && (
-          <FieldWrapper label={loop("money.claim")} hint={loop("money.pinHint")}>
+          <FieldWrapper label={loop("money.claim")} required={isClaim && application} hint={loop("money.pinHint")}>
             <Input
               inputMode="decimal"
               className="w-48"
@@ -1091,7 +1095,12 @@ function PackageWindowContent({
                 no 收款 (「MSE Trace 不算工程款」; the data is kept). A Sundry
                 Claim package still adds up its sundry claims. */}
             {data.package_type === "PROGRESS_CLAIM" && (
-              <ClaimInfoBlock pkg={data} canEdit={isDraft && can("package.manage")} onChanged={refresh} />
+              <ClaimInfoBlock
+                pkg={data}
+                canEdit={isDraft && can("package.manage")}
+                onChanged={refresh}
+                onOpenPackage={onOpenPackage}
+              />
             )}
             {data.claim && data.package_type === "SUNDRY_CLAIM" && (
               <ClaimFacetBlock facet={data.claim} onChanged={refresh} />
@@ -2117,7 +2126,15 @@ function ClaimTabFilters({
 /** A Progress Claim row's number, month and category under its name (JB52). */
 function ClaimLine({ info }: { info: PackageClaimInfo | null | undefined }) {
   if (!info) return null;
-  const parts = [info.claim_no, periodLabel(info.period), info.category_name, info.subcontractor_name].filter(Boolean);
+  // JB309-1: the subcontractor's Claim No. and 施工分类 too.
+  const parts = [
+    info.claim_no,
+    info.ref_no,
+    periodLabel(info.period),
+    info.category_name,
+    info.subcontractor_name,
+    info.phase_name,
+  ].filter(Boolean);
   if (!parts.length) return null;
   return <span className="block text-xs font-normal text-muted-foreground">{parts.join(" · ")}</span>;
 }

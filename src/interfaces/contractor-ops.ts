@@ -2217,6 +2217,45 @@ export interface PackageClaimInfo {
   category_name: string | null;
   subcontractor: string | null;
   subcontractor_name: string | null;
+  /** JB309-1: 施工分类 (a construction phase), 实际施工日期范围, Claim No.; blank on older packages. */
+  phase?: string | null;
+  phase_name?: string | null;
+  work_from?: string | null;
+  work_to?: string | null;
+  ref_no?: string;
+}
+
+/**
+ * JB309-3 「历史申请」: another application of the same project and 分包商
+ * with the same 期数 or overlapping 实际施工日期范围. Amounts are null without
+ * 「金额查看」.
+ */
+export interface PackageClaimHistoryRow {
+  id: string;
+  package_no: string;
+  name: string;
+  ref_no: string;
+  period: string | null;
+  work_from: string | null;
+  work_to: string | null;
+  phase_name: string;
+  state: PackageState;
+  review_progress: string;
+  completed_at: string | null;
+  claim_amount: string | null;
+  approved_amount: string | null;
+  checked_amount: string | null;
+  settled_amount: string | null;
+  settle_state: "NOT_NEEDED" | "WAITING" | "PENDING" | "CHECKED" | "SETTLED" | null;
+  check_no: string;
+  settlement_no: string;
+  same_period: boolean;
+  dates_overlap: boolean;
+}
+
+export interface PackageClaimHistory {
+  rows: PackageClaimHistoryRow[];
+  amounts_locked: boolean;
 }
 
 /** How far a package went out (JB51): in the system, and by hand. */
@@ -2266,6 +2305,11 @@ export interface EvidencePackageRow {
   claim_category?: string | null;
   claim_other_name?: string;
   claim_subcontractor?: string | null;
+  /** JB309-1 */
+  claim_phase?: string | null;
+  claim_work_from?: string | null;
+  claim_work_to?: string | null;
+  claim_ref_no?: string;
   claim_info?: PackageClaimInfo | null;
   send_status?: PackageSendStatus;
   /** 资料包编号, `PKG-<project>-<YYMMDD>-<NNN>` (2026-10-10). */
@@ -2339,6 +2383,8 @@ export interface EvidencePackageDetail extends EvidencePackageRow {
    * `{locked: true}` without 「金额查看」; null before 核对.
    */
   reconciliation?: RecordReconciliation | LockedReconciliation | null;
+  /** JB309-3: 「历史申请」 of a subcontractor's Progress Claim (office window); null otherwise. */
+  claim_history?: PackageClaimHistory | null;
   /** JB63: records and uploaded files in the order of the PDF. */
   layout?: PackageLayoutRow[];
   /** JB307-1: the uploaded files a consultant was sent (his 「待审阅的资料包」 only). */
