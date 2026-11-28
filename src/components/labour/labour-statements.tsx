@@ -20,6 +20,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { Fragment, useState } from "react";
 
+import { ReconciliationVouchers } from "@/components/contractor-ops/reconciliation-vouchers";
 import {
   officeMay,
   ReconcileSettleButton,
@@ -799,6 +800,8 @@ export function LabourStatementWindow({ id, onClose }: { id: string; onClose: ()
                 </div>
               ) : null}
             </dl>
+            {/* JB308 (客户 11-28k): the 核对 / 结算 vouchers on the statement itself. */}
+            {data.links ? <ReconciliationVouchers links={data.links} /> : null}
             <section className="space-y-2">
               <div>
                 <h3 className="text-lg font-semibold">{t("statement.linesTitle")}</h3>

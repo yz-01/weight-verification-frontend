@@ -8,6 +8,7 @@
  * 核对 / 结算 are the shared ones (`return-check.service`, kind `LABOUR`).
  */
 
+import type { RecordReconciliation } from "@/interfaces/reconciliation";
 import { api, fetchAsFile, toastSuccess } from "@/services/api-client";
 import type { LabourMonthPerson } from "@/services/labour.service";
 
@@ -57,6 +58,8 @@ export interface LabourStatement extends LabourStatementSummary {
   totals?: LabourStatementTotals;
   cancelled_by_name?: string;
   cancel_reason?: string;
+  /** JB308: its 核对 / 结算 with the amounts, 凭证编号 and voucher files. */
+  links?: RecordReconciliation | null;
 }
 
 export interface LabourStatementPreview {

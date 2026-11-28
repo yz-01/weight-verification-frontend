@@ -25544,6 +25544,28 @@
       "help": "Kos buruh dikira daripada rekod dan kadar sekarang; bulan yang sudah disahkan menggunakan apa yang disimpan semasa disahkan."
     }
   },
+  "jb307Vouchers": {
+    "title": "Semakan dan penyelesaian",
+    "help": "Semakan dan penyelesaian rekod ini, dengan baucarnya. Buka fail untuk melihat, pratonton, mencetak atau memuat turun.",
+    "checkTitle": "Semakan",
+    "checkNo": "No. semakan",
+    "checkedAmount": "Jumlah disemak",
+    "changedReason": "Berbeza daripada jumlah diluluskan: {reason}",
+    "checkVoucherNo": "No. baucar semakan",
+    "checkedBy": "Disemak oleh",
+    "note": "Catatan",
+    "checkFiles": "Baucar semakan",
+    "filesHint": "Baca sahaja: baucar tidak boleh diubah atau dipadam selepas disimpan.",
+    "settlementTitle": "Penyelesaian",
+    "settlementNo": "No. penyelesaian",
+    "settledAmount": "Jumlah penyelesaian",
+    "settledTogether": "Jumlah {count} rekod yang diselesaikan bersama",
+    "settlementVoucherNo": "No. baucar penyelesaian",
+    "settledBy": "Diselesaikan oleh",
+    "settlementFiles": "Baucar penyelesaian",
+    "notSettled": "Telah disemak, belum diselesaikan.",
+    "locked": "Semakan dan penyelesaian rekod ini mengandungi jumlah. Akaun anda menutup 'Lihat jumlah', jadi ia tidak dipaparkan."
+  },
   "jb298": {
     "state": {
       "PENDING": "Untuk disemak",

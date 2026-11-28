@@ -25544,6 +25544,28 @@
       "help": "人工费用是按现在的记录和单价算出的；已确认的月份按确认时保存的算。"
     }
   },
+  "jb307Vouchers": {
+    "title": "核对与结算",
+    "help": "这笔记录的核对和结算，以及上传的凭证。点开文件可以查看、预览、打印或下载。",
+    "checkTitle": "核对",
+    "checkNo": "核对编号",
+    "checkedAmount": "核对金额",
+    "changedReason": "与批准金额不同，原因：{reason}",
+    "checkVoucherNo": "核对凭证编号",
+    "checkedBy": "核对人及时间",
+    "note": "备注",
+    "checkFiles": "核对凭证",
+    "filesHint": "只能查看：凭证保存后不能修改或删除。",
+    "settlementTitle": "结算",
+    "settlementNo": "结算编号",
+    "settledAmount": "结算金额",
+    "settledTogether": "本结算单一共 {count} 笔的合计",
+    "settlementVoucherNo": "结算凭证编号",
+    "settledBy": "结算人及时间",
+    "settlementFiles": "结算凭证",
+    "notSettled": "已核对，还没有结算。",
+    "locked": "核对与结算里有金额。你的账号关闭了「金额查看」，所以这里不显示。"
+  },
   "jb298": {
     "state": {
       "PENDING": "待核对",
