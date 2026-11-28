@@ -9880,7 +9880,8 @@
       "material_request_spec_choice_invalid": "请选择关联 MR 里同一种材料、同一个单位的那一项。",
       "disposal_fee_adjust_invalid": "{reference}：每车单价要大于 0，最多两位小数。",
       "disposal_fee_adjust_reason_required": "改了每车单价，请写调整原因。",
-      "disposal_fee_adjust_amounts_off": "你的账号看不到金额，不能调整每车单价。"
+      "disposal_fee_adjust_amounts_off": "你的账号看不到金额，不能调整每车单价。",
+      "package_ended_record": "{records} 已拒绝或已撤回，不能参与审批和结算。请先把它移出资料包；已经送审的，审批人只能退回这一笔。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -12580,7 +12581,8 @@
         "no_package": "先在 Multi Engine 打开一个资料包",
         "loading": "正在读取打包情况…",
         "voided": "这份雨天记录已作废，不能打包",
-        "not_archived": "这份文件还没确认归档，归档后才能放进资料包"
+        "not_archived": "这份文件还没确认归档，归档后才能放进资料包",
+        "ended": "这笔杂费报销已拒绝或已撤回，不能打包审批"
       },
       "what": {
         "status": "打包情况",
@@ -12770,7 +12772,11 @@
       "voucherHelp": "照片或 PDF。上传后锁定，不能改、不能删；传错了就再传一张正确的。",
       "voucherFile": "凭证文件",
       "voucherAmount": "金额（RM）",
-      "voucherNote": "说明"
+      "voucherNote": "说明",
+      "endedNote": "有 {count} 笔杂费报销已拒绝或已撤回，不计入杂费合计，也不能审批和结算；原来的记录和证据都保留。",
+      "rejected": "已拒绝",
+      "withdrawn": "已撤回",
+      "notCounted": "不计入"
     },
     "export": {
       "number": "资料包编号",

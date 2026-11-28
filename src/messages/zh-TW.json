@@ -9880,7 +9880,8 @@
       "material_request_spec_choice_invalid": "請選擇關聯 MR 裡同一種材料、同一個單位的那一項。",
       "disposal_fee_adjust_invalid": "{reference}：每車單價要大於 0，最多兩位小數。",
       "disposal_fee_adjust_reason_required": "改了每車單價，請寫調整原因。",
-      "disposal_fee_adjust_amounts_off": "你的帳號看不到金額，不能調整每車單價。"
+      "disposal_fee_adjust_amounts_off": "你的帳號看不到金額，不能調整每車單價。",
+      "package_ended_record": "{records} 已拒絕或已撤回，不能參與審批和結算。請先把它移出資料包；已經送審的，審批人只能退回這一筆。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -12580,7 +12581,8 @@
         "no_package": "先在 Multi Engine 打開一個資料包",
         "loading": "正在讀取打包情況…",
         "voided": "這份雨天記錄已作廢，不能打包",
-        "not_archived": "這份文件還沒確認歸檔，歸檔後才能放進資料包"
+        "not_archived": "這份文件還沒確認歸檔，歸檔後才能放進資料包",
+        "ended": "這筆雜費報銷已拒絕或已撤回，不能打包審批"
       },
       "what": {
         "status": "打包情況",
@@ -12770,7 +12772,11 @@
       "voucherHelp": "照片或 PDF。上傳後鎖定，不能改、不能刪；傳錯了就再傳一張正確的。",
       "voucherFile": "憑證檔案",
       "voucherAmount": "金額（RM）",
-      "voucherNote": "說明"
+      "voucherNote": "說明",
+      "endedNote": "有 {count} 筆雜費報銷已拒絕或已撤回，不計入雜費合計，也不能審批和結算；原來的記錄和證據都保留。",
+      "rejected": "已拒絕",
+      "withdrawn": "已撤回",
+      "notCounted": "不計入"
     },
     "export": {
       "number": "資料包編號",

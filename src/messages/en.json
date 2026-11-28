@@ -9880,7 +9880,8 @@
       "material_request_spec_choice_invalid": "Choose a line of the linked MR with the same material and unit.",
       "disposal_fee_adjust_invalid": "{reference}: the fee per trip must be above 0, with at most two decimals.",
       "disposal_fee_adjust_reason_required": "You changed a fee per trip: write the reason.",
-      "disposal_fee_adjust_amounts_off": "Your account does not see amounts, so it cannot change a fee per trip."
+      "disposal_fee_adjust_amounts_off": "Your account does not see amounts, so it cannot change a fee per trip.",
+      "package_ended_record": "{records} was rejected or withdrawn and cannot be approved or settled. Take it out of the package first; once sent, the reviewer can only return it."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -12580,7 +12581,8 @@
         "no_package": "Open a package in Multi Engine first",
         "loading": "Reading where the records are packed…",
         "voided": "This rain record is voided and cannot be packed",
-        "not_archived": "This document is not archived yet; it can go into a package once it is archived"
+        "not_archived": "This document is not archived yet; it can go into a package once it is archived",
+        "ended": "This sundry claim was rejected or withdrawn and cannot be packed for approval"
       },
       "what": {
         "status": "Package status",
@@ -12770,7 +12772,11 @@
       "voucherHelp": "A photo or a PDF. Locked once uploaded; a wrong one is answered by adding the right one.",
       "voucherFile": "Voucher file",
       "voucherAmount": "Amount (RM)",
-      "voucherNote": "Note"
+      "voucherNote": "Note",
+      "endedNote": "{count} sundry claim(s) were rejected or withdrawn: not in the sundry total, and they cannot be approved or settled. The records and their evidence are kept.",
+      "rejected": "Rejected",
+      "withdrawn": "Withdrawn",
+      "notCounted": "not counted"
     },
     "export": {
       "number": "Package no.",

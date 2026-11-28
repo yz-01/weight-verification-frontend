@@ -2129,6 +2129,8 @@ export interface PackageClaimFacet {
     payment_proofs: PaymentProof[];
   } | null;
   sundry_total?: string;
+  /** JB304: how many of `sundry` were rejected / withdrawn - listed, never added up. */
+  ended_count?: number;
   sundry?: {
     id: string;
     claim_no: string;
@@ -2136,6 +2138,8 @@ export interface PackageClaimFacet {
     state: string;
     payment_state: ClaimPaymentState;
     payment_proof_count: number;
+    /** JB304: false for a rejected / withdrawn 杂费报销 (not in 杂费合计). */
+    counted?: boolean;
   }[];
 }
 

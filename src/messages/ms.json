@@ -9880,7 +9880,8 @@
       "material_request_spec_choice_invalid": "Pilih baris MR yang dipautkan dengan bahan dan unit yang sama.",
       "disposal_fee_adjust_invalid": "{reference}: fi setiap trip mesti melebihi 0, paling banyak dua tempat perpuluhan.",
       "disposal_fee_adjust_reason_required": "Anda mengubah fi setiap trip: tulis sebabnya.",
-      "disposal_fee_adjust_amounts_off": "Akaun anda tidak melihat amaun, jadi tidak boleh mengubah fi setiap trip."
+      "disposal_fee_adjust_amounts_off": "Akaun anda tidak melihat amaun, jadi tidak boleh mengubah fi setiap trip.",
+      "package_ended_record": "{records} telah ditolak atau ditarik balik dan tidak boleh diluluskan atau diselesaikan. Keluarkan dari pakej dahulu; jika sudah dihantar, penyemak hanya boleh memulangkannya."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -12580,7 +12581,8 @@
         "no_package": "Buka pakej dalam Multi Engine dahulu",
         "loading": "Sedang membaca status pakej…",
         "voided": "Rekod hujan ini sudah dibatalkan dan tidak boleh dipakej",
-        "not_archived": "Dokumen ini belum diarkibkan; ia boleh dimasukkan ke dalam pakej selepas diarkibkan"
+        "not_archived": "Dokumen ini belum diarkibkan; ia boleh dimasukkan ke dalam pakej selepas diarkibkan",
+        "ended": "Tuntutan sundry ini telah ditolak atau ditarik balik dan tidak boleh dibungkus untuk kelulusan"
       },
       "what": {
         "status": "Status pakej",
@@ -12770,7 +12772,11 @@
       "voucherHelp": "Foto atau PDF. Dikunci selepas dimuat naik; yang salah dijawab dengan menambah yang betul.",
       "voucherFile": "Fail baucar",
       "voucherAmount": "Jumlah (RM)",
-      "voucherNote": "Nota"
+      "voucherNote": "Nota",
+      "endedNote": "{count} tuntutan sundry telah ditolak atau ditarik balik: tidak dikira dalam jumlah sundry dan tidak boleh diluluskan atau diselesaikan. Rekod dan buktinya disimpan.",
+      "rejected": "Ditolak",
+      "withdrawn": "Ditarik balik",
+      "notCounted": "tidak dikira"
     },
     "export": {
       "number": "No. pakej",
