@@ -4103,7 +4103,7 @@
       "progress_claim_settled": "Progress Claim 结算",
       "disposal_settlement_payment_recorded": "上传清运结算付款凭证",
       "disposal_settlement_voucher_added": "补上传清运结算付款凭证",
-      "material_request_spec_matched": "选择材料记录归入 MR 的哪一项（规格核对）"
+      "material_request_spec_matched": "选择进场 / 退场 / 领用的材料归入 MR 的哪一项（规格核对）"
     },
     "objectType": {
       "SignOffAssistant": "助理副密码",

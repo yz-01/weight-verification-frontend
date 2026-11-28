@@ -503,7 +503,7 @@ export function ConfirmCheckDialog({
         {!amountsHidden ? (
           <div className="space-y-2" data-slot="settlement-adjust">
             <p className="text-xs leading-5 text-muted-foreground">{tAdjust("help")}</p>
-            <div className="max-h-72 overflow-y-auto rounded-lg border">
+            <div className="rounded-lg border">
               <Table>
                 <TableHeader>
                   <TableRow>
