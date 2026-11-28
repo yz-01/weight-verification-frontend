@@ -24796,7 +24796,7 @@
       "exit_not_confirmed": "\"Confirm formal exit\" not done yet",
       "other": "Other required items",
       "mr_link": "Link to its MR / other request (choose it under 「Linked request」)",
-      "mr_spec": "Specification check: a material's specification does not match the linked MR (choose it under “Linked request”)"
+      "mr_spec": "Specification check: a material does not match the linked MR (see “Specification check” on “Linked request”)"
     },
     "tick": "I have checked all the information and it is correct.",
     "tickRequired": "(required)",
@@ -25677,8 +25677,8 @@
   "jb302": {
     "title": "Specification check (counted by the linked MR's material, specification and unit)",
     "help": "This record is linked to an MR, so the request totals count it under the MR's line for the same material (material, specification, unit). The original record does not change.",
-    "unsettled": "A material's specification does not match the MR: choose below which MR line it belongs to before archiving.",
-    "unsettledReadOnly": "A material's specification does not match the MR. The office must choose which MR line it belongs to before it can be archived.",
+    "unsettled": "A material does not match the MR: for “Choose one”, choose the MR line below; for “Different unit”, correct this record's unit or link the right MR. Then it can be archived.",
+    "unsettledReadOnly": "A material does not match the MR. The office must settle it here (choose the line, or correct the unit) before it can be archived.",
     "position": "Item {position}",
     "recorded": "Record says:",
     "countedUnder": "Counted under:",
@@ -25707,9 +25707,9 @@
     "change": "Change the specification",
     "failed": "Could not save. Please try again.",
     "saved": "Specification check saved.",
-    "archiveBlocked": "A material's specification does not match the linked MR: choose it under “Specification check” on “Linked request” before archiving.",
-    "countedAs": "Counted as the MR's {specification} ({unit})",
-    "recordedAs": "Counted by {request} (record says: {material} {specification} {unit})"
+    "archiveBlocked": "A material does not match the linked MR: settle it under “Specification check” on “Linked request” (choose the line, or correct the unit) before archiving.",
+    "countedAs": "Counted as the MR's {specification} · {unit}",
+    "recordedAs": "Counted by {request} · record says: {material} {specification} {unit}"
   },
   "jb303": {
     "help": "The fee per trip for this project and supplier comes from Clearance fees, times the accepted trips. If the real price differs, change it here before pressing Confirm check. It cannot be changed after the check.",

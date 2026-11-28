@@ -9876,7 +9876,7 @@
       "disposal_payment_file_required": "请上传付款凭证（照片或 PDF）。",
       "disposal_settlement_payment_locked": "{settlement_no} 已经结算完毕并锁定，付款凭证不能再改。",
       "disposal_fee_project_required": "请先选项目。清运费用按项目分别设定。",
-      "material_request_spec_unmatched": "这笔记录（{reference}）的材料规格和关联的 MR 对不上：{materials}。请先在「关联申请」的「规格核对」选好归入 MR 的哪一项，才能确认归档。",
+      "material_request_spec_unmatched": "这笔记录（{reference}）有材料和关联的 MR 对不上：{materials}。请先在「关联申请」的「规格核对」处理好（选好归入 MR 的哪一项，或改正单位），才能确认归档。",
       "material_request_spec_choice_invalid": "请选择关联 MR 里同一种材料、同一个单位的那一项。",
       "disposal_fee_adjust_invalid": "{reference}：每车单价要大于 0，最多两位小数。",
       "disposal_fee_adjust_reason_required": "改了每车单价，请写调整原因。",
@@ -24796,7 +24796,7 @@
       "exit_not_confirmed": "还没有「确认正式退场」",
       "other": "其他必填资料",
       "mr_link": "关联 MR／其他申请（在「关联申请」选好）",
-      "mr_spec": "规格核对：材料的规格和关联的 MR 对不上（在「关联申请」选好）"
+      "mr_spec": "规格核对：有材料和关联的 MR 对不上（看「关联申请」的「规格核对」）"
     },
     "tick": "我已核对所有资料，确认无误。",
     "tickRequired": "（必须勾选）",
@@ -25677,8 +25677,8 @@
   "jb302": {
     "title": "规格核对（按关联 MR 的材料、规格、单位统计）",
     "help": "这笔记录已经关联 MR，申请累计会按 MR 里同一种材料的那一项（材料、规格、单位）统计。原始记录不会因此改变。",
-    "unsettled": "还有材料的规格和 MR 对不上：请在下面选好归入 MR 的哪一项，才能确认归档。",
-    "unsettledReadOnly": "还有材料的规格和 MR 对不上，要由后台负责人选好归入 MR 的哪一项，才能确认归档。",
+    "unsettled": "还有材料和 MR 对不上：写「要选择」的，在下面选好归入 MR 的哪一项；写「单位不同」的，先修改这笔记录的单位，或改关联正确的 MR。处理好才能确认归档。",
+    "unsettledReadOnly": "还有材料和 MR 对不上，要由后台负责人在这里处理好（选好归入哪一项，或改正单位），才能确认归档。",
     "position": "第 {position} 项",
     "recorded": "记录写：",
     "countedUnder": "统计归入：",
@@ -25707,9 +25707,9 @@
     "change": "更改归入的规格",
     "failed": "保存失败，请再试一次。",
     "saved": "已保存规格核对。",
-    "archiveBlocked": "还有材料的规格和关联的 MR 对不上：请先在「关联申请」的「规格核对」选好，才能确认归档。",
-    "countedAs": "按 MR 的 {specification}（{unit}）统计",
-    "recordedAs": "按 {request} 归入（记录写：{material} {specification} {unit}）"
+    "archiveBlocked": "还有材料和关联的 MR 对不上：请先在「关联申请」的「规格核对」处理好（选好归入哪一项，或改正单位），才能确认归档。",
+    "countedAs": "按 MR 的 {specification} · {unit} 统计",
+    "recordedAs": "按 {request} 归入 · 记录写：{material} {specification} {unit}"
   },
   "jb303": {
     "help": "系统按「清运费用设定」自动带出这个项目、这家供应商的每车单价，按实际验收车次算费用。如实际单价不同，可以在这里改，再按【确认核对】。确认核对后就不能再改。",

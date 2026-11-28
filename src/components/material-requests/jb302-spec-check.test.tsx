@@ -189,7 +189,7 @@ describe("the MR's page shows a linked record counted under its line", () => {
     const html = render(<RequestLinkedRecordsPanel requestId="mr-6" />, (client) =>
       client.setQueryData(requestLinkedRecordsKey("mr-6"), data),
     );
-    expect(html).toContain("按 MR 的 T 001");
+    expect(html).toContain("按 MR 的 T 001 ·");
     expect(html).not.toContain(zh.jb279.records.notInRequest);
   });
 });

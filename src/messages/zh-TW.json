@@ -9876,7 +9876,7 @@
       "disposal_payment_file_required": "請上傳付款憑證（照片或 PDF）。",
       "disposal_settlement_payment_locked": "{settlement_no} 已經結算完畢並鎖定，付款憑證不能再改。",
       "disposal_fee_project_required": "請先選項目。清運費用按項目分別設定。",
-      "material_request_spec_unmatched": "這筆記錄（{reference}）的材料規格和關聯的 MR 對不上：{materials}。請先在「關聯申請」的「規格核對」選好歸入 MR 的哪一項，才能確認歸檔。",
+      "material_request_spec_unmatched": "這筆記錄（{reference}）有材料和關聯的 MR 對不上：{materials}。請先在「關聯申請」的「規格核對」處理好（選好歸入 MR 的哪一項，或改正單位），才能確認歸檔。",
       "material_request_spec_choice_invalid": "請選擇關聯 MR 裡同一種材料、同一個單位的那一項。",
       "disposal_fee_adjust_invalid": "{reference}：每車單價要大於 0，最多兩位小數。",
       "disposal_fee_adjust_reason_required": "改了每車單價，請寫調整原因。",
@@ -24796,7 +24796,7 @@
       "exit_not_confirmed": "還沒有「確認正式退場」",
       "other": "其他必填資料",
       "mr_link": "關聯 MR／其他申請（在「關聯申請」選好）",
-      "mr_spec": "規格核對：材料的規格和關聯的 MR 對不上（在「關聯申請」選好）"
+      "mr_spec": "規格核對：有材料和關聯的 MR 對不上（看「關聯申請」的「規格核對」）"
     },
     "tick": "我已核對所有資料，確認無誤。",
     "tickRequired": "（必須勾選）",
@@ -25677,8 +25677,8 @@
   "jb302": {
     "title": "規格核對（按關聯 MR 的材料、規格、單位統計）",
     "help": "這筆記錄已經關聯 MR，申請累計會按 MR 裡同一種材料的那一項（材料、規格、單位）統計。原始記錄不會因此改變。",
-    "unsettled": "還有材料的規格和 MR 對不上：請在下面選好歸入 MR 的哪一項，才能確認歸檔。",
-    "unsettledReadOnly": "還有材料的規格和 MR 對不上，要由後台負責人選好歸入 MR 的哪一項，才能確認歸檔。",
+    "unsettled": "還有材料和 MR 對不上：寫「要選擇」的，在下面選好歸入 MR 的哪一項；寫「單位不同」的，先修改這筆記錄的單位，或改關聯正確的 MR。處理好才能確認歸檔。",
+    "unsettledReadOnly": "還有材料和 MR 對不上，要由後台負責人在這裡處理好（選好歸入哪一項，或改正單位），才能確認歸檔。",
     "position": "第 {position} 項",
     "recorded": "記錄寫：",
     "countedUnder": "統計歸入：",
@@ -25707,9 +25707,9 @@
     "change": "更改歸入的規格",
     "failed": "儲存失敗，請再試一次。",
     "saved": "已儲存規格核對。",
-    "archiveBlocked": "還有材料的規格和關聯的 MR 對不上：請先在「關聯申請」的「規格核對」選好，才能確認歸檔。",
-    "countedAs": "按 MR 的 {specification}（{unit}）統計",
-    "recordedAs": "按 {request} 歸入（記錄寫：{material} {specification} {unit}）"
+    "archiveBlocked": "還有材料和關聯的 MR 對不上：請先在「關聯申請」的「規格核對」處理好（選好歸入哪一項，或改正單位），才能確認歸檔。",
+    "countedAs": "按 MR 的 {specification} · {unit} 統計",
+    "recordedAs": "按 {request} 歸入 · 記錄寫：{material} {specification} {unit}"
   },
   "jb303": {
     "help": "系統按「清運費用設定」自動帶出這個項目、這家供應商的每車單價，按實際驗收車次算費用。如實際單價不同，可以在這裡改，再按【確認核對】。確認核對後就不能再改。",

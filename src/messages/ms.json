@@ -24796,7 +24796,7 @@
       "exit_not_confirmed": "\"Sahkan keluar rasmi\" belum dibuat",
       "other": "Maklumat wajib lain",
       "mr_link": "Pautan ke MR / permohonan lain (pilih di 「Permohonan dipautkan」)",
-      "mr_spec": "Semakan spesifikasi: spesifikasi bahan tidak sepadan dengan MR yang dipautkan (pilih di “Permohonan dipautkan”)"
+      "mr_spec": "Semakan spesifikasi: ada bahan yang tidak sepadan dengan MR yang dipautkan (lihat “Semakan spesifikasi”)"
     },
     "tick": "Saya telah menyemak semua maklumat dan ia betul.",
     "tickRequired": "(wajib ditanda)",
@@ -25677,8 +25677,8 @@
   "jb302": {
     "title": "Semakan spesifikasi (dikira mengikut bahan, spesifikasi dan unit MR yang dipautkan)",
     "help": "Rekod ini dipautkan kepada MR, jadi jumlah permohonan mengiranya di bawah baris MR bagi bahan yang sama (bahan, spesifikasi, unit). Rekod asal tidak berubah.",
-    "unsettled": "Spesifikasi bahan tidak sepadan dengan MR: pilih baris MR di bawah sebelum mengarkibkan.",
-    "unsettledReadOnly": "Spesifikasi bahan tidak sepadan dengan MR. Pejabat perlu memilih baris MR sebelum rekod boleh diarkibkan.",
+    "unsettled": "Ada bahan yang tidak sepadan dengan MR: bagi “Perlu pilih”, pilih baris MR di bawah; bagi “Unit berbeza”, betulkan unit rekod ini atau pautkan MR yang betul. Selepas itu baru boleh diarkibkan.",
+    "unsettledReadOnly": "Ada bahan yang tidak sepadan dengan MR. Pejabat perlu menyelesaikannya di sini (pilih baris, atau betulkan unit) sebelum diarkibkan.",
     "position": "Item {position}",
     "recorded": "Rekod menyatakan:",
     "countedUnder": "Dikira di bawah:",
@@ -25707,9 +25707,9 @@
     "change": "Tukar spesifikasi",
     "failed": "Gagal menyimpan. Sila cuba lagi.",
     "saved": "Semakan spesifikasi disimpan.",
-    "archiveBlocked": "Spesifikasi bahan tidak sepadan dengan MR yang dipautkan: pilih di “Semakan spesifikasi” pada “Permohonan dipautkan” sebelum mengarkibkan.",
-    "countedAs": "Dikira sebagai {specification} ({unit}) MR",
-    "recordedAs": "Dikira mengikut {request} (rekod menyatakan: {material} {specification} {unit})"
+    "archiveBlocked": "Ada bahan yang tidak sepadan dengan MR yang dipautkan: selesaikan di “Semakan spesifikasi” (pilih baris, atau betulkan unit) sebelum mengarkibkan.",
+    "countedAs": "Dikira sebagai {specification} · {unit} MR",
+    "recordedAs": "Dikira mengikut {request} · rekod menyatakan: {material} {specification} {unit}"
   },
   "jb303": {
     "help": "Fi setiap trip bagi projek dan pembekal ini diambil daripada Yuran pembersihan, didarab dengan trip yang diterima. Jika harga sebenar berbeza, ubah di sini sebelum menekan Sahkan semakan. Ia tidak boleh diubah selepas semakan.",
