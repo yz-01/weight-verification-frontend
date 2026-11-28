@@ -635,6 +635,12 @@ export function StatementLines({
 }
 
 /**
+ * 核对编号 / 结算编号 in the header: a long 「EQ-RC002 · PV 1233 · 人 · 时间」 wraps
+ * inside its own cell instead of running into the next one (walk 2 G5).
+ */
+const WRAPPING_LINK = "h-auto max-w-full whitespace-normal break-words p-0 text-left font-semibold";
+
+/**
  * One statement (第 5、6 点): 月结单编号, 项目, 设备公司, 日期, 生成人; its
  * machines and 合计; 核对编号 and 结算编号 (each opens its window) with their
  * 凭证编号; 预览 · 打印 · 导出 · 发送 of the A4 PDF; 【作废】 while 待核对.
@@ -702,11 +708,11 @@ export function RentalStatementWindow({ id, onClose }: { id: string; onClose: ()
                   {data.generated_by_name} · {df.dateTime(data.generated_at)}
                 </dd>
               </div>
-              <div data-slot="statement-check">
+              <div className="min-w-0" data-slot="statement-check">
                 <dt className="text-xs text-muted-foreground">{tr("col.checkNo")}</dt>
                 <dd>
                   {data.check ? (
-                    <Button variant="link" className="h-auto p-0 font-semibold" onClick={() => setOpen("check")}>
+                    <Button variant="link" className={WRAPPING_LINK} onClick={() => setOpen("check")}>
                       {data.check.check_no} · {data.check_voucher_no} · {data.check.checked_by_name} ·{" "}
                       {df.dateTime(data.check.checked_at)}
                     </Button>
@@ -715,11 +721,11 @@ export function RentalStatementWindow({ id, onClose }: { id: string; onClose: ()
                   )}
                 </dd>
               </div>
-              <div data-slot="statement-settlement">
+              <div className="min-w-0" data-slot="statement-settlement">
                 <dt className="text-xs text-muted-foreground">{tr("col.settlementNo")}</dt>
                 <dd>
                   {data.check?.settlement_id ? (
-                    <Button variant="link" className="h-auto p-0 font-semibold" onClick={() => setOpen("settlement")}>
+                    <Button variant="link" className={WRAPPING_LINK} onClick={() => setOpen("settlement")}>
                       {data.settlement_no} · {data.settlement_voucher_no} · {data.check.settled_by_name}
                     </Button>
                   ) : (

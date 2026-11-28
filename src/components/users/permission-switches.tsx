@@ -23,6 +23,7 @@ import { Loader2, Save, ShieldCheck } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useImperativeHandle, useMemo, useState } from "react";
 
+import { useFormSurface } from "@/components/shared/form-surface";
 import { LoadFailed, QueryFailedNote } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -147,9 +148,14 @@ export function keptOff(state: Pick<PermissionSwitchState, "uses_switches">, off
   return state.uses_switches === false ? new Set() : off;
 }
 
-/** The line at the top while the switches have unsaved changes. */
+/**
+ * The line at the top while the switches have unsaved changes. It points at
+ * the 「保存」 there is (walk 2 G7): in a dialog it is below, in the footer; on
+ * the page it is at the top, in the header - on a phone as on a computer.
+ */
 export function UnsavedSwitchesNote() {
   const t = useTranslations("users.switches");
+  const surface = useFormSurface();
   return (
     // Sticky on an opaque backing: it stays in view down among the switches
     // the person just changed, and the switches don't show through it.
@@ -159,7 +165,7 @@ export function UnsavedSwitchesNote() {
         data-switches-unsaved
         className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-sm font-medium text-foreground shadow-sm"
       >
-        {t("unsaved")}
+        {t(surface === "dialog" ? "unsaved" : "unsavedTop")}
       </p>
     </div>
   );

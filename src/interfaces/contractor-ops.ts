@@ -2159,6 +2159,8 @@ export interface PackageEvent {
   round_no: number;
   recipient: string | null;
   recipient_name: string;
+  /** Walk 2 G3: head office has no name; it is named by its kind ("" with no recipient). */
+  recipient_kind?: RecipientKind | "";
   item: string | null;
   actor_name: string;
   note: string;

@@ -188,6 +188,12 @@ export function SignaturesBlock({
   const t = useTranslations("multiEngine");
   const formatter = useDateFormat();
   const rows = [...(signatures ?? [])].reverse();
+  // Walk 2 G3: head office has no name - its kind is its name; a QS who signs
+  // as himself is named once, not 「美美 · 接收方：美美」.
+  const forWhom = (row: PackageSignature) => {
+    const name = row.recipient_name || (row.recipient_kind ? t(`exchange.kind.${row.recipient_kind}`) : "");
+    return name && name !== row.signer_name ? name : "";
+  };
   return (
     <section className="space-y-2" data-package-signatures>
       <h3 className="text-sm font-medium">{loop("signatures.title")}</h3>
@@ -223,9 +229,7 @@ export function SignaturesBlock({
                   name: row.signer_name || "—",
                   when: formatter.dateTime(row.signed_at),
                 })}
-                {row.recipient_name && (
-                  <> · {loop("signatures.for", { name: row.recipient_name })}</>
-                )}
+                {forWhom(row) && <> · {loop("signatures.for", { name: forWhom(row) })}</>}
               </p>
               {row.opinion && (
                 <p className="break-words text-xs">

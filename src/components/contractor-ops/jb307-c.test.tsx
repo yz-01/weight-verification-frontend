@@ -94,7 +94,8 @@ describe("the shared 核对与结算 block (JB307-7 / JB308)", () => {
       "核对编号",
       "CL-RC001",
       "核对金额",
-      "RM 200000.00",
+      // Walk 2 G4: with thousands separators, as everywhere else.
+      "RM 200,000.00",
       "核对凭证编号",
       "PV 1233",
       "mike",
@@ -124,7 +125,18 @@ describe("the shared 核对与结算 block (JB307-7 / JB308)", () => {
       ),
     );
     expect(words).toContain("与批准金额不同，原因：扣保留金");
+    expect(words).toContain("RM 70,000.00");
+    expect(words).not.toContain("RM 70000.00");
     expect(words).toContain("本结算单一共 3 笔的合计");
+  });
+
+  it("walk 2 G6: in a narrow side column (stacked) both halves may shrink, so the voucher cards fit", () => {
+    money.sees = true;
+    const shown = render(<ReconciliationVouchers links={SETTLED} stacked />);
+    for (const slot of ["reconciliation-vouchers-check", "reconciliation-vouchers-settlement"]) {
+      const opening = shown.split(`data-slot="${slot}"`)[0].split("<div").pop() ?? "";
+      expect(opening, slot).toContain("min-w-0");
+    }
   });
 
   it("checked, not settled: the 结算 side says so", () => {
@@ -141,7 +153,8 @@ describe("the shared 核对与结算 block (JB307-7 / JB308)", () => {
   it("without 「金额查看」 no amount; a locked package says why", () => {
     money.sees = false;
     const shown = render(<ReconciliationVouchers links={SETTLED} />);
-    expect(shown).not.toContain("RM 200000.00");
+    expect(shown).not.toContain("RM 200,000.00");
+    expect(shown).not.toContain("200000.00");
     const locked = render(<ReconciliationVouchers links={{ locked: true }} />);
     expect(locked).toContain('data-slot="reconciliation-vouchers-locked"');
     expect(text(locked)).toContain("你的账号关闭了「金额查看」");

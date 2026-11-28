@@ -155,3 +155,23 @@ describe("JB184-4 the rule on the claim", () => {
     }
   });
 });
+
+describe("walk 2 G9: the office detail names the reviewer and the payer without an account id", () => {
+  it("reads 「示范 管理员 · 时间」, not 「示范 管理员 (b150ec07)」", () => {
+    const html = office(
+      claim({
+        state: "CONFIRMED",
+        reviewed_by_name: "示范 管理员",
+        reviewed_by_user_id: "b150ec07-1111-2222-3333-444455556666",
+        reviewed_at: "2026-11-10T02:00:00Z",
+        paid_by_name: "示范 财务",
+        paid_by_user_id: "c260fd18-1111-2222-3333-444455556666",
+        paid_at: "2026-11-11T02:00:00Z",
+      }),
+    );
+    expect(html).toContain("示范 管理员 · ");
+    expect(html).toContain("示范 财务 · ");
+    expect(html).not.toContain("b150ec07");
+    expect(html).not.toContain("c260fd18");
+  });
+});

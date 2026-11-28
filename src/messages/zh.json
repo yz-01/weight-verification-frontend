@@ -12622,7 +12622,7 @@
     },
     "type": {
       "label": "资料包类型",
-      "help": "Progress Claim 也在这里建：选 Progress Claim 后，可以填期数、Claim 类型、分类和分包商（都可以不填）。",
+      "help": "Progress Claim 也在这里建：选 Progress Claim 后，一定要填 Claim 类型和分类，期数可以不填；分包商的 Claim 还要填分包商、施工分类、实际施工日期范围、期数、Claim No. 和申请金额。",
       "all": "全部类型",
       "PROGRESS_CLAIM": "Progress Claim",
       "SUNDRY_CLAIM": "Sundry Claim（杂费报销）",
@@ -19168,6 +19168,7 @@
       "save": "保存权限",
       "failed": "保存没有成功，请再试一次。",
       "unsaved": "权限已改，按下面的「保存」才会生效",
+      "unsavedTop": "权限已改，按页面右上角的「保存」才会生效",
       "partSaved": "基本资料已保存，权限还没保存。",
       "notSwitchable": "手机现场人员、顾问等账号的权限不变，由角色决定。",
       "hqHintProjectUser": "B 组 · 总部可选择授权：默认关掉，总部打开后这个人才可以用。",

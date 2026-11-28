@@ -405,6 +405,26 @@ export interface PackListConfig<T> {
   blocked?: (row: T) => PackRowReason | null;
 }
 
+/**
+ * Reasons that never go away - a rejected / withdrawn 杂费报销, a voided rain
+ * record - are written beside the grey box as well (walk 2 G1): a hover
+ * title alone is not seen.
+ */
+const SAID_ALOUD: ReadonlySet<PackRowReason> = new Set<PackRowReason>(["ended", "voided"]);
+
+function refusedBox(reason: string, aloud: boolean) {
+  return (
+    <span className="inline-flex items-start gap-1.5" title={reason}>
+      <Checkbox disabled aria-label={reason} />
+      {aloud && (
+        <span data-slot="pack-refused-reason" className="max-w-[9rem] text-xs leading-snug text-muted-foreground">
+          {reason}
+        </span>
+      )}
+    </span>
+  );
+}
+
 /** Column ids, so the table does not open a row when its box is pressed. */
 export const PACK_SELECT_COLUMN = "pack-select";
 export const PACK_BADGE_COLUMN = "pack";
@@ -503,11 +523,7 @@ export function usePackList<T>(config: PackListConfig<T>, rows: readonly T[]): P
     const row = records?.[id];
     const own = refused.get(id);
     if (own && !row?.in_package) {
-      return (
-        <span className="inline-flex" title={t(`reason.${own}`)}>
-          <Checkbox disabled aria-label={t(`reason.${own}`)} />
-        </span>
-      );
+      return refusedBox(t(`reason.${own}`), SAID_ALOUD.has(own));
     }
     const reason =
       row?.reason === "claimed" && row.claimed_by
@@ -526,11 +542,7 @@ export function usePackList<T>(config: PackListConfig<T>, rows: readonly T[]): P
       );
     }
     if (!row?.can_add) {
-      return (
-        <span className="inline-flex" title={reason}>
-          <Checkbox disabled aria-label={reason} />
-        </span>
-      );
+      return refusedBox(reason, !!row && SAID_ALOUD.has(row.reason));
     }
     return (
       <Checkbox
