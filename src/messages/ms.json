@@ -4102,7 +4102,8 @@
       "progress_claim_checked": "Progress Claim disemak",
       "progress_claim_settled": "Progress Claim diselesaikan",
       "disposal_settlement_payment_recorded": "Muat naik baucar bayaran penyelesaian pembersihan",
-      "disposal_settlement_voucher_added": "Tambah baucar bayaran penyelesaian pembersihan yang tiada"
+      "disposal_settlement_voucher_added": "Tambah baucar bayaran penyelesaian pembersihan yang tiada",
+      "material_request_spec_matched": "Memilih baris MR bagi rekod bahan (semakan spesifikasi)"
     },
     "objectType": {
       "SignOffAssistant": "PIN pembantu",

@@ -4102,7 +4102,8 @@
       "progress_claim_checked": "Progress Claims checked",
       "progress_claim_settled": "Progress Claims settled",
       "disposal_settlement_payment_recorded": "Uploaded clearance settlement payment voucher",
-      "disposal_settlement_voucher_added": "Added missing clearance settlement payment voucher"
+      "disposal_settlement_voucher_added": "Added missing clearance settlement payment voucher",
+      "material_request_spec_matched": "Chose which MR line a material record counts under (spec check)"
     },
     "objectType": {
       "SignOffAssistant": "Assistant PIN",
