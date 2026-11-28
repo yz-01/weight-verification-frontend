@@ -19168,6 +19168,7 @@
       "save": "Save permissions",
       "failed": "Could not save. Please try again.",
       "unsaved": "Permissions changed. Press “Save” below for them to take effect.",
+      "unsavedTop": "Permissions changed. Press “Save” at the top right of the page for them to take effect.",
       "partSaved": "The user's details are saved; the permissions are not saved yet.",
       "notSwitchable": "Field staff and consultant accounts keep their role: their permissions are not switches.",
       "hqHintProjectUser": "Group B · head office may give: off by default; this person can use one once head office switches it on.",
