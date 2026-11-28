@@ -71,6 +71,7 @@ import {
   reviewSundryClaim,
 } from "@/services/sundry-claim.service";
 import { LIST_FITS } from "@/lib/list-fits";
+import { useMoneyStep } from "@/lib/money-steps";
 
 const TONE: Record<SundryClaimStatus, "neutral" | "positive" | "warning" | "danger" | "info"> = {
   SUBMITTED: "warning",
@@ -311,6 +312,9 @@ export function SundryClaimDetail({ id, onClose }: { id: string; onClose: () => 
   };
   const fail = (reasonError: unknown) =>
     setError(reasonError instanceof ApiError ? reasonError.message : t("failed"));
+  // JB306: 「金额审批」 / 「结算确认」 switches.
+  const approveStep = useMoneyStep("approve");
+  const settleStep = useMoneyStep("settle");
   const review = useMutation({
     mutationFn: (decision: "CONFIRMED" | "REJECTED") => reviewSundryClaim(id, decision, decision === "REJECTED" ? reason.trim() : ""),
     onSuccess: () => {
@@ -468,7 +472,13 @@ export function SundryClaimDetail({ id, onClose }: { id: string; onClose: () => 
                 {/* One row at the record panel's size, each button its own
                     width (JB166, Lucas 11-11: 「这些按钮不consistent」). */}
                 <div className="flex flex-wrap items-center gap-2">
-                  <Button size="sm" disabled={review.isPending} onClick={() => review.mutate("CONFIRMED")}>
+                  <Button
+                    size="sm"
+                    disabled={review.isPending || approveStep.off}
+                    disabledReason={approveStep.reason}
+                    showReason={approveStep.off}
+                    onClick={() => review.mutate("CONFIRMED")}
+                  >
                     <Check />
                     {t("action.confirm")}
                   </Button>
@@ -495,7 +505,8 @@ export function SundryClaimDetail({ id, onClose }: { id: string; onClose: () => 
                       className="mt-2"
                       variant="outline-destructive"
                       requires={[[reason.trim(), t("field.rejectReason")]]}
-                      disabled={review.isPending}
+                      disabled={review.isPending || approveStep.off}
+                      disabledReason={approveStep.reason}
                       onClick={() => review.mutate("REJECTED")}
                     >
                       <XCircle />
@@ -520,7 +531,8 @@ export function SundryClaimDetail({ id, onClose }: { id: string; onClose: () => 
                     size="sm"
                     variant="outline"
                     requires={[[voucher, t("proofs.file")]]}
-                    disabled={upload.isPending}
+                    disabled={upload.isPending || settleStep.off}
+                    disabledReason={settleStep.reason}
                     onClick={() => upload.mutate()}
                   >
                     {upload.isPending ? <Loader2 className="animate-spin" /> : <Upload />}
@@ -530,7 +542,9 @@ export function SundryClaimDetail({ id, onClose }: { id: string; onClose: () => 
                 <Button
                   size="sm"
                   requires={[[claim.payment_proofs.length > 0, t("proofs.title")]]}
-                  disabled={pay.isPending}
+                  disabled={pay.isPending || settleStep.off}
+                  disabledReason={settleStep.reason}
+                  showReason={settleStep.off}
                   onClick={() => pay.mutate()}
                 >
                   <BadgeCheck />

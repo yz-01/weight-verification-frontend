@@ -72,6 +72,7 @@ import { useUnitName } from "@/hooks/use-material-units";
 import type { MaterialOutgoing } from "@/interfaces/contractor-ops";
 import { ATTACHMENT_ACCEPT } from "@/lib/attachment-whitelist";
 import { useDateFormat } from "@/lib/dates";
+import { useMoneyStep } from "@/lib/money-steps";
 import { getSupplierReturns } from "@/services/contractor.service";
 import { getLabourStatements, type LabourStatementSummary } from "@/services/labour-statement.service";
 import { getRentalStatements, type RentalStatementRow } from "@/services/rental-statement.service";
@@ -911,6 +912,7 @@ function CheckConfirmForm({
   const [note, setNote] = useState("");
   // Only what is still listed: a row checked meanwhile drops out.
   const picked = ids.filter((id) => chosen.has(id));
+  const checkStep = useMoneyStep("check");
   const save = useMutation({
     mutationFn: () =>
       createReturnCheck({
@@ -999,7 +1001,10 @@ function CheckConfirmForm({
                 [voucherNo.trim(), tj("voucherNo")],
                 [files.length > 0, tj("vouchersRequired")],
               ]}
-              disabled={save.isPending}
+              // JB306: 「费用核对」 switch.
+              disabled={save.isPending || checkStep.off}
+              disabledReason={checkStep.reason}
+              showReason={checkStep.off}
               onClick={() => save.mutate()}
             >
               {save.isPending ? <Loader2 className="animate-spin" /> : <ClipboardCheck />}
@@ -1502,6 +1507,7 @@ function SettlePicker({ kind, onSaved }: { kind: ReconKind; onSaved: (settlement
   const ids = party?.checks.map((check) => check.id) ?? [];
   const ticked = ids.filter((id) => chosen.has(id));
   const money = party?.checks.some((check) => check.amount !== null) ?? false;
+  const settleStep = useMoneyStep("settle");
   const save = useMutation({
     mutationFn: () => createSettlement({ kind, checks: ticked, voucherNo, note, files }),
     onSuccess: (settlement) => {
@@ -1624,7 +1630,10 @@ function SettlePicker({ kind, onSaved }: { kind: ReconKind; onSaved: (settlement
                     [voucherNo.trim(), tj("voucherNo")],
                     [files.length > 0, tj("vouchersRequired")],
                   ]}
-                  disabled={save.isPending}
+                  // JB306: 「结算确认」 switch.
+                  disabled={save.isPending || settleStep.off}
+                  disabledReason={settleStep.reason}
+                  showReason={settleStep.off}
                   onClick={() => save.mutate()}
                 >
                   {save.isPending ? <Loader2 className="animate-spin" /> : <HandCoins />}

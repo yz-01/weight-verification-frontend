@@ -9881,7 +9881,10 @@
       "disposal_fee_adjust_invalid": "{reference}：每车单价要大于 0，最多两位小数。",
       "disposal_fee_adjust_reason_required": "改了每车单价，请写调整原因。",
       "disposal_fee_adjust_amounts_off": "你的账号看不到金额，不能调整每车单价。",
-      "package_ended_record": "{records} 已拒绝或已撤回，不能参与审批和结算。请先把它移出资料包；已经送审的，审批人只能退回这一笔。"
+      "package_ended_record": "{records} 已拒绝或已撤回，不能参与审批和结算。请先把它移出资料包；已经送审的，审批人只能退回这一笔。",
+      "finance_approve_amounts_off": "你的账号没有开「金额审批」，不能审批金额。请总部在「用户 › 编辑 › 权限开关」打开。",
+      "finance_check_costs_off": "你的账号没有开「费用核对」，不能核对。请总部在「用户 › 编辑 › 权限开关」打开。",
+      "finance_confirm_settlement_off": "你的账号没有开「结算确认」，不能结算或上传付款凭证。请总部在「用户 › 编辑 › 权限开关」打开。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -14745,7 +14748,10 @@
         "record": "填写检验结果"
       },
       "finance": {
-        "view_amounts": "金额查看（单价、成本、预算、Claim）"
+        "view_amounts": "金额查看（单价、成本、预算、Claim）",
+        "approve_amounts": "金额审批（杂费报销审批、资料包本期批准金额）",
+        "check_costs": "费用核对（各月结单、退场／领用、Progress Claim、垃圾清运的核对）",
+        "confirm_settlement": "结算确认（各项结算、付款凭证、确认已付款）"
       },
       "field_staff": {
         "manage": "为自己负责的项目生成和管理现场人员手机链接"
@@ -25726,6 +25732,13 @@
   "jb305": {
     "cost": {
       "basis": "只算已结算的设备租赁月结单"
+    }
+  },
+  "jb306": {
+    "off": {
+      "approve": "你的账号没有开「金额审批」，不能审批金额。请总部在「用户 › 编辑 › 权限开关」打开。",
+      "check": "你的账号没有开「费用核对」，不能核对。请总部在「用户 › 编辑 › 权限开关」打开。",
+      "settle": "你的账号没有开「结算确认」，不能结算或上传付款凭证。请总部在「用户 › 编辑 › 权限开关」打开。"
     }
   }
 }

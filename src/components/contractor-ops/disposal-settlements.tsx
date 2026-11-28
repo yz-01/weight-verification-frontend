@@ -78,6 +78,7 @@ import {
 } from "@/lib/disposal-fees";
 import { hasPayment, supplierRecipient } from "@/lib/disposal-payment";
 import { isSignOffCancelled } from "@/lib/sign-off";
+import { useMoneyStep } from "@/lib/money-steps";
 import {
   createDisposalSettlement,
   disposalSettlementPdfFile,
@@ -231,6 +232,8 @@ function PendingList({ filters, onChecked }: { filters: DisposalSettlementFilter
   const t = useTranslations("jb287");
   const { can, user } = useAuth();
   const office = mayHandleDisposalFees(user, can);
+  // JB306: 「费用核对」 switch.
+  const checkStep = useMoneyStep("check");
   const queryClient = useQueryClient();
   const pending = useQuery({
     queryKey: ["disposal-settlements", "pending", filters],
@@ -290,9 +293,9 @@ function PendingList({ filters, onChecked }: { filters: DisposalSettlementFilter
         <div className="flex flex-wrap items-center gap-3">
           <Button
             data-slot="settlement-confirm-check"
-            disabled={picked.length === 0 || mixed}
-            disabledReason={mixed ? t("settlement.mixed") : t("settlement.tickFirst")}
-            showReason={mixed}
+            disabled={picked.length === 0 || mixed || checkStep.off}
+            disabledReason={checkStep.reason ?? (mixed ? t("settlement.mixed") : t("settlement.tickFirst"))}
+            showReason={mixed || checkStep.off}
             onClick={() => setConfirming(true)}
           >
             <ClipboardCheck />
@@ -853,10 +856,12 @@ export function PrepareSettleButton({ row }: { row: DisposalSettlementRow }) {
   const [isAsking, setAsking] = useState(false);
   // JB299: 「未上传付款凭证，不允许确认结算完毕」 - said before any PIN.
   const [missing, setMissing] = useState(false);
+  // JB306: 「结算确认」 switch.
+  const settleStep = useMoneyStep("settle");
   if (user?.is_field_staff) return null;
-  if (!mayHandleDisposalFees(user, can)) {
+  if (!mayHandleDisposalFees(user, can) || settleStep.off) {
     return (
-      <Button size="sm" disabled disabledReason={t("settlement.noRight")} showReason>
+      <Button size="sm" disabled disabledReason={!mayHandleDisposalFees(user, can) ? t("settlement.noRight") : settleStep.reason} showReason>
         <Lock />
         {t("settlement.prepare")}
       </Button>

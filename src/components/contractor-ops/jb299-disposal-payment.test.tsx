@@ -33,7 +33,7 @@ vi.mock("next/navigation", () => ({
   usePathname: () => "/waste-clearance",
   useSearchParams: () => new URLSearchParams("kind=settlement"),
 }));
-const reader = vi.hoisted(() => ({ phone: false, perms: new Set<string>(["disposal.view", "disposal.manage"]) }));
+const reader = vi.hoisted(() => ({ phone: false, perms: new Set<string>(["disposal.view", "disposal.manage", "finance.check_costs", "finance.confirm_settlement"]) }));
 vi.mock("@/components/providers/auth-provider", () => ({
   useAuth: () => ({
     user: { id: "u-1", full_name: "Site Office", email: "office@x.test", is_field_staff: reader.phone },
@@ -100,7 +100,7 @@ function render(node: React.ReactNode) {
 
 beforeEach(() => {
   reader.phone = false;
-  reader.perms = new Set(["disposal.view", "disposal.manage"]);
+  reader.perms = new Set(["disposal.view", "disposal.manage", "finance.check_costs", "finance.confirm_settlement"]);
   top.projectId = "p-3";
   api.get.mockClear();
   api.post.mockClear();

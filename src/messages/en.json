@@ -9881,7 +9881,10 @@
       "disposal_fee_adjust_invalid": "{reference}: the fee per trip must be above 0, with at most two decimals.",
       "disposal_fee_adjust_reason_required": "You changed a fee per trip: write the reason.",
       "disposal_fee_adjust_amounts_off": "Your account does not see amounts, so it cannot change a fee per trip.",
-      "package_ended_record": "{records} was rejected or withdrawn and cannot be approved or settled. Take it out of the package first; once sent, the reviewer can only return it."
+      "package_ended_record": "{records} was rejected or withdrawn and cannot be approved or settled. Take it out of the package first; once sent, the reviewer can only return it.",
+      "finance_approve_amounts_off": "Your “Approve amounts” switch is off, so you cannot approve amounts. Ask head office to turn it on in Users › Edit › Permission switches.",
+      "finance_check_costs_off": "Your “Check costs” switch is off, so you cannot check. Ask head office to turn it on in Users › Edit › Permission switches.",
+      "finance_confirm_settlement_off": "Your “Confirm settlements” switch is off, so you cannot settle or upload payment vouchers. Ask head office to turn it on in Users › Edit › Permission switches."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -14745,7 +14748,10 @@
         "record": "Fill in inspection results"
       },
       "finance": {
-        "view_amounts": "See amounts (prices, costs, budgets, claims)"
+        "view_amounts": "See amounts (prices, costs, budgets, claims)",
+        "approve_amounts": "Approve amounts (sundry claims, a package's approved amount)",
+        "check_costs": "Check costs (the check of statements, returns / issues, Progress Claims, clearance)",
+        "confirm_settlement": "Confirm settlements (settlements, payment vouchers, payment confirmed)"
       },
       "field_staff": {
         "manage": "Issue and manage phone links for field staff on one's own projects"
@@ -25726,6 +25732,13 @@
   "jb305": {
     "cost": {
       "basis": "Only settled equipment rental statements are counted"
+    }
+  },
+  "jb306": {
+    "off": {
+      "approve": "Your “Approve amounts” switch is off, so you cannot approve amounts. Ask head office to turn it on in Users › Edit › Permission switches.",
+      "check": "Your “Check costs” switch is off, so you cannot check. Ask head office to turn it on in Users › Edit › Permission switches.",
+      "settle": "Your “Confirm settlements” switch is off, so you cannot settle or upload payment vouchers. Ask head office to turn it on in Users › Edit › Permission switches."
     }
   }
 }

@@ -9881,7 +9881,10 @@
       "disposal_fee_adjust_invalid": "{reference}：每車單價要大於 0，最多兩位小數。",
       "disposal_fee_adjust_reason_required": "改了每車單價，請寫調整原因。",
       "disposal_fee_adjust_amounts_off": "你的帳號看不到金額，不能調整每車單價。",
-      "package_ended_record": "{records} 已拒絕或已撤回，不能參與審批和結算。請先把它移出資料包；已經送審的，審批人只能退回這一筆。"
+      "package_ended_record": "{records} 已拒絕或已撤回，不能參與審批和結算。請先把它移出資料包；已經送審的，審批人只能退回這一筆。",
+      "finance_approve_amounts_off": "你的帳號沒有開「金額審批」，不能審批金額。請總部在「用戶 › 編輯 › 權限開關」打開。",
+      "finance_check_costs_off": "你的帳號沒有開「費用核對」，不能核對。請總部在「用戶 › 編輯 › 權限開關」打開。",
+      "finance_confirm_settlement_off": "你的帳號沒有開「結算確認」，不能結算或上傳付款憑證。請總部在「用戶 › 編輯 › 權限開關」打開。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -14745,7 +14748,10 @@
         "record": "填寫檢驗結果"
       },
       "finance": {
-        "view_amounts": "金額查看（單價、成本、預算、Claim）"
+        "view_amounts": "金額查看（單價、成本、預算、Claim）",
+        "approve_amounts": "金額審批（雜費報銷審批、資料包本期批准金額）",
+        "check_costs": "費用核對（各月結單、退場／領用、Progress Claim、垃圾清運的核對）",
+        "confirm_settlement": "結算確認（各項結算、付款憑證、確認已付款）"
       },
       "field_staff": {
         "manage": "為自己負責的項目生成和管理現場人員手機連結"
@@ -25726,6 +25732,13 @@
   "jb305": {
     "cost": {
       "basis": "只算已結算的設備租賃月結單"
+    }
+  },
+  "jb306": {
+    "off": {
+      "approve": "你的帳號沒有開「金額審批」，不能審批金額。請總部在「用戶 › 編輯 › 權限開關」打開。",
+      "check": "你的帳號沒有開「費用核對」，不能核對。請總部在「用戶 › 編輯 › 權限開關」打開。",
+      "settle": "你的帳號沒有開「結算確認」，不能結算或上傳付款憑證。請總部在「用戶 › 編輯 › 權限開關」打開。"
     }
   }
 }

@@ -412,6 +412,21 @@
       "label": "See amounts (prices, costs, budgets, claims)"
     },
     {
+      "code": "finance.approve_amounts",
+      "group": "finance",
+      "label": "Approve amounts (sundry claims, a package's approved amount)"
+    },
+    {
+      "code": "finance.check_costs",
+      "group": "finance",
+      "label": "Check costs (the 核对 of every statement and settlement)"
+    },
+    {
+      "code": "finance.confirm_settlement",
+      "group": "finance",
+      "label": "Confirm settlements (结算 and payment vouchers)"
+    },
+    {
       "code": "approval.view",
       "group": "approval",
       "label": "View approvals and consultant applications"

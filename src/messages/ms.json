@@ -9881,7 +9881,10 @@
       "disposal_fee_adjust_invalid": "{reference}: fi setiap trip mesti melebihi 0, paling banyak dua tempat perpuluhan.",
       "disposal_fee_adjust_reason_required": "Anda mengubah fi setiap trip: tulis sebabnya.",
       "disposal_fee_adjust_amounts_off": "Akaun anda tidak melihat amaun, jadi tidak boleh mengubah fi setiap trip.",
-      "package_ended_record": "{records} telah ditolak atau ditarik balik dan tidak boleh diluluskan atau diselesaikan. Keluarkan dari pakej dahulu; jika sudah dihantar, penyemak hanya boleh memulangkannya."
+      "package_ended_record": "{records} telah ditolak atau ditarik balik dan tidak boleh diluluskan atau diselesaikan. Keluarkan dari pakej dahulu; jika sudah dihantar, penyemak hanya boleh memulangkannya.",
+      "finance_approve_amounts_off": "Suis “Luluskan amaun” anda dimatikan, jadi anda tidak boleh meluluskan amaun. Minta ibu pejabat menghidupkannya di Pengguna › Edit › Suis kebenaran.",
+      "finance_check_costs_off": "Suis “Semak kos” anda dimatikan, jadi anda tidak boleh menyemak. Minta ibu pejabat menghidupkannya di Pengguna › Edit › Suis kebenaran.",
+      "finance_confirm_settlement_off": "Suis “Sahkan penyelesaian” anda dimatikan, jadi anda tidak boleh menyelesaikan atau memuat naik baucar bayaran. Minta ibu pejabat menghidupkannya di Pengguna › Edit › Suis kebenaran."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -14745,7 +14748,10 @@
         "record": "Isi keputusan pemeriksaan"
       },
       "finance": {
-        "view_amounts": "Lihat jumlah wang (harga, kos, bajet, tuntutan)"
+        "view_amounts": "Lihat jumlah wang (harga, kos, bajet, tuntutan)",
+        "approve_amounts": "Luluskan amaun (tuntutan sundry, amaun diluluskan pakej)",
+        "check_costs": "Semak kos (semakan penyata, pulangan / pengeluaran, Progress Claim, pembersihan)",
+        "confirm_settlement": "Sahkan penyelesaian (penyelesaian, baucar bayaran, bayaran disahkan)"
       },
       "field_staff": {
         "manage": "Keluarkan dan urus pautan telefon kakitangan tapak bagi projek sendiri"
@@ -25726,6 +25732,13 @@
   "jb305": {
     "cost": {
       "basis": "Hanya penyata sewaan peralatan yang telah diselesaikan dikira"
+    }
+  },
+  "jb306": {
+    "off": {
+      "approve": "Suis “Luluskan amaun” anda dimatikan, jadi anda tidak boleh meluluskan amaun. Minta ibu pejabat menghidupkannya di Pengguna › Edit › Suis kebenaran.",
+      "check": "Suis “Semak kos” anda dimatikan, jadi anda tidak boleh menyemak. Minta ibu pejabat menghidupkannya di Pengguna › Edit › Suis kebenaran.",
+      "settle": "Suis “Sahkan penyelesaian” anda dimatikan, jadi anda tidak boleh menyelesaikan atau memuat naik baucar bayaran. Minta ibu pejabat menghidupkannya di Pengguna › Edit › Suis kebenaran."
     }
   }
 }
