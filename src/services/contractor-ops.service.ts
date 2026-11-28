@@ -63,6 +63,7 @@ import type {
   PackStatus,
   RecordPackageRow,
   PackageRecordParts,
+  PackageClaimHistory,
   PackageSelection,
   PackageState,
   PackagePart,
@@ -1818,7 +1819,26 @@ export interface PackageClaimFieldsPayload {
   claim_category?: string;
   claim_other_name?: string;
   claim_subcontractor?: string;
+  /** JB309-1: a subcontractor's claim - 施工分类, 实际施工日期范围 (YYYY-MM-DD), Claim No. */
+  claim_phase?: string;
+  claim_work_from?: string;
+  claim_work_to?: string;
+  claim_ref_no?: string;
 }
+
+/**
+ * JB309-3 「历史申请」 while the claim fields are typed: the same project and
+ * 分包商, the same 期数 (`YYYY-MM`) or overlapping work dates; `exclude` is the
+ * draft being edited.
+ */
+export const getPackageClaimHistory = (query: {
+  project: string;
+  subcontractor: string;
+  period?: string;
+  work_from?: string;
+  work_to?: string;
+  exclude?: string;
+}) => api.get<PackageClaimHistory>("/api/evidence-packages/claim_history/", query);
 
 export async function createEvidencePackage(payload: {
   project: string;

@@ -7,7 +7,9 @@
  *   its 期数 / Claim 类型 / 分类 / 分包商 on the package (JB307-3, 客户 11-28j:
  *   「Claim 类型及 Claim 分类必须填写。属于分包商的 Progress Claim，必须选择对应
  *   分包商」 - 期数 stays optional)
- *   (`ClaimInfoFields`, `ClaimInfoBlock`); the Progress Claim tab only filters,
+ *   (`ClaimInfoFields`, `ClaimInfoBlock`); a subcontractor's claim also names
+ *   its 施工分类, 实际施工日期范围, 期数, Claim No. and 申请金额, and shows its
+ *   「历史申请」 (JB309-1/3, 客户 11-28l, `ClaimHistoryPanel`); the Progress Claim tab only filters,
  *   and its one button manages the Claim categories (`ClaimCategoriesDialog`,
  *   客户: 「这个应该是新增claim 分类，不是新增claim」);
  * - 「对外分享（WhatsApp / 电邮）」 is the system's one 发送 (JB64,
@@ -16,7 +18,7 @@
  * - 「发送记录」 lists the in-system sends and the shares by time (`SendLog`).
  */
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Pencil, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
@@ -28,19 +30,30 @@ import {
   type ClaimFields,
 } from "@/components/contractor-ops/claim-engine";
 import { CategoryDialog } from "@/components/contractor-ops/operations-workspaces";
+import { rm } from "@/components/contractor-ops/package-review-loop";
 import { Shell } from "@/components/contractor-ops/package-shell";
 import { FieldWrapper, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { ShareLine, useMarkSent } from "@/components/shared/record-send-log";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type {
   EvidencePackageDetail,
   EvidencePackageRow,
+  PackageClaimHistory,
   ProjectCategory,
 } from "@/interfaces/contractor-ops";
 import { useDateFormat } from "@/lib/dates";
 import {
+  getConstructionPhases,
+  getPackageClaimHistory,
   updateEvidencePackage,
   updateProjectCategory,
   type PackageClaimFieldsPayload,
@@ -79,9 +92,22 @@ export interface ClaimInfoValue {
   period: string;
   kind: ClaimKindChoice;
   fields: ClaimFields;
+  /** JB309-1 (a subcontractor's claim): 施工分类 id, 实际施工日期范围 `YYYY-MM-DD`, Claim No. */
+  phase: string;
+  workFrom: string;
+  workTo: string;
+  refNo: string;
 }
 
-export const EMPTY_CLAIM_INFO: ClaimInfoValue = { period: "", kind: "", fields: EMPTY_FIELDS };
+export const EMPTY_CLAIM_INFO: ClaimInfoValue = {
+  period: "",
+  kind: "",
+  fields: EMPTY_FIELDS,
+  phase: "",
+  workFrom: "",
+  workTo: "",
+  refNo: "",
+};
 
 /** The form's value from a package's own claim fields. */
 export function claimInfoValue(pkg: Pick<EvidencePackageRow, "claim_info" | "claim_other_name">): ClaimInfoValue {
@@ -96,18 +122,43 @@ export function claimInfoValue(pkg: Pick<EvidencePackageRow, "claim_info" | "cla
       otherName: pkg.claim_other_name ?? "",
       subcontractor: info.subcontractor ?? "",
     },
+    phase: info.phase ?? "",
+    workFrom: info.work_from ?? "",
+    workTo: info.work_to ?? "",
+    refNo: info.ref_no ?? "",
   };
 }
 
-/** What the server takes; empty strings clear a field. */
-export function claimInfoPayload(value: ClaimInfoValue): Required<PackageClaimFieldsPayload> {
+/**
+ * What the server takes; empty strings clear a field. `application`: the
+ * claim is a subcontractor's (JB309-1) - another claim keeps no 施工分类,
+ * dates or Claim No.
+ */
+export function claimInfoPayload(value: ClaimInfoValue, application = true): Required<PackageClaimFieldsPayload> {
   return {
     claim_period: value.period,
     claim_kind: value.kind,
     claim_category: value.fields.category,
     claim_other_name: value.fields.otherName.trim(),
     claim_subcontractor: value.fields.subcontractor,
+    claim_phase: application ? value.phase : "",
+    claim_work_from: application ? value.workFrom : "",
+    claim_work_to: application ? value.workTo : "",
+    claim_ref_no: application ? value.refNo.trim() : "",
   };
+}
+
+/** Whether the chosen 分类 makes this a subcontractor's claim (JB307-3), with the JB309 fields. */
+export function useClaimIsApplication(project: string, value: ClaimInfoValue): boolean {
+  // query-failure: the same query ClaimInfoFields draws, with its own note there.
+  const categories = useClaimCategories(project, { offered: true });
+  const chosen = (categories.data?.results ?? []).find((row) => row.id === value.fields.category);
+  return claimNeedsSubcontractor(chosen, value.fields.otherName);
+}
+
+/** The work dates end before they start (JB309-1). */
+export function workDatesReversed(value: Pick<ClaimInfoValue, "workFrom" | "workTo">): boolean {
+  return Boolean(value.workFrom && value.workTo && value.workFrom > value.workTo);
 }
 
 /**
@@ -119,14 +170,18 @@ export function ClaimInfoFields({
   project,
   value,
   onChange,
+  packageId,
 }: {
   project: string;
   value: ClaimInfoValue;
   onChange: (next: ClaimInfoValue) => void;
+  /** The draft being edited: not its own 「历史申请」. */
+  packageId?: string;
 }) {
   const t = useTranslations("multiEngine");
   const claims = useTranslations("claims");
   const words = useTranslations("jb307b");
+  const jb309 = useTranslations("jb309d");
   // query-failure: passed to ClaimFieldsForm, which shows QueryFailedNote under the picker.
   const categories = useClaimCategories(project, { offered: true });
   const chosen = (categories.data?.results ?? []).find((row) => row.id === value.fields.category);
@@ -135,7 +190,8 @@ export function ClaimInfoFields({
     <div className="space-y-4 rounded-lg border bg-muted/20 p-3" data-claim-info-fields>
       <p className="text-sm font-medium">{t("claimInfo.title")}</p>
       <p className="text-xs text-muted-foreground">{words("required")}</p>
-      <FieldWrapper label={t("claimInfo.period")}>
+      {needsSub && <p className="text-xs text-muted-foreground">{jb309("required")}</p>}
+      <FieldWrapper label={t("claimInfo.period")} required={needsSub}>
         <Input
           type="month"
           value={value.period}
@@ -173,7 +229,214 @@ export function ClaimInfoFields({
         subcontractorRequired={needsSub}
         subcontractorHint={chosen ? (needsSub ? words("subRequired") : words("subOptional")) : undefined}
       />
+      {needsSub && <ApplicationFields project={project} value={value} onChange={onChange} packageId={packageId} />}
     </div>
+  );
+}
+
+/**
+ * JB309-1 (客户 11-28l 第 1 点): a subcontractor's claim also names its 施工分类
+ * (the project's construction phases, as progress records carry them), the
+ * 实际施工日期范围 and the subcontractor's Claim No.; and the form shows the
+ * 「历史申请」 of the same 分包商 with the same 期数 or overlapping dates
+ * (第 3 点) before it is saved.
+ */
+function ApplicationFields({
+  project,
+  value,
+  onChange,
+  packageId,
+}: {
+  project: string;
+  value: ClaimInfoValue;
+  onChange: (next: ClaimInfoValue) => void;
+  packageId?: string;
+}) {
+  const words = useTranslations("jb309d");
+  const phases = useQuery({
+    queryKey: ["construction-phases", project],
+    queryFn: () => getConstructionPhases({ project, page_size: 200 }),
+    enabled: Boolean(project),
+  });
+  const options = (phases.data?.results ?? []).filter((row) => row.is_active || row.id === value.phase);
+  const reversed = workDatesReversed(value);
+  const subcontractor = value.fields.subcontractor;
+  const datesReady = Boolean(value.workFrom && value.workTo && !reversed);
+  const asked = Boolean(project && subcontractor && (value.period || datesReady));
+  const history = useQuery({
+    queryKey: ["package-claim-history", project, subcontractor, value.period, datesReady ? value.workFrom : "", datesReady ? value.workTo : "", packageId ?? ""],
+    queryFn: () =>
+      getPackageClaimHistory({
+        project,
+        subcontractor,
+        ...(value.period ? { period: value.period } : {}),
+        ...(datesReady ? { work_from: value.workFrom, work_to: value.workTo } : {}),
+        ...(packageId ? { exclude: packageId } : {}),
+      }),
+    enabled: asked,
+  });
+  return (
+    <>
+      <FieldWrapper label={words("phase")} required hint={words("phaseHint")}>
+        <Select value={value.phase} onValueChange={(phase) => onChange({ ...value, phase })} disabled={!project}>
+          <SelectTrigger className="w-full" aria-label={words("phase")} data-claim-phase>
+            <SelectValue placeholder={words("phasePlaceholder")} />
+          </SelectTrigger>
+          <SelectContent>
+            {options.map((row) => (
+              <SelectItem key={row.id} value={row.id}>
+                {row.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <QueryFailedNote query={phases} what={words("phase")} />
+        {phases.isSuccess && options.length === 0 && (
+          <p className="mt-1 text-xs text-muted-foreground">{words("noPhases")}</p>
+        )}
+      </FieldWrapper>
+      <FieldWrapper label={words("workDates")} required>
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          <label className="space-y-1 text-xs text-muted-foreground">
+            <span>{words("workFrom")}</span>
+            <Input
+              type="date"
+              value={value.workFrom}
+              onChange={(event) => onChange({ ...value, workFrom: event.target.value })}
+              aria-label={words("workFrom")}
+              data-claim-work-from
+            />
+          </label>
+          <label className="space-y-1 text-xs text-muted-foreground">
+            <span>{words("workTo")}</span>
+            <Input
+              type="date"
+              value={value.workTo}
+              min={value.workFrom || undefined}
+              onChange={(event) => onChange({ ...value, workTo: event.target.value })}
+              aria-label={words("workTo")}
+              data-claim-work-to
+            />
+          </label>
+        </div>
+        {reversed && <p className="mt-1 text-xs text-destructive">{words("datesOrder")}</p>}
+      </FieldWrapper>
+      <FieldWrapper label={words("refNo")} required hint={words("refNoHint")}>
+        <Input
+          value={value.refNo}
+          maxLength={100}
+          placeholder={words("refNoPlaceholder")}
+          onChange={(event) => onChange({ ...value, refNo: event.target.value })}
+          data-claim-ref-no
+        />
+      </FieldWrapper>
+      {asked && (
+        <ClaimHistoryPanel history={history.data} loading={history.isPending} variant="form" />
+      )}
+      {asked && <QueryFailedNote query={history} what={words("history.what")} />}
+    </>
+  );
+}
+
+/**
+ * 「历史申请」 (JB309-3, 客户 11-28l 第 3 点: 「再次建立相同期数或施工日期范围的
+ * 申请时，系统必须显示历史申请、批准金额、结算金额及关联资料包编号，供审批人员
+ * 核对」): the other applications of the same project and 分包商 - package no,
+ * Claim No., 期数, 施工日期, 施工分类, the four amounts (none without 「金额查看」),
+ * 审阅 and 结算状态. A warning in the form; a check list in the package window.
+ */
+export function ClaimHistoryPanel({
+  history,
+  loading = false,
+  variant,
+  onOpenPackage,
+}: {
+  history: PackageClaimHistory | null | undefined;
+  loading?: boolean;
+  variant: "form" | "window";
+  onOpenPackage?: (id: string) => void;
+}) {
+  const words = useTranslations("jb309d");
+  const loop = useTranslations("jb252");
+  const settle = useTranslations("jb298");
+  const formatter = useDateFormat();
+  const rows = history?.rows ?? [];
+  if (variant === "form" && !loading && rows.length === 0) return null;
+  const warn = rows.length > 0;
+  return (
+    <section
+      className={`space-y-2 rounded-lg border p-3 ${warn ? "border-warning/50 bg-warning/10" : "bg-muted/20"}`}
+      aria-label={words("history.title")}
+      data-claim-history={variant}
+    >
+      <p className="text-sm font-medium">
+        {words("history.title")}
+        {warn ? ` · ${rows.length}` : ""}
+      </p>
+      <p className="text-xs text-muted-foreground">
+        {variant === "form" ? words("history.formHint") : words("history.windowHint")}
+      </p>
+      {loading ? (
+        <p className="text-xs text-muted-foreground">{words("history.loading")}</p>
+      ) : rows.length === 0 ? (
+        <p className="text-xs text-muted-foreground">{words("history.empty")}</p>
+      ) : (
+        <>
+          {history?.amounts_locked && <p className="text-xs text-muted-foreground">{words("history.amountsLocked")}</p>}
+          <ul className="space-y-2">
+            {rows.map((row) => {
+              const dates =
+                row.work_from && row.work_to
+                  ? `${formatter.date(row.work_from)} – ${formatter.date(row.work_to)}`
+                  : "—";
+              const stateWords = [
+                row.state === "DRAFT" ? words("history.draft") : loop(`progress.${row.review_progress || "NOT_SENT"}`),
+                row.settle_state && row.settle_state !== "NOT_NEEDED" ? settle(`state.${row.settle_state}`) : "",
+              ].filter(Boolean);
+              return (
+                <li key={row.id} className="space-y-1 rounded-md border bg-card p-2 text-sm" data-claim-history-row>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {onOpenPackage ? (
+                      <button
+                        type="button"
+                        className="font-medium text-primary underline-offset-2 hover:underline"
+                        onClick={() => onOpenPackage(row.id)}
+                      >
+                        {row.package_no || row.name}
+                      </button>
+                    ) : (
+                      <span className="font-medium">{row.package_no || row.name}</span>
+                    )}
+                    {row.ref_no && (
+                      <span className="text-muted-foreground">
+                        {words("refNoShort")} {row.ref_no}
+                      </span>
+                    )}
+                    {row.same_period && <StatusBadge label={words("history.samePeriod")} tone="warning" />}
+                    {row.dates_overlap && <StatusBadge label={words("history.datesOverlap")} tone="warning" />}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {words("history.period")} {periodLabel(row.period) || "—"} · {words("history.dates")} {dates}
+                    {row.phase_name ? ` · ${words("history.phase")} ${row.phase_name}` : ""}
+                  </p>
+                  {!history?.amounts_locked && (
+                    <p className="text-xs tabular">
+                      {words("history.claim")} {rm(row.claim_amount)} · {words("history.approved")} {rm(row.approved_amount)} ·{" "}
+                      {words("history.checked")} {rm(row.checked_amount)} · {words("history.settled")} {rm(row.settled_amount)}
+                    </p>
+                  )}
+                  <p className="text-xs">
+                    {stateWords.join(" · ")}
+                    {row.check_no ? ` · ${row.check_no}` : ""}
+                    {row.settlement_no ? ` · ${row.settlement_no}` : ""}
+                  </p>
+                </li>
+              );
+            })}
+          </ul>
+        </>
+      )}
+    </section>
   );
 }
 
@@ -182,9 +445,10 @@ export function ClaimInfoFields({
  * the labels on screen: Claim 类型, Claim 分类, 「其他」's name, and the 分包商
  * of a subcontractor's claim. Empty when they can be saved.
  */
-export function useClaimInfoMissing(project: string, value: ClaimInfoValue): string[] {
+export function useClaimInfoMissing(project: string, value: ClaimInfoValue, amount?: string | null): string[] {
   const t = useTranslations("multiEngine");
   const claims = useTranslations("claims");
+  const jb309 = useTranslations("jb309d");
   // query-failure: the same query ClaimInfoFields draws, with its own note there.
   const categories = useClaimCategories(project, { offered: true });
   const chosen = (categories.data?.results ?? []).find((row) => row.id === value.fields.category);
@@ -192,17 +456,29 @@ export function useClaimInfoMissing(project: string, value: ClaimInfoValue): str
   if (!value.kind) missing.push(t("claimInfo.kind"));
   if (!value.fields.category) missing.push(t("claimInfo.category"));
   if (chosen?.is_other && !value.fields.otherName.trim()) missing.push(claims("field.otherName"));
-  if (claimNeedsSubcontractor(chosen, value.fields.otherName) && !value.fields.subcontractor) {
+  const application = claimNeedsSubcontractor(chosen, value.fields.otherName);
+  if (application && !value.fields.subcontractor) {
     missing.push(t("claimInfo.subcontractor"));
+  }
+  // JB309-1: a subcontractor's claim, in the client's order. `amount`
+  // undefined: the amount is not on this form.
+  if (application) {
+    if (!value.phase) missing.push(jb309("phase"));
+    if (!value.workFrom || !value.workTo) missing.push(jb309("workDates"));
+    if (!value.period) missing.push(t("claimInfo.period"));
+    if (!value.refNo.trim()) missing.push(jb309("refNo"));
+    if (amount !== undefined && !(amount ?? "").trim()) missing.push(jb309("amount"));
   }
   return missing;
 }
 
 /** The button's reason for `useClaimInfoMissing`, or `undefined` when nothing is missing. */
-export function useClaimInfoReason(project: string, value: ClaimInfoValue): string | undefined {
+export function useClaimInfoReason(project: string, value: ClaimInfoValue, amount?: string | null): string | undefined {
   const common = useTranslations("common");
-  const missing = useClaimInfoMissing(project, value);
-  return missing.length ? common("missingFields", { fields: missing.join(common("listSeparator")) }) : undefined;
+  const jb309 = useTranslations("jb309d");
+  const missing = useClaimInfoMissing(project, value, amount);
+  if (missing.length) return common("missingFields", { fields: missing.join(common("listSeparator")) });
+  return workDatesReversed(value) ? jb309("datesOrder") : undefined;
 }
 
 /** `2026-10-01` as `2026-10`: the month a claim is for. */
@@ -215,13 +491,18 @@ export function ClaimInfoBlock({
   pkg,
   canEdit,
   onChanged,
+  onOpenPackage,
 }: {
   pkg: EvidencePackageDetail;
   canEdit: boolean;
   onChanged: () => void;
+  /** JB309-3: a 「历史申请」 row opens that package. */
+  onOpenPackage?: (id: string) => void;
 }) {
   const t = useTranslations("multiEngine");
   const claims = useTranslations("claims");
+  const jb309 = useTranslations("jb309d");
+  const formatter = useDateFormat();
   const [editing, setEditing] = useState(false);
   const info = pkg.claim_info;
   if (!info) return null;
@@ -245,7 +526,16 @@ export function ClaimInfoBlock({
         <Fact label={t("claimInfo.kind")} value={info.kind ? claims(`kind.${info.kind}`) : none} />
         <Fact label={t("claimInfo.category")} value={info.category_name || none} />
         <Fact label={t("claimInfo.subcontractor")} value={info.subcontractor_name || none} />
+        {/* JB309-1: shown when the package has them (older packages do not). */}
+        {info.phase_name && <Fact label={jb309("phase")} value={info.phase_name} />}
+        {info.work_from && info.work_to && (
+          <Fact label={jb309("workDates")} value={`${formatter.date(info.work_from)} – ${formatter.date(info.work_to)}`} />
+        )}
+        {info.ref_no && <Fact label={jb309("refNo")} value={info.ref_no} />}
       </dl>
+      {pkg.claim_history && (
+        <ClaimHistoryPanel history={pkg.claim_history} variant="window" onOpenPackage={onOpenPackage} />
+      )}
       {editing && (
         <EditClaimInfoDialog
           pkg={pkg}
@@ -280,16 +570,22 @@ function EditClaimInfoDialog({
 }) {
   const t = useTranslations("multiEngine");
   const common = useTranslations("common");
+  const jb309 = useTranslations("jb309d");
   const [value, setValue] = useState<ClaimInfoValue>(() => claimInfoValue(pkg));
-  const missing = useClaimInfoReason(pkg.project, value);
+  // JB309-1: the 申请金额 is typed in the window (with the PIN), so it is read here.
+  const missing = useClaimInfoReason(pkg.project, value, pkg.claim_amount ?? "");
+  const application = useClaimIsApplication(pkg.project, value);
   const save = useMutation({
-    mutationFn: () => updateEvidencePackage(pkg.id, claimInfoPayload(value)),
+    mutationFn: () => updateEvidencePackage(pkg.id, claimInfoPayload(value, application)),
     onSuccess: onSaved,
   });
   return (
     <Shell title={t("claimInfo.editTitle")} onClose={onClose}>
       <div className="flex-1 space-y-4 overflow-y-auto p-4">
-        <ClaimInfoFields project={pkg.project} value={value} onChange={setValue} />
+        <ClaimInfoFields project={pkg.project} value={value} onChange={setValue} packageId={pkg.id} />
+        {application && !pkg.claim_amount && (
+          <p className="rounded-lg border border-dashed p-3 text-xs text-muted-foreground">{jb309("amountMissing")}</p>
+        )}
       </div>
       <footer className="flex flex-col-reverse gap-2 border-t border-panel-border bg-muted p-4 sm:flex-row sm:items-center sm:justify-end">
         <Button variant="outline" onClick={onClose}>
