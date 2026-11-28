@@ -67,6 +67,7 @@ import {
   SentQuestion,
   SentQuestionDialog,
   watchReturn,
+  type SendRecipientSuggestion,
 } from "@/components/shared/send-recipient";
 import { SendStates } from "@/components/shared/send-states";
 import { useMayExport } from "@/hooks/use-may-export";
@@ -150,6 +151,11 @@ export interface FileSource {
    * before, 「导出」 ticked or not (`useMayExport`).
    */
   ownWork?: boolean;
+  /**
+   * JB299: who this file normally goes to (a 清运结算单 to its supplier) -
+   * 「发给谁？」 opens filled in with it.
+   */
+  recipient?: SendRecipientSuggestion;
 }
 
 /** Share2, not Send: 「发送给顾问」 and other formal sends already use Send. */
@@ -229,11 +235,16 @@ export function useFileActions() {
   const [viewing, setViewing] = useState<Held | null>(null);
   const [sending, setSending] = useState<Held | null>(null);
   // JB64: 「发给谁？」 open, and the answer it is waiting to hand back.
-  const [asking, setAsking] = useState<{ title: string; resolve: (to: SendRecipient | null) => void } | null>(null);
+  const [asking, setAsking] = useState<{
+    title: string;
+    suggested?: SendRecipientSuggestion;
+    resolve: (to: SendRecipient | null) => void;
+  } | null>(null);
   // JB64: 「发出去了吗？」 for this send, once back from the share window.
   const [question, setQuestion] = useState<Held | null>(null);
   const askRecipient = useCallback(
-    (title: string) => new Promise<SendRecipient | null>((resolve) => setAsking({ title, resolve })),
+    (title: string, suggested?: SendRecipientSuggestion) =>
+      new Promise<SendRecipient | null>((resolve) => setAsking({ title, suggested, resolve })),
     [],
   );
   /** Fetch with a spinner; null when it failed (and the person was told). */
@@ -305,7 +316,7 @@ export function useFileActions() {
       // JB64: who it goes to, before the PIN; closing it sends nothing.
       let recipient: SendRecipient | null = null;
       if (signs && action === "share") {
-        recipient = await askRecipient(source.title || source.subject || "");
+        recipient = await askRecipient(source.title || source.subject || "", source.recipient);
         if (!recipient) return;
       }
       let grant: string | null = null;
@@ -422,6 +433,7 @@ export function useFileActions() {
       {asking ? (
         <SendRecipientDialog
           fileTitle={asking.title}
+          suggested={asking.suggested}
           onDone={(to) => {
             asking.resolve(to);
             setAsking(null);

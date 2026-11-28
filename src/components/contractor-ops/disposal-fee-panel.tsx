@@ -11,6 +11,11 @@
  * no fee; a supplier without a fee says so, with the way to set it; from
  * 确认核对 on the job names its 结算编号, which opens the settlement.
  * Weight is shown for what it is: counted, never priced.
+ *
+ * JB301 (客户 11-28d 事项 5.1 / 5.2): 「未核对的清运费用只能作为参考金额」 -
+ * until the job is in a 结算完毕 settlement its amount reads 「参考金额」 and
+ * the panel says it is not in 项目现场费用总览 yet. JB299: the settlement's
+ * 付款编号 is shown beside its number (the evidence chain).
  */
 
 import { Link2 } from "lucide-react";
@@ -88,6 +93,7 @@ export function FeeAmountText({ row }: { row: Pick<DisposalRequest, "fee_state" 
 /** The record's 「清运费用与结算」 panel; nothing on 废料处理. */
 export function DisposalFeePanel({ row }: { row: FeeRow }) {
   const t = useTranslations("jb287");
+  const t299 = useTranslations("jb299");
   const df = useDateFormat();
   const { can, user } = useAuth();
   // The way to set the fee only for whoever may set it (no dead link).
@@ -126,13 +132,26 @@ export function DisposalFeePanel({ row }: { row: FeeRow }) {
                 <dd className="tabular">{rmText(row.fee_per_trip)}</dd>
               </div>
               <div>
-                <dt className="text-xs text-muted-foreground">{t("panel.feeAmount")}</dt>
+                <dt className="text-xs text-muted-foreground">
+                  {row.fee_state === "settled" ? t("panel.feeAmount") : t299("panel.referenceAmount")}
+                </dt>
                 <dd className="tabular font-semibold">{rmText(row.fee_amount)}</dd>
               </div>
             </>
           )}
+          {row.settlement ? (
+            <div>
+              <dt className="text-xs text-muted-foreground">{t299("panel.paymentNo")}</dt>
+              <dd data-slot="disposal-fee-payment-no">{row.settlement.payment_no || t299("notUploaded")}</dd>
+            </div>
+          ) : null}
         </dl>
       )}
+      {!internal && !noFee && row.fee_state !== "settled" && row.fee_amount ? (
+        <p className="mt-2 text-xs text-muted-foreground" data-slot="disposal-fee-reference">
+          {t299("panel.referenceHelp")}
+        </p>
+      ) : null}
       {noSupplier ? (
         <p className="mt-2 text-sm text-muted-foreground" data-slot="disposal-fee-no-supplier">
           {t("panel.noSupplier")}
@@ -177,11 +196,33 @@ export function DisposalFeePanel({ row }: { row: FeeRow }) {
  * shows its amount so far, marked 进行中, and is not added - the same number
  * as 项目现场费用总览's 垃圾清运 for the same project and dates.
  */
-export function DisposalFeeTotal({ fees }: { fees: { amount_total: string | null; no_fee_count: number; running_count?: number } }) {
+export function DisposalFeeTotal({
+  fees,
+}: {
+  fees: {
+    amount_total: string | null;
+    settled_amount?: string | null;
+    reference_amount?: string | null;
+    no_fee_count: number;
+    running_count?: number;
+  };
+}) {
   const t = useTranslations("jb287");
+  const t299 = useTranslations("jb299");
   return (
     <section className="surface-panel rounded-xl px-4 py-3 text-sm sm:px-6" data-slot="disposal-fee-total">
       <p className="tabular font-semibold">{t("report.total", { amount: rmText(fees.amount_total) })}</p>
+      {/* JB301: settled (what 项目现场费用总览 counts) apart from the reference. */}
+      {fees.settled_amount !== undefined ? (
+        <p className="tabular mt-0.5" data-slot="disposal-fee-settled">
+          {t299("report.settled", { amount: rmText(fees.settled_amount) })}
+        </p>
+      ) : null}
+      {fees.reference_amount !== undefined ? (
+        <p className="tabular mt-0.5 text-muted-foreground" data-slot="disposal-fee-reference-total">
+          {t299("report.reference", { amount: rmText(fees.reference_amount) })}
+        </p>
+      ) : null}
       {fees.no_fee_count > 0 ? (
         <p className="mt-0.5 text-xs text-muted-foreground">{t("report.noFee", { count: fees.no_fee_count })}</p>
       ) : null}
