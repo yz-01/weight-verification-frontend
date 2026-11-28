@@ -24,6 +24,11 @@
  *
  * Office only: the phone is never offered 核对 or 结算 (the server refuses
  * `sign_off_office_only`). Amounts are the server's to hide (金额查看).
+ *
+ * JB299 (客户 11-28d 事项 2): a 准备结算 row takes its 付款凭证 + 付款编号
+ * (【上传付款凭证】) before 【准备结算】 → 密码 → 【确认结算完毕】; the 结算单 and
+ * its vouchers are one PDF to 预览 / 打印 / 导出 / 发送 (WhatsApp or Email, to
+ * the supplier); an old 结算完毕 row without vouchers takes them once.
  */
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -32,6 +37,12 @@ import { useLocale, useTranslations } from "next-intl";
 import { Fragment, useMemo, useRef, useState } from "react";
 
 import { DisposalFeeButton, DisposalFeeLink } from "@/components/contractor-ops/disposal-fees";
+import {
+  PaymentButton,
+  PaymentCell,
+  PaymentFacts,
+  PaymentMissingDialog,
+} from "@/components/contractor-ops/disposal-payment";
 import { DisposalInPlace } from "@/components/contractor-ops/site-disposal-workspaces";
 import { useAuth } from "@/components/providers/auth-provider";
 import { FileActionButtons } from "@/components/shared/file-actions";
@@ -62,6 +73,7 @@ import {
   sumAmounts,
   type SettlementStage,
 } from "@/lib/disposal-fees";
+import { hasPayment, supplierRecipient } from "@/lib/disposal-payment";
 import { isSignOffCancelled } from "@/lib/sign-off";
 import {
   createDisposalSettlement,
@@ -519,10 +531,11 @@ export function SettlementRowsTable({
   onOpen: (id: string) => void;
 }) {
   const t = useTranslations("jb287");
+  const t299 = useTranslations("jb299");
   const df = useDateFormat();
   const [expanded, setExpanded] = useState<string | null>(null);
   const settled = status === "SETTLED";
-  const columns = settled ? 10 : 8;
+  const columns = settled ? 11 : 9;
   return (
     <div className="overflow-x-auto rounded-lg border">
       <Table>
@@ -534,6 +547,7 @@ export function SettlementRowsTable({
             <TableHead>{t("col.dateRange")}</TableHead>
             <TableHead className="text-right">{t("col.tripTotal")}</TableHead>
             <TableHead className="text-right">{t("col.amountTotal")}</TableHead>
+            <TableHead>{t299("col.payment")}</TableHead>
             {settled ? (
               <>
                 <TableHead>{t("col.settledBy")}</TableHead>
@@ -571,6 +585,9 @@ export function SettlementRowsTable({
                   </TableCell>
                   <TableCell className="tabular text-right">{t("settlement.tripsValue", { count: row.trip_total })}</TableCell>
                   <TableCell className="tabular text-right font-semibold">{rmText(row.amount_total)}</TableCell>
+                  <TableCell>
+                    <PaymentCell row={row} />
+                  </TableCell>
                   {settled ? (
                     <>
                       <TableCell>{row.settled_by_name || "—"}</TableCell>
@@ -578,7 +595,10 @@ export function SettlementRowsTable({
                     </>
                   ) : (
                     <TableCell>
-                      <PrepareSettleButton row={row} />
+                      <div className="flex flex-col items-start gap-1.5">
+                        <PaymentButton row={row} />
+                        <PrepareSettleButton row={row} />
+                      </div>
                     </TableCell>
                   )}
                   <TableCell>
@@ -588,6 +608,7 @@ export function SettlementRowsTable({
                         {t("settlement.view")}
                       </Button>
                       <SettlementFileButtons row={row} />
+                      {settled && row.old_without_voucher ? <PaymentButton row={row} /> : null}
                     </div>
                   </TableCell>
                 </TableRow>
@@ -607,14 +628,18 @@ export function SettlementRowsTable({
   );
 }
 
-/** 预览 · 打印 (准备结算), and 导出 once 结算完毕. */
+/**
+ * 预览 · 打印 (准备结算), and 导出 · 发送 once 结算完毕 - JB299: the 结算单 with
+ * its 付款凭证 after it, one file; 发送 is the product's WhatsApp / Email send,
+ * filled in with the supplier's phone / email when they are on file.
+ */
 function SettlementFileButtons({ row }: { row: DisposalSettlementRow }) {
   const t = useTranslations("jb287");
   const locale = useLocale();
   return (
     <FileActionButtons
       className="flex flex-wrap gap-1.5"
-      omit={row.status === "SETTLED" ? ["share"] : ["save", "share"]}
+      omit={row.status === "SETTLED" ? [] : ["save", "share"]}
       source={{
         load: () => disposalSettlementPdfFile(row.id, locale, row.number),
         title: t("settlement.pdfTitle", { number: row.number }),
@@ -622,6 +647,7 @@ function SettlementFileButtons({ row }: { row: DisposalSettlementRow }) {
         recordKind: "DISPOSAL_SETTLEMENT",
         recordId: row.id,
         project: row.project.id,
+        recipient: supplierRecipient(row),
       }}
     />
   );
@@ -708,6 +734,8 @@ export function PrepareSettleButton({ row }: { row: DisposalSettlementRow }) {
   const [pin, setPin] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [isAsking, setAsking] = useState(false);
+  // JB299: 「未上传付款凭证，不允许确认结算完毕」 - said before any PIN.
+  const [missing, setMissing] = useState(false);
   if (user?.is_field_staff) return null;
   if (!mayHandleDisposalFees(user, can)) {
     return (
@@ -719,6 +747,10 @@ export function PrepareSettleButton({ row }: { row: DisposalSettlementRow }) {
   }
   const prepare = async () => {
     setError("");
+    if (!hasPayment(row)) {
+      setMissing(true);
+      return;
+    }
     setAsking(true);
     try {
       const typed = await signOffBeforeEditing(DISPOSAL_SETTLE_PIN_ACTION);
@@ -737,6 +769,7 @@ export function PrepareSettleButton({ row }: { row: DisposalSettlementRow }) {
       </Button>
       {error ? <p role="alert" className="mt-1 text-xs text-destructive">{error}</p> : null}
       {pin !== null ? <SettleDialog row={row} pin={pin} onClose={() => setPin(null)} /> : null}
+      {missing ? <PaymentMissingDialog row={row} onClose={() => setMissing(false)} /> : null}
     </>
   );
 }
@@ -744,6 +777,7 @@ export function PrepareSettleButton({ row }: { row: DisposalSettlementRow }) {
 /** After a right PIN: 【结算完毕】, then 确认. */
 export function SettleDialog({ row, pin, onClose }: { row: DisposalSettlementRow; pin: string; onClose: () => void }) {
   const t = useTranslations("jb287");
+  const t299 = useTranslations("jb299");
   const queryClient = useQueryClient();
   const [asked, setAsked] = useState(false);
   const [error, setError] = useState("");
@@ -772,7 +806,9 @@ export function SettleDialog({ row, pin, onClose }: { row: DisposalSettlementRow
       <DialogContent data-slot="settlement-settle-dialog" className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>{t("settlement.settleTitle", { number: row.number })}</DialogTitle>
-          <DialogDescription>{asked ? t("settlement.settleAsk", facts) : t("settlement.settleBody", facts)}</DialogDescription>
+          <DialogDescription>
+            {asked ? t("settlement.settleAsk", facts) : t299("settle.body", { ...facts, paymentNo: row.payment_no ?? "" })}
+          </DialogDescription>
         </DialogHeader>
         {error ? (
           <p role="alert" className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
@@ -803,7 +839,7 @@ export function SettleDialog({ row, pin, onClose }: { row: DisposalSettlementRow
           ) : (
             <Button data-slot="settlement-settle" onClick={() => setAsked(true)}>
               <HandCoins />
-              {t("settlement.settleGo")}
+              {t299("settle.go")}
             </Button>
           )}
         </DialogFooter>
@@ -850,6 +886,8 @@ export function DisposalSettlementWindow({ id, onClose }: { id: string; onClose:
               />
             </dl>
             {data.status === "SETTLED" ? <p className="text-xs text-muted-foreground">{t("settlement.lockedNote")}</p> : null}
+            <PaymentFacts settlement={data} />
+            {data.status === "READY" ? <PrepareSettleButton row={data} /> : null}
             <SettlementLinesTable settlement={data} />
             <p className="text-xs text-muted-foreground">{t("settlement.resultOnly")}</p>
           </div>

@@ -1779,6 +1779,8 @@ export const getEvidencePackages = (
     subcontractor?: string;
     /** An old CLM- claim: its package. */
     claim?: string;
+    /** JB298: Progress Claim's 待核对 / 已核对 / 已结算 tab. */
+    settle_state?: "PENDING" | "CHECKED" | "SETTLED";
   },
 ) =>
   api.list<EvidencePackageRow>(

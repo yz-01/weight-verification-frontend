@@ -21,17 +21,21 @@ import { getLabourPendingCompanies } from "@/services/labour-statement.service";
 import type { RentalStatementRow } from "@/services/rental-statement.service";
 
 /** What a 核对 / 结算 is about - each its own numbers and lists. */
-export type ReconKind = "RETURN" | "ISSUE" | "RENTAL" | "LABOUR";
+export type ReconKind = "RETURN" | "ISSUE" | "RENTAL" | "LABOUR" | "CLAIM";
 
-/** Where a kind's calls live. JB295: 人工结算单 under `/api/labour-statements/`. */
+/**
+ * Where a kind's calls live. JB295: 人工结算单 under `/api/labour-statements/`;
+ * JB298: Multi Engine's Progress Claims under `/api/claim-settlements/`.
+ */
 export function reconBase(kind: ReconKind): string {
+  if (kind === "CLAIM") return "/api/claim-settlements/";
   if (kind === "LABOUR") return "/api/labour-statements/";
   return kind === "RENTAL" ? "/api/equipment-rental-statements/" : "/api/material-return-checks/";
 }
 
 /** `?kind=` for the material calls; the rental and labour ones need none. */
 function kindQuery(kind: ReconKind): Record<string, string> {
-  return kind === "RENTAL" || kind === "LABOUR" ? {} : { kind };
+  return kind === "RENTAL" || kind === "LABOUR" || kind === "CLAIM" ? {} : { kind };
 }
 
 /** One line of 「已核对」: 核对编号｜供应商｜笔数｜日期｜核对人. */
@@ -89,6 +93,8 @@ export interface ReturnCheck extends Omit<ReturnCheckRow, "settlement"> {
   issues?: IssueCheckRow[];
   /** 设备租赁月结单 (JB280); 人工结算单 for kind LABOUR (JB295, their own shape). */
   statements?: RentalStatementRow[];
+  /** JB298: the Progress Claims of a CLAIM check, each with both amounts. */
+  claims?: ClaimCheckRow[];
   amount_total?: string | null;
   /** 「另有 N 笔在别的项目」: records of this check on projects not seen. */
   hidden_count: number;
@@ -96,6 +102,42 @@ export interface ReturnCheck extends Omit<ReturnCheckRow, "settlement"> {
   project: string | null;
   settlement?: CheckSettlement | null;
 }
+
+/** One Progress Claim in 核对's pick list and inside a check (JB298). */
+export interface ClaimCheckRow {
+  id: string;
+  package_no: string;
+  name: string;
+  project: string;
+  project_name: string;
+  /** 期数, the month's first day. */
+  claim_period: string | null;
+  category_name: string;
+  subcontractor: string;
+  subcontractor_name: string;
+  /** 申请日期: when the package was made. */
+  created_at: string;
+  /** 审核归档 - the formal approval day. */
+  completed_at: string | null;
+  claim_amount: string | null;
+  approved_amount: string | null;
+  approved_amount_reason: string;
+  check_id?: string | null;
+  check_no?: string;
+  settlement_id?: string | null;
+  settlement_no?: string;
+  /** 核对金额, once checked. */
+  checked_amount?: string | null;
+  checked_reason?: string;
+  settle_state: "PENDING" | "CHECKED" | "SETTLED" | "WAITING" | "NOT_NEEDED" | null;
+}
+
+/** 核对's pick list: one 分包商's claims 待核对. */
+export const getPendingClaims = (supplier: string, project?: string) =>
+  api.get<{ results: ClaimCheckRow[] }>("/api/claim-settlements/get_pending_claims/", {
+    supplier,
+    ...(project ? { project } : {}),
+  });
 
 /** A supplier (or 所属公司 / equipment company) with records waiting, and how many. */
 export interface PendingReturnSupplier {
@@ -151,6 +193,8 @@ export async function createReturnCheck(payload: {
   voucherNo: string;
   note: string;
   files: readonly File[];
+  /** JB298: each claim's 核对金额 (and why it differs from the 批准金额). */
+  amounts?: readonly { id: string; amount: string; reason: string }[];
 }): Promise<ReturnCheck> {
   const kind = payload.kind ?? "RETURN";
   const body = new FormData();
@@ -163,14 +207,17 @@ export async function createReturnCheck(payload: {
   } else {
     body.append("supplier", payload.supplier);
   }
-  const field = kind === "RENTAL" || kind === "LABOUR" ? "statements" : "returns";
+  const field = kind === "RENTAL" || kind === "LABOUR" ? "statements" : kind === "CLAIM" ? "claims" : "returns";
   for (const id of payload.returns) body.append(field, id);
+  if (kind === "CLAIM" && payload.amounts) body.append("amounts", JSON.stringify(payload.amounts));
   body.append("voucher_no", payload.voucherNo.trim());
   if (payload.note.trim()) body.append("note", payload.note.trim());
   for (const file of payload.files) body.append("files", file);
   // Written out, so the route check (core.tests.test_ui_reachability) finds both.
   const url =
-    kind === "LABOUR"
+    kind === "CLAIM"
+      ? "/api/claim-settlements/create_check/"
+      : kind === "LABOUR"
       ? "/api/labour-statements/create_check/"
       : kind === "RENTAL"
         ? "/api/equipment-rental-statements/create_check/"
@@ -252,13 +299,15 @@ export async function createSettlement(payload: {
   files: readonly File[];
 }): Promise<Settlement> {
   const body = new FormData();
-  if (payload.kind !== "RENTAL" && payload.kind !== "LABOUR") body.append("kind", payload.kind);
+  if (payload.kind !== "RENTAL" && payload.kind !== "LABOUR" && payload.kind !== "CLAIM") body.append("kind", payload.kind);
   for (const id of payload.checks) body.append("checks", id);
   body.append("voucher_no", payload.voucherNo.trim());
   if (payload.note.trim()) body.append("note", payload.note.trim());
   for (const file of payload.files) body.append("files", file);
   const url =
-    payload.kind === "LABOUR"
+    payload.kind === "CLAIM"
+      ? "/api/claim-settlements/create_settlement/"
+      : payload.kind === "LABOUR"
       ? "/api/labour-statements/create_settlement/"
       : payload.kind === "RENTAL"
         ? "/api/equipment-rental-statements/create_settlement/"

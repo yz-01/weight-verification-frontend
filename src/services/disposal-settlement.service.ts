@@ -16,7 +16,7 @@
  * see amounts (`amounts_hidden`).
  */
 
-import { api, fetchAsFile, toastSuccess } from "@/services/api-client";
+import { api, fetchAsFile, fetchObjectUrl, toastSuccess } from "@/services/api-client";
 
 /* ------------------------------------------------------------------ */
 /* 清运费用设定                                                          */
@@ -36,6 +36,8 @@ export interface DisposalFeeEntry {
 /** One supplier in the 清运费用设定 window. */
 export interface DisposalFeeSupplier {
   supplier: { id: string; name: string };
+  /** JB301: the project this fee is for (「按照「项目＋供应商」分别设定」). */
+  project?: { id: string; name: string };
   /** The fee in force today; null when none was set yet. */
   current: DisposalFeeEntry | null;
   /** A fee set for a later day. */
@@ -48,19 +50,31 @@ export interface DisposalFeeHistoryRow extends DisposalFeeEntry {
   previous_fee: string | null;
 }
 
-export const getDisposalFees = () => api.get<DisposalFeeSupplier[]>("/api/disposal-fees/");
+/** JB301: an old company-wide fee that prices nothing until each project sets its own. */
+export interface DisposalLegacyFee extends DisposalFeeEntry {
+  supplier: { id: string; name: string };
+}
 
-export const getDisposalFeeHistory = (supplier: string) =>
-  api.get<DisposalFeeHistoryRow[]>("/api/disposal-fees/history/", { supplier });
+/** JB301: the fees of one project (the server refuses a list without one). */
+export const getDisposalFees = (project: string) =>
+  api.get<DisposalFeeSupplier[]>("/api/disposal-fees/", { project });
 
-/** 【保存】: a new row; the server refuses a second row on the same day. */
+export const getDisposalFeeHistory = (supplier: string, project: string) =>
+  api.get<DisposalFeeHistoryRow[]>("/api/disposal-fees/history/", { supplier, project });
+
+/** 「以前的统一价格（没有指定项目），请为每个项目重新设定」. */
+export const getDisposalLegacyFees = () => api.get<DisposalLegacyFee[]>("/api/disposal-fees/legacy/");
+
+/** 【保存】: a new row for the project; the server refuses a second row on the same day. */
 export async function setDisposalFee(payload: {
+  project: string;
   supplier: string;
   fee_per_trip: string;
   effective_from: string;
   note?: string;
 }): Promise<DisposalFeeEntry> {
   const row = await api.post<DisposalFeeEntry>("/api/disposal-fees/", {
+    project: payload.project,
     supplier: payload.supplier,
     fee_per_trip: payload.fee_per_trip,
     effective_from: payload.effective_from,
@@ -131,7 +145,28 @@ export interface DisposalSettlementRow {
   checked_at: string;
   settled_by_name: string | null;
   settled_at: string | null;
+  /** JB299 付款凭证: the 付款编号, who recorded it and when, how many files. */
+  payment_no?: string;
+  payment_recorded_by_name?: string;
+  payment_recorded_at?: string | null;
+  voucher_count?: number;
+  /** Both a 付款编号 and at least one voucher: 【确认结算完毕】 may go. */
+  has_payment?: boolean;
+  /** 「旧记录：没有付款凭证」: settled before vouchers; takes them once (补上传). */
+  old_without_voucher?: boolean;
+  /** The send window fills these in (「发送给供应商」). */
+  supplier_contact?: { person: string; phone: string; email: string };
   amounts_hidden?: boolean;
+}
+
+/** One 付款凭证 file. */
+export interface DisposalVoucher {
+  id: string;
+  name: string;
+  preview_type: string | null;
+  byte_size: number;
+  uploaded_by_name: string;
+  uploaded_at: string;
 }
 
 /** One 清运记录 in a settlement, frozen at 确认核对. */
@@ -147,6 +182,8 @@ export interface DisposalSettlementLine {
 
 export interface DisposalSettlement extends DisposalSettlementRow {
   lines: DisposalSettlementLine[];
+  /** JB299: the 付款凭证, oldest first. */
+  vouchers?: DisposalVoucher[];
 }
 
 /** 页面上方累计统计: the six figures, and the jobs with no fee yet. */
@@ -195,7 +232,29 @@ export async function settleDisposalSettlement(id: string, signOffPin?: string):
   return settlement;
 }
 
-/** The A4 清运结算单 that 预览 · 打印 · 导出 act on. */
+/**
+ * JB299 【上传付款凭证】 (客户 11-28d 事项 2.2 「财务付款后，上传付款凭证及填写付款
+ * 编号」): the 付款编号 and photos / PDFs. On an old 结算完毕 settlement with no
+ * voucher it is 补上传: the server asks for the PIN (`disposal_settlement.voucher`)
+ * and the API client sends the same upload again with it.
+ */
+export async function recordDisposalPayment(
+  id: string,
+  payload: { paymentNo: string; files: readonly File[] },
+): Promise<DisposalSettlement> {
+  const body = new FormData();
+  body.append("payment_no", payload.paymentNo.trim());
+  for (const file of payload.files) body.append("files", file);
+  const settlement = await api.post<DisposalSettlement>(`/api/disposal-settlements/${id}/payment/`, body);
+  toastSuccess("jb299.upload.saved", { number: settlement.number });
+  return settlement;
+}
+
+/** One 付款凭证 to look at in the page; the caller revokes the URL. */
+export const disposalVoucherUrl = (id: string, attachment: string) =>
+  fetchObjectUrl(`/api/disposal-settlements/${id}/voucher/`, { query: { attachment } });
+
+/** The A4 清运结算单 + its 付款凭证 (JB299: one file) that 预览 · 打印 · 导出 · 发送 act on. */
 export const disposalSettlementPdfFile = (id: string, lang: string, number: string) =>
   fetchAsFile(`/api/disposal-settlements/${id}/pdf/`, {
     method: "GET",

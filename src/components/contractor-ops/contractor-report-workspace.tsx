@@ -63,6 +63,7 @@ import type {
   ContractorReportType,
 } from "@/interfaces/contractor-report";
 import { useListQuery } from "@/hooks/use-list-query";
+import { useKeptFilters } from "@/lib/kept-filters";
 import { useDateFormat } from "@/lib/dates";
 import { isRouteAllowed } from "@/lib/navigation";
 import { useUnitExportValues } from "@/hooks/use-material-units";
@@ -230,6 +231,9 @@ function ContractorReportWorkspaceBody({
     "project", "date_from", "date_to", "category", "subcategory", "keyword",
     ...ALL_REPORT_FILTERS,
   ]);
+  // JB300 (客户 11-28d 事项 3): the 进度 Claim 报表's dates stay when the page
+  // is left and opened again, until changed or 【清除】.
+  const kept = useKeptFilters(reportType === "claims" ? "report-claims" : null, ["date_from", "date_to"]);
   const topBar = useCurrentProject();
   const dateFrom =
     list.filters.date_from ?? dateValue(new Date(now.getFullYear(), now.getMonth(), 1));
@@ -305,7 +309,7 @@ function ContractorReportWorkspaceBody({
     meta: NOT_LIVE,
     // Not before the days 「日报告」 / 「往日报告」 are about to set.
     enabled:
-      Boolean(dateFrom && dateTo && dateFrom <= dateTo) && !wantsLatest && !asksDays,
+      kept.ready && Boolean(dateFrom && dateTo && dateFrom <= dateTo) && !wantsLatest && !asksDays,
   });
   const tRentalReport = useTranslations("jb257");
   const tRental = useTranslations("equipmentRental");

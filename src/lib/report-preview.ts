@@ -149,6 +149,8 @@ const COLUMN_NAMESPACE: Record<string, string> = {
   final_decision: "consultantWorkflow.status",
   // 清运与回收报表's 结算状态 (JB287): 未核对 / 准备结算 / 结算完毕 ...
   settlement_status: "jb287.state",
+  // 进度 Claim 报表's 结算状态 (JB298): 待核对 / 已核对 / 已结算 / 待归档 / 不需要结算.
+  claim_settle_state: "jb298.state",
   event: "attendance.event",
   geofence_result: "fieldStaffPwa.attendance.geofence",
   direction: "contractorOps.direction",

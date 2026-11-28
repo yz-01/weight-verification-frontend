@@ -112,8 +112,8 @@ describe("JB277: 凭证编号 and 上传凭证 are required (事项 18)", () => 
 
   it("locks 【确认核对】 until both are there, and sends the number on its own", () => {
     const confirm = source.slice(source.indexOf("function CheckConfirmForm("), source.indexOf("function VoucherFields("));
-    expect(confirm).toMatch(/requires=\{\[\s+\[voucherNo\.trim\(\), tj\("voucherNo"\)\],\s+\[files\.length > 0, tj\("vouchersRequired"\)\],/);
-    expect(confirm).toMatch(/createReturnCheck\(\{ kind, supplier: party\.id, returns: picked, voucherNo, note, files \}\)/);
+    expect(confirm).toMatch(/requires=\{\[\s+\.\.\.\(extraRequires \? extraRequires\(picked\) : \[\]\),\s+\[voucherNo\.trim\(\), tj\("voucherNo"\)\],\s+\[files\.length > 0, tj\("vouchersRequired"\)\],/);
+    expect(confirm).toMatch(/createReturnCheck\(\{\s+kind,\s+supplier: party\.id,\s+returns: picked,\s+voucherNo,\s+note,\s+files,/);
     const service = read("src/services/return-check.service.ts");
     expect(service).toMatch(/body\.append\("voucher_no", payload\.voucherNo\.trim\(\)\)/);
   });

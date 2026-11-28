@@ -21,9 +21,21 @@ import {
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { useSubcontractors } from "@/components/contractor-ops/claim-engine";
+import {
+  CLAIM_SETTLE_PERMISSION,
+  CLAIM_TAB_STATE,
+  ClaimSettleCell,
+  ClaimSettleTable,
+  ClaimSettleTabs,
+  claimSettleTabOf,
+  useClaimWindows,
+} from "@/components/contractor-ops/claim-settlements";
+import { ReconcileSettleButton } from "@/components/contractor-ops/return-checks";
+import { useSeesAmounts } from "@/hooks/use-sees-amounts";
+import { useKeptFilters, useWriteSearchParams } from "@/lib/kept-filters";
 import {
   ClaimCategoriesDialog,
   ClaimInfoBlock,
@@ -178,17 +190,27 @@ const PAGE_SIZE = 20;
  * lands here. Head office reads claims without reading packages, so it sees
  * that one tab only.
  */
+/**
+ * What the page keeps for the reader when it is left and opened again (JB300,
+ * 客户 11-28d 事项 3: 「请保留用户已选择的期数，除非用户主动修改或清除筛选」): the
+ * type tab, the Progress Claim filters and its 核对与结算 tab, in the address
+ * and per person in this browser (`useKeptFilters`).
+ */
+export const MULTI_ENGINE_KEPT = ["type", "period", "claim_category", "subcontractor", "settle"] as const;
+
 export function MultiEngineWorkspace() {
   const t = useTranslations("multiEngine");
   const { can } = useAuth();
   const asked = useSearchParams().get("type") as PackageType | null;
   const packages = can("package.view");
   const claims = can("claim.view");
-  const [chosen, setType] = useState<PackageType | "" | null>(null);
+  const kept = useKeptFilters("multi-engine", MULTI_ENGINE_KEPT);
+  const write = useWriteSearchParams();
+  const setType = (value: PackageType | "") => write({ type: value || undefined });
   // JB52 (客户 10-28 事项 5、13): the Progress Claim tab is a filter of the one
   // list. Who reads claims without packages reads only those packages.
   const type: PackageType | "" =
-    !packages ? "PROGRESS_CLAIM" : chosen ?? (asked && PACKAGE_TYPES.includes(asked) ? asked : "");
+    !packages ? "PROGRESS_CLAIM" : asked && PACKAGE_TYPES.includes(asked) ? asked : "";
 
   return (
     <div className="flex flex-col gap-4">
@@ -213,13 +235,14 @@ export function MultiEngineWorkspace() {
             ))}
         </nav>
       )}
-      <PackageList type={type} />
+      <PackageList type={type} ready={kept.ready} />
     </div>
   );
 }
 
-function PackageList({ type }: { type: PackageType | "" }) {
+function PackageList({ type, ready }: { type: PackageType | ""; ready: boolean }) {
   const t = useTranslations("multiEngine");
+  const settleWords = useTranslations("jb298");
   const loop = useTranslations("jb252");
   const formatter = useDateFormat();
   const { can } = useAuth();
@@ -245,17 +268,26 @@ function PackageList({ type }: { type: PackageType | "" }) {
   });
   const [chosenId, setOpenId] = useState<string | null>(null);
   const openId = chosenId ?? linked ?? (linkedClaim ? (claimPackage.data?.results[0]?.id ?? null) : null);
-  // Progress Claim filters (JB52 第 3 点): 期数, 分类, 分包商.
+  // Progress Claim filters (JB52 第 3 点): 期数, 分类, 分包商 - in the address
+  // and kept (JB300), so leaving the page no longer empties them.
   const isClaimTab = type === "PROGRESS_CLAIM";
-  const [period, setPeriod] = useState("");
-  const [claimCategory, setClaimCategory] = useState("");
-  const [subcontractor, setSubcontractor] = useState("");
+  const params = useSearchParams();
+  const writeParams = useWriteSearchParams();
+  const period = params.get("period") ?? "";
+  const claimCategory = params.get("claim_category") ?? "";
+  const subcontractor = params.get("subcontractor") ?? "";
+  // JB298: 待核对｜已核对｜已结算｜全部 Claim (全部 Claim = today's list).
+  const settleTab = claimSettleTabOf(params.get("settle"));
+  const settleState = isClaimTab && settleTab !== "all" ? CLAIM_TAB_STATE[settleTab] : undefined;
+  const seesAmounts = useSeesAmounts();
+  const claimWindows = useClaimWindows();
   const [managingCategories, setManagingCategories] = useState(false);
   const claimFilters = isClaimTab
     ? {
         period: period || undefined,
         claim_category: claimCategory || undefined,
         subcontractor: subcontractor || undefined,
+        settle_state: settleState,
       }
     : {};
   // Page 1 of the next project, and the one open on the last project closes
@@ -263,8 +295,17 @@ function PackageList({ type }: { type: PackageType | "" }) {
   useOnProjectChange(project, () => {
     setPage(1);
     setOpenId(null);
-    setClaimCategory("");
   });
+  // Another project's Claim 分类 is not this one's - cleared when the reader
+  // moves to another project, never when the page opens.
+  const seenProject = useRef(project);
+  useEffect(() => {
+    if (seenProject.current !== project) {
+      const before = seenProject.current;
+      seenProject.current = project;
+      if (before && claimCategory) writeParams({ claim_category: undefined });
+    }
+  }, [project, claimCategory, writeParams]);
   const [creating, setCreating] = useState(false);
   // 收到的资料包 (J30-1): what the sites sent to head office in the system.
   // The notice opens the list with `?received=1`.
@@ -274,6 +315,8 @@ function PackageList({ type }: { type: PackageType | "" }) {
 
   const query = useQuery({
     queryKey: ["evidence-packages", project, search, page, type, receivedOnly, ...(isClaimTab ? [claimFilters] : [])],
+    // JB300: not before a kept choice is back in the address.
+    enabled: ready,
     queryFn: () =>
       getEvidencePackages({
         project: project || undefined,
@@ -298,6 +341,22 @@ function PackageList({ type }: { type: PackageType | "" }) {
         action={
           can("package.manage") || (isClaimTab && can("category.manage")) ? (
             <div className="flex flex-wrap gap-2">
+              {/* JB298: 【核对与结算】, the equipment rental statements' button. */}
+              {isClaimTab && seesAmounts && (
+                <ReconcileSettleButton
+                  kind="CLAIM"
+                  step={settleTab === "checked" ? "settle" : "check"}
+                  permission={CLAIM_SETTLE_PERMISSION}
+                  onChecked={() => {
+                    writeParams({ settle: "checked" });
+                    setPage(1);
+                  }}
+                  onSettled={() => {
+                    writeParams({ settle: "settled" });
+                    setPage(1);
+                  }}
+                />
+              )}
               {/* 客户 10-28: 「这个应该是新增claim 分类，不是新增claim」 - where
                   「开一期 Claim」 was, the Claim categories. */}
               {isClaimTab && can("category.manage") && (
@@ -341,9 +400,11 @@ function PackageList({ type }: { type: PackageType | "" }) {
             category={claimCategory}
             subcontractor={subcontractor}
             onChange={(next) => {
-              setPeriod(next.period);
-              setClaimCategory(next.category);
-              setSubcontractor(next.subcontractor);
+              writeParams({
+                period: next.period || undefined,
+                claim_category: next.category || undefined,
+                subcontractor: next.subcontractor || undefined,
+              });
               setPage(1);
             }}
           />
@@ -412,12 +473,30 @@ function PackageList({ type }: { type: PackageType | "" }) {
         />
       </FilterBar>
 
-      {query.isLoading ? (
+      {isClaimTab && (
+        <ClaimSettleTabs
+          tab={settleTab}
+          onChange={(next) => {
+            writeParams({ settle: next === "all" ? undefined : next });
+            setPage(1);
+          }}
+        />
+      )}
+
+      {query.isLoading || (!ready && !query.data) ? (
         <p className="text-sm text-muted-foreground">{t("loading")}</p>
       ) : query.isError ? (
         <p role="alert" className="text-sm text-destructive">
           {t("failed")}
         </p>
+      ) : isClaimTab && settleTab !== "all" ? (
+        <ClaimSettleTable
+          tab={settleTab}
+          rows={rows}
+          onOpen={(id) => setOpenId(id)}
+          onOpenCheck={claimWindows.openCheck}
+          onOpenSettlement={claimWindows.openSettlement}
+        />
       ) : rows.length === 0 ? (
         <EmptyState icon={Inbox} title={t("empty")} />
       ) : (
@@ -431,6 +510,7 @@ function PackageList({ type }: { type: PackageType | "" }) {
                 <TableHead className="text-right tabular">{t("column.items")}</TableHead>
                 <TableHead>{t("column.state")}</TableHead>
                 <TableHead>{t("column.review")}</TableHead>
+                {isClaimTab && <TableHead>{settleWords("col.state")}</TableHead>}
                 <TableHead>{t("column.packedBy")}</TableHead>
                 <TableHead>{t("column.when")}</TableHead>
                 <TableHead className="text-right">{t("column.action")}</TableHead>
@@ -489,6 +569,16 @@ function PackageList({ type }: { type: PackageType | "" }) {
                       </span>
                     )}
                   </TableCell>
+                  {/* JB298: 全部 Claim's 结算状态 and its numbers. */}
+                  {isClaimTab && (
+                    <TableCell>
+                      <ClaimSettleCell
+                        row={row}
+                        onOpenCheck={claimWindows.openCheck}
+                        onOpenSettlement={claimWindows.openSettlement}
+                      />
+                    </TableCell>
+                  )}
                   {/* H3 / HD20: 「是谁打包」 - who made it, who confirmed it. */}
                   <TableCell className="text-muted-foreground">
                     <span className="block">{row.created_by_name || "—"}</span>
@@ -569,6 +659,7 @@ function PackageList({ type }: { type: PackageType | "" }) {
       {managingCategories && (
         <ClaimCategoriesDialog project={project} onClose={() => setManagingCategories(false)} />
       )}
+      {claimWindows.windows}
     </div>
   );
 }

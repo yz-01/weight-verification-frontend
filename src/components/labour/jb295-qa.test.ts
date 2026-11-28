@@ -92,7 +92,7 @@ describe("an operator whose month is only partly inside the equipment rental (JB
 describe("【结算】 for 人工月结单", () => {
   it("asks for the 所属公司, not 「供应商或公司」", () => {
     const source = read("src/components/contractor-ops/return-checks.tsx");
-    expect(source).toContain('kind === "LABOUR" ? t295("checkChooseCompany") : tj("chooseParty")');
+    expect(source).toContain('kind === "LABOUR" ? t295("checkChooseCompany") : kind === "CLAIM" ? t298("checkChooseSub") : tj("chooseParty")');
   });
 });
 
