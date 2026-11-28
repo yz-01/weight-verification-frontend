@@ -51,6 +51,7 @@ import { roleLabel } from "@/lib/role-labels";
 import type {
   EvidencePackageDetail,
   PackageAnswer,
+  PackageEvent,
   PackageMessage,
   PackageRecipient,
   PackageThreadPeople,
@@ -1399,7 +1400,7 @@ export function ThreadView({
 
 /* -- 时间线 --------------------------------------------------------------- */
 
-function TimelineBlock({ pkg }: { pkg: EvidencePackageDetail }) {
+export function TimelineBlock({ pkg }: { pkg: EvidencePackageDetail }) {
   const t = useTranslations("multiEngine");
   const formatter = useDateFormat();
   const timeline = useQuery({
@@ -1409,6 +1410,9 @@ function TimelineBlock({ pkg }: { pkg: EvidencePackageDetail }) {
   if (timeline.isLoading) return <p className="text-sm text-muted-foreground">{t("loading")}</p>;
   if (timeline.isError) return <LoadFailed what={t("exchange.tab.timeline")} onRetry={() => void timeline.refetch()} />;
   const events = timeline.data ?? [];
+  // An event's own `kind` is what happened, not who it was sent to.
+  const recipientOf = (event: PackageEvent) =>
+    recipientLabel(t, { recipient_name: event.recipient_name, recipient_kind: event.recipient_kind });
   return (
     <ol className="space-y-1.5">
       {events.map((event) => (
@@ -1419,7 +1423,7 @@ function TimelineBlock({ pkg }: { pkg: EvidencePackageDetail }) {
             {event.round_no > 1 && (
               <span className="text-xs text-muted-foreground"> · {t("exchange.round", { n: event.round_no })}</span>
             )}
-            {recipientLabel(t, event) && <span className="text-muted-foreground"> · {recipientLabel(t, event)}</span>}
+            {recipientOf(event) && <span className="text-muted-foreground"> · {recipientOf(event)}</span>}
             {event.actor_name && <span className="text-muted-foreground"> · {event.actor_name}</span>}
             {event.note && event.kind !== "REPORT" && event.note !== "export" && event.note !== "preview" && (
               <span className="block break-words text-xs text-muted-foreground">{event.note}</span>

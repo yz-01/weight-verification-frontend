@@ -192,6 +192,38 @@ describe("G3: 总部（系统内） is named, and a QS who signs as himself is n
     expect(cards[1].split(words.kind.HEADQUARTERS)).toHaveLength(2);
   });
 
+  it("the timeline: head office's events name 「总部（系统内）」, not what happened", async () => {
+    const { TimelineBlock } = await import("@/components/contractor-ops/package-exchange");
+    const event = (over: Record<string, unknown>) => ({
+      id: "e",
+      kind: "SENT",
+      round_no: 1,
+      recipient: null,
+      recipient_name: "",
+      recipient_kind: "",
+      item: null,
+      actor_name: "示范 项目经理",
+      note: "",
+      created_at: "2026-11-28T11:36:00Z",
+      ...over,
+    });
+    const html = render(<TimelineBlock pkg={{ id: "pkg-3" } as never} />, [
+      [
+        ["evidence-packages", "timeline", "pkg-3"],
+        [
+          event({ id: "e-hq", recipient: "r-hq", recipient_kind: "HEADQUARTERS" }),
+          event({ id: "e-qs", recipient: "r-qs", recipient_name: "示范 QS（美美）", recipient_kind: "QS" }),
+          event({ id: "e-none", kind: "CONFIRMED" }),
+        ],
+      ],
+    ]);
+    const rows = html.split("<li").slice(1);
+    expect(rows).toHaveLength(3);
+    expect(rows[0]).toContain(` · ${words.kind.HEADQUARTERS}`);
+    expect(rows[1]).toContain(" · 示范 QS（美美）");
+    expect(rows[2]).not.toContain(words.kind.HEADQUARTERS);
+  });
+
   it("the signatures: 「接收方」 only when it is somebody else, head office by its kind", async () => {
     const { SignaturesBlock } = await import("@/components/contractor-ops/package-review-loop");
     const signature = (over: Record<string, unknown>) => ({
