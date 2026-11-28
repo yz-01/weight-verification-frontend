@@ -130,6 +130,15 @@ describe("the shared 核对与结算 block (JB307-7 / JB308)", () => {
     expect(words).toContain("本结算单一共 3 笔的合计");
   });
 
+  it("walk 2 G6: in a narrow side column (stacked) both halves may shrink, so the voucher cards fit", () => {
+    money.sees = true;
+    const shown = render(<ReconciliationVouchers links={SETTLED} stacked />);
+    for (const slot of ["reconciliation-vouchers-check", "reconciliation-vouchers-settlement"]) {
+      const opening = shown.split(`data-slot="${slot}"`)[0].split("<div").pop() ?? "";
+      expect(opening, slot).toContain("min-w-0");
+    }
+  });
+
   it("checked, not settled: the 结算 side says so", () => {
     money.sees = true;
     const shown = render(

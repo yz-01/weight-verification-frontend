@@ -78,7 +78,9 @@ export function ReconciliationVouchers({
         <p className="text-sm text-muted-foreground">{t("help")}</p>
       </div>
       <div className={stacked ? "grid gap-4" : "grid gap-4 lg:grid-cols-2"}>
-        <div className="space-y-3" data-slot="reconciliation-vouchers-check">
+        {/* min-w-0 (walk 2 G6): in a narrow side column the voucher cards shrink
+            and truncate their names instead of pushing past the column. */}
+        <div className="min-w-0 space-y-3" data-slot="reconciliation-vouchers-check">
           <h4 className="text-sm font-semibold">{t("checkTitle")}</h4>
           <dl className="grid gap-2 sm:grid-cols-2">
             <Fact label={t("checkNo")}>
@@ -118,7 +120,7 @@ export function ReconciliationVouchers({
             hint={t("filesHint")}
           />
         </div>
-        <div className="space-y-3" data-slot="reconciliation-vouchers-settlement">
+        <div className="min-w-0 space-y-3" data-slot="reconciliation-vouchers-settlement">
           <h4 className="text-sm font-semibold">{t("settlementTitle")}</h4>
           {settled ? (
             <>
