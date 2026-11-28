@@ -25722,5 +25722,10 @@
     "reasonFirst": "Anda mengubah fi setiap trip: tulis sebabnya dahulu",
     "settingStays": "Hanya harga penyelesaian ini berubah; Yuran pembersihan kekal.",
     "reasonShown": "Fi setiap trip diubah semasa semakan - sebab: {reason}"
+  },
+  "jb305": {
+    "cost": {
+      "basis": "Hanya penyata sewaan peralatan yang telah diselesaikan dikira"
+    }
   }
 }

@@ -25722,5 +25722,10 @@
     "reasonFirst": "You changed a fee per trip: write the reason first",
     "settingStays": "Only this settlement's price changes; Clearance fees stay as they are.",
     "reasonShown": "Fee per trip changed at the check - reason: {reason}"
+  },
+  "jb305": {
+    "cost": {
+      "basis": "Only settled equipment rental statements are counted"
+    }
   }
 }
