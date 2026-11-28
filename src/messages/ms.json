@@ -12622,7 +12622,7 @@
     },
     "type": {
       "label": "Jenis pakej",
-      "help": "Progress Claim juga dibuat di sini: pilih Progress Claim, kemudian isi tempoh, jenis tuntutan, kategori dan subkontraktor jika mahu (semuanya pilihan).",
+      "help": "Progress Claim juga dibuat di sini: pilih Progress Claim, kemudian isi jenis tuntutan dan kategori (tempoh boleh dibiarkan kosong). Tuntutan subkontraktor juga perlu subkontraktor, fasa pembinaan, tarikh kerja sebenar, tempoh, Claim No. dan amaun tuntutan.",
       "all": "Semua jenis",
       "PROGRESS_CLAIM": "Progress Claim",
       "SUNDRY_CLAIM": "Sundry Claim",

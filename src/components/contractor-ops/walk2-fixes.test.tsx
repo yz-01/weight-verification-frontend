@@ -9,6 +9,9 @@ import { describe, expect, it, vi } from "vitest";
 
 import { TooltipProvider } from "@/components/ui/tooltip";
 import type { PackRowStatus } from "@/interfaces/contractor-ops";
+import en from "@/messages/en.json";
+import ms from "@/messages/ms.json";
+import zhTW from "@/messages/zh-TW.json";
 import zh from "@/messages/zh.json";
 
 vi.mock("next/navigation", () => ({
@@ -95,5 +98,17 @@ describe("G1: a rejected / withdrawn 杂费报销's grey box says why in words",
     expect(row("c-7")).not.toContain("pack-refused-reason");
     expect(row("c-5")).not.toContain("pack-refused-reason");
     expect(row("c-5")).toContain(`title="${zh.multiEngine.collect.reason.not_finished}"`);
+  });
+});
+
+describe("G2: the 资料包类型 hint no longer says the Progress Claim fields may be left empty", () => {
+  it("names what is required, in all four languages", () => {
+    for (const [language, messages] of [["zh", zh], ["zh-TW", zhTW], ["en", en], ["ms", ms]] as const) {
+      const help = messages.multiEngine.type.help;
+      expect(help, language).not.toMatch(/都可以不填|all optional|semuanya pilihan/);
+      expect(help, language).toContain("Claim No.");
+    }
+    expect(zh.multiEngine.type.help).toContain("一定要填 Claim 类型和分类");
+    expect(zh.multiEngine.type.help).toContain("申请金额");
   });
 });

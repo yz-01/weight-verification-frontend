@@ -12622,7 +12622,7 @@
     },
     "type": {
       "label": "資料包類型",
-      "help": "Progress Claim 也在這裡建：選 Progress Claim 後，可以填期數、Claim 類型、分類和分包商（都可以不填）。",
+      "help": "Progress Claim 也在這裡建：選 Progress Claim 後，一定要填 Claim 類型和分類，期數可以不填；分包商的 Claim 還要填分包商、施工分類、實際施工日期範圍、期數、Claim No. 和申請金額。",
       "all": "全部類型",
       "PROGRESS_CLAIM": "Progress Claim",
       "SUNDRY_CLAIM": "Sundry Claim（雜費報銷）",

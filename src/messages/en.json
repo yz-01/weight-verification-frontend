@@ -12622,7 +12622,7 @@
     },
     "type": {
       "label": "Package type",
-      "help": "Progress Claims are made here too: choose Progress Claim, then fill in the period, claim type, category and subcontractor if you like (all optional).",
+      "help": "Progress Claims are made here too: choose Progress Claim, then fill in the claim type and category (the period may stay empty). A subcontractor's claim also needs the subcontractor, construction phase, actual work dates, period, Claim No. and claim amount.",
       "all": "All types",
       "PROGRESS_CLAIM": "Progress Claim",
       "SUNDRY_CLAIM": "Sundry Claim",
