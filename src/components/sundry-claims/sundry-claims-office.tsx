@@ -359,8 +359,9 @@ export function SundryClaimDetail({ id, onClose }: { id: string; onClose: () => 
     );
   }
   const status = sundryStatus(claim);
-  const who = (name: string | null, userId: string | null, at: string | null) =>
-    name ? `${name}${userId ? ` (${userId.slice(0, 8)})` : ""}${at ? ` · ${df.dateTime(at)}` : ""}` : "—";
+  // The person by name and when - never an account id (walk 2 G9).
+  const who = (name: string | null, at: string | null) =>
+    name ? `${name}${at ? ` · ${df.dateTime(at)}` : ""}` : "—";
 
   return (
     <RecordDetailDialog
@@ -392,9 +393,9 @@ export function SundryClaimDetail({ id, onClose }: { id: string; onClose: () => 
           { label: t("field.amount"), value: `RM ${claim.amount}` },
           { label: t("field.claimDate"), value: claim.captured_at ? df.date(claim.captured_at) : "—" },
           { label: t("field.submitTo"), value: t(`submitTo.${claim.submit_to || "NONE"}`) },
-          { label: t("field.submittedBy"), value: who(claim.submitted_by_name, null, claim.created_at) },
-          { label: t("field.reviewedBy"), value: who(claim.reviewed_by_name, claim.reviewed_by_user_id, claim.reviewed_at) },
-          { label: t("field.paidBy"), value: who(claim.paid_by_name, claim.paid_by_user_id, claim.paid_at) },
+          { label: t("field.submittedBy"), value: who(claim.submitted_by_name, claim.created_at) },
+          { label: t("field.reviewedBy"), value: who(claim.reviewed_by_name, claim.reviewed_at) },
+          { label: t("field.paidBy"), value: who(claim.paid_by_name, claim.paid_at) },
           { label: t("field.description"), value: claim.description, wide: true },
           ...(claim.review_note ? [{ label: t("field.reviewNote"), value: claim.review_note, wide: true }] : []),
         ]}
